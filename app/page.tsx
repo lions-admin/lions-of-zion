@@ -1,5 +1,5 @@
-import LionExperience from "@/components/LionExperience";
+import Experience from "@/components/Experience";
 
 export default function Page() {
-  return <LionExperience />;
+  return <Experience />;
 }

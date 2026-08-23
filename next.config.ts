@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The dev badge sits in the corner the intro plays in.
+  devIndicators: false,
 };
 
 export default nextConfig;

@@ -1086,6 +1086,9 @@ export default function LionExperience() {
         inset: 0,
         width: "100vw",
         height: "100dvh",
+        // Contains the z-indexed typography below, so the intro that plays
+        // over this page is not punched through by it.
+        isolation: "isolate",
         background: "#020509",
         overflow: "hidden",
         cursor: "pointer",

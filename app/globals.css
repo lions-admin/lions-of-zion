@@ -14,4 +14,5 @@ body {
   color: #e8eef8;
 }
 canvas { display: block; }
+button, canvas { -webkit-tap-highlight-color: transparent; }
 ::-webkit-scrollbar { display: none; }

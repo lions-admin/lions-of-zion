@@ -15,57 +15,48 @@ The repo now holds two unrelated things, deliberately kept apart:
 
 1. **The WebGL experience** — merged, deployed, live at
    <https://lions-of-zion.vercel.app>. Untouched since.
-2. **The backend** — Phase 1 of 8 complete. Foundation only: no domain
-   entities yet.
+2. **The backend** — Phases 1 and 2 of 8 complete. The information model
+   exists and is enforced; no sources, evidence or assessments yet.
 
 The full eight-phase plan is at `~/.claude/plans/splendid-discovering-dawn.md`.
-Read it before starting Phase 2; the sequencing has reasons.
+Read it before starting Phase 3; the sequencing has reasons.
 
-## Backend — Phase 1 complete and green
+## Backend — Phases 1 and 2 complete and green
 
-`npm test` 13/13, `tsc --noEmit` clean, `npm run lint` clean (3 pre-existing
-warnings in `LionExperience.tsx`), `npm run build` succeeds with
-`ƒ /api/internal/health` rendering on demand.
+`npm test` 48/48, `tsc --noEmit` clean, `npm run lint` clean (3 pre-existing
+warnings in `LionExperience.tsx`, 1 elsewhere), `npm run build` succeeds with
+four dynamic routes.
 
-Shipped: dual database client (WebSocket Neon for production, PGlite for tests),
-16 enum types generated from the contract arrays, six infrastructure tables
-(`app_user`, `capability_grant`, `audit_log`, `entity_version`, `outbox`,
-`idempotency_key`), append-only and anti-automation triggers, the RFC 9457 HTTP
-layer, and ESLint boundary rules that make the architecture mechanical.
+Phase 1 shipped the foundation: dual database client (WebSocket Neon for
+production, PGlite for tests), 16 enum types generated from the contract arrays,
+the infrastructure tables, append-only and anti-automation triggers, the RFC 9457
+HTTP layer, and ESLint boundary rules.
 
-**The suite has been mutation-tested.** Removing the `audit_log` append-only
-trigger turns exactly two tests red. A constraint suite that has never been
-seen to fail is not evidence of anything.
+Phase 2 shipped the information model: `information_item` with its two axes kept
+apart, `topic`, `event`, table-driven status transitions enforced by a trigger
+that also writes the trail, the derived-column guard, `recordVersion()` as the
+single versioned write path, and items CRUD at `/api/v1/items`.
 
-## Next — Phase 2, the information model
+**Both suites have been mutation-tested.** Removing the `audit_log` append-only
+trigger turns exactly two tests red.
 
-`information_item`, `topic`, `event`, the join tables, table-driven status
-transitions with a legality trigger, `withVersion()` as the single versioned
-write path, and items CRUD.
+Both Phase 2 questions from the plan are settled — see `DECISIONS.md`. `edited`
+was unreachable and was given inbound edges rather than deleted; the derived
+columns are guarded now, and the trigger that *maintains* them arrives in Phase 4
+with `item_assessment`, which is the table they derive from.
 
-Two things to settle **during** Phase 2, not after:
+## Next — Phase 3, sources and ingestion
 
-- **The four derived columns** (`assessment`, `confidence_summary`,
-  `current_assessment_id`, `current_version_id`). Trigger-maintained, app-writes
-  blocked, plus a drift query in CI. An item reading `verified` while its live
-  assessment says `contested` is not a stale cache, it is a false publication.
-  Decide before Phase 4 builds the publish gate on top of it.
-- **Whether `edited` and `updated` are really statuses.** Populate the
-  `status_transition` table and look at whether they have outgoing edges that
-  differ from `reviewed`/`published`. If they do not, delete them before seven
-  phases of code branch on them.
+`source_family`, `source`, `source_fetch`, `evidence`, `evidence_provenance`, the
+`SourceConnector` interface with a static registry and an RSS connector, raw
+bytes to Blob, the outbox drain, and the first Cron and Queue.
+
+`source_family` is the addition to the brief that matters most: without it, five
+outlets republishing one wire report count as five independent corroborations.
 
 ## In flight (uncommitted)
 
-Everything below is uncommitted. Nothing has been committed since `43c4e61`.
-
-- `server/`, `app/api/`, `tests/`, `drizzle.config.ts`, `vitest.config.ts` —
-  the Phase 1 backend.
-- `eslint.config.mjs` — boundary rules, verified to block in both directions.
-- `.claude/`, `.mcp.json`, `.ai/` — automation and this journal.
-- `CLAUDE.md` — architecture notes.
-- `components/intro/story-timeline.ts` — intro copy condensed 24 → 14 desktop
-  lines (~44.5s → ~39s), verified in Chrome. Predates the backend work.
+Nothing. Phases 1 and 2 are committed and pushed.
 
 ## Blocked
 

@@ -10,6 +10,62 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-23 — Hand-written migrations must be journalled, and a test says so
+
+Phase 2 nearly shipped a hole. `drizzle-kit generate` numbered a new migration
+`0001_information_model.sql` while `0001_append_only_and_privilege.sql` — written
+by hand — already existed. The collision was the visible symptom; the real fault
+was that the hand-written file was **not in `meta/_journal.json`**.
+
+That matters because the two ways migrations get applied disagree.
+`drizzle-kit migrate` (production) applies only what the journal lists; the test
+harness applies every `.sql` in filename order. So the append-only triggers were
+being tested and would never have been deployed — a suite proving a guarantee the
+real database did not have.
+
+Custom SQL now goes through `drizzle-kit generate --custom`, which allocates a
+journalled slot. `tests/migrations.test.ts` asserts the journal and the directory
+agree in both directions, that numbers are unique, and that any file defining a
+`$$` body carries statement breakpoints.
+
+## 2026-08-23 — `edited` earns its place as a status, by getting a way in
+
+The plan flagged `edited` and `updated` as possibly events wearing a state's
+clothing, and said to decide in Phase 2 against the transition table rather than
+against intuition.
+
+The table answered: `edited` had outgoing edges and **no inbound edge at all**.
+Nothing could reach it. That is what a status looks like when it is really a
+verb.
+
+It was kept rather than deleted, because "returned to the author for rewriting"
+is a genuine resting position and is not the same as `under_review`, which means
+"being fact-checked". It was given inbound edges from `under_review`, `reviewed`
+and `approved` — the three points where changes actually get asked for. `updated`
+was already reachable from `published` and stands.
+
+The test that found this was replaced by the durable invariant: every status
+except `detected` needs a way in, and every status needs a way out.
+
+## 2026-08-23 — Authentication fails closed until Phase 8
+
+`requireActor()` reads an unverified `x-actor-label` header in development and
+**throws in production**. `requireCapability()` throws unconditionally.
+
+A development shim that keeps quietly working once deployed is how an API ends up
+with no authentication and nobody noticing. Returning `true` from a capability
+check would be worse still: every protected route would run unauthorized and
+every test of a protected path would pass for the wrong reason.
+
+## 2026-08-23 — `server-only` is aliased in vitest, not removed from the code
+
+The guard throws unless resolved through React's `react-server` condition, which
+vitest does not apply. Setting `resolve.conditions` had no effect, so the alias
+points at the package's own `empty.js`.
+
+Dropping the import from the modules under test would have been easier and wrong:
+in the build it is the thing stopping a Postgres driver reaching a client bundle.
+
 ## 2026-08-23 — Backend lives at `server/`, not `src/server/`
 
 The brief specifies `src/app/api/**` and `src/server/**`. Next.js allows `app/`

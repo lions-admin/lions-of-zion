@@ -5,26 +5,40 @@
   "scripts": {
     "build": "next build",
     "build:lion-data": "node scripts/build-lion-data.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
     "dev": "next dev",
     "lint": "eslint",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@types/three": "^0.185.4",
+    "drizzle-orm": "^0.45.2",
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "three": "^0.185.1"
+    "server-only": "^0.0.1",
+    "three": "^0.185.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
     "playwright-core": "^1.62.1",
     "puppeteer-core": "^25.8.0",
     "sharp": "^0.35.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

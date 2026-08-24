@@ -161,6 +161,14 @@ is filed. A fabricated citation is stripped in the service (so the answer
 still reaches the reader) and refused outright by the database (so no other
 path can insert one).
 
+**The retrieved documents now carry our verdict.** `documentsFor()` joins
+`information_item` and its current assessment at retrieval time, and the
+answerer renders an `OUR FINDING:` line under each excerpt — distinguishing
+published, still-under-review, and not-yet-assessed rather than flattening
+them, and carrying `known_gaps` through. The verdict is **never indexed** into
+`search_document` (a test asserts searching "false" matches nothing), and
+reading it live means a lagging projection cannot show a stale finding.
+
 `POST /messages` deliberately **does not stream tokens**. The citation
 guarantee is enforced when the answer is persisted; streaming first and
 validating after means the reader has already seen the fabricated citation by

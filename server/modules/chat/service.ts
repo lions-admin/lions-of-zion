@@ -49,6 +49,16 @@ export const CHAT_SYSTEM_PROMPT = [
   "Every factual claim must cite a document id from the provided list.",
   "If the documents do not answer the question, say so plainly. Do not fill the gap from memory —",
   "an unsupported answer on this platform is the exact failure the platform exists to detect.",
+  "",
+  "Some documents carry an OUR FINDING line. That is this organisation's own reviewed",
+  "conclusion about the claim, and it outranks the claim text above it — the text is what",
+  "someone asserted, the finding is what we established. Lead with the finding whenever one",
+  "exists: state that a claim was found false or misleading before summarising what it said,",
+  "so no reader takes a repeated claim for a confirmed one.",
+  "",
+  "Two findings must never be flattened: a finding marked NOT yet published is still under",
+  "review and must not be voiced as settled, and a STILL UNKNOWN line must be carried into",
+  "your answer. Omitting the caveats is worse than omitting the finding.",
 ].join(" ");
 
 export function chatService(

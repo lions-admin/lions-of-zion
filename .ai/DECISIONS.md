@@ -10,6 +10,35 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — The verdict travels beside the retrieved text, never inside it
+
+Chat is the most persuasive surface in the system and used to see the least.
+`search_document` indexes title, body and language only — deliberately, so a
+query for "verified" does not match every verified item ahead of an article
+about verification. Right for search; wrong for chat. A model handed *"the
+hospital was struck at dawn"* and nothing else will summarise the claim as
+though it stood, because nothing told it otherwise. The citation guard proved
+the citation was real; it never claimed the conclusion was.
+
+So `documentsFor()` now LEFT JOINs `information_item` and its current
+assessment at retrieval time, and the answerer renders an explicit
+`OUR FINDING:` line beneath each excerpt. Two properties this buys, both
+load-bearing:
+
+- **The index stays clean.** A test asserts no verdict vocabulary appears in
+  `search_document.title`/`body`, and that searching "false" returns nothing.
+- **The finding is never stale.** The projection is refreshed by a queue drain
+  and can lag minutes; `information_item.assessment` is trigger-maintained and
+  correct instantly. Reading it live is what stops the two disagreeing.
+
+Three states are distinguished rather than flattened, because collapsing any
+pair produces a specific failure: an unpublished finding is marked *not
+settled* (otherwise internal review leaks as fact), an unassessed claim says
+*not yet assessed* (otherwise silence reads as a clean bill), and
+`known_gaps` is carried through (an answer that drops the caveats is worse
+than one that drops the finding). Evidence and narratives get no verdict —
+evidence is material, and a narrative deliberately has no assessment at all.
+
 ## 2026-08-24 — The skip control is real type, not particle geometry
 
 Every readable mark in the intro is particle geometry, and the skip button used

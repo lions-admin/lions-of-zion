@@ -19,10 +19,35 @@ import type { RetrievedDocument } from "@/server/contracts/chat";
 
 const CITATION_HEADER = "CITED_DOCUMENT_IDS:";
 
-function documentBlock(documents: RetrievedDocument[]): string {
+/**
+ * How a document's verdict is stated to the model.
+ *
+ * Written as an explicit line rather than folded into the excerpt, so the
+ * model cannot mistake our conclusion for part of the source material — and
+ * so an unchecked claim is visibly unchecked instead of merely silent.
+ */
+function verdictLine(d: RetrievedDocument): string {
+  if (!d.verdict) return "";
+  const { assessment, confidence, isPublished, knownGaps } = d.verdict;
+
+  if (!assessment) {
+    return "\nOUR FINDING: not yet assessed. Do not present this claim as either established or debunked.";
+  }
+
+  const parts = [
+    `\nOUR FINDING: ${assessment}${confidence ? ` (confidence: ${confidence})` : ""}`,
+    isPublished
+      ? "— published."
+      : "— NOT yet published; still under internal review, so do not state it as settled.",
+  ];
+  if (knownGaps?.trim()) parts.push(`\nSTILL UNKNOWN: ${knownGaps.trim()}`);
+  return parts.join(" ");
+}
+
+export function buildDocumentBlock(documents: RetrievedDocument[]): string {
   if (!documents.length) return "(no documents were retrieved for this question)";
   return documents
-    .map((d) => `--- id: ${d.documentId}\ntitle: ${d.title}\n${d.excerpt}`)
+    .map((d) => `--- id: ${d.documentId}\ntitle: ${d.title}\n${d.excerpt}${verdictLine(d)}`)
     .join("\n\n");
 }
 
@@ -40,7 +65,7 @@ export const answerFromDocuments: Answerer = async ({ question, history, documen
     system: `${CHAT_SYSTEM_PROMPT}\n\nAfter your answer, output a final line "${CITATION_HEADER}" followed by a comma-separated list of the document ids you relied on. List only ids present in the documents given to you. If you relied on none, write "${CITATION_HEADER} none".`,
     prompt: [
       transcript && `Conversation so far:\n${transcript}`,
-      `Documents:\n${documentBlock(documents)}`,
+      `Documents:\n${buildDocumentBlock(documents)}`,
       `Question: ${question}`,
     ]
       .filter(Boolean)

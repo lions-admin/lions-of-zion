@@ -11,9 +11,10 @@ import "server-only";
  */
 
 import { and, asc, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
-import { chatCitation, chatMessage, chatThread, chatToolRun, searchDocument } from "@/server/db/schema";
+import { chatCitation, chatMessage, chatThread, chatToolRun } from "@/server/db/schema";
 import type { ChatMessage, ChatThread, ChatToolRun } from "@/server/db/schema";
 import type { RetrievedDocument } from "@/server/contracts/chat";
+import type { AssessmentValue, ConfidenceSummary } from "@/server/contracts/enums";
 
 type AnyDb = Record<string, (...args: never[]) => never>;
 
@@ -131,22 +132,63 @@ export function chatRepo(db: unknown) {
       return (result.rows as { id: string }[]).map((r) => r.id);
     },
 
-    /** Turns search hits into what the model is shown. The excerpt is
-     *  truncated here rather than in the prompt so the transcript records
-     *  exactly what the model was given. */
+    /**
+     * Turns search hits into what the model is shown.
+     *
+     * The verdict is joined on **here**, after retrieval, rather than being
+     * indexed into `search_document`. Two reasons, and both matter:
+     *
+     *   - Indexing it would break search. A query for "verified" would match
+     *     every verified item ahead of an article about verification.
+     *   - Reading it live means the model never sees a stale conclusion. The
+     *     projection is refreshed by a queue drain and can lag by minutes;
+     *     `information_item.assessment` is trigger-maintained and is correct
+     *     the instant an assessment is written.
+     *
+     * The excerpt is truncated here rather than in the prompt, so the
+     * transcript records exactly what the model was given.
+     */
     async documentsFor(ids: string[]): Promise<RetrievedDocument[]> {
       if (!ids.length) return [];
-      const rows = (await d
-        .select()
-        .from(searchDocument)
-        .where(inArray(searchDocument.id, ids))
-        .orderBy(asc(searchDocument.createdAt))
-        .limit(50)) as unknown as { id: string; title: string; body: string }[];
 
-      return rows.map((r) => ({
+      const result = await d.execute(sql`
+        SELECT sd.id, sd.title, sd.body, sd.entity_type,
+               i.assessment, i.confidence_summary, i.status,
+               a.known_gaps
+        FROM search_document sd
+        LEFT JOIN information_item i
+          ON sd.entity_type = 'information_item' AND i.id = sd.entity_id
+        LEFT JOIN item_assessment a
+          ON a.id = i.current_assessment_id
+        WHERE sd.id IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})
+        ORDER BY sd.created_at ASC
+        LIMIT 50`);
+
+      return (result.rows as {
+        id: string;
+        title: string;
+        body: string;
+        entity_type: string;
+        assessment: string | null;
+        confidence_summary: string | null;
+        status: string | null;
+        known_gaps: string | null;
+      }[]).map((r) => ({
         documentId: r.id,
         title: r.title,
         excerpt: r.body.slice(0, 1200),
+        /* Only a checked claim has a verdict. Evidence and narratives carry
+           none of their own — a narrative deliberately has no assessment at
+           all, and evidence is material, not a finding. */
+        verdict:
+          r.entity_type === "information_item"
+            ? {
+                assessment: r.assessment as AssessmentValue | null,
+                confidence: r.confidence_summary as ConfidenceSummary | null,
+                isPublished: r.status === "published" || r.status === "updated",
+                knownGaps: r.known_gaps,
+              }
+            : null,
       }));
     },
   };

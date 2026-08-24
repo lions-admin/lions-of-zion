@@ -58,6 +58,11 @@ export const transitionItemSchema = z.object({
 });
 export type TransitionItem = z.infer<typeof transitionItemSchema>;
 
+export const listPublishedItemsSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+});
+export type ListPublishedItems = z.infer<typeof listPublishedItemsSchema>;
+
 export const listItemsSchema = z.object({
   status: itemStatusSchema.optional(),
   type: informationItemTypeSchema.optional(),

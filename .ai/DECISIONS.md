@@ -10,6 +10,54 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — item_assessment's supersession pointer is not a foreign key
+
+`superseded_by_assessment_id` needs to be set on the *old* assessment before
+the *new* one exists — the service generates the new row's id up front,
+points the old row at it, then inserts. That ordering is forced by
+`item_assessment_one_current_per_item`, a partial unique index on `item_id
+WHERE superseded_by_assessment_id IS NULL`: inserting the new row before
+superseding the old one leaves two "current" rows for the same item, even for
+an instant, and Postgres checks a plain index after every statement — it is
+not deferrable, and a *partial* unique constraint cannot be expressed any
+other way in Postgres (only a full unique constraint can be `DEFERRABLE`).
+
+A foreign key on that column was added, tried, and reverted: it demands the
+target exist before it can be referenced, which is exactly backwards from
+what the pre-generated-id ordering needs. The two constraints cannot both
+hold. `enforce_assessment_immutability()` already refuses any change to that
+column once set, which is the integrity guarantee that actually matters; the
+FK would only have added a race it was guaranteed to lose.
+
+## 2026-08-24 — The publish-gate trigger does not repeat the Phase 2 CHECK
+
+`published_has_timestamp_and_approver` (Phase 2) already refuses a null
+`approved_by` or a missing assessment on `information_item`. The first draft
+of the Phase 4 publish-gate trigger re-checked those same nulls before doing
+its own cross-table work (is the approver human, not the author; was the
+assessment itself reviewed by someone other than its author) — and being a
+`BEFORE UPDATE` trigger, it ran before the CHECK ever got evaluated, so
+callers saw the trigger's `restrict_violation` instead of the CHECK's
+`check_violation` for a condition the CHECK already names precisely. Two
+existing Phase 2 tests caught this immediately by asserting the specific
+SQLSTATE and constraint name.
+
+Fixed by scoping the trigger's two blocks (item approver, assessment
+reviewer) to run only when the corresponding column is already non-null —
+each layer now owns exactly the half of the check the other cannot express.
+
+## 2026-08-24 — `information_item.created_by`/`approved_by` are actually set now
+
+Phase 2 added the columns and the CHECK that reads them but never populated
+them — `itemService.create()` did not write `created_by`, and nothing set
+`approved_by` on any transition. That was invisible in Phase 2 because
+nothing yet depended on the values being real. Phase 4's self-review guard
+does: `assertHumanReviewer()` compares a reviewer's id against the item's
+`created_by`, so a null `created_by` silently passed every self-approval
+check. Both are now set — `created_by` at creation, `approved_by` when a
+transition enters `approved` (via a real, human, non-author reviewer) — and
+`published_at` is set on first entering `published`, also previously unset.
+
 ## 2026-08-24 — The outbox drain dispatches to the queue; it does not process
 
 Phase 3 had to decide what the cron-triggered drain actually does with a

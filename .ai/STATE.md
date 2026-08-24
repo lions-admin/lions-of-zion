@@ -15,19 +15,18 @@ The repo now holds two unrelated things, deliberately kept apart:
 
 1. **The WebGL experience** — merged, deployed, live at
    <https://lions-of-zion.vercel.app>. Untouched since.
-2. **The backend** — Phases 1–3 of 8 complete. Sources can be registered and
-   polled, and ingestion produces evidence with a chain of custody; no
-   item↔evidence linkage or assessments yet.
+2. **The backend** — Phases 1–4 of 8 complete. An item can go from evidence
+   to a reviewed, published verdict end to end; no search, AI or chat yet.
 
 The full eight-phase plan is at `~/.claude/plans/splendid-discovering-dawn.md`.
-Read it before starting Phase 4; the sequencing has reasons. This session is
+Read it before starting Phase 5; the sequencing has reasons. This session is
 running all remaining phases back to back, one commit per phase.
 
-## Backend — Phases 1–3 complete and green
+## Backend — Phases 1–4 complete and green
 
-`npm test` 70/70, `tsc --noEmit` clean, `npm run lint` clean (3 pre-existing
+`npm test` 104/104, `tsc --noEmit` clean, `npm run lint` clean (3 pre-existing
 warnings in `LionExperience.tsx`, 1 elsewhere), `npm run build` succeeds with
-fourteen dynamic routes.
+twenty-two dynamic routes.
 
 Phase 1 shipped the foundation: dual database client (WebSocket Neon for
 production, PGlite for tests), enum types generated from the contract arrays,
@@ -56,17 +55,39 @@ trigger turns exactly two tests red.
 
 Both Phase 2 questions from the plan are settled — see `DECISIONS.md`. `edited`
 was unreachable and was given inbound edges rather than deleted; the derived
-columns are guarded now, and the trigger that *maintains* them arrives in Phase 4
-with `item_assessment`, which is the table they derive from.
+columns are guarded now, and the trigger that maintains them landed in Phase 4,
+below.
 
-## Next — Phase 4, evidence & assessments
+Phase 4 shipped evidence and assessments: `item_evidence` (composite PK,
+`ai_relation` on the same row rather than a second edge, `confirmed_by` gating
+what counts), `item_assessment` (its own typed table, immutable except
+`superseded_by_assessment_id` and a one-time `approved_by`, ten confidence
+dimensions, frozen `eligibility` jsonb), `canAssignVerdict()` /
+`requiredReviewLevel()` / `summarizeConfidence()` / `assertHumanReviewer()` in
+`server/modules/assessments/rules.ts` (pure, DB-free, unit-tested directly),
+the trigger that maintains `information_item`'s derived columns from the live
+assessment, the publish-gate trigger (human, non-author reviewer — for both
+the item's own approval and the assessment it publishes on), `review_queue`,
+and the `published_item` SQL view. `itemService.transition()` now sets
+`approved_by` on entering `approved` (asserting a human, non-author reviewer)
+and `published_at` on first entering `published`, both previously unset gaps
+left open since Phase 2. Routes:
+`/api/v1/items/[id]/{evidence,eligibility,assessments}`,
+`/api/v1/items/[id]/assessments/[assessmentId]/approve`, `/api/v1/review-queue`
+(+ `claim`/`complete`), `/api/v1/published-items`.
 
-`item_evidence` (composite PK, `ai_relation` on the same row rather than a
-second edge), `item_assessment` (versioned, ten confidence dimensions, frozen
-`eligibility` jsonb), `canAssignVerdict()` in TypeScript, the publish-gate
-trigger, `review_queue`, published views. This is also where the trigger that
-*maintains* `information_item`'s derived columns from the live assessment
-arrives — see the Phase 2 decision above.
+The Phase 4 acceptance scenario from the plan (evidence → confirmed edges →
+refused self-approval → assessment → second-human review → publish, with the
+first assessment preserved as superseded) is `tests/assessment-service.test.ts`.
+
+## Next — Phase 5, search
+
+`vector`/`pg_trgm`, `search_document`, projections, the reindex consumer
+(`TOPICS.searchReindex` already has rows queued since Phase 2 — Phase 5 is
+where its consumer stops being a no-op), embedding cron, `search_hybrid`
+(Reciprocal Rank Fusion, not score normalization), `/api/v1/search`. Confirm
+in a spike that PGlite still lacks pgvector (last checked Phase 1) before
+assuming `TEST_DATABASE_URL`-gated tests are the only path.
 
 ## In flight (uncommitted)
 

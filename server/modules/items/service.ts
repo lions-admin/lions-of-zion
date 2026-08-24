@@ -15,6 +15,7 @@ import { emit, TOPICS } from "@/server/core/outbox";
 import { informationItem } from "@/server/db/schema";
 import { itemRepo } from "./repo";
 import { canTransition, LEGAL_TRANSITIONS } from "@/server/contracts/item";
+import { assertHumanReviewer, findReviewer } from "@/server/modules/assessments";
 import type { CreateItem, ListItems, TransitionItem, UpdateItem } from "@/server/contracts/item";
 import type { Actor } from "@/server/core/audit";
 import type { InformationItem } from "@/server/db/schema";
@@ -34,6 +35,8 @@ export function itemService(db: unknown) {
 
     list: (filters: ListItems) => itemRepo(db).list(filters),
 
+    listPublished: (limit: number) => itemRepo(db).listPublished(limit),
+
     async create(input: CreateItem, actor: Actor, requestId?: string): Promise<InformationItem> {
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
@@ -48,6 +51,7 @@ export function itemService(db: unknown) {
           language: input.language,
           eventId: input.eventId ?? null,
           primaryTopicId: input.primaryTopicId ?? null,
+          createdBy: actor.userId ?? null,
         });
 
         if (input.topicIds?.length) await repo.setTopics(item.id, input.topicIds);
@@ -138,10 +142,35 @@ export function itemService(db: unknown) {
           );
         }
 
+        /* Entering `approved` is the approval act itself — this is the one
+         * place `information_item.approved_by` is ever set. Re-entering it
+         * (e.g. after `edited`) re-attributes it to whoever approved it most
+         * recently, which is correct: an approval before a rewrite does not
+         * carry over to the rewrite. */
+        const extra: Record<string, unknown> = {};
+        if (input.to === "approved") {
+          if (!actor.userId) {
+            throw new ApiError(
+              "FORBIDDEN",
+              "Approving an item requires a known reviewer identity, not just a label.",
+            );
+          }
+          const reviewer = await findReviewer(tx, actor.userId);
+          if (!reviewer) throw new ApiError("VALIDATION_ERROR", "Unknown reviewer identity.");
+          assertHumanReviewer(reviewer, before.createdBy);
+          extra.approvedBy = actor.userId;
+        }
+        /* `published_at` marks when an item first went public and is not
+         * reset on a later republish (`updated` → `published`). */
+        if (input.to === "published" && !before.publishedAt) {
+          extra.publishedAt = new Date();
+        }
+
         const after = await repo.update(id, {
           status: input.to,
           statusReason: input.reason ?? null,
           updatedAt: new Date(),
+          ...extra,
         });
 
         await recordVersion(tx as Tx, informationItem, after as never, {

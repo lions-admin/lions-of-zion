@@ -22,6 +22,7 @@ import {
   text,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import {
   assessmentValue,
   confidenceSummary,
@@ -31,6 +32,7 @@ import {
 import { appUser } from "./identity";
 import { event, topic } from "./taxonomy";
 import { entityVersion } from "./versioning";
+import { itemAssessment } from "./assessments";
 import { createdAt, isLanguage, nonBlank, primaryId, tsCol, updatedAt } from "./_shared";
 
 export const informationItem = pgTable(
@@ -53,8 +55,7 @@ export const informationItem = pgTable(
     /* ── Derived. Trigger-maintained. Never written by the application. ──── */
     assessment: assessmentValue("assessment"),
     confidenceSummary: confidenceSummary("confidence_summary"),
-    /** FK to `item_assessment` is added in Phase 4, with the table. */
-    currentAssessmentId: uuid("current_assessment_id"),
+    currentAssessmentId: uuid("current_assessment_id").references((): AnyPgColumn => itemAssessment.id),
     currentVersionId: uuid("current_version_id").references(() => entityVersion.id),
 
     firstDetectedAt: tsCol("first_detected_at").notNull().defaultNow(),

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { freshDatabase, type TestDatabase } from "@/server/db/testing";
 import { itemService } from "@/server/modules/items/service";
-import { auditLog, entityVersion, itemStatusTransition, outbox } from "@/server/db/schema";
+import { appUser, auditLog, entityVersion, itemStatusTransition, outbox } from "@/server/db/schema";
 
 /**
  * The service, not the schema.
@@ -23,6 +23,16 @@ const input = {
 };
 
 const svc = (db: TestDatabase) => itemService(db);
+
+/** Entering `approved` needs a real, human, non-author reviewer — `actor`
+ *  above is a label-only dev-shim identity, which is deliberately refused. */
+async function seedReviewer(db: TestDatabase) {
+  const [row] = await db
+    .insert(appUser)
+    .values({ externalId: "auth|reviewer", displayName: "A Reviewer" })
+    .returning();
+  return { label: row!.displayName, userId: row!.id };
+}
 
 describe("creating an item", () => {
   it("writes the row, a version, an audit line and a reindex, in one go", async () => {
@@ -136,24 +146,53 @@ describe("transitions", () => {
   it("walks the full editorial path", async () => {
     const db = await freshDatabase();
     const item = await svc(db).create(input, actor);
-    for (const to of ["under_review", "reviewed", "edited", "reviewed", "approved"] as const) {
+    const reviewer = await seedReviewer(db);
+    for (const to of ["under_review", "reviewed", "edited", "reviewed"] as const) {
       await svc(db).transition(item.id, { to }, actor);
     }
+    await svc(db).transition(item.id, { to: "approved" }, reviewer);
     const final = await svc(db).get(item.id);
     expect(final.status).toBe("approved");
+    expect(final.approvedBy).toBe(reviewer.userId);
     const trail = await db.select().from(itemStatusTransition);
     expect(trail).toHaveLength(5);
   });
 
-  it("still cannot publish without an approver and a verdict", async () => {
-    /* The service permits approved → published; the CHECK refuses it because
-       no assessment exists yet. Phase 4 supplies the missing half. */
+  it("refuses to enter approved without a known reviewer identity", async () => {
     const db = await freshDatabase();
     const item = await svc(db).create(input, actor);
-    for (const to of ["under_review", "reviewed", "approved"] as const) {
+    for (const to of ["under_review", "reviewed"] as const) {
       await svc(db).transition(item.id, { to }, actor);
     }
-    await expect(svc(db).transition(item.id, { to: "published" }, actor)).rejects.toThrow();
+    await expect(svc(db).transition(item.id, { to: "approved" }, actor)).rejects.toThrow(
+      /known reviewer identity/,
+    );
+  });
+
+  it("refuses self-approval", async () => {
+    const db = await freshDatabase();
+    const author = { label: "author@example.org", userId: crypto.randomUUID() };
+    await db.insert(appUser).values({ id: author.userId, externalId: "auth|author", displayName: "The Author" });
+    const item = await svc(db).create(input, author);
+    for (const to of ["under_review", "reviewed"] as const) {
+      await svc(db).transition(item.id, { to }, author);
+    }
+    await expect(svc(db).transition(item.id, { to: "approved" }, author)).rejects.toThrow(
+      /cannot also be the reviewer/,
+    );
+  });
+
+  it("still cannot publish without an assessment", async () => {
+    /* The service permits approved → published; the CHECK refuses it because
+       no assessment exists yet. Phase 4 supplies the assessment machinery. */
+    const db = await freshDatabase();
+    const item = await svc(db).create(input, actor);
+    const reviewer = await seedReviewer(db);
+    for (const to of ["under_review", "reviewed"] as const) {
+      await svc(db).transition(item.id, { to }, actor);
+    }
+    await svc(db).transition(item.id, { to: "approved" }, reviewer);
+    await expect(svc(db).transition(item.id, { to: "published" }, reviewer)).rejects.toThrow();
   });
 });
 

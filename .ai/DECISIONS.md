@@ -10,6 +10,37 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — The skip control is real type, not particle geometry
+
+Every readable mark in the intro is particle geometry, and the skip button used
+to be too: `SKIP INTRO` sampled from the Cinzel outlines and merged with a
+capsule ring, drawn through the same TSL sprite material as the story lines.
+
+At label size that treatment cannot win. Ten glyphs inside 132px leave about
+10px per character, so the strokes are barely two pixels wide — too little room
+for sampled dots to read as either letters or grain. Three things compounded on
+top of that. `edgeDrift` in `introTextMaterial.ts` is authored in cloud units,
+so the wobble that is a subtle shimmer on a full-width story line was roughly
+1.5px of vertical smear on 42% of the label's particles. The capsule was the
+brightest continuous shape on screen at `#FFE9B0`, well over the 0.46 bloom
+threshold, so it bloomed and dragged the word into the glow with it. And the
+density that made the word legible was exactly the density at which the dots
+merged into solid strokes — legibility and visible grain pulled in opposite
+directions with no setting that satisfied both.
+
+So the skip control is now the one intro mark rendered as DOM type: a 26px rule,
+`Skip intro` in Cinzel at 11px, and a double chevron, bottom-right, no
+container. It is sharp at every DPR, it contributes nothing to the bloom, and it
+matches the vocabulary the eight nav labels already use. `buildCapsuleCloud`,
+`mergeClouds` and the `skipFocusRef` plumbing from `CanvasMount` through `Scene`
+into `IntroText` all went with it.
+
+Chosen from four directions drafted side by side; the three rejected ones kept
+the particle label and traded away legibility, buttonness or both.
+
+The invariant in CLAUDE.md that all readable marks are particle geometry now has
+exactly one exception, and this is it. Do not "restore" the particle skip label:
+it was tried at three densities and every one of them failed differently.
 ## 2026-08-24 — Independence is counted in source families, not accounts
 
 Phase 9's whole signal rests on one choice: `narrative_activity()` counts

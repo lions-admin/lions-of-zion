@@ -30,31 +30,72 @@
   pointer-events: none;
 }
 
+/* The one intro mark that is real type rather than particle geometry: a 10-glyph
+   word sampled at 12px reads as blur, and the capsule it used to sit in was the
+   brightest shape in the corner, so it drove the scene bloom. */
 .skipIntro {
   position: absolute;
   right: calc(clamp(1rem, 3vw, 2.5rem) + var(--safe-right));
   bottom: calc(clamp(1rem, 3vw, 2.5rem) + var(--safe-bottom));
   z-index: 4;
-  width: 132px;
-  height: 52px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 52px;
+  padding: 0 0.25rem;
   border: 0;
-  border-radius: 999px;
   background: transparent;
-  color: transparent;
+  color: #c9a24b;
   cursor: pointer;
+  opacity: 0;
+  /* the delay stands in for the old particle build at t = 0.85s */
+  transition: opacity 600ms ease 850ms, color 200ms ease;
+}
+
+.root[data-live] .skipIntro {
+  opacity: 1;
+}
+
+.skipRule {
+  width: 38px;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.55;
+  transition: opacity 200ms ease;
+}
+
+.skipLabel {
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.skipChevron {
+  display: block;
 }
 
 .skipIntro:hover,
 .skipIntro:focus-visible {
-  box-shadow: 0 0 22px rgba(239, 215, 154, 0.12);
+  color: #efd79a;
+}
+
+.skipIntro:hover .skipRule,
+.skipIntro:focus-visible .skipRule {
+  opacity: 0.9;
 }
 
 .skipIntro:focus-visible {
   outline: 2px solid #efd79a;
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skipIntro {
+    transition: opacity 200ms ease, color 200ms ease;
+  }
 }
 
 .srOnly {

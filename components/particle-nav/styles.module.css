@@ -30,6 +30,10 @@
   pointer-events: none;
 }
 
+.root[data-handoff-blocked] .navContent {
+  pointer-events: none;
+}
+
 /* The one intro mark that is real type rather than particle geometry: a 10-glyph
    word sampled at 12px reads as blur, and the capsule it used to sit in was the
    brightest shape in the corner, so it drove the scene bloom. */

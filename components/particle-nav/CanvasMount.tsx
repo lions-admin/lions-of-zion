@@ -27,6 +27,7 @@ import type { IntroControls } from './introFrame';
 // The canvas is dynamic-imported and must never block LCP (brief §8):
 // three.js bytes only download after the DOM nav is interactive.
 const Scene = dynamic(() => import('./Scene'), { ssr: false });
+const HANDOFF_INPUT_GUARD_MS = 900;
 
 export interface NavClientProps {
   nodes: NavNode[];
@@ -77,6 +78,7 @@ export function NavClient({
   const labelElsRef = useRef<(HTMLElement | null)[]>([]);
   const pointerNdcRef = useRef({ x: 0, y: 0 });
   const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handoffTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const introControlsRef = useRef<IntroControls>({
     paused: false,
     skipRequested: false,
@@ -94,6 +96,7 @@ export function NavClient({
   const [fading, setFading] = useState(false);
   const [safeArea, setSafeArea] = useState<SafeAreaInsets>({ top: 0, right: 0, bottom: 0, left: 0 });
   const [introDone, setIntroDone] = useState(false);
+  const [handoffBlocked, setHandoffBlocked] = useState(false);
 
   const theme = useMemo(() => ({ ...defaultTheme, ...themeOverride }), [themeOverride]);
   const params: SimParams = useMemo(
@@ -154,6 +157,28 @@ export function NavClient({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [introRunning]);
 
+  const completeIntro = useCallback(() => {
+    // iOS can retarget the tail of a touch gesture after the Skip control
+    // unmounts. Keep the revealed home visible but inert long enough for that
+    // gesture to finish, and cancel any navigation timer that might have been
+    // armed before the handoff.
+    if (navTimerRef.current) {
+      clearTimeout(navTimerRef.current);
+      navTimerRef.current = null;
+    }
+    if (handoffTimerRef.current) clearTimeout(handoffTimerRef.current);
+    setIntroDone(true);
+    setHandoffBlocked(true);
+    handoffTimerRef.current = setTimeout(() => {
+      handoffTimerRef.current = null;
+      setHandoffBlocked(false);
+    }, HANDOFF_INPUT_GUARD_MS);
+  }, []);
+
+  useEffect(() => () => {
+    if (handoffTimerRef.current) clearTimeout(handoffTimerRef.current);
+  }, []);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -203,6 +228,10 @@ export function NavClient({
       const click = (e: MouseEvent) => {
         // modified/middle clicks keep native behaviour (new tab etc.)
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        if (introRunning || handoffBlocked) {
+          e.preventDefault();
+          return;
+        }
         e.preventDefault();
         driver.machine.activate(i);
         setFading(true);
@@ -229,7 +258,7 @@ export function NavClient({
       cleanups.forEach((fn) => fn());
       if (navTimerRef.current) clearTimeout(navTimerRef.current);
     };
-  }, [driver, nodes, router]);
+  }, [driver, handoffBlocked, introRunning, nodes, router]);
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -254,13 +283,14 @@ export function NavClient({
       data-canvas={hasLiveBackend ? '' : undefined}
       data-backend={tier?.backend}
       data-intro-active={introRunning ? '' : undefined}
+      data-handoff-blocked={handoffBlocked ? '' : undefined}
       onPointerMove={onPointerMove}
       style={{ ['--fade-ms' as string]: `${CANVAS_FADE_MS}ms` }}
     >
       <div
         className={styles.navContent}
         aria-hidden={introRunning || undefined}
-        inert={introRunning ? true : undefined}
+        inert={introRunning || handoffBlocked ? true : undefined}
       >
         {children}
       </div>
@@ -285,7 +315,7 @@ export function NavClient({
             onFrameStats={onFrameStats}
             intro={introRunning}
             introControlsRef={introControlsRef}
-            onIntroComplete={() => setIntroDone(true)}
+            onIntroComplete={completeIntro}
           />
         </div>
       ) : null}

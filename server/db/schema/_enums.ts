@@ -23,6 +23,7 @@ import {
   EVIDENCE_KINDS,
   EVIDENCE_RELATIONS,
   EVIDENCE_STRENGTHS,
+  FETCH_STATUSES,
   INFORMATION_ITEM_TYPES,
   ITEM_STATUSES,
   LIKELIHOOD_BANDS,
@@ -40,6 +41,7 @@ export const evidenceStrength = pgEnum("evidence_strength", EVIDENCE_STRENGTHS);
 export const evidenceKind = pgEnum("evidence_kind", EVIDENCE_KINDS);
 export const dataClass = pgEnum("data_class", DATA_CLASSES);
 export const sourceKind = pgEnum("source_kind", SOURCE_KINDS);
+export const fetchStatus = pgEnum("fetch_status", FETCH_STATUSES);
 export const actorKind = pgEnum("actor_kind", ACTOR_KINDS);
 export const changeSource = pgEnum("change_source", CHANGE_SOURCES);
 export const entityType = pgEnum("entity_type", ENTITY_TYPES);

@@ -10,6 +10,65 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — The outbox drain dispatches to the queue; it does not process
+
+Phase 3 had to decide what the cron-triggered drain actually does with a
+pending outbox row, given the risk note that "a queue outage degrades to a
+slower drain rather than data loss."
+
+The drain's only job is to hand the row to Vercel Queues (`send()` on topic
+`outbox.dispatch`) and mark `published_at` once that call succeeds — it never
+runs the topic's handler itself. The handler runs only in the queue consumer
+(`/api/internal/queue/outbox-dispatch`, a `queue/v2beta` push route), which
+gets Vercel Queues' own redelivery and visibility-timeout handling for free.
+
+This makes "published" mean "durably handed to the broker", the standard
+outbox reading, and keeps the drain simple: on a failed `send()` (queue down,
+unconfigured, or not yet provisioned) the row just stays pending with an
+exponential backoff and is retried next tick — nothing is lost, and nothing
+downstream ever runs twice from the drain's side. `dispatch` is a parameter
+of `drainOutbox`, defaulting to the real Vercel Queues client, specifically so
+tests never need OIDC credentials to exercise the retry/backoff logic.
+
+One consequence worth remembering: none of the topics emitted so far
+(`search.reindex`, `embedding.refresh`, `item.detected`) have a real consumer
+yet — `server/jobs/consumers/index.ts` holds explicit no-op placeholders so an
+"unhandled topic" and a "not-yet-built topic" cannot look the same failure
+from the queue's side. Phases 5 and 6 replace the placeholders; they do not
+add new topics.
+
+## 2026-08-24 — Evidence and source are versioned; source_family is not
+
+`ENTITY_TYPES` already listed `evidence` and `source` from Phase 1, which
+settled this before Phase 3 had to ask: both go through `recordVersion()`
+exactly like `information_item`, with their own `current_version_id`.
+`source_family` stays plain reference data, the same tier as `topic` and
+`event` — nobody edits a family's slug and needs to know what it used to say.
+
+`evidence_provenance` is deliberately **not** part of this — it is not an edit
+trail, it is an append-only record of what was done to establish trust in one
+evidence row (captured, archived, hash-verified). Routing "captured" through
+`recordVersion` would have conflated "the metadata changed" with "custody was
+established," which are different questions with different audiences.
+
+## 2026-08-24 — Ingestion opens its own transaction rather than nesting one
+
+`ingestSource()` needs one `source_fetch` row and N `evidence` rows to commit
+as a single unit — an `items_new` count that does not match what actually
+committed is worse than no record. But `evidenceService.create()` (the public,
+single-row API) opens its own transaction internally, the same shape
+`itemService.create()` uses.
+
+Rather than nest a transaction inside a transaction, evidence creation was
+split: `createEvidenceInTx(tx, input, actor)` is the transaction-accepting
+primitive (insert, `recordVersion`, first provenance row), and
+`evidenceService.create()` is a one-line wrapper that opens a transaction and
+calls it. `ingestSource()` calls the primitive directly, composing it with its
+own `source_fetch` insert inside its own transaction. The network fetch and
+the Blob upload happen *before* that transaction opens — both are slow and
+external, and holding a Postgres transaction across either turns a slow feed
+into a held lock.
+
 ## 2026-08-23 — Hand-written migrations must be journalled, and a test says so
 
 Phase 2 nearly shipped a hole. `drizzle-kit generate` numbered a new migration

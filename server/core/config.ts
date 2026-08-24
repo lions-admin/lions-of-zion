@@ -56,6 +56,10 @@ export const blobToken = (): string => required("BLOB_READ_WRITE_TOKEN", "blob s
 export const aiGatewayKey = (): string => required("AI_GATEWAY_API_KEY", "the AI gateway");
 export const internalApiSecret = (): string =>
   required("INTERNAL_API_SECRET", "the internal route guard");
+/** Vercel sets this automatically once the env var of the same name is
+ *  configured, and signs every cron invocation with it. Unset locally, which
+ *  is why the guard treats "unset" as "refuse", never as "allow". */
+export const cronSecret = (): string | undefined => process.env.CRON_SECRET;
 
 /** Ceilings in USD. Unset means unbounded, which is only acceptable locally. */
 export function aiBudgets(): { daily?: number; monthly?: number } {

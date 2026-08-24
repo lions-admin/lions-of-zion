@@ -5,3 +5,5 @@ export * from "./versioning";
 export * from "./outbox";
 export * from "./taxonomy";
 export * from "./items";
+export * from "./sources";
+export * from "./evidence";

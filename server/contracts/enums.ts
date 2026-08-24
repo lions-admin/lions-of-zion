@@ -146,6 +146,13 @@ export const SOURCE_KINDS = [
 export const sourceKindSchema = enumOf(SOURCE_KINDS);
 export type SourceKind = z.infer<typeof sourceKindSchema>;
 
+/** One row per fetch attempt, written once. `partial` is a fetch that reached
+ *  the source but could not parse or store everything it found — distinct
+ *  from `failed`, which never got usable data at all. */
+export const FETCH_STATUSES = ["success", "partial", "failed"] as const;
+export const fetchStatusSchema = enumOf(FETCH_STATUSES);
+export type FetchStatus = z.infer<typeof fetchStatusSchema>;
+
 export const ACTOR_KINDS = [
   "person",
   "organization",

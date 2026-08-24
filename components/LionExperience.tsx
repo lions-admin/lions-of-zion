@@ -1,11 +1,46 @@
 "use client";
 
 import * as THREE from "three";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState } from "react";
+import type { Ref } from "react";
+import { PLANE_H, PLANE_W, Viewport } from "@/components/graphics/viewport";
+
+/**
+ * The one thing the layer above may ask of this one.
+ *
+ * The navigation needs the lion to step back so its own centre is readable,
+ * but how a scene recedes is the scene's business — the nav layer does not
+ * reach in and dim a material it did not build. This is the whole coupling.
+ */
+export interface LionExperienceHandle {
+  /** 0 = full presence, 1 = fully receded. */
+  setRecession(target: number): void;
+}
 
 // Cinematic engine — single full-screen awakening sequence
-export default function LionExperience() {
+export default function LionExperience({
+  ref,
+}: {
+  ref?: Ref<LionExperienceHandle>;
+}) {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const recessionTarget = useRef(0);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      setRecession(target: number) {
+        const value = Math.min(1, Math.max(0, target));
+        recessionTarget.current = value;
+        /* Written here as well as in the render loop, because there may not be
+           one: without a WebGL context this scene is a static image and the
+           DOM half still has to step back. The loop overwrites this with the
+           eased value on every frame it runs. */
+        wrapRef.current?.style.setProperty("--recession", value.toFixed(3));
+      },
+    }),
+    [],
+  );
   const [revealed, setRevealed] = useState(false);
   const [hint, setHint] = useState(false);
   const revealedRef = useRef(false);
@@ -14,11 +49,16 @@ export default function LionExperience() {
     const wrap = wrapRef.current;
     if (!wrap) return;
 
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isCoarse = window.matchMedia("(pointer: coarse)").matches;
-    const isMobile = isCoarse || window.innerWidth < 860;
-    const dprCap = isMobile ? 1.5 : 1.9;
-    const DPR = Math.min(window.devicePixelRatio || 1, dprCap);
+    /* Measurement comes from the shared contract, not from this file. It
+       observes the wrapper rather than the window, because the wrapper is what
+       `100dvh` actually resolves to and iOS resizes it without a dependable
+       window event. */
+    const viewport = new Viewport();
+    const stopViewport = viewport.observe(wrap);
+    let fit = viewport.current;
+
+    const prefersReduced = fit.reducedMotion;
+    const isMobile = fit.tier === "low" || fit.tier === "medium";
 
     // canvas + renderer — with graceful fallback if WebGL unavailable
     const canvas = document.createElement("canvas");
@@ -27,6 +67,10 @@ export default function LionExperience() {
 
     let renderer: THREE.WebGLRenderer | null = null;
     try {
+      /* The contract has already probed for a context. Asking for one anyway
+         only makes three.js log an error about a situation this branch was
+         written to handle. */
+      if (fit.tier === "fallback") throw new Error("No WebGL context available");
       renderer = new THREE.WebGLRenderer({
         canvas,
         antialias: true,
@@ -58,21 +102,20 @@ export default function LionExperience() {
         setTimeout(() => setHint(true), 700);
       }, 1600);
       return () => {
+        stopViewport();
         try { fb.remove(); } catch {}
       };
     }
-    if (!renderer) return;
-    renderer.setPixelRatio(DPR);
-    renderer.setSize(wrap.clientWidth, wrap.clientHeight, false);
+    if (!renderer) {
+      stopViewport();
+      return;
+    }
+    renderer.setPixelRatio(fit.dpr);
+    renderer.setSize(fit.width, fit.height, false);
     renderer.setClearColor(0x020509, 1);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      34,
-      wrap.clientWidth / wrap.clientHeight,
-      0.1,
-      60
-    );
+    const camera = new THREE.PerspectiveCamera(34, fit.aspect, 0.1, 60);
     camera.position.set(0, 0.08, 10);
 
     // groups for subtle parallax
@@ -89,27 +132,19 @@ export default function LionExperience() {
 
     const clock = new THREE.Timer();
 
-    // --- sizing --- fit within view (camera fov 34, z10 => view H ~6.1, W ~10.8)
-    const PLANE_H = 6.15; // world units — fits with slight headroom
-    const PLANE_W = PLANE_H * (16 / 9);
-
-    // responsive layout: landscape keeps cinematic cover crop;
-    // portrait reframes on the face (shows ~40% of image width)
-    const layout = { s: 1.02, offY: -0.06 };
-    function layoutForAspect() {
-      const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.position.z;
-      const halfW = halfH * camera.aspect;
-      const visW = halfW * 2;
-      if (camera.aspect < 1.05) {
-        layout.s = visW / (PLANE_W * 0.40);
-        const faceLocalY = (0.65 - 0.5) * PLANE_H; // face centre in plane space (v=0.65)
-        layout.offY = 0.10 - faceLocalY * layout.s;
-      } else {
-        layout.s = 1.02;
-        layout.offY = -0.06;
-      }
-    }
-    layoutForAspect();
+    /* Sizing. `fit` carries the cover fit solved in `viewport.ts`: one
+       continuous scale that keeps the plane over the frame with every parallax
+       at its extreme, and a focal pan that takes whatever vertical headroom is
+       left over. What used to be here was a two-branch heuristic that covered
+       neither a wide desktop window nor a phone, and jumped 44% in scale
+       between them. */
+    const unsubscribeViewport = viewport.subscribe((next) => {
+      fit = next;
+      renderer.setSize(next.width, next.height, false);
+      renderer.setPixelRatio(next.dpr);
+      camera.aspect = next.aspect;
+      camera.updateProjectionMatrix();
+    });
 
     // --- eye positions in UV space (0..1, 0 bottom) ---
     // measured on candidate-a.jpg (2048x1152): eyes ~ (900,505) & (1145,500) from top
@@ -131,6 +166,10 @@ export default function LionExperience() {
     const autoDrift = { x: 0, y: 0 };
     let hasPointer = false;
     let elapsed = 0;
+    /* The ambient field runs on its own clock so recession can slow it without
+       touching the vertex shaders that read it. */
+    let ambientClock = 0;
+    let recession = 0;
     let revealedDone = false;
     let raf = 0;
     let destroyed = false;
@@ -277,6 +316,7 @@ export default function LionExperience() {
           uEyeL: { value: EYE_L.clone() },
           uEyeR: { value: EYE_R.clone() },
           uBreath: { value: 0 },
+          uRecede: { value: 0 },
         },
         vertexShader: `
           varying vec2 vUv;
@@ -307,6 +347,7 @@ export default function LionExperience() {
           uniform vec2 uEyeL;
           uniform vec2 uEyeR;
           uniform float uBreath;
+          uniform float uRecede;
 
           float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
           float hash1(float p){ return fract(sin(p*127.1)*43758.5453); }
@@ -416,13 +457,20 @@ export default function LionExperience() {
             float vign = 1.0 - smoothstep(0.55, 0.98, length((uv-0.5)*vec2(1.15,0.85)));
             // don't apply — keep as is
 
+            /* Recession: the lion steps back so the layer above it can be
+               read. Luminance, not a fade to nothing — it stays present. */
+            col *= mix(1.0, 0.25, uRecede);
+            alpha *= mix(1.0, 0.62, uRecede);
+
             gl_FragColor = vec4(col, alpha);
           }
         `,
       });
       lionMat = mat;
       lionMesh = new THREE.Mesh(geo, mat);
-      lionMesh.position.set(0, 0.14, 0.06);
+      /* No vertical offset of its own: `planeOffsetY` owns vertical framing,
+         and a second constant here is how the two used to disagree. */
+      lionMesh.position.set(0, 0, 0.06);
       lionMesh.scale.set(1.0, 1.0, 1);
       lionGroup.add(lionMesh);
     }
@@ -521,7 +569,7 @@ export default function LionExperience() {
         const ux = uvx + jx;
         const uy = uvy + jy;
         const tx = (ux - 0.5) * PLANE_W;
-        const ty = (uy - 0.5) * PLANE_H + 0.14; // match lion mesh y offset
+        const ty = (uy - 0.5) * PLANE_H; // the mesh carries no offset either
         const tz = 0.14 + (Math.random() - 0.5) * 0.18; // just in front of plane
         posTarget[i * 3] = tx;
         posTarget[i * 3 + 1] = ty;
@@ -575,6 +623,7 @@ export default function LionExperience() {
           uTime: { value: 0 },
           uPointer: { value: new THREE.Vector2(0, 0) },
           uSize: { value: isMobile ? 1.05 : 1.32 },
+          uRecede: { value: 0 },
         },
         vertexShader: `
           attribute vec3 aTarget;
@@ -643,6 +692,7 @@ export default function LionExperience() {
           }
         `,
         fragmentShader: `
+          uniform float uRecede;
           varying vec3 vColor;
           varying float vAlpha;
           void main(){
@@ -656,7 +706,7 @@ export default function LionExperience() {
             float fade = 1.0 - smoothstep(0.78, 1.0, vAlpha); // vAlpha not uniform, use progress in vertex? fallback: keep but reduce
             float alpha = a * vAlpha * 0.55;
             // soft
-            gl_FragColor = vec4(col, alpha);
+            gl_FragColor = vec4(col, alpha * mix(1.0, 0.30, uRecede));
           }
         `,
       });
@@ -687,6 +737,7 @@ export default function LionExperience() {
           uTime: { value: 0 },
           uReveal: { value: 0 },
           uPointer: { value: new THREE.Vector2(0, 0) },
+          uRecede: { value: 0 },
         },
         vertexShader: `
           attribute float aSeed;
@@ -716,10 +767,11 @@ export default function LionExperience() {
           }
         `,
         fragmentShader: `
+          uniform float uRecede;
           varying float vA; varying float vS;
           void main(){
             vec2 c=gl_PointCoord*2.0-1.0; float d=dot(c,c); if(d>1.0) discard;
-            float a = exp(-d*3.0)*vA*0.82;
+            float a = exp(-d*3.0)*vA*0.82*mix(1.0, 0.45, uRecede);
             vec3 col = mix(vec3(0.34,0.52,0.78), vec3(0.62,0.72,0.92), vS*0.5);
             col += vec3(0.3,0.5,0.85)*exp(-d*3.2)*0.25;
             gl_FragColor = vec4(col, a);
@@ -749,7 +801,11 @@ export default function LionExperience() {
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-        uniforms: { uTime: { value: 0 }, uPointer: { value: new THREE.Vector2(0, 0) } },
+        uniforms: {
+          uTime: { value: 0 },
+          uPointer: { value: new THREE.Vector2(0, 0) },
+          uRecede: { value: 0 },
+        },
         vertexShader: `
           attribute float aSeed; uniform float uTime; uniform vec2 uPointer;
           varying float vA; varying float vS;
@@ -767,10 +823,11 @@ export default function LionExperience() {
           }
         `,
         fragmentShader: `
+          uniform float uRecede;
           varying float vA; varying float vS;
           void main(){
             vec2 c=gl_PointCoord*2.0-1.0; float d=dot(c,c); if(d>1.0) discard;
-            float a=exp(-d*2.2)*vA*0.42;
+            float a=exp(-d*2.2)*vA*0.42*mix(1.0, 0.45, uRecede);
             vec3 col = vec3(0.66,0.74,0.88) + vec3(0.12,0.06,-0.04)*vS;
             gl_FragColor=vec4(col,a);
           }
@@ -858,20 +915,6 @@ export default function LionExperience() {
     // custom event for button
     (wrap as HTMLDivElement).addEventListener("reconstruct", triggerDissolve as EventListener);
 
-    // resize
-    function onResize() {
-      const w = (wrap as HTMLDivElement).clientWidth, h = (wrap as HTMLDivElement).clientHeight;
-      renderer!.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer!.setPixelRatio(Math.min(window.devicePixelRatio || 1, dprCap));
-    }
-    const origOnResize = onResize;
-    function onResizeLayout() {
-      origOnResize();
-      layoutForAspect();
-    }
-    window.addEventListener("resize", onResizeLayout);
 
     // animation loop
     function easeInOutCubic(x: number) {
@@ -883,9 +926,29 @@ export default function LionExperience() {
 
     function animate() {
       raf = requestAnimationFrame(animate);
+      if (process.env.NODE_ENV !== "production") {
+        const w = window as unknown as { __lionFrames?: number };
+        w.__lionFrames = (w.__lionFrames ?? 0) + 1;
+      }
       clock.update();
       const dt = Math.min(clock.getDelta(), 0.033);
       elapsed += dt;
+
+      /* Recession eases toward whatever the layer above last asked for; ~900ms
+         to travel the full range. Reduced motion takes it in one step. */
+      const wanted = recessionTarget.current;
+      recession = prefersReduced
+        ? wanted
+        : recession + (wanted - recession) * Math.min(1, dt * 3.4);
+      ambientClock += dt * (1 - recession * 0.55);
+      /* The DOM half of the scene recedes too. The hero wordmark is the page's
+         identity only until something above it takes that job — once the
+         navigation is up, its header carries the name and this would just be
+         the same words twice, over a node. */
+      (wrap as HTMLDivElement).style.setProperty(
+        "--recession",
+        recession.toFixed(3),
+      );
 
       // --- timeline: reveal & progress ---  linear for evenly staged reveal
       if (!revealedDone) {
@@ -968,8 +1031,8 @@ export default function LionExperience() {
       root.rotation.y = px * 0.035;
       root.rotation.x = -py * 0.022;
       bgGroup.position.set(px * -0.32, py * -0.22, 0);
-      lionGroup.position.set(px * 0.18, py * 0.14 + layout.offY, 0);
-      partGroup.position.set(px * 0.42, py * 0.30 + layout.offY, 0);
+      lionGroup.position.set(px * 0.18, py * 0.14 + fit.planeOffsetY, 0);
+      partGroup.position.set(px * 0.42, py * 0.30 + fit.planeOffsetY, 0);
       fgGroup.position.set(px * 0.75, py * 0.52, 0);
       // camera micro shift
       camera.position.x = px * 0.18;
@@ -988,6 +1051,7 @@ export default function LionExperience() {
       bgMat.uniforms.uTime.value = t;
       bgMat.uniforms.uReveal.value = uReveal;
       if (lionMat) {
+        lionMat.uniforms.uRecede.value = recession;
         lionMat.uniforms.uTime.value = t;
         lionMat.uniforms.uReveal.value = uReveal;
         lionMat.uniforms.uDissolve.value = uDissolve;
@@ -995,31 +1059,34 @@ export default function LionExperience() {
         lionMat.uniforms.uBreath.value = breath * 0.015;
       }
       if (pMat) {
+        pMat.uniforms.uRecede.value = recession;
         pMat.uniforms.uTime.value = t;
         pMat.uniforms.uProgress.value = uProgress;
         pMat.uniforms.uDissolve.value = uDissolve;
         // convert world pointer into particle-group local space (scaled/offset)
         pMat.uniforms.uPointer.value.set(
-          (worldPointer.x - px * 0.42) / layout.s,
-          (worldPointer.y - (py * 0.30 + layout.offY)) / layout.s
+          (worldPointer.x - px * 0.42) / fit.planeScale,
+          (worldPointer.y - (py * 0.30 + fit.planeOffsetY)) / fit.planeScale
         );
       }
       const dfMat = dataField?.material as THREE.ShaderMaterial | undefined;
       if (dfMat) {
-        dfMat.uniforms.uTime.value = t;
+        dfMat.uniforms.uRecede.value = recession;
+        dfMat.uniforms.uTime.value = ambientClock;
         dfMat.uniforms.uReveal.value = uReveal;
         dfMat.uniforms.uPointer.value.copy(worldPointer);
       }
       const dustMat = dust?.material as THREE.ShaderMaterial | undefined;
       if (dustMat) {
-        dustMat.uniforms.uTime.value = t;
+        dustMat.uniforms.uRecede.value = recession;
+        dustMat.uniforms.uTime.value = ambientClock;
         dustMat.uniforms.uPointer.value.copy(worldPointer);
       }
       // breathing micro-scale + responsive layout scale on groups
       {
-        const bScale = (1 + Math.sin(t * 0.38) * 0.0045) * layout.s;
-        lionGroup.scale.set(bScale, bScale, layout.s);
-        partGroup.scale.set(layout.s, layout.s, layout.s);
+        const bScale = (1 + Math.sin(t * 0.38) * 0.0045) * fit.planeScale;
+        lionGroup.scale.set(bScale, bScale, fit.planeScale);
+        partGroup.scale.set(fit.planeScale, fit.planeScale, fit.planeScale);
       }
 
       renderer!.render(scene, camera);
@@ -1050,7 +1117,8 @@ export default function LionExperience() {
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("resize", onResizeLayout);
+      unsubscribeViewport();
+      stopViewport();
       window.removeEventListener("deviceorientation", handleOrient);
       try { renderer.dispose(); } catch {}
       try { wrap.removeChild(canvas); } catch {}
@@ -1108,6 +1176,10 @@ export default function LionExperience() {
           justifyContent: "flex-end",
           paddingBottom: "7.5vh",
           zIndex: 20,
+          /* Fully retired by the time the lion has finished stepping back to
+             its resting position, which is the moment the navigation exists. */
+          opacity: "calc(1 - min(1, var(--recession, 0) / 0.3))",
+          transition: "opacity 600ms ease",
         }}
       >
         <h1

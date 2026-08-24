@@ -26,6 +26,7 @@ import {
   getRollingStoryFrame,
 } from "./rolling-story-timeline";
 import styles from "./lion-scene.module.css";
+import { Viewport } from "@/components/graphics/viewport";
 
 const STRUCTURE_SOURCE = "/assets/lion-structure.bin";
 const FONT_SOURCE = "/assets/gentilis_regular.typeface.json";
@@ -243,11 +244,11 @@ function explosionFor(structure: LionStructure, index: number) {
   };
 }
 
-function createParticleMaterial(motionEnabled: boolean) {
+function createParticleMaterial(motionEnabled: boolean, pixelRatio: number) {
   return new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
-      uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+      uPixelRatio: { value: pixelRatio },
       uPointer: { value: new THREE.Vector2() },
       uMotion: { value: motionEnabled ? 1 : 0 },
       uFormation: { value: motionEnabled ? 0 : 1 },
@@ -265,7 +266,11 @@ function createParticleMaterial(motionEnabled: boolean) {
   });
 }
 
-function buildLionParticles(structure: LionStructure, motionEnabled: boolean) {
+function buildLionParticles(
+  structure: LionStructure,
+  motionEnabled: boolean,
+  pixelRatio: number,
+) {
   const colors = new Float32Array(structure.count * 3);
   const explosions = new Float32Array(structure.count * 3);
   const delays = new Float32Array(structure.count);
@@ -300,7 +305,7 @@ function buildLionParticles(structure: LionStructure, motionEnabled: boolean) {
   geometry.setAttribute("aExplode", new THREE.BufferAttribute(explosions, 3));
   geometry.setAttribute("aDelay", new THREE.BufferAttribute(delays, 1));
 
-  const material = createParticleMaterial(motionEnabled);
+  const material = createParticleMaterial(motionEnabled, pixelRatio);
   return { mesh: new THREE.Points(geometry, material), material };
 }
 
@@ -369,7 +374,7 @@ function buildFilaments(structure: LionStructure) {
   return { mesh: new THREE.LineSegments(geometry, material), material };
 }
 
-function buildEyeClusters(motionEnabled: boolean) {
+function buildEyeClusters(motionEnabled: boolean, pixelRatio: number) {
   const positions: number[] = [];
   const colors: number[] = [];
   const phases: number[] = [];
@@ -403,7 +408,7 @@ function buildEyeClusters(motionEnabled: boolean) {
   geometry.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
   geometry.setAttribute("aExplode", new THREE.Float32BufferAttribute(explosions, 3));
   geometry.setAttribute("aDelay", new THREE.Float32BufferAttribute(delays, 1));
-  const material = createParticleMaterial(motionEnabled);
+  const material = createParticleMaterial(motionEnabled, pixelRatio);
   return { mesh: new THREE.Points(geometry, material), material };
 }
 
@@ -572,6 +577,13 @@ export default function LionScene({
     let viewportHeight = 9.3;
     let viewportWidth = 16.5;
     const abortController = new AbortController();
+    /* Measurement comes from the shared contract, the same one the homepage
+       underneath reads. Two scenes composited on one screen cannot each decide
+       independently how big the screen is or what pixel ratio to draw at. */
+    const viewport = new Viewport();
+    const stopViewport = viewport.observe(canvas.parentElement ?? canvas);
+    let measured = viewport.current;
+    const particlePixelRatio = () => Math.min(measured.dpr, 2);
     const pointer = new THREE.Vector2();
     const smoothPointer = new THREE.Vector2();
     const scene = new THREE.Scene();
@@ -663,8 +675,8 @@ export default function LionScene({
     let outroAnnounced = false;
 
     const resize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const width = measured.width;
+      const height = measured.height;
       const nextLayout: StoryLayout =
         width < 720 || width / height < 0.75 ? "mobile" : "desktop";
       if (nextLayout !== currentLayout && timelineTime >= ROLLING_STORY_START) {
@@ -676,8 +688,9 @@ export default function LionScene({
         timelineTime = ROLLING_STORY_START + storyProgress * newDuration;
       }
       currentLayout = nextLayout;
-      const preferredRatio = qualityReduced ? 1 : currentLayout === "mobile" ? 1.25 : 1.5;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, preferredRatio));
+      /* One pixel-ratio policy for both scenes; the intro keeps only its own
+         adaptive floor, which drops to 1 when frames start arriving late. */
+      renderer.setPixelRatio(qualityReduced ? 1 : measured.dpr);
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -696,7 +709,10 @@ export default function LionScene({
     };
 
     const onPointerMove = (event: PointerEvent) => {
-      pointer.set(event.clientX / window.innerWidth * 2 - 1, -(event.clientY / window.innerHeight * 2 - 1));
+      pointer.set(
+        (event.clientX / measured.width) * 2 - 1,
+        -((event.clientY / measured.height) * 2 - 1),
+      );
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLButtonElement) return;
@@ -721,7 +737,10 @@ export default function LionScene({
       previousTimestamp = performance.now();
     };
 
-    window.addEventListener("resize", resize);
+    const unsubscribeViewport = viewport.subscribe((next) => {
+      measured = next;
+      resize();
+    });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("keydown", onKeyDown);
     canvas.addEventListener("webglcontextlost", onContextLost);
@@ -758,9 +777,13 @@ export default function LionScene({
             seed: 81_013,
           }),
         };
-        const particles = buildLionParticles(structure, motionEnabled);
+        const particles = buildLionParticles(
+          structure,
+          motionEnabled,
+          particlePixelRatio(),
+        );
         const filaments = buildFilaments(structure);
-        const eyes = buildEyeClusters(motionEnabled);
+        const eyes = buildEyeClusters(motionEnabled, particlePixelRatio());
         particleMaterial = particles.material;
         eyeMaterial = eyes.material;
         filamentMaterial = filaments.material;
@@ -977,7 +1000,8 @@ export default function LionScene({
       disposed = true;
       abortController.abort();
       cancelAnimationFrame(animationFrame);
-      window.removeEventListener("resize", resize);
+      unsubscribeViewport();
+      stopViewport();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("keydown", onKeyDown);
       canvas.removeEventListener("webglcontextlost", onContextLost);

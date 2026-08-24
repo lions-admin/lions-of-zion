@@ -164,6 +164,28 @@ export const ACTOR_KINDS = [
 export const actorKindSchema = enumOf(ACTOR_KINDS);
 export type ActorKind = z.infer<typeof actorKindSchema>;
 
+/** Attributing a narrative to one of these is a claim of a different order
+ *  from noting that an account shared something, so an observation naming
+ *  such an actor does not count until a human confirms it. Same shape as
+ *  `NEVER_AUTOMATED_CAPABILITIES`: the list is held once and the SQL
+ *  duplicates it deliberately, with a test asserting the two agree. */
+export const ATTRIBUTION_NEEDS_REVIEW: readonly ActorKind[] = Object.freeze(["state", "network"]);
+
+/* ── Narratives ────────────────────────────────────────────────────────────
+   A narrative's lifecycle describes its trajectory, not a verdict on it.
+   `dormant` and `retired` are deliberately distinct: dormant means it went
+   quiet and could return — which happens constantly with recycled claims —
+   while retired means we have stopped tracking it. */
+export const NARRATIVE_STATUSES = [
+  "emerging",
+  "active",
+  "declining",
+  "dormant",
+  "retired",
+] as const;
+export const narrativeStatusSchema = enumOf(NARRATIVE_STATUSES);
+export type NarrativeStatus = z.infer<typeof narrativeStatusSchema>;
+
 /* ── Provenance ───────────────────────────────────────────────────────────── */
 export const CHANGE_SOURCES = [
   "human_edit",
@@ -185,6 +207,7 @@ export const ENTITY_TYPES = [
   "source",
   "event",
   "actor",
+  "narrative",
   "news_update",
   "brief",
   "geopolitical_analysis",

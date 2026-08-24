@@ -25,6 +25,11 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "scripts/**",
     "server/db/migrations/**",
+    /* Agent tooling, not application source — the same call already made for
+       `scripts/**`. It also contains git worktrees, each a full checkout with
+       its own node_modules: without this, `npm run lint` walks into bundled
+       vendor code and reports thousands of errors in files nobody wrote. */
+    ".claude/**",
   ]),
 
   {

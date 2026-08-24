@@ -27,6 +27,7 @@ import {
   INFORMATION_ITEM_TYPES,
   ITEM_STATUSES,
   LIKELIHOOD_BANDS,
+  NARRATIVE_STATUSES,
   PUBLICATION_KINDS,
   PUBLICATION_STATUSES,
   QUEUE_STATES,
@@ -54,3 +55,4 @@ export const likelihoodBand = pgEnum("likelihood_band", LIKELIHOOD_BANDS);
 export const publicationStatus = pgEnum("publication_status", PUBLICATION_STATUSES);
 export const publicationKind = pgEnum("publication_kind", PUBLICATION_KINDS);
 export const reportStatus = pgEnum("report_status", REPORT_STATUSES);
+export const narrativeStatus = pgEnum("narrative_status", NARRATIVE_STATUSES);

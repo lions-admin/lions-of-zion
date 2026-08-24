@@ -41,7 +41,7 @@ destinations pending section content.
 - The in-app browser may render a black intro because it throttles hidden-tab
   animation. Use the real-Chrome scripts for visual evidence.
 
-## Backend — all 8 phases complete
+## Backend — 8 phases complete, plus Phase 9 (narrative monitoring)
 
 The frontend integration and the backend are developed independently and share
 no source files; they met only in `package.json` and this journal. No backend
@@ -196,6 +196,37 @@ per-region and recycled, so an in-process counter is a limit per lambda, which
 is no limit at all. `bump_rate_limit` increments and returns in one statement,
 and a refused request still counts — otherwise being over the limit grants a
 free retry every time.
+
+Phase 9 shipped narrative and actor monitoring — the layer the eight-phase
+plan never scheduled. `actor` finally uses `actor_kind`, declared in Phase 1
+and orphaned for eight phases. Also: `narrative` (with trigger-maintained
+`first_seen_at`/`last_seen_at`/`observation_count`), `narrative_item`,
+append-only `narrative_observation`, and the `narrative_activity()` function.
+
+**The signal is counted in source families, not accounts.** This is the whole
+point, and it is the first real use of `source_family` from Phase 3. Twenty
+accounts inside one family is a megaphone; three across three families is a
+story travelling. A test seeds exactly that pair and asserts the amplified one
+has *more* observations and *more* actors — so a system ranking by volume
+would put the megaphone first — while `distinctFamilies` (1 vs 3) and the
+`reading` field tell them apart. `GET /api/v1/monitoring/now` is the endpoint
+the phase is measured by.
+
+Two rules worth knowing: an observation **cannot exist without evidence**
+(`evidence_id NOT NULL`, mutation-tested), and attributing a narrative to a
+`state` or `network` actor cannot be confirmed by an automated identity —
+unconfirmed attributions of that kind stay in the table as leads but drive no
+signal at all.
+
+A narrative deliberately has **no `assessment` column**; a test asserts it.
+The claims composing it get verdicts individually — one sweeping verdict over
+a theme is the overreach this platform documents.
+
+**Also fixed:** the three routes that had no auth check (`/v1/review-queue`,
+`/v1/source-families`, `/v1/evidence/[id]`) now call `requireActor`. And
+`.claude/**` is now in the ESLint ignore list — it holds git worktrees, each a
+full checkout with its own `node_modules`, so linting walked into bundled
+vendor code and reported thousands of errors in files nobody wrote.
 
 **Both suites have been mutation-tested.** Removing the `audit_log` append-only
 trigger turns exactly two tests red.

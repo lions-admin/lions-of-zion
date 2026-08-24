@@ -11,9 +11,9 @@ import "server-only";
  */
 
 import { eq } from "drizzle-orm";
-import { evidence, informationItem } from "@/server/db/schema";
+import { evidence, informationItem, narrative } from "@/server/db/schema";
 import { searchRepo } from "./repo";
-import { isIndexable, projectEvidence, projectItem } from "./projection";
+import { isIndexable, projectEvidence, projectItem, projectNarrative } from "./projection";
 import type { EntityType } from "@/server/contracts/enums";
 import type { SearchQuery, SearchResult } from "@/server/contracts/search";
 import type { Evidence, InformationItem } from "@/server/db/schema";
@@ -82,9 +82,23 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
         return "indexed";
       }
 
+      if (entityType === "narrative") {
+        const [row] = (await loader
+          .select()
+          .from(narrative)
+          .where(eq(narrative.id, entityId))
+          .limit(1)) as { id: string; title: string; summary: string | null; language: string }[];
+        if (!row) {
+          await repo.remove(entityType, entityId);
+          return "removed";
+        }
+        await repo.upsert(projectNarrative(row));
+        return "indexed";
+      }
+
       /* Every other entity type is queued by `recordVersion` but has no
          projection yet. Removing rather than throwing keeps the consumer
-         idempotent for types whose surfaces arrive in Phase 8. */
+         idempotent for types whose surfaces arrive later. */
       await repo.remove(entityType, entityId);
       return "removed";
     },

@@ -113,6 +113,20 @@
       "when": 1787578950585,
       "tag": "0015_rls_and_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1787584103530,
+      "tag": "0016_narratives_and_actors",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1787584194178,
+      "tag": "0017_narrative_rules",
+      "breakpoints": true
     }
   ]
 }

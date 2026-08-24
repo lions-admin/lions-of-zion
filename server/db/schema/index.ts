@@ -13,3 +13,4 @@ export * from "./ai";
 export * from "./chat";
 export * from "./publications";
 export * from "./reports";
+export * from "./narratives";

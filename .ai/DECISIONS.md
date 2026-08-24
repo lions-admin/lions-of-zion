@@ -10,6 +10,67 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — Independence is counted in source families, not accounts
+
+Phase 9's whole signal rests on one choice: `narrative_activity()` counts
+`DISTINCT source_family_id`, not `DISTINCT actor_id`.
+
+Twenty accounts inside a single source family is one megaphone. Three accounts
+across three families is a story actually travelling. A monitoring view that
+ranks by account volume reports the megaphone as the larger event — which is
+the exact failure `source_family` was introduced in Phase 3 to prevent, and
+this is the first place it does that work. Until now it only served
+corroboration counting.
+
+The test that proves it seeds both shapes and asserts the amplified narrative
+has **more** observations and **more** distinct actors than the spreading one.
+Any system sorting by volume puts it first. Only the family count (1 vs 3) and
+the `reading` field separate them.
+
+The reading itself (`independent_spread` / `mixed` / `likely_amplification`)
+lives in `server/contracts/narrative.ts::readActivity` so no client invents its
+own threshold, and it is deliberately coarse — a precise cutoff would imply a
+precision the underlying counts do not have, the same reasoning that keeps
+numeric probabilities off scenarios.
+
+## 2026-08-24 — A narrative has no verdict, and an observation has no anonymity
+
+Two shapes in Phase 9 that look like omissions and are not.
+
+**`narrative` carries no `assessment` column**, and a test asserts it stays
+that way. A whole theme is not "false" — the claims composing it are what get
+checked, each on its own, and findings about the narrative are the
+accumulation of those. One sweeping verdict over a theme is precisely the
+overreach this platform exists to document.
+
+**`narrative_observation.evidence_id` is NOT NULL.** An attribution with no
+source is the exact kind of claim the product refuses from others, so it must
+be structurally impossible to produce internally. Mutation-tested: making the
+column nullable turns exactly the right test red.
+
+Related: attributing a narrative to a `state` or `network` actor cannot be
+confirmed by an automated identity. Naming an account as a sharer is an
+observation; naming a state as the author of a campaign is a claim of another
+order. The kind lives on `actor`, so this could not be a single-row CHECK like
+`manipulated_requires_elevated_review` — it is the same rule in the only form
+available across tables. Unconfirmed attributions of that kind remain as leads
+and drive no signal.
+
+## 2026-08-24 — `.claude/**` is not application source
+
+`npm run lint` began reporting ~6,900 problems, 420 of them errors, in files
+nobody in this project wrote. All of them were under `.claude/` — which holds
+git worktrees, each a full checkout with its own `node_modules`, so ESLint was
+walking into bundled vendor code.
+
+Added to `globalIgnores`, the same call already made for `scripts/**`.
+
+Worth knowing separately: the worktree at
+`.claude/worktrees/test-server-setup-391c0b` is ~941 MB and holds
+**uncommitted** frontend changes (`app/layout.tsx`,
+`components/particle-nav/*`, `.ai/*`). It was left alone deliberately — it is
+someone's work in progress, not cruft to clean up.
+
 ## 2026-08-24 — The four publication surfaces are one table
 
 The brief lists `news_update`, `brief`, `geopolitical_analysis` and `scenario`

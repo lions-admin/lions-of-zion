@@ -41,6 +41,24 @@ export function projectItem(item: InformationItem): Projection {
   };
 }
 
+/** A narrative is searchable by its theme, not by its verdict — it has none.
+ *  What a person searches for here is the framing itself ("staged footage",
+ *  "crisis actors"), which lives in the title and summary. */
+export function projectNarrative(narrative: {
+  id: string;
+  title: string;
+  summary: string | null;
+  language: string;
+}): Projection {
+  return {
+    entityType: "narrative",
+    entityId: narrative.id,
+    title: narrative.title,
+    body: join(narrative.summary),
+    language: narrative.language,
+  };
+}
+
 export function projectEvidence(evidence: Evidence): Projection {
   return {
     entityType: "evidence",

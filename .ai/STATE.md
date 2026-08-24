@@ -1,122 +1,67 @@
 # State
 
-What is true right now. Rewritten in place — this file is never a history, it
-is a snapshot. History lives in `DECISIONS.md` and in `git log`.
-
-Anything derivable from git (what changed, who changed it, when) does not
-belong here. Only what git cannot tell you: intent, position, and what is
-half-finished.
+Snapshot of intent and current position. Git is the history; durable reasoning
+lives in `DECISIONS.md`.
 
 _Last updated: 2026-08-24_
 
-## Where the work is
+## Frontend
 
-The repo holds two unrelated things, deliberately kept apart:
+The original particle story intro is preserved. Its old photographic
+post-intro landing page and legacy navigation have been removed and replaced by
+the Fabele particle navigation:
 
-1. **The WebGL experience** — deployed at <https://lions-of-zion.vercel.app>,
-   and now a layer deeper than what is live. Graphics Task 02 is complete: the
-   background's dimensions are fixed and the navigation layer is built.
-2. **The backend** — Phases 1 and 2 of 8 complete. The information model
-   exists and is enforced; no sources, evidence or assessments yet.
+- a crowned lion assembled from tiered 45k/90k/180k particle buffers;
+- eight radial routes whose nodes, connectors and DOM labels share one
+  responsive `OrbitLayout`;
+- a blue particle network scan with readable misinformation-context labels and
+  social-platform symbols; no stars and no photographic background;
+- WebGPU/TSL first, WebGL2 fallback, and an SSR poster/no-JavaScript path;
+- Cinzel labels, accessible 44px targets and visible keyboard focus;
+- the isolated `/particle-demo` tuning and fallback route.
 
-**What is deployed is behind what is committed.** Vercel deploys are manual and
-none has been run for this work.
+`Experience.tsx` starts the new GPU engine only at the intro's outro. The new
+lion assembles during the same 2.8 seconds in which the intro veil clears. The
+DOM links and fallback poster are present in the initial HTML, but become inert
+after hydration while the intro runs. Without JavaScript the intro enhancement
+is hidden and the links remain usable.
 
-The full eight-phase plan is at `~/.claude/plans/splendid-discovering-dawn.md`.
-Read it before starting Phase 3; the sequencing has reasons.
+All eight routes exist as real Next.js pages. They are intentionally placeholder
+destinations pending section content.
 
-## Graphics Task 02 — complete
+## Verification
 
-The specification is `docs/graphics-task-02.md`; it is the contract, and where
-the implementation deviates from it the reasoning is in `DECISIONS.md`.
+- `npm run typecheck`, `npm test`, `npm run lint`, and `npm run build` pass.
+- The real-Chrome matrix passes at 320×568, 390×844, 768×1024, 1024×768,
+  1254×1254, 1440×900, and 2560×1080: 8/8 links remain inside each viewport,
+  WebGPU is live, and there are no console errors or overlays.
+- The end-to-end pass confirms intro → skip/outro → WebGPU navigation, a live
+  forced-WebGL2 scene, keyboard focus, and a usable no-JavaScript poster with
+  eight links.
+- The in-app browser may render a black intro because it throttles hidden-tab
+  animation. Use the real-Chrome scripts for visual evidence.
 
-**Stage 0, the dimensional correction.** `components/graphics/viewport.ts`
-solves one continuous cover fit. The old two-branch heuristic covered neither a
-wide desktop window nor a phone and jumped 44% in scale between them; it also
-failed vertically at 16:9, which the task document said it did not.
+## Backend
 
-**Stage 1, the coordinate contract.** One `Viewport` owns element size, aspect,
-one DPR policy, the world half-extents, the cover fit and the focal point. Both
-existing scenes read it — no scene code measures the window any more.
-`LionExperience` gained `setRecession(t)`, the only thing the layer above may
-ask of it.
+Phases 1 and 2 remain complete: schema foundation and information model. Neon,
+Blob and AI Gateway are intentionally unprovisioned. No backend service was
+changed by the frontend integration.
 
-**The navigation layer**, `components/nav/`: the radial core, eight nodes, the
-hover attraction field, the connection curves, the central mark, an eleven-icon
-family, the section transfer, the reveal sweep and the convergence burst.
-GRAPHIC 07, the verification shield, is deliberately out of scope — it is
-Task 03. Six draw calls: one `LineSegments` for every line in the system, one
-`Points` for every particle.
+## Deployment
 
-The eight sections have no destinations. `activeSection` is set locally and no
-graphic reads a URL; attaching routes later replaces one adapter.
+This particle-navigation integration is the current main implementation. Git
+auto-deploy is disconnected from the private GitHub organization, so production
+releases use an explicit Vercel CLI deployment after the commit and local gates
+have passed.
 
-### How it is verified
+## Next
 
-- `tests/composition-fit.test.ts` and `tests/nav-layout.test.ts` — 26
-  invariants covering cover at every aspect, continuity, the single shared
-  breakpoint, and the gold budget as an area bound.
-- `scripts/verify-composition.mjs` — a real browser at the six aspects in the
-  document's matrix, driving the nav through rest, hover, active and transfer,
-  plus the intro handoff and a run with WebGL disabled.
-
-**The container runs SwiftShader, so frame rate is not verified here.** Geometry,
-framing, layout, interaction and accessibility are. The performance budget in
-the document still needs a pass on real hardware, per `CLAUDE.md`.
-
-## Backend — Phases 1 and 2 complete and green
-
-`npm test` 74/74, `tsc --noEmit` clean, `npm run lint` clean (3 pre-existing
-warnings in `LionExperience.tsx`, 1 elsewhere), `npm run build` succeeds with
-four dynamic routes. There is a `npm run typecheck` script, despite what
-`CLAUDE.md` says.
-
-Phase 1 shipped the foundation: dual database client (WebSocket Neon for
-production, PGlite for tests), 16 enum types generated from the contract arrays,
-the infrastructure tables, append-only and anti-automation triggers, the RFC 9457
-HTTP layer, and ESLint boundary rules.
-
-Phase 2 shipped the information model: `information_item` with its two axes kept
-apart, `topic`, `event`, table-driven status transitions enforced by a trigger
-that also writes the trail, the derived-column guard, `recordVersion()` as the
-single versioned write path, and items CRUD at `/api/v1/items`.
-
-**Both suites have been mutation-tested.** Removing the `audit_log` append-only
-trigger turns exactly two tests red.
-
-Both Phase 2 questions from the plan are settled — see `DECISIONS.md`. `edited`
-was unreachable and was given inbound edges rather than deleted; the derived
-columns are guarded now, and the trigger that *maintains* them arrives in Phase 4
-with `item_assessment`, which is the table they derive from.
-
-## Next — Phase 3, sources and ingestion
-
-`source_family`, `source`, `source_fetch`, `evidence`, `evidence_provenance`, the
-`SourceConnector` interface with a static registry and an RSS connector, raw
-bytes to Blob, the outbox drain, and the first Cron and Queue.
-
-`source_family` is the addition to the brief that matters most: without it, five
-outlets republishing one wire report count as five independent corroborations.
-
-## Next, if the graphics thread continues
-
-Task 03 is the verification shield (GRAPHIC 07) — the only section with a data
-model behind it, and the one that would prove the target-morphing model end to
-end. Before that, the performance pass on real hardware.
-
-## In flight (uncommitted)
-
-Nothing.
+- Migrate the preserved intro into the same WebGPU/TSL renderer so the complete
+  experience uses one Canvas and one particle system.
+- Replace the eight placeholder section pages as their content is designed.
+- Backend Phase 3 remains sources and ingestion.
 
 ## Blocked
 
-**Nothing is provisioned, by choice.** Neon, Blob and AI Gateway are all
-unconfigured; `/api/internal/health` reports every integration as `false`. The
-code runs and the whole suite passes without them. Provision when ready and the
-same code connects — `DATABASE_URL` must be the **pooled** (`-pooler`) string,
-because the WebSocket driver needs interactive transactions and the HTTP driver
-silently voids row-level security.
-
-**Vercel git auto-deploy** is still disconnected: the Vercel account cannot see
-private repos under `lions-admin`. Deploys are manual `vercel --prod`. Pushing
-to GitHub deploys nothing.
+Nothing in the frontend implementation. Backend service provisioning remains
+deferred by choice.

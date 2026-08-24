@@ -1,18 +1,33 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://lions-of-zion.vercel.app"),
   title: "LIONS OF ZION — Truth Has a Signal",
   description: "A cinematic awakening from digital darkness.",
+  openGraph: {
+    title: "LIONS OF ZION — Truth Has a Signal",
+    description: "A cinematic awakening from digital darkness.",
+    images: ["/posters/particle-nav.webp"],
+  },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

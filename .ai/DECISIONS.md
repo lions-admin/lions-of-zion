@@ -10,6 +10,24 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — The intro hands off to one deferred particle navigation, with a real static path
+
+The photographic post-intro page was not adapted; it was retired. The target
+visual language is a single particle system — crowned lion, radial navigation
+and network scan — and keeping the photograph underneath would preserve the
+very composition this integration replaces.
+
+The new GPU scene does not run beside the intro for the full story. It starts at
+`onOutroStart`, so its 2.8-second lion assembly coincides with the intro's
+2.8-second veil reveal. This preserves a continuous handoff without paying for
+two full particle engines for roughly forty seconds.
+
+The navigation DOM and poster still render in the first HTML response. They are
+made inert only after hydration proves the intro can run. A `noscript` rule
+hides the intro enhancement, leaving the poster and the same eight real links
+usable when JavaScript or GPU startup is unavailable. This is why the static
+path is not a second navigation implementation.
+
 ## 2026-08-24 — The cover fit is solved for, not chosen, and the document was wrong about it
 
 `docs/graphics-task-02.md` identified two ways the lion plane failed to cover its

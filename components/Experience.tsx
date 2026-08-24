@@ -1,63 +1,84 @@
 "use client";
 
-import { useCallback, useRef, useState, useSyncExternalStore } from "react";
-import LionExperience, {
-  type LionExperienceHandle,
-} from "@/components/LionExperience";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import LionScene from "@/components/intro/lion-scene";
-import NavigationLayer from "@/components/nav/NavigationLayer";
+import { ParticleNav } from "@/components/particle-nav";
+import { defaultNodes } from "@/components/particle-nav/config";
+
+const subscribeToHydration = () => () => {};
 
 /**
- * The whole thing, in order: the particle intro, then the homepage, then the
- * navigation over both.
+ * The whole experience: the existing particle intro hands directly to the
+ * WebGPU particle navigation.
  *
- * The first two are not sequential mounts. The homepage renders from the first
- * frame and the intro plays *over* it — the intro's canvas is cleared with an
- * alpha of zero and its own veil is what holds the black. When the story
- * reaches its outro the veil fades over 2.8s, and what appears underneath is a
- * lion that has been waking the entire time rather than one starting from
- * nothing.
- *
- * That also means every escape from the intro is free. Skip it, fail to get a
- * WebGL context, or arrive asking for reduced motion, and the page below is
- * already there and already finished.
- *
- * The navigation waits for the intro, because the intro owns the screen while
- * it runs. Once it arrives, the only thing it asks of the layer beneath is how
- * far to step back.
+ * The real navigation DOM and fallback poster exist from the first HTML frame,
+ * but the expensive second GPU scene waits until the intro begins its 2.8s
+ * veil reveal. That reveal and the new lion's 2.8s particle assembly run
+ * together, preserving the cinematic handoff without running two full particle
+ * engines for the entire story. Skip, failure and reduced motion still land on
+ * a complete navigation immediately.
  */
 export default function Experience() {
   const reducedMotion = useReducedMotion();
+  const hydrated = useHydrated();
   const [introDone, setIntroDone] = useState(false);
-  const lionRef = useRef<LionExperienceHandle>(null);
+  const [navCanvasActive, setNavCanvasActive] = useState(false);
 
   // Read during render, not in an effect: mounting the intro and then tearing
   // it down would cost a reduced-motion reader the one frame it takes to
   // start, which is the frame they asked not to see.
   const showIntro = !introDone && !reducedMotion;
 
-  /* The whole coupling between the two layers. The navigation says how present
-     it needs the lion to be; the lion decides what that means. */
-  const handleRecession = useCallback((value: number) => {
-    lionRef.current?.setRecession(value);
+  const prepareNavigation = useCallback(() => {
+    setNavCanvasActive(true);
   }, []);
+
+  const completeIntro = useCallback(() => {
+    setNavCanvasActive(true);
+    setIntroDone(true);
+  }, []);
+
+  // On the server the navigation must remain usable: if JavaScript never
+  // starts, <noscript> hides the cinematic layer and the poster + real links
+  // are the complete experience. Hydration blocks them as soon as the intro
+  // can actually run.
+  const navigationBlocked = showIntro && hydrated;
+  const navigationInteractive = !navigationBlocked;
 
   return (
     <>
-      <LionExperience ref={lionRef} />
-      {showIntro ? (
-        <LionScene
-          mode="handoff"
-          onComplete={() => setIntroDone(true)}
-          /* No context, or the structure data would not load. There is a
-             homepage underneath already; showing a wall of fallback prose in
-             front of it would be the worse of the two. */
-          onFailure={() => setIntroDone(true)}
+      <main
+        aria-hidden={navigationBlocked || undefined}
+        inert={navigationBlocked ? true : undefined}
+        style={{ position: "fixed", inset: 0, zIndex: 0 }}
+      >
+        <ParticleNav
+          nodes={defaultNodes}
+          active={navCanvasActive || navigationInteractive}
         />
-      ) : (
-        <NavigationLayer onRecession={handleRecession} />
-      )}
+      </main>
+      {showIntro ? (
+        <div data-intro-enhancement="">
+          <LionScene
+            mode="handoff"
+            onOutroStart={prepareNavigation}
+            onComplete={completeIntro}
+            onFailure={completeIntro}
+          />
+        </div>
+      ) : null}
+      <noscript>
+        <style>{"[data-intro-enhancement]{display:none!important}"}</style>
+      </noscript>
     </>
+  );
+}
+
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
   );
 }
 

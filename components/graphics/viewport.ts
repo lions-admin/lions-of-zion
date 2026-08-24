@@ -16,9 +16,9 @@
  * Composition constants
  *
  * These describe the one composition both scenes share. They were previously
- * local to `LionExperience`'s effect body; they are exported now because the
- * cover fit, the focal point and the nav layout are all derived from them and
- * a second copy is how a quantisation scale silently drifts.
+ * local to the retired photographic landing scene. They remain exported
+ * because the preserved intro and its tests still share this coordinate
+ * contract; a second copy is how a quantisation scale silently drifts.
  * ------------------------------------------------------------------ */
 
 /** Camera field of view, degrees. */

@@ -1,0 +1,145 @@
+/*
+ * Accessibility rules locked here (brief §9):
+ *  - label colour #C9A24B on #070B14 clears 4.5:1 — never dim it for atmosphere
+ *  - focus ring 2px #EFD79A, 3px offset — never remove the outline
+ */
+
+.root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  background: #070b14;
+}
+
+/* ---- poster (no-WebGL2 tier + pre-canvas frame) ---- */
+.poster {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  transition: opacity 600ms ease;
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.root[data-canvas] .poster,
+.root[data-live] .poster {
+  opacity: 0;
+}
+
+/* ---- canvas ---- */
+.canvasWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+.canvasWrap.canvasLive {
+  opacity: 1;
+}
+
+.canvasWrap.fadeOut {
+  opacity: 0 !important;
+  transition: opacity var(--fade-ms, 180ms) ease-out;
+}
+
+/* ---- the real nav ---- */
+.nav {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  inset: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+
+/* Pure-CSS radial layout for the no-JS path; the live canvas overrides
+   left/top with projected px on these same elements. */
+.item {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  transform: translate(-50%, -50%);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(5.5rem, 11.2vmin, 8.5rem);
+  height: clamp(5.5rem, 11.2vmin, 8.5rem);
+  min-width: 44px;
+  min-height: 44px;
+  padding: clamp(0.45rem, 1.2vmin, 0.8rem);
+  border-radius: 50%;
+  text-decoration: none;
+  color: #c9a24b; /* locked: 4.5:1 on #070B14 */
+  border: 1px solid rgba(201, 162, 75, 0.22);
+  transition: color 200ms ease, border-color 200ms ease, text-shadow 200ms ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: #efd79a;
+  border-color: rgba(239, 215, 154, 0.9);
+  text-shadow: 0 0 18px rgba(239, 215, 154, 0.45);
+}
+
+/* visible focus ring: 2px #EFD79A, 3px offset — do not remove (brief §9) */
+.link:focus-visible {
+  outline: 2px solid #efd79a;
+  outline-offset: 3px;
+}
+
+/* once the canvas is live the drawn ring replaces the CSS border */
+.root[data-live] .link {
+  border-color: transparent;
+}
+
+.label {
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: clamp(0.58rem, 1.15vmin, 0.86rem);
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  text-align: center;
+  text-transform: uppercase;
+  max-width: 8.25rem;
+  line-height: 1.35;
+  transform: translateY(clamp(0.62rem, 1.65vmin, 1rem));
+}
+
+@media (max-width: 640px) {
+  .label {
+    letter-spacing: 0.12em;
+    max-width: 5.2rem;
+  }
+}
+
+/* Reduced motion is a designed path (brief §7): DOM transitions collapse to
+   quick colour cross-fades; the canvas side is handled via uniforms. */
+@media (prefers-reduced-motion: reduce) {
+  .poster,
+  .canvasWrap,
+  .link {
+    transition-duration: 200ms;
+  }
+}

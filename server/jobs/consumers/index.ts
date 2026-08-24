@@ -16,17 +16,40 @@ import "server-only";
  */
 
 import { TOPICS } from "@/server/core/outbox";
+import { search } from "@/server/modules/search";
+import { entityTypeSchema } from "@/server/contracts/enums";
 
 export type ConsumerContext = { entityType: string | null; entityId: string | null };
 export type Consumer = (payload: unknown, ctx: ConsumerContext) => Promise<void>;
 
+/** The outbox carries the subject on the row as well as in the payload; the
+ *  row is authoritative because `recordVersion` sets it for every write. */
+function subjectOf(payload: unknown, ctx: ConsumerContext) {
+  const fromPayload = payload as { entityType?: unknown; id?: unknown } | null;
+  const entityType = ctx.entityType ?? fromPayload?.entityType;
+  const entityId = ctx.entityId ?? fromPayload?.id;
+
+  const parsed = entityTypeSchema.safeParse(entityType);
+  if (!parsed.success || typeof entityId !== "string") return null;
+  return { entityType: parsed.data, entityId };
+}
+
 const CONSUMERS: Record<string, Consumer> = {
-  [TOPICS.searchReindex]: async () => {
-    // Reindexing arrives in Phase 5 with search_document and its projections.
+  [TOPICS.searchReindex]: async (payload, ctx) => {
+    const subject = subjectOf(payload, ctx);
+    /* A message naming no entity cannot be retried into working, so it is
+       dropped rather than thrown — throwing would redeliver it forever. */
+    if (!subject) return;
+    await search().reindex(subject.entityType, subject.entityId);
   },
+
   [TOPICS.embeddingRefresh]: async () => {
-    // Embeddings arrive in Phase 6 with the AI Gateway client.
+    /* Embeddings are pulled from the backlog by the cron, not pushed per
+       message: the backlog is derived from a hash comparison, so it is
+       already correct without anyone telling it what changed. This topic is
+       kept as a way to nudge that cron early, and does nothing on its own. */
   },
+
   [TOPICS.itemDetected]: async () => {
     // Reserved for a future notification job; nothing subscribes yet.
   },

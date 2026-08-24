@@ -1,7 +1,8 @@
 {
   "crons": [
     { "path": "/api/internal/cron/ingest", "schedule": "*/15 * * * *" },
-    { "path": "/api/internal/cron/outbox-drain", "schedule": "*/2 * * * *" }
+    { "path": "/api/internal/cron/outbox-drain", "schedule": "*/2 * * * *" },
+    { "path": "/api/internal/cron/embed", "schedule": "*/10 * * * *" }
   ],
   "functions": {
     "app/api/internal/queue/outbox-dispatch/route.ts": {

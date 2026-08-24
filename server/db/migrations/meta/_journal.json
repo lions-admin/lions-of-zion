@@ -57,6 +57,20 @@
       "when": 1787562179944,
       "tag": "0007_evidence_and_assessment_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787574929098,
+      "tag": "0008_search_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787574945986,
+      "tag": "0009_search_hybrid",
+      "breakpoints": true
     }
   ]
 }

@@ -41,7 +41,7 @@ destinations pending section content.
 - The in-app browser may render a black intro because it throttles hidden-tab
   animation. Use the real-Chrome scripts for visual evidence.
 
-## Backend — Phases 1–4 of 8 complete
+## Backend — Phases 1–5 of 8 complete
 
 The frontend integration and the backend are developed independently and share
 no source files; they met only in `package.json` and this journal. No backend
@@ -95,6 +95,27 @@ The Phase 4 acceptance scenario from the plan (evidence → confirmed edges →
 refused self-approval → assessment → second-human review → publish, with the
 first assessment preserved as superseded) is `tests/assessment-service.test.ts`.
 
+Phase 5 shipped search: `search_document` (one denormalised projection row per
+entity, two generated `tsvector` columns, trigram index on the title only),
+pure `projectItem`/`projectEvidence`/`isIndexable` projections,
+`search_hybrid()` fusing its arms with Reciprocal Rank Fusion in one SQL
+round trip, the reindex consumer (`TOPICS.searchReindex` is no longer a no-op
+— it has been queuing rows since Phase 2 and now does the work), the
+embedding-backlog cron, and `/api/v1/search`.
+
+**The pgvector split is the thing to understand before touching search.**
+PGlite still has no pgvector (re-spiked this session; it has `pg_trgm`,
+`tsvector`, GIN and `ts_rank_cd`, and tokenises Hebrew and Arabic under
+`simple`). So migration `0009` creates the `embedding` column, its HNSW index
+and `search_hybrid` inside a conditional `DO` block, with **two function
+bodies of identical signature** — four arms where pgvector exists, three
+where it does not. Callers never branch: they pass an embedding or `NULL`.
+`search_document.embedding` is therefore deliberately **absent from the
+Drizzle schema**, because declaring it would break every `select()` locally.
+`search_has_semantic_arm()` reports which body is live, and `/api/v1/search`
+returns it as `semantic`, so lexical-only results are never mistaken for the
+whole answer.
+
 **Both suites have been mutation-tested.** Removing the `audit_log` append-only
 trigger turns exactly two tests red.
 
@@ -114,13 +135,13 @@ have passed.
 - Migrate the preserved intro into the same WebGPU/TSL renderer so the complete
   experience uses one Canvas and one particle system.
 - Replace the eight placeholder section pages as their content is designed.
-- **Backend Phase 5 is search**: `vector`/`pg_trgm`, `search_document`,
-  projections, the reindex consumer (`TOPICS.searchReindex` has queued rows
-  since Phase 2 — Phase 5 is where its consumer stops being a no-op), embedding
-  cron, `search_hybrid` (Reciprocal Rank Fusion, not score normalization), and
-  `/api/v1/search`. Confirm in a spike that PGlite still lacks pgvector (last
-  checked Phase 1) before assuming `TEST_DATABASE_URL`-gated tests are the only
-  path.
+- **Backend Phase 6 is AI**: `prompt_registry`, `ai_run`, `ai_suggestion`, the
+  AI Gateway client, the cost and budget guard, extraction/relation/translation
+  jobs, and the `translation` table. Phase 5 left exactly one seam for it:
+  `searchService(db, { embed })` takes an `Embedder` (`text => number[]`) and
+  currently receives none, so `/api/internal/cron/embed` reports its backlog
+  and embeds nothing. Wiring the gateway into `server/modules/search/index.ts`
+  is what turns the semantic arm on — no other search code changes.
 
 ## Blocked
 

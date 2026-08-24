@@ -10,6 +10,73 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — `search_hybrid` has two bodies and one signature
+
+PGlite ships no pgvector — re-spiked this session rather than assumed, and it
+still holds at 0.5.6 (`pg_available_extensions` has no `vector`; the package
+exports only `./contrib/*`). Everything else search needs is there: `pg_trgm`,
+generated `tsvector` columns, GIN, `ts_rank_cd`, and correct tokenisation of
+Hebrew and Arabic under the `simple` configuration.
+
+The obvious readings both fail. Declaring `embedding vector(1536)` in the
+Drizzle schema breaks every `db.select().from(searchDocument)` locally, which
+is most of the suite. Skipping search tests entirely until Neon is provisioned
+leaves the lexical arms — the majority of the retrieval logic — unexercised
+for however long that takes.
+
+So migration `0009` branches on `pg_available_extensions` in a `DO` block and
+creates `search_hybrid` with **one of two bodies**: four arms (simple, english,
+trigram, vector) where pgvector exists, three where it does not. The
+signatures are byte-identical, including `q_embedding text` — passed as a
+pgvector *text literal* precisely so the parameter needs no vector type.
+Callers pass an embedding or `NULL` and never inspect the environment.
+
+Consequences worth knowing:
+- `search_document.embedding` is intentionally **not** in the Drizzle schema.
+  Nothing reads it through the ORM; the vector arm is inside the function and
+  the backlog query names its columns explicitly.
+- `search_has_semantic_arm()` exists so this is observable rather than
+  inferred. `/api/v1/search` returns it as `semantic`, because "no semantic
+  results" and "semantic search is switched off" look identical in the output
+  and are very different problems.
+
+## 2026-08-24 — Retrieval is fused by rank, never by score
+
+`ts_rank_cd` and cosine similarity are not commensurable. Any function mapping
+one onto the other is a calibration, and a calibration rots as the corpus
+grows — silently, because nothing errors, results merely get worse in a way
+no test notices.
+
+Reciprocal Rank Fusion throws the scores away and keeps only each arm's
+ordering: an arm contributes `1/(60 + rank)`. Its single parameter is
+conventionally 60 and is famously insensitive. The fused score is comparable
+*within* one result set and meaningless outside it, which is why
+`searchHitSchema` documents it as such — it must never be rendered to a reader
+as a percentage or a confidence.
+
+Fusion happens in SQL, not TypeScript, because each arm run as its own query
+would cost a Neon round trip, and round trips are the whole latency budget.
+
+## 2026-08-24 — The embedding backlog is a hash comparison, not a queue
+
+`search_document` carries `content_hash` (generated) and
+`indexed_content_hash` (stamped when an embedding is stored). The backlog is
+`WHERE indexed_content_hash IS DISTINCT FROM content_hash`.
+
+There is deliberately no `pending`/`embedding`/`done` state column. A status
+column has to be set before the work and cleared after it, which means a crash
+in between strands the row in a state nobody reconciles — and the reconciler
+is the thing everyone forgets to write. A comparison cannot strand anything:
+if the embedding was never stored, the hashes still differ and the row is
+still in the backlog. The cron is consequently safe to run at any cadence and
+concurrently with itself.
+
+The same reasoning drives the reindex upsert's
+`WHERE title IS DISTINCT FROM excluded.title OR body IS DISTINCT FROM ...`:
+without it, every unrelated write to a source entity would bump `updated_at`
+and put the row back in the embedding backlog, so the platform would pay to
+re-embed text that never changed.
+
 ## 2026-08-24 — item_assessment's supersession pointer is not a foreign key
 
 `superseded_by_assessment_id` needs to be set on the *old* assessment before

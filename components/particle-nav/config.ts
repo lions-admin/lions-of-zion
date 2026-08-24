@@ -23,6 +23,9 @@ export const defaultSimParams: SimParams = {
   returnDurationMs: 900,
   pointSizeMin: 0.9,
   pointSizeMax: 1.85,
+  scanFieldOpacity: 0.3,
+  scanWordOpacity: 0.52,
+  scanGlyphOpacity: 0.55,
   bloomThreshold: 0.46,
   bloomStrength: 0.38,
   bloomRadius: 0.26,
@@ -49,6 +52,11 @@ export const simParamRanges: Record<keyof SimParams, [number, number, number]> =
   returnDurationMs: [100, 2500, 10],
   pointSizeMin: [0.5, 4, 0.05],
   pointSizeMax: [0.5, 6, 0.05],
+  // the ambient scan and its readable glyphs are tuned against each other,
+  // so both are on the demo panel rather than baked into the layer
+  scanFieldOpacity: [0, 1, 0.01],
+  scanWordOpacity: [0, 1, 0.01],
+  scanGlyphOpacity: [0, 1, 0.01],
   bloomThreshold: [0, 1, 0.01],
   bloomStrength: [0, 2, 0.01], // over-bloom is what makes particle work look cheap
   bloomRadius: [0, 1, 0.01],

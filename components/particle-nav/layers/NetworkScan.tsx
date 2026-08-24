@@ -6,22 +6,32 @@
  * the renderer). A dark exclusion mask is authored into the point layout so
  * the lion, spokes and navigation labels retain hierarchy.
  */
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Sprite } from 'three/webgpu';
-import { nodePosition, type OrbitLayout } from '../config';
+import { NODE_Z, nodePosition, type OrbitLayout } from '../config';
 import {
   createNetworkScanMaterial,
   type NetworkScanMaterialHandle,
 } from '../tsl/networkScanMaterial';
-import type { ParticleNavTheme } from '../types';
+import { loadScanFragments, type ScanFragment } from '../scanCorpus';
+import type { ParticleNavTheme, SimParams } from '../types';
 
 const CAMERA_Z = 8.2;
 const FOV = 45;
 const FIELD_Z = -1.35;
+/**
+ * Maps a point on the node plane to the field plane position that covers it on
+ * screen. Nodes sit at NODE_Z, not at the origin — dividing by CAMERA_Z drew
+ * every keep-out about 4% small, which is why hand-placed labels grazed the
+ * rings they were supposed to clear.
+ */
+const NODE_TO_FIELD = (CAMERA_Z - FIELD_Z) / (CAMERA_Z - NODE_Z);
 
 interface PointCloudData {
   field: Float32Array;
+  wordsHostile: Float32Array;
+  wordsVerified: Float32Array;
   glyphs: Float32Array;
   halfWidth: number;
   halfHeight: number;
@@ -75,6 +85,18 @@ const MOBILE_ICONS: IconSpec[] = [
   { icon: 'x', x: 0.7, y: 0.61 },
   { icon: 'instagram', x: 0.65, y: 0.16 },
   { icon: 'telegram', x: -0.68, y: 0.18 },
+];
+
+/**
+ * Shown only until the monitoring corpus loads, so the field is never empty on
+ * the first frames. Deliberately generic: the real copy is editorial content
+ * with sources, and lives in `public/matrix/`.
+ */
+const FALLBACK_FRAGMENTS: ScanFragment[] = [
+  { text: 'SCANNING NETWORK', tone: 'neutral' },
+  { text: 'SOURCE MONITOR: open channels', tone: 'neutral' },
+  { text: 'TRACE: propagation path', tone: 'amber' },
+  { text: 'AWAITING CORPUS', tone: 'blue' },
 ];
 
 function mulberry32(seed: number) {
@@ -131,7 +153,7 @@ function buildScanField(
 ) {
   const rng = mulberry32(0x5ca11fab);
   const out: number[] = [];
-  const depthScale = (CAMERA_Z - FIELD_Z) / CAMERA_Z;
+  const depthScale = NODE_TO_FIELD;
   const excluded = createExclusionTest(orbit, 8, depthScale);
   const rows = pointBudget <= 8_000 ? 32 : 52;
 
@@ -191,6 +213,8 @@ function appendCanvasParticles(
   y: number,
   targetHeight: number,
   seed: number,
+  stride = 2,
+  keep = 0.965,
 ) {
   const context = canvas.getContext('2d', { willReadFrequently: true });
   if (!context) return;
@@ -200,41 +224,55 @@ function appendCanvasParticles(
   const top = y + (canvas.height * scale) / 2;
   const rng = mulberry32(seed);
 
-  for (let py = 0; py < canvas.height; py += 2) {
-    for (let px = 0; px < canvas.width; px += 2) {
+  // Stride 2 over a canvas drawn at ~1.75x: the glyph outline is resolved
+  // finely enough that a stroke gets three samples across instead of one, and
+  // the low alpha cutoff keeps the antialiased rim that defines the edge.
+  for (let py = 0; py < canvas.height; py += stride) {
+    for (let px = 0; px < canvas.width; px += stride) {
       const alpha = pixels[(py * canvas.width + px) * 4 + 3];
-      if (alpha > 76 && rng() > 0.08) {
+      if (alpha > 64 && rng() < keep) {
         output.push(left + px * scale, top - py * scale, 0.55 + rng() * 0.45, rng());
       }
     }
   }
 }
 
-function makeTextCanvas(text: string) {
+const MONO_STACK = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+
+function makeTextCanvas(text: string, fontPx = 44, weight = 600, family = 'Arial, sans-serif') {
   const lines = text.split('\n');
+  const lineHeight = Math.round(fontPx * 1.25);
+  const pad = Math.round(fontPx * 0.45);
+  const font = `${weight} ${fontPx}px ${family}`;
   const canvas = document.createElement('canvas');
   const measure = document.createElement('canvas').getContext('2d');
   if (!measure) return canvas;
-  measure.font = '600 25px Arial, sans-serif';
-  canvas.width = Math.ceil(Math.max(...lines.map((line) => measure.measureText(line).width)) + 18);
-  canvas.height = lines.length * 31 + 12;
+  measure.font = font;
+  canvas.width = Math.ceil(
+    Math.max(...lines.map((line) => measure.measureText(line).width)) + pad * 1.6,
+  );
+  canvas.height = lines.length * lineHeight + pad;
   const context = canvas.getContext('2d');
   if (!context) return canvas;
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = '#fff';
-  context.font = '600 25px Arial, sans-serif';
+  context.font = font;
   context.textAlign = 'center';
   context.textBaseline = 'top';
-  lines.forEach((line, i) => context.fillText(line, canvas.width / 2, 5 + i * 31));
+  lines.forEach((line, i) => context.fillText(line, canvas.width / 2, pad / 2 + i * lineHeight));
   return canvas;
 }
 
 function makeIconCanvas(icon: PlatformGlyph) {
   const canvas = document.createElement('canvas');
-  canvas.width = 72;
-  canvas.height = 72;
+  // Authored on a 72 grid, rasterised at 128 so stroke interiors carry
+  // particles rather than a single sampled row.
+  const grid = 72;
+  canvas.width = 128;
+  canvas.height = 128;
   const context = canvas.getContext('2d');
   if (!context) return canvas;
+  context.scale(canvas.width / grid, canvas.height / grid);
   context.strokeStyle = '#fff';
   context.fillStyle = '#fff';
   context.lineWidth = 3.4;
@@ -297,6 +335,66 @@ function makeIconCanvas(icon: PlatformGlyph) {
   return canvas;
 }
 
+/**
+ * Fragments running across the scan field like terminal output.
+ *
+ * Two streams, split by the corpus tone legend and sent in opposite
+ * directions: hostile narratives and claims under review run one way, fact
+ * checks and monitored context run the other. Direction carries the meaning
+ * because it is already a per-layer constant — the single flow rate that keeps
+ * a line's characters together also fixes which way it travels.
+ *
+ * Nothing here shortens a fragment; see the rule in `scanCorpus.ts`. Long
+ * lines simply run past the edge and wrap, which is what terminal output does.
+ */
+function buildScanWords(
+  halfWidth: number,
+  halfHeight: number,
+  compact: boolean,
+  fragments: ScanFragment[],
+) {
+  const rng = mulberry32(0x7ab1e5);
+  const hostile: number[] = [];
+  const verified: number[] = [];
+  const lineHeight = compact ? 0.075 : 0.1;
+  const rows = compact ? 32 : 52;
+  const rowStep = compact ? 4 : 2;
+
+  const hostilePool = fragments.filter((f) => f.tone === 'red' || f.tone === 'amber');
+  const verifiedPool = fragments.filter((f) => f.tone === 'blue' || f.tone === 'neutral');
+
+  // Rows alternate between the streams rather than sampling the corpus by its
+  // real proportions — it holds far more hostile material than fact checks,
+  // and a background that is 85% red is a mood, not a monitor.
+  let index = 0;
+  for (let row = 2; row < rows; row += rowStep) {
+    const toHostile = index % 2 === 0;
+    const pool = toHostile ? hostilePool : verifiedPool;
+    const source = pool.length > 0 ? pool : fragments;
+    if (source.length === 0) break;
+    const fragment = source[Math.floor(rng() * source.length)];
+    const y = -halfHeight + ((row + 0.5) / rows) * halfHeight * 2;
+    const halfSpan = fragment.text.length * lineHeight * 0.175;
+    const x = (rng() * 2 - 1) * Math.max(0.05, halfWidth - halfSpan);
+    appendCanvasParticles(
+      toHostile ? hostile : verified,
+      makeTextCanvas(fragment.text, 15, 500, MONO_STACK),
+      x,
+      y,
+      lineHeight,
+      4201 + row * 89,
+      2,
+      0.86,
+    );
+    index += 1;
+  }
+
+  return {
+    hostile: new Float32Array(hostile),
+    verified: new Float32Array(verified),
+  };
+}
+
 function buildGlyphs(halfWidth: number, halfHeight: number, compact: boolean) {
   const output: number[] = [];
   const labels = compact ? MOBILE_LABELS : DESKTOP_LABELS;
@@ -341,6 +439,7 @@ export interface NetworkScanProps {
   pxToWorldRef: { current: number };
   dprRef: { current: number };
   pointBudget: number;
+  params: SimParams;
 }
 
 export function NetworkScan({
@@ -350,67 +449,166 @@ export function NetworkScan({
   pxToWorldRef,
   dprRef,
   pointBudget,
+  params,
 }: NetworkScanProps) {
   const size = useThree((state) => state.size);
+  const [fragments, setFragments] = useState<ScanFragment[]>(FALLBACK_FRAGMENTS);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadScanFragments(controller.signal)
+      .then((loaded) => setFragments(loaded))
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        // The background is decoration: a missing corpus degrades to the
+        // fallback lines rather than taking the scene down.
+        console.warn('[particle-nav] scan corpus unavailable:', error);
+      });
+    return () => controller.abort();
+  }, []);
+
   const data = useMemo<PointCloudData>(() => {
     const distance = CAMERA_Z - FIELD_Z;
     const viewHeight = 2 * distance * Math.tan((FOV * Math.PI) / 360);
     const viewWidth = viewHeight * (size.width / Math.max(1, size.height));
     const halfWidth = viewWidth * 0.52;
     const halfHeight = viewHeight * 0.52;
+    const words = buildScanWords(halfWidth, halfHeight, size.width < 620, fragments);
     return {
       field: buildScanField(halfWidth, halfHeight, pointBudget, orbit),
+      wordsHostile: words.hostile,
+      wordsVerified: words.verified,
       glyphs: buildGlyphs(halfWidth, halfHeight, size.width < 620),
       halfWidth,
       halfHeight,
     };
-  }, [orbit, pointBudget, size.height, size.width]);
+  }, [fragments, orbit, pointBudget, size.height, size.width]);
 
   const built = useMemo(() => {
+    const depthScale = NODE_TO_FIELD;
+    // One hole per node, sized to the ring plus the DOM label hanging under it.
+    const nodeHoles = Array.from({ length: 8 }, (_, i) => {
+      const [nx, ny] = nodePosition(i, 8, orbit);
+      const ring = orbit.nodeVisualRadius * depthScale;
+      return {
+        x: nx * depthScale,
+        y: ny * depthScale - 0.14,
+        hx: Math.max(ring + 0.14, 0.62),
+        hy: ring + 0.32,
+      };
+    });
+    const heroHole = {
+      maskX: 1.62 * orbit.centerScale * depthScale,
+      maskY: 1.42 * orbit.centerScale * depthScale,
+    };
     const field = createNetworkScanMaterial(data.field, theme, {
       z: FIELD_Z,
       halfWidth: data.halfWidth,
       halfHeight: data.halfHeight,
       minSizePx: 0.55,
       maxSizePx: 1.15,
-      opacity: 0.29,
+      opacity: 0.3,
       flow: true,
       scan: true,
       bright: false,
+      edgeSoftness: 0.14,
+      nodeHoles,
+      ...heroHole,
+    });
+    const wordOptions = {
+      z: FIELD_Z + 0.03,
+      halfWidth: data.halfWidth,
+      halfHeight: data.halfHeight,
+      minSizePx: 0.58,
+      maxSizePx: 1,
+      opacity: 0.52,
+      alphaFloor: 0.72,
+      shimmerMin: 0.86,
+      flow: true as const,
+      scan: true as const,
+      bright: false as const,
+      edgeSoftness: 0.3,
+      nodeHoles,
+      ...heroHole,
+    };
+    // Opposite rates, and not a simple negation of each other: two sheets
+    // sliding at mirrored speeds read as one mechanism, which is the thing
+    // terminal output never looks like.
+    const wordsHostile = createNetworkScanMaterial(data.wordsHostile, theme, {
+      ...wordOptions,
+      flowSpeed: -0.05,
+      // A third hue in a gold-and-blue composition has to stay an ember. This
+      // one is desaturated well below the lion so it never competes at centre.
+      palette: { dim: '#7A4048', live: '#A85A61', peak: '#D08D94' },
+    });
+    const wordsVerified = createNetworkScanMaterial(data.wordsVerified, theme, {
+      ...wordOptions,
+      flowSpeed: 0.037,
+      palette: { dim: '#3E7FA8', live: theme.starBlue, peak: '#9ADFFF' },
     });
     const glyphs = createNetworkScanMaterial(data.glyphs, theme, {
       z: FIELD_Z + 0.08,
       halfWidth: data.halfWidth,
       halfHeight: data.halfHeight,
-      minSizePx: 0.88,
-      maxSizePx: 1.46,
-      opacity: 0.86,
-      flow: false,
-      scan: false,
+      minSizePx: 0.8,
+      maxSizePx: 1.24,
+      opacity: 0.55,
+      // Slower than the matrix rows: these are the readable ones, and copy you
+      // are meant to finish reading cannot travel at ticker speed.
+      flow: true,
+      flowSpeed: 0.011,
+      scan: true,
       bright: true,
+      edgeSoftness: 0.34,
+      nodeHoles,
+      ...heroHole,
     });
     const fieldSprite = new Sprite(field.material);
     fieldSprite.count = data.field.length / 4;
     fieldSprite.frustumCulled = false;
     fieldSprite.renderOrder = -30;
+    const hostileSprite = new Sprite(wordsHostile.material);
+    hostileSprite.count = data.wordsHostile.length / 4;
+    hostileSprite.frustumCulled = false;
+    hostileSprite.renderOrder = -29.5;
+    const verifiedSprite = new Sprite(wordsVerified.material);
+    verifiedSprite.count = data.wordsVerified.length / 4;
+    verifiedSprite.frustumCulled = false;
+    verifiedSprite.renderOrder = -29.5;
     const glyphSprite = new Sprite(glyphs.material);
     glyphSprite.count = data.glyphs.length / 4;
     glyphSprite.frustumCulled = false;
     glyphSprite.renderOrder = -29;
-    return { field, glyphs, fieldSprite, glyphSprite };
-  }, [data, theme]);
+    return {
+      field,
+      wordsHostile,
+      wordsVerified,
+      glyphs,
+      fieldSprite,
+      hostileSprite,
+      verifiedSprite,
+      glyphSprite,
+    };
+  }, [data, orbit, theme]);
 
   useFrame(() => {
-    for (const handle of [built.field, built.glyphs]) {
+    for (const handle of [built.field, built.wordsHostile, built.wordsVerified, built.glyphs]) {
       (handle.uniforms.pxToWorld as { value: number }).value = pxToWorldRef.current;
       (handle.uniforms.dpr as { value: number }).value = dprRef.current;
       (handle.uniforms.reducedMotion as { value: number }).value = reducedMotion ? 1 : 0;
     }
+    (built.field.uniforms.opacity as { value: number }).value = params.scanFieldOpacity;
+    for (const handle of [built.wordsHostile, built.wordsVerified]) {
+      (handle.uniforms.opacity as { value: number }).value = params.scanWordOpacity;
+    }
+    (built.glyphs.uniforms.opacity as { value: number }).value = params.scanGlyphOpacity;
   });
 
   useEffect(
     () => () => {
       disposeHandle(built.field);
+      disposeHandle(built.wordsHostile);
+      disposeHandle(built.wordsVerified);
       disposeHandle(built.glyphs);
     },
     [built],
@@ -419,6 +617,8 @@ export function NetworkScan({
   return (
     <>
       <primitive object={built.fieldSprite} />
+      <primitive object={built.hostileSprite} />
+      <primitive object={built.verifiedSprite} />
       <primitive object={built.glyphSprite} />
     </>
   );

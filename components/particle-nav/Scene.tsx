@@ -56,7 +56,6 @@ export interface SceneProps {
   intro?: boolean;
   introControlsRef?: { current: IntroControls };
   onIntroComplete?: () => void;
-  skipFocusRef: { current: number };
 }
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
@@ -82,7 +81,6 @@ function SceneContent(props: SceneProps) {
     intro = false,
     introControlsRef,
     onIntroComplete,
-    skipFocusRef,
   } = props;
 
   const gl = useThree((s) => s.gl) as unknown as WebGPURenderer;
@@ -304,6 +302,7 @@ function SceneContent(props: SceneProps) {
             pxToWorldRef={pxToWorldRef}
             dprRef={dprRef}
             pointBudget={tier.networkPoints}
+            params={params}
           />
         </group>
         <group ref={ringsRef} visible={!intro}>
@@ -361,8 +360,6 @@ function SceneContent(props: SceneProps) {
           pxToWorldRef={pxToWorldRef}
           dprRef={dprRef}
           lightweight={tier.particles === 45_000}
-          safeArea={safeArea}
-          skipFocusRef={skipFocusRef}
         />
       ) : null}
     </>

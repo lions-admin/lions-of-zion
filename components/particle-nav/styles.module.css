@@ -35,25 +35,21 @@
   right: calc(clamp(1rem, 3vw, 2.5rem) + var(--safe-right));
   bottom: calc(clamp(1rem, 3vw, 2.5rem) + var(--safe-bottom));
   z-index: 4;
+  width: 132px;
+  height: 52px;
   min-width: 44px;
   min-height: 44px;
-  padding: 0.65rem 0.85rem;
-  border: 1px solid rgba(239, 215, 154, 0.42);
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  background: rgba(7, 11, 20, 0.72);
-  color: #efd79a;
-  font-family: var(--font-cinzel), Georgia, serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  background: transparent;
+  color: transparent;
   cursor: pointer;
-  backdrop-filter: blur(8px);
 }
 
 .skipIntro:hover,
 .skipIntro:focus-visible {
-  border-color: #efd79a;
-  box-shadow: 0 0 20px rgba(239, 215, 154, 0.2);
+  box-shadow: 0 0 22px rgba(239, 215, 154, 0.12);
 }
 
 .skipIntro:focus-visible {

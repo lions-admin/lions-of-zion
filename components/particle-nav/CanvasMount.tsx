@@ -67,6 +67,7 @@ export function NavClient({
     skipRequested: false,
     nextCueRequested: false,
   });
+  const skipFocusRef = useRef(0);
 
   const tier = usePerfTier(forceWebGL);
   const reducedMotion = useReducedMotion();
@@ -267,6 +268,7 @@ export function NavClient({
             intro={introRunning}
             introControlsRef={introControlsRef}
             onIntroComplete={() => setIntroDone(true)}
+            skipFocusRef={skipFocusRef}
           />
         </div>
       ) : null}
@@ -279,9 +281,13 @@ export function NavClient({
             type="button"
             className={styles.skipIntro}
             aria-label="Skip intro"
+            onPointerEnter={() => { skipFocusRef.current = 1; }}
+            onPointerLeave={() => { skipFocusRef.current = 0; }}
+            onFocus={() => { skipFocusRef.current = 1; }}
+            onBlur={() => { skipFocusRef.current = 0; }}
             onClick={() => { introControlsRef.current.skipRequested = true; }}
           >
-            Skip intro
+            <span className={styles.srOnly}>Skip intro</span>
           </button>
         </>
       ) : null}

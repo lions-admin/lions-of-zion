@@ -30,6 +30,8 @@ export interface LionMaterialHandle {
     sizeMaxPx: ReturnType<typeof uniform>;
     /** DPR clamped at 2 (brief §6). */
     dpr: ReturnType<typeof uniform>;
+    opacity: ReturnType<typeof uniform>;
+    crownReveal: ReturnType<typeof uniform>;
   };
 }
 
@@ -46,6 +48,8 @@ export function createLionMaterial(sim: LionSim, theme: ParticleNavTheme): LionM
     sizeMinPx: uniform(1.2),
     sizeMaxPx: uniform(2.6),
     dpr: uniform(1),
+    opacity: uniform(1),
+    crownReveal: uniform(1),
   };
 
   const seed = hash(instanceIndex.add(977));
@@ -62,7 +66,12 @@ export function createLionMaterial(sim: LionSim, theme: ParticleNavTheme): LionM
   // 45k–180k additive sprites overlap massively at the lion's footprint —
   // per-particle alpha must stay low or bloom blows the centre out to white.
   const d = uv().sub(vec2(0.5)).length();
-  material.opacityNode = smoothstep(0.5, 0.16, d).mul(mix(0.05, 0.13, seed));
+  const isCrown = step(float(sim.crownStart), float(instanceIndex));
+  const regionVisibility = mix(float(1), uniforms.crownReveal, isCrown);
+  material.opacityNode = smoothstep(0.5, 0.16, d)
+    .mul(mix(0.05, 0.13, seed))
+    .mul(uniforms.opacity)
+    .mul(regionVisibility);
 
   return { material, uniforms };
 }

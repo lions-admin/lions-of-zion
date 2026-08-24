@@ -25,6 +25,7 @@ export function ParticleNav(props: ParticleNavProps) {
       forceWebGL={props.forceWebGL}
       simOverrides={props.simOverrides}
       onFrameStats={props.onFrameStats}
+      intro={props.intro}
     >
       {/* No-WebGL2 tier: static AVIF poster behind the live DOM nav (brief §8). */}
       <picture className={styles.poster}>

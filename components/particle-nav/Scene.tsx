@@ -13,12 +13,26 @@ import { OrbitalRings } from './layers/OrbitalRings';
 import { LionCore } from './layers/LionCore';
 import { SpokeNodes } from './layers/SpokeNodes';
 import { Connectors, connectorBezier } from './layers/Connectors';
+import { IntroText } from './layers/IntroText';
 import { useLionBuffers } from './hooks/useLionBuffers';
 import { createPost, type PostHandle } from './tsl/post';
 import { computeOrbitLayout, nodeAngle, nodePosition, type SafeAreaInsets } from './config';
 import type { InteractionDriver, InteractionFrame } from './hooks/useInteraction';
 import type { PerfTier } from './hooks/usePerfTier';
 import type { NavNode, ParticleNavTheme, SimParams } from './types';
+import type { ExperienceFrame, IntroControls } from './introFrame';
+import {
+  getNextRollingCue,
+  getRollingFinalTime,
+  getRollingOutroStart,
+  getRollingStoryFrame,
+} from '@/components/intro/rolling-story-timeline';
+import {
+  FORMATION_END,
+  FORMATION_START,
+  RELOCATION_END,
+  RELOCATION_START,
+} from '@/components/intro/story-timeline';
 
 const CAMERA_Z = 8.2;
 const FOV = 45;
@@ -39,7 +53,16 @@ export interface SceneProps {
   getLabelEls: () => (HTMLElement | null)[];
   onReady?: () => void;
   onFrameStats?: (ms: number, fps: number) => void;
+  intro?: boolean;
+  introControlsRef?: { current: IntroControls };
+  onIntroComplete?: () => void;
 }
+
+const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
+const smooth01 = (value: number) => {
+  const t = clamp01(value);
+  return t * t * (3 - 2 * t);
+};
 
 function SceneContent(props: SceneProps) {
   const {
@@ -55,6 +78,9 @@ function SceneContent(props: SceneProps) {
     onReady,
     onFrameStats,
     safeArea,
+    intro = false,
+    introControlsRef,
+    onIntroComplete,
   } = props;
 
   const gl = useThree((s) => s.gl) as unknown as WebGPURenderer;
@@ -67,13 +93,21 @@ function SceneContent(props: SceneProps) {
   );
 
   const rigRef = useRef<Group>(null);
+  const networkRef = useRef<Group>(null);
+  const ringsRef = useRef<Group>(null);
+  const spokesRef = useRef<Group>(null);
+  const connectorsRef = useRef<Group>(null);
   const frameRef = useRef<InteractionFrame | null>(null);
+  const experienceFrameRef = useRef<ExperienceFrame | null>(null);
   const pxToWorldRef = useRef(0.007);
   const dprRef = useRef(1);
   const pointerWorldRef = useRef(new Vector3(0, 0, 99));
   const bezierRef = useRef(connectorBezier(0, nodes.length, orbit));
   const postRef = useRef<PostHandle | null>(null);
   const readyRef = useRef(false);
+  const introCompleteRef = useRef(false);
+  const timelineTimeRef = useRef(0);
+  const timelineLayoutRef = useRef<'desktop' | 'mobile'>(size.width < 720 ? 'mobile' : 'desktop');
   const statsRef = useRef({ acc: 0, frames: 0, last: 0 });
   const tmp = useMemo(() => ({ v: new Vector3(), w: new Vector3() }), []);
 
@@ -94,6 +128,86 @@ function SceneContent(props: SceneProps) {
     const frame = driver.tick(now, delta, params);
     frameRef.current = frame;
 
+    const timelineLayout = size.width < 720 ? 'mobile' : 'desktop';
+    if (timelineLayoutRef.current !== timelineLayout) {
+      const oldFinal = getRollingFinalTime(timelineLayoutRef.current);
+      const newFinal = getRollingFinalTime(timelineLayout);
+      timelineTimeRef.current = (timelineTimeRef.current / oldFinal) * newFinal;
+      timelineLayoutRef.current = timelineLayout;
+    }
+    if (intro) {
+      const controls = introControlsRef?.current;
+      if (controls?.skipRequested) {
+        controls.skipRequested = false;
+        controls.paused = false;
+        timelineTimeRef.current = getRollingOutroStart(timelineLayout);
+      }
+      if (controls?.nextCueRequested) {
+        controls.nextCueRequested = false;
+        timelineTimeRef.current = getNextRollingCue(timelineTimeRef.current, timelineLayout);
+      }
+      if (!controls?.paused) {
+        timelineTimeRef.current = Math.min(
+          getRollingFinalTime(timelineLayout),
+          timelineTimeRef.current + delta,
+        );
+      }
+      const timelineTime = timelineTimeRef.current;
+      const story = getRollingStoryFrame(timelineTime, timelineLayout);
+      const relocation = smooth01((timelineTime - RELOCATION_START) / (RELOCATION_END - RELOCATION_START));
+      const outro = smooth01(story.outroProgress);
+      const narrow = timelineLayout === 'mobile';
+      const largeScale = (narrow ? 1.65 : 2.65) * orbit.centerScale;
+      const storyScale = (narrow ? 0.46 : 0.55) * orbit.centerScale;
+      const storyY = narrow ? 2.45 : 2.35;
+      const preOutroScale = largeScale + (storyScale - largeScale) * relocation;
+      const preOutroY = storyY * relocation;
+      experienceFrameRef.current = {
+        time: timelineTime,
+        assemble: smooth01((timelineTime - FORMATION_START) / (FORMATION_END - FORMATION_START)),
+        // The crowned lion is now the shared identity in both acts. Its crown
+        // assembles with the face, avoiding a second asset or renderer.
+        crownReveal: 1,
+        lionOpacity: smooth01((timelineTime - 1) / 0.42),
+        lionScale: preOutroScale + (orbit.centerScale - preOutroScale) * outro,
+        lionY: preOutroY * (1 - outro),
+        navReveal: outro,
+        textOpacity: 1 - smooth01((story.outroProgress - 0.32) / 0.68),
+        story,
+      };
+      if (story.isComplete && !introCompleteRef.current) {
+        introCompleteRef.current = true;
+        onIntroComplete?.();
+      }
+    } else {
+      const story = getRollingStoryFrame(getRollingFinalTime(timelineLayout), timelineLayout);
+      experienceFrameRef.current = {
+        time: story.time,
+        assemble: 1,
+        crownReveal: 1,
+        lionOpacity: 1,
+        lionScale: orbit.centerScale,
+        lionY: 0,
+        navReveal: 1,
+        textOpacity: 0,
+        story,
+      };
+    }
+    const navReveal = experienceFrameRef.current.navReveal;
+    if (networkRef.current) {
+      networkRef.current.visible = navReveal > 0.02;
+      networkRef.current.scale.setScalar(0.965 + navReveal * 0.035);
+    }
+    if (ringsRef.current) {
+      ringsRef.current.visible = navReveal > 0.18;
+      ringsRef.current.scale.setScalar(0.95 + navReveal * 0.05);
+    }
+    if (connectorsRef.current) connectorsRef.current.visible = navReveal > 0.3;
+    if (spokesRef.current) {
+      spokesRef.current.visible = navReveal > 0.42;
+      spokesRef.current.scale.setScalar(0.93 + navReveal * 0.07);
+    }
+
     // world-per-CSS-px at the lion plane; sprite scale nodes multiply this
     pxToWorldRef.current = (2 * CAMERA_Z * Math.tan((FOV * Math.PI) / 360)) / size.height;
     dprRef.current = 1; // px sizes are CSS px — device px scaling comes from the render DPR
@@ -106,7 +220,7 @@ function SceneContent(props: SceneProps) {
 
     // ---- pointer parallax ±3° with 0.08 damping + activate dolly
     const ndc = pointerNdcRef.current;
-    const responsiveParallax = size.width <= 768 ? 0 : params.parallaxDeg;
+    const responsiveParallax = intro || size.width <= 768 ? 0 : params.parallaxDeg;
     const maxOffset = Math.tan((responsiveParallax * Math.PI) / 180) * CAMERA_Z;
     const damp = 1 - Math.pow(1 - params.parallaxDamping, delta * 60);
     const targetX = reducedMotion ? 0 : ndc.x * maxOffset;
@@ -180,22 +294,26 @@ function SceneContent(props: SceneProps) {
     <>
       <AdaptiveDpr />
       <group ref={rigRef}>
-        <NetworkScan
-          orbit={orbit}
-          theme={theme}
-          reducedMotion={reducedMotion}
-          pxToWorldRef={pxToWorldRef}
-          dprRef={dprRef}
-          pointBudget={tier.networkPoints}
-        />
-        <OrbitalRings
-          theme={theme}
-          params={params}
-          reducedMotion={reducedMotion}
-          pxToWorldRef={pxToWorldRef}
-          dprRef={dprRef}
-          scale={orbit.centerScale}
-        />
+        <group ref={networkRef} visible={!intro}>
+          <NetworkScan
+            orbit={orbit}
+            theme={theme}
+            reducedMotion={reducedMotion}
+            pxToWorldRef={pxToWorldRef}
+            dprRef={dprRef}
+            pointBudget={tier.networkPoints}
+          />
+        </group>
+        <group ref={ringsRef} visible={!intro}>
+          <OrbitalRings
+            theme={theme}
+            params={params}
+            reducedMotion={reducedMotion}
+            pxToWorldRef={pxToWorldRef}
+            dprRef={dprRef}
+            scale={orbit.centerScale}
+          />
+        </group>
         {sim ? (
           <LionCore
             sim={sim}
@@ -208,28 +326,41 @@ function SceneContent(props: SceneProps) {
             pxToWorldRef={pxToWorldRef}
             dprRef={dprRef}
             scale={orbit.centerScale}
+            experienceFrameRef={experienceFrameRef}
           />
         ) : null}
-        <SpokeNodes
-          nodes={nodes}
-          orbit={orbit}
-          theme={theme}
-          reducedMotion={reducedMotion}
-          frameRef={frameRef}
+        <group ref={spokesRef} visible={!intro}>
+          <SpokeNodes
+            nodes={nodes}
+            orbit={orbit}
+            theme={theme}
+            reducedMotion={reducedMotion}
+            frameRef={frameRef}
+            pxToWorldRef={pxToWorldRef}
+            dprRef={dprRef}
+            lightweight={tier.particles === 45_000}
+          />
+        </group>
+        <group ref={connectorsRef} visible={!intro}>
+          <Connectors
+            nodes={nodes}
+            orbit={orbit}
+            theme={theme}
+            params={params}
+            reducedMotion={reducedMotion}
+            frameRef={frameRef}
+            pxToWorldRef={pxToWorldRef}
+          />
+        </group>
+      </group>
+      {intro ? (
+        <IntroText
+          frameRef={experienceFrameRef}
           pxToWorldRef={pxToWorldRef}
           dprRef={dprRef}
           lightweight={tier.particles === 45_000}
         />
-        <Connectors
-          nodes={nodes}
-          orbit={orbit}
-          theme={theme}
-          params={params}
-          reducedMotion={reducedMotion}
-          frameRef={frameRef}
-          pxToWorldRef={pxToWorldRef}
-        />
-      </group>
+      ) : null}
     </>
   );
 }

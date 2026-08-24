@@ -43,7 +43,8 @@ export function detectBackend(forceWebGL?: boolean): Backend {
 export function usePerfTier(forceWebGL?: boolean): PerfTier | null {
   const [tier, setTier] = useState<PerfTier | null>(null);
   useEffect(() => {
-    const backend = detectBackend(forceWebGL);
+    const queryForcesWebGL = new URLSearchParams(window.location.search).get('forceWebGL') === '1';
+    const backend = detectBackend(forceWebGL || queryForcesWebGL);
     const nav = navigator as Navigator & { deviceMemory?: number };
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     setTier(tierFor(backend, nav.deviceMemory, coarse));

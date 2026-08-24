@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "build:lion-data": "node scripts/build-lion-data.mjs",
     "bake:nav-lion": "tsx scripts/particle-nav/bake/bake-lion-reference.ts",
     "bake:nav-icons": "tsx scripts/particle-nav/bake/bake-icons.ts",
     "db:generate": "drizzle-kit generate",

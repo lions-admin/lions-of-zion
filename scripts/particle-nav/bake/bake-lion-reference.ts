@@ -127,7 +127,10 @@ async function main() {
 
       // Power curve keeps the fine dust while favouring sculptural landmarks.
       const weight = Math.max(0.00001, (luma - 0.012) ** 1.18 * (0.72 + goldSignal));
-      const isCrown = y < info.height * 0.275 && x > info.width * 0.245 && x < info.width * 0.755;
+      // The crown's lower band ends just above the mane. Keeping this mask at
+      // 25.2% preserves the lion's natural forehead silhouette when the intro
+      // hides the crown; the old 27.5% cut produced a visible horizontal seam.
+      const isCrown = y < info.height * 0.252 && x > info.width * 0.245 && x < info.width * 0.755;
       (isCrown ? crown : body).push({ x, y, luma, weight });
     }
   }

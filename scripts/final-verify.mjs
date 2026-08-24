@@ -1,6 +1,6 @@
 /**
- * End-to-end handoff check in real Chrome:
- * intro → skip/outro → particle navigation, plus the forced WebGL2 demo path.
+ * End-to-end single-renderer check in real Chrome:
+ * intro → skip/outro → particle navigation, plus the full forced-WebGL2 path.
  */
 import { chromium } from "playwright-core";
 import { mkdir } from "node:fs/promises";
@@ -28,7 +28,7 @@ await page.waitForSelector("[aria-label='Skip intro']", { timeout: 30_000 });
 await page.waitForTimeout(4000);
 const before = await page.evaluate(() => ({
   intro: Boolean(document.querySelector("[aria-label='The battlefield for truth']")),
-  navigationInert: document.querySelector("main[inert]") !== null,
+  navigationInert: document.querySelector("[data-intro-active] [inert]") !== null,
   links: document.querySelectorAll("a[data-node-index]").length,
 }));
 await page.screenshot({ path: `${OUT}/intro.png` });
@@ -36,7 +36,7 @@ await page.screenshot({ path: `${OUT}/intro.png` });
 await page.click("[aria-label='Skip intro']");
 await page.waitForFunction(
   () =>
-    document.querySelector("main[inert]") === null &&
+    document.querySelector("[data-intro-active]") === null &&
     document.querySelectorAll("a[data-node-index]").length === 8,
   null,
   { timeout: 30_000 },
@@ -71,7 +71,7 @@ await context.close();
 const webgl = await browser.newContext({ viewport: { width: 1024, height: 768 } });
 const fallback = await webgl.newPage();
 fallback.on("pageerror", (error) => errors.push(`webgl pageerror: ${error}`));
-await fallback.goto(`${BASE}/particle-demo?forceWebGL=1`, {
+await fallback.goto(`${BASE}/?forceWebGL=1`, {
   waitUntil: "networkidle",
 });
 await fallback.waitForTimeout(5000);

@@ -64,4 +64,6 @@ export interface ParticleNavProps {
   simOverrides?: Partial<SimParams>;
   /** Dev-only: called once per second with the measured frame time. */
   onFrameStats?: (ms: number, fps: number) => void;
+  /** Play the opening story in the same WebGPU/TSL canvas before navigation. */
+  intro?: boolean;
 }

@@ -1,8 +1,10 @@
 # Lions of Zion
 
-A cinematic Next.js experience built entirely from GPU particles: the original
-story intro hands off to a crowned-lion radial navigation over a live network
-scan. The previous photographic post-intro landing page has been retired.
+A cinematic Next.js experience built entirely from GPU particles. One React
+Three Fiber canvas and one Three.js WebGPU/TSL renderer own the story intro,
+crowned lion, live network scan and radial navigation. WebGL2 is the supported
+fallback. The previous photographic post-intro landing page and legacy intro
+renderer have been retired.
 
 ## Run locally
 
@@ -17,20 +19,19 @@ Open <http://localhost:3000>. The eight destination routes are available at
 
 ## Graphics architecture
 
-- `components/intro/` is the preserved Three.js particle intro.
-- `components/particle-nav/` is the post-intro React Three Fiber scene. It uses
-  WebGPU + TSL when available and falls back to WebGL2.
-- `components/Experience.tsx` owns the handoff. The new GPU scene starts at the
-  beginning of the intro's 2.8-second outro, so its lion assembles while the
-  intro veil clears instead of running two engines for the whole story.
+- `components/intro/` owns only the pure story timeline and CPU text sampling.
+- `components/particle-nav/` owns every live visual layer in one React Three
+  Fiber scene. All particle materials and simulation work use TSL.
+- `components/Experience.tsx` mounts that one experience. The intro timeline
+  drives the same lion that remains at the centre of the navigation.
 - The live background is a particle-built blue network scan. There is no
   photographic background and no star field.
 - The real navigation links and a generated poster are server-rendered. With
   JavaScript disabled, the intro enhancement is hidden and the links remain
   usable.
 
-`/particle-demo?forceWebGL=1` exposes the isolated scene, tuning controls and
-the explicit WebGL2 fallback.
+`/?forceWebGL=1` verifies the complete experience on WebGL2.
+`/particle-demo?forceWebGL=1` exposes the isolated tuning harness.
 
 ## Commands
 
@@ -49,13 +50,12 @@ hidden in-app pane, because a hidden pane throttles `requestAnimationFrame`.
 ## Rebuilding particle assets
 
 ```bash
-npm run build:lion-data -- /absolute/path/to/intro-source.png
 npm run bake:nav-lion
 npm run bake:nav-icons
 npm run poster:nav
 ```
 
-The navigation source artwork lives in `assets/`; generated runtime files live
+The shared lion and icon source artwork lives in `assets/`; generated runtime files live
 in `public/particles`, `public/icons`, and `public/posters`.
 
 ## Backend

@@ -17,6 +17,62 @@
   background: #070b14;
 }
 
+.navContent {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 1;
+  transition: opacity 700ms ease;
+}
+
+.root[data-intro-active] .navContent {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.skipIntro {
+  position: absolute;
+  right: calc(clamp(1rem, 3vw, 2.5rem) + var(--safe-right));
+  bottom: calc(clamp(1rem, 3vw, 2.5rem) + var(--safe-bottom));
+  z-index: 4;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(239, 215, 154, 0.42);
+  border-radius: 999px;
+  background: rgba(7, 11, 20, 0.72);
+  color: #efd79a;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.skipIntro:hover,
+.skipIntro:focus-visible {
+  border-color: #efd79a;
+  box-shadow: 0 0 20px rgba(239, 215, 154, 0.2);
+}
+
+.skipIntro:focus-visible {
+  outline: 2px solid #efd79a;
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---- poster (no-WebGL2 tier + pre-canvas frame) ---- */
 .poster {
   position: absolute;

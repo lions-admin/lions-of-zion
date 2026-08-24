@@ -8,7 +8,7 @@
  */
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { usePerfTier } from './hooks/usePerfTier';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { useInteractionDriver } from './hooks/useInteraction';
@@ -21,6 +21,8 @@ import {
 } from './config';
 import type { NavNode, ParticleNavProps, SimParams } from './types';
 import styles from './styles.module.css';
+import { STORY_PARAGRAPHS } from '@/components/intro/story-timeline';
+import type { IntroControls } from './introFrame';
 
 // The canvas is dynamic-imported and must never block LCP (brief §8):
 // three.js bytes only download after the DOM nav is interactive.
@@ -35,6 +37,13 @@ export interface NavClientProps {
   simOverrides?: Partial<SimParams>;
   onFrameStats?: (ms: number, fps: number) => void;
   children: React.ReactNode;
+  intro?: boolean;
+}
+
+const subscribeToHydration = () => () => {};
+
+function useHydrated() {
+  return useSyncExternalStore(subscribeToHydration, () => true, () => false);
 }
 
 export function NavClient({
@@ -46,21 +55,29 @@ export function NavClient({
   simOverrides,
   onFrameStats,
   children,
+  intro = false,
 }: NavClientProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const labelElsRef = useRef<(HTMLElement | null)[]>([]);
   const pointerNdcRef = useRef({ x: 0, y: 0 });
   const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const introControlsRef = useRef<IntroControls>({
+    paused: false,
+    skipRequested: false,
+    nextCueRequested: false,
+  });
 
   const tier = usePerfTier(forceWebGL);
   const reducedMotion = useReducedMotion();
+  const hydrated = useHydrated();
   const driver = useInteractionDriver(nodes.length);
 
   const [wantCanvas, setWantCanvas] = useState(false);
   const [canvasLive, setCanvasLive] = useState(false);
   const [fading, setFading] = useState(false);
   const [safeArea, setSafeArea] = useState<SafeAreaInsets>({ top: 0, right: 0, bottom: 0, left: 0 });
+  const [introDone, setIntroDone] = useState(false);
 
   const theme = useMemo(() => ({ ...defaultTheme, ...themeOverride }), [themeOverride]);
   const params: SimParams = useMemo(
@@ -83,6 +100,7 @@ export function NavClient({
         setWantCanvas(true);
       }
     };
+    if (intro) go();
     const hasIdle = typeof window.requestIdleCallback === 'function';
     const idleId = hasIdle
       ? window.requestIdleCallback(go, { timeout: 2500 })
@@ -96,7 +114,29 @@ export function NavClient({
       else clearTimeout(idleId);
       io.disconnect();
     };
-  }, []);
+  }, [intro]);
+
+  const introRunning = Boolean(
+    intro && hydrated && !reducedMotion && !introDone && tier?.backend !== 'none',
+  );
+
+  useEffect(() => {
+    if (!introRunning) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        introControlsRef.current.skipRequested = true;
+      } else if (event.key === ' ') {
+        event.preventDefault();
+        introControlsRef.current.paused = !introControlsRef.current.paused;
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        introControlsRef.current.nextCueRequested = true;
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [introRunning]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -194,10 +234,17 @@ export function NavClient({
       data-live={canvasLive ? '' : undefined}
       data-canvas={hasLiveBackend ? '' : undefined}
       data-backend={tier?.backend}
+      data-intro-active={introRunning ? '' : undefined}
       onPointerMove={onPointerMove}
       style={{ ['--fade-ms' as string]: `${CANVAS_FADE_MS}ms` }}
     >
-      {children}
+      <div
+        className={styles.navContent}
+        aria-hidden={introRunning || undefined}
+        inert={introRunning ? true : undefined}
+      >
+        {children}
+      </div>
       {showCanvas ? (
         <div
           className={`${styles.canvasWrap} ${fading ? styles.fadeOut : ''} ${canvasLive ? styles.canvasLive : ''}`}
@@ -217,8 +264,26 @@ export function NavClient({
             getLabelEls={getLabelEls}
             onReady={() => setCanvasLive(true)}
             onFrameStats={onFrameStats}
+            intro={introRunning}
+            introControlsRef={introControlsRef}
+            onIntroComplete={() => setIntroDone(true)}
           />
         </div>
+      ) : null}
+      {introRunning ? (
+        <>
+          <article className={styles.srOnly} aria-label="The battlefield for truth">
+            {STORY_PARAGRAPHS.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          </article>
+          <button
+            type="button"
+            className={styles.skipIntro}
+            aria-label="Skip intro"
+            onClick={() => { introControlsRef.current.skipRequested = true; }}
+          >
+            Skip intro
+          </button>
+        </>
       ) : null}
     </div>
   );

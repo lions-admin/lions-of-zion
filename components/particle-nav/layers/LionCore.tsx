@@ -10,6 +10,7 @@ import type { LionSim } from '../tsl/lionCompute';
 import { createLionMaterial } from '../tsl/pointMaterial';
 import type { InteractionFrame } from '../hooks/useInteraction';
 import type { ParticleNavTheme, SimParams } from '../types';
+import type { ExperienceFrame } from '../introFrame';
 
 export interface LionCoreProps {
   sim: LionSim;
@@ -25,6 +26,7 @@ export interface LionCoreProps {
   pxToWorldRef: { current: number };
   dprRef: { current: number };
   scale?: number;
+  experienceFrameRef?: { current: ExperienceFrame | null };
 }
 
 export function LionCore({
@@ -38,10 +40,10 @@ export function LionCore({
   pxToWorldRef,
   dprRef,
   scale = 1,
+  experienceFrameRef,
 }: LionCoreProps) {
   const gl = useThree((s) => s.gl) as unknown as WebGPURenderer;
   const groupRef = useRef<Group>(null);
-  const assemblyElapsedRef = useRef(0);
   const local = useMemo(() => new Vector3(), []);
 
   const handle = useMemo(() => createLionMaterial(sim, theme), [sim, theme]);
@@ -54,7 +56,6 @@ export function LionCore({
   }, [handle, sim]);
 
   useEffect(() => {
-    assemblyElapsedRef.current = 0;
     gl.computeAsync(sim.initCompute as never);
   }, [gl, sim]);
 
@@ -63,10 +64,8 @@ export function LionCore({
   useFrame((_, delta) => {
     const u = sim.uniforms;
     const f = frameRef.current;
-    assemblyElapsedRef.current += delta;
-    const assemblyDuration = 2.8;
-    const assemblyDelay = 0.12;
-    const assemble = Math.min(1, Math.max(0, (assemblyElapsedRef.current - assemblyDelay) / assemblyDuration));
+    const experience = experienceFrameRef?.current;
+    const assemble = experience?.assemble ?? 1;
     (u.assemble as { value: number }).value = reducedMotion ? 1 : assemble;
     (u.delta as { value: number }).value = delta;
     (u.stiffness as { value: number }).value = params.springStiffness;
@@ -100,6 +99,13 @@ export function LionCore({
     (hu.dpr as { value: number }).value = dprRef.current;
     (hu.sizeMinPx as { value: number }).value = params.pointSizeMin;
     (hu.sizeMaxPx as { value: number }).value = params.pointSizeMax;
+    (hu.opacity as { value: number }).value = experience?.lionOpacity ?? 1;
+    (hu.crownReveal as { value: number }).value = experience?.crownReveal ?? 1;
+
+    if (groupRef.current) {
+      groupRef.current.scale.setScalar(experience?.lionScale ?? scale);
+      groupRef.current.position.y = experience?.lionY ?? 0;
+    }
 
     gl.compute(sim.updateCompute as never);
   });

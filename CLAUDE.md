@@ -48,17 +48,17 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 
 `app/page.tsx` renders `components/Experience.tsx`.
 
-- `components/intro/lion-scene.tsx` is the original imperative Three.js intro.
-- `components/particle-nav/` is a React Three Fiber scene using Three r185,
-  WebGPU and TSL, with a WebGL2 fallback.
+- `components/intro/` contains only pure timeline data and CPU text-cloud
+  sampling.
+- `components/particle-nav/` is the single React Three Fiber scene using Three
+  r185, WebGPU and TSL, with a WebGL2 fallback. It owns both intro and nav.
 - The nav's DOM links and poster exist in the server HTML. They are inert only
-  after hydration while the intro is actually running. A `noscript` rule hides
-  the intro enhancement so the static navigation remains usable without JS.
-- The second GPU scene is deferred until `onOutroStart`. Its 2.8-second lion
-  assembly and the intro's 2.8-second veil reveal run together. Intro failure,
-  skip, and reduced motion all land on the same complete navigation.
-- `reactStrictMode` remains off because the preserved intro is an imperative
-  GPU lifecycle with deliberate one-mount semantics.
+  after hydration while the intro is actually running. Without JavaScript the
+  static navigation remains usable immediately.
+- `Scene.tsx` owns one timeline clock. Its mutable frame is shared by the lion,
+  TSL story text and staged navigation reveal without React state per frame.
+- Skip and reduced motion land on the same complete navigation; the root route
+  accepts `?forceWebGL=1` for full-flow fallback verification.
 
 ### Particle navigation invariants
 
@@ -85,11 +85,14 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 - The id `battlefield-for-truth` is referenced by the renderer.
 - Desktop and mobile line arrays must rejoin to the canonical text.
 
-### Intro particle binary
+### Unified intro and navigation renderer
 
-`public/assets/lion-structure.bin` is a `LION` v1 binary consumed by the intro.
-The writer and reader duplicate the x/3.1, y/4.65 and z/1.2 quantisation scales;
-keep them synchronized or the lion deforms without a parser error.
+- `components/particle-nav/Scene.tsx` owns the only live renderer and timeline
+  clock. Do not mount a second canvas for the intro.
+- The intro and navigation share `public/particles/lion-v2-*.bin`; the crown,
+  face and mane must remain one LNP1 bake across both acts.
+- Intro copy is sampled on the CPU, then animated and rendered with TSL sprite
+  materials. Do not reintroduce raw GLSL or `ShaderMaterial` at runtime.
 
 ## Backend
 

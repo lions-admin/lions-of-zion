@@ -61,6 +61,41 @@ export const internalApiSecret = (): string =>
  *  is why the guard treats "unset" as "refuse", never as "allow". */
 export const cronSecret = (): string | undefined => process.env.CRON_SECRET;
 
+/**
+ * Model profiles — the only place a provider model id appears.
+ *
+ * Application code asks for `"fast"` or `"reasoning"`, never for a slug. That
+ * is what makes swapping a model a one-line change here rather than a grep,
+ * and what stops a prompt from quietly depending on one vendor's behaviour.
+ *
+ * **Verify these against `gateway.getAvailableModels()` when provisioning.**
+ * Gateway slugs move — versioned ones use dots, not hyphens
+ * (`claude-sonnet-4.6`, not `claude-sonnet-4-6`) — and a stale slug fails at
+ * call time with a 400, not at deploy time. `/api/internal/ai/models` lists
+ * what the gateway actually offers, for exactly this check.
+ *
+ * `embedding` is load-bearing in a way the others are not: its dimension is
+ * baked into `search_document.embedding` as `vector(1536)`, and changing it is
+ * a full table rewrite. A different embedding model must be added as a second
+ * column, never swapped into this one.
+ */
+export const MODEL_PROFILES = {
+  /** High volume, low stakes: classification, routing, short extraction. */
+  fast: "anthropic/claude-haiku-4.5",
+  /** Anything a human will be asked to approve. */
+  reasoning: "anthropic/claude-sonnet-4.6",
+  /** Translation, where fluency matters more than speed. */
+  translation: "anthropic/claude-sonnet-4.6",
+  /** 1536 dimensions — must match the vector column. */
+  embedding: "openai/text-embedding-3-small",
+} as const;
+
+export type ModelProfile = keyof typeof MODEL_PROFILES;
+
+export const EMBEDDING_DIMENSIONS = 1536;
+
+export const modelFor = (profile: ModelProfile): string => MODEL_PROFILES[profile];
+
 /** Ceilings in USD. Unset means unbounded, which is only acceptable locally. */
 export function aiBudgets(): { daily?: number; monthly?: number } {
   const num = (name: string) => {

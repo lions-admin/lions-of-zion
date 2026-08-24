@@ -41,7 +41,7 @@ destinations pending section content.
 - The in-app browser may render a black intro because it throttles hidden-tab
   animation. Use the real-Chrome scripts for visual evidence.
 
-## Backend — Phases 1–5 of 8 complete
+## Backend — Phases 1–6 of 8 complete
 
 The frontend integration and the backend are developed independently and share
 no source files; they met only in `package.json` and this journal. No backend
@@ -116,6 +116,35 @@ Drizzle schema**, because declaring it would break every `select()` locally.
 returns it as `semantic`, so lexical-only results are never mistaken for the
 whole answer.
 
+Phase 6 shipped AI: `prompt_registry` and `ai_run` (both append-only),
+`ai_suggestion`, `translation`, the AI Gateway client in
+`server/core/ai/gateway.ts` (the only file that calls a model), the
+classification and budget guards, and `/api/v1/ai/suggestions`.
+
+**A model never writes to an entity.** Every generation produces an `ai_run`
+and an `ai_suggestion`; the entity changes only when a named human accepts
+one, through `recordVersion` with `change_source = 'ai_suggestion_accepted'`
+and that run's id — which the Phase 1 CHECK `ai_change_names_its_run` already
+demanded and nothing could satisfy until now. `entity_version.ai_run_id`
+finally got its foreign key in this phase.
+
+Two guards run before any request leaves the process: restricted/secret
+material is refused a send (mirrored by the `restricted_data_never_reaches_a_model`
+CHECK, which can only refuse the *record* — by then the send has happened,
+which is why the TypeScript check is first), and an exhausted budget refuses
+the call from recorded spend via `ai_spend_since()`.
+
+Model slugs live only in `MODEL_PROFILES` in `server/core/config.ts`; callers
+ask for `fast`/`reasoning`/`translation`/`embedding`. **Verify those slugs
+against `/api/internal/ai/models` when provisioning** — a stale gateway slug
+fails at call time with a 400, not at deploy time. The `embedding` profile is
+the load-bearing one: 1536 dimensions, matching `vector(1536)`, and a
+different model must be added as a second column rather than swapped in.
+
+Phase 5's embedder seam is filled: `server/modules/search/index.ts` now passes
+one, so the semantic arm switches on wherever pgvector and the gateway both
+exist.
+
 **Both suites have been mutation-tested.** Removing the `audit_log` append-only
 trigger turns exactly two tests red.
 
@@ -135,13 +164,11 @@ have passed.
 - Migrate the preserved intro into the same WebGPU/TSL renderer so the complete
   experience uses one Canvas and one particle system.
 - Replace the eight placeholder section pages as their content is designed.
-- **Backend Phase 6 is AI**: `prompt_registry`, `ai_run`, `ai_suggestion`, the
-  AI Gateway client, the cost and budget guard, extraction/relation/translation
-  jobs, and the `translation` table. Phase 5 left exactly one seam for it:
-  `searchService(db, { embed })` takes an `Embedder` (`text => number[]`) and
-  currently receives none, so `/api/internal/cron/embed` reports its backlog
-  and embeds nothing. Wiring the gateway into `server/modules/search/index.ts`
-  is what turns the semantic arm on — no other search code changes.
+- **Backend Phase 7 is chat**: threads, messages, citations, tool runs, a
+  streaming route, and a retrieval tool whose citations are real. Phase 5's
+  `search_hybrid` is the retrieval tool's whole substrate, and Phase 6's
+  `ai_run` is where each turn's cost lands — chat should add no new model
+  plumbing, only a conversation shape on top of both.
 
 ## Blocked
 

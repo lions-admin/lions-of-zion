@@ -25,6 +25,7 @@
     "@types/three": "^0.185.4",
     "@vercel/blob": "^2.8.0",
     "@vercel/queue": "^0.5.0",
+    "ai": "^6.0.264",
     "drizzle-orm": "^0.45.2",
     "fast-xml-parser": "^5.11.0",
     "leva": "0.10.1",

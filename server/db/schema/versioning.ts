@@ -15,6 +15,7 @@ import { index, integer, jsonb, pgTable, text, uniqueIndex, uuid } from "drizzle
 import { sql } from "drizzle-orm";
 import { check } from "drizzle-orm/pg-core";
 import { appUser } from "./identity";
+import { aiRun } from "./ai";
 import { changeSource, entityType } from "./_enums";
 import { createdAt, nonBlank, primaryId } from "./_shared";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
@@ -38,8 +39,11 @@ export const entityVersion = pgTable(
     changeSource: changeSource("change_source").notNull(),
     changedBy: uuid("changed_by").references(() => appUser.id),
     changedByLabel: text("changed_by_label").notNull(),
-    /** Set when `change_source = ai_suggestion_accepted`; enforced below. */
-    aiRunId: uuid("ai_run_id"),
+    /** Set when `change_source = ai_suggestion_accepted`; enforced below.
+     *  The FK arrived in Phase 6 with `ai_run` — until then this was a bare
+     *  uuid, which meant an AI-attributed version could name a run that did
+     *  not exist. */
+    aiRunId: uuid("ai_run_id").references(() => aiRun.id),
     changedAt: createdAt(),
     /** md5 of the snapshot. Change detection only — never an integrity claim.
      *  Written by the application: `convert_to()` is STABLE, so a sha256

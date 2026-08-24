@@ -10,6 +10,80 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — `superseded` is not a decision, and the CHECK now says so
+
+`ai_suggestion` carried `decided_suggestion_is_attributed`: anything not
+`pending` had to name a `decided_by` and a `decided_at`. The intent was right
+— anonymous acceptance of a model's output is the failure the table exists to
+prevent — but the statuses were wrong.
+
+Superseding is what happens when a newer proposal arrives for the same field
+and the stale one is retired. No person did it. The constraint as written
+forced the superseding code to invent a decider, which is exactly the false
+attribution the rest of the table is built to prevent — so the constraint
+would have manufactured the problem it was meant to stop.
+
+It is now `human_decision_is_attributed`, scoped to `accepted` and `rejected`.
+`superseded` keeps `decided_at` (when it was retired is useful) and leaves
+`decided_by` null. The test caught this on first run, which is the argument
+for asserting constraint names rather than just "it threw".
+
+## 2026-08-24 — A model never writes to an entity
+
+There is no code path from a model's output to an `information_item` that does
+not pass through an `ai_suggestion` row being accepted by a named human. The
+generation step writes two rows — `ai_run` (what it cost, which model, what
+classification the input carried) and `ai_suggestion` (what it proposed, and
+what the entity said at the time) — and stops.
+
+Acceptance then writes through the ordinary versioned path, with
+`change_source = 'ai_suggestion_accepted'` and the run's id. That means an
+AI-derived change is a *normal* version with an unusual source, not a special
+case every downstream reader has to learn about. The Phase 1 CHECK
+`ai_change_names_its_run` has demanded that run id since the beginning and
+nothing could satisfy it until now; `entity_version.ai_run_id` got its actual
+foreign key in this phase.
+
+Only `summary` is applied automatically on acceptance. `topics` and `relation`
+are recorded as accepted but not written, because an evidence edge is a human
+act with its own rationale and confirmation (Phase 4) — writing it from here
+would route around the gate that makes it mean anything.
+
+## 2026-08-24 — The restricted-data check runs in TypeScript first, SQL second
+
+`restricted_data_never_reaches_a_model` is a CHECK on `ai_run`, and
+`assertSendable()` is the same rule in the gateway client. The duplication is
+not belt-and-braces, it is a sequencing requirement: the CHECK can only refuse
+the *record*, and by the time a row is being written the send has already
+happened. Only the TypeScript check can refuse before bytes leave the process.
+
+The CHECK still earns its place — it catches any future path that records a
+run without going through the client — but it can never be the only one.
+
+Relatedly, gateway errors are translated rather than forwarded: a provider
+error frequently echoes the prompt back, and passing that through to an API
+response is how an unpublished claim under review ends up in a client's error
+log.
+
+## 2026-08-24 — Model slugs live in exactly one map, and are verifiable
+
+Application code asks for a profile (`fast`, `reasoning`, `translation`,
+`embedding`); only `MODEL_PROFILES` in `server/core/config.ts` knows a
+provider slug. Swapping a model is one line, and no prompt quietly depends on
+one vendor's behaviour.
+
+The trap this leaves is that gateway slugs move, versioned ones use dots not
+hyphens (`claude-sonnet-4.6`), and a stale slug fails at *call* time with a
+400 — not at deploy time, when it would be cheap to notice. So
+`/api/internal/ai/models` lists every profile against
+`gateway.getAvailableModels()` and reports `allResolve`. Run it after
+provisioning and after any model change.
+
+`embedding` is different in kind from the others: its 1536 dimensions are
+baked into `search_document.embedding` as `vector(1536)`, and changing that is
+a full table rewrite. A different embedding model must be added as a second
+column, never swapped into this one.
+
 ## 2026-08-24 — `search_hybrid` has two bodies and one signature
 
 PGlite ships no pgvector — re-spiked this session rather than assumed, and it

@@ -235,6 +235,23 @@ Both Phase 2 questions from the plan are settled — see `DECISIONS.md`. `edited
 was unreachable and was given inbound edges rather than deleted; the derived
 columns are guarded, and the trigger that maintains them landed in Phase 4.
 
+## The explainer page
+
+`docs/engine-explainer.html` — a self-contained interactive page (Hebrew, RTL)
+that explains what the system delivers and how it works: 35 components on a
+pannable canvas, four end-to-end journeys, the invariants, and a glossary of
+every English term.
+
+It opens on **what the system gives**, not on the architecture, because the
+first version led with the machinery and was unclear about the point. Each
+component states its purpose before its engineering rationale.
+
+Published at <https://claude.ai/code/artifact/8e3a2495-ce67-4393-83a5-a7994488aee2>.
+Editing the file and republishing to that same URL keeps the link stable.
+
+It is documentation only: not under `app/` or `public/`, so Next.js never
+serves it and it costs nothing to host.
+
 ## Deployment
 
 This particle-navigation integration is the current main implementation. Git

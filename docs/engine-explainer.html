@@ -1,0 +1,1206 @@
+<title>מנוע האימות</title>
+<style>
+:root{
+  --ground:#EDF0F4; --surface:#FFFFFF; --surface-2:#F5F7FA; --surface-3:#E7ECF2;
+  --line:#D0D8E2; --line-soft:#E2E8EF; --edge:#A9B6C6;
+  --text:#14202E; --text-dim:#57677A; --text-faint:#8494A6;
+  --accent:#8A6112; --accent-soft:#F0E4C6;
+  --c-ingest:#1B646F; --c-model:#37507A; --c-evidence:#226646;
+  --c-ai:#55458C; --c-search:#825C12; --c-publish:#8C3349; --c-guard:#912C28;
+  --shadow:0 1px 2px rgba(20,32,46,.06), 0 8px 24px rgba(20,32,46,.07);
+  --shadow-lg:0 2px 8px rgba(20,32,46,.10), 0 24px 60px rgba(20,32,46,.16);
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI","Noto Sans Hebrew","Arial Hebrew",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1520; --surface:#16202E; --surface-2:#1B2634; --surface-3:#22303F;
+    --line:#2B3A4B; --line-soft:#223040; --edge:#42566B;
+    --text:#E6EDF5; --text-dim:#93A3B5; --text-faint:#6D7F93;
+    --accent:#D8A93F; --accent-soft:#3A2F14;
+    --c-ingest:#4FB3C4; --c-model:#88A8DC; --c-evidence:#5FBD8F;
+    --c-ai:#A992E4; --c-search:#D6A83E; --c-publish:#E4869C; --c-guard:#EC7B75;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 8px rgba(0,0,0,.5), 0 24px 60px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1520; --surface:#16202E; --surface-2:#1B2634; --surface-3:#22303F;
+  --line:#2B3A4B; --line-soft:#223040; --edge:#42566B;
+  --text:#E6EDF5; --text-dim:#93A3B5; --text-faint:#6D7F93;
+  --accent:#D8A93F; --accent-soft:#3A2F14;
+  --c-ingest:#4FB3C4; --c-model:#88A8DC; --c-evidence:#5FBD8F;
+  --c-ai:#A992E4; --c-search:#D6A83E; --c-publish:#E4869C; --c-guard:#EC7B75;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 8px rgba(0,0,0,.5), 0 24px 60px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--ground); color:var(--text);
+  font-family:var(--sans); direction:rtl;
+  -webkit-font-smoothing:antialiased; line-height:1.6;
+  /* Flex column instead of calc(100vh - header). The header's height changes
+     when its controls wrap, and 100vh is not the visible height inside an
+     embedded viewer — both make a hardcoded offset wrong. */
+  display:flex; flex-direction:column; overflow:hidden;
+}
+main{flex:1; min-height:0; overflow-y:auto;}
+code,.mono{font-family:var(--mono); direction:ltr; unicode-bidi:isolate;}
+
+/* ---------- chrome ---------- */
+.top{
+  flex:none; z-index:60; background:var(--surface);
+  border-bottom:1px solid var(--line); box-shadow:var(--shadow);
+}
+.top-in{max-width:1500px; margin:0 auto; padding:14px 22px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+.brand{display:flex; align-items:baseline; gap:11px; margin-inline-end:auto;}
+.brand h1{font-size:20px; font-weight:800; letter-spacing:-.02em; margin:0;}
+.brand .sub{font-size:13px; color:var(--text-dim);}
+.tabs{display:flex; gap:4px; background:var(--surface-2); padding:4px; border-radius:9px; border:1px solid var(--line-soft);}
+.tab{
+  appearance:none; border:0; background:transparent; color:var(--text-dim);
+  font:inherit; font-size:13.5px; font-weight:600; padding:7px 14px; border-radius:6px; cursor:pointer;
+}
+.tab:hover{color:var(--text);}
+.tab[aria-selected="true"]{background:var(--surface); color:var(--text); box-shadow:var(--shadow);}
+.tab:focus-visible,.btn:focus-visible,.node:focus-visible,.gl-item:focus-visible{outline:2.5px solid var(--accent); outline-offset:2px;}
+.btn{
+  appearance:none; font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+  background:var(--surface-2); color:var(--text); border:1px solid var(--line);
+  padding:7px 13px; border-radius:7px;
+}
+.btn:hover{background:var(--surface-3);}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--ground);}
+.btn.primary:hover{filter:brightness(1.08);}
+
+/* ---------- panels ---------- */
+.panel{display:none;}
+.panel.on{display:block;}
+#p-map.on{height:100%;}
+
+/* ---------- canvas ---------- */
+.stage{position:relative; height:100%; overflow:hidden; background:
+  radial-gradient(circle at 1px 1px, var(--line-soft) 1px, transparent 0) 0 0/26px 26px, var(--ground);
+  cursor:grab;}
+.stage.dragging{cursor:grabbing;}
+/* Physical left/top, never `inset:0`. In an RTL containing block `inset:0`
+   sets both left and right, and with an explicit width the right edge wins —
+   which anchors this 2392px canvas off-screen and breaks every pan/zoom
+   calculation, since they all assume the origin sits at the stage's left. */
+.world{position:absolute; left:0; top:0; transform-origin:0 0; direction:ltr;}
+.edges{position:absolute; inset:0; overflow:visible; pointer-events:none;}
+.edges path{fill:none; stroke:var(--edge); stroke-width:2.2; transition:stroke .25s, stroke-width .25s, opacity .25s;}
+.edges path.hot{stroke:var(--accent); stroke-width:3;}
+.edges path.dim{opacity:.13;}
+
+.lane-label{
+  position:absolute; font-size:11px; font-weight:800; letter-spacing:.14em;
+  color:var(--text-faint); text-transform:uppercase; direction:rtl; white-space:nowrap;
+}
+.lane-rule{position:absolute; border-inline-start:1px dashed var(--line-soft);}
+
+.node{
+  position:absolute; width:238px; min-height:82px; direction:rtl; text-align:right;
+  background:var(--surface); border:1px solid var(--line); border-radius:11px;
+  padding:11px 13px 11px 13px; cursor:pointer; box-shadow:var(--shadow);
+  transition:transform .18s, box-shadow .18s, opacity .25s, border-color .18s;
+  font:inherit; color:var(--text); display:block;
+}
+.node:hover{transform:translateY(-2px); box-shadow:var(--shadow-lg);}
+.node.dim{opacity:.2;}
+.node.hot{border-color:var(--accent); box-shadow:0 0 0 2.5px var(--accent-soft), var(--shadow-lg);}
+.node .nm{display:flex; align-items:center; gap:7px; margin-bottom:5px;}
+.node .dot{width:8px; height:8px; border-radius:50%; flex:none;}
+.node .kind{font-size:9.5px; font-weight:800; letter-spacing:.1em; color:var(--text-faint);}
+.node h3{margin:0 0 3px; font-size:14.5px; font-weight:700; line-height:1.3; letter-spacing:-.01em;}
+/* `display:block` is load-bearing, not cosmetic: `direction` is ignored on an
+   inline box unless `unicode-bidi` opts in, which is how `canAssignVerdict()`
+   rendered as `()canAssignVerdict` inside the RTL card. */
+.node .en{font-family:var(--mono); font-size:10.5px; color:var(--text-dim);
+  direction:ltr; unicode-bidi:isolate; display:block; text-align:right; word-break:break-all;}
+.node .step{
+  position:absolute; top:-9px; inset-inline-start:-9px; width:23px; height:23px; border-radius:50%;
+  background:var(--accent); color:var(--ground); font-size:12px; font-weight:800;
+  display:none; align-items:center; justify-content:center; box-shadow:var(--shadow);
+}
+.node.hot .step{display:flex;}
+/* kind encoding */
+.node[data-kind="table"]{border-radius:4px;}
+.node[data-kind="guard"]{border-inline-start:4px solid var(--c-guard);}
+.node[data-kind="gate"]{border-inline-start:4px solid var(--c-ai);}
+.node[data-kind="external"]{border-style:dashed;}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed; inset:0; background:rgba(10,16,24,.5); z-index:70; opacity:0; pointer-events:none; transition:opacity .22s;}
+.scrim.on{opacity:1; pointer-events:auto;}
+/* Anchored with physical `right`, and hidden with a POSITIVE translate.
+   `transform` ignores writing direction, so a logical inset paired with a
+   negative translate slides the panel INTO view in RTL instead of out of it. */
+.drawer{
+  position:fixed; top:0; bottom:0; right:0; width:min(470px,94vw); z-index:80;
+  background:var(--surface); border-left:1px solid var(--line); box-shadow:var(--shadow-lg);
+  transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto; padding:0 0 44px; visibility:hidden;
+}
+.drawer.on{transform:translateX(0); visibility:visible;}
+.dr-head{position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--line); padding:18px 22px 15px; z-index:2;}
+.dr-head .nm{display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+.dr-head h2{margin:0 0 4px; font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.25;}
+.dr-close{position:absolute; top:14px; left:14px; width:31px; height:31px; border-radius:7px; border:1px solid var(--line); background:var(--surface-2); cursor:pointer; color:var(--text); font-size:17px; line-height:1;}
+.dr-close:hover{background:var(--surface-3);}
+.dr-body{padding:19px 22px;}
+.fld{margin-bottom:19px;}
+.fld:last-child{margin-bottom:0;}
+.fld h4{
+  margin:0 0 6px; font-size:10.5px; font-weight:800; letter-spacing:.13em;
+  color:var(--text-faint); text-transform:uppercase;
+}
+.fld p{margin:0; font-size:14.5px; line-height:1.72;}
+.fld.fail{background:var(--surface-2); border-inline-start:3px solid var(--c-guard); border-radius:0 8px 8px 0; padding:12px 14px;}
+.fld.fail h4{color:var(--c-guard);}
+/* התכלית מובאת ראשונה ומודגשת — היא התשובה ל"למה זה קיים",
+   לפני ההסבר איך זה בנוי. */
+.fld.purpose{background:var(--accent-soft); border-radius:9px; padding:13px 15px;}
+.fld.purpose h4{color:var(--accent);}
+.fld.purpose p{font-size:15.5px; font-weight:600; line-height:1.7;}
+.terms{display:flex; flex-direction:column; gap:8px;}
+.term{background:var(--surface-2); border:1px solid var(--line-soft); border-radius:8px; padding:9px 12px;}
+.term b{font-family:var(--mono); font-size:12.5px; color:var(--accent); direction:ltr; display:inline-block;}
+.term span{display:block; font-size:13.5px; color:var(--text-dim); margin-top:2px; line-height:1.6;}
+
+/* ---------- journeys ---------- */
+.jr{max-width:1080px; margin:0 auto; padding:30px 22px 70px;}
+.jr-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(232px,1fr)); gap:14px; margin-bottom:26px;}
+.jr-card{
+  text-align:right; background:var(--surface); border:1px solid var(--line); border-radius:11px;
+  padding:16px 17px; cursor:pointer; font:inherit; color:var(--text); box-shadow:var(--shadow);
+  transition:transform .17s, box-shadow .17s;
+}
+.jr-card:hover{transform:translateY(-2px); box-shadow:var(--shadow-lg);}
+.jr-card h3{margin:0 0 5px; font-size:16px; font-weight:700; letter-spacing:-.01em;}
+.jr-card p{margin:0; font-size:13.5px; color:var(--text-dim); line-height:1.6;}
+.jr-card .cnt{display:inline-block; margin-top:9px; font-family:var(--mono); font-size:11px; color:var(--text-faint);}
+
+.runner{background:var(--surface); border:1px solid var(--line); border-radius:13px; box-shadow:var(--shadow); overflow:hidden;}
+.rn-head{padding:17px 20px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.rn-head h3{margin:0; font-size:17px; font-weight:800; margin-inline-end:auto;}
+.rn-prog{font-family:var(--mono); font-size:12px; color:var(--text-dim); font-variant-numeric:tabular-nums;}
+.rn-body{padding:22px 20px;}
+.rn-step{display:flex; gap:14px; align-items:flex-start; margin-bottom:16px;}
+.rn-num{
+  flex:none; width:29px; height:29px; border-radius:50%; background:var(--accent); color:var(--ground);
+  font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center;
+}
+.rn-txt h4{margin:0 0 5px; font-size:17px; font-weight:700;}
+.rn-txt .en{font-family:var(--mono); font-size:11.5px; color:var(--text-dim); direction:ltr; display:block; margin-bottom:8px;}
+.rn-txt p{margin:0; font-size:15px; line-height:1.75;}
+.rn-rail{display:flex; gap:5px; padding:0 20px 18px; flex-wrap:wrap;}
+.rn-pip{height:5px; flex:1 1 18px; border-radius:3px; background:var(--line); transition:background .2s;}
+.rn-pip.done{background:var(--accent);}
+.rn-foot{display:flex; gap:9px; padding:0 20px 20px;}
+
+/* ---------- glossary & rules ---------- */
+.doc{max-width:900px; margin:0 auto; padding:30px 22px 80px;}
+.doc.wide{max-width:1020px;}
+
+/* ---------- outputs ---------- */
+.banner{
+  background:var(--surface); border:1px solid var(--line); border-inline-start:4px solid var(--c-guard);
+  border-radius:11px; padding:17px 20px; margin-bottom:28px; box-shadow:var(--shadow);
+}
+.banner h3{margin:0 0 7px; font-size:16.5px; font-weight:800; color:var(--c-guard); letter-spacing:-.015em;}
+.banner p{margin:0; font-size:14.5px; line-height:1.75; color:var(--text-dim);}
+.banner b{color:var(--text); font-weight:700;}
+
+.out-list{display:flex; flex-direction:column; gap:14px;}
+.out{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:19px 21px; box-shadow:var(--shadow);
+}
+.out.flag{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft), var(--shadow);}
+.out-top{display:flex; align-items:baseline; gap:11px; flex-wrap:wrap; margin-bottom:11px;}
+.out-top h3{margin:0; font-size:18.5px; font-weight:800; letter-spacing:-.02em;}
+.out .tag{
+  font-size:10px; font-weight:800; letter-spacing:.1em; padding:3px 8px; border-radius:5px;
+  background:var(--accent-soft); color:var(--accent);
+}
+.out .api{
+  font-family:var(--mono); font-size:11px; color:var(--text-dim); direction:ltr;
+  unicode-bidi:isolate; margin-inline-start:auto; background:var(--surface-2);
+  border:1px solid var(--line-soft); border-radius:6px; padding:3px 8px;
+}
+.out .body{font-size:15px; line-height:1.75; margin:0 0 13px;}
+.out .body b{font-weight:700;}
+.out-meta{display:grid; grid-template-columns:1fr 1fr; gap:11px;}
+@media (max-width:640px){.out-meta{grid-template-columns:1fr;}}
+.out-meta div{background:var(--surface-2); border-radius:8px; padding:11px 13px;}
+.out-meta h4{margin:0 0 4px; font-size:10px; font-weight:800; letter-spacing:.13em; color:var(--text-faint);}
+.out-meta p{margin:0; font-size:13.5px; line-height:1.65; color:var(--text-dim);}
+.out-meta .no h4{color:var(--c-guard);}
+
+.dom-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:13px;}
+.dom{background:var(--surface); border:1px solid var(--line); border-radius:11px; padding:16px 18px; box-shadow:var(--shadow);}
+.dom .nm{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+.dom .nm .dot{width:10px; height:10px; border-radius:50%; flex:none;}
+.dom .nm h3{margin:0; font-size:16px; font-weight:800;}
+.dom .does{margin:0 0 11px; font-size:14.5px; line-height:1.7;}
+.dom .kv{font-size:13px; line-height:1.65; color:var(--text-dim); margin:0 0 5px;}
+.dom .kv:last-child{margin:0;}
+.dom .kv b{color:var(--text); font-weight:700;}
+.doc h2{font-size:26px; font-weight:800; letter-spacing:-.025em; margin:0 0 7px;}
+.doc .lede{font-size:16px; color:var(--text-dim); margin:0 0 26px; line-height:1.7; max-width:66ch;}
+.search{
+  width:100%; font:inherit; font-size:15px; padding:12px 15px; border-radius:10px;
+  border:1px solid var(--line); background:var(--surface); color:var(--text); margin-bottom:18px;
+}
+.search:focus{outline:2.5px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
+.gl-list{display:flex; flex-direction:column; gap:9px;}
+.gl-item{
+  background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+  box-shadow:var(--shadow); text-align:right; font:inherit; color:var(--text); width:100%; cursor:default;
+}
+.gl-item b{font-family:var(--mono); font-size:14px; color:var(--accent); direction:ltr; display:inline-block;}
+.gl-item .he{font-weight:700; font-size:15px; margin:3px 0 4px;}
+.gl-item p{margin:0; font-size:14px; color:var(--text-dim); line-height:1.7;}
+.gl-empty{color:var(--text-dim); font-size:15px; padding:22px 0;}
+
+.rule{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:19px 21px; margin-bottom:15px; box-shadow:var(--shadow); border-inline-start:4px solid var(--c-guard);}
+.rule h3{margin:0 0 4px; font-size:17.5px; font-weight:800; letter-spacing:-.015em;}
+.rule .where{font-family:var(--mono); font-size:11.5px; color:var(--text-dim); direction:ltr; display:block; margin-bottom:9px;}
+.rule p{margin:0 0 9px; font-size:14.5px; line-height:1.75;}
+.rule p:last-child{margin:0;}
+.rule .why{background:var(--surface-2); border-radius:8px; padding:11px 13px; font-size:14px; color:var(--text-dim); line-height:1.7;}
+
+/* ---------- legend ---------- */
+.legend{
+  position:absolute; bottom:14px; inset-inline-end:14px; z-index:20; background:var(--surface);
+  border:1px solid var(--line); border-radius:10px; padding:12px 14px; box-shadow:var(--shadow); max-width:250px;
+}
+.legend h4{margin:0 0 8px; font-size:10.5px; font-weight:800; letter-spacing:.13em; color:var(--text-faint);}
+.lg-row{display:flex; align-items:center; gap:7px; font-size:12px; margin-bottom:4px; color:var(--text-dim);}
+.lg-row .dot{width:8px; height:8px; border-radius:50%; flex:none;}
+.lg-sep{height:1px; background:var(--line-soft); margin:9px 0;}
+.lg-shape{width:15px; height:11px; border:1.5px solid var(--text-faint); flex:none;}
+.lg-shape.r{border-radius:6px;}
+.lg-shape.g{border-inline-start:3px solid var(--c-guard);}
+.lg-shape.h{border-inline-start:3px solid var(--c-ai);}
+.lg-shape.e{border-style:dashed;}
+.zoom{position:absolute; bottom:14px; inset-inline-start:14px; z-index:20; display:flex; gap:6px;}
+.hint{
+  position:absolute; top:14px; inset-inline-end:14px; z-index:20; background:var(--surface);
+  border:1px solid var(--line); border-radius:8px; padding:8px 13px; font-size:12.5px;
+  color:var(--text-dim); box-shadow:var(--shadow);
+}
+@media (max-width:820px){
+  .legend,.hint{display:none;}
+  .brand .sub{display:none;}
+  .top-in{padding:11px 14px; gap:11px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important;}
+}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>מנוע האימות</h1>
+      <span class="sub">איך מידע נכנס, נבדק, מאושר ומתפרסם</span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-panel="outputs">מה זה נותן</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="map">מפת המערכת</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="journeys">מסלולים</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="rules">חוקי ברזל</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="glossary">מילון מונחים</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="panel on" id="p-outputs">
+    <div class="doc wide">
+      <h2>מה המערכת נותנת בקצה</h2>
+      <p class="lede">לפני התרשימים — מה בפועל יוצא מכל זה, במונחי מי שמשתמש בו.
+        כל תוצר כאן הוא נקודת קצה קיימת בקוד, לא כוונה.</p>
+
+      <div class="banner">
+        <h3>מצב אמת: כרגע שום דבר מזה לא מגיע ללקוח</h3>
+        <p>המנוע בנוי, בדוק ועובר את כל השערים — אבל הוא לא שירות חי. שלוש סיבות, וכולן מכוונות:
+          <b>שום שירות חיצוני לא מחובר</b> (אין מסד נתונים, אין אחסון, אין מודל),
+          <b>הפרונט לא קורא ל-API אפילו פעם אחת</b>,
+          ו<b>ההזדהות היא דמה</b> שמסרבת לעבוד בייצור בכוונה.
+          מה שיש הוא מנוע מוכן לחיבור — לא מוצר פעיל.</p>
+      </div>
+
+      <div class="out-list" id="out-list"></div>
+
+      <h2 style="margin-top:44px">שבעת התחומים — למה כל אחד קיים</h2>
+      <p class="lede">המפה מחלקת את המערכת לשבעה תחומים בצבעים. זה מה שכל תחום קיים כדי לעשות.</p>
+      <div class="dom-list" id="dom-list"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-map">
+    <div class="stage" id="stage">
+      <div class="world" id="world">
+        <svg class="edges" id="edges"></svg>
+      </div>
+      <div class="hint">גררו להזזה · גלגלת לזום · לחצו על צומת להסבר</div>
+      <div class="zoom">
+        <button class="btn" id="zin" aria-label="הגדלה">+</button>
+        <button class="btn" id="zout" aria-label="הקטנה">−</button>
+        <button class="btn" id="zfit">התאמה למסך</button>
+      </div>
+      <div class="legend">
+        <h4>תחומים</h4>
+        <div id="lg-cats"></div>
+        <div class="lg-sep"></div>
+        <h4>סוג הצומת</h4>
+        <div class="lg-row"><span class="lg-shape"></span> טבלה במסד הנתונים</div>
+        <div class="lg-row"><span class="lg-shape r"></span> תהליך או עבודה</div>
+        <div class="lg-row"><span class="lg-shape r g"></span> שומר — מסרב לפעולה</div>
+        <div class="lg-row"><span class="lg-shape r h"></span> שער אישור אנושי</div>
+        <div class="lg-row"><span class="lg-shape r e"></span> שירות חיצוני</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-journeys">
+    <div class="jr">
+      <h2>מסלולים מקצה לקצה</h2>
+      <p class="lede">ארבעה מסלולים אמיתיים שהמערכת מריצה. כל מסלול עובר צעד־צעד על אותם צמתים שבמפה, ומסביר מה קורה בכל שלב ולמה דווקא בסדר הזה.</p>
+      <div class="jr-grid" id="jr-grid"></div>
+      <div id="jr-runner"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-rules">
+    <div class="doc">
+      <h2>חוקי ברזל</h2>
+      <p class="lede">כללים שהמערכת אוכפת במסד הנתונים עצמו, לא בקוד. ההבדל חשוב: קוד אפשר לעקוף בטעות — בסקריפט, בקונסולה, בנתיב חדש שמישהו יכתוב בעוד שנה. מה שנאכף במסד לא ניתן לעקיפה בשום דרך.</p>
+      <div id="rules-list"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-glossary">
+    <div class="doc">
+      <h2>מילון מונחים</h2>
+      <p class="lede">כל מונח טכני באנגלית שמופיע בדף, עם הסבר בעברית. אפשר לחפש באנגלית או בעברית.</p>
+      <input class="search" id="gl-search" type="search" placeholder="חיפוש מונח…" aria-label="חיפוש מונח">
+      <div class="gl-list" id="gl-list"></div>
+    </div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title" tabindex="-1">
+  <div class="dr-head">
+    <button class="dr-close" id="dr-close" aria-label="סגירה">✕</button>
+    <div class="nm"><span class="dot" id="dr-dot"></span><span class="kind" id="dr-kind"></span></div>
+    <h2 id="dr-title"></h2>
+    <div class="en mono" id="dr-en"></div>
+  </div>
+  <div class="dr-body" id="dr-body"></div>
+</aside>
+
+<script>
+const CATS = {
+  ingest:{he:"קליטה",   v:"--c-ingest"},
+  model:{he:"מודל מידע", v:"--c-model"},
+  evidence:{he:"ראיות והערכה", v:"--c-evidence"},
+  ai:{he:"בינה מלאכותית", v:"--c-ai"},
+  search:{he:"חיפוש", v:"--c-search"},
+  publish:{he:"הפצה", v:"--c-publish"},
+  infra:{he:"תשתית ואבטחה", v:"--c-guard"},
+};
+const KIND_HE = {table:"טבלה", process:"תהליך", guard:"שומר", gate:"שער אנושי", external:"שירות חיצוני", view:"תצוגה"};
+
+/* התכלית של כל צומת — מה הוא נותן, לא איך הוא בנוי.
+   מופיע ראשון במגירה, לפני ההסבר ההנדסי. */
+const PURPOSE = {
+  family:"כדי שספירת אישושים תשקף עצמאות אמיתית, ולא הדים של אותו מקור.",
+  source:"כדי שכל ראיה תהיה ניתנת לייחוס למקום שממנו הגיעה.",
+  cron:"כדי שהמערכת תדע על אירועים בלי שמישהו יצטרך לחפש אותם.",
+  connector:"כדי שהוספת ערוץ מידע חדש תהיה עבודה של יום, לא של חודש.",
+  fetch:"כדי שאפשר יהיה להבדיל בין מקור שקט לבין מקור שבור.",
+  blob:"כדי שנוכל להוכיח מה בדיוק קראנו, גם בעוד שנתיים.",
+  evidence:"כדי שלכל טענה יהיה על מה להישען — או שיתברר שאין.",
+  provenance:"כדי שאפשר יהיה לומר לא רק מה הראיה, אלא איך הגענו לסמוך עליה.",
+  item:"כדי שתהיה ישות אחת שאפשר לשאול עליה ‏'מה ידוע' ולקבל תשובה מלאה.",
+  axes:"כדי ש‏'עדיין בודקים' יהיה מצב לגיטימי, ולא לחץ להמציא מסקנה מוקדם מדי.",
+  transitions:"כדי ששינוי בתהליך העבודה לא ידרוש שינוי קוד ופריסה.",
+  searchdoc:"כדי שכל מה שנאסף יהיה ניתן למציאה — גם בעברית ובערבית.",
+  airun:"כדי שתמיד יהיה אפשר לענות כמה עלה, איזה מודל ענה, ועל מה.",
+  itemevidence:"כדי שכל קשר בין ראיה לטענה יישא נימוק ושם של מי שקבע אותו.",
+  verdict:"כדי שאנליסט יידע מה מותר לו לקבוע — ולמה לא יותר מזה.",
+  assessment:"כדי שהמסקנה תהיה ניתנת לביקורת: על מה נשענה, ומה עדיין לא ידוע.",
+  review:"כדי שעבודה שממתינה לעין אנושית לא תיעלם.",
+  publishgate:"כדי ששום דבר לא יתפרסם בלי ששני בני אדם עמדו מאחוריו.",
+  publishedview:"כדי שקורא מבחוץ יראה רק מה שבאמת אושר לפרסום.",
+  gateway:"כדי שהחלפת מודל תהיה שורה אחת, ולא פרויקט.",
+  guards:"כדי שחומר רגיש לא ייצא החוצה, ושהעלות לא תברח בלי שמישהו ישים לב.",
+  suggestion:"כדי שהמודל יאיץ עבודה אנושית בלי לקבל סמכות להחליט.",
+  humangate:"כדי שאדם יישאר האחראי על כל מה שמתפרסם בשם הארגון.",
+  chat:"כדי שאפשר יהיה לשאול שאלה בשפה רגילה במקום להרכיב שאילתה.",
+  toolrun:"כדי שיהיה תיעוד למה שהמודל באמת ראה כשענה.",
+  citation:"כדי שציטוט יהיה בדיקה שעברה, ולא הבטחה של מודל.",
+  hybrid:"כדי שמי שמחפש ימצא — גם עם שגיאת כתיב, תעתיק שונה או ניסוח אחר.",
+  rrf:"כדי שאיכות החיפוש לא תתדרדר בשקט ככל שהמאגר גדל.",
+  publication:"כדי שהממצאים יגיעו לקהל בפורמט שהוא באמת צורך.",
+  report:"כדי שמי שראה משהו חשוד יוכל לומר — בלי חשבון ובלי חיכוך.",
+  outbox:"כדי שעבודת רקע לא תיעלם כשמשהו קורס באמצע.",
+  version:"כדי שתמיד אפשר יהיה לענות ‏'מה זה אמר קודם, ומי שינה'.",
+  audit:"כדי שאפשר יהיה לשחזר מי עשה מה, גם שנה אחרי.",
+  rls:"כדי שהרשאות לא יהיו תלויות בכך שמתכנת זכר לסנן.",
+  ratelimit:"כדי ששירות שפתוח לציבור לא ייפול מהצפה או משימוש לרעה.",
+};
+
+/* שבעת התחומים — מה כל אחד קיים כדי לעשות */
+const DOMAINS = [
+  {cat:"ingest", he:"קליטה",
+   does:"להביא פנימה את מה שנאמר בעולם — אוטומטית, ובאופן שניתן לייחס למקור.",
+   gives:"זרם ראיות מתועד, עם הבייטים המקוריים שמורים.",
+   without:"המערכת יודעת רק מה שמישהו הקליד ידנית, ומפגרת אחרי האירועים דווקא כשהם מהירים."},
+  {cat:"model", he:"מודל מידע",
+   does:"להחזיק את הטענה עצמה כישות שאפשר לעקוב אחריה לאורך זמן.",
+   gives:"ישות אחת עם היסטוריה מלאה, שאפשר לשאול עליה ‏'מה ידוע'.",
+   without:"אין על מה לתלות ראיות ומסקנות, וכל בדיקה היא מסמך נפרד שאובד."},
+  {cat:"evidence", he:"ראיות והערכה",
+   does:"להפוך אוסף ראיות למסקנה שאפשר לבקר — ולחסום מסקנה שהראיות לא מצדיקות.",
+   gives:"תיק אימות: מסקנה, מה תומך, מה סותר, ומה עדיין לא ידוע.",
+   without:"‏'בדקנו ומצאנו שזה שקרי' — בלי שום דרך לבדוק אותנו."},
+  {cat:"search", he:"חיפוש",
+   does:"למצוא את מה שכבר ידוע, לפני שמתחילים לבדוק מאפס.",
+   gives:"אחזור רב־לשוני שסובל שגיאות כתיב ותעתיקים.",
+   without:"כל בדיקה מתחילה מחדש, ואותה טענה נבדקת חמש פעמים."},
+  {cat:"ai", he:"בינה מלאכותית",
+   does:"להאיץ עבודה אנושית — בלי להחליף שיקול דעת ובלי לקבל סמכות.",
+   gives:"הצעות מתועדות שאדם מאשר או דוחה, ותשובות עם מקורות.",
+   without:"כל תקציר, סיווג ותרגום נעשים ידנית, והקצב נקבע לפי כמות האנשים."},
+  {cat:"publish", he:"הפצה",
+   does:"להוציא ממצאים החוצה בפורמט שהקהל באמת צורך, ולקלוט דיווחים פנימה.",
+   gives:"בריף, עדכון חדשותי, ניתוח, תרחיש — וערוץ דיווח לציבור.",
+   without:"הידע כלוא במערכת ולא מגיע לאף אחד."},
+  {cat:"infra", he:"תשתית ואבטחה",
+   does:"להבטיח שהכללים יחזיקו גם כשמישהו טועה, ממהר, או כותב נתיב חדש בעוד שנה.",
+   gives:"אכיפה שלא ניתנת לעקיפה, שובל ביקורת מלא, והרשאות ברמת השורה.",
+   without:"כל כלל הוא הסכמה בעל פה, וכל חריגה מתגלה רק אחרי שהיא כבר פורסמה."},
+];
+
+/* מה יוצא בקצה — התוצרים במונחי לקוח */
+const OUTPUTS = [
+  {he:"תיק אימות על טענה", flag:true, api:"GET /api/v1/published-items",
+   what:"לא ‏'אמת או שקר', אלא תיק: הטענה כפי שנאמרה מילה במילה, המסקנה, כל ראיה בעד ונגד עם נימוק ושם מי קישר אותה, רמת ביטחון בעשרה ממדים נפרדים, <b>מה עדיין לא ידוע</b>, מי אישר ומתי, וכל היסטוריית השינויים.",
+   who:"עיתונאי שצריך לצטט, חוקר שצריך להסתמך, דובר שצריך להשיב, קובע מדיניות שצריך להחליט.",
+   without:"‏'בדקנו, זה שקרי' — אמירה שאי אפשר לאמת, ושמי שחולק עליה לא יכול להתווכח איתה."},
+  {he:"בריף ותוצרים עורכיים", api:"GET /api/v1/publications",
+   what:"ארבעה פורמטים מעל הממצאים שכבר אומתו: עדכון חדשותי קצר, בריף מרוכז, ניתוח גאופוליטי, ותרחיש עם רמת סבירות מילולית.",
+   who:"מי שצורך מסקנות ולא ראיות גולמיות — הנהלה, תקשורת, שותפים.",
+   without:"כל נמען צריך לקרוא את המאגר הגולמי ולהרכיב לבד את התמונה."},
+  {he:"חיפוש רב־לשוני", api:"GET /api/v1/search",
+   what:"חיפוש אחד מעל הכל — פריטים וראיות — שעובד בעברית, ערבית ואנגלית, סובל שגיאות כתיב ותעתיקים, ומדרג לפי ארבעה מנועים במקביל.",
+   who:"כל מי שמתחיל בדיקה חדשה ורוצה לדעת אם כבר טיפלנו בזה.",
+   without:"אותה טענה נבדקת שוב ושוב, ועבודה קודמת הולכת לאיבוד."},
+  {he:"תשובה עם מקורות אמיתיים", api:"POST /api/v1/chat/threads/[id]/messages",
+   what:"שאלה בשפה חופשית, ותשובה שכל ציטוט בה נבדק מול מה שהאחזור באמת החזיר. ציטוט מומצא נחסם במסד ולא רק מסונן בקוד.",
+   who:"אנליסט שרוצה תשובה מהירה בלי לוותר על יכולת לאמת אותה.",
+   without:"או שאין צ'אט, או שיש צ'אט שממציא מקורות — וזה גרוע יותר מכלום."},
+  {he:"קליטה אוטומטית", api:"Cron · כל 15 דקות",
+   what:"סריקה מתוזמנת של כל המקורות הפעילים, שמירת הבייטים המקוריים, ומניעת כפילויות — בלי שאף אחד לוחץ כפתור.",
+   who:"אף אחד ישירות. זה מה שממלא את המערכת בחומר.",
+   without:"המערכת יודעת רק מה שהוקלד ידנית."},
+  {he:"ערוץ דיווח לציבור", api:"POST /api/v1/reports",
+   what:"טופס פתוח שבו כל אדם מדווח על מידע חשוד — קישור, טקסט או צילום מסך. בלי חשבון, בלי דרישת זהות, עם הגבלת קצב.",
+   who:"הציבור הרחב, ומי שמנהל את תור הטריאז' בצד השני.",
+   without:"המערכת רואה רק מה שהמקורות המנוטרים מפרסמים, ומפספסת מה שמתפשט בקבוצות סגורות."},
+];
+
+/* lanes are ordered right → left, matching Hebrew reading direction */
+const LANES = [
+  {id:"src",  he:"מקורות"},
+  {id:"ing",  he:"קליטה ואחסון"},
+  {id:"evd",  he:"ראיות"},
+  {id:"itm",  he:"פריט המידע"},
+  {id:"asm",  he:"הערכה ואישור"},
+  {id:"out",  he:"הפצה"},
+  {id:"inf",  he:"תשתית חוצה־מערכת"},
+];
+
+const NODES = [
+  /* ---- lane: src ---- */
+  {id:"family", lane:"src", cat:"ingest", kind:"table", he:"משפחת מקורות", en:"source_family",
+   what:"קיבוץ של מקורות שאינם עצמאיים זה מזה — למשל כל האתרים שמשכתבים מברק של אותה סוכנות ידיעות.",
+   why:"זו התוספת החשובה ביותר שהוספתי מעבר לאפיון המקורי. בלעדיה, חמישה אתרים שהעתיקו מברק אחד נספרים כחמישה אישושים עצמאיים — וזו הדרך הנפוצה ביותר שבה תהליך אימות משלה את עצמו. עצמאות נספרת במשפחות, לא בכתובות אינטרנט.",
+   inp:"הגדרה ידנית של צוות המערכת.",
+   does:"מקבץ מקורות תחת זהות אחת. כשסופרים אישושים, סופרים משפחות ולא מקורות.",
+   out:"שיוך שכל מקור חייב להצביע אליו.",
+   fails:"אם משפחה מוגדרת רחב מדי — נפסיד אישושים אמיתיים ונהיה זהירים מדי. אם צר מדי — נספור העתקות כאישוש. זו הכרעה עורכית, ולכן היא ידנית ולא אוטומטית.",
+   terms:[{en:"source_family",he:"טבלה שמקבצת מקורות בעלי בעלות או מקור־מידע משותפים"}]},
+
+  {id:"source", lane:"src", cat:"ingest", kind:"table", he:"מקור", en:"source",
+   what:"אתר, פיד, ערוץ טלגרם או חשבון רשת חברתית שמהם נקלט מידע.",
+   why:"כל ראיה חייבת להיות ניתנת לייחוס למקום שממנו הגיעה. מקור בלי זהות יציבה הוא ראיה בלי מוצא.",
+   inp:"רישום ידני: סוג המקור, כתובת הפיד, שפה, ומשפחת המקורות שאליה הוא שייך.",
+   does:"מחזיק את ההגדרות שהמחבר המתאים צריך כדי לשלוף. מנוהל בגרסאות — שינוי כתובת פיד או השבתת מקור נשמרים בהיסטוריה.",
+   out:"רשומת מקור פעילה שהתזמון סורק כל רבע שעה.",
+   fails:"מקור מסוג <code>rss</code> או <code>api</code> חייב כתובת פיד — המסד מסרב לרשומה בלעדיה. מקור ידני לא צריך.",
+   terms:[{en:"feed / RSS",he:"פורמט תקני שאתרי חדשות מפרסמים בו את הכתבות האחרונות, כדי שתוכנה תוכל לקרוא אותן"},{en:"source",he:"טבלת המקורות — מאיפה מגיע מידע"}]},
+
+  /* ---- lane: ing ---- */
+  {id:"cron", lane:"ing", cat:"ingest", kind:"process", he:"תזמון קליטה", en:"Cron · /api/internal/cron/ingest",
+   what:"עבודה מתוזמנת שרצה כל 15 דקות ועוברת על כל המקורות הפעילים.",
+   why:"קליטה חייבת לקרות מעצמה. אם מישהו צריך ללחוץ כפתור, המערכת מפגרת אחרי האירועים בדיוק כשהם הכי מהירים.",
+   inp:"רשימת המקורות הפעילים שיש להם מחבר רשום.",
+   does:"מריץ כל מקור דרך המחבר שלו, אחד־אחד. כישלון במקור אחד נתפס ומדווח בנפרד ולא מפיל את השאר.",
+   out:"רשומת שליפה לכל מקור, וראיות חדשות עבור מה שטרם נראה.",
+   fails:"פיד מת מייצר רשומת שליפה במצב <code>failed</code> עם סיבה — הריצה ממשיכה. הראוט מוגן בסוד שוורסל חותמת איתו כל קריאה מתוזמנת; קריאה בלי החתימה נדחית.",
+   terms:[{en:"Cron",he:"מנגנון שמריץ קוד לפי לוח זמנים קבוע, למשל כל 15 דקות"},{en:"CRON_SECRET",he:"סוד שוורסל שולחת עם כל קריאה מתוזמנת, כדי שאף אחד אחר לא יוכל להפעיל את הראוט"}]},
+
+  {id:"connector", lane:"ing", cat:"ingest", kind:"process", he:"מחבר מקור", en:"SourceConnector",
+   what:"הקוד שיודע לדבר עם סוג מקור מסוים. כרגע יש מחבר אחד מלא — לפידים בפורמט RSS ו־Atom.",
+   why:"כל סוג מקור מדבר אחרת. הפרדה לממשק אחיד אומרת שהוספת סוג מקור חדש היא קובץ אחד, ולא שינוי בכל צינור הקליטה.",
+   inp:"רשומת מקור אחת.",
+   does:"מוריד, מפענח את הפורמט, ומחזיר רשימת פריטים אחידה: מזהה חיצוני, כותרת, קישור, תקציר, תאריך. לא נוגע במסד הנתונים בכלל.",
+   out:"אוסף פריטים גולמיים והגוף המלא של התשובה.",
+   fails:"רשת נופלת או פורמט שבור מוחזרים כסטטוס <code>failed</code> או <code>partial</code> עם הודעת שגיאה — אף פעם לא כחריגה שמפילה את הריצה.",
+   terms:[{en:"SourceConnector",he:"הממשק שכל מחבר מקור מממש — 'איך שולפים מהסוג הזה'"},{en:"Atom",he:"פורמט פיד נוסף, אחות של RSS"},{en:"static registry",he:"רשימה קבועה של המחברים בקוד. בכוונה לא טעינה דינמית — כך חוסר במחבר מתגלה בזמן בנייה ולא בייצור"}]},
+
+  {id:"fetch", lane:"ing", cat:"ingest", kind:"table", he:"רישום שליפה", en:"source_fetch",
+   what:"שורה אחת לכל ניסיון שליפה: מתי התחיל, מתי הסתיים, כמה פריטים נראו, כמה היו חדשים, ומה השתבש.",
+   why:"בלי רישום כזה, 'המקור הזה שקט' ו'המקור הזה שבור' נראים אותו דבר. עכשיו אפשר להבדיל.",
+   inp:"התוצאה שהמחבר החזיר.",
+   does:"נכתב פעם אחת, אחרי שידוע איך הניסיון הסתיים. אין שורה 'בתהליך' שצריך לעדכן.",
+   out:"היסטוריית אמינות לכל מקור.",
+   fails:"הטבלה היא append-only — טריגר במסד מסרב לכל עדכון או מחיקה. שליפה שנרשמה לא ניתנת לשכתוב.",
+   terms:[{en:"append-only",he:"רק־הוספה: אפשר להוסיף שורות, אי אפשר לשנות או למחוק קיימות"},{en:"trigger",he:"קוד שהמסד מריץ אוטומטית בכל ניסיון כתיבה, ויכול לסרב לה"}]},
+
+  {id:"blob", lane:"ing", cat:"ingest", kind:"external", he:"אחסון גלמי", en:"Vercel Blob",
+   what:"שירות אחסון קבצים. שומר את הגוף המקורי של כל שליפה, בדיוק כפי שהתקבל.",
+   why:"אם בעוד שנה מישהו יטען שפירשנו כתבה לא נכון — צריך את הבייטים המקוריים, לא את הפירוש שלנו.",
+   inp:"גוף התשובה מהמחבר, פעם אחת לכל שליפה ולא לכל פריט.",
+   does:"מאחסן ומחזיר כתובת. במקביל מחושב חתימת sha256 של התוכן.",
+   out:"כתובת קובץ וחתימה, שנשמרות ברישום השליפה.",
+   fails:"כתובות Blob אינן ניתנות לניחוש אך הן ציבוריות. לכן חומר מסווג <code>restricted</code> או <code>secret</code> לא מקבל כתובת כזו כלל — המסד מסרב.",
+   terms:[{en:"Vercel Blob",he:"שירות אחסון קבצים של פלטפורמת וורסל"},{en:"sha256",he:"חתימה מתמטית של תוכן. אם בייט אחד השתנה — החתימה שונה לגמרי"}]},
+
+  /* ---- lane: evd ---- */
+  {id:"evidence", lane:"evd", cat:"evidence", kind:"table", he:"ראיה", en:"evidence",
+   what:"פריט תוכן שנקלט: כתבה, מסמך, תמונה, סרטון, פוסט או עדות.",
+   why:"זה הלבנה שממנה בנויה כל טענה. ראיה קיימת בפני עצמה — לפני שהוחלט אם היא תומכת במשהו או סותרת אותו.",
+   inp:"פריט מהמחבר, או הזנה ידנית של אנליסט.",
+   does:"נשמר עם שפה, סיווג, זמן לכידה, וקישור לשליפה שהביאה אותו. מנוהל בגרסאות.",
+   out:"ראיה שאפשר לקשור לפריט מידע, ושנכנסת לאינדקס החיפוש.",
+   fails:"מניעת כפילויות דרך מזהה חיצוני — אותו <code>guid</code> מאותו מקור לא ייווצר פעמיים. סריקה חוזרת של פיד לא מייצרת עותקים.",
+   terms:[{en:"evidence",he:"טבלת הראיות"},{en:"data_class",he:"סיווג רגישות: ציבורי, פנימי, חסוי, מוגבל, סודי"},{en:"external_id",he:"המזהה שהמקור עצמו נתן לפריט — כך מזהים שכבר ראינו אותו"}]},
+
+  {id:"provenance", lane:"evd", cat:"evidence", kind:"table", he:"שרשרת משמורת", en:"evidence_provenance",
+   what:"יומן רק־הוספה של כל מה שנעשה כדי לבסס אמון בראיה: נלכדה, אורכבה, חתימתה אומתה.",
+   why:"זה לא יומן עריכות. 'המטא־דאטה השתנתה' ו'המשמורת בוססה' הן שתי שאלות שונות עם קהלים שונים, ואסור לערבב אותן.",
+   inp:"פעולות שבוצעו על הראיה, לאורך חייה.",
+   does:"רושם פעולה, מבצע וזמן. אף פעם לא משנה שורה קיימת.",
+   out:"סיפור מלא של איך הגענו לסמוך על הראיה הזו.",
+   fails:"append-only ברמת המסד. גם קונסולת ניהול לא יכולה לשכתב.",
+   terms:[{en:"provenance",he:"שרשרת משמורת — התיעוד של מאיפה משהו הגיע ומה נעשה בו"}]},
+
+  /* ---- lane: itm ---- */
+  {id:"item", lane:"itm", cat:"model", kind:"table", he:"פריט מידע", en:"information_item",
+   what:"הישות המרכזית של המערכת: טענה, נרטיב, הצהרה, דיווח או קמפיין שנבדק.",
+   why:"זה מה שהמערכת קיימת כדי לאמת. סביבו נבנה הכול.",
+   inp:"נוצר ידנית, או מתוך דיווח מהציבור, או מתוך זיהוי בקליטה.",
+   does:"מחזיק את הטענה כפי שנאמרה — לא בפרפרזה שלנו — כדי שקורא יוכל להשוות בין מה שהערכנו לבין מה שנטען.",
+   out:"פריט שאפשר לקשור אליו ראיות, לכתוב עליו הערכה, ובסוף לפרסם.",
+   fails:"טקסט ריק נדחה. שפה שאינה תגית תקנית נדחית. פריט שנדחה חייב סיבה כתובה — דחייה בלי הסבר אינה תיעוד של כלום.",
+   terms:[{en:"information_item",he:"טבלת פריטי המידע — הישות המרכזית"},{en:"canonical_text",he:"הטענה כפי שנאמרה במקור, מילה במילה"}]},
+
+  {id:"axes", lane:"itm", cat:"model", kind:"guard", he:"שני צירים נפרדים", en:"status vs assessment",
+   what:"לכל פריט יש שני שדות שלעולם לא מתמזגים: <code>status</code> — איפה הוא בתהליך העבודה, ו־<code>assessment</code> — מה הסקנו לגביו.",
+   why:"זו ההכרעה המבנית החשובה ביותר במודל. אם מאחדים אותם, 'אנחנו עדיין בודקים' הופך לבלתי ניתן לייצוג — והמערכת נאלצת להעמיד פנים שיש לה מסקנה לפני שיש לה.",
+   inp:"מעברי סטטוס מצד עורכים; הערכות מצד אנליסטים.",
+   does:"מאפשר לפריט להיות מפורסם עם כל הערכה, ובבדיקה עם כל הערכה. שתי השאלות נשאלות ונענות בנפרד.",
+   out:"מודל שיכול לומר 'פורסם, והמסקנה היא: שנוי במחלוקת'.",
+   fails:"אין כאן כישלון — יש מלכודת. כל ניסיון עתידי לגזור אחד מהשני יחזיר את הבעיה שהמבנה הזה מונע.",
+   terms:[{en:"status",he:"מיקום בתהליך: זוהה, בבדיקה, נבדק, אושר, פורסם, הועבר לארכיון, נדחה"},{en:"assessment",he:"המסקנה: שקרי, מטעה, מניפולטיבי, מחוץ להקשר, ללא תימוכין, לא מאומת, שנוי במחלוקת, סאטירה, מאומת"}]},
+
+  {id:"transitions", lane:"itm", cat:"model", kind:"table", he:"טבלת מעברים", en:"status_transition",
+   what:"רשימה של אילו מעברי סטטוס חוקיים — כנתונים בטבלה, לא כקוד.",
+   why:"פתיחת מסלול עבודה חדש היא הוספת שורה, לא שינוי קוד ופריסה מחדש. וטריגר קורא מהטבלה הזו, כך שגם עבודה ידנית בקונסולה כפופה לאותם כללים.",
+   inp:"בקשת מעבר מצד המשתמש.",
+   does:"טריגר בודק חוקיות, ואם המעבר מותר — כותב בעצמו את רישום המעבר ליומן.",
+   out:"מעבר חוקי ושובל ביקורת שאי אפשר לשכוח לכתוב.",
+   fails:"מעבר לא חוקי נדחה במסד. השירות בודק גם הוא — כדי להחזיר משפט מובן ('אפשר לעבור ל: …') במקום שגיאת אילוץ.",
+   terms:[{en:"status_transition",he:"טבלה שמגדירה אילו מעברים מותרים"}]},
+
+  /* ---- lane: asm ---- */
+  {id:"itemevidence", lane:"asm", cat:"evidence", kind:"table", he:"קשר ראיה↔פריט", en:"item_evidence",
+   what:"החיבור בין ראיה לפריט, עם היחס ביניהם: תומכת, תומכת חלקית, סותרת, או מספקת הקשר.",
+   why:"מפתח ראשי מורכב מבטיח שלראיה אחת יש יחס אחד לפריט אחד. דעה חולקת של הבינה המלאכותית יושבת באותה שורה בשדה נפרד — לא כקשת שנייה שסותרת את הראשונה.",
+   inp:"אנליסט שמקשר ראיה ומנמק למה.",
+   does:"מחזיק גם עוצמה (חזקה, מספקת, חלשה, הקשרית) ונימוק חובה.",
+   out:"קשת שנספרת לצורך זכאות — אבל רק אם אדם אישר אותה.",
+   fails:"קשר בלי נימוק נדחה. רק קשת עם <code>confirmed_by</code> נספרת; הצעה שלא אושרה לא משפיעה על שום מסקנה.",
+   terms:[{en:"item_evidence",he:"טבלת הקשרים בין פריטים לראיות"},{en:"confirmed_by",he:"מי אישר שהקשר הזה נכון. בלי זה — הקשר לא נספר"}]},
+
+  {id:"verdict", lane:"asm", cat:"evidence", kind:"guard", he:"כללי זכאות", en:"canAssignVerdict()",
+   what:"פונקציה טהורה שבודקת אילו מסקנות מותר בכלל לכתוב, לפי מה שהראיות המאושרות מראות.",
+   why:"אנליסט צריך לשמוע 'צריך שתי משפחות מקורות עצמאיות בעוצמה מספקת ומעלה', לא 'הפרת אילוץ'. לכן זה בקוד ולא במסד — יש כאן שיפוט, צבירה מכמה טבלאות, ומשפט הסבר.",
+   inp:"ספירה של משפחות מקורות מאשרות וסותרות.",
+   does:"מחזיר לכל מסקנה: מותר או אסור, ולמה. למשל <code>verified</code> דורש שתי משפחות תומכות ואפס סותרות.",
+   out:"החלטת זכאות עם נימוק קריא, שנשמרת קפואה על ההערכה.",
+   fails:"אין מסד נתונים כאן בכלל — הפונקציה נבדקת בנפרד לגמרי. הסף עצמו ישתנה עם הזמן; המבנה לא אמור להשתנות.",
+   terms:[{en:"canAssignVerdict()",he:"הפונקציה שמכריעה אילו מסקנות זכאיות"},{en:"pure function",he:"פונקציה טהורה: אותה קלט תמיד מחזיר אותו פלט, בלי לגעת במסד או ברשת"}]},
+
+  {id:"assessment", lane:"asm", cat:"evidence", kind:"table", he:"הערכה", en:"item_assessment",
+   what:"המסקנה הכתובה: מה קבענו, על סמך מה, מה עדיין לא ידוע, ובאיזו רמת ביטחון בעשרה ממדים.",
+   why:"עשרה ממדי ביטחון ולא מספר אחד. מספר בודד מזמין אחסון של '0.94', שנשמע מדויק ואינו מדויק. הפריט עצמו נושא רק סיכום: גבוה, בינוני או מוגבל.",
+   inp:"אנליסט, אחרי שהזכאות אישרה שהמסקנה אפשרית.",
+   does:"נכתב פעם אחת ולא ניתן לשינוי. הערכה חדשה לא מוחקת את הקודמת — היא מסמנת אותה כמוחלפת.",
+   out:"מסקנה חתומה בזמן, ועדכון אוטומטי של השדות הנגזרים בפריט.",
+   fails:"טריגר מסרב לכל שינוי בתוכן. שני שדות בלבד ניתנים לקביעה חד־פעמית: מי אישר, ומה החליף אותה.",
+   terms:[{en:"item_assessment",he:"טבלת ההערכות"},{en:"eligibility",he:"פלט מנוע הכללים ברגע הכתיבה, נשמר קפוא כדי שקורא בעוד שנתיים יראה איזה רף נעבר אז"},{en:"superseded",he:"מוחלפת — הערכה ישנה שהערכה חדשה החליפה, אך היא נשמרת"}]},
+
+  {id:"review", lane:"asm", cat:"evidence", kind:"table", he:"תור סקירה", en:"review_queue",
+   what:"רשימת המשימות שממתינות לעין אנושית: אישור הערכה, קישור ראיות, בדיקה ראשונית.",
+   why:"בלי תור, 'ממתין לאישור' הוא מצב שאף אחד לא רואה. עם תור — יש מקום אחד שאפשר לפתוח בבוקר.",
+   inp:"נוצר אוטומטית כשנכתבת הערכה שדורשת סקירה.",
+   does:"מחזיק עדיפות, מי לקח את המשימה ומתי הסתיימה.",
+   out:"עבודה מסודרת לצוות.",
+   fails:"משימה במצב 'נלקחה' חייבת לנקוב במי שלקח; משימה שהסתיימה חייבת מבצע וזמן. המסד מסרב אחרת.",
+   terms:[{en:"review_queue",he:"תור הסקירה האנושית"}]},
+
+  {id:"publishgate", lane:"asm", cat:"infra", kind:"gate", he:"שער הפרסום", en:"enforce_publish_gate()",
+   what:"טריגר שרץ ברגע שפריט עובר ל'פורסם', ובודק את מה שאילוץ שורה בודדת לא יכול לראות.",
+   why:"אילוץ יכול לראות שיש מאשר. הוא לא יכול לראות מי הוא — האם הוא אדם, והאם הוא במקרה גם מי שכתב את הדבר שהוא מאשר.",
+   inp:"ניסיון לשנות סטטוס ל'פורסם'.",
+   does:"בודק שהמאשר אינו זהות אוטומטית, שאינו המחבר, שההערכה הנוכחית נסקרה, ושמי שסקר אותה אינו מי שכתב אותה.",
+   out:"פרסום — או סירוב עם משפט שמסביר בדיוק מה חסר.",
+   fails:"סירוב מוחלט. אין דרך עוקפת: לא דרך השירות, לא דרך סקריפט, לא דרך קונסולה.",
+   terms:[{en:"publish gate",he:"שער הפרסום — הבדיקה האחרונה לפני שמשהו הופך פומבי"},{en:"CHECK constraint",he:"אילוץ שהמסד בודק על שורה בודדת, בלי יכולת להסתכל על טבלאות אחרות"}]},
+
+  /* ---- lane: out ---- */
+  {id:"publishedview", lane:"out", cat:"publish", kind:"view", he:"תצוגת פרסומים", en:"published_item",
+   what:"תצוגה במסד שמחזירה רק פריטים מפורסמים, מחוברים להערכה שמצדיקה אותם.",
+   why:"החיבור בין פריט למסקנה שמצדיקה אותו נכתב פעם אחת, ב־SQL. כל קורא מקבל את אותו חיבור ולא גוזר אותו מחדש.",
+   inp:"פריטים בסטטוס פורסם או עודכן.",
+   does:"מסננת ומצרפת את תקציר ההערכה, הפערים הידועים והרושם המטעה.",
+   out:"מה שקורא מחוץ לארגון רשאי לראות.",
+   fails:"פריט לא מפורסם פשוט לא מופיע. אין סינון בקוד שאפשר לשכוח.",
+   terms:[{en:"view",he:"שאילתה שמורה שמתנהגת כמו טבלה לקריאה בלבד"}]},
+
+  {id:"publication", lane:"out", cat:"publish", kind:"table", he:"משטחי פרסום", en:"publication",
+   what:"טבלה אחת לארבעה סוגי תוצרים: עדכון חדשותי, בריף, ניתוח גאופוליטי ותרחיש.",
+   why:"ארבע טבלאות היו כמעט זהות — אותו מחזור חיים, אותו ניהול גרסאות, אותו שער פרסום. זה אומר ארבעה מקומות לשכוח בהם את השער. טבלה אחת עם שדה סוג פותרת את זה.",
+   inp:"עורך שכותב תוצר, ומקשר אליו את הפריטים שעליהם הוא נשען.",
+   does:"מחזיקה את כל התוכן, ועוברת את אותו מסלול אישור: טיוטה, בבדיקה, אושר, פורסם.",
+   out:"תוכן מוכן להפצה.",
+   fails:"תרחיש חייב לנקוב ברמת סבירות מילולית; שום דבר אחר לא רשאי לנקוב באחת. אין ולא יהיה שדה אחוזים — <code>0.62</code> מומצא מצטלם ומצוטט, והסייגים לא נוסעים עם צילום המסך.",
+   terms:[{en:"publication",he:"טבלת משטחי הפרסום"},{en:"news_update",he:"עדכון חדשותי קצר"},{en:"brief",he:"בריף — סיכום עורכי מרוכז"},{en:"scenario",he:"תרחיש — מה עלול לקרות, עם רמת סבירות מילולית"},{en:"likelihood band",he:"רמת סבירות מילולית: רחוק, לא סביר, שקול, סביר, כמעט ודאי"}]},
+
+  {id:"report", lane:"out", cat:"publish", kind:"table", he:"דיווח מהציבור", en:"report",
+   what:"טופס שבו כל אדם יכול לדווח על מידע שנראה לו שקרי: קישור, טקסט או צילום מסך.",
+   why:"זה נתיב הכתיבה היחיד במערכת שפתוח לאדם לא מזוהה. לכן הוא היחיד שמניח עוינות.",
+   inp:"הגשה אנונימית מהאינטרנט הפתוח.",
+   does:"נשמר כטקסט בלבד, אף פעם לא כסימון HTML. מסווג 'פנימי' מיד — הוא עלול להכיל פרטים אישיים שהמדווח מסר ואיש לא בדק.",
+   out:"אישור קבלה עם מזהה קצר, ומשימה בתור הטריאז'.",
+   fails:"מוגבל בקצב. כתובת המדווח נשמרת מגובבת ולא כפי שהיא — אחרת הטבלה הופכת ליומן מבקרים. זיהוי אינו נדרש: דרישת זהות בדיווח על דיסאינפורמציה מרתיעה בדיוק את הדיווחים החשובים ביותר.",
+   terms:[{en:"report",he:"טבלת הדיווחים מהציבור"},{en:"triage",he:"טריאז' — מיון ראשוני שמחליט מה דחוף ומה לא"},{en:"hash",he:"גיבוב — המרה חד־כיוונית שמאפשרת לזהות חזרתיות בלי לשמור את הערך המקורי"}]},
+
+  /* ---- lane: search ---- */
+  {id:"searchdoc", lane:"itm", cat:"search", kind:"table", he:"מסמך חיפוש", en:"search_document",
+   what:"השלכה שטוחה של כל ישות שניתן לחפש — פריטי מידע וראיות — בשורה אחת אחידה.",
+   why:"שאילתה שצריכה לאחד שתי טבלאות בעלות מבנה שונה ולדרג ביניהן לא יכולה להשתמש באינדקס של אף אחת מהן. מבנה אחד, אינדקס אחד.",
+   inp:"הודעה מתיבת היוצא בכל פעם שישות משתנה.",
+   does:"מחזיק שתי עמודות חיפוש טקסט — אחת שמטפלת בעברית, ערבית ופרסית, ואחת שמטפלת באנגלית עם גזירת שורשים.",
+   out:"אינדקס שאפשר לחפש בו.",
+   fails:"חומר מסווג מוגבל לא נכנס לאינדקס כלל. תוצאת חיפוש היא קישור, וכותרת היא לעיתים כל החשיפה.",
+   terms:[{en:"tsvector",he:"מבנה שפוסטגרס בונה מטקסט כדי לחפש בו מהר"},{en:"projection",he:"השלכה — העתקה שטוחה של נתונים למבנה שנוח לחיפוש"},{en:"simple / english",he:"שתי הגדרות ניתוח טקסט. הראשונה לא גוזרת שורשים ולכן מתאימה לעברית וערבית; השנייה גוזרת שורשים באנגלית"}]},
+
+  {id:"hybrid", lane:"asm", cat:"search", kind:"process", he:"חיפוש היברידי", en:"search_hybrid()",
+   what:"פונקציה אחת ב־SQL שמריצה עד ארבעה מנועי חיפוש במקביל וממזגת את התוצאות.",
+   why:"כל מנוע לבד מפספס. חיפוש מילולי לא ימצא ניסוח אחר; חיפוש סמנטי לא ימצא שם שנכתב בתעתיק שונה; שלישיות אותיות ימצאו שגיאת כתיב שאף אחד מהם לא יתפוס.",
+   inp:"שאילתת חיפוש, ואופציונלית וקטור סמנטי.",
+   does:"מריץ ארבע זרועות: עברית/ערבית, אנגלית, שלישיות אותיות על הכותרת, וסמנטי. ממזג בשיטת דירוג הדדי.",
+   out:"רשימה מדורגת אחת.",
+   fails:"במסד בלי הרחבת וקטורים — הפונקציה נוצרת בגרסה עם שלוש זרועות, באותה חתימה בדיוק. הקוד הקורא לא משתנה, והתשובה מדווחת בכנות אם החיפוש הסמנטי פעיל או לא.",
+   terms:[{en:"search_hybrid()",he:"פונקציית החיפוש המשולב"},{en:"pgvector",he:"הרחבה לפוסטגרס שמאפשרת חיפוש לפי משמעות ולא לפי מילים"},{en:"trigram",he:"שלישיות אותיות — שיטה שמוצאת דמיון גם עם שגיאות כתיב"}]},
+
+  {id:"rrf", lane:"asm", cat:"search", kind:"guard", he:"מיזוג לפי דירוג", en:"Reciprocal Rank Fusion",
+   what:"שיטת מיזוג שזורקת את הציונים ומשאירה רק את הסדר שכל זרוע הפיקה.",
+   why:"ציון חיפוש מילולי וציון דמיון סמנטי אינם ניתנים להשוואה. כל נוסחה שממירה ביניהם היא כיול — וכיול נרקב ככל שהמאגר גדל, בשקט, כי שום דבר לא נכשל, התוצאות פשוט מחמירות.",
+   inp:"ארבע רשימות מדורגות.",
+   does:"כל זרוע תורמת 1 חלקי (60 ועוד המיקום). מסמך שכמה זרועות מצאו עולה מעל מסמך שרק אחת מצאה.",
+   out:"ציון שמשמעותי רק בתוך תוצאה אחת ולא מחוצה לה — ולכן לעולם לא מוצג לקורא כאחוז או כרמת ביטחון.",
+   fails:"אין פרמטר שיכול להתקלקל חוץ מהמספר 60, שידוע כלא־רגיש.",
+   terms:[{en:"Reciprocal Rank Fusion",he:"מיזוג דירוג הדדי — שיטה למזג כמה רשימות מדורגות בלי להשוות ציונים"}]},
+
+  /* ---- lane: ai ---- */
+  {id:"gateway", lane:"evd", cat:"ai", kind:"external", he:"שער הבינה המלאכותית", en:"AI Gateway",
+   what:"הקובץ היחיד במערכת שקורא למודל שפה. כל השאר מבקשים 'פרופיל' ומקבלים תשובה מתועדת.",
+   why:"כך 'איזה מודל כתב את זה, כמה זה עלה, והאם מותר היה לו לראות את הקלט' נענות בקריאת קובץ אחד ולא בביקורת של כל נקודות הקריאה.",
+   inp:"בקשה עם פרופיל מודל (מהיר, מנומק, תרגום, הטמעה) — אף פעם לא שם מודל ספציפי.",
+   does:"מתרגם פרופיל לשם מודל, קורא, מודד זמן ועלות, ומתרגם שגיאות.",
+   out:"טקסט, ורישום מלא של ההרצה.",
+   fails:"שגיאת ספק לא מועברת החוצה כמו שהיא — היא מכילה לעיתים את הקלט עצמו, וזו הדרך שבה טענה שטרם פורסמה מגיעה ליומן שגיאות של לקוח.",
+   terms:[{en:"AI Gateway",he:"שירות של וורסל שמתווך לכל ספקי המודלים דרך ממשק אחד"},{en:"model profile",he:"פרופיל מודל — בקשה לפי תפקיד ולא לפי שם. כך החלפת מודל היא שורה אחת"},{en:"embedding",he:"הטמעה — המרת טקסט לרשימת מספרים שמייצגת משמעות"}]},
+
+  {id:"guards", lane:"evd", cat:"infra", kind:"guard", he:"שומרי הקלט", en:"classification + budget guards",
+   what:"שתי בדיקות שרצות לפני שבייט אחד יוצא מהתהליך.",
+   why:"האילוץ במסד יכול לסרב לרשומה בלבד — ועד שנכתבת רשומה, השליחה כבר קרתה. רק בדיקה בקוד יכולה לסרב לפני כן.",
+   inp:"סיווג הקלט, ותקציב שנצבר עד כה.",
+   does:"מסרב לשלוח חומר מסווג מוגבל או סודי; מסרב לקרוא למודל אם התקציב היומי או החודשי נגמר.",
+   out:"אישור להמשיך, או סירוב מוסבר.",
+   fails:"האילוץ במסד נשאר כרשת ביטחון שנייה — הוא יתפוס כל נתיב עתידי שירשום הרצה בלי לעבור כאן. אבל הוא לעולם לא יכול להיות הבדיקה היחידה.",
+   terms:[{en:"budget guard",he:"שומר תקציב — עוצר קריאות למודל כשהתקרה נגמרה"},{en:"restricted / secret",he:"רמות הסיווג שאסור לשלוח למודל בשום מצב"}]},
+
+  {id:"airun", lane:"itm", cat:"ai", kind:"table", he:"רישום הרצת מודל", en:"ai_run",
+   what:"שורה לכל קריאה למודל: איזה מודל, כמה טוקנים, כמה עלה, כמה זמן לקח, ומה היה סיווג הקלט.",
+   why:"ספר חשבונות שאפשר לערוך אינו ספר חשבונות. לכן הטבלה היא רק־הוספה.",
+   inp:"תוצאת קריאה מהשער.",
+   does:"רושם עלות במספר עשרוני מדויק ולא במספר צף — זה כסף, הוא נסכם לצורך תקרה, ומספר צף מאבד אגורות בדיוק בכיוון שמבטל את התקרה.",
+   out:"היסטוריית עלויות שהשומר קורא ממנה.",
+   fails:"אילוץ מסרב לרשומה שמצהירה על קלט מסווג מוגבל. אם השורה לא יכולה להיווצר — הידיעה שנשלח חומר כזה לא נעלמת.",
+   terms:[{en:"ai_run",he:"טבלת הרצות המודל"},{en:"token",he:"טוקן — יחידת טקסט שמודלים סופרים לפיה, בערך מילה"},{en:"numeric",he:"טיפוס מספרי מדויק במסד, בניגוד למספר צף שמעגל"}]},
+
+  {id:"suggestion", lane:"asm", cat:"ai", kind:"table", he:"הצעת בינה מלאכותית", en:"ai_suggestion",
+   what:"מה שהמודל הציע — מוחזק מחוץ לישות עד שאדם בעל שם מאשר.",
+   why:"זו הטבלה שהופכת 'בינה מלאכותית עם אישור אנושי' ממדיניות למבנה. אין נתיב מפלט של מודל לטענה מפורסמת שלא עובר דרך שורה כאן שאדם אישר.",
+   inp:"פלט המודל, יחד עם מה שהישות אמרה באותו רגע.",
+   does:"מחזיק את ההצעה, את מצב הבסיס להשוואה, ואת נימוק המודל. הצעה ישנה לאותו שדה מסומנת כמוחלפת.",
+   out:"פריט לסקירה — ולא שינוי בישות.",
+   fails:"הצעה שהתקבלה או נדחתה חייבת לנקוב במי החליט. מצב 'הוחלפה' פטור מכך בכוונה — איש לא החליט, המערכת החליפה, ודרישת שם הייתה מייצרת ייחוס שקרי.",
+   terms:[{en:"ai_suggestion",he:"טבלת הצעות הבינה המלאכותית"},{en:"baseline",he:"מצב הבסיס — מה הישות אמרה כשההצעה נוצרה, כדי שהסוקר יראה את ההפרש האמיתי"}]},
+
+  {id:"humangate", lane:"asm", cat:"ai", kind:"gate", he:"שער אישור אנושי", en:"human approval gate",
+   what:"נקודת ההכרעה: אדם מקבל או דוחה את הצעת המודל.",
+   why:"קבלה היא הדבר היחיד שכותב לישות — והיא כותבת דרך מסלול הגרסאות הרגיל, עם מקור שינוי 'הצעת בינה מלאכותית התקבלה' ומזהה ההרצה מצורף.",
+   inp:"החלטת אדם מזוהה ולא אוטומטי.",
+   does:"מסמן את ההצעה, ואם התקבלה — כותב לישות דרך אותו מסלול שכל שינוי אחר עובר בו.",
+   out:"גרסה רגילה עם מקור שינוי חריג. שום קורא במורד הזרם לא צריך ללמוד מקרה מיוחד.",
+   fails:"רק תקציר מוחל אוטומטית. נושאים וקשרי ראיות נרשמים כהתקבלו אך לא נכתבים — קשת ראיה היא מעשה אנושי עם נימוק משלה, וכתיבה אוטומטית שלה הייתה עוקפת את השער שנותן לה משמעות.",
+   terms:[{en:"change_source",he:"מקור השינוי — מי או מה גרם לגרסה הזו"},{en:"ai_suggestion_accepted",he:"הערך שמסמן שגרסה נוצרה מהצעת מודל שאדם אישר"}]},
+
+  /* ---- chat ---- */
+  {id:"chat", lane:"out", cat:"ai", kind:"table", he:"שיחה", en:"chat_thread · chat_message",
+   what:"ממשק שאלות ותשובות מעל כל מה שהמערכת יודעת.",
+   why:"אנליסט שואל בשפה חופשית ומקבל תשובה מבוססת מקורות, במקום להרכיב שאילתות.",
+   inp:"שאלה בשפה חופשית.",
+   does:"מאחזר קודם, שואל את המודל אחר כך, ורושם את התשובה עם הציטוטים שלה.",
+   out:"תשובה עם מקורות אמיתיים.",
+   fails:"התשובה לא זורמת מילה־מילה בכוונה. הבטחת הציטוטים נאכפת ברגע השמירה, וזרימה לפני אימות פירושה שהקורא כבר ראה ציטוט מומצא לפני שהמסד סירב לו.",
+   terms:[{en:"chat_thread",he:"טבלת השיחות"},{en:"streaming",he:"זרימה — הצגת תשובת המודל מילה־מילה בזמן אמת"}]},
+
+  {id:"toolrun", lane:"out", cat:"ai", kind:"table", he:"רישום אחזור", en:"chat_tool_run",
+   what:"יומן רק־הוספה של כל אחזור שבוצע בשיחה, כולל רשימת המסמכים שהוחזרו בפועל.",
+   why:"זו הראיה שהאחזור קרה ומה הוא החזיר. שומר הציטוטים קורא בדיוק מהעמודה הזו.",
+   inp:"שאילתה מהשיחה.",
+   does:"נכתב לפני שהמודל נשאל בכלל — כדי שלשומר יהיה מול מה לבדוק ברגע שהתשובה נשמרת.",
+   out:"קבוצת המסמכים שמותר לצטט.",
+   fails:"אחזור שנכשל נרשם עם סטטוס שגיאה ואינו נספר. תקלה בחיפוש לא הופכת לרישיון לצטט.",
+   terms:[{en:"chat_tool_run",he:"טבלת הרצות הכלים בשיחה"},{en:"retrieval",he:"אחזור — שליפת מסמכים רלוונטיים לפני שהמודל עונה"}]},
+
+  {id:"citation", lane:"out", cat:"infra", kind:"guard", he:"שומר הציטוטים", en:"chat_citation_must_be_retrieved",
+   what:"טריגר שמסרב לכל ציטוט שמצביע על מסמך שהאחזור לא החזיר באותה שיחה.",
+   why:"זו התקלה הקלאסית של מערכות כאלה: תשובה רהוטה עם ציטוט למסמך שהמודל מעולם לא ראה. בפלטפורמה שכל עיסוקה במידע מפוברק, ציטוט מפוברק אינו מבוכה — הוא כישלון של המוצר בדיוק במה שהוא מתיימר לעשות.",
+   inp:"ניסיון לשמור ציטוט.",
+   does:"מוודא שהמסמך מופיע ברשימת התוצאות של אחזור מוצלח באותה שיחה.",
+   out:"ציטוט שניתן לסמוך עליו.",
+   fails:"מפתח זר לבדו לא היה מספיק — הוא רק מוודא שהמסמך אמיתי, וכל מסמך אמיתי היה עומד בו. השירות גם מסנן מראש, כך שמזהה מומצא אחד לא מפיל תשובה טובה שלמה.",
+   terms:[{en:"chat_citation",he:"טבלת הציטוטים"},{en:"foreign key",he:"מפתח זר — אילוץ שמוודא שערך מצביע על שורה שקיימת באמת"},{en:"hallucination",he:"הזיה — כשמודל ממציא עובדה או מקור בביטחון מלא"}]},
+
+  /* ---- lane: inf ---- */
+  {id:"outbox", lane:"inf", cat:"infra", kind:"table", he:"תיבת יוצא", en:"outbox",
+   what:"טבלה שנרשמת בה כוונה לעבודה עתידית, באותה טרנזקציה של השינוי שגרם לה.",
+   why:"שליחה לתור אחרי שהמסד סוגר טרנזקציה אינה פעולה אטומית. קריסה בפער מאבדת את העבודה בשקט — הכתיבה הצליחה, העבודה פשוט לא תקרה לעולם.",
+   inp:"כל כתיבה מנוהלת־גרסאות.",
+   does:"רושם נושא ומטען. תהליך נפרד מנקז ומעביר לתור.",
+   out:"עבודה שלא תיעלם.",
+   fails:"אם התור לא זמין — השורה נשארת ממתינה עם השהיה מצטברת ונוסה שוב. תקלה בתור הופכת לניקוז איטי, לא לאובדן.",
+   terms:[{en:"outbox pattern",he:"תבנית תיבת יוצא — רישום הכוונה במסד לפני השליחה, כדי שכלום לא ילך לאיבוד"},{en:"transaction",he:"טרנזקציה — קבוצת פעולות שקורות כולן יחד או בכלל לא"},{en:"queue",he:"תור — מנגנון שמעביר עבודה לביצוע ברקע"}]},
+
+  {id:"version", lane:"inf", cat:"infra", kind:"table", he:"גרסאות", en:"entity_version",
+   what:"טבלה אחת לכל הישויות המנוהלות בגרסאות, עם צילום מלא של המצב בכל שינוי.",
+   why:"טבלת גרסאות נפרדת לכל ישות הייתה שמונה טבלאות כמעט זהות ושמונה נתיבי כתיבה, בתמורה לטיפוסים שאיש לא מתשאל.",
+   inp:"כל שינוי בישות מנוהלת.",
+   does:"רושם מה השתנה, מי שינה, למה, ומאיזה מקור. append-only — גרסה שניתן לערוך אינה גרסה.",
+   out:"תשובה לשאלה 'מה זה אמר קודם'.",
+   fails:"גרסה שמיוחסת לבינה מלאכותית חייבת לנקוב בהרצה שמאחוריה. אילוץ דורש זאת מהיום הראשון.",
+   terms:[{en:"entity_version",he:"טבלת הגרסאות הגנרית"},{en:"snapshot",he:"צילום מצב — העתק מלא של הישות כפי שהייתה"}]},
+
+  {id:"audit", lane:"inf", cat:"infra", kind:"table", he:"יומן ביקורת", en:"audit_log",
+   what:"רישום מסודר של כל פעולה משמעותית: מי, מה, מתי, על מה.",
+   why:"נכתב תמיד בתוך הטרנזקציה של הפעולה עצמה, כך ששניהם נשמרים יחד או בכלל לא. יומן שנכתב אחר כך נעלם בדיוק כשמשהו קרס — כלומר בדיוק כשצריך אותו.",
+   inp:"כל פעולה בשירותים.",
+   does:"שומר גם את שם המבצע כטקסט ולא רק כמזהה — היומן חייב להישאר קריא גם אחרי שמשתמש הושבת או הוסר.",
+   out:"שובל שאפשר לבקר.",
+   fails:"append-only. הסרת הטריגר הזה הופכת בדיוק שני טסטים לאדומים — זה נבדק במכוון.",
+   terms:[{en:"audit_log",he:"יומן הביקורת"},{en:"mutation testing",he:"בדיקת מוטציה — שוברים את הקוד בכוונה כדי לוודא שהטסטים באמת תופסים"}]},
+
+  {id:"rls", lane:"inf", cat:"infra", kind:"guard", he:"אבטחה ברמת השורה", en:"Row-Level Security",
+   what:"מדיניות במסד שקובעת אילו שורות כל תפקיד רשאי לראות. שלושה תפקידים: ציבור, צוות, ושירותים אוטומטיים.",
+   why:"סינון בקוד אפשר לשכוח בנתיב חדש. מדיניות במסד חלה על כל שאילתה, מכל מקום, לתמיד.",
+   inp:"כל שאילתה, עם התפקיד שהיא רצה תחתיו.",
+   does:"ציבור רואה רק פריטים מפורסמים וראיות ציבוריות. צוות רואה הכול פרט לחומר מוגבל, אלא אם יש הרשאה מפורשת. שירות אוטומטי לעולם לא רואה חומר מוגבל.",
+   out:"תוצאות מסוננות ברמת המסד.",
+   fails:"מלכודת מסוכנת: הפקודה שמחליפה תפקיד היא פעולה ריקה בשקט מחוץ לטרנזקציה. לכן מנגנון הבדיקות מסרב להמשיך אם התפקיד לא באמת התחלף — בלי זה כל טסט הרשאות היה רץ כבעל הטבלה ועובר בלי לבדוק כלום.",
+   terms:[{en:"Row-Level Security",he:"אבטחה ברמת השורה — המסד מסנן שורות לפי מי ששואל"},{en:"role",he:"תפקיד — זהות במסד שמדיניות נכתבת עבורה"},{en:"SET LOCAL ROLE",he:"פקודה שמחליפה תפקיד. מחוץ לטרנזקציה היא לא עושה כלום ולא מתריעה"}]},
+
+  {id:"ratelimit", lane:"inf", cat:"infra", kind:"guard", he:"הגבלת קצב", en:"rate_limit",
+   what:"מונה בקשות בחלון זמן קבוע, נספר במסד הנתונים.",
+   why:"מונה בזיכרון התהליך לא עובד כאן. מופעי הרצה הם פר־אזור וממוחזרים, כך שמונה בזיכרון הוא הגבלה פר־מופע — כלומר תחת עומס, אין הגבלה כלל, והקוד נראה כאילו יש.",
+   inp:"מזהה מגובב של הפונה.",
+   does:"מגדיל ומחזיר את הספירה החדשה בפקודה אחת, כך ששתי בקשות במקביל לא יכולות שתיהן לקרוא ערך ישן ולהחליט שהן מתחת לתקרה.",
+   out:"אישור או סירוב.",
+   fails:"בקשה שנדחתה גם היא נספרת. אחרת מי שחצה את התקרה מקבל ניסיון חדש בכל דחייה — ההפך הגמור מהגבלת קצב.",
+   terms:[{en:"rate limit",he:"הגבלת קצב — תקרה על מספר בקשות בפרק זמן"},{en:"fixed window",he:"חלון קבוע — שיטת ספירה פשוטה לפי פרקי זמן קצובים"}]},
+];
+
+const EDGES = [
+  ["family","source"],["source","cron"],["cron","connector"],["connector","fetch"],
+  ["connector","blob"],["fetch","evidence"],["blob","fetch"],["evidence","provenance"],
+  ["evidence","itemevidence"],["evidence","searchdoc"],["evidence","gateway"],
+  ["item","axes"],["axes","transitions"],["item","searchdoc"],["item","itemevidence"],
+  ["itemevidence","verdict"],["verdict","assessment"],["assessment","review"],
+  ["review","publishgate"],["assessment","publishgate"],["publishgate","publishedview"],
+  ["publishedview","publication"],["report","item"],
+  ["searchdoc","hybrid"],["hybrid","rrf"],["rrf","chat"],
+  ["gateway","guards"],["guards","airun"],["airun","suggestion"],["suggestion","humangate"],
+  ["humangate","assessment"],["chat","toolrun"],["toolrun","citation"],
+  ["item","outbox"],["outbox","searchdoc"],["assessment","version"],["version","audit"],
+  ["publication","rls"],["report","ratelimit"],
+];
+
+const JOURNEYS = [
+  {id:"spine", he:"ממקור לפרסום", desc:"המסלול המרכזי: פיד חדשותי הופך לטענה בדוקה ומפורסמת.",
+   steps:[
+    {n:"source", t:"מקור נרשם ומשויך למשפחה", p:"עורך מוסיף פיד. השיוך למשפחת מקורות הוא הצעד שקובע, בהמשך, אם שני דיווחים ייחשבו לאישוש עצמאי או להעתקה של אותו מברק."},
+    {n:"cron", t:"התזמון מתעורר", p:"כל רבע שעה עוברת עבודה מתוזמנת על כל המקורות הפעילים. אף אחד לא לוחץ כפתור."},
+    {n:"connector", t:"המחבר שולף ומפענח", p:"הורדה מהרשת ופענוח הפורמט. שימו לב לסדר: זה קורה לפני שנפתחת טרנזקציה במסד, כי החזקת טרנזקציה פתוחה מעבר לקריאת רשת איטית נועלת את המסד לחינם."},
+    {n:"blob", t:"הבייטים המקוריים נשמרים", p:"גוף התשובה נשמר כמו שהוא, פעם אחת לשליפה. אם בעוד שנה יטענו שפירשנו לא נכון — יש למה לחזור."},
+    {n:"fetch", t:"נרשמת שורת שליפה", p:"כמה פריטים נראו, כמה היו חדשים, ומה השתבש. שורה זו והראיות שנוצרו נשמרות יחד בטרנזקציה אחת — ספירה שלא תואמת את מה שבאמת נשמר גרועה מאין רישום."},
+    {n:"evidence", t:"פריטים חדשים הופכים לראיות", p:"בדיקת כפילויות לפי המזהה שהמקור נתן. סריקה חוזרת לא מייצרת עותקים."},
+    {n:"item", t:"נוצר פריט מידע", p:"אנליסט מנסח את הטענה שנבדקת — במילים שנאמרו, לא בפרפרזה."},
+    {n:"itemevidence", t:"ראיות נקשרות עם נימוק", p:"כל קשר מציין יחס ועוצמה, וחייב נימוק. אבל עדיין לא נספר לכלום."},
+    {n:"verdict", t:"אדם מאשר, והזכאות נבדקת", p:"רק קשת שאדם אישר נספרת. עכשיו הכללים אומרים אילו מסקנות בכלל אפשריות — למשל 'מאומת' דורש שתי משפחות תומכות ואפס סותרות."},
+    {n:"assessment", t:"נכתבת הערכה", p:"מסקנה, נימוק, פערים ידועים, ועשרה ממדי ביטחון. פלט מנוע הכללים נשמר קפוא עליה, כדי שקורא עתידי יראה איזה רף נעבר אז ולא איזה רף קיים היום."},
+    {n:"publishgate", t:"שער הפרסום נבדק", p:"אדם, לא מערכת. לא המחבר. וההערכה עצמה נסקרה בידי מישהו שאינו מי שכתב אותה. סירוב כאן הוא מוחלט."},
+    {n:"publishedview", t:"הפריט הופך לציבורי", p:"התצוגה מחזירה אותו יחד עם ההערכה שמצדיקה אותו. אבטחת השורות מוודאת שפריט לא מפורסם פשוט לא קיים עבור קורא מבחוץ."},
+   ]},
+  {id:"brief", he:"בריף יומי", desc:"איך תוצר עורכי נבנה מפריטים שכבר עברו אימות.",
+   steps:[
+    {n:"publishedview", t:"מתחילים ממה שכבר בדוק", p:"בריף לא ממציא ממצאים — הוא מרכיב פריטים שכבר עברו את שער הפרסום. זו הסיבה שהמשטחים נבנו אחרי מודל הראיות ולא לפניו."},
+    {n:"hybrid", t:"איתור החומר הרלוונטי", p:"העורך מחפש לפי נושא. ארבע זרועות רצות במקביל — עברית, אנגלית, שגיאות כתיב, ומשמעות."},
+    {n:"publication", t:"נכתב הבריף", p:"סוג 'בריף' באותה טבלה שמחזיקה גם עדכון חדשותי, ניתוח ותרחיש. הפריטים שעליהם הוא נשען מקושרים אליו במפורש."},
+    {n:"suggestion", t:"הבינה המלאכותית מציעה תקציר", p:"המודל מציע ניסוח. ההצעה יושבת בטבלה נפרדת ולא נוגעת בתוצר."},
+    {n:"humangate", t:"עורך מקבל או דוחה", p:"קבלה כותבת דרך מסלול הגרסאות הרגיל, עם מזהה ההרצה מצורף. שום קורא במורד הזרם לא צריך לדעת שזה הגיע ממודל."},
+    {n:"publishgate", t:"אישור אנושי שני", p:"אותו שער בדיוק כמו של פריט מידע. זו הסיבה שארבעת המשטחים אוחדו לטבלה אחת — ארבע טבלאות היו ארבעה עותקים של השער הזה."},
+    {n:"publication", t:"הבריף מתפרסם", p:"מנוהל בגרסאות, מתוארך, ומיוחס. מי אישר ומתי נשמרים לתמיד."},
+   ]},
+  {id:"chat", he:"שאלה בצ׳אט עם ציטוטים", desc:"איך נמנעת התקלה הקלאסית של ציטוט מומצא.",
+   steps:[
+    {n:"chat", t:"נשאלת שאלה", p:"אנליסט שואל בשפה חופשית."},
+    {n:"hybrid", t:"אחזור רץ ראשון", p:"סדר הפעולות כאן הוא כל העניין: מאחזרים לפני ששואלים את המודל, לא אחרי."},
+    {n:"toolrun", t:"נרשם מה הוחזר בפועל", p:"רשימת המסמכים נשמרת ביומן רק־הוספה — לפני שהמודל בכלל נשאל. כך יש לשומר מול מה לבדוק כשהתשובה תישמר."},
+    {n:"gateway", t:"המודל נשאל", p:"עם המסמכים שאוחזרו בלבד, והוראה מפורשת: אם המסמכים לא עונים, אמור זאת. אל תמלא את הפער מהזיכרון."},
+    {n:"citation", t:"השומר בודק כל ציטוט", p:"מפתח זר לבדו לא הספיק — הוא רק מוודא שהמסמך אמיתי, וכל מסמך אמיתי היה עובר. השומר דורש שהמסמך יופיע ברשימת האחזור של אותה שיחה."},
+    {n:"chat", t:"התשובה נשמרת ומוצגת", p:"ציטוט מומצא מסונן בשירות כדי לא להפיל תשובה טובה שלמה, ונדחה במסד כדי שאף נתיב אחר לא יוכל להכניס אותו. התשובה לא זורמת מילה־מילה בכוונה — אימות אחרי זרימה פירושו שהקורא כבר ראה את הציטוט המומצא."},
+   ]},
+  {id:"report", he:"דיווח מהציבור", desc:"נתיב הכתיבה היחיד שפתוח לאדם לא מזוהה.",
+   steps:[
+    {n:"ratelimit", t:"הבקשה נספרת", p:"תקרה של עשר הגשות לשעה. נספר במסד ולא בזיכרון — מופעי הרצה ממוחזרים, ומונה בזיכרון הוא הגבלה פר־מופע, כלומר לא הגבלה."},
+    {n:"report", t:"הדיווח נקלט", p:"קישור, טקסט או צילום מסך. בלי דרישת זהות — דרישה כזו מרתיעה בדיוק את הדיווחים החשובים. הכתובת נשמרת מגובבת, אחרת הטבלה הופכת ליומן מבקרים."},
+    {n:"rls", t:"המדווח לא יכול לקרוא כלום", p:"תפקיד הציבור מחזיק הרשאת הוספה בלבד לטבלה הזו, ואפס הרשאת קריאה. זה חזק יותר ממדיניות סינון — אין מדיניות שאפשר לטעות בה, כי אין הרשאת קריאה לצמצם."},
+    {n:"item", t:"טריאז' ואולי המרה לפריט", p:"צוות ממיין. דיווח יכול להיסגר, להתקשר לפריט קיים, או להפוך לפריט חדש. סגירה חייבת סיבה כתובה."},
+    {n:"audit", t:"כל מעבר נרשם", p:"שובל הסטטוסים נכתב בידי טריגר ולא בידי השירות — שובל שצריך לזכור לכתוב הוא שובל שיום אחד לא ייכתב."},
+   ]},
+];
+
+const RULES = [
+  {he:"מודל שפה לעולם לא כותב לישות", en:"server/modules/ai/service.ts + ai_change_names_its_run",
+   p:["אין נתיב קוד מפלט של מודל אל פריט מידע שלא עובר דרך שורת הצעה שאדם בעל שם אישר. שלב היצירה כותב שתי שורות — רישום ההרצה ורישום ההצעה — ועוצר שם.","הקבלה כותבת דרך מסלול הגרסאות הרגיל, עם מקור שינוי מיוחד ומזהה ההרצה מצורף. כלומר שינוי שמקורו בבינה מלאכותית הוא גרסה רגילה עם מקור חריג, ולא מקרה מיוחד שכל קורא במורד הזרם צריך ללמוד."],
+   why:"אילוץ במסד דורש את מזהה ההרצה מהיום הראשון של הפרויקט — ובמשך חמישה שלבים שום דבר לא יכול היה לספק אותו. השלב הזה סגר את הפער."},
+  {he:"ציטוט חייב להיות משהו שהאחזור באמת החזיר", en:"chat_citation_must_be_retrieved",
+   p:["מפתח זר מוודא שהציטוט מצביע על מסמך אמיתי — וכל מסמך אמיתי היה עומד בכך. הטריגר מוסיף את החצי החסר: המסמך חייב להופיע ברשימת התוצאות של אחזור מוצלח באותה שיחה.","לכן האחזור רץ לפני שהמודל נשאל ונרשם לפני כן — הסדר הזה נושא משקל, הוא לא מקרי. אחזור שנכשל נרשם כשגיאה ואינו נספר, כדי שתקלה בחיפוש לא תהפוך לרישיון לצטט."],
+   why:"בפלטפורמה שכל עיסוקה במידע מפוברק, ציטוט מפוברק אינו מבוכה — הוא כישלון של המוצר בדיוק במה שהוא מתיימר לעשות."},
+  {he:"חומר מסווג לעולם לא מגיע למודל", en:"restricted_data_never_reaches_a_model",
+   p:["הבדיקה רצה פעמיים: בקוד לפני שבייט יוצא מהתהליך, ובמסד כאילוץ על רישום ההרצה.","זו לא כפילות מיותרת אלא דרישת סדר. האילוץ יכול לסרב לרשומה בלבד, ועד שנכתבת רשומה — השליחה כבר קרתה. רק הבדיקה בקוד יכולה לסרב לפני כן."],
+   why:"האילוץ נשאר כרשת ביטחון שתתפוס כל נתיב עתידי שירשום הרצה בלי לעבור דרך הקוד. אבל הוא לעולם לא יכול להיות הבדיקה היחידה."},
+  {he:"אין אחוזים על תרחישים", en:"likelihood_band · only_scenarios_state_a_likelihood",
+   p:["תרחישים נושאים רמת סבירות מילולית — רחוק, לא סביר, שקול, סביר, כמעט ודאי. אין ולא יהיה שדה מספרי בשום מקום בסכימה.","האילוץ דו־כיווני בכוונה: תרחיש חייב לנקוב ברמה, ושום דבר אחר לא רשאי. תרחיש בלי רמה הוא קביעה שמתחזה לסייג, ובריף עם רמה הוא תחזית שאיש לא סקר ככזו."],
+   why:"מספר מומצא כמו 0.62 מצטלם ומצוטט, ושום סייג סביבו לא נוסע עם צילום המסך. טסט מוודא שאין בטבלה עמודה ששמה מכיל אחוז, ציון או הסתברות — כך שמי שירצה להוסיף אחת יצטרך להתווכח עם טסט אדום ולא עם הערה."},
+  {he:"עצמאות נספרת במשפחות, לא בכתובות", en:"source_family",
+   p:["חמישה אתרים שמשכתבים מברק אחד אינם חמישה אישושים. כל מקור שייך למשפחה, וספירת האישושים סופרת משפחות.","זו התוספת המשמעותית ביותר מעבר לאפיון המקורי, ולא נקודה טכנית — זו הדרך הנפוצה ביותר שבה תהליך אימות משלה את עצמו."],
+   why:"הגדרת המשפחות היא הכרעה עורכית ולכן היא ידנית. רחב מדי — נפסיד אישושים אמיתיים; צר מדי — נספור העתקות."},
+  {he:"שני צירים שלעולם לא מתמזגים", en:"status vs assessment",
+   p:["איפה הפריט בתהליך העבודה, ומה הסקנו לגביו, הן שתי שאלות נפרדות שנשאלות ונענות בנפרד.","פריט יכול להיות מפורסם עם כל מסקנה, ובבדיקה עם כל מסקנה."],
+   why:"סכימה שמאחדת אותם הופכת את 'אנחנו עדיין בודקים' לבלתי ניתן לייצוג, ומאלצת את המערכת להעמיד פנים שיש לה מסקנה לפני שיש לה."},
+  {he:"מיזוג לפי דירוג, לעולם לא לפי ציון", en:"Reciprocal Rank Fusion",
+   p:["ציון חיפוש מילולי וציון דמיון סמנטי אינם ניתנים להשוואה. כל פונקציה שממפה ביניהם היא כיול, וכיול נרקב ככל שהמאגר גדל.","המיזוג זורק את הציונים ומשאיר רק את הסדר. כל זרוע תורמת 1 חלקי (60 ועוד המיקום)."],
+   why:"הריקבון שקט — שום דבר לא נכשל, התוצאות פשוט מחמירות בהדרגה בדרך ששום טסט לא מבחין בה. הציון שנוצר משמעותי רק בתוך תוצאה אחת, ולכן לעולם לא מוצג לקורא כאחוז."},
+  {he:"פיגור ההטמעות הוא השוואת חתימות, לא תור", en:"indexed_content_hash IS DISTINCT FROM content_hash",
+   p:["אין עמודת מצב 'ממתין' או 'הושלם'. הפיגור הוא פשוט השוואה בין שתי חתימות תוכן.","עמודת מצב צריך לסמן לפני העבודה ולנקות אחריה — וקריסה באמצע משאירה שורה תקועה שאיש לא מיישב, כי המיישב הוא מה שכולם שוכחים לכתוב."],
+   why:"השוואה לא יכולה להשאיר שום דבר תקוע: אם ההטמעה לא נשמרה, החתימות עדיין שונות והשורה עדיין בפיגור. לכן העבודה בטוחה להרצה בכל תדירות ובמקביל לעצמה."},
+  {he:"אבטחת שורות חסרת משמעות בלי אימות התפקיד", en:"assertRole()",
+   p:["הפקודה שמחליפה תפקיד היא פעולה ריקה בשקט מחוץ לטרנזקציה: היא מצליחה, התפקיד לא משתנה, וכל בדיקה אחריה רצה עם הרשאות בעל הטבלה.","מנגנון הבדיקות פותח טרנזקציה אמיתית, מחליף תפקיד, ומסרב להמשיך אם המשתמש הנוכחי לא באמת השתנה."],
+   why:"חבילת בדיקות במצב כזה עוברת בירוק בלי לבדוק כלום — גרוע יותר מאי־קיום בדיקות, כי היא מדווחת על בטיחות באופן פעיל. נבדק במוטציה: הרחבת מדיניות הקריאה הציבורית מחזירה פריט לא מפורסם לציבור, והחבילה תופסת."},
+  {he:"בקשה שנדחתה נספרת גם היא", en:"bump_rate_limit()",
+   p:["המונה גדל גם עבור בקשה שנדחתה. אחרת מי שחצה את התקרה מקבל ניסיון חדש בכל דחייה.","הספירה במסד ולא בזיכרון: מופעי הרצה הם פר־אזור וממוחזרים, ומונה בזיכרון הוא הגבלה פר־מופע — תחת עומס, אין הגבלה, והקוד נראה כאילו יש."],
+   why:"פקודה אחת מגדילה ומחזירה, כך ששתי בקשות במקביל לא יכולות שתיהן לקרוא ערך ישן ולהחליט שהן מתחת לתקרה."},
+];
+
+/* ---------------- layout ---------------- */
+const LANE_STRIDE = 316, NODE_W = 238, NODE_H = 92, V_GAP = 26, PAD_X = 90, PAD_Y = 96;
+const byId = {};
+const laneCount = LANES.length;
+LANES.forEach((L,li)=>{
+  const items = NODES.filter(n=>n.lane===L.id);
+  const x = PAD_X + (laneCount-1-li)*LANE_STRIDE;
+  L._x = x;
+  items.forEach((n,ni)=>{
+    n._x = x; n._y = PAD_Y + ni*(NODE_H+V_GAP);
+    n._cx = x + NODE_W/2; n._cy = n._y + NODE_H/2;
+    byId[n.id] = n;
+  });
+  L._h = items.length*(NODE_H+V_GAP);
+});
+const WORLD_W = PAD_X*2 + laneCount*LANE_STRIDE;
+const WORLD_H = PAD_Y + Math.max(...LANES.map(l=>l._h)) + 90;
+
+const world = document.getElementById("world");
+const svg = document.getElementById("edges");
+svg.setAttribute("width",WORLD_W); svg.setAttribute("height",WORLD_H);
+world.style.width = WORLD_W+"px"; world.style.height = WORLD_H+"px";
+
+/* lane headers */
+LANES.forEach(L=>{
+  const lab = document.createElement("div");
+  lab.className="lane-label"; lab.textContent = L.he;
+  lab.style.left = L._x+"px"; lab.style.top = "42px"; lab.style.width = NODE_W+"px";
+  lab.style.textAlign="center";
+  world.appendChild(lab);
+});
+
+/* edges */
+const pathOf = (a,b)=>{
+  const x1=a._x, y1=a._cy, x2=b._x+NODE_W, y2=b._cy;   /* flow right → left */
+  const dx = Math.max(46, Math.abs(x1-x2)*0.42);
+  return `M ${x1} ${y1} C ${x1-dx} ${y1}, ${x2+dx} ${y2}, ${x2} ${y2}`;
+};
+const edgeEls = [];
+EDGES.forEach(([f,t])=>{
+  const A=byId[f], B=byId[t]; if(!A||!B) return;
+  const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+  /* draw from whichever sits further right, so curves never fold back */
+  p.setAttribute("d", A._x >= B._x ? pathOf(A,B) : pathOf(B,A));
+  svg.appendChild(p); edgeEls.push({el:p,f,t});
+});
+
+/* nodes */
+const nodeEls = {};
+NODES.forEach(n=>{
+  const el=document.createElement("button");
+  el.className="node"; el.dataset.kind=n.kind; el.dataset.id=n.id;
+  /* The purpose as a native tooltip, so the map can be scanned for "what is
+     this for" without opening every node. */
+  if(PURPOSE[n.id]) el.title = PURPOSE[n.id];
+  el.style.left=n._x+"px"; el.style.top=n._y+"px";
+  el.innerHTML =
+    `<span class="step"></span>
+     <span class="nm"><span class="dot" style="background:var(${CATS[n.cat].v})"></span>
+     <span class="kind">${KIND_HE[n.kind]}</span></span>
+     <h3>${n.he}</h3><span class="en">${n.en}</span>`;
+  el.addEventListener("click",()=>openNode(n.id));
+  world.appendChild(el); nodeEls[n.id]=el;
+});
+
+/* legend */
+document.getElementById("lg-cats").innerHTML = Object.entries(CATS)
+  .map(([,c])=>`<div class="lg-row"><span class="dot" style="background:var(${c.v})"></span>${c.he}</div>`).join("");
+
+/* ---------------- pan & zoom ---------------- */
+const stage=document.getElementById("stage");
+let scale=.78, tx=0, ty=0;
+const apply=()=>{ world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`; };
+function fit(){
+  const r=stage.getBoundingClientRect();
+  /* The map is no longer the default tab, so this runs once while the panel
+     is still display:none and measures 0×0. Bail rather than compute a zero
+     scale; the tab handler calls fit() again once the panel is visible. */
+  if(r.width<50 || r.height<50) return;
+  scale=Math.min(r.width/(WORLD_W+70), r.height/(WORLD_H+70), 1);
+  tx=(r.width-WORLD_W*scale)/2; ty=(r.height-WORLD_H*scale)/2; apply();
+}
+let drag=null;
+stage.addEventListener("pointerdown",e=>{
+  if(e.target.closest(".node,.btn,.legend,.hint")) return;
+  drag={x:e.clientX-tx,y:e.clientY-ty}; stage.classList.add("dragging");
+  stage.setPointerCapture(e.pointerId);
+});
+stage.addEventListener("pointermove",e=>{ if(!drag) return; tx=e.clientX-drag.x; ty=e.clientY-drag.y; apply(); });
+const endDrag=()=>{ drag=null; stage.classList.remove("dragging"); };
+stage.addEventListener("pointerup",endDrag); stage.addEventListener("pointercancel",endDrag);
+stage.addEventListener("wheel",e=>{
+  e.preventDefault();
+  const r=stage.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  const ns=Math.min(1.9,Math.max(.28, scale*(e.deltaY<0?1.11:0.9)));
+  tx=mx-(mx-tx)*(ns/scale); ty=my-(my-ty)*(ns/scale); scale=ns; apply();
+},{passive:false});
+const zoomBy=k=>{
+  const r=stage.getBoundingClientRect(), mx=r.width/2, my=r.height/2;
+  const ns=Math.min(1.9,Math.max(.28,scale*k));
+  tx=mx-(mx-tx)*(ns/scale); ty=my-(my-ty)*(ns/scale); scale=ns; apply();
+};
+document.getElementById("zin").onclick=()=>zoomBy(1.2);
+document.getElementById("zout").onclick=()=>zoomBy(1/1.2);
+document.getElementById("zfit").onclick=fit;
+
+/* ---------------- drawer ---------------- */
+const drawer=document.getElementById("drawer"), scrim=document.getElementById("scrim");
+let lastFocus=null;
+function openNode(id){
+  const n=byId[id]; if(!n) return;
+  lastFocus=document.activeElement;
+  document.getElementById("dr-dot").style.background=`var(${CATS[n.cat].v})`;
+  document.getElementById("dr-kind").textContent=`${KIND_HE[n.kind]} · ${CATS[n.cat].he}`;
+  document.getElementById("dr-title").textContent=n.he;
+  document.getElementById("dr-en").textContent=n.en;
+  const f=(h,v,cls="")=>`<div class="fld ${cls}"><h4>${h}</h4><p>${v}</p></div>`;
+  document.getElementById("dr-body").innerHTML =
+    (PURPOSE[n.id] ? f("התכלית — מה זה נותן",PURPOSE[n.id],"purpose") : "")+
+    f("מה זה",n.what)+f("למה הוא בנוי כך",n.why)+f("מה נכנס",n.inp)+
+    f("מה הוא עושה",n.does)+f("מה יוצא",n.out)+f("אם משהו משתבש",n.fails,"fail")+
+    (n.terms?.length?`<div class="fld"><h4>מונחים</h4><div class="terms">${
+      n.terms.map(t=>`<div class="term"><b>${t.en}</b><span>${t.he}</span></div>`).join("")}</div></div>`:"");
+  drawer.classList.add("on"); scrim.classList.add("on"); drawer.focus();
+}
+function closeDrawer(){ drawer.classList.remove("on"); scrim.classList.remove("on"); lastFocus?.focus(); }
+document.getElementById("dr-close").onclick=closeDrawer;
+scrim.onclick=closeDrawer;
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeDrawer(); });
+
+/* ---------------- highlight ---------------- */
+function highlight(ids){
+  const set=new Set(ids);
+  Object.entries(nodeEls).forEach(([id,el])=>{
+    el.classList.toggle("dim", ids.length>0 && !set.has(id));
+    el.classList.toggle("hot", set.has(id));
+    const s=el.querySelector(".step");
+    s.textContent = set.has(id) ? (ids.indexOf(id)+1) : "";
+  });
+  edgeEls.forEach(({el,f,t})=>{
+    const on = set.has(f)&&set.has(t);
+    el.classList.toggle("hot", on);
+    el.classList.toggle("dim", ids.length>0 && !on);
+  });
+}
+function clearHighlight(){ highlight([]); }
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected", x===t));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+    document.getElementById("p-"+t.dataset.panel).classList.add("on");
+    if(t.dataset.panel==="map") requestAnimationFrame(fit);
+  };
+});
+
+/* ---------------- journeys ---------------- */
+const grid=document.getElementById("jr-grid"), runner=document.getElementById("jr-runner");
+grid.innerHTML = JOURNEYS.map(j=>
+  `<button class="jr-card" data-j="${j.id}"><h3>${j.he}</h3><p>${j.desc}</p>
+   <span class="cnt">${j.steps.length} שלבים</span></button>`).join("");
+let cur=null, idx=0;
+grid.querySelectorAll(".jr-card").forEach(c=>{
+  c.onclick=()=>{ cur=JOURNEYS.find(j=>j.id===c.dataset.j); idx=0; renderRun(); };
+});
+function renderRun(){
+  if(!cur){ runner.innerHTML=""; return; }
+  const s=cur.steps[idx], n=byId[s.n];
+  runner.innerHTML=`
+    <div class="runner">
+      <div class="rn-head">
+        <h3>${cur.he}</h3>
+        <span class="rn-prog">${idx+1} / ${cur.steps.length}</span>
+        <button class="btn" id="rn-map">הצגה על המפה</button>
+      </div>
+      <div class="rn-body">
+        <div class="rn-step">
+          <span class="rn-num">${idx+1}</span>
+          <div class="rn-txt">
+            <h4>${s.t}</h4>
+            <span class="en">${n?n.en:""}</span>
+            <p>${s.p}</p>
+          </div>
+        </div>
+      </div>
+      <div class="rn-rail">${cur.steps.map((_,i)=>`<span class="rn-pip ${i<=idx?"done":""}"></span>`).join("")}</div>
+      <div class="rn-foot">
+        <button class="btn primary" id="rn-next" ${idx===cur.steps.length-1?"disabled":""}>הצעד הבא</button>
+        <button class="btn" id="rn-prev" ${idx===0?"disabled":""}>הקודם</button>
+        <button class="btn" id="rn-node">מה זה ${n?n.he:""}?</button>
+      </div>
+    </div>`;
+  document.getElementById("rn-next").onclick=()=>{ if(idx<cur.steps.length-1){idx++; renderRun();} };
+  document.getElementById("rn-prev").onclick=()=>{ if(idx>0){idx--; renderRun();} };
+  document.getElementById("rn-node").onclick=()=>openNode(s.n);
+  document.getElementById("rn-map").onclick=()=>{
+    document.querySelector('.tab[data-panel="map"]').click();
+    highlight([...new Set(cur.steps.map(x=>x.n))]);
+  };
+  highlight([...new Set(cur.steps.slice(0,idx+1).map(x=>x.n))]);
+}
+
+/* ---------------- rules ---------------- */
+/* ---------- outputs & domains ---------- */
+document.getElementById("out-list").innerHTML = OUTPUTS.map(o=>`
+  <div class="out ${o.flag?"flag":""}">
+    <div class="out-top">
+      <h3>${o.he}</h3>
+      ${o.flag?`<span class="tag">התוצר המרכזי</span>`:""}
+      <span class="api">${o.api}</span>
+    </div>
+    <p class="body">${o.what}</p>
+    <div class="out-meta">
+      <div><h4>מי משתמש בזה</h4><p>${o.who}</p></div>
+      <div class="no"><h4>מה היה בלעדיו</h4><p>${o.without}</p></div>
+    </div>
+  </div>`).join("");
+
+document.getElementById("dom-list").innerHTML = DOMAINS.map(d=>`
+  <div class="dom">
+    <div class="nm"><span class="dot" style="background:var(${CATS[d.cat].v})"></span><h3>${d.he}</h3></div>
+    <p class="does">${d.does}</p>
+    <p class="kv"><b>מספק:</b> ${d.gives}</p>
+    <p class="kv"><b>בלעדיו:</b> ${d.without}</p>
+  </div>`).join("");
+
+/* ---------- rules ---------- */
+document.getElementById("rules-list").innerHTML = RULES.map(r=>
+  `<div class="rule"><h3>${r.he}</h3><span class="where">${r.en}</span>
+   ${r.p.map(x=>`<p>${x}</p>`).join("")}
+   <div class="why"><b>למה זה מנוסח כך:</b> ${r.why}</div></div>`).join("");
+
+/* ---------------- glossary ---------------- */
+const GLOSS=[]; const seen=new Set();
+NODES.forEach(n=>(n.terms||[]).forEach(t=>{
+  const k=t.en.toLowerCase(); if(seen.has(k)) return; seen.add(k);
+  GLOSS.push({en:t.en, he:t.he, from:n.he});
+}));
+GLOSS.sort((a,b)=>a.en.localeCompare(b.en));
+const glList=document.getElementById("gl-list"), glSearch=document.getElementById("gl-search");
+function renderGloss(q=""){
+  const s=q.trim().toLowerCase();
+  const rows=GLOSS.filter(g=>!s||g.en.toLowerCase().includes(s)||g.he.includes(q.trim()));
+  glList.innerHTML = rows.length
+    ? rows.map(g=>`<div class="gl-item"><b>${g.en}</b><div class="he">${g.he}</div>
+        <p>מופיע בהקשר: ${g.from}</p></div>`).join("")
+    : `<p class="gl-empty">לא נמצא מונח שמתאים ל־"${q}".</p>`;
+}
+glSearch.oninput=()=>renderGloss(glSearch.value);
+renderGloss();
+
+/* ---------------- init ---------------- */
+fit();
+window.addEventListener("resize",()=>{ if(document.getElementById("p-map").classList.contains("on")) fit(); });
+</script>

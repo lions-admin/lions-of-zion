@@ -10,3 +10,4 @@ export * from "./evidence";
 export * from "./assessments";
 export * from "./search";
 export * from "./ai";
+export * from "./chat";

@@ -10,6 +10,64 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — A citation must have been retrieved, and the database checks it
+
+The standard RAG failure is a fluent answer with a citation to a document the
+model never saw. On a platform whose entire subject is fabricated
+information, shipping fabricated citations is not an embarrassment — it is
+the product failing at precisely the thing it claims to do.
+
+A foreign key from `chat_citation` to `search_document` is not enough: it
+forces the citation to name a *real* document, and any real document would
+satisfy it. `chat_citation_must_be_retrieved` adds the missing half — the
+document must appear in the `result_document_ids` of an `ok` `chat_tool_run`
+**in the same thread**. The model may only cite what retrieval actually
+handed it.
+
+Consequences that shaped the rest of the phase:
+
+- Retrieval runs **before** the model is asked and its results are written
+  first, so the trigger has something to check against when the answer is
+  filed. That ordering is load-bearing, not incidental.
+- `chat_tool_run` is append-only, because it is the evidence the check reads.
+  A rewritable log would let a fabricated citation be legitimised after the
+  fact by editing what "was retrieved". Its one permitted mutation is setting
+  `message_id` once, since the run necessarily predates the message.
+- A failed retrieval records `status = 'error'` and is excluded by the
+  trigger, so a search outage cannot become a licence to cite.
+- The service *also* filters citations against what was retrieved. Not
+  redundancy: it means one hallucinated id strips itself instead of failing
+  the whole insert and losing an otherwise good answer.
+
+## 2026-08-24 — Chat does not stream tokens, and that is the point
+
+The obvious chat route streams the model's output to the client as it
+arrives. This one returns the completed turn.
+
+The citation guarantee above is enforced when the answer is *persisted*. If
+tokens stream first and validation happens after, the reader has already seen
+the fabricated citation by the time the database refuses it — the guarantee
+becomes a cleanup step rather than a gate, which is worth very little.
+
+Retrieval is recorded before the model is asked, so a client that wants
+progressive feedback can poll the tool run and show what is being consulted.
+Token streaming can be layered on top of this design later; it could not have
+been added underneath it.
+
+## 2026-08-24 — Citations come from a structured tail, not from inline markers
+
+The tempting design is `[doc:<uuid>]` markers inline in the prose, regexed
+out afterwards. Models complete the *shape* of a uuid perfectly well, so that
+approach reliably produces syntactically flawless citations to documents that
+do not exist.
+
+Instead the model emits a `CITED_DOCUMENT_IDS:` line after its answer. It is
+easier for the model, trivially separable from the prose, and validated twice
+— against the retrieved set in `splitCitations`/the service, and against the
+tool-run log by the trigger. `splitCitations` has its own tests because
+string handling over model output is exactly the code that is quietly wrong
+until someone looks at it.
+
 ## 2026-08-24 — `superseded` is not a decision, and the CHECK now says so
 
 `ai_suggestion` carried `decided_suggestion_is_attributed`: anything not

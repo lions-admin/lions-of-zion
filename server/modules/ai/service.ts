@@ -66,6 +66,42 @@ const FALLBACK_PROMPTS: Record<SuggestableField, { system: string; instruction: 
   },
 };
 
+/**
+ * Records one chat turn's model call against an open transaction.
+ *
+ * Chat needs to write an `ai_run` inside its own transaction, alongside the
+ * message it belongs to. This exists so it can do that through the AI
+ * module's public surface rather than reaching into its repository — a
+ * conversation's cost belongs in the same ledger as every other model call,
+ * and there should be exactly one way to put it there.
+ */
+export async function recordChatRun(
+  tx: unknown,
+  input: {
+    model: string;
+    inputTokens: number | null;
+    outputTokens: number | null;
+    latencyMs: number;
+    actor: Actor;
+  },
+): Promise<string> {
+  const row = await aiRepo(tx).recordRun({
+    kind: "chat",
+    model: input.model,
+    modelProfile: "reasoning",
+    inputTokens: input.inputTokens,
+    outputTokens: input.outputTokens,
+    latencyMs: input.latencyMs,
+    status: "ok",
+    /* Chat answers from the search projection, which never contains
+       restricted material — `isIndexable()` refuses it a row at all. */
+    inputDataClass: "public",
+    actorLabel: input.actor.label,
+    actorUserId: input.actor.userId ?? null,
+  });
+  return row.id;
+}
+
 export function aiService(db: unknown, opts: { generate?: Generator } = {}) {
   const run = db as unknown as Runner;
   const repo = aiRepo(db);

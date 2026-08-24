@@ -14,4 +14,4 @@ let bound: AiService | undefined;
  */
 export const ai = (): AiService => (bound ??= aiService(db(), { generate }));
 
-export { aiService, type AiService, type Generator } from "./service";
+export { aiService, recordChatRun, type AiService, type Generator } from "./service";

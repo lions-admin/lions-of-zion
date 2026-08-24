@@ -41,7 +41,7 @@ destinations pending section content.
 - The in-app browser may render a black intro because it throttles hidden-tab
   animation. Use the real-Chrome scripts for visual evidence.
 
-## Backend — Phases 1–6 of 8 complete
+## Backend — Phases 1–7 of 8 complete
 
 The frontend integration and the backend are developed independently and share
 no source files; they met only in `package.json` and this journal. No backend
@@ -145,6 +145,26 @@ Phase 5's embedder seam is filled: `server/modules/search/index.ts` now passes
 one, so the semantic arm switches on wherever pgvector and the gateway both
 exist.
 
+Phase 7 shipped chat: `chat_thread`, `chat_message`, append-only
+`chat_tool_run`, `chat_citation`, a retrieval-constrained answerer, and
+`/api/v1/chat/threads`.
+
+**A citation must name a document retrieval actually returned.** The foreign
+key only forces a citation to name a *real* `search_document` — any real one
+would do. `chat_citation_must_be_retrieved` adds the part that matters: the
+document must appear in the `result_document_ids` of an `ok` tool run **in
+the same thread**. Retrieval therefore runs *before* the model is asked and is
+recorded first, so the trigger has something to check by the time the answer
+is filed. A fabricated citation is stripped in the service (so the answer
+still reaches the reader) and refused outright by the database (so no other
+path can insert one).
+
+`POST /messages` deliberately **does not stream tokens**. The citation
+guarantee is enforced when the answer is persisted; streaming first and
+validating after means the reader has already seen the fabricated citation by
+the time the database rejects it. Streaming can be layered on top of this
+later — it could not be added underneath it.
+
 **Both suites have been mutation-tested.** Removing the `audit_log` append-only
 trigger turns exactly two tests red.
 
@@ -164,11 +184,15 @@ have passed.
 - Migrate the preserved intro into the same WebGPU/TSL renderer so the complete
   experience uses one Canvas and one particle system.
 - Replace the eight placeholder section pages as their content is designed.
-- **Backend Phase 7 is chat**: threads, messages, citations, tool runs, a
-  streaming route, and a retrieval tool whose citations are real. Phase 5's
-  `search_hybrid` is the retrieval tool's whole substrate, and Phase 6's
-  `ai_run` is where each turn's cost lands — chat should add no new model
-  plumbing, only a conversation shape on top of both.
+- **Backend Phase 8 is surfaces and hardening** — the last one: `news_update`,
+  `brief`, `geopolitical_analysis`, `scenario`, the user-submitted
+  `report`/`report_file`/`report_status_history` (brief §44 — *reports of
+  suspected false information*, not generated deliverables), Workflows for
+  brief generation, **RLS with negative tests**, and rate limiting. The five
+  publication surfaces share one versioning path and one publish gate, both
+  proven by Phases 2 and 4, so they should be assembly rather than invention.
+  RLS is last by design: every table now has its RLS-relevant columns, so
+  Phase 8 is policy-only with no schema churn.
 
 ## Blocked
 

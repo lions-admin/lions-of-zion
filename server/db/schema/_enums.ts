@@ -27,7 +27,10 @@ import {
   INFORMATION_ITEM_TYPES,
   ITEM_STATUSES,
   LIKELIHOOD_BANDS,
+  PUBLICATION_KINDS,
+  PUBLICATION_STATUSES,
   QUEUE_STATES,
+  REPORT_STATUSES,
   SOURCE_KINDS,
 } from "@/server/contracts/enums";
 
@@ -48,3 +51,6 @@ export const entityType = pgEnum("entity_type", ENTITY_TYPES);
 export const queueState = pgEnum("queue_state", QUEUE_STATES);
 export const aiRunKind = pgEnum("ai_run_kind", AI_RUN_KINDS);
 export const likelihoodBand = pgEnum("likelihood_band", LIKELIHOOD_BANDS);
+export const publicationStatus = pgEnum("publication_status", PUBLICATION_STATUSES);
+export const publicationKind = pgEnum("publication_kind", PUBLICATION_KINDS);
+export const reportStatus = pgEnum("report_status", REPORT_STATUSES);

@@ -11,3 +11,5 @@ export * from "./assessments";
 export * from "./search";
 export * from "./ai";
 export * from "./chat";
+export * from "./publications";
+export * from "./reports";

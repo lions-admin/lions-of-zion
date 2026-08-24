@@ -213,6 +213,50 @@ export const AI_RUN_KINDS = [
 export const aiRunKindSchema = enumOf(AI_RUN_KINDS);
 export type AiRunKind = z.infer<typeof aiRunKindSchema>;
 
+/* ── Publication surfaces ──────────────────────────────────────────────────
+   News updates, briefs, analyses and scenarios share one lifecycle. It is
+   deliberately NOT `item_status`: an information item is *detected* by
+   ingestion, whereas a brief is *drafted* by a person, and there is no such
+   thing as a `rejected` brief — an unwanted draft is archived. Reusing the
+   item's list would have made three of its nine values unreachable here. */
+export const PUBLICATION_STATUSES = [
+  "draft",
+  "under_review",
+  "approved",
+  "published",
+  "updated",
+  "archived",
+] as const;
+export const publicationStatusSchema = enumOf(PUBLICATION_STATUSES);
+export type PublicationStatus = z.infer<typeof publicationStatusSchema>;
+
+/** The five publication surfaces, as a discriminator. */
+export const PUBLICATION_KINDS = [
+  "news_update",
+  "brief",
+  "geopolitical_analysis",
+  "scenario",
+] as const;
+export const publicationKindSchema = enumOf(PUBLICATION_KINDS);
+export type PublicationKind = z.infer<typeof publicationKindSchema>;
+
+/* ── User-submitted reports ────────────────────────────────────────────────
+   Brief §44: reports *of suspected false information*, submitted by the
+   public — not generated deliverables. The two terminal-ish states are
+   distinct on purpose: `closed` means we looked and there was nothing to do,
+   `rejected` means the submission itself was unusable (spam, abuse, empty). */
+export const REPORT_STATUSES = [
+  "received",
+  "triaged",
+  "investigating",
+  "linked_to_existing_item",
+  "converted_to_item",
+  "closed",
+  "rejected",
+] as const;
+export const reportStatusSchema = enumOf(REPORT_STATUSES);
+export type ReportStatus = z.infer<typeof reportStatusSchema>;
+
 /* ── Scenarios ─────────────────────────────────────────────────────────────
    Bands, never a percentage. There is deliberately no numeric probability
    column anywhere in the schema: a fabricated `0.62` gets screenshotted and

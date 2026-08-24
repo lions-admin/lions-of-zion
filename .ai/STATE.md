@@ -41,7 +41,7 @@ destinations pending section content.
 - The in-app browser may render a black intro because it throttles hidden-tab
   animation. Use the real-Chrome scripts for visual evidence.
 
-## Backend — Phases 1–7 of 8 complete
+## Backend — all 8 phases complete
 
 The frontend integration and the backend are developed independently and share
 no source files; they met only in `package.json` and this journal. No backend
@@ -165,6 +165,38 @@ validating after means the reader has already seen the fabricated citation by
 the time the database rejects it. Streaming can be layered on top of this
 later — it could not be added underneath it.
 
+Phase 8 shipped the surfaces and the hardening: `publication` (one table for
+all four surfaces, discriminated by `kind`), `publication_item`, the
+user-submitted `report`/`report_file`/`report_status_history`, `rate_limit`,
+**row-level security with negative tests**, and rate limiting.
+
+The four publication surfaces are **one table, not four**. They share a
+lifecycle, a versioning path and a publish gate, and four tables would have
+meant four copies of that gate and four chances for one to drift. Scenarios
+carry a `likelihood_band` and there is **no numeric probability column
+anywhere** — a test asserts the `publication` table has no column matching
+`probability|percent|score`.
+
+**RLS is live and mutation-tested.** Three roles (`app_public`, `app_staff`,
+`app_service`), 21 policies. The `as()`/`assertRole` harness written in Phase 1
+is finally used and finally meaningful: `SET LOCAL ROLE` outside a transaction
+is a silent no-op, so without `assertRole` every authorization test would run
+as the table owner and pass while proving nothing. Weakening
+`information_item_public_reads_published` was verified to turn the suite red.
+
+Restricted evidence is guarded three ways over: the CHECK refuses it a `url`
+or `blob_url`, `isIndexable()` refuses it a search row, and the RLS policy
+requires `evidence.restricted.read` — a capability the Phase 1 trigger refuses
+to grant to any automated identity, so `app_service` cannot reach it by
+configuration error. Disabling a user revokes it immediately (the policy joins
+on `disabled_at IS NULL`).
+
+Rate limiting counts in Postgres, not in memory: Vercel instances are
+per-region and recycled, so an in-process counter is a limit per lambda, which
+is no limit at all. `bump_rate_limit` increments and returns in one statement,
+and a refused request still counts — otherwise being over the limit grants a
+free retry every time.
+
 **Both suites have been mutation-tested.** Removing the `audit_log` append-only
 trigger turns exactly two tests red.
 
@@ -184,15 +216,20 @@ have passed.
 - Migrate the preserved intro into the same WebGPU/TSL renderer so the complete
   experience uses one Canvas and one particle system.
 - Replace the eight placeholder section pages as their content is designed.
-- **Backend Phase 8 is surfaces and hardening** — the last one: `news_update`,
-  `brief`, `geopolitical_analysis`, `scenario`, the user-submitted
-  `report`/`report_file`/`report_status_history` (brief §44 — *reports of
-  suspected false information*, not generated deliverables), Workflows for
-  brief generation, **RLS with negative tests**, and rate limiting. The five
-  publication surfaces share one versioning path and one publish gate, both
-  proven by Phases 2 and 4, so they should be assembly rather than invention.
-  RLS is last by design: every table now has its RLS-relevant columns, so
-  Phase 8 is policy-only with no schema churn.
+- **The eight-phase backend plan is complete.** What it deliberately did not
+  include, and what a next session would pick from:
+  - **Provisioning.** Nothing is connected; see Blocked below. This is the
+    single highest-value next step, and the code is written to need no changes
+    when it happens.
+  - **Real authentication.** `requireActor()` still reads an unverified
+    `x-actor-label` in development and throws in production;
+    `requireCapability()` throws unconditionally. The RLS policies are written
+    against `app.identity` and are ready for a real session to set it.
+  - **Workflows for brief generation** (plan §8) — the one item from Phase 8's
+    brief not built. Everything it needs exists: publications are versioned,
+    the AI module suggests behind a human gate, and search retrieves.
+  - **A frontend for any of this.** No backend surface is consumed by the
+    particle navigation yet; the two halves still share only `package.json`.
 
 ## Blocked
 

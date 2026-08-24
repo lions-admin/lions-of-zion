@@ -19,7 +19,7 @@ describe("migrations", () => {
     const { rows } = await db.execute<{ n: number }>(
       sql`SELECT count(*)::int AS n FROM pg_type WHERE typtype = 'e'`,
     );
-    expect(Number(rows[0]!.n)).toBe(17);
+    expect(Number(rows[0]!.n)).toBe(20);
   });
 });
 

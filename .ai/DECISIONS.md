@@ -10,6 +10,68 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-24 — The four publication surfaces are one table
+
+The brief lists `news_update`, `brief`, `geopolitical_analysis` and `scenario`
+separately, and the obvious reading is four tables. They would have been four
+*near-identical* tables: same lifecycle, same versioning path, same publish
+gate, same approver rules, differing only in two or three optional columns.
+
+That is four places to forget the gate and four migrations every time the gate
+changes. So they are one `publication` table discriminated by `kind`, with
+kind-specific columns nullable and their presence enforced by CHECK — the same
+argument `entity_version` makes against per-entity version tables, and the
+opposite call from `item_assessment`, which kept its own table precisely
+because its constraints are unlike anything else's.
+
+`only_scenarios_state_a_likelihood` is a biconditional on purpose: a scenario
+without a band is an assertion wearing a hedge, and a brief *with* one is a
+forecast nobody reviewed as such. And there is still no numeric probability
+column anywhere — a test asserts `publication` has no column matching
+`probability|percent|score`, so the next person to add one has to argue with a
+failing test rather than a comment.
+
+## 2026-08-24 — RLS is meaningless without `assertRole`, so the harness asserts
+
+`SET LOCAL ROLE` outside a transaction is a **silent no-op**: the statement
+succeeds, the role does not change, and every assertion afterwards runs with
+the owner's privileges. An authorization suite in that state goes green while
+testing nothing — worse than having no suite, because it actively reports
+safety.
+
+The `as()`/`assertRole` harness was written in Phase 1 for this and sat unused
+for six phases. Phase 8 is where it earns itself: every RLS test runs inside
+`as()`, which opens a real transaction, sets the role, and refuses to continue
+unless `current_user` actually changed.
+
+Verified by mutation, not by inspection: widening
+`information_item_public_reads_published` to `USING (true)` makes an
+unpublished item visible to `app_public`, which the suite catches. A policy
+suite that cannot fail is the same false green in a different costume.
+
+One finding worth keeping: `app_public` reading `report` fails at the **grant**
+level, not the policy level — it holds `INSERT` and no `SELECT` at all. That is
+stronger than an empty result set, because there is no policy to get wrong. The
+first version of that test asserted an empty array and was corrected to assert
+the privilege error.
+
+## 2026-08-24 — Rate limiting counts in Postgres, and counts refusals
+
+An in-process counter is the reflex, and it does not work here. Vercel
+Functions are per-region and recycled, so a counter in module scope is a limit
+*per instance* — under load, no limit at all, while looking exactly like one in
+the code.
+
+`bump_rate_limit` increments and returns the new count in one statement, so
+two concurrent requests cannot both read a stale value and both conclude they
+are under the ceiling.
+
+A refused request still increments. If it did not, a caller who is over the
+limit would get a fresh attempt on every rejected call, which is precisely
+backwards. The bucket is a sha256 of the forwarded address, never the address
+itself — otherwise the rate-limit table becomes a visitor log, which is a thing
+to protect rather than a thing to keep.
+
 ## 2026-08-24 — A citation must have been retrieved, and the database checks it
 
 The standard RAG failure is a fluent answer with a citation to a document the

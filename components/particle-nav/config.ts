@@ -73,19 +73,62 @@ export const NAVIGATE_AT_MS = 320; // navigation never waits for the animation (
 export const CANVAS_FADE_MS = 180;
 
 export const defaultNodes: NavNode[] = [
-  { id: 'today', label: 'TODAY', href: '/today', iconSdfUrl: '/icons/today.sdf.png' },
-  { id: 'verify', label: 'VERIFY', href: '/verify', iconSdfUrl: '/icons/verify.sdf.png' },
-  { id: 'the-war', label: 'THE WAR', href: '/the-war', iconSdfUrl: '/icons/the-war.sdf.png' },
-  { id: 'october-7', label: 'OCTOBER 7', href: '/october-7', iconSdfUrl: '/icons/october-7.sdf.png' },
-  { id: 'stories', label: 'STORIES', href: '/stories', iconSdfUrl: '/icons/stories.sdf.png' },
   {
-    id: 'israel-explained',
-    label: 'ISRAEL EXPLAINED',
-    href: '/israel-explained',
-    iconSdfUrl: '/icons/israel-explained.sdf.png',
+    id: 'geopolitical-brief',
+    label: 'GEOPOLITICAL BRIEF',
+    href: '/geopolitical-brief',
+    description: 'The daily strategic picture: verified developments, their context, and what they change.',
+    iconSdfUrl: '/icons/geopolitical-brief.sdf.png',
   },
-  { id: 'influence', label: 'INFLUENCE', href: '/influence', iconSdfUrl: '/icons/influence.sdf.png' },
-  { id: 'about', label: 'ABOUT', href: '/about', iconSdfUrl: '/icons/about.sdf.png' },
+  {
+    id: 'support-us',
+    label: 'SUPPORT US',
+    href: '/support-us',
+    description: 'Ways to join the effort: amplify verified truth, contribute skills, sustain the work.',
+    iconSdfUrl: '/icons/support-us.sdf.png',
+  },
+  {
+    id: 'war-update',
+    label: 'WAR UPDATE',
+    href: '/war-update',
+    description: 'Sourced, time-stamped updates from the front and the home front.',
+    iconSdfUrl: '/icons/war-update.sdf.png',
+  },
+  {
+    id: 'october-7',
+    label: 'OCTOBER 7',
+    href: '/october-7',
+    description: 'The record of October 7: testimony, evidence, and remembrance.',
+    iconSdfUrl: '/icons/october-7.sdf.png',
+  },
+  {
+    id: 'our-heroes',
+    label: 'OUR HEROES',
+    href: '/our-heroes',
+    description: 'The people behind the story: the fallen, the fighters, the rescuers.',
+    iconSdfUrl: '/icons/our-heroes.sdf.png',
+  },
+  {
+    id: 'israels-story',
+    label: "ISRAEL'S STORY",
+    href: '/israels-story',
+    description: 'The long arc: history, identity, and the context the noise leaves out.',
+    iconSdfUrl: '/icons/israels-story.sdf.png',
+  },
+  {
+    id: 'fake-resistance',
+    label: 'FAKE RESISTANCE',
+    href: '/fake-resistance',
+    description: 'Inside the influence machine: how manufactured outrage is built and amplified.',
+    iconSdfUrl: '/icons/fake-resistance.sdf.png',
+  },
+  {
+    id: 'we-are',
+    label: 'WE ARE',
+    href: '/we-are',
+    description: 'Who Lions of Zion are, why this network exists, and how it works.',
+    iconSdfUrl: '/icons/we-are.sdf.png',
+  },
 ];
 
 /** Clockwise from 12 o'clock — spoke order is configuration, not geometry. */

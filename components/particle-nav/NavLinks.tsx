@@ -32,6 +32,7 @@ export function NavLinks({ nodes }: NavLinksProps) {
             <li
               key={node.id}
               className={styles.item}
+              data-intent={node.intent}
               style={{ ['--x' as string]: `${cx.toFixed(2)}%`, ['--y' as string]: `${cy.toFixed(2)}%` }}
             >
               <a

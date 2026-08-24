@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, KeyboardEvent, useRef, useState } from 'react';
 import styles from './ask-the-lion-chat.module.css';
 
 type ChatMessage = {
@@ -28,6 +28,7 @@ async function readResponse<T>(response: Response): Promise<T> {
 }
 
 export function AskTheLionChat({ onClose }: AskTheLionChatProps) {
+  const panelRef = useRef<HTMLElement>(null);
   const threadIdRef = useRef<string | null>(null);
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -87,13 +88,36 @@ export function AskTheLionChat({ onClose }: AskTheLionChatProps) {
     }
   };
 
+  const trapFocus = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== 'Tab') return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const focusable = Array.from(
+      panel.querySelectorAll<HTMLElement>(
+        'button:not(:disabled):not([tabindex="-1"]), textarea:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   return (
     <section
+      ref={panelRef}
       id="ask-the-lion-chat"
       className={styles.panel}
       role="dialog"
-      aria-modal="false"
+      aria-modal="true"
       aria-labelledby="ask-the-lion-title"
+      onKeyDown={trapFocus}
     >
       <header className={styles.header}>
         <div>

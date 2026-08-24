@@ -7,6 +7,8 @@ export interface NavNode {
   description: string;
   /** Baked single-channel SDF (public path) for the icon particle cluster. */
   iconSdfUrl: string;
+  /** User-intent group. The desktop orbit and mobile index share this hierarchy. */
+  intent?: 'now' | 'understand' | 'participate';
 }
 
 export interface ParticleNavTheme {

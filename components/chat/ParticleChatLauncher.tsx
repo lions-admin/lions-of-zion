@@ -1,14 +1,36 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { usePathname } from 'next/navigation';
 import lionReference from '@/assets/reference/crowned-lion-particle-reference.png';
 import { ChatParticleCanvas } from './ChatParticleCanvas';
 import { AskTheLionChat } from './AskTheLionChat';
 import styles from './particle-chat-launcher.module.css';
 
+const MOBILE_CHAT_QUERY = '(max-width: 719px)';
+
+function subscribeToMobileChat(callback: () => void) {
+  const query = window.matchMedia(MOBILE_CHAT_QUERY);
+  query.addEventListener('change', callback);
+  return () => query.removeEventListener('change', callback);
+}
+
+function getMobileChatSnapshot() {
+  return window.matchMedia(MOBILE_CHAT_QUERY).matches;
+}
+
+function useMobileChatSculpture() {
+  // The server renders the resilient image fallback. Desktop progressively
+  // upgrades it after hydration; mobile never pays for a second GPU renderer.
+  return useSyncExternalStore(subscribeToMobileChat, getMobileChatSnapshot, () => true);
+}
+
 export function ParticleChatLauncher() {
+  const pathname = usePathname();
+  const mobileChatSculpture = useMobileChatSculpture();
   const activeRef = useRef(false);
   const activationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const focusTimerRef = useRef<number | null>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -16,6 +38,11 @@ export function ParticleChatLauncher() {
   const [canvasReady, setCanvasReady] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const active = hovered || focused || activated;
+  const contextualLabel = pathname === '/geopolitical-brief' ? 'Ask about this brief' : 'Ask the Lion';
+  const restoreLauncherFocus = useCallback(() => {
+    if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+    focusTimerRef.current = window.setTimeout(() => launcherRef.current?.focus(), 50);
+  }, []);
 
   useEffect(() => {
     activeRef.current = active;
@@ -23,40 +50,37 @@ export function ParticleChatLauncher() {
 
   useEffect(() => () => {
     if (activationTimerRef.current) clearTimeout(activationTimerRef.current);
-  }, []);
-
-  useEffect(() => {
-    const openChat = () => setChatOpen(true);
-    window.addEventListener('lions:open-ai-chat', openChat);
-    return () => window.removeEventListener('lions:open-ai-chat', openChat);
+    if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
   }, []);
 
   useEffect(() => {
     if (!chatOpen) return;
+    const main = document.querySelector<HTMLElement>('main');
+    const wasInert = main?.inert ?? false;
+    if (main) main.inert = true;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setChatOpen(false);
-        launcherRef.current?.focus();
+        restoreLauncherFocus();
       }
     };
     window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [chatOpen]);
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+      if (main) main.inert = wasInert;
+    };
+  }, [chatOpen, restoreLauncherFocus]);
 
   const activate = () => {
     setActivated(true);
-    if (chatOpen) {
-      setChatOpen(false);
-    } else {
-      window.dispatchEvent(new CustomEvent('lions:open-ai-chat'));
-    }
+    setChatOpen(true);
     if (activationTimerRef.current) clearTimeout(activationTimerRef.current);
     activationTimerRef.current = setTimeout(() => setActivated(false), 1100);
   };
 
   const closeChat = () => {
     setChatOpen(false);
-    requestAnimationFrame(() => launcherRef.current?.focus());
+    restoreLauncherFocus();
   };
 
   return (
@@ -65,10 +89,19 @@ export function ParticleChatLauncher() {
       data-active={active ? '' : undefined}
       data-open={chatOpen ? '' : undefined}
     >
+      {chatOpen ? (
+        <button
+          type="button"
+          className={styles.backdrop}
+          aria-label="Close Ask the Lion chat"
+          tabIndex={-1}
+          onClick={closeChat}
+        />
+      ) : null}
       {chatOpen ? <AskTheLionChat onClose={closeChat} /> : null}
       <div className={styles.launcherRow}>
         <span className={styles.label} aria-hidden="true">
-          <span>Ask the Lion</span>
+          <span>{contextualLabel}</span>
           <span className={styles.labelArrow} />
         </span>
         <button
@@ -93,10 +126,12 @@ export function ParticleChatLauncher() {
               src={lionReference.src}
               alt=""
               className={styles.fallbackLion}
-              data-hidden={canvasReady ? '' : undefined}
+              data-hidden={!mobileChatSculpture && canvasReady ? '' : undefined}
             />
           </span>
-          <ChatParticleCanvas activeRef={activeRef} onReady={() => setCanvasReady(true)} />
+          {!mobileChatSculpture ? (
+            <ChatParticleCanvas activeRef={activeRef} onReady={() => setCanvasReady(true)} />
+          ) : null}
         </button>
       </div>
     </aside>

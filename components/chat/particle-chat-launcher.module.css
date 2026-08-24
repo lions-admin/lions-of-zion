@@ -8,6 +8,24 @@
   transition: opacity 350ms ease, transform 350ms ease, visibility 0s linear;
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(1, 4, 9, 0.64);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  cursor: default;
+  animation: backdropIn 220ms ease both;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 :global(body:has([data-intro-active])) .root {
   opacity: 0;
   visibility: hidden;
@@ -16,9 +34,12 @@
 }
 
 .launcherRow {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  transition: opacity 180ms ease, visibility 0s linear;
 }
 
 .launcher {
@@ -149,6 +170,12 @@
   animation: none;
 }
 
+.root[data-open] .launcherRow {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 @keyframes attentionCue {
   0% {
     opacity: 0;
@@ -172,30 +199,55 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 719px) {
   .root {
     right: calc(0.75rem + env(safe-area-inset-right, 0px));
-    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(0.65rem + env(safe-area-inset-bottom, 0px));
+    left: calc(0.75rem + env(safe-area-inset-left, 0px));
+    padding: 0.46rem 0.55rem 0.46rem 0.8rem;
+    border: 1px solid rgba(201, 162, 75, 0.28);
+    border-radius: 999px;
+    background: rgba(7, 11, 20, 0.94);
+    box-shadow: 0 0.8rem 2.8rem rgba(0, 0, 0, 0.42), 0 0 1.4rem rgba(201, 162, 75, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .root[data-open] {
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
   }
 
   .launcher {
-    width: 4.5rem;
-    height: 4.5rem;
+    width: 3.45rem;
+    height: 3.45rem;
+  }
+
+  .launcherRow {
+    justify-content: space-between;
+    width: 100%;
   }
 
   .label {
-    gap: 0.45rem;
-    font-size: 0.58rem;
-    letter-spacing: 0.16em;
+    gap: 0.58rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 
   .labelArrow {
-    width: 1.55rem;
+    width: 2rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .root,
+  .backdrop,
+  .launcherRow,
   .launcher,
   .label,
   .fallbackLion {

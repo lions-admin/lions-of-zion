@@ -326,6 +326,16 @@
   }
 }
 
+@media (max-width: 719px) {
+  .page {
+    height: calc(100dvh - 5.25rem - env(safe-area-inset-bottom, 0px));
+  }
+
+  .shell {
+    padding-bottom: 2.5rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .row {
     animation: none;

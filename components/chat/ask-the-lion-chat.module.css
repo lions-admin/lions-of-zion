@@ -1,15 +1,17 @@
 .panel {
-  position: absolute;
+  position: fixed;
+  top: 0;
   right: 0;
-  bottom: calc(100% + 1rem);
+  bottom: 0;
+  z-index: 2;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  width: min(25rem, calc(100vw - 2rem));
-  height: min(38rem, calc(100svh - 11rem));
-  min-height: min(27rem, calc(100svh - 11rem));
+  width: min(28rem, calc(100vw - 2rem));
+  height: 100dvh;
+  min-height: 0;
   overflow: hidden;
   border: 1px solid rgba(219, 180, 82, 0.36);
-  border-radius: 1.4rem;
+  border-radius: 0;
   background:
     radial-gradient(circle at 78% -10%, rgba(219, 180, 82, 0.13), transparent 34%),
     linear-gradient(155deg, rgba(7, 12, 22, 0.985), rgba(2, 5, 11, 0.99));
@@ -18,7 +20,7 @@
     0 0 2.8rem rgba(219, 180, 82, 0.09),
     inset 0 1px rgba(255, 231, 166, 0.05);
   color: #e8edf5;
-  transform-origin: 92% 100%;
+  transform-origin: 100% 50%;
   animation: panelIn 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
@@ -310,8 +312,8 @@
 }
 
 @keyframes panelIn {
-  from { opacity: 0; transform: translateY(0.8rem) scale(0.94); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateX(1.25rem); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes thinking {
@@ -319,15 +321,16 @@
   to { opacity: 1; transform: translateY(-0.2rem); }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 719px) {
   .panel {
     position: fixed;
     right: calc(0.75rem + env(safe-area-inset-right, 0px));
-    bottom: calc(5.95rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     left: calc(0.75rem + env(safe-area-inset-left, 0px));
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
     width: auto;
-    height: min(35rem, calc(100svh - 7rem - env(safe-area-inset-top, 0px)));
-    min-height: min(25rem, calc(100svh - 7rem));
+    height: auto;
+    min-height: 0;
     border-radius: 1.2rem;
     transform-origin: 90% 100%;
   }
@@ -339,16 +342,20 @@
 
 @media (max-height: 600px) {
   .panel {
-    height: calc(100svh - 10rem);
+    height: 100dvh;
     min-height: 0;
   }
 
   .welcome { padding-block: 1rem; }
 }
 
-@media (max-width: 640px) and (max-height: 600px) {
+@media (max-width: 719px) and (max-height: 600px) {
   .panel {
-    height: calc(100svh - 7.5rem);
+    top: calc(0.4rem + env(safe-area-inset-top, 0px));
+    right: calc(0.4rem + env(safe-area-inset-right, 0px));
+    bottom: calc(0.4rem + env(safe-area-inset-bottom, 0px));
+    left: calc(0.4rem + env(safe-area-inset-left, 0px));
+    height: auto;
   }
 }
 

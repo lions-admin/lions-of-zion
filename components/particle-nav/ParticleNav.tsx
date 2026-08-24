@@ -4,6 +4,7 @@
  * the canvas is client-only, dynamic-imported, and mounted after first paint.
  */
 import { NavClient } from './CanvasMount';
+import { HomeSignalLayer } from './HomeSignalLayer';
 import { NavLinks } from './NavLinks';
 import type { ParticleNavProps } from './types';
 import styles from './styles.module.css';
@@ -33,6 +34,7 @@ export function ParticleNav(props: ParticleNavProps) {
         <img src="/posters/particle-nav.webp" alt="" draggable={false} />
       </picture>
       <NavLinks nodes={nodes} radius={radius} />
+      <HomeSignalLayer nodes={nodes} />
     </NavClient>
   );
 }

@@ -79,6 +79,7 @@ export const defaultNodes: NavNode[] = [
     href: '/geopolitical-brief',
     description: 'The daily strategic picture: verified developments, their context, and what they change.',
     iconSdfUrl: '/icons/geopolitical-brief.sdf.png',
+    intent: 'now',
   },
   {
     id: 'support-us',
@@ -86,6 +87,7 @@ export const defaultNodes: NavNode[] = [
     href: '/support-us',
     description: 'Ways to join the effort: amplify verified truth, contribute skills, sustain the work.',
     iconSdfUrl: '/icons/support-us.sdf.png',
+    intent: 'participate',
   },
   {
     id: 'war-update',
@@ -93,6 +95,7 @@ export const defaultNodes: NavNode[] = [
     href: '/war-update',
     description: 'Sourced, time-stamped updates from the front and the home front.',
     iconSdfUrl: '/icons/war-update.sdf.png',
+    intent: 'now',
   },
   {
     id: 'october-7',
@@ -100,6 +103,7 @@ export const defaultNodes: NavNode[] = [
     href: '/october-7',
     description: 'The record of October 7: testimony, evidence, and remembrance.',
     iconSdfUrl: '/icons/october-7.sdf.png',
+    intent: 'understand',
   },
   {
     id: 'our-heroes',
@@ -107,6 +111,7 @@ export const defaultNodes: NavNode[] = [
     href: '/our-heroes',
     description: 'The people behind the story: the fallen, the fighters, the rescuers.',
     iconSdfUrl: '/icons/our-heroes.sdf.png',
+    intent: 'understand',
   },
   {
     id: 'israels-story',
@@ -114,6 +119,7 @@ export const defaultNodes: NavNode[] = [
     href: '/israels-story',
     description: 'The long arc: history, identity, and the context the noise leaves out.',
     iconSdfUrl: '/icons/israels-story.sdf.png',
+    intent: 'understand',
   },
   {
     id: 'fake-resistance',
@@ -121,6 +127,7 @@ export const defaultNodes: NavNode[] = [
     href: '/fake-resistance',
     description: 'Inside the influence machine: how manufactured outrage is built and amplified.',
     iconSdfUrl: '/icons/fake-resistance.sdf.png',
+    intent: 'understand',
   },
   {
     id: 'we-are',
@@ -128,6 +135,7 @@ export const defaultNodes: NavNode[] = [
     href: '/we-are',
     description: 'Who Lions of Zion are, why this network exists, and how it works.',
     iconSdfUrl: '/icons/we-are.sdf.png',
+    intent: 'participate',
   },
 ];
 

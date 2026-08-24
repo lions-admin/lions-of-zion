@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cinzel, Geist, Geist_Mono } from "next/font/google";
+import { ParticleChatLauncher } from "@/components/chat/ParticleChatLauncher";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
@@ -28,7 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <ParticleChatLauncher />
+      </body>
     </html>
   );
 }

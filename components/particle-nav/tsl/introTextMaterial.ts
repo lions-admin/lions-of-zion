@@ -16,7 +16,19 @@ import {
 } from 'three/tsl';
 import type { TextCloud } from '@/components/intro/textCloud';
 
-export function createIntroTextMaterial(cloud: TextCloud) {
+export interface IntroTextMaterialOptions {
+  coreColor?: string;
+  edgeColor?: string;
+  sizeMinPx?: number;
+  sizeMaxPx?: number;
+  alphaMin?: number;
+  alphaMax?: number;
+}
+
+export function createIntroTextMaterial(
+  cloud: TextCloud,
+  options: IntroTextMaterialOptions = {},
+) {
   const packedPositions = new Float32Array(cloud.count * 4);
   const packedTraits = new Float32Array(cloud.count * 4);
   for (let i = 0; i < cloud.count; i++) {
@@ -75,21 +87,25 @@ export function createIntroTextMaterial(cloud: TextCloud) {
   material.positionNode = mix(visiblePosition, windTarget, erased).add(
     vec3(0, edgeDrift.mul(built).mul(float(1).sub(erased)), 0),
   );
-  material.scaleNode = mix(float(1.15), float(2.05), hash(instanceIndex.add(53)))
+  material.scaleNode = mix(
+    float(options.sizeMinPx ?? 0.9),
+    float(options.sizeMaxPx ?? 1.58),
+    hash(instanceIndex.add(53)),
+  )
     .mul(mix(float(1), float(1.25), uniforms.focus))
     .mul(uniforms.dpr)
     .mul(uniforms.pxToWorld);
   const printHead = smoothstep(0.075, 0, uniforms.build.sub(start.add(0.08)).abs());
   material.colorNode = mix(
-    color(new Color('#ECE8DE')),
-    color(new Color('#FFFFFF')),
+    color(new Color(options.coreColor ?? '#F1EDE4')),
+    color(new Color(options.edgeColor ?? '#FFFFFF')),
     trait.w.mul(0.72).add(printHead.mul(0.18)),
   );
   material.opacityNode = smoothstep(0.5, 0.1, uv().sub(vec2(0.5)).length())
     .mul(built)
     .mul(float(1).sub(erased))
     .mul(uniforms.opacity)
-    .mul(mix(float(0.72), float(1), trait.w));
+    .mul(mix(float(options.alphaMin ?? 0.82), float(options.alphaMax ?? 1), trait.w));
 
   const dispose = () => {
     material.dispose();

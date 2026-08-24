@@ -37,14 +37,14 @@ describe("particle navigation layout", () => {
 
   it("keeps the configured clockwise order beginning at twelve", () => {
     expect(defaultNodes.map((node) => node.id)).toEqual([
-      "today",
-      "verify",
-      "the-war",
+      "geopolitical-brief",
+      "support-us",
+      "war-update",
       "october-7",
-      "stories",
-      "israel-explained",
-      "influence",
-      "about",
+      "our-heroes",
+      "israels-story",
+      "fake-resistance",
+      "we-are",
     ]);
     const orbit = computeOrbitLayout(1440, 900, 3.3);
     const top = nodePosition(0, defaultNodes.length, orbit);

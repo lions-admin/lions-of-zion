@@ -25,15 +25,34 @@ export function NavLinks({ nodes }: NavLinksProps) {
           const a = Math.PI / 2 - (i / nodes.length) * Math.PI * 2;
           const cx = 50 + Math.cos(a) * orbitX;
           const cy = 50 - Math.sin(a) * orbitY;
+          // The preview card opens inward, toward the lion — the one direction
+          // that always has room on the ellipse at every viewport.
+          const side = Math.cos(a) > 0.35 ? 'left' : Math.cos(a) < -0.35 ? 'right' : Math.sin(a) > 0 ? 'below' : 'above';
           return (
             <li
               key={node.id}
               className={styles.item}
               style={{ ['--x' as string]: `${cx.toFixed(2)}%`, ['--y' as string]: `${cy.toFixed(2)}%` }}
             >
-              <a href={node.href} data-node-index={i} className={styles.link}>
+              <a
+                href={node.href}
+                data-node-index={i}
+                className={styles.link}
+                aria-describedby={`nav-card-${node.id}`}
+              >
                 <span className={styles.label}>{node.label}</span>
               </a>
+              <span role="tooltip" className={styles.card} data-side={side}>
+                <span className={styles.cardMeta} aria-hidden="true">
+                  <span className={styles.cardFile}>
+                    File {String(i + 1).padStart(2, '0')} / {String(nodes.length).padStart(2, '0')}
+                  </span>
+                  <span className={styles.cardRoute}>{node.href}</span>
+                </span>
+                <span id={`nav-card-${node.id}`} className={styles.cardText}>
+                  {node.description}
+                </span>
+              </span>
             </li>
           );
         })}

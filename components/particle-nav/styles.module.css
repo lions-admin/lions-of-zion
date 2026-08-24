@@ -197,6 +197,138 @@
   text-shadow: 0 0 18px rgba(239, 215, 154, 0.45);
 }
 
+/* ---- hover/focus preview cards ----
+   A CSS-only sibling of the real link: works in the no-JS tier, never steals
+   pointer input, and opens inward toward the lion — the one direction that
+   always has room on the ellipse. Screen readers get the same sentence via
+   aria-describedby whether or not the card is visible. */
+.card {
+  position: absolute;
+  z-index: 3;
+  width: 14.5rem;
+  max-width: 46vw;
+  padding: 0.8rem 1rem 0.85rem;
+  background: rgba(7, 11, 20, 0.9);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(201, 162, 75, 0.16);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+  text-align: left;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+  transform: var(--card-center) var(--card-slide, none);
+}
+
+/* Detection brackets — the same corner marks the canvas draws around every
+   platform glyph it flags. Two opposite corners are enough to read as a
+   targeting frame without boxing the card in. */
+.card::before,
+.card::after {
+  content: '';
+  position: absolute;
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.card::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1.5px solid #57a7d9;
+  border-left: 1.5px solid #57a7d9;
+}
+
+.card::after {
+  right: -1px;
+  bottom: -1px;
+  border-right: 1.5px solid #57a7d9;
+  border-bottom: 1.5px solid #57a7d9;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(201, 162, 75, 0.18);
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cardFile {
+  color: #c9a24b;
+}
+
+.cardRoute {
+  color: #57a7d9;
+  text-transform: none;
+  letter-spacing: 0.08em;
+}
+
+.cardText {
+  display: block;
+  color: #b6c4d6;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+/* Centering and the closed-state slide are custom properties, so the reveal
+   rule below can zero the slide without fighting per-side specificity. */
+.card[data-side='left'] {
+  right: calc(100% + 0.65rem);
+  top: 50%;
+  --card-center: translateY(-50%);
+  --card-slide: translateX(6px);
+}
+
+.card[data-side='right'] {
+  left: calc(100% + 0.65rem);
+  top: 50%;
+  --card-center: translateY(-50%);
+  --card-slide: translateX(-6px);
+}
+
+.card[data-side='below'] {
+  top: calc(100% + 0.65rem);
+  left: 50%;
+  --card-center: translateX(-50%);
+  --card-slide: translateY(-6px);
+}
+
+.card[data-side='above'] {
+  bottom: calc(100% + 0.65rem);
+  left: 50%;
+  --card-center: translateX(-50%);
+  --card-slide: translateY(6px);
+}
+
+/* Keyboard reveal works on every device… */
+.link:focus-visible + .card {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+  --card-slide: none;
+}
+
+/* …pointer reveal only where hover is real, so a tap during the 320 ms
+   navigation timer never flashes a card. The 140 ms delay keeps pass-through
+   mouse traffic from flickering cards open. */
+@media (hover: hover) {
+  .link:hover + .card {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 140ms;
+    --card-slide: none;
+  }
+}
+
 /* visible focus ring: 2px #EFD79A, 3px offset — do not remove (brief §9) */
 .link:focus-visible {
   outline: 2px solid #efd79a;
@@ -211,7 +343,7 @@
 .label {
   font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
   font-size: clamp(0.58rem, 1.15vmin, 0.86rem);
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.17em;
   text-align: center;
   text-transform: uppercase;
@@ -234,5 +366,10 @@
   .canvasWrap,
   .link {
     transition-duration: 200ms;
+  }
+
+  .card {
+    transition: opacity 200ms ease, visibility 0s linear 200ms;
+    --card-slide: none;
   }
 }

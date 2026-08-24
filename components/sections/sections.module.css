@@ -1,0 +1,340 @@
+/*
+ * Section pages — dossier over the live scan.
+ *
+ * The landing page is the scan; a section page is a file pulled from it, so
+ * the corpus keeps drifting behind a translucent panel. Three type voices:
+ * Cinzel (the site speaking), Geist Sans (prose), Geist Mono (the system's
+ * data voice — file headers, routes, classification labels).
+ *
+ * Locks inherited from the nav (brief §9): gold #C9A24B on #070B14 is never
+ * dimmed for atmosphere; focus ring 2px #EFD79A at 3px offset; every
+ * animation has a prefers-reduced-motion branch.
+ */
+
+.page {
+  /* single source for the palette on these pages */
+  --ground: #070b14;
+  --gold: #c9a24b;
+  --gold-bright: #efd79a;
+  --blue: #57a7d9;
+  --blue-dim: #3e7fa8;
+  --blue-peak: #9adfff;
+  --ember: #a85a61;
+  --ember-dim: #7a4048;
+  --ember-peak: #d08d94;
+  --body: #9fb3c8;
+  --accent: var(--blue);
+  --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  --display: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+
+  height: 100dvh;
+  overflow-y: auto;
+  background: var(--ground);
+  color: var(--body);
+}
+
+.accentEmber {
+  --accent: var(--ember);
+}
+
+/* ---- the scan, still running ---- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* faint structure under the rows: the trace grid the canvas scan implies */
+  background:
+    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.05), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.028) 0 1px, transparent 1px 9px);
+}
+
+.row {
+  position: absolute;
+  left: 0;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap; /* fragments render whole — never wrapped or ellipsised */
+  will-change: transform;
+  opacity: calc(0.5 * var(--register, 1));
+}
+
+.rowVerified {
+  color: var(--blue-dim);
+  animation: driftRight var(--dur) linear infinite;
+  animation-delay: var(--delay);
+}
+
+.rowHostile {
+  color: var(--ember-dim);
+  animation: driftLeft var(--dur) linear infinite;
+  animation-delay: var(--delay);
+}
+
+/* the brighter of the seeded pair inside each stream */
+.rowLoud.rowVerified { color: var(--blue); }
+.rowLoud.rowHostile { color: var(--ember); }
+
+@keyframes driftRight {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100vw); }
+}
+
+@keyframes driftLeft {
+  from { transform: translateX(100vw); }
+  to { transform: translateX(-100%); }
+}
+
+.registerMuted .row {
+  /* October 7: the scan nearly holds its breath */
+  --register: 0.32;
+  animation-duration: calc(var(--dur) * 3);
+}
+
+/* ---- dossier layout ---- */
+
+.shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 44rem);
+  gap: clamp(2rem, 4vw, 3.5rem);
+  justify-content: center;
+  padding: clamp(2.5rem, 7vh, 5.5rem) clamp(1.25rem, 4vw, 3rem) 7rem;
+}
+
+.rail {
+  animation: rise 600ms ease both;
+}
+
+.railInner {
+  position: sticky;
+  top: clamp(2.5rem, 7vh, 5.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.emblem {
+  width: 9.5rem;
+  height: 9.5rem;
+  align-self: flex-start;
+  /* SDF bake: the distance halo around the glyph becomes a natural glow when
+     the black field is screened out and the remainder tinted gold */
+  mix-blend-mode: screen;
+  filter: contrast(1.9) brightness(0.92) sepia(1) hue-rotate(-9deg) saturate(2.1);
+}
+
+.fileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fileIndex {
+  color: var(--gold);
+}
+
+.fileRoute {
+  color: var(--accent);
+}
+
+.fileStatus {
+  color: rgba(159, 179, 200, 0.55);
+}
+
+.metaRule {
+  width: 2.5rem;
+  height: 1px;
+  background: rgba(201, 162, 75, 0.4);
+}
+
+.back {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--gold-bright);
+}
+
+.panel {
+  position: relative;
+  padding: clamp(1.8rem, 4vw, 3.25rem);
+  background: rgba(7, 11, 20, 0.72);
+  border: 1px solid rgba(201, 162, 75, 0.22);
+  border-radius: 2px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: rise 600ms ease 120ms both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- dossier header ---- */
+
+.title {
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: var(--gold);
+}
+
+.lede {
+  margin-top: 1.1rem;
+  max-width: 38rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--body);
+}
+
+.ledeRule {
+  width: 3.5rem;
+  height: 1px;
+  margin-top: 1.75rem;
+  background: var(--gold);
+}
+
+/* ---- content blocks ---- */
+
+.block {
+  margin-top: 3rem;
+}
+
+.blockHeading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.blockHeading h2 {
+  font-family: var(--display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.blockTick {
+  width: 0.6rem;
+  height: 1px;
+  background: var(--accent);
+  flex: none;
+}
+
+.body p {
+  margin: 0 0 1.05rem;
+  line-height: 1.75;
+  font-size: 0.98rem;
+}
+
+.body p:last-child {
+  margin-bottom: 0;
+}
+
+.body ul {
+  margin: 0 0 1.05rem;
+  padding-left: 1.25rem;
+}
+
+.body li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+.body li::marker {
+  color: var(--accent);
+}
+
+.body strong {
+  color: #c9d6e6;
+  font-weight: 600;
+}
+
+.body a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.body a:hover {
+  color: var(--gold-bright);
+}
+
+.page a:focus-visible,
+.back:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+/* ---- narrow: the rail folds into a header band ---- */
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .railInner {
+    position: static;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: 'emblem meta' 'back back';
+    align-items: center;
+    column-gap: 1.25rem;
+    row-gap: 1rem;
+  }
+
+  .emblem {
+    grid-area: emblem;
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .fileMeta {
+    grid-area: meta;
+  }
+
+  .metaRule {
+    display: none;
+  }
+
+  .back {
+    grid-area: back;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    animation: none;
+    /* rows were placed mid-flight by negative delays; pin them spread out */
+    transform: translateX(calc(var(--rest, 0) * 1vw));
+  }
+
+  .rail,
+  .panel {
+    animation: none;
+  }
+}

@@ -3,6 +3,8 @@ export interface NavNode {
   /** DOM label text — rendered as a real link, never canvas type. */
   label: string;
   href: string;
+  /** One sentence for the hover/focus preview card; also the page's opening claim. */
+  description: string;
   /** Baked single-channel SDF (public path) for the icon particle cluster. */
   iconSdfUrl: string;
 }

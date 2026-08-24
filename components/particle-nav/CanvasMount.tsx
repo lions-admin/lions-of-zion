@@ -67,7 +67,6 @@ export function NavClient({
     skipRequested: false,
     nextCueRequested: false,
   });
-  const skipFocusRef = useRef(0);
 
   const tier = usePerfTier(forceWebGL);
   const reducedMotion = useReducedMotion();
@@ -268,7 +267,6 @@ export function NavClient({
             intro={introRunning}
             introControlsRef={introControlsRef}
             onIntroComplete={() => setIntroDone(true)}
-            skipFocusRef={skipFocusRef}
           />
         </div>
       ) : null}
@@ -281,13 +279,25 @@ export function NavClient({
             type="button"
             className={styles.skipIntro}
             aria-label="Skip intro"
-            onPointerEnter={() => { skipFocusRef.current = 1; }}
-            onPointerLeave={() => { skipFocusRef.current = 0; }}
-            onFocus={() => { skipFocusRef.current = 1; }}
-            onBlur={() => { skipFocusRef.current = 0; }}
             onClick={() => { introControlsRef.current.skipRequested = true; }}
           >
-            <span className={styles.srOnly}>Skip intro</span>
+            <span className={styles.skipRule} aria-hidden="true" />
+            <span className={styles.skipLabel}>Skip intro</span>
+            <svg
+              className={styles.skipChevron}
+              width="18"
+              height="18"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 3l4 4-4 4" />
+              <path d="M8 3l4 4-4 4" />
+            </svg>
           </button>
         </>
       ) : null}

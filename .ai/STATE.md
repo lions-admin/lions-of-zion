@@ -18,6 +18,8 @@ the Fabele particle navigation:
   social-platform symbols; no stars and no photographic background;
 - WebGPU/TSL first, WebGL2 fallback, and an SSR poster/no-JavaScript path;
 - Cinzel labels, accessible 44px targets and visible keyboard focus;
+- a skip control rendered as DOM type rather than particles — the one
+  documented exception to the all-particles rule (see `DECISIONS.md`);
 - the isolated `/particle-demo` tuning and fallback route.
 
 `Experience.tsx` starts the new GPU engine only at the intro's outro. The new

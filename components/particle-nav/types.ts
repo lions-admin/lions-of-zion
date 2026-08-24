@@ -33,6 +33,9 @@ export interface SimParams {
   returnDurationMs: number;
   pointSizeMin: number;
   pointSizeMax: number;
+  scanFieldOpacity: number;
+  scanWordOpacity: number;
+  scanGlyphOpacity: number;
   bloomThreshold: number;
   bloomStrength: number;
   bloomRadius: number;

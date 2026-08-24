@@ -1,0 +1,4566 @@
+{
+  "title": "LIONS OF ZION Anti-Israel Narrative Matrix Corpus",
+  "language": "en",
+  "displayWordCount": 5000,
+  "fragmentCount": 521,
+  "editorialNote": "This corpus is a visual monitoring stream, not a list of standalone factual assertions. Explicitly debunked items are sourced and labeled FALSE CLAIM or MISINFORMATION. Broader political and legal narratives are labeled as monitored narratives and are not automatically declared false. Public people and organizations appear only with documented context from the listed sources.",
+  "colorLegend": {
+    "red": "hostile narrative, viral false claim, fabricated headline, or denial narrative",
+    "amber": "public amplifier, emerging claim cluster, source under review, or network signal",
+    "blue": "fact check, correction, verified context, or debunk result",
+    "neutral": "hashtag, platform, source type, or general monitored term"
+  },
+  "sources": [
+    {
+      "id": "ap-misinformation-2023",
+      "publisher": "Associated Press",
+      "title": "Israel-Hamas war: Misinformation is spreading. Here are the facts",
+      "url": "https://apnews.com/article/israel-hamas-gaza-misinformation-fact-check-e58f9ab8696309305c3ea2bfb269258e"
+    },
+    {
+      "id": "afp-monetized-misinformation-2024",
+      "publisher": "AFP Fact Check",
+      "title": "Musk's X feeds monetization of wartime misinformation",
+      "url": "https://factcheck.afp.com/doc.afp.com.34JA9UM"
+    },
+    {
+      "id": "afp-old-child-video-2023",
+      "publisher": "AFP Fact Check",
+      "title": "Old video of Israeli forces arresting Palestinian child resurfaces during latest Gaza war",
+      "url": "https://factcheck.afp.com/doc.afp.com.33ZC4KT"
+    },
+    {
+      "id": "afp-syria-as-gaza-2023",
+      "publisher": "AFP Fact Check",
+      "title": "War of narratives: Syrian imagery falsely illustrates Gaza",
+      "url": "https://factcheck.afp.com/doc.afp.com.349A4RK"
+    },
+    {
+      "id": "propublica-x-2023",
+      "publisher": "ProPublica and Tow Center for Digital Journalism",
+      "title": "How Verified Accounts on X Thrive While Spreading Misinformation About the Israel-Hamas Conflict",
+      "url": "https://www.propublica.org/article/x-verified-accounts-misinformation-israel-hamas-conflict"
+    },
+    {
+      "id": "isd-october-seven-2024",
+      "publisher": "Institute for Strategic Dialogue",
+      "title": "Mis- and disinformation and conspiracy theories about the October 7 Hamas attack on Israel",
+      "url": "https://www.isdglobal.org/digital-dispatch/mis-and-disinformation-and-conspiracy-theories-about-the-october-7-hamas-attack-on-israel/"
+    },
+    {
+      "id": "fullfact-israel-gaza-index",
+      "publisher": "Full Fact",
+      "title": "Israel-Gaza Conflict fact checks",
+      "url": "https://fullfact.org/israel-gaza-conflict/"
+    }
+  ],
+  "countsByCategory": {
+    "hostile_narrative": 204,
+    "debunked_claim": 44,
+    "fake_headline": 44,
+    "narrative_signal": 51,
+    "public_actor": 30,
+    "hashtag": 53,
+    "source_type": 51,
+    "fact_check": 44
+  },
+  "countsByTone": {
+    "red": 292,
+    "amber": 150,
+    "neutral": 35,
+    "blue": 44
+  },
+  "fragments": [
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "OCTOBER SEVEN DENIAL: October Seven was staged by Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Israel admitted bombing Al Ahli hospital in an Arabic Facebook post",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: October Seven was staged by Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Israel admitted bombing Al Ahli hospital in an Arabic Facebook post",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: October Seven was staged by Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Israel admitted bombing Al Ahli hospital in an Arabic Facebook post",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Israel admitted bombing Al Ahli hospital in an Arabic Facebook post",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "PUBLIC ACCOUNT MONITORED: Jackson Hinkle",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024",
+        "propublica-x-2023",
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: October Seven was staged by Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Gaza",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: X verified accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the screenshot came from an account impersonating the IDF spokesperson",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "FALSE FLAG CONSPIRACY: Israel allowed the massacre to happen deliberately",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: the BBC confirmed that Ukraine supplied weapons to Hamas",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel allowed the massacre to happen deliberately",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Israel admitted bombing Al Ahli hospital in an Arabic Facebook post",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel allowed the massacre to happen deliberately",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Israel admitted bombing Al Ahli hospital in an Arabic Facebook post",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: the BBC confirmed that Ukraine supplied weapons to Hamas",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "INFLUENCE NETWORK: Jackson Hinkle",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024",
+        "propublica-x-2023",
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel allowed the massacre to happen deliberately",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Gaza",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: X verified accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the screenshot came from an account impersonating the IDF spokesperson",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "MASSACRE REVISIONISM: most Israeli civilians on October Seven were killed by the IDF",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: an Israeli general was captured by Hamas on October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: most Israeli civilians on October Seven were killed by the IDF",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: the BBC confirmed that Ukraine supplied weapons to Hamas",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: most Israeli civilians on October Seven were killed by the IDF",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: the BBC confirmed that Ukraine supplied weapons to Hamas",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: an Israeli general was captured by Hamas on October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "FACT CHECK RECORD: Jackson Hinkle",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024",
+        "propublica-x-2023",
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: most Israeli civilians on October Seven were killed by the IDF",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Gaza",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: X verified accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the BBC style video was fabricated and Bellingcat published no such report",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "MASSACRE MINIMIZATION: Hamas did not deliberately target civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: sports field footage showed Hamas paragliders landing among Israeli civilians",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Hamas did not deliberately target civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS the BBC confirmed that Ukraine supplied weapons to Hamas",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Hamas did not deliberately target civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: the BBC confirmed that Ukraine supplied weapons to Hamas",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: sports field footage showed Hamas paragliders landing among Israeli civilians",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "Jackson Hinkle: public influencer repeatedly fact checked for misleading Israel Gaza posts",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024",
+        "propublica-x-2023",
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Hamas did not deliberately target civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #FreePalestine",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: anonymous Telegram channels",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the BBC style video was fabricated and Bellingcat published no such report",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "KIDNAPPING DENIAL: Hamas did not kidnap Israeli civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Kim Jong Un blamed President Biden for the Israel Hamas war",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Hamas did not kidnap Israeli civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: an Israeli general was captured by Hamas on October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Hamas did not kidnap Israeli civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: an Israeli general was captured by Hamas on October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Kim Jong Un blamed President Biden for the Israel Hamas war",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "VIRAL AMPLIFIER WATCH: Jackson Hinkle",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024",
+        "propublica-x-2023",
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Hamas did not kidnap Israeli civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #FreePalestine",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: anonymous Telegram channels",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the commander appeared in an official military meeting after the claimed capture",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "SEXUAL VIOLENCE DENIAL: there is no evidence of sexual violence on October Seven",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Vladimir Putin warned the United States to stay away from Gaza",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: there is no evidence of sexual violence on October Seven",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS an Israeli general was captured by Hamas on October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: there is no evidence of sexual violence on October Seven",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: an Israeli general was captured by Hamas on October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Vladimir Putin warned the United States to stay away from Gaza",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "PUBLIC ACCOUNT MONITORED: Sulaiman Ahmed",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: there is no evidence of sexual violence on October Seven",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #FreePalestine",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: anonymous Telegram channels",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the commander appeared in an official military meeting after the claimed capture",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "HOSTAGE PROPAGANDA: all Israeli hostages were treated humanely",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: China sent warships toward Israel after October Seven",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: all Israeli hostages were treated humanely",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: sports field footage showed Hamas paragliders landing among Israeli civilians",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: all Israeli hostages were treated humanely",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: sports field footage showed Hamas paragliders landing among Israeli civilians",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: China sent warships toward Israel after October Seven",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "INFLUENCE NETWORK: Sulaiman Ahmed",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: all Israeli hostages were treated humanely",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Israel",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: TikTok political creators",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the video showed parachutists at a Cairo sports club before October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ATROCITY DENIAL: the Nova festival massacre never happened",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: a video showed newly deployed Hezbollah anti ship missiles",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: the Nova festival massacre never happened",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS sports field footage showed Hamas paragliders landing among Israeli civilians",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: the Nova festival massacre never happened",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: sports field footage showed Hamas paragliders landing among Israeli civilians",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: a video showed newly deployed Hezbollah anti ship missiles",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "FACT CHECK RECORD: Sulaiman Ahmed",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: the Nova festival massacre never happened",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Israel",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: TikTok political creators",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the video showed parachutists at a Cairo sports club before October Seven",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ATROCITY DENIAL: the Beeri massacre was invented",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Iran was shown bombing American military bases in Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: the Beeri massacre was invented",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Kim Jong Un blamed President Biden for the Israel Hamas war",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: the Beeri massacre was invented",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Kim Jong Un blamed President Biden for the Israel Hamas war",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Iran was shown bombing American military bases in Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "Sulaiman Ahmed: public creator repeatedly fact checked by AFP for war related misinformation",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: the Beeri massacre was invented",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Israel",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: TikTok political creators",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: a video from 2020 carried fabricated English subtitles",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ATROCITY DENIAL: Kfar Aza was fabricated for propaganda",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Yemen formally declared war on Israel",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Kfar Aza was fabricated for propaganda",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Kim Jong Un blamed President Biden for the Israel Hamas war",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Kfar Aza was fabricated for propaganda",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Kim Jong Un blamed President Biden for the Israel Hamas war",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Yemen formally declared war on Israel",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "VIRAL AMPLIFIER WATCH: Sulaiman Ahmed",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Kfar Aza was fabricated for propaganda",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #IDF",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: Instagram propaganda pages",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: a video from 2020 carried fabricated English subtitles",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "DEHUMANIZATION: every Israeli civilian is a legitimate military target",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Israeli aircraft footage proved Israel fired on its own civilians",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: every Israeli civilian is a legitimate military target",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Vladimir Putin warned the United States to stay away from Gaza",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: every Israeli civilian is a legitimate military target",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Vladimir Putin warned the United States to stay away from Gaza",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Israeli aircraft footage proved Israel fired on its own civilians",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "PUBLIC ACCOUNT MONITORED: Anastasia Maria Loupis",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: every Israeli civilian is a legitimate military target",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #IDF",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: Instagram propaganda pages",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: old Russian speeches circulated with inaccurate English captions",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "TERRORISM REBRANDING: October Seven was only an act of resistance",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: current footage showed Israeli soldiers arresting a three year old Palestinian child",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: October Seven was only an act of resistance",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Vladimir Putin warned the United States to stay away from Gaza",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: October Seven was only an act of resistance",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Vladimir Putin warned the United States to stay away from Gaza",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: current footage showed Israeli soldiers arresting a three year old Palestinian child",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "INFLUENCE NETWORK: Anastasia Maria Loupis",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: October Seven was only an act of resistance",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #IDF",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: Instagram propaganda pages",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: old Russian speeches circulated with inaccurate English captions",
+      "sourceIds": [
+        "ap-misinformation-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "HISTORICAL ERASURE: Jews have no historical connection to the land of Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: a photograph from Homs showed a Palestinian woman walking through Gaza ruins",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Jews have no historical connection to the land of Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: China sent warships toward Israel after October Seven",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Jews have no historical connection to the land of Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: China sent warships toward Israel after October Seven",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: a photograph from Homs showed a Palestinian woman walking through Gaza ruins",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "FACT CHECK RECORD: Anastasia Maria Loupis",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Jews have no historical connection to the land of Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Hamas",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: Facebook viral groups",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the ships had already been conducting routine regional operations",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "DELEGITIMIZATION: Israel is an invented country with no right to exist",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: bloodied Syrian schoolchildren were victims of an Israeli strike in Gaza",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel is an invented country with no right to exist",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS China sent warships toward Israel after October Seven",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel is an invented country with no right to exist",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: China sent warships toward Israel after October Seven",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: bloodied Syrian schoolchildren were victims of an Israeli strike in Gaza",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "Anastasia Maria Loupis: public creator repeatedly fact checked by AFP for war related misinformation",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel is an invented country with no right to exist",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Hamas",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: Facebook viral groups",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the ships had already been conducting routine regional operations",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "SETTLER COLONIAL NARRATIVE: all Israeli Jews are foreign European colonizers",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Haaretz reported that Israel inflated the October Seven death toll",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: all Israeli Jews are foreign European colonizers",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: a video showed newly deployed Hezbollah anti ship missiles",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: all Israeli Jews are foreign European colonizers",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: a video showed newly deployed Hezbollah anti ship missiles",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Haaretz reported that Israel inflated the October Seven death toll",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "VIRAL AMPLIFIER WATCH: Anastasia Maria Loupis",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: all Israeli Jews are foreign European colonizers",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Hamas",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: Facebook viral groups",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the footage was published in 2019 and was unrelated to the current war",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ETHNIC ERASURE: there were no Jewish communities in the Middle East before Zionism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: old destruction footage showed Tel Aviv after a current attack",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: there were no Jewish communities in the Middle East before Zionism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS a video showed newly deployed Hezbollah anti ship missiles",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: there were no Jewish communities in the Middle East before Zionism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: a video showed newly deployed Hezbollah anti ship missiles",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: old destruction footage showed Tel Aviv after a current attack",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "PUBLIC ACCOUNT MONITORED: Dominick McGee also known as Dom Lucre",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: there were no Jewish communities in the Middle East before Zionism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Genocide",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: YouTube commentary channels",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the footage was published in 2019 and was unrelated to the current war",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "CONSPIRACY NARRATIVE: Israel controls every major Western news organization",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: an Israeli officer was arrested in the Netherlands for war crimes",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel controls every major Western news organization",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Iran was shown bombing American military bases in Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel controls every major Western news organization",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Iran was shown bombing American military bases in Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: an Israeli officer was arrested in the Netherlands for war crimes",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "INFLUENCE NETWORK: Dominick McGee also known as Dom Lucre",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel controls every major Western news organization",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Genocide",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: YouTube commentary channels",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: reverse image search located the footage in the Kurdistan region of Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTISEMITIC CONSPIRACY: Zionists secretly control the United States government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: a viral video showed a massive pro Palestine demonstration in Japan",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Zionists secretly control the United States government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Iran was shown bombing American military bases in Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Zionists secretly control the United States government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Iran was shown bombing American military bases in Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: a viral video showed a massive pro Palestine demonstration in Japan",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "FACT CHECK RECORD: Dominick McGee also known as Dom Lucre",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Zionists secretly control the United States government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Genocide",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: YouTube commentary channels",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: reverse image search located the footage in the Kurdistan region of Iraq",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTISEMITIC CONSPIRACY: Jewish money controls global public opinion",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: Putin condemned British hypocrisy over Gaza in a viral speech",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Jewish money controls global public opinion",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Yemen formally declared war on Israel",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Jewish money controls global public opinion",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Yemen formally declared war on Israel",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: Putin condemned British hypocrisy over Gaza in a viral speech",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "Dominick McGee also known as Dom Lucre: public account cited in a ProPublica investigation of viral wartime misinformation",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Jewish money controls global public opinion",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Apartheid",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: state affiliated broadcasters",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: neither the recognized Yemeni government nor the Houthis issued a formal declaration",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTISEMITIC CONSPIRACY: Israel created every regional conflict for profit",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: a flotilla video showed activists arriving in Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel created every regional conflict for profit",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Yemen formally declared war on Israel",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel created every regional conflict for profit",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Yemen formally declared war on Israel",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: a flotilla video showed activists arriving in Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "VIRAL AMPLIFIER WATCH: Dominick McGee also known as Dom Lucre",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel created every regional conflict for profit",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Apartheid",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: state affiliated broadcasters",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: neither the recognized Yemeni government nor the Houthis issued a formal declaration",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel invented antisemitism accusations to silence all criticism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: photographs showed life for religious minorities inside Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel invented antisemitism accusations to silence all criticism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Israeli aircraft footage proved Israel fired on its own civilians",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel invented antisemitism accusations to silence all criticism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Israeli aircraft footage proved Israel fired on its own civilians",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: photographs showed life for religious minorities inside Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "PUBLIC ACCOUNT MONITORED: Quds News Network",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel invented antisemitism accusations to silence all criticism",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Apartheid",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: state affiliated broadcasters",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the video showed Israeli aircraft operating over Gaza",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: every Israeli account online is a paid government bot",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FALSE CLAIM: an authentic Daily Mail article covered a Netanyahu mural resembling Hitler",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: every Israeli account online is a paid government bot",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Israeli aircraft footage proved Israel fired on its own civilians",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: every Israeli account online is a paid government bot",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Israeli aircraft footage proved Israel fired on its own civilians",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "debunked_claim",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "VIRAL MISINFORMATION: an authentic Daily Mail article covered a Netanyahu mural resembling Hitler",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "INFLUENCE NETWORK: Quds News Network",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: every Israeli account online is a paid government bot",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #CeasefireNow",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: anonymous breaking news accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the video showed Israeli aircraft operating over Gaza",
+      "sourceIds": [
+        "afp-monetized-misinformation-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: all footage released by Israel is generated by artificial intelligence",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: all footage released by Israel is generated by artificial intelligence",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: current footage showed Israeli soldiers arresting a three year old Palestinian child",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: all footage released by Israel is generated by artificial intelligence",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: current footage showed Israeli soldiers arresting a three year old Palestinian child",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "FACT CHECK RECORD: Quds News Network",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: all footage released by Israel is generated by artificial intelligence",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #CeasefireNow",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: anonymous breaking news accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the authentic footage was recorded in Hebron in 2018",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: every October Seven witness is a crisis actor",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: every October Seven witness is a crisis actor",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS current footage showed Israeli soldiers arresting a three year old Palestinian child",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: every October Seven witness is a crisis actor",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: current footage showed Israeli soldiers arresting a three year old Palestinian child",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "Quds News Network: media account appearing in a ProPublica analysis of debunked wartime posts",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: every October Seven witness is a crisis actor",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #CeasefireNow",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: anonymous breaking news accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the authentic footage was recorded in Hebron in 2018",
+      "sourceIds": [
+        "afp-old-child-video-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: every hostage testimony was scripted by the government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: every hostage testimony was scripted by the government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: a photograph from Homs showed a Palestinian woman walking through Gaza ruins",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: every hostage testimony was scripted by the government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: a photograph from Homs showed a Palestinian woman walking through Gaza ruins",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "VIRAL AMPLIFIER WATCH: Quds News Network",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: every hostage testimony was scripted by the government",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Palestine",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: impersonated military accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the image was taken in Syria in 2016",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: the IDF fabricated every tunnel found beneath civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: the IDF fabricated every tunnel found beneath civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS a photograph from Homs showed a Palestinian woman walking through Gaza ruins",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: the IDF fabricated every tunnel found beneath civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: a photograph from Homs showed a Palestinian woman walking through Gaza ruins",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "PUBLIC ACCOUNT MONITORED: Mossad Commentary",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: the IDF fabricated every tunnel found beneath civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Palestine",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: impersonated military accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the image was taken in Syria in 2016",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Hamas never operates from hospitals or schools",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Hamas never operates from hospitals or schools",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: bloodied Syrian schoolchildren were victims of an Israeli strike in Gaza",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Hamas never operates from hospitals or schools",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: bloodied Syrian schoolchildren were victims of an Israeli strike in Gaza",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "INFLUENCE NETWORK: Mossad Commentary",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Hamas never operates from hospitals or schools",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Palestine",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: impersonated military accounts",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the footage documented Syrian regime shelling in the village of Afes",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: there are no weapons inside civilian buildings in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: there are no weapons inside civilian buildings in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS bloodied Syrian schoolchildren were victims of an Israeli strike in Gaza",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: there are no weapons inside civilian buildings in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: bloodied Syrian schoolchildren were victims of an Israeli strike in Gaza",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "FACT CHECK RECORD: Mossad Commentary",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: there are no weapons inside civilian buildings in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #October7",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: fabricated news cards",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the footage documented Syrian regime shelling in the village of Afes",
+      "sourceIds": [
+        "afp-syria-as-gaza-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel targets hospitals only because they are hospitals",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel targets hospitals only because they are hospitals",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Haaretz reported that Israel inflated the October Seven death toll",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel targets hospitals only because they are hospitals",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Haaretz reported that Israel inflated the October Seven death toll",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "Mossad Commentary: unofficial account using Israeli intelligence branding and linked to false claims",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel targets hospitals only because they are hospitals",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #October7",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: fabricated news cards",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: Haaretz said the viral description had no basis in its reporting",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel targets journalists only because they are journalists",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel targets journalists only because they are journalists",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Haaretz reported that Israel inflated the October Seven death toll",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel targets journalists only because they are journalists",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Haaretz reported that Israel inflated the October Seven death toll",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "public_actor",
+      "tone": "amber",
+      "status": "documented_context",
+      "text": "VIRAL AMPLIFIER WATCH: Mossad Commentary",
+      "sourceIds": [
+        "propublica-x-2023"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel targets journalists only because they are journalists",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #October7",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: fabricated news cards",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: Haaretz said the viral description had no basis in its reporting",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel attacks aid workers as an official military policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel attacks aid workers as an official military policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: old destruction footage showed Tel Aviv after a current attack",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel attacks aid workers as an official military policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: old destruction footage showed Tel Aviv after a current attack",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel attacks aid workers as an official military policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Nakba",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: fake newspaper screenshots",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the compilation reused clips from Gaza and the 2023 Turkey earthquake",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel blocks every humanitarian aid truck entering Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel blocks every humanitarian aid truck entering Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS old destruction footage showed Tel Aviv after a current attack",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel blocks every humanitarian aid truck entering Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: old destruction footage showed Tel Aviv after a current attack",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel blocks every humanitarian aid truck entering Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Nakba",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: fake newspaper screenshots",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the compilation reused clips from Gaza and the 2023 Turkey earthquake",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: no evacuation warnings are ever issued before Israeli strikes",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: no evacuation warnings are ever issued before Israeli strikes",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: an Israeli officer was arrested in the Netherlands for war crimes",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: no evacuation warnings are ever issued before Israeli strikes",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: an Israeli officer was arrested in the Netherlands for war crimes",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: no evacuation warnings are ever issued before Israeli strikes",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Nakba",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: fake newspaper screenshots",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the circulated photograph came from an unrelated 2016 news article",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel has deliberately destroyed every medical facility in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel has deliberately destroyed every medical facility in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS an Israeli officer was arrested in the Netherlands for war crimes",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel has deliberately destroyed every medical facility in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: an Israeli officer was arrested in the Netherlands for war crimes",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel has deliberately destroyed every medical facility in Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #WarCrimes",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: AI generated protest footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the circulated photograph came from an unrelated 2016 news article",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: all casualty figures from Hamas authorities are independently verified",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: all casualty figures from Hamas authorities are independently verified",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: a viral video showed a massive pro Palestine demonstration in Japan",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: all casualty figures from Hamas authorities are independently verified",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: a viral video showed a massive pro Palestine demonstration in Japan",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: all casualty figures from Hamas authorities are independently verified",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #WarCrimes",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: AI generated protest footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the crowd scene was generated with artificial intelligence",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: every reported Gaza casualty is a civilian",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: every reported Gaza casualty is a civilian",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS a viral video showed a massive pro Palestine demonstration in Japan",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: every reported Gaza casualty is a civilian",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: a viral video showed a massive pro Palestine demonstration in Japan",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: every reported Gaza casualty is a civilian",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #WarCrimes",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: AI generated protest footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the crowd scene was generated with artificial intelligence",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Hamas casualty reports never contain duplicate names",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Hamas casualty reports never contain duplicate names",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: Putin condemned British hypocrisy over Gaza in a viral speech",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Hamas casualty reports never contain duplicate names",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: Putin condemned British hypocrisy over Gaza in a viral speech",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Hamas casualty reports never contain duplicate names",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #Rafah",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: recycled Syrian war footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the creator described the video as fictional dramatization",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: there are no combatants among reported Gaza fatalities",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: there are no combatants among reported Gaza fatalities",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS Putin condemned British hypocrisy over Gaza in a viral speech",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: there are no combatants among reported Gaza fatalities",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: Putin condemned British hypocrisy over Gaza in a viral speech",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: there are no combatants among reported Gaza fatalities",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #Rafah",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: recycled Syrian war footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the creator described the video as fictional dramatization",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: human shields are an invention used to excuse every strike",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: human shields are an invention used to excuse every strike",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: a flotilla video showed activists arriving in Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: human shields are an invention used to excuse every strike",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: a flotilla video showed activists arriving in Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: human shields are an invention used to excuse every strike",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #Rafah",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: recycled Syrian war footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the footage was filmed earlier in Tunisia",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: all Israeli evidence of weapons caches is planted",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: all Israeli evidence of weapons caches is planted",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS a flotilla video showed activists arriving in Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: all Israeli evidence of weapons caches is planted",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: a flotilla video showed activists arriving in Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: all Israeli evidence of weapons caches is planted",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #GazaUnderAttack",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: recycled Ukraine war footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the footage was filmed earlier in Tunisia",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: every intercepted Hamas communication is fabricated",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: every intercepted Hamas communication is fabricated",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: photographs showed life for religious minorities inside Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: every intercepted Hamas communication is fabricated",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: photographs showed life for religious minorities inside Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: every intercepted Hamas communication is fabricated",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #GazaUnderAttack",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: recycled Ukraine war footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the images were actually taken in Libya",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel never permits humanitarian pauses",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel never permits humanitarian pauses",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS photographs showed life for religious minorities inside Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel never permits humanitarian pauses",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: photographs showed life for religious minorities inside Gaza",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel never permits humanitarian pauses",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #GazaUnderAttack",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: recycled Ukraine war footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the images were actually taken in Libya",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel prevents all food and medicine from reaching Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel prevents all food and medicine from reaching Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "FAKE BREAKING HEADLINE: an authentic Daily Mail article covered a Netanyahu mural resembling Hitler",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel prevents all food and medicine from reaching Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "NARRATIVE SPIKE: an authentic Daily Mail article covered a Netanyahu mural resembling Hitler",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel prevents all food and medicine from reaching Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #StopTheWar",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: video game combat footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "FACT CHECK: the screenshot came from satire and was not a real Daily Mail article",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel deliberately engineers famine as its only war objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel deliberately engineers famine as its only war objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "fake_headline",
+      "tone": "red",
+      "status": "false_or_misleading",
+      "text": "TRENDING POST CLAIMS an authentic Daily Mail article covered a Netanyahu mural resembling Hitler",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel deliberately engineers famine as its only war objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CROSS PLATFORM REPOST: an authentic Daily Mail article covered a Netanyahu mural resembling Hitler",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel deliberately engineers famine as its only war objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #StopTheWar",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: video game combat footage",
+      "sourceIds": []
+    },
+    {
+      "category": "fact_check",
+      "tone": "blue",
+      "status": "correction",
+      "text": "CLAIM DEBUNKED: the screenshot came from satire and was not a real Daily Mail article",
+      "sourceIds": [
+        "fullfact-israel-gaza-index"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: the IDF kills civilians without any military objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: the IDF kills civilians without any military objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: the IDF kills civilians without any military objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CLAIM CLUSTER DETECTED: October Seven was staged by Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: the IDF kills civilians without any military objective",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #StopTheWar",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: video game combat footage",
+      "sourceIds": []
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel bombs schools even when no armed groups are present",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel bombs schools even when no armed groups are present",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel bombs schools even when no armed groups are present",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "AMPLIFICATION RISING: October Seven was staged by Israel",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel bombs schools even when no armed groups are present",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #BreakingNews",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: mistranslated political speeches",
+      "sourceIds": []
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Israel targets children as a declared policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Israel targets children as a declared policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Israel targets children as a declared policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CLAIM CLUSTER DETECTED: Israel allowed the massacre to happen deliberately",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Israel targets children as a declared policy",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #BreakingNews",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: mistranslated political speeches",
+      "sourceIds": []
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: the Iron Dome deliberately redirects rockets into Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: the Iron Dome deliberately redirects rockets into Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: the Iron Dome deliberately redirects rockets into Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "AMPLIFICATION RISING: Israel allowed the massacre to happen deliberately",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: the Iron Dome deliberately redirects rockets into Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #BreakingNews",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: mistranslated political speeches",
+      "sourceIds": []
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Hamas rockets never fall inside Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Hamas rockets never fall inside Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Hamas rockets never fall inside Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CLAIM CLUSTER DETECTED: most Israeli civilians on October Seven were killed by the IDF",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Hamas rockets never fall inside Gaza",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #HumanRights",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "SOURCE MONITOR: cropped casualty documents",
+      "sourceIds": []
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Palestinian Islamic Jihad never fires from civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Palestinian Islamic Jihad never fires from civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Palestinian Islamic Jihad never fires from civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "AMPLIFICATION RISING: most Israeli civilians on October Seven were killed by the IDF",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Palestinian Islamic Jihad never fires from civilian areas",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #HumanRights",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "PROPAGANDA WATCH: cropped casualty documents",
+      "sourceIds": []
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA CLAIM: Hezbollah attacks only military targets",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "ANTI ISRAEL NARRATIVE: Hezbollah attacks only military targets",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "VIRAL CLAIM: Hezbollah attacks only military targets",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "narrative_signal",
+      "tone": "amber",
+      "status": "detected",
+      "text": "CLAIM CLUSTER DETECTED: Hamas did not deliberately target civilians",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hostile_narrative",
+      "tone": "red",
+      "status": "monitored_not_automatically_false",
+      "text": "PROPAGANDA STREAM: Hezbollah attacks only military targets",
+      "sourceIds": [
+        "isd-october-seven-2024"
+      ]
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "CROSS PLATFORM CLUSTER: #HumanRights",
+      "sourceIds": []
+    },
+    {
+      "category": "source_type",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "NARRATIVE ORIGIN TRACE: cropped casualty documents",
+      "sourceIds": []
+    },
+    {
+      "category": "hashtag",
+      "tone": "neutral",
+      "status": "monitored",
+      "text": "LIVE HASHTAG: #UNRWA",
+      "sourceIds": []
+    },
+    {
+      "category": "hashtag",
+      "tone": "amber",
+      "status": "monitored",
+      "text": "HASHTAG VELOCITY RISING: #UNRWA",
+      "sourceIds": []
+    }
+  ]
+}

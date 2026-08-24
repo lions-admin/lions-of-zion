@@ -116,6 +116,107 @@ own `source_fetch` insert inside its own transaction. The network fetch and
 the Blob upload happen *before* that transaction opens — both are slow and
 external, and holding a Postgres transaction across either turns a slow feed
 into a held lock.
+## 2026-08-24 — The intro hands off to one deferred particle navigation, with a real static path
+
+The photographic post-intro page was not adapted; it was retired. The target
+visual language is a single particle system — crowned lion, radial navigation
+and network scan — and keeping the photograph underneath would preserve the
+very composition this integration replaces.
+
+The new GPU scene does not run beside the intro for the full story. It starts at
+`onOutroStart`, so its 2.8-second lion assembly coincides with the intro's
+2.8-second veil reveal. This preserves a continuous handoff without paying for
+two full particle engines for roughly forty seconds.
+
+The navigation DOM and poster still render in the first HTML response. They are
+made inert only after hydration proves the intro can run. A `noscript` rule
+hides the intro enhancement, leaving the poster and the same eight real links
+usable when JavaScript or GPU startup is unavailable. This is why the static
+path is not a second navigation implementation.
+
+## 2026-08-24 — The cover fit is solved for, not chosen, and the document was wrong about it
+
+`docs/graphics-task-02.md` identified two ways the lion plane failed to cover its
+frame: above aspect ~1.76 horizontally, and on every phone in portrait. It also
+asserted that vertical cover "always held" in landscape. It did not. The old
+`s = 1.02` gave a half-height of 3.14 against a requirement of 3.44 once the
+parallax amplitudes and the lion mesh's private `+0.14` lift are counted. The
+composition has been off the top or bottom of a 16:9 frame, at the extremes of
+its own drift, the entire time.
+
+`fitComposition` now solves for the scale rather than picking one: it covers
+with every parallax at its extreme *and* the breathing scale at its minimum, on
+both axes, and the focal pan then takes only the vertical headroom left over.
+The mesh's `+0.14` and its duplicate in the particle sampler are gone —
+`planeOffsetY` owns vertical framing, and two constants deciding one thing is
+how they came to disagree.
+
+`tests/composition-fit.test.ts` states this as invariants rather than as a
+screenshot, because none of it is visible in a typecheck, a lint or a build, and
+it is only visible in a screenshot if somebody takes one at the right aspect.
+
+## 2026-08-24 — The navigation layer composites over the background rather than merging into it
+
+The task document says "do not build a second particle engine; extend the one
+that exists". The nav layer has its own renderer and its own canvas, which is a
+deliberate deviation.
+
+`LionExperience` is a 1,200-line imperative effect, not a reusable engine.
+Extending it in place would have meant adding the whole nav system to that file;
+extracting an engine from it is a larger refactor than this task, and one that
+would have put a rewrite of the deployed homepage in the same change as a new
+feature. Two canvases composited is also the pattern the repo already uses — the
+intro plays over the homepage exactly this way.
+
+What actually prevents divergence is not one renderer, it is one contract:
+`components/graphics/viewport.ts` owns measurement, the cover fit, the DPR
+policy and the focal point, and every layer reads it. The target/force model is
+shared by convention (`mix(targetA, targetB, t)` plus accumulated forces), and
+the six-draw-call budget is met within the layer.
+
+## 2026-08-24 — Recession is the only thing the navigation may ask of the lion
+
+`LionExperienceHandle.setRecession(t)` is the entire coupling between the two
+layers. The navigation says how present it needs the lion to be; the lion
+decides what that means — a quarter luminance, a thinned particle cloud, an
+ambient field on a slowed clock, and its hero wordmark retired, since the
+navigation's header carries the name from then on.
+
+At rest the navigation asks for 0.35, not 0. The lion is still the page. Opening
+a section asks for 1, and only then does the central mark take the centre —
+which is why the mark is gated on `recession > 0.5` rather than on a flag: there
+is one channel, and both sides read it.
+
+The handle writes the CSS variable as well as the render loop, because there may
+not be a render loop. Without a WebGL context the scene is a static image and
+the DOM half still has to step back.
+
+## 2026-08-24 — One breakpoint, shared, or the two halves cover each other's nodes
+
+The panel's footprint is declared in `ring-geometry.ts` and the ring is fitted
+into what is left of the frame; the stylesheet is told which mode it is in via
+`data-panel`.
+
+This is not tidiness. The first version let CSS decide with a media query while
+the geometry decided with its own aspect ramp, and at a square viewport the
+stylesheet opened a bottom sheet while the geometry was still fitting a circle.
+The sheet landed on three nodes and swallowed their clicks — caught by the
+browser pass, not by any test, and not visible in any single screenshot.
+
+`tests/nav-layout.test.ts` now asserts that the open layout has exactly one
+discontinuity and that it sits at the aspect `panelModeFor` declares. A second
+threshold appearing anywhere fails that test.
+
+## 2026-08-24 — Gold is bounded by geometry, and the bound caught a real breach
+
+The palette rule — gold never exceeds 6% of visible particles — is enforced by
+where gold can occur rather than by discipline: within 1.5 node radii of a
+hovered or active node, and nowhere else. That makes it checkable as an area
+bound, which is what `tests/nav-layout.test.ts` does.
+
+It failed on first run at 6.5%, at square aspects. The halo was gilding
+particles out to 2.3 node radii. The shader was clamped to the document's 1.5,
+not the test to the shader.
 
 ## 2026-08-23 — Hand-written migrations must be journalled, and a test says so
 

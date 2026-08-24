@@ -1,27 +1,33 @@
 {
-  "name": "ceed",
+  "name": "lions-of-zion",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "next build",
-    "build:lion-data": "node scripts/build-lion-data.mjs",
+    "bake:nav-lion": "tsx scripts/particle-nav/bake/bake-lion-reference.ts",
+    "bake:nav-icons": "tsx scripts/particle-nav/bake/bake-icons.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev",
     "lint": "eslint",
+    "poster:nav": "tsx scripts/particle-nav/make-poster.ts",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:graphics": "node scripts/verify-composition.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
+    "@react-three/drei": "10.7.8",
+    "@react-three/fiber": "9.7.0",
     "@types/three": "^0.185.4",
     "@vercel/blob": "^2.8.0",
     "@vercel/queue": "^0.5.0",
     "drizzle-orm": "^0.45.2",
     "fast-xml-parser": "^5.11.0",
+    "leva": "0.10.1",
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -41,6 +47,7 @@
     "playwright-core": "^1.62.1",
     "puppeteer-core": "^25.8.0",
     "sharp": "^0.35.3",
+    "tsx": "4.23.12",
     "typescript": "^5",
     "vitest": "^4.1.11"
   }

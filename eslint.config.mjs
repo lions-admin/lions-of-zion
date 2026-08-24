@@ -55,6 +55,21 @@ const eslintConfig = defineConfig([
   },
 
   {
+    /*
+     * React's immutability checks correctly protect render state, but Three.js
+     * frame callbacks are an imperative boundary by design: they mutate camera
+     * transforms and GPU uniform handles outside React's render cycle. The
+     * set-state rule likewise misclassifies asynchronous GPU capability and
+     * asset-loading effects. Keep the exception scoped to this engine only.
+     */
+    files: ["components/particle-nav/**/*.{ts,tsx}"],
+    rules: {
+      "react-hooks/immutability": "off",
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
+
+  {
     /* Route handlers. Parse, call one service, serialize. */
     files: ["app/api/**/*.ts"],
     rules: {

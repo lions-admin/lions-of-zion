@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { eq, sql } from "drizzle-orm";
 import { SQLSTATE, freshDatabase, violation } from "@/server/db/testing";
 import {
-  appUser,
   informationItem,
   itemStatusTransition,
   statusTransition,

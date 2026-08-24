@@ -1,32 +1,55 @@
 # State
 
-What is true right now. Rewritten in place — this file is never a history, it
-is a snapshot. History lives in `DECISIONS.md` and in `git log`.
-
-Anything derivable from git (what changed, who changed it, when) does not
-belong here. Only what git cannot tell you: intent, position, and what is
-half-finished.
+Snapshot of intent and current position. Git is the history; durable reasoning
+lives in `DECISIONS.md`.
 
 _Last updated: 2026-08-24_
 
-## Where the work is
+## Frontend
 
-The repo now holds two unrelated things, deliberately kept apart:
+The original particle story intro is preserved. Its old photographic
+post-intro landing page and legacy navigation have been removed and replaced by
+the Fabele particle navigation:
 
-1. **The WebGL experience** — merged, deployed, live at
-   <https://lions-of-zion.vercel.app>. Untouched since.
-2. **The backend** — Phases 1–4 of 8 complete. An item can go from evidence
-   to a reviewed, published verdict end to end; no search, AI or chat yet.
+- a crowned lion assembled from tiered 45k/90k/180k particle buffers;
+- eight radial routes whose nodes, connectors and DOM labels share one
+  responsive `OrbitLayout`;
+- a blue particle network scan with readable misinformation-context labels and
+  social-platform symbols; no stars and no photographic background;
+- WebGPU/TSL first, WebGL2 fallback, and an SSR poster/no-JavaScript path;
+- Cinzel labels, accessible 44px targets and visible keyboard focus;
+- the isolated `/particle-demo` tuning and fallback route.
+
+`Experience.tsx` starts the new GPU engine only at the intro's outro. The new
+lion assembles during the same 2.8 seconds in which the intro veil clears. The
+DOM links and fallback poster are present in the initial HTML, but become inert
+after hydration while the intro runs. Without JavaScript the intro enhancement
+is hidden and the links remain usable.
+
+All eight routes exist as real Next.js pages. They are intentionally placeholder
+destinations pending section content.
+
+## Verification
+
+- `npm run typecheck`, `npm test`, `npm run lint`, and `npm run build` pass.
+- The real-Chrome matrix passes at 320×568, 390×844, 768×1024, 1024×768,
+  1254×1254, 1440×900, and 2560×1080: 8/8 links remain inside each viewport,
+  WebGPU is live, and there are no console errors or overlays.
+- The end-to-end pass confirms intro → skip/outro → WebGPU navigation, a live
+  forced-WebGL2 scene, keyboard focus, and a usable no-JavaScript poster with
+  eight links.
+- The in-app browser may render a black intro because it throttles hidden-tab
+  animation. Use the real-Chrome scripts for visual evidence.
+
+## Backend — Phases 1–4 of 8 complete
+
+The frontend integration and the backend are developed independently and share
+no source files; they met only in `package.json` and this journal. No backend
+service was changed by the frontend integration, and no frontend file was
+changed by the backend phases.
 
 The full eight-phase plan is at `~/.claude/plans/splendid-discovering-dawn.md`.
-Read it before starting Phase 5; the sequencing has reasons. This session is
-running all remaining phases back to back, one commit per phase.
-
-## Backend — Phases 1–4 complete and green
-
-`npm test` 104/104, `tsc --noEmit` clean, `npm run lint` clean (3 pre-existing
-warnings in `LionExperience.tsx`, 1 elsewhere), `npm run build` succeeds with
-twenty-two dynamic routes.
+Read it before starting Phase 5; the sequencing has reasons.
 
 Phase 1 shipped the foundation: dual database client (WebSocket Neon for
 production, PGlite for tests), enum types generated from the contract arrays,
@@ -50,14 +73,6 @@ injectable for tests), and the first Cron (`/api/internal/cron/ingest`,
 `/api/v1/sources/[id]`, `/api/v1/sources/[id]/fetch`, `/api/v1/source-families`,
 `/api/v1/evidence`, `/api/v1/evidence/[id]`.
 
-**Both suites have been mutation-tested.** Removing the `audit_log` append-only
-trigger turns exactly two tests red.
-
-Both Phase 2 questions from the plan are settled — see `DECISIONS.md`. `edited`
-was unreachable and was given inbound edges rather than deleted; the derived
-columns are guarded now, and the trigger that maintains them landed in Phase 4,
-below.
-
 Phase 4 shipped evidence and assessments: `item_evidence` (composite PK,
 `ai_relation` on the same row rather than a second edge, `confirmed_by` gating
 what counts), `item_assessment` (its own typed table, immutable except
@@ -80,32 +95,43 @@ The Phase 4 acceptance scenario from the plan (evidence → confirmed edges →
 refused self-approval → assessment → second-human review → publish, with the
 first assessment preserved as superseded) is `tests/assessment-service.test.ts`.
 
-## Next — Phase 5, search
+**Both suites have been mutation-tested.** Removing the `audit_log` append-only
+trigger turns exactly two tests red.
 
-`vector`/`pg_trgm`, `search_document`, projections, the reindex consumer
-(`TOPICS.searchReindex` already has rows queued since Phase 2 — Phase 5 is
-where its consumer stops being a no-op), embedding cron, `search_hybrid`
-(Reciprocal Rank Fusion, not score normalization), `/api/v1/search`. Confirm
-in a spike that PGlite still lacks pgvector (last checked Phase 1) before
-assuming `TEST_DATABASE_URL`-gated tests are the only path.
+Both Phase 2 questions from the plan are settled — see `DECISIONS.md`. `edited`
+was unreachable and was given inbound edges rather than deleted; the derived
+columns are guarded, and the trigger that maintains them landed in Phase 4.
 
-## In flight (uncommitted)
+## Deployment
 
-Nothing between phases — each phase is committed once its own suite, typecheck,
-lint and build are green.
+This particle-navigation integration is the current main implementation. Git
+auto-deploy is disconnected from the private GitHub organization, so production
+releases use an explicit Vercel CLI deployment after the commit and local gates
+have passed.
+
+## Next
+
+- Migrate the preserved intro into the same WebGPU/TSL renderer so the complete
+  experience uses one Canvas and one particle system.
+- Replace the eight placeholder section pages as their content is designed.
+- **Backend Phase 5 is search**: `vector`/`pg_trgm`, `search_document`,
+  projections, the reindex consumer (`TOPICS.searchReindex` has queued rows
+  since Phase 2 — Phase 5 is where its consumer stops being a no-op), embedding
+  cron, `search_hybrid` (Reciprocal Rank Fusion, not score normalization), and
+  `/api/v1/search`. Confirm in a spike that PGlite still lacks pgvector (last
+  checked Phase 1) before assuming `TEST_DATABASE_URL`-gated tests are the only
+  path.
 
 ## Blocked
 
-**Nothing is provisioned, by choice.** Neon, Blob, AI Gateway and Vercel Queues
-are all unconfigured; `/api/internal/health` reports every integration as
-`false`. The code runs and the whole suite passes without them. Provision when
-ready and the same code connects — `DATABASE_URL` must be the **pooled**
-(`-pooler`) string, because the WebSocket driver needs interactive transactions
-and the HTTP driver silently voids row-level security. Vercel Queues
-authenticates via OIDC (`vercel link && vercel env pull`), not an env var — its
-absence is non-fatal, since `drainOutbox`'s dispatch call simply fails and
-retries with backoff on the next cron tick until it is configured.
+Nothing in the frontend implementation.
 
-**Vercel git auto-deploy** is still disconnected: the Vercel account cannot see
-private repos under `lions-admin`. Deploys are manual `vercel --prod`. Pushing
-to GitHub deploys nothing.
+**Backend provisioning remains deferred by choice.** Neon, Blob, AI Gateway and
+Vercel Queues are all unconfigured; `/api/internal/health` reports every
+integration as `false`. The code runs and the whole suite passes without them.
+Provision when ready and the same code connects — `DATABASE_URL` must be the
+**pooled** (`-pooler`) string, because the WebSocket driver needs interactive
+transactions and the HTTP driver silently voids row-level security. Vercel
+Queues authenticates via OIDC (`vercel link && vercel env pull`), not an env
+var — its absence is non-fatal, since `drainOutbox`'s dispatch call simply
+fails and retries with backoff on the next cron tick until it is configured.

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, Geist, Geist_Mono } from "next/font/google";
 import { ParticleChatLauncher } from "@/components/chat/ParticleChatLauncher";
 import "./globals.css";
@@ -14,13 +14,25 @@ const cinzel = Cinzel({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://lions-of-zion.vercel.app"),
-  title: "LIONS OF ZION — Truth Has a Signal",
+  title: { default: "LIONS OF ZION", template: "%s — LIONS OF ZION" },
   description: "A cinematic awakening from digital darkness.",
+  // Section pages override title/description; app/opengraph-image.tsx
+  // supplies the og:image (file-based metadata outranks this images entry).
   openGraph: {
     title: "LIONS OF ZION — Truth Has a Signal",
     description: "A cinematic awakening from digital darkness.",
     images: ["/posters/particle-nav.webp"],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "LIONS OF ZION — Truth Has a Signal",
+    description: "A cinematic awakening from digital darkness.",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#070b14",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

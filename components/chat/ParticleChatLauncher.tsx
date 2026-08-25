@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import lionReference from '@/assets/reference/crowned-lion-particle-reference.png';
 import { ChatParticleCanvas } from './ChatParticleCanvas';
 import { AskTheLionChat } from './AskTheLionChat';
+import { launcherLabel } from './chat-context';
 import {
   INTRO_SIGNAL_ATTRIBUTES,
   INTRO_SIGNAL_SELECTOR,
@@ -80,7 +81,7 @@ export function ParticleChatLauncher() {
   const [canvasReady, setCanvasReady] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const active = hovered || focused || activated;
-  const contextualLabel = pathname === '/geopolitical-brief' ? 'Ask about this brief' : 'Ask the Lion';
+  const contextualLabel = launcherLabel(pathname);
   const restoreLauncherFocus = useCallback(() => {
     if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
     focusTimerRef.current = window.setTimeout(() => launcherRef.current?.focus(), 50);

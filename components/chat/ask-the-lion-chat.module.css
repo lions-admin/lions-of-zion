@@ -164,14 +164,50 @@
 
 .message[data-role='user'] { margin-left: auto; }
 
-.message > span {
-  display: block;
-  margin: 0 0 0.35rem 0.25rem;
+.messageMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0 0.25rem 0.35rem;
   color: #75899c;
   font-size: 0.56rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.message[data-role='user'] .messageMeta {
+  justify-content: flex-end;
+}
+
+.timestamp {
+  color: #5b6d7f;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.copy {
+  margin-left: auto;
+  padding: 0 0.15rem;
+  border: 0;
+  background: transparent;
+  color: #8fa3b5;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.copy:hover,
+.copy:focus-visible,
+.copy[data-copied] {
+  color: #ffe29a;
+}
+
+.copy:focus-visible {
+  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline-offset: 2px;
 }
 
 .message p {

@@ -16,9 +16,11 @@ function Status({ value }: { value: string }) {
 
 export function GeopoliticalBrief() {
   const sourceMap = new Map(brief.sources.map((source) => [source.id, source]));
+  const corrections: readonly { version: string; date: string; note: string }[] = brief.corrections;
 
   return (
     <main className={styles.page} data-reading-scroll>
+      <span id="brief-top" aria-hidden="true" />
       <a href="#brief-content" className={styles.skipLink}>Skip to brief</a>
       <div className={styles.quietBackdrop} aria-hidden="true" />
 
@@ -43,7 +45,7 @@ export function GeopoliticalBrief() {
                 <Image src={briefIcon} alt="" />
               </span>
               <div>
-                <span>Desk 01 / 08</span>
+                <span>Desk 01</span>
                 <strong>Strategic picture</strong>
               </div>
             </div>
@@ -212,10 +214,36 @@ export function GeopoliticalBrief() {
           <footer className={styles.corrections}>
             <div>
               <span>Correction history</span>
-              <strong>{brief.corrections[0].version} · {brief.corrections[0].date}</strong>
+              <strong>{corrections.length > 0 ? `${corrections.length} recorded` : 'None recorded'}</strong>
             </div>
-            <p>{brief.corrections[0].note}</p>
+            {corrections.length > 0 ? (
+              <ol className={styles.correctionEntries}>
+                {corrections.map((correction) => (
+                  <li key={`${correction.version}-${correction.date}`}>
+                    <strong>{correction.version} · {correction.date}</strong>
+                    <p>{correction.note}</p>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p>No corrections recorded for this edition.</p>
+            )}
           </footer>
+
+          <div className={styles.closing}>
+            <span className={styles.closingMark}>End of brief — Reference 001</span>
+            <nav className={styles.closingNav} aria-label="Leave the brief">
+              <Link href="/">
+                <span aria-hidden="true">←</span> Return to signal room
+              </Link>
+              <Link href="/war-update">
+                Next desk · War Update <span aria-hidden="true">→</span>
+              </Link>
+              <a href="#brief-top">
+                Back to top <span aria-hidden="true">↑</span>
+              </a>
+            </nav>
+          </div>
         </article>
 
         <aside className={styles.evidenceRail} aria-label="Evidence summary">
@@ -225,7 +253,7 @@ export function GeopoliticalBrief() {
               <div><dt>Status</dt><dd><Status value={brief.status} /></dd></div>
               <div><dt>Primary records</dt><dd>{brief.sourceCount}</dd></div>
               <div><dt>Last reviewed</dt><dd>{brief.publishedAt}</dd></div>
-              <div><dt>Corrections</dt><dd>None recorded</dd></div>
+              <div><dt>Corrections</dt><dd>{corrections.length > 0 ? `${corrections.length} recorded` : 'None recorded'}</dd></div>
             </dl>
             <p>Reporting and assessment are separated. Each development carries its own source links.</p>
           </div>

@@ -13,6 +13,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { cache } from 'react';
 import styles from './sections.module.css';
 
 type ScanTone = 'red' | 'amber' | 'blue' | 'neutral';
@@ -52,7 +53,12 @@ function hashSeed(text: string) {
   return h >>> 0;
 }
 
-async function loadFragments(): Promise<Fragment[]> {
+/**
+ * The corpus file is ~134KB and immutable for the life of the process;
+ * `cache()` deduplicates the read per render pass instead of hitting the
+ * filesystem for every section page render.
+ */
+const loadFragments = cache(async (): Promise<Fragment[]> => {
   try {
     const raw = await readFile(
       path.join(process.cwd(), 'public/matrix/matrix-fragments.en.json'),
@@ -77,7 +83,7 @@ async function loadFragments(): Promise<Fragment[]> {
   } catch {
     return FALLBACK;
   }
-}
+});
 
 export interface ScanBackdropProps {
   /** Seeds the sample so each page shows its own stable slice of the corpus. */
@@ -109,7 +115,10 @@ export async function ScanBackdrop({ routeId, register = 'default' }: ScanBackdr
       top: 3 + ((i + 0.5) / rowCount) * 92 + (rng() - 0.5) * 3,
       duration: 45 + rng() * 45,
       progress: rng(), // negative delay: the row is already mid-flight on load
-      rest: (rng() * 70).toFixed(1), // reduced-motion resting spot, in vw
+      // Reduced-motion resting spot as a percentage of the row's available
+      // travel (viewport width minus its own width) — rows spread across the
+      // full width and a long fragment can never overflow the right edge.
+      rest: (rng() * 100).toFixed(1),
     };
   });
 

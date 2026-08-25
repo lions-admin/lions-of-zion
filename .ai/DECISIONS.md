@@ -10,6 +10,37 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — Each dossier page's composition is now genuinely different, deliberately, not left to seven independent agents' taste
+
+Every `SectionPage`-based route (War Update, Fake Resistance, October 7,
+Our Heroes, Israel's Story, We Are, Support Us) rendered its `.body` through
+the same generic prose-blocks-and-cards template, differing only in text.
+Rather than dispatching seven agents with open creative latitude — which
+would produce seven unrelated aesthetics, not one site's family of pages —
+each was given a specific, subject-grounded compositional device decided in
+advance: War Update reads as wire dispatches (real datelines extracted from
+already-sourced text, never invented for an entry that doesn't name a
+place); Fake Resistance as an evidence locker (exhibit lettering, a verdict
+stamp); October 7 as a restrained monument (large inscribed figures, slower
+rhythm — deliberately less decorated, not more, given the subject);
+Our Heroes as formal citations (no photos, by hard rule — this page has no
+consent workflow, see the "Our Heroes publishes only extensively public"
+entry above, and a compositional pass must never quietly relax that);
+Israel's Story as real book chapters (numerals, running chapter header,
+drop caps); We Are as an actual pipeline diagram, its human-review stage
+breaking shape (circle→diamond) because it is structurally different, not
+just next in a sequence; Support Us as a toolkit (its two live tools get
+real panel chrome, its two non-tools — Amplify, a standing practice; Sustain,
+a channel that isn't open yet — deliberately don't, so the page doesn't
+imply parity between "you can do this now" and "this isn't built yet").
+Shared site chrome (rail, prev/next, file index, emblem) was explicitly
+off-limits to all seven — the differentiation lives only in each page's own
+`.body`, on the same sitewide type/color system, so the pages read as one
+family with different jobs, not seven different sites. If a future session
+wants to extend this to a page not yet covered, the constraint to hold is
+the same: ground the device in what that page is actually for, and do not
+touch `SectionPage`/`sections.module.css` to achieve it.
+
 ## 2026-08-25 — Parallel forked agents: a fork cannot itself spawn a fork, and a fork's first response isn't proof of work done
 
 Three `fork` agents with `isolation: "worktree"` were dispatched in one
@@ -46,6 +77,21 @@ Story chapters, an accessibility audit). Two real problems showed up:
    never ask a fork (or any subagent) to itself dispatch further parallel
    agents — dispatch all needed parallelism from the top-level orchestrating
    turn, one flat layer, not nested.**
+
+**Addendum, same day, a five-page design round**: one of seven parallel
+forks reported back mid-sentence — "waiting for the background test run to
+complete" — with no actual findings, because it had run out of turns before
+it could finish narrating. Checking its worktree directly (`git status`,
+then re-running `typecheck`/`lint`/`build`/`test` by hand) showed the code
+itself was complete and correct; only the final report was cut short. Two
+other forks in the same round left real, correct changes uncommitted in
+their worktree rather than committing — also fine, just needs the parent to
+notice `git status` isn't clean before assuming there's nothing to merge.
+**Lesson, generalized: after any fork reports back, check its actual
+worktree state (`git status`, `git log`, and re-run the gate if the report
+looks incomplete) before deciding what there is to merge — a short, empty,
+or mid-sentence report is not evidence of failure any more than a fluent
+one is evidence of success.**
 
 ## 2026-08-25 — GeopoliticalBrief's migration onto `components/content/` accepted structural, not just cosmetic, change
 

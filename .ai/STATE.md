@@ -5,10 +5,10 @@ lives in `DECISIONS.md`. The long backend phase narrative that used to live
 here is in this file's git history and in
 `~/.claude/plans/splendid-discovering-dawn.md`.
 
-_Last updated: 2026-08-25 (end of session — a fourth same-day round: the
-GeopoliticalBrief migrated onto the shared content library, Israel's Story
-grew two more chapters, and a site-wide accessibility pass landed, all via
-three parallel forked agents merged back into `main`)_
+_Last updated: 2026-08-25 (end of session — a fifth same-day round: all seven
+dossier pages got a distinct, subject-grounded composition instead of
+sharing one generic template, via the `frontend-design` skill and seven
+parallel forked agents merged back into `main`)_
 
 ## Where the work is
 
@@ -66,6 +66,29 @@ migration and the Israel's Story chapters itself inside its own branch
 alongside its actual accessibility work; those duplicate commits were
 discarded during merge in favor of the two purpose-built branches. Full
 account in `.ai/DECISIONS.md`'s 2026-08-25 entry on parallel forks.
+
+**Fifth same-day round**: every `SectionPage`-based dossier page shared the
+identical `.body` template — same prose-and-cards rhythm, differing only in
+text. Seven parallel `fork` agents, each given a specific, subject-grounded
+compositional brief in advance (not open creative latitude, so the seven
+would read as one family, not seven aesthetics), gave each page a real,
+distinct composition: War Update reads as wire dispatches (datelines pulled
+only from locations already named in the sourced text, never invented);
+Fake Resistance as an evidence locker (exhibit lettering, a verdict stamp);
+October 7 as a restrained monument (large inscribed figures, slower
+scroll rhythm — less decoration, not more, given the subject); Our Heroes
+as formal citations (still no photos — hard rule, unchanged); Israel's
+Story as real book chapters (numerals, a running "Chapter II of IV" header,
+drop caps, the Oslo dispute framing kept intact); We Are as an actual
+connected pipeline diagram, its human-review stage breaking shape
+(circle→diamond) because it structurally is different; Support Us as a
+toolkit, its two live tools (report, volunteer) getting real panel chrome
+while its two non-tools (Amplify, Sustain) stay visually lighter. Shared
+site chrome (rail, prev/next, file index, emblem) was off-limits to all
+seven — differentiation lives only in each page's own `.body`, same
+sitewide Cinzel/Geist Mono/gold-blue-ember system throughout. Full
+reasoning and the exact device per page in `.ai/DECISIONS.md`'s 2026-08-25
+entry on this round.
 
 - a crowned lion assembled from tiered 45k/90k/180k particle buffers;
 - eight radial routes whose nodes, connectors and DOM labels share one
@@ -176,20 +199,35 @@ that wrapper).
   new Israel's Story chapters render (`Six-Day War`, `Oslo`, `Nasser`,
   `1967`, `1993`), and skip links are present on `SectionPage`/`DocPage`
   routes — no error markers anywhere.
+- Fifth-round gate: typecheck, lint, 323 tests, build — all green after
+  merging all seven design forks (5 committed cleanly; 2 — Our Heroes,
+  Support Us — left real, correct changes uncommitted in their worktrees,
+  applied as patches; 1 — Our Heroes — was re-verified by hand,
+  `typecheck`/`lint`/`test`/`build`, after its fork's own report was cut
+  short mid-sentence, see `.ai/DECISIONS.md`). Dev-server smoke checks on
+  all seven redesigned routes confirmed each page's signature device
+  renders (`SHARM EL-SHEIKH`, `Exhibit`, `In recognition`, `Chapter`,
+  `Gate — human only`, `Module · Report`) with no error markers. **Not**
+  independently browser-tested: how these seven compositions actually look
+  and feel in real Chrome — this is the round most worth a real visual
+  look before calling it done, since the whole point was visual
+  differentiation and nothing here has been seen rendered outside curl'd
+  HTML.
 
 ## Next (cold-start order)
 
-1. **TODOS W4 is complete for all eight pages**; the Brief is now also on
-   the shared content library, so nothing on the site still duplicates
-   `components/content/`'s job. What's left is explicitly scoped-out
-   follow-up: a family/witness consent-and-removal workflow (would let Our
-   Heroes grow past its current three already-public figures, and let
-   October 7 build real testimony/remembrance content instead of linking
-   out); Israel's Story's remaining chapters (ancient period, 1973, Jordan
-   1994, Abraham Accords — each needs its own fetched sources, one at a
-   time, same as the four chapters that exist); an active-conflict
-   `SensitiveContent` gate for October 7 if more graphic material is added
-   later (none was needed for what's there now).
+1. **TODOS W4 is complete for all eight pages**, and so is the P1 item
+   asking for a distinct composition per page family — nothing on the site
+   still shares one generic body template, and the Brief is on the shared
+   content library too. What's left is explicitly scoped-out follow-up: a
+   family/witness consent-and-removal workflow (would let Our Heroes grow
+   past its current three already-public figures, and let October 7 build
+   real testimony/remembrance content instead of linking out); Israel's
+   Story's remaining chapters (ancient period, 1973, Jordan 1994, Abraham
+   Accords — each needs its own fetched sources, one at a time, same as the
+   four chapters that exist); an active-conflict `SensitiveContent` gate
+   for October 7 if more graphic material is added later (none was needed
+   for what's there now).
 2. Confirm the real `VOLUNTEER_INBOX` address in
    `components/support/VolunteerInterestForm.tsx` before this reaches
    production — `volunteers@lionsofzion.io` is a placeholder.

@@ -3,7 +3,7 @@
 Snapshot of intent and current position. Git is the history; durable reasoning
 lives in `DECISIONS.md`.
 
-_Last updated: 2026-08-24_
+_Last updated: 2026-08-25_
 
 ## Frontend
 
@@ -28,15 +28,37 @@ DOM links and fallback poster are present in the initial HTML, but become inert
 after hydration while the intro runs. Without JavaScript the intro enhancement
 is hidden and the links remain usable.
 
-All eight routes exist as real Next.js pages. They are intentionally placeholder
-destinations pending section content.
+All eight routes exist as real Next.js pages. Seven use the `SectionPage`
+dossier shell; the Geopolitical Brief has its own reading layout. Their content
+is authored, not yet fed by the publishing modules.
+
+A P0 pass on 25 August moved four things and each is covered by pure unit tests:
+
+- The chat launcher is **absent** during the intro rather than hidden, so its
+  second WebGPU renderer no longer runs behind it.
+- `OrbitLayout` gained `nodeHaloRadius` (what is actually drawn, as against the
+  DOM box) and `centerY`, and solves each vertical edge separately with a
+  phone-only reserve for the browser's own bottom chrome.
+- The intro's viewport math has one owner in `components/intro/introLayout.ts`:
+  an 86vw line cap, one shared type size per layout, and entry/exit travel
+  scaled to the frame on mobile only.
+- This found a live bug nothing had seen: at 768×1024 a portrait tablet takes
+  the desktop line breaks, and the widest line was rendering at 170vw.
 
 ## Verification
 
-- `npm run typecheck`, `npm test`, `npm run lint`, and `npm run build` pass.
-- The real-Chrome matrix passes at 320×568, 390×844, 768×1024, 1024×768,
-  1254×1254, 1440×900, and 2560×1080: 8/8 links remain inside each viewport,
-  WebGPU is live, and there are no console errors or overlays.
+- `npm run typecheck`, `npm test` (318 tests, 1 skipped), `npm run lint`, and
+  `npm run build` pass.
+- Unit coverage now includes the orbit's drawn extent at all seven viewports,
+  the `nodeVisualRadius` ↔ CSS `.link` half-box coupling, the radius floors, the
+  intro's line cap against the real font, and the mobile travel bound.
+- **The real-Chrome matrix has not been re-captured since the composition
+  moved.** The last capture predates the halo reserve, the raised bottom node
+  and the intro's new line cap. The scripts hardcode a macOS Chrome path, so
+  that pass has to happen on the workstation.
+- The previous capture passed at 320×568, 390×844, 768×1024, 1024×768,
+  1254×1254, 1440×900, and 2560×1080: 8/8 links inside each viewport, WebGPU
+  live, no console errors or overlays.
 - The end-to-end pass confirms intro → skip/outro → WebGPU navigation, a live
   forced-WebGL2 scene, keyboard focus, and a usable no-JavaScript poster with
   eight links.

@@ -158,19 +158,92 @@ export interface SafeAreaInsets {
   left: number;
 }
 
+/**
+ * What a node draws past its nominal ring.
+ *
+ * `nodeVisualRadius` is the ring, and `SpokeNodes` scales the node unit by
+ * `nodeVisualRadius / NODE_RING_RADIUS` so the ring lands exactly on it. Three
+ * things are then drawn outside it and none of them were being counted:
+ *
+ *   - per-particle radial jitter of 0.016 plus a wobble of 0.004, in node-local
+ *     units against a 0.46 ring — 4.3% of the radius, hence the ratio;
+ *   - a sprite half-size of up to 1.25 CSS px, at up to 2× device pixels;
+ *   - the bloom pass, whose `bloomRadius` is a screen-space mip spread with no
+ *     world extent to read off, so its contribution can only be measured.
+ *
+ * The px term covers the last two together. It is empirical: if a node ever
+ * clips at a phone viewport again, this is the number to re-measure in real
+ * Chrome rather than a reason to shrink the orbit everywhere.
+ */
+export const NODE_HALO_RATIO = 0.043;
+export const NODE_HALO_PX = 12;
+
+/**
+ * Extra floor under the bottom node, on phones only.
+ *
+ * A phone's reported viewport is not the visible one: iOS Safari and Chrome
+ * Android overlay a collapsing URL bar across the bottom of it, and
+ * `env(safe-area-inset-bottom)` describes the home indicator rather than that
+ * bar. So the bottom-centre node can measure as fully on screen and still sit
+ * under browser chrome — which is exactly the node the ring puts there.
+ *
+ * A floor rather than an addition: the home indicator is one instance of what
+ * this reserves for, not a second thing to pay for. Desktop gets none of it —
+ * there the reported viewport really is the visible one, and charging it here
+ * would shrink the orbit for chrome that does not exist.
+ */
+export const NODE_BOTTOM_RESERVE_PX = 56;
+
+/** Below this width the layout is the phone one, in every layer that asks. */
+export const MOBILE_MAX_WIDTH = 720;
+
 export interface OrbitLayout {
   radiusX: number;
   radiusY: number;
-  /** Outer particle-ring radius in world units at the lion plane. */
+  /**
+   * Outer particle-ring radius in world units at the lion plane. This is also
+   * the DOM link's half-box — `styles.module.css` sizes `.link` to the same
+   * `clamp(min(w,h) * 0.056, 44, 68)` — and the connector's occlusion boundary.
+   * Three contracts on one number: widen the halo, not this.
+   */
   nodeVisualRadius: number;
-  /** Edge protection in world units, including the node radius. */
-  safeInset: { x: number; y: number };
+  /** Everything actually drawn: the ring plus jitter, sprite spill and bloom. */
+  nodeHaloRadius: number;
+  /**
+   * World-unit offset of the orbit's centre. A phone reserves more at the
+   * bottom (home indicator) than at the top (notch), and collapsing the two
+   * with `Math.max` used to charge the orbit the larger of them twice. Solving
+   * each edge separately and offsetting the centre raises the bottom node
+   * without pushing the top one down.
+   */
+  centerY: number;
+  /** Edge protection in world units, including the node halo. */
+  safeInset: { x: number; top: number; bottom: number };
   /** Narrow screens scale the central emblem before squeezing the orbit. */
   centerScale: number;
 }
 
-const CAMERA_Z = 8.2;
-const CAMERA_FOV = 45;
+export const CAMERA_Z = 8.2;
+export const CAMERA_FOV = 45;
+
+/**
+ * The camera's visible extent in world units at the lion plane.
+ *
+ * Every layer needs this and, until now, three of them re-derived it from
+ * their own copies of the two constants above. `viewHeight` does not depend on
+ * the aspect at all — it is 6.7931 at every viewport — which is a fact worth
+ * having in one place, because it is why the intro's vertical composition needs
+ * no responsive handling and its horizontal composition does.
+ */
+export function viewSize(width: number, height: number) {
+  const safeHeight = Math.max(1, height);
+  const viewHeight = 2 * CAMERA_Z * Math.tan((CAMERA_FOV * Math.PI) / 360);
+  return {
+    viewHeight,
+    viewWidth: viewHeight * (width / safeHeight),
+    worldPerPx: viewHeight / safeHeight,
+  };
+}
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -180,26 +253,35 @@ export function computeOrbitLayout(
   maxRadius: number,
   safeArea: SafeAreaInsets = { top: 0, right: 0, bottom: 0, left: 0 },
 ): OrbitLayout {
-  const safeHeight = Math.max(1, height);
-  const minDimension = Math.min(width, safeHeight);
-  const viewHeight = 2 * CAMERA_Z * Math.tan((CAMERA_FOV * Math.PI) / 360);
-  const viewWidth = viewHeight * (width / safeHeight);
-  const worldPerPx = viewHeight / safeHeight;
+  const minDimension = Math.min(width, Math.max(1, height));
+  const { viewHeight, viewWidth, worldPerPx } = viewSize(width, height);
 
   const nodeRadiusPx = clamp(minDimension * 0.056, 44, 68);
+  const haloRadiusPx = nodeRadiusPx * (1 + NODE_HALO_RATIO) + NODE_HALO_PX;
   const edgeGapPx = clamp(minDimension * 0.045, 24, 64);
-  const insetX = (nodeRadiusPx + edgeGapPx + Math.max(safeArea.left, safeArea.right)) * worldPerPx;
-  const insetY = (nodeRadiusPx + edgeGapPx + Math.max(safeArea.top, safeArea.bottom)) * worldPerPx;
+  const insetX =
+    (haloRadiusPx + edgeGapPx + Math.max(safeArea.left, safeArea.right)) * worldPerPx;
+  const bottomReservePx =
+    width < MOBILE_MAX_WIDTH ? Math.max(safeArea.bottom, NODE_BOTTOM_RESERVE_PX) : safeArea.bottom;
+  const insetTop = (haloRadiusPx + edgeGapPx + safeArea.top) * worldPerPx;
+  const insetBottom = (haloRadiusPx + edgeGapPx + bottomReservePx) * worldPerPx;
 
   const radiusX = Math.max(0.9, Math.min(maxRadius, viewWidth * 0.5 - insetX));
-  const radiusY = Math.max(1.25, Math.min(maxRadius, viewHeight * 0.5 - insetY));
+  const radiusY = Math.max(
+    1.25,
+    Math.min(maxRadius, (viewHeight - insetTop - insetBottom) / 2),
+  );
   const narrowT = clamp((width - 320) / 160, 0, 1);
 
   return {
     radiusX,
     radiusY,
     nodeVisualRadius: nodeRadiusPx * worldPerPx,
-    safeInset: { x: insetX, y: insetY },
+    nodeHaloRadius: haloRadiusPx * worldPerPx,
+    /* The band left over runs from `-viewHeight/2 + insetBottom` to
+       `+viewHeight/2 - insetTop`; its midpoint is half their difference. */
+    centerY: (insetBottom - insetTop) / 2,
+    safeInset: { x: insetX, top: insetTop, bottom: insetBottom },
     centerScale: width < 480 ? 0.78 + narrowT * 0.22 : 1,
   };
 }
@@ -207,10 +289,16 @@ export function computeOrbitLayout(
 export function nodePosition(
   index: number,
   count: number,
-  radius: number | Pick<OrbitLayout, 'radiusX' | 'radiusY'>,
+  radius:
+    | number
+    | (Pick<OrbitLayout, 'radiusX' | 'radiusY'> & Partial<Pick<OrbitLayout, 'centerY'>>),
 ): [number, number, number] {
   const a = nodeAngle(index, count);
-  const radiusX = typeof radius === 'number' ? radius : radius.radiusX;
-  const radiusY = typeof radius === 'number' ? radius : radius.radiusY;
-  return [Math.cos(a) * radiusX, Math.sin(a) * radiusY, NODE_Z];
+  const circular = typeof radius === 'number';
+  const radiusX = circular ? radius : radius.radiusX;
+  const radiusY = circular ? radius : radius.radiusY;
+  /* Passing a bare number still means a circle centred on the lion, which is
+     what the dev harness and the icon bakes want. */
+  const centerY = circular ? 0 : (radius.centerY ?? 0);
+  return [Math.cos(a) * radiusX, Math.sin(a) * radiusY + centerY, NODE_Z];
 }

@@ -1,22 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Group, Sprite } from 'three/webgpu';
+import { Group, Sprite, type Vector3 } from 'three/webgpu';
 import { FontLoader, type Font } from 'three/addons/loaders/FontLoader.js';
 import {
   ROLLING_STORY_LINES_BY_LAYOUT,
   ROLLING_POOL_SIZE,
 } from '@/components/intro/rolling-story-timeline';
-import { buildTextCloud } from '@/components/intro/textCloud';
+import { buildTextCloud, measureTextWidth } from '@/components/intro/textCloud';
+import {
+  computeIntroLayout,
+  introLayoutName,
+  introLineBudget,
+  introTravel,
+  quantizeIntroWidth,
+} from '@/components/intro/introLayout';
 import {
   createIntroTextMaterial,
   type IntroTextMaterialOptions,
 } from '../tsl/introTextMaterial';
 import type { ExperienceFrame } from '../introFrame';
-
-const CAMERA_Z = 8.2;
-const FOV = 45;
 
 interface TextUnit {
   sprite: Sprite;
@@ -59,11 +63,16 @@ export function IntroText({
   lightweight,
 }: IntroTextProps) {
   const size = useThree((state) => state.size);
-  const layout = size.width < 720 ? 'mobile' : 'desktop';
-  const viewHeight = 2 * CAMERA_Z * Math.tan((FOV * Math.PI) / 360);
-  const viewWidth = viewHeight * (size.width / Math.max(1, size.height));
-  const mobileTextMaxWidth = Math.max(2.05, Math.min(2.68, viewWidth - 0.48));
+  /* One primitive key, so a resize drag resamples at most once per 16px bucket
+     rather than once per frame — and so the layout object keeps its identity in
+     between, which is what the effects below depend on. The breakpoint reads the
+     raw width; only the width feeding the glyph solve is bucketed. */
+  const layoutKey = `${introLayoutName(size.width)}|${quantizeIntroWidth(size.width)}|${size.height}|${lightweight}`;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const intro = useMemo(() => computeIntroLayout(size.width, size.height), [layoutKey]);
+  const layout = intro.name;
   const groupRefs = useRef<(Group | null)[]>([]);
+  const lineWidthsRef = useRef<number[]>([]);
   const activeBySlotRef = useRef<
     (NonNullable<ExperienceFrame['story']>['activeLines'][number] | null)[]
   >(Array.from({ length: ROLLING_POOL_SIZE }, () => null));
@@ -73,39 +82,56 @@ export function IntroText({
   useEffect(() => {
     let cancelled = false;
     let created: TextSet | null = null;
+    const lineWidths: number[] = [];
+    let brandWidth = 0;
     setTextSet(null);
     const loader = new FontLoader();
     loader.load(
       '/assets/gentilis_regular.typeface.json',
       (font: Font) => {
         const mobile = layout === 'mobile';
+        const current = intro;
         const lines = ROLLING_STORY_LINES_BY_LAYOUT[layout];
+        const final = lines.length - 1;
+        /* Measure every rolling line first, then solve the scale once. Built a
+           line at a time, each would take `min(fontScale, cap / itsOwnWidth)`
+           and the type size would step between rows the moment the cap bound —
+           which on a phone is most of them. The closing line and the brand are
+           deliberately larger, so they keep their own solve. */
+        const widest = Math.max(
+          ...lines.slice(0, final).map((line) => measureTextWidth(line, font)),
+          0.001,
+        );
+        const storyScale = Math.min(current.fontScale, current.lineMaxWidth / widest);
         const lineUnits = lines.map((line, index) => {
-          const final = index === lines.length - 1;
-          const maxParticles = lightweight
-            ? final ? 5_200 : 5_400
-            : final ? 7_000 : mobile ? 5_200 : 7_500;
-          return makeUnit(buildTextCloud([line], font, {
-            maxParticles,
-            maxWidth: final ? (mobile ? Math.min(2.58, mobileTextMaxWidth) : 3.55) : mobile ? mobileTextMaxWidth : 8.65,
-            fontScale: final ? (mobile ? 0.58 : 0.7) : mobile ? 0.205 : 0.415,
+          const isFinal = index === final;
+          const budget = introLineBudget(index, lines.length, layout, lightweight);
+          const cloud = buildTextCloud([line], font, {
+            maxParticles: budget.maxParticles,
+            maxWidth: current.lineMaxWidth,
+            fontScale: isFinal ? current.finalFontScale : storyScale,
             centerY: 0,
             lineHeight: 0.5,
-            density: lightweight ? 350 : final ? 500 : mobile ? 390 : 440,
-            outlineRatio: final ? 0.3 : 0.27,
+            density: budget.density,
+            outlineRatio: isFinal ? 0.3 : 0.27,
             seed: index * 20_003 + (mobile ? 101 : 0),
-          }));
+          });
+          lineWidths.push(cloud.width);
+          return makeUnit(cloud);
         });
-        const brand = makeUnit(buildTextCloud(['LIONSOFZION'], font, {
+        const brandCloud = buildTextCloud(['LIONSOFZION'], font, {
           maxParticles: lightweight ? 2_800 : 5_000,
-          maxWidth: mobile ? Math.min(2.58, mobileTextMaxWidth) : 4.5,
-          fontScale: mobile ? 0.235 : 0.38,
+          maxWidth: current.lineMaxWidth,
+          fontScale: current.brandFontScale,
           centerY: 0,
           density: lightweight ? 390 : 470,
           outlineRatio: 0.32,
           seed: mobile ? 91_131 : 91_117,
-        }));
+        });
+        brandWidth = brandCloud.width;
+        const brand = makeUnit(brandCloud);
         created = { lines: lineUnits, brand };
+        lineWidthsRef.current = [...lineWidths, brandWidth];
         if (cancelled) disposeSet(created);
         else setTextSet(created);
       },
@@ -116,7 +142,25 @@ export function IntroText({
       cancelled = true;
       if (created) disposeSet(created);
     };
-  }, [layout, lightweight, mobileTextMaxWidth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layoutKey]);
+
+  /* Travel is per line and per frame width, but it only changes when one of
+     those changes — so it is written here rather than in the frame loop. */
+  useEffect(() => {
+    if (!textSet) return;
+    const widths = lineWidthsRef.current;
+    const apply = (unit: TextUnit, width: number) => {
+      const travel = introTravel(intro.halfWidth, width || intro.lineMaxWidth, intro.name);
+      const u = unit.handle.uniforms;
+      (u.originBias as { value: Vector3 }).value.set(...travel.originBias);
+      (u.originSpan as { value: Vector3 }).value.set(...travel.originSpan);
+      (u.windBias as { value: Vector3 }).value.set(...travel.windBias);
+      (u.windSpan as { value: Vector3 }).value.set(...travel.windSpan);
+    };
+    textSet.lines.forEach((unit, index) => apply(unit, widths[index] ?? 0));
+    apply(textSet.brand, widths[widths.length - 1] ?? 0);
+  }, [textSet, intro]);
 
   useFrame(() => {
     if (!textSet) return;
@@ -136,9 +180,8 @@ export function IntroText({
       if (!unit) continue;
       unit.sprite.visible = experience.textOpacity > 0.001;
       const enteringOffset = active.phase === 'enter' && active.index >= 4 ? 1 - active.build : 0;
-      const top = layout === 'mobile' ? 0.38 : 0.55;
-      const gap = layout === 'mobile' ? 0.62 : 0.68;
-      group.position.set(0, top - (active.row + enteringOffset) * gap, 0.08);
+      const { rowTop, rowGap } = intro;
+      group.position.set(0, rowTop - (active.row + enteringOffset) * rowGap, 0.08);
       const emphasized = active.line.beatId === 'battlefield-for-truth' || active.isJoin;
       const u = unit.handle.uniforms;
       (u.build as { value: number }).value = active.build;
@@ -152,7 +195,7 @@ export function IntroText({
     if (brandRef.current && experience && story) {
       const brand = textSet.brand;
       brand.sprite.visible = story.brandProgress > 0.001 && experience.textOpacity > 0.001;
-      brandRef.current.position.set(0, layout === 'mobile' ? -1.18 : -1.24, 0.08);
+      brandRef.current.position.set(0, intro.brandY, 0.08);
       const u = brand.handle.uniforms;
       (u.build as { value: number }).value = story.brandProgress;
       (u.disperse as { value: number }).value = story.outroProgress;

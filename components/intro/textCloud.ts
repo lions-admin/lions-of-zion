@@ -9,6 +9,11 @@ export interface TextCloud {
   edges: Float32Array;
   sizes: Float32Array;
   count: number;
+  /** The em size actually applied: `fontScale` unless `maxWidth` bound first. */
+  scale: number;
+  /** Width of the widest line as rendered, world units. Without this nothing
+      outside this function can see whether a cap was respected. */
+  width: number;
 }
 
 export interface TextCloudLayoutOptions {
@@ -197,5 +202,17 @@ export function buildTextCloud(
     cursor += lineCount;
   }
 
-  return { positions, seeds, order, edges, sizes, count: cursor };
+  return { positions, seeds, order, edges, sizes, count: cursor, scale, width: widest * scale };
+}
+
+/**
+ * The natural width of a line at em size 1 — shapes and a bounding box, no
+ * sampling. Cheap enough to run over every line of a layout before building
+ * any of them, which is what lets one scale be shared by all of them: built one
+ * at a time, each line would otherwise solve `maxWidth / itsOwnWidth` and the
+ * type size would step between rows wherever the cap bound.
+ */
+export function measureTextWidth(line: string, font: Font): number {
+  const geometry = collectLineGeometry(font.generateShapes(line, 1));
+  return Math.max(0.001, geometry.maxX - geometry.minX);
 }

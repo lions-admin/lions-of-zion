@@ -23,11 +23,15 @@ import type { NavNode, ParticleNavProps, SimParams } from './types';
 import styles from './styles.module.css';
 import { STORY_PARAGRAPHS } from '@/components/intro/story-timeline';
 import type { IntroControls } from './introFrame';
+import { shouldSwallowClick } from './introSignal';
 
 // The canvas is dynamic-imported and must never block LCP (brief §8):
 // three.js bytes only download after the DOM nav is interactive.
 const Scene = dynamic(() => import('./Scene'), { ssr: false });
-const HANDOFF_INPUT_GUARD_MS = 900;
+/* Matches `.navContent`'s 700ms opacity transition. The two used to disagree by
+   200ms, which is 200ms in which the navigation looks completely ready and
+   silently eats every touch — the surest way to make someone tap again. */
+const HANDOFF_INPUT_GUARD_MS = 700;
 
 export interface NavClientProps {
   nodes: NavNode[];
@@ -97,6 +101,7 @@ export function NavClient({
   const [safeArea, setSafeArea] = useState<SafeAreaInsets>({ top: 0, right: 0, bottom: 0, left: 0 });
   const [introDone, setIntroDone] = useState(false);
   const [handoffBlocked, setHandoffBlocked] = useState(false);
+  const [skipping, setSkipping] = useState(false);
 
   const theme = useMemo(() => ({ ...defaultTheme, ...themeOverride }), [themeOverride]);
   const params: SimParams = useMemo(
@@ -138,6 +143,14 @@ export function NavClient({
   const introRunning = Boolean(
     intro && hydrated && !reducedMotion && !introDone && tier?.backend !== 'none',
   );
+
+  // `introRunning` cannot be true before hydration, so anything reading it from
+  // outside the canvas — the chat launcher lives in the root layout, a sibling
+  // of this tree — would paint itself once and then be told to disappear.
+  // `introPending` is the same claim made early: the server emits it whenever
+  // this mount is asked for an intro, and hydration either confirms it or drops
+  // it in the same commit that rules the intro out (reduced motion, no GPU).
+  const introPending = Boolean(intro && !introDone && (!hydrated || introRunning));
 
   useEffect(() => {
     if (!introRunning) return;
@@ -206,6 +219,70 @@ export function NavClient({
     return () => {
       window.removeEventListener('resize', readSafeArea);
       window.visualViewport?.removeEventListener('resize', readSafeArea);
+    };
+  }, []);
+
+  /**
+   * Nothing may be activated by a gesture that began before it was there.
+   *
+   * The previous guard put its check on `a[data-node-index]` — the eight orbit
+   * links. Those are `display: none` below 720px, so on the device where this
+   * actually goes wrong the guard was attached to elements that cannot be
+   * tapped. The real mobile destinations are `HomeSignalLayer`'s `next/link`s,
+   * and they had no guard at all: only `pointer-events: none` for a fixed
+   * window, which is a time bound on a problem that is not about time.
+   *
+   * WebKit hit-tests a tap at `touchend`, against whatever is live *then*. So a
+   * finger that goes down while the navigation is inert and lifts after it goes
+   * live activates whatever it happens to be resting on — and on a phone the
+   * largest thing under it is a full-width link to the Geopolitical Brief.
+   *
+   * The bound that actually holds is the gesture's own start: a click is the
+   * user's choice only if the gesture that produced it began after the
+   * navigation could be seen and touched. This runs in the capture phase, so it
+   * stops both a plain `<a href>` and `next/link`, whose handler never sees the
+   * event.
+   */
+  const liveAtRef = useRef(0);
+  const gestureStartRef = useRef(0);
+  const introWasActiveRef = useRef(false);
+
+  useEffect(() => {
+    const blocked = introRunning || handoffBlocked;
+    if (blocked) {
+      introWasActiveRef.current = true;
+      return;
+    }
+    /* Keyed on the transition, not on `completeIntro`, so the paths that end an
+       intro without ever calling it — the GPU probe landing on `none`, reduced
+       motion flipping mid-run — arm the guard too. */
+    if (introWasActiveRef.current) {
+      introWasActiveRef.current = false;
+      liveAtRef.current = performance.now();
+    }
+  }, [handoffBlocked, introRunning]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const startGesture = () => {
+      gestureStartRef.current = performance.now();
+    };
+    const swallowStaleClick = (event: MouseEvent) => {
+      if (!shouldSwallowClick(gestureStartRef.current, liveAtRef.current)) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    // Capture, so a gesture is recorded even where the target is inert.
+    window.addEventListener('pointerdown', startGesture, true);
+    window.addEventListener('touchstart', startGesture, true);
+    window.addEventListener('keydown', startGesture, true);
+    container.addEventListener('click', swallowStaleClick, true);
+    return () => {
+      window.removeEventListener('pointerdown', startGesture, true);
+      window.removeEventListener('touchstart', startGesture, true);
+      window.removeEventListener('keydown', startGesture, true);
+      container.removeEventListener('click', swallowStaleClick, true);
     };
   }, []);
 
@@ -283,6 +360,7 @@ export function NavClient({
       data-canvas={hasLiveBackend ? '' : undefined}
       data-backend={tier?.backend}
       data-intro-active={introRunning ? '' : undefined}
+      data-intro-pending={introPending ? '' : undefined}
       data-handoff-blocked={handoffBlocked ? '' : undefined}
       onPointerMove={onPointerMove}
       style={{ ['--fade-ms' as string]: `${CANVAS_FADE_MS}ms` }}
@@ -328,7 +406,15 @@ export function NavClient({
             type="button"
             className={styles.skipIntro}
             aria-label="Skip intro"
-            onClick={() => { introControlsRef.current.skipRequested = true; }}
+            data-skipping={skipping ? '' : undefined}
+            onClick={() => {
+              /* The outro still runs for 2.8s after this. Without an
+                 acknowledgement the control just sits there looking unpressed,
+                 and the second tap it invites is the one that lands on the
+                 navigation as it arrives. */
+              setSkipping(true);
+              introControlsRef.current.skipRequested = true;
+            }}
           >
             <span className={styles.skipRule} aria-hidden="true" />
             <span className={styles.skipLabel}>Skip intro</span>

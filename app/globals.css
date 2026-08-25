@@ -75,6 +75,29 @@
   --line: rgba(153, 179, 202, 0.14);
   --gold-line: rgba(201, 162, 75, 0.24);
 
+  /*
+   * The scan's own ground — the site's background, in one place.
+   *
+   * This is the texture the particle scene sits on: the ground colour, a faint
+   * blue wash where the scan is densest, and the horizontal rule field the
+   * monitor draws over. It used to be painted only by `ScanBackdrop`, so every
+   * surface that did not mount one — the home page's front page, the 404, the
+   * brief — sat on a flat panel instead, and the site read as though the
+   * matrix stopped at the fold. Declared here, consumed by `body` below and by
+   * the one surface that has to stay opaque over the live scene
+   * (`home.module.css`).
+   *
+   * The alphas are chosen against the ground, not by feel. `--ground` is
+   * rgb(7,11,20); the rule field was `0.028`, which composites to rgb(9,15,26)
+   * — a delta of (2,4,6), under the threshold of perception on most displays,
+   * which is why the site read as flat black however many surfaces carried it.
+   * `0.075` composites to rgb(13,23,35), a visible weave that still leaves
+   * body text (`--ink`, #B9C5D4) above 12:1.
+   */
+  --scan-ground:
+    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.1), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.075) 0 1px, transparent 1px 9px);
+
   /* ── Compatibility aliases ──────────────────────────────────────────────
      `sections.module.css`, `geopolitical-brief.module.css`,
      `support.module.css` and `share-verified.module.css` read `--loz-*` and
@@ -94,12 +117,120 @@
   --loz-body: var(--ink);
 }
 
+/*
+ * The default is locked, and stays locked: every reading route owns its own
+ * scroll container (`sections.module.css` `.page`, the brief, not-found,
+ * error), so nothing below needs the document to scroll and `ReadingProgress`
+ * and `SectionToc` keep reading `scrollTop` from `[data-reading-scroll]`.
+ */
 html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #020409;
+  /* One black, and one texture, under everything. `#020409` — a second,
+     darker ground that only ever showed where a page forgot to paint — is
+     retired; `sections.module.css` already called it "the body's darker one"
+     and worked around it. */
+  background-color: var(--ground);
+  background-image: var(--scan-ground);
+  background-attachment: fixed;
 }
+
+/*
+ * …except the home route, which now continues below the scene.
+ *
+ * Route-scoped rather than global, keyed on a marker the band server-renders,
+ * so this reaches exactly one document. `:has()` is how the chat launcher
+ * already reads these same home-scene attributes — the launcher is mounted by
+ * the root layout and the scene by the page, siblings with no provider
+ * between them, so the signal travels as DOM state.
+ *
+ * The marker is an attribute rather than an id on purpose. `:has()` takes the
+ * specificity of its argument, so `html:has(#id)` scores (1,0,1) and would
+ * outrank the intro lock below at (0,1,1) — the lock would never win and the
+ * intro would be scrollable. Matching attribute for attribute puts both rules
+ * on the same specificity and lets source order decide, which is the whole
+ * point of the ordering.
+ */
+html:has([data-home-scroll]),
+html:has([data-home-scroll]) body {
+  height: auto;
+  min-height: 100%;
+}
+
+/*
+ * The sideways clip belongs to `html` alone.
+ *
+ * `overflow-x: hidden` on `body` makes body a scroll container — one that
+ * never scrolls, because the document does — and `position: sticky` then
+ * resolves against that dead scrollport and never sticks. That is not
+ * theoretical: it is what kept the front page's scan backdrop pinned a screen
+ * and a half above the viewport, so the band rendered flat.
+ */
+html:has([data-home-scroll]) {
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+html:has([data-home-scroll]) body {
+  overflow: visible;
+}
+
+/*
+ * …and this route, alone, hides its scrollbar.
+ *
+ * Not a style preference — a classic scrollbar is 8px of layout, and
+ * `position: fixed; inset: 0` resolves against the viewport *minus* it. The
+ * scene would silently solve its whole composition against 1432px instead of
+ * 1440px, and at a 320px viewport that is enough to push the orbit's radius
+ * onto its emergency floor. Measured, not assumed: `verify-home-band.mjs`
+ * asserts the scene's box equals the viewport exactly, and failed on all six
+ * viewports before this rule existed.
+ *
+ * The affordance is not lost — the anchored strip carries an explicit "The
+ * front page ↓" link, and keyboard scrolling is untouched. Reading routes are
+ * unaffected: they scroll inside their own containers and keep the styled
+ * scrollbar below.
+ */
+html:has([data-home-scroll]) {
+  scrollbar-width: none;
+}
+
+html:has([data-home-scroll])::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * A 47-second cinematic that can be scrolled away from is broken, so the lock
+ * comes back while the intro owns the screen. After it, source order lets
+ * these win over the rule above — and every non-intro path unlocks for free,
+ * because none of these attributes is ever written: reduced motion, a second
+ * visit in the same tab, a GPU probe landing on `none`, and no JavaScript at
+ * all, which is the tier where the band *is* the navigation.
+ */
+html:has([data-intro-active]),
+html:has([data-intro-active]) body,
+html:has([data-handoff-blocked]),
+html:has([data-handoff-blocked]) body {
+  /* Both elements, and the height with them. Locking `html` alone is not
+     enough: with `body` left `height: auto; overflow-y: visible` from the rule
+     above, the body simply becomes the scroll container instead — measured,
+     the page still scrolled 3075px through a "locked" html.
+
+     `data-intro-pending` is deliberately NOT in this list, though the chat
+     launcher does key on it. That attribute is the server's claim, present in
+     the first HTML, and nothing removes it when JavaScript never runs — so
+     locking on it left the no-JS tier permanently unscrollable, with the band
+     it depends on for navigation hidden behind it. Measured: zero reachable
+     links on a phone with JS disabled. `data-intro-active` requires
+     hydration, so it means what this rule needs it to mean. The cost is a
+     sub-hydration window in which the page could scroll; the band is below
+     the fold throughout it, and hydration re-locks immediately. */
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 html { color-scheme: dark; }
 body {
   font-family: var(--face-text);
@@ -109,7 +240,6 @@ body {
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #020409;
   color: var(--ink-hi);
 }
 canvas { display: block; }

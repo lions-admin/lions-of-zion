@@ -7,11 +7,17 @@ code in this repository.
 
 ## What this is
 
-Lions of Zion is a full-viewport Next.js particle experience. The preserved
-story intro hands off to a crowned-lion radial navigation over a particle-built
-network scan. The home route has no content below the fold and no photographic
-landing page after the intro; the eight destinations behind the nav are ordinary
-scrolling document pages.
+Lions of Zion is a Next.js particle experience with a front page under it. The
+preserved story intro hands off to a crowned-lion radial navigation over a
+particle-built network scan, which owns the whole first screen; below it the
+document continues into a front-page band of real editorial content. There is
+no photographic landing page after the intro. The eight destinations behind the
+nav are ordinary scrolling document pages.
+
+The home route's below-the-fold band is new (`components/home/`); the invariant
+that it had none is retired — see `.ai/DECISIONS.md`. The scene above it still
+owns exactly one viewport and is still `position: fixed; inset: 0`, which is
+load-bearing and not a style choice.
 
 The repository also carries an independent information-model backend under
 `app/api/` and `server/`. The two halves share no source files and are kept
@@ -97,7 +103,16 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 - The real `<a href>` elements own semantics, pointer input and keyboard focus.
   Canvas elements are presentation only.
 - The no-WebGL tier uses `public/posters/particle-nav.*` behind those same
-  links. Do not add a second set of fallback links.
+  links. Do not add a second set of *fallback* links: the front-page band's
+  file index is one index for every tier, not a tier-specific copy, which is
+  why the static mobile index it replaced was deleted rather than kept.
+- **The home route has an unresolved no-JavaScript defect, and it is not the
+  band's.** `app/loading.tsx` wraps every route in a Suspense boundary whose
+  fallback nothing replaces when JavaScript never runs, so `/` renders as the
+  loading shell with the real markup parked in a `display: none` wrapper.
+  Verified by removing that one file: the home route then renders completely
+  without JavaScript — 8 orbit links, 8 band links, poster, scroll. `/war-update`
+  and `/we-are` have the same defect. This predates the front-page band.
 - The live scene selects 45k, 90k, or 180k lion buffers by performance tier.
 - `/particle-demo?forceWebGL=1` is the supported fallback/tuning harness.
 

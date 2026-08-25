@@ -44,7 +44,8 @@
      (`.ai/DESIGN-V2.md`). */
   height: 100dvh;
   overflow-y: auto;
-  background: var(--ground);
+  /* No ground of its own: `body` carries it, so a page cannot disagree with
+     the site about what colour the site is. */
   color: var(--ink);
   font-family: var(--face-text);
   scrollbar-width: thin;
@@ -92,32 +93,55 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  background:
-    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.05), transparent 70%),
-    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.028) 0 1px, transparent 1px 9px);
-  /* The backdrop is fixed, so it also paints the ground wherever `.page`
-     stops short of it (the mobile bottom band) — one black, never the body's
-     darker one. This element is deliberately unmasked: masking it would take
-     the ground with it. */
-  background-color: var(--ground);
+  /* No background here any more: the ground and its texture moved to `body`
+     (`--scan-ground` in globals.css), where every surface gets them, including
+     the ones that never mounted a backdrop. What is left is the rows' host. */
 }
 
-/* The rows live in their own masked layer so the ground above survives. The
-   mask is transparent across the content band and opaque outside it, with a
-   soft edge between. At mobile widths the band is the whole viewport, so the
-   mask goes fully transparent and the rows simply stop — correct, since a
-   phone has no margin to put atmosphere in. */
+/*
+ * The same backdrop, inside a scrolling document rather than pinned to the
+ * viewport. `fixed` would paint over the particle scene the home route keeps
+ * above its front page; sticking to the top of an absolutely-positioned host
+ * keeps the rows at viewport height — and so at the same density the reading
+ * pages have — instead of thinning them out over a band several screens tall.
+ */
+.backdropBand {
+  position: sticky;
+  inset: auto;
+  top: 0;
+  height: 100dvh;
+}
+
+/* The rows live in their own masked layer so the ground above survives.
+   The mask is full strength outside the content band and *dimmed* across it —
+   not cut to nothing, which is what it used to do.
+
+   Cutting them out entirely is what made the scan stop being the site's
+   background. At 1440px the protected band is ~1182px of a 1440px viewport,
+   so the rows only ever existed in two thin edge strips, and on a phone the
+   band is the whole screen and they vanished completely. The scan is supposed
+   to be the ground the whole site sits on; a ground with a hole in the middle
+   is a decoration.
+
+   So the middle keeps a quarter of the row's alpha. Composited that is 0.34 ×
+   0.25 ≈ 0.085 — a delta of about (5,10,13) against `--ground`, which reads as
+   drift behind the page rather than text competing with text. Body ink stays
+   above 12:1. Raise this and the audit's original complaint comes back:
+   half-legible fragments colliding with sentences. */
 .rowField {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  --fade: 5rem;
+  /* The soft edge was 5rem. At 1440px the protected band is ~1182px wide, so
+     each margin is ~129px — the fade was consuming most of it and the rows
+     never reached full strength anywhere. */
+  --fade: 2.75rem;
   -webkit-mask-image: linear-gradient(
     90deg,
     #000 0,
     #000 calc(50% - var(--content-w) / 2 - var(--fade)),
-    transparent calc(50% - var(--content-w) / 2 - 1rem),
-    transparent calc(50% + var(--content-w) / 2 + 1rem),
+    rgba(0, 0, 0, 0.25) calc(50% - var(--content-w) / 2 - 0.75rem),
+    rgba(0, 0, 0, 0.25) calc(50% + var(--content-w) / 2 + 0.75rem),
     #000 calc(50% + var(--content-w) / 2 + var(--fade)),
     #000 100%
   );
@@ -125,8 +149,8 @@
     90deg,
     #000 0,
     #000 calc(50% - var(--content-w) / 2 - var(--fade)),
-    transparent calc(50% - var(--content-w) / 2 - 1rem),
-    transparent calc(50% + var(--content-w) / 2 + 1rem),
+    rgba(0, 0, 0, 0.25) calc(50% - var(--content-w) / 2 - 0.75rem),
+    rgba(0, 0, 0, 0.25) calc(50% + var(--content-w) / 2 + 0.75rem),
     #000 calc(50% + var(--content-w) / 2 + var(--fade)),
     #000 100%
   );
@@ -140,7 +164,11 @@
   letter-spacing: var(--t-data-tracking);
   white-space: nowrap; /* fragments render whole — never wrapped or ellipsised */
   will-change: transform;
-  opacity: calc(0.15 * var(--register, 1));
+  /* 0.15 composited to a delta of (6,12,16) against the ground — present in a
+     screenshot, invisible on a real screen, which is not what "atmosphere"
+     means. 0.34 reads as the monitor the home scene is, and the per-page
+     calms below scale from it rather than being re-tuned. */
+  opacity: calc(0.34 * var(--register, 1));
 }
 
 .rowVerified {

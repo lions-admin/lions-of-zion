@@ -178,6 +178,25 @@ export interface SafeAreaInsets {
 export const NODE_HALO_RATIO = 0.043;
 export const NODE_HALO_PX = 12;
 
+/**
+ * Extra floor under the bottom node, on phones only.
+ *
+ * A phone's reported viewport is not the visible one: iOS Safari and Chrome
+ * Android overlay a collapsing URL bar across the bottom of it, and
+ * `env(safe-area-inset-bottom)` describes the home indicator rather than that
+ * bar. So the bottom-centre node can measure as fully on screen and still sit
+ * under browser chrome — which is exactly the node the ring puts there.
+ *
+ * A floor rather than an addition: the home indicator is one instance of what
+ * this reserves for, not a second thing to pay for. Desktop gets none of it —
+ * there the reported viewport really is the visible one, and charging it here
+ * would shrink the orbit for chrome that does not exist.
+ */
+export const NODE_BOTTOM_RESERVE_PX = 56;
+
+/** Below this width the layout is the phone one, in every layer that asks. */
+export const MOBILE_MAX_WIDTH = 720;
+
 export interface OrbitLayout {
   radiusX: number;
   radiusY: number;
@@ -226,8 +245,10 @@ export function computeOrbitLayout(
   const edgeGapPx = clamp(minDimension * 0.045, 24, 64);
   const insetX =
     (haloRadiusPx + edgeGapPx + Math.max(safeArea.left, safeArea.right)) * worldPerPx;
+  const bottomReservePx =
+    width < MOBILE_MAX_WIDTH ? Math.max(safeArea.bottom, NODE_BOTTOM_RESERVE_PX) : safeArea.bottom;
   const insetTop = (haloRadiusPx + edgeGapPx + safeArea.top) * worldPerPx;
-  const insetBottom = (haloRadiusPx + edgeGapPx + safeArea.bottom) * worldPerPx;
+  const insetBottom = (haloRadiusPx + edgeGapPx + bottomReservePx) * worldPerPx;
 
   const radiusX = Math.max(0.9, Math.min(maxRadius, viewWidth * 0.5 - insetX));
   const radiusY = Math.max(

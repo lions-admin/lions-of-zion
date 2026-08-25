@@ -46,24 +46,9 @@ export interface NavClientProps {
 }
 
 const subscribeToHydration = () => () => {};
-const MOBILE_HOME_QUERY = '(max-width: 719px)';
 
 function useHydrated() {
   return useSyncExternalStore(subscribeToHydration, () => true, () => false);
-}
-
-function subscribeToMobileHome(callback: () => void) {
-  const query = window.matchMedia(MOBILE_HOME_QUERY);
-  query.addEventListener('change', callback);
-  return () => query.removeEventListener('change', callback);
-}
-
-function getMobileHomeSnapshot() {
-  return window.matchMedia(MOBILE_HOME_QUERY).matches;
-}
-
-function useMobileHome() {
-  return useSyncExternalStore(subscribeToMobileHome, getMobileHomeSnapshot, () => false);
 }
 
 export function NavClient({
@@ -92,7 +77,6 @@ export function NavClient({
   const tier = usePerfTier(forceWebGL);
   const reducedMotion = useReducedMotion();
   const hydrated = useHydrated();
-  const mobileHome = useMobileHome();
   const driver = useInteractionDriver(nodes.length);
 
   const [wantCanvas, setWantCanvas] = useState(false);
@@ -346,10 +330,10 @@ export function NavClient({
 
   const getLabelEls = useCallback(() => labelElsRef.current, []);
 
-  // Mobile hands off to the authored editorial index. Unmounting the large
-  // WebGPU surface stops a hidden render loop from consuming battery behind it.
-  const mobileStaticHome = Boolean(intro && mobileHome && !introRunning);
-  const showCanvas = active && wantCanvas && tier && tier.backend !== 'none' && !mobileStaticHome;
+  // Every width keeps the live orbit after the intro. The static editorial
+  // index in HomeSignalLayer is the no-JS/no-GPU tier only, gated in CSS on
+  // the same `data-canvas` attribute.
+  const showCanvas = active && wantCanvas && tier && tier.backend !== 'none';
   const hasLiveBackend = Boolean(active && tier && tier.backend !== 'none');
 
   return (

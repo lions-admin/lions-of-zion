@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CHAT_DOCK_PX,
   MOBILE_MAX_WIDTH,
   NODE_BOTTOM_RESERVE_PX,
   NODE_HALO_PX,
@@ -68,7 +69,9 @@ describe("particle navigation layout", () => {
     const phone = width < MOBILE_MAX_WIDTH;
 
     if (phone) {
-      expect(orbit.centerY / worldPerPx).toBeCloseTo(NODE_BOTTOM_RESERVE_PX / 2, 6);
+      // No safe area passed, so the reserve is the chat dock over the URL-bar floor.
+      const reservedBottom = Math.max(NODE_BOTTOM_RESERVE_PX, CHAT_DOCK_PX);
+      expect(orbit.centerY / worldPerPx).toBeCloseTo(reservedBottom / 2, 6);
     } else {
       // Desktop composition is untouched: the reported viewport is the visible one.
       expect(orbit.centerY).toBe(0);
@@ -100,9 +103,9 @@ describe("particle navigation layout", () => {
     [320, 568],
     [390, 844],
   ])("clears an asymmetric safe area at %sx%s", (width, height) => {
-    // Both phones, so the bottom reserve applies and outranks the 34px indicator.
+    // Both phones: the chat dock stacks on the 34px indicator and outranks the URL-bar floor.
     const safeArea = { top: 47, right: 0, bottom: 34, left: 0 };
-    const reservedBottom = Math.max(safeArea.bottom, NODE_BOTTOM_RESERVE_PX);
+    const reservedBottom = Math.max(NODE_BOTTOM_RESERVE_PX, safeArea.bottom + CHAT_DOCK_PX);
     const orbit = computeOrbitLayout(width, height, 3.3, safeArea);
     const viewHeight = 2 * CAMERA_Z * Math.tan((CAMERA_FOV * Math.PI) / 360);
     const worldPerPx = viewHeight / height;

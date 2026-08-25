@@ -10,6 +10,34 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — The phone keeps the live orbit; the static index is a tier, not the home
+
+Reported from a real iPhone as "instead of opening on the circular menu it
+jumps straight to this strange page". The intro's outro assembles the orbit
+navigation on the phone, and the instant the story completed,
+`mobileStaticHome` unmounted the canvas and left the static editorial index.
+That handoff was added for battery — don't leave a WebGPU loop rendering
+behind a static page — but it made the product's centrepiece desktop-only and
+made the end of the intro read as a bug: the menu the outro spends 2.8s
+promising was replaced by a document.
+
+Now every width keeps the orbit when a live backend exists. The static index
+(`HomeSignalLayer`'s `.mobileHome`) is demoted to the no-JS/no-GPU tier,
+gated in CSS on the same `data-canvas` attribute the poster already keys on —
+so without JavaScript or when the GPU probe lands on `none`, a phone still
+gets the full editorial home. The ordering decision below (menu before the
+latest-brief card) still stands for that tier.
+
+The launcher pill is the constraint this uncovers: on phones it is a
+full-width dock ~84px above the safe-area inset, in exactly the band the
+orbit's bottom node used to own — the two had never shared a screen before.
+It is charged into `computeOrbitLayout` as our own bottom chrome
+(`CHAT_DOCK_PX`), *stacking on* the home indicator rather than flooring
+against it the way the URL-bar reserve does, so the bottom node clears the
+pill with the shared edge gap as breathing room above it. Do not resolve a
+future overlap by hiding the pill or shaving the halo; re-measure the dock
+and charge the reserve.
+
 ## 2026-08-25 — The mobile home leads with the menu, not the latest brief
 
 Reported from a real iPhone as "it jumps straight to the brief" — with the URL

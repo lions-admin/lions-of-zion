@@ -94,6 +94,95 @@
   margin-top: 1rem;
 }
 
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0;
+}
+
+.filterChip {
+  min-height: 36px;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid rgba(201, 162, 75, 0.3);
+  border-radius: 2px;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.72);
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.filterChip:hover {
+  border-color: rgba(201, 162, 75, 0.55);
+}
+
+.filterChip[data-active] {
+  border-color: var(--gold, #c9a24b);
+  color: var(--gold-bright, #efd79a);
+}
+
+.filterChip:focus-visible {
+  outline: 2px solid var(--gold-bright, #efd79a);
+  outline-offset: 2px;
+}
+
+.emptyFilter {
+  margin: 1.5rem 0 0;
+  font-size: 0.9rem;
+  color: rgba(159, 179, 200, 0.6);
+}
+
+.latest {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid rgba(201, 162, 75, 0.55);
+  border-radius: 1px;
+  color: var(--gold-bright, #efd79a);
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+}
+
+.dispatch {
+  scroll-margin-top: 6rem;
+}
+
+.dispatchActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.permalink,
+.shareButton {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.6);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.permalink:hover,
+.shareButton:hover {
+  color: var(--gold-bright, #efd79a);
+}
+
+.permalink:focus-visible,
+.shareButton:focus-visible {
+  outline: 2px solid var(--gold-bright, #efd79a);
+  outline-offset: 3px;
+}
+
 @media (max-width: 600px) {
   .dispatch {
     padding: 1.1rem 0;

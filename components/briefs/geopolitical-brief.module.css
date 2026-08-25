@@ -212,13 +212,8 @@
 .railTrust span,
 .contents > span,
 .evidenceKicker,
-.publicationMeta dt,
 .briefEyebrow,
-.sectionLabel,
-.developmentMeta,
-.sourceList > li > div > span,
-.sourceList time,
-.corrections span {
+.sectionLabel {
   font-family: var(--mono);
   text-transform: uppercase;
 }
@@ -334,39 +329,6 @@
   text-transform: uppercase;
 }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.42rem;
-  width: fit-content;
-  color: var(--blue-soft);
-  font-family: var(--mono);
-  font-size: 0.54rem;
-  letter-spacing: 0.1em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.status i {
-  width: 0.38rem;
-  height: 0.38rem;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  background: rgba(107, 183, 228, 0.4);
-  box-shadow: 0 0 10px rgba(107, 183, 228, 0.52);
-}
-
-.status[data-status='attributed'] {
-  color: #d6ba70;
-}
-
-.status[data-status='attributed'] i {
-  border-radius: 1px;
-  background: rgba(201, 162, 75, 0.35);
-  box-shadow: none;
-  transform: rotate(45deg);
-}
-
 .topic {
   margin-top: 2.2rem;
   color: #d6ba70;
@@ -397,31 +359,11 @@
   line-height: 1.7;
 }
 
-.publicationMeta {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.25rem;
+/* Spacing wrapper for the shared PublicationMeta component — it has no
+   margin-top of its own (it's meant to sit inside a SectionBlock, which
+   supplies that spacing elsewhere), so the brief header supplies it here. */
+.metaSpacer {
   margin-top: 2.3rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--line);
-}
-
-.publicationMeta div {
-  min-width: 0;
-}
-
-.publicationMeta dt {
-  color: var(--muted);
-  font-size: 0.5rem;
-  letter-spacing: 0.13em;
-}
-
-.publicationMeta dd {
-  margin-top: 0.42rem;
-  color: #c6d2de;
-  font-family: var(--mono);
-  font-size: 0.61rem;
-  line-height: 1.5;
 }
 
 .section {
@@ -477,33 +419,10 @@
   margin-top: 1rem;
 }
 
-.figures {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.1rem;
+/* Spacing wrapper for the shared FigureRow component, same reasoning as
+   .metaSpacer above. */
+.figuresSpacer {
   margin-top: 2.4rem;
-  padding-top: 1.3rem;
-  border-top: 1px solid var(--gold-line);
-}
-
-.figures div + div {
-  padding-left: 1.1rem;
-  border-left: 1px solid var(--line);
-}
-
-.figures dt {
-  color: #e3c978;
-  font-family: var(--display);
-  font-size: clamp(1.35rem, 2.3vw, 1.9rem);
-  line-height: 1.1;
-}
-
-.figures dd {
-  max-width: 9rem;
-  margin-top: 0.55rem;
-  color: var(--muted);
-  font-size: 0.66rem;
-  line-height: 1.5;
 }
 
 .changeList {
@@ -535,63 +454,6 @@
   line-height: 1.7;
 }
 
-.developmentList {
-  border-top: 1px solid var(--gold-line);
-}
-
-.development {
-  padding: 1.65rem 0 1.8rem;
-  border-bottom: 1px solid var(--line);
-}
-
-.developmentMeta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.developmentMeta time {
-  color: var(--muted);
-  font-size: 0.55rem;
-  letter-spacing: 0.11em;
-}
-
-.development h3 {
-  max-width: 34rem;
-  margin-top: 0.9rem;
-  color: #e0c676;
-  font-family: var(--display);
-  font-size: 1.08rem;
-  font-weight: 500;
-  letter-spacing: 0.035em;
-  line-height: 1.4;
-}
-
-.development > p {
-  max-width: 41rem;
-  margin-top: 0.7rem;
-  color: #b9c7d5;
-  font-size: 0.93rem;
-  line-height: 1.75;
-}
-
-.inlineSources {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem 1rem;
-  margin-top: 1rem;
-}
-
-.inlineSources a {
-  color: #82bfdf;
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.05em;
-  line-height: 1.5;
-  text-underline-offset: 3px;
-}
-
 .assessment {
   position: relative;
   background:
@@ -619,136 +481,11 @@
   text-transform: uppercase;
 }
 
-.unknownGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem;
-}
-
-.unknownGrid > div + div {
-  padding-left: 2rem;
-  border-left: 1px solid var(--line);
-}
-
-.unknownGrid h3 {
-  min-height: 2.5rem;
-  color: #d9c17a;
-  font-family: var(--display);
-  font-size: 0.77rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  line-height: 1.45;
-  text-transform: uppercase;
-}
-
-.unknownGrid ul {
-  margin-top: 1rem;
-  padding-left: 1rem;
-}
-
-.unknownGrid li {
-  margin-bottom: 0.72rem;
-  color: #afbfce;
-  font-size: 0.84rem;
-  line-height: 1.65;
-}
-
-.unknownGrid li::marker {
-  color: var(--blue);
-}
-
-.sourceList {
-  list-style: none;
-}
-
-.sourceList > li {
-  display: grid;
-  grid-template-columns: 2.6rem minmax(0, 1fr);
-  gap: 1rem;
-  padding: 1.2rem 0;
-  border-top: 1px solid var(--line);
-}
-
-.sourceList > li:last-child {
-  border-bottom: 1px solid var(--line);
-}
-
-.sourceNumber {
-  color: var(--blue);
-  font-family: var(--mono);
-  font-size: 0.58rem;
-}
-
-.sourceList > li > div {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.sourceList > li > div > span {
-  color: var(--muted);
-  font-size: 0.52rem;
-  letter-spacing: 0.1em;
-}
-
-.sourceList a {
-  width: fit-content;
-  color: #dce6ef;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  text-decoration-color: rgba(107, 183, 228, 0.6);
-  text-underline-offset: 4px;
-}
-
-.sourceList time {
-  color: #71869b;
-  font-size: 0.52rem;
-  letter-spacing: 0.08em;
-}
-
+/* Dark footer band behind the shared CorrectionHistory component — its own
+   internal kicker/list styling comes from content.module.css. */
 .corrections {
-  display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
-  gap: 1.5rem;
   padding: 1.75rem clamp(1.5rem, 5vw, 4.3rem) 2rem;
   background: #070c15;
-}
-
-.corrections > div {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.corrections span {
-  color: var(--muted);
-  font-size: 0.5rem;
-  letter-spacing: 0.12em;
-}
-
-.corrections strong {
-  color: #b8c6d4;
-  font-family: var(--mono);
-  font-size: 0.56rem;
-  font-weight: 400;
-}
-
-.corrections p {
-  color: #8fa3b6;
-  font-size: 0.72rem;
-  line-height: 1.55;
-}
-
-.correctionEntries {
-  display: grid;
-  gap: 1.1rem;
-  list-style: none;
-}
-
-.correctionEntries li {
-  display: grid;
-  gap: 0.35rem;
 }
 
 .closing {
@@ -1048,15 +785,6 @@
     line-height: 1.7;
   }
 
-  .publicationMeta {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 1rem;
-  }
-
-  .publicationMeta div:last-child {
-    grid-column: 1 / -1;
-  }
-
   .section {
     padding: 2.7rem 1.25rem;
     scroll-margin-top: 7rem;
@@ -1085,65 +813,17 @@
     line-height: 1.78;
   }
 
-  .figures {
-    gap: 0.8rem;
-  }
-
-  .figures div + div {
-    padding-left: 0.8rem;
-  }
-
-  .figures dt {
-    font-size: 1.25rem;
-  }
-
-  .figures dd {
-    font-size: 0.61rem;
-  }
-
   .changeList li {
     grid-template-columns: 2rem minmax(0, 1fr);
     gap: 0.8rem;
   }
 
-  .development h3 {
-    font-size: 1rem;
-  }
-
-  .development > p,
   .changeList p {
     font-size: 0.92rem;
     line-height: 1.72;
   }
 
-  .unknownGrid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
-  }
-
-  .unknownGrid > div + div {
-    padding-top: 2rem;
-    padding-left: 0;
-    border-top: 1px solid var(--line);
-    border-left: 0;
-  }
-
-  .unknownGrid h3 {
-    min-height: 0;
-  }
-
-  .sourceList > li {
-    grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.75rem;
-  }
-
-  .sourceList a {
-    font-size: 0.86rem;
-  }
-
   .corrections {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.8rem;
     padding: 1.6rem 1.25rem 2rem;
   }
 
@@ -1171,21 +851,6 @@
   .indexRail {
     padding-inline: 1rem;
   }
-
-  .figures {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .figures div + div {
-    padding-top: 0.8rem;
-    padding-left: 0;
-    border-top: 1px solid var(--line);
-    border-left: 0;
-  }
-
-  .figures dd {
-    max-width: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1200,8 +865,7 @@
   .skipLink,
   .backLink > span:first-child,
   .contents a,
-  .closingNav a,
-  .progressValue {
+  .closingNav a {
     transition: none;
   }
 }

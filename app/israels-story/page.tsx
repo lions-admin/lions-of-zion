@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { SourceList, Timeline } from "@/components/content";
 import { getIsraelsStoryEdition } from "@/lib/content/israels-story";
+import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
 const TAGLINE =
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   title: "Israel’s Story",
   description: TAGLINE,
   openGraph: { title: "Israel’s Story — LIONS OF ZION", description: TAGLINE },
+  alternates: { canonical: `${SITE_URL}/israels-story` },
 };
 
 /** I–XX is far more than this page will ever need; a book's chapter marks
@@ -36,8 +38,28 @@ export default async function Page() {
   const edition = await getIsraelsStoryEdition();
   const total = edition.chapters.length;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: "Israel’s Story",
+    description: TAGLINE,
+    url: `${SITE_URL}/israels-story`,
+    author: { "@type": "Organization", name: "Lions of Zion" },
+    publisher: { "@type": "Organization", name: "Lions of Zion" },
+    hasPart: edition.chapters.map((chapter) => ({
+      "@type": "Article",
+      headline: chapter.title,
+      description: chapter.intro,
+      url: `${SITE_URL}/israels-story#${chapter.id}`,
+    })),
+  };
+
   return (
     <SectionPage id="israels-story" surface="quiet" title="Israel’s Story" tagline={TAGLINE}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className={styles.contents} aria-label="Chapters">
         <span className={styles.contentsKicker}>Contents</span>
         <ol className={styles.contentsList}>
@@ -91,11 +113,10 @@ export default async function Page() {
           This is a working edition, chapters added one at a time as each
           could be sourced and checked properly — not the whole story yet.
           Every historical claim above is built to be checked — the dates
-          and sources are cited inline. Later chapters (the ancient and
-          biblical period, the 1973 Yom Kippur War, the 1994 treaty with
-          Jordan, and the 2020 Abraham Accords) are real, documented
-          history not yet detailed here — a known next step, not an
-          omission to gloss over.
+          and sources are cited inline. One chapter remains a known,
+          honest gap: the ancient and biblical period, which needs more
+          careful sourcing than any session so far has had time for — a
+          next step, not an omission to gloss over.
         </p>
       </SectionBlock>
     </SectionPage>

@@ -1,9 +1,12 @@
 .page {
-  --ground: #070b14;
+  /* --ground/--gold/--gold-bright alias the sitewide tokens in
+     app/globals.css :root (fallback matches, so this stays correct mounted
+     alone); --blue and the rest are this surface's own tuning and stay local. */
+  --ground: var(--loz-ground, #070b14);
   --surface: #090f1b;
   --surface-raised: #0d1523;
-  --gold: #c9a24b;
-  --gold-bright: #efd79a;
+  --gold: var(--loz-gold, #c9a24b);
+  --gold-bright: var(--loz-gold-bright, #efd79a);
   --blue: #6bb7e4;
   --blue-soft: #9ad7f5;
   --body: #b5c4d4;
@@ -789,6 +792,30 @@
 
 .closingNav span {
   color: var(--gold);
+}
+
+.docLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.docLinks a {
+  color: #7c92a6;
+  text-decoration: none;
+}
+
+.docLinks a:hover,
+.docLinks a:focus-visible {
+  color: var(--gold-bright);
+}
+
+.docLinks span {
+  color: rgba(159, 179, 200, 0.35);
 }
 
 .evidenceRailInner {

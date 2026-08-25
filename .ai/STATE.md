@@ -5,14 +5,44 @@ lives in `DECISIONS.md`. The long backend phase narrative that used to live
 here is in this file's git history and in
 `~/.claude/plans/splendid-discovering-dawn.md`.
 
-_Last updated: 2026-08-25 (end of session — wave 1 complete, wave 2 not started)_
+_Last updated: 2026-08-25 (end of session — TODOS W4 is now complete for all
+eight destination pages: War Update, Fake Resistance, Support Us,
+Methodology/Corrections shipped in an earlier same-day session; October 7,
+Our Heroes, Israel's Story and We Are shipped in this one)_
 
 ## Where the work is
 
 A full-project review produced the W1–W6 continuation plan in `TODOS.md`, and
-a six-agent wave executed most of W1/W2/W3/W5/W6. Session ended by request
-after wave 1; **wave 2 (TODOS W4 — per-page authored content) was deliberately
-not started and is the next session's starting point.**
+a six-agent wave executed most of W1/W2/W3/W5/W6 in an earlier session (see
+below). Two later same-day sessions completed wave 2 (TODOS W4 — per-page
+authored content) in two halves.
+
+**First half**: `lib/content/` seam established (`getWarUpdateEdition()`,
+`getFakeResistanceEdition()`, `getCorrectionsLog()`), War Update and Fake
+Resistance rebuilt on real, individually verified public sources, Support Us
+got a working report-a-claim form against the public `POST /api/v1/reports`
+endpoint plus a `mailto:`-based volunteer form, and `/methodology` +
+`/corrections` shipped as plain linked pages (`components/sections/DocPage.tsx`
+— outside the 8-node `defaultNodes` orbit on purpose).
+
+**Second half**: `lib/content/october-7.ts`, `our-heroes.ts` and
+`israels-story.ts` added, all three pages rebuilt, plus We Are (no
+`lib/content` file — it describes the site's own real pipeline, not
+editorial content that could source from `published-items`). Two editorial
+boundaries were confirmed with the user before writing anything and now
+govern this content going forward (`.ai/DECISIONS.md` has the full reasoning
+for each): **Our Heroes** publishes only real people whose story is already
+extensively public in named mainstream press — no family-consent workflow
+exists, so that's the ceiling, not a placeholder; **October 7**'s Testimony/
+Remembrance link to three real external archives (Edut 710, USC Shoah
+Foundation, October7.org) rather than reproducing testimony or building
+victim profiles this site has no consent for. Israel's Story ships two
+sourced chapters, not the full historical arc, and says so on the page.
+`surface="quiet"` and per-page `openGraph` now cover all 7/7 and 9/9 pages
+respectively. A "Methodology · Corrections" link row was added to
+`SectionPage`'s footer and the brief's closing nav — deliberately **not** a
+global footer in `app/layout.tsx`, since the home route has no content below
+the fold and layout.tsx wraps it too (`.ai/DECISIONS.md`).
 
 - a crowned lion assembled from tiered 45k/90k/180k particle buffers;
 - eight radial routes whose nodes, connectors and DOM labels share one
@@ -83,31 +113,63 @@ resolution kept the fix (no mobile-only canvas unmount) and layered the
 intro-session-memory feature on top of it.** Re-verify `loz-intro-seen`
 behaves on phone widths as part of the re-capture pass below.
 
+The wave-2 session also touched shared infrastructure, not just the three
+pages: a `ChatOpenProvider` (`components/chat/chat-open-context.tsx`) now
+wraps both `{children}` and `ParticleChatLauncher` in `app/layout.tsx` — the
+first shared client context in this codebase, needed so a "Ask the Lion
+about this file" button rendered inside `SectionPage`'s footer can open the
+chat mounted as its sibling in the root layout; `:root` color tokens landed
+in `app/globals.css` with `sections.module.css`/`geopolitical-brief.module.css`
+aliasing them (identical fallback values, no visual change); and
+`sections.module.css`'s generic prose selectors were rewritten with
+`:where(.body)` after `components/content/*` was mounted inside a
+`SectionPage` body for the first time and its own styling lost CSS
+specificity ties to the generic rules (see `DECISIONS.md` — do not revert
+that wrapper).
+
 ## Verification
 
-- Full gate green at session end: typecheck, lint, 323 tests (1 pgvector
-  skip), production build with all metadata routes. Title-template suffix
-  duplication on the eight pages was caught in the built HTML and fixed.
-- **The real-Chrome matrix has not been recaptured** — it predates both the
-  P0 composition changes and all of this session's visual work. Mac-gated
-  tasks (poster rebalance, intro overlap, SDF re-bake, capture) are listed
-  under TODOS W2.
+- Full gate green at the end of both wave-2 sessions: typecheck, lint, 323
+  tests (1 pgvector skip), production build — 22 routes, all eight
+  destination pages plus `/methodology` and `/corrections` static. Dev
+  server smoke checks confirmed real content renders (e.g. `Nahal Oz`,
+  `Aner Elyakim Shapira`, `Rami Davidian`, `Noam Tibon`, `1948`, `1979`,
+  `Ben-Gurion`, `Investigators`, `Human review`) with no error markers on
+  every touched route across both sessions.
+- **The real-Chrome matrix has not been recaptured** — it predates the P0
+  composition changes and all visual work across all three sessions this
+  day. Mac-gated tasks (poster rebalance, intro overlap, SDF re-bake,
+  capture) are listed under TODOS W2.
+- Not independently browser-tested (container has no real Chrome): the
+  `ChatOpenProvider` wiring end to end, the `ReportClaimForm`/
+  `VolunteerInterestForm` submit flows, and — new this session, and worth
+  a deliberate look given the subject matter — Our Heroes and October 7 in
+  a real browser before calling either "done."
 
 ## Next (cold-start order)
 
-1. **Wave 2 = TODOS W4**: authored, sourced content per page — War Update
-   feed, October 7 timeline + `SensitiveContent`, hero profiles, Israel's
-   Story chapters, Fake Resistance case files, We Are method diagram,
-   Support Us forms, `/methodology` + `/corrections` pages. Build on
-   `components/content/` (README documents every prop) and SectionPage's
-   `aside`/`surface` props. The editorial rule is in `DECISIONS.md`
-   (2026-08-25): real sourced facts only; format demos labeled reference.
-2. Remaining W1/W2/W6 partials are marked inline in TODOS (global footer,
-   quiet surface applied per page, color tokens, per-page openGraph,
-   canonical domain decision — the vercel.app host is hardcoded in three
-   files).
-3. Workstation: real-Chrome capture pass over everything visual.
-4. Backend picks unchanged: provisioning (pooled `-pooler` `DATABASE_URL`),
+1. **TODOS W4 is now complete for all eight pages.** What's left there is
+   explicitly scoped-out follow-up, not unfinished work: a family/witness
+   consent-and-removal workflow (would let Our Heroes grow past its
+   current three already-public figures, and let October 7 build real
+   testimony/remembrance content instead of linking out); Israel's Story's
+   remaining chapters (ancient period, 1967, 1973, Oslo, Jordan 1994,
+   Abraham Accords — each needs its own fetched sources, one at a time,
+   same as the two chapters that exist); an active-conflict
+   `SensitiveContent` gate for October 7 if more graphic material is added
+   later (none was needed for what's there now).
+2. Confirm the real `VOLUNTEER_INBOX` address in
+   `components/support/VolunteerInterestForm.tsx` before this reaches
+   production — `volunteers@lionsofzion.io` is a placeholder.
+3. Two W1/W6 items are genuinely still open (not code, decisions):
+   confirming `lib/site-config.ts`'s `SITE_URL` is actually the canonical
+   production domain, and whether a sitewide footer (identity, Contact, a
+   global chat entry) is wanted — if so it must be conditional on not
+   being the home route, see `DECISIONS.md`.
+4. Workstation: real-Chrome capture pass over everything visual, including
+   this session's four rebuilt pages and the CTA/forms from the session
+   before it.
+5. Backend picks unchanged: provisioning (pooled `-pooler` `DATABASE_URL`),
    real auth, brief-generation workflow.
 
 ## Blocked

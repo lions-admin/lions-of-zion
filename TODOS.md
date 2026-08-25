@@ -59,6 +59,58 @@
 ב־`SectionBlock`), וכלל התוכן ב־`DECISIONS.md` (אין עובדות מומצאות; מבנים
 מקדימים מסומנים reference). משימות המק (Chrome אמיתי) נשארות בתחנת העבודה.
 
+### עדכון ביצוע — 25 באוגוסט 2026: גל 2 (חלקי) — War Update, Fake Resistance, Support Us
+
+בוצע באותו יום, סשן נפרד: `lib/content/` נבנה בפועל (war-update.ts,
+fake-resistance.ts, corrections.ts — כל אחד `async` כדי שההחלפה העתידית
+ל־`GET /api/v1/published-items` תהיה שינוי גוף פונקציה, לא call site). War
+Update ו־Fake Resistance עברו לתוכן אמיתי ומקורות אמיתיים שאומתו ב־WebSearch/
+WebFetch בסשן (ראו `.ai/DECISIONS.md` לרשימת המקורות ולשינוי אחד בתיק Fake
+Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמיתית). Support Us קיבל טופס
+"דיווח על טענה" אמיתי מול `POST /api/v1/reports` הציבורי הקיים, וטופס
+התנדבות מבוסס `mailto:` (אין endpoint אמיתי לכך עדיין — יושר על פני זיוף
+מצב "נשלח"). נוספו `/methodology` ו־`/corrections` (`DocPage` — מעטפת קלה
+ללא file rail, לא מצטרפות ל־`defaultNodes`). "Ask the Lion about this file"
+בתחתית כל עמוד דוסייה מחייב `ChatOpenProvider` חדש ב־`app/layout.tsx`
+(state שיתופי בין `ParticleChatLauncher` ל־`SectionPage`, שלא היה קיים
+קודם) — פותח את הצ׳ט עם שאלת פתיחה ממולאת מראש אך לא נשלחת אוטומטית.
+
+**עדיין פתוח מ־W4**: October 7, Our Heroes, Israel's Story, We Are — נדחו
+במפורש (תוכן רגיש/דורש הסכמת משפחות/היקף גדול מדי לסבב אחד). עמוד הסכמה/
+הסרה למשפחות ועדים לא נבנה. השער המלא ירוק: typecheck, ‏lint, ‏323 בדיקות
+(1 מדולגת), ‏build כולל `/methodology` ו־`/corrections` הסטטיים.
+
+### עדכון ביצוע — 25 באוגוסט 2026: גל 2 הושלם — October 7, Our Heroes, Israel's Story, We Are
+
+באותו יום, סשן שלישי: ארבעת העמודים שנדחו קודם נבנו, בכפוף לשתי החלטות
+עריכה שאושרו מראש עם המשתמש (מתועדות ב־`.ai/DECISIONS.md`):
+
+- **Our Heroes** מפרסם רק אנשים אמיתיים ששמם וסיפורם כבר מכוסים בהרחבה
+  בעיתונות מיינסטרים בשם מלא — שלוש כרטיסיות טקסט בלבד (בלי תמונות, אין
+  לזה בכלל שדה תמונה ב־`ContentCard`), כל עובדה מצוטטת למקור. אין תהליך
+  הסכמת משפחות אמיתי עדיין, אז זה התקרה האחראית לסבב הזה — לא רצפה
+  שתורחב בלי בקרה. פסקת "How these stories are gathered" הישנה טענה
+  "nothing appears that the family has not seen and approved" — זו טענה
+  לא נכונה לגבי הפרופילים החדשים ותוקנה להיות כנה.
+- **October 7** מקשר לארכיוני עדות אמיתיים (Edut 710, USC Shoah
+  Foundation, October7.org) במקום לשחזר עדות או לבנות פרופילי קורבנות —
+  האתר הזה אין לו הסכמה מאף אחד מהם. "The record" מכיל נתונים אמיתיים
+  שנבדקו (ADL).
+- **Israel's Story** נפתח בשני פרקים אמיתיים ומצוטטים בלבד (הקמת המדינה
+  1947–48, הסכם השלום עם מצרים 1979) — לא "הקשת הארוכה" המלאה. מוצהר
+  בעמוד עצמו מה עוד חסר (התקופה העתיקה, 1967, 1973, אוסלו, ירדן 1994,
+  הסכמי אברהם) ולמה.
+- **We Are** מתאר את הצינור האמיתי (ingest → evidence → assessment →
+  human review → publish → search), עם FAQ מבוסס עובדות שניתן לבדוק בקוד
+  (למשל: `assessment.publish` לא יכול אף פעם להיות ביד זהות אוטומטית).
+
+בנוסף: `surface="quiet"` הופעל על כל שבעת עמודי הדוסייה (7/7);
+`openGraph` פר־עמוד על כל תשעת הראוטים (9/9); שורת קישורים
+"Methodology · Corrections" נוספה לפוטר של `SectionPage` ולסגירה של
+הברייף — **לא** נבנה footer גלובלי אחד ב־`app/layout.tsx`, כי `CLAUDE.md`
+קובע מפורשות שלדף הבית אין תוכן מתחת לקיפול וה־layout עוטף גם אותו.
+השער המלא ירוק: typecheck, ‏lint, ‏323 בדיקות (1 מדולגת), ‏build.
+
 ### ממצאי העל
 
 - מתוך שמונת העמודים, רק Geopolitical Brief מכיל תוכן אמיתי — מתוארך, ממוספר,
@@ -93,12 +145,18 @@
 - [x] סרגל prev/next בתחתית כל עמוד דוסייה, ברוח מספור `File NN / 08`, מונע
   מ־`defaultNodes`, עם wrap-around.
 - [x] רצועת כל־היעדים קומפקטית בתחתית כל עמוד + `aria-current="page"`.
-- [ ] סיום אמיתי לכל עמוד — **חלקי**: prev/next, אינדקס היעדים ושורת
-  "File closed · Return to the scan" קיימים; ה־CTA ההקשרי של הצ׳ט
-  ("Ask the Lion about this file") עדיין חסר.
+- [x] סיום אמיתי לכל עמוד: prev/next, אינדקס היעדים, שורת "File closed ·
+  Return to the scan", וכעת גם ה־CTA ההקשרי "Ask the Lion about this file"
+  (פותח את הצ׳ט עם שאלת פתיחה ממולאת, לא נשלחת אוטומטית).
 - [ ] Footer גלובלי רזה: זהות, שמונת היעדים, Methodology / Corrections /
-  Contact, כניסת צ׳ט.
-- [ ] אחידות לשונית של קישורי החזרה ("Back to the scan" מול "Signal room").
+  Contact, כניסת צ׳ט — **הוחלט במפורש שלא להוסיף כזה ל־`app/layout.tsx`**:
+  `CLAUDE.md` קובע שלדף הבית אין תוכן מתחת לקיפול וה־layout עוטף גם אותו.
+  במקום זאת: שורת קישורים "Methodology · Corrections" נוספה לפוטר של
+  `SectionPage` (`components/sections/SectionPage.tsx`) ולסגירה של הברייף
+  (`GeopoliticalBrief.tsx`) — שני הדפים האלה מקושרים מכל עמוד תוכן עכשיו.
+  Contact ו־כניסת צ׳ט גלובלית עדיין לא נבנו במפורש כפריט כזה.
+- [x] אחידות לשונית של קישורי החזרה: "Signal room" ב־`GeopoliticalBrief.tsx`
+  הוחלף ל־"Back to the scan"/"Return to the scan" כמו שאר האתר.
 - [x] עוגני `id` לכל `SectionBlock` (slug אוטומטי מהכותרת, תומך עברית) +
   `scroll-margin-top`.
 
@@ -110,11 +168,12 @@
   לדוגם ה־GPU בלבד (ראו `DECISIONS.md`).
 - [x] `Monitoring · active` הוחלף ב־`Reference edition` — עיקרון
   "No false live state".
-- [ ] המשטח השקט על כל עמודי הדוסייה — **חלקי**: prop ‏`surface="quiet"` קיים
-  ב־`SectionPage`; הדפים עדיין לא מפעילים אותו, ועצירת תנועה ב־focus לא
-  מומשה.
-- [ ] טוקני צבע גלובליים ב־`:root` — עדיין פתוח; יישור שני השחורים בוצע
-  (`ScanBackdrop` צובע את ה־ground, אין יותר פס כהה במובייל).
+- [x] המשטח השקט על כל עמודי הדוסייה: `surface="quiet"` מופעל עכשיו על כל
+  שבעת עמודי הדוסייה (7/7). עצירת תנועה ב־focus עדיין לא מומשה (פריט נפרד).
+- [x] טוקני צבע גלובליים ב־`:root` — נוספו ל־`app/globals.css`
+  (`--loz-ground`, ‏`--loz-gold`, ‏`--loz-blue` וכו׳); `sections.module.css`
+  ו־`geopolitical-brief.module.css` מכנים אליהם עם fallback זהה לערך
+  המקומי הקודם — אין שינוי ויזואלי, רק מקור אמת אחד.
 - [ ] rail ימני בדסקטופ — **חלקי**: prop ‏`aside` קיים ב־`SectionPage` בסגנון
   ה־evidence rail; אין עדיין תוכן שממלא אותו.
 - [x] header נדבק של הברייף במובייל אטום; רצועת ה־TOC קיבלה fade וגלילה.
@@ -150,10 +209,17 @@
 - [x] יישור אוצר המילים בספרייה החדשה: `VerificationBadge` ממופה בצורה
   ממצה על כל 9 ערכי `ASSESSMENT_VALUES` + `CONFIDENCE_SUMMARIES`.
   ‏`geopolitical-reference.ts` עצמו עדיין על 5 הסטטוסים הפרטיים — פתוח.
-- [ ] מודול תוכן סטטי מוקלד לכל עמוד, לצד `geopolitical-reference.ts` — תוכן
-  ב־data ולא ב־JSX, כדי שהחלפה עתידית ל־API תהיה החלפת מקור ולא שכתוב עמוד.
-- [ ] seam אחד `lib/content/` — פונקציה אחת שהיום מחזירה את המהדורה המקומית
-  ומחר קוראת ל־`GET /api/v1/published-items`.
+- [x] מודול תוכן סטטי מוקלד לכל עמוד — קיים כעת ל־War Update, Fake
+  Resistance, October 7, Our Heroes ו־Israel's Story (5 קבצים תחת
+  `lib/content/`). Support Us ו־We Are נשארו ב־JSX ישיר בכוונה — הם תוכן
+  תהליך/מדיניות של האתר עצמו, לא פריטים עריכתיים שיתחלפו למקור פרסום.
+- [x] seam אחד `lib/content/` — נבנה: `getWarUpdateEdition()`,
+  ‏`getFakeResistanceEdition()`, ‏`getOctober7Record()`,
+  ‏`getOurHeroesEdition()`, ‏`getIsraelsStoryEdition()`,
+  ‏`getCorrectionsLog()`, כל אחת `async` ומחזירה מודול מקומי היום. עדיין
+  לא קוראות ל־`GET /api/v1/published-items` בפועל — ל־`PublishedItemView`
+  אין שדה שממפה פריט לעמוד היעד שלו, וזה חוזה שעוד לא תוכנן (ראו הערת
+  הקוד בכל קובץ).
 
 ### W4 — תוכן ומבנה פר־עמוד
 
@@ -161,38 +227,80 @@
 וסטטוס כן; מבנה שממתין לאישור (הסכמת משפחות, אימות) מסומן כ־reference בדיוק
 כמו "Reference brief 001" — לא מוצג כעובדה חיה.
 
-- [ ] **War Update** — פיד מתוארך אמיתי: מודול `war-update` עם פריטים
-  `{תאריך, אזור, קטגוריה, סטטוס, גוף, מקורות}` מאירועים מתועדים; timeline
-  אנכי עם status pill; עוגן permalink לכל פריט; בלוק "What changed"; ארבע
-  פסקאות המדיניות הקיימות עוברות ל־/methodology ומוחלפות ברצועת אמון קצרה.
-- [ ] **October 7** — ציר זמן מתועד של היום מהרשומה הציבורית; כרטיסי
-  claim→record לנרטיבי הכחשה (חופפים לפורמט תיקי Fake Resistance); מרחב
-  remembrance מופרד מבנית מתיקי הראיות; שער `SensitiveContent` פעיל.
-- [ ] **Our Heroes** — רכיב `HeroProfile` + מבנה נתונים מלא; פרופילים ראשונים
-  מסיפורי הצלה מתועדים־ציבורית עם מקורות, מסומנים בסטטוס כן ("reported,
-  based on public accounts") ובכפוף לתהליך ההסכמה שהעמוד עצמו מבטיח; כרטיס
-  טיפוגרפי ללא דיוקן כברירת מחדל (רגישות זכויות); פרופיל מובלט אחד מעל
-  grid — לא קטלוג קר.
-- [ ] **Israel's Story** — מבנה פרקים לפי תקופות עם ציר זמן; ציטוטי מסמכים
-  ראשוניים עם מקור; reading list אמיתי לכל פרק (העמוד כבר מבטיח footnotes
-  ומספק אפס קישורים); סימון מפורש של מחלוקות פרשניות.
-- [ ] **Fake Resistance** — שלושה תיקי case ראשונים מתוך מקרים מתועדים
-  היטב עם מקורות fact-check ציבוריים, בסכימה שהעמוד עצמו כבר הגדיר
-  (claim → origin → amplification → evidence → verdict → archived links);
-  ארבעת ה־tells הופכים ל־checklist אנליטי בכל תיק; timeline התפשטות.
-- [ ] **We Are** — "The method" כדיאגרמת תהליך ויזואלית (הצינור באמת ממומש
-  ב־backend, כך שהדיאגרמה אמיתית); grid תפקידים ללא שמות; עקרונות עצמאות
-  ומימון כרשימה מובנית; FAQ.
-- [ ] **Support Us** — טופס התנדבות (תחומים, שפות, זמינות) עם מצבי
-  הצלחה/שגיאה; מסלול "דווח על טענה לבדיקה" בנוי מול `submitReportSchema` —
-  משטח הכתיבה הציבורי היחיד שתוכנן לאנונימיים; share-CTA שנושא מקורות;
-  כרטיסי skill עם בקשות קונקרטיות; פירוט עלויות שקוף ל־"Sustain".
+- [x] **War Update** — נבנה מחדש: `lib/content/war-update.ts` עם שבעה אירועים
+  מתועדים ומקוריים (ספטמבר 2025–יולי 2026: תוכנית 20 הנקודות, חתימת
+  הפסקת האש ב־Sharm el-Sheikh, כניסתה לתוקף, שחרור 20 החטופים תוך 72 שעות,
+  אימוץ החלטה 2803 של מועצת הביטחון, הערכת "לא מלחמה ולא שלום" אחרי חצי
+  שנה, וההסכם המותנה לפירוק נשק חמאס), כל אחד עם מקורות אמיתיים (NPR,
+  Al Jazeera, Times of Israel, CBS News, Wikipedia, CNN — מקושרים בעמוד).
+  אלה אבני דרך מנהליות/הומניטריות/דיפלומטיות מתועדות — לא טענות טקטיות
+  חיות. ארבע פסקאות המדיניות עברו ל־`/methodology`; העמוד עצמו מציג רצועת
+  אמון קצרה + `Timeline` (`components/content`) + `SourceList` +
+  `CorrectionHistory` ריק.
+- [x] **October 7** — נבנה מחדש: `lib/content/october-7.ts` עם נתונים
+  אמיתיים מ־ADL (1,200+ הרוגים, 251 חטופים, 22+ יישובים+פסטיבל נובה) +
+  ציר זמן מתועד של שבע אבני דרך (7.10.23 עד 26.1.26, כולל גשר ל־War
+  Update). "Testimony" ו־"Remembrance" אוחדו לסעיף אחד שמקשר לשלושה
+  ארכיוני עדות אמיתיים (Edut 710, USC Shoah Foundation, October7.org)
+  דרך `SourceList` — **לא** משחזר עדות ו**לא** בונה פרופילי קורבנות; לאתר
+  הזה אין הסכמה מאף אחד מהם. `SensitiveContent` לא הופעל בסבב הזה — אין
+  כאן תוכן גרפי שדורש שער חשיפה. `register="muted"` נשמר.
+- [x] **Our Heroes** — נבנה מחדש: `lib/content/our-heroes.ts` עם
+  `HeroProfile[]` — שלושה אנשים אמיתיים ששמם וסיפורם כבר מכוסים בהרחבה
+  בעיתונות מיינסטרים בשם מלא (Aner Elyakim Shapira — נפל, Nova; Rami
+  Davidian — חקלאי שהציל כ־700 איש; אלוף (מיל.) נועם טיבון — חילץ את
+  משפחת בנו מנחל עוז). מוצג ב־`ContentCard` (אין שדה תמונה בכלל — "ללא
+  דיוקן כברירת מחדל" מובטח מבנית, לא כדגל לזכור), פרופיל אחד מובלט מעל
+  grid של השניים הנותרים, כל אחד עם `SourceList` בפוטר הכרטיס. **אין**
+  תהליך הסכמת משפחות אמיתי — זה הגבול האחראי לפרסום השלישייה הזו, לא
+  רצפה. פסקת "How these stories are gathered" הישנה נכתבה מחדש כי טענה
+  "nothing appears that the family has not seen and approved" — לא נכון
+  לגבי הפרופילים האלה.
+- [x] **Israel's Story** — נבנה מחדש: `lib/content/israels-story.ts` עם
+  שני פרקים אמיתיים ומצוטטים (Wikipedia, שני עמודים נפרדים): "The
+  founding, 1947–1948" (תוכנית החלוקה → סוף המנדט → הכרזת העצמאות
+  14.5.1948 → פלישת מצרים/עבר-הירדן/עיראק/סוריה 15.5.1948) ו־"Peace, when
+  it came" (הסכם השלום עם מצרים, 26.3.1979). זו מהדורה ראשונה מכוונת
+  ומצומצמת — לא "הקשת הארוכה" המלאה; העמוד עצמו מצהיר במפורש מה עוד חסר
+  (תקופה עתיקה, 1967, 1973, אוסלו, ירדן 1994, הסכמי אברהם) כפער ידוע, לא
+  כהשמטה שקטה. כל פרק: `Timeline` ‏(`variant="history"`) + `SourceList`.
+- [x] **Fake Resistance** — נבנה מחדש: שלושה תיקי case אמיתיים ב־
+  `lib/content/fake-resistance.ts`, כולם מאוקטובר 2023, מתועדים במקור
+  ציבורי יחיד או יותר ולא נוגעים במחלוקת חיה (Arma 3 — קטעי משחק שהוצגו
+  כלחימה אמיתית, מקור: Axios; סרטון פינוי בחיפה שתויג כחדירת חיזבאללה,
+  מקור: Reuters Institute/BBC Verify; קטע behind-the-scenes מסרט קצר
+  פלסטיני מ־2022 שתויג כתעמולת חמאס, מקור: PolitiFact). תיק שלישי חלופי
+  אומת אחרי שהתיק שתואר במקור התגלה כנוגע במוות אמיתי ובטענה שנויה
+  במחלוקת שהופצה על ידי גוף ממשלתי — הוחלף בכוונה (ראו `.ai/DECISIONS.md`).
+  כל תיק: `ClaimRecordPair`, ‏`VerificationBadge` עם `assessment` מהאוצר
+  המילים האמיתי בן 9 הערכים, ‏`SourceList`, וה־tells הרלוונטיים מתוך
+  הרשימה הקיימת בעמוד.
+- [x] **We Are** — נבנה מחדש: "The method" כרשימה ממוספרת של חמשת שלבי
+  הצינור האמיתי (ingest → evidence → assessment עם 10 מימדי ביטחון →
+  human review → publish/search) — לא תיאור כוונה, תיאור המסלול שקיים
+  בפועל ב־`server/modules/*`. Grid תפקידים ללא שמות (`ContentCard`):
+  Investigators, Verification reviewers, Linguists & translators,
+  Engineers. עקרונות (עצמאות/מימון/פרטיות/ניגוד עניינים) כטקסט כנה על מה
+  שעדיין לא פומבי. FAQ מבוסס עובדות שניתן לבדוק בקוד — למשל
+  `assessment.publish` לא יכול אף פעם להיות ביד זהות אוטומטית
+  (`NEVER_AUTOMATED_CAPABILITIES`).
+- [x] **Support Us** — נבנה מחדש: "דווח על טענה לבדיקה"
+  (`ReportClaimForm.tsx`) מחובר בפועל ל־`POST /api/v1/reports` הציבורי
+  והלא-מאומת הקיים, עם ולידציה תואמת ל־`submitReportSchema` (url-או-body),
+  קבלה מינימלית (`publicId`/`status`/`receivedAt`) ולא הד של מה שנשלח.
+  כרטיסי skill (`ContentCard`) לשלושת תחומי המומחיות. טופס התנדבות
+  (`VolunteerInterestForm.tsx`) מרכיב `mailto:` ממולא במקום להעמיד פנים
+  שנשלח לשרת — אין endpoint אמיתי לקליטת מתנדבים עדיין; כתובת ה־inbox
+  (`volunteers@lionsofzion.io`) היא placeholder שדורש אישור/כתובת אמיתית
+  לפני production. "Sustain" נשאר טקסט — אין ערוצי תרומה מאומתים עדיין.
 - [x] **Geopolitical Brief** — רצועת סגירה נוספה (desk הבא / חזרה לסריקה /
   back-to-top); הסתירה ברשומות התיקונים יושבה — ה־rail וה־footer נגזרים
   מאותם נתונים; אין יותר `corrections[0]` לא שמור.
-- [ ] **עמודי יעד חדשים** שלושה עמודים ששלושה עמודים קיימים כבר מפנים אליהם
-  והם dead end: `/methodology` (תהליך האימות והפרסום המלא), `/corrections`
-  (מדיניות + changelog ציבורי), עמוד הסכמה/הסרה למשפחות ועדים.
+- [ ] **עמודי יעד חדשים** — **חלקי**: `/methodology` ו־`/corrections` נבנו
+  (`components/sections/DocPage.tsx` — מעטפת קלה ללא file rail, לא
+  מצטרפות ל־`defaultNodes` כדי לא לשנות את מספור "File NN / 08"). עמוד
+  הסכמה/הסרה למשפחות ועדים עדיין לא נבנה — נדרש אם Our Heroes ירצה
+  להתרחב מעבר לשלוש הדמויות הציבוריות שכבר יש לו.
 
 ### W5 — צ׳ט: ממשק שמכבד את מה שאין
 
@@ -214,16 +322,17 @@
 
 ### W6 — מטא־דאטה, זהות והפצה
 
-- [ ] metadata פר־עמוד — **חלקי**: `title: { template }` גלובלי קיים וכפילות
-  הסיומת בשמונת הדפים תוקנה; `openGraph` ייחודי פר־עמוד (title/description
-  לכרטיס) עדיין חסר — כל הדפים יורשים את ה־OG הגלובלי.
+- [x] metadata פר־עמוד: `openGraph` ייחודי כעת על כל תשעת הדפים (כולל Our
+  Heroes ו־We Are שנבנו מחדש הסבב הזה).
 - [x] תמונת OG ‏1200×630 ב־`app/opengraph-image.tsx` (next/og, סימן הכתר).
 - [x] `sitemap.ts`, ‏`robots.ts`, ‏`manifest.ts`; ‏`/particle-demo` קיבל
   `robots: { index: false }` דרך layout (הדף הוא client component).
 - [x] favicon אמיתי (ICO תלת־גודל) + `icon.svg` (כתר זהב) + apple-icon;
   ‏`viewport.themeColor: #070b14` ו־`colorScheme: dark`.
-- [ ] אישור הדומיין הקנוני — `lions-of-zion.vercel.app` צרוב כעת בשלושה
-  מקומות: `metadataBase` ב־layout, ‏`BASE_URL` ב־sitemap וב־robots.
+- [x] ריכוז הדומיין ל־מקור אחד — `lib/site-config.ts` (`SITE_URL`), מיובא
+  ב־`layout.tsx`, ‏`sitemap.ts` ו־`robots.ts` במקום שלושה `"https://lions-
+  of-zion.vercel.app"` נפרדים. **עדיין פתוח**: אישור בפועל שזה הדומיין
+  הקנוני לפרודקשן (לא רק ריכוז הכפילות).
 - [x] ניקוי שאריות scaffold: חמשת קובצי ה־SVG נמחקו; `SectionPlaceholder.tsx`
   נמחק (ה־404 נבנה מחדש).
 

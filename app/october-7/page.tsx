@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
+import { FigureRow, SourceList, Timeline } from "@/components/content";
+import { getOctober7Record } from "@/lib/content/october-7";
 
 const TAGLINE =
   "The record of October 7: testimony, evidence, and remembrance.";
@@ -7,46 +9,50 @@ const TAGLINE =
 export const metadata: Metadata = {
   title: "October 7",
   description: TAGLINE,
+  openGraph: { title: "October 7 — LIONS OF ZION", description: TAGLINE },
 };
 
-export default function Page() {
+export default async function Page() {
+  const record = await getOctober7Record();
+
   return (
-    <SectionPage id="october-7" register="muted" title="October 7" tagline={TAGLINE}>
+    <SectionPage
+      id="october-7"
+      register="muted"
+      surface="quiet"
+      title="October 7"
+      tagline={TAGLINE}
+    >
       <SectionBlock heading="The record">
         <p>
-          What happened on October 7 was documented as it happened — by the
-          perpetrators themselves, by survivors, by first responders, and by
-          the forensic teams who came after. This section preserves that
-          record: footage with its chain of custody, forensic documentation,
-          and the official findings that rest on them, organized so that each
-          piece of evidence can be examined on its own terms.
+          What happened on October 7, 2023 was documented as it happened —
+          by the perpetrators themselves, by survivors, by first responders,
+          and by the forensic teams who came after. The figures below are
+          drawn from public reporting; deeper documentation lives with the
+          real archives further down this page.
         </p>
+        <FigureRow figures={record.figures} />
         <p>
           Denial of that day is not treated here as an opinion to argue with
-          but as a documented phenomenon to answer. Where a denial narrative
-          circulates, the record that refutes it is placed alongside — the
-          evidence, not the outrage.
+          but as a documented phenomenon the record and the archives below
+          answer directly.
         </p>
       </SectionBlock>
 
-      <SectionBlock heading="Testimony">
-        <p>
-          Survivors and first responders speak here in their own words.
-          Testimony is presented as it was given — attributed with each
-          witness’s consent, in their own language with translation, and never
-          cut for effect. The role of this section is to carry the voice, not
-          to shape it.
-        </p>
+      <SectionBlock heading="What followed">
+        <Timeline variant="feed" entries={record.timeline} />
       </SectionBlock>
 
-      <SectionBlock heading="Remembrance">
+      <SectionBlock heading="Testimony and remembrance">
         <p>
-          Behind every number is a name, and behind every name a life. This
-          section holds space for the murdered and the fallen of that day to be
-          remembered as people — who they were, what they loved, who they
-          leave behind — built with their families and at their families’
-          pace.
+          This site does not host survivor testimony or build victim
+          profiles here — that requires direct consent from the people
+          involved, and there is no process yet to obtain it responsibly.
+          What this page can do honestly is point to where that record
+          already lives, gathered and held by people who do have that
+          consent:
         </p>
+        <SourceList sources={record.archives} />
       </SectionBlock>
     </SectionPage>
   );

@@ -13,6 +13,7 @@
 import Link from 'next/link';
 import { defaultNodes } from '@/components/particle-nav/config';
 import { ScanBackdrop } from './ScanBackdrop';
+import { AskAboutFileCta } from './AskAboutFileCta';
 import styles from './sections.module.css';
 
 /*
@@ -171,6 +172,16 @@ export function SectionPage({
                   </li>
                 ))}
               </ul>
+            </nav>
+
+            <div className={styles.askCtaRow}>
+              <AskAboutFileCta href={node.href} />
+            </div>
+
+            <nav className={styles.docLinks} aria-label="Policy pages">
+              <Link href="/methodology">Methodology</Link>
+              <span aria-hidden="true">·</span>
+              <Link href="/corrections">Corrections</Link>
             </nav>
 
             <p className={styles.closeLine}>

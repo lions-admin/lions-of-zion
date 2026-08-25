@@ -1,4 +1,22 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Sitewide palette tokens. Locks from the nav brief (§9): gold on ground
+     is never dimmed for atmosphere; every consumer keeps its own fallback
+     value so this file can be the source of truth without being a coupling
+     hazard — a module that forgets to update here still renders correctly. */
+  --loz-ground: #070b14;
+  --loz-gold: #c9a24b;
+  --loz-gold-bright: #efd79a;
+  --loz-blue: #57a7d9;
+  --loz-blue-dim: #3e7fa8;
+  --loz-blue-peak: #9adfff;
+  --loz-ember: #a85a61;
+  --loz-ember-dim: #7a4048;
+  --loz-ember-peak: #d08d94;
+  --loz-body: #9fb3c8;
+}
+
 html, body {
   width: 100%;
   height: 100%;

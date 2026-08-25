@@ -6,6 +6,7 @@ import lionReference from '@/assets/reference/crowned-lion-particle-reference.pn
 import { ChatParticleCanvas } from './ChatParticleCanvas';
 import { AskTheLionChat } from './AskTheLionChat';
 import { launcherLabel } from './chat-context';
+import { useChatOpen } from './chat-open-context';
 import {
   INTRO_SIGNAL_ATTRIBUTES,
   INTRO_SIGNAL_SELECTOR,
@@ -79,7 +80,8 @@ export function ParticleChatLauncher() {
   const [focused, setFocused] = useState(false);
   const [activated, setActivated] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const { state: chatState, openChat, closeChat: closeChatContext } = useChatOpen();
+  const chatOpen = chatState.open;
   const active = hovered || focused || activated;
   const contextualLabel = launcherLabel(pathname);
   const restoreLauncherFocus = useCallback(() => {
@@ -103,7 +105,7 @@ export function ParticleChatLauncher() {
     if (main) main.inert = true;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setChatOpen(false);
+        closeChatContext();
         restoreLauncherFocus();
       }
     };
@@ -112,7 +114,7 @@ export function ParticleChatLauncher() {
       window.removeEventListener('keydown', closeOnEscape);
       if (main) main.inert = wasInert;
     };
-  }, [chatOpen, restoreLauncherFocus]);
+  }, [chatOpen, restoreLauncherFocus, closeChatContext]);
 
   /* Not hidden — absent. A hidden launcher keeps its particle canvas rendering
      behind the intro's own 45k–180k renderer, keeps a button in the tab order
@@ -123,13 +125,13 @@ export function ParticleChatLauncher() {
 
   const activate = () => {
     setActivated(true);
-    setChatOpen(true);
+    openChat();
     if (activationTimerRef.current) clearTimeout(activationTimerRef.current);
     activationTimerRef.current = setTimeout(() => setActivated(false), 1100);
   };
 
   const closeChat = () => {
-    setChatOpen(false);
+    closeChatContext();
     restoreLauncherFocus();
   };
 

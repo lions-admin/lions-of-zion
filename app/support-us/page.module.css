@@ -1,0 +1,12 @@
+.skillGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+@media (max-width: 719px) {
+  .skillGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

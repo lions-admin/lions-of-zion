@@ -4,6 +4,7 @@ import { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useS
 import { usePathname } from 'next/navigation';
 import type { ChatMessageView, Citation } from '@/server/contracts/chat';
 import { starterQuestions } from './chat-context';
+import { useChatOpen } from './chat-open-context';
 import styles from './ask-the-lion-chat.module.css';
 
 const MAX_LENGTH = 10_000;
@@ -108,13 +109,17 @@ interface AskTheLionChatProps {
 
 export function AskTheLionChat({ onClose }: AskTheLionChatProps) {
   const pathname = usePathname();
+  const { state: chatOpenState } = useChatOpen();
   const panelRef = useRef<HTMLElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const threadIdRef = useRef<string | null>(null);
   const probedRef = useRef(false);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [draft, setDraft] = useState('');
+  /* `useState`'s initializer runs once, at mount — a CTA elsewhere on the
+     page (e.g. "Ask the Lion about this file") pre-fills the composer here
+     but never sends on the visitor's behalf; they still choose to hit send. */
+  const [draft, setDraft] = useState(chatOpenState.initialQuestion ?? '');
   const [messages, setMessages] = useState<ChatUiMessage[]>([]);
   const [sending, setSending] = useState(false);
   const [deskState, setDeskState] = useState<DeskState>('checking');

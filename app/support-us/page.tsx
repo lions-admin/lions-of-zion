@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
+import { ContentCard } from "@/components/content";
+import { ReportClaimForm } from "@/components/support/ReportClaimForm";
+import { VolunteerInterestForm } from "@/components/support/VolunteerInterestForm";
+import styles from "./page.module.css";
 
 const TAGLINE =
   "Ways to join the effort: amplify verified truth, contribute skills, sustain the work.";
@@ -7,11 +11,12 @@ const TAGLINE =
 export const metadata: Metadata = {
   title: "Support Us",
   description: TAGLINE,
+  openGraph: { title: "Support Us — LIONS OF ZION", description: TAGLINE },
 };
 
 export default function Page() {
   return (
-    <SectionPage id="support-us" title="Support Us" tagline={TAGLINE}>
+    <SectionPage id="support-us" surface="quiet" title="Support Us" tagline={TAGLINE}>
       <SectionBlock heading="Amplify">
         <p>
           The simplest contribution is also the most effective: share verified
@@ -24,29 +29,37 @@ export default function Page() {
         </p>
       </SectionBlock>
 
+      <SectionBlock heading="Report a claim for review">
+        <p>
+          Seen a claim that needs checking? Send a link or a short description
+          — reports are reviewed by the desk, not published automatically.
+          Nothing you submit is echoed back or shared publicly without that
+          review, and giving an email is entirely optional.
+        </p>
+        <ReportClaimForm />
+      </SectionBlock>
+
       <SectionBlock heading="Contribute skills">
         <p>
-          This network runs on volunteered expertise. The skills in constant
-          demand:
+          This network runs on volunteered expertise. Every volunteer works
+          inside the same method: evidence first, human review before
+          anything is published.
         </p>
-        <ul>
-          <li>
-            Open-source investigation — geolocation, chronolocation, archive
-            work, and network analysis of coordinated campaigns.
-          </li>
-          <li>
-            Languages — reading and translating primary material across the
-            languages of the region and of the networks that target it.
-          </li>
-          <li>
-            Design and development — the tools that make verified material
-            fast to check and easy to carry.
-          </li>
-        </ul>
-        <p>
-          Every volunteer works inside the same method: evidence first, human
-          review before anything is published.
-        </p>
+        <div className={styles.skillGrid}>
+          <ContentCard eyebrow="Investigate" title="Open-source investigation">
+            Geolocation, chronolocation, archive work, and network analysis of
+            coordinated campaigns.
+          </ContentCard>
+          <ContentCard eyebrow="Translate" title="Languages">
+            Reading and translating primary material across the languages of
+            the region and of the networks that target it.
+          </ContentCard>
+          <ContentCard eyebrow="Build" title="Design and development">
+            The tools that make verified material fast to check and easy to
+            carry.
+          </ContentCard>
+        </div>
+        <VolunteerInterestForm />
       </SectionBlock>
 
       <SectionBlock heading="Sustain">

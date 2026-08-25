@@ -12,17 +12,18 @@
  */
 
 .page {
-  /* single source for the palette on these pages */
-  --ground: #070b14;
-  --gold: #c9a24b;
-  --gold-bright: #efd79a;
-  --blue: #57a7d9;
-  --blue-dim: #3e7fa8;
-  --blue-peak: #9adfff;
-  --ember: #a85a61;
-  --ember-dim: #7a4048;
-  --ember-peak: #d08d94;
-  --body: #9fb3c8;
+  /* aliases the sitewide tokens in app/globals.css :root — the fallback is
+     the same value, so this stays correct even mounted without that file */
+  --ground: var(--loz-ground, #070b14);
+  --gold: var(--loz-gold, #c9a24b);
+  --gold-bright: var(--loz-gold-bright, #efd79a);
+  --blue: var(--loz-blue, #57a7d9);
+  --blue-dim: var(--loz-blue-dim, #3e7fa8);
+  --blue-peak: var(--loz-blue-peak, #9adfff);
+  --ember: var(--loz-ember, #a85a61);
+  --ember-dim: var(--loz-ember-dim, #7a4048);
+  --ember-peak: var(--loz-ember-peak, #d08d94);
+  --body: var(--loz-body, #9fb3c8);
   --accent: var(--blue);
   --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
   --display: var(--font-cinzel), Georgia, 'Times New Roman', serif;
@@ -117,6 +118,21 @@
 }
 
 .rail {
+  animation: rise 600ms ease both;
+}
+
+/* ---- lighter shell for pages outside the 8-file orbit (DocPage) ---- */
+
+.docShell {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 44rem);
+  justify-content: center;
+  padding: clamp(2.5rem, 7vh, 5.5rem) clamp(1.25rem, 4vw, 3rem) 7rem;
+}
+
+.docTopNav {
+  margin-bottom: 1.5rem;
   animation: rise 600ms ease both;
 }
 
@@ -287,42 +303,46 @@
   flex: none;
 }
 
-.body p {
+/* `:where(.body)` keeps these at element-only specificity — they style bare,
+   hand-authored prose inside a SectionBlock without ever outranking a
+   shared components/content component mounted in the same body (every one
+   of those carries its own class-scoped styling and must always win). */
+:where(.body) p {
   margin: 0 0 1.05rem;
   line-height: 1.75;
   font-size: 0.98rem;
 }
 
-.body p:last-child {
+:where(.body) p:last-child {
   margin-bottom: 0;
 }
 
-.body ul {
+:where(.body) ul {
   margin: 0 0 1.05rem;
   padding-left: 1.25rem;
 }
 
-.body li {
+:where(.body) li {
   margin-bottom: 0.5rem;
   line-height: 1.7;
 }
 
-.body li::marker {
+:where(.body) li::marker {
   color: var(--accent);
 }
 
-.body strong {
+:where(.body) strong {
   color: #c9d6e6;
   font-weight: 600;
 }
 
-.body a {
+:where(.body) a {
   color: var(--gold);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.body a:hover {
+:where(.body) a:hover {
   color: var(--gold-bright);
 }
 
@@ -422,6 +442,59 @@
 
 .destination[aria-current='page'] .destinationIndex {
   color: var(--gold);
+}
+
+.askCtaRow {
+  margin-top: 2.25rem;
+}
+
+.askCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.65rem 1.1rem;
+  background: transparent;
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+
+.askCta:hover,
+.askCta:focus-visible {
+  border-color: var(--gold-bright);
+  color: var(--gold-bright);
+}
+
+.docLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.docLinks a {
+  color: rgba(159, 179, 200, 0.72);
+  text-decoration: none;
+}
+
+.docLinks a:hover,
+.docLinks a:focus-visible {
+  color: var(--gold);
+}
+
+.docLinks span {
+  color: rgba(159, 179, 200, 0.4);
 }
 
 .closeLine {
@@ -525,7 +598,9 @@
 }
 
 .page a:focus-visible,
-.back:focus-visible {
+.back:focus-visible,
+.askCta:focus-visible,
+.docLinks a:focus-visible {
   outline: 2px solid var(--gold-bright);
   outline-offset: 3px;
 }

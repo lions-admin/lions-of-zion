@@ -34,8 +34,10 @@ const eslintConfig = defineConfig([
   ]),
 
   {
-    /* The frontend. May read the shared vocabulary; may not reach further. */
-    files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
+    /* The frontend. May read the shared vocabulary; may not reach further.
+       `lib/**` is included: it is the frontend's content seam, and should be
+       held to the same boundary as `app/` and `components/`. */
+    files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "lib/**/*.{ts,tsx}"],
     ignores: ["app/api/**"],
     rules: {
       "no-restricted-imports": [

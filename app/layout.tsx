@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Cinzel, Geist, Geist_Mono } from "next/font/google";
 import { ParticleChatLauncher } from "@/components/chat/ParticleChatLauncher";
+import { ChatOpenProvider } from "@/components/chat/chat-open-context";
+import { SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
@@ -13,7 +15,7 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lions-of-zion.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   title: { default: "LIONS OF ZION", template: "%s — LIONS OF ZION" },
   description: "A cinematic awakening from digital darkness.",
   // Section pages override title/description; app/opengraph-image.tsx
@@ -42,8 +44,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable}`}
     >
       <body>
-        {children}
-        <ParticleChatLauncher />
+        <ChatOpenProvider>
+          {children}
+          <ParticleChatLauncher />
+        </ChatOpenProvider>
       </body>
     </html>
   );

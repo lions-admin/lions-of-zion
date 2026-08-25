@@ -10,6 +10,151 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — Our Heroes publishes only extensively public, already-covered people — no consent workflow exists to publish anyone else
+
+There is no family-consent intake process on this site. Publishing a real
+person's name and story without one is not something a single research pass
+should improvise around. The line drawn instead: a profile may go up only
+when the subject or their family has already made the story extensively
+public themselves, on the record, more than once, in named mainstream press
+— the public choosing to tell the story repeatedly stands in for a consent
+process this site doesn't have yet. All three profiles in
+`lib/content/our-heroes.ts` (Aner Shapira, Rami Davidian, Noam Tibon) meet
+that bar; nothing beyond what's cited in named press was added. Cards use
+`components/content/ContentCard`, which has no image slot at all — "no
+portrait by default" is true by construction, not a rule to remember to
+follow. Do not add a profile that doesn't clear the same bar just because a
+story is compelling; build the real consent workflow first (see TODOS W4's
+open item on a family/witness consent page), and don't quietly relax this
+one instead. The page's own "How these stories are gathered" copy was
+rewritten for the same reason — it previously claimed every family had
+"seen and approved" its story, which was true of nothing on the page and
+would have been false advertising the moment real profiles went up.
+
+## 2026-08-25 — October 7's Testimony/Remembrance link to real archives; this site builds neither
+
+Reproducing survivor testimony or building victim/remembrance profiles
+requires the same consent this site doesn't have (see the Our Heroes entry
+above — the same boundary, a harder version of it, since testimony is
+first-person and remembrance concerns the deceased). The fix applied in
+`lib/content/october-7.ts`: link to three real, independently operated
+archives with actual custodianship and consent processes (Edut 710, USC
+Shoah Foundation's October 7 collection, October7.org) rather than building
+either section natively. "The record" is the only part of this page built
+from primary research (ADL's timeline, cross-checked against CSIS/AJC/
+Washington Post reporting) — administrative and casualty facts, not
+testimony. Do not swap the archive links for reproduced excerpts "to make
+the page feel less like a list of outbound links" — that reproduction is
+exactly the thing this decision avoids.
+
+## 2026-08-25 — Israel's Story ships two chapters, not "the long arc," and says so on the page
+
+The page's tagline promises "the long arc" of history, but writing that
+responsibly — ancient continuity, multiple wars, multiple peace processes,
+each individually sourced — is not a single-session task, and a rushed
+pass through millennia of contested history is a worse failure mode than an
+honest partial edition. `lib/content/israels-story.ts` ships exactly two
+chapters this pass (the 1947–48 founding; the 1979 Egypt treaty), each
+built from a fetched primary source (Wikipedia, itself citing further
+primary documents), and the page states outright which real, later chapters
+(the ancient period, 1967, 1973, Oslo, the 1994 Jordan treaty, the 2020
+Abraham Accords) are missing and why — matching the same "reference
+edition, honestly labeled" pattern already used elsewhere on this site
+rather than reaching for completeness it can't back with real sourcing yet.
+Extend this file the same way: one chapter at a time, each fact tied to a
+source actually fetched and checked in the session that adds it.
+
+## 2026-08-25 — No global footer in `app/layout.tsx`; Methodology/Corrections links live in each page's own footer instead
+
+TODOS.md's W1 asked for a "lean global footer." Building one as a component
+mounted in `app/layout.tsx` was rejected: `CLAUDE.md` states plainly that
+the home route has no content below the fold, and layout.tsx wraps every
+route including `/` — a global footer there would either violate that
+invariant on the home route or need special-casing to hide itself there,
+which is worse than not building it. Instead, a small "Methodology ·
+Corrections" link row was added directly to `SectionPage`'s own footer
+(`components/sections/SectionPage.tsx`, `.docLinks`) and to
+`GeopoliticalBrief`'s closing nav (`geopolitical-brief.module.css`,
+`.docLinks`) — the two places that actually needed to be more discoverable.
+A sitewide footer with identity/contact/chat-entry is still a real,
+open TODOS item; if it's ever built, it must be conditional on not being
+the home route, not a blanket layout addition.
+
+## 2026-08-25 — War Update's first edition covers the live Oct 2025 ceasefire, not the superseded Jan 2025 one
+
+Two separate Gaza ceasefires exist in the public record: one signed January
+2025 (collapsed later that year) and one signed October 9, 2025 off Trump's
+20-point plan, still the operative process as of this writing (August 2026).
+An earlier draft of this edition conflated hostage-release figures from both.
+The fix was not to merge them but to drop the January 2025 round entirely —
+War Update is a "what is the current situation" reference edition, not a
+full war history, so the superseded ceasefire has no place in it. The seven
+entries in `lib/content/war-update.ts` run Sept 2025 (the 20-point plan) to
+Jul 2026 (the conditional Hamas disarmament announcement), each with a real,
+fetched-and-verified source (NPR, Al Jazeera, The Times of Israel, CBS News,
+Wikipedia, CNN). All are administrative, humanitarian or diplomatic
+milestones — deliberately never a tactical/front-line claim, which would
+require adjudicating an active conflict from search snippets. A later
+session extending this page must keep that boundary: verified announcements
+and agreements, not claims about what is happening on the ground right now.
+
+## 2026-08-25 — A Fake Resistance case file was dropped after verification, not shipped anyway
+
+The case file originally briefed for slot C — matching a director's name and
+an October 28, 2023 upload date — was assumed to be a clean "crisis actor"
+debunk. WebFetch verification found the real case behind those details
+involved a genuine deceased child and a contested claim amplified by an
+official government account: live dispute, not settled misinformation
+mechanics, and not something to publish as a case file on a single research
+pass. It was replaced with a different, independently verified case
+(PolitiFact, Oct 10 2023: a 2022 Palestinian short film's behind-the-scenes
+footage falsely captioned as staged Hamas propaganda) rather than forced
+into the original brief. The standing rule this confirms: a case file ships
+only when its claim, origin and verdict are independently checkable from the
+cited source — a plausible-sounding brief is not sufficient sourcing on its
+own, and "the details didn't match what I could verify" is a reason to swap
+the case, not soften the citation.
+
+## 2026-08-25 — `:where(.body)` keeps SectionPage's prose rules from outranking components/content
+
+`components/content/*` was built and documented across an earlier session
+but never actually mounted inside a `SectionPage` body until War Update and
+Fake Resistance did it this session. `sections.module.css`'s generic prose
+rules (`.body p`, `.body a`, `.body li`, …) and the content library's own
+element selectors (`.corrections p`, `.sourceBody a`, …) land on the same
+specificity (one class + one element), so which one wins was decided by
+Next.js's CSS chunk order — not something to depend on. Fixed by wrapping
+`.body`'s selectors in `:where(.body) …`, which zeroes their specificity
+contribution without changing what they match: hand-authored prose in a
+`SectionBlock` looks identical, and any `components/content` component
+mounted in the same body now reliably keeps its own styling. Do not remove
+the `:where()` wrapper to "simplify" the CSS — that reopens exactly this bug
+for the next page that mounts a shared content component.
+
+## 2026-08-25 — Volunteer intake composes a `mailto:`, not a fake success screen
+
+No backend endpoint exists for volunteer signups — only the public
+`POST /api/v1/reports` endpoint is real. `VolunteerInterestForm.tsx`
+composes a pre-filled `mailto:` link on submit instead of showing a
+"Submitted!" state with nowhere for the data to go, consistent with the
+"no false live state" principle already applied to the "Sustain" donation
+prose. `VOLUNTEER_INBOX` in that file (`volunteers@lionsofzion.io`) is a
+placeholder pending a confirmed real address — do not treat its presence in
+the code as evidence that inbox exists or is monitored.
+
+## 2026-08-25 — "Ask the Lion about this file" pre-fills the composer; it never sends automatically
+
+The new CTA opens the shared chat with a page-relevant starter question
+already typed into the composer (via `ChatOpenProvider`'s
+`openChat(question)` and `AskTheLionChat`'s `useState` initializer reading
+it once at mount), but the visitor still has to press send. Auto-sending was
+considered and rejected: a question appearing to come from the visitor
+without them choosing to ask it reads as the site putting words in their
+mouth. If this behavior changes, it is a deliberate UX call to make again
+consciously, not a refactor side effect.
+
+---
+
 ## 2026-08-25 — The phone keeps the live orbit; the static index is a tier, not the home
 
 Reported from a real iPhone as "instead of opening on the circular menu it

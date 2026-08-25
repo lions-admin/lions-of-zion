@@ -25,9 +25,9 @@ export function GeopoliticalBrief() {
       <div className={styles.quietBackdrop} aria-hidden="true" />
 
       <header className={styles.siteHeader}>
-        <Link href="/" className={styles.backLink} aria-label="Back to the Lions of Zion signal room">
+        <Link href="/" className={styles.backLink} aria-label="Back to the scan">
           <span aria-hidden="true">←</span>
-          <span>Signal room</span>
+          <span>Back to the scan</span>
         </Link>
         <Link href="/" className={styles.wordmark}>Lions of Zion</Link>
         <div className={styles.headerContext}>
@@ -234,7 +234,7 @@ export function GeopoliticalBrief() {
             <span className={styles.closingMark}>End of brief — Reference 001</span>
             <nav className={styles.closingNav} aria-label="Leave the brief">
               <Link href="/">
-                <span aria-hidden="true">←</span> Return to signal room
+                <span aria-hidden="true">←</span> Return to the scan
               </Link>
               <Link href="/war-update">
                 Next desk · War Update <span aria-hidden="true">→</span>
@@ -242,6 +242,11 @@ export function GeopoliticalBrief() {
               <a href="#brief-top">
                 Back to top <span aria-hidden="true">↑</span>
               </a>
+            </nav>
+            <nav className={styles.docLinks} aria-label="Policy pages">
+              <Link href="/methodology">Methodology</Link>
+              <span aria-hidden="true">·</span>
+              <Link href="/corrections">Corrections</Link>
             </nav>
           </div>
         </article>

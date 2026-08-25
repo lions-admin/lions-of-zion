@@ -1,0 +1,88 @@
+.methodList {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.methodStep {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 1.1rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid rgba(201, 162, 75, 0.18);
+}
+
+.methodStep:first-child {
+  border-top: none;
+}
+
+.methodIndex {
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: #c9a24b;
+}
+
+.methodStep h3 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #c9a24b;
+}
+
+.methodStep p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #b9c7d5;
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.faq {
+  margin: 1.5rem 0 0;
+}
+
+.faq dt {
+  margin-top: 1.5rem;
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #efd79a;
+}
+
+.faq dt:first-child {
+  margin-top: 0;
+}
+
+.faq dd {
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #b9c7d5;
+}
+
+@media (max-width: 900px) {
+  .roleGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .methodStep {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+
+  .roleGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

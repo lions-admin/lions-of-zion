@@ -4,9 +4,11 @@ import {
   ClaimRecordPair,
   PublicationMeta,
   SourceList,
+  Timeline,
   VerificationBadge,
 } from "@/components/content";
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
+import { SITE_URL } from "@/lib/site-config";
 import type { AssessmentValue } from "@/server/contracts/enums";
 import styles from "./page.module.css";
 
@@ -24,21 +26,68 @@ const STAMP_LABEL: Record<AssessmentValue, string> = {
   satire: "Satire",
 };
 
+/** schema.org/ClaimReview's reviewRating is a 1–5 scale, not this site's own
+ *  9-value vocabulary — this is the one honest translation between them,
+ *  used only for the JSON-LD, never for on-page display. */
+const CLAIM_REVIEW_RATING: Record<AssessmentValue, { ratingValue: number; alternateName: string }> = {
+  verified: { ratingValue: 5, alternateName: "True" },
+  false: { ratingValue: 1, alternateName: "False" },
+  manipulated: { ratingValue: 1, alternateName: "False" },
+  misleading: { ratingValue: 2, alternateName: "Mostly False" },
+  out_of_context: { ratingValue: 2, alternateName: "Misleading" },
+  unsupported: { ratingValue: 2, alternateName: "Unsupported" },
+  contested: { ratingValue: 3, alternateName: "Disputed" },
+  unverified: { ratingValue: 3, alternateName: "Unverified" },
+  satire: { ratingValue: 3, alternateName: "Satire" },
+};
+
 /** Exhibit letters, not sequence numbers — these three cases aren't steps in
  *  a process, they're separate items pulled into evidence. */
 const exhibitLetter = (index: number) => String.fromCharCode(65 + index);
 
 const TAGLINE =
   "Inside the influence machine: how manufactured outrage is built and amplified.";
+const PAGE_URL = `${SITE_URL}/fake-resistance`;
 
 export const metadata: Metadata = {
   title: "Fake Resistance",
   description: TAGLINE,
+  alternates: { canonical: PAGE_URL },
   openGraph: { title: "Fake Resistance — LIONS OF ZION", description: TAGLINE },
 };
 
 export default async function Page() {
   const edition = await getFakeResistanceEdition();
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": edition.cases.map((c) => ({
+      "@type": "ClaimReview",
+      url: `${PAGE_URL}#${c.id}`,
+      datePublished: c.datetime,
+      claimReviewed: c.claim,
+      itemReviewed: {
+        "@type": "Claim",
+        // No `author` — these claims spread through anonymous/unattributed
+        // accounts; asserting a claimant identity we don't have would be
+        // exactly the kind of invented fact this dataset avoids.
+        datePublished: c.datetime,
+        appearance: c.sources.map((s) => s.url).filter(Boolean),
+      },
+      author: {
+        "@type": "Organization",
+        name: "Lions of Zion",
+        url: SITE_URL,
+      },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: CLAIM_REVIEW_RATING[c.verdict].ratingValue,
+        bestRating: 5,
+        worstRating: 1,
+        alternateName: CLAIM_REVIEW_RATING[c.verdict].alternateName,
+      },
+    })),
+  };
 
   return (
     <SectionPage
@@ -48,6 +97,10 @@ export default async function Page() {
       tagline={TAGLINE}
       surface="quiet"
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SectionBlock heading="The machine">
         <p>
           Manufactured outrage has a supply chain. A claim is seeded by a small
@@ -156,6 +209,28 @@ export default async function Page() {
             <SourceList sources={c.sources} />
           </article>
         ))}
+      </SectionBlock>
+
+      <SectionBlock heading="Claim propagation">
+        <p>
+          Three separate campaigns, flagged within four days of each other —
+          the same synchronized-timing signature “The tells” describes above,
+          visible across cases rather than within one.
+        </p>
+        <Timeline
+          variant="spread"
+          entries={[...edition.cases]
+            .sort((a, b) => a.datetime.localeCompare(b.datetime))
+            .map((c) => ({
+              id: `${c.id}-spread`,
+              datetime: c.datetime,
+              dateLabel: c.dateLabel,
+              title: c.title,
+              body: `Exhibit ${exhibitLetter(edition.cases.indexOf(c))} — flagged and corrected by the source cited below.`,
+              assessment: c.verdict,
+              sources: c.sources,
+            }))}
+        />
       </SectionBlock>
     </SectionPage>
   );

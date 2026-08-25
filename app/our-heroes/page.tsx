@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { ContentCard, SourceList } from "@/components/content";
+import { SourceList } from "@/components/content";
 import { getOurHeroesEdition } from "@/lib/content/our-heroes";
+import type { HeroProfile } from "@/lib/content/our-heroes";
 import styles from "./page.module.css";
 
 const TAGLINE =
@@ -13,34 +14,38 @@ export const metadata: Metadata = {
   openGraph: { title: "Our Heroes — LIONS OF ZION", description: TAGLINE },
 };
 
+function Citation({ hero, featured }: { hero: HeroProfile; featured?: boolean }) {
+  return (
+    <article
+      className={`${styles.citation} ${featured ? styles.citationFeatured : ""}`}
+      aria-label={`Citation: ${hero.name}`}
+    >
+      <p className={styles.citationKicker}>In recognition — October 7, 2023</p>
+      <h3 className={styles.citationName}>{hero.name}</h3>
+      <div className={styles.citationRule} aria-hidden="true" />
+      <div className={styles.citationClassify}>
+        <span className={styles.citationRole}>{hero.role}</span>
+        <span className={styles.citationMeta}>{hero.meta}</span>
+      </div>
+      <p className={styles.citationBody}>{hero.summary}</p>
+      <div className={styles.citationSources}>
+        <span className={styles.citationSourcesKicker}>Sources</span>
+        <SourceList sources={hero.sources} />
+      </div>
+    </article>
+  );
+}
+
 export default async function Page() {
   const edition = await getOurHeroesEdition();
 
   return (
     <SectionPage id="our-heroes" surface="quiet" title="Our Heroes" tagline={TAGLINE}>
-      <SectionBlock heading="One story">
-        <ContentCard
-          eyebrow={edition.featured.role}
-          title={edition.featured.name}
-          meta={edition.featured.meta}
-          footer={<SourceList sources={edition.featured.sources} />}
-        >
-          {edition.featured.summary}
-        </ContentCard>
-      </SectionBlock>
-
-      <SectionBlock heading="More stories">
-        <div className={styles.heroGrid}>
+      <SectionBlock heading="Citations">
+        <Citation hero={edition.featured} featured />
+        <div className={styles.citationGrid}>
           {edition.profiles.map((hero) => (
-            <ContentCard
-              key={hero.id}
-              eyebrow={hero.role}
-              title={hero.name}
-              meta={hero.meta}
-              footer={<SourceList sources={hero.sources} />}
-            >
-              {hero.summary}
-            </ContentCard>
+            <Citation key={hero.id} hero={hero} />
           ))}
         </div>
       </SectionBlock>

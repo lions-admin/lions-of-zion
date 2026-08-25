@@ -1,12 +1,165 @@
-.heroGrid {
+/* Citation/commendation composition, local to Our Heroes. No photos exist
+   for these profiles (rights-sensitive, deliberate) so the formal register
+   and the corner-bracket frame — a citation, not a card — carry the weight
+   instead. Reads the sitewide --font-cinzel/--font-geist-mono tokens the
+   rest of the site uses; no new type or color introduced. */
+
+.citation {
+  position: relative;
+  margin-top: 2rem;
+  padding: 2.25rem 2rem 2rem;
+  border: 1px solid rgba(201, 162, 75, 0.28);
+  background: rgba(7, 11, 20, 0.4);
+}
+
+.citation:first-of-type {
+  margin-top: 1.5rem;
+}
+
+/* Corner brackets — the citation's one signature device, restrained to a
+   thin gold frame rather than any further ornament. */
+.citation::before,
+.citation::after {
+  content: '';
+  position: absolute;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid rgba(201, 162, 75, 0.55);
+  pointer-events: none;
+}
+
+.citation::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.citation::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+.citationFeatured {
+  padding: 2.75rem 2.5rem 2.5rem;
+  background: rgba(7, 11, 20, 0.55);
+}
+
+.citationFeatured::before,
+.citationFeatured::after {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.citationKicker {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(201, 162, 75, 0.68);
+}
+
+.citationName {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: #efd79a;
+  font-size: 1.05rem;
+}
+
+.citationFeatured .citationName {
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+}
+
+.citationRule {
+  width: 2.75rem;
+  height: 1px;
+  margin: 0.9rem 0 1.1rem;
+  background: linear-gradient(90deg, rgba(201, 162, 75, 0.85), rgba(201, 162, 75, 0.1));
+}
+
+.citationClassify {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.4rem;
+}
+
+.citationRole {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid rgba(201, 162, 75, 0.45);
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9a24b;
+}
+
+.citationMeta {
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  color: rgba(159, 179, 200, 0.72);
+}
+
+.citationBody {
+  margin: 0;
+  max-width: 42rem;
+  font-size: 0.94rem;
+  line-height: 1.75;
+  color: #b9c7d5;
+}
+
+.citationFeatured .citationBody {
+  font-size: 0.98rem;
+}
+
+.citationSources {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(201, 162, 75, 0.18);
+}
+
+.citationSourcesKicker {
+  display: block;
+  margin-bottom: 0.7rem;
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.5);
+}
+
+.citationGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.citationGrid .citation {
+  margin-top: 0;
 }
 
 @media (max-width: 719px) {
-  .heroGrid {
+  .citationGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .citation {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+
+  .citationFeatured {
+    padding: 2rem 1.5rem 1.75rem;
   }
 }

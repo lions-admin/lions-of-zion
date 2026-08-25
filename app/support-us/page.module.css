@@ -1,12 +1,119 @@
-.skillGrid {
+/* Support Us reads as a toolkit, not an article — this is the one page whose
+   job is action, not reading. Two real, working modules (Report, Volunteer)
+   get panel chrome; the two standing-practice items (Amplify, Sustain) sit
+   in a lighter strip below, honestly distinguishing a live channel from one
+   that isn't open yet rather than dressing both up the same way. */
+
+.toolkit {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0 2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin: 1.75rem 0 0.5rem;
 }
 
-@media (max-width: 719px) {
-  .skillGrid {
+.module {
+  min-width: 0;
+  padding: 1.6rem 1.5rem 1.75rem;
+  border: 1px solid rgba(201, 162, 75, 0.3);
+  border-radius: 2px;
+  background: linear-gradient(165deg, rgba(16, 26, 42, 0.55), rgba(7, 11, 20, 0.92) 55%);
+}
+
+.moduleHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(201, 162, 75, 0.2);
+}
+
+.moduleLabel {
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.62);
+}
+
+.moduleTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: #efd79a;
+}
+
+.moduleLede {
+  margin: 0 0 1.4rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #b9c7d5;
+}
+
+.skillGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+}
+
+.practiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.practice {
+  min-width: 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(201, 162, 75, 0.22);
+}
+
+.practicePending {
+  border-top-color: rgba(159, 179, 200, 0.22);
+  opacity: 0.82;
+}
+
+.practiceLabel {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.55);
+}
+
+.practicePending .practiceLabel {
+  color: rgba(159, 179, 200, 0.45);
+}
+
+.practice h3 {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: #c9a24b;
+}
+
+.practicePending h3 {
+  color: #9fb3c8;
+}
+
+.practice p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #b0bfcd;
+}
+
+@media (max-width: 900px) {
+  .toolkit,
+  .practiceGrid {
     grid-template-columns: minmax(0, 1fr);
   }
 }

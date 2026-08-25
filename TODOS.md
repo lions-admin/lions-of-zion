@@ -45,6 +45,20 @@
 הנתונים. הסעיף הזה הוא תוכנית פיתוח בלבד — תוכן, UI/UX, העשרה, חוויית גלישה
 ושיפור ויזואלי. אבטחה ובדיקות מנוהלות בסעיפים הקיימים ואינן חלק מהסבב הזה.
 
+### עדכון ביצוע — 25 באוגוסט 2026: גל 1 של המרתון הושלם
+
+שישה סוכנים מקביליים ביצעו את רוב W1, W2 (בקונטיינר), W3, W5 ו־W6; הסימונים
+בסעיפים למטה משקפים את מה שבוצע ואומת בפועל. השער המלא ירוק: typecheck, ‏lint,
+‏323 בדיקות (1 מדולגת), ‏build כולל כל נתיבי המטא־דאטה. כפילות סיומת הכותרת
+שנוצרה מתבנית ה־title תוקנה בשמונת הדפים.
+
+**גל 2 לא בוצע** — כל W4 (תוכן פר־עמוד: פידים, צירי זמן, תיקי case, פרופילים,
+פרקים, טפסים, עמודי methodology/corrections/consent) פתוח והוא נקודת ההתחלה
+של הסשן הבא. התשתית שלו מוכנה: ספריית `components/content/` (ה־README שם
+מתעד כל prop), ‏props חדשים ב־`SectionPage` ‏(`surface`, ‏`aside`, ‏`id`
+ב־`SectionBlock`), וכלל התוכן ב־`DECISIONS.md` (אין עובדות מומצאות; מבנים
+מקדימים מסומנים reference). משימות המק (Chrome אמיתי) נשארות בתחנת העבודה.
+
 ### ממצאי העל
 
 - מתוך שמונת העמודים, רק Geopolitical Brief מכיל תוכן אמיתי — מתוארך, ממוספר,
@@ -69,51 +83,47 @@
 
 ### W1 — מצבי מערכת ומעטפת ניווט
 
-- [ ] `app/not-found.tsx` בשפת העיצוב: פלטת האתר, Cinzel, קישור חזרה לסריקה
-  ורשימת שמונת היעדים (אפשר על בסיס `SectionPlaceholder` הרדום).
-- [ ] `app/error.tsx` (ו־boundary סביב `GeopoliticalBrief`, שכיום זורק על
-  `corrections[0]` ריק) באותה שפה.
-- [ ] `app/loading.tsx` שמכסה את המרווח המת שבין `router.push` לרינדור העמוד.
-- [ ] זיכרון session לאינטרו: מבקר שכבר ראה את האינטרו (או חוזר מעמוד פנימי)
-  נוחת ישירות על הניווט, דרך מסלול ה־skip הקיים. **אימות ויזואלי סופי — רק
+- [x] `app/not-found.tsx` בשפת העיצוב: פלטת האתר, Cinzel, קישור חזרה לסריקה
+  ורשימת שמונת היעדים (`SectionPlaceholder` הרדום נמחק).
+- [x] `app/error.tsx` באותה שפה; ה־guard על `corrections[0]` תוקן בברייף עצמו.
+- [x] `app/loading.tsx` שמכסה את המרווח המת שבין `router.push` לרינדור העמוד.
+- [x] זיכרון session לאינטרו (`loz-intro-seen`): מבקר שכבר ראה או דילג נוחת
+  ישירות על הניווט, דרך מסלול ה־skip הקיים. **אימות ויזואלי סופי — רק
   ב־Chrome אמיתי במק.**
-- [ ] סרגל prev/next בתחתית כל עמוד דוסייה, ברוח מספור `File NN / 08` שכבר
-  קיים: "NEXT FILE 05/08 — OUR HEROES →", מונע מ־`defaultNodes`.
-- [ ] רצועת כל־היעדים קומפקטית בתחתית כל עמוד + `aria-current="page"`.
-- [ ] סיום אמיתי לכל עמוד במקום חיתוך לחלל שחור: רצועת סגירה עם CTA הקשרי
-  ("Ask the Lion about this file", היעד הבא, חזרה לסריקה).
+- [x] סרגל prev/next בתחתית כל עמוד דוסייה, ברוח מספור `File NN / 08`, מונע
+  מ־`defaultNodes`, עם wrap-around.
+- [x] רצועת כל־היעדים קומפקטית בתחתית כל עמוד + `aria-current="page"`.
+- [ ] סיום אמיתי לכל עמוד — **חלקי**: prev/next, אינדקס היעדים ושורת
+  "File closed · Return to the scan" קיימים; ה־CTA ההקשרי של הצ׳ט
+  ("Ask the Lion about this file") עדיין חסר.
 - [ ] Footer גלובלי רזה: זהות, שמונת היעדים, Methodology / Corrections /
   Contact, כניסת צ׳ט.
-- [ ] אחידות לשוניות של קישורי החזרה ("Back to the scan" מול "Signal room").
-- [ ] עוגני `id` לכל `SectionBlock` + `scroll-margin-top`, כדי שכל כותרת תהיה
-  ברת־קישור.
+- [ ] אחידות לשונית של קישורי החזרה ("Back to the scan" מול "Signal room").
+- [x] עוגני `id` לכל `SectionBlock` (slug אוטומטי מהכותרת, תומך עברית) +
+  `scroll-margin-top`.
 
 ### W2 — תיקוני שפה ויזואלית
 
-- [ ] scrim/blur ל־rail הדביק ולכותרת הקובץ במובייל כך ששורות הרקע לא ייקראו
-  דרכם (ההתנגשות הגרועה ביותר: `/FAKE-RESISTANCE` על "FACT CHECK: …").
-- [ ] העלאת אטימות הפאנל או gradient מאחורי ה־H1 — כיום כיתובי רקע נקראים דרך
-  הפאנל מאחורי "ISRAEL'S STORY".
-- [ ] אריחי הגליפים: להציג את מקור ה־SVG (כמו שהברייף כבר עושה) במקום אריח
-  ה־SDF חסר האלפא שנראה כריבוע שחור שבור; ה־SDF נשאר לדוגם ה־GPU בלבד.
-- [ ] להחליף את `Monitoring · active` המקודד ב־`SectionPage` בתווית אמת
-  ("Reference edition") עד שיש אות חי — עיקרון "No false live state".
-- [ ] המשטח השקט (`quietBackdrop`) של הברייף מוחל על כל עמודי הדוסייה; עצירת
-  תנועת רקע ב־focus בתוך הטקסט.
-- [ ] טוקני צבע גלובליים ב־`:root` (`globals.css`) במקום שלוש פלטות מקבילות
-  ב־`sections`, `geopolitical-brief` ו־`styles.module.css`; יישור שני השחורים
-  (`#020409` מול `#070b14`) שנחשפים כפס כהה במובייל.
-- [ ] ניצול רוחב הדסקטופ: rail ימני בנוסח "Evidence contract" של הברייף
-  (סטטוס, מקורות, עדכון אחרון) או callouts — במקום שליש מסך ריק ב־1440px.
-- [ ] header נדבק של הברייף במובייל: אטימות/blur כך שגוף הטקסט לא מודלף דרכו;
-  fade ו־affordance לגלילת רצועת ה־TOC הנחתכת ("KNO…").
-- [ ] ליישב את "DESK 01 / 08" של הברייף עם המציאות (הסתרת הסך או קישור לשאר
-  הדסקים).
+- [x] scrim ל־rail הדביק ולכותרת הקובץ במובייל כך ששורות הרקע לא נקראות דרכם.
+- [x] gradient עליון מאחורי ה־H1 של הפאנל — כיתובי רקע כבר לא נקראים דרכו.
+- [x] אריחי הגליפים: ה־rail מציג כעת את מקורות ה־SVG עם גוון זהב; ה־SDF נשאר
+  לדוגם ה־GPU בלבד (ראו `DECISIONS.md`).
+- [x] `Monitoring · active` הוחלף ב־`Reference edition` — עיקרון
+  "No false live state".
+- [ ] המשטח השקט על כל עמודי הדוסייה — **חלקי**: prop ‏`surface="quiet"` קיים
+  ב־`SectionPage`; הדפים עדיין לא מפעילים אותו, ועצירת תנועה ב־focus לא
+  מומשה.
+- [ ] טוקני צבע גלובליים ב־`:root` — עדיין פתוח; יישור שני השחורים בוצע
+  (`ScanBackdrop` צובע את ה־ground, אין יותר פס כהה במובייל).
+- [ ] rail ימני בדסקטופ — **חלקי**: prop ‏`aside` קיים ב־`SectionPage` בסגנון
+  ה־evidence rail; אין עדיין תוכן שממלא אותו.
+- [x] header נדבק של הברייף במובייל אטום; רצועת ה־TOC קיבלה fade וגלילה.
+- [x] "DESK 01 / 08" הפך ל־"Desk 01".
 - [ ] scrollbar/חיווי גלילה לעמודים ארוכים — `::-webkit-scrollbar { display:
   none }` הגלובלי משאיר את Chrome/Safari בלי שום affordance.
 - [ ] `ReadingProgress` מוחל גם על עמודי דוסייה ארוכים, לא רק על הברייף.
-- [ ] מטמון (`cache()`) לקריאת ה־JSON של `ScanBackdrop` (134KB לכל רינדור);
-  תיקון פיזור `--rest` ב־reduced-motion כך ששורות לא יערמו ב־70vw השמאליים.
+- [x] מטמון `cache()` לקריאת ה־JSON של `ScanBackdrop`; פיזור `--rest`
+  ב־reduced-motion תוקן לכל רוחב המסך ללא overflow.
 
 **גיבוי במק (Chrome אמיתי) — לא לביצוע בקונטיינר:**
 
@@ -126,20 +136,20 @@
 
 ### W3 — ספריית רכיבי תוכן ושכבת נתונים
 
-- [ ] חילוץ רכיבי הברייף ל־`components/content/`: `VerificationBadge`,
-  `SourceList`, `PublicationMeta`, `KnownUnknownPanel`, `CorrectionHistory`,
-  `FigureRow` — כולם כבר ממומשים ידנית בתוך `GeopoliticalBrief.tsx`.
-- [ ] רכיב `Timeline` משותף אחד — שלושה עמודים צריכים אותו (War Update,
-  October 7, Israel's Story) ו־Fake Resistance צריך וריאנט התפשטות־טענה.
-- [ ] primitive כרטיס משותף: case file, פרופיל אדם, זוג claim→record.
-- [ ] רכיב `SensitiveContent` — שער אזהרת תוכן עם חשיפה מפורשת, נדרש לפני כל
-  חומר קשה ב־October 7.
-- [ ] הוספת `publishedItemSchema` / `PublishedItemView` ל־`server/contracts/item.ts`
-  בצורת ה־view הקיים `published_item`, כך שה־frontend סוף־סוף יכול לנקוב בצורה
-  שיקבל; ה־repo מייבא אותו במקום להכריז צורה משלו.
-- [ ] יישור אוצר המילים: הרכיבים החדשים נשענים על `ASSESSMENT_VALUES` (9),
-  `CONFIDENCE_SUMMARIES` ו־`LIKELIHOOD_BANDS` מ־`@/server/contracts/enums`
-  במקום 5 הסטטוסים הפרטיים של `geopolitical-reference.ts`.
+- [x] ספריית `components/content/` נבנתה (עם README מדויק של כל ה־props):
+  `VerificationBadge`, `SourceList`, `PublicationMeta`, `KnownUnknownPanel`,
+  `CorrectionHistory`, `FigureRow`. הברייף עצמו עדיין משתמש במימושיו
+  המקומיים — ההגירה שלו פתוחה.
+- [x] רכיב `Timeline` משותף בשלושה וריאנטים: `feed`, `history`, `spread`.
+- [x] primitives כרטיס: `ContentCard` ו־`ClaimRecordPair`.
+- [x] רכיב `SensitiveContent` — שער אזהרת תוכן נגיש עם חשיפה מפורשת וכפתור
+  הסתרה.
+- [x] `publishedItemSchema` / `PublishedItemView` נוספו ל־`server/contracts/item.ts`;
+  ‏`server/modules/items/repo.ts` מייבא את החוזה במקום להכריז צורה משלו
+  (18/18 בדיקות items עוברות).
+- [x] יישור אוצר המילים בספרייה החדשה: `VerificationBadge` ממופה בצורה
+  ממצה על כל 9 ערכי `ASSESSMENT_VALUES` + `CONFIDENCE_SUMMARIES`.
+  ‏`geopolitical-reference.ts` עצמו עדיין על 5 הסטטוסים הפרטיים — פתוח.
 - [ ] מודול תוכן סטטי מוקלד לכל עמוד, לצד `geopolitical-reference.ts` — תוכן
   ב־data ולא ב־JSX, כדי שהחלפה עתידית ל־API תהיה החלפת מקור ולא שכתוב עמוד.
 - [ ] seam אחד `lib/content/` — פונקציה אחת שהיום מחזירה את המהדורה המקומית
@@ -177,43 +187,45 @@
   הצלחה/שגיאה; מסלול "דווח על טענה לבדיקה" בנוי מול `submitReportSchema` —
   משטח הכתיבה הציבורי היחיד שתוכנן לאנונימיים; share-CTA שנושא מקורות;
   כרטיסי skill עם בקשות קונקרטיות; פירוט עלויות שקוף ל־"Sustain".
-- [ ] **Geopolitical Brief** — רצועת סגירה (desk הבא / חזרה / שיתוף) במקום
-  מסך שחור אחרי Correction history; יישוב הסתירה "Corrections — None
-  recorded" מול רשומת התיקון שמתחתיה; guard ל־`corrections[0]`.
+- [x] **Geopolitical Brief** — רצועת סגירה נוספה (desk הבא / חזרה לסריקה /
+  back-to-top); הסתירה ברשומות התיקונים יושבה — ה־rail וה־footer נגזרים
+  מאותם נתונים; אין יותר `corrections[0]` לא שמור.
 - [ ] **עמודי יעד חדשים** שלושה עמודים ששלושה עמודים קיימים כבר מפנים אליהם
   והם dead end: `/methodology` (תהליך האימות והפרסום המלא), `/corrections`
   (מדיניות + changelog ציבורי), עמוד הסכמה/הסרה למשפחות ועדים.
 
 ### W5 — צ׳ט: ממשק שמכבד את מה שאין
 
-- [ ] מצב degraded מפורש: הסתעפות על `error.code` (לא על message); כשה־backend
-  לא קיים — מצב "the desk is not connected yet" ברור, composer מושבת, בלי
-  לולאת retry אינסופית; בדיקת יכולת אחת בפתיחה במקום כישלון אחרי כל שליחה.
-- [ ] שאלות מוצעות לפי עמוד (3 chips מ־`defaultNodes` + תוכן העמוד).
-- [ ] תווית הקשרית לכל שמונת העמודים מ־`defaultNodes` ("Ask about October 7")
-  במקום המקרה המיוחד המקודד לברייף בלבד.
-- [ ] רינדור citations בצד לקוח, מוקלד מול `chatMessageSchema` ו־`citationSchema`
-  — השרת כבר מחזיר אותן והלקוח מפיל אותן על הרצפה.
-- [ ] auto-scroll להודעה החדשה; `aria-live` על התור האחרון בלבד ולא על כל
-  הרשימה.
-- [ ] ניהול שיחה: thread חדש/ניקוי, כפתור העתקת תשובה, retry לתור שנכשל.
-- [ ] composer: auto-grow, מונה תווים ל־maxLength, ביטול `autoFocus` במובייל.
+- [x] מצב degraded מפורש: הסתעפות על `error.code`; ‏INTERNAL_ERROR /
+  UNAUTHENTICATED / NOT_IMPLEMENTED ⇐ מצב "desk not connected", composer
+  מושבת, ללא לולאת retry; בדיקת יכולת אחת בפתיחה; ‏requestId מוצג רק
+  לשגיאות לא צפויות.
+- [x] שאלות מוצעות לפי עמוד — 3 chips נגזרים מ־`defaultNodes`, מוסתרים במצב
+  offline.
+- [x] תווית הקשרית לכל שמונת העמודים מ־`defaultNodes` ("Ask about October 7");
+  הברייף שומר על הנוסח הקיים.
+- [x] רינדור citations מוקלד מול `@/server/contracts/chat` — chips ממוספרים עם
+  ציטוט נפתח; בטוח בהיעדרן.
+- [x] auto-scroll להודעה החדשה (מכבד reduced-motion); ‏live region אחד על התור
+  האחרון בלבד; חותמות זמן להודעות.
+- [x] ניהול שיחה: thread חדש, העתקת תשובה, retry לתור שנכשל.
+- [x] composer: auto-grow, מונה מ־9,000 תווים, ‏focus חכם לפי סוג מצביע
+  (בלי מקלדת קופצת במובייל).
 
 ### W6 — מטא־דאטה, זהות והפצה
 
-- [ ] `title: { template }` גלובלי; metadata מלא פר־עמוד כולל `openGraph`
-  ייחודי — כיום כל שמונת העמודים חולקים כרטיס OG אחד.
-- [ ] תמונת OG בפורמט 1.91:1 (הפוסטר הנוכחי 1600×1600 נחתך בכל פלטפורמה).
-- [ ] `sitemap.ts`, `robots.ts`, `manifest`; `robots: { index: false }`
-  ל־`/particle-demo` שכיום ציבורי ואינדקסבילי עם פאנל Leva.
-- [ ] favicon אמיתי (הקיים הוא ברירת המחדל של create-next-app) + `icon.svg` +
-  apple-touch; `viewport.themeColor` כך שכרום המובייל לא יצייר פס בהיר מעל
-  עמוד כהה.
-- [ ] אישור הדומיין הקנוני (`lions-of-zion.vercel.app` צרוב כיום
-  ב־`metadataBase`) לפני הוספת canonical.
-- [ ] ניקוי שאריות scaffold: `next.svg`, `vercel.svg`, `file.svg`,
-  `globe.svg`, `window.svg`; `SectionPlaceholder.tsx` הרדום נמחק או הופך
-  לגוף ה־404.
+- [ ] metadata פר־עמוד — **חלקי**: `title: { template }` גלובלי קיים וכפילות
+  הסיומת בשמונת הדפים תוקנה; `openGraph` ייחודי פר־עמוד (title/description
+  לכרטיס) עדיין חסר — כל הדפים יורשים את ה־OG הגלובלי.
+- [x] תמונת OG ‏1200×630 ב־`app/opengraph-image.tsx` (next/og, סימן הכתר).
+- [x] `sitemap.ts`, ‏`robots.ts`, ‏`manifest.ts`; ‏`/particle-demo` קיבל
+  `robots: { index: false }` דרך layout (הדף הוא client component).
+- [x] favicon אמיתי (ICO תלת־גודל) + `icon.svg` (כתר זהב) + apple-icon;
+  ‏`viewport.themeColor: #070b14` ו־`colorScheme: dark`.
+- [ ] אישור הדומיין הקנוני — `lions-of-zion.vercel.app` צרוב כעת בשלושה
+  מקומות: `metadataBase` ב־layout, ‏`BASE_URL` ב־sitemap וב־robots.
+- [x] ניקוי שאריות scaffold: חמשת קובצי ה־SVG נמחקו; `SectionPlaceholder.tsx`
+  נמחק (ה־404 נבנה מחדש).
 
 ### סדר ביצוע לסבב
 

@@ -5,7 +5,7 @@ const TAGLINE =
   "Who Lions of Zion are, why this network exists, and how it works.";
 
 export const metadata: Metadata = {
-  title: "We Are — LIONS OF ZION",
+  title: "We Are",
   description: TAGLINE,
 };
 

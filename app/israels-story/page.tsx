@@ -5,7 +5,7 @@ const TAGLINE =
   "The long arc: history, identity, and the context the noise leaves out.";
 
 export const metadata: Metadata = {
-  title: "Israel’s Story — LIONS OF ZION",
+  title: "Israel’s Story",
   description: TAGLINE,
 };
 

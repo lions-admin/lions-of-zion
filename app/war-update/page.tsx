@@ -5,7 +5,7 @@ const TAGLINE =
   "Sourced, time-stamped updates from the front and the home front.";
 
 export const metadata: Metadata = {
-  title: "War Update — LIONS OF ZION",
+  title: "War Update",
   description: TAGLINE,
 };
 

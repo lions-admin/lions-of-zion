@@ -192,7 +192,6 @@ export function GeopoliticalBrief() {
 
           <section id="snapshot" className={styles.section}>
             <div className={styles.sectionLabel}>
-              <span>01</span>
               <h2>Executive snapshot</h2>
             </div>
             <div className={styles.summary}>
@@ -205,7 +204,6 @@ export function GeopoliticalBrief() {
 
           <section id="changes" className={styles.section}>
             <div className={styles.sectionLabel}>
-              <span>02</span>
               <h2>What changed</h2>
             </div>
             <ol className={styles.changeList}>
@@ -220,7 +218,6 @@ export function GeopoliticalBrief() {
 
           <section id="developments" className={styles.section}>
             <div className={styles.sectionLabel}>
-              <span>03</span>
               <h2>Verified developments</h2>
             </div>
             {developmentEntries.length > 0 ? (
@@ -234,7 +231,6 @@ export function GeopoliticalBrief() {
 
           <section id="assessment" className={`${styles.section} ${styles.assessment}`}>
             <div className={styles.sectionLabel}>
-              <span>04</span>
               <h2>Assessment</h2>
             </div>
             <p className={styles.assessmentNotice}>Inference from the official record—not a reported event.</p>
@@ -243,7 +239,6 @@ export function GeopoliticalBrief() {
 
           <section id="unknowns" className={styles.section}>
             <div className={styles.sectionLabel}>
-              <span>05</span>
               <h2>Known unknowns</h2>
             </div>
             <KnownUnknownPanel unknowns={[...brief.unknowns]} wouldChange={[...brief.changeConditions]} />
@@ -251,7 +246,6 @@ export function GeopoliticalBrief() {
 
           <section id="sources" className={styles.section}>
             <div className={styles.sectionLabel}>
-              <span>06</span>
               <h2>Source stack</h2>
             </div>
             {brief.sources.length > 0 ? (

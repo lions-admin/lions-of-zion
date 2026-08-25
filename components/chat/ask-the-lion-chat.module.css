@@ -248,14 +248,238 @@
 .thinking i:nth-child(2) { animation-delay: 160ms; }
 .thinking i:nth-child(3) { animation-delay: 320ms; }
 
-.error {
-  margin: 0.7rem 0 0;
-  padding: 0.75rem 0.85rem;
+.starters {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 19rem;
+  margin-top: 1.35rem;
+}
+
+.starter {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(132, 158, 180, 0.28);
+  border-radius: 0.8rem;
+  background: rgba(24, 38, 52, 0.35);
+  color: #c3d1de;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.starter:hover:not(:disabled),
+.starter:focus-visible {
+  border-color: rgba(255, 226, 154, 0.6);
+  background: rgba(134, 102, 33, 0.14);
+  color: #f3e9ca;
+}
+
+.starter:focus-visible {
+  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline-offset: 2px;
+}
+
+.starter:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.citations {
+  margin-top: 0.45rem;
+  padding-left: 0.15rem;
+}
+
+.citationRow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.citationChip {
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 1px solid rgba(219, 180, 82, 0.4);
+  border-radius: 50%;
+  background: rgba(219, 180, 82, 0.08);
+  color: #e3c887;
+  font: inherit;
+  font-size: 0.62rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.citationChip:hover,
+.citationChip:focus-visible,
+.citationChip[aria-expanded='true'] {
+  border-color: rgba(255, 226, 154, 0.75);
+  background: rgba(219, 180, 82, 0.2);
+  color: #ffe29a;
+}
+
+.citationChip:focus-visible {
+  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline-offset: 2px;
+}
+
+.citationQuote {
+  margin: 0.5rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border-left: 1px solid rgba(219, 180, 82, 0.5);
+  background: rgba(24, 38, 52, 0.4);
+  color: #b9c7d4;
+  font-size: 0.74rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.undelivered {
+  display: block;
+  margin: 0.3rem 0.25rem 0;
+  color: #6c7f91;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.messageError {
+  margin: 0.45rem 0 0;
+  padding: 0.6rem 0.75rem;
   border-left: 1px solid #c99d48;
   background: rgba(201, 157, 72, 0.08);
   color: #d8c79b;
   font-size: 0.72rem;
   line-height: 1.45;
+}
+
+/* The bubble styling on `.message p` (and its user variant) must not leak
+   into the inline error block — reset it back to plain text. */
+.message .messageError p {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: normal;
+}
+
+.message .messageError .requestId {
+  margin-top: 0.35rem;
+  color: #6c7f91;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+}
+
+.retry {
+  margin-top: 0.5rem;
+  padding: 0.32rem 0.85rem;
+  border: 1px solid rgba(255, 226, 154, 0.45);
+  border-radius: 999px;
+  background: rgba(219, 180, 82, 0.12);
+  color: #ffe29a;
+  font: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.retry:hover:not(:disabled) {
+  background: rgba(219, 180, 82, 0.24);
+}
+
+.retry:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.retry:focus-visible {
+  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline-offset: 2px;
+}
+
+.offline {
+  margin: 0.9rem 0 0;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(118, 166, 196, 0.22);
+  border-left: 2px solid rgba(219, 180, 82, 0.55);
+  border-radius: 0.35rem;
+  background: rgba(15, 26, 38, 0.55);
+  color: #a9bac9;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.offline p {
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.newThread {
+  padding: 0.34rem 0.7rem;
+  border: 1px solid rgba(219, 180, 82, 0.3);
+  border-radius: 999px;
+  background: transparent;
+  color: #d5bd7e;
+  font: inherit;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.newThread:hover:not(:disabled),
+.newThread:focus-visible {
+  border-color: rgba(255, 226, 154, 0.6);
+  background: rgba(219, 180, 82, 0.1);
+  color: #ffe29a;
+}
+
+.newThread:focus-visible {
+  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline-offset: 2px;
+}
+
+.newThread:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.counter {
+  position: absolute;
+  top: -1.35rem;
+  right: 0.4rem;
+  color: #8699ab;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .composer {
@@ -291,6 +515,7 @@
   width: 100%;
   min-height: 2.4rem;
   max-height: 7rem;
+  overflow-y: auto;
   resize: none;
   border: 0;
   outline: 0;
@@ -402,7 +627,12 @@
   }
 
   .close,
-  .composer button {
+  .composer button,
+  .starter,
+  .citationChip,
+  .copy,
+  .retry,
+  .newThread {
     transition-duration: 1ms !important;
   }
 }

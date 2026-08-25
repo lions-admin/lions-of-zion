@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Geist, Geist_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import { ParticleChatLauncher } from "@/components/chat/ParticleChatLauncher";
 import { ChatOpenProvider } from "@/components/chat/chat-open-context";
 import { SITE_URL } from "@/lib/site-config";
@@ -7,10 +7,34 @@ import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
+
+/* Cinzel is now the home particle scene's voice only. The reading pages moved
+   to Newsreader/Plex in the V2 type pass — see `.ai/DESIGN-V2.md`. */
 const cinzel = Cinzel({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-cinzel",
+  display: "swap",
+});
+
+/* Newsreader carries an `opsz` axis (6–72): the same family renders with
+   display proportions at headline sizes and text proportions at reading
+   sizes. Declaring the axis range here is what makes `font-optical-sizing`
+   in globals.css actually do something — without it the browser gets one
+   static cut and the face loses the reason it was chosen. */
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
+  display: "swap",
+});
+
+const plexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-plex-sans",
   display: "swap",
 });
 
@@ -41,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable}`}
     >
       <body>
         <ChatOpenProvider>

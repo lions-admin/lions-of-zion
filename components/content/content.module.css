@@ -1,66 +1,119 @@
 /*
  * Shared visual language for the content component library.
  *
- * Colors and type are hard-coded to the same values as
- * components/briefs/geopolitical-brief.module.css — a token pass comes later.
- * Every top-level component class composes `.tokens` so the components carry
- * their own palette wherever they are mounted.
+ * Ten routes render through these components, so this file is where the
+ * site's reading type is actually decided. It is built on the Design V2
+ * tokens in `app/globals.css` (`.ai/DESIGN-V2.md`) and holds the three
+ * canonical treatments the rest of the site is forbidden to redefine:
+ *
+ *   kicker      — an eyebrow/label above a thing.        --t-data, upper, gold
+ *   date stamp  — when something happened.               --t-data, mono, ink-lo
+ *   entry title — the name of an entry, card, or case.   --t-h3, Newsreader
+ *
+ * The audit that prompted the rewrite found five kicker variants and four
+ * date variants across the site. If a page needs a kicker, it uses this one.
+ *
+ * Two rules hold everywhere below:
+ *   1. Nothing is smaller than --t-data (0.72rem).
+ *   2. Uppercase + tracking is for short data labels only. Every heading,
+ *      title, and sentence is sentence case.
  */
 
 .tokens {
-  --ground: #070b14;
-  --surface: #090f1b;
-  --surface-raised: #0d1523;
-  --gold: #c9a24b;
-  --gold-bright: #efd79a;
-  --blue: #6bb7e4;
-  --blue-soft: #9ad7f5;
-  --body: #b5c4d4;
-  --body-bright: #dce6ef;
-  --muted: #75899d;
-  --ember: #e0785f;
-  --ember-soft: #edac9b;
+  /* Local shorthand over the global scale. Fallbacks keep the components
+     renderable if they are ever mounted somewhere globals.css is not. */
+  --ground: var(--loz-ground, #070b14);
+  --gold: var(--loz-gold, #c9a24b);
+  --gold-hi: var(--loz-gold-bright, #efd79a);
+  --ink-hi: #e9eef6;
+  --ink: #b9c5d4;
+  --ink-lo: #8494a8;
+  --blue: var(--loz-blue, #57a7d9);
+  --blue-peak: var(--loz-blue-peak, #9adfff);
+  --ember: var(--loz-ember, #a85a61);
+  --ember-peak: var(--loz-ember-peak, #d08d94);
   --line: rgba(153, 179, 202, 0.14);
   --gold-line: rgba(201, 162, 75, 0.24);
-  --ember-line: rgba(224, 120, 95, 0.28);
-  --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  --display: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  --ember-line: rgba(168, 90, 97, 0.32);
+  --surface-raised: #0d1523;
+
+  --display: var(--face-display, Charter, Georgia, serif);
+  --text: var(--face-text, -apple-system, BlinkMacSystemFont, sans-serif);
+  --mono: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+}
+
+/* ── The three canonical treatments ─────────────────────────────────────── */
+
+.kicker {
+  composes: tokens;
+  display: block;
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  text-transform: uppercase;
+}
+
+.dateStamp {
+  composes: tokens;
+  color: var(--ink-lo);
+  font-family: var(--mono);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: 0.04em;
+}
+
+.entryTitle {
+  composes: tokens;
+  color: var(--ink-hi);
+  font-family: var(--display);
+  font-size: var(--t-h3, 1.25rem);
+  font-weight: var(--t-h3-weight, 500);
+  line-height: var(--t-h3-lh, 1.4);
+  letter-spacing: 0;
 }
 
 /* ── VerificationBadge ──────────────────────────────────────────────────── */
 
+/* The one sanctioned exception to the ≤2-word uppercase rule: a badge is a
+   discrete status stamp, not prose, and reads as one at --t-data. Its longest
+   value ("Out of context") stays legible at this size and tracking. */
 .badge {
   composes: tokens;
   display: inline-flex;
   align-items: center;
-  gap: 0.42rem;
+  gap: 0.45rem;
   width: fit-content;
   max-width: 100%;
-  color: var(--badge-color, var(--blue-soft));
+  color: var(--badge-color, var(--blue-peak));
   font-family: var(--mono);
-  font-size: 0.54rem;
-  letter-spacing: 0.1em;
-  line-height: 1.4;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
   text-transform: uppercase;
 }
 
 .badge i {
   flex: none;
-  width: 0.38rem;
-  height: 0.38rem;
+  width: 0.4rem;
+  height: 0.4rem;
   border: 1px solid currentColor;
   border-radius: 50%;
-  background: var(--badge-dot, rgba(107, 183, 228, 0.4));
-  box-shadow: 0 0 10px var(--badge-glow, rgba(107, 183, 228, 0.52));
+  background: var(--badge-dot, rgba(87, 167, 217, 0.4));
+  box-shadow: 0 0 10px var(--badge-glow, rgba(87, 167, 217, 0.5));
 }
 
 .badgeConfidence {
-  color: var(--muted);
-  letter-spacing: 0.08em;
+  color: var(--ink-lo);
+  letter-spacing: 0.04em;
+  text-transform: none;
 }
 
+/* Assessment ramps are semantic data colour, not text hierarchy. Each value
+   is lifted to stay legible against the ground at --t-data. */
 .badge[data-assessment='verified'] {
-  --badge-color: #e3c978;
+  --badge-color: #e8c979;
   --badge-dot: rgba(201, 162, 75, 0.45);
   --badge-glow: rgba(201, 162, 75, 0.55);
 }
@@ -71,19 +124,19 @@
 }
 
 .badge[data-assessment='false'] {
-  --badge-color: #e2725b;
+  --badge-color: #ec8770;
   --badge-dot: rgba(226, 114, 91, 0.5);
   --badge-glow: rgba(226, 114, 91, 0.55);
 }
 
 .badge[data-assessment='misleading'] {
-  --badge-color: #dd8a62;
+  --badge-color: #e79b74;
   --badge-dot: rgba(221, 138, 98, 0.42);
   --badge-glow: rgba(221, 138, 98, 0.45);
 }
 
 .badge[data-assessment='manipulated'] {
-  --badge-color: #e07d55;
+  --badge-color: #eb9068;
   --badge-dot: rgba(224, 125, 85, 0.45);
   --badge-glow: rgba(224, 125, 85, 0.5);
 }
@@ -93,20 +146,20 @@
 }
 
 .badge[data-assessment='out_of_context'] {
-  --badge-color: #cf9270;
+  --badge-color: #dda484;
   --badge-dot: rgba(207, 146, 112, 0.38);
   --badge-glow: rgba(207, 146, 112, 0.4);
 }
 
 .badge[data-assessment='contested'] {
-  --badge-color: #d9975f;
+  --badge-color: #e6a972;
   --badge-dot: rgba(217, 151, 95, 0.4);
   --badge-glow: rgba(217, 151, 95, 0.45);
 }
 
 .badge[data-assessment='unverified'],
 .badge[data-assessment='unsupported'] {
-  --badge-color: #8fa4b8;
+  --badge-color: #a3b4c6;
   --badge-dot: rgba(143, 164, 184, 0.3);
   --badge-glow: rgba(143, 164, 184, 0.25);
 }
@@ -116,7 +169,7 @@
 }
 
 .badge[data-assessment='satire'] {
-  --badge-color: #ab94d6;
+  --badge-color: #bda6e4;
   --badge-dot: rgba(171, 148, 214, 0.4);
   --badge-glow: rgba(171, 148, 214, 0.45);
 }
@@ -149,7 +202,8 @@
 .sourceNumber {
   color: var(--blue);
   font-family: var(--mono);
-  font-size: 0.58rem;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
 }
 
 .sourceBody {
@@ -159,37 +213,40 @@
   gap: 0.4rem;
 }
 
+/* Publisher names run long ("Reuters Institute for the Study of Journalism,
+   University of Oxford") — sentence case, not a tracked label. */
 .sourceKind {
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.52rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  color: var(--ink-lo);
+  font-family: var(--text);
+  font-size: var(--t-caption, 0.8125rem);
+  font-weight: var(--t-caption-weight, 500);
+  line-height: var(--t-caption-lh, 1.5);
 }
 
 .sourceLabel,
 .sourceBody a {
   width: fit-content;
   max-width: 100%;
-  color: #dce6ef;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  color: var(--ink-hi);
+  font-family: var(--text);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
   overflow-wrap: break-word;
 }
 
 .sourceBody a {
   text-decoration: underline;
-  text-decoration-color: rgba(107, 183, 228, 0.6);
+  text-decoration-color: rgba(87, 167, 217, 0.6);
   text-underline-offset: 4px;
 }
 
 .sourceBody a:hover,
 .sourceBody a:focus-visible {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 .sourceBody a:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 4px;
 }
 
@@ -201,19 +258,19 @@
 }
 
 .sourceFootnotes time {
-  color: #71869b;
+  color: var(--ink-lo);
   font-family: var(--mono);
-  font-size: 0.52rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: 0.04em;
 }
 
 .archiveLink {
-  color: #82bfdf;
+  color: var(--blue-peak);
   font-family: var(--mono);
-  font-size: 0.52rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: 0.04em;
 }
 
 /* ── PublicationMeta ────────────────────────────────────────────────────── */
@@ -222,7 +279,7 @@
   composes: tokens;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.25rem;
+  gap: 1.25rem 1.5rem;
   margin: 0;
   padding-top: 1.25rem;
   border-top: 1px solid var(--line);
@@ -232,20 +289,24 @@
   min-width: 0;
 }
 
+/* Terms are all ≤2 words ("Edition", "Reviewed by", "Coverage window") —
+   the legitimate uppercase-label case. They were 8px before this pass. */
 .publicationMeta dt {
-  color: var(--muted);
+  color: var(--gold);
   font-family: var(--mono);
-  font-size: 0.5rem;
-  letter-spacing: 0.13em;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
   text-transform: uppercase;
 }
 
 .publicationMeta dd {
-  margin: 0.42rem 0 0;
-  color: #c6d2de;
-  font-family: var(--mono);
-  font-size: 0.61rem;
-  line-height: 1.5;
+  margin: 0.4rem 0 0;
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-caption, 0.8125rem);
+  font-weight: var(--t-caption-weight, 500);
+  line-height: var(--t-caption-lh, 1.5);
   overflow-wrap: break-word;
 }
 
@@ -268,27 +329,25 @@
 }
 
 .unknownGrid h3 {
-  min-height: 2.5rem;
   margin: 0;
-  color: #d9c17a;
+  color: var(--ink-hi);
   font-family: var(--display);
-  font-size: 0.77rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  line-height: 1.45;
-  text-transform: uppercase;
+  font-size: var(--t-h3, 1.25rem);
+  font-weight: var(--t-h3-weight, 500);
+  line-height: var(--t-h3-lh, 1.4);
 }
 
 .unknownGrid ul {
   margin: 1rem 0 0;
-  padding-left: 1rem;
+  padding-left: 1.1rem;
 }
 
 .unknownGrid li {
-  margin-bottom: 0.72rem;
-  color: #afbfce;
-  font-size: 0.84rem;
-  line-height: 1.65;
+  margin-bottom: 0.7rem;
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
 }
 
 .unknownGrid li::marker {
@@ -305,10 +364,11 @@
 .correctionsKicker {
   display: block;
   margin-top: 1rem;
-  color: var(--muted);
+  color: var(--gold);
   font-family: var(--mono);
-  font-size: 0.5rem;
-  letter-spacing: 0.12em;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
   text-transform: uppercase;
 }
 
@@ -329,34 +389,36 @@
 .correctionStamp {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  color: #b8c6d4;
+  gap: 0.35rem;
+  color: var(--ink-lo);
   font-family: var(--mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: 0.04em;
 }
 
 .correctionStamp small {
-  color: var(--muted);
-  font-size: 0.5rem;
-  letter-spacing: 0.12em;
+  color: var(--ink-lo);
+  font-size: var(--t-data, 0.72rem);
+  letter-spacing: 0.04em;
 }
 
 .corrections p {
   margin: 0;
-  color: #8fa3b6;
-  font-size: 0.72rem;
-  line-height: 1.55;
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
 }
 
 .correctionsEmpty {
   padding: 1rem 0;
   border-bottom: 1px solid var(--line);
-  color: #8fa3b6;
+  color: var(--ink-lo);
   font-family: var(--mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.08em;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
   text-transform: uppercase;
 }
 
@@ -381,29 +443,34 @@
   border-left: 1px solid var(--line);
 }
 
+/* --t-h2 rather than --t-display: this is a three-up data row inside a
+   reading column, not a hero. Pages that want a monumental figure (October 7)
+   raise it in their own module. */
 .figures dt {
-  color: #e3c978;
+  color: var(--gold-hi);
   font-family: var(--display);
-  font-size: clamp(1.35rem, 2.3vw, 1.9rem);
-  line-height: 1.1;
+  font-size: var(--t-h2, 1.55rem);
+  font-weight: var(--t-h2-weight, 500);
+  line-height: var(--t-h2-lh, 1.3);
   overflow-wrap: break-word;
 }
 
 .figures dd {
-  max-width: 9rem;
-  margin: 0.55rem 0 0;
-  color: var(--muted);
-  font-size: 0.66rem;
-  line-height: 1.5;
+  max-width: 12rem;
+  margin: 0.5rem 0 0;
+  color: var(--ink-lo);
+  font-family: var(--text);
+  font-size: var(--t-caption, 0.8125rem);
+  line-height: var(--t-caption-lh, 1.5);
 }
 
 /* ── Timeline ───────────────────────────────────────────────────────────── */
 
 .timeline {
   composes: tokens;
-  --rail: rgba(107, 183, 228, 0.32);
+  --rail: rgba(87, 167, 217, 0.32);
   --dot: var(--blue);
-  --dot-glow: rgba(107, 183, 228, 0.5);
+  --dot-glow: rgba(87, 167, 217, 0.5);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -416,9 +483,9 @@
 }
 
 .timeline[data-variant='spread'] {
-  --rail: rgba(224, 120, 95, 0.32);
+  --rail: rgba(168, 90, 97, 0.36);
   --dot: var(--ember);
-  --dot-glow: rgba(224, 120, 95, 0.45);
+  --dot-glow: rgba(168, 90, 97, 0.45);
 }
 
 .timelineEntry {
@@ -429,7 +496,7 @@
 }
 
 .timeline[data-variant='history'] .timelineEntry {
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.6rem;
 }
 
 .timelineEntry:last-child {
@@ -440,7 +507,7 @@
 .timelineEntry::before {
   content: '';
   position: absolute;
-  top: 0.2rem;
+  top: 0.45rem;
   left: -0.27rem;
   width: 0.42rem;
   height: 0.42rem;
@@ -461,55 +528,54 @@
   align-items: center;
   gap: 0.5rem 1rem;
   font-family: var(--mono);
-  text-transform: uppercase;
 }
 
+/* One date style. The `history` variant used to reset this to Cinzel at a
+   different size — that variance is gone; the rail colour already says which
+   variant you are reading. */
 .timelineMeta time {
-  color: var(--muted);
-  font-size: 0.55rem;
-  letter-spacing: 0.11em;
-}
-
-.timeline[data-variant='history'] .timelineMeta time {
-  color: #d6ba70;
-  font-family: var(--display);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  color: var(--ink-lo);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: 0.04em;
 }
 
 .timelineTag {
   color: var(--blue);
-  font-size: 0.52rem;
-  letter-spacing: 0.12em;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  text-transform: uppercase;
 }
 
 .timeline[data-variant='spread'] .timelineTag {
-  color: var(--ember-soft);
+  color: var(--ember-peak);
 }
 
+.timeline[data-variant='history'] .timelineTag {
+  color: var(--gold);
+}
+
+/* One entry-title style, shared by every variant. These are sentences
+   ("Israel opens the war with a surprise air strike") and are set as
+   sentences — the single biggest legibility change in this pass. */
 .timelineEntry h3 {
   max-width: 34rem;
-  margin: 0.85rem 0 0;
-  color: #e0c676;
+  margin: 0.6rem 0 0;
+  color: var(--ink-hi);
   font-family: var(--display);
-  font-size: 1.08rem;
-  font-weight: 500;
-  letter-spacing: 0.035em;
-  line-height: 1.4;
-}
-
-.timeline[data-variant='history'] .timelineEntry h3 {
-  font-size: 0.95rem;
-  margin-top: 0.6rem;
+  font-size: var(--t-h3, 1.25rem);
+  font-weight: var(--t-h3-weight, 500);
+  line-height: var(--t-h3-lh, 1.4);
 }
 
 .timelineBody {
   max-width: 41rem;
-  margin-top: 0.7rem;
-  color: #b9c7d5;
-  font-size: 0.93rem;
-  line-height: 1.75;
+  margin-top: 0.6rem;
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-body, 1.0625rem);
+  line-height: var(--t-body-lh, 1.7);
 }
 
 .timelineBody p {
@@ -518,11 +584,6 @@
 
 .timelineBody p + p {
   margin-top: 0.7rem;
-}
-
-.timeline[data-variant='history'] .timelineBody {
-  font-size: 0.88rem;
-  line-height: 1.68;
 }
 
 .timelineSources {
@@ -537,7 +598,8 @@
 
 .timelineSources .sourceLabel,
 .timelineSources .sourceBody a {
-  font-size: 0.78rem;
+  font-size: var(--t-caption, 0.8125rem);
+  line-height: var(--t-caption-lh, 1.5);
 }
 
 /* ── ContentCard ────────────────────────────────────────────────────────── */
@@ -563,27 +625,28 @@
   --card-line: var(--ember-line);
 }
 
+/* The canonical kicker. */
 .cardEyebrow {
-  margin: 0 0 0.85rem;
-  color: var(--blue);
+  margin: 0 0 0.8rem;
+  color: var(--gold);
   font-family: var(--mono);
-  font-size: 0.54rem;
-  letter-spacing: 0.14em;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
   text-transform: uppercase;
 }
 
 .card[data-accent='ember'] .cardEyebrow {
-  color: var(--ember-soft);
+  color: var(--ember-peak);
 }
 
 .card h3 {
   margin: 0;
-  color: #e0c676;
+  color: var(--ink-hi);
   font-family: var(--display);
-  font-size: 1.05rem;
-  font-weight: 500;
-  letter-spacing: 0.035em;
-  line-height: 1.4;
+  font-size: var(--t-h3, 1.25rem);
+  font-weight: var(--t-h3-weight, 500);
+  line-height: var(--t-h3-lh, 1.4);
 }
 
 .card h3 a {
@@ -603,28 +666,29 @@
 
 .card h3 a:hover,
 .card h3 a:focus-visible {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 .card h3 a:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 4px;
 }
 
 .cardMeta {
-  margin-top: 0.7rem;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  margin-top: 0.6rem;
+  color: var(--ink-lo);
+  font-family: var(--text);
+  font-size: var(--t-caption, 0.8125rem);
+  font-weight: var(--t-caption-weight, 500);
+  line-height: var(--t-caption-lh, 1.5);
 }
 
 .cardBody {
   margin-top: 0.85rem;
-  color: #b9c7d5;
-  font-size: 0.9rem;
-  line-height: 1.72;
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
 }
 
 .cardBody p {
@@ -639,9 +703,10 @@
   margin-top: 1.15rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--line);
-  color: #8fa3b6;
-  font-size: 0.72rem;
-  line-height: 1.55;
+  color: var(--ink-lo);
+  font-family: var(--text);
+  font-size: var(--t-caption, 0.8125rem);
+  line-height: var(--t-caption-lh, 1.5);
 }
 
 /* ── ClaimRecordPair ────────────────────────────────────────────────────── */
@@ -662,7 +727,7 @@
 
 .claimPanel {
   border-left: 2px solid var(--ember);
-  background: linear-gradient(90deg, rgba(224, 120, 95, 0.06), transparent 68%);
+  background: linear-gradient(90deg, rgba(168, 90, 97, 0.07), transparent 68%);
 }
 
 .recordPanel {
@@ -670,35 +735,38 @@
   background: linear-gradient(90deg, rgba(201, 162, 75, 0.055), transparent 68%);
 }
 
+/* These labels are phrases ("What the record shows"), so they are set as
+   phrases rather than tracked capitals. */
 .claimRecord h3 {
   margin: 0 0 0.9rem;
-  font-family: var(--mono);
-  font-size: 0.54rem;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--text);
+  font-size: var(--t-caption, 0.8125rem);
+  font-weight: 600;
+  line-height: var(--t-caption-lh, 1.5);
+  letter-spacing: 0.02em;
 }
 
 .claimPanel h3 {
-  color: var(--ember-soft);
+  color: var(--ember-peak);
 }
 
 .recordPanel h3 {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 .claimRecordBody {
-  color: #b9c7d5;
-  font-size: 0.9rem;
-  line-height: 1.72;
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
 }
 
 .claimPanel .claimRecordBody {
-  color: #c3b2ab;
+  color: #c8b6b0;
 }
 
 .recordPanel .claimRecordBody {
-  color: var(--body-bright);
+  color: var(--ink-hi);
 }
 
 .claimRecordBody p {
@@ -727,19 +795,21 @@
 
 .sensitiveWarning {
   margin: 0;
-  color: var(--body);
-  font-size: 0.84rem;
-  line-height: 1.65;
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
 }
 
 .sensitiveWarning::before {
   content: 'Sensitive material';
   display: block;
   margin-bottom: 0.5rem;
-  color: var(--muted);
+  color: var(--ember-peak);
   font-family: var(--mono);
-  font-size: 0.52rem;
-  letter-spacing: 0.13em;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
   text-transform: uppercase;
 }
 
@@ -748,10 +818,11 @@
   padding: 0 1.1rem;
   border: 1px solid var(--gold-line);
   background: transparent;
-  color: var(--gold-bright);
+  color: var(--gold-hi);
   font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
   text-transform: uppercase;
   cursor: pointer;
   transition: border-color 160ms ease, background-color 160ms ease;
@@ -764,7 +835,7 @@
 }
 
 .sensitiveButton:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 3px;
 }
 
@@ -801,10 +872,6 @@
     border-left: 0;
   }
 
-  .unknownGrid h3 {
-    min-height: 0;
-  }
-
   .corrections ol > li {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.6rem;
@@ -818,22 +885,13 @@
     padding-left: 0.8rem;
   }
 
-  .figures dt {
-    font-size: 1.25rem;
-  }
-
   .figures dd {
-    font-size: 0.61rem;
+    max-width: none;
   }
 
   .sourceList > li {
     grid-template-columns: 2rem minmax(0, 1fr);
     gap: 0.75rem;
-  }
-
-  .sourceLabel,
-  .sourceBody a {
-    font-size: 0.86rem;
   }
 
   .timelineEntry {
@@ -858,7 +916,8 @@
 }
 
 @media (max-width: 359px) {
-  .figures {
+  .figures,
+  .publicationMeta {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -867,13 +926,5 @@
     padding-left: 0;
     border-top: 1px solid var(--line);
     border-left: 0;
-  }
-
-  .figures dd {
-    max-width: none;
-  }
-
-  .publicationMeta {
-    grid-template-columns: minmax(0, 1fr);
   }
 }

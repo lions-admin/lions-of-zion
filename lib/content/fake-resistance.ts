@@ -10,6 +10,10 @@
  * attribution) does not belong here without much heavier sourcing than a
  * single pass affords; see `.ai/DECISIONS.md` for why one originally briefed
  * case was dropped in favor of a cleaner substitute.
+ *
+ * `archiveUrl` values were fetched and confirmed live against the Wayback
+ * Machine's availability API (archive.org/wayback/available) in the session
+ * that added them — real snapshots, not guessed URLs.
  */
 import type { AssessmentValue } from '@/server/contracts/enums';
 import type { Source } from '@/components/content';
@@ -61,6 +65,8 @@ const CASES: FakeResistanceCase[] = [
         label: 'Video game footage used to spread misinformation about Israel-Hamas war',
         kind: 'Axios',
         url: 'https://www.axios.com/2023/10/12/arma3-israel-hamas-conflict-fake-news',
+        archiveUrl:
+          'https://web.archive.org/web/20260415222407/https://www.axios.com/2023/10/12/arma3-israel-hamas-conflict-fake-news',
       },
     ],
   },
@@ -87,6 +93,8 @@ const CASES: FakeResistanceCase[] = [
         label: 'BBC senior verification expert on debunking Israel-Hamas war visuals',
         kind: 'Reuters Institute for the Study of Journalism, University of Oxford',
         url: 'https://reutersinstitute.politics.ox.ac.uk/news/bbc-expert-debunking-israel-hamas-war-visuals-volume-misinformation-twitter-was-beyond',
+        archiveUrl:
+          'https://web.archive.org/web/20260809062542/https://reutersinstitute.politics.ox.ac.uk/news/bbc-expert-debunking-israel-hamas-war-visuals-volume-misinformation-twitter-was-beyond',
       },
     ],
   },
@@ -113,6 +121,8 @@ const CASES: FakeResistanceCase[] = [
         label: 'Behind-the-scenes footage of a short film isn’t Hamas propaganda, as some recent social media posts claim',
         kind: 'PolitiFact',
         url: 'https://www.politifact.com/factchecks/2023/oct/10/instagram-posts/behind-the-scenes-footage-of-short-film-isnt-hamas/',
+        archiveUrl:
+          'https://web.archive.org/web/20260813183820/https://politifact.com/factchecks/2023/oct/10/instagram-posts/behind-the-scenes-footage-of-short-film-isnt-hamas/',
       },
     ],
   },

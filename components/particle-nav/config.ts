@@ -194,6 +194,17 @@ export const NODE_HALO_PX = 12;
  */
 export const NODE_BOTTOM_RESERVE_PX = 56;
 
+/**
+ * The chat launcher's mobile dock, measured from the top of the safe-area
+ * inset: a 0.65rem offset, 3.45rem launcher and 0.46rem vertical padding
+ * (`particle-chat-launcher.module.css` ≤719px) ≈ 82px of our own bottom
+ * chrome, sitting above the home indicator. Charged like the browser's URL
+ * bar: the bottom node clears the pill, and the shared edge gap is the
+ * breathing room above it. The static mobile index reserves the same band as
+ * `5.25rem + var(--safe-bottom)`.
+ */
+export const CHAT_DOCK_PX = 84;
+
 /** Below this width the layout is the phone one, in every layer that asks. */
 export const MOBILE_MAX_WIDTH = 720;
 
@@ -262,7 +273,9 @@ export function computeOrbitLayout(
   const insetX =
     (haloRadiusPx + edgeGapPx + Math.max(safeArea.left, safeArea.right)) * worldPerPx;
   const bottomReservePx =
-    width < MOBILE_MAX_WIDTH ? Math.max(safeArea.bottom, NODE_BOTTOM_RESERVE_PX) : safeArea.bottom;
+    width < MOBILE_MAX_WIDTH
+      ? Math.max(NODE_BOTTOM_RESERVE_PX, safeArea.bottom + CHAT_DOCK_PX)
+      : safeArea.bottom;
   const insetTop = (haloRadiusPx + edgeGapPx + safeArea.top) * worldPerPx;
   const insetBottom = (haloRadiusPx + edgeGapPx + bottomReservePx) * worldPerPx;
 

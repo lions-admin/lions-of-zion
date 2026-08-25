@@ -32,6 +32,17 @@ All eight routes exist as real Next.js pages. Seven use the `SectionPage`
 dossier shell; the Geopolitical Brief has its own reading layout. Their content
 is authored, not yet fed by the publishing modules.
 
+On 25 August the phone home was returned to the live orbit: `mobileStaticHome`
+(which unmounted the canvas at the end of the intro on ≤719px and left the
+static editorial index) is gone. The static index is now the mobile
+no-JS/no-GPU tier, gated in CSS on `data-canvas`, and the chat launcher's
+mobile dock is charged into the orbit's phone bottom reserve as
+`CHAT_DOCK_PX` so the pill and the bottom node no longer share a band. See
+`DECISIONS.md` for why. **The real-Chrome matrix must be re-captured on the
+workstation**: the phone orbit now sits higher (reserve grew from 56px to
+84px + safe-area) and no capture has seen the orbit and the launcher pill on
+one phone screen.
+
 A P0 pass on 25 August moved four things and each is covered by pure unit tests:
 
 - The chat launcher is **absent** during the intro rather than hidden, so its

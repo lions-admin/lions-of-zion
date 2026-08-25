@@ -546,7 +546,9 @@
   }
 }
 
-/* The mobile information architecture is deliberately not the desktop orbit. */
+/* The static editorial index is the mobile fallback tier — no JavaScript or
+   no GPU backend. With a live canvas (`data-canvas`) every width gets the
+   same orbit navigation. */
 .mobileHome {
   display: none;
 }
@@ -569,12 +571,15 @@
     display: none;
   }
 
-  /* The real GPU intro still plays. At handoff, the authored mobile index
-     replaces the orbit while retaining the same lion asset and signal DNA. */
-  .root:not([data-intro-active]) .canvasWrap {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 420ms ease, visibility 0s linear 420ms;
+  /* With a live backend the phone keeps the orbit: canvas stays mounted and
+     the real links return. Without one (`data-canvas` absent — no JS or the
+     GPU probe landed on none) the static index below is the home. */
+  .root[data-canvas] .nav {
+    display: block;
+  }
+
+  .root[data-canvas] .mobileHome {
+    display: none;
   }
 
   .mobileHome {

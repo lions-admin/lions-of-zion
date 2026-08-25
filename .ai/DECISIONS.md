@@ -10,6 +10,106 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — The chat launcher is absent during the intro, not hidden
+
+The stylesheet already hid it under `body:has([data-intro-active])`, and hiding
+was not enough. Three failures live entirely outside what CSS can reach:
+`ChatParticleCanvas` kept a second `WebGPURenderer` and ~12,900 particles
+rendering behind `visibility: hidden` for the whole intro, against the standing
+rule that one renderer owns both acts; the attention cue's 7.2s loop free-ran
+while invisible and could return mid-pulse; and the launcher stayed in the tab
+order with nothing to do.
+
+The signal travels as a DOM attribute rather than through the repo's first
+context, because the launcher is mounted by the root layout and the canvas by
+the page — siblings under `<body>`, with no provider between them — and the nav
+already publishes this state for the stylesheet. A `MutationObserver` behind
+`useSyncExternalStore` is the same shape as the four media-query stores already
+here.
+
+`introRunning` cannot be true before hydration, so a launcher keyed on it alone
+paints once and is then told to disappear. `CanvasMount` therefore also emits
+`data-intro-pending` — the same claim made early, present in the server HTML
+whenever this mount is asked for an intro and dropped in the commit that rules
+one out. The launcher's server snapshot is the route, so the two agree at
+hydration. Without JavaScript the launcher is now absent on `/` rather than
+present and dead, which is the better of the two.
+
+The CSS rule stays as a paint-time belt for the 900ms handoff window, and the
+three attribute names live in one module because there are three readers and a
+rename that reaches two of them fails silently.
+
+## 2026-08-25 — `nodeVisualRadius` is three contracts; the painted extent is a fourth field
+
+The orbit was solved against `nodeVisualRadius`, which is named for the ring but
+is also the DOM link's half-box — `.link` is sized to the same
+`clamp(min(w,h) * 0.056, 44, 68)` — and the connector's occlusion boundary.
+Widening it to cover what is drawn past the ring would have shortened every
+connector and desynchronised the hit target from the mark. So the halo is
+`nodeHaloRadius`, a separate field, and the old one keeps all three contracts.
+
+Its px term is empirical and says so. Per-particle jitter is derivable (4.3% of
+the radius); the sprite's half-size is bounded; but `bloomRadius` is a
+screen-space mip spread with no world extent to read off, so the only honest
+form for it is a number to re-measure when something clips.
+
+The vertical solve stopped collapsing the safe area with `Math.max`. That
+discarded direction and charged the larger reservation to both edges, which
+shrank the orbit and still left the bottom node sitting on its own reservation.
+Each edge is now charged its own, with `centerY` offsetting the ellipse by half
+the difference — from which a useful property falls out: reserving at the bottom
+raises the bottom node and leaves the top node exactly where it was.
+
+The bottom reserve is a floor and applies to phone widths only. A phone's
+reported viewport is not its visible one — a collapsing URL bar sits across the
+bottom of it, and `env(safe-area-inset-bottom)` describes the home indicator
+instead — while on desktop the reported viewport really is the visible one and
+charging it there would shrink the orbit for chrome that does not exist.
+
+`centerY` is folded into `nodePosition` rather than applied as a group offset in
+`Scene`. The group form would leave `Connectors` computing in lion-local space,
+where `normalize(node)` would aim at the ellipse's centre instead of the lion's.
+Through `nodePosition` the vector is already in world space and the lion is at
+the origin, so the connectors keep aiming at it and simply fan asymmetrically.
+
+`NetworkScan`'s stranded `+0.22 / -0.14 / +0.32` were left alone. Folding them
+onto the halo would shrink the scan-field exclusion by more than half — a
+visible density change that wants its own commit and its own screenshot.
+
+## 2026-08-25 — The intro's line cap is a fraction, and the travel is scaled only where it clips
+
+`viewWidth - 0.48` is a fixed margin, so the fraction of the frame it left
+depended on the frame: 70vw at 320x568, 85vw at 390x844, and **170vw at
+768x1024**, where a portrait tablet takes the desktop line breaks against a
+frame of 5.09 world units and the desktop cap is 8.65. The widest line has been
+running off both edges of a portrait tablet, and no test, typecheck or
+screenshot at a desktop aspect could see it. The floor beneath that cap could
+also exceed the frame it was protecting.
+
+The cap is now a fraction with the authored size as a ceiling, and the scale is
+solved once across the measured lines instead of per line. Per line, each solved
+`min(fontScale, cap / itsOwnWidth)`, so wherever the cap bound the type size
+stepped between rows — invisible in code, obvious on a phone.
+
+"No frame in which text leaves the safe area" is not implementable literally.
+Alpha is `built * (1 - erased)`: a particle is invisible where it starts and
+where it ends, and enforcing containment on every mote at every alpha flattens
+the effect on desktop as well as mobile. The implemented reading is two-tier —
+settled text is hard-bounded, and a particle in motion is bounded only while it
+is still legible — with the legible window written down as a constant rather
+than left implicit.
+
+Depth is scaled alongside width because it is not free: pulling a particle
+toward the camera magnifies its screen position and spends the same horizontal
+margin. The solve only ever tightens across its passes, so the result is
+conservative by construction rather than by convergence.
+
+Desktop keeps the authored trajectory untouched. Its frame is three times wider
+in world units, nothing clips there, and a bound derived for a phone is not a
+reason to change a composition that works.
+
+---
+
 ## 2026-08-24 — The verdict travels beside the retrieved text, never inside it
 
 Chat is the most persuasive surface in the system and used to see the least.

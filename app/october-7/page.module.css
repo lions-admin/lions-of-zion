@@ -33,10 +33,14 @@
 
 .inscription > dl > div > dt {
   font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: clamp(2.4rem, 6vw, 4.25rem);
+  /* Sized to always clear "1,200+" (the widest figure) inside a third of
+     the panel without wrapping — see the fifth-round real-Chrome review
+     that caught it breaking as "1,20" / "0+" at the old 4.25rem max. */
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
   font-weight: 500;
   letter-spacing: 0.02em;
   line-height: 1;
+  white-space: nowrap;
   color: #e3c978;
 }
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { SourceList, Timeline } from "@/components/content";
+import { Timeline } from "@/components/content";
 import { getIsraelsStoryEdition } from "@/lib/content/israels-story";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -102,8 +102,14 @@ export default async function Page() {
               {chapter.intro}
             </p>
 
+            {/* No chapter source list. `chapter.sources` is the union of the
+                sources its own entries already cite, so rendering it here
+                printed every citation on this page twice — invisible while
+                both sat in the column, obvious once each entry's sources moved
+                out to the margin beside it. The field stays in
+                `lib/content/israels-story.ts`; only the second rendering of it
+                is gone. */}
             <Timeline variant="history" entries={chapter.timeline} />
-            <SourceList sources={chapter.sources} />
           </article>
         );
       })}

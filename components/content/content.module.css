@@ -588,7 +588,23 @@
 }
 
 .timelineSources {
-  margin-top: 1rem;
+  composes: marginNote;
+}
+
+/* The two-track host. The second track is zero-wide, so the entry keeps the
+   reading measure exactly; the note is given its own width and overflows into
+   the margin, while still contributing its height to the row. */
+@media (min-width: 1220px) {
+  .timelineEntry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+
+  .timelineMain {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
 }
 
 .timelineSources .sourceList > li {
@@ -601,6 +617,96 @@
 .timelineSources .sourceBody a {
   font-size: var(--t-caption, 0.8125rem);
   line-height: var(--t-caption-lh, 1.5);
+}
+
+/* ── Evidence in the margin ───────────────────────────────────────────────
+ * The one structural idea of the "intelligence desk" direction: above
+ * 1220px a per-item citation leaves the reading column and sits in the right
+ * margin, level with the record it documents. The claim and the evidence for
+ * it are then read in one glance instead of one being a footnote to the
+ * other — the same principle `.ai/DECISIONS.md` already records for chat
+ * ("the verdict travels beside the retrieved text, never inside it").
+ *
+ * The citation stays inside its entry in the markup, so reading order, screen
+ * readers and the no-JS page are unchanged, and below the breakpoint none of
+ * this applies — sources return to the flow exactly as before.
+ *
+ * **Why a grid and not absolute positioning.** The first build placed the note
+ * absolutely at `left: 100%`. It was measured, and it fails: on Fake
+ * Resistance's claim-propagation timeline the entries run 97–127px tall while
+ * their citations run 136–150px, so notes overran the entries below them.
+ * Absolute positioning cannot reserve space, and no amount of extra padding
+ * *guarantees* it will not happen again with different content. Here the entry
+ * becomes a two-track grid whose second track is zero-wide: the note paints
+ * into the margin, but it still sits in the grid row, so the row is at least
+ * as tall as the note. Overlap stops being something to verify and becomes
+ * something the layout cannot express.
+ *
+ * The host therefore needs its record and its evidence as *sibling* elements
+ * — `.timelineMain` next to `.timelineSources` — which is why `Timeline.tsx`
+ * wraps its meta/title/body together.
+ *
+ * `--rail-w` / `--rail-gap` come from `.page` in sections.module.css; the
+ * fallbacks keep a component renderable if it is ever mounted outside that
+ * shell, per this file's convention.
+ *
+ * Composed by the per-item source wrappers: `.timelineSources` here, and
+ * `.dispatchSources` / `.caseFileSources` in the two page modules that
+ * hand-roll their own entry markup. Our Heroes deliberately opts out — see
+ * the note in `app/our-heroes/page.module.css`.
+ */
+.marginNote {
+  margin-top: 1rem;
+}
+
+@media (min-width: 1220px) {
+  .marginNote {
+    grid-column: 2;
+    grid-row: 1;
+    width: var(--rail-w, 13rem);
+    margin-top: 0;
+    margin-left: var(--rail-gap, 2rem);
+  }
+
+  /* In the margin the citation is a note, not a numbered row: the number's
+     job was to cross-reference a stack at the foot of the page, and a source
+     sitting beside its own claim has nothing left to point at. The rule that
+     replaces it carries the stream colour. */
+  .marginNote .sourceList > li {
+    display: block;
+    padding: 0 0 0 0.8rem;
+    border-top: 0;
+    border-left: 2px solid rgba(87, 167, 217, 0.35);
+  }
+
+  .marginNote .sourceList > li:last-child {
+    border-bottom: 0;
+  }
+
+  .marginNote .sourceList > li + li {
+    margin-top: 0.9rem;
+  }
+
+  .marginNote .sourceNumber {
+    display: none;
+  }
+
+  .marginNote .sourceKind {
+    font-family: var(--mono);
+    font-size: var(--t-data, 0.72rem);
+    line-height: var(--t-data-lh, 1.45);
+    letter-spacing: 0.04em;
+    color: var(--blue);
+  }
+
+  /* The label is an article headline — a sentence — so it takes the caption
+     step, not the data floor. `--t-data` is reserved for the kind above it,
+     which is a two-word label and the only thing here that is truly data. */
+  .marginNote .sourceLabel,
+  .marginNote .sourceBody a {
+    font-size: var(--t-caption, 0.8125rem);
+    line-height: var(--t-caption-lh, 1.5);
+  }
 }
 
 /* ── ContentCard ────────────────────────────────────────────────────────── */

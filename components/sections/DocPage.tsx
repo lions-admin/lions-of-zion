@@ -1,12 +1,18 @@
 /**
  * Pages that live outside the 8-file orbit (`/methodology`, `/corrections`).
  *
- * Same shell as `SectionPage` — identity band, centred measure, short footer —
- * minus the file numbering, since these two have no `defaultNodes` entry.
- * They were a visibly third layout variant before Phase 2 (their back-link
- * floated disconnected above a panel); the three variants are one system now.
- * They are reachable from every section page's footer and from the scan, and
- * do not join the radial nav itself (see `.ai/DECISIONS.md`).
+ * Same shell as `SectionPage` — identity band, centred measure — minus the
+ * file numbering, since these two have no `defaultNodes` entry. They were a
+ * visibly third layout variant before Phase 2 (their back-link floated
+ * disconnected above a panel); the variants are one system now.
+ *
+ * They also take no rails: these are short policy pages, not documents with
+ * sections to navigate or records to cite, so there is nothing for a margin
+ * to carry. Omitting `withRails` is what keeps the scan reaching in as far as
+ * it did — see the note on that class in sections.module.css.
+ *
+ * They are linked from the prose of the pages that mean them and from the
+ * scan, and do not join the radial nav itself (see `.ai/DECISIONS.md`).
  */
 import Link from 'next/link';
 import { ScanBackdrop } from './ScanBackdrop';

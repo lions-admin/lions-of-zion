@@ -2,7 +2,17 @@
 
 _2026-08-25. The redesign plan for every reading surface on the site._
 
-> **Status: Phases 0–4 implemented and merged.** Nine commits, five parallel
+> **Status: Phases 0–4 implemented and merged. The rails, promised below and
+> left unbuilt, landed on 2026-08-25 as design direction B, "the intelligence
+> desk".** This document said the Brief's anatomy "becomes *the* shell for
+> everything"; only the centred measure shipped, so the three grid tracks sat
+> with two of them empty. Both margins now work — the left navigates the
+> document and shows depth of read, the right carries each record's citation
+> beside it. See `.ai/DECISIONS.md`, "The source travels beside the claim",
+> for why the margin is a grid rather than absolute positioning, why Our
+> Heroes opts out, and what happened to the chat launcher's label.
+>
+> Nine commits, five parallel
 > agent rounds, verified in real Chrome across all ten routes at 1440×900
 > and 390×844. The measured result against the audit that prompted this:
 > **zero** text rendering below the 0.72rem floor (was 77 declarations under

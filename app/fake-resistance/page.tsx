@@ -176,37 +176,44 @@ export default async function Page() {
               {STAMP_LABEL[c.verdict]}
             </span>
 
-            <div className={styles.caseFileHeader}>
-              <span className={styles.exhibitTag}>Exhibit {exhibitLetter(i)}</span>
-              <time dateTime={c.datetime}>{c.dateLabel}</time>
-              <VerificationBadge assessment={c.verdict} />
+            {/* The exhibit and its sources are siblings so the case can become
+                a two-track grid above 1220px and file the citation in the
+                margin — `marginNote`, content.module.css. */}
+            <div className={styles.caseFileMain}>
+              <div className={styles.caseFileHeader}>
+                <span className={styles.exhibitTag}>Exhibit {exhibitLetter(i)}</span>
+                <time dateTime={c.datetime}>{c.dateLabel}</time>
+                <VerificationBadge assessment={c.verdict} />
+              </div>
+              <h3 className={styles.caseTitle}>{c.title}</h3>
+              <ClaimRecordPair
+                claim={c.claim}
+                record={c.record}
+                claimLabel="As it spread"
+                recordLabel="What the record shows"
+              />
+              <ol className={styles.caseLog}>
+                <li>
+                  <span className={styles.caseLogLabel}>Origin</span>
+                  <p>{c.origin}</p>
+                </li>
+                <li>
+                  <span className={styles.caseLogLabel}>Amplification</span>
+                  <p>{c.amplification}</p>
+                </li>
+              </ol>
+              <div className={styles.caseFileTells}>
+                <span className={styles.caseFileTellsLabel}>Tells exhibited</span>
+                <ul>
+                  {c.tells.map((tell) => (
+                    <li key={tell}>{tell}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <h3 className={styles.caseTitle}>{c.title}</h3>
-            <ClaimRecordPair
-              claim={c.claim}
-              record={c.record}
-              claimLabel="As it spread"
-              recordLabel="What the record shows"
-            />
-            <ol className={styles.caseLog}>
-              <li>
-                <span className={styles.caseLogLabel}>Origin</span>
-                <p>{c.origin}</p>
-              </li>
-              <li>
-                <span className={styles.caseLogLabel}>Amplification</span>
-                <p>{c.amplification}</p>
-              </li>
-            </ol>
-            <div className={styles.caseFileTells}>
-              <span className={styles.caseFileTellsLabel}>Tells exhibited</span>
-              <ul>
-                {c.tells.map((tell) => (
-                  <li key={tell}>{tell}</li>
-                ))}
-              </ul>
+            <div className={styles.caseFileSources}>
+              <SourceList sources={c.sources} />
             </div>
-            <SourceList sources={c.sources} />
           </article>
         ))}
       </SectionBlock>

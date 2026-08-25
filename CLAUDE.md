@@ -138,10 +138,21 @@ static index set it that way as identity; **reading surfaces use
   `support-us`, `war-update`, `october-7`, `our-heroes`, `israels-story`,
   `fake-resistance`, and `we-are`.
 - `components/sections/SectionPage.tsx` is the dossier shell for seven of them:
-  a full-width identity band, a centred 68ch reading measure, and a two-row
-  footer, with `ScanBackdrop` continuing the corpus in the margins only —
-  masked out of the reading band via the shared `--reading-w`. Its `register`
-  and `accent` props are the only sanctioned per-section deviations.
+  a full-width identity band and a centred 68ch reading measure. There is no
+  footer — the page ends where the content ends (`.ai/DECISIONS.md`).
+  Above 1220px both margins work: `SectionToc.tsx` builds an "In this file"
+  rail on the left from the rendered `h2`s (no per-page data, so it cannot
+  drift), and each record's citation moves into the right margin beside it.
+  `ScanBackdrop` continues the corpus outside that band, masked via
+  `--content-w`, which is `--reading-w` plus both rails on pages that carry
+  them. `register` and `accent` remain the only sanctioned per-section
+  deviations.
+- **The evidence margin is a grid, never absolute positioning.** `marginNote`
+  in `content.module.css` makes the record's host a two-track grid whose second
+  track is zero-wide, so a citation taller than its record lengthens its own
+  row instead of overrunning the next one. A host therefore needs its record
+  and its sources as *sibling* elements (`.timelineMain`, `.dispatchMain`,
+  `.caseFileMain`). Cards in a multi-column grid opt out — see Our Heroes.
 - `components/briefs/` is the Geopolitical Brief, the one page with its own
   layout and reading-progress treatment; its content is still a static
   reference cut in `geopolitical-reference.ts`.

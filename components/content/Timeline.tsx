@@ -32,14 +32,20 @@ export function Timeline({ entries, variant = 'feed' }: TimelineProps) {
     <ol className={styles.timeline} data-variant={variant}>
       {entries.map((entry) => (
         <li key={entry.id} id={entry.id} className={styles.timelineEntry}>
-          <div className={styles.timelineMeta}>
-            <time dateTime={entry.datetime}>{entry.dateLabel}</time>
-            {entry.region ? <span className={styles.timelineTag}>{entry.region}</span> : null}
-            {entry.category ? <span className={styles.timelineTag}>{entry.category}</span> : null}
-            {entry.assessment ? <VerificationBadge assessment={entry.assessment} /> : null}
+          {/* The record and its evidence are siblings, which is what lets the
+              entry become a two-track grid above 1220px and put the sources in
+              the margin without either one being able to overlap the other —
+              see `marginNote` in content.module.css. */}
+          <div className={styles.timelineMain}>
+            <div className={styles.timelineMeta}>
+              <time dateTime={entry.datetime}>{entry.dateLabel}</time>
+              {entry.region ? <span className={styles.timelineTag}>{entry.region}</span> : null}
+              {entry.category ? <span className={styles.timelineTag}>{entry.category}</span> : null}
+              {entry.assessment ? <VerificationBadge assessment={entry.assessment} /> : null}
+            </div>
+            <h3>{entry.title}</h3>
+            <div className={styles.timelineBody}>{entry.body}</div>
           </div>
-          <h3>{entry.title}</h3>
-          <div className={styles.timelineBody}>{entry.body}</div>
           {entry.sources?.length ? (
             <div className={styles.timelineSources}>
               <SourceList sources={entry.sources} />

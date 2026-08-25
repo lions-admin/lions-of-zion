@@ -162,6 +162,31 @@ export function GeopoliticalBrief() {
               <span>Reviewed by</span>
               <strong>{brief.reviewedBy}</strong>
             </div>
+
+            {/* The evidence contract used to sit in the right rail. It is
+                metadata about the document — its standing, its record count,
+                when it was last reviewed — so it belongs here with the
+                identity and the coverage window it already repeats half of.
+                Moving it also frees the right margin for what the direction
+                actually wants there: the source beside the development it
+                supports. */}
+            <div className={styles.evidenceContract}>
+              <span className={styles.evidenceKicker}>Evidence contract</span>
+              <dl>
+                <div>
+                  <dt>Status</dt>
+                  <dd><VerificationBadge assessment={STATUS_TO_ASSESSMENT[brief.status]} /></dd>
+                </div>
+                <div>
+                  <dt>Primary records</dt>
+                  <dd>{brief.sourceCount}</dd>
+                </div>
+                <div>
+                  <dt>Corrections</dt>
+                  <dd>{corrections.length > 0 ? `${corrections.length} recorded` : 'None recorded'}</dd>
+                </div>
+              </dl>
+            </div>
           </div>
         </aside>
 
@@ -282,18 +307,11 @@ export function GeopoliticalBrief() {
           </div>
         </article>
 
-        <aside className={styles.evidenceRail} aria-label="Evidence summary">
-          <div className={styles.evidenceRailInner}>
-            <span className={styles.evidenceKicker}>Evidence contract</span>
-            <dl>
-              <div><dt>Status</dt><dd><VerificationBadge assessment={STATUS_TO_ASSESSMENT[brief.status]} /></dd></div>
-              <div><dt>Primary records</dt><dd>{brief.sourceCount}</dd></div>
-              <div><dt>Last reviewed</dt><dd>{brief.publishedAt}</dd></div>
-              <div><dt>Corrections</dt><dd>{corrections.length > 0 ? `${corrections.length} recorded` : 'None recorded'}</dd></div>
-            </dl>
-            <p>Reporting and assessment are separated. Each development carries its own source links.</p>
-          </div>
-        </aside>
+        {/* The right column is now the evidence margin. It holds no markup of
+            its own: each development's `Timeline` entry pushes its own sources
+            out here through `marginNote` (content.module.css), so the citation
+            lands level with the development it supports rather than in a stack
+            at the foot of the page. */}
       </div>
     </main>
   );

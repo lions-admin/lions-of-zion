@@ -1,5 +1,36 @@
 # State
 
+## Latest — 2026-08-25, design direction B: "the intelligence desk"
+
+A frontend design review of the ten reading routes produced three alternative
+directions, presented to the user as a live switchable mockup on real War
+Update content. He chose **B**, and it is **built and verified**: typecheck,
+lint, 323 tests, build, `ci-smoke` (11/11 routes), `final-verify` in real
+Chrome (intro, WebGPU handoff, keyboard, forced WebGL2, no-JS poster, no
+console errors), plus per-route measurement at 1440/1220/1219/900/390.
+
+What changed: above 1220px the reading pages' two empty grid tracks became
+working margins — an "In this file" rail with depth of read on the left, and
+each record's citation on the right, level with the record. The Brief moved
+its Evidence contract into the left rail and joined the same system, so the
+site is no longer visibly two sites. Israel's Story stopped rendering its
+citations twice. The chat launcher's label now appears only at widths where a
+margin exists for it.
+
+**Read `.ai/DECISIONS.md`, "The source travels beside the claim", before
+touching the evidence margin** — particularly why it is a grid and not
+absolute positioning (that was measured and failed), and why Our Heroes opts
+out. Still open, unchanged: restoring document scroll (not needed for the
+rails — sticky works inside the scroll container) and DESIGN-V2's Phase 5.
+
+One thing the new layout exposed that is content, not design, and was left
+alone: on Israel's Story every entry in a chapter often cites the same single
+source, which now reads as four identical notes stacked in the margin. That is
+the data's real shape and worth an editorial look.
+
+---
+
+
 Snapshot of intent and current position. Git is the history; durable reasoning
 lives in `DECISIONS.md`. The long backend phase narrative that used to live
 here is in this file's git history and in

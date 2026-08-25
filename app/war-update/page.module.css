@@ -96,7 +96,23 @@
 }
 
 .dispatchSources {
-  margin-top: 1rem;
+  composes: marginNote from '../../components/content/content.module.css';
+}
+
+/* Two tracks, the second zero-wide: the dispatch keeps the reading measure
+   and its citation overflows into the margin while still setting the row's
+   height, so a long source list can never run into the dispatch below it. */
+@media (min-width: 1220px) {
+  .dispatch {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+
+  .dispatchMain {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
 }
 
 .filterRow {

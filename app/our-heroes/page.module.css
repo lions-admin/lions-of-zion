@@ -130,6 +130,19 @@
   color: var(--ink);
 }
 
+/*
+ * These sources stay inside the card, deliberately — this is the one page in
+ * the set that does NOT take the margin-note treatment (`marginNote` in
+ * content.module.css).
+ *
+ * The rule the rest of the site follows is that a full-measure record puts
+ * its evidence in the margin, because such a record has no boundary of its
+ * own to hold it. A citation card does: the source is already beside the
+ * claim, inside the same bordered object. And these cards sit two-up in
+ * `.citationGrid`, where `left: 100%` resolves against the grid cell rather
+ * than the reading column — the left card's note would land on top of the
+ * right card. Measured, not assumed.
+ */
 .citationSources {
   margin-top: 1.75rem;
   padding-top: 1.25rem;

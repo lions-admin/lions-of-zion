@@ -10,6 +10,75 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — The source travels beside the claim: reading pages grow two working margins
+
+A frontend design review offered three directions and the user chose "the
+intelligence desk", after seeing it built on real War Update content. It is
+not a new look — it is the half of V2 that never shipped. `.ai/DESIGN-V2.md`
+said the Brief's anatomy "becomes *the* shell for everything"; the dossiers
+got the centred measure and not the rails, so `sections.module.css` declared
+three grid tracks and left two empty on every page, `SectionPage`'s `aside`
+prop sat styled and documented with **zero callers**, and `TODOS.md` still
+carried "rail ימני בדסקטופ — חלקי… אין עדיין תוכן שממלא אותו".
+
+Above 1220px the left margin now navigates the document and the right margin
+carries each record's citation, level with the record. The thesis is the site's
+own, already recorded for chat under *"the verdict travels beside the retrieved
+text, never inside it"* — a desk that claims to check things before publishing
+should show the checking next to the claim, not in a stack at the foot of the
+page. **No source→claim mapping was invented to do this**: every editorial page
+already carried per-item sources in `lib/content/`, which is what made the
+direction buildable at all.
+
+Four things worth not re-litigating:
+
+- **The margin is a grid, not absolute positioning.** The first build placed
+  notes at `left: 100%` and it was measured, not assumed: Fake Resistance's
+  claim-propagation entries run 97–127px tall against citations of 136–150px,
+  so notes overran the entries below them. Absolute positioning cannot reserve
+  space and no amount of padding *guarantees* it won't recur. The host is now
+  a two-track grid whose second track is zero-wide — the note paints into the
+  margin but still sits in the row, so the row is at least as tall as the note.
+  Overlap stopped being something to verify and became something the layout
+  cannot express. This is why `Timeline`, `WireFeed` and the Fake Resistance
+  case wrap their record in a `*Main` element: the record and its evidence have
+  to be siblings.
+- **Our Heroes deliberately opts out.** Its profiles are cards in a two-up
+  grid, where `left: 100%` resolves against the *cell* — the left card's note
+  landed on top of the right card. The rule that emerged is the right one
+  anyway: a full-measure record puts its evidence in the margin because it has
+  no boundary of its own; a card already holds its evidence inside one.
+- **The Brief's "Evidence contract" moved to the left rail.** It describes the
+  document — status, record count, corrections — not any one development, so it
+  belongs with the identity, and moving it freed the right margin for what the
+  direction actually wants there.
+- **Israel's Story stopped printing its citations twice.** Each chapter's
+  `sources` array is the union of its own entries' sources, so the page
+  rendered every citation once per entry and again per chapter. Invisible while
+  both sat in the column; obvious the moment the entries' sources moved out.
+  The field stays in `lib/content/israels-story.ts`; only the second rendering
+  is gone.
+
+**The footer stayed deleted.** The mockup that sold the direction included
+prev/next and a file index; `4b13229` had removed exactly that three commits
+earlier, on the reasoning that the eight files are an orbit and not a sequence.
+The user was asked and confirmed the deletion stands. A mockup is a proposal,
+not a mandate.
+
+**The chat launcher's label now appears only where it has somewhere to be.**
+The pill ground added earlier made the overlap legible; it never made it small,
+and uncapped `nowrap` the longest label measured ~345px. Between 720px and
+1219px the reading measure runs to within ~36px of the right edge, so *any*
+floating pill covers the record — there is no width to win there and the label
+stands down. It shows over the outer margin at ≥1220px (capped at 9rem, wrapped,
+decorative arrow dropped) and in the mobile dock's own reserved band at ≤719px.
+The button, which is the actual affordance and carries the accessible name, is
+present at every width.
+
+**Document scroll was not restored and did not need to be.** `position: sticky`
+resolves against the nearest scrollport, so the rails work inside
+`.page { height: 100dvh; overflow-y: auto }`. That remains its own phase.
+
 ## 2026-08-25 — Cinzel is retired from every reading surface; Newsreader + IBM Plex Sans replace it
 
 The user rejected the reading pages outright — "terrible fonts, hard to

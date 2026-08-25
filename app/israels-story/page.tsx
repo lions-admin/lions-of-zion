@@ -27,14 +27,14 @@ export default async function Page() {
 
       <SectionBlock heading="Sources and further reading">
         <p>
-          This is a first edition: two chapters, chosen because they could
-          be sourced and checked properly in the time available, not
-          because they are the whole story. Every historical claim above is
-          built to be checked — the dates and sources are cited inline.
-          Later chapters (the ancient and biblical period, the 1967 and
-          1973 wars, the Oslo Accords, the 1994 treaty with Jordan, and the
-          2020 Abraham Accords) are real, documented history not yet
-          detailed here — a known next step, not an omission to gloss over.
+          This is a working edition, chapters added one at a time as each
+          could be sourced and checked properly — not the whole story yet.
+          Every historical claim above is built to be checked — the dates
+          and sources are cited inline. Later chapters (the ancient and
+          biblical period, the 1973 Yom Kippur War, the 1994 treaty with
+          Jordan, and the 2020 Abraham Accords) are real, documented
+          history not yet detailed here — a known next step, not an
+          omission to gloss over.
         </p>
       </SectionBlock>
     </SectionPage>

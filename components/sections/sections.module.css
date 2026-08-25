@@ -5,9 +5,9 @@
  * centred the pair, which pushed the reading column right of centre, left the
  * rail floating in a dark void, and spent ~320px of every page on ceremony
  * before the first real sentence. The anatomy now is a masthead: one
- * full-width identity row, then a genuinely centred reading measure, then a
- * short footer. Side columns are real grid columns that exist only when a page
- * supplies rail content.
+ * full-width identity row, then a genuinely centred reading measure. There is
+ * no closing apparatus — the page ends where the content ends. Side columns
+ * are real grid columns that exist only when a page supplies rail content.
  *
  * Type and colour come from the V2 tokens in app/globals.css. Nothing here
  * invents a size or a grey — if a value is not in the scale, the page needs
@@ -369,85 +369,6 @@
   color: var(--gold-hi);
 }
 
-/* ---- footer --------------------------------------------------------------
-   The old footer ran five stacked parts and ~345px: prev/next, a kicker plus
-   eight spelled-out destination names, a boxed Ask CTA duplicating the
-   floating launcher, policy links, and a closing line. It is now two rows.
-   The eight-file index survives as bare numerals — the names are already one
-   hover away and were never what the row was for. */
-
-.fileFooter {
-  margin-top: 3.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--gold-line);
-}
-
-.fileNav {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem 1.5rem;
-}
-
-.fileNavLink {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  text-decoration: none;
-  min-width: 0;
-}
-
-.fileNavNext {
-  align-items: flex-end;
-  text-align: right;
-}
-
-.fileNavMeta {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
-}
-
-.fileNavLabel {
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: 1.25;
-  color: var(--gold);
-}
-
-.fileNavLink:hover .fileNavLabel {
-  color: var(--gold-hi);
-}
-
-/* Row two: the two standing links. Everything in this footer that names a
-   destination — the adjacent files above, these two — is set in the display
-   face, sentence case. Only the eyebrows ("Previous file") speak in the
-   data voice, because that is what they are: labels, not places. */
-.docLinks {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-top: 1.75rem;
-  font-family: var(--face-display);
-  font-size: var(--t-caption);
-}
-
-.docLinks a {
-  color: var(--ink-lo);
-  text-decoration: none;
-}
-
-.docLinks a:hover,
-.docLinks a:focus-visible {
-  color: var(--gold);
-}
-
-.docLinks span {
-  color: rgba(153, 179, 202, 0.35);
-}
-
 /* Kept for `AskAboutFileCta`, which is no longer rendered by the shell (the
    floating launcher is the single ask affordance) but still exists as a
    component another page could mount. */
@@ -593,21 +514,6 @@
 
   .shell {
     padding-bottom: 2.5rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .fileNav {
-    grid-template-columns: 1fr;
-  }
-
-  .fileNavNext {
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  .docLinks {
-    margin-left: 0;
   }
 }
 

@@ -154,19 +154,23 @@
   margin: 1.5rem 0 0;
 }
 
+/* Each question/answer pair is its own wrapper element, so the separation
+   belongs between the pairs. It used to sit on `dt` with a `:first-child`
+   reset — but every `dt` *is* the first child of its own wrapper, so the
+   reset matched all of them and every answer ran straight into the next
+   question. */
+.faq > div + div {
+  margin-top: 1.75rem;
+}
+
 /* A question is read, not scanned — display face, sentence case, at the
    entry-title step so it sits a clear rung above its answer. */
 .faq dt {
-  margin-top: 1.5rem;
   font-family: var(--face-display);
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
   color: var(--ink-hi);
-}
-
-.faq dt:first-child {
-  margin-top: 0;
 }
 
 .faq dd {

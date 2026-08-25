@@ -52,16 +52,8 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
           <div className={styles.body}>{children}</div>
-
-          <footer className={styles.fileFooter}>
-            {/* Same reasoning as SectionPage: no row of bare numbers. It was
-                navigation a reader couldn't read. */}
-            <nav className={styles.docLinks} aria-label="Policy pages">
-              <Link href="/methodology">Methodology</Link>
-              <span aria-hidden="true">·</span>
-              <Link href="/corrections">Corrections</Link>
-            </nav>
-          </footer>
+          {/* No closing apparatus — same reasoning as `SectionPage`. These
+              two pages already link to each other from their own prose. */}
         </article>
       </div>
     </main>

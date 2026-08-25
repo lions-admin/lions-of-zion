@@ -79,10 +79,6 @@ export function SectionPage({
   const lede = tagline ?? node.description;
 
   const total = defaultNodes.length;
-  const prevIndex = (index + total - 1) % total;
-  const nextIndex = (index + 1) % total;
-  const prev = defaultNodes[prevIndex];
-  const next = defaultNodes[nextIndex];
 
   const pageClass = [
     styles.page,
@@ -139,35 +135,16 @@ export function SectionPage({
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
           <div className={styles.body}>{children}</div>
-
-          <footer className={styles.fileFooter}>
-            <nav className={styles.fileNav} aria-label="Adjacent files">
-              <Link href={prev.href} className={styles.fileNavLink}>
-                <span className={styles.fileNavMeta}>← Previous file</span>
-                <span className={styles.fileNavLabel}>{prev.displayName}</span>
-              </Link>
-              <Link
-                href={next.href}
-                className={`${styles.fileNavLink} ${styles.fileNavNext}`}
-              >
-                <span className={styles.fileNavMeta}>Next file →</span>
-                <span className={styles.fileNavLabel}>{next.displayName}</span>
-              </Link>
-            </nav>
-
-            {/* No numbered index of the other seven files. A row of bare
-                numbers is navigation nobody can use — "04" tells a reader
-                nothing, and finding October 7 by hovering digits is not
-                finding it. Numbering earns its place when the content is a
-                sequence; eight parallel destinations are not one. Prev/next
-                name real places, and the scan itself is the way to all
-                eight. */}
-            <nav className={styles.docLinks} aria-label="Policy pages">
-              <Link href="/methodology">Methodology</Link>
-              <span aria-hidden="true">·</span>
-              <Link href="/corrections">Corrections</Link>
-            </nav>
-          </footer>
+          {/* The page ends where the content ends.
+              There was an apparatus here — prev/next, a numbered index of the
+              other seven files, policy links — and all of it rested on a
+              fiction: that these eight are a sequence you read through. They
+              are not. The order is the orbit's spoke order, geometry rather
+              than reading order, so "next file" pointed at nothing in
+              particular. This site is a hub and spokes: the scan is how you
+              get somewhere else, and the way back to it is in the identity
+              band at the top of every page. Methodology and Corrections are
+              linked in context, from sentences that actually mean them. */}
         </article>
 
         {aside ? (

@@ -421,52 +421,17 @@
   color: var(--gold-hi);
 }
 
-/* Row two: the numeric index and the standing links, on one line. */
-.footerRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  margin-top: 1.75rem;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.indexRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.indexNum {
-  display: inline-block;
-  min-width: 1.9rem;
-  padding: 0.15rem 0;
-  text-align: center;
-  text-decoration: none;
-  color: var(--ink-lo);
-  border-bottom: 1px solid transparent;
-}
-
-.indexNum:hover {
-  color: var(--gold-hi);
-}
-
-.indexNum[aria-current='page'] {
-  color: var(--gold);
-  border-bottom-color: var(--gold);
-}
-
+/* Row two: the two standing links. Everything in this footer that names a
+   destination — the adjacent files above, these two — is set in the display
+   face, sentence case. Only the eyebrows ("Previous file") speak in the
+   data voice, because that is what they are: labels, not places. */
 .docLinks {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin-left: auto;
+  margin-top: 1.75rem;
+  font-family: var(--face-display);
+  font-size: var(--t-caption);
 }
 
 .docLinks a {

@@ -155,30 +155,18 @@ export function SectionPage({
               </Link>
             </nav>
 
-            <div className={styles.footerRow}>
-              <nav aria-label="All files">
-                <ul className={styles.indexRow}>
-                  {defaultNodes.map((entry, i) => (
-                    <li key={entry.id}>
-                      <Link
-                        href={entry.href}
-                        className={styles.indexNum}
-                        aria-label={entry.label}
-                        aria-current={entry.id === id ? 'page' : undefined}
-                      >
-                        {pad(i + 1)}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-
-              <nav className={styles.docLinks} aria-label="Policy pages">
-                <Link href="/methodology">Methodology</Link>
-                <span aria-hidden="true">·</span>
-                <Link href="/corrections">Corrections</Link>
-              </nav>
-            </div>
+            {/* No numbered index of the other seven files. A row of bare
+                numbers is navigation nobody can use — "04" tells a reader
+                nothing, and finding October 7 by hovering digits is not
+                finding it. Numbering earns its place when the content is a
+                sequence; eight parallel destinations are not one. Prev/next
+                name real places, and the scan itself is the way to all
+                eight. */}
+            <nav className={styles.docLinks} aria-label="Policy pages">
+              <Link href="/methodology">Methodology</Link>
+              <span aria-hidden="true">·</span>
+              <Link href="/corrections">Corrections</Link>
+            </nav>
           </footer>
         </article>
 

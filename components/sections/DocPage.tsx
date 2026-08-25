@@ -5,11 +5,10 @@
  * minus the file numbering, since these two have no `defaultNodes` entry.
  * They were a visibly third layout variant before Phase 2 (their back-link
  * floated disconnected above a panel); the three variants are one system now.
- * They still close with the eight-file index for discoverability, without
- * joining the radial nav itself (see `.ai/DECISIONS.md`).
+ * They are reachable from every section page's footer and from the scan, and
+ * do not join the radial nav itself (see `.ai/DECISIONS.md`).
  */
 import Link from 'next/link';
-import { defaultNodes } from '@/components/particle-nav/config';
 import { ScanBackdrop } from './ScanBackdrop';
 import styles from './sections.module.css';
 
@@ -55,29 +54,13 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
           <div className={styles.body}>{children}</div>
 
           <footer className={styles.fileFooter}>
-            <div className={styles.footerRow}>
-              <nav aria-label="All files">
-                <ul className={styles.indexRow}>
-                  {defaultNodes.map((entry, i) => (
-                    <li key={entry.id}>
-                      <Link
-                        href={entry.href}
-                        className={styles.indexNum}
-                        aria-label={entry.label}
-                      >
-                        {String(i + 1).padStart(2, '0')}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-
-              <nav className={styles.docLinks} aria-label="Policy pages">
-                <Link href="/methodology">Methodology</Link>
-                <span aria-hidden="true">·</span>
-                <Link href="/corrections">Corrections</Link>
-              </nav>
-            </div>
+            {/* Same reasoning as SectionPage: no row of bare numbers. It was
+                navigation a reader couldn't read. */}
+            <nav className={styles.docLinks} aria-label="Policy pages">
+              <Link href="/methodology">Methodology</Link>
+              <span aria-hidden="true">·</span>
+              <Link href="/corrections">Corrections</Link>
+            </nav>
           </footer>
         </article>
       </div>

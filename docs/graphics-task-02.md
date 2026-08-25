@@ -1,3 +1,18 @@
+> **HISTORICAL — superseded. Do not follow this as instructions.**
+>
+> This is the original specification for the navigation layer, kept for its
+> reasoning about composition, registration and the state model. It describes a
+> codebase that no longer exists: `components/LionExperience.tsx`,
+> `components/intro/lion-scene.tsx` and `public/assets/lion-structure.bin` were
+> all removed when the two scenes were unified into the single renderer in
+> `components/particle-nav/Scene.tsx`, and the "no destinations yet" premise
+> below was resolved — all eight routes exist.
+>
+> For the architecture as it actually is, read
+> [`architecture.md`](architecture.md) and `CLAUDE.md`.
+
+---
+
 # LIONS OF ZION — Real-Time Generative Graphics
 # Production Task 02: The Navigation Layer
 

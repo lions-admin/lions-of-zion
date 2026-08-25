@@ -33,6 +33,15 @@ Update `.ai/STATE.md` whenever a session moves the work. Keep
 were made, while git records what changed. `TODOS.md` is the Hebrew delivery
 plan and is the place to check what is considered unfinished.
 
+## Reference documentation
+
+This file is the working brief — the invariants an editor must not break.
+Wider reference lives in `docs/` and is written to be true rather than
+aspirational: `architecture.md` (the system map and its known gaps), `api.md`
+(every route and its guard), `data-model.md`, `environment.md` (variable names
+only — note that `.env.example` is **not tracked**, `.gitignore`'s `.env*`
+pattern captures it), and `operations.md`.
+
 ## Commands
 
 ```bash
@@ -52,8 +61,13 @@ npm run test:watch                          # watch mode
 ```bash
 npm run verify:graphics -- http://localhost:3000 /tmp/lions-matrix
 node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final
+node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band
 node .claude/skills/verify-intro/capture.mjs
+node scripts/ci-smoke.mjs http://localhost:3000   # the only one CI can run
 ```
+
+Neither `verify-home-band.mjs` nor `ci-smoke.mjs` has an npm script; run them
+with `node`. `docs/operations.md` has the full table of what each one asserts.
 
 Particle assets are rebuilt with `bake:nav-lion`, `bake:nav-icons`, and
 `poster:nav`; their source artwork is in `assets/` and their output lands in
@@ -68,11 +82,16 @@ The in-app browser can report `visibilityState === "hidden"` and suspend
 `requestAnimationFrame`, making both scenes appear black. Headless Chromium
 falls back to SwiftShader, which the GPU probe correctly rejects, so the scene
 never mounts there either. Visual checks must use real Chrome via
-`playwright-core` with `headless: false`; all three capture scripts hardcode
-`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, so they only
-run on the macOS workstation, not in a Linux container.
+`playwright-core` with `headless: false`. Four scripts hardcode
+`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` —
+`verify-composition.mjs`, `final-verify.mjs`, `verify-home-band.mjs` and
+`.claude/skills/verify-intro/capture.mjs` — so they only run on the macOS
+workstation, not in a Linux container.
 `scripts/final-verify.mjs` covers intro handoff, keyboard, WebGPU, forced
 WebGL2, no-JavaScript fallback, overlays, and console errors.
+`scripts/ci-smoke.mjs` is the exception: it uses Playwright's own bundled
+Chromium, asserts only route availability and console errors across 11 routes,
+and is what CI runs.
 
 Any edit to intro timing, copy, or composition must be captured in real Chrome.
 
@@ -160,17 +179,27 @@ static index set it that way as identity; **reading surfaces use
   drift), and each record's citation moves into the right margin beside it.
   `ScanBackdrop` continues the corpus outside that band, masked via
   `--content-w`, which is `--reading-w` plus both rails on pages that carry
-  them. `register` and `accent` remain the only sanctioned per-section
-  deviations.
+  them. Four props exist: `register` (`muted` — October 7) and `accent`
+  (`ember` — Fake Resistance) are the only sanctioned per-section
+  *deviations*; `surface="quiet"` is carried by all seven and is not a
+  deviation; `aside` is a page-level right rail that exists and is unused.
 - **The evidence margin is a grid, never absolute positioning.** `marginNote`
   in `content.module.css` makes the record's host a two-track grid whose second
   track is zero-wide, so a citation taller than its record lengthens its own
   row instead of overrunning the next one. A host therefore needs its record
   and its sources as *sibling* elements (`.timelineMain`, `.dispatchMain`,
   `.caseFileMain`). Cards in a multi-column grid opt out — see Our Heroes.
+- **`lib/content/` is the frontend's content seam** — static today, shaped so
+  the eventual swap to a real published-content query is a change to these
+  function bodies rather than to any call site. It is held to the same import
+  boundary as `app/` and `components/`. Every module is `async` **except
+  `home.ts`, whose synchronous exports are load-bearing**: an `await` in the
+  home route's render path puts it behind `app/loading.tsx`'s Suspense
+  boundary, which without JavaScript is never replaced.
 - `components/briefs/` is the Geopolitical Brief, the one page with its own
   layout and reading-progress treatment; its content is still a static
-  reference cut in `geopolitical-reference.ts`.
+  reference cut in `geopolitical-reference.ts`, adapted onto
+  `components/content/` through `adapters.ts`.
 - `components/chat/ParticleChatLauncher.tsx` is mounted globally in
   `app/layout.tsx`. Desktop upgrades the server-rendered image to a second
   particle canvas after hydration; mobile deliberately never pays for that
@@ -222,7 +251,10 @@ directly, as in `assessments/rules.ts`.
 
 ### Cross-cutting rules worth knowing before editing
 
-- `server/core/config.ts` is the only file that reads `process.env`.
+- `server/core/config.ts` is the only **application-runtime** file that reads
+  `process.env`. Three others do, none of them runtime: `drizzle.config.ts`,
+  `server/db/testing.ts`, and a build-time `NODE_ENV` check in
+  `components/graphics/viewport.ts`.
 - `server/core/versioning.ts` `recordVersion()` is the only write path for a
   versioned entity: row update, version row, head pointer, audit trail and
   reindex emit happen in one transaction. Nothing else may `UPDATE` a versioned
@@ -242,6 +274,28 @@ directly, as in `assessments/rules.ts`.
   transitions, append-only tables, derived columns and the publish gate are all
   enforced in `server/db/migrations/`. Changing a rule usually means a new
   numbered migration, not just a service edit.
+
+### Not wired up, and load-bearing to know
+
+Verified against the code on 2026-08-26. `docs/architecture.md` carries the
+full list; these three change what an editor should assume.
+
+- **Authentication refuses in production, by design.**
+  `server/core/auth/actor.ts` throws `UNAUTHENTICATED` whenever `isProduction()`,
+  and `requireCapability()` always throws `NOT_IMPLEMENTED`. Both fail closed on
+  purpose — a dev shim that keeps working once deployed is how an API ends up
+  with no authentication and nobody noticing. Real auth is Phase 8.
+- **RLS is written and tested, but the runtime does not engage it.**
+  Migration `0015` creates the roles and policies, and the test harness sets the
+  role for real. The application never issues `SET LOCAL ROLE` — `setIdentity()`
+  sets `app.identity` for audit attribution only — so a live request runs as the
+  owner. Several `GET`s are anonymous and apply no application-layer filter
+  (`GET /api/v1/evidence` takes no `dataClass` filter at all), which becomes
+  live the moment a database exists.
+- **No cron schedules exist.** `vercel.json` declares the queue trigger and
+  nothing else; there is no `crons` array, so ingest, embed and outbox-drain
+  never fire — despite `cron/ingest/route.ts` saying `vercel.json` carries the
+  schedule.
 
 ### Tests
 

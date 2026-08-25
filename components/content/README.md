@@ -1,11 +1,32 @@
 # components/content
 
-Shared content-presentation components for the eight section pages. They carry
-the site's visual language — mono caps labels, thin rules, gold `#c9a24b` /
-blue `#6bb7e4` accents on `#070b14`, Cinzel display type — hard-coded to the
-same values as `components/briefs/geopolitical-brief.module.css` (a token pass
-comes later). All styling lives in `content.module.css`; every component
-carries its own palette, so they work on any page.
+Shared content-presentation components for the eight section pages, the
+Geopolitical Brief, and the home front page.
+
+**Styling comes from the V2 tokens in `app/globals.css`**, not from
+hard-coded values — three faces (Newsreader display, IBM Plex Sans text, Geist
+Mono data), seven size steps, six colours. Read `.ai/DESIGN-V2.md` before
+touching any of it. All styling lives in `content.module.css`.
+
+> Cinzel is **retired from every reading surface** and belongs to the home
+> particle scene only. Reintroducing it here reverses a documented decision
+> (`.ai/DECISIONS.md`, "Cinzel is retired from every reading surface").
+
+## The evidence margin
+
+Above 1220px, each record's citation moves into the right margin beside it.
+That placement is **a grid, never absolute positioning** — `marginNote` in
+`content.module.css` makes the record's host a two-track grid whose second
+track is zero-wide, so a citation taller than its record lengthens its own row
+instead of overrunning the next one.
+
+**A host therefore needs its record and its sources as *sibling* elements.**
+`Timeline` does this with `.timelineMain` beside `.timelineSources`; the same
+pattern is `.dispatchMain` and `.caseFileMain` elsewhere. The citation stays
+inside its entry in the markup, which is what keeps reading order, screen
+readers and the no-JS page correct.
+
+Cards in a multi-column grid opt out — see Our Heroes.
 
 Import everything from the barrel:
 
@@ -127,7 +148,7 @@ type CorrectionHistoryProps = { corrections: Correction[] };
 
 ## FigureRow
 
-The stat-tiles band: large Cinzel value over a small muted label, three
+The stat-tiles band: large display value over a small muted label, three
 columns (stacking to one below 360px). Renders nothing for an empty array.
 
 ```ts
@@ -144,11 +165,13 @@ type FigureRowProps = { figures: Figure[] };
 Vertical timeline with a rail and dot markers. Each entry is an `<li>` whose
 DOM `id` is `entry.id`, so `/#entry-id` deep links work. Shows a
 `VerificationBadge` when `assessment` is set and an inline `SourceList` when
-`sources` is set.
+`sources` is set. The record and its sources are siblings — see
+[the evidence margin](#the-evidence-margin).
 
 Variants: `'feed'` (default; blue rail, roomy — news feeds), `'history'`
-(gold rail, tighter spacing, era-styled Cinzel dates — historical arcs),
-`'spread'` (hostile ember rail, diamond markers — claim propagation).
+(gold rail, tighter spacing — historical arcs), `'spread'` (hostile ember rail,
+diamond markers — claim propagation). All three share one date style; the
+`history` variant used to reset it and no longer does.
 
 ```ts
 type TimelineEntry = {
@@ -171,7 +194,7 @@ type TimelineProps = { entries: TimelineEntry[]; variant?: 'feed' | 'history' | 
 
 ## ContentCard
 
-Flexible card primitive for case files and profiles: eyebrow, Cinzel title,
+Flexible card primitive for case files and profiles: eyebrow, display title,
 optional meta line, body, optional ruled footer. `accent` colors the left
 border and eyebrow (`'gold'` default, `'ember'` for hostile subjects). When
 `href` is set the title becomes a link whose hit area covers the whole card.

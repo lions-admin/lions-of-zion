@@ -10,6 +10,97 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — Reference documentation lives in `docs/`, and states its gaps
+
+An architecture and documentation audit found `README.md` publishing eight
+route names of which **seven did not exist** — `/today`, `/verify`, `/the-war`,
+`/stories`, `/israel-explained`, `/influence`, `/about`, all from a naming
+scheme abandoned before the section pages were built. That is the failure mode
+worth naming: a document nobody re-reads while editing does not decay
+gracefully, it decays invisibly, and the first person to trust it is the one
+who pays.
+
+So the split is now explicit. `CLAUDE.md` stays the working brief — the
+invariants an editor must not break, read before touching code. `docs/` is
+reference: `architecture.md`, `api.md`, `data-model.md`, `environment.md`,
+`operations.md`, indexed by `docs/README.md`. This file remains the ADR log.
+Nothing was duplicated between them; each links to the others.
+
+**The rule those documents are written to: describe what the code does, and
+mark anything unbuilt as a gap rather than describing it as though it works.**
+Every claim in them was checked against the source. Three examples of what that
+caught, each now recorded in the documents themselves:
+
+- `.env.example` is **not in git** — `.gitignore`'s `.env*` pattern captures it
+  (`git check-ignore -v` confirms), so a fresh clone gets no environment
+  reference at all. `docs/environment.md` is the tracked substitute. The
+  one-line fix (`!.env.example`) is recorded there as a recommendation and was
+  deliberately **not** applied, because a documentation pass should not quietly
+  change what the repository ships.
+- `.env.example` claims crossing an AI budget "degrades to the cheaper
+  profile". `assertWithinBudget()` **refuses** with `RATE_LIMITED`. The
+  document describes the code.
+- `components/content/README.md` described a Cinzel-and-hard-coded-hex palette
+  that the V2 type pass retired — `content.module.css` is 217 `var()` references
+  and one literal.
+
+`docs/graphics-task-02.md` was kept and banner-marked historical rather than
+deleted: its reasoning about composition and registration is still worth
+reading, and the record of what was specified is worth having. A superseded
+document that says so is useful; one that does not is a trap.
+
+---
+
+## 2026-08-26 — Three built-and-tested mechanisms are not actually engaged, and saying so is the point
+
+Found by the same audit, and grouped because they share one shape: the code is
+written, the tests are green, and **the thing does not run**. Each is a
+deliberate phase boundary rather than a bug — but each also fails silently, and
+a green suite over a mechanism that never executes is exactly the false comfort
+`assertRole` was written to prevent.
+
+**RLS is written and tested; the runtime never assumes a role.** Migration
+`0015` creates `app_public` / `app_staff` / `app_service`, enables RLS on the
+sensitive tables, and writes the policies. `server/db/testing.ts` exercises them
+through `as()`, which refuses to continue unless `current_user` actually
+changed. But nothing in the application issues `SET LOCAL ROLE` —
+`setIdentity()` sets `app.identity` for audit attribution and stops there — so a
+live request runs as the table owner and no policy applies.
+
+The prior entry, "RLS is meaningless without `assertRole`", recorded that the
+*suite* is real. It did not record that the *runtime* is not. That gap matters
+because several `GET`s are anonymous and apply no application-layer filter:
+`GET /api/v1/evidence` accepts `sourceId`, `kind`, `cursor` and `limit` and no
+`dataClass` at all. Its only intended protection is a policy that is not in
+effect. Today this is harmless — there is no database. **It stops being
+harmless the hour `DATABASE_URL` is set**, which is why it is written down here
+rather than left for whoever provisions it to discover.
+
+**No cron is scheduled.** `vercel.json` declares the queue trigger and nothing
+else — there is no `crons` array. Ingest, embed and outbox-drain therefore never
+fire, despite `cron/ingest/route.ts` saying in its own header that `vercel.json`
+only has to know about this schedule. The comment describes the intended
+arrangement; the file was never written. Scheduling them is deliberately left
+undone: it is an infrastructure change that starts spending against services
+that are not provisioned, and `docs/operations.md` carries the provisioning
+order instead.
+
+**The public chat cannot work in production as written.**
+`AskTheLionChat` probes availability with the anonymous `GET /api/v1/chat/threads`
+and sends `x-actor-label: public-site-visitor` on its writes. `POST` calls
+`requireActor`, which throws in production regardless of that header. With a
+database provisioned, the probe would answer 200, the modal would report
+"online", and every message would fail — the worst of the three states, because
+the offline path exists and would be bypassed.
+
+That is not an argument for loosening `requireActor`. Its refusal in production
+is the correct design and the reason this was findable at all. It is an argument
+that **the public chat needs a real answer to "who is a public visitor" before
+it can ship**, and that the capability probe should test the path it actually
+uses rather than a cheaper neighbour.
+
+---
+
 ## 2026-08-26 — Orbit labels anchor their first line, not their centre
 
 Reported by the user with screenshots: the node buttons were untidy — some

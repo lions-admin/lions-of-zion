@@ -1,0 +1,76 @@
+{
+  "projectId": "079fa612-0d76-4d9d-80ec-0567491ff374",
+  "shape": "package",
+  "pkg": "lions-of-zion",
+  "globalName": "LionsOfZion",
+  "srcDir": "components",
+  "tsconfig": ".design-sync/tsconfig.sync.json",
+  "cssEntry": ".design-sync/.cache/ds-styles.css",
+  "componentSrcMap": {
+    "ClaimRecordPair": "components/content/ClaimRecordPair.tsx",
+    "ContentCard": "components/content/ContentCard.tsx",
+    "CorrectionHistory": "components/content/CorrectionHistory.tsx",
+    "FigureRow": "components/content/FigureRow.tsx",
+    "KnownUnknownPanel": "components/content/KnownUnknownPanel.tsx",
+    "PublicationMeta": "components/content/PublicationMeta.tsx",
+    "SensitiveContent": "components/content/SensitiveContent.tsx",
+    "SourceList": "components/content/SourceList.tsx",
+    "Timeline": "components/content/Timeline.tsx",
+    "VerificationBadge": "components/content/VerificationBadge.tsx",
+    "ReadingProgress": "components/sections/ReadingProgress.tsx",
+    "SectionToc": "components/sections/SectionToc.tsx",
+    "AskAboutFileCta": "components/sections/AskAboutFileCta.tsx",
+    "ReportClaimForm": "components/support/ReportClaimForm.tsx",
+    "VolunteerInterestForm": "components/support/VolunteerInterestForm.tsx",
+    "ShareVerifiedButton": "components/support/ShareVerifiedButton.tsx",
+    "GeopoliticalBrief": "components/briefs/GeopoliticalBrief.tsx",
+    "BriefError": "components/briefs/BriefError.tsx",
+    "AskTheLionChat": "components/chat/AskTheLionChat.tsx",
+    "ChatOpenProvider": "components/chat/chat-open-context.tsx",
+    "DesignSurface": ".design-sync/shims/DesignSurface.tsx"
+  },
+  "provider": {
+    "component": "DesignSurface"
+  },
+  "guidelinesGlob": [
+    ".ai/DESIGN-V2.md"
+  ],
+  "overrides": {
+    "GeopoliticalBrief": {
+      "cardMode": "single",
+      "primaryStory": "ReferenceBrief001"
+    },
+    "ReadingProgress": {
+      "cardMode": "single",
+      "primaryStory": "Track"
+    },
+    "AskTheLionChat": {
+      "cardMode": "single",
+      "primaryStory": "TheDesk"
+    }
+  },
+  "dtsPropsFor": {
+    "VerificationBadge": "  /** One of the nine assessment values. */\n  assessment: 'false' | 'misleading' | 'manipulated' | 'out_of_context' | 'unsupported' | 'unverified' | 'contested' | 'satire' | 'verified';\n  confidence?: 'high' | 'medium' | 'limited';",
+    "SourceList": "  sources: Array<{ id: string; label: string; kind?: string; url?: string; accessedAt?: string; archiveUrl?: string }>;",
+    "Timeline": "  entries: Array<{\n    /** Becomes the <li> DOM id, so /#entry-id deep links work. */\n    id: string;\n    /** Machine value for <time dateTime>, e.g. '2023-10-07'. */\n    datetime: string;\n    /** What the reader sees, e.g. '7 Oct 2023'. */\n    dateLabel: string;\n    title: string;\n    body: React.ReactNode;\n    region?: string;\n    category?: string;\n    assessment?: 'false' | 'misleading' | 'manipulated' | 'out_of_context' | 'unsupported' | 'unverified' | 'contested' | 'satire' | 'verified';\n    sources?: Array<{ id: string; label: string; kind?: string; url?: string; accessedAt?: string; archiveUrl?: string }>;\n  }>;\n  /** feed: blue rail, news runs. history: gold rail, historical arcs.\n   *  spread: ember rail with diamond markers, claim propagation. */\n  variant?: 'feed' | 'history' | 'spread';",
+    "ContentCard": "  /** Mono caps kicker above the title. */\n  eyebrow?: string;\n  title: string;\n  /** Mono caps meta line under the title. */\n  meta?: React.ReactNode;\n  children: React.ReactNode;\n  /** Ruled-off footer strip. */\n  footer?: React.ReactNode;\n  /** Colours the left border and eyebrow. 'ember' is the hostile register. */\n  accent?: 'gold' | 'ember';\n  /** Makes the whole card a link. */\n  href?: string;",
+    "ClaimRecordPair": "  claim: React.ReactNode;\n  record: React.ReactNode;\n  /** Default 'The claim'. */\n  claimLabel?: string;\n  /** Default 'The record'. */\n  recordLabel?: string;",
+    "FigureRow": "  figures: Array<{ value: string; label: string }>;",
+    "KnownUnknownPanel": "  /** Bullets under 'Not established'. */\n  unknowns: string[];\n  /** Bullets under 'What would change the assessment'. Omit to collapse to one column. */\n  wouldChange?: string[];",
+    "PublicationMeta": "  publishedAt?: string;\n  updatedAt?: string;\n  coverageWindow?: string;\n  reviewedBy?: string;\n  /** Rendered as 'N sources'. */\n  sourceCount?: number;\n  /** e.g. 'Edition 04 · August 2026'. */\n  edition?: string;",
+    "CorrectionHistory": "  /** An empty array renders 'None recorded' — never hide this to imply a clean record. */\n  corrections: Array<{ date: string; note: string; version?: string }>;",
+    "SensitiveContent": "  /** Shown before reveal, under a 'Sensitive material' kicker. */\n  warning: string;\n  /** Part of the client bundle — keep serializable. */\n  children: React.ReactNode;",
+    "ReadingProgress": "  /** Substitute the host's own track treatment. */\n  trackClassName?: string;\n  valueClassName?: string;",
+    "SectionToc": "  /* No props. Builds itself from the rendered h2s inside [data-toc-source],\n     and measures depth of read against the nearest [data-reading-scroll]\n     ancestor. Renders nothing without both, or with fewer than two headings. */",
+    "AskAboutFileCta": "  /** The file the pre-filled question is about, e.g. '/war-update'. */\n  href: string;\n  /* Requires ChatOpenProvider above it. */",
+    "ChatOpenProvider": "  children: React.ReactNode;",
+    "AskTheLionChat": "  onClose: () => void;\n  /* Requires ChatOpenProvider above it. */",
+    "DesignSurface": "  children?: React.ReactNode;\n  /** Inner padding. Defaults to a reading inset. */\n  pad?: React.CSSProperties['padding'];\n  /** Constrain to the 68ch reading measure the dossier pages use. */\n  measure?: boolean;\n  className?: string;\n  style?: React.CSSProperties;",
+    "BriefError": "  /* No props. The Geopolitical Brief's failure state. */",
+    "GeopoliticalBrief": "  /* No props. Renders the static reference brief in geopolitical-reference.ts. */",
+    "ReportClaimForm": "  /* No props. Posts to POST /api/v1/reports (public, rate limited 10/hour). */",
+    "VolunteerInterestForm": "  /* No props. Composes a mailto: — there is no endpoint for volunteer intake. */",
+    "ShareVerifiedButton": "  /* No props. Copies a canonical link to the current page. */"
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

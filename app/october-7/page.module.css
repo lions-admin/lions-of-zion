@@ -1,0 +1,75 @@
+/* October 7 — the one page built for restraint, not rhythm.
+   Every other dossier page reads like a feed; this one reads like
+   something carved. No motion, no cards, no stat-tile grid — a plaque and
+   a slow, evenly-spaced record. Overrides reach the shared
+   FigureRow/Timeline components through their real DOM structure (dl/dt/dd,
+   ol/li) rather than their CSS-module class names, which are hashed and
+   not safe to target directly from a sibling module. */
+
+.inscription {
+  margin: 2.25rem 0 2.5rem;
+  padding: 2.25rem 0;
+  border-top: 1px solid rgba(201, 162, 75, 0.32);
+  border-bottom: 1px solid rgba(201, 162, 75, 0.32);
+}
+
+.inscription > dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.inscription > dl > div {
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.inscription > dl > div + div {
+  border-left: 1px solid rgba(201, 162, 75, 0.18);
+}
+
+.inscription > dl > div > dt {
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 6vw, 4.25rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: #e3c978;
+}
+
+.inscription > dl > div > dd {
+  max-width: none;
+  margin: 0.9rem auto 0;
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.68);
+}
+
+@media (max-width: 640px) {
+  .inscription > dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .inscription > dl > div + div {
+    border-left: none;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(201, 162, 75, 0.18);
+  }
+}
+
+/* Slower rhythm down the record — more air between entries than the
+   default feed treatment, so the page is paced for reading, not scanning. */
+.record ol > li {
+  padding-bottom: 3.4rem;
+}
+
+.record ol > li:last-child {
+  padding-bottom: 0.25rem;
+}

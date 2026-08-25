@@ -5,10 +5,10 @@ lives in `DECISIONS.md`. The long backend phase narrative that used to live
 here is in this file's git history and in
 `~/.claude/plans/splendid-discovering-dawn.md`.
 
-_Last updated: 2026-08-25 (end of session — TODOS W4 is now complete for all
-eight destination pages: War Update, Fake Resistance, Support Us,
-Methodology/Corrections shipped in an earlier same-day session; October 7,
-Our Heroes, Israel's Story and We Are shipped in this one)_
+_Last updated: 2026-08-25 (end of session — a fourth same-day round: the
+GeopoliticalBrief migrated onto the shared content library, Israel's Story
+grew two more chapters, and a site-wide accessibility pass landed, all via
+three parallel forked agents merged back into `main`)_
 
 ## Where the work is
 
@@ -43,6 +43,29 @@ respectively. A "Methodology · Corrections" link row was added to
 `SectionPage`'s footer and the brief's closing nav — deliberately **not** a
 global footer in `app/layout.tsx`, since the home route has no content below
 the fold and layout.tsx wraps it too (`.ai/DECISIONS.md`).
+
+**Fourth same-day round** (dispatched as three parallel `fork` agents in
+isolated worktrees, merged back by hand): `GeopoliticalBrief.tsx` no longer
+has its own bespoke Status/meta/figures/unknowns/sources/corrections
+markup — it's now built on `components/content/` like every other page,
+including a judgment-call mapping from its private `BriefStatus` onto the
+real `AssessmentValue` (documented in `.ai/DECISIONS.md`); `ReadingProgress`
+moved from brief-only to shared (`components/sections/ReadingProgress.tsx`),
+and `SectionPage` now renders it; the global scrollbar went from hidden to a
+minimal styled thin one; keyboard focus anywhere on a page now calms the
+`ScanBackdrop` animation, not just the quiet/muted opt-ins. Israel's Story
+grew two more real, individually sourced chapters — the 1967 Six-Day War
+and the 1993 Oslo Accords (legacy marked as disputed, not adjudicated) — now
+four chapters total. A site-wide accessibility pass added "Skip to content"
+links to `SectionPage`/`DocPage` (the brief already had one), fixed several
+sub-AA-contrast text colors against the real palette, and added
+`role="alert"` to the Support Us forms' validation/submit errors. One of the
+three forks hit a real platform wall — a forked agent cannot itself spawn
+further forks — and, not knowing that going in, ended up redoing the Brief
+migration and the Israel's Story chapters itself inside its own branch
+alongside its actual accessibility work; those duplicate commits were
+discarded during merge in favor of the two purpose-built branches. Full
+account in `.ai/DECISIONS.md`'s 2026-08-25 entry on parallel forks.
 
 - a crowned lion assembled from tiered 45k/90k/180k particle buffers;
 - eight radial routes whose nodes, connectors and DOM labels share one
@@ -142,20 +165,29 @@ that wrapper).
   capture) are listed under TODOS W2.
 - Not independently browser-tested (container has no real Chrome): the
   `ChatOpenProvider` wiring end to end, the `ReportClaimForm`/
-  `VolunteerInterestForm` submit flows, and — new this session, and worth
-  a deliberate look given the subject matter — Our Heroes and October 7 in
-  a real browser before calling either "done."
+  `VolunteerInterestForm` submit flows, Our Heroes and October 7, and —
+  new this round — the migrated brief's visual parity with its previous
+  bespoke layout (structurally different in two sections by deliberate
+  choice, see `DECISIONS.md`) and the new skip links/contrast fixes.
+- Fourth-round gate: typecheck, lint, 323 tests, build — 22 routes, all
+  green after merging all three forks. Dev-server smoke checks confirmed
+  the brief still shows real `VerificationBadge`s, War Update's coverage
+  window now renders (previously computed but never displayed), the two
+  new Israel's Story chapters render (`Six-Day War`, `Oslo`, `Nasser`,
+  `1967`, `1993`), and skip links are present on `SectionPage`/`DocPage`
+  routes — no error markers anywhere.
 
 ## Next (cold-start order)
 
-1. **TODOS W4 is now complete for all eight pages.** What's left there is
-   explicitly scoped-out follow-up, not unfinished work: a family/witness
-   consent-and-removal workflow (would let Our Heroes grow past its
-   current three already-public figures, and let October 7 build real
-   testimony/remembrance content instead of linking out); Israel's Story's
-   remaining chapters (ancient period, 1967, 1973, Oslo, Jordan 1994,
-   Abraham Accords — each needs its own fetched sources, one at a time,
-   same as the two chapters that exist); an active-conflict
+1. **TODOS W4 is complete for all eight pages**; the Brief is now also on
+   the shared content library, so nothing on the site still duplicates
+   `components/content/`'s job. What's left is explicitly scoped-out
+   follow-up: a family/witness consent-and-removal workflow (would let Our
+   Heroes grow past its current three already-public figures, and let
+   October 7 build real testimony/remembrance content instead of linking
+   out); Israel's Story's remaining chapters (ancient period, 1973, Jordan
+   1994, Abraham Accords — each needs its own fetched sources, one at a
+   time, same as the four chapters that exist); an active-conflict
    `SensitiveContent` gate for October 7 if more graphic material is added
    later (none was needed for what's there now).
 2. Confirm the real `VOLUNTEER_INBOX` address in
@@ -166,10 +198,13 @@ that wrapper).
    production domain, and whether a sitewide footer (identity, Contact, a
    global chat entry) is wanted — if so it must be conditional on not
    being the home route, see `DECISIONS.md`.
-4. Workstation: real-Chrome capture pass over everything visual, including
-   this session's four rebuilt pages and the CTA/forms from the session
-   before it.
-5. Backend picks unchanged: provisioning (pooled `-pooler` `DATABASE_URL`),
+4. The accessibility pass this round fixed what's fixable without a live
+   browser; a real screen-reader/VoiceOver pass and the real-Chrome
+   contrast/focus verification are still open, same workstation-only
+   constraint as the visual capture below.
+5. Workstation: real-Chrome capture pass over everything visual, including
+   all four rounds shipped this day.
+6. Backend picks unchanged: provisioning (pooled `-pooler` `DATABASE_URL`),
    real auth, brief-generation workflow.
 
 ## Blocked

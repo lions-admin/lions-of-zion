@@ -111,6 +111,37 @@ Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמית
 קובע מפורשות שלדף הבית אין תוכן מתחת לקיפול וה־layout עוטף גם אותו.
 השער המלא ירוק: typecheck, ‏lint, ‏323 בדיקות (1 מדולגת), ‏build.
 
+### עדכון ביצוע — 25 באוגוסט 2026: גל רביעי — הגירת הברייף, שני פרקים נוספים, נגישות
+
+באותו יום, סשן רביעי, בוצע דרך שלושה סוכני `fork` מקבילים ב־worktrees
+מבודדים (`isolation: "worktree"`), שמוזגו ידנית ל־`main`:
+
+- **הגירת הברייף**: `GeopoliticalBrief.tsx` עבר במלואו ל־`components/content/`
+  (`VerificationBadge`, ‏`PublicationMeta` — קיבל שדה `coverageWindow` חדש,
+  שתוקן גם ב־War Update שלא הציג אותו כלל —, ‏`FigureRow`, ‏`KnownUnknownPanel`,
+  `Timeline`, ‏`SourceList`, ‏`CorrectionHistory`). `BriefStatus` ממופה ל־
+  `AssessmentValue` האמיתי; שני מקרי גבול מתועדים ב־`.ai/DECISIONS.md`.
+  Developments ו־Corrections שינו צורה (מפריסה ייעודית ל־`Timeline`/
+  `CorrectionHistory` המשותפים) — זה שינוי מכוון, לא תקלה. `ReadingProgress`
+  עבר להיות משותף (`components/sections/ReadingProgress.tsx`) ומופיע גם
+  ב־`SectionPage`. Scrollbar גלובלי מעוצב; focus-within מרגיע את אנימציית
+  הרקע בכל עמוד.
+- **Israel's Story**: שני פרקים אמיתיים ומצוטטים נוספים — מלחמת ששת הימים
+  (1967, כולל חסימת מצרי טיראן ממקור משרד החוץ) ו־הסכמי אוסלו (1993,
+  המורשת שלהם מסומנת כשנויה במחלוקת ולא מוכרעת). ארבעה פרקים כעת.
+- **נגישות**: skip links ל־`SectionPage`/`DocPage`; תיקוני contrast אמיתיים
+  (כמה טקסטים היו מתחת ל־4.5:1 מול הפלטה בפועל); `role="alert"` על שגיאות
+  בטפסי Support Us.
+- **תקלת פלטפורמה אמיתית שתועדה**: אחד משלושת ה־fork-ים ניסה בעצמו לפצל
+  סוכנים נוספים וקיבל "Fork is not available inside a forked worker" —
+  סוכן forked לא יכול לפצל fork נוסף. הוא ביצע את כל שלוש המשימות בעצמו
+  בתוך אותו worktree; העבודה הכפולה שלו על הברייף ו־Israel's Story נזרקה
+  בזמן המיזוג לטובת שני הענפים הייעודיים. סוכן נוסף החזיר תוצאה כוזבת
+  (85 שניות, 0 קבצים שהשתנו בפועל) — זוהה בבדיקת `git worktree list` ולא
+  לפי הטקסט שהוחזר, והמשימה הופעלה מחדש בהצלחה. פירוט מלא ב־
+  `.ai/DECISIONS.md`. השער המלא ירוק אחרי המיזוג: typecheck, ‏lint, ‏323
+  בדיקות, ‏build.
+
 ### ממצאי העל
 
 - מתוך שמונת העמודים, רק Geopolitical Brief מכיל תוכן אמיתי — מתוארך, ממוספר,
@@ -178,9 +209,12 @@ Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמית
   ה־evidence rail; אין עדיין תוכן שממלא אותו.
 - [x] header נדבק של הברייף במובייל אטום; רצועת ה־TOC קיבלה fade וגלילה.
 - [x] "DESK 01 / 08" הפך ל־"Desk 01".
-- [ ] scrollbar/חיווי גלילה לעמודים ארוכים — `::-webkit-scrollbar { display:
-  none }` הגלובלי משאיר את Chrome/Safari בלי שום affordance.
-- [ ] `ReadingProgress` מוחל גם על עמודי דוסייה ארוכים, לא רק על הברייף.
+- [x] scrollbar/חיווי גלילה לעמודים ארוכים — `::-webkit-scrollbar { display:
+  none }` הגלובלי הוחלף בסקרולבר דק מעוצב (thumb זהב שקוף); `scrollbar-width`/
+  `scrollbar-color` נוספו גם ל־`sections.module.css`'s `.page`.
+- [x] `ReadingProgress` מוחל גם על עמודי דוסייה, לא רק על הברייף — הרכיב עבר
+  מ־`components/briefs/` ל־`components/sections/ReadingProgress.tsx` המשותף;
+  `SectionPage` מקבל `data-reading-scroll` ומרנדר אותו.
 - [x] מטמון `cache()` לקריאת ה־JSON של `ScanBackdrop`; פיזור `--rest`
   ב־reduced-motion תוקן לכל רוחב המסך ללא overflow.
 
@@ -197,8 +231,8 @@ Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמית
 
 - [x] ספריית `components/content/` נבנתה (עם README מדויק של כל ה־props):
   `VerificationBadge`, `SourceList`, `PublicationMeta`, `KnownUnknownPanel`,
-  `CorrectionHistory`, `FigureRow`. הברייף עצמו עדיין משתמש במימושיו
-  המקומיים — ההגירה שלו פתוחה.
+  `CorrectionHistory`, `FigureRow`. הברייף עצמו הוגר בסבב רביעי (ראו למטה) —
+  ההגירה סגורה.
 - [x] רכיב `Timeline` משותף בשלושה וריאנטים: `feed`, `history`, `spread`.
 - [x] primitives כרטיס: `ContentCard` ו־`ClaimRecordPair`.
 - [x] רכיב `SensitiveContent` — שער אזהרת תוכן נגיש עם חשיפה מפורשת וכפתור
@@ -207,8 +241,11 @@ Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמית
   ‏`server/modules/items/repo.ts` מייבא את החוזה במקום להכריז צורה משלו
   (18/18 בדיקות items עוברות).
 - [x] יישור אוצר המילים בספרייה החדשה: `VerificationBadge` ממופה בצורה
-  ממצה על כל 9 ערכי `ASSESSMENT_VALUES` + `CONFIDENCE_SUMMARIES`.
-  ‏`geopolitical-reference.ts` עצמו עדיין על 5 הסטטוסים הפרטיים — פתוח.
+  ממצה על כל 9 ערכי `ASSESSMENT_VALUES` + `CONFIDENCE_SUMMARIES`. הברייף
+  ממופה כעת גם הוא ל־`AssessmentValue` (לא ל־5 הסטטוסים הפרטיים —
+  `BriefStatus` נשאר בקוד אך משמש רק כדי לתרגם את הנתונים הקיימים; מיפוי
+  מלא ב־`.ai/DECISIONS.md`, כולל שני מקרי גבול: `Attributed`→`unverified`,
+  `Corrected`→`verified`).
 - [x] מודול תוכן סטטי מוקלד לכל עמוד — קיים כעת ל־War Update, Fake
   Resistance, October 7, Our Heroes ו־Israel's Story (5 קבצים תחת
   `lib/content/`). Support Us ו־We Are נשארו ב־JSX ישיר בכוונה — הם תוכן
@@ -256,14 +293,18 @@ Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמית
   רצפה. פסקת "How these stories are gathered" הישנה נכתבה מחדש כי טענה
   "nothing appears that the family has not seen and approved" — לא נכון
   לגבי הפרופילים האלה.
-- [x] **Israel's Story** — נבנה מחדש: `lib/content/israels-story.ts` עם
-  שני פרקים אמיתיים ומצוטטים (Wikipedia, שני עמודים נפרדים): "The
-  founding, 1947–1948" (תוכנית החלוקה → סוף המנדט → הכרזת העצמאות
-  14.5.1948 → פלישת מצרים/עבר-הירדן/עיראק/סוריה 15.5.1948) ו־"Peace, when
-  it came" (הסכם השלום עם מצרים, 26.3.1979). זו מהדורה ראשונה מכוונת
-  ומצומצמת — לא "הקשת הארוכה" המלאה; העמוד עצמו מצהיר במפורש מה עוד חסר
-  (תקופה עתיקה, 1967, 1973, אוסלו, ירדן 1994, הסכמי אברהם) כפער ידוע, לא
-  כהשמטה שקטה. כל פרק: `Timeline` ‏(`variant="history"`) + `SourceList`.
+- [x] **Israel's Story** — נבנה מחדש, וגדל בסבב רביעי לארבעה פרקים אמיתיים
+  ומצוטטים ב־`lib/content/israels-story.ts`: "The founding, 1947–1948"
+  (תוכנית החלוקה → סוף המנדט → הכרזת העצמאות 14.5.1948 → פלישת
+  מצרים/עבר-הירדן/עיראק/סוריה 15.5.1948), "The Six-Day War, 1967" (חסימת
+  מצרי טיראן 23.5.1967 → מבצע מוקד 5.6.1967 → הפסקת אש 10.6.1967, כולל
+  מקור ראשוני ממשרד החוץ הישראלי לחסימה), "Peace, when it came" (הסכם
+  השלום עם מצרים, 26.3.1979), ו־"Oslo, 1993" (הכרה הדדית 9.9.1993 →
+  הצהרת העקרונות 13.9.1993 — המורשת שלהם מסומנת במפורש כשנויה במחלוקת,
+  לא מוכרעת בעמוד). זו עדיין מהדורה עובדת ומצומצמת — לא "הקשת הארוכה"
+  המלאה; העמוד עצמו מצהיר במפורש מה עוד חסר (תקופה עתיקה, 1973, ירדן
+  1994, הסכמי אברהם) כפער ידוע, לא כהשמטה שקטה. כל פרק: `Timeline`
+  ‏(`variant="history"`) + `SourceList`.
 - [x] **Fake Resistance** — נבנה מחדש: שלושה תיקי case אמיתיים ב־
   `lib/content/fake-resistance.ts`, כולם מאוקטובר 2023, מתועדים במקור
   ציבורי יחיד או יותר ולא נוגעים במחלוקת חיה (Arma 3 — קטעי משחק שהוצגו
@@ -458,15 +499,22 @@ Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמית
 
 ### נגישות
 
-- [ ] לבצע audit מלא של keyboard navigation.
-- [ ] לבדוק contrast לכל צבעי gold, blue, ember ו־body text.
+- [x] לבצע audit מלא של keyboard navigation — סבב נגישות (25.8.2026) עבר על
+  `SectionPage`, ‏`DocPage`, טפסי Support Us וספריית `components/content/`;
+  פערי `:focus-visible` שנמצאו תוקנו. אימות מלא עדיין דורש דפדפן אמיתי
+  (ראו הפריט הבא).
+- [x] לבדוק contrast לכל צבעי gold, blue, ember ו־body text — יחסי WCAG
+  חושבו מול הפלטה בפועל; כמה טקסטים קטנים היו מתחת ל־4.5:1 ותוקנו. ראו
+  `.ai/DECISIONS.md`/`TODOS.md` לרשימת המדויקת מהסבב הרביעי.
 - [x] להוסיף skip link לתוכן הראשי ב־Geopolitical Brief.
-- [ ] להוסיף skip link עקבי ליתר המעטפת הציבורית.
+- [x] להוסיף skip link עקבי ליתר המעטפת הציבורית — נוסף ל־`SectionPage`
+  ו־`DocPage`, אותה טכניקה חזותית כמו הברייף.
 - [ ] לבדוק 200% zoom ללא חיתוך או אובדן פעולה.
 - [ ] להוסיף content warnings ופתרון הסכמה לתכנים קשים ב־October 7.
 - [ ] לוודא שכל חוויית particles מקבלת fallback סמנטי שווה.
 - [x] להגדיר את Ask the Lion כ־dialog מודאלי עם focus trap, ‏Escape, רקע `inert` והחזרת focus.
-- [ ] להשלים בדיקת VoiceOver/screen reader לזרימות הבית, הבריף והצ׳ט.
+- [ ] להשלים בדיקת VoiceOver/screen reader לזרימות הבית, הבריף והצ׳ט —
+  דורש דפדפן/screen reader אמיתי, לא בוצע בקונטיינר.
 
 ---
 

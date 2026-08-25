@@ -10,6 +10,69 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — Parallel forked agents: a fork cannot itself spawn a fork, and a fork's first response isn't proof of work done
+
+Three `fork` agents with `isolation: "worktree"` were dispatched in one
+message for three independent tracks (Brief migration, two more Israel's
+Story chapters, an accessibility audit). Two real problems showed up:
+
+1. One fork (the Israel's Story one) returned a plausible-sounding
+   completion summary in ~85 seconds with only 6 tool calls — far too fast
+   and too few tool calls for "research two historical topics via
+   WebSearch/WebFetch, write content, run a 4-step gate." Checking
+   `git worktree list` showed no worktree had even been created for it —
+   the tool description says isolation is auto-cleaned up when an agent
+   makes zero changes, which is exactly what happened. The fix was
+   verifying against the actual repo state (`git worktree list`, branch
+   logs) rather than trusting the narrated result, then relaunching the
+   same track fresh with an explicit "your previous attempt made zero
+   changes, do the real work this time" framing — which worked. **Lesson:
+   a fork's own summary is not evidence; check the worktree/branch it
+   claims to have produced before relying on it**, especially when the
+   duration or tool-call count looks too low for the assigned work.
+2. A second fork (the accessibility one) reported that when *it* tried to
+   dispatch further parallel sub-agents, every call after the first failed
+   with "Fork is not available inside a forked worker" — a real, hard
+   platform restriction: a forked agent cannot itself fork further agents.
+   It correctly fell back to doing all three tracks' work itself,
+   sequentially, inside its own single worktree, rather than silently
+   dropping the other two tracks — but this meant its branch ended up
+   containing its own independent (and lower-priority, since it was never
+   the intended owner) reimplementations of the Brief migration and the
+   Israel's Story chapters, duplicating what the two dedicated tracks
+   already produced. Resolution: merged the two purpose-built branches for
+   those tracks, and cherry-picked *only* this fork's accessibility commit
+   from its branch, discarding its redundant duplicate commits. **Lesson:
+   never ask a fork (or any subagent) to itself dispatch further parallel
+   agents — dispatch all needed parallelism from the top-level orchestrating
+   turn, one flat layer, not nested.**
+
+## 2026-08-25 — GeopoliticalBrief's migration onto `components/content/` accepted structural, not just cosmetic, change
+
+The brief was the last page still using its own local Status/meta/figures/
+unknowns/sources/corrections markup instead of the shared library built for
+exactly this (`components/content/`, whose colors were already hand-matched
+to the brief's own — see its header comment). Migrating it: `Status` →
+`VerificationBadge` with a judgment-call mapping from the brief's private
+5-value `BriefStatus` onto the real 9-value `AssessmentValue`
+(`Confirmed`→`verified`, `Unverified`→`unverified`, `Disputed`→`contested`,
+`Attributed`→`unverified` — the closest fit for "single-source, not
+independently cross-checked," since no real value captures that precisely
+— `Corrected`→`verified`, treating it as a workflow event that
+`CorrectionHistory` already carries, not a verdict of its own); the
+Developments section became a `Timeline` (`variant="feed"`) and the
+corrections footer became `CorrectionHistory` — both structurally different
+from the brief's original bespoke layout (Timeline adds a rail+dot marker;
+CorrectionHistory drops the original two-column kicker/dark-band treatment
+for a single-column block). This was accepted as within scope of
+"migrate onto the shared library," not a violation of "should look the
+same" — Status/Figures/Unknowns/Sources/PublicationMeta are visually
+identical to before, and the two intentionally-different sections still
+read as the same page. If a future session wants the brief's Developments/
+Corrections sections back to their exact original layout, that's a new,
+separate decision to make consciously — not a bug to silently "fix" by
+reverting the migration.
+
 ## 2026-08-25 — Our Heroes publishes only extensively public, already-covered people — no consent workflow exists to publish anyone else
 
 There is no family-consent intake process on this site. Publishing a real

@@ -3,6 +3,7 @@ import styles from './content.module.css';
 export type PublicationMetaProps = {
   publishedAt?: string;
   updatedAt?: string;
+  coverageWindow?: string;
   reviewedBy?: string;
   sourceCount?: number;
   edition?: string;
@@ -11,6 +12,7 @@ export type PublicationMetaProps = {
 export function PublicationMeta({
   publishedAt,
   updatedAt,
+  coverageWindow,
   reviewedBy,
   sourceCount,
   edition,
@@ -19,6 +21,7 @@ export function PublicationMeta({
   if (edition) entries.push({ term: 'Edition', detail: edition });
   if (publishedAt) entries.push({ term: 'Published', detail: publishedAt });
   if (updatedAt) entries.push({ term: 'Updated', detail: updatedAt });
+  if (coverageWindow) entries.push({ term: 'Coverage window', detail: coverageWindow });
   if (reviewedBy) entries.push({ term: 'Reviewed by', detail: reviewedBy });
   if (sourceCount !== undefined) {
     entries.push({

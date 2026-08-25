@@ -32,6 +32,8 @@
   overflow-y: auto;
   background: var(--ground);
   color: var(--body);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
 
 .accentEmber {
@@ -104,6 +106,15 @@
   /* October 7: the scan nearly holds its breath */
   --register: 0.32;
   animation-duration: calc(var(--dur) * 3);
+}
+
+/* Keyboard focus landing anywhere in the page calms the background scan too
+   — not just the quiet/muted opt-ins. `ScanBackdrop` renders as a sibling of
+   `.shell` directly inside `.page` (not nested in `.panel`), so `:focus-within`
+   has to be scoped here to actually see focus land inside the panel's content. */
+.page:focus-within .row {
+  --register: 0.4;
+  animation-duration: calc(var(--dur) * 2);
 }
 
 /* ---- dossier layout ---- */

@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { defaultNodes } from '@/components/particle-nav/config';
 import { ScanBackdrop } from './ScanBackdrop';
 import { AskAboutFileCta } from './AskAboutFileCta';
+import { ReadingProgress } from './ReadingProgress';
 import styles from './sections.module.css';
 
 /*
@@ -95,7 +96,8 @@ export function SectionPage({
     .trim();
 
   return (
-    <main className={pageClass}>
+    <main className={pageClass} data-reading-scroll>
+      <ReadingProgress />
       <ScanBackdrop routeId={id} register={register} />
       <div className={shellClass}>
         <aside className={styles.rail}>

@@ -1,9 +1,23 @@
 'use client';
 
+/**
+ * Shared with the Geopolitical Brief (`components/briefs/ReadingProgress.tsx`
+ * used to be its own copy of this exact logic). Tracks scroll progress of
+ * the nearest `[data-reading-scroll]` ancestor. `trackClassName`/
+ * `valueClassName` let a page substitute its own exact visual treatment
+ * (the brief keeps its original `.progressTrack`/`.progressValue`, sitting
+ * inside its sticky header) while everything else gets the default —
+ * a thin fixed line pinned to the top of the viewport.
+ */
 import { useEffect, useRef } from 'react';
-import styles from './geopolitical-brief.module.css';
+import styles from './reading-progress.module.css';
 
-export function ReadingProgress() {
+export interface ReadingProgressProps {
+  trackClassName?: string;
+  valueClassName?: string;
+}
+
+export function ReadingProgress({ trackClassName, valueClassName }: ReadingProgressProps) {
   const valueRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -34,8 +48,8 @@ export function ReadingProgress() {
   }, []);
 
   return (
-    <span className={styles.progressTrack} aria-hidden="true">
-      <span ref={valueRef} className={styles.progressValue} />
+    <span className={trackClassName ?? styles.progressTrack} aria-hidden="true">
+      <span ref={valueRef} className={valueClassName ?? styles.progressValue} />
     </span>
   );
 }

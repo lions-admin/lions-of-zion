@@ -29,6 +29,7 @@ export default async function Page() {
       <PublicationMeta
         edition={edition.edition}
         publishedAt={edition.publishedAt}
+        coverageWindow={edition.coverageWindow}
         reviewedBy={edition.reviewedBy}
         sourceCount={edition.sourceCount}
       />

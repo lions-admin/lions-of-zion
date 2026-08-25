@@ -33,4 +33,21 @@ body {
 }
 canvas { display: block; }
 button, canvas { -webkit-tap-highlight-color: transparent; }
-::-webkit-scrollbar { display: none; }
+
+/* A minimal, restrained scroll affordance — not the browser default, but
+   not hidden either. Firefox/desktop-Safari read scrollbar-width/-color on
+   the individual scroll containers (sections.module.css, brief module). */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(201, 162, 75, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(201, 162, 75, 0.5);
+}

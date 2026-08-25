@@ -16,8 +16,8 @@ const RADIUS = 3.3;
 
 function Demo() {
   const search = useSearchParams();
-  const showStats = search.get("stats") !== null;
-  const forceWebGL = search.get("forceWebGL") === "1";
+  const showStats = search != null && search.get("stats") !== null;
+  const forceWebGL = search?.get("forceWebGL") === "1";
   const sim = useSimControls();
   const [stats, setStats] = useState<FrameStatsData | null>(null);
   const [mounted, setMounted] = useState(true);

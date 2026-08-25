@@ -411,15 +411,16 @@
   line-height: var(--t-small-lh, 1.65);
 }
 
+/* "None recorded" answers the kicker above it — it is a statement of state,
+   not a label, so it is set as one. Uppercase here made the one place the
+   page admits to having nothing shout louder than the content. */
 .correctionsEmpty {
   padding: 1rem 0;
   border-bottom: 1px solid var(--line);
   color: var(--ink-lo);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  text-transform: uppercase;
+  font-family: var(--face-text, sans-serif);
+  font-size: var(--t-caption, 0.8125rem);
+  line-height: var(--t-caption-lh, 1.5);
 }
 
 /* ── FigureRow ──────────────────────────────────────────────────────────── */

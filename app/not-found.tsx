@@ -37,7 +37,7 @@ export default function NotFound() {
                     File {String(index + 1).padStart(2, '0')} /{' '}
                     {String(defaultNodes.length).padStart(2, '0')}
                   </span>
-                  <span className={styles.entryLabel}>{node.label}</span>
+                  <span className={styles.entryLabel}>{node.displayName}</span>
                   <span className={styles.entryDescription}>{node.description}</span>
                 </Link>
               </li>

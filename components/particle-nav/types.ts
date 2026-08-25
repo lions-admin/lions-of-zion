@@ -1,7 +1,18 @@
 export interface NavNode {
   id: string;
-  /** DOM label text — rendered as a real link, never canvas type. */
+  /**
+   * The home scene's label — rendered as a real link, never canvas type.
+   * Stored uppercase because the orbit and the static index set it that way
+   * as identity, in Cinzel.
+   */
   label: string;
+  /**
+   * The same destination named as prose, for reading pages (prev/next, the
+   * 404 index). Kept as data rather than derived: `text-transform:
+   * capitalize` turns "ISRAEL'S STORY" into "Israel'S Story", and the new
+   * serif shows every one of those seams.
+   */
+  displayName: string;
   href: string;
   /** One sentence for the hover/focus preview card; also the page's opening claim. */
   description: string;

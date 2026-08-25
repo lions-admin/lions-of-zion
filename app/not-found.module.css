@@ -7,19 +7,21 @@
  */
 
 .page {
-  --ground: #070b14;
-  --gold: #c9a24b;
-  --gold-bright: #efd79a;
-  --blue: #57a7d9;
-  --blue-dim: #3e7fa8;
-  --body: #9fb3c8;
-  --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  --display: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  /* Local aliases only — the values come from the V2 tokens in
+     app/globals.css (`.ai/DESIGN-V2.md`). This page kept its own palette
+     through the redesign because it isn't one of the ten routes; the
+     result was a 404 still speaking the old dialect. */
+  --gold-bright: var(--gold-hi);
+  --blue: var(--data-blue);
+  --blue-dim: var(--data-blue-dim);
+  --mono: var(--face-data);
+  --display: var(--face-display);
 
   height: 100dvh;
   overflow-y: auto;
   background: var(--ground);
-  color: var(--body);
+  color: var(--ink);
+  font-family: var(--face-text);
 }
 
 /* faint trace grid, echoing the scan without mounting a renderer */
@@ -41,27 +43,27 @@
 
 .code {
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.32em;
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--blue);
 }
 
+/* "This file is not in the index" is a sentence, so it is set as one. */
 .title {
   margin-top: 1rem;
   font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(1.8rem, 5.5vw, 3rem);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-weight: var(--t-display-weight);
+  font-size: var(--t-display);
+  line-height: var(--t-display-lh);
   color: var(--gold);
 }
 
 .lede {
   margin-top: 1.1rem;
   max-width: 34rem;
-  font-size: 0.98rem;
-  line-height: 1.7;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .rule {
@@ -75,8 +77,8 @@
   display: inline-block;
   margin-top: 1.6rem;
   font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.14em;
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-decoration: none;
   color: var(--gold-bright);
 }
@@ -93,8 +95,8 @@
 
 .indexHeading {
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.28em;
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--blue-dim);
 }
@@ -130,8 +132,8 @@
 .entryIndex {
   grid-area: index;
   font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.12em;
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   color: var(--blue-dim);
   padding-top: 0.2rem;
 }
@@ -139,15 +141,17 @@
 .entryLabel {
   grid-area: label;
   font-family: var(--display);
-  font-size: 0.95rem;
-  letter-spacing: 0.16em;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
   color: var(--gold);
 }
 
 .entryDescription {
   grid-area: description;
-  font-size: 0.83rem;
-  line-height: 1.55;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
 }
 
 @media (max-width: 480px) {

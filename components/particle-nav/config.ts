@@ -76,6 +76,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'geopolitical-brief',
     label: 'GEOPOLITICAL BRIEF',
+    displayName: 'Geopolitical Brief',
     href: '/geopolitical-brief',
     description: 'The daily strategic picture: verified developments, their context, and what they change.',
     iconSdfUrl: '/icons/geopolitical-brief.sdf.png',
@@ -84,6 +85,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'support-us',
     label: 'SUPPORT US',
+    displayName: 'Support Us',
     href: '/support-us',
     description: 'Ways to join the effort: amplify verified truth, contribute skills, sustain the work.',
     iconSdfUrl: '/icons/support-us.sdf.png',
@@ -92,6 +94,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'war-update',
     label: 'WAR UPDATE',
+    displayName: 'War Update',
     href: '/war-update',
     description: 'Sourced, time-stamped updates from the front and the home front.',
     iconSdfUrl: '/icons/war-update.sdf.png',
@@ -100,6 +103,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'october-7',
     label: 'OCTOBER 7',
+    displayName: 'October 7',
     href: '/october-7',
     description: 'The record of October 7: testimony, evidence, and remembrance.',
     iconSdfUrl: '/icons/october-7.sdf.png',
@@ -108,6 +112,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'our-heroes',
     label: 'OUR HEROES',
+    displayName: 'Our Heroes',
     href: '/our-heroes',
     description: 'The people behind the story: the fallen, the fighters, the rescuers.',
     iconSdfUrl: '/icons/our-heroes.sdf.png',
@@ -116,6 +121,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'israels-story',
     label: "ISRAEL'S STORY",
+    displayName: "Israel’s Story",
     href: '/israels-story',
     description: 'The long arc: history, identity, and the context the noise leaves out.',
     iconSdfUrl: '/icons/israels-story.sdf.png',
@@ -124,6 +130,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'fake-resistance',
     label: 'FAKE RESISTANCE',
+    displayName: 'Fake Resistance',
     href: '/fake-resistance',
     description: 'Inside the influence machine: how manufactured outrage is built and amplified.',
     iconSdfUrl: '/icons/fake-resistance.sdf.png',
@@ -132,6 +139,7 @@ export const defaultNodes: NavNode[] = [
   {
     id: 'we-are',
     label: 'WE ARE',
+    displayName: 'We Are',
     href: '/we-are',
     description: 'Who Lions of Zion are, why this network exists, and how it works.',
     iconSdfUrl: '/icons/we-are.sdf.png',

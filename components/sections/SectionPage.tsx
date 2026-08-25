@@ -144,14 +144,14 @@ export function SectionPage({
             <nav className={styles.fileNav} aria-label="Adjacent files">
               <Link href={prev.href} className={styles.fileNavLink}>
                 <span className={styles.fileNavMeta}>← Previous file</span>
-                <span className={styles.fileNavLabel}>{prev.label}</span>
+                <span className={styles.fileNavLabel}>{prev.displayName}</span>
               </Link>
               <Link
                 href={next.href}
                 className={`${styles.fileNavLink} ${styles.fileNavNext}`}
               >
                 <span className={styles.fileNavMeta}>Next file →</span>
-                <span className={styles.fileNavLabel}>{next.label}</span>
+                <span className={styles.fileNavLabel}>{next.displayName}</span>
               </Link>
             </nav>
 

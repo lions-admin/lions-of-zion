@@ -1,21 +1,23 @@
+/*
+ * The Geopolitical Brief — re-typeset onto the V2 tokens (`.ai/DESIGN-V2.md`,
+ * Phase 3).
+ *
+ * The layout audit called this page the model the Phase 2 shell was built
+ * from, so the composition is untouched: index rail, article, evidence rail.
+ * What changed is the type. This file was the worst micro-type offender on
+ * the site — 22 of its 40 font-size declarations sat below the 0.72rem floor,
+ * bottoming out at 0.49rem (8px) in the evidence rail — and every heading was
+ * Cinzel, a face whose lowercase renders as faux small-caps.
+ *
+ * Colour and type now come from the global tokens. The only local custom
+ * properties left are two surface tints that no token covers: this page's
+ * raised panels are lighter than `--ground` and nothing in the scale
+ * expresses that.
+ */
+
 .page {
-  /* --ground/--gold/--gold-bright alias the sitewide tokens in
-     app/globals.css :root (fallback matches, so this stays correct mounted
-     alone); --blue and the rest are this surface's own tuning and stay local. */
-  --ground: var(--loz-ground, #070b14);
   --surface: #090f1b;
   --surface-raised: #0d1523;
-  --gold: var(--loz-gold, #c9a24b);
-  --gold-bright: var(--loz-gold-bright, #efd79a);
-  --blue: #6bb7e4;
-  --blue-soft: #9ad7f5;
-  --body: #b5c4d4;
-  --body-bright: #dce6ef;
-  --muted: #75899d;
-  --line: rgba(153, 179, 202, 0.14);
-  --gold-line: rgba(201, 162, 75, 0.24);
-  --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  --display: var(--font-cinzel), Georgia, 'Times New Roman', serif;
 
   position: relative;
   height: 100dvh;
@@ -23,7 +25,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--ground);
-  color: var(--body);
+  color: var(--ink);
+  font-family: var(--face-text);
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
@@ -49,7 +52,11 @@
   padding: 0.7rem 0.9rem;
   background: var(--surface);
   border: 1px solid var(--gold);
-  color: var(--gold-bright);
+  color: var(--gold-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
   text-decoration: none;
   transform: translateY(-180%);
   transition: transform 160ms ease;
@@ -87,10 +94,10 @@
   gap: 0.65rem;
   justify-self: start;
   min-height: 44px;
-  color: #b4c4d4;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.11em;
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-decoration: none;
   text-transform: uppercase;
 }
@@ -106,15 +113,20 @@
   transform: translateX(-4px);
 }
 
+/* The wordmark is a name, not a label — it reads as one word-shape in the
+   display face rather than as tracked capitals. */
 .wordmark {
   justify-self: center;
   color: var(--gold);
-  font-family: var(--display);
-  font-size: 0.76rem;
+  font-family: var(--face-display);
+  font-size: var(--t-caption);
   font-weight: 600;
-  letter-spacing: 0.19em;
+  letter-spacing: 0.02em;
   text-decoration: none;
-  text-transform: uppercase;
+}
+
+.wordmark:hover {
+  color: var(--gold-hi);
 }
 
 .headerContext {
@@ -122,20 +134,19 @@
   align-items: baseline;
   gap: 0.8rem;
   justify-self: end;
-  font-family: var(--mono);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .headerContext > span {
-  color: #a9bacb;
-  font-size: 0.64rem;
-  letter-spacing: 0.13em;
+  color: var(--ink-lo);
 }
 
 .headerContext small {
-  color: var(--blue);
-  font-size: 0.55rem;
-  letter-spacing: 0.1em;
+  color: var(--data-blue);
+  font-size: inherit;
 }
 
 .progressTrack {
@@ -152,7 +163,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, var(--blue), var(--gold-bright));
+  background: linear-gradient(90deg, var(--data-blue), var(--gold-hi));
   box-shadow: 0 0 10px rgba(107, 183, 228, 0.6);
   transform-origin: left;
   transition: transform 80ms linear;
@@ -208,30 +219,30 @@
   gap: 0.38rem;
 }
 
+/* Every short data label in the rails and the header speaks in one voice:
+   mono, at the floor, tracked to the cap. They label; they do not perform. */
 .railIdentity span,
 .railTrust span,
 .contents > span,
 .evidenceKicker,
-.briefEyebrow,
-.sectionLabel {
-  font-family: var(--mono);
+.briefEyebrow {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .railIdentity span {
-  color: var(--blue);
-  font-size: 0.53rem;
-  letter-spacing: 0.14em;
+  color: var(--data-blue);
 }
 
 .railIdentity strong {
-  color: #d8c17f;
-  font-family: var(--display);
-  font-size: 0.68rem;
+  color: var(--gold);
+  font-family: var(--face-display);
+  font-size: var(--t-caption);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  line-height: 1.4;
-  text-transform: uppercase;
+  line-height: 1.35;
 }
 
 .contents {
@@ -240,9 +251,7 @@
 
 .contents > span,
 .evidenceKicker {
-  color: var(--muted);
-  font-size: 0.55rem;
-  letter-spacing: 0.15em;
+  color: var(--ink-lo);
 }
 
 .contents ol {
@@ -262,8 +271,8 @@
   display: flex;
   align-items: center;
   min-height: 2.65rem;
-  color: #94a8bb;
-  font-size: 0.72rem;
+  color: var(--ink);
+  font-size: var(--t-caption);
   line-height: 1.35;
   text-decoration: none;
   transition: color 160ms ease, padding-left 180ms ease;
@@ -272,7 +281,7 @@
 .contents a:hover,
 .contents a:focus-visible {
   padding-left: 0.35rem;
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 .railTrust {
@@ -283,15 +292,13 @@
 
 .railTrust span {
   margin-top: 0.5rem;
-  color: var(--muted);
-  font-size: 0.5rem;
-  letter-spacing: 0.12em;
+  color: var(--ink-lo);
 }
 
 .railTrust strong {
-  color: #a9bacb;
-  font-family: var(--mono);
-  font-size: 0.58rem;
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
   font-weight: 400;
   line-height: 1.5;
 }
@@ -323,40 +330,45 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: var(--blue);
-  font-size: 0.58rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  color: var(--data-blue);
 }
 
+/* The subject of the brief, not a label for it — set as a name in the
+   display face rather than as tracked capitals. */
 .topic {
   margin-top: 2.2rem;
-  color: #d6ba70;
-  font-family: var(--display);
-  font-size: 0.84rem;
-  font-weight: 600;
-  letter-spacing: 0.17em;
-  text-transform: uppercase;
+  color: var(--gold);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: 500;
+  line-height: var(--t-h3-lh);
 }
 
+/* The one true display moment on the site. Newsreader's optical-size axis
+   is doing the work here: at this size it resolves to the display cut, with
+   the tight fit and fine detail the face reserves for headlines. Sentence
+   case, because the point of retiring Cinzel was to get word shapes back —
+   this reads in one pass now instead of being spelled out letter by letter. */
 .briefHeader h1 {
-  max-width: 43rem;
-  margin-top: 0.8rem;
-  color: #ead28d;
-  font-family: var(--display);
-  font-size: clamp(2.15rem, 4.5vw, 4.35rem);
-  font-weight: 400;
-  letter-spacing: 0.015em;
-  line-height: 1.02;
+  max-width: 20ch;
+  margin-top: 0.85rem;
+  color: var(--gold-hi);
+  font-family: var(--face-display);
+  font-size: clamp(2.4rem, 5vw, 4.1rem);
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  line-height: 1.08;
   text-wrap: balance;
 }
 
+/* The standfirst: body size, but at full ink so it still outranks the
+   running text below it. */
 .dek {
-  max-width: 41rem;
+  max-width: 46ch;
   margin-top: 1.45rem;
-  color: var(--body-bright);
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
-  line-height: 1.7;
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 /* Spacing wrapper for the shared PublicationMeta component — it has no
@@ -372,47 +384,35 @@
   scroll-margin-top: 6rem;
 }
 
+/* The 01–06 markers that used to sit here are gone. They read as a sequence,
+   but the brief's sections are a fixed dossier structure — you don't step
+   through them, and nothing on the site cites a section by number, so the
+   numbering was an affordance no reader used. They were also propping up a
+   heading too weak to stand alone (Cinzel at 0.92rem, uppercase, tracked).
+   A real heading in the display face doesn't need the crutch. Matches
+   `.blockHeading` in sections.module.css, which lost its tick for the same
+   reason. */
 .sectionLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 1.7rem;
-}
-
-.sectionLabel > span {
-  color: var(--blue);
-  font-size: 0.54rem;
-  letter-spacing: 0.12em;
-}
-
-.sectionLabel > span::after {
-  content: '';
-  display: inline-block;
-  width: 1.5rem;
-  height: 1px;
-  margin-left: 0.65rem;
-  vertical-align: middle;
-  background: rgba(107, 183, 228, 0.48);
+  margin-bottom: 1.5rem;
 }
 
 .sectionLabel h2 {
-  color: #d9c17a;
-  font-family: var(--display);
-  font-size: 0.92rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  color: var(--gold);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
 }
 
 .summary {
-  max-width: 42rem;
+  max-width: 68ch;
 }
 
 .summary p,
 .assessment > p:last-child {
-  color: var(--body-bright);
-  font-size: 1rem;
-  line-height: 1.82;
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .summary p + p {
@@ -441,17 +441,19 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* These numbers stay. Unlike the section markers, they enumerate items of
+   the same kind inside one list — which is what numbering is actually for. */
 .changeList li > span {
-  color: var(--blue);
-  font-family: var(--mono);
-  font-size: 0.57rem;
-  letter-spacing: 0.12em;
+  color: var(--data-blue);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
 }
 
 .changeList p {
-  color: #c6d2de;
-  font-size: 0.94rem;
-  line-height: 1.7;
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .assessment {
@@ -471,27 +473,28 @@
   background: var(--gold);
 }
 
+/* This is a sentence, so it is set as one. It used to be tracked uppercase
+   mono at 0.58rem — the exact pattern the type audit flagged: display
+   treatment applied to running content. It carries the page's most important
+   epistemic distinction (inference vs. reported fact), which is an argument
+   for making it legible, not for making it look technical. */
 .assessmentNotice {
-  margin-bottom: 0.85rem;
-  color: var(--gold-bright);
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.09em;
-  line-height: 1.5;
-  text-transform: uppercase;
+  margin-bottom: 0.9rem;
+  color: var(--gold-hi);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
 }
 
 /* Shown when `publishedAt` is older than the staleness threshold — same
-   voice as .assessmentNotice but on the ember ramp, since this is a
-   warning rather than routine editorial framing. */
+   voice as .assessmentNotice on the ember ramp, since this is a warning
+   rather than routine editorial framing. */
 .staleNotice {
   margin-top: 1rem;
-  color: var(--ember, #a85a61);
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.09em;
-  line-height: 1.5;
-  text-transform: uppercase;
+  color: var(--data-ember-peak);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
 }
 
 /* Honest empty state for a section whose data array is empty — matches
@@ -500,11 +503,9 @@
 .sectionEmpty {
   padding: 1rem 0;
   border-bottom: 1px solid var(--line);
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 /* Not wired to a live failure path yet — see BriefError.tsx's own comment
@@ -514,19 +515,18 @@
   padding: 1.5rem;
   border: 1px solid rgba(224, 120, 95, 0.35);
   background: rgba(16, 10, 10, 0.6);
-  color: var(--body);
-  font-size: 0.9rem;
-  line-height: 1.65;
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .briefErrorTitle {
   margin: 0 0 0.6rem;
-  color: var(--ember, #a85a61);
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: var(--data-ember-peak);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
 }
 
 .briefError a {
@@ -536,7 +536,7 @@
 }
 
 .briefError a:hover {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 /* Dark footer band behind the shared CorrectionHistory component — its own
@@ -558,10 +558,10 @@
 }
 
 .closingMark {
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  letter-spacing: 0.15em;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
@@ -576,10 +576,10 @@
   align-items: center;
   gap: 0.5rem;
   min-height: 44px;
-  color: #94a8bb;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.11em;
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-decoration: none;
   text-transform: uppercase;
   transition: color 160ms ease;
@@ -593,24 +593,25 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.11em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .docLinks a {
-  color: #7c92a6;
+  color: var(--ink-lo);
   text-decoration: none;
 }
 
 .docLinks a:hover,
 .docLinks a:focus-visible {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 .docLinks span {
-  color: rgba(159, 179, 200, 0.35);
+  color: var(--ink-lo);
+  opacity: 0.5;
 }
 
 .evidenceRailInner {
@@ -627,36 +628,40 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* This rail carried the site's smallest type — 0.49rem, about 8px — on the
+   labels for its credibility claim: status, record count, last review,
+   corrections. The one thing a reader is meant to check was the one thing
+   they could not read. */
 .evidenceRailInner dt {
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.49rem;
-  letter-spacing: 0.11em;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .evidenceRailInner dd {
   margin-top: 0.4rem;
-  color: #c0ceda;
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  line-height: 1.5;
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 .evidenceRailInner > p {
   margin-top: 1.1rem;
-  color: #7f94a8;
-  font-size: 0.7rem;
-  line-height: 1.65;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 .page a:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 4px;
 }
 
 .page a:hover {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 @media (max-width: 1220px) {
@@ -767,10 +772,7 @@
     justify-self: end;
   }
 
-  .headerContext > span {
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
-  }
+  /* No size override — `--t-data` is the floor at every width. */
 
   .layout {
     width: 100%;
@@ -801,12 +803,14 @@
     gap: 1rem;
   }
 
+  /* The contents list becomes a horizontal scroller here, so it switches to
+     the data voice — but at the floor, not below it. */
   .contents a {
     min-height: 2.85rem;
-    color: #8fa4b8;
-    font-family: var(--mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.08em;
+    color: var(--ink-lo);
+    font-family: var(--face-data);
+    font-size: var(--t-data);
+    letter-spacing: var(--t-data-tracking);
     text-transform: uppercase;
   }
 
@@ -820,27 +824,19 @@
     padding: 2.2rem 1.25rem 2.5rem;
   }
 
-  .briefEyebrow {
-    font-size: 0.54rem;
-    letter-spacing: 0.12em;
-  }
-
   .topic {
     margin-top: 1.8rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
+    font-size: var(--t-body);
   }
 
   .briefHeader h1 {
     margin-top: 0.7rem;
-    font-size: clamp(2rem, 10vw, 2.8rem);
-    line-height: 1.04;
+    font-size: clamp(2rem, 9vw, 2.7rem);
+    line-height: 1.1;
   }
 
   .dek {
     margin-top: 1.2rem;
-    font-size: 1rem;
-    line-height: 1.7;
   }
 
   .section {
@@ -849,36 +845,17 @@
   }
 
   .sectionLabel {
-    align-items: flex-start;
-    gap: 0.6rem;
-    margin-bottom: 1.45rem;
+    margin-bottom: 1.25rem;
   }
 
   .sectionLabel h2 {
-    font-size: 0.86rem;
-    letter-spacing: 0.09em;
-    line-height: 1.45;
-  }
-
-  .sectionLabel > span::after {
-    width: 0.8rem;
-    margin-left: 0.45rem;
-  }
-
-  .summary p,
-  .assessment > p:last-child {
-    font-size: 1rem;
-    line-height: 1.78;
+    font-size: var(--t-h3);
+    line-height: var(--t-h3-lh);
   }
 
   .changeList li {
     grid-template-columns: 2rem minmax(0, 1fr);
     gap: 0.8rem;
-  }
-
-  .changeList p {
-    font-size: 0.92rem;
-    line-height: 1.72;
   }
 
   .corrections {

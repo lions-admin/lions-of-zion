@@ -24,6 +24,9 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
 
   return (
     <main className={pageClass}>
+      <a href="#page-content" className={styles.skipLink}>
+        Skip to content
+      </a>
       <ScanBackdrop routeId={routeId} register="muted" />
       <div className={styles.docShell}>
         <div className={styles.docTopNav}>
@@ -32,7 +35,7 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
           </Link>
         </div>
 
-        <article className={styles.panel}>
+        <article className={styles.panel} id="page-content">
           <header>
             <h1 className={styles.title}>{title}</h1>
             <p className={styles.lede}>{tagline}</p>

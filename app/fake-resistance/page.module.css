@@ -24,7 +24,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.6);
+  color: rgba(159, 179, 200, 0.72);
 }
 
 .caseFile h3 {
@@ -49,7 +49,7 @@
   font-size: 0.56rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.5);
+  color: rgba(159, 179, 200, 0.72);
 }
 
 .caseFileMeta dd {
@@ -70,7 +70,7 @@
   font-size: 0.56rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.5);
+  color: rgba(159, 179, 200, 0.72);
 }
 
 .caseFileTells ul {

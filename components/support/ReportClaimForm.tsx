@@ -125,7 +125,7 @@ export function ReportClaimForm() {
       </div>
 
       {touched && !hasContent ? (
-        <p className={styles.fieldError}>A report needs a link or a description.</p>
+        <p className={styles.fieldError} role="alert">A report needs a link or a description.</p>
       ) : null}
 
       <div className={styles.field}>
@@ -151,7 +151,7 @@ export function ReportClaimForm() {
         />
       </div>
 
-      {state.status === 'error' ? <p className={styles.fieldError}>{state.message}</p> : null}
+      {state.status === 'error' ? <p className={styles.fieldError} role="alert">{state.message}</p> : null}
 
       <button type="submit" disabled={submitting}>
         {submitting ? 'Sending…' : 'Send report'}

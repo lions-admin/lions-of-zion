@@ -97,6 +97,9 @@ export function SectionPage({
 
   return (
     <main className={pageClass} data-reading-scroll>
+      <a href="#page-content" className={styles.skipLink}>
+        Skip to content
+      </a>
       <ReadingProgress />
       <ScanBackdrop routeId={id} register={register} />
       <div className={shellClass}>
@@ -126,7 +129,7 @@ export function SectionPage({
           </div>
         </aside>
 
-        <article className={styles.panel}>
+        <article className={styles.panel} id="page-content">
           <header>
             <h1 className={styles.title}>{title}</h1>
             <p className={styles.lede}>{lede}</p>

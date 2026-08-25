@@ -40,6 +40,30 @@
   --accent: var(--ember);
 }
 
+/* Visually hidden until focused — same technique as the brief's own
+   `.skipLink` (geopolitical-brief.module.css), reading its own tokens here. */
+.skipLink {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.7rem 0.9rem;
+  background: rgba(7, 11, 20, 0.96);
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-180%);
+  transition: transform 160ms ease;
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
 /* ---- the scan, still running ---- */
 
 .backdrop {
@@ -195,8 +219,18 @@
   color: var(--accent);
 }
 
+/* --ember (#A85A61) is 4.03:1 on --ground — enough for the decorative tick
+   and index marks that also read --accent, but this route path is real
+   small text and needs the 4.5:1 AA floor, so it takes the brighter peak
+   tone specifically on Fake Resistance (accent="ember") instead. */
+.accentEmber .fileRoute {
+  color: var(--ember-peak);
+}
+
 .fileStatus {
-  color: rgba(159, 179, 200, 0.55);
+  /* 0.72 clears WCAG AA (4.5:1) at this font-size against --ground; a lower
+     alpha here reads as atmospheric but fails contrast for real content. */
+  color: rgba(159, 179, 200, 0.72);
 }
 
 .metaRule {
@@ -392,7 +426,7 @@
 .fileNavMeta {
   font-size: 0.6rem;
   letter-spacing: 0.14em;
-  color: rgba(159, 179, 200, 0.6);
+  color: rgba(159, 179, 200, 0.72);
 }
 
 .fileNavLabel {
@@ -414,7 +448,7 @@
   font-size: 0.56rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.5);
+  color: rgba(159, 179, 200, 0.72);
 }
 
 .destinationsList {
@@ -514,7 +548,7 @@
   font-size: 0.66rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.55);
+  color: rgba(159, 179, 200, 0.72);
 }
 
 .closeLine a {
@@ -575,7 +609,7 @@
   font-size: 0.53rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.5);
+  color: rgba(159, 179, 200, 0.72);
   margin-top: 0.75rem;
 }
 

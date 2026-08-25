@@ -79,6 +79,11 @@
   accent-color: var(--gold);
 }
 
+.checkboxRow input:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
 .form button[type='submit'] {
   min-height: 44px;
   padding: 0 1.3rem;
@@ -119,7 +124,7 @@
 
 .formNote {
   margin-top: 0.85rem;
-  color: rgba(159, 179, 200, 0.6);
+  color: rgba(159, 179, 200, 0.72);
   font-size: 0.74rem;
   line-height: 1.5;
 }

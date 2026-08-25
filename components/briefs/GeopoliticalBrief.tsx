@@ -58,6 +58,27 @@ function toIsoDate(display: string): string {
   return `${year}-${MONTHS[month] ?? '01'}-${(day ?? '01').padStart(2, '0')}`;
 }
 
+/** `publishedAt` is authored as "24 Aug 2026 · 14:00 IDT" — only the date
+ *  portion is needed for staleness, so the time/zone half is dropped. */
+function toIsoDateOnly(publishedAt: string): string {
+  return toIsoDate(publishedAt.split('·')[0].trim());
+}
+
+const STALE_AFTER_DAYS = 14;
+
+/**
+ * Evaluated at render time — for a statically-generated route that means
+ * "as of the last build," not "as of this exact request." That's an
+ * acceptable approximation for a two-week threshold; it is not the thing to
+ * "fix" by forcing this route dynamic just for a staleness banner.
+ */
+function isBriefStale(publishedAt: string): boolean {
+  const publishedMs = new Date(toIsoDateOnly(publishedAt)).getTime();
+  if (Number.isNaN(publishedMs)) return false;
+  const ageDays = (Date.now() - publishedMs) / (24 * 60 * 60 * 1000);
+  return ageDays > STALE_AFTER_DAYS;
+}
+
 /** `BriefSource` (id, publisher, title, published, type, url) doesn't line
  *  up exactly with the shared `Source` shape — `published` has no exact
  *  home (`accessedAt` means "when we last checked it", not "when it was
@@ -76,6 +97,7 @@ function toSource(source: BriefSource): Source {
 export function GeopoliticalBrief() {
   const sourceMap = new Map(brief.sources.map((source) => [source.id, source]));
   const corrections: readonly { version: string; date: string; note: string }[] = brief.corrections;
+  const stale = isBriefStale(brief.publishedAt);
 
   const developmentEntries: TimelineEntry[] = brief.developments.map((development, index) => ({
     id: `development-${index}`,
@@ -160,6 +182,12 @@ export function GeopoliticalBrief() {
                 sourceCount={brief.sourceCount}
               />
             </div>
+            {stale ? (
+              <p className={styles.staleNotice} role="note">
+                This edition is more than {STALE_AFTER_DAYS} days old —
+                check for a newer one before treating it as current.
+              </p>
+            ) : null}
           </header>
 
           <section id="snapshot" className={styles.section}>
@@ -195,7 +223,13 @@ export function GeopoliticalBrief() {
               <span>03</span>
               <h2>Verified developments</h2>
             </div>
-            <Timeline variant="feed" entries={developmentEntries} />
+            {developmentEntries.length > 0 ? (
+              <Timeline variant="feed" entries={developmentEntries} />
+            ) : (
+              <p className={styles.sectionEmpty}>
+                No developments recorded for this edition.
+              </p>
+            )}
           </section>
 
           <section id="assessment" className={`${styles.section} ${styles.assessment}`}>
@@ -220,7 +254,13 @@ export function GeopoliticalBrief() {
               <span>06</span>
               <h2>Source stack</h2>
             </div>
-            <SourceList sources={brief.sources.map(toSource)} />
+            {brief.sources.length > 0 ? (
+              <SourceList sources={brief.sources.map(toSource)} />
+            ) : (
+              <p className={styles.sectionEmpty}>
+                No sources recorded for this edition.
+              </p>
+            )}
           </section>
 
           <footer className={styles.corrections}>

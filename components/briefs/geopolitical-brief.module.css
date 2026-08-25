@@ -19,6 +19,22 @@
   --surface: #090f1b;
   --surface-raised: #0d1523;
 
+  /* The evidence margin's geometry, matching this layout's own third track.
+     `marginNote` (content.module.css) reads these; declaring them here rather
+     than letting its fallbacks apply is what keeps the citations aligned to
+     the rail the grid actually draws. The section shell publishes the same two
+     names from its own `.page`.
+
+     The gap is the sum of two real declarations, not a number: a development
+     sits inside `.section`, which is inset from the article edge by its own
+     horizontal padding, so the note has to clear that padding *and* the grid
+     gap to reach the third track. Measured at 1440px: entry ends 1026, the
+     article 1096 (68.8px of section padding), the third track opens at 1139
+     (43.2px of gap). Written as the two clamps rather than 112px so it stays
+     true at every width. */
+  --rail-w: 14rem;
+  --rail-gap: calc(clamp(1.5rem, 5vw, 4.3rem) + clamp(2rem, 3vw, 3.5rem));
+
   position: relative;
   height: 100dvh;
   overflow-x: clip;
@@ -181,8 +197,7 @@
   padding: clamp(2.5rem, 6vh, 5rem) clamp(1.25rem, 3vw, 3rem) clamp(3rem, 8vh, 5rem);
 }
 
-.indexRailInner,
-.evidenceRailInner {
+.indexRailInner {
   position: sticky;
   top: 6.5rem;
 }
@@ -614,25 +629,29 @@
   opacity: 0.5;
 }
 
-.evidenceRailInner {
-  padding-top: 0.2rem;
-}
-
-.evidenceRailInner dl {
-  margin-top: 1rem;
+/* The evidence contract, now in the left rail under the coverage block —
+   it describes the document, not any one development, so it sits with the
+   identity rather than in the margin the citations have taken over. */
+.evidenceContract {
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
   border-top: 1px solid var(--gold-line);
 }
 
-.evidenceRailInner dl > div {
-  padding: 0.85rem 0;
+.evidenceContract dl {
+  margin-top: 0.9rem;
+}
+
+.evidenceContract dl > div {
+  padding: 0.75rem 0;
   border-bottom: 1px solid var(--line);
 }
 
-/* This rail carried the site's smallest type — 0.49rem, about 8px — on the
-   labels for its credibility claim: status, record count, last review,
-   corrections. The one thing a reader is meant to check was the one thing
-   they could not read. */
-.evidenceRailInner dt {
+/* This block carried the site's smallest type — 0.49rem, about 8px — on the
+   labels for its credibility claim: status, record count, corrections. The
+   one thing a reader is meant to check was the one thing they could not
+   read. */
+.evidenceContract dt {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -640,17 +659,10 @@
   text-transform: uppercase;
 }
 
-.evidenceRailInner dd {
+.evidenceContract dd {
   margin-top: 0.4rem;
   color: var(--ink);
   font-family: var(--face-data);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
-.evidenceRailInner > p {
-  margin-top: 1.1rem;
-  color: var(--ink-lo);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
 }
@@ -664,13 +676,16 @@
   color: var(--gold-hi);
 }
 
-@media (max-width: 1220px) {
+/* 1219.98, not 1220. `marginNote` (content.module.css) turns the evidence
+   margin on at `min-width: 1220px`, and both rules were true at exactly
+   1220px — the layout dropped to two tracks while the citations were still
+   being pushed into a third that no longer existed. The two breakpoints are
+   now edge-to-edge. */
+@media (max-width: 1219.98px) {
+  /* Two tracks: the evidence margin closes and the citations fall back into
+     the column beneath their developments. */
   .layout {
     grid-template-columns: 12rem minmax(0, 48rem);
-  }
-
-  .evidenceRail {
-    display: none;
   }
 }
 

@@ -292,8 +292,11 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
   (`--loz-ground`, ‏`--loz-gold`, ‏`--loz-blue` וכו׳); `sections.module.css`
   ו־`geopolitical-brief.module.css` מכנים אליהם עם fallback זהה לערך
   המקומי הקודם — אין שינוי ויזואלי, רק מקור אמת אחד.
-- [ ] rail ימני בדסקטופ — **חלקי**: prop ‏`aside` קיים ב־`SectionPage` בסגנון
-  ה־evidence rail; אין עדיין תוכן שממלא אותו.
+- [x] rail ימני בדסקטופ — **הושלם** בכיוון העיצוב "the intelligence desk":
+  מעל 1220px השוליים הימניים נושאים את המקורות של כל רשומה, בגובה הרשומה
+  עצמה, והשוליים השמאליים נושאים ניווט במסמך ועומק קריאה. המקורות כבר היו
+  קיימים ברמת הפריט בכל `lib/content/` — לא הומצא שום מיפוי. prop ‏`aside`
+  נשאר זמין לתוכן rail ברמת העמוד (ראו `DECISIONS.md`).
 - [x] header נדבק של הברייף במובייל אטום; רצועת ה־TOC קיבלה fade וגלילה.
 - [x] "DESK 01 / 08" הפך ל־"Desk 01".
 - [x] scrollbar/חיווי גלילה לעמודים ארוכים — `::-webkit-scrollbar { display:

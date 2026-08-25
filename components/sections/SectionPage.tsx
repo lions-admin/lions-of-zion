@@ -2,10 +2,16 @@
  * Section page shell: a file opened from the scan, set as a document.
  *
  * One full-width identity band (wordmark, file number, route, status, the way
- * out), then a genuinely centred reading measure, then a two-row footer. The
- * shell this replaced offset the reading column against a 15rem emblem rail,
- * which pushed the text right of centre and spent ~320px on ceremony before
- * the first sentence — see `.ai/DESIGN-V2.md`.
+ * out), then a genuinely centred reading measure. There is no closing
+ * apparatus — the page ends where the content ends.
+ *
+ * Above 1220px both margins work, which is the whole of "the intelligence
+ * desk" direction: the left rail navigates the document and shows depth of
+ * read, and the right margin carries the source for the record beside it, so
+ * the evidence sits next to the claim instead of in a footnote stack. That
+ * placement is CSS only (`content.module.css`) — the citation stays inside its
+ * entry in the markup, which is what keeps reading order, screen readers and
+ * the no-JS page correct.
  *
  * Everything derives from the nav contract in
  * `components/particle-nav/config.ts`, so the hover card, the lede here, and
@@ -15,6 +21,7 @@ import Link from 'next/link';
 import { defaultNodes } from '@/components/particle-nav/config';
 import { ScanBackdrop } from './ScanBackdrop';
 import { ReadingProgress } from './ReadingProgress';
+import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
 
 /*
@@ -56,9 +63,13 @@ export interface SectionPageProps {
   register?: 'default' | 'muted';
   /** `ember`: data accents take the hostile-stream ramp (Fake Resistance). */
   accent?: 'gold' | 'ember';
-  /** `quiet`: a more opaque panel over a dimmer scan, for long reading. */
+  /** `quiet`: a dimmer scan behind the page, for long reading. */
   surface?: 'default' | 'quiet';
-  /** Optional right-hand rail, shown only at ≥1220px, in the brief's evidence-rail voice. */
+  /**
+   * Optional page-level right rail, shown only at ≥1220px. Per-entry sources
+   * reach the same margin on their own through `content.module.css`; this is
+   * for a page that has something else standing to say there.
+   */
   aside?: React.ReactNode;
   children: React.ReactNode;
 }
@@ -82,6 +93,9 @@ export function SectionPage({
 
   const pageClass = [
     styles.page,
+    /* Marks the shell as carrying rails, which widens the band the scan keeps
+       out of. DocPage shares `.page` and deliberately does not take this. */
+    styles.withRails,
     register === 'muted' ? styles.registerMuted : '',
     accent === 'ember' ? styles.accentEmber : '',
     surface === 'quiet' ? styles.surfaceQuiet : '',
@@ -96,7 +110,10 @@ export function SectionPage({
       <a href="#page-content" className={styles.skipLink}>
         Skip to content
       </a>
-      <ReadingProgress />
+      <ReadingProgress
+        trackClassName={styles.topProgressTrack}
+        valueClassName={styles.topProgressValue}
+      />
       <ScanBackdrop routeId={id} register={register} />
       <div className={shellClass}>
         <div className={styles.identityBand}>
@@ -128,13 +145,21 @@ export function SectionPage({
           </Link>
         </div>
 
+        <div className={styles.tocRail}>
+          <SectionToc />
+        </div>
+
         <article className={styles.panel} id="page-content">
           <header>
             <h1 className={styles.title}>{title}</h1>
             <p className={styles.lede}>{lede}</p>
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
-          <div className={styles.body}>{children}</div>
+          {/* `data-toc-source` scopes the rail's heading scan to the page body,
+              so it can never pick up an h2 from the chat modal or the rail. */}
+          <div className={styles.body} data-toc-source>
+            {children}
+          </div>
           {/* The page ends where the content ends.
               There was an apparatus here — prev/next, a numbered index of the
               other seven files, policy links — and all of it rested on a

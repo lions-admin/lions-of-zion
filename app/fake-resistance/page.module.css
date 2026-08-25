@@ -24,6 +24,36 @@
   margin-top: 1.75rem;
 }
 
+/* The exhibit's evidence. Above 1220px it leaves the column for the right
+   margin, level with the case it belongs to — see `marginNote`. */
+.caseFileSources {
+  composes: marginNote from '../../components/content/content.module.css';
+}
+
+/* Two tracks, the second zero-wide: the case keeps the reading measure while
+   its sources overflow into the margin, and because the note still occupies
+   the grid row it can never run into the case below. */
+@media (min-width: 1220px) {
+  .caseFile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+
+  .caseFileMain {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .caseFileSources {
+    /* Clear the corner stamp, which sits at the case's top right. Expressed
+       as padding, not margin: `.marginNote` sets `margin-top` at the same
+       specificity from another module, and chunk order would decide the
+       winner — the trap `:where(.body)` exists for. */
+    padding-top: 2.75rem;
+  }
+}
+
 /* The corner stamp — the one bold flourish on this page. Decorative only:
    VerificationBadge below carries the real accessible label, so this stays
    aria-hidden and never disagrees with it (STAMP_LABEL mirrors the badge's

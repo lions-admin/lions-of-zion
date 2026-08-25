@@ -17,14 +17,31 @@
 .page {
   /* The reading measure, published as a variable because the backdrop mask
      has to know exactly where the reading column is in order to stay out of
-     it. One number, two consumers, no drift. */
+     it. One number, three consumers now, still no drift. */
   --reading-w: min(68ch, 100%);
+
+  /* Rail geometry. `--rail-gap` is the grid's own column gap, named so the
+     margin-source rule can offset by exactly it rather than restating the
+     clamp. The *tracks* stay `1fr` — only rail content is capped — which is
+     what keeps the measure on the viewport centre (`.ai/DESIGN-V2.md`). */
+  --rail-w: 13rem;
+  --rail-gap: clamp(1.5rem, 3vw, 2.5rem);
+
+  /* What the scan must stay out of. Below the rail breakpoint that is the
+     reading column alone; above it, the rails carry text too, and a corpus
+     row drifting behind a source citation is the exact collision the V2 audit
+     called "too faint to read, too present to ignore". Overridden, not
+     recomputed, at ≥1220px. */
+  --content-w: var(--reading-w);
   --accent: var(--data-blue);
 
   /* `height` (not `min-height`) is load-bearing: this element is the scroll
      container, and the ≤719px rule below shortens it to reserve the chat
-     launcher's dock. A `min-height: 100dvh` alongside it would win that
-     cascade and slide the footer back under the dock. */
+     launcher's dock; `min-height: 100dvh` alongside would win that cascade and
+     push content back under the dock. Sticky rails work inside it —
+     `position: sticky` resolves against the nearest scrollport — so the rails
+     did not require restoring document scroll, which stays its own phase
+     (`.ai/DESIGN-V2.md`). */
   height: 100dvh;
   overflow-y: auto;
   background: var(--ground);
@@ -86,10 +103,10 @@
 }
 
 /* The rows live in their own masked layer so the ground above survives. The
-   mask is transparent across the reading column and opaque in the margins,
-   with a soft edge between. At mobile widths the reading column is the whole
-   viewport, so the mask goes fully transparent and the rows simply stop —
-   correct, since a phone has no margin to put atmosphere in. */
+   mask is transparent across the content band and opaque outside it, with a
+   soft edge between. At mobile widths the band is the whole viewport, so the
+   mask goes fully transparent and the rows simply stop — correct, since a
+   phone has no margin to put atmosphere in. */
 .rowField {
   position: absolute;
   inset: 0;
@@ -98,19 +115,19 @@
   -webkit-mask-image: linear-gradient(
     90deg,
     #000 0,
-    #000 calc(50% - var(--reading-w) / 2 - var(--fade)),
-    transparent calc(50% - var(--reading-w) / 2 - 1rem),
-    transparent calc(50% + var(--reading-w) / 2 + 1rem),
-    #000 calc(50% + var(--reading-w) / 2 + var(--fade)),
+    #000 calc(50% - var(--content-w) / 2 - var(--fade)),
+    transparent calc(50% - var(--content-w) / 2 - 1rem),
+    transparent calc(50% + var(--content-w) / 2 + 1rem),
+    #000 calc(50% + var(--content-w) / 2 + var(--fade)),
     #000 100%
   );
   mask-image: linear-gradient(
     90deg,
     #000 0,
-    #000 calc(50% - var(--reading-w) / 2 - var(--fade)),
-    transparent calc(50% - var(--reading-w) / 2 - 1rem),
-    transparent calc(50% + var(--reading-w) / 2 + 1rem),
-    #000 calc(50% + var(--reading-w) / 2 + var(--fade)),
+    #000 calc(50% - var(--content-w) / 2 - var(--fade)),
+    transparent calc(50% - var(--content-w) / 2 - 1rem),
+    transparent calc(50% + var(--content-w) / 2 + 1rem),
+    #000 calc(50% + var(--content-w) / 2 + var(--fade)),
     #000 100%
   );
 }
@@ -173,14 +190,18 @@
 
 /* ---- the grid ------------------------------------------------------------
    Three columns: margin, reading measure, margin. The measure is centred by
-   the two equal side columns rather than by being offset against a permanent
-   rail, so it stays centred whether or not a page supplies aside content. */
+   the two equal side columns rather than by being offset against a rail, so
+   it stays centred whether or not the margins are carrying anything.
+
+   Above 1220px both margins go to work: the left one navigates the document,
+   the right one carries the source for the record beside it. Below it they
+   are empty gutters again and everything returns to one column. */
 
 .shell {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
-  column-gap: clamp(1.5rem, 3vw, 2.5rem);
+  column-gap: var(--rail-gap);
   align-content: start;
   padding: 0 clamp(1.25rem, 4vw, 3rem) 6rem;
 }
@@ -458,7 +479,133 @@
   color: var(--gold-hi);
 }
 
+/* ---- left rail: "In this file" -------------------------------------------
+   Document navigation and depth of read. Built client-side from the rendered
+   `h2[id]`s (components/sections/SectionToc.tsx), so it can never disagree
+   with the headings it lists. */
+
+.tocRail {
+  display: none;
+  grid-column: 1;
+  /* The rail hangs off the right edge of its track, next to the measure,
+     rather than floating in the middle of a wide gutter. */
+  justify-self: end;
+  width: var(--rail-w);
+}
+
+.tocRailInner {
+  position: sticky;
+  top: 2rem;
+  /* A page with many sections on a short viewport would otherwise have its
+     last entries cut off with no way to reach them. */
+  max-height: calc(100dvh - 4rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+}
+
+.tocTitle {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--gold-line);
+  color: var(--gold);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.tocList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tocLink,
+.tocLinkActive {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(153, 179, 202, 0.08);
+  color: var(--ink-lo);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.tocLink:hover {
+  color: var(--ink-hi);
+}
+
+.tocLinkActive {
+  color: var(--gold-hi);
+}
+
+.tocNumber {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Depth of read, two placements, never both on screen at once: in the rail
+   above 1220px, and as a fixed hairline at the top of the viewport below it.
+   They are separate elements rather than one repositioned element because the
+   rail is `display: none` at narrow widths and would take the bar with it.
+   The shared component's own default classes are left alone so a future
+   consumer does not inherit this page's breakpoint. */
+
+.topProgressTrack {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 60;
+  height: 2px;
+  overflow: hidden;
+}
+
+.topProgressValue {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold-hi));
+  box-shadow: 0 0 10px rgba(87, 167, 217, 0.5);
+  transform-origin: left;
+  transition: transform 80ms linear;
+}
+
+.depthTrack {
+  display: block;
+  height: 2px;
+  margin-top: 1.4rem;
+  background: rgba(153, 179, 202, 0.12);
+  overflow: hidden;
+}
+
+.depthValue {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold-hi));
+  transform-origin: left;
+  transition: transform 80ms linear;
+}
+
 @media (min-width: 1220px) {
+  /* Scoped to `.withRails`, not `.page`: DocPage (/methodology, /corrections)
+     shares this shell but has no rails, and widening its mask would quiet the
+     scan across margins that hold nothing. */
+  .withRails {
+    --content-w: calc(var(--reading-w) + 2 * (var(--rail-w) + var(--rail-gap)));
+  }
+
+  .tocRail {
+    display: block;
+    animation: rise 500ms ease 150ms both;
+  }
+
+  .topProgressTrack {
+    display: none;
+  }
+
   .shellWithAside .sideRail {
     display: block;
     animation: rise 500ms ease 150ms both;
@@ -482,6 +629,7 @@
 
   .panel,
   .identityBand,
+  .tocRail,
   .sideRail {
     grid-column: 1;
   }
@@ -528,7 +676,13 @@
   }
 
   .panel,
+  .tocRail,
   .sideRail {
     animation: none;
+  }
+
+  .depthValue,
+  .topProgressValue {
+    transition: none;
   }
 }

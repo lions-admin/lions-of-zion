@@ -136,11 +136,31 @@
    broken on every desktop route. Occluding the line cleanly is the honest
    trade for a floating control; tangling with it is not. The treatment is
    the mobile dock's own pill (see the ≤719px block), reused rather than
-   invented, and reset there so it never nests inside itself. */
+   invented, and reset there so it never nests inside itself.
+
+   The pill made the overlap legible; it did not make it small. Uncapped and
+   `nowrap`, the longest label ("Ask about the fake resistance") measured
+   ~345px, so between 720px and roughly 1100px the row reached right across
+   the reading measure. It is capped and wraps now: two or three short lines
+   in the outer margin rather than one long bar over the text.
+
+   The cap is derived, not picked: at 1220px the row spends 28px on its own
+   offset, 80px on the button and 11px on the gap, leaving 144px = 9rem before
+   it would reach the reading column.
+
+   Between 720px and 1219px the label is not shown at all — see the media
+   query below. That band was measured rather than guessed, and there is no
+   width to win there: the reading measure runs to within ~36px of the right
+   edge, so *any* floating pill covers the record. The cue therefore appears
+   only where it has somewhere to be — over the outer margin at ≥1220px, and
+   in the mobile dock's own reserved band at ≤719px. The button, which is the
+   actual affordance and carries the accessible name, is present at every
+   width. */
 .label {
   display: inline-flex;
   align-items: center;
   gap: 0.68rem;
+  max-width: 9rem;
   padding: 0.5rem 0.85rem;
   border: 1px solid rgba(201, 162, 75, 0.26);
   border-radius: 999px;
@@ -152,10 +172,10 @@
   font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
   font-size: 0.69rem;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.45;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  white-space: nowrap;
+  text-wrap: balance;
   opacity: 0;
   transform: translateX(9px);
   transition: opacity 220ms ease, transform 260ms ease, color 220ms ease;
@@ -163,8 +183,23 @@
   pointer-events: none;
 }
 
+/* The band with no margin to spare. Above it the reading rails open one up;
+   below it the dock reserves its own. Here the label would sit on the text
+   whatever width it were given, so it stands down. */
+@media (min-width: 720px) and (max-width: 1219px) {
+  .label {
+    display: none;
+  }
+}
+
+/* The arrow connected a single nowrap line to the button beside it. A wrapped
+   block does not need connecting — the pill already sits against the button —
+   and at 2.2rem it would take a third of the capped width away from the words.
+   It survives where it still earns its place: the mobile dock, where the label
+   is one line across the full width. */
 .labelArrow {
   position: relative;
+  display: none;
   width: 2.2rem;
   height: 1px;
   background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 5px);
@@ -262,6 +297,10 @@
      so it doesn't render as a pill inside a pill. */
   .label {
     gap: 0.58rem;
+    /* The dock is the full width of the viewport, so the desktop cap and the
+       wrapping that goes with it are both reset here — this label is one line
+       across a bar, not a block in a margin. */
+    max-width: none;
     padding: 0;
     border: 0;
     border-radius: 0;
@@ -270,13 +309,16 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     font-size: 0.62rem;
+    line-height: 1;
     letter-spacing: 0.14em;
+    white-space: nowrap;
     opacity: 1;
     transform: none;
     animation: none;
   }
 
   .labelArrow {
+    display: block;
     width: 2rem;
   }
 }

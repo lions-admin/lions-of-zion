@@ -101,25 +101,30 @@ export function WireFeed({ entries }: { entries: TimelineEntry[] }) {
             const place = DATELINES[entry.id];
             return (
               <li key={entry.id} id={entry.id} className={styles.dispatch}>
-                <p className={styles.byline}>
-                  {place ? <span className={styles.datelinePlace}>{place}</span> : null}
-                  {place ? <span aria-hidden="true"> — </span> : null}
-                  {/* The dateline's uppercase is a CSS concern (`.byline`),
-                      not a data transform — keeping it in one place means the
-                      casing can change without touching the markup. */}
-                  <time dateTime={entry.datetime}>{entry.dateLabel}</time>
-                  {entry.category ? <span className={styles.category}>{entry.category}</span> : null}
-                  {entry.id === latestId ? <span className={styles.latest}>Latest</span> : null}
-                  {entry.assessment ? <VerificationBadge assessment={entry.assessment} /> : null}
-                </p>
-                <h3 className={styles.headline}>{entry.title}</h3>
-                <div className={styles.wireBody}>{entry.body}</div>
+                {/* The dispatch and its sources are siblings so the dispatch
+                    can become a two-track grid above 1220px and put the
+                    citation in the margin — `marginNote`, content.module.css. */}
+                <div className={styles.dispatchMain}>
+                  <p className={styles.byline}>
+                    {place ? <span className={styles.datelinePlace}>{place}</span> : null}
+                    {place ? <span aria-hidden="true"> — </span> : null}
+                    {/* The dateline's uppercase is a CSS concern (`.byline`),
+                        not a data transform — keeping it in one place means the
+                        casing can change without touching the markup. */}
+                    <time dateTime={entry.datetime}>{entry.dateLabel}</time>
+                    {entry.category ? <span className={styles.category}>{entry.category}</span> : null}
+                    {entry.id === latestId ? <span className={styles.latest}>Latest</span> : null}
+                    {entry.assessment ? <VerificationBadge assessment={entry.assessment} /> : null}
+                  </p>
+                  <h3 className={styles.headline}>{entry.title}</h3>
+                  <div className={styles.wireBody}>{entry.body}</div>
+                  <DispatchActions entry={entry} />
+                </div>
                 {entry.sources?.length ? (
                   <div className={styles.dispatchSources}>
                     <SourceList sources={entry.sources} />
                   </div>
                 ) : null}
-                <DispatchActions entry={entry} />
               </li>
             );
           })}

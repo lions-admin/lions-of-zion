@@ -1,15 +1,29 @@
 import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { ContentCard } from "@/components/content";
+import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
 const TAGLINE =
   "Who Lions of Zion are, why this network exists, and how it works.";
+const PAGE_URL = `${SITE_URL}/we-are`;
 
 export const metadata: Metadata = {
   title: "We Are",
   description: TAGLINE,
+  alternates: { canonical: PAGE_URL },
   openGraph: { title: "We Are — LIONS OF ZION", description: TAGLINE },
+};
+
+/* This page is the site's own "about" page — Organization is the correct
+   real schema.org type here, not Article. */
+const WE_ARE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Lions of Zion",
+  url: PAGE_URL,
+  description:
+    "A network of volunteers — researchers, analysts, translators, designers, developers — who verify claims before publishing, so the answer to organized misinformation about Israel is organized evidence.",
 };
 
 const METHOD_STEPS = [
@@ -59,6 +73,10 @@ const FAQ = [
 export default function Page() {
   return (
     <SectionPage id="we-are" surface="quiet" title="We Are" tagline={TAGLINE}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(WE_ARE_JSON_LD) }}
+      />
       <SectionBlock heading="Who we are">
         <p>
           Lions of Zion is a network of volunteers — researchers, analysts,

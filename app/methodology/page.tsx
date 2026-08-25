@@ -2,19 +2,37 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { DocPage } from "@/components/sections/DocPage";
 import { SectionBlock } from "@/components/sections/SectionPage";
+import { SITE_URL } from "@/lib/site-config";
 
 const TAGLINE =
   "How claims are sourced, labeled, and corrected across every desk.";
+const PAGE_URL = `${SITE_URL}/methodology`;
 
 export const metadata: Metadata = {
   title: "Methodology",
   description: TAGLINE,
+  alternates: { canonical: PAGE_URL },
   openGraph: { title: "Methodology — LIONS OF ZION", description: TAGLINE },
+};
+
+/* A policy page, not an article — WebPage is the correct real schema.org
+   type here. */
+const METHODOLOGY_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Methodology",
+  url: PAGE_URL,
+  description: TAGLINE,
+  isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL },
 };
 
 export default function Page() {
   return (
     <DocPage routeId="methodology" title="Methodology" tagline={TAGLINE}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }}
+      />
       <SectionBlock heading="How claims are labeled">
         <p>
           Every assessed item on this site carries one of nine labels:{" "}

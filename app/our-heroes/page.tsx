@@ -3,16 +3,28 @@ import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { SourceList } from "@/components/content";
 import { getOurHeroesEdition } from "@/lib/content/our-heroes";
 import type { HeroProfile } from "@/lib/content/our-heroes";
+import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
 const TAGLINE =
   "The people behind the story: the fallen, the fighters, the rescuers.";
+const PAGE_URL = `${SITE_URL}/our-heroes`;
 
-export const metadata: Metadata = {
-  title: "Our Heroes",
-  description: TAGLINE,
-  openGraph: { title: "Our Heroes — LIONS OF ZION", description: TAGLINE },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const edition = await getOurHeroesEdition();
+  const publishedTime = new Date(edition.publishedAt).toISOString();
+  return {
+    title: "Our Heroes",
+    description: TAGLINE,
+    alternates: { canonical: PAGE_URL },
+    openGraph: {
+      title: "Our Heroes — LIONS OF ZION",
+      description: TAGLINE,
+      type: "article",
+      publishedTime,
+    },
+  };
+}
 
 function Citation({ hero, featured }: { hero: HeroProfile; featured?: boolean }) {
   return (
@@ -36,11 +48,38 @@ function Citation({ hero, featured }: { hero: HeroProfile; featured?: boolean })
   );
 }
 
+function heroesJsonLd(edition: Awaited<ReturnType<typeof getOurHeroesEdition>>) {
+  const heroes = [edition.featured, ...edition.profiles];
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        headline: "Our Heroes",
+        url: PAGE_URL,
+        datePublished: new Date(edition.publishedAt).toISOString(),
+        author: { "@type": "Organization", name: "Lions of Zion" },
+        publisher: { "@type": "Organization", name: "Lions of Zion" },
+        about: heroes.map((hero) => ({ "@type": "Person", name: hero.name })),
+      },
+      ...heroes.map((hero) => ({
+        "@type": "Person",
+        name: hero.name,
+        description: hero.summary,
+      })),
+    ],
+  };
+}
+
 export default async function Page() {
   const edition = await getOurHeroesEdition();
 
   return (
     <SectionPage id="our-heroes" surface="quiet" title="Our Heroes" tagline={TAGLINE}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(heroesJsonLd(edition)) }}
+      />
       <SectionBlock heading="Citations">
         <Citation hero={edition.featured} featured />
         <div className={styles.citationGrid}>

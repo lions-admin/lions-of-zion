@@ -3,20 +3,39 @@ import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { ContentCard } from "@/components/content";
 import { ReportClaimForm } from "@/components/support/ReportClaimForm";
 import { VolunteerInterestForm } from "@/components/support/VolunteerInterestForm";
+import { ShareVerifiedButton } from "@/components/support/ShareVerifiedButton";
+import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
 const TAGLINE =
   "Ways to join the effort: amplify verified truth, contribute skills, sustain the work.";
+const PAGE_URL = `${SITE_URL}/support-us`;
 
 export const metadata: Metadata = {
   title: "Support Us",
   description: TAGLINE,
+  alternates: { canonical: PAGE_URL },
   openGraph: { title: "Support Us — LIONS OF ZION", description: TAGLINE },
+};
+
+/* An action page, not an article — WebPage is the correct real schema.org
+   type here. */
+const SUPPORT_US_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Support Us",
+  url: PAGE_URL,
+  description: TAGLINE,
+  isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL },
 };
 
 export default function Page() {
   return (
     <SectionPage id="support-us" surface="quiet" title="Support Us" tagline={TAGLINE}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SUPPORT_US_JSON_LD) }}
+      />
       <SectionBlock heading="Two ways to act right now">
         <p>
           Everything else on this page is how to help these two work better.
@@ -83,6 +102,7 @@ export default function Page() {
               already know. Everything published here is built to be shared
               intact, sources and all.
             </p>
+            <ShareVerifiedButton />
           </div>
           <div className={`${styles.practice} ${styles.practicePending}`}>
             <span className={styles.practiceLabel}>Not open yet</span>

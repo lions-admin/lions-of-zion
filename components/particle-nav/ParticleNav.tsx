@@ -34,7 +34,7 @@ export function ParticleNav(props: ParticleNavProps) {
         <img src="/posters/particle-nav.webp" alt="" draggable={false} />
       </picture>
       <NavLinks nodes={nodes} radius={radius} />
-      <HomeSignalLayer nodes={nodes} />
+      <HomeSignalLayer />
     </NavClient>
   );
 }

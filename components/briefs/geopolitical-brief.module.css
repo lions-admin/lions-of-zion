@@ -40,7 +40,7 @@
   overflow-x: clip;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: var(--ground);
+  /* Ground and texture come from `body` — `--scan-ground` in globals.css. */
   color: var(--ink);
   font-family: var(--face-text);
   scroll-behavior: smooth;

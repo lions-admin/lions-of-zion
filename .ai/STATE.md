@@ -1,6 +1,79 @@
 # State
 
-## Latest — 2026-08-25, design direction B: "the intelligence desk"
+## Latest — 2026-08-25, the home route grows a front page (direction B), built
+
+The user picked direction B from the homepage review. **Built and verified**:
+typecheck, lint, 331 tests (8 new, the first coverage `lib/content/` has had),
+build, `ci-smoke` (11/11), `verify:graphics` (7/7 viewports, every number
+unchanged — the gate that proves the particle scene did not move),
+`final-verify` in real Chrome, and a new `scripts/verify-home-band.mjs` over
+six viewports.
+
+What changed: the particle scene keeps the entire first screen and its exact
+`position: fixed; inset: 0` box; below it the document now continues into a
+front-page band — an anchored "latest documented milestone" strip, a masthead
+carrying the route's only `<h1>`, the newest milestone as a lead, two cards,
+a merged recent-milestones timeline with citations in the margin, the eight
+files grouped by intent with their descriptions finally visible, and a
+Methodology · Corrections row. The static mobile index was deleted; the band
+serves every tier. `HomeSignalLayer` is now just the wordmark.
+
+**Read `.ai/DECISIONS.md` before touching any of it** — particularly why the
+scene's box is not negotiable, why the scroll marker is an attribute and not
+an id (`:has()` specificity), why the intro lock keys on `data-intro-active`
+and not `data-intro-pending`, why this route hides its scrollbar, and why the
+strip's overlap is a separate number from its height.
+
+Follow-up in the same session, from the user: the scan's ground is now **one
+global background**. `--scan-ground` (globals.css) is carried by `body`, so
+every surface inherits it — the front-page band, the 404 and the brief had all
+been painting flat panels, and `body` sat on a second, darker black that is now
+retired. The drifting rows stay per-page because their mask needs that page's
+`--content-w`; the band mounts one through a new `surface="band"` variant. See
+DECISIONS for the two CSS traps that cost time there (`overflow: clip` on the
+dock, and `overflow-x: hidden` on `body`, each of which silently kills
+`position: sticky`).
+
+Globalising the plumbing was not enough on its own — the user still could not
+see it, and the numbers explained why: the ground texture composited to a
+delta of (2,4,6) against `--ground`, under the threshold of perception. The
+texture, the row opacity and the mask's fade were all raised against measured
+composites, and **the mask now dims the reading column rather than cutting the
+rows out of it**, which is what makes the scan continuous across a page — and
+puts it on phones, where the protected band is the whole viewport and it had
+been absent entirely.
+
+Same-day follow-up (user, with screenshots): the orbit labels now anchor
+their **first line** at a fixed offset below the node centre instead of being
+block-centred — which had made two-line labels start at the centre, on top of
+the icon ink ("SUPPORT US" across the shield). All eight first lines are now
+level per viewport (measured), the `participate` opacity-dim that broke the
+4.5:1 contrast lock is removed, and every label carries a ground-coloured
+backing halo against the scan rows. DOM/CSS only; `verify:graphics` 7/7
+unchanged.
+
+**One thing found and deliberately not fixed**: `app/loading.tsx` breaks every
+async route without JavaScript — `/`, `/war-update`, `/we-are` all render as
+the loading shell with the real markup in a hidden wrapper. It predates this
+work (the pre-change code fails identically) and contradicts a documented
+invariant. Proven cause, two candidate fixes, both a user decision — see
+DECISIONS. The existing `final-verify` no-JS check cannot catch it, because it
+counts elements that exist inside the hidden wrapper.
+
+## 2026-08-25, homepage design review: three directions, awaiting choice
+
+A UI/UX review of the home scene (intro → orbit) against the new reading-page
+language produced eight findings (F-01..F-08 — headline gaps: no live content
+surfaced, section descriptions hover-only, Cinzel/micro-mono vs the V2 system)
+and three homepage directions, published as a Hebrew artifact with CSS mockups
+("תיקי עמוד הבית", review-002): **A "Intelligence Desk"** (identity band +
+working desk rails around the unchanged scene — extends direction B to the
+home, resolves DESIGN-V2 Phase 5 toward the V2 labels), **B "Front page"**
+(compressed hero + below-the-fold editions/lead/index — reverses the
+documented no-content-below-the-fold decision), **C "Declassified Archive"**
+(file-tab nodes, live wire ticker, stamp moment). Recommended A as base; the user chose **B**, now built (above).
+
+## 2026-08-25, design direction B: "the intelligence desk"
 
 A frontend design review of the ten reading routes produced three alternative
 directions, presented to the user as a live switchable mockup on real War

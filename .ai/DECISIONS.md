@@ -10,6 +10,221 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — Orbit labels anchor their first line, not their centre
+
+Reported by the user with screenshots: the node buttons were untidy — some
+labels colliding with their icon ("SUPPORT US" ran across the shield,
+"WAR UPDATE" touched the X), some sitting visibly lower than their
+neighbours, some reading weaker than others.
+
+One geometric cause behind all three. The label was flex-centred as a block
+and then translated down, so the first line's position was a function of the
+line count: one-line labels sat low with a gap under the icon, two-line labels
+started at the node's centre — inside the icon's ink, which is lifted +0.095
+node-units but spans ±0.13 (`ICON_WORLD_SIZE`), so its bottom reaches
+~0.076·radius *below* centre. `.label` now anchors its **top** at a fixed
+offset below the node centre (`clamp(0.55rem, 1.3vmin, 0.8rem)`) and extra
+lines grow downward. Measured after: every node's first line sits at the
+identical offset per viewport (11.7px at 1440×900, 10px at 1024×768, 8.8px at
+390×844), every label bottom stays inside the ring, and the wider anchored box
+lets "SUPPORT US" fit on one line at desktop.
+
+**The `data-intent='participate'` dimming is gone, and should not return.**
+`opacity: 0.78` on the labels quietly broke the lock at the top of
+`styles.module.css` — #C9A24B clears 4.5:1 at full alpha, not at 78% of it.
+The intent grouping is carried by the front-page index's headings now; no
+label pays contrast for it. All labels also gained a ground-coloured backing
+halo (not a glow) so gold glyphs stay separated from scan rows drifting
+behind them — which is what "some labels look weak" actually was.
+
+---
+
+## 2026-08-25 — The scan's ground is one global background, not a per-page one
+
+Reported by the user, and correct: "the matrix background is the general
+background of the whole site, and it is not present in most of the site."
+
+It was painted by `ScanBackdrop`, which only reading pages mounted. Anything
+that did not mount one — the home route's new front page above all, but also
+the 404 and the brief — painted a flat `var(--ground)` panel instead, and
+`body` underneath sat on `#020409`, a second and darker black that only ever
+showed where a page forgot to paint. So the site had two grounds, one texture
+that reached about half of it, and a home page whose background stopped
+existing at the fold.
+
+**The ground and its texture are now one token, `--scan-ground`, carried by
+`body`.** Every surface inherits it, including ones nobody has built yet.
+`.page`, the brief and the 404 stopped painting their own; `.backdrop` stopped
+painting any, and is now only the rows' host. `#020409` is retired — the
+comment in `sections.module.css` that called it "the body's darker one" and
+worked around it can go.
+
+**One surface still paints its own, and has to**: the home front-page band
+scrolls over the live particle scene, so a transparent band would show the lion
+and the orbit through the text. It takes `--scan-ground` explicitly, so being
+opaque does not mean dropping out of the site's background.
+
+**The levels were the real problem, and they were set by feel.** Globalising
+the plumbing changed nothing visible, because the values themselves were below
+perception. Composited against `--ground` (rgb 7,11,20):
+
+- the rule field at `0.028` alpha landed on rgb(9,15,26) — a delta of (2,4,6),
+  which is not visible on most displays. It is now `0.075` → rgb(13,23,35),
+  a real weave that still leaves body ink above 12:1;
+- the drifting rows at `0.15` opacity landed at a delta of (6,12,16) — present
+  in a screenshot, invisible on a screen. Now `0.34`. The per-page calms
+  (`surfaceQuiet` 0.7, `registerMuted` 0.45) scale from it untouched;
+- the mask's soft edge was `5rem`. At 1440px each margin is only ~129px wide,
+  so the fade consumed most of it and the rows never reached full strength
+  anywhere. Now `2.75rem`.
+
+**And the mask dims the reading column instead of cutting it out.** This is the
+change that actually answers "the matrix is the background of the whole site".
+Cutting the rows to zero alpha across the protected band meant that at 1440px
+they existed only in two thin edge strips, and on a phone — where the band is
+the entire viewport — they did not exist at all. A ground with a hole in the
+middle is a decoration, not a ground. The middle now keeps a quarter of the
+row's alpha: 0.34 × 0.25 ≈ 0.085, a delta of about (5,10,13), which reads as
+drift behind the page rather than text competing with text. Phones have the
+scan for the first time. Raising that quarter brings back the audit's original
+complaint — half-legible fragments colliding with sentences — so it is the
+number to lower, never to raise.
+
+**The drifting rows stay per-page**, because their mask has to know where that
+page's text column is (`--content-w`). The home band mounts one through a new
+`surface="band"` variant: `position: fixed` would have painted it over the
+scene above, so it sticks to the top of an absolutely-positioned dock inside
+the band instead — which also keeps the rows at viewport density rather than
+thinning 16 of them over a band several screens tall.
+
+Two things bit while wiring that up, both measured rather than reasoned:
+
+- **`overflow: clip` on the dock silently disabled the stickiness.** The
+  backdrop stayed pinned to the top of the band, every row sat at y = -872, and
+  the band rendered flat. There is nothing to clip anyway — sticky is already
+  constrained by its containing block.
+- **`overflow-x: hidden` on `body` did the same thing, for a different reason.**
+  It makes `body` a scroll container, one that never scrolls because the
+  document does, and sticky then resolves against that dead scrollport. The
+  sideways clip belongs to `html` alone. This is worth remembering before
+  adding `overflow` to `body` for any reason.
+
+---
+
+## 2026-08-25 — The home route grows a front page; the scene keeps its exact box
+
+The home page surfaced no documented content, hid all eight section
+descriptions behind hover (invisible on touch, where a tap navigates in
+320ms), and still spoke the pre-V2 type language the rest of the site
+retired. A design review offered three directions and the user chose the
+editorial one: keep the particle scene as the hero, put real content below it.
+
+**This reverses `CLAUDE.md`'s "the home route has no content below the fold."**
+Recorded as a reversal, not a refactor, because a later reader would otherwise
+restore the invariant and delete the band.
+
+**The scene stays `position: fixed; inset: 0`, verbatim.** The constraint the
+user set was that the matrix is not touched, and that turned out to decide the
+whole architecture rather than merely limit it. A shorter hero was measured,
+not assumed, and it fails: the camera's world height is a constant mapped onto
+container pixels, so a 65vh band renders the entire composition at 65% linear
+scale rather than reflowing it; at 320x568 the orbit lands on its documented
+emergency radius floor and adjacent nodes overlap; and the `vmin` ↔ container
+contract between `config.ts` and `styles.module.css` silently breaks, because
+CSS reads the viewport while the solver reads the container. Keeping the box
+fixed avoids all of it, and pays twice more: a fixed element's rect does not
+change as the page scrolls, so r3f never fires `setSize`, so neither
+`IntroText`'s glyph resample nor `NetworkScan`'s point-cloud rebuild is
+triggered by scrolling. `verify-composition.mjs` passes with every number
+unchanged at all seven viewports, which is the gate that proves it.
+
+**Document scroll is route-scoped through `:has()`, and the marker is an
+attribute for a specific reason.** `:has()` takes the specificity of its
+argument, so `html:has(#id)` scores (1,0,1) and outranks
+`html:has([data-intro-active])` at (0,1,1) — the intro's scroll lock would
+never have won. Attribute for attribute puts both on the same specificity and
+lets source order decide. Locking `html` alone was also not enough: `body`
+stayed scrollable and simply became the scroll container instead. Measured —
+the page still scrolled 3075px through a "locked" html.
+
+**The lock keys on `data-intro-active`, not `data-intro-pending`**, which is
+the opposite of what the chat launcher does. `data-intro-pending` is the
+server's claim and ships in the first HTML; nothing removes it when JavaScript
+never runs, so locking on it left no-JS visitors on a page that could not
+scroll to the only navigation it had. The launcher can afford that attribute
+because it sits above the fold and would otherwise flash; the band is below the
+fold and cannot flash.
+
+**The home route hides its scrollbar, alone.** Not taste: a classic scrollbar
+is 8px of layout, and `position: fixed; inset: 0` resolves against the viewport
+*minus* it, so the scene would have solved its composition against 1432px
+instead of 1440px — and at 320px wide that is enough to push the orbit onto its
+radius floor. `verify-home-band.mjs` asserts the scene's box equals the
+viewport exactly and failed on all six viewports before the rule existed.
+
+**The anchored strip rides in the orbit's own bottom margin, and the overlap is
+a separate number from the strip's height.** Collapsing the two made the strip
+cover the bottom node at three viewports. The free band under that node is
+small and measured — 41.6px at 1440x900, 37.4px at 1024x768, 32.5px at
+768x1024 — and the DOM link box reaches lower than the drawn ring, so the
+analytic estimate was not enough. The overlap is 1.75rem; the strip is 2.75rem
+and hangs the difference downward into the band, where nothing is in its way.
+If this ever collides again, shrink `--strip-overlap`; never the orbit.
+
+**The static mobile index is deleted, not demoted again.** It existed as the
+no-JS/no-GPU tier's home. The band is server-rendered for every tier, so
+keeping both would be two indexes of the same eight files drifting apart. The
+intent grouping it carried moved into the band as real headings over the files
+themselves, which is the first time that taxonomy has been legible — it was a
+0.53rem colour-coded legend in the scene's corner before.
+
+**The front-page render path is synchronous, deliberately.** An `await`
+anywhere in it puts the route behind `app/loading.tsx`'s Suspense boundary. A
+top-level `await` in `lib/content/home.ts` does not help either — it makes the
+importing module async, which suspends the route just the same. So
+`war-update.ts` and `october-7.ts` export their editions synchronously
+alongside the async accessors, which stay as the seam a real query will land on.
+
+**Copy is bounded by what the content can support.** There is no newest
+edition — every edition carries the same `publishedAt` — so the strip says
+"latest documented milestone" and derives it from `max(entry.datetime)`, never
+"latest update". The corrections card says "None recorded", because the log is
+genuinely empty. Nothing renders a review date, because `reviewedBy` is a role
+and no such date exists. One event is authored twice (War Update's
+`hostages-released` and October 7's `final-hostages`, both 2025-10-13); the
+duplicate is named explicitly rather than resolved by a same-day heuristic,
+because two real events can share a date, and `assertKnownDuplicates` throws if
+either id disappears.
+
+---
+
+## 2026-08-25 — `app/loading.tsx` breaks every async route without JavaScript
+
+Found while verifying the front-page band, and **not caused by it** — the
+pre-change code fails identically.
+
+`app/loading.tsx` wraps every route in a Suspense boundary. Without JavaScript
+nothing replaces the fallback, so the page renders as the loading shell with
+the real markup parked in a `display: none` wrapper. Measured on the production
+build: `/`, `/war-update` and `/we-are` all render zero visible links and zero
+text; `/methodology`, whose page component is synchronous, renders fully.
+
+Proven by removing that one file and rebuilding: the home route then renders
+completely without JavaScript — 8 orbit links, 8 band links, poster visible,
+document scrollable, 4120px tall. The file was restored, because deleting it
+regresses the client-side navigation gap it was added for (TODOS W1) and that
+trade is the user's to make.
+
+This matters more than a normal bug because `CLAUDE.md` promises the opposite
+("Without JavaScript the static navigation remains usable immediately"), and
+because the existing check never caught it: `final-verify.mjs` counts
+`a[data-node-index]` elements, which are present in the hidden wrapper, so it
+reported 8 links on a blank page. Two candidate fixes, both unmade:
+delete the root `loading.tsx` and accept the navigation gap, or move the
+loading UI below `/` so the entry route never suspends.
+
+---
+
 ## 2026-08-25 — The source travels beside the claim: reading pages grow two working margins
 
 A frontend design review offered three directions and the user chose "the

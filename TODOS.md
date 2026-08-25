@@ -267,8 +267,10 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
   Return to the scan", וכעת גם ה־CTA ההקשרי "Ask the Lion about this file"
   (פותח את הצ׳ט עם שאלת פתיחה ממולאת, לא נשלחת אוטומטית).
 - [ ] Footer גלובלי רזה: זהות, שמונת היעדים, Methodology / Corrections /
-  Contact, כניסת צ׳ט — **הוחלט במפורש שלא להוסיף כזה ל־`app/layout.tsx`**:
-  `CLAUDE.md` קובע שלדף הבית אין תוכן מתחת לקיפול וה־layout עוטף גם אותו.
+  Contact, כניסת צ׳ט — **עדיין לא נוסף ל־`app/layout.tsx`**. הנימוק המקורי
+  (לדף הבית אין תוכן מתחת לקיפול) כבר לא נכון: לבית יש עכשיו רצועת עמוד ראשון
+  שנסגרת בשורת "Methodology · Corrections" משלה. המסקנה נשארה בעינה בבחירת
+  המשתמש — שורת קישורים, לא footer גלובלי.
   במקום זאת: שורת קישורים "Methodology · Corrections" נוספה לפוטר של
   `SectionPage` (`components/sections/SectionPage.tsx`) ולסגירה של הברייף
   (`GeopoliticalBrief.tsx`) — שני הדפים האלה מקושרים מכל עמוד תוכן עכשיו.

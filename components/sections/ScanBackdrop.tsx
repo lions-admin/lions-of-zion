@@ -89,9 +89,24 @@ export interface ScanBackdropProps {
   /** Seeds the sample so each page shows its own stable slice of the corpus. */
   routeId: string;
   register?: 'default' | 'muted';
+  /**
+   * Where this backdrop lives.
+   *
+   * `viewport` (the reading pages) pins it to the viewport with `fixed`.
+   * `band` is for a section inside an otherwise-scrolling document — the home
+   * route's front page — where `fixed` would paint over the particle scene
+   * above it. It sticks to the top of its own host instead, so the rows keep
+   * the same viewport-height density rather than thinning out over a band
+   * several screens tall. The host supplies the dock; see `home.module.css`.
+   */
+  surface?: 'viewport' | 'band';
 }
 
-export async function ScanBackdrop({ routeId, register = 'default' }: ScanBackdropProps) {
+export async function ScanBackdrop({
+  routeId,
+  register = 'default',
+  surface = 'viewport',
+}: ScanBackdropProps) {
   const fragments = await loadFragments();
   const rng = mulberry32(hashSeed(routeId));
   const hostile = fragments.filter((f) => f.tone === 'red' || f.tone === 'amber');
@@ -123,7 +138,10 @@ export async function ScanBackdrop({ routeId, register = 'default' }: ScanBackdr
   });
 
   return (
-    <div className={styles.backdrop} aria-hidden="true">
+    <div
+      className={`${styles.backdrop} ${surface === 'band' ? styles.backdropBand : ''}`}
+      aria-hidden="true"
+    >
       {/* The rows sit in their own layer because that layer is masked out of
           the reading column (see `.rowField`). Masking the backdrop itself
           would take the page's ground colour with it. */}

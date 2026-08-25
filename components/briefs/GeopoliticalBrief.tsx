@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import briefIcon from '@/assets/source/icons/geopolitical-brief.svg';
-import type { AssessmentValue } from '@/server/contracts/enums';
 import {
   CorrectionHistory,
   FigureRow,
@@ -10,59 +9,16 @@ import {
   SourceList,
   Timeline,
   VerificationBadge,
-  type Source,
-  type TimelineEntry,
 } from '@/components/content';
+import { geopoliticalReferenceBrief as brief } from './geopolitical-reference';
 import {
-  geopoliticalReferenceBrief as brief,
-  type BriefSource,
-  type BriefStatus,
-} from './geopolitical-reference';
+  briefDevelopmentEntries,
+  STATUS_TO_ASSESSMENT,
+  toIsoDateOnly,
+  toSource,
+} from './adapters';
 import { ReadingProgress } from '@/components/sections/ReadingProgress';
 import styles from './geopolitical-brief.module.css';
-
-/**
- * `BriefStatus` (this page's own authoring vocabulary) has no 1:1 mapping
- * onto the real 9-value `AssessmentValue` (`server/contracts/enums.ts`) —
- * that enum is the shared source of truth for both the Zod schema and the
- * Postgres enum type, so it is not the thing to extend. Mapped here to the
- * closest real meaning. `Attributed` and `Corrected` are the genuinely
- * imprecise cases:
- *   - `Attributed` rests on one named official's public statement, not
- *     independently cross-checked — closer to "not yet independently
- *     assessed" than any other real value, though it understates that this
- *     is already a real, published record.
- *   - `Corrected` describes a workflow event (this item was wrong and has
- *     been fixed), not a verdict. The live status after a correction is
- *     whatever the corrected verdict now is; the correction itself belongs
- *     in `CorrectionHistory`, not here — `verified` is the reasonable
- *     default for "corrected and now considered right."
- */
-const STATUS_TO_ASSESSMENT: Record<BriefStatus, AssessmentValue> = {
-  Confirmed: 'verified',
-  Attributed: 'unverified',
-  Unverified: 'unverified',
-  Disputed: 'contested',
-  Corrected: 'verified',
-};
-
-const MONTHS: Record<string, string> = {
-  Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
-  Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12',
-};
-
-/** Brief dates are authored as "07 Jan 2026" — converts to an ISO date for
- *  the <time dateTime> attribute Timeline entries expect. */
-function toIsoDate(display: string): string {
-  const [day, month, year] = display.split(' ');
-  return `${year}-${MONTHS[month] ?? '01'}-${(day ?? '01').padStart(2, '0')}`;
-}
-
-/** `publishedAt` is authored as "24 Aug 2026 · 14:00 IDT" — only the date
- *  portion is needed for staleness, so the time/zone half is dropped. */
-function toIsoDateOnly(publishedAt: string): string {
-  return toIsoDate(publishedAt.split('·')[0].trim());
-}
 
 const STALE_AFTER_DAYS = 14;
 
@@ -79,38 +35,10 @@ function isBriefStale(publishedAt: string): boolean {
   return ageDays > STALE_AFTER_DAYS;
 }
 
-/** `BriefSource` (id, publisher, title, published, type, url) doesn't line
- *  up exactly with the shared `Source` shape — `published` has no exact
- *  home (`accessedAt` means "when we last checked it", not "when it was
- *  published"), but it's the only slot for a date and keeps the
- *  information visible rather than silently dropping it. */
-function toSource(source: BriefSource): Source {
-  return {
-    id: source.id,
-    label: source.title,
-    kind: `${source.publisher} · ${source.type}`,
-    url: source.url,
-    accessedAt: source.published,
-  };
-}
-
 export function GeopoliticalBrief() {
-  const sourceMap = new Map(brief.sources.map((source) => [source.id, source]));
   const corrections: readonly { version: string; date: string; note: string }[] = brief.corrections;
   const stale = isBriefStale(brief.publishedAt);
-
-  const developmentEntries: TimelineEntry[] = brief.developments.map((development, index) => ({
-    id: `development-${index}`,
-    datetime: toIsoDate(development.date),
-    dateLabel: development.date,
-    title: development.title,
-    body: development.body,
-    assessment: STATUS_TO_ASSESSMENT[development.status],
-    sources: development.sourceIds
-      .map((sourceId) => sourceMap.get(sourceId))
-      .filter((source): source is BriefSource => Boolean(source))
-      .map(toSource),
-  }));
+  const developmentEntries = briefDevelopmentEntries();
 
   return (
     <main className={styles.page} data-reading-scroll>

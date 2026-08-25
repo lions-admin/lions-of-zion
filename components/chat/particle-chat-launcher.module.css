@@ -130,10 +130,24 @@
   opacity: 0;
 }
 
+/* The label is a fixed overlay sitting on top of the reading panel, so it
+   carries its own ground. Without one, the gold letterspaced type renders
+   straight into body copy and both become unreadable — the launcher read as
+   broken on every desktop route. Occluding the line cleanly is the honest
+   trade for a floating control; tangling with it is not. The treatment is
+   the mobile dock's own pill (see the ≤719px block), reused rather than
+   invented, and reset there so it never nests inside itself. */
 .label {
   display: inline-flex;
   align-items: center;
   gap: 0.68rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid rgba(201, 162, 75, 0.26);
+  border-radius: 999px;
+  background: rgba(7, 11, 20, 0.93);
+  box-shadow: 0 0.5rem 1.6rem rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--chat-gold);
   font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
   font-size: 0.69rem;
@@ -244,8 +258,17 @@
     width: 100%;
   }
 
+  /* `.root` is already the pill at this width — drop the label's own ground
+     so it doesn't render as a pill inside a pill. */
   .label {
     gap: 0.58rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     font-size: 0.62rem;
     letter-spacing: 0.14em;
     opacity: 1;

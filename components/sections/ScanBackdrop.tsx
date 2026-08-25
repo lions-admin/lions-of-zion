@@ -124,24 +124,29 @@ export async function ScanBackdrop({ routeId, register = 'default' }: ScanBackdr
 
   return (
     <div className={styles.backdrop} aria-hidden="true">
-      {rows.map((row) => (
-        <span
-          key={row.key}
-          className={[
-            styles.row,
-            row.hostile ? styles.rowHostile : styles.rowVerified,
-            row.loud ? styles.rowLoud : '',
-          ].join(' ')}
-          style={{
-            top: `${row.top.toFixed(2)}%`,
-            ['--dur' as string]: `${row.duration.toFixed(1)}s`,
-            ['--delay' as string]: `${(-row.progress * row.duration).toFixed(1)}s`,
-            ['--rest' as string]: row.rest,
-          }}
-        >
-          {row.text}
-        </span>
-      ))}
+      {/* The rows sit in their own layer because that layer is masked out of
+          the reading column (see `.rowField`). Masking the backdrop itself
+          would take the page's ground colour with it. */}
+      <div className={styles.rowField}>
+        {rows.map((row) => (
+          <span
+            key={row.key}
+            className={[
+              styles.row,
+              row.hostile ? styles.rowHostile : styles.rowVerified,
+              row.loud ? styles.rowLoud : '',
+            ].join(' ')}
+            style={{
+              top: `${row.top.toFixed(2)}%`,
+              ['--dur' as string]: `${row.duration.toFixed(1)}s`,
+              ['--delay' as string]: `${(-row.progress * row.duration).toFixed(1)}s`,
+              ['--rest' as string]: row.rest,
+            }}
+          >
+            {row.text}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

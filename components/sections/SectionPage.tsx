@@ -1,24 +1,24 @@
 /**
- * Dossier layout for the eight section pages: a file opened from the scan.
+ * Section page shell: a file opened from the scan, set as a document.
  *
- * The rail carries the section's identity — its emblem, a mono file header
- * whose index is the node's real position in `defaultNodes` — and the content
- * sits on a translucent panel with the corpus still drifting behind it
- * (`ScanBackdrop`). Everything derives from the nav contract in
+ * One full-width identity band (wordmark, file number, route, status, the way
+ * out), then a genuinely centred reading measure, then a two-row footer. The
+ * shell this replaced offset the reading column against a 15rem emblem rail,
+ * which pushed the text right of centre and spent ~320px on ceremony before
+ * the first sentence — see `.ai/DESIGN-V2.md`.
+ *
+ * Everything derives from the nav contract in
  * `components/particle-nav/config.ts`, so the hover card, the lede here, and
- * the page metadata stay one sentence in one place. The panel closes with a
- * file footer: prev/next in reading order (wrapping at the ends), the full
- * eight-file index, and the way back to the scan.
+ * the page metadata stay one sentence in one place.
  */
 import Link from 'next/link';
 import { defaultNodes } from '@/components/particle-nav/config';
 import { ScanBackdrop } from './ScanBackdrop';
-import { AskAboutFileCta } from './AskAboutFileCta';
 import { ReadingProgress } from './ReadingProgress';
 import styles from './sections.module.css';
 
 /*
- * Rail emblems come from the same source artwork the icon bakes are cut from.
+ * Emblems come from the same source artwork the icon bakes are cut from.
  * The SDF PNGs in `public/icons` carry their distance field in an opaque black
  * frame — correct for the GPU sampler, a black square in an `<img>` — so the
  * DOM uses the white source glyphs and tints them gold in CSS, the same way
@@ -103,31 +103,34 @@ export function SectionPage({
       <ReadingProgress />
       <ScanBackdrop routeId={id} register={register} />
       <div className={shellClass}>
-        <aside className={styles.rail}>
-          <div className={styles.railInner}>
-            {/* eslint-disable-next-line @next/next/no-img-element -- the
-                emblem is a static white glyph tinted in CSS; next/image's
-                optimizer adds nothing to an already-tiny SVG */}
-            <img
-              src={emblems[id].src}
-              alt=""
-              className={styles.emblem}
-              width={100}
-              height={100}
-            />
-            <div className={styles.fileMeta}>
-              <span className={styles.fileIndex}>
-                File {pad(index + 1)} / {pad(total)}
-              </span>
-              <span className={styles.fileRoute}>{node.href}</span>
-              <span className={styles.fileStatus}>Reference edition</span>
-              <span className={styles.metaRule} aria-hidden="true" />
-            </div>
-            <Link href="/" className={styles.back}>
-              ← Back to the scan
-            </Link>
-          </div>
-        </aside>
+        <div className={styles.identityBand}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- the
+              emblem is a static white glyph tinted in CSS; next/image's
+              optimizer adds nothing to an already-tiny SVG */}
+          <img
+            src={emblems[id].src}
+            alt=""
+            className={styles.identityEmblem}
+            width={26}
+            height={26}
+          />
+          <Link href="/" className={styles.wordmark}>
+            Lions of Zion
+          </Link>
+          <span className={styles.identityMeta}>
+            <span className={styles.identitySep} aria-hidden="true">
+              ·
+            </span>
+            <span>
+              File {pad(index + 1)} / {pad(total)}
+            </span>
+            <span className={styles.identityRoute}>{node.href}</span>
+            <span>Reference edition</span>
+          </span>
+          <Link href="/" className={styles.identityExit}>
+            ← Back to the scan
+          </Link>
+        </div>
 
         <article className={styles.panel} id="page-content">
           <header>
@@ -138,60 +141,44 @@ export function SectionPage({
           <div className={styles.body}>{children}</div>
 
           <footer className={styles.fileFooter}>
-            <div className={styles.footerRule} aria-hidden="true" />
             <nav className={styles.fileNav} aria-label="Adjacent files">
               <Link href={prev.href} className={styles.fileNavLink}>
-                <span className={styles.fileNavMeta}>
-                  ← Prev file {pad(prevIndex + 1)} / {pad(total)}
-                </span>
+                <span className={styles.fileNavMeta}>← Previous file</span>
                 <span className={styles.fileNavLabel}>{prev.label}</span>
               </Link>
               <Link
                 href={next.href}
                 className={`${styles.fileNavLink} ${styles.fileNavNext}`}
               >
-                <span className={styles.fileNavMeta}>
-                  Next file {pad(nextIndex + 1)} / {pad(total)} →
-                </span>
+                <span className={styles.fileNavMeta}>Next file →</span>
                 <span className={styles.fileNavLabel}>{next.label}</span>
               </Link>
             </nav>
 
-            <nav className={styles.destinations} aria-label="All files">
-              <span className={styles.destinationsKicker}>
-                Index · {pad(total)} files
-              </span>
-              <ul className={styles.destinationsList}>
-                {defaultNodes.map((entry, i) => (
-                  <li key={entry.id}>
-                    <Link
-                      href={entry.href}
-                      className={styles.destination}
-                      aria-current={entry.id === id ? 'page' : undefined}
-                    >
-                      <span className={styles.destinationIndex} aria-hidden="true">
+            <div className={styles.footerRow}>
+              <nav aria-label="All files">
+                <ul className={styles.indexRow}>
+                  {defaultNodes.map((entry, i) => (
+                    <li key={entry.id}>
+                      <Link
+                        href={entry.href}
+                        className={styles.indexNum}
+                        aria-label={entry.label}
+                        aria-current={entry.id === id ? 'page' : undefined}
+                      >
                         {pad(i + 1)}
-                      </span>
-                      {entry.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
 
-            <div className={styles.askCtaRow}>
-              <AskAboutFileCta href={node.href} />
+              <nav className={styles.docLinks} aria-label="Policy pages">
+                <Link href="/methodology">Methodology</Link>
+                <span aria-hidden="true">·</span>
+                <Link href="/corrections">Corrections</Link>
+              </nav>
             </div>
-
-            <nav className={styles.docLinks} aria-label="Policy pages">
-              <Link href="/methodology">Methodology</Link>
-              <span aria-hidden="true">·</span>
-              <Link href="/corrections">Corrections</Link>
-            </nav>
-
-            <p className={styles.closeLine}>
-              File closed · <Link href="/">Return to the scan</Link>
-            </p>
           </footer>
         </article>
 
@@ -226,8 +213,9 @@ export function SectionBlock({
   const anchor = id ?? (slugify(heading) || undefined);
   return (
     <section className={styles.block}>
+      {/* The tick that used to sit beside this heading was a counterweight to
+          tracked capitals. A sentence-case serif heading carries itself. */}
       <div className={styles.blockHeading}>
-        <span className={styles.blockTick} aria-hidden="true" />
         <h2 id={anchor}>{heading}</h2>
       </div>
       {children}

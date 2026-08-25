@@ -1,47 +1,45 @@
 /*
- * Section pages — dossier over the live scan.
+ * Section pages — the broadsheet over the scan (`.ai/DESIGN-V2.md`, Phase 2).
  *
- * The landing page is the scan; a section page is a file pulled from it, so
- * the corpus keeps drifting behind a translucent panel. Three type voices:
- * Cinzel (the site speaking), Geist Sans (prose), Geist Mono (the system's
- * data voice — file headers, routes, classification labels).
+ * The shell this replaced put a 15rem emblem rail beside a 44rem panel and
+ * centred the pair, which pushed the reading column right of centre, left the
+ * rail floating in a dark void, and spent ~320px of every page on ceremony
+ * before the first real sentence. The anatomy now is a masthead: one
+ * full-width identity row, then a genuinely centred reading measure, then a
+ * short footer. Side columns are real grid columns that exist only when a page
+ * supplies rail content.
  *
- * Locks inherited from the nav (brief §9): gold #C9A24B on #070B14 is never
- * dimmed for atmosphere; focus ring 2px #EFD79A at 3px offset; every
- * animation has a prefers-reduced-motion branch.
+ * Type and colour come from the V2 tokens in app/globals.css. Nothing here
+ * invents a size or a grey — if a value is not in the scale, the page needs
+ * rethinking rather than a new value.
  */
 
 .page {
-  /* aliases the sitewide tokens in app/globals.css :root — the fallback is
-     the same value, so this stays correct even mounted without that file */
-  --ground: var(--loz-ground, #070b14);
-  --gold: var(--loz-gold, #c9a24b);
-  --gold-bright: var(--loz-gold-bright, #efd79a);
-  --blue: var(--loz-blue, #57a7d9);
-  --blue-dim: var(--loz-blue-dim, #3e7fa8);
-  --blue-peak: var(--loz-blue-peak, #9adfff);
-  --ember: var(--loz-ember, #a85a61);
-  --ember-dim: var(--loz-ember-dim, #7a4048);
-  --ember-peak: var(--loz-ember-peak, #d08d94);
-  --body: var(--loz-body, #9fb3c8);
-  --accent: var(--blue);
-  --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  --display: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  /* The reading measure, published as a variable because the backdrop mask
+     has to know exactly where the reading column is in order to stay out of
+     it. One number, two consumers, no drift. */
+  --reading-w: min(68ch, 100%);
+  --accent: var(--data-blue);
 
+  /* `height` (not `min-height`) is load-bearing: this element is the scroll
+     container, and the ≤719px rule below shortens it to reserve the chat
+     launcher's dock. A `min-height: 100dvh` alongside it would win that
+     cascade and slide the footer back under the dock. */
   height: 100dvh;
   overflow-y: auto;
   background: var(--ground);
-  color: var(--body);
+  color: var(--ink);
+  font-family: var(--face-text);
   scrollbar-width: thin;
   scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
 
 .accentEmber {
-  --accent: var(--ember);
+  --accent: var(--data-ember-peak);
 }
 
 /* Visually hidden until focused — same technique as the brief's own
-   `.skipLink` (geopolitical-brief.module.css), reading its own tokens here. */
+   `.skipLink` (geopolitical-brief.module.css). */
 .skipLink {
   position: fixed;
   top: 0.75rem;
@@ -50,10 +48,10 @@
   padding: 0.7rem 0.9rem;
   background: rgba(7, 11, 20, 0.96);
   border: 1px solid var(--gold);
-  color: var(--gold-bright);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  color: var(--gold-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   text-decoration: none;
   transform: translateY(-180%);
@@ -64,49 +62,85 @@
   transform: translateY(0);
 }
 
-/* ---- the scan, still running ---- */
+/* ---- the scan, now a whisper ---------------------------------------------
+   On the home route the scan is the product and stays loud. Here it is
+   atmosphere behind a document, and the audit was blunt about the old
+   treatment: at ~0.5 opacity the rows were too faint to read and too present
+   to ignore, and they collided with UI text. They now sit at 0.15 and are
+   masked out of a protected band around the reading column, so they can never
+   run underneath a sentence again. */
 
 .backdrop {
   position: fixed;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  /* faint structure under the rows: the trace grid the canvas scan implies */
   background:
     radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.05), transparent 70%),
     repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.028) 0 1px, transparent 1px 9px);
-  /* the backdrop is fixed to the viewport, so it also paints the ground
-     wherever `.page` stops short of it (the mobile bottom band) — one black,
-     never the body's darker one */
+  /* The backdrop is fixed, so it also paints the ground wherever `.page`
+     stops short of it (the mobile bottom band) — one black, never the body's
+     darker one. This element is deliberately unmasked: masking it would take
+     the ground with it. */
   background-color: var(--ground);
+}
+
+/* The rows live in their own masked layer so the ground above survives. The
+   mask is transparent across the reading column and opaque in the margins,
+   with a soft edge between. At mobile widths the reading column is the whole
+   viewport, so the mask goes fully transparent and the rows simply stop —
+   correct, since a phone has no margin to put atmosphere in. */
+.rowField {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  --fade: 5rem;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0,
+    #000 calc(50% - var(--reading-w) / 2 - var(--fade)),
+    transparent calc(50% - var(--reading-w) / 2 - 1rem),
+    transparent calc(50% + var(--reading-w) / 2 + 1rem),
+    #000 calc(50% + var(--reading-w) / 2 + var(--fade)),
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0,
+    #000 calc(50% - var(--reading-w) / 2 - var(--fade)),
+    transparent calc(50% - var(--reading-w) / 2 - 1rem),
+    transparent calc(50% + var(--reading-w) / 2 + 1rem),
+    #000 calc(50% + var(--reading-w) / 2 + var(--fade)),
+    #000 100%
+  );
 }
 
 .row {
   position: absolute;
   left: 0;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   white-space: nowrap; /* fragments render whole — never wrapped or ellipsised */
   will-change: transform;
-  opacity: calc(0.5 * var(--register, 1));
+  opacity: calc(0.15 * var(--register, 1));
 }
 
 .rowVerified {
-  color: var(--blue-dim);
+  color: var(--data-blue-dim);
   animation: driftRight var(--dur) linear infinite;
   animation-delay: var(--delay);
 }
 
 .rowHostile {
-  color: var(--ember-dim);
+  color: var(--data-ember-dim);
   animation: driftLeft var(--dur) linear infinite;
   animation-delay: var(--delay);
 }
 
 /* the brighter of the seeded pair inside each stream */
-.rowLoud.rowVerified { color: var(--blue); }
-.rowLoud.rowHostile { color: var(--ember); }
+.rowLoud.rowVerified { color: var(--data-blue); }
+.rowLoud.rowHostile { color: var(--data-ember); }
 
 @keyframes driftRight {
   from { transform: translateX(-100%); }
@@ -118,171 +152,124 @@
   to { transform: translateX(-100%); }
 }
 
-/* quiet surface: the scan recedes so long reading can hold the eye.
-   Declared before `.registerMuted` so a page that is both quiet and muted
+/* Declared before `.registerMuted` so a page that is both quiet and muted
    still takes the muted (quieter) values. */
 .surfaceQuiet .row {
-  --register: 0.5;
+  --register: 0.7;
   animation-duration: calc(var(--dur) * 1.8);
 }
 
 .registerMuted .row {
   /* October 7: the scan nearly holds its breath */
-  --register: 0.32;
+  --register: 0.45;
   animation-duration: calc(var(--dur) * 3);
 }
 
-/* Keyboard focus landing anywhere in the page calms the background scan too
-   — not just the quiet/muted opt-ins. `ScanBackdrop` renders as a sibling of
-   `.shell` directly inside `.page` (not nested in `.panel`), so `:focus-within`
-   has to be scoped here to actually see focus land inside the panel's content. */
+/* Keyboard focus anywhere in the page calms the scan further. */
 .page:focus-within .row {
-  --register: 0.4;
+  --register: 0.6;
   animation-duration: calc(var(--dur) * 2);
 }
 
-/* ---- dossier layout ---- */
+/* ---- the grid ------------------------------------------------------------
+   Three columns: margin, reading measure, margin. The measure is centred by
+   the two equal side columns rather than by being offset against a permanent
+   rail, so it stays centred whether or not a page supplies aside content. */
 
 .shell {
   position: relative;
   display: grid;
-  grid-template-columns: 15rem minmax(0, 44rem);
-  gap: clamp(2rem, 4vw, 3.5rem);
-  justify-content: center;
-  padding: clamp(2.5rem, 7vh, 5.5rem) clamp(1.25rem, 4vw, 3rem) 7rem;
+  grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
+  column-gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-content: start;
+  padding: 0 clamp(1.25rem, 4vw, 3rem) 6rem;
 }
 
-.rail {
-  animation: rise 600ms ease both;
-}
+/* ---- identity band -------------------------------------------------------
+   The masthead: who this is, which file, where it lives, and the way out.
+   One row, full width, entirely in the data voice — it identifies, it does
+   not perform. This is what replaced the 9.5rem emblem and the stack of
+   tracked capitals beside it. */
 
-/* ---- lighter shell for pages outside the 8-file orbit (DocPage) ---- */
-
-.docShell {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 44rem);
-  justify-content: center;
-  padding: clamp(2.5rem, 7vh, 5.5rem) clamp(1.25rem, 4vw, 3rem) 7rem;
-}
-
-.docTopNav {
-  margin-bottom: 1.5rem;
-  animation: rise 600ms ease both;
-}
-
-.railInner {
-  position: sticky;
-  top: clamp(2.5rem, 7vh, 5.5rem);
+.identityBand {
+  grid-column: 1 / -1;
   display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-  /* scrim: the scan drifts under the sticky rail, so the rail carries its own
-     ground — strongest behind the text, fading before the panel gutter. The
-     negative margin keeps the type on the original grid line. */
-  padding: 1.1rem 1.2rem 1.2rem;
-  margin: -1.1rem -1.2rem -1.2rem;
-  background: radial-gradient(
-    140% 115% at 22% 0%,
-    rgba(7, 11, 20, 0.92) 0%,
-    rgba(7, 11, 20, 0.68) 55%,
-    rgba(7, 11, 20, 0) 100%
-  );
-}
-
-.emblem {
-  width: 9.5rem;
-  height: 9.5rem;
-  align-self: flex-start;
-  /* white source glyph tinted onto the gold ramp — the same filter chain the
-     brief's rail icon uses — with a faint halo standing in for the bake's glow */
-  filter: brightness(0) saturate(100%) invert(77%) sepia(35%) saturate(758%)
-    hue-rotate(5deg) brightness(88%) drop-shadow(0 0 16px rgba(201, 162, 75, 0.28));
-  opacity: 0.92;
-}
-
-.fileMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.15rem;
+  padding: 1.5rem 0 1.25rem;
+  margin-bottom: clamp(1.75rem, 4vh, 2.75rem);
+  border-bottom: 1px solid var(--gold-line);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
-.fileIndex {
-  color: var(--gold);
+.identityEmblem {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  /* white source glyph tinted onto the gold ramp — same filter chain the
+     brief's rail icon uses, without the halo it needed at 9.5rem */
+  filter: brightness(0) saturate(100%) invert(77%) sepia(35%) saturate(758%)
+    hue-rotate(5deg) brightness(88%);
+  opacity: 0.9;
 }
 
-.fileRoute {
+.wordmark {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.wordmark:hover {
+  color: var(--gold-hi);
+}
+
+.identityMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  color: var(--ink-lo);
+}
+
+.identityRoute {
   color: var(--accent);
 }
 
-/* --ember (#A85A61) is 4.03:1 on --ground — enough for the decorative tick
-   and index marks that also read --accent, but this route path is real
-   small text and needs the 4.5:1 AA floor, so it takes the brighter peak
-   tone specifically on Fake Resistance (accent="ember") instead. */
-.accentEmber .fileRoute {
-  color: var(--ember-peak);
+.identitySep {
+  color: rgba(153, 179, 202, 0.35);
 }
 
-.fileStatus {
-  /* 0.72 clears WCAG AA (4.5:1) at this font-size against --ground; a lower
-     alpha here reads as atmospheric but fails contrast for real content. */
-  color: rgba(159, 179, 200, 0.72);
-}
-
-.metaRule {
-  width: 2.5rem;
-  height: 1px;
-  background: rgba(201, 162, 75, 0.4);
-}
-
-.back {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
+/* Pushes the exit link to the far edge of the band. */
+.identityExit {
+  margin-left: auto;
   color: var(--gold);
   text-decoration: none;
 }
 
-.back:hover {
-  color: var(--gold-bright);
+.identityExit:hover {
+  color: var(--gold-hi);
 }
+
+/* ---- the reading column --------------------------------------------------
+   No card: no border, no translucent panel, no blur. With the scan masked out
+   of this band there is nothing to shield the text from, and the card chrome
+   was reading as a floating box rather than a page. */
 
 .panel {
-  position: relative;
-  padding: clamp(1.8rem, 4vw, 3.25rem);
-  background: rgba(7, 11, 20, 0.72);
-  border: 1px solid rgba(201, 162, 75, 0.22);
-  border-radius: 2px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  animation: rise 600ms ease 120ms both;
-}
-
-/* extra ground behind the title area so a bright corpus row can never be read
-   through the panel behind the H1; children paint over the pseudo-element */
-.panel::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: clamp(8rem, 28vh, 12rem);
-  background: linear-gradient(180deg, rgba(7, 11, 20, 0.85), rgba(7, 11, 20, 0));
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.surfaceQuiet .panel {
-  /* quiet reading surface: the corpus becomes a suggestion, not a texture */
-  background: rgba(7, 11, 20, 0.9);
+  grid-column: 2;
+  min-width: 0;
+  animation: rise 500ms ease both;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -290,72 +277,61 @@
   }
 }
 
-/* ---- dossier header ---- */
+/* ---- headline block ------------------------------------------------------
+   Was ~320px of ceremony before the first sentence; now ~140px. Sentence
+   case, real word shapes, the brightest thing on the page. */
 
 .title {
-  font-family: var(--display);
-  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  line-height: 1.25;
-  color: var(--gold);
+  font-family: var(--face-display);
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  line-height: var(--t-display-lh);
+  color: var(--ink-hi);
+  text-wrap: balance;
 }
 
 .lede {
-  margin-top: 1.1rem;
-  max-width: 38rem;
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: var(--body);
+  margin-top: 0.85rem;
+  max-width: 54ch;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 .ledeRule {
   width: 3.5rem;
   height: 1px;
-  margin-top: 1.75rem;
+  margin-top: 1.5rem;
   background: var(--gold);
 }
 
 /* ---- content blocks ---- */
 
 .block {
-  margin-top: 3rem;
+  margin-top: 2.75rem;
 }
 
 .blockHeading {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
 .blockHeading h2 {
-  font-family: var(--display);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
   color: var(--gold);
-  /* anchored headings land clear of the panel's top padding */
-  scroll-margin-top: 2.5rem;
-}
-
-.blockTick {
-  width: 0.6rem;
-  height: 1px;
-  background: var(--accent);
-  flex: none;
+  scroll-margin-top: 2rem;
 }
 
 /* `:where(.body)` keeps these at element-only specificity — they style bare,
-   hand-authored prose inside a SectionBlock without ever outranking a
-   shared components/content component mounted in the same body (every one
-   of those carries its own class-scoped styling and must always win). */
+   hand-authored prose inside a SectionBlock without ever outranking a shared
+   components/content component mounted in the same body. */
 :where(.body) p {
-  margin: 0 0 1.05rem;
-  line-height: 1.75;
-  font-size: 0.98rem;
+  margin: 0 0 1.15rem;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 :where(.body) p:last-child {
@@ -363,13 +339,15 @@
 }
 
 :where(.body) ul {
-  margin: 0 0 1.05rem;
+  margin: 0 0 1.15rem;
   padding-left: 1.25rem;
 }
 
 :where(.body) li {
-  margin-bottom: 0.5rem;
-  line-height: 1.7;
+  margin-bottom: 0.55rem;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 :where(.body) li::marker {
@@ -377,7 +355,7 @@
 }
 
 :where(.body) strong {
-  color: #c9d6e6;
+  color: var(--ink-hi);
   font-weight: 600;
 }
 
@@ -388,34 +366,34 @@
 }
 
 :where(.body) a:hover {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
-/* ---- file footer: closing rule, adjacent files, the full index ---- */
+/* ---- footer --------------------------------------------------------------
+   The old footer ran five stacked parts and ~345px: prev/next, a kicker plus
+   eight spelled-out destination names, a boxed Ask CTA duplicating the
+   floating launcher, policy links, and a closing line. It is now two rows.
+   The eight-file index survives as bare numerals — the names are already one
+   hover away and were never what the row was for. */
 
 .fileFooter {
   margin-top: 3.5rem;
-}
-
-.footerRule {
-  height: 1px;
-  background: linear-gradient(90deg, rgba(201, 162, 75, 0.55), rgba(201, 162, 75, 0.08));
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gold-line);
 }
 
 .fileNav {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem 1.5rem;
-  margin-top: 1.7rem;
+  gap: 1rem 1.5rem;
 }
 
 .fileNavLink {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  font-family: var(--mono);
-  text-transform: uppercase;
+  gap: 0.3rem;
   text-decoration: none;
+  min-width: 0;
 }
 
 .fileNavNext {
@@ -424,112 +402,75 @@
 }
 
 .fileNavMeta {
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  color: rgba(159, 179, 200, 0.72);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
 }
 
 .fileNavLabel {
-  font-size: 0.8rem;
-  letter-spacing: 0.14em;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: 1.25;
   color: var(--gold);
 }
 
 .fileNavLink:hover .fileNavLabel {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
-.destinations {
-  margin-top: 2.25rem;
-}
-
-.destinationsKicker {
-  font-family: var(--mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
-}
-
-.destinationsList {
+/* Row two: the numeric index and the standing links, on one line. */
+.footerRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.15rem;
-  margin: 0.8rem 0 0;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.75rem;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.indexRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.destination {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.indexNum {
+  display: inline-block;
+  min-width: 1.9rem;
+  padding: 0.15rem 0;
+  text-align: center;
   text-decoration: none;
-  color: rgba(159, 179, 200, 0.72);
-  padding-bottom: 0.15rem;
+  color: var(--ink-lo);
   border-bottom: 1px solid transparent;
 }
 
-.destination:hover {
-  color: var(--gold-bright);
+.indexNum:hover {
+  color: var(--gold-hi);
 }
 
-.destination[aria-current='page'] {
+.indexNum[aria-current='page'] {
   color: var(--gold);
-  border-bottom-color: rgba(201, 162, 75, 0.55);
-}
-
-.destinationIndex {
-  margin-right: 0.4rem;
-  color: var(--accent);
-}
-
-.destination[aria-current='page'] .destinationIndex {
-  color: var(--gold);
-}
-
-.askCtaRow {
-  margin-top: 2.25rem;
-}
-
-.askCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 44px;
-  padding: 0.65rem 1.1rem;
-  background: transparent;
-  border: 1px solid rgba(201, 162, 75, 0.4);
-  border-radius: 2px;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold);
-  cursor: pointer;
-  transition: border-color 180ms ease, color 180ms ease;
-}
-
-.askCta:hover,
-.askCta:focus-visible {
-  border-color: var(--gold-bright);
-  color: var(--gold-bright);
+  border-bottom-color: var(--gold);
 }
 
 .docLinks {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 1.5rem;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin-left: auto;
 }
 
 .docLinks a {
-  color: rgba(159, 179, 200, 0.72);
+  color: var(--ink-lo);
   text-decoration: none;
 }
 
@@ -539,62 +480,62 @@
 }
 
 .docLinks span {
-  color: rgba(159, 179, 200, 0.4);
+  color: rgba(153, 179, 202, 0.35);
 }
 
-.closeLine {
-  margin-top: 2.25rem;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.12em;
+/* Kept for `AskAboutFileCta`, which is no longer rendered by the shell (the
+   floating launcher is the single ask affordance) but still exists as a
+   component another page could mount. */
+.askCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.65rem 1.1rem;
+  background: transparent;
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  border-radius: 2px;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
-}
-
-.closeLine a {
   color: var(--gold);
-  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease;
 }
 
-.closeLine a:hover {
-  color: var(--gold-bright);
+.askCta:hover,
+.askCta:focus-visible {
+  border-color: var(--gold-hi);
+  color: var(--gold-hi);
 }
 
-/* ---- optional right rail (≥1220px), in the brief's evidence-rail voice ---- */
+/* ---- optional aside (≥1220px), in the brief's evidence-rail voice ---- */
 
 .sideRail {
   display: none;
+  grid-column: 3;
 }
 
 .sideRailInner {
   position: sticky;
-  top: clamp(2.5rem, 7vh, 5.5rem);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  line-height: 1.55;
-  color: rgba(159, 179, 200, 0.75);
-  /* same scrim treatment as the left rail, anchored to its own corner */
-  padding: 1.1rem 1.2rem 1.2rem;
-  margin: -1.1rem -1.2rem -1.2rem;
-  background: radial-gradient(
-    140% 115% at 78% 0%,
-    rgba(7, 11, 20, 0.92) 0%,
-    rgba(7, 11, 20, 0.68) 55%,
-    rgba(7, 11, 20, 0) 100%
-  );
+  top: 2rem;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
 }
 
 .sideRailInner :is(h2, h3, h4) {
-  font-family: var(--mono);
-  font-size: 0.58rem;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--gold);
   padding-top: 0.75rem;
   margin-top: 1.1rem;
-  border-top: 1px solid rgba(201, 162, 75, 0.32);
+  border-top: 1px solid var(--gold-line);
 }
 
 .sideRailInner :is(h2, h3, h4):first-child {
@@ -606,16 +547,16 @@
 }
 
 .sideRailInner dt {
-  font-size: 0.53rem;
-  letter-spacing: 0.14em;
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
+  color: var(--ink-lo);
   margin-top: 0.75rem;
 }
 
 .sideRailInner dd {
   margin: 0.3rem 0 0;
-  color: #c0ceda;
+  color: var(--ink);
 }
 
 .sideRailInner p {
@@ -628,77 +569,60 @@
 }
 
 .sideRailInner a:hover {
-  color: var(--gold-bright);
+  color: var(--gold-hi);
 }
 
 @media (min-width: 1220px) {
-  .shellWithAside {
-    grid-template-columns: 15rem minmax(0, 44rem) 13.5rem;
-  }
-
-  .sideRail {
+  .shellWithAside .sideRail {
     display: block;
-    animation: rise 600ms ease 200ms both;
+    animation: rise 500ms ease 150ms both;
   }
 }
 
 .page a:focus-visible,
-.back:focus-visible,
-.askCta:focus-visible,
-.docLinks a:focus-visible {
-  outline: 2px solid var(--gold-bright);
+.askCta:focus-visible {
+  outline: 2px solid var(--gold-hi);
   outline-offset: 3px;
 }
 
-/* ---- narrow: the rail folds into a header band ---- */
+/* ---- narrow ---- */
 
 @media (max-width: 900px) {
   .shell {
+    /* The side columns collapse; the measure takes the full width. */
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
+    padding-bottom: 4.5rem;
   }
 
-  .railInner {
-    position: static;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas: 'emblem meta' 'back back';
-    align-items: center;
-    column-gap: 1.25rem;
-    row-gap: 1rem;
-    /* the header band scrim: shell padding can be as small as 1.25rem, so the
-       negative margin must stay inside it */
-    padding: 1rem;
-    margin: -1rem;
-    background: radial-gradient(
-      150% 130% at 15% 0%,
-      rgba(7, 11, 20, 0.92) 0%,
-      rgba(7, 11, 20, 0.68) 55%,
-      rgba(7, 11, 20, 0) 100%
-    );
+  .panel,
+  .identityBand,
+  .sideRail {
+    grid-column: 1;
   }
 
-  .emblem {
-    grid-area: emblem;
-    width: 4.5rem;
-    height: 4.5rem;
+  .identityBand {
+    padding-top: 1.15rem;
+    margin-bottom: 1.75rem;
+    gap: 0.5rem 0.85rem;
   }
 
-  .fileMeta {
-    grid-area: meta;
-  }
-
-  .metaRule {
+  /* The band wraps here, and a leading separator orphaned at the start of a
+     wrapped line reads as a typo. It only earns its place inline. */
+  .identitySep {
     display: none;
   }
 
-  .back {
-    grid-area: back;
+  .identityExit {
+    /* A right-pushed exit link would strand itself on its own line. */
+    margin-left: 0;
+    flex-basis: 100%;
   }
 }
 
 @media (max-width: 719px) {
   .page {
+    /* Room for the chat launcher's mobile dock (CHAT_DOCK_PX in
+       components/particle-nav/config.ts stacks on the home indicator). */
     height: calc(100dvh - 5.25rem - env(safe-area-inset-bottom, 0px));
   }
 
@@ -716,21 +640,24 @@
     align-items: flex-start;
     text-align: left;
   }
+
+  .docLinks {
+    margin-left: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .row {
     animation: none;
-    /* rows were placed mid-flight by negative delays; pin them spread across
+    /* Rows were placed mid-flight by negative delays; pin them spread across
        the full width. `--rest` is a percentage of the row's available travel
        (viewport minus its own width, % resolving against the row itself), so
-       a long fragment translates less — or negative — and never overflows the
-       right edge. */
+       a long fragment translates less — or negative — and never overflows. */
     transform: translateX(calc((100vw - 100%) * var(--rest, 0) / 100));
   }
 
-  .rail,
-  .panel {
+  .panel,
+  .sideRail {
     animation: none;
   }
 }

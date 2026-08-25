@@ -1,10 +1,12 @@
 /**
- * Lighter shell for pages that live outside the 8-file orbit (`/methodology`,
- * `/corrections`). Reuses `SectionPage`'s visual language — panel, block
- * headings, the scan backdrop — but has no `defaultNodes` entry to look up,
- * so it carries no file rail, no prev/next, no "File NN / 08" chrome. It
- * still ends with the all-8-destinations index for discoverability, without
- * adding these two pages to the radial nav itself (see `.ai/DECISIONS.md`).
+ * Pages that live outside the 8-file orbit (`/methodology`, `/corrections`).
+ *
+ * Same shell as `SectionPage` — identity band, centred measure, short footer —
+ * minus the file numbering, since these two have no `defaultNodes` entry.
+ * They were a visibly third layout variant before Phase 2 (their back-link
+ * floated disconnected above a panel); the three variants are one system now.
+ * They still close with the eight-file index for discoverability, without
+ * joining the radial nav itself (see `.ai/DECISIONS.md`).
  */
 import Link from 'next/link';
 import { defaultNodes } from '@/components/particle-nav/config';
@@ -28,9 +30,18 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
         Skip to content
       </a>
       <ScanBackdrop routeId={routeId} register="muted" />
-      <div className={styles.docShell}>
-        <div className={styles.docTopNav}>
-          <Link href="/" className={styles.back}>
+      <div className={styles.shell}>
+        <div className={styles.identityBand}>
+          <Link href="/" className={styles.wordmark}>
+            Lions of Zion
+          </Link>
+          <span className={styles.identityMeta}>
+            <span className={styles.identitySep} aria-hidden="true">
+              ·
+            </span>
+            <span className={styles.identityRoute}>/{routeId}</span>
+          </span>
+          <Link href="/" className={styles.identityExit}>
             ← Back to the scan
           </Link>
         </div>
@@ -44,27 +55,29 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
           <div className={styles.body}>{children}</div>
 
           <footer className={styles.fileFooter}>
-            <div className={styles.footerRule} aria-hidden="true" />
-            <nav className={styles.destinations} aria-label="All files">
-              <span className={styles.destinationsKicker}>
-                Index · {String(defaultNodes.length).padStart(2, '0')} files
-              </span>
-              <ul className={styles.destinationsList}>
-                {defaultNodes.map((entry, i) => (
-                  <li key={entry.id}>
-                    <Link href={entry.href} className={styles.destination}>
-                      <span className={styles.destinationIndex} aria-hidden="true">
+            <div className={styles.footerRow}>
+              <nav aria-label="All files">
+                <ul className={styles.indexRow}>
+                  {defaultNodes.map((entry, i) => (
+                    <li key={entry.id}>
+                      <Link
+                        href={entry.href}
+                        className={styles.indexNum}
+                        aria-label={entry.label}
+                      >
                         {String(i + 1).padStart(2, '0')}
-                      </span>
-                      {entry.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <p className={styles.closeLine}>
-              <Link href="/">← Back to the scan</Link>
-            </p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              <nav className={styles.docLinks} aria-label="Policy pages">
+                <Link href="/methodology">Methodology</Link>
+                <span aria-hidden="true">·</span>
+                <Link href="/corrections">Corrections</Link>
+              </nav>
+            </div>
           </footer>
         </article>
       </div>

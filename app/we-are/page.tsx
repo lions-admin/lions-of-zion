@@ -28,6 +28,8 @@ const METHOD_STEPS = [
   {
     title: "Human review",
     body: "A second person who did not write the assessment must approve it before anything moves to published. That approval capability cannot be held by an automated identity — the system refuses it structurally, not by policy alone.",
+    /** The one stage nothing automated can pass through — marked structurally, not decoratively. */
+    gate: true,
   },
   {
     title: "Publish & search",
@@ -72,21 +74,33 @@ export default function Page() {
         <p>
           Everything published here moves through the same real pipeline —
           not a description of an intention, but the actual path a claim
-          takes before it reaches this site:
+          takes before it reaches this site. One stage is a gate, not a
+          step: nothing automated can pass it.
         </p>
-        <ol className={styles.methodList}>
-          {METHOD_STEPS.map((step, index) => (
-            <li key={step.title} className={styles.methodStep}>
-              <span className={styles.methodIndex} aria-hidden="true">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3>{step.title}</h3>
-                <p>{step.body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <div
+          className={styles.pipeline}
+          style={{ ["--step-count" as string]: METHOD_STEPS.length }}
+        >
+          <div className={styles.pipelineTrack} aria-hidden="true" />
+          <ol className={styles.pipelineList}>
+            {METHOD_STEPS.map((step) => (
+              <li
+                key={step.title}
+                className={styles.pipelineStage}
+                data-gate={step.gate ? "" : undefined}
+              >
+                <span className={styles.pipelineNode} aria-hidden="true" />
+                <div className={styles.pipelineContent}>
+                  <h3>{step.title}</h3>
+                  {step.gate ? (
+                    <span className={styles.gateLabel}>Gate — human only</span>
+                  ) : null}
+                  <p>{step.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
       </SectionBlock>
 
       <SectionBlock heading="Roles">

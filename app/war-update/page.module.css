@@ -1,0 +1,107 @@
+/*
+ * War Update's composition: a wire-service dispatch feed, not a generic
+ * timeline card list. Each entry reads like a dispatch — a byline/dateline
+ * naming the place actually stated in that entry's sourced text (never
+ * inferred), then the headline, then the report. Palette/type tokens are
+ * inherited from `.page` in sections.module.css — this file only shapes
+ * the composition, not the identity.
+ */
+
+.advisory {
+  font-style: italic;
+}
+
+.advisoryLabel {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--gold, #c9a24b);
+}
+
+.wire {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  animation: wireRise 500ms ease both;
+}
+
+@keyframes wireRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dispatch {
+  padding: 1.35rem 0;
+  border-top: 1px solid rgba(201, 162, 75, 0.18);
+}
+
+.dispatch:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.72);
+}
+
+.datelinePlace {
+  color: var(--gold-bright, #efd79a);
+  font-weight: 600;
+}
+
+.category {
+  padding: 0.12rem 0.5rem;
+  border: 1px solid rgba(87, 167, 217, 0.35);
+  border-radius: 1px;
+  color: var(--blue, #57a7d9);
+  font-size: 0.6rem;
+}
+
+.headline {
+  margin: 0 0 0.6rem;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  color: var(--gold, #c9a24b);
+}
+
+.wireBody {
+  max-width: 40rem;
+  font-size: 0.96rem;
+  line-height: 1.75;
+  color: var(--body, #9fb3c8);
+}
+
+.dispatchSources {
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .dispatch {
+    padding: 1.1rem 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wire {
+    animation: none;
+  }
+}

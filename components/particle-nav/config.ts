@@ -158,13 +158,48 @@ export interface SafeAreaInsets {
   left: number;
 }
 
+/**
+ * What a node draws past its nominal ring.
+ *
+ * `nodeVisualRadius` is the ring, and `SpokeNodes` scales the node unit by
+ * `nodeVisualRadius / NODE_RING_RADIUS` so the ring lands exactly on it. Three
+ * things are then drawn outside it and none of them were being counted:
+ *
+ *   - per-particle radial jitter of 0.016 plus a wobble of 0.004, in node-local
+ *     units against a 0.46 ring — 4.3% of the radius, hence the ratio;
+ *   - a sprite half-size of up to 1.25 CSS px, at up to 2× device pixels;
+ *   - the bloom pass, whose `bloomRadius` is a screen-space mip spread with no
+ *     world extent to read off, so its contribution can only be measured.
+ *
+ * The px term covers the last two together. It is empirical: if a node ever
+ * clips at a phone viewport again, this is the number to re-measure in real
+ * Chrome rather than a reason to shrink the orbit everywhere.
+ */
+export const NODE_HALO_RATIO = 0.043;
+export const NODE_HALO_PX = 12;
+
 export interface OrbitLayout {
   radiusX: number;
   radiusY: number;
-  /** Outer particle-ring radius in world units at the lion plane. */
+  /**
+   * Outer particle-ring radius in world units at the lion plane. This is also
+   * the DOM link's half-box — `styles.module.css` sizes `.link` to the same
+   * `clamp(min(w,h) * 0.056, 44, 68)` — and the connector's occlusion boundary.
+   * Three contracts on one number: widen the halo, not this.
+   */
   nodeVisualRadius: number;
-  /** Edge protection in world units, including the node radius. */
-  safeInset: { x: number; y: number };
+  /** Everything actually drawn: the ring plus jitter, sprite spill and bloom. */
+  nodeHaloRadius: number;
+  /**
+   * World-unit offset of the orbit's centre. A phone reserves more at the
+   * bottom (home indicator) than at the top (notch), and collapsing the two
+   * with `Math.max` used to charge the orbit the larger of them twice. Solving
+   * each edge separately and offsetting the centre raises the bottom node
+   * without pushing the top one down.
+   */
+  centerY: number;
+  /** Edge protection in world units, including the node halo. */
+  safeInset: { x: number; top: number; bottom: number };
   /** Narrow screens scale the central emblem before squeezing the orbit. */
   centerScale: number;
 }
@@ -187,19 +222,29 @@ export function computeOrbitLayout(
   const worldPerPx = viewHeight / safeHeight;
 
   const nodeRadiusPx = clamp(minDimension * 0.056, 44, 68);
+  const haloRadiusPx = nodeRadiusPx * (1 + NODE_HALO_RATIO) + NODE_HALO_PX;
   const edgeGapPx = clamp(minDimension * 0.045, 24, 64);
-  const insetX = (nodeRadiusPx + edgeGapPx + Math.max(safeArea.left, safeArea.right)) * worldPerPx;
-  const insetY = (nodeRadiusPx + edgeGapPx + Math.max(safeArea.top, safeArea.bottom)) * worldPerPx;
+  const insetX =
+    (haloRadiusPx + edgeGapPx + Math.max(safeArea.left, safeArea.right)) * worldPerPx;
+  const insetTop = (haloRadiusPx + edgeGapPx + safeArea.top) * worldPerPx;
+  const insetBottom = (haloRadiusPx + edgeGapPx + safeArea.bottom) * worldPerPx;
 
   const radiusX = Math.max(0.9, Math.min(maxRadius, viewWidth * 0.5 - insetX));
-  const radiusY = Math.max(1.25, Math.min(maxRadius, viewHeight * 0.5 - insetY));
+  const radiusY = Math.max(
+    1.25,
+    Math.min(maxRadius, (viewHeight - insetTop - insetBottom) / 2),
+  );
   const narrowT = clamp((width - 320) / 160, 0, 1);
 
   return {
     radiusX,
     radiusY,
     nodeVisualRadius: nodeRadiusPx * worldPerPx,
-    safeInset: { x: insetX, y: insetY },
+    nodeHaloRadius: haloRadiusPx * worldPerPx,
+    /* The band left over runs from `-viewHeight/2 + insetBottom` to
+       `+viewHeight/2 - insetTop`; its midpoint is half their difference. */
+    centerY: (insetBottom - insetTop) / 2,
+    safeInset: { x: insetX, top: insetTop, bottom: insetBottom },
     centerScale: width < 480 ? 0.78 + narrowT * 0.22 : 1,
   };
 }
@@ -207,10 +252,16 @@ export function computeOrbitLayout(
 export function nodePosition(
   index: number,
   count: number,
-  radius: number | Pick<OrbitLayout, 'radiusX' | 'radiusY'>,
+  radius:
+    | number
+    | (Pick<OrbitLayout, 'radiusX' | 'radiusY'> & Partial<Pick<OrbitLayout, 'centerY'>>),
 ): [number, number, number] {
   const a = nodeAngle(index, count);
-  const radiusX = typeof radius === 'number' ? radius : radius.radiusX;
-  const radiusY = typeof radius === 'number' ? radius : radius.radiusY;
-  return [Math.cos(a) * radiusX, Math.sin(a) * radiusY, NODE_Z];
+  const circular = typeof radius === 'number';
+  const radiusX = circular ? radius : radius.radiusX;
+  const radiusY = circular ? radius : radius.radiusY;
+  /* Passing a bare number still means a circle centred on the lion, which is
+     what the dev harness and the icon bakes want. */
+  const centerY = circular ? 0 : (radius.centerY ?? 0);
+  return [Math.cos(a) * radiusX, Math.sin(a) * radiusY + centerY, NODE_Z];
 }

@@ -1,7 +1,7 @@
 /**
  * Israel's Story — seam for real, cited historical chapters.
  *
- * This is a deliberately small working edition: four chapters so far, each
+ * This is a deliberately small working edition: seven chapters so far, each
  * with dates and sources a reader can check, added one at a time rather
  * than reaching across millennia in one pass. An ancient-continuity chapter
  * needs sourcing no session so far has had time to do carefully — see
@@ -58,6 +58,27 @@ const WIKI_OSLO_ACCORDS: Source = {
   label: 'Oslo Accords',
   kind: 'Wikipedia',
   url: 'https://en.wikipedia.org/wiki/Oslo_Accords',
+};
+
+const WIKI_YOM_KIPPUR_WAR: Source = {
+  id: 'wiki-yom-kippur-war',
+  label: 'Yom Kippur War',
+  kind: 'Wikipedia',
+  url: 'https://en.wikipedia.org/wiki/Yom_Kippur_War',
+};
+
+const WIKI_JORDAN_TREATY: Source = {
+  id: 'wiki-jordan-treaty',
+  label: 'Israel–Jordan peace treaty',
+  kind: 'Wikipedia',
+  url: 'https://en.wikipedia.org/wiki/Israel%E2%80%93Jordan_peace_treaty',
+};
+
+const WIKI_ABRAHAM_ACCORDS: Source = {
+  id: 'wiki-abraham-accords',
+  label: 'Abraham Accords',
+  kind: 'Wikipedia',
+  url: 'https://en.wikipedia.org/wiki/Abraham_Accords',
 };
 
 const CHAPTERS: StoryChapter[] = [
@@ -136,10 +157,43 @@ const CHAPTERS: StoryChapter[] = [
     sources: [WIKI_SIX_DAY_WAR, MFA_TIRAN_BLOCKADE],
   },
   {
+    id: 'yom-kippur-war',
+    title: 'The Yom Kippur War, 1973',
+    intro:
+      'Six years after 1967, Egypt and Syria attacked on the holiest day of the Jewish calendar. The war that followed reshaped how the region thought about the peace that came after it.',
+    timeline: [
+      {
+        id: 'operation-badr',
+        datetime: '1973-10-06',
+        dateLabel: 'Oct 6, 1973',
+        title: 'Egypt and Syria launch a coordinated surprise attack',
+        body: 'At 2:00pm on Yom Kippur, Egyptian forces cross the Suez Canal while Syrian forces attack the Golan Heights, opening the war. Israeli intelligence had read the Egyptian mobilization as a routine exercise.',
+        sources: [WIKI_YOM_KIPPUR_WAR],
+      },
+      {
+        id: 'canal-crossing',
+        datetime: '1973-10-15',
+        dateLabel: 'Oct 15, 1973',
+        title: 'Israeli forces cross the Suez Canal',
+        body: 'A force under Ariel Sharon breaches Egyptian lines and crosses to the canal’s western bank, the turning point of the war’s southern front.',
+        sources: [WIKI_YOM_KIPPUR_WAR],
+      },
+      {
+        id: 'ceasefire-1973',
+        datetime: '1973-10-25',
+        dateLabel: 'Oct 25, 1973',
+        title: 'A ceasefire ends the fighting',
+        body: 'A first ceasefire on October 22 collapses within hours; a second, on October 25, holds. Both Egypt and Syria describe the outcome as a moral victory despite the battlefield result — a reading that shapes the peace process the following chapter covers.',
+        sources: [WIKI_YOM_KIPPUR_WAR],
+      },
+    ],
+    sources: [WIKI_YOM_KIPPUR_WAR],
+  },
+  {
     id: 'peace-when-it-came',
     title: 'Peace, when it came',
     intro:
-      'The first Arab state to make peace with Israel did so three decades after the war that began at independence. Jordan followed in 1994, and the Abraham Accords brought four more countries to normalized relations in 2020 — both real, later chapters this first edition does not yet detail; that is a known gap, not an omission to gloss over.',
+      'The first Arab state to make peace with Israel did so six years after the war that shook both sides into negotiating. Jordan followed in 1994, and the Abraham Accords brought four more countries to normalized relations starting in 2020 — both covered as their own chapters below.',
     timeline: [
       {
         id: 'egypt-treaty',
@@ -176,6 +230,48 @@ const CHAPTERS: StoryChapter[] = [
       },
     ],
     sources: [WIKI_OSLO_ACCORDS],
+  },
+  {
+    id: 'jordan-treaty',
+    title: 'Peace with Jordan, 1994',
+    intro:
+      'The second Arab state to make peace with Israel, and the first to do so without a war between them driving it — the treaty settled a border and a water dispute as much as it ended a formal state of war.',
+    timeline: [
+      {
+        id: 'jordan-treaty-signed',
+        datetime: '1994-10-26',
+        dateLabel: 'Oct 26, 1994',
+        title: 'Israel and Jordan sign a peace treaty at the Arabah border crossing',
+        body: 'Signed by Israeli Prime Minister Yitzhak Rabin and Jordanian Prime Minister Abdelsalam al-Majali, witnessed by U.S. President Bill Clinton. It ends the state of war dating to 1948, establishes full diplomatic relations and open borders, settles the boundary along the Jordan and Yarmouk rivers and the Dead Sea, sets water-sharing terms for the Yarmouk, and recognizes Jordan’s role over Muslim holy sites in Jerusalem.',
+        sources: [WIKI_JORDAN_TREATY],
+      },
+    ],
+    sources: [WIKI_JORDAN_TREATY],
+  },
+  {
+    id: 'abraham-accords',
+    title: 'The Abraham Accords, 2020',
+    intro:
+      'A different kind of peace from the three before it — no war between the signing countries preceded it. The accords normalized relations between Israel and Gulf and African states that had never fought it, brokered by the United States.',
+    timeline: [
+      {
+        id: 'accords-signing',
+        datetime: '2020-09-15',
+        dateLabel: 'Sept 15, 2020',
+        title: 'Israel, the UAE and Bahrain sign the Abraham Accords',
+        body: 'Signed at the White House, brokered by the United States under President Donald Trump. The UAE and Bahrain become the first Arab states to formally recognize Israel since Jordan in 1994, establishing diplomatic, economic and security ties.',
+        sources: [WIKI_ABRAHAM_ACCORDS],
+      },
+      {
+        id: 'morocco-sudan-join',
+        datetime: '2020-12-10',
+        dateLabel: 'Dec 10, 2020 – Jan 6, 2021',
+        title: 'Morocco and Sudan join the accords',
+        body: 'Morocco’s normalization is announced December 10, 2020; Sudan signs its own Abraham Accords Declaration in Khartoum on January 6, 2021, bringing the total to four countries that year.',
+        sources: [WIKI_ABRAHAM_ACCORDS],
+      },
+    ],
+    sources: [WIKI_ABRAHAM_ACCORDS],
   },
 ];
 

@@ -25,8 +25,47 @@ function useMobileChatSculpture() {
   return useSyncExternalStore(subscribeToMobileChat, getMobileChatSnapshot, () => true);
 }
 
+/* The intro owns the screen while it plays, and this launcher is mounted in the
+   root layout — a sibling of the page, with no provider between them. The nav
+   already publishes its state as DOM attributes (`CanvasMount`), which the
+   stylesheet below reads through `body:has(…)`, so the signal is read the same
+   way here rather than by introducing the repo's first context.
+
+   Reading it in JavaScript as well as in CSS is what stops the second WebGPU
+   renderer inside `ChatParticleCanvas` from running behind a hidden element for
+   the whole intro, and what lets the attention cue start its animation at the
+   beginning rather than mid-cycle. */
+const INTRO_SELECTOR = '[data-intro-pending],[data-intro-active],[data-handoff-blocked]';
+
+function subscribeToIntro(callback: () => void) {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.body, {
+    subtree: true,
+    // The nav mounts after hydration, so the attribute usually arrives on a new
+    // node rather than as a change to an existing one.
+    childList: true,
+    attributes: true,
+    attributeFilter: ['data-intro-pending', 'data-intro-active', 'data-handoff-blocked'],
+  });
+  return () => observer.disconnect();
+}
+
+function getIntroSnapshot() {
+  return document.querySelector(INTRO_SELECTOR) !== null;
+}
+
+function useIntroSuppressed(assumeIntro: boolean) {
+  /* The server cannot know whether the intro will run — that needs a GPU probe
+     and a media query. It does know which route asks for one, and the same
+     route emits `data-intro-pending` in its first HTML, so the two agree at
+     hydration and the launcher never flashes in before being hidden. */
+  const getServerSnapshot = useCallback(() => assumeIntro, [assumeIntro]);
+  return useSyncExternalStore(subscribeToIntro, getIntroSnapshot, getServerSnapshot);
+}
+
 export function ParticleChatLauncher() {
   const pathname = usePathname();
+  const introSuppressed = useIntroSuppressed(pathname === '/');
   const mobileChatSculpture = useMobileChatSculpture();
   const activeRef = useRef(false);
   const activationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,6 +109,13 @@ export function ParticleChatLauncher() {
       if (main) main.inert = wasInert;
     };
   }, [chatOpen, restoreLauncherFocus]);
+
+  /* Not hidden — absent. A hidden launcher keeps its particle canvas rendering
+     behind the intro's own 45k–180k renderer, keeps a button in the tab order
+     the intro has no answer for, and lets the attention cue's 7.2s loop run out
+     of phase so it can reappear mid-pulse. Unmounting settles all three, and
+     the CSS rule stays as the paint-time belt for the handoff window. */
+  if (introSuppressed) return null;
 
   const activate = () => {
     setActivated(true);

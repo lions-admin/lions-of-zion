@@ -139,6 +139,14 @@ export function NavClient({
     intro && hydrated && !reducedMotion && !introDone && tier?.backend !== 'none',
   );
 
+  // `introRunning` cannot be true before hydration, so anything reading it from
+  // outside the canvas — the chat launcher lives in the root layout, a sibling
+  // of this tree — would paint itself once and then be told to disappear.
+  // `introPending` is the same claim made early: the server emits it whenever
+  // this mount is asked for an intro, and hydration either confirms it or drops
+  // it in the same commit that rules the intro out (reduced motion, no GPU).
+  const introPending = Boolean(intro && !introDone && (!hydrated || introRunning));
+
   useEffect(() => {
     if (!introRunning) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -283,6 +291,7 @@ export function NavClient({
       data-canvas={hasLiveBackend ? '' : undefined}
       data-backend={tier?.backend}
       data-intro-active={introRunning ? '' : undefined}
+      data-intro-pending={introPending ? '' : undefined}
       data-handoff-blocked={handoffBlocked ? '' : undefined}
       onPointerMove={onPointerMove}
       style={{ ['--fade-ms' as string]: `${CANVAS_FADE_MS}ms` }}

@@ -4,7 +4,10 @@
    a slow, evenly-spaced record. Overrides reach the shared
    FigureRow/Timeline components through their real DOM structure (dl/dt/dd,
    ol/li) rather than their CSS-module class names, which are hashed and
-   not safe to target directly from a sibling module. */
+   not safe to target directly from a sibling module.
+
+   Type and colour come from the V2 tokens in app/globals.css
+   (`.ai/DESIGN-V2.md`). */
 
 .inscription {
   margin: 2.25rem 0 2.5rem;
@@ -28,31 +31,34 @@
 }
 
 .inscription > dl > div + div {
-  border-left: 1px solid rgba(201, 162, 75, 0.18);
+  border-left: 1px solid var(--gold-line);
 }
 
 .inscription > dl > div > dt {
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-family: var(--face-display);
   /* Sized to always clear "1,200+" (the widest figure) inside a third of
-     the panel without wrapping — see the fifth-round real-Chrome review
+     the measure without wrapping — see the fifth-round real-Chrome review
      that caught it breaking as "1,20" / "0+" at the old 4.25rem max. */
   font-size: clamp(1.9rem, 4vw, 2.6rem);
   font-weight: 500;
-  letter-spacing: 0.02em;
   line-height: 1;
   white-space: nowrap;
-  color: #e3c978;
+  color: var(--gold-hi);
 }
 
+/* These read as sentences ("Killed in Israel that day, mostly civilians"),
+   not as two-word labels, so they are sentence case at caption size rather
+   than tracked micro-capitals. On this page above all others, the reader
+   should not have to work to take the number's meaning. */
 .inscription > dl > div > dd {
   max-width: none;
   margin: 0.9rem auto 0;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  line-height: 1.6;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.68);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-lo);
 }
 
 @media (max-width: 640px) {
@@ -64,7 +70,7 @@
   .inscription > dl > div + div {
     border-left: none;
     padding-top: 2rem;
-    border-top: 1px solid rgba(201, 162, 75, 0.18);
+    border-top: 1px solid var(--gold-line);
   }
 }
 

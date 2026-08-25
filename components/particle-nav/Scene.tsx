@@ -140,7 +140,15 @@ function SceneContent(props: SceneProps) {
       if (controls?.skipRequested) {
         controls.skipRequested = false;
         controls.paused = false;
-        timelineTimeRef.current = getRollingOutroStart(timelineLayout);
+        /* Never rewind. Skip seeks *forward* to the outro; assigning it
+           unconditionally meant a second tap during the 2.8s outro sent the
+           clock back to the outro's start, so an impatient tapper could hold
+           the handoff open indefinitely — and was, by construction, still
+           tapping at the instant the navigation appeared underneath. */
+        timelineTimeRef.current = Math.max(
+          timelineTimeRef.current,
+          getRollingOutroStart(timelineLayout),
+        );
       }
       if (controls?.nextCueRequested) {
         controls.nextCueRequested = false;

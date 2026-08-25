@@ -60,6 +60,15 @@
   opacity: 1;
 }
 
+/* Pressed. The outro runs for 2.8s after this, and a control that looks
+   untouched for 2.8s gets tapped again — which is how a second tap ends up
+   landing on the navigation at the moment it arrives. */
+.root[data-live] .skipIntro[data-skipping] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
 /* On a phone the control is rule + gap + label + chevron, around 205px, which
    is two thirds of a 320px frame sitting in the corner the brand cloud reaches
    into. Tighten the spacing and the rule rather than the type: the label is the

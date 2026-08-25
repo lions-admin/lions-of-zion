@@ -5,10 +5,11 @@ lives in `DECISIONS.md`. The long backend phase narrative that used to live
 here is in this file's git history and in
 `~/.claude/plans/splendid-discovering-dawn.md`.
 
-_Last updated: 2026-08-25 (end of session — a fifth same-day round: all seven
-dossier pages got a distinct, subject-grounded composition instead of
-sharing one generic template, via the `frontend-design` skill and seven
-parallel forked agents merged back into `main`)_
+_Last updated: 2026-08-25 (end of session — a sixth same-day round cleared
+most of the remaining container-executable TODOS backlog: War Update
+filters/permalinks, Fake Resistance archived links + ClaimReview SEO,
+Israel's Story up to seven chapters, Geopolitical Brief stale/empty states,
+SEO across all nine routes, and this repo's first-ever CI workflow)_
 
 ## Where the work is
 
@@ -89,6 +90,31 @@ seven — differentiation lives only in each page's own `.body`, same
 sitewide Cinzel/Geist Mono/gold-blue-ember system throughout. Full
 reasoning and the exact device per page in `.ai/DECISIONS.md`'s 2026-08-25
 entry on this round.
+
+**Sixth same-day round**: dispatched six parallel forks on disjoint file
+sets, clearing most of the container-executable TODOS backlog (Mac-only
+visual verification and backend-credentialed items are still out). War
+Update got real category filters, per-entry permalinks, a "Latest" marker
+(an honest substitute for a fake "since your last visit" diff — this site
+tracks no real visits), and share buttons. Fake Resistance got real,
+individually-verified Wayback Machine archive links for its three sources
+and a claim-propagation timeline. Israel's Story grew three more real,
+sourced chapters (1973 Yom Kippur War, the 1994 Jordan treaty as its own
+chapter, the 2020 Abraham Accords) — seven total now. All nine routes got a
+canonical URL and the schema.org-correct JSON-LD type per page (`Article`,
+`ClaimReview` for Fake Resistance, `Person` for Our Heroes, `Organization`
+for We Are, `WebPage` for the policy pages — not a blanket `Article`, and
+not "Report," which isn't real schema.org). Support Us got a
+`ShareVerifiedButton`. This repo's first-ever CI workflow
+(`.github/workflows/ci.yml`) now runs the full gate plus a headless-Chromium
+route smoke test (`scripts/ci-smoke.mjs`, Playwright's own bundled
+Chromium — not the macOS-only Chrome path the workstation verify scripts
+hardcode) on every push/PR to `main`; `.ai/ROLLBACK.md` documents the real
+Vercel rollback procedure. One task (Geopolitical Brief's loading/empty/
+stale/error states) failed identically across three separate fork attempts
+(two with zero real changes, one with zero tool calls) and was done
+directly instead — see `.ai/DECISIONS.md` for the full account and the
+sharpened lesson: stop retrying via fork after two failures, not three.
 
 - a crowned lion assembled from tiered 45k/90k/180k particle buffers;
 - eight radial routes whose nodes, connectors and DOM labels share one
@@ -207,43 +233,59 @@ that wrapper).
   short mid-sentence, see `.ai/DECISIONS.md`). Dev-server smoke checks on
   all seven redesigned routes confirmed each page's signature device
   renders (`SHARM EL-SHEIKH`, `Exhibit`, `In recognition`, `Chapter`,
-  `Gate — human only`, `Module · Report`) with no error markers. **Not**
-  independently browser-tested: how these seven compositions actually look
-  and feel in real Chrome — this is the round most worth a real visual
-  look before calling it done, since the whole point was visual
-  differentiation and nothing here has been seen rendered outside curl'd
-  HTML.
+  `Gate — human only`, `Module · Report`) with no error markers.
+- **Correction, same day**: every "Mac-gated, can't verify in container"
+  claim above and in earlier `TODOS.md` rounds was wrong. This session runs
+  on the real workstation (`darwin`, Chrome installed at the path
+  `scripts/final-verify.mjs` already hardcodes, `playwright-core` a real
+  dependency) — the user caught this mid-session. A real-Chrome pass over
+  the seven fifth-round compositions found one real bug (October 7's
+  "1,200+" figure wrapping onto two lines at the old 4.25rem clamp max) and
+  it's fixed (`50aeb48`). The rest of the seven read as intended. **Actually
+  Mac-gated** (not a container limitation, a tooling-scope one): the asset
+  *bake* pipeline (`bake:nav-icons`, SDF re-bakes) and anything needing a
+  real screen reader (VoiceOver) rather than just a real browser.
+- Sixth-round gate: typecheck, lint, 323 tests, build — green after merging
+  five successful forks (War Update, Fake Resistance, Israel's Story, the
+  six-page SEO pass, CI/rollback) plus the Brief states work done directly
+  after three identical fork failures. `node scripts/ci-smoke.mjs` — the
+  round's own new tool — confirmed all 11 real routes render with zero
+  console errors, the cleanest verification signal this session has had.
 
 ## Next (cold-start order)
 
-1. **TODOS W4 is complete for all eight pages**, and so is the P1 item
-   asking for a distinct composition per page family — nothing on the site
-   still shares one generic body template, and the Brief is on the shared
-   content library too. What's left is explicitly scoped-out follow-up: a
-   family/witness consent-and-removal workflow (would let Our Heroes grow
-   past its current three already-public figures, and let October 7 build
-   real testimony/remembrance content instead of linking out); Israel's
-   Story's remaining chapters (ancient period, 1973, Jordan 1994, Abraham
-   Accords — each needs its own fetched sources, one at a time, same as the
-   four chapters that exist); an active-conflict `SensitiveContent` gate
-   for October 7 if more graphic material is added later (none was needed
-   for what's there now).
+1. **TODOS W4, the P1 unique-composition item, and most of the P3/P6/P7
+   backlog are done.** Israel's Story now has seven chapters (only the
+   ancient/biblical period is a real remaining gap, deliberately — see
+   `.ai/DECISIONS.md`). What's left is explicitly scoped-out follow-up, not
+   forgotten work: a family/witness consent-and-removal workflow (would let
+   Our Heroes grow past its current three already-public figures, and let
+   October 7 build real testimony/remembrance content instead of linking
+   out); an active-conflict `SensitiveContent` gate for October 7 if more
+   graphic material is added later; a shareable "evidence pack" and a
+   documented account-network view for Fake Resistance (both need real data
+   this session doesn't have); unique Open Graph images per content type
+   (one shared crest image covers all routes today).
 2. Confirm the real `VOLUNTEER_INBOX` address in
    `components/support/VolunteerInterestForm.tsx` before this reaches
    production — `volunteers@lionsofzion.io` is a placeholder.
-3. Two W1/W6 items are genuinely still open (not code, decisions):
-   confirming `lib/site-config.ts`'s `SITE_URL` is actually the canonical
-   production domain, and whether a sitewide footer (identity, Contact, a
-   global chat entry) is wanted — if so it must be conditional on not
-   being the home route, see `DECISIONS.md`.
-4. The accessibility pass this round fixed what's fixable without a live
-   browser; a real screen-reader/VoiceOver pass and the real-Chrome
-   contrast/focus verification are still open, same workstation-only
-   constraint as the visual capture below.
-5. Workstation: real-Chrome capture pass over everything visual, including
-   all four rounds shipped this day.
+3. Two decisions, not code, still open: confirming `lib/site-config.ts`'s
+   `SITE_URL` is actually the canonical production domain, and whether a
+   sitewide footer (identity, Contact, a global chat entry) is wanted — if
+   so it must be conditional on not being the home route, see
+   `DECISIONS.md`.
+4. Hebrew/RTL (TODOS P6) hasn't been started — real scope, deserves its own
+   round rather than being folded into a backlog batch.
+5. Workstation, now confirmed actually reachable this session (see the
+   Verification correction above): a fuller real-Chrome pass over
+   everything shipped today beyond the one spot-check already done — plus
+   VoiceOver specifically (still genuinely out of reach — playwright drives
+   a real browser, not the OS screen reader) and the icon SDF re-bake
+   (`bake:nav-icons`, a real asset-pipeline tool, not just a browser check).
 6. Backend picks unchanged: provisioning (pooled `-pooler` `DATABASE_URL`),
-   real auth, brief-generation workflow.
+   real auth, brief-generation workflow, wiring `lib/content/*` to
+   `GET /api/v1/published-items` for real (blocked on designing the filter
+   contract that maps a published item to its target page).
 
 ## Blocked
 

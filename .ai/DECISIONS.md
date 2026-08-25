@@ -10,6 +10,54 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — JSON-LD uses the correct real schema.org type per page, not a generic `Article` everywhere
+
+TODOS.md's original SEO note said "JSON-LD matching Article, Report, Person
+and Organization" — "Report" is not a real schema.org type, and using
+generic `Article` everywhere else would have been technically valid but
+semantically wrong for several pages. What actually shipped: `Article` for
+War Update, October 7, the Geopolitical Brief and Israel's Story (genuine
+editorial content); **`ClaimReview`** for Fake Resistance — the real,
+purpose-built schema.org type for fact-check content, with `reviewRating`
+mapping this site's 9-value `AssessmentValue` onto the schema's 1–5 scale
+(documented inline in `app/fake-resistance/page.tsx`, used only for the
+JSON-LD, never for on-page display); `Person` for each Our Heroes profile;
+`Organization` for We Are, since that page **is** the site's own about-page
+subject, not an article describing something else; `WebPage` for Support
+Us/Methodology/Corrections, since those are policy/action pages, not
+articles. Do not collapse these back to a uniform `Article` for
+consistency — the inconsistency is the correct real modeling.
+
+## 2026-08-25 — "What changed since last update" became a "Latest" marker, not a fake visit-diff
+
+War Update's TODOS item asked for a "what changed since last update" state.
+This site has no real per-visitor tracking, so a genuine "since you last
+looked" diff isn't possible without inventing one — which would violate the
+same "no false live state" principle already applied elsewhere (see the
+`Reference edition` label decision). The honest substitute that ships: a
+"Latest" badge on the single most recent entry by date, computed from real
+data every render, no fabricated session state. If real visit-tracking is
+ever added for a legitimate reason, this is the item to revisit — not
+before.
+
+## 2026-08-25 — A third silent fork failure on the same task; done directly instead of retrying again
+
+The Geopolitical Brief loading/empty/stale/error-states task failed three
+times running as a `fork`: first with a plausible 12-tool-call report and
+zero real changes, second with literally zero tool calls and a report that
+described the *parent's* own status back as if it were the agent's, third
+identical to the second. The first two coincided with five other forks
+running concurrently and were plausibly a concurrency limit (the pattern
+matches an earlier round's single such failure); the third ran alone, after
+the other five had already finished and been merged, and still failed the
+same way. That rules out simple contention as the sole cause — something
+about this specific task/prompt combination, not just load, was triggering
+the failure. Rather than retry a fourth time, the work was done directly in
+the main thread instead (see the sibling entry on what was actually built).
+**Lesson, sharpened from the earlier one**: after two failed fork attempts
+at the same task, stop retrying via fork and just do the work directly —
+a third identical failure costs more than doing it yourself would have.
+
 ## 2026-08-25 — Each dossier page's composition is now genuinely different, deliberately, not left to seven independent agents' taste
 
 Every `SectionPage`-based route (War Update, Fake Resistance, October 7,

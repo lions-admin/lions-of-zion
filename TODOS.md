@@ -181,6 +181,54 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 בדיקות, ‏build; בדיקת smoke ב־dev server אימתה תוכן אמיתי וללא שגיאות
 בכל שבעת העמודים.
 
+### עדכון ביצוע — 25 באוגוסט 2026: גל שישי — יתרת ה־backlog (P3/P6/P7)
+
+באותו יום, סשן שישי: שישה מסלולים מקבילים על קבצים לא-חופפים, מתוך רשימת
+המשימות ש"אני יכול לבצע בפועל" (לא Mac, לא backend, לא הסכמת משפחות)
+שסוכמה עם המשתמש קודם לכן:
+
+- **War Update**: פילטרים אמיתיים (front/home front/hostages/humanitarian/
+  diplomacy) דרך רכיב `WireFeed.tsx` חדש, permalink + כפתור שיתוף לכל
+  אירוע, תג "Latest" על האירוע העדכני ביותר — **לא** מנגנון "מה השתנה מאז
+  הביקור האחרון" מזויף (האתר לא עוקב אחר ביקורים אמיתיים), ו־Article
+  JSON-LD.
+- **Fake Resistance**: `archiveUrl` אמיתי לשלושת המקורות — כל אחד אומת
+  ידנית מול Wayback Machine's availability API לפני שנוסף, לא ניחוש.
+  סעיף "Claim propagation" לפי התאריכים האמיתיים. JSON-LD מסוג
+  **`ClaimReview`** (לא `Article` גנרי) — הסוג האמיתי של schema.org
+  לתוכן fact-checking, עם מיפוי מפורש בין 9 ערכי `AssessmentValue` לסולם
+  1–5 של `reviewRating`.
+- **Israel's Story**: שלושה פרקים נוספים — מלחמת יום כיפור 1973, הסכם
+  השלום עם ירדן 1994 (כפרק נפרד, לא מוזג לתוך "Peace, when it came"),
+  הסכמי אברהם 2020 (כולל מרוקו וסודן). שבעה פרקים בסך הכול.
+- **Geopolitical Brief**: שלוש נסיונות סוכן נכשלו בשקט על המשימה הזו
+  (שניים עם אפס שינויים בפועל, אחד עם אפס קריאות tool) — ככל הנראה
+  מגבלת concurrency כש־5 forks אחרים רצו במקביל, אך גם אחרי שהתפנו
+  סלוטים נכשל שוב; בוצע ישירות בלי fork. הודעת "stale" כשה־`publishedAt`
+  ישן מ־14 יום; מצבי "empty" כנים ל־Developments ו־Sources (לא שקט); רכיב
+  `BriefError.tsx` חדש **שלא מחובר** לשום נתיב כשל אמיתי — אין עדיין
+  fetch אסינכרוני אמיתי לברייף, אז אין נתיב כשל לדמות; `loading.tsx` לא
+  נוסף מאותה סיבה. Article JSON-LD + canonical.
+- **SEO לשישה עמודים נותרים** (Our Heroes, October 7, We Are, Support Us,
+  Methodology, Corrections): canonical URL + JSON-LD בסוג schema.org
+  הנכון לכל עמוד — `Article`+`Person` graph ל־Our Heroes, `Article`
+  ל־October 7, **`Organization`** ל־We Are (זה עמוד ה"about" של האתר עצמו,
+  לא כתבה), **`WebPage`** ל־Support Us/Methodology/Corrections (עמודי
+  מדיניות, לא כתבות) — **לא** "Report" הכללי מהתיעוד הישן, כי זה לא סוג
+  schema.org אמיתי. Support Us קיבל גם `ShareVerifiedButton` חדש
+  (Web Share API + fallback העתקה) שמפנה לברייף — אין לו verdict משלו
+  לשתף.
+- **CI ו־rollback**: `.github/workflows/ci.yml` הראשון אי־פעם בריפו הזה —
+  gate (typecheck/lint/test/build) + smoke test נתיבים דרך Chromium
+  headless המובנה של Playwright (`scripts/ci-smoke.mjs`), **לא** נתיב
+  ה־Chrome הקבוע ל־macOS ששאר סקריפטי האימות משתמשים בו — זה לא היה עובד
+  ב־Linux runner. `.ai/ROLLBACK.md` מתעד את נוהל ה־rollback האמיתי
+  ב־Vercel לפריסה הידנית של הפרויקט הזה. אין secrets, אין שלב deploy.
+
+השער המלא ירוק אחרי מיזוג כל שישה: typecheck, ‏lint, ‏323 בדיקות, ‏build;
+`node scripts/ci-smoke.mjs` (הכלי החדש עצמו) אישר 11/11 נתיבים תקינים
+בלי שגיאות קונסול.
+
 ### ממצאי העל
 
 - מתוך שמונת העמודים, רק Geopolitical Brief מכיל תוכן אמיתי — מתוארך, ממוספר,
@@ -620,29 +668,47 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 
 ### 1. War Update
 
-- [ ] להחליף את טקסט ההסבר ב־timeline של עדכונים אמיתיים.
-- [ ] להציג זמן, אזור, קטגוריה וסטטוס אימות בכל עדכון.
-- [ ] להוסיף פילטרים: front, home front, hostages, humanitarian, diplomacy.
-- [ ] להפריד בין אירוע, מקור, assessment והשלכות.
-- [ ] להוסיף מצב “What changed since last update”.
-- [ ] להציג corrections בתוך הפריט ולא למחוק גרסאות קודמות.
-- [ ] ליצור permalink לכל עדכון.
+- [x] להחליף את טקסט ההסבר ב־timeline של עדכונים אמיתיים — בוצע בסבב
+  התוכן המוקדם; שבעה אירועים אמיתיים ב־`lib/content/war-update.ts`.
+- [x] להציג זמן, אזור, קטגוריה וסטטוס אימות בכל עדכון — `dateLabel`,
+  `category`, `assessment` (`VerificationBadge`) לכל אירוע; מיקום נגזר
+  מהטקסט המקורי דרך ה־dateline (ראו הבא), לא שדה נפרד.
+- [x] להוסיף פילטרים: front, home front, hostages, humanitarian,
+  diplomacy — `WireFeed.tsx`, על ערכי ה־`category` האמיתיים.
+- [x] להפריד בין אירוע, מקור, assessment והשלכות — מובנה במבנה
+  `TimelineEntry` (title/body/sources/assessment) מהסבב הראשון.
+- [x] להוסיף מצב "What changed since last update" — **פורש מחדש ביושר**:
+  תג "Latest" על האירוע העדכני ביותר, לא diff מזויף מול ביקור קודם —
+  לאתר הזה אין מעקב ביקורים אמיתי, ובניית אחד רק בשביל הפיצ'ר הזה
+  הייתה מפרה את עיקרון "no false live state".
+- [x] להציג corrections בתוך הפריט ולא למחוק גרסאות קודמות — `CorrectionHistory`
+  מחובר בעמוד (ריק כרגע, כי לא הונפקה אף תיקון אמיתית עדיין).
+- [x] ליצור permalink לכל עדכון — `#{entry.id}` + `scroll-margin-top` +
+  כפתור שיתוף (`navigator.share` עם fallback העתקה).
 
 תנאי קבלה:
 
-- [ ] אין עדכון ללא מקור, זמן וסטטוס.
-- [ ] ניתן להגיע לעדכון ישירות ולשתף אותו.
-- [ ] הממשק שימושי גם כאשר אין עדכונים חדשים.
+- [x] אין עדכון ללא מקור, זמן וסטטוס.
+- [x] ניתן להגיע לעדכון ישירות ולשתף אותו.
+- [ ] הממשק שימושי גם כאשר אין עדכונים חדשים — לא נבדק במפורש מצב שבו
+  `entries` ריק; `Timeline`/`WireFeed` לא אמורים לקרוס (הרכיבים המשותפים
+  כבר מטפלים במערכים ריקים), אך אין הודעת "no updates" ייעודית.
 
 ### 2. Fake Resistance
 
-- [ ] להחליף את ההסבר הכללי ברשימת case files.
-- [ ] לכל case file להציג claim, origin, amplification, evidence ו־verdict.
-- [ ] להוסיף timeline של התפשטות הטענה.
-- [ ] להציג רשת חשבונות רק כאשר הקשרים מבוססים ומתועדים.
-- [ ] להבדיל בין אינדיקציה, דפוס ומסקנה מוכחת.
-- [ ] להוסיף evidence pack שניתן לשיתוף.
-- [ ] להציג archived links כדי שהראיות ישרדו מחיקה במקור.
+- [x] להחליף את ההסבר הכללי ברשימת case files — שלושה תיקים אמיתיים.
+- [x] לכל case file להציג claim, origin, amplification, evidence ו־verdict —
+  קיים במבנה `FakeResistanceCase` מהסבב הראשון.
+- [x] להוסיף timeline של התפשטות הטענה — סעיף "Claim propagation" חדש
+  (`Timeline` variant="spread"), לפי התאריכים האמיתיים.
+- [ ] להציג רשת חשבונות רק כאשר הקשרים מבוססים ומתועדים — לא נבנה; אין
+  לנו כרגע נתוני רשת חשבונות אמיתיים ומתועדים לאף תיק.
+- [ ] להבדיל בין אינדיקציה, דפוס ומסקנה מוכחת — חלקי: כל תיק מציג
+  "tells exhibited" + verdict, אבל אין מסגרת מפורשת של שלוש רמות ודאות.
+- [ ] להוסיף evidence pack שניתן לשיתוף — לא נבנה (bundle/הורדה של תיק
+  שלם); קיים רק שיתוף כללי דרך `ShareVerifiedButton` ב־Support Us.
+- [x] להציג archived links כדי שהראיות ישרדו מחיקה במקור — `archiveUrl`
+  אמיתי (Wayback Machine, אומת מול ה־availability API) לשלושת המקורות.
 
 ### 3. Geopolitical Brief
 
@@ -654,7 +720,12 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 - [ ] להוסיף ארכיון בריפים וחיפוש לפי תאריך/שחקן/זירה.
 - [x] להוסיף sticky header, תוכן עניינים, reading progress, source rail ו־correction history.
 - [ ] להוסיף שיתוף עם מקורות, related context והרשמה לעדכונים.
-- [ ] להוסיף loading, empty, stale, error ו־not found states.
+- [x] להוסיף loading, empty, stale, error ו־not found states — **חלקי,
+  ביושר**: stale (הודעה כש־`publishedAt` ישן מ־14 יום) ו־empty
+  (Developments/Sources) חיים ופעילים. error (`BriefError.tsx`) בנוי אך
+  **לא מחובר** — אין fetch אסינכרוני אמיתי לברייף שיכול להיכשל היום.
+  loading לא נוסף — אין גבול async אמיתי שהוא יגשר עליו. not found כבר
+  מכוסה ע"י `app/not-found.tsx` הגלובלי.
 
 ---
 
@@ -696,11 +767,17 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 
 ### Support Us
 
-- [ ] ליצור טופס התנדבות פעיל עם תחומי מומחיות וזמינות.
-- [ ] להוסיף מסלול דיווח על טענה לבדיקה.
-- [ ] להוסיף ערוצי תרומה רק לאחר אימות משפטי ותפעולי.
-- [ ] להוסיף CTA ברור לשיתוף חומר מאומת.
-- [ ] להציג הודעת הצלחה, שגיאה והגנת spam לכל טופס.
+- [x] ליצור טופס התנדבות פעיל עם תחומי מומחיות וזמינות — `VolunteerInterestForm.tsx`
+  (מרכיב `mailto:`, אין endpoint אמיתי לקליטה עדיין — ראו TODOS W4).
+- [x] להוסיף מסלול דיווח על טענה לבדיקה — `ReportClaimForm.tsx`, מחובר
+  ל־`POST /api/v1/reports` הציבורי האמיתי.
+- [ ] להוסיף ערוצי תרומה רק לאחר אימות משפטי ותפעולי — "Sustain" נשאר
+  טקסט בכוונה.
+- [x] להוסיף CTA ברור לשיתוף חומר מאומת — `ShareVerifiedButton` חדש,
+  מפנה לברייף (אין ל־Support Us עצמו verdict לשתף).
+- [x] להציג הודעת הצלחה, שגיאה והגנת spam לכל טופס — `ReportClaimForm`
+  כבר מציג קבלה/שגיאה; הגנת spam קיימת ברמת ה־API (`rateLimit()` ב־
+  `app/api/v1/reports/route.ts`, מוצג כהודעת `RATE_LIMITED` כנה בטופס).
 
 ---
 
@@ -748,15 +825,31 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 
 ## P6 — SEO, הפצה ושפות
 
-- [ ] להוסיף canonical URL לכל עמוד ופריט תוכן.
-- [ ] ליצור `sitemap.xml` ו־`robots.txt` דרך Next.js metadata routes.
-- [ ] ליצור Open Graph image ייחודי לכל סוג תוכן.
-- [ ] להוסיף JSON-LD מתאים ל־Article, Report, Person ו־Organization.
-- [ ] להוסיף published/updated timestamps למטא־דאטה.
-- [ ] להוסיף עברית ו־RTL לכל המעטפת והרכיבים המשותפים.
-- [ ] להגדיר URL strategy לשפות ללא שכפול canonical שגוי.
-- [ ] לבדוק פונט, line breaking ותנועת חלקיקים גם בעברית.
-- [ ] ליצור תבנית שיתוף שמצרפת verdict ומקור ולא רק כותרת.
+- [x] להוסיף canonical URL לכל עמוד ופריט תוכן — כל תשעת הראוטים
+  (`alternates.canonical`, ‏`SITE_URL` מ־`lib/site-config.ts`).
+- [x] ליצור `sitemap.xml` ו־`robots.txt` דרך Next.js metadata routes.
+- [ ] ליצור Open Graph image ייחודי לכל סוג תוכן — עדיין תמונת OG גלובלית
+  אחת (`app/opengraph-image.tsx`, סימן הכתר) לכל הראוטים.
+- [x] להוסיף JSON-LD מתאים — **לא** "Article, Report, Person, Organization"
+  כלשונו (Report אינו סוג schema.org אמיתי): `Article` ל־War Update/
+  October 7/Geopolitical Brief/Israel's Story, **`ClaimReview`** ל־Fake
+  Resistance (הסוג הנכון ל־fact-checking, לא Article גנרי), `Person`
+  ל־Our Heroes (graph אחד לפרופיל), `Organization` ל־We Are (עמוד ה"about"
+  עצמו), `WebPage` ל־Support Us/Methodology/Corrections (עמודי מדיניות).
+- [x] להוסיף published/updated timestamps למטא־דאטה — `openGraph.publishedTime`
+  מה־`publishedAt` האמיתי בכל עמוד שיש לו (War Update, Fake Resistance,
+  October 7, Our Heroes, Geopolitical Brief); הושמט בכוונה בעמודים בלי
+  תאריך תוכן אמיתי (We Are, Support Us, Methodology, Corrections) במקום
+  להמציא אחד.
+- [ ] להוסיף עברית ו־RTL לכל המעטפת והרכיבים המשותפים — לא התחיל, היקף
+  גדול שדורש סבב משלו.
+- [ ] להגדיר URL strategy לשפות ללא שכפול canonical שגוי — תלוי בעברית/RTL.
+- [ ] לבדוק פונט, line breaking ותנועת חלקיקים גם בעברית — דורש Chrome
+  אמיתי + תוכן עברי אמיתי, שניהם עוד לא קיימים.
+- [x] ליצור תבנית שיתוף שמצרפת verdict ומקור ולא רק כותרת — `WireFeed`'s
+  per-entry share (War Update) ו־`ShareVerifiedButton` (Support Us) שניהם
+  משתמשים ב־`navigator.share` עם טקסט שכולל את המקור/verdict האמיתי, לא
+  רק כותרת.
 
 ---
 
@@ -797,11 +890,21 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 - [x] `npm run verify:graphics` עובר בשבעה viewports ללא שגיאות קונסול.
 - [ ] להוסיף visual regression screenshots ל־viewports הקריטיים.
 - [x] לבצע smoke test ידני ב־Chrome לראוטים ולצ׳ט.
-- [ ] להוסיף smoke test אוטומטי לכל שמונת הראוטים ולצ׳ט ל־CI.
-- [ ] להרחיב את בדיקת שגיאות הקונסול ו־WebGPU validation לכל הראוטים ב־CI.
-- [ ] להפעיל preview deployment לכל PR משמעותי.
+- [x] להוסיף smoke test אוטומטי — **חלקי**: `.github/workflows/ci.yml`
+  (הראשון אי־פעם בריפו) מריץ gate + `scripts/ci-smoke.mjs` על 11 הראוטים
+  האמיתיים (Chromium headless מובנה של Playwright, לא נתיב Chrome של
+  macOS) בכל push/PL ל־main. הצ׳ט עצמו לא נבדק אוטומטית (דורש session
+  אמיתי, לא רק טעינת ראוט).
+- [ ] להרחיב את בדיקת שגיאות הקונסול ו־WebGPU validation לכל הראוטים ב־CI —
+  שגיאות קונסול כן נבדקות ב־`ci-smoke.mjs`; WebGPU **לא** — headless
+  Chromium ב־CI לא תומך ב־WebGPU בצורה אמינה, אז זה נשאר בדיקת עומק
+  Chrome אמיתי בתחנת העבודה בלבד.
+- [ ] להפעיל preview deployment לכל PR משמעותי — דורש הגדרת Vercel, לא
+  בוצע.
 - [ ] לפני ההשקה: לשדרג את צוות Vercel ל־Pro ולהחזיר את משימות `ingest`, ‏`outbox-drain` ו־`embed`; ה־crons מושבתים זמנית כל עוד הפרויקט על Hobby.
-- [ ] להגדיר rollback מתועד לפני השקת משטחי תוכן חיים.
+- [x] להגדיר rollback מתועד לפני השקת משטחי תוכן חיים — `.ai/ROLLBACK.md`
+  חדש, נוהל Vercel אמיתי (rollback ידני, לא auto-deploy) לפריסה הידנית
+  של הפרויקט הזה.
 
 ---
 

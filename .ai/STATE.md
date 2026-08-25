@@ -1,6 +1,90 @@
 # State
 
-## Latest — 2026-08-25, the home route grows a front page (direction B), built
+## Latest — 2026-08-26, the reading system is synced to Claude Design
+
+The reading-surface components are now a design system in Claude Design:
+**<https://claude.ai/design/p/079fa612-0d76-4d9d-80ec-0567491ff374>** — 21
+components, 34 preview cells, all graded good, validate clean.
+
+Sync inputs are committed under `.design-sync/` (config, previews, shims, the
+conventions header, `build-styles.mjs`). **Read `.design-sync/NOTES.md` before
+re-syncing** — it holds the traps that cost time and the re-sync risks.
+
+Two findings from that work are about *this repo*, not the sync, and are worth
+knowing here:
+
+- **`app/globals.css` is an application shell, not a stylesheet a component
+  library can ship.** It carries `html, body { height: 100%; overflow: hidden }`
+  — right for a fixed particle scene, fatal for any ordinary document built
+  from these components. The sync neutralizes it additively; the app is
+  unchanged. If the reading pages ever move to a real library build, that
+  split has to be made properly.
+- **The V2 type system silently depends on `next/font/google`.** `--face-display`,
+  `--face-text` and `--face-data` resolve through `--font-newsreader`,
+  `--font-plex-sans` and `--font-geist-mono`, which only Next defines. Outside
+  Next every face degrades to its fallback with nothing to catch it.
+
+What could not be synced, and why: `components/particle-nav/**` (WebGPU/TSL,
+needs a real GPU and the baked `.bin` buffers), `ScanBackdrop` (async Server
+Component reading `node:fs`), and therefore `SectionPage`, `DocPage`,
+`SectionBlock` and `HomeFrontPage`, which import it. Those four page shells are
+the most valuable things still missing from the design system.
+
+---
+
+## 2026-08-26, architecture audit and a documentation layer
+
+A full read of the repository against its documentation. **No code, schema,
+`vercel.json` or `package.json` was changed** — the pass was documentation
+only, and anything needing a code change is written down as a recommendation
+instead.
+
+The gate was re-run to confirm the baseline before writing anything:
+typecheck, lint, **331 passed / 1 skipped across 25 files**, build. All green.
+
+**New: `docs/`** — `architecture.md` (the system map, with Mermaid for the
+layer split, the request lifecycle, the outbox path, ingestion→publication and
+the home render path), `api.md` (all 40 routes with **per-method** guards,
+RFC 9457 codes, the rate limit, the pagination contract), `data-model.md`
+(39 tables, 25 triggers, 25 functions, 18 migrations, the two axes,
+versioning, RLS), `environment.md` (names only), `operations.md` (install,
+verify, CI, deploy, troubleshooting), indexed by `docs/README.md`.
+
+`README.md` was rewritten — it was publishing **seven route names that do not
+exist**, from a naming scheme abandoned before the section pages were built.
+`CLAUDE.md` gained the `lib/content/` seam, a pointer to `docs/`, the two
+verification scripts that had none, and a short "not wired up" block.
+`components/content/README.md` was describing the retired Cinzel palette.
+`docs/graphics-task-02.md` is now banner-marked historical: it names four
+files that were deleted.
+
+**Three findings that change what a later session should assume**, all in
+`.ai/DECISIONS.md` under 2026-08-26:
+
+1. **RLS is written and tested but not engaged at runtime.** Nothing issues
+   `SET LOCAL ROLE`; the app runs as the owner. Several `GET`s are anonymous
+   with no application-layer filter — `GET /api/v1/evidence` takes no
+   `dataClass` at all. Harmless today, live the hour `DATABASE_URL` is set.
+2. **No cron is scheduled.** `vercel.json` has no `crons` array, so ingest,
+   embed and outbox-drain never fire, despite the route comments saying
+   otherwise.
+3. **The public chat cannot work in production as written.** It probes with an
+   anonymous `GET` and writes with a `POST` that `requireActor` refuses in
+   production — so it would report "online" and fail every message.
+
+Also: **`.env.example` is not in git** (`.gitignore`'s `.env*` catches it).
+`docs/environment.md` is the tracked substitute; the one-line `!.env.example`
+fix is recorded there and deliberately not applied.
+
+Nothing here is blocked. The three findings are decisions to make, not
+breakages to fix, and none of them affects the site as it currently ships.
+
+**This file is 400+ lines and should be pruned** — the session hook truncates
+it past ~6000 characters, so the bottom half is already not being read.
+
+---
+
+## 2026-08-25, the home route grows a front page (direction B), built
 
 The user picked direction B from the homepage review. **Built and verified**:
 typecheck, lint, 331 tests (8 new, the first coverage `lib/content/` has had),

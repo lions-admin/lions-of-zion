@@ -98,6 +98,33 @@ export const itemSchema = z.object({
 export type Item = z.infer<typeof itemSchema>;
 
 /**
+ * One row of the `published_item` view — what a reader outside the
+ * organisation may see (migration 0007). The view joins the item to the
+ * assessment that justifies publishing it, so `assessment`,
+ * `confidenceSummary` and `publishedAt` are non-null here even though they
+ * are nullable on the item itself: the publish gate refuses an item without
+ * them, and the view only shows published/updated items.
+ */
+export const publishedItemSchema = z.object({
+  id: uuidSchema,
+  publicId: publicIdSchema,
+  type: informationItemTypeSchema,
+  title: z.string(),
+  canonicalText: z.string(),
+  summary: z.string().nullable(),
+  language: z.string(),
+  assessment: assessmentValueSchema,
+  confidenceSummary: confidenceSummarySchema,
+  publishedAt: z.iso.datetime(),
+  eventId: uuidSchema.nullable(),
+  primaryTopicId: uuidSchema.nullable(),
+  assessmentSummary: z.string(),
+  assessmentKnownGaps: z.string(),
+  assessmentFalseImpression: z.string().nullable(),
+});
+export type PublishedItemView = z.infer<typeof publishedItemSchema>;
+
+/**
  * Which status may follow which.
  *
  * The database holds the same table and enforces it in a trigger, so a service

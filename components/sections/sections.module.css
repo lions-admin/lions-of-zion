@@ -48,6 +48,10 @@
   background:
     radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.05), transparent 70%),
     repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.028) 0 1px, transparent 1px 9px);
+  /* the backdrop is fixed to the viewport, so it also paints the ground
+     wherever `.page` stops short of it (the mobile bottom band) — one black,
+     never the body's darker one */
+  background-color: var(--ground);
 }
 
 .row {
@@ -87,6 +91,14 @@
   to { transform: translateX(-100%); }
 }
 
+/* quiet surface: the scan recedes so long reading can hold the eye.
+   Declared before `.registerMuted` so a page that is both quiet and muted
+   still takes the muted (quieter) values. */
+.surfaceQuiet .row {
+  --register: 0.5;
+  animation-duration: calc(var(--dur) * 1.8);
+}
+
 .registerMuted .row {
   /* October 7: the scan nearly holds its breath */
   --register: 0.32;
@@ -114,16 +126,28 @@
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
+  /* scrim: the scan drifts under the sticky rail, so the rail carries its own
+     ground — strongest behind the text, fading before the panel gutter. The
+     negative margin keeps the type on the original grid line. */
+  padding: 1.1rem 1.2rem 1.2rem;
+  margin: -1.1rem -1.2rem -1.2rem;
+  background: radial-gradient(
+    140% 115% at 22% 0%,
+    rgba(7, 11, 20, 0.92) 0%,
+    rgba(7, 11, 20, 0.68) 55%,
+    rgba(7, 11, 20, 0) 100%
+  );
 }
 
 .emblem {
   width: 9.5rem;
   height: 9.5rem;
   align-self: flex-start;
-  /* SDF bake: the distance halo around the glyph becomes a natural glow when
-     the black field is screened out and the remainder tinted gold */
-  mix-blend-mode: screen;
-  filter: contrast(1.9) brightness(0.92) sepia(1) hue-rotate(-9deg) saturate(2.1);
+  /* white source glyph tinted onto the gold ramp — the same filter chain the
+     brief's rail icon uses — with a faint halo standing in for the bake's glow */
+  filter: brightness(0) saturate(100%) invert(77%) sepia(35%) saturate(758%)
+    hue-rotate(5deg) brightness(88%) drop-shadow(0 0 16px rgba(201, 162, 75, 0.28));
+  opacity: 0.92;
 }
 
 .fileMeta {
@@ -175,6 +199,23 @@
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   animation: rise 600ms ease 120ms both;
+}
+
+/* extra ground behind the title area so a bright corpus row can never be read
+   through the panel behind the H1; children paint over the pseudo-element */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: clamp(8rem, 28vh, 12rem);
+  background: linear-gradient(180deg, rgba(7, 11, 20, 0.85), rgba(7, 11, 20, 0));
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.surfaceQuiet .panel {
+  /* quiet reading surface: the corpus becomes a suggestion, not a texture */
+  background: rgba(7, 11, 20, 0.9);
 }
 
 @keyframes rise {
@@ -235,6 +276,8 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold);
+  /* anchored headings land clear of the panel's top padding */
+  scroll-margin-top: 2.5rem;
 }
 
 .blockTick {
@@ -283,6 +326,204 @@
   color: var(--gold-bright);
 }
 
+/* ---- file footer: closing rule, adjacent files, the full index ---- */
+
+.fileFooter {
+  margin-top: 3.5rem;
+}
+
+.footerRule {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201, 162, 75, 0.55), rgba(201, 162, 75, 0.08));
+}
+
+.fileNav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem 1.5rem;
+  margin-top: 1.7rem;
+}
+
+.fileNavLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.fileNavNext {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.fileNavMeta {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: rgba(159, 179, 200, 0.6);
+}
+
+.fileNavLabel {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+
+.fileNavLink:hover .fileNavLabel {
+  color: var(--gold-bright);
+}
+
+.destinations {
+  margin-top: 2.25rem;
+}
+
+.destinationsKicker {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.5);
+}
+
+.destinationsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.15rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.destination {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(159, 179, 200, 0.72);
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid transparent;
+}
+
+.destination:hover {
+  color: var(--gold-bright);
+}
+
+.destination[aria-current='page'] {
+  color: var(--gold);
+  border-bottom-color: rgba(201, 162, 75, 0.55);
+}
+
+.destinationIndex {
+  margin-right: 0.4rem;
+  color: var(--accent);
+}
+
+.destination[aria-current='page'] .destinationIndex {
+  color: var(--gold);
+}
+
+.closeLine {
+  margin-top: 2.25rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.55);
+}
+
+.closeLine a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.closeLine a:hover {
+  color: var(--gold-bright);
+}
+
+/* ---- optional right rail (≥1220px), in the brief's evidence-rail voice ---- */
+
+.sideRail {
+  display: none;
+}
+
+.sideRailInner {
+  position: sticky;
+  top: clamp(2.5rem, 7vh, 5.5rem);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  line-height: 1.55;
+  color: rgba(159, 179, 200, 0.75);
+  /* same scrim treatment as the left rail, anchored to its own corner */
+  padding: 1.1rem 1.2rem 1.2rem;
+  margin: -1.1rem -1.2rem -1.2rem;
+  background: radial-gradient(
+    140% 115% at 78% 0%,
+    rgba(7, 11, 20, 0.92) 0%,
+    rgba(7, 11, 20, 0.68) 55%,
+    rgba(7, 11, 20, 0) 100%
+  );
+}
+
+.sideRailInner :is(h2, h3, h4) {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding-top: 0.75rem;
+  margin-top: 1.1rem;
+  border-top: 1px solid rgba(201, 162, 75, 0.32);
+}
+
+.sideRailInner :is(h2, h3, h4):first-child {
+  margin-top: 0;
+}
+
+.sideRailInner dl {
+  margin: 0.6rem 0 0;
+}
+
+.sideRailInner dt {
+  font-size: 0.53rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(159, 179, 200, 0.5);
+  margin-top: 0.75rem;
+}
+
+.sideRailInner dd {
+  margin: 0.3rem 0 0;
+  color: #c0ceda;
+}
+
+.sideRailInner p {
+  margin: 0.6rem 0 0;
+}
+
+.sideRailInner a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.sideRailInner a:hover {
+  color: var(--gold-bright);
+}
+
+@media (min-width: 1220px) {
+  .shellWithAside {
+    grid-template-columns: 15rem minmax(0, 44rem) 13.5rem;
+  }
+
+  .sideRail {
+    display: block;
+    animation: rise 600ms ease 200ms both;
+  }
+}
+
 .page a:focus-visible,
 .back:focus-visible {
   outline: 2px solid var(--gold-bright);
@@ -305,6 +546,16 @@
     align-items: center;
     column-gap: 1.25rem;
     row-gap: 1rem;
+    /* the header band scrim: shell padding can be as small as 1.25rem, so the
+       negative margin must stay inside it */
+    padding: 1rem;
+    margin: -1rem;
+    background: radial-gradient(
+      150% 130% at 15% 0%,
+      rgba(7, 11, 20, 0.92) 0%,
+      rgba(7, 11, 20, 0.68) 55%,
+      rgba(7, 11, 20, 0) 100%
+    );
   }
 
   .emblem {
@@ -336,11 +587,26 @@
   }
 }
 
+@media (max-width: 600px) {
+  .fileNav {
+    grid-template-columns: 1fr;
+  }
+
+  .fileNavNext {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .row {
     animation: none;
-    /* rows were placed mid-flight by negative delays; pin them spread out */
-    transform: translateX(calc(var(--rest, 0) * 1vw));
+    /* rows were placed mid-flight by negative delays; pin them spread across
+       the full width. `--rest` is a percentage of the row's available travel
+       (viewport minus its own width, % resolving against the row itself), so
+       a long fragment translates less — or negative — and never overflows the
+       right edge. */
+    transform: translateX(calc((100vw - 100%) * var(--rest, 0) / 100));
   }
 
   .rail,

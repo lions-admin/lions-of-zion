@@ -38,6 +38,37 @@ pill with the shared edge gap as breathing room above it. Do not resolve a
 future overlap by hiding the pill or shaving the halo; re-measure the dock
 and charge the reserve.
 
+---
+
+## 2026-08-25 — Marathon content is real and sourced, or labeled a reference
+
+The W1–W6 marathon authors content for pages that until now only described
+future content. The rule imposed on every content agent, recorded here so a
+later pass doesn't relax it: no invented facts, people, quotes or statistics.
+Entries use publicly documented events with named public sources; anything
+that cannot be verified is dropped or carries an honest status. Structures
+that demonstrate a format ahead of the editorial pipeline (hero profiles
+pending family consent, a dated update feed with no live desk behind it) are
+labeled reference editions — the same device as "Reference brief 001" — never
+presented as live output. This follows the existing "No false live state"
+principle; the same reasoning replaced the hardcoded `Monitoring · active`
+rail label with `Reference edition`. Do not reintroduce a live-sounding label
+or unsourced entries to make pages look more finished than the system is.
+
+---
+
+## 2026-08-25 — DOM emblems render the SVG sources; SDF stays GPU-only
+
+The section-page rail rendered the baked `*.sdf.png` icons, which have no
+alpha channel and only ever looked acceptable through a blend-and-filter
+chain that broke on anything but the darkest ground — visually a black box.
+The DOM now uses the SVG icon sources (as the brief already did); the SDF
+bakes remain solely for the GPU sampler in the particle scene. Re-baking the
+SDFs with alpha is still worthwhile for the GPU path (Mac-gated task in
+TODOS), but do not point DOM `<img>` tags back at SDF bakes.
+
+---
+
 ## 2026-08-25 — The mobile home leads with the menu, not the latest brief
 
 Reported from a real iPhone as "it jumps straight to the brief" — with the URL

@@ -5,7 +5,7 @@ const TAGLINE =
   "Inside the influence machine: how manufactured outrage is built and amplified.";
 
 export const metadata: Metadata = {
-  title: "Fake Resistance — LIONS OF ZION",
+  title: "Fake Resistance",
   description: TAGLINE,
 };
 

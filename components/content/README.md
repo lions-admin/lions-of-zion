@@ -1,0 +1,231 @@
+# components/content
+
+Shared content-presentation components for the eight section pages. They carry
+the site's visual language — mono caps labels, thin rules, gold `#c9a24b` /
+blue `#6bb7e4` accents on `#070b14`, Cinzel display type — hard-coded to the
+same values as `components/briefs/geopolitical-brief.module.css` (a token pass
+comes later). All styling lives in `content.module.css`; every component
+carries its own palette, so they work on any page.
+
+Import everything from the barrel:
+
+```tsx
+import { VerificationBadge, Timeline, SourceList } from '@/components/content';
+```
+
+All components are server-compatible **except `SensitiveContent`**, which is a
+client component (`'use client'`). All are responsive: multi-column layouts
+stack under 719px and nothing overflows horizontally at 320px.
+
+Assessment types come from the contracts layer — the only part of `server/`
+that `components/**` may import (ESLint enforces this):
+
+```tsx
+import type { AssessmentValue, ConfidenceSummary } from '@/server/contracts/enums';
+```
+
+The nine `AssessmentValue`s are: `false`, `misleading`, `manipulated`,
+`out_of_context`, `unsupported`, `unverified`, `contested`, `satire`,
+`verified`. `ConfidenceSummary` is `high | medium | limited`. The shape of a
+published item as the API returns it is `PublishedItemView` from
+`@/server/contracts/item`.
+
+---
+
+## VerificationBadge
+
+Small mono-caps pill with a status dot, one exhaustive visual mapping for all
+nine assessment values (gold for `verified`; ember tones for the
+`false`/`misleading`/`manipulated`/`out_of_context`/`contested` family; muted
+blue-grey for `unverified`/`unsupported`; violet dashed for `satire`). Carries
+a `title` and `aria-label` explaining the verdict.
+
+```ts
+type VerificationBadgeProps = {
+  assessment: AssessmentValue;        // required, one of the nine values
+  confidence?: ConfidenceSummary;     // 'high' | 'medium' | 'limited'
+};
+```
+
+```tsx
+<VerificationBadge assessment="misleading" confidence="high" />
+```
+
+## SourceList
+
+Numbered mono source stack (`01`, `02`, …) with external links opening in a
+new tab, optional kind label, access date, and archive link. Renders nothing
+for an empty array.
+
+```ts
+type Source = {
+  id: string;          // stable key
+  label: string;       // display text / link text
+  kind?: string;       // e.g. 'Official record', 'Telegram post'
+  url?: string;        // if absent, label renders as plain text
+  accessedAt?: string; // human-readable date, rendered as 'Accessed …'
+  archiveUrl?: string; // renders an extra 'Archived copy' link
+};
+type SourceListProps = { sources: Source[] };
+```
+
+```tsx
+<SourceList sources={[{ id: 'un-1', label: 'UN Security Council briefing', kind: 'Official record', url: 'https://…', accessedAt: '12 Aug 2026' }]} />
+```
+
+## PublicationMeta
+
+Publication facts as a `<dl>` (the brief's meta block). Only the props you
+pass are rendered, in the order Edition, Published, Updated, Reviewed by,
+Source stack. Renders nothing if all props are absent.
+
+```ts
+type PublicationMetaProps = {
+  publishedAt?: string;  // human-readable date
+  updatedAt?: string;
+  reviewedBy?: string;
+  sourceCount?: number;  // rendered as 'N sources'
+  edition?: string;      // e.g. 'Edition 04 · August 2026'
+};
+```
+
+```tsx
+<PublicationMeta publishedAt="19 Aug 2026" reviewedBy="Second reviewer" sourceCount={14} />
+```
+
+## KnownUnknownPanel
+
+The brief's two-column honesty grid: "Not established" on the left, "What
+would change the assessment" on the right. Omitting `wouldChange` (or passing
+an empty array) collapses it to a single column.
+
+```ts
+type KnownUnknownPanelProps = {
+  unknowns: string[];       // bullet items under 'Not established'
+  wouldChange?: string[];   // bullet items under 'What would change the assessment'
+};
+```
+
+```tsx
+<KnownUnknownPanel unknowns={['Attribution of the strike']} wouldChange={['Independent imagery of the launch site']} />
+```
+
+## CorrectionHistory
+
+Correction log with date, optional version stamp, and note per row. An empty
+array renders the honest empty state "None recorded" — never hide this
+component to fake a clean record.
+
+```ts
+type Correction = { date: string; note: string; version?: string };
+type CorrectionHistoryProps = { corrections: Correction[] };
+```
+
+```tsx
+<CorrectionHistory corrections={[{ date: '14 Aug 2026', version: 'v1.1', note: 'Corrected the casualty figure sourcing.' }]} />
+```
+
+## FigureRow
+
+The stat-tiles band: large Cinzel value over a small muted label, three
+columns (stacking to one below 360px). Renders nothing for an empty array.
+
+```ts
+type Figure = { value: string; label: string };
+type FigureRowProps = { figures: Figure[] };
+```
+
+```tsx
+<FigureRow figures={[{ value: '1,200+', label: 'people murdered on October 7' }]} />
+```
+
+## Timeline
+
+Vertical timeline with a rail and dot markers. Each entry is an `<li>` whose
+DOM `id` is `entry.id`, so `/#entry-id` deep links work. Shows a
+`VerificationBadge` when `assessment` is set and an inline `SourceList` when
+`sources` is set.
+
+Variants: `'feed'` (default; blue rail, roomy — news feeds), `'history'`
+(gold rail, tighter spacing, era-styled Cinzel dates — historical arcs),
+`'spread'` (hostile ember rail, diamond markers — claim propagation).
+
+```ts
+type TimelineEntry = {
+  id: string;            // becomes the <li> DOM id (anchor target)
+  datetime: string;      // machine value for <time dateTime>, e.g. '2023-10-07'
+  dateLabel: string;     // what the reader sees, e.g. '7 Oct 2023'
+  title: string;
+  body: React.ReactNode;
+  region?: string;       // small mono tag
+  category?: string;     // small mono tag
+  assessment?: AssessmentValue;
+  sources?: Source[];    // same Source type as SourceList
+};
+type TimelineProps = { entries: TimelineEntry[]; variant?: 'feed' | 'history' | 'spread' };
+```
+
+```tsx
+<Timeline variant="history" entries={[{ id: 'balfour-1917', datetime: '1917-11-02', dateLabel: 'November 1917', title: 'The Balfour Declaration', body: <p>…</p> }]} />
+```
+
+## ContentCard
+
+Flexible card primitive for case files and profiles: eyebrow, Cinzel title,
+optional meta line, body, optional ruled footer. `accent` colors the left
+border and eyebrow (`'gold'` default, `'ember'` for hostile subjects). When
+`href` is set the title becomes a link whose hit area covers the whole card.
+
+```ts
+type ContentCardProps = {
+  eyebrow?: string;            // mono caps kicker
+  title: string;
+  meta?: React.ReactNode;      // mono caps meta line under the title
+  children: React.ReactNode;   // card body
+  footer?: React.ReactNode;    // ruled-off footer strip
+  accent?: 'gold' | 'ember';   // default 'gold'
+  href?: string;               // makes the whole card a link
+};
+```
+
+```tsx
+<ContentCard eyebrow="Case file 03" title="The hospital car park" accent="ember" href="/fake-resistance#case-03"><p>…</p></ContentCard>
+```
+
+## ClaimRecordPair
+
+Two-column claim-versus-record card: the claim in the ember register on the
+left, the record in gold/blue on the right; stacks vertically under 719px.
+
+```ts
+type ClaimRecordPairProps = {
+  claim: React.ReactNode;
+  record: React.ReactNode;
+  claimLabel?: string;   // default 'The claim'
+  recordLabel?: string;  // default 'The record'
+};
+```
+
+```tsx
+<ClaimRecordPair claim={<p>"The convoy was struck deliberately."</p>} record={<p>Flight data and imagery place the strike 400m away.</p>} />
+```
+
+## SensitiveContent (client component)
+
+Difficult material behind an explicit reveal: a calm warning panel with a
+"View — contains difficult material" button (`aria-expanded`/`aria-controls`
+wired), and a "Hide this material" un-reveal control once open. Deliberately
+remembers nothing between visits. Its children are part of the client bundle —
+keep them serializable (plain JSX/strings), and do not put another interactive
+boundary inside without reason.
+
+```ts
+type SensitiveContentProps = {
+  warning: string;             // shown before reveal, under a 'Sensitive material' kicker
+  children: React.ReactNode;   // revealed content
+};
+```
+
+```tsx
+<SensitiveContent warning="Survivor testimony describing the attack on Kfar Aza."><p>…</p></SensitiveContent>
+```

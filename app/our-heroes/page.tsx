@@ -5,7 +5,7 @@ const TAGLINE =
   "The people behind the story: the fallen, the fighters, the rescuers.";
 
 export const metadata: Metadata = {
-  title: "Our Heroes — LIONS OF ZION",
+  title: "Our Heroes",
   description: TAGLINE,
 };
 

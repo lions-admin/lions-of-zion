@@ -51,6 +51,39 @@ function useHydrated() {
   return useSyncExternalStore(subscribeToHydration, () => true, () => false);
 }
 
+/**
+ * Session memory: the intro plays once per tab. Completing or skipping it sets
+ * the flag; later visits to "/" in the same tab mount straight into the
+ * completed-navigation state (`introRunning` stays false, exactly as it does
+ * for reduced motion). Storage can be denied — private mode, partitioned
+ * storage, hardened browsers — so every access is guarded, and a failure only
+ * means the intro plays again.
+ */
+const INTRO_SEEN_KEY = 'loz-intro-seen';
+
+function getIntroSeenSnapshot() {
+  try {
+    return window.sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markIntroSeen() {
+  try {
+    window.sessionStorage.setItem(INTRO_SEEN_KEY, '1');
+  } catch {
+    /* storage unavailable — the intro simply replays next session */
+  }
+}
+
+/* Same shape as `useHydrated`: the server snapshot is false, and hydration
+   either confirms it or drops the intro in the same commit that flips
+   `hydrated` — so a seen intro never gets a first painted frame. */
+function useIntroSeen() {
+  return useSyncExternalStore(subscribeToHydration, getIntroSeenSnapshot, () => false);
+}
+
 export function NavClient({
   nodes,
   radius,
@@ -77,6 +110,7 @@ export function NavClient({
   const tier = usePerfTier(forceWebGL);
   const reducedMotion = useReducedMotion();
   const hydrated = useHydrated();
+  const introSeen = useIntroSeen();
   const driver = useInteractionDriver(nodes.length);
 
   const [wantCanvas, setWantCanvas] = useState(false);
@@ -125,7 +159,7 @@ export function NavClient({
   }, [intro]);
 
   const introRunning = Boolean(
-    intro && hydrated && !reducedMotion && !introDone && tier?.backend !== 'none',
+    intro && hydrated && !reducedMotion && !introDone && !introSeen && tier?.backend !== 'none',
   );
 
   // `introRunning` cannot be true before hydration, so anything reading it from
@@ -141,6 +175,7 @@ export function NavClient({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
+        markIntroSeen();
         introControlsRef.current.skipRequested = true;
       } else if (event.key === ' ') {
         event.preventDefault();
@@ -164,6 +199,7 @@ export function NavClient({
       navTimerRef.current = null;
     }
     if (handoffTimerRef.current) clearTimeout(handoffTimerRef.current);
+    markIntroSeen();
     setIntroDone(true);
     setHandoffBlocked(true);
     handoffTimerRef.current = setTimeout(() => {
@@ -397,6 +433,7 @@ export function NavClient({
                  and the second tap it invites is the one that lands on the
                  navigation as it arrives. */
               setSkipping(true);
+              markIntroSeen();
               introControlsRef.current.skipRequested = true;
             }}
           >

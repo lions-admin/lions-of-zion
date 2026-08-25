@@ -10,7 +10,7 @@ import "server-only";
 import { and, desc, eq, lt, sql, type SQL } from "drizzle-orm";
 import { informationItem, informationItemTopic } from "@/server/db/schema";
 import type { InformationItem } from "@/server/db/schema";
-import type { ListItems } from "@/server/contracts/item";
+import type { ListItems, PublishedItemView } from "@/server/contracts/item";
 
 /* Structural typing again: the same repository has to work against the Neon
    pool in production and PGlite in tests, and neither driver's concrete type
@@ -18,24 +18,9 @@ import type { ListItems } from "@/server/contracts/item";
 type AnyDb = Record<string, (...args: never[]) => never>;
 
 /** One row of the `published_item` view (Phase 4 migration) — a raw SQL read
- *  rather than a Drizzle schema object, since it is a view nothing writes to. */
-export type PublishedItem = {
-  id: string;
-  publicId: string;
-  type: string;
-  title: string;
-  canonicalText: string;
-  summary: string | null;
-  language: string;
-  assessment: string;
-  confidenceSummary: string;
-  publishedAt: string;
-  eventId: string | null;
-  primaryTopicId: string | null;
-  assessmentSummary: string;
-  assessmentKnownGaps: string;
-  assessmentFalseImpression: string | null;
-};
+ *  rather than a Drizzle schema object, since it is a view nothing writes to.
+ *  The shape lives in `server/contracts/item.ts` so the frontend can share it. */
+export type PublishedItem = PublishedItemView;
 
 export function itemRepo(db: unknown) {
   const d = db as AnyDb & {

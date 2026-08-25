@@ -5,7 +5,7 @@ const TAGLINE =
   "Ways to join the effort: amplify verified truth, contribute skills, sustain the work.";
 
 export const metadata: Metadata = {
-  title: "Support Us — LIONS OF ZION",
+  title: "Support Us",
   description: TAGLINE,
 };
 

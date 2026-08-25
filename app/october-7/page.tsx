@@ -5,7 +5,7 @@ const TAGLINE =
   "The record of October 7: testimony, evidence, and remembrance.";
 
 export const metadata: Metadata = {
-  title: "October 7 — LIONS OF ZION",
+  title: "October 7",
   description: TAGLINE,
 };
 

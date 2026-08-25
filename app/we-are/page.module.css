@@ -73,9 +73,9 @@
   width: 0.9rem;
   height: 0.9rem;
   margin: 0.3rem 0 0;
-  border: 1.5px solid #c9a24b;
+  border: 1.5px solid var(--gold);
   border-radius: 50%;
-  background: #070b14;
+  background: var(--ground);
   box-shadow: 0 0 10px rgba(201, 162, 75, 0.45);
 }
 
@@ -83,8 +83,8 @@
   width: 1.1rem;
   height: 1.1rem;
   border-radius: 2px;
-  border-color: #efd79a;
-  background: #c9a24b;
+  border-color: var(--gold-hi);
+  background: var(--gold);
   transform: rotate(45deg);
   box-shadow: 0 0 14px rgba(201, 162, 75, 0.65);
 }
@@ -93,40 +93,45 @@
   min-width: 0;
 }
 
+/* A stage name is a heading, not a label: sentence case in the display face
+   rather than tracked capitals. */
 .pipelineContent h3 {
   margin: 0 0 0.55rem;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #c9a24b;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: 0;
+  color: var(--gold-hi);
 }
 
 .pipelineStage[data-gate] .pipelineContent h3 {
-  color: #efd79a;
+  color: var(--gold-hi);
 }
 
+/* "Gate — human only": short, and genuinely a status stamp on the one stage
+   nothing automated can pass, so it keeps the uppercase data voice. */
 .gateLabel {
   display: block;
   margin: 0.4rem 0 0.6rem;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.52rem;
-  letter-spacing: 0.14em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: #efd79a;
+  color: var(--gold);
 }
 
 .pipelineContent p {
   margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.65;
-  color: #b9c7d5;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pipelineTrack {
-    background: rgba(201, 162, 75, 0.4);
+    background: var(--gold-line);
   }
 
   .pipelineTrack::after {
@@ -149,12 +154,15 @@
   margin: 1.5rem 0 0;
 }
 
+/* A question is read, not scanned — display face, sentence case, at the
+   entry-title step so it sits a clear rung above its answer. */
 .faq dt {
   margin-top: 1.5rem;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #efd79a;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  color: var(--ink-hi);
 }
 
 .faq dt:first-child {
@@ -163,9 +171,9 @@
 
 .faq dd {
   margin: 0.5rem 0 0;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: #b9c7d5;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 @media (max-width: 600px) {

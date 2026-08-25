@@ -1,11 +1,9 @@
 /* Shared form styling for ReportClaimForm and VolunteerInterestForm.
-   Reads the sitewide tokens from app/globals.css :root, with fallbacks so
-   this stays correct even mounted somewhere those aren't loaded. */
+   On the V2 tokens (`.ai/DESIGN-V2.md`) — these are real controls a person
+   fills in, so the labels sit at the readable end of the scale rather than
+   the 0.6rem tracked capitals they were. */
 
 .form {
-  --gold: var(--loz-gold, #c9a24b);
-  --gold-bright: var(--loz-gold-bright, #efd79a);
-  --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
   max-width: 30rem;
 }
 
@@ -16,12 +14,14 @@
   margin-bottom: 1.1rem;
 }
 
+/* A field label is the thing that tells someone what to type. It was 0.6rem
+   tracked uppercase; it is caption-sized sentence case now. */
 .field label {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.7);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
 }
 
 .field input,
@@ -31,10 +31,10 @@
   background: rgba(7, 11, 20, 0.6);
   border: 1px solid rgba(201, 162, 75, 0.3);
   border-radius: 2px;
-  color: #dce6ef;
-  font-family: inherit;
-  font-size: 0.92rem;
-  line-height: 1.5;
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .field textarea {
@@ -43,9 +43,9 @@
 
 .field input:focus-visible,
 .field textarea:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
-  border-color: var(--gold-bright);
+  border-color: var(--gold-hi);
 }
 
 .fieldset {
@@ -57,11 +57,11 @@
 
 .fieldset legend {
   padding: 0 0.4rem;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.7);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
 }
 
 .checkboxRow {
@@ -69,8 +69,9 @@
   align-items: center;
   gap: 0.65rem;
   min-height: 40px;
-  font-size: 0.88rem;
-  color: #c0ceda;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
 }
 
 .checkboxRow input {
@@ -80,10 +81,12 @@
 }
 
 .checkboxRow input:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
+/* The submit control says what happens; two or three words, and a control
+   label is the one place the data voice still reads as a button. */
 .form button[type='submit'] {
   min-height: 44px;
   padding: 0 1.3rem;
@@ -91,9 +94,9 @@
   border: 1px solid var(--gold);
   border-radius: 2px;
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   cursor: pointer;
   transition: border-color 180ms ease, color 180ms ease;
@@ -101,12 +104,12 @@
 
 .form button[type='submit']:hover,
 .form button[type='submit']:focus-visible {
-  border-color: var(--gold-bright);
-  color: var(--gold-bright);
+  border-color: var(--gold-hi);
+  color: var(--gold-hi);
 }
 
 .form button[type='submit']:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 3px;
 }
 
@@ -115,18 +118,20 @@
   cursor: not-allowed;
 }
 
+/* An error has to be read to be acted on — full body size, on the ember
+   ramp because that ramp means "something is wrong" everywhere else too. */
 .fieldError {
   margin: -0.4rem 0 0.9rem;
-  color: #e2725b;
-  font-size: 0.8rem;
-  line-height: 1.5;
+  color: var(--data-ember-peak);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .formNote {
   margin-top: 0.85rem;
-  color: rgba(159, 179, 200, 0.72);
-  font-size: 0.74rem;
-  line-height: 1.5;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 .receipt {
@@ -139,12 +144,13 @@
 
 .receipt p {
   margin: 0 0 0.5rem;
-  color: var(--gold-bright, #efd79a);
-  font-size: 0.95rem;
+  color: var(--gold-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .receipt small {
-  color: rgba(159, 179, 200, 0.7);
-  font-size: 0.78rem;
-  line-height: 1.55;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }

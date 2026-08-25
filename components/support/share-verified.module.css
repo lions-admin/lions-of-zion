@@ -1,8 +1,7 @@
-.share {
-  --gold: var(--loz-gold, #c9a24b);
-  --gold-bright: var(--loz-gold-bright, #efd79a);
-  --mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+/* Share control. Same button voice as the forms' submit (support.module.css)
+   — a control label in the data voice, on the V2 tokens. */
 
+.share {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -12,9 +11,9 @@
   border: 1px solid var(--gold);
   border-radius: 2px;
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.1em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   cursor: pointer;
   transition: border-color 180ms ease, color 180ms ease;
@@ -22,11 +21,11 @@
 
 .share:hover,
 .share:focus-visible {
-  border-color: var(--gold-bright);
-  color: var(--gold-bright);
+  border-color: var(--gold-hi);
+  color: var(--gold-hi);
 }
 
 .share:focus-visible {
-  outline: 2px solid var(--gold-bright);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 3px;
 }

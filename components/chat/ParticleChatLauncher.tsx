@@ -5,6 +5,11 @@ import { usePathname } from 'next/navigation';
 import lionReference from '@/assets/reference/crowned-lion-particle-reference.png';
 import { ChatParticleCanvas } from './ChatParticleCanvas';
 import { AskTheLionChat } from './AskTheLionChat';
+import {
+  INTRO_SIGNAL_ATTRIBUTES,
+  INTRO_SIGNAL_SELECTOR,
+  introRouteDefault,
+} from '@/components/particle-nav/introSignal';
 import styles from './particle-chat-launcher.module.css';
 
 const MOBILE_CHAT_QUERY = '(max-width: 719px)';
@@ -35,8 +40,6 @@ function useMobileChatSculpture() {
    renderer inside `ChatParticleCanvas` from running behind a hidden element for
    the whole intro, and what lets the attention cue start its animation at the
    beginning rather than mid-cycle. */
-const INTRO_SELECTOR = '[data-intro-pending],[data-intro-active],[data-handoff-blocked]';
-
 function subscribeToIntro(callback: () => void) {
   const observer = new MutationObserver(callback);
   observer.observe(document.body, {
@@ -45,13 +48,13 @@ function subscribeToIntro(callback: () => void) {
     // node rather than as a change to an existing one.
     childList: true,
     attributes: true,
-    attributeFilter: ['data-intro-pending', 'data-intro-active', 'data-handoff-blocked'],
+    attributeFilter: [...INTRO_SIGNAL_ATTRIBUTES],
   });
   return () => observer.disconnect();
 }
 
 function getIntroSnapshot() {
-  return document.querySelector(INTRO_SELECTOR) !== null;
+  return document.querySelector(INTRO_SIGNAL_SELECTOR) !== null;
 }
 
 function useIntroSuppressed(assumeIntro: boolean) {
@@ -65,7 +68,7 @@ function useIntroSuppressed(assumeIntro: boolean) {
 
 export function ParticleChatLauncher() {
   const pathname = usePathname();
-  const introSuppressed = useIntroSuppressed(pathname === '/');
+  const introSuppressed = useIntroSuppressed(introRouteDefault(pathname));
   const mobileChatSculpture = useMobileChatSculpture();
   const activeRef = useRef(false);
   const activationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -115,7 +118,7 @@ export function ParticleChatLauncher() {
      the intro has no answer for, and lets the attention cue's 7.2s loop run out
      of phase so it can reappear mid-pulse. Unmounting settles all three, and
      the CSS rule stays as the paint-time belt for the handoff window. */
-  if (introSuppressed) return null;
+  if (introSuppressed && !chatOpen) return null;
 
   const activate = () => {
     setActivated(true);

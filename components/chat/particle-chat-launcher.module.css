@@ -26,12 +26,25 @@
   to { opacity: 1; }
 }
 
+/* The paint-time belt. The launcher unmounts itself while the intro runs, but
+   React commits a frame later than the browser paints, and on a client-side
+   navigation to `/` that frame is visible. Keep this list in step with
+   INTRO_SIGNAL_ATTRIBUTES in components/particle-nav/introSignal.ts. */
+:global(body:has([data-intro-pending])) .root,
 :global(body:has([data-intro-active])) .root,
 :global(body:has([data-handoff-blocked])) .root {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transform: translateY(12px);
+}
+
+/* The cue is a 7.2s loop. Left running under `visibility: hidden` it comes back
+   mid-pulse, which reads as a glitch rather than an invitation. */
+:global(body:has([data-intro-pending])) .label,
+:global(body:has([data-intro-active])) .label,
+:global(body:has([data-handoff-blocked])) .label {
+  animation-play-state: paused;
 }
 
 .launcherRow {

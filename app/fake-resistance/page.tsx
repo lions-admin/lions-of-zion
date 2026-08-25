@@ -7,7 +7,26 @@ import {
   VerificationBadge,
 } from "@/components/content";
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
+import type { AssessmentValue } from "@/server/contracts/enums";
 import styles from "./page.module.css";
+
+/** Same wording VerificationBadge uses, so the stamp and the accessible
+ *  badge underneath it never disagree. */
+const STAMP_LABEL: Record<AssessmentValue, string> = {
+  verified: "Verified",
+  false: "False",
+  misleading: "Misleading",
+  manipulated: "Manipulated",
+  out_of_context: "Out of context",
+  contested: "Contested",
+  unsupported: "Unsupported",
+  unverified: "Unverified",
+  satire: "Satire",
+};
+
+/** Exhibit letters, not sequence numbers — these three cases aren't steps in
+ *  a process, they're separate items pulled into evidence. */
+const exhibitLetter = (index: number) => String.fromCharCode(65 + index);
 
 const TAGLINE =
   "Inside the influence machine: how manufactured outrage is built and amplified.";
@@ -86,24 +105,46 @@ export default async function Page() {
           its content far more often than it changes its method.
         </p>
 
-        {edition.cases.map((c) => (
+        {edition.cases.map((c, i) => (
           <article key={c.id} id={c.id} className={styles.caseFile}>
+            <span
+              className={styles.stamp}
+              data-tone={
+                c.verdict === "verified"
+                  ? "gold"
+                  : c.verdict === "false" ||
+                      c.verdict === "manipulated" ||
+                      c.verdict === "misleading"
+                    ? "ember"
+                    : "muted"
+              }
+              aria-hidden="true"
+            >
+              {STAMP_LABEL[c.verdict]}
+            </span>
+
             <div className={styles.caseFileHeader}>
+              <span className={styles.exhibitTag}>Exhibit {exhibitLetter(i)}</span>
               <time dateTime={c.datetime}>{c.dateLabel}</time>
               <VerificationBadge assessment={c.verdict} />
             </div>
             <h3>{c.title}</h3>
-            <ClaimRecordPair claim={c.claim} record={c.record} />
-            <dl className={styles.caseFileMeta}>
-              <div>
-                <dt>Origin</dt>
-                <dd>{c.origin}</dd>
-              </div>
-              <div>
-                <dt>Amplification</dt>
-                <dd>{c.amplification}</dd>
-              </div>
-            </dl>
+            <ClaimRecordPair
+              claim={c.claim}
+              record={c.record}
+              claimLabel="As it spread"
+              recordLabel="What the record shows"
+            />
+            <ol className={styles.caseLog}>
+              <li>
+                <span className={styles.caseLogLabel}>Origin</span>
+                <p>{c.origin}</p>
+              </li>
+              <li>
+                <span className={styles.caseLogLabel}>Amplification</span>
+                <p>{c.amplification}</p>
+              </li>
+            </ol>
             <div className={styles.caseFileTells}>
               <span>Tells exhibited</span>
               <ul>

@@ -1,14 +1,18 @@
 /* Citation/commendation composition, local to Our Heroes. No photos exist
    for these profiles (rights-sensitive, deliberate) so the formal register
    and the corner-bracket frame — a citation, not a card — carry the weight
-   instead. Reads the sitewide --font-cinzel/--font-geist-mono tokens the
-   rest of the site uses; no new type or color introduced. */
+   instead.
+
+   Typeset on the V2 tokens (`.ai/DESIGN-V2.md`). The name is the point of
+   this page: it was tracked Cinzel capitals, which reads as an inscription
+   rather than a person. It is Newsreader in sentence case now, so a name
+   has word shapes and looks like it belongs to someone. */
 
 .citation {
   position: relative;
   margin-top: 2rem;
   padding: 2.25rem 2rem 2rem;
-  border: 1px solid rgba(201, 162, 75, 0.28);
+  border: 1px solid var(--gold-line);
   background: rgba(7, 11, 20, 0.4);
 }
 
@@ -53,28 +57,34 @@
   height: 1.2rem;
 }
 
+/* The citation's opening formula. Deliberately *not* composing the canonical
+   `.kicker`: that is uppercase, which the type rules reserve for data labels
+   of two words or fewer. This is a phrase with a date in it, so it stays in
+   sentence case and just holds the data voice. */
 .citationKicker {
   margin: 0 0 1.1rem;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(201, 162, 75, 0.68);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.04em;
+  color: var(--gold);
 }
 
 .citationName {
   margin: 0;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  line-height: 1.3;
-  text-transform: uppercase;
-  color: #efd79a;
-  font-size: 1.05rem;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: 0;
+  color: var(--ink-hi);
 }
 
+/* The featured citation steps up one rung of the scale — no bespoke clamp. */
 .citationFeatured .citationName {
-  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
 }
 
 .citationRule {
@@ -92,49 +102,45 @@
   margin-bottom: 1.4rem;
 }
 
+/* One word — "Fallen", "Rescuer", "Fighter" — so uppercase is in bounds. */
 .citationRole {
   padding: 0.3rem 0.65rem;
   border: 1px solid rgba(201, 162, 75, 0.45);
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.14em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: #c9a24b;
+  color: var(--gold);
 }
 
 .citationMeta {
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.05em;
-  color: rgba(159, 179, 200, 0.72);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.04em;
+  color: var(--ink-lo);
 }
 
 .citationBody {
   margin: 0;
   max-width: 42rem;
-  font-size: 0.94rem;
-  line-height: 1.75;
-  color: #b9c7d5;
-}
-
-.citationFeatured .citationBody {
-  font-size: 0.98rem;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 .citationSources {
   margin-top: 1.75rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(201, 162, 75, 0.18);
+  border-top: 1px solid var(--gold-line);
 }
 
+/* One word, and the same label the rest of the site uses — take the
+   canonical treatment rather than declaring a fifth variant of it. */
 .citationSourcesKicker {
-  display: block;
+  composes: kicker from '../../components/content/content.module.css';
   margin-bottom: 0.7rem;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.54rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.5);
 }
 
 .citationGrid {

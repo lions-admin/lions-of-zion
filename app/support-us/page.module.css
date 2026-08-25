@@ -28,28 +28,31 @@
   border-bottom: 1px solid rgba(201, 162, 75, 0.2);
 }
 
+/* "Module · Report" — a two-word tool marker, so uppercase is in bounds. */
 .moduleLabel {
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.62);
+  color: var(--ink-lo);
 }
 
 .moduleTitle {
   margin: 0;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 1.2rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: #efd79a;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: 0;
+  color: var(--ink-hi);
 }
 
 .moduleLede {
   margin: 0 0 1.4rem;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: #b9c7d5;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 .skillGrid {
@@ -69,46 +72,48 @@
 .practice {
   min-width: 0;
   padding-top: 1rem;
-  border-top: 1px solid rgba(201, 162, 75, 0.22);
+  border-top: 1px solid var(--gold-line);
 }
 
+/* The one that isn't live yet reads quieter, on purpose — the page should
+   not dress a pending channel to look like a working tool. */
 .practicePending {
-  border-top-color: rgba(159, 179, 200, 0.22);
+  border-top-color: var(--line);
   opacity: 0.82;
 }
 
+/* "Standing practice" / "Not open yet" — two- and three-word state markers.
+   Sentence case: the three-word one is over the uppercase budget, and both
+   should read the same way as each other. */
 .practiceLabel {
   display: block;
   margin-bottom: 0.6rem;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.55);
-}
-
-.practicePending .practiceLabel {
-  color: rgba(159, 179, 200, 0.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.04em;
+  color: var(--ink-lo);
 }
 
 .practice h3 {
   margin: 0 0 0.7rem;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 1.05rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: #c9a24b;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: 0;
+  color: var(--gold-hi);
 }
 
 .practicePending h3 {
-  color: #9fb3c8;
+  color: var(--ink-lo);
 }
 
 .practice p {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: #b0bfcd;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 @media (max-width: 900px) {

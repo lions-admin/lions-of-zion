@@ -1,8 +1,18 @@
 /* Case-file layout, local to Fake Resistance. Typography values match
    components/sections/sections.module.css's mono/display voice so a case
-   file reads as part of the same dossier, not a bolted-on component. */
+   file reads as part of the same dossier, not a bolted-on component.
+
+   Each entry reads as processed evidence rather than a blog post: an
+   exhibit letter (there are three separate items in evidence here, not
+   three steps of a sequence — letters, not numbers), a corner stamp
+   carrying the verdict as ink rather than only a colored chip, and the
+   origin/amplification pair as a two-entry custody log — that pairing IS
+   a real sequence (what happened first, what happened next), so a
+   connecting rail earns its place there in a way a numbered badge would
+   not have. */
 
 .caseFile {
+  position: relative;
   margin-top: 2.5rem;
   padding-top: 2rem;
   border-top: 1px solid rgba(201, 162, 75, 0.18);
@@ -12,11 +22,57 @@
   margin-top: 1.75rem;
 }
 
+/* The corner stamp — the one bold flourish on this page. Decorative only:
+   VerificationBadge below carries the real accessible label, so this stays
+   aria-hidden and never disagrees with it (STAMP_LABEL mirrors the badge's
+   own wording). */
+.stamp {
+  position: absolute;
+  top: 0.35rem;
+  right: 0;
+  padding: 0.3rem 0.85rem;
+  border: 2px solid var(--stamp-color, rgba(168, 90, 97, 0.55));
+  border-radius: 3px;
+  transform: rotate(-6deg);
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--stamp-color, rgba(168, 90, 97, 0.75));
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.stamp[data-tone='ember'] {
+  --stamp-color: #a85a61;
+}
+
+.stamp[data-tone='gold'] {
+  --stamp-color: #c9a24b;
+}
+
+.stamp[data-tone='muted'] {
+  --stamp-color: #6b8299;
+}
+
 .caseFileHeader {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.9rem;
+  max-width: calc(100% - 8rem);
+}
+
+.exhibitTag {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  border-radius: 2px;
+  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9a24b;
 }
 
 .caseFileHeader time {
@@ -37,14 +93,45 @@
   color: #c9a24b;
 }
 
-.caseFileMeta {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+/* Origin → amplification, in that order: a two-entry custody log with a
+   connecting rail, the same rail/dot idea components/content/Timeline.tsx
+   uses, kept local since two fixed entries don't warrant reaching for that
+   component's generality. */
+.caseLog {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
   margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.caseFileMeta dt {
+.caseLog li {
+  position: relative;
+  padding-left: 1.35rem;
+  border-left: 1px solid rgba(201, 162, 75, 0.3);
+}
+
+.caseLog li:last-child {
+  border-left-color: transparent;
+}
+
+.caseLog li::before {
+  content: '';
+  position: absolute;
+  top: 0.3rem;
+  left: -0.24rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: var(--ground, #070b14);
+  border: 1px solid #c9a24b;
+}
+
+.caseLogLabel {
+  display: block;
+  margin-bottom: 0.35rem;
   font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
   font-size: 0.56rem;
   letter-spacing: 0.12em;
@@ -52,8 +139,8 @@
   color: rgba(159, 179, 200, 0.72);
 }
 
-.caseFileMeta dd {
-  margin: 0.4rem 0 0;
+.caseLog p {
+  margin: 0;
   font-size: 0.86rem;
   line-height: 1.6;
   color: #c0ceda;
@@ -89,8 +176,16 @@
   color: #a85a61;
 }
 
-@media (max-width: 600px) {
-  .caseFileMeta {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 540px) {
+  /* No room for a floating corner stamp beside wrapped header text — drop it
+     into normal flow above the header instead of overlapping it. */
+  .stamp {
+    position: static;
+    display: inline-block;
+    margin: 0 0 1rem;
+  }
+
+  .caseFileHeader {
+    max-width: 100%;
   }
 }

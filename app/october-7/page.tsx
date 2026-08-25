@@ -2,16 +2,44 @@ import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { FigureRow, SourceList, Timeline } from "@/components/content";
 import { getOctober7Record } from "@/lib/content/october-7";
+import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
 const TAGLINE =
   "The record of October 7: testimony, evidence, and remembrance.";
+const PAGE_URL = `${SITE_URL}/october-7`;
 
-export const metadata: Metadata = {
-  title: "October 7",
-  description: TAGLINE,
-  openGraph: { title: "October 7 — LIONS OF ZION", description: TAGLINE },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const record = await getOctober7Record();
+  const publishedTime = new Date(record.publishedAt).toISOString();
+  return {
+    title: "October 7",
+    description: TAGLINE,
+    alternates: { canonical: PAGE_URL },
+    openGraph: {
+      title: "October 7 — LIONS OF ZION",
+      description: TAGLINE,
+      type: "article",
+      publishedTime,
+    },
+  };
+}
+
+function october7JsonLd(record: Awaited<ReturnType<typeof getOctober7Record>>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: "October 7",
+    description: TAGLINE,
+    url: PAGE_URL,
+    datePublished: new Date(record.publishedAt).toISOString(),
+    author: { "@type": "Organization", name: "Lions of Zion" },
+    publisher: { "@type": "Organization", name: "Lions of Zion" },
+    citation: record.timeline.flatMap((entry) =>
+      (entry.sources ?? []).map((source) => source.url).filter((url): url is string => Boolean(url)),
+    ),
+  };
+}
 
 export default async function Page() {
   const record = await getOctober7Record();
@@ -24,6 +52,10 @@ export default async function Page() {
       title="October 7"
       tagline={TAGLINE}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }}
+      />
       <SectionBlock heading="The record">
         <p>
           What happened on October 7, 2023 was documented as it happened —

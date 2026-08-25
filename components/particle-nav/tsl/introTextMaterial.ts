@@ -1,4 +1,4 @@
-import { Color, NormalBlending, SpriteNodeMaterial } from 'three/webgpu';
+import { Color, NormalBlending, SpriteNodeMaterial, Vector3 } from 'three/webgpu';
 import {
   color,
   float,
@@ -46,6 +46,10 @@ export function createIntroTextMaterial(
 
   const positions = instancedArray(packedPositions, 'vec4');
   const traits = instancedArray(packedTraits, 'vec4');
+  /* The trajectory is a uniform rather than a build option because it depends
+     on the frame's width, and the frame changes on every resize. Baking it into
+     the node graph would tie a rotation to a full glyph resample — the exact
+     cost the layout's width quantiser exists to avoid. */
   const uniforms = {
     build: uniform(0),
     disperse: uniform(0),
@@ -53,6 +57,10 @@ export function createIntroTextMaterial(
     focus: uniform(0),
     pxToWorld: uniform(0.004),
     dpr: uniform(1),
+    originBias: uniform(new Vector3(-1.5, -0.725, -0.65)),
+    originSpan: uniform(new Vector3(-2.3, 1.45, 1.3)),
+    windBias: uniform(new Vector3(2.4, 1.7, -1.6)),
+    windSpan: uniform(new Vector3(3, 2.5, 3.2)),
   };
   const material = new SpriteNodeMaterial({
     transparent: true,
@@ -68,20 +76,11 @@ export function createIntroTextMaterial(
   const built = smoothstep(start, start.add(0.17), uniforms.build);
   const eraseStart = point.w.mul(0.52);
   const erased = smoothstep(eraseStart, eraseStart.add(0.3), uniforms.disperse);
-  const origin = point.xyz.add(
-    vec3(
-      float(-1.5).sub(seed.x.mul(2.3)),
-      seed.y.sub(0.5).mul(1.45),
-      seed.z.sub(0.5).mul(1.3),
-    ),
-  );
-  const windTarget = point.xyz.add(
-    vec3(
-      float(2.4).add(seed.x.mul(3)),
-      float(1.7).add(seed.y.mul(2.5)),
-      seed.z.sub(0.5).mul(3.2),
-    ),
-  );
+  /* `bias + span * seed` reproduces the authored spans exactly: the old
+     `(seed - 0.5) * s` forms are the same line with the half folded into the
+     bias, which is what lets one uniform pair carry every axis. */
+  const origin = point.xyz.add(uniforms.originBias.add(seed.mul(uniforms.originSpan)));
+  const windTarget = point.xyz.add(uniforms.windBias.add(seed.mul(uniforms.windSpan)));
   const visiblePosition = mix(origin, point.xyz, built);
   const edgeDrift = sin(time.mul(0.9).add(seed.x.mul(18))).mul(trait.w).mul(0.012);
   material.positionNode = mix(visiblePosition, windTarget, erased).add(

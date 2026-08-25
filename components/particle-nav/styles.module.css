@@ -60,6 +60,21 @@
   opacity: 1;
 }
 
+/* On a phone the control is rule + gap + label + chevron, around 205px, which
+   is two thirds of a 320px frame sitting in the corner the brand cloud reaches
+   into. Tighten the spacing and the rule rather than the type: the label is the
+   part that has to stay readable, and the 52px band above keeps the target the
+   same size it was. */
+@media (max-width: 480px) {
+  .skipIntro {
+    gap: 0.5rem;
+  }
+
+  .skipRule {
+    width: 18px;
+  }
+}
+
 .skipRule {
   width: 38px;
   height: 2px;

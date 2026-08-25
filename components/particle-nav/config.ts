@@ -223,8 +223,27 @@ export interface OrbitLayout {
   centerScale: number;
 }
 
-const CAMERA_Z = 8.2;
-const CAMERA_FOV = 45;
+export const CAMERA_Z = 8.2;
+export const CAMERA_FOV = 45;
+
+/**
+ * The camera's visible extent in world units at the lion plane.
+ *
+ * Every layer needs this and, until now, three of them re-derived it from
+ * their own copies of the two constants above. `viewHeight` does not depend on
+ * the aspect at all — it is 6.7931 at every viewport — which is a fact worth
+ * having in one place, because it is why the intro's vertical composition needs
+ * no responsive handling and its horizontal composition does.
+ */
+export function viewSize(width: number, height: number) {
+  const safeHeight = Math.max(1, height);
+  const viewHeight = 2 * CAMERA_Z * Math.tan((CAMERA_FOV * Math.PI) / 360);
+  return {
+    viewHeight,
+    viewWidth: viewHeight * (width / safeHeight),
+    worldPerPx: viewHeight / safeHeight,
+  };
+}
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -234,11 +253,8 @@ export function computeOrbitLayout(
   maxRadius: number,
   safeArea: SafeAreaInsets = { top: 0, right: 0, bottom: 0, left: 0 },
 ): OrbitLayout {
-  const safeHeight = Math.max(1, height);
-  const minDimension = Math.min(width, safeHeight);
-  const viewHeight = 2 * CAMERA_Z * Math.tan((CAMERA_FOV * Math.PI) / 360);
-  const viewWidth = viewHeight * (width / safeHeight);
-  const worldPerPx = viewHeight / safeHeight;
+  const minDimension = Math.min(width, Math.max(1, height));
+  const { viewHeight, viewWidth, worldPerPx } = viewSize(width, height);
 
   const nodeRadiusPx = clamp(minDimension * 0.056, 44, 68);
   const haloRadiusPx = nodeRadiusPx * (1 + NODE_HALO_RATIO) + NODE_HALO_PX;

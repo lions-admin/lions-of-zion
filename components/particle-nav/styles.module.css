@@ -653,9 +653,12 @@
 
   .mobileLion {
     position: relative;
-    width: 12rem;
-    height: 12rem;
-    margin: 0.4rem auto -0.15rem;
+    /* Small enough that the first navigation group clears the fold at 390x844.
+       At 12rem the lion plus the brief card pushed all eight destinations off
+       screen, and the page read as an article, not a menu. */
+    width: 8.75rem;
+    height: 8.75rem;
+    margin: 0.3rem auto 0;
     opacity: 0.94;
     filter: drop-shadow(0 0 30px rgba(201, 162, 75, 0.16));
     mask-image: radial-gradient(circle at center, black 43%, rgba(0, 0, 0, 0.78) 57%, transparent 74%);
@@ -671,6 +674,7 @@
 
   .mobileLatest {
     display: block;
+    margin-top: 2.3rem;
     padding: 1.15rem 0 1.2rem;
     border-top: 1px solid rgba(201, 162, 75, 0.44);
     border-bottom: 1px solid rgba(201, 162, 75, 0.22);
@@ -745,7 +749,7 @@
   }
 
   .mobileSections {
-    margin-top: 2.4rem;
+    margin-top: 1.35rem;
   }
 
   .mobileGroup + .mobileGroup {

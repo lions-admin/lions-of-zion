@@ -35,6 +35,12 @@ export function HomeSignalLayer({ nodes }: { nodes: NavNode[] }) {
         </div>
       </div>
 
+      {/* Order is the message here: after a 47-second intro, whatever this
+          screen leads with is what the visitor believes they landed on. It led
+          with the latest-brief card once, and a full-width card reading
+          "REFERENCE BRIEF · CONFIRMED" made the home page read as the brief
+          itself. The eight destinations come first; the brief is a card on the
+          menu, not the menu. */}
       <section className={styles.mobileHome} aria-labelledby="mobile-home-title">
         <div className={styles.mobileScanField} aria-hidden="true" />
         <div className={styles.mobileHomeInner}>
@@ -45,18 +51,8 @@ export function HomeSignalLayer({ nodes }: { nodes: NavNode[] }) {
           </header>
 
           <div className={styles.mobileLion} aria-hidden="true">
-            <Image src={lionReference} alt="" sizes="11rem" />
+            <Image src={lionReference} alt="" sizes="9rem" />
           </div>
-
-          <Link href="/geopolitical-brief" className={styles.mobileLatest}>
-            <span className={styles.mobileLatestMeta}>
-              <span>{brief.edition}</span>
-              <span data-status="confirmed">{brief.status}</span>
-            </span>
-            <strong>{brief.title}</strong>
-            <p>{brief.headline}</p>
-            <small>Open evidence desk <span aria-hidden="true">↗</span></small>
-          </Link>
 
           <nav className={styles.mobileSections} aria-label="Explore Lions of Zion">
             {GROUPS.map((group) => {
@@ -77,6 +73,16 @@ export function HomeSignalLayer({ nodes }: { nodes: NavNode[] }) {
               );
             })}
           </nav>
+
+          <Link href="/geopolitical-brief" className={styles.mobileLatest}>
+            <span className={styles.mobileLatestMeta}>
+              <span>{brief.edition}</span>
+              <span data-status="confirmed">{brief.status}</span>
+            </span>
+            <strong>{brief.title}</strong>
+            <p>{brief.headline}</p>
+            <small>Open evidence desk <span aria-hidden="true">↗</span></small>
+          </Link>
 
           <p className={styles.mobileFootnote}>
             Reference edition · sources and status travel with every published item.

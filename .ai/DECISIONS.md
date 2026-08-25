@@ -10,6 +10,23 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — The mobile home leads with the menu, not the latest brief
+
+Reported from a real iPhone as "it jumps straight to the brief" — with the URL
+still on `/`. Nothing navigated. The mobile home *opened* on the latest-brief
+card: brand and lion consumed the first ~400px, the full-width card reading
+"REFERENCE BRIEF · CONFIRMED / Open evidence desk" took the centre of the
+screen, and all eight destinations sat below the fold. After a 47-second intro,
+whatever this screen leads with is what a visitor believes they landed on.
+
+So the order is now brand → lion (8.75rem, down from 12rem) → the three
+navigation groups → the latest-brief card → footnote. The card is not removed —
+the latest verified item is the home's strongest proof of life — it is demoted
+to a card *on* the menu instead of standing where the menu should be. Do not
+move it back above the groups to "surface content": that reading was the bug.
+
+---
+
 ## 2026-08-25 — The chat launcher is absent during the intro, not hidden
 
 The stylesheet already hid it under `body:has([data-intro-active])`, and hiding

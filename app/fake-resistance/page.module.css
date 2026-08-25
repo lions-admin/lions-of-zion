@@ -1,6 +1,4 @@
-/* Case-file layout, local to Fake Resistance. Typography values match
-   components/sections/sections.module.css's mono/display voice so a case
-   file reads as part of the same dossier, not a bolted-on component.
+/* Case-file layout, local to Fake Resistance.
 
    Each entry reads as processed evidence rather than a blog post: an
    exhibit letter (there are three separate items in evidence here, not
@@ -9,13 +7,17 @@
    origin/amplification pair as a two-entry custody log — that pairing IS
    a real sequence (what happened first, what happened next), so a
    connecting rail earns its place there in a way a numbered badge would
-   not have. */
+   not have.
+
+   Type and colour come from the V2 tokens in app/globals.css
+   (`.ai/DESIGN-V2.md`); the kicker and title treatments are composed from
+   the content library rather than redeclared here. */
 
 .caseFile {
   position: relative;
   margin-top: 2.5rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(201, 162, 75, 0.18);
+  border-top: 1px solid var(--gold-line);
 }
 
 .caseFile:first-of-type {
@@ -25,35 +27,37 @@
 /* The corner stamp — the one bold flourish on this page. Decorative only:
    VerificationBadge below carries the real accessible label, so this stays
    aria-hidden and never disagrees with it (STAMP_LABEL mirrors the badge's
-   own wording). */
+   own wording). Tracking is at the cap rather than the old 0.22em; the
+   border, rotation and weight already make it read as a stamp without
+   pulling the letters apart. */
 .stamp {
   position: absolute;
   top: 0.35rem;
   right: 0;
   padding: 0.3rem 0.85rem;
-  border: 2px solid var(--stamp-color, rgba(168, 90, 97, 0.55));
+  border: 2px solid var(--stamp-color, var(--data-ember));
   border-radius: 3px;
   transform: rotate(-6deg);
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.72rem;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--stamp-color, rgba(168, 90, 97, 0.75));
+  color: var(--stamp-color, var(--data-ember));
   opacity: 0.82;
   pointer-events: none;
 }
 
 .stamp[data-tone='ember'] {
-  --stamp-color: #a85a61;
+  --stamp-color: var(--data-ember);
 }
 
 .stamp[data-tone='gold'] {
-  --stamp-color: #c9a24b;
+  --stamp-color: var(--gold);
 }
 
 .stamp[data-tone='muted'] {
-  --stamp-color: #6b8299;
+  --stamp-color: var(--ink-lo);
 }
 
 .caseFileHeader {
@@ -66,31 +70,28 @@
 
 .exhibitTag {
   padding: 0.15rem 0.5rem;
-  border: 1px solid rgba(201, 162, 75, 0.4);
+  border: 1px solid var(--gold-line);
   border-radius: 2px;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: #c9a24b;
+  color: var(--gold);
 }
 
+/* Sentence case, matching the canonical date stamp — a date is data, not a
+   label, and "Oct 2023" has no reason to shout. */
 .caseFileHeader time {
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.04em;
+  color: var(--ink-lo);
 }
 
-.caseFile h3 {
+.caseTitle {
+  composes: entryTitle from '../../components/content/content.module.css';
   margin: 0.85rem 0 1.35rem;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  line-height: 1.4;
-  color: #c9a24b;
 }
 
 /* Origin → amplification, in that order: a two-entry custody log with a
@@ -125,39 +126,29 @@
   height: 0.42rem;
   border-radius: 1px;
   transform: rotate(45deg);
-  background: var(--ground, #070b14);
-  border: 1px solid #c9a24b;
+  background: var(--ground);
+  border: 1px solid var(--gold);
 }
 
 .caseLogLabel {
-  display: block;
+  composes: kicker from '../../components/content/content.module.css';
   margin-bottom: 0.35rem;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.56rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
 }
 
 .caseLog p {
   margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.6;
-  color: #c0ceda;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
 }
 
 .caseFileTells {
   margin: 1.5rem 0 0;
 }
 
-.caseFileTells > span {
-  display: block;
+.caseFileTellsLabel {
+  composes: kicker from '../../components/content/content.module.css';
   margin-bottom: 0.6rem;
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 0.56rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
 }
 
 .caseFileTells ul {
@@ -167,13 +158,14 @@
 
 .caseFileTells li {
   margin-bottom: 0.4rem;
-  font-size: 0.86rem;
-  line-height: 1.6;
-  color: #b9c7d5;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
 }
 
+/* Ember here is semantic: these are the hostile-signal tells. */
 .caseFileTells li::marker {
-  color: #a85a61;
+  color: var(--data-ember);
 }
 
 @media (max-width: 540px) {

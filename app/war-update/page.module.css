@@ -2,9 +2,14 @@
  * War Update's composition: a wire-service dispatch feed, not a generic
  * timeline card list. Each entry reads like a dispatch — a byline/dateline
  * naming the place actually stated in that entry's sourced text (never
- * inferred), then the headline, then the report. Palette/type tokens are
- * inherited from `.page` in sections.module.css — this file only shapes
- * the composition, not the identity.
+ * inferred), then the headline, then the report.
+ *
+ * Type and colour come from the V2 tokens in app/globals.css
+ * (`.ai/DESIGN-V2.md`); the shared treatments come from the content library.
+ * This file only shapes the composition. It previously read `--mono`,
+ * `--display` and `--body` from the old shell, which Phase 2 removed — those
+ * were resolving to nothing, so the headline was rendering in the body face
+ * and the dateline at 10.6px.
  */
 
 .advisory {
@@ -13,10 +18,10 @@
 
 .advisoryLabel {
   font-style: normal;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--gold, #c9a24b);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--gold);
 }
 
 .wire {
@@ -39,7 +44,8 @@
 
 .dispatch {
   padding: 1.35rem 0;
-  border-top: 1px solid rgba(201, 162, 75, 0.18);
+  border-top: 1px solid var(--gold-line);
+  scroll-margin-top: 6rem;
 }
 
 .dispatch:first-child {
@@ -47,47 +53,46 @@
   border-top: none;
 }
 
+/* The dateline is the one place uppercase earns its keep on this page: it is
+   the wire convention, it is short, and it is data. At the tracking cap. */
 .byline {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   margin: 0 0 0.75rem;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.11em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
+  color: var(--ink-lo);
 }
 
 .datelinePlace {
-  color: var(--gold-bright, #efd79a);
+  color: var(--gold-hi);
   font-weight: 600;
 }
 
+/* Category is a semantic data chip — blue is carrying meaning here, not
+   hierarchy. */
 .category {
   padding: 0.12rem 0.5rem;
   border: 1px solid rgba(87, 167, 217, 0.35);
   border-radius: 1px;
-  color: var(--blue, #57a7d9);
-  font-size: 0.6rem;
+  color: var(--data-blue);
 }
 
 .headline {
+  composes: entryTitle from '../../components/content/content.module.css';
   margin: 0 0 0.6rem;
-  font-family: var(--display);
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1.4;
-  color: var(--gold, #c9a24b);
 }
 
 .wireBody {
   max-width: 40rem;
-  font-size: 0.96rem;
-  line-height: 1.75;
-  color: var(--body, #9fb3c8);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
 }
 
 .dispatchSources {
@@ -104,49 +109,46 @@
 .filterChip {
   min-height: 36px;
   padding: 0.3rem 0.75rem;
-  border: 1px solid rgba(201, 162, 75, 0.3);
+  border: 1px solid var(--gold-line);
   border-radius: 2px;
   background: transparent;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.72);
+  color: var(--ink-lo);
   cursor: pointer;
   transition: border-color 160ms ease, color 160ms ease;
 }
 
 .filterChip:hover {
   border-color: rgba(201, 162, 75, 0.55);
+  color: var(--ink);
 }
 
 .filterChip[data-active] {
-  border-color: var(--gold, #c9a24b);
-  color: var(--gold-bright, #efd79a);
+  border-color: var(--gold);
+  color: var(--gold-hi);
 }
 
 .filterChip:focus-visible {
-  outline: 2px solid var(--gold-bright, #efd79a);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
 .emptyFilter {
   margin: 1.5rem 0 0;
-  font-size: 0.9rem;
-  color: rgba(159, 179, 200, 0.6);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
 }
 
 .latest {
   padding: 0.1rem 0.45rem;
   border: 1px solid rgba(201, 162, 75, 0.55);
   border-radius: 1px;
-  color: var(--gold-bright, #efd79a);
-  font-size: 0.56rem;
-  letter-spacing: 0.1em;
-}
-
-.dispatch {
-  scroll-margin-top: 6rem;
+  color: var(--gold-hi);
+  letter-spacing: var(--t-data-tracking);
 }
 
 .dispatchActions {
@@ -160,11 +162,11 @@
   min-height: 36px;
   display: inline-flex;
   align-items: center;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: rgba(159, 179, 200, 0.6);
+  color: var(--ink-lo);
   text-decoration: none;
   background: none;
   border: none;
@@ -174,12 +176,12 @@
 
 .permalink:hover,
 .shareButton:hover {
-  color: var(--gold-bright, #efd79a);
+  color: var(--gold-hi);
 }
 
 .permalink:focus-visible,
 .shareButton:focus-visible {
-  outline: 2px solid var(--gold-bright, #efd79a);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 3px;
 }
 

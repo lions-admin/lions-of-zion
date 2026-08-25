@@ -104,7 +104,10 @@ export function WireFeed({ entries }: { entries: TimelineEntry[] }) {
                 <p className={styles.byline}>
                   {place ? <span className={styles.datelinePlace}>{place}</span> : null}
                   {place ? <span aria-hidden="true"> — </span> : null}
-                  <time dateTime={entry.datetime}>{entry.dateLabel.toUpperCase()}</time>
+                  {/* The dateline's uppercase is a CSS concern (`.byline`),
+                      not a data transform — keeping it in one place means the
+                      casing can change without touching the markup. */}
+                  <time dateTime={entry.datetime}>{entry.dateLabel}</time>
                   {entry.category ? <span className={styles.category}>{entry.category}</span> : null}
                   {entry.id === latestId ? <span className={styles.latest}>Latest</span> : null}
                   {entry.assessment ? <VerificationBadge assessment={entry.assessment} /> : null}

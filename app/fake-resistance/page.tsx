@@ -181,7 +181,7 @@ export default async function Page() {
               <time dateTime={c.datetime}>{c.dateLabel}</time>
               <VerificationBadge assessment={c.verdict} />
             </div>
-            <h3>{c.title}</h3>
+            <h3 className={styles.caseTitle}>{c.title}</h3>
             <ClaimRecordPair
               claim={c.claim}
               record={c.record}
@@ -199,7 +199,7 @@ export default async function Page() {
               </li>
             </ol>
             <div className={styles.caseFileTells}>
-              <span>Tells exhibited</span>
+              <span className={styles.caseFileTellsLabel}>Tells exhibited</span>
               <ul>
                 {c.tells.map((tell) => (
                   <li key={tell}>{tell}</li>

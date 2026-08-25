@@ -1,20 +1,97 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/*
+ * Design V2 tokens — `.ai/DESIGN-V2.md`, "The broadsheet over the scan".
+ *
+ * The audit that prompted this found 51 distinct font sizes, 77 declarations
+ * under 11px, and ~12 unrelated body grays. These tokens are the whole
+ * vocabulary now: three faces, seven type steps, six colors. A page that
+ * needs a size not in the scale is a page that needs rethinking, not a new
+ * size.
+ */
 :root {
-  /* Sitewide palette tokens. Locks from the nav brief (§9): gold on ground
-     is never dimmed for atmosphere; every consumer keeps its own fallback
-     value so this file can be the source of truth without being a coupling
-     hazard — a module that forgets to update here still renders correctly. */
-  --loz-ground: #070b14;
-  --loz-gold: #c9a24b;
-  --loz-gold-bright: #efd79a;
-  --loz-blue: #57a7d9;
-  --loz-blue-dim: #3e7fa8;
-  --loz-blue-peak: #9adfff;
-  --loz-ember: #a85a61;
-  --loz-ember-dim: #7a4048;
-  --loz-ember-peak: #d08d94;
-  --loz-body: #9fb3c8;
+  /* ── Faces ──────────────────────────────────────────────────────────────
+     Newsreader (news serif, optical sizes) for anything that is read as a
+     heading; IBM Plex Sans for running text and UI; Geist Mono strictly for
+     data — dates, counts, routes, status values. Cinzel is deliberately
+     absent: it belongs to the home particle scene now, not to reading. */
+  --face-display: var(--font-newsreader), Charter, Georgia, 'Times New Roman', serif;
+  --face-text: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --face-data: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ── Type scale — seven steps, no exceptions ────────────────────────────
+     Each step ships its own line-height and weight so a consumer sets one
+     property and gets a designed result rather than reinventing the pairing.
+     `--t-data` is the floor: nothing on a reading surface goes below it. */
+  --t-display: clamp(2.1rem, 4vw, 2.75rem);
+  --t-display-lh: 1.15;
+  --t-display-weight: 600;
+
+  --t-h2: 1.55rem;
+  --t-h2-lh: 1.3;
+  --t-h2-weight: 500;
+
+  --t-h3: 1.25rem;
+  --t-h3-lh: 1.4;
+  --t-h3-weight: 500;
+
+  --t-body: 1.0625rem;
+  --t-body-lh: 1.7;
+
+  --t-small: 0.9375rem;
+  --t-small-lh: 1.65;
+
+  --t-caption: 0.8125rem;
+  --t-caption-lh: 1.5;
+  --t-caption-weight: 500;
+
+  --t-data: 0.72rem;
+  --t-data-lh: 1.45;
+  /* Tracking cap for the one case uppercase is still allowed: data labels of
+     two words or fewer. Anything longer is sentence case. */
+  --t-data-tracking: 0.08em;
+
+  /* ── Color ──────────────────────────────────────────────────────────────
+     Ground and gold are brand and unchanged. The neutrals are a real scale
+     now: three inks, each with a job, replacing twelve drifting grays. */
+  --ground: #070b14;
+  --ink-hi: #e9eef6;
+  --ink: #b9c5d4;
+  --ink-lo: #8494a8;
+  --gold: #c9a24b;
+  --gold-hi: #efd79a;
+
+  /* Semantic data ramps. These carry meaning — verified/hostile streams,
+     assessment badges, the scan's two directions — and are never used to
+     express text hierarchy. */
+  --data-blue: #57a7d9;
+  --data-blue-dim: #3e7fa8;
+  --data-blue-peak: #9adfff;
+  --data-ember: #a85a61;
+  --data-ember-dim: #7a4048;
+  --data-ember-peak: #d08d94;
+
+  /* Hairlines, in the two weights the site actually uses. */
+  --line: rgba(153, 179, 202, 0.14);
+  --gold-line: rgba(201, 162, 75, 0.24);
+
+  /* ── Compatibility aliases ──────────────────────────────────────────────
+     `sections.module.css`, `geopolitical-brief.module.css`,
+     `support.module.css` and `share-verified.module.css` read `--loz-*` and
+     are owned by other phases of this redesign. Keeping the old names
+     pointing at the new values means those files pick up the corrected
+     palette immediately and get cleaned up in their own phase, instead of
+     this one breaking them mid-flight. Remove once Phase 3 lands. */
+  --loz-ground: var(--ground);
+  --loz-gold: var(--gold);
+  --loz-gold-bright: var(--gold-hi);
+  --loz-blue: var(--data-blue);
+  --loz-blue-dim: var(--data-blue-dim);
+  --loz-blue-peak: var(--data-blue-peak);
+  --loz-ember: var(--data-ember);
+  --loz-ember-dim: var(--data-ember-dim);
+  --loz-ember-peak: var(--data-ember-peak);
+  --loz-body: var(--ink);
 }
 
 html, body {
@@ -25,11 +102,15 @@ html, body {
 }
 html { color-scheme: dark; }
 body {
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  /* Let Newsreader's optical-size axis respond to the rendered size. */
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #020409;
-  color: #e8eef8;
+  color: var(--ink-hi);
 }
 canvas { display: block; }
 button, canvas { -webkit-tap-highlight-color: transparent; }

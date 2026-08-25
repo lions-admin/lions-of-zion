@@ -125,16 +125,22 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 ### Section pages and the nav contract
 
 `components/particle-nav/config.ts` `defaultNodes` is the source of truth for
-the eight destinations — id, label, `href`, description and orbit position. It
-feeds the particle nodes, the DOM links, the hover cards, and the page shell.
+the eight destinations — id, label, `displayName`, `href`, description and
+orbit position. It feeds the particle nodes, the DOM links, the hover cards,
+and the page shell. `label` is stored uppercase because the orbit and the
+static index set it that way as identity; **reading surfaces use
+`displayName`** — a CSS transform can't do this, since `capitalize` turns
+"ISRAEL'S STORY" into "Israel'S Story".
 
 - Every node id must have a matching `app/<id>/page.tsx`; `SectionPage` throws
   on an unknown id, and the file-header index it prints is the node's real
   position in `defaultNodes`. The current eight are `geopolitical-brief`,
   `support-us`, `war-update`, `october-7`, `our-heroes`, `israels-story`,
   `fake-resistance`, and `we-are`.
-- `components/sections/SectionPage.tsx` is the dossier shell for seven of them,
-  with `ScanBackdrop` continuing the corpus behind the panel. Its `register`
+- `components/sections/SectionPage.tsx` is the dossier shell for seven of them:
+  a full-width identity band, a centred 68ch reading measure, and a two-row
+  footer, with `ScanBackdrop` continuing the corpus in the margins only —
+  masked out of the reading band via the shared `--reading-w`. Its `register`
   and `accent` props are the only sanctioned per-section deviations.
 - `components/briefs/` is the Geopolitical Brief, the one page with its own
   layout and reading-progress treatment; its content is still a static
@@ -147,6 +153,14 @@ feeds the particle nodes, the DOM links, the hover cards, and the page shell.
 - The skip control and all section-page type are DOM text rather than
   particles — the documented exception to the all-particles rule
   (see `.ai/DECISIONS.md`).
+- **Type and colour on every reading surface come from the V2 tokens in
+  `app/globals.css`** — three faces (Newsreader display, IBM Plex Sans text,
+  Geist Mono data), seven size steps, six colours. Read `.ai/DESIGN-V2.md`
+  before touching reading-page CSS. Hard rules: nothing below `--t-data`
+  (0.72rem); uppercase+tracking only for data labels of two words or fewer;
+  sentence case everywhere else. **Cinzel belongs to the home particle scene
+  only** — it is not a heading face, and reintroducing it to a reading page
+  reverses a documented decision.
 
 ## Backend architecture
 

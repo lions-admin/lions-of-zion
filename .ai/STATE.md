@@ -5,11 +5,22 @@ lives in `DECISIONS.md`. The long backend phase narrative that used to live
 here is in this file's git history and in
 `~/.claude/plans/splendid-discovering-dawn.md`.
 
-_Last updated: 2026-08-25 (end of session — a sixth same-day round cleared
-most of the remaining container-executable TODOS backlog: War Update
-filters/permalinks, Fake Resistance archived links + ClaimReview SEO,
-Israel's Story up to seven chapters, Geopolitical Brief stale/empty states,
-SEO across all nine routes, and this repo's first-ever CI workflow)_
+_Last updated: 2026-08-25 (a seventh same-day round: the user rejected the
+current reading-page design — "terrible fonts, hard to read, bad layout" —
+and `.ai/DESIGN-V2.md` — "The broadsheet over the scan" — is now **built and
+merged, Phases 0–4**, across five parallel agent rounds and verified in real
+Chrome on all ten routes at both viewports. Newsreader + IBM Plex Sans
+replace Cinzel on every reading surface; the shell is a masthead with a
+centred 68ch measure. Measured against the audit that prompted it: zero
+sub-floor type (was 77 declarations under 11.2px), the column genuinely
+centred (was 148px off), ~140px of opening chrome (was ~320px). **Read that
+document before touching reading-page CSS or type.** Two things stay open:
+restoring document scroll (deferred with proof — it needs `globals.css` and
+`ReadingProgress.tsx` together) and Phase 5, whether the home orbit's labels
+follow the new system, which is a user decision.
+**Read that document before touching any reading-page CSS or type** — it
+supersedes the current type/shell conventions and is waiting on
+implementation, phased 0–5. Nothing of it is implemented yet.)_
 
 ## Where the work is
 

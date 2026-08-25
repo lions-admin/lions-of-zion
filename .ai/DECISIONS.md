@@ -10,6 +10,70 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-25 — Cinzel is retired from every reading surface; Newsreader + IBM Plex Sans replace it
+
+The user rejected the reading pages outright — "terrible fonts, hard to
+read, bad page layout". A two-agent audit over real-Chrome captures of all
+ten routes found the cause was systemic, not cosmetic: **51 distinct font
+sizes, 77 declarations below 11.2px, 67 uppercase treatments, ~12 unrelated
+body greys, ~9 type voices on a single screen.**
+
+The root cause was Cinzel doing a job it was never drawn for. It is a
+Trajan-style inscriptional face — all-caps forms for monuments — and it was
+carrying every H1, every section heading at 0.95rem/+0.18em, every entry
+title, and the names of real people on Our Heroes. Its lowercase renders as
+faux small-caps, so sentence-length titles became strings of even-height
+capitals with no word shapes to read.
+
+The diagnosis is sharpened by where Cinzel *worked*: the Brief's 4.35rem
+headline and the home wordmark — brand-mark scale. The Phase 3 agent tested
+this directly in Chrome expecting to argue for keeping it there, and
+reported the opposite: Newsreader's display optical size set the same
+headline in three lines with real word shapes where Cinzel needed four of
+spelled-out capitals — and, decisively, Cinzel forced *every other heading
+on that page* into tracked capitals, so the page needed a second face for
+anything readable. One family now runs from the 4.1rem hero to the section
+headings.
+
+**This amends the "Cinzel labels" convention in `CLAUDE.md` and the nav
+brief.** Cinzel survives in exactly one place: the home particle scene's
+identity. Do not reintroduce it to a reading surface. Full plan, tokens and
+measured before/after in `.ai/DESIGN-V2.md`.
+
+**An English-first correction worth keeping**: the first draft of this
+direction chose Hebrew-native faces (Frank Ruhl Libre / Heebo) for a
+future-RTL dividend. The user rejected it — the site is in English, Frank
+Ruhl Libre's Latin is a companion script, and Heebo's Latin is literally
+Roboto, so the swap would have traded one generic face for another. Faces
+are chosen Latin-first. The Hebrew path is preserved as *designated
+companions* for the RTL round (IBM Plex Sans has an official Hebrew
+sibling), not as today's drivers.
+
+## 2026-08-25 — The reading shell is a masthead, not a floating card
+
+The same audit found the dossier shell — a 15rem emblem rail beside a 44rem
+panel, the pair centred — was designed when the eight pages were
+single-screen intent statements, and failed them as real documents
+(Israel's Story is 9,271px of scroll). At 1440px it used ~49% of the
+viewport for reading, pushed the column 148px right of centre, left the
+rail floating in a void, spent ~320px on ceremony before the first
+sentence, and closed with a five-part ~345px footer carrying **two
+competing "Ask the Lion" affordances** — the boxed CTA and the floating
+launcher, both visible at once.
+
+It is now a masthead: one full-width identity band, a genuinely centred
+68ch measure, a two-row footer. The boxed Ask CTA is gone — the floating
+launcher is the single ask affordance. Side columns are real grid columns
+that exist only when a page supplies rail content, rather than a permanent
+identity totem.
+
+Two things worth not re-litigating:
+- **The panel lost its card chrome deliberately.** Once the backdrop is
+  masked out of the reading band there is nothing left to shield text
+  from, and the border read as a floating box rather than a page.
+- **The backdrop mask and the grid share one `--reading-w` variable.** One
+  number, two consumers, no drift. If you change the measure, both follow.
+
 ## 2026-08-25 — JSON-LD uses the correct real schema.org type per page, not a generic `Article` everywhere
 
 TODOS.md's original SEO note said "JSON-LD matching Article, Report, Person

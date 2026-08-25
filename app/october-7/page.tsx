@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { FigureRow, SourceList, Timeline } from "@/components/content";
 import { getOctober7Record } from "@/lib/content/october-7";
+import styles from "./page.module.css";
 
 const TAGLINE =
   "The record of October 7: testimony, evidence, and remembrance.";
@@ -31,7 +32,9 @@ export default async function Page() {
           drawn from public reporting; deeper documentation lives with the
           real archives further down this page.
         </p>
-        <FigureRow figures={record.figures} />
+        <div className={styles.inscription}>
+          <FigureRow figures={record.figures} />
+        </div>
         <p>
           Denial of that day is not treated here as an opinion to argue with
           but as a documented phenomenon the record and the archives below
@@ -40,7 +43,9 @@ export default async function Page() {
       </SectionBlock>
 
       <SectionBlock heading="What followed">
-        <Timeline variant="feed" entries={record.timeline} />
+        <div className={styles.record}>
+          <Timeline variant="feed" entries={record.timeline} />
+        </div>
       </SectionBlock>
 
       <SectionBlock heading="Testimony and remembrance">

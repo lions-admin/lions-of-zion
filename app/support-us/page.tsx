@@ -43,7 +43,9 @@ export default function Page() {
         </p>
 
         <div className={styles.toolkit}>
-          <article className={styles.module}>
+          {/* Anchored: /corrections sends a reader who has found an error
+              straight to this module rather than to the top of the page. */}
+          <article className={styles.module} id="report">
             <header className={styles.moduleHeader}>
               <span className={styles.moduleLabel}>Module · Report</span>
               <h3 className={styles.moduleTitle}>Report a claim</h3>

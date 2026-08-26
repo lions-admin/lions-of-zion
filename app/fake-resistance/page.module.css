@@ -250,3 +250,17 @@
   font-size: var(--t-small, 0.9375rem);
   line-height: var(--t-small-lh, 1.65);
 }
+
+/* The page's opening two sentences, standing where "The machine" and "The
+   tells" used to. Set one step above body so it reads as a standfirst and
+   not as the first paragraph of a section that isn't there — the first
+   section is Case files, and that is the point. It stays on the body step —
+   the seven size steps are the whole scale — and lifts to full ink instead.
+   No uppercase, no rule: the exhibit stamps below carry all the emphasis
+   this page needs. */
+.standfirst {
+  margin: 0 0 2rem;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink-hi);
+}

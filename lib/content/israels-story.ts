@@ -15,6 +15,11 @@ export type StoryChapter = {
   id: string;
   title: string;
   intro: string;
+  /** Set where credible sources disagree and the record does not settle it.
+   *  The page flags the chapter from this field; it used to test the id
+   *  string literal, which meant the editorial judgement lived in the
+   *  renderer instead of travelling with the chapter it is about. */
+  contested?: boolean;
   timeline: TimelineEntry[];
   sources: Source[];
 };
@@ -190,10 +195,16 @@ const CHAPTERS: StoryChapter[] = [
     sources: [WIKI_YOM_KIPPUR_WAR],
   },
   {
+    /* The id is the `#anchor` in the contents nav and the `hasPart` URL in
+       the page's JSON-LD, so it keeps the name the chapter was coined under
+       when Egypt was the edition's only peace chapter. The title does not:
+       every other chapter here is named event+date, and Jordan and the
+       Abraham Accords have since become chapters of their own, which is what
+       made the thematic name and its forward reference stale. */
     id: 'peace-when-it-came',
-    title: 'Peace, when it came',
+    title: 'Peace with Egypt, 1979',
     intro:
-      'The first Arab state to make peace with Israel did so six years after the war that shook both sides into negotiating. Jordan followed in 1994, and the Abraham Accords brought four more countries to normalized relations starting in 2020 — both covered as their own chapters below.',
+      'The first Arab state to make peace with Israel did so six years after the war that shook both sides into negotiating.',
     timeline: [
       {
         id: 'egypt-treaty',
@@ -209,6 +220,7 @@ const CHAPTERS: StoryChapter[] = [
   {
     id: 'oslo-accords',
     title: 'Oslo, 1993',
+    contested: true,
     intro:
       'The first direct agreement between Israel and the PLO: mutual recognition and a framework for Palestinian self-government, with the hardest questions deliberately deferred. What it achieved and what it left unresolved are both still argued over — the accords’ long-term legacy is genuinely disputed among historians and analysts, not settled history, and this chapter does not adjudicate that dispute; it states what was signed and by whom.',
     timeline: [

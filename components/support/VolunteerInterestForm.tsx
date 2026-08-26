@@ -63,11 +63,19 @@ export function VolunteerInterestForm() {
         />
       </div>
 
+      {/* The only field the form cannot do without: submitting opens a
+          `mailto:`, and without a reply address the desk receives an offer of
+          help it can never answer. Marked in the label to match the
+          "(optional)" on Name — the rule should be readable before the submit,
+          not discovered by it. The skill checkboxes stay ungated: the group
+          has no error affordance, and an offer of help with no box ticked is
+          still an offer of help. */}
       <div className={styles.field}>
-        <label htmlFor="volunteer-email">Email</label>
+        <label htmlFor="volunteer-email">Email (required)</label>
         <input
           id="volunteer-email"
           type="email"
+          required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />

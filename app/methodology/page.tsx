@@ -33,16 +33,131 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }}
       />
+      <SectionBlock heading="What counts as a source">
+        <p>
+          A source is something a reader can go and check. Sources rank in
+          three tiers, and every citation on this site names its tier by
+          naming the publication it came from.
+        </p>
+        <ul>
+          <li>
+            <strong>Primary.</strong> The record itself — a treaty text, a
+            government statement, a court filing, a ministry release, an
+            original photograph or video with known provenance. Preferred
+            wherever a primary source exists and can be reached.
+          </li>
+          <li>
+            <strong>Secondary.</strong> Named reporting and named
+            fact-checking that cites its own evidence. Used where a claim is
+            about what was reported, or where the primary record is not
+            publicly reachable.
+          </li>
+          <li>
+            <strong>Tertiary.</strong> Reference works that summarise
+            others&rsquo; sourcing. Used as a route to the primary documents
+            they cite, never as the last word on a contested point.
+          </li>
+        </ul>
+        <p>
+          Two rules apply at every tier. A source must be fetched and read in
+          the session that cites it — nothing is cited from memory. And a
+          citation must cover the specific claim it sits beside, not merely
+          the subject the claim is about; a source that covers the topic but
+          not the sentence is a mis-citation, and it is treated as an error
+          to correct, not as sourcing.
+        </p>
+        <p>
+          Where this site is below that standard, the citation says so rather
+          than this page saying it for them. Israel&rsquo;s Story is a working
+          edition whose chapters are largely sourced to a reference work
+          rather than to the primary documents that work itself cites; the
+          citation beside each claim names it, and a reader can see the tier
+          without being told.
+        </p>
+      </SectionBlock>
+
+      <SectionBlock heading="Archiving">
+        <p>
+          A link that dies takes the evidence with it, and material of this
+          kind is deleted more often than most. Where a source is likely to
+          move or be taken down — a social post, a fact-check of one, a page
+          on a site under pressure — an archive snapshot is captured at the
+          time of citation and published beside the live link, so that the
+          record outlives the link. The Fake Resistance case files carry those
+          snapshots today; pages citing stable publications of record do not.
+          An archive link is never a substitute for the primary record where
+          one exists — it is insurance on the record that was actually used.
+        </p>
+      </SectionBlock>
+
       <SectionBlock heading="How claims are labeled">
         <p>
-          Every assessed item on this site carries one of nine labels:{" "}
-          <strong>verified</strong>, <strong>false</strong>,{" "}
-          <strong>misleading</strong>, <strong>manipulated</strong>,{" "}
-          <strong>out of context</strong>, <strong>contested</strong>,{" "}
-          <strong>unsupported</strong>, <strong>unverified</strong>, or{" "}
-          <strong>satire</strong>. The label is shown next to the claim it
-          describes and travels with the item wherever it is shared. No
-          assessed claim appears without one.
+          Every assessed item on this site carries one of nine labels. The
+          label is shown next to the claim it describes and travels with the
+          item wherever it is shared. No assessed claim appears without one.
+          Each label states what the evidence has to show before it can be
+          applied:
+        </p>
+        <ul>
+          <li>
+            <strong>Verified</strong> — supported by the evidence on record.
+          </li>
+          <li>
+            <strong>False</strong> — the claim is contradicted by the
+            evidence.
+          </li>
+          <li>
+            <strong>Misleading</strong> — built on real elements arranged to
+            create a false impression.
+          </li>
+          <li>
+            <strong>Manipulated</strong> — the underlying media or record has
+            been altered.
+          </li>
+          <li>
+            <strong>Out of context</strong> — genuine material presented
+            outside its real time, place, or meaning.
+          </li>
+          <li>
+            <strong>Contested</strong> — credible sources disagree and the
+            record does not yet settle it.
+          </li>
+          <li>
+            <strong>Unsupported</strong> — we searched and found no evidence
+            for the claim.
+          </li>
+          <li>
+            <strong>Unverified</strong> — not yet assessed against the
+            evidence.
+          </li>
+          <li>
+            <strong>Satire</strong> — not a factual claim; presented as satire
+            or parody.
+          </li>
+        </ul>
+        <p>
+          A label may carry one of three confidence levels — high, medium or
+          limited — describing how much weight the evidence behind it can
+          take. Confidence is stated, never implied by the label alone, and a
+          grade is never revised upward without new evidence.
+        </p>
+      </SectionBlock>
+
+      <SectionBlock heading="From source to published">
+        <p>
+          Nothing reaches the public record by one person&rsquo;s judgement. A
+          source is fetched and the fetch itself is logged, successes and
+          failures alike. A claim is then linked to evidence carrying its own
+          type and strength, and that evidence counts toward an assessment
+          only once it is confirmed, not the moment it is attached. Confidence
+          is scored across separate dimensions rather than collapsed into one
+          number that hides how it was reached. A second person who did not
+          write the assessment must then approve it — a capability no
+          automated identity can hold, refused structurally rather than by
+          policy. Only what clears that review becomes part of the public,
+          searchable record, and it carries its sources with it. The same
+          pipeline, stage by stage, is on the{" "}
+          <Link href="/we-are">We Are</Link> page.
         </p>
       </SectionBlock>
 
@@ -114,15 +229,17 @@ export default function Page() {
         </p>
       </SectionBlock>
 
+      {/* One sentence, not five. Four of the five here were the same
+          sentences `/corrections` already carries, and the two pages deferred
+          to each other in a closed loop — this page pointed there for the
+          policy while that page pointed back here for the sourcing standard.
+          The standard is now above; the policy stays where it lives. */}
       <SectionBlock heading="Corrections">
         <p>
-          A network that verifies will still sometimes be wrong. When that
-          happens, the correction is made as loud as the original claim: the
-          item is amended in place, marked as corrected, and the change is
-          announced through the same channels that carried the error.
-          Corrected items are never quietly deleted — the record of the
-          correction is part of the record. The full policy and public log
-          are on the <Link href="/corrections">Corrections</Link> page.
+          A network that verifies will still sometimes be wrong. The policy
+          for what happens then, and the public log of every correction
+          issued, are on the{" "}
+          <Link href="/corrections">Corrections</Link> page.
         </p>
       </SectionBlock>
     </DocPage>

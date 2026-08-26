@@ -182,3 +182,27 @@
     padding: 2rem 1.5rem 1.75rem;
   }
 }
+
+/* The consent boundary's standfirst. Deliberately local rather than
+   `composes:`-ed from War Update's `.advisory`: the two say different things
+   and should be free to diverge, and the 2026-08-25 composition decision
+   keeps per-page treatments in the page's own module. A gold data label, a
+   left rule and the italic reading voice — enough to mark it as a limit on
+   what the page claims, not enough to make it look like chrome a reader may
+   skip. */
+.standfirst {
+  margin: 1.25rem 0 0;
+  padding: 0 0 0 1.1rem;
+  border-left: 2px solid var(--gold-line);
+  font-style: italic;
+  color: var(--ink);
+}
+
+.standfirstLabel {
+  font-style: normal;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold);
+}

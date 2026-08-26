@@ -220,8 +220,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(5.5rem, 11.2vmin, 8.5rem);
-  height: clamp(5.5rem, 11.2vmin, 8.5rem);
+  /* Coupled to `computeOrbitLayout`'s `clamp(min(w,h) * 0.066, 48, 82)` —
+     13.2vmin is 2 × 0.066, 6rem is 2 × 48px, 10.25rem is 2 × 82px. Grown
+     because the tracked-caps labels overflowed the old 44–68px ring. */
+  width: clamp(6rem, 13.2vmin, 10.25rem);
+  height: clamp(6rem, 13.2vmin, 10.25rem);
   min-width: 44px;
   min-height: 44px;
   padding: clamp(0.45rem, 1.2vmin, 0.8rem);
@@ -244,34 +247,50 @@
    pointer input, and opens inward toward the lion — the one direction that
    always has room on the ellipse. Screen readers get the same sentence via
    aria-describedby whether or not the card is visible. */
+/* A pane of glass, not a panel: the scene stays visible through it, blurred
+   and slightly enriched, and a light-catching top edge does the work a border
+   used to. The gold edge on the left is kept — it is the same device the
+   reading pages run down a claim panel — but thinned to a glint. */
 .card {
   position: absolute;
   z-index: 3;
-  width: 14.5rem;
-  max-width: 46vw;
-  padding: 0.8rem 1rem 0.85rem;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(201, 162, 75, 0.16);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+  width: 16rem;
+  max-width: 56vw;
+  padding: 1.05rem 1.25rem 1.15rem 1.3rem;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012) 55%),
+    rgba(8, 8, 8, 0.52);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 0.6rem;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   text-align: left;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+  transition: opacity 240ms ease, transform 240ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    visibility 0s linear 240ms;
   transform: var(--card-center) var(--card-slide, none);
 }
 
-/* Detection brackets — the same corner marks the canvas draws around every
-   platform glyph it flags. Two opposite corners are enough to read as a
-   targeting frame without boxing the card in. */
-.card::before,
-.card::after {
+/* The gold glint down the leading edge. */
+.card::before {
   content: '';
   position: absolute;
-  width: 0.7rem;
-  height: 0.7rem;
+  inset: 0.55rem auto 0.55rem 0;
+  width: 1.5px;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--gold) 25%,
+    var(--gold-hi) 50%,
+    var(--gold) 75%,
+    transparent
+  );
 }
 
 .card::before {
@@ -288,36 +307,43 @@
   border-bottom: 1.5px solid #57a7d9;
 }
 
-/* The file number is the whole meta row now. It used to sit beside a repeat
-   of the link's own href in the blue data ramp, which spent the card's second
-   saturated accent on a string the browser already shows in the status bar
-   and which `aria-hidden` kept from assistive tech anyway. Dropping it is
-   what buys the size: both spans at --t-data with tracking overflow the
-   200px content box under `white-space: nowrap`. */
-.cardMeta {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  margin-bottom: 0.55rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(201, 162, 75, 0.18);
-  font-family: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  white-space: nowrap;
+/* Cinzel, because this card lives inside the particle scene and that is the
+   scene's own voice — the orbit labels around it are set in it too. `CLAUDE.md`
+   confines Cinzel to exactly here and keeps it off every reading page. Set at
+   a real size with open tracking: the card is the one place the scene speaks a
+   full sentence, and it was previously whispering it at 11.5px. */
+.cardName {
+  display: block;
+  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: 0.06em;
+  color: var(--gold-hi);
+  text-wrap: balance;
 }
 
-.cardFile {
-  color: #c9a24b;
+/* Drawn, not placed — it extends as the card settles, the card's one moving
+   part and the only thing that animates at all. */
+.cardRule {
+  display: block;
+  width: 2.6rem;
+  height: 1px;
+  margin: 0.65rem 0 0.7rem;
+  background: linear-gradient(90deg, var(--gold-hi), rgba(201, 162, 75, 0.15));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.3, 1) 90ms;
 }
 
 .cardText {
   display: block;
   color: var(--ink);
-  font-size: 0.74rem;
-  line-height: 1.6;
-  letter-spacing: 0.02em;
+  font-family: var(--face-text);
+  font-size: 0.84rem;
+  line-height: 1.68;
+  letter-spacing: 0.006em;
+  text-wrap: pretty;
 }
 
 /* Centering and the closed-state slide are custom properties, so the reveal
@@ -358,6 +384,10 @@
   --card-slide: none;
 }
 
+.link:focus-visible + .card .cardRule {
+  transform: scaleX(1);
+}
+
 /* …pointer reveal only where hover is real, so a tap during the 320 ms
    navigation timer never flashes a card. The 140 ms delay keeps pass-through
    mouse traffic from flickering cards open. */
@@ -367,6 +397,19 @@
     visibility: visible;
     transition-delay: 140ms;
     --card-slide: none;
+  }
+
+  .link:hover + .card .cardRule {
+    transform: scaleX(1);
+  }
+}
+
+/* The rule is the card's only movement. Someone who asked for less of it gets
+   a card that is simply there. */
+@media (prefers-reduced-motion: reduce) {
+  .cardRule {
+    transform: scaleX(1);
+    transition: none;
   }
 }
 

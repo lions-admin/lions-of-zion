@@ -115,7 +115,7 @@ export const defaultNodes: NavNode[] = [
     label: 'GEOPOLITICAL BRIEF',
     displayName: 'Geopolitical Brief',
     href: '/geopolitical-brief',
-    description: 'The daily strategic picture: verified developments, their context, and what they change.',
+    description: 'One strategic file worked through in order: what changed, what follows\n      from it, and what is still unknown.',
     iconSdfUrl: '/icons/geopolitical-brief.sdf.png',
     intent: 'now',
   },
@@ -124,7 +124,7 @@ export const defaultNodes: NavNode[] = [
     label: 'WE ARE',
     displayName: 'We Are',
     href: '/we-are',
-    description: 'Who Lions of Zion are, why this network exists, and how it works.',
+    description: 'The network behind the desk: how a claim gets checked, who checks it, and\n      the rules that bind them.',
     iconSdfUrl: '/icons/we-are.sdf.png',
     intent: 'participate',
   },
@@ -133,7 +133,7 @@ export const defaultNodes: NavNode[] = [
     label: 'WAR UPDATE',
     displayName: 'War Update',
     href: '/war-update',
-    description: 'Sourced, time-stamped updates from the front and the home front.',
+    description: 'Dated dispatches with their sources in the margin beside them, and the\n      corrections log that follows.',
     iconSdfUrl: '/icons/war-update.sdf.png',
     intent: 'now',
   },
@@ -142,7 +142,7 @@ export const defaultNodes: NavNode[] = [
     label: 'OCTOBER 7',
     displayName: 'October 7',
     href: '/october-7',
-    description: 'The record of October 7: testimony, evidence, and remembrance.',
+    description: 'The record of the day, and beneath it the archives — first-hand testimony\n      and the documentation, held here in full.',
     iconSdfUrl: '/icons/october-7.sdf.png',
     intent: 'understand',
   },
@@ -151,7 +151,7 @@ export const defaultNodes: NavNode[] = [
     label: 'OUR HEROES',
     displayName: 'Our Heroes',
     href: '/our-heroes',
-    description: 'The people behind the story: the fallen, the fighters, the rescuers.',
+    description: 'Citations for the fallen, the fighters and the rescuers, built only from\n      what named press has already published.',
     iconSdfUrl: '/icons/our-heroes.sdf.png',
     intent: 'understand',
   },
@@ -160,7 +160,7 @@ export const defaultNodes: NavNode[] = [
     label: "ISRAEL'S STORY",
     displayName: "Israel’s Story",
     href: '/israels-story',
-    description: 'The long arc: history, identity, and the context the noise leaves out.',
+    description: 'The founding, the wars and the treaties that followed — 1947 to 2020, in\n      chapters, each entry sourced.',
     iconSdfUrl: '/icons/israels-story.sdf.png',
     intent: 'understand',
   },
@@ -169,7 +169,7 @@ export const defaultNodes: NavNode[] = [
     label: 'FAKE RESISTANCE',
     displayName: 'Fake Resistance',
     href: '/fake-resistance',
-    description: 'Inside the influence machine: how manufactured outrage is built and amplified.',
+    description: 'Case files on manufactured outrage: how each claim was built, how far it\n      travelled, and what the record shows.',
     iconSdfUrl: '/icons/fake-resistance.sdf.png',
     intent: 'understand',
   },
@@ -178,7 +178,7 @@ export const defaultNodes: NavNode[] = [
     label: 'SUPPORT US',
     displayName: 'Support Us',
     href: '/support-us',
-    description: 'Ways to join the effort: amplify verified truth, contribute skills, sustain the work.',
+    description: 'Report a claim for checking, or offer the desk a skill it needs.',
     iconSdfUrl: '/icons/support-us.sdf.png',
     intent: 'participate',
   },
@@ -267,7 +267,7 @@ export interface OrbitLayout {
   /**
    * Outer particle-ring radius in world units at the lion plane. This is also
    * the DOM link's half-box — `styles.module.css` sizes `.link` to the same
-   * `clamp(min(w,h) * 0.056, 44, 68)` — and the connector's occlusion boundary.
+   * `clamp(min(w,h) * 0.066, 48, 82)` — and the connector's occlusion boundary.
    * Three contracts on one number: widen the halo, not this.
    */
   nodeVisualRadius: number;
@@ -320,7 +320,10 @@ export function computeOrbitLayout(
   const minDimension = Math.min(width, Math.max(1, height));
   const { viewHeight, viewWidth, worldPerPx } = viewSize(width, height);
 
-  const nodeRadiusPx = clamp(minDimension * 0.056, 44, 68);
+  /* Grown from 0.056 / 44–68 on 2026-08-27: at 1440×900 the old ring was a
+     100px circle under a tracked-caps label ~120px wide, so every long label
+     overflowed its own ring. The DOM `.link` clamp moves in lockstep. */
+  const nodeRadiusPx = clamp(minDimension * 0.066, 48, 82);
   const haloRadiusPx = nodeRadiusPx * (1 + NODE_HALO_RATIO) + NODE_HALO_PX;
   const edgeGapPx = clamp(minDimension * 0.045, 24, 64);
   const insetX =

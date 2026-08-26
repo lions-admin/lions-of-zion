@@ -53,6 +53,26 @@ export function VolunteerInterestForm() {
 
   return (
     <form className={styles.form} onSubmit={submit}>
+      {/*
+        Same failure as the report form with scripting off — no `action`, so
+        submit is a native GET to /support-us and the reload reads as a send.
+        This form has somewhere honest to send people, though: the handler
+        below only pre-fills an email, so a plain `mailto:` to the same inbox
+        loses the typed fields but nothing else. The button is removed in this
+        tier so the only visible affordance is the one that works. Replacing
+        the whole form with this link is not on the table — the composed body
+        carries five typed fields a fixed href cannot, and the mailto
+        composition is a documented decision (`.ai/DECISIONS.md`, 2026-08-25).
+      */}
+      <noscript>
+        <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
+        <p className={styles.formNote}>
+          This form pre-fills an email, which needs JavaScript. Write to{' '}
+          <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead and tell us your
+          languages, skill areas and availability.
+        </p>
+      </noscript>
+
       <div className={styles.field}>
         <label htmlFor="volunteer-name">Name (optional)</label>
         <input

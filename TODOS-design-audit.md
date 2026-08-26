@@ -384,13 +384,40 @@ session can take the top of a section and stop anywhere.
       `components/content/content.module.css:447-466`, `components/sections/sections.module.css:367-374`, `app/globals.css:26-49`, `app/october-7/page.module.css:37-47`
       `low` · `hierarchy` · `trivial effort`
 
-- [ ] `reading-system-dead-surface-in-the-shell`
+- [x] `reading-system-dead-surface-in-the-shell`
       four unreferenced pieces of shell surface
       **Do:** Two cheap, admissible fixes: change `var(--gold-bright, #efd79a)` → `var(--gold-hi, #efd79a)` in `reading-progress.module.css:16` (one line, no visual change, removes a phantom token), and either mount `SensitiveContent` or drop it from the barrel — an …
       `components/sections/reading-progress.module.css:12-20`, `components/sections/sections.module.css:421-446`, `components/sections/sections.module.css:583-601`, `components/sections/AskAboutFileCta.tsx:12-20`, `components/content/index.ts:10`
       `low` · `consistency` · `small effort`
       **Done:** the phantom `--gold-bright` at `reading-progress.module.css:16`.
-      **Left:** `SensitiveContent`. Mounting it is an October 7 page edit and `.ai/STATE.md:595` lists that gate as planned work; dropping it from the barrel deletes a library member `README.md:236-253` documents. Neither is cleanup — it is the decision the finding says to raise.
+      **Closed 2026-08-27 with the decision the finding asked for:
+      `SensitiveContent` stays in the barrel, unmounted. Do not delete it and
+      do not re-raise it as dead code.**
+      It is not an orphan of the section shell. It is a documented member of
+      the content component library (`components/content/README.md:236-253`),
+      built and marked delivered at `TODOS.md:344`, and it is unmounted
+      because an editorial decision made it unnecessary — not because anyone
+      forgot. `TODOS.md:389` records that decision in terms: October 7 links
+      to three real testimony archives through `SourceList` and deliberately
+      does not reconstruct testimony or build victim profiles, because this
+      site has consent from none of them, so "there is no graphic content
+      here that needs a reveal gate". An unmounted gate is the *consequence*
+      of that decision, not a claim the site is failing to make.
+      The place it would earn its keep is the ~1,177-record October 7
+      archive, which does publish survivor testimony and today has no
+      sensitive-content handling of any kind — verified, no match for
+      sensitive / content-warning / reveal in `components/archive/` or
+      `lib/content/archive.ts`. That is a content question for whoever owns
+      the archive, and deleting the component now would only mean rebuilding
+      it. Mounting it remains an October 7 page edit and is out of scope for
+      the shared stylesheets.
+      **Correction to this entry's own citation:** `.ai/STATE.md:595` does not
+      exist — that file is 65 lines and does not mention `SensitiveContent`
+      anywhere. The record is `TODOS.md:344` and `TODOS.md:389`.
+      **Also unchanged, deliberately:** `AskAboutFileCta` and the two separate
+      hairlines. The finding is explicit that collapsing them would undo the
+      comment at `sections.module.css:575-581` and that the CTA's retention is
+      recorded in DECISIONS 2026-08-25.
 
 - [x] `reading-system-uppercase-rule-broken-in-the-files-that-state-it`
       four tracked-caps strings of three or four words ship
@@ -703,31 +730,76 @@ that live under `app/<section>/`.
 
 - [ ] `cross-cutting-inner-scroll-chrome-budget`
       every reading route is its own scroll container
-      **Deferred, 2026-08-27.** The finding's own recommendation is to drop
-      the cheap half and do the Phase 2 remainder, which is `globals.css`,
-      `sections.module.css`, the Brief, `ReadingProgress.tsx` and
-      `SectionToc.tsx` moving together — the `:has()` inversion has to keep
-      its specificity attribute-for-attribute or the intro lock stops winning
-      by source order. That is one change or none, and it cannot be split
-      across agents editing the same files. The `--chat-dock-h: 5.25rem`
-      centralisation is not worth doing alone either: two of its three call
-      sites are `home.module.css` and `geopolitical-brief.module.css`, so a
-      partial application leaves the literal in the files that most need it.
+      **Safe subset shipped, remainder still deferred — 2026-08-27.**
+      **Shipped:** `--chat-dock-h: 5.25rem` is defined in `app/globals.css`
+      and read by `sections.module.css` and the Brief. The previous deferral
+      declined this on the grounds that two of its three call sites were
+      out of reach; that was wrong — the Brief is in the same hand as
+      `globals.css` and `sections.module.css`, and only `home.module.css:562`
+      is not. It still writes the literal and should read the token in the
+      round that next touches it. Verified against the finding: 5.25rem is
+      84px, matching `CHAT_DOCK_PX` in `components/particle-nav/config.ts`,
+      which `tests/particle-nav-layout.test.ts:73,108` asserts. The filed
+      57px-derived value is the launcher pill plus border, not the padded
+      root, and would have under-reserved.
+      **Still open, and this is the finding, not the effort:** a document has
+      exactly one scroller, so the conversion is whole or nothing — unlocking
+      `html` while any route still declares `height: 100dvh; overflow-y: auto`
+      gives that route a dead outer scrollbar around a live inner one. The
+      real set is larger than the report records. Five stylesheets:
+      `sections.module.css` `.page` (SectionPage *and* DocPage, so the whole
+      ~1,177-route archive), the Brief, `app/not-found.module.css`,
+      `app/error.tsx:41-42` and `app/admin/admin.module.css:1`. Three JS
+      consumers, not the two filed: `ReadingProgress.tsx:24`,
+      `SectionToc.tsx:44` (IntersectionObserver `root`) and
+      `ArchiveIndexFilter.tsx:106-117`, whose `findScroller` matches on
+      computed `overflow-y` and would silently return null — killing the
+      hand-rolled index scroll restoration that exists *because* of this lock.
+      Plus every `position: sticky` element whose scrollport is reparented
+      (`.backdropBand`, `.tocRailInner`, the Brief's `.siteHeader` and index
+      rail), plus `scroll-behavior` and the Brief's `scroll-padding-top`,
+      which must move onto `html` and be re-scoped per route once they share
+      one element. Three of those files are outside this pass's scope and one
+      (`app/error.tsx`) is a route a reader only reaches when something has
+      already gone wrong.
+      **And it cannot be verified here.** The entire payoff is URL-bar
+      collapse and back-navigation scroll restoration; neither is observable
+      in `ci-smoke` (route availability and console errors) or in headless
+      Chromium. It needs a real mobile browser on the macOS workstation, in
+      one round that owns all five stylesheets. Reasoning written into
+      `app/globals.css` at the lock itself and cross-referenced from
+      `sections.module.css` `.page`, so the next pass inherits it instead of
+      re-deriving it a third time.
       **Do:** Drop the filed "cheap and immediate" half: a `--chat-dock-h` derived from 57px would under-reserve and put text under the dock, the exact failure `sections.module.css:38-41` warns about, and `CHAT_DOCK_PX = 84` is asserted in …
       `app/globals.css:126-132`, `components/sections/sections.module.css:43-52`, `components/sections/sections.module.css:684-690`, `components/briefs/geopolitical-brief.module.css:37-48`, `components/briefs/geopolitical-brief.module.css:747-800`
       `medium` · `responsive` · `large effort`
 
 #### Low — 3
 
-- [ ] `cross-cutting-breakpoint-sprawl`
+- [x] `cross-cutting-breakpoint-sprawl`
       ten widths against a four-width canon
-      **Part (3) done, (1) and (2) deferred, 2026-08-27.** The canon is now
-      restated at the top of `content.module.css` and `sections.module.css`
-      with the rule that a fifth width earns its place in a comment beside
-      it, so it is greppable rather than remembered. (1) `october-7:103`'s
-      `46rem` and (2) `we-are:183` / `israels-story:166` all live under
-      `app/<section>/`, which this pass was not permitted to edit. Each is a
-      one-line change and none blocks the others.
+      **Closed 2026-08-27: the admissible part is shipped and the remainder
+      is named.** Part (3) is done — the canon is restated at the top of
+      `content.module.css` and `sections.module.css` with the rule that a
+      fifth width earns its place in a comment beside it, so it is greppable
+      rather than remembered. Re-verified after the fact: the shared
+      stylesheets now open media queries at 1220, 1219.98, 900, 719 and 359
+      only, plus the one sanctioned 640 in `content.module.css`, which is
+      written up in place with the measured reason (`.figures` at 390px gives
+      108px columns; at 600px they are 178px and still working).
+      Parts (1) and (2) are one-line changes under `app/<section>/`, which
+      this pass does not own: (1) `october-7:103`'s `min-width: 46rem`, the
+      only rem-unit width query in the codebase — the report's own note is
+      that rem in a media query resolves against the user's font-size
+      preference and is arguably the *more* accessible form, so it wants a
+      comment saying so rather than a normalisation; (2) `we-are:183` (600)
+      and `israels-story:166` (640), which need either a move to 719 or a
+      one-line measured justification. None blocks the others and none is a
+      defect a reader can see. **The filed sweep stays unapplied**:
+      `fake-resistance:201`, `october-7:64`, `our-heroes:176` and
+      `war-update:204` are correct as they stand — two carry written
+      justifications and two are padding-only, not grids. Do not re-raise
+      this as a cross-cutting task; what is left is three per-page comments.
       **Do:** Do not apply the filed sweep. Leave `fake-resistance:201`, `october-7:64`, `our-heroes:176` and `war-update:204` exactly as they are — two carry written or documented justifications and two are padding-only. Three things are worth doing. …
       `components/home/home.module.css:487-490`, `app/we-are/page.module.css:183`, `app/israels-story/page.module.css:166`, `app/october-7/page.module.css:103`
       `low` · `consistency` · `small effort`

@@ -77,6 +77,24 @@
      0.7rem apart for the same job. */
   --flow: 1.15rem;
 
+  /* What the chat launcher's mobile dock costs, reserved by every ≤719px
+     reading surface so text never sits under it.
+     `components/particle-nav/config.ts` derives the same band in pixels as
+     `CHAT_DOCK_PX = 84` — a 0.65rem offset, a 3.45rem launcher, 0.46rem of
+     vertical padding and 1px borders — and `tests/particle-nav-layout.test.ts`
+     asserts that number, so the two must be read as one value: 5.25rem is 84px
+     at the root size.
+
+     Named here because the literal was written out in three stylesheets and a
+     reserve that is too small is not a cosmetic error — it puts the last line
+     of a document under the dock. The measured 57px launcher rect is the pill
+     and its border, *not* the padded root, and is not this number.
+
+     One holdout: `home.module.css:562` still writes the literal. It is the
+     home scene's file and is being edited in parallel; it should read this
+     token in the same round that touches it. */
+  --chat-dock-h: 5.25rem;
+
   /* ── Color ──────────────────────────────────────────────────────────────
      Gold is brand and unchanged. The neutrals are a real scale: three inks,
      each with a job, replacing twelve drifting grays.
@@ -181,10 +199,46 @@
 }
 
 /*
- * The default is locked, and stays locked: every reading route owns its own
- * scroll container (`sections.module.css` `.page`, the brief, not-found,
- * error), so nothing below needs the document to scroll and `ReadingProgress`
- * and `SectionToc` keep reading `scrollTop` from `[data-reading-scroll]`.
+ * The default is locked: every reading route owns its own scroll container
+ * (`sections.module.css` `.page`, the brief, not-found, error), so nothing
+ * below needs the document to scroll and `ReadingProgress` and `SectionToc`
+ * keep reading `scrollTop` from `[data-reading-scroll]`.
+ *
+ * It stays locked for now, but not for free, and this comment used to imply
+ * otherwise. The cost is a reader-facing one on ~1,190 routes: a phone's URL
+ * bar only auto-collapses for a *document* scroll, so every reading page here
+ * permanently spends the ~60–90px every other site reclaims after the first
+ * swipe, and browser scroll restoration on back-navigation never applies —
+ * which is why `ArchiveIndexFilter.tsx` has to remember index position in
+ * `sessionStorage` by hand. `.ai/DESIGN-V2.md` Phase 2 plans the fix
+ * ("Document scroll restored") and defers it; what follows is why it has not
+ * been taken piecemeal.
+ *
+ * **A document has exactly one scroller, so this converts whole or not at
+ * all.** Unlocking `html` while any route still declares `height: 100dvh;
+ * overflow-y: auto` gives that route a dead outer scrollbar around a live
+ * inner one. The set is five stylesheets — `sections.module.css` `.page`
+ * (SectionPage + DocPage, so the whole archive), the brief,
+ * `app/not-found.module.css`, `app/error.tsx` and `app/admin/admin.module.css`
+ * — plus three consumers that read the container directly
+ * (`ReadingProgress.tsx`, `SectionToc.tsx`'s IntersectionObserver `root`, and
+ * `ArchiveIndexFilter.tsx`'s `findScroller`, which matches on computed
+ * `overflow-y` and would silently return null), plus every `position: sticky`
+ * element whose scrollport changes underneath it (`.backdropBand`,
+ * `.tocRailInner`, the brief's `.siteHeader` and index rail), plus
+ * `scroll-behavior` and the brief's `scroll-padding-top`, which have to move
+ * onto `html` and be re-scoped per route once they share one element.
+ *
+ * The inversion itself is the small part: the base rule below stops carrying
+ * `overflow: hidden` and the `[data-home-scroll]` block keeps only its
+ * sideways clip and hidden scrollbar. The intro lock must keep matching
+ * attribute-for-attribute either way — see the specificity note below, which
+ * is the trap this file already fell into once.
+ *
+ * Verification is the other half: the entire payoff is URL-bar collapse and
+ * scroll restoration, and neither is observable in `ci-smoke` (route
+ * availability and console errors) or in headless Chromium. It needs a real
+ * mobile browser, on the workstation, in one round that owns all five files.
  */
 html, body {
   width: 100%;

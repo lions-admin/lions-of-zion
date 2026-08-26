@@ -1,6 +1,45 @@
 # State
 
-## Latest — 2026-08-26, the October 7 archives are packaged and ready to import
+## Latest — 2026-08-26, the October 7 archives are hosted and serving
+
+**Built.** `/october-7` is now a hub: the dossier stays at its root and 1,177
+archive pages prerender beneath it — 505 testimonies (179 records across seven
+languages) and 670 documentation records (335 in English and Spanish). All SSG.
+The radial nav still has eight nodes; `defaultNodes` was not touched.
+
+Verified: typecheck 0, **358 tests** (27 new), lint unchanged, build prerenders
+1,199 pages in 6.3s, `ci-smoke` 18/18. Sampled prerendered HTML across both
+archives: real content, no Suspense boundaries, `srcset` where variants exist,
+`hreflang` present.
+
+**Read [`docs/archive-integration.md`](../docs/archive-integration.md).** The
+five things a later session most needs:
+
+1. **14 MB of JSON is in git; media never is.** The importer takes only each
+   record's `story.json` plus the index/media/translation registries —
+   everything else in a package re-aggregates those. Assets resolve by
+   `media_id` through `media.json`, so only a URL prefix changes:
+   `NEXT_PUBLIC_ARCHIVE_CDN` in production, a gitignored symlink in dev.
+   **The CDN is not yet provisioned** — that is the one operational step left.
+2. **One renderer serves both archives with no branching**, because one's block
+   types are a strict subset of the other's. A test asserts that rather than
+   trusting it; if it ever fails, the renderer needs a case before the import.
+3. **The locale split protects the canonical.** The bare route serves a
+   record's default language, `[locale]` serves the rest, and the locale
+   route's `generateStaticParams` deliberately excludes the default. Do not
+   "fix" that by emitting all languages.
+4. **Two videos have no local file** — hosted on YouTube, recorded but not
+   downloaded. The first build crashed on it. They render a note saying so.
+5. **Provenance is structural.** Nothing in a record body is a hyperlink and
+   credits always render; the verifiable pointer travels in the provenance
+   footer and JSON-LD. See `DECISIONS.md` for why rewording records to escape
+   attribution was considered and rejected.
+
+Still workstation-only: `verify:graphics` and `final-verify` need real Chrome.
+
+---
+
+## 2026-08-26, the October 7 archives are packaged and ready to import
 
 Two crawled archives are now integration packages built to one contract, and
 the decision that blocked hosting them has been reversed. **No site code

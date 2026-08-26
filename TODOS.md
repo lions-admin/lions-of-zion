@@ -523,30 +523,38 @@ packages live outside this repo and are not in git.
       Gate: typecheck 0, 331 tests, lint unchanged, build prerenders all routes.
       **Do not reintroduce a root-level `loading.tsx`.**
 
-### A4 — Build
+### A4 — Build ✅ complete
 
-- [ ] `scripts/import-archive-package.mjs` — validate, copy `data/` and
-      `content/` into `content-packages/`, upload media, write `media-map.json`
-      (`media_id` → public URL). Idempotent, upserts by id.
-- [ ] `lib/content/testimonies.ts` and `lib/content/documentation.ts` — async
-      accessors over the imported JSON, with the signature a real query lands
-      on later.
-- [ ] `components/archive/` — block renderer for the four block types. `srcset`
-      for images, `poster` from `thumbnail_media_id` for video, credits in the
-      evidence margin via the existing `marginNote` grid.
-- [ ] Index and record pages on `components/sections/DocPage.tsx` (the shell
-      for routes outside the eight-file orbit).
-- [ ] Documentation locale scheme mirrors testimonies: `[category]/[slug]`
-      serves en (335), `[category]/[slug]/es` serves Spanish (335). The one
-      `category_id: null` record routes under a literal `uncategorized`
-      segment — do not invent a category in the data.
-- [ ] hreflang from `translation-links.json` (775 + 670 pairs, symmetric,
-      confidence high — do not infer). Keep `source_url` per version for 301s.
-- [ ] Metadata, canonical and JSON-LD per route.
-- [ ] Unit-test the renderer against the three fixtures in the october7
-      package's `exports/sample-stories/`; extend `scripts/ci-smoke.mjs`.
-- [ ] `verify:graphics` must come out **unchanged** — nothing here touches
-      `components/particle-nav/`.
+- [x] `scripts/import-archive-package.mjs` — validates the source against its
+      own manifest, copies in only what the site renders, rebuilds `records/`
+      so a rename leaves no orphan. Takes october7 from 39 MB to 9.9 MB;
+      both packages together are **14 MB**. Media never enters git.
+- [x] `lib/content/archive.ts` plus thin `testimonies.ts` / `documentation.ts`
+      faces. Package-level files are cached per process; records are not, since
+      each is read by exactly one page. Record ids are validated as ids, not
+      used as paths.
+- [x] `components/archive/` — one renderer for both archives, no branching.
+      Enforces the two presentation decisions structurally: nothing in a record
+      body is a hyperlink, and credits always render.
+- [x] Index and record pages on `DocPage`. Records take no rails, as settled.
+- [x] Locale scheme: the bare route serves the default language and `[locale]`
+      serves the rest, so no version ever has two URLs competing for one
+      canonical. The `category_id: null` record routes under a literal
+      `uncategorized` segment; the data still says null.
+- [x] hreflang from each record's own `available_languages`, canonical, and
+      `ArchiveComponent` JSON-LD carrying `isBasedOn` — which is what lets the
+      prose stay free of outbound links.
+- [x] 27 new tests (**358 total**); `ci-smoke` extended to 18 routes, sampling
+      real record ids from the imported index so it cannot rot.
+- [x] `defaultNodes` untouched; nothing here touches `components/particle-nav/`.
+
+**Found by the build, worth knowing:** two videos have no `package_path` — the
+source hosts them on YouTube and the packages record them without downloading
+them. The first build crashed on it. They now render a note saying the archive
+does not hold them, rather than dropping the block silently.
+
+**Still to run on the workstation:** `verify:graphics` and `final-verify`, both
+of which need real Chrome and cannot run from a container.
 
 ### A5 — Presentation ✅ settled
 
@@ -565,9 +573,14 @@ provenance". These are now constraints on A4, not choices.
 - [x] **Documentation records take no rails** — 3 blocks, 1 heading each.
       `DocPage` as-is. A right-margin variant for long testimonies is a later
       prop on the same shell, and must fix `--content-w`.
-- [ ] Rewrite `/october-7`'s "Testimony and remembrance" copy — it still says
-      the site hosts no testimony, which is now false. Keep Edut 710 and USC
-      Shoah; turn the October7.org entry into an attribution line.
+- [x] Rewrote `/october-7`'s testimony section — it claimed the site hosts no
+      testimony, which this work made false. It now opens the two archives with
+      counts read from their manifests (so a re-import cannot leave the page
+      quoting a stale number). Edut 710 and USC Shoah stay, reframed as what
+      they actually are: recorded-interview collections neither package holds.
+      October7.org left the outbound list — its records are here now, so
+      pointing readers elsewhere to read them would read as an editing mistake;
+      its attribution sits on every record's provenance note instead.
 
 ### A6 — Later, deliberately
 

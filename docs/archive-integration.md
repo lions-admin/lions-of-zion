@@ -4,9 +4,11 @@ The implementation brief for bringing two crawled testimony archives onto
 `/october-7`. Written for a session with none of the originating conversation
 in context.
 
-**Status: Phase 1 complete and verified. The A3 prerequisite is fixed —
-`app/loading.tsx` is removed, so routes render without JavaScript. Phases 2–4
-not started.**
+**Status: built and serving.** Phase 1 (packaging), A3 (the no-JavaScript
+defect) and A4 (the build) are complete: 1,177 archive pages prerender under
+`/october-7`, `ci-smoke` passes 18/18, and 358 tests pass. What remains is
+Phase 4 — the eventual move onto a real database — and the operational step of
+putting the media behind a CDN.
 
 ## What this is
 
@@ -157,7 +159,24 @@ dearer.
 Three video files (115 MB, 57 MB, 51 MB) dominate the tail; the source
 package's `reports/media-optimization.md` already lists compression candidates.
 
-## Phase 3 — build (not started)
+## Phase 3 — build (complete)
+
+Built as specified below, with three things worth carrying forward:
+
+- **Two videos have no local file.** The source hosts them on YouTube and the
+  packages record them without downloading them, so `package_path` is null and
+  `validation_status` is `external-reference`. The first build crashed on this.
+  They render a note saying the archive does not hold them — better than
+  dropping the block and implying nothing was published there.
+- **The importer takes a third of what the package holds.** Only each record's
+  `story.json` plus the index, media and translation registries; everything
+  else in a package is a re-aggregation of those. 39 MB → 9.9 MB for october7.
+- **The locale split is what protects the canonical.** The bare route serves a
+  record's default language and `[locale]` serves the rest, so no version ever
+  has two URLs. `generateStaticParams` for the locale route deliberately
+  excludes the default.
+
+
 
 ### Route map
 

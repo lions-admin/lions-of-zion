@@ -2,6 +2,8 @@ import { handler, parseQuery } from "@/server/http/handler";
 import { ok } from "@/server/http/responses";
 import { searchQuerySchema } from "@/server/contracts/search";
 import { search } from "@/server/modules/search";
+import { bucketFor, SEARCH_QUERIES } from "@/server/core/rate-limit";
+import { rateLimit } from "@/server/modules/reports";
 
 /**
  * Hybrid retrieval over the search projection.
@@ -19,6 +21,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = handler(async (request) => {
+  await rateLimit(bucketFor(request, "search"), SEARCH_QUERIES);
   const query = parseQuery(request, searchQuerySchema);
   return ok(await search().search(query));
 });

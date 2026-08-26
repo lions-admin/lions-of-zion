@@ -1,0 +1,16 @@
+# Local agent, audit and design-sync material is not part of the application.
+.ai/
+.agents/
+.codex/
+.design-sync/
+.ds-sync/
+ds-bundle/
+screenshots/
+coverage/
+
+# Local-only data and developer artifacts.
+.env*
+!.env.example
+*.tsbuildinfo
+TODOS.md
+tests/

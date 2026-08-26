@@ -1,5 +1,5 @@
-import { handleCallback } from "@vercel/queue";
 import { consumerFor } from "@/server/jobs/consumers";
+import { queueClient } from "@/server/core/queue-client";
 import type { OutboxDispatchMessage } from "@/server/core/queue";
 
 /**
@@ -14,7 +14,7 @@ import type { OutboxDispatchMessage } from "@/server/core/queue";
  */
 export const runtime = "nodejs";
 
-export const POST = handleCallback(async (message: OutboxDispatchMessage) => {
+export const POST = queueClient.handleCallback(async (message: OutboxDispatchMessage) => {
   const consumer = consumerFor(message.topic);
   if (!consumer) {
     throw new Error(`No consumer registered for outbox topic "${message.topic}"`);

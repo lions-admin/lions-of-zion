@@ -18,8 +18,8 @@ import "server-only";
  * builds its own PGlite instance.
  */
 
-import { send } from "@vercel/queue";
 import type { OutboxRow } from "@/server/db/schema";
+import { queueClient } from "./queue-client";
 
 export const OUTBOX_QUEUE_TOPIC = "outbox.dispatch";
 
@@ -47,5 +47,7 @@ export const dispatchToQueue: Dispatcher = async (row) => {
     entityType: row.entityType,
     entityId: row.entityId,
   };
-  await send(OUTBOX_QUEUE_TOPIC, message, { idempotencyKey: `outbox-${row.id}` });
+  await queueClient.send(OUTBOX_QUEUE_TOPIC, message, {
+    idempotencyKey: `outbox-${row.id}`,
+  });
 };

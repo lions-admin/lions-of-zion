@@ -14,7 +14,6 @@ import { and, asc, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { chatCitation, chatMessage, chatThread, chatToolRun } from "@/server/db/schema";
 import type { ChatMessage, ChatThread, ChatToolRun } from "@/server/db/schema";
 import type { RetrievedDocument } from "@/server/contracts/chat";
-import type { AssessmentValue, ConfidenceSummary } from "@/server/contracts/enums";
 
 type AnyDb = Record<string, (...args: never[]) => never>;
 
@@ -152,43 +151,31 @@ export function chatRepo(db: unknown) {
       if (!ids.length) return [];
 
       const result = await d.execute(sql`
-        SELECT sd.id, sd.title, sd.body, sd.entity_type,
-               i.assessment, i.confidence_summary, i.status,
-               a.known_gaps
+        SELECT sd.id, sd.title, sd.body
         FROM search_document sd
         LEFT JOIN information_item i
           ON sd.entity_type = 'information_item' AND i.id = sd.entity_id
-        LEFT JOIN item_assessment a
-          ON a.id = i.current_assessment_id
+        LEFT JOIN publication p
+          ON sd.entity_type::text = p.kind::text AND p.id = sd.entity_id
         WHERE sd.id IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})
+          AND (
+            i.status IN ('published', 'updated')
+            OR p.status IN ('published', 'updated')
+          )
         ORDER BY sd.created_at ASC
-        LIMIT 50`);
+        LIMIT 3`);
 
       return (result.rows as {
         id: string;
         title: string;
         body: string;
-        entity_type: string;
-        assessment: string | null;
-        confidence_summary: string | null;
-        status: string | null;
-        known_gaps: string | null;
       }[]).map((r) => ({
         documentId: r.id,
         title: r.title,
-        excerpt: r.body.slice(0, 1200),
-        /* Only a checked claim has a verdict. Evidence and narratives carry
-           none of their own — a narrative deliberately has no assessment at
-           all, and evidence is material, not a finding. */
-        verdict:
-          r.entity_type === "information_item"
-            ? {
-                assessment: r.assessment as AssessmentValue | null,
-                confidence: r.confidence_summary as ConfidenceSummary | null,
-                isPublished: r.status === "published" || r.status === "updated",
-                knownGaps: r.known_gaps,
-              }
-            : null,
+        excerpt: r.body.slice(0, 500),
+        /* Public chat receives the published page projection only. Internal
+           findings, evidence excerpts and review caveats never enter its prompt. */
+        verdict: null,
       }));
     },
   };

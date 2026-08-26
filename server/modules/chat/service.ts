@@ -37,6 +37,7 @@ export type Answerer = (input: {
   model: string;
   inputTokens: number | null;
   outputTokens: number | null;
+  costUsd: number;
   latencyMs: number;
 }>;
 
@@ -63,7 +64,7 @@ export const CHAT_SYSTEM_PROMPT = [
 
 export function chatService(
   db: unknown,
-  opts: { answer?: Answerer; retrieve?: Retriever } = {},
+  opts: { answer?: Answerer; retrieve?: Retriever; guardBudget?: () => Promise<void> } = {},
 ) {
   const run = db as unknown as Runner;
   const repo = chatRepo(db);
@@ -112,7 +113,7 @@ export function chatService(
       if (!opts.answer) {
         throw new ApiError(
           "NOT_IMPLEMENTED",
-          "No AI gateway is configured, so chat cannot answer. Set AI_GATEWAY_API_KEY, or run `vercel env pull`.",
+          "No AI gateway is configured, so chat cannot answer. Link the Vercel project and pull its OIDC environment.",
         );
       }
       const retrieve = opts.retrieve;
@@ -120,7 +121,10 @@ export function chatService(
         throw new ApiError("NOT_IMPLEMENTED", "No retriever is configured for chat.");
       }
 
-      const history = (await repo.messages(threadId)).map((m) => ({ role: m.role, content: m.content }));
+      await opts.guardBudget?.();
+      const history = (await repo.messages(threadId))
+        .slice(-2)
+        .map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
 
       await run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
@@ -134,7 +138,7 @@ export function chatService(
       let hits: { documentId: string }[] = [];
       let toolStatus: "ok" | "error" = "ok";
       try {
-        hits = await retrieve(input.content, 8);
+        hits = await retrieve(input.content, 3);
       } catch {
         toolStatus = "error";
       }
@@ -142,7 +146,7 @@ export function chatService(
       await repo.recordToolRun({
         threadId,
         tool: "search",
-        input: { query: input.content, limit: 8 },
+        input: { query: input.content, limit: 3 },
         output: { count: hits.length },
         resultDocumentIds: hits.map((h) => h.documentId),
         status: toolStatus,
@@ -170,6 +174,7 @@ export function chatService(
           model: answer.model,
           inputTokens: answer.inputTokens,
           outputTokens: answer.outputTokens,
+          costUsd: answer.costUsd,
           latencyMs: answer.latencyMs,
           actor,
         });

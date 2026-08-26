@@ -69,6 +69,23 @@ export function projectEvidence(evidence: Evidence): Projection {
   };
 }
 
+export function projectPublication(publication: {
+  id: string;
+  kind: "news_update" | "brief" | "geopolitical_analysis" | "scenario";
+  title: string;
+  summary: string | null;
+  body: string;
+  language: string;
+}): Projection {
+  return {
+    entityType: publication.kind,
+    entityId: publication.id,
+    title: publication.title,
+    body: join(publication.summary, publication.body),
+    language: publication.language,
+  };
+}
+
 /**
  * Whether this entity may be projected at all.
  *

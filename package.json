@@ -8,6 +8,7 @@
     "bake:nav-icons": "tsx scripts/particle-nav/bake/bake-icons.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:import-public": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-public-content.ts",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev",
     "lint": "eslint",
@@ -19,6 +20,7 @@
     "verify:graphics": "node scripts/verify-composition.mjs"
   },
   "dependencies": {
+    "@neondatabase/auth": "0.5.0-beta",
     "@neondatabase/serverless": "^1.1.0",
     "@react-three/drei": "10.7.8",
     "@react-three/fiber": "9.7.0",

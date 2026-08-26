@@ -10,14 +10,10 @@ import {
   type ReviewQueueService,
 } from "./service";
 
-let boundEvidence: ItemEvidenceService | undefined;
-let boundAssessments: ItemAssessmentService | undefined;
-let boundQueue: ReviewQueueService | undefined;
-
-/** Lazily bound, so importing this module does not demand a DATABASE_URL. */
-export const itemEvidenceLinks = (): ItemEvidenceService => (boundEvidence ??= itemEvidenceService(db()));
-export const itemAssessments = (): ItemAssessmentService => (boundAssessments ??= itemAssessmentService(db()));
-export const reviewQueue = (): ReviewQueueService => (boundQueue ??= reviewQueueService(db()));
+/** Fresh bindings preserve the request-scoped database role from AsyncLocalStorage. */
+export const itemEvidenceLinks = (): ItemEvidenceService => itemEvidenceService(db());
+export const itemAssessments = (): ItemAssessmentService => itemAssessmentService(db());
+export const reviewQueue = (): ReviewQueueService => reviewQueueService(db());
 
 export {
   itemEvidenceService,

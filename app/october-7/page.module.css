@@ -83,3 +83,46 @@
 .record ol > li:last-child {
   padding-bottom: 0.25rem;
 }
+
+/*
+ * Entries into the two archives this page now holds.
+ *
+ * A list, not cards: these are doors into a record, and a card treatment
+ * would give them the weight of the page's own content. The register stays
+ * muted — this page is a monument, and the entries should read as an index
+ * at its foot rather than a call to action.
+ */
+.archiveEntries {
+  list-style: none;
+  margin: 1.25rem 0 1.5rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.archiveEntries > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.archiveEntries > li > a {
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  color: var(--ink-hi);
+  text-decoration: none;
+}
+
+.archiveEntries > li > a:hover,
+.archiveEntries > li > a:focus-visible {
+  color: var(--gold-hi);
+}
+
+.archiveEntries > li > span {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+}

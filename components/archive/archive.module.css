@@ -1,0 +1,299 @@
+/*
+ * Archive record surfaces — testimonies and documentation.
+ *
+ * Type and colour come from the V2 tokens in `app/globals.css` and nothing
+ * here invents either. Read `.ai/DESIGN-V2.md` before changing this file.
+ * Hard rules it observes: nothing below `--t-data`; uppercase plus tracking
+ * only on data labels of two words or fewer; sentence case everywhere else;
+ * Cinzel belongs to the particle scene and never appears on a reading page.
+ */
+
+/* ---------- prose ---------- */
+
+.heading {
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  color: var(--ink-hi);
+  margin: 2.25rem 0 0.75rem;
+  text-wrap: balance;
+}
+
+.heading:first-child {
+  margin-top: 0;
+}
+
+.paragraph {
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+  margin: 0 0 1.1rem;
+}
+
+.quote {
+  margin: 1.5rem 0;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--gold-line);
+}
+
+.quote p {
+  font-family: var(--face-display);
+  font-size: var(--t-body);
+  line-height: 1.6;
+  color: var(--ink-hi);
+  margin: 0;
+}
+
+/* A caption the source published as its own block, rather than attached to a
+   figure. Set apart from the prose so it does not read as the record's voice. */
+.standaloneCaption {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  margin: -0.4rem 0 1.2rem;
+}
+
+/* ---------- figures ---------- */
+
+.figure {
+  margin: 1.75rem 0;
+}
+
+.image,
+.video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  background: rgba(153, 179, 202, 0.06);
+  border: 1px solid var(--line);
+}
+
+.video {
+  /* A portrait phone clip is the common case here; without a ceiling one
+     fills the whole viewport and pushes the record off screen. */
+  max-height: 70vh;
+  object-fit: contain;
+  background: #000;
+}
+
+/* Stands in for media the archive records but does not hold — the two videos
+   the source hosts on YouTube. Framed as a gap in the holding, not an error. */
+.externalMedia {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: 1.7;
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border: 1px dashed var(--line);
+  background: rgba(153, 179, 202, 0.04);
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+}
+
+.captionText {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
+/* Provenance, kept quiet but never removed. `--t-data` is the smallest step
+   the system allows; the mono face marks it as a record rather than prose.
+   Deliberately not a link — see `.ai/DECISIONS.md`, 2026-08-26. */
+.credit {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+}
+
+/* ---------- record header ---------- */
+
+.recordHeader {
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.recordTitle {
+  font-family: var(--face-display);
+  font-size: var(--t-display);
+  line-height: var(--t-display-lh);
+  font-weight: var(--t-display-weight);
+  color: var(--ink-hi);
+  margin: 0 0 0.6rem;
+  text-wrap: balance;
+}
+
+.recordMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+}
+
+.recordMeta dt {
+  display: inline;
+  text-transform: uppercase;
+}
+
+.recordMeta dd {
+  display: inline;
+  margin: 0 0 0 0.4rem;
+  color: var(--ink);
+}
+
+.metaPair {
+  display: flex;
+  align-items: baseline;
+}
+
+/* ---------- language switch ---------- */
+
+.languages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.languagesLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.languageLink,
+.languageCurrent {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--line);
+}
+
+.languageLink {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.languageLink:hover,
+.languageLink:focus-visible {
+  color: var(--ink-hi);
+  border-color: var(--gold-line);
+}
+
+.languageCurrent {
+  color: var(--ground);
+  background: var(--ink-lo);
+  border-color: var(--ink-lo);
+}
+
+/* ---------- index pages ---------- */
+
+.groupHeading {
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: var(--t-h2-weight);
+  color: var(--ink-hi);
+  margin: 2.5rem 0 0.35rem;
+  text-wrap: balance;
+}
+
+.groupHeading:first-of-type {
+  margin-top: 0;
+}
+
+.groupCount {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  margin: 0 0 1rem;
+}
+
+.recordList {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.recordItem {
+  border-bottom: 1px solid var(--line);
+}
+
+.recordLink {
+  display: grid;
+  gap: 0.15rem 1rem;
+  padding: 0.85rem 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+@media (min-width: 46rem) {
+  .recordLink {
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+  }
+}
+
+.recordLink:hover .recordItemTitle,
+.recordLink:focus-visible .recordItemTitle {
+  color: var(--gold-hi);
+}
+
+.recordItemTitle {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-hi);
+}
+
+.recordItemMeta {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  white-space: nowrap;
+}
+
+/* ---------- provenance footer ---------- */
+
+.provenance {
+  margin-top: 2.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: 1.7;
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+}
+
+.provenance p {
+  margin: 0 0 0.35rem;
+}
+
+.provenance a {
+  color: var(--ink);
+}

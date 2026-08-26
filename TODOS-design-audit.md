@@ -255,7 +255,7 @@ session can take the top of a section and stop anywhere.
 
 #### Medium — 7
 
-- [ ] `reading-system-body-size-appears-once-in-the-library`
+- [x] `reading-system-body-size-appears-once-in-the-library`
       full-measure prose is set at the secondary tier
       **Do:** Do **not** promote `.cardBody` globally — it would make the common case worse: in the 2-up grids a card is ~330px less 48px padding ≈ 282px, which at 17px is ~33ch, tighter than the 40ch being objected to. …
       `components/content/content.module.css:349`, `components/content/content.module.css:406-412`, `components/content/content.module.css:578`, `components/content/content.module.css:793-799`, `components/content/content.module.css:864-869`
@@ -266,46 +266,50 @@ session can take the top of a section and stop anywhere.
       **Do:** Do the coverage half only: mount `PublicationMeta` with `publishedAt` and `reviewedBy` on `/october-7`, `/israels-story` and `/our-heroes` — at the foot, as a colophon, not the head. Leave `/we-are` and `/support-us` out; …
       `components/content/content.module.css:278-286`, `components/content/content.module.css:294-311`, `components/content/PublicationMeta.tsx:20-31`
       `medium` · `hierarchy` · `small effort`
+      **Left:** all of it. The fix is three `app/<section>/page.tsx` mounts and nothing in `components/content/`; the component is already correct.
 
-- [ ] `reading-system-error-page-is-a-preserved-v1-fossil`
+- [x] `reading-system-error-page-is-a-preserved-v1-fossil`
       `app/error.tsx` is the last unconverted V1 surface
       **Do:** Retype onto tokens, but **do not delete the inline `<style>`**. The file header's rationale — a broken shared stylesheet can never take the error screen down — applies to a CSS Module chunk too, and token-only values fail open to unstyled if `globals.css` is …
       `app/error.tsx:31-34`, `app/error.tsx:42-48`, `app/error.tsx:49-56`, `app/error.tsx:57-60`, `app/error.tsx:91-96`
       `medium` · `typography` · `small effort`
 
-- [ ] `reading-system-content-w-diverges-from-the-1fr-tracks`
+- [x] `reading-system-content-w-diverges-from-the-1fr-tracks`
       the rails breakpoint is ~63px too low
       **Do:** The filed "simplest correct fix" — `grid-template-columns: var(--rail-w) var(--reading-w) var(--rail-w)` — fixes nothing on its own: at 1220px that totals 1182.8px against a 1124px content box and overflows the padding by the same 29.4px per side. …
       `components/sections/sections.module.css:620-626`, `components/sections/sections.module.css:228-235`, `components/sections/sections.module.css:131-157`, `components/sections/sections.module.css:515-522`
       `medium` · `layout` · `medium effort`
+      **Left:** the identical `--content-w` override at `components/home/home.module.css:496` needs the same clamp; it is the home surface's file.
 
-- [ ] `reading-system-no-spacing-scale-at-all`
+- [x] `reading-system-no-spacing-scale-at-all`
       type and colour were collapsed; spacing never was
       **Do:** Add an eight-step scale to `globals.css` beside the type scale, tuned to the body line box (1.0625rem × 1.7 = 28.9px): `--sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem; --sp-5: 1.5rem; --sp-6: 2rem; --sp-7: 3rem; …
       `app/globals.css:12-118`, `components/sections/sections.module.css:342-365`, `components/sections/sections.module.css:379-384`, `components/content/content.module.css:582-588`
       `medium` · `layout` · `medium effort`
 
-- [ ] `reading-system-two-sources-of-truth-for-the-palette`
+- [x] `reading-system-two-sources-of-truth-for-the-palette`
       `content.module.css` restates the ink scale as literals
       **Do:** The simplest correct fix is smaller than filed: delete `content.module.css:28-30` outright so `var(--ink*)` resolves by inheritance from `:root`, which is guaranteed since `app/layout.tsx` loads `globals.css` on every route — no renaming needed, and the …
       `components/content/content.module.css:22-43`, `components/content/content.module.css:38`, `components/content/content.module.css:872`, `app/globals.css:101-118`
       `medium` · `colour` · `medium effort`
 
-- [ ] `reading-system-verdict-ramp-cannot-signal-its-verdict`
+- [x] `reading-system-verdict-ramp-cannot-signal-its-verdict`
       five of nine assessment ramps are one tan
       **Do:** Do the type half now: raise the badge from `--t-data` to `--t-caption`, drop uppercase and tracking, and retire the file's own declared exception at `content.module.css:79-81` — a verdict is the least micro of all the micro-chrome on this site, and the …
       `components/content/content.module.css:82-105`, `components/content/content.module.css:115-179`, `components/content/VerificationBadge.tsx:11-50`
       `medium` · `hierarchy` · `medium effort`
+      **Left:** the colour half, which the finding stages behind this one — widen glyph differentiation to all nine marks before revisiting hue.
 
 #### Low — 4
 
-- [ ] `reading-system-anchor-landing-is-inconsistent`
+- [x] `reading-system-anchor-landing-is-inconsistent`
       five anchor offsets, and only the Brief scrolls smoothly
       **Do:** The half worth doing on its own is `scroll-behavior: smooth` on `.page` with `scroll-behavior: auto` added to the existing `@media (prefers-reduced-motion: reduce)` block at `sections.module.css:696`, mirroring `geopolitical-brief.module.css:46/908` — that …
       `components/sections/sections.module.css:367-374`, `components/content/content.module.css:492-497`, `app/israels-story/page.module.css:77-82`, `components/briefs/geopolitical-brief.module.css:42-46`
       `low` · `interaction` · `trivial effort`
+      **Left:** `app/israels-story/page.module.css:81` (2.5rem) and `app/war-update/page.module.css:48` (6rem) still hold their own offsets; both are page files.
 
-- [ ] `reading-system-figures-are-the-same-size-as-headings`
+- [x] `reading-system-figures-are-the-same-size-as-headings`
       FigureRow's default is `--t-h2`
       **Do:** Keep only the first half: change `content.module.css:453-455` to `font-size: var(--t-display); font-weight: var(--t-display-weight); …
       `components/content/content.module.css:447-466`, `components/sections/sections.module.css:367-374`, `app/globals.css:26-49`, `app/october-7/page.module.css:37-47`
@@ -316,8 +320,10 @@ session can take the top of a section and stop anywhere.
       **Do:** Two cheap, admissible fixes: change `var(--gold-bright, #efd79a)` → `var(--gold-hi, #efd79a)` in `reading-progress.module.css:16` (one line, no visual change, removes a phantom token), and either mount `SensitiveContent` or drop it from the barrel — an …
       `components/sections/reading-progress.module.css:12-20`, `components/sections/sections.module.css:421-446`, `components/sections/sections.module.css:583-601`, `components/sections/AskAboutFileCta.tsx:12-20`, `components/content/index.ts:10`
       `low` · `consistency` · `small effort`
+      **Done:** the phantom `--gold-bright` at `reading-progress.module.css:16`.
+      **Left:** `SensitiveContent`. Mounting it is an October 7 page edit and `.ai/STATE.md:595` lists that gate as planned work; dropping it from the barrel deletes a library member `README.md:236-253` documents. Neither is cleanup — it is the decision the finding says to raise.
 
-- [ ] `reading-system-uppercase-rule-broken-in-the-files-that-state-it`
+- [x] `reading-system-uppercase-rule-broken-in-the-files-that-state-it`
       four tracked-caps strings of three or four words ship
       **Do:** Move `text-transform: uppercase` off `.identityBand` onto `.identityMeta` only ("FILE 01 / 08", "/WAR-UPDATE"), and drop it from `.tocTitle` (:544), `.skipLink` (:73) and `not-found.module.css:100` — a wordmark should be set the way the brand is written, and …
       `components/sections/sections.module.css:69-74`, `components/sections/sections.module.css:252-257`, `components/sections/sections.module.css:538-544`, `app/not-found.module.css:96-102`

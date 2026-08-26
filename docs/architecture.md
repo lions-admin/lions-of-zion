@@ -381,20 +381,18 @@ still checking" unrepresentable.
 
 ## Authentication, authorization, caching, state
 
-### Authentication — a deliberate placeholder
+### Authentication — Neon Auth with a single-admin boundary
 
-`server/core/auth/actor.ts` is **not** authentication and says so. In
-development, `x-actor-label` identifies the caller with no verification
-whatsoever. **In production it throws `UNAUTHENTICATED`.**
+`/api/auth/[...path]` proxies Neon Auth and restricts account creation to the
+configured `ADMIN_EMAIL`. `authenticateAdmin()` reads the Neon Auth session,
+rejects every other email with `FORBIDDEN`, then upserts the matching
+`app_user` and its five capability grants. The `/admin` page and admin status
+route require that session; public health, search and chat remain the only
+open application paths.
 
-That refusal is the design: a development shim that quietly keeps working once
-deployed is how an API ends up with no authentication and nobody noticing.
-`requireCapability()` likewise fail-closes with `NOT_IMPLEMENTED` rather than
-returning `true`.
-
-Real authentication is Phase 8 and is not built. See
-[`api.md`](api.md#authentication) for what that means per route, and
-[the gaps section below](#known-architectural-gaps).
+Development tests may still register an explicit `x-actor-label` shim. It is
+never accepted in Preview or Production. `requireCapability()` checks the
+capability set loaded from `capability_grant` and fails closed.
 
 ### Authorization
 
@@ -446,19 +444,22 @@ anywhere in the tree.
 
 ## External services
 
-All three are **optional and currently unprovisioned**. Frontend work must not
-silently provision or mutate them.
+These services are provisioned for the linked Vercel project. Frontend work
+must not silently create additional resources; Preview and Production use
+separate data boundaries.
 
 | Service | Used by | Configured via | State |
 | --- | --- | --- | --- |
-| Neon Postgres | everything under `server/` | `DATABASE_URL` (pooled) | not provisioned |
-| Vercel Blob | `server/core/blob.ts`, ingestion raw bytes | `BLOB_READ_WRITE_TOKEN` | not provisioned |
-| Vercel AI Gateway | `server/core/ai/gateway.ts`, chat + embeddings | `AI_GATEWAY_API_KEY` | not provisioned |
-| Vercel Queues | outbox dispatch | OIDC (`vercel link`, `vercel env pull`) | not provisioned |
+| Neon Postgres | everything under `server/` | `DATABASE_URL` (pooled) | Launch, main + isolated Preview branch |
+| Neon Auth | `/api/auth/[...path]`, admin session | `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` | one allowlisted admin |
+| Vercel Blob | RSS bytes and archive media | `BLOB_READ_WRITE_TOKEN`, archive-prefixed variables | RSS stores + dedicated archive store |
+| Vercel AI Gateway | chat + embeddings | Vercel OIDC in linked Functions | provisioned, $5 Gateway cap |
+| Vercel Queues | outbox dispatch | OIDC (`vercel link`, `vercel env pull`) | topic `outbox.dispatch` |
+| Vercel Cron | ingest, embed, drain, maintenance | `CRON_SECRET` | four schedules in `vercel.json` |
 
 The queue's absence is not fatal: the drain cron dispatches straight to it and
-retries on the next tick if unreachable, so ingestion works with only
-`DATABASE_URL` and `BLOB_READ_WRITE_TOKEN`.
+retries on the next tick if unreachable. Production has the topic configured;
+Preview is isolated and cannot write its messages to Production.
 
 Model **profiles** (`fast`, `reasoning`, `translation`, `embedding`) are the
 only names application code uses; the provider slugs live in one map in
@@ -474,20 +475,14 @@ column rather than swapped into this one.
 Verified against the code on 2026-08-26. These are stated here so they are not
 rediscovered; none of them is fixed by this document.
 
-1. **No cron schedules are configured.** `vercel.json` carries the queue
-   trigger and nothing else — there is no `crons` array, so
-   `/api/internal/cron/ingest`, `/embed` and `/outbox-drain` will never fire
-   in production. See [`operations.md`](operations.md#scheduled-work).
-2. **RLS is written and tested but not engaged at runtime** (above).
-3. **The public chat cannot work in production as written.** `AskTheLionChat`
-   probes with an anonymous `GET /api/v1/chat/threads`, but `POST` calls
-   `requireActor`, which throws in production. With a database provisioned the
-   probe would report "online" and every message would fail.
-4. **`.env.example` is not in git** — `.gitignore`'s `.env*` pattern captures
+1. **RLS is written and tested but not engaged at runtime** (above). The
+   application layer still filters public responses and the admin capability
+   guard remains authoritative until role switching is introduced.
+2. **`.env.example` is not in git** — `.gitignore`'s `.env*` pattern captures
    it. A fresh clone has no environment reference; [`environment.md`](environment.md)
    is the tracked substitute.
-5. **`/war-update` and `/we-are` are blank without JavaScript**, for the async
+3. **`/war-update` and `/we-are` are blank without JavaScript**, for the async
    render reason described under [the home route](#the-home-route). Recorded in
    `lib/content/home.ts`'s own header.
-6. **`/api/internal/health` has no deep variant**, though `server/core/config.ts`
+4. **`/api/internal/health` has no deep variant**, though `server/core/config.ts`
    refers to one.

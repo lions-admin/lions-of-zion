@@ -24,7 +24,8 @@ configuration at all.
 ## Database
 
 ### `DATABASE_URL`
-Neon Postgres, via the Vercel integration. **Not yet provisioned.**
+Neon Postgres, via the Vercel integration. Production and Preview each use a
+different branch/connection string.
 
 Must be the **pooled** (`-pooler`) connection string. The app uses the
 WebSocket driver, which needs interactive transactions for identity-scoped
@@ -44,7 +45,8 @@ Leave unset to skip those tests — `hasVectorDatabase()` gates them.
 ## Storage
 
 ### `BLOB_READ_WRITE_TOKEN`
-Vercel Blob. **Not yet provisioned.** Holds raw fetched source bytes.
+Vercel Blob. Production and Preview use separate stores for raw fetched RSS
+bytes.
 
 Blob URLs are unguessable but public — evidence classified `restricted` or
 `secret` is refused a `blob_url` by a database `CHECK`, not by convention.
@@ -52,7 +54,8 @@ Blob URLs are unguessable but public — evidence classified `restricted` or
 Wanted by: `server/core/blob.ts`, reached through ingestion.
 
 ### `NEXT_PUBLIC_ARCHIVE_CDN`
-Base URL for the October 7 archive's media. **Not yet provisioned.**
+Base URL for the October 7 archive's media. Production and Preview point to
+their own public Blob/CDN prefixes.
 
 Roughly 1.8 GB of images and video sits behind the ~1,177 archive pages and
 deliberately never enters git. Only the URL prefix differs between
@@ -83,7 +86,9 @@ Wanted by: `lib/content/archive.ts` `assetUrl()`.
 ## AI
 
 ### `AI_GATEWAY_API_KEY`
-Vercel AI Gateway. **Not yet provisioned.**
+Legacy local-development fallback for Vercel AI Gateway. Production uses the
+short-lived Vercel OIDC token injected by the linked deployment; no permanent
+provider key is stored there.
 
 Application code asks for a model **profile** — `fast`, `reasoning`,
 `translation`, `embedding` — never a provider slug. The mapping lives in
@@ -98,6 +103,10 @@ exactly this check.
 
 **`embedding` is load-bearing.** Its 1536 dimensions are baked into
 `search_document.embedding` as `vector(1536)`.
+
+### `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `ADMIN_EMAIL`
+Neon Auth session configuration and the single allowed administrator address.
+Production has one admin account; other addresses are refused with `403`.
 
 ### `AI_DAILY_BUDGET_USD`, `AI_MONTHLY_BUDGET_USD`
 Ceilings in USD, checked before every call by `assertWithinBudget()` against

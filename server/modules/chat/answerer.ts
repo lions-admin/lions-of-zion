@@ -11,8 +11,7 @@ import "server-only";
  * the database refuses whatever still slips through.
  */
 
-import { generateText } from "ai";
-import { modelFor } from "@/server/core/config";
+import { generate } from "@/server/core/ai/gateway";
 import { CHAT_SYSTEM_PROMPT } from "./service";
 import type { Answerer } from "./service";
 import type { RetrievedDocument } from "@/server/contracts/chat";
@@ -52,16 +51,14 @@ export function buildDocumentBlock(documents: RetrievedDocument[]): string {
 }
 
 export const answerFromDocuments: Answerer = async ({ question, history, documents }) => {
-  const model = modelFor("reasoning");
-  const startedAt = Date.now();
-
   const transcript = history
-    .slice(-10)
+    .slice(-2)
     .map((m) => `${m.role}: ${m.content}`)
     .join("\n");
 
-  const result = await generateText({
-    model,
+  const result = await generate({
+    profile: "fast",
+    kind: "chat",
     system: `${CHAT_SYSTEM_PROMPT}\n\nAfter your answer, output a final line "${CITATION_HEADER}" followed by a comma-separated list of the document ids you relied on. List only ids present in the documents given to you. If you relied on none, write "${CITATION_HEADER} none".`,
     prompt: [
       transcript && `Conversation so far:\n${transcript}`,
@@ -70,7 +67,9 @@ export const answerFromDocuments: Answerer = async ({ question, history, documen
     ]
       .filter(Boolean)
       .join("\n\n"),
-    providerOptions: { gateway: { tags: ["feature:chat"] } },
+    maxOutputTokens: 160,
+    dataClass: "public",
+    tags: ["feature:chat"],
   });
 
   const { text, citedIds } = splitCitations(result.text);
@@ -83,10 +82,11 @@ export const answerFromDocuments: Answerer = async ({ question, history, documen
     citations: citedIds
       .filter((id) => documents.some((d) => d.documentId === id))
       .map((documentId) => ({ documentId })),
-    model,
-    inputTokens: result.usage?.inputTokens ?? null,
-    outputTokens: result.usage?.outputTokens ?? null,
-    latencyMs: Date.now() - startedAt,
+    model: result.model,
+    inputTokens: result.inputTokens,
+    outputTokens: result.outputTokens,
+    costUsd: result.costUsd,
+    latencyMs: result.latencyMs,
   };
 };
 

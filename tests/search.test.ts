@@ -16,6 +16,48 @@ import { outbox, searchDocument } from "@/server/db/schema";
 
 const actor = { label: "editor@example.org", userId: null };
 
+async function publishItem(db: TestDatabase, itemId: string) {
+  const [assessor] = (
+    await db.execute(sql`
+      INSERT INTO app_user (external_id, display_name)
+      VALUES (${`auth|assessor-${crypto.randomUUID()}`}, 'Search test assessor')
+      RETURNING id`)
+  ).rows as { id: string }[];
+  const [reviewer] = (
+    await db.execute(sql`
+      INSERT INTO app_user (external_id, display_name)
+      VALUES (${`auth|reviewer-${crypto.randomUUID()}`}, 'Search test reviewer')
+      RETURNING id`)
+  ).rows as { id: string }[];
+
+  const [assessment] = (
+    await db.execute(sql`
+      INSERT INTO item_assessment (
+        item_id, value, summary, known_gaps,
+        confidence_evidence_coverage, confidence_source_independence, confidence_source_authority,
+        confidence_media_provenance, confidence_temporal_consistency, confidence_geographic_consistency,
+        confidence_contradiction_level, confidence_translation_certainty, confidence_human_review_state,
+        confidence_remaining_gaps, confidence_summary, eligibility, created_by
+      ) VALUES (
+        ${itemId}, 'verified', 'Reviewed for the search projection test.', 'None.',
+        'high', 'high', 'high', 'not_applicable', 'high', 'high',
+        'limited', 'high', 'high', 'high', 'high', '{}'::jsonb, ${assessor!.id}
+      ) RETURNING id`)
+  ).rows as { id: string }[];
+  await db.execute(sql`
+    UPDATE item_assessment SET approved_by = ${reviewer!.id}
+    WHERE id = ${assessment!.id}`);
+
+  await db.execute(sql`UPDATE information_item SET status = 'under_review' WHERE id = ${itemId}`);
+  await db.execute(sql`UPDATE information_item SET status = 'reviewed' WHERE id = ${itemId}`);
+  await db.execute(sql`
+    UPDATE information_item SET status = 'approved', approved_by = ${reviewer!.id}
+    WHERE id = ${itemId}`);
+  await db.execute(sql`
+    UPDATE information_item SET status = 'published', published_at = now()
+    WHERE id = ${itemId}`);
+}
+
 async function seedDocs(db: TestDatabase, docs: [string, string, string][]) {
   for (const [title, body, language] of docs) {
     await db.execute(sql`
@@ -118,6 +160,7 @@ describe("reindexing", () => {
       },
       actor,
     );
+    await publishItem(db, item.id);
 
     expect(await searchService(db).reindex("information_item", item.id)).toBe("indexed");
 
@@ -134,6 +177,7 @@ describe("reindexing", () => {
       { type: "claim", title: "A stable claim", canonicalText: "Unchanged text.", language: "en" },
       actor,
     );
+    await publishItem(db, item.id);
     const svc = searchService(db);
     await svc.reindex("information_item", item.id);
     const [first] = await db.select().from(searchDocument);
@@ -151,6 +195,7 @@ describe("reindexing", () => {
       { type: "claim", title: "A claim", canonicalText: "First wording.", language: "en" },
       actor,
     );
+    await publishItem(db, item.id);
     const svc = searchService(db);
     await svc.reindex("information_item", item.id);
     const [before] = await db.select().from(searchDocument);
@@ -210,6 +255,7 @@ describe("the reindex consumer", () => {
       },
       actor,
     );
+    await publishItem(db, item.id);
 
     /* Phase 2 has been queuing this row on every versioned write; Phase 5 is
        where the consumer stops being a no-op. */

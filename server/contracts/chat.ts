@@ -17,7 +17,7 @@ export const createThreadSchema = z.object({
 export type CreateThread = z.infer<typeof createThreadSchema>;
 
 export const postMessageSchema = z.object({
-  content: z.string().trim().min(1).max(10_000),
+  content: z.string().trim().min(1).max(600),
 });
 export type PostMessage = z.infer<typeof postMessageSchema>;
 

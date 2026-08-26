@@ -19,7 +19,7 @@ import "server-only";
  *   3. **An unconfigured gateway.** Loudly, naming the variable.
  */
 
-import { generateText, embed, APICallError } from "ai";
+import { generateText, embed, APICallError, gateway } from "ai";
 import { ApiError } from "@/server/http/responses";
 import { integrityHash } from "@/server/core/hash";
 import { aiBudgets, modelFor, type ModelProfile } from "@/server/core/config";
@@ -45,6 +45,7 @@ export type GenerateOutput = {
   outputTokens: number | null;
   latencyMs: number;
   inputHash: string;
+  costUsd: number;
 };
 
 /** Classifications that may never be sent to a model, mirroring the CHECK on
@@ -105,22 +106,33 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
 
   try {
     const result = await generateText({
-      model,
+      model: gateway(model),
       system: input.system,
       prompt: input.prompt,
       maxOutputTokens: input.maxOutputTokens,
       providerOptions: {
-        gateway: { tags: input.tags ?? [`kind:${input.kind}`] },
+        gateway: {
+          tags: input.tags ?? [`kind:${input.kind}`],
+          only: model.startsWith("anthropic/") ? ["anthropic"] : ["openai"],
+          disallowPromptTraining: true,
+        },
       },
     });
+
+    const inputTokens = result.usage?.inputTokens ?? null;
+    const outputTokens = result.usage?.outputTokens ?? null;
 
     return {
       text: result.text,
       model,
-      inputTokens: result.usage?.inputTokens ?? null,
-      outputTokens: result.usage?.outputTokens ?? null,
+      inputTokens,
+      outputTokens,
       latencyMs: Date.now() - startedAt,
       inputHash: integrityHash(input.prompt),
+      costUsd: await generationCost(
+        result.providerMetadata,
+        estimateCost(model, inputTokens ?? 0, outputTokens ?? 0),
+      ),
     };
   } catch (cause) {
     throw translateGatewayError(cause, model);
@@ -134,14 +146,64 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
  * `vector(1536)` refuses anything else outright. A length check in TypeScript
  * would only tell us the same thing later and less reliably.
  */
-export async function embedText(text: string): Promise<{ embedding: number[]; model: string }> {
+export async function embedText(text: string): Promise<{
+  embedding: number[];
+  model: string;
+  inputTokens: number;
+  inputHash: string;
+  costUsd: number;
+}> {
   const model = modelFor("embedding");
   try {
-    const result = await embed({ model, value: text });
-    return { embedding: result.embedding, model };
+    const result = await embed({
+      model: gateway.embeddingModel(model),
+      value: text,
+      providerOptions: {
+        gateway: { only: ["openai"], tags: ["feature:embedding"], disallowPromptTraining: true },
+      },
+    });
+    const inputTokens = result.usage?.tokens ?? Math.ceil(text.length / 4);
+    return {
+      embedding: result.embedding,
+      model,
+      inputTokens,
+      inputHash: integrityHash(text),
+      costUsd: await generationCost(
+        result.providerMetadata,
+        estimateCost(model, inputTokens, 0),
+      ),
+    };
   } catch (cause) {
     throw translateGatewayError(cause, model);
   }
+}
+
+/** Prefer the Gateway ledger's exact amount; fall back to a conservative
+ * token estimate if the generation detail has not propagated yet. */
+export async function generationCost(metadata: unknown, fallback: number): Promise<number> {
+  const generationId = (
+    metadata as { gateway?: { generationId?: unknown; generation_id?: unknown } } | undefined
+  )?.gateway;
+  const id = generationId?.generationId ?? generationId?.generation_id;
+  if (typeof id === "string" && id.startsWith("gen_")) {
+    try {
+      return (await gateway.getGenerationInfo({ id })).totalCost;
+    } catch {
+      // The ledger can briefly lag the response. The estimate still enforces a ceiling.
+    }
+  }
+  return fallback;
+}
+
+export function estimateCost(model: string, inputTokens: number, outputTokens: number): number {
+  const rates = model === "anthropic/claude-haiku-4.5"
+    ? { input: 1, output: 5 }
+    : model === "anthropic/claude-sonnet-5"
+      ? { input: 3, output: 15 }
+      : model === "openai/text-embedding-3-small"
+        ? { input: 0.02, output: 0 }
+        : { input: 5, output: 25 };
+  return (inputTokens * rates.input + outputTokens * rates.output) / 1_000_000;
 }
 
 /**

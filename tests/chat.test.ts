@@ -16,10 +16,25 @@ const actor = { label: "analyst@example.org", userId: null };
 
 async function seedDocs(db: TestDatabase, titles: string[]): Promise<string[]> {
   const ids: string[] = [];
+  const reviewer = await db.execute(sql`
+    INSERT INTO app_user (external_id, display_name)
+    VALUES (${`auth|${crypto.randomUUID()}`}, 'Public fixture reviewer')
+    RETURNING id
+  `);
+  const reviewerId = (reviewer.rows[0] as { id: string }).id;
   for (const title of titles) {
+    const item = await db.execute(sql`
+      INSERT INTO information_item
+        (public_id, type, title, canonical_text, language, status, assessment, approved_by, published_at)
+      VALUES
+        (${`fixture-${crypto.randomUUID()}`}, 'claim', ${title}, ${`Body of ${title}`}, 'en',
+         'published', 'verified', ${reviewerId}, now())
+      RETURNING id
+    `);
+    const itemId = (item.rows[0] as { id: string }).id;
     const r = await db.execute(sql`
       INSERT INTO search_document (entity_type, entity_id, title, body, language)
-      VALUES ('information_item', gen_random_uuid(), ${title}, ${`Body of ${title}`}, 'en')
+      VALUES ('information_item', ${itemId}, ${title}, ${`Body of ${title}`}, 'en')
       RETURNING id
     `);
     ids.push((r.rows[0] as { id: string }).id);
@@ -35,6 +50,7 @@ const stubAnswer =
     model: "anthropic/claude-sonnet-4.6",
     inputTokens: 500,
     outputTokens: 80,
+    costUsd: 0.0009,
     latencyMs: 30,
   });
 

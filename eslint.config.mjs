@@ -31,6 +31,11 @@ const eslintConfig = defineConfig([
        its own node_modules: without this, `npm run lint` walks into bundled
        vendor code and reports thousands of errors in files nobody wrote. */
     ".claude/**",
+    ".agents/**",
+    ".codex/**",
+    ".design-sync/**",
+    ".ds-sync/**",
+    "ds-bundle/**",
   ]),
 
   {
@@ -59,6 +64,16 @@ const eslintConfig = defineConfig([
           ],
         },
       ],
+    },
+  },
+
+  {
+    /* Route handlers may also live outside `app/api` when a provider requires
+       a human-facing callback URL. Treat those files as server handlers, not
+       as browser UI — the public X OAuth callback is one such endpoint. */
+    files: ["app/auth/**/*.ts"],
+    rules: {
+      "no-restricted-imports": "off",
     },
   },
 
@@ -98,6 +113,42 @@ const eslintConfig = defineConfig([
             {
               group: ["@/components/*", "@/components/**"],
               message: "An API route has no components.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  {
+    /* `app/auth` contains HTTP Route Handlers, not React UI. It may call a
+       module's public facade. These handlers are deliberately the only
+       exception to the React-side server-import boundary above. */
+    files: ["app/auth/**/route.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/server/core",
+                "@/server/core/*",
+                "@/server/core/**",
+                "@/server/db",
+                "@/server/db/*",
+                "@/server/db/**",
+                "@/server/http",
+                "@/server/http/*",
+                "@/server/http/**",
+                "@/server/jobs",
+                "@/server/jobs/*",
+                "@/server/jobs/**",
+                "@/server/modules/*/*",
+                "@/server/modules/*/**",
+              ],
+              message:
+                "Authentication routes may call a module's public index only; core and persistence remain backend internals.",
             },
           ],
         },

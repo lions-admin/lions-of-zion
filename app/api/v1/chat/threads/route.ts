@@ -3,6 +3,8 @@ import { created, ok } from "@/server/http/responses";
 import { createThreadSchema } from "@/server/contracts/chat";
 import { requireActor } from "@/server/core/auth/actor";
 import { chat } from "@/server/modules/chat";
+import { bucketFor, CHAT_MESSAGES } from "@/server/core/rate-limit";
+import { rateLimit } from "@/server/modules/reports";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +12,7 @@ export const dynamic = "force-dynamic";
 export const GET = handler(async () => ok({ threads: await chat().listThreads() }));
 
 export const POST = handler(async (request) => {
+  await rateLimit(bucketFor(request, "chat-thread"), CHAT_MESSAGES);
   const actor = requireActor(request);
   const input = await parseBody(request, createThreadSchema);
   const thread = await chat().createThread(input, actor);

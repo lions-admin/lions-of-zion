@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { eq, sql } from "drizzle-orm";
 import { SQLSTATE, freshDatabase, violation, type TestDatabase } from "@/server/db/testing";
-import { aiService } from "@/server/modules/ai/service";
+import { aiService, recordEmbeddingRun } from "@/server/modules/ai/service";
 import { aiRepo } from "@/server/modules/ai/repo";
 import { itemService } from "@/server/modules/items/service";
 import { assertSendable, assertWithinBudget } from "@/server/core/ai/gateway";
@@ -21,6 +21,7 @@ const stubOutput = (text: string): GenerateOutput => ({
   outputTokens: 40,
   latencyMs: 12,
   inputHash: "a".repeat(64),
+  costUsd: 0.00032,
 });
 
 const itemInput = {
@@ -108,6 +109,19 @@ describe("the budget guard", () => {
       { kind: "summarize", model: "m", modelProfile: "fast", status: "error", actorLabel: "t", costUsd: "9.99" },
     ]);
     expect(await repo.spendSince(new Date(Date.now() - 86_400_000))).toBe(3.75);
+  });
+
+  it("preserves a sub-micro-dollar embedding charge", async () => {
+    const db = await freshDatabase();
+    const id = await recordEmbeddingRun(db, {
+      model: "openai/text-embedding-3-small",
+      inputTokens: 2,
+      inputHash: "b".repeat(64),
+      costUsd: 0.00000004,
+      actorLabel: "anonymous:test",
+    });
+    const [row] = await db.select({ costUsd: aiRun.costUsd }).from(aiRun).where(eq(aiRun.id, id));
+    expect(row?.costUsd).toBe("0.000000040");
   });
 });
 

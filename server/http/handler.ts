@@ -14,6 +14,9 @@ import "server-only";
  */
 
 import { ApiError, problem } from "./responses";
+import { authenticateAdmin, registerActor } from "@/server/core/auth/actor";
+import { bucketFor } from "@/server/core/rate-limit";
+import { withDatabaseRole, type DatabaseRole } from "@/server/db/client";
 import type { ZodType } from "zod";
 
 export type RequestContext = { requestId: string; startedAt: number };
@@ -39,7 +42,11 @@ export function handler<T extends unknown[]>(
   return async (request: Request, ...rest: T): Promise<Response> => {
     const ctx: RequestContext = { requestId: requestIdOf(request), startedAt: Date.now() };
     try {
-      const response = await fn(request, ctx, ...rest);
+      const access = await accessFor(request);
+      const invoke = () => fn(request, ctx, ...rest);
+      const response = access
+        ? await withDatabaseRole(access.role, access.identity, invoke)
+        : await invoke();
       response.headers.set("x-request-id", ctx.requestId);
       return response;
     } catch (cause) {
@@ -58,6 +65,38 @@ export function handler<T extends unknown[]>(
       return problem(new ApiError("INTERNAL_ERROR", "Something went wrong"), ctx.requestId);
     }
   };
+}
+
+type Access = { role: DatabaseRole; identity: string };
+
+const PUBLIC_V1 = [
+  ["GET", /^\/api\/v1\/search$/],
+  ["GET", /^\/api\/v1\/published-items$/],
+  ["POST", /^\/api\/v1\/reports$/],
+  ["GET", /^\/api\/v1\/chat\/threads$/],
+  ["POST", /^\/api\/v1\/chat\/threads$/],
+  ["GET", /^\/api\/v1\/chat\/threads\/[^/]+\/messages$/],
+  ["POST", /^\/api\/v1\/chat\/threads\/[^/]+\/messages$/],
+] as const;
+
+async function accessFor(request: Request): Promise<Access | null> {
+  const path = new URL(request.url).pathname;
+  if (path.startsWith("/api/internal/cron/") || path.startsWith("/api/internal/queue/")) {
+    return { role: "app_service", identity: path.startsWith("/api/internal/cron/") ? "service:cron" : "service:queue" };
+  }
+  if (!path.startsWith("/api/v1/")) return null;
+
+  const isPublic = PUBLIC_V1.some(([method, matcher]) =>
+    method === request.method && matcher.test(path),
+  );
+  if (isPublic) {
+    const identity = `anonymous:${bucketFor(request, "identity").split(":").at(-1)}`;
+    registerActor(request, { label: identity, userId: null });
+    return { role: "app_public", identity };
+  }
+
+  const actor = await authenticateAdmin(request);
+  return { role: "app_staff", identity: actor.label };
 }
 
 /** Validates a JSON body, turning a Zod failure into a 422 with field detail. */

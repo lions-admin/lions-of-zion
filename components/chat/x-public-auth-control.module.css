@@ -1,0 +1,68 @@
+.loginLink,
+.account {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid rgba(201, 162, 75, 0.3);
+  border-radius: 999px;
+  background: rgba(7, 11, 20, 0.94);
+  box-shadow: 0 0.45rem 1.35rem rgba(0, 0, 0, 0.42);
+  color: #e7c76e;
+  font-family: var(--font-heebo), Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.loginLink {
+  padding: 0 0.78rem;
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+}
+
+.loginLink:hover,
+.loginLink:focus-visible {
+  border-color: rgba(255, 226, 154, 0.72);
+  background: rgba(17, 23, 35, 0.98);
+  color: #ffe29a;
+}
+
+.loginLink:focus-visible,
+.signOut:focus-visible {
+  outline: 2px solid #ffe29a;
+  outline-offset: 3px;
+}
+
+.account {
+  gap: 0.1rem;
+  padding: 0.18rem 0.24rem 0.18rem 0.66rem;
+}
+
+.username {
+  max-width: 8.5rem;
+  overflow: hidden;
+  color: #f2df9d;
+  text-overflow: ellipsis;
+}
+
+.signOut {
+  min-height: 1.62rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 235, 182, 0.72);
+  cursor: pointer;
+  font: inherit;
+}
+
+.signOut:hover:not(:disabled) {
+  background: rgba(255, 226, 154, 0.12);
+  color: #ffe29a;
+}
+
+.signOut:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

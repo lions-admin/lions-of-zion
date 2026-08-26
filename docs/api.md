@@ -67,28 +67,19 @@ of it.
 
 ## Authentication
 
-`server/core/auth/actor.ts` is a **placeholder, and refuses to work in
-production**:
+`/api/auth/[...path]` proxies Neon Auth. Account creation is restricted to the
+configured `ADMIN_EMAIL`; `authenticateAdmin()` rejects every other address,
+then ensures the corresponding `app_user` and capability grants exist.
 
-```
-if (isProduction()) throw ApiError("UNAUTHENTICATED",
-  "Authentication is not implemented yet; this API is not available in production.")
-```
-
-In development, `x-actor-label: <name>` identifies the caller with no
-verification of any kind. It is a stand-in for a session, not a weak version
-of one. `requireCapability()` always throws `NOT_IMPLEMENTED` — returning
-`true` would let every protected path run without authorization and let every
-test of one pass for the wrong reason.
-
-Real authentication and role-based access control are Phase 8 and are not
-built.
+In development, `x-actor-label: <name>` may identify a test caller. It is never
+accepted in Preview or Production. `requireCapability()` reads the grants for
+the authenticated actor and fails closed.
 
 **Guard vocabulary used below:**
 
 | Guard | Means |
 | --- | --- |
-| `actor` | `requireActor` — `x-actor-label` in development, refuses in production |
+| `actor` | Neon Auth session plus the database actor; `x-actor-label` only in development |
 | `anon` | no guard at all |
 | `cron` | `Authorization: Bearer $CRON_SECRET`, which Vercel signs automatically |
 | `internal` | `x-internal-secret: $INTERNAL_API_SECRET` |
@@ -358,5 +349,5 @@ allowed" instead of "allowed by omission".
   Vercel Queues; a row that fails to dispatch stays pending with a
   30s → 2m → 10m → 30m → 1h backoff.
 
-> **Gap.** No `crons` array exists in `vercel.json`, so none of these fires on
-> a schedule. See [`operations.md`](operations.md#scheduled-work).
+Production runs these handlers from the four schedules in `vercel.json`; each
+is authenticated by `CRON_SECRET` and safe to retry. Preview remains isolated.

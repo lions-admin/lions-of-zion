@@ -1,5 +1,7 @@
 /* Share control. Same button voice as the forms' submit (support.module.css)
-   — a control label in the data voice, on the V2 tokens. */
+   — sentence case in the text face, for the reason recorded there: both of
+   this control's labels ("Share what's verified", "Copied — paste it
+   anywhere") are over the two-word uppercase budget. */
 
 .share {
   display: inline-flex;
@@ -11,10 +13,11 @@
   border: 1px solid var(--gold);
   border-radius: 2px;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  letter-spacing: 0;
+  text-transform: none;
   cursor: pointer;
   transition: border-color 180ms ease, color 180ms ease;
 }

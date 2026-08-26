@@ -63,6 +63,19 @@ const SOURCES: Source[] = [
     kind: 'CBS News',
     url: 'https://www.cbsnews.com/news/israel-hostages-released-by-hamas-who-they-are/',
   },
+  /* The Council's own record of the adoption, added beside the encyclopedia
+     entry rather than in place of it: the vote this page prints is a fact the
+     Council itself published, and a resolution is one of the few claims here
+     whose primary source is a single fetchable document. Whether Wikipedia
+     stays the sourcing basis elsewhere is an owner decision, not this file's
+     — see `.ai/DECISIONS.md`, 2026-08-25. */
+  {
+    id: 'un-sc-2803',
+    label:
+      'Security Council authorizes International Stabilization Force in Gaza, adopting resolution 2803 (2025) — SC/16225, 17 November 2025',
+    kind: 'UN record',
+    url: 'https://press.un.org/en/2025/sc16225.doc.htm',
+  },
   {
     id: 'wiki-unsc-2803',
     label: 'United Nations Security Council Resolution 2803',
@@ -138,7 +151,7 @@ const ENTRIES: TimelineEntry[] = [
     assessment: VERIFIED,
     title: 'The UN Security Council adopts Resolution 2803, establishing the Board of Peace',
     body: 'The Council votes 13 in favor with two abstentions (China and Russia). The resolution endorses the October ceasefire plan, welcomes the formation of a Board of Peace as a transitional governing body for Gaza, and authorizes deployment of an International Stabilization Force.',
-    sources: [bySourceId('wiki-unsc-2803')],
+    sources: [bySourceId('un-sc-2803'), bySourceId('wiki-unsc-2803')],
   },
   {
     id: 'six-months',

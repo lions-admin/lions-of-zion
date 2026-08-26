@@ -168,6 +168,30 @@ the by-surface list below.
       so nothing was pasted from memory. **The mis-citation is the one piece
       that needs no reversal and should be done first, online.**
 
+      **Left open deliberately, 2026-08-27 — what remains is the owner's
+      call, not a defect.** Every non-reversing part is now done. The
+      mis-citations are gone: the founding chapter's four entries carry UN
+      Digital Library records for 181(II), the Mandate text and the Arab
+      League cablegram of 15 May 1948, and `WIKI_DECLARATION` stays only on
+      the entry it covers. `war-update.ts` gained the Security Council's own
+      record of resolution 2803 (`press.un.org` SC/16225, 17 Nov 2025, vote
+      and text verified) **beside** the encyclopedia entry rather than in
+      place of it, so the vote this page prints now rests on the document
+      that produced it without displacing the accepted basis. The remaining
+      six Wikipedia constants on Israel's Story each cover their own subject
+      and are not mis-citations; replacing them is the reversal, and it needs
+      a new `.ai/DECISIONS.md` entry from the owner before any code changes.
+      The report's second step — populating `accessedAt` — was attempted and
+      **not** shipped: all nine live Wikipedia URLs were fetched and
+      title-checked on 2026-08-27, but the Internet Archive returned 503 and
+      then timed out for every snapshot, so no `archiveUrl` could be
+      verified. The report's own case is for a *dated and archived* secondary
+      source; the date alone would have printed one identical "Accessed …"
+      line under 22 of 23 entries, reintroducing on Israel's Story exactly
+      the repeating ornament that
+      `section-pages-margin-citation-repeats-into-wallpaper` had just cleared.
+      Redo both halves together when archive.org is up.
+
 ---
 
 ## Wave 2 — the rest, by surface
@@ -544,20 +568,28 @@ session can take the top of a section and stop anywhere.
       from the cited URL; Exhibit B's `2023-10-13` is an editorial assertion
       the cited Reuters Institute page carries no date for.
 
-- [ ] `section-pages-margin-citation-repeats-into-wallpaper`
-      one identical citation down a run of entries
-      **Do:** Prefer the editorial half: source the seven October 7 entries individually — each is a discrete, heavily documented event, and the page's claim is that the record is checkable. …
-      `lib/content/october-7.ts:31-36`, `lib/content/israels-story.ts:97-124`, `components/content/Timeline.tsx:49-52`, `components/content/content.module.css:657-710`
+- [x] ~~`section-pages-margin-citation-repeats-into-wallpaper`
+      one identical citation down a run of entries~~
+      `lib/content/october-7.ts`, `lib/content/israels-story.ts`
       `medium` · `information-density` · `medium effort`
-      **Deferred, 2026-08-27.** Census reproduces exactly (one `ADL_SOURCE`
-      across 7 of 7 October 7 entries; four Wikipedia constants across runs of
-      4/3/2/2 on Israel's Story). The recommendation's preferred half —
-      sourcing the seven October 7 entries individually — needs sources
-      fetched and checked in the session that adds them, and this session was
-      run offline; the repo holds no other October 7 source to cite. The
-      fallback half (hide the repeated visible label, keep an accessible copy)
-      lives in `components/content/Timeline.tsx` and `content.module.css`,
-      which this pass was scoped out of.
+      **Closed, 2026-08-27, on the editorial half — no code-level dedupe was
+      needed.** Israel's Story was already fixed by the founding-chapter pass
+      (13 distinct source lists across 23 entries). October 7 went from **1
+      distinct citation across 7 entries to 7**, each the record of its own
+      event and each fetched and title-checked in this session: UN CoI
+      detailed findings A/HRC/56/CRP.3 (the attack, alongside the ADL
+      backgrounder, which is kept on the one entry whose figures it is the
+      source of); OCHA Flash Update #22, reporting 27–28 Oct 2023 (the ground
+      offensive); OCHA Flash Update #49, 24 Nov 2023 (the pause and the first
+      releases); the US Compilation of Presidential Documents statement of
+      17 Oct 2024 (Sinwar); the Prime Minister's Office announcement of
+      19 Jan 2025 (the ceasefire implemented); the ICRC release of 13 Oct 2025
+      (the final 20 living hostages); and the MFA record of 26 Jan 2026 (the
+      last deceased hostage). Five institutions, seven documents. One body
+      edit came with it: the last entry now names Ran Gvili, because its
+      source does and an unnamed hostage cannot be checked. `Timeline.tsx` and
+      `content.module.css` were not touched — the markup contract in
+      `.ai/DECISIONS.md:469-490` is intact.
 
 #### Low — 7
 
@@ -567,17 +599,30 @@ session can take the top of a section and stop anywhere.
       `lib/content/israels-story.ts:194`, `lib/content/israels-story.ts:196`, `lib/content/israels-story.ts:197-207`, `app/israels-story/page.tsx:117`
       `low` · `content-design` · `trivial effort`
 
-- [ ] `section-pages-primary-ctas-typed-at-the-floor`
-      two control labels take uppercase at three words
-      **Do:** If changed, set `font-family: var(--face-text); font-size: var(--t-caption); font-weight: var(--t-caption-weight); text-transform: none; …
-      `components/support/support.module.css:88-103`, `components/support/share-verified.module.css:4-20`, `app/support-us/page.module.css:85-93`, `app/october-7/page.module.css:166-167`
+- [x] ~~`section-pages-primary-ctas-typed-at-the-floor`
+      two control labels take uppercase at three words~~
+      `components/support/support.module.css`, `components/support/share-verified.module.css`
       `low` · `typography` · `trivial effort`
-      **Deferred, 2026-08-27.** Both violating labels live in
-      `components/support/support.module.css` and
-      `components/support/share-verified.module.css`, outside this pass's
-      scope. It is also an owner call rather than a defect fix:
-      `support.module.css:88-89` carries an authored carve-out for exactly
-      this case, so changing it replaces a stated decision.
+      **Closed, 2026-08-27. The carve-out was read first and did not hold.**
+      `support.module.css:88-89` justified three-word uppercase on the
+      grounds that "a control label is the one place the data voice still
+      reads as a button" — but the budget it stretches is a word count, not a
+      voice: `.ai/DESIGN-V2.md:185` allows uppercase+tracking only for data
+      labels of two words or fewer. It was already contradicted inside the
+      repo by another *control* that keeps the rule,
+      `app/october-7/page.module.css` `.archiveEntryCta`, sentence case at
+      three words for this exact reason. Both controls now take
+      `--face-text` / `--t-caption` / `--t-caption-weight`, no transform, no
+      tracking, keeping the gold rule and the 44px target; the carve-out
+      comment is replaced rather than contradicted, and
+      `share-verified.module.css`'s pointer back to it is rewritten. Both
+      submit labels move together — "Send report" is in bounds at two words,
+      but a group of controls that switches case with its own word count
+      reads as an accident (`components/home/home.module.css:394`). Contrast
+      recomputed against the new ground: `--gold #c9a24b` on `#000000` is
+      **8.75:1**, not the report's 8.2:1 against the retired `#070B14`, and
+      the label grew from 11.52px to 13px — the fix costs no legibility. War
+      Update's `.permalink`/`.shareButton` stay in the data voice, as filed.
 
 - [x] `section-pages-assessment-ramps-are-one-colour`
       the Fake Resistance stamp and the badge disagree

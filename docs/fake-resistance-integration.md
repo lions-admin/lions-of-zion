@@ -1,13 +1,15 @@
 # Fake Resistance research integration
 
-**Status: built and edited; one gate left.** Phases 1–4 shipped on 2026-08-26 —
+**Status: cleared for publication; the deploy is the last step.** Phases 1–4
+shipped on 2026-08-26 —
 the import pipeline, the content seam, `/fake-resistance/playbook`,
 `/fake-resistance/network`, seven case files, and the editorial pass over all
 of them (framing, technique tags, naming policy, program-shorthand rewrite).
-Every case now reads `lifecycle: "legal_review"`. **What remains is legal
-review of the files that name living people** — an owner action, not a code
-change. Merging to `main` publishes nothing; the manual Vercel deploy is the
-publication act.
+The owner reported legal review complete the same day, so every case now
+reads `lifecycle: "ready"`. **What remains is the deploy itself** — a manual
+Vercel operation. Merging to `main` publishes nothing; that deploy is the
+publication act, and it is when cases should advance to `published` with each
+packet's `publication` block filled in.
 Written 2026-08-26 against the research delivery at
 `~/Documents/fakeresitenstod` (outside this repository, not in git — the same
 arrangement as the October 7 archive packages). This document is the brief for
@@ -390,7 +392,8 @@ from the accounts it documents.
       (owner decision 2026-08-26 — supersedes this plan's "context files"
       recommendation; see `.ai/DECISIONS.md`). The evidence discipline that
       keeps the frame defensible is in that entry.
-- [ ] Arrange legal review of the case texts that name living people.
+- [x] Legal review of the case texts that name living people — **reported
+      complete by the site owner, 2026-08-26.** Cases advance to `ready`.
 
 ### Phase 1 — Contract and import (can start immediately)
 

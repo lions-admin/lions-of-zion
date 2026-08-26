@@ -10,6 +10,22 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — Cases are `ready`, not `published`, until the site actually ships
+
+The owner reported legal review of the Fake Resistance case files complete on
+2026-08-26, clearing the last gate. `EDITORIAL_STAGE` advances the cases to
+`ready` — deliberately not to `published`.
+
+Deployment here is a separate manual Vercel operation, so merging to `main`
+makes nothing public. A case reading `published` while the site has not
+shipped would be a record asserting something untrue about its own state, in
+a dataset whose entire subject is claims that outrun what is behind them. The
+packet contract agrees: `published` expects a `publication` block with a
+`published_at` and a `canonical_url`, and neither exists before a deploy.
+
+**Advance to `published`, and fill in each packet's `publication` block, when
+the deploy actually runs** — not in anticipation of it.
+
 ## 2026-08-26 — The editorial pass is a data layer applied at the seam, not an edit to the imported research
 
 The Fake Resistance research arrives from an external delivery that is

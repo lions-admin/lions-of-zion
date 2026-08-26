@@ -431,13 +431,15 @@ describe("the editorial pass", () => {
     }
   });
 
-  it("advances a case's lifecycle only as far as the pass actually got", async () => {
-    /* The pass is done — framing, technique tags, naming policy, shorthand —
-       so a case sits at legal review. It must not read `published` or `ready`
-       while a legal pass this session did not run is still outstanding. */
+  it("advances a case's lifecycle only as far as the work actually got", async () => {
+    /* Both passes are done and the owner reported legal review complete, so a
+       case is `ready` — cleared for publication. It must not read `published`
+       while the site has not been deployed: deployment here is a separate
+       manual operation, and a record claiming to be published when nothing is
+       public would be this dataset lying about itself. */
     const cases = await allCases();
     for (const record of cases) {
-      expect(record.lifecycle).toBe("legal_review");
+      expect(record.lifecycle).toBe("ready");
     }
   });
 

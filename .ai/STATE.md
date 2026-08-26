@@ -1,6 +1,6 @@
 # State
 
-## Latest — 2026-08-26, Fake Resistance is built and through its editorial pass; legal review is the last gate
+## Latest — 2026-08-26, Fake Resistance is built, edited, cleared — the deploy is the only step left
 
 **Built, edited, and green — not deployed.** `/fake-resistance` is now a hub in the same
 shape as `/october-7`: the dossier stays at its root and ten pages prerender
@@ -22,10 +22,14 @@ content with **zero Suspense boundaries** — the no-JavaScript bar the
 and the two `DECISIONS.md` entries dated today.** What a later session most
 needs:
 
-1. **Nothing is published, and one gate is left: legal review.** Merging to
-   `main` is safe; the manual deploy is the publication act. The editorial
-   pass ran this session, so every case now reads `lifecycle: "legal_review"`
-   — set by `EDITORIAL_STAGE` in the editorial layer, not by the importer.
+1. **Nothing is published yet, and no gate remains.** The editorial pass ran
+   this session and the owner reported legal review complete, so every case
+   reads `lifecycle: "ready"` — set by `EDITORIAL_STAGE` in the editorial
+   layer, not by the importer. `ready` rather than `published` is deliberate:
+   deployment is a separate manual Vercel operation, and a case claiming to
+   be published while nothing is public would be the dataset asserting
+   something untrue about itself. **Advance to `published`, and fill in each
+   packet's `publication` block, when the deploy actually runs.**
    Right of reply was **dropped by owner decision** — skipped deliberately,
    not pending; do not "restore" it from the packets' own
    `status: right_of_reply`.
@@ -68,9 +72,8 @@ refuses to guess at anything else. Separately, one source carries
 schemes were dropped; and 51 roster notes opened with a follower count stranded
 in the prose, now split into a real right-aligned column.
 
-Next: **legal review of the files that name living people** — an owner action,
-not a code change. After it passes, advance `EDITORIAL_STAGE` to `published`
-and deploy.
+Next: **the production deploy.** Nothing else blocks it — merging to `main` is
+safe and always was, since the manual Vercel operation is the publication act.
 
 The particle scene was untouched, so `verify:graphics` did not need re-running.
 The root Fake Resistance page gained sections, so **`final-verify` is worth one

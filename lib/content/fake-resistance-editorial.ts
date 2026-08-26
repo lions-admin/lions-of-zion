@@ -281,21 +281,27 @@ export function readable(text: string): string {
 }
 
 /**
- * Where the cases stand in the delivery's lifecycle now that this pass is
- * done.
+ * Where the cases stand in the delivery's lifecycle.
  *
- * The importer writes `editorial_review` — the state a case arrives in. This
- * pass is what advances it: every case is framed, its findings are tagged,
- * the naming policy is applied, and its program shorthand is rewritten. What
- * remains is legal review of the files that name living people, which is not
- * a code change and not this layer's to declare complete.
+ * The importer writes `editorial_review` — the state a case arrives in. The
+ * editorial pass advanced it: every case is framed, its findings are tagged,
+ * the naming policy is applied, and its program shorthand is rewritten. **The
+ * site owner reported legal review complete on 2026-08-26**, which clears the
+ * last gate.
+ *
+ * `ready`, not `published`, and the distinction is deliberate. Deployment
+ * here is a separate manual Vercel operation, so nothing is public until that
+ * runs; a case reading `published` while the site has not shipped would be
+ * this dataset asserting something untrue about itself. Advance to
+ * `published` — and fill in each packet's `publication` block — when the
+ * deploy actually happens.
  *
  * Set this back to `editorial_review` if the research is re-imported with new
- * or materially changed findings — the pass would then be stale, and a stale
- * pass silently claiming to be current is the failure this field exists to
- * prevent.
+ * or materially changed findings: both passes would then be stale against the
+ * new material, and a stale pass silently claiming to be current is the
+ * failure this field exists to prevent.
  */
-export const EDITORIAL_STAGE = 'legal_review' as const;
+export const EDITORIAL_STAGE = 'ready' as const;
 
 export function techniquesFor(slug: string, claimId: string): string[] {
   const tags = TECHNIQUES[slug]?.[claimId] ?? [];

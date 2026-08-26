@@ -108,6 +108,73 @@ run on the workstation.**
 One environment note: this worktree had no `node_modules` — Node resolves
 upward to the main checkout, but Turbopack needs a local install — so `npm ci`
 was run here.
+---
+
+## 2026-08-26, a five-surface design audit, no code changed
+
+**Audited, not built.** `docs/design-audit-2026-08-26.md` is a full design
+audit of the frontend. Five agents took one surface family each — the home
+experience, the reading system, the eight destination pages, the archives
+plus the Brief, and the cross-cutting concerns. Every finding was then
+re-verified against the source by an adversarial pass that re-derived each
+number and checked each recommendation against `CLAUDE.md` and
+`DECISIONS.md`. **84 filed, 3 refuted, 6 merged, 75 written up: 12 high,
+37 medium, 26 low, zero surviving criticals.** Seven were filed critical
+and none survived at that level.
+
+An independent browser sweep ran afterwards against `next dev` in
+Playwright's bundled Chromium — 16–17 routes at 320/390/768/1440/1920, 82
+probes — and is the report's appendix. It closes the 320px gap the agent
+pass left, and it withdrew three of its own contrast flags on inspection
+(`.identitySep` and the `ScanBackdrop` rows are both `aria-hidden`).
+
+**The three structural problems the report names**, in the order it ranks
+them: the archive was attached to the site but never designed into it
+(1,175 record pages — 57% of routes — run through a `DocPage` shell whose
+own comment says it was built for short policy pages); the shell's
+contracts live in comments and are enforced by nothing (`--content-w`
+assumes rails the grid does not give it, the progress bar's painted
+default reports a document fully read, three sim dials ship at `0`); and
+the type system was collapsed on two axes and left free on the third — 7
+sizes and 6 colours against **71 distinct rem spacing values**.
+
+Two content findings are sharper than any rendering defect: `/methodology`
+states no sourcing standard although three surfaces route readers there
+for one, and `/israels-story` cites Wikipedia for seven of eight sources
+in the evidence margin, directly above "Every historical claim above is
+built to be checked."
+
+**Nothing was changed.** No component, no CSS, no content. The report is
+the deliverable and its "Do these first" table is the ranked entry point;
+the first nine items are one file each. `TODOS-design-audit.md` is that
+report as a checkbox list in English — Wave 1 is the ranked fifteen, Wave 2
+is the remaining sixty by surface, and a "Do not refile" section carries
+the 3 refuted findings, the 4 flags the browser sweep withdrew and the 6
+merged ids. It is generated from the report and adds nothing to it.
+`TODOS.md` stays the Hebrew delivery plan and is untouched. **One code change did land**, because CI on
+PR #14 proved it was blocking: `package-lock.json` had no entries for the
+26 optional platform binaries of the esbuild 0.28.2 nested under `vitest`,
+so `npm ci` aborted on every clean checkout — on this branch and on `main`.
+Recomputed with `npm install --package-lock-only`: 27 packages added, 0
+removed, 0 version changes. `npm install` had been masking it locally by
+resolving the tree itself.
+
+**A second CI failure surfaced behind the first** and is fixed the same
+way. `npm run typecheck` was bare `tsc --noEmit`, but `next-env.d.ts` is
+gitignored (`.gitignore:44`) and itself imports `.next/types/routes.d.ts`
+and `.next/types/root-params.d.ts`, so the `next/image-types/global`
+declarations only existed once a build had run. On a fresh clone — CI, or
+any new contributor — typecheck failed with 10 `TS2307` errors on the
+`.svg` and `.png` imports in `SectionPage`, `GeopoliticalBrief` and
+`ParticleChatLauncher`. The script is now `next typegen && tsc --noEmit`,
+which is self-sufficient and needs no CI-workflow change. Both failures
+were red on `main` too; neither was caused by the audit diff.
+
+Still workstation-only, and still unrun for this audit:
+`verify:graphics`, `final-verify` and `verify-home-band` need real Chrome,
+so every home-scene finding is reasoned from code.
+
+---
 
 ## 2026-08-26, the October 7 archives are hosted and serving
 

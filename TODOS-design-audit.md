@@ -23,6 +23,11 @@ visitor from reading, navigating or trusting a page.
       0.28.2 had no entries for its 26 optional platform binaries.
       Recomputed additively — 27 packages added, 0 removed, 0 version
       changes. `npm ci` now succeeds from a clean checkout.
+- [x] ~~`npm run typecheck` fails on a fresh clone with 10 `TS2307` errors on
+      `.svg` and `.png` imports.~~ Fixed on this branch: `next-env.d.ts` is
+      gitignored and imports two files under `.next/types/`, so the image
+      module declarations only existed after a build had run. `typecheck` is
+      now `next typegen && tsc --noEmit` and is self-sufficient.
 - [ ] Run `npm run typecheck`, `npm run lint` and `npm test` before every push.
       A `PostToolUse` hook re-checks the intro timeline invariants and runs
       `tsc --noEmit` after each edit, so a broken timeline surfaces early.

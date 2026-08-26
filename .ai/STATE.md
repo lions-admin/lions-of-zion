@@ -49,6 +49,17 @@ Recomputed with `npm install --package-lock-only`: 27 packages added, 0
 removed, 0 version changes. `npm install` had been masking it locally by
 resolving the tree itself.
 
+**A second CI failure surfaced behind the first** and is fixed the same
+way. `npm run typecheck` was bare `tsc --noEmit`, but `next-env.d.ts` is
+gitignored (`.gitignore:44`) and itself imports `.next/types/routes.d.ts`
+and `.next/types/root-params.d.ts`, so the `next/image-types/global`
+declarations only existed once a build had run. On a fresh clone — CI, or
+any new contributor — typecheck failed with 10 `TS2307` errors on the
+`.svg` and `.png` imports in `SectionPage`, `GeopoliticalBrief` and
+`ParticleChatLauncher`. The script is now `next typegen && tsc --noEmit`,
+which is self-sufficient and needs no CI-workflow change. Both failures
+were red on `main` too; neither was caused by the audit diff.
+
 Still workstation-only, and still unrun for this audit:
 `verify:graphics`, `final-verify` and `verify-home-band` need real Chrome,
 so every home-scene finding is reasoned from code.

@@ -15,7 +15,7 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "verify:graphics": "node scripts/verify-composition.mjs"
   },
   "dependencies": {

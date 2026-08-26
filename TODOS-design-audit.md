@@ -50,13 +50,13 @@ Ranked by reader impact × confidence, divided by effort, not by severity
 alone. The first nine are one file each. These fifteen are not repeated in
 the by-surface list below.
 
-- [ ] **1.** `archive-brief-provenance-renders-at-body-size-not-at-the-data-floor`
+- [x] **1.** `archive-brief-provenance-renders-at-body-size-not-at-the-data-floor`
       Provenance footer computes 17px full-ink mono instead of the declared 11.5px `--ink-lo`
       **Do:** One edit: `archive.module.css:349` → `.provenance p { margin: 0 0 0.35rem; font-size: var(--t-data); line-height: var(--t-data-lh); color: var(--ink-lo); }`, plus `overflow-wrap: anywhere` on `.provenance a` so a long slug breaks rather than laddering. …
       `components/archive/archive.module.css:338-355`, `components/sections/sections.module.css:376-388`, `components/archive/ArchiveRecord.tsx:103-116`
       `high` · `typography` · `trivial effort`
 
-- [ ] **2.** `cross-cutting-three-webgpu-on-every-route`
+- [x] **2.** `cross-cutting-three-webgpu-on-every-route`
       the WebGPU renderer ships to all ~1,190 routes
       **Do:** Change `ParticleChatLauncher.tsx:6` to `const ChatParticleCanvas = dynamic(() => import('./ChatParticleCanvas'), { ssr: false });`. …
       `app/layout.tsx:3`, `app/layout.tsx:70-78`, `components/chat/ParticleChatLauncher.tsx:6`, `components/chat/ChatParticleCanvas.tsx:2-28`, `components/particle-nav/CanvasMount.tsx:30`
@@ -86,25 +86,25 @@ the by-surface list below.
       `components/briefs/geopolitical-brief.module.css:798-806`, `components/briefs/geopolitical-brief.module.css:712-714`, `components/briefs/geopolitical-brief.module.css:755-758`, `components/briefs/GeopoliticalBrief.tsx:101-117`
       `high` · `responsive` · `small effort`
 
-- [ ] **7.** `section-pages-war-update-renders-every-source-twice`
+- [x] **7.** `section-pages-war-update-renders-every-source-twice`
       18 source links for 8 sources
       **Do:** Delete `app/war-update/page.tsx:72-74` only. Leave `edition.sources` in `lib/content/war-update.ts`, as Israel's Story left its `chapter.sources`, since `sourceCount` still reads from it for the `PublicationMeta` row that preserves the count. …
       `app/war-update/page.tsx:72-74`, `app/war-update/WireFeed.tsx:124-125`, `app/israels-story/page.tsx:105-111`
       `medium` · `information-density` · `trivial effort`
 
-- [ ] **8.** `section-pages-israels-story-two-contents-lists`
+- [x] **8.** `section-pages-israels-story-two-contents-lists`
       two chapter lists on one screen, disagreeing on the count
       **Do:** Add `@media (min-width: 1220px) { .contents { display: none; } }` to `app/israels-story/page.module.css`. Do **not** simply delete the block: the rail is client-side only and `display: none` below 1220px, so deleting it leaves mobile and no-JS readers with no …
       `app/israels-story/page.tsx:63-77`, `app/israels-story/page.module.css:11-72`, `components/sections/SectionToc.tsx:49-62`, `components/sections/SectionPage.tsx:148-150`
       `medium` · `composition` · `trivial effort`
 
-- [ ] **9.** `cross-cutting-progress-bar-claims-fully-read`
+- [x] **9.** `cross-cutting-progress-bar-claims-fully-read`
       the resting state is 100%
       **Do:** Add `transform: scaleX(0);` to all four rules (`sections.module.css:593` and `:611`, `reading-progress.module.css:12`, `geopolitical-brief.module.css:178`). …
       `components/sections/ReadingProgress.tsx:50-54`, `components/sections/sections.module.css:593-601`, `components/sections/sections.module.css:611-618`, `components/sections/reading-progress.module.css:12-20`, `components/briefs/geopolitical-brief.module.css:178`
       `medium` · `interaction` · `trivial effort`
 
-- [ ] **10.** `cross-cutting-four-sub-aa-text-pairs`
+- [x] **10.** `cross-cutting-four-sub-aa-text-pairs`
       four pairs below 4.5:1, one of them a UA default
       **Do:** `.timestamp` → `var(--ink-lo)` (6.32:1 on the panel). Both placeholders → `var(--ink-lo)` as well (6.36:1 on the support field); add `.field input::placeholder, .field textarea::placeholder { color: var(--ink-lo); …
       `components/chat/ask-the-lion-chat.module.css:183-187`, `components/chat/ask-the-lion-chat.module.css:530`, `components/support/support.module.css:27-38`, `components/home/home.module.css:433-441`, `app/globals.css:64-72`, `app/not-found.module.css:101`, `app/not-found.module.css:137`
@@ -116,13 +116,13 @@ the by-surface list below.
       `components/sections/DocPage.tsx:40-51`, `components/sections/DocPage.tsx:61-62`, `components/archive/ArchiveRecord.tsx:103-116`
       `high` · `layout` · `small effort`
 
-- [ ] **12.** `archive-brief-october7-videos-reserve-no-layout-height`
+- [x] **12.** `archive-brief-october7-videos-reserve-no-layout-height`
       74 videos ship no dimensions; each `<video>` lays out at 300×150 then jumps
       **Do:** Fall back to the poster's dimensions, which the package already holds and a test already guarantees: `width={item.width ?? poster?.width ?? undefined}` and the same for height. That reserves the correct box at first layout for all 74 clips. …
       `components/archive/ArchiveBlocks.tsx:179-189`, `components/archive/archive.module.css:63-79`
       `medium` · `performance-perceived` · `trivial effort`
 
-- [ ] **13.** `reading-system-focus-within-makes-the-quietest-page-louder`
+- [x] **13.** `reading-system-focus-within-makes-the-quietest-page-louder`
       `:focus-within` outranks `.registerMuted`
       **Do:** The minimal, no-side-effect fix is to demote the focus rule: move it above `.surfaceQuiet .row` and write it `:where(.page:focus-within) .row { --register: 0.6; animation-duration: calc(var(--dur) * 2); …
       `components/sections/sections.module.css:159-172`, `components/sections/sections.module.css:200-211`, `components/sections/sections.module.css:213-217`

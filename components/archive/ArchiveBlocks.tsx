@@ -175,14 +175,24 @@ function VideoBlock({
     <figure className={styles.figure}>
       {/* All 209 videos are H.264 + AAC with `moov` ahead of `mdat`, so they
           begin playing without downloading the whole file. `preload="metadata"`
-          keeps a page of records from pulling megabytes nobody asked for. */}
+          keeps a page of records from pulling megabytes nobody asked for.
+
+          Dimensions fall back to the poster's: every october7 video item
+          carries null width/height, so without this the element lays out at
+          the 300x150 intrinsic default and jumps when metadata arrives —
+          mid-read, on records holding up to 25 clips. The poster is always
+          there to ask: `tests/archive-content.test.ts:107` asserts every
+          locally held video has one, and all 74 posters carry both values.
+          No `aspect-ratio` floor — these are overwhelmingly portrait phone
+          clips, so a 16/9 default would reserve a wrong-shaped box and cause
+          the jump it was meant to prevent. */}
       <video
         className={styles.video}
         controls
         preload="metadata"
         poster={poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined}
-        width={item.width ?? undefined}
-        height={item.height ?? undefined}
+        width={item.width ?? poster?.width ?? undefined}
+        height={item.height ?? poster?.height ?? undefined}
       >
         <source src={assetUrl(pkg, item.package_path)} type={item.mime_type ?? 'video/mp4'} />
         Your browser cannot play this video.

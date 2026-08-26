@@ -37,6 +37,14 @@
   line-height: var(--t-body-lh);
 }
 
+/* Undeclared until now, so the site's only real form inherited Chrome's UA
+   grey (#757575, 4.27:1) for text that carries instructions. Scoped to
+   `.field` so it does not reach the chat composer, which has its own. */
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--ink-lo);
+}
+
 .field textarea {
   resize: vertical;
 }

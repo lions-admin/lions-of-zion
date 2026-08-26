@@ -180,8 +180,9 @@
   justify-content: flex-end;
 }
 
+/* Was #5b6d7f — 3.67:1 on the panel at 8.96px, below AA. */
 .timestamp {
-  color: #5b6d7f;
+  color: var(--ink-lo);
   font-weight: 400;
   letter-spacing: 0.1em;
 }
@@ -527,7 +528,9 @@
   padding: 0.62rem 0.1rem 0.45rem;
 }
 
-.composer textarea::placeholder { color: #647687; }
+/* Placeholders carry real instructions, so WCAG 1.4.3 treats them as content.
+   Was #647687 — 4.28:1, below AA. */
+.composer textarea::placeholder { color: var(--ink-lo); }
 
 .composer button {
   position: relative;

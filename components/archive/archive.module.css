@@ -346,10 +346,18 @@
   color: var(--ink-lo);
 }
 
+/* `DocPage`'s `:where(.body) p` sets font-size and color *on the p*, which
+   beats the footer's inherited `--t-data`/`--ink-lo`. Restating both here is
+   what keeps credits recessive — see `.ai/DECISIONS.md`, 2026-08-26. */
 .provenance p {
   margin: 0 0 0.35rem;
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
 }
 
 .provenance a {
   color: var(--ink);
+  /* A long source slug breaks instead of laddering down the page. */
+  overflow-wrap: anywhere;
 }

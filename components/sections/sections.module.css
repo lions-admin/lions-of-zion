@@ -197,6 +197,19 @@
   to { transform: translateX(-100%); }
 }
 
+/* Focus anywhere in the page calms the scan — and it is not keyboard-only: a
+   mouse click on any in-page link triggers `:focus-within` too.
+   Wrapped in `:where()` so it scores (0,1,0) and sits at the top of the
+   ladder. Written plainly it was (0,3,0) and beat `.registerMuted` (0,2,0),
+   so on October 7 focus made the quietest page *louder* — register 0.45 to
+   0.6 and the nine rows 50% faster — the opposite of what this says. The
+   per-page calms below must win; the quietest page staying at 0.45 is what
+   "calms further" already means for it. */
+:where(.page:focus-within) .row {
+  --register: 0.6;
+  animation-duration: calc(var(--dur) * 2);
+}
+
 /* Declared before `.registerMuted` so a page that is both quiet and muted
    still takes the muted (quieter) values. */
 .surfaceQuiet .row {
@@ -208,12 +221,6 @@
   /* October 7: the scan nearly holds its breath */
   --register: 0.45;
   animation-duration: calc(var(--dur) * 3);
-}
-
-/* Keyboard focus anywhere in the page calms the scan further. */
-.page:focus-within .row {
-  --register: 0.6;
-  animation-duration: calc(var(--dur) * 2);
 }
 
 /* ---- the grid ------------------------------------------------------------
@@ -597,6 +604,11 @@
   background: linear-gradient(90deg, var(--accent), var(--gold-hi));
   box-shadow: 0 0 10px rgba(87, 167, 217, 0.5);
   transform-origin: left;
+  /* Resting state is empty, not full. The client effect applies scaleX via
+     requestAnimationFrame, so without this the first painted frame — and the
+     whole no-JavaScript render — is a bar at 100%, telling the reader they
+     finished a document they have not started. */
+  transform: scaleX(0);
   transition: transform 80ms linear;
 }
 
@@ -614,6 +626,11 @@
   height: 100%;
   background: linear-gradient(90deg, var(--accent), var(--gold-hi));
   transform-origin: left;
+  /* Resting state is empty, not full. The client effect applies scaleX via
+     requestAnimationFrame, so without this the first painted frame — and the
+     whole no-JavaScript render — is a bar at 100%, telling the reader they
+     finished a document they have not started. */
+  transform: scaleX(0);
   transition: transform 80ms linear;
 }
 

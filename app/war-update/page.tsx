@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { PublicationMeta, SourceList, CorrectionHistory } from "@/components/content";
+import { PublicationMeta, CorrectionHistory } from "@/components/content";
 import { getWarUpdateEdition } from "@/lib/content/war-update";
 import { SITE_URL } from "@/lib/site-config";
 import { WireFeed } from "./WireFeed";
@@ -69,9 +69,14 @@ export default async function Page() {
         <WireFeed entries={edition.entries} />
       </SectionBlock>
 
-      <SectionBlock heading="Source stack">
-        <SourceList sources={edition.sources} />
-      </SectionBlock>
+      {/* No source stack. `edition.sources` is the union of the sources each
+          dispatch already cites, so rendering it here printed every citation
+          on this page twice — invisible while both sat in the column, obvious
+          once each entry's sources moved out to the margin beside it. It also
+          made the margin note read as a preview rather than as the evidence.
+          Israel's Story took the same removal (`.ai/DECISIONS.md:499-504`).
+          The field stays in `lib/content/war-update.ts` — `sourceCount` reads
+          it for the `PublicationMeta` row, which preserves the count. */}
 
       <CorrectionHistory corrections={edition.corrections} />
     </SectionPage>

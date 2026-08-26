@@ -437,7 +437,13 @@
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
-  color: var(--data-blue-dim);
+  /* Was --data-blue-dim: 4.50:1 flat, 3.54:1 over the scan's composited wash,
+     3.30:1 under `.entry:hover`. `globals.css:64-72` also reserves the blue
+     ramp for semantics and says it is never used for text hierarchy, which is
+     what it was doing here. `--ink` rather than `--ink-lo` because
+     `.ai/DESIGN-V2.md:200` puts --ink-lo's AA floor at 0.8125rem and this is
+     0.72rem; --ink is 8.83:1 worst case. */
+  color: var(--ink);
 }
 
 .entryLabel {

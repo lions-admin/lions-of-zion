@@ -48,7 +48,6 @@ export function NavLinks({ nodes }: NavLinksProps) {
                   <span className={styles.cardFile}>
                     File {String(i + 1).padStart(2, '0')} / {String(nodes.length).padStart(2, '0')}
                   </span>
-                  <span className={styles.cardRoute}>{node.href}</span>
                 </span>
                 <span id={`nav-card-${node.id}`} className={styles.cardText}>
                   {node.description}

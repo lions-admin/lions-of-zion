@@ -136,15 +136,20 @@ describe("particle navigation layout", () => {
   });
 
   it("keeps the configured clockwise order beginning at twelve", () => {
+    // Array index is the spoke angle, the DOM/tab order and the "File NN / 08"
+    // number all at once, so this list is the contract and not a snapshot.
+    // `we-are` sits at index 1 and `support-us` last on purpose: tab order is
+    // the one genuinely sequential reading of the ring, and the ask should not
+    // precede the identity. See `defaultNodes`' header in `config.ts`.
     expect(defaultNodes.map((node) => node.id)).toEqual([
       "geopolitical-brief",
-      "support-us",
+      "we-are",
       "war-update",
       "october-7",
       "our-heroes",
       "israels-story",
       "fake-resistance",
-      "we-are",
+      "support-us",
     ]);
     const orbit = computeOrbitLayout(1440, 900, 3.3);
     const top = nodePosition(0, defaultNodes.length, orbit);

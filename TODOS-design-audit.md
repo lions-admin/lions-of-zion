@@ -158,78 +158,112 @@ session can take the top of a section and stop anywhere.
       **Do:** Make the cadence per *beat*, not per line, so the twelve sentences take the same wall-clock time on both layouts and a two-line break costs presentation rather than duration: a beat-relative schedule in `getEntryStart` with `ROLLING_BEAT_CADENCE ≈ 2.2s` and …
       `components/intro/rolling-story-timeline.ts:11`, `components/intro/rolling-story-timeline.ts:90-125`, `components/intro/story-timeline.ts:33-118`
       `high` · `motion` · `medium effort`
+      **Partly landed.** The filed beat-relative schedule cannot be built:
+      equal totals put 21 mobile lines at 0.78s each against a 1.0s
+      `ROLLING_EXIT_DURATION`, so two lines always dissolve at once — which
+      overruns `ROLLING_POOL_SIZE` (= WINDOW + 1) and drops a sentence's sprite,
+      and stacks two dissolving clouds in row 0. (The filed `≈2.2s` cadence also
+      computes to 46.53s, not 38.6s.) Shipped the safe half instead: per-layout
+      cadence, mobile 1.25 → 1.0s, so mobile is 42.33s and desktop is unchanged
+      at 38.58s — the gap falls from 22.7% to 9.7%. The last 3.75s needs a wider
+      sprite pool, a row rule past the window, or a shorter dissolve: a
+      composition decision with a real-Chrome capture.
 
 #### Medium — 6
 
-- [ ] `home-scene-orbit-labels-below-legibility-floor`
+- [x] `home-scene-orbit-labels-below-legibility-floor`
       the eight orbit labels render at 9.28–10.35px
       **Do:** File the in-place fix, not a face swap: raise the desktop half — `clamp(0.72rem, 1.4vmin, 0.95rem)` with `letter-spacing: 0.08em` at all widths — which clears the floor and the tracking cap without touching Cinzel, `CLAUDE.md`'s uppercase-as-identity rule, or …
       `components/particle-nav/styles.module.css:390-411`, `components/particle-nav/styles.module.css:485-491`, `app/globals.css:48-52`, `.ai/DESIGN-V2.md:181-186`
       `medium` · `typography` · `small effort`
+      **Needs a real-Chrome capture** at the seven `verify-composition.mjs`
+      viewports: whether 11.5–12.6px tracked caps push "GEOPOLITICAL BRIEF" to a
+      third line is not settled from source. The phone tier keeps its size, as
+      filed — that half is the DESIGN-V2 Phase 5 face decision.
 
-- [ ] `home-scene-first-screen-names-only-threats`
+- [x] `home-scene-first-screen-names-only-threats`
       the scan's fixed glyph layer is 100% hostile labels
       **Do:** Swap two or three of the ten hostile labels for verdict labels in the same gold ramp — "SOURCE CONFIRMED", "CROSS-CHECKED", "CORRECTION LOGGED" — placed on the opposite diagonal. …
       `components/particle-nav/layers/NetworkScan.tsx:54-88`, `components/particle-nav/HomeSignalLayer.tsx:24-28`, `app/opengraph-image.tsx:68-78`, `lib/content/war-update.ts:171-172`
       `medium` · `content-design` · `medium effort`
 
-- [ ] `home-scene-intro-typeface-is-gentilis-and-brand-is-one-word`
+- [x] `home-scene-intro-typeface-is-gentilis-and-brand-is-one-word`
       the brand climax spells "LIONSOFZION"
       **Do:** Split into two items. **Ship now (trivial):** change `IntroText.tsx:122` to `['LIONS OF ZION']`. Verified safe — glyph advances sum to 8.456em vs 7.844em, so at `brandFontScale` 0.38 the cloud goes 2.98→3.21 world units against a desktop `lineMaxWidth` of at …
       `components/particle-nav/layers/IntroText.tsx:88-91`, `components/particle-nav/layers/IntroText.tsx:122-130`, `components/particle-nav/styles.module.css:456-465`, `app/layout.tsx:13-19`
       `medium` · `typography` · `medium effort`
+      Ship-now half only, as filed. Replacing Gentilis with a baked Cinzel or
+      Newsreader typeface JSON stays open — it needs a lowercase + `7` subset,
+      `tests/intro-text-cloud.test.ts` repointed, and a capture.
 
-- [ ] `home-scene-mobile-fold-has-no-scroll-affordance`
+- [x] `home-scene-mobile-fold-has-no-scroll-affordance`
       the front page has no visible cue on a phone
       **Do:** Add a phone-only cue *inside* the scene box, above the chat dock, on the free `.desktopOrientation` layer (`display: none` below 719px) — a gold chevron plus "The front page" at `--t-data` linking to `#home-masthead`. …
       `components/home/home.module.css:222-226`, `components/home/home.module.css:35-38`, `app/globals.css:195-201`, `components/particle-nav/styles.module.css:493-515`
       `medium` · `interaction` · `medium effort`
+      **Needs a real-Chrome capture:** the cue sits in the ~24px between the
+      bottom node's halo and the chat dock at 390×844. The `app/globals.css`
+      comment that still claims the affordance exists everywhere was left alone —
+      shared file, another agent's surface.
 
-- [ ] `home-scene-orbit-order-contradicts-the-band-taxonomy`
+- [x] `home-scene-orbit-order-contradicts-the-band-taxonomy`
       nothing orders the orbit, and a comment says otherwise
       **Do:** Minimum viable: correct the false comment at `HomeFrontPage.tsx:154-156`, and move `support-us` out of index 1 so the ask is not second in tab order. …
       `components/particle-nav/config.ts:75-148`, `components/particle-nav/config.ts:151-153`, `components/home/HomeFrontPage.tsx:40-44`, `components/home/HomeFrontPage.tsx:154-186`
       `medium` · `hierarchy` · `medium effort`
+      `we-are` ↔ `support-us` swapped, so identity is second in tab order and the
+      ask is last; `tests/particle-nav-layout.test.ts` updated with it. Two file
+      numbers move (02 ↔ 08) and are derived everywhere they render.
 
-- [ ] `home-scene-poster-tier-has-no-navigation`
+- [x] `home-scene-poster-tier-has-no-navigation`
       the fallback poster draws nothing at the eight node positions
       **Do:** Do **not** draw node rings and icons at `NODE_CENTRES` as originally filed — they will misregister. The poster's spokes sit at 0.36W/0.40H of a 1600 square, while `NavLinks` places links at 36%/40% of the safe-inset viewport box; …
       `scripts/particle-nav/make-poster.ts:35-43`, `scripts/particle-nav/make-poster.ts:88-104`, `components/particle-nav/ParticleNav.tsx:31-35`, `components/particle-nav/styles.module.css:142-155`
       `medium` · `composition` · `medium effort`
+      CSS half only — the fix that registers by construction. The 16:10/portrait
+      crops and the `dottedRing` opacity were left: both need `poster:nav` re-run,
+      and a re-bake resamples the Arial `INTEL_LABELS` on whatever machine runs it.
 
 #### Low — 8
 
-- [ ] `home-scene-hover-card-chrome-outranks-its-sentence`
+- [x] `home-scene-hover-card-chrome-outranks-its-sentence`
       the card's meta row is 9.28px and spends both accents on chrome
       **Do:** Two real fixes, no inversion. Raise `.cardMeta` to `--t-data` (0.72rem) with `--t-data-tracking` (0.08em), and delete `.cardRoute` — it duplicates the href the browser already shows on hover and is aria-hidden anyway. …
       `components/particle-nav/styles.module.css:278-309`, `components/particle-nav/styles.module.css:253-276`, `components/particle-nav/NavLinks.tsx:46-56`
       `low` · `hierarchy` · `trivial effort`
 
-- [ ] `home-scene-metadata-describes-the-animation-not-the-desk`
+- [x] `home-scene-metadata-describes-the-animation-not-the-desk`
       the root description describes the intro
       **Do:** Share one product description between `layout.tsx` (base + openGraph + twitter) and `manifest.ts` via a `SITE_DESCRIPTION` export in `lib/site-config.ts`, which already holds `SITE_URL` and is already imported by both consumers. …
       `app/layout.tsx:41-57`, `app/manifest.ts:3-11`, `app/opengraph-image.tsx:77`, `lib/content/war-update.ts:171-172`
       `low` · `content-design` · `trivial effort`
+      `SITE_DESCRIPTION` added to `lib/site-config.ts`; the OG card's own line is
+      deliberately not shared with it.
 
-- [ ] `home-scene-scan-breakpoint-disagrees-with-every-other-layer`
+- [x] `home-scene-scan-breakpoint-disagrees-with-every-other-layer`
       `NetworkScan` hardcodes 620 where everything else uses 720
       **Do:** Do not blind-swap 620→720: that visibly drops four labels and two platform glyphs across the whole 620–719 band and is a composition change requiring a real-Chrome capture. …
       `components/particle-nav/layers/NetworkScan.tsx:476-481`, `components/particle-nav/config.ts:216-217`, `components/intro/introLayout.ts:86-88`, `components/particle-nav/styles.module.css:493-515`
       `low` · `responsive` · `trivial effort`
 
-- [ ] `home-scene-stylesheet-ignores-the-token-palette`
+- [x] `home-scene-stylesheet-ignores-the-token-palette`
       the scene consumes no palette token and carries three off-scale colours
       **Do:** Not a find-and-replace. (a) Safe now: `#b6c4d6` (305) → `var(--ink)`. (b) `#a7b8ca` (469) and `#e7c979` (458) are visible changes to the wordmark block; …
       `components/particle-nav/styles.module.css:456-472`, `components/particle-nav/styles.module.css:303-309`, `app/globals.css:54-76`
       `low` · `colour` · `trivial effort`
+      `#b6c4d6` → `var(--ink)`; the two wordmark colours are now `--scene-*` on
+      `.root`. The locked `#c9a24b`/`#efd79a` stay literal, as filed.
 
-- [ ] `home-scene-idle-motion-dials-are-all-zero`
+- [x] `home-scene-idle-motion-dials-are-all-zero`
       three sim dials ship at 0 under comments describing motion
       **Do:** The zero-risk half needs no visual sign-off: correct or delete the four comments that assert motion. If idle rotation is restored, note that `Scene.tsx:226` rotates the whole rig and `activeAngle` at 238 reads `rig.rotation.z`, so a nonzero value also drifts …
       `components/particle-nav/config.ts:13-39`, `components/particle-nav/layers/OrbitalRings.tsx:2`, `components/particle-nav/layers/OrbitalRings.tsx:41-43`, `components/particle-nav/tsl/lionCompute.ts:153-155`
       `low` · `motion` · `small effort`
+      Comments only. Whether to restore `curlAmp`, `repelStrength` and
+      `idleRotateDegPerSec` is an owner decision — idle rotation also drifts the
+      activate-dolly direction and the projected label geometry.
 
-- [ ] `home-scene-masthead-repeats-the-wordmark-verbatim`
+- [x] `home-scene-masthead-repeats-the-wordmark-verbatim`
       the band's kicker restates the scene's, one screen apart
       **Do:** Drop `.brandKicker` from `HomeSignalLayer` so the scene reads wordmark + "Truth has a signal.", and let the band own the framing. Keep the masthead's `<h1>`, rule and lede — `.ai/DECISIONS.md` records the `<h1>` as the home route's only one. …
       `components/particle-nav/HomeSignalLayer.tsx:24-28`, `components/home/HomeFrontPage.tsx:90-95`, `components/home/home.module.css:249-288`
@@ -240,12 +274,19 @@ session can take the top of a section and stop anywhere.
       **Do:** Do not ship this as a drive-by. `.ai/DESIGN-V2.md:154-161, 313` makes the home scene's typographic voice an explicit open question for the user (Phase 5), so raise it as a decision. …
       `components/particle-nav/layers/NetworkScan.tsx:240`, `components/particle-nav/layers/NetworkScan.tsx:242`, `components/particle-nav/layers/NetworkScan.tsx:404-412`, `scripts/particle-nav/make-poster.ts:98`
       `low` · `typography` · `small effort`
+      **Owner decision, not shipped.** The two literals are now one named
+      `SANS_STACK` with the reasoning in place, but pointing the scene at the
+      loaded Geist Mono is DESIGN-V2 Phase 5 and moves buffer construction behind
+      `document.fonts.ready` — a scene-startup change needing a capture.
 
 - [ ] `home-scene-story-copy-exists-nowhere-but-the-intro`
       the twelve-beat argument is used once per tab and reused nowhere
       **Do:** Use `STORY_TRANSCRIPT` — already exported and currently unused — as the source for a short typeset statement, so the film and the page share one string by construction. …
       `components/particle-nav/CanvasMount.tsx:161-163`, `components/particle-nav/CanvasMount.tsx:420-424`, `components/particle-nav/CanvasMount.tsx:62-85`, `components/intro/story-timeline.ts:123-135`
       `low` · `content-design` · `small effort`
+      **Deferred.** Every landing site the finding sanctions is out of this
+      agent's scope: `/we-are` is a section route, and the home band already
+      carries a statement of purpose that the same finding warns against doubling.
 
 ---
 

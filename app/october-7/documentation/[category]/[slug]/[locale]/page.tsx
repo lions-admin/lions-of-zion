@@ -5,7 +5,6 @@ import {
   documentationLocaleParams,
 } from '@/lib/content/documentation';
 
-const TAGLINE = 'An archived record of October 7.';
 const SOURCE_LABEL = 'Hamas-Massacre.net';
 
 type Params = { params: Promise<{ category: string; slug: string; locale: string }> };
@@ -38,7 +37,6 @@ export default async function Page({ params }: Params) {
       locale={locale}
       basePath={`/october-7/documentation/${category}/${slug}`}
       sourceLabel={SOURCE_LABEL}
-      tagline={TAGLINE}
     />
   );
 }

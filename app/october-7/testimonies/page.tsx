@@ -24,6 +24,9 @@ export default async function Page() {
   return (
     <DocPage
       routeId="october-7"
+      // Both indexes and every record share this route, so each supplies the
+      // seed that makes its slice of the corpus its own.
+      backdropSeed="october-7/testimonies"
       title="Testimonies"
       tagline={TAGLINE}
       breadcrumb={[{ href: '/october-7', label: 'October 7' }]}

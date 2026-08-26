@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { ArchiveRecordPage, archiveRecordMetadata } from '@/components/archive';
 import { DOCUMENTATION_PACKAGE, documentationParams } from '@/lib/content/documentation';
 
-const TAGLINE = 'An archived record of October 7.';
 const SOURCE_LABEL = 'Hamas-Massacre.net';
 
 type Params = { params: Promise<{ category: string; slug: string }> };
@@ -28,7 +27,6 @@ export default async function Page({ params }: Params) {
       slug={slug}
       basePath={`/october-7/documentation/${category}/${slug}`}
       sourceLabel={SOURCE_LABEL}
-      tagline={TAGLINE}
     />
   );
 }

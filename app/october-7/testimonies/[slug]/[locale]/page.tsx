@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { ArchiveRecordPage, archiveRecordMetadata } from '@/components/archive';
 import { TESTIMONIES_PACKAGE, testimonyLocaleParams } from '@/lib/content/testimonies';
 
-const TAGLINE = 'Archived testimony from October 7.';
 const SOURCE_LABEL = 'October7.org';
 
 type Params = { params: Promise<{ slug: string; locale: string }> };
@@ -35,7 +34,6 @@ export default async function Page({ params }: Params) {
       locale={locale}
       basePath={`/october-7/testimonies/${slug}`}
       sourceLabel={SOURCE_LABEL}
-      tagline={TAGLINE}
     />
   );
 }

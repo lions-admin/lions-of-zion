@@ -441,31 +441,31 @@ session can take the top of a section and stop anywhere.
       `components/archive/ArchiveRecordList.tsx:51-60`, `components/archive/archive.module.css:283-309`
       `medium` · `content-design` · `trivial effort`
 
-- [ ] `archive-brief-broken-media-renders-as-an-unlabelled-empty-box`
+- [x] `archive-brief-broken-media-renders-as-an-unlabelled-empty-box`
       const alt = item.alt_text ?? caption ?? '' marks an image decorative when the source published neither, which is 185 of 468 images — so those are unlabelled to a scree…
       **Do:** Both halves of the filed fix are wrong as written. "onError-free CSS-only fallback" is not possible — CSS cannot detect a 404; that needs `onError` (or a build-time manifest check), i.e. a client component the archive renderer currently is not. …
       `components/archive/ArchiveBlocks.tsx:113`, `components/archive/ArchiveBlocks.tsx:115-134`, `components/archive/archive.module.css:63-71`, `lib/content/archive.ts:195-198`
       `medium` · `empty-state` · `small effort`
 
-- [ ] `archive-brief-disinformation-scan-corpus-animates-behind-testimony`
+- [x] `archive-brief-disinformation-scan-corpus-animates-behind-testimony`
       DocPage seeds ScanBackdrop from routeId, and all ~1,177 archive routes pass routeId="october-7" — so the deterministic PRNG produces the identical nine fragments in id…
       **Do:** Two cheap, in-policy fixes. **(1)** Add `seed?: string` to `ScanBackdropProps`, default it to `routeId`, and have `ArchiveRecordPage` pass the record slug. …
       `components/sections/DocPage.tsx:30`, `components/sections/DocPage.tsx:37`, `components/sections/ScanBackdrop.tsx:107-117`, `components/sections/sections.module.css:157-172`
       `medium` · `composition` · `small effort`
 
-- [ ] `archive-brief-generic-tagline-splits-the-title-from-the-dateline`
+- [x] `archive-brief-generic-tagline-splits-the-title-from-the-dateline`
       DocPage's header is title → lede → gold ledeRule, and the archive supplies a constant per-package lede on every page.
       **Do:** Give `DocPage` an optional `dateline?: React.ReactNode` slot rendered inside `<header>` between `.lede` and `.ledeRule`, render `.lede` only when a tagline exists, and drop the archive taglines to `undefined` — so the header becomes title → dateline → one …
       `app/october-7/testimonies/[slug]/page.tsx:5`, `app/october-7/documentation/[category]/[slug]/page.tsx:5`, `components/sections/DocPage.tsx:55-60`, `components/sections/sections.module.css:342-355`, `components/archive/ArchiveRecord.tsx:57-99`
       `medium` · `hierarchy` · `small effort`
 
-- [ ] `archive-brief-record-title-set-as-display-headline-regardless-of-length`
+- [x] `archive-brief-record-title-set-as-display-headline-regardless-of-length`
       DocPage's .title is --t-display (44px at 1440) with text-wrap: balance and no length branch.
       **Do:** Add a length-responsive title step: have `ArchiveRecordPage` pass a `titleScale` hint (`displayTitle(version.title).length > 90 ? 'long' : 'default'`) that `DocPage` turns into a class setting `--t-h2` (1.55rem) outright — the token clamp floors at 2.1rem, so …
       `components/archive/ArchiveRecordPage.tsx:56`, `components/sections/sections.module.css:333-341`, `components/archive/archive.module.css:290-296`
       `medium` · `typography` · `small effort`
 
-- [ ] `archive-brief-long-testimony-has-no-navigation-through-its-own-structure`
+- [x] `archive-brief-long-testimony-has-no-navigation-through-its-own-structure`
       DocPage was written for /methodology and /corrections — "short policy pages, not documents with sections to navigate" (DocPage.tsx:9-13).
       **Do:** As filed the change is a silent no-op. `ArchiveBlocks.tsx:56` renders `<h2 className={styles.heading}>` with no `id`, and `DocPage` sets neither `data-reading-scroll` (on `<main>`) nor `data-toc-source` (on the body div) — `SectionToc` early-returns when …
       `components/sections/DocPage.tsx:29-31`, `components/sections/DocPage.tsx:54-63`, `components/archive/archive.module.css:13-21`, `components/sections/SectionToc.tsx:44`
@@ -491,7 +491,7 @@ session can take the top of a section and stop anywhere.
       `components/archive/ArchiveRecord.tsx:59-64`, `components/archive/ArchiveRecordList.tsx:52-53`, `components/archive/archive.module.css:137-162`
       `low` · `content-design` · `trivial effort`
 
-- [ ] `archive-brief-two-shells-now-disagree-about-the-card-and-the-closing-apparatus`
+- [x] `archive-brief-two-shells-now-disagree-about-the-card-and-the-closing-apparatus`
       sections.module.css:307-311 records the deliberate removal of the card — "no border, no translucent panel, no blur… the card chrome was reading as a floating box rathe…
       **Do:** Reverse the direction and shrink it: drop `.article`'s two gold-tinted borders and the `0 2rem 7rem` shadow, keep its `rgba(8,14,24,0.965)` ground (load-bearing behind the unmasked `.quietBackdrop`), and record that as the reconciliation. …
       `components/briefs/geopolitical-brief.module.css:316-323`, `components/sections/sections.module.css:307-316`, `components/briefs/GeopoliticalBrief.tsx:217-235`, `components/sections/DocPage.tsx:61-62`

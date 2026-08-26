@@ -93,8 +93,16 @@
   outline-offset: 2px;
 }
 
-/* The submit control says what happens; two or three words, and a control
-   label is the one place the data voice still reads as a button. */
+/* This used to stretch the uppercase budget to three words on the grounds
+   that a control label is where the data voice still reads as a button. The
+   budget is a word count, not a voice: V2 allows uppercase+tracking only for
+   data labels of two words or fewer, and "Continue by email" is three. The
+   carve-out was also already contradicted by another control that keeps the
+   rule — `app/october-7/page.module.css` `.archiveEntryCta`. So the text face
+   at caption size, sentence case; the gold rule and the 44px target are what
+   still say "button", and both submit labels change together because a group
+   of controls that switches case with its own word count reads as an accident
+   (`components/home/home.module.css`). */
 .form button[type='submit'] {
   min-height: 44px;
   padding: 0 1.3rem;
@@ -102,10 +110,11 @@
   border: 1px solid var(--gold);
   border-radius: 2px;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  letter-spacing: 0;
+  text-transform: none;
   cursor: pointer;
   transition: border-color 180ms ease, color 180ms ease;
 }

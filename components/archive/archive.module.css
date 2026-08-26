@@ -219,7 +219,13 @@
   text-wrap: balance;
 }
 
-.groupHeading:first-of-type {
+/* Each group sits in its own `<section>`, and `:first-of-type` is scoped to
+   the parent — so written as `.groupHeading:first-of-type` this matched every
+   one of the seven headings, not the first, and the 2.5rem break above never
+   rendered anywhere. The only gap between a 99-row list and the next category
+   was `.recordList`'s 1.5rem. Scoping to the first *section* is what the rule
+   always meant. */
+section:first-of-type .groupHeading {
   margin-top: 0;
 }
 
@@ -360,4 +366,99 @@
   color: var(--ink);
   /* A long source slug breaks instead of laddering down the page. */
   overflow-wrap: anywhere;
+}
+
+/* ---------- index filter ---------- */
+
+/* Typed as a console field rather than as a form control: `--face-data` at
+   `--t-data`, which is the register the file numbers and meta lines already
+   use on these rows. */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  margin: 1.75rem 0 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.filterLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.filterInput {
+  flex: 1 1 14rem;
+  min-height: 44px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+}
+
+.filterInput::placeholder {
+  color: var(--ink-lo);
+}
+
+.filterInput:focus-visible {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 2px;
+}
+
+.filterCount {
+  margin: 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  white-space: nowrap;
+}
+
+.filterEmpty {
+  margin: 1.5rem 0;
+  color: var(--ink-lo);
+}
+
+/* In flow and sticky, not a rail: `DocPage` deliberately omits `withRails`,
+   and adding one would mean fixing `--content-w`, which assumes both rails or
+   neither. */
+.categoryJump {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.55rem;
+  margin-bottom: 1.5rem;
+  padding: 0.6rem 0;
+  background: var(--ground);
+}
+
+.categoryJump a {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-decoration: none;
+}
+
+.categoryJump a:hover,
+.categoryJump a:focus-visible {
+  border-color: var(--gold-line);
+  color: var(--gold-hi);
 }

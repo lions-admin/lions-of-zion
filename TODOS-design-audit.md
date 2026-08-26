@@ -427,7 +427,7 @@ session can take the top of a section and stop anywhere.
 
 #### High — 1
 
-- [ ] `archive-brief-index-emits-the-entire-archive-with-no-way-to-narrow-it`
+- [x] `archive-brief-index-emits-the-entire-archive-with-no-way-to-narrow-it`
       Both index routes render every record as a ~77px row and stop.
       **Do:** Add one client filter component under `components/archive/` — a single text input over `ArchiveIndexEntry.title` + `witness` + `category`, plus a sticky category jump row on `/documentation` built from the `groups` array already computed at …
       `app/october-7/documentation/page.tsx:41-53`, `app/october-7/testimonies/page.tsx:38-41`, `components/archive/ArchiveRecordList.tsx:26-48`, `components/archive/archive.module.css:240-267`
@@ -435,7 +435,7 @@ session can take the top of a section and stop anywhere.
 
 #### Medium — 6
 
-- [ ] `archive-brief-index-meta-line-is-identical-on-314-of-335-rows`
+- [x] `archive-brief-index-meta-line-is-identical-on-314-of-335-rows`
       meta() composes witness + year + language count.
       **Do:** Accept `showMeta?: boolean` on `ArchiveRecordList` and pass `showMeta={false}` from `app/october-7/documentation/page.tsx:47-51`, keeping it on for testimonies where witness names carry real signal. …
       `components/archive/ArchiveRecordList.tsx:51-60`, `components/archive/archive.module.css:283-309`
@@ -473,19 +473,19 @@ session can take the top of a section and stop anywhere.
 
 #### Low — 4
 
-- [ ] `archive-brief-block-order-contract-rests-on-a-nan-comparator`
+- [x] `archive-brief-block-order-contract-rests-on-a-nan-comparator`
       ArchiveBlock.position is typed as a required number and ArchiveBlocks sorts on a.position - b.position.
       **Do:** Prefer honouring rule 3 directly over the filed mixed-key sort: make it `position?: number` and either drop the sort (array order *is* the package's display order) or sort only when every block carries a position — `const ordered = blocks.every(b => typeof …
       `components/archive/ArchiveBlocks.tsx:33-43`, `lib/content/archive.ts:24-33`
       `low` · `correctness` · `trivial effort`
 
-- [ ] `archive-brief-category-group-boundaries-are-24px`
+- [x] `archive-brief-category-group-boundaries-are-24px`
       .groupHeading:first-of-type { margin-top: 0 } was written to suppress the top margin on the first heading only, but each group sits in its own <section> and :first-of-…
       **Do:** Scope the suppression correctly — `section:first-of-type .groupHeading { margin-top: 0 }`, or a modifier class on the first section — which alone restores the intended 2.5rem break. …
       `components/archive/archive.module.css:212-232`, `app/october-7/documentation/page.tsx:41-53`
       `low` · `layout` · `trivial effort`
 
-- [ ] `archive-brief-witness-label-duplicates-the-value-it-labels`
+- [x] `archive-brief-witness-label-duplicates-the-value-it-labels`
       witness_name is not a name — it is the source site's byline phrase — so the dateline renders "WITNESS Gili Y.'s story" on all 505 testimony version pages and in all 179 index meta lines.
       **Do:** Add `displayWitness()` beside `displayTitle()` in `lib/content/archive.ts` and call it from `ArchiveRecord.tsx:62` and `ArchiveRecordList.tsx:53`. The filed regex `/['’]s\s+story$/i` misses both malformed values; …
       `components/archive/ArchiveRecord.tsx:59-64`, `components/archive/ArchiveRecordList.tsx:52-53`, `components/archive/archive.module.css:137-162`

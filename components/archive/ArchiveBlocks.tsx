@@ -88,15 +88,24 @@ function dropLeadingChrome(blocks: ArchiveBlock[], renderedTitle?: string): Arch
 }
 
 export function ArchiveBlocks({ pkg, blocks, media, renderedTitle }: ArchiveBlocksProps) {
+  /* Sort only when the whole package is annotated. `position` is absent on
+     every october7 block, so `a.position - b.position` was NaN on all 16,265
+     of them — a contract enforced by a comparator that cannot fire. Rule 3 is
+     honoured by array order itself, so falling back to it is the contract
+     rather than a workaround.
+
+     Not `(b.position ?? i)`: that silently interleaves two numbering spaces
+     if a package is ever only partly annotated. */
+  const positioned = blocks.every((b) => typeof b.position === 'number');
   const ordered = dropLeadingChrome(
-    [...blocks].sort((a, b) => a.position - b.position),
+    positioned ? [...blocks].sort((a, b) => a.position! - b.position!) : blocks,
     renderedTitle,
   );
 
   return (
     <>
       {ordered.map((block, i) => (
-        <Block key={`${block.type}-${block.position}-${i}`} pkg={pkg} block={block} media={media} />
+        <Block key={`${block.type}-${i}`} pkg={pkg} block={block} media={media} />
       ))}
     </>
   );

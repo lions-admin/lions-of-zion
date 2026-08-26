@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { ArchiveRecordList } from '@/components/archive';
+import { ArchiveIndexFilter } from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
 import { getTestimoniesManifest, getTestimonyIndex } from '@/lib/content/testimonies';
 import { SITE_URL } from '@/lib/site-config';
@@ -40,9 +40,10 @@ export default async function Page() {
         rather than linked to, so the record survives whatever happens to any
         one site.
       </p>
-      <ArchiveRecordList
-        records={records}
-        href={(entry) => `/october-7/testimonies/${entry.id}`}
+      <ArchiveIndexFilter
+        groups={[{ slug: '', records }]}
+        basePath="/october-7/testimonies"
+        label="Find"
       />
     </DocPage>
   );

@@ -1,3 +1,4 @@
+export { ArchiveIndexFilter } from './ArchiveIndexFilter';
 export { ArchiveBlocks } from './ArchiveBlocks';
 export { ArchiveRecord } from './ArchiveRecord';
 export { ArchiveRecordList } from './ArchiveRecordList';

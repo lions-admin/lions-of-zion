@@ -5,6 +5,7 @@ import {
   type ArchiveRecord as Record,
   type ArchiveVersion,
   displayTitle,
+  displayWitness,
 } from '@/lib/content/archive';
 import { ArchiveBlocks } from './ArchiveBlocks';
 import styles from './archive.module.css';
@@ -60,7 +61,7 @@ export function ArchiveRecord({
           {record.witness_name ? (
             <div className={styles.metaPair}>
               <dt>Witness</dt>
-              <dd>{record.witness_name}</dd>
+              <dd>{displayWitness(record.witness_name)}</dd>
             </div>
           ) : null}
           {published ? (

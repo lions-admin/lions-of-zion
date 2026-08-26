@@ -23,8 +23,16 @@ The repository also carries an independent information-model backend under
 `app/api/` and `server/`. The two halves share no source files and are kept
 apart by lint rules rather than convention.
 
-Source is the private `lions-admin/lions-of-zion` repository. Git auto-deploy is
-not connected; production deployment is a separate manual Vercel operation.
+Source is the **public** `lions-admin/lions-of-zion` repository — verified with
+`gh repo view` on 2026-08-26, which reports `visibility: PUBLIC`. This file
+previously said "private"; that was wrong, and the difference is load-bearing:
+**a push to origin is itself an act of publication.** Anything not fit to be
+read by anyone must not be committed, and work that is gated on an editorial
+or legal decision is gated on the *push*, not only on the deploy.
+
+Git auto-deploy is not connected; production deployment is a separate manual
+Vercel operation. So the two are independent: pushing publishes the source,
+deploying publishes the site.
 
 ## Journal
 

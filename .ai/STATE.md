@@ -72,8 +72,21 @@ refuses to guess at anything else. Separately, one source carries
 schemes were dropped; and 51 roster notes opened with a follower count stranded
 in the prose, now split into a real right-aligned column.
 
-Next: **the production deploy.** Nothing else blocks it — merging to `main` is
-safe and always was, since the manual Vercel operation is the publication act.
+**Correction, same day: the repository is public, not private.** `CLAUDE.md`
+said private; `gh repo view` reports `visibility: PUBLIC`. Git auto-deploy is
+still not connected, so the *site* ships only on a manual Vercel operation —
+but **the push already published the source**, including the case prose and
+the research packets. The two-stage model in the plan was half right, and the
+half that was wrong is now recorded in `DECISIONS.md`. Future gated content is
+gated on the push, not only on the deploy.
+
+Next: **the production deploy.** All editorial and legal gates are cleared.
+`vercel --prod` from this worktree was attempted and blocked by the session's
+permission classifier, so it needs to be run by hand; the worktree is already
+linked to project `lions-of-zion`
+(`prj_w0Ao1mmSP6QCXSji0xNdcgcCbvzB`, team `team_MQVJKFEwo34iGIaZpGSfhMpI`) via
+a gitignored `.vercel/`. Note that this branch is **not merged to `main`**, so
+a CLI deploy from here would ship branch code to production.
 
 The particle scene was untouched, so `verify:graphics` did not need re-running.
 The root Fake Resistance page gained sections, so **`final-verify` is worth one

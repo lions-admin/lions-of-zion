@@ -10,6 +10,25 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — The repository is public, not private; a push is itself publication
+
+`CLAUDE.md` stated "Source is the private `lions-admin/lions-of-zion`
+repository". That was wrong. `gh repo view lions-admin/lions-of-zion` reports
+`visibility: PUBLIC`, `isPrivate: false`.
+
+This matters beyond a doc correction. The Fake Resistance integration was
+planned around a two-stage model — merge freely, gate the deploy — on the
+reasoning that "merging to `main` publishes nothing." Half of that holds: git
+auto-deploy is not connected, so the *site* ships only on a manual Vercel
+operation. The other half does not. **Pushing to origin publishes the source
+to anyone**, so the research packets, the case prose, and the editorial layer
+became publicly readable the moment the branch was pushed, ahead of any
+deploy.
+
+The consequence for future work: content gated on an editorial or legal
+decision is gated on the **push**, not only on the deploy. Do not plan another
+staged release on the assumption that committed-but-undeployed is private.
+
 ## 2026-08-26 — Cases are `ready`, not `published`, until the site actually ships
 
 The owner reported legal review of the Fake Resistance case files complete on

@@ -50,9 +50,21 @@ export default async function Page() {
       </SectionBlock>
 
       <SectionBlock heading="Correction log">
+        {/* The copy promises only what `CorrectionHistory` can actually
+            render — a date, an optional version and what changed. It used to
+            promise "the page it applied to" as well; `CorrectionsLogEntry`
+            carries `page` and `slug` for the day the log fills, but nothing
+            renders them, and a page should not describe a column it cannot
+            print. The empty state's own wording is left alone: "None
+            recorded" is shared with the Geopolitical Brief and is a
+            documented decision, so the context for it is said here instead. */}
         <p>
           Every correction issued across the site appears here, dated, with
-          the page it applied to and what changed.
+          what changed. The log is empty because nothing has needed one yet —
+          it is a real record with nothing in it, not a placeholder. If you
+          have found something that belongs here,{" "}
+          <Link href="/support-us#report">report the claim</Link> and it will
+          be checked.
         </p>
         <CorrectionHistory corrections={log} />
       </SectionBlock>

@@ -128,17 +128,45 @@ the by-surface list below.
       `components/sections/sections.module.css:159-172`, `components/sections/sections.module.css:200-211`, `components/sections/sections.module.css:213-217`
       `medium` · `motion` · `trivial effort`
 
-- [ ] **14.** `section-pages-methodology-contains-no-methodology`
+- [x] **14.** `section-pages-methodology-contains-no-methodology`
       the credibility document states no sourcing standard
       **Do:** Add the three sections the site's own copy implies: what counts as a source and how sources rank; when and how a source is archived; …
       `app/methodology/page.tsx:36-81`, `app/corrections/page.tsx:40-50`, `app/war-update/page.tsx:54-57`, `app/we-are/page.tsx:29-78`
       `high` · `content-design` · `medium effort`
+      **Done, 2026-08-27.** Added "What counts as a source" (three tiers, the
+      fetched-in-session rule, the covers-the-sentence rule, and an honest
+      note about Israel's Story), "Archiving" (worded to what the repo
+      actually does — snapshots on the Fake Resistance case files, not
+      everywhere), a per-label evidence table wording the nine
+      `ASSESSMENT_PRESENTATION` explanations plus the three confidence
+      levels, and "From source to published" carrying the pipeline as prose
+      linking to `/we-are`, which keeps its diagram. The duplicated
+      Corrections paragraph is cut to one sentence, breaking the closed loop
+      between the two pages. `/corrections`' "Full sourcing standards are on
+      the Methodology page" is now true and was left alone. Census
+      correction: the filed "~228 body words" no longer holds — the
+      influence-network research section landed after the audit and the page
+      was ~500 words before this change. The gap it names was still real.
 
 - [ ] **15.** `section-pages-wikipedia-in-the-evidence-margin`
       7 of 8 sources are Wikipedia, printed as the evidence
       **Do:** Two constraints. This reverses a documented decision — `.ai/DECISIONS.md`, 2026-08-25, "Israel's Story ships two chapters, not 'the long arc'", explicitly accepted Wikipedia as the sourcing basis ("each built from a fetched primary source (Wikipedia, itself …
       `lib/content/israels-story.ts:28-82`, `lib/content/war-update.ts:66-71`, `components/content/content.module.css:694-700`, `app/israels-story/page.tsx:117-127`
       `high` · `content-design` · `medium effort`
+      **Owner decision, 2026-08-27.** Census reproduces: `kind: 'Wikipedia'`
+      on 7 of 8 Source constants, 22 of 23 entry `sources` arrays. Two parts
+      were done without reversing anything: `/methodology` now states the
+      three source tiers, says a citation must cover the sentence it sits
+      beside and not merely the subject, and names Israel's Story as the
+      edition currently below that standard. The rest is blocked. Swapping
+      Wikipedia for primary documents reverses `.ai/DECISIONS.md` 2026-08-25
+      and needs a new DECISIONS entry; and every replacement URL — including
+      the mis-citation at `israels-story.ts:97`, where the "Israeli
+      Declaration of Independence" article is cited for UNGA Resolution
+      181(II) — must be fetched and checked in the session that swaps it.
+      This session was run offline and the repo holds no verified substitute,
+      so nothing was pasted from memory. **The mis-citation is the one piece
+      that needs no reversal and should be done first, online.**
 
 ---
 
@@ -372,53 +400,76 @@ session can take the top of a section and stop anywhere.
 
 #### High — 1
 
-- [ ] `section-pages-first-content-below-the-fold`
+- [x] `section-pages-first-content-below-the-fold`
       two pages bury their first exhibit
       **Do:** Fake Resistance: reduce "The machine"/"The tells" (`page.tsx:104-143`, ~250 words of thesis) to a two-sentence standfirst above Exhibit A and keep the taxonomy as a closing section — the exhibits are the argument, the essay is the gloss. …
       `app/fake-resistance/page.tsx:104-143`, `app/israels-story/page.tsx:63-93`, `.ai/DESIGN-V2.md:231-232`
       `high` · `hierarchy` · `medium effort`
+      **Done, 2026-08-27.** Fake Resistance restructured: two-sentence
+      standfirst, then Case files; "The files" index, "The machine" and "The
+      tells" now close the page, with `PublicationMeta` last as a colophon.
+      Moving the file index down goes slightly beyond what was filed — left
+      above the exhibits it kept the first `caseTitle` below the fold on its
+      own. The Israel's Story half was already closed by Wave 1 task 8.
 
 #### Medium — 6
 
-- [ ] `section-pages-support-us-toolkit-two-up-in-a-68ch-measure`
+- [x] `section-pages-support-us-toolkit-two-up-in-a-68ch-measure`
       285px form controls
       **Do:** Make `.toolkit` single-column at all widths (`app/support-us/page.module.css:9` → `grid-template-columns: minmax(0, 1fr)`), the resolution We Are's pipeline already took. The two modules are a sequence — report a claim, then offer a skill — not a comparison. …
       `app/support-us/page.module.css:7-12`, `app/support-us/page.module.css:119-124`, `components/support/support.module.css:6-8`, `components/sections/sections.module.css:20-21`
       `medium` · `layout` · `trivial effort`
 
-- [ ] `section-pages-corrections-is-108-words-and-promises-a-column-it-cannot-render`
+- [x] `section-pages-corrections-is-108-words-and-promises-a-column-it-cannot-render`
       /corrections promises "the page it applied to" in copy that CorrectionHistory has no field to render, and gives a reader who has found an error no link to the report f…
       **Do:** Prefer cutting "with the page it applied to" from `page.tsx:55` over adding the field — the log is empty, and a field nothing populates is the weaker half of the pair. …
       `app/corrections/page.tsx:53-56`, `components/content/CorrectionHistory.tsx:17-31`, `lib/content/corrections.ts:12`, `components/support/ReportClaimForm.tsx`
       `medium` · `content-design` · `small effort`
 
-- [ ] `section-pages-our-heroes-consent-boundary-arrives-last-and-unmarked`
+- [x] `section-pages-our-heroes-consent-boundary-arrives-last-and-unmarked`
       The disclosure that this site has no family-consent process, and that every profile is assembled only from what named press has already published more than once, is a …
       **Do:** Keep the wording verbatim and un-gated. Move the block above the Citations block and give it a bordered/italic standfirst with a gold `--t-data` label, defined **locally** in `app/our-heroes/page.module.css` rather than by `composes:`-ing War Update's module, …
       `app/our-heroes/page.tsx:83-103`, `components/sections/sections.module.css:379`, `app/war-update/page.tsx:49-57`, `app/war-update/page.module.css:15-25`
       `medium` · `hierarchy` · `small effort`
 
-- [ ] `section-pages-war-update-opens-on-a-disclaimer`
+- [x] `section-pages-war-update-opens-on-a-disclaimer`
       the body opens on apparatus
       **Do:** Reorder to dispatches-first: render the advisory as a one-line `.advisory` strip immediately under `.ledeRule` with no `h2` of its own, and move `PublicationMeta` to the foot of the feed where a reader who has read the entries wants provenance. …
       `app/war-update/page.tsx:49-70`, `lib/content/war-update.ts:171-172`, `components/sections/SectionPage.tsx:154-156`
       `medium` · `content-design` · `small effort`
 
-- [ ] `section-pages-fake-resistance-propagation-manufactures-its-own-pattern`
+- [x] `section-pages-fake-resistance-propagation-manufactures-its-own-pattern`
       a coordination signature inferred from flagging dates
       **Do:** Prefer rewriting over deletion. Deleting the block orphans `Timeline`'s `spread` variant (its only call site, `content.module.css:486/521/552`) and stales the measured example in `.ai/DECISIONS.md:478-488` ("Fake Resistance's claim-propagation entries run …
       `app/fake-resistance/page.tsx:221-241`, `app/fake-resistance/page.tsx:116-142`, `lib/content/fake-resistance.ts:47-48`, `lib/content/fake-resistance.ts:77-78`, `lib/content/fake-resistance.ts:104-105`
       `medium` · `content-design` · `medium effort`
+      **Done by rewriting, 2026-08-27.** Block retitled "Order of correction";
+      the coordination inference is gone, replaced by a sentence saying
+      explicitly that three corrections in one week is not evidence of
+      coordination. Entries now carry day-level labels derived from the same
+      `datetime` the sort uses. `Timeline`'s `spread` variant keeps its call
+      site. Noted for the record: Exhibits A and C have their date provable
+      from the cited URL; Exhibit B's `2023-10-13` is an editorial assertion
+      the cited Reuters Institute page carries no date for.
 
 - [ ] `section-pages-margin-citation-repeats-into-wallpaper`
       one identical citation down a run of entries
       **Do:** Prefer the editorial half: source the seven October 7 entries individually — each is a discrete, heavily documented event, and the page's claim is that the record is checkable. …
       `lib/content/october-7.ts:31-36`, `lib/content/israels-story.ts:97-124`, `components/content/Timeline.tsx:49-52`, `components/content/content.module.css:657-710`
       `medium` · `information-density` · `medium effort`
+      **Deferred, 2026-08-27.** Census reproduces exactly (one `ADL_SOURCE`
+      across 7 of 7 October 7 entries; four Wikipedia constants across runs of
+      4/3/2/2 on Israel's Story). The recommendation's preferred half —
+      sourcing the seven October 7 entries individually — needs sources
+      fetched and checked in the session that adds them, and this session was
+      run offline; the repo holds no other October 7 source to cite. The
+      fallback half (hide the repeated visible label, keep an accessible copy)
+      lives in `components/content/Timeline.tsx` and `content.module.css`,
+      which this pass was scoped out of.
 
 #### Low — 7
 
-- [ ] `section-pages-israels-story-fourth-chapter-is-not-a-chapter`
+- [x] `section-pages-israels-story-fourth-chapter-is-not-a-chapter`
       Chapter IV is still titled "Peace, when it came" — a thematic name in a set where the other six are event+date — contains a single timeline entry (the 1979 Egypt treat…
       **Do:** Rename `:194` to "Peace with Egypt, 1979" and drop the trailing clause at `:196`. Do **not** rename the `id` `peace-when-it-came`: it is the `#anchor` in the contents nav and the `hasPart` URL in the page's JSON-LD, and ids are load-bearing in this file …
       `lib/content/israels-story.ts:194`, `lib/content/israels-story.ts:196`, `lib/content/israels-story.ts:197-207`, `app/israels-story/page.tsx:117`
@@ -429,32 +480,48 @@ session can take the top of a section and stop anywhere.
       **Do:** If changed, set `font-family: var(--face-text); font-size: var(--t-caption); font-weight: var(--t-caption-weight); text-transform: none; …
       `components/support/support.module.css:88-103`, `components/support/share-verified.module.css:4-20`, `app/support-us/page.module.css:85-93`, `app/october-7/page.module.css:166-167`
       `low` · `typography` · `trivial effort`
+      **Deferred, 2026-08-27.** Both violating labels live in
+      `components/support/support.module.css` and
+      `components/support/share-verified.module.css`, outside this pass's
+      scope. It is also an owner call rather than a defect fix:
+      `support.module.css:88-89` carries an authored carve-out for exactly
+      this case, so changing it replaces a stated decision.
 
-- [ ] `section-pages-assessment-ramps-are-one-colour`
+- [x] `section-pages-assessment-ramps-are-one-colour`
       the Fake Resistance stamp and the badge disagree
       **Do:** Make the one change worth making now: derive Fake Resistance's `data-tone` from the badge's own assessment→family mapping so Exhibit B stops carrying a grey stamp over an ember badge. …
       `components/content/content.module.css:113-178`, `app/fake-resistance/page.tsx:164-176`
       `low` · `colour` · `small effort`
 
-- [ ] `section-pages-forms-hide-what-is-required-until-after-submit`
+- [x] `section-pages-forms-hide-what-is-required-until-after-submit`
       the volunteer form applies no validation at all
       **Do:** Add `required` to the email input (`VolunteerInterestForm.tsx:68-73`) and label it "Email (required)" so it matches the "(optional)" marking on Name; that alone guarantees the mailto carries a reply address. …
       `components/support/VolunteerInterestForm.tsx:16`, `components/support/VolunteerInterestForm.tsx:49`, `components/support/VolunteerInterestForm.tsx:67`, `app/support-us/page.tsx:52-56`
       `low` · `interaction` · `small effort`
 
-- [ ] `section-pages-oslo-flagged-in-the-hostile-colour`
+- [x] `section-pages-oslo-flagged-in-the-hostile-colour`
       Israel's Story flags its one disputed chapter with the ember ramp, and hardcodes the flag to an id string literal instead of a chapter field.
       **Do:** The clearly correct half is replacing the id literal with a `contested?: boolean` field on `StoryChapter` (`lib/content/israels-story.ts:14-20`) so the flag travels with the content. …
       `app/israels-story/page.tsx:80`, `app/israels-story/page.module.css:151-163`, `app/globals.css:64-72`, `components/sections/SectionPage.tsx:64-65`
       `low` · `colour` · `small effort`
+      **Half done, 2026-08-27.** The id literal is gone: `StoryChapter` now
+      carries `contested?: boolean`, set on the Oslo chapter, and the page
+      reads that. The colour half is deferred — `contested` (#e6a972) is a raw
+      hex inside `VerificationBadge`, so using it needs either a new token in
+      `app/globals.css` or the badge component itself, both out of scope.
 
-- [ ] `section-pages-review-metadata-exists-and-is-never-shown`
+- [x] `section-pages-review-metadata-exists-and-is-never-shown`
       October 7, Israel's Story and Our Heroes each declare publishedAt and reviewedBy that no reader-facing surface consumes — Israel's Story's not even by its JSON-LD — wh…
       **Do:** Do the first half only: render `PublicationMeta` as a colophon at the foot of `/october-7`, `/israels-story` and `/our-heroes`, or delete the unused fields from those three modules — either resolves the inconsistency. …
       `lib/content/october-7.ts:147-148`, `lib/content/israels-story.ts:279-280`, `lib/content/our-heroes.ts:102-103`, `components/sections/SectionPage.tsx:133-142`, `components/content/PublicationMeta.tsx:25`
       `low` · `consistency` · `small effort`
+      **Done, 2026-08-27.** `PublicationMeta` mounted as a foot colophon on
+      `/october-7`, `/israels-story` and `/our-heroes` with `publishedAt` and
+      `reviewedBy` only. Masthead half dropped as the finding directs. This is
+      the same fix `reading-system-credibility-label-outranks-credibility-value`
+      asks for — close that one against this change rather than repeating it.
 
-- [ ] `section-pages-wire-device-outlives-its-content`
+- [x] `section-pages-wire-device-outlives-its-content`
       five filter chips over seven entries
       **Do:** Keep only the filter half, and as a threshold note rather than a deletion: collapse the chips to a single "All / Diplomacy" split, or drop the row until the edition passes ~20 entries, leaving `emptyFilter` in place as the defensive branch it is. …
       `app/war-update/WireFeed.tsx:18`, `app/war-update/WireFeed.tsx:81-94`, `app/war-update/WireFeed.tsx:96-97`, `lib/content/war-update.ts:92-163`, `app/war-update/page.module.css:27-43`

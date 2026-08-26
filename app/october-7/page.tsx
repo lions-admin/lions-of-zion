@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { FigureRow, SourceList, Timeline } from "@/components/content";
+import { FigureRow, PublicationMeta, SourceList, Timeline } from "@/components/content";
 import { getOctober7Record } from "@/lib/content/october-7";
 import { getDocumentationManifest } from "@/lib/content/documentation";
 import { getTestimoniesManifest } from "@/lib/content/testimonies";
@@ -144,6 +144,16 @@ export default async function Page() {
           <Timeline variant="feed" entries={record.timeline} />
         </div>
       </SectionBlock>
+
+      {/* A colophon, not a masthead: `publishedAt` and `reviewedBy` were
+          declared here for the JSON-LD only and reaching no reader, while the
+          other three editorial destinations rendered the same two through
+          `PublicationMeta`. At the foot, where a reader who has read the page
+          is the one asking who checked it. */}
+      <PublicationMeta
+        publishedAt={record.publishedAt}
+        reviewedBy={record.reviewedBy}
+      />
     </SectionPage>
   );
 }

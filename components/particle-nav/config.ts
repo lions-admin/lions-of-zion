@@ -267,7 +267,7 @@ export interface OrbitLayout {
   /**
    * Outer particle-ring radius in world units at the lion plane. This is also
    * the DOM link's half-box — `styles.module.css` sizes `.link` to the same
-   * `clamp(min(w,h) * 0.066, 48, 82)` — and the connector's occlusion boundary.
+   * `clamp(min(w,h) * 0.066, 44, 82)` — and the connector's occlusion boundary.
    * Three contracts on one number: widen the halo, not this.
    */
   nodeVisualRadius: number;
@@ -320,10 +320,13 @@ export function computeOrbitLayout(
   const minDimension = Math.min(width, Math.max(1, height));
   const { viewHeight, viewWidth, worldPerPx } = viewSize(width, height);
 
-  /* Grown from 0.056 / 44–68 on 2026-08-27: at 1440×900 the old ring was a
-     100px circle under a tracked-caps label ~120px wide, so every long label
-     overflowed its own ring. The DOM `.link` clamp moves in lockstep. */
-  const nodeRadiusPx = clamp(minDimension * 0.066, 48, 82);
+  /* Slope and ceiling grown from 0.056/68 on 2026-08-27: at 1440×900 the old
+     ring was a 100px circle under a tracked-caps label ~120px wide, so every
+     long label overflowed its own ring. The 44px floor is deliberately kept —
+     raising it to 48 pushed the 320–390px horizontal solve onto its 0.9 radius
+     floor, which is the layout admitting it no longer fits. The DOM `.link`
+     clamp moves in lockstep. */
+  const nodeRadiusPx = clamp(minDimension * 0.066, 44, 82);
   const haloRadiusPx = nodeRadiusPx * (1 + NODE_HALO_RATIO) + NODE_HALO_PX;
   const edgeGapPx = clamp(minDimension * 0.045, 24, 64);
   const insetX =

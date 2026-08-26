@@ -220,11 +220,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Coupled to `computeOrbitLayout`'s `clamp(min(w,h) * 0.066, 48, 82)` —
-     13.2vmin is 2 × 0.066, 6rem is 2 × 48px, 10.25rem is 2 × 82px. Grown
-     because the tracked-caps labels overflowed the old 44–68px ring. */
-  width: clamp(6rem, 13.2vmin, 10.25rem);
-  height: clamp(6rem, 13.2vmin, 10.25rem);
+  /* Coupled to `computeOrbitLayout`'s `clamp(min(w,h) * 0.066, 44, 82)` —
+     13.2vmin is 2 × 0.066, 5.5rem is 2 × 44px, 10.25rem is 2 × 82px. Slope and
+     ceiling grown because the tracked-caps labels overflowed the old 68px ring
+     on desktop; the phone floor stays, since raising it broke the 320–390px
+     horizontal solve. */
+  width: clamp(5.5rem, 13.2vmin, 10.25rem);
+  height: clamp(5.5rem, 13.2vmin, 10.25rem);
   min-width: 44px;
   min-height: 44px;
   padding: clamp(0.45rem, 1.2vmin, 0.8rem);

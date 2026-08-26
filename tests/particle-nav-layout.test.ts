@@ -58,8 +58,10 @@ describe("particle navigation layout", () => {
     const orbit = computeOrbitLayout(width, height, 3.3);
     const viewHeight = 2 * CAMERA_Z * Math.tan((CAMERA_FOV * Math.PI) / 360);
     const worldPerPx = viewHeight / height;
-    // `.link { width: clamp(5.5rem, 11.2vmin, 8.5rem) }`, halved.
-    const cssHalfBoxPx = Math.min(68, Math.max(44, Math.min(width, height) * 0.056));
+    // `.link { width: clamp(5.5rem, 13.2vmin, 10.25rem) }`, halved. Slope and
+    // ceiling grown on 2026-08-27 with the ring, which the long tracked-caps
+    // labels overflowed on desktop; the 44px floor stays for the phone solve.
+    const cssHalfBoxPx = Math.min(82, Math.max(44, Math.min(width, height) * 0.066));
 
     expect(orbit.nodeVisualRadius / worldPerPx).toBeCloseTo(cssHalfBoxPx, 6);
     expect(orbit.nodeHaloRadius).toBeCloseTo(

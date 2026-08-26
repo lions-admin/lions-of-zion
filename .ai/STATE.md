@@ -84,6 +84,18 @@ the research packets. The two-stage model in the plan was half right, and the
 half that was wrong is now recorded in `DECISIONS.md`. Future gated content is
 gated on the push, not only on the deploy.
 
+**An operational trap worth knowing: `vercel deploy --prod` does not always
+move the domains.** After the owner's deploy the section was live and verified.
+A follow-up CLI deploy then left `lionsofzion.io` serving an older build in
+which the three new routes returned **404**, while `/` and the pre-existing
+pages still returned 200 — so the site looked healthy and the new work was
+simply missing. `vercel alias ls` showed the production domains still bound to
+an earlier deployment. **`vercel promote <deployment-url>` is what actually
+moves them**, and it fixed it in seconds. Two lessons: after any production
+deploy, curl a *new* route rather than the root, because the root will keep
+answering 200 from the previous build; and expect a transient apex↔www redirect
+loop mid-promote, which resolves on its own.
+
 **Open loose end: this branch is not merged to `main`.** Production was
 deployed from the branch worktree, so the live site runs code that `main` does
 not carry. Merge `claude/fakeresistance-merge-plan-5e9eeb` so the default

@@ -53,6 +53,10 @@ export const databaseUrl = (): string => required("DATABASE_URL", "the database 
 export const testDatabaseUrl = (): string | undefined => process.env.TEST_DATABASE_URL;
 
 export const blobToken = (): string => required("BLOB_READ_WRITE_TOKEN", "blob storage");
+export const xOAuthClientId = (): string => required("X_OAUTH_CLIENT_ID", "X OAuth");
+export const xOAuthClientSecret = (): string => required("X_OAUTH_CLIENT_SECRET", "X OAuth");
+export const xAuthSessionSecret = (): string =>
+  required("X_AUTH_SESSION_SECRET", "public X authentication session cookies");
 /** Vercel supplies `VERCEL_OIDC_TOKEN` automatically to linked deployments.
  * A static key remains a local-development fallback, not the production path. */
 export const hasAiGateway = (): boolean =>

@@ -1,8 +1,10 @@
 import type { NavNode, ParticleNavTheme, SimParams } from './types';
 
 export const defaultTheme: ParticleNavTheme = {
-  background: '#070B14',
-  // #C9A24B on #070B14 clears 4.5:1 — do not let it drift dimmer for atmosphere (brief §9).
+  /* The renderer's clear colour, separate from the CSS `--ground` token and
+     not reached by it — changing the token alone leaves the canvas navy. */
+  background: '#000000',
+  // #C9A24B on #000000 clears 8.75:1 — do not let it drift dimmer for atmosphere (brief §9).
   gold: '#C9A24B',
   excited: '#FFE9B0',
   hover: '#EFD79A',

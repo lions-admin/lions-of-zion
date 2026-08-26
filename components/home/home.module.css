@@ -141,7 +141,7 @@
   padding: 0.3rem clamp(1.25rem, 4vw, 3rem) 0.55rem;
   border-top: 1px solid var(--gold-line);
   border-bottom: 1px solid var(--line);
-  background: rgba(7, 11, 20, 0.92);
+  background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }

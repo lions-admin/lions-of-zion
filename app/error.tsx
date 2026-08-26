@@ -29,7 +29,7 @@ export default function ErrorBoundary({
           display: grid;
           place-items: center;
           padding: 24px;
-          background: #070b14;
+          background: #000000;
           color: #9fb3c8;
           text-align: center;
         }

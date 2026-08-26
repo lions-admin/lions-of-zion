@@ -52,9 +52,15 @@
   --t-data-tracking: 0.08em;
 
   /* ── Color ──────────────────────────────────────────────────────────────
-     Ground and gold are brand and unchanged. The neutrals are a real scale
-     now: three inks, each with a job, replacing twelve drifting grays. */
-  --ground: #070b14;
+     Gold is brand and unchanged. The neutrals are a real scale: three inks,
+     each with a job, replacing twelve drifting grays.
+
+     The ground was #070b14 — rgb(7,11,20), a navy whose blue channel is
+     nearly three times its red, which is why the site read blue rather than
+     black. It is now true black, by owner decision on 2026-08-26. Every
+     ink/ground pair gets *more* contrast from this, never less, so no
+     contrast fix is weakened by it. */
+  --ground: #000000;
   --ink-hi: #e9eef6;
   --ink: #b9c5d4;
   --ink-lo: #8494a8;
@@ -87,16 +93,18 @@
    * the one surface that has to stay opaque over the live scene
    * (`home.module.css`).
    *
-   * The alphas are chosen against the ground, not by feel. `--ground` is
-   * rgb(7,11,20); the rule field was `0.028`, which composites to rgb(9,15,26)
-   * — a delta of (2,4,6), under the threshold of perception on most displays,
-   * which is why the site read as flat black however many surfaces carried it.
-   * `0.075` composites to rgb(13,23,35), a visible weave that still leaves
-   * body text (`--ink`, #B9C5D4) above 12:1.
+   * The alphas are chosen against the ground, not by feel. Against the old
+   * navy ground the rule field needed a blue at 0.075 to be perceptible at
+   * all. On true black a neutral does the same work at half the strength:
+   * rgba(214,226,240,0.038) composites to rgb(8,9,9), a weave that is visible
+   * without tinting the page, and it keeps body text (`--ink`, #B9C5D4) above
+   * 13:1. The radial wash stays blue but drops to 0.045 — it is the cue that
+   * the scan is densest at the centre, and at the old 0.1 over black it read
+   * as a blue spotlight rather than as depth.
    */
   --scan-ground:
-    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.1), transparent 70%),
-    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.075) 0 1px, transparent 1px 9px);
+    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.045), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(214, 226, 240, 0.038) 0 1px, transparent 1px 9px);
 
   /* ── Compatibility aliases ──────────────────────────────────────────────
      `sections.module.css`, `geopolitical-brief.module.css`,

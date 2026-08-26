@@ -5,7 +5,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const GOLD = "#c9a24b";
-const GROUND = "#070b14";
+const GROUND = "#000000";
 
 // next/og bundles exactly one font (Geist Regular) and satori cannot reach
 // system fonts, so a serif family cannot resolve without shipping a font file.

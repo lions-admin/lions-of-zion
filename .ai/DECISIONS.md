@@ -10,6 +10,43 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — October 7 hosts the archives directly; the link-only boundary is reversed
+
+**This reverses the 2026-08-25 entry "October 7's Testimony/Remembrance link
+to real archives; this site builds neither."** That entry is kept below, as
+this file requires — but it no longer describes what this site does, and a
+session that finds it and "restores" the link-only version would be undoing
+deliberate work, not fixing a regression.
+
+The decision, taken by the site owner: October 7 carries the documentation
+itself rather than pointing at where it lives. Two archives were crawled and
+processed locally for this — october7.org (179 canonical testimonies, 505
+language versions across seven languages) and hamas-massacre.net (338
+documentation records across six categories, English and Spanish). Both become
+routes under `/october-7`, roughly 1,180 static pages. The reasoning is that a
+page whose entire testimony section is a list of outbound links asks the reader
+to leave in order to encounter the thing the page exists for, and the archives
+were captured precisely so that they would not have to.
+
+What follows from it, and what a later session should not quietly re-tighten:
+
+- **There is no content-warning interstitial**, including on the harder
+  categories. This was decided explicitly, not overlooked. Do not add a gate
+  "for safety" without the owner asking for one.
+- **There is no rights gate blocking the build.** The archives are hosted;
+  attribution is not the concession that bought that, it is simply kept,
+  because `credit` and `attribution` are already fields on every media item and
+  rendering them costs nothing. Keep rendering them.
+- **The `canonical_story_id` / `media_id` identifiers are contracts.** They come
+  from the source packages and are never regenerated or invented — that is what
+  makes a re-crawl an upsert instead of a duplicate import.
+
+**Scope: this reverses the October 7 testimony boundary only.** The 2026-08-25
+"Our Heroes publishes only extensively public, already-covered people" entry is
+untouched and still binding. That one governs profiles *this site writes* about
+named individuals, which is a different act from mirroring an archive another
+project already published; nothing here relaxes it.
+
 ## 2026-08-26 — Reference documentation lives in `docs/`, and states its gaps
 
 An architecture and documentation audit found `README.md` publishing eight
@@ -642,6 +679,11 @@ Washington Post reporting) — administrative and casualty facts, not
 testimony. Do not swap the archive links for reproduced excerpts "to make
 the page feel less like a list of outbound links" — that reproduction is
 exactly the thing this decision avoids.
+
+**Reversed 2026-08-26** — the site now hosts both archives directly under
+`/october-7`. See the entry at the top of this file for what replaced this and
+what must not be re-tightened. Kept here because a reversed decision keeps its
+record.
 
 ## 2026-08-25 — Israel's Story ships two chapters, not "the long arc," and says so on the page
 

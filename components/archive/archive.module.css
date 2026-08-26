@@ -129,16 +129,6 @@ section:first-child > .heading {
    block, and two rules 87px apart both claiming to end the header was the
    defect. What is left is the two pieces themselves. */
 
-.recordTitle {
-  font-family: var(--face-display);
-  font-size: var(--t-display);
-  line-height: var(--t-display-lh);
-  font-weight: var(--t-display-weight);
-  color: var(--ink-hi);
-  margin: 0 0 0.6rem;
-  text-wrap: balance;
-}
-
 .recordMeta {
   display: flex;
   flex-wrap: wrap;

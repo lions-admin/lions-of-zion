@@ -11,7 +11,26 @@ export const defaultTheme: ParticleNavTheme = {
   starBlue: '#57A7D9',
 };
 
-/** Brief §6 calibrated starting points — every one is exposed on the demo route. */
+/**
+ * The shipping simulation dials — every one is exposed on `/particle-demo`.
+ *
+ * These were the brief's starting points and were never tuned against a
+ * capture, so "calibrated" was the wrong word for three of them, which ship
+ * at 0 and therefore do nothing at all:
+ *
+ *   - `curlAmp: 0` zeroes the lion's ambient drift in both branches of
+ *     `lionCompute.ts` (`curlAmp.mul(6)` and `curlAmp.mul(60)`);
+ *   - `repelStrength: 0` zeroes pointer repulsion;
+ *   - `idleRotateDegPerSec: 0` holds the rig and the orbital rings still.
+ *
+ * Restoring any of them is a visual decision that needs a real-Chrome capture
+ * — idle rotation especially, because `Scene.tsx` rotates the whole rig and
+ * reads `rig.rotation.z` back into the activate-dolly direction, so a nonzero
+ * value drifts the projected DOM label geometry too and has to be checked
+ * against `OrbitLayout`'s eight-links-in-viewport invariant. The scene is not
+ * motionless meanwhile: pointer parallax, hover particle streams and the
+ * connector pulse all run.
+ */
 export const defaultSimParams: SimParams = {
   springStiffness: 8.0,
   springDamping: 0.86,
@@ -74,6 +93,22 @@ export const simParamRanges: Record<keyof SimParams, [number, number, number]> =
 export const NAVIGATE_AT_MS = 320; // navigation never waits for the animation (brief §7)
 export const CANVAS_FADE_MS = 180;
 
+/*
+ * The eight destinations, and the one array that carries three contracts:
+ * `nodeAngle` maps index straight to a clockwise spoke, `NavLinks` renders in
+ * array order so index is also DOM and tab order, and `index + 1` is the
+ * "File NN / 08" identity the front-page band and every section page print.
+ *
+ * `we-are` and `support-us` are swapped from the original order for the
+ * second of those. On a radial arrangement where all eight labels are visible
+ * and equally styled, "clockwise reading order" is a weak claim — but tab
+ * order genuinely is sequential, and it used to put the donate/join ask
+ * second, before a visitor had been told who this is or seen a verified
+ * claim, with the page that answers "who are you and why should I believe
+ * you" last. Now identity is second and the ask is last. The intent sequence
+ * is unchanged (both nodes are `participate`), and the two file numbers that
+ * moved are derived everywhere they appear.
+ */
 export const defaultNodes: NavNode[] = [
   {
     id: 'geopolitical-brief',
@@ -85,12 +120,12 @@ export const defaultNodes: NavNode[] = [
     intent: 'now',
   },
   {
-    id: 'support-us',
-    label: 'SUPPORT US',
-    displayName: 'Support Us',
-    href: '/support-us',
-    description: 'Ways to join the effort: amplify verified truth, contribute skills, sustain the work.',
-    iconSdfUrl: '/icons/support-us.sdf.png',
+    id: 'we-are',
+    label: 'WE ARE',
+    displayName: 'We Are',
+    href: '/we-are',
+    description: 'Who Lions of Zion are, why this network exists, and how it works.',
+    iconSdfUrl: '/icons/we-are.sdf.png',
     intent: 'participate',
   },
   {
@@ -139,12 +174,12 @@ export const defaultNodes: NavNode[] = [
     intent: 'understand',
   },
   {
-    id: 'we-are',
-    label: 'WE ARE',
-    displayName: 'We Are',
-    href: '/we-are',
-    description: 'Who Lions of Zion are, why this network exists, and how it works.',
-    iconSdfUrl: '/icons/we-are.sdf.png',
+    id: 'support-us',
+    label: 'SUPPORT US',
+    displayName: 'Support Us',
+    href: '/support-us',
+    description: 'Ways to join the effort: amplify verified truth, contribute skills, sustain the work.',
+    iconSdfUrl: '/icons/support-us.sdf.png',
     intent: 'participate',
   },
 ];
@@ -215,7 +250,15 @@ export const NODE_BOTTOM_RESERVE_PX = 56;
  */
 export const CHAT_DOCK_PX = 84;
 
-/** Below this width the layout is the phone one, in every layer that asks. */
+/**
+ * Below this width the layout is the phone one, in every layer that asks *for
+ * the layout mode* — the intro's line arrays, the timeline it derives from
+ * them, and the CSS breakpoints that hide the wordmark and the no-canvas nav.
+ *
+ * It is not the only width threshold in the scene, and the others are not
+ * bugs: `NetworkScan`'s SCAN_COMPACT_MAX_WIDTH is a label-density threshold,
+ * a separate question with a separate answer.
+ */
 export const MOBILE_MAX_WIDTH = 720;
 
 export interface OrbitLayout {

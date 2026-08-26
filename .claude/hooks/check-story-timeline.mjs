@@ -124,8 +124,16 @@ const c = (name) => num(name, rolling);
 const storyStart = num("RELOCATION_END", src);
 
 let note = "";
-const cadence = c("ROLLING_LINE_CADENCE");
-if (cadence && storyStart !== null) {
+/* Cadence is per layout now, so read both. The two totals printed below are
+   the thing to watch: the line arrays are art direction and the sentences are
+   content, so a growing mobile array must not buy itself more wall clock. */
+const cadences = (() => {
+  const m = rolling.match(
+    /ROLLING_LINE_CADENCE_BY_LAYOUT[\s\S]*?desktop:\s*([\d.]+),\s*mobile:\s*([\d.]+)/,
+  );
+  return m ? { desktop: +m[1], mobile: +m[2] } : null;
+})();
+if (cadences && storyStart !== null) {
   const tail =
     (c("ROLLING_ENTER_DURATION") ?? 0) +
     (c("ROLLING_JOIN_HOLD_DURATION") ?? 0) +
@@ -136,11 +144,12 @@ if (cadence && storyStart !== null) {
     (c("ROLLING_BRAND_ENTER_DURATION") ?? 0) +
     (c("ROLLING_FINAL_HOLD_DURATION") ?? 0) +
     (c("ROLLING_OUTRO_DURATION") ?? 0);
-  const total = (n) => (storyStart + (n - 1) * cadence + tail).toFixed(1);
+  const total = (n, cadence) => (storyStart + (n - 1) * cadence + tail).toFixed(1);
   const d = beats.reduce((a, b) => a + b.desktop.length, 0);
   const m = beats.reduce((a, b) => a + b.mobile.length, 0);
   note =
-    ` — ${d} desktop lines (~${total(d)}s), ${m} mobile (~${total(m)}s).` +
+    ` — ${d} desktop lines (~${total(d, cadences.desktop)}s),` +
+    ` ${m} mobile (~${total(m, cadences.mobile)}s).` +
     ` Verify in real Chrome; the preview pane suspends rAF.`;
 }
 

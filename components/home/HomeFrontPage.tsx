@@ -151,11 +151,15 @@ export function HomeFrontPage({ latest, recent, trustStrip }: HomeFrontPageProps
           <h2 id="home-index-heading" className={styles.sectionHeading}>
             The eight files
           </h2>
-          {/* Grouped by the intent each node already declares, which is the
-              same taxonomy the orbit arranges itself by. It used to be a
-              colour-coded legend in the scene's corner at 0.53rem, explaining
-              nothing; as headings over the files themselves it finally says
-              what it means. */}
+          {/* Grouped by the intent each node already declares. The orbit does
+              not arrange itself by it — `nodeAngle` maps array index straight
+              to a spoke, so the ring interleaves the three intents (now,
+              participate, now, understand ×4, participate) — and that is the
+              documented arrangement: the taxonomy was moved out of the scene
+              and into this band on purpose. It used to be a colour-coded
+              legend in the scene's corner at 0.53rem, explaining nothing; as
+              headings over the files themselves it finally says what it
+              means. */}
           {GROUPS.map((group) => (
             <section key={group.intent} className={styles.indexGroup}>
               <h3 className={styles.indexGroupHeading}>{group.label}</h3>

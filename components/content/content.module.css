@@ -49,10 +49,18 @@
   --blue-peak: var(--loz-blue-peak, #9adfff);
   --ember: var(--loz-ember, #a85a61);
   --ember-peak: var(--loz-ember-peak, #d08d94);
-  --line: rgba(153, 179, 202, 0.14);
+  /* Neutral, tracking `--line` in app/globals.css: the hairline blue
+     rgb(153,179,202) carried b−r of +49 — the strongest tint in the system —
+     and went to its luminance-matched grey when the ground went black. This
+     is a plain literal rather than an aliased fallback, so it has to be kept
+     in step by hand; if the two ever disagree, globals wins. */
+  --line: rgba(175, 175, 175, 0.14);
   --gold-line: rgba(201, 162, 75, 0.24);
   --ember-line: rgba(168, 90, 97, 0.32);
-  --surface-raised: #0d1523;
+  /* Was #0d1523. Missed by c7e92b2, which converted `rgba()` literals only —
+     so every raised panel in the shared library stayed navy on a black
+     ground. Luminance-matched, so the panel keeps its weight. */
+  --surface-raised: #141414;
 
   --display: var(--face-display, Charter, Georgia, serif);
   --text: var(--face-text, -apple-system, BlinkMacSystemFont, sans-serif);

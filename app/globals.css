@@ -77,6 +77,24 @@
      0.7rem apart for the same job. */
   --flow: 1.15rem;
 
+  /* What the chat launcher's mobile dock costs, reserved by every ≤719px
+     reading surface so text never sits under it.
+     `components/particle-nav/config.ts` derives the same band in pixels as
+     `CHAT_DOCK_PX = 84` — a 0.65rem offset, a 3.45rem launcher, 0.46rem of
+     vertical padding and 1px borders — and `tests/particle-nav-layout.test.ts`
+     asserts that number, so the two must be read as one value: 5.25rem is 84px
+     at the root size.
+
+     Named here because the literal was written out in three stylesheets and a
+     reserve that is too small is not a cosmetic error — it puts the last line
+     of a document under the dock. The measured 57px launcher rect is the pill
+     and its border, *not* the padded root, and is not this number.
+
+     One holdout: `home.module.css:562` still writes the literal. It is the
+     home scene's file and is being edited in parallel; it should read this
+     token in the same round that touches it. */
+  --chat-dock-h: 5.25rem;
+
   /* ── Color ──────────────────────────────────────────────────────────────
      Gold is brand and unchanged. The neutrals are a real scale: three inks,
      each with a job, replacing twelve drifting grays.
@@ -85,11 +103,30 @@
      nearly three times its red, which is why the site read blue rather than
      black. It is now true black, by owner decision on 2026-08-26. Every
      ink/ground pair gets *more* contrast from this, never less, so no
-     contrast fix is weakened by it. */
+     contrast fix is weakened by it.
+
+     The inks are neutral for the same reason, one round later. Blackening the
+     ground did not stop the site reading blue, because the *scale* was tinted
+     too: #e9eef6 carries b−r of +13, #b9c5d4 +27 and #8494a8 +36, and the
+     tint grows as the ink gets quieter. That is backwards — `--ink-lo` is
+     what colours every quiet label on a reading page ("Status", "In this
+     brief", "Primary records"), so the most-tinted ink was on the largest
+     area of small type, over a ground with no blue left to justify it.
+
+     Each is replaced by its luminance-matched grey, the method commit c7e92b2
+     used for the panels: grey = 0.2126R + 0.7152G + 0.0722B. Contrast against
+     the ground is therefore held, not traded — measured against #000000, the
+     three inks move 18.03→18.10, 12.00→12.04 and 6.78→6.75, and the hairline
+     9.66→9.57. (Held, not identical: that formula is simple luma while WCAG
+     linearises first, so the pairs land within ±0.08 of where they were. No
+     pair crosses a threshold in either direction.)
+
+     Gold and the `--data-*` ramps below are hue-bearing and stay exactly as
+     they are — the point is that blue means something here again. */
   --ground: #000000;
-  --ink-hi: #e9eef6;
-  --ink: #b9c5d4;
-  --ink-lo: #8494a8;
+  --ink-hi: #eeeeee;
+  --ink: #c4c4c4;
+  --ink-lo: #929292;
   --gold: #c9a24b;
   --gold-hi: #efd79a;
 
@@ -103,8 +140,12 @@
   --data-ember-dim: #7a4048;
   --data-ember-peak: #d08d94;
 
-  /* Hairlines, in the two weights the site actually uses. */
-  --line: rgba(153, 179, 202, 0.14);
+  /* Hairlines, in the two weights the site actually uses. The neutral one was
+     rgb(153,179,202) — b−r of +49, the strongest tint in the file, on every
+     rule and panel edge on the site. Luminance-matched to 175 grey by the
+     same formula as the inks; the alpha is unchanged, so a hairline lands
+     where it always did. */
+  --line: rgba(175, 175, 175, 0.14);
   --gold-line: rgba(201, 162, 75, 0.24);
 
   /*
@@ -158,10 +199,46 @@
 }
 
 /*
- * The default is locked, and stays locked: every reading route owns its own
- * scroll container (`sections.module.css` `.page`, the brief, not-found,
- * error), so nothing below needs the document to scroll and `ReadingProgress`
- * and `SectionToc` keep reading `scrollTop` from `[data-reading-scroll]`.
+ * The default is locked: every reading route owns its own scroll container
+ * (`sections.module.css` `.page`, the brief, not-found, error), so nothing
+ * below needs the document to scroll and `ReadingProgress` and `SectionToc`
+ * keep reading `scrollTop` from `[data-reading-scroll]`.
+ *
+ * It stays locked for now, but not for free, and this comment used to imply
+ * otherwise. The cost is a reader-facing one on ~1,190 routes: a phone's URL
+ * bar only auto-collapses for a *document* scroll, so every reading page here
+ * permanently spends the ~60–90px every other site reclaims after the first
+ * swipe, and browser scroll restoration on back-navigation never applies —
+ * which is why `ArchiveIndexFilter.tsx` has to remember index position in
+ * `sessionStorage` by hand. `.ai/DESIGN-V2.md` Phase 2 plans the fix
+ * ("Document scroll restored") and defers it; what follows is why it has not
+ * been taken piecemeal.
+ *
+ * **A document has exactly one scroller, so this converts whole or not at
+ * all.** Unlocking `html` while any route still declares `height: 100dvh;
+ * overflow-y: auto` gives that route a dead outer scrollbar around a live
+ * inner one. The set is five stylesheets — `sections.module.css` `.page`
+ * (SectionPage + DocPage, so the whole archive), the brief,
+ * `app/not-found.module.css`, `app/error.tsx` and `app/admin/admin.module.css`
+ * — plus three consumers that read the container directly
+ * (`ReadingProgress.tsx`, `SectionToc.tsx`'s IntersectionObserver `root`, and
+ * `ArchiveIndexFilter.tsx`'s `findScroller`, which matches on computed
+ * `overflow-y` and would silently return null), plus every `position: sticky`
+ * element whose scrollport changes underneath it (`.backdropBand`,
+ * `.tocRailInner`, the brief's `.siteHeader` and index rail), plus
+ * `scroll-behavior` and the brief's `scroll-padding-top`, which have to move
+ * onto `html` and be re-scoped per route once they share one element.
+ *
+ * The inversion itself is the small part: the base rule below stops carrying
+ * `overflow: hidden` and the `[data-home-scroll]` block keeps only its
+ * sideways clip and hidden scrollbar. The intro lock must keep matching
+ * attribute-for-attribute either way — see the specificity note below, which
+ * is the trap this file already fell into once.
+ *
+ * Verification is the other half: the entire payoff is URL-bar collapse and
+ * scroll restoration, and neither is observable in `ci-smoke` (route
+ * availability and console errors) or in headless Chromium. It needs a real
+ * mobile browser, on the workstation, in one round that owns all five files.
  */
 html, body {
   width: 100%;

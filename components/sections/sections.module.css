@@ -69,7 +69,16 @@
      push content back under the dock. Sticky rails work inside it —
      `position: sticky` resolves against the nearest scrollport — so the rails
      did not require restoring document scroll, which stays its own phase
-     (`.ai/DESIGN-V2.md`). */
+     (`.ai/DESIGN-V2.md`).
+
+     That phase is still open, and it is *this* element plus four other
+     stylesheets in one change: a document has one scroller, so unlocking
+     `html` while any of them still declares `height: 100dvh` leaves a dead
+     scrollbar around a live one. The cost of leaving it, and the full list,
+     are written up at the lock itself in `app/globals.css`. Note while
+     reading this rule that the same sticky behaviour cuts the other way —
+     `.backdropBand` below resolves against this scrollport today and would
+     resolve against the viewport after the switch. */
   height: 100dvh;
   overflow-y: auto;
   /* The dossiers jumped to anchors while the Brief glided, which is the one
@@ -333,7 +342,8 @@
 }
 
 .identitySep {
-  color: rgba(153, 179, 202, 0.35);
+  /* Hand-rolled `--line` at a heavier alpha, and neutralised with it. */
+  color: rgba(175, 175, 175, 0.35);
 }
 
 /* Sits where `.identityRoute` would, and replaces it — the route slug and a
@@ -637,7 +647,7 @@
   display: flex;
   gap: 0.7rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(153, 179, 202, 0.08);
+  border-bottom: 1px solid rgba(175, 175, 175, 0.08);
   color: var(--ink-lo);
   text-decoration: none;
   transition: color 140ms ease;
@@ -692,7 +702,7 @@
   display: block;
   height: 2px;
   margin-top: 1.4rem;
-  background: rgba(153, 179, 202, 0.12);
+  background: rgba(175, 175, 175, 0.12);
   overflow: hidden;
 }
 
@@ -799,9 +809,11 @@
 
 @media (max-width: 719px) {
   .page {
-    /* Room for the chat launcher's mobile dock (CHAT_DOCK_PX in
-       components/particle-nav/config.ts stacks on the home indicator). */
-    height: calc(100dvh - 5.25rem - env(safe-area-inset-bottom, 0px));
+    /* Room for the chat launcher's mobile dock, which stacks on the home
+       indicator. `--chat-dock-h` (app/globals.css) is the one definition of
+       that band; `CHAT_DOCK_PX` in components/particle-nav/config.ts is the
+       same 84px expressed in the units the orbit layout works in. */
+    height: calc(100dvh - var(--chat-dock-h) - env(safe-area-inset-bottom, 0px));
   }
 
   .shell {

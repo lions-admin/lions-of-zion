@@ -1,6 +1,53 @@
 # State
 
-## Latest — 2026-08-26, the October 7 archives are hosted and serving
+## Latest — 2026-08-26, a five-surface design audit, no code changed
+
+**Audited, not built.** `docs/design-audit-2026-08-26.md` is a full design
+audit of the frontend. Five agents took one surface family each — the home
+experience, the reading system, the eight destination pages, the archives
+plus the Brief, and the cross-cutting concerns. Every finding was then
+re-verified against the source by an adversarial pass that re-derived each
+number and checked each recommendation against `CLAUDE.md` and
+`DECISIONS.md`. **84 filed, 3 refuted, 6 merged, 75 written up: 12 high,
+37 medium, 26 low, zero surviving criticals.** Seven were filed critical
+and none survived at that level.
+
+An independent browser sweep ran afterwards against `next dev` in
+Playwright's bundled Chromium — 16–17 routes at 320/390/768/1440/1920, 82
+probes — and is the report's appendix. It closes the 320px gap the agent
+pass left, and it withdrew three of its own contrast flags on inspection
+(`.identitySep` and the `ScanBackdrop` rows are both `aria-hidden`).
+
+**The three structural problems the report names**, in the order it ranks
+them: the archive was attached to the site but never designed into it
+(1,175 record pages — 57% of routes — run through a `DocPage` shell whose
+own comment says it was built for short policy pages); the shell's
+contracts live in comments and are enforced by nothing (`--content-w`
+assumes rails the grid does not give it, the progress bar's painted
+default reports a document fully read, three sim dials ship at `0`); and
+the type system was collapsed on two axes and left free on the third — 7
+sizes and 6 colours against **71 distinct rem spacing values**.
+
+Two content findings are sharper than any rendering defect: `/methodology`
+states no sourcing standard although three surfaces route readers there
+for one, and `/israels-story` cites Wikipedia for seven of eight sources
+in the evidence margin, directly above "Every historical claim above is
+built to be checked."
+
+**Nothing was changed.** No component, no CSS, no content. The report is
+the deliverable and its "Do these first" table is the ranked entry point;
+the first nine items are one file each. `package-lock.json` is also out of
+sync with `package.json` — `npm ci` fails on missing nested `@esbuild/*`
+under `vitest`, and `npm install` repairs it additively. That was left
+uncommitted deliberately.
+
+Still workstation-only, and still unrun for this audit:
+`verify:graphics`, `final-verify` and `verify-home-band` need real Chrome,
+so every home-scene finding is reasoned from code.
+
+---
+
+## 2026-08-26, the October 7 archives are hosted and serving
 
 **Built.** `/october-7` is now a hub: the dossier stays at its root and 1,177
 archive pages prerender beneath it — 505 testimonies (179 records across seven

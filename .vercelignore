@@ -1,0 +1,9 @@
+# Dev-only symlinks to the archive integration packages, created by
+# `scripts/import-archive-package.mjs --link-assets`. They point outside the
+# repository, so a CLI deploy tries to follow them and fails with a recursive
+# copy error. Production serves this media from NEXT_PUBLIC_ARCHIVE_CDN, never
+# from public/, so nothing is lost by excluding them.
+public/archive
+
+# Upload resume state for scripts/upload-archive-assets.mjs.
+.blob-upload

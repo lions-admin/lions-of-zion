@@ -156,6 +156,40 @@ Either way, **media must be served from CDN URLs directly** — proxying it
 through the Next app moves the bill onto Vercel's own bandwidth, which is
 dearer.
 
+### Uploading
+
+The layout is the package's own, minus the `assets/` prefix, under a folder
+named for the package:
+
+```
+<bucket>/october7/originals/…        <bucket>/october7/web/…
+<bucket>/hamas-massacre/originals/…  <bucket>/hamas-massacre/web/…
+```
+
+With `rclone` configured for the bucket (`rclone config`, S3-compatible for
+R2), that is two commands per package — recursive and resumable, which matters
+for 2,018 files:
+
+```bash
+rclone copy ~/Documents/opencode/october7-integration-package/assets \
+  r2:<bucket>/october7 --progress --transfers 16
+```
+
+```bash
+rclone copy ~/Documents/october-7_toad/hamas-massacre-integration-package/assets \
+  r2:<bucket>/hamas-massacre --progress --transfers 16
+```
+
+Then set `NEXT_PUBLIC_ARCHIVE_CDN` to the bucket's public base and prove it:
+
+```bash
+node scripts/verify-archive-assets.mjs https://your-cdn/base --all
+```
+
+Do not reach for `vercel blob put` for this: it uploads one file at a time and
+has no recursive mode, so 2,018 files is the wrong shape for it entirely —
+quite apart from the cost difference above.
+
 Three video files (115 MB, 57 MB, 51 MB) dominate the tail; the source
 package's `reports/media-optimization.md` already lists compression candidates.
 

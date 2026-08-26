@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { DocPage } from '@/components/sections/DocPage';
 import {
   type ArchivePackageName,
+  displayTitle,
   getMediaRegistry,
   getRecord,
   pickVersion,
@@ -52,7 +53,7 @@ export async function ArchiveRecordPage({
   const media = await getMediaRegistry(pkg);
 
   return (
-    <DocPage routeId="october-7" title={version.title} tagline={tagline}>
+    <DocPage routeId="october-7" title={displayTitle(version.title)} tagline={tagline}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -99,13 +100,13 @@ export async function archiveRecordMetadata({
   const description = version.excerpt ?? version.full_text?.slice(0, 200) ?? undefined;
 
   return {
-    title: version.title,
+    title: displayTitle(version.title),
     description,
     // Canonical points here, not at the source site. See `.ai/DECISIONS.md`,
     // 2026-08-26 — conceding it guarantees zero reach for these pages.
     alternates: { canonical: url, languages },
     openGraph: {
-      title: version.title,
+      title: displayTitle(version.title),
       description,
       type: 'article',
       url,
@@ -124,7 +125,7 @@ function recordJsonLd(
   return {
     '@context': 'https://schema.org',
     '@type': 'ArchiveComponent',
-    name: version.title,
+    name: displayTitle(version.title),
     inLanguage: version.locale,
     url: `${SITE_URL}${locale ? `${basePath}/${locale}` : basePath}`,
     datePublished: record.publication_date ?? undefined,

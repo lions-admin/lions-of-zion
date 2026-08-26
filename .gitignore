@@ -52,3 +52,6 @@ ds-bundle/
 # Media never enters git (~1.8 GB); production serves it from a CDN.
 # Created by: scripts/import-archive-package.mjs --link-assets
 public/archive/
+
+# Upload progress for scripts/upload-archive-assets.mjs (resume state, local only)
+.blob-upload/

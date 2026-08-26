@@ -70,30 +70,6 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }}
       />
-      <SectionBlock heading="The record">
-        <p>
-          What happened on October 7, 2023 was documented as it happened —
-          by the perpetrators themselves, by survivors, by first responders,
-          and by the forensic teams who came after. The figures below are
-          drawn from public reporting; deeper documentation lives with the
-          real archives further down this page.
-        </p>
-        <div className={styles.inscription}>
-          <FigureRow figures={record.figures} />
-        </div>
-        <p>
-          Denial of that day is not treated here as an opinion to argue with
-          but as a documented phenomenon the record and the archives below
-          answer directly.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock heading="What followed">
-        <div className={styles.record}>
-          <Timeline variant="feed" entries={record.timeline} />
-        </div>
-      </SectionBlock>
-
       <SectionBlock heading="Testimony and documentation">
         <p>
           Two archives are held here in full, reproduced as published —
@@ -101,22 +77,38 @@ export default async function Page() {
         </p>
         <ul className={styles.archiveEntries}>
           <li>
-            <Link href="/october-7/testimonies">
-              Testimonies — {counts.testimonies} first-hand accounts
+            <Link href="/october-7/testimonies" className={styles.archiveEntry}>
+              <span className={styles.archiveEntryHead}>
+                <span className={styles.archiveEntryTitle}>Testimonies</span>
+                <span className={styles.archiveEntryCount}>
+                  {counts.testimonies} records
+                </span>
+              </span>
+              <span className={styles.archiveEntryDesc}>
+                First-hand accounts, archived from October7.org in up to seven
+                languages. People describing what happened to them.
+              </span>
+              <span className={styles.archiveEntryCta} aria-hidden="true">
+                Open the archive →
+              </span>
             </Link>
-            <span>
-              Archived from October7.org, in up to seven languages. People
-              describing what happened to them.
-            </span>
           </li>
           <li>
-            <Link href="/october-7/documentation">
-              Documentation — {counts.documentation} records
+            <Link href="/october-7/documentation" className={styles.archiveEntry}>
+              <span className={styles.archiveEntryHead}>
+                <span className={styles.archiveEntryTitle}>Documentation</span>
+                <span className={styles.archiveEntryCount}>
+                  {counts.documentation} records
+                </span>
+              </span>
+              <span className={styles.archiveEntryDesc}>
+                Archived from Hamas-Massacre.net, in English and Spanish, filed
+                under the six categories the source used. Much of it is graphic.
+              </span>
+              <span className={styles.archiveEntryCta} aria-hidden="true">
+                Open the archive →
+              </span>
             </Link>
-            <span>
-              Archived from Hamas-Massacre.net, in English and Spanish, filed
-              under the six categories the source used. Much of it is graphic.
-            </span>
           </li>
         </ul>
         <p>
@@ -127,6 +119,30 @@ export default async function Page() {
           people with the consent and the process to do it:
         </p>
         <SourceList sources={record.archives} />
+      </SectionBlock>
+
+      <SectionBlock heading="The record">
+        <p>
+          What happened on October 7, 2023 was documented as it happened —
+          by the perpetrators themselves, by survivors, by first responders,
+          and by the forensic teams who came after. The figures below are
+          drawn from public reporting; the fuller documentation is in the
+          two archives above.
+        </p>
+        <div className={styles.inscription}>
+          <FigureRow figures={record.figures} />
+        </div>
+        <p>
+          Denial of that day is not treated here as an opinion to argue with
+          but as a documented phenomenon the record and the archives above
+          answer directly.
+        </p>
+      </SectionBlock>
+
+      <SectionBlock heading="What followed">
+        <div className={styles.record}>
+          <Timeline variant="feed" entries={record.timeline} />
+        </div>
       </SectionBlock>
     </SectionPage>
   );

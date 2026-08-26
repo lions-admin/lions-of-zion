@@ -18,6 +18,13 @@ export default async function Page() {
   const groups = await getDocumentationGroups();
   const total = groups.reduce((sum, group) => sum + group.records.length, 0);
 
+  // File numbers run through the whole archive, not per category — a number
+  // that restarts at 001 six times is a row counter, not an identity. Each
+  // group starts where the ones before it left off.
+  const startAt = groups.map((_, i) =>
+    groups.slice(0, i).reduce((sum, g) => sum + g.records.length, 1),
+  );
+
   return (
     <DocPage routeId="october-7" title="Documentation" tagline={TAGLINE}>
       <p>
@@ -31,7 +38,7 @@ export default async function Page() {
         so that what it shows can be checked rather than argued about.
       </p>
 
-      {groups.map((group) => (
+      {groups.map((group, i) => (
         <section key={group.slug}>
           <h2 className={styles.groupHeading}>{group.title}</h2>
           <p className={styles.groupCount}>
@@ -39,6 +46,7 @@ export default async function Page() {
           </p>
           <ArchiveRecordList
             records={group.records}
+            startAt={startAt[i]}
             href={(entry) => `/october-7/documentation/${group.slug}/${entry.id}`}
           />
         </section>

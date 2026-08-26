@@ -173,6 +173,21 @@ static index set it that way as identity; **reading surfaces use
   position in `defaultNodes`. The current eight are `geopolitical-brief`,
   `support-us`, `war-update`, `october-7`, `our-heroes`, `israels-story`,
   `fake-resistance`, and `we-are`.
+- **`/october-7` is a hub, and the archives beneath it are not a ninth node.**
+  ~1,177 prerendered pages live under `/october-7/testimonies` and
+  `/october-7/documentation`, read through `lib/content/archive.ts` and its two
+  faces. `defaultNodes` stays at eight — do not add one for them. The full
+  brief is `docs/archive-integration.md`; four invariants matter here:
+  **14 MB of JSON is committed and ~1.8 GB of media never is** (assets resolve
+  by `media_id`, so only the `NEXT_PUBLIC_ARCHIVE_CDN` prefix changes);
+  **one renderer serves both archives with no branching**, because one's block
+  types are a strict subset of the other's, asserted in tests;
+  **the bare record route owns a record's default language and `[locale]` owns
+  the rest**, so no version ever has two URLs competing for one canonical; and
+  **nothing in a record body is a hyperlink while credits always render** —
+  provenance travels in the footer and in JSON-LD. That last pair is a
+  documented decision, not a style choice (`.ai/DECISIONS.md`, 2026-08-26),
+  and rewording records to shed attribution was considered and rejected there.
 - `components/sections/SectionPage.tsx` is the dossier shell for seven of them:
   a full-width identity band and a centred 68ch reading measure. There is no
   footer — the page ends where the content ends (`.ai/DECISIONS.md`).
@@ -202,6 +217,8 @@ static index set it that way as identity; **reading surfaces use
   are kept because nothing needs them to change, not because an `await` would
   now break the route. Anyone making `home.ts` async should re-check the home
   route's no-JavaScript render rather than assume either way.
+  `archive.ts`, `testimonies.ts` and `documentation.ts` are async and safe to
+  be: none of them is in the home route's render path.
 - `components/briefs/` is the Geopolitical Brief, the one page with its own
   layout and reading-progress treatment; its content is still a static
   reference cut in `geopolitical-reference.ts`, adapted onto

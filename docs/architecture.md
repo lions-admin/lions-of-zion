@@ -93,7 +93,9 @@ on an unknown id.
 | `/geopolitical-brief` | `components/briefs/GeopoliticalBrief.tsx` | The one page with its own layout |
 | `/support-us` | `SectionPage` | Carries the report and volunteer forms |
 | `/war-update` | `SectionPage` | |
-| `/october-7` | `SectionPage` | `register="muted"` |
+| `/october-7` | `SectionPage` | `register="muted"`. A hub: the archives hang beneath it |
+| `/october-7/testimonies` + `[slug]` + `[slug]/[locale]` | `DocPage` + `components/archive/` | 505 pages — 179 records, up to 7 languages |
+| `/october-7/documentation` + `[category]/[slug]` (+ `[locale]`) | `DocPage` + `components/archive/` | 670 pages — 335 records, English and Spanish |
 | `/our-heroes` | `SectionPage` | Opts out of the evidence margin (card grid) |
 | `/israels-story` | `SectionPage` | |
 | `/fake-resistance` | `SectionPage` | `accent="ember"` |
@@ -205,9 +207,37 @@ bodies rather than to any call site.
 | `our-heroes.ts` | `getOurHeroesEdition()` | async |
 | `corrections.ts` | `getCorrectionsLog()` | async |
 | `home.ts` | `getLatestMilestone()`, `getRecentMilestones()`, `getTrustStrip()` | **sync, load-bearing** |
+| `archive.ts` | `getIndex()`, `getRecord()`, `getMediaRegistry()`, `assetUrl()` | async |
+| `testimonies.ts` | `getTestimonyIndex()`, `getTestimony()`, route params | async |
+| `documentation.ts` | `getDocumentationGroups()`, `getDocumentationRecord()`, route params | async |
 
 `components/content/` is the shared presentation library the pages are built
 from — its own [README](../components/content/README.md) documents every prop.
+
+### The October 7 archive
+
+The three modules above read `content-packages/`, which
+`scripts/import-archive-package.mjs` fills from integration packages built to
+the `october7-integration-package@1` contract. Four properties are worth
+knowing before editing any of it:
+
+- **14 MB of JSON is committed; ~1.8 GB of media never is.** The importer takes
+  only each record's `story.json` plus the index, media and translation
+  registries — everything else in a package re-aggregates those. Assets resolve
+  by `media_id` through `media.json`, so only a URL prefix changes between
+  environments (`NEXT_PUBLIC_ARCHIVE_CDN`, else `/archive`).
+- **One renderer serves both archives with no branching**, because one's block
+  types are a strict subset of the other's. `tests/archive-content.test.ts`
+  asserts that rather than trusting it.
+- **The bare record route owns the default language and `[locale]` owns the
+  rest.** The locale route's `generateStaticParams` deliberately excludes the
+  default, so no version ever has two URLs competing for one canonical.
+- **Nothing in a record body is a hyperlink**, and credits always render. The
+  verifiable pointer travels in the provenance footer and in JSON-LD
+  (`isBasedOn`). Both are decisions, not accidents —
+  [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md), 2026-08-26.
+
+Full brief: [`archive-integration.md`](archive-integration.md).
 
 ---
 

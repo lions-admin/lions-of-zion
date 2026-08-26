@@ -36,7 +36,12 @@ built to be checked."
 
 **Nothing was changed.** No component, no CSS, no content. The report is
 the deliverable and its "Do these first" table is the ranked entry point;
-the first nine items are one file each. `package-lock.json` is also out of
+the first nine items are one file each. `TODOS-design-audit.md` is that
+report as a checkbox list in English — Wave 1 is the ranked fifteen, Wave 2
+is the remaining sixty by surface, and a "Do not refile" section carries
+the 3 refuted findings, the 4 flags the browser sweep withdrew and the 6
+merged ids. It is generated from the report and adds nothing to it.
+`TODOS.md` stays the Hebrew delivery plan and is untouched. `package-lock.json` is also out of
 sync with `package.json` — `npm ci` fails on missing nested `@esbuild/*`
 under `vitest`, and `npm install` repairs it additively. That was left
 uncommitted deliberately.

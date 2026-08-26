@@ -181,21 +181,44 @@ session can take the top of a section and stop anywhere.
 
 #### High — 1
 
-- [ ] `home-scene-mobile-intro-runs-nine-seconds-longer`
+- [x] `home-scene-mobile-intro-runs-nine-seconds-longer`
       the intro is 47.3s on a phone and 38.6s on desktop
       **Do:** Make the cadence per *beat*, not per line, so the twelve sentences take the same wall-clock time on both layouts and a two-line break costs presentation rather than duration: a beat-relative schedule in `getEntryStart` with `ROLLING_BEAT_CADENCE ≈ 2.2s` and …
       `components/intro/rolling-story-timeline.ts:11`, `components/intro/rolling-story-timeline.ts:90-125`, `components/intro/story-timeline.ts:33-118`
       `high` · `motion` · `medium effort`
-      **Partly landed.** The filed beat-relative schedule cannot be built:
-      equal totals put 21 mobile lines at 0.78s each against a 1.0s
-      `ROLLING_EXIT_DURATION`, so two lines always dissolve at once — which
-      overruns `ROLLING_POOL_SIZE` (= WINDOW + 1) and drops a sentence's sprite,
-      and stacks two dissolving clouds in row 0. (The filed `≈2.2s` cadence also
-      computes to 46.53s, not 38.6s.) Shipped the safe half instead: per-layout
-      cadence, mobile 1.25 → 1.0s, so mobile is 42.33s and desktop is unchanged
-      at 38.58s — the gap falls from 22.7% to 9.7%. The last 3.75s needs a wider
-      sprite pool, a row rule past the window, or a shorter dissolve: a
-      composition decision with a real-Chrome capture.
+      **Closed at 9.7%, and the remaining 3.75s is deliberate.** The earlier
+      pass shipped the per-layout cadence (mobile 1.25 → 1.0s: 42.33s against
+      desktop's unchanged 38.58s, the gap down from 22.7%) and stopped, filing
+      the rest as needing a wider pool, a row rule past the window, or a
+      shorter dissolve. Re-examined against the solved timeline, all three are
+      the wrong trade and the gap should stay.
+      Every one of them buys wall clock by taking reading time off the phone,
+      and the phone has less to give. The rolling window is four *lines* wide,
+      so it holds ~3.4 desktop sentences and ~2.3 mobile ones; a sentence
+      broken across two lines is whole on screen only for
+      `3 × cadence − ROLLING_ENTER_DURATION`. Measured: a typical desktop
+      sentence is whole for **4.20s**, a typical mobile one for **2.20s**.
+      Equalising the totals (mobile at 0.8125s, not the filed 0.78 — 16.25s
+      over 20 gaps) takes mobile to **1.64s**, 39% of desktop's. The phone
+      would finish sooner having been given less time to read. 1.0s is the
+      floor, not a stopping point: it is exactly `ROLLING_EXIT_DURATION`, the
+      fastest cadence at which one line finishes dissolving before the next
+      needs its row.
+      Everything the previous pass asserted reproduces: at 0.8125s the mobile
+      timeline hits 6 concurrent lines against a pool of 5, double-claims a
+      slot through 7.8% of the intro, and puts two dissolving clouds in row 0.
+      The filed `≈2.2s` beat cadence still computes to 46.53s, worse than the
+      status quo.
+      What changed is that none of this is an assertion any more. The audit's
+      real finding — "nothing asserts intro duration in `tests/`" — is fixed:
+      `tests/particle-nav-layout.test.ts` now holds the cadence at or above the
+      dissolve, checks slot and row uniqueness at 60Hz across both layouts, and
+      caps mobile's total at 10% of desktop's;
+      `.claude/hooks/check-story-timeline.mjs` blocks on the same two, on the
+      file where a line array actually grows. A 22nd mobile line now fails
+      loudly instead of quietly costing another second.
+      **No real-Chrome capture needed** — no rendered value changed, only
+      comments, tests and the hook.
 
 #### Medium — 6
 
@@ -297,24 +320,60 @@ session can take the top of a section and stop anywhere.
       `components/particle-nav/HomeSignalLayer.tsx:24-28`, `components/home/HomeFrontPage.tsx:90-95`, `components/home/home.module.css:249-288`
       `low` · `composition` · `small effort`
 
-- [ ] `home-scene-scan-labels-are-arial`
+- [x] `home-scene-scan-labels-are-arial`
       the scene's canvas text names system faces directly
       **Do:** Do not ship this as a drive-by. `.ai/DESIGN-V2.md:154-161, 313` makes the home scene's typographic voice an explicit open question for the user (Phase 5), so raise it as a decision. …
       `components/particle-nav/layers/NetworkScan.tsx:240`, `components/particle-nav/layers/NetworkScan.tsx:242`, `components/particle-nav/layers/NetworkScan.tsx:404-412`, `scripts/particle-nav/make-poster.ts:98`
       `low` · `typography` · `small effort`
-      **Owner decision, not shipped.** The two literals are now one named
-      `SANS_STACK` with the reasoning in place, but pointing the scene at the
-      loaded Geist Mono is DESIGN-V2 Phase 5 and moves buffer construction behind
-      `document.fonts.ready` — a scene-startup change needing a capture.
+      **Closed: the safe half shipped, the face is an owner decision.** The two
+      literals are one named `SANS_STACK`, value unchanged, with the reasoning
+      written into `NetworkScan.tsx` above it. Everything left in this finding
+      is the choice of typeface, which this list is the wrong place to hold:
+      `.ai/DESIGN-V2.md` Phase 5 already carries the home scene's typographic
+      voice as an explicit, optional, non-blocking user decision, and the
+      finding's own recommendation is "do not ship this as a drive-by — raise
+      it as a decision". Leaving it open here only invites the same answer at
+      every triage.
+      Two things a future owner decision has to budget for, both verified:
+      pointing the scene at the loaded Geist Mono moves the whole glyph and
+      word-buffer construction behind `document.fonts.ready` — a real
+      scene-startup change needing a capture and a re-check of
+      `verify-composition.mjs`'s eight link bounds, since a mono face is wider
+      per character. And `scripts/particle-nav/make-poster.ts:98` still spells
+      `Arial, sans-serif` inline (out of this agent's scope); it only bites on a
+      re-bake, and a re-bake on a box without Arial is itself a substitution
+      risk. The poster's ground is already `#000000`, so nothing there is stale
+      navy.
 
-- [ ] `home-scene-story-copy-exists-nowhere-but-the-intro`
+- [x] `home-scene-story-copy-exists-nowhere-but-the-intro`
       the twelve-beat argument is used once per tab and reused nowhere
       **Do:** Use `STORY_TRANSCRIPT` — already exported and currently unused — as the source for a short typeset statement, so the film and the page share one string by construction. …
       `components/particle-nav/CanvasMount.tsx:161-163`, `components/particle-nav/CanvasMount.tsx:420-424`, `components/particle-nav/CanvasMount.tsx:62-85`, `components/intro/story-timeline.ts:123-135`
       `low` · `content-design` · `small effort`
-      **Deferred.** Every landing site the finding sanctions is out of this
-      agent's scope: `/we-are` is a section route, and the home band already
-      carries a statement of purpose that the same finding warns against doubling.
+      **Considered and rejected.** The film's script should not be reused as
+      the site's statement of purpose, and every candidate site already has an
+      answer:
+      the front-page masthead carries War Update's authored trust sentence
+      (`HomeFrontPage`), which is the doubling this same finding warns against;
+      `SITE_DESCRIPTION` describes the desk rather than the film by an explicit
+      decision already recorded in `lib/site-config.ts` ("A cinematic awakening
+      from digital darkness" was removed for exactly that reason); and
+      `/we-are` opens on "Who we are" plus Organization JSON-LD. As the
+      finding's own Evidence correction says, no visitor is unable to learn why
+      the site exists.
+      `CanvasMount`'s `introRunning` guard on the transcript is right, not a
+      defect: the transcript stands in for the film while the navigation behind
+      it is inert, and once the film is not playing an assistive-technology
+      reader should get the navigation rather than twelve sentences of preamble
+      in front of it.
+      `STORY_TRANSCRIPT` is gone. It was the finding's suggested source, but
+      the only place it could land already renders `STORY_PARAGRAPHS` as
+      paragraphs, where a joined blob is strictly worse — so it was a dead
+      export standing as an implicit invitation to a second statement of
+      purpose. The reasoning is now a comment on `STORY_PARAGRAPHS` itself, at
+      the point of temptation. Nothing imported it (grepped repo-wide).
+      An intro-replay control remains uncosted and unfiled — the finding
+      already treats it as a separate optional change.
 
 ---
 

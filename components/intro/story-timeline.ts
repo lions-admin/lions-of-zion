@@ -120,6 +120,27 @@ export const STORY_BEATS = [
 export type StoryBeat = (typeof STORY_BEATS)[number];
 export type StoryBeatId = StoryBeat["id"];
 
+/**
+ * The film's script, regrouped into paragraphs for the screen-reader
+ * transcript `CanvasMount` renders beside the running intro. That is its only
+ * consumer, and deliberately so.
+ *
+ * It is *not* the site's statement of purpose, and it should not be reused as
+ * one. Each of the three places that could take it already has an answer:
+ * the front-page masthead carries War Update's authored trust sentence
+ * (`HomeFrontPage`), `SITE_DESCRIPTION` describes the desk rather than the
+ * film by an explicit decision recorded in `lib/site-config.ts`, and
+ * `/we-are` opens on "Who we are". Two statements of purpose in different
+ * registers on one page is worse than one — so a `STORY_TRANSCRIPT` export
+ * that joined these into a single blob was removed rather than left standing
+ * as an implicit invitation (design audit,
+ * `home-scene-story-copy-exists-nowhere-but-the-intro`).
+ *
+ * The transcript's own `introRunning` guard is right for the same reason: it
+ * stands in for the film while the navigation behind it is inert. Once the
+ * film is not playing, an assistive-technology reader gets the navigation
+ * itself, not twelve sentences of preamble in front of it.
+ */
 export const STORY_PARAGRAPHS = [
   STORY_BEATS[0].text,
   STORY_BEATS[1].text,
@@ -131,8 +152,6 @@ export const STORY_PARAGRAPHS = [
   STORY_BEATS[10].text,
   STORY_BEATS[11].text,
 ] as const;
-
-export const STORY_TRANSCRIPT = STORY_PARAGRAPHS.join("\n\n");
 
 /** Approved cue points; the last entry is the persistent final beat. */
 export const STORY_BEAT_STARTS = [

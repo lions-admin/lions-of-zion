@@ -553,8 +553,29 @@ source hosts them on YouTube and the packages record them without downloading
 them. The first build crashed on it. They now render a note saying the archive
 does not hold them, rather than dropping the block silently.
 
-**Still to run on the workstation:** `verify:graphics` and `final-verify`, both
-of which need real Chrome and cannot run from a container.
+- [x] **Sitemap** — 527 entries, one per record with 1,103 hreflang alternates,
+      rather than 1,177 pages competing with each other. `sitemap.ts` is async
+      now, which is safe: it is prerendered and not in a suspending path.
+- [x] **`scripts/verify-archive-assets.mjs`** — proves the CDN is populated.
+      Nothing else can: media is not in git, so a wrong
+      `NEXT_PUBLIC_ARCHIVE_CDN` fails quietly — pages build, tests pass, text
+      renders, only the media 404s. Verified locally: 2,018 checked, 0
+      unreachable.
+- [x] **Both real-Chrome gates run and pass.** `verify:graphics` 7/7 viewports
+      with every number unchanged (the scene did not move); `final-verify`
+      clean including **no-JavaScript: 8 links, poster visible**.
+- [x] Docs squared: `CLAUDE.md`, `docs/architecture.md`,
+      `docs/environment.md`, `docs/operations.md`, `README.md`.
+
+### A7 — The one step left, and it needs credentials
+
+- [ ] **Provision the CDN and upload the media.** ~1.8 GB, deliberately not in
+      git. Upload each package's `assets/originals` and `assets/web` under
+      `<package>/`, set `NEXT_PUBLIC_ARCHIVE_CDN`, then run
+      `node scripts/verify-archive-assets.mjs <base> --all`. Until then the
+      archive pages render their text and their media 404s.
+      Cloudflare R2 is the costed recommendation — 1.8 GB sits inside its 10 GB
+      free tier and its egress is free, so $0/month even at 500k visits.
 
 ### A5 — Presentation ✅ settled
 

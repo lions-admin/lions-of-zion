@@ -8,9 +8,20 @@ languages) and 670 documentation records (335 in English and Spanish). All SSG.
 The radial nav still has eight nodes; `defaultNodes` was not touched.
 
 Verified: typecheck 0, **358 tests** (27 new), lint unchanged, build prerenders
-1,199 pages in 6.3s, `ci-smoke` 18/18. Sampled prerendered HTML across both
-archives: real content, no Suspense boundaries, `srcset` where variants exist,
+1,199 pages, `ci-smoke` 18/18. Sampled prerendered HTML across both archives:
+real content, no Suspense boundaries, `srcset` where variants exist,
 `hreflang` present.
+
+**Both real-Chrome gates were run on the workstation and pass.**
+`verify:graphics` — 7/7 viewports, 8/8 links, WebGPU live, 0 errors, every
+number unchanged, so the particle scene did not move. `final-verify` — intro
+handoff, keyboard, WebGPU, forced WebGL2, overlays, 0 console errors, and
+**no-JavaScript: 8 links with the poster visible**, which confirms the
+`app/loading.tsx` removal in a real browser rather than only in the HTML.
+
+The archive is in `sitemap.xml` as **527 entries with 1,103 hreflang
+alternates** — one per *record*, not per page, so translations are not asked
+to compete with each other.
 
 **Read [`docs/archive-integration.md`](../docs/archive-integration.md).** The
 five things a later session most needs:
@@ -20,7 +31,12 @@ five things a later session most needs:
    everything else in a package re-aggregates those. Assets resolve by
    `media_id` through `media.json`, so only a URL prefix changes:
    `NEXT_PUBLIC_ARCHIVE_CDN` in production, a gitignored symlink in dev.
-   **The CDN is not yet provisioned** — that is the one operational step left.
+   **The CDN is not yet provisioned — that is the one step left, and it needs
+   credentials.** Upload each package's `assets/originals` and `assets/web`
+   under `<package>/`, set the variable, then prove it:
+   `node scripts/verify-archive-assets.mjs <base> --all`. That check exists
+   because a wrong value fails *quietly* — pages build, tests pass, text
+   renders, only the media 404s.
 2. **One renderer serves both archives with no branching**, because one's block
    types are a strict subset of the other's. A test asserts that rather than
    trusting it; if it ever fails, the renderer needs a case before the import.

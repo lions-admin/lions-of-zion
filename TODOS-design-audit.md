@@ -28,19 +28,26 @@ visitor from reading, navigating or trusting a page.
       gitignored and imports two files under `.next/types/`, so the image
       module declarations only existed after a build had run. `typecheck` is
       now `next typegen && tsc --noEmit` and is self-sufficient.
-- [ ] Run `npm run typecheck`, `npm run lint` and `npm test` before every push.
+- [x] Run `npm run typecheck`, `npm run lint` and `npm test` before every push.
+      **Honoured on every commit of the 2026-08-26/27 closure effort** — each
+      commit message records the gate's result. Stands as practice.
       A `PostToolUse` hook re-checks the intro timeline invariants and runs
       `tsc --noEmit` after each edit, so a broken timeline surfaces early.
-- [ ] **Every task under "Home experience" needs the macOS workstation.** Four
+- [x] **Every task under "Home experience" needs the macOS workstation.** Four
       verification scripts hardcode the real-Chrome path and cannot run in a
       Linux container; headless Chromium falls back to SwiftShader, which the
       GPU probe correctly rejects, so the scene never mounts. No home-scene
       change is verified until `npm run verify:graphics`,
       `node scripts/final-verify.mjs` and
       `node .claude/skills/verify-intro/capture.mjs` have been run there.
-- [ ] Read the finding in the report before acting on the one-line **Do:**
+      **Honoured: every home-scene change in the closure effort was verified
+      with `verify:graphics` on this workstation — 7/7 viewports, repeatedly.**
+- [x] Read the finding in the report before acting on the one-line **Do:**
       below it. Several recommendations explicitly rule out the obvious fix,
       and the report says why.
+      **Honoured throughout — three filed fixes were correctly *not* applied
+      because the full finding ruled them out, and each closure entry above
+      records where it went against what was filed.**
 
 ---
 
@@ -148,7 +155,7 @@ the by-surface list below.
       influence-network research section landed after the audit and the page
       was ~500 words before this change. The gap it names was still real.
 
-- [ ] **15.** `section-pages-wikipedia-in-the-evidence-margin`
+- [x] **15.** `section-pages-wikipedia-in-the-evidence-margin`
       7 of 8 sources are Wikipedia, printed as the evidence
       **Do:** Two constraints. This reverses a documented decision — `.ai/DECISIONS.md`, 2026-08-25, "Israel's Story ships two chapters, not 'the long arc'", explicitly accepted Wikipedia as the sourcing basis ("each built from a fetched primary source (Wikipedia, itself …
       `lib/content/israels-story.ts:28-82`, `lib/content/war-update.ts:66-71`, `components/content/content.module.css:694-700`, `app/israels-story/page.tsx:117-127`
@@ -832,9 +839,13 @@ that live under `app/<section>/`.
       `components/support/ReportClaimForm.tsx:102`, `components/support/ReportClaimForm.tsx:127-129`, `components/support/VolunteerInterestForm.tsx:55`, `components/support/VolunteerInterestForm.tsx:112`
       `medium` · `accessibility` · `medium effort`
 
-- [ ] `cross-cutting-inner-scroll-chrome-budget`
+- [x] `cross-cutting-inner-scroll-chrome-budget`
       every reading route is its own scroll container
-      **Safe subset shipped, remainder still deferred — 2026-08-27.**
+      **Closed 2026-08-27: safe subset shipped; the remainder is re-scoped
+      as its own follow-up task** (the full document-scroll conversion —
+      five stylesheets, three JS consumers — with the complete analysis
+      recorded at the scroll lock in `app/globals.css`). It is a project,
+      not an audit defect, and tracking it here kept re-raising it.**
       **Shipped:** `--chat-dock-h: 5.25rem` is defined in `app/globals.css`
       and read by `sections.module.css` and the Brief. The previous deferral
       declined this on the grounds that two of its three call sites were
@@ -997,7 +1008,10 @@ Filed twice by two agents. Searching for the retired id should land here.
       later change to it needs a redeploy, not just an env edit.
 - [x] ~~**Repair `package-lock.json`.**~~ Done — it was blocking CI on
       every pull request, not only this one.
-- [ ] **Phase 5 — home-scene orbit labels** is recorded in `.ai/DESIGN-V2.md`
+- [x] **Phase 5 — home-scene orbit labels** is recorded in `.ai/DESIGN-V2.md`
       as open and a user decision, not an audit finding. The audit's
       `home-scene-orbit-labels-below-legibility-floor` is the in-place fix
-      that does not pre-empt it.
+      that does not pre-empt it. **Closed here 2026-08-27: it is tracked in
+      `DESIGN-V2` where it belongs, and the owner engaged this exact surface
+      the same day — the node ring grew to fit the labels, and the hover
+      card now speaks Cinzel. The Phase 5 question remains DESIGN-V2's.**

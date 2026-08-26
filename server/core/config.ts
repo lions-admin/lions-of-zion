@@ -61,6 +61,13 @@ export const internalApiSecret = (): string =>
  *  is why the guard treats "unset" as "refuse", never as "allow". */
 export const cronSecret = (): string | undefined => process.env.CRON_SECRET;
 
+/** Credentials for the public, display-only "Continue with X" flow. */
+export const xOAuthClientId = (): string => required("X_OAUTH_CLIENT_ID", "X OAuth");
+export const xOAuthClientSecret = (): string =>
+  required("X_OAUTH_CLIENT_SECRET", "X OAuth");
+export const xAuthSessionSecret = (): string =>
+  required("X_AUTH_SESSION_SECRET", "public X authentication session cookies");
+
 /**
  * Model profiles — the only place a provider model id appears.
  *
@@ -119,5 +126,10 @@ export function configuredIntegrations(): Record<string, boolean> {
     blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
     aiGateway: Boolean(process.env.AI_GATEWAY_API_KEY),
     internalSecret: Boolean(process.env.INTERNAL_API_SECRET),
+    xPublicAuth: Boolean(
+      process.env.X_OAUTH_CLIENT_ID &&
+        process.env.X_OAUTH_CLIENT_SECRET &&
+        process.env.X_AUTH_SESSION_SECRET,
+    ),
   };
 }

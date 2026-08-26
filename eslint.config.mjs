@@ -106,6 +106,34 @@ const eslintConfig = defineConfig([
   },
 
   {
+    /* OAuth routes are public endpoints, but still may not bypass module
+       boundaries or import UI. The narrow facade above is the only server
+       import used by these routes. */
+    files: ["app/auth/x/**/*.ts", "app/api/public-auth/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/server/db", "@/server/db/*", "@/server/db/**"],
+              message: "Route handlers may not touch the database. Call a module's index.ts.",
+            },
+            {
+              group: ["@/server/modules/*/service", "@/server/modules/*/repo", "@/server/modules/*/rules"],
+              message: "Import a module through its index.ts, not by reaching into its internals.",
+            },
+            {
+              group: ["@/components/*", "@/components/**"],
+              message: "An API route has no components.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  {
     /* Contracts. Zod and nothing else — this file must stay importable from a
        React Server Component and from a test with no database. */
     files: ["server/contracts/**/*.ts"],

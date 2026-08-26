@@ -41,21 +41,35 @@ if (!pkgDir || !name) {
   process.exit(2);
 }
 
-const STORE_ID = process.env.BLOB_STORE_ID ?? 'M70Ph8nWOJVAnaRn';
 const REPO = path.resolve(import.meta.dirname, '..');
 
-/** The OIDC token is short-lived and refreshed by `vercel link`. */
-function oidcToken() {
-  if (process.env.VERCEL_OIDC_TOKEN) return process.env.VERCEL_OIDC_TOKEN;
+/**
+ * Values come from `vercel env pull`, which writes `.env.local`. Both are
+ * scoped to the archive's own store — deliberately **not** the ingestion
+ * store that `BLOB_READ_WRITE_TOKEN` points at.
+ */
+function fromEnv(name) {
+  if (process.env[name]) return process.env[name];
   const envFile = path.join(REPO, '.env.local');
   if (!existsSync(envFile)) return null;
-  const match = readFileSync(envFile, 'utf8').match(/^VERCEL_OIDC_TOKEN="?([^"\n]+)"?/m);
+  const match = readFileSync(envFile, 'utf8').match(
+    new RegExp(`^${name}="?([^"\\n]+)"?`, 'm'),
+  );
   return match?.[1] ?? null;
 }
 
-const TOKEN = oidcToken();
-if (!TOKEN && !DRY) {
-  console.error('No VERCEL_OIDC_TOKEN. Run `vercel link` first, then retry.');
+const STORE_ID = (fromEnv('ARCHIVE_BLOB_STORE_ID') ?? '').replace(/^store_/, '');
+// An explicit read-write token wins when the connection created one; otherwise
+// the project's OIDC token works, but only once the store is connected to the
+// project — an unconnected store refuses it with "Access denied".
+const RW_TOKEN = fromEnv('ARCHIVE_BLOB_READ_WRITE_TOKEN');
+const TOKEN = RW_TOKEN ?? fromEnv('VERCEL_OIDC_TOKEN');
+
+if (!DRY && (!TOKEN || !STORE_ID)) {
+  console.error(
+    'Missing ARCHIVE_BLOB_STORE_ID or a token. Run `vercel env pull .env.local`,\n' +
+      'and check the Blob store is connected to the project.',
+  );
   process.exit(1);
 }
 
@@ -130,8 +144,7 @@ async function uploadOne(file) {
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: CONTENT_TYPES[ext] ?? 'application/octet-stream',
-      oidcToken: TOKEN,
-      storeId: STORE_ID,
+      ...(RW_TOKEN ? { token: RW_TOKEN } : { oidcToken: TOKEN, storeId: STORE_ID }),
     });
     appendFileSync(progressFile, `${key}\n`);
     uploaded += 1;

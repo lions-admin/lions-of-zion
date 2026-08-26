@@ -70,30 +70,6 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }}
       />
-      <SectionBlock heading="The record">
-        <p>
-          What happened on October 7, 2023 was documented as it happened —
-          by the perpetrators themselves, by survivors, by first responders,
-          and by the forensic teams who came after. The figures below are
-          drawn from public reporting; deeper documentation lives with the
-          real archives further down this page.
-        </p>
-        <div className={styles.inscription}>
-          <FigureRow figures={record.figures} />
-        </div>
-        <p>
-          Denial of that day is not treated here as an opinion to argue with
-          but as a documented phenomenon the record and the archives below
-          answer directly.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock heading="What followed">
-        <div className={styles.record}>
-          <Timeline variant="feed" entries={record.timeline} />
-        </div>
-      </SectionBlock>
-
       <SectionBlock heading="Testimony and documentation">
         <p>
           Two archives are held here in full, reproduced as published —
@@ -127,6 +103,30 @@ export default async function Page() {
           people with the consent and the process to do it:
         </p>
         <SourceList sources={record.archives} />
+      </SectionBlock>
+
+      <SectionBlock heading="The record">
+        <p>
+          What happened on October 7, 2023 was documented as it happened —
+          by the perpetrators themselves, by survivors, by first responders,
+          and by the forensic teams who came after. The figures below are
+          drawn from public reporting; the fuller documentation is in the
+          two archives above.
+        </p>
+        <div className={styles.inscription}>
+          <FigureRow figures={record.figures} />
+        </div>
+        <p>
+          Denial of that day is not treated here as an opinion to argue with
+          but as a documented phenomenon the record and the archives above
+          answer directly.
+        </p>
+      </SectionBlock>
+
+      <SectionBlock heading="What followed">
+        <div className={styles.record}>
+          <Timeline variant="feed" entries={record.timeline} />
+        </div>
       </SectionBlock>
     </SectionPage>
   );

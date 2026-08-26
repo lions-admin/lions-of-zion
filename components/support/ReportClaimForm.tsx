@@ -8,7 +8,7 @@
  * either. Same problem+json parsing pattern as `AskTheLionChat.tsx`, kept
  * local rather than shared since it's a small, self-contained piece.
  */
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import styles from './support.module.css';
 
 const FAILURE_COPY: Record<string, string> = {
@@ -55,14 +55,25 @@ export function ReportClaimForm() {
   const [reporterNote, setReporterNote] = useState('');
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
   const [touched, setTouched] = useState(false);
+  const urlRef = useRef<HTMLInputElement>(null);
 
   const hasContent = Boolean(url.trim() || body.trim());
   const submitting = state.status === 'submitting';
+  /* The guard covers two fields at once, so it is described by both of them
+     rather than left to sit between them as a loose alert. */
+  const guardTripped = touched && !hasContent;
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setTouched(true);
-    if (!hasContent || submitting) return;
+    if (!hasContent) {
+      /* Announcing the message is not enough when it names neither of the
+         four fields it means: move the caret to the first field that would
+         satisfy it. */
+      urlRef.current?.focus();
+      return;
+    }
+    if (submitting) return;
 
     setState({ status: 'submitting' });
     const payload: Record<string, string> = {};
@@ -100,15 +111,42 @@ export function ReportClaimForm() {
 
   return (
     <form className={styles.form} onSubmit={submit}>
+      {/*
+        With scripting off this form has no submit path at all: there is no
+        `action`, so the button performs a native GET to /support-us, the page
+        reloads, and the reload reads as a successful send. Reporting success
+        for something that was discarded is the "no false live state"
+        principle inverted, so the button is removed in that tier rather than
+        left to lie. A `<style>` inside `<noscript>` is the only way a
+        prerendered page can change what it shows based on whether scripting
+        ran. Pointing the form at `/api/v1/reports` was considered and is
+        worse: `server/http/handler.ts` `parseBody` calls `request.json()`,
+        so a native form POST renders a raw problem+json page.
+        This tier still has no alternative channel to name. The site owns no
+        reports inbox — `VolunteerInterestForm`'s address is the only one that
+        exists, and it is itself a flagged placeholder for another desk.
+        Invent nothing here; give this notice a real address when one exists.
+      */}
+      <noscript>
+        <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
+        <p className={styles.fieldError}>
+          This form needs JavaScript to send a report. Nothing typed here can reach the desk with
+          it turned off.
+        </p>
+      </noscript>
+
       <div className={styles.field}>
         <label htmlFor="report-url">Link to the claim</label>
         <input
           id="report-url"
+          ref={urlRef}
           type="url"
           value={url}
           onChange={(event) => setUrl(event.target.value)}
           placeholder="https://…"
           disabled={submitting}
+          aria-invalid={guardTripped}
+          aria-describedby={guardTripped ? 'report-guard' : undefined}
         />
       </div>
 
@@ -121,11 +159,15 @@ export function ReportClaimForm() {
           rows={3}
           placeholder="What did you see, and where?"
           disabled={submitting}
+          aria-invalid={guardTripped}
+          aria-describedby={guardTripped ? 'report-guard' : undefined}
         />
       </div>
 
-      {touched && !hasContent ? (
-        <p className={styles.fieldError} role="alert">A report needs a link or a description.</p>
+      {guardTripped ? (
+        <p id="report-guard" className={styles.fieldError} role="alert">
+          A report needs a link or a description.
+        </p>
       ) : null}
 
       <div className={styles.field}>

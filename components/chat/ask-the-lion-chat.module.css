@@ -1,3 +1,23 @@
+/*
+ * The chat modal, on the V2 tokens.
+ *
+ * This file was the last surface still carrying its own palette and its own
+ * type scale, and `app/layout.tsx` mounts it on every route — so its drift was
+ * site-wide rather than local. Every literal now resolves to one of the five
+ * inks/golds, every size to one of the seven steps, and nothing is set below
+ * `--t-data`. Where a colour has to be translucent (borders, washes, shadows)
+ * the rgb triplet is the token's own — `--gold` is rgb(201, 162, 75) and
+ * `--gold-hi` is rgb(239, 215, 154) — which is the same form `--gold-line` in
+ * `globals.css` and the `.askCta` border in `sections.module.css` already use.
+ * Custom properties cannot carry an alpha channel on their own, so this is the
+ * closest a translucent value gets to being tokenised.
+ *
+ * The panel paints its own near-opaque ground (0.985/0.99), so the page ground
+ * behind it contributes about 1.5% of the composite: the 2026-08-26 move from
+ * #070b14 to true black shifts every ratio in here by less than 0.02, and the
+ * two contrast fixes already applied below were needed either way.
+ */
+
 .panel {
   position: fixed;
   top: 0;
@@ -10,27 +30,30 @@
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid rgba(219, 180, 82, 0.36);
+  border: 1px solid rgba(201, 162, 75, 0.36);
   border-radius: 0;
   background:
-    radial-gradient(circle at 78% -10%, rgba(219, 180, 82, 0.13), transparent 34%),
+    radial-gradient(circle at 78% -10%, rgba(201, 162, 75, 0.13), transparent 34%),
     linear-gradient(155deg, rgba(7, 12, 22, 0.985), rgba(2, 5, 11, 0.99));
   box-shadow:
     0 1.5rem 5rem rgba(0, 0, 0, 0.58),
-    0 0 2.8rem rgba(219, 180, 82, 0.09),
-    inset 0 1px rgba(255, 231, 166, 0.05);
-  color: #e8edf5;
+    0 0 2.8rem rgba(201, 162, 75, 0.09),
+    inset 0 1px rgba(239, 215, 154, 0.05);
+  color: var(--ink-hi);
   transform-origin: 100% 50%;
   animation: panelIn 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/* The scan texture, continued inside the panel. It is the blue direction of
+   the scan rather than a text colour, which is why it reads `--data-blue`'s
+   triplet and not an ink. */
 .panel::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   opacity: 0.18;
-  background-image: radial-gradient(circle, rgba(118, 166, 196, 0.65) 0 0.55px, transparent 0.75px);
+  background-image: radial-gradient(circle, rgba(87, 167, 217, 0.65) 0 0.55px, transparent 0.75px);
   background-size: 17px 17px;
   mask-image: linear-gradient(to bottom, black, transparent 54%);
   pointer-events: none;
@@ -41,26 +64,34 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.3rem 1.25rem 1.1rem;
-  border-bottom: 1px solid rgba(219, 180, 82, 0.18);
+  border-bottom: 1px solid var(--gold-line);
 }
 
+/* "AI intelligence desk" is three words, so DESIGN-V2's uppercase+tracking
+   treatment — which is reserved for data labels of two words or fewer — does
+   not apply and this is set in sentence case. The alternative was to cut the
+   label to two words, which would have meant dropping "AI": the disclosure is
+   worth more than the letterspacing. */
 .eyebrow {
   margin: 0 0 0.38rem;
-  color: #7695aa;
-  font-size: 0.58rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
+/* Was Cinzel at 1.06rem/0.2em uppercase. Cinzel belongs to the home particle
+   scene; this is a heading a reader reads, on top of a reading page. */
 .header h2 {
   margin: 0;
-  color: #f3cf72;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 1.06rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  color: var(--gold-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: 0;
 }
 
 .close {
@@ -71,21 +102,21 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #c9d4df;
+  color: var(--ink);
   cursor: pointer;
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
 }
 
 .close:hover,
 .close:focus-visible {
-  background: rgba(219, 180, 82, 0.11);
-  color: #ffe29a;
+  background: rgba(201, 162, 75, 0.11);
+  color: var(--gold-hi);
   transform: rotate(6deg);
 }
 
 .close:focus-visible,
 .composer button:focus-visible {
-  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
@@ -109,7 +140,7 @@
   padding: 1.35rem 1.25rem;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgba(219, 180, 82, 0.28) transparent;
+  scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
 
 .welcome {
@@ -125,36 +156,41 @@
   width: 3.25rem;
   height: 3.25rem;
   margin-bottom: 1.15rem;
-  border: 1px solid rgba(219, 180, 82, 0.46);
+  border: 1px solid rgba(201, 162, 75, 0.46);
   border-radius: 50%;
-  box-shadow: 0 0 1.8rem rgba(219, 180, 82, 0.17);
+  box-shadow: 0 0 1.8rem rgba(201, 162, 75, 0.17);
 }
 
 .signal::before,
 .signal::after {
   content: '';
   position: absolute;
-  border: 1px dotted rgba(219, 180, 82, 0.58);
+  border: 1px dotted rgba(201, 162, 75, 0.58);
   border-radius: 50%;
 }
 
 .signal::before { inset: 0.42rem; }
-.signal::after { inset: 1.05rem; background: #f3cf72; box-shadow: 0 0 0.8rem #f3cf72; }
+.signal::after { inset: 1.05rem; background: var(--gold-hi); box-shadow: 0 0 0.8rem var(--gold-hi); }
 
+/* "What would you like to verify?" was Cinzel at 1.05rem — a sentence in
+   faux small caps, which DESIGN-V2 Part 1 names as the single biggest driver
+   of "hard to read". It is the modal's largest line, so it takes `--t-h2`. */
 .welcome p {
   margin: 0;
-  color: #f0d58b;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 1.05rem;
-  letter-spacing: 0.04em;
+  color: var(--gold-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: 0;
 }
 
 .welcome small {
-  max-width: 18rem;
+  max-width: 20rem;
   margin-top: 0.7rem;
-  color: #8699ab;
-  font-size: 0.78rem;
-  line-height: 1.55;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 .message {
@@ -169,10 +205,12 @@
   align-items: baseline;
   gap: 0.55rem;
   margin: 0 0.25rem 0.35rem;
-  color: #75899c;
-  font-size: 0.56rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: 500;
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
@@ -184,15 +222,19 @@
 .timestamp {
   color: var(--ink-lo);
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--t-data-tracking);
 }
 
+/* `.messageMeta` is a baseline row above every bubble, so giving `.copy` a
+   44px box would add ~30px of vertical drift per exchange. The hit area grows
+   through an overlay instead, which reaches 44px without touching layout. */
 .copy {
+  position: relative;
   margin-left: auto;
   padding: 0 0.15rem;
   border: 0;
   background: transparent;
-  color: #8fa3b5;
+  color: var(--ink-lo);
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
@@ -200,34 +242,50 @@
   transition: color 160ms ease;
 }
 
+/* Asymmetric on purpose: the meta row sits 5.6px above its own bubble and
+   16px below the previous message, so the target takes its height from the
+   gap that has nothing in it. An evenly inset overlay would have turned the
+   top ~9px of every answer into a Copy button. */
+.copy::after {
+  content: '';
+  position: absolute;
+  top: -1.2rem;
+  bottom: -0.5rem;
+  left: -0.5rem;
+  right: -0.5rem;
+}
+
 .copy:hover,
 .copy:focus-visible,
 .copy[data-copied] {
-  color: #ffe29a;
+  color: var(--gold-hi);
 }
 
 .copy:focus-visible {
-  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
+/* The answer a reader came to read. It was 0.82rem — 13.12px, two steps below
+   the site's body size, and low enough that focusing anything in this panel
+   makes iOS Safari zoom the viewport. */
 .message p {
   margin: 0;
   padding: 0.78rem 0.9rem;
-  border: 1px solid rgba(132, 158, 180, 0.16);
+  border: 1px solid var(--line);
   border-radius: 0.9rem 0.9rem 0.9rem 0.2rem;
   background: rgba(24, 38, 52, 0.43);
-  color: #d7e1eb;
-  font-size: 0.82rem;
-  line-height: 1.55;
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
   white-space: pre-wrap;
 }
 
 .message[data-role='user'] p {
-  border-color: rgba(219, 180, 82, 0.22);
+  border-color: rgba(201, 162, 75, 0.22);
   border-radius: 0.9rem 0.9rem 0.2rem;
   background: rgba(134, 102, 33, 0.2);
-  color: #f3e9ca;
+  color: var(--gold-hi);
 }
 
 .thinking {
@@ -242,7 +300,7 @@
   width: 0.28rem;
   height: 0.28rem;
   border-radius: 50%;
-  background: #d5b55c;
+  background: var(--gold);
   animation: thinking 900ms ease-in-out infinite alternate;
 }
 
@@ -253,19 +311,20 @@
   display: grid;
   gap: 0.5rem;
   width: 100%;
-  max-width: 19rem;
+  max-width: 20rem;
   margin-top: 1.35rem;
 }
 
 .starter {
+  min-height: 44px;
   padding: 0.6rem 0.8rem;
-  border: 1px solid rgba(132, 158, 180, 0.28);
+  border: 1px solid rgba(132, 148, 168, 0.28);
   border-radius: 0.8rem;
   background: rgba(24, 38, 52, 0.35);
-  color: #c3d1de;
+  color: var(--ink);
   font: inherit;
-  font-size: 0.75rem;
-  line-height: 1.4;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   text-align: left;
   cursor: pointer;
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
@@ -273,13 +332,13 @@
 
 .starter:hover:not(:disabled),
 .starter:focus-visible {
-  border-color: rgba(255, 226, 154, 0.6);
+  border-color: rgba(239, 215, 154, 0.6);
   background: rgba(134, 102, 33, 0.14);
-  color: #f3e9ca;
+  color: var(--gold-hi);
 }
 
 .starter:focus-visible {
-  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
@@ -293,57 +352,75 @@
   padding-left: 0.15rem;
 }
 
+/* The gap is the other half of the chip's hit area: `.citationChip::before`
+   bleeds 0.5rem past the circle on every side, and 1rem of gap is exactly
+   what lets two neighbouring overlays meet without either one covering the
+   next chip's own circle. Change one and the other has to follow. */
 .citationRow {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  gap: 1rem;
 }
 
+/* Opening a cited quote is the verification gesture this whole site is about,
+   and it was a 21.6px square. The circle grows to 28px and the overlay takes
+   the target to 44 — squaring the chip itself would have made it a button in
+   a row of circles. */
 .citationChip {
-  width: 1.35rem;
-  height: 1.35rem;
-  border: 1px solid rgba(219, 180, 82, 0.4);
+  position: relative;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid rgba(201, 162, 75, 0.4);
   border-radius: 50%;
-  background: rgba(219, 180, 82, 0.08);
-  color: #e3c887;
-  font: inherit;
-  font-size: 0.62rem;
+  background: rgba(201, 162, 75, 0.08);
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
   line-height: 1;
   cursor: pointer;
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
 }
 
+.citationChip::before {
+  content: '';
+  position: absolute;
+  inset: -0.5rem;
+  border-radius: 50%;
+}
+
 .citationChip:hover,
 .citationChip:focus-visible,
 .citationChip[aria-expanded='true'] {
-  border-color: rgba(255, 226, 154, 0.75);
-  background: rgba(219, 180, 82, 0.2);
-  color: #ffe29a;
+  border-color: rgba(239, 215, 154, 0.75);
+  background: rgba(201, 162, 75, 0.2);
+  color: var(--gold-hi);
 }
 
 .citationChip:focus-visible {
-  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
 .citationQuote {
   margin: 0.5rem 0 0;
   padding: 0.55rem 0.7rem;
-  border-left: 1px solid rgba(219, 180, 82, 0.5);
+  border-left: 1px solid rgba(201, 162, 75, 0.5);
   background: rgba(24, 38, 52, 0.4);
-  color: #b9c7d4;
-  font-size: 0.74rem;
+  color: var(--ink);
+  font-size: var(--t-caption);
   font-style: italic;
-  line-height: 1.5;
+  line-height: var(--t-caption-lh);
 }
 
 .undelivered {
   display: block;
   margin: 0.3rem 0.25rem 0;
-  color: #6c7f91;
-  font-size: 0.58rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: 500;
+  letter-spacing: var(--t-data-tracking);
   text-align: right;
   text-transform: uppercase;
 }
@@ -351,11 +428,11 @@
 .messageError {
   margin: 0.45rem 0 0;
   padding: 0.6rem 0.75rem;
-  border-left: 1px solid #c99d48;
-  background: rgba(201, 157, 72, 0.08);
-  color: #d8c79b;
-  font-size: 0.72rem;
-  line-height: 1.45;
+  border-left: 1px solid var(--gold);
+  background: rgba(201, 162, 75, 0.08);
+  color: var(--gold-hi);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 /* The bubble styling on `.message p` (and its user variant) must not leak
@@ -374,28 +451,34 @@
 
 .message .messageError .requestId {
   margin-top: 0.35rem;
-  color: #6c7f91;
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.02em;
 }
 
 .retry {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   margin-top: 0.5rem;
   padding: 0.32rem 0.85rem;
-  border: 1px solid rgba(255, 226, 154, 0.45);
+  border: 1px solid rgba(239, 215, 154, 0.45);
   border-radius: 999px;
-  background: rgba(219, 180, 82, 0.12);
-  color: #ffe29a;
-  font: inherit;
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
+  background: rgba(201, 162, 75, 0.12);
+  color: var(--gold-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   cursor: pointer;
   transition: background 160ms ease;
 }
 
 .retry:hover:not(:disabled) {
-  background: rgba(219, 180, 82, 0.24);
+  background: rgba(201, 162, 75, 0.24);
 }
 
 .retry:disabled {
@@ -404,20 +487,20 @@
 }
 
 .retry:focus-visible {
-  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
 .offline {
   margin: 0.9rem 0 0;
   padding: 0.85rem 0.95rem;
-  border: 1px solid rgba(118, 166, 196, 0.22);
-  border-left: 2px solid rgba(219, 180, 82, 0.55);
+  border: 1px solid var(--line);
+  border-left: 2px solid rgba(201, 162, 75, 0.55);
   border-radius: 0.35rem;
   background: rgba(15, 26, 38, 0.55);
-  color: #a9bac9;
-  font-size: 0.75rem;
-  line-height: 1.55;
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 .offline p {
@@ -432,15 +515,19 @@
 }
 
 .newThread {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 0.34rem 0.7rem;
-  border: 1px solid rgba(219, 180, 82, 0.3);
+  border: 1px solid rgba(201, 162, 75, 0.3);
   border-radius: 999px;
   background: transparent;
-  color: #d5bd7e;
-  font: inherit;
-  font-size: 0.58rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: 500;
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
@@ -449,13 +536,13 @@
 
 .newThread:hover:not(:disabled),
 .newThread:focus-visible {
-  border-color: rgba(255, 226, 154, 0.6);
-  background: rgba(219, 180, 82, 0.1);
-  color: #ffe29a;
+  border-color: rgba(239, 215, 154, 0.6);
+  background: rgba(201, 162, 75, 0.1);
+  color: var(--gold-hi);
 }
 
 .newThread:focus-visible {
-  outline: 2px solid rgba(255, 226, 154, 0.9);
+  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
@@ -468,9 +555,11 @@
   position: absolute;
   top: -1.35rem;
   right: 0.4rem;
-  color: #8699ab;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.02em;
 }
 
 .srOnly {
@@ -491,16 +580,16 @@
   gap: 0.55rem;
   margin: 0 1rem 1rem;
   padding: 0.48rem 0.48rem 0.48rem 0.9rem;
-  border: 1px solid rgba(219, 180, 82, 0.28);
+  border: 1px solid rgba(201, 162, 75, 0.28);
   border-radius: 1rem;
   background: rgba(3, 8, 15, 0.86);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 1px rgba(233, 238, 246, 0.025);
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .composer:focus-within {
-  border-color: rgba(255, 226, 154, 0.72);
-  box-shadow: 0 0 1.2rem rgba(219, 180, 82, 0.1), inset 0 1px rgba(255, 255, 255, 0.03);
+  border-color: rgba(239, 215, 154, 0.72);
+  box-shadow: 0 0 1.2rem rgba(201, 162, 75, 0.1), inset 0 1px rgba(233, 238, 246, 0.03);
 }
 
 .composer label {
@@ -512,19 +601,27 @@
   white-space: nowrap;
 }
 
+/* iOS Safari zooms the viewport whenever a focused text control computes
+   below 16px, and at ≤719px this panel is fixed to all four edges, so the
+   zoom crops the modal instead of reflowing it. `--t-body` is 17px, the same
+   answer `support.module.css` already reached for its real inputs.
+   The heights follow from the step, not from the old ratio: one line is
+   17 × 1.7 = 28.9px plus 17.1px of padding (2.875rem), and the five-line clip
+   the auto-grow at `AskTheLionChat.tsx:180-185` used to reach is
+   5 × 28.9 + 17.1 (10.125rem). */
 .composer textarea {
   width: 100%;
-  min-height: 2.4rem;
-  max-height: 7rem;
+  min-height: 2.875rem;
+  max-height: 10.125rem;
   overflow-y: auto;
   resize: none;
   border: 0;
   outline: 0;
   background: transparent;
-  color: #edf2f7;
+  color: var(--ink-hi);
   font: inherit;
-  font-size: 0.82rem;
-  line-height: 1.45;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
   padding: 0.62rem 0.1rem 0.45rem;
 }
 
@@ -532,21 +629,23 @@
    Was #647687 — 4.28:1, below AA. */
 .composer textarea::placeholder { color: var(--ink-lo); }
 
+/* 2.75rem, matching `.close` in the header rather than stopping four pixels
+   short of it. */
 .composer button {
   position: relative;
-  width: 2.6rem;
-  height: 2.6rem;
-  border: 1px solid rgba(255, 226, 154, 0.45);
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid rgba(239, 215, 154, 0.45);
   border-radius: 50%;
-  background: rgba(219, 180, 82, 0.13);
-  color: #ffe29a;
+  background: rgba(201, 162, 75, 0.13);
+  color: var(--gold-hi);
   cursor: pointer;
   transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease, opacity 180ms ease;
 }
 
 .composer button:hover:not(:disabled) {
-  background: rgba(219, 180, 82, 0.24);
-  box-shadow: 0 0 1.2rem rgba(219, 180, 82, 0.28);
+  background: rgba(201, 162, 75, 0.24);
+  box-shadow: 0 0 1.2rem rgba(201, 162, 75, 0.28);
   transform: translateY(-1px);
 }
 

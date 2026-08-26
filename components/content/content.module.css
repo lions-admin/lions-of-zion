@@ -1,6 +1,16 @@
 /*
  * Shared visual language for the content component library.
  *
+ * Breakpoints. The canon, restated from `home.module.css` — 1220 (rails),
+ * 900 (shell to one column), 719 (phone), 359 (the 320px floor) — because it
+ * lived in one file's comment and was enforced by memory. It is repeated
+ * wherever a stylesheet is entitled to open a media query. A fifth width has
+ * to earn its place in a comment beside it, giving the measured width at
+ * which the thing it governs stops working; this file's own 640, where
+ * `.figures` collapses, is written up down there. A custom property cannot
+ * be read inside a media query, so a comment is the only greppable form this
+ * rule can take.
+ *
  * Ten routes render through these components, so this file is where the
  * site's reading type is actually decided. It is built on the Design V2
  * tokens in `app/globals.css` (`.ai/DESIGN-V2.md`) and holds the three
@@ -1284,10 +1294,19 @@
   }
 }
 
-@media (max-width: 359px) {
-  .figures,
-  .publicationMeta {
+/* A key-figures row exists to be read at a glance, and this one stayed
+   three-up across the entire phone range — the 719px block above only
+   narrows its gap. At 390px each column is 108px wide, which is four lines
+   of caption, and the row becomes the slowest thing on the page. It collapses
+   at 640 rather than 719 for two reasons: 640 is the threshold October 7
+   already picked for the same row in its own module, and at 600px the
+   columns are 178px and still working — collapsing at 719 would trade a
+   readable three-up for ~190px of scroll. This lives here, in the shared
+   component, so every page that renders a FigureRow gets it. */
+@media (max-width: 640px) {
+  .figures {
     grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
   }
 
   .figures > div + div {
@@ -1295,5 +1314,11 @@
     padding-left: 0;
     border-top: 1px solid var(--line);
     border-left: 0;
+  }
+}
+
+@media (max-width: 359px) {
+  .publicationMeta {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

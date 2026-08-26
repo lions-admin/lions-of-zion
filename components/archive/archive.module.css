@@ -166,7 +166,12 @@
 .languages {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  /* Centred rather than baseline-aligned because the chips below are now a
+     44px box around a one-line label: with `baseline` the label would sit on
+     the chips' text while their boxes hung 13px above and below it. Both
+     sides are single-line and the same size, so centring keeps the label and
+     the chip text on the same line as before. */
+  align-items: center;
   gap: 0.5rem;
   margin-top: 1rem;
 }
@@ -179,14 +184,22 @@
   color: var(--ink-lo);
 }
 
+/* These were sized as labels and then given a link. `--t-data` with 0.15rem
+   of padding is a 23.5px chip, and a testimony with seven locales is a row of
+   seven of them — the archive's most-tapped control on a phone. `.languages`
+   already wraps, so a seven-language row grows from one line to two rather
+   than overflowing, which is the right trade. */
 .languageLink,
 .languageCurrent {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  padding: 0.15rem 0.45rem;
+  padding: 0.15rem 0.7rem;
   border: 1px solid var(--line);
 }
 

@@ -501,42 +501,104 @@ session can take the top of a section and stop anywhere.
 
 ### Cross-cutting — accessibility, responsive, motion, interaction
 
-9 tasks here, plus 3 in Wave 1.
+9 tasks here, plus 3 in Wave 1. **7 closed 2026-08-27**; two remain, each
+with a note under it saying what is left and why it was not done here —
+`inner-scroll-chrome-budget` in full, `breakpoint-sprawl` in the two parts
+that live under `app/<section>/`.
 
 #### Medium — 6
 
-- [ ] `cross-cutting-composer-triggers-ios-zoom`
+- [x] `cross-cutting-composer-triggers-ios-zoom`
       13.12px text in the composer and the answers
+      **Done:** `.composer textarea` and `.message p` both on `--t-body` /
+      `--t-body-lh`. Heights re-derived from the step rather than scaled:
+      `min-height: 2.875rem` (one 28.9px line + 17.1px padding),
+      `max-height: 10.125rem` (the same five-line clip). `support.module.css`
+      was already correct and is untouched.
       **Do:** Set `.composer textarea { font-size: var(--t-body); line-height: var(--t-body-lh); }` and raise `min-height`/`max-height` proportionally so the auto-grow at `AskTheLionChat.tsx:180-185` still clips at roughly the same line count — carry the new line-height …
       `components/chat/ask-the-lion-chat.module.css:220`, `components/chat/ask-the-lion-chat.module.css:514-528`, `components/support/support.module.css:27-38`
       `medium` · `interaction` · `trivial effort`
 
-- [ ] `cross-cutting-identity-band-17px-exit`
+- [x] `cross-cutting-identity-band-17px-exit`
       the sole exit is a 17px-tall target
+      **Done:** `.wordmark, .identityExit { display: inline-flex;
+      align-items: center; min-height: 44px; }` added inside the existing
+      `@media (max-width: 900px)` block. Paired with the padding reduction the
+      finding asked to weigh: the 44px boxes supply the breathing room the
+      band padding used to, so `padding-top`/`padding-bottom` drop to 0.4rem
+      and the row gap to 0. Net cost ~12px of band height, not the ~27px
+      filed for one link or the ~46px both would have cost unpaired.
       **Do:** In the `@media (max-width: 900px)` block at `sections.module.css:651` — where the band already wraps and `.identityExit` already gets `flex-basis: 100%` — add `.wordmark, .identityExit { display: inline-flex; align-items: center; min-height: 44px; }`. …
       `components/sections/sections.module.css:270-309`, `components/sections/sections.module.css:684-690`, `components/sections/SectionPage.tsx:130-145`, `components/sections/DocPage.tsx:40-51`
       `medium` · `accessibility` · `trivial effort`
 
-- [ ] `cross-cutting-chat-and-archive-touch-targets`
+- [x] `cross-cutting-chat-and-archive-touch-targets`
       nine controls at 15–42px
+      **Done:** `.retry`/`.newThread` inline-flex at 44px, `.composer button`
+      to 2.75rem, `.starter` to 44px. Both filed exceptions honoured:
+      `.copy` keeps its baseline box and grows through a `::after` overlay,
+      `.citationChip` stays a circle. The chip needed one thing the finding
+      did not name — an inset overlay alone would have covered its
+      neighbour's circle, since the overlay bleeds 8px and the gap was 4.8px.
+      The circle goes to 1.75rem and `.citationRow`'s gap to 1rem, so two
+      overlays meet exactly and the target is a true 44×44. Archive language
+      chips: `display: inline-flex; align-items: center; min-height: 44px`,
+      inline padding to 0.7rem so they are not tall slivers, and `.languages`
+      from `baseline` to `center` — `min-height` does nothing on an inline
+      element, so the display change the fix implies forces the alignment.
       **Do:** `.retry`, `.newThread` → `min-height: 44px; display: inline-flex; align-items: center;`; `.composer button` → 2.75rem to match `.close`; …
       `components/chat/ask-the-lion-chat.module.css:189-200`, `components/chat/ask-the-lion-chat.module.css:301-313`, `components/chat/ask-the-lion-chat.module.css:381-394`, `components/chat/ask-the-lion-chat.module.css:433-447`, `components/chat/ask-the-lion-chat.module.css:532-542`, `components/archive/archive.module.css:182-208`
       `medium` · `accessibility` · `small effort`
 
-- [ ] `cross-cutting-chat-never-got-v2`
+- [x] `cross-cutting-chat-never-got-v2`
       the chat surface is the last V2 holdout
+      **Done:** Both files on the tokens. No hex literal survives outside a
+      comment, no size below `--t-data`, no tracking above 0.08em, no Cinzel.
+      `.header h2` → `--face-display`/`--t-h3`, `.welcome p` → `--t-h2`, both
+      sentence case. Two departures from the filed wording. `.eyebrow`'s
+      three-word copy is set in sentence case rather than cut to two words —
+      the word that would have gone is "AI", and the disclosure is worth more
+      than the tracking. And the launcher label is `--face-text`/`--t-caption`,
+      not the filed `--face-data`/`--t-data`: `launcherLabel()` composes
+      phrases up to five words, and `.ai/DESIGN-V2.md:151-153` says the mono
+      face is "never for sentences". `--t-caption` is the UI voice at the
+      scale a floating cue wants, and it clears the floor either way.
+      Consequence: the ≤719px dock needed more than the same treatment —
+      `nowrap` at the larger step put the longest label through the side of
+      the pill, so it wraps there now (two lines fit inside the 55px row).
       **Do:** Give these two files the Phase 3 pass the ten routes got: replace every literal with the nearest of `--ink-hi`/`--ink`/`--ink-lo`/`--gold`/`--gold-hi`; …
       `components/chat/ask-the-lion-chat.module.css:47-64`, `components/chat/ask-the-lion-chat.module.css:144-158`, `components/chat/ask-the-lion-chat.module.css:167-187`, `components/chat/ask-the-lion-chat.module.css:433-473`, `components/chat/particle-chat-launcher.module.css:159-192`, `components/chat/particle-chat-launcher.module.css:296-318`
       `medium` · `typography` · `medium effort`
 
-- [ ] `cross-cutting-forms-die-without-js`
+- [x] `cross-cutting-forms-die-without-js`
       both `/support-us` forms discard a submission
+      **Done:** aria fix shipped as filed — `aria-invalid` and a shared
+      `aria-describedby` on `#report-url` and `#report-body`, an id on the
+      guard, and focus moved to the first field that would satisfy it. For
+      the no-JS tier both forms get a `<noscript>` that also hides the submit
+      button, because a notice beside a button that still reloads the page
+      leaves the lie in place. The volunteer noscript names `VOLUNTEER_INBOX`
+      — the same address its handler composes, so nothing is invented.
+      **Half undone:** the report form has no address to name. The site owns
+      no reports inbox, and `VOLUNTEER_INBOX` is another desk's, itself a
+      flagged placeholder. Its noscript says plainly that nothing typed can
+      reach the desk; give it a real address when one exists.
       **Do:** Ship the aria fix as filed — correct and self-contained: `aria-invalid={touched && !hasContent}` on `#report-url` and `#report-body`, an id on the error `<p>` referenced by `aria-describedby` from both, and focus moved to `#report-url` when the guard trips. …
       `components/support/ReportClaimForm.tsx:102`, `components/support/ReportClaimForm.tsx:127-129`, `components/support/VolunteerInterestForm.tsx:55`, `components/support/VolunteerInterestForm.tsx:112`
       `medium` · `accessibility` · `medium effort`
 
 - [ ] `cross-cutting-inner-scroll-chrome-budget`
       every reading route is its own scroll container
+      **Deferred, 2026-08-27.** The finding's own recommendation is to drop
+      the cheap half and do the Phase 2 remainder, which is `globals.css`,
+      `sections.module.css`, the Brief, `ReadingProgress.tsx` and
+      `SectionToc.tsx` moving together — the `:has()` inversion has to keep
+      its specificity attribute-for-attribute or the intro lock stops winning
+      by source order. That is one change or none, and it cannot be split
+      across agents editing the same files. The `--chat-dock-h: 5.25rem`
+      centralisation is not worth doing alone either: two of its three call
+      sites are `home.module.css` and `geopolitical-brief.module.css`, so a
+      partial application leaves the literal in the files that most need it.
       **Do:** Drop the filed "cheap and immediate" half: a `--chat-dock-h` derived from 57px would under-reserve and put text under the dock, the exact failure `sections.module.css:38-41` warns about, and `CHAT_DOCK_PX = 84` is asserted in …
       `app/globals.css:126-132`, `components/sections/sections.module.css:43-52`, `components/sections/sections.module.css:684-690`, `components/briefs/geopolitical-brief.module.css:37-48`, `components/briefs/geopolitical-brief.module.css:747-800`
       `medium` · `responsive` · `large effort`
@@ -545,18 +607,36 @@ session can take the top of a section and stop anywhere.
 
 - [ ] `cross-cutting-breakpoint-sprawl`
       ten widths against a four-width canon
+      **Part (3) done, (1) and (2) deferred, 2026-08-27.** The canon is now
+      restated at the top of `content.module.css` and `sections.module.css`
+      with the rule that a fifth width earns its place in a comment beside
+      it, so it is greppable rather than remembered. (1) `october-7:103`'s
+      `46rem` and (2) `we-are:183` / `israels-story:166` all live under
+      `app/<section>/`, which this pass was not permitted to edit. Each is a
+      one-line change and none blocks the others.
       **Do:** Do not apply the filed sweep. Leave `fake-resistance:201`, `october-7:64`, `our-heroes:176` and `war-update:204` exactly as they are — two carry written or documented justifications and two are padding-only. Three things are worth doing. …
       `components/home/home.module.css:487-490`, `app/we-are/page.module.css:183`, `app/israels-story/page.module.css:166`, `app/october-7/page.module.css:103`
       `low` · `consistency` · `small effort`
 
-- [ ] `cross-cutting-figurerow-three-up-on-phones`
+- [x] `cross-cutting-figurerow-three-up-on-phones`
       .figures is repeat(3, minmax(0, 1fr)) with no collapse until max-width: 359px.
+      **Done:** a `@media (max-width: 640px)` block in the shared component,
+      placed after the 719px block so it wins where both apply, carrying the
+      collapse and the top-border treatment. The 359px `.figures` rules are
+      deleted; `.publicationMeta` stays there. October 7's own override is
+      untouched — it is redundant for the grid but still owns its `dt`.
       **Do:** Move the collapse into the shared component as its own `@media (max-width: 640px)` block, matching the threshold October 7 already chose: `.figures { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; …
       `components/content/content.module.css:428-436`, `components/content/content.module.css:987-997`, `components/content/content.module.css:1025-1036`, `app/october-7/page.module.css:63-75`
       `low` · `responsive` · `small effort`
 
-- [ ] `cross-cutting-launcher-advertises-offline-desk`
-      .label runs attentionCue 7.2s … infinite while the desk is offline: the capability probe hits GET /api/v1/chat/threads, gets a 500 because no database is provisioned, …
+- [x] `cross-cutting-launcher-advertises-offline-desk`
+      .label runs attentionCue 7.2s … infinite while the desk is offline:
+      **Done:** `infinite` → `3`, as the finding recommends, and the probe was
+      deliberately *not* hoisted into `ChatOpenProvider` — that fires a
+      request on first paint of every route, ~1,177 prerendered archive pages
+      included, to decide a CSS property. The animation has no `fill-mode`,
+      so after the third pass the label reverts to its `opacity: 0` base and
+      hover/focus still override with `animation: none`. the capability probe hits GET /api/v1/chat/threads, gets a 500 because no database is provisioned, …
       **Do:** Do **not** hoist the probe into `ChatOpenProvider` as filed: that fires a `GET /api/v1/chat/threads` on first paint of every route, including ~1,177 prerendered archive pages, to decide a decorative animation — a network request per page view for a CSS …
       `components/chat/particle-chat-launcher.module.css:182`, `components/chat/particle-chat-launcher.module.css:242-264`, `components/chat/AskTheLionChat.tsx:136-150`, `components/chat/AskTheLionChat.tsx:485-489`, `components/chat/AskTheLionChat.tsx:516-520`
       `low` · `interaction` · `small effort`

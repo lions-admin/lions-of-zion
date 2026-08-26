@@ -1,6 +1,15 @@
 /*
  * Section pages — the broadsheet over the scan (`.ai/DESIGN-V2.md`, Phase 2).
  *
+ * Breakpoints. The canon, restated from `home.module.css` — 1220 (rails),
+ * 900 (shell to one column), 719 (phone), 359 (the 320px floor) — because it
+ * lived in one file's comment and was enforced by memory. It is repeated
+ * wherever a stylesheet is entitled to open a media query. A fifth width has
+ * to earn its place in a comment beside it, giving the measured width at
+ * which the thing it governs stops working. This file uses three of the four
+ * and adds none. A custom property cannot be read inside a media query, so a
+ * comment is the only greppable form this rule can take.
+ *
  * The shell this replaced put a 15rem emblem rail beside a 44rem panel and
  * centred the pair, which pushed the reading column right of centre, left the
  * rail floating in a dark void, and spent ~320px of every page on ceremony
@@ -705,15 +714,37 @@
   }
 
   .identityBand {
-    padding-top: 1.15rem;
+    /* The padding and the row gap shrink because the two links below now
+       carry 44px boxes, and those boxes supply the same breathing room the
+       padding used to. Measured: 13.6px sits above and below each link's
+       text inside its own box, so 0.4rem of band padding lands the wordmark
+       20px from the top (it was 18.4px) and the rule 20px under the exit
+       (it was 20px). Net cost of the whole change is ~12px of band height. */
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
     margin-bottom: 1.75rem;
-    gap: 0.5rem 0.85rem;
+    gap: 0 0.85rem;
   }
 
   /* The band wraps here, and a leading separator orphaned at the start of a
      wrapped line reads as a typo. It only earns its place inline. */
   .identitySep {
     display: none;
+  }
+
+  /* `SectionPage` deliberately ends where the content ends, so this band is
+     the only way out of a file — and with JavaScript off it is the only
+     navigation on the page at all. Both links were bare inline anchors at
+     `--t-data`, i.e. 16.7px stripes. Growing the flex box rather than adding
+     padding keeps the gold text on the band's own baseline. This is the 44px
+     convention `.askCta`, `.share` and the orbit links already keep, not a
+     WCAG AA conformance fix — the Spacing exception means these never failed
+     2.5.8. */
+  .wordmark,
+  .identityExit {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   .identityExit {

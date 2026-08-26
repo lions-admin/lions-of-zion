@@ -51,6 +51,32 @@
      two words or fewer. Anything longer is sentence case. */
   --t-data-tracking: 0.08em;
 
+  /* ── Spacing — eight steps, tuned to the body line box ──────────────────
+     The V2 pass collapsed type and colour and left spacing alone, so the
+     three files that carry the reading system between them shipped 37
+     distinct rem values, 15 of them inside the 0.2–0.9rem band. These steps
+     are the vocabulary now, the same way the type steps are.
+
+     The ramp is anchored on the body line box — 1.0625rem × 1.7 = 28.9px —
+     so vertical space lands on the rhythm the text already sets rather than
+     beside it: --sp-4 is a third of it, --sp-6 is a little over two thirds,
+     --sp-7 is roughly one line, --sp-8 a line and a half. */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4.5rem;
+
+  /* The one named editorial value: the gap between sibling paragraphs. It is
+     not a step because it is not a choice a page gets to make — hand-authored
+     prose in a SectionBlock and a paragraph rendered by a content component
+     are the same paragraph to a reader, and before this they were 1.15rem and
+     0.7rem apart for the same job. */
+  --flow: 1.15rem;
+
   /* ── Color ──────────────────────────────────────────────────────────────
      Gold is brand and unchanged. The neutrals are a real scale: three inks,
      each with a job, replacing twelve drifting grays.
@@ -107,12 +133,18 @@
     repeating-linear-gradient(0deg, rgba(214, 226, 240, 0.038) 0 1px, transparent 1px 9px);
 
   /* ── Compatibility aliases ──────────────────────────────────────────────
-     `sections.module.css`, `geopolitical-brief.module.css`,
-     `support.module.css` and `share-verified.module.css` read `--loz-*` and
-     are owned by other phases of this redesign. Keeping the old names
-     pointing at the new values means those files pick up the corrected
-     palette immediately and get cleaned up in their own phase, instead of
-     this one breaking them mid-flight. Remove once Phase 3 lands. */
+     One consumer, not the four this comment used to name: `grep -rn
+     'var(--loz-'` returns 7 hits and every one is in `content.module.css`
+     :25-34, where they survive as the `var(--loz-*, literal)` fallback
+     pattern that keeps the component library renderable on its own. The
+     files formerly listed here — `sections.module.css`,
+     `geopolitical-brief.module.css`, `support.module.css` and
+     `share-verified.module.css` — read the V2 names directly now.
+
+     Three of these ten have zero readers even there: `--loz-blue-dim`,
+     `--loz-ember-dim` and `--loz-body`. The whole block goes when
+     `content.module.css:25-34` is repointed at the V2 names, which do not
+     collide for `--ground`/`--gold`/`--gold-hi` the way the inks did. */
   --loz-ground: var(--ground);
   --loz-gold: var(--gold);
   --loz-gold-bright: var(--gold-hi);

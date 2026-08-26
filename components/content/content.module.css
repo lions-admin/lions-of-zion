@@ -31,13 +31,20 @@
 
 .tokens {
   /* Local shorthand over the global scale. Fallbacks keep the components
-     renderable if they are ever mounted somewhere globals.css is not. */
-  --ground: var(--loz-ground, #070b14);
+     renderable if they are ever mounted somewhere globals.css is not.
+
+     The three inks are deliberately absent: they used to be restated here as
+     raw hexes, which made this file a second owner of the neutral scale —
+     change `--ink` in globals.css and the shell's prose moved while every
+     Timeline body, card body and source label stayed behind. They are not
+     aliased either, because `--ink: var(--ink, …)` on the same element is a
+     custom-property cycle and computes to guaranteed-invalid. They simply
+     inherit from `:root`, which `app/layout.tsx` loads on every route. */
+  /* The literal is true black because the ground is: #070b14, the navy this
+     used to fall back to, was retired by owner decision on 2026-08-26. */
+  --ground: var(--loz-ground, #000000);
   --gold: var(--loz-gold, #c9a24b);
   --gold-hi: var(--loz-gold-bright, #efd79a);
-  --ink-hi: #e9eef6;
-  --ink: #b9c5d4;
-  --ink-lo: #8494a8;
   --blue: var(--loz-blue, #57a7d9);
   --blue-peak: var(--loz-blue-peak, #9adfff);
   --ember: var(--loz-ember, #a85a61);
@@ -86,9 +93,14 @@
 
 /* ── VerificationBadge ──────────────────────────────────────────────────── */
 
-/* The one sanctioned exception to the ≤2-word uppercase rule: a badge is a
-   discrete status stamp, not prose, and reads as one at --t-data. Its longest
-   value ("Out of context") stays legible at this size and tracking. */
+/* This file used to declare a sanctioned exception to the ≤2-word uppercase
+   rule here, on the reasoning that a badge is micro-chrome. It is retired: a
+   verdict is the least micro thing on the site — it is the sentence the whole
+   fact-check exists to deliver — and the exception was granted assuming the
+   stamp did visual work the colour ramp does not do (five of the nine
+   assessments sit inside a 17.3° hue band). Set as what it is: a short phrase
+   at caption size, sentence case, no tracking. "Out of context" reads as
+   words rather than as a code. */
 .badge {
   composes: tokens;
   display: inline-flex;
@@ -98,10 +110,8 @@
   max-width: 100%;
   color: var(--badge-color, var(--blue-peak));
   font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  text-transform: uppercase;
+  font-size: var(--t-caption, 0.8125rem);
+  line-height: var(--t-caption-lh, 1.5);
 }
 
 .badge i {
@@ -114,10 +124,10 @@
   box-shadow: 0 0 10px var(--badge-glow, rgba(87, 167, 217, 0.5));
 }
 
+/* Rides the badge's own size and casing now; the 0.04em it used to carry
+   only existed to sit beside 0.08em of tracked capitals. */
 .badgeConfidence {
   color: var(--ink-lo);
-  letter-spacing: 0.04em;
-  text-transform: none;
 }
 
 /* Assessment ramps are semantic data colour, not text hierarchy. Each value
@@ -454,15 +464,20 @@
   border-left: 1px solid var(--line);
 }
 
-/* --t-h2 rather than --t-display: this is a three-up data row inside a
-   reading column, not a hero. Pages that want a monumental figure (October 7)
-   raise it in their own module. */
+/* A pulled figure is emphasis, not a heading. At --t-h2 it was the same
+   token, face and weight as `.blockHeading h2`, differing only in colour, so
+   the row read as a third heading level — 1.91:1 against its own caption
+   where a broadsheet pulls a figure at 3–5×. --t-display is the next step on
+   the scale and takes it to 3.38:1 at the clamp's ceiling.
+
+   Pages that want a monumental figure (October 7) still raise it in their own
+   module; that override is more specific and is unaffected. */
 .figures dt {
   color: var(--gold-hi);
   font-family: var(--display);
-  font-size: var(--t-h2, 1.55rem);
-  font-weight: var(--t-h2-weight, 500);
-  line-height: var(--t-h2-lh, 1.3);
+  font-size: var(--t-display, 2.1rem);
+  font-weight: var(--t-display-weight, 600);
+  line-height: 1;
   overflow-wrap: break-word;
 }
 
@@ -503,7 +518,10 @@
   position: relative;
   padding: 0 0 2.1rem 1.9rem;
   border-left: 1px solid var(--rail);
-  scroll-margin-top: 6rem;
+  /* One offset for every anchored thing on a dossier — see `--anchor-offset`
+     in sections.module.css. The 6rem this replaced had no sticky element
+     behind it to clear. The fallback is for a host that is not that shell. */
+  scroll-margin-top: var(--anchor-offset, 2rem);
 }
 
 .timeline[data-variant='history'] .timelineEntry {
@@ -593,8 +611,11 @@
   margin: 0;
 }
 
+/* Full-measure body-size prose that abuts hand-authored SectionBlock prose in
+   the same column, so it takes the same paragraph gap — see `--flow`. It was
+   0.7rem against the shell's 1.15rem for the identical job. */
 .timelineBody p + p {
-  margin-top: 0.7rem;
+  margin-top: var(--flow, 1.15rem);
 }
 
 .timelineSources {
@@ -726,6 +747,12 @@
   --card-accent: var(--gold);
   --card-line: var(--gold-line);
   position: relative;
+  /* A card's reading measure is set by its grid track, not by the viewport —
+     the same card class is 2-up on `/we-are` and the front page and 1-up on
+     `/support-us` — so `.cardBody` below asks the card how wide it is rather
+     than asking the screen. Every grid that holds one is track-sized
+     (`minmax(0, 1fr)`), so inline-size containment costs nothing. */
+  container-type: inline-size;
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -816,6 +843,25 @@
   margin-top: 0.7rem;
 }
 
+/* A card wide enough to hold a real measure gets the real reading size.
+   Promoting `.cardBody` outright was the obvious fix and it makes the common
+   case worse: a 2-up card is ~330px, less 48px of padding ≈ 282px, which at
+   17px is ~33ch — tighter than the ~40ch being objected to. 32rem is where
+   the card's own content box reaches ~464px, about 45ch at --t-body; below it
+   --t-small is doing the job it is documented for. Today that is
+   `/support-us`'s single-column `.skillGrid`, and the front-page cards once
+   they stack to one column on a wide-enough phone. */
+@container (min-width: 32rem) {
+  .cardBody {
+    font-size: var(--t-body, 1.0625rem);
+    line-height: var(--t-body-lh, 1.7);
+  }
+
+  .cardBody p + p {
+    margin-top: var(--flow, 1.15rem);
+  }
+}
+
 .cardFooter {
   margin-top: 1.15rem;
   padding-top: 0.85rem;
@@ -878,8 +924,12 @@
   line-height: var(--t-small-lh, 1.65);
 }
 
+/* No private paragraph colour. The ember left border and the 90deg wash
+   already say which panel this is; #c8b6b0 was a third signal saying the same
+   thing, off the three-ink scale, and dimmer for it — 9.92:1 over this panel
+   against --ink's 11.05:1. */
 .claimPanel .claimRecordBody {
-  color: #c8b6b0;
+  color: var(--ink);
 }
 
 .recordPanel .claimRecordBody {
@@ -891,7 +941,7 @@
 }
 
 .claimRecordBody p + p {
-  margin-top: 0.7rem;
+  margin-top: var(--flow, 1.15rem);
 }
 
 /* ── SensitiveContent ───────────────────────────────────────────────────── */
@@ -930,6 +980,9 @@
   text-transform: uppercase;
 }
 
+/* "View — contains difficult material" is a sentence a reader has to weigh,
+   and it was set as 11.5px tracked capitals. Corrected here in the library
+   before the October 7 gate ever mounts it; the copy itself is not final. */
 .sensitiveButton {
   min-height: 44px;
   padding: 0 1.1rem;
@@ -937,10 +990,8 @@
   background: transparent;
   color: var(--gold-hi);
   font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  text-transform: uppercase;
+  font-size: var(--t-caption, 0.8125rem);
+  line-height: var(--t-caption-lh, 1.5);
   cursor: pointer;
   transition: border-color 160ms ease, background-color 160ms ease;
 }
@@ -1258,6 +1309,19 @@
 
   .figures {
     gap: 0.8rem;
+  }
+
+  /* The three-up row survives down to 360px, where each column is only about
+     100px wide. --t-display bottoms out at 2.1rem, and the Brief's widest
+     figure ("NIS 5.5B") is ~128px at that size, so it would break mid-token
+     on `overflow-wrap` — the same failure a real-Chrome review caught on
+     October 7's monument, which is why that one carries `white-space:
+     nowrap`. Above this breakpoint the column is ~193px and up and the
+     promotion holds. */
+  .figures dt {
+    font-size: var(--t-h2, 1.55rem);
+    font-weight: var(--t-h2-weight, 500);
+    line-height: var(--t-h2-lh, 1.3);
   }
 
   .figures > div + div {

@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import lionReference from '@/assets/reference/crowned-lion-particle-reference.png';
 import { ChatParticleCanvas } from './ChatParticleCanvas';
 import { AskTheLionChat } from './AskTheLionChat';
-import { XPublicAuthControl } from './XPublicAuthControl';
 import { launcherLabel } from './chat-context';
 import { useChatOpen } from './chat-open-context';
 import {
@@ -152,9 +151,6 @@ export function ParticleChatLauncher() {
         />
       ) : null}
       {chatOpen ? <AskTheLionChat onClose={closeChat} /> : null}
-      <div className={styles.authControl}>
-        <XPublicAuthControl />
-      </div>
       <div className={styles.launcherRow}>
         <span className={styles.label} aria-hidden="true">
           <span>{contextualLabel}</span>

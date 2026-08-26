@@ -8,21 +8,6 @@
   transition: opacity 350ms ease, transform 350ms ease, visibility 0s linear;
 }
 
-.authControl {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 0.75rem);
-  z-index: 4;
-}
-
-@media (max-width: 719px) {
-  .authControl {
-    right: auto;
-    left: 0.65rem;
-    bottom: calc(100% + 0.6rem);
-  }
-}
-
 .backdrop {
   position: fixed;
   inset: 0;

@@ -1,9 +1,23 @@
-# Dev-only symlinks to the archive integration packages, created by
-# `scripts/import-archive-package.mjs --link-assets`. They point outside the
-# repository, so a CLI deploy tries to follow them and fails with a recursive
-# copy error. Production serves this media from NEXT_PUBLIC_ARCHIVE_CDN, never
-# from public/, so nothing is lost by excluding them.
+# Local agent, audit and design-sync material is not part of the application.
+.ai/
+.agents/
+.codex/
+.design-sync/
+.ds-sync/
+ds-bundle/
+screenshots/
+coverage/
+
+# Local-only data and developer artifacts.
+.env*
+!.env.example
+*.tsbuildinfo
+TODOS.md
+tests/
+
+# Dev-only symlinks to the archive integration packages. Production serves
+# this media from NEXT_PUBLIC_ARCHIVE_CDN, never from public/.
 public/archive
 
-# Upload resume state for scripts/upload-archive-assets.mjs.
+# Upload resume state for archive asset scripts.
 .blob-upload

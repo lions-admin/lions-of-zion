@@ -10,167 +10,34 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
-## 2026-08-26 — The repository is public, not private; a push is itself publication
+## 2026-08-26 — Vercel production uses OIDC AI access and no Google Vertex
 
-`CLAUDE.md` stated "Source is the private `lions-admin/lions-of-zion`
-repository". That was wrong. `gh repo view lions-admin/lions-of-zion` reports
-`visibility: PUBLIC`, `isPrivate: false`.
+The deployed AI path is Vercel AI Gateway with the short-lived Vercel OIDC
+credential. A static provider key or Google Vertex route would add a secret and
+another billing surface without a requirement in this project. The application
+budget is capped at $4.50 and the Gateway cap at $5, so a request is refused
+before the next call once the application ceiling is reached.
 
-This matters beyond a doc correction. The Fake Resistance integration was
-planned around a two-stage model — merge freely, gate the deploy — on the
-reasoning that "merging to `main` publishes nothing." Half of that holds: git
-auto-deploy is not connected, so the *site* ships only on a manual Vercel
-operation. The other half does not. **Pushing to origin publishes the source
-to anyone**, so the research packets, the case prose, and the editorial layer
-became publicly readable the moment the branch was pushed, ahead of any
-deploy.
+## 2026-08-26 — Preview is isolated from Production at the data boundary
 
-The consequence for future work: content gated on an editorial or legal
-decision is gated on the **push**, not only on the deploy. Do not plan another
-staged release on the assumption that committed-but-undeployed is private.
+Preview uses its own Neon branch and Blob stores rather than relying on a
+runtime convention. This makes a preview deploy unable to write Production
+content, archives or queues by accident, and keeps migrations and imports
+reviewable before promotion.
 
-## 2026-08-26 — Cases are `ready`, not `published`, until the site actually ships
+## 2026-08-26 — Archive media stays in a dedicated Blob store
 
-The owner reported legal review of the Fake Resistance case files complete on
-2026-08-26, clearing the last gate. `EDITORIAL_STAGE` advances the cases to
-`ready` — deliberately not to `published`.
+The 2,018 archive objects are kept in `lions-of-zion-archive`, separate from
+the RSS ingestion stores. The separation prevents a cleanup or retention rule
+for fetched RSS bytes from touching the historical archive, while the public
+CDN prefix keeps media delivery out of the application request path.
 
-Deployment here is a separate manual Vercel operation, so merging to `main`
-makes nothing public. A case reading `published` while the site has not
-shipped would be a record asserting something untrue about its own state, in
-a dataset whose entire subject is claims that outrun what is behind them. The
-packet contract agrees: `published` expects a `publication` block with a
-`published_at` and a `canonical_url`, and neither exists before a deploy.
+## 2026-08-26 — Production deploys remain an explicit CLI action
 
-**Advance to `published`, and fill in each packet's `publication` block, when
-the deploy actually runs** — not in anticipation of it.
-
-## 2026-08-26 — The editorial pass is a data layer applied at the seam, not an edit to the imported research
-
-The Fake Resistance research arrives from an external delivery that is
-re-imported by script. Human judgment about it therefore cannot live in the
-imported JSON: a re-import would silently revert it. It lives in
-`lib/content/fake-resistance-editorial.ts` and is applied by `getCase()`, so
-the two layers stay separable — the importer says what the research found,
-this layer says what this site publishes and how.
-
-It carries four kinds of decision, and each is written down rather than
-enacted silently:
-
-- **Technique tags** (30 findings). A tag is only correct if the finding's own
-  wording establishes it, which is why several findings that *feel* like a
-  technique carry none. That a commentator holds a real medical degree is an
-  identity fact; it becomes authority laundering only if a finding documents
-  the credential carrying a claim, and none here does.
-- **Withheld findings** (2), each with a written reason. Both are low
-  confidence and would have tied a named living person to an allegation on
-  thinner evidence than this desk publishes on. They are filtered at the seam
-  and **disclosed on the page** — a section that documents other people
-  publishing thin claims about named individuals does not get to hide its own
-  reasoning about the same thing.
-- **Per-case framing and guards.** The frame states what a file is about; the
-  guard states the limit the research itself insisted on. Two cases must carry
-  a guard or the site would be publishing a frame its own evidence rejects,
-  and a test enforces exactly that.
-- **A glossary.** The reports refer to themselves as `case-05`, `groups
-  01/03`, `the seed five`, `NAMED_PERSON`, `relationship_evidence.csv`.
-  Precise inside a nine-packet program; on a public page it is the site
-  talking to itself. The rewrite changes no claim, only the label a claim
-  uses to point at another part of the research. It is one rule with a
-  captured number run rather than an enumeration of pairs — the enumeration
-  was tried first and a test caught "cases 01–02" reaching a page.
-
-**The playbook's examples are derived, never listed.** A chapter asks which
-*published* findings carry its tag, so a held case or a withheld finding
-disappears from the playbook automatically and a chapter can never point at
-something the site is not showing.
-
-**`EDITORIAL_STAGE` is what advances a case's lifecycle**, not the importer.
-Re-importing materially changed research should set it back to
-`editorial_review`: a stale pass silently claiming to be current is the
-failure that field exists to prevent.
-
-**One repair to the source data, made loudly.** Two entity rows in the
-delivery have their columns shifted one place — a sentence in `handle`, `US`
-in `platform`, `confirmed` in `profile_url` — which the packet validator
-passed because those columns declare no enum. `repairShift` in the importer
-realigns them and prints a note each time it fires. It triggers only on that
-exact signature (an identity-status value sitting in `profile_url` while
-`identity_status` is empty) and refuses to guess at anything else, because
-silently "correcting" research data is how a dataset stops meaning what it
-says.
-
-## 2026-08-26 — Fake Resistance is presented as a playbook of techniques, and cases 04/05 publish inside that frame
-
-Two owner decisions about how the research section presents, taken together
-because they are one decision about frame.
-
-**The section leads with method, not with a network diagram.** The manipulation
-techniques get their own page — `/fake-resistance/playbook`, one chapter per
-technique with the move, the psychology it exploits, where this site documents
-it, and what a reader can check themselves. The case files then show the moves
-running. A reader who learns a technique keeps it after any single correction
-expires, which a roster of accounts does not give them.
-
-Three of a chapter's four parts are editorial writing about influence
-operations in general: they name techniques, never people. That is what lets
-the playbook publish ahead of the case files and their gates, and it is why
-the page carries no accusation. The fourth part, "documented on this site",
-is the only one tied to evidence, and it obeys one rule: **a technique may not
-claim an example it cannot show.** Six of the nine chapters currently say
-plainly that no exhibit here documents them yet rather than reaching for a
-plausible-sounding one. A page about manufactured evidence does not get to
-manufacture its own.
-
-**Cases 04 and 05 publish, framed as the perception-engineering layer.** This
-supersedes the integration plan's recommendation to hold them or run them as
-neutral "context files". The frame is the supply side of the machine: urgency
-formats and card factories on one side, and on the other the credentialed,
-documented one-sided journalism that the influencer accounts mine for
-authority. What does *not* change is the evidence discipline, and it is the
-discipline that makes the frame defensible rather than reckless:
-
-- Every entity keeps the classification the research gave it. Protected
-  categories — on-scene journalists, document-based analysts, the
-  evidence-preservation archive — stay classified as what they are.
-- The packets' own disconfirming findings render at full weight, including
-  that the corridor is *not* coordinated with the machines (Finkelstein →
-  seeds: zero) and that the mega-amplifiers relayed none of the tested posts.
-- Identity grades are never upgraded. Two entities arriving with no grade at
-  all default to `unresolved`, the weakest one: a missing grade rendering as
-  blank would read as "no doubt here", and defaulting downward can only ever
-  understate.
-
-**Naming policy, confirmed as proposed.** A living person is tied to an
-allegation only where the packet grades the claim `verified` at high
-confidence **and** the same conduct is already covered by mainstream reporting
-in that case's own `sources.csv`. Otherwise the page carries role labels and
-handles. The site aggregates what is already public rather than accusing
-first, which is the load the right-of-reply process would otherwise have
-carried (see the entry below).
-
-## 2026-08-26 — The Fake Resistance research publishes without a right-of-reply process, by owner decision
-
-The nine-packet influence-network research delivery (plan:
-`docs/fake-resistance-integration.md`) ships at lifecycle status
-`right_of_reply`, and its synthesis recommends sending case summaries to
-eight named principals before release. The site owner decided the site will
-not run that process. The stage is recorded as **skipped by decision, not
-completed** — no page may claim subjects were approached for comment.
-
-What carries the weight instead: the naming policy ties any
-person-to-allegation statement to claims the packets grade `verified` at
-high confidence **and** to conduct already covered by mainstream reporting
-in that case's own `sources.csv` (NYT, Bloomberg, WaPo, NCRI…), so the site
-aggregates what is already public rather than accusing first; a legal-review
-pass of the naming cases remains a blocking gate, as does the per-case
-editorial pass. `CorrectionHistory` and the contract's `right_of_reply`
-source role stay wired, so a response arriving after publication files like
-any correction.
-
-A later session that finds the packets' own `right_of_reply` status, or the
-synthesis's recommendation, should not "restore" the contact step — it was
-declined deliberately, not overlooked.
+The GitHub integration is not the deployment trigger for this project. A push
+to the repository therefore cannot silently publish a new Production build;
+the deploy is inspected, smoke-tested and aliased deliberately through the
+Vercel CLI, with rollback remaining a deployment-level operation.
 
 ## 2026-08-26 — `app/loading.tsx` is removed: it hid every page from readers without JavaScript
 

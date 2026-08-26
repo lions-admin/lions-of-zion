@@ -1,10 +1,9 @@
 import "server-only";
 
-import { db } from "@/server/db/client";
-import { embedText } from "@/server/core/ai/gateway";
+import { databaseIdentity, db } from "@/server/db/client";
+import { assertWithinBudget, embedText } from "@/server/core/ai/gateway";
+import { ai, recordEmbeddingRun } from "@/server/modules/ai";
 import { searchService, type SearchService } from "./service";
-
-let bound: SearchService | undefined;
 
 /**
  * Lazily bound, so importing this module does not demand a DATABASE_URL or an
@@ -17,7 +16,14 @@ let bound: SearchService | undefined;
  * than presenting lexical results as the whole answer.
  */
 export const search = (): SearchService =>
-  (bound ??= searchService(db(), { embed: async (text) => (await embedText(text)).embedding }));
+  searchService(db(), {
+    embed: async (text) => {
+      await assertWithinBudget((since) => ai().spendSince(since));
+      const result = await embedText(text);
+      await recordEmbeddingRun(db(), { ...result, actorLabel: databaseIdentity() });
+      return result.embedding;
+    },
+  });
 
 export { searchService, type SearchService, type Embedder } from "./service";
-export { projectItem, projectEvidence, isIndexable, type Projection } from "./projection";
+export { projectItem, projectEvidence, projectPublication, isIndexable, type Projection } from "./projection";

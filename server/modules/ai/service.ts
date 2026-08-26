@@ -81,6 +81,7 @@ export async function recordChatRun(
     model: string;
     inputTokens: number | null;
     outputTokens: number | null;
+    costUsd: number;
     latencyMs: number;
     actor: Actor;
   },
@@ -88,9 +89,10 @@ export async function recordChatRun(
   const row = await aiRepo(tx).recordRun({
     kind: "chat",
     model: input.model,
-    modelProfile: "reasoning",
+    modelProfile: "fast",
     inputTokens: input.inputTokens,
     outputTokens: input.outputTokens,
+    costUsd: input.costUsd.toFixed(9),
     latencyMs: input.latencyMs,
     status: "ok",
     /* Chat answers from the search projection, which never contains
@@ -98,6 +100,32 @@ export async function recordChatRun(
     inputDataClass: "public",
     actorLabel: input.actor.label,
     actorUserId: input.actor.userId ?? null,
+  });
+  return row.id;
+}
+
+export async function recordEmbeddingRun(
+  database: unknown,
+  input: {
+    model: string;
+    inputTokens: number;
+    inputHash: string;
+    costUsd: number;
+    actorLabel: string;
+  },
+): Promise<string> {
+  const row = await aiRepo(database).recordRun({
+    kind: "embed",
+    model: input.model,
+    modelProfile: "embedding",
+    inputTokens: input.inputTokens,
+    outputTokens: 0,
+    costUsd: input.costUsd.toFixed(9),
+    status: "ok",
+    inputHash: input.inputHash,
+    inputDataClass: "public",
+    actorLabel: input.actorLabel,
+    actorUserId: null,
   });
   return row.id;
 }
@@ -116,7 +144,7 @@ export function aiService(db: unknown, opts: { generate?: Generator } = {}) {
     if (!opts.generate) {
       throw new ApiError(
         "NOT_IMPLEMENTED",
-        "No AI gateway is configured. Set AI_GATEWAY_API_KEY, or run `vercel env pull` for an OIDC token.",
+        "No AI gateway is configured. Link the Vercel project and pull its OIDC environment, or set a local development key.",
       );
     }
     return opts.generate;
@@ -161,6 +189,7 @@ export function aiService(db: unknown, opts: { generate?: Generator } = {}) {
           subjectId: input.subjectId,
           inputTokens: output.inputTokens,
           outputTokens: output.outputTokens,
+          costUsd: output.costUsd.toFixed(9),
           latencyMs: output.latencyMs,
           status: "ok",
           inputHash: output.inputHash,

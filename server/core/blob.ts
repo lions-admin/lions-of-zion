@@ -25,7 +25,8 @@ export async function storeRawBytes(
 ): Promise<StoredBlob> {
   const blob = await put(pathname, data, {
     access: "public",
-    addRandomSuffix: true,
+    addRandomSuffix: false,
+    allowOverwrite: false,
     contentType,
     token: blobToken(),
   });

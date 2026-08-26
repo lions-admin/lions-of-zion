@@ -86,7 +86,9 @@ export const aiRun = pgTable(
 
     inputTokens: integer("input_tokens"),
     outputTokens: integer("output_tokens"),
-    costUsd: numeric("cost_usd", { precision: 12, scale: 6 }),
+    // Nine decimal places preserve sub-micro-dollar embedding calls instead
+    // of rounding a real Gateway charge down to zero.
+    costUsd: numeric("cost_usd", { precision: 16, scale: 9 }),
     latencyMs: integer("latency_ms"),
 
     /** `ok`, or the error class — never the provider's raw message, which can

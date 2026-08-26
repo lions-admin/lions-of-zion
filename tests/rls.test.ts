@@ -129,19 +129,56 @@ describe("app_public", () => {
     });
   });
 
-  it("cannot read chat transcripts at all", async () => {
+  it("can read only the transcript owned by its anonymous identity", async () => {
     const db = await freshDatabase();
     await db.execute(sql`
       INSERT INTO chat_thread (created_by_label) VALUES ('analyst@example.org')`);
     await as(db, "app_public", "anon", async (tx) => {
-      await expect(tx.execute(sql`SELECT id FROM chat_thread`)).rejects.toThrow();
+      const [own] = (
+        await tx.execute(sql`
+          INSERT INTO chat_thread (created_by_label)
+          VALUES ('anon')
+          RETURNING id, created_by_label`)
+      ).rows as { id: string; created_by_label: string }[];
+
+      const rows = await tx.execute(sql`SELECT id, created_by_label FROM chat_thread`);
+      expect(rows.rows).toEqual([{ id: own!.id, created_by_label: "anon" }]);
     });
   });
 
-  it("cannot read the AI cost ledger", async () => {
+  it("cannot read the AI cost ledger but may read its aggregate budget total", async () => {
     const db = await freshDatabase();
+    await db.execute(sql`
+      INSERT INTO ai_run (
+        kind, model, model_profile, input_tokens, output_tokens,
+        cost_usd, status, input_data_class, actor_label
+      ) VALUES ('chat', 'test/model', 'fast', 10, 5, 0.002500, 'ok', 'public', 'another-user')`);
+
     await as(db, "app_public", "anon", async (tx) => {
-      await expect(tx.execute(sql`SELECT id FROM ai_run`)).rejects.toThrow();
+      const rows = await tx.execute(sql`SELECT id FROM ai_run`);
+      expect(rows.rows).toEqual([]);
+
+      const spend = await tx.execute(sql`
+        SELECT ai_spend_since(now() - interval '1 day')::text AS total`);
+      expect(spend.rows).toEqual([{ total: "0.002500000" }]);
+    });
+  });
+
+  it("may return its own newly appended AI cost row but not another identity's", async () => {
+    const db = await freshDatabase();
+    await as(db, "app_public", "anon-a", async (tx) => {
+      const inserted = await tx.execute(sql`
+        INSERT INTO ai_run (
+          kind, model, model_profile, input_tokens, output_tokens,
+          cost_usd, status, input_data_class, actor_label
+        ) VALUES ('embed', 'test/embed', 'embedding', 2, 0, 0.000001, 'ok', 'public', 'anon-a')
+        RETURNING id`);
+      expect(inserted.rows).toHaveLength(1);
+    });
+
+    await as(db, "app_public", "anon-b", async (tx) => {
+      const rows = await tx.execute(sql`SELECT id FROM ai_run`);
+      expect(rows.rows).toEqual([]);
     });
   });
 

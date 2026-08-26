@@ -12,10 +12,8 @@ import "server-only";
 import { db } from "@/server/db/client";
 import { itemService, type ItemService } from "./service";
 
-let bound: ItemService | undefined;
-
 /** Lazily bound, so importing this module does not demand a DATABASE_URL. */
-export const items = (): ItemService => (bound ??= itemService(db()));
+export const items = (): ItemService => itemService(db());
 
 /** For tests, which supply their own PGlite database. */
 export { itemService, type ItemService } from "./service";

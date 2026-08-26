@@ -335,16 +335,15 @@ directly, as in `assessments/rules.ts`.
   enforced in `server/db/migrations/`. Changing a rule usually means a new
   numbered migration, not just a service edit.
 
-### Not wired up, and load-bearing to know
+### Wired infrastructure and load-bearing gaps
 
 Verified against the code on 2026-08-26. `docs/architecture.md` carries the
 full list; these three change what an editor should assume.
 
-- **Authentication refuses in production, by design.**
-  `server/core/auth/actor.ts` throws `UNAUTHENTICATED` whenever `isProduction()`,
-  and `requireCapability()` always throws `NOT_IMPLEMENTED`. Both fail closed on
-  purpose — a dev shim that keeps working once deployed is how an API ends up
-  with no authentication and nobody noticing. Real auth is Phase 8.
+- **Neon Auth is the Production identity boundary.**
+  `/api/auth/[...path]` restricts signup to `ADMIN_EMAIL`; `authenticateAdmin()`
+  verifies the session, upserts `app_user` and loads the five capability grants.
+  The `x-actor-label` shim is development-only.
 - **RLS is written and tested, but the runtime does not engage it.**
   Migration `0015` creates the roles and policies, and the test harness sets the
   role for real. The application never issues `SET LOCAL ROLE` — `setIdentity()`
@@ -352,10 +351,9 @@ full list; these three change what an editor should assume.
   owner. Several `GET`s are anonymous and apply no application-layer filter
   (`GET /api/v1/evidence` takes no `dataClass` filter at all), which becomes
   live the moment a database exists.
-- **No cron schedules exist.** `vercel.json` declares the queue trigger and
-  nothing else; there is no `crons` array, so ingest, embed and outbox-drain
-  never fire — despite `cron/ingest/route.ts` saying `vercel.json` carries the
-  schedule.
+- **Cron schedules are configured in `vercel.json`.** Ingest, embed,
+  outbox-drain and maintenance run in Production with `CRON_SECRET`; handlers
+  are idempotent and Preview is isolated.
 
 ### Tests
 

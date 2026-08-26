@@ -6,9 +6,9 @@ in context.
 
 **Status: built and serving.** Phase 1 (packaging), A3 (the no-JavaScript
 defect) and A4 (the build) are complete: 1,177 archive pages prerender under
-`/october-7`, `ci-smoke` passes 18/18, and 358 tests pass. What remains is
-Phase 4 — the eventual move onto a real database — and the operational step of
-putting the media behind a CDN.
+`/october-7`, `ci-smoke` passes 18/18, and 358 tests pass. Media is now in the
+dedicated Vercel Blob store `lions-of-zion-archive`; Phase 4 is the eventual
+move of archive records onto the application database.
 
 ## What this is
 
@@ -162,12 +162,12 @@ Measured, not estimated:
 video were never generated. This is not a defect: the originals are already
 faststart and browser-ready, so they are the serve set.
 
-**Use Cloudflare R2.** 1.8 GB sits inside its 10 GB free tier and its egress is
-free, so the bill is $0/month even at 500k visits. Vercel Blob costs
-$0.50–$45/month for the same traffic because it charges $0.05/GB transfer.
-Either way, **media must be served from CDN URLs directly** — proxying it
-through the Next app moves the bill onto Vercel's own bandwidth, which is
-dearer.
+**The deployed store is Vercel Blob.** The archive is isolated in
+`lions-of-zion-archive` (2,018 objects, about 1.94 GB, `iad1`) and is served
+directly through its public CDN URL. Cloudflare R2 remains a possible future
+cost optimisation, but changing stores is a deliberate migration, not a
+runtime fallback. **Media must be served from CDN URLs directly** — proxying it
+through the Next app moves the bill onto Vercel's own bandwidth.
 
 ### Uploading
 
@@ -179,29 +179,23 @@ named for the package:
 <bucket>/hamas-massacre/originals/…  <bucket>/hamas-massacre/web/…
 ```
 
-With `rclone` configured for the bucket (`rclone config`, S3-compatible for
-R2), that is two commands per package — recursive and resumable, which matters
-for 2,018 files:
+The repository's uploader uses the archive store's own OIDC connection and is
+concurrent and resumable. For a new upload, run it once per package, then set
+`NEXT_PUBLIC_ARCHIVE_CDN` to the store's public base and prove it:
 
 ```bash
-rclone copy ~/Documents/october-7_toad/opencode/october7-integration-package/assets \
-  r2:<bucket>/october7 --progress --transfers 16
+node scripts/upload-archive-assets.mjs \
+  ~/Documents/october-7_toad/opencode/october7-integration-package october7
+node scripts/upload-archive-assets.mjs \
+  ~/Documents/october-7_toad/hamas-massacre-integration-package hamas-massacre
 ```
 
 ```bash
-rclone copy ~/Documents/october-7_toad/hamas-massacre-integration-package/assets \
-  r2:<bucket>/hamas-massacre --progress --transfers 16
+node scripts/verify-archive-assets.mjs https://m70ph8nwojvanarn.public.blob.vercel-storage.com --all
 ```
 
-Then set `NEXT_PUBLIC_ARCHIVE_CDN` to the bucket's public base and prove it:
-
-```bash
-node scripts/verify-archive-assets.mjs https://your-cdn/base --all
-```
-
-Do not reach for `vercel blob put` for this: it uploads one file at a time and
-has no recursive mode, so 2,018 files is the wrong shape for it entirely —
-quite apart from the cost difference above.
+Do not reuse `BLOB_READ_WRITE_TOKEN` for this upload: it belongs to the RSS
+stores. The archive-prefixed variables identify the dedicated store.
 
 Three video files (115 MB, 57 MB, 51 MB) dominate the tail; the source
 package's `reports/media-optimization.md` already lists compression candidates.
@@ -307,7 +301,7 @@ Two route-map details that will bite if unhandled:
 
 ## Phase 4 — backend (deliberately later)
 
-When Neon is provisioned and Phase 8 auth exists: the packages'
+When the archive records are moved onto the provisioned Neon database: the packages'
 `database/schema.sql` is close to PostgreSQL-ready. Stories become items, media
 becomes evidence, written through `server/core/versioning.ts` `recordVersion()`
 — the only sanctioned write path for a versioned entity.

@@ -3,5 +3,11 @@
     "app/api/internal/queue/outbox-dispatch/route.ts": {
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox.dispatch" }]
     }
-  }
+  },
+  "crons": [
+    { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
+    { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
+    { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
+    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
+  ]
 }

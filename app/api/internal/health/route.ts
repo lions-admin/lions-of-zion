@@ -13,12 +13,12 @@ import { appEnv, configuredIntegrations, mayActOnTheWorld } from "@/server/core/
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = handler(async (_request, ctx) =>
+export const GET = handler(async (request, ctx) =>
   ok({
     status: "ok",
     env: appEnv(),
     mayActOnTheWorld: mayActOnTheWorld(),
-    integrations: configuredIntegrations(),
+    integrations: configuredIntegrations(request),
     requestId: ctx.requestId,
   }),
 );

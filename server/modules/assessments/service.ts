@@ -15,8 +15,8 @@ import "server-only";
  * label — confirming evidence and approving an assessment are exactly the
  * acts `assertHumanReviewer()` exists to gate, and it needs to know whether
  * that identity is automated. `requireActor()`'s development shim never sets
- * one, so these paths are built and tested now but only fully reachable over
- * HTTP once Phase 8 wires real sessions — the same shape as `requireCapability()`.
+ * one, so these paths are built and tested now; Production reaches them through
+ * the Neon Auth session boundary and the same capability checks.
  */
 
 import { ApiError, notFound } from "@/server/http/responses";

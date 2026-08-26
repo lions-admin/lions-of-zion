@@ -60,9 +60,20 @@ URLs directly; proxying it through the Next app moves the bill to Vercel
 bandwidth. Note `assets/web/videos` in the october7 package is **empty** by
 design: the originals are already browser-ready and are the serve set.
 
-**The one thing to settle before building:** `app/loading.tsx`'s no-JavaScript
-defect will apply to all ~1,180 new content pages. Fix it or accept it
-knowingly — it is item A3 in TODOS.
+**The blocker is cleared: `app/loading.tsx` is removed.** It wrapped every
+route in a Suspense boundary whose fallback is never replaced without
+JavaScript, so the real markup sat inside `<div hidden id="S:0">` waiting for a
+`$RC` script that never ran. Measured before and after in the prerendered HTML;
+the home route now carries all eight orbit destinations, the poster and zero
+Suspense boundaries, restoring the `CLAUDE.md` invariant that was silently
+broken. Gate green: typecheck 0, 331 tests, lint unchanged, build prerenders
+every route. **Do not reintroduce a root-level `loading.tsx`** — see
+`DECISIONS.md`.
+
+**Where this work is happening:** a git worktree at
+`.claude/worktrees/october-7-archive` on branch `worktree-october-7-archive`,
+because the shared checkout has ~31 files of unrelated backend work in flight
+(Neon auth, the `crons` array). Nothing here touches that.
 
 ---
 

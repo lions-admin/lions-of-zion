@@ -10,6 +10,45 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — `app/loading.tsx` is removed: it hid every page from readers without JavaScript
+
+A root-level `loading.tsx` wraps **every** route in a Suspense boundary. With
+streaming SSR the fallback is what renders in place, and the real markup is
+emitted later inside `<div hidden id="S:0">`, revealed by an inline `$RC`
+script. When that script never runs, the loading shell stays visible and the
+whole page stays hidden. This is not a theory — it was measured in the
+prerendered HTML of `/october-7`:
+
+| | with `loading.tsx` | without |
+| --- | --- | --- |
+| `loz-loading` fallback | at 4001 | absent |
+| `<div hidden id="S:0">` | at 5853 | absent |
+| real markup (skip link) | 6124 — **inside** the hidden wrapper | 4200, plain in `<body>` |
+| `$RC` reveal script | 24139 | absent |
+
+It also silently violated a stated invariant. `CLAUDE.md` promises "without
+JavaScript the static navigation remains usable immediately"; it was not.
+After removal the home route's prerendered HTML carries all eight orbit
+destinations plus `/methodology` and `/corrections`, the poster `<img>`, and
+zero Suspense boundaries.
+
+**What was traded, and why it costs nothing here.** The component's own
+docstring said its job was to "hold the ground color so navigation never
+flashes unstyled content." That job is already done by `app/globals.css`,
+which paints `background-color: var(--ground)` on `html, body` from the
+stylesheet in `<head>` — independent of any component. Every route is
+prerendered static, so there is little transition to cover in the first place.
+
+**Do not reintroduce a root-level `app/loading.tsx`.** If a future route
+genuinely needs a loading state, scope it to that route's own segment and
+verify the no-JavaScript render of a sibling content route before keeping it.
+The cost was about to grow by three orders of magnitude: the October 7 archive
+adds ~1,178 static pages whose entire value is text and images that need no
+JavaScript at all.
+
+Verified: typecheck 0 errors, 331 tests passing, lint unchanged (14
+pre-existing warnings), build prerenders every route.
+
 ## 2026-08-26 — The archive presents clean but keeps its provenance; it is an evidentiary asset, not an SEO one
 
 Four decisions about how the hosted archives present, taken together because
@@ -362,6 +401,10 @@ importing module async, which suspends the route just the same. So
 `war-update.ts` and `october-7.ts` export their editions synchronously
 alongside the async accessors, which stay as the seam a real query will land on.
 
+_(Update 2026-08-26: `app/loading.tsx` is deleted, so the Suspense boundary this
+paragraph reasons about no longer exists. The synchronous exports are kept, but
+as a default rather than a requirement — see the entry at the top of this file.)_
+
 **Copy is bounded by what the content can support.** There is no newest
 edition — every edition carries the same `publishedAt` — so the strip says
 "latest documented milestone" and derives it from `max(entry.datetime)`, never
@@ -399,6 +442,15 @@ because the existing check never caught it: `final-verify.mjs` counts
 reported 8 links on a blank page. Two candidate fixes, both unmade:
 delete the root `loading.tsx` and accept the navigation gap, or move the
 loading UI below `/` so the entry route never suspends.
+
+**Resolved 2026-08-26** — the first option was taken: the file is deleted. The
+"navigation gap" it was restored for turned out to cost nothing, because the
+ground colour it existed to hold is painted by `globals.css` on `html, body`
+independently of any component, and every route is prerendered static. See the
+entry at the top of this file for the before/after measurements. The note above
+about `final-verify.mjs` counting `a[data-node-index]` inside the hidden wrapper
+still stands as a warning: **that check cannot distinguish a rendered page from
+a blank one**, and should be tightened before it is trusted again.
 
 ---
 

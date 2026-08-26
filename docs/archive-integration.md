@@ -4,7 +4,9 @@ The implementation brief for bringing two crawled testimony archives onto
 `/october-7`. Written for a session with none of the originating conversation
 in context.
 
-**Status: Phase 1 complete and verified. Phases 2–4 not started.**
+**Status: Phase 1 complete and verified. The A3 prerequisite is fixed —
+`app/loading.tsx` is removed, so routes render without JavaScript. Phases 2–4
+not started.**
 
 ## What this is
 
@@ -212,12 +214,13 @@ Two route-map details that will bite if unhandled:
 
 ### Traps specific to this repo
 
-- **`app/loading.tsx` breaks no-JavaScript rendering on every route.** Its
-  Suspense fallback is never replaced without JS, so the real markup sits in a
-  `display:none` wrapper. `/`, `/war-update` and `/we-are` already have this;
-  1,180 new static content pages make it much more expensive. **Fix it before
-  Phase 3, or accept the gap knowingly.** Verified by deleting that one file:
-  the routes then render completely.
+- ~~`app/loading.tsx` breaks no-JavaScript rendering on every route.~~
+  **Fixed — the file is removed.** It wrapped every route in a Suspense
+  boundary whose fallback is never replaced without JavaScript, parking real
+  markup inside `<div hidden id="S:0">`. See `.ai/DECISIONS.md` for the
+  measurements. **Do not reintroduce a root-level `loading.tsx`;** if a route
+  needs a loading state, scope it to that segment and verify a sibling content
+  route's no-JavaScript render before keeping it.
 - **`verify:graphics` must come out unchanged.** None of this touches
   `components/particle-nav/`. If its numbers move, something went wrong.
 - **Reading surfaces use `displayName`, not `label`.** `label` is stored

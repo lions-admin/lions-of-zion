@@ -125,13 +125,15 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
   links. Do not add a second set of *fallback* links: the front-page band's
   file index is one index for every tier, not a tier-specific copy, which is
   why the static mobile index it replaced was deleted rather than kept.
-- **The home route has an unresolved no-JavaScript defect, and it is not the
-  band's.** `app/loading.tsx` wraps every route in a Suspense boundary whose
-  fallback nothing replaces when JavaScript never runs, so `/` renders as the
-  loading shell with the real markup parked in a `display: none` wrapper.
-  Verified by removing that one file: the home route then renders completely
-  without JavaScript — 8 orbit links, 8 band links, poster, scroll. `/war-update`
-  and `/we-are` have the same defect. This predates the front-page band.
+- **The no-JavaScript defect is fixed: `app/loading.tsx` is deleted.** A
+  root-level `loading.tsx` wraps *every* route in a Suspense boundary, and
+  streaming SSR emits the real markup inside `<div hidden id="S:0">` for an
+  inline `$RC` script to reveal — so with no JavaScript the loading shell stayed
+  and the page never appeared. The home route's prerendered HTML now carries
+  its 8 orbit links, the band links, and the poster with zero Suspense
+  boundaries. **Do not reintroduce a root-level `loading.tsx`**; scope any
+  loading state to its own segment and check a sibling content route's no-JS
+  render first (`.ai/DECISIONS.md`, 2026-08-26).
 - The live scene selects 45k, 90k, or 180k lion buffers by performance tier.
 - `/particle-demo?forceWebGL=1` is the supported fallback/tuning harness.
 
@@ -192,10 +194,14 @@ static index set it that way as identity; **reading surfaces use
 - **`lib/content/` is the frontend's content seam** — static today, shaped so
   the eventual swap to a real published-content query is a change to these
   function bodies rather than to any call site. It is held to the same import
-  boundary as `app/` and `components/`. Every module is `async` **except
-  `home.ts`, whose synchronous exports are load-bearing**: an `await` in the
-  home route's render path puts it behind `app/loading.tsx`'s Suspense
-  boundary, which without JavaScript is never replaced.
+  boundary as `app/` and `components/`. Every module is `async` except
+  `home.ts`, which exports synchronously. That was originally load-bearing —
+  an `await` in the home route's render path put it behind `app/loading.tsx`'s
+  Suspense boundary, which without JavaScript was never replaced. **That file
+  is now deleted, so the constraint no longer binds**; the synchronous exports
+  are kept because nothing needs them to change, not because an `await` would
+  now break the route. Anyone making `home.ts` async should re-check the home
+  route's no-JavaScript render rather than assume either way.
 - `components/briefs/` is the Geopolitical Brief, the one page with its own
   layout and reading-progress treatment; its content is still a static
   reference cut in `geopolitical-reference.ts`, adapted onto

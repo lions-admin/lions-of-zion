@@ -101,7 +101,8 @@ on an unknown id.
 | `/methodology`, `/corrections` | `components/sections/DocPage.tsx` | Outside `defaultNodes` on purpose |
 | `/particle-demo` | own layout | Tuning harness; `disallow`ed in `robots.ts` |
 
-`app/error.tsx`, `app/loading.tsx`, `app/not-found.tsx` complete the shell.
+`app/error.tsx` and `app/not-found.tsx` complete the shell. There is
+deliberately **no** `app/loading.tsx` — see the note under the home route.
 
 ### The home route
 
@@ -124,13 +125,20 @@ flowchart LR
     Content --> Brief["briefs/adapters.ts"]
 ```
 
-**`Experience` is deliberately synchronous.** An `await` in this route's
-render path puts it behind `app/loading.tsx`'s Suspense boundary, and without
-JavaScript that fallback is never replaced — the whole page becomes the
-loading shell. `lib/content/home.ts` therefore exports synchronously and reads
-the editions' synchronous exports. See
-[`../.ai/DECISIONS.md`](../.ai/DECISIONS.md), "`app/loading.tsx` breaks every
-async route without JavaScript".
+**`Experience` is synchronous, and `app/loading.tsx` no longer exists.** A
+root-level `loading.tsx` wraps every route in a Suspense boundary; streaming
+SSR then emits the real markup inside `<div hidden id="S:0">` for an inline
+`$RC` script to reveal, so without JavaScript the loading shell stayed and the
+page never appeared. The file was deleted on 2026-08-26 and the home route's
+prerendered HTML now carries its orbit links, band links and poster with zero
+Suspense boundaries.
+
+`Experience` and `lib/content/home.ts` remain synchronous, but that is now a
+kept default rather than a forced one — re-measure the no-JavaScript render
+before introducing an `await`. **Do not reintroduce a root-level
+`loading.tsx`.** See [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md),
+"`app/loading.tsx` is removed: it hid every page from readers without
+JavaScript", and the earlier entry it supersedes.
 
 ### The renderer
 

@@ -509,14 +509,19 @@ packages live outside this repo and are not in git.
       tier with free egress, so $0/month. Must be served from CDN URLs
       directly, never proxied through the Next app.
 
-### A3 — Prerequisite, decide before building
+### A3 — Prerequisite ✅ fixed
 
-- [ ] **Fix the `app/loading.tsx` no-JavaScript defect, or accept it
-      knowingly.** Its Suspense fallback is never replaced without JS, so real
-      markup sits in a `display:none` wrapper. `/`, `/war-update` and `/we-are`
-      already carry this; 1,180 new static content pages make it far more
-      expensive. Verified by deleting that one file — the routes then render
-      completely.
+- [x] **`app/loading.tsx` removed.** It wrapped every route in a Suspense
+      boundary whose fallback is never replaced without JavaScript, parking the
+      real markup inside `<div hidden id="S:0">`. Measured in the prerendered
+      HTML of `/october-7`: the skip link sat at 6124 **inside** that wrapper,
+      revealed only by a `$RC` script at 24139. After removal it renders plain
+      in `<body>` at 4200, and the home route carries all eight orbit
+      destinations, the poster, and zero Suspense boundaries — restoring the
+      `CLAUDE.md` invariant that was silently broken. The ground colour it
+      claimed to protect is painted by `globals.css` on `html, body` anyway.
+      Gate: typecheck 0, 331 tests, lint unchanged, build prerenders all routes.
+      **Do not reintroduce a root-level `loading.tsx`.**
 
 ### A4 — Build
 

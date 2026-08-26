@@ -207,9 +207,9 @@ five things a later session most needs:
    everything else in a package re-aggregates those. Assets resolve by
    `media_id` through `media.json`, so only a URL prefix changes:
    `NEXT_PUBLIC_ARCHIVE_CDN` in production, a gitignored symlink in dev.
-   **The CDN is not yet provisioned — that is the one step left, and it needs
-   credentials.** Upload each package's `assets/originals` and `assets/web`
-   under `<package>/`, set the variable, then prove it:
+   **The CDN is provisioned** (Vercel Blob `lions-of-zion-archive`, 1.94 GB /
+   2,018 objects; verified 2026-08-26, 0 unreachable). Re-prove it after any
+   change with:
    `node scripts/verify-archive-assets.mjs <base> --all`. That check exists
    because a wrong value fails *quietly* — pages build, tests pass, text
    renders, only the media 404s.

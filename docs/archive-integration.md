@@ -29,13 +29,26 @@ Both live **outside this repository** and are not in git.
 
 | | october7 | hamas-massacre |
 | --- | --- | --- |
-| Path | `~/Documents/opencode/october7-integration-package` | `~/Documents/october-7_toad/hamas-massacre-integration-package` |
+| Path | `~/Documents/october-7_toad/opencode/october7-integration-package` | `~/Documents/october-7_toad/hamas-massacre-integration-package` |
 | Source site | october7.org | hamas-massacre.net |
 | Canonical records | 179 | 335 |
 | Language versions | 505 (7 languages) | 670 (en, es) |
 | Unique media | 499 | 528 |
 | Story↔media relations | 1121 | 1088 |
 | Validation | 29/29 PASS | 32/32 PASS |
+
+Those paths are load-bearing for local development and they have moved once
+already — october7 was documented under `~/Documents/opencode/` until
+2026-08-26. A fresh worktree has no `public/archive/`, so archive media 404s
+locally until the two symlinks exist. `--link-assets` on an import creates
+them; to create them alone, without re-importing content:
+
+```bash
+mkdir -p public/archive && ln -sfn ~/Documents/october-7_toad/opencode/october7-integration-package/assets public/archive/october7 && ln -sfn ~/Documents/october-7_toad/hamas-massacre-integration-package/assets public/archive/hamas-massacre
+```
+
+`public/archive/` is gitignored and `.vercelignore`d — the links point outside
+the repository, which a CLI deploy would otherwise try to follow.
 
 Both are built to the same contract, `october7-integration-package@1`. This was
 verified field by field, not assumed:
@@ -171,7 +184,7 @@ R2), that is two commands per package — recursive and resumable, which matters
 for 2,018 files:
 
 ```bash
-rclone copy ~/Documents/opencode/october7-integration-package/assets \
+rclone copy ~/Documents/october-7_toad/opencode/october7-integration-package/assets \
   r2:<bucket>/october7 --progress --transfers 16
 ```
 

@@ -567,15 +567,18 @@ does not hold them, rather than dropping the block silently.
 - [x] Docs squared: `CLAUDE.md`, `docs/architecture.md`,
       `docs/environment.md`, `docs/operations.md`, `README.md`.
 
-### A7 — The one step left, and it needs credentials
+### A7 — The CDN ✅ provisioned
 
-- [ ] **Provision the CDN and upload the media.** ~1.8 GB, deliberately not in
-      git. Upload each package's `assets/originals` and `assets/web` under
-      `<package>/`, set `NEXT_PUBLIC_ARCHIVE_CDN`, then run
-      `node scripts/verify-archive-assets.mjs <base> --all`. Until then the
-      archive pages render their text and their media 404s.
-      Cloudflare R2 is the costed recommendation — 1.8 GB sits inside its 10 GB
-      free tier and its egress is free, so $0/month even at 500k visits.
+- [x] **Provision the CDN and upload the media.** Done on Vercel Blob rather
+      than the costed R2 recommendation: store `lions-of-zion-archive`
+      (`store_M70Ph8nWOJVAnaRn`), 1.94 GB across 2,018 objects, connected to
+      the project. `NEXT_PUBLIC_ARCHIVE_CDN` is set on Preview and Production
+      to `https://m70ph8nwojvanarn.public.blob.vercel-storage.com`.
+      Verified 2026-08-26 against the live bucket: 2,018 checked, 0
+      unreachable; live record pages emit blob URLs with no `/archive`
+      fallback in the HTML.
+      **`NEXT_PUBLIC_` is substituted at build time**, so changing the value
+      later requires a redeploy, not just an env edit.
 
 ### A5 — Presentation ✅ settled
 

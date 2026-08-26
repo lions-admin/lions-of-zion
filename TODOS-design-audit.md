@@ -615,13 +615,16 @@ Filed twice by two agents. Searching for the retired id should land here.
 
 ## Not in this list, and still open
 
-- [ ] **Provision `NEXT_PUBLIC_ARCHIVE_CDN`.** Every archive record page
-      currently logs a 404 for its media. This is the one step the archive
-      integration is still waiting on and it needs credentials, not code.
-      Upload each package's `assets/originals` and `assets/web` under
-      `<package>/`, set the variable, then prove it with
-      `node scripts/verify-archive-assets.mjs <base> --all` — a wrong value
-      fails quietly: pages build, tests pass, text renders, only media 404s.
+- [x] ~~**Provision `NEXT_PUBLIC_ARCHIVE_CDN`.**~~ Done — Vercel Blob store
+      `lions-of-zion-archive` (`store_M70Ph8nWOJVAnaRn`), 1.94 GB across
+      2,018 objects, connected to the project. `NEXT_PUBLIC_ARCHIVE_CDN` is
+      set on Preview and Production to
+      `https://m70ph8nwojvanarn.public.blob.vercel-storage.com`. Verified
+      2026-08-26: `verify-archive-assets.mjs --all` reports 2,018 checked,
+      0 unreachable, and the live record pages emit blob URLs with no
+      `/archive` fallback left in the HTML.
+      **Being `NEXT_PUBLIC_`, the value is substituted at build time** — a
+      later change to it needs a redeploy, not just an env edit.
 - [x] ~~**Repair `package-lock.json`.**~~ Done — it was blocking CI on
       every pull request, not only this one.
 - [ ] **Phase 5 — home-scene orbit labels** is recorded in `.ai/DESIGN-V2.md`

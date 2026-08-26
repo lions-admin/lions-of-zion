@@ -103,8 +103,17 @@ its text. Run it once against the real bucket after the first upload, and
 after any change to that variable:
 
 ```bash
-node scripts/verify-archive-assets.mjs https://your-cdn/base --all
+node scripts/verify-archive-assets.mjs https://m70ph8nwojvanarn.public.blob.vercel-storage.com --all
 ```
+
+That base is the provisioned store, Vercel Blob `lions-of-zion-archive`
+(`store_M70Ph8nWOJVAnaRn`). Last run 2026-08-26: 2,018 checked, 0 unreachable.
+Locally the same script takes `http://localhost:3000/archive`, which resolves
+through the dev symlinks rather than the bucket.
+
+**`NEXT_PUBLIC_ARCHIVE_CDN` is substituted at build time**, so changing it
+takes a redeploy — an env edit alone leaves the old value baked into the
+prerendered HTML.
 
 Locally the same check runs against the symlinks
 `import-archive-package.mjs --link-assets` creates:

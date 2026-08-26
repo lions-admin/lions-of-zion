@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import {
   type ArchiveBlock,
   type ArchiveMedia,
@@ -5,6 +6,7 @@ import {
   assetSrcSet,
   assetUrl,
 } from '@/lib/content/archive';
+import { ArchiveImage } from './ArchiveImage';
 import styles from './archive.module.css';
 
 export type ArchiveBlocksProps = {
@@ -87,6 +89,62 @@ function dropLeadingChrome(blocks: ArchiveBlock[], renderedTitle?: string): Arch
   return isBreadcrumb || repeatsTitle ? blocks.slice(1) : blocks;
 }
 
+/**
+ * A heading's anchor id, derived from its own text.
+ *
+ * The contents rail reads the rendered DOM rather than a per-page list, so a
+ * heading with no `id` is invisible to it — `SectionToc` drops every heading
+ * it cannot resolve to an anchor. Slugifying here is what makes the rail
+ * possible at all, and deriving it from the text means the anchor cannot drift
+ * from the heading the way a hand-written list would.
+ *
+ * Unicode-aware: 661 of the 1,175 versions are not English, and stripping to
+ * ASCII would collapse most of a Japanese or Portuguese record's headings to
+ * the same empty string. `seen` disambiguates the records that genuinely
+ * repeat a heading, so an anchor always points at one place.
+ */
+function headingId(text: string, seen: Map<string, number>): string {
+  const base =
+    text
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'section';
+  const n = seen.get(base) ?? 0;
+  seen.set(base, n + 1);
+  return n === 0 ? base : `${base}-${n + 1}`;
+}
+
+/**
+ * The blocks grouped under the heading that introduces them.
+ *
+ * Flat blocks were enough while nothing navigated them. The contents rail
+ * observes a *region* rather than a heading — a heading is a few pixels tall
+ * and clears the active band immediately, which reads right scrolling down and
+ * wrong scrolling back up — and `SectionToc` finds that region with
+ * `closest('section, article')`. Without these `<section>`s every heading
+ * resolves to the one `<article>` the page shell owns, so the rail marks entry
+ * one and never moves.
+ *
+ * Anything before the first heading stays ungrouped: a record that opens with
+ * prose has no section to put it in, and inventing one would give the rail an
+ * entry with no heading to name it.
+ */
+type BlockGroup = { id: string | null; heading: ArchiveBlock | null; body: ArchiveBlock[] };
+
+function groupByHeading(blocks: ArchiveBlock[]): BlockGroup[] {
+  const seen = new Map<string, number>();
+  const groups: BlockGroup[] = [{ id: null, heading: null, body: [] }];
+  for (const block of blocks) {
+    if (block.type === 'heading' && block.text) {
+      groups.push({ id: headingId(block.text, seen), heading: block, body: [] });
+    } else {
+      groups[groups.length - 1].body.push(block);
+    }
+  }
+  return groups.filter((g) => g.heading || g.body.length > 0);
+}
+
 export function ArchiveBlocks({ pkg, blocks, media, renderedTitle }: ArchiveBlocksProps) {
   /* Sort only when the whole package is annotated. `position` is absent on
      every october7 block, so `a.position - b.position` was NaN on all 16,265
@@ -104,9 +162,22 @@ export function ArchiveBlocks({ pkg, blocks, media, renderedTitle }: ArchiveBloc
 
   return (
     <>
-      {ordered.map((block, i) => (
-        <Block key={`${block.type}-${i}`} pkg={pkg} block={block} media={media} />
-      ))}
+      {groupByHeading(ordered).map((group, gi) => {
+        const body = group.body.map((block, i) => (
+          <Block key={`${block.type}-${i}`} pkg={pkg} block={block} media={media} />
+        ));
+        if (!group.heading || !group.id) {
+          return <Fragment key={`lede-${gi}`}>{body}</Fragment>;
+        }
+        return (
+          <section key={group.id} aria-labelledby={group.id}>
+            <h2 className={styles.heading} id={group.id}>
+              {group.heading.text}
+            </h2>
+            {body}
+          </section>
+        );
+      })}
     </>
   );
 }
@@ -121,8 +192,11 @@ function Block({
   media: Map<string, ArchiveMedia>;
 }) {
   switch (block.type) {
+    // A heading with text never reaches here — `groupByHeading` lifts it out
+    // to open its own `<section>`. Only an empty one falls through, and an
+    // empty heading is nothing.
     case 'heading':
-      return block.text ? <h2 className={styles.heading}>{block.text}</h2> : null;
+      return null;
 
     case 'paragraph':
       return block.text ? <p className={styles.paragraph}>{block.text}</p> : null;
@@ -177,26 +251,29 @@ function ImageBlock({
 
   // `alt_text` is null on most items because the source published none, and
   // rule 3 of the package contract forbids inventing one. Where a caption
-  // exists it is the honest alternative; where neither does, the image is
-  // marked decorative and the record's prose carries the meaning.
-  const alt = item.alt_text ?? caption ?? '';
+  // exists it is the honest alternative.
+  //
+  // Where neither does — 109 of the documentation archive's 119 images, and 11
+  // of the testimonies' 284 — `alt=""` was the wrong answer. It marks the
+  // image decorative, so a screen reader is not told an image is there at all;
+  // on a surface whose whole purpose is to answer denial, silently omitting a
+  // piece of evidence is worse than admitting the archive holds no words for
+  // it. The sentence below invents no description: it says what the thing is
+  // and that the source published nothing about it, which is the same register
+  // as the note standing in for the two videos this archive does not hold.
+  const alt =
+    item.alt_text ?? caption ?? 'Image published with this record. The archive holds no description of it.';
 
   return (
     <figure className={styles.figure}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- these are
-          CDN-hosted archive assets with dimensions already known from the
-          package; next/image would re-optimise 1.8 GB of already-derived
-          WebP for no gain. */}
-      <img
-        className={styles.image}
+      <ArchiveImage
         src={assetUrl(pkg, item.package_path)}
         srcSet={srcSet || undefined}
         sizes={srcSet ? '(max-width: 720px) 100vw, 720px' : undefined}
         width={item.width ?? undefined}
         height={item.height ?? undefined}
         alt={alt}
-        loading="lazy"
-        decoding="async"
+        unavailableNote="An image published with this record is not loading from this archive."
       />
       <Caption caption={caption} credit={credit} />
     </figure>

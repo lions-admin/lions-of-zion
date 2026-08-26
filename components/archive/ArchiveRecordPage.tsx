@@ -9,7 +9,7 @@ import {
   pickVersion,
 } from '@/lib/content/archive';
 import { SITE_URL } from '@/lib/site-config';
-import { ArchiveRecord } from './ArchiveRecord';
+import { ArchiveDateline, ArchiveRecord } from './ArchiveRecord';
 
 export type ArchiveRecordPageArgs = {
   pkg: ArchivePackageName;
@@ -19,9 +19,28 @@ export type ArchiveRecordPageArgs = {
   /** Default-language URL for this record, e.g. `/october-7/testimonies/foo`. */
   basePath: string;
   sourceLabel: string;
-  /** Shown under the title; describes the archive, not the record. */
-  tagline: string;
 };
+
+/**
+ * Past this, the title is a caption the source wrote as a whole paragraph
+ * rather than a headline, and `--t-display` stops being a signal about scale.
+ *
+ * 90 characters is where the documentation archive's distribution turns: its
+ * p90 is 87 and its longest is 296. It catches 25 of 335 documentation records
+ * and 31 of 179 testimonies, so it is a tail treatment, not a second style.
+ */
+const LONG_TITLE = 90;
+
+/**
+ * Below this a contents rail is noise rather than navigation, so the page pays
+ * for neither the rail nor the reading line.
+ *
+ * 160 of the 505 testimony versions clear it, the longest running fifteen
+ * sections. No documentation version has more than one heading, so the gate
+ * never fires there and `.ai/DECISIONS.md`'s "documentation records take no
+ * rails" holds without this having to know which archive it is in.
+ */
+const RAIL_HEADINGS = 3;
 
 /**
  * The shared body of every archive record route.
@@ -51,7 +70,6 @@ export async function ArchiveRecordPage({
   locale,
   basePath,
   sourceLabel,
-  tagline,
 }: ArchiveRecordPageArgs) {
   const record = await getRecord(pkg, slug);
   if (!record) notFound();
@@ -65,13 +83,35 @@ export async function ArchiveRecordPage({
 
   const version = pickVersion(record, locale);
   const media = await getMediaRegistry(pkg);
+  const title = displayTitle(version.title);
+  const headings = version.content_blocks.filter(
+    (block) => block.type === 'heading' && block.text,
+  ).length;
 
   return (
     <DocPage
       routeId="october-7"
-      title={displayTitle(version.title)}
+      // Every archive route is `october-7`, so without a seed of its own each
+      // of the ~1,177 drew the identical nine corpus fragments in the
+      // identical places — the one thing the seeding existed to prevent. The
+      // slug and not the locale: a record's translations are one record, and
+      // switching language should not reshuffle the page around it.
+      backdropSeed={slug}
+      title={title}
+      titleScale={title.length > LONG_TITLE ? 'long' : 'default'}
       titleLang={version.locale}
-      tagline={tagline}
+      // No tagline: the archive's is a per-package sentence identical on 505
+      // or 670 pages, and printing it here put boilerplate where the record's
+      // own identity belongs. The dateline takes that slot instead.
+      dateline={
+        <ArchiveDateline
+          record={record}
+          version={version}
+          basePath={basePath}
+          sourceLabel={sourceLabel}
+        />
+      }
+      rails={headings >= RAIL_HEADINGS ? 'toc' : 'none'}
       breadcrumb={archiveTrail(pkg)}
     >
       <script
@@ -116,7 +156,7 @@ export async function archiveRecordMetadata({
   slug,
   locale,
   basePath,
-}: Omit<ArchiveRecordPageArgs, 'sourceLabel' | 'tagline'>): Promise<Metadata> {
+}: Omit<ArchiveRecordPageArgs, 'sourceLabel'>): Promise<Metadata> {
   const record = await getRecord(pkg, slug);
   if (!record) return {};
 

@@ -371,6 +371,20 @@
   text-wrap: balance;
 }
 
+/* The same headline, stepped down when it is a caption rather than a title.
+   Set outright rather than by adjusting the token: `--t-display` clamps with a
+   2.1rem floor, so nothing narrower than that is reachable through it. Still
+   the largest type on the page and still the display face — it just stops
+   claiming that a 296-character sentence is a headline. `pretty`, not
+   `balance`: balancing is for two or three lines, and these run to eight. */
+.titleLong {
+  composes: title;
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+
 .lede {
   margin-top: 0.85rem;
   max-width: 54ch;

@@ -33,7 +33,16 @@
      (43.2px of gap). Written as the two clamps rather than 112px so it stays
      true at every width. */
   --rail-w: 14rem;
-  --rail-gap: calc(clamp(1.5rem, 5vw, 4.3rem) + clamp(2rem, 3vw, 3.5rem));
+  --section-pad-x: clamp(1.5rem, 5vw, 4.3rem);
+  --rail-gap: calc(var(--section-pad-x) + clamp(2rem, 3vw, 3.5rem));
+
+  /* The reading measure, reconciled with the dossier's `--reading-w`.
+     The track was a flat 48rem, which after `.section`'s own padding left 630px
+     — about 62 characters — so the brief was the *narrower* of the two shells
+     while looking like the more elaborate one. Sizing the track from the
+     measure rather than the other way round makes 68ch the number both shells
+     hold, and keeps it true as the padding clamp moves. */
+  --article-w: calc(68ch + 2 * var(--section-pad-x));
 
   position: relative;
   height: 100dvh;
@@ -194,7 +203,7 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 13rem minmax(0, 48rem) 14rem;
+  grid-template-columns: 13rem minmax(0, var(--article-w)) 14rem;
   gap: clamp(2rem, 3vw, 3.5rem);
   justify-content: center;
   width: min(100%, 94rem);
@@ -323,12 +332,22 @@
   line-height: 1.5;
 }
 
+/* The card is gone, for the reason `sections.module.css` gives where it
+   removed the dossier's: the chrome was reading as a floating box rather than
+   as a page, and a reader comparing this brief to an archive record met a
+   bordered column with a foot against an unbordered one without. Reconciled in
+   this direction rather than by putting the card back, because that removal is
+   the recorded decision and this one was the straggler.
+
+   The ground stays, and is not chrome. Unlike the dossier's `ScanBackdrop` —
+   masked out of the reading band by `--content-w` — this page's
+   `.quietBackdrop` is `position: fixed; inset: 0` with no carve-out, so
+   without an opaque ground the corpus runs straight under the prose. That is
+   the mechanical difference between the two shells, and it is why only the
+   borders and the shadow could go. */
 .article {
   min-width: 0;
   background: rgba(8, 14, 24, 0.965);
-  border-right: 1px solid rgba(201, 162, 75, 0.14);
-  border-left: 1px solid rgba(201, 162, 75, 0.24);
-  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.25);
   animation: articleIn 620ms ease both;
 }
 
@@ -399,7 +418,7 @@
 }
 
 .section {
-  padding: clamp(2.6rem, 5vw, 4.2rem) clamp(1.5rem, 5vw, 4.3rem);
+  padding: clamp(2.6rem, 5vw, 4.2rem) var(--section-pad-x);
   border-bottom: 1px solid var(--line);
   scroll-margin-top: 6rem;
 }
@@ -695,7 +714,7 @@
   /* Two tracks: the evidence margin closes and the citations fall back into
      the column beneath their developments. */
   .layout {
-    grid-template-columns: 12rem minmax(0, 48rem);
+    grid-template-columns: 12rem minmax(0, var(--article-w));
   }
 }
 
@@ -710,7 +729,7 @@
   }
 
   .layout {
-    grid-template-columns: minmax(0, 48rem);
+    grid-template-columns: minmax(0, var(--article-w));
     gap: 1.3rem;
     padding-top: 1.5rem;
   }
@@ -864,8 +883,14 @@
     margin-top: 1.2rem;
   }
 
+  /* The padding drops here, so the measure the track is sized from has to know
+     — `--section-pad-x` is the one place both read. */
+  .page {
+    --section-pad-x: 1.25rem;
+  }
+
   .section {
-    padding: 2.7rem 1.25rem;
+    padding-block: 2.7rem;
     scroll-margin-top: 7rem;
   }
 

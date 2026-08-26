@@ -83,3 +83,104 @@
 .record ol > li:last-child {
   padding-bottom: 0.25rem;
 }
+
+/*
+ * The two doors into the archives this page holds.
+ *
+ * Each entry is one whole-block link and must read as one before hover: a
+ * framed panel with a permanent "Open the archive →" line, not a heading that
+ * happens to be clickable. The register stays muted — quiet frame, gold only
+ * as confirmation — because this page is a monument, not a landing page.
+ */
+.archiveEntries {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0 1.75rem;
+  padding: 0;
+}
+
+@media (min-width: 46rem) {
+  .archiveEntries {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.archiveEntry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  height: 100%;
+  padding: 1.2rem 1.3rem 1.1rem;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold-line);
+  background: rgba(153, 179, 202, 0.04);
+  text-decoration: none;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.archiveEntry:hover,
+.archiveEntry:focus-visible {
+  border-color: var(--gold-line);
+  border-left-color: var(--gold);
+  background: rgba(201, 162, 75, 0.07);
+}
+
+.archiveEntryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.archiveEntryTitle {
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  color: var(--ink-hi);
+}
+
+.archiveEntry:hover .archiveEntryTitle,
+.archiveEntry:focus-visible .archiveEntryTitle {
+  color: var(--gold-hi);
+}
+
+.archiveEntryCount {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.archiveEntryDesc {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+  flex-grow: 1;
+}
+
+/* Sentence case on purpose: the V2 rules allow uppercase+tracking only for
+   data labels of two words or fewer, and this is three. */
+.archiveEntryCta {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  margin-top: 0.35rem;
+}
+
+.archiveEntry:hover .archiveEntryCta,
+.archiveEntry:focus-visible .archiveEntryCta {
+  color: var(--gold-hi);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archiveEntry {
+    transition: none;
+  }
+}

@@ -2,6 +2,20 @@
 
 תוכנית זו מתרגמת את הסקירה הוויזואלית והתוכניתית של האתר למשימות ביצוע. סדר העבודה מחייב: קודם מייצבים את החוויה הקיימת, אחר כך מחברים שכבת תוכן אמיתית, ורק לאחר מכן מרחיבים את כל שמונת העמודים ואת צ׳ט ה־AI.
 
+## עדכון תשתית — 26 באוגוסט 2026: Vercel/Neon/Auth הושלמו
+
+- [x] Vercel Pro, הדומיין `lionsofzion.io`, Functions ב־`iad1`, Neon Launch,
+      Neon Auth, Blob, Queues, Cron ו־AI Gateway הוגדרו ואומתו.
+- [x] Production ו־Preview מבודדים במסד ובאחסון; ה־archive Blob נפרד מחנויות
+      ה־RSS.
+- [x] משתמש מנהל יחיד נוצר, חמש הרשאות capability קיימות, ועשרה עמודים
+      ציבוריים יובאו באופן idempotent.
+- [x] תקרת AI קשיחה של $4.50 באפליקציה ו־$5 ב־Gateway; Spend Management על
+      $10 שימוש נוסף עם התרעות.
+- [x] תיעוד התשתית נמצא ב־[`docs/vercel-infrastructure.md`](docs/vercel-infrastructure.md).
+- [ ] ניטור שבעה ימים: Neon CU-hours, AI spend, שגיאות Functions, גיל הודעות
+      Queue ונפח Blob.
+
 ## עדכון יישום — 24 באוגוסט 2026
 
 הסימון במסמך משקף את מצב הקוד שנבדק בפועל. `[x]` פירושו שהמשימה הושלמה ואומתה בהיקף המתואר; משימה שסומנה כחלקית נשארת `[ ]` עד שכל היקף הפרודקשן שלה מושלם.
@@ -509,39 +523,73 @@ packages live outside this repo and are not in git.
       tier with free egress, so $0/month. Must be served from CDN URLs
       directly, never proxied through the Next app.
 
-### A3 — Prerequisite, decide before building
+### A3 — Prerequisite ✅ fixed
 
-- [ ] **Fix the `app/loading.tsx` no-JavaScript defect, or accept it
-      knowingly.** Its Suspense fallback is never replaced without JS, so real
-      markup sits in a `display:none` wrapper. `/`, `/war-update` and `/we-are`
-      already carry this; 1,180 new static content pages make it far more
-      expensive. Verified by deleting that one file — the routes then render
-      completely.
+- [x] **`app/loading.tsx` removed.** It wrapped every route in a Suspense
+      boundary whose fallback is never replaced without JavaScript, parking the
+      real markup inside `<div hidden id="S:0">`. Measured in the prerendered
+      HTML of `/october-7`: the skip link sat at 6124 **inside** that wrapper,
+      revealed only by a `$RC` script at 24139. After removal it renders plain
+      in `<body>` at 4200, and the home route carries all eight orbit
+      destinations, the poster, and zero Suspense boundaries — restoring the
+      `CLAUDE.md` invariant that was silently broken. The ground colour it
+      claimed to protect is painted by `globals.css` on `html, body` anyway.
+      Gate: typecheck 0, 331 tests, lint unchanged, build prerenders all routes.
+      **Do not reintroduce a root-level `loading.tsx`.**
 
-### A4 — Build
+### A4 — Build ✅ complete
 
-- [ ] `scripts/import-archive-package.mjs` — validate, copy `data/` and
-      `content/` into `content-packages/`, upload media, write `media-map.json`
-      (`media_id` → public URL). Idempotent, upserts by id.
-- [ ] `lib/content/testimonies.ts` and `lib/content/documentation.ts` — async
-      accessors over the imported JSON, with the signature a real query lands
-      on later.
-- [ ] `components/archive/` — block renderer for the four block types. `srcset`
-      for images, `poster` from `thumbnail_media_id` for video, credits in the
-      evidence margin via the existing `marginNote` grid.
-- [ ] Index and record pages on `components/sections/DocPage.tsx` (the shell
-      for routes outside the eight-file orbit).
-- [ ] Documentation locale scheme mirrors testimonies: `[category]/[slug]`
-      serves en (335), `[category]/[slug]/es` serves Spanish (335). The one
-      `category_id: null` record routes under a literal `uncategorized`
-      segment — do not invent a category in the data.
-- [ ] hreflang from `translation-links.json` (775 + 670 pairs, symmetric,
-      confidence high — do not infer). Keep `source_url` per version for 301s.
-- [ ] Metadata, canonical and JSON-LD per route.
-- [ ] Unit-test the renderer against the three fixtures in the october7
-      package's `exports/sample-stories/`; extend `scripts/ci-smoke.mjs`.
-- [ ] `verify:graphics` must come out **unchanged** — nothing here touches
-      `components/particle-nav/`.
+- [x] `scripts/import-archive-package.mjs` — validates the source against its
+      own manifest, copies in only what the site renders, rebuilds `records/`
+      so a rename leaves no orphan. Takes october7 from 39 MB to 9.9 MB;
+      both packages together are **14 MB**. Media never enters git.
+- [x] `lib/content/archive.ts` plus thin `testimonies.ts` / `documentation.ts`
+      faces. Package-level files are cached per process; records are not, since
+      each is read by exactly one page. Record ids are validated as ids, not
+      used as paths.
+- [x] `components/archive/` — one renderer for both archives, no branching.
+      Enforces the two presentation decisions structurally: nothing in a record
+      body is a hyperlink, and credits always render.
+- [x] Index and record pages on `DocPage`. Records take no rails, as settled.
+- [x] Locale scheme: the bare route serves the default language and `[locale]`
+      serves the rest, so no version ever has two URLs competing for one
+      canonical. The `category_id: null` record routes under a literal
+      `uncategorized` segment; the data still says null.
+- [x] hreflang from each record's own `available_languages`, canonical, and
+      `ArchiveComponent` JSON-LD carrying `isBasedOn` — which is what lets the
+      prose stay free of outbound links.
+- [x] 27 new tests (**358 total**); `ci-smoke` extended to 18 routes, sampling
+      real record ids from the imported index so it cannot rot.
+- [x] `defaultNodes` untouched; nothing here touches `components/particle-nav/`.
+
+**Found by the build, worth knowing:** two videos have no `package_path` — the
+source hosts them on YouTube and the packages record them without downloading
+them. The first build crashed on it. They now render a note saying the archive
+does not hold them, rather than dropping the block silently.
+
+- [x] **Sitemap** — 527 entries, one per record with 1,103 hreflang alternates,
+      rather than 1,177 pages competing with each other. `sitemap.ts` is async
+      now, which is safe: it is prerendered and not in a suspending path.
+- [x] **`scripts/verify-archive-assets.mjs`** — proves the CDN is populated.
+      Nothing else can: media is not in git, so a wrong
+      `NEXT_PUBLIC_ARCHIVE_CDN` fails quietly — pages build, tests pass, text
+      renders, only the media 404s. Verified locally: 2,018 checked, 0
+      unreachable.
+- [x] **Both real-Chrome gates run and pass.** `verify:graphics` 7/7 viewports
+      with every number unchanged (the scene did not move); `final-verify`
+      clean including **no-JavaScript: 8 links, poster visible**.
+- [x] Docs squared: `CLAUDE.md`, `docs/architecture.md`,
+      `docs/environment.md`, `docs/operations.md`, `README.md`.
+
+### A7 — The one step left, and it needs credentials
+
+- [ ] **Provision the CDN and upload the media.** ~1.8 GB, deliberately not in
+      git. Upload each package's `assets/originals` and `assets/web` under
+      `<package>/`, set `NEXT_PUBLIC_ARCHIVE_CDN`, then run
+      `node scripts/verify-archive-assets.mjs <base> --all`. Until then the
+      archive pages render their text and their media 404s.
+      Cloudflare R2 is the costed recommendation — 1.8 GB sits inside its 10 GB
+      free tier and its egress is free, so $0/month even at 500k visits.
 
 ### A5 — Presentation ✅ settled
 
@@ -560,9 +608,14 @@ provenance". These are now constraints on A4, not choices.
 - [x] **Documentation records take no rails** — 3 blocks, 1 heading each.
       `DocPage` as-is. A right-margin variant for long testimonies is a later
       prop on the same shell, and must fix `--content-w`.
-- [ ] Rewrite `/october-7`'s "Testimony and remembrance" copy — it still says
-      the site hosts no testimony, which is now false. Keep Edut 710 and USC
-      Shoah; turn the October7.org entry into an attribution line.
+- [x] Rewrote `/october-7`'s testimony section — it claimed the site hosts no
+      testimony, which this work made false. It now opens the two archives with
+      counts read from their manifests (so a re-import cannot leave the page
+      quoting a stale number). Edut 710 and USC Shoah stay, reframed as what
+      they actually are: recorded-interview collections neither package holds.
+      October7.org left the outbound list — its records are here now, so
+      pointing readers elsewhere to read them would read as an editing mistake;
+      its attribution sits on every record's provenance note instead.
 
 ### A6 — Later, deliberately
 

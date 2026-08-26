@@ -14,3 +14,10 @@ coverage/
 *.tsbuildinfo
 TODOS.md
 tests/
+
+# Dev-only symlinks to the archive integration packages. Production serves
+# this media from NEXT_PUBLIC_ARCHIVE_CDN, never from public/.
+public/archive
+
+# Upload resume state for archive asset scripts.
+.blob-upload

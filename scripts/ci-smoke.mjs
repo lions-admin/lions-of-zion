@@ -10,6 +10,7 @@
  * assertion about the WebGPU/particle scene rendering — that stays a
  * real-Chrome, workstation-only check.
  */
+import { readFile } from "node:fs/promises";
 import { chromium } from "playwright-core";
 
 const BASE = process.argv[2] ?? "http://localhost:3000";
@@ -26,7 +27,55 @@ const ROUTES = [
   "/we-are",
   "/methodology",
   "/corrections",
+  "/october-7/testimonies",
+  "/october-7/documentation",
 ];
+
+/**
+ * The archive adds ~1,177 record pages, which is far too many to walk here.
+ * A handful of real ones is enough to catch what actually breaks: a bad route
+ * shape, a media id that no longer resolves, a locale segment that 404s. The
+ * ids are read from the imported packages rather than written down, so this
+ * cannot rot into checking records that no longer exist.
+ */
+async function sampleRecordRoutes() {
+  const read = async (pkg) =>
+    JSON.parse(await readFile(new URL(`../content-packages/${pkg}/index.json`, import.meta.url), "utf8"));
+
+  const routes = [];
+  try {
+    const [testimonies, documentation] = await Promise.all([
+      read("october7"),
+      read("hamas-massacre"),
+    ]);
+
+    // One record at its default language, and one at a second language.
+    const multi = testimonies.find((e) => e.languages.length > 1) ?? testimonies[0];
+    if (multi) {
+      routes.push(`/october-7/testimonies/${multi.id}`);
+      const other = multi.languages.find((l) => l !== multi.defaultLanguage);
+      if (other) routes.push(`/october-7/testimonies/${multi.id}/${other}`);
+    }
+
+    const doc = documentation.find((e) => e.category) ?? documentation[0];
+    if (doc) {
+      const category = doc.category ?? "uncategorized";
+      routes.push(`/october-7/documentation/${category}/${doc.id}`);
+      const other = doc.languages.find((l) => l !== doc.defaultLanguage);
+      if (other) routes.push(`/october-7/documentation/${category}/${doc.id}/${other}`);
+    }
+
+    // The record the source left uncategorised reaches its route only through
+    // a literal segment, so it is worth one check of its own.
+    const loose = documentation.find((e) => !e.category);
+    if (loose) routes.push(`/october-7/documentation/uncategorized/${loose.id}`);
+  } catch {
+    console.log("note: content-packages/ not imported — skipping archive record routes");
+  }
+  return routes;
+}
+
+ROUTES.push(...(await sampleRecordRoutes()));
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ reducedMotion: "reduce" });

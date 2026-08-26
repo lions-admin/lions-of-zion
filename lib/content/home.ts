@@ -25,16 +25,20 @@
  * See `.ai/DECISIONS.md`, "Marathon content is real and sourced, or labeled
  * a reference", for the standing rule this implements.
  *
- * **The exports here are synchronous, and that is load-bearing.** The home
- * route must render without JavaScript — `CLAUDE.md`: "Without JavaScript the
- * static navigation remains usable immediately." Any `await` in that route's
- * render path puts it behind the Suspense boundary `app/loading.tsx` creates,
- * and with no JavaScript the fallback is never replaced: measured, the whole
- * page was the loading shell, with the real markup parked in a `display: none`
- * div and zero reachable links — in the production build as well as in dev.
+ * **The exports here are synchronous.** The home route must render without
+ * JavaScript — `CLAUDE.md`: "Without JavaScript the static navigation remains
+ * usable immediately." This was originally forced: any `await` in that route's
+ * render path put it behind the Suspense boundary `app/loading.tsx` created,
+ * and with no JavaScript the fallback was never replaced — measured, the whole
+ * page was the loading shell, with the real markup parked in a hidden div and
+ * zero reachable links, in the production build as well as in dev.
  *
- * A top-level `await` here does not solve it either — that makes the importing
- * module async, which suspends the route just the same. So this module reads
+ * That file is deleted now (`.ai/DECISIONS.md`, 2026-08-26), so the constraint
+ * no longer binds. These exports stay synchronous because nothing needs them to
+ * change; anyone introducing an `await` should re-measure the no-JavaScript
+ * render rather than assume it is free. Note that a top-level `await` here
+ * would not have solved it either — that makes the importing module async,
+ * which suspended the route just the same. So this module reads
  * the editions' synchronous exports. `getWarUpdateEdition()` and
  * `getOctober7Record()` stay async and stay the seam a real query will land
  * on; if that day comes, the answer is to prerender this slice, not to make

@@ -38,6 +38,20 @@ means them rather than from the orbit.
 truth for all eight — it feeds the particle nodes, the DOM links, the hover
 cards, the page shell and the sitemap.
 
+### The October 7 archive
+
+`/october-7` is also a hub. Roughly 1,177 further pages sit beneath it, holding
+two crawled archives in full:
+
+`/october-7/testimonies` — 179 records, up to seven languages
+`/october-7/documentation` — 335 records, English and Spanish, six categories
+
+They are child routes, not a ninth destination; `defaultNodes` stays at eight.
+The records' JSON is committed under `content-packages/`, while their ~1.8 GB
+of media is not — it is served from `NEXT_PUBLIC_ARCHIVE_CDN`, or from a
+gitignored local symlink in development. See
+[`docs/archive-integration.md`](docs/archive-integration.md).
+
 ## Graphics architecture
 
 - `components/intro/` holds only the pure story timeline and CPU text

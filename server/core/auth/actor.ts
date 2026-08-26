@@ -60,13 +60,8 @@ export function requireActor(request: Request): Actor {
   throw new ApiError("UNAUTHENTICATED", "Please sign in to continue.");
 }
 
-/**
- * Capability checks — PLACEHOLDER, and deliberately fail-closed.
- *
- * Returning `true` here until Phase 8 would mean every route silently runs
- * without authorization and every test of a protected path passes for the
- * wrong reason. Refusing means protected routes are visibly unbuilt.
- */
+/** Capability checks read the grants loaded for the authenticated actor and
+ * fail closed when a route asks for anything outside that set. */
 export function requireCapability(actor: Actor, capability: string): void {
   if (!capabilities.get(actor.label)?.has(capability)) {
     throw new ApiError("FORBIDDEN", `Missing required capability: ${capability}.`);

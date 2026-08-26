@@ -4,7 +4,11 @@ The implementation brief for bringing two crawled testimony archives onto
 `/october-7`. Written for a session with none of the originating conversation
 in context.
 
-**Status: Phase 1 complete and verified. Phases 2–4 not started.**
+**Status: built and serving.** Phase 1 (packaging), A3 (the no-JavaScript
+defect) and A4 (the build) are complete: 1,177 archive pages prerender under
+`/october-7`, `ci-smoke` passes 18/18, and 358 tests pass. Media is now in the
+dedicated Vercel Blob store `lions-of-zion-archive`; Phase 4 is the eventual
+move of archive records onto the application database.
 
 ## What this is
 
@@ -145,17 +149,60 @@ Measured, not estimated:
 video were never generated. This is not a defect: the originals are already
 faststart and browser-ready, so they are the serve set.
 
-**Use Cloudflare R2.** 1.8 GB sits inside its 10 GB free tier and its egress is
-free, so the bill is $0/month even at 500k visits. Vercel Blob costs
-$0.50–$45/month for the same traffic because it charges $0.05/GB transfer.
-Either way, **media must be served from CDN URLs directly** — proxying it
-through the Next app moves the bill onto Vercel's own bandwidth, which is
-dearer.
+**The deployed store is Vercel Blob.** The archive is isolated in
+`lions-of-zion-archive` (2,018 objects, about 1.94 GB, `iad1`) and is served
+directly through its public CDN URL. Cloudflare R2 remains a possible future
+cost optimisation, but changing stores is a deliberate migration, not a
+runtime fallback. **Media must be served from CDN URLs directly** — proxying it
+through the Next app moves the bill onto Vercel's own bandwidth.
+
+### Uploading
+
+The layout is the package's own, minus the `assets/` prefix, under a folder
+named for the package:
+
+```
+<bucket>/october7/originals/…        <bucket>/october7/web/…
+<bucket>/hamas-massacre/originals/…  <bucket>/hamas-massacre/web/…
+```
+
+The repository's uploader uses the archive store's own OIDC connection and is
+concurrent and resumable. For a new upload, run it once per package, then set
+`NEXT_PUBLIC_ARCHIVE_CDN` to the store's public base and prove it:
+
+```bash
+node scripts/upload-archive-assets.mjs <package-dir> october7
+node scripts/upload-archive-assets.mjs <package-dir> hamas-massacre
+```
+
+```bash
+node scripts/verify-archive-assets.mjs https://your-cdn/base --all
+```
+
+Do not reuse `BLOB_READ_WRITE_TOKEN` for this upload: it belongs to the RSS
+stores. The archive-prefixed variables identify the dedicated store.
 
 Three video files (115 MB, 57 MB, 51 MB) dominate the tail; the source
 package's `reports/media-optimization.md` already lists compression candidates.
 
-## Phase 3 — build (not started)
+## Phase 3 — build (complete)
+
+Built as specified below, with three things worth carrying forward:
+
+- **Two videos have no local file.** The source hosts them on YouTube and the
+  packages record them without downloading them, so `package_path` is null and
+  `validation_status` is `external-reference`. The first build crashed on this.
+  They render a note saying the archive does not hold them — better than
+  dropping the block and implying nothing was published there.
+- **The importer takes a third of what the package holds.** Only each record's
+  `story.json` plus the index, media and translation registries; everything
+  else in a package is a re-aggregation of those. 39 MB → 9.9 MB for october7.
+- **The locale split is what protects the canonical.** The bare route serves a
+  record's default language and `[locale]` serves the rest, so no version ever
+  has two URLs. `generateStaticParams` for the locale route deliberately
+  excludes the default.
+
+
 
 ### Route map
 
@@ -212,12 +259,13 @@ Two route-map details that will bite if unhandled:
 
 ### Traps specific to this repo
 
-- **`app/loading.tsx` breaks no-JavaScript rendering on every route.** Its
-  Suspense fallback is never replaced without JS, so the real markup sits in a
-  `display:none` wrapper. `/`, `/war-update` and `/we-are` already have this;
-  1,180 new static content pages make it much more expensive. **Fix it before
-  Phase 3, or accept the gap knowingly.** Verified by deleting that one file:
-  the routes then render completely.
+- ~~`app/loading.tsx` breaks no-JavaScript rendering on every route.~~
+  **Fixed — the file is removed.** It wrapped every route in a Suspense
+  boundary whose fallback is never replaced without JavaScript, parking real
+  markup inside `<div hidden id="S:0">`. See `.ai/DECISIONS.md` for the
+  measurements. **Do not reintroduce a root-level `loading.tsx`;** if a route
+  needs a loading state, scope it to that segment and verify a sibling content
+  route's no-JavaScript render before keeping it.
 - **`verify:graphics` must come out unchanged.** None of this touches
   `components/particle-nav/`. If its numbers move, something went wrong.
 - **Reading surfaces use `displayName`, not `label`.** `label` is stored
@@ -238,7 +286,7 @@ Two route-map details that will bite if unhandled:
 
 ## Phase 4 — backend (deliberately later)
 
-When Neon is provisioned and Phase 8 auth exists: the packages'
+When the archive records are moved onto the provisioned Neon database: the packages'
 `database/schema.sql` is close to PostgreSQL-ready. Stories become items, media
 becomes evidence, written through `server/core/versioning.ts` `recordVersion()`
 — the only sanctioned write path for a versioned entity.

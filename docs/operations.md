@@ -91,7 +91,30 @@ Start the dev server first, then:
 | `node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final` | macOS only | Intro handoff, keyboard, WebGPU, forced WebGL2, no-JS fallback, overlays, console errors |
 | `node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band` | macOS only | The scene keeps its exact box; the band scrolls, is opaque, carries all eight links; the intro scroll lock holds |
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
-| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | 11 routes return 200 with no console errors |
+| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | 18 routes return 200 with no console errors — the 11 originals plus both archive indexes and five sampled records |
+| `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
+
+### Archive assets
+
+`verify-archive-assets.mjs` exists because nothing else can catch a wrong
+`NEXT_PUBLIC_ARCHIVE_CDN`. The ~1.8 GB behind the archive never enters git, so
+a page whose media 404s still builds, still passes the tests and still renders
+its text. Run it once against the real bucket after the first upload, and
+after any change to that variable:
+
+```bash
+node scripts/verify-archive-assets.mjs https://your-cdn/base --all
+```
+
+Locally the same check runs against the symlinks
+`import-archive-package.mjs --link-assets` creates:
+
+```bash
+node scripts/verify-archive-assets.mjs http://localhost:3000/archive
+```
+
+Two october7 videos are hosted on YouTube and have no file in the package; the
+script counts them separately rather than reporting them missing.
 
 `ci-smoke.mjs` is the only one that uses Playwright's own bundled Chromium, and
 the only one CI can run. It is deliberately modest — route availability and
@@ -123,7 +146,7 @@ promotion.
 
 ```mermaid
 flowchart LR
-    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (11 routes)"]
+    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (18 routes)"]
 ```
 
 `smoke` installs Playwright's Chromium with `--with-deps`, starts the built
@@ -139,7 +162,7 @@ Git auto-deploy is **not connected**. Production deployment is a separate,
 manual Vercel operation, so a merge to `main` does not reach production on its
 own.
 
-`vercel.json` today declares exactly one thing:
+`vercel.json` declares the Queue trigger and four production schedules:
 
 ```json
 {
@@ -147,7 +170,13 @@ own.
     "app/api/internal/queue/outbox-dispatch/route.ts": {
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox.dispatch" }]
     }
-  }
+  },
+  "crons": [
+    { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
+    { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
+    { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
+    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
+  ]
 }
 ```
 
@@ -156,39 +185,29 @@ For rolling back a bad production deploy, see
 
 ### Scheduled work
 
-> **Nothing is scheduled.** `vercel.json` has no `crons` array, so
-> `/api/internal/cron/ingest`, `/api/internal/cron/embed` and
-> `/api/internal/cron/outbox-drain` will never fire on their own — despite
-> `cron/ingest/route.ts`'s own comment saying `vercel.json` carries the
-> schedule.
+Production schedules are active and authenticated by `CRON_SECRET`. Ingest
+runs at minutes 0 and 30, embeddings at 10 and 40, the outbox drain every 15
+minutes, and maintenance daily at 03:20 UTC. Every handler is idempotent and
+safe to retry. Preview has the same code but an isolated environment and must
+not be used to run Production jobs.
 
-Provisioning them is a `vercel.json` change plus `CRON_SECRET` in the Vercel
-project. Vercel signs every cron invocation with that secret automatically once
-the variable exists; there is nothing else to wire up. Cadences are a product
-decision, not a code one — `embed` and `outbox-drain` are both safe to run at
-any cadence and safe to run concurrently with themselves.
+### Provisioned dependency order
 
-This is deliberately **not** applied here; it is an infrastructure change that
-starts spending money against services that are not provisioned.
+The deployed order is retained for recovery and new environments:
 
-### Provisioning order
+1. **Neon Postgres** → set the environment-specific `DATABASE_URL`; run
+   `npm run db:migrate` against Preview first, then Production.
+2. **Neon Auth** → set `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` and the
+   single `ADMIN_EMAIL`; create the admin account through `/admin/login`.
+3. **Vercel Blob** → set the RSS token and archive-prefixed variables; never
+   reuse the archive store for ingestion.
+4. **Vercel Queues** → link the project so the OIDC topic is available.
+5. **AI Gateway** → use Vercel OIDC; verify model profiles and keep the
+   application/Gateway spend caps enabled.
 
-Nothing below is provisioned. If it is ever done, the dependency order is:
-
-1. **Neon Postgres** → `DATABASE_URL` (pooled). Run `npm run db:migrate`.
-   Everything under `server/` needs this and nothing else works without it.
-2. **Vercel Blob** → `BLOB_READ_WRITE_TOKEN`. Ingestion stores raw fetched
-   bytes here.
-3. **Cron schedules** → `CRON_SECRET` plus a `crons` array. Ingestion begins.
-4. **Vercel Queues** → `vercel link && vercel env pull` (OIDC, no env var).
-   Optional: without it the drain simply retries.
-5. **AI Gateway** → `AI_GATEWAY_API_KEY`. Verify `MODEL_PROFILES` slugs against
-   `GET /api/internal/ai/models` first. Chat and embeddings begin.
-
-Before step 1, read
-[the gaps](architecture.md#known-architectural-gaps) — two of them
-(RLS not engaged, unauthenticated evidence reads) become live the moment a
-database exists.
+Before changing a deployed dependency, read
+[`vercel-infrastructure.md`](vercel-infrastructure.md) and the
+[known gaps](architecture.md#known-architectural-gaps).
 
 ---
 

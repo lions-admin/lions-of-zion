@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { FigureRow, SourceList, Timeline } from "@/components/content";
 import { getOctober7Record } from "@/lib/content/october-7";
+import { getDocumentationManifest } from "@/lib/content/documentation";
+import { getTestimoniesManifest } from "@/lib/content/testimonies";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -42,7 +45,18 @@ function october7JsonLd(record: Awaited<ReturnType<typeof getOctober7Record>>) {
 }
 
 export default async function Page() {
-  const record = await getOctober7Record();
+  const [record, testimonies, documentation] = await Promise.all([
+    getOctober7Record(),
+    getTestimoniesManifest(),
+    getDocumentationManifest(),
+  ]);
+
+  // Read from each package's own manifest rather than written into the copy,
+  // so a re-import cannot leave this page quoting a number that moved.
+  const counts = {
+    testimonies: testimonies.counts.records,
+    documentation: documentation.counts.records,
+  };
 
   return (
     <SectionPage
@@ -56,20 +70,71 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }}
       />
+      <SectionBlock heading="Testimony and documentation">
+        <p>
+          Two archives are held here in full, reproduced as published —
+          their text, their media and their credits unaltered.
+        </p>
+        <ul className={styles.archiveEntries}>
+          <li>
+            <Link href="/october-7/testimonies" className={styles.archiveEntry}>
+              <span className={styles.archiveEntryHead}>
+                <span className={styles.archiveEntryTitle}>Testimonies</span>
+                <span className={styles.archiveEntryCount}>
+                  {counts.testimonies} records
+                </span>
+              </span>
+              <span className={styles.archiveEntryDesc}>
+                First-hand accounts, archived from October7.org in up to seven
+                languages. People describing what happened to them.
+              </span>
+              <span className={styles.archiveEntryCta} aria-hidden="true">
+                Open the archive →
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/october-7/documentation" className={styles.archiveEntry}>
+              <span className={styles.archiveEntryHead}>
+                <span className={styles.archiveEntryTitle}>Documentation</span>
+                <span className={styles.archiveEntryCount}>
+                  {counts.documentation} records
+                </span>
+              </span>
+              <span className={styles.archiveEntryDesc}>
+                Archived from Hamas-Massacre.net, in English and Spanish, filed
+                under the six categories the source used. Much of it is graphic.
+              </span>
+              <span className={styles.archiveEntryCta} aria-hidden="true">
+                Open the archive →
+              </span>
+            </Link>
+          </li>
+        </ul>
+        <p>
+          Holding them here means the record survives whatever happens to any
+          one site. It does not make this the only place they live, and the
+          archives below hold testimony these two do not — recorded interviews
+          with survivors, first responders and bereaved families, gathered by
+          people with the consent and the process to do it:
+        </p>
+        <SourceList sources={record.archives} />
+      </SectionBlock>
+
       <SectionBlock heading="The record">
         <p>
           What happened on October 7, 2023 was documented as it happened —
           by the perpetrators themselves, by survivors, by first responders,
           and by the forensic teams who came after. The figures below are
-          drawn from public reporting; deeper documentation lives with the
-          real archives further down this page.
+          drawn from public reporting; the fuller documentation is in the
+          two archives above.
         </p>
         <div className={styles.inscription}>
           <FigureRow figures={record.figures} />
         </div>
         <p>
           Denial of that day is not treated here as an opinion to argue with
-          but as a documented phenomenon the record and the archives below
+          but as a documented phenomenon the record and the archives above
           answer directly.
         </p>
       </SectionBlock>
@@ -78,18 +143,6 @@ export default async function Page() {
         <div className={styles.record}>
           <Timeline variant="feed" entries={record.timeline} />
         </div>
-      </SectionBlock>
-
-      <SectionBlock heading="Testimony and remembrance">
-        <p>
-          This site does not host survivor testimony or build victim
-          profiles here — that requires direct consent from the people
-          involved, and there is no process yet to obtain it responsibly.
-          What this page can do honestly is point to where that record
-          already lives, gathered and held by people who do have that
-          consent:
-        </p>
-        <SourceList sources={record.archives} />
       </SectionBlock>
     </SectionPage>
   );

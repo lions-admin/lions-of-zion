@@ -93,7 +93,9 @@ on an unknown id.
 | `/geopolitical-brief` | `components/briefs/GeopoliticalBrief.tsx` | The one page with its own layout |
 | `/support-us` | `SectionPage` | Carries the report and volunteer forms |
 | `/war-update` | `SectionPage` | |
-| `/october-7` | `SectionPage` | `register="muted"` |
+| `/october-7` | `SectionPage` | `register="muted"`. A hub: the archives hang beneath it |
+| `/october-7/testimonies` + `[slug]` + `[slug]/[locale]` | `DocPage` + `components/archive/` | 505 pages — 179 records, up to 7 languages |
+| `/october-7/documentation` + `[category]/[slug]` (+ `[locale]`) | `DocPage` + `components/archive/` | 670 pages — 335 records, English and Spanish |
 | `/our-heroes` | `SectionPage` | Opts out of the evidence margin (card grid) |
 | `/israels-story` | `SectionPage` | |
 | `/fake-resistance` | `SectionPage` | `accent="ember"` |
@@ -101,7 +103,8 @@ on an unknown id.
 | `/methodology`, `/corrections` | `components/sections/DocPage.tsx` | Outside `defaultNodes` on purpose |
 | `/particle-demo` | own layout | Tuning harness; `disallow`ed in `robots.ts` |
 
-`app/error.tsx`, `app/loading.tsx`, `app/not-found.tsx` complete the shell.
+`app/error.tsx` and `app/not-found.tsx` complete the shell. There is
+deliberately **no** `app/loading.tsx` — see the note under the home route.
 
 ### The home route
 
@@ -124,13 +127,20 @@ flowchart LR
     Content --> Brief["briefs/adapters.ts"]
 ```
 
-**`Experience` is deliberately synchronous.** An `await` in this route's
-render path puts it behind `app/loading.tsx`'s Suspense boundary, and without
-JavaScript that fallback is never replaced — the whole page becomes the
-loading shell. `lib/content/home.ts` therefore exports synchronously and reads
-the editions' synchronous exports. See
-[`../.ai/DECISIONS.md`](../.ai/DECISIONS.md), "`app/loading.tsx` breaks every
-async route without JavaScript".
+**`Experience` is synchronous, and `app/loading.tsx` no longer exists.** A
+root-level `loading.tsx` wraps every route in a Suspense boundary; streaming
+SSR then emits the real markup inside `<div hidden id="S:0">` for an inline
+`$RC` script to reveal, so without JavaScript the loading shell stayed and the
+page never appeared. The file was deleted on 2026-08-26 and the home route's
+prerendered HTML now carries its orbit links, band links and poster with zero
+Suspense boundaries.
+
+`Experience` and `lib/content/home.ts` remain synchronous, but that is now a
+kept default rather than a forced one — re-measure the no-JavaScript render
+before introducing an `await`. **Do not reintroduce a root-level
+`loading.tsx`.** See [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md),
+"`app/loading.tsx` is removed: it hid every page from readers without
+JavaScript", and the earlier entry it supersedes.
 
 ### The renderer
 
@@ -197,9 +207,37 @@ bodies rather than to any call site.
 | `our-heroes.ts` | `getOurHeroesEdition()` | async |
 | `corrections.ts` | `getCorrectionsLog()` | async |
 | `home.ts` | `getLatestMilestone()`, `getRecentMilestones()`, `getTrustStrip()` | **sync, load-bearing** |
+| `archive.ts` | `getIndex()`, `getRecord()`, `getMediaRegistry()`, `assetUrl()` | async |
+| `testimonies.ts` | `getTestimonyIndex()`, `getTestimony()`, route params | async |
+| `documentation.ts` | `getDocumentationGroups()`, `getDocumentationRecord()`, route params | async |
 
 `components/content/` is the shared presentation library the pages are built
 from — its own [README](../components/content/README.md) documents every prop.
+
+### The October 7 archive
+
+The three modules above read `content-packages/`, which
+`scripts/import-archive-package.mjs` fills from integration packages built to
+the `october7-integration-package@1` contract. Four properties are worth
+knowing before editing any of it:
+
+- **14 MB of JSON is committed; ~1.8 GB of media never is.** The importer takes
+  only each record's `story.json` plus the index, media and translation
+  registries — everything else in a package re-aggregates those. Assets resolve
+  by `media_id` through `media.json`, so only a URL prefix changes between
+  environments (`NEXT_PUBLIC_ARCHIVE_CDN`, else `/archive`).
+- **One renderer serves both archives with no branching**, because one's block
+  types are a strict subset of the other's. `tests/archive-content.test.ts`
+  asserts that rather than trusting it.
+- **The bare record route owns the default language and `[locale]` owns the
+  rest.** The locale route's `generateStaticParams` deliberately excludes the
+  default, so no version ever has two URLs competing for one canonical.
+- **Nothing in a record body is a hyperlink**, and credits always render. The
+  verifiable pointer travels in the provenance footer and in JSON-LD
+  (`isBasedOn`). Both are decisions, not accidents —
+  [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md), 2026-08-26.
+
+Full brief: [`archive-integration.md`](archive-integration.md).
 
 ---
 
@@ -343,20 +381,18 @@ still checking" unrepresentable.
 
 ## Authentication, authorization, caching, state
 
-### Authentication — a deliberate placeholder
+### Authentication — Neon Auth with a single-admin boundary
 
-`server/core/auth/actor.ts` is **not** authentication and says so. In
-development, `x-actor-label` identifies the caller with no verification
-whatsoever. **In production it throws `UNAUTHENTICATED`.**
+`/api/auth/[...path]` proxies Neon Auth and restricts account creation to the
+configured `ADMIN_EMAIL`. `authenticateAdmin()` reads the Neon Auth session,
+rejects every other email with `FORBIDDEN`, then upserts the matching
+`app_user` and its five capability grants. The `/admin` page and admin status
+route require that session; public health, search and chat remain the only
+open application paths.
 
-That refusal is the design: a development shim that quietly keeps working once
-deployed is how an API ends up with no authentication and nobody noticing.
-`requireCapability()` likewise fail-closes with `NOT_IMPLEMENTED` rather than
-returning `true`.
-
-Real authentication is Phase 8 and is not built. See
-[`api.md`](api.md#authentication) for what that means per route, and
-[the gaps section below](#known-architectural-gaps).
+Development tests may still register an explicit `x-actor-label` shim. It is
+never accepted in Preview or Production. `requireCapability()` checks the
+capability set loaded from `capability_grant` and fails closed.
 
 ### Authorization
 
@@ -408,19 +444,22 @@ anywhere in the tree.
 
 ## External services
 
-All three are **optional and currently unprovisioned**. Frontend work must not
-silently provision or mutate them.
+These services are provisioned for the linked Vercel project. Frontend work
+must not silently create additional resources; Preview and Production use
+separate data boundaries.
 
 | Service | Used by | Configured via | State |
 | --- | --- | --- | --- |
-| Neon Postgres | everything under `server/` | `DATABASE_URL` (pooled) | not provisioned |
-| Vercel Blob | `server/core/blob.ts`, ingestion raw bytes | `BLOB_READ_WRITE_TOKEN` | not provisioned |
-| Vercel AI Gateway | `server/core/ai/gateway.ts`, chat + embeddings | `AI_GATEWAY_API_KEY` | not provisioned |
-| Vercel Queues | outbox dispatch | OIDC (`vercel link`, `vercel env pull`) | not provisioned |
+| Neon Postgres | everything under `server/` | `DATABASE_URL` (pooled) | Launch, main + isolated Preview branch |
+| Neon Auth | `/api/auth/[...path]`, admin session | `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` | one allowlisted admin |
+| Vercel Blob | RSS bytes and archive media | `BLOB_READ_WRITE_TOKEN`, archive-prefixed variables | RSS stores + dedicated archive store |
+| Vercel AI Gateway | chat + embeddings | Vercel OIDC in linked Functions | provisioned, $5 Gateway cap |
+| Vercel Queues | outbox dispatch | OIDC (`vercel link`, `vercel env pull`) | topic `outbox.dispatch` |
+| Vercel Cron | ingest, embed, drain, maintenance | `CRON_SECRET` | four schedules in `vercel.json` |
 
 The queue's absence is not fatal: the drain cron dispatches straight to it and
-retries on the next tick if unreachable, so ingestion works with only
-`DATABASE_URL` and `BLOB_READ_WRITE_TOKEN`.
+retries on the next tick if unreachable. Production has the topic configured;
+Preview is isolated and cannot write its messages to Production.
 
 Model **profiles** (`fast`, `reasoning`, `translation`, `embedding`) are the
 only names application code uses; the provider slugs live in one map in
@@ -436,20 +475,14 @@ column rather than swapped into this one.
 Verified against the code on 2026-08-26. These are stated here so they are not
 rediscovered; none of them is fixed by this document.
 
-1. **No cron schedules are configured.** `vercel.json` carries the queue
-   trigger and nothing else — there is no `crons` array, so
-   `/api/internal/cron/ingest`, `/embed` and `/outbox-drain` will never fire
-   in production. See [`operations.md`](operations.md#scheduled-work).
-2. **RLS is written and tested but not engaged at runtime** (above).
-3. **The public chat cannot work in production as written.** `AskTheLionChat`
-   probes with an anonymous `GET /api/v1/chat/threads`, but `POST` calls
-   `requireActor`, which throws in production. With a database provisioned the
-   probe would report "online" and every message would fail.
-4. **`.env.example` is not in git** — `.gitignore`'s `.env*` pattern captures
+1. **RLS is written and tested but not engaged at runtime** (above). The
+   application layer still filters public responses and the admin capability
+   guard remains authoritative until role switching is introduced.
+2. **`.env.example` is not in git** — `.gitignore`'s `.env*` pattern captures
    it. A fresh clone has no environment reference; [`environment.md`](environment.md)
    is the tracked substitute.
-5. **`/war-update` and `/we-are` are blank without JavaScript**, for the async
+3. **`/war-update` and `/we-are` are blank without JavaScript**, for the async
    render reason described under [the home route](#the-home-route). Recorded in
    `lib/content/home.ts`'s own header.
-6. **`/api/internal/health` has no deep variant**, though `server/core/config.ts`
+4. **`/api/internal/health` has no deep variant**, though `server/core/config.ts`
    refers to one.

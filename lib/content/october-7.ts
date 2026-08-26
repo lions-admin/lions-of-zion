@@ -2,11 +2,18 @@
  * October 7 — "The record" seam.
  *
  * Same convention as `lib/content/war-update.ts`: local and hand-sourced
- * today, swappable later. Testimony and remembrance are handled by linking
- * to real, established archives (`ARCHIVE_SOURCES`) rather than reproducing
- * any testimony or building victim profiles here — this site has no
- * consent from survivors or families to do either. See `.ai/DECISIONS.md`
- * for why that boundary exists and must hold in any future edit.
+ * today, swappable later.
+ *
+ * **The link-only boundary this file used to describe is reversed.** Two
+ * crawled archives are hosted under `/october-7/testimonies` and
+ * `/october-7/documentation`, read through `lib/content/testimonies.ts` and
+ * `lib/content/documentation.ts`. `ARCHIVES` below is now the short list of
+ * projects that remain genuinely additive rather than the whole answer to
+ * testimony. See `.ai/DECISIONS.md`, 2026-08-26, for the reversal and for
+ * what must not be quietly re-tightened.
+ *
+ * What this file still owns is "The record": administrative and casualty
+ * facts from primary research, not testimony.
  */
 import type { AssessmentValue } from '@/server/contracts/enums';
 import type { Figure, Source, TimelineEntry } from '@/components/content';
@@ -108,9 +115,18 @@ const TIMELINE: TimelineEntry[] = [
 ];
 
 /**
- * Real, independently operated testimony and memorial projects. This site
- * does not host or reproduce testimony — it links to where the fuller
- * record already lives, with named, credentialed custodians.
+ * Testimony projects this site does **not** hold.
+ *
+ * The two archives under `/october-7/testimonies` and `/october-7/documentation`
+ * are hosted here in full. These are the ones that remain genuinely additive:
+ * both are recorded-interview collections — video and oral history gathered
+ * under a consent process this site has no equivalent of — so linking is the
+ * only honest way to carry them.
+ *
+ * October7.org is deliberately **not** in this list any more. Its records are
+ * hosted here now, so an invitation to go and read them elsewhere would read
+ * as an editing mistake; its attribution appears instead on every record's
+ * provenance note and beside the archive entry on the page.
  */
 const ARCHIVES: Source[] = [
   {
@@ -124,12 +140,6 @@ const ARCHIVES: Source[] = [
     label: 'USC Shoah Foundation — October 7 testimony collection',
     kind: 'Oral-history archive',
     url: 'https://sfi.usc.edu/october7testimonies',
-  },
-  {
-    id: 'october7-org',
-    label: 'October7.org — firsthand accounts, translated',
-    kind: 'Testimony repository',
-    url: 'https://october7.org/',
   },
 ];
 
@@ -148,10 +158,12 @@ export async function getOctober7Record(): Promise<October7Record> {
 /**
  * The same edition, read synchronously.
  *
- * The home route must render without JavaScript (`CLAUDE.md`), and an async
- * component puts a route behind `app/loading.tsx`'s Suspense boundary, where
- * no-JS visitors never get past the fallback. The accessor above stays the
- * seam a real query will land on; this is the static shape the front-page
- * band reads today. One object, two doors — not two sources.
+ * The home route must render without JavaScript (`CLAUDE.md`). This existed
+ * because an async component put a route behind `app/loading.tsx`'s Suspense
+ * boundary, where no-JS visitors never got past the fallback. That file is
+ * deleted now (`.ai/DECISIONS.md`, 2026-08-26), so the constraint no longer
+ * binds — this stays because nothing needs it to change. The accessor above
+ * stays the seam a real query will land on; this is the static shape the
+ * front-page band reads today. One object, two doors — not two sources.
  */
 export const october7Record: October7Record = RECORD;

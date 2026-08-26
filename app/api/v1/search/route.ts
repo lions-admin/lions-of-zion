@@ -11,7 +11,7 @@ import { rateLimit } from "@/server/modules/reports";
  * No `requireActor`: the projection contains only indexable material —
  * restricted and secret evidence is refused a row at all by
  * `isIndexable()` — so there is nothing here an anonymous reader should not
- * see. Row-level filtering by role arrives with RLS in Phase 8.
+ * see. Database role switching for RLS remains a separate hardening task.
  *
  * The response carries `semantic: false` when this deployment has no
  * pgvector, rather than quietly returning lexical results as though they were

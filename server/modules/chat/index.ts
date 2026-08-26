@@ -2,10 +2,10 @@ import "server-only";
 
 import { db } from "@/server/db/client";
 import { search } from "@/server/modules/search";
+import { ai } from "@/server/modules/ai";
+import { assertWithinBudget } from "@/server/core/ai/gateway";
 import { answerFromDocuments } from "./answerer";
 import { chatService, type ChatService } from "./service";
-
-let bound: ChatService | undefined;
 
 /**
  * Lazily bound, so importing this module demands neither a DATABASE_URL nor a
@@ -17,10 +17,11 @@ let bound: ChatService | undefined;
  * credentials.
  */
 export const chat = (): ChatService =>
-  (bound ??= chatService(db(), {
+  chatService(db(), {
     answer: answerFromDocuments,
     retrieve: async (query, limit) => (await search().search({ q: query, limit })).hits,
-  }));
+    guardBudget: () => assertWithinBudget((since) => ai().spendSince(since)),
+  });
 
 export { chatService, CHAT_SYSTEM_PROMPT, type ChatService, type Answerer, type Retriever } from "./service";
 export { splitCitations } from "./answerer";

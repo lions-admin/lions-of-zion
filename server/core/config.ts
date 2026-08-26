@@ -53,7 +53,10 @@ export const databaseUrl = (): string => required("DATABASE_URL", "the database 
 export const testDatabaseUrl = (): string | undefined => process.env.TEST_DATABASE_URL;
 
 export const blobToken = (): string => required("BLOB_READ_WRITE_TOKEN", "blob storage");
-export const aiGatewayKey = (): string => required("AI_GATEWAY_API_KEY", "the AI gateway");
+/** Vercel supplies `VERCEL_OIDC_TOKEN` automatically to linked deployments.
+ * A static key remains a local-development fallback, not the production path. */
+export const hasAiGateway = (): boolean =>
+  Boolean(process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY);
 export const internalApiSecret = (): string =>
   required("INTERNAL_API_SECRET", "the internal route guard");
 /** Vercel sets this automatically once the env var of the same name is
@@ -61,12 +64,21 @@ export const internalApiSecret = (): string =>
  *  is why the guard treats "unset" as "refuse", never as "allow". */
 export const cronSecret = (): string | undefined => process.env.CRON_SECRET;
 
-/** Credentials for the public, display-only "Continue with X" flow. */
-export const xOAuthClientId = (): string => required("X_OAUTH_CLIENT_ID", "X OAuth");
-export const xOAuthClientSecret = (): string =>
-  required("X_OAUTH_CLIENT_SECRET", "X OAuth");
-export const xAuthSessionSecret = (): string =>
-  required("X_AUTH_SESSION_SECRET", "public X authentication session cookies");
+export const neonAuthBaseUrl = (): string =>
+  required("NEON_AUTH_BASE_URL", "Neon Auth");
+export const neonAuthCookieSecret = (): string =>
+  required("NEON_AUTH_COOKIE_SECRET", "Neon Auth session cookies");
+export const adminEmail = (): string =>
+  required("ADMIN_EMAIL", "the single-admin allowlist").trim().toLowerCase();
+export const siteUrl = (): string => process.env.NEXT_PUBLIC_SITE_URL ?? "https://lionsofzion.io";
+
+/** Keyed hashing prevents a leaked bucket value from becoming a reusable IP
+ * fingerprint. Production must provide a dedicated secret; local tests use a
+ * conspicuous non-secret fallback. */
+export const rateLimitHmacSecret = (): string =>
+  appEnv() === "development"
+    ? process.env.RATE_LIMIT_HMAC_SECRET ?? "development-only-rate-limit-key"
+    : required("RATE_LIMIT_HMAC_SECRET", "anonymous rate-limit buckets");
 
 /**
  * Model profiles — the only place a provider model id appears.
@@ -90,9 +102,9 @@ export const MODEL_PROFILES = {
   /** High volume, low stakes: classification, routing, short extraction. */
   fast: "anthropic/claude-haiku-4.5",
   /** Anything a human will be asked to approve. */
-  reasoning: "anthropic/claude-sonnet-4.6",
+  reasoning: "anthropic/claude-sonnet-5",
   /** Translation, where fluency matters more than speed. */
-  translation: "anthropic/claude-sonnet-4.6",
+  translation: "anthropic/claude-sonnet-5",
   /** 1536 dimensions — must match the vector column. */
   embedding: "openai/text-embedding-3-small",
 } as const;
@@ -111,7 +123,10 @@ export function aiBudgets(): { daily?: number; monthly?: number } {
     const n = Number(raw);
     return Number.isFinite(n) && n > 0 ? n : undefined;
   };
-  return { daily: num("AI_DAILY_BUDGET_USD"), monthly: num("AI_MONTHLY_BUDGET_USD") };
+  return {
+    daily: num("AI_DAILY_BUDGET_USD") ?? (appEnv() === "development" ? undefined : 0.75),
+    monthly: num("AI_MONTHLY_BUDGET_USD") ?? (appEnv() === "development" ? undefined : 4.5),
+  };
 }
 
 /**
@@ -120,16 +135,16 @@ export function aiBudgets(): { daily?: number; monthly?: number } {
  * Returns booleans, never values — a health endpoint that leaks the shape of a
  * connection string is a health endpoint that leaks.
  */
-export function configuredIntegrations(): Record<string, boolean> {
+export function configuredIntegrations(request?: Request): Record<string, boolean> {
   return {
     database: Boolean(process.env.DATABASE_URL),
     blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-    aiGateway: Boolean(process.env.AI_GATEWAY_API_KEY),
+    // In Vercel Functions the short-lived token is injected into the request
+    // context, not process.env. The Gateway SDK reads this same header through
+    // @vercel/oidc, so the health check must mirror the runtime behaviour.
+    aiGateway:
+      hasAiGateway() || Boolean(request?.headers.get("x-vercel-oidc-token")),
+    neonAuth: Boolean(process.env.NEON_AUTH_BASE_URL && process.env.NEON_AUTH_COOKIE_SECRET),
     internalSecret: Boolean(process.env.INTERNAL_API_SECRET),
-    xPublicAuth: Boolean(
-      process.env.X_OAUTH_CLIENT_ID &&
-        process.env.X_OAUTH_CLIENT_SECRET &&
-        process.env.X_AUTH_SESSION_SECRET,
-    ),
   };
 }

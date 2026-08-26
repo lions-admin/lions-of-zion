@@ -11,9 +11,9 @@ import "server-only";
  */
 
 import { eq } from "drizzle-orm";
-import { evidence, informationItem, narrative } from "@/server/db/schema";
+import { evidence, informationItem, narrative, publication } from "@/server/db/schema";
 import { searchRepo } from "./repo";
-import { isIndexable, projectEvidence, projectItem, projectNarrative } from "./projection";
+import { isIndexable, projectEvidence, projectItem, projectNarrative, projectPublication } from "./projection";
 import type { EntityType } from "@/server/contracts/enums";
 import type { SearchQuery, SearchResult } from "@/server/contracts/search";
 import type { Evidence, InformationItem } from "@/server/db/schema";
@@ -60,7 +60,7 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
           .from(informationItem)
           .where(eq(informationItem.id, entityId))
           .limit(1)) as InformationItem[];
-        if (!row) {
+        if (!row || (row.status !== "published" && row.status !== "updated")) {
           await repo.remove(entityType, entityId);
           return "removed";
         }
@@ -93,6 +93,20 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
           return "removed";
         }
         await repo.upsert(projectNarrative(row));
+        return "indexed";
+      }
+
+      if (["news_update", "brief", "geopolitical_analysis", "scenario"].includes(entityType)) {
+        const [row] = (await loader
+          .select()
+          .from(publication)
+          .where(eq(publication.id, entityId))
+          .limit(1)) as (typeof publication.$inferSelect)[];
+        if (!row || row.kind !== entityType || (row.status !== "published" && row.status !== "updated")) {
+          await repo.remove(entityType, entityId);
+          return "removed";
+        }
+        await repo.upsert(projectPublication(row));
         return "indexed";
       }
 

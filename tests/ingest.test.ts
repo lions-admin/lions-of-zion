@@ -74,8 +74,9 @@ describe("ingestSource", () => {
     const src = await seedRssSource(db);
     vi.stubGlobal("fetch", vi.fn(async () => new Response(RSS2, { status: 200 })));
 
-    await ingestSource(db, src.id, actor, { storeRaw: stubStoreRaw });
-    const second = await ingestSource(db, src.id, actor, { storeRaw: stubStoreRaw });
+    const storeRaw = vi.fn(stubStoreRaw);
+    await ingestSource(db, src.id, actor, { storeRaw });
+    const second = await ingestSource(db, src.id, actor, { storeRaw });
 
     expect(second.fetch.itemsSeen).toBe(2);
     expect(second.fetch.itemsNew).toBe(0);
@@ -86,6 +87,8 @@ describe("ingestSource", () => {
 
     const fetches = await db.select().from(sourceFetch).where(eq(sourceFetch.sourceId, src.id));
     expect(fetches).toHaveLength(2);
+    expect(storeRaw).toHaveBeenCalledTimes(1);
+    expect(fetches[0]!.rawBlobUrl).toBe(fetches[1]!.rawBlobUrl);
   });
 
   it("records a failed fetch with no evidence when the feed is unreachable", async () => {

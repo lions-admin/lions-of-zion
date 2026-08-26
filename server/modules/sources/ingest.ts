@@ -49,13 +49,16 @@ export async function ingestSource(
   let rawBlobUrl: string | null = null;
   let rawContentHash: string | null = null;
   if (result.rawBody) {
-    const stored = await storeRaw(
-      `sources/${sourceId}/${startedAt.getTime()}.xml`,
-      result.rawBody,
-      "application/xml",
-    );
-    rawBlobUrl = stored.url;
     rawContentHash = integrityHash(result.rawBody);
+    rawBlobUrl = await sourceFetchRepo(db).blobForHash(sourceId, rawContentHash);
+    if (!rawBlobUrl) {
+      const stored = await storeRaw(
+        `sources/${sourceId}/${rawContentHash}.xml`,
+        result.rawBody,
+        "application/xml",
+      );
+      rawBlobUrl = stored.url;
+    }
   }
 
   return run.transaction(async (tx) => {

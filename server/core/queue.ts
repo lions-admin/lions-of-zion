@@ -10,7 +10,7 @@ import "server-only";
  * (`app/api/internal/queue/outbox-dispatch/route.ts`) reads `payload.topic`
  * and looks up the handler the same way the drain would.
  *
- * `send` is real network I/O against a service that is not provisioned here
+ * `send` is real network I/O against the provisioned Vercel Queue
  * (it authenticates via OIDC, set up by `vercel link && vercel env pull`, per
  * the Vercel Queues quickstart). The outbox drain therefore takes a `dispatch`
  * function as a parameter with this as its default — tests inject a stub and
@@ -18,8 +18,8 @@ import "server-only";
  * builds its own PGlite instance.
  */
 
-import { send } from "@vercel/queue";
 import type { OutboxRow } from "@/server/db/schema";
+import { queueClient } from "./queue-client";
 
 export const OUTBOX_QUEUE_TOPIC = "outbox.dispatch";
 
@@ -47,5 +47,7 @@ export const dispatchToQueue: Dispatcher = async (row) => {
     entityType: row.entityType,
     entityId: row.entityId,
   };
-  await send(OUTBOX_QUEUE_TOPIC, message, { idempotencyKey: `outbox-${row.id}` });
+  await queueClient.send(OUTBOX_QUEUE_TOPIC, message, {
+    idempotencyKey: `outbox-${row.id}`,
+  });
 };

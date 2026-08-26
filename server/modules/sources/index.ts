@@ -7,12 +7,9 @@ import { sourceRepo } from "./repo";
 import type { SourceKind } from "@/server/contracts/enums";
 import type { Actor } from "@/server/core/audit";
 
-let boundSources: SourceService | undefined;
-let boundFamilies: SourceFamilyService | undefined;
-
 /** Lazily bound, so importing this module does not demand a DATABASE_URL. */
-export const sources = (): SourceService => (boundSources ??= sourceService(db()));
-export const sourceFamilies = (): SourceFamilyService => (boundFamilies ??= sourceFamilyService(db()));
+export const sources = (): SourceService => sourceService(db());
+export const sourceFamilies = (): SourceFamilyService => sourceFamilyService(db());
 
 /** What the ingestion cron walks: every active source of a registered kind. */
 export const activeSources = (kind: SourceKind) => sourceRepo(db()).activeByKind(kind);

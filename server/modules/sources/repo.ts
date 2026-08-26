@@ -96,10 +96,24 @@ export function sourceRepo(db: unknown) {
 
 export function sourceFetchRepo(db: unknown) {
   const d = db as AnyDb & {
+    select: (f?: unknown) => {
+      from: (t: unknown) => {
+        where: (w: SQL | undefined) => { orderBy: (o: SQL) => { limit: (n: number) => Promise<SourceFetch[]> } };
+      };
+    };
     insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<SourceFetch[]> } };
   };
 
   return {
+    async blobForHash(sourceId: string, hash: string): Promise<string | null> {
+      const rows = await d
+        .select()
+        .from(sourceFetch)
+        .where(and(eq(sourceFetch.sourceId, sourceId), eq(sourceFetch.rawContentHash, hash)))
+        .orderBy(desc(sourceFetch.startedAt))
+        .limit(1);
+      return rows[0]?.rawBlobUrl ?? null;
+    },
     async insert(values: Record<string, unknown>): Promise<SourceFetch> {
       const rows = await d.insert(sourceFetch).values(values).returning();
       return rows[0]!;

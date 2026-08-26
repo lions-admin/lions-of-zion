@@ -11,6 +11,7 @@ described as though it works.
 | [`data-model.md`](data-model.md) | Tables, triggers, versioning, RLS, the two axes, the test database |
 | [`environment.md`](environment.md) | Every environment variable, by name. No values |
 | [`operations.md`](operations.md) | Install, run, verify, CI, deploy, troubleshoot |
+| [`vercel-infrastructure.md`](vercel-infrastructure.md) | Verified Vercel, Neon, Blob, Queue, Cron and AI deployment record |
 
 ## Active task briefs
 

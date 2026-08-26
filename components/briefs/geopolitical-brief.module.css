@@ -13,11 +13,21 @@
  * properties left are two surface tints that no token covers: this page's
  * raised panels are lighter than `--ground` and nothing in the scale
  * expresses that.
+ *
+ * Both are neutral. They were #090f1b and #0d1523 — navies — and commit
+ * c7e92b2, which took every panel on the site off blue, converted only the
+ * `rgba()` literals in this file and did not see these two or the `#070c15`
+ * footer bands below. That is why the Brief still read blue after the ground
+ * went black while the rest of the site did not: its panel tints, its
+ * backdrop and every quiet label on it were the last blue left. Converted by
+ * the same rule as everything else — the grey of equal luminance
+ * (0.2126R + 0.7152G + 0.0722B) — so each panel keeps its exact weight
+ * against the ground and loses only the hue.
  */
 
 .page {
-  --surface: #090f1b;
-  --surface-raised: #0d1523;
+  --surface: #0f0f0f;
+  --surface-raised: #141414;
 
   /* The evidence margin's geometry, matching this layout's own third track.
      `marginNote` (content.module.css) reads these; declaring them here rather
@@ -57,15 +67,30 @@
   scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
 
+/* The Brief's own scan, layered over the one `body` paints (`--scan-ground`,
+   app/globals.css). All three layers were blue, which on the old navy ground
+   was invisible and on true black is the single largest blue field on the
+   page — this backdrop is `position: fixed; inset: 0`, so it covers the whole
+   viewport behind the reading column.
+
+   Brought into line with `--scan-ground`'s own retune for black: the radial
+   keeps its blue, because that layer *is* the depth cue that the scan is
+   densest at the centre, and drops to the same 0.045; both rule fields go
+   neutral, because a rule field is texture and has no direction to signal.
+
+   The neutral alphas are scaled, not carried over. rgb(214,226,240) has 1.46×
+   the luma of rgb(87,167,217), so reusing 0.018/0.014 would have made the
+   weave visibly stronger than the one it replaces rather than the same
+   weight — 0.012 and 0.010 land it where it was. */
 .quietBackdrop {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(75% 60% at 50% 10%, rgba(87, 167, 217, 0.055), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.018) 0 1px, transparent 1px 11px),
-    repeating-linear-gradient(90deg, transparent 0 79px, rgba(87, 167, 217, 0.014) 79px 80px);
+    radial-gradient(75% 60% at 50% 10%, rgba(87, 167, 217, 0.045), transparent 68%),
+    repeating-linear-gradient(0deg, rgba(214, 226, 240, 0.012) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(214, 226, 240, 0.01) 79px 80px);
   mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.34) 64%, transparent);
 }
 
@@ -590,7 +615,8 @@
    internal kicker/list styling comes from content.module.css. */
 .corrections {
   padding: 1.75rem clamp(1.5rem, 5vw, 4.3rem) 2rem;
-  background: #070c15;
+  /* Luminance-matched from #070c15, with the panel tints above. */
+  background: #0c0c0c;
 }
 
 .closing {
@@ -601,7 +627,7 @@
   gap: 0.6rem 1.5rem;
   padding: 1.4rem clamp(1.5rem, 5vw, 4.3rem) 1.6rem;
   border-top: 1px solid var(--gold-line);
-  background: #070c15;
+  background: #0c0c0c;
 }
 
 .closingMark {

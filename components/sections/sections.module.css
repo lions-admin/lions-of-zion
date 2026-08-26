@@ -333,7 +333,8 @@
 }
 
 .identitySep {
-  color: rgba(153, 179, 202, 0.35);
+  /* Hand-rolled `--line` at a heavier alpha, and neutralised with it. */
+  color: rgba(175, 175, 175, 0.35);
 }
 
 /* Sits where `.identityRoute` would, and replaces it — the route slug and a
@@ -637,7 +638,7 @@
   display: flex;
   gap: 0.7rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(153, 179, 202, 0.08);
+  border-bottom: 1px solid rgba(175, 175, 175, 0.08);
   color: var(--ink-lo);
   text-decoration: none;
   transition: color 140ms ease;
@@ -692,7 +693,7 @@
   display: block;
   height: 2px;
   margin-top: 1.4rem;
-  background: rgba(153, 179, 202, 0.12);
+  background: rgba(175, 175, 175, 0.12);
   overflow: hidden;
 }
 

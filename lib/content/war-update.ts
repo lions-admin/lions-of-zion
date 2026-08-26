@@ -188,10 +188,12 @@ export async function getWarUpdateEdition(): Promise<WarUpdateEdition> {
 /**
  * The same edition, read synchronously.
  *
- * The home route must render without JavaScript (`CLAUDE.md`), and an async
- * component puts a route behind `app/loading.tsx`'s Suspense boundary, where
- * no-JS visitors never get past the fallback. The accessor above stays the
- * seam a real query will land on; this is the static shape the front-page
- * band reads today. One object, two doors — not two sources.
+ * The home route must render without JavaScript (`CLAUDE.md`). This existed
+ * because an async component put a route behind `app/loading.tsx`'s Suspense
+ * boundary, where no-JS visitors never got past the fallback. That file is
+ * deleted now (`.ai/DECISIONS.md`, 2026-08-26), so the constraint no longer
+ * binds — this stays because nothing needs it to change. The accessor above
+ * stays the seam a real query will land on; this is the static shape the
+ * front-page band reads today. One object, two doors — not two sources.
  */
 export const warUpdateEdition: WarUpdateEdition = EDITION;

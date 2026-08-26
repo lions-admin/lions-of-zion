@@ -1,6 +1,138 @@
 # State
 
-## Latest — 2026-08-26, the reading system is synced to Claude Design
+## Latest — 2026-08-26, the October 7 archives are hosted and serving
+
+**Built.** `/october-7` is now a hub: the dossier stays at its root and 1,177
+archive pages prerender beneath it — 505 testimonies (179 records across seven
+languages) and 670 documentation records (335 in English and Spanish). All SSG.
+The radial nav still has eight nodes; `defaultNodes` was not touched.
+
+Verified: typecheck 0, **358 tests** (27 new), lint unchanged, build prerenders
+1,199 pages, `ci-smoke` 18/18. Sampled prerendered HTML across both archives:
+real content, no Suspense boundaries, `srcset` where variants exist,
+`hreflang` present.
+
+**Both real-Chrome gates were run on the workstation and pass.**
+`verify:graphics` — 7/7 viewports, 8/8 links, WebGPU live, 0 errors, every
+number unchanged, so the particle scene did not move. `final-verify` — intro
+handoff, keyboard, WebGPU, forced WebGL2, overlays, 0 console errors, and
+**no-JavaScript: 8 links with the poster visible**, which confirms the
+`app/loading.tsx` removal in a real browser rather than only in the HTML.
+
+The archive is in `sitemap.xml` as **527 entries with 1,103 hreflang
+alternates** — one per *record*, not per page, so translations are not asked
+to compete with each other.
+
+**Read [`docs/archive-integration.md`](../docs/archive-integration.md).** The
+five things a later session most needs:
+
+1. **14 MB of JSON is in git; media never is.** The importer takes only each
+   record's `story.json` plus the index/media/translation registries —
+   everything else in a package re-aggregates those. Assets resolve by
+   `media_id` through `media.json`, so only a URL prefix changes:
+   `NEXT_PUBLIC_ARCHIVE_CDN` in production, a gitignored symlink in dev.
+   **The CDN is not yet provisioned — that is the one step left, and it needs
+   credentials.** Upload each package's `assets/originals` and `assets/web`
+   under `<package>/`, set the variable, then prove it:
+   `node scripts/verify-archive-assets.mjs <base> --all`. That check exists
+   because a wrong value fails *quietly* — pages build, tests pass, text
+   renders, only the media 404s.
+2. **One renderer serves both archives with no branching**, because one's block
+   types are a strict subset of the other's. A test asserts that rather than
+   trusting it; if it ever fails, the renderer needs a case before the import.
+3. **The locale split protects the canonical.** The bare route serves a
+   record's default language, `[locale]` serves the rest, and the locale
+   route's `generateStaticParams` deliberately excludes the default. Do not
+   "fix" that by emitting all languages.
+4. **Two videos have no local file** — hosted on YouTube, recorded but not
+   downloaded. The first build crashed on it. They render a note saying so.
+5. **Provenance is structural.** Nothing in a record body is a hyperlink and
+   credits always render; the verifiable pointer travels in the provenance
+   footer and JSON-LD. See `DECISIONS.md` for why rewording records to escape
+   attribution was considered and rejected.
+
+Still workstation-only: `verify:graphics` and `final-verify` need real Chrome.
+
+---
+
+## 2026-08-26, the October 7 archives are packaged and ready to import
+
+Two crawled archives are now integration packages built to one contract, and
+the decision that blocked hosting them has been reversed. **No site code
+changed this session** — the work was packaging, plus the journal and task
+documents that make it actionable.
+
+**Read [`docs/archive-integration.md`](../docs/archive-integration.md) first.**
+It is the full brief; `TODOS.md`'s "Wave — 26 August 2026" section carries the
+same work as checkboxes.
+
+The reversal is the top entry in `DECISIONS.md`: `/october-7` used to link out
+to external archives rather than host testimony, on consent grounds. The site
+owner reversed that. The superseded entry is kept below it, marked. **A session
+that finds the old entry and "restores" the link-only version would be undoing
+deliberate work.** The Our Heroes consent bar is untouched and still binding —
+that governs profiles this site writes, which is a different act.
+
+What exists now, both **outside this repo and not in git**:
+
+| | october7 | hamas-massacre |
+| --- | --- | --- |
+| Records | 179 | 335 |
+| Language versions | 505 (7 langs) | 670 (en, es) |
+| Unique media | 499 | 528 (from 1088 relations) |
+| Validation | 29/29 | 32/32 |
+
+The second package did not exist at the start of this session; it was built
+from the raw archive by a new three-stage pipeline at
+`~/Documents/october-7_toad/pkgbuild/`. Both were then verified to share one
+contract field by field — the story↔media relation is key-for-key identical
+and hamas block types are a strict subset of october7's, so **one renderer
+serves both**.
+
+Four things the build surfaced that a later session would otherwise rediscover
+the hard way:
+
+- **57 identifiers broke the contract.** Source slugs were record titles
+  verbatim — up to 309 characters, 48 percent-encoded — failing both the id
+  pattern and the 255-byte filesystem limit. The build crashed on it. The rule
+  now: decode, slugify, cap at 80, and append `-<record_id[:8]>` to anything
+  truncated or colliding, so ids never depend on read order.
+- **418 records looked cover-less and were not.** Every record carries either a
+  cover image (252) or a video (418); the video ones' poster is a real frame.
+  First implementation only looked for `role=cover`. After the fix: zero
+  placeholders.
+- **The validator caught three contract violations the build did not** —
+  variants missing `format`, relations using `language` instead of `locale` and
+  missing `type`/`status`, versions missing `direction`/`status`. Worth keeping
+  in mind before trusting "it ran".
+- **All 209 videos are already faststart**, so no transcoding is needed.
+
+Two measurements that correct earlier estimates: repo JSON is **~51 MB**
+(39 october7 + 12 hamas), not ~100 MB; served media is **~1.8 GB**. On
+Cloudflare R2 that is inside the free tier with free egress — **$0/month** even
+at 500k visits — versus $0.50–$45 on Vercel Blob. Media must be served from CDN
+URLs directly; proxying it through the Next app moves the bill to Vercel
+bandwidth. Note `assets/web/videos` in the october7 package is **empty** by
+design: the originals are already browser-ready and are the serve set.
+
+**The blocker is cleared: `app/loading.tsx` is removed.** It wrapped every
+route in a Suspense boundary whose fallback is never replaced without
+JavaScript, so the real markup sat inside `<div hidden id="S:0">` waiting for a
+`$RC` script that never ran. Measured before and after in the prerendered HTML;
+the home route now carries all eight orbit destinations, the poster and zero
+Suspense boundaries, restoring the `CLAUDE.md` invariant that was silently
+broken. Gate green: typecheck 0, 331 tests, lint unchanged, build prerenders
+every route. **Do not reintroduce a root-level `loading.tsx`** — see
+`DECISIONS.md`.
+
+**Where this work is happening:** a git worktree at
+`.claude/worktrees/october-7-archive` on branch `worktree-october-7-archive`,
+because the shared checkout has ~31 files of unrelated backend work in flight
+(Neon auth, the `crons` array). Nothing here touches that.
+
+---
+
+## 2026-08-26, the reading system is synced to Claude Design
 
 The reading-surface components are now a design system in Claude Design:
 **<https://claude.ai/design/p/079fa612-0d76-4d9d-80ec-0567491ff374>** — 21

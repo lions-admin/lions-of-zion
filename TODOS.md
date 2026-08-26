@@ -476,6 +476,140 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 2. W4 (תוכן פר־עמוד) — אחרי ש־W3 מספק את הרכיבים ו־W1 את המעטפת.
 3. משימות המק (פוסטר, אינטרו, אפיית אייקונים) — בנפרד, בתחנת העבודה.
 
+## Wave — 26 August 2026: October 7 archive integration
+
+Full brief: **[`docs/archive-integration.md`](docs/archive-integration.md)**.
+Read [`.ai/DECISIONS.md`](.ai/DECISIONS.md)'s top entry first — this work
+reverses the previous "link out, host nothing" boundary on `/october-7`, and
+that reversal is deliberate.
+
+Two crawled archives become ~1,180 static pages under `/october-7`. Both
+packages live outside this repo and are not in git.
+
+### A1 — Packaging ✅ complete
+
+- [x] october7 package built and validated — 179 records, 505 language
+      versions, 499 media, **29/29 checks pass**.
+- [x] hamas-massacre package built from the raw archive — 335 records, 670
+      language versions, 528 unique media from 1088 relations, **32/32 checks
+      pass**. Pipeline at `~/Documents/october-7_toad/pkgbuild/`.
+- [x] Both verified to share one contract: the story↔media relation is
+      key-for-key identical and hamas block types are a strict subset of
+      october7's, so **one renderer serves both**.
+- [x] All 209 videos confirmed H.264/AAC faststart — no transcoding needed.
+- [x] Reversal recorded in `.ai/DECISIONS.md`; superseded entry marked.
+
+### A2 — Placement decisions ✅ settled
+
+- [x] Radial nav stays at eight nodes; `defaultNodes` untouched. Archives are
+      child routes of `/october-7`, not a ninth destination.
+- [x] Content ships as JSON in the repo (~51 MB measured) behind the
+      `lib/content/` seam — not through the unprovisioned backend.
+- [x] Media (~1.8 GB served) goes to **Cloudflare R2** — inside its 10 GB free
+      tier with free egress, so $0/month. Must be served from CDN URLs
+      directly, never proxied through the Next app.
+
+### A3 — Prerequisite ✅ fixed
+
+- [x] **`app/loading.tsx` removed.** It wrapped every route in a Suspense
+      boundary whose fallback is never replaced without JavaScript, parking the
+      real markup inside `<div hidden id="S:0">`. Measured in the prerendered
+      HTML of `/october-7`: the skip link sat at 6124 **inside** that wrapper,
+      revealed only by a `$RC` script at 24139. After removal it renders plain
+      in `<body>` at 4200, and the home route carries all eight orbit
+      destinations, the poster, and zero Suspense boundaries — restoring the
+      `CLAUDE.md` invariant that was silently broken. The ground colour it
+      claimed to protect is painted by `globals.css` on `html, body` anyway.
+      Gate: typecheck 0, 331 tests, lint unchanged, build prerenders all routes.
+      **Do not reintroduce a root-level `loading.tsx`.**
+
+### A4 — Build ✅ complete
+
+- [x] `scripts/import-archive-package.mjs` — validates the source against its
+      own manifest, copies in only what the site renders, rebuilds `records/`
+      so a rename leaves no orphan. Takes october7 from 39 MB to 9.9 MB;
+      both packages together are **14 MB**. Media never enters git.
+- [x] `lib/content/archive.ts` plus thin `testimonies.ts` / `documentation.ts`
+      faces. Package-level files are cached per process; records are not, since
+      each is read by exactly one page. Record ids are validated as ids, not
+      used as paths.
+- [x] `components/archive/` — one renderer for both archives, no branching.
+      Enforces the two presentation decisions structurally: nothing in a record
+      body is a hyperlink, and credits always render.
+- [x] Index and record pages on `DocPage`. Records take no rails, as settled.
+- [x] Locale scheme: the bare route serves the default language and `[locale]`
+      serves the rest, so no version ever has two URLs competing for one
+      canonical. The `category_id: null` record routes under a literal
+      `uncategorized` segment; the data still says null.
+- [x] hreflang from each record's own `available_languages`, canonical, and
+      `ArchiveComponent` JSON-LD carrying `isBasedOn` — which is what lets the
+      prose stay free of outbound links.
+- [x] 27 new tests (**358 total**); `ci-smoke` extended to 18 routes, sampling
+      real record ids from the imported index so it cannot rot.
+- [x] `defaultNodes` untouched; nothing here touches `components/particle-nav/`.
+
+**Found by the build, worth knowing:** two videos have no `package_path` — the
+source hosts them on YouTube and the packages record them without downloading
+them. The first build crashed on it. They now render a note saying the archive
+does not hold them, rather than dropping the block silently.
+
+- [x] **Sitemap** — 527 entries, one per record with 1,103 hreflang alternates,
+      rather than 1,177 pages competing with each other. `sitemap.ts` is async
+      now, which is safe: it is prerendered and not in a suspending path.
+- [x] **`scripts/verify-archive-assets.mjs`** — proves the CDN is populated.
+      Nothing else can: media is not in git, so a wrong
+      `NEXT_PUBLIC_ARCHIVE_CDN` fails quietly — pages build, tests pass, text
+      renders, only the media 404s. Verified locally: 2,018 checked, 0
+      unreachable.
+- [x] **Both real-Chrome gates run and pass.** `verify:graphics` 7/7 viewports
+      with every number unchanged (the scene did not move); `final-verify`
+      clean including **no-JavaScript: 8 links, poster visible**.
+- [x] Docs squared: `CLAUDE.md`, `docs/architecture.md`,
+      `docs/environment.md`, `docs/operations.md`, `README.md`.
+
+### A7 — The one step left, and it needs credentials
+
+- [ ] **Provision the CDN and upload the media.** ~1.8 GB, deliberately not in
+      git. Upload each package's `assets/originals` and `assets/web` under
+      `<package>/`, set `NEXT_PUBLIC_ARCHIVE_CDN`, then run
+      `node scripts/verify-archive-assets.mjs <base> --all`. Until then the
+      archive pages render their text and their media 404s.
+      Cloudflare R2 is the costed recommendation — 1.8 GB sits inside its 10 GB
+      free tier and its egress is free, so $0/month even at 500k visits.
+
+### A5 — Presentation ✅ settled
+
+Full reasoning in `.ai/DECISIONS.md`, "The archive presents clean but keeps its
+provenance". These are now constraints on A4, not choices.
+
+- [x] **No outbound links in a record body.** Credits render as plain text, not
+      hyperlinks, at `--t-data`. `source_url` goes to metadata and JSON-LD.
+      `/methodology` replaces per-record link lists.
+- [x] **Provenance is kept.** Rewording to escape attribution was considered
+      and rejected. Only 3 of 528 (hamas) and 3 of 499 (october7) media items
+      carry a named credit — there was no clutter to remove.
+- [x] **Canonical points here**, with expectations set: the record pages will
+      earn little search traffic either way. Traffic comes from the editorial
+      layer, the cross-archive search, and Hebrew.
+- [x] **Documentation records take no rails** — 3 blocks, 1 heading each.
+      `DocPage` as-is. A right-margin variant for long testimonies is a later
+      prop on the same shell, and must fix `--content-w`.
+- [x] Rewrote `/october-7`'s testimony section — it claimed the site hosts no
+      testimony, which this work made false. It now opens the two archives with
+      counts read from their manifests (so a re-import cannot leave the page
+      quoting a stale number). Edut 710 and USC Shoah stay, reframed as what
+      they actually are: recorded-interview collections neither package holds.
+      October7.org left the outbound list — its records are here now, so
+      pointing readers elsewhere to read them would read as an editing mistake;
+      its attribution sits on every record's provenance note instead.
+
+### A6 — Later, deliberately
+
+- [ ] Backend path: `database/schema.sql` → Neon, stories as items, media as
+      evidence, written through `recordVersion()`. Blocked on Phase 8 auth.
+- [ ] Refresh loop: crawl → pkgbuild → validate → import. Ids are contracts, so
+      imports upsert and nothing is overwritten.
+
 ## מטרת העל
 
 להפוך את האתר מחוויית מותג מרשימה ומעמודי הצהרת כוונות לפלטפורמת מידע פעילה, אמינה ונגישה שבה:

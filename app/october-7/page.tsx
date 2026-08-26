@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { FigureRow, SourceList, Timeline } from "@/components/content";
 import { getOctober7Record } from "@/lib/content/october-7";
+import { getDocumentationManifest } from "@/lib/content/documentation";
+import { getTestimoniesManifest } from "@/lib/content/testimonies";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -42,7 +45,18 @@ function october7JsonLd(record: Awaited<ReturnType<typeof getOctober7Record>>) {
 }
 
 export default async function Page() {
-  const record = await getOctober7Record();
+  const [record, testimonies, documentation] = await Promise.all([
+    getOctober7Record(),
+    getTestimoniesManifest(),
+    getDocumentationManifest(),
+  ]);
+
+  // Read from each package's own manifest rather than written into the copy,
+  // so a re-import cannot leave this page quoting a number that moved.
+  const counts = {
+    testimonies: testimonies.counts.records,
+    documentation: documentation.counts.records,
+  };
 
   return (
     <SectionPage
@@ -80,14 +94,37 @@ export default async function Page() {
         </div>
       </SectionBlock>
 
-      <SectionBlock heading="Testimony and remembrance">
+      <SectionBlock heading="Testimony and documentation">
         <p>
-          This site does not host survivor testimony or build victim
-          profiles here — that requires direct consent from the people
-          involved, and there is no process yet to obtain it responsibly.
-          What this page can do honestly is point to where that record
-          already lives, gathered and held by people who do have that
-          consent:
+          Two archives are held here in full, reproduced as published —
+          their text, their media and their credits unaltered.
+        </p>
+        <ul className={styles.archiveEntries}>
+          <li>
+            <Link href="/october-7/testimonies">
+              Testimonies — {counts.testimonies} first-hand accounts
+            </Link>
+            <span>
+              Archived from October7.org, in up to seven languages. People
+              describing what happened to them.
+            </span>
+          </li>
+          <li>
+            <Link href="/october-7/documentation">
+              Documentation — {counts.documentation} records
+            </Link>
+            <span>
+              Archived from Hamas-Massacre.net, in English and Spanish, filed
+              under the six categories the source used. Much of it is graphic.
+            </span>
+          </li>
+        </ul>
+        <p>
+          Holding them here means the record survives whatever happens to any
+          one site. It does not make this the only place they live, and the
+          archives below hold testimony these two do not — recorded interviews
+          with survivors, first responders and bereaved families, gathered by
+          people with the consent and the process to do it:
         </p>
         <SourceList sources={record.archives} />
       </SectionBlock>

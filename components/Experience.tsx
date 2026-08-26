@@ -25,10 +25,12 @@ import styles from "@/components/home/home.module.css";
  * while the chat is open, and splitting them would leave the orbit's links
  * focusable behind the modal.
  *
- * **This component is deliberately synchronous.** An `await` here puts the
- * route behind `app/loading.tsx`'s Suspense boundary, and without JavaScript
- * that fallback is never replaced — the whole page becomes the loading shell.
- * `lib/content/home.ts` resolves its editions at module scope for this reason.
+ * **This component is synchronous.** It had to be while a root-level
+ * `app/loading.tsx` existed: an `await` here put the route behind its Suspense
+ * boundary, and with no JavaScript that fallback was never replaced, so the
+ * whole page rendered as the loading shell. That file is deleted now, so the
+ * constraint no longer binds — this stays synchronous because nothing needs it
+ * to change. Re-check the no-JavaScript render before introducing an `await`.
  */
 export default function Experience() {
   return (

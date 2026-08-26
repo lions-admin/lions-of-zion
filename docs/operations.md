@@ -91,7 +91,30 @@ Start the dev server first, then:
 | `node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final` | macOS only | Intro handoff, keyboard, WebGPU, forced WebGL2, no-JS fallback, overlays, console errors |
 | `node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band` | macOS only | The scene keeps its exact box; the band scrolls, is opaque, carries all eight links; the intro scroll lock holds |
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
-| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | 11 routes return 200 with no console errors |
+| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | 18 routes return 200 with no console errors — the 11 originals plus both archive indexes and five sampled records |
+| `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
+
+### Archive assets
+
+`verify-archive-assets.mjs` exists because nothing else can catch a wrong
+`NEXT_PUBLIC_ARCHIVE_CDN`. The ~1.8 GB behind the archive never enters git, so
+a page whose media 404s still builds, still passes the tests and still renders
+its text. Run it once against the real bucket after the first upload, and
+after any change to that variable:
+
+```bash
+node scripts/verify-archive-assets.mjs https://your-cdn/base --all
+```
+
+Locally the same check runs against the symlinks
+`import-archive-package.mjs --link-assets` creates:
+
+```bash
+node scripts/verify-archive-assets.mjs http://localhost:3000/archive
+```
+
+Two october7 videos are hosted on YouTube and have no file in the package; the
+script counts them separately rather than reporting them missing.
 
 `ci-smoke.mjs` is the only one that uses Playwright's own bundled Chromium, and
 the only one CI can run. It is deliberately modest — route availability and
@@ -123,7 +146,7 @@ promotion.
 
 ```mermaid
 flowchart LR
-    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (11 routes)"]
+    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (18 routes)"]
 ```
 
 `smoke` installs Playwright's Chromium with `--with-deps`, starts the built

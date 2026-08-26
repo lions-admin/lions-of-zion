@@ -51,6 +51,33 @@ Blob URLs are unguessable but public — evidence classified `restricted` or
 
 Wanted by: `server/core/blob.ts`, reached through ingestion.
 
+### `NEXT_PUBLIC_ARCHIVE_CDN`
+Base URL for the October 7 archive's media. **Not yet provisioned.**
+
+Roughly 1.8 GB of images and video sits behind the ~1,177 archive pages and
+deliberately never enters git. Only the URL prefix differs between
+environments: unset, it falls back to `/archive`, which
+`import-archive-package.mjs --link-assets` symlinks to the integration
+packages for local development. Set it in production to the bucket's public
+base — the assets are laid out beneath it as `<package>/originals/…` and
+`<package>/web/…`, exactly as they sit in the package minus its `assets/`
+prefix.
+
+Being `NEXT_PUBLIC_`, it is substituted at build time rather than read at
+runtime, which is why `lib/content/archive.ts` may read it without breaking
+the rule that `server/core/config.ts` is the only runtime reader of
+`process.env`.
+
+**A wrong or empty value fails quietly**: pages still build, still pass the
+tests and still render their text — only the media 404s. Prove the bucket is
+right with:
+
+```bash
+node scripts/verify-archive-assets.mjs https://your-cdn/base --all
+```
+
+Wanted by: `lib/content/archive.ts` `assetUrl()`.
+
 ---
 
 ## AI

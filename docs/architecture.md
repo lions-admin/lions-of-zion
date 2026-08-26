@@ -93,7 +93,9 @@ on an unknown id.
 | `/geopolitical-brief` | `components/briefs/GeopoliticalBrief.tsx` | The one page with its own layout |
 | `/support-us` | `SectionPage` | Carries the report and volunteer forms |
 | `/war-update` | `SectionPage` | |
-| `/october-7` | `SectionPage` | `register="muted"` |
+| `/october-7` | `SectionPage` | `register="muted"`. A hub: the archives hang beneath it |
+| `/october-7/testimonies` + `[slug]` + `[slug]/[locale]` | `DocPage` + `components/archive/` | 505 pages — 179 records, up to 7 languages |
+| `/october-7/documentation` + `[category]/[slug]` (+ `[locale]`) | `DocPage` + `components/archive/` | 670 pages — 335 records, English and Spanish |
 | `/our-heroes` | `SectionPage` | Opts out of the evidence margin (card grid) |
 | `/israels-story` | `SectionPage` | |
 | `/fake-resistance` | `SectionPage` | `accent="ember"` |
@@ -101,7 +103,8 @@ on an unknown id.
 | `/methodology`, `/corrections` | `components/sections/DocPage.tsx` | Outside `defaultNodes` on purpose |
 | `/particle-demo` | own layout | Tuning harness; `disallow`ed in `robots.ts` |
 
-`app/error.tsx`, `app/loading.tsx`, `app/not-found.tsx` complete the shell.
+`app/error.tsx` and `app/not-found.tsx` complete the shell. There is
+deliberately **no** `app/loading.tsx` — see the note under the home route.
 
 ### The home route
 
@@ -124,13 +127,20 @@ flowchart LR
     Content --> Brief["briefs/adapters.ts"]
 ```
 
-**`Experience` is deliberately synchronous.** An `await` in this route's
-render path puts it behind `app/loading.tsx`'s Suspense boundary, and without
-JavaScript that fallback is never replaced — the whole page becomes the
-loading shell. `lib/content/home.ts` therefore exports synchronously and reads
-the editions' synchronous exports. See
-[`../.ai/DECISIONS.md`](../.ai/DECISIONS.md), "`app/loading.tsx` breaks every
-async route without JavaScript".
+**`Experience` is synchronous, and `app/loading.tsx` no longer exists.** A
+root-level `loading.tsx` wraps every route in a Suspense boundary; streaming
+SSR then emits the real markup inside `<div hidden id="S:0">` for an inline
+`$RC` script to reveal, so without JavaScript the loading shell stayed and the
+page never appeared. The file was deleted on 2026-08-26 and the home route's
+prerendered HTML now carries its orbit links, band links and poster with zero
+Suspense boundaries.
+
+`Experience` and `lib/content/home.ts` remain synchronous, but that is now a
+kept default rather than a forced one — re-measure the no-JavaScript render
+before introducing an `await`. **Do not reintroduce a root-level
+`loading.tsx`.** See [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md),
+"`app/loading.tsx` is removed: it hid every page from readers without
+JavaScript", and the earlier entry it supersedes.
 
 ### The renderer
 
@@ -197,9 +207,37 @@ bodies rather than to any call site.
 | `our-heroes.ts` | `getOurHeroesEdition()` | async |
 | `corrections.ts` | `getCorrectionsLog()` | async |
 | `home.ts` | `getLatestMilestone()`, `getRecentMilestones()`, `getTrustStrip()` | **sync, load-bearing** |
+| `archive.ts` | `getIndex()`, `getRecord()`, `getMediaRegistry()`, `assetUrl()` | async |
+| `testimonies.ts` | `getTestimonyIndex()`, `getTestimony()`, route params | async |
+| `documentation.ts` | `getDocumentationGroups()`, `getDocumentationRecord()`, route params | async |
 
 `components/content/` is the shared presentation library the pages are built
 from — its own [README](../components/content/README.md) documents every prop.
+
+### The October 7 archive
+
+The three modules above read `content-packages/`, which
+`scripts/import-archive-package.mjs` fills from integration packages built to
+the `october7-integration-package@1` contract. Four properties are worth
+knowing before editing any of it:
+
+- **14 MB of JSON is committed; ~1.8 GB of media never is.** The importer takes
+  only each record's `story.json` plus the index, media and translation
+  registries — everything else in a package re-aggregates those. Assets resolve
+  by `media_id` through `media.json`, so only a URL prefix changes between
+  environments (`NEXT_PUBLIC_ARCHIVE_CDN`, else `/archive`).
+- **One renderer serves both archives with no branching**, because one's block
+  types are a strict subset of the other's. `tests/archive-content.test.ts`
+  asserts that rather than trusting it.
+- **The bare record route owns the default language and `[locale]` owns the
+  rest.** The locale route's `generateStaticParams` deliberately excludes the
+  default, so no version ever has two URLs competing for one canonical.
+- **Nothing in a record body is a hyperlink**, and credits always render. The
+  verifiable pointer travels in the provenance footer and in JSON-LD
+  (`isBasedOn`). Both are decisions, not accidents —
+  [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md), 2026-08-26.
+
+Full brief: [`archive-integration.md`](archive-integration.md).
 
 ---
 

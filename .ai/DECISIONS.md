@@ -10,6 +10,131 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — `app/loading.tsx` is removed: it hid every page from readers without JavaScript
+
+A root-level `loading.tsx` wraps **every** route in a Suspense boundary. With
+streaming SSR the fallback is what renders in place, and the real markup is
+emitted later inside `<div hidden id="S:0">`, revealed by an inline `$RC`
+script. When that script never runs, the loading shell stays visible and the
+whole page stays hidden. This is not a theory — it was measured in the
+prerendered HTML of `/october-7`:
+
+| | with `loading.tsx` | without |
+| --- | --- | --- |
+| `loz-loading` fallback | at 4001 | absent |
+| `<div hidden id="S:0">` | at 5853 | absent |
+| real markup (skip link) | 6124 — **inside** the hidden wrapper | 4200, plain in `<body>` |
+| `$RC` reveal script | 24139 | absent |
+
+It also silently violated a stated invariant. `CLAUDE.md` promises "without
+JavaScript the static navigation remains usable immediately"; it was not.
+After removal the home route's prerendered HTML carries all eight orbit
+destinations plus `/methodology` and `/corrections`, the poster `<img>`, and
+zero Suspense boundaries.
+
+**What was traded, and why it costs nothing here.** The component's own
+docstring said its job was to "hold the ground color so navigation never
+flashes unstyled content." That job is already done by `app/globals.css`,
+which paints `background-color: var(--ground)` on `html, body` from the
+stylesheet in `<head>` — independent of any component. Every route is
+prerendered static, so there is little transition to cover in the first place.
+
+**Do not reintroduce a root-level `app/loading.tsx`.** If a future route
+genuinely needs a loading state, scope it to that route's own segment and
+verify the no-JavaScript render of a sibling content route before keeping it.
+The cost was about to grow by three orders of magnitude: the October 7 archive
+adds ~1,178 static pages whose entire value is text and images that need no
+JavaScript at all.
+
+Verified: typecheck 0 errors, 331 tests passing, lint unchanged (14
+pre-existing warnings), build prerenders every route.
+
+## 2026-08-26 — The archive presents clean but keeps its provenance; it is an evidentiary asset, not an SEO one
+
+Four decisions about how the hosted archives present, taken together because
+they came from one question: how "clean" can these pages be?
+
+**No outbound links in a record body, and credits render as plain text.**
+The visitor is never sent away mid-record and never sees a hyperlink in the
+prose. `source_url` stays in metadata and JSON-LD — machine-readable and
+verifiable without being visible. A single site-level sources-and-method page
+(`/methodology` already exists) replaces per-record link lists. Credits sit at
+`--t-data`, the smallest step in the type system: present, recessive.
+
+**Provenance itself is not negotiable, and rewording to escape it was
+considered and rejected.** Minor edits to someone else's work produce a
+derivative work, so the obligation survives the edit — but three project-
+specific reasons mattered more. These are first-person accounts: altering the
+words changes what the witness said, which turns testimony into a story based
+on testimony. `/october-7`'s own copy says denial is answered by the record,
+and denial feeds on claims that cannot be checked — an unsourced archive hands
+a denier his argument. And `TODOS.md`'s standing principle is "Evidence first:
+no publication without sources." Note the scale of what was actually at stake:
+only **3 of 528** media items in one package and **3 of 499** in the other
+carry a named credit, so there was no clutter to remove in the first place.
+
+**Canonical points at this site, not at the source.** Canonical to the source
+guarantees zero organic traffic from 1,178 pages; there is no reason to
+concede that in advance.
+
+**But do not plan on traffic from the record pages.** When two sites host the
+same text a search engine shows one, and the source published first with the
+domain history to match. Expect these pages to earn little search traffic
+whatever the canonical says. (Rewording to dodge duplicate-content detection
+is the usual tactic here and works poorly on top of everything above.) The
+traffic comes from what is genuinely this site's own: the editorial layer
+around the archive, the fact that nobody else holds both archives in one
+searchable place, and Hebrew — absent from both packages and from this site,
+which is `lang="en"` today. Translating the archives is itself a derivative
+work and a conversation with the source projects; the editorial layer is not,
+and can be written in Hebrew freely.
+
+**Documentation records take no rails.** Measured, not guessed: every one of
+the 670 hamas versions is exactly 3 blocks with exactly 1 heading, so an "In
+this file" rail would carry a single entry. 179 of the 505 october7 versions
+have no headings at all. `DocPage`'s rail-free shell is therefore correct as
+it stands. A right-margin-only variant for the long testimonies (median 26
+blocks, up to 170) is worth revisiting later — as a prop on the existing
+shell, never a fork, and it must also fix the `--content-w` maths, which
+assumes both rails or neither.
+
+## 2026-08-26 — October 7 hosts the archives directly; the link-only boundary is reversed
+
+**This reverses the 2026-08-25 entry "October 7's Testimony/Remembrance link
+to real archives; this site builds neither."** That entry is kept below, as
+this file requires — but it no longer describes what this site does, and a
+session that finds it and "restores" the link-only version would be undoing
+deliberate work, not fixing a regression.
+
+The decision, taken by the site owner: October 7 carries the documentation
+itself rather than pointing at where it lives. Two archives were crawled and
+processed locally for this — october7.org (179 canonical testimonies, 505
+language versions across seven languages) and hamas-massacre.net (338
+documentation records across six categories, English and Spanish). Both become
+routes under `/october-7`, roughly 1,180 static pages. The reasoning is that a
+page whose entire testimony section is a list of outbound links asks the reader
+to leave in order to encounter the thing the page exists for, and the archives
+were captured precisely so that they would not have to.
+
+What follows from it, and what a later session should not quietly re-tighten:
+
+- **There is no content-warning interstitial**, including on the harder
+  categories. This was decided explicitly, not overlooked. Do not add a gate
+  "for safety" without the owner asking for one.
+- **There is no rights gate blocking the build.** The archives are hosted;
+  attribution is not the concession that bought that, it is simply kept,
+  because `credit` and `attribution` are already fields on every media item and
+  rendering them costs nothing. Keep rendering them.
+- **The `canonical_story_id` / `media_id` identifiers are contracts.** They come
+  from the source packages and are never regenerated or invented — that is what
+  makes a re-crawl an upsert instead of a duplicate import.
+
+**Scope: this reverses the October 7 testimony boundary only.** The 2026-08-25
+"Our Heroes publishes only extensively public, already-covered people" entry is
+untouched and still binding. That one governs profiles *this site writes* about
+named individuals, which is a different act from mirroring an archive another
+project already published; nothing here relaxes it.
+
 ## 2026-08-26 — Reference documentation lives in `docs/`, and states its gaps
 
 An architecture and documentation audit found `README.md` publishing eight
@@ -276,6 +401,10 @@ importing module async, which suspends the route just the same. So
 `war-update.ts` and `october-7.ts` export their editions synchronously
 alongside the async accessors, which stay as the seam a real query will land on.
 
+_(Update 2026-08-26: `app/loading.tsx` is deleted, so the Suspense boundary this
+paragraph reasons about no longer exists. The synchronous exports are kept, but
+as a default rather than a requirement — see the entry at the top of this file.)_
+
 **Copy is bounded by what the content can support.** There is no newest
 edition — every edition carries the same `publishedAt` — so the strip says
 "latest documented milestone" and derives it from `max(entry.datetime)`, never
@@ -313,6 +442,15 @@ because the existing check never caught it: `final-verify.mjs` counts
 reported 8 links on a blank page. Two candidate fixes, both unmade:
 delete the root `loading.tsx` and accept the navigation gap, or move the
 loading UI below `/` so the entry route never suspends.
+
+**Resolved 2026-08-26** — the first option was taken: the file is deleted. The
+"navigation gap" it was restored for turned out to cost nothing, because the
+ground colour it existed to hold is painted by `globals.css` on `html, body`
+independently of any component, and every route is prerendered static. See the
+entry at the top of this file for the before/after measurements. The note above
+about `final-verify.mjs` counting `a[data-node-index]` inside the hidden wrapper
+still stands as a warning: **that check cannot distinguish a rendered page from
+a blank one**, and should be tightened before it is trusted again.
 
 ---
 
@@ -642,6 +780,11 @@ Washington Post reporting) — administrative and casualty facts, not
 testimony. Do not swap the archive links for reproduced excerpts "to make
 the page feel less like a list of outbound links" — that reproduction is
 exactly the thing this decision avoids.
+
+**Reversed 2026-08-26** — the site now hosts both archives directly under
+`/october-7`. See the entry at the top of this file for what replaced this and
+what must not be re-tightened. Kept here because a reversed decision keeps its
+record.
 
 ## 2026-08-25 — Israel's Story ships two chapters, not "the long arc," and says so on the page
 

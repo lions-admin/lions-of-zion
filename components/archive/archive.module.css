@@ -231,9 +231,15 @@
   margin: 0 0 1rem;
 }
 
+/*
+ * Every row is one link, and it has to *read* as one before the pointer ever
+ * touches it: the file number and the arrow are permanent affordances, not
+ * hover rewards. Hover confirms — gold wash, gold rule, the arrow steps
+ * forward — it does not reveal.
+ */
 .recordList {
   list-style: none;
-  margin: 0 0 1rem;
+  margin: 0 0 1.5rem;
   padding: 0;
   border-top: 1px solid var(--line);
 }
@@ -244,28 +250,54 @@
 
 .recordLink {
   display: grid;
-  gap: 0.15rem 1rem;
-  padding: 0.85rem 0;
+  grid-template-columns: 2.9rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.95rem 0.85rem 0.95rem 0.75rem;
   color: var(--ink);
   text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background-color 140ms ease, border-color 140ms ease;
 }
 
-@media (min-width: 46rem) {
-  .recordLink {
-    grid-template-columns: 1fr auto;
-    align-items: baseline;
-  }
+.recordLink:hover,
+.recordLink:focus-visible {
+  background: rgba(201, 162, 75, 0.06);
+  border-left-color: var(--gold);
+}
+
+.recordNum {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+.recordLink:hover .recordNum,
+.recordLink:focus-visible .recordNum {
+  color: var(--gold);
+}
+
+.recordBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.recordItemTitle {
+  font-family: var(--face-display);
+  font-size: 1.125rem;
+  line-height: 1.45;
+  color: var(--ink-hi);
+  text-wrap: balance;
 }
 
 .recordLink:hover .recordItemTitle,
 .recordLink:focus-visible .recordItemTitle {
   color: var(--gold-hi);
-}
-
-.recordItemTitle {
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink-hi);
 }
 
 .recordItemMeta {
@@ -274,7 +306,31 @@
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
-  white-space: nowrap;
+}
+
+.recordArrow {
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  color: var(--ink-lo);
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+.recordLink:hover .recordArrow,
+.recordLink:focus-visible .recordArrow {
+  color: var(--gold-hi);
+  transform: translateX(0.25rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recordLink,
+  .recordArrow {
+    transition: none;
+  }
+
+  .recordLink:hover .recordArrow,
+  .recordLink:focus-visible .recordArrow {
+    transform: none;
+  }
 }
 
 /* ---------- provenance footer ---------- */

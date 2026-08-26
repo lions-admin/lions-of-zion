@@ -97,6 +97,17 @@ const ids = [];
 // already open is what keeps an index of human titles rather than of slugs.
 const titles = new Map();
 
+// Nine october7 titles are the page's <title> tag verbatim, ending in site
+// chrome — "| October7 Blog", "- October7 Blog", "| October7 Nova Fest".
+// Only those two known suffixes are stripped, and only at the very end, so a
+// dash or pipe inside the testimony's own words survives. This is cleanup of
+// the source site's furniture, not editing of the testimony.
+const cleanTitle = (value) =>
+  value
+    ? value.replace(/\s*[|–—-]\s*October7\s+(Blog|Nova\s*Fest)\s*$/i, '').trim() ||
+      null
+    : null;
+
 for (const group of groups) {
   const id = group.canonical_story_id;
   const file = path.join(src, 'content', 'stories', id, 'story.json');
@@ -107,7 +118,7 @@ for (const group of groups) {
   const record = JSON.parse(fs.readFileSync(file, 'utf8'));
   const version =
     record.versions?.[record.default_language] ?? Object.values(record.versions ?? {})[0];
-  titles.set(id, group.title ?? record.title ?? version?.title ?? null);
+  titles.set(id, cleanTitle(group.title ?? record.title ?? version?.title ?? null));
   bytes += writeJson(path.join('records', `${id}.json`), record);
   ids.push(id);
 }

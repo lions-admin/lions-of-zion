@@ -77,22 +77,38 @@ export default async function Page() {
         </p>
         <ul className={styles.archiveEntries}>
           <li>
-            <Link href="/october-7/testimonies">
-              Testimonies — {counts.testimonies} first-hand accounts
+            <Link href="/october-7/testimonies" className={styles.archiveEntry}>
+              <span className={styles.archiveEntryHead}>
+                <span className={styles.archiveEntryTitle}>Testimonies</span>
+                <span className={styles.archiveEntryCount}>
+                  {counts.testimonies} records
+                </span>
+              </span>
+              <span className={styles.archiveEntryDesc}>
+                First-hand accounts, archived from October7.org in up to seven
+                languages. People describing what happened to them.
+              </span>
+              <span className={styles.archiveEntryCta} aria-hidden="true">
+                Open the archive →
+              </span>
             </Link>
-            <span>
-              Archived from October7.org, in up to seven languages. People
-              describing what happened to them.
-            </span>
           </li>
           <li>
-            <Link href="/october-7/documentation">
-              Documentation — {counts.documentation} records
+            <Link href="/october-7/documentation" className={styles.archiveEntry}>
+              <span className={styles.archiveEntryHead}>
+                <span className={styles.archiveEntryTitle}>Documentation</span>
+                <span className={styles.archiveEntryCount}>
+                  {counts.documentation} records
+                </span>
+              </span>
+              <span className={styles.archiveEntryDesc}>
+                Archived from Hamas-Massacre.net, in English and Spanish, filed
+                under the six categories the source used. Much of it is graphic.
+              </span>
+              <span className={styles.archiveEntryCta} aria-hidden="true">
+                Open the archive →
+              </span>
             </Link>
-            <span>
-              Archived from Hamas-Massacre.net, in English and Spanish, filed
-              under the six categories the source used. Much of it is graphic.
-            </span>
           </li>
         </ul>
         <p>

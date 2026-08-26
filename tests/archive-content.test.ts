@@ -49,6 +49,14 @@ describe("archive packages", () => {
 
     const slugAsTitle = index.filter((entry) => entry.title === entry.id).map((e) => e.id);
     expect(slugAsTitle).toEqual([]);
+
+    /* Nine source titles were the page's <title> tag verbatim, dragging the
+       site's own chrome into the index. The importer strips exactly those two
+       suffixes; this keeps them stripped across re-imports. */
+    const withChrome = index
+      .filter((entry) => /October7\s+(Blog|Nova\s*Fest)\s*$/i.test(entry.title ?? ""))
+      .map((e) => e.id);
+    expect(withChrome).toEqual([]);
   });
 
   it.each(PACKAGES)("%s: every id is unique and route-safe", async (pkg) => {

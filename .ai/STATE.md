@@ -1,6 +1,116 @@
 # State
 
-## Latest — 2026-08-26, a five-surface design audit, no code changed
+## Latest — 2026-08-26, Fake Resistance is live in production
+
+**Shipped.** `/fake-resistance` is live at
+`https://www.lionsofzion.io/fake-resistance` — deployed to Vercel production on
+2026-08-26 and verified serving real content (all nine playbook chapters with
+documented examples, 64 technique chips on the Hinkle file, the withheld-finding
+disclosure present, and the suppressed claim absent). It is a hub in the same
+shape as `/october-7`: the dossier stays at its root and ten pages prerender
+beneath it. `defaultNodes` was not touched and stays at eight.
+
+| Route | What it is |
+| --- | --- |
+| `/fake-resistance/playbook` | Nine manipulation techniques, a chapter each |
+| `/fake-resistance/network` | Seven communities, five bridges, the synthesis findings |
+| `/fake-resistance/cases/<slug>` | Seven research case files |
+
+Verified: typecheck 0, lint unchanged (14 pre-existing warnings), **393 tests**
+(35 new, 1 skipped), build prerenders **1,208 pages** (was 1,199), `ci-smoke`
+green on every new route. Prerendered HTML of all three page types carries full
+content with **zero Suspense boundaries** — the no-JavaScript bar the
+`app/loading.tsx` removal set.
+
+**Read [`docs/fake-resistance-integration.md`](../docs/fake-resistance-integration.md)
+and the two `DECISIONS.md` entries dated today.** What a later session most
+needs:
+
+1. **Every gate passed and the site shipped.** The editorial pass ran, the
+   owner reported legal review complete, and production was deployed — so
+   every case now reads `lifecycle: "published"` with a real `publication`
+   record (`published_at` 2026-08-26 and its own canonical path), set by
+   `EDITORIAL_STAGE` in the editorial layer rather than by the importer. It
+   sat at `ready` until the deploy actually ran, deliberately: a case
+   claiming to be published while nothing was public would have been the
+   dataset asserting something untrue about itself.
+   Right of reply was **dropped by owner decision** — skipped deliberately,
+   not pending; do not "restore" it from the packets' own
+   `status: right_of_reply`.
+2. **`scripts/import-research-cases.mjs` is re-runnable and the external
+   folder stays the source of truth.** It runs the delivery's own Python
+   validator first, then takes `publication_wording` (never the internal
+   `analysis` field), strips the reports' `[src_id]` markers into real
+   sources, and writes 225 KB to `content-packages/fake-resistance/`. Raw
+   `evidence/**` API pulls are never imported — only their sha256 travels.
+3. **`lib/content/fake-resistance-editorial.ts` is where human judgment
+   lives, and it is applied at the seam rather than at import** — so
+   re-importing the research cannot drop a withheld finding back onto a page
+   or lose a technique tag. It holds four things: the technique tags (30
+   findings across the seven files), the two findings the naming policy
+   withholds with a written reason each, the per-case framing and its guards,
+   and a glossary that rewrites program shorthand ("case-05", "groups 01/03",
+   `NAMED_PERSON`, `relationship_evidence.csv`) into what it refers to.
+   All nine playbook chapters now carry documented examples, derived from the
+   tags rather than listed by hand — **do not hand-write an example list**;
+   a chapter asks which published findings carry its tag, so a held case
+   disappears from the playbook automatically.
+4. **The grades are the honesty layer and are never upgraded.** Confidence,
+   identity status and evidence class render as labels, deliberately *not*
+   through `VerificationBadge` — "we are fairly sure" must never read as
+   "verified". Two ungraded entities default to `unresolved`, the weakest
+   grade, because blank would read as certainty.
+5. **The disconfirming findings are the point, not an aside.** The network
+   page leads with "seven communities, not one operation" and carries case
+   06's zero-relay audit at full weight. An edit that trimmed them to sharpen
+   the argument would remove the reason the argument is credible.
+
+**Three defects the tests and sweeps caught, worth knowing about the source
+data.** Two entity rows (Tucker Carlson, Candace Owens) have **columns shifted
+one place** in the delivery's CSV — a sentence in `handle`, `US` in `platform`,
+`confirmed` in `profile_url`. The packet validator passed them because those
+columns declare no enum. `repairShift` in the importer realigns them and
+**prints a note when it does**; it fires only on that exact signature and
+refuses to guess at anything else. Separately, one source carries
+`local://cases-01-through-07`, which rendered as a dead link until non-web
+schemes were dropped; and 51 roster notes opened with a follower count stranded
+in the prose, now split into a real right-aligned column.
+
+**Correction, same day: the repository is public, not private.** `CLAUDE.md`
+said private; `gh repo view` reports `visibility: PUBLIC`. Git auto-deploy is
+still not connected, so the *site* ships only on a manual Vercel operation —
+but **the push already published the source**, including the case prose and
+the research packets. The two-stage model in the plan was half right, and the
+half that was wrong is now recorded in `DECISIONS.md`. Future gated content is
+gated on the push, not only on the deploy.
+
+**An operational trap worth knowing: `vercel deploy --prod` does not always
+move the domains.** After the owner's deploy the section was live and verified.
+A follow-up CLI deploy then left `lionsofzion.io` serving an older build in
+which the three new routes returned **404**, while `/` and the pre-existing
+pages still returned 200 — so the site looked healthy and the new work was
+simply missing. `vercel alias ls` showed the production domains still bound to
+an earlier deployment. **`vercel promote <deployment-url>` is what actually
+moves them**, and it fixed it in seconds. Two lessons: after any production
+deploy, curl a *new* route rather than the root, because the root will keep
+answering 200 from the previous build; and expect a transient apex↔www redirect
+loop mid-promote, which resolves on its own.
+
+**Open loose end: this branch is not merged to `main`.** Production was
+deployed from the branch worktree, so the live site runs code that `main` does
+not carry. Merge `claude/fakeresistance-merge-plan-5e9eeb` so the default
+branch matches what is serving.
+
+The particle scene was untouched, so `verify:graphics` did not need re-running.
+The root Fake Resistance page gained sections, so **`final-verify` is worth one
+run on the workstation.**
+
+One environment note: this worktree had no `node_modules` — Node resolves
+upward to the main checkout, but Turbopack needs a local install — so `npm ci`
+was run here.
+---
+
+## 2026-08-26, a five-surface design audit, no code changed
 
 **Audited, not built.** `docs/design-audit-2026-08-26.md` is a full design
 audit of the frontend. Five agents took one surface family each — the home

@@ -1,0 +1,143 @@
+/* The playbook's chapter anatomy.
+
+   Every chapter answers the same four questions in the same order — the move,
+   the psychology, the evidence, the cues — so the structure is genuinely
+   repeated content and a repeated visual device is telling the truth about
+   it. The device is a labelled part, not a numbered one: the four parts are
+   facets of one technique, not steps a reader performs in sequence.
+
+   Type and colour come from the V2 tokens in app/globals.css
+   (`.ai/DESIGN-V2.md`). Nothing here redeclares a face or a size that the
+   token scale already names. */
+
+.summary {
+  margin-bottom: 1.75rem;
+  color: var(--loz-ink-hi, #e9eef6);
+  font-family: var(--face-display, Charter, Georgia, serif);
+  font-size: var(--t-h3, 1.25rem);
+  font-style: italic;
+  line-height: var(--t-h3-lh, 1.4);
+}
+
+.part + .part {
+  margin-top: 1.75rem;
+}
+
+/* The label sits on the ember rule rather than above it, so the four parts
+   read as one block with internal structure instead of four sections. */
+.partHeading {
+  margin-bottom: 0.6rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--loz-ember, #a85a61);
+  color: var(--loz-ember-peak, #d08d94);
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  font-weight: 400;
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  line-height: var(--t-data-lh, 1.45);
+  text-transform: uppercase;
+}
+
+.examples,
+.cues {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.examples > li {
+  padding-left: 1rem;
+  border-left: 1px solid var(--loz-gold-line, rgba(201, 162, 75, 0.24));
+}
+
+.examples > li + li {
+  margin-top: 1rem;
+}
+
+.examples > li > span {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--loz-ink-lo, #8494a8);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+/* A cue is something the reader does, so each one is marked with a check
+   rather than a bullet — and the marker is decorative, so it is drawn with
+   ::before and hidden from the accessibility tree by being pure ornament in
+   a list that already has semantics. */
+.cues > li {
+  position: relative;
+  padding-left: 1.5rem;
+  color: var(--loz-ink, #b9c5d4);
+  font-size: var(--t-body, 1.0625rem);
+  line-height: var(--t-body-lh, 1.7);
+}
+
+.cues > li + li {
+  margin-top: 0.7rem;
+}
+
+.cues > li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--loz-gold, #c9a24b);
+  content: '\2713';
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-body-lh, 1.7);
+}
+
+.pending {
+  color: var(--loz-ink-lo, #8494a8);
+  font-size: var(--t-small, 0.9375rem);
+  font-style: italic;
+  line-height: var(--t-small-lh, 1.65);
+}
+
+/* Findings from the case files that carry this chapter's technique tag.
+   Asked for at render time rather than listed here, so a chapter can never
+   point at something the site is not currently publishing. */
+
+.findings {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.findings > li {
+  padding: 0.9rem 0 0;
+  border-top: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
+}
+
+.findings > li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.findings > li + li {
+  margin-top: 0.9rem;
+}
+
+.findings > li > p {
+  margin: 0;
+  color: var(--loz-ink, #b9c5d4);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+.findingMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.findingMeta > a {
+  color: var(--loz-ink-lo, #8494a8);
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  letter-spacing: 0.04em;
+}

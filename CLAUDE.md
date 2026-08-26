@@ -23,8 +23,16 @@ The repository also carries an independent information-model backend under
 `app/api/` and `server/`. The two halves share no source files and are kept
 apart by lint rules rather than convention.
 
-Source is the private `lions-admin/lions-of-zion` repository. Git auto-deploy is
-not connected; production deployment is a separate manual Vercel operation.
+Source is the **public** `lions-admin/lions-of-zion` repository — verified with
+`gh repo view` on 2026-08-26, which reports `visibility: PUBLIC`. This file
+previously said "private"; that was wrong, and the difference is load-bearing:
+**a push to origin is itself an act of publication.** Anything not fit to be
+read by anyone must not be committed, and work that is gated on an editorial
+or legal decision is gated on the *push*, not only on the deploy.
+
+Git auto-deploy is not connected; production deployment is a separate manual
+Vercel operation. So the two are independent: pushing publishes the source,
+deploying publishes the site.
 
 ## Journal
 
@@ -188,6 +196,35 @@ static index set it that way as identity; **reading surfaces use
   provenance travels in the footer and in JSON-LD. That last pair is a
   documented decision, not a style choice (`.ai/DECISIONS.md`, 2026-08-26),
   and rewording records to shed attribution was considered and rejected there.
+- **`/fake-resistance` is also a hub, and the research beneath it is not a
+  ninth node.** Ten pages prerender under it: `/fake-resistance/playbook`
+  (nine manipulation techniques, a chapter each), `/fake-resistance/network`
+  (the cross-cluster graph and synthesis), and seven
+  `/fake-resistance/cases/<slug>` files, read through
+  `lib/content/fake-resistance-cases.ts`. `defaultNodes` stays at eight. The
+  brief is `docs/fake-resistance-integration.md`; four invariants matter here:
+  **nothing is published until the editorial and legal gates pass** — every
+  case ships at `lifecycle: "editorial_review"` and merging to `main` is safe
+  because the deploy is manual; **right of reply was dropped by owner
+  decision**, so the packets' own `status: right_of_reply` is skipped
+  deliberately, not pending; **the research's grades are never upgraded** —
+  confidence, identity status and evidence class render as labels and
+  deliberately not through `VerificationBadge`, and an ungraded entity
+  defaults to `unresolved`; and **a playbook technique may not claim an
+  example it cannot show**. Those are documented decisions
+  (`.ai/DECISIONS.md`, 2026-08-26), not style choices. The importer,
+  `scripts/import-research-cases.mjs`, takes each claim's
+  `publication_wording` and never the internal `analysis` field, and never
+  imports the raw `evidence/**` pulls.
+- **Editorial judgment about that research lives in
+  `lib/content/fake-resistance-editorial.ts` and is applied at the seam, not
+  at import** — technique tags, withheld findings each with a written reason,
+  per-case framing and guards, and a glossary rewriting program shorthand
+  (`case-05`, `groups 01/03`, `NAMED_PERSON`) into what it refers to. Putting
+  it there is what stops a re-import reverting it. Two consequences are
+  load-bearing: the playbook's examples are **derived from the tags**, so a
+  chapter can never point at something the site is not publishing, and
+  `EDITORIAL_STAGE` — not the importer — advances a case's lifecycle.
 - `components/sections/SectionPage.tsx` is the dossier shell for seven of them:
   a full-width identity band and a centred 68ch reading measure. There is no
   footer — the page ends where the content ends (`.ai/DECISIONS.md`).

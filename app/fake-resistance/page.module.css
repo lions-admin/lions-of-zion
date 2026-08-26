@@ -211,3 +211,42 @@
     max-width: 100%;
   }
 }
+
+/* The file index — the way into the playbook, the network, and the case
+   files. A list of destinations, not a sequence, so no numbering: the reader
+   picks one, and nothing about the second follows from the first. */
+
+.fileIndex {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileIndex > li {
+  padding: 1rem 0;
+  border-top: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
+}
+
+.fileIndex > li > a {
+  display: block;
+  color: var(--loz-ink-hi, #e9eef6);
+  font-family: var(--face-display, Charter, Georgia, serif);
+  font-size: var(--t-h3, 1.25rem);
+  line-height: var(--t-h3-lh, 1.4);
+  text-decoration: none;
+}
+
+.fileIndex > li > a:hover,
+.fileIndex > li > a:focus-visible {
+  color: var(--loz-gold-bright, #efd79a);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.fileIndex > li > span {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--loz-ink-lo, #8494a8);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}

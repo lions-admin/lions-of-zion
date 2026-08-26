@@ -29,6 +29,8 @@ const ROUTES = [
   "/corrections",
   "/october-7/testimonies",
   "/october-7/documentation",
+  "/fake-resistance/playbook",
+  "/fake-resistance/network",
 ];
 
 /**
@@ -75,7 +77,27 @@ async function sampleRecordRoutes() {
   return routes;
 }
 
-ROUTES.push(...(await sampleRecordRoutes()));
+/**
+ * One research case file, read from the imported index rather than named here
+ * so a renamed or held case cannot leave this script checking a dead route.
+ */
+async function sampleResearchRoute() {
+  try {
+    const index = JSON.parse(
+      await readFile(
+        new URL("../content-packages/fake-resistance/index.json", import.meta.url),
+        "utf8",
+      ),
+    );
+    const first = index.cases?.[0];
+    return first ? [`/fake-resistance/cases/${first.slug}`] : [];
+  } catch {
+    console.log("note: fake-resistance research not imported — skipping case route");
+    return [];
+  }
+}
+
+ROUTES.push(...(await sampleRecordRoutes()), ...(await sampleResearchRoute()));
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ reducedMotion: "reduce" });

@@ -1,0 +1,263 @@
+/* A case file's anatomy.
+
+   Two things here are grids with a zero-wide second track — the bottom-line
+   points and the graded findings — because both carry citations that leave
+   the reading column for the right margin above 1220px. That placement is
+   `marginNote` in the content library and it is a grid, never absolute
+   positioning: a citation taller than its claim lengthens its own row instead
+   of running into the next one. Each host therefore keeps its claim and its
+   sources as *sibling* elements.
+
+   Type and colour come from the V2 tokens in app/globals.css
+   (`.ai/DESIGN-V2.md`). */
+
+/* The section's own framing of the file, in its own voice. It opens the page,
+   so it is set at reading weight rather than as a note. */
+.frame {
+  color: var(--loz-ink-hi, #e9eef6);
+  font-size: var(--t-body, 1.0625rem);
+  line-height: var(--t-body-lh, 1.7);
+}
+
+/* The limit the research imposed on its own subjects. It carries the gold
+   rule rather than the ember one: this is the site restraining itself, not
+   the hostile-data stream. */
+.guard {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 2px solid var(--loz-gold, #c9a24b);
+  color: var(--loz-ink, #b9c5d4);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+.guard > span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--loz-gold, #c9a24b);
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  text-transform: uppercase;
+}
+
+.withheld {
+  margin-top: 1.25rem;
+  color: var(--loz-ink-lo, #8494a8);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+/* The hypothesis the research declared before it had an answer. Set quieter
+   than the findings it precedes — it is context for them, not one of them. */
+.framing {
+  margin-bottom: 1.25rem;
+  color: var(--loz-ink-lo, #8494a8);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+.confidence {
+  margin-bottom: 1.5rem;
+  padding: 0.8rem 1rem;
+  border-left: 2px solid var(--loz-ember, #a85a61);
+  background: rgba(168, 90, 97, 0.07);
+  color: var(--loz-ink-hi, #e9eef6);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+.bottomLine,
+.exhibits,
+.edges,
+.contradictions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ── The bottom line ──────────────────────────────────────────────────────
+   Numbered, because the research numbers these and the order is the order
+   they were established in. */
+
+.bottomLine {
+  counter-reset: point;
+}
+
+.bottomLine > li {
+  counter-increment: point;
+}
+
+.bottomLine > li + li {
+  margin-top: 1.3rem;
+}
+
+.pointMain {
+  position: relative;
+  padding-left: 2.4rem;
+  min-width: 0;
+}
+
+.pointMain::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--loz-gold, #c9a24b);
+  content: counter(point, decimal-leading-zero);
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  line-height: var(--t-body-lh, 1.7);
+}
+
+.pointMain > p {
+  margin: 0;
+  color: var(--loz-ink, #b9c5d4);
+  font-size: var(--t-body, 1.0625rem);
+  line-height: var(--t-body-lh, 1.7);
+}
+
+.pointSources {
+  composes: marginNote from '../../../../components/content/content.module.css';
+}
+
+/* ── Graded findings ───────────────────────────────────────────────────── */
+
+.exhibits > li {
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--loz-gold-line, rgba(201, 162, 75, 0.24));
+}
+
+.exhibits > li + li {
+  margin-top: 1.4rem;
+}
+
+.exhibitMain {
+  min-width: 0;
+}
+
+.exhibitHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.exhibitHead time {
+  color: var(--loz-ink-lo, #8494a8);
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+}
+
+.exhibitStatement {
+  margin: 0;
+  color: var(--loz-ink-hi, #e9eef6);
+  font-size: var(--t-body, 1.0625rem);
+  line-height: var(--t-body-lh, 1.7);
+}
+
+.exhibitSources {
+  composes: marginNote from '../../../../components/content/content.module.css';
+}
+
+/* The two-track hosts. The second track is zero-wide, so the claim keeps the
+   reading measure exactly while its citation overflows into the margin and
+   still contributes its height to the row. */
+@media (min-width: 1220px) {
+  .bottomLine > li,
+  .exhibits > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+
+  .pointMain,
+  .exhibitMain {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+/* ── Frames ────────────────────────────────────────────────────────────── */
+
+.narratives {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1px;
+  margin-top: 1.5rem;
+  background: var(--loz-line, rgba(153, 179, 202, 0.14));
+  border: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
+}
+
+.narrative {
+  padding: 1.1rem 1.2rem;
+  background: var(--loz-ground, #070b14);
+}
+
+.narrative h3 {
+  margin: 0 0 0.5rem;
+  color: var(--loz-ink-hi, #e9eef6);
+  font-family: var(--face-display, Charter, Georgia, serif);
+  font-size: var(--t-h3, 1.25rem);
+  font-weight: var(--t-h3-weight, 500);
+  line-height: var(--t-h3-lh, 1.4);
+}
+
+.narrative p {
+  margin: 0;
+  color: var(--loz-ink, #b9c5d4);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+.narrativeFrame,
+.narrativeAudience {
+  margin-top: 0.7rem !important;
+  color: var(--loz-ink-lo, #8494a8) !important;
+}
+
+.narrativeFrame > span,
+.narrativeAudience > span {
+  display: block;
+  color: var(--loz-ember-peak, #d08d94);
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  text-transform: uppercase;
+}
+
+/* ── Connections and contradictions ────────────────────────────────────── */
+
+.edges > li,
+.contradictions > li {
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
+  color: var(--loz-ink, #b9c5d4);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+.edges > li > p {
+  margin: 0.4rem 0 0;
+}
+
+.edgeHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+}
+
+.edgePair {
+  color: var(--loz-ink-hi, #e9eef6);
+  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: var(--t-data, 0.72rem);
+  letter-spacing: 0.04em;
+  line-height: var(--t-data-lh, 1.45);
+}
+
+.edgePair > span {
+  padding: 0 0.2rem;
+  color: var(--loz-ember-peak, #d08d94);
+}

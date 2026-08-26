@@ -68,6 +68,52 @@ export default function Page() {
         </p>
       </SectionBlock>
 
+      <SectionBlock heading="Influence-network research">
+        <p>
+          The case files under{" "}
+          <Link href="/fake-resistance">Fake Resistance</Link> come from a
+          separate kind of work: open-source research into how claims move
+          between accounts. It is worth being exact about what that method can
+          and cannot support, because the same page argues that other people
+          are careless with exactly these limits.
+        </p>
+        <ul>
+          <li>
+            <strong>Samples, not censuses.</strong> Posts were gathered from
+            public mirrors and limited API pulls over stated windows. A
+            percentage in a case file describes the sample it names, not an
+            account&rsquo;s whole output.
+          </li>
+          <li>
+            <strong>Engagement figures decay.</strong> Follower counts and view
+            counts are snapshots from the moment they were retrieved, and every
+            one is published with that date attached.
+          </li>
+          <li>
+            <strong>Video was not played.</strong> Where a claim depends on
+            what a video actually shows rather than on its caption, the
+            research says so instead of assuming.
+          </li>
+          <li>
+            <strong>Identity is graded, and never upgraded.</strong> An account
+            whose operator was not identified stays unresolved on the page no
+            matter how well documented its behaviour is.
+          </li>
+          <li>
+            <strong>Connection is graded too.</strong> A link is marked
+            documented, observed, or inferred — and inference is labelled as
+            inference rather than written up as a finding.
+          </li>
+        </ul>
+        <p>
+          Findings that cut against the research&rsquo;s own starting
+          assumptions are published with the rest. Where a claim is tied to a
+          named living person, it is because the research graded it verified at
+          high confidence <em>and</em> the same conduct is already documented
+          in mainstream reporting cited in that file.
+        </p>
+      </SectionBlock>
+
       <SectionBlock heading="Corrections">
         <p>
           A network that verifies will still sometimes be wrong. When that

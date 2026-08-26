@@ -960,6 +960,268 @@
   }
 }
 
+/* ── Research grades ──────────────────────────────────────────────────────
+   Confidence and evidence class are the research's own honesty layer, not
+   verdicts, so they are typed as quiet data rather than taking an assessment
+   ramp. The one exception is `inferred_coordination`: the weakest evidence
+   class the contract allows, and the one a reader most needs to see is weak,
+   so it carries the ember line the rest of this section uses for hostile
+   data. */
+
+.gradeChip {
+  composes: tokens;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--grade-line, var(--line));
+  border-radius: 2px;
+  color: var(--grade-color, var(--ink-lo));
+  font-family: var(--mono);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.gradeChip[data-confidence='high'] {
+  --grade-color: var(--ink-hi);
+  --grade-line: var(--gold-line);
+}
+
+.gradeChip[data-confidence='low'],
+.gradeChip[data-evidence='inferred_coordination'] {
+  --grade-color: var(--ember-peak);
+  --grade-line: var(--ember-line);
+}
+
+/* ── RosterTable ────────────────────────────────────────────────────────── */
+
+/* The reading measure is fixed; a wide table scrolls inside its own box
+   rather than pushing the page sideways. */
+.rosterScroll {
+  composes: tokens;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-top: 1px solid var(--gold-line);
+}
+
+.roster {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--text);
+  font-size: var(--t-caption, 0.8125rem);
+  line-height: var(--t-caption-lh, 1.5);
+  text-align: left;
+}
+
+.roster th,
+.roster td {
+  padding: 0.7rem 0.9rem 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.roster thead th {
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: var(--t-data, 0.72rem);
+  font-weight: 400;
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.roster tbody th {
+  font-weight: 400;
+}
+
+.rosterName {
+  display: block;
+  color: var(--ink-hi);
+}
+
+.rosterHandle {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ink-lo);
+  font-family: var(--mono);
+  font-size: var(--t-data, 0.72rem);
+  overflow-wrap: anywhere;
+}
+
+.rosterType,
+.rosterNote {
+  color: var(--ink-lo);
+}
+
+.rosterType {
+  white-space: nowrap;
+}
+
+/* Counts line up as a column, which is the whole reason they were pulled out
+   of the note prose in the first place. */
+.rosterNumeric {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--t-data, 0.72rem);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rosterNote {
+  min-width: 18ch;
+}
+
+.identityChip {
+  composes: gradeChip;
+}
+
+.identityChip[data-identity='confirmed'] {
+  --grade-color: var(--ink-hi);
+  --grade-line: var(--gold-line);
+}
+
+/* Unresolved is the grade this section must never quietly upgrade, so it is
+   the one that reads loudest in the table. */
+.identityChip[data-identity='unresolved'] {
+  --grade-color: var(--ember-peak);
+  --grade-line: var(--ember-line);
+}
+
+/* ── TechniqueChip ──────────────────────────────────────────────────────── */
+
+.techniqueChips {
+  composes: tokens;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+
+.techniqueChipsLabel {
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking, 0.08em);
+  text-transform: uppercase;
+}
+
+.techniqueChipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.techniqueChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--ember-line);
+  border-radius: 2px;
+  color: var(--ember-peak);
+  font-family: var(--text);
+  font-size: var(--t-data, 0.72rem);
+  line-height: var(--t-data-lh, 1.45);
+  text-decoration: none;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+
+.techniqueChip:hover,
+.techniqueChip:focus-visible {
+  border-color: var(--ember-peak);
+  color: var(--gold-hi);
+}
+
+.techniqueChip:focus-visible {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 2px;
+}
+
+/* ── NetworkFigure ──────────────────────────────────────────────────────── */
+
+.networkFigure {
+  composes: tokens;
+  margin: 2rem 0;
+}
+
+/* The drawing has a minimum legible width; below it the figure scrolls inside
+   its own box rather than shrinking the labels past the type floor. */
+.networkScroll {
+  overflow-x: auto;
+}
+
+.networkSvg {
+  display: block;
+  width: 100%;
+  min-width: 20rem;
+  max-width: 32rem;
+  height: auto;
+  margin: 0 auto;
+}
+
+.networkRing {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.networkDisc {
+  fill: rgba(168, 90, 97, 0.14);
+  stroke: var(--ember-line);
+  stroke-width: 1;
+}
+
+.networkCount {
+  fill: var(--ink-hi);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.networkLabel {
+  fill: var(--ink);
+  font-family: var(--text);
+  font-size: 0.72rem;
+}
+
+.networkCenter {
+  fill: var(--gold);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+/* The viewBox is 520 against a 32rem box, so these render at very close to
+   1:1 — which means the 0.72rem floor applies here exactly as it does to DOM
+   text, and nothing in this figure goes under it. */
+.networkCenterSub {
+  fill: var(--ink-lo);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.networkCaption {
+  margin: 1rem 0 0;
+  color: var(--ink-lo);
+  font-family: var(--text);
+  font-size: var(--t-small, 0.9375rem);
+  line-height: var(--t-small-lh, 1.65);
+}
+
+/* ── ResearchText ───────────────────────────────────────────────────────── */
+
+/* A handle set as code is visibly a handle rather than a name — the research
+   writes them this way and the distinction survives into the page. */
+.handle {
+  color: var(--ink-hi);
+  font-family: var(--mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 719px) {

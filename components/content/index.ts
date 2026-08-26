@@ -8,3 +8,8 @@ export { Timeline, type TimelineProps, type TimelineEntry, type TimelineVariant 
 export { ContentCard, type ContentCardProps } from './ContentCard';
 export { ClaimRecordPair, type ClaimRecordPairProps } from './ClaimRecordPair';
 export { SensitiveContent, type SensitiveContentProps } from './SensitiveContent';
+export { RosterTable, type RosterTableProps } from './RosterTable';
+export { TechniqueChip, TechniqueChips, type TechniqueChipProps } from './TechniqueChip';
+export { ConfidenceChip, EvidenceClassChip } from './EvidenceGrade';
+export { ResearchText } from './ResearchText';
+export { NetworkFigure, type NetworkFigureProps } from './NetworkFigure';

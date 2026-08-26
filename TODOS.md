@@ -476,6 +476,89 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 2. W4 (תוכן פר־עמוד) — אחרי ש־W3 מספק את הרכיבים ו־W1 את המעטפת.
 3. משימות המק (פוסטר, אינטרו, אפיית אייקונים) — בנפרד, בתחנת העבודה.
 
+## Wave — 26 August 2026: October 7 archive integration
+
+Full brief: **[`docs/archive-integration.md`](docs/archive-integration.md)**.
+Read [`.ai/DECISIONS.md`](.ai/DECISIONS.md)'s top entry first — this work
+reverses the previous "link out, host nothing" boundary on `/october-7`, and
+that reversal is deliberate.
+
+Two crawled archives become ~1,180 static pages under `/october-7`. Both
+packages live outside this repo and are not in git.
+
+### A1 — Packaging ✅ complete
+
+- [x] october7 package built and validated — 179 records, 505 language
+      versions, 499 media, **29/29 checks pass**.
+- [x] hamas-massacre package built from the raw archive — 335 records, 670
+      language versions, 528 unique media from 1088 relations, **32/32 checks
+      pass**. Pipeline at `~/Documents/october-7_toad/pkgbuild/`.
+- [x] Both verified to share one contract: the story↔media relation is
+      key-for-key identical and hamas block types are a strict subset of
+      october7's, so **one renderer serves both**.
+- [x] All 209 videos confirmed H.264/AAC faststart — no transcoding needed.
+- [x] Reversal recorded in `.ai/DECISIONS.md`; superseded entry marked.
+
+### A2 — Placement decisions ✅ settled
+
+- [x] Radial nav stays at eight nodes; `defaultNodes` untouched. Archives are
+      child routes of `/october-7`, not a ninth destination.
+- [x] Content ships as JSON in the repo (~51 MB measured) behind the
+      `lib/content/` seam — not through the unprovisioned backend.
+- [x] Media (~1.8 GB served) goes to **Cloudflare R2** — inside its 10 GB free
+      tier with free egress, so $0/month. Must be served from CDN URLs
+      directly, never proxied through the Next app.
+
+### A3 — Prerequisite, decide before building
+
+- [ ] **Fix the `app/loading.tsx` no-JavaScript defect, or accept it
+      knowingly.** Its Suspense fallback is never replaced without JS, so real
+      markup sits in a `display:none` wrapper. `/`, `/war-update` and `/we-are`
+      already carry this; 1,180 new static content pages make it far more
+      expensive. Verified by deleting that one file — the routes then render
+      completely.
+
+### A4 — Build
+
+- [ ] `scripts/import-archive-package.mjs` — validate, copy `data/` and
+      `content/` into `content-packages/`, upload media, write `media-map.json`
+      (`media_id` → public URL). Idempotent, upserts by id.
+- [ ] `lib/content/testimonies.ts` and `lib/content/documentation.ts` — async
+      accessors over the imported JSON, with the signature a real query lands
+      on later.
+- [ ] `components/archive/` — block renderer for the four block types. `srcset`
+      for images, `poster` from `thumbnail_media_id` for video, credits in the
+      evidence margin via the existing `marginNote` grid.
+- [ ] Index and record pages on `components/sections/DocPage.tsx` (the shell
+      for routes outside the eight-file orbit).
+- [ ] Documentation locale scheme mirrors testimonies: `[category]/[slug]`
+      serves en (335), `[category]/[slug]/es` serves Spanish (335). The one
+      `category_id: null` record routes under a literal `uncategorized`
+      segment — do not invent a category in the data.
+- [ ] hreflang from `translation-links.json` (775 + 670 pairs, symmetric,
+      confidence high — do not infer). Keep `source_url` per version for 301s.
+- [ ] Metadata, canonical and JSON-LD per route.
+- [ ] Unit-test the renderer against the three fixtures in the october7
+      package's `exports/sample-stories/`; extend `scripts/ci-smoke.mjs`.
+- [ ] `verify:graphics` must come out **unchanged** — nothing here touches
+      `components/particle-nav/`.
+
+### A5 — Open questions, decide during A4
+
+- [ ] Do archive record pages carry the citation rail, or stay on `DocPage`'s
+      rail-free shell? If they do, it needs a prop, not a fork.
+- [ ] Canonical URL policy: self-canonical, or canonical to the source site?
+- [ ] Does `/october-7` keep its outbound links to Edut 710 and the USC Shoah
+      Foundation alongside the internal archives? (Recommended: yes — they hold
+      testimony neither package contains.)
+
+### A6 — Later, deliberately
+
+- [ ] Backend path: `database/schema.sql` → Neon, stories as items, media as
+      evidence, written through `recordVersion()`. Blocked on Phase 8 auth.
+- [ ] Refresh loop: crawl → pkgbuild → validate → import. Ids are contracts, so
+      imports upsert and nothing is overwritten.
+
 ## מטרת העל
 
 להפוך את האתר מחוויית מותג מרשימה ומעמודי הצהרת כוונות לפלטפורמת מידע פעילה, אמינה ונגישה שבה:

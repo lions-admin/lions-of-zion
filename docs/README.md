@@ -12,6 +12,12 @@ described as though it works.
 | [`environment.md`](environment.md) | Every environment variable, by name. No values |
 | [`operations.md`](operations.md) | Install, run, verify, CI, deploy, troubleshoot |
 
+## Active task briefs
+
+| Document | For |
+| --- | --- |
+| [`archive-integration.md`](archive-integration.md) | Bringing the two October 7 testimony archives onto `/october-7`. Phase 1 done, Phases 2–4 open |
+
 ## Where else things are written down
 
 - **[`../CLAUDE.md`](../CLAUDE.md)** — the working brief: stable architecture

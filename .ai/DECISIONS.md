@@ -10,6 +10,55 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-26 — The archive presents clean but keeps its provenance; it is an evidentiary asset, not an SEO one
+
+Four decisions about how the hosted archives present, taken together because
+they came from one question: how "clean" can these pages be?
+
+**No outbound links in a record body, and credits render as plain text.**
+The visitor is never sent away mid-record and never sees a hyperlink in the
+prose. `source_url` stays in metadata and JSON-LD — machine-readable and
+verifiable without being visible. A single site-level sources-and-method page
+(`/methodology` already exists) replaces per-record link lists. Credits sit at
+`--t-data`, the smallest step in the type system: present, recessive.
+
+**Provenance itself is not negotiable, and rewording to escape it was
+considered and rejected.** Minor edits to someone else's work produce a
+derivative work, so the obligation survives the edit — but three project-
+specific reasons mattered more. These are first-person accounts: altering the
+words changes what the witness said, which turns testimony into a story based
+on testimony. `/october-7`'s own copy says denial is answered by the record,
+and denial feeds on claims that cannot be checked — an unsourced archive hands
+a denier his argument. And `TODOS.md`'s standing principle is "Evidence first:
+no publication without sources." Note the scale of what was actually at stake:
+only **3 of 528** media items in one package and **3 of 499** in the other
+carry a named credit, so there was no clutter to remove in the first place.
+
+**Canonical points at this site, not at the source.** Canonical to the source
+guarantees zero organic traffic from 1,178 pages; there is no reason to
+concede that in advance.
+
+**But do not plan on traffic from the record pages.** When two sites host the
+same text a search engine shows one, and the source published first with the
+domain history to match. Expect these pages to earn little search traffic
+whatever the canonical says. (Rewording to dodge duplicate-content detection
+is the usual tactic here and works poorly on top of everything above.) The
+traffic comes from what is genuinely this site's own: the editorial layer
+around the archive, the fact that nobody else holds both archives in one
+searchable place, and Hebrew — absent from both packages and from this site,
+which is `lang="en"` today. Translating the archives is itself a derivative
+work and a conversation with the source projects; the editorial layer is not,
+and can be written in Hebrew freely.
+
+**Documentation records take no rails.** Measured, not guessed: every one of
+the 670 hamas versions is exactly 3 blocks with exactly 1 heading, so an "In
+this file" rail would carry a single entry. 179 of the 505 october7 versions
+have no headings at all. `DocPage`'s rail-free shell is therefore correct as
+it stands. A right-margin-only variant for the long testimonies (median 26
+blocks, up to 170) is worth revisiting later — as a prop on the existing
+shell, never a fork, and it must also fix the `--content-w` maths, which
+assumes both rails or neither.
+
 ## 2026-08-26 — October 7 hosts the archives directly; the link-only boundary is reversed
 
 **This reverses the 2026-08-25 entry "October 7's Testimony/Remembrance link

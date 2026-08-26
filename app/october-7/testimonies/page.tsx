@@ -22,7 +22,12 @@ export default async function Page() {
   const languages = manifest.languages.length;
 
   return (
-    <DocPage routeId="october-7" title="Testimonies" tagline={TAGLINE}>
+    <DocPage
+      routeId="october-7"
+      title="Testimonies"
+      tagline={TAGLINE}
+      breadcrumb={[{ href: '/october-7', label: 'October 7' }]}
+    >
       <p>
         {records.length} accounts, archived from October7.org and reproduced as
         published — their text, their images and their credits unaltered.

@@ -62,25 +62,25 @@ the by-surface list below.
       `app/layout.tsx:3`, `app/layout.tsx:70-78`, `components/chat/ParticleChatLauncher.tsx:6`, `components/chat/ChatParticleCanvas.tsx:2-28`, `components/particle-nav/CanvasMount.tsx:30`
       `high` · `performance-perceived` · `trivial effort`
 
-- [ ] **3.** `archive-brief-testimony-opens-with-the-source-sites-breadcrumb`
+- [x] **3.** `archive-brief-testimony-opens-with-the-source-sites-breadcrumb`
       367 testimonies open their body with october7.org's nav breadcrumb, set as prose
       **Do:** In `ArchiveBlocks`' `paragraph` case, skip the block at index 0 when it is breadcrumb-shaped, render-time only, stored record unchanged. …
       `components/archive/ArchiveBlocks.tsx:58-59`, `components/archive/archive.module.css:27-32`, `lib/content/archive.ts:214-227`
       `high` · `content-design` · `small effort`
 
-- [ ] **4.** `archive-brief-documentation-record-says-one-sentence-three-times`
+- [x] **4.** `archive-brief-documentation-record-says-one-sentence-three-times`
       All 670 documentation pages print the title as h1 then again as h2; 336 also as the body paragraph
       **Do:** Split it. **(1)** In `ArchiveBlocks.tsx`, pass the rendered title down from `ArchiveRecordPage`/`ArchiveRecord` and skip a *leading* `heading` block whose normalised text equals it. …
       `components/archive/ArchiveBlocks.tsx:54-59`, `components/archive/ArchiveRecordPage.tsx:55`, `components/archive/archive.module.css:13-21`, `components/archive/archive.module.css:27-32`
       `high` · `hierarchy` · `small effort`
 
-- [ ] **5.** `archive-lang-declared-english`
+- [x] **5.** `archive-lang-declared-english`
       661 non-English pages render inside `lang="en"`
       **Do:** Target the parts, not the `<main>`. The filed "put `lang` on the `<main>`" fix would create a new 3.1.2 failure, because `DocPage`'s `<main>` also contains untranslated English chrome: the skip link, the "Lions of Zion" wordmark, "← Back to the scan", the …
       `app/layout.tsx:67`, `components/archive/ArchiveRecordPage.tsx:55-72`, `components/archive/ArchiveRecord.tsx:79-98`, `components/sections/DocPage.tsx:34`, `lib/content/archive.ts:35-40`
       `high` · `accessibility` · `small effort`
 
-- [ ] **6.** `archive-brief-mobile-index-rail-pins-351px-of-metadata-over-the-brief`
+- [x] **6.** `archive-brief-mobile-index-rail-pins-351px-of-metadata-over-the-brief`
       351px of sticky evidence-contract chrome over a 760px phone viewport
       **Do:** Scope the fix to ≤719px, **not** the 900px block: between 720 and 900px `.indexRailInner` is `position: static` and `.indexRail` is not sticky, so the evidence contract there is ordinary flow content doing no harm, and adding `.evidenceContract { display: …
       `components/briefs/geopolitical-brief.module.css:798-806`, `components/briefs/geopolitical-brief.module.css:712-714`, `components/briefs/geopolitical-brief.module.css:755-758`, `components/briefs/GeopoliticalBrief.tsx:101-117`
@@ -110,7 +110,7 @@ the by-surface list below.
       `components/chat/ask-the-lion-chat.module.css:183-187`, `components/chat/ask-the-lion-chat.module.css:530`, `components/support/support.module.css:27-38`, `components/home/home.module.css:433-441`, `app/globals.css:64-72`, `app/not-found.module.css:101`, `app/not-found.module.css:137`
       `medium` · `accessibility` · `trivial effort`
 
-- [ ] **11.** `archive-brief-record-pages-have-no-route-back-into-the-archive`
+- [x] **11.** `archive-brief-record-pages-have-no-route-back-into-the-archive`
       No link to index, category, hub or neighbour on any record or index page
       **Do:** Give `DocPage` an optional `breadcrumb?: {href,label}[]` prop rendered in the identity band beside the route at `--t-data`, and have `ArchiveRecordPage` pass `[{'/october-7', 'October 7'}, {index path, 'Testimonies'|'Documentation'}]`. …
       `components/sections/DocPage.tsx:40-51`, `components/sections/DocPage.tsx:61-62`, `components/archive/ArchiveRecord.tsx:103-116`

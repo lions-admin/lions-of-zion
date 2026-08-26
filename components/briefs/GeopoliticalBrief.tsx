@@ -91,32 +91,38 @@ export function GeopoliticalBrief() {
               <strong>{brief.reviewedBy}</strong>
             </div>
 
-            {/* The evidence contract used to sit in the right rail. It is
-                metadata about the document — its standing, its record count,
-                when it was last reviewed — so it belongs here with the
-                identity and the coverage window it already repeats half of.
-                Moving it also frees the right margin for what the direction
-                actually wants there: the source beside the development it
-                supports. */}
-            <div className={styles.evidenceContract}>
-              <span className={styles.evidenceKicker}>Evidence contract</span>
-              <dl>
-                <div>
-                  <dt>Status</dt>
-                  <dd><VerificationBadge assessment={STATUS_TO_ASSESSMENT[brief.status]} /></dd>
-                </div>
-                <div>
-                  <dt>Primary records</dt>
-                  <dd>{brief.sourceCount}</dd>
-                </div>
-                <div>
-                  <dt>Corrections</dt>
-                  <dd>{corrections.length > 0 ? `${corrections.length} recorded` : 'None recorded'}</dd>
-                </div>
-              </dl>
-            </div>
           </div>
         </aside>
+
+        {/* The evidence contract lives in the left column beside the rail, not
+            inside it. It is metadata about the document — its standing, its
+            record count, when it was last reviewed — which a reader consults
+            once, so it has no business being sticky.
+
+            That it *was* inside the rail is what made the phone layout fail:
+            at ≤719px the whole `<aside>` becomes a sticky opaque slab, and
+            this block is 275px of its 351px. Pinned from y=56 to y=407 over a
+            760px scrollport, it left a 353px reading window — twelve lines —
+            and guillotined the content scrolling under it, for 100% of a
+            5,504px read. Out here the sticky box is the TOC alone, ~46px,
+            which is the affordance a reader actually needs continuously. */}
+        <div className={styles.evidenceContract}>
+          <span className={styles.evidenceKicker}>Evidence contract</span>
+          <dl>
+            <div>
+              <dt>Status</dt>
+              <dd><VerificationBadge assessment={STATUS_TO_ASSESSMENT[brief.status]} /></dd>
+            </div>
+            <div>
+              <dt>Primary records</dt>
+              <dd>{brief.sourceCount}</dd>
+            </div>
+            <div>
+              <dt>Corrections</dt>
+              <dd>{corrections.length > 0 ? `${corrections.length} recorded` : 'None recorded'}</dd>
+            </div>
+          </dl>
+        </div>
 
         <article className={styles.article} id="brief-content">
           <header className={styles.briefHeader}>

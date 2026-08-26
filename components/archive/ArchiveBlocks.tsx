@@ -11,6 +11,11 @@ export type ArchiveBlocksProps = {
   pkg: ArchivePackageName;
   blocks: ArchiveBlock[];
   media: Map<string, ArchiveMedia>;
+  /**
+   * The title the page already renders as its `h1`. A leading `heading` block
+   * that repeats it is dropped — see `dropLeadingChrome`.
+   */
+  renderedTitle?: string;
 };
 
 /**
@@ -30,8 +35,63 @@ export type ArchiveBlocksProps = {
  *    unsourced archive cannot answer denial, which is what this section
  *    exists to do.
  */
-export function ArchiveBlocks({ pkg, blocks, media }: ArchiveBlocksProps) {
-  const ordered = [...blocks].sort((a, b) => a.position - b.position);
+/** Whitespace-collapsed, case-insensitive — the records vary in both. */
+const normalise = (value: string | null | undefined) =>
+  String(value ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+/**
+ * Two pieces of source-site furniture that only ever appear at position 0.
+ *
+ * Both are dropped at *render* time and the stored record is untouched, which
+ * is the precedent `displayTitle()` already set in `lib/content/archive.ts`
+ * for the same class of chrome.
+ *
+ * **The breadcrumb.** The crawler captured october7.org's nav as the first
+ * paragraph on 367 of 505 testimony versions, so the first sentence a reader
+ * met was "October 7 > Gaza Border Communities > Testimony of Gili Y" — set
+ * in the witness's own body voice, two lines under an `h1` whose text is that
+ * breadcrumb's last segment. Matched on shape rather than on a leading
+ * "October 7": 37 versions open with a localised root ("7 de outubro > …"),
+ * and a length cap of ~120 would miss 71 of them (the longest real breadcrumb
+ * is 163 characters). Verified against both packages: the shape matches all
+ * 367 at index 0 and **nothing at any later position**, so there is no
+ * mid-record false positive to worry about.
+ *
+ * **The repeated title.** Every one of the 670 hamas-massacre versions opens
+ * with a `heading` block whose text is the record title, which the page has
+ * already set as its `h1` directly above. No text is lost by dropping it —
+ * the same string still renders, once, at the top.
+ *
+ * Deliberately *not* handled here: the paragraph that repeats the title on
+ * 336 of those records. A byte-equality skip catches only half of them, on
+ * ~215 Spanish versions the duplicate is the untranslated English sentence —
+ * an import problem rather than a rendering one — and suppressing a record's
+ * only paragraph would contradict the provenance footer's promise that the
+ * text is "reproduced as published … unaltered".
+ */
+function dropLeadingChrome(blocks: ArchiveBlock[], renderedTitle?: string): ArchiveBlock[] {
+  const first = blocks[0];
+  if (!first) return blocks;
+
+  const isBreadcrumb =
+    first.type === 'paragraph' &&
+    typeof first.text === 'string' &&
+    first.text.includes('\n>') &&
+    first.text.length < 200;
+
+  const repeatsTitle =
+    first.type === 'heading' &&
+    !!renderedTitle &&
+    normalise(first.text) === normalise(renderedTitle);
+
+  return isBreadcrumb || repeatsTitle ? blocks.slice(1) : blocks;
+}
+
+export function ArchiveBlocks({ pkg, blocks, media, renderedTitle }: ArchiveBlocksProps) {
+  const ordered = dropLeadingChrome(
+    [...blocks].sort((a, b) => a.position - b.position),
+    renderedTitle,
+  );
 
   return (
     <>

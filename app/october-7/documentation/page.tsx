@@ -26,7 +26,12 @@ export default async function Page() {
   );
 
   return (
-    <DocPage routeId="october-7" title="Documentation" tagline={TAGLINE}>
+    <DocPage
+      routeId="october-7"
+      title="Documentation"
+      tagline={TAGLINE}
+      breadcrumb={[{ href: '/october-7', label: 'October 7' }]}
+    >
       <p>
         {total} records archived from Hamas-Massacre.net, in English and
         Spanish, kept in the categories the source filed them under. Each is

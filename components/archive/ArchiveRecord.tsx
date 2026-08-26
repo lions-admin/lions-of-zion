@@ -4,6 +4,7 @@ import {
   type ArchivePackageName,
   type ArchiveRecord as Record,
   type ArchiveVersion,
+  displayTitle,
 } from '@/lib/content/archive';
 import { ArchiveBlocks } from './ArchiveBlocks';
 import styles from './archive.module.css';
@@ -79,7 +80,11 @@ export function ArchiveRecord({
         {others.length ? (
           <nav className={styles.languages} aria-label="Languages">
             <span className={styles.languagesLabel}>Read in</span>
-            <span className={styles.languageCurrent}>
+            {/* Each label is itself written in the language it names
+                ("Português", "日本語"), so it needs `lang` and not only
+                `hrefLang` — that one describes the destination, not the text
+                a screen reader is about to pronounce. */}
+            <span className={styles.languageCurrent} lang={version.locale}>
               {LANGUAGE_NAMES[version.locale] ?? version.locale}
             </span>
             {others.map((locale) => (
@@ -90,6 +95,7 @@ export function ArchiveRecord({
                   locale === record.default_language ? basePath : `${basePath}/${locale}`
                 }
                 hrefLang={locale}
+                lang={locale}
               >
                 {LANGUAGE_NAMES[locale] ?? locale}
               </Link>
@@ -98,7 +104,27 @@ export function ArchiveRecord({
         ) : null}
       </div>
 
-      <ArchiveBlocks pkg={pkg} blocks={version.content_blocks} media={media} />
+      {/* The record's own words, declared in the record's own language.
+          661 of the 1,175 versions are not English, and the root layout's
+          `<html lang="en">` is the site's only `lang` — so a screen reader
+          was reading a Portuguese or Japanese first-person account with
+          English phoneme rules.
+
+          Scoped to the blocks rather than to the whole page on purpose: the
+          metadata above and the provenance footer below stay English, so
+          this is the exact seam where the language changes. `dir` is bound
+          for the same reason, though every shipped version is `ltr` today.
+
+          The same string `ArchiveRecordPage` sets as the `h1`, so a leading
+          heading block that repeats it can be dropped. */}
+      <div lang={version.locale} dir={version.direction}>
+        <ArchiveBlocks
+          pkg={pkg}
+          blocks={version.content_blocks}
+          media={media}
+          renderedTitle={displayTitle(version.title)}
+        />
+      </div>
 
       <footer className={styles.provenance}>
         <p>

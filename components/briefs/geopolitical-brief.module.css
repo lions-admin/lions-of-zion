@@ -637,7 +637,12 @@
 /* The evidence contract, now in the left rail under the coverage block —
    it describes the document, not any one development, so it sits with the
    identity rather than in the margin the citations have taken over. */
+/* A sibling of `.indexRail`, not a child of it — see the note at its call
+   site. Explicit column placement keeps it visually where it has always been,
+   under the rail in the left column, while leaving the sticky box to the TOC. */
 .evidenceContract {
+  grid-column: 1;
+  align-self: start;
   margin-top: 1.4rem;
   padding-top: 1.2rem;
   border-top: 1px solid var(--gold-line);

@@ -31,6 +31,20 @@ export type ArchiveRecordPageArgs = {
  * they read and what their URLs look like. Keeping the loading, the 404 and
  * the shell here is what stops those four drifting apart.
  */
+/**
+ * Where this record sits, for the identity band and for `BreadcrumbList`.
+ *
+ * Derived from `pkg` rather than passed in by each of the four record routes,
+ * which differ only in which package they read.
+ */
+function archiveTrail(pkg: ArchivePackageName) {
+  const index =
+    pkg === 'october7'
+      ? { href: '/october-7/testimonies', label: 'Testimonies' }
+      : { href: '/october-7/documentation', label: 'Documentation' };
+  return [{ href: '/october-7', label: 'October 7' }, index];
+}
+
 export async function ArchiveRecordPage({
   pkg,
   slug,
@@ -53,11 +67,29 @@ export async function ArchiveRecordPage({
   const media = await getMediaRegistry(pkg);
 
   return (
-    <DocPage routeId="october-7" title={displayTitle(version.title)} tagline={tagline}>
+    <DocPage
+      routeId="october-7"
+      title={displayTitle(version.title)}
+      titleLang={version.locale}
+      tagline={tagline}
+      breadcrumb={archiveTrail(pkg)}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(recordJsonLd(record, version, basePath, locale, sourceLabel)),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd(
+              pkg,
+              displayTitle(version.title),
+              `${SITE_URL}${locale ? `${basePath}/${locale}` : basePath}`,
+            ),
+          ),
         }}
       />
       <ArchiveRecord
@@ -134,5 +166,21 @@ function recordJsonLd(
     // what lets the record body stay free of outbound links.
     isBasedOn: version.source_url ?? undefined,
     publisher: { '@type': 'Organization', name: 'Lions of Zion' },
+  };
+}
+
+/** The same trail the identity band shows, so the hierarchy is not invisible
+    to machines while being visible to readers. */
+function breadcrumbJsonLd(pkg: ArchivePackageName, title: string, url: string) {
+  const items = [...archiveTrail(pkg).map((c) => ({ name: c.label, url: `${SITE_URL}${c.href}` })), { name: title, url }];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
   };
 }

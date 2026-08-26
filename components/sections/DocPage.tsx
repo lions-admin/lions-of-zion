@@ -23,10 +23,38 @@ export interface DocPageProps {
   routeId: string;
   title: string;
   tagline: string;
+  /**
+   * BCP 47 tag for the title, when it is not in the page's language — an
+   * archive record translated into Portuguese, say.
+   *
+   * Deliberately on the `<h1>` alone rather than on the `<main>`: this shell
+   * also carries untranslated English chrome (the skip link, the wordmark,
+   * "← Back to the scan", the tagline, and the record's own metadata and
+   * provenance footer), so declaring the whole region foreign would trade one
+   * WCAG 3.1.1 failure for a 3.1.2 one.
+   */
+  titleLang?: string;
+  /**
+   * Ancestors of this page, nearest root first, rendered in the identity band.
+   *
+   * The band's `/{routeId}` is an inert `<span>`, and the only other exits are
+   * two links to `/`. On a policy page that is fine — those link to each other
+   * from their own prose. On an archive record it is not: the prose is a
+   * witness account that links to nothing, so moving to the next testimony
+   * costs a full round trip through the particle scene.
+   */
+  breadcrumb?: { href: string; label: string }[];
   children: React.ReactNode;
 }
 
-export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
+export function DocPage({
+  routeId,
+  title,
+  tagline,
+  titleLang,
+  breadcrumb,
+  children,
+}: DocPageProps) {
   const pageClass = [styles.page, styles.surfaceQuiet].join(' ');
 
   return (
@@ -44,7 +72,18 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
             <span className={styles.identitySep} aria-hidden="true">
               ·
             </span>
-            <span className={styles.identityRoute}>/{routeId}</span>
+            {breadcrumb?.length ? (
+              <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+                {breadcrumb.map((crumb) => (
+                  <span key={crumb.href}>
+                    <Link href={crumb.href}>{crumb.label}</Link>
+                    <span aria-hidden="true"> / </span>
+                  </span>
+                ))}
+              </nav>
+            ) : (
+              <span className={styles.identityRoute}>/{routeId}</span>
+            )}
           </span>
           <Link href="/" className={styles.identityExit}>
             ← Back to the scan
@@ -53,7 +92,9 @@ export function DocPage({ routeId, title, tagline, children }: DocPageProps) {
 
         <article className={styles.panel} id="page-content">
           <header>
-            <h1 className={styles.title}>{title}</h1>
+            <h1 className={styles.title} lang={titleLang}>
+              {title}
+            </h1>
             <p className={styles.lede}>{tagline}</p>
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>

@@ -18,9 +18,11 @@ visitor from reading, navigating or trusting a page.
 
 ## Before you land any of it
 
-- [ ] `npm install` first — `npm ci` currently fails on nested `@esbuild/*`
-      packages missing from `package-lock.json`. The repair is additive and
-      belongs in its own commit.
+- [x] ~~`npm ci` fails on nested `@esbuild/*` packages missing from
+      `package-lock.json`.~~ Fixed on this branch: vitest's nested esbuild
+      0.28.2 had no entries for its 26 optional platform binaries.
+      Recomputed additively — 27 packages added, 0 removed, 0 version
+      changes. `npm ci` now succeeds from a clean checkout.
 - [ ] Run `npm run typecheck`, `npm run lint` and `npm test` before every push.
       A `PostToolUse` hook re-checks the intro timeline invariants and runs
       `tsc --noEmit` after each edit, so a broken timeline surfaces early.
@@ -615,7 +617,8 @@ Filed twice by two agents. Searching for the retired id should land here.
       `<package>/`, set the variable, then prove it with
       `node scripts/verify-archive-assets.mjs <base> --all` — a wrong value
       fails quietly: pages build, tests pass, text renders, only media 404s.
-- [ ] **Repair `package-lock.json`** in its own commit, as above.
+- [x] ~~**Repair `package-lock.json`.**~~ Done — it was blocking CI on
+      every pull request, not only this one.
 - [ ] **Phase 5 — home-scene orbit labels** is recorded in `.ai/DESIGN-V2.md`
       as open and a user decision, not an audit finding. The audit's
       `home-scene-orbit-labels-below-legibility-floor` is the in-place fix

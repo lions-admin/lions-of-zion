@@ -41,10 +41,13 @@ report as a checkbox list in English — Wave 1 is the ranked fifteen, Wave 2
 is the remaining sixty by surface, and a "Do not refile" section carries
 the 3 refuted findings, the 4 flags the browser sweep withdrew and the 6
 merged ids. It is generated from the report and adds nothing to it.
-`TODOS.md` stays the Hebrew delivery plan and is untouched. `package-lock.json` is also out of
-sync with `package.json` — `npm ci` fails on missing nested `@esbuild/*`
-under `vitest`, and `npm install` repairs it additively. That was left
-uncommitted deliberately.
+`TODOS.md` stays the Hebrew delivery plan and is untouched. **One code change did land**, because CI on
+PR #14 proved it was blocking: `package-lock.json` had no entries for the
+26 optional platform binaries of the esbuild 0.28.2 nested under `vitest`,
+so `npm ci` aborted on every clean checkout — on this branch and on `main`.
+Recomputed with `npm install --package-lock-only`: 27 packages added, 0
+removed, 0 version changes. `npm install` had been masking it locally by
+resolving the tree itself.
 
 Still workstation-only, and still unrun for this audit:
 `verify:graphics`, `final-verify` and `verify-home-band` need real Chrome,

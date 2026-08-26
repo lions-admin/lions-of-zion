@@ -113,7 +113,7 @@ function Demo() {
 }
 
 const buttonStyle: React.CSSProperties = {
-  background: "rgba(7,11,20,0.9)",
+  background: "rgba(0, 0, 0,0.9)",
   color: "#efd79a",
   border: "1px solid rgba(201,162,75,0.5)",
   borderRadius: 6,

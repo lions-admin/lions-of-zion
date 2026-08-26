@@ -23,7 +23,7 @@ export default function Image() {
           justifyContent: "center",
           background: GROUND,
           backgroundImage:
-            "radial-gradient(circle at 50% 42%, rgba(201, 162, 75, 0.14), rgba(7, 11, 20, 0) 62%)",
+            "radial-gradient(circle at 50% 42%, rgba(201, 162, 75, 0.14), rgba(0, 0, 0, 0) 62%)",
         }}
       >
         {/* Crown mark, matching app/icon.svg */}

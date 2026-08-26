@@ -97,7 +97,7 @@
   left: 0.75rem;
   z-index: 100;
   padding: 0.7rem 0.9rem;
-  background: rgba(7, 11, 20, 0.96);
+  background: rgba(0, 0, 0, 0.96);
   border: 1px solid var(--gold);
   color: var(--gold-hi);
   font-family: var(--face-data);

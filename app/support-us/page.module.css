@@ -22,7 +22,7 @@
   padding: 1.6rem 1.5rem 1.75rem;
   border: 1px solid rgba(201, 162, 75, 0.3);
   border-radius: 2px;
-  background: linear-gradient(165deg, rgba(16, 26, 42, 0.55), rgba(7, 11, 20, 0.92) 55%);
+  background: linear-gradient(165deg, rgba(25, 25, 25, 0.55), rgba(0, 0, 0, 0.92) 55%);
 }
 
 .moduleHeader {

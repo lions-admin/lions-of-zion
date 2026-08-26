@@ -5,7 +5,7 @@
   min-height: 2rem;
   border: 1px solid rgba(201, 162, 75, 0.3);
   border-radius: 999px;
-  background: rgba(7, 11, 20, 0.94);
+  background: rgba(0, 0, 0, 0.94);
   box-shadow: 0 0.45rem 1.35rem rgba(0, 0, 0, 0.42);
   color: #e7c76e;
   /* Was `var(--font-heebo)`, which is defined nowhere in the project — a
@@ -36,7 +36,7 @@
 .loginLink:hover,
 .loginLink:focus-visible {
   border-color: rgba(255, 226, 154, 0.72);
-  background: rgba(17, 23, 35, 0.98);
+  background: rgba(23, 23, 23, 0.98);
   color: #ffe29a;
 }
 

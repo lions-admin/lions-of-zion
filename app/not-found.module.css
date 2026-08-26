@@ -46,7 +46,9 @@
   font-size: var(--t-data);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--blue);
+  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
+     never expresses text hierarchy — see `app/globals.css`. */
+  color: var(--ink-lo);
 }
 
 /* "This file is not in the index" is a sentence, so it is set as one. */

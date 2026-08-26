@@ -96,7 +96,9 @@
   padding: 0.12rem 0.5rem;
   border: 1px solid rgba(87, 167, 217, 0.35);
   border-radius: 1px;
-  color: var(--data-blue);
+  /* Gold, not the blue data ramp: that ramp carries meaning and never
+     expresses text hierarchy — see `app/globals.css`. */
+  color: var(--gold);
 }
 
 .headline {

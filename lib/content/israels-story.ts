@@ -30,6 +30,35 @@ export type IsraelsStoryEdition = {
   chapters: StoryChapter[];
 };
 
+/* The founding chapter's four entries are four separate events, and one
+   article about the Declaration was cited for all of them — so three of the
+   four pointed at a document that does not cover them. Each now carries the
+   primary record of its own event, from the UN Digital Library; every URL was
+   fetched and its page title checked rather than written from memory.
+   `WIKI_DECLARATION` stays only on the entry it actually covers. */
+
+const UN_PARTITION_PLAN: Source = {
+  id: 'un-res-181',
+  label: 'UN General Assembly Resolution 181(II), “Future government of Palestine”',
+  kind: 'UN record',
+  url: 'https://digitallibrary.un.org/record/210008',
+};
+
+const UN_MANDATE_TEXT: Source = {
+  id: 'un-mandate-text',
+  label: 'Text of the Mandate for Palestine',
+  kind: 'UN record',
+  url: 'https://digitallibrary.un.org/record/829707',
+};
+
+const UN_ARAB_LEAGUE_CABLEGRAM: Source = {
+  id: 'un-arab-league-cablegram',
+  label:
+    'Cablegram of 15 May 1948 from the Secretary-General of the League of Arab States',
+  kind: 'UN record',
+  url: 'https://digitallibrary.un.org/record/649818',
+};
+
 const WIKI_DECLARATION: Source = {
   id: 'wiki-declaration',
   label: 'Israeli Declaration of Independence',
@@ -99,7 +128,7 @@ const CHAPTERS: StoryChapter[] = [
         dateLabel: 'Nov 29, 1947',
         title: 'The UN adopts the Partition Plan',
         body: 'General Assembly Resolution 181(II) recommends dividing the British Mandate for Palestine into Jewish and Arab states.',
-        sources: [WIKI_DECLARATION],
+        sources: [UN_PARTITION_PLAN],
       },
       {
         id: 'mandate-ends',
@@ -107,7 +136,7 @@ const CHAPTERS: StoryChapter[] = [
         dateLabel: 'Midnight, May 14–15, 1948',
         title: 'The British Mandate ends',
         body: 'British administration of Palestine terminates at midnight, ending three decades of Mandate rule.',
-        sources: [WIKI_DECLARATION],
+        sources: [UN_MANDATE_TEXT],
       },
       {
         id: 'independence',
@@ -123,10 +152,17 @@ const CHAPTERS: StoryChapter[] = [
         dateLabel: 'May 15, 1948',
         title: 'Egypt, Transjordan, Iraq and Syria invade',
         body: 'Within a day of the declaration, four neighboring states send forces into the former Mandate territory, opening the 1948 Arab–Israeli War.',
-        sources: [WIKI_DECLARATION],
+        sources: [UN_ARAB_LEAGUE_CABLEGRAM],
       },
     ],
-    sources: [WIKI_DECLARATION],
+    /* The union of what its four entries cite, so the chapter's own list
+       cannot claim narrower sourcing than the entries beneath it. */
+    sources: [
+      UN_PARTITION_PLAN,
+      UN_MANDATE_TEXT,
+      WIKI_DECLARATION,
+      UN_ARAB_LEAGUE_CABLEGRAM,
+    ],
   },
   {
     id: 'six-day-war',

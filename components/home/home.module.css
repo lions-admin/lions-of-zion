@@ -256,7 +256,9 @@
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--data-blue);
+  /* Gold, not the blue data ramp: `globals.css` reserves that ramp for
+     meaning and says it never expresses text hierarchy. */
+  color: var(--gold);
 }
 
 /* The home route's only <h1>. Until now the sole one lived inside the static
@@ -400,7 +402,9 @@
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: 0.04em;
-  color: var(--data-blue);
+  /* Gold, not the blue data ramp: that ramp carries meaning and never
+     expresses text hierarchy — see `app/globals.css`. */
+  color: var(--gold);
 }
 
 .indexList {

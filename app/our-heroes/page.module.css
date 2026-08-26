@@ -13,7 +13,7 @@
   margin-top: 2rem;
   padding: 2.25rem 2rem 2rem;
   border: 1px solid var(--gold-line);
-  background: rgba(7, 11, 20, 0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .citation:first-of-type {
@@ -48,7 +48,7 @@
 
 .citationFeatured {
   padding: 2.75rem 2.5rem 2.5rem;
-  background: rgba(7, 11, 20, 0.55);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .citationFeatured::before,

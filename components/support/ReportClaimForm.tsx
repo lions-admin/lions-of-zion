@@ -17,6 +17,11 @@ const FAILURE_COPY: Record<string, string> = {
 };
 const GENERIC_FAILURE = 'The report could not be sent right now. Retry in a moment.';
 
+/* The desk's own address. Named in the no-JavaScript notice and in the failure
+   path, so neither tier tells a reader their report went nowhere without also
+   telling them where it can go. */
+const REPORTS_INBOX = 'admin@lionsofzion.io';
+
 type SubmitState =
   | { status: 'idle' }
   | { status: 'submitting' }
@@ -122,16 +127,18 @@ export function ReportClaimForm() {
         ran. Pointing the form at `/api/v1/reports` was considered and is
         worse: `server/http/handler.ts` `parseBody` calls `request.json()`,
         so a native form POST renders a raw problem+json page.
-        This tier still has no alternative channel to name. The site owns no
-        reports inbox — `VolunteerInterestForm`'s address is the only one that
-        exists, and it is itself a flagged placeholder for another desk.
-        Invent nothing here; give this notice a real address when one exists.
+        The address below is the owner's, given for this purpose on
+        2026-08-27. It is deliberately the same one in both tiers: a reader
+        without scripting gets a channel that works, and a reader with it gets
+        a fallback if the desk is down. A `mailto:` is safe to offer here
+        precisely because it needs no scripting to follow.
       */}
       <noscript>
         <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
         <p className={styles.fieldError}>
           This form needs JavaScript to send a report. Nothing typed here can reach the desk with
-          it turned off.
+          it turned off — email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a> instead,
+          with the link and what you believe is wrong with it.
         </p>
       </noscript>
 
@@ -193,7 +200,14 @@ export function ReportClaimForm() {
         />
       </div>
 
-      {state.status === 'error' ? <p className={styles.fieldError} role="alert">{state.message}</p> : null}
+      {state.status === 'error' ? (
+        <p className={styles.fieldError} role="alert">
+          {state.message}{' '}
+          {/* A failed send with no alternative leaves a reader who found a real
+              error with nowhere to put it. */}
+          You can also email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.
+        </p>
+      ) : null}
 
       <button type="submit" disabled={submitting}>
         {submitting ? 'Sending…' : 'Send report'}

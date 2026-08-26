@@ -22,7 +22,7 @@ export function FrameStats({ data }: { data: FrameStatsData | null }) {
         fontSize: 12,
         lineHeight: 1.6,
         color: over ? '#ff9a6b' : '#9be29b',
-        background: 'rgba(7,11,20,0.82)',
+        background: 'rgba(0, 0, 0,0.82)',
         border: '1px solid rgba(201,162,75,0.4)',
         padding: '6px 10px',
         borderRadius: 6,

@@ -159,6 +159,22 @@ export default function Page() {
           pipeline, stage by stage, is on the{" "}
           <Link href="/we-are">We Are</Link> page.
         </p>
+        {/* Scope, stated rather than implied. The pipeline above is real and
+            its rules are enforced in SQL rather than by convention, but the
+            pages a reader is on did not come through it: every one is edited
+            and published from this repository. Without this the paragraph
+            reads as a description of how *this* record was assembled, which
+            is a claim the site cannot support — and on a credibility page,
+            the wrong claim to leave standing. */}
+        <p>
+          One boundary is worth stating plainly: that pipeline governs the
+          assessment record the desk is building. It is not how the pages you
+          are reading were published. These are edited and shipped from the
+          project&rsquo;s own repository, and the archives beneath{" "}
+          <Link href="/october-7">October 7</Link> are reproduced from their
+          source packages as published. Where a page carries a review date and
+          a reviewer, that is the editorial pass on the page itself.
+        </p>
       </SectionBlock>
 
       <SectionBlock heading="Operational reporting">

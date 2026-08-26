@@ -246,15 +246,37 @@ becomes evidence, written through `server/core/versioning.ts` `recordVersion()`
 Ongoing updates: crawl → pkgbuild → validate → import. Ids are contracts, so
 imports upsert and nothing is overwritten.
 
-## Open questions
+## Presentation — settled
 
-These need a decision before or during Phase 3; none blocks Phase 2.
+Recorded in full in [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md) under "The
+archive presents clean but keeps its provenance". Summary, because these are
+constraints on the build:
 
-- Do archive record pages carry the citation rail, or stay on `DocPage`'s
-  rail-free shell?
-- Canonical URL policy: self-canonical, or canonical to the source site? This
-  follows from how the hosting relationship with the two source projects is
-  characterised.
-- Does the existing `/october-7` dossier keep its outbound links to Edut 710
-  and the USC Shoah Foundation alongside the internal archives? (Recommended:
-  yes — they hold testimony neither package does.)
+- **No outbound links in a record body.** Credits render as **plain text, not
+  hyperlinks**, at `--t-data`. `source_url` lives in metadata and JSON-LD, not
+  in the prose. Per-record link lists are replaced by the existing
+  `/methodology` page.
+- **Provenance is kept.** Rewording records to escape attribution was
+  considered and rejected — it produces a derivative work anyway, it alters
+  what a witness said, and an unsourced archive cannot answer denial, which is
+  this section's stated purpose. Only 3 of 528 and 3 of 499 media items carry a
+  named credit, so there was no clutter to remove regardless.
+- **Canonical points here, not at the source** — but expect little organic
+  search traffic from the record pages either way, because the source
+  published the same text first. Plan traffic around the editorial layer, the
+  cross-archive search nobody else has, and Hebrew (absent from both packages;
+  the site is `lang="en"`). Translating the archives is a derivative work and a
+  conversation with the source projects; the editorial layer is not.
+- **Documentation records take no rails.** Every hamas version is 3 blocks with
+  1 heading; 179 october7 versions have no headings at all. `DocPage` is
+  correct as-is. A right-margin-only variant for the long testimonies is a
+  later prop on the same shell, never a fork, and must fix `--content-w`, which
+  assumes both rails or neither.
+
+### Still open
+
+- `/october-7`'s "Testimony and remembrance" copy states the site hosts no
+  testimony. **That is now false and must be rewritten.** Edut 710 and the USC
+  Shoah Foundation stay (they hold video testimony neither package has); the
+  October7.org entry becomes an attribution line for the archive being read,
+  not an invitation to leave.

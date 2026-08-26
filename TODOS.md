@@ -543,14 +543,26 @@ packages live outside this repo and are not in git.
 - [ ] `verify:graphics` must come out **unchanged** — nothing here touches
       `components/particle-nav/`.
 
-### A5 — Open questions, decide during A4
+### A5 — Presentation ✅ settled
 
-- [ ] Do archive record pages carry the citation rail, or stay on `DocPage`'s
-      rail-free shell? If they do, it needs a prop, not a fork.
-- [ ] Canonical URL policy: self-canonical, or canonical to the source site?
-- [ ] Does `/october-7` keep its outbound links to Edut 710 and the USC Shoah
-      Foundation alongside the internal archives? (Recommended: yes — they hold
-      testimony neither package contains.)
+Full reasoning in `.ai/DECISIONS.md`, "The archive presents clean but keeps its
+provenance". These are now constraints on A4, not choices.
+
+- [x] **No outbound links in a record body.** Credits render as plain text, not
+      hyperlinks, at `--t-data`. `source_url` goes to metadata and JSON-LD.
+      `/methodology` replaces per-record link lists.
+- [x] **Provenance is kept.** Rewording to escape attribution was considered
+      and rejected. Only 3 of 528 (hamas) and 3 of 499 (october7) media items
+      carry a named credit — there was no clutter to remove.
+- [x] **Canonical points here**, with expectations set: the record pages will
+      earn little search traffic either way. Traffic comes from the editorial
+      layer, the cross-archive search, and Hebrew.
+- [x] **Documentation records take no rails** — 3 blocks, 1 heading each.
+      `DocPage` as-is. A right-margin variant for long testimonies is a later
+      prop on the same shell, and must fix `--content-w`.
+- [ ] Rewrite `/october-7`'s "Testimony and remembrance" copy — it still says
+      the site hosts no testimony, which is now false. Keep Edut 710 and USC
+      Shoah; turn the October7.org entry into an attribution line.
 
 ### A6 — Later, deliberately
 

@@ -432,14 +432,27 @@ describe("the editorial pass", () => {
   });
 
   it("advances a case's lifecycle only as far as the work actually got", async () => {
-    /* Both passes are done and the owner reported legal review complete, so a
-       case is `ready` — cleared for publication. It must not read `published`
-       while the site has not been deployed: deployment here is a separate
-       manual operation, and a record claiming to be published when nothing is
-       public would be this dataset lying about itself. */
+    /* Both passes are done, legal review cleared, and the site shipped to
+       production on 2026-08-26 — so `published` is literally true rather than
+       anticipatory, which is the whole reason it waited at `ready` until the
+       deploy actually ran. */
     const cases = await allCases();
     for (const record of cases) {
-      expect(record.lifecycle).toBe("ready");
+      expect(record.lifecycle).toBe("published");
+    }
+  });
+
+  it("backs every published case with a real publication record", async () => {
+    /* The packet contract pairs `published` with a `published_at` and a
+       `canonical_url`. A case claiming to be published with neither is a
+       claim with nothing behind it — the exact failure this section documents
+       other people committing. */
+    const cases = await allCases();
+    for (const record of cases) {
+      expect(record.publication?.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(record.publication?.canonicalPath).toBe(
+        `/fake-resistance/cases/${record.slug}`,
+      );
     }
   });
 

@@ -1,8 +1,12 @@
 # State
 
-## Latest — 2026-08-26, Fake Resistance is built, edited, cleared — the deploy is the only step left
+## Latest — 2026-08-26, Fake Resistance is live in production
 
-**Built, edited, and green — not deployed.** `/fake-resistance` is now a hub in the same
+**Shipped.** `/fake-resistance` is live at
+`https://www.lionsofzion.io/fake-resistance` — deployed to Vercel production on
+2026-08-26 and verified serving real content (all nine playbook chapters with
+documented examples, 64 technique chips on the Hinkle file, the withheld-finding
+disclosure present, and the suppressed claim absent). It is a hub in the same
 shape as `/october-7`: the dossier stays at its root and ten pages prerender
 beneath it. `defaultNodes` was not touched and stays at eight.
 
@@ -22,14 +26,14 @@ content with **zero Suspense boundaries** — the no-JavaScript bar the
 and the two `DECISIONS.md` entries dated today.** What a later session most
 needs:
 
-1. **Nothing is published yet, and no gate remains.** The editorial pass ran
-   this session and the owner reported legal review complete, so every case
-   reads `lifecycle: "ready"` — set by `EDITORIAL_STAGE` in the editorial
-   layer, not by the importer. `ready` rather than `published` is deliberate:
-   deployment is a separate manual Vercel operation, and a case claiming to
-   be published while nothing is public would be the dataset asserting
-   something untrue about itself. **Advance to `published`, and fill in each
-   packet's `publication` block, when the deploy actually runs.**
+1. **Every gate passed and the site shipped.** The editorial pass ran, the
+   owner reported legal review complete, and production was deployed — so
+   every case now reads `lifecycle: "published"` with a real `publication`
+   record (`published_at` 2026-08-26 and its own canonical path), set by
+   `EDITORIAL_STAGE` in the editorial layer rather than by the importer. It
+   sat at `ready` until the deploy actually ran, deliberately: a case
+   claiming to be published while nothing was public would have been the
+   dataset asserting something untrue about itself.
    Right of reply was **dropped by owner decision** — skipped deliberately,
    not pending; do not "restore" it from the packets' own
    `status: right_of_reply`.
@@ -80,13 +84,10 @@ the research packets. The two-stage model in the plan was half right, and the
 half that was wrong is now recorded in `DECISIONS.md`. Future gated content is
 gated on the push, not only on the deploy.
 
-Next: **the production deploy.** All editorial and legal gates are cleared.
-`vercel --prod` from this worktree was attempted and blocked by the session's
-permission classifier, so it needs to be run by hand; the worktree is already
-linked to project `lions-of-zion`
-(`prj_w0Ao1mmSP6QCXSji0xNdcgcCbvzB`, team `team_MQVJKFEwo34iGIaZpGSfhMpI`) via
-a gitignored `.vercel/`. Note that this branch is **not merged to `main`**, so
-a CLI deploy from here would ship branch code to production.
+**Open loose end: this branch is not merged to `main`.** Production was
+deployed from the branch worktree, so the live site runs code that `main` does
+not carry. Merge `claude/fakeresistance-merge-plan-5e9eeb` so the default
+branch matches what is serving.
 
 The particle scene was untouched, so `verify:graphics` did not need re-running.
 The root Fake Resistance page gained sections, so **`final-verify` is worth one

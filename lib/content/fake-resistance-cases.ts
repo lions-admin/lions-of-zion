@@ -25,6 +25,8 @@ import type { Source } from '@/components/content';
 import {
   type CaseFraming,
   EDITORIAL_STAGE,
+  PUBLICATION,
+  canonicalPathFor,
   framingFor,
   isBookkeeping,
   isSuppressed,
@@ -175,6 +177,8 @@ export type ResearchCase = {
   framing?: CaseFraming;
   /** How many findings the naming policy withheld from this case. */
   withheld: number;
+  /** Set once the case is live: the contract's publication record. */
+  publication?: { publishedAt: string; canonicalPath: string };
 };
 
 export type ResearchCaseSummary = Pick<
@@ -338,6 +342,12 @@ export async function getCase(slug: string): Promise<ResearchCase | null> {
     sources: record.sources.map(readableSource),
     framing: framingFor(slug),
     withheld: suppressedCount(slug),
+    // Only a published case carries a publication record — the contract's
+    // `published_at` / `canonical_url` describe something that exists.
+    publication:
+      EDITORIAL_STAGE === 'published'
+        ? { publishedAt: PUBLICATION.publishedAt, canonicalPath: canonicalPathFor(slug) }
+        : undefined,
     counts: { ...record.counts, exhibits: exhibits.length },
   };
 }

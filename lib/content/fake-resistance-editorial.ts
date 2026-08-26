@@ -285,23 +285,41 @@ export function readable(text: string): string {
  *
  * The importer writes `editorial_review` — the state a case arrives in. The
  * editorial pass advanced it: every case is framed, its findings are tagged,
- * the naming policy is applied, and its program shorthand is rewritten. **The
- * site owner reported legal review complete on 2026-08-26**, which clears the
- * last gate.
+ * the naming policy is applied, and its program shorthand is rewritten. The
+ * site owner reported legal review complete on 2026-08-26, clearing the last
+ * gate, and **the site was deployed to production the same day** — the seven
+ * case files, the playbook and the network page are live and verified serving
+ * real content at `https://www.lionsofzion.io/fake-resistance`.
  *
- * `ready`, not `published`, and the distinction is deliberate. Deployment
- * here is a separate manual Vercel operation, so nothing is public until that
- * runs; a case reading `published` while the site has not shipped would be
- * this dataset asserting something untrue about itself. Advance to
- * `published` — and fill in each packet's `publication` block — when the
- * deploy actually happens.
+ * So `published` is now literally true rather than anticipatory, which is the
+ * whole reason it waited (`.ai/DECISIONS.md`, "Cases are `ready`, not
+ * `published`, until the site actually ships"). `PUBLICATION` below carries
+ * the packet contract's required `published_at` and `canonical_url`.
  *
  * Set this back to `editorial_review` if the research is re-imported with new
  * or materially changed findings: both passes would then be stale against the
  * new material, and a stale pass silently claiming to be current is the
  * failure this field exists to prevent.
  */
-export const EDITORIAL_STAGE = 'ready' as const;
+export const EDITORIAL_STAGE = 'published' as const;
+
+/**
+ * The publication record the packet contract expects alongside `published`.
+ *
+ * The contract's `publication` block wants a `published_at` and a
+ * `canonical_url`; a case reading `published` without them is a claim with
+ * nothing behind it. `canonicalUrlFor` builds each case's own URL from the
+ * same site config the pages use, so the record and the routes cannot drift.
+ */
+export const PUBLICATION = {
+  publishedAt: '2026-08-26',
+  /** Where the section itself lives; a case appends its slug. */
+  section: '/fake-resistance',
+} as const;
+
+export function canonicalPathFor(slug: string): string {
+  return `${PUBLICATION.section}/cases/${slug}`;
+}
 
 export function techniquesFor(slug: string, claimId: string): string[] {
   const tags = TECHNIQUES[slug]?.[claimId] ?? [];

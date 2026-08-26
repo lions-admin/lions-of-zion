@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import {
   ClaimRecordPair,
@@ -8,6 +9,8 @@ import {
   VerificationBadge,
 } from "@/components/content";
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
+import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
+import { getPlaybook, techniqueHref } from "@/lib/content/fake-resistance-playbook";
 import { SITE_URL } from "@/lib/site-config";
 import type { AssessmentValue } from "@/server/contracts/enums";
 import styles from "./page.module.css";
@@ -57,7 +60,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const edition = await getFakeResistanceEdition();
+  const [edition, cases] = await Promise.all([getFakeResistanceEdition(), getCaseIndex()]);
+  const playbook = getPlaybook();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -120,26 +124,75 @@ export default async function Page() {
         </p>
         <ul>
           <li>
-            Identical or near-identical phrasing across accounts with no
-            connection to each other.
+            <Link href={techniqueHref("synchronized-amplification")}>
+              Synchronized timing
+            </Link>{" "}
+            — a claim erupting everywhere at once, in near-identical phrasing,
+            across accounts with no connection to each other.
           </li>
           <li>
-            Synchronized timing — a claim erupting everywhere at once, rather
-            than spreading outward from a source.
+            <Link href={techniqueHref("identity-games")}>
+              Amplifier accounts created in the same narrow window
+            </Link>
+            , with thin histories and borrowed profile material.
           </li>
           <li>
-            Amplifier accounts created in the same narrow window, with thin
-            histories and borrowed profile material.
+            <Link href={techniqueHref("recycled-media")}>
+              Imagery that traces to a different time and place
+            </Link>{" "}
+            — another war, another year, sometimes a video game.
           </li>
           <li>
-            Imagery that reverse-image search traces to a different time and
-            place.
+            <Link href={techniqueHref("verdict-captioning")}>
+              A caption that says what the footage does not
+            </Link>
+            , so an assertion arrives feeling like something you witnessed.
           </li>
         </ul>
         <p>
           None of these alone is proof. Together, and documented, they are a
-          pattern — and patterns can be shown.
+          pattern — and patterns can be shown. All {playbook.length} techniques
+          are treated in full in{" "}
+          <Link href="/fake-resistance/playbook">the playbook</Link>: what each
+          move is, the mental shortcut it exploits, and what you can check for
+          yourself.
         </p>
+      </SectionBlock>
+
+      <SectionBlock heading="The files">
+        <p>
+          Below this primer sit two longer works. The playbook is about method
+          and names no one; the research files document specific networks,
+          account by account, with every source and every grade the research
+          assigned.
+        </p>
+        <ul className={styles.fileIndex}>
+          <li>
+            <Link href="/fake-resistance/playbook">The playbook</Link>
+            <span>
+              {playbook.length} manipulation techniques in full — the move, the
+              psychology behind it, where it is documented here, and how to
+              catch it.
+            </span>
+          </li>
+          <li>
+            <Link href="/fake-resistance/network">The network</Link>
+            <span>
+              What the case files add up to: seven communities, the documented
+              bridges between them, and the findings that survived every
+              attempt to break them — including the ones that cut against the
+              premise.
+            </span>
+          </li>
+          {cases.map((entry) => (
+            <li key={entry.slug}>
+              <Link href={`/fake-resistance/cases/${entry.slug}`}>
+                {entry.title.split(":")[0].trim()}
+              </Link>
+              <span>{entry.question}</span>
+            </li>
+          ))}
+        </ul>
       </SectionBlock>
 
       <PublicationMeta

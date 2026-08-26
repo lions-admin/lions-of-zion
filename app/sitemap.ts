@@ -2,11 +2,14 @@ import type { MetadataRoute } from "next";
 import { defaultNodes } from "@/components/particle-nav/config";
 import { getIndex } from "@/lib/content/archive";
 import { categorySlug, DOCUMENTATION_PACKAGE } from "@/lib/content/documentation";
+import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { TESTIMONIES_PACKAGE } from "@/lib/content/testimonies";
 import { SITE_URL } from "@/lib/site-config";
 
 const DOC_PAGES = ["/methodology", "/corrections"];
 const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
+/** Reference works under Fake Resistance, alongside the eight destinations. */
+const RESEARCH_INDEXES = ["/fake-resistance/playbook", "/fake-resistance/network"];
 
 /**
  * One entry per archive *record*, not per page.
@@ -20,9 +23,10 @@ const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
  * nothing at runtime.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [testimonies, documentation] = await Promise.all([
+  const [testimonies, documentation, researchCases] = await Promise.all([
     getIndex(TESTIMONIES_PACKAGE),
     getIndex(DOCUMENTATION_PACKAGE),
+    getCaseIndex(),
   ]);
 
   const record = (
@@ -66,10 +70,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
+    ...RESEARCH_INDEXES.map((path) => ({
+      url: `${SITE_URL}${path}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
     ...DOC_PAGES.map((path) => ({
       url: `${SITE_URL}${path}`,
       changeFrequency: "monthly" as const,
       priority: 0.4,
+    })),
+    // Above the archive records: a case file is a work this desk wrote, not
+    // material it is hosting.
+    ...researchCases.map((entry) => ({
+      url: `${SITE_URL}/fake-resistance/cases/${entry.slug}`,
+      lastModified: toDate(entry.updatedAt),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
     })),
     ...testimonies.map((entry) =>
       record(

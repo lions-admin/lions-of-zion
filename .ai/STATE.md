@@ -1,6 +1,86 @@
 # State
 
-## Latest — 2026-08-26, the October 7 archives are hosted and serving
+## Latest — 2026-08-26, Fake Resistance is built and through its editorial pass; legal review is the last gate
+
+**Built, edited, and green — not deployed.** `/fake-resistance` is now a hub in the same
+shape as `/october-7`: the dossier stays at its root and ten pages prerender
+beneath it. `defaultNodes` was not touched and stays at eight.
+
+| Route | What it is |
+| --- | --- |
+| `/fake-resistance/playbook` | Nine manipulation techniques, a chapter each |
+| `/fake-resistance/network` | Seven communities, five bridges, the synthesis findings |
+| `/fake-resistance/cases/<slug>` | Seven research case files |
+
+Verified: typecheck 0, lint unchanged (14 pre-existing warnings), **393 tests**
+(35 new, 1 skipped), build prerenders **1,208 pages** (was 1,199), `ci-smoke`
+green on every new route. Prerendered HTML of all three page types carries full
+content with **zero Suspense boundaries** — the no-JavaScript bar the
+`app/loading.tsx` removal set.
+
+**Read [`docs/fake-resistance-integration.md`](../docs/fake-resistance-integration.md)
+and the two `DECISIONS.md` entries dated today.** What a later session most
+needs:
+
+1. **Nothing is published, and one gate is left: legal review.** Merging to
+   `main` is safe; the manual deploy is the publication act. The editorial
+   pass ran this session, so every case now reads `lifecycle: "legal_review"`
+   — set by `EDITORIAL_STAGE` in the editorial layer, not by the importer.
+   Right of reply was **dropped by owner decision** — skipped deliberately,
+   not pending; do not "restore" it from the packets' own
+   `status: right_of_reply`.
+2. **`scripts/import-research-cases.mjs` is re-runnable and the external
+   folder stays the source of truth.** It runs the delivery's own Python
+   validator first, then takes `publication_wording` (never the internal
+   `analysis` field), strips the reports' `[src_id]` markers into real
+   sources, and writes 225 KB to `content-packages/fake-resistance/`. Raw
+   `evidence/**` API pulls are never imported — only their sha256 travels.
+3. **`lib/content/fake-resistance-editorial.ts` is where human judgment
+   lives, and it is applied at the seam rather than at import** — so
+   re-importing the research cannot drop a withheld finding back onto a page
+   or lose a technique tag. It holds four things: the technique tags (30
+   findings across the seven files), the two findings the naming policy
+   withholds with a written reason each, the per-case framing and its guards,
+   and a glossary that rewrites program shorthand ("case-05", "groups 01/03",
+   `NAMED_PERSON`, `relationship_evidence.csv`) into what it refers to.
+   All nine playbook chapters now carry documented examples, derived from the
+   tags rather than listed by hand — **do not hand-write an example list**;
+   a chapter asks which published findings carry its tag, so a held case
+   disappears from the playbook automatically.
+4. **The grades are the honesty layer and are never upgraded.** Confidence,
+   identity status and evidence class render as labels, deliberately *not*
+   through `VerificationBadge` — "we are fairly sure" must never read as
+   "verified". Two ungraded entities default to `unresolved`, the weakest
+   grade, because blank would read as certainty.
+5. **The disconfirming findings are the point, not an aside.** The network
+   page leads with "seven communities, not one operation" and carries case
+   06's zero-relay audit at full weight. An edit that trimmed them to sharpen
+   the argument would remove the reason the argument is credible.
+
+**Three defects the tests and sweeps caught, worth knowing about the source
+data.** Two entity rows (Tucker Carlson, Candace Owens) have **columns shifted
+one place** in the delivery's CSV — a sentence in `handle`, `US` in `platform`,
+`confirmed` in `profile_url`. The packet validator passed them because those
+columns declare no enum. `repairShift` in the importer realigns them and
+**prints a note when it does**; it fires only on that exact signature and
+refuses to guess at anything else. Separately, one source carries
+`local://cases-01-through-07`, which rendered as a dead link until non-web
+schemes were dropped; and 51 roster notes opened with a follower count stranded
+in the prose, now split into a real right-aligned column.
+
+Next: **legal review of the files that name living people** — an owner action,
+not a code change. After it passes, advance `EDITORIAL_STAGE` to `published`
+and deploy.
+
+The particle scene was untouched, so `verify:graphics` did not need re-running.
+The root Fake Resistance page gained sections, so **`final-verify` is worth one
+run on the workstation.**
+
+One environment note: this worktree had no `node_modules` — Node resolves
+upward to the main checkout, but Turbopack needs a local install — so `npm ci`
+was run here.
+
+## 2026-08-26, the October 7 archives are hosted and serving
 
 **Built.** `/october-7` is now a hub: the dossier stays at its root and 1,177
 archive pages prerender beneath it — 505 testimonies (179 records across seven

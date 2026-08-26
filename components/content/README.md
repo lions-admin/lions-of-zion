@@ -252,3 +252,30 @@ type SensitiveContentProps = {
 ```tsx
 <SensitiveContent warning="Survivor testimony describing the attack on Kfar Aza."><p>…</p></SensitiveContent>
 ```
+
+## Research components (Fake Resistance)
+
+Five components serve the research pages under `/fake-resistance`. The rule
+they share: **the research's own grades are rendered as labels, never as
+verdicts.**
+
+- `RosterTable` — who is in a case, with each entity's identity status.
+  Scrolls inside its own box rather than widening the reading measure.
+- `ConfidenceChip` / `EvidenceClassChip` (`EvidenceGrade.tsx`) — deliberately
+  *not* `VerificationBadge`. A verdict says what the record shows about a
+  claim; a confidence grade says how well the research knows its own finding.
+  Rendering either through the verdict badge would let "we are fairly sure"
+  read as "this is verified".
+- `TechniqueChip` / `TechniqueChips` — link an exhibit to the playbook chapter
+  that explains the technique it documents. The vocabulary lives in
+  `lib/content/fake-resistance-playbook.ts` and is pinned by
+  `tests/fake-resistance-research.test.ts`.
+- `ResearchText` — renders the light inline markup the reports are written in
+  (`**bold**`, `*italic*`, `` `@handle` ``) by splitting into React nodes.
+  Never `dangerouslySetInnerHTML`. Use it for imported report *prose*; the
+  cleared `publication_wording` fields are plain and render directly, which a
+  test enforces.
+- `NetworkFigure` — inline SVG computed at build time. It plots the finding
+  (seven sparsely-bridged communities) rather than the raw edge list, because
+  a node-link hairball of ~30 accounts would say the opposite of what the
+  research found.

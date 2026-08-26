@@ -330,7 +330,7 @@ session can take the top of a section and stop anywhere.
       `components/content/content.module.css:349`, `components/content/content.module.css:406-412`, `components/content/content.module.css:578`, `components/content/content.module.css:793-799`, `components/content/content.module.css:864-869`
       `medium` · `typography` · `small effort`
 
-- [ ] `reading-system-credibility-label-outranks-credibility-value`
+- [x] `reading-system-credibility-label-outranks-credibility-value`
       three editorial pages render no publication metadata
       **Do:** Do the coverage half only: mount `PublicationMeta` with `publishedAt` and `reviewedBy` on `/october-7`, `/israels-story` and `/our-heroes` — at the foot, as a colophon, not the head. Leave `/we-are` and `/support-us` out; …
       `components/content/content.module.css:278-286`, `components/content/content.module.css:294-311`, `components/content/PublicationMeta.tsx:20-31`

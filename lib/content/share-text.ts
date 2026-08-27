@@ -33,6 +33,29 @@ export const TCO_URL_WEIGHT = 23;
 export const SHARE_ATTRIBUTION = '— Lions of Zion archive';
 
 /**
+ * The closing line of a shared post. It is a *teaser*: the quote is the hook,
+ * this is the invitation, and X appends the record's URL directly beneath it —
+ * so the colon leads into the link (owner instruction, 2026-08-27).
+ *
+ * It reads differently per archive because the two hold different things: a
+ * first-person account is a testimony, a documented incident is a record.
+ */
+export const SHARE_CTA = {
+  testimony: 'Read the full testimony — Lions of Zion archive:',
+  record: 'See the full record — Lions of Zion archive:',
+} as const;
+
+export type ShareKind = keyof typeof SHARE_CTA;
+
+/**
+ * A teaser quote stops well short of the budget. The post has room for ~209
+ * weighted units of quote, but a share that fills every one of them delivers
+ * the record instead of pointing at it — and a wall of text is scrolled past.
+ * The hook is capped here so the reader has a reason to follow the link.
+ */
+export const TEASER_QUOTE_MAX = 180;
+
+/**
  * The twitter-text v3 weight ranges: code points inside them weigh 1,
  * everything else weighs 2. (The config expresses these as weight 100/200
  * against a scale of 100; this is the same thing in small integers.)
@@ -157,20 +180,30 @@ export type ShareTextSource = {
   title: string;
   /** The record's own words: `full_text`, or `excerpt`, whichever exists. */
   text?: string | null;
+  /** Which archive this came from. Chooses the closing line's noun. */
+  kind?: ShareKind;
 };
 
 /**
- * The prefilled text for an X intent: a boundary-respecting quote and the
- * attribution line. The URL is *not* included — it travels in the intent's
- * own `url` parameter — but its fixed t.co cost is budgeted for.
+ * The prefilled text for an X intent, shaped as a **teaser**: a short quote in
+ * the record's own words, then the line that sends the reader to the archive.
+ * The URL is *not* included here — it travels in the intent's own `url`
+ * parameter and X renders it beneath the text — but its fixed t.co cost is
+ * budgeted for, so the composed post always fits 280.
+ *
+ * The quote is quoted, deliberately. Without the marks a shared post reads as
+ * the sharer's own words; with them it reads as what it is, someone else's
+ * account being carried further.
  */
-export function buildXShareText({ title, text }: ShareTextSource): string {
+export function buildXShareText({ title, text, kind = 'testimony' }: ShareTextSource): string {
+  const cta = SHARE_CTA[kind];
   // 280, minus the t.co link, minus the space X puts before it.
   const total = X_POST_LIMIT - TCO_URL_WEIGHT - 1;
-  const budget = total - xWeightedLength(SHARE_ATTRIBUTION) - 1; // and "\n"
+  // Then the closing line, the blank line before it, and the two quote marks.
+  const budget = total - xWeightedLength(cta) - 2 - 2;
   const body = stripSourceBreadcrumb(text).trim();
-  const quote = buildShareQuote(body || title, budget) || collapse(title);
-  return `${quote}\n${SHARE_ATTRIBUTION}`;
+  const quote = buildShareQuote(body || title, Math.min(budget, TEASER_QUOTE_MAX)) || collapse(title);
+  return `\u201c${quote}\u201d\n\n${cta}`;
 }
 
 /** An X post-intent URL with the text prefilled — X fills the composer. */

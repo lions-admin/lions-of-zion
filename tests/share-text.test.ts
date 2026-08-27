@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   SHARE_ATTRIBUTION,
+  SHARE_CTA,
+  TEASER_QUOTE_MAX,
   TCO_URL_WEIGHT,
   X_POST_LIMIT,
   buildShareQuote,
@@ -145,15 +147,40 @@ describe("buildXShareText — the whole post fits 280", () => {
     expect(postWeight(text)).toBeLessThanOrEqual(X_POST_LIMIT);
   });
 
-  it("carries the attribution on its own line", () => {
+  it("closes with the line that sends the reader to the archive", () => {
     const text = buildXShareText({ title: "A testimony", text: long });
-    expect(text.endsWith(`\n${SHARE_ATTRIBUTION}`)).toBe(true);
+    expect(text.endsWith(`\n\n${SHARE_CTA.testimony}`)).toBe(true);
+    // The colon is what the appended t.co link reads as following on from.
+    expect(text.endsWith(":")).toBe(true);
+  });
+
+  it("names the right thing for each archive", () => {
+    const testimony = buildXShareText({ title: "T", text: long, kind: "testimony" });
+    const record = buildXShareText({ title: "T", text: long, kind: "record" });
+    expect(testimony).toContain("full testimony");
+    expect(record).toContain("full record");
+  });
+
+  it("quotes the record's words so the post is not read as the sharer's", () => {
+    const text = buildXShareText({ title: "A testimony", text: long });
+    expect(text.startsWith("\u201c")).toBe(true);
+    expect(text.split("\n")[0].endsWith("\u201d")).toBe(true);
   });
 
   it("ends the quote at a sentence, not mid-word", () => {
-    const [quote] = buildXShareText({ title: "A testimony", text: long }).split("\n");
+    const [first] = buildXShareText({ title: "A testimony", text: long }).split("\n");
+    const quote = first.slice(1, -1); // strip the quote marks
     expect(quote.endsWith(".")).toBe(true);
     expect(long).toContain(quote);
+  });
+
+  it("teases rather than delivers — the quote stops short of the budget", () => {
+    /* The point of the change (owner instruction, 2026-08-27): the post is a
+       hook plus a link, not the record itself. A quote that fills every
+       available unit hands the reader the whole thing and removes the reason
+       to follow the link. */
+    const [first] = buildXShareText({ title: "T", text: long }).split("\n");
+    expect(xWeightedLength(first.slice(1, -1))).toBeLessThanOrEqual(TEASER_QUOTE_MAX);
   });
 
   it("never opens a shared post with the source site's breadcrumb", () => {
@@ -164,7 +191,7 @@ describe("buildXShareText — the whole post fits 280", () => {
       "October 7\n>\nGaza Border Communities\n> Testimony of Noam G\n\n" +
       "Saturday, October 7th, 2023. Alarms were going off on my phone.";
     const text = buildXShareText({ title: "A testimony", text: withCrumb });
-    expect(text.startsWith("Saturday, October 7th, 2023.")).toBe(true);
+    expect(text.startsWith("\u201cSaturday, October 7th, 2023.")).toBe(true);
     expect(text).not.toContain(">");
     expect(text).not.toContain("Gaza Border Communities");
   });
@@ -172,7 +199,7 @@ describe("buildXShareText — the whole post fits 280", () => {
   it("leaves a record that has no breadcrumb untouched", () => {
     const clean = "My name is Dorin C., from Kfar Aza. This was our home.";
     const text = buildXShareText({ title: "T", text: clean });
-    expect(text).toBe(`${clean}\n${SHARE_ATTRIBUTION}`);
+    expect(text).toBe(`\u201c${clean}\u201d\n\n${SHARE_CTA.testimony}`);
   });
 
   it("does not mistake a mid-record '>' for the breadcrumb", () => {
@@ -182,12 +209,12 @@ describe("buildXShareText — the whole post fits 280", () => {
 
   it("falls back to the title when the record has no body text", () => {
     const text = buildXShareText({ title: "From heaven to hell", text: null });
-    expect(text).toBe(`From heaven to hell\n${SHARE_ATTRIBUTION}`);
+    expect(text).toBe(`\u201cFrom heaven to hell\u201d\n\n${SHARE_CTA.testimony}`);
   });
 
   it("falls back to the title when the body is only whitespace", () => {
     const text = buildXShareText({ title: "From heaven to hell", text: "   \n " });
-    expect(text.startsWith("From heaven to hell")).toBe(true);
+    expect(text.startsWith("\u201cFrom heaven to hell")).toBe(true);
   });
 
   it("still fits when the record is in a double-weight script", () => {

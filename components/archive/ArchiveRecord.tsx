@@ -145,6 +145,9 @@ export function ArchiveRecord({
   const xText = buildXShareText({
     title,
     text: version.full_text ?? version.excerpt ?? null,
+    // october7 holds first-person accounts; hamas-massacre holds documented
+    // incidents. The closing line names each for what it is.
+    kind: pkg === 'october7' ? 'testimony' : 'record',
   });
 
   return (

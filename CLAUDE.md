@@ -81,7 +81,7 @@ node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band
 node scripts/verify-doc-scroll.mjs http://localhost:3000
 node .claude/skills/verify-intro/capture.mjs
 node scripts/ci-smoke.mjs http://localhost:3000       # the only one CI runs
-node scripts/verify-archive-assets.mjs <cdn-base>     # Linux-safe, CI-unwired
+node scripts/verify-archive-assets.mjs <cdn-base>     # Linux-safe; CI runs it sampled on every push
 ```
 
 ```bash
@@ -111,14 +111,19 @@ never mounts there either. Visual checks must use real Chrome via
 only run on the macOS workstation, not in a Linux container.
 `scripts/verify-archive-assets.mjs` is the one visual-adjacent check that needs
 no browser at all: plain `fetch` against the CDN base, so it runs anywhere.
+**As of 2026-08-27 CI runs it:** the `archive-assets` job in
+`.github/workflows/ci.yml` checks a fixed-stride sample of 80 assets against the
+production base on every push, in parallel with the gate job; the exhaustive
+`--all` run stays a manual post-upload step, and its last full pass returned
+2,018 checked / 0 unreachable (2026-08-27).
 `scripts/final-verify.mjs` covers intro handoff, keyboard, WebGPU, forced
 WebGL2, no-JavaScript fallback, overlays, and console errors.
 `scripts/ci-smoke.mjs` is the exception: it uses Playwright's own bundled
-Chromium and is what CI runs. It walks **21 routes** — 15 hand-written in
+Chromium and is what CI runs. It walks **23 routes** — 17 hand-written in
 `ROUTES`, plus 5 archive records and 1 research case derived from the package
 indexes — asserting route availability and console errors on each, and then
 loads `/` once more with JavaScript disabled. The archive half is derived;
-**the 15 are hand-maintained, so a new section route is smoke-tested only if
+**the 17 are hand-maintained, so a new section route is smoke-tested only if
 someone remembers to add it**, and `/particle-demo` never is.
 
 **CI does guard the no-JavaScript invariant, as of 2026-08-27.** This section
@@ -229,12 +234,29 @@ static index set it that way as identity; **reading surfaces use
   provenance travels in the footer and in JSON-LD. That last pair is a
   documented decision, not a style choice (`.ai/DECISIONS.md`, 2026-08-26),
   and rewording records to shed attribution was considered and rejected there.
-- **`/fake-resistance` is also a hub, and the research beneath it is not a
-  ninth node.** Ten pages prerender under it: `/fake-resistance/playbook`
-  (nine manipulation techniques, a chapter each), `/fake-resistance/network`
-  (the cross-cluster graph and synthesis), and seven
-  `/fake-resistance/cases/<slug>` files, read through
-  `lib/content/fake-resistance-cases.ts`. `defaultNodes` stays at eight. The
+- **`/fake-resistance` is a hub with two investigation branches, and nothing
+  beneath it is a ninth node.** Twelve pages prerender under it. The root page
+  carries the standfirst, the consciousness-war framing, an explanation of the
+  two branches, the two branch link cards, and the method blocks (`The machine`,
+  `The tells`) — **the branch cards are the page's decision moment and the
+  reason it exists** (owner decision R-03, 2026-08-27). The consciousness-war
+  block asserts an *infrastructure* claim — the delivery chain predates
+  October 7 — and deliberately marks the stronger claim, that specific
+  narratives were drafted in advance, as an open research question rather than
+  a settled fact; R-04 researches that, and its case file is held pending owner
+  review. `/fake-resistance/official-narrative` holds the three `edition.cases`
+  exhibits, `Order of correction` and the ClaimReview JSON-LD, so
+  `lib/content/fake-resistance.ts` now feeds that branch and not the root — the
+  "three files **above**" coupling is literally true again. The playbook's
+  `documented` example hrefs anchor into that branch, since the anchors moved
+  with the exhibits. `/fake-resistance/social-media` is the index over
+  `/fake-resistance/playbook` (nine manipulation techniques, a chapter each),
+  `/fake-resistance/network` (the cross-cluster graph and synthesis), and seven
+  `/fake-resistance/cases/<slug>` files, derived from `getCaseIndex()` rather
+  than a hardcoded list, and all read through
+  `lib/content/fake-resistance-cases.ts`. Both branches are child routes in
+  `app/sitemap.ts` and in `ci-smoke.mjs` `ROUTES`. `defaultNodes` stays at
+  eight. The
   brief is `docs/fake-resistance-integration.md`; four invariants matter here:
   **the publication gate is `EDITORIAL_STAGE`, and it currently reads
   `'published'`** — this paragraph said every case ships at
@@ -275,10 +297,22 @@ static index set it that way as identity; **reading surfaces use
   drift), and each record's citation moves into the right margin beside it.
   `ScanBackdrop` continues the corpus outside that band, masked via
   `--content-w`, which is `--reading-w` plus both rails on pages that carry
-  them. Four props exist: `register` (`muted` — October 7) and `accent`
+  them. Five props exist: `register` (`muted` — October 7) and `accent`
   (`ember` — Fake Resistance) are the only sanctioned per-section
   *deviations*; `surface="quiet"` is carried by all seven and is not a
-  deviation; `aside` is a page-level right rail that exists and is unused.
+  deviation; `aside` is a page-level right rail that exists and is unused; and
+  `breadcrumb` — added 2026-08-27 (R-06) with the shape `DocPage` already
+  used — renders the trail in the identity band *in place of* the inert route
+  slug, and retargets the exit link.
+- **The exit link goes one level up, not home.** `a.identityExit` in both
+  `DocPage.tsx` and `SectionPage.tsx` derives its href and label from the
+  **last `breadcrumb` item** ("← Back to {label}"), falling back to `/` and
+  "Back to the scan" when no trail is passed. So the eight destinations,
+  `/methodology` and `/corrections` are unchanged, while the archive indexes,
+  all ~1,177 archive records and the five `/fake-resistance` child pages now
+  step back to their real parent. Archive pages needed no per-page change —
+  `ArchiveRecordPage` was already passing `breadcrumb={archiveTrail(pkg)}`, and
+  the fix was to *use* it (`.ai/DECISIONS.md`, R-06).
 - **The evidence margin is a grid, never absolute positioning.** `marginNote`
   in `content.module.css` makes the record's host a two-track grid whose second
   track is zero-wide, so a citation taller than its record lengthens its own

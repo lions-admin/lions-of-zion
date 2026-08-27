@@ -1,8 +1,18 @@
 # Project map
 
-Where everything lives, what owns what, and where a new file goes. The
-interactive version is [`project-map.html`](project-map.html) — open it from
-disk; it needs no server and makes no network request.
+Where everything lives, what owns what, and where a new file goes.
+
+The interactive version is [`project-map.html`](project-map.html) — **generated
+by [`scripts/project-map.mjs`](../scripts/project-map.mjs), not written by
+hand.** `npm run map` rebuilds it by scanning the repository; `npm run map:check`
+fails if it has drifted. Only the one-line purpose of each area is authored, in
+`AREAS` and `ROOTFILES` inside that script — an area with no entry renders as
+"לא מתועד" rather than disappearing, so a new directory announces itself.
+
+That page carries the pictures: four SVG flow diagrams of the mechanisms, with a
+hover and click explanation on every directory, every root file and every node.
+This file is the reference. The page needs no server and makes no network
+request.
 
 Two independent halves share this repository and **no source files**. A
 particle-driven public site, and an information-model API. They are kept apart

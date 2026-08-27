@@ -12,6 +12,8 @@
     "db:studio": "drizzle-kit studio",
     "dev": "next dev",
     "lint": "eslint",
+    "map": "node scripts/project-map.mjs",
+    "map:check": "node scripts/project-map.mjs --check",
     "poster:nav": "tsx scripts/particle-nav/make-poster.ts",
     "start": "next start",
     "test": "vitest run",

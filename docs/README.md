@@ -52,11 +52,11 @@ described as though it works.
 
 ## The interactive map
 
-[`project-map.html`](project-map.html) — **in Hebrew**, like
-[`engine-explainer.html`](engine-explainer.html). Four hand-drawn SVG flow
-diagrams, each showing one mechanism you cannot infer from a directory listing:
-the lint-enforced wall between the two halves and the single import that crosses
-it; the role every request is assigned before its route runs; how ~1,190 pages
-are derived from package indexes rather than written by hand; and the one
-invariant CI cannot see. Hover or click any node for its explanation.
-Self-contained: open it from disk — no server, no network request.
+[`project-map.html`](project-map.html) — **generated, never hand-edited**, and
+in Hebrew like [`engine-explainer.html`](engine-explainer.html). Run
+`npm run map` to rebuild it from the repository as it actually is: every count,
+size, route, import edge and boundary check on that page is scanned at run time
+by [`scripts/project-map.mjs`](../scripts/project-map.mjs). It carries four SVG
+flow diagrams of the mechanisms, plus an explanation for every directory and
+every root file. `npm run map:check` exits non-zero when the page has drifted
+from the tree, so a new area cannot quietly go undocumented.

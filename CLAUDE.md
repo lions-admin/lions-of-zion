@@ -76,6 +76,11 @@ node scripts/ci-smoke.mjs http://localhost:3000       # the only one CI runs
 node scripts/verify-archive-assets.mjs <cdn-base>     # Linux-safe, CI-unwired
 ```
 
+```bash
+npm run map          # regenerate docs/project-map.html from the actual tree
+npm run map:check    # fail if it has drifted — never hand-edit that file
+```
+
 Only `verify:graphics` has an npm script; run the rest with `node`. `docs/operations.md` has the full table of what each one asserts.
 
 Particle assets are rebuilt with `bake:nav-lion`, `bake:nav-icons`, and

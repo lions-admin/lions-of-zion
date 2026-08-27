@@ -10,6 +10,57 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — The research came back negative, and the page says so
+
+The owner ruled that the `/fake-resistance` hub carry a section on the
+consciousness war stating that the lies were ready before October 7, and
+separately commissioned R-04 to source it — "להביא מקורות. תנסח את זה כמשימה
+בפני עצמה. דיפ ריסרץ". Those two instructions met, and the second answered the
+first.
+
+R-04 split the claim into four, as the brief required, and they did not survive
+as one:
+
+- **Infrastructure existed beforehand** — documented, high confidence.
+  Doppelgänger from at least May 2022; Spamouflage active since 2019 with its
+  largest recorded takedown announced five weeks before the attack; four
+  independent record types agreeing.
+- **Recycled material** — documented. The Arma 3 technique was routine enough
+  by November 2022 that the game's studio publicly asked people to stop.
+- **Specific narratives drafted in advance** — **not established.** A search of
+  takedown reports, institute analyses and fact-check corpora found no dated
+  record of a post-7.10 claim written, seeded or scheduled beforehand.
+- **Speed implies coordination** — `inferred` and contested, and never lifted.
+
+Four contradictions were found and recorded rather than dropped, the sharpest
+being Microsoft MTAC's February 2024 finding that Iranian actors were reactive
+in the initial phase, "indicating little or no coordination with Hamas."
+
+**So the page was calibrated to the record, not to the instruction's wording.**
+The infrastructure half moved up — from asserted to documented, with the dates
+that carry it. The narrative half moved down: it had been framed as "a research
+question, not a settled fact", which was accurate before the research and
+misleading after it. "An open question" implies the evidence is absent; here it
+is present and points the other way. The distinction the copy now turns on is
+that **a template is not a plan** — what was reused was a repertoire these
+operations had run for years, not a script for this war.
+
+This is the site's own standard applied to the site. `CLAUDE.md` states that the
+research's grades are never upgraded and that mixing claim types is the failure
+this section documents in others; a page that ran the strong claim on the
+strength of the weak one would be the thing it accuses. The owner can reverse
+this — it is his call and the wording was his — but reversing it means
+publishing a claim that this repository's own commissioned research looked for
+and did not find.
+
+The case file lands as `content-packages/fake-resistance/cases/pre-october-infrastructure.json`
+with `lifecycle: "held"`, so it is committed but does not render: `held` is
+outside `VISIBLE`, and `getCaseIndex()` reads `index.json`, which does not list
+it. Twenty sources, all with verified Wayback captures. Publishing it is a
+separate owner decision.
+
+---
+
 ## 2026-08-27 — Direct owner instructions override repository process
 
 The current user is the sole developer and project owner. Repository workflow,

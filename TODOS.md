@@ -1,1096 +1,547 @@
 # Lions of Zion — תוכנית עבודה
 
-תוכנית זו מתרגמת את הסקירה הוויזואלית והתוכניתית של האתר למשימות ביצוע. סדר העבודה מחייב: קודם מייצבים את החוויה הקיימת, אחר כך מחברים שכבת תוכן אמיתית, ורק לאחר מכן מרחיבים את כל שמונת העמודים ואת צ׳ט ה־AI.
-
-## עדכון תשתית — 26 באוגוסט 2026: Vercel/Neon/Auth הושלמו
-
-- [x] Vercel Pro, הדומיין `lionsofzion.io`, Functions ב־`iad1`, Neon Launch,
-      Neon Auth, Blob, Queues, Cron ו־AI Gateway הוגדרו ואומתו.
-- [x] Production ו־Preview מבודדים במסד ובאחסון; ה־archive Blob נפרד מחנויות
-      ה־RSS.
-- [x] משתמש מנהל יחיד נוצר, חמש הרשאות capability קיימות, ועשרה עמודים
-      ציבוריים יובאו באופן idempotent.
-- [x] תקרת AI קשיחה של $4.50 באפליקציה ו־$5 ב־Gateway; Spend Management על
-      $10 שימוש נוסף עם התרעות.
-- [x] תיעוד התשתית נמצא ב־[`docs/vercel-infrastructure.md`](docs/vercel-infrastructure.md).
-- [ ] ניטור שבעה ימים: Neon CU-hours, AI spend, שגיאות Functions, גיל הודעות
-      Queue ונפח Blob.
-
-## עדכון יישום — 24 באוגוסט 2026
-
-הסימון במסמך משקף את מצב הקוד שנבדק בפועל. `[x]` פירושו שהמשימה הושלמה ואומתה בהיקף המתואר; משימה שסומנה כחלקית נשארת `[ ]` עד שכל היקף הפרודקשן שלה מושלם.
-
-### הושלם ואומת
-
-- [x] נבנו שלושת מסכי הייחוס של שפת `Signal Room → Evidence Desk`: בית בדסקטופ, בית authored במובייל ו־Geopolitical Brief רספונסיבי.
-- [x] לבית נוספו זהות ברורה, פריט מאומת אחרון וקבוצות ניווט לפי כוונת משתמש: Now, Understand & Verify ו־Trust & Participate.
-- [x] נבנה חתך ייחוס מתוארך ל־Geopolitical Brief עם סטטוס, מקורות, הפרדה בין reporting ל־assessment, known unknowns והיסטוריית תיקונים.
-- [x] Ask the Lion נפתח כ־modal נגיש: `aria-modal`, ‏focus trap, ‏Escape, השבתת הרקע והחזרת focus למפעיל.
-- [x] במובייל ה־WebGPU הגדול מוסר לאחר האינטרו והאריה של הצ׳ט משתמש ב־fallback סטטי, כדי למנוע render loop שני מאחורי התוכן.
-- [x] `npm run typecheck`, ‏`npm run lint`, ‏`npm test`, ‏`npm run build` ו־`npm run verify:graphics` עברו; 250 בדיקות עברו ואחת דולגה.
-- [x] בדיקת Chrome אמיתית אימתה ניווט, התקדמות קריאה, פתיחה/סגירה של הצ׳ט, focus trap והיעדר שגיאות קונסול בזרימות הייחוס.
-
-### הושלם חלקית — עדיין פתוח לפרודקשן
-
-- [ ] Phase 0: בריף הייחוס כולל מקורות ציבוריים, אך עדיין דרושים אישור מערכתי, כללי authorship, taxonomy סופי, בדיקת תוויות live/active ומיפוי זכויות/הסכמה/משפטי.
-- [ ] Phase 1: מסכי הייחוס והמעטפת הרספונסיבית קיימים; משפחת אייקונים חדשה, memorial mode, טוקנים גלובליים ובדיקת נגישות פורמלית עדיין פתוחים.
-- [ ] Phase 2: ה־Geopolitical Brief מוכיח את החוויה, אך עדיין סטטי. חסרים חיבור למערכת הפרסום, מפה, שיתוף, related content, הרשמה, ארכיון ומצבי loading/empty/stale/error.
-- [ ] Phases 3–7: הרחבת שבעת היעדים האחרים, Ask מבוסס citations, תשתית אמון/השתתפות, SEO, עברית/RTL והקשחת פרודקשן עדיין פתוחים.
-
-## עדכון יישום — 25 באוגוסט 2026
-
-סבב P0 ממוקד. ארבעה שינויים, כולם מכוסים בבדיקות יחידה טהורות; אף אחד מהם לא
-נלכד עדיין ב־Chrome אמיתי, כי סקריפטי הלכידה מקודדים נתיב Chrome של macOS ואינם
-רצים בקונטיינר.
-
-- כפתור הצ׳ט וה־attention cue אינם קיימים בזמן האינטרו — לא מוסתרים. הסתרה ב־CSS
-  השאירה renderer שני של WebGPU פעיל מאחורי אלמנט בלתי נראה למשך כל האינטרו.
-- ה־orbit נפתר מול מה שמצויר בפועל (`nodeHaloRadius`) ולא מול תיבת ה־DOM, והפתרון
-  האנכי מחשב כל קצה בנפרד עם רזרבה לשורת הכתובת בטלפון.
-- למתמטיקת ה־viewport של האינטרו יש בעלים אחד; תקרת השורה היא 86vw אמיתיים.
-- נמצא באג חי שלא היה ידוע: ב־768×1024 השורה הרחבה ביותר נרנדרה ב־170vw.
-
-**דרוש מעבר Chrome אמיתי במק** לפני שמסמנים את תנאי הקבלה הוויזואליים.
-
-## סקירת פרויקט מלאה — 25 באוגוסט 2026: תוכנית המשך פיתוח
-
-ארבע סקירות מקבילות: ויזואלית (צילומי מסך של כל הראוטים ב־390×844 וב־1440×900,
-כולל מצב ללא JavaScript), סקירת עומק תוכן, סקירת מעטפת טכנית וסקירת שכבת
-הנתונים. הסעיף הזה הוא תוכנית פיתוח בלבד — תוכן, UI/UX, העשרה, חוויית גלישה
-ושיפור ויזואלי. אבטחה ובדיקות מנוהלות בסעיפים הקיימים ואינן חלק מהסבב הזה.
-
-### עדכון ביצוע — 25 באוגוסט 2026: גל 1 של המרתון הושלם
-
-שישה סוכנים מקביליים ביצעו את רוב W1, W2 (בקונטיינר), W3, W5 ו־W6; הסימונים
-בסעיפים למטה משקפים את מה שבוצע ואומת בפועל. השער המלא ירוק: typecheck, ‏lint,
-‏323 בדיקות (1 מדולגת), ‏build כולל כל נתיבי המטא־דאטה. כפילות סיומת הכותרת
-שנוצרה מתבנית ה־title תוקנה בשמונת הדפים.
-
-**גל 2 לא בוצע** — כל W4 (תוכן פר־עמוד: פידים, צירי זמן, תיקי case, פרופילים,
-פרקים, טפסים, עמודי methodology/corrections/consent) פתוח והוא נקודת ההתחלה
-של הסשן הבא. התשתית שלו מוכנה: ספריית `components/content/` (ה־README שם
-מתעד כל prop), ‏props חדשים ב־`SectionPage` ‏(`surface`, ‏`aside`, ‏`id`
-ב־`SectionBlock`), וכלל התוכן ב־`DECISIONS.md` (אין עובדות מומצאות; מבנים
-מקדימים מסומנים reference). משימות המק (Chrome אמיתי) נשארות בתחנת העבודה.
-
-### עדכון ביצוע — 25 באוגוסט 2026: גל 2 (חלקי) — War Update, Fake Resistance, Support Us
-
-בוצע באותו יום, סשן נפרד: `lib/content/` נבנה בפועל (war-update.ts,
-fake-resistance.ts, corrections.ts — כל אחד `async` כדי שההחלפה העתידית
-ל־`GET /api/v1/published-items` תהיה שינוי גוף פונקציה, לא call site). War
-Update ו־Fake Resistance עברו לתוכן אמיתי ומקורות אמיתיים שאומתו ב־WebSearch/
-WebFetch בסשן (ראו `.ai/DECISIONS.md` לרשימת המקורות ולשינוי אחד בתיק Fake
-Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמיתית). Support Us קיבל טופס
-"דיווח על טענה" אמיתי מול `POST /api/v1/reports` הציבורי הקיים, וטופס
-התנדבות מבוסס `mailto:` (אין endpoint אמיתי לכך עדיין — יושר על פני זיוף
-מצב "נשלח"). נוספו `/methodology` ו־`/corrections` (`DocPage` — מעטפת קלה
-ללא file rail, לא מצטרפות ל־`defaultNodes`). "Ask the Lion about this file"
-בתחתית כל עמוד דוסייה מחייב `ChatOpenProvider` חדש ב־`app/layout.tsx`
-(state שיתופי בין `ParticleChatLauncher` ל־`SectionPage`, שלא היה קיים
-קודם) — פותח את הצ׳ט עם שאלת פתיחה ממולאת מראש אך לא נשלחת אוטומטית.
-
-**עדיין פתוח מ־W4**: October 7, Our Heroes, Israel's Story, We Are — נדחו
-במפורש (תוכן רגיש/דורש הסכמת משפחות/היקף גדול מדי לסבב אחד). עמוד הסכמה/
-הסרה למשפחות ועדים לא נבנה. השער המלא ירוק: typecheck, ‏lint, ‏323 בדיקות
-(1 מדולגת), ‏build כולל `/methodology` ו־`/corrections` הסטטיים.
-
-### עדכון ביצוע — 25 באוגוסט 2026: גל 2 הושלם — October 7, Our Heroes, Israel's Story, We Are
-
-באותו יום, סשן שלישי: ארבעת העמודים שנדחו קודם נבנו, בכפוף לשתי החלטות
-עריכה שאושרו מראש עם המשתמש (מתועדות ב־`.ai/DECISIONS.md`):
-
-- **Our Heroes** מפרסם רק אנשים אמיתיים ששמם וסיפורם כבר מכוסים בהרחבה
-  בעיתונות מיינסטרים בשם מלא — שלוש כרטיסיות טקסט בלבד (בלי תמונות, אין
-  לזה בכלל שדה תמונה ב־`ContentCard`), כל עובדה מצוטטת למקור. אין תהליך
-  הסכמת משפחות אמיתי עדיין, אז זה התקרה האחראית לסבב הזה — לא רצפה
-  שתורחב בלי בקרה. פסקת "How these stories are gathered" הישנה טענה
-  "nothing appears that the family has not seen and approved" — זו טענה
-  לא נכונה לגבי הפרופילים החדשים ותוקנה להיות כנה.
-- **October 7** מקשר לארכיוני עדות אמיתיים (Edut 710, USC Shoah
-  Foundation, October7.org) במקום לשחזר עדות או לבנות פרופילי קורבנות —
-  האתר הזה אין לו הסכמה מאף אחד מהם. "The record" מכיל נתונים אמיתיים
-  שנבדקו (ADL).
-- **Israel's Story** נפתח בשני פרקים אמיתיים ומצוטטים בלבד (הקמת המדינה
-  1947–48, הסכם השלום עם מצרים 1979) — לא "הקשת הארוכה" המלאה. מוצהר
-  בעמוד עצמו מה עוד חסר (התקופה העתיקה, 1967, 1973, אוסלו, ירדן 1994,
-  הסכמי אברהם) ולמה.
-- **We Are** מתאר את הצינור האמיתי (ingest → evidence → assessment →
-  human review → publish → search), עם FAQ מבוסס עובדות שניתן לבדוק בקוד
-  (למשל: `assessment.publish` לא יכול אף פעם להיות ביד זהות אוטומטית).
-
-בנוסף: `surface="quiet"` הופעל על כל שבעת עמודי הדוסייה (7/7);
-`openGraph` פר־עמוד על כל תשעת הראוטים (9/9); שורת קישורים
-"Methodology · Corrections" נוספה לפוטר של `SectionPage` ולסגירה של
-הברייף — **לא** נבנה footer גלובלי אחד ב־`app/layout.tsx`, כי `CLAUDE.md`
-קובע מפורשות שלדף הבית אין תוכן מתחת לקיפול וה־layout עוטף גם אותו.
-השער המלא ירוק: typecheck, ‏lint, ‏323 בדיקות (1 מדולגת), ‏build.
-
-### עדכון ביצוע — 25 באוגוסט 2026: גל רביעי — הגירת הברייף, שני פרקים נוספים, נגישות
-
-באותו יום, סשן רביעי, בוצע דרך שלושה סוכני `fork` מקבילים ב־worktrees
-מבודדים (`isolation: "worktree"`), שמוזגו ידנית ל־`main`:
-
-- **הגירת הברייף**: `GeopoliticalBrief.tsx` עבר במלואו ל־`components/content/`
-  (`VerificationBadge`, ‏`PublicationMeta` — קיבל שדה `coverageWindow` חדש,
-  שתוקן גם ב־War Update שלא הציג אותו כלל —, ‏`FigureRow`, ‏`KnownUnknownPanel`,
-  `Timeline`, ‏`SourceList`, ‏`CorrectionHistory`). `BriefStatus` ממופה ל־
-  `AssessmentValue` האמיתי; שני מקרי גבול מתועדים ב־`.ai/DECISIONS.md`.
-  Developments ו־Corrections שינו צורה (מפריסה ייעודית ל־`Timeline`/
-  `CorrectionHistory` המשותפים) — זה שינוי מכוון, לא תקלה. `ReadingProgress`
-  עבר להיות משותף (`components/sections/ReadingProgress.tsx`) ומופיע גם
-  ב־`SectionPage`. Scrollbar גלובלי מעוצב; focus-within מרגיע את אנימציית
-  הרקע בכל עמוד.
-- **Israel's Story**: שני פרקים אמיתיים ומצוטטים נוספים — מלחמת ששת הימים
-  (1967, כולל חסימת מצרי טיראן ממקור משרד החוץ) ו־הסכמי אוסלו (1993,
-  המורשת שלהם מסומנת כשנויה במחלוקת ולא מוכרעת). ארבעה פרקים כעת.
-- **נגישות**: skip links ל־`SectionPage`/`DocPage`; תיקוני contrast אמיתיים
-  (כמה טקסטים היו מתחת ל־4.5:1 מול הפלטה בפועל); `role="alert"` על שגיאות
-  בטפסי Support Us.
-- **תקלת פלטפורמה אמיתית שתועדה**: אחד משלושת ה־fork-ים ניסה בעצמו לפצל
-  סוכנים נוספים וקיבל "Fork is not available inside a forked worker" —
-  סוכן forked לא יכול לפצל fork נוסף. הוא ביצע את כל שלוש המשימות בעצמו
-  בתוך אותו worktree; העבודה הכפולה שלו על הברייף ו־Israel's Story נזרקה
-  בזמן המיזוג לטובת שני הענפים הייעודיים. סוכן נוסף החזיר תוצאה כוזבת
-  (85 שניות, 0 קבצים שהשתנו בפועל) — זוהה בבדיקת `git worktree list` ולא
-  לפי הטקסט שהוחזר, והמשימה הופעלה מחדש בהצלחה. פירוט מלא ב־
-  `.ai/DECISIONS.md`. השער המלא ירוק אחרי המיזוג: typecheck, ‏lint, ‏323
-  בדיקות, ‏build.
-
-### עדכון ביצוע — 25 באוגוסט 2026: גל חמישי — קומפוזיציה ייחודית לכל שמונת העמודים
-
-באותו יום, סשן חמישי, דרך `frontend-design` skill: שבעה סוכני `fork`
-מקבילים ב־worktrees מבודדים, כל אחד עם בריף מדויק מבוסס-נושא (לא חופש
-יצירתי כללי) כדי שהתוצאה תישאר משפחה אחת קוהרנטית ולא שבע זהויות שונות.
-המעטפת המשותפת (rail, ‏prev/next, אינדקס קבצים, אמבלם) לא נגעה — ההבדלה
-היא רק בקומפוזיציית ה־`.body` של כל עמוד, באותה מערכת טיפוגרפיה/צבע
-הקיימת (Cinzel, ‏Geist Mono, גוונים gold/blue/ember). אין עובדות חדשות בשום
-עמוד — זו עבודה קומפוזיציונית/טיפוגרפית על תוכן קיים בלבד:
-
-- **War Update** — ריתמוס dateline של סוכנות ידיעות ("SHARM EL-SHEIKH —
-  OCT 9, 2025"), נגזר ממיקום שכבר מופיע בטקסט המקורי של כל פריט — לא הומצא.
-  פריטים בלי מיקום מצוין נשארים תאריך-בלבד.
-- **Fake Resistance** — תיוג Exhibit A/B/C, "חותמת" ורדיקט בפינה (aria-hidden,
-  ה־`VerificationBadge` הנגיש נשאר מקור האמת), יומן custody מקושר
-  origin→amplification.
-- **October 7** — הנתונים (1,200+/251/22+) עברו מרשת סטטיסטיקות קטנה
-  לכתובת-לוח מונומנטלית (מספרות Cinzel גדולות, ללא מסגרות כרטיס), וה־
-  timeline קיבל מרווח אנכי גדול יותר להאטת הקצב — הריסון עצמו הוא העיצוב.
-- **Our Heroes** — פורמט ציטוט/הוקרה רשמי ("In recognition — October 7,
-  2023") עם מסגרת פינות דקה, במקום גריד כרטיסים גנרי; עדיין אין תמונות.
-- **Israel's Story** — עימוד פרקי ספר אמיתי: מספרות רומיות גדולות, כותרת
-  "Chapter II of IV" רצה, drop cap אמיתי בפתיחת כל פרק, ותפריט תוכן
-  עובד. סימון המחלוקת של אוסלו נשמר בולט (מסונן לפי id, לא טקסט שביר).
-- **We Are** — "The method" הפך למסלול pipeline מחובר אמיתי (מסלול רציף,
-  שלב ה־human review שובר צורה מעיגול ליהלום — כי הוא שונה מבנית, לא
-  רק תיאורית), עם זרימה אמביינטית שמכבדת `prefers-reduced-motion`.
-- **Support Us** — שני מודולים אמיתיים (Report/Volunteer) בתוך מסגרת
-  toolkit ברורה, ו־Amplify/Sustain הורדו לרצועה קלה יותר שמבדילה בכנות
-  בין תרגול קבוע לערוץ "עדיין לא פתוח".
-
-**תקלה נוספת שתועדה**: אחד הסוכנים נעצר לפני שסיים לכתוב את הדוח הסופי
-שלו (בזמן שהמתין לריצת בדיקות ברקע) — הקוד עצמו היה שלם ותקין (typecheck/
-lint/build אומתו ידנית בעת המיזוג), רק הנרטיב לא הושלם. שני סוכנים (Our
-Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree שלהם והוחלו
-כ־patch. השער המלא ירוק אחרי מיזוג כל שבעת הענפים: typecheck, ‏lint, ‏323
-בדיקות, ‏build; בדיקת smoke ב־dev server אימתה תוכן אמיתי וללא שגיאות
-בכל שבעת העמודים.
-
-### עדכון ביצוע — 25 באוגוסט 2026: גל שישי — יתרת ה־backlog (P3/P6/P7)
-
-באותו יום, סשן שישי: שישה מסלולים מקבילים על קבצים לא-חופפים, מתוך רשימת
-המשימות ש"אני יכול לבצע בפועל" (לא Mac, לא backend, לא הסכמת משפחות)
-שסוכמה עם המשתמש קודם לכן:
-
-- **War Update**: פילטרים אמיתיים (front/home front/hostages/humanitarian/
-  diplomacy) דרך רכיב `WireFeed.tsx` חדש, permalink + כפתור שיתוף לכל
-  אירוע, תג "Latest" על האירוע העדכני ביותר — **לא** מנגנון "מה השתנה מאז
-  הביקור האחרון" מזויף (האתר לא עוקב אחר ביקורים אמיתיים), ו־Article
-  JSON-LD.
-- **Fake Resistance**: `archiveUrl` אמיתי לשלושת המקורות — כל אחד אומת
-  ידנית מול Wayback Machine's availability API לפני שנוסף, לא ניחוש.
-  סעיף "Claim propagation" לפי התאריכים האמיתיים. JSON-LD מסוג
-  **`ClaimReview`** (לא `Article` גנרי) — הסוג האמיתי של schema.org
-  לתוכן fact-checking, עם מיפוי מפורש בין 9 ערכי `AssessmentValue` לסולם
-  1–5 של `reviewRating`.
-- **Israel's Story**: שלושה פרקים נוספים — מלחמת יום כיפור 1973, הסכם
-  השלום עם ירדן 1994 (כפרק נפרד, לא מוזג לתוך "Peace, when it came"),
-  הסכמי אברהם 2020 (כולל מרוקו וסודן). שבעה פרקים בסך הכול.
-- **Geopolitical Brief**: שלוש נסיונות סוכן נכשלו בשקט על המשימה הזו
-  (שניים עם אפס שינויים בפועל, אחד עם אפס קריאות tool) — ככל הנראה
-  מגבלת concurrency כש־5 forks אחרים רצו במקביל, אך גם אחרי שהתפנו
-  סלוטים נכשל שוב; בוצע ישירות בלי fork. הודעת "stale" כשה־`publishedAt`
-  ישן מ־14 יום; מצבי "empty" כנים ל־Developments ו־Sources (לא שקט); רכיב
-  `BriefError.tsx` חדש **שלא מחובר** לשום נתיב כשל אמיתי — אין עדיין
-  fetch אסינכרוני אמיתי לברייף, אז אין נתיב כשל לדמות; `loading.tsx` לא
-  נוסף מאותה סיבה. Article JSON-LD + canonical.
-- **SEO לשישה עמודים נותרים** (Our Heroes, October 7, We Are, Support Us,
-  Methodology, Corrections): canonical URL + JSON-LD בסוג schema.org
-  הנכון לכל עמוד — `Article`+`Person` graph ל־Our Heroes, `Article`
-  ל־October 7, **`Organization`** ל־We Are (זה עמוד ה"about" של האתר עצמו,
-  לא כתבה), **`WebPage`** ל־Support Us/Methodology/Corrections (עמודי
-  מדיניות, לא כתבות) — **לא** "Report" הכללי מהתיעוד הישן, כי זה לא סוג
-  schema.org אמיתי. Support Us קיבל גם `ShareVerifiedButton` חדש
-  (Web Share API + fallback העתקה) שמפנה לברייף — אין לו verdict משלו
-  לשתף.
-- **CI ו־rollback**: `.github/workflows/ci.yml` הראשון אי־פעם בריפו הזה —
-  gate (typecheck/lint/test/build) + smoke test נתיבים דרך Chromium
-  headless המובנה של Playwright (`scripts/ci-smoke.mjs`), **לא** נתיב
-  ה־Chrome הקבוע ל־macOS ששאר סקריפטי האימות משתמשים בו — זה לא היה עובד
-  ב־Linux runner. `.ai/ROLLBACK.md` מתעד את נוהל ה־rollback האמיתי
-  ב־Vercel לפריסה הידנית של הפרויקט הזה. אין secrets, אין שלב deploy.
-
-השער המלא ירוק אחרי מיזוג כל שישה: typecheck, ‏lint, ‏323 בדיקות, ‏build;
-`node scripts/ci-smoke.mjs` (הכלי החדש עצמו) אישר 11/11 נתיבים תקינים
-בלי שגיאות קונסול.
-
-### ממצאי העל
-
-- מתוך שמונת העמודים, רק Geopolitical Brief מכיל תוכן אמיתי — מתוארך, ממוספר,
-  עם מקורות, badges והפרדת reporting/assessment. ארבעה עמודים (War Update,
-  October 7, Our Heroes, Israel's Story) הם הצהרות כוונות טהורות: אפס פריטים,
-  אפס תאריכים, אפס קישורים. Support Us הוא עמוד המרה בלי אף מנגנון המרה —
-  האלמנט הלחיץ היחיד בו הוא "Back to the scan".
-- אין מעטפת אתר: אין header, אין footer, אין `not-found`/`error`/`loading`
-  בשפת העיצוב (ה־404 הוא מסך לבן של Next), אין `aria-current`, ואין שום קישור
-  צולב בין עמודים. מעבר מ־War Update ל־October 7 מחייב חזרה הביתה — והאינטרו
-  של ~45 שניות מתנגן מחדש בכל חזרה, ללא זיכרון session.
-- הברייף מוכיח שהכול בר־ביצוע בלי backend: מודול תוכן סטטי מוקלד + רכיבי
-  Status/Sources/Meta/Unknowns שכבר קיימים בתוכו וממתינים לחילוץ.
-- שכבת הנתונים: `GET /api/v1/published-items` ציבורי קיים, אבל לצורת
-  `PublishedItem` אין חוזה ב־`server/contracts` שה־frontend רשאי לייבא;
-  אוצר המילים של הברייף הסטטי (5 סטטוסים) לא תואם את 9 ערכי ההערכה של המערכת;
-  ולצ׳ט אין מצב degraded — הוא מציג "Something went wrong" בלולאה.
-- ויזואלית: ה־rail הדביק מתנגש בשורות הרקע ונהיה בלתי־קריא בגלילה; כותרות
-  מודלפות דרך הפאנל השקוף; אריחי הגליפים הם ריבועים שחורים בלי אלפא; בפוסטר
-  ללא JS הכיתוב הדקורטיבי צועק יותר מהקישורים האמיתיים; והעמודים מסתיימים
-  בחיתוך לחלל שחור בלי שום סיום או צעד הבא.
-
-### W1 — מצבי מערכת ומעטפת ניווט
-
-- [x] `app/not-found.tsx` בשפת העיצוב: פלטת האתר, Cinzel, קישור חזרה לסריקה
-  ורשימת שמונת היעדים (`SectionPlaceholder` הרדום נמחק).
-- [x] `app/error.tsx` באותה שפה; ה־guard על `corrections[0]` תוקן בברייף עצמו.
-- [x] `app/loading.tsx` שמכסה את המרווח המת שבין `router.push` לרינדור העמוד.
-- [x] זיכרון session לאינטרו (`loz-intro-seen`): מבקר שכבר ראה או דילג נוחת
-  ישירות על הניווט, דרך מסלול ה־skip הקיים. **אימות ויזואלי סופי — רק
-  ב־Chrome אמיתי במק.**
-- [x] סרגל prev/next בתחתית כל עמוד דוסייה, ברוח מספור `File NN / 08`, מונע
-  מ־`defaultNodes`, עם wrap-around.
-- [x] רצועת כל־היעדים קומפקטית בתחתית כל עמוד + `aria-current="page"`.
-- [x] סיום אמיתי לכל עמוד: prev/next, אינדקס היעדים, שורת "File closed ·
-  Return to the scan", וכעת גם ה־CTA ההקשרי "Ask the Lion about this file"
-  (פותח את הצ׳ט עם שאלת פתיחה ממולאת, לא נשלחת אוטומטית).
-- [ ] Footer גלובלי רזה: זהות, שמונת היעדים, Methodology / Corrections /
-  Contact, כניסת צ׳ט — **עדיין לא נוסף ל־`app/layout.tsx`**. הנימוק המקורי
-  (לדף הבית אין תוכן מתחת לקיפול) כבר לא נכון: לבית יש עכשיו רצועת עמוד ראשון
-  שנסגרת בשורת "Methodology · Corrections" משלה. המסקנה נשארה בעינה בבחירת
-  המשתמש — שורת קישורים, לא footer גלובלי.
-  במקום זאת: שורת קישורים "Methodology · Corrections" נוספה לפוטר של
-  `SectionPage` (`components/sections/SectionPage.tsx`) ולסגירה של הברייף
-  (`GeopoliticalBrief.tsx`) — שני הדפים האלה מקושרים מכל עמוד תוכן עכשיו.
-  Contact ו־כניסת צ׳ט גלובלית עדיין לא נבנו במפורש כפריט כזה.
-- [x] אחידות לשונית של קישורי החזרה: "Signal room" ב־`GeopoliticalBrief.tsx`
-  הוחלף ל־"Back to the scan"/"Return to the scan" כמו שאר האתר.
-- [x] עוגני `id` לכל `SectionBlock` (slug אוטומטי מהכותרת, תומך עברית) +
-  `scroll-margin-top`.
-
-### W2 — תיקוני שפה ויזואלית
-
-- [x] scrim ל־rail הדביק ולכותרת הקובץ במובייל כך ששורות הרקע לא נקראות דרכם.
-- [x] gradient עליון מאחורי ה־H1 של הפאנל — כיתובי רקע כבר לא נקראים דרכו.
-- [x] אריחי הגליפים: ה־rail מציג כעת את מקורות ה־SVG עם גוון זהב; ה־SDF נשאר
-  לדוגם ה־GPU בלבד (ראו `DECISIONS.md`).
-- [x] `Monitoring · active` הוחלף ב־`Reference edition` — עיקרון
-  "No false live state".
-- [x] המשטח השקט על כל עמודי הדוסייה: `surface="quiet"` מופעל עכשיו על כל
-  שבעת עמודי הדוסייה (7/7). עצירת תנועה ב־focus עדיין לא מומשה (פריט נפרד).
-- [x] טוקני צבע גלובליים ב־`:root` — נוספו ל־`app/globals.css`
-  (`--loz-ground`, ‏`--loz-gold`, ‏`--loz-blue` וכו׳); `sections.module.css`
-  ו־`geopolitical-brief.module.css` מכנים אליהם עם fallback זהה לערך
-  המקומי הקודם — אין שינוי ויזואלי, רק מקור אמת אחד.
-- [x] rail ימני בדסקטופ — **הושלם** בכיוון העיצוב "the intelligence desk":
-  מעל 1220px השוליים הימניים נושאים את המקורות של כל רשומה, בגובה הרשומה
-  עצמה, והשוליים השמאליים נושאים ניווט במסמך ועומק קריאה. המקורות כבר היו
-  קיימים ברמת הפריט בכל `lib/content/` — לא הומצא שום מיפוי. prop ‏`aside`
-  נשאר זמין לתוכן rail ברמת העמוד (ראו `DECISIONS.md`).
-- [x] header נדבק של הברייף במובייל אטום; רצועת ה־TOC קיבלה fade וגלילה.
-- [x] "DESK 01 / 08" הפך ל־"Desk 01".
-- [x] scrollbar/חיווי גלילה לעמודים ארוכים — `::-webkit-scrollbar { display:
-  none }` הגלובלי הוחלף בסקרולבר דק מעוצב (thumb זהב שקוף); `scrollbar-width`/
-  `scrollbar-color` נוספו גם ל־`sections.module.css`'s `.page`.
-- [x] `ReadingProgress` מוחל גם על עמודי דוסייה, לא רק על הברייף — הרכיב עבר
-  מ־`components/briefs/` ל־`components/sections/ReadingProgress.tsx` המשותף;
-  `SectionPage` מקבל `data-reading-scroll` ומרנדר אותו.
-- [x] מטמון `cache()` לקריאת ה־JSON של `ScanBackdrop`; פיזור `--rest`
-  ב־reduced-motion תוקן לכל רוחב המסך ללא overflow.
-
-**גיבוי במק (Chrome אמיתי) — לא לביצוע בקונטיינר:**
-
-- [ ] איזון הפוסטר ללא JS בדסקטופ: הנמכת הכיתוב הדקורטיבי, הגדלת תוויות
-  הקישורים, פתרון התנגשויות ("OCTOBER 7" על "NARRATIVE SPIKE", "INCITEMENT
-  SIGNAL" נחתך למעלה).
-- [ ] כוונון חפיפת שורות באינטרו: הפרדת בהירות/גודל בין השורה הפעילה לשכנותיה
-  כך ששתי שורות לא יישבו באותה רצועה בבהירות כמעט שווה.
-- [ ] אפייה מחדש של אייקוני ה־SDF עם אלפא תקין (`bake:nav-icons`).
-
-### W3 — ספריית רכיבי תוכן ושכבת נתונים
-
-- [x] ספריית `components/content/` נבנתה (עם README מדויק של כל ה־props):
-  `VerificationBadge`, `SourceList`, `PublicationMeta`, `KnownUnknownPanel`,
-  `CorrectionHistory`, `FigureRow`. הברייף עצמו הוגר בסבב רביעי (ראו למטה) —
-  ההגירה סגורה.
-- [x] רכיב `Timeline` משותף בשלושה וריאנטים: `feed`, `history`, `spread`.
-- [x] primitives כרטיס: `ContentCard` ו־`ClaimRecordPair`.
-- [x] רכיב `SensitiveContent` — שער אזהרת תוכן נגיש עם חשיפה מפורשת וכפתור
-  הסתרה.
-- [x] `publishedItemSchema` / `PublishedItemView` נוספו ל־`server/contracts/item.ts`;
-  ‏`server/modules/items/repo.ts` מייבא את החוזה במקום להכריז צורה משלו
-  (18/18 בדיקות items עוברות).
-- [x] יישור אוצר המילים בספרייה החדשה: `VerificationBadge` ממופה בצורה
-  ממצה על כל 9 ערכי `ASSESSMENT_VALUES` + `CONFIDENCE_SUMMARIES`. הברייף
-  ממופה כעת גם הוא ל־`AssessmentValue` (לא ל־5 הסטטוסים הפרטיים —
-  `BriefStatus` נשאר בקוד אך משמש רק כדי לתרגם את הנתונים הקיימים; מיפוי
-  מלא ב־`.ai/DECISIONS.md`, כולל שני מקרי גבול: `Attributed`→`unverified`,
-  `Corrected`→`verified`).
-- [x] מודול תוכן סטטי מוקלד לכל עמוד — קיים כעת ל־War Update, Fake
-  Resistance, October 7, Our Heroes ו־Israel's Story (5 קבצים תחת
-  `lib/content/`). Support Us ו־We Are נשארו ב־JSX ישיר בכוונה — הם תוכן
-  תהליך/מדיניות של האתר עצמו, לא פריטים עריכתיים שיתחלפו למקור פרסום.
-- [x] seam אחד `lib/content/` — נבנה: `getWarUpdateEdition()`,
-  ‏`getFakeResistanceEdition()`, ‏`getOctober7Record()`,
-  ‏`getOurHeroesEdition()`, ‏`getIsraelsStoryEdition()`,
-  ‏`getCorrectionsLog()`, כל אחת `async` ומחזירה מודול מקומי היום. עדיין
-  לא קוראות ל־`GET /api/v1/published-items` בפועל — ל־`PublishedItemView`
-  אין שדה שממפה פריט לעמוד היעד שלו, וזה חוזה שעוד לא תוכנן (ראו הערת
-  הקוד בכל קובץ).
-
-### W4 — תוכן ומבנה פר־עמוד
-
-תקן הייחוס: מה שהברייף כבר מוכיח. תוכן חדש חייב מקורות ציבוריים אמיתיים
-וסטטוס כן; מבנה שממתין לאישור (הסכמת משפחות, אימות) מסומן כ־reference בדיוק
-כמו "Reference brief 001" — לא מוצג כעובדה חיה.
-
-- [x] **War Update** — נבנה מחדש: `lib/content/war-update.ts` עם שבעה אירועים
-  מתועדים ומקוריים (ספטמבר 2025–יולי 2026: תוכנית 20 הנקודות, חתימת
-  הפסקת האש ב־Sharm el-Sheikh, כניסתה לתוקף, שחרור 20 החטופים תוך 72 שעות,
-  אימוץ החלטה 2803 של מועצת הביטחון, הערכת "לא מלחמה ולא שלום" אחרי חצי
-  שנה, וההסכם המותנה לפירוק נשק חמאס), כל אחד עם מקורות אמיתיים (NPR,
-  Al Jazeera, Times of Israel, CBS News, Wikipedia, CNN — מקושרים בעמוד).
-  אלה אבני דרך מנהליות/הומניטריות/דיפלומטיות מתועדות — לא טענות טקטיות
-  חיות. ארבע פסקאות המדיניות עברו ל־`/methodology`; העמוד עצמו מציג רצועת
-  אמון קצרה + `Timeline` (`components/content`) + `SourceList` +
-  `CorrectionHistory` ריק.
-- [x] **October 7** — נבנה מחדש: `lib/content/october-7.ts` עם נתונים
-  אמיתיים מ־ADL (1,200+ הרוגים, 251 חטופים, 22+ יישובים+פסטיבל נובה) +
-  ציר זמן מתועד של שבע אבני דרך (7.10.23 עד 26.1.26, כולל גשר ל־War
-  Update). "Testimony" ו־"Remembrance" אוחדו לסעיף אחד שמקשר לשלושה
-  ארכיוני עדות אמיתיים (Edut 710, USC Shoah Foundation, October7.org)
-  דרך `SourceList` — **לא** משחזר עדות ו**לא** בונה פרופילי קורבנות; לאתר
-  הזה אין הסכמה מאף אחד מהם. `SensitiveContent` לא הופעל בסבב הזה — אין
-  כאן תוכן גרפי שדורש שער חשיפה. `register="muted"` נשמר.
-- [x] **Our Heroes** — נבנה מחדש: `lib/content/our-heroes.ts` עם
-  `HeroProfile[]` — שלושה אנשים אמיתיים ששמם וסיפורם כבר מכוסים בהרחבה
-  בעיתונות מיינסטרים בשם מלא (Aner Elyakim Shapira — נפל, Nova; Rami
-  Davidian — חקלאי שהציל כ־700 איש; אלוף (מיל.) נועם טיבון — חילץ את
-  משפחת בנו מנחל עוז). מוצג ב־`ContentCard` (אין שדה תמונה בכלל — "ללא
-  דיוקן כברירת מחדל" מובטח מבנית, לא כדגל לזכור), פרופיל אחד מובלט מעל
-  grid של השניים הנותרים, כל אחד עם `SourceList` בפוטר הכרטיס. **אין**
-  תהליך הסכמת משפחות אמיתי — זה הגבול האחראי לפרסום השלישייה הזו, לא
-  רצפה. פסקת "How these stories are gathered" הישנה נכתבה מחדש כי טענה
-  "nothing appears that the family has not seen and approved" — לא נכון
-  לגבי הפרופילים האלה.
-- [x] **Israel's Story** — נבנה מחדש, וגדל בסבב רביעי לארבעה פרקים אמיתיים
-  ומצוטטים ב־`lib/content/israels-story.ts`: "The founding, 1947–1948"
-  (תוכנית החלוקה → סוף המנדט → הכרזת העצמאות 14.5.1948 → פלישת
-  מצרים/עבר-הירדן/עיראק/סוריה 15.5.1948), "The Six-Day War, 1967" (חסימת
-  מצרי טיראן 23.5.1967 → מבצע מוקד 5.6.1967 → הפסקת אש 10.6.1967, כולל
-  מקור ראשוני ממשרד החוץ הישראלי לחסימה), "Peace, when it came" (הסכם
-  השלום עם מצרים, 26.3.1979), ו־"Oslo, 1993" (הכרה הדדית 9.9.1993 →
-  הצהרת העקרונות 13.9.1993 — המורשת שלהם מסומנת במפורש כשנויה במחלוקת,
-  לא מוכרעת בעמוד). זו עדיין מהדורה עובדת ומצומצמת — לא "הקשת הארוכה"
-  המלאה; העמוד עצמו מצהיר במפורש מה עוד חסר (תקופה עתיקה, 1973, ירדן
-  1994, הסכמי אברהם) כפער ידוע, לא כהשמטה שקטה. כל פרק: `Timeline`
-  ‏(`variant="history"`) + `SourceList`.
-- [x] **Fake Resistance** — נבנה מחדש: שלושה תיקי case אמיתיים ב־
-  `lib/content/fake-resistance.ts`, כולם מאוקטובר 2023, מתועדים במקור
-  ציבורי יחיד או יותר ולא נוגעים במחלוקת חיה (Arma 3 — קטעי משחק שהוצגו
-  כלחימה אמיתית, מקור: Axios; סרטון פינוי בחיפה שתויג כחדירת חיזבאללה,
-  מקור: Reuters Institute/BBC Verify; קטע behind-the-scenes מסרט קצר
-  פלסטיני מ־2022 שתויג כתעמולת חמאס, מקור: PolitiFact). תיק שלישי חלופי
-  אומת אחרי שהתיק שתואר במקור התגלה כנוגע במוות אמיתי ובטענה שנויה
-  במחלוקת שהופצה על ידי גוף ממשלתי — הוחלף בכוונה (ראו `.ai/DECISIONS.md`).
-  כל תיק: `ClaimRecordPair`, ‏`VerificationBadge` עם `assessment` מהאוצר
-  המילים האמיתי בן 9 הערכים, ‏`SourceList`, וה־tells הרלוונטיים מתוך
-  הרשימה הקיימת בעמוד.
-- [x] **We Are** — נבנה מחדש: "The method" כרשימה ממוספרת של חמשת שלבי
-  הצינור האמיתי (ingest → evidence → assessment עם 10 מימדי ביטחון →
-  human review → publish/search) — לא תיאור כוונה, תיאור המסלול שקיים
-  בפועל ב־`server/modules/*`. Grid תפקידים ללא שמות (`ContentCard`):
-  Investigators, Verification reviewers, Linguists & translators,
-  Engineers. עקרונות (עצמאות/מימון/פרטיות/ניגוד עניינים) כטקסט כנה על מה
-  שעדיין לא פומבי. FAQ מבוסס עובדות שניתן לבדוק בקוד — למשל
-  `assessment.publish` לא יכול אף פעם להיות ביד זהות אוטומטית
-  (`NEVER_AUTOMATED_CAPABILITIES`).
-- [x] **Support Us** — נבנה מחדש: "דווח על טענה לבדיקה"
-  (`ReportClaimForm.tsx`) מחובר בפועל ל־`POST /api/v1/reports` הציבורי
-  והלא-מאומת הקיים, עם ולידציה תואמת ל־`submitReportSchema` (url-או-body),
-  קבלה מינימלית (`publicId`/`status`/`receivedAt`) ולא הד של מה שנשלח.
-  כרטיסי skill (`ContentCard`) לשלושת תחומי המומחיות. טופס התנדבות
-  (`VolunteerInterestForm.tsx`) מרכיב `mailto:` ממולא במקום להעמיד פנים
-  שנשלח לשרת — אין endpoint אמיתי לקליטת מתנדבים עדיין; כתובת ה־inbox
-  (`volunteers@lionsofzion.io`) היא placeholder שדורש אישור/כתובת אמיתית
-  לפני production. "Sustain" נשאר טקסט — אין ערוצי תרומה מאומתים עדיין.
-- [x] **Geopolitical Brief** — רצועת סגירה נוספה (desk הבא / חזרה לסריקה /
-  back-to-top); הסתירה ברשומות התיקונים יושבה — ה־rail וה־footer נגזרים
-  מאותם נתונים; אין יותר `corrections[0]` לא שמור.
-- [ ] **עמודי יעד חדשים** — **חלקי**: `/methodology` ו־`/corrections` נבנו
-  (`components/sections/DocPage.tsx` — מעטפת קלה ללא file rail, לא
-  מצטרפות ל־`defaultNodes` כדי לא לשנות את מספור "File NN / 08"). עמוד
-  הסכמה/הסרה למשפחות ועדים עדיין לא נבנה — נדרש אם Our Heroes ירצה
-  להתרחב מעבר לשלוש הדמויות הציבוריות שכבר יש לו.
-
-### W5 — צ׳ט: ממשק שמכבד את מה שאין
-
-- [x] מצב degraded מפורש: הסתעפות על `error.code`; ‏INTERNAL_ERROR /
-  UNAUTHENTICATED / NOT_IMPLEMENTED ⇐ מצב "desk not connected", composer
-  מושבת, ללא לולאת retry; בדיקת יכולת אחת בפתיחה; ‏requestId מוצג רק
-  לשגיאות לא צפויות.
-- [x] שאלות מוצעות לפי עמוד — 3 chips נגזרים מ־`defaultNodes`, מוסתרים במצב
-  offline.
-- [x] תווית הקשרית לכל שמונת העמודים מ־`defaultNodes` ("Ask about October 7");
-  הברייף שומר על הנוסח הקיים.
-- [x] רינדור citations מוקלד מול `@/server/contracts/chat` — chips ממוספרים עם
-  ציטוט נפתח; בטוח בהיעדרן.
-- [x] auto-scroll להודעה החדשה (מכבד reduced-motion); ‏live region אחד על התור
-  האחרון בלבד; חותמות זמן להודעות.
-- [x] ניהול שיחה: thread חדש, העתקת תשובה, retry לתור שנכשל.
-- [x] composer: auto-grow, מונה מ־9,000 תווים, ‏focus חכם לפי סוג מצביע
-  (בלי מקלדת קופצת במובייל).
-
-### W6 — מטא־דאטה, זהות והפצה
-
-- [x] metadata פר־עמוד: `openGraph` ייחודי כעת על כל תשעת הדפים (כולל Our
-  Heroes ו־We Are שנבנו מחדש הסבב הזה).
-- [x] תמונת OG ‏1200×630 ב־`app/opengraph-image.tsx` (next/og, סימן הכתר).
-- [x] `sitemap.ts`, ‏`robots.ts`, ‏`manifest.ts`; ‏`/particle-demo` קיבל
-  `robots: { index: false }` דרך layout (הדף הוא client component).
-- [x] favicon אמיתי (ICO תלת־גודל) + `icon.svg` (כתר זהב) + apple-icon;
-  ‏`viewport.themeColor: #070b14` ו־`colorScheme: dark`.
-- [x] ריכוז הדומיין ל־מקור אחד — `lib/site-config.ts` (`SITE_URL`), מיובא
-  ב־`layout.tsx`, ‏`sitemap.ts` ו־`robots.ts` במקום שלושה `"https://lions-
-  of-zion.vercel.app"` נפרדים. **עדיין פתוח**: אישור בפועל שזה הדומיין
-  הקנוני לפרודקשן (לא רק ריכוז הכפילות).
-- [x] ניקוי שאריות scaffold: חמשת קובצי ה־SVG נמחקו; `SectionPlaceholder.tsx`
-  נמחק (ה־404 נבנה מחדש).
-
-### סדר ביצוע לסבב
-
-1. W1 + W2 (מעטפת ותיקונים ויזואליים) במקביל ל־W3 (רכיבים ושכבת נתונים)
-   ול־W5/W6 — קבצים זרים אלה לאלה.
-2. W4 (תוכן פר־עמוד) — אחרי ש־W3 מספק את הרכיבים ו־W1 את המעטפת.
-3. משימות המק (פוסטר, אינטרו, אפיית אייקונים) — בנפרד, בתחנת העבודה.
-
-## Wave — 26 August 2026: October 7 archive integration
-
-Full brief: **[`docs/archive-integration.md`](docs/archive-integration.md)**.
-Read [`.ai/DECISIONS.md`](.ai/DECISIONS.md)'s top entry first — this work
-reverses the previous "link out, host nothing" boundary on `/october-7`, and
-that reversal is deliberate.
-
-Two crawled archives become ~1,180 static pages under `/october-7`. Both
-packages live outside this repo and are not in git.
-
-### A1 — Packaging ✅ complete
-
-- [x] october7 package built and validated — 179 records, 505 language
-      versions, 499 media, **29/29 checks pass**.
-- [x] hamas-massacre package built from the raw archive — 335 records, 670
-      language versions, 528 unique media from 1088 relations, **32/32 checks
-      pass**. Pipeline at `~/Documents/october-7_toad/pkgbuild/`.
-- [x] Both verified to share one contract: the story↔media relation is
-      key-for-key identical and hamas block types are a strict subset of
-      october7's, so **one renderer serves both**.
-- [x] All 209 videos confirmed H.264/AAC faststart — no transcoding needed.
-- [x] Reversal recorded in `.ai/DECISIONS.md`; superseded entry marked.
-
-### A2 — Placement decisions ✅ settled
-
-- [x] Radial nav stays at eight nodes; `defaultNodes` untouched. Archives are
-      child routes of `/october-7`, not a ninth destination.
-- [x] Content ships as JSON in the repo (~51 MB measured) behind the
-      `lib/content/` seam — not through the unprovisioned backend.
-- [x] Media (~1.8 GB served) goes to **Cloudflare R2** — inside its 10 GB free
-      tier with free egress, so $0/month. Must be served from CDN URLs
-      directly, never proxied through the Next app.
-
-### A3 — Prerequisite ✅ fixed
-
-- [x] **`app/loading.tsx` removed.** It wrapped every route in a Suspense
-      boundary whose fallback is never replaced without JavaScript, parking the
-      real markup inside `<div hidden id="S:0">`. Measured in the prerendered
-      HTML of `/october-7`: the skip link sat at 6124 **inside** that wrapper,
-      revealed only by a `$RC` script at 24139. After removal it renders plain
-      in `<body>` at 4200, and the home route carries all eight orbit
-      destinations, the poster, and zero Suspense boundaries — restoring the
-      `CLAUDE.md` invariant that was silently broken. The ground colour it
-      claimed to protect is painted by `globals.css` on `html, body` anyway.
-      Gate: typecheck 0, 331 tests, lint unchanged, build prerenders all routes.
-      **Do not reintroduce a root-level `loading.tsx`.**
-
-### A4 — Build ✅ complete
-
-- [x] `scripts/import-archive-package.mjs` — validates the source against its
-      own manifest, copies in only what the site renders, rebuilds `records/`
-      so a rename leaves no orphan. Takes october7 from 39 MB to 9.9 MB;
-      both packages together are **14 MB**. Media never enters git.
-- [x] `lib/content/archive.ts` plus thin `testimonies.ts` / `documentation.ts`
-      faces. Package-level files are cached per process; records are not, since
-      each is read by exactly one page. Record ids are validated as ids, not
-      used as paths.
-- [x] `components/archive/` — one renderer for both archives, no branching.
-      Enforces the two presentation decisions structurally: nothing in a record
-      body is a hyperlink, and credits always render.
-- [x] Index and record pages on `DocPage`. Records take no rails, as settled.
-- [x] Locale scheme: the bare route serves the default language and `[locale]`
-      serves the rest, so no version ever has two URLs competing for one
-      canonical. The `category_id: null` record routes under a literal
-      `uncategorized` segment; the data still says null.
-- [x] hreflang from each record's own `available_languages`, canonical, and
-      `ArchiveComponent` JSON-LD carrying `isBasedOn` — which is what lets the
-      prose stay free of outbound links.
-- [x] 27 new tests (**358 total**); `ci-smoke` extended to 18 routes, sampling
-      real record ids from the imported index so it cannot rot.
-- [x] `defaultNodes` untouched; nothing here touches `components/particle-nav/`.
-
-**Found by the build, worth knowing:** two videos have no `package_path` — the
-source hosts them on YouTube and the packages record them without downloading
-them. The first build crashed on it. They now render a note saying the archive
-does not hold them, rather than dropping the block silently.
-
-- [x] **Sitemap** — 527 entries, one per record with 1,103 hreflang alternates,
-      rather than 1,177 pages competing with each other. `sitemap.ts` is async
-      now, which is safe: it is prerendered and not in a suspending path.
-- [x] **`scripts/verify-archive-assets.mjs`** — proves the CDN is populated.
-      Nothing else can: media is not in git, so a wrong
-      `NEXT_PUBLIC_ARCHIVE_CDN` fails quietly — pages build, tests pass, text
-      renders, only the media 404s. Verified locally: 2,018 checked, 0
-      unreachable.
-- [x] **Both real-Chrome gates run and pass.** `verify:graphics` 7/7 viewports
-      with every number unchanged (the scene did not move); `final-verify`
-      clean including **no-JavaScript: 8 links, poster visible**.
-- [x] Docs squared: `CLAUDE.md`, `docs/architecture.md`,
-      `docs/environment.md`, `docs/operations.md`, `README.md`.
-
-### A7 — The CDN ✅ provisioned
-
-- [x] **Provision the CDN and upload the media.** Done on Vercel Blob rather
-      than the costed R2 recommendation: store `lions-of-zion-archive`
-      (`store_M70Ph8nWOJVAnaRn`), 1.94 GB across 2,018 objects, connected to
-      the project. `NEXT_PUBLIC_ARCHIVE_CDN` is set on Preview and Production
-      to `https://m70ph8nwojvanarn.public.blob.vercel-storage.com`.
-      Verified 2026-08-26 against the live bucket: 2,018 checked, 0
-      unreachable; live record pages emit blob URLs with no `/archive`
-      fallback in the HTML.
-      **`NEXT_PUBLIC_` is substituted at build time**, so changing the value
-      later requires a redeploy, not just an env edit.
-
-### A5 — Presentation ✅ settled
-
-Full reasoning in `.ai/DECISIONS.md`, "The archive presents clean but keeps its
-provenance". These are now constraints on A4, not choices.
-
-- [x] **No outbound links in a record body.** Credits render as plain text, not
-      hyperlinks, at `--t-data`. `source_url` goes to metadata and JSON-LD.
-      `/methodology` replaces per-record link lists.
-- [x] **Provenance is kept.** Rewording to escape attribution was considered
-      and rejected. Only 3 of 528 (hamas) and 3 of 499 (october7) media items
-      carry a named credit — there was no clutter to remove.
-- [x] **Canonical points here**, with expectations set: the record pages will
-      earn little search traffic either way. Traffic comes from the editorial
-      layer, the cross-archive search, and Hebrew.
-- [x] **Documentation records take no rails** — 3 blocks, 1 heading each.
-      `DocPage` as-is. A right-margin variant for long testimonies is a later
-      prop on the same shell, and must fix `--content-w`.
-- [x] Rewrote `/october-7`'s testimony section — it claimed the site hosts no
-      testimony, which this work made false. It now opens the two archives with
-      counts read from their manifests (so a re-import cannot leave the page
-      quoting a stale number). Edut 710 and USC Shoah stay, reframed as what
-      they actually are: recorded-interview collections neither package holds.
-      October7.org left the outbound list — its records are here now, so
-      pointing readers elsewhere to read them would read as an editing mistake;
-      its attribution sits on every record's provenance note instead.
-
-### A6 — Later, deliberately
-
-- [ ] Backend path: `database/schema.sql` → Neon, stories as items, media as
-      evidence, written through `recordVersion()`. Blocked on Phase 8 auth.
-- [ ] Refresh loop: crawl → pkgbuild → validate → import. Ids are contracts, so
-      imports upsert and nothing is overwritten.
-
-## מטרת העל
-
-להפוך את האתר מחוויית מותג מרשימה ומעמודי הצהרת כוונות לפלטפורמת מידע פעילה, אמינה ונגישה שבה:
-
-- כל טענה ניתנת לבדיקה ומקושרת למקורות.
-- לכל פרסום יש סטטוס אימות, זמן עדכון והיסטוריית תיקונים.
-- כל שמונת העמודים מספקים ערך אמיתי ולא רק מסבירים מה יופיע בהם בעתיד.
-- שפת החלקיקים נשמרת כחלק מהמותג, אך אינה פוגעת בקריאות או בביצועים.
-- צ׳ט ה־AI עונה רק על בסיס תוכן מאומת ומציג מקורות גלויים.
+**מה נשאר לעשות.** הקובץ הזה הוא רשימת העבודה הפתוחה, לא יומן. תיאור מה שכבר
+נעשה חי ב־`.ai/STATE.md` (איפה הדברים עומדים), ב־`.ai/DECISIONS.md` (למה הוחלט
+מה שהוחלט) וב־git (מה השתנה).
+
+עודכן ואומת מול הקוד ב־**27 באוגוסט 2026**, בחמישה מעברי אימות מקבילים —
+מעטפת/נגישות, שכבת תוכן, שרת/צ׳ט/CI, מטא־דאטה/שפות, וסצנה/ביצועים. כל פריט
+כאן נבדק מול קוד חי, לא מול הצהרה קודמת בקובץ הזה.
+
+## איך קוראים את זה
+
+**חלק א׳ פתוח, חלק ב׳ סגור.**
+
+בתוך חלק א׳ החלוקה היא **לפי מה נדרש כדי לסגור פריט**, ולא לפי נושא:
+
+| קבוצה | מי סוגר אותה | מה עוצר אותה |
+| --- | --- | --- |
+| **א׳-1** משימות קוד בלבד | מפתח, בריפו | כלום — אפשר להתקדם ברצף |
+| **א׳-2** חיבור טכני מול ספקים | מי שיש לו גישה לקונסולה | חשבון, credential, תיבה, חיוב |
+| **א׳-3** החלטה ותהליך אנושי | הבעלים / יועץ משפטי | לא ניתן לסגירה בקוד או בהגדרה |
+
+החלוקה הזו החליפה מיון לפי שלב (`P0…P7`), שכבר לא שיקף דבר: ‏P0–P4 נסגרו
+ברובם, ומשימות "מאוחרות" כמו CI וארכיון נסגרו לפני "מוקדמות" כמו RTL. **לכל
+מקבץ יש פסקת הסבר משלו** — מה כבר קיים בו, ולמה הפריטים שנשארו נשארו.
+
+כמה כללי קריאה:
+
+- כל פריט פתוח נושא **מצב אמיתי** — מה קיים היום ומה חסר. "לא נבנה" ו"נבנה אבל
+  לא מחובר" הם שני מצבים שונים והם מסומנים כך.
+- **§ב׳-2 "נסגר כלא־ייעשה"** הוא חלק מהתוכנית, לא נספח. פריט שם לא ממתין — הוא
+  הוכרע. אין להחזיר אותו בלי להפוך את ההחלטה במפורש ב־`.ai/DECISIONS.md`.
+- ההיסטוריה — שמונה נרטיבי סשן, סקר ממצאים וגל הארכיון —
+  עברה ל־[`docs/archive/TODOS-waves-2026-08.md`](docs/archive/TODOS-waves-2026-08.md).
+  היא תפסה 610 מ־1,096 שורות הקובץ הזה. שם היא נשמרת כרשומה היסטורית ואינה
+  מתוקנת; כשהיא סותרת את הקובץ הזה — הקובץ הזה גובר.
+
+---
+# חלק א׳ — פתוח
+
+העבודה הפתוחה מחולקת לשלוש קבוצות **לפי מה נדרש כדי לסגור אותה**, לא לפי
+נושא. זו החלוקה המעשית: קבוצה אחת אפשר לסגור בעריכת הריפו לבד, השנייה עוצרת
+עד שמישהו נכנס לקונסולה של ספק חיצוני, והשלישית לא ממתינה למפתח כלל.
+
+**שלושת החסמים שגוזרים את סדר העבודה**, כל אחד בקבוצה שלו:
+
+1. **חוזה היעד ל־`PublishedItemView`** (§א׳-1.1) — קוד. חוסם את כל שכבת התוכן.
+2. **תהליך הסכמת משפחות** (§א׳-3) — תהליך אנושי. חוסם את Our Heroes ו־October 7.
+3. **תשתית עברית/RTL** (§א׳-1.8) — קוד. חוסמת את כל סעיף השפות.
+
+---
+
+# א׳-1 — משימות קוד בלבד
+
+**מה הקבוצה הזו:** כל מה שנסגר בעריכת קבצים בריפו, הרצת סקריפטים מקומיים
+ומיזוג. אין צורך בחשבון חיצוני, ב־credential, בקונסולה של ספק או באישור של
+אדם. זו הקבוצה הגדולה ביותר — **רוב מה שנשאר באתר הזה הוא קוד, לא תשתית** —
+והיא היחידה שאפשר להתקדם בה ברצף בלי להמתין לאף אחד.
+
+תת־הסעיף האחרון (§א׳-1.10) הוא חריג שכדאי לשים לב אליו: **השינוי עצמו הוא קוד
+רגיל, רק האימות דורש את תחנת העבודה.** הוא כאן ולא בקבוצת הספקים כי אין בו שום
+צד שלישי.
+
+## א׳-1.1 החסם המרכזי — חוזה היעד
+
+**למה זה ראשון:** זה הפריט היחיד ברשימה שחוסם חבילה שלמה של פריטים אחרים. כל
+14 מודולי `lib/content/` מחזירים היום מודול סטטי מקומי, ולא מפני שאיש לא הספיק
+לכתוב `fetch` — אלא מפני שאין למה לכתוב אותו. עד שהחוזה הזה מתוכנן, כל עמוד
+שיומר לתוכן חי ימציא פילטר משלו.
+
+- [ ] **ל־`PublishedItemView` אין שדה יעד.** אין ב־`publishedItemSchema`
+      ([`server/contracts/item.ts:108`](server/contracts/item.ts:108)) שדה שממפה
+      פריט ל"שייך ל־War Update" מול כל עמוד אחר, והערת הקוד ב־
+      [`lib/content/war-update.ts:6`](lib/content/war-update.ts:6) אומרת במפורש
+      שניחוש הפילטר הזה יהיה המצאת חוזה שאיש לא תכנן. **הצעד הראשון הוא תכנון
+      החוזה**, לא כתיבת fetch.
+- [ ] אחרי החוזה: החלפת גוף הפונקציות ב־`lib/content/` לקריאה ל־
+      `GET /api/v1/published-items`. ה־endpoint קיים והמסד מחובר — זה שינוי גוף
+      פונקציה, לא שינוי call site, וזו בדיוק הסיבה שה־seam נבנה כך.
+
+## א׳-1.2 תיקונים קצרים בעלי תשואה גבוהה
+
+**למה הם מקובצים:** כל אחד מהם הוא תיקון של דקות עד שעה, ולכולם השפעה
+לא־פרופורציונלית — שניים מהם פוגעים בכל ראוט באתר. זו נקודת ההתחלה הטבעית.
+
+- [ ] **`app/not-found.tsx:31` מרנדר `Open files · monitoring active`** ללא שום
+      אות health או data מאחוריו — הפרה חיה של עקרון "No false live state" של
+      הקובץ הזה. היא שרדה כי התווית באותיות קטנות, וכל חיפוש אחרי
+      `Monitoring · active` (התווית שכן הוחלפה ב־`Reference edition`) פספס אותה.
+- [ ] **ל־`/we-are` אין ולו קישור אחד**, בזמן שה־FAQ שלו מפנה ל"Corrections
+      page" ול־"Support Us" ארבע פעמים
+      ([`app/we-are/page.tsx:61`](app/we-are/page.tsx:61)). מבוי סתום מוצהר.
+- [ ] **ל־`app/page.tsx` אין `metadata` כלל** — הקובץ הוא חמש שורות. ל־URL בעל
+      הערך הגבוה באתר אין canonical ואין כרטיס OG משלו.
+- [ ] breadcrumb בנתיבי `/fake-resistance/**` — קיים ועובד ב־`DocPage` (שלושה
+      call sites בארכיון), אבל שלושת עמודי המחקר משתמשים ב־`SectionPage`,
+      **שאין לו prop של breadcrumb כלל**.
+- [ ] `/admin` ו־`/admin/login` חסומים ב־`robots.ts` אבל **אין להם `noindex`** —
+      ו־Disallow אינו noindex: URL מקושר עדיין יכול לצוץ בתוצאות.
+- [ ] `app/api/v1/admin/status` מקודד `aiBudgetUsd: 4.5` במקום לקרוא ל־
+      `aiBudgets()` — ידווח שגוי בשקט אם התקציב ישתנה.
+- [ ] `scripts/ci-smoke.mjs` אינו רשום ב־`package.json` — לבדיקה היחידה ש־CI
+      מריץ בפועל אין נקודת כניסה מקומית דרך `npm run`.
+- [ ] הסרת `x-actor-label: 'public-site-visitor'` מקוד הלקוח
+      ([`AskTheLionChat.tsx:222`](components/chat/AskTheLionChat.tsx:222)) —
+      אינרטי בפרודקשן, אבל שריד של עיצוב שהוחלף שקורא כאילו הוא עוד משנה.
+
+## א׳-1.3 רכיבי תוכן חסרים
+
+**מה כבר קיים:** ארבעת הרכיבים המרכזיים — `VerificationBadge`, `SourceList`,
+`KnownUnknownPanel`, `CorrectionHistory` — בנויים ומחוברים לעמודים. נשארו
+שלושה שלא נבנו, ואחד שנבנה חלקית.
+
+- [ ] `ShareEvidence` — שיתוף שמצרף מקורות. שתי אפשרויות השיתוף הקיימות מצרפות
+      כותרת ו־URL בלבד ([`WireFeed.tsx:40`](app/war-update/WireFeed.tsx:40),
+      [`ShareVerifiedButton.tsx:16`](components/support/ShareVerifiedButton.tsx:16)).
+- [ ] `ContentSearch` מחובר ל־`/api/v1/search` — אין רכיב, ואין קורא ל־endpoint
+      מ־`app/`, `components/` או `lib/`. (ה־`ArchiveIndexFilter` הקיים הוא סינון
+      `includes` בצד לקוח על אינדקס שעבר prerender — טוב ובכוונה, אבל לא זה.)
+- [ ] `RelatedNarratives` — קישורי הקשר הם `<Link>` ידניים היום.
+- [ ] **`PublicationMeta` חסר `author`, ו־`updatedAt` לא מועבר על ידי אף קורא** —
+      כך ש"עודכן לאחרונה" לעולם לא נרנדר
+      ([`PublicationMeta.tsx:3`](components/content/PublicationMeta.tsx:3)).
+      `reviewedBy` הוא מחרוזת תפקיד ("Editorial desk"), לא אדם.
+
+## א׳-1.4 תוכן ומבנה פר־עמוד
+
+**הערה חשובה לקבוצה הזו:** חלק מהפריטים דורשים גם **כתיבה עריכתית**, לא רק
+רכיב. "מפות וציטוטים מדויקים" הוא קוד *ותוכן*. הקוד לבדו לא סוגר אותם, אבל
+הקוד הוא מה שחוסם — אין היום מבנה נתונים למפה או לציטוט ישיר.
+
+**October 7**
+
+- [ ] מרחב remembrance נפרד מתיקי הראיות — העמוד מכיל שלושה בלוקים בלבד, והתגית
+      בראשו מבטיחה מרחב כזה.
+- [ ] chain of custody לחומרים חזותיים — נשמרים caption, credit ו־`source_url`,
+      אבל אין תאריך לכידה, hash או שרשרת החזקה. **שים לב: הנתונים האלה לא קיימים
+      בחבילות המקור**, אז זה קודם שאלת מקור ורק אחריה מבנה.
+- [ ] נתיב הסרה/תיקון לבקשת משפחות ועדים — הקוד (עמוד + טופס). התהליך שמאחוריו
+      נמצא ב־§א׳-3.
+- [ ] לנסח בעמוד ש**ההסכמה מושאלת ולא מוחזקת** — 179 עדויות מתארחות כאן עם ייחוס
+      מלא, אבל תהליך ההסכמה שייך לפרויקטים שמהם שוקפו. זה מצב תקין; הפריט הוא
+      לכתוב אותו במפורש.
+
+**Our Heroes**
+
+- [ ] חיפוש וסינון — לא קיים; שלושה פרופילים בסך הכול, אז זה ממתין להרחבה.
+- [ ] **טקסונומיית התפקידים חסרה `Civilian`** — `HeroRole` הוא
+      `'Fallen' | 'Rescuer' | 'Fighter'`
+      ([`our-heroes.ts:14`](lib/content/our-heroes.ts:14)), והעמוד לא מקבץ לפי
+      תפקיד: פרופיל מובלט אחד ואז grid לא מובחן.
+
+**Israel's Story**
+
+- [ ] מפות וציטוטים מדויקים — מסמכים ראשוניים כן מצוטטים, אבל אין מפות ואין
+      ציטוט ישיר: כל `body` הוא פרפרזה.
+- [ ] URL יציב לכל פרק — שבעה פרקים על עמוד אחד עם עוגני `id` בלבד.
+- [ ] reading list והערות מקור. **אל תחזיר רשימת מקורות פר־פרק** — היא נבנתה
+      והוסרה בכוונה כי הכפילה כל ציטוט בעמוד
+      ([`israels-story/page.tsx:107`](app/israels-story/page.tsx:107)).
+
+**יתר העמודים**
+
+- [ ] דוחות שקיפות — לא קיימים באתר.
+- [ ] Fake Resistance: **אין שום אפשרות שיתוף** בארבעת הנתיבים, והם היחידים
+      שנושאים `AssessmentValue` אמיתי לשתף.
+- [ ] Fake Resistance: evidence pack להורדה/צרור — לא נבנה.
+- [ ] War Update: מצב ריק אמיתי — מהדורה עם אפס פריטים נופלת היום לענף
+      "No entries in this category yet"
+      ([`WireFeed.tsx:116`](app/war-update/WireFeed.tsx:116)), כלומר נוסח
+      פר־קטגוריה למצב כלל־אתרי.
+- [ ] יומן התיקונים ריק תמידית — `getCorrectionsLog()` מחזיר `[]` ללא תנאי
+      ([`corrections.ts:17`](lib/content/corrections.ts:17)). מכוון וכן, אבל הוא
+      הופך כל טענת "CorrectionHistory ציבורי" לריקה בפועל.
+
+**Geopolitical Brief** — ארבעה פריטים, שניים מהם תלויים ב־§א׳-1.1:
+
+- [ ] הזנה ממהדורה יומית שעברה אישור פרסום — היום אובייקט literal בכתב יד
+      ([`geopolitical-reference.ts:12`](components/briefs/geopolitical-reference.ts:12)).
+- [ ] actor map ומפת אזורים — אין רכיב מפה ב־`components/briefs/`.
+- [ ] ארכיון בריפים + חיפוש לפי תאריך/שחקן/זירה.
+- [ ] שיתוף עם מקורות ו־related context. **הרשמה לעדכונים אינה כאן** — היא
+      דורשת ספק דיוור, וסומנה ב־§א׳-2.3.
+
+## א׳-1.5 מעטפת, ניווט ונגישות
+
+**מה כבר קיים:** רצועת זהות בראש כל עמוד (סמל, wordmark, `File NN / 08`, חזרה
+לסריקה) ו־skip links. מה שחסר הוא **ניווט מתמשך** — וזה מסביר למה שני פריטים
+כאן תלויים זה בזה.
+
+- [ ] header פנימי מלא — **חסרים תפריט שמונת העמודים ובורר שפה**
+      ([`SectionPage.tsx:119`](components/sections/SectionPage.tsx:119)).
+- [ ] drawer נגיש למובייל עם focus trap וסגירה ב־Escape — לא קיים.
+- [ ] `aria-current="page"` — **חסום על ידי שני הפריטים שמעליו**, לא עצמאי: אין
+      ניווט אתר מתמשך בעמודים פנימיים שיהיה מה לסמן בו.
+- [ ] עמוד יצירת קשר — הצד הקודי. ערוץ הדיווח קיים ועובד, אבל אין עמוד קשר ושום
+      משטח גלובלי לא מקשר אליו; מגיעים רק דרך `/support-us#report`.
+- [ ] בדיקת 200% zoom — אין כיסוי כלשהו.
+- [ ] fallback סמנטי שווה לכל חוויית particles — הניווט הראשי כן (`NavLinks`
+      מרנדר שמונה `<a>` אמיתיים בשרת + פוסטר), אבל אין audit שמוכיח שוויון בשאר.
+- [ ] **להכריע מה קורה עם `SensitiveContent`** — הרכיב בנוי, מיוצא, מתועד
+      ומעוצב, ו**אף עמוד לא מרנדר אותו**. יתרה מזו, שער האזהרה שלמענו נבנה
+      הוכרע לשלילה (§ב׳-2). קוד מת שגם אין לו יעד: למחוק, או לתעד למה נשאר.
+
+## א׳-1.6 צ׳ט
+
+**מה כבר קיים:** זהות ציבורית אנונימית, הרשאות read-only, rate limiting לפי
+session/IP, ובידוד תוכן שטרם פורסם — כולם קיימים ונבדקים. **מה שנשאר הוא
+גבולות ומצבים**, לא תשתית.
+
+- [ ] **moderation, abuse handling ו־prompt-injection boundaries — לא קיימים.**
+      הנקודה החדה: טקסט המסמכים שנשלפו משורשר ישירות לתוך prompt המשתמש
+      ([`answerer.ts:63`](server/modules/chat/answerer.ts:63)) בלי הקשחת
+      מפרידים, ו־system prompt הוא הנחיה, לא גבול.
+- [ ] אין קצר בצד שרת לסירוב בהיעדר בסיס — השירות קורא למודל גם כש־`documents`
+      ריק ([`service.ts:157`](server/modules/chat/service.ts:157)). ההגנה ברמת
+      המסד מונעת ציטוטים מומצאים, לא תשובה לא־מבוססת עם אפס ציטוטים.
+- [ ] citations לא מעוגנים למשפט ואין להם URL — `Citation` נושא `documentId`
+      ו־`quote` בלבד ([`chat.ts:26`](server/contracts/chat.ts:26)).
+- [ ] היסטוריית שיחה אובדת ברענון — השרת שומר הכול פר־זהות, אבל הלקוח מחזיק
+      `threadIdRef` בזיכרון ואף מסלול לא קורא ל־`GET /chat/threads` לשחזור.
+- [ ] שיתוף תשובה עם רשימת המקורות שלה — `copyAnswer` מעתיק `content` בלבד.
+- [ ] מצב `'checking'` מוכרז ואף פעם לא מרונדר; retrieving ו־answering מתמזגים
+      לאותה נקודת `sending`.
+- [ ] **לתמלולי הצ׳ט אין retention או prune** — `chat_tool_run` שומר את שאלת
+      המבקר הגולמית ו־`chat_message` את התמלול המלא, בעוד התחזוקה מנקה rate
+      limits ו־idempotency בלבד ([`maintenance.ts:11`](server/core/maintenance.ts:11)).
+      ה־cron כבר מתוזמן, אז זו הוספת שאילתה.
+- [ ] **בדיקת הזמינות בודקת את השכן הזול** — `GET /chat/threads` לא נוגע ב־rate
+      limiter, בשומר התקציב, ב־retriever או ב־gateway, כך שתקציב מוצה או gateway
+      מת עדיין מדווחים "online".
+- [ ] endpoint שמחזיר spend בפועל — העלות נרשמת ל־`ai_run`, אבל שום נתיב לא
+      חושף אותה.
+- [ ] בדיקה אוטומטית לנגישות ול־viewport מובייל של הצ׳ט.
+
+## א׳-1.7 מטא־דאטה ו־SEO
+
+**מה כבר קיים:** canonical על 17 ראוטים, sitemap עם 536 ערכים, JSON-LD בסוג
+הנכון לכל עמוד, ו־`SITE_URL` נכון. מה שנשאר הוא פערים נקודתיים.
+
+- [ ] תמונת OG ייחודית לכל סוג תוכן — עדיין אחת בדיוק (`app/opengraph-image.tsx`,
+      סימן הכתר), ואין `twitter-image` בכלל. מטא־דאטה מבוססת־קובץ גוברת על
+      `openGraph.images` שב־layout, אז כל עמוד שולח כרטיס זהה.
+- [ ] `openGraph.publishedTime` על שני ראוטים בלבד, בעוד ארבעה נוספים מכריזים
+      `type: 'article'` ומשמיטים אותו — **אף שהתאריך כבר בידם** ומשמש ל־JSON-LD.
+- [ ] שני עמודי אינדקס הארכיון (`/october-7/testimonies`, `/october-7/documentation`)
+      הם היחידים בלי JSON-LD ובלי בלוק `openGraph`. חסר שם `ItemList`/`CollectionPage`.
+- [ ] ה־manifest מכריז `/icon.svg` ו־`/apple-icon.png` בלבד — אין PNG 192×192
+      ו־512×512 ואין `purpose: "maskable"`.
+
+## א׳-1.8 עברית ו־RTL
+
+**למה זה חסם ולא פריט:** אין כאן תשתית להתחיל ממנה. `app/layout.tsx:65` הוא
+`lang="en"` קשיח בלי `dir`, אין שכבת תרגום ואין תלות i18n. זה סבב משלו שנוגע
+במעטפת, בפונטים, ב־URL ובבדיקות — לא משימה שמשתחלת בין אחרות.
+
+**הבהרה שהקובץ הזה בלבל בעבר:** ה־`[locale]` שבנתיבי הארכיון הוא **גרסאות שפה
+של רשומה**, לא לוקליזציה של ממשק. שני דברים שונים.
+
+- [ ] תשתית i18n למעטפת: `lang`/`dir` דינמיים, שכבת תרגום, ובורר שפה (שהוא גם
+      החלק החסר ב־header של §א׳-1.5).
+- [ ] אסטרטגיית URL לשפות בלי canonical כפול שגוי. **לרשומות הארכיון זה כבר
+      פתור** (נתיב חשוף לשפת ברירת מחדל, `[locale]` לשאר, hreflang מלא) — חסר
+      רק למעטפת האתר.
+- [ ] subset עברי לפונטים — אף אחד מארבעת הפונטים הטעונים לא מכריז `hebrew`.
+      פונטים עבריים ייעודיים נבחנו ונדחו על ידי הבעלים ונשמרו כמלווים לסבב הזה.
+- [ ] בדיקת פונט, שבירת שורות ותנועת חלקיקים בעברית — **דורשת גם Mac** (§א׳-1.10)
+      וגם שיהיה תוכן עברי לבדוק, כלומר היא אחרונה בשרשרת.
+
+## א׳-1.9 ביצועים ומדידה
+
+**למה זה קוד ולא ספק:** שני הפריטים הראשונים משפיעים על **כל ראוט באתר** ואינם
+דורשים דבר מלבד עריכה. המדידה עצמה אפשרית בקוד (`web-vitals`, `PerformanceObserver`);
+יש לה גם חלופה מסחרית, והיא מסומנת ב־§א׳-2.5 כאפשרות ולא כדרישה.
+
+- [ ] **שתי לולאות render ממשיכות לרוץ בלשונית מוסתרת.** `visibilitychange`
+      מופיע **אפס פעמים** בריפו; `frameloop` מופיע פעם אחת והיא `"always"`
+      ([`Scene.tsx:403`](components/particle-nav/Scene.tsx:403)); קנבס הצ׳ט לא
+      מגדיר `frameloop` כלל ולכן גם הוא `always`. כל ההשהיה שקיימת היא unmount.
+- [ ] **קנבס הצ׳ט מוריד 360KB של אריה בכל עמוד קריאה בדסקטופ** — המשגר יושב
+      ב־root layout, כך שבכל route ברוחב ≥720px נטענים `lion-v2-45k.bin` ונתח
+      three.js/WebGPU, גם בעמודים שאין להם צורך באריה.
+- [ ] אין מדידת FPS או זיכרון בבית — `onFrameStats` קיים אך מחובר רק
+      ל־`/particle-demo?stats`; [`Experience.tsx:39`](components/Experience.tsx:39)
+      לא מעביר אותו.
+- [ ] LCP < 2.5s, ‏INP < 200ms, ‏CLS < 0.1 — **אף אחד מהשלושה אינו נמדד.** אין
+      Lighthouse, אין `web-vitals`, אין `PerformanceObserver`, אין תקציב ב־CI.
+- [ ] תקרת שתי לולאות בצ׳ט סגור — נכונה מבנית, אבל שום בדיקה לא מקבעת אותה.
+- [ ] visual regression — `verify-composition.mjs` **מצלם בלבד**: אין baseline,
+      אין compare, אין diff, ואין שלב צילום ב־CI.
+- [ ] כיסוי שגיאות קונסול ב־CI מדלג על `/admin`, `/admin/login` ו־`/particle-demo`.
+
+## א׳-1.10 קוד שהאימות שלו דורש את תחנת העבודה
+
+**למה זו קבוצה נפרדת:** השינויים כאן הם קוד רגיל — CSS, טיימינג, הרצת סקריפט
+אפייה. מה שלא ניתן לעשות בקונטיינר הוא **לראות אם הם עבדו**: headless Chromium
+נופל ל־SwiftShader שגלאי ה־GPU דוחה כראוי, כך שהסצנה כלל לא נטענת. חמישה
+סקריפטים מקודדים את נתיב Chrome של macOS. **עדיף לעשות את כולם בסבב אחד.**
+
+- [ ] איזון הפוסטר ללא JS בדסקטופ — הנמכת הכיתוב הדקורטיבי, הגדלת תוויות
+      הקישורים, ופתרון "OCTOBER 7" על "NARRATIVE SPIKE" ו־"INCITEMENT SIGNAL"
+      הנחתך למעלה.
+- [ ] כוונון חפיפת שורות באינטרו — הפרדת בהירות/גודל בין השורה הפעילה לשכנותיה.
+      אין היום דירוג בהירות פר־שורה ב־`components/intro/`.
+- [ ] אפייה מחדש של אייקוני ה־SDF עם אלפא תקין (`bake:nav-icons`). **הריבוע
+      השחור כבר לא נראה** — ה־DOM מרנדר את מקורות ה־SVG — אבל שמונת ה־`*.sdf.png`
+      עצמם לא נאפו מחדש.
+- [ ] מוקד חזותי אחד בכל רגע באינטרו — מכונת ההעברה המדורגת קיימת ותקינה; אם זה
+      **נקרא** כמוקד אחד היא הכרעה קומפוזיציונית שרק פריימים אמיתיים סוגרים.
+- [ ] מקרה בדיקה לדילוג באמצע משפט — דילוג מהיר וסיום טבעי כן מכוסים.
+- [ ] **טקסט האינטרו מעולם לא נבדק מרונדר ב־320×568** — האילוצים מכוסים אנליטית
+      בשתי בדיקות יחידה, אבל `verify-composition.mjs` רץ תחת `reducedMotion:
+      "reduce"` שמדכא את האינטרו לגמרי, ו־`capture.mjs` מציע 390×844 ולא
+      320×568. שתי הבדיקות גם מדלגות על השורה האחרונה ומכסות ציר אופקי בלבד.
+
+---
+
+# א׳-2 — חיבור טכני מול ספקים
+
+**מה הקבוצה הזו:** כל מה שעוצר עד שמישהו נכנס לקונסולה של ספק חיצוני, מקצה
+credential, מספק תיבת דואר או מאשר חיוב. **אי אפשר לסגור אף אחד מהם בעריכת
+קוד**, ולכן הם מופרדים — כדי שסבב פיתוח לא ייעצר עליהם בהפתעה.
+
+**מה כבר מחובר ולא צריך טיפול:** Vercel Pro, הדומיין `lionsofzion.io`,
+Neon Launch, Neon Auth, Blob (‏1.94GB ארכיון), Queues, ארבעת ה־crons, ו־AI
+Gateway עם תקרה קשיחה. הרשימה למטה היא **רק** מה שנותר.
+
+## א׳-2.1 Vercel
+
+**הקשר שחייבים להכיר:** git push **אינו** פורס. הפריסה לפרודקשן היא פעולת CLI
+ידנית ומכוונת. אבל **הריפו ציבורי**, ולכן push הוא כשלעצמו מעשה פרסום — שני
+דברים נפרדים שקל לבלבל.
+
+- [ ] **ניטור שבעה ימים** — Neon CU-hours, ‏AI spend, שגיאות Functions, גיל
+      הודעות Queue ונפח Blob. אין ערכים נצפים, אין יומן מתוארך ואין רשומת סגירה.
+      הפריסה המהותית היא מ־26.8.2026, כלומר **החלון עדיין לא חלף** — פתוח מסיבה
+      תקינה, לא מהזנחה.
+- [ ] **preview deployment לכל PR משמעותי** — ל־`ci.yml` שתי משרות בלבד
+      (`gate`, `smoke`) ואין שלב deploy. שים לב: ההחלטה על פריסה ידנית מכסה
+      **production** בלבד; preview אוטומטי לא נשלל, פשוט לא נבנה.
+- [ ] **פריסת הפרודקשן של Fake Resistance** — פעולת CLI ידנית, מותנית בשערי
+      Phase 0 + Phase 4. **הנימוק המקורי התיישן**: המסמך אומר "מיזוג ל־main בטוח
+      תמיד, הפריסה הידנית היא מעשה הפרסום", אבל בריפו ציבורי ה־push כבר פרסם.
+      השער עצמו פתוח; הנימוק צריך תיקון.
+- [ ] **לזכור ש־`NEXT_PUBLIC_ARCHIVE_CDN` מוחלף בזמן build** — שינוי הערך דורש
+      redeploy, לא רק עריכת משתנה סביבה. הערה תפעולית עומדת, לא משימה חד־פעמית.
+
+## א׳-2.2 Neon
+
+- [ ] **לוודא ש־`0021` ו־`0022` הוחלו על מסד הפרודקשן.** הריפו נושא 23
+      migrations; מה שהוחל בפועל תלוי בהרצת `db:migrate` מול ענף הפרודקשן ואי
+      אפשר לאמת אותו מהקוד. **זה לא פורמלי:** `0022` מבטל הרשאת `EXECUTE`
+      ציבורית משתי פונקציות `SECURITY DEFINER` שמוחקות נתונים — אם היא לא הוחלה,
+      הפרצה עדיין פתוחה בפרודקשן בזמן שהריפו נראה כאילו נסגרה.
+
+## א׳-2.3 דואר אלקטרוני
+
+**המצב היום:** אין בריפו שום יכולת שליחת דואר — לא `nodemailer`, לא `resend`,
+לא SMTP. שני הטפסים משתמשים ב־`mailto:` בכוונה, כדי לא להעמיד פנים שנשלחו
+לשרת. זה יושר, לא פשרה — אבל הוא תלוי בכך שהתיבות באמת קיימות.
+
+- [ ] **`volunteers@lionsofzion.io` היא placeholder** ודורשת תיבה אמיתית או
+      כלל העברה לפני production
+      ([`VolunteerInterestForm.tsx:16`](components/support/VolunteerInterestForm.tsx:16)).
+      `admin@lionsofzion.io` שבטופס הדיווח היא כתובת אמיתית.
+- [ ] תיבת קשר ציבורית — הצד הקודי (עמוד קשר) נמצא ב־§א׳-1.5; כאן רק הקצאת
+      התיבה עצמה.
+- [ ] **הרשמה לעדכוני הבריף דורשת ספק דיוור** — אין היום שום תשתית לכך. זה
+      הפריט היחיד מ־Geopolitical Brief שאינו קוד בלבד.
+
+## א׳-2.4 תשלומים
+
+- [ ] **ערוצי תרומה** — אין SDK תשלומים בריפו. הפריט חסום פעמיים: ספק תשלומים
+      *וגם* אימות משפטי ותפעולי (§א׳-3). העמוד מסמן "Not open yet" ביושר, וזה
+      המצב הנכון עד ששניהם ייסגרו.
+
+## א׳-2.5 מדידה — אופציונלי, יש חלופה בקוד
+
+**למה זה מסומן כאופציה:** אפשר לסגור את מדידת הביצועים לגמרי בקוד (§א׳-1.9).
+המוצרים המסחריים חוסכים עבודה אך מוסיפים תלות וחיוב. **החלטה, לא דרישה.**
+
+- [ ] Vercel Speed Insights / Analytics לשדות Core Web Vitals אמיתיים — לא
+      מותקן (אין `@vercel/analytics` ואין `@vercel/speed-insights`). החלופה
+      הקודית היא חבילת `web-vitals` ודיווח עצמי.
+- [ ] שירות visual regression מנוהל — החלופה הקודית היא baseline מקומי
+      ב־`verify-composition.mjs`, שכבר מצלם.
+
+## א׳-2.6 מכשירים ודפדפנים
+
+**למה זה לא קוד:** כל סקריפטי האימות מייבאים `chromium` מ־`playwright-core`.
+אין `webkit`, אין `firefox`, אין device descriptors. הפריטים האלה דורשים מכשיר
+אמיתי או שירות מעבדת דפדפנים — לא ניתן להסיק אותם מקריאת קוד.
+
+- [ ] Safari iOS, ‏Chrome Android ו־Safari desktop.
+- [ ] VoiceOver או screen reader מקביל — אין axe ואין שום אוטומציית נגישות.
+- [ ] החזקת 30fps ב־tier נמוך ו־60fps ב־tier גבוה — **מערכת ה־tier עצמה בנויה
+      ותקינה** (45k/90k/180k לפי backend, ‏`deviceMemory` וסוג מצביע); ההחזקה
+      בפועל דורשת חומרה אמיתית.
+
+---
+
+# א׳-3 — לא קוד ולא ספק: החלטה ותהליך אנושי
+
+**מה הקבוצה הזו:** פריטים שאף מפתח ואף ספק לא יכולים לסגור. הם ממתינים
+להחלטה של הבעלים, לאישור משפטי או לתהליך מול בני אדם. **הם ברשימה כדי שלא
+ייראו כמו פיגור הנדסי** — הם לא.
+
+- [ ] **תהליך הסכמת משפחות** — חוסם את Our Heroes ואת October 7. מוצהר במפורש
+      בקוד ([`our-heroes.ts:4`](lib/content/our-heroes.ts:4)) ובגבול ההסכמה
+      בעמוד ([`our-heroes/page.tsx:94`](app/our-heroes/page.tsx:94)). שלושת
+      הפרופילים הקיימים הם **התקרה האחראית** בלי תהליך כזה, לא רצפה שמרחיבים
+      ממנה. הצד הקודי (workflow, עמוד הסרה) ממתין לתהליך, לא להפך.
+- [ ] **אימות משפטי ותפעולי לערוצי תרומה** — הצד השני של §א׳-2.4.
+- [ ] **אישור מערכתי, כללי authorship ו־taxonomy סופי לבריף** — פתוחים מאז
+      24.8.2026.
+- [ ] **הכרעה על שער הפרסום של Fake Resistance** — מתי Phase 0 ו־Phase 4 נחשבים
+      עומדים. הפעולה עצמה ב־§א׳-2.1; ההחלטה כאן.
+
+# חלק ב׳ — סגור
+
+## ב׳-1 הגלים שהושלמו
+
+שורה לגל. הפירוט המלא נמצא היכן שמצוין; אין לשכפל אותו לכאן.
+
+| מתי | מה | איפה מתועד |
+| --- | --- | --- |
+| 24.8.2026 | שלושת מסכי הייחוס, ‏Ask the Lion כ־modal נגיש, הסרת ה־WebGPU הגדול במובייל אחרי האינטרו | [ארכיון הגלים](docs/archive/TODOS-waves-2026-08.md) |
+| 25.8.2026 | ייצוב P0 — layout רספונסיבי לאינטרו, תקרת 86vw, ‏`nodeHaloRadius` ל־orbit, בעלים אחד למתמטיקת ה־viewport | ↑ |
+| 25.8.2026 | ששה גלים: מצבי מערכת ומעטפת, תיקוני שפה חזותית, ספריית `components/content/`, **כל שמונת העמודים על תוכן אמיתי ומצוטט**, מצב degraded לצ׳ט, מטא־דאטה ו־CI הראשון בריפו | ↑ |
+| 26.8.2026 | **אינטגרציית ארכיון October 7** — ‏~1,177 עמודים, ‏14MB JSON בגיט, ‏1.94GB מדיה ב־Blob, renderer אחד לשני הארכיונים | [`docs/archive-integration.md`](docs/archive-integration.md) |
+| 26.8.2026 | **סקירת עיצוב — 83 מתוך 83 נסגרו, אפס פתוחים** | [`docs/archive/TODOS-design-audit.md`](docs/archive/TODOS-design-audit.md) |
+| 26–27.8.2026 | **מחקר Fake Resistance** — עשרה עמודים (playbook, ‏network, שבעה תיקים), seam עריכתי, שער `EDITORIAL_STAGE` אמיתי | [`docs/fake-resistance-integration.md`](docs/fake-resistance-integration.md) |
+| 27.8.2026 | עמודי הקריאה גוללים את המסמך ולא את עצמם — ולכן שורת הכתובת בטלפון מתקפלת וניווט אחורה משחזר מיקום בלי `sessionStorage` | git `423b9f5` |
+| 27.8.2026 | תשתית: Vercel Pro, ‏Neon, ‏Neon Auth, ‏Blob, ‏Queues, ‏AI Gateway; **ארבעת ה־crons הוחזרו** (`ingest`, ‏`embed`, ‏`outbox-drain`, ‏`maintenance`) | [`docs/vercel-infrastructure.md`](docs/vercel-infrastructure.md) |
+| 27.8.2026 | ביקורת מבנה, מפת פרויקט; אבטחה — סגירת מענק PUBLIC לשתי פונקציות prune; `publications` ו־`reports` קיבלו `repo.ts` | [`PROJECT_STRUCTURE_AUDIT.md`](PROJECT_STRUCTURE_AUDIT.md) |
+| 27.8.2026 | **אינvariant ה־no-JavaScript נשמר ב־CI** — `ci-smoke` טוען את `/` עם `javaScriptEnabled: false`, ו־`tests/no-js-invariant.test.ts` הוא tripwire | `.ai/DECISIONS.md` |
+
+**מצב השער היום:** `npm test` — **418 עוברות, אחת מדולגת, 32 מתוך 32 קבצים**,
+אומת בריצה נקייה ב־27.8.2026. `.github/workflows/ci.yml`
+מריץ `gate` (typecheck → lint → test → build) ואז `smoke`. `scripts/ci-smoke.mjs`
+עובר **21 נתיבים** — 15 כתובים ביד ו־6 נגזרים מאינדקסי החבילות — ועוד טעינה
+אחת ללא JavaScript, סך הכול 22 טעינות עמוד.
+
+**תוקן מאז שהקובץ הזה נכתב לאחרונה:** `.ai/STATE.md` עדיין מתאר את CI כאדום
+על main בגלל lockfile לא מסונכרן. זה נסגר ב־`dd3a7bf` ובשני תיקוני המשך.
+
+## ב׳-2 נסגר כ"לא ייעשה" — אין להחזיר בלי היפוך מפורש
+
+הפריטים האלה **הוכרעו**. כולם הופיעו בעבר כמשימות פתוחות בקובץ הזה, וכל אחד
+מהם עלול להיות מוגש מחדש בתום לב על ידי מי שיקרא רק את הכותרת.
+
+- **אין `loading.tsx` ברמת השורש.** הוא נבנה, ואז נמחק: הוא עטף כל route
+  ב־Suspense שה־fallback שלו לעולם לא מוחלף בלי JavaScript, וכלא את ה־markup
+  האמיתי בתוך `<div hidden id="S:0">`. **נאכף מכונית** —
+  `tests/no-js-invariant.test.ts` אוסר גם `template.tsx` ו־`default.tsx`.
+  *(הקובץ הזה סימן אותו קודם כהושלם וכמחוק בו־זמנית. זו הייתה הסתירה הגדולה בו.)*
+- **אין footer גלובלי ב־`app/layout.tsx`.** ה־layout עוטף גם את `/`. יתרה מזו,
+  שורת "Methodology · Corrections" שהוצעה כתחליף **הוסרה בעצמה** מ־`SectionPage`
+  אחרי אישור מפורש של המשתמש; היא שורדת רק בסגירת הברייף.
+- **אין ניווט עמוד־לעמוד בלי חזרה לסריקה.** האתר הוא hub-and-spokes בכוונה;
+  הדרך חזרה נמצאת ברצועת הזהות בראש כל עמוד.
+- **אין שער אזהרת תוכן ב־October 7**, גם לא בקטגוריות הקשות. מוכרע במפורש:
+  "אל תוסיף שער 'למען הבטיחות' בלי שהבעלים ביקש". מה שכן קיים הוא ייעוץ בפרוזה.
+- **אין דיוקנאות ב־Our Heroes** — הכרטיס נטול שדה תמונה, כך ש"ללא דיוקן כברירת
+  מחדל" נכון מבנית ולא כדגל שצריך לזכור.
+- **`prefers-reduced-motion` אינו מציג רצף אינטרו קצר** — הוא מסיר את האינטרו
+  לחלוטין ונוחת על עמוד גמור. תנאי הקבלה הישן ("רצף קצר ויציב") התיישן, לא הקוד.
+- **אין ולידציית WebGPU ב־CI** — תמיכת WebGPU ב־Chromium headless אינה אמינה,
+  וזה נשאר בדיקת עומק בתחנת העבודה.
+- **אין `AI_GATEWAY_API_KEY` קבוע** — הגישה היא Vercel OIDC. חצי הפריט הזה נשלל.
+- **הצ׳ט הציבורי אינו מציג verdict** — הוא מקבל את היטל העמוד המפורסם בלבד,
+  ו־`repo.ts` מקבע `verdict: null`. תצוגת verdict היא פיצ׳ר של משטח האדמין.
+- **אין רשימת מקורות פר־פרק ב־Israel's Story** — היא הכפילה כל ציטוט בעמוד.
+- **ה־SDF נשאר לדוגם ה־GPU בלבד** — אין להפנות `<img>` ב־DOM חזרה לאפיות SDF.
+- **אין node תשיעי ב־`defaultNodes`** — הארכיונים ועמודי המחקר הם נתיבי ילד של
+  `/october-7` ו־`/fake-resistance`, ומספור `File NN / 08` נשען על כך.
+- **אין `requireCapability()` בקריאה מאף route** — יש חשבון אחד שמחזיק את כל
+  היכולות, כך שבדיקה יכולה רק לעבור, בעוד היא מוסיפה דרך להינעל בחוץ. מה שמגן
+  בפועל הוא טריגרים ב־SQL ומדיניות RLS. **לחבר כשיהיה חשבון שני.**
+
+---
 
 ## עקרונות עבודה
 
-- Evidence first: אין פרסום ללא מקורות, סטטוס ומועד עדכון.
-- Content before decoration: בעמודי קריאה התוכן הוא המוקד והחלקיקים תומכים בו.
-- Progressive enhancement: האתר נשאר שימושי גם ללא WebGPU, ללא JavaScript וב־reduced motion.
-- Mobile first: תנאי הקבלה מתחילים ב־320px וב־390px.
-- One content model: כל עמודי התוכן משתמשים בחוזים משותפים ולא במבני נתונים מקבילים.
-- No false live state: אין להציג `Monitoring · active` או מידע “חי” ללא מקור נתונים פעיל.
-- Human review: AI אינו מפרסם, משנה verdict או עוקף אישור אנושי.
-
-## מצב התחלתי מאומת
-
-- [x] הבית, האינטרו, הניווט, שמונת עמודי התוכן והצ׳ט נסקרו בדסקטופ וב־390×844.
-- [x] שמונת עמודי התוכן נטענים ללא overflow אופקי במובייל.
-- [x] לכל עמוד קיים `H1`, title ו־description ייחודיים.
-- [x] חלון הצ׳ט נפתח, נסגר ומקבל focus תקין במובייל.
-- [x] Geopolitical Brief הוחלף מתבנית טקסט כללית במשטח קריאה מובנה ורספונסיבי.
-- [ ] תשובות AI בפרודקשן עדיין אינן זמינות עד להשלמת auth, בסיס נתונים ו־AI Gateway.
-- [ ] עמודי התוכן עדיין סטטיים ואינם צורכים את מודולי הפרסום, הראיות והנרטיבים הקיימים; גם בריף הייחוס נטען כרגע ממודול TypeScript מקומי.
-
----
-
-## P0 — ייצוב דחוף של החוויה הקיימת
-
-יעד: 3–5 ימי עבודה. שלב זה קודם לכל פיתוח תוכן חדש.
-
-### אינטרו במובייל
-
-- [x] להגדיר layout רספונסיבי נפרד לטקסט החלקיקי ב־320–430px — `components/intro/introLayout.ts`.
-- [x] להגביל כל שורת טקסט ל־`86vw` לכל היותר. הבאג האמיתי לא היה בטלפון אלא בטאבלט לאורך: ב־768×1024 השורה הרחבה ביותר נרנדרה ב־170vw ונחתכה משני הצדדים.
-- [x] לבטל מסלולי כניסה שמתחילים או מסתיימים מחוץ ל־safe area — בקריאה מדורגת: טקסט קריא חסום בקשיחות, חלקיקים מתפזרים חסומים רק כל עוד הם קריאים. הנימוק ב־`.ai/DECISIONS.md`.
-- [x] להפחית את צפיפות ענן החלקיקים בתחילת האינטרו — `introLineBudget` מדרג את `maxParticles` מ־0.72 בשורה הראשונה.
-- [ ] לוודא שבכל רגע קיים מוקד חזותי ברור: אריה, משפט או מעבר — לא שלושתם יחד.
-- [x] ~~להפוך את `Skip Intro` למראה חלקיקי~~ — **בוטל** ב־24.8.2026. הכפתור נשאר טיפוגרפיית DOM עם אזור לחיץ של 52px. הנימוק: `.ai/DECISIONS.md`, "The skip control is real type, not particle geometry". אין להחזיר את הלייבל החלקיקי; הוא נוסה בשלוש צפיפויות.
-- [x] למקם את `Skip Intro` מעל safe-area וללא התנגשות עם כפתור הצ׳ט — הכפתור כבר יושב מעל `var(--safe-bottom)`, נוסף כלל למסכים צרים, וההתנגשות נפתרה בכך שכפתור הצ׳ט אינו קיים בזמן האינטרו.
-- [x] להסתיר לחלוטין את כפתור הצ׳ט ואת ה־attention cue בזמן שהאינטרו פעיל — הרכיב אינו מורכב כלל, ולא רק מוסתר ב־CSS.
-- [ ] לבדוק דילוג מהיר, דילוג באמצע משפט וסיום טבעי של האינטרו.
-
-תנאי קבלה:
-
-- [ ] אין אות, מילה או ענן משמעותי שנחתכים ב־320×568 וב־390×844.
-- [ ] אין פריים שבו הטקסט יוצא מגבולות ה־safe area.
-- [ ] `prefers-reduced-motion` מציג רצף קצר ויציב ללא התפזרות מהירה.
-
-### ניווט רדיאלי וכפתור הצ׳ט
-
-- [x] להרים את הצומת התחתון כך שגם הטבעת החזותית, ולא רק ה־DOM bounding box, נמצאת בתוך המסך.
-- [x] להוסיף `visualBounds` לחישוב ה־orbit כדי לקחת בחשבון bloom וטבעות חיצוניות — נשלח כשדה `nodeHaloRadius`; `nodeVisualRadius` נשאר חוזה ה־DOM וה־connectors.
-- [x] למנוע מהקריאה `Ask the Lion` לחפוף את `Our Heroes`; במובייל היא יושבת ב־dock שמור מחוץ לאזור הגלילה.
-- [ ] להשהות את attention cue בבית כשהוא מתנגש עם צומת ניווט.
-- [x] לחזק את בהירות האריה בכפתור הצ׳ט בעמודי התוכן.
-- [x] לוודא שהכפתור נשאר משני לאריה המרכזי במסך הבית.
-
-תנאי קבלה:
-
-- [x] כל שמונת היעדים נגישים במלואם: orbit בדסקטופ ו־authored index במובייל, מ־320×568 ועד 2560×1080.
-- [x] אין חפיפה בין תווית הצ׳ט, הניווט וה־safe-area במטריצת ה־viewports שנבדקה.
-- [ ] focus, hover ו־touch מפעילים אותו מצב חזותי.
-
-### אזהרות וביצועים מיידיים
-
-- [x] להחליף שימושים ב־`THREE.Clock` ב־`THREE.Timer` — אין `Clock` בקוד; הסעיף היה מסומן בטעות כפתוח.
-- [x] לוודא שאין אזהרות חוזרות בקונסול בבדיקת Chrome של הראוטים וזרימות הייחוס.
-- [ ] למדוד FPS וזיכרון בבית כאשר שני canvases פעילים.
-- [x] להסיר את Canvas הבית הגדול לאחר handoff לאינדקס המובייל.
-- [x] למנוע Canvas שני בכפתור הצ׳ט במובייל באמצעות fallback סטטי.
-- [ ] להשהות כל Canvas נוסף שאינו נראה או אינו פעיל בדסקטופ ובמעברי visibility — מקרה האינטרו נסגר (ה־Canvas השני של הצ׳ט אינו קיים בזמנו); `visibilitychange` ומצב מחוץ למסך עדיין פתוחים.
-
----
-
-## P1 — מעטפת אתר, ניווט ונגישות
-
-יעד: 4–6 ימי עבודה.
-
-### ניווט גלובלי
-
-- [ ] ליצור header קומפקטי לעמודים הפנימיים.
-- [ ] לכלול לוגו/שם מותג, חזרה לסריקה, תפריט שמונת העמודים, בחירת שפה וכפתור צ׳ט.
-- [ ] ליצור drawer נגיש למובייל עם focus trap וסגירה ב־Escape.
-- [ ] לסמן את העמוד הפעיל ב־`aria-current="page"`.
-- [ ] לאפשר מעבר בין עמודים בלי לחזור תמיד למסך הבית.
-- [ ] להוסיף breadcrumb כאשר נכנסים לפריט תוכן פנימי.
-
-### Footer ואמון
-
-- [ ] להוסיף footer עם קישורים ל־Methodology, Corrections, Contact, Privacy ו־Sources.
-- [ ] ליצור עמוד מתודולוגיה מלא שמסביר את תהליך האימות והפרסום.
-- [ ] ליצור מדיניות תיקונים נגישה עם changelog ציבורי.
-- [ ] להוסיף פרטי יצירת קשר וערוץ דיווח על טעות.
-- [ ] להציג `Monitoring · active` רק כאשר health/data signal אמיתי מאשר זאת.
-
-### קריאות ושפה חזותית
-
-- [ ] להסיר את הריבוע השחור מאייקוני העמודים.
-- [ ] לאפות מחדש את האייקונים עם alpha תקין או להציגם כחלקיקים בזמן אמת.
-- [x] להחליש את הרקע באזור הקריאה של Geopolitical Brief באמצעות reading surface שקט.
-- [x] להחיל את מצב הקריאה השקט על יתר משפחות התוכן — `surface="quiet"` על כל
-  שבעת עמודי הדוסייה (ראו W2).
-- [x] להשהות תנועת רקע בזמן focus בתוך מאמר וב־reduced motion — `.page:
-  focus-within .row` ב־`sections.module.css` (ראו W2/הסבב הרביעי).
-- [x] להגדיר רוחב שורה קריא ב־Geopolitical Brief במובייל ובדסקטופ.
-- [x] להחליף פסקאות הסבר ארוכות ב־Geopolitical Brief בתקציר, developments, assessment, unknowns ומקורות.
-- [x] להחיל את היררכיית הקריאה על יתר עמודי התוכן.
-- [x] לתת לכל משפחת עמודים קומפוזיציה ייחודית במקום תבנית טקסט אחת לכולם —
-  סבב חמישי (ראו למטה): כל שבעת עמודי הדוסייה קיבלו קומפוזיציה ייחודית
-  מבוססת נושא (wire dateline, case-file stamps, פלאק מונומנטלי, ציטוט
-  הוקרה, פרקי ספר, דיאגרמת pipeline, toolkit דו-מודולי).
-
-### נגישות
-
-- [x] לבצע audit מלא של keyboard navigation — סבב נגישות (25.8.2026) עבר על
-  `SectionPage`, ‏`DocPage`, טפסי Support Us וספריית `components/content/`;
-  פערי `:focus-visible` שנמצאו תוקנו. אימות מלא עדיין דורש דפדפן אמיתי
-  (ראו הפריט הבא).
-- [x] לבדוק contrast לכל צבעי gold, blue, ember ו־body text — יחסי WCAG
-  חושבו מול הפלטה בפועל; כמה טקסטים קטנים היו מתחת ל־4.5:1 ותוקנו. ראו
-  `.ai/DECISIONS.md`/`TODOS.md` לרשימת המדויקת מהסבב הרביעי.
-- [x] להוסיף skip link לתוכן הראשי ב־Geopolitical Brief.
-- [x] להוסיף skip link עקבי ליתר המעטפת הציבורית — נוסף ל־`SectionPage`
-  ו־`DocPage`, אותה טכניקה חזותית כמו הברייף.
-- [ ] לבדוק 200% zoom ללא חיתוך או אובדן פעולה.
-- [ ] להוסיף content warnings ופתרון הסכמה לתכנים קשים ב־October 7.
-- [ ] לוודא שכל חוויית particles מקבלת fallback סמנטי שווה.
-- [x] להגדיר את Ask the Lion כ־dialog מודאלי עם focus trap, ‏Escape, רקע `inert` והחזרת focus.
-- [ ] להשלים בדיקת VoiceOver/screen reader לזרימות הבית, הבריף והצ׳ט —
-  דורש דפדפן/screen reader אמיתי, לא בוצע בקונטיינר.
-
----
-
-## P2 — תשתית תוכן משותפת
-
-יעד: 5–8 ימי עבודה. שלב זה חוסם את המרת העמודים לתוכן חי.
-
-### חוזה האמון בחתך הייחוס
-
-- [x] להציג סטטוס אימות ו־freshness במהדורת הייחוס.
-- [x] להציג source stack וקישורי מקור ליד ההתפתחויות שהם תומכים בהן.
-- [x] להפריד חזותית בין reporting לבין assessment.
-- [x] להציג known unknowns ותנאים שישנו את ההערכה.
-- [x] להציג reviewed by והיסטוריית תיקונים.
-- [ ] לחלץ את רכיבי חתך הייחוס לרכיבים משותפים ולחברם לחוזה תוכן ציבורי אמיתי.
-
-### מודל תוכן
-
-- [ ] להגדיר `PublishedContentView` משותף לכל משטח ציבורי.
-- [ ] לכל פריט לכלול לפחות:
-  - [ ] id ו־slug יציב.
-  - [ ] title ו־summary.
-  - [ ] סוג תוכן וקטגוריה.
-  - [ ] `verified`, `reported`, `disputed` או `unknown`.
-  - [ ] זמן פרסום וזמן עדכון.
-  - [ ] מחבר, בודק ואישור אנושי.
-  - [ ] מקורות, citations ו־archived URLs.
-  - [ ] מה ידוע ומה עדיין לא ידוע.
-  - [ ] correction history.
-  - [ ] שפה, תרגום וסטטוס תרגום.
-  - [ ] image/video provenance וזכויות שימוש.
-
-### חיבור לשרת הקיים
-
-- [ ] לחבר את משטחי האתר ל־`published-items` במקום ל־JSX סטטי.
-- [ ] להשתמש ב־`narratives`, `evidence`, `assessments`, `publications` ו־`search` כמקור אמת.
-- [ ] להגדיר API ציבורי read-only שמחזיר רק פריטים מאושרים לפרסום.
-- [ ] להפריד במפורש בין reporting, assessment ו־opinion בחוזים וב־UI.
-- [ ] להוסיף pagination, filters ו־stable cursors.
-- [ ] להגדיר cache/revalidation המתאים לעדכונים חיים ולתוכן ארכיוני.
-- [ ] להוסיף empty/error/loading states לכל שאילתת תוכן.
-
-### רכיבי תוכן משותפים
-
-- [ ] `VerificationBadge` עם הסבר נגיש לכל סטטוס.
-- [ ] `SourceList` עם מקור, סוג, זמן ו־archive link.
-- [ ] `KnownUnknownPanel` שמפריד ממצאים מפערים.
-- [ ] `CorrectionHistory` ציבורי.
-- [ ] `PublicationMeta` עם זמן, מחבר, בודק ועדכון אחרון.
-- [ ] `ShareEvidence` שיוצר שיתוף עם מקורות מצורפים.
-- [ ] `ContentSearch` שמחובר ל־API החיפוש הקיים.
-- [ ] `RelatedNarratives` להצגת הקשר ולא רק רשימת כותרות.
-
----
-
-## P3 — משטחי תוכן ראשונים
-
-יעד: 7–10 ימי עבודה. לא להתחיל את כל שמונת העמודים במקביל.
-
-### 1. War Update
-
-- [x] להחליף את טקסט ההסבר ב־timeline של עדכונים אמיתיים — בוצע בסבב
-  התוכן המוקדם; שבעה אירועים אמיתיים ב־`lib/content/war-update.ts`.
-- [x] להציג זמן, אזור, קטגוריה וסטטוס אימות בכל עדכון — `dateLabel`,
-  `category`, `assessment` (`VerificationBadge`) לכל אירוע; מיקום נגזר
-  מהטקסט המקורי דרך ה־dateline (ראו הבא), לא שדה נפרד.
-- [x] להוסיף פילטרים: front, home front, hostages, humanitarian,
-  diplomacy — `WireFeed.tsx`, על ערכי ה־`category` האמיתיים.
-- [x] להפריד בין אירוע, מקור, assessment והשלכות — מובנה במבנה
-  `TimelineEntry` (title/body/sources/assessment) מהסבב הראשון.
-- [x] להוסיף מצב "What changed since last update" — **פורש מחדש ביושר**:
-  תג "Latest" על האירוע העדכני ביותר, לא diff מזויף מול ביקור קודם —
-  לאתר הזה אין מעקב ביקורים אמיתי, ובניית אחד רק בשביל הפיצ'ר הזה
-  הייתה מפרה את עיקרון "no false live state".
-- [x] להציג corrections בתוך הפריט ולא למחוק גרסאות קודמות — `CorrectionHistory`
-  מחובר בעמוד (ריק כרגע, כי לא הונפקה אף תיקון אמיתית עדיין).
-- [x] ליצור permalink לכל עדכון — `#{entry.id}` + `scroll-margin-top` +
-  כפתור שיתוף (`navigator.share` עם fallback העתקה).
-
-תנאי קבלה:
-
-- [x] אין עדכון ללא מקור, זמן וסטטוס.
-- [x] ניתן להגיע לעדכון ישירות ולשתף אותו.
-- [ ] הממשק שימושי גם כאשר אין עדכונים חדשים — לא נבדק במפורש מצב שבו
-  `entries` ריק; `Timeline`/`WireFeed` לא אמורים לקרוס (הרכיבים המשותפים
-  כבר מטפלים במערכים ריקים), אך אין הודעת "no updates" ייעודית.
-
-### 2. Fake Resistance
-
-- [x] להחליף את ההסבר הכללי ברשימת case files — שלושה תיקים אמיתיים.
-- [x] לכל case file להציג claim, origin, amplification, evidence ו־verdict —
-  קיים במבנה `FakeResistanceCase` מהסבב הראשון.
-- [x] להוסיף timeline של התפשטות הטענה — סעיף "Claim propagation" חדש
-  (`Timeline` variant="spread"), לפי התאריכים האמיתיים.
-- [ ] להציג רשת חשבונות רק כאשר הקשרים מבוססים ומתועדים — לא נבנה; אין
-  לנו כרגע נתוני רשת חשבונות אמיתיים ומתועדים לאף תיק.
-- [ ] להבדיל בין אינדיקציה, דפוס ומסקנה מוכחת — חלקי: כל תיק מציג
-  "tells exhibited" + verdict, אבל אין מסגרת מפורשת של שלוש רמות ודאות.
-- [ ] להוסיף evidence pack שניתן לשיתוף — לא נבנה (bundle/הורדה של תיק
-  שלם); קיים רק שיתוף כללי דרך `ShareVerifiedButton` ב־Support Us.
-- [x] להציג archived links כדי שהראיות ישרדו מחיקה במקור — `archiveUrl`
-  אמיתי (Wayback Machine, אומת מול ה־availability API) לשלושת המקורות.
-
-### 3. Geopolitical Brief
-
-- [x] ליצור גיליון ייחוס מתוארך עם מהדורה וגרסה.
-- [ ] להזין אותו ממהדורה יומית אמיתית שעברה אישור פרסום, במקום ממודול סטטי.
-- [x] להציג “What happened”, “Why it matters” ו־“What remains unknown”.
-- [ ] להוסיף actor map ומפת אזורים.
-- [x] להפריד עיצובית בין עובדות, הקשר והערכת המערכת.
-- [ ] להוסיף ארכיון בריפים וחיפוש לפי תאריך/שחקן/זירה.
-- [x] להוסיף sticky header, תוכן עניינים, reading progress, source rail ו־correction history.
-- [ ] להוסיף שיתוף עם מקורות, related context והרשמה לעדכונים.
-- [x] להוסיף loading, empty, stale, error ו־not found states — **חלקי,
-  ביושר**: stale (הודעה כש־`publishedAt` ישן מ־14 יום) ו־empty
-  (Developments/Sources) חיים ופעילים. error (`BriefError.tsx`) בנוי אך
-  **לא מחובר** — אין fetch אסינכרוני אמיתי לברייף שיכול להיכשל היום.
-  loading לא נוסף — אין גבול async אמיתי שהוא יגשר עליו. not found כבר
-  מכוסה ע"י `app/not-found.tsx` הגלובלי.
-
----
-
-## P4 — ארכיון, היסטוריה וסיפורים אנושיים
-
-יעד: 7–12 ימי עבודה לאחר שמודל התוכן הציבורי יציב.
-
-### October 7
-
-- [ ] ליצור ציר זמן מתועד של האירועים.
-- [ ] ליצור אוסף עדויות עם consent, attribution ותרגום.
-- [ ] לצרף chain of custody לחומרים חזותיים כאשר הוא זמין.
-- [ ] ליצור מרחב remembrance נפרד מתיקי הראיות.
-- [ ] להוסיף content warnings ושליטה בהצגת מדיה קשה.
-- [ ] להגדיר תהליך הסרה או תיקון לבקשת משפחות ועדים.
-
-### Our Heroes
-
-- [ ] ליצור פרופיל מובנה לכל אדם.
-- [ ] לכלול שם, תמונה מורשית, תפקיד, סיפור ומקורות.
-- [ ] לבנות workflow להסכמת משפחות ולאישור לפני פרסום.
-- [ ] לאפשר חיפוש וסינון בלי להפוך את העמוד לקטלוג קר.
-- [ ] להפריד בין חללים, מצילים, לוחמים ואזרחים תוך שמירת כבוד וסיפור אישי.
-
-### Israel’s Story
-
-- [ ] ליצור timeline היסטורי לפי תקופות.
-- [ ] להוסיף מפות, מסמכים ראשוניים וציטוטים מדויקים.
-- [ ] לבנות chapters עם URL יציב לכל פרק.
-- [ ] לצרף reading list והערות מקור לכל פרק.
-- [ ] לסמן במפורש מחלוקות היסטוריות ופרשנויות שונות.
-
-### We Are
-
-- [ ] להציג את המתודולוגיה כתהליך חזותי ברור.
-- [ ] להציג מבנה ארגוני או תפקידי צוות בלי לחשוף אנשים בסיכון.
-- [ ] לפרסם עקרונות עצמאות, מימון, פרטיות וניגודי עניינים.
-- [ ] לקשר למדיניות תיקונים ולדוחות שקיפות.
-
-### Support Us
-
-- [x] ליצור טופס התנדבות פעיל עם תחומי מומחיות וזמינות — `VolunteerInterestForm.tsx`
-  (מרכיב `mailto:`, אין endpoint אמיתי לקליטה עדיין — ראו TODOS W4).
-- [x] להוסיף מסלול דיווח על טענה לבדיקה — `ReportClaimForm.tsx`, מחובר
-  ל־`POST /api/v1/reports` הציבורי האמיתי.
-- [ ] להוסיף ערוצי תרומה רק לאחר אימות משפטי ותפעולי — "Sustain" נשאר
-  טקסט בכוונה.
-- [x] להוסיף CTA ברור לשיתוף חומר מאומת — `ShareVerifiedButton` חדש,
-  מפנה לברייף (אין ל־Support Us עצמו verdict לשתף).
-- [x] להציג הודעת הצלחה, שגיאה והגנת spam לכל טופס — `ReportClaimForm`
-  כבר מציג קבלה/שגיאה; הגנת spam קיימת ברמת ה־API (`rateLimit()` ב־
-  `app/api/v1/reports/route.ts`, מוצג כהודעת `RATE_LIMITED` כנה בטופס).
-
----
-
-## P5 — Ask the Lion בפרודקשן
-
-יעד: 5–7 ימי עבודה לאחר שה־published content פעיל.
-
-### מעטפת ואינטראקציה
-
-- [x] להציג side sheet בדסקטופ ומשטח inset מלא במובייל בלי להסתיר טקסט לאחר הסגירה.
-- [x] להוסיף backdrop, כפתור סגירה, ‏Escape, ‏focus trap והחזרת focus למפעיל.
-- [x] להשבית את התוכן שמאחורי ה־dialog באמצעות `inert` בזמן שהצ׳ט פתוח.
-- [x] להציג תווית הקשרית `Ask about this brief` בעמוד Geopolitical Brief.
-- [ ] לחבר את מעטפת הצ׳ט לחוזה התשובות מבוסס־המקורות המתואר בהמשך.
-
-### אבטחה ותשתית
-
-- [ ] להחליף את development actor ב־public session או authentication אמיתי.
-- [ ] להגדיר הרשאות read-only לצ׳ט הציבורי.
-- [ ] להגדיר `DATABASE_URL` ו־`AI_GATEWAY_API_KEY` בסביבות הנכונות.
-- [ ] להוסיף rate limiting לפי session/IP בלי לשמור מידע מיותר.
-- [ ] להגדיר תקציב יומי וחודשי ומדדי עלות.
-- [ ] להוסיף moderation, abuse handling ו־prompt-injection boundaries.
-- [ ] לוודא שהמודל אינו מקבל תוכן פנימי או תוכן שטרם פורסם.
-
-### חוויית משתמש
-
-- [ ] להציג suggested questions בהתאם לעמוד הנוכחי.
-- [ ] להציג citations לחיצים ליד המשפט שהם תומכים בו.
-- [ ] להציג verdict, confidence ו־known gaps מתוך המסמכים שנשלפו.
-- [ ] לא לענות כאשר אין בסיס מספק; להציג “אין מספיק מידע מאומת”.
-- [ ] לשמור היסטוריית שיחה לפי session.
-- [ ] לאפשר שיתוף תשובה עם רשימת המקורות שלה.
-- [ ] ליצור states ברורים: connecting, retrieving, answering, unavailable ו־rate limited.
-- [ ] להוסיף telemetry שאינו שומר תוכן רגיש ללא צורך.
-
-תנאי קבלה:
-
-- [ ] כל citation בתשובה מצביע למסמך שבאמת נשלף.
-- [ ] הצ׳ט אינו מציג תוכן review כעובדה שפורסמה.
-- [ ] כשל בשירות אינו משאיר spinner או טופס תקוע.
-- [ ] keyboard, screen reader ו־mobile viewport עובדים מקצה לקצה.
-
----
-
-## P6 — SEO, הפצה ושפות
-
-- [x] להוסיף canonical URL לכל עמוד ופריט תוכן — כל תשעת הראוטים
-  (`alternates.canonical`, ‏`SITE_URL` מ־`lib/site-config.ts`).
-- [x] ליצור `sitemap.xml` ו־`robots.txt` דרך Next.js metadata routes.
-- [ ] ליצור Open Graph image ייחודי לכל סוג תוכן — עדיין תמונת OG גלובלית
-  אחת (`app/opengraph-image.tsx`, סימן הכתר) לכל הראוטים.
-- [x] להוסיף JSON-LD מתאים — **לא** "Article, Report, Person, Organization"
-  כלשונו (Report אינו סוג schema.org אמיתי): `Article` ל־War Update/
-  October 7/Geopolitical Brief/Israel's Story, **`ClaimReview`** ל־Fake
-  Resistance (הסוג הנכון ל־fact-checking, לא Article גנרי), `Person`
-  ל־Our Heroes (graph אחד לפרופיל), `Organization` ל־We Are (עמוד ה"about"
-  עצמו), `WebPage` ל־Support Us/Methodology/Corrections (עמודי מדיניות).
-- [x] להוסיף published/updated timestamps למטא־דאטה — `openGraph.publishedTime`
-  מה־`publishedAt` האמיתי בכל עמוד שיש לו (War Update, Fake Resistance,
-  October 7, Our Heroes, Geopolitical Brief); הושמט בכוונה בעמודים בלי
-  תאריך תוכן אמיתי (We Are, Support Us, Methodology, Corrections) במקום
-  להמציא אחד.
-- [ ] להוסיף עברית ו־RTL לכל המעטפת והרכיבים המשותפים — לא התחיל, היקף
-  גדול שדורש סבב משלו.
-- [ ] להגדיר URL strategy לשפות ללא שכפול canonical שגוי — תלוי בעברית/RTL.
-- [ ] לבדוק פונט, line breaking ותנועת חלקיקים גם בעברית — דורש Chrome
-  אמיתי + תוכן עברי אמיתי, שניהם עוד לא קיימים.
-- [x] ליצור תבנית שיתוף שמצרפת verdict ומקור ולא רק כותרת — `WireFeed`'s
-  per-entry share (War Update) ו־`ShareVerifiedButton` (Support Us) שניהם
-  משתמשים ב־`navigator.share` עם טקסט שכולל את המקור/verdict האמיתי, לא
-  רק כותרת.
-
----
-
-## P7 — ביצועים, בדיקות ושחרור
-
-### תקציבי ביצועים
-
-- [ ] LCP מתחת ל־2.5 שניות בעמודי התוכן בחיבור mobile סביר.
-- [ ] INP מתחת ל־200ms.
-- [ ] CLS מתחת ל־0.1.
-- [ ] ניווט החלקיקים שומר לפחות 30fps במכשירי mobile tier נמוך ו־60fps ב־tier גבוה.
-- [ ] אין יותר משני render loops פעילים כאשר הצ׳ט סגור.
-- [ ] assets גדולים נטענים רק בעמודים שזקוקים להם.
-
-### מטריצת בדיקות
-
-- [x] 320×568 — מסכי הייחוס.
-- [x] 390×844 — מסכי הייחוס.
-- [x] 768×1024 — מסכי הייחוס.
-- [x] 1024×768 — מסכי הייחוס.
-- [x] 1440×900 — מסכי הייחוס.
-- [x] 2560×1080 — מסכי הייחוס.
-- [x] WebGPU ב־Chrome desktop.
-- [ ] WebGL fallback.
-- [ ] JavaScript disabled / SSR poster.
-- [x] `prefers-reduced-motion` במטריצת הקומפוזיציה של הבית.
-- [x] keyboard only בזרימות הייחוס של הבריף והצ׳ט.
-- [ ] VoiceOver או screen reader מקביל.
-- [x] Chrome desktop.
-- [ ] Safari iOS, Chrome Android ו־Safari desktop.
-
-### CI ופריסה
-
-- [x] `npm run typecheck` עובר.
-- [x] `npm run lint` עובר.
-- [x] `npm test` עובר — 250 passed, ‏1 skipped.
-- [x] `npm run build` עובר.
-- [x] `npm run verify:graphics` עובר בשבעה viewports ללא שגיאות קונסול.
-- [ ] להוסיף visual regression screenshots ל־viewports הקריטיים.
-- [x] לבצע smoke test ידני ב־Chrome לראוטים ולצ׳ט.
-- [x] להוסיף smoke test אוטומטי — **חלקי**: `.github/workflows/ci.yml`
-  (הראשון אי־פעם בריפו) מריץ gate + `scripts/ci-smoke.mjs` על 11 הראוטים
-  האמיתיים (Chromium headless מובנה של Playwright, לא נתיב Chrome של
-  macOS) בכל push/PL ל־main. הצ׳ט עצמו לא נבדק אוטומטית (דורש session
-  אמיתי, לא רק טעינת ראוט).
-- [ ] להרחיב את בדיקת שגיאות הקונסול ו־WebGPU validation לכל הראוטים ב־CI —
-  שגיאות קונסול כן נבדקות ב־`ci-smoke.mjs`; WebGPU **לא** — headless
-  Chromium ב־CI לא תומך ב־WebGPU בצורה אמינה, אז זה נשאר בדיקת עומק
-  Chrome אמיתי בתחנת העבודה בלבד.
-- [ ] להפעיל preview deployment לכל PR משמעותי — דורש הגדרת Vercel, לא
-  בוצע.
-- [ ] לפני ההשקה: לשדרג את צוות Vercel ל־Pro ולהחזיר את משימות `ingest`, ‏`outbox-drain` ו־`embed`; ה־crons מושבתים זמנית כל עוד הפרויקט על Hobby.
-- [x] להגדיר rollback מתועד לפני השקת משטחי תוכן חיים — `.ai/ROLLBACK.md`
-  חדש, נוהל Vercel אמיתי (rollback ידני, לא auto-deploy) לפריסה הידנית
-  של הפרויקט הזה.
-
----
+- **Evidence first** — אין פרסום ללא מקורות, סטטוס ומועד עדכון.
+- **Content before decoration** — בעמודי קריאה התוכן הוא המוקד והחלקיקים תומכים.
+- **Progressive enhancement** — האתר נשאר שימושי ללא WebGPU, ללא JavaScript
+  וב־reduced motion. זה נאכף ב־CI, לא רק נאמר.
+- **Mobile first** — תנאי הקבלה מתחילים ב־320px וב־390px.
+- **One content model** — חוזים משותפים, לא מבני נתונים מקבילים.
+- **No false live state** — אין להציג מידע "חי" ללא מקור נתונים פעיל.
+  *(מופר כרגע ב־`app/not-found.tsx:31` — ראו §2.)*
+- **Human review** — AI אינו מפרסם, אינו משנה verdict ואינו עוקף אישור אנושי.
+- **הריפו ציבורי** — push הוא כשלעצמו מעשה פרסום, בנפרד מהפריסה הידנית. עבודה
+  שממתינה להכרעה עריכתית או משפטית ממתינה ל־**push**, לא רק ל־deploy.
 
 ## Definition of Done לכל עמוד תוכן
 
-עמוד אינו נחשב גמור עד שכל הסעיפים הבאים מתקיימים:
+עמוד אינו גמור עד שכל אלה מתקיימים. **אף עמוד אינו עומד בזה במלואו היום** —
+סעיפי השפה והחיבור לתוכן מאושר חסומים ברמת המערכת (§0), לא ברמת העמוד.
 
-> Geopolitical Brief הוא כרגע vertical slice מאומת, אך אינו נחשב עמוד פרודקשן גמור עד לחיבור לתוכן מאושר, מצבי מערכת, metadata מלא, שפות ותהליך פרסום מתועד.
-
-- [ ] יש בו תוכן אמיתי ולא רק תיאור של תוכן עתידי.
-- [ ] יש לפחות פעולה אחת משמעותית מעבר לחזרה לבית.
+- [ ] תוכן אמיתי, לא תיאור של תוכן עתידי.
+- [ ] לפחות פעולה משמעותית אחת מעבר לחזרה לבית.
 - [ ] כל טענה מהותית מקושרת למקור או מסומנת כהערכה.
-- [ ] מוצגים תאריך פרסום, עדכון אחרון וסטטוס אימות.
-- [ ] קיים מצב empty, loading, error ו־not found.
-- [ ] העמוד עובד בעברית ובאנגלית אם הוא מיועד לפרסום ציבורי בשתי השפות.
+- [ ] תאריך פרסום, עדכון אחרון וסטטוס אימות מוצגים.
+- [ ] קיימים מצבי empty, ‏loading, ‏error ו־not found.
+- [ ] עובד בעברית ובאנגלית אם הוא מיועד לשתיהן.
 - [ ] אין חיתוך או overflow במטריצת ה־viewports.
-- [ ] keyboard ו־screen reader יכולים להגיע לכל פעולה.
-- [ ] metadata, canonical, Open Graph ו־structured data תקינים.
-- [ ] קיימות בדיקות יחידה, אינטגרציה ו־visual regression בהתאם לסיכון.
+- [ ] keyboard ו־screen reader מגיעים לכל פעולה.
+- [ ] metadata, ‏canonical, ‏Open Graph ו־structured data תקינים.
+- [ ] בדיקות יחידה, אינטגרציה ו־visual regression בהתאם לסיכון.
 - [ ] התוכן עבר אישור אנושי ותהליך פרסום מתועד.
 
-## סדר ביצוע מחייב
 
-1. P0 — תיקוני אינטרו, ניווט וצ׳ט במובייל.
-2. P1 — מעטפת אתר, ניווט גלובלי ואמון.
-3. P2 — מודל תוכן וחיבור לשרת.
-4. P3 — War Update, Fake Resistance, Geopolitical Brief.
-5. P4 — October 7, Our Heroes, Israel’s Story, We Are, Support Us.
-6. P5 — צ׳ט AI ציבורי מבוסס מקורות.
-7. P6 — SEO, הפצה ושפות.
-8. P7 — הקשחה, ביצועים ושחרור.
+## סדר ביצוע
 
-אין להתחיל המרה מלאה של כל שמונת העמודים לפני ש־War Update אחד עובד מקצה לקצה עם תוכן, מקור, verdict, תיקון ושיתוף.
+סדר ה־P0…P7 הישן בוטל — הוא תיאר עולם שבו התוכן עוד לא נבנה. הסדר היום נגזר
+מהחלוקה שבראש הקובץ: **מסלול הקוד רץ ברצף, ומסלול הספקים רץ במקביל לו** —
+הם לא חוסמים זה את זה, וזו בדיוק הסיבה שהם מופרדים.
+
+**מסלול הקוד (§א׳-1), לפי סדר:**
+
+1. **תיקונים קצרים בעלי תשואה גבוהה** (§א׳-1.2) — `monitoring active` ב־404,
+   הקישורים החסרים ב־`/we-are`, ‏`metadata` ל־`app/page.tsx`, ‏breadcrumb
+   ב־`/fake-resistance/**`. שעות, לא ימים.
+2. **תכנון חוזה היעד ל־`PublishedItemView`** (§א׳-1.1) — החסם היחיד שמחזיק את
+   שכבת התוכן כולה ואת ה־Definition of Done.
+3. **ביצועים** (§א׳-1.9) — השהיית לולאות ב־`visibilitychange` והוצאת אריית
+   הצ׳ט מעמודי הקריאה. שתיהן משפיעות על **כל** route באתר, ולכן מוקדם.
+4. **גבולות הצ׳ט** (§א׳-1.6) — moderation ו־prompt-injection, ואז retention
+   לתמלולים.
+5. **סבב Mac** (§א׳-1.10) — כל הפריטים בבת אחת בתחנת העבודה, לא אחד בכל פעם.
+   ההקמה היא רוב העלות.
+6. **סבב עברית/RTL** (§א׳-1.8) — סבב משלו; נוגע במעטפת, בפונטים, ב־URL
+   ובבדיקות, וגורר אחריו את ה־header ובורר השפה מ־§א׳-1.5.
+
+**מסלול הספקים (§א׳-2), במקביל:**
+
+- **דחוף מבין כולם:** לוודא ש־`0022` הוחל על מסד הפרודקשן (§א׳-2.2). כל עוד
+  זה לא אומת, הריפו נראה כאילו הפרצה נסגרה בזמן שייתכן שהיא פתוחה.
+- ניטור שבעת הימים (§א׳-2.1) רץ מעצמו — צריך רק להסתכל ולתעד.
+- תיבת המתנדבים (§א׳-2.3) לפני שהאתר עולה לפרודקשן עם טופס שמצביע עליה.
+
+**§א׳-3 אינו מסלול** — הוא רשימת המתנה. אין בו סדר, ואין טעם לתזמן אותו.
+
+אין להתחיל המרה של עמוד לתוכן חי לפני שחוזה היעד תוכנן — אחרת כל עמוד ימציא
+פילטר משלו, וזה בדיוק מה שהערת הקוד ב־`lib/content/` מזהירה מפניו.

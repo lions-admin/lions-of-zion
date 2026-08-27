@@ -334,17 +334,22 @@ const unreferenced = files.filter((f) => !reached.has(f));
  * Added because a stale path in a runbook is worse than no runbook, and
  * because this audit itself shipped one: `.ai/ROLLBACK.md` told you to roll
  * back `npm run build:lion-data`, a script that does not exist. Two exclusions
- * are deliberate — `app/loading.tsx` is named *because* it must not exist, and
- * `.ai/DECISIONS.md` is append-only, so it correctly names files that were
- * real when the decision was made. */
+ * are deliberate — the root-level Next.js files in `MUST_NOT_EXIST` are named
+ * *because* they must not exist, and `.ai/DECISIONS.md` is append-only, so it
+ * correctly names files that were real when the decision was made. */
 const npmScriptNames = new Set(Object.keys(JSON.parse(read("package.json")).scripts || {}));
 const DOC_PATH = /`((?:app|components|lib|server|scripts|tests|public|assets|docs|\.ai|\.claude|\.github|content-packages)\/[A-Za-z0-9_@[\]/.-]*\.[a-z]{2,5})`/g;
+/* Root-level Next.js files the docs name in order to forbid them: each wraps
+ * every route in a Suspense boundary or shell that never resolves without
+ * JavaScript. `tests/no-js-invariant.test.ts` asserts all three are absent, so
+ * a "dead reference" to them is the documentation working, not drifting. */
+const MUST_NOT_EXIST = new Set(["app/loading.tsx", "app/template.tsx", "app/default.tsx"]);
 const docProblems = [];
 for (const d of files.filter((f) => f.endsWith(".md") && !f.startsWith("docs/archive/") && f !== ".ai/DECISIONS.md")) {
   const txt = read(d);
   for (const m of txt.matchAll(DOC_PATH)) {
     const target = m[1];
-    if (target.includes("*") || target.includes("<") || target === "app/loading.tsx") continue;
+    if (target.includes("*") || target.includes("<") || MUST_NOT_EXIST.has(target)) continue;
     if (!tracked.has(target)) docProblems.push(`${d} → ${target}`);
   }
   for (const m of txt.matchAll(/npm run ([a-z:-]+)/g)) {
@@ -471,8 +476,8 @@ put("ci","CI על Ubuntu",`${D.tests} קובצי בדיקה`,
 put("mac","רק על macOS",`${D.chromeScripts.length} סקריפטים`,
   `נסרקו לפי נעילת נתיב Chrome מוחלט יחד עם executablePath — אזכור בהערה בלבד לא נספר.`,
   D.chromeScripts.join(" · "));
-put("nojs","invariant ללא JavaScript","לא מכוסה ב־CI",
-  "CLAUDE.md מסמן אותו כנושא משקל, אבל ci-smoke רץ עם JavaScript דלוק ואף בדיקה לא מזכירה loading.tsx. השומר היחיד דורש Chrome אמיתי על macOS.");
+put("nojs","invariant ללא JavaScript","נשמר ב־CI",
+  "ci-smoke טוען את / עם javaScriptEnabled: false ומוודא 8 קישורים, פוסטר, ואפס מעטפות Suspense חבויות; tests/no-js-invariant.test.ts הוא ה־tripwire ל־loading/template/default. הבדיקה מכסה את / בלבד.");
 
 const box=(k,x,y,w=180,h=56,cls="")=>{const v=N[k];if(!v)return"";
   const ty=v[1]?y+h/2-3:y+h/2+4;
@@ -524,7 +529,7 @@ ${box("ci",24,30,200)}${box("mac",24,158,200)}
 <text class="lt" x="414" y="198" text-anchor="middle">final-verify.mjs</text>
 <text class="lm" x="414" y="216" text-anchor="middle">javaScriptEnabled: false</text>
 ${ar("m4",224,60,260,60)}${ar("m4",224,188,260,188)}
-${box("nojs",620,96,250,60,"gap")}${ar("m4",564,186,616,140)}
+${box("nojs",620,96,250,60)}${ar("m4",564,186,616,140)}
 <line class="a broken" x1="564" y1="58" x2="596" y2="86" stroke-dasharray="5 4"/>
 <g class="x"><line x1="600" y1="82" x2="616" y2="98"/><line x1="616" y1="82" x2="600" y2="98"/></g>
 <text class="al" x="556" y="242" text-anchor="middle">השומר היחיד — ורק על תחנת העבודה</text></svg>`;

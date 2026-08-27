@@ -10,6 +10,62 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — All three "not actually engaged" mechanisms are engaged now, except the probe
+
+**This reverses the 2026-08-26 entry "Three built-and-tested mechanisms are not
+actually engaged, and saying so is the point"** on all three of its counts. That
+entry stays where it is and is still worth reading — it is the reason each of
+these was findable — but a reader who stops there will conclude the runtime is
+unprotected, unscheduled and unable to serve public chat, and all three are now
+false. Recorded here rather than by editing that entry, per this file's rule.
+
+**RLS is engaged at runtime.** The claim was that nothing in the application
+issues a role change, so a live request runs as the table owner and no policy
+applies. `server/http/handler.ts:48` now wraps every classified request in
+`withDatabaseRole(role, identity, invoke)`, and `server/db/client.ts:66-72`
+takes a dedicated pooled connection, issues `SET ROLE` plus
+`set_config('app.identity', …)`, and `RESET ROLE` / `RESET ALL` on release.
+Migration `0018` grants the owner membership in `app_public` / `app_staff` /
+`app_service` so `SET ROLE` succeeds; `0019` adds the policy that lets
+`INSERT … RETURNING` work under `app_public`. The named exposure —
+`GET /api/v1/evidence` reachable anonymously with no `dataClass` filter — is
+closed from the other side too: `PUBLIC_V1` is exactly seven entries and
+evidence is not among them, so that route is staff-only and fails closed.
+
+*Still true, and now the only gap:* `withDatabaseRole` itself has no test.
+`tests/rls.test.ts` proves the policies with `SET LOCAL ROLE` inside a
+transaction on PGlite, which is not the pooled session-scope mechanism
+production uses. The mechanism that replaced the untested one is untested.
+
+**The crons are scheduled.** `vercel.json` declares all four —
+`ingest` (`0,30 * * * *`), `embed` (`10,40 * * * *`), `outbox-drain`
+(`*/15 * * * *`) and `maintenance` (`20 3 * * *`). The original reasoning was
+sound and simply expired: scheduling them was deferred because it starts
+spending against unprovisioned services, and those services are provisioned now.
+
+**The public chat works, by answering the question that entry asked.** It asked
+for "a real answer to 'who is a public visitor' before it can ship." The answer
+is an anonymous identity rather than a login: the four chat paths sit in
+`PUBLIC_V1`, and `server/http/handler.ts:94` calls `registerActor` with an
+HMAC'd label and `userId: null`, under `app_public`. `requireActor` was not
+loosened — the entry was explicit that loosening it would be the wrong fix, and
+it was not the fix.
+
+*Not addressed:* that entry also said "the capability probe should test the path
+it actually uses rather than a cheaper neighbour." It still does not.
+`AskTheLionChat` probes with `GET /api/v1/chat/threads`, which touches neither
+the rate limiter, the budget guard, the retriever nor the gateway — so an
+exhausted budget or a dead gateway still reports "online", which is the exact
+failure shape the original entry called the worst of the three. Carried as an
+open item in `TODOS.md` §3.
+
+The vestigial `x-actor-label: 'public-site-visitor'` header is still sent from
+`components/chat/AskTheLionChat.tsx:222`. It is inert — only `authenticateAdmin`
+reads it, and only in development — but it is the artifact of the reversed
+design and reads as though it still matters.
+
+---
+
 ## 2026-08-27 — Startup clears merged branches and blocks on open ones
 
 After updating `main`, the manager removes local and remote branches whose tips
@@ -18,8 +74,6 @@ new work with its name; it requires an explicit merge or deletion decision, not
 an automatic guess. Completing a serious round merges, verifies, pushes, and
 then removes that completed branch. A branch checked out by another worktree is
 reported and retained rather than being forcibly removed.
-
-## 2026-08-27 — Every task starts from current main; completed rounds update it
 
 ## 2026-08-27 — Every task starts from current main; completed rounds update it
 

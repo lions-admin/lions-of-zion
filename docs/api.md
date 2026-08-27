@@ -284,11 +284,19 @@ been retrieved before the sentence containing it is shown, and the database
 enforces that with a CHECK. Citations come from a structured tail, not from
 inline markers.
 
-> **Gap.** `components/chat/AskTheLionChat.tsx` probes availability with the
-> anonymous `GET /api/v1/chat/threads` and sends
-> `x-actor-label: public-site-visitor` on its writes. In production
-> `requireActor` throws regardless of that header, so with a database
-> provisioned the probe would report "online" and every message would fail.
+> **Gap — half closed 2026-08-27.** This said every public chat message would
+> fail in production because `requireActor` throws regardless of the client's
+> header. That is no longer true: the four chat paths are in `PUBLIC_V1`, and
+> `server/http/handler.ts` calls `registerActor` with an HMAC'd anonymous label
+> and `userId: null` under `app_public`. Public chat works.
+>
+> **What is still a gap** is the other half: `components/chat/AskTheLionChat.tsx`
+> still probes availability with `GET /api/v1/chat/threads`, which touches
+> neither the rate limiter, the budget guard, the retriever nor the gateway — so
+> an exhausted budget or a dead gateway still reports "online". The probe should
+> test the path it actually uses. It also still sends the vestigial
+> `x-actor-label: public-site-visitor`, which is inert (only `authenticateAdmin`
+> reads it, and only in development).
 
 ### AI suggestions
 

@@ -110,17 +110,25 @@ no browser at all: plain `fetch` against the CDN base, so it runs anywhere.
 `scripts/final-verify.mjs` covers intro handoff, keyboard, WebGPU, forced
 WebGL2, no-JavaScript fallback, overlays, and console errors.
 `scripts/ci-smoke.mjs` is the exception: it uses Playwright's own bundled
-Chromium, asserts only route availability and console errors, and is what CI
-runs. It walks **21 routes** — 15 hand-written in `ROUTES`, plus 5 archive
-records and 1 research case derived from the package indexes. The archive half
-is derived; **the 15 are hand-maintained, so a new section route is smoke-tested
-only if someone remembers to add it**, and `/particle-demo` never is.
+Chromium and is what CI runs. It walks **21 routes** — 15 hand-written in
+`ROUTES`, plus 5 archive records and 1 research case derived from the package
+indexes — asserting route availability and console errors on each, and then
+loads `/` once more with JavaScript disabled. The archive half is derived;
+**the 15 are hand-maintained, so a new section route is smoke-tested only if
+someone remembers to add it**, and `/particle-demo` never is.
 
-**CI cannot guard the no-JavaScript invariant.** ci-smoke runs with JavaScript
-enabled, and nothing in `tests/` mentions `loading.tsx`, `javaScriptEnabled` or
-`Suspense`. The sole guard is `final-verify.mjs`, which needs real Chrome on
-macOS — so the one invariant this file marks load-bearing below is the one CI
-is blind to.
+**CI does guard the no-JavaScript invariant, as of 2026-08-27.** This section
+said the opposite, and both halves of that claim are now false. `ci-smoke.mjs`
+opens a `javaScriptEnabled: false` context and asserts the home route renders
+at least 8 orbit links, a poster `<img>`, and **zero** `div[hidden][id^="S:"]`
+Suspense shells; `tests/no-js-invariant.test.ts` is a cheap tripwire that fails
+if `app/loading.tsx` — or `app/template.tsx` or `app/default.tsx` — reappears.
+`final-verify.mjs` still covers the same ground a second time on the
+workstation, but it is no longer the sole guard.
+
+What CI still cannot see: the no-JS assertion covers **`/` only**, so a content
+route that acquires its own Suspense boundary would pass. Scope any loading
+state to its own segment and check a sibling content route by hand.
 
 Any edit to intro timing, copy, or composition must be captured in real Chrome.
 

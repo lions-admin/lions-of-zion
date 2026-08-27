@@ -410,10 +410,21 @@ Two mechanisms exist, at different levels of readiness:
   through `as()`, which opens a transaction, sets the role, and refuses to
   continue unless `current_user` actually changed.
 
-  **The runtime does not assume a role.** `setIdentity()` sets `app.identity`
-  for audit attribution only; nothing in the application issues `SET LOCAL
-  ROLE`, so the connection runs as the owner and the policies do not apply.
-  This is recorded in [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md).
+  **The runtime does assume a role, as of 2026-08-27.** This paragraph said the
+  opposite — that `setIdentity()` set `app.identity` for audit attribution only
+  and the connection ran as the owner, so no policy applied. `server/http/handler.ts`
+  now wraps every classified request in `withDatabaseRole(role, identity, invoke)`,
+  and `server/db/client.ts` takes a dedicated pooled connection, issues `SET ROLE`
+  plus `set_config('app.identity', …)`, and `RESET ROLE` / `RESET ALL` on
+  release. Migration `0018` grants the owner membership in the three roles so
+  `SET ROLE` succeeds; `0019` adds the policy that lets `INSERT … RETURNING`
+  work under `app_public`. The reversal is recorded in
+  [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md).
+
+  **The surviving gap is that `withDatabaseRole` has no test.** `tests/rls.test.ts`
+  proves the policies with `SET LOCAL ROLE` inside a transaction on PGlite,
+  which is not the pooled session-scope mechanism production uses — so the
+  mechanism that replaced the untested one is itself untested.
 
 ### Caching
 
@@ -536,11 +547,16 @@ rediscovered; none of them is fixed by this document.
      `globals.css` declares three faces, seven size steps and six colours — and
      not one spacing token, against 71 distinct rem spacing values across `app/`
      and `components/`.
-6. **CI cannot guard the no-JavaScript invariant.** `CLAUDE.md` marks "do not
-   reintroduce a root-level `loading.tsx`" as load-bearing and spells out the
-   failure mode. Nothing in `tests/` or `scripts/ci-smoke.mjs` mentions
-   `loading.tsx`, `javaScriptEnabled` or `Suspense`; ci-smoke runs with
-   JavaScript enabled and would pass against a broken build. The sole guard is
-   `scripts/final-verify.mjs`, which needs real Chrome on macOS. A vitest
-   assertion that no root `app/loading.tsx` exists, or a second
-   `javaScriptEnabled: false` context in ci-smoke, would both run on Linux.
+6. **~~CI cannot guard the no-JavaScript invariant.~~ Closed 2026-08-27** —
+   and closed by building both of the Linux-safe fixes this entry proposed.
+   `scripts/ci-smoke.mjs` now opens a `javaScriptEnabled: false` context and
+   asserts the home route renders at least 8 orbit links, a poster `<img>` and
+   **zero** `div[hidden][id^="S:"]` Suspense shells; `tests/no-js-invariant.test.ts`
+   is the fast tripwire, and it covers `app/template.tsx` and `app/default.tsx`
+   as well as `app/loading.tsx`, since all three wrap every route the same way.
+   `scripts/final-verify.mjs` still covers the same ground on the workstation
+   but is no longer the sole guard.
+
+   *What remains uncovered:* the no-JS assertion runs against **`/` only**, so a
+   content route that acquired its own Suspense boundary would still pass. That
+   is a narrower gap than the one this entry described, not the same one.

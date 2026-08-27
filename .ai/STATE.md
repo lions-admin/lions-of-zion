@@ -70,20 +70,42 @@ maintenance cron is their only caller.
 `repo.ts` files, so all ten data modules now match the shape `CLAUDE.md`
 documents. Nothing from the audit is left open.
 
-## CI is red on main, and was before this branch
+## CI is green on main — the red entry this replaced is closed
 
-Five consecutive runs including `f8f84ce` fail at `npm ci` with an
-out-of-sync lockfile. It reproduces only under CI's Node 22 — `npm ci` passes
-locally on both `main` and this branch under Node 25 / npm 11 — and `fast-uri`
-is missing from `main`'s lock too, so it predates this work. This branch's
-lockfile change is 352 deletions and no additions.
+The lockfile failure is fixed. `dd3a7bf` diagnosed it as a version skew rather
+than a missing package — the lock was written by npm 11, while CI's Node 22
+ships npm 10 — regenerated it under npm 10, and verified `npm ci` exits 0 under
+both. `fast-uri` now has a real entry in `package-lock.json`, not just a
+dependency reference.
 
-Fixing it will unblock the smoke job, which will then likely fail on archive
-media: `NEXT_PUBLIC_ARCHIVE_CDN` is unset in the workflow, so images fall back
-to `/archive/…`. The store is public; setting it needs no secret.
+The prediction in the entry this replaces came true and was also handled: with
+`npm ci` unblocked, the smoke job failed on archive media exactly as expected.
+`7effa0c` set `NEXT_PUBLIC_ARCHIVE_CDN`, and `d244fb3` scoped it to the smoke
+job alone so `tests/archive-content.test.ts` keeps asserting the fallback
+instead of inheriting the live value.
+
+Verified 2026-08-27 with `gh run list`: the most recent `CI` runs on `main`
+conclude `success`. `npm test` passes locally at **418 passed, 1 skipped, 32/32
+files**. One caveat for the workstation, not for CI — the suite starts a PGlite
+instance per test file, and at default parallelism alongside another heavy
+process it will be OOM-killed (exit 137); `--maxWorkers=2` is reliable.
 
 ## Next
 
-Land the audit branch, then decide the five items above. Continue watching Neon
-CU-hours, AI spend, Function errors, Queue age and Blob growth. Do not promote a
-Production deployment unless its Preview smoke test is green.
+The audit branch landed (PR #18, merged as `75e782b`) and nothing from it is
+left open. `TODOS.md` was rewritten on 2026-08-27 against live code and is now
+the list of what remains: **93 open items**, with its 610 lines of wave
+narrative moved to `docs/archive/TODOS-waves-2026-08.md`. It is now split by
+what is needed to close an item rather than by topic: **§א׳-1 code-only (70),
+§א׳-2 provider integration (14), §א׳-3 decision or human process (4)** — so the
+code track and the vendor track can run in parallel without blocking each other.
+
+Start at §א׳-1.1: `PublishedItemView` has no field mapping an item to a
+destination page, which is what keeps every `lib/content/` module on a local
+static module. The most urgent item on the vendor side is §א׳-2.2 — confirm
+migration `0022` is applied to the Production branch, because until it is, the
+repo looks like the `SECURITY DEFINER` exposure is closed while it may not be.
+
+Continue watching Neon CU-hours, AI spend, Function errors, Queue age and Blob
+growth — the seven-day window from the 2026-08-26 deployment has not elapsed.
+Do not promote a Production deployment unless its Preview smoke test is green.

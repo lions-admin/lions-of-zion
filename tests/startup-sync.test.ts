@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 describe("main synchronization contract", () => {
-  it("starts from main, removes merged branches, and stops for open ones", async () => {
+  it("updates main, removes merged branches, and reports open ones", async () => {
     const [script, packageJson, workflow] = await Promise.all([
       readFile("scripts/startup-sync.mjs", "utf8"),
       readFile("package.json", "utf8"),
@@ -14,11 +14,11 @@ describe("main synchronization contract", () => {
     expect(script).toContain("cleanupMergedBranches");
     expect(script).toContain("unmergedRemoteBranches");
     expect(script).toContain('branch.startsWith("origin/")');
-    expect(script).toContain("Open branches need a merge or deletion decision");
+    expect(script).toContain("Open branches:");
     expect(script).not.toContain("--force");
     expect(JSON.parse(packageJson).scripts["main:update"]).toBe(
       "node scripts/startup-sync.mjs --publish",
     );
-    expect(workflow).toContain("Start every task from current main");
+    expect(workflow).toContain("not prerequisites or gates");
   });
 });

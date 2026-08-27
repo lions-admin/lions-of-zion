@@ -84,9 +84,8 @@ const AREAS = {
   "assets/reference": ["data", "תמונת הייחוס לאפיית האריה. גם ייבוא בזמן ריצה, ולכן נשלחת."],
   "assets/source": ["data", "אייקוני המקור. גם מקור אפייה וגם ייבוא של רכיבי React."],
   "scripts/particle-nav": ["tests", "האפייה הדטרמיניסטית: חוצצים, SDF ופוסטר. אותו זרע — אותם בתים."],
-  ".claude/agents": ["local", "הגדרות סוכנים לסקירה ויזואלית."],
-  ".claude/hooks": ["local", "בדיקות שרצות אחרי כל עריכה. אחת מהן הייתה חצי־מתה עד הביקורת."],
-  ".claude/skills": ["local", "מיומנויות מקומיות — לכידת אינטרו, סנכרון יומן, כיוון עיצובי."],
+  ".claude/hooks": ["local", "כלי עזר מקומיים שאינם מופעלים אוטומטית."],
+  ".claude/skills": ["local", "מיומנויות מקומיות אופציונליות."],
   ".design-sync/previews": ["local", "דוגמאות שימוש לחבילת מערכת העיצוב. מייבאות את שם החבילה הבנויה ולא את המקור המקומי, ולכן שום דבר במאגר לא מייבא אותן — הכלי החיצוני מוצא אותן לפי מוסכמת ספרייה."],
   ".design-sync/shims": ["local", "מתאמים שמאפשרים לרכיבים להיבנות מחוץ ל־Next."],
   ".github/workflows": ["deploy", "הגדרת ה־CI היחידה. שער, ואז עשן מסלולים."],
@@ -94,8 +93,8 @@ const AREAS = {
 
 /* one line per file at the repository root */
 const ROOTFILES = {
-  "CLAUDE.md": ["docs", true, "התדריך העובד: ה־invariants שעורך אסור לו לשבור. הקובץ הראשון לקרוא."],
-  "AGENTS.md": ["docs", true, "נקודת הכניסה המחייבת לכל סוכן: לולאת עבודה משותפת ואזהרת Next.js מנוהלת שנשמרת ללא שינוי."],
+  "CLAUDE.md": ["docs", true, "תיעוד יישום. הוראת הבעלים גוברת על כל כלל היסטורי שבו."],
+  "AGENTS.md": ["docs", true, "סמכות הבעלים היחיד ואזהרת Next.js המנוהלת שנשמרת ללא שינוי."],
   "README.md": ["docs", false, "דלת הכניסה: מה זה, איך מתקינים, איפה כל תחום."],
   "TODOS.md": ["docs", true, "תוכנית האספקה בעברית. המקום לבדוק בו מה נחשב לא גמור."],
   "PROJECT_STRUCTURE_AUDIT.md": ["docs", true, "ביקורת המבנה: כל אזור מסווג עם הוכחה, ומה הושאר להחלטת הבעלים."],
@@ -122,7 +121,8 @@ const SOT = new Set(["server/contracts","server/core","server/db","content-packa
    exact drift it exists to prevent. */
 const files = sh(["ls-files", "--cached", "--others", "--exclude-standard"])
   .split("\n")
-  .filter(Boolean);
+  .filter(Boolean)
+  .filter((file) => existsSync(R(file)));
 const sizeOf = (p) => { try { return statSync(R(p)).size; } catch { return 0; } };
 const human = (b) => b >= 1048576 ? (b/1048576).toFixed(b>=10485760?0:1)+"MB"
                    : b >= 1024 ? Math.round(b/1024)+"K" : b+"B";

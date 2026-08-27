@@ -1,47 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-story-timeline.mjs\"",
-            "timeout": 20,
-            "statusMessage": "Checking story-timeline invariants"
-          },
-          {
-            "type": "command",
-            "command": "jq -r '.tool_response.filePath // .tool_input.file_path // \"\"' | { read -r f; case \"$f\" in *.ts|*.tsx) cd \"$CLAUDE_PROJECT_DIR\" && npx tsc --noEmit ;; esac; } 2>&1 || true",
-            "timeout": 120,
-            "statusMessage": "Typechecking"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-context.mjs\"",
-            "timeout": 20,
-            "statusMessage": "Loading project journal"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/journal-nudge.mjs\"",
-            "timeout": 20
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": {}
 }

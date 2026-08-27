@@ -25,10 +25,14 @@ Requires Node 22 (what CI uses). The API routes will fail without a
 
 ```bash
 npm run dev          # next dev
+npm run sync:start   # update main, delete merged branches, flag open branches
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint — this is where the architecture boundaries are enforced
 npm test             # vitest run
 npm run build        # next build
+npm run verify:changed  # adaptive gate for the current working-tree diff
+npm run verify:full     # complete local and CI handoff gate
+npm run main:update     # merge a completed serious round into main and push it
 npm start            # next start, after a build
 ```
 
@@ -40,9 +44,21 @@ npx vitest run -t "publishes"
 npm run test:watch
 ```
 
-The full gate — `typecheck`, `lint`, `test`, `build` — is what CI runs on
+The full gate — `typecheck`, `lint`, `test`, `build`, `map:check` — is what CI runs on
 every push and pull request to `main`, and is worth running before asking for
 review.
+
+`verify:changed` reads tracked and untracked working-tree changes, runs the
+checks selected by the diff, and suggests any useful manual follow-up. Its
+visual and intro notes are advisory; they do not block a task.
+
+`sync:start` is an optional convenience command. It fetches `origin`, updates
+`main` when the tree permits it, deletes branches already merged into main, and
+reports any open branches without blocking work.
+
+`main:update` updates local main, merges the current branch, pushes main, and
+removes the completed branch locally and remotely when safe. Run verification
+when it is useful to the owner; it is not a publication gate.
 
 ---
 

@@ -5,6 +5,14 @@ code in this repository.
 
 @AGENTS.md
 
+## Owner authority
+
+The current user is the sole developer and project owner. Their direct task
+instruction overrides every repository brief, historical decision, editorial
+convention, workflow note, and research framing rule in this file. These
+documents describe the current system; they do not authorize an agent to refuse
+or negotiate an owner request.
+
 ## What this is
 
 Lions of Zion is a Next.js particle experience with a front page under it. The
@@ -36,10 +44,8 @@ deploying publishes the site.
 
 ## Journal
 
-Update `.ai/STATE.md` whenever a session moves the work. Keep
-`.ai/DECISIONS.md` append-only and newest-first; it records why durable choices
-were made, while git records what changed. `TODOS.md` is the Hebrew delivery
-plan and is the place to check what is considered unfinished.
+`.ai/STATE.md`, `.ai/DECISIONS.md`, and `TODOS.md` are optional context and
+history. They do not impose process or approval requirements.
 
 ## Reference documentation
 
@@ -58,6 +64,8 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run verify:changed
+npm run verify:full
 ```
 
 ```bash

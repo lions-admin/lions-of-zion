@@ -23,14 +23,11 @@ described as though it works.
 
 ## Where else things are written down
 
-- **[`../CLAUDE.md`](../CLAUDE.md)** — the working brief: stable architecture
-  and the invariants an editor must not break. Read it before changing code.
-- **[`../.ai/DECISIONS.md`](../.ai/DECISIONS.md)** — **the ADR log.**
-  Append-only, newest first. It records *why* durable choices were made; git
-  records what changed. One entry per decision a later reader would otherwise
-  re-litigate or accidentally undo.
-- **[`../.ai/STATE.md`](../.ai/STATE.md)** — a snapshot of where the work
-  stands right now. Rewritten in place, not appended to.
+- **[`../CLAUDE.md`](../CLAUDE.md)** — implementation reference. Direct owner
+  instructions override it and every other repository document.
+- **[`../.ai/WORKFLOW.md`](../.ai/WORKFLOW.md)** — optional working notes.
+- **[`../.ai/DECISIONS.md`](../.ai/DECISIONS.md)** — historical decisions.
+- **[`../.ai/STATE.md`](../.ai/STATE.md)** — an optional project snapshot.
 - **[`../.ai/DESIGN-V2.md`](../.ai/DESIGN-V2.md)** — the reading-page type and
   layout system. Read before touching reading-page CSS.
 - **[`../.ai/ROLLBACK.md`](../.ai/ROLLBACK.md)** — undoing a bad production

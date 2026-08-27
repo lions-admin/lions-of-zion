@@ -114,6 +114,7 @@ with no database.
 
 | Topic | Document |
 | --- | --- |
+| Mandatory agent workflow | `.ai/WORKFLOW.md` |
 | Invariants an editor must not break | `CLAUDE.md` |
 | Why a durable choice was made | `.ai/DECISIONS.md` — append-only, never archived |
 | Where the work stands today | `.ai/STATE.md` |

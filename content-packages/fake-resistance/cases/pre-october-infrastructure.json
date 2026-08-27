@@ -1,0 +1,1079 @@
+{
+  "slug": "pre-october-infrastructure",
+  "caseId": "case_desk_pre_october_infrastructure",
+  "title": "Before the flood: what actually existed before 7 October 2023 - infrastructure, raw material, narratives, and the speed inference",
+  "question": "To what extent were the distribution infrastructure, the networks and the narratives that spread false information after 7 October 2023 already existing, active or prepared before that date - and what exactly can be shown for each of the four separate claims folded into that question?",
+  "scope": "Desk research over published platform takedown reports, research-institute analyses, government sanctions records, established fact-checks and investigative reporting, retrieved and archive-verified on 2026-08-27. The compound claim under test is split into four claims with different evidentiary bars: (1) distribution infrastructure existed and was active before 7 October 2023; (2) old material was recycled as raw material immediately after; (3) specific narratives were formulated or prepared in advance; (4) the speed of activation after 7 October implies prior coordination. Explicitly out of scope: any question of responsibility for the 7 October attack itself. This file assesses information infrastructure and narratives only.",
+  "publicInterestBasis": "A version of the compound claim - that the lies about the war were prepared before it began - circulates widely, including in framings this site itself considers publishing. Establishing which parts of that claim the public record supports, at which grade, and which parts it does not, bears directly on public understanding of the post-7 October information environment and on this site's own accuracy. A claim of advance preparation that overstates its evidence would commit the exact fallacy this section documents in others.",
+  "updatedAt": "2026-08-27T14:00:00Z",
+  "language": "en",
+  "lifecycle": "held",
+  "confidence": "**Confidence: high** that substantial distribution infrastructure and the recycled-material technique predate 7 October 2023; **low** on advance preparation of specific narratives, which the public record reviewed here does not establish; the speed-implies-coordination reading is an inference and is graded as one throughout.",
+  "bottomLine": [
+    {
+      "text": "**Claim 1 - pre-existing distribution infrastructure: documented.** Several of the networks that carried Israel-Hamas falsehoods after 7 October 2023 are documented as built and active well before it: the Doppelganger media-cloning operation from at least May 2022 (exposed publicly on 27 September 2022), the Spamouflage network active since 2019 with Meta's largest-ever single takedown announced 29 August 2023, Iranian content-laundering websites (IUVM) documented since 2018, and the Hamas-aligned Gaza Now channel with financial traces from August 2021. Each rests on a platform, government or research-institute record that predates the war or is independent of it.",
+      "sources": [
+        {
+          "id": "src_disinfolab_doppelganger",
+          "label": "Doppelganger: Media clones serving Russian propaganda",
+          "kind": "EU DisinfoLab",
+          "url": "https://www.disinfo.eu/doppelganger/",
+          "archiveUrl": "http://web.archive.org/web/20260813123024/https://www.disinfo.eu/doppelganger",
+          "publishedAt": "2022-09-27",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_meta_q2_2023",
+          "label": "Meta Quarterly Adversarial Threat Report, Q2 2023 (Spamouflage takedown)",
+          "kind": "Meta Adversarial Threat Report",
+          "url": "https://transparency.meta.com/sr/Q2-2023-Adversarial-threat-report",
+          "archiveUrl": "http://web.archive.org/web/20260720175341/https://transparency.meta.com/sr/Q2-2023-Adversarial-threat-report",
+          "publishedAt": "2023-08-29",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_dfrlab_iuvm_2018",
+          "label": "TrollTracker: An Iranian Messaging Laundromat",
+          "kind": "DFRLab (Atlantic Council)",
+          "url": "https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+          "archiveUrl": "http://web.archive.org/web/20260517155806/https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+          "publishedAt": "2018-08-29",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_treasury_gazanow",
+          "label": "US Treasury press release: sanctions on the Gaza Now fundraising network",
+          "kind": "US Treasury (OFAC)",
+          "url": "https://home.treasury.gov/news/press-releases/jy2213",
+          "archiveUrl": "http://web.archive.org/web/20260712054120/https://home.treasury.gov/news/press-releases/jy2213",
+          "publishedAt": "2024-03-27",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_trm_gazanow",
+          "label": "US and UK sanctions authorities target Gaza Now for supporting Hamas (crypto traces from August 2021)",
+          "kind": "TRM Labs",
+          "url": "https://www.trmlabs.com/resources/blog/us-and-uk-sanctions-authorities-target-gaza-now-for-supporting-hamas",
+          "archiveUrl": "http://web.archive.org/web/20260724222815/https://www.trmlabs.com/resources/blog/us-and-uk-sanctions-authorities-target-gaza-now-for-supporting-hamas",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        }
+      ]
+    },
+    {
+      "text": "**The same infrastructure demonstrably carried conflict content after 7 October.** ISD documented a pro-Kremlin ad network consistent with Doppelganger pushing Israel-Hamas narratives at French and German audiences, and Spamouflage assets folding the conflict into anti-US content; Microsoft documented a surge of Iranian cyber-enabled influence operations in support of Hamas. What predates the attack is the machinery. The conflict content itself appears on that machinery only after 7 October - none of these records shows war-specific material staged on it beforehand.",
+      "sources": [
+        {
+          "id": "src_isd_kremlin_ads",
+          "label": "How a pro-Kremlin ad campaign used the Israel-Hamas conflict to spread propaganda in France and Germany",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/digital_dispatches/how-a-pro-kremlin-ad-campaign-used-the-israel-hamas-conflict-to-spread-propaganda-in-france-and-germany/",
+          "archiveUrl": "http://web.archive.org/web/20260105210026/https://www.isdglobal.org/digital_dispatches/how-a-pro-kremlin-ad-campaign-used-the-israel-hamas-conflict-to-spread-propaganda-in-france-and-germany/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_isd_spamouflage_pivot",
+          "label": "Spamouflage targets the West with AI images on the Israel-Hamas conflict",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/isd-in-the-news/pro-ccp-network-capitalises-on-the-israel-hamas-conflict-to-target-western-audiences-shifting-toward-us-elections/",
+          "archiveUrl": "http://web.archive.org/web/20250907183059/https://www.isdglobal.org/isd-in-the-news/pro-ccp-network-capitalises-on-the-israel-hamas-conflict-to-target-western-audiences-shifting-toward-us-elections/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        },
+        {
+          "id": "src_mtac_feb2024",
+          "label": "Iran accelerates cyber ops against Israel from chaotic start (MTAC)",
+          "kind": "Microsoft Threat Analysis Center",
+          "url": "https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "archiveUrl": "http://web.archive.org/web/20260824185618/https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "publishedAt": "2024-02-06",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_msft_insider",
+          "label": "Iran surges cyber-enabled influence operations in support of Hamas (full MTAC report)",
+          "kind": "Microsoft Threat Analysis Center",
+          "url": "https://www.microsoft.com/en-us/security/security-insider/threat-landscape/iran-surges-cyber-enabled-influence-operations-in-support-of-hamas/",
+          "archiveUrl": "http://web.archive.org/web/20260704123055/https://www.microsoft.com/en-us/security/security-insider/threat-landscape/iran-surges-cyber-enabled-influence-operations-in-support-of-hamas",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "corroborating"
+        }
+      ]
+    },
+    {
+      "text": "**Claim 2 - recycled raw material: documented, and the technique itself predates the war.** Within days of the attack, fact-checkers traced viral combat footage to the Arma 3 video game; the game's developer had already published a statement in November 2022 asking people to stop passing its footage off as real war video, after earlier misuse covering Afghanistan, Syria, Ukraine and prior Israel-Palestine escalations. The recycling technique required no preparation for this war because it was already routine practice with a documented history.",
+      "sources": [
+        {
+          "id": "src_leadstories_arma3",
+          "label": "Fact check: Arma 3 video game clips falsely presented as footage of the 2023 Israel-Hamas conflict",
+          "kind": "Lead Stories (fact check)",
+          "url": "https://leadstories.com/hoax-alert/2023/10/fact-check-arma-3-video-game-clip-falsely-presented-as-footage-depicting-2023-conflict-between-israel-and-hamas.html",
+          "archiveUrl": "http://web.archive.org/web/20260422214429/https://leadstories.com/hoax-alert/2023/10/fact-check-arma-3-video-game-clip-falsely-presented-as-footage-depicting-2023-conflict-between-israel-and-hamas.html",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_rollingstone_arma3",
+          "label": "Arma 3 video game clips go viral as fake Israel-Hamas conflict footage",
+          "kind": "Rolling Stone",
+          "url": "https://www.rollingstone.com/politics/politics-features/arma-3-video-game-clips-israel-hamas-conflict-1234849405/",
+          "archiveUrl": "http://web.archive.org/web/20260607192754/https://www.rollingstone.com/politics/politics-features/arma-3-video-game-clips-israel-hamas-conflict-1234849405/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        },
+        {
+          "id": "src_pcgamer_bohemia_2022",
+          "label": "Bohemia Interactive asks people to stop using Arma 3 to create fake war footage (November 2022 statement)",
+          "kind": "PC Gamer",
+          "url": "https://www.pcgamer.com/bohemia-interactive-wants-people-to-please-stop-using-arma-3-to-create-fake-war-footage/",
+          "archiveUrl": "http://web.archive.org/web/20251014042747/https://www.pcgamer.com/bohemia-interactive-wants-people-to-please-stop-using-arma-3-to-create-fake-war-footage/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "primary"
+        }
+      ]
+    },
+    {
+      "text": "**Claim 3 - specific narratives prepared in advance: not established.** This desk searched for dated primary material showing any specific post-7 October false claim drafted, seeded or scheduled before the attack - and found none in the takedown reports, research-institute analyses and fact-check corpora reviewed. What is documented instead is the reuse of pre-existing narrative templates: the false-flag and denial repertoire, which long predates 7 October and attached to the event within days, and state-content laundering frames documented since 2018. A template is not a script. The distinction between an old repertoire being reused and a specific lie being pre-written is the central finding of this file.",
+      "sources": [
+        {
+          "id": "src_isd_oct7_year",
+          "label": "Mis- and disinformation and conspiracy theories about the October 7 Hamas attack on Israel",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/digital-dispatch/mis-and-disinformation-and-conspiracy-theories-about-the-october-7-hamas-attack-on-israel/",
+          "archiveUrl": "http://web.archive.org/web/20260826042235/https://www.isdglobal.org/digital-dispatch/mis-and-disinformation-and-conspiracy-theories-about-the-october-7-hamas-attack-on-israel/",
+          "publishedAt": "2024-10-07",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_isd_falseflag",
+          "label": "The rise of false flag conspiracy theories in moments of crises",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/digital-dispatch/the-rise-of-false-flag-conspiracy-theories-in-moments-of-crises/",
+          "archiveUrl": "http://web.archive.org/web/20260510232044/https://www.isdglobal.org/digital-dispatch/the-rise-of-false-flag-conspiracy-theories-in-moments-of-crises/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "context"
+        },
+        {
+          "id": "src_adl_denial",
+          "label": "Denial and distortion of the Hamas-led October 7 attack: an overview of false narratives",
+          "kind": "ADL",
+          "url": "https://www.adl.org/resources/article/denial-and-distortion-hamas-led-october-7-attack-overview-false-narratives",
+          "archiveUrl": "http://web.archive.org/web/20260709165428/https://www.adl.org/resources/article/denial-and-distortion-hamas-led-october-7-attack-overview-false-narratives",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "context"
+        },
+        {
+          "id": "src_mtac_feb2024",
+          "label": "Iran accelerates cyber ops against Israel from chaotic start (MTAC)",
+          "kind": "Microsoft Threat Analysis Center",
+          "url": "https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "archiveUrl": "http://web.archive.org/web/20260824185618/https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "publishedAt": "2024-02-06",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        }
+      ]
+    },
+    {
+      "text": "**Claim 4 - speed as proof of advance coordination: an inference, and a contested one.** Cyabra reported roughly 40,000 fake pro-Hamas profiles in the first days of the war, stating that the fake profiles were created beforehand, some over a year earlier, and made active only when the war started - an activation pattern consistent with pre-positioning. But the strongest independent evidence cuts the other way: Microsoft found Iranian operators reactive and disorganized in the first days, re-using dated material, in a way indicating little or no coordination with Hamas; and NewsGuard found 74 percent of the most-viral false or unverified week-one posts on X came from paid-verified accounts - largely authentic, engagement-driven spread rather than covert networks. Speed and dormancy are observations; coordination is an inference from them, and this file grades it as an inference throughout.",
+      "sources": [
+        {
+          "id": "src_cyabra_oct2023",
+          "label": "1 of 4 pro-Hamas profiles are fake: the online battlefront",
+          "kind": "Cyabra",
+          "url": "https://cyabra.com/blog/1-of-4-pro-hamas-profiles-are-fake-the-online-battlefront/",
+          "archiveUrl": "http://web.archive.org/web/20260824185651/https://cyabra.com/blog/1-of-4-pro-hamas-profiles-are-fake-the-online-battlefront/",
+          "publishedAt": "2023-10-11",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_foxbusiness_cyabra",
+          "label": "Pro-Hamas narratives on social media pushed by fake accounts, firm says",
+          "kind": "Fox Business",
+          "url": "https://www.foxbusiness.com/technology/pro-hamas-narratives-social-media-pushed-fake-accounts",
+          "archiveUrl": "http://web.archive.org/web/20260309125126/https://www.foxbusiness.com/technology/pro-hamas-narratives-social-media-pushed-fake-accounts",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        },
+        {
+          "id": "src_mtac_feb2024",
+          "label": "Iran accelerates cyber ops against Israel from chaotic start (MTAC)",
+          "kind": "Microsoft Threat Analysis Center",
+          "url": "https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "archiveUrl": "http://web.archive.org/web/20260824185618/https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "publishedAt": "2024-02-06",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_newsguard_oct2023",
+          "label": "Verified users on X produce 74 percent of the platform's most viral false or unsubstantiated claims about the Israel-Hamas war",
+          "kind": "NewsGuard",
+          "url": "https://www.newsguardtech.com/misinformation-monitor/october-2023/",
+          "archiveUrl": "http://web.archive.org/web/20260612201207/https://www.newsguardtech.com/misinformation-monitor/october-2023/",
+          "publishedAt": "2023-10-19",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "primary"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Desk research only: this file synthesizes published platform reports, sanctions records, research-institute analyses and fact-checks. The desk ran no original network collection for this case, so it inherits each source's methodology and blind spots.",
+    "Commercial-firm findings (Cyabra, NewsGuard) rest on proprietary methods and samples that cannot be independently re-run from public data; both are therefore capped at medium reliability here regardless of how widely they were reported.",
+    "Scope excludes responsibility for the 7 October attack itself. Reporting on Hamas's pre-attack operational deception exists but concerns the attack, not post-attack false narratives, and is deliberately not used here.",
+    "Prevalence is unmeasured: no comprehensive study apportions post-7 October false content between pre-existing covert infrastructure and authentic engagement-driven accounts, so this file makes no claim about which carried more.",
+    "Sources were retrieved and archive-verified on 2026-08-27; follower counts, engagement figures and page contents decay after that date."
+  ],
+  "unknowns": [
+    "Who created and directed the dormant fake-account cohorts Cyabra reported. No public record reviewed here establishes the operator, and platform takedown reports have not (as of retrieval) attributed those specific cohorts.",
+    "Whether any actor's internal planning material contains pre-drafted post-attack messaging. Nothing public shows it; absence of evidence in the public record is not evidence of absence, and this file claims only that it is not established.",
+    "The full inventory of pre-7 October assets that later carried conflict content. Takedown reports document the networks that were found; they say nothing about networks that were not.",
+    "How much post-7 October reach the documented pre-existing networks actually achieved relative to organic spread - Meta assessed Spamouflage as largely failing to reach authentic audiences, while the ad-network and Telegram channels plainly did reach real ones."
+  ],
+  "contradictions": [
+    "**Against advance narrative preparation (claim 3) and the coordination inference (claim 4):** Microsoft's threat analysis found Iranian cyber and influence actors *reactive in the initial phase* of the war - re-using dated material from historical operations, exaggerating impact, and operating in the first days in a way *indicating it had little or no coordination with Hamas*. For the state-aligned slice of the ecosystem this is direct counter-evidence to the claim that the response was scripted in advance.",
+    "**Against the covert-network framing of the first wave:** NewsGuard's week-one review found 74 percent of the most-viral false or unverified posts on X came from paid-verified accounts - monetized, largely authentic accounts chasing engagement, not pre-built covert infrastructure. The most visible early spread did not need the pre-existing machinery.",
+    "**Against a scripted rollout:** ISD's year-scale analysis of 1.8 million posts reads the spread as opportunistic promotion of existing conspiracy repertoires by a diverse set of actors, with major false items traceable to individual influencers misrepresenting mainstream reporting within hours - a dynamic of improvisation on old templates, not execution of a prepared plan.",
+    "**On claims 1 and 2 a contradiction was searched for and not found:** no evidence surfaced that Doppelganger, Spamouflage, IUVM or Gaza Now were created after 7 October 2023 or that their pre-war documentation is misdated, and no source disputes that the recycled footage predates the war. Their pre-existence is multiply and independently documented."
+  ],
+  "wouldChange": [
+    "Claim 1 (infrastructure) would fall if the pre-war documentation of the named networks were shown to be fabricated or misdated - for example, archive evidence that the 2022 Doppelganger exposure or the August 2023 Spamouflage takedown described assets that did not yet exist. Nothing reviewed points that way.",
+    "Claim 2 (recycled material) would fall for any given item if the item were shown to have been first published after 7 October 2023; the claim survives as long as the traced originals genuinely predate the war.",
+    "Claim 3 (advance narratives) would flip from not-established to documented if dated primary material surfaced - drafts, scheduled posts, seeded framing or registrations demonstrably created before 7 October 2023 that contain a specific false claim which then circulated after the attack. A platform takedown report or court record with creation timestamps would meet the bar; a retrospective assertion would not.",
+    "Claim 4 (speed implies coordination) would rise above inference only if platform-verified data tied the dormant cohorts' creation and activation to an identified operator and showed tasking that predates 7 October - that is, if the coordination itself were documented rather than inferred from timing. Conversely, further platform attribution of week-one spread to authentic engagement-driven accounts would weaken the inference further."
+  ],
+  "roster": [
+    {
+      "id": "ent_desk",
+      "name": "Open-source research desk (operator)",
+      "type": "organization",
+      "note": "Analytic actor",
+      "publicInterestBasis": "Analyst entity for claims authored by this investigation",
+      "identityStatus": "confirmed"
+    },
+    {
+      "id": "ent_doppelganger",
+      "name": "Doppelganger influence operation",
+      "type": "organization",
+      "note": "Media-cloning influence operation documented in Europe since at least May 2022; spoofed established news brands and amplified them through inauthentic accounts and ads.",
+      "publicInterestBasis": "Named, publicly documented influence operation subject to platform enforcement and government sanctions",
+      "identityStatus": "probable"
+    },
+    {
+      "id": "ent_spamouflage",
+      "name": "Spamouflage influence operation",
+      "type": "organization",
+      "note": "Cross-platform network documented since 2019; subject of Meta's largest single takedown, announced 29 August 2023.",
+      "publicInterestBasis": "Named, publicly documented influence operation subject to platform enforcement",
+      "identityStatus": "probable"
+    },
+    {
+      "id": "ent_prc_le",
+      "name": "Individuals associated with Chinese law enforcement (per Meta attribution)",
+      "type": "organization",
+      "note": "Meta's stated attribution for Spamouflage; no individuals are identified publicly.",
+      "publicInterestBasis": "Attribution as published by the enforcing platform",
+      "identityStatus": "unresolved"
+    },
+    {
+      "id": "ent_iuvm",
+      "name": "International Union of Virtual Media (IUVM)",
+      "type": "organization",
+      "note": "Network of websites documented since 2018 republishing Iranian state outlet content without attribution.",
+      "publicInterestBasis": "Named, publicly documented content-laundering network",
+      "identityStatus": "probable"
+    },
+    {
+      "id": "ent_iran_state_media",
+      "name": "Iranian state media (PressTV, IRIB and affiliates)",
+      "type": "organization",
+      "note": "State broadcasting apparatus whose content the IUVM network laundered.",
+      "publicInterestBasis": "State institutions",
+      "identityStatus": "confirmed"
+    },
+    {
+      "id": "ent_gazanow",
+      "name": "Gaza Now",
+      "type": "organization",
+      "note": "Telegram-based outlet with financial traces from August 2021; designated by US and UK authorities in March 2024 as a fundraising support network for Hamas, with about 1.8 million Telegram followers at designation.",
+      "publicInterestBasis": "Entity designated by government sanctions authorities",
+      "identityStatus": "confirmed"
+    },
+    {
+      "id": "ent_hamas",
+      "name": "Hamas",
+      "type": "organization",
+      "note": "Designated terrorist organization; referenced here only as the beneficiary named in sanctions records and platform analyses.",
+      "publicInterestBasis": "Designated organization at the center of the documented record",
+      "identityStatus": "confirmed"
+    },
+    {
+      "id": "ent_dormant_cohort",
+      "name": "Dormant fake-account cohorts (reported by Cyabra)",
+      "type": "account",
+      "note": "Cohorts of fake profiles Cyabra reported as created before 7 October 2023, some more than a year earlier, and activated when the war began. Operator unknown.",
+      "publicInterestBasis": "Anonymous account cohorts described in published analysis; no individuals identified",
+      "identityStatus": "unresolved"
+    },
+    {
+      "id": "ent_cyabra",
+      "name": "Cyabra",
+      "type": "organization",
+      "note": "Commercial social-media analysis firm; its findings rest on proprietary methodology.",
+      "publicInterestBasis": "Analyst entity for findings cited by this file",
+      "identityStatus": "confirmed"
+    },
+    {
+      "id": "ent_mtac",
+      "name": "Microsoft Threat Analysis Center (MTAC)",
+      "type": "organization",
+      "note": "Platform threat-intelligence unit; author of the February 2024 assessment of Iranian operations.",
+      "publicInterestBasis": "Analyst entity for findings cited by this file",
+      "identityStatus": "confirmed"
+    },
+    {
+      "id": "ent_bohemia",
+      "name": "Bohemia Interactive",
+      "type": "organization",
+      "note": "Developer of the Arma 3 video game; publicly asked in November 2022 that its footage stop being passed off as real war video.",
+      "publicInterestBasis": "Company speaking on the record about misuse of its product",
+      "identityStatus": "confirmed"
+    }
+  ],
+  "exhibits": [
+    {
+      "id": "claim_a1_doppelganger",
+      "statement": "The Doppelganger media-cloning operation was documented as active from at least May 2022 and publicly exposed on 27 September 2022, more than a year before 7 October 2023, and networks consistent with it distributed Israel-Hamas narratives to European audiences after the war began.",
+      "verdict": "verified",
+      "confidence": "high",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_disinfolab_doppelganger",
+          "label": "Doppelganger: Media clones serving Russian propaganda",
+          "kind": "EU DisinfoLab",
+          "url": "https://www.disinfo.eu/doppelganger/",
+          "archiveUrl": "http://web.archive.org/web/20260813123024/https://www.disinfo.eu/doppelganger",
+          "publishedAt": "2022-09-27",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_isd_kremlin_ads",
+          "label": "How a pro-Kremlin ad campaign used the Israel-Hamas conflict to spread propaganda in France and Germany",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/digital_dispatches/how-a-pro-kremlin-ad-campaign-used-the-israel-hamas-conflict-to-spread-propaganda-in-france-and-germany/",
+          "archiveUrl": "http://web.archive.org/web/20260105210026/https://www.isdglobal.org/digital_dispatches/how-a-pro-kremlin-ad-campaign-used-the-israel-hamas-conflict-to-spread-propaganda-in-france-and-germany/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        }
+      ]
+    },
+    {
+      "id": "claim_a2_spamouflage",
+      "statement": "The Spamouflage network was documented as operating since 2019 and was the subject of Meta's largest-ever single takedown, announced on 29 August 2023 - five and a half weeks before 7 October - and its assets incorporated Israel-Hamas conflict content into their output after the war began.",
+      "verdict": "verified",
+      "confidence": "high",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_meta_q2_2023",
+          "label": "Meta Quarterly Adversarial Threat Report, Q2 2023 (Spamouflage takedown)",
+          "kind": "Meta Adversarial Threat Report",
+          "url": "https://transparency.meta.com/sr/Q2-2023-Adversarial-threat-report",
+          "archiveUrl": "http://web.archive.org/web/20260720175341/https://transparency.meta.com/sr/Q2-2023-Adversarial-threat-report",
+          "publishedAt": "2023-08-29",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_toi_spamouflage",
+          "label": "Meta takes down Chinese Spamouflage disinformation mega-campaign",
+          "kind": "The Times of Israel",
+          "url": "https://www.timesofisrael.com/meta-takes-down-chinese-spamouflage-disinformation-mega-campaign/",
+          "archiveUrl": "http://web.archive.org/web/20240529182016/https://www.timesofisrael.com/meta-takes-down-chinese-spamouflage-disinformation-mega-campaign/",
+          "publishedAt": "2023-08-29",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        },
+        {
+          "id": "src_isd_spamouflage_pivot",
+          "label": "Spamouflage targets the West with AI images on the Israel-Hamas conflict",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/isd-in-the-news/pro-ccp-network-capitalises-on-the-israel-hamas-conflict-to-target-western-audiences-shifting-toward-us-elections/",
+          "archiveUrl": "http://web.archive.org/web/20250907183059/https://www.isdglobal.org/isd-in-the-news/pro-ccp-network-capitalises-on-the-israel-hamas-conflict-to-target-western-audiences-shifting-toward-us-elections/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        }
+      ]
+    },
+    {
+      "id": "claim_a3_iuvm",
+      "statement": "An Iranian-aligned content-laundering network, IUVM, was documented in forensic detail in August 2018 - dozens of websites republishing Iranian state outlet content without attribution - establishing that state-aligned anti-Israel distribution infrastructure existed at scale more than five years before 7 October 2023.",
+      "verdict": "verified",
+      "confidence": "high",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_dfrlab_iuvm_2018",
+          "label": "TrollTracker: An Iranian Messaging Laundromat",
+          "kind": "DFRLab (Atlantic Council)",
+          "url": "https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+          "archiveUrl": "http://web.archive.org/web/20260517155806/https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+          "publishedAt": "2018-08-29",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_euronews_iran_2018",
+          "label": "Iran-based political influence operation: bigger, persistent, global",
+          "kind": "Euronews (Reuters reporting)",
+          "url": "https://www.euronews.com/2018/08/29/exclusive-iran-based-political-influence-operation-bigger-persistent-global",
+          "archiveUrl": "http://web.archive.org/web/20220524040113/https://www.euronews.com/2018/08/29/exclusive-iran-based-political-influence-operation-bigger-persistent-global",
+          "publishedAt": "2018-08-29",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4_gazanow",
+      "statement": "The Gaza Now channel operated well before 7 October 2023 - its cryptocurrency addresses were first active in August 2021 - and after the attack it was designated by US and UK authorities as a fundraising support network for Hamas, with about 1.8 million Telegram followers at designation in March 2024.",
+      "verdict": "verified",
+      "confidence": "high",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_treasury_gazanow",
+          "label": "US Treasury press release: sanctions on the Gaza Now fundraising network",
+          "kind": "US Treasury (OFAC)",
+          "url": "https://home.treasury.gov/news/press-releases/jy2213",
+          "archiveUrl": "http://web.archive.org/web/20260712054120/https://home.treasury.gov/news/press-releases/jy2213",
+          "publishedAt": "2024-03-27",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_trm_gazanow",
+          "label": "US and UK sanctions authorities target Gaza Now for supporting Hamas (crypto traces from August 2021)",
+          "kind": "TRM Labs",
+          "url": "https://www.trmlabs.com/resources/blog/us-and-uk-sanctions-authorities-target-gaza-now-for-supporting-hamas",
+          "archiveUrl": "http://web.archive.org/web/20260724222815/https://www.trmlabs.com/resources/blog/us-and-uk-sanctions-authorities-target-gaza-now-for-supporting-hamas",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        }
+      ]
+    },
+    {
+      "id": "claim_b1_recycled_immediate",
+      "statement": "Within days of 7 October 2023, viral posts presented Arma 3 video game clips and other pre-existing footage as current war video, and independent fact-checkers traced the originals to material published before the war.",
+      "verdict": "verified",
+      "confidence": "high",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_leadstories_arma3",
+          "label": "Fact check: Arma 3 video game clips falsely presented as footage of the 2023 Israel-Hamas conflict",
+          "kind": "Lead Stories (fact check)",
+          "url": "https://leadstories.com/hoax-alert/2023/10/fact-check-arma-3-video-game-clip-falsely-presented-as-footage-depicting-2023-conflict-between-israel-and-hamas.html",
+          "archiveUrl": "http://web.archive.org/web/20260422214429/https://leadstories.com/hoax-alert/2023/10/fact-check-arma-3-video-game-clip-falsely-presented-as-footage-depicting-2023-conflict-between-israel-and-hamas.html",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_rollingstone_arma3",
+          "label": "Arma 3 video game clips go viral as fake Israel-Hamas conflict footage",
+          "kind": "Rolling Stone",
+          "url": "https://www.rollingstone.com/politics/politics-features/arma-3-video-game-clips-israel-hamas-conflict-1234849405/",
+          "archiveUrl": "http://web.archive.org/web/20260607192754/https://www.rollingstone.com/politics/politics-features/arma-3-video-game-clips-israel-hamas-conflict-1234849405/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        }
+      ]
+    },
+    {
+      "id": "claim_b2_recycling_predates",
+      "statement": "The technique of passing off recycled or synthetic footage as current war video was itself documented before 7 October 2023: the Arma 3 developer publicly addressed the practice in November 2022, citing earlier misuse covering Afghanistan, Syria, Ukraine and prior Israel-Palestine escalations.",
+      "verdict": "verified",
+      "confidence": "high",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_pcgamer_bohemia_2022",
+          "label": "Bohemia Interactive asks people to stop using Arma 3 to create fake war footage (November 2022 statement)",
+          "kind": "PC Gamer",
+          "url": "https://www.pcgamer.com/bohemia-interactive-wants-people-to-please-stop-using-arma-3-to-create-fake-war-footage/",
+          "archiveUrl": "http://web.archive.org/web/20251014042747/https://www.pcgamer.com/bohemia-interactive-wants-people-to-please-stop-using-arma-3-to-create-fake-war-footage/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "primary"
+        }
+      ]
+    },
+    {
+      "id": "claim_c1_prewritten_narratives",
+      "statement": "Specific false claims that circulated after 7 October 2023 were written, seeded or scheduled before that date. This desk searched takedown reports, research-institute analyses and fact-check corpora for dated primary evidence of such preparation and found none; the claim is recorded here as unsupported, not as disproved.",
+      "verdict": "unsupported",
+      "confidence": "low",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_isd_oct7_year",
+          "label": "Mis- and disinformation and conspiracy theories about the October 7 Hamas attack on Israel",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/digital-dispatch/mis-and-disinformation-and-conspiracy-theories-about-the-october-7-hamas-attack-on-israel/",
+          "archiveUrl": "http://web.archive.org/web/20260826042235/https://www.isdglobal.org/digital-dispatch/mis-and-disinformation-and-conspiracy-theories-about-the-october-7-hamas-attack-on-israel/",
+          "publishedAt": "2024-10-07",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_mtac_feb2024",
+          "label": "Iran accelerates cyber ops against Israel from chaotic start (MTAC)",
+          "kind": "Microsoft Threat Analysis Center",
+          "url": "https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "archiveUrl": "http://web.archive.org/web/20260824185618/https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "publishedAt": "2024-02-06",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        }
+      ]
+    },
+    {
+      "id": "claim_c2_templates_predate",
+      "statement": "The narrative templates that post-7 October falsehoods drew on - the false-flag and denial repertoire, and state-content laundering frames - existed and were in documented use before 7 October 2023, and post-attack false narratives reused them rather than introducing new frames.",
+      "verdict": "verified",
+      "confidence": "medium",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_isd_falseflag",
+          "label": "The rise of false flag conspiracy theories in moments of crises",
+          "kind": "Institute for Strategic Dialogue",
+          "url": "https://www.isdglobal.org/digital-dispatch/the-rise-of-false-flag-conspiracy-theories-in-moments-of-crises/",
+          "archiveUrl": "http://web.archive.org/web/20260510232044/https://www.isdglobal.org/digital-dispatch/the-rise-of-false-flag-conspiracy-theories-in-moments-of-crises/",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_adl_denial",
+          "label": "Denial and distortion of the Hamas-led October 7 attack: an overview of false narratives",
+          "kind": "ADL",
+          "url": "https://www.adl.org/resources/article/denial-and-distortion-hamas-led-october-7-attack-overview-false-narratives",
+          "archiveUrl": "http://web.archive.org/web/20260709165428/https://www.adl.org/resources/article/denial-and-distortion-hamas-led-october-7-attack-overview-false-narratives",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "corroborating"
+        },
+        {
+          "id": "src_dfrlab_iuvm_2018",
+          "label": "TrollTracker: An Iranian Messaging Laundromat",
+          "kind": "DFRLab (Atlantic Council)",
+          "url": "https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+          "archiveUrl": "http://web.archive.org/web/20260517155806/https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+          "publishedAt": "2018-08-29",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "context"
+        }
+      ]
+    },
+    {
+      "id": "claim_d1_speed_coordination",
+      "statement": "The speed at which false content appeared after 7 October 2023 demonstrates that its distribution was coordinated in advance. One vendor reads dormant-account activation as advance preparation; a platform-scale review found the state-aligned response reactive and disorganized in the first days, and a separate week-one review found the most viral false posts came from authentic paid-verified accounts. The coordination reading is an inference from timing, not a documented fact, and the record on it points in more than one direction.",
+      "verdict": "contested",
+      "confidence": "low",
+      "observedAt": "2026-08-27T12:00:00Z",
+      "attributedTo": "Open-source research desk (operator)",
+      "techniques": [],
+      "sources": [
+        {
+          "id": "src_cyabra_oct2023",
+          "label": "1 of 4 pro-Hamas profiles are fake: the online battlefront",
+          "kind": "Cyabra",
+          "url": "https://cyabra.com/blog/1-of-4-pro-hamas-profiles-are-fake-the-online-battlefront/",
+          "archiveUrl": "http://web.archive.org/web/20260824185651/https://cyabra.com/blog/1-of-4-pro-hamas-profiles-are-fake-the-online-battlefront/",
+          "publishedAt": "2023-10-11",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_mtac_feb2024",
+          "label": "Iran accelerates cyber ops against Israel from chaotic start (MTAC)",
+          "kind": "Microsoft Threat Analysis Center",
+          "url": "https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "archiveUrl": "http://web.archive.org/web/20260824185618/https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+          "publishedAt": "2024-02-06",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "high",
+          "sourceRole": "primary"
+        },
+        {
+          "id": "src_newsguard_oct2023",
+          "label": "Verified users on X produce 74 percent of the platform's most viral false or unsubstantiated claims about the Israel-Hamas war",
+          "kind": "NewsGuard",
+          "url": "https://www.newsguardtech.com/misinformation-monitor/october-2023/",
+          "archiveUrl": "http://web.archive.org/web/20260612201207/https://www.newsguardtech.com/misinformation-monitor/october-2023/",
+          "publishedAt": "2023-10-19",
+          "retrievedAt": "2026-08-27T12:00:00Z",
+          "reliability": "medium",
+          "sourceRole": "primary"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "rel_01",
+      "from": "International Union of Virtual Media (IUVM)",
+      "to": "Iranian state media (PressTV, IRIB and affiliates)",
+      "fromId": "ent_iuvm",
+      "toId": "ent_iran_state_media",
+      "relation": "republishes content from",
+      "direction": "directed",
+      "evidenceClass": "documented_relationship",
+      "confidence": "high",
+      "statement": "IUVM websites republished Iranian state outlet content without attribution, per forensic reporting published in August 2018.",
+      "indicators": ["content_forensics", "third_party_reporting"]
+    },
+    {
+      "id": "rel_02",
+      "from": "Spamouflage influence operation",
+      "to": "Individuals associated with Chinese law enforcement (per Meta attribution)",
+      "fromId": "ent_spamouflage",
+      "toId": "ent_prc_le",
+      "relation": "attributed by Meta to",
+      "direction": "directed",
+      "evidenceClass": "documented_relationship",
+      "confidence": "medium",
+      "statement": "Meta publicly attributed the Spamouflage network to individuals associated with Chinese law enforcement in its August 2023 takedown announcement; the attribution is the platform's, stated on the record.",
+      "indicators": ["platform_attribution"]
+    },
+    {
+      "id": "rel_03",
+      "from": "Gaza Now",
+      "to": "Hamas",
+      "fromId": "ent_gazanow",
+      "toId": "ent_hamas",
+      "relation": "designated as fundraising support network for",
+      "direction": "directed",
+      "evidenceClass": "documented_relationship",
+      "confidence": "high",
+      "statement": "US and UK sanctions authorities designated Gaza Now in March 2024 as part of a fundraising network supporting Hamas; the designation is an official public record.",
+      "indicators": ["government_designation"]
+    },
+    {
+      "id": "rel_04",
+      "from": "Dormant fake-account cohorts (reported by Cyabra)",
+      "to": "Hamas",
+      "fromId": "ent_dormant_cohort",
+      "toId": "ent_hamas",
+      "relation": "activation pattern read as pre-positioned amplification for",
+      "direction": "directed",
+      "evidenceClass": "inferred_coordination",
+      "confidence": "low",
+      "statement": "The reported dormancy-then-activation pattern is consistent with advance preparation, but who created or directed the accounts has not been established in any public record reviewed here, and the coordination reading is an inference from timing rather than a documented tie.",
+      "indicators": ["timing_pattern", "vendor_analysis"]
+    }
+  ],
+  "narratives": [
+    {
+      "id": "narr_false_flag",
+      "title": "Denial and false-flag reframing",
+      "summary": "Claims that the 7 October attack was staged, exaggerated or carried out by Israel itself. The false-flag repertoire long predates 7 October and attached to the event within days.",
+      "frame": "A pre-existing conspiracy template applied to a new event; nothing reviewed shows this framing being written for 7 October in advance.",
+      "audience": "Conspiracy-adjacent and anti-establishment audiences across platforms",
+      "status": "active",
+      "confidence": "high"
+    },
+    {
+      "id": "narr_recycled_combat",
+      "title": "Recycled-footage combat spectacle",
+      "summary": "Old conflict footage and video game clips presented as current war video. The old material supplies the imagery; the caption supplies the claim.",
+      "frame": "A routine technique with a documented pre-war history, applied to the new conflict immediately.",
+      "audience": "General social media audiences during breaking-news windows",
+      "status": "active",
+      "confidence": "high"
+    },
+    {
+      "id": "narr_state_laundering",
+      "title": "State-content laundering",
+      "summary": "State outlet messaging republished through sites and accounts that present as independent. Documented for Iranian-aligned networks since 2018; Microsoft documented Iranian influence operations surging in support of Hamas after 7 October.",
+      "frame": "Pre-existing laundering channels available to carry conflict messaging once it existed; the channels predate the messaging.",
+      "audience": "Western and regional audiences reached through ostensibly independent outlets",
+      "status": "active",
+      "confidence": "medium"
+    }
+  ],
+  "chronology": [
+    {
+      "id": "event_2018_iuvm",
+      "occurredAt": "2018-08-29T00:00:00Z",
+      "type": "infrastructure_documented",
+      "description": "Forensic reporting documents the IUVM network laundering Iranian state content across dozens of websites.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2021_gazanow_crypto",
+      "occurredAt": "2021-08-01T00:00:00Z",
+      "type": "infrastructure_active",
+      "description": "Gaza Now cryptocurrency addresses first become active, per blockchain analysis published alongside the 2024 sanctions.",
+      "confidence": "medium"
+    },
+    {
+      "id": "event_2022_doppelganger_active",
+      "occurredAt": "2022-05-01T00:00:00Z",
+      "type": "infrastructure_active",
+      "description": "Doppelganger operation active in Europe from at least May 2022, per the exposure published that September.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2022_doppelganger_exposed",
+      "occurredAt": "2022-09-27T00:00:00Z",
+      "type": "infrastructure_documented",
+      "description": "EU DisinfoLab and Qurium publish the Doppelganger investigation.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2022_bohemia_statement",
+      "occurredAt": "2022-11-28T00:00:00Z",
+      "type": "pattern_documented",
+      "description": "Bohemia Interactive publicly asks that Arma 3 footage stop being passed off as real war video, citing misuse across several conflicts including earlier Israel-Palestine escalations.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2023_spamouflage_takedown",
+      "occurredAt": "2023-08-29T00:00:00Z",
+      "type": "platform_enforcement",
+      "description": "Meta announces its largest-ever single takedown against the Spamouflage network, five and a half weeks before 7 October.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2023_oct7",
+      "occurredAt": "2023-10-07T00:00:00Z",
+      "type": "conflict_event",
+      "description": "Hamas attacks Israel. False and mis-contextualized content begins circulating the same day.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2023_arma3_factchecks",
+      "occurredAt": "2023-10-09T00:00:00Z",
+      "type": "fact_check",
+      "description": "Fact-checkers trace viral combat footage to Arma 3 video game clips and other pre-war material within days of the attack.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2023_cyabra_report",
+      "occurredAt": "2023-10-11T00:00:00Z",
+      "type": "analysis_published",
+      "description": "Cyabra reports about 40,000 fake pro-Hamas profiles, stating the fake profiles were created beforehand, some over a year earlier, and made active only when the war started.",
+      "confidence": "medium"
+    },
+    {
+      "id": "event_2023_newsguard",
+      "occurredAt": "2023-10-19T00:00:00Z",
+      "type": "analysis_published",
+      "description": "NewsGuard reports that 74 percent of the most-viral false or unverified week-one posts on X came from paid-verified accounts.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2024_mtac",
+      "occurredAt": "2024-02-06T00:00:00Z",
+      "type": "analysis_published",
+      "description": "Microsoft's threat analysis finds Iranian cyber and influence actors were reactive in the initial phase of the war, re-using dated material, in a way indicating little or no advance coordination with Hamas.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2024_gazanow_sanctions",
+      "occurredAt": "2024-03-27T00:00:00Z",
+      "type": "government_designation",
+      "description": "US and UK authorities sanction the Gaza Now network; the record documents its pre-war existence and its post-attack fundraising for Hamas.",
+      "confidence": "high"
+    },
+    {
+      "id": "event_2024_isd_year",
+      "occurredAt": "2024-10-07T00:00:00Z",
+      "type": "analysis_published",
+      "description": "ISD publishes a year-scale analysis of 1.8 million posts on denial and distortion of the 7 October attack, reading the spread as opportunistic reuse of existing conspiracy repertoires.",
+      "confidence": "high"
+    }
+  ],
+  "sources": [
+    {
+      "id": "src_disinfolab_doppelganger",
+      "label": "Doppelganger: Media clones serving Russian propaganda",
+      "kind": "EU DisinfoLab",
+      "url": "https://www.disinfo.eu/doppelganger/",
+      "archiveUrl": "http://web.archive.org/web/20260813123024/https://www.disinfo.eu/doppelganger",
+      "publishedAt": "2022-09-27",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_meta_q2_2023",
+      "label": "Meta Quarterly Adversarial Threat Report, Q2 2023 (Spamouflage takedown)",
+      "kind": "Meta Adversarial Threat Report",
+      "url": "https://transparency.meta.com/sr/Q2-2023-Adversarial-threat-report",
+      "archiveUrl": "http://web.archive.org/web/20260720175341/https://transparency.meta.com/sr/Q2-2023-Adversarial-threat-report",
+      "publishedAt": "2023-08-29",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_toi_spamouflage",
+      "label": "Meta takes down Chinese Spamouflage disinformation mega-campaign",
+      "kind": "The Times of Israel",
+      "url": "https://www.timesofisrael.com/meta-takes-down-chinese-spamouflage-disinformation-mega-campaign/",
+      "archiveUrl": "http://web.archive.org/web/20240529182016/https://www.timesofisrael.com/meta-takes-down-chinese-spamouflage-disinformation-mega-campaign/",
+      "publishedAt": "2023-08-29",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "corroborating"
+    },
+    {
+      "id": "src_dfrlab_iuvm_2018",
+      "label": "TrollTracker: An Iranian Messaging Laundromat",
+      "kind": "DFRLab (Atlantic Council)",
+      "url": "https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+      "archiveUrl": "http://web.archive.org/web/20260517155806/https://dfrlab.org/2018/08/29/trolltracker-an-iranian-messaging-laundromat/",
+      "publishedAt": "2018-08-29",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_euronews_iran_2018",
+      "label": "Iran-based political influence operation: bigger, persistent, global",
+      "kind": "Euronews (Reuters reporting)",
+      "url": "https://www.euronews.com/2018/08/29/exclusive-iran-based-political-influence-operation-bigger-persistent-global",
+      "archiveUrl": "http://web.archive.org/web/20220524040113/https://www.euronews.com/2018/08/29/exclusive-iran-based-political-influence-operation-bigger-persistent-global",
+      "publishedAt": "2018-08-29",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "corroborating"
+    },
+    {
+      "id": "src_treasury_gazanow",
+      "label": "US Treasury press release: sanctions on the Gaza Now fundraising network",
+      "kind": "US Treasury (OFAC)",
+      "url": "https://home.treasury.gov/news/press-releases/jy2213",
+      "archiveUrl": "http://web.archive.org/web/20260712054120/https://home.treasury.gov/news/press-releases/jy2213",
+      "publishedAt": "2024-03-27",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_trm_gazanow",
+      "label": "US and UK sanctions authorities target Gaza Now for supporting Hamas (crypto traces from August 2021)",
+      "kind": "TRM Labs",
+      "url": "https://www.trmlabs.com/resources/blog/us-and-uk-sanctions-authorities-target-gaza-now-for-supporting-hamas",
+      "archiveUrl": "http://web.archive.org/web/20260724222815/https://www.trmlabs.com/resources/blog/us-and-uk-sanctions-authorities-target-gaza-now-for-supporting-hamas",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "corroborating"
+    },
+    {
+      "id": "src_isd_kremlin_ads",
+      "label": "How a pro-Kremlin ad campaign used the Israel-Hamas conflict to spread propaganda in France and Germany",
+      "kind": "Institute for Strategic Dialogue",
+      "url": "https://www.isdglobal.org/digital_dispatches/how-a-pro-kremlin-ad-campaign-used-the-israel-hamas-conflict-to-spread-propaganda-in-france-and-germany/",
+      "archiveUrl": "http://web.archive.org/web/20260105210026/https://www.isdglobal.org/digital_dispatches/how-a-pro-kremlin-ad-campaign-used-the-israel-hamas-conflict-to-spread-propaganda-in-france-and-germany/",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_isd_spamouflage_pivot",
+      "label": "Spamouflage targets the West with AI images on the Israel-Hamas conflict",
+      "kind": "Institute for Strategic Dialogue",
+      "url": "https://www.isdglobal.org/isd-in-the-news/pro-ccp-network-capitalises-on-the-israel-hamas-conflict-to-target-western-audiences-shifting-toward-us-elections/",
+      "archiveUrl": "http://web.archive.org/web/20250907183059/https://www.isdglobal.org/isd-in-the-news/pro-ccp-network-capitalises-on-the-israel-hamas-conflict-to-target-western-audiences-shifting-toward-us-elections/",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "corroborating"
+    },
+    {
+      "id": "src_mtac_feb2024",
+      "label": "Iran accelerates cyber ops against Israel from chaotic start (MTAC)",
+      "kind": "Microsoft Threat Analysis Center",
+      "url": "https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+      "archiveUrl": "http://web.archive.org/web/20260824185618/https://blogs.microsoft.com/on-the-issues/2024/02/06/iran-accelerates-cyber-ops-against-israel/",
+      "publishedAt": "2024-02-06",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_msft_insider",
+      "label": "Iran surges cyber-enabled influence operations in support of Hamas (full MTAC report)",
+      "kind": "Microsoft Threat Analysis Center",
+      "url": "https://www.microsoft.com/en-us/security/security-insider/threat-landscape/iran-surges-cyber-enabled-influence-operations-in-support-of-hamas/",
+      "archiveUrl": "http://web.archive.org/web/20260704123055/https://www.microsoft.com/en-us/security/security-insider/threat-landscape/iran-surges-cyber-enabled-influence-operations-in-support-of-hamas",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "corroborating"
+    },
+    {
+      "id": "src_pcgamer_bohemia_2022",
+      "label": "Bohemia Interactive asks people to stop using Arma 3 to create fake war footage (November 2022 statement)",
+      "kind": "PC Gamer",
+      "url": "https://www.pcgamer.com/bohemia-interactive-wants-people-to-please-stop-using-arma-3-to-create-fake-war-footage/",
+      "archiveUrl": "http://web.archive.org/web/20251014042747/https://www.pcgamer.com/bohemia-interactive-wants-people-to-please-stop-using-arma-3-to-create-fake-war-footage/",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_leadstories_arma3",
+      "label": "Fact check: Arma 3 video game clips falsely presented as footage of the 2023 Israel-Hamas conflict",
+      "kind": "Lead Stories (fact check)",
+      "url": "https://leadstories.com/hoax-alert/2023/10/fact-check-arma-3-video-game-clip-falsely-presented-as-footage-depicting-2023-conflict-between-israel-and-hamas.html",
+      "archiveUrl": "http://web.archive.org/web/20260422214429/https://leadstories.com/hoax-alert/2023/10/fact-check-arma-3-video-game-clip-falsely-presented-as-footage-depicting-2023-conflict-between-israel-and-hamas.html",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_rollingstone_arma3",
+      "label": "Arma 3 video game clips go viral as fake Israel-Hamas conflict footage",
+      "kind": "Rolling Stone",
+      "url": "https://www.rollingstone.com/politics/politics-features/arma-3-video-game-clips-israel-hamas-conflict-1234849405/",
+      "archiveUrl": "http://web.archive.org/web/20260607192754/https://www.rollingstone.com/politics/politics-features/arma-3-video-game-clips-israel-hamas-conflict-1234849405/",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "corroborating"
+    },
+    {
+      "id": "src_adl_denial",
+      "label": "Denial and distortion of the Hamas-led October 7 attack: an overview of false narratives",
+      "kind": "ADL",
+      "url": "https://www.adl.org/resources/article/denial-and-distortion-hamas-led-october-7-attack-overview-false-narratives",
+      "archiveUrl": "http://web.archive.org/web/20260709165428/https://www.adl.org/resources/article/denial-and-distortion-hamas-led-october-7-attack-overview-false-narratives",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "context"
+    },
+    {
+      "id": "src_isd_oct7_year",
+      "label": "Mis- and disinformation and conspiracy theories about the October 7 Hamas attack on Israel",
+      "kind": "Institute for Strategic Dialogue",
+      "url": "https://www.isdglobal.org/digital-dispatch/mis-and-disinformation-and-conspiracy-theories-about-the-october-7-hamas-attack-on-israel/",
+      "archiveUrl": "http://web.archive.org/web/20260826042235/https://www.isdglobal.org/digital-dispatch/mis-and-disinformation-and-conspiracy-theories-about-the-october-7-hamas-attack-on-israel/",
+      "publishedAt": "2024-10-07",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_isd_falseflag",
+      "label": "The rise of false flag conspiracy theories in moments of crises",
+      "kind": "Institute for Strategic Dialogue",
+      "url": "https://www.isdglobal.org/digital-dispatch/the-rise-of-false-flag-conspiracy-theories-in-moments-of-crises/",
+      "archiveUrl": "http://web.archive.org/web/20260510232044/https://www.isdglobal.org/digital-dispatch/the-rise-of-false-flag-conspiracy-theories-in-moments-of-crises/",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "high",
+      "sourceRole": "context"
+    },
+    {
+      "id": "src_newsguard_oct2023",
+      "label": "Verified users on X produce 74 percent of the platform's most viral false or unsubstantiated claims about the Israel-Hamas war",
+      "kind": "NewsGuard",
+      "url": "https://www.newsguardtech.com/misinformation-monitor/october-2023/",
+      "archiveUrl": "http://web.archive.org/web/20260612201207/https://www.newsguardtech.com/misinformation-monitor/october-2023/",
+      "publishedAt": "2023-10-19",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_cyabra_oct2023",
+      "label": "1 of 4 pro-Hamas profiles are fake: the online battlefront",
+      "kind": "Cyabra",
+      "url": "https://cyabra.com/blog/1-of-4-pro-hamas-profiles-are-fake-the-online-battlefront/",
+      "archiveUrl": "http://web.archive.org/web/20260824185651/https://cyabra.com/blog/1-of-4-pro-hamas-profiles-are-fake-the-online-battlefront/",
+      "publishedAt": "2023-10-11",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "primary"
+    },
+    {
+      "id": "src_foxbusiness_cyabra",
+      "label": "Pro-Hamas narratives on social media pushed by fake accounts, firm says",
+      "kind": "Fox Business",
+      "url": "https://www.foxbusiness.com/technology/pro-hamas-narratives-social-media-pushed-fake-accounts",
+      "archiveUrl": "http://web.archive.org/web/20260309125126/https://www.foxbusiness.com/technology/pro-hamas-narratives-social-media-pushed-fake-accounts",
+      "retrievedAt": "2026-08-27T12:00:00Z",
+      "reliability": "medium",
+      "sourceRole": "corroborating"
+    }
+  ],
+  "counts": {
+    "sources": 20,
+    "entities": 12,
+    "exhibits": 9,
+    "edges": 4
+  }
+}

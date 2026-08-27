@@ -10,6 +10,67 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — The closed design audit is archived, and its refusals are kept here
+
+`TODOS-design-audit.md` reached 83 of 83 closed with zero open items, and
+`docs/design-audit-2026-08-26.md` — the 219 KB evidence report it was generated
+from — has no task left to drive. Both move to `docs/archive/`, along with
+`docs/graphics-task-02.md` (already self-banner-marked HISTORICAL) and the
+2026-08-24 Codex review, which is superseded on both its axes and whose twelve
+evidence images were never committed beside it.
+
+Archiving a task list is cheap. Archiving the reasoning that *closed* items
+without fixing them is not: those are the findings a future audit will file
+again, and each costs a session to re-refute. That reasoning is lifted here
+before the file moves.
+
+**Refuted in verification — the finding was wrong, not deferred:**
+
+- `aside` being a zero-caller prop is not a defect. `CLAUDE.md` states
+  verbatim that `surface="quiet"` is not a deviation and that `aside` "exists
+  and is unused". The proposed fix was also hazardous: `--accent` defaults to
+  `var(--data-blue)`, so `color: var(--accent)` on `h2` would have turned six
+  dossier headings blue.
+- The masthead status is not a constant standing in for a live value.
+  "Reference edition" deliberately replaced a `Monitoring · active` label, and
+  the 2026-08-25 entry below ends "Do not reintroduce a live-sounding label".
+  The slot is filled, not empty.
+- Colour-only links on the front page: the 1.29:1 figure recomputes, but the
+  mechanism does not exist. The closing row is two links with no surrounding
+  prose, and `home.module.css` already carries the `:focus-visible` rule the
+  finding said was missing.
+
+**Withdrawn by the browser sweep — an automated pass will flag these again,
+and they should die the same way:**
+
+- `.identitySep` at 2.04:1 is a `·` rendered `aria-hidden="true"`. Decorative
+  text carries no contrast obligation.
+- The `ScanBackdrop` rows at 2.49:1 and 4.03:1 sit inside a field marked
+  `aria-hidden="true"` in its entirety.
+- The Brief's wordmark measuring 1×1 at 320px is the visually-hidden pattern,
+  not a collapsed grid column.
+
+**Seven ids were filed twice by two agents.** Searching for a retired id should
+land here: `cross-cutting-orbit-labels-nine-px` →
+`home-scene-orbit-labels-below-legibility-floor`;
+`archive-brief-998-non-english-pages-are-served-as-lang-en` and
+`cross-cutting-archive-lang-declared-english` → `archive-lang-declared-english`;
+`cross-cutting-error-page-cinzel` →
+`reading-system-error-page-is-a-preserved-v1-fossil`;
+`reading-system-two-tables-of-contents-at-once` →
+`section-pages-israels-story-two-contents-lists`;
+`cross-cutting-archive-image-cls` →
+`archive-brief-october7-videos-reserve-no-layout-height`;
+`home-scene-file-index-numbers-fail-contrast` →
+`cross-cutting-four-sub-aa-text-pairs`.
+
+One live pointer survives the archiving: **Phase 5, the home-scene orbit
+labels, is `.ai/DESIGN-V2.md`'s open question and always was** — an owner
+decision rather than an audit finding. The audit's in-place fix did not
+pre-empt it.
+
+---
+
 ## 2026-08-27 — The reading routes scroll the document, not themselves
 
 Every reading route declared `height: 100dvh; overflow-y: auto` and scrolled

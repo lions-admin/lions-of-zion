@@ -172,7 +172,7 @@ updated by hand — nothing detects the drift. Diff the source prop types agains
   both throw without it. Their previews compose it for that reason.
 - **Only partially verified**: the forms render but were never submitted (they
   post to real endpoints), and `AskTheLionChat` was verified in its offline
-  state only — no database is provisioned, so the online transcript path has
+  state only — a database is provisioned as of 2026-08-26 (this said it was not), so the online transcript path has
   never been rendered.
 
 ## Re-sync command

@@ -2,7 +2,6 @@
 .ai/
 .agents/
 .claude/
-.codex/
 .design-sync/
 .ds-sync/
 ds-bundle/
@@ -15,7 +14,7 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 TODOS.md
-TODOS-design-audit.md
+docs/archive/
 tests/
 
 # Dev-only symlinks to the archive integration packages. Production serves

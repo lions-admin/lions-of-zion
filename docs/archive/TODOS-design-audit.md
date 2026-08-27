@@ -1,6 +1,6 @@
 # Design audit — task list
 
-Generated from [`docs/design-audit-2026-08-26.md`](docs/design-audit-2026-08-26.md),
+Generated from [`design-audit-2026-08-26.md`](design-audit-2026-08-26.md),
 which carries the full problem statement, the measured evidence and the
 tradeoffs for every id below. This file is the actionable form of that
 report and nothing more — it adds no finding the report does not make.

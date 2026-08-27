@@ -1,7 +1,7 @@
 # Data model
 
 Postgres, via Drizzle. **39 tables, 1 view, 25 SQL functions, 25 triggers,
-18 numbered migrations.**
+21 numbered migrations.**
 
 Schema definitions live in `server/db/schema/` and are the source drizzle-kit
 generates from. Rules that Drizzle cannot express live in hand-written SQL in

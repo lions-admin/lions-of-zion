@@ -4,8 +4,19 @@ Everything under `app/api/`. Two surfaces: `/api/v1/**` is the information
 model, `/api/internal/**` is infrastructure that nothing outside Vercel should
 be able to call.
 
-**None of this is reachable in production today.** The API needs a database,
-and `DATABASE_URL` is unprovisioned; the actor guard also refuses in
+**This API is live in Production.** These two paragraphs said the opposite
+until 2026-08-27. `DATABASE_URL` is provisioned, and `server/http/handler.ts`
+engages RLS per request via `withDatabaseRole`.
+
+**The guard column below understates the lockdown.** `PUBLIC_V1` in
+`handler.ts` is exactly seven entries — `GET /search`, `GET /published-items`,
+`POST /reports` and the four chat paths. Every other `/api/v1/` route runs
+through `authenticateAdmin()` and fails closed, so roughly a dozen routes
+marked `anon` below are in fact staff-only; `GET /api/v1/evidence` among them.
+Four routes are undocumented here entirely: `internal/cron/maintenance`,
+`v1/admin/status`, `public-auth/session`, and `auth/[...path]`.
+
+The superseded text: the actor guard also refuses in
 production (see [Authentication](#authentication)). This document describes
 what the code does, so that the day it is provisioned nobody has to re-derive
 it.

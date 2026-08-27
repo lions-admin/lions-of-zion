@@ -9,7 +9,7 @@
 > below was resolved — all eight routes exist.
 >
 > For the architecture as it actually is, read
-> [`architecture.md`](architecture.md) and `CLAUDE.md`.
+> [`architecture.md`](../architecture.md) and `CLAUDE.md`.
 
 ---
 

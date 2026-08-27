@@ -1,3 +1,12 @@
+> **Archived 2026-08-27.** Superseded on both its axes: `.ai/DESIGN-V2.md` acted
+> on its typography findings, and `docs/archive/design-audit-2026-08-26.md`
+> re-audited the same surfaces with live measurement. Nothing links to it.
+>
+> **Its twelve evidence images were never committed.** The `./01-…png` through
+> `./12-…png` references below resolved to files that have never existed in this
+> repository at any commit — verified 2026-08-27. Read the walkthrough as prose;
+> the screenshots are not recoverable from git.
+
 # Lions of Zion — Professional design review and major redesign plan
 
 Date: 2026-08-24
@@ -66,7 +75,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 1. Desktop landing scan — mixed health
 
-![Desktop landing scan](./01-home-intro.png)
+*[capture not committed: Desktop landing scan]*
 
 **What works:** The central lion is memorable, premium, and unusually ownable. The negative space and orbit create intrigue. The scan corpus establishes the mission without a conventional hero block.
 
@@ -76,7 +85,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 2. Israel’s Story — mixed health
 
-![Israel's Story](./02-israels-story.png)
+*[capture not committed: Israel's Story]*
 
 **What works:** The ceremonial title, calm measure, and “long arc” framing are appropriate.
 
@@ -86,7 +95,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 3. Geopolitical Brief — weak product delivery
 
-![Geopolitical Brief](./03-geopolitical-brief.png)
+*[capture not committed: Geopolitical Brief]*
 
 **What works:** The distinction between reporting and assessment is credible, and the visual tone suits strategic analysis.
 
@@ -96,7 +105,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 4. Support Us — critical conversion gap
 
-![Support Us](./04-support-us.png)
+*[capture not committed: Support Us]*
 
 **What works:** The copy identifies credible contribution modes and avoids manipulative fundraising language.
 
@@ -106,7 +115,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 5. War Update — weak product delivery
 
-![War Update](./05-war-update.png)
+*[capture not committed: War Update]*
 
 **What works:** Verified / reported / disputed is a strong editorial model.
 
@@ -116,7 +125,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 6. October 7 — at risk despite respectful copy
 
-![October 7](./06-october-7.png)
+*[capture not committed: October 7]*
 
 **What works:** The language is careful and the conceptual separation between record, testimony, and remembrance is right.
 
@@ -126,7 +135,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 7. Our Heroes — weak structural fit
 
-![Our Heroes](./07-our-heroes.png)
+*[capture not committed: Our Heroes]*
 
 **What works:** The copy explicitly resists reducing people to statistics.
 
@@ -136,7 +145,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 8. Fake Resistance — high potential, incomplete product
 
-![Fake Resistance](./08-fake-resistance.png)
+*[capture not committed: Fake Resistance]*
 
 **What works:** The “supply chain of outrage” is the strongest native fit for the scan metaphor and could become a distinctive investigative product.
 
@@ -146,7 +155,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 9. We Are — mixed health
 
-![We Are](./09-we-are.png)
+*[capture not committed: We Are]*
 
 **What works:** The mission and evidence-first method are concise and credible.
 
@@ -156,7 +165,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 10. Mobile landing — at risk
 
-![Mobile landing](./10-mobile-home.png)
+*[capture not committed: Mobile landing]*
 
 **What works:** The navigation targets are generous and the lion retains impact at small width.
 
@@ -166,7 +175,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 11. Mobile reading — weak health
 
-![Mobile Geopolitical Brief](./11-mobile-geopolitical-brief.png)
+*[capture not committed: Mobile Geopolitical Brief]*
 
 **What works:** The main text reflows without horizontal clipping, and body size/leading are broadly readable.
 
@@ -176,7 +185,7 @@ The target feeling is a combination of a national archive, an investigative desk
 
 ### 12. Mobile Ask activation — P0 interaction risk
 
-![Mobile chat activation](./12-mobile-chat-click-no-panel.png)
+*[capture not committed: Mobile chat activation]*
 
 **What the screenshot proves:** Activation produces a gold ring but no visible panel or useful loading/error state, while the launcher obscures the article and the “Reading the Map” section.
 

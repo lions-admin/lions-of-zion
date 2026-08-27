@@ -10,7 +10,9 @@ ordinary scrolling document pages.
 
 The backend under `app/api/` and `server/` ingests sources, attaches evidence
 to claims, has a second human review an assessment, and publishes what
-survives. Its services are **optional and currently unprovisioned** — nothing
+survives. Its services are **provisioned and live in Production** (Neon, Blob,
+AI Gateway — see `docs/vercel-infrastructure.md`); this line said
+"unprovisioned" until 2026-08-27. Nothing
 in the frontend requires them.
 
 ## Run locally

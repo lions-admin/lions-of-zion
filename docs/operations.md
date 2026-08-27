@@ -75,7 +75,7 @@ falls back to SwiftShader, which the GPU probe correctly rejects, so the scene
 never mounts there either.
 
 **Visual checks must use real Chrome** via `playwright-core` with
-`headless: false`. The three real-Chrome scripts hardcode
+`headless: false`. The **five** real-Chrome scripts hardcode
 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, so they run on
 the macOS workstation only — never in a Linux container or on CI.
 
@@ -91,7 +91,7 @@ Start the dev server first, then:
 | `node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final` | macOS only | Intro handoff, keyboard, WebGPU, forced WebGL2, no-JS fallback, overlays, console errors |
 | `node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band` | macOS only | The scene keeps its exact box; the band scrolls, is opaque, carries all eight links; the intro scroll lock holds |
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
-| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | 18 routes return 200 with no console errors — the 11 originals plus both archive indexes and five sampled records |
+| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **21 routes** return 200 with no console errors — 15 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
 | `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
 
 ### Archive assets
@@ -113,7 +113,8 @@ the document (converted 2026-08-27), and the whole payoff — a phone's URL bar
 collapsing, and the browser restoring scroll position on back-navigation — is
 invisible to `ci-smoke` and to headless Chromium. It also reads a
 `requestAnimationFrame`-driven progress bar, which the in-app browser suspends
-outright by reporting `visibilityState: "hidden"`. So, like the other four, it
+outright by reporting `visibilityState: "hidden"`. So, like the other four
+real-Chrome scripts, it
 drives real Chrome and only runs on the macOS workstation.
 
 ```bash
@@ -174,7 +175,7 @@ promotion.
 
 ```mermaid
 flowchart LR
-    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (18 routes)"]
+    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (21 routes)"]
 ```
 
 `smoke` installs Playwright's Chromium with `--with-deps`, starts the built
@@ -258,7 +259,9 @@ row. The log is one JSON line with `url`, `method`, `durationMs`, `message` and
 `stack`.
 
 ### A route returns 401 `UNAUTHENTICATED` in production
-Expected. `requireActor` refuses in production by design until Phase 8. See
+**Stale — deleted 2026-08-27.** This said `requireActor` refuses in production
+by design until Phase 8. Neon Auth replaced that gate; `requireActor` now
+throws only when no actor was authenticated. See
 [`api.md`](api.md#authentication).
 
 ### "Ask the Lion" says the desk is offline
@@ -271,12 +274,14 @@ This deployment has no pgvector, so those are lexical results only. Honest by
 design rather than hidden.
 
 ### `embed` cron reports `skipped`
-There is no embedder until the AI Gateway is wired. It reports the backlog size
+**Stale — the AI Gateway is wired.** This said there is no embedder. The route
+reports the backlog size
 rather than failing — a scheduled job that alarms on a deliberate, known state
 is one people learn to ignore.
 
 ### Outbox rows are piling up
-Check whether the drain cron is scheduled at all (it is not, today). A row that
+**Stale — it is scheduled.** `vercel.json` runs the drain at `*/15 * * * *` and
+the handler exists. A row that
 fails to dispatch backs off 30s → 2m → 10m → 30m → 1h and is retried, never
 abandoned.
 

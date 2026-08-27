@@ -143,7 +143,12 @@ source — the infrastructure exists regardless of solicitation.
 
 One structural fact makes this tractable: **git auto-deploy is not
 connected.** Merging code and data to `main` publishes nothing; production
-deployment is a separate manual Vercel operation. The repo is private. So
+deployment is a separate manual Vercel operation. **The repo is PUBLIC** —
+this sentence read "The repo is private" until 2026-08-27, and it was the
+premise of the argument below. `gh repo view` reports `visibility: PUBLIC`,
+and `CLAUDE.md` states the consequence directly: *a push to origin is itself an
+act of publication*. The mechanical work is still safely separable from the
+deploy, but committing this research is not a private act. So
 the mechanical work (import, seam, routes, tests) can be built and merged in
 full, and *the deploy itself is the publication act that waits for the
 gates*. The plan uses that split deliberately.

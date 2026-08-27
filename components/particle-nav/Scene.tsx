@@ -16,7 +16,13 @@ import { Connectors, connectorBezier } from './layers/Connectors';
 import { IntroText } from './layers/IntroText';
 import { useLionBuffers } from './hooks/useLionBuffers';
 import { createPost, type PostHandle } from './tsl/post';
-import { computeOrbitLayout, nodeAngle, nodePosition, type SafeAreaInsets } from './config';
+import {
+  computeOrbitLayout,
+  MOBILE_MAX_WIDTH,
+  nodeAngle,
+  nodePosition,
+  type SafeAreaInsets,
+} from './config';
 import type { InteractionDriver, InteractionFrame } from './hooks/useInteraction';
 import type { PerfTier } from './hooks/usePerfTier';
 import type { NavNode, ParticleNavTheme, SimParams } from './types';
@@ -107,7 +113,7 @@ function SceneContent(props: SceneProps) {
   const readyRef = useRef(false);
   const introCompleteRef = useRef(false);
   const timelineTimeRef = useRef(0);
-  const timelineLayoutRef = useRef<'desktop' | 'mobile'>(size.width < 720 ? 'mobile' : 'desktop');
+  const timelineLayoutRef = useRef<'desktop' | 'mobile'>(size.width < MOBILE_MAX_WIDTH ? 'mobile' : 'desktop');
   const statsRef = useRef({ acc: 0, frames: 0, last: 0 });
   const tmp = useMemo(() => ({ v: new Vector3(), w: new Vector3() }), []);
 
@@ -128,7 +134,7 @@ function SceneContent(props: SceneProps) {
     const frame = driver.tick(now, delta, params);
     frameRef.current = frame;
 
-    const timelineLayout = size.width < 720 ? 'mobile' : 'desktop';
+    const timelineLayout = size.width < MOBILE_MAX_WIDTH ? 'mobile' : 'desktop';
     if (timelineLayoutRef.current !== timelineLayout) {
       const oldFinal = getRollingFinalTime(timelineLayoutRef.current);
       const newFinal = getRollingFinalTime(timelineLayout);
@@ -220,13 +226,15 @@ function SceneContent(props: SceneProps) {
     pxToWorldRef.current = (2 * CAMERA_Z * Math.tan((FOV * Math.PI) / 360)) / size.height;
     dprRef.current = 1; // px sizes are CSS px — device px scaling comes from the render DPR
 
-    // ---- idle rig rotation (0.6°/s) — reduced motion holds still
+    // ---- idle rig rotation — reduced motion holds still, and so does
+    //      `defaultSimParams`, which ships `idleRotateDegPerSec: 0`
     const rig = rigRef.current;
     if (rig && !reducedMotion) {
       rig.rotation.z += ((params.idleRotateDegPerSec * Math.PI) / 180) * delta;
     }
 
-    // ---- pointer parallax ±3° with 0.08 damping + activate dolly
+    // ---- pointer parallax (±`parallaxDeg`, 1.25° as shipped) with 0.08
+    //      damping + activate dolly
     const ndc = pointerNdcRef.current;
     const responsiveParallax = intro || size.width <= 768 ? 0 : params.parallaxDeg;
     const maxOffset = Math.tan((responsiveParallax * Math.PI) / 180) * CAMERA_Z;

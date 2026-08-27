@@ -13,11 +13,21 @@
  * properties left are two surface tints that no token covers: this page's
  * raised panels are lighter than `--ground` and nothing in the scale
  * expresses that.
+ *
+ * Both are neutral. They were #090f1b and #0d1523 — navies — and commit
+ * c7e92b2, which took every panel on the site off blue, converted only the
+ * `rgba()` literals in this file and did not see these two or the `#070c15`
+ * footer bands below. That is why the Brief still read blue after the ground
+ * went black while the rest of the site did not: its panel tints, its
+ * backdrop and every quiet label on it were the last blue left. Converted by
+ * the same rule as everything else — the grey of equal luminance
+ * (0.2126R + 0.7152G + 0.0722B) — so each panel keeps its exact weight
+ * against the ground and loses only the hue.
  */
 
 .page {
-  --surface: #090f1b;
-  --surface-raised: #0d1523;
+  --surface: #0f0f0f;
+  --surface-raised: #141414;
 
   /* The evidence margin's geometry, matching this layout's own third track.
      `marginNote` (content.module.css) reads these; declaring them here rather
@@ -33,30 +43,57 @@
      (43.2px of gap). Written as the two clamps rather than 112px so it stays
      true at every width. */
   --rail-w: 14rem;
-  --rail-gap: calc(clamp(1.5rem, 5vw, 4.3rem) + clamp(2rem, 3vw, 3.5rem));
+  --section-pad-x: clamp(1.5rem, 5vw, 4.3rem);
+  --rail-gap: calc(var(--section-pad-x) + clamp(2rem, 3vw, 3.5rem));
+
+  /* The reading measure, reconciled with the dossier's `--reading-w`.
+     The track was a flat 48rem, which after `.section`'s own padding left 630px
+     — about 62 characters — so the brief was the *narrower* of the two shells
+     while looking like the more elaborate one. Sizing the track from the
+     measure rather than the other way round makes 68ch the number both shells
+     hold, and keeps it true as the padding clamp moves. */
+  --article-w: calc(68ch + 2 * var(--section-pad-x));
 
   position: relative;
-  height: 100dvh;
+  /* The document scrolls, not this element — converted 2026-08-27 with the
+     other four reading containers; the reasoning is at the lock in
+     `app/globals.css`. `overflow-y: auto` and `overscroll-behavior: contain`
+     went with it (both were properties of being a scroller), and
+     `scroll-behavior` moved to `html`. `overflow-x: clip` stays: it is a
+     sideways clip, not a scrollport, and the brief's rails need it. */
+  min-height: 100dvh;
   overflow-x: clip;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   /* Ground and texture come from `body` — `--scan-ground` in globals.css. */
   color: var(--ink);
   font-family: var(--face-text);
-  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
 
+/* The Brief's own scan, layered over the one `body` paints (`--scan-ground`,
+   app/globals.css). All three layers were blue, which on the old navy ground
+   was invisible and on true black is the single largest blue field on the
+   page — this backdrop is `position: fixed; inset: 0`, so it covers the whole
+   viewport behind the reading column.
+
+   Brought into line with `--scan-ground`'s own retune for black: the radial
+   keeps its blue, because that layer *is* the depth cue that the scan is
+   densest at the centre, and drops to the same 0.045; both rule fields go
+   neutral, because a rule field is texture and has no direction to signal.
+
+   The neutral alphas are scaled, not carried over. rgb(214,226,240) has 1.46×
+   the luma of rgb(87,167,217), so reusing 0.018/0.014 would have made the
+   weave visibly stronger than the one it replaces rather than the same
+   weight — 0.012 and 0.010 land it where it was. */
 .quietBackdrop {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(75% 60% at 50% 10%, rgba(87, 167, 217, 0.055), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.018) 0 1px, transparent 1px 11px),
-    repeating-linear-gradient(90deg, transparent 0 79px, rgba(87, 167, 217, 0.014) 79px 80px);
+    radial-gradient(75% 60% at 50% 10%, rgba(87, 167, 217, 0.045), transparent 68%),
+    repeating-linear-gradient(0deg, rgba(214, 226, 240, 0.012) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(214, 226, 240, 0.01) 79px 80px);
   mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.34) 64%, transparent);
 }
 
@@ -92,7 +129,7 @@
   min-height: 4rem;
   padding: 0.65rem max(1.25rem, calc((100vw - 90rem) / 2));
   border-bottom: 1px solid rgba(201, 162, 75, 0.2);
-  background: rgba(7, 11, 20, 0.96);
+  background: rgba(0, 0, 0, 0.96);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -161,7 +198,9 @@
 }
 
 .headerContext small {
-  color: var(--data-blue);
+  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
+     never expresses text hierarchy — see `app/globals.css`. */
+  color: var(--ink-lo);
   font-size: inherit;
 }
 
@@ -182,6 +221,11 @@
   background: linear-gradient(90deg, var(--data-blue), var(--gold-hi));
   box-shadow: 0 0 10px rgba(107, 183, 228, 0.6);
   transform-origin: left;
+  /* Resting state is empty, not full. The client effect applies scaleX via
+     requestAnimationFrame, so without this the first painted frame — and the
+     whole no-JavaScript render — is a bar at 100%, telling the reader they
+     finished a document they have not started. */
+  transform: scaleX(0);
   transition: transform 80ms linear;
 }
 
@@ -189,7 +233,7 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 13rem minmax(0, 48rem) 14rem;
+  grid-template-columns: 13rem minmax(0, var(--article-w)) 14rem;
   gap: clamp(2rem, 3vw, 3.5rem);
   justify-content: center;
   width: min(100%, 94rem);
@@ -249,7 +293,9 @@
 }
 
 .railIdentity span {
-  color: var(--data-blue);
+  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
+     never expresses text hierarchy — see `app/globals.css`. */
+  color: var(--ink-lo);
 }
 
 .railIdentity strong {
@@ -318,12 +364,22 @@
   line-height: 1.5;
 }
 
+/* The card is gone, for the reason `sections.module.css` gives where it
+   removed the dossier's: the chrome was reading as a floating box rather than
+   as a page, and a reader comparing this brief to an archive record met a
+   bordered column with a foot against an unbordered one without. Reconciled in
+   this direction rather than by putting the card back, because that removal is
+   the recorded decision and this one was the straggler.
+
+   The ground stays, and is not chrome. Unlike the dossier's `ScanBackdrop` —
+   masked out of the reading band by `--content-w` — this page's
+   `.quietBackdrop` is `position: fixed; inset: 0` with no carve-out, so
+   without an opaque ground the corpus runs straight under the prose. That is
+   the mechanical difference between the two shells, and it is why only the
+   borders and the shadow could go. */
 .article {
   min-width: 0;
-  background: rgba(8, 14, 24, 0.965);
-  border-right: 1px solid rgba(201, 162, 75, 0.14);
-  border-left: 1px solid rgba(201, 162, 75, 0.24);
-  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.25);
+  background: rgba(13, 13, 13, 0.965);
   animation: articleIn 620ms ease both;
 }
 
@@ -337,7 +393,7 @@
   border-bottom: 1px solid var(--gold-line);
   background:
     radial-gradient(circle at 90% 0%, rgba(201, 162, 75, 0.08), transparent 36%),
-    linear-gradient(150deg, rgba(14, 23, 37, 0.72), transparent 62%);
+    linear-gradient(150deg, rgba(22, 22, 22, 0.72), transparent 62%);
 }
 
 .briefEyebrow {
@@ -345,7 +401,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: var(--data-blue);
+  /* Gold, not the blue data ramp: that ramp carries meaning and never
+     expresses text hierarchy — see `app/globals.css`. */
+  color: var(--gold);
 }
 
 /* The subject of the brief, not a label for it — set as a name in the
@@ -394,7 +452,7 @@
 }
 
 .section {
-  padding: clamp(2.6rem, 5vw, 4.2rem) clamp(1.5rem, 5vw, 4.3rem);
+  padding: clamp(2.6rem, 5vw, 4.2rem) var(--section-pad-x);
   border-bottom: 1px solid var(--line);
   scroll-margin-top: 6rem;
 }
@@ -459,7 +517,9 @@
 /* These numbers stay. Unlike the section markers, they enumerate items of
    the same kind inside one list — which is what numbering is actually for. */
 .changeList li > span {
-  color: var(--data-blue);
+  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
+     never expresses text hierarchy — see `app/globals.css`. */
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   letter-spacing: var(--t-data-tracking);
@@ -558,7 +618,8 @@
    internal kicker/list styling comes from content.module.css. */
 .corrections {
   padding: 1.75rem clamp(1.5rem, 5vw, 4.3rem) 2rem;
-  background: #070c15;
+  /* Luminance-matched from #070c15, with the panel tints above. */
+  background: #0c0c0c;
 }
 
 .closing {
@@ -569,7 +630,7 @@
   gap: 0.6rem 1.5rem;
   padding: 1.4rem clamp(1.5rem, 5vw, 4.3rem) 1.6rem;
   border-top: 1px solid var(--gold-line);
-  background: #070c15;
+  background: #0c0c0c;
 }
 
 .closingMark {
@@ -632,7 +693,12 @@
 /* The evidence contract, now in the left rail under the coverage block —
    it describes the document, not any one development, so it sits with the
    identity rather than in the margin the citations have taken over. */
+/* A sibling of `.indexRail`, not a child of it — see the note at its call
+   site. Explicit column placement keeps it visually where it has always been,
+   under the rail in the left column, while leaving the sticky box to the TOC. */
 .evidenceContract {
+  grid-column: 1;
+  align-self: start;
   margin-top: 1.4rem;
   padding-top: 1.2rem;
   border-top: 1px solid var(--gold-line);
@@ -685,14 +751,14 @@
   /* Two tracks: the evidence margin closes and the citations fall back into
      the column beneath their developments. */
   .layout {
-    grid-template-columns: 12rem minmax(0, 48rem);
+    grid-template-columns: 12rem minmax(0, var(--article-w));
   }
 }
 
 @media (max-width: 900px) {
   .siteHeader {
     padding-inline: 1.25rem;
-    background: linear-gradient(to bottom, var(--ground) calc(100% - 8px), rgba(7, 11, 20, 0.9));
+    background: linear-gradient(to bottom, var(--ground) calc(100% - 8px), rgba(0, 0, 0, 0.9));
   }
 
   .headerContext small {
@@ -700,7 +766,7 @@
   }
 
   .layout {
-    grid-template-columns: minmax(0, 48rem);
+    grid-template-columns: minmax(0, var(--article-w));
     gap: 1.3rem;
     padding-top: 1.5rem;
   }
@@ -754,8 +820,15 @@
 
 @media (max-width: 719px) {
   .page {
-    height: calc(100dvh - 5.25rem - env(safe-area-inset-bottom, 0px));
-    scroll-padding-top: 6.8rem;
+    /* The chat launcher's mobile dock — `--chat-dock-h` in app/globals.css,
+       the same band `sections.module.css` reserves. */
+    /* Reserved as padding, not subtracted from a height — there is no
+       container to shorten now that the document scrolls. */
+    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
+    /* `scroll-padding-top` moved off this element with the scrollport. The
+       offset it provided is already carried by `scroll-margin-top` on the
+       anchor targets themselves (`:454`, `:930`), which resolves against
+       whichever scroller is in play — so nothing is lost by dropping it. */
   }
 
   .siteHeader {
@@ -854,8 +927,14 @@
     margin-top: 1.2rem;
   }
 
+  /* The padding drops here, so the measure the track is sized from has to know
+     — `--section-pad-x` is the one place both read. */
+  .page {
+    --section-pad-x: 1.25rem;
+  }
+
   .section {
-    padding: 2.7rem 1.25rem;
+    padding-block: 2.7rem;
     scroll-margin-top: 7rem;
   }
 
@@ -904,9 +983,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page {
-    scroll-behavior: auto;
-  }
+  /* `.page` stopped being a scroll container on 2026-08-27, so its
+     `scroll-behavior` reset moved to `html` in `globals.css`. */
 
   .article {
     animation: none;

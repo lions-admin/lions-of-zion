@@ -1,15 +1,36 @@
 import type { NavNode, ParticleNavTheme, SimParams } from './types';
 
 export const defaultTheme: ParticleNavTheme = {
-  background: '#070B14',
-  // #C9A24B on #070B14 clears 4.5:1 — do not let it drift dimmer for atmosphere (brief §9).
+  /* The renderer's clear colour, separate from the CSS `--ground` token and
+     not reached by it — changing the token alone leaves the canvas navy. */
+  background: '#000000',
+  // #C9A24B on #000000 clears 8.75:1 — do not let it drift dimmer for atmosphere (brief §9).
   gold: '#C9A24B',
   excited: '#FFE9B0',
   hover: '#EFD79A',
   starBlue: '#57A7D9',
 };
 
-/** Brief §6 calibrated starting points — every one is exposed on the demo route. */
+/**
+ * The shipping simulation dials — every one is exposed on `/particle-demo`.
+ *
+ * These were the brief's starting points and were never tuned against a
+ * capture, so "calibrated" was the wrong word for three of them, which ship
+ * at 0 and therefore do nothing at all:
+ *
+ *   - `curlAmp: 0` zeroes the lion's ambient drift in both branches of
+ *     `lionCompute.ts` (`curlAmp.mul(6)` and `curlAmp.mul(60)`);
+ *   - `repelStrength: 0` zeroes pointer repulsion;
+ *   - `idleRotateDegPerSec: 0` holds the rig and the orbital rings still.
+ *
+ * Restoring any of them is a visual decision that needs a real-Chrome capture
+ * — idle rotation especially, because `Scene.tsx` rotates the whole rig and
+ * reads `rig.rotation.z` back into the activate-dolly direction, so a nonzero
+ * value drifts the projected DOM label geometry too and has to be checked
+ * against `OrbitLayout`'s eight-links-in-viewport invariant. The scene is not
+ * motionless meanwhile: pointer parallax, hover particle streams and the
+ * connector pulse all run.
+ */
 export const defaultSimParams: SimParams = {
   springStiffness: 8.0,
   springDamping: 0.86,
@@ -72,23 +93,39 @@ export const simParamRanges: Record<keyof SimParams, [number, number, number]> =
 export const NAVIGATE_AT_MS = 320; // navigation never waits for the animation (brief §7)
 export const CANVAS_FADE_MS = 180;
 
+/*
+ * The eight destinations, and the one array that carries three contracts:
+ * `nodeAngle` maps index straight to a clockwise spoke, `NavLinks` renders in
+ * array order so index is also DOM and tab order, and `index + 1` is the
+ * "File NN / 08" identity the front-page band and every section page print.
+ *
+ * `we-are` and `support-us` are swapped from the original order for the
+ * second of those. On a radial arrangement where all eight labels are visible
+ * and equally styled, "clockwise reading order" is a weak claim — but tab
+ * order genuinely is sequential, and it used to put the donate/join ask
+ * second, before a visitor had been told who this is or seen a verified
+ * claim, with the page that answers "who are you and why should I believe
+ * you" last. Now identity is second and the ask is last. The intent sequence
+ * is unchanged (both nodes are `participate`), and the two file numbers that
+ * moved are derived everywhere they appear.
+ */
 export const defaultNodes: NavNode[] = [
   {
     id: 'geopolitical-brief',
     label: 'GEOPOLITICAL BRIEF',
     displayName: 'Geopolitical Brief',
     href: '/geopolitical-brief',
-    description: 'The daily strategic picture: verified developments, their context, and what they change.',
+    description: 'One strategic file worked through in order: what changed, what follows\n      from it, and what is still unknown.',
     iconSdfUrl: '/icons/geopolitical-brief.sdf.png',
     intent: 'now',
   },
   {
-    id: 'support-us',
-    label: 'SUPPORT US',
-    displayName: 'Support Us',
-    href: '/support-us',
-    description: 'Ways to join the effort: amplify verified truth, contribute skills, sustain the work.',
-    iconSdfUrl: '/icons/support-us.sdf.png',
+    id: 'we-are',
+    label: 'WE ARE',
+    displayName: 'We Are',
+    href: '/we-are',
+    description: 'The network behind the desk: how a claim gets checked, who checks it, and\n      the rules that bind them.',
+    iconSdfUrl: '/icons/we-are.sdf.png',
     intent: 'participate',
   },
   {
@@ -96,7 +133,7 @@ export const defaultNodes: NavNode[] = [
     label: 'WAR UPDATE',
     displayName: 'War Update',
     href: '/war-update',
-    description: 'Sourced, time-stamped updates from the front and the home front.',
+    description: 'Dated dispatches with their sources in the margin beside them, and the\n      corrections log that follows.',
     iconSdfUrl: '/icons/war-update.sdf.png',
     intent: 'now',
   },
@@ -105,7 +142,7 @@ export const defaultNodes: NavNode[] = [
     label: 'OCTOBER 7',
     displayName: 'October 7',
     href: '/october-7',
-    description: 'The record of October 7: testimony, evidence, and remembrance.',
+    description: 'The record of the day, and beneath it the archives — first-hand testimony\n      and the documentation, held here in full.',
     iconSdfUrl: '/icons/october-7.sdf.png',
     intent: 'understand',
   },
@@ -114,7 +151,7 @@ export const defaultNodes: NavNode[] = [
     label: 'OUR HEROES',
     displayName: 'Our Heroes',
     href: '/our-heroes',
-    description: 'The people behind the story: the fallen, the fighters, the rescuers.',
+    description: 'Citations for the fallen, the fighters and the rescuers, built only from\n      what named press has already published.',
     iconSdfUrl: '/icons/our-heroes.sdf.png',
     intent: 'understand',
   },
@@ -123,7 +160,7 @@ export const defaultNodes: NavNode[] = [
     label: "ISRAEL'S STORY",
     displayName: "Israel’s Story",
     href: '/israels-story',
-    description: 'The long arc: history, identity, and the context the noise leaves out.',
+    description: 'The founding, the wars and the treaties that followed — 1947 to 2020, in\n      chapters, each entry sourced.',
     iconSdfUrl: '/icons/israels-story.sdf.png',
     intent: 'understand',
   },
@@ -132,17 +169,17 @@ export const defaultNodes: NavNode[] = [
     label: 'FAKE RESISTANCE',
     displayName: 'Fake Resistance',
     href: '/fake-resistance',
-    description: 'Inside the influence machine: how manufactured outrage is built and amplified.',
+    description: 'Case files on manufactured outrage: how each claim was built, how far it\n      travelled, and what the record shows.',
     iconSdfUrl: '/icons/fake-resistance.sdf.png',
     intent: 'understand',
   },
   {
-    id: 'we-are',
-    label: 'WE ARE',
-    displayName: 'We Are',
-    href: '/we-are',
-    description: 'Who Lions of Zion are, why this network exists, and how it works.',
-    iconSdfUrl: '/icons/we-are.sdf.png',
+    id: 'support-us',
+    label: 'SUPPORT US',
+    displayName: 'Support Us',
+    href: '/support-us',
+    description: 'Report a claim for checking, or offer the desk a skill it needs.',
+    iconSdfUrl: '/icons/support-us.sdf.png',
     intent: 'participate',
   },
 ];
@@ -213,7 +250,15 @@ export const NODE_BOTTOM_RESERVE_PX = 56;
  */
 export const CHAT_DOCK_PX = 84;
 
-/** Below this width the layout is the phone one, in every layer that asks. */
+/**
+ * Below this width the layout is the phone one, in every layer that asks *for
+ * the layout mode* — the intro's line arrays, the timeline it derives from
+ * them, and the CSS breakpoints that hide the wordmark and the no-canvas nav.
+ *
+ * It is not the only width threshold in the scene, and the others are not
+ * bugs: `NetworkScan`'s SCAN_COMPACT_MAX_WIDTH is a label-density threshold,
+ * a separate question with a separate answer.
+ */
 export const MOBILE_MAX_WIDTH = 720;
 
 export interface OrbitLayout {
@@ -222,7 +267,7 @@ export interface OrbitLayout {
   /**
    * Outer particle-ring radius in world units at the lion plane. This is also
    * the DOM link's half-box — `styles.module.css` sizes `.link` to the same
-   * `clamp(min(w,h) * 0.056, 44, 68)` — and the connector's occlusion boundary.
+   * `clamp(min(w,h) * 0.066, 44, 82)` — and the connector's occlusion boundary.
    * Three contracts on one number: widen the halo, not this.
    */
   nodeVisualRadius: number;
@@ -275,7 +320,13 @@ export function computeOrbitLayout(
   const minDimension = Math.min(width, Math.max(1, height));
   const { viewHeight, viewWidth, worldPerPx } = viewSize(width, height);
 
-  const nodeRadiusPx = clamp(minDimension * 0.056, 44, 68);
+  /* Slope and ceiling grown from 0.056/68 on 2026-08-27: at 1440×900 the old
+     ring was a 100px circle under a tracked-caps label ~120px wide, so every
+     long label overflowed its own ring. The 44px floor is deliberately kept —
+     raising it to 48 pushed the 320–390px horizontal solve onto its 0.9 radius
+     floor, which is the layout admitting it no longer fits. The DOM `.link`
+     clamp moves in lockstep. */
+  const nodeRadiusPx = clamp(minDimension * 0.066, 44, 82);
   const haloRadiusPx = nodeRadiusPx * (1 + NODE_HALO_RATIO) + NODE_HALO_PX;
   const edgeGapPx = clamp(minDimension * 0.045, 24, 64);
   const insetX =

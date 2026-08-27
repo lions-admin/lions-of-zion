@@ -141,7 +141,7 @@
   padding: 0.3rem clamp(1.25rem, 4vw, 3rem) 0.55rem;
   border-top: 1px solid var(--gold-line);
   border-bottom: 1px solid var(--line);
-  background: rgba(7, 11, 20, 0.92);
+  background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -256,7 +256,9 @@
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--data-blue);
+  /* Gold, not the blue data ramp: `globals.css` reserves that ramp for
+     meaning and says it never expresses text hierarchy. */
+  color: var(--gold);
 }
 
 /* The home route's only <h1>. Until now the sole one lived inside the static
@@ -400,7 +402,9 @@
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: 0.04em;
-  color: var(--data-blue);
+  /* Gold, not the blue data ramp: that ramp carries meaning and never
+     expresses text hierarchy — see `app/globals.css`. */
+  color: var(--gold);
 }
 
 .indexList {
@@ -437,7 +441,13 @@
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
-  color: var(--data-blue-dim);
+  /* Was --data-blue-dim: 4.50:1 flat, 3.54:1 over the scan's composited wash,
+     3.30:1 under `.entry:hover`. `globals.css:64-72` also reserves the blue
+     ramp for semantics and says it is never used for text hierarchy, which is
+     what it was doing here. `--ink` rather than `--ink-lo` because
+     `.ai/DESIGN-V2.md:200` puts --ink-lo's AA floor at 0.8125rem and this is
+     0.72rem; --ink is 8.83:1 worst case. */
+  color: var(--ink);
 }
 
 .entryLabel {
@@ -549,7 +559,7 @@
   /* The launcher docks across the bottom of a phone; the band ends above it
      rather than under it, the same reserve `sections.module.css` makes. */
   .shell {
-    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
   }
 }
 

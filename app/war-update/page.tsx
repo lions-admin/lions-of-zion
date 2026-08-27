@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { PublicationMeta, SourceList, CorrectionHistory } from "@/components/content";
+import { PublicationMeta, CorrectionHistory } from "@/components/content";
 import { getWarUpdateEdition } from "@/lib/content/war-update";
 import { SITE_URL } from "@/lib/site-config";
 import { WireFeed } from "./WireFeed";
@@ -46,15 +46,19 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <SectionBlock heading="Trust">
-        <p className={styles.advisory}>
-          <span className={styles.advisoryLabel}>Editor’s note —</span>{" "}
-          {edition.trustStrip}
-        </p>
-        <p>
-          Full sourcing standards and the corrections policy live on the{" "}
-          <Link href="/methodology">Methodology</Link> page.
-        </p>
+      {/* A wire desk earns the right to caveat by filing first. The advisory
+          is a strip under the lede rule rather than a "Trust" block of its
+          own: read the h2 list alone and the document should be about the
+          period, not about its own apparatus. The Methodology link and the
+          edition metadata moved to the foot with it, where a reader who has
+          read the entries is the one asking for provenance. */}
+      <p className={styles.advisory}>
+        <span className={styles.advisoryLabel}>Editor’s note —</span>{" "}
+        {edition.trustStrip}
+      </p>
+
+      <SectionBlock heading={`Ceasefire, and not yet peace · ${edition.coverageWindow}`}>
+        <WireFeed entries={edition.entries} />
       </SectionBlock>
 
       <PublicationMeta
@@ -65,13 +69,19 @@ export default async function Page() {
         sourceCount={edition.sourceCount}
       />
 
-      <SectionBlock heading={`Documented milestones · ${edition.coverageWindow}`}>
-        <WireFeed entries={edition.entries} />
-      </SectionBlock>
+      <p className={styles.colophonNote}>
+        Full sourcing standards and the corrections policy live on the{" "}
+        <Link href="/methodology">Methodology</Link> page.
+      </p>
 
-      <SectionBlock heading="Source stack">
-        <SourceList sources={edition.sources} />
-      </SectionBlock>
+      {/* No source stack. `edition.sources` is the union of the sources each
+          dispatch already cites, so rendering it here printed every citation
+          on this page twice — invisible while both sat in the column, obvious
+          once each entry's sources moved out to the margin beside it. It also
+          made the margin note read as a preview rather than as the evidence.
+          Israel's Story took the same removal (`.ai/DECISIONS.md:499-504`).
+          The field stays in `lib/content/war-update.ts` — `sourceCount` reads
+          it for the `PublicationMeta` row, which preserves the count. */}
 
       <CorrectionHistory corrections={edition.corrections} />
     </SectionPage>

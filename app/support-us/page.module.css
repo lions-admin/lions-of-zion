@@ -4,9 +4,15 @@
    in a lighter strip below, honestly distinguishing a live channel from one
    that isn't open yet rather than dressing both up the same way. */
 
+/* Single column at every width. The toolkit's container is the 68ch reading
+   measure, not the viewport, so two-up put every control in this form at
+   285px — too narrow to read back a URL a reader has just pasted, on the one
+   public write path the site has. The two modules are a sequence anyway —
+   report a claim, then offer a skill — not a comparison. `.practiceGrid`
+   stays two-up below; it carries no controls. */
 .toolkit {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.5rem;
   margin: 1.75rem 0 0.5rem;
 }
@@ -16,7 +22,7 @@
   padding: 1.6rem 1.5rem 1.75rem;
   border: 1px solid rgba(201, 162, 75, 0.3);
   border-radius: 2px;
-  background: linear-gradient(165deg, rgba(16, 26, 42, 0.55), rgba(7, 11, 20, 0.92) 55%);
+  background: linear-gradient(165deg, rgba(25, 25, 25, 0.55), rgba(0, 0, 0, 0.92) 55%);
 }
 
 .moduleHeader {
@@ -117,7 +123,6 @@
 }
 
 @media (max-width: 900px) {
-  .toolkit,
   .practiceGrid {
     grid-template-columns: minmax(0, 1fr);
   }

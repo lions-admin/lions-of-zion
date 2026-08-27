@@ -71,7 +71,9 @@ function createRing(theme: ParticleNavTheme, radius: number, inner: boolean) {
     float(0),
     reducedMotion,
   );
-  const jitter = inner ? 0.01 : 0.016;
+  /* Halved on 2026-08-27: at the old spread the ring read as a fuzzy band
+     rather than a drawn circle, and the grown radius made that worse. */
+  const jitter = inner ? 0.005 : 0.008;
   const r = float(radius).add(hash(instanceIndex.add(93)).sub(0.5).mul(jitter)).add(wobble);
   material.positionNode = vec3(cos(a).mul(r), sin(a).mul(r), 0);
   material.scaleNode = mix(float(0.65), float(1.25), hash(instanceIndex.add(7)))
@@ -84,7 +86,7 @@ function createRing(theme: ParticleNavTheme, radius: number, inner: boolean) {
   );
   const d = uv().sub(vec2(0.5)).length();
   material.opacityNode = smoothstep(0.5, 0.15, d)
-    .mul(mix(inner ? 0.13 : 0.18, inner ? 0.34 : 0.44, hash(instanceIndex.add(13))))
+    .mul(mix(inner ? 0.18 : 0.26, inner ? 0.42 : 0.55, hash(instanceIndex.add(13))))
     .mul(mix(float(0.78), float(1.4), active));
   return { material, uniforms: { active, pxToWorld, dpr, reducedMotion } };
 }

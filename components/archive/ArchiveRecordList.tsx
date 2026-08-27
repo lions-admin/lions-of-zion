@@ -1,5 +1,8 @@
 import Link from 'next/link';
-import { type ArchiveIndexEntry, displayTitle } from '@/lib/content/archive';
+import type { ArchiveIndexEntry } from '@/lib/content/archive';
+/* From the pure module, not the seam: this list renders inside
+   `ArchiveIndexFilter`, a client component, and the seam reads the filesystem. */
+import { displayTitle, displayWitness } from '@/lib/content/archive-display';
 import styles from './archive.module.css';
 
 export type ArchiveRecordListProps = {
@@ -13,6 +16,26 @@ export type ArchiveRecordListProps = {
    * row counter instead of an identity.
    */
   startAt?: number;
+  /**
+   * Whether each row carries a meta line under its title. Default on.
+   *
+   * The documentation index turns it off. Its records have no witness, every
+   * one has exactly two languages, and the date is the source CMS's crawl
+   * timestamp rather than the event's — so `meta()` resolves to two strings
+   * across all 335 rows ("2023 · 2 languages" ×314, "2024 · 2 languages"
+   * ×21), and the 21 attach a wrong year to a 2023 event. Testimonies keep
+   * it: 177 of their 179 rows are distinct, because the witness carries real
+   * signal there.
+   */
+  showMeta?: boolean;
+  /**
+   * Explicit file number per record, aligned to `records`.
+   *
+   * `startAt + i` is right for an unfiltered list and wrong the moment rows
+   * are hidden: the number is the record's identity, not its position in the
+   * current view, so filtering must not renumber what is left.
+   */
+  numbers?: number[];
 };
 
 /**
@@ -23,20 +46,28 @@ export type ArchiveRecordListProps = {
  * thumbnails turns evidence into a gallery — the record's own page is where
  * its imagery belongs, in the context its caption and credit give it.
  */
-export function ArchiveRecordList({ records, href, startAt = 1 }: ArchiveRecordListProps) {
+export function ArchiveRecordList({
+  records,
+  href,
+  startAt = 1,
+  showMeta = true,
+  numbers,
+}: ArchiveRecordListProps) {
   return (
     <ol className={styles.recordList} start={startAt}>
       {records.map((entry, i) => (
         <li key={entry.id} className={styles.recordItem}>
           <Link className={styles.recordLink} href={href(entry)}>
             <span className={styles.recordNum} aria-hidden="true">
-              {String(startAt + i).padStart(3, '0')}
+              {String(numbers?.[i] ?? startAt + i).padStart(3, '0')}
             </span>
             <span className={styles.recordBody}>
               <span className={styles.recordItemTitle}>
                 {displayTitle(entry.title ?? entry.id)}
               </span>
-              <span className={styles.recordItemMeta}>{meta(entry)}</span>
+              {showMeta ? (
+                <span className={styles.recordItemMeta}>{meta(entry)}</span>
+              ) : null}
             </span>
             <span className={styles.recordArrow} aria-hidden="true">
               →
@@ -50,7 +81,7 @@ export function ArchiveRecordList({ records, href, startAt = 1 }: ArchiveRecordL
 
 function meta(entry: ArchiveIndexEntry): string {
   const parts: string[] = [];
-  if (entry.witness) parts.push(entry.witness);
+  if (entry.witness) parts.push(displayWitness(entry.witness));
   if (entry.date) {
     const date = new Date(entry.date);
     if (!Number.isNaN(date.getTime())) parts.push(String(date.getUTCFullYear()));

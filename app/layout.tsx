@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cinzel, Geist, Geist_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import { ParticleChatLauncher } from "@/components/chat/ParticleChatLauncher";
 import { ChatOpenProvider } from "@/components/chat/chat-open-context";
-import { SITE_URL } from "@/lib/site-config";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
@@ -41,23 +41,23 @@ const plexSans = IBM_Plex_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: "LIONS OF ZION", template: "%s — LIONS OF ZION" },
-  description: "A cinematic awakening from digital darkness.",
+  description: SITE_DESCRIPTION,
   // Section pages override title/description; app/opengraph-image.tsx
   // supplies the og:image (file-based metadata outranks this images entry).
   openGraph: {
     title: "LIONS OF ZION — Truth Has a Signal",
-    description: "A cinematic awakening from digital darkness.",
+    description: SITE_DESCRIPTION,
     images: ["/posters/particle-nav.webp"],
   },
   twitter: {
     card: "summary_large_image",
     title: "LIONS OF ZION — Truth Has a Signal",
-    description: "A cinematic awakening from digital darkness.",
+    description: SITE_DESCRIPTION,
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070b14",
+  themeColor: "#000000",
   colorScheme: "dark",
 };
 

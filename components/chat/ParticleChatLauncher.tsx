@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { usePathname } from 'next/navigation';
 import lionReference from '@/assets/reference/crowned-lion-particle-reference.png';
-import { ChatParticleCanvas } from './ChatParticleCanvas';
+import dynamic from 'next/dynamic';
 import { AskTheLionChat } from './AskTheLionChat';
 import { XPublicAuthControl } from './XPublicAuthControl';
 import { launcherLabel } from './chat-context';
@@ -14,6 +14,20 @@ import {
   introRouteDefault,
 } from '@/components/particle-nav/introSignal';
 import styles from './particle-chat-launcher.module.css';
+
+/* `ChatParticleCanvas` pulls @react-three/fiber, three/webgpu and three/tsl.
+   This launcher is mounted in the *root* layout, so a static import puts a
+   WebGPU renderer in the client manifest of all ~1,190 routes — including
+   every prerendered archive page, and including mobile, which never mounts
+   it (`:184`). Loading it dynamically is what makes that comment true.
+   `ssr: false` costs nothing: `getServerSnapshot` already returns `true`,
+   so the canvas is never server-rendered, and the `<img>` at `:177` covers
+   the resolve window. Same reasoning as `CanvasMount.tsx:30`. */
+const ChatParticleCanvas = dynamic(
+  () => import('./ChatParticleCanvas').then((m) => m.ChatParticleCanvas),
+  { ssr: false },
+);
+
 
 const MOBILE_CHAT_QUERY = '(max-width: 719px)';
 

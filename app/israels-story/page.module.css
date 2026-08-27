@@ -16,7 +16,7 @@
   padding: 1.4rem 1.5rem;
   border: 1px solid var(--gold-line);
   border-radius: 2px;
-  background: rgba(7, 11, 20, 0.5);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 /* One word. */
@@ -188,5 +188,19 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Above 1220px `SectionToc`'s "In this file" rail lists these same chapters,
+   so the panel is the second contents list on one screen — and the two
+   disagree, because the rail also picks up the "Sources and further reading"
+   heading. Hidden rather than deleted: the rail is client-side only and is
+   itself `display: none` below 1220px, so deleting this block would leave
+   mobile and no-JavaScript readers with no contents at all.
+   The rail is shared chrome and stays untouched (`.ai/DECISIONS.md`,
+   2026-08-25); the Roman numerals survive on the chapter heads. */
+@media (min-width: 1220px) {
+  .contents {
+    display: none;
   }
 }

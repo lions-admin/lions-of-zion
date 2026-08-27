@@ -1,7 +1,7 @@
 /*
  * 404 — a route the scan does not index.
  *
- * Same palette locks as the section pages: gold #C9A24B on #070B14 is never
+ * Same palette locks as the section pages: gold #C9A24B on the ground is never
  * dimmed for atmosphere; focus ring 2px #EFD79A at 3px offset. The page owns
  * its own scroll (html/body are overflow: hidden for the canvas experience).
  */
@@ -17,8 +17,9 @@
   --mono: var(--face-data);
   --display: var(--face-display);
 
-  height: 100dvh;
-  overflow-y: auto;
+  /* The document scrolls — converted 2026-08-27 with the four other reading
+     containers; see the lock in `app/globals.css`. */
+  min-height: 100dvh;
   /* Ground and texture come from `body` — see `--scan-ground` in globals.css. */
   color: var(--ink);
   font-family: var(--face-text);
@@ -46,7 +47,9 @@
   font-size: var(--t-data);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--blue);
+  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
+     never expresses text hierarchy — see `app/globals.css`. */
+  color: var(--ink-lo);
 }
 
 /* "This file is not in the index" is a sentence, so it is set as one. */
@@ -93,12 +96,15 @@
   margin-top: clamp(2.5rem, 6vh, 4rem);
 }
 
+/* "Open files · monitoring active" is four words — a status line, not a
+   two-word data label — so it keeps the mono voice and loses the capitals. */
 .indexHeading {
   font-family: var(--mono);
   font-size: var(--t-data);
   letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--blue-dim);
+  /* Was --blue-dim (aliased to --data-blue-dim at :16): below AA at 0.72rem,
+     and the blue ramp is reserved for semantics, not text hierarchy. */
+  color: var(--ink);
 }
 
 .list {
@@ -134,7 +140,8 @@
   font-family: var(--mono);
   font-size: var(--t-data);
   letter-spacing: var(--t-data-tracking);
-  color: var(--blue-dim);
+  /* Same defect and same fix as `home.module.css`'s `.entryIndex`. */
+  color: var(--ink);
   padding-top: 0.2rem;
 }
 

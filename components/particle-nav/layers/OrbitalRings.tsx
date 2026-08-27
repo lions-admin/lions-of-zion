@@ -1,5 +1,9 @@
 'use client';
-/** Layer 2 — dotted orbital rings, counter-rotating at differing rates. */
+/**
+ * Layer 2 — dotted orbital rings. Each ring carries its own `spec.rate`, so
+ * they counter-rotate at differing rates for any nonzero
+ * `idleRotateDegPerSec`; the shipping value is 0, so today they hold still.
+ */
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Sprite } from 'three/webgpu';

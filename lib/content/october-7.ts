@@ -28,11 +28,73 @@ export type October7Record = {
 
 const VERIFIED: AssessmentValue = 'verified';
 
+/* One ADL backgrounder used to carry all seven entries, so the margin printed
+   the same citation seven times: an ornament rather than evidence, and a page
+   claiming the record is checkable resting visibly on a single secondary
+   source. Each entry now carries the record of its own event. Every URL below
+   was fetched and its title and date checked in the session that added it —
+   the same rule the founding chapter in `israels-story.ts` is held to — and
+   the ADL timeline stays only on the entry whose figures it is the source of. */
+
 const ADL_SOURCE: Source = {
   id: 'adl-timeline',
   label: 'The October 7th War: A Timeline of Key Events and Issues',
   kind: 'ADL',
   url: 'https://www.adl.org/resources/backgrounder/october-7th-war-timeline-key-events-and-issues',
+};
+
+const UN_COI_OCTOBER_7: Source = {
+  id: 'un-coi-october-7',
+  label:
+    'Detailed findings on attacks carried out on and after 7 October 2023 in Israel (A/HRC/56/CRP.3)',
+  kind: 'UN record',
+  url: 'https://digitallibrary.un.org/record/4051246',
+};
+
+const OCHA_FLASH_22: Source = {
+  id: 'ocha-flash-22',
+  label:
+    'Hostilities in the Gaza Strip and Israel, Flash Update #22 — reporting 27–28 October 2023',
+  kind: 'UN OCHA',
+  url: 'https://www.ochaopt.org/content/hostilities-gaza-strip-and-israel-flash-update-22',
+};
+
+const OCHA_FLASH_49: Source = {
+  id: 'ocha-flash-49',
+  label:
+    'Hostilities in the Gaza Strip and Israel, Flash Update #49 — the pause enters into force, 24 November 2023',
+  kind: 'UN OCHA',
+  url: 'https://www.ochaopt.org/content/hostilities-gaza-strip-and-israel-flash-update-49',
+};
+
+const US_STATEMENT_SINWAR: Source = {
+  id: 'us-statement-sinwar',
+  label: 'Statement on the Death of Yahya Sinwar, 17 October 2024',
+  kind: 'US Presidential Documents',
+  url: 'https://www.govinfo.gov/content/pkg/DCPD-202400923/html/DCPD-202400923.htm',
+};
+
+const PMO_FIRST_HOSTAGES_2025: Source = {
+  id: 'pmo-first-hostages-2025',
+  label: 'First hostages return home — Prime Minister’s Office announcement, 19 January 2025',
+  kind: 'Israel Prime Minister’s Office',
+  url: 'https://embassies.gov.il/usa/en/news/first-hostages-return-home-19012025',
+};
+
+const ICRC_FINAL_TWENTY: Source = {
+  id: 'icrc-final-twenty',
+  label:
+    'ICRC facilitates the return of 20 hostages and 1,808 detainees as part of ceasefire agreement, 13 October 2025',
+  kind: 'ICRC',
+  url: 'https://www.icrc.org/en/news-release/israel-and-occupied-territories-icrc-facilitates-return-20-hostages-and-1809-detainees',
+};
+
+const MFA_LAST_HOSTAGE: Source = {
+  id: 'mfa-last-hostage',
+  label:
+    'President Isaac Herzog addresses the return home of the last hostage, Ran Gvili, 26 January 2026',
+  kind: 'Israel Ministry of Foreign Affairs',
+  url: 'https://embassies.gov.il/nepal/en/news/president-isaac-herzog-addresses-return-home-last-hostage-ran-gvili-26012026',
 };
 
 const FIGURES: Figure[] = [
@@ -50,7 +112,7 @@ const TIMELINE: TimelineEntry[] = [
     assessment: VERIFIED,
     title: 'Hamas and allied fighters attack southern Israel',
     body: 'Roughly 6,000 fighters cross from Gaza — primarily by land, with additional sea and paraglider infiltration reported elsewhere — while thousands of rockets are fired into Israeli territory. Twenty-two civilian communities, the Nova music festival, and about a dozen IDF bases and posts are attacked. It is the deadliest day for Jews since the Holocaust.',
-    sources: [ADL_SOURCE],
+    sources: [UN_COI_OCTOBER_7, ADL_SOURCE],
   },
   {
     id: 'ground-offensive',
@@ -60,7 +122,7 @@ const TIMELINE: TimelineEntry[] = [
     assessment: VERIFIED,
     title: 'Israel launches a ground offensive into Gaza',
     body: 'The start of the campaign to dismantle Hamas’s military and governing capability there.',
-    sources: [ADL_SOURCE],
+    sources: [OCHA_FLASH_22],
   },
   {
     id: 'first-ceasefire',
@@ -70,7 +132,7 @@ const TIMELINE: TimelineEntry[] = [
     assessment: VERIFIED,
     title: 'A first ceasefire brings the first hostage releases',
     body: 'A temporary pause exchanges hostages held in Gaza for Palestinian prisoners held in Israel.',
-    sources: [ADL_SOURCE],
+    sources: [OCHA_FLASH_49],
   },
   {
     id: 'sinwar-killed',
@@ -80,7 +142,7 @@ const TIMELINE: TimelineEntry[] = [
     assessment: VERIFIED,
     title: 'Hamas leader Yahya Sinwar is killed',
     body: 'Sinwar, believed to have planned the October 7 attack, is killed by Israeli forces in Gaza.',
-    sources: [ADL_SOURCE],
+    sources: [US_STATEMENT_SINWAR],
   },
   {
     id: 'jan-2025-ceasefire',
@@ -89,7 +151,7 @@ const TIMELINE: TimelineEntry[] = [
     category: 'Diplomacy',
     assessment: VERIFIED,
     title: 'A ceasefire is implemented',
-    sources: [ADL_SOURCE],
+    sources: [PMO_FIRST_HOSTAGES_2025],
     body: 'Superseded later the same year — see War Update for the ceasefire process that has been in effect since October 2025.',
   },
   {
@@ -100,7 +162,7 @@ const TIMELINE: TimelineEntry[] = [
     assessment: VERIFIED,
     title: 'The final 20 living hostages are released',
     body: 'All remaining living hostages come home within days, under the ceasefire process — see War Update for how it has held since.',
-    sources: [ADL_SOURCE],
+    sources: [ICRC_FINAL_TWENTY],
   },
   {
     id: 'last-hostage-recovered',
@@ -109,8 +171,8 @@ const TIMELINE: TimelineEntry[] = [
     category: 'Hostages',
     assessment: VERIFIED,
     title: 'The last deceased hostage is recovered',
-    body: 'The body of the final hostage still held in Gaza is returned, closing that chapter of the war.',
-    sources: [ADL_SOURCE],
+    body: 'The body of Ran Gvili, the last hostage still held in Gaza, is recovered and returned, closing that chapter of the war.',
+    sources: [MFA_LAST_HOSTAGE],
   },
 ];
 

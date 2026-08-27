@@ -43,13 +43,15 @@ export function NavLinks({ nodes }: NavLinksProps) {
               >
                 <span className={styles.label}>{node.label}</span>
               </a>
+              {/* Name, rule, sentence — nothing else. The file number that used
+                  to lead here is the section pages' identity, not this card's
+                  job: on the orbit a reader is choosing a place, and a running
+                  count of eight tells them nothing about which. */}
               <span role="tooltip" className={styles.card} data-side={side}>
-                <span className={styles.cardMeta} aria-hidden="true">
-                  <span className={styles.cardFile}>
-                    File {String(i + 1).padStart(2, '0')} / {String(nodes.length).padStart(2, '0')}
-                  </span>
-                  <span className={styles.cardRoute}>{node.href}</span>
+                <span className={styles.cardName} aria-hidden="true">
+                  {node.displayName}
                 </span>
+                <span className={styles.cardRule} aria-hidden="true" />
                 <span id={`nav-card-${node.id}`} className={styles.cardText}>
                   {node.description}
                 </span>

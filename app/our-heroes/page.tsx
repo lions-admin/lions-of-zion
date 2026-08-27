@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { SourceList } from "@/components/content";
+import { PublicationMeta, SourceList } from "@/components/content";
 import { getOurHeroesEdition } from "@/lib/content/our-heroes";
 import type { HeroProfile } from "@/lib/content/our-heroes";
 import { SITE_URL } from "@/lib/site-config";
@@ -80,17 +80,20 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(heroesJsonLd(edition)) }}
       />
-      <SectionBlock heading="Citations">
-        <Citation hero={edition.featured} featured />
-        <div className={styles.citationGrid}>
-          {edition.profiles.map((hero) => (
-            <Citation key={hero.id} hero={hero} />
-          ))}
-        </div>
-      </SectionBlock>
-
-      <SectionBlock heading="How these stories are built">
-        <p>
+      {/* The consent boundary comes first, and marked. It is a binding
+          commitment (`.ai/DECISIONS.md`, 2026-08-25), and read after three
+          corner-bracketed citations it arrives too late: the frame, the "In
+          recognition" formula and the commendation register have by then
+          told a reader these are memorials built with the families, which is
+          exactly what they are not. War Update is the in-repo precedent for
+          both the treatment and the placement. The wording is unchanged and
+          ungated; only the heading is new, so it names the limit rather than
+          reading as a production note. The `.standfirst` rules are local —
+          War Update's module is not `composes:`-ed and the shell is not
+          touched (2026-08-25 composition decision). */}
+      <SectionBlock heading="What this page will not publish">
+        <p className={styles.standfirst}>
+          <span className={styles.standfirstLabel}>Consent boundary —</span>{" "}
           Every profile here is built only from what is already extensively
           reported by named, mainstream press — never from a private
           submission, and never with a detail beyond what is cited. This
@@ -101,6 +104,25 @@ export default async function Page() {
           it.
         </p>
       </SectionBlock>
+
+      <SectionBlock heading="Citations">
+        <Citation hero={edition.featured} featured />
+        <div className={styles.citationGrid}>
+          {edition.profiles.map((hero) => (
+            <Citation key={hero.id} hero={hero} />
+          ))}
+        </div>
+      </SectionBlock>
+
+      {/* A colophon, not a masthead: `publishedAt` and `reviewedBy` were
+          declared and reaching no reader, while the other three editorial
+          destinations rendered the same two through `PublicationMeta`. At the
+          foot, where a reader who has read the page is the one asking who
+          checked it. */}
+      <PublicationMeta
+        publishedAt={edition.publishedAt}
+        reviewedBy={edition.reviewedBy}
+      />
     </SectionPage>
   );
 }

@@ -19,7 +19,7 @@ const SCALE = 118; // px per world unit — mirrors the component framing
 
 const GOLD = '#C9A24B';
 const BLUE = '#6FA8DC';
-const BG = '#070B14';
+const BG = '#000000';
 
 function mulberry(seed: number) {
   let a = seed >>> 0;

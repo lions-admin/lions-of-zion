@@ -51,13 +51,82 @@
      two words or fewer. Anything longer is sentence case. */
   --t-data-tracking: 0.08em;
 
+  /* ── Spacing — eight steps, tuned to the body line box ──────────────────
+     The V2 pass collapsed type and colour and left spacing alone, so the
+     three files that carry the reading system between them shipped 37
+     distinct rem values, 15 of them inside the 0.2–0.9rem band. These steps
+     are the vocabulary now, the same way the type steps are.
+
+     The ramp is anchored on the body line box — 1.0625rem × 1.7 = 28.9px —
+     so vertical space lands on the rhythm the text already sets rather than
+     beside it: --sp-4 is a third of it, --sp-6 is a little over two thirds,
+     --sp-7 is roughly one line, --sp-8 a line and a half. */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4.5rem;
+
+  /* The one named editorial value: the gap between sibling paragraphs. It is
+     not a step because it is not a choice a page gets to make — hand-authored
+     prose in a SectionBlock and a paragraph rendered by a content component
+     are the same paragraph to a reader, and before this they were 1.15rem and
+     0.7rem apart for the same job. */
+  --flow: 1.15rem;
+
+  /* What the chat launcher's mobile dock costs, reserved by every ≤719px
+     reading surface so text never sits under it.
+     `components/particle-nav/config.ts` derives the same band in pixels as
+     `CHAT_DOCK_PX = 84` — a 0.65rem offset, a 3.45rem launcher, 0.46rem of
+     vertical padding and 1px borders — and `tests/particle-nav-layout.test.ts`
+     asserts that number, so the two must be read as one value: 5.25rem is 84px
+     at the root size.
+
+     Named here because the literal was written out in three stylesheets and a
+     reserve that is too small is not a cosmetic error — it puts the last line
+     of a document under the dock. The measured 57px launcher rect is the pill
+     and its border, *not* the padded root, and is not this number.
+
+     One holdout: `home.module.css:562` still writes the literal. It is the
+     home scene's file and is being edited in parallel; it should read this
+     token in the same round that touches it. */
+  --chat-dock-h: 5.25rem;
+
   /* ── Color ──────────────────────────────────────────────────────────────
-     Ground and gold are brand and unchanged. The neutrals are a real scale
-     now: three inks, each with a job, replacing twelve drifting grays. */
-  --ground: #070b14;
-  --ink-hi: #e9eef6;
-  --ink: #b9c5d4;
-  --ink-lo: #8494a8;
+     Gold is brand and unchanged. The neutrals are a real scale: three inks,
+     each with a job, replacing twelve drifting grays.
+
+     The ground was #070b14 — rgb(7,11,20), a navy whose blue channel is
+     nearly three times its red, which is why the site read blue rather than
+     black. It is now true black, by owner decision on 2026-08-26. Every
+     ink/ground pair gets *more* contrast from this, never less, so no
+     contrast fix is weakened by it.
+
+     The inks are neutral for the same reason, one round later. Blackening the
+     ground did not stop the site reading blue, because the *scale* was tinted
+     too: #e9eef6 carries b−r of +13, #b9c5d4 +27 and #8494a8 +36, and the
+     tint grows as the ink gets quieter. That is backwards — `--ink-lo` is
+     what colours every quiet label on a reading page ("Status", "In this
+     brief", "Primary records"), so the most-tinted ink was on the largest
+     area of small type, over a ground with no blue left to justify it.
+
+     Each is replaced by its luminance-matched grey, the method commit c7e92b2
+     used for the panels: grey = 0.2126R + 0.7152G + 0.0722B. Contrast against
+     the ground is therefore held, not traded — measured against #000000, the
+     three inks move 18.03→18.10, 12.00→12.04 and 6.78→6.75, and the hairline
+     9.66→9.57. (Held, not identical: that formula is simple luma while WCAG
+     linearises first, so the pairs land within ±0.08 of where they were. No
+     pair crosses a threshold in either direction.)
+
+     Gold and the `--data-*` ramps below are hue-bearing and stay exactly as
+     they are — the point is that blue means something here again. */
+  --ground: #000000;
+  --ink-hi: #eeeeee;
+  --ink: #c4c4c4;
+  --ink-lo: #929292;
   --gold: #c9a24b;
   --gold-hi: #efd79a;
 
@@ -71,8 +140,12 @@
   --data-ember-dim: #7a4048;
   --data-ember-peak: #d08d94;
 
-  /* Hairlines, in the two weights the site actually uses. */
-  --line: rgba(153, 179, 202, 0.14);
+  /* Hairlines, in the two weights the site actually uses. The neutral one was
+     rgb(153,179,202) — b−r of +49, the strongest tint in the file, on every
+     rule and panel edge on the site. Luminance-matched to 175 grey by the
+     same formula as the inks; the alpha is unchanged, so a hairline lands
+     where it always did. */
+  --line: rgba(175, 175, 175, 0.14);
   --gold-line: rgba(201, 162, 75, 0.24);
 
   /*
@@ -87,24 +160,32 @@
    * the one surface that has to stay opaque over the live scene
    * (`home.module.css`).
    *
-   * The alphas are chosen against the ground, not by feel. `--ground` is
-   * rgb(7,11,20); the rule field was `0.028`, which composites to rgb(9,15,26)
-   * — a delta of (2,4,6), under the threshold of perception on most displays,
-   * which is why the site read as flat black however many surfaces carried it.
-   * `0.075` composites to rgb(13,23,35), a visible weave that still leaves
-   * body text (`--ink`, #B9C5D4) above 12:1.
+   * The alphas are chosen against the ground, not by feel. Against the old
+   * navy ground the rule field needed a blue at 0.075 to be perceptible at
+   * all. On true black a neutral does the same work at half the strength:
+   * rgba(214,226,240,0.038) composites to rgb(8,9,9), a weave that is visible
+   * without tinting the page, and it keeps body text (`--ink`, #B9C5D4) above
+   * 13:1. The radial wash stays blue but drops to 0.045 — it is the cue that
+   * the scan is densest at the centre, and at the old 0.1 over black it read
+   * as a blue spotlight rather than as depth.
    */
   --scan-ground:
-    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.1), transparent 70%),
-    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.075) 0 1px, transparent 1px 9px);
+    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.045), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(214, 226, 240, 0.038) 0 1px, transparent 1px 9px);
 
   /* ── Compatibility aliases ──────────────────────────────────────────────
-     `sections.module.css`, `geopolitical-brief.module.css`,
-     `support.module.css` and `share-verified.module.css` read `--loz-*` and
-     are owned by other phases of this redesign. Keeping the old names
-     pointing at the new values means those files pick up the corrected
-     palette immediately and get cleaned up in their own phase, instead of
-     this one breaking them mid-flight. Remove once Phase 3 lands. */
+     One consumer, not the four this comment used to name: `grep -rn
+     'var(--loz-'` returns 7 hits and every one is in `content.module.css`
+     :25-34, where they survive as the `var(--loz-*, literal)` fallback
+     pattern that keeps the component library renderable on its own. The
+     files formerly listed here — `sections.module.css`,
+     `geopolitical-brief.module.css`, `support.module.css` and
+     `share-verified.module.css` — read the V2 names directly now.
+
+     Three of these ten have zero readers even there: `--loz-blue-dim`,
+     `--loz-ember-dim` and `--loz-body`. The whole block goes when
+     `content.module.css:25-34` is repointed at the V2 names, which do not
+     collide for `--ground`/`--gold`/`--gold-hi` the way the inks did. */
   --loz-ground: var(--ground);
   --loz-gold: var(--gold);
   --loz-gold-bright: var(--gold-hi);
@@ -118,15 +199,48 @@
 }
 
 /*
- * The default is locked, and stays locked: every reading route owns its own
- * scroll container (`sections.module.css` `.page`, the brief, not-found,
- * error), so nothing below needs the document to scroll and `ReadingProgress`
- * and `SectionToc` keep reading `scrollTop` from `[data-reading-scroll]`.
+ * The document scrolls. Every reading route is part of it.
+ *
+ * This was inverted on 2026-08-27, and the write-up that used to live here
+ * explaining why it had *not* been is now the record of what the change had
+ * to move. Until then every reading route declared `height: 100dvh;
+ * overflow-y: auto` and scrolled inside itself, which cost a reader-facing
+ * thing on ~1,190 routes: a phone's URL bar only auto-collapses for a
+ * *document* scroll, so each page permanently spent the ~60–90px every other
+ * site reclaims after the first swipe, and browser scroll restoration on
+ * back-navigation never applied.
+ *
+ * A document has exactly one scroller, so this had to convert whole — five
+ * stylesheets in one change (`sections.module.css` `.page`, which is
+ * SectionPage and DocPage and therefore the whole archive; the brief;
+ * `not-found`; `error.tsx`; `admin`), plus the three consumers that read the
+ * container directly, plus the sticky elements whose scrollport changed
+ * underneath them. Leaving any one of them on `100dvh` would have given that
+ * route a dead outer scrollbar around a live inner one.
+ *
+ * What each container became: `min-height`, not `height`. The ≤719px rules
+ * that used to *shorten* the scroller to clear the chat dock now reserve the
+ * same band as `padding-bottom` — you cannot shorten a document, and the home
+ * route had already solved it that way (`home.module.css`).
+ *
+ * `scroll-behavior` lives here now rather than on five separate elements,
+ * with the reduced-motion reset beside it. Anchor offsets did not move:
+ * they were already `scroll-margin-top` on the targets, which resolves
+ * against whatever scroller is in play.
  */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 html, body {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
   /* One black, and one texture, under everything. `#020409` — a second,
      darker ground that only ever showed where a page forgot to paint — is
      retired; `sections.module.css` already called it "the body's darker one"
@@ -137,26 +251,17 @@ html, body {
 }
 
 /*
- * …except the home route, which now continues below the scene.
+ * The home route no longer needs unlocking — the document scrolls by default
+ * now — but its two other rules still stand, and the reason the marker is an
+ * *attribute* rather than an id is unchanged and still load-bearing.
  *
- * Route-scoped rather than global, keyed on a marker the band server-renders,
- * so this reaches exactly one document. `:has()` is how the chat launcher
- * already reads these same home-scene attributes — the launcher is mounted by
- * the root layout and the scene by the page, siblings with no provider
- * between them, so the signal travels as DOM state.
- *
- * The marker is an attribute rather than an id on purpose. `:has()` takes the
- * specificity of its argument, so `html:has(#id)` scores (1,0,1) and would
- * outrank the intro lock below at (0,1,1) — the lock would never win and the
- * intro would be scrollable. Matching attribute for attribute puts both rules
- * on the same specificity and lets source order decide, which is the whole
- * point of the ordering.
+ * `:has()` takes the specificity of its argument, so `html:has(#id)` would
+ * score (1,0,1) and outrank the intro lock below at (0,1,1) — the lock would
+ * never win and a 47-second intro would be scrollable. Matching attribute for
+ * attribute puts both on the same specificity and lets source order decide,
+ * which is the whole point of the ordering. This file fell into that trap
+ * once already.
  */
-html:has([data-home-scroll]),
-html:has([data-home-scroll]) body {
-  height: auto;
-  min-height: 100%;
-}
 
 /*
  * The sideways clip belongs to `html` alone.

@@ -5,10 +5,13 @@
   min-height: 2rem;
   border: 1px solid rgba(201, 162, 75, 0.3);
   border-radius: 999px;
-  background: rgba(7, 11, 20, 0.94);
+  background: rgba(0, 0, 0, 0.94);
   box-shadow: 0 0.45rem 1.35rem rgba(0, 0, 0, 0.42);
   color: #e7c76e;
-  font-family: var(--font-heebo), Arial, sans-serif;
+  /* Was `var(--font-heebo)`, which is defined nowhere in the project — a
+     phantom token that silently fell through to Arial. The site's text face
+     is `--face-text`. */
+  font-family: var(--face-text);
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1;
@@ -17,14 +20,23 @@
 }
 
 .loginLink {
-  padding: 0 0.78rem;
+  gap: 0.42rem;
+  padding: 0 0.82rem;
   transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+}
+
+/* Sized to the cap height of the label beside it rather than to the line box,
+   so the mark reads as part of the word and not as a separate badge. */
+.mark {
+  width: 0.95em;
+  height: 0.95em;
+  flex: none;
 }
 
 .loginLink:hover,
 .loginLink:focus-visible {
   border-color: rgba(255, 226, 154, 0.72);
-  background: rgba(17, 23, 35, 0.98);
+  background: rgba(23, 23, 23, 0.98);
   color: #ffe29a;
 }
 
@@ -35,8 +47,12 @@
 }
 
 .account {
-  gap: 0.1rem;
-  padding: 0.18rem 0.24rem 0.18rem 0.66rem;
+  gap: 0.36rem;
+  padding: 0.18rem 0.24rem 0.18rem 0.62rem;
+}
+
+.account .mark {
+  opacity: 0.85;
 }
 
 .username {

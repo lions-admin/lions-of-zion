@@ -88,6 +88,16 @@ const loadFragments = cache(async (): Promise<Fragment[]> => {
 export interface ScanBackdropProps {
   /** Seeds the sample so each page shows its own stable slice of the corpus. */
   routeId: string;
+  /**
+   * Overrides what the sample is seeded from, when `routeId` is shared.
+   *
+   * The eight orbit files each own their route, so `routeId` is their identity
+   * and their slice. The ~1,177 archive routes all sit under `october-7`, so
+   * seeding from the route gave every record and both indexes the identical
+   * nine fragments in the identical positions — which is the one thing the
+   * seeding existed to prevent. They pass their own slug instead.
+   */
+  seed?: string;
   register?: 'default' | 'muted';
   /**
    * Where this backdrop lives.
@@ -104,11 +114,12 @@ export interface ScanBackdropProps {
 
 export async function ScanBackdrop({
   routeId,
+  seed,
   register = 'default',
   surface = 'viewport',
 }: ScanBackdropProps) {
   const fragments = await loadFragments();
-  const rng = mulberry32(hashSeed(routeId));
+  const rng = mulberry32(hashSeed(seed ?? routeId));
   const hostile = fragments.filter((f) => f.tone === 'red' || f.tone === 'amber');
   const verified = fragments.filter((f) => f.tone === 'blue' || f.tone === 'neutral');
 

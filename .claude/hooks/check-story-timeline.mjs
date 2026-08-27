@@ -11,9 +11,12 @@
  *      removing a beat leaves both pointing at the wrong thing.
  *   3. `lion-scene.tsx` emphasises one beat by string id. Renaming it drops
  *      the emphasis with no error anywhere.
+ *   4. The two layouts' derived durations must stay within 10% of each other,
+ *      and neither cadence may fall below the dissolve. The runtime is a
+ *      function of LINE count, not of anything declared, so adding one mobile
+ *      line silently charges the phone another second for the same sentences.
  *
- * It also prints the intro's derived duration, which is otherwise invisible:
- * the runtime is a function of LINE count, not of anything declared.
+ * It prints both derived durations for the same reason.
  *
  * Reads the PostToolUse payload on stdin; no-ops for any other file.
  */
@@ -124,8 +127,19 @@ const c = (name) => num(name, rolling);
 const storyStart = num("RELOCATION_END", src);
 
 let note = "";
-const cadence = c("ROLLING_LINE_CADENCE");
-if (cadence && storyStart !== null) {
+/* Cadence is per layout now, so read both. The two totals are the thing to
+   watch: the line arrays are art direction and the sentences are content, so
+   a growing mobile array must not buy itself more wall clock. Printing them
+   was not enough — a mobile array grew to 21 lines and bought 8.75 extra
+   seconds with nobody reading the note — so the budget below blocks. */
+const DRIFT_BUDGET = 0.1;
+const cadences = (() => {
+  const m = rolling.match(
+    /ROLLING_LINE_CADENCE_BY_LAYOUT[\s\S]*?desktop:\s*([\d.]+),\s*mobile:\s*([\d.]+)/,
+  );
+  return m ? { desktop: +m[1], mobile: +m[2] } : null;
+})();
+if (cadences && storyStart !== null) {
   const tail =
     (c("ROLLING_ENTER_DURATION") ?? 0) +
     (c("ROLLING_JOIN_HOLD_DURATION") ?? 0) +
@@ -136,11 +150,44 @@ if (cadence && storyStart !== null) {
     (c("ROLLING_BRAND_ENTER_DURATION") ?? 0) +
     (c("ROLLING_FINAL_HOLD_DURATION") ?? 0) +
     (c("ROLLING_OUTRO_DURATION") ?? 0);
-  const total = (n) => (storyStart + (n - 1) * cadence + tail).toFixed(1);
+  const total = (n, cadence) => storyStart + (n - 1) * cadence + tail;
   const d = beats.reduce((a, b) => a + b.desktop.length, 0);
   const m = beats.reduce((a, b) => a + b.mobile.length, 0);
+  const desktopTotal = total(d, cadences.desktop);
+  const mobileTotal = total(m, cadences.mobile);
+
+  const budget = [];
+  /* A cadence below the dissolve retires a line before it has finished
+     dispersing: `ROLLING_POOL_SIZE` overruns, `IntroText`'s `index % pool`
+     hands one line another's slot, and row 0 gets two dissolving clouds.
+     `tests/particle-nav-layout.test.ts` asserts the same thing against the
+     solved timeline; this is the copy that fires first, on the edit. */
+  const exit = c("ROLLING_EXIT_DURATION");
+  if (exit !== null) {
+    for (const [layout, cadence] of Object.entries(cadences)) {
+      if (cadence + 1e-9 < exit) {
+        budget.push(
+          `  ${layout} cadence ${cadence}s is below ROLLING_EXIT_DURATION ${exit}s —` +
+            ` two lines would dissolve at once, overrunning the sprite pool`,
+        );
+      }
+    }
+  }
+  const drift = Math.abs(mobileTotal / desktopTotal - 1);
+  if (drift > DRIFT_BUDGET + 1e-9) {
+    budget.push(
+      `  mobile runs ${(drift * 100).toFixed(1)}% off desktop` +
+        ` (${mobileTotal.toFixed(1)}s vs ${desktopTotal.toFixed(1)}s), past the` +
+        ` ${DRIFT_BUDGET * 100}% budget. The same twelve sentences must not cost` +
+        ` the phone more wall clock. Cadence cannot absorb this on its own —` +
+        ` it is already at the dissolve floor — so re-break the mobile lines.`,
+    );
+  }
+  if (budget.length) block(budget);
+
   note =
-    ` — ${d} desktop lines (~${total(d)}s), ${m} mobile (~${total(m)}s).` +
+    ` — ${d} desktop lines (~${desktopTotal.toFixed(1)}s),` +
+    ` ${m} mobile (~${mobileTotal.toFixed(1)}s, ${(drift * 100).toFixed(1)}% off).` +
     ` Verify in real Chrome; the preview pane suspends rAF.`;
 }
 

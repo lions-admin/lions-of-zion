@@ -28,13 +28,21 @@
 .field textarea {
   min-height: 44px;
   padding: 0.6rem 0.75rem;
-  background: rgba(7, 11, 20, 0.6);
+  background: rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(201, 162, 75, 0.3);
   border-radius: 2px;
   color: var(--ink-hi);
   font-family: var(--face-text);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
+}
+
+/* Undeclared until now, so the site's only real form inherited Chrome's UA
+   grey (#757575, 4.27:1) for text that carries instructions. Scoped to
+   `.field` so it does not reach the chat composer, which has its own. */
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--ink-lo);
 }
 
 .field textarea {
@@ -85,8 +93,16 @@
   outline-offset: 2px;
 }
 
-/* The submit control says what happens; two or three words, and a control
-   label is the one place the data voice still reads as a button. */
+/* This used to stretch the uppercase budget to three words on the grounds
+   that a control label is where the data voice still reads as a button. The
+   budget is a word count, not a voice: V2 allows uppercase+tracking only for
+   data labels of two words or fewer, and "Continue by email" is three. The
+   carve-out was also already contradicted by another control that keeps the
+   rule — `app/october-7/page.module.css` `.archiveEntryCta`. So the text face
+   at caption size, sentence case; the gold rule and the 44px target are what
+   still say "button", and both submit labels change together because a group
+   of controls that switches case with its own word count reads as an accident
+   (`components/home/home.module.css`). */
 .form button[type='submit'] {
   min-height: 44px;
   padding: 0 1.3rem;
@@ -94,10 +110,11 @@
   border: 1px solid var(--gold);
   border-radius: 2px;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  letter-spacing: 0;
+  text-transform: none;
   cursor: pointer;
   transition: border-color 180ms ease, color 180ms ease;
 }
@@ -139,7 +156,7 @@
   padding: 1.35rem 1.5rem;
   border: 1px solid rgba(201, 162, 75, 0.35);
   border-radius: 2px;
-  background: rgba(7, 11, 20, 0.6);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .receipt p {

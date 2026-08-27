@@ -20,7 +20,13 @@
   text-wrap: balance;
 }
 
-.heading:first-child {
+/* Only the *opening* heading loses its lead-in — it sits directly under the
+   page's gold rule, where 2.25rem reads as a hole rather than as a break.
+   Every heading is now the first child of its own `<section>` (the region the
+   contents rail observes), so `.heading:first-child` had become true of all of
+   them and flattened the record into one undifferentiated column. The question
+   the reset has to ask is whether the *section* is first. */
+section:first-child > .heading {
   margin-top: 0;
 }
 
@@ -116,27 +122,19 @@
   color: var(--ink-lo);
 }
 
-/* ---------- record header ---------- */
-
-.recordHeader {
-  margin-bottom: 2rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--line);
-}
-
-.recordTitle {
-  font-family: var(--face-display);
-  font-size: var(--t-display);
-  line-height: var(--t-display-lh);
-  font-weight: var(--t-display-weight);
-  color: var(--ink-hi);
-  margin: 0 0 0.6rem;
-  text-wrap: balance;
-}
+/* ---------- record header ----------
+   `.recordHeader` used to wrap the two rules below and close them with a
+   full-width hairline of its own. It is gone: the dateline now renders inside
+   the page shell's `<header>`, where `.ledeRule` already closes the headline
+   block, and two rules 87px apart both claiming to end the header was the
+   defect. What is left is the two pieces themselves. */
 
 .recordMeta {
   display: flex;
   flex-wrap: wrap;
+  /* Sits where `.lede` sits on the pages that have one — the dateline has
+     taken that slot in the shell's `<header>`, so it takes its lead-in too. */
+  margin-top: 0.85rem;
   gap: 0.4rem 1.25rem;
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -166,7 +164,12 @@
 .languages {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  /* Centred rather than baseline-aligned because the chips below are now a
+     44px box around a one-line label: with `baseline` the label would sit on
+     the chips' text while their boxes hung 13px above and below it. Both
+     sides are single-line and the same size, so centring keeps the label and
+     the chip text on the same line as before. */
+  align-items: center;
   gap: 0.5rem;
   margin-top: 1rem;
 }
@@ -179,14 +182,22 @@
   color: var(--ink-lo);
 }
 
+/* These were sized as labels and then given a link. `--t-data` with 0.15rem
+   of padding is a 23.5px chip, and a testimony with seven locales is a row of
+   seven of them — the archive's most-tapped control on a phone. `.languages`
+   already wraps, so a seven-language row grows from one line to two rather
+   than overflowing, which is the right trade. */
 .languageLink,
 .languageCurrent {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  padding: 0.15rem 0.45rem;
+  padding: 0.15rem 0.7rem;
   border: 1px solid var(--line);
 }
 
@@ -219,7 +230,13 @@
   text-wrap: balance;
 }
 
-.groupHeading:first-of-type {
+/* Each group sits in its own `<section>`, and `:first-of-type` is scoped to
+   the parent — so written as `.groupHeading:first-of-type` this matched every
+   one of the seven headings, not the first, and the 2.5rem break above never
+   rendered anywhere. The only gap between a 99-row list and the next category
+   was `.recordList`'s 1.5rem. Scoping to the first *section* is what the rule
+   always meant. */
+section:first-of-type .groupHeading {
   margin-top: 0;
 }
 
@@ -346,10 +363,113 @@
   color: var(--ink-lo);
 }
 
+/* `DocPage`'s `:where(.body) p` sets font-size and color *on the p*, which
+   beats the footer's inherited `--t-data`/`--ink-lo`. Restating both here is
+   what keeps credits recessive — see `.ai/DECISIONS.md`, 2026-08-26. */
 .provenance p {
   margin: 0 0 0.35rem;
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
 }
 
 .provenance a {
   color: var(--ink);
+  /* A long source slug breaks instead of laddering down the page. */
+  overflow-wrap: anywhere;
+}
+
+/* ---------- index filter ---------- */
+
+/* Typed as a console field rather than as a form control: `--face-data` at
+   `--t-data`, which is the register the file numbers and meta lines already
+   use on these rows. */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  margin: 1.75rem 0 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.filterLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.filterInput {
+  flex: 1 1 14rem;
+  min-height: 44px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+}
+
+.filterInput::placeholder {
+  color: var(--ink-lo);
+}
+
+.filterInput:focus-visible {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 2px;
+}
+
+.filterCount {
+  margin: 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  white-space: nowrap;
+}
+
+.filterEmpty {
+  margin: 1.5rem 0;
+  color: var(--ink-lo);
+}
+
+/* In flow and sticky, not a rail: `DocPage` deliberately omits `withRails`,
+   and adding one would mean fixing `--content-w`, which assumes both rails or
+   neither. */
+.categoryJump {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.55rem;
+  margin-bottom: 1.5rem;
+  padding: 0.6rem 0;
+  background: var(--ground);
+}
+
+.categoryJump a {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-decoration: none;
+}
+
+.categoryJump a:hover,
+.categoryJump a:focus-visible {
+  border-color: var(--gold-line);
+  color: var(--gold-hi);
 }

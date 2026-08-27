@@ -1,6 +1,15 @@
 /*
  * Section pages — the broadsheet over the scan (`.ai/DESIGN-V2.md`, Phase 2).
  *
+ * Breakpoints. The canon, restated from `home.module.css` — 1220 (rails),
+ * 900 (shell to one column), 719 (phone), 359 (the 320px floor) — because it
+ * lived in one file's comment and was enforced by memory. It is repeated
+ * wherever a stylesheet is entitled to open a media query. A fifth width has
+ * to earn its place in a comment beside it, giving the measured width at
+ * which the thing it governs stops working. This file uses three of the four
+ * and adds none. A custom property cannot be read inside a media query, so a
+ * comment is the only greppable form this rule can take.
+ *
  * The shell this replaced put a 15rem emblem rail beside a 44rem panel and
  * centred the pair, which pushed the reading column right of centre, left the
  * rail floating in a dark void, and spent ~320px of every page on ceremony
@@ -23,8 +32,19 @@
   /* Rail geometry. `--rail-gap` is the grid's own column gap, named so the
      margin-source rule can offset by exactly it rather than restating the
      clamp. The *tracks* stay `1fr` — only rail content is capped — which is
-     what keeps the measure on the viewport centre (`.ai/DESIGN-V2.md`). */
-  --rail-w: 13rem;
+     what keeps the measure on the viewport centre (`.ai/DESIGN-V2.md`).
+
+     The width is a clamp because a flat 13rem did not fit at the width the
+     rails switch on. At 1220px each `1fr` track is (1220 − 96 of padding −
+     693.6 of measure − 73.2 of gaps) / 2 = 178.6px, so a 208px rail overflowed
+     by 29.4px per side into the shell's padding, and `--content-w` — which is
+     computed from this number, not measured — over-claimed by the same amount
+     and pushed the scan's first mask stop off-screen at −25.4px. The page lost
+     its outer margin at exactly the width it gained its rails. 14vw sits under
+     the track at every width from 1220px up and reaches the full 13rem at
+     ~1486px, so the breakpoint itself does not move — 1220 is a site-wide
+     threshold (`home.module.css`, and the chat-launcher label decision). */
+  --rail-w: clamp(9rem, 14vw, 13rem);
   --rail-gap: clamp(1.5rem, 3vw, 2.5rem);
 
   /* What the scan must stay out of. Below the rail breakpoint that is the
@@ -35,21 +55,38 @@
   --content-w: var(--reading-w);
   --accent: var(--data-blue);
 
+  /* Where an anchored heading comes to rest. Published here so the shell, the
+     Timeline and the pages that hand-roll their own entries all offset by one
+     number: five different values shipped before this, from 2rem to 7rem, and
+     none of the large ones had a sticky element behind it to clear. The only
+     fixed top chrome on a dossier is `.topProgressTrack` at 2px, and that is
+     `display: none` above the rail breakpoint. */
+  --anchor-offset: 2rem;
+
   /* `height` (not `min-height`) is load-bearing: this element is the scroll
      container, and the ≤719px rule below shortens it to reserve the chat
      launcher's dock; `min-height: 100dvh` alongside would win that cascade and
      push content back under the dock. Sticky rails work inside it —
      `position: sticky` resolves against the nearest scrollport — so the rails
      did not require restoring document scroll, which stays its own phase
-     (`.ai/DESIGN-V2.md`). */
-  height: 100dvh;
-  overflow-y: auto;
+     (`.ai/DESIGN-V2.md`).
+
+     That phase landed on 2026-08-27: this element is no longer a scroll
+     container, the document is. `min-height` rather than `height` — a page
+     that runs long now extends the document instead of scrolling inside
+     itself, which is what lets a phone's URL bar collapse and native
+     back-navigation restore position. `scroll-behavior` moved to `html` in
+     `globals.css`, and the ≤719px rule below reserves the chat dock with
+     padding instead of shortening a scroller that no longer exists.
+
+     `.backdropBand` below now resolves its sticky against the viewport rather
+     than against this element, which is the same behaviour from the other
+     side and is why it still pins. */
+  min-height: 100dvh;
   /* No ground of its own: `body` carries it, so a page cannot disagree with
      the site about what colour the site is. */
   color: var(--ink);
   font-family: var(--face-text);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
 
 .accentEmber {
@@ -64,13 +101,12 @@
   left: 0.75rem;
   z-index: 100;
   padding: 0.7rem 0.9rem;
-  background: rgba(7, 11, 20, 0.96);
+  background: rgba(0, 0, 0, 0.96);
   border: 1px solid var(--gold);
   color: var(--gold-hi);
   font-family: var(--face-data);
   font-size: var(--t-data);
   letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   text-decoration: none;
   transform: translateY(-180%);
   transition: transform 160ms ease;
@@ -197,6 +233,19 @@
   to { transform: translateX(-100%); }
 }
 
+/* Focus anywhere in the page calms the scan — and it is not keyboard-only: a
+   mouse click on any in-page link triggers `:focus-within` too.
+   Wrapped in `:where()` so it scores (0,1,0) and sits at the top of the
+   ladder. Written plainly it was (0,3,0) and beat `.registerMuted` (0,2,0),
+   so on October 7 focus made the quietest page *louder* — register 0.45 to
+   0.6 and the nine rows 50% faster — the opposite of what this says. The
+   per-page calms below must win; the quietest page staying at 0.45 is what
+   "calms further" already means for it. */
+:where(.page:focus-within) .row {
+  --register: 0.6;
+  animation-duration: calc(var(--dur) * 2);
+}
+
 /* Declared before `.registerMuted` so a page that is both quiet and muted
    still takes the muted (quieter) values. */
 .surfaceQuiet .row {
@@ -208,12 +257,6 @@
   /* October 7: the scan nearly holds its breath */
   --register: 0.45;
   animation-duration: calc(var(--dur) * 3);
-}
-
-/* Keyboard focus anywhere in the page calms the scan further. */
-.page:focus-within .row {
-  --register: 0.6;
-  animation-duration: calc(var(--dur) * 2);
 }
 
 /* ---- the grid ------------------------------------------------------------
@@ -231,7 +274,7 @@
   grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
   column-gap: var(--rail-gap);
   align-content: start;
-  padding: 0 clamp(1.25rem, 4vw, 3rem) 6rem;
+  padding: 0 clamp(1.25rem, 4vw, 3rem) var(--sp-8);
 }
 
 /* ---- identity band -------------------------------------------------------
@@ -253,7 +296,6 @@
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .identityEmblem {
@@ -277,12 +319,17 @@
   color: var(--gold-hi);
 }
 
+/* The uppercase sits here rather than on the band, which inherited it to
+   "Lions of Zion" and "← Back to the scan" — a wordmark set against the way
+   the brand is written, and a navigation instruction set as a data label.
+   What is left under it genuinely is data: "FILE 01 / 08", "/WAR-UPDATE". */
 .identityMeta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0.9rem;
   color: var(--ink-lo);
+  text-transform: uppercase;
 }
 
 .identityRoute {
@@ -290,7 +337,33 @@
 }
 
 .identitySep {
-  color: rgba(153, 179, 202, 0.35);
+  /* Hand-rolled `--line` at a heavier alpha, and neutralised with it. */
+  color: rgba(175, 175, 175, 0.35);
+}
+
+/* Sits where `.identityRoute` would, and replaces it — the route slug and a
+   breadcrumb ending in the same place would say the same thing twice. Inherits
+   the band's size and tracking, so it needs no type of its own. */
+.breadcrumb {
+  display: inline;
+  color: var(--accent);
+}
+
+.breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover,
+.breadcrumb a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration: underline;
+}
+
+/* The band already wraps at 900px; the last separator would otherwise dangle
+   at the end of a line with nothing after it. */
+.breadcrumb span:last-child > span[aria-hidden] {
+  display: none;
 }
 
 /* Pushes the exit link to the far edge of the band. */
@@ -339,8 +412,22 @@
   text-wrap: balance;
 }
 
+/* The same headline, stepped down when it is a caption rather than a title.
+   Set outright rather than by adjusting the token: `--t-display` clamps with a
+   2.1rem floor, so nothing narrower than that is reachable through it. Still
+   the largest type on the page and still the display face — it just stops
+   claiming that a 296-character sentence is a headline. `pretty`, not
+   `balance`: balancing is for two or three lines, and these run to eight. */
+.titleLong {
+  composes: title;
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+
 .lede {
-  margin-top: 0.85rem;
+  margin-top: var(--sp-3);
   max-width: 54ch;
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
@@ -350,18 +437,18 @@
 .ledeRule {
   width: 3.5rem;
   height: 1px;
-  margin-top: 1.5rem;
+  margin-top: var(--sp-5);
   background: var(--gold);
 }
 
 /* ---- content blocks ---- */
 
 .block {
-  margin-top: 2.75rem;
+  margin-top: var(--sp-7);
 }
 
 .blockHeading {
-  margin-bottom: 1rem;
+  margin-bottom: var(--sp-4);
 }
 
 .blockHeading h2 {
@@ -370,14 +457,14 @@
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
   color: var(--gold);
-  scroll-margin-top: 2rem;
+  scroll-margin-top: var(--anchor-offset);
 }
 
 /* `:where(.body)` keeps these at element-only specificity — they style bare,
    hand-authored prose inside a SectionBlock without ever outranking a shared
    components/content component mounted in the same body. */
 :where(.body) p {
-  margin: 0 0 1.15rem;
+  margin: 0 0 var(--flow);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
   color: var(--ink);
@@ -388,7 +475,7 @@
 }
 
 :where(.body) ul {
-  margin: 0 0 1.15rem;
+  margin: 0 0 var(--flow);
   padding-left: 1.25rem;
 }
 
@@ -535,12 +622,13 @@
   line-height: var(--t-data-lh);
 }
 
+/* "In this file" is three words and a phrase, not a data label — it takes
+   the rail's mono voice and its colour, but not the capitals. */
 .tocTitle {
   padding-bottom: 0.7rem;
   border-bottom: 1px solid var(--gold-line);
   color: var(--gold);
   letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .tocList {
@@ -554,7 +642,7 @@
   display: flex;
   gap: 0.7rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(153, 179, 202, 0.08);
+  border-bottom: 1px solid rgba(175, 175, 175, 0.08);
   color: var(--ink-lo);
   text-decoration: none;
   transition: color 140ms ease;
@@ -597,6 +685,11 @@
   background: linear-gradient(90deg, var(--accent), var(--gold-hi));
   box-shadow: 0 0 10px rgba(87, 167, 217, 0.5);
   transform-origin: left;
+  /* Resting state is empty, not full. The client effect applies scaleX via
+     requestAnimationFrame, so without this the first painted frame — and the
+     whole no-JavaScript render — is a bar at 100%, telling the reader they
+     finished a document they have not started. */
+  transform: scaleX(0);
   transition: transform 80ms linear;
 }
 
@@ -604,7 +697,7 @@
   display: block;
   height: 2px;
   margin-top: 1.4rem;
-  background: rgba(153, 179, 202, 0.12);
+  background: rgba(175, 175, 175, 0.12);
   overflow: hidden;
 }
 
@@ -614,6 +707,11 @@
   height: 100%;
   background: linear-gradient(90deg, var(--accent), var(--gold-hi));
   transform-origin: left;
+  /* Resting state is empty, not full. The client effect applies scaleX via
+     requestAnimationFrame, so without this the first painted frame — and the
+     whole no-JavaScript render — is a bar at 100%, telling the reader they
+     finished a document they have not started. */
+  transform: scaleX(0);
   transition: transform 80ms linear;
 }
 
@@ -650,9 +748,10 @@
 
 @media (max-width: 900px) {
   .shell {
-    /* The side columns collapse; the measure takes the full width. */
+    /* The side columns collapse; the measure takes the full width. The
+       bottom padding used to step down to 4.5rem here; that is `--sp-8`,
+       which the default now carries, so only the ≤719px step is left. */
     grid-template-columns: minmax(0, 1fr);
-    padding-bottom: 4.5rem;
   }
 
   .panel,
@@ -663,15 +762,37 @@
   }
 
   .identityBand {
-    padding-top: 1.15rem;
+    /* The padding and the row gap shrink because the two links below now
+       carry 44px boxes, and those boxes supply the same breathing room the
+       padding used to. Measured: 13.6px sits above and below each link's
+       text inside its own box, so 0.4rem of band padding lands the wordmark
+       20px from the top (it was 18.4px) and the rule 20px under the exit
+       (it was 20px). Net cost of the whole change is ~12px of band height. */
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
     margin-bottom: 1.75rem;
-    gap: 0.5rem 0.85rem;
+    gap: 0 0.85rem;
   }
 
   /* The band wraps here, and a leading separator orphaned at the start of a
      wrapped line reads as a typo. It only earns its place inline. */
   .identitySep {
     display: none;
+  }
+
+  /* `SectionPage` deliberately ends where the content ends, so this band is
+     the only way out of a file — and with JavaScript off it is the only
+     navigation on the page at all. Both links were bare inline anchors at
+     `--t-data`, i.e. 16.7px stripes. Growing the flex box rather than adding
+     padding keeps the gold text on the band's own baseline. This is the 44px
+     convention `.askCta`, `.share` and the orbit links already keep, not a
+     WCAG AA conformance fix — the Spacing exception means these never failed
+     2.5.8. */
+  .wordmark,
+  .identityExit {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   .identityExit {
@@ -683,9 +804,14 @@
 
 @media (max-width: 719px) {
   .page {
-    /* Room for the chat launcher's mobile dock (CHAT_DOCK_PX in
-       components/particle-nav/config.ts stacks on the home indicator). */
-    height: calc(100dvh - 5.25rem - env(safe-area-inset-bottom, 0px));
+    /* Room for the chat launcher's mobile dock, which stacks on the home
+       indicator. `--chat-dock-h` (app/globals.css) is the one definition of
+       that band; `CHAT_DOCK_PX` in components/particle-nav/config.ts is the
+       same 84px expressed in the units the orbit layout works in. */
+    /* Reserved, not subtracted: with the document scrolling there is no
+       container to shorten, so the band the dock occupies becomes padding at
+       the foot — the same shape `home.module.css` already used. */
+    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
   }
 
   .shell {
@@ -694,6 +820,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* No `.page { scroll-behavior: auto }` here any more: `.page` stopped being
+     a scroll container on 2026-08-27, so the property was inert on it. The
+     reset moved to `html` in `globals.css`, beside the declaration itself. */
   .row {
     animation: none;
     /* Rows were placed mid-flight by negative delays; pin them spread across

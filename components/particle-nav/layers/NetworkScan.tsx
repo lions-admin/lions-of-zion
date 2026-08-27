@@ -51,6 +51,20 @@ interface IconSpec {
   y: number;
 }
 
+/*
+ * The glyph layer is the readable one: the largest, brightest, slowest marks
+ * on the first screen, and the only copy a visitor finishes reading before
+ * they touch anything. It used to be ten hostile labels out of ten — a threat
+ * board on a site whose whole differentiator is that it issues verdicts.
+ *
+ * The lower diagonal now carries the verdict side. It stays one palette on
+ * purpose: `buildGlyphs` writes a single merged buffer rendered by one Sprite
+ * with one ramp, so a second colour would mean a second buffer, material and
+ * draw call — not a free addition. Every replacement is also no wider than
+ * the string it replaced (`appendCanvasParticles` scales by height, so width
+ * follows the line count and the longest line), which is what keeps the
+ * placement solved for the composition that was captured.
+ */
 const DESKTOP_LABELS: LabelSpec[] = [
   { text: 'DISINFORMATION\nNETWORK', x: -0.76, y: 0.76 },
   { text: 'FAKE NEWS\nFACTORY', x: 0.67, y: 0.83 },
@@ -59,18 +73,20 @@ const DESKTOP_LABELS: LabelSpec[] = [
   { text: 'COORDINATED\nNARRATIVE', x: 0.71, y: 0.36 },
   { text: 'BOT CLUSTER', x: 0.55, y: -0.16 },
   { text: 'ANTI-ISRAEL\nCAMPAIGN', x: -0.56, y: -0.38 },
-  { text: 'NARRATIVE\nSPIKE', x: 0.72, y: -0.44 },
-  { text: 'HATE\nAMPLIFICATION', x: 0.33, y: -0.69 },
-  { text: 'SOURCE\nUNVERIFIED', x: -0.36, y: -0.73 },
+  { text: 'CROSS\nCHECKED', x: 0.72, y: -0.44 },
+  { text: 'CORRECTION\nLOGGED', x: 0.33, y: -0.69 },
+  { text: 'SOURCE\nCONFIRMED', x: -0.36, y: -0.73 },
 ];
 
+/* The phone set is a subset of the desktop one and stays one — including the
+   verdict it now ends on. */
 const MOBILE_LABELS: LabelSpec[] = [
   { text: 'DISINFORMATION\nNETWORK', x: -0.5, y: 0.76 },
   { text: 'FAKE NEWS\nFACTORY', x: 0.48, y: 0.83 },
   { text: 'HOSTILE\nINFLUENCE', x: -0.55, y: 0.39 },
   { text: 'COORDINATED\nNARRATIVE', x: 0.5, y: 0.36 },
   { text: 'ANTI-ISRAEL\nCAMPAIGN', x: -0.42, y: -0.38 },
-  { text: 'HATE\nAMPLIFICATION', x: 0.4, y: -0.69 },
+  { text: 'SOURCE\nCONFIRMED', x: 0.4, y: -0.69 },
 ];
 
 const DESKTOP_ICONS: IconSpec[] = [
@@ -237,9 +253,38 @@ function appendCanvasParticles(
   }
 }
 
+/**
+ * The scan's own threshold, and deliberately not `MOBILE_MAX_WIDTH`.
+ *
+ * What "compact" switches is density: four fewer labels, two fewer platform
+ * glyphs, tighter line and icon heights, and x positions pulled inward from
+ * ±0.76 to ±0.5. It is a fit threshold, not an orbit-avoidance one — the
+ * glyph sprite is punched with `nodeHoles` and `heroHole` derived from the
+ * live orbit at any width, so labels never collide with the nodes regardless
+ * of what this says. Raising it to 720 would visibly strip six marks out of
+ * the whole 620–719 band, which is a composition change and needs a capture,
+ * not a constant swap.
+ */
+const SCAN_COMPACT_MAX_WIDTH = 620;
+
+/*
+ * The two families the scene rasterises text with, named rather than inlined.
+ *
+ * Neither is a loaded site face: this is the one surface where Newsreader,
+ * IBM Plex and Geist Mono never apply. That is a brand-coherence gap and not
+ * a legibility one — these glyphs are resampled to particles at ~20px a line
+ * with `minSizePx 0.8`, where grotesque-versus-mono proportion is barely
+ * resolvable — and the home scene's typographic voice is an open question for
+ * the owner (`.ai/DESIGN-V2.md` Phase 5), so it is not changed here. Reading
+ * `--font-geist-mono` off the document would also move the whole glyph and
+ * word buffer construction behind `document.fonts.ready`, which is a real
+ * change to scene startup: a mono face is wider per character, and both the
+ * label spans and the glyph placement below are proportion-sensitive.
+ */
+const SANS_STACK = 'Arial, sans-serif';
 const MONO_STACK = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 
-function makeTextCanvas(text: string, fontPx = 44, weight = 600, family = 'Arial, sans-serif') {
+function makeTextCanvas(text: string, fontPx = 44, weight = 600, family = SANS_STACK) {
   const lines = text.split('\n');
   const lineHeight = Math.round(fontPx * 1.25);
   const pad = Math.round(fontPx * 0.45);
@@ -473,12 +518,12 @@ export function NetworkScan({
     const viewWidth = viewHeight * (size.width / Math.max(1, size.height));
     const halfWidth = viewWidth * 0.52;
     const halfHeight = viewHeight * 0.52;
-    const words = buildScanWords(halfWidth, halfHeight, size.width < 620, fragments);
+    const words = buildScanWords(halfWidth, halfHeight, size.width < SCAN_COMPACT_MAX_WIDTH, fragments);
     return {
       field: buildScanField(halfWidth, halfHeight, pointBudget, orbit),
       wordsHostile: words.hostile,
       wordsVerified: words.verified,
-      glyphs: buildGlyphs(halfWidth, halfHeight, size.width < 620),
+      glyphs: buildGlyphs(halfWidth, halfHeight, size.width < SCAN_COMPACT_MAX_WIDTH),
       halfWidth,
       halfHeight,
     };

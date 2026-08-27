@@ -19,8 +19,19 @@ OIDC. The single admin is `admin@lionsofzion.io`; the production account and
 five capability grants are present. Preview uses an isolated Neon branch and
 separate Blob stores.
 
-The archive Blob store `lions-of-zion-archive` is separate from the RSS stores
-and contains the imported October 7 media. No Google Cloud or Vertex service
+The archive Blob store `lions-of-zion-archive` (`store_M70Ph8nWOJVAnaRn`) is
+separate from the RSS stores and contains the imported October 7 media —
+1.94 GB across 2,018 objects. **Verified end to end on 2026-08-26**:
+`verify-archive-assets.mjs --all` reports 2,018 checked and 0 unreachable
+against the live bucket, and a live record page emits blob URLs with no
+`/archive` fallback left in its HTML. Preview and Production point at the
+**same** store, not at per-environment prefixes.
+
+`NEXT_PUBLIC_ARCHIVE_CDN` is substituted at **build time**, so changing it
+later takes a redeploy — an env edit alone leaves the old value baked into
+the prerendered HTML. Locally the media resolves through gitignored symlinks
+under `public/archive/`, which a fresh worktree does not have; the command
+that creates them is in `docs/archive-integration.md`. No Google Cloud or Vertex service
 is part of this architecture. AI is capped at $4.50 in the application and
 $5 at the Gateway; Vercel Spend Management allows $10 of additional usage.
 
@@ -30,8 +41,12 @@ content; internal status requires the admin session.
 
 ## In flight
 
-- Finish the merge reconciliation for `.ai/DECISIONS.md`, `TODOS.md`,
-  `docs/archive-integration.md` and `.vercelignore`.
+- Finish the merge reconciliation for `.ai/DECISIONS.md` and `.vercelignore`.
+  `TODOS.md`, `docs/archive-integration.md`, `docs/environment.md`,
+  `docs/operations.md` and this file were reconciled on 2026-08-26 — the four
+  documents that still called the archive CDN unprovisioned now record it as
+  live, and the R2/rclone upload path was replaced by the repository's own
+  uploader, which is what actually ran.
 - Update the tracked infrastructure documentation and append only durable
   Vercel decisions to the ADR log.
 - Run the full local gate, read-only Neon checks and Vercel smoke checks, then

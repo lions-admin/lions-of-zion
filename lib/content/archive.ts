@@ -211,18 +211,7 @@ export function pickVersion(record: ArchiveRecord, locale?: string): ArchiveVers
   return record.versions[record.default_language] ?? Object.values(record.versions)[0];
 }
 
-/**
- * A version's title, minus the source site's chrome.
- *
- * Nine october7 titles are the page's <title> tag verbatim and end in site
- * furniture — "| October7 Blog", "- October7 Blog", "| October7 Nova Fest".
- * The stored record keeps them as published; this strips only those two known
- * suffixes, only at the very end, at render time. A dash or pipe inside the
- * testimony's own words survives. Same rule as the importer's `cleanTitle`.
- */
-export function displayTitle(title: string): string {
-  return (
-    title.replace(/\s*[|–—-]\s*October7\s+(Blog|Nova\s*Fest)\s*$/i, '').trim() ||
-    title.trim()
-  );
-}
+/* Render-time display helpers. They live in `archive-display.ts` because this
+   module reads the filesystem and `ArchiveIndexFilter` is a client component;
+   re-exported here so server-side call sites need not care. */
+export { displayTitle, displayWitness } from './archive-display';

@@ -8,7 +8,7 @@
  * either. Same problem+json parsing pattern as `AskTheLionChat.tsx`, kept
  * local rather than shared since it's a small, self-contained piece.
  */
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import styles from './support.module.css';
 
 const FAILURE_COPY: Record<string, string> = {
@@ -16,6 +16,11 @@ const FAILURE_COPY: Record<string, string> = {
   RATE_LIMITED: 'Too many reports submitted from here recently. Wait a moment, then retry.',
 };
 const GENERIC_FAILURE = 'The report could not be sent right now. Retry in a moment.';
+
+/* The desk's own address. Named in the no-JavaScript notice and in the failure
+   path, so neither tier tells a reader their report went nowhere without also
+   telling them where it can go. */
+const REPORTS_INBOX = 'admin@lionsofzion.io';
 
 type SubmitState =
   | { status: 'idle' }
@@ -55,14 +60,25 @@ export function ReportClaimForm() {
   const [reporterNote, setReporterNote] = useState('');
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
   const [touched, setTouched] = useState(false);
+  const urlRef = useRef<HTMLInputElement>(null);
 
   const hasContent = Boolean(url.trim() || body.trim());
   const submitting = state.status === 'submitting';
+  /* The guard covers two fields at once, so it is described by both of them
+     rather than left to sit between them as a loose alert. */
+  const guardTripped = touched && !hasContent;
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setTouched(true);
-    if (!hasContent || submitting) return;
+    if (!hasContent) {
+      /* Announcing the message is not enough when it names neither of the
+         four fields it means: move the caret to the first field that would
+         satisfy it. */
+      urlRef.current?.focus();
+      return;
+    }
+    if (submitting) return;
 
     setState({ status: 'submitting' });
     const payload: Record<string, string> = {};
@@ -100,15 +116,44 @@ export function ReportClaimForm() {
 
   return (
     <form className={styles.form} onSubmit={submit}>
+      {/*
+        With scripting off this form has no submit path at all: there is no
+        `action`, so the button performs a native GET to /support-us, the page
+        reloads, and the reload reads as a successful send. Reporting success
+        for something that was discarded is the "no false live state"
+        principle inverted, so the button is removed in that tier rather than
+        left to lie. A `<style>` inside `<noscript>` is the only way a
+        prerendered page can change what it shows based on whether scripting
+        ran. Pointing the form at `/api/v1/reports` was considered and is
+        worse: `server/http/handler.ts` `parseBody` calls `request.json()`,
+        so a native form POST renders a raw problem+json page.
+        The address below is the owner's, given for this purpose on
+        2026-08-27. It is deliberately the same one in both tiers: a reader
+        without scripting gets a channel that works, and a reader with it gets
+        a fallback if the desk is down. A `mailto:` is safe to offer here
+        precisely because it needs no scripting to follow.
+      */}
+      <noscript>
+        <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
+        <p className={styles.fieldError}>
+          This form needs JavaScript to send a report. Nothing typed here can reach the desk with
+          it turned off — email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a> instead,
+          with the link and what you believe is wrong with it.
+        </p>
+      </noscript>
+
       <div className={styles.field}>
         <label htmlFor="report-url">Link to the claim</label>
         <input
           id="report-url"
+          ref={urlRef}
           type="url"
           value={url}
           onChange={(event) => setUrl(event.target.value)}
           placeholder="https://…"
           disabled={submitting}
+          aria-invalid={guardTripped}
+          aria-describedby={guardTripped ? 'report-guard' : undefined}
         />
       </div>
 
@@ -121,11 +166,15 @@ export function ReportClaimForm() {
           rows={3}
           placeholder="What did you see, and where?"
           disabled={submitting}
+          aria-invalid={guardTripped}
+          aria-describedby={guardTripped ? 'report-guard' : undefined}
         />
       </div>
 
-      {touched && !hasContent ? (
-        <p className={styles.fieldError} role="alert">A report needs a link or a description.</p>
+      {guardTripped ? (
+        <p id="report-guard" className={styles.fieldError} role="alert">
+          A report needs a link or a description.
+        </p>
       ) : null}
 
       <div className={styles.field}>
@@ -151,7 +200,14 @@ export function ReportClaimForm() {
         />
       </div>
 
-      {state.status === 'error' ? <p className={styles.fieldError} role="alert">{state.message}</p> : null}
+      {state.status === 'error' ? (
+        <p className={styles.fieldError} role="alert">
+          {state.message}{' '}
+          {/* A failed send with no alternative leaves a reader who found a real
+              error with nowhere to put it. */}
+          You can also email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.
+        </p>
+      ) : null}
 
       <button type="submit" disabled={submitting}>
         {submitting ? 'Sending…' : 'Send report'}

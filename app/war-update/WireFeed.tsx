@@ -11,12 +11,16 @@ import { VerificationBadge, SourceList, type TimelineEntry } from '@/components/
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 
-/** The real, distinct category values present in the data — not a filter
- *  list invented ahead of what's actually there. "Front" and "home front"
- *  share one category in the source data ("Front · Home front"); the
+/** Filters are derived from the data, not a list invented ahead of what's
+ *  actually there — and a category only earns a chip once filtering to it
+ *  beats scrolling. On a seven-entry edition three of the four categories
+ *  hold a single dispatch, so a chip for them is a slower way of reading one
+ *  paragraph; the row disappears entirely when there is nothing to choose
+ *  between, and widens on its own as the edition fills. "Front" and "home
+ *  front" share one category in the source data ("Front · Home front"); the
  *  filter reflects that rather than pretending they're tracked separately. */
-const FILTERS = ['All', 'Diplomacy', 'Hostages', 'Front · Home front', 'Humanitarian'] as const;
-type Filter = (typeof FILTERS)[number];
+const MIN_ENTRIES_PER_FILTER = 2;
+const ALL_FILTER = 'All';
 
 const DATELINES: Record<string, string> = {
   'plan-announced': 'WASHINGTON',
@@ -63,7 +67,19 @@ function DispatchActions({ entry }: { entry: TimelineEntry }) {
 }
 
 export function WireFeed({ entries }: { entries: TimelineEntry[] }) {
-  const [filter, setFilter] = useState<Filter>('All');
+  const [filter, setFilter] = useState<string>(ALL_FILTER);
+
+  const filters = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const entry of entries) {
+      if (!entry.category) continue;
+      counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);
+    }
+    const earned = [...counts.entries()]
+      .filter(([, count]) => count >= MIN_ENTRIES_PER_FILTER)
+      .map(([category]) => category);
+    return earned.length ? [ALL_FILTER, ...earned] : [];
+  }, [entries]);
 
   const latestId = useMemo(
     () =>
@@ -74,24 +90,27 @@ export function WireFeed({ entries }: { entries: TimelineEntry[] }) {
     [entries],
   );
 
-  const visible = filter === 'All' ? entries : entries.filter((entry) => entry.category === filter);
+  const visible =
+    filter === ALL_FILTER ? entries : entries.filter((entry) => entry.category === filter);
 
   return (
     <div>
-      <div className={styles.filterRow} role="group" aria-label="Filter by category">
-        {FILTERS.map((option) => (
-          <button
-            key={option}
-            type="button"
-            className={styles.filterChip}
-            data-active={filter === option ? '' : undefined}
-            onClick={() => setFilter(option)}
-            aria-pressed={filter === option}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
+      {filters.length ? (
+        <div className={styles.filterRow} role="group" aria-label="Filter by category">
+          {filters.map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={styles.filterChip}
+              data-active={filter === option ? '' : undefined}
+              onClick={() => setFilter(option)}
+              aria-pressed={filter === option}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {visible.length === 0 ? (
         <p className={styles.emptyFilter}>No entries in this category yet.</p>

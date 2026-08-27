@@ -29,13 +29,26 @@ Both live **outside this repository** and are not in git.
 
 | | october7 | hamas-massacre |
 | --- | --- | --- |
-| Path | `~/Documents/opencode/october7-integration-package` | `~/Documents/october-7_toad/hamas-massacre-integration-package` |
+| Path | `~/Documents/october-7_toad/opencode/october7-integration-package` | `~/Documents/october-7_toad/hamas-massacre-integration-package` |
 | Source site | october7.org | hamas-massacre.net |
 | Canonical records | 179 | 335 |
 | Language versions | 505 (7 languages) | 670 (en, es) |
 | Unique media | 499 | 528 |
 | Story↔media relations | 1121 | 1088 |
 | Validation | 29/29 PASS | 32/32 PASS |
+
+Those paths are load-bearing for local development and they have moved once
+already — october7 was documented under `~/Documents/opencode/` until
+2026-08-26. A fresh worktree has no `public/archive/`, so archive media 404s
+locally until the two symlinks exist. `--link-assets` on an import creates
+them; to create them alone, without re-importing content:
+
+```bash
+mkdir -p public/archive && ln -sfn ~/Documents/october-7_toad/opencode/october7-integration-package/assets public/archive/october7 && ln -sfn ~/Documents/october-7_toad/hamas-massacre-integration-package/assets public/archive/hamas-massacre
+```
+
+`public/archive/` is gitignored and `.vercelignore`d — the links point outside
+the repository, which a CLI deploy would otherwise try to follow.
 
 Both are built to the same contract, `october7-integration-package@1`. This was
 verified field by field, not assumed:
@@ -171,12 +184,14 @@ concurrent and resumable. For a new upload, run it once per package, then set
 `NEXT_PUBLIC_ARCHIVE_CDN` to the store's public base and prove it:
 
 ```bash
-node scripts/upload-archive-assets.mjs <package-dir> october7
-node scripts/upload-archive-assets.mjs <package-dir> hamas-massacre
+node scripts/upload-archive-assets.mjs \
+  ~/Documents/october-7_toad/opencode/october7-integration-package october7
+node scripts/upload-archive-assets.mjs \
+  ~/Documents/october-7_toad/hamas-massacre-integration-package hamas-massacre
 ```
 
 ```bash
-node scripts/verify-archive-assets.mjs https://your-cdn/base --all
+node scripts/verify-archive-assets.mjs https://m70ph8nwojvanarn.public.blob.vercel-storage.com --all
 ```
 
 Do not reuse `BLOB_READ_WRITE_TOKEN` for this upload: it belongs to the RSS

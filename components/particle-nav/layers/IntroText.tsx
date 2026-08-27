@@ -119,7 +119,15 @@ export function IntroText({
           lineWidths.push(cloud.width);
           return makeUnit(cloud);
         });
-        const brandCloud = buildTextCloud(['LIONSOFZION'], font, {
+        /* The name is three words everywhere else on the site, and the
+           climax is where it is read most carefully. Gentilis' space glyph is
+           outline-free (ha 306/1000), so it costs no particles and only
+           advances the pen: the brand's advance goes 7.844em → 8.456em, which
+           at `brandFontScale` is 3.21 world units on desktop and 1.99 on
+           mobile — both well under `lineMaxWidth`, so `buildTextCloud`'s
+           `min(fontScale, maxWidth / widest)` still never clamps and the
+           wordmark does not shrink to fit the space. */
+        const brandCloud = buildTextCloud(['LIONS OF ZION'], font, {
           maxParticles: lightweight ? 2_800 : 5_000,
           maxWidth: current.lineMaxWidth,
           fontScale: current.brandFontScale,

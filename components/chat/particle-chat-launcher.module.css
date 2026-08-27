@@ -1,6 +1,8 @@
 .root {
-  --chat-gold: #dbb452;
-  --chat-gold-bright: #ffe29a;
+  /* Local aliases so the launcher's two gold roles are named where they are
+     read. Both resolve to the V2 tokens — there is no launcher-only gold. */
+  --chat-gold: var(--gold);
+  --chat-gold-bright: var(--gold-hi);
   position: fixed;
   right: calc(clamp(1rem, 2.6vw, 2.25rem) + env(safe-area-inset-right, 0px));
   bottom: calc(clamp(1rem, 2.6vw, 2.25rem) + env(safe-area-inset-bottom, 0px));
@@ -29,7 +31,7 @@
   z-index: 0;
   padding: 0;
   border: 0;
-  background: rgba(1, 4, 9, 0.64);
+  background: rgba(0, 0, 0, 0.64);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   cursor: default;
@@ -80,17 +82,17 @@
   overflow: visible;
   border: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(219, 180, 82, 0.13), rgba(5, 8, 16, 0.62) 57%, transparent 72%);
+  background: radial-gradient(circle, rgba(201, 162, 75, 0.13), rgba(0, 0, 0, 0.62) 57%, transparent 72%);
   color: var(--chat-gold);
   cursor: pointer;
-  filter: drop-shadow(0 0 16px rgba(219, 180, 82, 0.4));
+  filter: drop-shadow(0 0 16px rgba(201, 162, 75, 0.4));
   transition: filter 240ms ease, transform 240ms ease;
 }
 
 .launcher:hover,
 .launcher:focus-visible,
 .root[data-active] .launcher {
-  filter: drop-shadow(0 0 23px rgba(255, 226, 154, 0.62));
+  filter: drop-shadow(0 0 23px rgba(239, 215, 154, 0.62));
   transform: scale(1.045);
 }
 
@@ -123,7 +125,7 @@
   z-index: 1;
   inset: 14%;
   overflow: hidden;
-  background: #020409;
+  background: var(--ground);
   opacity: 0.86;
   transition: opacity 220ms ease;
 }
@@ -171,6 +173,27 @@
    in the mobile dock's own reserved band at ≤719px. The button, which is the
    actual affordance and carries the accessible name, is present at every
    width. */
+
+/* The type. Three rules land on this one declaration block. Cinzel is the
+   home particle scene's face and nothing else's, and this label renders over
+   reading pages. Uppercase-plus-tracking is reserved for data labels of two
+   words or fewer, and `launcherLabel()` composes phrases up to five ("Ask
+   about the fake resistance"). And the mono face is for dates, paths, counts
+   and status values — never for sentences — which rules out `--face-data`
+   even though `--t-data` would have satisfied the floor. What is left is the
+   UI voice at caption scale, sentence case: this is a short line of interface
+   copy, which is exactly what `--t-caption` is for. It is 13px against the
+   11.04px it replaces, so the label grows; the 9rem cap is a layout width and
+   is unaffected, so it simply wraps to one more short line in the margin the
+   comment above measures.
+
+   The cue runs a finite three times rather than forever. The desk is offline
+   in production, and the launcher has no way to know that — `chat-open-context`
+   carries only `{open, initialQuestion}`, and probing `/api/v1/chat/threads`
+   from the provider would fire a request on first paint of every route,
+   ~1,177 prerendered archive pages included, to decide a CSS property. A cue
+   that stops on its own invites once and then stops insisting, which is the
+   right behaviour whether or not the desk is up. */
 .label {
   display: inline-flex;
   align-items: center;
@@ -179,22 +202,20 @@
   padding: 0.5rem 0.85rem;
   border: 1px solid rgba(201, 162, 75, 0.26);
   border-radius: 999px;
-  background: rgba(7, 11, 20, 0.93);
+  background: rgba(0, 0, 0, 0.93);
   box-shadow: 0 0.5rem 1.6rem rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--chat-gold);
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
-  font-size: 0.69rem;
-  font-weight: 500;
-  line-height: 1.45;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
   text-wrap: balance;
   opacity: 0;
   transform: translateX(9px);
   transition: opacity 220ms ease, transform 260ms ease, color 220ms ease;
-  animation: attentionCue 7.2s cubic-bezier(0.22, 0.75, 0.24, 1) 1.8s infinite;
+  animation: attentionCue 7.2s cubic-bezier(0.22, 0.75, 0.24, 1) 1.8s 3;
   pointer-events: none;
 }
 
@@ -285,7 +306,7 @@
     padding: 0.46rem 0.55rem 0.46rem 0.8rem;
     border: 1px solid rgba(201, 162, 75, 0.28);
     border-radius: 999px;
-    background: rgba(7, 11, 20, 0.94);
+    background: rgba(0, 0, 0, 0.94);
     box-shadow: 0 0.8rem 2.8rem rgba(0, 0, 0, 0.42), 0 0 1.4rem rgba(201, 162, 75, 0.08);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -312,9 +333,19 @@
      so it doesn't render as a pill inside a pill. */
   .label {
     gap: 0.58rem;
-    /* The dock is the full width of the viewport, so the desktop cap and the
-       wrapping that goes with it are both reset here — this label is one line
-       across a bar, not a block in a margin. */
+    /* The dock is the full width of the viewport, so the desktop cap is reset
+       here — this label is a line across a bar, not a block in a margin.
+       It is no longer `nowrap`, though, and that reversal is arithmetic
+       rather than taste: the dock's text column is the viewport less its own
+       insets, padding and borders, less the 3.45rem launcher, the 0.7rem row
+       gap and the 2rem arrow — about 165px at 320px wide. The longest label
+       ("Ask about the fake resistance") measures ~190px at `--t-caption`, so
+       nowrap put it through the side of the pill. Two lines cost nothing:
+       2 × 0.8125rem × 1.5 is 39px inside a row the 55px launcher already
+       sets. `min-width: 0` is what lets the flex item narrow far enough to
+       wrap at all. The size itself is not overridden here — 0.62rem was
+       below the floor, and `--t-caption` reads at this width. */
+    min-width: 0;
     max-width: none;
     padding: 0;
     border: 0;
@@ -323,10 +354,6 @@
     box-shadow: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    font-size: 0.62rem;
-    line-height: 1;
-    letter-spacing: 0.14em;
-    white-space: nowrap;
     opacity: 1;
     transform: none;
     animation: none;
@@ -334,6 +361,9 @@
 
   .labelArrow {
     display: block;
+    /* `flex: none` because the label beside it may now wrap: without it the
+       arrow, not the text, is what a narrow dock takes the space out of. */
+    flex: none;
     width: 2rem;
   }
 }

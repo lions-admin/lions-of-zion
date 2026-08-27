@@ -12,8 +12,24 @@
  * and the dateline at 10.6px.
  */
 
+/* The advisory is now the first thing in the body, standing where a "Trust"
+   heading used to. It gets a rule under it so it reads as a masthead strip
+   rather than as the page's opening paragraph — the dispatches are the
+   opening paragraph. */
 .advisory {
+  margin: 0 0 1.75rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--gold-line);
   font-style: italic;
+}
+
+/* The one line of prose that outlives the feed, set with the metadata grid
+   it sits under rather than with the dispatches. */
+.colophonNote {
+  margin-top: 1.25rem;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
 }
 
 .advisoryLabel {
@@ -80,7 +96,9 @@
   padding: 0.12rem 0.5rem;
   border: 1px solid rgba(87, 167, 217, 0.35);
   border-radius: 1px;
-  color: var(--data-blue);
+  /* Gold, not the blue data ramp: that ramp carries meaning and never
+     expresses text hierarchy — see `app/globals.css`. */
+  color: var(--gold);
 }
 
 .headline {

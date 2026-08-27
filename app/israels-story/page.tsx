@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { Timeline } from "@/components/content";
+import { PublicationMeta, Timeline } from "@/components/content";
 import { getIsraelsStoryEdition } from "@/lib/content/israels-story";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -77,7 +77,9 @@ export default async function Page() {
       </nav>
 
       {edition.chapters.map((chapter, index) => {
-        const flagged = chapter.id === "oslo-accords";
+        /* The flag travels with the content, not with a string literal in
+           the renderer — see `contested` on `StoryChapter`. */
+        const flagged = chapter.contested === true;
         return (
           <article key={chapter.id} id={chapter.id} className={styles.chapter}>
             <header className={styles.chapterHead}>
@@ -114,7 +116,7 @@ export default async function Page() {
         );
       })}
 
-      <SectionBlock heading="Sources and further reading">
+      <SectionBlock heading="What this edition does not yet cover">
         <p>
           This is a working edition, chapters added one at a time as each
           could be sourced and checked properly — not the whole story yet.
@@ -125,6 +127,15 @@ export default async function Page() {
           next step, not an omission to gloss over.
         </p>
       </SectionBlock>
+
+      {/* A colophon, not a masthead: the fields exist and were reaching no
+          reader, while the other three editorial destinations rendered the
+          same two through `PublicationMeta`. At the foot, where a reader who
+          has read the page is the one asking who checked it. */}
+      <PublicationMeta
+        publishedAt={edition.publishedAt}
+        reviewedBy={edition.reviewedBy}
+      />
     </SectionPage>
   );
 }

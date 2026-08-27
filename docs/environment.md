@@ -54,8 +54,15 @@ Blob URLs are unguessable but public — evidence classified `restricted` or
 Wanted by: `server/core/blob.ts`, reached through ingestion.
 
 ### `NEXT_PUBLIC_ARCHIVE_CDN`
-Base URL for the October 7 archive's media. Production and Preview point to
-their own public Blob/CDN prefixes.
+Base URL for the October 7 archive's media. **Provisioned** — Vercel Blob
+store `lions-of-zion-archive` (`store_M70Ph8nWOJVAnaRn`), served from
+`https://m70ph8nwojvanarn.public.blob.vercel-storage.com`.
+
+Preview and Production are set to the **same** store, not to separate
+per-environment prefixes — verified 2026-08-26 by pulling both. Its companion
+`ARCHIVE_BLOB_STORE_ID` is what `scripts/upload-archive-assets.mjs` uploads
+through, and it is deliberately a different store from the one
+`BLOB_READ_WRITE_TOKEN` points at.
 
 Roughly 1.8 GB of images and video sits behind the ~1,177 archive pages and
 deliberately never enters git. Only the URL prefix differs between

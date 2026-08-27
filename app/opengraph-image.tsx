@@ -5,7 +5,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const GOLD = "#c9a24b";
-const GROUND = "#070b14";
+const GROUND = "#000000";
 
 // next/og bundles exactly one font (Geist Regular) and satori cannot reach
 // system fonts, so a serif family cannot resolve without shipping a font file.
@@ -23,7 +23,7 @@ export default function Image() {
           justifyContent: "center",
           background: GROUND,
           backgroundImage:
-            "radial-gradient(circle at 50% 42%, rgba(201, 162, 75, 0.14), rgba(7, 11, 20, 0) 62%)",
+            "radial-gradient(circle at 50% 42%, rgba(201, 162, 75, 0.14), rgba(0, 0, 0, 0) 62%)",
         }}
       >
         {/* Crown mark, matching app/icon.svg */}

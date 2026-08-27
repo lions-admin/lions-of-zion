@@ -9,6 +9,9 @@
  */
 import type { Correction } from '@/components/content';
 
+/** `page` and `slug` are carried for the day the log fills and a per-page
+ *  column is worth rendering; nothing reads them today, and `/corrections`
+ *  deliberately does not promise a column `CorrectionHistory` cannot print. */
 export type CorrectionsLogEntry = Correction & { page: string; slug: string };
 
 export async function getCorrectionsLog(): Promise<CorrectionsLogEntry[]> {

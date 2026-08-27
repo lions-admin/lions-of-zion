@@ -124,21 +124,6 @@ export default async function Page() {
           predates October 7. The event supplied the occasion; the machinery
           did not need building.
         </p>
-        <p>
-          That is a claim about infrastructure, and it is the one this page
-          makes. It is worth being exact about the claim it does{" "}
-          <em>not</em> make. Whether specific narratives were drafted in
-          advance was researched for this file, and the answer came back
-          negative: no dated record was found of a post-October 7 claim
-          written, seeded or scheduled beforehand, and the strongest
-          independent findings point the other way — describing the early
-          flood as improvised at speed, much of its reach coming from
-          monetised accounts chasing engagement rather than from covert
-          networks. What was reused was not a script but a repertoire: the
-          same denial and false-flag templates these operations had run for
-          years. A template is not a plan, and this page does not upgrade one
-          into the other.
-        </p>
       </SectionBlock>
 
       <SectionBlock heading="Two branches">

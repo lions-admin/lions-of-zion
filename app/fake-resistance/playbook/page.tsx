@@ -48,6 +48,7 @@ export default async function Page() {
       id="fake-resistance"
       accent="ember"
       surface="quiet"
+      breadcrumb={[{ href: '/fake-resistance', label: 'Fake Resistance' }]}
       title="The playbook"
       tagline={TAGLINE}
     >

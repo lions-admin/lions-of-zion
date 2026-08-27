@@ -71,6 +71,15 @@ export interface SectionPageProps {
    * for a page that has something else standing to say there.
    */
   aside?: React.ReactNode;
+  /**
+   * Ancestors of this page, nearest root first — the same shape and band slot
+   * as `DocPage`'s. A hub's child page (`/fake-resistance/playbook`) passes
+   * the trail down to its hub: it replaces the inert route span with links,
+   * and its last item becomes the exit link's target, so "back" steps one
+   * level up instead of jumping past the parent straight to the scan. The
+   * eight orbit pages pass nothing and keep "← Back to the scan".
+   */
+  breadcrumb?: { href: string; label: string }[];
   children: React.ReactNode;
 }
 
@@ -82,12 +91,20 @@ export function SectionPage({
   accent = 'gold',
   surface = 'default',
   aside,
+  breadcrumb,
   children,
 }: SectionPageProps) {
   const index = defaultNodes.findIndex((node) => node.id === id);
   if (index === -1) throw new Error(`SectionPage: unknown section id "${id}"`);
   const node = defaultNodes[index];
   const lede = tagline ?? node.description;
+
+  /* One level up, not home: a child page's way out is its hub, which the
+     trail already names as its last item. Only without a trail is the parent
+     the scan itself. Same rule as `DocPage`. */
+  const exit = breadcrumb?.length
+    ? breadcrumb[breadcrumb.length - 1]
+    : { href: '/', label: 'the scan' };
 
   const total = defaultNodes.length;
 
@@ -137,11 +154,22 @@ export function SectionPage({
             <span>
               File {pad(index + 1)} / {pad(total)}
             </span>
-            <span className={styles.identityRoute}>{node.href}</span>
+            {breadcrumb?.length ? (
+              <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+                {breadcrumb.map((crumb) => (
+                  <span key={crumb.href}>
+                    <Link href={crumb.href}>{crumb.label}</Link>
+                    <span aria-hidden="true"> / </span>
+                  </span>
+                ))}
+              </nav>
+            ) : (
+              <span className={styles.identityRoute}>{node.href}</span>
+            )}
             <span>Reference edition</span>
           </span>
-          <Link href="/" className={styles.identityExit}>
-            ← Back to the scan
+          <Link href={exit.href} className={styles.identityExit}>
+            ← Back to {exit.label}
           </Link>
         </div>
 

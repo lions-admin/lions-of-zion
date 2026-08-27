@@ -73,10 +73,10 @@ but three parts of it matter to this plan:
   packet sits at `right_of_reply` today; "publish" in this plan means
   walking a case to `published` with its `publication` block filled in
   (the reply stage itself is skipped by owner decision — §2).
-- `scripts/validate_research_case.py` — the validator that already passed
-  all nine packets (enums, ID prefixes, referential integrity). Run it as
+- `validate_research_case.py` — **in the external research delivery, not in
+  this repository** — the validator that already passed all nine packets (enums, ID prefixes, referential integrity). Run it as
   the import's first step rather than re-deriving its rules.
-- `scripts/merge_research_cases.py` — merges packets into one CSV bundle
+- `merge_research_cases.py` (external delivery) — merges packets into one CSV bundle
   plus a `cases.csv` catalog. Useful as a pre-step; the site importer still
   produces JSON shaped for the renderer (§5).
 

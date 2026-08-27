@@ -88,8 +88,8 @@ by key enumeration across all seven case files.
 | `docs/fake-resistance-integration.md` | The research integration | **"The repo is private"** — the premise of its safe-to-merge argument. It is public | active-essential | Correct, and state the consequence | **done** |
 | `.ai/ROLLBACK.md` | Undoing a bad deploy | Cited `STATE.md` for a claim `STATE.md` refuted | active-essential | Correct — the section is *more* relevant now | **done** |
 | `TODOS-design-audit.md` | The audit task list | **83 of 83 closed, 0 open, orphaned** | archive-candidate | Archive, after lifting its refusals | **moved** |
-| `docs/design-audit-2026-08-26.md` | 219 KB evidence report | Task list closed; 40% of the doc surface by bytes | archive-candidate | Archive, after lifting its 3 structural conclusions | **moved** |
-| `docs/graphics-task-02.md` | 2026 nav-layer spec | Already self-banner-marked HISTORICAL | archive-candidate | Archive | **moved** |
+| `design-audit-2026-08-26.md` | 219 KB evidence report | Task list closed; 40% of the doc surface by bytes | archive-candidate | Archive, after lifting its 3 structural conclusions | **moved** |
+| `graphics-task-02.md` | 2026 nav-layer spec | Already self-banner-marked HISTORICAL | archive-candidate | Archive | **moved** |
 | `.codex/…/REPORT.md` | External design review | Orphaned; superseded on both axes; 12 evidence images never committed | duplicate-or-stale | Archive; neutralise the image links | **moved** |
 | `docs/engine-explainer.html` | Hebrew interactive backend explainer | Standalone, no stale numeric claims | supplementary-doc | Keep | none |
 

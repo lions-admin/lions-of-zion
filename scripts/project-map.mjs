@@ -314,6 +314,29 @@ for (const f of files) {
 }
 const unreferenced = files.filter((f) => !reached.has(f));
 
+/* Do the documents describe files and commands that exist?
+ *
+ * Added because a stale path in a runbook is worse than no runbook, and
+ * because this audit itself shipped one: `.ai/ROLLBACK.md` told you to roll
+ * back `npm run build:lion-data`, a script that does not exist. Two exclusions
+ * are deliberate — `app/loading.tsx` is named *because* it must not exist, and
+ * `.ai/DECISIONS.md` is append-only, so it correctly names files that were
+ * real when the decision was made. */
+const npmScriptNames = new Set(Object.keys(JSON.parse(read("package.json")).scripts || {}));
+const DOC_PATH = /`((?:app|components|lib|server|scripts|tests|public|assets|docs|\.ai|\.claude|\.github|content-packages)\/[A-Za-z0-9_@[\]/.-]*\.[a-z]{2,5})`/g;
+const docProblems = [];
+for (const d of files.filter((f) => f.endsWith(".md") && !f.startsWith("docs/archive/") && f !== ".ai/DECISIONS.md")) {
+  const txt = read(d);
+  for (const m of txt.matchAll(DOC_PATH)) {
+    const target = m[1];
+    if (target.includes("*") || target.includes("<") || target === "app/loading.tsx") continue;
+    if (!tracked.has(target)) docProblems.push(`${d} → ${target}`);
+  }
+  for (const m of txt.matchAll(/npm run ([a-z:-]+)/g)) {
+    if (!npmScriptNames.has(m[1])) docProblems.push(`${d} → npm run ${m[1]}`);
+  }
+}
+
 /* npm scripts + ignored dirs */
 const pkg = JSON.parse(read("package.json"));
 const gitignored = read(".gitignore").split("\n")
@@ -334,7 +357,7 @@ const D = {
   tests: testFiles.length, scripts: scriptFiles.length,
   chromeScripts, navIds, navMissing, publicRoutes, pkgs,
   crossings, violations, sanctioned, carvedOut, gitignored,
-  duplicateSets, unreferenced, reachable: reached.size,
+  duplicateSets, unreferenced, reachable: reached.size, docProblems,
   npmScripts: Object.keys(pkg.scripts||{}).length,
 };
 
@@ -486,6 +509,9 @@ const findings = [
    `בסיס ה־snapshots עדכני — db:generate לא יפלוט מיגרציה מיותרת`,
    `ה־snapshot האחרון הוא ${String(D.newestSnapshot).padStart(4,"0")} אבל יש ${D.handWrittenAfterSnapshot.length} מיגרציות כתובות־ביד אחריו (${D.handWrittenAfterSnapshot.join(", ")}). ` +
    `‏db:generate ישווה מול בסיס מיושן ויפלוט מחדש שינוי שכבר הוחל. חסר snapshot, לא חסרה מיגרציה.`],
+  [D.docProblems.length===0,
+   `כל נתיב וכל פקודת npm שמוזכרים בתיעוד קיימים`,
+   `${D.docProblems.length} הפניות מתות בתיעוד: ${D.docProblems.join(" · ")}`],
   [D.duplicateSets.length===0, `אפס קבצים כפולים — כל ${D.totalFiles.toLocaleString("en")} הקבצים בעלי תוכן שונה`,
    `${D.duplicateSets.length} קבוצות של קבצים זהים בייט־בייט: ${D.duplicateSets.map(g=>g.join(" = ")).join(" · ")}`],
   [D.unreferenced.length===0, `כל קובץ נגיע אליו מנקודת כניסה`,
@@ -680,5 +706,6 @@ if (process.argv.includes("--check")) {
     console.warn(`  warning: newest snapshot is ${String(D.newestSnapshot).padStart(4,"0")}, ` +
       `behind ${D.handWrittenAfterSnapshot.length} hand-written migration(s) — db:generate will re-emit applied changes`);
   if (D.duplicateSets.length) console.warn(`  warning: ${D.duplicateSets.length} set(s) of byte-identical files`);
+  if (D.docProblems.length) console.warn(`  warning: ${D.docProblems.length} dead reference(s) in documentation`);
   if (D.unreferenced.length) console.warn(`  note: ${D.unreferenced.length} file(s) reached by nothing — ${D.reachable}/${D.totalFiles} reachable`);
 }

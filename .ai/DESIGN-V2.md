@@ -262,8 +262,8 @@ be.
 
 ## Part 3 — Phased implementation
 
-Each phase is one gate-verified round (typecheck / lint / 323 tests / build
-+ real-Chrome capture), independently shippable.
+Each phase is one gate-verified round (typecheck / lint / the test suite /
+build + real-Chrome capture), independently shippable.
 
 **Phase 0 — bugs (immediate, no design dependency)**
 Launcher-label overlap (max-width + right-anchor + z-order); We Are

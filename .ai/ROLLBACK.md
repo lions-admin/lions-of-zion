@@ -55,8 +55,8 @@ no longer expects, before assuming the rollback alone is sufficient.
 
 ## What this does *not* cover
 
-- Rolling back a bad `npm run build:lion-data` / `bake:nav-lion` /
-  `bake:nav-icons` asset bake — those are static files in `public/`,
+- Rolling back a bad `npm run bake:nav-lion` / `bake:nav-icons` /
+  `poster:nav` asset bake — those are static files in `public/`,
   committed to git like any other file; reverting the commit that changed
   them and redeploying is the right move there, not a Vercel promotion.
 - Rolling back environment variable changes made directly in the Vercel

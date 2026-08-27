@@ -1,5 +1,30 @@
 # State
 
+## Latest — 2026-08-27, shared agent loop implemented
+
+The repository now has one tool-agnostic five-stage workflow rooted at
+`AGENTS.md` and `.ai/WORKFLOW.md`. `verify:changed` selects checks from the
+working-tree diff and requires explicit real-Chrome evidence for visual work;
+`verify:full` is the single local and CI handoff gate. Tool-specific Claude
+hooks remain accelerators rather than a second source of process truth.
+
+Every task now uses a mandatory manager-worker model. The receiving agent owns
+decomposition, delegates at least one bounded subtask, prevents overlapping
+edits, inspects worker evidence, integrates, and performs final verification.
+Small tasks may use a read-only review worker; unavailable subagent support
+requires an explicit user waiver before implementation.
+
+Every task now starts with `npm run sync:start`: clean tree, fetch origin,
+switch to main, fast-forward main, and remove branches already merged there.
+It stops if a remote branch remains open, so a merge or deletion decision is
+made before new work begins. A completed serious round uses `npm run main:update`
+to merge, verify, push, and remove its completed branch. Open branches are never
+merged automatically.
+
+This work is uncommitted on `codex/project-structure-audit`. No push or deploy
+was performed. The verification result for the implementation belongs in the
+handoff for this task rather than as a durable state claim.
+
 ## Latest — 2026-08-27, structure audit; the design-audit wave is closed
 
 `main` is at `f8f84ce` (merged PR #16). The branch

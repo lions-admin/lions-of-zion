@@ -25,10 +25,14 @@ Requires Node 22 (what CI uses). The API routes will fail without a
 
 ```bash
 npm run dev          # next dev
+npm run sync:start   # update main, delete merged branches, flag open branches
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint — this is where the architecture boundaries are enforced
 npm test             # vitest run
 npm run build        # next build
+npm run verify:changed  # adaptive gate for the current working-tree diff
+npm run verify:full     # complete local and CI handoff gate
+npm run main:update     # merge a completed serious round into main and push it
 npm start            # next start, after a build
 ```
 
@@ -40,9 +44,30 @@ npx vitest run -t "publishes"
 npm run test:watch
 ```
 
-The full gate — `typecheck`, `lint`, `test`, `build` — is what CI runs on
+The full gate — `typecheck`, `lint`, `test`, `build`, `map:check` — is what CI runs on
 every push and pull request to `main`, and is worth running before asking for
 review.
+
+`verify:changed` reads tracked and untracked working-tree changes. It runs only
+the checks selected by the diff and prints the plan before executing it. Use
+`--dry-run` to inspect that plan. A visual diff exits with status 2 after the
+automated checks until the matching real-Chrome check has actually been run and
+the command is repeated with `--visual-verified`. Intro changes additionally
+require desktop and mobile captures and `--intro-verified`. These flags are an
+evidence attestation; they do not launch a browser or invent a passing result.
+
+`sync:start` is the manager's first command for every top-level task. It needs a
+clean working tree, fetches `origin`, switches to `main`, and fast-forwards from
+`origin/main`. It deletes branches already merged into main. If a remote branch
+is still open, it stops and names it; the manager needs a clear merge or
+deletion decision before starting new work. Every task therefore begins from
+the same current baseline.
+
+`main:update` is for a completed serious round: it updates local main, merges
+the completed branch, runs the full verification gate against the merged state,
+pushes main, and deletes the completed branch locally and remotely when safe. It
+stops on a merge conflict or failed verification; unfinished open branches are
+never merged automatically.
 
 ---
 

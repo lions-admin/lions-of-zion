@@ -62,7 +62,7 @@ const AREAS = {
   "assets": ["data", "מקורות אפייה — וגם ייבוא בזמן ריצה, ולכן זה נשלח."],
   ".ai": ["docs", "היומן. DECISIONS הוא append-only; STATE נכתב מחדש במקומו."],
   ".claude": ["local", "סוכנים, hooks ומיומנויות. מוחרג מה־deploy."],
-  ".design-sync": ["local", "צינור הייצוא של מערכת העיצוב."],
+  ".design-sync": ["local", "צינור הייצוא של מערכת העיצוב. מונע מכלי חיצוני — אין npm script ואין שלב CI שמריץ אותו."],
   ".github": ["deploy", "CI: שער, ואז עשן מסלולים ללא ראש."],
   "app/geopolitical-brief": ["frontend", "התדריך הגאופוליטי. היעד היחיד עם פריסה משלו במקום מעטפת התיקים."],
   "app/israels-story": ["frontend", "הסיפור הישראלי. תיק קריאה על מעטפת SectionPage."],
@@ -87,7 +87,7 @@ const AREAS = {
   ".claude/agents": ["local", "הגדרות סוכנים לסקירה ויזואלית."],
   ".claude/hooks": ["local", "בדיקות שרצות אחרי כל עריכה. אחת מהן הייתה חצי־מתה עד הביקורת."],
   ".claude/skills": ["local", "מיומנויות מקומיות — לכידת אינטרו, סנכרון יומן, כיוון עיצובי."],
-  ".design-sync/previews": ["local", "תצוגות מקדימות של רכיבים עבור חבילת מערכת העיצוב."],
+  ".design-sync/previews": ["local", "דוגמאות שימוש לחבילת מערכת העיצוב. מייבאות את שם החבילה הבנויה ולא את המקור המקומי, ולכן שום דבר במאגר לא מייבא אותן — הכלי החיצוני מוצא אותן לפי מוסכמת ספרייה."],
   ".design-sync/shims": ["local", "מתאמים שמאפשרים לרכיבים להיבנות מחוץ ל־Next."],
   ".github/workflows": ["deploy", "הגדרת ה־CI היחידה. שער, ואז עשן מסלולים."],
 };
@@ -145,7 +145,22 @@ const staticPages  = pageFiles.length - dynamicPages.length;
 const migrations = files.filter(p=>/^server\/db\/migrations\/\d+.*\.sql$/.test(p)).sort();
 let journalEntries = 0;
 try { journalEntries = JSON.parse(read("server/db/migrations/meta/_journal.json")).entries.length; } catch {}
-const snapshots = files.filter(p=>/^server\/db\/migrations\/meta\/\d+_snapshot\.json$/.test(p)).length;
+const snapshotIdx = files
+  .map((p) => p.match(/^server\/db\/migrations\/meta\/(\d+)_snapshot\.json$/))
+  .filter(Boolean).map((m) => Number(m[1]));
+const snapshots = snapshotIdx.length;
+/* A hand-written migration legitimately has no snapshot — drizzle only
+   snapshots what it generates. So "snapshots === migrations" is the wrong
+   test and reports normal practice as drift. What actually matters is whether
+   the newest snapshot is behind the newest migration: if it is, `db:generate`
+   diffs the schema against a stale baseline and re-emits changes those
+   hand-written migrations already applied. */
+const newestSnapshot = snapshotIdx.length ? Math.max(...snapshotIdx) : -1;
+const newestMigration = migrations.length
+  ? Math.max(...migrations.map((p) => Number(p.match(/(\d+)/)[1]))) : -1;
+const handWrittenAfterSnapshot = migrations
+  .map((p) => ({ idx: Number(p.match(/(\d+)/)[1]), name: p.split("/").pop() }))
+  .filter((m) => m.idx > newestSnapshot).map((m) => m.name);
 
 /* tests + scripts */
 const testFiles = files.filter(p=>/^tests\/.*\.test\.ts$/.test(p));
@@ -264,6 +279,12 @@ const entryPoints = files.filter((f) =>
   /^(scripts|content-packages)\//.test(f) ||
   /^server\/db\/migrations\//.test(f) ||
   /^\.(github|claude)\//.test(f) ||
+  /* `.design-sync/` is driven from outside the repository: its previews import
+     the *built* package name (`lions-of-zion`), not local source, and the
+     Claude Design tool discovers them by directory convention. Nothing here
+     imports them and nothing should — treating them as orphans would make the
+     unreferenced count noise instead of a signal. */
+  /^\.design-sync\//.test(f) ||
   /^(package|package-lock|tsconfig|vercel)\.json$/.test(f) ||
   /^\.(gitignore|vercelignore|mcp\.json)$/.test(f));
 const reached = new Set(entryPoints);
@@ -309,6 +330,7 @@ const D = {
   pages: pageFiles.length, staticPages, dynamicPages: dynamicPages.length,
   apiRoutes: routeFiles.length,
   migrations: migrations.length, journalEntries, snapshots,
+  newestSnapshot, newestMigration, handWrittenAfterSnapshot,
   tests: testFiles.length, scripts: scriptFiles.length,
   chromeScripts, navIds, navMissing, publicRoutes, pkgs,
   crossings, violations, sanctioned, carvedOut, gitignored,
@@ -460,7 +482,10 @@ const findings = [
   [D.violations.length===0, `אפס הפרות של גבול הייבוא בין הפרונטאנד ל־server/`, `${D.violations.length} הפרות: ${D.violations.map(v=>v.file).join(", ")}`],
   [D.navMissing.length===0, `לכל ${D.navIds.length} יעדי הניווט יש page.tsx תואם`, `חסר page.tsx ל: ${D.navMissing.join(", ")}`],
   [D.migrations===D.journalEntries, `${D.migrations} מיגרציות תואמות ל־journal`, `סחיפה בין הקבצים ל־journal`],
-  [D.snapshots===D.journalEntries, `snapshots תואמים ל־journal`, `${D.snapshots} snapshots מול ${D.journalEntries} מיגרציות — ה־db:generate הבא יפלוט מיגרציה מיותרת`],
+  [D.handWrittenAfterSnapshot.length===0,
+   `בסיס ה־snapshots עדכני — db:generate לא יפלוט מיגרציה מיותרת`,
+   `ה־snapshot האחרון הוא ${String(D.newestSnapshot).padStart(4,"0")} אבל יש ${D.handWrittenAfterSnapshot.length} מיגרציות כתובות־ביד אחריו (${D.handWrittenAfterSnapshot.join(", ")}). ` +
+   `‏db:generate ישווה מול בסיס מיושן ויפלוט מחדש שינוי שכבר הוחל. חסר snapshot, לא חסרה מיגרציה.`],
   [D.duplicateSets.length===0, `אפס קבצים כפולים — כל ${D.totalFiles.toLocaleString("en")} הקבצים בעלי תוכן שונה`,
    `${D.duplicateSets.length} קבוצות של קבצים זהים בייט־בייט: ${D.duplicateSets.map(g=>g.join(" = ")).join(" · ")}`],
   [D.unreferenced.length===0, `כל קובץ נגיע אליו מנקודת כניסה`,
@@ -651,7 +676,9 @@ if (process.argv.includes("--check")) {
   console.log(`${OUT} — ${D.totalFiles} files, ${areas.length} areas, ${rootFiles.length} root files, ` +
     `${Object.keys(N).length} explained nodes`);
   if (D.violations.length) console.warn(`  warning: ${D.violations.length} import-boundary violations`);
-  if (D.snapshots !== D.journalEntries) console.warn(`  warning: ${D.snapshots} snapshots vs ${D.journalEntries} migrations`);
+  if (D.handWrittenAfterSnapshot.length)
+    console.warn(`  warning: newest snapshot is ${String(D.newestSnapshot).padStart(4,"0")}, ` +
+      `behind ${D.handWrittenAfterSnapshot.length} hand-written migration(s) — db:generate will re-emit applied changes`);
   if (D.duplicateSets.length) console.warn(`  warning: ${D.duplicateSets.length} set(s) of byte-identical files`);
   if (D.unreferenced.length) console.warn(`  note: ${D.unreferenced.length} file(s) reached by nothing — ${D.reachable}/${D.totalFiles} reachable`);
 }

@@ -203,28 +203,33 @@ ids and zero normalised titles, and the documentation surface was read in full
 | CI blind to the no-JavaScript invariant | Add a Linux-safe guard | `ci-smoke.mjs` gained a `javaScriptEnabled: false` check on the home route (8 links, poster, no hidden Suspense shell); `tests/no-js-invariant.test.ts` is the fast tripwire. Both verified against a real server and a reintroduced `loading.tsx`. |
 | `vercel-infrastructure-costs.html` | Ignore it | Added to `.gitignore`. |
 
-## Declined 2026-08-27 — recorded so they are not rediscovered
+## Handled on the second pass, when "handle everything" was said
 
-Each was raised and deliberately left. Re-raising them costs a session.
+| Item | What was done |
+| --- | --- |
+| **CI red on `main`** | Regenerated `package-lock.json` with npm 10 — the version Node 22 ships and CI runs. `fast-uri` and the missing `ajv`/`esbuild` entries are back. Verified `npm ci` now exits 0 under **both** npm 10 and npm 11, so CI and this workstation agree. |
+| **`.design-sync/previews` — 21 files nothing referenced** | Not orphans. They import the **built package name** (`lions-of-zion`), not local source, and the external Claude Design tool finds them by directory convention; `NOTES.md` refers to them. Nothing in the repository imports them **by design**. The reachability scanner now knows this, so the unreferenced count stays a signal instead of noise. |
+| **`leva` in `dependencies`** | Moved to `devDependencies` with `@types/three`. Verified the production build still compiles and `/particle-demo` still prerenders. The comment claiming leva "never enters the shipped component budget" was corrected — it was true of the home route and false of the app, since `/particle-demo` is a deployed route. |
+| **`components/graphics/viewport.ts`** | 472 → 199 lines. Removed the `Viewport` class, `detectTier`, `hasWebGL`, `dprFor`, `worldToScreenIn`, `readSafeArea` and `publishForVerification` — none had a caller — along with the `window.__lionFit` global, which had one writer, no reader, and a docstring falsely claiming `verify-composition.mjs` read it. Kept the composition constants and the cover fit, which `tests/composition-fit.test.ts` asserts; its 12 tests still pass. A comment records what was removed and why. |
+| **The snapshot chain** | **My original finding was wrong.** "18 snapshots vs 21 migrations" treated normal practice as drift: `0018`–`0020` are hand-written, and drizzle only snapshots what it generates. The real defect is narrower — the newest snapshot is `0017`, so `db:generate` diffs against a stale baseline and re-emits an `ALTER` that `0020` already applied. Confirmed by running it: the generated `0021` contained that one line and nothing else. It was **reverted** rather than kept, because accepting it means running a redundant migration against a production database to fix a local cache. The map's check now reports the accurate condition. |
 
-1. **`requireCapability()` is never called.** Capability enforcement stays inert;
-   capabilities feed only the `evidence_staff_restricted` RLS policy. Wiring it
-   into routes could block operations that work today, and that judgement was
-   not worth making from a structure audit.
+## Declined 2026-08-27, and left declined
+
+Two items change security behaviour and were not swept up in the second pass.
+Say the word and they are an hour's work each.
+
+1. **`requireCapability()` is never called.** Wiring it into routes could refuse
+   operations that work today; that is a decision about who may do what, not a
+   tidy-up.
 2. **`prune_rate_limits` and `prune_expired_idempotency` are `SECURITY DEFINER`
-   with no `REVOKE … FROM PUBLIC`.** No route reaches arbitrary SQL, so this is
-   defence-in-depth rather than a live hole. Left as an unexplained asymmetry
-   inside migration `0018`.
-3. **The drizzle snapshot chain stops at `0017`** against 21 migrations. The
-   next `db:generate` will re-emit a redundant `0021`. `npm run map` reports
-   this on every run, so it cannot be forgotten.
-4. **`leva` is in `dependencies`**, not `devDependencies`, while
-   `ControlPanel.tsx` claims it never enters the shipped bundle.
-5. **`components/graphics/viewport.ts`** — 472 lines for the retired
-   photographic scene, kept alive by one test, with a docstring that falsely
-   claims `verify-composition.mjs` reads `window.__lionFit`.
-6. **`publications` and `reports` fold `repo()` into their service** instead of
-   a sibling `repo.ts`, unlike the other nine modules.
+   with no `REVOKE … FROM PUBLIC`.** The fix is a new migration that tightens a
+   live privilege. No route reaches arbitrary SQL, so it is defence-in-depth.
+
+One item was left as cosmetics:
+
+3. **`publications` and `reports` fold `repo()` into their service** rather than
+   a sibling `repo.ts`. Pure code motion, no behavioural difference, and the
+   deviation is documented where a reader will meet it.
 
 ## Found after the audit closed — not caused by it
 

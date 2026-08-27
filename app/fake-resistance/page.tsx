@@ -108,19 +108,36 @@ export default async function Page() {
           verification desks were still finding their footing — footage from
           Arma 3, a military simulation game released in 2013, was already
           circulating as combat video, one flagged post alone drawing more
-          than three million views. Material a decade old does not find an
-          audience of millions that fast on its own. The clips were already
-          banked, the accounts positioned to amplify them already existed, and
-          the distribution rails between them were already standing. The event
-          supplied the occasion; the machinery predates it.
+          than three million views. The game&rsquo;s own studio had publicly asked
+          people to stop doing this in November 2022, citing the same misuse
+          across earlier conflicts. Nothing had to be invented; the technique
+          was already routine.
         </p>
         <p>
-          That is a claim about infrastructure, and it is the strongest form
-          of the claim this page makes. Whether specific narratives were
-          drafted in advance is a research question, not a settled fact. What
-          the record documents is narrower and harder to dismiss: when the
-          moment came, the delivery chain did not need to be built. It only
-          needed to be switched on.
+          The networks were standing too, and this part is documented rather
+          than inferred. The operation researchers call Doppelgänger was
+          running from at least May 2022. Spamouflage had been active since
+          2019, and the largest single takedown of it on record was announced
+          five weeks before the attack. Platform enforcement, government
+          designations, research-institute analysis and forensic reporting
+          each register the same infrastructure independently, and all of it
+          predates October 7. The event supplied the occasion; the machinery
+          did not need building.
+        </p>
+        <p>
+          That is a claim about infrastructure, and it is the one this page
+          makes. It is worth being exact about the claim it does{" "}
+          <em>not</em> make. Whether specific narratives were drafted in
+          advance was researched for this file, and the answer came back
+          negative: no dated record was found of a post-October 7 claim
+          written, seeded or scheduled beforehand, and the strongest
+          independent findings point the other way — describing the early
+          flood as improvised at speed, much of its reach coming from
+          monetised accounts chasing engagement rather than from covert
+          networks. What was reused was not a script but a repertoire: the
+          same denial and false-flag templates these operations had run for
+          years. A template is not a plan, and this page does not upgrade one
+          into the other.
         </p>
       </SectionBlock>
 

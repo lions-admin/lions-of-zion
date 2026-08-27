@@ -198,52 +198,127 @@
 }
 
 /* ---- hover/focus preview cards ----
-   A CSS-only sibling of the real link: works in the no-JS tier, never steals
-   pointer input, and opens inward toward the lion — the one direction that
-   always has room on the ellipse. Screen readers get the same sentence via
-   aria-describedby whether or not the card is visible. */
+   A callout on the instrument, not a floating tooltip: a gold wire extends
+   from the node ring, the plate hangs off it (its binding edge is the one
+   gold border, on the side the wire enters), and the text settles half a
+   beat after the frame. CSS-only sibling of the real link: works in the
+   no-JS tier, never steals pointer input, opens inward toward the lion.
+   Screen readers get the description via aria-describedby regardless. */
 .card {
+  --gap: 0.75rem;
   position: absolute;
   z-index: 3;
-  width: 14.5rem;
+  width: 15rem;
   max-width: 46vw;
-  padding: 0.8rem 1rem 0.85rem;
-  background: rgba(7, 11, 20, 0.9);
+  padding: 0.85rem 1rem 0.9rem;
+  /* a small window of the scan: same trace rows as the section backdrop */
+  background:
+    radial-gradient(140% 120% at 20% 0%, rgba(87, 167, 217, 0.05), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(87, 167, 217, 0.03) 0 1px, transparent 1px 8px),
+    rgba(7, 11, 20, 0.92);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(201, 162, 75, 0.16);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(87, 167, 217, 0.13);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
   text-align: left;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
   transform: var(--card-center) var(--card-slide, none);
 }
 
-/* Detection brackets — the same corner marks the canvas draws around every
-   platform glyph it flags. Two opposite corners are enough to read as a
-   targeting frame without boxing the card in. */
-.card::before,
-.card::after {
+/* the wire: grows out of the ring, then the plate is already hanging on it */
+.card::before {
   content: '';
   position: absolute;
-  width: 0.7rem;
-  height: 0.7rem;
+  background: linear-gradient(var(--wire-run), rgba(239, 215, 154, 0.85), rgba(201, 162, 75, 0.3));
+  transform: var(--wire-center) scale(var(--wire-sx, 1), var(--wire-sy, 1));
+  transition: transform 170ms ease;
 }
 
-.card::before {
-  top: -1px;
-  left: -1px;
-  border-top: 1.5px solid #57a7d9;
-  border-left: 1.5px solid #57a7d9;
+.card[data-side='left'] {
+  right: calc(100% + var(--gap));
+  top: 50%;
+  --card-center: translateY(-50%);
+  --card-slide: translateX(5px);
+  --wire-sx: 0;
+  border-right-color: rgba(201, 162, 75, 0.55);
 }
 
-.card::after {
-  right: -1px;
-  bottom: -1px;
-  border-right: 1.5px solid #57a7d9;
-  border-bottom: 1.5px solid #57a7d9;
+.card[data-side='left']::before {
+  left: 100%;
+  top: 50%;
+  width: var(--gap);
+  height: 1px;
+  transform-origin: right;
+  --wire-center: translateY(-50%);
+  --wire-run: to left;
+}
+
+.card[data-side='right'] {
+  left: calc(100% + var(--gap));
+  top: 50%;
+  --card-center: translateY(-50%);
+  --card-slide: translateX(-5px);
+  --wire-sx: 0;
+  border-left-color: rgba(201, 162, 75, 0.55);
+}
+
+.card[data-side='right']::before {
+  right: 100%;
+  top: 50%;
+  width: var(--gap);
+  height: 1px;
+  transform-origin: left;
+  --wire-center: translateY(-50%);
+  --wire-run: to right;
+}
+
+.card[data-side='below'] {
+  top: calc(100% + var(--gap));
+  left: 50%;
+  --card-center: translateX(-50%);
+  --card-slide: translateY(-5px);
+  --wire-sy: 0;
+  border-top-color: rgba(201, 162, 75, 0.55);
+}
+
+.card[data-side='below']::before {
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: var(--gap);
+  transform-origin: top;
+  --wire-center: translateX(-50%);
+  --wire-run: to bottom;
+}
+
+.card[data-side='above'] {
+  bottom: calc(100% + var(--gap));
+  left: 50%;
+  --card-center: translateX(-50%);
+  --card-slide: translateY(5px);
+  --wire-sy: 0;
+  border-bottom-color: rgba(201, 162, 75, 0.55);
+}
+
+.card[data-side='above']::before {
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: var(--gap);
+  transform-origin: bottom;
+  --wire-center: translateX(-50%);
+  --wire-run: to top;
+}
+
+/* second beat: the text settles onto the plate just after the frame lands */
+.cardMeta,
+.cardText {
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 150ms ease, transform 150ms ease;
 }
 
 .cardMeta {
@@ -279,42 +354,21 @@
   letter-spacing: 0.02em;
 }
 
-/* Centering and the closed-state slide are custom properties, so the reveal
-   rule below can zero the slide without fighting per-side specificity. */
-.card[data-side='left'] {
-  right: calc(100% + 0.65rem);
-  top: 50%;
-  --card-center: translateY(-50%);
-  --card-slide: translateX(6px);
-}
-
-.card[data-side='right'] {
-  left: calc(100% + 0.65rem);
-  top: 50%;
-  --card-center: translateY(-50%);
-  --card-slide: translateX(-6px);
-}
-
-.card[data-side='below'] {
-  top: calc(100% + 0.65rem);
-  left: 50%;
-  --card-center: translateX(-50%);
-  --card-slide: translateY(-6px);
-}
-
-.card[data-side='above'] {
-  bottom: calc(100% + 0.65rem);
-  left: 50%;
-  --card-center: translateX(-50%);
-  --card-slide: translateY(6px);
-}
-
 /* Keyboard reveal works on every device… */
 .link:focus-visible + .card {
   opacity: 1;
   visibility: visible;
   transition-delay: 0s;
   --card-slide: none;
+  --wire-sx: 1;
+  --wire-sy: 1;
+}
+
+.link:focus-visible + .card .cardMeta,
+.link:focus-visible + .card .cardText {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 120ms;
 }
 
 /* …pointer reveal only where hover is real, so a tap during the 320 ms
@@ -326,6 +380,19 @@
     visibility: visible;
     transition-delay: 140ms;
     --card-slide: none;
+    --wire-sx: 1;
+    --wire-sy: 1;
+  }
+
+  .link:hover + .card::before {
+    transition-delay: 140ms;
+  }
+
+  .link:hover + .card .cardMeta,
+  .link:hover + .card .cardText {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 260ms;
   }
 }
 
@@ -371,5 +438,18 @@
   .card {
     transition: opacity 200ms ease, visibility 0s linear 200ms;
     --card-slide: none;
+    --wire-sx: 1;
+    --wire-sy: 1;
+  }
+
+  .card::before {
+    transition: none;
+  }
+
+  .cardMeta,
+  .cardText {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

@@ -55,8 +55,13 @@ Each packet is one folder with:
   `content_items`, `content_narratives`, `narratives`, `events`,
   `event_links`. Aggregate across cases: ~120 sources, ~200 entities, ~60
   graded claims, ~105 evidenced relationship edges.
-- `evidence/` — raw harvest artifacts (mirror snapshots, twitterapi.io JSON
-  pulls with sha256 names). **Never published; see §8.**
+- `evidence/` — raw harvest artifacts (mirror snapshots, JSON pulls from a
+  paid third-party X data API, with sha256 names). **Never published; see
+  §8.** The vendor's name and its API endpoint URLs are scrubbed at import
+  (owner ruling, 2026-08-27): the endpoints error for every reader, so those
+  sources publish as linkless "X API query" attributions beside their
+  `retrievedAt` — the importer's `scrubVendor` is what keeps a re-import from
+  putting either back.
 - `figures/` — empty in every packet. There is no media to host: this is a
   text-and-data integration, no CDN step, no `media_id` machinery.
 

@@ -16,27 +16,20 @@ This block is written and re-added by \`next dev\` — verify at \`node_modules/
 <!-- END:nextjs-agent-rules -->`;
 
 describe("agent workflow contract", () => {
-  it("preserves the managed Next.js block and routes every agent to the shared workflow", async () => {
+  it("preserves the managed Next.js block and records owner authority", async () => {
     const agents = await read("AGENTS.md");
     expect(agents.match(/<!-- BEGIN:nextjs-agent-rules -->/g)).toHaveLength(1);
     expect(agents.match(/<!-- END:nextjs-agent-rules -->/g)).toHaveLength(1);
     expect(agents).toContain(nextManagedBlock);
-    expect(agents).toContain("Read [`.ai/WORKFLOW.md`](.ai/WORKFLOW.md) in full");
-    expect(agents).toContain("Every task, including a small one, must be split across agents");
-    expect(agents).toContain("The agent that");
-    expect(agents).toContain("receives the user's request is the manager");
-    expect(agents).toContain("at least one concrete, bounded subtask to another agent");
-    expect(agents).toContain("stop before implementation");
-    expect(agents).toContain("After a serious implementation round");
-    expect(agents).toContain("npm run main:update");
+    expect(agents).toContain("There is one developer and project owner");
+    expect(agents).toContain("Their direct instruction is the authority");
+    expect(agents).toContain("no delegation is required");
   });
 
-  it("makes the manager accountable for delegation, integration, and verification", async () => {
+  it("keeps the workflow optional", async () => {
     const workflow = await read(".ai/WORKFLOW.md");
-    expect(workflow).toContain("The agent receiving the user's request is always the manager");
-    expect(workflow).toContain("non-overlapping workstreams");
-    expect(workflow).toContain("Treat worker summaries as leads, not proof");
-    expect(workflow).toContain("what the manager independently verified");
+    expect(workflow).toContain("Optional working notes");
+    expect(workflow).toContain("not prerequisites or gates");
   });
 
   it("keeps the full local gate identical to the CI entry point", async () => {

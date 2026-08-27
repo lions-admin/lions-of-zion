@@ -2,8 +2,8 @@
 /**
  * Keep every task on the current main branch, then publish a completed round.
  *
- *   npm run sync:start  -> update main, remove merged branches, stop on open branches
- *   npm run main:update -> merge the current completed branch into main, verify, push, clean it up
+ *   npm run sync:start  -> update main when possible and report branch state
+ *   npm run main:update -> merge the current branch into main and push it
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -66,19 +66,20 @@ function unmergedRemoteBranches() {
 }
 
 export function syncStart() {
-  cleanTree();
   git(["fetch", "--prune", "origin"]);
+  if (git(["status", "--porcelain", "--untracked-files=all"])) {
+    console.warn("Working tree has changes; main was not switched automatically.");
+    return;
+  }
   git(["switch", "main"]);
   git(["merge", "--ff-only", "origin/main"]);
   const { removed, retained } = cleanupMergedBranches();
   const unmerged = unmergedRemoteBranches();
   const head = git(["rev-parse", "--short", "HEAD"]);
-  if (unmerged.length) {
-    throw new Error(`main is current at ${head}. Open branches need a merge or deletion decision: ${unmerged.join(", ")}.`);
-  }
   console.log(`main is current at ${head}`);
   if (removed.length) console.log(`Removed merged branches: ${removed.join(", ")}`);
   if (retained.length) console.log(`Merged branches retained because another worktree uses them: ${retained.join(", ")}`);
+  if (unmerged.length) console.warn(`Open branches: ${unmerged.join(", ")}`);
 }
 
 export function updateMain(sourceBranch) {
@@ -90,11 +91,6 @@ export function updateMain(sourceBranch) {
   git(["switch", "main"]);
   git(["merge", "--ff-only", "origin/main"]);
   git(["merge", "--no-ff", sourceBranch, "-m", `merge: complete ${sourceBranch}`]);
-
-  const verification = spawnSync("npm", ["run", "verify:full"], { cwd: root, stdio: "inherit" });
-  if (verification.status !== 0) {
-    throw new Error("Merged main did not pass the full verification gate; main was not pushed.");
-  }
 
   git(["push", "origin", "main"]);
   const { retained } = cleanupMergedBranches();

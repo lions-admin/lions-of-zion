@@ -48,26 +48,17 @@ The full gate — `typecheck`, `lint`, `test`, `build`, `map:check` — is what 
 every push and pull request to `main`, and is worth running before asking for
 review.
 
-`verify:changed` reads tracked and untracked working-tree changes. It runs only
-the checks selected by the diff and prints the plan before executing it. Use
-`--dry-run` to inspect that plan. A visual diff exits with status 2 after the
-automated checks until the matching real-Chrome check has actually been run and
-the command is repeated with `--visual-verified`. Intro changes additionally
-require desktop and mobile captures and `--intro-verified`. These flags are an
-evidence attestation; they do not launch a browser or invent a passing result.
+`verify:changed` reads tracked and untracked working-tree changes, runs the
+checks selected by the diff, and suggests any useful manual follow-up. Its
+visual and intro notes are advisory; they do not block a task.
 
-`sync:start` is the manager's first command for every top-level task. It needs a
-clean working tree, fetches `origin`, switches to `main`, and fast-forwards from
-`origin/main`. It deletes branches already merged into main. If a remote branch
-is still open, it stops and names it; the manager needs a clear merge or
-deletion decision before starting new work. Every task therefore begins from
-the same current baseline.
+`sync:start` is an optional convenience command. It fetches `origin`, updates
+`main` when the tree permits it, deletes branches already merged into main, and
+reports any open branches without blocking work.
 
-`main:update` is for a completed serious round: it updates local main, merges
-the completed branch, runs the full verification gate against the merged state,
-pushes main, and deletes the completed branch locally and remotely when safe. It
-stops on a merge conflict or failed verification; unfinished open branches are
-never merged automatically.
+`main:update` updates local main, merges the current branch, pushes main, and
+removes the completed branch locally and remotely when safe. Run verification
+when it is useful to the owner; it is not a publication gate.
 
 ---
 

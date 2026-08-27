@@ -36,10 +36,12 @@ deploying publishes the site.
 
 ## Journal
 
-Update `.ai/STATE.md` whenever a session moves the work. Keep
-`.ai/DECISIONS.md` append-only and newest-first; it records why durable choices
-were made, while git records what changed. `TODOS.md` is the Hebrew delivery
-plan and is the place to check what is considered unfinished.
+The shared, tool-agnostic loop is `.ai/WORKFLOW.md`; follow it rather than
+maintaining a second Claude-specific process here. In particular, update
+`.ai/STATE.md` whenever a session moves the work. Keep `.ai/DECISIONS.md`
+append-only and newest-first; it records why durable choices were made, while
+git records what changed. `TODOS.md` is the Hebrew delivery plan and is the
+place to check what is considered unfinished.
 
 ## Reference documentation
 
@@ -58,6 +60,8 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run verify:changed
+npm run verify:full
 ```
 
 ```bash

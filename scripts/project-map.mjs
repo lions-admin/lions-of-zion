@@ -60,7 +60,7 @@ const AREAS = {
   "scripts": ["tests", "אימות, ייבוא ואפייה. חלקם דורשים Chrome אמיתי על macOS."],
   "public": ["data", "פלט אפוי וקורפוס. נטען לפי נתיב מילולי — שינוי שם שובר בשקט."],
   "assets": ["data", "מקורות אפייה — וגם ייבוא בזמן ריצה, ולכן זה נשלח."],
-  ".ai": ["docs", "היומן. DECISIONS הוא append-only; STATE נכתב מחדש במקומו."],
+  ".ai": ["docs", "יומן הפרויקט ולולאת העבודה המשותפת לכל הסוכנים. DECISIONS הוא append-only; STATE נכתב מחדש במקומו."],
   ".claude": ["local", "סוכנים, hooks ומיומנויות. מוחרג מה־deploy."],
   ".design-sync": ["local", "צינור הייצוא של מערכת העיצוב. מונע מכלי חיצוני — אין npm script ואין שלב CI שמריץ אותו."],
   ".github": ["deploy", "CI: שער, ואז עשן מסלולים ללא ראש."],
@@ -95,7 +95,7 @@ const AREAS = {
 /* one line per file at the repository root */
 const ROOTFILES = {
   "CLAUDE.md": ["docs", true, "התדריך העובד: ה־invariants שעורך אסור לו לשבור. הקובץ הראשון לקרוא."],
-  "AGENTS.md": ["docs", false, "אזהרה שגרסת Next.js כאן שונה מנתוני אימון. נכתב מחדש על ידי next dev, ולכן commit שלו הוא צפוי ולא תקלה."],
+  "AGENTS.md": ["docs", true, "נקודת הכניסה המחייבת לכל סוכן: לולאת עבודה משותפת ואזהרת Next.js מנוהלת שנשמרת ללא שינוי."],
   "README.md": ["docs", false, "דלת הכניסה: מה זה, איך מתקינים, איפה כל תחום."],
   "TODOS.md": ["docs", true, "תוכנית האספקה בעברית. המקום לבדוק בו מה נחשב לא גמור."],
   "PROJECT_STRUCTURE_AUDIT.md": ["docs", true, "ביקורת המבנה: כל אזור מסווג עם הוכחה, ומה הושאר להחלטת הבעלים."],
@@ -116,7 +116,13 @@ const SOT = new Set(["server/contracts","server/core","server/db","content-packa
   "docs",".ai","assets",".github","components/particle-nav","components/intro"]);
 
 /* ── scan ──────────────────────────────────────────────────────────────── */
-const files = sh(["ls-files"]).split("\n").filter(Boolean);
+/* Include untracked, non-ignored files so `map:check` catches a new area before
+   it is staged or committed. The agent loop deliberately runs before either
+   action, and a map that can only see committed structure would approve the
+   exact drift it exists to prevent. */
+const files = sh(["ls-files", "--cached", "--others", "--exclude-standard"])
+  .split("\n")
+  .filter(Boolean);
 const sizeOf = (p) => { try { return statSync(R(p)).size; } catch { return 0; } };
 const human = (b) => b >= 1048576 ? (b/1048576).toFixed(b>=10485760?0:1)+"MB"
                    : b >= 1024 ? Math.round(b/1024)+"K" : b+"B";

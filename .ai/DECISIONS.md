@@ -10,6 +10,53 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — Startup freshness is checked by the manager, never pulled blindly
+
+The manager runs `sync:start` before delegation. It fetches the current branch's
+configured upstream, fast-forwards only a clean behind-only branch, and reports
+its relationship to `origin/main` without merging it. Dirty-behind, diverged,
+detached, no-upstream, and fetch-failure states fail closed; no stash, reset,
+merge, or rebase is automatic. Workers never synchronize independently because
+they may share the manager's working tree.
+
+The session-start adapter performs the same check for visibility and returns a
+blocking status when freshness cannot be proven. This preserves the file-backed
+memory model: `.ai/STATE.md` remains the mutable snapshot and `.ai/DECISIONS.md`
+remains the append-only rationale.
+
+## 2026-08-27 — Every task has one manager and at least one worker
+
+The agent that receives the request owns the whole task. It decomposes the
+work, delegates at least one bounded subtask, prevents overlapping file
+ownership, reviews the returned diff and evidence, integrates the result, and
+runs final verification. Delegation transfers execution, never accountability
+or approval authority.
+
+This applies to small tasks too, but they do not need an artificial second code
+stream: a read-only review or independent verification is a valid worker
+assignment. When a platform cannot create subagents, the manager stops before
+implementation and asks for an explicit per-task waiver rather than silently
+pretending the requirement was met.
+
+## 2026-08-27 — The agent loop is shared policy plus executable gates
+
+Agent behavior cannot be made portable by copying instructions into every
+vendor directory. `AGENTS.md` is therefore the mandatory entry point,
+`.ai/WORKFLOW.md` owns the five-stage process, and tool-specific hooks and
+skills are adapters only. The existing Next.js-managed block remains intact so
+framework guidance continues to match the installed version.
+
+Written instructions alone cannot constrain an agent that skips them. The
+portable enforcement boundary is executable: `verify:changed` selects the
+smallest useful checks from the working-tree diff and refuses to close visual
+or intro work without explicit browser-evidence flags; `verify:full` is the
+single local and CI handoff gate. This deliberately avoids a full production
+build after every edit while keeping the final standard identical everywhere.
+
+Commits, pushes, deploys, publication, live migrations and irreversible
+external mutations remain approval-gated. Neither command performs any of
+them, and vendor hooks must not add that authority.
+
 ## 2026-08-27 — The single admin holds every capability, and the check stays uncalled
 
 `requireCapability()` is exported, granted against, and called from nowhere.

@@ -25,6 +25,8 @@ described as though it works.
 
 - **[`../CLAUDE.md`](../CLAUDE.md)** — the working brief: stable architecture
   and the invariants an editor must not break. Read it before changing code.
+- **[`../.ai/WORKFLOW.md`](../.ai/WORKFLOW.md)** — the mandatory five-stage,
+  tool-agnostic loop every coding agent follows.
 - **[`../.ai/DECISIONS.md`](../.ai/DECISIONS.md)** — **the ADR log.**
   Append-only, newest first. It records *why* durable choices were made; git
   records what changed. One entry per decision a later reader would otherwise

@@ -25,6 +25,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/startup-sync.mjs\" --hook",
+            "timeout": 30,
+            "statusMessage": "Checking repository freshness"
+          },
+          {
+            "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-context.mjs\"",
             "timeout": 20,
             "statusMessage": "Loading project journal"

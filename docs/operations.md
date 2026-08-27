@@ -25,10 +25,13 @@ Requires Node 22 (what CI uses). The API routes will fail without a
 
 ```bash
 npm run dev          # next dev
+npm run sync:start   # fetch and safely fast-forward the current branch
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint — this is where the architecture boundaries are enforced
 npm test             # vitest run
 npm run build        # next build
+npm run verify:changed  # adaptive gate for the current working-tree diff
+npm run verify:full     # complete local and CI handoff gate
 npm start            # next start, after a build
 ```
 
@@ -40,9 +43,24 @@ npx vitest run -t "publishes"
 npm run test:watch
 ```
 
-The full gate — `typecheck`, `lint`, `test`, `build` — is what CI runs on
+The full gate — `typecheck`, `lint`, `test`, `build`, `map:check` — is what CI runs on
 every push and pull request to `main`, and is worth running before asking for
 review.
+
+`verify:changed` reads tracked and untracked working-tree changes. It runs only
+the checks selected by the diff and prints the plan before executing it. Use
+`--dry-run` to inspect that plan. A visual diff exits with status 2 after the
+automated checks until the matching real-Chrome check has actually been run and
+the command is repeated with `--visual-verified`. Intro changes additionally
+require desktop and mobile captures and `--intro-verified`. These flags are an
+evidence attestation; they do not launch a browser or invent a passing result.
+
+`sync:start` is the manager's first command for every top-level task. It fetches
+the configured upstream and compares it with the current branch. A clean branch
+that is only behind is fast-forwarded; dirty-behind, diverged, detached,
+no-upstream, and fetch-failure states stop implementation. No stash, reset,
+merge, or rebase is performed automatically. The session-start adapter runs the
+same check for visibility, while workers must not sync independently.
 
 ---
 

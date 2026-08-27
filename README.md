@@ -19,6 +19,7 @@ at all.
 
 ```bash
 npm ci
+npm run sync:start
 npm run dev
 ```
 
@@ -79,6 +80,8 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run verify:changed  # adaptive checks for the current diff
+npm run verify:full     # complete handoff and CI gate
 ```
 
 ```bash

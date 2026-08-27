@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  SHARE_ATTRIBUTION,
   SHARE_CTA,
   TEASER_QUOTE_MAX,
   TCO_URL_WEIGHT,

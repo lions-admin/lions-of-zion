@@ -30,8 +30,6 @@ export const X_POST_LIMIT = 280;
 /** Every URL costs this much on X, courtesy of t.co — even a short one. */
 export const TCO_URL_WEIGHT = 23;
 
-export const SHARE_ATTRIBUTION = '— Lions of Zion archive';
-
 /**
  * The closing line of a shared post. It is a *teaser*: the quote is the hook,
  * this is the invitation, and X appends the record's URL directly beneath it —

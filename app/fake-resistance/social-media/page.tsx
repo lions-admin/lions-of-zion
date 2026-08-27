@@ -56,6 +56,7 @@ export default async function Page() {
   return (
     <SectionPage
       id="fake-resistance"
+      breadcrumb={[{ href: '/fake-resistance', label: 'Fake Resistance' }]}
       accent="ember"
       surface="quiet"
       title="The social-media front"

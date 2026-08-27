@@ -20,6 +20,28 @@ jobs:
       - run: npm ci
       - run: npm run verify:full
 
+  archive-assets:
+    name: archive assets reachable (CDN)
+    runs-on: ubuntu-latest
+    # Parallel with gate on purpose: scripts/verify-archive-assets.mjs needs
+    # no install, no build and no browser — a checkout, Node, and ~80 HEAD
+    # requests (about 10 seconds). The sampled default catches the wholesale
+    # failures the script exists for (wrong base, unpopulated or emptied
+    # bucket, access change); the exhaustive `--all` run stays a manual step
+    # after an upload — see docs/operations.md.
+    #
+    # Same public base as the smoke job below, and scoped to this job for the
+    # same reason: the gate job's tests assert the unset-variable fallback,
+    # so it must never be set at workflow level.
+    env:
+      NEXT_PUBLIC_ARCHIVE_CDN: https://m70ph8nwojvanarn.public.blob.vercel-storage.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/verify-archive-assets.mjs "$NEXT_PUBLIC_ARCHIVE_CDN"
+
   smoke:
     name: route smoke test (headless Chromium)
     runs-on: ubuntu-latest

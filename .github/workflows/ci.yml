@@ -6,6 +6,17 @@ on:
   pull_request:
     branches: [main]
 
+# NEXT_PUBLIC_ variables are inlined at build time, so this has to be set for
+# `npm run build` and not only for the server. Without it the archive renderer
+# falls back to `/archive/…`, which is a gitignored dev symlink tree that does
+# not exist in a CI checkout — every record route then logs a media 404 and the
+# smoke test fails on five routes.
+#
+# No secret: the Blob store is public and the base is already documented in
+# docs/environment.md. Anything private belongs in repository secrets.
+env:
+  NEXT_PUBLIC_ARCHIVE_CDN: https://m70ph8nwojvanarn.public.blob.vercel-storage.com
+
 jobs:
   gate:
     name: typecheck, lint, test, build

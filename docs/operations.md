@@ -93,6 +93,7 @@ Start the dev server first, then:
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
 | `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **21 routes** return 200 with no console errors — 15 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
 | `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
+| _CI environment_ | GitHub Actions | `.github/workflows/ci.yml` sets `NEXT_PUBLIC_ARCHIVE_CDN` at the workflow level. It is inlined at build time, so without it every archive record route logs a media 404 and the smoke job fails. The store is public; no secret is involved |
 | `npm run map` / `npm run map:check` | anywhere | Regenerates `docs/project-map.html` by scanning the repository, or fails if it has drifted. Reports import-boundary violations and migration/snapshot drift on stderr |
 
 ### Archive assets

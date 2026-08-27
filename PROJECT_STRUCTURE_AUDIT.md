@@ -248,13 +248,16 @@ their transitive tree — so it neither caused nor worsened the failure. The fix
 is to regenerate the lock under the Node version CI uses, or to pin npm in the
 workflow; both change dependency resolution and are an owner decision.
 
-**Separately, `ci-smoke.mjs` fails on archive routes when
-`NEXT_PUBLIC_ARCHIVE_CDN` is unset**, because media falls back to `/archive/…`
-and `public/archive/` is a gitignored dev symlink tree. The workflow does not
-set that variable. CI has never reached the smoke job — the gate fails first —
-so this has not yet been observed there, but it will surface the moment the
-lockfile is fixed. The store is public, so setting the variable in the workflow
-needs no secret.
+**Separately, `ci-smoke.mjs` failed on archive routes when
+`NEXT_PUBLIC_ARCHIVE_CDN` was unset** — media falls back to `/archive/…`, and
+`public/archive/` is a gitignored dev symlink tree absent from a CI checkout.
+This was predicted here before it was seen: CI had never reached the smoke job
+because the gate failed first. The moment the lockfile fix landed, the gate went
+green and the smoke job failed on exactly the five archive routes predicted.
+**Fixed**: the variable is set at the workflow level, since `NEXT_PUBLIC_` is
+inlined at build time and not merely read by the server. No secret — the Blob
+store is public and the base was already in `docs/environment.md`. Verified
+locally: 22 of 22 routes clean.
 
 ## Original list — left for the owner (superseded by the two sections above)
 

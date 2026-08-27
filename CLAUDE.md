@@ -230,10 +230,26 @@ static index set it that way as identity; **reading surfaces use
   types are a strict subset of the other's, asserted in tests;
   **the bare record route owns a record's default language and `[locale]` owns
   the rest**, so no version ever has two URLs competing for one canonical; and
-  **nothing in a record body is a hyperlink while credits always render** —
-  provenance travels in the footer and in JSON-LD. That last pair is a
-  documented decision, not a style choice (`.ai/DECISIONS.md`, 2026-08-26),
-  and rewording records to shed attribution was considered and rejected there.
+  **nothing in a record body is a hyperlink, and record-level attribution
+  splits by package**: `/october-7/documentation` carries no credit at all,
+  while `/october-7/testimonies` keeps one reduced footer line naming
+  October7.org and linking to the source record — the single exception to the
+  no-hyperlink rule, and a narrowing of it rather than a contradiction, since
+  it is a footer and not a record body. Both archives close with share controls
+  and per-file download instead. The six in-body media credits and the JSON-LD
+  `isBasedOn`/`holdingArchive` are untouched, so provenance still reaches
+  machines and still travels with a photograph. This reverses the 2026-08-26
+  decision by owner ruling (`.ai/DECISIONS.md`, 2026-08-27), where rewording
+  records to shed attribution had been considered and rejected.
+  **Media downloads go straight to the CDN and are still never proxied** —
+  Vercel Blob honours `?download=1` with `Content-Disposition: attachment`, so
+  the permission recorded on 2026-08-27 to proxy the download path was not
+  needed and was not taken. Note the browser uses the Blob's own filename (the
+  content hash) cross-origin, so a downloaded file still arrives without the
+  record's name. **Index rows carry each record's cover thumbnail and a short
+  excerpt**; `ArchiveIndexEntry.excerpt` is written by
+  `import-archive-package.mjs`, and an import predating it needs
+  `node scripts/import-archive-package.mjs --regenerate-index <pkg>`.
 - **`/fake-resistance` is a hub with two investigation branches, and nothing
   beneath it is a ninth node.** Twelve pages prerender under it. The root page
   carries the standfirst, the consciousness-war framing, an explanation of the

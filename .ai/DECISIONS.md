@@ -53,6 +53,15 @@ this — it is his call and the wording was his — but reversing it means
 publishing a claim that this repository's own commissioned research looked for
 and did not find.
 
+**Reversed in part, same day, by the owner: say nothing.** The instruction was
+"פשוט אל תכתוב כלום" — the page should neither claim the narratives were
+pre-drafted nor report that the search came back empty. So the paragraph
+stating the negative was removed rather than reworded, and the block now ends
+on the infrastructure claim it can document. The distinction between the two
+halves survives where it matters — the page asserts only the documented half —
+but the reader is not told what was looked for and not found. The research
+itself is unchanged and still on disk.
+
 The case file lands as `content-packages/fake-resistance/cases/pre-october-infrastructure.json`
 with `lifecycle: "held"`, so it is committed but does not render: `held` is
 outside `VISIBLE`, and `getCaseIndex()` reads `index.json`, which does not list
@@ -191,9 +200,14 @@ them, and vendor hooks must not add that authority.
 
 ## 2026-08-27 — Archive attribution splits by package, and the reversal is deliberate
 
-**Not yet implemented.** This records the decision; the code still renders the
-old footer on both archives. `CLAUDE.md` is updated when the change lands, not
-before, so the brief never describes behaviour that does not exist.
+**Implemented 2026-08-27.** `CLAUDE.md` is updated to match. What shipped
+follows this entry exactly: `hamas-massacre` lost the footer and the dateline
+`Archive` pair; `october7` kept one reduced footer line carrying the link and
+the address, and lost the dateline pair. The JSON-LD and the six in-body media
+credits were left alone, so provenance still reaches machines. The filename
+mitigation named at the end of this entry is **only partly delivered**: the
+Blob serves its own content-hash filename cross-origin and ignores a requested
+one, so a downloaded file still arrives without the record's name.
 
 This **reverses the 2026-08-26 entry** "The archive presents clean but keeps
 its provenance", which settled that provenance is kept and recorded that
@@ -234,7 +248,12 @@ the cheapest mitigation and is recorded as part of that work.
 
 ## 2026-08-27 — Media may be proxied through the app, for downloads only
 
-**Not yet implemented.**
+**Not needed, and not taken.** The header was tried first, as this entry
+instructs, and it works: Vercel Blob answers `?download=1` with
+`Content-Disposition: attachment`. Downloads are therefore plain CDN links, no
+proxy route exists, and `CLAUDE.md`'s rule that media is never proxied through
+the Next app **stands unchanged**. This permission remains available if the
+store's behaviour ever changes; it has not been exercised.
 
 `CLAUDE.md` states that archive media is served from CDN URLs directly and
 **never** proxied through the Next app. That rule exists for cost: the store

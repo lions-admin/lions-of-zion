@@ -1,0 +1,66 @@
+/* The file index, promoted from the section's root page to a branch of its
+   own. A list of destinations, not a sequence, so no numbering: the reader
+   picks one, and nothing about the second follows from the first.
+
+   Every entry is a link to a content-rich page, and it has to read that way
+   at rest — hence the standing underline in a gold tint, strengthened on
+   hover, rather than link styling that only appears once the pointer finds
+   it. The meta row underneath is data (counts), so it takes the data face at
+   the data step and nothing smaller. */
+
+.fileIndex {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileIndex > li {
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
+}
+
+.fileIndex > li > a {
+  display: inline-block;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--gold) 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: color 180ms ease-out, text-decoration-color 180ms ease-out;
+}
+
+.fileIndex > li > a:hover,
+.fileIndex > li > a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}
+
+.fileDesc {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* Counts are data: mono, sentence case, at the data floor and no lower. */
+.fileMeta {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fileIndex > li > a {
+    transition: none;
+  }
+}

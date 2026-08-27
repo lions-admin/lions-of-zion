@@ -1,0 +1,215 @@
+/* Case-file layout for the official-narrative branch — moved here from the
+   section's root page when the hub was restructured (the three exhibits and
+   the correction order now live on this branch).
+
+   Each entry reads as processed evidence rather than a blog post: an
+   exhibit letter (there are three separate items in evidence here, not
+   three steps of a sequence — letters, not numbers), a corner stamp
+   carrying the verdict as ink rather than only a colored chip, and the
+   origin/amplification pair as a two-entry custody log — that pairing IS
+   a real sequence (what happened first, what happened next), so a
+   connecting rail earns its place there in a way a numbered badge would
+   not have.
+
+   Type and colour come from the V2 tokens in app/globals.css
+   (`.ai/DESIGN-V2.md`); the kicker and title treatments are composed from
+   the content library rather than redeclared here. */
+
+.caseFile {
+  position: relative;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--gold-line);
+}
+
+.caseFile:first-of-type {
+  margin-top: 1.75rem;
+}
+
+/* The exhibit's evidence. Above 1220px it leaves the column for the right
+   margin, level with the case it belongs to — see `marginNote`. */
+.caseFileSources {
+  composes: marginNote from '../../../components/content/content.module.css';
+}
+
+/* Two tracks, the second zero-wide: the case keeps the reading measure while
+   its sources overflow into the margin, and because the note still occupies
+   the grid row it can never run into the case below. */
+@media (min-width: 1220px) {
+  .caseFile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+
+  .caseFileMain {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .caseFileSources {
+    /* Clear the corner stamp, which sits at the case's top right. Expressed
+       as padding, not margin: `.marginNote` sets `margin-top` at the same
+       specificity from another module, and chunk order would decide the
+       winner — the trap `:where(.body)` exists for. */
+    padding-top: 2.75rem;
+  }
+}
+
+/* The corner stamp — the one bold flourish on this page. Decorative only:
+   VerificationBadge below carries the real accessible label, so this stays
+   aria-hidden and never disagrees with it (STAMP_LABEL mirrors the badge's
+   own wording). Tracking is at the cap rather than the old 0.22em; the
+   border, rotation and weight already make it read as a stamp without
+   pulling the letters apart. */
+.stamp {
+  position: absolute;
+  top: 0.35rem;
+  right: 0;
+  padding: 0.3rem 0.85rem;
+  border: 2px solid var(--stamp-color, var(--data-ember));
+  border-radius: 3px;
+  transform: rotate(-6deg);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: 700;
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--stamp-color, var(--data-ember));
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.stamp[data-tone='ember'] {
+  --stamp-color: var(--data-ember);
+}
+
+.stamp[data-tone='gold'] {
+  --stamp-color: var(--gold);
+}
+
+.stamp[data-tone='muted'] {
+  --stamp-color: var(--ink-lo);
+}
+
+.caseFileHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  max-width: calc(100% - 8rem);
+}
+
+.exhibitTag {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 2px;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Sentence case, matching the canonical date stamp — a date is data, not a
+   label, and "Oct 2023" has no reason to shout. */
+.caseFileHeader time {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: 0.04em;
+  color: var(--ink-lo);
+}
+
+.caseTitle {
+  composes: entryTitle from '../../../components/content/content.module.css';
+  margin: 0.85rem 0 1.35rem;
+}
+
+/* Origin → amplification, in that order: a two-entry custody log with a
+   connecting rail, the same rail/dot idea components/content/Timeline.tsx
+   uses, kept local since two fixed entries don't warrant reaching for that
+   component's generality. */
+.caseLog {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.caseLog li {
+  position: relative;
+  padding-left: 1.35rem;
+  border-left: 1px solid rgba(201, 162, 75, 0.3);
+}
+
+.caseLog li:last-child {
+  border-left-color: transparent;
+}
+
+.caseLog li::before {
+  content: '';
+  position: absolute;
+  top: 0.3rem;
+  left: -0.24rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: var(--ground);
+  border: 1px solid var(--gold);
+}
+
+.caseLogLabel {
+  composes: kicker from '../../../components/content/content.module.css';
+  margin-bottom: 0.35rem;
+}
+
+.caseLog p {
+  margin: 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+}
+
+.caseFileTells {
+  margin: 1.5rem 0 0;
+}
+
+.caseFileTellsLabel {
+  composes: kicker from '../../../components/content/content.module.css';
+  margin-bottom: 0.6rem;
+}
+
+.caseFileTells ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.caseFileTells li {
+  margin-bottom: 0.4rem;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+}
+
+/* Ember here is semantic: these are the hostile-signal tells. */
+.caseFileTells li::marker {
+  color: var(--data-ember);
+}
+
+@media (max-width: 540px) {
+  /* No room for a floating corner stamp beside wrapped header text — drop it
+     into normal flow above the header instead of overlapping it. */
+  .stamp {
+    position: static;
+    display: inline-block;
+    margin: 0 0 1rem;
+  }
+
+  .caseFileHeader {
+    max-width: 100%;
+  }
+}

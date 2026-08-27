@@ -13,8 +13,8 @@
  *
  * `documented` is the fourth part and the only one tied to this site's
  * evidence. Each entry points at material already published here: the three
- * reference exhibits on `/fake-resistance`, or a case file once it clears the
- * editorial pass. **A technique may not claim an example it cannot show** —
+ * reference exhibits on `/fake-resistance/official-narrative`, or a case file
+ * once it clears the editorial pass. **A technique may not claim an example it cannot show** —
  * that rule is what separates these pages from the accounts they describe, and
  * `tests/fake-resistance-research.test.ts` holds the vocabulary to it.
  *
@@ -66,7 +66,7 @@ const CHAPTERS: PlaybookChapter[] = [
     documented: [
       {
         label: 'A Haifa evacuation video recaptioned as an infiltration',
-        href: '/fake-resistance#haifa-video',
+        href: '/fake-resistance/official-narrative#haifa-video',
         note: 'Genuine footage of residents moving toward shelter, captioned as militants who had crossed the border — the video is real and shows nothing the caption claims.',
       },
     ],
@@ -167,12 +167,12 @@ const CHAPTERS: PlaybookChapter[] = [
     documented: [
       {
         label: 'Video-game footage passed off as combat video',
-        href: '/fake-resistance#arma3-footage',
+        href: '/fake-resistance/official-narrative#arma3-footage',
         note: 'Gameplay from a 2013 military simulation, captioned as live combat footage in the days after October 7 — one flagged post alone drew more than three million views.',
       },
       {
         label: 'A 2022 short film mislabeled as staged propaganda',
-        href: '/fake-resistance#empty-place-film',
+        href: '/fake-resistance/official-narrative#empty-place-film',
         note: 'Behind-the-scenes footage from a short film released eighteen months before the war, recaptioned as evidence that the war\'s own footage was staged.',
       },
     ],

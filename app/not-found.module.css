@@ -17,8 +17,9 @@
   --mono: var(--face-data);
   --display: var(--face-display);
 
-  height: 100dvh;
-  overflow-y: auto;
+  /* The document scrolls — converted 2026-08-27 with the four other reading
+     containers; see the lock in `app/globals.css`. */
+  min-height: 100dvh;
   /* Ground and texture come from `body` — see `--scan-ground` in globals.css. */
   color: var(--ink);
   font-family: var(--face-text);

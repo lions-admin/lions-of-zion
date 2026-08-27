@@ -71,27 +71,22 @@
      did not require restoring document scroll, which stays its own phase
      (`.ai/DESIGN-V2.md`).
 
-     That phase is still open, and it is *this* element plus four other
-     stylesheets in one change: a document has one scroller, so unlocking
-     `html` while any of them still declares `height: 100dvh` leaves a dead
-     scrollbar around a live one. The cost of leaving it, and the full list,
-     are written up at the lock itself in `app/globals.css`. Note while
-     reading this rule that the same sticky behaviour cuts the other way —
-     `.backdropBand` below resolves against this scrollport today and would
-     resolve against the viewport after the switch. */
-  height: 100dvh;
-  overflow-y: auto;
-  /* The dossiers jumped to anchors while the Brief glided, which is the one
-     difference between the two a reader can actually perceive. This is the
-     scroll container, so the behaviour has to be declared on it and not on
-     `html`. Reset under `prefers-reduced-motion` below. */
-  scroll-behavior: smooth;
+     That phase landed on 2026-08-27: this element is no longer a scroll
+     container, the document is. `min-height` rather than `height` — a page
+     that runs long now extends the document instead of scrolling inside
+     itself, which is what lets a phone's URL bar collapse and native
+     back-navigation restore position. `scroll-behavior` moved to `html` in
+     `globals.css`, and the ≤719px rule below reserves the chat dock with
+     padding instead of shortening a scroller that no longer exists.
+
+     `.backdropBand` below now resolves its sticky against the viewport rather
+     than against this element, which is the same behaviour from the other
+     side and is why it still pins. */
+  min-height: 100dvh;
   /* No ground of its own: `body` carries it, so a page cannot disagree with
      the site about what colour the site is. */
   color: var(--ink);
   font-family: var(--face-text);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
 
 .accentEmber {
@@ -813,7 +808,10 @@
        indicator. `--chat-dock-h` (app/globals.css) is the one definition of
        that band; `CHAT_DOCK_PX` in components/particle-nav/config.ts is the
        same 84px expressed in the units the orbit layout works in. */
-    height: calc(100dvh - var(--chat-dock-h) - env(safe-area-inset-bottom, 0px));
+    /* Reserved, not subtracted: with the document scrolling there is no
+       container to shorten, so the band the dock occupies becomes padding at
+       the foot — the same shape `home.module.css` already used. */
+    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
   }
 
   .shell {
@@ -822,10 +820,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page {
-    scroll-behavior: auto;
-  }
-
+  /* No `.page { scroll-behavior: auto }` here any more: `.page` stopped being
+     a scroll container on 2026-08-27, so the property was inert on it. The
+     reset moved to `html` in `globals.css`, beside the declaration itself. */
   .row {
     animation: none;
     /* Rows were placed mid-flight by negative delays; pin them spread across

@@ -10,6 +10,55 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — The reading routes scroll the document, not themselves
+
+Every reading route declared `height: 100dvh; overflow-y: auto` and scrolled
+inside itself. That cost two reader-facing things on ~1,190 routes: a phone's
+URL bar only auto-collapses for a *document* scroll, so each page permanently
+spent the ~60–90px every other site reclaims after the first swipe; and browser
+scroll restoration on back-navigation never applied, which is why the archive
+index had to remember its position in `sessionStorage` by hand.
+
+**Why it converted whole rather than route by route.** A document has exactly
+one scroller. Unlocking `html` while any route still declared `100dvh` would
+give that route a dead outer scrollbar around a live inner one — so five
+stylesheets moved in one change, plus the three consumers that read the
+container directly, plus every sticky element whose scrollport changed
+underneath it. This is the reason it sat deferred through three separate
+rounds: each of them correctly judged that a partial conversion is worse than
+none.
+
+**Three things are worth not re-deriving.**
+
+The `≤719px` rules that *shortened* the scroller to clear the chat dock became
+`padding-bottom`. You cannot shorten a document; you reserve space in it. The
+home route had already solved it that way and was the model.
+
+`SectionToc`'s IntersectionObserver root had to become the viewport. Passing a
+root that is not an ancestor scrollport does not error — it reports every entry
+as never intersecting, so the rail would mark nothing and look merely idle.
+`ReadingProgress` fails the same silent way, returning a flat 0 forever. Both
+now detect whether the marked element is really a scroller, so a route that
+declares its own again keeps working.
+
+`ArchiveIndexFilter`'s `sessionStorage` restoration was **deleted, not kept**.
+It existed only because inner scrollers cannot be restored across a
+back-navigation. Left in place it would race the browser's own restoration —
+two writers for one position, later write wins, reader lands somewhere neither
+meant. Verified: Back now returns to 3000 from 3000 unaided.
+
+**No route-scoped body class was needed**, which the earlier plan expected. The
+home scene keeps its lock through the existing `:has([data-intro-active])`
+rules — they are more specific than the bare `html, body` default, so they
+still win. The attribute-not-id rule in `globals.css` remains load-bearing for
+exactly the reason recorded there.
+
+Verification is its own script, `scripts/verify-doc-scroll.mjs`, in real Chrome:
+the payoff is rAF- and history-driven and the in-app browser suspends `rAF` by
+reporting `visibilityState: "hidden"` — the trap `CLAUDE.md` already documents.
+
+---
+
 ## 2026-08-26 — Vercel production uses OIDC AI access and no Google Vertex
 
 The deployed AI path is Vercel AI Gateway with the short-lived Vercel OIDC

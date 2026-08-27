@@ -38,8 +38,9 @@ export default function ErrorBoundary({
     <main className="loz-error">
       <style>{`
         .loz-error {
-          height: 100dvh;
-          overflow-y: auto;
+          /* The document scrolls — converted with the other reading
+             containers on 2026-08-27; see the lock in app/globals.css. */
+          min-height: 100dvh;
           display: grid;
           place-items: center;
           padding: 24px;

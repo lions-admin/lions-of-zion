@@ -21,28 +21,43 @@ export function ReadingProgress({ trackClassName, valueClassName }: ReadingProgr
   const valueRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const scroller = document.querySelector<HTMLElement>('[data-reading-scroll]');
-    if (!scroller) return;
+    /* The reading routes scroll the document as of 2026-08-27, so progress is
+       read from `documentElement` and the events come from `window`. The
+       `[data-reading-scroll]` marker still exists — `SectionToc` uses it to
+       find the body — but it no longer names a scrollport, and reading
+       `scrollTop` from it would return a flat 0 for the whole page.
+
+       Guarded rather than assumed: if a route ever declares its own scroller
+       again, that element is used and this keeps working. */
+    const marked = document.querySelector<HTMLElement>('[data-reading-scroll]');
+    const isScroller =
+      marked !== null &&
+      ['auto', 'scroll'].includes(getComputedStyle(marked).overflowY) &&
+      marked.scrollHeight > marked.clientHeight;
+
+    const doc = document.documentElement;
+    const target: HTMLElement = isScroller ? marked : doc;
+    const source: HTMLElement | Window = isScroller ? marked : window;
     let frame = 0;
 
     const update = () => {
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
-        const distance = scroller.scrollHeight - scroller.clientHeight;
+        const distance = target.scrollHeight - target.clientHeight;
         const progress = distance <= 0
           ? 1
-          : Math.min(1, Math.max(0, scroller.scrollTop / distance));
+          : Math.min(1, Math.max(0, target.scrollTop / distance));
         if (valueRef.current) valueRef.current.style.transform = `scaleX(${progress})`;
       });
     };
 
     update();
-    scroller.addEventListener('scroll', update, { passive: true });
+    source.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      scroller.removeEventListener('scroll', update);
+      source.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
   }, []);

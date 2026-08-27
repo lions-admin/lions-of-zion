@@ -199,51 +199,48 @@
 }
 
 /*
- * The default is locked: every reading route owns its own scroll container
- * (`sections.module.css` `.page`, the brief, not-found, error), so nothing
- * below needs the document to scroll and `ReadingProgress` and `SectionToc`
- * keep reading `scrollTop` from `[data-reading-scroll]`.
+ * The document scrolls. Every reading route is part of it.
  *
- * It stays locked for now, but not for free, and this comment used to imply
- * otherwise. The cost is a reader-facing one on ~1,190 routes: a phone's URL
- * bar only auto-collapses for a *document* scroll, so every reading page here
- * permanently spends the ~60–90px every other site reclaims after the first
- * swipe, and browser scroll restoration on back-navigation never applies —
- * which is why `ArchiveIndexFilter.tsx` has to remember index position in
- * `sessionStorage` by hand. `.ai/DESIGN-V2.md` Phase 2 plans the fix
- * ("Document scroll restored") and defers it; what follows is why it has not
- * been taken piecemeal.
+ * This was inverted on 2026-08-27, and the write-up that used to live here
+ * explaining why it had *not* been is now the record of what the change had
+ * to move. Until then every reading route declared `height: 100dvh;
+ * overflow-y: auto` and scrolled inside itself, which cost a reader-facing
+ * thing on ~1,190 routes: a phone's URL bar only auto-collapses for a
+ * *document* scroll, so each page permanently spent the ~60–90px every other
+ * site reclaims after the first swipe, and browser scroll restoration on
+ * back-navigation never applied.
  *
- * **A document has exactly one scroller, so this converts whole or not at
- * all.** Unlocking `html` while any route still declares `height: 100dvh;
- * overflow-y: auto` gives that route a dead outer scrollbar around a live
- * inner one. The set is five stylesheets — `sections.module.css` `.page`
- * (SectionPage + DocPage, so the whole archive), the brief,
- * `app/not-found.module.css`, `app/error.tsx` and `app/admin/admin.module.css`
- * — plus three consumers that read the container directly
- * (`ReadingProgress.tsx`, `SectionToc.tsx`'s IntersectionObserver `root`, and
- * `ArchiveIndexFilter.tsx`'s `findScroller`, which matches on computed
- * `overflow-y` and would silently return null), plus every `position: sticky`
- * element whose scrollport changes underneath it (`.backdropBand`,
- * `.tocRailInner`, the brief's `.siteHeader` and index rail), plus
- * `scroll-behavior` and the brief's `scroll-padding-top`, which have to move
- * onto `html` and be re-scoped per route once they share one element.
+ * A document has exactly one scroller, so this had to convert whole — five
+ * stylesheets in one change (`sections.module.css` `.page`, which is
+ * SectionPage and DocPage and therefore the whole archive; the brief;
+ * `not-found`; `error.tsx`; `admin`), plus the three consumers that read the
+ * container directly, plus the sticky elements whose scrollport changed
+ * underneath them. Leaving any one of them on `100dvh` would have given that
+ * route a dead outer scrollbar around a live inner one.
  *
- * The inversion itself is the small part: the base rule below stops carrying
- * `overflow: hidden` and the `[data-home-scroll]` block keeps only its
- * sideways clip and hidden scrollbar. The intro lock must keep matching
- * attribute-for-attribute either way — see the specificity note below, which
- * is the trap this file already fell into once.
+ * What each container became: `min-height`, not `height`. The ≤719px rules
+ * that used to *shorten* the scroller to clear the chat dock now reserve the
+ * same band as `padding-bottom` — you cannot shorten a document, and the home
+ * route had already solved it that way (`home.module.css`).
  *
- * Verification is the other half: the entire payoff is URL-bar collapse and
- * scroll restoration, and neither is observable in `ci-smoke` (route
- * availability and console errors) or in headless Chromium. It needs a real
- * mobile browser, on the workstation, in one round that owns all five files.
+ * `scroll-behavior` lives here now rather than on five separate elements,
+ * with the reduced-motion reset beside it. Anchor offsets did not move:
+ * they were already `scroll-margin-top` on the targets, which resolves
+ * against whatever scroller is in play.
  */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 html, body {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
   /* One black, and one texture, under everything. `#020409` — a second,
      darker ground that only ever showed where a page forgot to paint — is
      retired; `sections.module.css` already called it "the body's darker one"
@@ -254,26 +251,17 @@ html, body {
 }
 
 /*
- * …except the home route, which now continues below the scene.
+ * The home route no longer needs unlocking — the document scrolls by default
+ * now — but its two other rules still stand, and the reason the marker is an
+ * *attribute* rather than an id is unchanged and still load-bearing.
  *
- * Route-scoped rather than global, keyed on a marker the band server-renders,
- * so this reaches exactly one document. `:has()` is how the chat launcher
- * already reads these same home-scene attributes — the launcher is mounted by
- * the root layout and the scene by the page, siblings with no provider
- * between them, so the signal travels as DOM state.
- *
- * The marker is an attribute rather than an id on purpose. `:has()` takes the
- * specificity of its argument, so `html:has(#id)` scores (1,0,1) and would
- * outrank the intro lock below at (0,1,1) — the lock would never win and the
- * intro would be scrollable. Matching attribute for attribute puts both rules
- * on the same specificity and lets source order decide, which is the whole
- * point of the ordering.
+ * `:has()` takes the specificity of its argument, so `html:has(#id)` would
+ * score (1,0,1) and outrank the intro lock below at (0,1,1) — the lock would
+ * never win and a 47-second intro would be scrollable. Matching attribute for
+ * attribute puts both on the same specificity and lets source order decide,
+ * which is the whole point of the ordering. This file fell into that trap
+ * once already.
  */
-html:has([data-home-scroll]),
-html:has([data-home-scroll]) body {
-  height: auto;
-  min-height: 100%;
-}
 
 /*
  * The sideways clip belongs to `html` alone.

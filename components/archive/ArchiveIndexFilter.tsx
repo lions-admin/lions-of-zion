@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import type { ArchiveIndexEntry } from '@/lib/content/archive';
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
 import { ArchiveRecordList } from './ArchiveRecordList';
@@ -59,7 +59,6 @@ export function ArchiveIndexFilter({
 }: ArchiveIndexFilterProps) {
   const [query, setQuery] = useState('');
   const inputId = useId();
-  const rootRef = useRef<HTMLDivElement>(null);
 
   /* File numbers run through the whole archive, assigned before any filtering
      so a hidden row does not renumber the ones after it. */
@@ -97,58 +96,18 @@ export function ArchiveIndexFilter({
   );
   const shown = filtered.reduce((sum, g) => sum + g.records.length, 0);
 
-  /* `DocPage`'s `.page` is its own scroll container, so the browser cannot
-     restore a reader to row 250 after they open a record and press Back —
-     they restart at the top of a 300-row list. Remember it ourselves.
-     `sessionStorage` is per-tab and per-origin, and every read and write is
-     guarded: a private window or blocked site data must not break the index. */
-  useEffect(() => {
-    /* Found by walking up rather than by `[data-reading-scroll]`: `SectionPage`
-       and the Brief mark their `<main>` with it, `DocPage` — which is what
-       renders these two index routes — does not. */
-    const findScroller = (from: HTMLElement | null): HTMLElement | null => {
-      for (let el = from; el; el = el.parentElement) {
-        const overflow = getComputedStyle(el).overflowY;
-        if ((overflow === 'auto' || overflow === 'scroll') && el.scrollHeight > el.clientHeight) {
-          return el;
-        }
-      }
-      return null;
-    };
+  /* No hand-rolled scroll restoration here any more.
+     It existed only because `DocPage`'s `.page` was its own scroll container,
+     which browsers cannot restore across a back-navigation — a reader who
+     opened row 250 and pressed Back restarted at the top of a 300-row list.
+     The reading routes scroll the document as of 2026-08-27, so the browser's
+     own restoration covers it, and keeping a `sessionStorage` copy alongside
+     would fight it: both would write a position and the later one would win,
+     which is how a reader ends up somewhere neither of them meant. */
 
-    const scroller = findScroller(rootRef.current);
-    if (!scroller) return;
-    const key = `archive-index-scroll:${basePath}`;
-
-    try {
-      const saved = Number(sessionStorage.getItem(key));
-      if (Number.isFinite(saved) && saved > 0) scroller.scrollTop = saved;
-    } catch {
-      /* no stored value is a fine state to be in */
-    }
-
-    let frame = 0;
-    const onScroll = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        try {
-          sessionStorage.setItem(key, String(scroller.scrollTop));
-        } catch {
-          /* nothing to do if the browser refuses to store it */
-        }
-      });
-    };
-
-    scroller.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      scroller.removeEventListener('scroll', onScroll);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, [basePath]);
 
   return (
-    <div ref={rootRef}>
+    <div>
       <div className={styles.filterBar}>
         <label className={styles.filterLabel} htmlFor={inputId}>
           {label}

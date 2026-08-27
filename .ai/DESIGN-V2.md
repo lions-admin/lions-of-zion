@@ -20,8 +20,8 @@ _2026-08-25. The redesign plan for every reading surface on the site._
 > masthead to first sentence (was ~320px), and a two-row footer (was a
 > five-part ~345px stack). Cinzel no longer appears on any reading surface.
 > **Phase 5 (home-scene orbit labels) remains open and is a user decision.**
-> One deliberate carry-over: restoring document scroll, deferred with
-> evidence — see "Phase 2" below.
+> The one deliberate carry-over, restoring document scroll, **landed on
+> 2026-08-27** — see "Phase 2" below.
 
 The user's verdict on the current design, verbatim: terrible fonts, hard to
 read, bad page layout — a serious overhaul, several levels forward. This
@@ -239,10 +239,11 @@ shell for everything:
   highlighted). The boxed "Ask the Lion" CTA is removed — the floating
   launcher is the one ask affordance, and its label gets a max-width +
   offset so it can never overlap the panel again.
-- **Document scroll restored**: `.page` stops being an inner scroll
-  container; the document scrolls. (Riskiest structural change — it
-  interacts with the mobile bottom-dock 100dvh math — so it is its own
-  phase with its own verification.)
+- **Document scroll restored** ✅ **2026-08-27**: `.page` stops being an
+  inner scroll container; the document scrolls. It was the riskiest
+  structural change and did get its own phase and its own verification —
+  `scripts/verify-doc-scroll.mjs`, in real Chrome, because the payoff is
+  rAF- and history-driven and the in-app browser suspends both.
 - **Per-page devices survive, re-typeset**: wire datelines, exhibit files
   (stamp re-anchored to its header instead of floating), chapter numerals,
   citations, toolkit modules. The We Are pipeline goes vertical at all
@@ -284,18 +285,36 @@ identity-band + centered-column anatomy; footer diet; backdrop whisper
 (`ScanBackdrop` opacity + exclusion zone). Restore document scroll —
 verified against the mobile dock math in the same round.
 
-> **Done, except document scroll — deferred with evidence.** The reading
-> column now measures 68ch and sits on the true viewport centre; the mask
-> that keeps backdrop rows out of the reading band reads the same
-> `--reading-w` variable the grid does, so the two can't drift. Document
-> scroll was **proven** blocked by two things outside that phase's files,
-> not assumed: `app/globals.css`'s `html, body { overflow: hidden }` (which
-> exists for the full-viewport home scene — overriding it at runtime made
-> the document scroll, confirming the cause), and `ReadingProgress`, which
-> reads `scrollTop` from `[data-reading-scroll]` and would need
-> `window.scrollY` instead. It wants its own phase touching `globals.css`
-> and `ReadingProgress.tsx` together, probably with a route-scoped body
-> class so the home scene keeps its lock.
+> **Done, including document scroll — 2026-08-27.** The reading column
+> measures 68ch and sits on the true viewport centre; the mask that keeps
+> backdrop rows out of the reading band reads the same `--reading-w`
+> variable the grid does, so the two can't drift.
+>
+> Document scroll took the phase this note asked for, and the two blockers
+> it had proven were the right two — but not the whole set. `globals.css`'s
+> `html, body { overflow: hidden }` inverted, and `ReadingProgress` moved to
+> `window`/`documentElement`. Beyond them: four more containers had to
+> convert in the same change (the brief, `not-found`, `error.tsx`, `admin`),
+> because a document has one scroller and leaving any of them on `100dvh`
+> gives that route a dead outer scrollbar around a live inner one; the two
+> `≤719px` rules that *shortened* the scroller for the chat dock became
+> `padding-bottom`, since a document cannot be shortened; `SectionToc`'s
+> observer root became the viewport, which would otherwise have reported
+> every section as never intersecting and marked nothing without erroring;
+> and `ArchiveIndexFilter`'s hand-rolled `sessionStorage` restoration was
+> **deleted** rather than kept — it existed only because inner scrollers
+> cannot be restored across a back-navigation, and running it alongside the
+> browser's own restoration would have had two writers racing for one
+> position.
+>
+> No route-scoped body class was needed in the end: the home scene keeps its
+> lock through the existing `:has([data-intro-active])` rules, which are more
+> specific than the bare `html, body` default and so still win.
+>
+> Verified in real Chrome on three routes: the document is the scroller and
+> `<main>` is not, the progress bar tracks it, sticky chrome still pins, the
+> rail still marks a section, and Back returns a reader to where they were —
+> left at 3000, returned to 3000.
 
 **Phase 3 — re-typeset the ten pages**
 The seven dossier compositions + the Brief + the two DocPages onto the new

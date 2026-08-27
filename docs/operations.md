@@ -106,6 +106,25 @@ after any change to that variable:
 node scripts/verify-archive-assets.mjs https://m70ph8nwojvanarn.public.blob.vercel-storage.com --all
 ```
 
+### Document scroll
+
+`verify-doc-scroll.mjs` covers what nothing else can: the reading routes scroll
+the document (converted 2026-08-27), and the whole payoff — a phone's URL bar
+collapsing, and the browser restoring scroll position on back-navigation — is
+invisible to `ci-smoke` and to headless Chromium. It also reads a
+`requestAnimationFrame`-driven progress bar, which the in-app browser suspends
+outright by reporting `visibilityState: "hidden"`. So, like the other four, it
+drives real Chrome and only runs on the macOS workstation.
+
+```bash
+node scripts/verify-doc-scroll.mjs http://localhost:3000
+```
+
+It asserts per route only what that route actually mounts: `DocPage` gates
+`ReadingProgress` on `withToc`, so the archive index has no bar to track, and
+the Brief has its own static contents nav rather than `SectionToc`, so nothing
+there sets `aria-current`.
+
 That base is the provisioned store, Vercel Blob `lions-of-zion-archive`
 (`store_M70Ph8nWOJVAnaRn`). Last run 2026-08-26: 2,018 checked, 0 unreachable.
 Locally the same script takes `http://localhost:3000/archive`, which resolves

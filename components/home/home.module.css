@@ -559,7 +559,7 @@
   /* The launcher docks across the bottom of a phone; the band ends above it
      rather than under it, the same reserve `sections.module.css` makes. */
   .shell {
-    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
   }
 }
 

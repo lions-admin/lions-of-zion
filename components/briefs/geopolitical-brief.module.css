@@ -55,14 +55,17 @@
   --article-w: calc(68ch + 2 * var(--section-pad-x));
 
   position: relative;
-  height: 100dvh;
+  /* The document scrolls, not this element — converted 2026-08-27 with the
+     other four reading containers; the reasoning is at the lock in
+     `app/globals.css`. `overflow-y: auto` and `overscroll-behavior: contain`
+     went with it (both were properties of being a scroller), and
+     `scroll-behavior` moved to `html`. `overflow-x: clip` stays: it is a
+     sideways clip, not a scrollport, and the brief's rails need it. */
+  min-height: 100dvh;
   overflow-x: clip;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   /* Ground and texture come from `body` — `--scan-ground` in globals.css. */
   color: var(--ink);
   font-family: var(--face-text);
-  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
 }
@@ -819,8 +822,13 @@
   .page {
     /* The chat launcher's mobile dock — `--chat-dock-h` in app/globals.css,
        the same band `sections.module.css` reserves. */
-    height: calc(100dvh - var(--chat-dock-h) - env(safe-area-inset-bottom, 0px));
-    scroll-padding-top: 6.8rem;
+    /* Reserved as padding, not subtracted from a height — there is no
+       container to shorten now that the document scrolls. */
+    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
+    /* `scroll-padding-top` moved off this element with the scrollport. The
+       offset it provided is already carried by `scroll-margin-top` on the
+       anchor targets themselves (`:454`, `:930`), which resolves against
+       whichever scroller is in play — so nothing is lost by dropping it. */
   }
 
   .siteHeader {
@@ -975,9 +983,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page {
-    scroll-behavior: auto;
-  }
+  /* `.page` stopped being a scroll container on 2026-08-27, so its
+     `scroll-behavior` reset moved to `html` in `globals.css`. */
 
   .article {
     animation: none;

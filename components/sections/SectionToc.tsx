@@ -41,9 +41,20 @@ export function SectionToc() {
      * regions the observer measures are the ones the reader will see.
      */
     const frame = requestAnimationFrame(() => {
-      const scroller = document.querySelector<HTMLElement>('[data-reading-scroll]');
+      const marked = document.querySelector<HTMLElement>('[data-reading-scroll]');
       const source = document.querySelector<HTMLElement>('[data-toc-source]');
-      if (!scroller || !source) return;
+      if (!marked || !source) return;
+
+      /* The reading routes scroll the document as of 2026-08-27, so the
+         observer's root is the viewport — `null` — not the marked element.
+         Passing a root that is not an ancestor scrollport makes every entry
+         report `isIntersecting: false` for the whole page, and the rail would
+         mark nothing without erroring. Guarded rather than assumed, so a route
+         that declares its own scroller again still works. */
+      const isScroller =
+        ['auto', 'scroll'].includes(getComputedStyle(marked).overflowY) &&
+        marked.scrollHeight > marked.clientHeight;
+      const root = isScroller ? marked : null;
 
       /*
      * Two anchor patterns are in use. `SectionBlock` puts the slug on the h2
@@ -92,7 +103,7 @@ export function SectionToc() {
           const first = found.find((h) => visible.has(h.region));
           if (first) setActiveId(first.id);
         },
-        { root: scroller, rootMargin: '-8% 0px -78% 0px' },
+        { root, rootMargin: '-8% 0px -78% 0px' },
       );
 
       for (const { region } of found) observer.observe(region);

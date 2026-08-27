@@ -403,10 +403,15 @@ full list; these three change what an editor should assume.
   `GET /api/v1/evidence` is staff-only, not anonymous. `docs/api.md`'s guard
   table still describes ~12 of those routes as `anon` and understates the
   lockdown.
-  **Two real gaps survive inside this one:** `requireCapability()` is exported,
-  granted against, and called from nowhere — application-layer capability
-  enforcement is inert, and capabilities today only feed the
-  `evidence_staff_restricted` policy. And `withDatabaseRole` has no test:
+  **`requireCapability()` is called from nowhere, and that is now a recorded
+  decision rather than a gap** (`.ai/DECISIONS.md`, 2026-08-27). There is one
+  account, `authenticateAdmin()` grants it every capability on each sign-in, so
+  a check could only ever pass — while adding a way to be locked out. What
+  protects those operations is the SQL triggers, which hold on every path, and
+  the `evidence_staff_reads_unrestricted` RLS policy, which reads
+  `capability_grant` directly. `tests/admin-capabilities.test.ts` pins that the
+  owner holds all five. **Wire it up when a second account exists.**
+  **One real gap survives:** `withDatabaseRole` has no test:
   `tests/rls.test.ts` proves the policies via `SET LOCAL ROLE` in a transaction
   on PGlite, which is not the pooled session-scope mechanism production uses.
 

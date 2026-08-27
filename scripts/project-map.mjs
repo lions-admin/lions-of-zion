@@ -158,9 +158,18 @@ const snapshots = snapshotIdx.length;
 const newestSnapshot = snapshotIdx.length ? Math.max(...snapshotIdx) : -1;
 const newestMigration = migrations.length
   ? Math.max(...migrations.map((p) => Number(p.match(/(\d+)/)[1]))) : -1;
+/* …but only if it actually changed the schema. Drizzle models tables,
+   columns, indexes and foreign keys — nothing else. A migration that only
+   grants, revokes, or defines a policy, function or trigger is invisible to
+   it, so it leaves the baseline current and `db:generate` still emits nothing.
+   Verified against `0022`, which is REVOKE/GRANT only: generate reported "No
+   schema changes". Counting it as drift produced a false warning. */
+const SCHEMA_DDL = /^\s*(CREATE|DROP)\s+(TABLE|INDEX|TYPE|SEQUENCE|VIEW)\b|^\s*ALTER\s+TABLE\b(?![^;]*\b(ENABLE|DISABLE|FORCE)\s+ROW\s+LEVEL)/im;
 const handWrittenAfterSnapshot = migrations
-  .map((p) => ({ idx: Number(p.match(/(\d+)/)[1]), name: p.split("/").pop() }))
-  .filter((m) => m.idx > newestSnapshot).map((m) => m.name);
+  .map((p) => ({ idx: Number(p.match(/(\d+)/)[1]), name: p.split("/").pop(), path: p }))
+  .filter((m) => m.idx > newestSnapshot)
+  .filter((m) => SCHEMA_DDL.test(read(m.path).replace(/^\s*--.*$/gm, "")))
+  .map((m) => m.name);
 
 /* tests + scripts */
 const testFiles = files.filter(p=>/^tests\/.*\.test\.ts$/.test(p));

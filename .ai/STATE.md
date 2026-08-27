@@ -32,11 +32,15 @@ no-JavaScript invariant finally has a guard that runs on Linux — a
 `javaScriptEnabled: false` check in `ci-smoke.mjs` plus a fast tripwire test.
 `vercel-infrastructure-costs.html` is gitignored.
 
-Six items were deliberately declined and are listed in
-`PROJECT_STRUCTURE_AUDIT.md` so they are not rediscovered: `requireCapability()`
-staying inert, the missing `REVOKE` on two `SECURITY DEFINER` functions, the
-snapshot chain stopping at `0017`, `leva` in `dependencies`, the dead
-`viewport.ts`, and two modules folding `repo()` into their service.
+The two security items are closed too, in opposite directions.
+`requireCapability()` stays uncalled — one account holds every capability, so a
+check could only pass while adding a lockout path, and that is now a recorded
+decision with a test pinning it. The two `SECURITY DEFINER` prune functions are
+closed by migration `0022`, granted to `app_service` alone after verifying the
+maintenance cron is their only caller.
+
+One item remains, as cosmetics: `publications` and `reports` fold `repo()` into
+their service rather than a sibling file.
 
 ## CI is red on main, and was before this branch
 

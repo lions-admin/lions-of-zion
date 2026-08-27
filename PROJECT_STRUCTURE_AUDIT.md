@@ -218,14 +218,19 @@ ids and zero normalised titles, and the documentation surface was read in full
 Two items change security behaviour and were not swept up in the second pass.
 Say the word and they are an hour's work each.
 
-1. **`requireCapability()` is never called.** Wiring it into routes could refuse
-   operations that work today; that is a decision about who may do what, not a
-   tidy-up.
-2. **`prune_rate_limits` and `prune_expired_idempotency` are `SECURITY DEFINER`
-   with no `REVOKE … FROM PUBLIC`.** The fix is a new migration that tightens a
-   live privilege. No route reaches arbitrary SQL, so it is defence-in-depth.
+**Both were closed on 2026-08-27**, by owner decision, in opposite directions:
 
-One item was left as cosmetics:
+1. **`requireCapability()` stays uncalled — and that is now recorded**, not
+   left as an open gap. One account, granted every capability at each sign-in,
+   so a check could only pass while adding a lockout path.
+   `tests/admin-capabilities.test.ts` pins that the owner holds all five and
+   that no check can refuse them. Wire it up when a second account exists.
+2. **`prune_rate_limits` and `prune_expired_idempotency` are closed** by
+   migration `0022`: `REVOKE ALL … FROM PUBLIC`, `GRANT EXECUTE … TO
+   app_service`. The grant target was verified, not guessed — that cron is the
+   only caller. `tests/prune-privileges.test.ts` asserts it from the roles.
+
+One item remains, as cosmetics:
 
 3. **`publications` and `reports` fold `repo()` into their service** rather than
    a sibling `repo.ts`. Pure code motion, no behavioural difference, and the

@@ -10,6 +10,67 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — The single admin holds every capability, and the check stays uncalled
+
+`requireCapability()` is exported, granted against, and called from nowhere.
+The audit reported that as an inert guard. It is a deliberate position, and it
+is now written down so a later reader does not "fix" it.
+
+There is exactly one account. `app/api/auth/[...path]` refuses a signup for any
+address but `ADMIN_EMAIL` — at the proxy route, not only in the UI, so a caller
+cannot go around the interface. `ensureAdminActor()` is the only writer of
+`app_user` in the codebase. And `authenticateAdmin()` sets the actor's
+capability set to all of `ADMIN_CAPABILITIES` on every sign-in, overwriting the
+narrower set read from `capability_grant` a few lines earlier.
+
+So a capability check against the only actor that exists can only ever pass.
+Wiring it into routes today would add a way to be locked out of the admin area
+and no way to be protected — the failure mode is asymmetric, and the direction
+that hurts is the one that is reachable.
+
+**What actually protects these operations is not this function**, which is why
+its absence costs nothing today. The publish gate, the human-reviewer rule and
+assessment immutability are SQL triggers in `server/db/migrations/`: they hold
+for every caller on every path, including one that forgot to check. The single
+capability with real teeth, `evidence.restricted.read`, is enforced by the
+`evidence_staff_reads_unrestricted` RLS policy, which reads `capability_grant`
+directly rather than going through the application at all.
+
+Anonymous visitors hold no capability: `registerActor()` grants none, and the
+public surface is bounded by the seven `PUBLIC_V1` entries and by RLS instead.
+
+`tests/admin-capabilities.test.ts` pins the direction that matters — that the
+owner holds all five and that no check can refuse them. **Wire this up when a
+second account exists**, an editor who may write an assessment but not publish
+one. That is the day this decision expires; until then, narrowing
+`ADMIN_CAPABILITIES` or adding calls locks the owner out of their own site.
+
+## 2026-08-27 — Two `SECURITY DEFINER` functions stop being executable by PUBLIC
+
+Postgres grants `EXECUTE` to `PUBLIC` on every new function. `0018` closed that
+for `bump_rate_limit` and `ai_spend_since` — each got a `REVOKE ALL … FROM
+PUBLIC` and a narrow grant — and then did not for `prune_rate_limits` and
+`prune_expired_idempotency` directly below them. Same file, same pattern, two
+of four. An omission rather than a decision.
+
+Both `DELETE`. An anonymous caller able to run `prune_rate_limits()` would
+clear the very windows that rate-limit them. It was never reachable — no route
+executes arbitrary SQL — so this is defence in depth, and the depth is the
+point: the next person to copy this pattern should copy the closed one.
+
+Migration `0022` grants to `app_service` alone, verified rather than assumed.
+`server/core/maintenance.ts` is the only caller; it is reached only from
+`/api/internal/cron/maintenance`; and `server/http/handler.ts` classifies every
+`/api/internal/cron/` path as `app_service`. Granting more broadly would have
+been guessing, and granting too narrowly would have stopped the maintenance
+cron silently — it logs nothing when it prunes nothing.
+
+`tests/prune-privileges.test.ts` asserts the outcome from the roles themselves
+rather than by reading the grant: `app_service` still prunes, `app_public` and
+`app_staff` are refused with `42501`.
+
+---
+
 ## 2026-08-27 — The closed design audit is archived, and its refusals are kept here
 
 `TODOS-design-audit.md` reached 83 of 83 closed with zero open items, and

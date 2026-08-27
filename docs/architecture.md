@@ -392,7 +392,8 @@ open application paths.
 
 Development tests may still register an explicit `x-actor-label` shim. It is
 never accepted in Preview or Production. `requireCapability()` checks the
-capability set loaded from `capability_grant` and fails closed.
+capability set loaded from `capability_grant` and fails closed — but nothing
+calls it, deliberately: see the known gaps below and `.ai/DECISIONS.md`.
 
 ### Authorization
 
@@ -485,10 +486,15 @@ rediscovered; none of them is fixed by this document.
    `GET /published-items`, `POST /reports` and the four chat paths. Everything
    else under `/api/v1/` goes through `authenticateAdmin()` and fails closed,
    so the guard table in [`api.md`](api.md) understates how locked down the
-   surface is. **One real gap survives inside this one:** `requireCapability()`
-   is exported, granted against and called from nowhere, so application-layer
-   capability enforcement is inert — capabilities today only feed the
-   `evidence_staff_restricted` RLS policy. And `withDatabaseRole` itself has no
+   surface is. **`requireCapability()` is called from nowhere by decision**, not
+   by oversight (`.ai/DECISIONS.md`, 2026-08-27): there is one account and
+   `authenticateAdmin()` grants it every capability on each sign-in, so a check
+   could only ever pass — while adding a way to be locked out. The SQL triggers
+   and the `evidence_staff_reads_unrestricted` policy, which reads
+   `capability_grant` directly, are what protect those operations.
+   `tests/admin-capabilities.test.ts` pins that the owner holds all five; wire
+   the check up when a second account exists.
+   **One real gap survives inside this one:** `withDatabaseRole` has no
    test: `tests/rls.test.ts` proves the policies through `SET LOCAL ROLE` inside
    a transaction on PGlite, which is not the pooled session-scope mechanism
    production uses.

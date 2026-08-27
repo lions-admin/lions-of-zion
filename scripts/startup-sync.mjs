@@ -35,6 +35,7 @@ function isMerged(branch) {
 
 function cleanupMergedBranches() {
   const remoteBranches = branchNames("refs/remotes/origin")
+    .filter((branch) => branch.startsWith("origin/"))
     .filter((branch) => branch !== "origin/HEAD" && branch !== "origin/main");
   const localBranches = branchNames("refs/heads").filter((branch) => branch !== "main");
   const removed = [];
@@ -58,6 +59,7 @@ function cleanupMergedBranches() {
 
 function unmergedRemoteBranches() {
   return branchNames("refs/remotes/origin")
+    .filter((branch) => branch.startsWith("origin/"))
     .filter((branch) => branch !== "origin/HEAD" && branch !== "origin/main")
     .filter((branch) => !isMerged(branch))
     .map((branch) => branch.slice("origin/".length));

@@ -13,6 +13,7 @@ describe("main synchronization contract", () => {
     expect(script).toContain('git(["push", "origin", "main"])');
     expect(script).toContain("cleanupMergedBranches");
     expect(script).toContain("unmergedRemoteBranches");
+    expect(script).toContain('branch.startsWith("origin/")');
     expect(script).toContain("Open branches need a merge or deletion decision");
     expect(script).not.toContain("--force");
     expect(JSON.parse(packageJson).scripts["main:update"]).toBe(

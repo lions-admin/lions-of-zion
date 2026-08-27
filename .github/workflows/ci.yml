@@ -6,16 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-# NEXT_PUBLIC_ variables are inlined at build time, so this has to be set for
-# `npm run build` and not only for the server. Without it the archive renderer
-# falls back to `/archive/…`, which is a gitignored dev symlink tree that does
-# not exist in a CI checkout — every record route then logs a media 404 and the
-# smoke test fails on five routes.
-#
-# No secret: the Blob store is public and the base is already documented in
-# docs/environment.md. Anything private belongs in repository secrets.
-env:
-  NEXT_PUBLIC_ARCHIVE_CDN: https://m70ph8nwojvanarn.public.blob.vercel-storage.com
 
 jobs:
   gate:
@@ -37,6 +27,20 @@ jobs:
     name: route smoke test (headless Chromium)
     runs-on: ubuntu-latest
     needs: gate
+    # Scoped to this job on purpose. NEXT_PUBLIC_ variables are inlined at
+    # build time, so the smoke build needs this or the archive renderer falls
+    # back to `/archive/…` — a gitignored dev symlink tree absent from a CI
+    # checkout — and every record route logs a media 404.
+    #
+    # It must NOT be set for the gate job: tests/archive-content.test.ts
+    # asserts that fallback, and setting it at workflow level made the gate
+    # fail. The test now controls the variable itself, but the scope stays
+    # narrow regardless — a test should not inherit deployment configuration.
+    #
+    # No secret. The Blob store is public and the base is in
+    # docs/environment.md; anything private belongs in repository secrets.
+    env:
+      NEXT_PUBLIC_ARCHIVE_CDN: https://m70ph8nwojvanarn.public.blob.vercel-storage.com
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

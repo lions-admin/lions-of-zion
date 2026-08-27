@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   type ArchivePackageName,
   assetSrcSet,
@@ -151,9 +151,30 @@ describe("archive media references", () => {
 });
 
 describe("asset URLs", () => {
+  /* These assert the *fallback*, which only holds when NEXT_PUBLIC_ARCHIVE_CDN
+     is unset. That used to be an unstated assumption about the environment, and
+     it broke the moment CI set the variable at workflow level — the assertion
+     depended on ambient state it never named. Now it says so and controls it. */
+  const cdn = process.env.NEXT_PUBLIC_ARCHIVE_CDN;
+  beforeEach(() => {
+    delete process.env.NEXT_PUBLIC_ARCHIVE_CDN;
+  });
+  afterEach(() => {
+    if (cdn === undefined) delete process.env.NEXT_PUBLIC_ARCHIVE_CDN;
+    else process.env.NEXT_PUBLIC_ARCHIVE_CDN = cdn;
+  });
+
   it("strips the package's assets/ prefix and keeps the rest", () => {
     expect(assetUrl("october7", "assets/web/images/ab/x-w480.webp")).toBe(
       "/archive/october7/web/images/ab/x-w480.webp",
+    );
+  });
+
+  it("uses NEXT_PUBLIC_ARCHIVE_CDN when it is set", () => {
+    /* The production path, which nothing asserted before. */
+    process.env.NEXT_PUBLIC_ARCHIVE_CDN = "https://cdn.example/base/";
+    expect(assetUrl("october7", "assets/web/images/ab/x-w480.webp")).toBe(
+      "https://cdn.example/base/october7/web/images/ab/x-w480.webp",
     );
   });
 

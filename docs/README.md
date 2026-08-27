@@ -52,6 +52,11 @@ described as though it works.
 
 ## The interactive map
 
-[`project-map.html`](project-map.html) — every directory and key file, what each
-is for, which are sources of truth, and which are generated, local-only or
-archived. Self-contained: open it from disk, no server and no network.
+[`project-map.html`](project-map.html) — **in Hebrew**, like
+[`engine-explainer.html`](engine-explainer.html). Four hand-drawn SVG flow
+diagrams, each showing one mechanism you cannot infer from a directory listing:
+the lint-enforced wall between the two halves and the single import that crosses
+it; the role every request is assigned before its route runs; how ~1,190 pages
+are derived from package indexes rather than written by hand; and the one
+invariant CI cannot see. Hover or click any node for its explanation.
+Self-contained: open it from disk — no server, no network request.

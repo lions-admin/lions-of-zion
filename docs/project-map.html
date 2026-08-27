@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>אריות ציון — מפת הפרויקט</title>
+<style>
+:root{
+  --bg:#faf9f7;--panel:#fff;--line:#e0dad1;--ink:#1a1815;--lo:#6d665d;
+  --gold:#8a6d2f;--acc:#2d5a8a;--warn:#a4502a;--soft:#f2efe9;
+  --sh:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#121110;--panel:#1b1917;--line:#322e29;--ink:#ece8e2;--lo:#9b948b;
+  --gold:#d4af63;--acc:#7fa8d4;--warn:#dc8f63;--soft:#232120;
+  --sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);}}
+:root[data-theme=dark]{
+  --bg:#121110;--panel:#1b1917;--line:#322e29;--ink:#ece8e2;--lo:#9b948b;
+  --gold:#d4af63;--acc:#7fa8d4;--warn:#dc8f63;--soft:#232120;
+  --sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35);}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15.5px/1.7 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
+.c,code{direction:ltr;unicode-bidi:isolate;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em}
+header{max-width:1060px;margin:0 auto;padding:40px 26px 8px}
+h1{margin:0 0 6px;font-size:27px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--lo);font-size:15px;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:7px 13px;font-size:13px;color:var(--lo)}
+.stat b{color:var(--ink);font-weight:700}
+main{max-width:1060px;margin:0 auto;padding:20px 26px 40px}
+.fig{margin:0 0 34px;background:var(--panel);border:1px solid var(--line);
+  border-radius:13px;box-shadow:var(--sh);overflow:hidden}
+.fig h2{margin:0;padding:19px 24px 15px;font-size:17.5px;font-weight:650;
+  border-bottom:1px solid var(--line)}
+.canvas{padding:22px 20px;overflow-x:auto;background:var(--soft)}
+.canvas svg{display:block;width:100%;min-width:640px;max-width:900px;height:auto;margin:0 auto;
+  color:var(--ink);direction:ltr}
+figcaption{padding:16px 24px 20px;color:var(--lo);font-size:14.5px;
+  border-top:1px solid var(--line);max-width:76ch}
+/* diagram marks */
+svg .n rect{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:.14s}
+svg text{unicode-bidi:plaintext}
+svg .n .t{font-size:12.5px;font-weight:600;fill:var(--ink);
+  font-family:ui-monospace,Menlo,monospace}
+svg .n .m{font-size:10px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
+svg .n{cursor:pointer;outline:none}
+svg .n:hover rect,svg .n:focus-visible rect{stroke:var(--acc);stroke-width:2.5}
+svg .n.sel rect{stroke:var(--acc);stroke-width:2.5;fill:color-mix(in srgb,var(--acc) 9%,var(--panel))}
+svg .n.acc rect{stroke:var(--gold);stroke-width:2}
+svg .n.acc .t{fill:var(--gold)}
+svg .n.gap rect{stroke:var(--warn);stroke-width:2;fill:color-mix(in srgb,var(--warn) 8%,var(--panel))}
+svg .n.gap .t{fill:var(--warn)}
+svg .a{stroke:var(--lo);stroke-width:1.6;fill:none}
+svg marker path{fill:var(--lo)}
+svg .al{font-size:10.5px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
+svg .wall{stroke:var(--warn);stroke-width:2;stroke-dasharray:7 5;opacity:.75}
+svg .wl{font-size:10.5px;fill:var(--warn);font-family:"Segoe UI",system-ui,sans-serif}
+svg .lane{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 4}
+svg .lt{font-size:11.5px;fill:var(--ink);font-family:"Segoe UI",system-ui,sans-serif}
+svg .lm{font-size:10px;fill:var(--lo);font-style:italic}
+svg .broken{stroke:var(--warn);opacity:.6}
+svg .x line{stroke:var(--warn);stroke-width:2.4;stroke-linecap:round}
+/* detail */
+#d{position:sticky;bottom:0;background:var(--panel);border-top:2px solid var(--acc);
+  box-shadow:0 -8px 26px rgba(0,0,0,.1);padding:18px 26px 20px;z-index:9}
+#d[hidden]{display:none}
+#d .dt{font-size:15px;font-weight:700;direction:ltr;unicode-bidi:isolate;text-align:left;
+  font-family:ui-monospace,Menlo,monospace}
+#d .dm{font-size:12px;color:var(--lo);margin:2px 0 9px}
+#d .dp{font-size:14.5px;max-width:78ch}
+#d .dk{margin-top:10px;font-size:12.5px;color:var(--lo);direction:ltr;unicode-bidi:isolate;
+  text-align:left;font-family:ui-monospace,Menlo,monospace}
+#d button{position:absolute;inset-inline-end:20px;top:16px;background:none;border:1px solid var(--line);
+  color:var(--lo);border-radius:6px;padding:3px 10px;cursor:pointer;font:inherit;font-size:13px}
+.hint{max-width:1060px;margin:0 auto;padding:0 26px 26px;color:var(--lo);font-size:13.5px}
+footer{max-width:1060px;margin:0 auto;padding:8px 26px 60px;color:var(--lo);font-size:13px;
+  border-top:1px solid var(--line)}
+footer b{color:var(--ink)}
+</style></head><body>
+<header>
+  <h1>אריות ציון — מפת הפרויקט</h1>
+  <p class="sub">ארבעה מנגנונים שאי אפשר להסיק מקריאת עץ התיקיות. ריחוף או לחיצה על כל צומת פותחים את ההסבר שלו למטה.</p>
+  <div class="stats">
+    <span class="stat"><b>1,014</b> קבצים במעקב</span>
+    <span class="stat"><b>~1,190</b> מסלולים</span>
+    <span class="stat"><b>397</b> בדיקות עוברות</span>
+    <span class="stat"><b>21</b> מיגרציות</span>
+    <span class="stat">בסיס <b class="c">f8f84ce</b></span>
+  </div>
+</header>
+<main>
+<figure class="fig">
+  <h2>שתי חציים, ודלת אחת בקיר</h2>
+  <div class="canvas"><svg viewBox="0 0 900 372" role="img" aria-label="שתי חציי המאגר, והייבוא היחיד שחוצה ביניהם"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker></defs><line class="wall" x1="450" y1="16" x2="450" y2="112"/><line class="wall" x1="450" y1="184" x2="450" y2="348"/><text class="wl" x="450" y="366" text-anchor="middle">eslint.config.mjs — הגבול הזה הוא שגיאת lint, לא מוסכמה</text><g class="n" data-k="app" tabindex="0" role="button" aria-label="app/"><rect x="70" y="30" width="180" height="56" rx="7"/><text class="t" x="160.0" y="55.0" text-anchor="middle">app/</text><text class="m" x="160.0" y="72.0" text-anchor="middle">97 קבצים · 504K</text></g><g class="n" data-k="components" tabindex="0" role="button" aria-label="components/"><rect x="70" y="110" width="180" height="56" rx="7"/><text class="t" x="160.0" y="135.0" text-anchor="middle">components/</text><text class="m" x="160.0" y="152.0" text-anchor="middle">97 קבצים · 812K</text></g><g class="n" data-k="libcontent" tabindex="0" role="button" aria-label="lib/content/"><rect x="70" y="190" width="180" height="56" rx="7"/><text class="t" x="160.0" y="215.0" text-anchor="middle">lib/content/</text><text class="m" x="160.0" y="232.0" text-anchor="middle">14 קבצים</text></g><g class="n" data-k="packages" tabindex="0" role="button" aria-label="content-packages/"><rect x="70" y="270" width="180" height="56" rx="7"/><text class="t" x="160.0" y="295.0" text-anchor="middle">content-packages/</text><text class="m" x="160.0" y="312.0" text-anchor="middle">535 קבצים · 14MB</text></g><g class="n" data-k="api" tabindex="0" role="button" aria-label="app/api/"><rect x="650" y="30" width="180" height="56" rx="7"/><text class="t" x="740.0" y="55.0" text-anchor="middle">app/api/</text><text class="m" x="740.0" y="72.0" text-anchor="middle">44 מסלולים</text></g><g class="n" data-k="handler" tabindex="0" role="button" aria-label="server/http/handler.ts"><rect x="650" y="110" width="180" height="56" rx="7"/><text class="t" x="740.0" y="142.0" text-anchor="middle">server/http/handler.ts</text></g><g class="n" data-k="modules" tabindex="0" role="button" aria-label="server/modules/"><rect x="650" y="190" width="180" height="56" rx="7"/><text class="t" x="740.0" y="215.0" text-anchor="middle">server/modules/</text><text class="m" x="740.0" y="232.0" text-anchor="middle">11 מודולים</text></g><g class="n" data-k="db" tabindex="0" role="button" aria-label="server/db/"><rect x="650" y="270" width="180" height="56" rx="7"/><text class="t" x="740.0" y="295.0" text-anchor="middle">server/db/</text><text class="m" x="740.0" y="312.0" text-anchor="middle">60 קבצים · 21 מיגרציות</text></g><g class="n acc" data-k="contracts" tabindex="0" role="button" aria-label="server/contracts/"><rect x="340" y="110" width="220" height="56" rx="7"/><text class="t" x="450.0" y="135.0" text-anchor="middle">server/contracts/</text><text class="m" x="450.0" y="152.0" text-anchor="middle">11 קבצים</text></g><line class="a" x1="160.0" y1="86" x2="160.0" y2="108" marker-end="url(#ah)"/><line class="a" x1="740.0" y1="86" x2="740.0" y2="108" marker-end="url(#ah)"/><line class="a" x1="160.0" y1="166" x2="160.0" y2="188" marker-end="url(#ah)"/><line class="a" x1="740.0" y1="166" x2="740.0" y2="188" marker-end="url(#ah)"/><line class="a" x1="160.0" y1="246" x2="160.0" y2="268" marker-end="url(#ah)"/><line class="a" x1="740.0" y1="246" x2="740.0" y2="268" marker-end="url(#ah)"/><line class="a" x1="250" y1="138" x2="336" y2="138" marker-end="url(#ah)"/><text class="al" x="450" y="100" text-anchor="middle">הייבוא היחיד שהפרונטאנד רשאי לעשות</text><line class="a" x1="650" y1="138" x2="564" y2="138" marker-end="url(#ah)"/><text class="al" x="140" y="352" text-anchor="middle">קריאה בזמן build</text></svg></div>
+  <figcaption>המאגר מחזיק אתר חלקיקים ו־API של מודל מידע שלא חולקים אף קובץ מקור. הפרונטאנד רשאי לייבא בדיוק שכבה אחת מתוך <span class='c'>server/</span> — את החוזים. זה מה שמונע מדרייבר Postgres להיכנס לחבילת הלקוח, וזה נאכף כשגיאת lint ולא כמוסכמה.</figcaption>
+</figure>
+<figure class="fig">
+  <h2>כל בקשה מקבלת תפקיד לפני שהמסלול רץ</h2>
+  <div class="canvas"><svg viewBox="0 0 900 268" role="img" aria-label="כל בקשה מסווגת לתפקיד אחד בבסיס הנתונים לפני שהמסלול רץ"><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker></defs><g class="n" data-k="req" tabindex="0" role="button" aria-label="בקשה נכנסת"><rect x="24" y="100" width="150" height="56" rx="7"/><text class="t" x="99.0" y="132.0" text-anchor="middle">בקשה נכנסת</text></g><line class="a" x1="174" y1="128" x2="214" y2="128" marker-end="url(#ah2)"/><g class="n acc" data-k="accessfor" tabindex="0" role="button" aria-label="accessFor()"><rect x="214" y="100" width="170" height="56" rx="7"/><text class="t" x="299.0" y="132.0" text-anchor="middle">accessFor()</text></g><g class="n" data-k="pub" tabindex="0" role="button" aria-label="app_public"><rect x="470" y="16" width="170" height="56" rx="7"/><text class="t" x="555.0" y="41.0" text-anchor="middle">app_public</text><text class="m" x="555.0" y="58.0" text-anchor="middle">7 נתיבים בלבד</text></g><g class="n" data-k="staff" tabindex="0" role="button" aria-label="app_staff"><rect x="470" y="100" width="170" height="56" rx="7"/><text class="t" x="555.0" y="125.0" text-anchor="middle">app_staff</text><text class="m" x="555.0" y="142.0" text-anchor="middle">ברירת המחדל</text></g><g class="n" data-k="svc" tabindex="0" role="button" aria-label="app_service"><rect x="470" y="184" width="170" height="56" rx="7"/><text class="t" x="555.0" y="216.0" text-anchor="middle">app_service</text></g><line class="a" x1="384" y1="120" x2="466" y2="52" marker-end="url(#ah2)"/><text class="al" x="428" y="78" text-anchor="middle">7 נתיבים</text><line class="a" x1="384" y1="128" x2="466" y2="128" marker-end="url(#ah2)"/><text class="al" x="428" y="122" text-anchor="middle">ברירת מחדל · נכשל סגור</text><line class="a" x1="384" y1="136" x2="466" y2="212" marker-end="url(#ah2)"/><text class="al" x="428" y="190" text-anchor="middle">cron · תור</text><line class="a" x1="640" y1="44" x2="700" y2="110" marker-end="url(#ah2)"/><line class="a" x1="640" y1="128" x2="700" y2="128" marker-end="url(#ah2)"/><line class="a" x1="640" y1="212" x2="700" y2="146" marker-end="url(#ah2)"/><g class="n acc" data-k="setrole" tabindex="0" role="button" aria-label="SET ROLE + RLS"><rect x="700" y="100" width="176" height="56" rx="7"/><text class="t" x="788.0" y="132.0" text-anchor="middle">SET ROLE + RLS</text></g><text class="al" x="788" y="180" text-anchor="middle">ובשחרור — RESET ALL</text></svg></div>
+  <figcaption>‏<span class='c'>accessFor()</span> היא נקודת ההכרעה היחידה — גוף המסלול לא מחליט על הרשאות. ‏<span class='c'>PUBLIC_V1</span> הוא בדיוק שבע כניסות; כל השאר נכשל סגור. התיעוד תיאר כתריסר מהם כאנונימיים, וזה היה שגוי — לכיוון המחמיר.</figcaption>
+</figure>
+<figure class="fig">
+  <h2>הדפים נגזרים מהנתונים, לא נכתבים ביד</h2>
+  <div class="canvas"><svg viewBox="0 0 900 216" role="img" aria-label="הדפים נגזרים מאינדקסי החבילות, לא נכתבים ביד"><defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker></defs><g class="n" data-k="packages" tabindex="0" role="button" aria-label="content-packages/"><rect x="24" y="40" width="196" height="56" rx="7"/><text class="t" x="122.0" y="65.0" text-anchor="middle">content-packages/</text><text class="m" x="122.0" y="82.0" text-anchor="middle">535 קבצים · 14MB</text></g><line class="a" x1="220" y1="68" x2="262" y2="68" marker-end="url(#ah3)"/><g class="n" data-k="libcontent" tabindex="0" role="button" aria-label="lib/content/"><rect x="262" y="40" width="176" height="56" rx="7"/><text class="t" x="350.0" y="65.0" text-anchor="middle">lib/content/</text><text class="m" x="350.0" y="82.0" text-anchor="middle">14 קבצים</text></g><line class="a" x1="438" y1="68" x2="480" y2="68" marker-end="url(#ah3)"/><g class="n" data-k="gsp" tabindex="0" role="button" aria-label="generateStaticParams"><rect x="480" y="40" width="180" height="56" rx="7"/><text class="t" x="570.0" y="72.0" text-anchor="middle">generateStaticParams</text></g><line class="a" x1="660" y1="68" x2="702" y2="68" marker-end="url(#ah3)"/><g class="n acc" data-k="pages" tabindex="0" role="button" aria-label="~1,190 דפים"><rect x="702" y="40" width="174" height="56" rx="7"/><text class="t" x="789.0" y="65.0" text-anchor="middle">~1,190 דפים</text><text class="m" x="789.0" y="82.0" text-anchor="middle">מוכנים מראש</text></g><g class="n" data-k="nav" tabindex="0" role="button" aria-label="defaultNodes"><rect x="262" y="142" width="176" height="56" rx="7"/><text class="t" x="350.0" y="167.0" text-anchor="middle">defaultNodes</text><text class="m" x="350.0" y="184.0" text-anchor="middle">בדיוק 8</text></g><line class="a" x1="438" y1="170" x2="700" y2="170" marker-end="url(#ah3)"/><text class="al" x="560" y="163" text-anchor="middle">שמונה יעדים · sitemap</text><line class="a" x1="789" y1="138" x2="789" y2="102" marker-end="url(#ah3)"/></svg></div>
+  <figcaption>‏1,175 רשומות בשתי חבילות מייצרות כ־1,177 דפים תחת <span class='c'>/october-7</span>. האינדקס הוא שמייצר את רשימת המסלולים, ולכן רשומה חדשה נכנסת לאתר בלי לגעת בקוד. שמונת היעדים בניווט, לעומת זאת, כן מתוחזקים ביד.</figcaption>
+</figure>
+<figure class="fig">
+  <h2>ה־invariant היחיד ש־CI לא יכול לראות</h2>
+  <div class="canvas"><svg viewBox="0 0 900 250" role="img" aria-label="ה־invariant של עבודה ללא JavaScript הוא היחיד ש־CI לא יכול לראות"><defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker></defs><g class="n" data-k="ci" tabindex="0" role="button" aria-label="CI על Ubuntu"><rect x="24" y="30" width="200" height="56" rx="7"/><text class="t" x="124.0" y="62.0" text-anchor="middle">CI על Ubuntu</text></g><g class="n" data-k="mac" tabindex="0" role="button" aria-label="רק על macOS"><rect x="24" y="158" width="200" height="56" rx="7"/><text class="t" x="124.0" y="183.0" text-anchor="middle">רק על macOS</text><text class="m" x="124.0" y="200.0" text-anchor="middle">5 סקריפטים</text></g><rect class="lane" x="264" y="20" width="300" height="76" rx="7"/><text class="lt" x="414" y="46" text-anchor="middle">typecheck · lint · 397 בדיקות · build</text><text class="lt" x="414" y="70" text-anchor="middle">ci-smoke על 21 מסלולים</text><text class="lm" x="414" y="88" text-anchor="middle">רץ עם JavaScript דלוק</text><rect class="lane" x="264" y="148" width="300" height="76" rx="7"/><text class="lt" x="414" y="174" text-anchor="middle">Chrome אמיתי · headless: false</text><text class="lt" x="414" y="198" text-anchor="middle">final-verify.mjs</text><text class="lm" x="414" y="216" text-anchor="middle">javaScriptEnabled: false</text><line class="a" x1="224" y1="60" x2="260" y2="60" marker-end="url(#ah4)"/><line class="a" x1="224" y1="188" x2="260" y2="188" marker-end="url(#ah4)"/><g class="n acc gap" data-k="nojs" tabindex="0" role="button" aria-label="‏invariant ללא JavaScript"><rect x="620" y="96" width="250" height="60" rx="7"/><text class="t" x="745.0" y="123.0" text-anchor="middle">‏invariant ללא JavaScript</text><text class="m" x="745.0" y="140.0" text-anchor="middle">לא מכוסה ב־CI</text></g><line class="a" x1="564" y1="186" x2="616" y2="140" marker-end="url(#ah4)"/><line class="a broken" x1="564" y1="58" x2="596" y2="86" stroke-dasharray="5 4"/><g class="x"><line x1="600" y1="82" x2="616" y2="98"/><line x1="616" y1="82" x2="600" y2="98"/></g><text class="al" x="556" y="242" text-anchor="middle">השומר היחיד — ורק על תחנת העבודה</text></svg></div>
+  <figcaption>‏CLAUDE.md מסמן את האיסור על <span class='c'>loading.tsx</span> בשורש כנושא משקל, כי הוא שובר את הרינדור של כל מסלול ללא JavaScript. אבל ci-smoke רץ עם JavaScript דלוק, ואף בדיקה ב־<span class='c'>tests/</span> לא מזכירה אותו. השומר היחיד דורש Chrome אמיתי על macOS — כלומר רגרסיה כאן עוברת את CI בשקט.</figcaption>
+</figure>
+</main>
+<p class="hint">התרשימים מציגים מנגנון, לא מלאי. ‏<code>node_modules</code> ותלויות חיצוניות אינם מופיעים כצמתים — הם מוחרגים במלואם, יחד עם <code>.next</code>, <code>ds-bundle</code>, <code>coverage</code>, <code>.claude/worktrees</code> וכל פלט אוטומטי אחר.</p>
+<footer>
+  <b>מקורות אמת:</b> <code>CLAUDE.md</code> ל־invariants · <code>.ai/DECISIONS.md</code> ל־למה
+  (append-only) · <code>.ai/STATE.md</code> למצב הנוכחי · <code>docs/</code> לעזר ·
+  <code>docs/PROJECT_MAP.md</code> לצורה · <code>PROJECT_STRUCTURE_AUDIT.md</code> לביקורת המלאה.
+  <code>docs/archive/</code> אינו מקור אמת לשום נושא.
+</footer>
+<div id="d" hidden><button id="dx" type="button">סגירה</button>
+  <div class="dt" id="dt"></div><div class="dm" id="dm"></div>
+  <div class="dp" id="dp"></div><div class="dk" id="dk"></div></div>
+<script>
+const N = {"app": ["app/", "frontend", "97 קבצים · 504K", "כל המסלולים של האתר. שם התיקייה הוא ה־URL עצמו, ולכן העברה של תיקייה כאן משנה כתובת חיה — זו הסיבה שהארגון מחדש לא נגע ב־app/ בכלל.", "page.tsx · layout.tsx · sitemap.ts · robots.ts"], "components": ["components/", "frontend", "97 קבצים · 812K", "עשר תיקיות פיצ'ר. גרף הייבוא נפתר במלואו — אפס מפרטים בלתי־פתירים בכל המאגר.", "Experience.tsx · particle-nav/ · content/ · sections/"], "libcontent": ["lib/content/", "content", "14 קבצים", "תפר התוכן של הפרונטאנד. סטטי היום, אבל בנוי כך שמעבר לשאילתה אמיתית ישנה גופי פונקציות ולא אתרי קריאה. כולם אסינכרוניים חוץ מ־home.ts.", "archive.ts · fake-resistance-editorial.ts · home.ts"], "packages": ["content-packages/", "content", "535 קבצים · 14MB", "נתוני מקור מחויבים לגיט — לא פלט אוטומטי. שני ארכיוני אוקטובר ושבעה תיקי מחקר. המדיה עצמה, כ־1.8GB, לעולם לא נכנסת לגיט אלא מוגשת מ־CDN.", "october7/ (179 רשומות) · hamas-massacre/ (335) · fake-resistance/ (7)"], "contracts": ["server/contracts/", "bridge", "11 קבצים", "השכבה היחידה מתוך server/ שהפרונטאנד רשאי לייבא. zod ותו לא — לא drizzle, לא next, לא server-only. זה בדיוק מה שמונע מדרייבר Postgres להיכנס לחבילת הלקוח.", "enums.ts · item.ts · chat.ts"], "api": ["app/api/", "backend", "44 מסלולים", "מטפלי המסלולים. כל אחד מפרסר קלט, קורא ל־index.ts של מודול אחד, ומסדר תשובה. אסור לו לייבא את server/db או את הפנימיות של מודול — וזו שגיאת lint, לא מוסכמה.", "v1/items · v1/search · v1/chat · internal/cron"], "handler": ["server/http/handler.ts", "backend", "", "עוטף כל מסלול: מזהה בקשה, תרגום שגיאות ל־problem+json, וגבול ההרשאות. הוא זה שמפעיל את withDatabaseRole ומחליף תפקיד בבסיס הנתונים לכל בקשה.", "handler.ts · responses.ts · internal-guard.ts"], "modules": ["server/modules/", "backend", "11 מודולים", "כל מודול נחשף דרך index.ts, מחזיק את זרימת העבודה ב־service.ts ואת השאילתות ב־repo.ts. שניים מהם מקפלים את ה־repo לתוך ה־service ושוברים את הצורה.", "items/ · assessments/ · search/ · chat/ · sources/"], "db": ["server/db/", "data", "60 קבצים · 21 מיגרציות", "סכימה, מיגרציות ומעבדת PGlite. חלק גדול מהחוקים העסקיים חי ב־triggers של SQL ולא ב־TypeScript — שינוי חוק הוא בדרך כלל מיגרציה חדשה, לא עריכת service.", "client.ts · schema/ · migrations/ · testing.ts"], "scene": ["particle-nav/Scene.tsx", "frontend", "", "הרנדרר החי היחיד ושעון ציר הזמן היחיד. מחזיק גם את האינטרו וגם את הניווט על קנבס אחד — אסור להרכיב קנבס שני לאינטרו.", "Scene.tsx · config.ts · layers/ · tsl/"], "crons": ["vercel.json crons", "deploy", "4 לוחות", "ארבעה לוחות זמנים ועוד טריגר תור אחד. כל החמישה מגיעים למטפלים אמיתיים תחת app/api/internal/, וכולם עוברים דרך requireCron.", "ingest · embed · outbox-drain · maintenance"], "jobs": ["server/jobs/", "backend", "1 קובץ", "צרכני התור. לעולם לא ניגשים לבסיס הנתונים ישירות — הם עוברים דרך המודולים.", "consumers/index.ts"], "req": ["בקשה נכנסת", "flow", "", "כל בקשה ל־/api/ עוברת דרך handler.ts לפני שהיא נוגעת בקוד של המסלול עצמו.", ""], "accessfor": ["accessFor()", "flow", "", "מסווג את הבקשה לאחד משלושה תפקידים. זו נקודת ההכרעה היחידה — גוף המסלול לא מחליט על הרשאות.", ""], "pub": ["app_public", "role", "7 נתיבים בלבד", "‏PUBLIC_V1 הוא בדיוק שבע כניסות: חיפוש, פריטים שפורסמו, שליחת דיווח, וארבעה נתיבי צ'אט. שום דבר אחר.", "GET /search · GET /published-items · POST /reports · 4× chat"], "staff": ["app_staff", "role", "ברירת המחדל", "כל שאר /api/v1/ עובר דרך authenticateAdmin ונכשל סגור. התיעוד סימן כתריסר מהם כאנונימיים — וזה היה שגוי לכיוון המחמיר.", "items · evidence · sources · publications · narratives · ai"], "svc": ["app_service", "cron ותור", "", "נתיבי cron ותור בלבד, מאומתים ב־CRON_SECRET.", ""], "setrole": ["SET ROLE + RLS", "flow", "", "חיבור ייעודי מהבריכה, SET ROLE ו־set_config('app.identity'), ובשחרור RESET ALL. זה המנגנון שמפעיל את מדיניות ה־RLS בפועל — התיעוד טען שהוא לא פועל, וזה היה לא נכון.", ""], "gsp": ["generateStaticParams", "flow", "", "האינדקסים של החבילות הם שמייצרים את רשימת הדפים. הארכיון לא נכתב ביד — הוא נגזר.", ""], "pages": ["~1,190 דפים", "flow", "מוכנים מראש", "כ־1,177 מהם הם דפי ארכיון תחת /october-7, ועוד עשרה תחת /fake-resistance. שניהם מרכזים — לא צמתים חדשים בניווט.", ""], "nav": ["defaultNodes", "frontend", "בדיוק 8", "מקור האמת לשמונה היעדים. כל מזהה חייב app/<id>/page.tsx תואם, ו־SectionPage זורק שגיאה על מזהה לא מוכר.", "components/particle-nav/config.ts"], "ci": ["CI על Ubuntu", "deploy", "", "‏typecheck, lint, 397 בדיקות ו־build — ואז עשן מסלולים עם Chromium מובנה על 21 מסלולים.", "typecheck · lint · test · build · ci-smoke.mjs"], "mac": ["רק על macOS", "deploy", "5 סקריפטים", "חמישה סקריפטים נועלים נתיב Chrome מוחלט ורצים רק על תחנת העבודה. אחד מהם הוא הבדיקה היחידה שרצה בלי JavaScript.", "final-verify · verify-composition · verify-home-band · verify-doc-scroll · capture"], "nojs": ["‏invariant ללא JavaScript", "gap", "לא מכוסה ב־CI", "‏CLAUDE.md מסמן אותו כנושא משקל, אבל ci-smoke רץ עם JavaScript דלוק ואף בדיקה ב־tests/ לא מזכירה loading.tsx. השומר היחיד דורש Chrome אמיתי על macOS — כלומר הפער הזה עובר את CI בשקט.", ""]};
+const d=document.getElementById('d'),dt=document.getElementById('dt'),
+      dm=document.getElementById('dm'),dp=document.getElementById('dp'),dk=document.getElementById('dk');
+let pinned=null;
+function show(k){const v=N[k];if(!v)return;
+  dt.textContent=v[0]; dm.textContent=v[2]||''; dp.textContent=v[3];
+  dk.textContent=v[4]||''; d.hidden=false;}
+function clear(){if(pinned)return;d.hidden=true;}
+document.querySelectorAll('svg .n').forEach(g=>{
+  const k=g.dataset.k;
+  g.addEventListener('mouseenter',()=>show(k));
+  g.addEventListener('focus',()=>show(k));
+  g.addEventListener('mouseleave',clear);
+  g.addEventListener('blur',clear);
+  g.addEventListener('click',()=>{
+    document.querySelectorAll('svg .n.sel').forEach(e=>e.classList.remove('sel'));
+    if(pinned===k){pinned=null;d.hidden=true;}
+    else{pinned=k;g.classList.add('sel');show(k);}});
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();g.click();}});
+});
+document.getElementById('dx').onclick=()=>{pinned=null;d.hidden=true;
+  document.querySelectorAll('svg .n.sel').forEach(e=>e.classList.remove('sel'));};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){pinned=null;d.hidden=true;
+  document.querySelectorAll('svg .n.sel').forEach(e=>e.classList.remove('sel'));}});
+</script></body></html>

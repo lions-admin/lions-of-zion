@@ -21,9 +21,11 @@ made before new work begins. A completed serious round uses `npm run main:update
 to merge, verify, push, and remove its completed branch. Open branches are never
 merged automatically.
 
-This work is uncommitted on `codex/project-structure-audit`. No push or deploy
-was performed. The verification result for the implementation belongs in the
-handoff for this task rather than as a durable state claim.
+The workflow is merged and pushed to `main`. Startup cleanup removed branches
+already merged into main; `claude/test-server-setup-391c0b` remains open on the
+remote, so the next task stops for a merge or deletion decision before work
+begins. The verification result for the implementation belongs in the handoff
+for this task rather than as a durable state claim.
 
 ## Latest — 2026-08-27, structure audit; the design-audit wave is closed
 

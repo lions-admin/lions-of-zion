@@ -88,9 +88,6 @@ Resistance: 5,556px) and the shell fails them:
   fragments drift through the empty margins — too faint to read, too
   present to ignore; they collide with rail text and read as a broken page,
   not atmosphere.
-- Every dossier page opens with the same ~320px non-content ceremony
-  (letterspaced caps title, lede, rule, kicker); the first real content —
-  a milestone, a case, a figure — lands at y≈700 or below the fold.
 - The file footer is a five-part, ~345px apparatus stack (prev/next,
   8-file index, boxed Ask CTA, policy links, close line) in one identical
   0.56–0.66rem mono voice, with **two competing "Ask" affordances visible
@@ -228,8 +225,6 @@ shell for everything:
   pattern), empty otherwise — not a permanent 15rem identity totem.
 - **The identity band replaces the rail**: emblem (small), file number,
   route, status — one horizontal row under the wordmark, in `--t-data`.
-  The ~320px opening ceremony compresses to ~140px; **first real content
-  lands above the fold on every page.**
 - **The scan becomes a whisper on reading pages**: backdrop rows at ≤0.15
   opacity, excluded from a protected zone around the reading column. It
   stays loud only on the home scene, where it is the product. No more

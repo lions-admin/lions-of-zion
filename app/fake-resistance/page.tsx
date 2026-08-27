@@ -135,14 +135,6 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* The exhibits are the argument; the essay is the gloss. Two
-          paragraphs of thesis and a four-item taxonomy used to stand between
-          the masthead and Exhibit A, which put the page's first piece of
-          evidence at ~1400px on a 900px viewport — the opening ceremony
-          DESIGN-V2 removed, rebuilt out of content instead of chrome. The
-          thesis is now two sentences here, and the full taxonomy closes the
-          page, where a reader who has seen three worked cases can recognise
-          what it names. */}
       <p className={styles.standfirst}>
         Manufactured outrage is built, not felt: a claim is seeded by a small
         set of accounts, moved by networks that exist to move volume, and

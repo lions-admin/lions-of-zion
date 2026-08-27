@@ -96,6 +96,11 @@ export interface DocPageProps {
    * from their own prose. On an archive record it is not: the prose is a
    * witness account that links to nothing, so moving to the next testimony
    * costs a full round trip through the particle scene.
+   *
+   * The last item is also where the exit link points — "← Back to {label}" —
+   * so a deep page steps one level up instead of jumping past its parent
+   * straight to the scan. Without a trail the exit keeps its original `/`
+   * target and wording.
    */
   breadcrumb?: { href: string; label: string }[];
   children: React.ReactNode;
@@ -114,6 +119,12 @@ export function DocPage({
   children,
 }: DocPageProps) {
   const withToc = rails === 'toc';
+  /* One level up, not home: a deep page's way out is its parent, which the
+     trail already names as its last item. Only without a trail is the parent
+     the scan itself. */
+  const exit = breadcrumb?.length
+    ? breadcrumb[breadcrumb.length - 1]
+    : { href: '/', label: 'the scan' };
   const pageClass = [
     styles.page,
     styles.surfaceQuiet,
@@ -171,8 +182,8 @@ export function DocPage({
               <span className={styles.identityRoute}>/{routeId}</span>
             )}
           </span>
-          <Link href="/" className={styles.identityExit}>
-            ← Back to the scan
+          <Link href={exit.href} className={styles.identityExit}>
+            ← Back to {exit.label}
           </Link>
         </div>
 

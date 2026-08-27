@@ -130,6 +130,7 @@ export default async function Page({ params }: Params) {
       id="fake-resistance"
       accent="ember"
       surface="quiet"
+      breadcrumb={[{ href: '/fake-resistance', label: 'Fake Resistance' }]}
       title={shortTitle(record.title)}
       tagline={lead}
     >

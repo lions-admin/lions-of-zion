@@ -8,6 +8,7 @@ import {
   getMediaRegistry,
   getRecord,
   pickVersion,
+  withCoverThumbs,
 } from "@/lib/content/archive";
 import {
   DOCUMENTATION_PACKAGE,
@@ -79,6 +80,80 @@ describe("archive packages", () => {
       expect(record!.versions[record!.default_language]).toBeDefined();
       expect(entry.languages).toContain(entry.defaultLanguage);
     }
+  });
+});
+
+/**
+ * The index rows show a cover and an excerpt as of 2026-08-27. Both are
+ * *derived* data — the excerpt is written into `index.json` by the importer,
+ * the cover URL is resolved from `media.json` at render — so both can go
+ * stale silently against a re-import. These are the tripwires.
+ */
+describe("rich index rows", () => {
+  it.each(PACKAGES)("%s: every entry carries a cover that resolves", async (pkg) => {
+    const [index, media] = await Promise.all([getIndex(pkg), getMediaRegistry(pkg)]);
+    const unresolved = index
+      .filter((entry) => !entry.cover || !media.has(entry.cover))
+      .map((entry) => entry.id);
+    expect(unresolved).toEqual([]);
+  });
+
+  it.each(PACKAGES)("%s: every cover resolves to a thumbnail URL", async (pkg) => {
+    const index = await getIndex(pkg);
+    const rows = await withCoverThumbs(pkg, index);
+    expect(rows).toHaveLength(index.length);
+    expect(rows.filter((row) => !row.thumb).map((r) => r.id)).toEqual([]);
+  });
+
+  it.each(PACKAGES)("%s: the thumbnail is the smallest baked variant", async (pkg) => {
+    /* An index paints 179 or 335 of these at ~120px. Serving the original
+       where a w480 exists is the difference between a page and a download. */
+    const [index, media] = await Promise.all([getIndex(pkg), getMediaRegistry(pkg)]);
+    const rows = await withCoverThumbs(pkg, index);
+
+    for (const row of rows) {
+      const item = media.get(row.cover!)!;
+      if (!item.web_variants?.length) continue;
+      const smallest = item.web_variants.reduce((a, b) => (b.width < a.width ? b : a));
+      expect(row.thumb).toContain(smallest.path.replace(/^assets\//, ""));
+    }
+  });
+
+  it.each(PACKAGES)("%s: the index carries a short excerpt", async (pkg) => {
+    const index = await getIndex(pkg);
+    const missing = index.filter((entry) => entry.excerpt === undefined);
+    expect(missing).toEqual([]);
+
+    /* The cap the importer applies. Without it the file every listing loads
+       grows by the archive's full 500-character excerpts. */
+    for (const entry of index) {
+      if (!entry.excerpt) continue;
+      expect(entry.excerpt.length).toBeLessThanOrEqual(201);
+    }
+  });
+
+  it.each(PACKAGES)("%s: no excerpt carries the source site's nav", async (pkg) => {
+    /* The crawler captured october7.org's breadcrumb into 36 excerpts, fused
+       into the first sentence ("…Testimony of Noam GSaturday, October 7th").
+       The importer rebuilds those from `full_text`; this keeps them rebuilt
+       across a re-import, the same way the title-chrome test does. */
+    const index = await getIndex(pkg);
+    const crumbed = index
+      .filter((entry) => /^(?:[^>\n]{1,60}>){1,4}/.test(entry.excerpt ?? ""))
+      .map((entry) => entry.id);
+    expect(crumbed).toEqual([]);
+  });
+
+  it("an excerpt is the record's own words, not an invented summary", async () => {
+    const index = await getIndex(TESTIMONIES_PACKAGE);
+    const entry = index.find((e) => e.excerpt && !e.excerpt.endsWith("…"))!;
+    const record = await getRecord(TESTIMONIES_PACKAGE, entry.id);
+    const version = pickVersion(record!);
+    const haystack = `${version.excerpt ?? ""} ${version.full_text ?? ""}`.replace(
+      /\s+/g,
+      " ",
+    );
+    expect(haystack).toContain(entry.excerpt);
   });
 });
 

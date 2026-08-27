@@ -9,7 +9,9 @@
  * site is unchanged and unaware.
  *
  * Both strip source-site furniture at *render* time and leave the stored
- * record exactly as published — the boundary the provenance footer promises.
+ * record exactly as published. That boundary outlived the provenance footer
+ * that used to state it (removed 2026-08-27): the source site's chrome is
+ * dropped, the record's own words are never touched.
  */
 
 /**

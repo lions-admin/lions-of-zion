@@ -7,7 +7,9 @@ import {
   displayTitle,
   displayWitness,
 } from '@/lib/content/archive';
+import { buildXShareText, facebookShareUrl, xIntentUrl } from '@/lib/content/share-text';
 import { ArchiveBlocks } from './ArchiveBlocks';
+import { ShareRecord } from './ShareRecord';
 import styles from './archive.module.css';
 
 export type ArchiveRecordProps = {
@@ -17,8 +19,10 @@ export type ArchiveRecordProps = {
   media: Map<string, ArchiveMedia>;
   /** `/october-7/testimonies/<slug>` — the default-language URL for this record. */
   basePath: string;
-  /** Human name of the archive this came from, shown in the provenance note. */
+  /** Human name of the archive this came from, shown in the october7 credit. */
   sourceLabel: string;
+  /** Absolute canonical URL of the page being rendered — what gets shared. */
+  shareUrl: string;
 };
 
 const LANGUAGE_NAMES: Readonly<globalThis.Record<string, string>> = {
@@ -31,7 +35,10 @@ const LANGUAGE_NAMES: Readonly<globalThis.Record<string, string>> = {
   pt: 'Português',
 };
 
-export type ArchiveDatelineProps = Omit<ArchiveRecordProps, 'pkg' | 'media'>;
+export type ArchiveDatelineProps = Omit<
+  ArchiveRecordProps,
+  'pkg' | 'media' | 'sourceLabel' | 'shareUrl'
+>;
 
 /**
  * Who, when, from where — and the language switch — as the record's dateline.
@@ -49,37 +56,35 @@ export type ArchiveDatelineProps = Omit<ArchiveRecordProps, 'pkg' | 'media'>;
  * to render in a different place in the tree from the body it describes, and
  * `ArchiveRecordPage` is the one caller that holds both.
  */
-export function ArchiveDateline({
-  record,
-  version,
-  basePath,
-  sourceLabel,
-}: ArchiveDatelineProps) {
+export function ArchiveDateline({ record, version, basePath }: ArchiveDatelineProps) {
   const others = record.available_languages.filter((l) => l !== version.locale);
   const published = formatDate(record.publication_date);
 
   return (
     <>
-      <dl className={styles.recordMeta}>
-        {record.witness_name ? (
-          <div className={styles.metaPair}>
-            <dt>Witness</dt>
-            <dd>{displayWitness(record.witness_name)}</dd>
-          </div>
-        ) : null}
-        {published ? (
-          <div className={styles.metaPair}>
-            <dt>Published</dt>
-            <dd>
-              <time dateTime={record.publication_date ?? undefined}>{published}</time>
-            </dd>
-          </div>
-        ) : null}
-        <div className={styles.metaPair}>
-          <dt>Archive</dt>
-          <dd>{sourceLabel}</dd>
-        </div>
-      </dl>
+      {/* No `Archive` pair any more. The source used to be named here *and*
+          in the footer; the owner ruled one credit only, and the survivor is
+          the footer's, because it is the one that can carry a link
+          (`.ai/DECISIONS.md`, 2026-08-27). The `dl` itself is conditional
+          now that the pair no longer guarantees it content. */}
+      {record.witness_name || published ? (
+        <dl className={styles.recordMeta}>
+          {record.witness_name ? (
+            <div className={styles.metaPair}>
+              <dt>Witness</dt>
+              <dd>{displayWitness(record.witness_name)}</dd>
+            </div>
+          ) : null}
+          {published ? (
+            <div className={styles.metaPair}>
+              <dt>Published</dt>
+              <dd>
+                <time dateTime={record.publication_date ?? undefined}>{published}</time>
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+      ) : null}
 
       {others.length ? (
         <nav className={styles.languages} aria-label="Languages">
@@ -115,19 +120,33 @@ export function ArchiveDateline({
  *
  * The `<h1>` and the dateline belong to the page shell (`DocPage`), so this
  * renders what sits under the gold rule: the record's content blocks in
- * publication order, and the provenance note that closes it.
+ * publication order, and the footer that closes it.
  *
- * The provenance note is the one place a record links out, and it links to the
- * source *record* rather than the source site's front door. That is the shape
- * the decision asks for: a reader is never pulled out mid-sentence, but the
- * claim can always be checked.
+ * The footer's shape is per package, and the asymmetry is an owner decision
+ * (`.ai/DECISIONS.md`, 2026-08-27 — "Archive attribution splits by package"):
+ *
+ *  - **october7** keeps a single reduced credit line, and it is the linked
+ *    one — the site address, pointing at the source record.
+ *  - **hamas-massacre** carries no credit at all.
+ *
+ * Both close with the share block: the material is public, and the point of
+ * holding it is that it travels. Provenance still reaches machines through
+ * the JSON-LD (`isBasedOn`/`holdingArchive`), which is deliberately
+ * untouched by the split.
  */
 export function ArchiveRecord({
   pkg,
   version,
   media,
   sourceLabel,
+  shareUrl,
 }: ArchiveRecordProps) {
+  const title = displayTitle(version.title);
+  const xText = buildXShareText({
+    title,
+    text: version.full_text ?? version.excerpt ?? null,
+  });
+
   return (
     <>
       {/* The record's own words, declared in the record's own language.
@@ -137,9 +156,9 @@ export function ArchiveRecord({
           English phoneme rules.
 
           Scoped to the blocks rather than to the whole page on purpose: the
-          dateline above and the provenance footer below stay English, so
-          this is the exact seam where the language changes. `dir` is bound
-          for the same reason, though every shipped version is `ltr` today.
+          dateline above and the share footer below stay English, so this is
+          the exact seam where the language changes. `dir` is bound for the
+          same reason, though every shipped version is `ltr` today.
 
           The same string `ArchiveRecordPage` sets as the `h1`, so a leading
           heading block that repeats it can be dropped. */}
@@ -148,21 +167,34 @@ export function ArchiveRecord({
           pkg={pkg}
           blocks={version.content_blocks}
           media={media}
-          renderedTitle={displayTitle(version.title)}
+          renderedTitle={title}
+          shareUrl={shareUrl}
+          shareTitle={title}
         />
       </div>
 
-      <footer className={styles.provenance}>
-        <p>
-          Archived from {sourceLabel}. This record is reproduced as published —
-          its text, its media and its credits are unaltered.
-        </p>
-        {version.source_url ? (
-          <p>
-            Source record:{' '}
-            <a href={version.source_url} rel="noopener noreferrer nofollow">
-              {displayUrl(version.source_url)}
-            </a>
+      <footer className={styles.recordFooter}>
+        <ShareRecord
+          url={shareUrl}
+          title={title}
+          xHref={xIntentUrl(xText, shareUrl)}
+          facebookHref={facebookShareUrl(shareUrl)}
+          caption={`${xText}\n${shareUrl}`}
+        />
+        {/* The one surviving credit, october7 only — small, and linked to the
+            source record rather than the site's front door, so the claim can
+            still be checked without the reader being pulled out mid-record. */}
+        {pkg === 'october7' ? (
+          <p className={styles.sourceCredit}>
+            Archived from {sourceLabel}
+            {version.source_url ? (
+              <>
+                {' — '}
+                <a href={version.source_url} rel="noopener noreferrer nofollow">
+                  {hostOf(version.source_url)}
+                </a>
+              </>
+            ) : null}
           </p>
         ) : null}
       </footer>
@@ -182,7 +214,11 @@ function formatDate(value: string | null): string | null {
   });
 }
 
-/** The URL without its scheme — a citation reads better than a raw link. */
-function displayUrl(url: string): string {
-  return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+/** The site address alone — "october7.org", not the record's whole slug. */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url.replace(/^https?:\/\//, '').split('/')[0];
+  }
 }

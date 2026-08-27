@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import { ArchiveIndexFilter } from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
-import { getDocumentationGroups } from '@/lib/content/documentation';
+import { withCoverThumbs } from '@/lib/content/archive';
+import {
+  DOCUMENTATION_PACKAGE,
+  getDocumentationGroups,
+} from '@/lib/content/documentation';
 import { SITE_URL } from '@/lib/site-config';
 
 const TAGLINE = 'The documentation record of October 7, filed as it was published.';
@@ -16,6 +20,13 @@ export const metadata: Metadata = {
 export default async function Page() {
   const groups = await getDocumentationGroups();
   const total = groups.reduce((sum, group) => sum + group.records.length, 0);
+  // Covers resolve here, server-side — rows need URLs, not media_ids.
+  const withThumbs = await Promise.all(
+    groups.map(async (group) => ({
+      ...group,
+      records: await withCoverThumbs(DOCUMENTATION_PACKAGE, group.records),
+    })),
+  );
 
   return (
     <DocPage
@@ -43,7 +54,7 @@ export default async function Page() {
           resolved to two strings across all 335 rows. File numbers run
           through the whole archive and are assigned before filtering. */}
       <ArchiveIndexFilter
-        groups={groups.map((group) => ({
+        groups={withThumbs.map((group) => ({
           slug: group.slug,
           title: group.title,
           records: group.records,

@@ -6,6 +6,7 @@ import {
   assetSrcSet,
   assetUrl,
 } from '@/lib/content/archive';
+import { buildXShareText, xIntentUrl } from '@/lib/content/share-text';
 import { ArchiveImage } from './ArchiveImage';
 import styles from './archive.module.css';
 
@@ -18,6 +19,14 @@ export type ArchiveBlocksProps = {
    * that repeats it is dropped — see `dropLeadingChrome`.
    */
   renderedTitle?: string;
+  /**
+   * The record page's canonical URL, for each media item's share link.
+   * Omitted (with `shareTitle`) the media action rows do not render — a
+   * caller outside a record page has no URL for them to carry.
+   */
+  shareUrl?: string;
+  /** The record's display title — the share text when a caption is absent. */
+  shareTitle?: string;
 };
 
 /**
@@ -27,15 +36,19 @@ export type ArchiveBlocksProps = {
  * strict subset of the other's, so there is nothing here that branches on
  * which package a record came from.
  *
- * Two rules from `.ai/DECISIONS.md` (2026-08-26) are enforced structurally
- * rather than left to whoever edits next:
+ * The rules this enforces moved once, and the history matters:
  *
- *  - **Nothing in a record body is a hyperlink.** Credits and captions are
- *    text. `source_url` travels in metadata and JSON-LD instead, so a reader
- *    is never invited out of the record mid-sentence.
- *  - **Credits always render.** They are provenance, not decoration: an
- *    unsourced archive cannot answer denial, which is what this section
- *    exists to do.
+ *  - **The record's content carries no hyperlinks.** A `link` block renders
+ *    as text, and captions and credits are text — a reader is never invited
+ *    out of the record mid-sentence (`.ai/DECISIONS.md`, 2026-08-26). The
+ *    download and share affordances under each media item are *not* an
+ *    exception: they are this site's own chrome, added by owner decision
+ *    (`.ai/DECISIONS.md`, 2026-08-27), and none of them points back into the
+ *    source site's prose.
+ *  - **In-body media credits still render** (`block.credit` — six items
+ *    across both archives). The 2026-08-27 split removed the *record-level*
+ *    provenance footer, not these: what a source wrote against a specific
+ *    photograph stays with the photograph.
  */
 /** Whitespace-collapsed, case-insensitive — the records vary in both. */
 const normalise = (value: string | null | undefined) =>
@@ -68,8 +81,11 @@ const normalise = (value: string | null | undefined) =>
  * 336 of those records. A byte-equality skip catches only half of them, on
  * ~215 Spanish versions the duplicate is the untranslated English sentence —
  * an import problem rather than a rendering one — and suppressing a record's
- * only paragraph would contradict the provenance footer's promise that the
- * text is "reproduced as published … unaltered".
+ * only paragraph would edit the record rather than drop the source site's
+ * chrome around it. (That reason used to cite the provenance footer's
+ * "reproduced as published … unaltered" promise; the footer was removed on
+ * 2026-08-27, but the boundary it described still governs this function —
+ * chrome may be dropped, the record's own words may not.)
  */
 function dropLeadingChrome(blocks: ArchiveBlock[], renderedTitle?: string): ArchiveBlock[] {
   const first = blocks[0];
@@ -145,7 +161,14 @@ function groupByHeading(blocks: ArchiveBlock[]): BlockGroup[] {
   return groups.filter((g) => g.heading || g.body.length > 0);
 }
 
-export function ArchiveBlocks({ pkg, blocks, media, renderedTitle }: ArchiveBlocksProps) {
+export function ArchiveBlocks({
+  pkg,
+  blocks,
+  media,
+  renderedTitle,
+  shareUrl,
+  shareTitle,
+}: ArchiveBlocksProps) {
   /* Sort only when the whole package is annotated. `position` is absent on
      every october7 block, so `a.position - b.position` was NaN on all 16,265
      of them — a contract enforced by a comparator that cannot fire. Rule 3 is
@@ -164,7 +187,14 @@ export function ArchiveBlocks({ pkg, blocks, media, renderedTitle }: ArchiveBloc
     <>
       {groupByHeading(ordered).map((group, gi) => {
         const body = group.body.map((block, i) => (
-          <Block key={`${block.type}-${i}`} pkg={pkg} block={block} media={media} />
+          <Block
+            key={`${block.type}-${i}`}
+            pkg={pkg}
+            block={block}
+            media={media}
+            shareUrl={shareUrl}
+            shareTitle={shareTitle}
+          />
         ));
         if (!group.heading || !group.id) {
           return <Fragment key={`lede-${gi}`}>{body}</Fragment>;
@@ -182,15 +212,15 @@ export function ArchiveBlocks({ pkg, blocks, media, renderedTitle }: ArchiveBloc
   );
 }
 
-function Block({
-  pkg,
-  block,
-  media,
-}: {
+type MediaBlockProps = {
   pkg: ArchivePackageName;
   block: ArchiveBlock;
   media: Map<string, ArchiveMedia>;
-}) {
+  shareUrl?: string;
+  shareTitle?: string;
+};
+
+function Block({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps) {
   switch (block.type) {
     // A heading with text never reaches here — `groupByHeading` lifts it out
     // to open its own `<section>`. Only an empty one falls through, and an
@@ -220,25 +250,33 @@ function Block({
       return block.text ? <p className={styles.paragraph}>{block.text}</p> : null;
 
     case 'image':
-      return <ImageBlock pkg={pkg} block={block} media={media} />;
+      return (
+        <ImageBlock
+          pkg={pkg}
+          block={block}
+          media={media}
+          shareUrl={shareUrl}
+          shareTitle={shareTitle}
+        />
+      );
 
     case 'video':
-      return <VideoBlock pkg={pkg} block={block} media={media} />;
+      return (
+        <VideoBlock
+          pkg={pkg}
+          block={block}
+          media={media}
+          shareUrl={shareUrl}
+          shareTitle={shareTitle}
+        />
+      );
 
     default:
       return null;
   }
 }
 
-function ImageBlock({
-  pkg,
-  block,
-  media,
-}: {
-  pkg: ArchivePackageName;
-  block: ArchiveBlock;
-  media: Map<string, ArchiveMedia>;
-}) {
+function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps) {
   const item = block.media_id ? media.get(block.media_id) : undefined;
   // Only the two external videos lack a file, never an image — but a record
   // that referenced a missing one would crash the whole build rather than
@@ -275,20 +313,20 @@ function ImageBlock({
         alt={alt}
         unavailableNote="An image published with this record is not loading from this archive."
       />
-      <Caption caption={caption} credit={credit} />
+      <Caption caption={caption} credit={credit}>
+        <MediaActions
+          pkg={pkg}
+          item={item}
+          caption={caption}
+          shareUrl={shareUrl}
+          shareTitle={shareTitle}
+        />
+      </Caption>
     </figure>
   );
 }
 
-function VideoBlock({
-  pkg,
-  block,
-  media,
-}: {
-  pkg: ArchivePackageName;
-  block: ArchiveBlock;
-  media: Map<string, ArchiveMedia>;
-}) {
+function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps) {
   const item = block.media_id ? media.get(block.media_id) : undefined;
   if (!item) return null;
 
@@ -299,7 +337,8 @@ function VideoBlock({
   // them without downloading them, so there is no file to play. Saying so is
   // better than dropping the block: the reader learns something exists here
   // that this archive does not hold. The pointer stays out of the prose and
-  // travels in the record's provenance note instead.
+  // travels in the record's JSON-LD. No action row either — there is no file
+  // to download, and a "Download" that cannot deliver is a false control.
   if (!item.package_path) {
     return (
       <figure className={styles.figure}>
@@ -343,18 +382,103 @@ function VideoBlock({
         <source src={assetUrl(pkg, item.package_path)} type={item.mime_type ?? 'video/mp4'} />
         Your browser cannot play this video.
       </video>
-      <Caption caption={caption} credit={credit} />
+      <Caption caption={caption} credit={credit}>
+        <MediaActions
+          pkg={pkg}
+          item={item}
+          caption={caption}
+          shareUrl={shareUrl}
+          shareTitle={shareTitle}
+        />
+      </Caption>
     </figure>
   );
 }
 
-/** Caption and credit as text. Never a link — see the rule at the top. */
-function Caption({ caption, credit }: { caption: string | null; credit: string | null }) {
-  if (!caption && !credit) return null;
+/**
+ * Download and share for one held media file — plain anchors, no client
+ * JavaScript, which is what keeps ~1,027 of these free on a page that can
+ * hold twenty-five.
+ *
+ * The download serves the *original* file straight from the CDN:
+ * `?download=1` makes the Blob store answer `Content-Disposition:
+ * attachment`, so the browser saves instead of opening a tab. The `download`
+ * attribute's record-derived name is a best effort — cross-origin, the
+ * header's own filename (the content hash) is what the browser uses — kept
+ * because it costs nothing and names the file wherever same-origin serving
+ * (the dev symlink) applies. The share is an X intent carrying the caption,
+ * or failing that the record's title, and the record page's URL — the file
+ * itself has no page of its own to point at.
+ */
+function MediaActions({
+  pkg,
+  item,
+  caption,
+  shareUrl,
+  shareTitle,
+}: {
+  pkg: ArchivePackageName;
+  item: ArchiveMedia;
+  caption: string | null;
+  shareUrl?: string;
+  shareTitle?: string;
+}) {
+  if (!shareUrl || !shareTitle || !item.package_path) return null;
+
+  const href = assetUrl(pkg, item.package_path);
+  const extension = item.package_path.split('.').pop() ?? 'bin';
+  const xText = buildXShareText({ title: shareTitle, text: caption });
+
+  // The record's name on the file, so a download does not arrive as an
+  // anonymous hash on someone's disk (`.ai/DECISIONS.md`, 2026-08-27).
+  // Unicode-aware for the same reason `headingId` is — most versions are not
+  // English, and an ASCII strip would leave nothing of a Japanese title.
+  const titleSlug = shareTitle
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+  const filename = `${titleSlug || 'record'}-${item.media_id}.${extension}`;
+
+  return (
+    <span className={styles.mediaActions}>
+      <a className={styles.mediaAction} href={`${href}?download=1`} download={filename}>
+        Download
+      </a>
+      <a
+        className={styles.mediaAction}
+        href={xIntentUrl(xText, shareUrl)}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Share on X
+      </a>
+    </span>
+  );
+}
+
+/**
+ * Caption and credit as text — the source's words never become links.
+ * `children` is the media action row: it lives inside the `figcaption`
+ * because a `<figure>` allows flow content only *before or after* one
+ * `figcaption`, and putting the actions between media and caption would
+ * split a caption from the image it describes.
+ */
+function Caption({
+  caption,
+  credit,
+  children,
+}: {
+  caption: string | null;
+  credit: string | null;
+  children?: React.ReactNode;
+}) {
+  if (!caption && !credit && !children) return null;
   return (
     <figcaption className={styles.caption}>
       {caption ? <span className={styles.captionText}>{caption}</span> : null}
       {credit ? <span className={styles.credit}>{credit}</span> : null}
+      {children}
     </figcaption>
   );
 }

@@ -96,6 +96,13 @@ export type ArchiveIndexEntry = {
   languages: string[];
   defaultLanguage: string;
   witness: string | null;
+  /**
+   * The default-language version's excerpt, shortened at import so a listing
+   * can show the record's own words without opening 514 record files.
+   * Written by `import-archive-package.mjs` (and its `--regenerate-index`
+   * mode); optional because an index imported before 2026-08-27 lacks it.
+   */
+  excerpt?: string | null;
 };
 
 export type ArchiveCategory = {
@@ -203,6 +210,32 @@ export function assetSrcSet(pkg: ArchivePackageName, media: ArchiveMedia): strin
   return media.web_variants
     .map((v) => `${assetUrl(pkg, v.path)} ${v.width}w`)
     .join(', ');
+}
+
+/** An index entry with its cover resolved to a servable URL — for listings. */
+export type ArchiveIndexDisplayEntry = ArchiveIndexEntry & { thumb: string | null };
+
+/**
+ * Resolve each entry's `cover` (a `media_id`) to the URL an index row can
+ * paint — the smallest web derivative (w480) where one was baked, the
+ * original file where none was (117 of hamas-massacre's video thumbnails,
+ * 5 october7 covers). Server-side on purpose: the resolution needs the media
+ * registry, and shipping a 14 MB registry to the client so a list can find
+ * 335 thumbnails would be the wrong trade in both directions.
+ */
+export async function withCoverThumbs(
+  pkg: ArchivePackageName,
+  entries: ArchiveIndexEntry[],
+): Promise<ArchiveIndexDisplayEntry[]> {
+  const media = await getMediaRegistry(pkg);
+  return entries.map((entry) => {
+    const item = entry.cover ? media.get(entry.cover) : undefined;
+    const variant = item?.web_variants?.length
+      ? item.web_variants.reduce((a, b) => (b.width < a.width ? b : a))
+      : undefined;
+    const path = variant?.path ?? item?.package_path ?? null;
+    return { ...entry, thumb: path ? assetUrl(pkg, path) : null };
+  });
 }
 
 /** The version a locale should render, falling back to the record's default. */

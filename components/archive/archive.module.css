@@ -267,7 +267,7 @@ section:first-of-type .groupHeading {
 
 .recordLink {
   display: grid;
-  grid-template-columns: 2.9rem 1fr auto;
+  grid-template-columns: 2.9rem auto 1fr auto;
   align-items: center;
   gap: 1rem;
   padding: 0.95rem 0.85rem 0.95rem 0.75rem;
@@ -275,6 +275,19 @@ section:first-of-type .groupHeading {
   text-decoration: none;
   border-left: 2px solid transparent;
   transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+/* The record's own cover, small and square. Square because the covers run
+   portrait and landscape both, and one crop box treats them alike; the w480
+   derivative is served and CSS scales it down. Decorative by contract —
+   `alt=""` — the title beside it is the description. */
+.recordThumb {
+  display: block;
+  width: clamp(4.25rem, 13vw, 6.5rem);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: rgba(153, 179, 202, 0.06);
 }
 
 .recordLink:hover,
@@ -317,6 +330,20 @@ section:first-of-type .groupHeading {
   color: var(--gold-hi);
 }
 
+/* Two lines of the record's own words, then silence. The clamp is layout
+   discipline, not editing — the full text is one click away. */
+.recordExcerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
 .recordItemMeta {
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -350,33 +377,129 @@ section:first-of-type .groupHeading {
   }
 }
 
-/* ---------- provenance footer ---------- */
+/* ---------- record footer: share, then the one credit ----------
+   The two-paragraph provenance footer is gone — replaced by the share block
+   on every record, with october7 keeping a single reduced credit line
+   (`.ai/DECISIONS.md`, 2026-08-27). */
 
-.provenance {
+.recordFooter {
   margin-top: 2.5rem;
-  padding-top: 1.1rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--line);
+}
+
+/* The one sentence of encouragement. Text face, not mono — it is the site
+   speaking, not a data label — and a step above the credit so the footer has
+   an order: ask first, whisper the credit last. */
+.shareLead {
+  margin: 0 0 0.9rem;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+}
+
+.shareRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The same chip the language switch established: 44px boxes, mono, bordered.
+   Sentence case — "Share on Facebook" is three words, past the uppercase
+   limit — so the tracking stays off too; tracked lowercase mono reads as a
+   glitch, not a label. */
+.shareAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.15rem 0.8rem;
+  border: 1px solid var(--line);
+  background: none;
   font-family: var(--face-data);
   font-size: var(--t-data);
-  line-height: 1.7;
+  line-height: var(--t-data-lh);
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.shareAction:hover,
+.shareAction:focus-visible {
+  color: var(--ink-hi);
+  border-color: var(--gold-line);
+}
+
+.shareAction:focus-visible {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 2px;
+}
+
+.shareStatus {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
 }
 
-/* `DocPage`'s `:where(.body) p` sets font-size and color *on the p*, which
-   beats the footer's inherited `--t-data`/`--ink-lo`. Restating both here is
-   what keeps credits recessive — see `.ai/DECISIONS.md`, 2026-08-26. */
-.provenance p {
-  margin: 0 0 0.35rem;
+/* The surviving october7 credit — one quiet line under the share block. */
+.sourceCredit {
+  margin: 1.1rem 0 0;
+  font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
 }
 
-.provenance a {
+.sourceCredit a {
   color: var(--ink);
-  /* A long source slug breaks instead of laddering down the page. */
   overflow-wrap: anywhere;
+}
+
+/* ---------- per-media actions ----------
+   Inside the figcaption, after caption and credit. Quiet on purpose: these
+   are utilities under evidence, not calls to action — dotted hairline
+   underlines in the caption's own grey, waking to ink on hover. The negative
+   margin buys the 44px tap height without opening a hole in the caption
+   stack. */
+
+.mediaActions {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.mediaAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: -0.55rem 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  /* No tracking: "Share on X" is three words of sentence case, and tracking
+     belongs to the two-word uppercase data labels. Same reasoning as
+     `.shareAction` — these are controls, not field names. */
+  color: var(--ink-lo);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--ink-lo) 55%, transparent);
+  text-underline-offset: 3px;
+}
+
+.mediaAction:hover,
+.mediaAction:focus-visible {
+  color: var(--ink-hi);
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+
+.mediaAction:focus-visible {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: 2px;
 }
 
 /* ---------- index filter ---------- */

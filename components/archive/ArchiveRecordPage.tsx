@@ -87,6 +87,8 @@ export async function ArchiveRecordPage({
   const headings = version.content_blocks.filter(
     (block) => block.type === 'heading' && block.text,
   ).length;
+  // The same URL the metadata declares canonical — what every share carries.
+  const shareUrl = `${SITE_URL}${locale ? `${basePath}/${locale}` : basePath}`;
 
   return (
     <DocPage
@@ -104,12 +106,7 @@ export async function ArchiveRecordPage({
       // or 670 pages, and printing it here put boilerplate where the record's
       // own identity belongs. The dateline takes that slot instead.
       dateline={
-        <ArchiveDateline
-          record={record}
-          version={version}
-          basePath={basePath}
-          sourceLabel={sourceLabel}
-        />
+        <ArchiveDateline record={record} version={version} basePath={basePath} />
       }
       rails={headings >= RAIL_HEADINGS ? 'toc' : 'none'}
       breadcrumb={archiveTrail(pkg)}
@@ -139,6 +136,7 @@ export async function ArchiveRecordPage({
         media={media}
         basePath={basePath}
         sourceLabel={sourceLabel}
+        shareUrl={shareUrl}
       />
     </DocPage>
   );

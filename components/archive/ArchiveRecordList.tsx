@@ -1,12 +1,20 @@
 import Link from 'next/link';
 import type { ArchiveIndexEntry } from '@/lib/content/archive';
 /* From the pure module, not the seam: this list renders inside
-   `ArchiveIndexFilter`, a client component, and the seam reads the filesystem. */
+   `ArchiveIndexFilter`, a client component, and the seam reads the filesystem.
+   (`ArchiveIndexEntry` arrives as a type only — types cross that boundary.) */
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
 import styles from './archive.module.css';
 
+/**
+ * What a row paints. `thumb` is the entry's cover already resolved to a URL —
+ * `withCoverThumbs` does that server-side, because resolution needs the media
+ * registry and the registry must never reach the client.
+ */
+export type ArchiveListEntry = ArchiveIndexEntry & { thumb?: string | null };
+
 export type ArchiveRecordListProps = {
-  records: ArchiveIndexEntry[];
+  records: ArchiveListEntry[];
   /** Builds each record's URL; the two archives shape theirs differently. */
   href: (entry: ArchiveIndexEntry) => string;
   /**
@@ -42,9 +50,15 @@ export type ArchiveRecordListProps = {
  * An index of archive records, in the register of the rest of the site: each
  * row is a numbered file entry, and the whole row is one link.
  *
- * Deliberately text-only. These archives document a massacre, and a grid of
- * thumbnails turns evidence into a gallery — the record's own page is where
- * its imagery belongs, in the context its caption and credit give it.
+ * The rows carry the record's cover and an excerpt of its own words — an
+ * owner decision (2026-08-27) reversing the earlier text-only stance. The
+ * form holds the line the old comment was defending: this is a *file list*
+ * with a small identifying image per row, not a gallery — the image is
+ * decorative (`alt=""`, the title is the description), square, small, and
+ * lazy, so 335 rows do not become the heaviest page on the site.
+ *
+ * A hover preview was considered and rejected in review: hover has no touch
+ * equivalent, and a rich row reads the same on every device.
  */
 export function ArchiveRecordList({
   records,
@@ -61,10 +75,28 @@ export function ArchiveRecordList({
             <span className={styles.recordNum} aria-hidden="true">
               {String(numbers?.[i] ?? startAt + i).padStart(3, '0')}
             </span>
+            {entry.thumb ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- a CDN
+                 archive derivative, same reasoning as `ArchiveImage`. */
+              <img
+                className={styles.recordThumb}
+                src={entry.thumb}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              /* Every entry carries a cover today; if one ever does not, the
+                 grid keeps its shape and the gap reads as a quiet blank. */
+              <span className={styles.recordThumb} aria-hidden="true" />
+            )}
             <span className={styles.recordBody}>
               <span className={styles.recordItemTitle}>
                 {displayTitle(entry.title ?? entry.id)}
               </span>
+              {entry.excerpt ? (
+                <span className={styles.recordExcerpt}>{entry.excerpt}</span>
+              ) : null}
               {showMeta ? (
                 <span className={styles.recordItemMeta}>{meta(entry)}</span>
               ) : null}

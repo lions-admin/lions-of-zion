@@ -39,8 +39,100 @@ const [, , pkgDir, name, ...flags] = process.argv;
 const LINK_ASSETS = flags.includes('--link-assets');
 const REPO = path.resolve(import.meta.dirname, '..');
 
+/**
+ * The index's `excerpt`: the default-language version's own words,
+ * whitespace-collapsed and cut at a word boundary. 200 characters covers the
+ * two clamped lines an index row shows and keeps 514 of these from bloating a
+ * file every listing loads; the october7 excerpts themselves run to 500.
+ */
+const EXCERPT_MAX = 200;
+
+const collapse = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+
+/** A flattened source breadcrumb at the very start: "A > B > C". */
+const LEADING_CRUMB = /^(?:[^>\n]{1,60}>){1,4}/;
+
+/**
+ * The source site's nav, which the crawler captured as each record's opening
+ * paragraph — "October 7 \n> Gaza Border Communities \n> Testimony of Noam G".
+ * `ArchiveBlocks.dropLeadingChrome` drops it at render for the same reason;
+ * this is the index's copy of that rule, matched on shape rather than on a
+ * leading "October 7" because localised roots exist ("7 de outubro > …").
+ */
+const dropLeadingCrumb = (text) => {
+  const paragraphs = String(text ?? '').split(/\n\s*\n/);
+  const first = paragraphs[0] ?? '';
+  return paragraphs.length > 1 && first.includes('\n>') && first.length < 200
+    ? paragraphs.slice(1).join('\n\n')
+    : text;
+};
+
+/**
+ * 36 of the 179 october7 excerpts open with that breadcrumb *fused* into the
+ * first sentence ("…Testimony of Noam GSaturday, October 7th"), because the
+ * source built the excerpt by concatenating without a separator — so there is
+ * no clean seam to cut inside the excerpt itself. `full_text` keeps the same
+ * chrome as its own paragraph, so those records are rebuilt from it instead.
+ * Every hamas-massacre excerpt is clean and is left exactly as published.
+ */
+const shortExcerpt = (version) => {
+  const excerpt = collapse(version?.excerpt);
+  const source = LEADING_CRUMB.test(excerpt)
+    ? collapse(dropLeadingCrumb(version?.full_text))
+    : excerpt;
+  // One october7 record has a contaminated excerpt, no `full_text` and no
+  // content blocks at all, so there is no clean text to fall back to. It gets
+  // no index excerpt rather than the source site's nav or a cut invented
+  // inside the witness's own sentence — the row renders title and cover, and
+  // `ArchiveRecordList` already handles a missing excerpt.
+  if (!source || LEADING_CRUMB.test(source)) return null;
+  if (source.length <= EXCERPT_MAX) return source;
+  const cut = source.slice(0, EXCERPT_MAX);
+  const atWord = cut.slice(0, cut.lastIndexOf(' '));
+  return `${(atWord || cut).replace(/[\s,;:.]+$/, '')}…`;
+};
+
+const defaultVersion = (record) =>
+  record.versions?.[record.default_language] ?? Object.values(record.versions ?? {})[0];
+
+// ---------- regenerate mode: rebuild index.json from committed records ----------
+// `--regenerate-index <name>` rereads `content-packages/<name>/records/*.json`
+// and rewrites index.json in place, adding what the index schema has gained
+// since the entries were imported (today: `excerpt`). Order and every existing
+// field are preserved — this augments the committed index, it does not
+// re-import anything.
+if (pkgDir === '--regenerate-index') {
+  if (!name) {
+    console.error('usage: import-archive-package.mjs --regenerate-index <name>');
+    process.exit(2);
+  }
+  const dir = path.join(REPO, 'content-packages', name);
+  const indexPath = path.join(dir, 'index.json');
+  const entries = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+  const before = fs.statSync(indexPath).size;
+
+  let updated = 0;
+  const next = entries.map((entry) => {
+    const record = JSON.parse(
+      fs.readFileSync(path.join(dir, 'records', `${entry.id}.json`), 'utf8'),
+    );
+    const excerpt = shortExcerpt(defaultVersion(record));
+    if (entry.excerpt !== excerpt) updated += 1;
+    return { ...entry, excerpt };
+  });
+
+  fs.writeFileSync(indexPath, JSON.stringify(next));
+  const after = fs.statSync(indexPath).size;
+  console.log(
+    `regenerated content-packages/${name}/index.json — ${entries.length} entries, ` +
+      `${updated} updated, ${(before / 1024).toFixed(0)} KB -> ${(after / 1024).toFixed(0)} KB`,
+  );
+  process.exit(0);
+}
+
 if (!pkgDir || !name) {
   console.error('usage: import-archive-package.mjs <package-dir> <name> [--link-assets]');
+  console.error('       import-archive-package.mjs --regenerate-index <name>');
   process.exit(2);
 }
 if (!/^[a-z0-9-]+$/.test(name)) {
@@ -97,6 +189,10 @@ const ids = [];
 // already open is what keeps an index of human titles rather than of slugs.
 const titles = new Map();
 
+// The index rows show a shortened excerpt (2026-08-27); captured here for the
+// same reason as the title — the record is already open.
+const excerpts = new Map();
+
 // Nine october7 titles are the page's <title> tag verbatim, ending in site
 // chrome — "| October7 Blog", "- October7 Blog", "| October7 Nova Fest".
 // Only those two known suffixes are stripped, and only at the very end, so a
@@ -116,9 +212,9 @@ for (const group of groups) {
     continue;
   }
   const record = JSON.parse(fs.readFileSync(file, 'utf8'));
-  const version =
-    record.versions?.[record.default_language] ?? Object.values(record.versions ?? {})[0];
+  const version = defaultVersion(record);
   titles.set(id, cleanTitle(group.title ?? record.title ?? version?.title ?? null));
+  excerpts.set(id, shortExcerpt(version));
   bytes += writeJson(path.join('records', `${id}.json`), record);
   ids.push(id);
 }
@@ -139,6 +235,7 @@ const index = groups.map((g) => ({
   languages: g.available_languages,
   defaultLanguage: g.default_language,
   witness: g.witness_name ?? null,
+  excerpt: excerpts.get(g.canonical_story_id) ?? null,
 }));
 
 bytes += writeJson('index.json', index);

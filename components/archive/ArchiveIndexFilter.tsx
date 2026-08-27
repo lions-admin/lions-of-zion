@@ -1,9 +1,8 @@
 'use client';
 
 import { useId, useMemo, useState } from 'react';
-import type { ArchiveIndexEntry } from '@/lib/content/archive';
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
-import { ArchiveRecordList } from './ArchiveRecordList';
+import { type ArchiveListEntry, ArchiveRecordList } from './ArchiveRecordList';
 import styles from './archive.module.css';
 
 export type ArchiveFilterGroup = {
@@ -11,7 +10,7 @@ export type ArchiveFilterGroup = {
   slug: string;
   /** Rendered as the group heading; omit for a flat index. */
   title?: string;
-  records: ArchiveIndexEntry[];
+  records: ArchiveListEntry[];
 };
 
 export type ArchiveIndexFilterProps = {
@@ -83,6 +82,9 @@ export function ArchiveIndexFilter({
             entry.witness ? displayWitness(entry.witness) : '',
             entry.category ?? '',
             group.title ?? '',
+            // The excerpt is on the row since 2026-08-27, so "Find" should
+            // find what the reader can see there.
+            entry.excerpt ?? '',
           ].join(' '),
         );
         return haystack.includes(needle);

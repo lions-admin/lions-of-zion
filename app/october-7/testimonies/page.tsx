@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import { ArchiveIndexFilter } from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
-import { getTestimoniesManifest, getTestimonyIndex } from '@/lib/content/testimonies';
+import { withCoverThumbs } from '@/lib/content/archive';
+import {
+  TESTIMONIES_PACKAGE,
+  getTestimoniesManifest,
+  getTestimonyIndex,
+} from '@/lib/content/testimonies';
 import { SITE_URL } from '@/lib/site-config';
 
 const TAGLINE = 'First-hand accounts of October 7, held here in full.';
@@ -14,10 +19,13 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const [records, manifest] = await Promise.all([
+  const [index, manifest] = await Promise.all([
     getTestimonyIndex(),
     getTestimoniesManifest(),
   ]);
+  // Covers resolve here, server-side — the rows need URLs, not media_ids,
+  // and the media registry stays out of the client bundle.
+  const records = await withCoverThumbs(TESTIMONIES_PACKAGE, index);
 
   const languages = manifest.languages.length;
 

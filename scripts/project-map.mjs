@@ -392,51 +392,60 @@ const findings = [
 const html=`<!doctype html>
 <html lang="he" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>אריות ציון — מפת הפרויקט</title>
+<title>מפת אריות ציון</title>
 <style>
-:root{--bg:#faf9f7;--panel:#fff;--line:#e0dad1;--ink:#1a1815;--lo:#6d665d;--gold:#8a6d2f;
- --acc:#2d5a8a;--warn:#a4502a;--ok:#3d6b4a;--soft:#f2efe9;--sh:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.06)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121110;--panel:#1b1917;--line:#322e29;
- --ink:#ece8e2;--lo:#9b948b;--gold:#d4af63;--acc:#7fa8d4;--warn:#dc8f63;--ok:#7fb894;--soft:#232120;
- --sh:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.35)}}
-:root[data-theme=dark]{--bg:#121110;--panel:#1b1917;--line:#322e29;--ink:#ece8e2;--lo:#9b948b;
- --gold:#d4af63;--acc:#7fa8d4;--warn:#dc8f63;--ok:#7fb894;--soft:#232120}
+:root{
+ --bg:#0d0c0b;--panel:#161514;--line:#2b2825;--ink:#c4c4c4;--ink-hi:#eeeeee;--lo:#929292;
+ --gold:#c9a24b;--gold-hi:#efd79a;--acc:#57a7d9;--warn:#a85a61;--ok:#7fb894;--soft:#111010;
+ --sh:0 1px 2px rgba(0,0,0,.6),0 12px 34px rgba(0,0,0,.45)}
+@media(prefers-color-scheme:light){:root:not([data-theme=dark]){
+ --bg:#f7f5f1;--panel:#fff;--line:#ded8ce;--ink:#26231f;--ink-hi:#0f0e0d;--lo:#6b645b;
+ --gold:#8a6d2f;--gold-hi:#6d5423;--acc:#2f6b96;--warn:#8d4048;--ok:#3d6b4a;--soft:#efece6;
+ --sh:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.07)}}
+:root[data-theme=light]{
+ --bg:#f7f5f1;--panel:#fff;--line:#ded8ce;--ink:#26231f;--ink-hi:#0f0e0d;--lo:#6b645b;
+ --gold:#8a6d2f;--gold-hi:#6d5423;--acc:#2f6b96;--warn:#8d4048;--ok:#3d6b4a;--soft:#efece6;
+ --sh:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.07)}
 *{box-sizing:border-box}
+html,body{direction:rtl}
 body{margin:0;background:var(--bg);color:var(--ink);padding-bottom:150px;
- font:15.5px/1.7 "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
-code,.nm{direction:ltr;unicode-bidi:isolate;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}
+ font:16px/1.7 "IBM Plex Sans Hebrew","Assistant","Segoe UI",system-ui,-apple-system,sans-serif;
+ -webkit-font-smoothing:antialiased}
+code,.nm{direction:ltr;unicode-bidi:isolate;
+ font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em}
+h1,h2{font-family:"Frank Ruhl Libre","IBM Plex Sans Hebrew",Georgia,serif;text-wrap:balance}
 .wrap{max-width:1060px;margin:0 auto;padding:0 26px}
 header{padding-top:40px}
-h1{margin:0 0 6px;font-size:27px;font-weight:700}
+h1{margin:0 0 8px;font-size:clamp(1.7rem,4vw,2.2rem);font-weight:600;line-height:1.15;color:var(--ink-hi)}
 .sub{color:var(--lo);max-width:64ch}
 .gen{margin-top:10px;font-size:12.5px;color:var(--lo)}
 .stats{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 30px}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:13px;color:var(--lo)}
 .stat b{color:var(--ink);font-weight:700}
 .fig{margin:0 0 30px;background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);overflow:hidden}
-.fig h2{margin:0;padding:19px 24px 15px;font-size:17.5px;font-weight:650;border-bottom:1px solid var(--line)}
+.fig h2{margin:0;padding:19px 24px 15px;font-size:1.2rem;font-weight:500;color:var(--ink-hi);border-bottom:1px solid var(--line)}
 .canvas{padding:22px 20px;overflow-x:auto;background:var(--soft)}
 .canvas svg{display:block;width:100%;min-width:640px;max-width:900px;height:auto;margin:0 auto;color:var(--ink);direction:ltr}
 figcaption{padding:16px 24px 20px;color:var(--lo);font-size:14.5px;border-top:1px solid var(--line)}
 svg text{unicode-bidi:plaintext}
 svg .n rect{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:.14s}
 svg .n .t{font-size:12.5px;font-weight:600;fill:var(--ink);font-family:ui-monospace,Menlo,monospace}
-svg .n .m{font-size:10px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
+svg .n .m{font-size:11px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
 svg .n{cursor:pointer;outline:none}
 svg .n:hover rect,svg .n:focus-visible rect{stroke:var(--acc);stroke-width:2.5}
 svg .n.sel rect{stroke:var(--acc);stroke-width:2.5;fill:color-mix(in srgb,var(--acc) 9%,var(--panel))}
-svg .n.acc rect{stroke:var(--gold);stroke-width:2}svg .n.acc .t{fill:var(--gold)}
+svg .n.acc rect{stroke:var(--gold);stroke-width:2}svg .n.acc .t{fill:var(--gold-hi)}
 svg .n.gap rect{stroke:var(--warn);stroke-width:2;fill:color-mix(in srgb,var(--warn) 8%,var(--panel))}
 svg .n.gap .t{fill:var(--warn)}
 svg .a{stroke:var(--lo);stroke-width:1.6;fill:none}svg marker path{fill:var(--lo)}
-svg .al{font-size:10.5px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
+svg .al{font-size:11px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
 svg .wall{stroke:var(--warn);stroke-width:2;stroke-dasharray:7 5;opacity:.75}
-svg .wl{font-size:10.5px;fill:var(--warn);font-family:"Segoe UI",system-ui,sans-serif}
+svg .wl{font-size:11px;fill:var(--warn);font-family:"Segoe UI",system-ui,sans-serif}
 svg .lane{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 4}
 svg .lt{font-size:11.5px;fill:var(--ink);font-family:"Segoe UI",system-ui,sans-serif}
-svg .lm{font-size:10px;fill:var(--lo);font-style:italic;font-family:"Segoe UI",system-ui,sans-serif}
+svg .lm{font-size:11px;fill:var(--lo);font-style:italic;font-family:"Segoe UI",system-ui,sans-serif}
 svg .broken{stroke:var(--warn);opacity:.6}svg .x line{stroke:var(--warn);stroke-width:2.4;stroke-linecap:round}
-h2.sec{font-size:19px;margin:34px 0 6px}
+h2.sec{font-size:1.35rem;font-weight:500;color:var(--ink-hi);margin:38px 0 6px}
 p.secsub{color:var(--lo);margin:0 0 16px;font-size:14px}
 .grp{margin-bottom:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .it{display:flex;align-items:center;gap:9px;width:100%;padding:10px 14px;background:none;border:0;
@@ -446,13 +455,14 @@ p.secsub{color:var(--lo);margin:0 0 16px;font-size:14px}
 .it.head .nm{font-weight:650}
 .subs{border-top:1px dashed var(--line);padding:4px 0}
 .it.sub{padding-inline-start:34px;font-size:13.5px;color:var(--lo)}
-.cn{margin-inline-start:auto;font-size:11.5px;color:var(--lo);direction:ltr;unicode-bidi:isolate}
+.cn{margin-inline-start:auto;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--lo);direction:ltr;unicode-bidi:isolate}
 .st{color:var(--gold);font-size:12px}
+.stat b{font-variant-numeric:tabular-nums}
 .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
-.l-frontend{background:#2d5a8a}.l-backend{background:#3d6b4a}.l-content{background:#8a6d2f}
-.l-data{background:#8a6d2f}.l-tests{background:#a4502a}.l-docs{background:#6d665d}
-.l-deploy{background:#a4502a}.l-local{background:#8b8580}.l-bridge{background:#8a6d2f}
-.l-archive{background:#8b8580}.l-stale{background:#a4502a}
+.l-frontend{background:var(--acc)}.l-backend{background:var(--ok)}.l-content{background:var(--gold)}
+.l-data{background:var(--gold)}.l-tests{background:var(--warn)}.l-docs{background:var(--lo)}
+.l-deploy{background:var(--warn)}.l-local{background:var(--lo)}.l-bridge{background:var(--gold-hi)}
+.l-archive{background:var(--lo)}.l-stale{background:var(--warn)}
 .rootgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px}
 .rootgrid .it{background:var(--panel);border:1px solid var(--line);border-radius:9px}
 ul.f{list-style:none;padding:0;margin:0}
@@ -476,7 +486,7 @@ footer{color:var(--lo);font-size:13px;border-top:1px solid var(--line);margin-to
 </style></head><body>
 <div class="wrap">
 <header>
- <h1>אריות ציון — מפת הפרויקט</h1>
+ <h1>מפת אריות ציון</h1>
  <p class="sub">נוצר מסריקה של המאגר עצמו. כל מספר, גודל, מסלול, קשת והפרה בדף הזה נמדדו בזמן הרצה — שום דבר לא הוקלד ביד. ריחוף או לחיצה על כל פריט פותחים את ההסבר שלו.</p>
  <p class="gen">נסרק ${D.generatedAt} · <code>${D.head}</code> · ענף <code>${D.branch}</code> · הרצה חוזרת: <code>npm run map</code></p>
  <div class="stats">
@@ -528,14 +538,34 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){pin=null;d.hidden=t
 </script></body></html>`;
 
 const OUT = "docs/project-map.html";
+
+/* The artifact build is the same page as a body fragment: the host supplies
+   <!doctype>, <head> and <body>, so those must not be emitted. It is also the
+   only build that may load webfonts — the repository copy is opened straight
+   from disk and its footer promises no network request, so there it falls back
+   to the system Hebrew stack. */
+function toFragment(doc) {
+  const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?' +
+    'family=Frank+Ruhl+Libre:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600' +
+    '&family=Geist+Mono:wght@400;500&display=swap">';
+  const title = doc.match(/<title>[\s\S]*?<\/title>/)[0];
+  const style = doc.match(/<style>[\s\S]*?<\/style>/)[0];
+  const body  = doc.slice(doc.indexOf("<body>") + 6, doc.lastIndexOf("</body>"));
+  return `${title}\n${FONTS}\n${style}\n<div dir="rtl">${body}</div>`;
+}
+
 if (process.argv.includes("--check")) {
   const cur = read(OUT);
-  const norm = (t) => t.replace(/נסרק [\d-]+ [\d:]+ · <code>[0-9a-f]+<\/code>[^<]*<code>[^<]*<\/code>/,"");
+  const norm = (t) => t.replace(/נסרק [\d-]+ [\d:]+ · <code>[0-9a-f]+<\/code>[^<]*<code>[^<]*<\/code>/, "");
   if (norm(cur) !== norm(html)) {
     console.error("project-map.html is out of date — run: npm run map");
     process.exit(1);
   }
   console.log("project-map.html is up to date");
+} else if (process.argv.includes("--artifact")) {
+  const dest = process.argv[process.argv.indexOf("--artifact") + 1] || "project-map.artifact.html";
+  writeFileSync(dest, toFragment(html));
+  console.log(`${dest} — artifact fragment, ${Object.keys(N).length} explained nodes`);
 } else {
   writeFileSync(R(OUT), html);
   console.log(`${OUT} — ${D.totalFiles} files, ${areas.length} areas, ${rootFiles.length} root files, ` +

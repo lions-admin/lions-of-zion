@@ -10,6 +10,25 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — Startup clears merged branches and blocks on open ones
+
+After updating `main`, the manager removes local and remote branches whose tips
+are already ancestors of `origin/main`. A branch still open on the remote stops
+new work with its name; it requires an explicit merge or deletion decision, not
+an automatic guess. Completing a serious round merges, verifies, pushes, and
+then removes that completed branch. A branch checked out by another worktree is
+reported and retained rather than being forcibly removed.
+
+## 2026-08-27 — Every task starts from current main; completed rounds update it
+
+## 2026-08-27 — Every task starts from current main; completed rounds update it
+
+The manager starts from a clean tree, fetches `origin`, switches to main, and
+fast-forwards from `origin/main`. That branch is the only baseline for new work;
+open branches are not merged merely because they exist. A completed serious
+round passes the full gate, then `main:update` merges it into main, verifies the
+merged state, and pushes main. Workers never synchronize independently.
+
 ## 2026-08-27 — Startup freshness is checked by the manager, never pulled blindly
 
 The manager runs `sync:start` before delegation. It fetches the current branch's

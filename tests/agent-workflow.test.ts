@@ -27,7 +27,8 @@ describe("agent workflow contract", () => {
     expect(agents).toContain("receives the user's request is the manager");
     expect(agents).toContain("at least one concrete, bounded subtask to another agent");
     expect(agents).toContain("stop before implementation");
-    expect(agents).toContain("Never commit, push, deploy, publish");
+    expect(agents).toContain("After a serious implementation round");
+    expect(agents).toContain("npm run main:update");
   });
 
   it("makes the manager accountable for delegation, integration, and verification", async () => {

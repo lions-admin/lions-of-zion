@@ -10,12 +10,11 @@ ownership of scope, integration, verification, approvals, and the final answer.
 
 ## 1. Orient
 
-- As manager, run `npm run sync:start` before delegation. It always fetches
-  the configured upstream, updates only a clean behind-only branch by
-  fast-forward, and fails closed on dirty-behind, divergence, no upstream,
-  detached `HEAD`, or an unavailable remote. It reports `origin/main` only;
-  it never merges it into a feature branch. Never use an unconditional
-  `git pull`; workers do not sync.
+- Start every task from current main: the manager runs `npm run sync:start`
+  before delegation. It requires a clean tree, fetches `origin`, switches to
+  `main`, fast-forwards from `origin/main`, and deletes branches already
+  merged there. If any remote branch is still open, it stops until the manager
+  obtains a merge or deletion decision. Workers do not sync.
 - Read `AGENTS.md`, inspect the branch and dirty working tree, and read
   `.ai/STATE.md` plus the newest relevant entries in `.ai/DECISIONS.md`.
 - Read only the references the task needs:
@@ -79,6 +78,12 @@ Use `npm run verify:full` before handing off a finished implementation. It is
 the same repository gate used by CI: typecheck, lint, tests, production build,
 and project-map drift. Focused checks during implementation do not replace it.
 
+After a serious implementation round that passes the full gate, the manager
+runs `npm run main:update`. It moves to current main, merges the completed
+working branch, verifies that merged result, and pushes main. Open branches are
+not merged automatically: only a completed round reaches main. It then removes
+the completed branch locally and on `origin` when safe.
+
 The real-Chrome scripts, their platform limits, and their coverage are listed
 in `docs/operations.md`. Never substitute a hidden preview or headless GPU for
 a check that the project explicitly requires in real Chrome.
@@ -93,5 +98,6 @@ a check that the project explicitly requires in real Chrome.
 - Report: what changed, checks that passed, checks not run and why, and whether
   state or decisions moved. Include which workers were assigned, what each
   returned, and what the manager independently verified.
-- Stop for approval before commit, push, deploy, publication, or any other
-  external irreversible action.
+- Serious completed rounds update main through `npm run main:update`. Stop for
+  approval before any other deploy, publication, migration, or irreversible
+  external action.

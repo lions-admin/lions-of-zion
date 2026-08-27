@@ -34,10 +34,12 @@ that task; never claim multi-agent execution when none occurred.
 
 Before changing anything:
 
-1. As the manager, run `npm run sync:start` before delegating work. It fetches
-   the current branch's upstream and fast-forwards only a clean branch. A
-   blocked result stops implementation until the user reconciles the tree or
-   explicitly waives the check. Workers never run this command independently.
+1. As the manager, run `npm run sync:start` before delegating work. It requires
+   a clean tree, fetches `origin`, switches to `main`, and fast-forwards it from
+   `origin/main`. It deletes branches already merged into main and stops for
+   any remaining open remote branch until a merge or deletion decision exists.
+   Begin every task from that current main version. Workers never run this
+   command independently.
 2. Read [`.ai/WORKFLOW.md`](.ai/WORKFLOW.md) in full and follow its five-stage
    loop.
 3. Inspect the current branch and working tree. Existing changes belong to the
@@ -55,6 +57,10 @@ Before handing work back, run `npm run verify:changed`. Run
 requires the full gate. A visual change is incomplete until it has been checked
 in real Chrome; intro changes require desktop and mobile captures.
 
-Never commit, push, deploy, publish, migrate a live database, or perform another
-irreversible external action without explicit user approval. Do not weaken a
-check to make it pass, and do not claim a check ran when it did not.
+After a serious implementation round that passes `npm run verify:full`, run
+`npm run main:update`: it merges the completed working branch into the latest
+main, verifies the merged result again, pushes main, and removes that completed
+branch. For other publication,
+deployment, migration, or irreversible external actions, require explicit user
+approval. Do not weaken a check to make it pass, and do not claim a check ran
+when it did not.

@@ -14,11 +14,12 @@ edits, inspects worker evidence, integrates, and performs final verification.
 Small tasks may use a read-only review worker; unavailable subagent support
 requires an explicit user waiver before implementation.
 
-Startup freshness is checked by `npm run sync:start` before delegation. It
-fetches the configured upstream, fast-forwards only a clean behind-only branch,
-and fails closed for dirty-behind, divergence, missing upstream, detached state,
-or fetch failure. The session-start adapter reports the same result; workers
-never sync independently.
+Every task now starts with `npm run sync:start`: clean tree, fetch origin,
+switch to main, fast-forward main, and remove branches already merged there.
+It stops if a remote branch remains open, so a merge or deletion decision is
+made before new work begins. A completed serious round uses `npm run main:update`
+to merge, verify, push, and remove its completed branch. Open branches are never
+merged automatically.
 
 This work is uncommitted on `codex/project-structure-audit`. No push or deploy
 was performed. The verification result for the implementation belongs in the

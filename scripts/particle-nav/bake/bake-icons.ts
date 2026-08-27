@@ -1,5 +1,5 @@
 /**
- * pnpm bake:icons — every SVG in assets/source/icons → 512² single-channel SDF PNG
+ * npm run bake:nav-icons — every SVG in assets/source/icons → 512² single-channel SDF PNG
  * in public/icons/<name>.sdf.png.
  *
  * Icons stay swappable without a lion re-bake: the client places icon-cluster

@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Geist, Geist_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
+import { Cinzel, Geist_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import { ParticleChatLauncher } from "@/components/chat/ParticleChatLauncher";
 import { ChatOpenProvider } from "@/components/chat/chat-open-context";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
-const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 /* Cinzel is now the home particle scene's voice only. The reading pages moved
@@ -65,7 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable}`}
+      className={`${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable}`}
     >
       <body>
         <ChatOpenProvider>

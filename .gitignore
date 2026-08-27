@@ -55,3 +55,7 @@ public/archive/
 
 # Upload progress for scripts/upload-archive-assets.mjs (resume state, local only)
 .blob-upload/
+
+# Agent worktrees (were excluded only via .git/info/exclude, which is per-clone).
+# Root-anchored /node_modules and /.next do NOT match .claude/worktrees/<n>/node_modules.
+.claude/worktrees/

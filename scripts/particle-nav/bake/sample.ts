@@ -74,6 +74,11 @@ function sampleGeometry(
  * The crown is held ~12% brighter at runtime and must read as jewellery, not
  * noise — it gets a flat extra sampling multiplier over its raw area share,
  * with a floor so a small crown still resolves.
+ *
+ * Retained, not live: nothing imports this, and the repository holds no `.glb`
+ * for it to consume. The production bake is the image-driven path in
+ * `bake-lion-reference.ts`. Kept so a future re-model does not start from zero;
+ * it is the only reason this file imports `three` and MeshSurfaceSampler.
  */
 export function sampleLion(
   body: THREE.BufferGeometry,

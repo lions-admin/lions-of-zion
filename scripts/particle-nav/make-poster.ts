@@ -1,5 +1,5 @@
 /**
- * pnpm poster — deliverable #4: AVIF + WebP still matching the idle frame,
+ * npm run poster:nav — deliverable #4: AVIF + WebP still matching the idle frame,
  * for the no-WebGL2 tier and social cards. Deterministic SVG rendition of the
  * composition (same layout math as the component), encoded via sharp. The
  * fallback mirrors the live particle-only network scan; it contains no stars.

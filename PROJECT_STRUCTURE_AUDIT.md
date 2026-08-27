@@ -147,7 +147,64 @@ orphaned file and its now-empty directory skeleton was left alone.
 `docs/archive/`; four were removed (`.DS_Store` × 5, two npm packages); one
 false comment line was deleted.
 
-## Left for the owner — behaviour, not structure
+## Decided 2026-08-27, and applied
+
+| Item | Decision | Result |
+| --- | --- | --- |
+| The Fake Resistance publication gate | Make the flag real | `isPublishable()` checks both gates for both callers. `EDITORIAL_STAGE = 'held'` now withdraws every case — index, sitemap and `generateStaticParams` included. Two tests pin it; both verified to fail against the old code. |
+| `/admin` and `/auth` crawlable | Close it | Added to `robots.ts` `disallow`. |
+| CI blind to the no-JavaScript invariant | Add a Linux-safe guard | `ci-smoke.mjs` gained a `javaScriptEnabled: false` check on the home route (8 links, poster, no hidden Suspense shell); `tests/no-js-invariant.test.ts` is the fast tripwire. Both verified against a real server and a reintroduced `loading.tsx`. |
+| `vercel-infrastructure-costs.html` | Ignore it | Added to `.gitignore`. |
+
+## Declined 2026-08-27 — recorded so they are not rediscovered
+
+Each was raised and deliberately left. Re-raising them costs a session.
+
+1. **`requireCapability()` is never called.** Capability enforcement stays inert;
+   capabilities feed only the `evidence_staff_restricted` RLS policy. Wiring it
+   into routes could block operations that work today, and that judgement was
+   not worth making from a structure audit.
+2. **`prune_rate_limits` and `prune_expired_idempotency` are `SECURITY DEFINER`
+   with no `REVOKE … FROM PUBLIC`.** No route reaches arbitrary SQL, so this is
+   defence-in-depth rather than a live hole. Left as an unexplained asymmetry
+   inside migration `0018`.
+3. **The drizzle snapshot chain stops at `0017`** against 21 migrations. The
+   next `db:generate` will re-emit a redundant `0021`. `npm run map` reports
+   this on every run, so it cannot be forgotten.
+4. **`leva` is in `dependencies`**, not `devDependencies`, while
+   `ControlPanel.tsx` claims it never enters the shipped bundle.
+5. **`components/graphics/viewport.ts`** — 472 lines for the retired
+   photographic scene, kept alive by one test, with a docstring that falsely
+   claims `verify-composition.mjs` reads `window.__lionFit`.
+6. **`publications` and `reports` fold `repo()` into their service** instead of
+   a sibling `repo.ts`, unlike the other nine modules.
+
+## Found after the audit closed — not caused by it
+
+**CI has been failing on `main` since at least 2026-08-26**, five consecutive
+runs including `f8f84ce`. The failing step is `npm ci`, with
+`EUSAGE … can only install packages when your package.json and
+package-lock.json are in sync` and a long `Missing:` list — `fast-uri`,
+`ajv`, and the platform-specific `@esbuild/*` entries.
+
+It is an environment mismatch, not tree damage: `npm ci` succeeds on both
+`main` and this branch locally under Node 25 / npm 11, and fails in CI under
+Node 22 and the npm bundled with it. `fast-uri` is absent from `main`'s lock
+too, so the drift predates this work. This branch's only lockfile change is
+**352 deletions and zero additions** — the two removed devDependencies and
+their transitive tree — so it neither caused nor worsened the failure. The fix
+is to regenerate the lock under the Node version CI uses, or to pin npm in the
+workflow; both change dependency resolution and are an owner decision.
+
+**Separately, `ci-smoke.mjs` fails on archive routes when
+`NEXT_PUBLIC_ARCHIVE_CDN` is unset**, because media falls back to `/archive/…`
+and `public/archive/` is a gitignored dev symlink tree. The workflow does not
+set that variable. CI has never reached the smoke job — the gate fails first —
+so this has not yet been observed there, but it will surface the moment the
+lockfile is fixed. The store is public, so setting the variable in the workflow
+needs no secret.
+
+## Original list — left for the owner (superseded by the two sections above)
 
 These are real, and each changes product or security behaviour. A structure
 audit does not get to make these calls:

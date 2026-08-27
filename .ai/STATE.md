@@ -23,28 +23,32 @@ canonical production site is `https://lionsofzion.io`. Git pushes do not deploy;
 production remains a deliberate Vercel CLI action. **The repository is public,
 so a push is itself an act of publication.**
 
-## What the audit found that is not yet decided
+## Decided and applied 2026-08-27
 
-These are real and deliberately untouched — each changes product or security
-behaviour, which a structure audit does not get to do alone:
+The publication gate is real now: `EDITORIAL_STAGE` withdraws every Fake
+Resistance case when set to `held`, index and sitemap included, and two tests
+pin it. `/admin` and `/auth` are disallowed in `robots.ts`. The
+no-JavaScript invariant finally has a guard that runs on Linux — a
+`javaScriptEnabled: false` check in `ci-smoke.mjs` plus a fast tripwire test.
+`vercel-infrastructure-costs.html` is gitignored.
 
-- **The Fake Resistance publication gate does not work the way both documents
-  said.** `EDITORIAL_STAGE` is `'published'`; the committed JSON says
-  `editorial_review`. `getCase()` honours the constant, `getCaseIndex()`
-  honours the JSON — so the flag that looks like the publication switch does
-  not withdraw a case. Documentation now describes this accurately; the
-  behaviour is an owner decision.
-- **`requireCapability()` is exported, granted against and never called.**
-  Application-layer capability enforcement is inert; capabilities only feed the
-  `evidence_staff_restricted` RLS policy.
-- **`prune_rate_limits` and `prune_expired_idempotency` are `SECURITY DEFINER`
-  with no `REVOKE … FROM PUBLIC`**, unlike the two functions directly above
-  them in migration `0018`. Defence-in-depth, not a live hole — no route
-  reaches arbitrary SQL — but an unexplained asymmetry inside one migration.
-- **CI cannot see the no-JavaScript invariant.** `final-verify.mjs` is its only
-  guard and needs real Chrome on macOS.
-- **`/admin` and `/auth` are crawlable**, and the public X sign-in shipped with
-  no `.ai/DECISIONS.md` entry.
+Six items were deliberately declined and are listed in
+`PROJECT_STRUCTURE_AUDIT.md` so they are not rediscovered: `requireCapability()`
+staying inert, the missing `REVOKE` on two `SECURITY DEFINER` functions, the
+snapshot chain stopping at `0017`, `leva` in `dependencies`, the dead
+`viewport.ts`, and two modules folding `repo()` into their service.
+
+## CI is red on main, and was before this branch
+
+Five consecutive runs including `f8f84ce` fail at `npm ci` with an
+out-of-sync lockfile. It reproduces only under CI's Node 22 — `npm ci` passes
+locally on both `main` and this branch under Node 25 / npm 11 — and `fast-uri`
+is missing from `main`'s lock too, so it predates this work. This branch's
+lockfile change is 352 deletions and no additions.
+
+Fixing it will unblock the smoke job, which will then likely fail on archive
+media: `NEXT_PUBLIC_ARCHIVE_CDN` is unset in the workflow, so images fall back
+to `/archive/…`. The store is public; setting it needs no secret.
 
 ## Next
 

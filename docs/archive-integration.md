@@ -139,7 +139,9 @@ questions.
 - **The radial nav stays at eight nodes.** `components/particle-nav/config.ts`
   `defaultNodes` is not touched. Everything lands under `/october-7` as child
   routes. Adding a ninth node is a different decision nobody has taken.
-- **Not through the database.** The backend is unprovisioned and its auth
+- **Not through the database.** (Written when the backend was unprovisioned;
+  it is live as of 2026-08-26, but the archive still does not route through
+  it — the reason below stands on its own.) Its auth
   refuses in production by design. Package JSON goes into the repo under
   `content-packages/`; new modules in `lib/content/` read it at build time.
   That is exactly what the `lib/content/` seam exists for — when a real query

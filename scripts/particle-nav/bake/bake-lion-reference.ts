@@ -1,8 +1,12 @@
 /**
  * Raster concept reference -> deterministic LNP1 particle relief.
  *
- * The commissioned GLB pipeline remains available through `pnpm bake:lion`.
- * This image-driven bake is the art-directed production fallback: it preserves
+ * Run with `npm run bake:nav-lion`.
+ *
+ * The commissioned GLB pipeline survives in `sample.ts` as `sampleLion()`, which
+ * nothing imports: there is no `.glb` in the repository and no script to drive it.
+ * It is kept because re-modelling would need it back, not because it runs today.
+ * This image-driven bake is the art-directed production path: it preserves
  * the facial landmarks and mane silhouette from the approved reference while
  * still feeding the exact same GPU simulation/runtime format.
  */

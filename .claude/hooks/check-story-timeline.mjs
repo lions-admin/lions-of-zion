@@ -26,7 +26,10 @@ import { join } from "node:path";
 
 const TIMELINE = "components/intro/story-timeline.ts";
 const ROLLING = "components/intro/rolling-story-timeline.ts";
-const SCENE = "components/intro/lion-scene.tsx";
+// The renderer that emphasises beats by id. This moved when the intro and the
+// navigation were unified onto one canvas; a stale path here silently disabled
+// check 3 for months, so an unreadable SCENE is now a hard error, not a skip.
+const SCENE = "components/particle-nav/layers/IntroText.tsx";
 
 const out = (obj) => {
   process.stdout.write(JSON.stringify(obj));
@@ -45,9 +48,13 @@ try {
 } catch {
   process.exit(0); // Malformed payload is the harness's problem, not the copy's.
 }
-if (!file.replaceAll("\\", "/").endsWith(TIMELINE)) process.exit(0);
+// Either timeline file must re-run every check: ROLLING owns the cadence
+// constants that check 2's duration maths reads.
+const norm = file.replaceAll("\\", "/");
+const matched = [TIMELINE, ROLLING].find((rel) => norm.endsWith(rel));
+if (!matched) process.exit(0);
 
-const root = file.replaceAll("\\", "/").slice(0, -TIMELINE.length);
+const root = norm.slice(0, -matched.length);
 const read = (rel) => {
   try {
     return readFileSync(join(root, rel), "utf8");
@@ -56,7 +63,8 @@ const read = (rel) => {
   }
 };
 
-const src = readFileSync(file, "utf8");
+const src = read(TIMELINE);
+if (!src) process.exit(0); // Nothing to check against.
 const rolling = read(ROLLING);
 const scene = read(SCENE);
 
@@ -110,9 +118,14 @@ if (startsBlock) {
 }
 
 /* ── 3. Ids the scene reaches for by name ──────────────────────────────── */
-for (const [, id] of scene.matchAll(/beatId\s*===\s*"([^"]+)"/g)) {
-  if (!beats.some((b) => b.id === id)) {
-    errors.push(`  lion-scene.tsx emphasises beatId "${id}", which no beat declares`);
+if (!scene) {
+  errors.push(`  ${SCENE} is unreadable, so beat-id emphasis is unchecked — repoint SCENE`);
+} else {
+  // Single or double quotes: the live renderer uses single.
+  for (const [, id] of scene.matchAll(/beatId\s*===\s*['"]([^'"]+)['"]/g)) {
+    if (!beats.some((b) => b.id === id)) {
+      errors.push(`  ${SCENE} emphasises beatId "${id}", which no beat declares`);
+    }
   }
 }
 

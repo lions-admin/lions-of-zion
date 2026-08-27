@@ -49,6 +49,24 @@ export type CaseLifecycle = 'editorial_review' | 'legal_review' | 'ready' | 'pub
 const VISIBLE: readonly CaseLifecycle[] = ['editorial_review', 'legal_review', 'ready', 'published'];
 
 /**
+ * Two gates, and both must open.
+ *
+ * `EDITORIAL_STAGE` is the global one: it is what the editorial pass advances,
+ * and setting it to `held` withdraws every case at once. The `lifecycle` in a
+ * case's own JSON is the per-case one, so a single case can still be pulled by
+ * editing its file.
+ *
+ * This used to be wrong in a way worth remembering. `getCase()` overrode the
+ * JSON with `EDITORIAL_STAGE` while `getCaseIndex()` filtered on the JSON, so
+ * the flag that reads like the publication switch withdrew nothing: the index,
+ * the sitemap and `generateStaticParams` all still listed every case. Both
+ * gates are now checked in one place, by both callers.
+ */
+function isPublishable(jsonLifecycle: CaseLifecycle): boolean {
+  return VISIBLE.includes(EDITORIAL_STAGE) && VISIBLE.includes(jsonLifecycle);
+}
+
+/**
  * The research's own confidence grade. Rendered as a label beside a finding,
  * never converted into a verdict — an assessment of *how well we know* is not
  * an assessment of *what is true*, and collapsing the two would overstate
@@ -276,7 +294,11 @@ export async function getResearchNetwork(): Promise<ResearchNetwork> {
 /** The cases that are built and linked, in the packets' own order. */
 export async function getCaseIndex(): Promise<ResearchCaseSummary[]> {
   const index = await getResearchIndex();
-  return index.cases.filter((entry) => VISIBLE.includes(entry.lifecycle));
+  return index.cases
+    .filter((entry) => isPublishable(entry.lifecycle))
+    // The imported state is where a case arrives; the editorial pass is what
+    // moves it on. `getCase()` reports the same field the same way.
+    .map((entry) => ({ ...entry, lifecycle: EDITORIAL_STAGE }));
 }
 
 /**
@@ -293,7 +315,7 @@ export async function getCase(slug: string): Promise<ResearchCase | null> {
   } catch {
     return null;
   }
-  if (!VISIBLE.includes(record.lifecycle)) return null;
+  if (!isPublishable(record.lifecycle)) return null;
 
   /* The editorial pass is applied here rather than at import, so re-importing
      the research cannot silently drop a withheld finding back onto the page

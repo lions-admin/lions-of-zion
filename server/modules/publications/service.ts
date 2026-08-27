@@ -12,11 +12,11 @@ import "server-only";
  * this one.
  */
 
-import { and, desc, eq, lt, type SQL } from "drizzle-orm";
 import { ApiError, notFound } from "@/server/http/responses";
 import { recordVersion, setIdentity } from "@/server/core/versioning";
 import { assertHumanReviewer, findReviewer } from "@/server/modules/assessments";
-import { publication, publicationItem } from "@/server/db/schema";
+import { publication } from "@/server/db/schema";
+import { repo } from "./repo";
 import {
   canTransitionPublication,
   LEGAL_PUBLICATION_TRANSITIONS,
@@ -32,74 +32,7 @@ import type { Publication } from "@/server/db/schema";
 
 type Tx = Parameters<typeof setIdentity>[0];
 type Runner = { transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T> };
-type AnyDb = Record<string, (...args: never[]) => never>;
 
-function repo(db: unknown) {
-  const d = db as AnyDb & {
-    select: (f?: unknown) => {
-      from: (t: unknown) => {
-        where: (w: SQL | undefined) => {
-          orderBy: (o: SQL) => { limit: (n: number) => Promise<Publication[]> };
-        };
-      };
-    };
-    insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<Publication[]> } };
-    update: (t: unknown) => {
-      set: (v: unknown) => { where: (w: SQL) => { returning: () => Promise<Publication[]> } };
-    };
-  };
-
-  return {
-    async byId(id: string): Promise<Publication | undefined> {
-      const rows = await d
-        .select()
-        .from(publication)
-        .where(eq(publication.id, id))
-        .orderBy(desc(publication.createdAt))
-        .limit(1);
-      return rows[0];
-    },
-    async byPublicId(publicId: string): Promise<Publication | undefined> {
-      const rows = await d
-        .select()
-        .from(publication)
-        .where(eq(publication.publicId, publicId))
-        .orderBy(desc(publication.createdAt))
-        .limit(1);
-      return rows[0];
-    },
-    async list(filters: ListPublications): Promise<Publication[]> {
-      const clauses: SQL[] = [];
-      if (filters.kind) clauses.push(eq(publication.kind, filters.kind));
-      if (filters.status) clauses.push(eq(publication.status, filters.status));
-      if (filters.eventId) clauses.push(eq(publication.eventId, filters.eventId));
-      if (filters.cursor) clauses.push(lt(publication.createdAt, new Date(filters.cursor)));
-      return d
-        .select()
-        .from(publication)
-        .where(clauses.length ? and(...clauses) : undefined)
-        .orderBy(desc(publication.createdAt))
-        .limit(filters.limit);
-    },
-    async insert(values: Record<string, unknown>): Promise<Publication> {
-      const rows = await d.insert(publication).values(values).returning();
-      return rows[0]!;
-    },
-    async update(id: string, values: Record<string, unknown>): Promise<Publication> {
-      const rows = await d.update(publication).set(values).where(eq(publication.id, id)).returning();
-      return rows[0]!;
-    },
-    async linkItems(publicationId: string, itemIds: readonly string[]): Promise<void> {
-      if (!itemIds.length) return;
-      await (d as unknown as {
-        insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<unknown[]> } };
-      })
-        .insert(publicationItem)
-        .values(itemIds.map((itemId) => ({ publicationId, itemId })))
-        .returning();
-    },
-  };
-}
 
 export function publicationService(db: unknown) {
   const run = db as unknown as Runner;

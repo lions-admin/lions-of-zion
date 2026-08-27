@@ -1,7 +1,7 @@
 # Local agent, audit and design-sync material is not part of the application.
 .ai/
 .agents/
-.codex/
+.claude/
 .design-sync/
 .ds-sync/
 ds-bundle/
@@ -12,7 +12,9 @@ coverage/
 .env*
 !.env.example
 *.tsbuildinfo
+.DS_Store
 TODOS.md
+docs/archive/
 tests/
 
 # Dev-only symlinks to the archive integration packages. Production serves

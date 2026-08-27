@@ -73,10 +73,10 @@ but three parts of it matter to this plan:
   packet sits at `right_of_reply` today; "publish" in this plan means
   walking a case to `published` with its `publication` block filled in
   (the reply stage itself is skipped by owner decision — §2).
-- `scripts/validate_research_case.py` — the validator that already passed
-  all nine packets (enums, ID prefixes, referential integrity). Run it as
+- `validate_research_case.py` — **in the external research delivery, not in
+  this repository** — the validator that already passed all nine packets (enums, ID prefixes, referential integrity). Run it as
   the import's first step rather than re-deriving its rules.
-- `scripts/merge_research_cases.py` — merges packets into one CSV bundle
+- `merge_research_cases.py` (external delivery) — merges packets into one CSV bundle
   plus a `cases.csv` catalog. Useful as a pre-step; the site importer still
   produces JSON shaped for the renderer (§5).
 
@@ -143,7 +143,12 @@ source — the infrastructure exists regardless of solicitation.
 
 One structural fact makes this tractable: **git auto-deploy is not
 connected.** Merging code and data to `main` publishes nothing; production
-deployment is a separate manual Vercel operation. The repo is private. So
+deployment is a separate manual Vercel operation. **The repo is PUBLIC** —
+this sentence read "The repo is private" until 2026-08-27, and it was the
+premise of the argument below. `gh repo view` reports `visibility: PUBLIC`,
+and `CLAUDE.md` states the consequence directly: *a push to origin is itself an
+act of publication*. The mechanical work is still safely separable from the
+deploy, but committing this research is not a private act. So
 the mechanical work (import, seam, routes, tests) can be built and merged in
 full, and *the deploy itself is the publication act that waits for the
 gates*. The plan uses that split deliberately.

@@ -45,7 +45,7 @@ flowchart TB
         Routes["Route handlers<br/>parse → one service → serialize"]
         Modules["Modules<br/>service / repo / rules"]
         Core["Core<br/>versioning, outbox, config, auth"]
-        DB[("Postgres<br/>39 tables, 18 migrations")]
+        DB[("Postgres<br/>39 tables, 21 migrations")]
     end
 
     Home --> Vocab
@@ -392,7 +392,8 @@ open application paths.
 
 Development tests may still register an explicit `x-actor-label` shim. It is
 never accepted in Preview or Production. `requireCapability()` checks the
-capability set loaded from `capability_grant` and fails closed.
+capability set loaded from `capability_grant` and fails closed — but nothing
+calls it, deliberately: see the known gaps below and `.ai/DECISIONS.md`.
 
 ### Authorization
 
@@ -475,14 +476,71 @@ column rather than swapped into this one.
 Verified against the code on 2026-08-26. These are stated here so they are not
 rediscovered; none of them is fixed by this document.
 
-1. **RLS is written and tested but not engaged at runtime** (above). The
-   application layer still filters public responses and the admin capability
-   guard remains authoritative until role switching is introduced.
+1. ~~**RLS is written and tested but not engaged at runtime.**~~ **Closed, and
+   this entry was wrong from 2026-08-26 onward.** `server/http/handler.ts`
+   calls `withDatabaseRole(access.role, access.identity, invoke)` for every
+   request `accessFor()` classifies; it takes a dedicated pooled connection,
+   issues `SET ROLE` plus `set_config('app.identity', …)`, and `RESET ALL` on
+   release. Migration `0018` grants the owner membership in the three roles so
+   `SET ROLE` succeeds. **`PUBLIC_V1` is exactly seven entries** — `GET /search`,
+   `GET /published-items`, `POST /reports` and the four chat paths. Everything
+   else under `/api/v1/` goes through `authenticateAdmin()` and fails closed,
+   so the guard table in [`api.md`](api.md) understates how locked down the
+   surface is. **`requireCapability()` is called from nowhere by decision**, not
+   by oversight (`.ai/DECISIONS.md`, 2026-08-27): there is one account and
+   `authenticateAdmin()` grants it every capability on each sign-in, so a check
+   could only ever pass — while adding a way to be locked out. The SQL triggers
+   and the `evidence_staff_reads_unrestricted` policy, which reads
+   `capability_grant` directly, are what protect those operations.
+   `tests/admin-capabilities.test.ts` pins that the owner holds all five; wire
+   the check up when a second account exists.
+   **One real gap survives inside this one:** `withDatabaseRole` has no
+   test: `tests/rls.test.ts` proves the policies through `SET LOCAL ROLE` inside
+   a transaction on PGlite, which is not the pooled session-scope mechanism
+   production uses.
 2. **`.env.example` is not in git** — `.gitignore`'s `.env*` pattern captures
    it. A fresh clone has no environment reference; [`environment.md`](environment.md)
    is the tracked substitute.
-3. **`/war-update` and `/we-are` are blank without JavaScript**, for the async
-   render reason described under [the home route](#the-home-route). Recorded in
-   `lib/content/home.ts`'s own header.
+3. **`/war-update` and `/we-are` without JavaScript — the stated cause is
+   retired, the symptom is unverified.** This gap named "the async render
+   reason" — an `await` in the render path landing behind the root
+   `app/loading.tsx` Suspense boundary. **That file is deleted**, so the cause
+   described here no longer exists and `home.ts`'s synchronous exports are no
+   longer load-bearing for it. Whether the two routes still render without
+   JavaScript has not been re-measured since. `scripts/final-verify.mjs` is the
+   only check that runs with `javaScriptEnabled: false`, and it is
+   macOS-workstation-only — **CI cannot see this class of regression at all**
+   (see gap 6). Re-measure before either claiming it fixed or acting on it.
 4. **`/api/internal/health` has no deep variant**, though `server/core/config.ts`
    refers to one.
+5. **Three structural properties, lifted from the 2026-08-26 design audit**
+   before it was archived to [`archive/design-audit-2026-08-26.md`](archive/design-audit-2026-08-26.md).
+   Most of that audit's 83 findings were downstream of one of them, so they
+   outlive the individual fixes:
+   - **The archive was attached to the site but never designed into it.** 1,175
+     record pages — 57% of the site's routes — render through `DocPage`, whose
+     own header says it was written for "short policy pages, not documents with
+     sections to navigate". Individually none of the consequences is a bug;
+     together they made a majority-of-the-site surface read as generated rather
+     than published, which is the opposite of what an evidentiary archive needs
+     to project.
+   - **The shell's contracts are stated in comments and enforced by nothing.**
+     `--content-w` assumed rail widths the grid resolved differently;
+     `MOBILE_MAX_WIDTH`'s comment claimed "every layer that asks" while two
+     layers hardcoded their own numbers; the reading-progress bar's painted
+     default was `scaleX(1)`, so with JavaScript off it reported a document
+     fully read. Each was a one-line fix; the pattern — written intent and
+     implementation drifting with no test between them — is a maintenance
+     property, not a set of accidents.
+   - **The type system was collapsed on two axes and left free on the third.**
+     `globals.css` declares three faces, seven size steps and six colours — and
+     not one spacing token, against 71 distinct rem spacing values across `app/`
+     and `components/`.
+6. **CI cannot guard the no-JavaScript invariant.** `CLAUDE.md` marks "do not
+   reintroduce a root-level `loading.tsx`" as load-bearing and spells out the
+   failure mode. Nothing in `tests/` or `scripts/ci-smoke.mjs` mentions
+   `loading.tsx`, `javaScriptEnabled` or `Suspense`; ci-smoke runs with
+   JavaScript enabled and would pass against a broken build. The sole guard is
+   `scripts/final-verify.mjs`, which needs real Chrome on macOS. A vitest
+   assertion that no root `app/loading.tsx` exists, or a second
+   `javaScriptEnabled: false` context in ci-smoke, would both run on Linux.

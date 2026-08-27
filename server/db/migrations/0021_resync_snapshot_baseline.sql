@@ -1,0 +1,15 @@
+-- Re-anchors the drizzle snapshot baseline. Applies no schema change.
+--
+-- `0018`–`0020` were hand-written, and drizzle only snapshots what it
+-- generates, so the newest baseline stayed at `0017`. It still recorded
+-- `ai_run.cost_usd` as numeric(12,6) while `0020_ai_cost_precision.sql` had
+-- already widened it to numeric(16,9) — so every `db:generate` diffed against
+-- a stale baseline and re-emitted this same statement.
+--
+-- The column is already this type in every environment, so the statement is a
+-- verified no-op: on Postgres 18 it completes in ~1ms with no table rewrite
+-- and no value change. What it buys is a current baseline: the next
+-- `db:generate` emits nothing, instead of handing the next person this same
+-- decision.
+--
+ALTER TABLE "ai_run" ALTER COLUMN "cost_usd" SET DATA TYPE numeric(16, 9);

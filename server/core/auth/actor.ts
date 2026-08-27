@@ -60,8 +60,30 @@ export function requireActor(request: Request): Actor {
   throw new ApiError("UNAUTHENTICATED", "Please sign in to continue.");
 }
 
-/** Capability checks read the grants loaded for the authenticated actor and
- * fail closed when a route asks for anything outside that set. */
+/**
+ * Capability checks read the grants loaded for the authenticated actor and
+ * fail closed when a route asks for anything outside that set.
+ *
+ * **Deliberately called from nowhere, and that is the decision — not an
+ * oversight.** There is exactly one account: `ADMIN_EMAIL` is the only address
+ * `app/api/auth/[...path]` will accept a signup for, `ensureAdminActor` is the
+ * only writer of `app_user`, and it grants all of `ADMIN_CAPABILITIES` at every
+ * sign-in. A capability check against an actor who holds every capability can
+ * only ever pass, so wiring it into routes today would add a way to be locked
+ * out and no way to be protected.
+ *
+ * What does protect these operations is not this function. The publish gate,
+ * the human-reviewer rule and assessment immutability are SQL triggers in
+ * `server/db/migrations/`, and they hold for every caller on every path —
+ * including one that forgot to call this. The one capability with real teeth,
+ * `evidence.restricted.read`, is enforced by the `evidence_staff_reads_
+ * unrestricted` RLS policy reading `capability_grant` directly.
+ *
+ * Wire this up when a second account exists — an editor who may write an
+ * assessment but not publish it. Until then, narrowing `ADMIN_CAPABILITIES` or
+ * adding calls here locks the owner out of their own admin area.
+ * `tests/admin-capabilities.test.ts` pins that. See `.ai/DECISIONS.md`.
+ */
 export function requireCapability(actor: Actor, capability: string): void {
   if (!capabilities.get(actor.label)?.has(capability)) {
     throw new ApiError("FORBIDDEN", `Missing required capability: ${capability}.`);

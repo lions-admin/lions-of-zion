@@ -70,12 +70,18 @@ npm run test:watch                          # watch mode
 npm run verify:graphics -- http://localhost:3000 /tmp/lions-matrix
 node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final
 node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band
+node scripts/verify-doc-scroll.mjs http://localhost:3000
 node .claude/skills/verify-intro/capture.mjs
-node scripts/ci-smoke.mjs http://localhost:3000   # the only one CI can run
+node scripts/ci-smoke.mjs http://localhost:3000       # the only one CI runs
+node scripts/verify-archive-assets.mjs <cdn-base>     # Linux-safe, CI-unwired
 ```
 
-Neither `verify-home-band.mjs` nor `ci-smoke.mjs` has an npm script; run them
-with `node`. `docs/operations.md` has the full table of what each one asserts.
+```bash
+npm run map          # regenerate docs/project-map.html from the actual tree
+npm run map:check    # fail if it has drifted — never hand-edit that file
+```
+
+Only `verify:graphics` has an npm script; run the rest with `node`. `docs/operations.md` has the full table of what each one asserts.
 
 Particle assets are rebuilt with `bake:nav-lion`, `bake:nav-icons`, and
 `poster:nav`; their source artwork is in `assets/` and their output lands in
@@ -90,16 +96,27 @@ The in-app browser can report `visibilityState === "hidden"` and suspend
 `requestAnimationFrame`, making both scenes appear black. Headless Chromium
 falls back to SwiftShader, which the GPU probe correctly rejects, so the scene
 never mounts there either. Visual checks must use real Chrome via
-`playwright-core` with `headless: false`. Four scripts hardcode
+`playwright-core` with `headless: false`. **Five** scripts hardcode
 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` —
-`verify-composition.mjs`, `final-verify.mjs`, `verify-home-band.mjs` and
-`.claude/skills/verify-intro/capture.mjs` — so they only run on the macOS
-workstation, not in a Linux container.
+`verify-composition.mjs`, `final-verify.mjs`, `verify-home-band.mjs`,
+`verify-doc-scroll.mjs` and `.claude/skills/verify-intro/capture.mjs` — so they
+only run on the macOS workstation, not in a Linux container.
+`scripts/verify-archive-assets.mjs` is the one visual-adjacent check that needs
+no browser at all: plain `fetch` against the CDN base, so it runs anywhere.
 `scripts/final-verify.mjs` covers intro handoff, keyboard, WebGPU, forced
 WebGL2, no-JavaScript fallback, overlays, and console errors.
 `scripts/ci-smoke.mjs` is the exception: it uses Playwright's own bundled
-Chromium, asserts only route availability and console errors across 11 routes,
-and is what CI runs.
+Chromium, asserts only route availability and console errors, and is what CI
+runs. It walks **21 routes** — 15 hand-written in `ROUTES`, plus 5 archive
+records and 1 research case derived from the package indexes. The archive half
+is derived; **the 15 are hand-maintained, so a new section route is smoke-tested
+only if someone remembers to add it**, and `/particle-demo` never is.
+
+**CI cannot guard the no-JavaScript invariant.** ci-smoke runs with JavaScript
+enabled, and nothing in `tests/` mentions `loading.tsx`, `javaScriptEnabled` or
+`Suspense`. The sole guard is `final-verify.mjs`, which needs real Chrome on
+macOS — so the one invariant this file marks load-bearing below is the one CI
+is blind to.
 
 Any edit to intro timing, copy, or composition must be captured in real Chrome.
 
@@ -203,9 +220,18 @@ static index set it that way as identity; **reading surfaces use
   `/fake-resistance/cases/<slug>` files, read through
   `lib/content/fake-resistance-cases.ts`. `defaultNodes` stays at eight. The
   brief is `docs/fake-resistance-integration.md`; four invariants matter here:
-  **nothing is published until the editorial and legal gates pass** — every
-  case ships at `lifecycle: "editorial_review"` and merging to `main` is safe
-  because the deploy is manual; **right of reply was dropped by owner
+  **the publication gate is `EDITORIAL_STAGE`, and it currently reads
+  `'published'`** — this paragraph said every case ships at
+  `lifecycle: "editorial_review"` until 2026-08-27, which was true of the
+  committed JSON and false of what renders: `getCase()` overrides the JSON with
+  `EDITORIAL_STAGE` (`lib/content/fake-resistance-editorial.ts`). Two things
+  follow that an editor must know. **`getCaseIndex()` filters on the JSON
+  `lifecycle`, not on `EDITORIAL_STAGE`** — so setting `EDITORIAL_STAGE` to a
+  held value hides nothing; withdrawing a case still means editing its JSON.
+  And **the repository is public, so a push already publishes the research
+  text** regardless of the deploy; the "merging to `main` is safe because the
+  deploy is manual" argument was written when this repo was believed private
+  and does not hold. **Right of reply was dropped by owner
   decision**, so the packets' own `status: right_of_reply` is skipped
   deliberately, not pending; **the research's grades are never upgraded** —
   confidence, identity status and evidence class render as labels and
@@ -265,6 +291,22 @@ static index set it that way as identity; **reading surfaces use
   particle canvas after hydration; mobile deliberately never pays for that
   second renderer. `AskTheLionChat` is an accessible modal talking to
   `/api/v1/chat/threads`.
+- **Two `app/` subtrees are not otherwise described here.**
+  `app/admin/**` is a Hebrew ops dashboard behind Neon Auth
+  (`/admin`, `/admin/login`), reading `GET /api/v1/admin/status`.
+  `app/auth/x/**` is a public X OAuth2 begin/callback/signout trio, and
+  `components/chat/XPublicAuthControl.tsx` mounts its sign-in affordance
+  **on every route** through `ParticleChatLauncher`. Both import
+  `@/server/modules/public-x-auth` under a purpose-written carve-out in
+  `eslint.config.mjs`. Three things about this are unresolved rather than
+  designed: the feature went from `chore(auth): quarantine unfinished X
+  sign-in` to `feat(auth): include X public sign-in` with **no entry in
+  `.ai/DECISIONS.md`** — on a public repo, for a public identity surface;
+  `XPublicAuthControl` renders a working-looking "Continue with X" link on
+  *any* failure of its session probe, including "credentials not provisioned",
+  which is the same shape of defect the 2026-08-26 chat decision records; and
+  `app/robots.ts` disallows `/particle-demo` and `/api/` but neither `/admin`
+  nor `/auth`, so both shells are crawlable.
 - The skip control and all section-page type are DOM text rather than
   particles — the documented exception to the all-particles rule
   (see `.ai/DECISIONS.md`).
@@ -281,8 +323,12 @@ static index set it that way as identity; **reading surfaces use
 
 An information-model API: sources are ingested, evidence is attached to items,
 assessments are reviewed by a second human, and published items are searchable.
-Neon, Blob and AI Gateway are optional and currently unprovisioned. Frontend
-work must not silently provision or mutate those services.
+Neon, Blob and AI Gateway **are provisioned and live in Production** — see
+"Wired infrastructure" below, and `docs/vercel-infrastructure.md` for the
+topology. This paragraph claimed the opposite until 2026-08-27 while the
+section 50 lines down described the live stack, so treat the wired list as
+authoritative if anything here drifts again. Frontend work must still not
+silently provision or mutate those services.
 
 ### Layering, enforced by ESLint
 
@@ -307,7 +353,12 @@ layers.
 Each `server/modules/<name>/` exposes `index.ts` (binds `db()` lazily and
 returns the service), `service.ts` (the transactional workflow), `repo.ts`
 (queries), and sometimes `rules.ts` — pure, DB-free policy that is unit-tested
-directly, as in `assessments/rules.ts`.
+directly, as in `assessments/rules.ts`. **All ten data modules follow this**;
+`publications` and `reports` kept their repository inline until 2026-08-27.
+The eleventh, `public-x-auth`, is a deliberate exception: a pure re-export
+facade over `core/auth/public-x.ts`, with no service, no repo and no database,
+existing so `app/auth/**/route.ts` can reach it under the carve-out in
+`eslint.config.mjs`.
 
 ### Cross-cutting rules worth knowing before editing
 
@@ -344,16 +395,30 @@ full list; these three change what an editor should assume.
   `/api/auth/[...path]` restricts signup to `ADMIN_EMAIL`; `authenticateAdmin()`
   verifies the session, upserts `app_user` and loads the five capability grants.
   The `x-actor-label` shim is development-only.
-- **RLS is written and tested, but the runtime does not engage it.**
-  Migration `0015` creates the roles and policies, and the test harness sets the
-  role for real. The application never issues `SET LOCAL ROLE` — `setIdentity()`
-  sets `app.identity` for audit attribution only — so a live request runs as the
-  owner. Several `GET`s are anonymous and apply no application-layer filter
-  (`GET /api/v1/evidence` takes no `dataClass` filter at all), which becomes
-  live the moment a database exists.
-- **Cron schedules are configured in `vercel.json`.** Ingest, embed,
-  outbox-drain and maintenance run in Production with `CRON_SECRET`; handlers
-  are idempotent and Preview is isolated.
+- **RLS is engaged at runtime.** This bullet said the opposite until
+  2026-08-27; it was wrong. `server/http/handler.ts` wraps every classified
+  request in `withDatabaseRole(role, identity, invoke)`, which takes a dedicated
+  pooled connection, issues `SET ROLE` plus `set_config('app.identity', …)`, and
+  `RESET ALL` on release. Migration `0018` grants the owner membership in
+  `app_public`/`app_staff`/`app_service` so `SET ROLE` succeeds; `0019` adds the
+  policy that lets `INSERT … RETURNING` work under `app_public`.
+  **`PUBLIC_V1` is exactly seven entries** — `GET /search`,
+  `GET /published-items`, `POST /reports`, and the four chat paths. Everything
+  else under `/api/v1/` goes through `authenticateAdmin()` and fails closed, so
+  `GET /api/v1/evidence` is staff-only, not anonymous. `docs/api.md`'s guard
+  table still describes ~12 of those routes as `anon` and understates the
+  lockdown.
+  **`requireCapability()` is called from nowhere, and that is now a recorded
+  decision rather than a gap** (`.ai/DECISIONS.md`, 2026-08-27). There is one
+  account, `authenticateAdmin()` grants it every capability on each sign-in, so
+  a check could only ever pass — while adding a way to be locked out. What
+  protects those operations is the SQL triggers, which hold on every path, and
+  the `evidence_staff_reads_unrestricted` RLS policy, which reads
+  `capability_grant` directly. `tests/admin-capabilities.test.ts` pins that the
+  owner holds all five. **Wire it up when a second account exists.**
+  **One real gap survives:** `withDatabaseRole` has no test:
+  `tests/rls.test.ts` proves the policies via `SET LOCAL ROLE` in a transaction
+  on PGlite, which is not the pooled session-scope mechanism production uses.
 
 ### Tests
 

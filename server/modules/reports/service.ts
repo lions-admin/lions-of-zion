@@ -14,12 +14,11 @@ import "server-only";
  * has to remember to write is a trail that eventually is not written.
  */
 
-import { and, desc, eq, lt, type SQL } from "drizzle-orm";
 import { ApiError, notFound } from "@/server/http/responses";
 import { setIdentity } from "@/server/core/versioning";
 import { writeAudit } from "@/server/core/audit";
 import { integrityHash } from "@/server/core/hash";
-import { report } from "@/server/db/schema";
+import { repo } from "./repo";
 import { canTransitionReport, LEGAL_REPORT_TRANSITIONS } from "@/server/contracts/report";
 import type { ListReports, SubmitReport, TriageReport } from "@/server/contracts/report";
 import type { Actor } from "@/server/core/audit";
@@ -27,54 +26,7 @@ import type { Report } from "@/server/db/schema";
 
 type Tx = Parameters<typeof setIdentity>[0];
 type Runner = { transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T> };
-type AnyDb = Record<string, (...args: never[]) => never>;
 
-function repo(db: unknown) {
-  const d = db as AnyDb & {
-    select: (f?: unknown) => {
-      from: (t: unknown) => {
-        where: (w: SQL | undefined) => {
-          orderBy: (o: SQL) => { limit: (n: number) => Promise<Report[]> };
-        };
-      };
-    };
-    insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<Report[]> } };
-    update: (t: unknown) => {
-      set: (v: unknown) => { where: (w: SQL) => { returning: () => Promise<Report[]> } };
-    };
-  };
-
-  return {
-    async byId(id: string): Promise<Report | undefined> {
-      const rows = await d
-        .select()
-        .from(report)
-        .where(eq(report.id, id))
-        .orderBy(desc(report.createdAt))
-        .limit(1);
-      return rows[0];
-    },
-    async list(filters: ListReports): Promise<Report[]> {
-      const clauses: SQL[] = [];
-      if (filters.status) clauses.push(eq(report.status, filters.status));
-      if (filters.cursor) clauses.push(lt(report.createdAt, new Date(filters.cursor)));
-      return d
-        .select()
-        .from(report)
-        .where(clauses.length ? and(...clauses) : undefined)
-        .orderBy(desc(report.createdAt))
-        .limit(filters.limit);
-    },
-    async insert(values: Record<string, unknown>): Promise<Report> {
-      const rows = await d.insert(report).values(values).returning();
-      return rows[0]!;
-    },
-    async update(id: string, values: Record<string, unknown>): Promise<Report> {
-      const rows = await d.update(report).set(values).where(eq(report.id, id)).returning();
-      return rows[0]!;
-    },
-  };
-}
 
 export function reportService(db: unknown) {
   const run = db as unknown as Runner;

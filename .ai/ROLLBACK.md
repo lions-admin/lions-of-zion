@@ -42,7 +42,10 @@ be wrong.
 ## If the bad deploy already changed data, not just code
 
 This project's backend (Neon Postgres, evidence/assessment tables) is
-currently unprovisioned in production — see `.ai/STATE.md`. Once it is
+provisioned and live in production as of 2026-08-26 — this said
+"unprovisioned" until 2026-08-27 and cited `.ai/STATE.md`, which by then said
+the opposite. **This section is therefore more relevant, not less**: a rollback
+can now leave behind data a bad deploy wrote. Once it is
 provisioned, a rollback of the frontend deployment does **not** roll back
 any database writes that happened while the bad version was live (e.g. a
 `report` submitted through the broken `POST /api/v1/reports` endpoint).
@@ -52,8 +55,8 @@ no longer expects, before assuming the rollback alone is sufficient.
 
 ## What this does *not* cover
 
-- Rolling back a bad `npm run build:lion-data` / `bake:nav-lion` /
-  `bake:nav-icons` asset bake — those are static files in `public/`,
+- Rolling back a bad `npm run bake:nav-lion` / `bake:nav-icons` /
+  `poster:nav` asset bake — those are static files in `public/`,
   committed to git like any other file; reverting the commit that changed
   them and redeploying is the right move there, not a Vercel promotion.
 - Rolling back environment variable changes made directly in the Vercel

@@ -17,7 +17,9 @@ described as though it works.
 
 | Document | For |
 | --- | --- |
-| [`archive-integration.md`](archive-integration.md) | Bringing the two October 7 testimony archives onto `/october-7`. Phase 1 done, Phases 2–4 open |
+| [`archive-integration.md`](archive-integration.md) | Bringing the two October 7 testimony archives onto `/october-7`. Phases 1 and 3 complete; media is live on the CDN |
+| [`fake-resistance-integration.md`](fake-resistance-integration.md) | Bringing the disinformation research onto `/fake-resistance`. **Its publication gate does not behave as the brief describes** — see `.ai/STATE.md` |
+| [`PROJECT_MAP.md`](PROJECT_MAP.md) | The repository's shape: every area's role, the entry points, where a new file goes |
 
 ## Where else things are written down
 
@@ -40,8 +42,21 @@ described as though it works.
 
 ## Historical
 
-- [`graphics-task-02.md`](graphics-task-02.md) — the 2026 specification for
-  the navigation layer, kept for its reasoning. **Superseded**: it describes
-  files that no longer exist. Do not follow it as instructions.
+- **[`archive/`](archive/README.md)** — documents that were true, did their job,
+  and are kept for the record rather than for use. Nothing in it is a source of
+  truth, and nothing in it is to be corrected to match the present. It holds the
+  closed design audit (83 of 83) and its 219 KB evidence report, the superseded
+  navigation-layer specification, and an orphaned external review.
 - [`engine-explainer.html`](engine-explainer.html) — a standalone explainer
   page for the particle engine.
+
+## The interactive map
+
+[`project-map.html`](project-map.html) — **generated, never hand-edited**, and
+in Hebrew like [`engine-explainer.html`](engine-explainer.html). Run
+`npm run map` to rebuild it from the repository as it actually is: every count,
+size, route, import edge and boundary check on that page is scanned at run time
+by [`scripts/project-map.mjs`](../scripts/project-map.mjs). It carries four SVG
+flow diagrams of the mechanisms, plus an explanation for every directory and
+every root file. `npm run map:check` exits non-zero when the page has drifted
+from the tree, so a new area cannot quietly go undocumented.

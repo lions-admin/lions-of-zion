@@ -1,65 +1,62 @@
 # State
 
-## Latest — 2026-08-26, Vercel production stack and archive integration are live
+## Latest — 2026-08-27, structure audit; the design-audit wave is closed
 
-The repository is being synchronized with `origin/main` on the
-`docs/architecture-audit-and-design-sync` branch. The local Vercel/Auth/Neon
-work has a checkpoint commit; the current merge keeps the latest October 7
-archive implementation from `origin/main`.
+`main` is at `f8f84ce` (merged PR #16). The branch
+`docs/architecture-audit-and-design-sync` that the previous entry described as
+in flight was pushed, merged and deleted; every item it listed is done.
+
+Two waves landed since: the design audit closed **83 of 83** with zero open
+items (`69fd027`), and the reading routes were converted to scroll the document
+rather than themselves (`423b9f5`) — which is why a phone's URL bar now
+collapses and back-navigation restores position without `sessionStorage`.
+
+The work in progress is a full structure audit on
+`codex/project-structure-audit`: every project-owned file classified with
+evidence, the closed audit archived, the documentation reconciled against the
+code, and an interactive project map. `PROJECT_STRUCTURE_AUDIT.md` carries the
+per-path table; `docs/PROJECT_MAP.md` carries the shape.
 
 **Read [`docs/vercel-infrastructure.md`](../docs/vercel-infrastructure.md)**
-for the deployed topology, environment names, cost guardrails and runbook.
-The canonical production site is `https://lionsofzion.io`; `www` redirects to
-it. Git pushes do not deploy automatically, so production deploys remain a
-deliberate Vercel CLI action.
+for the deployed topology, environment names, cost guardrails and runbook. The
+canonical production site is `https://lionsofzion.io`. Git pushes do not deploy;
+production remains a deliberate Vercel CLI action. **The repository is public,
+so a push is itself an act of publication.**
 
-Production is configured with Vercel Pro, Functions in `iad1`, Neon Launch
-Postgres, Neon Auth, Vercel Blob, Queues, Cron and AI Gateway through Vercel
-OIDC. The single admin is `admin@lionsofzion.io`; the production account and
-five capability grants are present. Preview uses an isolated Neon branch and
-separate Blob stores.
+## Decided and applied 2026-08-27
 
-The archive Blob store `lions-of-zion-archive` (`store_M70Ph8nWOJVAnaRn`) is
-separate from the RSS stores and contains the imported October 7 media —
-1.94 GB across 2,018 objects. **Verified end to end on 2026-08-26**:
-`verify-archive-assets.mjs --all` reports 2,018 checked and 0 unreachable
-against the live bucket, and a live record page emits blob URLs with no
-`/archive` fallback left in its HTML. Preview and Production point at the
-**same** store, not at per-environment prefixes.
+The publication gate is real now: `EDITORIAL_STAGE` withdraws every Fake
+Resistance case when set to `held`, index and sitemap included, and two tests
+pin it. `/admin` and `/auth` are disallowed in `robots.ts`. The
+no-JavaScript invariant finally has a guard that runs on Linux — a
+`javaScriptEnabled: false` check in `ci-smoke.mjs` plus a fast tripwire test.
+`vercel-infrastructure-costs.html` is gitignored.
 
-`NEXT_PUBLIC_ARCHIVE_CDN` is substituted at **build time**, so changing it
-later takes a redeploy — an env edit alone leaves the old value baked into
-the prerendered HTML. Locally the media resolves through gitignored symlinks
-under `public/archive/`, which a fresh worktree does not have; the command
-that creates them is in `docs/archive-integration.md`. No Google Cloud or Vertex service
-is part of this architecture. AI is capped at $4.50 in the application and
-$5 at the Gateway; Vercel Spend Management allows $10 of additional usage.
+The two security items are closed too, in opposite directions.
+`requireCapability()` stays uncalled — one account holds every capability, so a
+check could only pass while adding a lockout path, and that is now a recorded
+decision with a test pinning it. The two `SECURITY DEFINER` prune functions are
+closed by migration `0022`, granted to `app_service` alone after verifying the
+maintenance cron is their only caller.
 
-The production database contains the 21 applied migrations and the ten
-idempotently imported public site pages. Public search returns only published
-content; internal status requires the admin session.
+`publications` and `reports` had their repositories extracted into sibling
+`repo.ts` files, so all ten data modules now match the shape `CLAUDE.md`
+documents. Nothing from the audit is left open.
 
-## In flight
+## CI is red on main, and was before this branch
 
-- Finish the merge reconciliation for `.ai/DECISIONS.md` and `.vercelignore`.
-  `TODOS.md`, `docs/archive-integration.md`, `docs/environment.md`,
-  `docs/operations.md` and this file were reconciled on 2026-08-26 — the four
-  documents that still called the archive CDN unprovisioned now record it as
-  live, and the R2/rclone upload path was replaced by the repository's own
-  uploader, which is what actually ran.
-- Update the tracked infrastructure documentation and append only durable
-  Vercel decisions to the ADR log.
-- Run the full local gate, read-only Neon checks and Vercel smoke checks, then
-  push this branch to its matching `origin` branch.
+Five consecutive runs including `f8f84ce` fail at `npm ci` with an
+out-of-sync lockfile. It reproduces only under CI's Node 22 — `npm ci` passes
+locally on both `main` and this branch under Node 25 / npm 11 — and `fast-uri`
+is missing from `main`'s lock too, so it predates this work. This branch's
+lockfile change is 352 deletions and no additions.
 
-## Deferred
-
-The unapproved public X OAuth implementation is preserved outside the
-repository in a recoverable local quarantine. Its credentials are untouched;
-the feature is not part of this infrastructure checkpoint.
+Fixing it will unblock the smoke job, which will then likely fail on archive
+media: `NEXT_PUBLIC_ARCHIVE_CDN` is unset in the workflow, so images fall back
+to `/archive/…`. The store is public; setting it needs no secret.
 
 ## Next
 
-After the branch is pushed, monitor Neon CU-hours, AI spend, Function errors,
-Queue age and Blob growth for seven days. Do not promote a new Production
-deployment unless its Preview smoke test is green and the commit is known.
+Land the audit branch, then decide the five items above. Continue watching Neon
+CU-hours, AI spend, Function errors, Queue age and Blob growth. Do not promote a
+Production deployment unless its Preview smoke test is green.

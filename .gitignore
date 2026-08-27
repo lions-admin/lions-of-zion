@@ -55,3 +55,11 @@ public/archive/
 
 # Upload progress for scripts/upload-archive-assets.mjs (resume state, local only)
 .blob-upload/
+
+# Agent worktrees (were excluded only via .git/info/exclude, which is per-clone).
+# Root-anchored /node_modules and /.next do NOT match .claude/worktrees/<n>/node_modules.
+.claude/worktrees/
+
+# Local cost/infra scratch export. Duplicates the table in
+# docs/vercel-infrastructure.md; kept out of a public repository.
+/vercel-infrastructure-costs.html

@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   caseParams,
   getCase,
@@ -439,6 +439,47 @@ describe("the editorial pass", () => {
     const cases = await allCases();
     for (const record of cases) {
       expect(record.lifecycle).toBe("published");
+    }
+  });
+
+  it("withdraws every case when EDITORIAL_STAGE is held, index included", async () => {
+    /* The regression this pins: `getCase()` used to override the JSON with
+       EDITORIAL_STAGE while `getCaseIndex()` filtered on the JSON, so setting
+       the flag to `held` withdrew nothing — the index, the sitemap and
+       generateStaticParams all still listed every case, and only the record
+       pages 404'd. The flag that reads like the publication switch has to be
+       the publication switch. */
+    // Capture the real slugs before the module graph is swapped.
+    const slugs = (await getCaseIndex()).map((entry) => entry.slug);
+    expect(slugs.length).toBeGreaterThan(0);
+
+    vi.resetModules();
+    vi.doMock("@/lib/content/fake-resistance-editorial", async () => ({
+      ...(await vi.importActual<typeof import("@/lib/content/fake-resistance-editorial")>(
+        "@/lib/content/fake-resistance-editorial",
+      )),
+      EDITORIAL_STAGE: "held" as const,
+    }));
+    const held = await import("@/lib/content/fake-resistance-cases");
+
+    expect(await held.getCaseIndex()).toEqual([]);
+    expect(await held.caseParams()).toEqual([]);
+    for (const slug of slugs) {
+      expect(await held.getCase(slug), `${slug} still resolves while held`).toBeNull();
+    }
+
+    vi.doUnmock("@/lib/content/fake-resistance-editorial");
+    vi.resetModules();
+  });
+
+  it("reports the same lifecycle from the index as from the record", async () => {
+    /* The two entry points read the same two gates now; if they ever disagree
+       again, a case can be listed and unreachable, or reachable and unlisted. */
+    const index = await getCaseIndex();
+    for (const entry of index) {
+      const record = await getCase(entry.slug);
+      expect(record, `${entry.slug} is indexed but does not resolve`).not.toBeNull();
+      expect(record!.lifecycle).toBe(entry.lifecycle);
     }
   });
 

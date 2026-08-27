@@ -10,6 +10,128 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-08-27 — The single admin holds every capability, and the check stays uncalled
+
+`requireCapability()` is exported, granted against, and called from nowhere.
+The audit reported that as an inert guard. It is a deliberate position, and it
+is now written down so a later reader does not "fix" it.
+
+There is exactly one account. `app/api/auth/[...path]` refuses a signup for any
+address but `ADMIN_EMAIL` — at the proxy route, not only in the UI, so a caller
+cannot go around the interface. `ensureAdminActor()` is the only writer of
+`app_user` in the codebase. And `authenticateAdmin()` sets the actor's
+capability set to all of `ADMIN_CAPABILITIES` on every sign-in, overwriting the
+narrower set read from `capability_grant` a few lines earlier.
+
+So a capability check against the only actor that exists can only ever pass.
+Wiring it into routes today would add a way to be locked out of the admin area
+and no way to be protected — the failure mode is asymmetric, and the direction
+that hurts is the one that is reachable.
+
+**What actually protects these operations is not this function**, which is why
+its absence costs nothing today. The publish gate, the human-reviewer rule and
+assessment immutability are SQL triggers in `server/db/migrations/`: they hold
+for every caller on every path, including one that forgot to check. The single
+capability with real teeth, `evidence.restricted.read`, is enforced by the
+`evidence_staff_reads_unrestricted` RLS policy, which reads `capability_grant`
+directly rather than going through the application at all.
+
+Anonymous visitors hold no capability: `registerActor()` grants none, and the
+public surface is bounded by the seven `PUBLIC_V1` entries and by RLS instead.
+
+`tests/admin-capabilities.test.ts` pins the direction that matters — that the
+owner holds all five and that no check can refuse them. **Wire this up when a
+second account exists**, an editor who may write an assessment but not publish
+one. That is the day this decision expires; until then, narrowing
+`ADMIN_CAPABILITIES` or adding calls locks the owner out of their own site.
+
+## 2026-08-27 — Two `SECURITY DEFINER` functions stop being executable by PUBLIC
+
+Postgres grants `EXECUTE` to `PUBLIC` on every new function. `0018` closed that
+for `bump_rate_limit` and `ai_spend_since` — each got a `REVOKE ALL … FROM
+PUBLIC` and a narrow grant — and then did not for `prune_rate_limits` and
+`prune_expired_idempotency` directly below them. Same file, same pattern, two
+of four. An omission rather than a decision.
+
+Both `DELETE`. An anonymous caller able to run `prune_rate_limits()` would
+clear the very windows that rate-limit them. It was never reachable — no route
+executes arbitrary SQL — so this is defence in depth, and the depth is the
+point: the next person to copy this pattern should copy the closed one.
+
+Migration `0022` grants to `app_service` alone, verified rather than assumed.
+`server/core/maintenance.ts` is the only caller; it is reached only from
+`/api/internal/cron/maintenance`; and `server/http/handler.ts` classifies every
+`/api/internal/cron/` path as `app_service`. Granting more broadly would have
+been guessing, and granting too narrowly would have stopped the maintenance
+cron silently — it logs nothing when it prunes nothing.
+
+`tests/prune-privileges.test.ts` asserts the outcome from the roles themselves
+rather than by reading the grant: `app_service` still prunes, `app_public` and
+`app_staff` are refused with `42501`.
+
+---
+
+## 2026-08-27 — The closed design audit is archived, and its refusals are kept here
+
+`TODOS-design-audit.md` reached 83 of 83 closed with zero open items, and
+`docs/design-audit-2026-08-26.md` — the 219 KB evidence report it was generated
+from — has no task left to drive. Both move to `docs/archive/`, along with
+`docs/graphics-task-02.md` (already self-banner-marked HISTORICAL) and the
+2026-08-24 Codex review, which is superseded on both its axes and whose twelve
+evidence images were never committed beside it.
+
+Archiving a task list is cheap. Archiving the reasoning that *closed* items
+without fixing them is not: those are the findings a future audit will file
+again, and each costs a session to re-refute. That reasoning is lifted here
+before the file moves.
+
+**Refuted in verification — the finding was wrong, not deferred:**
+
+- `aside` being a zero-caller prop is not a defect. `CLAUDE.md` states
+  verbatim that `surface="quiet"` is not a deviation and that `aside` "exists
+  and is unused". The proposed fix was also hazardous: `--accent` defaults to
+  `var(--data-blue)`, so `color: var(--accent)` on `h2` would have turned six
+  dossier headings blue.
+- The masthead status is not a constant standing in for a live value.
+  "Reference edition" deliberately replaced a `Monitoring · active` label, and
+  the 2026-08-25 entry below ends "Do not reintroduce a live-sounding label".
+  The slot is filled, not empty.
+- Colour-only links on the front page: the 1.29:1 figure recomputes, but the
+  mechanism does not exist. The closing row is two links with no surrounding
+  prose, and `home.module.css` already carries the `:focus-visible` rule the
+  finding said was missing.
+
+**Withdrawn by the browser sweep — an automated pass will flag these again,
+and they should die the same way:**
+
+- `.identitySep` at 2.04:1 is a `·` rendered `aria-hidden="true"`. Decorative
+  text carries no contrast obligation.
+- The `ScanBackdrop` rows at 2.49:1 and 4.03:1 sit inside a field marked
+  `aria-hidden="true"` in its entirety.
+- The Brief's wordmark measuring 1×1 at 320px is the visually-hidden pattern,
+  not a collapsed grid column.
+
+**Seven ids were filed twice by two agents.** Searching for a retired id should
+land here: `cross-cutting-orbit-labels-nine-px` →
+`home-scene-orbit-labels-below-legibility-floor`;
+`archive-brief-998-non-english-pages-are-served-as-lang-en` and
+`cross-cutting-archive-lang-declared-english` → `archive-lang-declared-english`;
+`cross-cutting-error-page-cinzel` →
+`reading-system-error-page-is-a-preserved-v1-fossil`;
+`reading-system-two-tables-of-contents-at-once` →
+`section-pages-israels-story-two-contents-lists`;
+`cross-cutting-archive-image-cls` →
+`archive-brief-october7-videos-reserve-no-layout-height`;
+`home-scene-file-index-numbers-fail-contrast` →
+`cross-cutting-four-sub-aa-text-pairs`.
+
+One live pointer survives the archiving: **Phase 5, the home-scene orbit
+labels, is `.ai/DESIGN-V2.md`'s open question and always was** — an owner
+decision rather than an audit finding. The audit's in-place fix did not
+pre-empt it.
+
+---
+
 ## 2026-08-27 — The reading routes scroll the document, not themselves
 
 Every reading route declared `height: 100dvh; overflow-y: auto` and scrolled

@@ -132,6 +132,44 @@ for (const route of ROUTES) {
   }
 }
 
+/* The no-JavaScript invariant, which nothing else in CI can see.
+ *
+ * CLAUDE.md marks "do not reintroduce a root-level `loading.tsx`" as
+ * load-bearing: a root Suspense boundary makes streaming SSR emit the real
+ * markup inside `<div hidden id="S:0">` for an inline script to reveal, so
+ * with scripting off the loading shell stays and the page never appears.
+ * Every check above runs with JavaScript enabled and would pass against
+ * exactly that build. `scripts/final-verify.mjs` catches it, but needs real
+ * Chrome on macOS — so on Linux this is the only guard there is.
+ *
+ * The home route is the test case because it is the one with the most to
+ * lose: eight orbit links and the poster are the whole navigation for a
+ * reader without scripting. */
+const noJs = await browser.newContext({ javaScriptEnabled: false, reducedMotion: "reduce" });
+const noJsPage = await noJs.newPage();
+const noJsResponse = await noJsPage.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+
+if ((noJsResponse?.status() ?? 0) !== 200) {
+  console.error(`FAIL /: HTTP ${noJsResponse?.status() ?? 0} with JavaScript disabled`);
+  failed = true;
+} else {
+  const links = await noJsPage.locator("a[data-node-index]").count();
+  const poster = await noJsPage.locator("picture img, img[src*='particle-nav']").count();
+  const shell = await noJsPage.locator('div[hidden][id^="S:"]').count();
+
+  if (links < 8 || poster < 1 || shell > 0) {
+    console.error(
+      `FAIL / without JavaScript: ${links}/8 orbit links, ${poster} poster, ` +
+        `${shell} hidden Suspense shell(s).` +
+        (shell > 0 ? " A root-level loading.tsx is the usual cause — see CLAUDE.md." : ""),
+    );
+    failed = true;
+  } else {
+    console.log(`ok   /            (no JavaScript: ${links} links, poster present)`);
+  }
+}
+await noJs.close();
+
 await browser.close();
 
 if (failed) {

@@ -77,16 +77,24 @@ need the ground to render anything meaningful.
 
 ## `app/globals.css` is an app shell, not a DS stylesheet
 
-Two rules in it are actively wrong for a component library, and
-`.design-sync/build-styles.mjs` neutralizes them at the end of the generated
-entry:
+**Re-verified 2026-08-27, and the hazard this section described is gone.**
 
-- `html, body { height: 100%; overflow: hidden }` — correct for a full-viewport
-  particle scene that must never scroll, **fatal** for a design built with the
-  DS: every such design would be unscrollable with content below the fold
-  unreachable, and nothing downstream would catch it. Neutralized with
-  `height: auto; min-height: 100%; overflow: visible`, appended last so it wins
-  at equal specificity without forking the app's stylesheet.
+It used to read `html, body { height: 100%; overflow: hidden }` — correct for a
+full-viewport particle scene that must never scroll, fatal for a design built
+with the DS, which would have been unscrollable with content below the fold
+unreachable. The 2026-08-27 document-scroll conversion removed it. `globals.css`
+now sets `html, body { width: 100%; min-height: 100% }` and no overflow at all,
+and the sideways clip moved to `html:has([data-home-scroll])` — a conditional
+selector that cannot match a design built with this system.
+
+So the neutralizer `build-styles.mjs` still appends —
+`html, body { height: auto; min-height: 100%; overflow: visible }` — now
+**neutralizes nothing**: `height: auto` overrides no height, `min-height: 100%`
+restates what the app already sets, and `overflow: visible` overrides no
+overflow. It is kept as a guard rather than deleted, because the app shell
+could reacquire those rules and the failure mode is silent. It is inert today,
+not corrective. If you are reading this because a DS design will not scroll,
+that is no longer the cause — look at the design's own stylesheet.
 
 ## Known render warns (triaged — a warn NOT in this list is new)
 
@@ -143,10 +151,19 @@ no contract at all.
 `cfg.dtsPropsFor` therefore carries a hand-written props body for **every**
 component, transcribed from the real source types.
 
-**This is the main re-sync risk in this repo.** A prop added or renamed in
-`components/**` will NOT appear in the uploaded `.d.ts` until `dtsPropsFor` is
-updated by hand — nothing detects the drift. Diff the source prop types against
-`dtsPropsFor` on every re-sync. The permanent fix is a real library build.
+**This is the main re-sync risk in this repo** — a prop added or renamed in
+`components/**` will not reach the uploaded `.d.ts` until `dtsPropsFor` is
+updated by hand.
+
+**"Nothing detects the drift" is no longer true.** `npm run map` compares every
+entry in `dtsPropsFor` against the component's real prop type, using the
+TypeScript parser rather than a regex, and fails loudly on a mismatch. Verified
+2026-08-27: all 21 components agree — 15 by comparison against a named
+`<Name>Props` type or an inline parameter type, and 6 that take no props, which
+`dtsPropsFor` records as such.
+
+Still run the check on every re-sync; it is now one command. The permanent fix
+is still a real library build.
 
 ## Re-sync risks
 

@@ -74,19 +74,21 @@ ${globals}
   --font-geist-sans: 'IBM Plex Sans';
 }
 
-/* ── Neutralize the app shell ─────────────────────────────────────────────
-   \`app/globals.css\` is the stylesheet of a full-viewport application, not of
-   a component library. It sets \`html, body { height: 100%; overflow: hidden }\`
-   because the home route is one fixed particle scene that must never scroll.
+/* ── Guard against the app shell ──────────────────────────────────────────
+   Inert as of 2026-08-27, and kept deliberately.
 
-   A design built with this design system is an ordinary document. Shipping
-   \`overflow: hidden\` on \`body\` into the styles.css closure would silently make
-   every such design unscrollable — content below the fold simply unreachable,
-   with nothing downstream to catch it.
+   \`app/globals.css\` used to set \`html, body { height: 100%; overflow: hidden }\`
+   for the fixed particle scene, which would have made every design built with
+   this system unscrollable — content below the fold unreachable, with nothing
+   downstream to catch it. The document-scroll conversion removed those rules;
+   \`globals.css\` now sets only \`width\` and \`min-height\` on \`html, body\`, and the
+   sideways clip lives on \`html:has([data-home-scroll])\`, which cannot match a
+   DS design.
 
-   These two declarations are additive and appear last, so they win at equal
-   specificity without editing or forking the app's stylesheet. The ground and
-   the type layer above are untouched. */
+   So these declarations override nothing today. They stay because the app
+   shell could reacquire those rules, the failure would be silent, and the cost
+   of the guard is three declarations that lose to any real rule anyway. Do not
+   read this block as evidence that globals.css is still hostile. */
 html, body {
   height: auto;
   min-height: 100%;

@@ -337,6 +337,51 @@ for (const d of files.filter((f) => f.endsWith(".md") && !f.startsWith("docs/arc
   }
 }
 
+/* Design-system prop contracts, checked against the real source types.
+ *
+ * `.design-sync/NOTES.md` calls this "the main re-sync risk in this repo" and
+ * says nothing detects it: there is no library build, so the converter stubbed
+ * every prop interface, and `cfg.dtsPropsFor` carries a hand-transcribed body
+ * for all 21 components. A prop renamed in `components/**` would silently ship
+ * a wrong contract to whoever codes against the design system.
+ *
+ * Uses the TypeScript parser rather than a regex — three regex attempts at
+ * this produced two false positives, once by counting a nested type's fields
+ * as top-level props. */
+const dsProblems = [];
+if (tracked.has(".design-sync/config.json")) {
+  const ts = await import("typescript").then((m) => m.default ?? m).catch(() => null);
+  const cfg = JSON.parse(read(".design-sync/config.json") || "{}");
+  if (ts && cfg.dtsPropsFor) {
+    const parse = (t) => ts.createSourceFile("x.ts", t, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const namedType = (sf, n) => { let r = null;
+      const walk = (x) => { if (r) return;
+        if (ts.isTypeAliasDeclaration(x) && x.name.text === n && ts.isTypeLiteralNode(x.type)) r = x.type.members;
+        else if (ts.isInterfaceDeclaration(x) && x.name.text === n) r = x.members;
+        else ts.forEachChild(x, walk); };
+      ts.forEachChild(sf, walk); return r; };
+    const inlineType = (sf, comp) => { let r = null;
+      const walk = (x) => { if (r) return;
+        if (ts.isFunctionDeclaration(x) && x.name?.text === comp &&
+            x.parameters[0]?.type && ts.isTypeLiteralNode(x.parameters[0].type)) r = x.parameters[0].type.members;
+        else ts.forEachChild(x, walk); };
+      ts.forEachChild(sf, walk); return r; };
+    const keys = (m) => (m ? m.filter((x) => x.name).map((x) => x.name.getText()) : null);
+    for (const [name, body] of Object.entries(cfg.dtsPropsFor)) {
+      const src = cfg.componentSrcMap?.[name];
+      if (!src || !tracked.has(src)) { dsProblems.push(`${name}: no source path`); continue; }
+      const sf = parse(read(src));
+      const actual = keys(namedType(sf, `${name}Props`)) ?? keys(inlineType(sf, name)) ?? [];
+      const declared = keys(namedType(parse(`type P={${body}};`), "P")) ?? [];
+      const A = new Set(actual), B = new Set(declared);
+      const missing = [...A].filter((k) => !B.has(k));
+      const extra = [...B].filter((k) => !A.has(k));
+      if (missing.length || extra.length)
+        dsProblems.push(`${name}: source-only [${missing}] config-only [${extra}]`);
+    }
+  }
+}
+
 /* npm scripts + ignored dirs */
 const pkg = JSON.parse(read("package.json"));
 const gitignored = read(".gitignore").split("\n")
@@ -357,7 +402,7 @@ const D = {
   tests: testFiles.length, scripts: scriptFiles.length,
   chromeScripts, navIds, navMissing, publicRoutes, pkgs,
   crossings, violations, sanctioned, carvedOut, gitignored,
-  duplicateSets, unreferenced, reachable: reached.size, docProblems,
+  duplicateSets, unreferenced, reachable: reached.size, docProblems, dsProblems,
   npmScripts: Object.keys(pkg.scripts||{}).length,
 };
 
@@ -509,6 +554,9 @@ const findings = [
    `בסיס ה־snapshots עדכני — db:generate לא יפלוט מיגרציה מיותרת`,
    `ה־snapshot האחרון הוא ${String(D.newestSnapshot).padStart(4,"0")} אבל יש ${D.handWrittenAfterSnapshot.length} מיגרציות כתובות־ביד אחריו (${D.handWrittenAfterSnapshot.join(", ")}). ` +
    `‏db:generate ישווה מול בסיס מיושן ויפלוט מחדש שינוי שכבר הוחל. חסר snapshot, לא חסרה מיגרציה.`],
+  [D.dsProblems.length===0,
+   `חוזי ה־props של מערכת העיצוב תואמים לטיפוסי המקור`,
+   `${D.dsProblems.length} רכיבים שבהם dtsPropsFor נסחף מהמקור: ${D.dsProblems.join(" · ")}`],
   [D.docProblems.length===0,
    `כל נתיב וכל פקודת npm שמוזכרים בתיעוד קיימים`,
    `${D.docProblems.length} הפניות מתות בתיעוד: ${D.docProblems.join(" · ")}`],
@@ -707,5 +755,6 @@ if (process.argv.includes("--check")) {
       `behind ${D.handWrittenAfterSnapshot.length} hand-written migration(s) — db:generate will re-emit applied changes`);
   if (D.duplicateSets.length) console.warn(`  warning: ${D.duplicateSets.length} set(s) of byte-identical files`);
   if (D.docProblems.length) console.warn(`  warning: ${D.docProblems.length} dead reference(s) in documentation`);
+  if (D.dsProblems.length) console.warn(`  warning: ${D.dsProblems.length} design-system prop contract(s) drifted`);
   if (D.unreferenced.length) console.warn(`  note: ${D.unreferenced.length} file(s) reached by nothing — ${D.reachable}/${D.totalFiles} reachable`);
 }

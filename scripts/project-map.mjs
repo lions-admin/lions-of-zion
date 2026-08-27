@@ -220,6 +220,79 @@ for (const f of srcFiles) {
 const crossings = [...edges.entries()].map(([k,v])=>({edge:k,count:v}))
   .sort((a,b)=>b.count-a.count);
 
+/* duplicate content, across every tracked file */
+import { createHash } from "node:crypto";
+const byHash = new Map();
+for (const f of files) {
+  const h = createHash("sha256").update(readFileSync(R(f))).digest("hex");
+  (byHash.get(h) || byHash.set(h, []).get(h)).push(f);
+}
+const duplicateSets = [...byHash.values()].filter((g) => g.length > 1);
+
+/* reachability: can anything actually get to this file?
+ *
+ * Written because "is anything here unnecessary" is a question a table of
+ * classifications answers by assertion and a graph answers by measurement.
+ * Entry points are the file conventions and the tools that read a path rather
+ * than import it; everything else has to be reached. */
+const EXT = ["", ".ts", ".tsx", ".mjs", ".js", ".json", "/index.ts", "/index.tsx"];
+const tracked = new Set(files);
+function resolveSpec(spec, from) {
+  let base;
+  if (spec.startsWith("@/")) base = spec.slice(2);
+  else if (spec.startsWith(".")) base = pathJoin(dirOf(from), spec);
+  else return null;
+  for (const e of EXT) if (tracked.has(base + e)) return base + e;
+  return null;
+}
+const dirOf = (p) => p.split("/").slice(0, -1).join("/");
+function pathJoin(dir, rel) {
+  const out = dir ? dir.split("/") : [];
+  for (const part of rel.split("/")) {
+    if (part === "." || part === "") continue;
+    if (part === "..") out.pop();
+    else out.push(part);
+  }
+  return out.join("/");
+}
+const entryPoints = files.filter((f) =>
+  /^app\/.*(page|layout|route|loading|error|not-found|template|default)\.tsx?$/.test(f) ||
+  /^app\/(sitemap|robots|manifest|opengraph-image)\.tsx?$/.test(f) ||
+  /^app\/(icon|apple-icon|favicon)\.[a-z]+$/.test(f) ||
+  /^(next\.config|proxy|drizzle\.config|vitest\.config|eslint\.config)\.(ts|mjs)$/.test(f) ||
+  /^tests\/.*\.test\.ts$/.test(f) ||
+  /^(scripts|content-packages)\//.test(f) ||
+  /^server\/db\/migrations\//.test(f) ||
+  /^\.(github|claude)\//.test(f) ||
+  /^(package|package-lock|tsconfig|vercel)\.json$/.test(f) ||
+  /^\.(gitignore|vercelignore|mcp\.json)$/.test(f));
+const reached = new Set(entryPoints);
+const stack = [...entryPoints];
+while (stack.length) {
+  const f = stack.pop();
+  if (!/\.(ts|tsx|mjs|js|css)$/.test(f)) continue;
+  const src = read(f);
+  const specs = [
+    ...src.matchAll(/from\s+["']([^"']+)["']/g),
+    ...src.matchAll(/^\s*import\s+["']([^"']+)["']/gm),
+    ...src.matchAll(/import\s*\(\s*["']([^"']+)["']\s*\)/g),
+    ...src.matchAll(/(?:composes:[^;]*from|@import)\s+["']([^"']+)["']/g),
+  ].map((m) => m[1]);
+  for (const spec of specs) {
+    const r = resolveSpec(spec, f);
+    if (r && !reached.has(r)) { reached.add(r); stack.push(r); }
+  }
+}
+/* assets and documents are addressed by literal path or by link, not import */
+const corpus = files.filter((f) => /\.(ts|tsx|mjs|js|css|json|md|html)$/.test(f)).map(read).join("\n");
+for (const f of files) {
+  if (reached.has(f)) continue;
+  const base = f.split("/").pop();
+  if (/^(public|assets)\//.test(f) && (corpus.includes("/" + f.replace(/^public\//, "")) || corpus.includes(base))) reached.add(f);
+  if (/\.(md|html)$/.test(f) && (corpus.includes(base) || f === "README.md")) reached.add(f);
+}
+const unreferenced = files.filter((f) => !reached.has(f));
+
 /* npm scripts + ignored dirs */
 const pkg = JSON.parse(read("package.json"));
 const gitignored = read(".gitignore").split("\n")
@@ -239,6 +312,7 @@ const D = {
   tests: testFiles.length, scripts: scriptFiles.length,
   chromeScripts, navIds, navMissing, publicRoutes, pkgs,
   crossings, violations, sanctioned, carvedOut, gitignored,
+  duplicateSets, unreferenced, reachable: reached.size,
   npmScripts: Object.keys(pkg.scripts||{}).length,
 };
 
@@ -387,6 +461,12 @@ const findings = [
   [D.navMissing.length===0, `לכל ${D.navIds.length} יעדי הניווט יש page.tsx תואם`, `חסר page.tsx ל: ${D.navMissing.join(", ")}`],
   [D.migrations===D.journalEntries, `${D.migrations} מיגרציות תואמות ל־journal`, `סחיפה בין הקבצים ל־journal`],
   [D.snapshots===D.journalEntries, `snapshots תואמים ל־journal`, `${D.snapshots} snapshots מול ${D.journalEntries} מיגרציות — ה־db:generate הבא יפלוט מיגרציה מיותרת`],
+  [D.duplicateSets.length===0, `אפס קבצים כפולים — כל ${D.totalFiles.toLocaleString("en")} הקבצים בעלי תוכן שונה`,
+   `${D.duplicateSets.length} קבוצות של קבצים זהים בייט־בייט: ${D.duplicateSets.map(g=>g.join(" = ")).join(" · ")}`],
+  [D.unreferenced.length===0, `כל קובץ נגיע אליו מנקודת כניסה`,
+   `${D.reachable} מתוך ${D.totalFiles} נגישים; ${D.unreferenced.length} לא מוזכרים בשום מקום — ${
+     Object.entries(D.unreferenced.reduce((a,f)=>{const k=f.split("/").slice(0,2).join("/");a[k]=(a[k]||0)+1;return a;},{}))
+       .sort((x,y)=>y[1]-x[1]).map(([k,v])=>`${k} (${v})`).join(", ")}`],
 ].map(([ok,good,bad])=>`<li class="${ok?"ok":"warn"}">${ok?good:bad}</li>`).join("");
 
 const html=`<!doctype html>
@@ -572,4 +652,6 @@ if (process.argv.includes("--check")) {
     `${Object.keys(N).length} explained nodes`);
   if (D.violations.length) console.warn(`  warning: ${D.violations.length} import-boundary violations`);
   if (D.snapshots !== D.journalEntries) console.warn(`  warning: ${D.snapshots} snapshots vs ${D.journalEntries} migrations`);
+  if (D.duplicateSets.length) console.warn(`  warning: ${D.duplicateSets.length} set(s) of byte-identical files`);
+  if (D.unreferenced.length) console.warn(`  note: ${D.unreferenced.length} file(s) reached by nothing — ${D.reachable}/${D.totalFiles} reachable`);
 }

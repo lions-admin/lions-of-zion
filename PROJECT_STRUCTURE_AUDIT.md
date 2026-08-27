@@ -1,7 +1,7 @@
 # Project structure audit
 
-**Baseline** `f8f84ce` (merged PR #16) · **audited** 2026-08-27 · **1,014 tracked
-files, ~26 MB** · branch `codex/project-structure-audit`.
+**Baseline** `f8f84ce` (merged PR #16) · **audited** 2026-08-27 · **1,019 tracked
+files, ~24 MB** · branch `codex/project-structure-audit`.
 
 Five parallel read-only passes, one per surface, with no overlapping boundary:
 frontend (`app/` minus `app/api/`, `components/`), backend (`server/`,
@@ -146,6 +146,53 @@ orphaned file and its now-empty directory skeleton was left alone.
 **Nothing was force-deleted to make a number look better.** Four files moved to
 `docs/archive/`; four were removed (`.DS_Store` × 5, two npm packages); one
 false comment line was deleted.
+
+## How complete is this, honestly
+
+**No file was read one by one.** 1,019 tracked files were audited as five
+surfaces, each agent building an import graph and a classification table for
+its area rather than opening every file. That is the right method for code —
+a resolved graph proves more than 1,019 readings would — but it has a gap, and
+the gap was found by being asked rather than by the audit.
+
+Two whole-tree checks now run on every `npm run map`, so the question stops
+being a matter of assertion:
+
+| Check | Result |
+| --- | --- |
+| Byte-identical duplicates across all 1,019 files | **0** — every file has distinct content |
+| Reachability from an entry point | **988 of 1,019**; 31 reached by nothing |
+
+The 31 split into three groups, none of them junk:
+
+1. **`.design-sync/` — 29 files. This is the gap the audit missed.** Both the
+   documentation and the infrastructure agents explicitly deferred it: the
+   first owns documents and found only two here, the second was scoped to
+   `.claude/` and the root. So 26 source files went unexamined, and nobody
+   noticed until the question was put directly.
+   Examined now: the area is internally coherent and its 20 referenced source
+   paths all exist. But **nothing in this repository invokes it** — no npm
+   script, no CI step, and only two commits have ever touched it. Its driver is
+   the external design-sync tool, so an absent in-repo reference does not prove
+   it is dead. `config.json` and `tsconfig.sync.json` do reference the four
+   shims. **The 21 files in `previews/` are referenced by nothing at all** — not
+   by `ds-entry.ts`, not by `config.json`, not by any tracked file. Verified as
+   *no reference exists*, not *none found*: zero files anywhere import from
+   `previews/`. Classification: `unclear-keep`, because the tool that would use
+   them lives outside the repository.
+2. **`components/briefs/BriefError.tsx` and `components/sections/AskAboutFileCta.tsx`
+   — 2 files.** Already known, already documented, deliberately retained: each
+   carries a written rationale and each is a published member of the
+   design-system bundle.
+3. **`.claude/skills/verify-intro/capture.mjs`** — invoked from the command
+   line and documented in two places. A limit of the graph, not an orphan.
+
+What this does *not* prove: that no two documents overlap in substance, that no
+archive record duplicates another's meaning, and that every one of 1,019 files
+is individually justified. Byte-identical duplication is settled; semantic
+duplication was checked where it was checkable — the two archives share zero
+ids and zero normalised titles, and the documentation surface was read in full
+— and asserted nowhere else.
 
 ## Decided 2026-08-27, and applied
 

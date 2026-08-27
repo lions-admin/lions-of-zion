@@ -8,6 +8,11 @@ import { SITE_URL } from "@/lib/site-config";
 
 const DOC_PAGES = ["/methodology", "/corrections"];
 const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
+/** The two investigation branches the Fake Resistance hub opens onto. */
+const BRANCH_INDEXES = [
+  "/fake-resistance/official-narrative",
+  "/fake-resistance/social-media",
+];
 /** Reference works under Fake Resistance, alongside the eight destinations. */
 const RESEARCH_INDEXES = ["/fake-resistance/playbook", "/fake-resistance/network"];
 
@@ -69,6 +74,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}${path}`,
       changeFrequency: "monthly" as const,
       priority: 0.6,
+    })),
+    // Above the reference works: a branch page is the hub's decision moment,
+    // one step below the eight destinations themselves.
+    ...BRANCH_INDEXES.map((path) => ({
+      url: `${SITE_URL}${path}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
     ...RESEARCH_INDEXES.map((path) => ({
       url: `${SITE_URL}${path}`,

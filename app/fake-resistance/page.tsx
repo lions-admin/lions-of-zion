@@ -1,82 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import {
-  ClaimRecordPair,
-  PublicationMeta,
-  SourceList,
-  Timeline,
-  VerificationBadge,
-} from "@/components/content";
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { getPlaybook, techniqueHref } from "@/lib/content/fake-resistance-playbook";
 import { SITE_URL } from "@/lib/site-config";
-import type { AssessmentValue } from "@/server/contracts/enums";
 import styles from "./page.module.css";
 
-/** Same wording VerificationBadge uses, so the stamp and the accessible
- *  badge underneath it never disagree. */
-const STAMP_LABEL: Record<AssessmentValue, string> = {
-  verified: "Verified",
-  false: "False",
-  misleading: "Misleading",
-  manipulated: "Manipulated",
-  out_of_context: "Out of context",
-  contested: "Contested",
-  unsupported: "Unsupported",
-  unverified: "Unverified",
-  satire: "Satire",
-};
-
-/** The stamp's three tones follow `VerificationBadge`'s own colour families
- *  (`content.module.css`), so a case can never carry a grey stamp over an
- *  ember badge two lines below it — which is what Exhibit B did while the
- *  tone was computed from a three-value inline conditional. `satire` has no
- *  stamp tone of its own; muted is the honest place for it, since the point
- *  of the tone is whether the record refuted the claim. */
-const STAMP_TONE: Record<AssessmentValue, 'gold' | 'ember' | 'muted'> = {
-  verified: 'gold',
-  false: 'ember',
-  misleading: 'ember',
-  manipulated: 'ember',
-  out_of_context: 'ember',
-  contested: 'ember',
-  unsupported: 'muted',
-  unverified: 'muted',
-  satire: 'muted',
-};
-
-/** schema.org/ClaimReview's reviewRating is a 1–5 scale, not this site's own
- *  9-value vocabulary — this is the one honest translation between them,
- *  used only for the JSON-LD, never for on-page display. */
-const CLAIM_REVIEW_RATING: Record<AssessmentValue, { ratingValue: number; alternateName: string }> = {
-  verified: { ratingValue: 5, alternateName: "True" },
-  false: { ratingValue: 1, alternateName: "False" },
-  manipulated: { ratingValue: 1, alternateName: "False" },
-  misleading: { ratingValue: 2, alternateName: "Mostly False" },
-  out_of_context: { ratingValue: 2, alternateName: "Misleading" },
-  unsupported: { ratingValue: 2, alternateName: "Unsupported" },
-  contested: { ratingValue: 3, alternateName: "Disputed" },
-  unverified: { ratingValue: 3, alternateName: "Unverified" },
-  satire: { ratingValue: 3, alternateName: "Satire" },
-};
-
-/** Day-level labels for the correction order. The cases' own `dateLabel` is
- *  month-level ("Oct 2023") because that is the honest resolution for when a
- *  claim was circulating; the correction has a day, and showing it is what
- *  makes the ordering visible instead of three identical rows. */
-const correctionDateLabel = (datetime: string) =>
-  new Date(`${datetime}T00:00:00Z`).toLocaleDateString("en-US", {
-    timeZone: "UTC",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
-/** Exhibit letters, not sequence numbers — these three cases aren't steps in
- *  a process, they're separate items pulled into evidence. */
-const exhibitLetter = (index: number) => String.fromCharCode(65 + index);
+/* The section's root is a hub, not a dossier: it says what Fake Resistance
+   is, names the front it belongs to, and hands the reader to one of two
+   investigation branches. The worked exhibits live on
+   `/fake-resistance/official-narrative`; the research index lives on
+   `/fake-resistance/social-media`. What stays here is the method material —
+   the machine and its tells — because recognizing the technique is the one
+   thing every branch needs the reader to carry in. */
 
 const TAGLINE =
   "Inside the influence machine: how manufactured outrage is built and amplified.";
@@ -90,37 +27,41 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const [edition, cases] = await Promise.all([getFakeResistanceEdition(), getCaseIndex()]);
+  const [edition, cases] = await Promise.all([
+    getFakeResistanceEdition(),
+    getCaseIndex(),
+  ]);
   const playbook = getPlaybook();
+
+  // Derived, not written down: the counts on the two branch cards track the
+  // content seams, so adding a case file updates the card with no edit here.
+  const officialCount = edition.cases.length;
+  const socialCount = cases.length + 2; // playbook + network + the case files
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@graph": edition.cases.map((c) => ({
-      "@type": "ClaimReview",
-      url: `${PAGE_URL}#${c.id}`,
-      datePublished: c.datetime,
-      claimReviewed: c.claim,
-      itemReviewed: {
-        "@type": "Claim",
-        // No `author` — these claims spread through anonymous/unattributed
-        // accounts; asserting a claimant identity we don't have would be
-        // exactly the kind of invented fact this dataset avoids.
-        datePublished: c.datetime,
-        appearance: c.sources.map((s) => s.url).filter(Boolean),
+    "@type": "CollectionPage",
+    name: "Fake Resistance",
+    description: TAGLINE,
+    url: PAGE_URL,
+    author: { "@type": "Organization", name: "Lions of Zion", url: SITE_URL },
+    isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL },
+    hasPart: [
+      {
+        "@type": "WebPage",
+        name: "Official narrative engineering",
+        description:
+          "Three worked cases of claims engineered to pass as war reporting — and the corrections that unmade them.",
+        url: `${PAGE_URL}/official-narrative`,
       },
-      author: {
-        "@type": "Organization",
-        name: "Lions of Zion",
-        url: SITE_URL,
+      {
+        "@type": "WebPage",
+        name: "The social-media front",
+        description:
+          "The influence-network research: the techniques, the cross-network synthesis, and seven documented case files.",
+        url: `${PAGE_URL}/social-media`,
       },
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: CLAIM_REVIEW_RATING[c.verdict].ratingValue,
-        bestRating: 5,
-        worstRating: 1,
-        alternateName: CLAIM_REVIEW_RATING[c.verdict].alternateName,
-      },
-    })),
+    ],
   };
 
   return (
@@ -139,143 +80,109 @@ export default async function Page() {
         Manufactured outrage is built, not felt: a claim is seeded by a small
         set of accounts, moved by networks that exist to move volume, and
         finally carried by real people who believe they found it themselves.
-        Three worked cases follow — what was claimed, where it came from, and
-        the evidence that unmade it — with the method behind them set out at
-        the foot of this file.
+      </p>
+      <p>
+        Fake Resistance is this desk&rsquo;s file on that machine. Not on the
+        people who disagree — disagreement is not a finding — but on the
+        apparatus that manufactures the appearance of one: the recycled
+        footage, the amplifier accounts, the laundered consensus. This page
+        sets out the front that machine fights on, the two investigations
+        that document it from opposite ends, and the methods it runs on.
       </p>
 
-      <SectionBlock heading="Case files">
+      <SectionBlock heading="The consciousness war">
         <p>
-          Each documented campaign gets a file with the same structure: the
-          claim as it spread, its point of origin, the amplification pattern,
-          and the evidence that unmade it. The case files exist so that the
-          next wave can be recognized from the last one — the machine changes
-          its content far more often than it changes its method.
+          The fight over what happened has its own name in Hebrew:{" "}
+          <span lang="he" dir="rtl">
+            מלחמת התודעה
+          </span>{" "}
+          — the consciousness war. Its premise is that what people believe
+          about a war is territory, contested with the same seriousness as
+          ground — and that the decisive weapons are not arguments but
+          logistics: banked material, standing networks, and rails that move a
+          claim faster than any check can follow it.
         </p>
-
-        {edition.cases.map((c, i) => (
-          <article key={c.id} id={c.id} className={styles.caseFile}>
-            <span
-              className={styles.stamp}
-              data-tone={STAMP_TONE[c.verdict]}
-              aria-hidden="true"
-            >
-              {STAMP_LABEL[c.verdict]}
-            </span>
-
-            {/* The exhibit and its sources are siblings so the case can become
-                a two-track grid above 1220px and file the citation in the
-                margin — `marginNote`, content.module.css. */}
-            <div className={styles.caseFileMain}>
-              <div className={styles.caseFileHeader}>
-                <span className={styles.exhibitTag}>Exhibit {exhibitLetter(i)}</span>
-                <time dateTime={c.datetime}>{c.dateLabel}</time>
-                <VerificationBadge assessment={c.verdict} />
-              </div>
-              <h3 className={styles.caseTitle}>{c.title}</h3>
-              <ClaimRecordPair
-                claim={c.claim}
-                record={c.record}
-                claimLabel="As it spread"
-                recordLabel="What the record shows"
-              />
-              <ol className={styles.caseLog}>
-                <li>
-                  <span className={styles.caseLogLabel}>Origin</span>
-                  <p>{c.origin}</p>
-                </li>
-                <li>
-                  <span className={styles.caseLogLabel}>Amplification</span>
-                  <p>{c.amplification}</p>
-                </li>
-              </ol>
-              <div className={styles.caseFileTells}>
-                <span className={styles.caseFileTellsLabel}>Tells exhibited</span>
-                <ul>
-                  {c.tells.map((tell) => (
-                    <li key={tell}>{tell}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className={styles.caseFileSources}>
-              <SourceList sources={c.sources} />
-            </div>
-          </article>
-        ))}
+        <p>
+          October 7 demonstrated how much of that war was in place before it
+          had a subject. In the days immediately after the attack — while
+          verification desks were still finding their footing — footage from
+          Arma 3, a military simulation game released in 2013, was already
+          circulating as combat video, one flagged post alone drawing more
+          than three million views. Material a decade old does not find an
+          audience of millions that fast on its own. The clips were already
+          banked, the accounts positioned to amplify them already existed, and
+          the distribution rails between them were already standing. The event
+          supplied the occasion; the machinery predates it.
+        </p>
+        <p>
+          That is a claim about infrastructure, and it is the strongest form
+          of the claim this page makes. Whether specific narratives were
+          drafted in advance is a research question, not a settled fact. What
+          the record documents is narrower and harder to dismiss: when the
+          moment came, the delivery chain did not need to be built. It only
+          needed to be switched on.
+        </p>
       </SectionBlock>
 
-      {/* This block used to be headed "Claim propagation" and read the three
-          dates as "the same synchronized-timing signature … visible across
-          cases" — a coordination pattern inferred from three self-selected
-          fact-check publication dates, which is the pattern-from-noise move
-          this page spends the rest of its length teaching readers to
-          distrust. The dates are what they always were; only the claim made
-          about them is gone. The device was also inert: all three entries
-          printed the same "Oct 2023" label, so the timeline showed three
-          identical rows sorted by a value the reader never saw. Day-level
-          labels come from the same `datetime` the sort uses, which is the
-          cited fact-check's publication date — provably so for Exhibits A and
-          C, whose source URLs carry it. */}
-      <SectionBlock heading="Order of correction">
+      <SectionBlock heading="Two branches">
         <p>
-          The three files above, in the order each was corrected. The date is
-          the publication date of the fact-check cited on that file — the
-          record catching up, not the claim spreading. Three corrections
-          landing inside one week is what a heavy week of fact-checking looks
-          like; on its own it is not evidence that the three campaigns were
-          run together, and this page does not claim it is.
+          The investigation behind this section runs on two fronts, and they
+          are different kinds of work. One follows engineered claims into the
+          official record — material built to be mistaken for war reporting,
+          and the corrections that unmade it. The other maps the social-media
+          machine itself: the accounts, the networks between them, and the
+          techniques they run. Each branch is a file of its own.
         </p>
-        <Timeline
-          variant="spread"
-          entries={[...edition.cases]
-            .sort((a, b) => a.datetime.localeCompare(b.datetime))
-            .map((c) => ({
-              id: `${c.id}-spread`,
-              datetime: c.datetime,
-              dateLabel: correctionDateLabel(c.datetime),
-              title: c.title,
-              body: `Exhibit ${exhibitLetter(edition.cases.indexOf(c))} — flagged and corrected by the source cited below.`,
-              assessment: c.verdict,
-              sources: c.sources,
-            }))}
-        />
-      </SectionBlock>
 
-      <SectionBlock heading="The files">
-        <p>
-          Two longer works sit behind this page. The playbook is about method
-          and names no one; the research files document specific networks,
-          account by account, with every source and every grade the research
-          assigned.
-        </p>
-        <ul className={styles.fileIndex}>
-          <li>
-            <Link href="/fake-resistance/playbook">The playbook</Link>
-            <span>
-              {playbook.length} manipulation techniques in full — the move, the
-              psychology behind it, where it is documented here, and how to
-              catch it.
+        <nav aria-label="Investigation branches" className={styles.branches}>
+          <Link
+            href="/fake-resistance/official-narrative"
+            className={styles.branchCard}
+          >
+            <span className={styles.branchKicker}>
+              <span className={styles.branchTag}>Branch 01</span>
+              <span className={styles.branchCount}>
+                {officialCount} case files
+              </span>
             </span>
-          </li>
-          <li>
-            <Link href="/fake-resistance/network">The network</Link>
-            <span>
-              What the case files add up to: seven communities, the documented
-              bridges between them, and the findings that survived every
-              attempt to break them — including the ones that cut against the
-              premise.
+            <span className={styles.branchTitle}>
+              Official narrative engineering
             </span>
-          </li>
-          {cases.map((entry) => (
-            <li key={entry.slug}>
-              <Link href={`/fake-resistance/cases/${entry.slug}`}>
-                {entry.title.split(":")[0].trim()}
-              </Link>
-              <span>{entry.question}</span>
-            </li>
-          ))}
-        </ul>
+            <span className={styles.branchDesc}>
+              Three worked exhibits — the claim as it spread, its origin, its
+              amplification, and the evidence that unmade it — with the order
+              in which the record caught up.
+            </span>
+            <span className={styles.branchCta}>
+              Open the file
+              <span className={styles.branchArrow} aria-hidden="true">
+                →
+              </span>
+            </span>
+          </Link>
+
+          <Link
+            href="/fake-resistance/social-media"
+            className={styles.branchCard}
+          >
+            <span className={styles.branchKicker}>
+              <span className={styles.branchTag}>Branch 02</span>
+              <span className={styles.branchCount}>{socialCount} files</span>
+            </span>
+            <span className={styles.branchTitle}>The social-media front</span>
+            <span className={styles.branchDesc}>
+              The influence-network research: a {playbook.length}-technique
+              playbook, the cross-network synthesis, and seven documented case
+              files, graded exactly as the research graded them.
+            </span>
+            <span className={styles.branchCta}>
+              Open the file
+              <span className={styles.branchArrow} aria-hidden="true">
+                →
+              </span>
+            </span>
+          </Link>
+        </nav>
       </SectionBlock>
 
       <SectionBlock heading="The machine">
@@ -286,14 +193,17 @@ export default async function Page() {
           looks like consensus; and real people carry it the rest of the way,
           believing they found it themselves. Recycled imagery — footage from
           other conflicts, other years, other continents — is the raw material
-          at the top of the chain, and it is where all three exhibits above
+          at the top of the chain, and it is where all three exhibits in{" "}
+          <Link href="/fake-resistance/official-narrative">
+            the official-narrative file
+          </Link>{" "}
           came apart.
         </p>
-        {/* Stated rather than glossed over: the second link is the one this
-            page's three exhibits do not document. Claiming otherwise would be
-            the same move the exhibits exist to expose. */}
+        {/* Stated rather than glossed over: the second link is the one those
+            three exhibits do not document. Claiming otherwise would be the
+            same move the exhibits exist to expose. */}
         <p>
-          The second link is the one these three files cannot show you.
+          The second link is the one those case files cannot show you.
           Documenting an amplifier network takes account-level evidence
           gathered over time, which is what{" "}
           <Link href="/fake-resistance/network">the network file</Link> is for.
@@ -341,13 +251,6 @@ export default async function Page() {
           yourself.
         </p>
       </SectionBlock>
-
-      <PublicationMeta
-        edition={edition.edition}
-        publishedAt={edition.publishedAt}
-        reviewedBy={edition.reviewedBy}
-        sourceCount={edition.sourceCount}
-      />
     </SectionPage>
   );
 }

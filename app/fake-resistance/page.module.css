@@ -1,266 +1,152 @@
-/* Case-file layout, local to Fake Resistance.
-
-   Each entry reads as processed evidence rather than a blog post: an
-   exhibit letter (there are three separate items in evidence here, not
-   three steps of a sequence — letters, not numbers), a corner stamp
-   carrying the verdict as ink rather than only a colored chip, and the
-   origin/amplification pair as a two-entry custody log — that pairing IS
-   a real sequence (what happened first, what happened next), so a
-   connecting rail earns its place there in a way a numbered badge would
-   not have.
+/* The section root is a hub: an opening, the consciousness-war framing, and
+   the decision moment — two branch cards — followed by the method blocks.
+   The worked case-file layout moved to `official-narrative/page.module.css`
+   and the file index to `social-media/page.module.css` when the exhibits and
+   the research index moved to their branch pages.
 
    Type and colour come from the V2 tokens in app/globals.css
-   (`.ai/DESIGN-V2.md`); the kicker and title treatments are composed from
-   the content library rather than redeclared here. */
+   (`.ai/DESIGN-V2.md`). */
 
-.caseFile {
-  position: relative;
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--gold-line);
+/* The page's opening two sentences. Set apart by ink rather than size — it
+   stays on the body step (the seven size steps are the whole scale) and
+   lifts to full ink instead. No uppercase, no rule: the branch cards below
+   carry all the emphasis this page needs. */
+.standfirst {
+  margin: 0 0 1.5rem;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink-hi);
 }
 
-.caseFile:first-of-type {
+/* ── The two branch cards ─────────────────────────────────────────────────
+   The decision moment of the page. Each card is one anchor — kicker row,
+   title, description, and a standing "Open the file" affordance — so it
+   reads as a door to a content-rich file, not as a list row. Emphasis
+   budget: gold is spent here deliberately (the branch tag and the
+   affordance), because choosing a branch is the one thing this page asks
+   the reader to do. Hover moves ink and border only — nothing changes size,
+   so nothing shifts. */
+
+.branches {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
   margin-top: 1.75rem;
 }
 
-/* The exhibit's evidence. Above 1220px it leaves the column for the right
-   margin, level with the case it belongs to — see `marginNote`. */
-.caseFileSources {
-  composes: marginNote from '../../components/content/content.module.css';
-}
-
-/* Two tracks, the second zero-wide: the case keeps the reading measure while
-   its sources overflow into the margin, and because the note still occupies
-   the grid row it can never run into the case below. */
-@media (min-width: 1220px) {
-  .caseFile {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 0;
-  }
-
-  .caseFileMain {
-    grid-column: 1;
-    grid-row: 1;
-    min-width: 0;
-  }
-
-  .caseFileSources {
-    /* Clear the corner stamp, which sits at the case's top right. Expressed
-       as padding, not margin: `.marginNote` sets `margin-top` at the same
-       specificity from another module, and chunk order would decide the
-       winner — the trap `:where(.body)` exists for. */
-    padding-top: 2.75rem;
+@media (min-width: 680px) {
+  .branches {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-/* The corner stamp — the one bold flourish on this page. Decorative only:
-   VerificationBadge below carries the real accessible label, so this stays
-   aria-hidden and never disagrees with it (STAMP_LABEL mirrors the badge's
-   own wording). Tracking is at the cap rather than the old 0.22em; the
-   border, rotation and weight already make it read as a stamp without
-   pulling the letters apart. */
-.stamp {
-  position: absolute;
-  top: 0.35rem;
-  right: 0;
-  padding: 0.3rem 0.85rem;
-  border: 2px solid var(--stamp-color, var(--data-ember));
-  border-radius: 3px;
-  transform: rotate(-6deg);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: 700;
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--stamp-color, var(--data-ember));
-  opacity: 0.82;
-  pointer-events: none;
-}
-
-.stamp[data-tone='ember'] {
-  --stamp-color: var(--data-ember);
-}
-
-.stamp[data-tone='gold'] {
-  --stamp-color: var(--gold);
-}
-
-.stamp[data-tone='muted'] {
-  --stamp-color: var(--ink-lo);
-}
-
-.caseFileHeader {
+.branchCard {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.9rem;
-  max-width: calc(100% - 8rem);
+  flex-direction: column;
+  padding: 1.5rem 1.4rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 200ms ease-out,
+    background-color 200ms ease-out;
 }
 
-.exhibitTag {
-  padding: 0.15rem 0.5rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 2px;
+.branchCard:hover,
+.branchCard:focus-visible {
+  border-color: var(--gold);
+  background-color: color-mix(in srgb, var(--gold) 6%, transparent);
+}
+
+/* Focus outline comes from the section shell's page-wide treatment
+   (`sections.module.css` — `.page a:focus-visible`), which outranks any
+   local declaration; the card adds its hover surface to that outline. */
+
+.branchKicker {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+
+/* Two words — inside the sanctioned uppercase budget for data labels. */
+.branchTag {
   font-family: var(--face-data);
   font-size: var(--t-data);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--gold);
 }
 
-/* Sentence case, matching the canonical date stamp — a date is data, not a
-   label, and "Oct 2023" has no reason to shout. */
-.caseFileHeader time {
+/* A count is data, and sentence case — same treatment as the case dates. */
+.branchCount {
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
 
-.caseTitle {
-  composes: entryTitle from '../../components/content/content.module.css';
-  margin: 0.85rem 0 1.35rem;
-}
-
-/* Origin → amplification, in that order: a two-entry custody log with a
-   connecting rail, the same rail/dot idea components/content/Timeline.tsx
-   uses, kept local since two fixed entries don't warrant reaching for that
-   component's generality. */
-.caseLog {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-  margin: 1.5rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.caseLog li {
-  position: relative;
-  padding-left: 1.35rem;
-  border-left: 1px solid rgba(201, 162, 75, 0.3);
-}
-
-.caseLog li:last-child {
-  border-left-color: transparent;
-}
-
-.caseLog li::before {
-  content: '';
-  position: absolute;
-  top: 0.3rem;
-  left: -0.24rem;
-  width: 0.42rem;
-  height: 0.42rem;
-  border-radius: 1px;
-  transform: rotate(45deg);
-  background: var(--ground);
-  border: 1px solid var(--gold);
-}
-
-.caseLogLabel {
-  composes: kicker from '../../components/content/content.module.css';
-  margin-bottom: 0.35rem;
-}
-
-.caseLog p {
-  margin: 0;
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-}
-
-.caseFileTells {
-  margin: 1.5rem 0 0;
-}
-
-.caseFileTellsLabel {
-  composes: kicker from '../../components/content/content.module.css';
-  margin-bottom: 0.6rem;
-}
-
-.caseFileTells ul {
-  margin: 0;
-  padding-left: 1.1rem;
-}
-
-.caseFileTells li {
-  margin-bottom: 0.4rem;
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-}
-
-/* Ember here is semantic: these are the hostile-signal tells. */
-.caseFileTells li::marker {
-  color: var(--data-ember);
-}
-
-@media (max-width: 540px) {
-  /* No room for a floating corner stamp beside wrapped header text — drop it
-     into normal flow above the header instead of overlapping it. */
-  .stamp {
-    position: static;
-    display: inline-block;
-    margin: 0 0 1rem;
-  }
-
-  .caseFileHeader {
-    max-width: 100%;
-  }
-}
-
-/* The file index — the way into the playbook, the network, and the case
-   files. A list of destinations, not a sequence, so no numbering: the reader
-   picks one, and nothing about the second follows from the first. */
-
-.fileIndex {
-  margin: 1.5rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.fileIndex > li {
-  padding: 1rem 0;
-  border-top: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
-}
-
-.fileIndex > li > a {
-  display: block;
-  color: var(--loz-ink-hi, #e9eef6);
-  font-family: var(--face-display, Charter, Georgia, serif);
-  font-size: var(--t-h3, 1.25rem);
-  line-height: var(--t-h3-lh, 1.4);
-  text-decoration: none;
-}
-
-.fileIndex > li > a:hover,
-.fileIndex > li > a:focus-visible {
-  color: var(--loz-gold-bright, #efd79a);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-.fileIndex > li > span {
-  display: block;
-  margin-top: 0.35rem;
-  color: var(--loz-ink-lo, #8494a8);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
-}
-
-/* The page's opening two sentences, standing where "The machine" and "The
-   tells" used to. Set one step above body so it reads as a standfirst and
-   not as the first paragraph of a section that isn't there — the first
-   section is Case files, and that is the point. It stays on the body step —
-   the seven size steps are the whole scale — and lifts to full ink instead.
-   No uppercase, no rule: the exhibit stamps below carry all the emphasis
-   this page needs. */
-.standfirst {
-  margin: 0 0 2rem;
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+.branchTitle {
+  margin-top: 0.85rem;
   color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  text-wrap: balance;
+  transition: color 200ms ease-out;
+}
+
+.branchCard:hover .branchTitle,
+.branchCard:focus-visible .branchTitle {
+  color: var(--gold-hi);
+}
+
+.branchDesc {
+  margin-top: 0.5rem;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* Pinned to the card's foot so the two affordances align across the pair
+   even when the descriptions run different lengths. */
+.branchCta {
+  display: inline-flex;
+  align-items: baseline;
+  margin-top: auto;
+  padding-top: 1.1rem;
+  color: var(--gold);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
+}
+
+.branchArrow {
+  display: inline-block;
+  margin-left: 0.4em;
+  transition: transform 200ms ease-out;
+}
+
+.branchCard:hover .branchArrow,
+.branchCard:focus-visible .branchArrow {
+  transform: translateX(0.3em);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .branchCard,
+  .branchTitle,
+  .branchArrow {
+    transition: none;
+  }
+
+  .branchCard:hover .branchArrow,
+  .branchCard:focus-visible .branchArrow {
+    transform: none;
+  }
 }

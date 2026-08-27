@@ -31,6 +31,8 @@ const ROUTES = [
   "/october-7/documentation",
   "/fake-resistance/playbook",
   "/fake-resistance/network",
+  "/fake-resistance/official-narrative",
+  "/fake-resistance/social-media",
 ];
 
 /**

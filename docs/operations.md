@@ -108,8 +108,8 @@ Start the dev server first, then:
 | `node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band` | macOS only | The scene keeps its exact box; the band scrolls, is opaque, carries all eight links; the intro scroll lock holds |
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
 | `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **21 routes** return 200 with no console errors — 15 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
-| `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
-| _CI environment_ | GitHub Actions | `.github/workflows/ci.yml` sets `NEXT_PUBLIC_ARCHIVE_CDN` at the workflow level. It is inlined at build time, so without it every archive record route logs a media 404 and the smoke job fails. The store is public; no secret is involved |
+| `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere — and CI runs the sampled form on every push (`archive-assets` job) | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
+| _CI environment_ | GitHub Actions | `.github/workflows/ci.yml` sets `NEXT_PUBLIC_ARCHIVE_CDN` on the `smoke` and `archive-assets` jobs — job-scoped, never workflow-level, because the gate job's tests assert the unset fallback. It is inlined at build time, so without it every archive record route logs a media 404 and the smoke job fails. The store is public; no secret is involved |
 | `npm run map` / `npm run map:check` | anywhere | Regenerates `docs/project-map.html` by scanning the repository, or fails if it has drifted. Reports import-boundary violations and migration/snapshot drift on stderr |
 
 ### Archive assets
@@ -117,12 +117,42 @@ Start the dev server first, then:
 `verify-archive-assets.mjs` exists because nothing else can catch a wrong
 `NEXT_PUBLIC_ARCHIVE_CDN`. The ~1.8 GB behind the archive never enters git, so
 a page whose media 404s still builds, still passes the tests and still renders
-its text. Run it once against the real bucket after the first upload, and
-after any change to that variable:
+its text.
+
+**CI now runs it** — the `archive-assets` job in `.github/workflows/ci.yml`
+(wired 2026-08-27) checks the production base on every push and pull request,
+in parallel with the gate job. It uses the sampled default: 80 of the 2,018
+referenced assets on a fixed stride, about ten seconds, which catches the
+wholesale failures this script exists for — a wrong base, an unpopulated or
+emptied bucket, an access change. It does not prove every object, so the
+exhaustive run stays a manual step after an upload or any change to the
+variable (about 4–5 minutes):
 
 ```bash
 node scripts/verify-archive-assets.mjs https://m70ph8nwojvanarn.public.blob.vercel-storage.com --all
 ```
+
+That base is the provisioned store, Vercel Blob `lions-of-zion-archive`
+(`store_M70Ph8nWOJVAnaRn`). Last full run 2026-08-27: 2,018 checked,
+0 unreachable.
+
+**`NEXT_PUBLIC_ARCHIVE_CDN` is substituted at build time**, so changing it
+takes a rebuild: in production a redeploy — an env edit alone leaves the old
+value baked into the prerendered HTML — and locally a dev-server restart, not
+a refresh. A fresh clone has neither the variable (`.env.example` is
+untracked) nor the `public/archive` symlinks, so `npm run dev` renders every
+archive image broken until one of the two exists; `docs/environment.md` has
+the local setup.
+
+Locally the same check runs against the symlinks
+`import-archive-package.mjs --link-assets` creates:
+
+```bash
+node scripts/verify-archive-assets.mjs http://localhost:3000/archive
+```
+
+Two october7 videos are hosted on YouTube and have no file in the package; the
+script counts them separately rather than reporting them missing.
 
 ### Document scroll
 
@@ -143,25 +173,6 @@ It asserts per route only what that route actually mounts: `DocPage` gates
 `ReadingProgress` on `withToc`, so the archive index has no bar to track, and
 the Brief has its own static contents nav rather than `SectionToc`, so nothing
 there sets `aria-current`.
-
-That base is the provisioned store, Vercel Blob `lions-of-zion-archive`
-(`store_M70Ph8nWOJVAnaRn`). Last run 2026-08-26: 2,018 checked, 0 unreachable.
-Locally the same script takes `http://localhost:3000/archive`, which resolves
-through the dev symlinks rather than the bucket.
-
-**`NEXT_PUBLIC_ARCHIVE_CDN` is substituted at build time**, so changing it
-takes a redeploy — an env edit alone leaves the old value baked into the
-prerendered HTML.
-
-Locally the same check runs against the symlinks
-`import-archive-package.mjs --link-assets` creates:
-
-```bash
-node scripts/verify-archive-assets.mjs http://localhost:3000/archive
-```
-
-Two october7 videos are hosted on YouTube and have no file in the package; the
-script counts them separately rather than reporting them missing.
 
 `ci-smoke.mjs` is the only one that uses Playwright's own bundled Chromium, and
 the only one CI can run. It is deliberately modest — route availability and

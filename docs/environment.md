@@ -73,10 +73,24 @@ base — the assets are laid out beneath it as `<package>/originals/…` and
 `<package>/web/…`, exactly as they sit in the package minus its `assets/`
 prefix.
 
+**A fresh clone renders the archive with every image broken, and nothing says
+why.** Local development needs one of two things: this variable set in
+`.env.local` to the public base above (the store is public; the value is not a
+secret), or the `public/archive` symlink tree that
+`import-archive-package.mjs --link-assets` creates — which requires the
+original integration package on disk, so for most clones setting the variable
+is the practical path. With neither, all ~1,177 archive pages render "not
+loading" text in place of every image, because `.env.example` is untracked
+(`.gitignore`'s `.env*` captures it) and the fallback `/archive` path points
+at symlinks that do not exist yet.
+
 Being `NEXT_PUBLIC_`, it is substituted at build time rather than read at
 runtime, which is why `lib/content/archive.ts` may read it without breaking
 the rule that `server/core/config.ts` is the only runtime reader of
-`process.env`.
+`process.env`. Build-time substitution also means a change takes effect only
+on the next build: **restart the dev server after setting it** — a refresh
+changes nothing — and in production an env edit alone leaves the old value
+baked into the prerendered HTML until the next deploy.
 
 **A wrong or empty value fails quietly**: pages still build, still pass the
 tests and still render their text — only the media 404s. Prove the bucket is
@@ -85,6 +99,11 @@ right with:
 ```bash
 node scripts/verify-archive-assets.mjs https://your-cdn/base --all
 ```
+
+CI now runs the sampled form of that check on every push and pull request —
+the `archive-assets` job in `.github/workflows/ci.yml` (wired 2026-08-27) —
+so a wholesale failure of the production base fails the build instead of
+reaching a deploy unnoticed.
 
 Wanted by: `lib/content/archive.ts` `assetUrl()`.
 

@@ -39,8 +39,9 @@ decision with a test pinning it. The two `SECURITY DEFINER` prune functions are
 closed by migration `0022`, granted to `app_service` alone after verifying the
 maintenance cron is their only caller.
 
-One item remains, as cosmetics: `publications` and `reports` fold `repo()` into
-their service rather than a sibling file.
+`publications` and `reports` had their repositories extracted into sibling
+`repo.ts` files, so all ten data modules now match the shape `CLAUDE.md`
+documents. Nothing from the audit is left open.
 
 ## CI is red on main, and was before this branch
 

@@ -230,11 +230,11 @@ Say the word and they are an hour's work each.
    app_service`. The grant target was verified, not guessed — that cron is the
    only caller. `tests/prune-privileges.test.ts` asserts it from the roles.
 
-One item remains, as cosmetics:
-
-3. **`publications` and `reports` fold `repo()` into their service** rather than
-   a sibling `repo.ts`. Pure code motion, no behavioural difference, and the
-   deviation is documented where a reader will meet it.
+3. **`publications` and `reports` folded `repo()` into their service** rather
+   than a sibling `repo.ts` — **closed 2026-08-27.** Both extracted; all ten
+   data modules now follow the documented shape, and the eleventh
+   (`public-x-auth`) is a facade by design. Pure code motion: typecheck, lint
+   and 409 tests unchanged.
 
 ## Found after the audit closed — not caused by it
 

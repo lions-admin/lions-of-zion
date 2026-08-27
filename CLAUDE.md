@@ -353,7 +353,12 @@ layers.
 Each `server/modules/<name>/` exposes `index.ts` (binds `db()` lazily and
 returns the service), `service.ts` (the transactional workflow), `repo.ts`
 (queries), and sometimes `rules.ts` — pure, DB-free policy that is unit-tested
-directly, as in `assessments/rules.ts`.
+directly, as in `assessments/rules.ts`. **All ten data modules follow this**;
+`publications` and `reports` kept their repository inline until 2026-08-27.
+The eleventh, `public-x-auth`, is a deliberate exception: a pure re-export
+facade over `core/auth/public-x.ts`, with no service, no repo and no database,
+existing so `app/auth/**/route.ts` can reach it under the carve-out in
+`eslint.config.mjs`.
 
 ### Cross-cutting rules worth knowing before editing
 

@@ -3,15 +3,15 @@ import { LiveBriefHub } from "@/components/briefs/LiveBriefHub";
 import { SITE_URL } from "@/lib/site-config";
 
 const TAGLINE =
-  "A daily brief with current news, analysis, and source-linked monitoring of false narratives and fake news.";
+  "The Daily Brief: current news, analysis, and source-linked narrative watch on Israel and the war.";
 const PAGE_URL = `${SITE_URL}/geopolitical-brief`;
 
 export const metadata: Metadata = {
-  title: "Daily Brief & Updates",
+  title: "The Daily Brief",
   description: TAGLINE,
   alternates: { canonical: PAGE_URL },
   openGraph: {
-    title: "Daily Brief & Updates — LIONS OF ZION",
+    title: "The Daily Brief — LIONS OF ZION",
     description: TAGLINE,
     type: "website",
   },
@@ -24,6 +24,10 @@ const jsonLd = {
   description: TAGLINE,
   publisher: { "@type": "Organization", name: "Lions of Zion" },
   url: PAGE_URL,
+  about: [
+    { "@type": "Thing", name: "Current news" },
+    { "@type": "Thing", name: "Narrative watch" },
+  ],
 };
 
 export default async function Page() {

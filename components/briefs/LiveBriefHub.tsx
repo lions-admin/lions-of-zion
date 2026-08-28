@@ -43,18 +43,18 @@ export async function LiveBriefHub() {
                 <span aria-hidden="true">↓</span>
               </a>
               <a href="#narratives" className={styles.textAction}>
-                Narrative Watch <span aria-hidden="true">↘</span>
+                Narrative watch <span aria-hidden="true">↘</span>
               </a>
             </div>
-          </div>
 
-          <Link href="/information-war" className={styles.informationWarTrigger}>
-            <span className={styles.informationWarMark} aria-hidden="true">IW</span>
-            <span className={styles.informationWarCopy}>
-              <strong>THIS IS AN INFORMATION WAR.</strong>
-              <span>EXPLORE THE SYSTEM. <i aria-hidden="true">↗</i></span>
-            </span>
-          </Link>
+            <Link href="/information-war" className={styles.informationWarTrigger}>
+              <span className={styles.informationWarMark} aria-hidden="true">IW</span>
+              <span className={styles.informationWarCopy}>
+                <strong>This is an information war.</strong>
+                <span>Explore the system <i aria-hidden="true">↗</i></span>
+              </span>
+            </Link>
+          </div>
 
           <SignalHorizon hasEdition={Boolean(lead)} />
         </div>
@@ -192,7 +192,7 @@ function LeadArticle({ article }: { article: PublicPublication }) {
   return (
     <article className={styles.leadArticle}>
       <div className={styles.leadMeta}>
-        <span>{article.section.replace(/_/g, " ")}</span>
+        <span>{formatSectionLabel(article.section)}</span>
         <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
       </div>
       <h3><Link href={`/articles/${article.publicId}`}>{article.title}</Link></h3>
@@ -239,7 +239,7 @@ function ArticleStream({ entries, empty }: { entries: PublicPublication[]; empty
           <Link href={`/articles/${article.publicId}`} className={styles.articleLink}>
             <span className={styles.articleIndex}>{String(index + 1).padStart(2, "0")}</span>
             <div>
-              <p>{article.section.replace(/_/g, " ")}</p>
+              <p>{formatSectionLabel(article.section)}</p>
               <h3>{article.title}</h3>
               {article.summary ? <small>{article.summary}</small> : null}
             </div>
@@ -250,6 +250,11 @@ function ArticleStream({ entries, empty }: { entries: PublicPublication[]; empty
       ))}
     </ol>
   );
+}
+
+function formatSectionLabel(section: string): string {
+  const label = section.replace(/_/g, " ");
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 function formatDate(value: string): string {

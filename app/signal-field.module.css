@@ -63,12 +63,12 @@
 .heroCopy {
   max-width: 650px;
   margin: 18px auto 0;
-  color: #bcc5bd;
+  color: #d0d8d2;
   font-family: var(--font-pompiere), cursive;
-  font-size: clamp(13px, 1.12vw, 16px);
-  font-weight: 400;
-  letter-spacing: -0.012em;
-  line-height: 1.48;
+  font-size: clamp(17px, 1.55vw, 22px);
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  line-height: 1.35;
   text-wrap: balance;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95);
 }
@@ -81,30 +81,57 @@
 }
 
 .dailyReportAction {
-  width: 100%;
-  min-height: 50px;
+  position: relative;
+  isolation: isolate;
+  width: fit-content;
+  min-width: 170px;
+  min-height: 64px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "title arrow"
-    "prompt arrow";
+    "title"
+    "prompt";
   align-items: center;
-  column-gap: 18px;
-  padding: 7px 15px 7px 17px;
-  background: #d6b45f;
-  color: #11150f;
+  overflow: hidden;
+  border: 1px solid rgba(247, 224, 158, 0.72);
+  border-radius: 3px;
+  padding: 11px 8px;
+  background: linear-gradient(118deg, #d8b45d 0%, #efd489 52%, #c99a3e 100%);
+  color: #15160f;
   text-decoration: none;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
-  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: inset 0 1px 0 rgba(255, 250, 224, 0.7), inset 0 -1px 0 rgba(87, 56, 10, 0.24), 0 12px 30px rgba(0, 0, 0, 0.3);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
-.dailyReportAction:hover,
+.dailyReportAction::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: radial-gradient(circle at 88% 50%, rgba(255, 248, 213, 0.52), transparent 26%);
+  content: "";
+  opacity: 0.75;
+  transition: opacity 180ms ease;
+}
+
+.dailyReportAction:hover {
+  border-color: #fff0ba;
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 250, 224, 0.84), inset 0 -1px 0 rgba(87, 56, 10, 0.2), 0 17px 38px rgba(0, 0, 0, 0.42);
+}
+
+.dailyReportAction:hover::before {
+  opacity: 1;
+}
+
 .dailyReportAction:focus-visible {
-  outline: 1px solid #f0d98f;
+  outline: 2px solid #f0d98f;
   outline-offset: 4px;
-  background: #e2c66f;
-  transform: translateY(-3px);
-  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.4);
+}
+
+.dailyReportTitle,
+.dailyReportPrompt {
+  position: relative;
+  z-index: 1;
 }
 
 .dailyReportTitle {
@@ -112,7 +139,7 @@
   align-self: end;
   color: inherit;
   font-family: var(--font-libre-baskerville), Georgia, serif;
-  font-size: 17px;
+  font-size: clamp(18px, 1.5vw, 20px);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
@@ -121,28 +148,14 @@
 .dailyReportPrompt {
   grid-area: prompt;
   align-self: start;
-  color: rgba(17, 21, 15, 0.68);
-  font-family: "SFMono-Regular", "Cascadia Mono", monospace;
-  font-size: 6px;
+  color: rgba(21, 22, 15, 0.92);
+  font-family: var(--font-pompiere), cursive;
+  font-size: clamp(14px, 1.1vw, 16px);
   font-weight: 700;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 1.1;
 }
 
-.dailyReportArrow {
-  grid-area: arrow;
-  color: inherit;
-  font-family: Georgia, serif;
-  font-size: 24px;
-  line-height: 1;
-  transition: transform 180ms ease;
-}
-
-.dailyReportAction:hover .dailyReportArrow,
-.dailyReportAction:focus-visible .dailyReportArrow {
-  transform: translateX(5px);
-}
 
 .editorialDesk {
   position: fixed;
@@ -185,9 +198,14 @@
 }
 
 .deskHeader > span {
+  border-style: none;
+  border-width: 1px;
   font-family: var(--font-pompiere), cursive;
-  font-size: 9px;
-  letter-spacing: 0.035em;
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 1.3px;
+  line-height: 10.3px;
 }
 
 .deskHeader h2::before {
@@ -364,8 +382,16 @@
   line-height: 1.45;
 }
 
+.featureBrief p {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  break-after: auto;
+}
+
 .featureCta {
-  font-size: 8px;
+  font-size: 14px;
+  letter-spacing: 0.08em;
 }
 
 .featureCta b {
@@ -388,39 +414,41 @@
   left: 0;
   height: 82px;
   display: grid;
-  grid-template-columns: 118px minmax(0, 1fr) 96px;
+  grid-template-columns: 130px minmax(0, 1fr) 110px;
   align-items: center;
-  gap: 0;
-  border-top: 1px solid rgba(194, 160, 83, 0.28);
-  padding: 0 22px;
-  background: rgba(2, 4, 3, 0.96);
-  box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(18px);
+  gap: 12px;
+  border-top: 1px solid rgba(194, 160, 83, 0.44);
+  padding: 0 28px;
+  background: linear-gradient(180deg, rgba(10, 14, 11, 0.9), rgba(2, 4, 3, 0.98));
+  box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 248, 218, 0.04);
+  backdrop-filter: blur(18px) saturate(1.1);
 }
 
 .updateLabel {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   color: #d6ae53;
   font-family: "SFMono-Regular", "Cascadia Mono", monospace;
-  font-size: 8px;
-  letter-spacing: 0.15em;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1;
 }
 
 .updateLabel strong {
-  color: #e7edf0;
+  color: #f0e5c8;
   font-family: var(--font-pompiere), cursive;
-  font-weight: 400;
-  font-size: 10px;
-  letter-spacing: 0.17em;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.16em;
 }
 
 .updateViewport {
   min-width: 0;
-  height: 48px;
+  height: 52px;
   overflow: hidden;
-  border-inline: 1px solid rgba(109, 126, 114, 0.22);
+  border-inline: 1px solid rgba(201, 162, 75, 0.22);
 }
 
 .updateTrack {
@@ -436,56 +464,77 @@
 }
 
 .updateSequence a {
-  width: clamp(220px, 25vw, 330px);
+  width: clamp(250px, 28vw, 360px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
-  border-right: 1px solid rgba(109, 126, 114, 0.22);
-  padding: 0 22px;
-  color: #c7d0c9;
+  gap: 5px;
+  border-right: 1px solid rgba(109, 126, 114, 0.24);
+  padding: 0 24px;
+  color: #d1d8d2;
   font-family: var(--font-libre-baskerville), Georgia, serif;
-  font-size: 10px;
-  line-height: 1.2;
+  font-size: 13px;
+  line-height: 1.25;
   text-decoration: none;
+  text-wrap: balance;
   transition: color 170ms ease, background 170ms ease;
 }
 
 .updateSequence a:hover,
 .updateSequence a:focus-visible {
   outline: none;
-  color: #fff;
-  background: rgba(198, 158, 66, 0.07);
+  color: #f0e5c8;
+  background: rgba(198, 158, 66, 0.08);
 }
 
 .updateSequence small {
-  color: #a98b48;
+  color: #c39f52;
   font-family: "SFMono-Regular", "Cascadia Mono", monospace;
-  font-size: 7px;
+  font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.16em;
 }
 
 .updateAll {
   justify-self: end;
-  color: #d8b35a;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(201, 162, 75, 0.48);
+  border-radius: 999px;
+  padding: 9px 12px;
+  color: #e1c36f;
+  background: rgba(201, 162, 75, 0.07);
   font-family: "SFMono-Regular", "Cascadia Mono", monospace;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-decoration: none;
   white-space: nowrap;
+  transition: background 170ms ease, border-color 170ms ease, color 170ms ease;
 }
 
 .updateAll span {
   display: inline-block;
-  margin-left: 4px;
   transition: transform 170ms ease;
+}
+
+.updateAll:hover,
+.updateAll:focus-visible {
+  outline: none;
+  border-color: rgba(239, 215, 154, 0.82);
+  color: #f5e4ad;
+  background: rgba(201, 162, 75, 0.16);
 }
 
 .updateAll:hover span,
 .updateAll:focus-visible span {
   transform: translateX(4px);
+}
+
+.updateAll:focus-visible {
+  outline: 2px solid #f0d98f;
+  outline-offset: 3px;
 }
 
 @keyframes updateTravel {
@@ -498,19 +547,19 @@
   z-index: 12;
   top: 18px;
   left: 50%;
-  width: min(1500px, calc(100vw - 16px));
+  width: min(1320px, calc(100vw - 32px));
   min-height: 70px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 14px;
+  gap: 20px;
   transform: translateX(-50%);
-  border: 1px solid rgba(194, 160, 83, 0.34);
-  border-radius: 999px;
-  padding: 5px 20px;
-  background: rgba(2, 4, 3, 0.94);
-  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
-  backdrop-filter: blur(14px);
+  border: 1px solid rgba(194, 160, 83, 0.44);
+  border-radius: 18px;
+  padding: 5px 22px;
+  background: linear-gradient(180deg, rgba(16, 20, 16, 0.97), rgba(2, 4, 3, 0.94));
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 248, 218, 0.07), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(18px) saturate(1.12);
 }
 
 .navLinks {
@@ -525,32 +574,44 @@
 
 .navLinks a {
   position: relative;
-  color: #b7c0b8;
-  font-size: clamp(9px, 0.9vw, 14px);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 7px 5px;
+  color: #c4ccc5;
+  font-size: clamp(10px, 0.86vw, 13px);
   font-weight: 700;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.045em;
   line-height: 1.1;
   text-align: center;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 170ms ease, text-shadow 170ms ease;
+  transition: background 170ms ease, border-color 170ms ease, color 170ms ease, box-shadow 170ms ease, text-shadow 170ms ease;
 }
 
 .navLinks a:not(:last-child)::after {
   position: absolute;
   top: 50%;
-  left: calc(100% + 0.78em);
-  color: #947f4b;
-  content: "|";
-  font-weight: 400;
+  left: calc(100% + 0.65em);
+  width: 1px;
+  height: 12px;
+  background: rgba(201, 162, 75, 0.42);
+  content: "";
   transform: translateY(-50%);
 }
 
 .navLinks a:hover,
 .navLinks a:focus-visible {
   outline: none;
-  color: #ddbc67;
-  text-shadow: 0 0 12px rgba(211, 172, 82, 0.45);
+  border-color: rgba(221, 188, 103, 0.42);
+  color: #f0d98f;
+  background: rgba(201, 162, 75, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 244, 197, 0.08), 0 0 18px rgba(201, 162, 75, 0.08);
+  text-shadow: 0 0 12px rgba(211, 172, 82, 0.35);
+}
+
+.navLinks a:focus-visible {
+  outline: 2px solid #f0d98f;
+  outline-offset: 3px;
 }
 
 .brandMark {
@@ -559,6 +620,7 @@
   display: grid;
   place-items: start center;
   overflow: hidden;
+  border-inline: 1px solid rgba(201, 162, 75, 0.24);
   text-decoration: none;
 }
 
@@ -718,7 +780,7 @@
 
 @media (max-width: 1200px) and (min-width: 701px) {
   .floatingNav {
-    width: calc(100vw - 8px);
+    width: calc(100vw - 24px);
     padding-inline: 12px;
   }
 
@@ -727,12 +789,13 @@
   }
 
   .navLinks a {
-    font-size: 13px;
-    letter-spacing: 0.01em;
+    padding-inline: 4px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
   }
 
   .navLinks a:not(:last-child)::after {
-    left: calc(100% + 0.28em);
+    left: calc(100% + 0.35em);
   }
 
   .brandMark {
@@ -845,7 +908,8 @@
 
   .heroCopy {
     margin-top: 18px;
-    font-size: 12px;
+    font-size: 15px;
+    line-height: 1.4;
   }
 
   .heroActions {
@@ -855,9 +919,11 @@
     margin-top: 22px;
   }
 
-  .heroActions a {
-    width: 100%;
-    padding: 9px 3px;
+  .heroActions .dailyReportAction {
+    width: fit-content;
+    min-width: 170px;
+    min-height: 60px;
+    padding: 10px 8px;
   }
 
   .editorialDesk {
@@ -912,9 +978,13 @@
     font-size: 10px;
   }
 
-  .featureEyebrow,
-  .featureCta {
+  .featureEyebrow {
     font-size: 7px;
+  }
+
+  .featureCta {
+    font-size: 12px;
+    letter-spacing: 0.08em;
   }
 
   .featureIndex {
@@ -925,35 +995,48 @@
 
   .updateBar {
     height: 76px;
-    grid-template-columns: 74px minmax(0, 1fr) 52px;
+    grid-template-columns: 78px minmax(0, 1fr) auto;
+    gap: 6px;
     padding: 0 10px;
   }
 
   .updateLabel {
-    font-size: 6px;
+    gap: 3px;
+    font-size: 7px;
   }
 
   .updateLabel strong {
-    font-size: 8px;
+    font-size: 9px;
+  }
+
+  .updateViewport {
+    height: 46px;
   }
 
   .updateSequence a {
     width: 230px;
+    gap: 4px;
     padding-inline: 14px;
-    font-size: 9px;
+    font-size: 10px;
+  }
+
+  .updateSequence small {
+    font-size: 7px;
   }
 
   .updateAll {
-    font-size: 6px;
+    gap: 5px;
+    padding: 7px 8px;
+    font-size: 8px;
   }
 
   .floatingNav {
     top: 10px;
-    width: calc(100vw - 16px);
+    width: calc(100vw - 20px);
     min-height: 80px;
-    gap: 5px;
-    border-radius: 26px;
-    padding: 5px 8px;
+    gap: 7px;
+    border-radius: 18px;
+    padding: 5px 7px;
   }
 
   .navLinks {
@@ -964,8 +1047,9 @@
 
   .navLinks a {
     overflow: hidden;
-    font-size: 7px;
-    letter-spacing: 0.025em;
+    padding: 6px 3px;
+    font-size: 8px;
+    letter-spacing: 0.035em;
     text-overflow: ellipsis;
   }
 
@@ -976,6 +1060,7 @@
   .brandMark {
     width: 116px;
     height: 42px;
+    border-inline-color: rgba(201, 162, 75, 0.2);
   }
 
   .brandLogo {
@@ -1004,5 +1089,10 @@
   .typedGroup,
   .terminalCaret {
     animation: none;
+  }
+
+  .dailyReportAction,
+  .dailyReportAction::before {
+    transition: none;
   }
 }

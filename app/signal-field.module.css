@@ -84,7 +84,7 @@
   position: relative;
   isolation: isolate;
   width: fit-content;
-  min-width: 220px;
+  min-width: 190px;
   min-height: 64px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -95,7 +95,7 @@
   overflow: hidden;
   border: 1px solid rgba(247, 224, 158, 0.72);
   border-radius: 3px;
-  padding: 11px 14px;
+  padding: 11px 10px;
   background: linear-gradient(118deg, #d8b45d 0%, #efd489 52%, #c99a3e 100%);
   color: #15160f;
   text-decoration: none;
@@ -870,9 +870,9 @@
 
   .heroActions .dailyReportAction {
     width: fit-content;
-    min-width: 220px;
+    min-width: 190px;
     min-height: 60px;
-    padding: 10px 14px;
+    padding: 10px;
   }
 
   .editorialDesk {

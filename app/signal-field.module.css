@@ -84,7 +84,7 @@
   position: relative;
   isolation: isolate;
   width: fit-content;
-  min-width: 190px;
+  min-width: 170px;
   min-height: 64px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -95,7 +95,7 @@
   overflow: hidden;
   border: 1px solid rgba(247, 224, 158, 0.72);
   border-radius: 3px;
-  padding: 11px 10px;
+  padding: 11px 8px;
   background: linear-gradient(118deg, #d8b45d 0%, #efd489 52%, #c99a3e 100%);
   color: #15160f;
   text-decoration: none;
@@ -139,7 +139,7 @@
   align-self: end;
   color: inherit;
   font-family: var(--font-libre-baskerville), Georgia, serif;
-  font-size: clamp(16px, 1.3vw, 18px);
+  font-size: clamp(18px, 1.5vw, 20px);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
@@ -150,7 +150,7 @@
   align-self: start;
   color: rgba(21, 22, 15, 0.76);
   font-family: var(--font-pompiere), cursive;
-  font-size: clamp(13px, 1vw, 15px);
+  font-size: clamp(14px, 1.1vw, 16px);
   font-weight: 400;
   letter-spacing: 0.005em;
   line-height: 1.1;
@@ -378,7 +378,7 @@
 }
 
 .featureCta {
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.08em;
 }
 
@@ -871,9 +871,9 @@
 
   .heroActions .dailyReportAction {
     width: fit-content;
-    min-width: 190px;
+    min-width: 170px;
     min-height: 60px;
-    padding: 10px;
+    padding: 10px 8px;
   }
 
   .editorialDesk {
@@ -933,7 +933,7 @@
   }
 
   .featureCta {
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.08em;
   }
 

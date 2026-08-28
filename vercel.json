@@ -8,6 +8,7 @@
     { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
     { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
     { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
-    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
+    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" },
+    { "path": "/api/internal/cron/briefing", "schedule": "0 4,5 * * *" }
   ]
 }

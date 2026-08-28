@@ -25,6 +25,7 @@ export type RateLimitPolicy = { limit: number; windowSeconds: number };
 /** Public submission is the one surface anonymous users can write to, so it
  *  is the one that needs a real ceiling rather than a courtesy one. */
 export const REPORT_SUBMISSION: RateLimitPolicy = { limit: 10, windowSeconds: 3600 };
+export const VOLUNTEER_SUBMISSION: RateLimitPolicy = { limit: 5, windowSeconds: 3600 };
 export const SEARCH_QUERIES: RateLimitPolicy = { limit: 120, windowSeconds: 60 };
 export const CHAT_MESSAGES: RateLimitPolicy = { limit: 10, windowSeconds: 60 };
 export const CHAT_MESSAGES_DAILY: RateLimitPolicy = { limit: 100, windowSeconds: 86_400 };

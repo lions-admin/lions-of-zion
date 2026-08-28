@@ -3,12 +3,18 @@
  */
 
 import { z } from "zod";
-import { likelihoodBandSchema, publicationKindSchema, publicationStatusSchema } from "./enums";
+import {
+  likelihoodBandSchema,
+  publicationKindSchema,
+  publicationSectionSchema,
+  publicationStatusSchema,
+} from "./enums";
 import { languageSchema, uuidSchema } from "./item";
 
 export const createPublicationSchema = z
   .object({
     kind: publicationKindSchema,
+    section: publicationSectionSchema.optional(),
     title: z.string().trim().min(1).max(300),
     summary: z.string().trim().max(4_000).optional(),
     body: z.string().trim().min(1).max(200_000),
@@ -16,6 +22,8 @@ export const createPublicationSchema = z
     eventId: uuidSchema.optional(),
     primaryTopicId: uuidSchema.optional(),
     itemIds: z.array(uuidSchema).max(100).optional(),
+    narrativeIds: z.array(uuidSchema).max(50).optional(),
+    evidenceIds: z.array(uuidSchema).max(100).optional(),
     /** Scenarios only — a band, never a number. */
     scenarioLikelihood: likelihoodBandSchema.optional(),
     scenarioIndicators: z.string().trim().max(10_000).optional(),
@@ -30,6 +38,7 @@ export const createPublicationSchema = z
 export type CreatePublication = z.infer<typeof createPublicationSchema>;
 
 export const updatePublicationSchema = z.object({
+  section: publicationSectionSchema.optional(),
   title: z.string().trim().min(1).max(300).optional(),
   summary: z.string().trim().max(4_000).optional(),
   body: z.string().trim().min(1).max(200_000).optional(),
@@ -45,12 +54,54 @@ export type TransitionPublication = z.infer<typeof transitionPublicationSchema>;
 
 export const listPublicationsSchema = z.object({
   kind: publicationKindSchema.optional(),
+  section: publicationSectionSchema.optional(),
   status: publicationStatusSchema.optional(),
   eventId: uuidSchema.optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(25),
 });
 export type ListPublications = z.infer<typeof listPublicationsSchema>;
+
+/** The deliberately narrow projection returned to anonymous readers. */
+export const publicPublicationSchema = z.object({
+  publicId: z.string(),
+  kind: publicationKindSchema,
+  section: publicationSectionSchema,
+  title: z.string(),
+  summary: z.string().nullable(),
+  body: z.string(),
+  language: z.string(),
+  publishedAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  autoPublishedAt: z.iso.datetime().nullable(),
+});
+export type PublicPublication = z.infer<typeof publicPublicationSchema>;
+
+export const publicPublicationDetailSchema = publicPublicationSchema.extend({
+  sources: z.array(z.object({
+    title: z.string(),
+    publisher: z.string(),
+    url: z.string().nullable(),
+    publishedAt: z.string().nullable(),
+  })),
+  narratives: z.array(z.object({
+    publicId: z.string(),
+    title: z.string(),
+    status: z.string(),
+  })),
+});
+export type PublicPublicationDetail = z.infer<typeof publicPublicationDetailSchema>;
+
+export const listPublicPublicationsSchema = z.object({
+  kind: publicationKindSchema.optional(),
+  section: publicationSectionSchema.optional(),
+  date: z.iso.date().optional(),
+  topic: uuidSchema.optional(),
+  narrative: uuidSchema.optional(),
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+});
+export type ListPublicPublications = z.infer<typeof listPublicPublicationsSchema>;
 
 /**
  * Which status may follow which.

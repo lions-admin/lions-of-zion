@@ -17,41 +17,10 @@
  * `components/particle-nav/config.ts`, so the hover card, the lede here, and
  * the page metadata stay one sentence in one place.
  */
-import Link from 'next/link';
-import { defaultNodes } from '@/components/particle-nav/config';
-import { ScanBackdrop } from './ScanBackdrop';
-import { ReadingProgress } from './ReadingProgress';
+import { EditorialShell } from '@/components/site/EditorialShell';
+import { getSiteNavigationItem } from '@/lib/site-navigation';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
-
-/*
- * Emblems come from the same source artwork the icon bakes are cut from.
- * The SDF PNGs in `public/icons` carry their distance field in an opaque black
- * frame — correct for the GPU sampler, a black square in an `<img>` — so the
- * DOM uses the white source glyphs and tints them gold in CSS, the same way
- * the Geopolitical Brief's rail does.
- */
-import fakeResistanceEmblem from '@/assets/source/icons/fake-resistance.svg';
-import geopoliticalBriefEmblem from '@/assets/source/icons/geopolitical-brief.svg';
-import israelsStoryEmblem from '@/assets/source/icons/israels-story.svg';
-import octoberSevenEmblem from '@/assets/source/icons/october-7.svg';
-import ourHeroesEmblem from '@/assets/source/icons/our-heroes.svg';
-import supportUsEmblem from '@/assets/source/icons/support-us.svg';
-import warUpdateEmblem from '@/assets/source/icons/war-update.svg';
-import weAreEmblem from '@/assets/source/icons/we-are.svg';
-
-const emblems: Record<string, { src: string }> = {
-  'fake-resistance': fakeResistanceEmblem,
-  'geopolitical-brief': geopoliticalBriefEmblem,
-  'israels-story': israelsStoryEmblem,
-  'october-7': octoberSevenEmblem,
-  'our-heroes': ourHeroesEmblem,
-  'support-us': supportUsEmblem,
-  'war-update': warUpdateEmblem,
-  'we-are': weAreEmblem,
-};
-
-const pad = (n: number) => String(n).padStart(2, '0');
 
 export interface SectionPageProps {
   /** Route id — must match a `defaultNodes` entry. */
@@ -94,19 +63,9 @@ export function SectionPage({
   breadcrumb,
   children,
 }: SectionPageProps) {
-  const index = defaultNodes.findIndex((node) => node.id === id);
-  if (index === -1) throw new Error(`SectionPage: unknown section id "${id}"`);
-  const node = defaultNodes[index];
+  const node = getSiteNavigationItem(id);
+  if (!node) throw new Error(`SectionPage: unknown section id "${id}"`);
   const lede = tagline ?? node.description;
-
-  /* One level up, not home: a child page's way out is its hub, which the
-     trail already names as its last item. Only without a trail is the parent
-     the scan itself. Same rule as `DocPage`. */
-  const exit = breadcrumb?.length
-    ? breadcrumb[breadcrumb.length - 1]
-    : { href: '/', label: 'the scan' };
-
-  const total = defaultNodes.length;
 
   const pageClass = [
     styles.page,
@@ -123,56 +82,15 @@ export function SectionPage({
     .trim();
 
   return (
-    <main className={pageClass} data-reading-scroll>
-      <a href="#page-content" className={styles.skipLink}>
-        Skip to content
-      </a>
-      <ReadingProgress
-        trackClassName={styles.topProgressTrack}
-        valueClassName={styles.topProgressValue}
-      />
-      <ScanBackdrop routeId={id} register={register} />
+    <EditorialShell
+      routeId={id}
+      register={register}
+      className={pageClass}
+      skipLinkClassName={styles.skipLink}
+      progressTrackClassName={styles.topProgressTrack}
+      progressValueClassName={styles.topProgressValue}
+    >
       <div className={shellClass}>
-        <div className={styles.identityBand}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- the
-              emblem is a static white glyph tinted in CSS; next/image's
-              optimizer adds nothing to an already-tiny SVG */}
-          <img
-            src={emblems[id].src}
-            alt=""
-            className={styles.identityEmblem}
-            width={26}
-            height={26}
-          />
-          <Link href="/" className={styles.wordmark}>
-            Lions of Zion
-          </Link>
-          <span className={styles.identityMeta}>
-            <span className={styles.identitySep} aria-hidden="true">
-              ·
-            </span>
-            <span>
-              File {pad(index + 1)} / {pad(total)}
-            </span>
-            {breadcrumb?.length ? (
-              <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-                {breadcrumb.map((crumb) => (
-                  <span key={crumb.href}>
-                    <Link href={crumb.href}>{crumb.label}</Link>
-                    <span aria-hidden="true"> / </span>
-                  </span>
-                ))}
-              </nav>
-            ) : (
-              <span className={styles.identityRoute}>{node.href}</span>
-            )}
-            <span>Reference edition</span>
-          </span>
-          <Link href={exit.href} className={styles.identityExit}>
-            ← Back to {exit.label}
-          </Link>
-        </div>
-
         <div className={styles.tocRail}>
           <SectionToc />
         </div>
@@ -206,7 +124,7 @@ export function SectionPage({
           </aside>
         ) : null}
       </div>
-    </main>
+    </EditorialShell>
   );
 }
 

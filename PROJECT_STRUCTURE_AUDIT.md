@@ -40,11 +40,11 @@ Categories: **active-essential**, **source-of-truth**, **supplementary-doc**,
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `app/` | 97 | Every route; folder name is the URL | 13 content routes + `app/api` 44 + `admin` 5 + `auth` 3; all file-convention entry points | active-essential | Do not reorganise — a move renames a live URL | none | high |
 | `app/admin/**` | 5 | Hebrew ops dashboard behind Neon Auth | Sole consumer of `GET /api/v1/admin/status` | active-essential | Was absent from `CLAUDE.md`'s map | **documented** | high |
-| `app/auth/x/**` | 3 | Public X OAuth begin/callback/signout | Reached from `XPublicAuthControl`, mounted on every route | active-essential | Absent from every doc; shipped with no ADR entry | **documented; ADR still owed** | high |
+| `app/auth/x/**` | 3 | Public X OAuth begin/callback/signout | Route entry points remain; the retired global launcher no longer links them | active-unlinked | Keep as backend capability pending a future public auth surface | **launcher dependency removed** | high |
 | `components/` | 97 | Ten feature directories | Import graph resolved; zero unresolved specifiers repo-wide | active-essential | Keep | none | high |
 | `components/particle-nav/` | 36 | The single R3F scene, DOM links, LNP1 codec | Every file has ≥1 importer | source-of-truth | Keep | none | high |
 | `components/graphics/viewport.ts` | 1 | 472-line contract for the **retired** photographic scene (34°/10u; live scene is 45°/8.2u) | Only importer is `tests/composition-fit.test.ts`, which uses 9 pure symbols. `Viewport` class never instantiated. `window.__lionFit` has **one writer, zero readers** | duplicate-or-stale | Splitting it is a judgement about whether a test for a retired scene is worth keeping | **deferred to owner** | high |
-| `components/{AskAboutFileCta,BriefError,SensitiveContent}` | 3 | Component surface with zero render sites | Proved absent from the app graph — but all three are published members of the `.design-sync` bundle, and each carries a written retention rationale | unclear-keep | **Keep.** Deleting silently breaks the DS export map | none | high |
+| `components/{BriefError,SensitiveContent}` | 2 | Component surface with zero render sites | Both remain published members of the `.design-sync` bundle | unclear-keep | **Keep.** Their design-system contract remains active | `AskAboutFileCta` removed with the retired chat UI | high |
 | `lib/` | 15 | The frontend's content seam | All 15 reachable; four dead exports inside live modules | active-essential | Keep | none | high |
 
 ### Backend
@@ -179,11 +179,10 @@ The 31 split into three groups, none of them junk:
    by `ds-entry.ts`, not by `config.json`, not by any tracked file. Verified as
    *no reference exists*, not *none found*: zero files anywhere import from
    `previews/`. Classification: `unclear-keep`, because the tool that would use
-   them lives outside the repository.
-2. **`components/briefs/BriefError.tsx` and `components/sections/AskAboutFileCta.tsx`
-   — 2 files.** Already known, already documented, deliberately retained: each
-   carries a written rationale and each is a published member of the
-   design-system bundle.
+   them lives outside the repository. The three previews for the retired chat
+   surface were removed with that surface.
+2. **`components/briefs/BriefError.tsx` — 1 file.** Already known, documented,
+   and deliberately retained as a published member of the design-system bundle.
 3. **`.claude/skills/verify-intro/capture.mjs`** — invoked from the command
    line and documented in two places. A limit of the graph, not an orphan.
 

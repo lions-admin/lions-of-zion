@@ -290,13 +290,9 @@ inline markers.
 > `server/http/handler.ts` calls `registerActor` with an HMAC'd anonymous label
 > and `userId: null` under `app_public`. Public chat works.
 >
-> **What is still a gap** is the other half: `components/chat/AskTheLionChat.tsx`
-> still probes availability with `GET /api/v1/chat/threads`, which touches
-> neither the rate limiter, the budget guard, the retriever nor the gateway — so
-> an exhausted budget or a dead gateway still reports "online". The probe should
-> test the path it actually uses. It also still sends the vestigial
-> `x-actor-label: public-site-visitor`, which is inert (only `authenticateAdmin`
-> reads it, and only in development).
+> **Current public surface:** the global chat launcher was removed from the
+> editorial shell. These endpoints remain versioned backend entry points, but
+> no public page currently mounts a chat client for them.
 
 ### AI suggestions
 

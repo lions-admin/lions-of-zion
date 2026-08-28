@@ -74,6 +74,10 @@ export async function findEvidenceByExternalId(
   return evidenceRepo(tx).byExternalId(sourceId, externalId);
 }
 
+export async function findEvidenceByUrl(tx: unknown, url: string): Promise<Evidence | undefined> {
+  return evidenceRepo(tx).byUrl(url);
+}
+
 export function evidenceService(db: unknown) {
   const run = db as unknown as Runner;
 

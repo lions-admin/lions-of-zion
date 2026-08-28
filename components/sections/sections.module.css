@@ -43,7 +43,7 @@
      its outer margin at exactly the width it gained its rails. 14vw sits under
      the track at every width from 1220px up and reaches the full 13rem at
      ~1486px, so the breakpoint itself does not move — 1220 is a site-wide
-     threshold (`home.module.css`, and the chat-launcher label decision). */
+     threshold across the reading shell. */
   --rail-w: clamp(9rem, 14vw, 13rem);
   --rail-gap: clamp(1.5rem, 3vw, 2.5rem);
 
@@ -63,21 +63,12 @@
      `display: none` above the rail breakpoint. */
   --anchor-offset: 2rem;
 
-  /* `height` (not `min-height`) is load-bearing: this element is the scroll
-     container, and the ≤719px rule below shortens it to reserve the chat
-     launcher's dock; `min-height: 100dvh` alongside would win that cascade and
-     push content back under the dock. Sticky rails work inside it —
-     `position: sticky` resolves against the nearest scrollport — so the rails
-     did not require restoring document scroll, which stays its own phase
-     (`.ai/DESIGN-V2.md`).
-
-     That phase landed on 2026-08-27: this element is no longer a scroll
+  /* Since 2026-08-27 this element is no longer a scroll
      container, the document is. `min-height` rather than `height` — a page
      that runs long now extends the document instead of scrolling inside
      itself, which is what lets a phone's URL bar collapse and native
      back-navigation restore position. `scroll-behavior` moved to `html` in
-     `globals.css`, and the ≤719px rule below reserves the chat dock with
-     padding instead of shortening a scroller that no longer exists.
+     `globals.css`.
 
      `.backdropBand` below now resolves its sticky against the viewport rather
      than against this element, which is the same behaviour from the other
@@ -274,7 +265,31 @@
   grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
   column-gap: var(--rail-gap);
   align-content: start;
-  padding: 0 clamp(1.25rem, 4vw, 3rem) var(--sp-8);
+  padding: clamp(2.25rem, 5vh, 4rem) clamp(1.25rem, 4vw, 3rem) var(--sp-8);
+}
+
+.documentTrail {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: var(--sp-5);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.documentTrail a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.documentTrail a:hover,
+.documentTrail a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration: underline;
 }
 
 /* ---- identity band -------------------------------------------------------
@@ -505,33 +520,6 @@
   color: var(--gold-hi);
 }
 
-/* Kept for `AskAboutFileCta`, which is no longer rendered by the shell (the
-   floating launcher is the single ask affordance) but still exists as a
-   component another page could mount. */
-.askCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 44px;
-  padding: 0.65rem 1.1rem;
-  background: transparent;
-  border: 1px solid rgba(201, 162, 75, 0.4);
-  border-radius: 2px;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--gold);
-  cursor: pointer;
-  transition: border-color 180ms ease, color 180ms ease;
-}
-
-.askCta:hover,
-.askCta:focus-visible {
-  border-color: var(--gold-hi);
-  color: var(--gold-hi);
-}
-
 /* ---- optional aside (≥1220px), in the brief's evidence-rail voice ---- */
 
 .sideRail {
@@ -755,6 +743,7 @@
   }
 
   .panel,
+  .documentTrail,
   .identityBand,
   .tocRail,
   .sideRail {
@@ -804,14 +793,7 @@
 
 @media (max-width: 719px) {
   .page {
-    /* Room for the chat launcher's mobile dock, which stacks on the home
-       indicator. `--chat-dock-h` (app/globals.css) is the one definition of
-       that band; `CHAT_DOCK_PX` in components/particle-nav/config.ts is the
-       same 84px expressed in the units the orbit layout works in. */
-    /* Reserved, not subtracted: with the document scrolling there is no
-       container to shorten, so the band the dock occupies becomes padding at
-       the foot — the same shape `home.module.css` already used. */
-    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .shell {

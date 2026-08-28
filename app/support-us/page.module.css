@@ -122,6 +122,29 @@
   color: var(--ink);
 }
 
+.donateLink {
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gold);
+  color: var(--gold-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.paypalButton {
+  min-height: 86px;
+  margin-top: 1.25rem;
+}
+
+.donateLink:hover,
+.donateLink:focus-visible {
+  border-color: var(--gold-hi);
+  color: var(--ink-hi);
+}
+
 @media (max-width: 900px) {
   .practiceGrid {
     grid-template-columns: minmax(0, 1fr);

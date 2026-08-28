@@ -5,12 +5,12 @@ Where everything lives, what owns what, and where a new file goes.
 The interactive version is [`project-map.html`](project-map.html) — **generated
 by [`scripts/project-map.mjs`](../scripts/project-map.mjs), not written by
 hand.** `npm run map` rebuilds it by scanning the repository; `npm run map:check`
-fails if it has drifted. Only the one-line purpose of each area is authored, in
-`AREAS` and `ROOTFILES` inside that script — an area with no entry renders as
-"לא מתועד" rather than disappearing, so a new directory announces itself.
+fails if it has drifted. Authored Hebrew lives in
+[`scripts/project-map-prose.mjs`](../scripts/project-map-prose.mjs): exact entries for
+areas and key files, then patterns so a new file still gets a real explanation
+instead of vanishing. The page has two modes — a list of every tracked file,
+and Flowise-style flow diagrams — and a click opens an explanation drawer.
 
-That page carries the pictures: four SVG flow diagrams of the mechanisms, with a
-hover and click explanation on every directory, every root file and every node.
 This file is the reference. The page needs no server and makes no network
 request.
 
@@ -77,15 +77,15 @@ generated and **are** committed, deliberately — they are the shipped artefacts
 
 | Entry | File | Notes |
 | --- | --- | --- |
-| Home | `app/page.tsx` → `components/Experience.tsx` | Fixed full-viewport scene, then a scrolling front-page band |
-| Root layout | `app/layout.tsx` | 4 fonts, metadata, the global chat launcher |
+| Home | `app/page.tsx` → `CinematicIntroGate` | Editorial signal field beneath a once-per-tab particle entrance |
+| Root layout | `app/layout.tsx` | 4 fonts and shared metadata |
 | The scene | `components/particle-nav/Scene.tsx` | The only live renderer and the only timeline clock |
-| Nav contract | `components/particle-nav/config.ts` | `defaultNodes` — exactly 8, each needs `app/<id>/page.tsx` |
+| Nav contract | `lib/site-navigation.ts` | `SITE_NAVIGATION` — exactly 8, projected into the particle scene |
 | Every API request | `server/http/handler.ts` | Classifies, engages the RLS role, translates errors |
 | Every versioned write | `server/core/versioning.ts` `recordVersion()` | The only write path. Nothing else may UPDATE a versioned table |
 | Job intent | `server/core/outbox.ts` `emit()` | Written inside the causing transaction |
 | Env | `server/core/config.ts` | The only application-runtime `process.env` reader |
-| Sitemap | `app/sitemap.ts` | ~1,190 URLs, derived from `defaultNodes` and the package indexes |
+| Sitemap | `app/sitemap.ts` | Public URLs derived from `SITE_NAVIGATION` and the package indexes |
 
 ## How the areas depend on each other
 

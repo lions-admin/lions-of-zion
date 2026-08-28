@@ -20,10 +20,12 @@
  */
 
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
-import { likelihoodBand, publicationKind, publicationStatus } from "./_enums";
+import { check, index, integer, pgTable, primaryKey, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { evidence } from "./evidence";
+import { likelihoodBand, publicationKind, publicationSection, publicationStatus } from "./_enums";
 import { appUser } from "./identity";
 import { informationItem } from "./items";
+import { narrative } from "./narratives";
 import { event, topic } from "./taxonomy";
 import { entityVersion } from "./versioning";
 import { createdAt, isLanguage, nonBlank, primaryId, tsCol, updatedAt } from "./_shared";
@@ -33,6 +35,7 @@ export const publication = pgTable(
   {
     id: primaryId(),
     kind: publicationKind("kind").notNull(),
+    section: publicationSection("section").notNull().default("israel_update"),
     publicId: text("public_id").notNull().unique(),
 
     title: text("title").notNull(),
@@ -43,6 +46,9 @@ export const publication = pgTable(
 
     status: publicationStatus("status").notNull().default("draft"),
     publishedAt: tsCol("published_at"),
+    /** A transparent audit marker for the owner-approved automatic policy.
+     * It never pretends that a named human reviewed the article. */
+    autoPublishedAt: tsCol("auto_published_at"),
 
     eventId: uuid("event_id").references(() => event.id),
     primaryTopicId: uuid("primary_topic_id").references(() => topic.id),
@@ -67,17 +73,19 @@ export const publication = pgTable(
   },
   (t) => [
     index("publication_by_kind_status").on(t.kind, t.status, t.createdAt),
+    index("publication_by_section_status").on(t.section, t.status, t.publishedAt),
     index("publication_live").on(t.publishedAt).where(sql`${t.publishedAt} IS NOT NULL`),
     nonBlank(t.title, "publication_is_titled"),
     nonBlank(t.body, "publication_has_a_body"),
     isLanguage(t.language, "publication_language_is_a_tag"),
-    /* The single-row half of the publish gate, identical in shape to
-       `published_has_timestamp_and_approver` on information_item. The
-       cross-table half — human, non-author approver — is the shared trigger. */
+    /* A published publication is either explicitly human-approved or carries
+       the distinct automatic-publication marker. The trigger keeps the human
+       path's non-self-approval rule intact. */
     check(
       "published_publication_has_timestamp_and_approver",
       sql`${t.status} NOT IN ('published', 'updated')
-          OR (${t.approvedBy} IS NOT NULL AND ${t.publishedAt} IS NOT NULL)`,
+          OR (${t.publishedAt} IS NOT NULL
+              AND (${t.approvedBy} IS NOT NULL OR ${t.autoPublishedAt} IS NOT NULL))`,
     ),
     /* A scenario states a likelihood band; nothing else may. Both directions
        matter: a scenario without one is an assertion wearing a hedge, and a
@@ -105,6 +113,73 @@ export const publicationItem = pgTable(
   (t) => [
     uniqueIndex("publication_item_is_unique").on(t.publicationId, t.itemId),
     index("publication_item_by_item").on(t.itemId),
+  ],
+);
+
+/** A publication may describe a recurring narrative without assigning a
+ * verdict to the narrative itself. The linked evidence and items carry the
+ * claim-level assessment. */
+export const publicationNarrative = pgTable(
+  "publication_narrative",
+  {
+    publicationId: uuid("publication_id").notNull().references(() => publication.id, { onDelete: "cascade" }),
+    narrativeId: uuid("narrative_id").notNull().references(() => narrative.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.publicationId, t.narrativeId], name: "publication_narrative_pk" }),
+    index("publication_narrative_by_narrative").on(t.narrativeId),
+  ],
+);
+
+/** Direct source evidence joins make every generated article traceable even
+ * when an item is still under investigation. */
+export const publicationEvidence = pgTable(
+  "publication_evidence",
+  {
+    publicationId: uuid("publication_id").notNull().references(() => publication.id, { onDelete: "cascade" }),
+    evidenceId: uuid("evidence_id").notNull().references(() => evidence.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.publicationId, t.evidenceId], name: "publication_evidence_pk" }),
+    index("publication_evidence_by_evidence").on(t.evidenceId),
+  ],
+);
+
+/** Exactly three ordered homepage slots. Keeping placement in a separate
+ * table avoids turning a publication's editorial history into page chrome. */
+export const homepageFeature = pgTable(
+  "homepage_feature",
+  {
+    slot: integer("slot").primaryKey(),
+    publicationId: uuid("publication_id").notNull().unique().references(() => publication.id, { onDelete: "cascade" }),
+    updatedAt: updatedAt(),
+  },
+  (t) => [check("homepage_feature_slot_is_valid", sql`${t.slot} BETWEEN 1 AND 3`)],
+);
+
+/** The idempotency record for discovery, drafting and automatic publication.
+ * `localDate` is an Israel-local calendar date, not a UTC approximation. */
+export const briefingRun = pgTable(
+  "briefing_run",
+  {
+    id: primaryId(),
+    localDate: text("local_date").notNull(),
+    stage: text("stage").notNull(),
+    status: text("status").notNull(),
+    inputCount: integer("input_count").notNull().default(0),
+    outputCount: integer("output_count").notNull().default(0),
+    errorMessage: text("error_message"),
+    startedAt: tsCol("started_at").notNull(),
+    finishedAt: tsCol("finished_at"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("briefing_run_once_per_stage_day").on(t.localDate, t.stage),
+    index("briefing_run_by_date").on(t.localDate, t.createdAt),
+    nonBlank(t.stage, "briefing_run_has_stage"),
+    nonBlank(t.status, "briefing_run_has_status"),
   ],
 );
 

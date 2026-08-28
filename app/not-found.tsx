@@ -6,7 +6,7 @@
  * `defaultNodes`, so this index can never drift from the orbit.
  */
 import Link from 'next/link';
-import { defaultNodes } from '@/components/particle-nav/config';
+import { SITE_NAVIGATION } from '@/lib/site-navigation';
 import styles from './not-found.module.css';
 
 export default function NotFound() {
@@ -30,12 +30,12 @@ export default function NotFound() {
         <nav className={styles.index} aria-label="All destinations">
           <p className={styles.indexHeading}>Open files · monitoring active</p>
           <ul className={styles.list}>
-            {defaultNodes.map((node, index) => (
+            {SITE_NAVIGATION.map((node, index) => (
               <li key={node.id}>
                 <Link href={node.href} className={styles.entry}>
                   <span className={styles.entryIndex}>
                     File {String(index + 1).padStart(2, '0')} /{' '}
-                    {String(defaultNodes.length).padStart(2, '0')}
+                    {String(SITE_NAVIGATION.length).padStart(2, '0')}
                   </span>
                   <span className={styles.entryLabel}>{node.displayName}</span>
                   <span className={styles.entryDescription}>{node.description}</span>

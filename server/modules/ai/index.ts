@@ -12,4 +12,11 @@ import { aiService, type AiService } from "./service";
  */
 export const ai = (): AiService => aiService(db(), { generate });
 
-export { aiService, recordChatRun, recordEmbeddingRun, type AiService, type Generator } from "./service";
+export {
+  aiService,
+  recordBriefingRun,
+  recordChatRun,
+  recordEmbeddingRun,
+  type AiService,
+  type Generator,
+} from "./service";

@@ -28,7 +28,7 @@ const MIGRATION = /^server\/db\/migrations\//;
 const VISUAL_ASSET = /^(?:assets\/(?:reference|source)\/|public\/(?:assets|icons|particles|posters)\/)/;
 const UI_CODE = /^(?:app|components)\/.*\.(?:tsx|css)$/;
 const INTRO = /^(?:components\/intro\/|components\/particle-nav\/(?:Scene\.tsx|layers\/IntroText\.tsx)|\.claude\/skills\/verify-intro\/)/;
-const ARCHITECTURE_SENSITIVE = /^(?:AGENTS\.md|package(?:-lock)?\.json|eslint\.config\.mjs|tsconfig\.json|next\.config\.ts|vitest\.config\.ts|scripts\/project-map\.mjs|docs\/PROJECT_MAP\.md|docs\/project-map\.html|components\/particle-nav\/config\.ts|app\/sitemap\.ts)$/;
+const ARCHITECTURE_SENSITIVE = /^(?:AGENTS\.md|package(?:-lock)?\.json|eslint\.config\.mjs|tsconfig\.json|next\.config\.ts|vitest\.config\.ts|scripts\/project-map(?:-prose)?\.mjs|docs\/PROJECT_MAP\.md|docs\/project-map\.html|components\/particle-nav\/config\.ts|app\/sitemap\.ts)$/;
 
 const step = (
   id: VerificationStep["id"],

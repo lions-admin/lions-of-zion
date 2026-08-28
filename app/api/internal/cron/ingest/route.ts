@@ -1,7 +1,7 @@
 import { handler } from "@/server/http/handler";
 import { ok } from "@/server/http/responses";
 import { requireCron } from "@/server/http/internal-guard";
-import { CONNECTORS, activeSources, ingest } from "@/server/modules/sources";
+import { CONNECTORS, activeSources, ingest, shouldCollectGoogleSource } from "@/server/modules/sources";
 import type { Actor } from "@/server/core/audit";
 
 /**
@@ -26,6 +26,12 @@ export const GET = handler(async (request) => {
   for (const connector of CONNECTORS) {
     const due = await activeSources(connector.kind);
     for (const src of due) {
+      if (connector.kind === "google_search") {
+        if (!(await shouldCollectGoogleSource(src.id))) {
+          results.push({ sourceId: src.id, status: "skipped: Google query limit or already collected today" });
+          continue;
+        }
+      }
       try {
         const result = await ingest(src.id, CRON_ACTOR);
         results.push({

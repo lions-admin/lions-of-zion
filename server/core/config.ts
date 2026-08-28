@@ -57,10 +57,13 @@ export const xOAuthClientId = (): string => required("X_OAUTH_CLIENT_ID", "X OAu
 export const xOAuthClientSecret = (): string => required("X_OAUTH_CLIENT_SECRET", "X OAuth");
 export const xAuthSessionSecret = (): string =>
   required("X_AUTH_SESSION_SECRET", "public X authentication session cookies");
+export const hasXaiApiKey = (): boolean => Boolean(process.env.XAI_API_KEY);
+export const googleSearchApiKey = (): string =>
+  required("GOOGLE_SEARCH_API_KEY", "Google Search discovery");
 /** Vercel supplies `VERCEL_OIDC_TOKEN` automatically to linked deployments.
  * A static key remains a local-development fallback, not the production path. */
 export const hasAiGateway = (): boolean =>
-  Boolean(process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY);
+  Boolean(process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY || process.env.XAI_API_KEY);
 export const internalApiSecret = (): string =>
   required("INTERNAL_API_SECRET", "the internal route guard");
 /** Vercel sets this automatically once the env var of the same name is
@@ -75,6 +78,10 @@ export const neonAuthCookieSecret = (): string =>
 export const adminEmail = (): string =>
   required("ADMIN_EMAIL", "the single-admin allowlist").trim().toLowerCase();
 export const siteUrl = (): string => process.env.NEXT_PUBLIC_SITE_URL ?? "https://lionsofzion.io";
+export const googleWorkspaceSmtpUser = (): string =>
+  required("GOOGLE_WORKSPACE_SMTP_USER", "Google Workspace email delivery").trim().toLowerCase();
+export const googleWorkspaceSmtpAppPassword = (): string =>
+  required("GOOGLE_WORKSPACE_SMTP_APP_PASSWORD", "Google Workspace email delivery");
 
 /** Keyed hashing prevents a leaked bucket value from becoming a reusable IP
  * fingerprint. Production must provide a dedicated secret; local tests use a
@@ -104,11 +111,15 @@ export const rateLimitHmacSecret = (): string =>
  */
 export const MODEL_PROFILES = {
   /** High volume, low stakes: classification, routing, short extraction. */
-  fast: "anthropic/claude-haiku-4.5",
+  fast: "xai/grok-4.3",
   /** Anything a human will be asked to approve. */
   reasoning: "anthropic/claude-sonnet-5",
   /** Translation, where fluency matters more than speed. */
   translation: "anthropic/claude-sonnet-5",
+  /** Google-discovered public material only. Kept separate from Grok chat. */
+  briefingTriage: "openai/gpt-5.4-nano",
+  /** Publication-ready English drafts. Kept separate from Grok chat. */
+  briefingDraft: "openai/gpt-5.4-mini",
   /** 1536 dimensions — must match the vector column. */
   embedding: "openai/text-embedding-3-small",
 } as const;
@@ -132,6 +143,23 @@ export function aiBudgets(): { daily?: number; monthly?: number } {
     monthly: num("AI_MONTHLY_BUDGET_USD") ?? (appEnv() === "development" ? undefined : 4.5),
   };
 }
+
+/** The briefing has a separate ceiling so it cannot spend the chat budget. */
+export function briefingAiBudgets(): { daily: number; monthly: number } {
+  const num = (name: string, fallback: number) => {
+    const parsed = Number(process.env[name]);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+  return {
+    daily: num("BRIEFING_AI_DAILY_BUDGET_USD", 0.5),
+    monthly: num("BRIEFING_AI_MONTHLY_BUDGET_USD", 10),
+  };
+}
+
+export const googleSearchMonthlyLimit = (): number => {
+  const parsed = Number(process.env.GOOGLE_SEARCH_MONTHLY_LIMIT);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 5_000;
+};
 
 /**
  * What is actually configured, for `/api/internal/health/deep`.

@@ -51,6 +51,7 @@ export function buildDocumentBlock(documents: RetrievedDocument[]): string {
 }
 
 export const answerFromDocuments: Answerer = async ({ question, history, documents }) => {
+  const wantsXSearch = /\b(?:x|twitter|tweet|tweets|post|posts)\b|איקס|טוויטר|פוסט|פוסטים|חדשות|עכשיו|כרגע|היום|אחרון|אחרונות|עדכון|עדכונים/i.test(question);
   const transcript = history
     .slice(-2)
     .map((m) => `${m.role}: ${m.content}`)
@@ -70,6 +71,7 @@ export const answerFromDocuments: Answerer = async ({ question, history, documen
     maxOutputTokens: 160,
     dataClass: "public",
     tags: ["feature:chat"],
+    xSearch: wantsXSearch,
   });
 
   const { text, citedIds } = splitCitations(result.text);

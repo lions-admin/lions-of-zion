@@ -43,6 +43,14 @@ export interface NavClientProps {
   onFrameStats?: (ms: number, fps: number) => void;
   children: React.ReactNode;
   intro?: boolean;
+  /**
+   * Use the scene only as the cinematic entrance. Once the story completes,
+   * or when motion/GPU capability asks us to bypass it, the renderer unmounts
+   * and this layer releases the application underneath it.
+   */
+  introOnly?: boolean;
+  /** Keeps the host content out of the accessibility tree while the intro owns the screen. */
+  onIntroBlockingChange?: (blocked: boolean) => void;
 }
 
 const subscribeToHydration = () => () => {};
@@ -94,6 +102,8 @@ export function NavClient({
   onFrameStats,
   children,
   intro = false,
+  introOnly = false,
+  onIntroBlockingChange,
 }: NavClientProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -162,12 +172,23 @@ export function NavClient({
     intro && hydrated && !reducedMotion && !introDone && !introSeen && tier?.backend !== 'none',
   );
 
-  // `introRunning` cannot be true before hydration, so anything reading it from
-  // outside the canvas — the chat launcher lives in the root layout, a sibling
-  // of this tree — would paint itself once and then be told to disappear.
-  // `introPending` is the same claim made early: the server emits it whenever
-  // this mount is asked for an intro, and hydration either confirms it or drops
-  // it in the same commit that rules the intro out (reduced motion, no GPU).
+  const introDismissed = Boolean(
+    introOnly &&
+      hydrated &&
+      (introDone || introSeen || reducedMotion || tier?.backend === 'none'),
+  );
+
+  const introBlocking = Boolean(
+    introOnly && !introDismissed && (!hydrated || tier === null || introRunning || handoffBlocked),
+  );
+
+  useEffect(() => {
+    onIntroBlockingChange?.(introBlocking);
+  }, [introBlocking, onIntroBlockingChange]);
+
+  // `introPending` is the server's early claim. Hydration either confirms it
+  // with `introRunning` or dismisses the entrance for reduced motion, a seen
+  // session, or a missing GPU backend.
   const introPending = Boolean(intro && !introDone && (!hydrated || introRunning));
 
   useEffect(() => {
@@ -369,7 +390,7 @@ export function NavClient({
   // Every width keeps the live orbit after the intro. The static editorial
   // index in HomeSignalLayer is the no-JS/no-GPU tier only, gated in CSS on
   // the same `data-canvas` attribute.
-  const showCanvas = active && wantCanvas && tier && tier.backend !== 'none';
+  const showCanvas = active && wantCanvas && tier && tier.backend !== 'none' && !introDismissed;
   const hasLiveBackend = Boolean(active && tier && tier.backend !== 'none');
 
   return (
@@ -382,13 +403,15 @@ export function NavClient({
       data-intro-active={introRunning ? '' : undefined}
       data-intro-pending={introPending ? '' : undefined}
       data-handoff-blocked={handoffBlocked ? '' : undefined}
+      data-intro-only={introOnly ? '' : undefined}
+      data-intro-dismissed={introDismissed ? '' : undefined}
       onPointerMove={onPointerMove}
       style={{ ['--fade-ms' as string]: `${CANVAS_FADE_MS}ms` }}
     >
       <div
         className={styles.navContent}
-        aria-hidden={introRunning || undefined}
-        inert={introRunning || handoffBlocked ? true : undefined}
+        aria-hidden={introOnly || introRunning || undefined}
+        inert={introOnly || introRunning || handoffBlocked ? true : undefined}
       >
         {children}
       </div>

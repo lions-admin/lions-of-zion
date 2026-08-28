@@ -134,6 +134,7 @@ export type DataClass = z.infer<typeof dataClassSchema>;
 /* ── Sources and actors ────────────────────────────────────────────────────── */
 export const SOURCE_KINDS = [
   "rss",
+  "google_search",
   "api",
   "scraper",
   "telegram",
@@ -262,6 +263,18 @@ export const PUBLICATION_KINDS = [
 ] as const;
 export const publicationKindSchema = enumOf(PUBLICATION_KINDS);
 export type PublicationKind = z.infer<typeof publicationKindSchema>;
+
+/** Where a publication belongs in the public editorial experience. This is
+ * deliberately separate from `kind`: a `news_update` can be about Israel or
+ * the war, while a `brief` always belongs to the daily briefing surface. */
+export const PUBLICATION_SECTIONS = [
+  "daily_brief",
+  "israel_update",
+  "war_update",
+  "narrative_watch",
+] as const;
+export const publicationSectionSchema = enumOf(PUBLICATION_SECTIONS);
+export type PublicationSection = z.infer<typeof publicationSectionSchema>;
 
 /* ── User-submitted reports ────────────────────────────────────────────────
    Brief §44: reports *of suspected false information*, submitted by the

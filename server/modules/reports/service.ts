@@ -18,6 +18,7 @@ import { ApiError, notFound } from "@/server/http/responses";
 import { setIdentity } from "@/server/core/versioning";
 import { writeAudit } from "@/server/core/audit";
 import { integrityHash } from "@/server/core/hash";
+import { emit, TOPICS } from "@/server/core/outbox";
 import { repo } from "./repo";
 import { canTransitionReport, LEGAL_REPORT_TRANSITIONS } from "@/server/contracts/report";
 import type { ListReports, SubmitReport, TriageReport } from "@/server/contracts/report";
@@ -67,6 +68,11 @@ export function reportService(db: unknown) {
              already in `report`, and duplicating unreviewed public input into
              a second table doubles what has to be redacted later. */
           after: { publicId: row.publicId },
+        });
+
+        await emit(tx as never, TOPICS.emailNotification, { kind: "report_received" }, {
+          entityType: "report",
+          entityId: row.id,
         });
 
         return row;

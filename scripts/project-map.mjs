@@ -11,108 +11,21 @@
  *   node scripts/project-map.mjs           # write docs/project-map.html
  *   node scripts/project-map.mjs --check   # exit 1 if the file is out of date
  *
- * Only the *prose* is authored: each area's one-line purpose, in AREAS below.
- * An area with no entry renders as "לא מתועד" rather than silently vanishing,
- * so a new directory announces itself.
+ * Authored prose lives in project-map-prose.mjs. A path with no exact entry
+ * still gets a real explanation from a pattern — it does not vanish, and it
+ * does not render as "לא מתועד" unless no pattern applies either.
  */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, statSync, existsSync, readdirSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { LAYERS, lessonFor, KIND_HE } from "./project-map-prose.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (p) => join(ROOT, p);
 const sh = (args) => execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim();
 const read = (p) => { try { return readFileSync(R(p), "utf8"); } catch { return ""; } };
-
-/* ── authored prose, keyed by path ─────────────────────────────────────── */
-const AREAS = {
-  "app": ["frontend", "כל המסלולים. שם התיקייה הוא ה־URL עצמו, ולכן העברה כאן משנה כתובת חיה."],
-  "app/api": ["backend", "מטפלי מסלולים. כל אחד מפרסר, קורא למודול אחד דרך index.ts, ומסדר תשובה."],
-  "app/admin": ["frontend", "לוח בקרה תפעולי בעברית מאחורי Neon Auth."],
-  "app/auth": ["frontend", "כניסת X ציבורית. עלתה לאוויר בלי רשומת החלטה — ראה את דוח הביקורת."],
-  "app/october-7": ["frontend", "מרכז, לא צומת ניווט. הארכיונים שתחתיו נגזרים מהאינדקסים."],
-  "app/fake-resistance": ["frontend", "מרכז. שער הפרסום שלו הוא החלטה פתוחה של הבעלים."],
-  "components": ["frontend", "תיקיות פיצ'ר. גרף הייבוא נפתר במלואו — אפס מפרטים בלתי־פתירים."],
-  "components/particle-nav": ["frontend", "הרנדרר החי היחיד ושעון ציר הזמן היחיד. קנבס אחד לאינטרו ולניווט גם יחד."],
-  "components/content": ["frontend", "אבני הבניין העריכותיות, והרשת שמושיבה ציטוט בשוליים ליד הרשומה שלו."],
-  "components/sections": ["frontend", "שתי מעטפות: SectionPage לתיקים, DocPage לארכיון ולמדיניות."],
-  "components/archive": ["frontend", "רנדרר אחד לשני הארכיונים בלי הסתעפות."],
-  "components/chat": ["frontend", "משגר גלובלי, חלון נגיש, וקנבס שני שרק הדסקטופ משלם עליו."],
-  "components/intro": ["frontend", "נתוני ציר זמן טהורים ודגימת טקסט ב־CPU. לא מרנדר דבר בעצמו."],
-  "components/briefs": ["frontend", "התדריך הגאופוליטי — הפריסה הייחודית היחידה."],
-  "components/support": ["frontend", "טפסים אינטראקטיביים ששולחים למסלול API ציבורי חי."],
-  "components/home": ["frontend", "רצועת העמוד הראשי שמתחת לקיפול."],
-  "components/graphics": ["stale", "חוזה לסצנה הצילומית שפרשה. בדיקה אחת מחזיקה אותו בחיים."],
-  "lib": ["content", "תפר התוכן. סטטי היום, בנוי כך שמעבר לשאילתה ישנה גופי פונקציות ולא אתרי קריאה."],
-  "lib/content": ["content", "מודול לכל משטח. כולם אסינכרוניים חוץ מ־home.ts."],
-  "server": ["backend", "ה־API של מודל המידע. לעולם לא מייבא את הפרונטאנד."],
-  "server/db": ["data", "סכימה, מיגרציות ומעבדת PGlite. חוקים עסקיים חיים ב־triggers לא פחות מב־TypeScript."],
-  "server/modules": ["backend", "index.ts אל service.ts אל repo.ts. שניים מקפלים את ה־repo פנימה."],
-  "server/core": ["backend", "קונפיגורציה, גרסאות, outbox, ביקורת, הרשאות ושער AI."],
-  "server/contracts": ["bridge", "zod ותו לא. השכבה היחידה מ־server/ שהפרונטאנד רשאי לייבא."],
-  "server/http": ["backend", "handler() עוטף כל מסלול ומחליף תפקיד בבסיס הנתונים לכל בקשה."],
-  "server/jobs": ["backend", "צרכני התור. לא ניגשים לבסיס הנתונים ישירות."],
-  "content-packages": ["content", "נתוני מקור מחויבים לגיט — לא פלט. המדיה עצמה לעולם לא נכנסת."],
-  "docs": ["docs", "תיעוד עזר, שנכתב כדי להיות נכון ולא שאפתני."],
-  "docs/archive": ["archive", "מסמכים שעשו את שלהם. שום דבר כאן אינו מקור אמת."],
-  "tests": ["tests", "vitest מול PGlite — פוסטגרס אמיתי ב־WASM, ממוגרר לכל בדיקה."],
-  "scripts": ["tests", "אימות, ייבוא ואפייה. חלקם דורשים Chrome אמיתי על macOS."],
-  "public": ["data", "פלט אפוי וקורפוס. נטען לפי נתיב מילולי — שינוי שם שובר בשקט."],
-  "assets": ["data", "מקורות אפייה — וגם ייבוא בזמן ריצה, ולכן זה נשלח."],
-  ".ai": ["docs", "יומן הפרויקט ולולאת העבודה המשותפת לכל הסוכנים. DECISIONS הוא append-only; STATE נכתב מחדש במקומו."],
-  ".claude": ["local", "סוכנים, hooks ומיומנויות. מוחרג מה־deploy."],
-  ".design-sync": ["local", "צינור הייצוא של מערכת העיצוב. מונע מכלי חיצוני — אין npm script ואין שלב CI שמריץ אותו."],
-  ".github": ["deploy", "CI: שער, ואז עשן מסלולים ללא ראש."],
-  "app/geopolitical-brief": ["frontend", "התדריך הגאופוליטי. היעד היחיד עם פריסה משלו במקום מעטפת התיקים."],
-  "app/israels-story": ["frontend", "הסיפור הישראלי. תיק קריאה על מעטפת SectionPage."],
-  "app/war-update": ["frontend", "עדכון הלחימה. מפצל רכיב לקוח לסינון ולקישורים קבועים."],
-  "app/we-are": ["frontend", "מי אנחנו. תיק קריאה."],
-  "app/our-heroes": ["frontend", "הגיבורים. הדף היחיד שבו כרטיסים בגריד מוותרים על שולי הראיות."],
-  "app/support-us": ["frontend", "תמיכה. מחזיק את שני הטפסים האינטראקטיביים היחידים באתר."],
-  "app/corrections": ["frontend", "יומן תיקונים. מוגש מתפר שמחזיר רשימה ריקה — ריק כן, לא placeholder."],
-  "app/methodology": ["frontend", "המתודולוגיה. דף מדיניות על מעטפת DocPage."],
-  "app/particle-demo": ["frontend", "מעבדת הכוונון והנפילה־לאחור. חסום לזחלנים, ואף פעם לא נבדק בעשן."],
-  "content-packages/october7": ["content", "עדויות october7.org. האינדקס הוא שמייצר את המסלולים, לא רשימה ידנית."],
-  "content-packages/hamas-massacre": ["content", "תיעוד hamas-massacre.net. אפס חפיפת מזהים עם הארכיון השני."],
-  "content-packages/fake-resistance": ["content", "תיקי המחקר. שום משיכת ראיות גולמית מעולם לא נכנסה לגיט."],
-  "public/particles": ["data", "חוצצי LNP1 של האריה בשלוש רמות ביצועים. נטענים לפי נתיב מילולי."],
-  "public/icons": ["data", "SDF לכל אחד משמונת צמתי הניווט. אפויים מ־assets/source/icons."],
-  "public/posters": ["data", "הפוסטר לשכבת ה־no-WebGL, וגם כרטיס ה־OG. דטרמיניסטי."],
-  "public/assets": ["data", "הגופן ל־Three.js. שני הצרכנים היחידים הם האינטרו ובדיקה אחת."],
-  "public/matrix": ["data", "קורפוס הסריקה — תוכן עריכתי שנכתב ביד ויושב ב־public/."],
-  "assets/reference": ["data", "תמונת הייחוס לאפיית האריה. גם ייבוא בזמן ריצה, ולכן נשלחת."],
-  "assets/source": ["data", "אייקוני המקור. גם מקור אפייה וגם ייבוא של רכיבי React."],
-  "scripts/particle-nav": ["tests", "האפייה הדטרמיניסטית: חוצצים, SDF ופוסטר. אותו זרע — אותם בתים."],
-  ".claude/hooks": ["local", "כלי עזר מקומיים שאינם מופעלים אוטומטית."],
-  ".claude/skills": ["local", "מיומנויות מקומיות אופציונליות."],
-  ".design-sync/previews": ["local", "דוגמאות שימוש לחבילת מערכת העיצוב. מייבאות את שם החבילה הבנויה ולא את המקור המקומי, ולכן שום דבר במאגר לא מייבא אותן — הכלי החיצוני מוצא אותן לפי מוסכמת ספרייה."],
-  ".design-sync/shims": ["local", "מתאמים שמאפשרים לרכיבים להיבנות מחוץ ל־Next."],
-  ".github/workflows": ["deploy", "הגדרת ה־CI היחידה. שער, ואז עשן מסלולים."],
-};
-
-/* one line per file at the repository root */
-const ROOTFILES = {
-  "CLAUDE.md": ["docs", true, "תיעוד יישום. הוראת הבעלים גוברת על כל כלל היסטורי שבו."],
-  "AGENTS.md": ["docs", true, "סמכות הבעלים היחיד ואזהרת Next.js המנוהלת שנשמרת ללא שינוי."],
-  "README.md": ["docs", false, "דלת הכניסה: מה זה, איך מתקינים, איפה כל תחום."],
-  "TODOS.md": ["docs", true, "תוכנית האספקה בעברית. המקום לבדוק בו מה נחשב לא גמור."],
-  "PROJECT_STRUCTURE_AUDIT.md": ["docs", true, "ביקורת המבנה: כל אזור מסווג עם הוכחה, ומה הושאר להחלטת הבעלים."],
-  "package.json": ["deploy", true, "התלויות והסקריפטים. אף סקריפט אינו מת; שתי תלויות פיתוח בלתי־מוזכרות הוסרו בביקורת."],
-  "package-lock.json": ["deploy", false, "נעילת הגרסאות. אפס סחיפה מול package.json."],
-  "tsconfig.json": ["deploy", false, "הגדרות TypeScript. מחריג כעת את התיקיות האוטומטיות, כך ש־typecheck מקומי תואם ל־CI."],
-  "eslint.config.mjs": ["deploy", true, "הארכיטקטורה מנוסחת כשגיאות lint — מי רשאי לייבא את מי. לקרוא לפני העברת קוד בין שכבות."],
-  "next.config.ts": ["deploy", false, "הגדרות Next. כותרות מטמון קבועות ל־/particles/ ול־/icons/ בלבד."],
-  "vercel.json": ["deploy", true, "טריגר תור אחד וארבעה לוחות cron. כל החמישה מגיעים למטפלים אמיתיים."],
-  "vitest.config.ts": ["tests", false, "הגדרות הבדיקות. ממפה את server-only למודול ריק במקום לתת לבדיקות להשמיט אותו."],
-  "drizzle.config.ts": ["data", false, "מכוון את drizzle-kit לסכימה ולמיגרציות. דורש DATABASE_URL אמיתי; הבדיקות לא."],
-  "proxy.ts": ["deploy", false, "www אל apex ב־308, ו־Neon Auth על /admin/*."],
-  ".gitignore": ["deploy", false, "מה לא נכנס לגיט. .claude/worktrees נוסף בביקורת — קודם הוא הוחרג פר־clone בלבד."],
-  ".vercelignore": ["deploy", false, "מה לא נשלח ב־deploy. חשוב במיוחד כאן: הפריסה ידנית, ולכן זה הסינון היחיד."],
-  ".mcp.json": ["local", false, "רישום שרתי MCP לכלי פיתוח מקומיים."],
-};
-const SOT = new Set(["server/contracts","server/core","server/db","content-packages",
-  "docs",".ai","assets",".github","components/particle-nav","components/intro"]);
 
 /* ── scan ──────────────────────────────────────────────────────────────── */
 /* Include untracked, non-ignored files so `map:check` catches a new area before
@@ -123,7 +36,13 @@ const files = sh(["ls-files", "--cached", "--others", "--exclude-standard"])
   .split("\n")
   .filter(Boolean)
   .filter((file) => existsSync(R(file)));
-const sizeOf = (p) => { try { return statSync(R(p)).size; } catch { return 0; } };
+const OUT_PATH = "docs/project-map.html";
+const sizeOf = (p) => {
+  /* The output file is rewritten every run. Using its live size would make
+     `map:check` fail against the file it just wrote. */
+  if (p === OUT_PATH) return 0;
+  try { return statSync(R(p)).size; } catch { return 0; }
+};
 const human = (b) => b >= 1048576 ? (b/1048576).toFixed(b>=10485760?0:1)+"MB"
                    : b >= 1024 ? Math.round(b/1024)+"K" : b+"B";
 
@@ -155,21 +74,9 @@ const snapshotIdx = files
   .map((p) => p.match(/^server\/db\/migrations\/meta\/(\d+)_snapshot\.json$/))
   .filter(Boolean).map((m) => Number(m[1]));
 const snapshots = snapshotIdx.length;
-/* A hand-written migration legitimately has no snapshot — drizzle only
-   snapshots what it generates. So "snapshots === migrations" is the wrong
-   test and reports normal practice as drift. What actually matters is whether
-   the newest snapshot is behind the newest migration: if it is, `db:generate`
-   diffs the schema against a stale baseline and re-emits changes those
-   hand-written migrations already applied. */
 const newestSnapshot = snapshotIdx.length ? Math.max(...snapshotIdx) : -1;
 const newestMigration = migrations.length
   ? Math.max(...migrations.map((p) => Number(p.match(/(\d+)/)[1]))) : -1;
-/* …but only if it actually changed the schema. Drizzle models tables,
-   columns, indexes and foreign keys — nothing else. A migration that only
-   grants, revokes, or defines a policy, function or trigger is invisible to
-   it, so it leaves the baseline current and `db:generate` still emits nothing.
-   Verified against `0022`, which is REVOKE/GRANT only: generate reported "No
-   schema changes". Counting it as drift produced a false warning. */
 const SCHEMA_DDL = /^\s*(CREATE|DROP)\s+(TABLE|INDEX|TYPE|SEQUENCE|VIEW)\b|^\s*ALTER\s+TABLE\b(?![^;]*\b(ENABLE|DISABLE|FORCE)\s+ROW\s+LEVEL)/im;
 const handWrittenAfterSnapshot = migrations
   .map((p) => ({ idx: Number(p.match(/(\d+)/)[1]), name: p.split("/").pop(), path: p }))
@@ -184,12 +91,11 @@ const CHROME_LITERAL = "Applications/Google Chrome.app";
 const chromeScripts = [...scriptFiles, ".claude/skills/verify-intro/capture.mjs"]
   .filter(p=>files.includes(p))
   .filter(p=>{ const s=read(p); if(!s.includes(CHROME_LITERAL)) return false;
-    // a mention inside a comment is not a use: require it to reach executablePath
     return /executablePath\s*:/.test(s); });
 
-/* nav nodes */
-const cfg = read("components/particle-nav/config.ts");
-const navIds = [...cfg.matchAll(/id:\s*['"]([a-z0-9-]+)['"]/g)].map(m=>m[1]);
+/* public navigation */
+const siteNavigation = read("lib/site-navigation.ts");
+const navIds = [...siteNavigation.matchAll(/id:\s*["']([a-z0-9-]+)["']/g)].map(m=>m[1]);
 const navMissing = navIds.filter(id=>!files.includes(`app/${id}/page.tsx`));
 
 /* PUBLIC_V1 */
@@ -197,7 +103,6 @@ const handler = read("server/http/handler.ts");
 const pubBlock = handler.match(/const PUBLIC_V1 = \[([\s\S]*?)\] as const;/);
 const publicRoutes = pubBlock
   ? pubBlock[1].split("\n").map((line) => {
-      // Each entry is one line; a non-greedy match would stop inside [^/]+.
       const m = line.match(/\["(\w+)",\s*\/\^(.+)\$\/\]/);
       if (!m) return null;
       const path = m[2].replace(/\\\//g, "/").replace(/\[\^\/\]\+/g, "{id}");
@@ -228,9 +133,6 @@ const areaOf = (p) => {
     if (p===a || p.startsWith(a+"/")) return a;
   return null;
 };
-// app/auth/** has a purpose-written carve-out in eslint.config.mjs. A scan that
-// reports it as a violation is crying wolf; a scan that ignores the carve-out
-// entirely would miss a real one. So it is detected, and reported separately.
 const eslintCfg = read("eslint.config.mjs");
 const carvedOut = [...eslintCfg.matchAll(/files:\s*\[["'`]([^"'`]*app\/auth[^"'`]*)["'`]\]/g)]
   .map((m) => m[1].replace(/\*\*.*$/, ""));
@@ -250,21 +152,14 @@ for (const f of srcFiles) {
 const crossings = [...edges.entries()].map(([k,v])=>({edge:k,count:v}))
   .sort((a,b)=>b.count-a.count);
 
-/* duplicate content, across every tracked file */
-import { createHash } from "node:crypto";
 const byHash = new Map();
 for (const f of files) {
+  if (f === OUT_PATH) continue;
   const h = createHash("sha256").update(readFileSync(R(f))).digest("hex");
   (byHash.get(h) || byHash.set(h, []).get(h)).push(f);
 }
 const duplicateSets = [...byHash.values()].filter((g) => g.length > 1);
 
-/* reachability: can anything actually get to this file?
- *
- * Written because "is anything here unnecessary" is a question a table of
- * classifications answers by assertion and a graph answers by measurement.
- * Entry points are the file conventions and the tools that read a path rather
- * than import it; everything else has to be reached. */
 const EXT = ["", ".ts", ".tsx", ".mjs", ".js", ".json", "/index.ts", "/index.tsx"];
 const tracked = new Set(files);
 function resolveSpec(spec, from) {
@@ -294,11 +189,6 @@ const entryPoints = files.filter((f) =>
   /^(scripts|content-packages)\//.test(f) ||
   /^server\/db\/migrations\//.test(f) ||
   /^\.(github|claude)\//.test(f) ||
-  /* `.design-sync/` is driven from outside the repository: its previews import
-     the *built* package name (`lions-of-zion`), not local source, and the
-     Claude Design tool discovers them by directory convention. Nothing here
-     imports them and nothing should — treating them as orphans would make the
-     unreferenced count noise instead of a signal. */
   /^\.design-sync\//.test(f) ||
   /^(package|package-lock|tsconfig|vercel)\.json$/.test(f) ||
   /^\.(gitignore|vercelignore|mcp\.json)$/.test(f));
@@ -319,7 +209,6 @@ while (stack.length) {
     if (r && !reached.has(r)) { reached.add(r); stack.push(r); }
   }
 }
-/* assets and documents are addressed by literal path or by link, not import */
 const corpus = files.filter((f) => /\.(ts|tsx|mjs|js|css|json|md|html)$/.test(f)).map(read).join("\n");
 for (const f of files) {
   if (reached.has(f)) continue;
@@ -329,20 +218,8 @@ for (const f of files) {
 }
 const unreferenced = files.filter((f) => !reached.has(f));
 
-/* Do the documents describe files and commands that exist?
- *
- * Added because a stale path in a runbook is worse than no runbook, and
- * because this audit itself shipped one: `.ai/ROLLBACK.md` told you to roll
- * back `npm run build:lion-data`, a script that does not exist. Two exclusions
- * are deliberate — the root-level Next.js files in `MUST_NOT_EXIST` are named
- * *because* they must not exist, and `.ai/DECISIONS.md` is append-only, so it
- * correctly names files that were real when the decision was made. */
 const npmScriptNames = new Set(Object.keys(JSON.parse(read("package.json")).scripts || {}));
 const DOC_PATH = /`((?:app|components|lib|server|scripts|tests|public|assets|docs|\.ai|\.claude|\.github|content-packages)\/[A-Za-z0-9_@[\]/.-]*\.[a-z]{2,5})`/g;
-/* Root-level Next.js files the docs name in order to forbid them: each wraps
- * every route in a Suspense boundary or shell that never resolves without
- * JavaScript. `tests/no-js-invariant.test.ts` asserts all three are absent, so
- * a "dead reference" to them is the documentation working, not drifting. */
 const MUST_NOT_EXIST = new Set(["app/loading.tsx", "app/template.tsx", "app/default.tsx"]);
 const docProblems = [];
 for (const d of files.filter((f) => f.endsWith(".md") && !f.startsWith("docs/archive/") && f !== ".ai/DECISIONS.md")) {
@@ -357,17 +234,6 @@ for (const d of files.filter((f) => f.endsWith(".md") && !f.startsWith("docs/arc
   }
 }
 
-/* Design-system prop contracts, checked against the real source types.
- *
- * `.design-sync/NOTES.md` calls this "the main re-sync risk in this repo" and
- * says nothing detects it: there is no library build, so the converter stubbed
- * every prop interface, and `cfg.dtsPropsFor` carries a hand-transcribed body
- * for all 21 components. A prop renamed in `components/**` would silently ship
- * a wrong contract to whoever codes against the design system.
- *
- * Uses the TypeScript parser rather than a regex — three regex attempts at
- * this produced two false positives, once by counting a nested type's fields
- * as top-level props. */
 const dsProblems = [];
 if (tracked.has(".design-sync/config.json")) {
   const ts = await import("typescript").then((m) => m.default ?? m).catch(() => null);
@@ -402,351 +268,1027 @@ if (tracked.has(".design-sync/config.json")) {
   }
 }
 
-/* npm scripts + ignored dirs */
 const pkg = JSON.parse(read("package.json"));
 const gitignored = read(".gitignore").split("\n")
   .map(l=>l.trim()).filter(l=>l && !l.startsWith("#") && l.endsWith("/"));
 
-const D = {
-  generatedAt: new Date().toISOString().slice(0,16).replace("T"," "),
+const totalRecords = pkgs.reduce((n,p)=>n+p.records,0);
+const totalVersions = pkgs.reduce((n,p)=>n+p.versions,0);
+
+/* ── explanations for every path ───────────────────────────────────────── */
+function glean(path) {
+  if (!/\.(ts|tsx|mjs|js|css|md)$/.test(path)) return "";
+  const src = read(path).slice(0, 1800);
+  const block = src.match(/^\s*\/\*\*?[\s\S]*?\*\//);
+  if (!block) return "";
+  const text = block[0]
+    .replace(/^\/\*+/, "").replace(/\*+\/$/, "")
+    .replace(/^\s*\*\s?/gm, "")
+    .replace(/@\w+[\s\S]*$/m, "")
+    .trim();
+  const para = text.split(/\n\n/)[0].replace(/\s+/g, " ").trim();
+  return para.length > 24 ? para.slice(0, 280) : "";
+}
+
+const E = {};
+function putExplain(key, path, isDir) {
+  const info = lessonFor(path, { isDir, glean: isDir ? "" : glean(path) });
+  const listed = isDir
+    ? files.filter((p) => p === path || p.startsWith(path + "/"))
+    : [path];
+  const bytes = listed.reduce((n, p) => n + sizeOf(p), 0);
+  const rec = path.match(/^content-packages\/([^/]+)\/(records|cases)\//);
+  if (!isDir && rec) {
+    E[key] = {
+      t: path, k: "record", l: "content", s: false,
+      m: human(sizeOf(path)) + " · תוכן",
+      pkg: rec[1],
+    };
+    return;
+  }
+  const row = {
+    t: isDir ? path + "/" : path,
+    m: (isDir ? (listed.length + " קבצים · " + human(bytes)) : human(bytes))
+      + " · " + (LAYERS[info.layer] || info.layer)
+      + (info.sot ? " · מקור אמת" : ""),
+    r: info.role,
+    p: info.lesson,
+    k: info.kind,
+    l: info.layer,
+    s: !!info.sot,
+  };
+  if (info.related && info.related.length) row.rel = info.related;
+  if (!isDir) {
+    const g = glean(path);
+    if (g) row.g = g;
+    if (!reached.has(path)) row.u = 1;
+  }
+  E[key] = row;
+}
+
+for (const f of files) putExplain(f, f, false);
+const dirSet = new Set();
+for (const f of files) {
+  const parts = f.split("/");
+  for (let i = 1; i < parts.length; i++) dirSet.add(parts.slice(0, i).join("/"));
+}
+for (const d of [...dirSet].sort()) putExplain(d, d, true);
+for (const f of rootFiles) if (!E[f]) putExplain(f, f, false);
+
+function putNode(key, title, meta, role, lesson, rel) {
+  E[key] = { t: title, m: meta || "", r: role, p: lesson, k: "code", l: "bridge", s: false, rel: rel || [] };
+}
+
+putNode("n:req", "בקשה נכנסת", "", "כל בקשה ל־/api/",
+  "לפני שגוף המסלול רץ, handler.ts כבר תפס את הבקשה: מזהה, סיווג, תפקיד במסד. המסלול עצמו לא מחליט מי רשאי.",
+  ["server/http/handler.ts"]);
+putNode("n:access", "accessFor()", "נקודת ההכרעה היחידה", "סיווג התפקיד במסד",
+  "מחלקת את הבקשה ל־app_public, app_staff או app_service. גוף המסלול לא בוחר הרשאות — הוא רץ אחרי שהתפקיד כבר הוחל.",
+  ["server/http/handler.ts"]);
+putNode("n:pub", "app_public", publicRoutes.length + " נתיבים", "הנתיבים האנונימיים היחידים",
+  "PUBLIC_V1 נסרק מ־handler.ts והוא בדיוק " + publicRoutes.length + " כניסות. שום דבר אחר תחת /api/v1/ אינו אנונימי.",
+  publicRoutes);
+putNode("n:staff", "app_staff", "ברירת המחדל", "כל השאר נכשל סגור",
+  "authenticateAdmin. בלי סשן אדמין הבקשה לא מגיעה למסלול. התיעוד סימן פעם כתריסר מאלה כאנונימיים — שגוי לכיוון המחמיר.",
+  ["server/core/auth/neon.ts"]);
+putNode("n:svc", "app_service", "cron ותור", "עבודה פנימית",
+  "נתיבי cron ותור בלבד, מאומתים ב־CRON_SECRET. לא חשופים למבקר.",
+  ["server/http/internal-guard.ts"]);
+putNode("n:role", "SET ROLE + RLS", "", "מה שמפעיל את מדיניות השורות",
+  "חיבור ייעודי מהבריכה, SET ROLE ו־set_config('app.identity'), ובשחרור RESET ALL. בלי זה מדיניות RLS היא טקסט שלא רץ.",
+  ["server/http/handler.ts"]);
+putNode("n:gsp", "generateStaticParams", "נגזר מהאינדקס", "רשימת המסלולים לא נכתבת ביד",
+  "האינדקסים של החבילות מייצרים את רשימת הדפים. רשומה חדשה נכנסת לאתר בלי לגעת בקוד.",
+  ["lib/content/archive.ts"]);
+putNode("n:pages", totalVersions.toLocaleString("en") + " דפים", "מוכנים מראש",
+  totalRecords + " רשומות מתפרשות לגרסאות שפה",
+  totalRecords + " רשומות בשלוש חבילות מתפרשות ל־" + totalVersions + " גרסאות שפה, וכל אחת היא דף.",
+  ["content-packages"]);
+putNode("n:nav", "SITE_NAVIGATION", navIds.length + " יעדים", "חוזה הניווט",
+  navMissing.length
+    ? "אזהרה: " + navMissing.join(", ") + " בלי page.tsx תואם."
+    : "נסרק מ־lib/site-navigation.ts. לכל אחד מ־" + navIds.length + " המזהים יש app/<id>/page.tsx — נבדק.",
+  navIds.map((id) => "app/" + id + "/page.tsx"));
+putNode("n:ci", "CI על Ubuntu", testFiles.length + " קובצי בדיקה", "השער שרץ בכל push",
+  "typecheck, lint, הבדיקות, build, map:check — ואז עשן מסלולים עם Chromium מובנה, כולל / בלי JavaScript.",
+  ["scripts/ci-smoke.mjs", ".github/workflows/ci.yml"]);
+putNode("n:mac", "רק על macOS", chromeScripts.length + " סקריפטים", "Chrome אמיתי, headless: false",
+  "נסרקו לפי נעילת נתיב Chrome מוחלט יחד עם executablePath. אלה בדיקות הסצנה וה־no-JS המלאות. CI לא רואה אותן.",
+  chromeScripts);
+putNode("n:nojs", "invariant בלי JavaScript", "נשמר ב־CI על /", "הדף חייב להופיע בלי סקריפט",
+  "ci-smoke טוען את / עם javaScriptEnabled: false ומוודא 8 קישורים, פוסטר, ואפס מעטפות Suspense חבויות. tests/no-js-invariant.test.ts הוא ה־tripwire ל־loading/template/default. הכיסוי הוא / בלבד.",
+  ["scripts/ci-smoke.mjs", "tests/no-js-invariant.test.ts"]);
+putNode("n:eslint", "eslint.config.mjs", "הגבול נאכף כשגיאת lint", "מי רשאי לייבא את מי",
+  "app/ ו־components/ → רק server/contracts. הסריקה מצאה " + violations.length + " הפרות, ועוד " + sanctioned.length + " ייבואים תחת carve-out של app/auth/.",
+  ["eslint.config.mjs"]);
+
+/* ── flow diagrams ─────────────────────────────────────────────────────── */
+const NW = 228, NH = 86, CS = 268, RS = 108, OX = 56, OY = 64;
+const fn = (id, col, row, key, he, meta, cls) => ({
+  id, x: OX + col * CS, y: OY + row * RS, w: NW, h: NH,
+  key, he, meta: meta || "", cls: cls || "",
+});
+const st = (path) => {
+  const a = areaStats(path);
+  return a.files + " · " + human(a.bytes);
+};
+
+const flowHalves = {
+  id: "halves",
+  title: "שתי חציים ודלת אחת",
+  caption: "אתר חלקיקים ו־API שלא חולקים אף קובץ מקור. הפרונטאנד רשאי לייבא שכבה אחת מ־server/ — את החוזים.",
+  nodes: [
+    fn("app", 0, 0, "app", "app/", st("app")),
+    fn("components", 0, 1, "components", "components/", st("components")),
+    fn("libcontent", 0, 2, "lib/content", "lib/content/", st("lib/content")),
+    fn("packages", 0, 3, "content-packages", "content-packages/", st("content-packages")),
+    fn("contracts", 1, 1, "server/contracts", "server/contracts/", st("server/contracts"), "acc"),
+    fn("api", 2, 0, "app/api", "app/api/", DapiMeta()),
+    fn("handler", 2, 1, "server/http/handler.ts", "handler.ts", "כל בקשה"),
+    fn("modules", 2, 2, "server/modules", "server/modules/", st("server/modules")),
+    fn("db", 2, 3, "server/db", "server/db/", migrations.length + " מיגרציות"),
+  ],
+  edges: [
+    ["app", "libcontent"], ["components", "libcontent"], ["libcontent", "packages"],
+    ["app", "contracts"], ["components", "contracts"],
+    ["api", "handler"], ["handler", "modules"], ["modules", "db"],
+    ["api", "contracts"], ["modules", "contracts"],
+  ],
+};
+function DapiMeta() { return routeFiles.length + " מסלולים"; }
+
+const flowReq = {
+  id: "request",
+  title: "כל בקשה מקבלת תפקיד",
+  caption: "accessFor() היא נקודת ההכרעה היחידה. PUBLIC_V1 נסרק מהקוד; כל השאר נכשל סגור.",
+  nodes: [
+    fn("req", 0, 1, "n:req", "בקשה נכנסת", "/api/"),
+    fn("access", 1, 1, "n:access", "accessFor()", "הכרעה יחידה", "acc"),
+    fn("pub", 2, 0, "n:pub", "app_public", publicRoutes.length + " נתיבים"),
+    fn("staff", 2, 1, "n:staff", "app_staff", "ברירת מחדל"),
+    fn("svc", 2, 2, "n:svc", "app_service", "cron · תור"),
+    fn("role", 3, 1, "n:role", "SET ROLE + RLS", "ואז RESET ALL", "acc"),
+  ],
+  edges: [
+    ["req", "access"],
+    ["access", "pub"], ["access", "staff"], ["access", "svc"],
+    ["pub", "role"], ["staff", "role"], ["svc", "role"],
+  ],
+};
+
+const flowPages = {
+  id: "pages",
+  title: "הדפים נגזרים מהנתונים",
+  caption: totalRecords + " רשומות מתפרשות ל־" + totalVersions + " גרסאות שפה. האינדקס מייצר מסלולים; שמונת היעדים בניווט מתוחזקים ביד.",
+  nodes: [
+    fn("pkg", 0, 0, "content-packages", "content-packages/", st("content-packages")),
+    fn("lib", 1, 0, "lib/content", "lib/content/", st("lib/content")),
+    fn("gsp", 2, 0, "n:gsp", "generateStaticParams", "נגזר מהאינדקס"),
+    fn("pgs", 3, 0, "n:pages", totalVersions.toLocaleString("en") + " דפים", "מוכנים מראש", "acc"),
+    fn("nav", 1, 1, "n:nav", "SITE_NAVIGATION", navIds.length + " יעדים"),
+  ],
+  edges: [["pkg", "lib"], ["lib", "gsp"], ["gsp", "pgs"], ["nav", "pgs"]],
+};
+
+const flowVerify = {
+  id: "verify",
+  title: "מה CI רואה ומה לא",
+  caption: chromeScripts.length + " סקריפטים רצים רק על תחנת macOS. CI שומר את ה־no-JS של / בלבד.",
+  nodes: [
+    fn("ci", 0, 0, "n:ci", "CI על Ubuntu", testFiles.length + " בדיקות"),
+    fn("mac", 0, 1, "n:mac", "רק על macOS", chromeScripts.length + " סקריפטים"),
+    fn("nojs", 2, 0, "n:nojs", "בלי JavaScript", "נשמר ב־CI על /", "acc"),
+  ],
+  edges: [["ci", "nojs"], ["mac", "nojs"]],
+};
+
+const flowModule = {
+  id: "module",
+  title: "איך מודול בנוי",
+  caption: "המסלול רשאי לייבא רק את index.ts. SQL ב־repo, מדיניות ב־rules, כתיבה מנוהלת־גרסאות ב־recordVersion.",
+  nodes: [
+    fn("rt", 0, 1, "app/api", "route.ts", "פרסור + JSON"),
+    fn("idx", 1, 1, "server/modules", "index.ts", "קושר db()", "acc"),
+    fn("svc", 2, 1, "server/modules", "service.ts", "זרימת עבודה"),
+    fn("repo", 3, 1, "server/modules", "repo.ts", "שאילתות"),
+    fn("rules", 2, 2, "server/modules", "rules.ts", "בלי מסד"),
+    fn("ver", 3, 0, "server/core/versioning.ts", "recordVersion()", "הכתיבה היחידה"),
+    fn("dbn", 4, 1, "server/db", "Postgres + RLS", migrations.length + " מיגרציות"),
+  ],
+  edges: [
+    ["rt", "idx"], ["idx", "svc"], ["svc", "repo"], ["svc", "rules"],
+    ["svc", "ver"], ["repo", "dbn"], ["ver", "dbn"],
+  ],
+};
+
+const flowParticles = {
+  id: "particles",
+  title: "מאיפייה לסצנה",
+  caption: "מקורות ב־assets/, פלט דטרמיניסטי ב־public/, רנדרר יחיד ב־Scene.tsx. שינוי שם ב־public/ שובר בשקט.",
+  nodes: [
+    fn("asrc", 0, 0, "assets/source", "assets/source/", "אייקוני מקור"),
+    fn("aref", 0, 1, "assets/reference", "assets/reference/", "תמונת האריה"),
+    fn("bakei", 1, 0, "scripts/particle-nav", "bake-icons", "SDF"),
+    fn("bakel", 1, 1, "scripts/particle-nav", "bake-lion", "LNP1"),
+    fn("bakep", 1, 2, "scripts/particle-nav", "make-poster", "פוסטר"),
+    fn("picons", 2, 0, "public/icons", "public/icons/", "8 SDF"),
+    fn("ppart", 2, 1, "public/particles", "public/particles/", "45 / 90 / 180k"),
+    fn("ppost", 2, 2, "public/posters", "public/posters/", "no-WebGL"),
+    fn("scene", 3, 1, "components/particle-nav/Scene.tsx", "Scene.tsx", "רנדרר יחיד", "acc"),
+  ],
+  edges: [
+    ["asrc", "bakei"], ["aref", "bakel"],
+    ["bakei", "picons"], ["bakel", "ppart"], ["bakep", "ppost"],
+    ["picons", "scene"], ["ppart", "scene"], ["ppost", "scene"],
+  ],
+};
+
+/* live import graph */
+const colOf = {
+  app: 0, components: 0,
+  lib: 1, "lib/content": 1,
+  "content-packages": 2, "server/contracts": 2,
+  "app/api": 3, "server/http": 3,
+  "server/modules": 4, "server/core": 4, scripts: 4,
+  "server/db": 5, "server/jobs": 5,
+};
+const importIds = [...new Set(crossings.flatMap((c) => c.edge.split("→")))];
+const colBuckets = new Map();
+for (const id of importIds) {
+  const c = colOf[id] ?? 6;
+  if (!colBuckets.has(c)) colBuckets.set(c, []);
+  colBuckets.get(c).push(id);
+}
+const importNodes = [];
+for (const [c, ids] of [...colBuckets.entries()].sort((a, b) => a[0] - b[0])) {
+  ids.sort().forEach((id, row) => {
+    const meta = E[id] ? E[id].m.split(" · ")[0] : "";
+    importNodes.push(fn("i-" + id, c, row, id, id, meta, id === "server/contracts" ? "acc" : ""));
+  });
+}
+const flowImports = {
+  id: "imports",
+  title: "גרף הייבוא שנמדד",
+  caption: "כל קשת היא ייבוא @/ אמיתי בין אזורים. לא ציור יד — נספר בהרצה הזו.",
+  nodes: importNodes,
+  edges: crossings.map((c) => {
+    const [a, b] = c.edge.split("→");
+    return ["i-" + a, "i-" + b, String(c.count)];
+  }),
+};
+
+const FLOWS = [flowHalves, flowReq, flowPages, flowModule, flowParticles, flowVerify, flowImports];
+
+const findings = [
+  [violations.length===0,
+    "אפס הפרות של גבול הייבוא בין הפרונטאנד ל־server/",
+    violations.length + " הפרות: " + violations.map(v=>v.file).join(", ")],
+  [navMissing.length===0,
+    "לכל " + navIds.length + " יעדי הניווט יש page.tsx תואם",
+    "חסר page.tsx ל: " + navMissing.join(", ")],
+  [migrations.length===journalEntries,
+    migrations.length + " מיגרציות תואמות ל־journal",
+    "סחיפה בין הקבצים ל־journal"],
+  [handWrittenAfterSnapshot.length===0,
+    "בסיס ה־snapshots עדכני — db:generate לא יפלוט מיגרציה מיותרת",
+    "ה־snapshot האחרון הוא " + String(newestSnapshot).padStart(4,"0") +
+    " אבל יש מיגרציות DDL אחריו (" + handWrittenAfterSnapshot.join(", ") + ")"],
+  [dsProblems.length===0,
+    "חוזי ה־props של מערכת העיצוב תואמים לטיפוסי המקור",
+    dsProblems.length + " רכיבים שנסחפו: " + dsProblems.join(" · ")],
+  [docProblems.length===0,
+    "כל נתיב וכל פקודת npm שמוזכרים בתיעוד קיימים",
+    docProblems.length + " הפניות מתות: " + docProblems.join(" · ")],
+  [duplicateSets.length===0,
+    "אפס קבצים כפולים — כל " + files.length.toLocaleString("en") + " הקבצים בעלי תוכן שונה",
+    duplicateSets.length + " קבוצות זהות בייט־בייט"],
+  [unreferenced.length===0,
+    "כל קובץ נגיע אליו מנקודת כניסה",
+    reached.size + " מתוך " + files.length + " נגישים; " + unreferenced.length + " לא מוזכרים"],
+].map(([ok, good, bad]) => ({ ok, text: ok ? good : bad }));
+
+const FILE_LIST = files.map((p) => [p, sizeOf(p)]);
+
+const generatedAt = new Date().toISOString().slice(0,16).replace("T"," ");
+const payload = {
   head: sh(["log","-1","--format=%h"]),
-  headSubject: sh(["log","-1","--format=%s"]),
   branch: sh(["rev-parse","--abbrev-ref","HEAD"]),
   totalFiles: files.length,
   totalBytes: files.reduce((n,p)=>n+sizeOf(p),0),
-  areas, rootFiles, AREAS, ROOTFILES, SOT: [...SOT],
-  pages: pageFiles.length, staticPages, dynamicPages: dynamicPages.length,
+  pages: pageFiles.length,
   apiRoutes: routeFiles.length,
-  migrations: migrations.length, journalEntries, snapshots,
-  newestSnapshot, newestMigration, handWrittenAfterSnapshot,
-  tests: testFiles.length, scripts: scriptFiles.length,
-  chromeScripts, navIds, navMissing, publicRoutes, pkgs,
-  crossings, violations, sanctioned, carvedOut, gitignored,
-  duplicateSets, unreferenced, reachable: reached.size, docProblems, dsProblems,
+  tests: testFiles.length,
+  migrations: migrations.length,
   npmScripts: Object.keys(pkg.scripts||{}).length,
+  archivePages: totalVersions,
+  files: FILE_LIST,
+  E,
+  flows: FLOWS,
+  findings,
+  gitignored,
+  layers: LAYERS,
+  kindHe: KIND_HE,
+  unref: unreferenced.length,
 };
 
-
 /* ── render ────────────────────────────────────────────────────────────── */
-const esc = (t) => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-const LAYERS = { frontend:"פרונטאנד", backend:"בקאנד", content:"תוכן", data:"נתונים",
-  tests:"בדיקות", docs:"תיעוד", deploy:"תשתית", local:"מקומי", bridge:"גשר",
-  archive:"ארכיון", stale:"מיושן" };
+const CSS = `
+:root{
+  --ground:#EDF0F4; --surface:#FFFFFF; --surface-2:#F5F7FA; --surface-3:#E7ECF2;
+  --line:#D0D8E2; --line-soft:#E2E8EF; --edge:#A9B6C6;
+  --text:#14202E; --text-dim:#57677A; --text-faint:#8494A6;
+  --accent:#8A6112; --accent-soft:#F0E4C6;
+  --ok:#226646; --warn:#912C28; --ok-soft:#E6F4EC; --warn-soft:#F8E8E7;
+  --c-frontend:#1B646F; --c-backend:#226646; --c-content:#8A6112; --c-data:#825C12;
+  --c-tests:#912C28; --c-docs:#57677A; --c-deploy:#8C3349; --c-local:#8494A6;
+  --c-bridge:#8A6112; --c-archive:#57677A; --c-stale:#912C28;
+  --shadow:0 1px 2px rgba(20,32,46,.06), 0 8px 24px rgba(20,32,46,.07);
+  --shadow-lg:0 2px 8px rgba(20,32,46,.10), 0 24px 60px rgba(20,32,46,.16);
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:"IBM Plex Sans Hebrew","Assistant",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme=light]){
+    --ground:#0E1520; --surface:#16202E; --surface-2:#1B2634; --surface-3:#22303F;
+    --line:#2B3A4B; --line-soft:#223040; --edge:#42566B;
+    --text:#E6EDF5; --text-dim:#93A3B5; --text-faint:#6D7F93;
+    --accent:#D8A93F; --accent-soft:#3A2F14;
+    --ok:#5FBD8F; --warn:#EC7B75; --ok-soft:#163328; --warn-soft:#3A1C1B;
+    --c-frontend:#4FB3C4; --c-backend:#5FBD8F; --c-content:#D6A83E; --c-data:#D6A83E;
+    --c-tests:#EC7B75; --c-docs:#93A3B5; --c-deploy:#E4869C; --c-local:#6D7F93;
+    --c-bridge:#D8A93F; --c-archive:#93A3B5; --c-stale:#EC7B75;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 8px rgba(0,0,0,.5), 0 24px 60px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme=dark]{
+  --ground:#0E1520; --surface:#16202E; --surface-2:#1B2634; --surface-3:#22303F;
+  --line:#2B3A4B; --line-soft:#223040; --edge:#42566B;
+  --text:#E6EDF5; --text-dim:#93A3B5; --text-faint:#6D7F93;
+  --accent:#D8A93F; --accent-soft:#3A2F14;
+  --ok:#5FBD8F; --warn:#EC7B75; --ok-soft:#163328; --warn-soft:#3A1C1B;
+  --c-frontend:#4FB3C4; --c-backend:#5FBD8F; --c-content:#D6A83E; --c-data:#D6A83E;
+  --c-tests:#EC7B75; --c-docs:#93A3B5; --c-deploy:#E4869C; --c-local:#6D7F93;
+  --c-bridge:#D8A93F; --c-archive:#93A3B5; --c-stale:#EC7B75;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 8px rgba(0,0,0,.5), 0 24px 60px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--ground); color:var(--text);
+  font:16px/1.65 var(--sans); direction:rtl;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+code,.mono,.nm{font-family:var(--mono); direction:ltr; unicode-bidi:isolate;}
+h1{font-size:20px; font-weight:800; letter-spacing:-.02em; margin:0;}
+.top{flex:none; z-index:60; background:var(--surface); border-bottom:1px solid var(--line); box-shadow:var(--shadow);}
+.top-in{max-width:1600px; margin:0 auto; padding:12px 22px 8px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.brand{display:flex; align-items:baseline; gap:11px; margin-inline-end:auto;}
+.brand .sub{font-size:13px; color:var(--text-dim);}
+.tabs{display:flex; gap:4px; background:var(--surface-2); padding:4px; border-radius:9px; border:1px solid var(--line-soft);}
+.tab{
+  appearance:none; border:0; background:transparent; color:var(--text-dim);
+  font:inherit; font-size:13.5px; font-weight:600; padding:7px 14px; border-radius:6px; cursor:pointer;
+}
+.tab:hover{color:var(--text);}
+.tab[aria-selected=true]{background:var(--surface); color:var(--text); box-shadow:var(--shadow);}
+.search{
+  width:min(340px,100%); font:inherit; font-size:14px; padding:8px 12px; border-radius:8px;
+  border:1px solid var(--line); background:var(--surface-2); color:var(--text);
+}
+.search:focus{outline:2.5px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
+.btn{
+  appearance:none; font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+  background:var(--surface-2); color:var(--text); border:1px solid var(--line);
+  padding:7px 13px; border-radius:7px;
+}
+.btn:hover{background:var(--surface-3);}
+.btn:focus-visible,.tab:focus-visible,.row:focus-visible,.node:focus-visible,.chip:focus-visible{
+  outline:2.5px solid var(--accent); outline-offset:2px;
+}
+.meta-in{max-width:1600px; margin:0 auto; padding:0 22px 12px;}
+.gen{margin:0 0 8px; font-size:12.5px; color:var(--text-dim);}
+.stats{display:flex; flex-wrap:wrap; gap:7px;}
+.stat{background:var(--surface-2); border:1px solid var(--line-soft); border-radius:7px; padding:4px 10px; font-size:12.5px; color:var(--text-dim);}
+.stat b{color:var(--text); font-variant-numeric:tabular-nums;}
+main{flex:1; min-height:0; position:relative;}
+.panel{display:none; height:100%;}
+.panel.on{display:flex; flex-direction:column;}
+#p-list.on{overflow:hidden;}
+.list-scroll{flex:1; min-height:0; overflow:auto; padding:16px 22px 48px;}
+.list-in{max-width:1100px; margin:0 auto;}
+.scan-box{margin-bottom:16px; border:1px solid var(--line); border-radius:10px; background:var(--surface);}
+.scan-box > summary{cursor:pointer; padding:10px 14px; font-size:13.5px; font-weight:600; list-style:none;}
+.scan-box > summary::-webkit-details-marker{display:none;}
+.scan-box[open] > summary{border-bottom:1px solid var(--line-soft);}
+.findings{display:flex; flex-direction:column; gap:6px; margin:0; padding:10px 12px 12px;}
+.findings li{
+  list-style:none; margin:0; padding:8px 12px; border-radius:8px; font-size:13.5px;
+  border:1px solid var(--line); background:var(--surface);
+}
+.findings{padding:0;}
+.findings li.ok{border-inline-start:3px solid var(--ok); background:var(--ok-soft);}
+.findings li.warn{border-inline-start:3px solid var(--warn); background:var(--warn-soft); color:var(--warn);}
+.tree-hint{margin:0 0 8px; font-size:13px; color:var(--text-dim);}
+.tree-tools{display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;}
+.tree details{border:1px solid var(--line); background:var(--surface); border-radius:10px; margin-bottom:6px; box-shadow:var(--shadow);}
+.tree details details{border:0; box-shadow:none; background:transparent; border-radius:0; margin:0; border-bottom:1px dashed var(--line-soft);}
+.tree details details:last-child{border-bottom:0;}
+.row{
+  display:flex; align-items:center; gap:8px; width:100%; padding:8px 12px;
+  background:none; border:0; color:inherit; font:inherit; cursor:pointer; text-align:start;
+}
+.row:hover{background:color-mix(in srgb, var(--accent) 8%, transparent);}
+.row.sel{background:var(--accent-soft);}
+summary.row{list-style:none;}
+summary.row::-webkit-details-marker{display:none;}
+.chev{width:32px; height:32px; flex:none; display:grid; place-items:center; color:var(--text-faint); border-radius:6px;}
+.chev:hover{background:var(--surface-3); color:var(--text);}
+details[open] > summary .chev{transform:rotate(-90deg);}
+.dot{width:8px; height:8px; border-radius:50%; flex:none; background:var(--c-local);}
+.l-frontend{background:var(--c-frontend)}.l-backend{background:var(--c-backend)}
+.l-content{background:var(--c-content)}.l-data{background:var(--c-data)}
+.l-tests{background:var(--c-tests)}.l-docs{background:var(--c-docs)}
+.l-deploy{background:var(--c-deploy)}.l-local{background:var(--c-local)}
+.l-bridge{background:var(--c-bridge)}.l-archive{background:var(--c-archive)}.l-stale{background:var(--c-stale)}
+.nm{font-size:13.5px;}
+.role{font-size:12.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; unicode-bidi:plaintext;}
+.cn{margin-inline-start:auto; font-size:11.5px; font-variant-numeric:tabular-nums; color:var(--text-faint); direction:ltr; unicode-bidi:isolate; flex:none;}
+.st{color:var(--accent); font-size:11px;}
+.kids{padding:0 0 4px;}
+.file{border-radius:0;}
+.bulk-note{padding:6px 12px 10px 38px; font-size:12.5px; color:var(--text-dim);}
+.hidden{display:none !important;}
+#p-flow.on{height:100%;}
+.flow-bar{flex:none; display:flex; gap:6px; padding:10px 16px 8px; overflow-x:auto; background:var(--surface);}
+#flow-caption{flex:none; margin:0; padding:0 16px 10px; font-size:13px; color:var(--text-dim); background:var(--surface); border-bottom:1px solid var(--line); unicode-bidi:plaintext;}
+.chip{
+  appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--text-dim);
+  font:inherit; font-size:13px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer; white-space:nowrap;
+}
+.chip[aria-selected=true]{background:var(--accent); color:var(--ground); border-color:var(--accent);}
+.stage{position:relative; flex:1; min-height:0; overflow:hidden; cursor:grab; background:
+  radial-gradient(circle at 1px 1px, var(--line-soft) 1px, transparent 0) 0 0/22px 22px, var(--ground);}
+.stage.dragging{cursor:grabbing;}
+.world{position:absolute; left:0; top:0; transform-origin:0 0; direction:ltr;}
+.edges{position:absolute; inset:0; overflow:visible; pointer-events:none;}
+.edges path{fill:none; stroke:var(--edge); stroke-width:2; transition:stroke .2s, opacity .2s;}
+.edges path.hot{stroke:var(--accent); stroke-width:2.8;}
+.edges .elab{fill:var(--text-faint); font-size:11px; font-family:var(--sans);}
+.node{
+  position:absolute; direction:rtl; text-align:right;
+  background:var(--surface); border:1px solid var(--line); border-radius:11px;
+  padding:0; cursor:pointer; box-shadow:var(--shadow); color:var(--text); font:inherit;
+  transition:transform .16s, box-shadow .16s, border-color .16s, opacity .2s;
+}
+.node:hover{transform:translateY(-2px); box-shadow:var(--shadow-lg);}
+.node.hot{border-color:var(--accent); box-shadow:0 0 0 2.5px var(--accent-soft), var(--shadow-lg);}
+.node.acc{border-color:var(--accent);}
+.node .hd{display:flex; align-items:center; gap:7px; padding:7px 11px 0;}
+.node .kind{font-size:10px; font-weight:800; letter-spacing:.08em; color:var(--text-faint);}
+.node h3{margin:0; padding:2px 11px 0; font-size:13.5px; font-weight:700; line-height:1.3;}
+.node h3[dir=ltr]{unicode-bidi:isolate; display:block; text-align:right;}
+.node .en{display:block; padding:1px 11px 10px; font-family:var(--mono); font-size:10.5px; color:var(--text-dim);
+  direction:ltr; unicode-bidi:isolate; text-align:right;}
+.handle{
+  position:absolute; top:50%; width:10px; height:10px; margin-top:-5px; border-radius:50%;
+  background:var(--surface); border:2px solid var(--accent); pointer-events:none;
+}
+.handle.in{left:-6px;} .handle.out{right:-6px;}
+.zoom{position:absolute; bottom:14px; inset-inline-start:14px; z-index:20; display:flex; gap:6px;}
+.hint{
+  position:absolute; top:12px; inset-inline-end:14px; z-index:20; background:var(--surface);
+  border:1px solid var(--line); border-radius:8px; padding:7px 12px; font-size:12.5px;
+  color:var(--text-dim); box-shadow:var(--shadow);
+}
+.scrim{position:fixed; inset:0; background:rgba(10,16,24,.5); z-index:70; opacity:0; pointer-events:none; transition:opacity .22s;}
+.scrim.on{opacity:1; pointer-events:auto;}
+.drawer{
+  position:fixed; top:0; bottom:0; right:0; width:min(470px,94vw); z-index:80;
+  background:var(--surface); border-left:1px solid var(--line); box-shadow:var(--shadow-lg);
+  transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto; padding:0 0 44px; visibility:hidden;
+}
+.drawer.on{transform:translateX(0); visibility:visible;}
+.dr-head{position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--line); padding:18px 22px 15px; z-index:2;}
+.dr-head .nm{display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:12px; color:var(--text-dim);}
+.dr-head h2{margin:0 0 4px; font-size:20px; font-weight:800; letter-spacing:-.02em; line-height:1.25; direction:ltr; unicode-bidi:isolate; text-align:right; word-break:break-all;}
+.dr-en{font-size:12px; color:var(--text-dim); unicode-bidi:plaintext;}
+.dr-close{position:absolute; top:14px; left:14px; width:31px; height:31px; border-radius:7px; border:1px solid var(--line); background:var(--surface-2); cursor:pointer; color:var(--text); font-size:17px; line-height:1;}
+.dr-body{padding:18px 22px;}
+.fld{margin-bottom:18px;}
+.fld h4{margin:0 0 6px; font-size:10.5px; font-weight:800; letter-spacing:.13em; color:var(--text-faint);}
+.fld p{margin:0; font-size:14.5px; line-height:1.72; unicode-bidi:plaintext; overflow-wrap:anywhere;}
+.fld.purpose{background:var(--accent-soft); border-radius:9px; padding:13px 15px;}
+.fld.purpose h4{color:var(--accent);}
+.fld.purpose p{font-size:15.5px; font-weight:600; line-height:1.7;}
+.fld.warn{background:var(--warn-soft); border-radius:8px; padding:12px 14px;}
+.rel{display:flex; flex-wrap:wrap; gap:6px;}
+.rel button{
+  font:inherit; font-size:12.5px; font-family:var(--mono); direction:ltr;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:6px;
+  padding:5px 9px; cursor:pointer; color:var(--text);
+}
+.rel button:hover{border-color:var(--accent);}
+.gens{display:flex; flex-wrap:wrap; gap:6px; direction:ltr; margin-top:18px;}
+.gens code{padding:3px 9px; border:1px dashed var(--line); border-radius:5px; color:var(--text-dim); font-size:12px;}
+.empty{padding:32px 8px; color:var(--text-dim);}
+@media (max-width:820px){
+  .brand .sub,.hint{display:none;}
+  .top-in{padding:10px 14px; gap:10px;}
+  .search{width:100%; order:5;}
+  .list-scroll{padding:12px 12px 40px;}
+  .role{display:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important;}
+}
+`;
 
-/* node ids used by the diagrams, resolved against live data */
-const N = {};
-const put = (k, title, meta, body, keys="") => { N[k] = [title, meta, body, keys]; };
-const A = (path) => AREAS[path] ? AREAS[path][1] : "לא מתועד";
-const stat = (path) => { const f = files.filter(p=>p===path||p.startsWith(path+"/"));
-  return `${f.length} קבצים · ${human(f.reduce((n,q)=>n+sizeOf(q),0))}`; };
+const CLIENT = `
+(function(){
+  const D = DATA;
+  const E = D.E;
+  const $ = function(id){ return document.getElementById(id); };
+  const esc = function(t){
+    return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  };
+  const human = function(b){
+    return b >= 1048576 ? (b/1048576).toFixed(b>=10485760?0:1)+"MB"
+         : b >= 1024 ? Math.round(b/1024)+"K" : b+"B";
+  };
+  const info = function(key){
+    const e = E[key];
+    if (!e) return null;
+    if (e.k === "record" && !e.p) {
+      return {
+        t: e.t, m: e.m, k: "record", l: "content", s: false,
+        r: "רשומת מקור ב־" + e.pkg,
+        p: "JSON מחויב לגיט. האינדקס קורא אותו בזמן build ו־generateStaticParams מייצר ממנו דף ארכיון. המדיה עצמה לא נמצאת כאן — רק מזהה media_id שמצביע ל־CDN. המאגר ציבורי: push כבר מפרסם את הטקסט, גם לפני פריסה.",
+        rel: ["content-packages/" + e.pkg]
+      };
+    }
+    return e;
+  };
 
-put("app","app/",stat("app"),A("app"),`${D.pages} page.tsx · ${D.apiRoutes} route.ts`);
-put("components","components/",stat("components"),A("components"));
-put("libcontent","lib/content/",stat("lib/content"),A("lib/content"));
-put("packages","content-packages/",stat("content-packages"),A("content-packages"),
-  D.pkgs.map(p=>`${p.name}: ${p.records} רשומות`).join(" · "));
-put("contracts","server/contracts/",stat("server/contracts"),A("server/contracts"));
-put("api","app/api/",`${D.apiRoutes} מסלולים`,A("app/api"));
-put("handler","server/http/handler.ts","",A("server/http"));
-put("modules","server/modules/",stat("server/modules"),A("server/modules"));
-put("db","server/db/",`${D.migrations} מיגרציות`,A("server/db"));
-put("req","בקשה נכנסת","","כל בקשה ל־/api/ עוברת דרך handler.ts לפני שגוף המסלול רץ.");
-put("accessfor","accessFor()","נקודת ההכרעה היחידה",
-  "מסווגת את הבקשה לאחד משלושה תפקידים בבסיס הנתונים. גוף המסלול לא מחליט על הרשאות.");
-put("pub","app_public",`${D.publicRoutes.length} נתיבים`,
-  `PUBLIC_V1 נסרק מ־handler.ts והוא בדיוק ${D.publicRoutes.length} כניסות. שום דבר אחר אינו אנונימי.`,
-  D.publicRoutes.join(" · "));
-put("staff","app_staff","ברירת המחדל",
-  "כל שאר /api/v1/ עובר authenticateAdmin ונכשל סגור. התיעוד סימן כתריסר מהם כאנונימיים — שגוי לכיוון המחמיר.");
-put("svc","app_service","cron ותור","נתיבי cron ותור בלבד, מאומתים ב־CRON_SECRET.");
-put("setrole","SET ROLE + RLS","",
-  "חיבור ייעודי מהבריכה, SET ROLE ו־set_config('app.identity'), ובשחרור RESET ALL. זה המנגנון שמפעיל את מדיניות ה־RLS בפועל.");
-put("gsp","generateStaticParams","נגזר מהאינדקס",
-  "האינדקסים של החבילות מייצרים את רשימת המסלולים. רשומה חדשה נכנסת לאתר בלי לגעת בקוד.");
-const totalRecords = D.pkgs.reduce((n,p)=>n+p.records,0);
-const totalVersions = D.pkgs.reduce((n,p)=>n+p.versions,0);
-put("pages",`${totalVersions.toLocaleString("en")} דפים`,"מוכנים מראש",
-  `${totalRecords} רשומות בשלוש חבילות מתפרשות ל־${totalVersions} גרסאות שפה, וכל אחת היא דף.`);
-put("nav","defaultNodes",`${D.navIds.length} יעדים`,
-  D.navMissing.length ? `אזהרה: ${D.navMissing.join(", ")} ללא page.tsx תואם.`
-  : `נסרק מ־config.ts. לכל אחד מ־${D.navIds.length} המזהים יש app/<id>/page.tsx תואם — נבדק.`,
-  D.navIds.join(" · "));
-put("ci","CI על Ubuntu",`${D.tests} קובצי בדיקה`,
-  "typecheck, lint, הבדיקות ו־build — ואז עשן מסלולים עם Chromium מובנה.");
-put("mac","רק על macOS",`${D.chromeScripts.length} סקריפטים`,
-  `נסרקו לפי נעילת נתיב Chrome מוחלט יחד עם executablePath — אזכור בהערה בלבד לא נספר.`,
-  D.chromeScripts.join(" · "));
-put("nojs","invariant ללא JavaScript","נשמר ב־CI",
-  "ci-smoke טוען את / עם javaScriptEnabled: false ומוודא 8 קישורים, פוסטר, ואפס מעטפות Suspense חבויות; tests/no-js-invariant.test.ts הוא ה־tripwire ל־loading/template/default. הבדיקה מכסה את / בלבד.");
+  $("stat-files").innerHTML = "<b>" + D.totalFiles.toLocaleString("en") + "</b> קבצים במעקב";
+  $("stat-bytes").innerHTML = "<b>" + human(D.totalBytes) + "</b>";
+  $("stat-arch").innerHTML = "<b>" + D.archivePages.toLocaleString("en") + "</b> דפי ארכיון";
+  $("stat-api").innerHTML = "<b>" + D.apiRoutes + "</b> מסלולי API";
+  $("stat-tests").innerHTML = "<b>" + D.tests + "</b> בדיקות";
+  $("stat-mig").innerHTML = "<b>" + D.migrations + "</b> מיגרציות";
+  $("stat-npm").innerHTML = "<b>" + D.npmScripts + "</b> סקריפטים";
+  $("findings").innerHTML = D.findings.map(function(f){
+    return "<li class='" + (f.ok ? "ok" : "warn") + "'>" + esc(f.text) + "</li>";
+  }).join("");
+  (function(){
+    const w = D.findings.filter(function(f){ return !f.ok; }).length;
+    $("scan-sum").textContent = D.findings.length + " בדיקות סריקה · " +
+      (w ? (w + " אזהרות") : "הכל תקין");
+    if (w) $("scan-sum").style.color = "var(--warn)";
+  })();
+  $("gens").innerHTML = D.gitignored.map(function(g){ return "<code>" + esc(g) + "</code>"; }).join("");
 
-const box=(k,x,y,w=180,h=56,cls="")=>{const v=N[k];if(!v)return"";
-  const ty=v[1]?y+h/2-3:y+h/2+4;
-  return `<g class="n ${cls}" data-k="${k}" tabindex="0" role="button" aria-label="${esc(v[0])}">`+
-    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7"/>`+
-    `<text class="t" x="${x+w/2}" y="${ty}" text-anchor="middle">${esc(v[0])}</text>`+
-    (v[1]?`<text class="m" x="${x+w/2}" y="${y+h/2+14}" text-anchor="middle">${esc(v[1])}</text>`:"")+
-    `</g>`;};
-const ar=(id,x1,y1,x2,y2,label,lx,ly,dash)=>
-  `<line class="a" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"${dash?' stroke-dasharray="5 4"':''} marker-end="url(#${id})"/>`+
-  (label?`<text class="al" x="${lx??(x1+x2)/2}" y="${ly??(y1+y2)/2-7}" text-anchor="middle">${esc(label)}</text>`:"");
-const mk=(id)=>`<defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker></defs>`;
+  /* tree */
+  function buildForest(){
+    const root = { name:"", path:"", kids: new Map(), files: [] };
+    D.files.forEach(function(pair){
+      const path = pair[0], size = pair[1];
+      const parts = path.split("/");
+      let n = root;
+      for (let i = 0; i < parts.length; i++) {
+        if (i === parts.length - 1) n.files.push({ path: path, size: size, name: parts[i] });
+        else {
+          if (!n.kids.has(parts[i])) {
+            const p = parts.slice(0, i+1).join("/");
+            n.kids.set(parts[i], { name: parts[i], path: p, kids: new Map(), files: [] });
+          }
+          n = n.kids.get(parts[i]);
+        }
+      }
+    });
+    return root;
+  }
+  const forest = buildForest();
+  const layerOf = function(path){
+    const e = info(path);
+    return e && e.l ? e.l : "local";
+  };
+  const countNode = function(n){
+    let c = n.files.length;
+    n.kids.forEach(function(k){ c += countNode(k); });
+    return c;
+  };
+  const bytesNode = function(n){
+    let b = n.files.reduce(function(s,f){ return s + f.size; }, 0);
+    n.kids.forEach(function(k){ b += bytesNode(k); });
+    return b;
+  };
 
-const d1=`<svg viewBox="0 0 900 372" role="img" aria-label="הייבוא היחיד שחוצה בין שתי החציים">${mk("m1")}
-<line class="wall" x1="450" y1="16" x2="450" y2="112"/><line class="wall" x1="450" y1="184" x2="450" y2="348"/>
-<text class="wl" x="450" y="366" text-anchor="middle">eslint.config.mjs — הגבול נאכף כשגיאת lint</text>
-<text class="al" x="450" y="100" text-anchor="middle">${D.violations.length===0?"אפס הפרות — נסרק":"אזהרה: "+D.violations.length+" הפרות"}</text>
-${box("app",70,30)}${box("components",70,110)}${box("libcontent",70,190)}${box("packages",70,270)}
-${box("api",650,30)}${box("handler",650,110)}${box("modules",650,190)}${box("db",650,270)}
-${box("contracts",340,110,220,56,"acc")}
-${[86,166,246].map(y=>ar("m1",160,y,160,y+22)+ar("m1",740,y,740,y+22)).join("")}
-${ar("m1",250,138,336,138)}${ar("m1",650,138,564,138)}
-<text class="al" x="140" y="352" text-anchor="middle">קריאה בזמן build</text></svg>`;
+  function renderNode(n, depth){
+    const kids = [];
+    n.kids.forEach(function(k){ kids.push(k); });
+    kids.sort(function(a,b){ return a.name.localeCompare(b.name); });
+    const files = n.files.slice().sort(function(a,b){ return a.name.localeCompare(b.name); });
+    const bulk = files.length > 48 && kids.length === 0;
+    const open = depth < 1 && !bulk ? " open" : "";
+    const e = info(n.path);
+    const role = e && e.r ? e.r : "";
+    const sot = e && e.s ? "<span class='st'>★</span>" : "";
+    let html = "<details class='dir' data-path='" + esc(n.path) + "'" + open + ">" +
+      "<summary class='row' data-path='" + esc(n.path) + "'>" +
+      "<span class='chev' aria-hidden='true'>▾</span>" +
+      "<span class='dot l-" + layerOf(n.path) + "'></span>" +
+      "<span class='nm'>" + esc(n.name) + "/</span>" + sot +
+      (role ? "<span class='role'>" + esc(role) + "</span>" : "") +
+      "<span class='cn'>" + countNode(n) + " · " + human(bytesNode(n)) + "</span></summary><div class='kids'>";
+    if (bulk) html += "<p class='bulk-note'>" + files.length + " קבצים. פתיחה מציגה את כולם — כל אחד נפתח לחלון הסבר. חיפוש מסנן גם כאן.</p>";
+    kids.forEach(function(k){ html += renderNode(k, depth + 1); });
+    files.forEach(function(f){
+      const fe = info(f.path);
+      const fr = fe && fe.r ? fe.r : "";
+      const star = fe && fe.s ? "<span class='st'>★</span>" : "";
+      html += "<button type='button' class='row file' data-path='" + esc(f.path) + "'>" +
+        "<span class='dot l-" + layerOf(f.path) + "'></span>" +
+        "<span class='nm'>" + esc(f.name) + "</span>" + star +
+        (fr ? "<span class='role'>" + esc(fr) + "</span>" : "") +
+        "<span class='cn'>" + human(f.size) + "</span></button>";
+    });
+    html += "</div></details>";
+    return html;
+  }
+  function renderTree(){
+    const top = [];
+    forest.kids.forEach(function(k){ top.push(k); });
+    top.sort(function(a,b){ return a.name.localeCompare(b.name); });
+    const roots = forest.files.slice().sort(function(a,b){ return a.name.localeCompare(b.name); });
+    let html = "";
+    if (roots.length) {
+      html += "<div class='dir' style='border:1px solid var(--line);background:var(--surface);border-radius:10px;margin-bottom:8px;padding:4px 0'>";
+      roots.forEach(function(f){
+        const fe = info(f.path);
+        html += "<button type='button' class='row file' data-path='" + esc(f.path) + "'>" +
+          "<span class='dot l-" + layerOf(f.path) + "'></span>" +
+          "<span class='nm'>" + esc(f.name) + "</span>" +
+          (fe && fe.s ? "<span class='st'>★</span>" : "") +
+          (fe && fe.r ? "<span class='role'>" + esc(fe.r) + "</span>" : "") +
+          "<span class='cn'>" + human(f.size) + "</span></button>";
+      });
+      html += "</div>";
+    }
+    top.forEach(function(k){ html += renderNode(k, 0); });
+    $("tree").innerHTML = html;
+    bindTree($("tree"));
+  }
+  function bindTree(root){
+    root.querySelectorAll("summary.row").forEach(function(sum){
+      sum.addEventListener("click", function(ev){
+        if (ev.target.closest(".chev")) return;
+        ev.preventDefault();
+        openExplain(sum.getAttribute("data-path"));
+      });
+    });
+    root.querySelectorAll("button.file").forEach(function(btn){
+      btn.addEventListener("click", function(){ openExplain(btn.getAttribute("data-path")); });
+    });
+  }
+  renderTree();
 
-const d2=`<svg viewBox="0 0 900 268" role="img" aria-label="כל בקשה מקבלת תפקיד לפני שהמסלול רץ">${mk("m2")}
-${box("req",24,100,150)}${ar("m2",174,128,214,128)}${box("accessfor",214,100,170,56,"acc")}
-${box("pub",470,16,170)}${box("staff",470,100,170)}${box("svc",470,184,170)}
-${ar("m2",384,120,466,52,D.publicRoutes.length+" נתיבים",428,78)}
-${ar("m2",384,128,466,128,"נכשל סגור",428,122)}
-${ar("m2",384,136,466,212,"cron · תור",428,190)}
-${ar("m2",640,44,700,110)}${ar("m2",640,128,700,128)}${ar("m2",640,212,700,146)}
-${box("setrole",700,100,176,56,"acc")}
-<text class="al" x="788" y="180" text-anchor="middle">ובשחרור — RESET ALL</text></svg>`;
+  $("expand").onclick = function(){ $("tree").querySelectorAll("details").forEach(function(d){ d.open = true; }); };
+  $("collapse").onclick = function(){ $("tree").querySelectorAll("details").forEach(function(d){ d.open = false; }); };
 
-const d3=`<svg viewBox="0 0 900 216" role="img" aria-label="הדפים נגזרים מהנתונים">${mk("m3")}
-${box("packages",24,40,196)}${ar("m3",220,68,262,68)}${box("libcontent",262,40,176)}
-${ar("m3",438,68,480,68)}${box("gsp",480,40,180)}${ar("m3",660,68,702,68)}
-${box("pages",702,40,174,56,"acc")}${box("nav",262,142,176)}
-${ar("m3",438,170,700,170,D.navIds.length+" יעדים מתוחזקים ביד",560,163)}${ar("m3",789,138,789,102)}</svg>`;
+  /* search */
+  const filter = function(q){
+    q = (q || "").trim().toLowerCase();
+    const rows = $("tree").querySelectorAll("[data-path]");
+    if (!q) {
+      rows.forEach(function(el){ el.classList.remove("hidden"); });
+      $("tree").querySelectorAll("details").forEach(function(d,i){
+        const bulk = d.querySelector(".bulk-note");
+        d.open = !bulk && d.parentElement && d.parentElement.id === "tree";
+      });
+      $("empty").hidden = true;
+      return;
+    }
+    let shown = 0;
+    $("tree").querySelectorAll("details").forEach(function(d){ d.open = false; });
+    rows.forEach(function(el){
+      const path = el.getAttribute("data-path") || "";
+      const e = info(path) || {};
+      const hay = (path + " " + (e.r||"") + " " + (e.p||"") + " " + (e.k||"")).toLowerCase();
+      const hit = hay.indexOf(q) !== -1;
+      if (el.tagName === "BUTTON") {
+        el.classList.toggle("hidden", !hit);
+        if (hit) {
+          shown++;
+          let p = el.parentElement;
+          while (p) {
+            if (p.tagName === "DETAILS") p.open = true;
+            p = p.parentElement;
+          }
+        }
+      } else if (el.tagName === "DETAILS") {
+        /* dirs stay; hidden if nothing inside matches — handled after */
+      }
+    });
+    $("tree").querySelectorAll("details.dir").forEach(function(d){
+      const any = d.querySelector("button.file:not(.hidden), details:not(.hidden)");
+      const self = ((d.getAttribute("data-path")||"") + " " + ((info(d.getAttribute("data-path"))||{}).r||"")).toLowerCase().indexOf(q) !== -1;
+      d.classList.toggle("hidden", !any && !self);
+      if (self) d.open = true;
+    });
+    $("empty").hidden = shown > 0 || $("tree").querySelector("details:not(.hidden)");
+    if (!$("empty").hidden) $("empty").textContent = "אין קובץ שמתאים ל־\\"" + q + "\\".";
+  };
+  $("q").addEventListener("input", function(){ filter($("q").value); });
+  document.addEventListener("keydown", function(ev){
+    if (ev.key === "/" && ev.target.tagName !== "INPUT") { ev.preventDefault(); $("q").focus(); }
+    if (ev.key === "Escape") closeDrawer();
+  });
 
-const d4=`<svg viewBox="0 0 900 250" role="img" aria-label="ה־invariant היחיד ש־CI לא רואה">${mk("m4")}
-${box("ci",24,30,200)}${box("mac",24,158,200)}
-<rect class="lane" x="264" y="20" width="300" height="76" rx="7"/>
-<text class="lt" x="414" y="46" text-anchor="middle">typecheck · lint · ${D.tests} קובצי בדיקה · build</text>
-<text class="lt" x="414" y="70" text-anchor="middle">ci-smoke</text>
-<text class="lm" x="414" y="88" text-anchor="middle">רץ עם JavaScript דלוק</text>
-<rect class="lane" x="264" y="148" width="300" height="76" rx="7"/>
-<text class="lt" x="414" y="174" text-anchor="middle">Chrome אמיתי · headless: false</text>
-<text class="lt" x="414" y="198" text-anchor="middle">final-verify.mjs</text>
-<text class="lm" x="414" y="216" text-anchor="middle">javaScriptEnabled: false</text>
-${ar("m4",224,60,260,60)}${ar("m4",224,188,260,188)}
-${box("nojs",620,96,250,60)}${ar("m4",564,186,616,140)}
-<line class="a broken" x1="564" y1="58" x2="596" y2="86" stroke-dasharray="5 4"/>
-<g class="x"><line x1="600" y1="82" x2="616" y2="98"/><line x1="616" y1="82" x2="600" y2="98"/></g>
-<text class="al" x="556" y="242" text-anchor="middle">השומר היחיד — ורק על תחנת העבודה</text></svg>`;
+  /* drawer */
+  const drawer = $("drawer"), scrim = $("scrim");
+  let lastFocus = null, selected = null;
+  function markSel(path){
+    document.querySelectorAll(".row.sel,.node.hot").forEach(function(el){ el.classList.remove("sel","hot"); });
+    document.querySelectorAll("[data-path=\\"" + CSS.escape(path) + "\\"]").forEach(function(el){ el.classList.add(el.classList.contains("node") ? "hot" : "sel"); });
+    selected = path;
+  }
+  function openExplain(key){
+    const e = info(key);
+    if (!e) return;
+    lastFocus = document.activeElement;
+    markSel(key);
+    $("dr-dot").className = "dot l-" + (e.l || "local");
+    $("dr-kind").textContent = (D.kindHe[e.k] || e.k || "") + " · " + (D.layers[e.l] || e.l || "");
+    $("dr-title").textContent = e.t;
+    $("dr-meta").textContent = e.m || "";
+    const bits = [];
+    bits.push("<div class='fld purpose'><h4>התכלית</h4><p>" + esc(e.r || "") + "</p></div>");
+    bits.push("<div class='fld'><h4>איך זה עובד, ולמה זה כאן</h4><p>" + esc(e.p || "") + "</p></div>");
+    if (e.g) bits.push("<div class='fld'><h4>מהקובץ עצמו</h4><p>" + esc(e.g) + "</p></div>");
+    if (e.u) bits.push("<div class='fld warn'><h4>לא נגיע מנקודת כניסה</h4><p>הסריקה לא מצאה ייבוא, נתיב מילולי או אזכור שמוביל לכאן. יכול להיות נכס שמחכים לו, או קובץ שהתנתק.</p></div>");
+    if (e.rel && e.rel.length) {
+      bits.push("<div class='fld'><h4>קשור אל</h4><div class='rel'>" +
+        e.rel.map(function(r){ return "<button type='button' data-rel='" + esc(r) + "'>" + esc(r) + "</button>"; }).join("") +
+        "</div></div>");
+    }
+    $("dr-body").innerHTML = bits.join("");
+    $("dr-body").querySelectorAll("[data-rel]").forEach(function(b){
+      b.addEventListener("click", function(){ openExplain(b.getAttribute("data-rel")); });
+    });
+    drawer.classList.add("on"); scrim.classList.add("on"); drawer.focus();
+  }
+  function closeDrawer(){
+    drawer.classList.remove("on"); scrim.classList.remove("on");
+    document.querySelectorAll(".row.sel,.node.hot").forEach(function(el){ el.classList.remove("sel","hot"); });
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $("dr-close").onclick = closeDrawer;
+  scrim.onclick = closeDrawer;
 
-const FIGS=[
- ["שתי חציים, ודלת אחת בקיר",d1,
-  `המאגר מחזיק אתר חלקיקים ו־API שלא חולקים אף קובץ מקור. הפרונטאנד רשאי לייבא שכבה אחת בלבד מ־<code>server/</code> — את החוזים. הסריקה מצאה <b>${D.violations.length}</b> הפרות של הגבול הזה, ועוד <b>${D.sanctioned.length}</b> ייבואים תחת ה־carve-out המתועד של <code>app/auth/</code>.`],
- ["כל בקשה מקבלת תפקיד לפני שהמסלול רץ",d2,
-  `<code>accessFor()</code> היא נקודת ההכרעה היחידה. <code>PUBLIC_V1</code> נסרק מהקוד והוא בדיוק ${D.publicRoutes.length} כניסות; כל השאר נכשל סגור.`],
- ["הדפים נגזרים מהנתונים, לא נכתבים ביד",d3,
-  `${totalRecords} רשומות בשלוש חבילות מתפרשות ל־${totalVersions} גרסאות שפה. האינדקס מייצר את המסלולים, ולכן רשומה חדשה נכנסת בלי לגעת בקוד. ${D.navIds.length} היעדים בניווט, לעומת זאת, מתוחזקים ביד.`],
- ["ה־invariant היחיד ש־CI לא יכול לראות",d4,
-  `${D.chromeScripts.length} סקריפטים נועלים נתיב Chrome מוחלט ורצים רק על תחנת העבודה. אחד מהם הוא הבדיקה היחידה שרצה בלי JavaScript — כלומר רגרסיה שם עוברת את CI בשקט.`],
-];
+  /* modes */
+  function setMode(mode){
+    document.querySelectorAll(".tab").forEach(function(t){
+      t.setAttribute("aria-selected", t.getAttribute("data-mode") === mode ? "true" : "false");
+    });
+    $("p-list").classList.toggle("on", mode === "list");
+    $("p-flow").classList.toggle("on", mode === "flow");
+    if (mode === "flow") requestAnimationFrame(fit);
+  }
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.addEventListener("click", function(){ setMode(t.getAttribute("data-mode")); });
+  });
 
-const layerOf=(p)=>AREAS[p]?AREAS[p][0]:"local";
-const treeHtml = areas.map(a=>{
-  const sot=SOT.has(a.path);
-  const subs=a.subs.map(sb=>
-    `<button class="it sub n" data-k="dir:${esc(sb.path)}"><span class="nm">${esc(sb.path.split("/")[1])}/</span>`+
-    `<span class="cn">${sb.files}</span></button>`).join("");
-  return `<div class="grp"><button class="it head n" data-k="dir:${esc(a.path)}">`+
-    `<span class="dot l-${layerOf(a.path)}"></span><span class="nm">${esc(a.path)}/</span>`+
-    (sot?`<span class="st">★</span>`:"")+
-    `<span class="cn">${a.files} · ${human(a.bytes)}</span></button>`+
-    (subs?`<div class="subs">${subs}</div>`:"")+`</div>`;}).join("");
-const rootHtml = rootFiles.map(f=>{
-  const r=ROOTFILES[f]||["local",false,"לא מתועד"];
-  return `<button class="it n" data-k="file:${esc(f)}"><span class="dot l-${r[0]}"></span>`+
-    `<span class="nm">${esc(f)}</span>${r[1]?'<span class="st">★</span>':''}</button>`;}).join("");
+  /* flows */
+  let flowId = D.flows[0].id;
+  const bar = $("flow-bar");
+  bar.innerHTML = D.flows.map(function(f){
+    return "<button type='button' class='chip' data-flow='" + f.id + "' " +
+      (f.id === flowId ? "aria-selected='true'" : "aria-selected='false'") + ">" + esc(f.title) + "</button>";
+  }).join("");
+  bar.querySelectorAll(".chip").forEach(function(c){
+    c.addEventListener("click", function(){
+      flowId = c.getAttribute("data-flow");
+      bar.querySelectorAll(".chip").forEach(function(x){ x.setAttribute("aria-selected", x === c ? "true" : "false"); });
+      drawFlow();
+      requestAnimationFrame(fit);
+    });
+  });
 
-for (const a of areas){ N["dir:"+a.path]=[a.path+"/", `${a.files} קבצים · ${human(a.bytes)} · ${LAYERS[layerOf(a.path)]}`, A(a.path), a.subs.map(s=>s.path.split("/")[1]+"/").join(" · ")];
-  for (const sb of a.subs) N["dir:"+sb.path]=[sb.path+"/", `${sb.files} קבצים · ${human(sb.bytes)}`, A(sb.path), ""]; }
-for (const f of rootFiles){ const r=ROOTFILES[f]||["local",false,"לא מתועד"];
-  N["file:"+f]=[f, `${human(sizeOf(f))} · ${LAYERS[r[0]]}${r[1]?" · מקור אמת":""}`, r[2], ""]; }
+  const world = $("world"), svg = $("edges"), stage = $("stage");
+  let scale = 0.8, tx = 0, ty = 0, WORLD_W = 1200, WORLD_H = 800;
+  const apply = function(){ world.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + scale + ")"; };
+  function fit(){
+    const r = stage.getBoundingClientRect();
+    if (r.width < 50 || r.height < 50) return;
+    scale = Math.min(r.width / (WORLD_W + 80), r.height / (WORLD_H + 80), 1);
+    if (r.width < 700) scale = Math.max(scale, 0.62);
+    tx = (r.width - WORLD_W * scale) / 2;
+    ty = (r.height - WORLD_H * scale) / 2;
+    apply();
+  }
+  function edgePath(a, b){
+    if (Math.abs(a.x - b.x) < 40) {
+      const x = a.x + a.w / 2;
+      const down = b.y >= a.y;
+      const y1 = down ? a.y + a.h : a.y;
+      const y2 = down ? b.y : b.y + b.h;
+      const dy = Math.max(24, Math.abs(y2 - y1) * 0.4);
+      return "M " + x + " " + y1 + " C " + x + " " + (y1 + (down ? dy : -dy)) + ", " + x + " " + (y2 + (down ? -dy : dy)) + ", " + x + " " + y2;
+    }
+    const leftToRight = a.x <= b.x;
+    const x1 = leftToRight ? a.x + a.w : a.x;
+    const x2 = leftToRight ? b.x : b.x + b.w;
+    const y1 = a.y + a.h / 2, y2 = b.y + b.h / 2;
+    const dx = Math.max(40, Math.abs(x2 - x1) * 0.42);
+    return "M " + x1 + " " + y1 + " C " + (x1 + (leftToRight ? dx : -dx)) + " " + y1 + ", " + (x2 + (leftToRight ? -dx : dx)) + " " + y2 + ", " + x2 + " " + y2;
+  }
+  function drawFlow(){
+    const flow = D.flows.filter(function(f){ return f.id === flowId; })[0];
+    if (!flow) return;
+    $("flow-caption").textContent = flow.caption;
+    let maxX = 0, maxY = 0;
+    const byId = {};
+    flow.nodes.forEach(function(n){
+      byId[n.id] = n;
+      maxX = Math.max(maxX, n.x + n.w);
+      maxY = Math.max(maxY, n.y + n.h);
+    });
+    WORLD_W = maxX + 80; WORLD_H = maxY + 80;
+    world.style.width = WORLD_W + "px";
+    world.style.height = WORLD_H + "px";
+    svg.setAttribute("width", WORLD_W);
+    svg.setAttribute("height", WORLD_H);
+    svg.innerHTML = "";
+    world.querySelectorAll(".node").forEach(function(n){ n.remove(); });
+    flow.edges.forEach(function(ed){
+      const a = byId[ed[0]], b = byId[ed[1]];
+      if (!a || !b) return;
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", edgePath(a, b));
+      svg.appendChild(p);
+      if (ed[2]) {
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.setAttribute("class", "elab");
+        t.setAttribute("x", (a.x + a.w / 2 + b.x + b.w / 2) / 2);
+        t.setAttribute("y", (a.y + a.h / 2 + b.y + b.h / 2) / 2 - 6);
+        t.setAttribute("text-anchor", "middle");
+        t.textContent = ed[2];
+        svg.appendChild(t);
+      }
+    });
+    flow.nodes.forEach(function(n){
+      const e = info(n.key) || {};
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = "node" + (n.cls ? " " + n.cls : "");
+      el.setAttribute("data-path", n.key);
+      el.style.left = n.x + "px";
+      el.style.top = n.y + "px";
+      el.style.width = n.w + "px";
+      el.style.minHeight = n.h + "px";
+      el.innerHTML = "<span class='handle in'></span><span class='handle out'></span>" +
+        "<span class='hd'><span class='dot l-" + (e.l || "local") + "'></span>" +
+        "<span class='kind'>" + esc(D.kindHe[e.k] || "") + "</span></span>" +
+        "<h3" + (/[/.()]/.test(n.he) || /^[A-Za-z]/.test(n.he) ? " dir='ltr'" : "") + ">" + esc(n.he) + "</h3>" +
+        "<span class='en'>" + esc(n.meta || e.m || "") + "</span>";
+      el.addEventListener("click", function(){ openExplain(n.key); });
+      world.appendChild(el);
+    });
+  }
+  drawFlow();
 
-const findings = [
-  [D.violations.length===0, `אפס הפרות של גבול הייבוא בין הפרונטאנד ל־server/`, `${D.violations.length} הפרות: ${D.violations.map(v=>v.file).join(", ")}`],
-  [D.navMissing.length===0, `לכל ${D.navIds.length} יעדי הניווט יש page.tsx תואם`, `חסר page.tsx ל: ${D.navMissing.join(", ")}`],
-  [D.migrations===D.journalEntries, `${D.migrations} מיגרציות תואמות ל־journal`, `סחיפה בין הקבצים ל־journal`],
-  [D.handWrittenAfterSnapshot.length===0,
-   `בסיס ה־snapshots עדכני — db:generate לא יפלוט מיגרציה מיותרת`,
-   `ה־snapshot האחרון הוא ${String(D.newestSnapshot).padStart(4,"0")} אבל יש ${D.handWrittenAfterSnapshot.length} מיגרציות כתובות־ביד אחריו (${D.handWrittenAfterSnapshot.join(", ")}). ` +
-   `‏db:generate ישווה מול בסיס מיושן ויפלוט מחדש שינוי שכבר הוחל. חסר snapshot, לא חסרה מיגרציה.`],
-  [D.dsProblems.length===0,
-   `חוזי ה־props של מערכת העיצוב תואמים לטיפוסי המקור`,
-   `${D.dsProblems.length} רכיבים שבהם dtsPropsFor נסחף מהמקור: ${D.dsProblems.join(" · ")}`],
-  [D.docProblems.length===0,
-   `כל נתיב וכל פקודת npm שמוזכרים בתיעוד קיימים`,
-   `${D.docProblems.length} הפניות מתות בתיעוד: ${D.docProblems.join(" · ")}`],
-  [D.duplicateSets.length===0, `אפס קבצים כפולים — כל ${D.totalFiles.toLocaleString("en")} הקבצים בעלי תוכן שונה`,
-   `${D.duplicateSets.length} קבוצות של קבצים זהים בייט־בייט: ${D.duplicateSets.map(g=>g.join(" = ")).join(" · ")}`],
-  [D.unreferenced.length===0, `כל קובץ נגיע אליו מנקודת כניסה`,
-   `${D.reachable} מתוך ${D.totalFiles} נגישים; ${D.unreferenced.length} לא מוזכרים בשום מקום — ${
-     Object.entries(D.unreferenced.reduce((a,f)=>{const k=f.split("/").slice(0,2).join("/");a[k]=(a[k]||0)+1;return a;},{}))
-       .sort((x,y)=>y[1]-x[1]).map(([k,v])=>`${k} (${v})`).join(", ")}`],
-].map(([ok,good,bad])=>`<li class="${ok?"ok":"warn"}">${ok?good:bad}</li>`).join("");
+  let drag = null;
+  stage.addEventListener("pointerdown", function(e){
+    if (e.target.closest(".node,.btn,.chip")) return;
+    drag = { x: e.clientX - tx, y: e.clientY - ty };
+    stage.classList.add("dragging");
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener("pointermove", function(e){
+    if (!drag) return;
+    tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply();
+  });
+  const endDrag = function(){ drag = null; stage.classList.remove("dragging"); };
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  stage.addEventListener("wheel", function(e){
+    e.preventDefault();
+    const r = stage.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    const ns = Math.min(1.9, Math.max(0.28, scale * (e.deltaY < 0 ? 1.11 : 0.9)));
+    tx = mx - (mx - tx) * (ns / scale); ty = my - (my - ty) * (ns / scale); scale = ns; apply();
+  }, { passive: false });
+  const zoomBy = function(k){
+    const r = stage.getBoundingClientRect(), mx = r.width/2, my = r.height/2;
+    const ns = Math.min(1.9, Math.max(0.28, scale * k));
+    tx = mx - (mx - tx) * (ns / scale); ty = my - (my - ty) * (ns / scale); scale = ns; apply();
+  };
+  $("zin").onclick = function(){ zoomBy(1.2); };
+  $("zout").onclick = function(){ zoomBy(1/1.2); };
+  $("zfit").onclick = fit;
+  window.addEventListener("resize", function(){
+    if ($("p-flow").classList.contains("on")) fit();
+  });
 
-const html=`<!doctype html>
+  /* theme */
+  $("theme").onclick = function(){
+    const cur = document.documentElement.getAttribute("data-theme");
+    const next = cur === "dark" ? "light" : cur === "light" ? null : (matchMedia("(prefers-color-scheme:dark)").matches ? "light" : "dark");
+    if (next) document.documentElement.setAttribute("data-theme", next);
+    else document.documentElement.removeAttribute("data-theme");
+  };
+})();
+`;
+
+const genLine = `נסרק ${generatedAt} · <code>${payload.head}</code> · ענף <code>${payload.branch}</code> · הרצה חוזרת: <code>npm run map</code>`;
+
+const html = `<!doctype html>
 <html lang="he" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>מפת אריות ציון</title>
-<style>
-:root{
- --bg:#0d0c0b;--panel:#161514;--line:#2b2825;--ink:#c4c4c4;--ink-hi:#eeeeee;--lo:#929292;
- --gold:#c9a24b;--gold-hi:#efd79a;--acc:#57a7d9;--warn:#a85a61;--ok:#7fb894;--soft:#111010;
- --sh:0 1px 2px rgba(0,0,0,.6),0 12px 34px rgba(0,0,0,.45)}
-@media(prefers-color-scheme:light){:root:not([data-theme=dark]){
- --bg:#f7f5f1;--panel:#fff;--line:#ded8ce;--ink:#26231f;--ink-hi:#0f0e0d;--lo:#6b645b;
- --gold:#8a6d2f;--gold-hi:#6d5423;--acc:#2f6b96;--warn:#8d4048;--ok:#3d6b4a;--soft:#efece6;
- --sh:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.07)}}
-:root[data-theme=light]{
- --bg:#f7f5f1;--panel:#fff;--line:#ded8ce;--ink:#26231f;--ink-hi:#0f0e0d;--lo:#6b645b;
- --gold:#8a6d2f;--gold-hi:#6d5423;--acc:#2f6b96;--warn:#8d4048;--ok:#3d6b4a;--soft:#efece6;
- --sh:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.07)}
-*{box-sizing:border-box}
-html,body{direction:rtl}
-body{margin:0;background:var(--bg);color:var(--ink);padding-bottom:150px;
- font:16px/1.7 "IBM Plex Sans Hebrew","Assistant","Segoe UI",system-ui,-apple-system,sans-serif;
- -webkit-font-smoothing:antialiased}
-code,.nm{direction:ltr;unicode-bidi:isolate;
- font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em}
-h1,h2{font-family:"Frank Ruhl Libre","IBM Plex Sans Hebrew",Georgia,serif;text-wrap:balance}
-.wrap{max-width:1060px;margin:0 auto;padding:0 26px}
-header{padding-top:40px}
-h1{margin:0 0 8px;font-size:clamp(1.7rem,4vw,2.2rem);font-weight:600;line-height:1.15;color:var(--ink-hi)}
-.sub{color:var(--lo);max-width:64ch}
-.gen{margin-top:10px;font-size:12.5px;color:var(--lo)}
-.stats{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 30px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:13px;color:var(--lo)}
-.stat b{color:var(--ink);font-weight:700}
-.fig{margin:0 0 30px;background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);overflow:hidden}
-.fig h2{margin:0;padding:19px 24px 15px;font-size:1.2rem;font-weight:500;color:var(--ink-hi);border-bottom:1px solid var(--line)}
-.canvas{padding:22px 20px;overflow-x:auto;background:var(--soft)}
-.canvas svg{display:block;width:100%;min-width:640px;max-width:900px;height:auto;margin:0 auto;color:var(--ink);direction:ltr}
-figcaption{padding:16px 24px 20px;color:var(--lo);font-size:14.5px;border-top:1px solid var(--line)}
-svg text{unicode-bidi:plaintext}
-svg .n rect{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:.14s}
-svg .n .t{font-size:12.5px;font-weight:600;fill:var(--ink);font-family:ui-monospace,Menlo,monospace}
-svg .n .m{font-size:11px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
-svg .n{cursor:pointer;outline:none}
-svg .n:hover rect,svg .n:focus-visible rect{stroke:var(--acc);stroke-width:2.5}
-svg .n.sel rect{stroke:var(--acc);stroke-width:2.5;fill:color-mix(in srgb,var(--acc) 9%,var(--panel))}
-svg .n.acc rect{stroke:var(--gold);stroke-width:2}svg .n.acc .t{fill:var(--gold-hi)}
-svg .n.gap rect{stroke:var(--warn);stroke-width:2;fill:color-mix(in srgb,var(--warn) 8%,var(--panel))}
-svg .n.gap .t{fill:var(--warn)}
-svg .a{stroke:var(--lo);stroke-width:1.6;fill:none}svg marker path{fill:var(--lo)}
-svg .al{font-size:11px;fill:var(--lo);font-family:"Segoe UI",system-ui,sans-serif}
-svg .wall{stroke:var(--warn);stroke-width:2;stroke-dasharray:7 5;opacity:.75}
-svg .wl{font-size:11px;fill:var(--warn);font-family:"Segoe UI",system-ui,sans-serif}
-svg .lane{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 4}
-svg .lt{font-size:11.5px;fill:var(--ink);font-family:"Segoe UI",system-ui,sans-serif}
-svg .lm{font-size:11px;fill:var(--lo);font-style:italic;font-family:"Segoe UI",system-ui,sans-serif}
-svg .broken{stroke:var(--warn);opacity:.6}svg .x line{stroke:var(--warn);stroke-width:2.4;stroke-linecap:round}
-h2.sec{font-size:1.35rem;font-weight:500;color:var(--ink-hi);margin:38px 0 6px}
-p.secsub{color:var(--lo);margin:0 0 16px;font-size:14px}
-.grp{margin-bottom:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.it{display:flex;align-items:center;gap:9px;width:100%;padding:10px 14px;background:none;border:0;
- color:inherit;font:inherit;cursor:pointer;text-align:start}
-.it:hover,.it:focus-visible{background:color-mix(in srgb,var(--acc) 8%,transparent);outline:none}
-.it.sel{background:color-mix(in srgb,var(--acc) 14%,transparent)}
-.it.head .nm{font-weight:650}
-.subs{border-top:1px dashed var(--line);padding:4px 0}
-.it.sub{padding-inline-start:34px;font-size:13.5px;color:var(--lo)}
-.cn{margin-inline-start:auto;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--lo);direction:ltr;unicode-bidi:isolate}
-.st{color:var(--gold);font-size:12px}
-.stat b{font-variant-numeric:tabular-nums}
-.dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
-.l-frontend{background:var(--acc)}.l-backend{background:var(--ok)}.l-content{background:var(--gold)}
-.l-data{background:var(--gold)}.l-tests{background:var(--warn)}.l-docs{background:var(--lo)}
-.l-deploy{background:var(--warn)}.l-local{background:var(--lo)}.l-bridge{background:var(--gold-hi)}
-.l-archive{background:var(--lo)}.l-stale{background:var(--warn)}
-.rootgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px}
-.rootgrid .it{background:var(--panel);border:1px solid var(--line);border-radius:9px}
-ul.f{list-style:none;padding:0;margin:0}
-ul.f li{padding:9px 14px;border-radius:8px;margin-bottom:6px;font-size:14px;border:1px solid var(--line);background:var(--panel)}
-ul.f li.ok{border-inline-start:3px solid var(--ok)}
-ul.f li.warn{border-inline-start:3px solid var(--warn);color:var(--warn)}
-.gens{display:flex;flex-wrap:wrap;gap:6px;direction:ltr}
-.gens code{padding:3px 9px;border:1px dashed var(--line);border-radius:5px;color:var(--lo)}
-#d{position:fixed;inset-inline:0;bottom:0;background:var(--panel);border-top:2px solid var(--acc);
- box-shadow:0 -8px 26px rgba(0,0,0,.12);padding:16px 26px 18px;z-index:20}
-#d[hidden]{display:none}
-#d .in{max-width:1060px;margin:0 auto;position:relative}
-#d .dt{font-size:15px;font-weight:700;direction:ltr;unicode-bidi:isolate;text-align:left;font-family:ui-monospace,Menlo,monospace}
-#d .dm{font-size:12px;color:var(--lo);margin:2px 0 8px}
-#d .dp{font-size:14.5px;max-width:80ch}
-#d .dk{margin-top:8px;font-size:12px;color:var(--lo);direction:ltr;unicode-bidi:isolate;text-align:left;
- font-family:ui-monospace,Menlo,monospace;max-height:56px;overflow-y:auto}
-#d button{position:absolute;inset-inline-end:0;top:0;background:none;border:1px solid var(--line);
- color:var(--lo);border-radius:6px;padding:3px 10px;cursor:pointer;font:inherit;font-size:13px}
-footer{color:var(--lo);font-size:13px;border-top:1px solid var(--line);margin-top:34px;padding-top:16px}
-</style></head><body>
-<div class="wrap">
-<header>
- <h1>מפת אריות ציון</h1>
- <p class="sub">נוצר מסריקה של המאגר עצמו. כל מספר, גודל, מסלול, קשת והפרה בדף הזה נמדדו בזמן הרצה — שום דבר לא הוקלד ביד. ריחוף או לחיצה על כל פריט פותחים את ההסבר שלו.</p>
- <p class="gen">נסרק ${D.generatedAt} · <code>${D.head}</code> · ענף <code>${D.branch}</code> · הרצה חוזרת: <code>npm run map</code></p>
- <div class="stats">
-  <span class="stat"><b>${D.totalFiles.toLocaleString("en")}</b> קבצים במעקב</span>
-  <span class="stat"><b>${human(D.totalBytes)}</b></span>
-  <span class="stat"><b>${totalVersions.toLocaleString("en")}</b> דפי ארכיון</span>
-  <span class="stat"><b>${D.apiRoutes}</b> מסלולי API</span>
-  <span class="stat"><b>${D.tests}</b> קובצי בדיקה</span>
-  <span class="stat"><b>${D.migrations}</b> מיגרציות</span>
-  <span class="stat"><b>${D.npmScripts}</b> סקריפטים</span>
- </div>
+<style>${CSS}</style></head><body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>מפת אריות ציון</h1>
+      <span class="sub">כל קובץ במאגר, מה תפקידו, ואיך הוא זורם</span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" type="button" role="tab" data-mode="list" aria-selected="true">מצב רשימה</button>
+      <button class="tab" type="button" role="tab" data-mode="flow" aria-selected="false">מצב תרשים</button>
+    </div>
+    <input class="search" id="q" type="search" placeholder="חיפוש קובץ, תיקייה או רעיון…" autocomplete="off">
+    <button class="btn" id="theme" type="button">ערכת צבע</button>
+  </div>
+  <div class="meta-in">
+    <p class="gen">${genLine}</p>
+    <div class="stats">
+      <span class="stat" id="stat-files"></span>
+      <span class="stat" id="stat-bytes"></span>
+      <span class="stat" id="stat-arch"></span>
+      <span class="stat" id="stat-api"></span>
+      <span class="stat" id="stat-tests"></span>
+      <span class="stat" id="stat-mig"></span>
+      <span class="stat" id="stat-npm"></span>
+    </div>
+  </div>
 </header>
-${FIGS.map(([t,svg,cap])=>`<figure class="fig"><h2>${t}</h2><div class="canvas">${svg}</div><figcaption>${cap}</figcaption></figure>`).join("")}
-<h2 class="sec">כל תיקייה</h2>
-<p class="secsub">כל תיקייה ותת־תיקייה במאגר, עם הסבר. ★ מסמן מקור אמת לנושא שלו.</p>
-${treeHtml}
-<h2 class="sec">כל קובץ בשורש</h2>
-<p class="secsub">שבעה־עשר הקבצים שיושבים ישירות בשורש, כל אחד ומה שהוא מחליט.</p>
-<div class="rootgrid">${rootHtml}</div>
-<h2 class="sec">מה הסריקה מצאה</h2>
-<p class="secsub">נבדק בזמן ההרצה הזו, לא הוקלד.</p>
-<ul class="f">${findings}</ul>
-<h2 class="sec">נוצר אוטומטית — לא נכנס לגיט</h2>
-<p class="secsub">נקרא מ־<code>.gitignore</code>. תלויות חיצוניות אינן מופיעות כצמתים בשום מקום בדף.</p>
-<div class="gens">${gitignored.map(g=>`<code>${esc(g)}</code>`).join("")}</div>
-<footer>נוצר על ידי <code>scripts/project-map.mjs</code>. אין לערוך את הקובץ הזה ביד — הרץ <code>npm run map</code>.
- ‏<code>npm run map:check</code> נכשל אם הדף אינו תואם לעץ, כדי שסחיפה תתגלה ולא תצטבר.</footer>
-</div>
-<div id="d" hidden><div class="in"><button id="dx" type="button">סגירה</button>
- <div class="dt" id="dt"></div><div class="dm" id="dm"></div><div class="dp" id="dp"></div><div class="dk" id="dk"></div></div></div>
+<main>
+  <section class="panel on" id="p-list">
+    <div class="list-scroll">
+      <div class="list-in">
+        <details class="scan-box" id="scan-box">
+          <summary id="scan-sum">בדיקות סריקה</summary>
+          <ul class="findings" id="findings"></ul>
+        </details>
+        <p class="tree-hint">לחיצה על שם פותחת חלון הסבר. החץ פותח את התיקייה. ★ הוא מקור אמת.</p>
+        <div class="tree-tools">
+          <button class="btn" type="button" id="expand">פתח הכל</button>
+          <button class="btn" type="button" id="collapse">כווץ הכל</button>
+        </div>
+        <div class="tree" id="tree"></div>
+        <p class="empty" id="empty" hidden></p>
+        <p class="secsub" style="margin-top:28px;color:var(--text-dim);font-size:13px">נוצר אוטומטית — לא נכנס לגיט</p>
+        <div class="gens" id="gens"></div>
+      </div>
+    </div>
+  </section>
+  <section class="panel" id="p-flow">
+    <div class="flow-bar" id="flow-bar"></div>
+    <p id="flow-caption"></p>
+    <div class="stage" id="stage">
+      <div class="world" id="world"><svg class="edges" id="edges"></svg></div>
+      <div class="zoom">
+        <button class="btn" type="button" id="zin">+</button>
+        <button class="btn" type="button" id="zout">−</button>
+        <button class="btn" type="button" id="zfit">התאם</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" tabindex="-1" aria-label="חלון הסבר">
+  <div class="dr-head">
+    <button class="dr-close" id="dr-close" type="button" aria-label="סגירה">×</button>
+    <div class="nm"><span class="dot" id="dr-dot"></span><span id="dr-kind"></span></div>
+    <h2 id="dr-title"></h2>
+    <div class="dr-en" id="dr-meta"></div>
+  </div>
+  <div class="dr-body" id="dr-body"></div>
+</aside>
 <script>
-const N=${JSON.stringify(N)};
-const d=document.getElementById("d"),dt=document.getElementById("dt"),dm=document.getElementById("dm"),
-      dp=document.getElementById("dp"),dk=document.getElementById("dk");
-let pin=null;
-const show=k=>{const v=N[k];if(!v)return;dt.textContent=v[0];dm.textContent=v[1]||"";
-  dp.textContent=v[2];dk.textContent=v[3]||"";d.hidden=false;};
-const clr=()=>{if(!pin)d.hidden=true;};
-const unsel=()=>document.querySelectorAll(".sel").forEach(e=>e.classList.remove("sel"));
-document.querySelectorAll(".n").forEach(g=>{const k=g.dataset.k;
-  g.addEventListener("mouseenter",()=>show(k));g.addEventListener("focus",()=>show(k));
-  g.addEventListener("mouseleave",clr);g.addEventListener("blur",clr);
-  g.addEventListener("click",()=>{unsel();
-    if(pin===k){pin=null;d.hidden=true;}else{pin=k;g.classList.add("sel");show(k);}});
-  if(g.tagName!=="BUTTON")g.addEventListener("keydown",e=>{
-    if(e.key==="Enter"||e.key===" "){e.preventDefault();g.click();}});});
-document.getElementById("dx").onclick=()=>{pin=null;d.hidden=true;unsel();};
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){pin=null;d.hidden=true;unsel();}});
+const DATA = ${JSON.stringify(payload).replace(/</g, "\\u003c")};
+${CLIENT}
 </script></body></html>`;
 
-const OUT = "docs/project-map.html";
+const OUT = OUT_PATH;
 
-/* The artifact build is the same page as a body fragment: the host supplies
-   <!doctype>, <head> and <body>, so those must not be emitted. It is also the
-   only build that may load webfonts — the repository copy is opened straight
-   from disk and its footer promises no network request, so there it falls back
-   to the system Hebrew stack. */
 function toFragment(doc) {
   const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?' +
-    'family=Frank+Ruhl+Libre:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600' +
-    '&family=Geist+Mono:wght@400;500&display=swap">';
+    'family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700;800&display=swap">';
   const title = doc.match(/<title>[\s\S]*?<\/title>/)[0];
   const style = doc.match(/<style>[\s\S]*?<\/style>/)[0];
   const body  = doc.slice(doc.indexOf("<body>") + 6, doc.lastIndexOf("</body>"));
@@ -764,17 +1306,17 @@ if (process.argv.includes("--check")) {
 } else if (process.argv.includes("--artifact")) {
   const dest = process.argv[process.argv.indexOf("--artifact") + 1] || "project-map.artifact.html";
   writeFileSync(dest, toFragment(html));
-  console.log(`${dest} — artifact fragment, ${Object.keys(N).length} explained nodes`);
+  console.log(`${dest} — artifact fragment, ${Object.keys(E).length} explained nodes`);
 } else {
   writeFileSync(R(OUT), html);
-  console.log(`${OUT} — ${D.totalFiles} files, ${areas.length} areas, ${rootFiles.length} root files, ` +
-    `${Object.keys(N).length} explained nodes`);
-  if (D.violations.length) console.warn(`  warning: ${D.violations.length} import-boundary violations`);
-  if (D.handWrittenAfterSnapshot.length)
-    console.warn(`  warning: newest snapshot is ${String(D.newestSnapshot).padStart(4,"0")}, ` +
-      `behind ${D.handWrittenAfterSnapshot.length} hand-written migration(s) — db:generate will re-emit applied changes`);
-  if (D.duplicateSets.length) console.warn(`  warning: ${D.duplicateSets.length} set(s) of byte-identical files`);
-  if (D.docProblems.length) console.warn(`  warning: ${D.docProblems.length} dead reference(s) in documentation`);
-  if (D.dsProblems.length) console.warn(`  warning: ${D.dsProblems.length} design-system prop contract(s) drifted`);
-  if (D.unreferenced.length) console.warn(`  note: ${D.unreferenced.length} file(s) reached by nothing — ${D.reachable}/${D.totalFiles} reachable`);
+  console.log(`${OUT} — ${files.length} files, ${dirSet.size} dirs, ` +
+    `${Object.keys(E).length} explained nodes, ${FLOWS.length} flows`);
+  if (violations.length) console.warn(`  warning: ${violations.length} import-boundary violations`);
+  if (handWrittenAfterSnapshot.length)
+    console.warn(`  warning: newest snapshot is ${String(newestSnapshot).padStart(4,"0")}, ` +
+      `behind ${handWrittenAfterSnapshot.length} hand-written migration(s)`);
+  if (duplicateSets.length) console.warn(`  warning: ${duplicateSets.length} set(s) of byte-identical files`);
+  if (docProblems.length) console.warn(`  warning: ${docProblems.length} dead reference(s) in documentation`);
+  if (dsProblems.length) console.warn(`  warning: ${dsProblems.length} design-system prop contract(s) drifted`);
+  if (unreferenced.length) console.warn(`  note: ${unreferenced.length} file(s) reached by nothing — ${reached.size}/${files.length} reachable`);
 }

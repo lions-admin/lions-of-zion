@@ -15,7 +15,7 @@ import "server-only";
 import { ApiError, notFound } from "@/server/http/responses";
 import { recordVersion, setIdentity } from "@/server/core/versioning";
 import { assertHumanReviewer, findReviewer } from "@/server/modules/assessments";
-import { publication } from "@/server/db/schema";
+import { homepageFeature, publication } from "@/server/db/schema";
 import { repo } from "./repo";
 import {
   canTransitionPublication,
@@ -23,7 +23,10 @@ import {
 } from "@/server/contracts/publication";
 import type {
   CreatePublication,
+  ListPublicPublications,
   ListPublications,
+  PublicPublicationDetail,
+  PublicPublication,
   TransitionPublication,
   UpdatePublication,
 } from "@/server/contracts/publication";
@@ -53,6 +56,7 @@ export function publicationService(db: unknown) {
 
         const row = await r.insert({
           kind: input.kind,
+          section: input.section ?? "israel_update",
           publicId: await uniquePublicId(r, input.title),
           title: input.title,
           summary: input.summary ?? null,
@@ -66,6 +70,8 @@ export function publicationService(db: unknown) {
         });
 
         if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
+        if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
+        if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
 
         await recordVersion(tx as Tx, publication, row as never, {
           entityType: kindToEntityType(input.kind),
@@ -78,6 +84,134 @@ export function publicationService(db: unknown) {
 
         return row;
       });
+    },
+
+    /** Owner-authorized automation. This path is intentionally explicit: it
+     * writes transparent `autoPublishedAt` provenance instead of impersonating
+     * a human reviewer. */
+    async autoPublish(input: CreatePublication, actor: Actor, requestId?: string): Promise<Publication> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = repo(tx);
+        const publishedAt = new Date();
+        const row = await r.insert({
+          kind: input.kind,
+          section: input.section ?? "israel_update",
+          publicId: await uniquePublicId(r, input.title),
+          title: input.title,
+          summary: input.summary ?? null,
+          body: input.body,
+          language: input.language,
+          eventId: input.eventId ?? null,
+          primaryTopicId: input.primaryTopicId ?? null,
+          scenarioLikelihood: input.scenarioLikelihood ?? null,
+          scenarioIndicators: input.scenarioIndicators ?? null,
+          status: "published",
+          publishedAt,
+          autoPublishedAt: publishedAt,
+          createdBy: null,
+          approvedBy: null,
+        });
+        if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
+        if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
+        if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
+        await recordVersion(tx as Tx, publication, row as never, {
+          entityType: kindToEntityType(input.kind),
+          entityId: row.id,
+          actor,
+          changeSummary: `${input.kind} automatically published`,
+          changeSource: "workflow",
+          requestId,
+        });
+        return row;
+      });
+    },
+
+    /** Publishes one completed scheduled edition atomically: failures cannot
+     * leave a half-edition visible to readers. */
+    async autoPublishMany(inputs: CreatePublication[], actor: Actor, requestId?: string): Promise<Publication[]> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = repo(tx);
+        const publishedAt = new Date();
+        const rows: Publication[] = [];
+        for (const input of inputs) {
+          const row = await r.insert({
+            kind: input.kind,
+            section: input.section ?? "israel_update",
+            publicId: await uniquePublicId(r, input.title),
+            title: input.title,
+            summary: input.summary ?? null,
+            body: input.body,
+            language: input.language,
+            eventId: input.eventId ?? null,
+            primaryTopicId: input.primaryTopicId ?? null,
+            scenarioLikelihood: input.scenarioLikelihood ?? null,
+            scenarioIndicators: input.scenarioIndicators ?? null,
+            status: "published",
+            publishedAt,
+            autoPublishedAt: publishedAt,
+            createdBy: null,
+            approvedBy: null,
+          });
+          if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
+          if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
+          if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
+          await recordVersion(tx as Tx, publication, row as never, {
+            entityType: kindToEntityType(input.kind),
+            entityId: row.id,
+            actor,
+            changeSummary: `${input.kind} automatically published`,
+            changeSource: "workflow",
+            requestId,
+          });
+          rows.push(row);
+        }
+        return rows;
+      });
+    },
+
+    async listPublic(filters: ListPublicPublications): Promise<PublicPublication[]> {
+      const rows = await repo(db).list({
+        kind: filters.kind,
+        section: filters.section,
+        status: "published",
+        eventId: undefined,
+        cursor: filters.cursor,
+        limit: filters.limit,
+      });
+      const byDate = filters.date
+        ? rows.filter((row) => row.publishedAt?.toISOString().slice(0, 10) === filters.date)
+        : rows;
+      return byDate.map(toPublicPublication);
+    },
+
+    async getPublic(publicId: string): Promise<PublicPublication> {
+      const row = await repo(db).byPublicId(publicId);
+      if (!row || (row.status !== "published" && row.status !== "updated")) throw notFound("Publication");
+      return toPublicPublication(row);
+    },
+
+    async getPublicDetail(publicId: string): Promise<PublicPublicationDetail> {
+      const row = await repo(db).byPublicId(publicId);
+      if (!row || (row.status !== "published" && row.status !== "updated")) throw notFound("Publication");
+      return { ...toPublicPublication(row), ...(await repo(db).publicReferences(row.id)) };
+    },
+
+    async featured(): Promise<PublicPublication[]> {
+      const d = db as unknown as {
+        select: () => {
+          from: (t: unknown) => {
+            orderBy: (o: unknown) => Promise<Array<{ slot: number; publicationId: string }>>;
+          };
+        };
+      };
+      const features = await d.select().from(homepageFeature).orderBy(homepageFeature.slot);
+      const live = await repo(db).list({ status: "published", limit: 100 });
+      const ordered = features
+        .map((feature) => live.find((row) => row.id === feature.publicationId))
+        .filter((row): row is Publication => Boolean(row));
+      return (ordered.length ? ordered : live.slice(0, 3)).map(toPublicPublication);
     },
 
     async update(
@@ -172,6 +306,22 @@ export function publicationService(db: unknown) {
         return after;
       });
     },
+  };
+}
+
+function toPublicPublication(row: Publication): PublicPublication {
+  if (!row.publishedAt) throw new ApiError("NOT_FOUND", "Publication is not public.");
+  return {
+    publicId: row.publicId,
+    kind: row.kind,
+    section: row.section,
+    title: row.title,
+    summary: row.summary,
+    body: row.body,
+    language: row.language,
+    publishedAt: row.publishedAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    autoPublishedAt: row.autoPublishedAt?.toISOString() ?? null,
   };
 }
 

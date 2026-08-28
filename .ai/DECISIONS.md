@@ -70,6 +70,25 @@ separate owner decision.
 
 ---
 
+## 2026-08-27 — שימוש הסברתי בתוכן שכבר פורסם
+
+לפי החלטת הבעלים, תוכן שפורסם כבר על ידי נפגעים או בני משפחותיהם במסגרת
+האירוע הלאומי ניתן לשימוש לצורכי הסברה. זו מדיניות תפעולית של העמותה, ולא
+קביעה משפטית כללית; בקשת הסרה או מקרה רגיש עדיין דורשים בחינה נקודתית.
+
+## 2026-08-27 — זהות העמותה וערוץ התרומות
+
+לפי התעודה שנמסרה, דניאל חנוכייב הוא ראש העמותה ונושא האחריות הרשמית, וליאור
+ברוך נתן הוא שותף בהקמה. קבלות התרומה יופקו אוטומטית על ידי PayPal; השלמת
+ההרשמה במסלול העמותות של PayPal עדיין נדרשת לפני קבלת תרומות בפועל.
+
+## 2026-08-27 — Fake Resistance publication threshold
+
+The owner publishes during development. A case may be published when it can
+reasonably be described as a plausible claim. Sources are pursued where
+available but are not a publication prerequisite, and a response from the
+other side is not required.
+
 ## 2026-08-27 — Direct owner instructions override repository process
 
 The current user is the sole developer and project owner. Repository workflow,

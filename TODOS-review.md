@@ -444,8 +444,8 @@ travels in the footer and in JSON-LD", ו־`.ai/DECISIONS.md` (26.8.2026)
 
 #### מה נכנס במקום
 
-עידוד שיתוף והפצה + כפתורי שיתוף. רכיב חדש מוצע:
-`components/archive/ShareRecord.tsx` ‏(`'use client'` — נדרש ל־clipboard
+עידוד שיתוף והפצה + כפתורי שיתוף. רכיב חדש הוצע בעבר לארכיון, אך עדיין לא
+נוצר (`ShareRecord`, רכיב לקוח הנדרש ל־clipboard
 ול־`navigator.share`). ה־URL הקנוני כבר מחושב ב־`ArchiveRecordPage.tsx:164`,
 וטקסט הקאפשן זמין ב־`version.title` / `version.excerpt` / `version.full_text`.
 

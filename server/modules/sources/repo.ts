@@ -8,7 +8,7 @@ import "server-only";
  * a fetch attempt is written once, after it is known how it ended.
  */
 
-import { and, desc, eq, lt, type SQL } from "drizzle-orm";
+import { and, desc, eq, lt, sql, type SQL } from "drizzle-orm";
 import { source, sourceFamily, sourceFetch } from "@/server/db/schema";
 import type { Source, SourceFamily, SourceFetch } from "@/server/db/schema";
 import type { ListSources } from "@/server/contracts/source";
@@ -31,6 +31,16 @@ export function sourceFamilyRepo(db: unknown) {
       const rows = await d.insert(sourceFamily).values(values).returning();
       return rows[0]!;
     },
+    async bySlug(slug: string): Promise<SourceFamily | undefined> {
+      const rows = await (d as unknown as {
+        select: () => { from: (t: unknown) => { where: (w: SQL) => { limit: (n: number) => Promise<SourceFamily[]> } } };
+      })
+        .select()
+        .from(sourceFamily)
+        .where(eq(sourceFamily.slug, slug))
+        .limit(1);
+      return rows[0];
+    },
   };
 }
 
@@ -51,6 +61,16 @@ export function sourceRepo(db: unknown) {
         .select()
         .from(source)
         .where(eq(source.id, id))
+        .orderBy(desc(source.createdAt))
+        .limit(1);
+      return rows[0];
+    },
+
+    async byHomepageUrl(homepageUrl: string): Promise<Source | undefined> {
+      const rows = await d
+        .select()
+        .from(source)
+        .where(eq(source.homepageUrl, homepageUrl))
         .orderBy(desc(source.createdAt))
         .limit(1);
       return rows[0];
@@ -102,6 +122,7 @@ export function sourceFetchRepo(db: unknown) {
       };
     };
     insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<SourceFetch[]> } };
+    execute: <T>(query: SQL) => Promise<{ rows: T[] }>;
   };
 
   return {
@@ -113,6 +134,24 @@ export function sourceFetchRepo(db: unknown) {
         .orderBy(desc(sourceFetch.startedAt))
         .limit(1);
       return rows[0]?.rawBlobUrl ?? null;
+    },
+    async latestForSource(sourceId: string): Promise<SourceFetch | undefined> {
+      const rows = await d
+        .select()
+        .from(sourceFetch)
+        .where(eq(sourceFetch.sourceId, sourceId))
+        .orderBy(desc(sourceFetch.startedAt))
+        .limit(1);
+      return rows[0];
+    },
+    async countForKindSince(kind: Source["kind"], since: Date): Promise<number> {
+      const result = await d.execute<{ count: string | number }>(sql`
+        SELECT count(*)::text AS count
+        FROM source_fetch sf
+        JOIN source s ON s.id = sf.source_id
+        WHERE s.kind = ${kind} AND sf.started_at >= ${since}
+      `);
+      return Number(result.rows[0]?.count ?? 0);
     },
     async insert(values: Record<string, unknown>): Promise<SourceFetch> {
       const rows = await d.insert(sourceFetch).values(values).returning();

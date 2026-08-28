@@ -13,9 +13,10 @@ import "server-only";
 import { ApiError } from "@/server/http/responses";
 import type { SourceKind } from "@/server/contracts/enums";
 import type { SourceConnector } from "../connector";
+import { googleSearchConnector } from "./google-search";
 import { rssConnector } from "./rss";
 
-export const CONNECTORS: readonly SourceConnector[] = [rssConnector];
+export const CONNECTORS: readonly SourceConnector[] = [rssConnector, googleSearchConnector];
 
 export function connectorFor(kind: SourceKind): SourceConnector {
   const found = CONNECTORS.find((c) => c.kind === kind);

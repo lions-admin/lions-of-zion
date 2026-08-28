@@ -29,6 +29,7 @@ import {
   LIKELIHOOD_BANDS,
   NARRATIVE_STATUSES,
   PUBLICATION_KINDS,
+  PUBLICATION_SECTIONS,
   PUBLICATION_STATUSES,
   QUEUE_STATES,
   REPORT_STATUSES,
@@ -54,5 +55,6 @@ export const aiRunKind = pgEnum("ai_run_kind", AI_RUN_KINDS);
 export const likelihoodBand = pgEnum("likelihood_band", LIKELIHOOD_BANDS);
 export const publicationStatus = pgEnum("publication_status", PUBLICATION_STATUSES);
 export const publicationKind = pgEnum("publication_kind", PUBLICATION_KINDS);
+export const publicationSection = pgEnum("publication_section", PUBLICATION_SECTIONS);
 export const reportStatus = pgEnum("report_status", REPORT_STATUSES);
 export const narrativeStatus = pgEnum("narrative_status", NARRATIVE_STATUSES);

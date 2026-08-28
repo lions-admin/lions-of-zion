@@ -20,8 +20,7 @@
  * scan, and do not join the radial nav itself (see `.ai/DECISIONS.md`).
  */
 import Link from 'next/link';
-import { ReadingProgress } from './ReadingProgress';
-import { ScanBackdrop } from './ScanBackdrop';
+import { EditorialShell } from '@/components/site/EditorialShell';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
 
@@ -149,43 +148,28 @@ export function DocPage({
     .trim();
 
   return (
-    <main className={pageClass} data-reading-scroll>
-      <a href="#page-content" className={styles.skipLink}>
-        Skip to content
-      </a>
-      {withToc ? (
-        <ReadingProgress
-          trackClassName={styles.topProgressTrack}
-          valueClassName={styles.topProgressValue}
-        />
-      ) : null}
-      <ScanBackdrop routeId={routeId} seed={backdropSeed} register="muted" />
+    <EditorialShell
+      routeId={routeId}
+      backdropSeed={backdropSeed}
+      register="muted"
+      showProgress={withToc}
+      className={pageClass}
+      skipLinkClassName={styles.skipLink}
+      progressTrackClassName={styles.topProgressTrack}
+      progressValueClassName={styles.topProgressValue}
+    >
       <div className={styles.shell}>
-        <div className={styles.identityBand}>
-          <Link href="/" className={styles.wordmark}>
-            Lions of Zion
-          </Link>
-          <span className={styles.identityMeta}>
-            <span className={styles.identitySep} aria-hidden="true">
-              ·
+        <nav className={styles.documentTrail} aria-label="Breadcrumb">
+          <Link href="/">Home</Link>
+          <span aria-hidden="true">/</span>
+          {breadcrumb?.map((crumb) => (
+            <span key={crumb.href}>
+              <Link href={crumb.href}>{crumb.label}</Link>
+              <span aria-hidden="true">/</span>
             </span>
-            {breadcrumb?.length ? (
-              <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-                {breadcrumb.map((crumb) => (
-                  <span key={crumb.href}>
-                    <Link href={crumb.href}>{crumb.label}</Link>
-                    <span aria-hidden="true"> / </span>
-                  </span>
-                ))}
-              </nav>
-            ) : (
-              <span className={styles.identityRoute}>/{routeId}</span>
-            )}
-          </span>
-          <Link href={exit.href} className={styles.identityExit}>
-            ← Back to {exit.label}
-          </Link>
-        </div>
+          ))}
+          <span>{routeId.replaceAll('-', ' ')}</span>
+        </nav>
 
         {withToc ? (
           <div className={styles.tocRail}>
@@ -216,6 +200,6 @@ export function DocPage({
               two pages already link to each other from their own prose. */}
         </article>
       </div>
-    </main>
+    </EditorialShell>
   );
 }

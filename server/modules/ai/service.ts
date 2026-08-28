@@ -130,6 +130,39 @@ export async function recordEmbeddingRun(
   return row.id;
 }
 
+/** Records an automated editorial model call without routing it through the
+ * suggestion workflow used by human-reviewed claim changes. */
+export async function recordBriefingRun(
+  database: unknown,
+  input: {
+    kind: "classify" | "summarize";
+    model: string;
+    modelProfile: "briefing_triage" | "briefing_draft";
+    inputTokens: number | null;
+    outputTokens: number | null;
+    inputHash: string;
+    costUsd: number;
+    latencyMs: number;
+    actor: Actor;
+  },
+): Promise<string> {
+  const row = await aiRepo(database).recordRun({
+    kind: input.kind,
+    model: input.model,
+    modelProfile: input.modelProfile,
+    inputTokens: input.inputTokens,
+    outputTokens: input.outputTokens,
+    costUsd: input.costUsd.toFixed(9),
+    latencyMs: input.latencyMs,
+    status: "ok",
+    inputHash: input.inputHash,
+    inputDataClass: "public",
+    actorLabel: input.actor.label,
+    actorUserId: input.actor.userId ?? null,
+  });
+  return row.id;
+}
+
 export function aiService(db: unknown, opts: { generate?: Generator } = {}) {
   const run = db as unknown as Runner;
   const repo = aiRepo(db);

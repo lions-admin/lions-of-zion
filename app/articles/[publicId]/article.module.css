@@ -1,0 +1,40 @@
+.page {
+  min-height: 100dvh;
+  color: var(--ink);
+}
+.article { position: relative; width: min(48rem, calc(100% - 2.5rem)); margin: 0 auto; padding: clamp(2.5rem, 7vw, 5rem) 0 6rem; }
+.skipLink {
+  position: fixed;
+  z-index: 120;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--gold);
+  background: #000;
+  color: var(--gold-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  text-decoration: none;
+  transform: translateY(-180%);
+}
+.skipLink:focus { transform: translateY(0); }
+.progressTrack { position: fixed; z-index: 110; top: 0; right: 0; left: 0; height: 2px; }
+.progressValue { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--data-blue), var(--gold-hi)); transform: scaleX(0); transform-origin: left; }
+.back { color: var(--gold-hi); text-decoration: none; }
+.kicker, .meta {
+  margin-top: 2rem;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.meta { color: var(--ink-lo); line-height: 1.6; }
+.article h1, .article h2 { color: var(--ink-hi); font-family: var(--face-display); }
+.article h1 { margin: 0.55rem 0 1rem; font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: 0.98; }
+.summary { font-size: clamp(1.1rem, 2vw, 1.4rem); line-height: 1.6; }
+.body { margin-top: 3rem; font-size: clamp(1.05rem, 1.8vw, 1.22rem); line-height: 1.8; }
+.body p { margin: 0 0 1.45rem; }
+.sources, .narratives { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.sources li, .narratives li { margin-bottom: 0.7rem; line-height: 1.5; }
+.sources a { color: var(--gold-hi); }

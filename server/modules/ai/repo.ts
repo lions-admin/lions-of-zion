@@ -47,6 +47,18 @@ export function aiRepo(db: unknown) {
       return Number((result.rows[0] as { spend: string | number } | undefined)?.spend ?? 0);
     },
 
+    /** Briefing spend is deliberately isolated from the public chat ledger. */
+    async briefingSpendSince(since: Date): Promise<number> {
+      const result = await d.execute(sql`
+        SELECT coalesce(sum(cost_usd), 0)::text AS spend
+        FROM ai_run
+        WHERE created_at >= ${since}
+          AND model_profile IN ('briefing_triage', 'briefing_draft')
+          AND status = 'ok'
+      `);
+      return Number((result.rows[0] as { spend?: string | number } | undefined)?.spend ?? 0);
+    },
+
     /** The prompt version currently in use for a slug. */
     async activePrompt(slug: string): Promise<PromptRegistryEntry | undefined> {
       const rows = await d

@@ -19,7 +19,9 @@ import "server-only";
  *   3. **An unconfigured gateway.** Loudly, naming the variable.
  */
 
-import { generateText, embed, APICallError, gateway } from "ai";
+import { generateText, embed, APICallError, gateway, Output } from "ai";
+import { xai } from "@ai-sdk/xai";
+import type { ZodType } from "zod";
 import { ApiError } from "@/server/http/responses";
 import { integrityHash } from "@/server/core/hash";
 import { aiBudgets, modelFor, type ModelProfile } from "@/server/core/config";
@@ -36,6 +38,8 @@ export type GenerateInput = {
   maxOutputTokens?: number;
   /** Cost attribution in the gateway's own dashboards. */
   tags?: string[];
+  /** Give Grok access to its server-side live X search tool for this call. */
+  xSearch?: boolean;
 };
 
 export type GenerateOutput = {
@@ -47,6 +51,8 @@ export type GenerateOutput = {
   inputHash: string;
   costUsd: number;
 };
+
+export type StructuredGenerateOutput<T> = GenerateOutput & { output: T };
 
 /** Classifications that may never be sent to a model, mirroring the CHECK on
  *  `ai_run`. Duplicated deliberately: the database refuses the record, this
@@ -105,11 +111,69 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
   const startedAt = Date.now();
 
   try {
+    const result = model.startsWith("xai/")
+      ? await generateText({
+          model: xai.responses(model.slice("xai/".length)),
+          system: input.system,
+          prompt: input.prompt,
+          maxOutputTokens: input.maxOutputTokens,
+          /* The provider tool is implemented by xAI, not by our server. The
+             installed AI SDK 6 types predate provider-executed tools, while
+             the xAI provider exposes the correct runtime contract. */
+          tools: input.xSearch ? ({ x_search: xai.tools.xSearch() } as never) : undefined,
+        })
+      : await generateText({
+          model: gateway(model),
+          system: input.system,
+          prompt: input.prompt,
+          maxOutputTokens: input.maxOutputTokens,
+          providerOptions: {
+            gateway: {
+              tags: input.tags ?? [`kind:${input.kind}`],
+              only: model.startsWith("anthropic/") ? ["anthropic"] : ["openai"],
+              disallowPromptTraining: true,
+            },
+          },
+        });
+
+    const inputTokens = result.usage?.inputTokens ?? null;
+    const outputTokens = result.usage?.outputTokens ?? null;
+
+    return {
+      text: result.text,
+      model,
+      inputTokens,
+      outputTokens,
+      latencyMs: Date.now() - startedAt,
+      inputHash: integrityHash(input.prompt),
+      costUsd: await generationCost(
+        result.providerMetadata,
+        estimateCost(model, inputTokens ?? 0, outputTokens ?? 0),
+      ),
+    };
+  } catch (cause) {
+    throw translateGatewayError(cause, model);
+  }
+}
+
+/** A schema-validated generation for automation. A malformed response throws
+ * before the editorial pipeline can create a publication. */
+export async function generateStructured<T>(
+  input: GenerateInput & { schema: ZodType<T> },
+): Promise<StructuredGenerateOutput<T>> {
+  assertSendable(input.dataClass ?? "public");
+  const model = modelFor(input.profile);
+  if (model.startsWith("xai/")) {
+    throw new ApiError("NOT_IMPLEMENTED", "Structured briefing output must use the configured OpenAI model.");
+  }
+  const startedAt = Date.now();
+  try {
     const result = await generateText({
       model: gateway(model),
       system: input.system,
       prompt: input.prompt,
       maxOutputTokens: input.maxOutputTokens,
+      output: Output.object({ schema: input.schema }),
       providerOptions: {
         gateway: {
           tags: input.tags ?? [`kind:${input.kind}`],
@@ -118,11 +182,10 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
         },
       },
     });
-
     const inputTokens = result.usage?.inputTokens ?? null;
     const outputTokens = result.usage?.outputTokens ?? null;
-
     return {
+      output: result.output,
       text: result.text,
       model,
       inputTokens,
@@ -196,10 +259,18 @@ export async function generationCost(metadata: unknown, fallback: number): Promi
 }
 
 export function estimateCost(model: string, inputTokens: number, outputTokens: number): number {
-  const rates = model === "anthropic/claude-haiku-4.5"
+  const rates = model === "xai/grok-4.3"
+    ? { input: 1.25, output: 2.5 }
+    : model === "xai/grok-4.6"
+      ? { input: 2, output: 6 }
+    : model === "anthropic/claude-haiku-4.5"
     ? { input: 1, output: 5 }
     : model === "anthropic/claude-sonnet-5"
       ? { input: 3, output: 15 }
+      : model === "openai/gpt-5.4-nano"
+        ? { input: 0.2, output: 1.25 }
+        : model === "openai/gpt-5.4-mini"
+          ? { input: 0.75, output: 4.5 }
       : model === "openai/text-embedding-3-small"
         ? { input: 0.02, output: 0 }
         : { input: 5, output: 25 };

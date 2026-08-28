@@ -1,14 +1,7 @@
 'use client';
 
 /**
- * Volunteer interest intake. No backend endpoint exists for this yet — only
- * the public report endpoint is real (`ReportClaimForm.tsx`). Faking a
- * "Submitted!" state here would contradict this project's own "no false
- * live state" principle (see `.ai/DECISIONS.md`), so this composes a
- * pre-filled email instead: honest about what is and isn't wired up.
- *
- * VOLUNTEER_INBOX is a placeholder pending a confirmed real address —
- * flag before this ships to production.
+ * Volunteer interest intake, wired to the public email-delivery endpoint.
  */
 import { FormEvent, useState } from 'react';
 import styles from './support.module.css';
@@ -27,6 +20,7 @@ export function VolunteerInterestForm() {
   const [skills, setSkills] = useState<string[]>([]);
   const [languages, setLanguages] = useState('');
   const [availability, setAvailability] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   const toggleSkill = (skill: string) => {
     setSkills((current) =>
@@ -34,22 +28,26 @@ export function VolunteerInterestForm() {
     );
   };
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const lines = [
-      name ? `Name: ${name}` : null,
-      email ? `Reply-to: ${email}` : null,
-      skills.length ? `Skill areas: ${skills.join(', ')}` : null,
-      languages ? `Languages: ${languages}` : null,
-      availability ? `Availability: ${availability}` : null,
-    ].filter((line): line is string => Boolean(line));
-
-    const subject = encodeURIComponent('Volunteering with Lions of Zion');
-    const bodyText = encodeURIComponent(
-      lines.length ? lines.join('\n') : 'I would like to volunteer.',
-    );
-    window.location.href = `mailto:${VOLUNTEER_INBOX}?subject=${subject}&body=${bodyText}`;
+    if (status === 'sending') return;
+    setStatus('sending');
+    try {
+      const response = await fetch('/api/v1/volunteer-interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, skills, languages, availability }),
+      });
+      if (!response.ok) throw new Error('send failed');
+      setStatus('sent');
+    } catch {
+      setStatus('error');
+    }
   };
+
+  if (status === 'sent') {
+    return <div className={styles.receipt} role="status"><p>Thanks — your interest reached the volunteer desk.</p></div>;
+  }
 
   return (
     <form className={styles.form} onSubmit={submit}>
@@ -137,11 +135,9 @@ export function VolunteerInterestForm() {
         />
       </div>
 
-      <button type="submit">Continue by email</button>
-      <p className={styles.formNote}>
-        This opens your email client with the details above filled in — nothing is sent
-        automatically.
-      </p>
+      {status === 'error' ? <p className={styles.fieldError} role="alert">We could not send this right now. Email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.</p> : null}
+      <button type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'Sending…' : 'Send interest'}</button>
+      <p className={styles.formNote}>Your message is sent securely to the volunteer desk.</p>
     </form>
   );
 }

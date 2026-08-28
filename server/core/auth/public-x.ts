@@ -19,7 +19,7 @@ type Session = { version: 1; profile: PublicXProfile; expiresAt: number };
 type Failure = "invalid_callback" | "token_exchange" | "token_payload" | "profile_request" | "profile_payload";
 
 export class PublicXAuthError extends Error {
-  constructor(readonly reason: Failure) {
+  constructor(readonly reason: Failure, readonly status?: number) {
     super("Public X authentication could not be completed");
   }
 }
@@ -42,7 +42,7 @@ export function beginPublicXAuthorization(): { authorizationUrl: string; stateCo
     response_type: "code",
     client_id: xOAuthClientId(),
     redirect_uri: CALLBACK_URL,
-    scope: "users.read",
+    scope: "tweet.read users.read",
     state,
     code_challenge: createHash("sha256").update(verifier).digest("base64url"),
     code_challenge_method: "S256",
@@ -88,7 +88,7 @@ export async function completePublicXAuthorization(
     cache: "no-store",
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
-  if (!profileResponse.ok) throw new PublicXAuthError("profile_request");
+  if (!profileResponse.ok) throw new PublicXAuthError("profile_request", profileResponse.status);
   const profile = profileFrom(await profileResponse.json().catch(() => null));
   if (!profile) throw new PublicXAuthError("profile_payload");
   return profile;

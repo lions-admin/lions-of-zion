@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
-import { defaultNodes } from "@/components/particle-nav/config";
+import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { getIndex } from "@/lib/content/archive";
 import { categorySlug, DOCUMENTATION_PACKAGE } from "@/lib/content/documentation";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { TESTIMONIES_PACKAGE } from "@/lib/content/testimonies";
 import { SITE_URL } from "@/lib/site-config";
 
-const DOC_PAGES = ["/methodology", "/corrections"];
+const DOC_PAGES = ["/methodology", "/corrections", "/information-war"];
 const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
 /** The two investigation branches the Fake Resistance hub opens onto. */
 const BRANCH_INDEXES = [
@@ -65,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 1,
     },
-    ...defaultNodes.map((node) => ({
+    ...SITE_NAVIGATION.map((node) => ({
       url: `${SITE_URL}${node.href}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,

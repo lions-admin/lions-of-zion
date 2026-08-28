@@ -74,6 +74,40 @@ export function itemService(db: unknown) {
       });
     },
 
+    /** Owner-approved scheduled collection creates a detected claim record;
+     * it is not an assessment and cannot become public by itself. */
+    async autoCreate(input: CreateItem, actor: Actor, requestId?: string): Promise<InformationItem> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const repo = itemRepo(tx);
+        const item = await repo.insert({
+          publicId: await uniquePublicId(repo, input.title),
+          type: input.type,
+          title: input.title,
+          canonicalText: input.canonicalText,
+          summary: input.summary ?? null,
+          language: input.language,
+          eventId: input.eventId ?? null,
+          primaryTopicId: input.primaryTopicId ?? null,
+          createdBy: null,
+        });
+        if (input.topicIds?.length) await repo.setTopics(item.id, input.topicIds);
+        await recordVersion(tx as Tx, informationItem, item as never, {
+          entityType: "information_item",
+          entityId: item.id,
+          actor,
+          changeSummary: "Automatically collected briefing claim",
+          changeSource: "workflow",
+          requestId,
+        });
+        await emit(tx as never, TOPICS.itemDetected, { id: item.id }, {
+          entityType: "information_item",
+          entityId: item.id,
+        });
+        return item;
+      });
+    },
+
     async update(
       id: string,
       input: UpdateItem,

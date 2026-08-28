@@ -820,11 +820,7 @@
 
 @media (max-width: 719px) {
   .page {
-    /* The chat launcher's mobile dock — `--chat-dock-h` in app/globals.css,
-       the same band `sections.module.css` reserves. */
-    /* Reserved as padding, not subtracted from a height — there is no
-       container to shorten now that the document scrolls. */
-    padding-bottom: calc(var(--chat-dock-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     /* `scroll-padding-top` moved off this element with the scrollport. The
        offset it provided is already carried by `scroll-margin-top` on the
        anchor targets themselves (`:454`, `:930`), which resolves against

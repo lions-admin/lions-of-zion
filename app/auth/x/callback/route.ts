@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   PublicXAuthError,
   X_OAUTH_STATE_COOKIE,
@@ -14,10 +14,10 @@ export const dynamic = "force-dynamic";
 
 const callbackUrl = "https://lionsofzion.io/auth/x/callback";
 
-export async function GET(request: Request): Promise<Response> {
-  const pendingCookie = request.headers
-    .get("cookie")
-    ?.match(/(?:^|;\s*)__Host-x-oauth-state=([^;]*)/)?.[1];
+export async function GET(request: NextRequest): Promise<Response> {
+  // Use the platform cookie parser so the signed value is read correctly
+  // even when the browser changes cookie ordering or formatting.
+  const pendingCookie = request.cookies.get(X_OAUTH_STATE_COOKIE)?.value;
   try {
     const profile = await completePublicXAuthorization(
       new URL(request.url).searchParams,
@@ -36,6 +36,7 @@ export async function GET(request: Request): Promise<Response> {
     // No credentials, query parameters, cookies or provider tokens reach logs.
     console.warn("[public-x-auth] callback failed", {
       stage: error instanceof PublicXAuthError ? error.reason : "unexpected",
+      status: error instanceof PublicXAuthError ? error.status : undefined,
     });
     const response = new NextResponse("Authentication could not be completed.", {
       status: 400,

@@ -48,6 +48,19 @@ export function evidenceRepo(db: unknown) {
       return rows[0];
     },
 
+    /** Discovery connectors may attribute the same canonical URL to different
+     * publishers over time. A URL is therefore a second, cross-source dedup
+     * key beside a feed's own identifier. */
+    async byUrl(url: string): Promise<Evidence | undefined> {
+      const rows = await d
+        .select()
+        .from(evidence)
+        .where(eq(evidence.url, url))
+        .orderBy(desc(evidence.createdAt))
+        .limit(1);
+      return rows[0];
+    },
+
     async list(filters: ListEvidence): Promise<Evidence[]> {
       const clauses: SQL[] = [];
       if (filters.sourceId) clauses.push(eq(evidence.sourceId, filters.sourceId));

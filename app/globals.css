@@ -77,24 +77,6 @@
      0.7rem apart for the same job. */
   --flow: 1.15rem;
 
-  /* What the chat launcher's mobile dock costs, reserved by every ≤719px
-     reading surface so text never sits under it.
-     `components/particle-nav/config.ts` derives the same band in pixels as
-     `CHAT_DOCK_PX = 84` — a 0.65rem offset, a 3.45rem launcher, 0.46rem of
-     vertical padding and 1px borders — and `tests/particle-nav-layout.test.ts`
-     asserts that number, so the two must be read as one value: 5.25rem is 84px
-     at the root size.
-
-     Named here because the literal was written out in three stylesheets and a
-     reserve that is too small is not a cosmetic error — it puts the last line
-     of a document under the dock. The measured 57px launcher rect is the pill
-     and its border, *not* the padded root, and is not this number.
-
-     One holdout: `home.module.css:562` still writes the literal. It is the
-     home scene's file and is being edited in parallel; it should read this
-     token in the same round that touches it. */
-  --chat-dock-h: 5.25rem;
-
   /* ── Color ──────────────────────────────────────────────────────────────
      Gold is brand and unchanged. The neutrals are a real scale: three inks,
      each with a job, replacing twelve drifting grays.
@@ -218,10 +200,9 @@
  * underneath them. Leaving any one of them on `100dvh` would have given that
  * route a dead outer scrollbar around a live inner one.
  *
- * What each container became: `min-height`, not `height`. The ≤719px rules
- * that used to *shorten* the scroller to clear the chat dock now reserve the
- * same band as `padding-bottom` — you cannot shorten a document, and the home
- * route had already solved it that way (`home.module.css`).
+ * What each container became: `min-height`, not `height`. Mobile safe areas
+ * are reserved as padding — a document cannot be shortened like an inner
+ * scroller.
  *
  * `scroll-behavior` lives here now rather than on five separate elements,
  * with the reduced-motion reset beside it. Anchor offsets did not move:
@@ -322,8 +303,8 @@ html:has([data-handoff-blocked]) body {
      above, the body simply becomes the scroll container instead — measured,
      the page still scrolled 3075px through a "locked" html.
 
-     `data-intro-pending` is deliberately NOT in this list, though the chat
-     launcher does key on it. That attribute is the server's claim, present in
+     `data-intro-pending` is deliberately NOT in this list. That attribute is
+     the server's claim, present in
      the first HTML, and nothing removes it when JavaScript never runs — so
      locking on it left the no-JS tier permanently unscrollable, with the band
      it depends on for navigation hidden behind it. Measured: zero reachable

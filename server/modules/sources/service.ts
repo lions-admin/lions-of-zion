@@ -63,6 +63,7 @@ export function sourceService(db: unknown) {
           language: input.language,
           country: input.country ?? null,
           active: input.active,
+          config: input.config ?? null,
         });
 
         await recordVersion(tx as Tx, source, row as never, {

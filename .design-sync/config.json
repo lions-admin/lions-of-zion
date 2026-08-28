@@ -19,14 +19,11 @@
     "VerificationBadge": "components/content/VerificationBadge.tsx",
     "ReadingProgress": "components/sections/ReadingProgress.tsx",
     "SectionToc": "components/sections/SectionToc.tsx",
-    "AskAboutFileCta": "components/sections/AskAboutFileCta.tsx",
     "ReportClaimForm": "components/support/ReportClaimForm.tsx",
     "VolunteerInterestForm": "components/support/VolunteerInterestForm.tsx",
     "ShareVerifiedButton": "components/support/ShareVerifiedButton.tsx",
     "GeopoliticalBrief": "components/briefs/GeopoliticalBrief.tsx",
     "BriefError": "components/briefs/BriefError.tsx",
-    "AskTheLionChat": "components/chat/AskTheLionChat.tsx",
-    "ChatOpenProvider": "components/chat/chat-open-context.tsx",
     "DesignSurface": ".design-sync/shims/DesignSurface.tsx"
   },
   "provider": {
@@ -43,10 +40,6 @@
     "ReadingProgress": {
       "cardMode": "single",
       "primaryStory": "Track"
-    },
-    "AskTheLionChat": {
-      "cardMode": "single",
-      "primaryStory": "TheDesk"
     }
   },
   "dtsPropsFor": {
@@ -62,9 +55,6 @@
     "SensitiveContent": "  /** Shown before reveal, under a 'Sensitive material' kicker. */\n  warning: string;\n  /** Part of the client bundle — keep serializable. */\n  children: React.ReactNode;",
     "ReadingProgress": "  /** Substitute the host's own track treatment. */\n  trackClassName?: string;\n  valueClassName?: string;",
     "SectionToc": "  /* No props. Builds itself from the rendered h2s inside [data-toc-source],\n     and measures depth of read against the nearest [data-reading-scroll]\n     ancestor. Renders nothing without both, or with fewer than two headings. */",
-    "AskAboutFileCta": "  /** The file the pre-filled question is about, e.g. '/war-update'. */\n  href: string;\n  /* Requires ChatOpenProvider above it. */",
-    "ChatOpenProvider": "  children: React.ReactNode;",
-    "AskTheLionChat": "  onClose: () => void;\n  /* Requires ChatOpenProvider above it. */",
     "DesignSurface": "  children?: React.ReactNode;\n  /** Inner padding. Defaults to a reading inset. */\n  pad?: React.CSSProperties['padding'];\n  /** Constrain to the 68ch reading measure the dossier pages use. */\n  measure?: boolean;\n  className?: string;\n  style?: React.CSSProperties;",
     "BriefError": "  /* No props. The Geopolitical Brief's failure state. */",
     "GeopoliticalBrief": "  /* No props. Renders the static reference brief in geopolitical-reference.ts. */",

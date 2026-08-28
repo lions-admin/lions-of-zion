@@ -100,12 +100,11 @@ Function timeout, split ingestion into one Queue task per source.
   capabilities.
 - Production contains one allowlisted admin and the ten imported public pages.
   Preview cannot write to those Production resources.
-- **The repository carries 23 migrations (`0000`–`0022`); this line said 21
-  until 2026-08-27.** `0021_resync_snapshot_baseline` and
-  `0022_prune_functions_revoke_public` were added with the structure audit.
-  Whether Production has them *applied* is not something this document can
-  assert — that depends on a `db:migrate` run against the Production branch,
-  and `0022` revokes a live `EXECUTE` grant, so confirm it before assuming the
-  prune functions are closed there.
+- **The repository carries 24 migrations (`0000`–`0023`).** `0021` and `0022`
+  were added with the structure audit. `0023_ai_run_service_returning` adds
+  the internal `app_service` read policy required by the embedding ledger's
+  `INSERT ... RETURNING` path. Production was verified on 2026-08-27: the
+  migration journal contains `0021`, `0022`, and `0023`; both prune functions
+  deny `PUBLIC` execute; and the service-role embedding insert succeeds.
 - Monitor Neon CU-hours, AI spend, Function errors, Queue age and Blob growth
   for seven days after a material deployment.

@@ -20,6 +20,7 @@ export const TOPICS = {
   searchReindex: "search.reindex",
   embeddingRefresh: "embedding.refresh",
   itemDetected: "item.detected",
+  emailNotification: "email.notification",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];

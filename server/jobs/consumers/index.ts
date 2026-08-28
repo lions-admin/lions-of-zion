@@ -18,6 +18,8 @@ import "server-only";
 import { TOPICS } from "@/server/core/outbox";
 import { search } from "@/server/modules/search";
 import { entityTypeSchema } from "@/server/contracts/enums";
+import { reports } from "@/server/modules/reports";
+import { sendWorkspaceEmail } from "@/server/core/email";
 
 export type ConsumerContext = { entityType: string | null; entityId: string | null };
 export type Consumer = (payload: unknown, ctx: ConsumerContext) => Promise<void>;
@@ -52,6 +54,24 @@ const CONSUMERS: Record<string, Consumer> = {
 
   [TOPICS.itemDetected]: async () => {
     // Reserved for a future notification job; nothing subscribes yet.
+  },
+
+  [TOPICS.emailNotification]: async (payload, ctx) => {
+    const subject = subjectOf(payload, ctx);
+    if (!subject || subject.entityType !== "report") return;
+    const report = await reports().get(subject.entityId);
+    await sendWorkspaceEmail({
+      to: "admin@lionsofzion.io",
+      subject: `New public report — ${report.publicId}`,
+      replyTo: report.reporterEmail ?? undefined,
+      text: [
+        `Reference: ${report.publicId}`,
+        `URL: ${report.url || "Not provided"}`,
+        `Report: ${report.body || "Not provided"}`,
+        `Reporter email: ${report.reporterEmail || "Not provided"}`,
+        `Reporter note: ${report.reporterNote || "Not provided"}`,
+      ].join("\n"),
+    });
   },
 };
 

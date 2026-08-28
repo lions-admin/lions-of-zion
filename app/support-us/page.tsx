@@ -4,6 +4,7 @@ import { ContentCard } from "@/components/content";
 import { ReportClaimForm } from "@/components/support/ReportClaimForm";
 import { VolunteerInterestForm } from "@/components/support/VolunteerInterestForm";
 import { ShareVerifiedButton } from "@/components/support/ShareVerifiedButton";
+import { PayPalDonateButton } from "@/components/support/PayPalDonateButton";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -106,17 +107,34 @@ export default function Page() {
             </p>
             <ShareVerifiedButton />
           </div>
-          <div className={`${styles.practice} ${styles.practicePending}`}>
-            <span className={styles.practiceLabel}>Not open yet</span>
+          <div className={styles.practice}>
+            <span className={styles.practiceLabel}>Secure donation</span>
             <h3>Sustain</h3>
             <p>
-              Monitoring runs around the clock, and archiving,
-              infrastructure, and verification tooling all carry real
-              costs. Sustaining support is what keeps the work independent
-              — answerable to the evidence rather than to any sponsor. This
-              page describes the avenues; the channels for each will be
-              published here as they open.
+              Lions of Judah (R.A.) is an Israeli nonprofit supporting wounded
+              IDF soldiers, disabled veterans, lone soldiers, and communities
+              affected by October 7. Under the LIONSOFZION brand, founded by
+              Daniel Hanukayeb, we provide rehabilitation support, recovery
+              assistance, emergency aid, and community programs — helping
+              Israel’s heroes rebuild their lives with dignity, strength, and
+              hope. Every donation makes a direct difference.
             </p>
+            <p>
+              Monitoring, archiving, infrastructure, and verification tooling
+              all carry real costs. Choose your amount and continue securely
+              with PayPal.
+            </p>
+            <div className={styles.paypalButton}>
+              <PayPalDonateButton />
+            </div>
+            <a
+              className={styles.donateLink}
+              href="https://www.paypal.com/ncp/payment/PZPE4USUV3W7E"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Donate securely with PayPal
+            </a>
           </div>
         </div>
       </SectionBlock>

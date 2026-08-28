@@ -1,4 +1,5 @@
 import type { NavNode, ParticleNavTheme, SimParams } from './types';
+import { SITE_NAVIGATION, type SiteSectionId } from '@/lib/site-navigation';
 
 export const defaultTheme: ParticleNavTheme = {
   /* The renderer's clear colour, separate from the CSS `--ground` token and
@@ -109,80 +110,31 @@ export const CANVAS_FADE_MS = 180;
  * is unchanged (both nodes are `participate`), and the two file numbers that
  * moved are derived everywhere they appear.
  */
-export const defaultNodes: NavNode[] = [
-  {
-    id: 'geopolitical-brief',
-    label: 'GEOPOLITICAL BRIEF',
-    displayName: 'Geopolitical Brief',
-    href: '/geopolitical-brief',
-    description: 'One strategic file worked through in order: what changed, what follows\n      from it, and what is still unknown.',
-    iconSdfUrl: '/icons/geopolitical-brief.sdf.png',
-    intent: 'now',
-  },
-  {
-    id: 'we-are',
-    label: 'WE ARE',
-    displayName: 'We Are',
-    href: '/we-are',
-    description: 'The network behind the desk: how a claim gets checked, who checks it, and\n      the rules that bind them.',
-    iconSdfUrl: '/icons/we-are.sdf.png',
-    intent: 'participate',
-  },
-  {
-    id: 'war-update',
-    label: 'WAR UPDATE',
-    displayName: 'War Update',
-    href: '/war-update',
-    description: 'Dated dispatches with their sources in the margin beside them, and the\n      corrections log that follows.',
-    iconSdfUrl: '/icons/war-update.sdf.png',
-    intent: 'now',
-  },
-  {
-    id: 'october-7',
-    label: 'OCTOBER 7',
-    displayName: 'October 7',
-    href: '/october-7',
-    description: 'The record of the day, and beneath it the archives — first-hand testimony\n      and the documentation, held here in full.',
-    iconSdfUrl: '/icons/october-7.sdf.png',
-    intent: 'understand',
-  },
-  {
-    id: 'our-heroes',
-    label: 'OUR HEROES',
-    displayName: 'Our Heroes',
-    href: '/our-heroes',
-    description: 'Citations for the fallen, the fighters and the rescuers, built only from\n      what named press has already published.',
-    iconSdfUrl: '/icons/our-heroes.sdf.png',
-    intent: 'understand',
-  },
-  {
-    id: 'israels-story',
-    label: "ISRAEL'S STORY",
-    displayName: "Israel’s Story",
-    href: '/israels-story',
-    description: 'The founding, the wars and the treaties that followed — 1947 to 2020, in\n      chapters, each entry sourced.',
-    iconSdfUrl: '/icons/israels-story.sdf.png',
-    intent: 'understand',
-  },
-  {
-    id: 'fake-resistance',
-    label: 'FAKE RESISTANCE',
-    displayName: 'Fake Resistance',
-    href: '/fake-resistance',
-    description: 'Case files on manufactured outrage: how each claim was built, how far it\n      travelled, and what the record shows.',
-    iconSdfUrl: '/icons/fake-resistance.sdf.png',
-    intent: 'understand',
-  },
-  {
-    id: 'support-us',
-    label: 'SUPPORT US',
-    displayName: 'Support Us',
-    href: '/support-us',
-    description: 'Report a claim for checking, or offer the desk a skill it needs.',
-    iconSdfUrl: '/icons/support-us.sdf.png',
-    intent: 'participate',
-  },
-];
+const NODE_INTENTS: Record<SiteSectionId, NonNullable<NavNode['intent']>> = {
+  'geopolitical-brief': 'now',
+  'we-are': 'participate',
+  'war-update': 'now',
+  'october-7': 'understand',
+  'our-heroes': 'understand',
+  'israels-story': 'understand',
+  'fake-resistance': 'understand',
+  'support-us': 'participate',
+};
+
+/**
+ * Particle geometry extends the public navigation source with scene-only
+ * fields. Labels, routes and descriptions can no longer drift from the DOM
+ * header or sitemap.
+ */
+export const defaultNodes: NavNode[] = SITE_NAVIGATION.map((item) => ({
+  id: item.id,
+  label: item.label,
+  displayName: item.displayName,
+  href: item.href,
+  description: item.description,
+  iconSdfUrl: `/icons/${item.id}.sdf.png`,
+  intent: NODE_INTENTS[item.id],
+}));
 
 /** Clockwise from 12 o'clock — spoke order is configuration, not geometry. */
 export function nodeAngle(index: number, count: number): number {
@@ -238,17 +190,6 @@ export const NODE_HALO_PX = 12;
  * would shrink the orbit for chrome that does not exist.
  */
 export const NODE_BOTTOM_RESERVE_PX = 56;
-
-/**
- * The chat launcher's mobile dock, measured from the top of the safe-area
- * inset: a 0.65rem offset, 3.45rem launcher and 0.46rem vertical padding
- * (`particle-chat-launcher.module.css` ≤719px) ≈ 82px of our own bottom
- * chrome, sitting above the home indicator. Charged like the browser's URL
- * bar: the bottom node clears the pill, and the shared edge gap is the
- * breathing room above it. The static mobile index reserves the same band as
- * `5.25rem + var(--safe-bottom)`.
- */
-export const CHAT_DOCK_PX = 84;
 
 /**
  * Below this width the layout is the phone one, in every layer that asks *for
@@ -333,7 +274,7 @@ export function computeOrbitLayout(
     (haloRadiusPx + edgeGapPx + Math.max(safeArea.left, safeArea.right)) * worldPerPx;
   const bottomReservePx =
     width < MOBILE_MAX_WIDTH
-      ? Math.max(NODE_BOTTOM_RESERVE_PX, safeArea.bottom + CHAT_DOCK_PX)
+      ? Math.max(NODE_BOTTOM_RESERVE_PX, safeArea.bottom)
       : safeArea.bottom;
   const insetTop = (haloRadiusPx + edgeGapPx + safeArea.top) * worldPerPx;
   const insetBottom = (haloRadiusPx + edgeGapPx + bottomReservePx) * worldPerPx;

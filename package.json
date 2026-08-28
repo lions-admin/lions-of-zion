@@ -26,6 +26,7 @@
     "verify:graphics": "node scripts/verify-composition.mjs"
   },
   "dependencies": {
+    "@ai-sdk/xai": "^3.0.128",
     "@neondatabase/auth": "0.5.0-beta",
     "@neondatabase/serverless": "^1.1.0",
     "@react-three/drei": "10.7.8",
@@ -36,6 +37,7 @@
     "drizzle-orm": "^0.45.2",
     "fast-xml-parser": "^5.11.0",
     "next": "16.3.2",
+    "nodemailer": "^9.0.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
@@ -45,6 +47,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.6",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.185.4",

@@ -119,6 +119,32 @@ export function narrativeService(db: unknown) {
       });
     },
 
+    /** Opens an evidence-backed monitoring record from the scheduled brief.
+     * It is a reusable grouping key, never a verdict about the narrative. */
+    async autoCreateNarrative(input: CreateNarrative, who: Actor, requestId?: string): Promise<Narrative> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, who.label);
+        const r = narrativeRepo(tx);
+        const row = await r.insertNarrative({
+          publicId: input.slug,
+          title: input.title,
+          summary: input.summary ?? null,
+          language: input.language,
+          primaryTopicId: input.primaryTopicId ?? null,
+          eventId: input.eventId ?? null,
+        });
+        await recordVersion(tx as Tx, narrative, row as never, {
+          entityType: "narrative",
+          entityId: row.id,
+          actor: who,
+          changeSummary: "Automatically opened briefing narrative",
+          changeSource: "workflow",
+          requestId,
+        });
+        return row;
+      });
+    },
+
     async transition(
       id: string,
       input: TransitionNarrative,

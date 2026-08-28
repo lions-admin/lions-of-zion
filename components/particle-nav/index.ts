@@ -1,5 +1,5 @@
-export { ParticleNav } from './ParticleNav';
 export { NavClient } from './CanvasMount';
+export { CinematicIntroGate } from './CinematicIntroGate';
 export { defaultNodes, defaultSimParams, defaultTheme, simParamRanges } from './config';
 export type {
   NavNode,

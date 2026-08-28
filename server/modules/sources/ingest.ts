@@ -16,9 +16,9 @@ import { notFound } from "@/server/http/responses";
 import { setIdentity } from "@/server/core/versioning";
 import { storeRawBytes } from "@/server/core/blob";
 import { integrityHash } from "@/server/core/hash";
-import { createEvidenceInTx, findEvidenceByExternalId } from "@/server/modules/evidence";
+import { createEvidenceInTx, findEvidenceByExternalId, findEvidenceByUrl } from "@/server/modules/evidence";
 import { connectorFor } from "./connectors";
-import { sourceFetchRepo, sourceRepo } from "./repo";
+import { sourceFamilyRepo, sourceFetchRepo, sourceRepo } from "./repo";
 import type { FetchedItem } from "./connector";
 import type { Actor } from "@/server/core/audit";
 import type { Source, SourceFetch } from "@/server/db/schema";
@@ -53,7 +53,7 @@ export async function ingestSource(
     rawBlobUrl = await sourceFetchRepo(db).blobForHash(sourceId, rawContentHash);
     if (!rawBlobUrl) {
       const stored = await storeRaw(
-        `sources/${sourceId}/${rawContentHash}.xml`,
+        `sources/${sourceId}/${rawContentHash}.${src.kind === "rss" ? "xml" : "json"}`,
         result.rawBody,
         "application/xml",
       );
@@ -66,7 +66,9 @@ export async function ingestSource(
 
     const newItems: FetchedItem[] = [];
     for (const item of result.items) {
-      const existing = await findEvidenceByExternalId(tx, sourceId, item.externalId);
+      const existing =
+        (await findEvidenceByExternalId(tx, sourceId, item.externalId)) ??
+        (item.url ? await findEvidenceByUrl(tx, item.url) : undefined);
       if (!existing) newItems.push(item);
     }
 
@@ -79,16 +81,18 @@ export async function ingestSource(
       itemsSeen: result.items.length,
       itemsNew: newItems.length,
       errorMessage: result.errorMessage ?? null,
+      searchQuery: result.query ?? null,
       rawBlobUrl,
       rawContentHash,
     });
 
     let created = 0;
     for (const item of newItems) {
+      const evidenceSourceId = await resolveEvidenceSource(tx, src, item);
       await createEvidenceInTx(
         tx,
         {
-          sourceId,
+          sourceId: evidenceSourceId,
           sourceFetchId: fetchRow.id,
           kind: "article",
           dataClass: "public",
@@ -107,4 +111,38 @@ export async function ingestSource(
 
     return { fetch: fetchRow, evidenceCreated: created };
   });
+}
+
+/** A Google citation belongs to its original publisher, not to Google. New
+ * publishers are inactive reference sources so later reports from the same
+ * domain share a source family rather than looking independently corroborated. */
+async function resolveEvidenceSource(tx: unknown, fallback: Source, item: FetchedItem): Promise<string> {
+  if (!item.publisher?.homepageUrl) return fallback.id;
+  const homepageUrl = item.publisher.homepageUrl.replace(/\/$/, "");
+  const sources = sourceRepo(tx);
+  const existing = await sources.byHomepageUrl(homepageUrl);
+  if (existing) return existing.id;
+
+  const host = new URL(homepageUrl).hostname.toLowerCase().replace(/^www\./, "");
+  const suffix = integrityHash(homepageUrl).slice(0, 12);
+  const familySlug = `publisher-${suffix}`;
+  const families = sourceFamilyRepo(tx);
+  const family = (await families.bySlug(familySlug)) ?? await families.insert({
+    slug: familySlug,
+    label: item.publisher.name || host,
+    description: `Publisher first discovered through Google Search: ${host}`,
+  });
+  const source = await sources.insert({
+    sourceFamilyId: family.id,
+    kind: "manual",
+    slug: `publisher-${suffix}`,
+    name: item.publisher.name || host,
+    homepageUrl,
+    feedUrl: null,
+    language: fallback.language,
+    country: null,
+    active: false,
+    config: { discoveredBy: "google_search", hostname: host },
+  });
+  return source.id;
 }

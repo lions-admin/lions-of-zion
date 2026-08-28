@@ -81,15 +81,15 @@ checkout with its own `node_modules`.
 
 ### Route map
 
-`components/particle-nav/config.ts` `defaultNodes` is the **single source of
-truth** for the eight destinations. It feeds the particle nodes, the DOM
-links, the hover cards, the page shell's file numbering, and `app/sitemap.ts`.
+`lib/site-navigation.ts` `SITE_NAVIGATION` is the **single source of truth**
+for the eight destinations. It feeds the home header, reading shell,
+`app/sitemap.ts`, and the particle scene's `defaultNodes` projection.
 Every node id must have a matching `app/<id>/page.tsx`; `SectionPage` throws
 on an unknown id.
 
 | Route | Rendered by | Notes |
 | --- | --- | --- |
-| `/` | `components/Experience.tsx` | Particle scene, then the front-page band |
+| `/` | `app/page.tsx` + `CinematicIntroGate` | Editorial signal field beneath a disposable particle entrance |
 | `/geopolitical-brief` | `components/briefs/GeopoliticalBrief.tsx` | The one page with its own layout |
 | `/support-us` | `SectionPage` | Carries the report and volunteer forms |
 | `/war-update` | `SectionPage` | |
@@ -108,36 +108,28 @@ deliberately **no** `app/loading.tsx` — see the note under the home route.
 
 ### The home route
 
-One `<main>`, two acts. The particle scene keeps `position: fixed; inset: 0`
-and the whole first screen; the front-page band scrolls over it.
+The editorial home is the server-rendered destination. A fixed particle scene
+plays once per tab above it, then unmounts completely at handoff.
 
 ```mermaid
 flowchart LR
-    Page["app/page.tsx"] --> Exp["Experience.tsx"]
-    Exp --> Scene["ParticleNav<br/>(fixed, inset 0)"]
-    Exp --> Spacer["heroSpacer"]
-    Exp --> Band["HomeFrontPage"]
-
-    Scene --> Canvas["Scene.tsx — one R3F canvas<br/>WebGPU/TSL, WebGL2 fallback"]
-    Scene --> Links["NavLinks — real &lt;a href&gt;<br/>server-rendered"]
-
-    Band --> Content["lib/content/home.ts"]
-    Content --> WU["war-update.ts"]
-    Content --> O7["october-7.ts"]
-    Content --> Brief["briefs/adapters.ts"]
+    Page["app/page.tsx"] --> Gate["CinematicIntroGate"]
+    Gate --> Scene["Scene.tsx — one R3F canvas<br/>WebGPU/TSL, WebGL2 fallback"]
+    Gate --> Home["Editorial signal-field home"]
+    Home --> Nav["SITE_NAVIGATION"]
+    Nav --> Shell["SiteHeader + EditorialShell"]
+    Scene --> Handoff["fade + renderer unmount"]
 ```
 
-**`Experience` is synchronous, and `app/loading.tsx` no longer exists.** A
+**`app/page.tsx` is synchronous, and `app/loading.tsx` no longer exists.** A
 root-level `loading.tsx` wraps every route in a Suspense boundary; streaming
 SSR then emits the real markup inside `<div hidden id="S:0">` for an inline
 `$RC` script to reveal, so without JavaScript the loading shell stayed and the
 page never appeared. The file was deleted on 2026-08-26 and the home route's
-prerendered HTML now carries its orbit links, band links and poster with zero
-Suspense boundaries.
+prerendered HTML now carries the complete destination beneath a no-JavaScript
+rule that hides the cinematic enhancement.
 
-`Experience` and `lib/content/home.ts` remain synchronous, but that is now a
-kept default rather than a forced one — re-measure the no-JavaScript render
-before introducing an `await`. **Do not reintroduce a root-level
+Re-measure the no-JavaScript render before introducing an `await`. **Do not reintroduce a root-level
 `loading.tsx`.** See [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md),
 "`app/loading.tsx` is removed: it hid every page from readers without
 JavaScript", and the earlier entry it supersedes.
@@ -445,9 +437,8 @@ anywhere in the tree.
 - **Server:** Postgres is the only durable store. No Redis, no KV, no
   in-process caches that outlive a request (the module `index.ts` memoisation
   holds a connection pool, not data).
-- **Client:** two React contexts — `ChatOpenProvider` (shared open state
-  between `ParticleChatLauncher` and `SectionPage`) and the particle nav's
-  `interactionMachine`. The renderer's per-frame state is a mutable object
+- **Client:** the particle nav's `interactionMachine` plus the intro gate's
+  blocking state. The renderer's per-frame state is a mutable object
   outside React entirely, by design.
 - **Chat has no client persistence.** `SensitiveContent` deliberately
   remembers nothing between visits.

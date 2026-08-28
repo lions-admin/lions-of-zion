@@ -45,7 +45,10 @@ The two security items are closed too, in opposite directions.
 check could only pass while adding a lockout path, and that is now a recorded
 decision with a test pinning it. The two `SECURITY DEFINER` prune functions are
 closed by migration `0022`, granted to `app_service` alone after verifying the
-maintenance cron is their only caller.
+maintenance cron is their only caller. Production also carries migration
+`0023`, which grants `app_service` the internal `SELECT` visibility required
+by the embedding ledger's `INSERT ... RETURNING` path; the scheduled embed
+cron succeeded after that fix.
 
 `publications` and `reports` had their repositories extracted into sibling
 `repo.ts` files, so all ten data modules now match the shape `CLAUDE.md`
@@ -83,9 +86,8 @@ code track and the vendor track can run in parallel without blocking each other.
 
 Start at §א׳-1.1: `PublishedItemView` has no field mapping an item to a
 destination page, which is what keeps every `lib/content/` module on a local
-static module. The most urgent item on the vendor side is §א׳-2.2 — confirm
-migration `0022` is applied to the Production branch, because until it is, the
-repo looks like the `SECURITY DEFINER` exposure is closed while it may not be.
+static module. The vendor-side Production migration check is now closed:
+`0021`, `0022`, and `0023` are applied on the Production branch.
 
 Continue watching Neon CU-hours, AI spend, Function errors, Queue age and Blob
 growth — the seven-day window from the 2026-08-26 deployment has not elapsed.

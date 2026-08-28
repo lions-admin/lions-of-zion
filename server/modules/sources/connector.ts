@@ -22,6 +22,7 @@ export type FetchedItem = {
   url?: string;
   excerpt?: string;
   publishedAt?: Date;
+  publisher?: { name: string; homepageUrl: string };
 };
 
 export type ConnectorFetchResult = {
@@ -34,6 +35,7 @@ export type ConnectorFetchResult = {
   /** Required when `status` is `failed` or `partial` — the same rule the
    *  `source_fetch` table enforces with a CHECK. */
   errorMessage?: string;
+  query?: string;
 };
 
 export interface SourceConnector {

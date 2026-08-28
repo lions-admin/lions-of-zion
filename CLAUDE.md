@@ -143,18 +143,19 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 
 ## Frontend architecture
 
-`app/page.tsx` renders `components/Experience.tsx`.
+`app/page.tsx` renders the editorial signal-field home inside
+`components/particle-nav/CinematicIntroGate.tsx`.
 
 - `components/intro/` contains only pure timeline data and CPU text-cloud
   sampling.
 - `components/particle-nav/` is the single React Three Fiber scene using Three
-  r185, WebGPU and TSL, with a WebGL2 fallback. It owns both intro and nav.
-- The nav's DOM links and poster exist in the server HTML. They are inert only
-  after hydration while the intro is actually running. Without JavaScript the
-  static navigation remains usable immediately.
+  r185, WebGPU and TSL, with a WebGL2 fallback. On the public home it is an
+  entrance layer only and unmounts at handoff.
+- The editorial home exists in server HTML beneath the entrance. Without
+  JavaScript the intro is hidden and the full page remains usable immediately.
 - `Scene.tsx` owns one timeline clock. Its mutable frame is shared by the lion,
-  TSL story text and staged navigation reveal without React state per frame.
-- Skip and reduced motion land on the same complete navigation; the root route
+  TSL story text and staged handoff without React state per frame.
+- Skip and reduced motion land on the editorial home; the root route
   accepts `?forceWebGL=1` for full-flow fallback verification.
 
 ### Particle navigation invariants
@@ -352,25 +353,17 @@ static index set it that way as identity; **reading surfaces use
   layout and reading-progress treatment; its content is still a static
   reference cut in `geopolitical-reference.ts`, adapted onto
   `components/content/` through `adapters.ts`.
-- `components/chat/ParticleChatLauncher.tsx` is mounted globally in
-  `app/layout.tsx`. Desktop upgrades the server-rendered image to a second
-  particle canvas after hydration; mobile deliberately never pays for that
-  second renderer. `AskTheLionChat` is an accessible modal talking to
-  `/api/v1/chat/threads`.
 - **Two `app/` subtrees are not otherwise described here.**
   `app/admin/**` is a Hebrew ops dashboard behind Neon Auth
   (`/admin`, `/admin/login`), reading `GET /api/v1/admin/status`.
-  `app/auth/x/**` is a public X OAuth2 begin/callback/signout trio, and
-  `components/chat/XPublicAuthControl.tsx` mounts its sign-in affordance
-  **on every route** through `ParticleChatLauncher`. Both import
+  `app/auth/x/**` is a public X OAuth2 begin/callback/signout trio. The public
+  chat launcher and its X sign-in affordance were removed from the site shell;
+  these routes remain backend entry points. Both import
   `@/server/modules/public-x-auth` under a purpose-written carve-out in
   `eslint.config.mjs`. Three things about this are unresolved rather than
   designed: the feature went from `chore(auth): quarantine unfinished X
   sign-in` to `feat(auth): include X public sign-in` with **no entry in
   `.ai/DECISIONS.md`** — on a public repo, for a public identity surface;
-  `XPublicAuthControl` renders a working-looking "Continue with X" link on
-  *any* failure of its session probe, including "credentials not provisioned",
-  which is the same shape of defect the 2026-08-26 chat decision records; and
   `app/robots.ts` disallows `/particle-demo` and `/api/` but neither `/admin`
   nor `/auth`, so both shells are crawlable.
 - The skip control and all section-page type are DOM text rather than

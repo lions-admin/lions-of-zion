@@ -53,7 +53,8 @@ described as though it works.
 in Hebrew like [`engine-explainer.html`](engine-explainer.html). Run
 `npm run map` to rebuild it from the repository as it actually is: every count,
 size, route, import edge and boundary check on that page is scanned at run time
-by [`scripts/project-map.mjs`](../scripts/project-map.mjs). It carries four SVG
-flow diagrams of the mechanisms, plus an explanation for every directory and
-every root file. `npm run map:check` exits non-zero when the page has drifted
-from the tree, so a new area cannot quietly go undocumented.
+by [`scripts/project-map.mjs`](../scripts/project-map.mjs). It lists every
+tracked file with a Hebrew explanation, and a flowchart mode with pan/zoom
+diagrams. Click any file, folder or node to open the explanation drawer.
+`npm run map:check` exits non-zero when the page has drifted from the tree, so a
+new area cannot quietly go undocumented.

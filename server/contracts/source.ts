@@ -38,6 +38,9 @@ export const createSourceSchema = z.object({
   language: languageSchema,
   country: z.string().trim().length(2).optional(),
   active: z.boolean().default(true),
+  /** Connector settings such as a monitored Google query. Credentials stay in
+   * the environment and are never stored in a source row. */
+  config: z.record(z.string(), z.unknown()).optional(),
 });
 export type CreateSource = z.infer<typeof createSourceSchema>;
 
@@ -67,6 +70,7 @@ export const sourceSchema = z.object({
   language: z.string(),
   country: z.string().nullable(),
   active: z.boolean(),
+  config: z.record(z.string(), z.unknown()).nullable(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });

@@ -100,6 +100,7 @@ export const sourceFetch = pgTable(
     itemsSeen: integer("items_seen").notNull().default(0),
     itemsNew: integer("items_new").notNull().default(0),
     errorMessage: text("error_message"),
+    searchQuery: text("search_query"),
     /** Pointer to the raw fetched bytes in Blob, stored once per fetch rather
      *  than once per item — a feed's raw body is one object, not N. */
     rawBlobUrl: text("raw_blob_url"),

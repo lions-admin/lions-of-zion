@@ -9,8 +9,8 @@ import "server-only";
  * unchanged; only its address is.
  */
 
-import { and, desc, eq, lt, type SQL } from "drizzle-orm";
-import { publication, publicationItem } from "@/server/db/schema";
+import { and, desc, eq, lt, sql, type SQL } from "drizzle-orm";
+import { publication, publicationEvidence, publicationItem, publicationNarrative } from "@/server/db/schema";
 import type { Publication } from "@/server/db/schema";
 import type { ListPublications } from "@/server/contracts/publication";
 
@@ -32,6 +32,7 @@ export function repo(db: unknown) {
     update: (t: unknown) => {
       set: (v: unknown) => { where: (w: SQL) => { returning: () => Promise<Publication[]> } };
     };
+    execute: <T>(query: unknown) => Promise<{ rows: T[] }>;
   };
 
   return {
@@ -56,6 +57,7 @@ export function repo(db: unknown) {
     async list(filters: ListPublications): Promise<Publication[]> {
       const clauses: SQL[] = [];
       if (filters.kind) clauses.push(eq(publication.kind, filters.kind));
+      if (filters.section) clauses.push(eq(publication.section, filters.section));
       if (filters.status) clauses.push(eq(publication.status, filters.status));
       if (filters.eventId) clauses.push(eq(publication.eventId, filters.eventId));
       if (filters.cursor) clauses.push(lt(publication.createdAt, new Date(filters.cursor)));
@@ -82,6 +84,47 @@ export function repo(db: unknown) {
         .insert(publicationItem)
         .values(itemIds.map((itemId) => ({ publicationId, itemId })))
         .returning();
+    },
+    async linkNarratives(publicationId: string, narrativeIds: readonly string[]): Promise<void> {
+      if (!narrativeIds.length) return;
+      await (d as unknown as {
+        insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<unknown[]> } };
+      })
+        .insert(publicationNarrative)
+        .values(narrativeIds.map((narrativeId) => ({ publicationId, narrativeId })))
+        .returning();
+    },
+    async linkEvidence(publicationId: string, evidenceIds: readonly string[]): Promise<void> {
+      if (!evidenceIds.length) return;
+      await (d as unknown as {
+        insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<unknown[]> } };
+      })
+        .insert(publicationEvidence)
+        .values(evidenceIds.map((evidenceId) => ({ publicationId, evidenceId })))
+        .returning();
+    },
+    async publicReferences(publicationId: string): Promise<{
+      sources: Array<{ title: string; publisher: string; url: string | null; publishedAt: string | null }>;
+      narratives: Array<{ publicId: string; title: string; status: string }>;
+    }> {
+      const [sources, narratives] = await Promise.all([
+        d.execute<{ title: string; publisher: string; url: string | null; publishedAt: string | null }>(sql`
+          SELECT e.title, s.name AS publisher, e.url, e.published_at::text AS "publishedAt"
+          FROM publication_evidence pe
+          JOIN evidence e ON e.id = pe.evidence_id
+          JOIN source s ON s.id = e.source_id
+          WHERE pe.publication_id = ${publicationId} AND e.data_class = 'public'
+          ORDER BY coalesce(e.published_at, e.captured_at) DESC
+        `),
+        d.execute<{ publicId: string; title: string; status: string }>(sql`
+          SELECT n.public_id AS "publicId", n.title, n.status
+          FROM publication_narrative pn
+          JOIN narrative n ON n.id = pn.narrative_id
+          WHERE pn.publication_id = ${publicationId}
+          ORDER BY n.updated_at DESC
+        `),
+      ]);
+      return { sources: sources.rows, narratives: narratives.rows };
     },
   };
 }

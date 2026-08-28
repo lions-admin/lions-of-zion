@@ -65,10 +65,10 @@
   margin: 18px auto 0;
   color: #bcc5bd;
   font-family: var(--font-pompiere), cursive;
-  font-size: clamp(13px, 1.12vw, 16px);
+  font-size: clamp(17px, 1.55vw, 22px);
   font-weight: 400;
-  letter-spacing: -0.012em;
-  line-height: 1.48;
+  letter-spacing: -0.006em;
+  line-height: 1.35;
   text-wrap: balance;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95);
 }
@@ -871,7 +871,8 @@
 
   .heroCopy {
     margin-top: 18px;
-    font-size: 12px;
+    font-size: 15px;
+    line-height: 1.4;
   }
 
   .heroActions {

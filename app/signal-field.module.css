@@ -148,10 +148,10 @@
 .dailyReportPrompt {
   grid-area: prompt;
   align-self: start;
-  color: rgba(21, 22, 15, 0.76);
+  color: rgba(21, 22, 15, 0.92);
   font-family: var(--font-pompiere), cursive;
   font-size: clamp(14px, 1.1vw, 16px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.005em;
   line-height: 1.1;
 }

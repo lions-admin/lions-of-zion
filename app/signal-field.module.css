@@ -83,19 +83,19 @@
 .dailyReportAction {
   position: relative;
   isolation: isolate;
-  width: 100%;
+  width: fit-content;
+  min-width: 220px;
   min-height: 64px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "title arrow"
-    "prompt arrow";
+    "title"
+    "prompt";
   align-items: center;
-  column-gap: 18px;
   overflow: hidden;
   border: 1px solid rgba(247, 224, 158, 0.72);
   border-radius: 3px;
-  padding: 11px 12px 11px 19px;
+  padding: 11px 14px;
   background: linear-gradient(118deg, #d8b45d 0%, #efd489 52%, #c99a3e 100%);
   color: #15160f;
   text-decoration: none;
@@ -129,8 +129,7 @@
 }
 
 .dailyReportTitle,
-.dailyReportPrompt,
-.dailyReportArrow {
+.dailyReportPrompt {
   position: relative;
   z-index: 1;
 }
@@ -157,27 +156,6 @@
   line-height: 1.1;
 }
 
-.dailyReportArrow {
-  grid-area: arrow;
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(65, 45, 9, 0.34);
-  border-radius: 50%;
-  background: rgba(255, 249, 217, 0.18);
-  color: inherit;
-  font-family: Georgia, serif;
-  font-size: 22px;
-  line-height: 1;
-  transition: background 180ms ease, transform 180ms ease;
-}
-
-.dailyReportAction:hover .dailyReportArrow,
-.dailyReportAction:focus-visible .dailyReportArrow {
-  background: rgba(255, 252, 229, 0.34);
-  transform: translateX(3px);
-}
 
 .editorialDesk {
   position: fixed;
@@ -891,14 +869,10 @@
   }
 
   .heroActions .dailyReportAction {
-    width: 100%;
+    width: fit-content;
+    min-width: 220px;
     min-height: 60px;
-    padding: 10px 12px 10px 16px;
-  }
-
-  .dailyReportArrow {
-    width: 34px;
-    height: 34px;
+    padding: 10px 14px;
   }
 
   .editorialDesk {
@@ -1048,8 +1022,7 @@
   }
 
   .dailyReportAction,
-  .dailyReportAction::before,
-  .dailyReportArrow {
+  .dailyReportAction::before {
     transition: none;
   }
 }

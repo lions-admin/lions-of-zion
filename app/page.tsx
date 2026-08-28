@@ -142,7 +142,6 @@ export default function Page() {
           <Link className={styles.dailyReportAction} href="/geopolitical-brief">
             <strong className={styles.dailyReportTitle}>The Daily Report</strong>
             <span className={styles.dailyReportPrompt}>View today’s analysis</span>
-            <span className={styles.dailyReportArrow} aria-hidden="true">→</span>
           </Link>
         </div>
       </section>

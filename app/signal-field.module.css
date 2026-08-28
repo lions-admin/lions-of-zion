@@ -48,11 +48,10 @@
 .heroTitle {
   margin: 0;
   color: #f1f4f0;
-  font-family: var(--font-libre-baskerville), Georgia, serif;
-  font-size: clamp(30px, 3.5vw, 56px);
+  font-size: clamp(32px, 3.45vw, 54px);
   font-weight: 400;
-  letter-spacing: -0.045em;
-  line-height: 0.98;
+  letter-spacing: -0.025em;
+  line-height: 0.93;
   text-wrap: balance;
   text-shadow: 0 2px 22px rgba(0, 0, 0, 0.9), 0 0 20px rgba(221, 236, 224, 0.11);
 }
@@ -62,129 +61,87 @@
 }
 
 .heroCopy {
-  max-width: 620px;
+  max-width: 650px;
   margin: 18px auto 0;
-  color: #c1cbc3;
-  font-family: var(--font-libre-baskerville), Georgia, serif;
-  font-size: clamp(12px, 1.18vw, 17px);
-  line-height: 1.55;
+  color: #bcc5bd;
+  font-family: var(--font-pompiere), cursive;
+  font-size: clamp(13px, 1.12vw, 16px);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 1.48;
   text-wrap: balance;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95);
 }
 
 .heroActions {
-  width: min(620px, 100%);
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-  margin-top: 22px;
+  width: min(280px, 100%);
+  margin-top: 18px;
   margin-inline: auto;
   pointer-events: auto;
 }
 
-.heroActions a {
-  position: relative;
-  min-width: 0;
+.dailyReportAction {
+  width: 100%;
+  min-height: 50px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "title arrow"
+    "prompt arrow";
   align-items: center;
-  gap: 12px;
-  border: 0;
-  border-top: 1px solid rgba(216, 173, 78, 0.58);
-  border-bottom: 1px solid rgba(216, 173, 78, 0.32);
-  padding: 10px 4px;
-  color: #eef2ee;
-  text-align: left;
+  column-gap: 18px;
+  padding: 7px 15px 7px 17px;
+  background: #d6b45f;
+  color: #11150f;
   text-decoration: none;
-  transition: color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
-.heroActions a::after {
-  position: absolute;
-  right: 0;
-  bottom: -1px;
-  left: 0;
-  height: 1px;
-  background: linear-gradient(90deg, #d8ad4e, #f0d58a 58%, transparent);
-  content: "";
-  transform: scaleX(0.16);
-  transform-origin: left;
-  transition: transform 220ms ease;
+.dailyReportAction:hover,
+.dailyReportAction:focus-visible {
+  outline: 1px solid #f0d98f;
+  outline-offset: 4px;
+  background: #e2c66f;
+  transform: translateY(-3px);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.4);
 }
 
-.heroActions a:hover,
-.heroActions a:focus-visible {
-  outline: none;
-  border-color: rgba(231, 198, 109, 0.82);
-  color: #fff;
-  transform: translateY(-2px);
-}
-
-.heroActions a:hover::after,
-.heroActions a:focus-visible::after {
-  transform: scaleX(1);
-}
-
-.actionIndex {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(216, 173, 78, 0.54);
-  border-radius: 50%;
-  color: #d8b45c;
-  font-family: "SFMono-Regular", "Cascadia Mono", monospace;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.primaryAction .actionIndex {
-  border-color: #d8ad4e;
-  color: #10140f;
-  background: #d8ad4e;
-  box-shadow: 0 0 18px rgba(216, 173, 78, 0.18);
-}
-
-.actionCopy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.actionCopy small {
-  color: #8d9a91;
-  font-family: "SFMono-Regular", "Cascadia Mono", monospace;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  line-height: 1;
-}
-
-.actionCopy strong {
-  overflow: hidden;
+.dailyReportTitle {
+  grid-area: title;
+  align-self: end;
   color: inherit;
   font-family: var(--font-libre-baskerville), Georgia, serif;
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
 }
 
-.actionArrow {
-  color: #d8b45c;
+.dailyReportPrompt {
+  grid-area: prompt;
+  align-self: start;
+  color: rgba(17, 21, 15, 0.68);
+  font-family: "SFMono-Regular", "Cascadia Mono", monospace;
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.dailyReportArrow {
+  grid-area: arrow;
+  color: inherit;
   font-family: Georgia, serif;
-  font-size: 18px;
+  font-size: 24px;
   line-height: 1;
   transition: transform 180ms ease;
 }
 
-.heroActions a:hover .actionArrow,
-.heroActions a:focus-visible .actionArrow {
-  transform: translate(3px, -2px);
+.dailyReportAction:hover .dailyReportArrow,
+.dailyReportAction:focus-visible .dailyReportArrow {
+  transform: translateX(5px);
 }
 
 .editorialDesk {
@@ -228,6 +185,7 @@
 }
 
 .deskHeader > span {
+  font-family: var(--font-pompiere), cursive;
   font-size: 9px;
   letter-spacing: 0.035em;
 }
@@ -401,7 +359,7 @@
   max-width: 520px;
   margin: 0 0 14px;
   color: #bbc6bd;
-  font-family: var(--font-libre-baskerville), Georgia, serif;
+  font-family: var(--font-pompiere), cursive;
   font-size: 12px;
   line-height: 1.45;
 }
@@ -452,6 +410,8 @@
 
 .updateLabel strong {
   color: #e7edf0;
+  font-family: var(--font-pompiere), cursive;
+  font-weight: 400;
   font-size: 10px;
   letter-spacing: 0.17em;
 }
@@ -801,7 +761,7 @@
 
 @media (max-height: 800px) and (min-width: 701px) {
   .hero {
-    top: clamp(106px, 18vh, 145px);
+    top: clamp(100px, 16vh, 132px);
   }
 
   .heroTitle {
@@ -889,7 +849,7 @@
   }
 
   .heroActions {
-    width: min(292px, 100%);
+    width: min(260px, 100%);
     grid-template-columns: 1fr;
     gap: 12px;
     margin-top: 22px;

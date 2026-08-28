@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Geist_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
+import { Cinzel, Geist_Mono, IBM_Plex_Sans, Newsreader, Ramsina } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
@@ -32,6 +32,13 @@ const plexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
+const ramsina = Ramsina({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-ramsina",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: "LIONS OF ZION", template: "%s — LIONS OF ZION" },
@@ -58,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable}`}
+      className={`${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable} ${ramsina.variable}`}
     >
       <body>{children}</body>
     </html>

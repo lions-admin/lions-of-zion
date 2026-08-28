@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Libre_Baskerville, Sansita } from "next/font/google";
+import { Libre_Baskerville, Monomakh, Pompiere, Sansita } from "next/font/google";
 import { BRAND_LOGO_DATA_URL } from "./brand-logo";
 import styles from "./signal-field.module.css";
 import { SIGNAL_VOCABULARY, type SignalToken } from "./signal-vocabulary";
@@ -9,12 +9,40 @@ import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { CinematicIntroGate } from "@/components/particle-nav/CinematicIntroGate";
 
 const LANE_COUNT = 28;
-const sansita = Sansita({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
+const HERO_MESSAGES = [
+  {
+    title: ["Fighting information manipulation", "with software engineering."],
+    copy: "We live in an age when lies travel faster and farther than ever. We built a system to detect, expose, report, and publish disinformation. Join us.",
+  },
+  {
+    title: ["Truth needs", "infrastructure."],
+    copy: "Disinformation is engineered. So is our response: a system built to identify false narratives, document the evidence, report abuse, and publish what the public needs to know. Join us.",
+  },
+  {
+    title: ["They engineer perception.", "We engineer the defense."],
+    copy: "When lies are designed to spread, truth needs more than a reply. Our system detects, exposes, reports, and publishes the evidence behind coordinated disinformation. Join us.",
+  },
+] as const;
+
+export const dynamic = "force-dynamic";
+
 const libreBaskerville = Libre_Baskerville({
   subsets: ["latin"],
   weight: ["400", "700"],
   display: "swap",
   variable: "--font-libre-baskerville",
+});
+const sansita = Sansita({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+const monomakh = Monomakh({ subsets: ["latin"], weight: "400", display: "swap" });
+const pompiere = Pompiere({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-pompiere",
+  display: "swap",
 });
 
 const LANES = Array.from({ length: LANE_COUNT }, (_, laneIndex) =>
@@ -97,34 +125,24 @@ function Navigation() {
 }
 
 export default function Page() {
+  const hero = HERO_MESSAGES[Math.floor(Math.random() * HERO_MESSAGES.length)];
+
   return (
     <CinematicIntroGate>
-      <main className={`${styles.field} ${libreBaskerville.variable}`}>
+      <main className={`${styles.field} ${libreBaskerville.variable} ${pompiere.variable}`}>
       <Navigation />
       <section className={styles.hero} aria-labelledby="hero-title">
-        <h1 id="hero-title" className={styles.heroTitle}>
-          <span>Truth in a time of distortion.</span>
-          <span>Clarity in a time of conflict.</span>
+        <h1 id="hero-title" className={`${styles.heroTitle} ${monomakh.className}`}>
+          {hero.title.map((line) => <span key={line}>{line}</span>)}
         </h1>
         <p className={styles.heroCopy}>
-          Lions of Zion cuts through the noise with fact-based reporting, deep investigations, and clear explanations.
+          {hero.copy}
         </p>
         <div className={styles.heroActions}>
-          <Link className={styles.primaryAction} href="/geopolitical-brief">
-            <span className={styles.actionIndex}>01</span>
-            <span className={styles.actionCopy}>
-              <small>INTELLIGENCE DESK</small>
-              <strong>Explore today</strong>
-            </span>
-            <span className={styles.actionArrow} aria-hidden="true">↗</span>
-          </Link>
-          <Link className={styles.secondaryAction} href="/october-7">
-            <span className={styles.actionIndex}>02</span>
-            <span className={styles.actionCopy}>
-              <small>WATCH THE ARCHIVE</small>
-              <strong>October 7</strong>
-            </span>
-            <span className={styles.actionArrow} aria-hidden="true">→</span>
+          <Link className={styles.dailyReportAction} href="/geopolitical-brief">
+            <strong className={styles.dailyReportTitle}>The Daily Report</strong>
+            <span className={styles.dailyReportPrompt}>View today’s analysis</span>
+            <span className={styles.dailyReportArrow} aria-hidden="true">→</span>
           </Link>
         </div>
       </section>

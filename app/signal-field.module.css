@@ -198,9 +198,14 @@
 }
 
 .deskHeader > span {
+  border-style: none;
+  border-width: 1px;
   font-family: var(--font-pompiere), cursive;
-  font-size: 9px;
-  letter-spacing: 0.035em;
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 1.3px;
+  line-height: 10.3px;
 }
 
 .deskHeader h2::before {
@@ -375,6 +380,13 @@
   font-family: var(--font-pompiere), cursive;
   font-size: 12px;
   line-height: 1.45;
+}
+
+.featureBrief p {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  break-after: auto;
 }
 
 .featureCta {

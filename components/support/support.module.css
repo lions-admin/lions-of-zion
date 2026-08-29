@@ -29,7 +29,7 @@
   min-height: 44px;
   padding: 0.6rem 0.75rem;
   background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(201, 162, 75, 0.3);
+  border: 1px solid rgba(99, 179, 237, 0.3);
   border-radius: 2px;
   color: var(--ink-hi);
   font-family: var(--face-text);
@@ -59,7 +59,7 @@
 .fieldset {
   margin-bottom: 1.1rem;
   padding: 0.9rem 1rem;
-  border: 1px solid rgba(201, 162, 75, 0.25);
+  border: 1px solid rgba(99, 179, 237, 0.25);
   border-radius: 2px;
 }
 
@@ -154,7 +154,7 @@
 .receipt {
   max-width: 30rem;
   padding: 1.35rem 1.5rem;
-  border: 1px solid rgba(201, 162, 75, 0.35);
+  border: 1px solid rgba(99, 179, 237, 0.35);
   border-radius: 2px;
   background: rgba(0, 0, 0, 0.6);
 }

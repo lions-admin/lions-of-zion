@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import type { ArchiveIndexEntry } from '@/lib/content/archive';
 /* From the pure module, not the seam: this list renders inside
@@ -60,6 +63,25 @@ export type ArchiveRecordListProps = {
  * A hover preview was considered and rejected in review: hover has no touch
  * equivalent, and a rich row reads the same on every device.
  */
+function RecordThumb({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return <span className={styles.recordThumb} aria-hidden="true" />;
+  }
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element -- a CDN
+       archive derivative, same reasoning as `ArchiveImage`. */
+    <img
+      className={styles.recordThumb}
+      src={src}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export function ArchiveRecordList({
   records,
   href,
@@ -76,15 +98,7 @@ export function ArchiveRecordList({
               {String(numbers?.[i] ?? startAt + i).padStart(3, '0')}
             </span>
             {entry.thumb ? (
-              /* eslint-disable-next-line @next/next/no-img-element -- a CDN
-                 archive derivative, same reasoning as `ArchiveImage`. */
-              <img
-                className={styles.recordThumb}
-                src={entry.thumb}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
+              <RecordThumb src={entry.thumb} />
             ) : (
               /* Every entry carries a cover today; if one ever does not, the
                  grid keeps its shape and the gap reads as a quiet blank. */

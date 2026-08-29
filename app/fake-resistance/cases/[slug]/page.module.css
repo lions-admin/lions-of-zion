@@ -25,7 +25,7 @@
 .guard {
   margin-top: 1.25rem;
   padding: 0.9rem 1.1rem;
-  border-left: 2px solid var(--loz-gold, #c9a24b);
+  border-left: 2px solid var(--loz-gold, #63b3ed);
   color: var(--loz-ink, #b9c5d4);
   font-size: var(--t-small, 0.9375rem);
   line-height: var(--t-small-lh, 1.65);
@@ -34,7 +34,7 @@
 .guard > span {
   display: block;
   margin-bottom: 0.35rem;
-  color: var(--loz-gold, #c9a24b);
+  color: var(--loz-gold, #63b3ed);
   font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
   font-size: var(--t-data, 0.72rem);
   letter-spacing: var(--t-data-tracking, 0.08em);
@@ -102,7 +102,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  color: var(--loz-gold, #c9a24b);
+  color: var(--loz-gold, #63b3ed);
   content: counter(point, decimal-leading-zero);
   font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
   font-size: var(--t-data, 0.72rem);
@@ -125,7 +125,7 @@
 
 .exhibits > li {
   padding-top: 1.4rem;
-  border-top: 1px solid var(--loz-gold-line, rgba(201, 162, 75, 0.24));
+  border-top: 1px solid var(--loz-gold-line, rgba(99, 179, 237, 0.24));
 }
 
 .exhibits > li + li {
@@ -192,7 +192,7 @@
 
 .narrative {
   padding: 1.1rem 1.2rem;
-  background: var(--loz-ground, #070b14);
+  background: var(--loz-ground, #06051d);
 }
 
 .narrative h3 {

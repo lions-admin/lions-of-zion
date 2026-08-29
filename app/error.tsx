@@ -22,6 +22,7 @@
  */
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { SiteHeader } from '@/components/site/SiteHeader';
 
 export default function ErrorBoundary({
   error,
@@ -36,6 +37,7 @@ export default function ErrorBoundary({
 
   return (
     <main className="loz-error">
+      <SiteHeader />
       <style>{`
         .loz-error {
           /* The document scrolls — converted with the other reading
@@ -46,9 +48,9 @@ export default function ErrorBoundary({
           padding: 24px;
           /* The real ground and its texture, not a flat panel over them —
              the opaque paint here used to hide body's --scan-ground. */
-          background-color: var(--ground, #000000);
+          background-color: var(--color-cosmic-void, #000);
           background-image: var(--scan-ground);
-          color: var(--ink, #b9c5d4);
+          color: var(--ink, #cbc7bd);
           text-align: center;
         }
         .loz-error-inner {
@@ -56,23 +58,30 @@ export default function ErrorBoundary({
           justify-items: center;
           gap: 18px;
           max-width: 34rem;
+          padding: clamp(1.5rem, 5vw, 3rem);
+          border: 1px solid var(--glass-edge, rgba(246,243,235,.28));
+          border-radius: 1.2rem;
+          background: linear-gradient(180deg, var(--glass-top, rgba(150,147,140,.22)), var(--glass-middle, rgba(45,44,42,.29)), var(--glass-bottom, rgba(8,8,8,.64)));
+          box-shadow: inset 0 1px var(--glass-inner, rgba(255,255,255,.25)), 0 2rem 5rem var(--glass-shadow, rgba(0,0,0,.58));
+          -webkit-backdrop-filter: blur(16px) saturate(.72);
+          backdrop-filter: blur(16px) saturate(.72);
         }
         /* Two words, so uppercase is allowed — but at the tracking cap.
            0.32em was the widest value in the repo. */
         .loz-error-code {
-          font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+          font-family: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
           font-size: var(--t-data, 0.72rem);
           line-height: var(--t-data-lh, 1.45);
           letter-spacing: var(--t-data-tracking, 0.08em);
           text-transform: uppercase;
-          color: var(--data-blue, #57a7d9);
+          color: var(--gold, #c6a15b);
         }
         .loz-error-title {
-          font-family: var(--face-display, Charter, Georgia, 'Times New Roman', serif);
-          font-weight: var(--t-display-weight, 600);
+          font-family: var(--font-mono, ui-monospace, monospace);
+          font-weight: 400;
           font-size: var(--t-display, 2.1rem);
           line-height: var(--t-display-lh, 1.15);
-          color: var(--gold, #c9a24b);
+          color: var(--ink-hi, #f6f3eb);
         }
         .loz-error-lede {
           font-size: var(--t-body, 1.0625rem);
@@ -94,16 +103,16 @@ export default function ErrorBoundary({
           line-height: var(--t-data-lh, 1.45);
           letter-spacing: var(--t-data-tracking, 0.08em);
           text-transform: uppercase;
-          color: var(--ground, #000000);
-          background: var(--gold, #c9a24b);
-          border: 1px solid var(--gold, #c9a24b);
-          border-radius: 3px;
+          color: var(--ink-hi, #f6f3eb);
+          background: linear-gradient(180deg, var(--glass-raised-top, rgba(115,112,105,.28)), var(--glass-raised-bottom, rgba(4,4,4,.88)));
+          border: 1px solid var(--glass-edge, rgba(246,243,235,.28));
+          border-radius: .7rem;
           padding: 0.7rem 1.3rem;
           cursor: pointer;
         }
         .loz-error-retry:hover {
-          background: var(--gold-hi, #efd79a);
-          border-color: var(--gold-hi, #efd79a);
+          background: rgba(255,255,255,.11);
+          border-color: var(--gold, #c6a15b);
         }
         .loz-error-home {
           font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
@@ -125,7 +134,7 @@ export default function ErrorBoundary({
           font-size: var(--t-data, 0.72rem);
           line-height: var(--t-data-lh, 1.45);
           letter-spacing: var(--t-data-tracking, 0.08em);
-          color: var(--data-blue-dim, #3e7fa8);
+          color: var(--ink-lo, #88837b);
         }
         .loz-error a:focus-visible,
         .loz-error button:focus-visible {

@@ -28,7 +28,7 @@ export function EditorialShell({
   children,
 }: EditorialShellProps) {
   return (
-    <main className={className} data-reading-scroll>
+    <main className={className} data-reading-scroll data-public-shell>
       <a href="#page-content" className={skipLinkClassName}>
         Skip to content
       </a>
@@ -39,7 +39,7 @@ export function EditorialShell({
         />
       ) : null}
       <ScanBackdrop routeId={routeId} seed={backdropSeed} register={register} />
-      <SiteHeader activeSection={resolveSiteSectionId(routeId)} />
+      <SiteHeader activeSection={routeId === "information-war" ? routeId : resolveSiteSectionId(routeId)} />
       {children}
     </main>
   );

@@ -8,7 +8,7 @@
  */
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { usePerfTier } from './hooks/usePerfTier';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { useInteractionDriver } from './hooks/useInteraction';
@@ -51,6 +51,8 @@ export interface NavClientProps {
   introOnly?: boolean;
   /** Keeps the host content out of the accessibility tree while the intro owns the screen. */
   onIntroBlockingChange?: (blocked: boolean) => void;
+  /** Minimal DOM chrome that belongs above the cinematic canvas during the entrance only. */
+  introOverlay?: ReactNode;
 }
 
 const subscribeToHydration = () => () => {};
@@ -104,6 +106,7 @@ export function NavClient({
   intro = false,
   introOnly = false,
   onIntroBlockingChange,
+  introOverlay,
 }: NavClientProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -438,6 +441,11 @@ export function NavClient({
             introControlsRef={introControlsRef}
             onIntroComplete={completeIntro}
           />
+        </div>
+      ) : null}
+      {introRunning && introOverlay ? (
+        <div className={styles.introOverlay} aria-hidden="true">
+          {introOverlay}
         </div>
       ) : null}
       {introRunning ? (

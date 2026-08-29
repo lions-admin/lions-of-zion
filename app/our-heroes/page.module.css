@@ -28,7 +28,7 @@
   position: absolute;
   width: 0.9rem;
   height: 0.9rem;
-  border: 1px solid rgba(201, 162, 75, 0.55);
+  border: 1px solid rgba(99, 179, 237, 0.55);
   pointer-events: none;
 }
 
@@ -91,7 +91,7 @@
   width: 2.75rem;
   height: 1px;
   margin: 0.9rem 0 1.1rem;
-  background: linear-gradient(90deg, rgba(201, 162, 75, 0.85), rgba(201, 162, 75, 0.1));
+  background: linear-gradient(90deg, rgba(99, 179, 237, 0.85), rgba(99, 179, 237, 0.1));
 }
 
 .citationClassify {
@@ -105,7 +105,7 @@
 /* One word — "Fallen", "Rescuer", "Fighter" — so uppercase is in bounds. */
 .citationRole {
   padding: 0.3rem 0.65rem;
-  border: 1px solid rgba(201, 162, 75, 0.45);
+  border: 1px solid rgba(99, 179, 237, 0.45);
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);

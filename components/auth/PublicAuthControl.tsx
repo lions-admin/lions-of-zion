@@ -20,9 +20,14 @@ export function PublicAuthControl() {
   async function signIn() {
     setPending(true);
     setMessage(null);
-    const result = await auth.signIn.social({ provider: "google", callbackURL: "/account" });
-    if (result.error) {
-      setMessage(result.error.message || "ההתחברות נכשלה. נסה שוב.");
+    try {
+      const result = await auth.signIn.social({ provider: "google", callbackURL: "/account" });
+      if (result.error) {
+        setMessage(result.error.message || "ההתחברות נכשלה. נסה שוב.");
+        setPending(false);
+      }
+    } catch (error) {
+      setMessage(error instanceof Error && error.message ? error.message : "ההתחברות נכשלה. נסה שוב.");
       setPending(false);
     }
   }

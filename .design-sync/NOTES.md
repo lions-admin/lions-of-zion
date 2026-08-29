@@ -135,10 +135,8 @@ that is no longer the cause — look at the design's own stylesheet.
 
 ## Guidelines
 
-`cfg.guidelinesGlob` is pinned to `[".ai/DESIGN-V2.md"]`. The converter default
-(`docs/*.md`) sweeps this repo's **engineering** reference — `api.md`,
-`data-model.md`, `operations.md` — which is not design guidance and would
-mislead the design agent.
+No project design-guideline document is configured. The converter must not
+infer design direction from the repository's engineering documentation.
 
 ## Prop contracts are hand-written (`dtsPropsFor`) — and must stay maintained
 

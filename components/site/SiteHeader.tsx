@@ -1,123 +1,197 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { BRAND_LOGO_DATA_URL } from "@/app/brand-logo";
-import {
-  SITE_NAVIGATION,
-  getSiteNavigationItem,
-  type SiteSectionId,
-} from "@/lib/site-navigation";
+import { useEffect, useId, useRef, useState } from "react";
+import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import styles from "./site-header.module.css";
 
+type NavigationItem = {
+  label: string;
+  href: string;
+  live?: boolean;
+  description?: string;
+};
+
+const PRIMARY_NAVIGATION: readonly NavigationItem[] = [
+  { label: "Today", href: "/geopolitical-brief" },
+  { label: "Investigations", href: "/information-war" },
+  { label: "October 7", href: "/october-7" },
+  { label: "Israel Explained", href: "/israels-story" },
+];
+
+const RESOURCE_NAVIGATION: readonly NavigationItem[] = [
+  { label: "Methodology", href: "/methodology", description: "How evidence is sourced and assessed." },
+  { label: "Corrections", href: "/corrections", description: "A public record of amendments." },
+  { label: "Account", href: "/account", description: "Saved work and access." },
+];
+
+const EXPLORE_NAVIGATION: readonly NavigationItem[] = SITE_NAVIGATION.map((item) => ({
+  label: item.displayName,
+  href: item.href,
+  description: item.description,
+}));
+
 interface SiteHeaderProps {
-  activeSection?: SiteSectionId;
+  activeSection?: string;
+}
+
+function isCurrent(activeSection: string | undefined, href: string) {
+  if (!activeSection) return false;
+  const section = href.slice(1);
+  return activeSection === section || activeSection.startsWith(`${section}/`);
 }
 
 export function SiteHeader({ activeSection }: SiteHeaderProps) {
-  const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const firstLinkRef = useRef<HTMLAnchorElement>(null);
-  const activeItem = activeSection ? getSiteNavigationItem(activeSection) : undefined;
-  const activeIndex = activeItem
-    ? SITE_NAVIGATION.findIndex((item) => item.id === activeItem.id)
-    : -1;
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const mobilePanelId = useId();
+  const explorePanelId = useId();
+  const headerRef = useRef<HTMLElement>(null);
+  const exploreRef = useRef<HTMLDivElement>(null);
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null);
+  const exploreTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (mobileOpen) {
+        setMobileOpen(false);
+        mobileTriggerRef.current?.focus();
+      } else if (exploreOpen) {
+        setExploreOpen(false);
+        exploreTriggerRef.current?.focus();
+      }
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (headerRef.current?.contains(event.target as Node)) return;
+      setMobileOpen(false);
+      setExploreOpen(false);
+    };
 
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [exploreOpen, mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    firstLinkRef.current?.focus();
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setOpen(false);
-      triggerRef.current?.focus();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [mobileOpen]);
+
+  const closePanels = () => {
+    setMobileOpen(false);
+    setExploreOpen(false);
+  };
+
+  const renderLink = (item: NavigationItem, mobile = false) => (
+    <Link
+      className={mobile ? styles.mobileLink : styles.navLink}
+      href={item.href}
+      key={`${mobile ? "mobile" : "desktop"}-${item.label}`}
+      aria-current={isCurrent(activeSection, item.href) ? "page" : undefined}
+      onClick={closePanels}
+    >
+      {item.live ? <span className={styles.liveDot} aria-hidden="true" /> : null}
+      {item.label}
+    </Link>
+  );
 
   return (
-    <header className={styles.header} data-menu-open={open || undefined}>
-      <div className={styles.rail}>
-        <Link href="/" className={styles.brand} aria-label="Lions of Zion home">
-          <Image
-            src={BRAND_LOGO_DATA_URL}
-            alt="Lions of Zion"
-            width={382}
-            height={136}
-            unoptimized
-            priority
-          />
-        </Link>
+    <header ref={headerRef} className={styles.header}>
+      <nav className={styles.bar} aria-label="Primary navigation">
+        <div className={styles.desktopNavigation}>
+          <div className={styles.primaryLinks}>
+            {PRIMARY_NAVIGATION.map((item) => renderLink(item))}
+          </div>
+          <span className={styles.divider} aria-hidden="true" />
+          <div
+            ref={exploreRef}
+            className={styles.exploreRoot}
+            onPointerEnter={() => setExploreOpen(true)}
+            onPointerLeave={() => setExploreOpen(false)}
+            onFocusCapture={() => setExploreOpen(true)}
+            onBlurCapture={(event) => {
+              if (!exploreRef.current?.contains(event.relatedTarget as Node | null)) setExploreOpen(false);
+            }}
+          >
+            <button
+              ref={exploreTriggerRef}
+              type="button"
+              className={`${styles.navLink} ${styles.exploreTrigger}`}
+              aria-expanded={exploreOpen}
+              aria-controls={explorePanelId}
+              onClick={() => setExploreOpen(true)}
+            >
+              Explore
+              <span className={styles.menuIndicator} aria-hidden="true" />
+            </button>
 
-        <div className={styles.currentFile} aria-label="Current section">
-          <span>
-            {activeIndex >= 0
-              ? `FILE ${String(activeIndex + 1).padStart(2, "0")} / ${String(SITE_NAVIGATION.length).padStart(2, "0")}`
-              : "PUBLIC RECORD"}
-          </span>
-          <strong>{activeItem?.displayName ?? "Reading desk"}</strong>
+            {exploreOpen ? (
+              <div className={styles.explorePanel} id={explorePanelId}>
+                <div className={styles.exploreHeading}>
+                  <span className={styles.panelEyebrow}>Explore the system</span>
+                  <span className={styles.panelIndex}>01—08</span>
+                </div>
+                <div className={styles.exploreColumns}>
+                  <div className={styles.sectionIndex}>
+                    {EXPLORE_NAVIGATION.map((item, index) => (
+                      <Link className={styles.indexLink} href={item.href} key={item.href} onClick={closePanels}>
+                        <span className={styles.indexNumber}>{String(index + 1).padStart(2, "0")}</span>
+                        <span className={styles.indexCopy}>
+                          <strong>{item.label}</strong>
+                          <small>{item.description}</small>
+                        </span>
+                        <span className={styles.indexArrow} aria-hidden="true">↗</span>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className={styles.resourceColumn}>
+                    <span className={styles.panelEyebrow}>Resources</span>
+                    {RESOURCE_NAVIGATION.map((item) => (
+                      <Link className={styles.resourceLink} href={item.href} key={item.href} onClick={closePanels}>
+                        <span>{item.label}</span>
+                        <small>{item.description}</small>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+          <Link className={`${styles.navLink} ${styles.accountLink}`} href="/account" onClick={closePanels}>
+            Account
+          </Link>
         </div>
 
         <button
-          ref={triggerRef}
+          ref={mobileTriggerRef}
           type="button"
-          className={styles.indexButton}
-          aria-label={open ? "Close public file index" : "Open public file index"}
-          aria-expanded={open}
-          aria-controls="site-file-index"
-          onClick={() => setOpen((value) => !value)}
+          className={styles.mobileTrigger}
+          aria-expanded={mobileOpen}
+          aria-controls={mobilePanelId}
+          onClick={() => setMobileOpen((open) => !open)}
         >
-          <span className={styles.indexCopy}>
-            <small>THE PUBLIC FILES</small>
-            <strong>{open ? "Close index" : "Open index"}</strong>
-          </span>
-          <span className={styles.indexGlyph} aria-hidden="true">
-            <i />
-            <i />
-          </span>
+          <span>Menu</span>
+          <span className={styles.menuIndicator} aria-hidden="true" />
         </button>
-      </div>
 
-      {open ? (
-        <div className={styles.drawer} id="site-file-index">
-          <div className={styles.drawerIntro}>
-            <p>PUBLIC INDEX / 08 FILES</p>
-            <h2>Move through the record.</h2>
-            <span>Evidence, context, memory, and response—organized by purpose.</span>
+        {mobileOpen ? (
+          <div className={styles.mobilePanel} id={mobilePanelId}>
+            <span className={styles.mobileLabel}>Sections</span>
+            {EXPLORE_NAVIGATION.map((item) => renderLink(item, true))}
+            <span className={styles.mobileLabel}>Resources</span>
+            <Link className={styles.mobileLink} href="/information-war" onClick={closePanels}>Investigations</Link>
+            {RESOURCE_NAVIGATION.map((item) => renderLink(item, true))}
           </div>
-          <nav className={styles.fileGrid} aria-label="Public site sections">
-            {SITE_NAVIGATION.map((item, index) => (
-              <Link
-                ref={index === 0 ? firstLinkRef : undefined}
-                href={item.href}
-                key={item.id}
-                className={styles.fileLink}
-                aria-current={item.id === activeSection ? "page" : undefined}
-                onClick={() => setOpen(false)}
-              >
-                <span className={styles.fileNumber}>{String(index + 1).padStart(2, "0")}</span>
-                {/* These are tiny monochrome source emblems; optimization adds no value. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.emblem} alt="" width="30" height="30" />
-                <span className={styles.fileText}>
-                  <strong>{item.displayName}</strong>
-                  <small>{item.description}</small>
-                </span>
-                <span className={styles.fileArrow} aria-hidden="true">↗</span>
-              </Link>
-            ))}
-          </nav>
-        </div>
-      ) : null}
+        ) : null}
+      </nav>
     </header>
   );
 }

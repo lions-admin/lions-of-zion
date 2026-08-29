@@ -1,11 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Geist_Mono, IBM_Plex_Sans, Newsreader, Ramsina } from "next/font/google";
+import {
+  Cinzel,
+  DM_Sans,
+  Geist,
+  Geist_Mono,
+  IBM_Plex_Sans,
+  JetBrains_Mono,
+  Newsreader,
+  Ramsina,
+  Space_Grotesk,
+} from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
+  display: "swap",
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
   display: "swap",
 });
 
@@ -39,6 +61,18 @@ const ramsina = Ramsina({
   display: "swap",
 });
 
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: "LIONS OF ZION", template: "%s — LIONS OF ZION" },
@@ -65,7 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable} ${ramsina.variable}`}
+      className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable} ${ramsina.variable} ${jetBrainsMono.variable} ${dmSans.variable}`}
     >
       <body>{children}</body>
     </html>

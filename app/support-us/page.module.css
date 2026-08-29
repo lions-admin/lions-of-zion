@@ -20,7 +20,7 @@
 .module {
   min-width: 0;
   padding: 1.6rem 1.5rem 1.75rem;
-  border: 1px solid rgba(201, 162, 75, 0.3);
+  border: 1px solid rgba(99, 179, 237, 0.3);
   border-radius: 2px;
   background: linear-gradient(165deg, rgba(25, 25, 25, 0.55), rgba(0, 0, 0, 0.92) 55%);
 }
@@ -31,7 +31,7 @@
   gap: 0.5rem;
   margin-bottom: 1.1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(201, 162, 75, 0.2);
+  border-bottom: 1px solid rgba(99, 179, 237, 0.2);
 }
 
 /* "Module · Report" — a two-word tool marker, so uppercase is in bounds. */

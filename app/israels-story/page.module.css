@@ -103,8 +103,8 @@
   line-height: 1;
   letter-spacing: 0.02em;
   color: transparent;
-  -webkit-text-stroke: 1.5px rgba(201, 162, 75, 0.85);
-  text-stroke: 1.5px rgba(201, 162, 75, 0.85);
+  -webkit-text-stroke: 1.5px var(--gold-line);
+  text-stroke: 1.5px var(--gold-line);
 }
 
 /* "Chapter II of VII" — three words, so sentence case in the data voice. */
@@ -114,7 +114,7 @@
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   letter-spacing: 0.04em;
-  color: var(--ink-lo);
+  color: var(--gold);
 }
 
 .chapterTitle {
@@ -128,23 +128,11 @@
 }
 
 .chapterIntro {
-  max-width: 40rem;
+  max-width: 42rem;
   margin: 0 0 2.25rem;
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-size: clamp(1.08rem, 1.8vw, 1.22rem);
+  line-height: 1.72;
   color: var(--ink);
-}
-
-/* A real drop cap — the opening word of a chapter, not decoration bolted
-   onto every paragraph on the page (only `.chapterIntro` gets one). */
-.chapterIntro::first-letter {
-  float: left;
-  padding: 0.05em 0.1em 0 0;
-  font-family: var(--face-display);
-  font-size: 3.6em;
-  line-height: 0.78;
-  font-weight: 600;
-  color: var(--gold-hi);
 }
 
 /* Applied only to the one chapter whose intro states a live historical
@@ -157,10 +145,6 @@
   border-left: 2px solid var(--data-ember);
   background: rgba(168, 90, 97, 0.08);
   color: var(--ink);
-}
-
-.chapterIntroFlagged::first-letter {
-  color: var(--data-ember-peak);
 }
 
 @media (max-width: 640px) {

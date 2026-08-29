@@ -47,7 +47,7 @@
 
 .examples > li {
   padding-left: 1rem;
-  border-left: 1px solid var(--loz-gold-line, rgba(201, 162, 75, 0.24));
+  border-left: 1px solid var(--loz-gold-line, rgba(99, 179, 237, 0.24));
 }
 
 .examples > li + li {
@@ -82,7 +82,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  color: var(--loz-gold, #c9a24b);
+  color: var(--loz-gold, #63b3ed);
   content: '\2713';
   font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
   font-size: var(--t-data, 0.72rem);

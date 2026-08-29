@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PublicAuthControl } from "@/components/auth/PublicAuthControl";
-import styles from "../admin/admin.module.css";
+import { SiteHeader } from "@/components/site/SiteHeader";
+import styles from "./account.module.css";
 
 export const metadata: Metadata = {
   title: "Account",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function AccountPage() {
   return (
     <main className={styles.shell} data-reading-scroll>
+      <SiteHeader />
       <section className={styles.card}>
         <p className={styles.eyebrow}>Lions of Zion</p>
         <h1>אזור משתמשים</h1>

@@ -40,13 +40,13 @@
      aliased either, because `--ink: var(--ink, …)` on the same element is a
      custom-property cycle and computes to guaranteed-invalid. They simply
      inherit from `:root`, which `app/layout.tsx` loads on every route. */
-  /* The literal is true black because the ground is: #070b14, the navy this
+  /* The literal is true black because the ground is: #06051d, the navy this
      used to fall back to, was retired by owner decision on 2026-08-26. */
   --ground: var(--loz-ground, #000000);
-  --gold: var(--loz-gold, #c9a24b);
-  --gold-hi: var(--loz-gold-bright, #efd79a);
-  --blue: var(--loz-blue, #57a7d9);
-  --blue-peak: var(--loz-blue-peak, #9adfff);
+  --gold: var(--loz-gold, #c6a15b);
+  --gold-hi: var(--loz-gold-bright, #ead39b);
+  --blue: var(--loz-blue, #d1cdc4);
+  --blue-peak: var(--loz-blue-peak, #f6f3eb);
   --ember: var(--loz-ember, #a85a61);
   --ember-peak: var(--loz-ember-peak, #d08d94);
   /* Neutral, tracking `--line` in app/globals.css: the hairline blue
@@ -55,7 +55,7 @@
      is a plain literal rather than an aliased fallback, so it has to be kept
      in step by hand; if the two ever disagree, globals wins. */
   --line: rgba(175, 175, 175, 0.14);
-  --gold-line: rgba(201, 162, 75, 0.24);
+  --gold-line: rgba(198, 161, 91, 0.24);
   --ember-line: rgba(168, 90, 97, 0.32);
   /* Was #0d1523. Missed by c7e92b2, which converted `rgba()` literals only —
      so every raised panel in the shared library stayed navy on a black
@@ -65,6 +65,8 @@
   --display: var(--face-display, Charter, Georgia, serif);
   --text: var(--face-text, -apple-system, BlinkMacSystemFont, sans-serif);
   --mono: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
+  --content-data-tracking: var(--brief-content-data-letter-spacing, var(--t-data-tracking, 0.08em));
+  --content-label-transform: var(--brief-content-label-transform, uppercase);
 }
 
 /* ── The three canonical treatments ─────────────────────────────────────── */
@@ -76,8 +78,8 @@
   font-family: var(--mono);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  text-transform: uppercase;
+  letter-spacing: var(--content-data-tracking);
+  text-transform: var(--content-label-transform);
 }
 
 .dateStamp {
@@ -86,7 +88,7 @@
   font-family: var(--mono);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--content-data-tracking);
 }
 
 .entryTitle {
@@ -142,8 +144,8 @@
    is lifted to stay legible against the ground at --t-data. */
 .badge[data-assessment='verified'] {
   --badge-color: #e8c979;
-  --badge-dot: rgba(201, 162, 75, 0.45);
-  --badge-glow: rgba(201, 162, 75, 0.55);
+  --badge-dot: rgba(198, 161, 91, 0.45);
+  --badge-glow: rgba(198, 161, 91, 0.38);
 }
 
 .badge[data-assessment='verified'] i {
@@ -269,7 +271,7 @@
   text-decoration: underline;
   /* Gold, matching the `:hover` colour below — a link underlined in the data
      ramp reads as a classification it does not carry. */
-  text-decoration-color: rgba(201, 162, 75, 0.55);
+  text-decoration-color: rgba(198, 161, 91, 0.55);
   text-underline-offset: 4px;
 }
 
@@ -295,7 +297,7 @@
   font-family: var(--mono);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--content-data-tracking);
 }
 
 .archiveLink {
@@ -303,7 +305,7 @@
   font-family: var(--mono);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--content-data-tracking);
 }
 
 /* ── PublicationMeta ────────────────────────────────────────────────────── */
@@ -329,8 +331,8 @@
   font-family: var(--mono);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  text-transform: uppercase;
+  letter-spacing: var(--content-data-tracking);
+  text-transform: var(--content-label-transform);
 }
 
 .publicationMeta dd {
@@ -401,8 +403,8 @@
   font-family: var(--mono);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  text-transform: uppercase;
+  letter-spacing: var(--content-data-tracking);
+  text-transform: var(--content-label-transform);
 }
 
 .corrections ol {
@@ -427,13 +429,13 @@
   font-family: var(--mono);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--content-data-tracking);
 }
 
 .correctionStamp small {
   color: var(--ink-lo);
   font-size: var(--t-data, 0.72rem);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--content-data-tracking);
 }
 
 .corrections p {
@@ -516,9 +518,9 @@
 }
 
 .timeline[data-variant='history'] {
-  --rail: rgba(201, 162, 75, 0.3);
+  --rail: rgba(198, 161, 91, 0.3);
   --dot: var(--gold);
-  --dot-glow: rgba(201, 162, 75, 0.45);
+  --dot-glow: rgba(198, 161, 91, 0.38);
 }
 
 .timeline[data-variant='spread'] {
@@ -579,15 +581,15 @@
   color: var(--ink-lo);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--content-data-tracking);
 }
 
 .timelineTag {
   color: var(--ink-lo);
   font-size: var(--t-data, 0.72rem);
   line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  text-transform: uppercase;
+  letter-spacing: var(--content-data-tracking);
+  text-transform: var(--content-label-transform);
 }
 
 .timeline[data-variant='spread'] .timelineTag {
@@ -910,7 +912,7 @@
 
 .recordPanel {
   border-left: 2px solid var(--gold);
-  background: linear-gradient(90deg, rgba(201, 162, 75, 0.055), transparent 68%);
+  background: linear-gradient(90deg, rgba(198, 161, 91, 0.065), transparent 68%);
 }
 
 /* These labels are phrases ("What the record shows"), so they are set as
@@ -1014,7 +1016,7 @@
 .sensitiveButton:hover,
 .sensitiveButton:focus-visible {
   border-color: var(--gold);
-  background: rgba(201, 162, 75, 0.08);
+  background: rgba(198, 161, 91, 0.09);
 }
 
 .sensitiveButton:focus-visible {
@@ -1297,6 +1299,40 @@
   font-size: 0.92em;
   overflow-wrap: anywhere;
 }
+
+/* Hallmark material pass — data semantics stay intact while every reading
+   object now belongs to the black-glass public system. */
+.kicker, .dateStamp, .sourceNumber, .sourceKind, .publicationMeta dt,
+.correctionsKicker, .correctionStamp, .timelineMeta, .cardEyebrow,
+.techniqueChipsLabel, .roster thead th {
+  color: var(--gold);
+  font-family: var(--font-mono);
+}
+
+.entryTitle, .unknownGrid h3, .timelineEntry h3, .card h3,
+.claimRecord h3, .figures dd {
+  color: var(--ink-hi);
+  font-family: var(--font-mono);
+  font-weight: 520;
+  letter-spacing: -.025em;
+}
+
+.sourceList, .unknownGrid, .corrections, .figures, .timeline,
+.card, .claimPanel, .recordPanel, .sensitive, .rosterScroll, .networkFigure {
+  border-color: rgba(246, 243, 235, .15);
+  border-radius: .9rem;
+  background:
+    linear-gradient(180deg, rgba(125, 121, 113, .14), rgba(8, 8, 8, .54));
+  box-shadow: inset 0 1px rgba(255,255,255,.085), 0 1rem 2.8rem rgba(0,0,0,.2);
+  -webkit-backdrop-filter: blur(10px) saturate(.72);
+  backdrop-filter: blur(10px) saturate(.72);
+}
+
+.sourceList > li, .publicationMeta > div, .figures > div + div,
+.timelineEntry, .roster th, .roster td { border-color: rgba(246,243,235,.1); }
+.sourceBody a, .archiveLink, .card h3 a, .timelineSources a { color: var(--gold-hi); }
+.badge, .gradeChip, .identityChip, .techniqueChip { border-radius: 999px; font-family: var(--font-mono); }
+.sensitiveButton { min-height: 44px; border-radius: .7rem; background: rgba(113,56,47,.54); color: #fff1ee; font-family: var(--font-mono); }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 

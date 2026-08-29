@@ -369,14 +369,6 @@ static index set it that way as identity; **reading surfaces use
 - The skip control and all section-page type are DOM text rather than
   particles — the documented exception to the all-particles rule
   (see `.ai/DECISIONS.md`).
-- **Type and colour on every reading surface come from the V2 tokens in
-  `app/globals.css`** — three faces (Newsreader display, IBM Plex Sans text,
-  Geist Mono data), seven size steps, six colours. Read `.ai/DESIGN-V2.md`
-  before touching reading-page CSS. Hard rules: nothing below `--t-data`
-  (0.72rem); uppercase+tracking only for data labels of two words or fewer;
-  sentence case everywhere else. **Cinzel belongs to the home particle scene
-  only** — it is not a heading face, and reintroducing it to a reading page
-  reverses a documented decision.
 
 ## Backend architecture
 

@@ -23,7 +23,7 @@
   left: 0.45rem;
   width: 2px;
   overflow: hidden;
-  background: rgba(201, 162, 75, 0.22);
+  background: rgba(99, 179, 237, 0.22);
 }
 
 .pipelineTrack::after {
@@ -34,7 +34,7 @@
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(201, 162, 75, 0.85),
+    rgba(99, 179, 237, 0.85),
     transparent
   );
   animation: pipelineFlow 5s linear infinite;
@@ -76,7 +76,7 @@
   border: 1.5px solid var(--gold);
   border-radius: 50%;
   background: var(--ground);
-  box-shadow: 0 0 10px rgba(201, 162, 75, 0.45);
+  box-shadow: 0 0 10px rgba(99, 179, 237, 0.45);
 }
 
 .pipelineStage[data-gate] .pipelineNode {
@@ -86,7 +86,7 @@
   border-color: var(--gold-hi);
   background: var(--gold);
   transform: rotate(45deg);
-  box-shadow: 0 0 14px rgba(201, 162, 75, 0.65);
+  box-shadow: 0 0 14px rgba(99, 179, 237, 0.65);
 }
 
 .pipelineContent {

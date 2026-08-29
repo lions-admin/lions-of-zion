@@ -15,6 +15,7 @@
 
 # local visual-verification output
 /screenshots
+/.screenshots
 
 # next.js
 /.next/

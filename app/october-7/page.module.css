@@ -12,8 +12,8 @@
 .inscription {
   margin: 2.25rem 0 2.5rem;
   padding: 2.25rem 0;
-  border-top: 1px solid rgba(201, 162, 75, 0.32);
-  border-bottom: 1px solid rgba(201, 162, 75, 0.32);
+  border-top: 1px solid rgba(99, 179, 237, 0.32);
+  border-bottom: 1px solid rgba(99, 179, 237, 0.32);
 }
 
 .inscription > dl {
@@ -123,7 +123,7 @@
 .archiveEntry:focus-visible {
   border-color: var(--gold-line);
   border-left-color: var(--gold);
-  background: rgba(201, 162, 75, 0.07);
+  background: rgba(99, 179, 237, 0.07);
 }
 
 .archiveEntryHead {

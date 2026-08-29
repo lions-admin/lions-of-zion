@@ -156,7 +156,7 @@
 }
 
 .filterChip:hover {
-  border-color: rgba(201, 162, 75, 0.55);
+  border-color: rgba(99, 179, 237, 0.55);
   color: var(--ink);
 }
 
@@ -179,7 +179,7 @@
 
 .latest {
   padding: 0.1rem 0.45rem;
-  border: 1px solid rgba(201, 162, 75, 0.55);
+  border: 1px solid rgba(99, 179, 237, 0.55);
   border-radius: 1px;
   color: var(--gold-hi);
   letter-spacing: var(--t-data-tracking);

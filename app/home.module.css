@@ -1,0 +1,254 @@
+/* Hallmark · macrostructure: Signal Lockup · tone: cinematic editorial · anchor hue: muted gold
+ * genre: atmospheric · theme: Midnight · pre-emit critique: P5 H5 E5 S5 R5 V5
+ * contrast: pass (46–50) · responsive: pass (36, 59, 61–69)
+ */
+.page {
+  --home-clear: oklch(0% 0 0 / 0);
+  --home-black: oklch(0% 0 0);
+  --home-white: oklch(95% 0.008 78);
+  --home-muted: oklch(68% 0.012 78 / 0.44);
+  --home-gold: oklch(73% 0.11 78);
+  --home-gold-muted: oklch(68% 0.08 78);
+  --home-mask: oklch(0% 0 0 / 0.74);
+  --home-scanline: oklch(88% 0.008 78 / 0.025);
+  --home-brand-shadow: oklch(0% 0 0 / 0.96);
+  --home-cta-top: oklch(82% 0.006 78 / 0.27);
+  --home-cta-middle: oklch(38% 0.006 78 / 0.23);
+  --home-cta-bottom: oklch(12% 0.004 78 / 0.4);
+  --home-cta-hover-top: oklch(88% 0.008 78 / 0.34);
+  --home-cta-hover-bottom: oklch(15% 0.006 78 / 0.48);
+  --home-inner-edge: oklch(100% 0 0 / 0.38);
+  --home-lower-edge: oklch(0% 0 0 / 0.34);
+  --home-cta-shadow: oklch(0% 0 0 / 0.42);
+  --home-edge: oklch(86% 0.012 78 / 0.18);
+  --home-edge-strong: oklch(90% 0.012 78 / 0.34);
+  --home-focus: oklch(82% 0.09 78);
+  --state-error: oklch(68% 0.18 25);
+  --state-success: oklch(72% 0.12 150);
+  --font-interface: var(--font-geist), sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--home-black);
+  color: var(--home-white);
+  font-family: var(--font-mono);
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 40rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--home-black);
+}
+
+.fallbackField,
+.matrixCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fallbackField {
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 50% 46%, var(--home-mask) 0 22%, var(--home-clear) 54%),
+    repeating-linear-gradient(0deg, var(--home-clear) 0 10px, var(--home-scanline) 10px 11px);
+}
+
+.matrixCanvas {
+  z-index: 1;
+  display: block;
+}
+
+.brandCenter {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  z-index: 10;
+  width: min(48rem, calc(100vw - 2rem));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  text-align: center;
+}
+
+.brandMark {
+  position: relative;
+  width: clamp(18rem, 29vw, 24rem);
+  aspect-ratio: 1226 / 1283;
+  flex: 0 0 auto;
+  opacity: 0.94;
+  filter:
+    grayscale(0.08)
+    contrast(1.12)
+    drop-shadow(0 1.5rem 2.8rem var(--home-brand-shadow));
+  mask-image: radial-gradient(ellipse 76% 82% at 50% 42%, black 0 58%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 76% 82% at 50% 42%, black 0 58%, transparent 100%);
+}
+
+.brandMark img { object-fit: contain; }
+
+.wordmark {
+  position: relative;
+  z-index: 2;
+  max-width: 100%;
+  min-width: 0;
+  margin: -1.35rem 0 0;
+  color: var(--home-white);
+  font-family: var(--font-mono);
+  font-size: clamp(2.25rem, 4.6vw, 3.5rem);
+  font-weight: 480;
+  letter-spacing: 0.25em;
+  line-height: 1.04;
+  text-transform: uppercase;
+  text-shadow: 0 0.2rem 1.2rem var(--home-brand-shadow);
+  overflow-wrap: anywhere;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.signalMarker {
+  width: 0.28rem;
+  height: 0.28rem;
+  margin-top: 1.15rem;
+  border-radius: 50%;
+  background: var(--home-gold);
+}
+
+.heroCta {
+  min-width: min(19rem, calc(100vw - 2rem));
+  min-height: 3.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.15rem;
+  padding-inline: 2rem;
+  border: 1px solid var(--home-edge);
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    180deg,
+    var(--home-cta-top) 0%,
+    var(--home-cta-middle) 46%,
+    var(--home-cta-bottom) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 var(--home-inner-edge),
+    inset 0 -1px 0 var(--home-lower-edge),
+    0 0.85rem 2rem var(--home-cta-shadow);
+  -webkit-backdrop-filter: blur(8px) saturate(0.88);
+  backdrop-filter: blur(8px) saturate(0.88);
+  color: var(--home-white);
+  font-family: var(--font-interface);
+  font-size: 1.12rem;
+  font-weight: 580;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  pointer-events: auto;
+  transition: border-color 140ms var(--ease-out), background-color 140ms var(--ease-out), opacity 140ms var(--ease-out);
+}
+
+.heroCta:hover {
+  border-color: var(--home-edge-strong);
+  background: linear-gradient(180deg, var(--home-cta-hover-top), var(--home-cta-hover-bottom));
+}
+
+.heroCta:active { opacity: 0.64; }
+.heroCta[aria-disabled="true"] { cursor: not-allowed; opacity: 0.44; }
+.heroCta[data-state="loading"] { cursor: progress; opacity: 0.62; }
+.heroCta[data-state="error"] { border-color: var(--state-error); }
+.heroCta[data-state="success"] { border-color: var(--state-success); }
+
+.supportingLine {
+  margin: 0.85rem 0 0;
+  color: var(--home-gold);
+  font-family: var(--font-newsreader), serif;
+  font-size: clamp(0.98rem, 1.35vw, 1.1rem);
+  font-weight: 520;
+  letter-spacing: 0.012em;
+  line-height: 1.35;
+  text-shadow: 0 0.15rem 0.8rem var(--home-brand-shadow);
+}
+
+.engineStatus {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--home-muted);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
+.statusDot {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--home-gold-muted);
+  animation: statusPulse 2.8s var(--ease-out) infinite;
+}
+
+.page a:focus-visible {
+  outline: 2px solid var(--home-focus);
+  outline-offset: 3px;
+}
+
+@keyframes statusPulse { 50% { opacity: 0.28; } }
+
+@media (max-width: 64rem) {
+  .brandCenter { top: 48%; }
+  .brandMark { width: clamp(15.5rem, 38vw, 20rem); }
+  .wordmark { font-size: clamp(2rem, 5.5vw, 2.8rem); }
+}
+
+@media (max-width: 48rem) {
+  .hero { min-height: 40rem; }
+  .brandCenter {
+    top: 47%;
+    width: calc(100vw - 1.5rem);
+  }
+  .brandMark { width: clamp(13rem, 58vw, 17rem); }
+  .wordmark {
+    margin-top: -0.9rem;
+    font-size: clamp(1.65rem, 7.3vw, 2.15rem);
+    letter-spacing: 0.18em;
+  }
+  .signalMarker { margin-top: 1rem; }
+  .heroCta {
+    min-width: min(18rem, calc(100vw - 2rem));
+    min-height: 3.5rem;
+    margin-top: 1rem;
+    font-size: 1.02rem;
+  }
+  .engineStatus { display: none; }
+}
+
+@media (max-width: 23.5rem) {
+  .brandMark { width: 12.75rem; }
+  .wordmark {
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+  }
+  .heroCta { min-width: calc(100vw - 2rem); }
+  .supportingLine { font-size: 0.94rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusDot { animation: none; }
+  .heroCta { transition-duration: 0ms; }
+}

@@ -29,9 +29,7 @@
   "provider": {
     "component": "DesignSurface"
   },
-  "guidelinesGlob": [
-    ".ai/DESIGN-V2.md"
-  ],
+  "guidelinesGlob": [],
   "overrides": {
     "GeopoliticalBrief": {
       "cardMode": "single",
@@ -61,6 +59,5 @@
     "ReportClaimForm": "  /* No props. Posts to POST /api/v1/reports (public, rate limited 10/hour). */",
     "VolunteerInterestForm": "  /* No props. Composes a mailto: — there is no endpoint for volunteer intake. */",
     "ShareVerifiedButton": "  /* No props. Copies a canonical link to the current page. */"
-  },
-  "readmeHeader": ".design-sync/conventions.md"
+  }
 }

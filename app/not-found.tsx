@@ -7,11 +7,13 @@
  */
 import Link from 'next/link';
 import { SITE_NAVIGATION } from '@/lib/site-navigation';
+import { SiteHeader } from '@/components/site/SiteHeader';
 import styles from './not-found.module.css';
 
 export default function NotFound() {
   return (
     <main className={styles.page}>
+      <SiteHeader />
       <div className={styles.backdrop} aria-hidden="true" />
       <div className={styles.shell}>
         <header>

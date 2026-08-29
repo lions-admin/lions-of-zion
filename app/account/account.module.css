@@ -1,0 +1,61 @@
+/* Hallmark · account surface: one quiet glass object over the live field. */
+.shell {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 7rem 1.5rem 4rem;
+  color: var(--ink);
+  direction: rtl;
+  font-family: var(--font-sans);
+}
+
+.card {
+  position: relative;
+  width: min(100%, 34rem);
+  margin: 0 auto;
+  padding: clamp(1.6rem, 5vw, 3.2rem);
+  border: 1px solid var(--gold-line);
+  border-radius: 4px;
+  background: rgba(10, 10, 12, 0.85);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.card::before {
+  content: "";
+  display: block;
+  width: 2.5rem;
+  height: 2px;
+  margin-inline-start: 0;
+  margin-bottom: 1.5rem;
+  background: var(--gold);
+}
+
+.eyebrow {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card h1 {
+  margin-top: .75rem;
+  color: var(--ink-hi);
+  font: 560 clamp(2rem, 6vw, 2.85rem)/1.1 var(--font-sans);
+  letter-spacing: -.045em;
+}
+
+.lede {
+  max-width: 32ch;
+  margin-top: .8rem;
+  color: var(--ink);
+  font-size: 1.04rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 480px) {
+  .shell { padding-inline: 1rem; }
+  .card { padding: 1.4rem; }
+}

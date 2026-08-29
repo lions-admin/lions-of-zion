@@ -126,15 +126,17 @@ export default function Page() {
             </p>
             <div className={styles.paypalButton}>
               <PayPalDonateButton />
+              <noscript>
+                <a
+                  className={styles.donateLink}
+                  href="https://www.paypal.com/ncp/payment/PZPE4USUV3W7E"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Donate securely with PayPal →
+                </a>
+              </noscript>
             </div>
-            <a
-              className={styles.donateLink}
-              href="https://www.paypal.com/ncp/payment/PZPE4USUV3W7E"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Donate securely with PayPal
-            </a>
           </div>
         </div>
       </SectionBlock>

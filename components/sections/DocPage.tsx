@@ -163,12 +163,12 @@ export function DocPage({
           <Link href="/">Home</Link>
           <span aria-hidden="true">/</span>
           {breadcrumb?.map((crumb) => (
-            <span key={crumb.href}>
+            <span key={crumb.href} className={styles.trailSegment}>
               <Link href={crumb.href}>{crumb.label}</Link>
               <span aria-hidden="true">/</span>
             </span>
           ))}
-          <span>{routeId.replaceAll('-', ' ')}</span>
+          <span className={styles.trailCurrent}>{title}</span>
         </nav>
 
         {withToc ? (

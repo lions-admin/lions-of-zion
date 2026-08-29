@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { ContentCard } from "@/components/content";
 import { SITE_URL } from "@/lib/site-config";
@@ -51,22 +52,34 @@ const METHOD_STEPS = [
   },
 ];
 
-const FAQ = [
+const FAQ: { q: string; a: React.ReactNode }[] = [
   {
     q: "Does AI publish anything on its own here?",
     a: "No. Every published item passes a required, non-author human review — approving a publication is one of a small set of capabilities the system will not let an automated identity hold, at any point.",
   },
   {
     q: "What happens when something published turns out to be wrong?",
-    a: "It's corrected in place and marked as corrected, not deleted. The full policy and the public log are on the Corrections page.",
+    a: (
+      <>
+        It&apos;s corrected in place and marked as corrected, not deleted. The full policy and the public log are on the <Link href="/corrections">Corrections page</Link>.
+      </>
+    ),
   },
   {
     q: "Who funds this?",
-    a: "Funding sources aren't public yet. See Support Us for how sustaining channels will be published as they open.",
+    a: (
+      <>
+        Funding sources aren&apos;t public yet. See <Link href="/support-us">Support Us</Link> for how sustaining channels will be published as they open.
+      </>
+    ),
   },
   {
     q: "Can I help?",
-    a: "Yes — Support Us has a working way to report a claim for review, and skill areas the network is looking for.",
+    a: (
+      <>
+        Yes — <Link href="/support-us">Support Us</Link> has a working way to report a claim for review, and skill areas the network is looking for.
+      </>
+    ),
   },
 ];
 
@@ -149,12 +162,12 @@ export default function Page() {
       <SectionBlock heading="Principles">
         <p>
           Independence: no sponsor gets a say in what gets published or how
-          it’s assessed. Funding: not yet public — see Support Us for what
-          exists today. Privacy: a report can be submitted with no name
-          attached, and stays that way unless the reporter chooses
-          otherwise. Conflicts of interest: a reviewer does not approve
-          their own work — that rule is enforced by the system, not just
-          asked for.
+          it&apos;s assessed. Funding: not yet public — see{" "}
+          <Link href="/support-us">Support Us</Link> for what exists today.
+          Privacy: a report can be submitted with no name attached, and stays
+          that way unless the reporter chooses otherwise. Conflicts of
+          interest: a reviewer does not approve their own work — that rule is
+          enforced by the system, not just asked for.
         </p>
       </SectionBlock>
 

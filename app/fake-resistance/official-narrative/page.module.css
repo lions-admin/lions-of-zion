@@ -142,7 +142,7 @@
 .caseLog li {
   position: relative;
   padding-left: 1.35rem;
-  border-left: 1px solid rgba(201, 162, 75, 0.3);
+  border-left: 1px solid rgba(99, 179, 237, 0.3);
 }
 
 .caseLog li:last-child {

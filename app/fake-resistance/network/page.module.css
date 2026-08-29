@@ -20,7 +20,7 @@
 
 .community {
   padding: 1.1rem 1.2rem;
-  background: var(--loz-ground, #070b14);
+  background: var(--loz-ground, #06051d);
 }
 
 .community h3 {
@@ -50,7 +50,7 @@
 
 .communityBinding > span {
   display: block;
-  color: var(--loz-gold, #c9a24b);
+  color: var(--loz-gold, #63b3ed);
   font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
   font-size: var(--t-data, 0.72rem);
   letter-spacing: var(--t-data-tracking, 0.08em);
@@ -100,7 +100,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  color: var(--loz-gold, #c9a24b);
+  color: var(--loz-gold, #63b3ed);
   content: counter(finding, decimal-leading-zero);
   font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
   font-size: var(--t-data, 0.72rem);

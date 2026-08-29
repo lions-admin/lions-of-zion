@@ -53,7 +53,7 @@
      called "too faint to read, too present to ignore". Overridden, not
      recomputed, at ≥1220px. */
   --content-w: var(--reading-w);
-  --accent: var(--data-blue);
+  --accent: var(--gold);
 
   /* Where an anchored heading comes to rest. Published here so the shell, the
      Timeline and the pages that hand-roll their own entries all offset by one
@@ -199,7 +199,7 @@
 }
 
 .rowVerified {
-  color: var(--data-blue-dim);
+  color: #77736c;
   animation: driftRight var(--dur) linear infinite;
   animation-delay: var(--delay);
 }
@@ -211,7 +211,7 @@
 }
 
 /* the brighter of the seeded pair inside each stream */
-.rowLoud.rowVerified { color: var(--data-blue); }
+.rowLoud.rowVerified { color: var(--ink); }
 .rowLoud.rowHostile { color: var(--data-ember); }
 
 @keyframes driftRight {
@@ -290,6 +290,20 @@
 .documentTrail a:focus-visible {
   color: var(--gold-hi);
   text-decoration: underline;
+}
+
+.trailSegment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.trailCurrent {
+  color: var(--ink-hi);
+  max-width: 42ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ---- identity band -------------------------------------------------------
@@ -604,7 +618,7 @@
   max-height: calc(100dvh - 4rem);
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(201, 162, 75, 0.28) transparent;
+  scrollbar-color: rgba(198, 161, 91, 0.28) transparent;
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
@@ -671,7 +685,7 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, var(--accent), var(--gold-hi));
-  box-shadow: 0 0 10px rgba(87, 167, 217, 0.5);
+  box-shadow: 0 0 10px rgba(198, 161, 91, 0.28);
   transform-origin: left;
   /* Resting state is empty, not full. The client effect applies scaleX via
      requestAnimationFrame, so without this the first painted frame — and the
@@ -824,4 +838,120 @@
   .topProgressValue {
     transition: none;
   }
+}
+
+/* Hallmark public shell: preserve the dossier anatomy and give it the same
+   black-glass material, warm type and restrained signal gold as the home. */
+.page {
+  padding-top: 4.8rem;
+  background: transparent;
+  font-family: var(--font-sans);
+}
+
+.shell {
+  position: relative;
+  z-index: 2;
+  padding-top: clamp(2.4rem, 6vh, 5rem);
+}
+
+.panel {
+  padding: clamp(1.35rem, 3.2vw, 2.65rem);
+  border: 1px solid var(--glass-edge);
+  border-radius: clamp(1rem, 2vw, 1.45rem);
+  background:
+    linear-gradient(180deg, var(--glass-top), var(--glass-middle) 18rem, var(--glass-bottom));
+  box-shadow:
+    inset 0 1px 0 var(--glass-inner),
+    0 1.5rem 5rem var(--glass-shadow);
+  -webkit-backdrop-filter: blur(15px) saturate(.72);
+  backdrop-filter: blur(15px) saturate(.72);
+}
+
+.panel::before {
+  content: "";
+  display: block;
+  width: 2.6rem;
+  height: 2px;
+  margin-bottom: var(--sp-5);
+  background: var(--gold);
+  box-shadow: 0 0 .9rem rgba(198, 161, 91, .24);
+}
+
+.title,
+.titleLong {
+  color: var(--ink-hi);
+  font-family: var(--font-mono);
+  font-weight: 520;
+  letter-spacing: -.04em;
+  overflow-wrap: anywhere;
+  text-shadow: 0 .15rem 1.2rem #000;
+}
+
+.lede {
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.ledeRule { background: linear-gradient(90deg, var(--gold), transparent); }
+
+.documentTrail,
+.documentTrail a {
+  color: var(--gold);
+  font-family: var(--font-mono);
+}
+
+.identityBand {
+  padding-inline: clamp(.8rem, 2vw, 1.25rem);
+  border: 1px solid rgba(246, 243, 235, .14);
+  border-radius: .85rem;
+  background: linear-gradient(180deg, rgba(120,117,111,.14), rgba(8,8,8,.48));
+  box-shadow: inset 0 1px rgba(255,255,255,.1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.block { border-top-color: rgba(246, 243, 235, .12); }
+
+.blockHeading h2 {
+  color: var(--ink-hi);
+  font-family: var(--font-mono);
+  font-size: var(--t-h2);
+  font-weight: 520;
+  letter-spacing: -.025em;
+}
+
+.sideRailInner,
+.tocRailInner {
+  padding: 1rem;
+  border: 1px solid rgba(246, 243, 235, .15);
+  border-radius: .9rem;
+  background: linear-gradient(180deg, rgba(120,117,111,.12), rgba(6,6,6,.58));
+  box-shadow: inset 0 1px rgba(255,255,255,.09);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.sideRailInner :is(h2, h3, h4),
+.tocRailInner :is(h2, h3, h4) {
+  color: var(--ink-hi);
+  font-family: var(--font-mono);
+  font-weight: 520;
+}
+
+.topProgressTrack { background: rgba(246, 243, 235, .1); }
+.topProgressValue { background: var(--gold); }
+
+.skipLink {
+  border-color: var(--gold);
+  border-radius: .65rem;
+  background: rgba(5,5,5,.9);
+  color: var(--ink-hi);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 719px) {
+  .page { padding-top: 4rem; }
+  .shell { padding-inline: .85rem; }
+  .panel { padding: 1.2rem; }
 }

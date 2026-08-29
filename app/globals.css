@@ -1,3 +1,4 @@
+/* Hallmark · system: public intelligence interface · genre: atmospheric editorial */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 /*
@@ -16,9 +17,11 @@
      strictly for data — dates, counts, routes, status values. Newsreader
      remains the serif fallback. Cinzel is deliberately absent: it belongs to
      the home particle scene now, not to reading. */
-  --face-display: var(--font-ramsina), var(--font-newsreader), Charter, Georgia, 'Times New Roman', serif;
-  --face-text: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  --face-data: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-sans: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --face-display: var(--font-mono);
+  --face-text: var(--font-sans);
+  --face-data: var(--font-mono);
 
   /* ── Type scale — seven steps, no exceptions ────────────────────────────
      Each step ships its own line-height and weight so a consumer sets one
@@ -82,7 +85,7 @@
      Gold is brand and unchanged. The neutrals are a real scale: three inks,
      each with a job, replacing twelve drifting grays.
 
-     The ground was #070b14 — rgb(7,11,20), a navy whose blue channel is
+     The ground was #06051d — rgb(7,11,20), a navy whose blue channel is
      nearly three times its red, which is why the site read blue rather than
      black. It is now true black, by owner decision on 2026-08-26. Every
      ink/ground pair gets *more* contrast from this, never less, so no
@@ -107,29 +110,65 @@
      Gold and the `--data-*` ramps below are hue-bearing and stay exactly as
      they are — the point is that blue means something here again. */
   --ground: #000000;
-  --ink-hi: #eeeeee;
-  --ink: #c4c4c4;
-  --ink-lo: #929292;
-  --gold: #c9a24b;
-  --gold-hi: #efd79a;
+  --ink-hi: #f6f3eb;
+  --ink: #cbc7bd;
+  --ink-lo: #88837b;
+  --gold: #c6a15b;
+  --gold-hi: #ead39b;
 
   /* Semantic data ramps. These carry meaning — verified/hostile streams,
      assessment badges, the scan's two directions — and are never used to
      express text hierarchy. */
-  --data-blue: #57a7d9;
-  --data-blue-dim: #3e7fa8;
-  --data-blue-peak: #9adfff;
-  --data-ember: #a85a61;
-  --data-ember-dim: #7a4048;
-  --data-ember-peak: #d08d94;
+  --data-blue: #d1cdc4;
+  --data-blue-dim: #716d66;
+  --data-blue-peak: #f6f3eb;
+  --data-ember: #c97365;
+  --data-ember-dim: #71382f;
+  --data-ember-peak: #e8a397;
 
   /* Hairlines, in the two weights the site actually uses. The neutral one was
      rgb(153,179,202) — b−r of +49, the strongest tint in the file, on every
      rule and panel edge on the site. Luminance-matched to 175 grey by the
      same formula as the inks; the alpha is unchanged, so a hairline lands
      where it always did. */
-  --line: rgba(175, 175, 175, 0.14);
-  --gold-line: rgba(201, 162, 75, 0.24);
+  --line: rgba(246, 243, 235, 0.13);
+  --gold-line: rgba(198, 161, 91, 0.25);
+
+  /* Shared glass used by navigation, reading surfaces, controls and overlays. */
+  --glass-top: rgba(150, 147, 140, 0.22);
+  --glass-middle: rgba(45, 44, 42, 0.29);
+  --glass-bottom: rgba(8, 8, 8, 0.64);
+  --glass-raised-top: rgba(115, 112, 105, 0.28);
+  --glass-raised-bottom: rgba(4, 4, 4, 0.88);
+  --glass-edge: rgba(246, 243, 235, 0.28);
+  --glass-inner: rgba(255, 255, 255, 0.25);
+  --glass-shadow: rgba(0, 0, 0, 0.58);
+
+  /* Compatibility tokens for the public component library. */
+  --color-black: #000000;
+  --color-cosmic-void: #000000;
+  --color-abyssal-blue: #080808;
+  --color-steel-navy: #111111;
+  --color-deep-slate: #1c1b19;
+  --color-mist: #cbc7bd;
+  --color-fog: #e4e0d7;
+  --color-white: #f6f3eb;
+  --color-ice: #f6f3eb;
+  --color-blue: #c6a15b;
+  --color-green: #00bc7d;
+  --color-amber: #f0b100;
+  --color-red: #ff2056;
+  --color-border-soft: rgba(255, 255, 255, 0.08);
+  --text-caption: 0.875rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-6: 3rem;
+  --space-8: 4rem;
+  --radius-card: 8px;
+  --radius-pill: 9999px;
+  --shadow-pill: 0 4px 12px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.2);
 
   /*
    * The scan's own ground — the site's background, in one place.
@@ -153,8 +192,8 @@
    * as a blue spotlight rather than as depth.
    */
   --scan-ground:
-    radial-gradient(120% 85% at 50% 30%, rgba(87, 167, 217, 0.045), transparent 70%),
-    repeating-linear-gradient(0deg, rgba(214, 226, 240, 0.038) 0 1px, transparent 1px 9px);
+    radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
+    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
 
   /* ── Compatibility aliases ──────────────────────────────────────────────
      One consumer, not the four this comment used to name: `grep -rn
@@ -230,6 +269,7 @@ html, body {
   background-color: var(--ground);
   background-image: var(--scan-ground);
   background-attachment: fixed;
+  overflow-x: clip;
 }
 
 /*
@@ -255,7 +295,7 @@ html, body {
  * and a half above the viewport, so the band rendered flat.
  */
 html:has([data-home-scroll]) {
-  overflow-x: hidden;
+  overflow-x: clip;
   overflow-y: visible;
 }
 
@@ -332,6 +372,8 @@ body {
 canvas { display: block; }
 button, canvas { -webkit-tap-highlight-color: transparent; }
 
+[data-public-shell] { padding-top: 52px; }
+
 /* A minimal, restrained scroll affordance — not the browser default, but
    not hidden either. Firefox/desktop-Safari read scrollbar-width/-color on
    the individual scroll containers (sections.module.css, brief module). */
@@ -343,9 +385,9 @@ button, canvas { -webkit-tap-highlight-color: transparent; }
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(201, 162, 75, 0.3);
+  background-color: rgba(99, 179, 237, 0.3);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(201, 162, 75, 0.5);
+  background-color: rgba(99, 179, 237, 0.5);
 }

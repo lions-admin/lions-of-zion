@@ -73,7 +73,7 @@ export default async function ArticlePage({ params }: Props) {
           {article.updatedAt !== article.publishedAt ? " · Updated " + formatDate(article.updatedAt) : ""}
         </p>
         <div className={styles.body}>
-          {article.body.split(/\\n{2,}/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+          {article.body.split(/\r?\n\r?\n+/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
         <section className={styles.sources}>
           <h2>Public sources</h2>

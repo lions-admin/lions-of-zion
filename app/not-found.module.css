@@ -1,129 +1,122 @@
 /*
- * 404 — a route the scan does not index.
+ * 404 — a route the scan does not index. Design V3.
  *
- * Same palette locks as the section pages: gold #63b3ed on the ground is never
- * dimmed for atmosphere; focus ring 2px #ebf8ff at 3px offset. The page owns
- * its own scroll (html/body are overflow: hidden for the canvas experience).
+ * Two glass panels on the scan ground: the notice, then the index of files
+ * that do exist. The headline is the display face at the display step; the
+ * one gold on the page is the short rule under the standfirst. The ground
+ * and its texture come from `body` (`--scan-ground` in globals.css), so this
+ * page paints no backdrop of its own. The focus ring is the global one.
  */
 
 .page {
-  /* Local aliases only — the values come from the V2 tokens in
-     app/globals.css (`.ai/DESIGN-V2.md`). This page kept its own palette
-     through the redesign because it isn't one of the ten routes; the
-     result was a 404 still speaking the old dialect. */
-  --gold-bright: var(--gold-hi);
-  --blue: var(--data-blue);
-  --blue-dim: var(--data-blue-dim);
-  --mono: var(--face-data);
-  --display: var(--face-display);
-
   /* The document scrolls — converted 2026-08-27 with the four other reading
      containers; see the lock in `app/globals.css`. */
   min-height: 100dvh;
-  /* Ground and texture come from `body` — see `--scan-ground` in globals.css. */
   color: var(--ink);
   font-family: var(--face-text);
   padding-top: 4.8rem;
-}
-
-/* faint trace grid, echoing the scan without mounting a renderer */
-.backdrop {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(120% 85% at 50% 30%, rgba(246, 243, 235, 0.045), transparent 70%),
-    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.026) 0 1px, transparent 1px 9px);
 }
 
 .shell {
   position: relative;
   max-width: 46rem;
   margin: 0 auto;
-  padding: clamp(3rem, 9vh, 6.5rem) clamp(1.25rem, 4vw, 3rem) 6rem;
+  padding: clamp(var(--sp-7), 9vh, var(--sp-9)) clamp(var(--sp-4), 4vw, var(--sp-7)) var(--sp-9);
 }
 
 .shell > header,
 .index {
-  padding: clamp(1.25rem, 4vw, 2.25rem);
+  padding: clamp(var(--sp-5), 4vw, var(--sp-6));
   border: 1px solid var(--glass-edge);
-  border-radius: 1.15rem;
+  border-radius: var(--radius-3);
   background: linear-gradient(180deg, var(--glass-top), var(--glass-middle), var(--glass-bottom));
-  box-shadow: inset 0 1px var(--glass-inner), 0 1.5rem 4rem var(--glass-shadow);
-  -webkit-backdrop-filter: blur(15px) saturate(.72);
-  backdrop-filter: blur(15px) saturate(.72);
+  box-shadow: inset 0 1px 0 var(--glass-inner), var(--shadow-3);
+  -webkit-backdrop-filter: blur(15px) saturate(0.72);
+  backdrop-filter: blur(15px) saturate(0.72);
 }
 
+/* "404 · Signal lost" is a status line: mono, with the data tracking. */
 .code {
-  font-family: var(--mono);
+  font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
-     never expresses text hierarchy — see `app/globals.css`. */
   color: var(--ink-lo);
 }
 
-/* "This file is not in the index" is a sentence, so it is set as one. */
 .title {
-  margin-top: 1rem;
-  font-family: var(--font-mono);
-  font-weight: 400;
+  margin-top: var(--sp-3);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
   line-height: var(--t-display-lh);
-  color: var(--color-white);
+  letter-spacing: var(--t-display-tracking);
+  color: var(--ink-hi);
 }
 
 .lede {
-  margin-top: 1.1rem;
+  margin-top: var(--sp-4);
   max-width: 34rem;
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  color: var(--ink);
 }
 
 .rule {
-  margin-top: 1.8rem;
+  margin-top: var(--sp-5);
   height: 1px;
   width: 8.5rem;
   background: linear-gradient(90deg, var(--gold), transparent);
 }
 
 .back {
-  display: inline-block;
-  margin-top: 1.6rem;
-  font-family: var(--mono);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-decoration: none;
-  color: var(--gold-bright);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: var(--sp-3);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 500;
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out), text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
 .back:hover {
-  color: var(--gold);
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold-line-strong);
 }
 
 /* ---- the index of files that do exist ---- */
 
 .index {
-  margin-top: clamp(2.5rem, 6vh, 4rem);
+  margin-top: clamp(var(--sp-6), 6vh, var(--sp-8));
 }
 
-/* "Open files · monitoring active" is four words — a status line, not a
-   two-word data label — so it keeps the mono voice and loses the capitals. */
+/* "Open files · monitoring active" is a status readout, so it keeps the
+   data face — but it is four words, so it keeps its case. */
 .indexHeading {
-  font-family: var(--mono);
+  font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
-  /* Was --blue-dim (aliased to --data-blue-dim at :16): below AA at 0.72rem,
-     and the blue ramp is reserved for semantics, not text hierarchy. */
   color: var(--ink);
 }
 
 .list {
-  margin-top: 1.1rem;
+  margin-top: var(--sp-4);
   list-style: none;
   display: grid;
-  gap: 0.4rem;
+  gap: var(--sp-2);
 }
 
 .entry {
@@ -132,39 +125,43 @@
   grid-template-areas:
     'index label'
     'index description';
-  column-gap: 1.1rem;
-  row-gap: 0.25rem;
-  padding: 0.85rem 0.9rem;
+  column-gap: var(--sp-4);
+  row-gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-4);
   border: 1px solid transparent;
-  border-radius: .8rem;
-  background: rgba(255, 255, 255, 0.045);
+  border-radius: var(--radius-2);
+  background: color-mix(in oklab, var(--ink-hi) 4%, transparent);
   text-decoration: none;
   color: inherit;
-  transition: border-color 180ms ease, background-color 180ms ease;
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
 
 .entry:hover {
-  border-color: rgba(198, 161, 91, 0.38);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--gold-line-strong);
+  background: color-mix(in oklab, var(--ink-hi) 8%, transparent);
 }
 
 .entryIndex {
   grid-area: index;
-  font-family: var(--mono);
+  font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
-  /* Same defect and same fix as `home.module.css`'s `.entryIndex`. */
+  font-variant-numeric: tabular-nums;
   color: var(--ink);
-  padding-top: 0.2rem;
+  padding-top: 0.35rem;
 }
 
 .entryLabel {
   grid-area: label;
-  font-family: var(--font-mono);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
-  color: var(--color-white);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
 }
 
 .entryDescription {
@@ -172,6 +169,7 @@
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   color: var(--ink-lo);
+  text-wrap: pretty;
 }
 
 @media (max-width: 480px) {
@@ -182,16 +180,15 @@
       'label'
       'description';
   }
-}
 
-/* lock: focus ring 2px #ebf8ff at 3px offset */
-.page a:focus-visible {
-  outline: 2px solid var(--gold-bright);
-  outline-offset: 3px;
+  .entryIndex {
+    padding-top: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .entry {
+  .entry,
+  .back {
     transition: none;
   }
 }

@@ -110,7 +110,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
 
     if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:")) {
       return (
-        <a ref={ref} href={href} className={combinedClassName} {...props}>
+        <a ref={ref} href={href} className={combinedClassName} aria-disabled={isLoading || undefined} {...props}>
           {leftIcon ? <span className={styles.icon}>{leftIcon}</span> : null}
           <span className={styles.content}>{children}</span>
           {rightIcon ? <span className={styles.icon}>{rightIcon}</span> : null}
@@ -119,7 +119,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     }
 
     return (
-      <Link ref={ref} href={href} className={combinedClassName} {...props}>
+      <Link ref={ref} href={href} className={combinedClassName} aria-disabled={isLoading || undefined} {...props}>
         {leftIcon ? <span className={styles.icon}>{leftIcon}</span> : null}
         <span className={styles.content}>{children}</span>
         {rightIcon ? <span className={styles.icon}>{rightIcon}</span> : null}

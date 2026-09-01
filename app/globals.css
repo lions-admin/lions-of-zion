@@ -120,6 +120,7 @@
   --data-ember: #c97365;
   --data-ember-dim: #71382f;
   --data-ember-peak: #e8a397;
+  --data-ember-wash: rgba(201, 115, 101, 0.08);
 
   /* State colours, desaturated to sit on the warm palette. Each ships a text
      tone, a wash and a line so a badge, a form error and a status dot agree. */

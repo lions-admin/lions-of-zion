@@ -8,8 +8,10 @@
    of running into the next one. Each host therefore keeps its claim and its
    sources as *sibling* elements.
 
-   Type and colour come from the V2 tokens in app/globals.css
-   (`.ai/DESIGN-V2.md`). */
+   Values answer to the V3 tokens in app/globals.css. The research's grades
+   (confidence, identity status, evidence class) render through the content
+   library as plain text labels, never badge-shaped, and nothing here dresses
+   them up. */
 
 /* The section's own framing of the file, in its own voice. It opens the page,
    so it is set at reading weight rather than as a note. */
@@ -23,9 +25,11 @@
    rule rather than the ember one: this is the site restraining itself, not
    the hostile-data stream. */
 .guard {
-  margin-top: 1.25rem;
-  padding: 0.9rem 1.1rem;
+  margin-top: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
   border-left: 2px solid var(--gold);
+  background: var(--gold-wash);
+  border-radius: 0 var(--radius-2) var(--radius-2) 0;
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -33,16 +37,18 @@
 
 .guard > span {
   display: block;
-  margin-bottom: 0.35rem;
+  margin-bottom: var(--sp-2);
   color: var(--gold);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .withheld {
-  margin-top: 1.25rem;
+  margin-top: var(--sp-5);
   color: var(--ink-lo);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -51,17 +57,19 @@
 /* The hypothesis the research declared before it had an answer. Set quieter
    than the findings it precedes — it is context for them, not one of them. */
 .framing {
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--sp-5);
   color: var(--ink-lo);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
 
+/* The researchers' overall confidence statement, on the ember stream. */
 .confidence {
-  margin-bottom: 1.5rem;
-  padding: 0.8rem 1rem;
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
   border-left: 2px solid var(--data-ember);
-  background: rgba(168, 90, 97, 0.07);
+  border-radius: 0 var(--radius-2) var(--radius-2) 0;
+  background: color-mix(in oklab, var(--data-ember) 8%, transparent);
   color: var(--ink-hi);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -89,12 +97,12 @@
 }
 
 .bottomLine > li + li {
-  margin-top: 1.3rem;
+  margin-top: var(--sp-5);
 }
 
 .pointMain {
   position: relative;
-  padding-left: 2.4rem;
+  padding-left: var(--sp-7);
   min-width: 0;
 }
 
@@ -106,8 +114,10 @@
   content: counter(point, decimal-leading-zero);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   line-height: var(--t-body-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 .pointMain > p {
@@ -124,12 +134,12 @@
 /* ── Graded findings ───────────────────────────────────────────────────── */
 
 .exhibits > li {
-  padding-top: 1.4rem;
+  padding-top: var(--sp-5);
   border-top: 1px solid var(--gold-line);
 }
 
 .exhibits > li + li {
-  margin-top: 1.4rem;
+  margin-top: var(--sp-5);
 }
 
 .exhibitMain {
@@ -140,15 +150,18 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.9rem;
-  margin-bottom: 0.7rem;
+  gap: var(--sp-2) var(--sp-4);
+  margin-bottom: var(--sp-3);
 }
 
+/* A date is data: mono, sentence case, tabular. */
 .exhibitHead time {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 .exhibitStatement {
@@ -185,23 +198,26 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 1px;
-  margin-top: 1.5rem;
-  background: var(--line);
+  margin-top: var(--sp-5);
   border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--line);
+  overflow: hidden;
 }
 
 .narrative {
-  padding: 1.1rem 1.2rem;
-  background: var(--ground);
+  padding: var(--sp-5);
+  background: var(--surface-1);
 }
 
 .narrative h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--sp-2);
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
 }
 
 .narrative p {
@@ -211,18 +227,23 @@
   line-height: var(--t-small-lh);
 }
 
-.narrativeFrame,
-.narrativeAudience {
-  margin-top: 0.7rem !important;
-  color: var(--ink-lo) !important;
+/* Scoped under `.narrative` so these outrank `.narrative p` on specificity
+   rather than on `!important`. */
+.narrative .narrativeFrame,
+.narrative .narrativeAudience {
+  margin-top: var(--sp-3);
+  color: var(--ink-lo);
 }
 
 .narrativeFrame > span,
 .narrativeAudience > span {
   display: block;
+  margin-bottom: var(--sp-1);
   color: var(--data-ember-peak);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
@@ -231,7 +252,7 @@
 
 .edges > li,
 .contradictions > li {
-  padding: 0.9rem 0;
+  padding: var(--sp-4) 0;
   border-top: 1px solid var(--line);
   color: var(--ink);
   font-size: var(--t-small);
@@ -239,22 +260,23 @@
 }
 
 .edges > li > p {
-  margin: 0.4rem 0 0;
+  margin: var(--sp-2) 0 0;
 }
 
 .edgeHead {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.9rem;
+  gap: var(--sp-2) var(--sp-4);
 }
 
 .edgePair {
   color: var(--ink-hi);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.04em;
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
+  overflow-wrap: anywhere;
 }
 
 .edgePair > span {

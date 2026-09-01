@@ -4,12 +4,11 @@
  * naming the place actually stated in that entry's sourced text (never
  * inferred), then the headline, then the report.
  *
- * Type and colour come from the V2 tokens in app/globals.css
- * (`.ai/DESIGN-V2.md`); the shared treatments come from the content library.
- * This file only shapes the composition. It previously read `--mono`,
- * `--display` and `--body` from the old shell, which Phase 2 removed — those
- * were resolving to nothing, so the headline was rendering in the body face
- * and the dateline at 10.6px.
+ * Values answer to the V3 tokens in app/globals.css; the shared treatments
+ * (entry title, margin note) come from the content library. This file only
+ * shapes the composition. The filter chips and the share control are the
+ * site `Button` (`variant="filter"` / `variant="ghost"`), so nothing here
+ * restyles them.
  */
 
 /* The advisory is now the first thing in the body, standing where a "Trust"
@@ -17,8 +16,8 @@
    rather than as the page's opening paragraph — the dispatches are the
    opening paragraph. */
 .advisory {
-  margin: 0 0 1.75rem;
-  padding-bottom: 1.1rem;
+  margin: 0 0 var(--sp-6);
+  padding-bottom: var(--sp-5);
   border-bottom: 1px solid var(--gold-line);
   font-style: italic;
 }
@@ -26,7 +25,7 @@
 /* The one line of prose that outlives the feed, set with the metadata grid
    it sits under rather than with the dispatches. */
 .colophonNote {
-  margin-top: 1.25rem;
+  margin-top: var(--sp-5);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   color: var(--ink-lo);
@@ -36,15 +35,18 @@
   font-style: normal;
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   color: var(--gold);
 }
 
+/* One entrance for the feed as a whole — opacity and transform only, once,
+   so a filter change reads as the wire re-settling rather than as a reload. */
 .wire {
-  margin: 1.5rem 0 0;
+  margin: var(--sp-5) 0 0;
   padding: 0;
   list-style: none;
-  animation: wireRise 500ms ease both;
+  animation: wireRise var(--dur-slow) var(--ease-out) both;
 }
 
 @keyframes wireRise {
@@ -59,9 +61,9 @@
 }
 
 .dispatch {
-  padding: 1.35rem 0;
+  padding: var(--sp-5) 0;
   border-top: 1px solid var(--gold-line);
-  scroll-margin-top: 6rem;
+  scroll-margin-top: var(--sp-9);
 }
 
 .dispatch:first-child {
@@ -69,20 +71,30 @@
   border-top: none;
 }
 
-/* The dateline is the one place uppercase earns its keep on this page: it is
-   the wire convention, it is short, and it is data. At the tracking cap. */
+/* The byline row is data — mono at the data step, tabular. Uppercase is
+   spent only where the wire convention earns it and the label is two words
+   or fewer: the place and the timestamp, and the "Latest" mark. The category
+   chip can run to three words and the VerificationBadge inside this row is
+   set in sentence case by the content library on purpose, so neither
+   inherits a transform. */
 .byline {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0 0 0.75rem;
+  gap: var(--sp-2);
+  margin: 0 0 var(--sp-3);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.datelinePlace,
+.byline time {
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--ink-lo);
 }
 
 .datelinePlace {
@@ -90,17 +102,19 @@
   font-weight: 600;
 }
 
-/* Category is a semantic data chip */
+/* Category is a semantic data chip: sentence case, since it can be three
+   words ("Front · Home front"). */
 .category {
-  padding: 0.12rem 0.5rem;
+  padding: 0.12rem var(--sp-2);
   border: 1px solid var(--gold-line);
-  border-radius: 1px;
+  border-radius: var(--radius-1);
   color: var(--gold);
 }
 
+/* The headline is the library's entry title — display face, h3 step. */
 .headline {
   composes: entryTitle from '../../components/content/content.module.css';
-  margin: 0 0 0.6rem;
+  margin: 0 0 var(--sp-3);
 }
 
 .wireBody {
@@ -133,47 +147,20 @@
 .filterRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 1.25rem 0 0;
-}
-
-.filterChip {
-  min-height: 36px;
-  padding: 0.3rem 0.75rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 2px;
-  background: transparent;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
-  cursor: pointer;
-  transition: border-color 160ms ease, color 160ms ease;
-}
-
-.filterChip:hover {
-  border-color: var(--gold);
-  color: var(--ink);
-}
-
-.filterChip[data-active] {
-  border-color: var(--gold);
-  color: var(--gold-hi);
-}
-
-.filterChip:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 2px;
+  gap: var(--sp-2);
+  margin: var(--sp-5) 0 0;
 }
 
 .emptyFilter {
-  margin: 1.5rem 0 0;
+  margin: var(--sp-5) 0 0;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink-lo);
 }
 
+/* ── Published updates ────────────────────────────────────────────────────
+   Articles that came through the briefing pipeline: date, headline, summary.
+   The whole row is the link; hover moves ink only. */
 .publishedUpdates {
   margin: 0;
   padding: 0;
@@ -187,24 +174,30 @@
 
 .publishedUpdates a {
   display: grid;
-  gap: 0.45rem;
-  padding: 1rem 0;
+  gap: var(--sp-2);
+  padding: var(--sp-5) 0;
   color: var(--ink);
   text-decoration: none;
 }
 
 .publishedUpdates time {
-  color: var(--gold);
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 .publishedUpdates strong {
+  color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: var(--t-body);
-  line-height: 1.15;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .publishedUpdates span {
@@ -214,65 +207,60 @@
   line-height: var(--t-small-lh);
 }
 
-.publishedUpdates a:hover strong {
+.publishedUpdates a:hover strong,
+.publishedUpdates a:focus-visible strong {
   color: var(--gold-hi);
 }
 
 .publishedUpdates a:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 4px;
 }
 
 .latest {
   padding: 0.1rem 0.45rem;
   border: 1px solid var(--gold-line);
-  border-radius: 1px;
+  border-radius: var(--radius-1);
   color: var(--gold-hi);
   letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
 }
 
 .dispatchActions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
 }
 
-.permalink,
-.shareButton {
-  min-height: 36px;
+/* The permalink is a route, so it is data; the share control beside it is
+   the site Button and sets its own height. */
+.permalink {
   display: inline-flex;
   align-items: center;
+  min-height: 2.25rem;
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
   text-decoration: none;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .permalink:hover,
-.shareButton:hover {
+.permalink:focus-visible {
   color: var(--gold-hi);
 }
 
-.permalink:focus-visible,
-.shareButton:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 3px;
+@media (max-width: 768px) {
+  .permalink {
+    min-height: 2.75rem;
+  }
 }
 
 @media (max-width: 600px) {
   .dispatch {
-    padding: 1.1rem 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wire {
-    animation: none;
+    padding: var(--sp-5) 0;
   }
 }

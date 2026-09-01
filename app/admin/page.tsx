@@ -10,18 +10,14 @@ export default function AdminPage() {
   return (
     <main className={styles.shell} data-reading-scroll>
       <section className={styles.dashboard}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+        <div className={styles.dashboardHead}>
           <div>
             <p className={styles.eyebrow}>Lions of Zion / Operations</p>
             <h1>מצב המערכות</h1>
             <p className={styles.lede}>תצוגת מצב בסיסית לשירותי ההשקה ב־Vercel.</p>
           </div>
-          <Link
-            href="/pipeline"
-            className={styles.secondary}
-            style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", textDecoration: "none" }}
-          >
-            <span>⎋</span>
+          <Link href="/pipeline" className={`${styles.secondary} ${styles.pipelineLink}`}>
+            <span aria-hidden="true">⎋</span>
             <span>הדמיית צינור המערכת החיה (Pipeline Visualizer)</span>
           </Link>
         </div>

@@ -1,74 +1,260 @@
+/* A published article: one centred reading measure under the editorial
+   shell's progress bar. Headline at the display step in the display face,
+   standfirst at the lede step, a data-face meta row, and body prose on the
+   body step with the paragraph gap the whole site uses. Values answer to the
+   V3 tokens in app/globals.css. */
+
 .page {
   min-height: 100dvh;
   color: var(--ink);
 }
-.article { position: relative; width: min(48rem, calc(100% - 2.5rem)); margin: 0 auto; padding: clamp(2.5rem, 7vw, 5rem) 0 6rem; }
+
+.article {
+  position: relative;
+  width: min(48rem, calc(100% - 2.5rem));
+  margin: 0 auto;
+  padding: clamp(var(--sp-7), 7vw, var(--sp-8)) 0 var(--sp-9);
+}
+
+/* ── Shell chrome ─────────────────────────────────────────────────────── */
+
 .skipLink {
   position: fixed;
   z-index: 120;
-  top: 0.75rem;
-  left: 0.75rem;
-  padding: 0.65rem 0.9rem;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
   border: 1px solid var(--gold);
-  background: #000;
+  border-radius: var(--radius-2);
+  background: var(--ground);
   color: var(--gold-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  line-height: 1;
   text-decoration: none;
   transform: translateY(-180%);
 }
-.skipLink:focus { transform: translateY(0); }
-.progressTrack { position: fixed; z-index: 110; top: 0; right: 0; left: 0; height: 2px; }
-.progressValue { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-hi)); box-shadow: 0 0 10px rgba(198, 161, 91, 0.4); transform: scaleX(0); transform-origin: left; }
-.back { color: var(--gold-hi); text-decoration: none; }
-.topNav {
-  margin-bottom: 1.5rem;
-  margin-left: -0.75rem;
+
+.skipLink:focus {
+  transform: translateY(0);
 }
+
+.progressTrack {
+  position: fixed;
+  z-index: 110;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+}
+
+.progressValue {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+  box-shadow: 0 0 10px color-mix(in oklab, var(--gold) 40%, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.back {
+  color: var(--gold-hi);
+  text-decoration: none;
+}
+
+.topNav {
+  margin-bottom: var(--sp-5);
+  margin-left: calc(-1 * var(--sp-3));
+}
+
+/* ── Head ─────────────────────────────────────────────────────────────── */
+
 .kickerRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
-.kicker, .meta {
-  margin-top: 1.25rem;
+
+.kicker,
+.meta {
+  margin-top: var(--sp-5);
   color: var(--gold);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.08em;
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
-.meta { color: var(--ink-lo); line-height: 1.6; }
-.article h1, .article h2 { color: var(--ink-hi); font-family: var(--face-display); }
-.article h1 { margin: 0.55rem 0 1rem; font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: 0.98; }
-.summary { font-size: clamp(1.1rem, 2vw, 1.4rem); line-height: 1.6; }
-.body { margin-top: 3rem; font-size: clamp(1.05rem, 1.8vw, 1.22rem); line-height: 1.8; }
-.body p { margin: 0 0 1.45rem; }
-.passage { margin-bottom: 1.8rem; }
-.claimRef { color: var(--ink-lo); font: 500 var(--t-data)/1.45 var(--face-data); }
-.inlineSources { display: flex; flex-wrap: wrap; gap: .45rem 1rem; margin: -.7rem 0 0; padding: 0; list-style: none; font: 500 var(--t-data)/1.4 var(--face-data); }
-.inlineSources a { color: var(--gold); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.sources, .narratives, .related, .corrections { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
-.sources li, .narratives li, .related li { margin-bottom: 0.7rem; line-height: 1.5; }
-.sources a, .related a { color: var(--gold-hi); }
-.corrections ol { padding-left: 1.2rem; }
-.corrections li { display: grid; gap: .35rem; margin-bottom: 1rem; }
-.corrections time { color: var(--ink-lo); font: 500 var(--t-data)/1.4 var(--face-data); }
-.narrativeDetails { margin-top: 3rem; padding: 1.5rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.narrativeDetails dl { display: grid; gap: 1rem; margin: 1.25rem 0 0; }
-.narrativeDetails dt { color: var(--gold); font: 500 var(--t-data)/1.2 var(--face-data); letter-spacing: .08em; text-transform: uppercase; }
-.narrativeDetails dd { margin: .35rem 0 0; line-height: 1.6; }
-/* The unsourced-analysis disclosure. Marked by a rule and a slightly larger
-   measure rather than by a warning colour — this is a statement of what the
+
+/* The meta row is a sentence of dates, not a label: sentence case, tabular,
+   no tracking. */
+.meta {
+  color: var(--ink-lo);
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.article h1,
+.article h2 {
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+}
+
+.article h1 {
+  margin: var(--sp-2) 0 var(--sp-4);
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-tracking);
+}
+
+.article h2 {
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+.summary {
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  text-wrap: pretty;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────────── */
+
+.body {
+  margin-top: var(--sp-7);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+.body p {
+  margin: 0 0 var(--flow);
+}
+
+.passage {
+  margin-bottom: var(--sp-6);
+}
+
+.claimRef {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.inlineSources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  margin: calc(-1 * var(--sp-3)) 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.inlineSources a {
+  color: var(--gold);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* ── Apparatus ────────────────────────────────────────────────────────── */
+
+.sources,
+.narratives,
+.related,
+.corrections {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+}
+
+.sources li,
+.narratives li,
+.related li {
+  margin-bottom: var(--sp-3);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.sources a,
+.related a {
+  color: var(--gold-hi);
+}
+
+.corrections ol {
+  padding-left: var(--sp-5);
+}
+
+.corrections li {
+  display: grid;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-4);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.corrections time {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.narrativeDetails {
+  margin-top: var(--sp-7);
+  padding: var(--sp-5) 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.narrativeDetails dl {
+  display: grid;
+  gap: var(--sp-4);
+  margin: var(--sp-5) 0 0;
+}
+
+.narrativeDetails dt {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.narrativeDetails dd {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* The unsourced-analysis disclosure. Marked by a rule and the full body
+   step rather than by a warning colour — this is a statement of what the
    record is, not an alert about it. */
 .analysisNote {
   max-width: 62ch;
-  margin: 1.25rem 0 0;
-  padding-left: 1rem;
+  margin: var(--sp-5) 0 0;
+  padding-left: var(--sp-4);
   border-left: 2px solid var(--gold-line);
   color: var(--ink);
-  font-size: 1.02rem;
-  line-height: 1.7;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }

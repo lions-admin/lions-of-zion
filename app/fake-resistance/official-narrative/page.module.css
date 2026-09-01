@@ -11,19 +11,19 @@
    connecting rail earns its place there in a way a numbered badge would
    not have.
 
-   Type and colour come from the V2 tokens in app/globals.css
-   (`.ai/DESIGN-V2.md`); the kicker and title treatments are composed from
-   the content library rather than redeclared here. */
+   Values answer to the V3 tokens in app/globals.css; the kicker and title
+   treatments are composed from the content library rather than redeclared
+   here. */
 
 .caseFile {
   position: relative;
-  margin-top: 2.5rem;
-  padding-top: 2rem;
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-6);
   border-top: 1px solid var(--gold-line);
 }
 
 .caseFile:first-of-type {
-  margin-top: 1.75rem;
+  margin-top: var(--sp-6);
 }
 
 /* The exhibit's evidence. Above 1220px it leaves the column for the right
@@ -52,27 +52,27 @@
        as padding, not margin: `.marginNote` sets `margin-top` at the same
        specificity from another module, and chunk order would decide the
        winner — the trap `:where(.body)` exists for. */
-    padding-top: 2.75rem;
+    padding-top: var(--sp-7);
   }
 }
 
 /* The corner stamp — the one bold flourish on this page. Decorative only:
    VerificationBadge below carries the real accessible label, so this stays
    aria-hidden and never disagrees with it (STAMP_LABEL mirrors the badge's
-   own wording). Tracking is at the cap rather than the old 0.22em; the
-   border, rotation and weight already make it read as a stamp without
-   pulling the letters apart. */
+   own wording). Tracking is at the cap; the border, rotation and weight
+   already make it read as a stamp without pulling the letters apart. */
 .stamp {
   position: absolute;
-  top: 0.35rem;
+  top: var(--sp-1);
   right: 0;
-  padding: 0.3rem 0.85rem;
+  padding: var(--sp-1) var(--sp-3);
   border: 2px solid var(--stamp-color, var(--data-ember));
-  border-radius: 3px;
+  border-radius: var(--radius-2);
   transform: rotate(-6deg);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: 700;
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--stamp-color, var(--data-ember));
@@ -96,16 +96,19 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.9rem;
+  gap: var(--sp-2) var(--sp-4);
   max-width: calc(100% - 8rem);
 }
 
+/* "Exhibit A" — two words, data, in the hairline chip radius. */
 .exhibitTag {
-  padding: 0.15rem 0.5rem;
+  padding: 0.15rem var(--sp-2);
   border: 1px solid var(--gold-line);
-  border-radius: 2px;
+  border-radius: var(--radius-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--gold);
@@ -116,14 +119,15 @@
 .caseFileHeader time {
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
 
 .caseTitle {
   composes: entryTitle from '../../../components/content/content.module.css';
-  margin: 0.85rem 0 1.35rem;
+  margin: var(--sp-4) 0 var(--sp-5);
 }
 
 /* Origin → amplification, in that order: a two-entry custody log with a
@@ -133,15 +137,15 @@
 .caseLog {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
-  margin: 1.5rem 0 0;
+  gap: var(--sp-5);
+  margin: var(--sp-5) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .caseLog li {
   position: relative;
-  padding-left: 1.35rem;
+  padding-left: var(--sp-5);
   border-left: 1px solid var(--gold-line);
 }
 
@@ -164,7 +168,7 @@
 
 .caseLogLabel {
   composes: kicker from '../../../components/content/content.module.css';
-  margin-bottom: 0.35rem;
+  margin-bottom: var(--sp-2);
 }
 
 .caseLog p {
@@ -175,21 +179,21 @@
 }
 
 .caseFileTells {
-  margin: 1.5rem 0 0;
+  margin: var(--sp-5) 0 0;
 }
 
 .caseFileTellsLabel {
   composes: kicker from '../../../components/content/content.module.css';
-  margin-bottom: 0.6rem;
+  margin-bottom: var(--sp-3);
 }
 
 .caseFileTells ul {
   margin: 0;
-  padding-left: 1.1rem;
+  padding-left: var(--sp-5);
 }
 
 .caseFileTells li {
-  margin-bottom: 0.4rem;
+  margin-bottom: var(--sp-2);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink);
@@ -206,7 +210,7 @@
   .stamp {
     position: static;
     display: inline-block;
-    margin: 0 0 1rem;
+    margin: 0 0 var(--sp-4);
   }
 
   .caseFileHeader {

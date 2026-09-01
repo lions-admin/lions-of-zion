@@ -3,32 +3,33 @@
    and the corner-bracket frame — a citation, not a card — carry the weight
    instead.
 
-   Typeset on the V2 tokens (`.ai/DESIGN-V2.md`). The name is the point of
-   this page: it was tracked Cinzel capitals, which reads as an inscription
-   rather than a person. It is Newsreader in sentence case now, so a name
-   has word shapes and looks like it belongs to someone. */
+   Design V3 (`app/globals.css`). The name is the point of this page: it was
+   tracked Cinzel capitals, which reads as an inscription rather than a
+   person. It is Newsreader in sentence case, so a name has word shapes and
+   looks like it belongs to someone. Gold is spent once per citation, on the
+   short rule beneath the name; the frame, the role and the metadata are ink. */
 
 .citation {
   position: relative;
-  margin-top: 2rem;
-  padding: 2.25rem 2rem 2rem;
-  border: 1px solid var(--gold-line);
-  background: rgba(0, 0, 0, 0.4);
+  margin-top: var(--sp-6);
+  padding: var(--sp-6) var(--sp-6) var(--sp-5);
+  border: 1px solid var(--line);
+  background: var(--surface-1);
 }
 
 .citation:first-of-type {
-  margin-top: 1.5rem;
+  margin-top: var(--sp-5);
 }
 
-/* Corner brackets — the citation's one signature device, restrained to a
-   thin gold frame rather than any further ornament. */
+/* Corner brackets — the citation's one signature device, a thin frame in
+   the hairline ink rather than any further ornament. */
 .citation::before,
 .citation::after {
   content: '';
   position: absolute;
-  width: 0.9rem;
-  height: 0.9rem;
-  border: 1px solid var(--gold-line);
+  width: var(--sp-4);
+  height: var(--sp-4);
+  border: 1px solid var(--line-strong);
   pointer-events: none;
 }
 
@@ -47,14 +48,14 @@
 }
 
 .citationFeatured {
-  padding: 2.75rem 2.5rem 2.5rem;
-  background: rgba(0, 0, 0, 0.55);
+  padding: var(--sp-7) var(--sp-7) var(--sp-6);
+  background: var(--surface-2);
 }
 
 .citationFeatured::before,
 .citationFeatured::after {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: var(--sp-5);
+  height: var(--sp-5);
 }
 
 /* The citation's opening formula. Deliberately *not* composing the canonical
@@ -62,12 +63,14 @@
    of two words or fewer. This is a phrase with a date in it, so it stays in
    sentence case and just holds the data voice. */
 .citationKicker {
-  margin: 0 0 1.1rem;
+  margin: 0 0 var(--sp-4);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: 0.04em;
-  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
 }
 
 .citationName {
@@ -76,7 +79,7 @@
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
-  letter-spacing: 0;
+  letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
 }
 
@@ -85,40 +88,47 @@
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
 }
 
+/* The one gold in the card. */
 .citationRule {
-  width: 2.75rem;
+  width: var(--sp-7);
   height: 1px;
-  margin: 0.9rem 0 1.1rem;
-  background: linear-gradient(90deg, var(--gold), rgba(198, 161, 91, 0.1));
+  margin: var(--sp-3) 0 var(--sp-4);
+  background: var(--gold);
 }
 
 .citationClassify {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 1.4rem;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
 }
 
 /* One word — "Fallen", "Rescuer", "Fighter" — so uppercase is in bounds. */
 .citationRole {
-  padding: 0.3rem 0.65rem;
-  border: 1px solid var(--gold-line);
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--ink);
 }
 
+/* Dates and places: data face, figures as a column. */
 .citationMeta {
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
 
@@ -144,23 +154,23 @@
  * right card. Measured, not assumed.
  */
 .citationSources {
-  margin-top: 1.75rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--gold-line);
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line-soft);
 }
 
 /* One word, and the same label the rest of the site uses — take the
    canonical treatment rather than declaring a fifth variant of it. */
 .citationSourcesKicker {
   composes: kicker from '../../components/content/content.module.css';
-  margin-bottom: 0.7rem;
+  margin-bottom: var(--sp-3);
 }
 
 .citationGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
-  margin-top: 1.25rem;
+  gap: var(--sp-5);
+  margin-top: var(--sp-5);
 }
 
 .citationGrid .citation {
@@ -175,25 +185,28 @@
 
 @media (max-width: 600px) {
   .citation {
-    padding: 1.75rem 1.25rem 1.5rem;
+    padding: var(--sp-5) var(--sp-4);
   }
 
   .citationFeatured {
-    padding: 2rem 1.5rem 1.75rem;
+    padding: var(--sp-6) var(--sp-5) var(--sp-5);
   }
 }
 
 /* The consent boundary's standfirst. Deliberately local rather than
    `composes:`-ed from War Update's `.advisory`: the two say different things
    and should be free to diverge, and the 2026-08-25 composition decision
-   keeps per-page treatments in the page's own module. A gold data label, a
+   keeps per-page treatments in the page's own module. A data label, a
    left rule and the italic reading voice — enough to mark it as a limit on
    what the page claims, not enough to make it look like chrome a reader may
-   skip. */
+   skip. The label is this block's one gold. */
 .standfirst {
-  margin: 1.25rem 0 0;
-  padding: 0 0 0 1.1rem;
-  border-left: 2px solid var(--gold-line);
+  margin: var(--sp-5) 0 0;
+  padding: 0 0 0 var(--sp-4);
+  border-left: 2px solid var(--line-strong);
+  font-family: var(--face-display);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
   font-style: italic;
   color: var(--ink);
 }
@@ -202,6 +215,7 @@
   font-style: normal;
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--gold);

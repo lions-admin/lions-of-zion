@@ -5,6 +5,7 @@ import { ReportClaimForm } from "@/components/support/ReportClaimForm";
 import { VolunteerInterestForm } from "@/components/support/VolunteerInterestForm";
 import { ShareVerifiedButton } from "@/components/support/ShareVerifiedButton";
 import { PayPalDonateButton } from "@/components/support/PayPalDonateButton";
+import { ButtonLink } from "@/components/ui";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -127,14 +128,18 @@ export default function Page() {
             <div className={styles.paypalButton}>
               <PayPalDonateButton />
               <noscript>
-                <a
+                {/* The shared Button voice, so the no-JavaScript tier gets
+                    the same control the scripted tier does. */}
+                <ButtonLink
+                  variant="secondary"
+                  size="md"
                   className={styles.donateLink}
                   href="https://www.paypal.com/ncp/payment/PZPE4USUV3W7E"
                   target="_blank"
                   rel="noreferrer"
                 >
                   Donate securely with PayPal →
-                </a>
+                </ButtonLink>
               </noscript>
             </div>
           </div>

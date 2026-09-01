@@ -10,6 +10,7 @@
  * actually being shared instead of implying more than it does.
  */
 import { useState } from 'react';
+import { Button } from '@/components/ui';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './share-verified.module.css';
 
@@ -39,8 +40,15 @@ export function ShareVerifiedButton() {
   };
 
   return (
-    <button type="button" className={styles.share} onClick={() => void share()}>
+    <Button
+      type="button"
+      variant="secondary"
+      size="md"
+      className={styles.share}
+      aria-live="polite"
+      onClick={() => void share()}
+    >
       {copied ? 'Copied — paste it anywhere' : "Share what's verified"}
-    </button>
+    </Button>
   );
 }

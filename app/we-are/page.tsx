@@ -108,11 +108,7 @@ export default function Page() {
           takes before it reaches this site. One stage is a gate, not a
           step: nothing automated can pass it.
         </p>
-        <div
-          className={styles.pipeline}
-          style={{ ["--step-count" as string]: METHOD_STEPS.length }}
-        >
-          <div className={styles.pipelineTrack} aria-hidden="true" />
+        <div className={styles.pipeline}>
           <ol className={styles.pipelineList}>
             {METHOD_STEPS.map((step) => (
               <li

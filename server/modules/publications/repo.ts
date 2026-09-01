@@ -158,6 +158,18 @@ export function repo(db: unknown) {
         .orderBy(desc(publication.createdAt))
         .limit(32);
     },
+    async automaticPublicationIdsForDate(localDate: string, keepBriefingRunId: string): Promise<string[]> {
+      const result = await d.execute<{ id: string }>(sql`
+        SELECT p.id
+        FROM publication p
+        JOIN briefing_run br ON br.id = p.briefing_run_id
+        WHERE br.local_date = ${localDate}
+          AND p.briefing_run_id <> ${keepBriefingRunId}
+          AND p.auto_published_at IS NOT NULL
+          AND p.status IN ('published', 'updated')
+      `);
+      return result.rows.map((row) => row.id);
+    },
     async linkItems(publicationId: string, itemIds: readonly string[]): Promise<void> {
       if (!itemIds.length) return;
       await (d as unknown as {

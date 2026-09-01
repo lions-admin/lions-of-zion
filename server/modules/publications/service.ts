@@ -47,6 +47,10 @@ type AutomationProvenance = {
   briefingRunId: string;
   machineAuthor: string;
   candidateKeys: string[];
+  /** Present only for an explicit same-day regeneration. It lets a successful
+   * replacement retire the old public edition atomically, after—not before—
+   * the new quality-approved rows exist. */
+  supersedeLocalDate?: string;
 };
 
 /** Provenance for machine-created drafts while public release is paused. */
@@ -339,6 +343,24 @@ export function publicationService(db: unknown) {
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
         const r = repo(tx);
+        const archiveSuperseded = async (rows: Publication[]) => {
+          if (!provenance.supersedeLocalDate) return;
+          const oldIds = await r.automaticPublicationIdsForDate(
+            provenance.supersedeLocalDate,
+            provenance.briefingRunId,
+          );
+          for (const id of oldIds) {
+            const before = await r.byId(id);
+            if (!before) continue;
+            const after = await r.update(id, { status: "archived", updatedAt: new Date() });
+            await recordVersion(tx as Tx, publication, after as never, {
+              entityType: kindToEntityType(before.kind), entityId: id, actor,
+              changeSummary: "Superseded by a forced regeneration of this daily edition",
+              changeSource: "workflow", requestId, before,
+            });
+            rows.push(after);
+          }
+        };
         const existing = await r.automaticCandidates(provenance.briefingRunId, provenance.candidateKeys);
         if (existing.length) {
           if (existing.length !== inputs.length) {
@@ -398,8 +420,10 @@ export function publicationService(db: unknown) {
           if (rows.length > 1 && inputs[0]?.section === "daily_brief") {
             await r.linkRelated(rows[0]!.id, rows.slice(1).map((row) => row.id));
           }
+          const published = [...rows];
+          await archiveSuperseded(rows);
           await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicIds: rows.map((row) => row.publicId) });
-          return rows;
+          return published;
         }
         for (const candidateKey of provenance.candidateKeys) {
           if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
@@ -456,8 +480,10 @@ export function publicationService(db: unknown) {
         if (rows.length > 1 && inputs[0]?.section === "daily_brief") {
           await r.linkRelated(rows[0]!.id, rows.slice(1).map((row) => row.id));
         }
+        const published = [...rows];
+        await archiveSuperseded(rows);
         await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicIds: rows.map((row) => row.publicId) });
-        return rows;
+        return published;
       });
     },
 

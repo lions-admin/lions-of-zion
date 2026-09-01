@@ -214,6 +214,36 @@ describe("automatic publication quality gate", () => {
     expect((await db.select().from(publication)).filter((row) => row.briefingRunId === run.id)).toHaveLength(1);
   });
 
+  it("archives the prior automatic edition only after a forced same-day replacement is published", async () => {
+    const { db, run: priorRun } = await qualityRun();
+    const service = publicationService(db);
+    const [prior] = await service.autoPublishMany([input], {
+      briefingRunId: priorRun.id,
+      machineAuthor: "machine:test",
+      candidateKeys: ["daily-brief"],
+    }, actor);
+    const [replacementRun] = await db.insert(briefingRun).values({
+      localDate: "2026-08-30", stage: "quality", status: "running", startedAt: new Date(),
+    }).returning();
+    await db.insert(briefingQualityCheck).values(REQUIRED_QUALITY_CHECKS.map((checkName) => ({
+      briefingRunId: replacementRun!.id,
+      candidateKey: "daily-brief",
+      checkName,
+      status: "pass",
+      detail: "replacement quality pass",
+    })));
+
+    const [replacement] = await service.autoPublishMany([{ ...input, title: "Replacement edition" }], {
+      briefingRunId: replacementRun!.id,
+      machineAuthor: "machine:test",
+      candidateKeys: ["daily-brief"],
+      supersedeLocalDate: "2026-08-30",
+    }, actor);
+
+    expect(replacement!.status).toBe("published");
+    expect((await service.get(prior!.id)).status).toBe("archived");
+  });
+
   it("recovers a legacy paused draft that predates candidate keys", async () => {
     const { db, run } = await qualityRun();
     const [draft] = await db.insert(publication).values({

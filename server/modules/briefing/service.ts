@@ -746,6 +746,8 @@ export function briefingService(database: unknown, options: { generate?: Generat
           briefingRunId: quality.qualityRunId,
           machineAuthor: MACHINE_AUTHOR,
           candidateKeys: quality.candidateKeys,
+          supersedeLocalDate: await store.editionByDate(localDate).then((edition) =>
+            edition?.publishedAt ? localDate : undefined),
         }, actor, requestId)
       : await publicationWriter.createMany(inputs, actor, requestId, {
           briefingRunId: quality.qualityRunId,

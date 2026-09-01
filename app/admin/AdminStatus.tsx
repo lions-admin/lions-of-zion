@@ -108,7 +108,7 @@ export function AdminStatus() {
       <section className={styles.panel}>
         <div className={styles.panelHead}>
           <div><p className={styles.sectionLabel}>צינור יומי</p><h2>ריצות, תורים ועלויות</h2></div>
-          <div className={styles.actionRow}><button className={styles.secondary} type="button" disabled={busy !== null} onClick={runDeepHealth}>בדיקת תקינות עמוקה</button><button className={styles.secondary} type="button" disabled={busy !== null} onClick={syncRssCatalog}>עדכן כתובות מקורות</button><button className={styles.primary} type="button" disabled={busy !== null} onClick={runBriefing}>הפעל עיבוד עכשיו</button></div>
+          <div className={styles.actionRow}><button className={styles.secondary} type="button" disabled={busy !== null} onClick={runDeepHealth}>בדיקת תקינות עמוקה</button><button className={styles.secondary} type="button" disabled={busy !== null} onClick={syncRssCatalog}>עדכן כתובות מקורות</button><button className={styles.primary} type="button" disabled={busy !== null} onClick={runBriefing}>הפעל עיבוד עכשיו</button><button className={styles.danger} type="button" disabled={busy !== null} onClick={forceFullBriefingRerun}>הרצה כפויה של מהדורת היום</button></div>
         </div>
         <div className={styles.compactMetrics}>
           <Metric label="עלות ביממה" value={`$${briefing.spend.last24HoursUsd.toFixed(4)}`} /><Metric label="עלות בשלושים יום" value={`$${briefing.spend.last30DaysUsd.toFixed(4)}`} />
@@ -176,6 +176,21 @@ export function AdminStatus() {
             ? `${recoveryMessage}העיבוד ממתין ל־${result.activeCollectionJobs ?? 0} משימות איסוף.`
             : "הריצה כבר הושלמה להיום.",
       );
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "הפעולה נכשלה."); } finally { setBusy(null); }
+  }
+  async function forceFullBriefingRerun() {
+    if (!window.confirm("להריץ מחדש את מהדורת היום? התוצרים החדשים יעברו את שערי האיכות ויפורסמו אוטומטית אם יאושרו.")) return;
+    setBusy("force-rerun"); setError(null); setMessage(null);
+    try {
+      const response = await fetch("/api/v1/admin/briefing/run", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ forceFullRerun: true }),
+      });
+      if (!response.ok) throw new Error("לא ניתן להתחיל הרצה כפויה.");
+      const result = await response.json() as { status: string };
+      await load();
+      setMessage(result.status === "queued" ? "ההרצה הכפויה נוספה לתור." : "ההרצה הכפויה לא נוספה לתור.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "הפעולה נכשלה."); } finally { setBusy(null); }
   }
   async function resumePausedEdition() {

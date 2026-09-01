@@ -533,7 +533,7 @@ export async function processBriefingJob(job: JobRow, actor: Actor): Promise<unk
 
 export async function enqueueEditorialPipeline(
   now = new Date(),
-  options: { force?: boolean } = {},
+  options: { force?: boolean; regenerateCompleted?: boolean } = {},
 ): Promise<{
   status: "queued" | "outside_schedule" | "waiting_for_collection" | "already_completed";
   localDate: string;
@@ -570,11 +570,16 @@ export async function enqueueEditorialPipeline(
        manual run starts at triage and resets its downstream stages, retaining
        all prior artifacts and delivery audit rows for inspection. */
     const quality = await editions.artifact(editionId, "quality") as { passed?: unknown } | undefined;
-    const restartFrom = edition?.status === "quarantined" || edition?.status === "failed" || quality?.passed === false
+    const regenerateCompleted = options.regenerateCompleted && edition?.status === "published";
+    const restartFrom = regenerateCompleted || edition?.status === "quarantined" || edition?.status === "failed" || quality?.passed === false
       ? "triage"
       : undefined;
     if (restartFrom) {
-      await editions.reopenQuarantinedEdition(editionId);
+      if (regenerateCompleted) {
+        await editions.reopenPublishedEdition(editionId, BRIEFING_CONTRACT_VERSION, BRIEFING_PROMPT_VERSION);
+      } else {
+        await editions.reopenQuarantinedEdition(editionId);
+      }
       const start = stages.indexOf(restartFrom);
       for (const stage of stages.slice(start)) {
         const existing = await jobs.stageJob(editionId, stage);

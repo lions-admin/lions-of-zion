@@ -156,9 +156,10 @@ export function briefingRepo(db: unknown) {
       return result.rows[0]!.id;
     },
 
-    async editionByDate(localDate: string): Promise<{ id: string; status: string } | undefined> {
-      const result = await d.execute<{ id: string; status: string }>(sql`
-        SELECT id, status FROM briefing_edition WHERE local_date = ${localDate} LIMIT 1
+    async editionByDate(localDate: string): Promise<{ id: string; status: string; publishedAt: Date | null } | undefined> {
+      const result = await d.execute<{ id: string; status: string; publishedAt: Date | null }>(sql`
+        SELECT id, status, published_at AS "publishedAt"
+        FROM briefing_edition WHERE local_date = ${localDate} LIMIT 1
       `);
       return result.rows[0];
     },
@@ -216,6 +217,24 @@ export function briefingRepo(db: unknown) {
         UPDATE briefing_edition
         SET status = 'processing', updated_at = now()
         WHERE id = ${editionId} AND status = 'quarantined'
+      `);
+    },
+
+    /** A deliberate operator regeneration preserves the prior edition's
+     * immutable artifacts and audit trail, but makes the current edition
+     * eligible to produce a new triage/draft/quality/publication chain. */
+    async reopenPublishedEdition(
+      editionId: string,
+      contractVersion: string,
+      promptVersion: string,
+    ): Promise<void> {
+      await d.execute(sql`
+        UPDATE briefing_edition
+        SET status = 'processing',
+            contract_version = ${contractVersion},
+            prompt_version = ${promptVersion},
+            updated_at = now()
+        WHERE id = ${editionId} AND status = 'published'
       `);
     },
 

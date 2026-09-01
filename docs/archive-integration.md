@@ -19,9 +19,13 @@ integration packages. They become roughly 1,180 static pages under
 This reverses a previous decision. `/october-7` used to link out to external
 archives rather than host testimony, on consent grounds. The site owner
 reversed that on 2026-08-26; the reasoning, and what must not be quietly
-re-tightened, is the top entry in [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md).
-**Read that entry before changing anything here.** The superseded entry is kept
-below it, marked as reversed — do not "restore" it.
+re-tightened, is in [`../.ai/DECISIONS.md`](../.ai/DECISIONS.md) under
+**"2026-08-26 — October 7 hosts the archives directly; the link-only boundary
+is reversed"**. (This used to say "the top entry". That file is newest-first
+and append-only, so a positional citation goes wrong the moment anything is
+appended — cite by date and title.) **Read that entry before changing anything
+here.** The superseded entry is kept below it, marked as reversed — do not
+"restore" it.
 
 ## The two packages
 
@@ -291,8 +295,10 @@ Two route-map details that will bite if unhandled:
 - **Reading surfaces use `displayName`, not `label`.** `label` is stored
   uppercase as identity; CSS `capitalize` cannot fix it ("ISRAEL'S STORY" →
   "Israel'S Story").
-- **Type and colour come from the V2 tokens** in `app/globals.css`. Read
-  `.ai/DESIGN-V2.md` first. Nothing below `--t-data` (0.72rem); uppercase plus
+- **Type and colour come from the V2 tokens** in `app/globals.css`. Read that
+  token block first — it is the whole system now, the .ai/DESIGN-V2.md having
+  been folded into its comments and deleted. Nothing below `--t-data`
+  (0.72rem); uppercase plus
   tracking only for data labels of two words or fewer. **Cinzel belongs to the
   intro scene only** — putting it on a reading page reverses a documented
   decision.

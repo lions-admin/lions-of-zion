@@ -89,9 +89,11 @@ npm run map:check    # fail if it has drifted — never hand-edit that file
 ```
 
 None of the visual checks has an npm script any more — run them with `node`.
-(`verify:graphics` and `scripts/verify-composition.mjs` were deleted with the
-radial navigation: they asserted orbit link bounds at seven viewports and had
-nothing left to assert.) `docs/operations.md` has the full table of what each
+(The verify:graphics script and scripts/verify-composition.mjs were deleted
+with the radial navigation: they asserted orbit link bounds at seven viewports
+and had nothing left to assert. Neither name exists in the tree, so both are
+written here without backticks — `npm run map` flags a backticked path that
+does not resolve.) `docs/operations.md` has the full table of what each
 remaining one covers.
 
 The lion particle bake is rebuilt with `bake:nav-lion`; its source artwork is in
@@ -110,13 +112,19 @@ The in-app browser can report `visibilityState === "hidden"` and suspend
 `requestAnimationFrame`, making the intro appear black. Headless Chromium falls
 back to SwiftShader, which the GPU probe correctly rejects, so the scene never
 mounts there either. Visual checks must use real Chrome via `playwright-core`
-with `headless: false`. **Three** scripts hardcode
-`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` —
+with `headless: false`. **Three** verification scripts do that —
 `final-verify.mjs`, `verify-doc-scroll.mjs` and
 `.claude/skills/verify-intro/capture.mjs` — so they only run on the macOS
-workstation, not in a Linux container. (There were five; `verify-composition.mjs`
-and `verify-home-band.mjs` both went with the radial navigation — the first
-asserted orbit link bounds, the second the front-page band beneath the orbit.)
+workstation, not in a Linux container. (There were five; verify-composition.mjs
+and verify-home-band.mjs both went with the radial navigation — the first
+asserted orbit link bounds, the second the front-page band beneath the orbit.
+Neither file exists now, which is why they are named here without backticks.)
+A **fourth** file hardcodes the same Chrome path and is therefore equally
+macOS-only, but is not a verification script and asserts nothing:
+`scripts/capture-site-screenshots.mjs` walks 17 routes at desktop and mobile
+and writes PNGs for a human to look at, launching `headless: true`. That is
+why `npm run map` reports four Chrome-path scripts where this section counts
+three.
 `scripts/verify-archive-assets.mjs` is the one visual-adjacent check that needs
 no browser at all: plain `fetch` against the CDN base, so it runs anywhere.
 **As of 2026-08-27 CI runs it:** the `archive-assets` job in

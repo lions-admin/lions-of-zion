@@ -28,8 +28,11 @@ described as though it works.
 - **[`../.ai/WORKFLOW.md`](../.ai/WORKFLOW.md)** — optional working notes.
 - **[`../.ai/DECISIONS.md`](../.ai/DECISIONS.md)** — historical decisions.
 - **[`../.ai/STATE.md`](../.ai/STATE.md)** — an optional project snapshot.
-- **[`../.ai/DESIGN-V2.md`](../.ai/DESIGN-V2.md)** — the reading-page type and
-  layout system. Read before touching reading-page CSS.
+- **[`../app/globals.css`](../app/globals.css)** — the reading-page type,
+  spacing and colour system lives in the commented token block at the top of
+  this file: three faces, seven type steps, eight spacing steps, six colours.
+  Read it before touching reading-page CSS. It replaces .ai/DESIGN-V2.md,
+  which was folded into those comments and deleted (commit 10bfd8b).
 - **[`../.ai/ROLLBACK.md`](../.ai/ROLLBACK.md)** — undoing a bad production
   deploy.
 - **[`../TODOS.md`](../TODOS.md)** — the Hebrew delivery plan; the place to
@@ -45,8 +48,19 @@ described as though it works.
   recorded exception on 2026-09-01, described in that directory's README. It
   holds the closed design audit (83 of 83) and its 219 KB evidence report, the
   August 2026 wave log, and an orphaned external review.
-- [`engine-explainer.html`](engine-explainer.html) — a standalone explainer
-  page for the particle engine.
+
+## Standalone HTML pages
+
+Both open from the filesystem, need no server, and make no network request.
+
+- [`engine-explainer.html`](engine-explainer.html) — **not about the particle
+  scene.** A hand-written Hebrew page, `מנוע האימות`, explaining the
+  *verification* engine: how information is ingested, modelled, evidenced,
+  assessed, searched and published. It walks the seven backend domains, the
+  end-to-end routes through them, the iron rules, and a glossary. It was
+  described here as an explainer for the particle engine until 2026-09-01; that
+  was simply wrong, and the two engines have nothing to do with each other.
+- [`project-map.html`](project-map.html) — the generated repository map, below.
 
 ## The interactive map
 

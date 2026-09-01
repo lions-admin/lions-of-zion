@@ -751,10 +751,16 @@ rediscovered; none of them is fixed by this document.
      fully read. Each was a one-line fix; the pattern — written intent and
      implementation drifting with no test between them — is a maintenance
      property, not a set of accidents.
-   - **The type system was collapsed on two axes and left free on the third.**
-     `globals.css` declares three faces, seven size steps and six colours — and
-     not one spacing token, against 71 distinct rem spacing values across `app/`
-     and `components/`.
+   - **~~The type system was collapsed on two axes and left free on the
+     third.~~ Closed.** The finding was that `globals.css` declared three
+     faces, seven size steps and six colours — and not one spacing token,
+     against 71 distinct rem spacing values across `app/` and `components/`.
+     The third axis is now closed the same way as the other two: the token
+     block declares eight spacing steps, `--sp-1` through `--sp-8`, anchored on
+     the body line box (1.0625rem × 1.7), plus one named editorial value,
+     `--flow`, for the gap between sibling paragraphs. The structural point
+     stands anyway — an axis left free drifts, and nothing enforces the scale
+     but review.
 6. **~~CI cannot guard the no-JavaScript invariant.~~ Closed 2026-08-27** —
    and closed by building both of the Linux-safe fixes this entry proposed.
    `scripts/ci-smoke.mjs` now opens a `javaScriptEnabled: false` context and

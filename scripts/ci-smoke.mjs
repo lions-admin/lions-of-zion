@@ -142,7 +142,9 @@ for (const route of ROUTES) {
  * with scripting off the loading shell stays and the page never appears.
  * Every check above runs with JavaScript enabled and would pass against
  * exactly that build. `scripts/final-verify.mjs` catches it, but needs real
- * Chrome on macOS — so on Linux this is the only guard there is.
+ * Chrome on macOS. `tests/no-js-invariant.test.ts` also guards it, but only as
+ * a filesystem tripwire for a root `loading.tsx` reappearing — this is the
+ * only check anywhere in CI that reads the rendered no-JavaScript output.
  *
  * The home route is the test case because it is the one with the most to
  * lose: the header's links and the poster are the whole navigation for a

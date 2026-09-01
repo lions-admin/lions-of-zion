@@ -126,7 +126,7 @@ by key enumeration across all seven case files.
 | Environment | `docs/environment.md` | `vercel-infrastructure.md` keeps a second, incomplete copy of the variable list |
 | Operations | `docs/operations.md` | The verification table lives here; `README` and `CLAUDE` carry commands and point here |
 | Deployment | `docs/vercel-infrastructure.md` | |
-| Design system | `.ai/DESIGN-V2.md` | Healthy hub-and-spoke; no drift found |
+| Design system | the token block at the top of `app/globals.css` | At the audit baseline this was .ai/DESIGN-V2.md — healthy hub-and-spoke, no drift found. That file was later folded into the `globals.css` token comments and deleted (commit 10bfd8b), so the tokens are now the only written record |
 | Delivery plan | `TODOS.md` | |
 | Repository shape | `docs/PROJECT_MAP.md` | New |
 | History | `docs/archive/README.md` | New |

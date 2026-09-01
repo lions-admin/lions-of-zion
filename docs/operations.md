@@ -91,9 +91,15 @@ falls back to SwiftShader, which the GPU probe correctly rejects, so the scene
 never mounts there either.
 
 **Visual checks must use real Chrome** via `playwright-core` with
-`headless: false`. The **three** real-Chrome scripts hardcode
+`headless: false`. The **three** real-Chrome verification scripts hardcode
 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, so they run on
 the macOS workstation only — never in a Linux container or on CI.
+
+A fourth file hardcodes the same path and is equally macOS-only, but is not a
+verification script: `capture-site-screenshots.mjs` asserts nothing. It walks
+17 routes at 1440×900 and 390×844 and writes PNGs for a human to look at,
+launching `headless: true` because it is not checking the scene. `npm run map`
+counts Chrome-path scripts, not assertions, so the generated page says four.
 
 Any edit to intro timing, copy, or composition must be captured in real Chrome.
 
@@ -106,6 +112,7 @@ Start the dev server first, then:
 | `node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final` | macOS only | Intro handoff, keyboard, WebGPU, forced WebGL2, no-JS fallback, overlays, console errors |
 | `node scripts/verify-doc-scroll.mjs http://localhost:3000` | macOS only | Reading-page scroll behaviour and progress affordances (see below) |
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
+| `node scripts/capture-site-screenshots.mjs http://localhost:3000 .screenshots` | macOS only | **Asserts nothing.** 17 routes × desktop and mobile → PNGs for a human to look at. Hardcodes the same Chrome path, but launches headless |
 | `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **23 routes** return 200 with no console errors — 17 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
 | `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
 | _CI environment_ | GitHub Actions | `.github/workflows/ci.yml` sets `NEXT_PUBLIC_ARCHIVE_CDN` at the workflow level. It is inlined at build time, so without it every archive record route logs a media 404 and the smoke job fails. The store is public; no secret is involved |
@@ -180,9 +187,11 @@ support in headless CI Chromium is unreliable.
 
 `/?forceWebGL=1` runs the complete experience on WebGL2. There is no isolated
 tuning harness any more: `/particle-demo` was deleted with the radial
-navigation on 2026-09-01, and so were `npm run verify:graphics` and
-`scripts/verify-composition.mjs`, whose whole job was asserting orbit link
-bounds at seven viewports.
+navigation on 2026-09-01, and so were the verify:graphics npm script and
+scripts/verify-composition.mjs, whose whole job was asserting orbit link
+bounds at seven viewports. (Both are named without backticks on purpose:
+neither exists any more, and `npm run map` reports a backticked path or an
+`npm run` name that does not resolve as a dead reference.)
 
 ---
 

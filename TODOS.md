@@ -101,9 +101,10 @@
       `aiBudgets()` — ידווח שגוי בשקט אם התקציב ישתנה.
 - [ ] `scripts/ci-smoke.mjs` אינו רשום ב־`package.json` — לבדיקה היחידה ש־CI
       מריץ בפועל אין נקודת כניסה מקומית דרך `npm run`.
-- [ ] הסרת `x-actor-label: 'public-site-visitor'` מקוד הלקוח
-      ([`AskTheLionChat.tsx:222`](components/chat/AskTheLionChat.tsx:222)) —
-      אינרטי בפרודקשן, אבל שריד של עיצוב שהוחלף שקורא כאילו הוא עוד משנה.
+- [x] הסרת `x-actor-label: 'public-site-visitor'` מקוד הלקוח — הושלם.
+      הרכיב שנשא אותו, `AskTheLionChat.tsx`, נמחק יחד עם משגר הצ׳אט הציבורי
+      מ־shell של האתר, ו־`grep` על `app/`, `components/` ו־`lib/` אינו מוצא
+      עוד אף מופע של הכותרת.
 
 ## א׳-1.3 רכיבי תוכן חסרים
 

@@ -2,21 +2,33 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 /*
- * Design V2 tokens — `.ai/DESIGN-V2.md`, "The broadsheet over the scan".
+ * Design V2 tokens. This block is the specification — the `.ai/DESIGN-V2.md`
+ * it used to cite was deleted in 10bfd8b and is not coming back.
  *
  * The audit that prompted this found 51 distinct font sizes, 77 declarations
  * under 11px, and ~12 unrelated body grays. These tokens are the whole
- * vocabulary now: three faces, seven type steps, six colors. A page that
- * needs a size not in the scale is a page that needs rethinking, not a new
- * size.
+ * vocabulary now: three faces, seven type steps, eight spacing steps, six
+ * colors. A page that needs a size not in the scale is a page that needs
+ * rethinking, not a new size.
  */
 :root {
   /* ── Faces ──────────────────────────────────────────────────────────────
-     Ramsina for editorial headlines — articles, investigations, archive
-     records, and stories; IBM Plex Sans for running text and UI; Geist Mono
-     strictly for data — dates, counts, routes, status values. Newsreader
-     remains the serif fallback. Cinzel is deliberately absent: it belongs to
-     the home particle scene now, not to reading. */
+     Two families fill three roles. JetBrains Mono sets display and data —
+     headlines, and dates/counts/routes/status values; DM Sans sets running
+     text and UI.
+
+     This comment named Ramsina, IBM Plex Sans and Geist Mono until
+     2026-09-01. None of the three was ever what these tokens resolved to,
+     and the drift is worth knowing about rather than quietly correcting:
+     `--face-display` is a *monospace*, so every heading on every reading page
+     is set in it. If editorial headlines were meant to be Ramsina — which is
+     loaded in `app/layout.tsx` and used by nothing but the admin dashboard —
+     that is a one-line change here, not a documentation fix. Left as it
+     renders, because how the site looks today is the owner's call, not a
+     comment's.
+
+     Cinzel is deliberately absent from reading: it belongs to the intro
+     scene. Newsreader remains the serif fallback. */
   --font-mono: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
   --font-sans: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   --face-display: var(--font-mono);

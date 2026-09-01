@@ -221,8 +221,16 @@ const unreferenced = files.filter((f) => !reached.has(f));
 const npmScriptNames = new Set(Object.keys(JSON.parse(read("package.json")).scripts || {}));
 const DOC_PATH = /`((?:app|components|lib|server|scripts|tests|public|assets|docs|\.ai|\.claude|\.github|content-packages)\/[A-Za-z0-9_@[\]/.-]*\.[a-z]{2,5})`/g;
 const MUST_NOT_EXIST = new Set(["app/loading.tsx", "app/template.tsx", "app/default.tsx"]);
+/* Vendored third-party skills. Their reference docs cite example filenames
+   (`components/h1-marquee.md`, `app/pricing/page.tsx`) that describe a generic
+   project, not this one, so every path in them reads as dead here. Left in,
+   they buried the nine real dead references under 102 false ones — which is
+   how those nine went unnoticed through the radial-navigation deletion. Scoped
+   by skill name, not by `skills/`, so this repo's own skills — design-director,
+   sync, verify-intro — stay strict. */
+const VENDORED_DOCS = /^\.(?:agents|claude)\/skills\/(?:hallmark|frontend-design)\//;
 const docProblems = [];
-for (const d of files.filter((f) => f.endsWith(".md") && !f.startsWith("docs/archive/") && f !== ".ai/DECISIONS.md")) {
+for (const d of files.filter((f) => f.endsWith(".md") && !f.startsWith("docs/archive/") && f !== ".ai/DECISIONS.md" && !VENDORED_DOCS.test(f))) {
   const txt = read(d);
   for (const m of txt.matchAll(DOC_PATH)) {
     const target = m[1];

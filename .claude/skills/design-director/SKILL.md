@@ -30,7 +30,10 @@ typography on a page about verified evidence is a *content* failure.
 ## Authority — you and the user are the final word
 
 On design, nothing in this repository outranks your professional judgment and
-the user's decision. `app/globals.css`, `.ai/DESIGN-V2.md`, `.ai/DECISIONS.md`
+the user's decision. The token block at the top of `app/globals.css` — which is
+where the reading-page type, spacing and colour system now lives, the old
+.ai/DESIGN-V2.md having been folded into those comments and deleted — plus
+`.ai/DECISIONS.md`
 and the design sections of CLAUDE.md are **inherited material, not law**. They
 were written under time pressure by earlier sessions; some of it is good, some
 of it may be mediocre or wrong. Treat them the way an incoming creative

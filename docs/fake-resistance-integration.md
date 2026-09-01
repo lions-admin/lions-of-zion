@@ -339,7 +339,9 @@ Genuinely new work:
 1. **Roster table** — entity class + identity status + follower snapshot +
    role. A small styled table component; data labels in the existing
    uppercase-tracking convention (two words max), everything else sentence
-   case, nothing below `--t-data`. Read `.ai/DESIGN-V2.md` first.
+   case, nothing below `--t-data`. Read the token block at the top of
+   `app/globals.css` first — the .ai/DESIGN-V2.md that used to hold this was
+   folded into those comments and deleted.
 2. **Network graph for `/network`** — build-time SVG generated from the
    packet-08 communities/bridges/edges data (deterministic script, same
    spirit as the particle bakes: artifact checked in, source data canonical).

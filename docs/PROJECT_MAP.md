@@ -20,54 +20,60 @@ They are kept apart by lint rules rather than by convention:
 `eslint.config.mjs` states the architecture as errors, so a violation fails
 `npm run lint` rather than a review.
 
-The file counts in the tree below are indicative and drift between audits; the
-generated [`project-map.html`](project-map.html) is the exact one.
+**The tree below carries no file counts, deliberately.** It used to, and every
+one of them was wrong: `app/` read 97 against 135, `server/` 125 against 189,
+`tests/` 27 against 67, `.claude/` 12 against 110 — and the counting rule was
+not even consistent between rows. A number nothing regenerates is a number that
+rots, and this file's own rule about migration counts applies to itself. What
+each area is *for* is stable and belongs here; how many files are in it is
+scanned at run time by [`project-map.html`](project-map.html), which is the
+exact and only source for a count.
 
 ## The tree
 
 ```
 lions-of-zion/
-├── app/                 97  Every route. Folder name IS the URL — never reorganise.
-│   ├── api/             44  Route handlers: parse, call one module, serialise.
-│   ├── admin/            5  Hebrew ops dashboard behind Neon Auth.
-│   ├── auth/x/           3  Public X OAuth: begin, callback, signout.
-│   ├── october-7/        8  Hub + ~1,177 prerendered archive pages beneath it.
-│   ├── fake-resistance/  8  Hub + playbook, network, 7 case files.
-│   └── …                 8 dossier routes, corrections, methodology
+├── app/                     Every route. Folder name IS the URL — never reorganise.
+│   ├── api/                 Route handlers: parse, call one module, serialise.
+│   ├── admin/               Hebrew ops dashboard behind Neon Auth.
+│   ├── auth/x/              Public X OAuth: begin, callback, signout.
+│   ├── october-7/           Hub + ~1,177 prerendered archive pages beneath it.
+│   ├── fake-resistance/     Hub + playbook, network, 7 case files.
+│   └── …                    8 dossier routes, corrections, methodology
 ├── components/              Feature directories.
 │   ├── intro-scene/         THE scene: one canvas, one clock, the intro lion.
-│   ├── content/         18  Shared editorial blocks + the evidence-margin grid.
-│   ├── archive/          9  One renderer for both archives, no branching.
-│   ├── sections/         7  SectionPage (7 dossiers) and DocPage (~1,180 routes).
-│   ├── briefs/           9  The Geopolitical Brief — the one bespoke layout.
-│   ├── support/          6  Report and volunteer forms.
-│   ├── typographic-field/ 4 The home hero's typographic motion engine.
-│   ├── intro/            4  Pure timeline data + CPU text sampling. No rendering.
-│   ├── site/             3  SiteHeader and the editorial shell.
-│   └── graphics/         1  Retired photographic-scene contract. One test holds it up.
-├── lib/                 15  The frontend's content seam. Static today, swappable.
-│   └── content/         14  One module per surface; all async except home.ts.
-├── server/             125  The API. Never imports the frontend.
-│   ├── db/              60  Schema, 21 migrations, PGlite test harness.
-│   ├── modules/         36  Eleven modules: index → service → repo (+ rules).
-│   ├── core/            14  config, versioning, outbox, audit, auth, AI gateway.
-│   ├── contracts/       11  zod only. The one layer the frontend may import.
-│   ├── http/             3  handler(), problem+json, the RLS role boundary.
-│   └── jobs/             1  Queue consumers. Never touches the DB directly.
-├── content-packages/   535  COMMITTED SOURCE DATA, ~14 MB. Not generated.
-│   ├── hamas-massacre/ 341  335 records / 670 language versions.
-│   ├── october7/       185  179 records / 505 versions.
-│   └── fake-resistance/  9  7 cases + index + network graph.
-├── docs/                15  Reference documentation.
-│   └── archive/          5  Closed and superseded. Not sources of truth.
-├── tests/               27  vitest + PGlite. 397 pass, 1 deliberate skip.
+│   ├── content/             Shared editorial blocks + the evidence-margin grid.
+│   ├── archive/             One renderer for both archives, no branching.
+│   ├── sections/            SectionPage (7 dossiers) and DocPage (~1,180 routes).
+│   ├── briefs/              The Geopolitical Brief — the one bespoke layout.
+│   ├── support/             Report and volunteer forms.
+│   ├── typographic-field/   The home hero's typographic motion engine.
+│   ├── intro/               Pure timeline data + CPU text sampling. No rendering.
+│   ├── site/                SiteHeader and the editorial shell.
+│   └── graphics/            Retired photographic-scene contract. One test holds it up.
+├── lib/                     The frontend's content seam. Static today, swappable.
+│   └── content/             One module per surface; all async except home.ts.
+├── server/                  The API. Never imports the frontend.
+│   ├── db/                  Schema, migrations, PGlite test harness.
+│   ├── modules/             Fourteen modules: index → service → repo (+ rules).
+│   ├── core/                config, versioning, outbox, audit, auth, AI gateway.
+│   ├── contracts/           zod only. The one layer the frontend may import.
+│   ├── http/                handler(), problem+json, the RLS role boundary.
+│   └── jobs/                Queue consumers. Never touches the DB directly.
+├── content-packages/        COMMITTED SOURCE DATA, ~14 MB. Not generated.
+│   ├── hamas-massacre/      335 records / 670 language versions.
+│   ├── october7/            179 records / 505 versions.
+│   └── fake-resistance/     7 cases + index + network graph.
+├── docs/                    Reference documentation.
+│   └── archive/             Closed and superseded. Not sources of truth.
+├── tests/                   vitest + PGlite.
 ├── scripts/                 Verify, import, bake, ops.
-├── public/              15  Baked output + typeface + scan corpus. Literal paths.
-├── assets/               9  Bake sources — and runtime imports. This ships.
-├── .ai/                  4  DECISIONS (why), STATE (now), DESIGN-V2, ROLLBACK.
-├── .claude/             12  Agents, hooks, skills. Excluded from deploys.
-├── .design-sync/        31  Design-system export pipeline. Local tooling.
-└── .github/              1  CI: gate, then headless route smoke.
+├── public/                  Baked output + typeface + scan corpus. Literal paths.
+├── assets/                  Bake sources — and runtime imports. This ships.
+├── .ai/                     DECISIONS (why), STATE (now), WORKFLOW, ROLLBACK.
+├── .claude/                 Agents, hooks, skills. Excluded from deploys.
+├── .design-sync/            Design-system export pipeline. Local tooling.
+└── .github/                 CI: gate, then headless route smoke.
 ```
 
 **Generated, never committed:** `.next/`, `node_modules/`, `out/`, `build/`,
@@ -119,7 +125,7 @@ with no database.
 
 | Topic | Document |
 | --- | --- |
-| Mandatory agent workflow | `.ai/WORKFLOW.md` |
+| Optional agent working notes — tools, not gates | `.ai/WORKFLOW.md` |
 | Invariants an editor must not break | `CLAUDE.md` |
 | Why a durable choice was made | `.ai/DECISIONS.md` — append-only, never archived |
 | Where the work stands today | `.ai/STATE.md` |
@@ -129,7 +135,7 @@ with no database.
 | Environment variable names | `docs/environment.md` |
 | Verification, CI, deploy | `docs/operations.md` |
 | What is deployed and what it costs | `docs/vercel-infrastructure.md` |
-| Reading-page type and layout | `.ai/DESIGN-V2.md` |
+| Reading-page type, spacing and colour | the token block at the top of `app/globals.css` — the .ai/DESIGN-V2.md this used to name was folded into those comments and deleted |
 | Delivery plan (Hebrew) | `TODOS.md` |
 | The eight destinations | `lib/site-navigation.ts` `SITE_NAVIGATION` |
 | Repository shape | this file |
@@ -167,7 +173,19 @@ alone, and everywhere else should link rather than restate.
 by string. A rename breaks the scene at runtime with nothing failing at build
 time.
 
-**CI cannot see the no-JavaScript invariant.** `CLAUDE.md` marks "do not
-reintroduce a root-level `loading.tsx`" load-bearing, but `ci-smoke.mjs` runs
-with JavaScript on and nothing in `tests/` mentions it. The only guard is
-`scripts/final-verify.mjs`, which needs real Chrome on macOS.
+**CI guards the no-JavaScript invariant, but only on `/`.** `CLAUDE.md` marks
+"do not reintroduce a root-level `loading.tsx`" load-bearing, and since
+2026-08-27 that is enforced in CI: `scripts/ci-smoke.mjs` opens a
+`javaScriptEnabled: false` context, loads the home route, and asserts the
+server-rendered `nav[aria-label="Primary navigation"]` links and the poster
+`<img>` are in the document with **zero** `div[hidden][id^="S:"]` Suspense
+shells — the failure message names a root-level `loading.tsx` as the usual
+cause. `tests/no-js-invariant.test.ts` is the
+cheap tripwire beside it — it fails if `app/loading.tsx`, `app/template.tsx` or
+`app/default.tsx` reappears. `scripts/final-verify.mjs` covers the same ground
+a second time on the macOS workstation and is no longer the only guard.
+
+What CI still cannot see is every *other* route: the assertion runs on `/`
+alone, so a content route that acquires its own Suspense boundary would pass.
+Scope any loading state to its own segment and check a sibling content route's
+no-JS render by hand.

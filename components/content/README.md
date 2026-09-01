@@ -4,9 +4,12 @@ Shared content-presentation components for the eight section pages, the
 Geopolitical Brief, and the home front page.
 
 **Styling comes from the V2 tokens in `app/globals.css`**, not from
-hard-coded values — three faces (Newsreader display, IBM Plex Sans text, Geist
-Mono data), seven size steps, six colours. Read `.ai/DESIGN-V2.md` before
-touching any of it. All styling lives in `content.module.css`.
+hard-coded values — three faces (`--face-display`, `--face-text`,
+`--face-data`), seven type steps, eight spacing steps, six colours. That token
+block at the top of `app/globals.css` is the whole system and the only place
+it is written down; the .ai/DESIGN-V2.md that used to hold it was folded into
+those comments and deleted. Read it before touching any of this. All styling
+lives in `content.module.css`.
 
 > Cinzel is **retired from every reading surface** and belongs to the
 > cinematic intro scene only. Reintroducing it here reverses a documented decision

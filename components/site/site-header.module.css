@@ -179,6 +179,18 @@
   animation: panelIn var(--dur-base) var(--ease-out) both;
 }
 
+/* The pill bar is 58px of glass over the scan and can afford to be
+   translucent; a panel covers a headline and cannot. Near-opaque ground,
+   so nothing behind it competes with the labels. */
+.explorePanel,
+.mobilePanel {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--surface-2) 97%, transparent),
+      color-mix(in oklab, var(--surface-1) 98%, transparent) 40%,
+      var(--ground));
+}
+
 .explorePanel::before,
 .mobilePanel::before {
   content: "";

@@ -52,6 +52,7 @@
   --t-lede: clamp(1.15rem, 1.05rem + 0.45vw, 1.35rem);
   --t-lede-lh: 1.45;
   --t-lede-weight: 400;
+  --t-lede-tracking: 0;
 
   --t-body: 1.0625rem;
   --t-body-lh: 1.65;
@@ -175,6 +176,10 @@
   --tint-active: color-mix(in oklab, var(--ink-hi) 4%, transparent);
   --control-h: 2.75rem;
   --control-h-sm: 2.25rem;
+
+  /* The fixed floating header's occupied height, for anything sticky that
+     must clear it. */
+  --header-h: 5rem;
 
   /* The scan's own ground — the site's background, in one place: the ground
      colour, a faint warm wash where the scan is densest, and the horizontal

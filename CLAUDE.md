@@ -207,10 +207,12 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 
 ### Section pages and the nav contract
 
-`components/particle-nav/config.ts` `defaultNodes` is the source of truth for
-the eight destinations — id, label, `displayName`, `href`, description and
-orbit position. It feeds the particle nodes, the DOM links, the hover cards,
-and the page shell. `label` is stored uppercase because the orbit and the
+`lib/site-navigation.ts` `SITE_NAVIGATION` is the source of truth for the eight
+destinations — id, label, `displayName`, `href`, description and orbit
+position. `components/particle-nav/config.ts` `defaultNodes` is **derived** from
+it by a `.map()`, so edit the navigation module and not the nav config; from
+there it feeds the particle nodes, the DOM links, the hover cards, and the page
+shell. `label` is stored uppercase because the orbit and the
 static index set it that way as identity; **reading surfaces use
 `displayName`** — a CSS transform can't do this, since `capitalize` turns
 "ISRAEL'S STORY" into "Israel'S Story".
@@ -364,8 +366,9 @@ static index set it that way as identity; **reading surfaces use
   designed: the feature went from `chore(auth): quarantine unfinished X
   sign-in` to `feat(auth): include X public sign-in` with **no entry in
   `.ai/DECISIONS.md`** — on a public repo, for a public identity surface;
-  `app/robots.ts` disallows `/particle-demo` and `/api/` but neither `/admin`
-  nor `/auth`, so both shells are crawlable.
+  the missing `.ai/DECISIONS.md` entry is the whole of it. (This paragraph also
+  said `app/robots.ts` left `/admin` and `/auth` crawlable; that gap is closed —
+  it now disallows all four of `/particle-demo`, `/api/`, `/admin` and `/auth`.)
 - The skip control and all section-page type are DOM text rather than
   particles — the documented exception to the all-particles rule
   (see `.ai/DECISIONS.md`).
@@ -404,19 +407,25 @@ layers.
 Each `server/modules/<name>/` exposes `index.ts` (binds `db()` lazily and
 returns the service), `service.ts` (the transactional workflow), `repo.ts`
 (queries), and sometimes `rules.ts` — pure, DB-free policy that is unit-tested
-directly, as in `assessments/rules.ts`. **All ten data modules follow this**;
-`publications` and `reports` kept their repository inline until 2026-08-27.
-The eleventh, `public-x-auth`, is a deliberate exception: a pure re-export
-facade over `core/auth/public-x.ts`, with no service, no repo and no database,
-existing so `app/auth/**/route.ts` can reach it under the carve-out in
-`eslint.config.mjs`.
+directly, as in `assessments/rules.ts`. **`server/modules/` holds fourteen**:
+`ai`, `assessments`, `briefing`, `chat`, `evidence`, `items`, `narratives`,
+`outbox`, `public-auth`, `public-x-auth`, `publications`, `reports`, `search`,
+`sources`. Most follow the shape above — `publications` and `reports` kept
+their repository inline until 2026-08-27. `public-x-auth` is a deliberate
+exception: a pure re-export facade over `core/auth/public-x.ts`, with no
+service, no repo and no database, existing so `app/auth/**/route.ts` can reach
+it under the carve-out in `eslint.config.mjs`. `outbox` and `public-auth`
+depart from it too; read them before assuming the four-file shape.
 
 ### Cross-cutting rules worth knowing before editing
 
-- `server/core/config.ts` is the only **application-runtime** file that reads
-  `process.env`. Three others do, none of them runtime: `drizzle.config.ts`,
-  `server/db/testing.ts`, and a build-time `NODE_ENV` check in
-  `components/graphics/viewport.ts`.
+- `server/core/config.ts` is the only **server-runtime** file that reads
+  `process.env`. Four others do, none of them a server request path:
+  `drizzle.config.ts`, `next.config.ts`, `server/db/testing.ts`, and two files
+  reading `NEXT_PUBLIC_*` values that are inlined at build time —
+  `components/auth/google-identity.ts` and `lib/content/archive.ts`. (This
+  previously named a `NODE_ENV` check in `components/graphics/viewport.ts`,
+  which no longer exists.)
 - `server/core/versioning.ts` `recordVersion()` is the only write path for a
   versioned entity: row update, version row, head pointer, audit trail and
   reindex emit happen in one transaction. Nothing else may `UPDATE` a versioned
@@ -424,7 +433,14 @@ existing so `app/auth/**/route.ts` can reach it under the carve-out in
 - `server/core/outbox.ts` `emit()` writes job intent inside the causing
   transaction; `drainOutbox` and the queue/cron routes under
   `app/api/internal/` deliver it. Publishing to a queue after commit is not
-  atomic and is not done here.
+  atomic and is not done here. `emit()` accepts only a `Topic`, so a retired
+  topic in `RETIRED_TOPICS` cannot be produced again without a type error —
+  which is why `item.detected` lives there rather than carrying a comment.
+  Its consumer is kept as a **tombstone**: undrained rows may still exist in
+  Production and `dispatchOutboxMessage` throws on an unregistered topic, so
+  removing the consumer is a second deploy, gated on
+  `SELECT count(*) FROM outbox WHERE topic='item.detected' AND published_at IS NULL`
+  reading zero.
 - `server/db/client.ts` exports only the WebSocket `neon-serverless` driver.
   `neon-http` cannot hold an interactive transaction, which makes `SET LOCAL
   ROLE` a silent no-op and every authorization test pass for the wrong reason.
@@ -436,6 +452,42 @@ existing so `app/auth/**/route.ts` can reach it under the carve-out in
   transitions, append-only tables, derived columns and the publish gate are all
   enforced in `server/db/migrations/`. Changing a rule usually means a new
   numbered migration, not just a service edit.
+
+### The daily briefing, and the one article that may cite nothing
+
+The briefing serves exactly three jobs, in priority order: **refute anti-Israel
+narratives**, publish **one regional geopolitical Daily Brief**, and publish
+**one interesting Israel story** that reads the sources and then composes
+something new rather than re-reporting them. Refutations are `narrative_watch`,
+because an anti-Israel news item *is* a narrative — that owner ruling
+(`.ai/DECISIONS.md`, 2026-09-01) is what avoided a new section, an enum
+migration, and a frontend routing change. `war_update` is retired from
+production: it left `ARTICLE_SECTIONS` but remains a legal enum value, so the
+archive and `/war-update` keep working while security material now feeds the
+Daily Brief.
+
+Three invariants an editor must not break:
+
+- **A Narrative Watch record may publish citing nothing**, marked in public as
+  this organisation's own analysis. `evidenceBasis` is **derived, never chosen
+  by the model** — it is exactly `evidenceIds.length === 0`. The draft retry
+  loop feeds every quality-failure string back into the next attempt, so a
+  model-set flag would be found and used to switch off seven evidence checks in
+  one token. It is also **all-or-nothing**: an analysis article cites nothing
+  anywhere, and a half-sourced one is rejected outright.
+- **No quality check is ever skipped.** Exemptions live *inside* a pass
+  condition, following `daily_brief_official_context`. This is not style: the
+  trigger `enforce_publication_publish_gate` counts a frozen twelve-name subset
+  and raises unless exactly twelve pass, while `publications/repo.ts` counts
+  `REQUIRED_QUALITY_CHECKS.length` (now 18). Skipping a check breaks both.
+  `tests/briefing-quality.test.ts` pins the twelve, because that failure would
+  otherwise appear only as a raised exception in Production.
+- **`narrativeWatchTitle()` in `server/contracts/publication.ts` is the only
+  headline prefixer.** It was duplicated across two modules with divergent
+  recogniser regexes; left unmerged, a refutation rendered as
+  "Reported claim: Analysis: X". Read `evidenceBasis` as `=== "analysis"` and
+  never as `!== "analysis"` — rows predating the field carry no key, and an
+  absent value must fall to the strict side.
 
 ### Wired infrastructure and load-bearing gaps
 
@@ -453,8 +505,10 @@ full list; these three change what an editor should assume.
   `RESET ALL` on release. Migration `0018` grants the owner membership in
   `app_public`/`app_staff`/`app_service` so `SET ROLE` succeeds; `0019` adds the
   policy that lets `INSERT … RETURNING` work under `app_public`.
-  **`PUBLIC_V1` is exactly seven entries** — `GET /search`,
-  `GET /published-items`, `POST /reports`, and the four chat paths. Everything
+  **`PUBLIC_V1` is exactly nine entries** — `GET /search`,
+  `GET /published-items`, `GET /published-publications` (which one pattern
+  covers both with and without a `publicId`), `POST /reports`,
+  `POST /volunteer-interest`, and the four chat paths. Everything
   else under `/api/v1/` goes through `authenticateAdmin()` and fails closed, so
   `GET /api/v1/evidence` is staff-only, not anonymous. `docs/api.md`'s guard
   table still describes ~12 of those routes as `anon` and understates the

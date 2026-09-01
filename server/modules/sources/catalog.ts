@@ -57,17 +57,66 @@ export const BRIEFING_OFFICIAL_API_CANDIDATES = [
   },
 ] as const;
 
+/**
+ * What Agent Search is sent out to find, and why.
+ *
+ * The mix is the editorial brief in machine-readable form, so it is weighted
+ * the way the site is: four queries on the narratives the site exists to
+ * refute, three on the daily regional geopolitical brief, three on the daily
+ * Israel article. It used to be five on `war_update` and one on
+ * `narrative_watch` — the exact inverse of the stated priority — and
+ * `war_update` is no longer produced as its own article type at all, so the
+ * security material now feeds the brief instead of a section of its own.
+ *
+ * Two things to know before editing an entry:
+ *
+ * `group` is written into the created source's `config` and is read by
+ * nothing. It is a label recording which article a query was collected for,
+ * useful in the admin audit; retagging one changes documentation, not
+ * behaviour. The `query` string is the part that has an effect.
+ *
+ * `syncBriefingSourceCatalog` only ever *creates*. It skips an entry whose
+ * slug or whose derived logical key (a hash of the query text) already
+ * exists, and there is no update path for `agent_search`. So editing a query
+ * in place leaves the live source running the old text while this file claims
+ * the new one. **Change the query, change the slug** — the rewrite then
+ * arrives as a new inactive source, and the one it replaces is retired by
+ * hand. Entries below that kept their slug kept their query verbatim.
+ *
+ * Every query has to earn its results against `BRIEFING_PRIORITY_DOMAINS`,
+ * which is the whole corpus Discovery Engine may see. A vague query inside a
+ * bounded corpus does not return less; it returns the same front pages every
+ * day, which is worse than nothing because it looks like collection.
+ */
 export const BRIEFING_DISCOVERY_QUERIES = [
-  { slug: "israel-official-updates", name: "Israel official updates", query: "Israel government official statement security update", group: "israel_update" },
-  { slug: "idf-security-brief", name: "IDF security brief", query: "IDF official security update Israel", group: "war_update" },
-  { slug: "israel-current-affairs", name: "Israel current affairs", query: "Israel current affairs government security diplomacy", group: "israel_update" },
-  { slug: "israel-security", name: "Israel security", query: "Israel IDF security operations regional threats", group: "war_update" },
-  { slug: "iran-regional-security", name: "Iran and regional security", query: "Iran Israel regional security nuclear proxies", group: "war_update" },
-  { slug: "hezbollah-lebanon", name: "Hezbollah and Lebanon", query: "Hezbollah Lebanon Israel security", group: "war_update" },
-  { slug: "hamas-gaza", name: "Hamas and Gaza", query: "Hamas Gaza Israel current reporting", group: "war_update" },
-  { slug: "international-israel-coverage", name: "International Israel coverage", query: "international coverage Israel diplomacy security", group: "daily_brief" },
-  { slug: "israel-resilience", name: "Israel resilience and achievement", query: "Israel resilience recovery innovation civic achievement", group: "israel_update" },
+  /* 1. Refuting anti-Israel narratives — the first priority, and the reason
+     four of ten queries point here. Each one is aimed at a different
+     accusation family so the four do not return one another's results, and
+     each deliberately spans both halves of the corpus: the outlet making the
+     claim and the official or fact-checking source answering it, because a
+     refutation needs both and collecting only one is collecting half a file. */
   { slug: "anti-israel-narratives", name: "Anti-Israel narrative monitoring", query: "Israel IDF accusations misinformation disinformation narrative", group: "narrative_watch" },
+  { slug: "idf-conduct-accusations", name: "IDF conduct accusations and rebuttals", query: "IDF accused war crime genocide starvation civilian casualty figures Gaza contested death toll fact check verified footage", group: "narrative_watch" },
+  { slug: "israel-legal-delegitimization", name: "Legal and institutional delegitimization", query: "Israel ICJ ICC arrest warrant UN commission of inquiry special rapporteur apartheid allegation Amnesty Human Rights Watch report response", group: "narrative_watch" },
+  { slug: "coordinated-anti-israel-campaigns", name: "Coordinated campaigns and antisemitism", query: "anti-Israel disinformation campaign fabricated image recycled footage coordinated inauthentic amplification BDS boycott campus antisemitism incident", group: "narrative_watch" },
+
+  /* 2. The daily regional geopolitical brief. These three are the folded
+     `war_update` set: operations, the Iranian axis, and the diplomacy around
+     both. Security reporting keeps being collected — it now arrives as brief
+     material rather than as its own article. `daily_brief` is also the one
+     section the quality gate holds to `daily_brief_official_context`, so each
+     query names the official Israeli vocabulary that check looks for. */
+  { slug: "israel-security-operations", name: "Israel security operations", query: "IDF operation Gaza West Bank rocket fire interception hostage security incident IDF spokesperson statement Israel Defense Ministry", group: "daily_brief" },
+  { slug: "iran-axis-regional-threats", name: "Iran and the regional axis", query: "Iran Hezbollah Houthi Lebanon Syria Yemen Iraq proxy strike missile drone nuclear enrichment IAEA sanctions Israel", group: "daily_brief" },
+  { slug: "regional-diplomacy-statecraft", name: "Regional diplomacy and statecraft", query: "Israel Middle East diplomacy ceasefire negotiation hostage talks normalization agreement United States European Union policy statement", group: "daily_brief" },
+
+  /* 3. The daily Israel article — innovation, history, civic achievement.
+     Deliberately worded away from conflict vocabulary: inside this corpus a
+     query carrying "security" or "Gaza" collapses back into the brief's
+     results, which is how the old `israel-current-affairs` query behaved. */
+  { slug: "israel-resilience", name: "Israel resilience and achievement", query: "Israel resilience recovery innovation civic achievement", group: "israel_update" },
+  { slug: "israel-innovation-research", name: "Israeli innovation and research", query: "Israeli startup technology medical research clinical trial water desalination agriculture space science breakthrough funding", group: "israel_update" },
+  { slug: "israel-heritage-society", name: "Israeli heritage and society", query: "Israel archaeology excavation discovery heritage site museum exhibition volunteering community civil society culture", group: "israel_update" },
 ] as const;
 
 /** Initial bounded corpus for Agent Search. Provider setup must configure the

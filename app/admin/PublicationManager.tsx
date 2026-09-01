@@ -13,6 +13,12 @@ type Publication = {
     israeliPosition: string | null; securityContext: string | null;
     supportingEvidenceIds: string[]; contradictingEvidenceIds: string[];
     verificationState: string; knownUnknowns: string[];
+    /* Optional on purpose. This panel reads the admin list, which serves the
+       raw jsonb rather than the normalised public projection, so rows written
+       before the field existed genuinely have no key. Declaring it required
+       here would have TypeScript assert a value the row may not carry.
+       Read it as `=== "analysis"` and never as the negation. */
+    evidenceBasis?: "sourced" | "analysis";
   } | null;
   briefingRunId: string | null;
   createdAt: string;
@@ -142,6 +148,15 @@ function PublicationForm({ publication, busy, onSave, onTransition, onArchive, o
       <label><span>זירה</span><input name="arena" defaultValue={publication.arena ?? ""} /></label>
     </div>
     {publication.narrativeWatchDetails ? <fieldset className={styles.narrativeFields}><legend>פרטי מעקב נרטיב</legend>
+      {/* Read-only on purpose: the basis is derived from whether the article
+          cites anything, never chosen. A form control here would let an editor
+          relabel a sourced piece as analysis — or, worse, strip the disclosure
+          off an unsourced one — with no change to the evidence underneath. */}
+      <div className={styles.editorStatus}>
+        <span>evidence basis</span>
+        <span>{publication.narrativeWatchDetails.evidenceBasis === "analysis" ? "analysis · no source cited" : "sourced"}</span>
+      </div>
+      <p className={styles.muted}>בסיס הראיות נגזר מכך שהכתבה מצטטת ראיות, ואינו ניתן לבחירה בטופס. כדי לשנותו יש לשנות את הראיות המקושרות לכתבה.</p>
       <label><span>הטענה המדויקת</span><textarea name="exactClaim" defaultValue={publication.narrativeWatchDetails.exactClaim} rows={4} required /></label>
       <div className={styles.formGrid}>
         <label><span>מפיצים — שורה לכל גורם</span><textarea name="propagators" defaultValue={publication.narrativeWatchDetails.propagators.join("\n")} rows={4} /></label>

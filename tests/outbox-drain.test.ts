@@ -65,4 +65,29 @@ describe("outbox drain", () => {
     const result = await drainOutbox(db, { dispatch: async () => {} });
     expect(result).toEqual({ attempted: 0, dispatched: 0, failed: 0 });
   });
+
+  /* The default limit is a throughput, not a taste: the cron ticks every 15
+     minutes, so a batch left behind waits a quarter hour. A briefing edition
+     arrives as roughly 190 reindex rows at once, and at the old default of 25
+     that took eight ticks — a story published at 05:00 was not searchable
+     until nearly 07:00. This fails if anyone lowers it back under an edition. */
+  it("clears an edition-sized batch in a single tick with no limit given", async () => {
+    const db = await freshDatabase();
+    await db.insert(outbox).values(
+      Array.from({ length: 200 }, (_, i) => ({ topic: "search.reindex", payload: { id: `item-${i}` } })),
+    );
+
+    const result = await drainOutbox(db, { dispatch: async () => {} });
+    expect(result).toEqual({ attempted: 200, dispatched: 200, failed: 0 });
+  });
+
+  it("still honours an explicit limit", async () => {
+    const db = await freshDatabase();
+    await db.insert(outbox).values(
+      Array.from({ length: 5 }, (_, i) => ({ topic: "search.reindex", payload: { id: `item-${i}` } })),
+    );
+
+    const result = await drainOutbox(db, { limit: 2, dispatch: async () => {} });
+    expect(result).toEqual({ attempted: 2, dispatched: 2, failed: 0 });
+  });
 });

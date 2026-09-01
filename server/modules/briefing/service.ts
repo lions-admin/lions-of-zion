@@ -24,10 +24,34 @@ import {
   type QualityCheck,
 } from "./quality";
 import type { Actor } from "@/server/core/audit";
-import type { CreatePublication } from "@/server/contracts/publication";
+import {
+  ANALYSIS_AUTHOR,
+  evidenceBasisSchema,
+  narrativeWatchTitle,
+  type CreatePublication,
+  type EvidenceBasis,
+} from "@/server/contracts/publication";
 import { enrichEvidenceWindow } from "@/server/modules/sources/enrich";
 
-const ARTICLE_SECTIONS = ["israel_update", "war_update", "narrative_watch"] as const;
+/**
+ * What the model may select.
+ *
+ * `war_update` was removed on 2026-09-01: security and war material now feeds
+ * the Daily Brief instead of becoming a standalone article, so the model can
+ * no longer route a story there. The value stays in `PUBLICATION_SECTIONS` and
+ * in the Postgres enum on purpose — historic rows must remain legal.
+ */
+const ARTICLE_SECTIONS = ["israel_update", "narrative_watch"] as const;
+
+/**
+ * Sections a *stored* artifact may carry.
+ *
+ * The stages of one edition are separate runs and can straddle a deploy. An
+ * artifact written while `war_update` was still selectable must therefore
+ * still parse on the way back in, or the edition quarantines for no editorial
+ * reason at all. Nothing writes the legacy value any more; this only reads it.
+ */
+const STORED_ARTICLE_SECTIONS = ["israel_update", "war_update", "narrative_watch"] as const;
 const PIPELINE_STAGES = ["enrich", "cluster", "triage", "draft", "quality", "publish"] as const;
 export type EditorialStage = (typeof PIPELINE_STAGES)[number];
 
@@ -57,34 +81,122 @@ const passageSchema = z.object({
   evidenceIds: z.array(z.uuid()).min(1).max(8),
 });
 
-const articleSchema = z.object({
+/* Article-local relaxations of the two shared shapes above. A `superRefine`
+ * runs *after* the shape parse, so it cannot lift an inner `.min(1)`: the
+ * floor has to come off here and be re-imposed conditionally below. These
+ * exist only for articles — `dailyBriefSchema` and `dailySectionSchema` keep
+ * the strict `claimSchema` and `passageSchema`, because the Daily Brief is
+ * always a sourced report and there is no unsourced path into it. */
+const articleClaimSchema = claimSchema.extend({
+  evidenceLinks: z.array(evidenceLinkSchema).max(8),
+});
+
+const articlePassageSchema = passageSchema.extend({
+  evidenceIds: z.array(z.uuid()).max(8),
+});
+
+const narrativeWatchDraftSchema = z.object({
+  exactClaim: z.string().min(1).max(4_000),
+  propagators: z.array(z.string().min(1).max(300)).max(20),
+  arenas: z.array(z.string().min(1).max(120)).min(1).max(20),
+  trendDirection: z.enum(["rising", "stable", "declining", "new", "unclear"]),
+  israeliPosition: z.string().min(1).max(6_000).nullable(),
+  securityContext: z.string().min(1).max(6_000).nullable(),
+  supportingEvidenceIds: z.array(z.uuid()).max(30),
+  contradictingEvidenceIds: z.array(z.uuid()).max(30),
+  verificationState: z.enum(["verified", "refuted", "misleading", "unsupported", "disputed", "unresolved"]),
+  knownUnknowns: z.array(z.string().min(1).max(1_000)).max(20),
+});
+
+const articleShape = {
   section: z.enum(ARTICLE_SECTIONS),
   title: z.string().min(1).max(300),
   summary: z.string().min(1).max(1_200),
-  evidenceIds: z.array(z.uuid()).min(1).max(20),
-  claims: z.array(claimSchema).min(1).max(20),
-  passages: z.array(passageSchema).min(2).max(30),
+  evidenceIds: z.array(z.uuid()).max(20).describe(
+    "Every source this article rests on. Normally at least one. The single exception is a narrative_watch refutation published as this organisation's own analysis, which must leave this array empty AND cite nothing anywhere else — no claim evidenceLinks, no passage evidenceIds, no narrativeWatchDetails supporting or contradicting IDs. Any other section with an empty array is rejected.",
+  ),
+  claims: z.array(articleClaimSchema).min(1).max(20),
+  passages: z.array(articlePassageSchema).min(2).max(30),
   narrativeTitle: z.string().min(1).max(300).nullable(),
   editorialTopic: z.string().min(1).max(120),
   primaryActor: z.string().min(1).max(160).nullable(),
   arena: z.string().min(1).max(120),
   featuredIsraelStory: z.boolean(),
-  narrativeWatchDetails: z.object({
-    exactClaim: z.string().min(1).max(4_000),
-    propagators: z.array(z.string().min(1).max(300)).max(20),
-    arenas: z.array(z.string().min(1).max(120)).min(1).max(20),
-    trendDirection: z.enum(["rising", "stable", "declining", "new", "unclear"]),
-    israeliPosition: z.string().min(1).max(6_000).nullable(),
-    securityContext: z.string().min(1).max(6_000).nullable(),
-    supportingEvidenceIds: z.array(z.uuid()).max(30),
-    contradictingEvidenceIds: z.array(z.uuid()).max(30),
-    verificationState: z.enum(["verified", "refuted", "misleading", "unsupported", "disputed", "unresolved"]),
-    knownUnknowns: z.array(z.string().min(1).max(1_000)).max(20),
-  }).nullable(),
-}).superRefine((article, ctx) => {
+  narrativeWatchDetails: narrativeWatchDraftSchema.nullable(),
+} as const;
+
+export const articleSchema = z.object(articleShape).superRefine((article, ctx) => {
   if ((article.section === "narrative_watch") !== Boolean(article.narrativeWatchDetails)) {
     ctx.addIssue({ code: "custom", path: ["narrativeWatchDetails"], message: "Narrative Watch requires structured monitoring details only." });
   }
+  /* Derived here exactly as it is derived everywhere else. An article citing
+   * nothing is the organisation's own analysis; nothing else may be. */
+  const analysis = article.evidenceIds.length === 0;
+  if (analysis && article.section !== "narrative_watch") {
+    ctx.addIssue({
+      code: "custom",
+      path: ["evidenceIds"],
+      message: "Only a narrative_watch refutation may cite no evidence. Every other section must cite the source material it reports.",
+    });
+  }
+  if (analysis) {
+    /* All or nothing. A half-sourced article — citing nothing at the top while
+     * its claims and paragraphs still point at evidence — is how a piece would
+     * launder sourced material into an unsourced record that seven quality
+     * checks then treat leniently. Both this refine and `claim_evidence_matrix`
+     * reject it, so neither can drift into permitting it alone. */
+    const citesAnything = article.claims.some((claim) => claim.evidenceLinks.length > 0)
+      || article.passages.some((passage) => passage.evidenceIds.length > 0)
+      || (article.narrativeWatchDetails?.supportingEvidenceIds.length ?? 0) > 0
+      || (article.narrativeWatchDetails?.contradictingEvidenceIds.length ?? 0) > 0;
+    if (citesAnything) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["evidenceIds"],
+        message: "An article published as this organisation's own analysis must cite nothing anywhere: leave claim evidenceLinks, passage evidenceIds, and the narrative watch supporting and contradicting evidence lists empty. If the article does rest on sources, list them in evidenceIds as well.",
+      });
+    }
+    return;
+  }
+  for (const [index, claim] of article.claims.entries()) {
+    if (!claim.evidenceLinks.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["claims", index, "evidenceLinks"],
+        message: "Every claim in a sourced article needs at least one explained evidence edge.",
+      });
+    }
+  }
+  for (const [index, passage] of article.passages.entries()) {
+    if (!passage.evidenceIds.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["passages", index, "evidenceIds"],
+        message: "Every paragraph in a sourced article must cite the evidence supporting it.",
+      });
+    }
+  }
+});
+
+/**
+ * The persisted shape: what the model returned, plus the evidence basis the
+ * normaliser derives and stamps on.
+ *
+ * It is deliberately absent from `articleSchema`, which is what
+ * `toJSONSchema` shows the model. The draft retry loop feeds every quality
+ * failure string back into attempt two, so a model-visible flag that switches
+ * off seven evidence checks is a gradient pointed straight at itself. Keeping
+ * the field out of the request and re-adding it here is also what lets the
+ * value survive `draftArtifactSchema.parse()` — zod strips unknown keys, so a
+ * basis stamped onto a shape that does not declare it would be silently lost
+ * between the draft stage and the quality stage.
+ */
+const storedArticleSchema = z.object({
+  ...articleShape,
+  section: z.enum(STORED_ARTICLE_SECTIONS),
+  narrativeWatchDetails: narrativeWatchDraftSchema
+    .extend({ evidenceBasis: evidenceBasisSchema })
+    .nullable(),
 });
 
 const dailySectionSchema = z.object({
@@ -109,22 +221,33 @@ const editionSchema = z.object({
   articles: z.array(articleSchema).max(8),
 });
 
+/** The edition as normalised, stored and re-read. See `storedArticleSchema`. */
+const storedEditionSchema = z.object({
+  dailyBrief: dailyBriefSchema,
+  articles: z.array(storedArticleSchema).max(8),
+});
+
+const selectionStorySchema = z.object({
+  title: z.string().min(1).max(300),
+  section: z.enum(ARTICLE_SECTIONS),
+  evidenceIds: z.array(z.uuid()).min(1).max(12),
+  sourceClaim: z.string().min(1).max(2_000),
+  narrativeTitle: z.string().min(1).max(300).nullable(),
+});
+
 const selectionSchema = z.object({
-  stories: z.array(z.object({
-    title: z.string().min(1).max(300),
-    section: z.enum(ARTICLE_SECTIONS),
-    evidenceIds: z.array(z.uuid()).min(1).max(12),
-    sourceClaim: z.string().min(1).max(2_000),
-    narrativeTitle: z.string().min(1).max(300).nullable(),
-  })).max(8),
+  stories: z.array(selectionStorySchema).max(8),
 });
 
 const enrichArtifactSchema = z.object({ evidenceIds: z.array(z.uuid()), collectedThrough: z.string() });
 const clusterArtifactSchema = z.object({
   clusters: z.array(z.object({ key: z.string(), title: z.string(), evidenceIds: z.array(z.uuid()).min(1) })),
 });
-const triageArtifactSchema = selectionSchema.extend({ aiRunId: z.uuid() });
-const draftArtifactSchema = z.object({ edition: editionSchema, aiRunId: z.uuid() });
+const triageArtifactSchema = z.object({
+  stories: z.array(selectionStorySchema.extend({ section: z.enum(STORED_ARTICLE_SECTIONS) })).max(8),
+  aiRunId: z.uuid(),
+});
+const draftArtifactSchema = z.object({ edition: storedEditionSchema, aiRunId: z.uuid() });
 const qualityArtifactSchema = z.object({
   passed: z.boolean(),
   qualityRunId: z.uuid(),
@@ -132,6 +255,9 @@ const qualityArtifactSchema = z.object({
 });
 
 type DraftArticle = z.infer<typeof articleSchema>;
+type StoredArticle = z.infer<typeof storedArticleSchema>;
+type StoredEdition = z.infer<typeof storedEditionSchema>;
+type NarrativeWatchDraft = StoredArticle["narrativeWatchDetails"];
 type DraftDailyBrief = z.infer<typeof dailyBriefSchema>;
 type DraftContent = Pick<DraftArticle, "title" | "summary" | "evidenceIds" | "claims" | "passages">;
 
@@ -209,11 +335,12 @@ export function briefingService(database: unknown, options: { generate?: Generat
     await assertBriefingWithinBudget((since) => repo.briefingSpendSince(since), now());
   }
 
+  /** The exact packet the enrich stage closed over. Read by id: the cluster,
+   * triage, draft and quality stages all call this, and a time-windowed read
+   * silently loses rows on a late retry or a high-volume day. */
   async function evidenceForArtifact(editionId: string): Promise<BriefingEvidence[]> {
     const artifact = enrichArtifactSchema.parse(await requiredArtifact(store, editionId, "enrich"));
-    const ids = new Set(artifact.evidenceIds);
-    return (await store.recentEvidence(new Date(now().getTime() - 72 * 60 * 60 * 1_000), 500))
-      .filter((entry) => ids.has(entry.id));
+    return store.recentEvidenceByIds(artifact.evidenceIds);
   }
 
   async function runStage(
@@ -272,7 +399,15 @@ export function briefingService(database: unknown, options: { generate?: Generat
 
   async function enrich(editionId: string, actor: Actor, requestId?: string): Promise<Omit<BriefingStageResult, "stage" | "status">> {
     const discovered = await store.recentEvidence(new Date(now().getTime() - 36 * 60 * 60 * 1_000), 120);
-    await enrichEvidenceWindow(database, discovered.filter((entry) => entry.usableTextLength < 1_000), actor, requestId);
+    /* A row stays inside the 36-hour window for two consecutive daily runs, so
+     * fetching on `usableTextLength` alone re-fetched every genuinely short
+     * article a second time. Skip whatever the enrich stage has already been
+     * to. `retrieval_status` cannot answer this — ingestion writes `fetched`
+     * for any feed item that arrived with an excerpt, so filtering on it would
+     * also skip the first, real fetch of most RSS rows. */
+    const short = discovered.filter((entry) => entry.usableTextLength < 1_000);
+    const alreadyFetched = await store.enrichedEvidenceIds(short.map((entry) => entry.id));
+    await enrichEvidenceWindow(database, short.filter((entry) => !alreadyFetched.has(entry.id)), actor, requestId);
     const evidence = await store.recentEvidence(new Date(now().getTime() - 36 * 60 * 60 * 1_000), 120);
     await store.saveArtifact(editionId, "enrich", integrityHash(evidence.map((entry) => entry.id).join("|")), {
       evidenceIds: evidence.map((entry) => entry.id),
@@ -363,30 +498,64 @@ export function briefingService(database: unknown, options: { generate?: Generat
     const selectedEvidenceIds = new Set(triaged.stories.flatMap((story) => story.evidenceIds));
     const selectedEvidence = evidence.filter((entry) => selectedEvidenceIds.has(entry.id));
     const evidenceById = new Map(selectedEvidence.map((entry) => [entry.id, entry]));
+    /* A refutation is an addition to a normal edition, never a substitute for
+     * one: the Daily Brief is structurally required, and without a citable
+     * story there is nothing to build it from. This stop stands unchanged. */
     if (!selectedEvidence.length) {
       return { shouldContinue: false, inputCount: 0, outputCount: 0, reason: "no_citable_supported_stories" };
     }
-    const basePrompt = `Israel-local editorial date: ${localDate}\n\nSelected stories:\n${JSON.stringify(triaged.stories)}\n\nPublic evidence packet:\n${sourcePacket(selectedEvidence)}`;
+    /* Refutation targets come from the recorded narrative backlog rather than
+     * from the model's own idea of what is being said about Israel. The
+     * pipeline writes a narrative row for every narrative_watch article it
+     * publishes, so this is the same monitoring record read back. */
+    const openNarratives = (await narrativeService(database).listNarratives({ limit: 25 }))
+      .filter((entry) => entry.status === "emerging" || entry.status === "active")
+      .slice(0, 1)
+      .map((entry) => ({
+        title: entry.title,
+        summary: entry.summary,
+        status: entry.status,
+        observationCount: entry.observationCount,
+        lastSeenAt: entry.lastSeenAt?.toISOString() ?? null,
+      }));
+    const refutationTargets = openNarratives.length
+      ? JSON.stringify(openNarratives)
+      : "None recorded. Write a narrative_watch refutation only if the evidence packet itself carries an anti-Israel claim worth answering.";
+    const basePrompt = `Israel-local editorial date: ${localDate}\n\nSelected stories:\n${JSON.stringify(triaged.stories)}\n\nRefutation targets:\n${refutationTargets}\n\nPublic evidence packet:\n${sourcePacket(selectedEvidence)}`;
     let output: StructuredGenerateOutput<z.infer<typeof editionSchema>> | undefined;
-    let edition: z.infer<typeof editionSchema> | undefined;
+    let edition: StoredEdition | undefined;
     let qualityFeedback = "";
     let finalQualityFailures: string[] = [];
     for (let attempt = 1; attempt <= 2; attempt += 1) {
-      const candidate = await generate({
-        profile: "briefingDraft",
-        kind: "summarize",
-        dataClass: "public",
-        /* The edition is structured and can contain several articles. Give
-         * the gateway enough time to emit valid JSON while keeping the total
-         * response below the function's five-minute ceiling. Concise output
-         * also leaves room for a deterministic second quality rewrite. */
-        maxOutputTokens: 10_000,
-        timeoutMs: 120_000,
-        tags: ["feature:briefing", "stage:draft", `attempt:${attempt}`, `contract:${BRIEFING_CONTRACT_VERSION}`],
-        schema: editionSchema,
-        system: DRAFT_SYSTEM,
-        prompt: `${basePrompt}${qualityFeedback}`,
-      });
+      let candidate: StructuredGenerateOutput<z.infer<typeof editionSchema>>;
+      try {
+        candidate = await generate({
+          profile: "briefingDraft",
+          kind: "summarize",
+          dataClass: "public",
+          /* The edition is structured and can contain several articles. Give
+           * the gateway enough time to emit valid JSON while keeping the total
+           * response below the function's five-minute ceiling. Concise output
+           * also leaves room for a deterministic second quality rewrite. */
+          maxOutputTokens: 10_000,
+          timeoutMs: 120_000,
+          tags: ["feature:briefing", "stage:draft", `attempt:${attempt}`, `contract:${BRIEFING_CONTRACT_VERSION}`],
+          schema: editionSchema,
+          system: DRAFT_SYSTEM,
+          prompt: `${basePrompt}${qualityFeedback}`,
+        });
+      } catch (cause) {
+        /* `generateStructured` throws when the response fails the schema, and
+         * the article refine is now part of that schema. A refine violation is
+         * exactly the kind of mistake the second attempt exists to fix, so it
+         * feeds the retry like any quality failure instead of quarantining the
+         * edition. Everything else — budget, timeout, transport — still fails
+         * immediately, because a second call would not fix it. */
+        const retryable = cause instanceof ApiError && cause.code === "VALIDATION_ERROR";
+        if (!retryable || attempt === 2) throw cause;
+        qualityFeedback = `\n\nThe previous draft was rejected before quality checks and must be corrected:\n${cause.message}`;
+        continue;
+      }
       const normalized = normalizeEditionForQuality(
         limitEditionArticles(normalizeFeaturedIsraelStory(candidate.output)),
         evidenceById,
@@ -430,8 +599,9 @@ export function briefingService(database: unknown, options: { generate?: Generat
     const evidenceById = new Map(evidence.map((entry) => [entry.id, entry]));
     const drafted = draftArtifactSchema.parse(await requiredArtifact(store, editionId, "draft"));
     const candidates = [
-      qualityCandidate("daily-brief", dailyAsContent(drafted.edition.dailyBrief), "daily_brief"),
-      ...drafted.edition.articles.map((article, index) => qualityCandidate(`article-${index + 1}`, article, article.section)),
+      qualityCandidate("daily-brief", dailyAsContent(drafted.edition.dailyBrief), "daily_brief", null),
+      ...drafted.edition.articles.map((article, index) =>
+        qualityCandidate(`article-${index + 1}`, article, article.section, article.narrativeWatchDetails)),
     ];
     let passed = true;
     for (const [index, candidate] of candidates.entries()) {
@@ -781,13 +951,31 @@ function dailyBody(brief: DraftDailyBrief): string {
   return sections.map((section) => `## ${section.label}\n\n${bodyFromPassages(section.passages)}`).join("\n\n");
 }
 
+/**
+ * The narrative details carry the three facts the quality gate cannot read off
+ * the prose: whether this record cites anything, which claim it answers, and
+ * what it concluded about that claim. The Daily Brief has no such details and
+ * passes `null`, which is read as an ordinary sourced record.
+ */
 function qualityCandidate(
   key: string,
   content: DraftContent,
   section: QualityCandidate["section"],
+  details: NarrativeWatchDraft,
 ): QualityCandidate {
   const passages = dedupeDraftPassages(content.passages);
-  return { ...content, key, section, passages, body: bodyFromPassages(passages) };
+  return {
+    ...content,
+    key,
+    section,
+    passages,
+    body: bodyFromPassages(passages),
+    basis: {
+      evidenceBasis: details?.evidenceBasis ?? "sourced",
+      refutedClaim: details?.exactClaim ?? null,
+      verificationState: details?.verificationState ?? null,
+    },
+  };
 }
 
 /** Small drafting models sometimes restate the same source claim several
@@ -890,19 +1078,23 @@ export function normalizeTriageStories(
         narrativeTitle: null,
       }, ...routed]
     : routed;
+  /* The same ceilings `limitEditionArticles` enforces on the drafted edition.
+   * They are stated twice because triage decides what reaches the packet at
+   * all, and a triage ceiling below the drafting one would silently make the
+   * drafting one unreachable. */
   let general = 0;
   let narrative = 0;
   return withOfficial.filter((story) => {
     if (story.section === "narrative_watch") {
       narrative += 1;
-      return narrative <= 3;
+      return narrative <= 5;
     }
     general += 1;
-    return general <= 5;
+    return general <= 3;
   });
 }
 
-function validateDraftEvidence(edition: z.infer<typeof editionSchema>, evidence: Map<string, BriefingEvidence>): void {
+function validateDraftEvidence(edition: StoredEdition, evidence: Map<string, BriefingEvidence>): void {
   const content = [dailyAsContent(edition.dailyBrief), ...edition.articles];
   validateEvidenceIds(content.flatMap((entry) => [
     ...entry.evidenceIds,
@@ -940,23 +1132,34 @@ export function normalizeFeaturedIsraelStory<T extends { articles: DraftArticle[
 }
 
 /**
- * The daily contract permits up to five general articles and three Narrative
- * Watch articles. Models can occasionally return a valid extra item, so keep
- * the highest-ranked entries (their returned order) instead of discarding an
- * otherwise publishable edition.
+ * The daily contract permits up to five Narrative Watch articles and three
+ * Israel Updates, and at most **one** of those may be an unsourced analysis.
+ * Models can occasionally return a valid extra item, so keep the highest-ranked
+ * entries (their returned order) instead of discarding an otherwise publishable
+ * edition.
+ *
+ * The analysis cap is keyed on the same derivation as everything else — an
+ * empty `evidenceIds` — and is separate from the section caps because a day
+ * that produced no source-backed refutation must not become a day of five
+ * unsourced ones.
  */
 export function limitEditionArticles<T extends { articles: DraftArticle[] }>(edition: T): T {
   let general = 0;
   let narrative = 0;
+  let analysis = 0;
   return {
     ...edition,
     articles: edition.articles.filter((article) => {
+      if (article.evidenceIds.length === 0) {
+        analysis += 1;
+        if (analysis > 1) return false;
+      }
       if (article.section === "narrative_watch") {
         narrative += 1;
-        return narrative <= 3;
+        return narrative <= 5;
       }
       general += 1;
-      return general <= 5;
+      return general <= 3;
     }),
   };
 }
@@ -987,7 +1190,7 @@ export function isProcessableEvidence(entry: BriefingEvidence): boolean {
 export function normalizeEditionForQuality(
   edition: z.infer<typeof editionSchema>,
   evidence: ReadonlyMap<string, BriefingEvidence>,
-): z.infer<typeof editionSchema> {
+): StoredEdition {
   const dailyBrief = dedupeDailyBriefPassages(normalizeDailyBriefOfficialContext(edition.dailyBrief, evidence));
   return {
     ...edition,
@@ -1012,19 +1215,29 @@ export function normalizeEditionForQuality(
             uncertainty: `This report is based on one non-official publisher family and remains subject to further corroboration.`,
           }))
         : article.claims;
+      /* Derived, never read off model output. `evidenceBasis` switches off
+       * seven evidence checks, and the retry loop hands the model every
+       * failure string from attempt one — a model-set flag would be found and
+       * used within a single regeneration. It is stamped onto both branches:
+       * the details the model supplied, and the fallback synthesized when an
+       * adversarial-only story was rerouted into Narrative Watch. */
+      const evidenceBasis: EvidenceBasis = article.evidenceIds.length === 0 ? "analysis" : "sourced";
       const narrativeWatchDetails = section === "narrative_watch"
-        ? article.narrativeWatchDetails ?? {
-            exactClaim: article.summary,
-            propagators: [...new Set(rows.map((entry) => entry.publisher))].slice(0, 20),
-            arenas: [article.arena],
-            trendDirection: "unclear" as const,
-            israeliPosition: null,
-            securityContext: null,
-            supportingEvidenceIds: article.evidenceIds,
-            contradictingEvidenceIds: [],
-            verificationState: "unresolved" as const,
-            knownUnknowns: ["The source packet contains only adversarial reporting and does not independently establish the underlying event."],
-          }
+        ? article.narrativeWatchDetails
+          ? { ...article.narrativeWatchDetails, evidenceBasis }
+          : {
+              exactClaim: article.summary,
+              propagators: [...new Set(rows.map((entry) => entry.publisher))].slice(0, 20),
+              arenas: [article.arena],
+              trendDirection: "unclear" as const,
+              israeliPosition: null,
+              securityContext: null,
+              supportingEvidenceIds: article.evidenceIds,
+              contradictingEvidenceIds: [],
+              verificationState: "unresolved" as const,
+              knownUnknowns: ["The source packet contains only adversarial reporting and does not independently establish the underlying event."],
+              evidenceBasis,
+            }
         : null;
       /* A source-only allegation must not be rendered as a bare factual
        * headline.  The model already receives this instruction, but applying
@@ -1033,7 +1246,7 @@ export function normalizeEditionForQuality(
        * This changes presentation only; the original model title remains in
        * the versioned draft artifact and narrative detail. */
       const publicTitle = section === "narrative_watch"
-        ? narrativeWatchHeadline(article.title)
+        ? narrativeWatchTitle(article.title, evidenceBasis).slice(0, 300)
         : article.title;
       return {
         ...article,
@@ -1062,12 +1275,6 @@ function dedupeDailyBriefPassages(brief: DraftDailyBrief): DraftDailyBrief {
       : null,
     watchPoints: { ...brief.watchPoints, passages: dedupeDraftPassages(brief.watchPoints.passages) },
   };
-}
-
-function narrativeWatchHeadline(title: string): string {
-  const trimmed = title.trim();
-  if (/^(?:reported|unverified|disputed)\s+(?:claim|report)\s*:/i.test(trimmed)) return trimmed;
-  return `Reported claim: ${trimmed}`.slice(0, 300);
 }
 
 function normalizeDailyBriefOfficialContext(
@@ -1110,12 +1317,13 @@ function normalizeDailyBriefOfficialContext(
 }
 
 function draftQualityFailures(
-  edition: z.infer<typeof editionSchema>,
+  edition: StoredEdition,
   evidence: ReadonlyMap<string, BriefingEvidence>,
 ): string[] {
   const candidates = [
-    qualityCandidate("daily-brief", dailyAsContent(edition.dailyBrief), "daily_brief"),
-    ...edition.articles.map((article, index) => qualityCandidate(`article-${index + 1}`, article, article.section)),
+    qualityCandidate("daily-brief", dailyAsContent(edition.dailyBrief), "daily_brief", null),
+    ...edition.articles.map((article, index) =>
+      qualityCandidate(`article-${index + 1}`, article, article.section, article.narrativeWatchDetails)),
   ];
   return candidates.flatMap((candidate) => {
     const decision = evaluateCandidate(candidate, evidence);
@@ -1123,11 +1331,23 @@ function draftQualityFailures(
   });
 }
 
+/**
+ * The closed evidence packet as the model sees it.
+ *
+ * Excerpts are truncated. A stored excerpt runs to 6,000 characters and up to
+ * 120 rows are sent at triage, which is the single largest item in the daily
+ * token bill and far more text than a selection decision needs. The clustering
+ * fingerprint already bounds its own read at 2,400 characters for the same
+ * reason. The quality gate still matches the drafted article against the whole
+ * stored excerpt, so the check corpus stays a superset of what the model saw.
+ */
+const PACKET_EXCERPT_CHARS = 1_200;
+
 function sourcePacket(evidence: BriefingEvidence[]): string {
   return evidence.map((entry) => JSON.stringify({
     id: entry.id,
     title: entry.title,
-    excerpt: entry.excerpt,
+    excerpt: entry.excerpt?.slice(0, PACKET_EXCERPT_CHARS) ?? null,
     canonicalUrl: entry.canonicalUrl,
     publisher: entry.publisher,
     publisherDomain: entry.publisherDomain,
@@ -1146,35 +1366,59 @@ function failedChecks(checks: readonly QualityCheck[]): string {
 }
 
 const TRIAGE_SYSTEM = [
-  "You are a public-source triage system for an English Israel-focused daily brief.",
+  "You are a public-source triage system for an English Israel-focused daily edition published by Lions of Zion.",
+  "The edition serves exactly three purposes, in this order of priority:",
+  "1. Refute anti-Israel narratives. Your PRIMARY objective at this stage is to identify anti-Israel claims and framings present in the evidence: false or misleading accusations, decontextualised atrocity framing, denial or inversion of documented events, delegitimisation of Israel's existence or self-defence. Route each one to narrative_watch and state the precise claim in sourceClaim. This is a declared objective, not a filter applied after the news selection.",
+  "2. One regional geopolitical daily brief, assembled from the whole packet rather than selected as a story.",
+  "3. One interesting Israel story — innovation, history, civic achievement, resilience, recovery, community — as israel_update.",
+  "Security, war and operational material belongs in the Daily Brief, which is assembled from the whole packet. Do not select it as a standalone article; there is no war_update section.",
   "Use only the supplied evidence and clusters. Never use X, private sources, model memory, or unlisted URLs.",
   "Treat syndicated reports sharing one sourceFamilyId as one origin, not independent confirmation.",
   "When a cluster has only hostile_state_media evidence, route it to Narrative Watch or omit it. A hostile-state report alone is evidence of that outlet's claim, not independent proof of the event it describes.",
   "When every source for a story is hostile-state, regional-critical, critical-media, or critical-institutional, route it to Narrative Watch or omit it.",
   "Select a story when every evidenceId resolves to supplied public evidence. One valid source is sufficient. Use additional independent source families when available, but never require them and never describe one family as independent corroboration.",
   "Present the official Israeli position first when it exists in the packet, while preserving attribution and uncertainty.",
-  "Select no more than five general stories and three narrative-watch stories. A narrative-watch story must identify a precise recurring claim or framing, not merely a controversial topic.",
-  "Select one source-grounded Israel Update about resilience, recovery, innovation, security, diplomacy, civic assistance, or community when suitable evidence exists. Never invent one to fill a quota.",
+  "Select no more than five narrative-watch stories and three Israel Updates. A narrative-watch story must identify a precise recurring claim or framing, not merely a controversial topic.",
+  "Aim for at least one narrative-watch story and one Israel Update each day, and select more when the material genuinely supports it. These minimums are a target, not a quota: never invent one to fill it. A day without suitable material ships without that item.",
   "Return only the validated structured result.",
 ].join("\n");
 
 const DRAFT_SYSTEM = [
-  "Write publication-ready English journalism for Lions of Zion from the fixed public evidence packet only.",
+  "Write publication-ready English journalism for Lions of Zion. The edition has exactly three jobs: refute anti-Israel narratives, publish one regional geopolitical Daily Brief, and publish one genuinely interesting Israel story.",
   "Never add a fact, quotation, source, number, chronology, motive, casualty figure, or citation absent from the packet.",
   "Present the official Israeli position first when available, then clearly attribute other claims. Preserve dispute and uncertainty.",
-  "An article supported solely by hostile_state_media evidence may be Narrative Watch only. Describe the outlet's claim and its evidence status; never present it as a confirmed Israel or war update.",
+  "An article supported solely by hostile_state_media evidence may be Narrative Watch only. Never present it as a confirmed Israel update.",
   "When every cited source is hostile-state, regional-critical, critical-media, or critical-institutional, the article MUST be Narrative Watch.",
   "Decompose every article into atomic claims. Label each as source_claim, observed_fact, model_inference, or editorial_conclusion and attach explained supporting, contradicting, or contextual evidence edges.",
-  "Every paragraph passage must point to one claim index and the exact evidence IDs supporting it. claimIndex is zero-based and LOCAL: it indexes only the claims array in that same Daily Brief or that same individual article. It is never a global index across the edition and never an evidence index. If a passage supports the first local claim, use claimIndex: 0.",
-  "Every claim needs at least one explained evidenceLink from the packet. One valid source is sufficient. Use additional independent source families when available, but never require them and never treat two URLs from the same publisher family as independent. If a story relies on only one non-official source family, every claim MUST be a source_claim, name that publisher in attributedTo, and include a concrete uncertainty note. Every article evidenceIds list must include the evidence supporting its claims.",
-  "Before returning, audit every claims array yourself: every claim must cite supplied evidence. Use attribution and uncertainty whenever the source material itself is disputed or incomplete. The Daily Brief claims array follows the same rule.",
-  "Use exact numbers and direct quotations only when the exact token or wording appears in cited source text.",
-  "The Daily Brief must contain a situation snapshot, key events, the Israeli position when available, relevant international responses when available, and watch points.",
+  "Every paragraph passage must point to one claim index. claimIndex is zero-based and LOCAL: it indexes only the claims array in that same Daily Brief or that same individual article. It is never a global index across the edition and never an evidence index. If a passage supports the first local claim, use claimIndex: 0.",
+  "In a sourced article every paragraph must also list the exact evidence IDs supporting it, and every claim needs at least one explained evidenceLink from the packet. One valid source is sufficient. Use additional independent source families when available, but never require them and never treat two URLs from the same publisher family as independent. If a story relies on only one non-official source family, every claim MUST be a source_claim, name that publisher in attributedTo, and include a concrete uncertainty note. Every article evidenceIds list must include the evidence supporting its claims.",
+  "Before returning, audit every claims array yourself. Use attribution and uncertainty whenever the source material itself is disputed or incomplete. The Daily Brief claims array follows the same rule.",
+  "Use exact numbers and direct quotations only when the exact token or wording appears in the supplied source text or in the exact claim being refuted.",
+  "",
+  "NARRATIVE WATCH — REFUTE, DO NOT MERELY DOCUMENT.",
+  "A Narrative Watch article exists to answer an anti-Israel claim, not to catalogue it. State the claim exactly and in full; then say plainly why it is false or misleading; then supply the context its tellers omit. Record who is reported to have spread it, the relevant arenas, the evidence status, Israeli context, contradiction, and what genuinely remains unknown. Do not infer coordination or intent without evidence. Refute the claim; never repeat it approvingly and never leave it standing unanswered.",
+  "The prompt supplies a 'Refutation targets' block drawn from the tracked narrative backlog. Prefer answering one of those when the packet or the claim itself gives you something substantive to say.",
+  "",
+  "ANALYSIS MODE — A REFUTATION MAY CITE NOTHING.",
+  "A source is a bonus on a refutation, not a requirement. When you can answer a narrative from reasoning and public context alone, publish it as this organisation's own analysis, clearly marked. To do that, ALL of the following must hold together:",
+  "- section is exactly narrative_watch, and the article's evidenceIds array is empty.",
+  "- It cites nothing ANYWHERE: every claim's evidenceLinks array is empty, every passage's evidenceIds array is empty, and narrativeWatchDetails.supportingEvidenceIds and .contradictingEvidenceIds are both empty. A half-sourced article is rejected outright — either cite sources everywhere they belong, or cite none at all.",
+  `- Every claim has layer "editorial_conclusion", attributedTo set to exactly "${ANALYSIS_AUTHOR}", and a written uncertainty note saying what this reasoning does not establish.`,
+  "- Every claim's assessment is refuted, misleading, or unsupported. An unsourced piece cannot conclude that something is verified, disputed, or unresolved.",
+  "- narrativeWatchDetails.verificationState is refuted, misleading, or unsupported, and exactClaim states the claim being answered in full.",
+  "- The title is anchored in that exact claim, since there is no source text for it to be anchored in.",
+  "- Every exact number and direct quotation in the body must still appear either somewhere in the supplied packet or in exactClaim itself. Reasoning does not license a figure.",
+  "At most ONE article per edition may be an unsourced analysis. Everything else cites its sources.",
+  "",
+  "ISRAEL UPDATE — COMPOSE, DO NOT RE-REPORT.",
+  "An israel_update reads the sources and then writes something new from that reading: an innovation and why it matters, a piece of history the day's events illuminate, a civic or community achievement, a story of recovery or resilience. It is not a rewrite of one wire report. Ground every claim in the packet as usual, but the shape, the argument and the significance are yours to compose. Do not use unsupported promotional language.",
+  "",
+  "The Daily Brief must contain a situation snapshot, key events, the Israeli position when available, relevant international responses when available, and watch points. Security, war and operational material belongs here rather than in a standalone article.",
   "If an official Israeli source appears in the selected packet, the Daily Brief MUST cite it and open with a passage anchored in that source.",
-  "Narrative Watch must state the precise claim, who is reported to have spread it, relevant arenas, evidence status, Israeli context, contradiction, and what remains unknown. Do not infer coordination or intent without evidence.",
-  "Set editorialTopic, primaryActor, and arena from the evidence. featuredIsraelStory may be true only for one eligible source-grounded article whose section is exactly israel_update; it must be false for daily briefs, war updates, and Narrative Watch articles.",
-  "Write a strong pro-Israel daily article only when the packet supports it. Do not use unsupported promotional language.",
-  "Do not write placeholder prose about sources lacking details. If evidence is insufficient, omit the story.",
+  "Set editorialTopic, primaryActor, and arena from the evidence. featuredIsraelStory may be true only for one eligible source-grounded article whose section is exactly israel_update; it must be false for the Daily Brief and for Narrative Watch articles.",
+  "",
+  "VOLUME. Exactly one Daily Brief. Aim for at least one Narrative Watch refutation and at least one Israel Update, and write more when the material genuinely supports it — up to five Narrative Watch articles and three Israel Updates. These minimums are a target, NOT a quota. Never invent a story to fill one. A day without suitable material ships without that item.",
+  "Do not write placeholder prose about what the sources do or do not contain. Never write sentences of the form 'the sources do not contain', 'the material does not provide', 'insufficient information', or 'no details were provided'. If a sourced story lacks the evidence to stand up, omit that story — but do not omit a refutation merely because it has no sources: publish it in analysis mode instead. When something is genuinely unknown, name the specific missing fact in the claim's uncertainty note or in knownUnknowns, in your own words, rather than describing the state of the packet in the body.",
   "Return only the validated structured result.",
 ].join("\n");
 

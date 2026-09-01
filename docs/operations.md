@@ -107,7 +107,7 @@ Start the dev server first, then:
 | `node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final` | macOS only | Intro handoff, keyboard, WebGPU, forced WebGL2, no-JS fallback, overlays, console errors |
 | `node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band` | macOS only | The scene keeps its exact box; the band scrolls, is opaque, carries all eight links; the intro scroll lock holds |
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
-| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **21 routes** return 200 with no console errors — 15 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
+| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **23 routes** return 200 with no console errors — 17 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
 | `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
 | _CI environment_ | GitHub Actions | `.github/workflows/ci.yml` sets `NEXT_PUBLIC_ARCHIVE_CDN` at the workflow level. It is inlined at build time, so without it every archive record route logs a media 404 and the smoke job fails. The store is public; no secret is involved |
 | `npm run map` / `npm run map:check` | anywhere | Regenerates `docs/project-map.html` (Hebrew list + flowchart of every tracked file) by scanning the repository, or fails if it has drifted. Reports import-boundary violations and migration/snapshot drift on stderr |
@@ -204,7 +204,7 @@ promotion.
 
 ```mermaid
 flowchart LR
-    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (21 routes)"]
+    G["gate<br/>npm ci → typecheck → lint → test → build"] --> S["smoke<br/>build → start → ci-smoke.mjs (23 routes)"]
 ```
 
 `smoke` installs Playwright's Chromium with `--with-deps`, starts the built
@@ -220,27 +220,21 @@ Git auto-deploy is **not connected**. Production deployment is a separate,
 manual Vercel operation, so a merge to `main` does not reach production on its
 own.
 
-`vercel.json` declares transactional outbox and stage-specific briefing Queue
-triggers plus five production schedules:
+`vercel.json` declares the transactional outbox and stage-specific briefing
+Queue triggers plus five production schedules.
+
+Each briefing stage owns a route file under
+`app/api/internal/queue/briefing/`, and each carries `regions: ["iad1"]`,
+`maxDuration: 300`, and exactly one `queue/v2beta` trigger with
+`retryAfterSeconds: 30` — `briefing-collect` on the segment root, then
+`enrich`, `cluster`, `triage`, `draft`, `quality`, `publish`, one topic per
+file. `app/api/internal/cron/briefing` and `app/api/v1/admin/briefing/run`
+carry the same region and duration without a trigger. The outbox dispatcher
+takes the `outbox.dispatch` topic and the platform defaults; its own
+`maxDuration` is declared in the route file, not here.
 
 ```json
 {
-  "functions": {
-    "app/api/internal/queue/outbox-dispatch/route.ts": {
-      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox.dispatch" }]
-    },
-    "app/api/internal/queue/briefing/route.ts": {
-      "experimentalTriggers": [
-        { "type": "queue/v2beta", "topic": "briefing-collect" },
-        { "type": "queue/v2beta", "topic": "briefing-enrich" },
-        { "type": "queue/v2beta", "topic": "briefing-cluster" },
-        { "type": "queue/v2beta", "topic": "briefing-triage" },
-        { "type": "queue/v2beta", "topic": "briefing-draft" },
-        { "type": "queue/v2beta", "topic": "briefing-quality" },
-        { "type": "queue/v2beta", "topic": "briefing-publish" }
-      ]
-    }
-  },
   "crons": [
     { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
     { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
@@ -263,6 +257,51 @@ safe to retry. The briefing cron covers 07:00 Israel time across daylight
 saving changes and is idempotent by Israel-local date and stage. Preview forces
 the briefing pipeline into dry-run and requires isolated resources. See
 [`briefing-operations.md`](briefing-operations.md).
+
+The drain hands up to 250 rows a tick to the queue, which is 1,000 an hour and
+comfortably more than one edition's load — a brief materializes roughly one
+claim per paragraph and emits a `search.reindex` for each, around 190 rows
+arriving together. A backlog that survives several ticks is therefore a
+dispatch failure, not a throughput limit; check the queue binding before
+raising the number.
+
+### Deploying across a briefing run
+
+`qualityCandidatePassed` requires a candidate's recorded quality checks to
+number exactly `REQUIRED_QUALITY_CHECKS.length`, so an edition whose checks
+were written under one version of that list cannot be automatically published
+by another. **A deploy that adds or removes a check must land between
+editions**, in either direction — a rollback strands an in-flight edition
+exactly as the deploy did. The run is 07:00 Asia/Jerusalem. Nothing is lost
+when one is caught mid-flight; its articles can be published by hand from the
+administrator's publication manager.
+
+### Source catalog changes
+
+`server/modules/sources/catalog.ts` is reconciled into the database by the
+administrator dashboard's catalog-sync action
+(`POST /api/v1/admin/briefing/sources/sync`). For `agent_search` entries that
+sync **only ever creates**: it skips a slug that already exists and skips a
+query whose derived logical key already exists, and there is no update path.
+Editing a query in place therefore leaves the live source running the old text
+while the file claims the new one. The rule is **change the query, change the
+slug**.
+
+Everything the sync creates is `active: false`, so nothing starts scanning by
+itself. Rolling out a rewritten query is two manual steps:
+
+1. Activate the new `agent-search-*` source. The dashboard's per-row verify
+   action runs `POST /api/v1/sources/{id}/fetch`, which is a real fetch against
+   the live connector, and flips `active` to true only when it succeeds and
+   sees at least one item.
+2. Deactivate the source it supersedes, with `PATCH /api/v1/sources/{id}` and
+   `{"active": false}`. There is no button for this. Skipping it leaves both
+   queries running and doubles their share of the Agent Search budget.
+
+The `group` field on a catalog entry is written into the created source's
+`config` and read by nothing: it labels which article a query was collected
+for, which is useful in the admin audit. Retagging one changes documentation,
+not behaviour. Only the `query` string has an effect.
 
 ### Provisioned dependency order
 
@@ -329,7 +368,9 @@ is one people learn to ignore.
 **Stale — it is scheduled.** `vercel.json` runs the drain at `*/15 * * * *` and
 the handler exists. A row that
 fails to dispatch backs off 30s → 2m → 10m → 30m → 1h and is retried, never
-abandoned.
+abandoned. The per-tick limit is 250, well above an edition's load, so a
+growing backlog means `dispatch` is failing rather than that the drain is
+behind; the row's `last_error` and `attempts` columns say which.
 
 ### Semantic-search tests are skipping
 Expected without `TEST_DATABASE_URL`. PGlite has no pgvector, and no package

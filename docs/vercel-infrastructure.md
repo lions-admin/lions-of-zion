@@ -113,10 +113,25 @@ The Database pause can stop publication without discarding collected evidence.
 2. Apply migrations in an isolated Preview environment and run tests.
 3. Verify Preview labels, no-publication behavior, and source collection.
 4. Run the production acceptance sequence in `docs/briefing-operations.md`.
-5. Promote only after its documented evidence exists.
+5. Promote only after its documented evidence exists. A promotion that changes
+   the briefing pipeline's contract — the quality-check list, a stage artifact
+   shape — belongs between editions rather than during one; the run is 07:00
+   Israel time and `docs/operations.md` has the mechanism.
+6. When the release changed `server/modules/sources/catalog.ts`, run the
+   catalog sync and then activate the new sources by hand. The sync only
+   creates, and everything it creates is inactive, so a rewritten discovery
+   query collects nothing until an operator verifies it and deactivates the
+   entry it supersedes.
 
 For a faulty code deployment, use Vercel Instant Rollback. Database migrations
 are fix-forward or restored only to an isolated database; do not remove or
-reverse an applied Production migration in place. Full backup, restore,
-retention, and incident procedures are in `docs/briefing-operations.md` and
-`.ai/ROLLBACK.md`.
+reverse an applied Production migration in place.
+
+A migration is not the only way the stored shape moves. A publication's
+`narrative_watch_details` is a jsonb column, so a release can add a field to it
+and read the field back with no migration at all — meaning "this deploy had no
+migration" is not evidence that a rollback is clean, and the rolled-back code
+may have no branch for what the newer code wrote there. `.ai/ROLLBACK.md` lists
+the shapes that currently behave this way and the queries that find them. Full
+backup, restore, retention, and incident procedures are in
+`docs/briefing-operations.md` and `.ai/ROLLBACK.md`.

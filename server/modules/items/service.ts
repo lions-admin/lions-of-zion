@@ -11,7 +11,6 @@ import "server-only";
 
 import { ApiError, notFound } from "@/server/http/responses";
 import { recordVersion, setIdentity } from "@/server/core/versioning";
-import { emit, TOPICS } from "@/server/core/outbox";
 import { informationItem } from "@/server/db/schema";
 import { itemRepo } from "./repo";
 import { canTransition, LEGAL_TRANSITIONS } from "@/server/contracts/item";
@@ -65,11 +64,6 @@ export function itemService(db: unknown) {
           requestId,
         });
 
-        await emit(tx as never, TOPICS.itemDetected, { id: item.id }, {
-          entityType: "information_item",
-          entityId: item.id,
-        });
-
         return item;
       });
     },
@@ -99,10 +93,6 @@ export function itemService(db: unknown) {
           changeSummary: "Automatically collected briefing claim",
           changeSource: "workflow",
           requestId,
-        });
-        await emit(tx as never, TOPICS.itemDetected, { id: item.id }, {
-          entityType: "information_item",
-          entityId: item.id,
         });
         return item;
       });

@@ -10,6 +10,205 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-01 — A refutation is a narrative, so it publishes into `narrative_watch`
+
+The owner ruled that an anti-Israel news item **is** a narrative — the thing the
+briefing exists to answer, not a separate genre standing alongside it. That
+ruling settled a design question which had a considerably more expensive answer
+available.
+
+The expensive answer was a `refutation` section of its own: a new value in the
+Postgres `publication_section` enum and therefore a migration, a public route to
+serve it, a filter in the brief hub, and another branch in homepage-feature
+eligibility. Mapping refutations onto the existing section costs none of that,
+and it fits rather than merely avoids. `narrative_watch` is already the one
+section whose detail record names the **claim** (`exactClaim`) and the verdict
+on it (`verificationState`) instead of the event; the two routing checks
+`hostile_only_routing` and `adversarial_only_routing` already funnel into it any
+packet that documents what someone said as opposed to what happened. A
+refutation is that record with the sources removed, not a different record.
+
+So the stated primary editorial objective got a larger share of the collection
+budget and no new plumbing at all. Anyone proposing to promote refutations to
+their own section later should read this first: the cost is a migration plus
+four surfaces, and nothing about the shape of the record asks for it.
+
+## 2026-09-01 — A Narrative Watch record may cite nothing, and every surface says so
+
+Owner decision: **a source is a bonus on a refutation, not a requirement.** The
+organisation may answer a hostile claim from its own reasoning and public
+context. What it may not do is publish that piece as an ordinary report.
+`evidenceBasis: "sourced" | "analysis"` on `narrativeWatchDetails` records which
+one a row is; that column is jsonb, so the field needed no migration.
+
+**All-or-nothing, and two gates say so independently.** An analysis record must
+cite nothing *anywhere* — no `evidenceLinks` on a claim, no `evidenceIds` on a
+passage, empty supporting and contradicting arrays on the detail record. The
+half-sourced shape is the laundering one, and it exists because `evidenceBasis`
+derives from the article's *top-level* `evidenceIds` alone: a piece that leaves
+that one array empty while its claims and paragraphs still point at evidence
+would be graded on the lenient branch of seven checks and be carrying sourced
+material anyway. `articleSchema`'s `superRefine` in `briefing/service.ts` and
+the `claim_evidence_matrix` check both reject it, duplicated on purpose so that
+neither can drift into permitting it alone; `createPublicationSchema` carries
+the same rule for passages at the publication API boundary.
+
+**The substitute obligations are heavier than sourcing, deliberately.** Every
+claim carries `layer: "editorial_conclusion"`, `attributedTo` exactly
+`ANALYSIS_AUTHOR`, a written `uncertainty` note, and an assessment in
+{`refuted`, `misleading`, `unsupported`}; the record's `verificationState` is
+held to the same three, because a piece that cites nothing cannot conclude that
+something is `verified`, `disputed` or `unresolved` — those are findings about
+source material it does not have. `exact_fact_fidelity` is not relaxed at all;
+see the next entry. At most **one** analysis article per edition, capped
+separately from the section caps so that a day which produced no source-backed
+refutation cannot become a day of five unsourced ones.
+
+**The public marking is the promise the rest of this rests on**, and it is
+redundant by design: a second kicker badge, a disclosure paragraph above the
+claim record, an `Evidence basis` row, an affirmative block saying why this
+record cites no source where a sourced record would list its sources, an
+`Analysis: ` title prefix, a marker on the OpenGraph card, and a basis marker in
+the brief hub. Deleting one of those to tidy a layout produces precisely the
+artefact this decision exists to prevent — an unsourced record reading as
+documented fact. Two holes are known and recorded rather than fixed: JSON-LD
+`author` is still `Organization`, and the OpenGraph `alt` text is static because
+it is a module-level export, so machines get a weaker marking than humans do.
+
+The title prefix is shared (`narrativeWatchTitle`, `server/contracts/publication.ts`)
+for a concrete reason. It existed in two modules with divergent recogniser
+regexes, and a sourced record reads "Reported claim: " while an analysis record
+reads "Analysis: ". Left unmerged, a refutation renders as
+**"Reported claim: Analysis: X"**.
+
+## 2026-09-01 — `evidenceBasis` is derived from the citation list, never chosen by a model
+
+It is exactly `article.evidenceIds.length === 0`, computed after the draft is
+parsed. The draft stage is never asked for it and cannot set it.
+
+The reason is the retry loop. A failed draft is retried with **every quality
+failure string fed back into the next attempt**, which makes that loop a
+gradient pointed straight at whatever stops the failures. A model-set flag would
+have been found within an edition or two, and setting it moves seven evidence
+checks onto their unsourced branch in a single token. Derivation is not a style
+preference here — it is the only version of this feature that is not
+self-defeating.
+
+The reading rule that goes with it: test `=== "analysis"`, **never**
+`!== "analysis"`. Rows written before the field existed carry no key at all, so
+an absent value must fall to the strict side; `isAnalysisBasis()` exists so no
+call site has to remember. `toPublicPublication` normalises the field on read
+because that path casts the jsonb rather than parsing it, so
+`evidenceBasisSchema`'s default never ran there and callers were handed
+`undefined`.
+
+## 2026-09-01 — No quality check is skipped; the exemption lives inside the pass condition
+
+`analysis_disclosure` takes `REQUIRED_QUALITY_CHECKS` to eighteen, and seven
+existing checks grew a second pass condition for an unsourced candidate. Not one
+of them is skipped, and that is what made the whole change migration-free.
+
+Two layers enforce the publish gate and they count differently.
+`publications/repo.ts` recomputes from `REQUIRED_QUALITY_CHECKS.length`, so it
+follows the constant automatically. The SQL trigger
+`enforce_publication_publish_gate` (migration `0031`) hardcodes **twelve literal
+check names** and raises unless exactly twelve of them pass; it was frozen at
+that migration and cannot see anything added since. A skipped check writes no
+row — so an unsourced refutation that merely skipped `known_evidence` would
+yield eleven passes among the frozen twelve, and auto-publish would raise in
+Production. Writing every check with its exemption inside its own pass
+condition, and a detail string naming which branch it took, keeps the recorded
+audit row honest *and* keeps the trigger satisfied. The pattern was not invented
+here: `daily_brief_official_context` and `hostile_only_routing` already worked
+this way.
+
+`exact_fact_fidelity` is deliberately **not** exempted. An unsourced piece is
+the one place a fabricated figure has nothing to contradict it, so the corpus is
+widened instead of the check dropped: an analysis candidate's numbers and
+quotations are matched against the *whole collected packet* plus the claim being
+refuted. That stays non-circular — the article's own prose is never part of the
+corpus — and it degrades in the right direction, because an empty packet permits
+no figures at all.
+
+`tests/briefing-quality.test.ts` now asserts the arithmetic directly: twelve
+passes among the frozen twelve, for a sourced candidate and an unsourced one.
+Nothing else pins the two layers together, and PGlite never fires this trigger
+on a candidate assembled in a unit test, so without that assertion the failure
+surfaces only as a raised exception in Production. The eighteen-versus-twelve
+divergence itself is older than this change and tracked separately; what is
+settled here is that no future check may be bought by skipping an old one.
+
+## 2026-09-01 — `war_update` stops being produced and stays a legal value
+
+Removed from `ARTICLE_SECTIONS` in `server/modules/briefing/service.ts`, so the
+triage stage can no longer select it. Security, war and operational material now
+feeds the Daily Brief, which is assembled from the whole packet in any case;
+one regional brief reads better than a brief plus a parallel war feed drawn from
+the same evidence, and the discovery budget those five queries held moved to the
+narratives the site exists to refute.
+
+It remains a legal value in `PUBLICATION_SECTIONS` and in the Postgres
+`publication_section` enum, and that is not an oversight. Historic rows carry
+it, `/war-update` still serves them, and homepage-feature eligibility still
+includes them. **Retiring a producer is not the same as retiring a value**:
+dropping the enum member means a migration that rewrites or deletes published
+rows, which is a far larger act than removing a menu option, and buys nothing.
+The route keeps serving its archive and stops growing.
+
+`STORED_ARTICLE_SECTIONS` still accepts `war_update` when *reading* a stage
+artifact, so an edition whose stages straddle the deploy does not quarantine on
+a value its own earlier stage wrote.
+
+**The admin section menu keeps offering it, by owner decision (2026-09-01).**
+`app/admin/PublicationManager.tsx` is now the only place a new `war_update` row
+can be created, and that is deliberate: an editor filing into the archive by
+hand is a different act from the pipeline producing a daily feed, and the
+section has to stay reachable for the archive to remain editable. Recorded here
+rather than left as an apparent oversight, because the obvious next reading of
+"the pipeline no longer produces it" is that the menu option was forgotten.
+
+## 2026-09-01 — `item.detected` is retired to a tombstone; `embedding.refresh` is deleted
+
+Two dead outbox topics, treated differently, and the difference is the point.
+
+`item.detected` had two producers in `items/service.ts` — one per created item,
+which for the briefing publish stage means one per claim — feeding a consumer
+that was a deliberate no-op from the day it was written. About half of every
+post-edition outbox backlog was this topic queueing to do nothing. The producers
+are gone and the topic moved out of `TOPICS` into a new `RETIRED_TOPICS` in
+`server/core/outbox.ts`, so naming it again is a **type error** rather than a
+convention someone has to remember.
+
+Its consumer stays registered, as a tombstone rather than a placeholder.
+`dispatchOutboxMessage` throws on an unregistered topic and undrained rows may
+exist in a real database, so deleting the handler in the same deploy that
+removed the producers would leave those rows retrying against that throw until
+the queue gave up. **Retiring a topic is two deploys, not one**, and the second
+has a written condition: delete the `RETIRED_TOPICS` entry and its consumer once
+`SELECT count(*) FROM outbox WHERE topic = 'item.detected' AND published_at IS
+NULL` reads 0 in Production and the queue holds nothing in flight. Recording
+that criterion next to the constant is what stops a tombstone becoming permanent
+furniture.
+
+`embedding.refresh` was deleted outright, topic and consumer, because the same
+reasoning did not apply to it: a search of the whole git history found **zero
+producers in any commit**. It was never emitted by anything, so there is nothing
+left to drain. That search is the reason the two were handled differently, and
+it is the check to repeat before deleting any other topic in one step.
+
+The volume mattered more than the tidiness. An edition used to emit roughly 380
+outbox rows, half of them this topic; at the old `DEFAULT_DRAIN_LIMIT` of 25 on
+a 15-minute cron that is fifteen ticks, close to four hours between publishing a
+brief and it becoming searchable. Removing the dead topic halves the volume, and
+the limit went to 250 in the same pass, which clears an edition on the first
+tick with headroom for the ordinary traffic accumulated in the same window. The
+ceiling is `maxDuration = 60` on the drain route; each row costs one queue
+`send` plus one single-row `UPDATE`, and `published_at` is committed per row, so
+overshooting the budget leaves the remainder pending and the next tick resumes
+from there rather than losing anything.
+
+---
+
 ## 2026-08-27 — The research came back negative, and the page says so
 
 The owner ruled that the `/fake-resistance` hub carry a section on the
@@ -2007,6 +2206,18 @@ yet — `server/jobs/consumers/index.ts` holds explicit no-op placeholders so an
 "unhandled topic" and a "not-yet-built topic" cannot look the same failure
 from the queue's side. Phases 5 and 6 replace the placeholders; they do not
 add new topics.
+
+**Corrected 2026-09-01** — the decision above still holds; that last paragraph
+no longer describes the registry, on every count. `search.reindex` calls
+`search().reindex` and does real work. `embedding.refresh` is deleted: it turned
+out to have had no producer in any commit, so it was never a "not-yet-built
+topic" at all. `item.detected` is retired to a tombstone, which is the opposite
+of a placeholder — a placeholder is waiting to be filled in, a tombstone is
+waiting to be deleted. Later phases also added three topics the paragraph
+predates (`email.notification`, `publication.cache-invalidate`,
+`briefing.alert`), all of which do real work, so "they do not add new topics" is
+false as well. Nothing in that registry is a placeholder any more. See the entry
+at the top of this file.
 
 ## 2026-08-24 — Evidence and source are versioned; source_family is not
 

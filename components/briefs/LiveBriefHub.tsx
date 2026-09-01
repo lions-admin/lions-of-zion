@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
+import { isAnalysisBasis } from "@/server/contracts/publication";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { StatusState } from "@/components/ui/StatusState";
@@ -84,9 +85,13 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
         {narratives.length ? <PublicationSection title="Narrative watch and false claims" items={narratives} narrative /> : (
           <section className={styles.liveSection} aria-labelledby="narrative-watch-heading">
             <h2 id="narrative-watch-heading">Narrative watch and false claims</h2>
+            {/* This used to say nothing had "cleared the evidence threshold".
+                A record published as our own analysis deliberately clears no
+                such threshold, so the old wording would have described the
+                new content type as a failure. */}
             <div className={styles.narrativeEmpty}>
-              <p>No verified narrative record has cleared the evidence threshold in this edition.</p>
-              <p>Claims are published here only when their wording, source trail, trend and evidence status can be shown clearly.</p>
+              <p>No narrative record was published in this edition.</p>
+              <p>Records appear here in two forms — a reported claim with its source trail, or our own analysis answering a claim no public source yet documents. Both state their wording, trend and evidence status in full, and an unsourced record is labelled as analysis on its face.</p>
             </div>
           </section>
         )}
@@ -137,7 +142,7 @@ function Metadata({ item, narrative = false }: { item: Publication; narrative?: 
   const values = [item.editorialTopic, item.primaryActor, item.arena].filter(Boolean);
   const details = item.narrativeWatchDetails;
   return <>{values.length ? <small className={styles.storyMeta}>{narrative ? "MONITORED SIGNAL · " : ""}{values.join(" · ")}</small> : null}
-    {narrative && details ? <small className={styles.storyMeta}>CLAIM · {details.exactClaim} · TREND · {details.trendDirection} · STATUS · {details.verificationState}</small> : null}</>;
+    {narrative && details ? <small className={styles.storyMeta}>CLAIM · {details.exactClaim} · TREND · {details.trendDirection} · STATUS · {details.verificationState}{isAnalysisBasis(details) ? " · BASIS · ORGANISATION ANALYSIS, NO SOURCE CITED" : ""}</small> : null}</>;
 }
 
 function formatDate(value: string): string {

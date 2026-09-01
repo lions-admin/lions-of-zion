@@ -207,6 +207,18 @@ describe("publications", () => {
       expect(detail.narratives).toEqual([
         expect.objectContaining({ publicId: "n-visible", title: "Visible narrative" }),
       ]);
+
+      /* The fixture above writes the jsonb straight to the column and carries
+         no `evidenceBasis` — the exact shape migration 0038 backfilled onto
+         every pre-existing narrative_watch row. The read path parses nothing,
+         so `evidenceBasisSchema`'s default never runs there and the projection
+         has to normalise it itself. It must land on the strict side: absent is
+         "sourced", never "analysis", or a legacy record would arrive at the
+         page labelled as unsourced organisation analysis. */
+      expect(detail.narrativeWatchDetails?.evidenceBasis).toBe("sourced");
+      /* And the headline prefix follows the same basis, from the one shared
+         prefixer rather than a second local copy of the wording. */
+      expect(detail.title).toBe("Reported claim: A published narrative brief");
     });
 
     expect(privateNarrative!.publicId).toBe("n-private");

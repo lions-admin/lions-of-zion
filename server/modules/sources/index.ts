@@ -193,6 +193,56 @@ async function syncBriefingSourceCatalogAsService(actor: Actor): Promise<{ creat
 /** @deprecated The full catalog sync also registers missing reviewed sources. */
 export const syncBriefingRssCatalog = syncBriefingSourceCatalog;
 
+/**
+ * How many Agent Search queries have already succeeded this month.
+ *
+ * A month-wide aggregate joining `source_fetch` to `source`, and the answer is
+ * the same for every source in a tick — but `enqueueDueCollectionJobs` asks
+ * once per `agent_search` source inside its loop, so the whole scan ran ten
+ * times per tick to produce ten identical numbers.
+ *
+ * The hoist has to live here rather than at the call site, because the
+ * collection loop that would otherwise hold the value belongs to
+ * `server/modules/briefing/jobs.ts`. It works because that loop binds `now`
+ * once and passes the same `Date` to every `shouldCollectSource` call, so the
+ * timestamp *is* the tick identity: one entry, keyed by it, is exactly
+ * once-per-tick with no cadence guessing. Anything that builds a fresh `Date`
+ * per call simply misses the memo and gets today's behaviour back.
+ *
+ * The wall-clock bound is the safety net for the opposite mistake: a caller
+ * that reuses one frozen `now` for minutes would otherwise hold a stale count
+ * against a hard monthly spend ceiling, which is the one direction this must
+ * not be wrong in. A rejected query is not retained, so a transient failure
+ * does not poison the rest of the tick.
+ */
+let agentSearchUsageThisTick:
+  | { tickMs: number; monthStartMs: number; count: Promise<number> }
+  | null = null;
+
+const TICK_MEMO_MAX_AGE_MS = 60_000;
+
+function successfulAgentSearchesSince(now: Date, monthStart: Date): Promise<number> {
+  const tickMs = now.getTime();
+  const monthStartMs = monthStart.getTime();
+  const fresh = Math.abs(Date.now() - tickMs) < TICK_MEMO_MAX_AGE_MS;
+
+  if (
+    fresh
+    && agentSearchUsageThisTick?.tickMs === tickMs
+    && agentSearchUsageThisTick.monthStartMs === monthStartMs
+  ) {
+    return agentSearchUsageThisTick.count;
+  }
+
+  const count = sourceFetchRepo(db()).countSuccessfulForKindSince("agent_search", monthStart);
+  const entry = { tickMs, monthStartMs, count };
+  agentSearchUsageThisTick = entry;
+  count.catch(() => {
+    if (agentSearchUsageThisTick === entry) agentSearchUsageThisTick = null;
+  });
+  return count;
+}
+
 /** Google discovery is once per Israel-local day per query, with a separate
  * hard monthly ceiling. RSS retains its normal recurring cadence. */
 export async function shouldCollectSource(src: Source, now = new Date()): Promise<boolean> {
@@ -201,7 +251,7 @@ export async function shouldCollectSource(src: Source, now = new Date()): Promis
   const fetches = sourceFetchRepo(db());
   if (src.kind === "agent_search") {
     const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-    const successfulQueries = await fetches.countSuccessfulForKindSince("agent_search", monthStart);
+    const successfulQueries = await successfulAgentSearchesSince(now, monthStart);
     if (successfulQueries >= agentSearchMonthlyLimit()) {
       return false;
     }

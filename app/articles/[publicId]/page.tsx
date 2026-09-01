@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
+import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublicationDetail } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { ButtonLink } from "@/components/ui/Button";
@@ -60,6 +61,10 @@ export default async function ArticlePage({ params }: Props) {
     publisher: { "@type": "Organization", name: "Lions of Zion" },
   };
   const visiblePassages = collapsePublicPassages(article.passages);
+  /* Read `=== "analysis"` and never the negation: a record whose basis is
+     absent or unrecognised must be treated as a sourced one, which is the
+     reading that keeps its citations required. */
+  const isAnalysis = isAnalysisBasis(article.narrativeWatchDetails);
 
   return (
     <EditorialShell
@@ -82,6 +87,9 @@ export default async function ArticlePage({ params }: Props) {
           <Badge variant="gold" dot>
             {article.section.replace(/_/g, " ")}
           </Badge>
+          {isAnalysis ? (
+            <Badge variant="neutral">Organisation analysis · no documentary source</Badge>
+          ) : null}
         </div>
         <h1>{article.title}</h1>
         {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
@@ -100,8 +108,19 @@ export default async function ArticlePage({ params }: Props) {
           ))}
         </div>
         {article.narrativeWatchDetails ? <section className={styles.narrativeDetails}>
-          <p className={styles.kicker}>Narrative Watch</p><h2>Claim record</h2>
+          <p className={styles.kicker}>Narrative Watch</p><h2>{isAnalysis ? "Analysis record" : "Claim record"}</h2>
+          {/* Deliberately a paragraph above the list rather than a tenth row
+              inside it. Nine metadata rows are skimmed; this one is the whole
+              promise the record rests on and has to be read. */}
+          {isAnalysis ? (
+            <p className={styles.analysisNote}>
+              This record answers a circulating narrative rather than reporting one. The assessment
+              is our own and cites no documentary source — read it as Lions of Zion&rsquo;s analysis,
+              not as documented fact. The claim it answers is stated in full below.
+            </p>
+          ) : null}
           <dl>
+            <div><dt>Evidence basis</dt><dd>{isAnalysis ? ANALYSIS_AUTHOR : "Cited public sources"}</dd></div>
             <div><dt>Exact claim</dt><dd>{article.narrativeWatchDetails.exactClaim}</dd></div>
             <div><dt>Trend</dt><dd>{article.narrativeWatchDetails.trendDirection}</dd></div>
             <div><dt>Verification status</dt><dd>{article.narrativeWatchDetails.verificationState}</dd></div>
@@ -112,19 +131,34 @@ export default async function ArticlePage({ params }: Props) {
             <div><dt>Known unknowns</dt><dd>{article.narrativeWatchDetails.knownUnknowns.join(" ") || "No further unknowns are recorded."}</dd></div>
           </dl>
         </section> : null}
-        <section className={styles.sources}>
-          <h2>Public sources</h2>
-          {article.sources.length ? (
-            <ul>
-              {article.sources.map((source, index) => (
-                <li key={source.url ?? source.title + index}>
-                  {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title}
-                  <span> — {source.publisher}{source.publishedAt ? ` · ${formatSourceDate(source.publishedAt)}` : ""}</span>
-                </li>
-              ))}
-            </ul>
-          ) : <p>No public sources are listed for this article.</p>}
-        </section>
+        {/* An analysis record has nothing to list here, and a bare "no sources"
+            line reads as a malfunction. State the position instead: the absence
+            is the disclosure, not a gap in the page. If such a record ever does
+            carry sources, they are shown normally rather than denied. */}
+        {isAnalysis && !article.sources.length ? (
+          <section className={styles.sources}>
+            <h2>Why this record cites no source</h2>
+            <p>
+              This is Lions of Zion&rsquo;s own assessment, published deliberately without a
+              documentary source to cite. Nothing is being withheld: the claim it answers, and what
+              remains unknown about it, are set out in the analysis record above.
+            </p>
+          </section>
+        ) : (
+          <section className={styles.sources}>
+            <h2>Public sources</h2>
+            {article.sources.length ? (
+              <ul>
+                {article.sources.map((source, index) => (
+                  <li key={source.url ?? source.title + index}>
+                    {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title}
+                    <span> — {source.publisher}{source.publishedAt ? ` · ${formatSourceDate(source.publishedAt)}` : ""}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : <p>No public sources are listed for this article.</p>}
+          </section>
+        )}
         {article.narratives.length ? (
           <section className={styles.narratives}>
             <h2>Related Narrative Watch records</h2>

@@ -88,3 +88,55 @@ remove an article or undo a scheduled job that already wrote to Postgres.
    the restore command at Production.
 5. Raw briefing captures are private objects under `briefing/raw/`. Retention
    and cleanup never operate on the October 7 archive resource.
+
+## Rows that outlive the code that wrote them
+
+Three shapes written from 2026-09-01 onward do not roll back with the code,
+because nothing about them lives in a migration. Check each one before
+promoting an older deployment.
+
+**Publications marked as unsourced analysis.** `narrative_watch_details` is
+jsonb, so `evidenceBasis` arrived without a migration and leaves without one. A
+row carrying `"evidenceBasis": "analysis"` is a record that cites nothing
+deliberately, and code from before that field has no branch for it. It renders
+as an ordinary sourced report that happens to list no sources, with the badge,
+the disclosure paragraph and the evidence-basis row all absent — and the public
+headline comes out **"Reported claim: Analysis: …"**, because the older
+read-time prefixer does not recognise the newer prefix and adds its own in
+front. A record the site published as its own reasoning is then labelled a
+reported claim. That is the exact artefact the marking exists to prevent, so
+leaving one live under rolled-back code is worse than the deploy being undone.
+Find them first, and archive them (step 2 of the list above) before promoting:
+
+```sql
+SELECT public_id, title FROM publication
+WHERE narrative_watch_details->>'evidenceBasis' = 'analysis';
+```
+
+**Outbox rows on a retired topic.** `item.detected` has had no producer since
+2026-09-01 but keeps a registered consumer in `server/jobs/consumers/index.ts`
+precisely so that rows a previous deploy wrote can still be acknowledged —
+`dispatchOutboxMessage` throws on an unregistered topic, and a queue message
+for one then retries against that throw until the queue gives up. Whatever a
+rollback or a forward fix does to the rest of that change, **the consumer
+registration has to survive until the pending count is zero**:
+
+```sql
+SELECT count(*) FROM outbox
+WHERE topic = 'item.detected' AND published_at IS NULL;
+```
+
+Restoring the producers without restoring the consumer, and deleting the
+tombstone before that count reaches zero, both produce the same failure: rows
+that cannot be drained and a queue retrying into an exception. The two-deploy
+retirement this belongs to is recorded in `.ai/DECISIONS.md` (2026-09-01).
+
+**Quality-check rows counted by a code constant.** `qualityCandidatePassed`
+requires the number of recorded checks for a candidate to equal
+`REQUIRED_QUALITY_CHECKS.length` exactly, so an edition whose checks were
+written under one version of that list cannot be automatically published by
+another. Moving across a change to the list strands the in-flight edition's
+automatic publication in *both* directions — a rollback does it as surely as
+the deploy did. **Cross that boundary between editions**; the run is 07:00
+Asia/Jerusalem. An edition caught mid-flight is not lost: its articles can be
+published from the administrator's publication manager by hand.

@@ -144,7 +144,7 @@ const BASE_LANES = [
     id: "briefing",
     titleHe: "4. צינור בריף אוטומטי",
     titleEn: "Daily Brief Machine",
-    descHe: "איסוף, אשכול, סינון, ניסוח ו־8 בדיקות איכות ב־07:00",
+    descHe: "איסוף, אשכול, סינון, ניסוח ו־18 בדיקות איכות ב־07:00",
     laneIndex: 3,
   },
   {

@@ -183,6 +183,21 @@ The four publication surfaces — `news_update`, `brief`,
 discriminator. `published-items` reads a SQL view that already filters to the
 public statuses, which is why it needs no guard.
 
+A `section` of `narrative_watch` requires `narrativeWatchDetails`, and no other
+section may carry it — a biconditional held in the request schema, in the
+service, and by the `narrative_watch_details_match_section` CHECK. Those details
+now carry `evidenceBasis`. It is `"sourced"` for every record that cites its
+sources, and `"analysis"` for a refutation published on this organisation's own
+reasoning with no source at all.
+
+`evidenceBasis` is derived from whether the record cites anything, not chosen,
+and the request schema enforces the consequence: an `analysis` record's passages
+must cite **no** evidence, and every other publication's passages must each cite
+**at least one**. There is no half-sourced middle, which is what stops a single
+cheap citation from buying the relaxed treatment. Anything the API accepts as
+`analysis` renders to the public with an explicit disclosure and an
+`Analysis: ` title prefix, so it is never mistaken for a documented report.
+
 ### Narratives and actors
 
 | Method | Path | Guard |

@@ -34,6 +34,52 @@ type Db = {
   execute: <T>(query: unknown) => Promise<{ rows: T[] }>;
 };
 
+/* One projection, two entry points. `recentEvidence` opens the collection
+ * window; `recentEvidenceByIds` re-reads the exact packet an edition already
+ * closed over. They must return identical shapes, so the column list, the
+ * public-and-open filter, and the row mapper are written once. */
+const EVIDENCE_COLUMNS = sql`
+  e.id,
+  e.title,
+  e.excerpt,
+  e.url,
+  e.canonical_url AS "canonicalUrl",
+  e.publisher_domain AS "publisherDomain",
+  e.language,
+  e.published_at AS "publishedAt",
+  e.captured_at AS "capturedAt",
+  s.name AS publisher,
+  s.source_family_id AS "sourceFamilyId",
+  s.config->>'category' AS "sourceCategory",
+  e.normalized_content_hash AS "normalizedContentHash",
+  e.usable_text_length AS "usableTextLength",
+  e.retrieval_status AS "retrievalStatus",
+  e.access_state AS "accessState"
+`;
+
+const EVIDENCE_FROM = sql`FROM evidence e JOIN source s ON s.id = e.source_id`;
+
+const EVIDENCE_IS_USABLE = sql`
+  e.data_class = 'public'
+  AND e.canonical_url IS NOT NULL
+  AND e.access_state = 'open'
+  AND e.retrieval_status IN ('fetched', 'partial')
+`;
+
+function mapEvidence(rows: RawBriefingEvidence[]): BriefingEvidence[] {
+  return rows.map((entry) => ({
+    ...entry,
+    // Older Google-discovered publisher rows predate category persistence.
+    // Derive the same reviewed category from the original publisher domain
+    // so historical evidence is subject to the current quality gates too.
+    sourceCategory: entry.sourceCategory ?? sourceCategoryForDomain(entry.publisherDomain),
+    publishedAt: entry.publishedAt instanceof Date
+      ? entry.publishedAt
+      : entry.publishedAt ? new Date(entry.publishedAt) : null,
+    capturedAt: entry.capturedAt instanceof Date ? entry.capturedAt : new Date(entry.capturedAt),
+  }));
+}
+
 export function briefingRepo(db: unknown) {
   const d = db as Db;
 
@@ -301,43 +347,58 @@ export function briefingRepo(db: unknown) {
 
     async recentEvidence(since: Date, limit = 80): Promise<BriefingEvidence[]> {
       const result = await d.execute<RawBriefingEvidence>(sql`
-        SELECT e.id,
-               e.title,
-               e.excerpt,
-               e.url,
-               e.canonical_url AS "canonicalUrl",
-               e.publisher_domain AS "publisherDomain",
-               e.language,
-               e.published_at AS "publishedAt",
-               e.captured_at AS "capturedAt",
-               s.name AS publisher,
-               s.source_family_id AS "sourceFamilyId",
-               s.config->>'category' AS "sourceCategory",
-               e.normalized_content_hash AS "normalizedContentHash",
-               e.usable_text_length AS "usableTextLength",
-               e.retrieval_status AS "retrievalStatus",
-               e.access_state AS "accessState"
-        FROM evidence e
-        JOIN source s ON s.id = e.source_id
-        WHERE e.data_class = 'public'
+        SELECT ${EVIDENCE_COLUMNS}
+        ${EVIDENCE_FROM}
+        WHERE ${EVIDENCE_IS_USABLE}
           AND e.captured_at >= ${since}
-          AND e.canonical_url IS NOT NULL
-          AND e.access_state = 'open'
-          AND e.retrieval_status IN ('fetched', 'partial')
         ORDER BY coalesce(e.published_at, e.captured_at) DESC
         LIMIT ${limit}
       `);
-      return result.rows.map((entry) => ({
-        ...entry,
-        // Older Google-discovered publisher rows predate category persistence.
-        // Derive the same reviewed category from the original publisher domain
-        // so historical evidence is subject to the current quality gates too.
-        sourceCategory: entry.sourceCategory ?? sourceCategoryForDomain(entry.publisherDomain),
-        publishedAt: entry.publishedAt instanceof Date
-          ? entry.publishedAt
-          : entry.publishedAt ? new Date(entry.publishedAt) : null,
-        capturedAt: entry.capturedAt instanceof Date ? entry.capturedAt : new Date(entry.capturedAt),
-      }));
+      return mapEvidence(result.rows);
+    },
+
+    /**
+     * The evidence an edition's enrich artifact actually named.
+     *
+     * Every later stage needs exactly this set. Reading it by id rather than
+     * re-opening a time window and filtering in memory is not only cheaper —
+     * it is the correct behaviour. A window read drops rows whenever the
+     * edition is processed outside the window (a retry the next day) or the
+     * day produced more rows than the limit, and the loss is silent right up
+     * until `validateDraftEvidence` throws on an id the model was legitimately
+     * given. The recorded packet is closed; read it as such.
+     */
+    async recentEvidenceByIds(ids: readonly string[]): Promise<BriefingEvidence[]> {
+      if (!ids.length) return [];
+      const result = await d.execute<RawBriefingEvidence>(sql`
+        SELECT ${EVIDENCE_COLUMNS}
+        ${EVIDENCE_FROM}
+        WHERE ${EVIDENCE_IS_USABLE}
+          AND e.id IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})
+        ORDER BY coalesce(e.published_at, e.captured_at) DESC
+      `);
+      return mapEvidence(result.rows);
+    },
+
+    /**
+     * Which of these rows the enrich stage has already fetched in full.
+     *
+     * `retrieval_status` cannot answer this: ingestion writes `'fetched'` for
+     * any feed item that arrived with an excerpt, so the status says "we have
+     * some text", not "we have been to the page". The `retrieved` provenance
+     * entry is written only by `evidenceService.enrich`, so it says exactly
+     * what is being asked, and a genuinely short article is therefore fetched
+     * once rather than on every day it stays inside the collection window.
+     */
+    async enrichedEvidenceIds(ids: readonly string[]): Promise<Set<string>> {
+      if (!ids.length) return new Set();
+      const result = await d.execute<{ evidenceId: string }>(sql`
+        SELECT DISTINCT evidence_id AS "evidenceId"
+        FROM evidence_provenance
+        WHERE action = 'retrieved'
+          AND evidence_id IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})
+      `);
+      return new Set(result.rows.map((row) => row.evidenceId));
     },
 
     async summary(): Promise<{

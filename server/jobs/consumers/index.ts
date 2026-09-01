@@ -5,17 +5,21 @@ import "server-only";
  *
  * One entry per topic in `server/core/outbox.ts::TOPICS`. A topic with no
  * entry here is a bug — the queue route throws loudly rather than silently
- * acknowledging a message nothing handled. A topic whose real work has not
- * been built yet gets an explicit placeholder instead of being left out, so
- * "not implemented" and "forgotten" cannot look the same from the queue's
- * side.
+ * acknowledging a message nothing handled.
+ *
+ * There is one further entry per topic in `RETIRED_TOPICS`. Those have no
+ * producer left and no work to do; they are registered only so that rows a
+ * previous deploy wrote can still be acknowledged instead of retrying against
+ * a throw. Each one is deletable on the terms written next to it in
+ * `outbox.ts`, and until then it is a tombstone rather than a placeholder —
+ * the distinction the "not implemented" placeholders used to blur.
  *
  * Handlers call module services, never `server/db` directly — this registry
  * is orchestration, and an editorial `if` inside it would put policy in the
  * one file that is supposed to have none.
  */
 
-import { TOPICS } from "@/server/core/outbox";
+import { RETIRED_TOPICS, TOPICS } from "@/server/core/outbox";
 import { search } from "@/server/modules/search";
 import { entityTypeSchema } from "@/server/contracts/enums";
 import { reports } from "@/server/modules/reports";
@@ -47,16 +51,10 @@ const CONSUMERS: Record<string, Consumer> = {
     await search().reindex(subject.entityType, subject.entityId);
   },
 
-  [TOPICS.embeddingRefresh]: async () => {
-    /* Embeddings are pulled from the backlog by the cron, not pushed per
-       message: the backlog is derived from a hash comparison, so it is
-       already correct without anyone telling it what changed. This topic is
-       kept as a way to nudge that cron early, and does nothing on its own. */
-  },
-
-  [TOPICS.itemDetected]: async () => {
-    // Reserved for a future notification job; nothing subscribes yet.
-  },
+  /* Retired. Nothing has emitted `item.detected` since 2026-09-01; this
+     drains whatever a previous deploy left in the table. Delete it and the
+     `RETIRED_TOPICS` entry together, on the terms recorded there. */
+  [RETIRED_TOPICS.itemDetected]: async () => {},
 
   [TOPICS.emailNotification]: async (payload, ctx) => {
     const subject = subjectOf(payload, ctx);

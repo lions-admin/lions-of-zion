@@ -52,8 +52,11 @@ describe("creating an item", () => {
     expect(audits.map((a) => a.action)).toContain("information_item.created");
     expect(audits[0]!.actorLabel).toBe(actor.label);
 
+    /* Exactly one row, not two. `item.detected` was emitted here as well
+       until its consumer was found to be a no-op — an edition's worth of
+       claims meant ~190 queue messages a tick to run an empty function. */
     const queued = await db.select().from(outbox);
-    expect(queued.map((o) => o.topic).sort()).toEqual(["item.detected", "search.reindex"]);
+    expect(queued.map((o) => o.topic).sort()).toEqual(["search.reindex"]);
   });
 
   it("points the item at its own head version", async () => {

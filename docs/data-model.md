@@ -1,7 +1,7 @@
 # Data model
 
-Postgres, via Drizzle. **39 tables, 1 view, 25 SQL functions, 25 triggers,
-21 numbered migrations.**
+Postgres, via Drizzle. **59 tables, 1 view, 26 SQL functions, 24 triggers,
+48 numbered migrations.**
 
 Schema definitions live in `server/db/schema/` and are the source drizzle-kit
 generates from. Rules that Drizzle cannot express live in hand-written SQL in
@@ -29,8 +29,11 @@ Checked in, applied in **filename order** — by the test harness against
 PGlite, and by `db:migrate` against Neon. Same files, same order, both places,
 so a trigger cannot be present in one and missing in the other.
 
-Even-numbered files are usually drizzle-generated structure; odd-numbered ones
-are the hand-written rules for the phase before them.
+Through `0017` the files alternate: even-numbered ones are usually
+drizzle-generated structure, odd-numbered ones the hand-written rules for the
+phase before them. That pairing stops there — from `0018` on, most migrations
+are hand-written and a few are journaled no-ops whose only job is to re-anchor
+drizzle-kit's snapshot (see `0021`).
 
 | File | What it adds |
 | --- | --- |
@@ -52,6 +55,36 @@ are the hand-written rules for the phase before them.
 | `0015_rls_and_hardening` | Publication publish gate, report trail, roles and RLS |
 | `0016_narratives_and_actors` | `narrative`, `actor`, `narrative_observation` |
 | `0017_narrative_rules` | Observations are append-only; derived columns are read-only |
+| `0018_vercel_runtime` | RLS on chat and search, the public chat policies, `bump_rate_limit()`, `ai_spend_since()`, prune functions, and the role grants that let `SET ROLE` succeed |
+| `0019_public_ai_run_returning` | `app_public` may read back the `ai_run` row it just inserted, so `INSERT … RETURNING` works |
+| `0020_ai_cost_precision` | `ai_run.cost_usd` → `numeric(16,9)`; an embedding call can cost less than a millionth of a dollar and was rounding to zero |
+| `0021_resync_snapshot_baseline` | No schema change. Re-anchors the drizzle snapshot, which `0018`–`0020` left behind because drizzle only snapshots what it generates |
+| `0022_prune_functions_revoke_public` | The prune functions stop being executable by `PUBLIC` |
+| `0023_ai_run_service_returning` | The same `RETURNING` visibility for `app_service`, kept off the public ledger |
+| `0024_geopolitical_brief_automation` | `publication_section`, `briefing_run`, `homepage_feature`, the publication↔evidence and ↔narrative joins, and the first automatic-publication provenance constraint |
+| `0025_public_narrative_projection` | RLS on `narrative`, `actor` and their joins; `app_public` may read a narrative only through a published link |
+| `0026_evidence_retrieval_contract` | Evidence-level retrieval state, canonical identity, content hash and source health — the columns `EVIDENCE_IS_USABLE` filters on |
+| `0027_discovery_connectors` | `agent_search` and `gdelt` source kinds, and `source.logical_key` with a unique index |
+| `0028_briefing_quality_traceability` | `publication_passage` and its evidence join, the briefing edition/claim/quality-check/quarantine tables, and RLS for all of them |
+| `0029_publication_related` | `publication_related` |
+| `0030_public_correction_projection` | `public_publication_corrections()` — the version history a reader is allowed to see |
+| `0031_automatic_quality_gate` | `enforce_publication_publish_gate()` gains the automatic path: twelve literal check names, and it must count exactly twelve passes |
+| `0032_evidence_discovery_audit` | `evidence_discovery` |
+| `0033_story_clusters` | `briefing_story_cluster`, `briefing_story_evidence` |
+| `0034_briefing_jobs` | `briefing_job`, `briefing_job_delivery`, `briefing_stage_artifact` — the queued stage runner and the closed evidence packet |
+| `0035_briefing_runtime_control` | `briefing_control`, the single row that pauses automatic publication |
+| `0036_publication_editorial_filters` | `editorial_topic`, `primary_actor`, `arena`, `featured_israel_story` |
+| `0037_schema_snapshot_sync` | Journaled no-op; snapshot baseline for `0022`–`0036` |
+| `0038_narrative_watch_details` | `publication.narrative_watch_details` jsonb, backfilled for existing rows, plus the CHECK tying it to the section |
+| `0039_schema_snapshot_sync` | Journaled no-op |
+| `0040_briefing_alerts` | `briefing_alert` |
+| `0041_briefing_job_deferred_delivery` | `deferred` joins the legal `briefing_job_delivery` statuses |
+| `0042_automatic-publication-idempotency` | `publication.briefing_candidate_key` and a partial unique index, so one candidate publishes once per run |
+| `0043_backfill_source_health` | Backfill: real last-successful-fetch times for sources that predate the health columns |
+| `0044_backfill_discovered_source_categories` | Backfill: editorial category for discovered publishers, never overwriting a classified one |
+| `0045_retire_duplicate_agent_search_queries` | Retires duplicate Agent Search collectors rather than deleting them, so their audit rows survive |
+| `0046_track_briefing_raw_capture_size` | `source_fetch.raw_byte_size` |
+| `0047_schema_snapshot_sync` | Journaled no-op |
 
 ---
 
@@ -66,7 +99,7 @@ are the hand-written rules for the phase before them.
 `status_transition`
 
 **Sources and evidence** — `source_family`, `source`, `source_fetch`,
-`evidence`, `evidence_provenance`, `item_evidence`
+`evidence`, `evidence_discovery`, `evidence_provenance`, `item_evidence`
 
 **Assessment and review** — `item_assessment`, `review_queue`
 
@@ -76,12 +109,28 @@ are the hand-written rules for the phase before them.
 
 **Chat** — `chat_thread`, `chat_message`, `chat_citation`, `chat_tool_run`
 
-**Publication surfaces** — `publication`, `publication_item`
+**Publication surfaces** — `publication`, `publication_item`,
+`publication_evidence`, `publication_narrative`, `publication_passage`,
+`publication_passage_evidence`, `publication_related`, `homepage_feature`
 
 **Public reports** — `report`, `report_file`, `report_status_history`
 
 **Narratives** — `narrative`, `narrative_item`, `narrative_observation`,
 `actor`
+
+**The briefing pipeline** — `briefing_edition`, `briefing_run`,
+`briefing_run_ai`, `briefing_stage_artifact`, `briefing_job`,
+`briefing_job_delivery`, `briefing_story_cluster`, `briefing_story_evidence`,
+`briefing_claim`, `briefing_quality_check`, `briefing_quarantine`,
+`briefing_alert`, `briefing_control`
+
+Thirteen tables is a lot for one feature, and the reason is that an edition is
+not one transaction. Each stage is a separate run that can straddle a deploy, so
+the state between stages has to be durable rather than in memory:
+`briefing_stage_artifact` holds what each stage handed the next — including the
+closed evidence packet every later stage re-reads by id — and
+`briefing_quality_check` holds the eighteen per-candidate verdicts that the
+publish gate then counts in SQL.
 
 **Infrastructure** — `outbox`, `rate_limit`
 
@@ -139,8 +188,8 @@ sequenceDiagram
     participant V as recordVersion
     participant D as Postgres
 
-    S->>V: within one transaction
-    V->>D: 1. UPDATE the row
+    S->>D: 1. UPDATE the row (the caller's, same transaction)
+    S->>V: recordVersion(snapshot)
     V->>D: 2. INSERT entity_version (verbatim snapshot)
     V->>D: 3. move the head pointer
     V->>D: 4. writeAudit()
@@ -165,7 +214,15 @@ status-transition trigger reads to attribute the trail. It needs a real
 transaction — the Neon HTTP driver would make it a silent no-op, which is why
 `server/db/client.ts` exports only the WebSocket driver.
 
-Evidence and source are versioned; `source_family` is not.
+Six tables carry a `current_version_id` and are written through
+`recordVersion()`: `information_item`, `evidence`, `source`, `publication`,
+`narrative` and `actor`. `source_family` is not.
+
+A publication versions under its **kind** — `news_update`, `brief`,
+`geopolitical_analysis` or `scenario` — because `entity_version.entity_type`
+keys on `ENTITY_TYPES`, which has no `publication` member. So a query for a
+publication's history has to know its kind, and a query for "every version of
+everything published" is four `entity_type` values rather than one.
 
 ---
 
@@ -199,12 +256,123 @@ callers this trigger's SQLSTATE for a condition the CHECK already names
 precisely.
 
 `enforce_publication_publish_gate()` is the equivalent for the publication
-surfaces.
+surfaces, and it guards two routes to `published`, not one.
+
+The human route is the same shape as above: a `CHECK`
+(`published_publication_has_timestamp_and_approver`) demands a `published_at`
+and either an `approved_by` or an `auto_published_at`, and the trigger then
+checks that an `approved_by` names a human other than the author.
+
+The **automatic** route is what the briefing pipeline uses. A row with
+`auto_published_at` set may not also carry `approved_by` — a publication is one
+or the other, and a row claiming both is a provenance lie rather than extra
+assurance. It must carry a `briefing_run_id`, a `quality_approved_at`, a
+`machine_author` and a `briefing_candidate_key`
+(`automatic_publication_has_quality_provenance`, migration `0042`, whose partial
+unique index also makes one candidate publish at most once per run). And the
+trigger counts:
+
+```sql
+SELECT count(*) FROM briefing_quality_check
+WHERE briefing_run_id = NEW.briefing_run_id
+  AND candidate_key = current_setting('app.quality_candidate', true)
+  AND status = 'pass'
+  AND check_name IN ( … twelve literal names … );
+-- raises unless the count is exactly 12
+```
+
+**Those twelve names were frozen at migration `0031` and cannot see anything
+added since.** `REQUIRED_QUALITY_CHECKS` in `server/modules/briefing/quality.ts`
+now names **eighteen** checks, and `publications/repo.ts` recomputes from
+`REQUIRED_QUALITY_CHECKS.length`, so it tracks the TypeScript constant
+automatically. The trigger does not. Two consequences follow, and both are
+load-bearing:
+
+- **A new check needs no migration, but a *skipped* check breaks the gate.** An
+  exemption must live inside its own check's pass condition, emitting a `pass`
+  with a detail string saying why it does not apply — the pattern
+  `daily_brief_official_context` already used. Skipping the check instead drops
+  the count below twelve and raises in Production. `tests/automatic-publication-gate.test.ts`
+  does fire this trigger on PGlite, but with a synthetic uniform set of passes,
+  so it proves the trigger works rather than that a real candidate satisfies it.
+  The arithmetic that matters is asserted separately, in
+  `tests/briefing-quality.test.ts`, for both a sourced candidate and an
+  unsourced one — because nothing else would catch it.
+- **Six of the eighteen are enforced only in TypeScript.** That divergence
+  predates the current check set and is a real gap, not a design: the database
+  cannot refuse a publication that failed one of the six.
+
+There is a third consequence, on the deploy rather than on the schema.
+`qualityCandidatePassed` compares a **stored** row count against the constant as
+it exists *now*, so adding a check retroactively invalidates any candidate whose
+verdicts were written by an earlier deploy: eighteen rows are required and
+seventeen are on disk. It affects at most one edition, and only one caught
+between its draft and publish stages. Editions run daily on `Asia/Jerusalem`
+dates, so a deploy that changes the check list goes between editions.
 
 An automated identity may never hold `assessment.publish`, `approval.grant`,
 `evidence.restricted.read` or `policy.manage` — held as a const in
 `server/contracts/enums.ts` so that `reject_automated_privilege()` in SQL and
 the TypeScript guard cannot drift.
+
+---
+
+## `publication_section` keeps a value nothing writes
+
+The enum has four members — `daily_brief`, `israel_update`, `war_update`,
+`narrative_watch` — and the briefing pipeline can no longer produce the third.
+`war_update` was removed from `ARTICLE_SECTIONS` in the service on 2026-09-01;
+security and war material feeds the Daily Brief instead.
+
+**It was not removed from the enum, and it must not be.** Historic rows carry
+it, `/war-update` still serves them, and a `war_update` row is still eligible
+for a homepage feature. Dropping a Postgres enum value is not a cheap
+operation in any case — it requires rewriting the type and every column that
+uses it — but the reason here is the rows, not the cost. A section the pipeline
+stopped writing is not a section the archive stopped holding.
+
+---
+
+## The `narrative_watch_details` jsonb
+
+`publication.narrative_watch_details` is `jsonb`, added by migration `0038` with
+one CHECK: `(section = 'narrative_watch') = (narrative_watch_details IS NOT
+NULL)`. That is the whole of what SQL knows about it. The eleven keys inside are
+`narrativeWatchDetailsSchema` in `server/contracts/publication.ts` — a shape the
+application promises and the database does not check.
+
+The trade is deliberate and it has a cost. The eleventh key, `evidenceBasis`
+(`"sourced" | "analysis"`), was added with no migration at all — a column of a
+fixed shape would have needed one. But `0038`'s own backfill wrote **ten** keys
+into every pre-existing Narrative Watch row, so every one of them carries no
+`evidenceBasis` key rather than a wrong value. Two rules follow, and both are
+written next to the code:
+
+- **Read it as `=== "analysis"`, never as `!== "analysis"`.** An absent value
+  must fall to the strict side — the reading that requires citations, not the
+  one that excuses their absence.
+- **The read path normalises, because it casts rather than parses.**
+  `evidenceBasisSchema` carries `.default("sourced")`, but `toPublicPublication`
+  never runs zod over the stored jsonb, so that default never fired there and
+  callers were handed `undefined` while their types promised a string. Every
+  public surface that marks an unsourced record would have silently mislabelled
+  it. `publicNarrativeWatchDetails()` is the one place the stored value becomes
+  a public one, and it resolves anything that is not a literal `"analysis"` to
+  `"sourced"`.
+
+`evidenceBasis` is **derived, never chosen** — it is exactly
+`evidenceIds.length === 0` on the drafted article. That matters because the
+draft retry loop feeds every quality-check failure back into the next attempt,
+so a model-set flag would be found and used: one token would relax seven
+evidence checks, and the loop is a gradient pointed straight at whatever stops
+the failures.
+
+An analysis record must cite **nothing anywhere** — claim `evidenceLinks`,
+passage `evidenceIds`, and both id arrays in this jsonb. A half-sourced record
+is rejected outright, by the zod refine on `createPublicationSchema` and again
+by `claim_evidence_matrix` and `paragraph_traceability`. Deliberately in both
+places: the half-sourced shape is the laundering path — one cheap citation
+buying the relaxed checks — so neither gate can drift into permitting it alone.
 
 ---
 
@@ -240,11 +408,20 @@ model must be added as a second column, never swapped into this one.
 level: it holds `INSERT` and no `SELECT` at all. That is stronger than an empty
 result set, because there is no policy to get wrong.
 
-> **Gap.** The application never issues `SET LOCAL ROLE`. The runtime connects
-> as the table owner, so none of these policies applies to a live request. The
-> test harness *does* set the role, and refuses to continue unless
-> `current_user` actually changed — so the suite proves the policies are
-> correct, not that they are in effect.
+The policies are in effect at runtime. This section said the opposite until
+2026-08-27, and it was wrong: `server/http/handler.ts` wraps every request
+`accessFor()` classifies in `withDatabaseRole(role, identity, invoke)`, which
+takes a dedicated pooled connection, issues `SET ROLE` plus
+`set_config('app.identity', …)`, and `RESET ROLE` / `RESET ALL` before releasing
+it. Migration `0018` grants the owner membership in the three roles so `SET ROLE`
+succeeds; `0019` and `0023` add the policies that let `INSERT … RETURNING` work
+under `app_public` and `app_service`.
+
+> **Gap.** `withDatabaseRole` itself has no test. `tests/rls.test.ts` proves the
+> policies through `SET LOCAL ROLE` inside a transaction on PGlite, and refuses
+> to continue unless `current_user` actually changed — so the suite proves the
+> policies are correct, and proves nothing about the pooled, session-scoped
+> mechanism production actually uses to reach them.
 > See [architecture.md](architecture.md#known-architectural-gaps).
 
 ---
@@ -252,13 +429,46 @@ result set, because there is no policy to get wrong.
 ## The outbox
 
 ```sql
-outbox(id, topic, payload, entity_type, entity_id, attempts, next_attempt_at, dispatched_at, …)
+outbox(id, topic, payload, entity_type, entity_id, created_at,
+       available_at, published_at, attempts, last_error)
 ```
 
-Written inside the transaction that caused the work. Three topics today:
-`search.reindex`, `embedding.refresh`, `item.detected`. A topic with no entry
-in `server/jobs/consumers/index.ts` is a bug — the queue route throws loudly
-rather than silently acknowledging a message nothing handled.
+Written inside the transaction that caused the work. `available_at` is what lets
+a producer *schedule* work rather than only enqueue it, and it is also where the
+drain writes its backoff after a failed dispatch; `published_at` is null until
+the row reaches the queue. The one index, `outbox_pending`, is partial on
+`published_at IS NULL`, so it stays the size of the backlog rather than the size
+of history.
+
+**Four topics today**, all in `TOPICS` in `server/core/outbox.ts`:
+
+| Topic | Emitted by | Does |
+| --- | --- | --- |
+| `search.reindex` | `recordVersion()`, and the assessment service | Rebuilds one `search_document` row |
+| `email.notification` | `reports` service | Sends the workspace a new-report mail |
+| `publication.cache-invalidate` | `publications` service | Expires the public read caches |
+| `briefing.alert` | `briefing/alerts.ts` | Delivers one operator alert |
+
+A topic with no entry in `server/jobs/consumers/index.ts` is a bug — the queue
+route throws loudly rather than silently acknowledging a message nothing
+handled. The converse is not a bug: **there is one consumer with no producer,
+and it is a tombstone.** `item.detected` lives in `RETIRED_TOPICS`, which
+`emit()` does not accept, so re-emitting it is a type error. Its consumer stays
+registered because undrained rows may exist in Production and
+`dispatchOutboxMessage` throws on an unregistered topic. Delete the entry and
+the consumer together, once
+
+```sql
+SELECT count(*) FROM outbox WHERE topic = 'item.detected' AND published_at IS NULL
+```
+
+reads 0 in Production and the queue holds nothing in flight.
+
+`search.reindex` volume is what sizes the drain. A briefing edition materializes
+roughly one claim per paragraph and emits a reindex for each — about 190 rows at
+once. `drainOutbox`'s `DEFAULT_DRAIN_LIMIT` is 250 and the cron runs every 15
+minutes; at the earlier limit of 25, one edition took eight ticks, so a story
+published at 05:00 was not searchable until nearly 07:00.
 
 ---
 

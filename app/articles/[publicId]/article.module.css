@@ -26,6 +26,10 @@
   margin-left: -0.75rem;
 }
 .kickerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 .kicker, .meta {
@@ -56,3 +60,15 @@
 .narrativeDetails dl { display: grid; gap: 1rem; margin: 1.25rem 0 0; }
 .narrativeDetails dt { color: var(--gold); font: 500 var(--t-data)/1.2 var(--face-data); letter-spacing: .08em; text-transform: uppercase; }
 .narrativeDetails dd { margin: .35rem 0 0; line-height: 1.6; }
+/* The unsourced-analysis disclosure. Marked by a rule and a slightly larger
+   measure rather than by a warning colour — this is a statement of what the
+   record is, not an alert about it. */
+.analysisNote {
+  max-width: 62ch;
+  margin: 1.25rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--gold-line);
+  color: var(--ink);
+  font-size: 1.02rem;
+  line-height: 1.7;
+}

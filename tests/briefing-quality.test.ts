@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { evaluateCandidate, type QualityCandidate, type QualityEvidence } from "@/server/modules/briefing/quality";
+import {
+  evaluateCandidate,
+  REQUIRED_QUALITY_CHECKS,
+  type QualityCandidate,
+  type QualityEvidence,
+} from "@/server/modules/briefing/quality";
+import { ANALYSIS_AUTHOR } from "@/server/contracts/publication";
 import { dedupeDraftPassages } from "@/server/modules/briefing/service";
 
 const evidence: QualityEvidence[] = [
@@ -44,7 +50,45 @@ const candidate: QualityCandidate = {
     { text: "The statement is an official account; independent reporting was not yet included in the collection packet.", claimIndex: 0, evidenceIds: [evidence[0]!.id] },
     { text: "The article therefore attributes the development to the issuing office and preserves the current evidentiary limitation.", claimIndex: 0, evidenceIds: [evidence[0]!.id] },
   ],
+  basis: { evidenceBasis: "sourced", refutedClaim: null, verificationState: null },
 };
+
+/** The claim an unsourced refutation exists to answer. It is the only corpus
+ * the title and the exact-fact check can be anchored against. */
+const REFUTED_CLAIM =
+  "Israel deliberately targeted a humanitarian convoy in Gaza and then blocked every independent investigation into the strike.";
+
+const refutation: QualityCandidate = {
+  key: "article-2",
+  section: "narrative_watch",
+  title: "Israel did not deliberately target the humanitarian convoy, and no investigation was blocked",
+  summary: "The circulating convoy accusation inverts a documented sequence and omits the review that followed it.",
+  body: [
+    "The accusation asserts intent, and intent is the part it never demonstrates: it moves from an outcome that is terrible to a purpose that is assumed, without supplying the step between them.",
+    "The claim also describes a blocked investigation while the review mechanism it names was announced publicly, briefed to journalists, and reported on by outlets hostile to Israel's account of the same events.",
+    "What the framing removes is context: a convoy moving through an active combat corridor operated by a party that fights from within civilian traffic, which is precisely the condition the accusation treats as irrelevant.",
+  ].join("\n\n"),
+  evidenceIds: [],
+  claims: [{
+    title: "Deliberate targeting is asserted, not shown",
+    text: "The accusation infers deliberate targeting from the outcome alone and never establishes intent.",
+    layer: "editorial_conclusion",
+    assessment: "refuted",
+    attributedTo: ANALYSIS_AUTHOR,
+    uncertainty: "This reasoning addresses the structure of the accusation. It does not establish what any individual commander knew at the time.",
+    evidenceLinks: [],
+  }],
+  passages: [
+    { text: "The accusation asserts intent, and intent is the part it never demonstrates: it moves from an outcome that is terrible to a purpose that is assumed, without supplying the step between them.", claimIndex: 0, evidenceIds: [] },
+    { text: "The claim also describes a blocked investigation while the review mechanism it names was announced publicly, briefed to journalists, and reported on by outlets hostile to Israel's account of the same events.", claimIndex: 0, evidenceIds: [] },
+    { text: "What the framing removes is context: a convoy moving through an active combat corridor operated by a party that fights from within civilian traffic, which is precisely the condition the accusation treats as irrelevant.", claimIndex: 0, evidenceIds: [] },
+  ],
+  basis: { evidenceBasis: "analysis", refutedClaim: REFUTED_CLAIM, verificationState: "refuted" },
+};
+
+const packet = new Map(evidence.map((row) => [row.id, row]));
+const failed = (candidate: QualityCandidate, sources: ReadonlyMap<string, QualityEvidence>): string[] =>
+  evaluateCandidate(candidate, sources).checks.filter((check) => check.status === "fail").map((check) => check.name);
 
 describe("briefing quality gate", () => {
   it("removes near-duplicate passages for the same traced claim", () => {
@@ -225,5 +269,159 @@ describe("briefing quality gate", () => {
     const result = evaluateCandidate(outOfOrder, new Map([[evidence[0]!.id, evidence[0]!], [independent.id, independent]]));
     expect(result.checks.find((check) => check.name === "official_position_first")?.status).toBe("fail");
     expect(result.passed).toBe(false);
+  });
+
+  /* `REQUIRED_QUALITY_CHECKS` is what `publications/repo.ts` counts before it
+   * will mark a row automatically published, and the SQL publish gate counts a
+   * fixed subset of the same names. Nothing else pins the two together, so a
+   * check written but never emitted — or emitted under a different name —
+   * would silently make every automatic publication impossible. */
+  it("emits exactly the checks the automatic-publish gate counts", () => {
+    for (const subject of [candidate, refutation]) {
+      const emitted = evaluateCandidate(subject, packet).checks.map((check) => check.name);
+      expect(emitted).toEqual([...REQUIRED_QUALITY_CHECKS]);
+      expect(new Set(emitted).size).toBe(REQUIRED_QUALITY_CHECKS.length);
+    }
+  });
+});
+
+/**
+ * The publish gate is split across two enforcement layers that count
+ * differently, and the whole no-migration design rests on satisfying both:
+ *
+ *   - `publications/repo.ts` recomputes from `REQUIRED_QUALITY_CHECKS.length`,
+ *     so it follows the TypeScript constant automatically.
+ *   - The SQL trigger `enforce_publication_publish_gate` hardcodes twelve
+ *     literal check names and raises unless exactly twelve of them pass. It
+ *     was frozen at migration 0031 and cannot see anything added since.
+ *
+ * That second layer is the reason every exemption lives *inside* a pass
+ * condition rather than skipping a check. If an unsourced refutation ever
+ * yields fewer than twelve passes among these twelve names, auto-publish
+ * fails in Production with a raised exception and no test would have caught
+ * it — the failure is in SQL, and PGlite never sees this trigger fire on a
+ * candidate assembled here. So assert the arithmetic directly.
+ */
+const TRIGGER_REQUIRED_CHECKS = [
+  "known_evidence",
+  "direct_publishers",
+  "processable_source_text",
+  "source_independence",
+  "specific_title",
+  "substantive_body",
+  "non_placeholder_body",
+  "title_source_alignment",
+  "claim_evidence_matrix",
+  "claim_source_independence",
+  "paragraph_traceability",
+  "exact_fact_fidelity",
+] as const;
+
+describe("briefing quality gate: the SQL trigger's frozen subset", () => {
+  it("still names twelve checks that all exist in the current suite", () => {
+    expect(TRIGGER_REQUIRED_CHECKS).toHaveLength(12);
+    for (const name of TRIGGER_REQUIRED_CHECKS) {
+      expect(REQUIRED_QUALITY_CHECKS).toContain(name);
+    }
+  });
+
+  it("yields exactly twelve passes for an unsourced refutation, as the trigger demands", () => {
+    for (const subject of [candidate, refutation]) {
+      const passes = evaluateCandidate(subject, packet).checks.filter(
+        (check) => check.status === "pass" && (TRIGGER_REQUIRED_CHECKS as readonly string[]).includes(check.name),
+      );
+      expect(passes).toHaveLength(12);
+    }
+  });
+});
+
+describe("briefing quality gate: unsourced refutations", () => {
+  it("passes every check for a Narrative Watch refutation that cites nothing", () => {
+    const result = evaluateCandidate(refutation, packet);
+    expect(result.checks.filter((check) => check.status === "fail")).toEqual([]);
+    expect(result.passed).toBe(true);
+    expect(result.checks).toHaveLength(REQUIRED_QUALITY_CHECKS.length);
+  });
+
+  it("refuses the same unsourced article in any other section", () => {
+    const misrouted = { ...refutation, section: "israel_update" as const };
+    expect(failed(misrouted, packet)).toEqual(["analysis_disclosure"]);
+  });
+
+  it("refuses an unsourced article whose verification state is not a refutation", () => {
+    const undecided: QualityCandidate = {
+      ...refutation,
+      basis: { ...refutation.basis, verificationState: "unresolved" },
+    };
+    expect(failed(undecided, packet)).toEqual(["analysis_disclosure"]);
+  });
+
+  it("refuses a figure that appears nowhere in the collected packet", () => {
+    const invented: QualityCandidate = {
+      ...refutation,
+      body: `${refutation.body}\n\nThe convoy is described in the accusation as carrying 1,847 pallets.`,
+    };
+    expect(failed(invented, packet)).toContain("exact_fact_fidelity");
+  });
+
+  it("accepts a figure carried by a packet row the article does not cite", () => {
+    /* The point of widening rather than exempting: an unsourced article has no
+     * citation list of its own, so the corpus is the whole collected packet.
+     * This row is in the packet and cited by nothing. */
+    const uncited: QualityEvidence = {
+      ...evidence[0]!,
+      id: "55555555-5555-4555-8555-555555555555",
+      title: "Convoy manifest published by the coordinating agency",
+      excerpt: "The manifest lists 1,847 pallets loaded across the convoy before it entered the corridor.",
+      publisher: "Coordinating Agency",
+      publisherDomain: "agency.example",
+      sourceFamilyId: "family-agency",
+      sourceCategory: "international_institution",
+    };
+    const cited: QualityCandidate = {
+      ...refutation,
+      body: `${refutation.body}\n\nThe convoy is described in the accusation as carrying 1,847 pallets.`,
+    };
+    const widened = new Map([...packet, [uncited.id, uncited]]);
+    expect(failed(cited, widened)).toEqual([]);
+    expect(evaluateCandidate(cited, widened).passed).toBe(true);
+    // The article still cites nothing; the figure is grounded, not attributed.
+    expect(cited.evidenceIds).toEqual([]);
+  });
+
+  it("refuses unsourced claims that pose as source claims", () => {
+    const posing: QualityCandidate = {
+      ...refutation,
+      claims: refutation.claims.map((claim) => ({ ...claim, layer: "source_claim" as const })),
+    };
+    expect(failed(posing, packet)).toEqual(["claim_evidence_matrix"]);
+  });
+
+  it("refuses unsourced claims attributed to anyone but the organisation", () => {
+    const misattributed: QualityCandidate = {
+      ...refutation,
+      claims: refutation.claims.map((claim) => ({ ...claim, attributedTo: "A senior official" })),
+    };
+    expect(failed(misattributed, packet)).toEqual(["claim_evidence_matrix"]);
+  });
+
+  it("keeps the two unsourced claim substitutes independent of each other", () => {
+    /* `claim_evidence_matrix` and `claim_source_independence` check different
+     * properties on purpose, so a partial regression still trips one of them. */
+    const hedged: QualityCandidate = {
+      ...refutation,
+      claims: refutation.claims.map((claim) => ({ ...claim, assessment: "unresolved" as const })),
+    };
+    expect(failed(hedged, packet)).toEqual(["claim_source_independence"]);
+  });
+
+  it("still rejects an unresolvable evidence ID on an unsourced article", () => {
+    const ghost: QualityCandidate = {
+      ...refutation,
+      evidenceIds: ["66666666-6666-4666-8666-666666666666"],
+    };
+    const failures = failed(ghost, packet);
+    expect(failures).toContain("known_evidence");
+    expect(failures).toContain("analysis_disclosure");
   });
 });

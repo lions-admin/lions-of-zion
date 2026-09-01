@@ -10,13 +10,13 @@ Four independent controls exist:
 - `BRIEFING_COLLECTION_ENABLED`
 - `BRIEFING_PROCESSING_ENABLED`
 - `BRIEFING_AUTO_PUBLISH_ENABLED`
+- the database-backed automatic-publication pause in `briefing_control`
 
 For a gradual rollout, set `BRIEFING_COLLECTION_SOURCE_IDS` to a comma-separated
 list of source IDs or slugs. Set `BRIEFING_ENABLED_STAGES` to a comma-separated
 list of editorial stages. An unset list means all sources or stages; collection
 and processing remain independently controllable, and publication remains
 production-only.
-- the database-backed automatic-publication pause in `briefing_control`
 
 Preview forces collection and processing off in code and cannot auto-publish.
 Production and Preview must each declare matching resource labels for the
@@ -44,6 +44,72 @@ leases, heartbeats, attempts, checkpoints, permanent quarantine, and recovery
 after a deployment interruption. A stage is never started while collection
 jobs for that day remain open.
 
+## What one edition contains
+
+The edition serves three jobs in priority order: refute anti-Israel narratives,
+publish one regional geopolitical Daily Brief, publish one interesting Israel
+story. Refutation is the declared primary objective of triage, not a filter
+applied afterwards.
+
+A complete edition is one `daily_brief`, up to five `narrative_watch` records,
+and up to three `israel_update` articles. A minimum of one refutation and one
+Israel story is a target, not a quota — a day whose material supports neither
+ships without them, and a short edition is not by itself an incident.
+
+The Daily Brief is different: it is structurally required, and a refutation is
+an addition to a normal edition rather than a substitute for one. If triage
+selects no citable story, the draft stage stops with
+`no_citable_supported_stories` and no edition is produced at all. That surfaces
+as the "missing edition after 10:00 Israel time" alert, and it is worth
+investigating — it usually means collection, not editorial judgement.
+
+**`war_update` is no longer produced.** The pipeline stopped selecting it on
+2026-09-01; security, war and operational material feeds the Daily Brief
+instead. `/war-update` keeps serving the archive it already has, and existing
+`war_update` rows stay editable, archivable and eligible for a homepage slot —
+the route stops growing rather than breaking. If a new `war_update` article
+appears in Production, that is a defect worth investigating, not a normal run.
+
+### Unsourced analysis records
+
+One Narrative Watch record per edition may publish citing no source at all,
+labelled as this organisation's own analysis. In admin it shows as
+`analysis · no source cited` on the publication row; on the public article it
+carries a second kicker badge, a disclosure paragraph, an `Evidence basis` row,
+an `Analysis: ` title prefix instead of `Reported claim: `, a marker on the
+OpenGraph card, and a "Why this record cites no source" block in place of the
+sources list. The brief hub carries a basis marker on the same record. If any
+one of those is missing after a deploy, treat it as an incident and pause
+automatic publication: the marking is the whole basis on which the record is
+allowed to exist.
+
+Two things an operator should know about it:
+
+- **The basis is derived, not declared.** On the pipeline's own path it is
+  exactly an empty `evidenceIds` array on the drafted article, computed after
+  the model has returned. There is nothing the model can set to obtain it, and
+  that is deliberate: the draft retry loop hands the model every quality
+  failure string from the previous attempt, so a model-set flag would be found
+  and used to switch off seven evidence checks within one regeneration. A
+  record the pipeline marked as analysis genuinely cites nothing anywhere.
+- **It is all-or-nothing.** A record that cites some things and not others is
+  rejected outright rather than downgraded — at the draft schema, at the create
+  contract, and again in the quality checks. So no edition can produce a
+  half-sourced analysis record, and a quarantined draft complaining about one
+  is the gate working, not a malfunction.
+
+The admin editor shows the basis as a read-only row and preserves it verbatim
+on save, so ordinary editing cannot relabel a record. **`PATCH
+/api/v1/publications/:id` can.** `updatePublicationSchema` accepts a whole
+`narrativeWatchDetails` object, `evidenceBasis` included, and carries none of
+the all-or-nothing refinements that guard the create path — so a hand-written
+API call can strip the disclosure off an unsourced record or attach it to a
+sourced one, and nothing downstream will contradict it, because the whole
+public marking reads from that stored field. Do not send `evidenceBasis` by
+hand. Correct a wrong record forward with a new version instead. This is a real
+gap, not a procedure: the update path is not held to the same contract as the
+create path.
+
 ## Providers
 
 - RSS and Atom are direct-source connectors.
@@ -58,6 +124,75 @@ jobs for that day remain open.
 Before enabling Google, verify the monthly query and monetary ceilings, the
 allowlist, index retention, least-privilege IAM role, and budget alerts in the
 authenticated provider consoles.
+
+## Changing an Agent Search query
+
+`syncBriefingSourceCatalog` **only ever creates an `agent_search` source. There
+is no update path.** It skips any catalog entry whose slug, or whose derived
+logical key, already exists. For a search source that key is
+`agent_search:query:<normalized query>` — the query text trimmed, lowercased
+and whitespace-collapsed, not a hash — so a cosmetic reformat of a query is
+correctly recognised as the same query, and any real change to the wording
+produces a new key. Editing a query string in place therefore changes nothing
+in the database: the live source keeps running the old text while
+`server/modules/sources/catalog.ts` claims the new one, and nothing reports the
+divergence.
+
+The rule that follows is **change the query, change the slug**. A rewritten
+query then arrives as a *new* source, always `active: false`, and the source it
+replaces has to be deactivated by hand. Nothing starts scanning by itself, and
+nothing stops scanning by itself either.
+
+Note also that the entry's `group` field is written into the created source's
+`config` and read by nothing. It records which article a query was collected
+for and is useful in the admin audit; retagging one changes a label, not
+behaviour. Only `query` has an effect.
+
+### The 2026-09-01 rewrite — an operator action, not a deploy artefact
+
+The discovery mix was rebalanced from five `war_update` queries, three
+`israel_update`, one `daily_brief` and one `narrative_watch` to four
+`narrative_watch`, three `daily_brief` and three `israel_update`, matching the
+edition's stated priorities. Two entries kept their slug and their query
+verbatim because their collection must not be interrupted:
+`agent-search-anti-israel-narratives` and `agent-search-israel-resilience`.
+
+The other eight are rewrites. **After the deploy, run the catalog sync, then
+verify and activate these eight new sources:**
+
+```text
+agent-search-idf-conduct-accusations
+agent-search-israel-legal-delegitimization
+agent-search-coordinated-anti-israel-campaigns
+agent-search-israel-security-operations
+agent-search-iran-axis-regional-threats
+agent-search-regional-diplomacy-statecraft
+agent-search-israel-innovation-research
+agent-search-israel-heritage-society
+```
+
+**Then deactivate the eight they supersede, manually:**
+
+```text
+agent-search-israel-official-updates
+agent-search-idf-security-brief
+agent-search-israel-current-affairs
+agent-search-israel-security
+agent-search-iran-regional-security
+agent-search-hezbollah-lebanon
+agent-search-hamas-gaza
+agent-search-international-israel-coverage
+```
+
+Activation uses the same authenticated verify-and-enable action as any other
+source; a failed verification leaves the source disabled and out of the
+collection round. Until both halves are done the system is in a defined but
+undesirable state: doing only the first half runs both generations of query
+against one monthly search ceiling and collects the same material twice, and
+doing only the second half leaves the edition with two discovery queries. Do
+them in the order given, in one sitting, and then confirm in the admin console
+that no superseded slug is still active. Ten is the ceiling, not the
+expectation: a query that fails verification stays disabled, which is correct.
 
 ## Backup before schema or cleanup work
 
@@ -188,6 +323,56 @@ permanent quarantine, repeatedly failing sources, a Queue age over 30 minutes,
 automatic publication is expected. Alerts are visible in admin and delivered
 to the configured administrator through the transactional outbox.
 
+### Outbox drain and how long a story takes to become searchable
+
+A published story is on its public page immediately; it becomes *searchable*
+only once its `search.reindex` outbox row has been drained and consumed. The
+drain cron runs every fifteen minutes and hands the queue at most
+`DEFAULT_DRAIN_LIMIT` rows per tick.
+
+That limit is **250**, raised from 25 on 2026-09-01. The load that sets it is a
+briefing edition: it materialises roughly one claim per paragraph, so it
+emitted about 380 rows at once — roughly 190 `search.reindex` and roughly 190
+`item.detected`, a topic whose consumer had been a deliberate no-op since the
+day it was written.
+
+Two changes landed together. Removing the `item.detected` producers halves the
+backlog to about 190 rows, and 250 drains that on the first tick with room for
+a double-length edition plus the ordinary traffic that accumulated in the same
+window.
+
+At the old default the arithmetic was the visible symptom. The reindex rows
+alone are eight ticks at 25 a tick — two hours, so a story published at 05:00
+was not searchable until nearly 07:00 — and rows drain in `availableAt` order,
+so the no-op topic interleaved with them and the full 380-row backlog took
+about 3.8 hours to clear. If that lag reappears, check the drain result counts
+before suspecting the queue: a backlog draining steadily at exactly the limit
+is a throughput problem, not a stall.
+
+The ceiling on raising it further is `maxDuration = 60` on
+`/api/internal/cron/outbox-drain`. Each row costs one queue send plus one
+single-row update, so 250 finishes well inside that budget even pessimistically.
+Overshooting is not destructive in any case: `published_at` is committed per
+row, so a timeout mid-drain leaves the remainder pending and the next tick
+resumes from there.
+
+**`item.detected` is retired, not deleted.** Nothing emits it, and re-emitting
+it is now a type error rather than a convention — it lives in `RETIRED_TOPICS`
+and `emit()` accepts only a live `Topic`. Its consumer is deliberately kept as
+a tombstone, because rows written before the change may still be undrained in
+Production and `dispatchOutboxMessage` throws on an unregistered topic; a queue
+message for one would then retry against that throw until the queue gave up.
+The consumer may be deleted only once
+
+```sql
+SELECT count(*) FROM outbox WHERE topic = 'item.detected' AND published_at IS NULL;
+```
+
+reads 0 in Production and the queue holds nothing in flight. Retiring a topic
+is two deploys, not one. `embedding.refresh` needed no tombstone by contrast:
+it had zero producers in the whole git history and was never emitted by any
+commit, so both topic and consumer were removed outright.
+
 Incident order:
 
 1. Pause automatic publication in admin.
@@ -232,6 +417,17 @@ the per-stage model-cost rows, adjust the explicit ceiling only with owner
 approval, then restart from the durable pre-model stage rather than repeating
 already charged requests.
 
+Before treating a cost rise as a ceiling problem, know what sets the packet
+size. Each evidence excerpt handed to the model is truncated to 1,200
+characters, against a stored excerpt that can run to 6,000. The row count is
+bounded above it: the enrich packet reads at most 120 rows, and the draft
+packet is the subset those rows' triage selections cite — at most eight stories
+of twelve evidence IDs each. The quality checks still match the drafted article
+against the **full stored excerpt**, so the check corpus stays a superset of
+what the model saw, and truncation can never fail a check over material the
+model did have. If token cost jumps, look at how many evidence rows entered the
+packet rather than at excerpt length.
+
 ### Secret rotation and exposed-credential procedure
 
 Do not copy a secret, access token, OAuth code, or service-account key into an
@@ -263,24 +459,65 @@ For every other credential, rotate in this order:
 If the affected secret is an admin password or recovery method, the account
 owner must perform the final password change directly in the provider UI.
 
+## Deploying between editions
+
+The briefing cron runs at 07:00 Asia/Jerusalem — `0,15,30,45 4,5 * * *` in
+`vercel.json`, covering both UTC hours Israeli daylight saving can put it in.
+Deploy the briefing pipeline **outside that window**, and prefer a time when no
+edition is mid-flight.
+
+The reason is not general caution. One edition's stages are separate runs, so a
+deploy can land between them, and a change to the quality contract then applies
+to an edition that was drafted under the previous one. The 2026-09-01 change is
+exactly that case: `REQUIRED_QUALITY_CHECKS` went from seventeen names to
+eighteen, and `qualityCandidatePassed` recomputes the required count from that
+constant. An edition whose quality stage ran before the deploy recorded
+seventeen check rows and will therefore never satisfy the eighteen-check gate —
+so resume and auto-publish fail for that edition, and only that edition.
+
+The failure is loud and safe rather than silent: the publish stage raises
+`Quality checks failed for <candidateKey>` inside the edition transaction, so
+nothing partial reaches the public. That is a `VALIDATION_ERROR`, which marks
+the edition **quarantined** and visible in admin. Recovery is then the ordinary
+administrator "Run now", which restarts a quarantined or failed edition **from
+triage** and regenerates it under the current contract — that is what records
+the eighteenth check row, not a repair of the seventeen already stored. It does
+not create a second edition.
+
+Do not lower the required count to rescue one day's run. That constant is also
+what the automatic-publish path counts, and the SQL trigger counting its own
+frozen twelve will not forgive an actually-failed check in any case.
+
+The reading path was made deliberately tolerant for the same reason:
+`STORED_ARTICLE_SECTIONS` still parses `war_update` on the way back in, so an
+artifact drafted before that section was withdrawn does not quarantine an
+otherwise valid edition. That tolerance covers stored sections only. It does
+not cover the check count.
+
 ## Deployment acceptance
 
 1. Use Node 24 locally, in CI, and in Vercel.
 2. Create the database and Blob snapshot.
 3. Apply migrations to isolated Preview and run RLS/migration tests.
 4. Confirm Preview resource labels and dry-run behavior.
-5. Run source verification and live collection with publication paused.
-6. Sample direct URLs, publisher attribution, dates, excerpts, canonical URLs,
+5. Run the catalog sync, then reconcile the source catalog by hand: activate
+   every new `agent-search-*` source the sync created, and deactivate the ones
+   it supersedes. The sync creates and never updates, so this step is not
+   optional and no deploy performs it. See "Changing an Agent Search query".
+6. Run source verification and live collection with publication paused.
+7. Sample direct URLs, publisher attribution, dates, excerpts, canonical URLs,
    source families, and deduplication decisions.
-7. Run full processing with publication paused three times on separate daily
-   packets. Review every consequential claim and source matrix.
-8. Verify admin edit/archive/feature controls, public APIs, article pages,
+8. Run full processing with publication paused three times on separate daily
+   packets. Review every consequential claim and source matrix. If any edition
+   produced an unsourced analysis record, read that one end to end and confirm
+   every public marking is present before it is allowed to publish unattended.
+9. Verify admin edit/archive/feature controls, public APIs, article pages,
    homepage, sitemap, social cards, security headers, rate limits, cache
    invalidation, desktop Chrome, and physical phones.
-9. Inject one controlled provider failure and prove retry, alert, quarantine,
-   and recovery without publication.
-10. Complete and record an isolated database restore drill.
-11. Enable the environment flag and database pause only after all prior checks
+10. Inject one controlled provider failure and prove retry, alert, quarantine,
+    and recovery without publication.
+11. Complete and record an isolated database restore drill.
+12. Enable the environment flag and database pause only after all prior checks
     pass. Closely monitor the first Production edition and keep the archive
     action ready.
 

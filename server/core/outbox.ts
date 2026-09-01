@@ -18,14 +18,39 @@ import { dispatchToQueue, type Dispatcher } from "./queue";
 
 export const TOPICS = {
   searchReindex: "search.reindex",
-  embeddingRefresh: "embedding.refresh",
-  itemDetected: "item.detected",
   emailNotification: "email.notification",
   publicationCacheInvalidate: "publication.cache-invalidate",
   briefingAlert: "briefing.alert",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];
+
+/**
+ * Topics a past deploy produced and nothing produces any more.
+ *
+ * They are kept out of `TOPICS` on purpose: `emit()` only accepts a `Topic`,
+ * so naming one of these again is a type error rather than a convention
+ * someone has to remember. A consumer must nevertheless stay registered for
+ * each of them in `server/jobs/consumers`, because rows written before the
+ * change may still be undrained in a real database and
+ * `dispatchOutboxMessage` throws on an unregistered topic — a queue message
+ * for one would then retry against that throw until the queue gives up.
+ *
+ * Retiring a topic is therefore two deploys, not one: drop the producers and
+ * move the topic here, then delete the entry and its consumer once
+ * `SELECT count(*) FROM outbox WHERE topic = '<value>' AND published_at IS
+ * NULL` reads 0 in Production and the queue has no message left in flight.
+ */
+export const RETIRED_TOPICS = {
+  /**
+   * Emitted once per created item — including once per claim by the briefing
+   * publish stage, so ~190 rows for an eight-article edition — to run a
+   * consumer that was a deliberate no-op from the day it was written. About
+   * half of every post-edition outbox backlog was this topic waiting its turn
+   * to do nothing. Producers removed 2026-09-01.
+   */
+  itemDetected: "item.detected",
+} as const;
 
 type Inserter = { insert: (table: typeof outbox) => { values: (v: unknown) => Promise<unknown> } };
 
@@ -61,6 +86,27 @@ export type DrainResult = { attempted: number; dispatched: number; failed: numbe
 const BACKOFF_SECONDS = [30, 120, 600, 1800, 3600];
 
 /**
+ * Rows handed to the queue per tick.
+ *
+ * The cron runs every 15 minutes (`vercel.json`), so this number is really a
+ * throughput: 250 rows per tick is 1,000 an hour. The load that sets it is a
+ * briefing edition, which materializes roughly one claim per paragraph and
+ * emits a `search.reindex` for each — about 190 rows arriving at once. At the
+ * previous default of 25 that edition took eight ticks, so a story published
+ * at 05:00 was not searchable until nearly 07:00; at 250 it drains on the
+ * first tick with room for a double-length edition and the ordinary traffic
+ * that accumulated in the same window.
+ *
+ * The ceiling is `maxDuration = 60` on the drain route. Each row costs one
+ * queue `send` plus one single-row `UPDATE` — tens of milliseconds — so 250
+ * finishes in well under half the budget even at a pessimistic 150ms a row.
+ * Overshooting is not destructive in any case: `published_at` is committed
+ * per row, so a timeout mid-drain leaves the remainder pending and the next
+ * tick resumes from there.
+ */
+const DEFAULT_DRAIN_LIMIT = 250;
+
+/**
  * Hands pending outbox rows to the queue, and records what happened.
  *
  * `dispatch` defaults to the real Vercel Queues client but is a parameter
@@ -75,7 +121,7 @@ export async function drainOutbox(
 ): Promise<DrainResult> {
   const d = db as AnyDb;
   const dispatch = opts.dispatch ?? dispatchToQueue;
-  const limit = opts.limit ?? 25;
+  const limit = opts.limit ?? DEFAULT_DRAIN_LIMIT;
 
   const pending = await d
     .select()

@@ -22,12 +22,15 @@ import { homepageFeature, publication } from "@/server/db/schema";
 import { repo } from "./repo";
 import {
   canTransitionPublication,
+  isAnalysisBasis,
   LEGAL_PUBLICATION_TRANSITIONS,
+  narrativeWatchTitle,
 } from "@/server/contracts/publication";
 import type {
   CreatePublication,
   ListPublicPublications,
   ListPublications,
+  NarrativeWatchDetails,
   PublicPublicationDetail,
   PublicPublication,
   TransitionPublication,
@@ -552,14 +555,25 @@ export function publicationService(db: unknown) {
 
         const { changeSummary, ...fields } = input;
         const nextSection = fields.section ?? before.section;
+        /* `evidenceBasis` is derived from whether the record cites anything, so
+         * it survives every edit rather than being resubmitted. The update
+         * contract omits it precisely so a client cannot send one; carry the
+         * stored value forward here, defaulting to the strict reading, so an
+         * edit can never turn an unsourced analysis into a documented report. */
+        const storedBasis = isAnalysisBasis(before.narrativeWatchDetails as { evidenceBasis?: string } | null)
+          ? "analysis" as const
+          : "sourced" as const;
         const nextNarrativeDetails = fields.narrativeWatchDetails === undefined
           ? before.narrativeWatchDetails
-          : fields.narrativeWatchDetails;
+          : fields.narrativeWatchDetails === null
+            ? null
+            : { ...fields.narrativeWatchDetails, evidenceBasis: storedBasis };
         if ((nextSection === "narrative_watch") !== Boolean(nextNarrativeDetails)) {
           throw new ApiError("VALIDATION_ERROR", "Narrative Watch publications require structured monitoring details, and other sections may not carry them.");
         }
         const after = await r.update(id, {
           ...Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined)),
+          ...(fields.narrativeWatchDetails === undefined ? {} : { narrativeWatchDetails: nextNarrativeDetails }),
           updatedAt: new Date(),
         });
 
@@ -669,7 +683,10 @@ export function publicationService(db: unknown) {
 
 function toPublicPublication(row: Publication): PublicPublication {
   if (!row.publishedAt) throw new ApiError("NOT_FOUND", "Publication is not public.");
-  const title = row.section === "narrative_watch" ? publicNarrativeWatchTitle(row.title) : row.title;
+  const narrativeWatchDetails = publicNarrativeWatchDetails(row.narrativeWatchDetails);
+  const title = row.section === "narrative_watch"
+    ? narrativeWatchTitle(row.title, narrativeWatchDetails?.evidenceBasis ?? "sourced").slice(0, 300)
+    : row.title;
   return {
     publicId: row.publicId,
     kind: row.kind,
@@ -685,15 +702,29 @@ function toPublicPublication(row: Publication): PublicPublication {
     primaryActor: row.primaryActor,
     arena: row.arena,
     featuredIsraelStory: row.featuredIsraelStory,
-    narrativeWatchDetails: row.narrativeWatchDetails as PublicPublication["narrativeWatchDetails"],
+    narrativeWatchDetails,
   };
 }
 
-/** Keep historic machine publications as clearly attributed claims too. */
-function publicNarrativeWatchTitle(title: string): string {
-  const trimmed = title.trim();
-  if (/^(?:reported|unverified|disputed)\s+(?:claim|report)\s*:/i.test(trimmed)) return trimmed;
-  return `Reported claim: ${trimmed}`.slice(0, 300);
+/**
+ * The one place the stored jsonb becomes a public value.
+ *
+ * This used to be a bare cast, which meant `evidenceBasisSchema`'s
+ * `.default("sourced")` never ran on the read path: nothing parses here. Rows
+ * written before the field existed — every row migration `0038` backfilled —
+ * carry no `evidenceBasis` key at all, so the cast handed callers `undefined`
+ * while their types promised a string, and every downstream surface that marks
+ * an unsourced record would have silently mislabelled it.
+ *
+ * Normalised to the strict side on purpose: only a literal `"analysis"` is
+ * analysis. An absent, misspelt or unrecognised value reads as `"sourced"`,
+ * which is the reading that requires citations rather than the one that
+ * excuses their absence.
+ */
+function publicNarrativeWatchDetails(details: unknown): PublicPublication["narrativeWatchDetails"] {
+  if (!details || typeof details !== "object") return null;
+  const stored = details as NarrativeWatchDetails;
+  return { ...stored, evidenceBasis: isAnalysisBasis(stored) ? "analysis" : "sourced" };
 }
 
 /** `entity_type` predates the merged `publication` table and still names the

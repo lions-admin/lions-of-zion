@@ -1,3 +1,5 @@
+import { ANALYSIS_AUTHOR, type EvidenceBasis } from "@/server/contracts/publication";
+
 export type QualityEvidence = {
   id: string;
   title: string;
@@ -29,6 +31,26 @@ export type DraftClaim = {
 
 export type DraftPassage = { text: string; claimIndex: number; evidenceIds: string[] };
 
+/**
+ * What kind of record this is, from the caller's own knowledge rather than
+ * from the candidate's prose.
+ *
+ * `evidenceBasis` is derived upstream from `evidenceIds.length === 0`; it is
+ * never read off model output. `refutedClaim` is the Narrative Watch
+ * `exactClaim` — the claim the piece exists to answer — and is the only
+ * corpus an unsourced refutation can be anchored against. `verificationState`
+ * is that record's published assessment of the claim.
+ *
+ * The field is required rather than optional so that adding an unsourced path
+ * forces every call site to say which kind of record it is building, instead
+ * of defaulting into the lenient branch by omission.
+ */
+export type QualityBasis = {
+  evidenceBasis: EvidenceBasis;
+  refutedClaim: string | null;
+  verificationState: string | null;
+};
+
 export type QualityCandidate = {
   key: string;
   section: "daily_brief" | "israel_update" | "war_update" | "narrative_watch";
@@ -38,6 +60,7 @@ export type QualityCandidate = {
   evidenceIds: string[];
   claims: DraftClaim[];
   passages: DraftPassage[];
+  basis: QualityBasis;
 };
 
 export type QualityCheck = {
@@ -69,12 +92,27 @@ export const REQUIRED_QUALITY_CHECKS = [
   "official_position_first",
   "paragraph_traceability",
   "exact_fact_fidelity",
+  "analysis_disclosure",
 ] as const;
 
 const GENERIC_TITLES = /^(daily brief|latest news|news update|war update|israel update|what you need to know|breaking news)$/i;
 
+/** The assessments an unsourced refutation may reach. A piece that cites
+ * nothing cannot conclude that something is `verified`, `disputed`, or
+ * `unresolved` — those are findings about source material it does not have. */
+const REFUTATION_ASSESSMENTS = new Set(["refuted", "misleading", "unsupported"]);
+
 /** Deterministic checks run after drafting and before any publication row can
- * receive an automatic-publish marker. Model output cannot waive them. */
+ * receive an automatic-publish marker. Model output cannot waive them.
+ *
+ * Every name in `REQUIRED_QUALITY_CHECKS` is written and must pass — including
+ * for an unsourced Narrative Watch refutation. There is deliberately no skip
+ * path: a check that does not apply carries its exemption *inside its own pass
+ * condition*, with a detail string saying so. That is what keeps the recorded
+ * audit row honest, and it is also what keeps the automatic-publish trigger
+ * satisfied, since the trigger counts a fixed twelve of these names as passes
+ * and would refuse a publication that merely omitted one.
+ */
 export function evaluateCandidate(
   candidate: QualityCandidate,
   evidenceById: ReadonlyMap<string, QualityEvidence>,
@@ -85,12 +123,21 @@ export function evaluateCandidate(
   });
   const ids = new Set(evidence.map((row) => row.id));
   const checks: QualityCheck[] = [];
+  /* Derived upstream from `evidenceIds.length === 0`, never chosen by a model.
+   * Seven checks below carry a second pass condition for this case. */
+  const analysis = candidate.basis.evidenceBasis === "analysis";
 
-  add(checks, "known_evidence", evidence.length === candidate.evidenceIds.length && evidence.length > 0,
-    evidence.length === candidate.evidenceIds.length
-      ? `${evidence.length} evidence records resolved.`
-      : "At least one cited evidence ID is outside the closed collection packet.");
+  const allEvidenceResolved = evidence.length === candidate.evidenceIds.length;
+  add(checks, "known_evidence", allEvidenceResolved && (evidence.length > 0 || analysis),
+    !allEvidenceResolved
+      ? "At least one cited evidence ID is outside the closed collection packet."
+      : evidence.length === 0
+        ? "This record cites nothing and is published as the organisation's own analysis."
+        : `${evidence.length} evidence records resolved.`);
 
+  /* `direct_publishers`, `processable_source_text` and `single_source_attribution`
+   * need no unsourced branch: the first two quantify over an empty array and
+   * the third turns on `families.size === 1`, which an empty packet is not. */
   const direct = evidence.every((row) => {
     if (!row.canonicalUrl || !row.publisher || !row.publisherDomain) return false;
     try {
@@ -114,16 +161,22 @@ export function evaluateCandidate(
 
   const families = new Set(evidence.map((row) => row.sourceFamilyId));
   const officialException = evidence.some((row) => row.sourceCategory?.startsWith("official_"));
-  const citable = evidence.length > 0;
+  /* A source is a bonus on a refutation, not a requirement: the organisation
+   * may answer a hostile claim from its own reasoning. What it may not do is
+   * publish that piece as an ordinary report — `analysis_disclosure` below
+   * holds it to Narrative Watch and a labelled verification state. */
+  const citable = evidence.length > 0 || analysis;
   const independent = families.size >= 2 || officialException;
   add(checks, "source_independence", citable,
     !citable
       ? "At least one directly attributed public source is required."
-      : independent
-        ? officialException && families.size < 2
-          ? "A primary official source supports this narrowly attributed report."
-          : `${families.size} independent source families are represented.`
-        : "One source family is recorded as a single-source report, not as independent corroboration.");
+      : evidence.length === 0
+        ? "No source is cited. This record is published as this organisation's own analysis and is labelled as such."
+        : independent
+          ? officialException && families.size < 2
+            ? "A primary official source supports this narrowly attributed report."
+            : `${families.size} independent source families are represented.`
+          : "One source family is recorded as a single-source report, not as independent corroboration.");
 
   const specificTitle = candidate.title.trim().length >= 18 && !GENERIC_TITLES.test(candidate.title.trim());
   add(checks, "specific_title", specificTitle,
@@ -138,22 +191,53 @@ export function evaluateCandidate(
   add(checks, "non_placeholder_body", nonPlaceholder,
     nonPlaceholder ? "The article reports the supported event rather than describing source availability." : "The body contains source-availability placeholder prose instead of reporting an event.");
 
+  /* A refutation has no cited source to be anchored in, so it is anchored in
+   * the claim it answers instead. The threshold is unchanged: a headline that
+   * shares nothing with its own subject is still rejected. */
+  const alignmentCorpus = analysis
+    ? candidate.basis.refutedClaim ?? ""
+    : evidence.map((row) => `${row.title} ${row.excerpt ?? ""}`).join(" ");
   const titleWords = meaningfulWords(candidate.title);
-  const evidenceWords = meaningfulWords(evidence.map((row) => `${row.title} ${row.excerpt ?? ""}`).join(" "));
-  const overlap = titleWords.filter((word) => evidenceWords.includes(word));
+  const alignmentWords = meaningfulWords(alignmentCorpus);
+  const overlap = titleWords.filter((word) => alignmentWords.includes(word));
   const titleAligned = titleWords.length >= 3 && overlap.length >= Math.min(3, Math.ceil(titleWords.length * 0.4));
   add(checks, "title_source_alignment", titleAligned,
-    titleAligned ? `The title shares ${overlap.length} meaningful terms with cited source material.` : "The title is not sufficiently anchored in the cited source material.");
+    titleAligned
+      ? analysis
+        ? `The title shares ${overlap.length} meaningful terms with the claim being refuted.`
+        : `The title shares ${overlap.length} meaningful terms with cited source material.`
+      : analysis
+        ? "The title is not sufficiently anchored in the exact claim this analysis refutes."
+        : "The title is not sufficiently anchored in the cited source material.");
 
+  /* The unsourced substitute deliberately *forbids* citations rather than
+   * merely excusing their absence, mirroring the zod refine on
+   * `createPublicationSchema`: a half-sourced record — some claims cited, the
+   * article itself citing nothing — is the laundering shape, and both gates
+   * must reject it so neither can drift into permitting it alone. */
   const claimLinksValid = candidate.claims.length > 0 && candidate.claims.every((claim) =>
     claim.text.trim()
-    && claim.evidenceLinks.length > 0
-    && claim.evidenceLinks.every((link) => ids.has(link.evidenceId) && link.rationale.trim()),
+    && (analysis
+      ? claim.evidenceLinks.length === 0
+        && claim.layer === "editorial_conclusion"
+        && claim.attributedTo?.trim() === ANALYSIS_AUTHOR
+        && Boolean(claim.uncertainty?.trim())
+      : claim.evidenceLinks.length > 0
+        && claim.evidenceLinks.every((link) => ids.has(link.evidenceId) && link.rationale.trim())),
   );
   add(checks, "claim_evidence_matrix", claimLinksValid,
-    claimLinksValid ? `${candidate.claims.length} atomic claims have explained evidence edges.` : "Every atomic claim must have an explained edge to cited evidence.");
+    claimLinksValid
+      ? analysis
+        ? `${candidate.claims.length} atomic claims are stated as this organisation's own editorial conclusions and cite nothing.`
+        : `${candidate.claims.length} atomic claims have explained evidence edges.`
+      : analysis
+        ? `Every claim in an unsourced analysis must have an empty evidenceLinks array, layer "editorial_conclusion", attributedTo exactly "${ANALYSIS_AUTHOR}", and a written uncertainty note.`
+        : "Every atomic claim must have an explained edge to cited evidence.");
 
+  /* Kept distinct from the substitute above on purpose. If one of the two
+   * unsourced conditions regresses, the other still fails the candidate. */
   const claimIndependence = candidate.claims.length > 0 && candidate.claims.every((claim) => {
+    if (analysis) return REFUTATION_ASSESSMENTS.has(claim.assessment);
     const claimEvidence = claim.evidenceLinks.flatMap((link) => {
       const row = evidenceById.get(link.evidenceId);
       return row ? [row] : [];
@@ -161,7 +245,13 @@ export function evaluateCandidate(
     return claimEvidence.length > 0;
   });
   add(checks, "claim_source_independence", claimIndependence,
-    claimIndependence ? "Every claim cites at least one known source. Multiple source families are recorded when available but are not required." : "A claim has no known source evidence.");
+    claimIndependence
+      ? analysis
+        ? "Every claim states a refuting judgement about the monitored narrative rather than a finding about source material."
+        : "Every claim cites at least one known source. Multiple source families are recorded when available but are not required."
+      : analysis
+        ? "Every claim in an unsourced analysis must assess the narrative as refuted, misleading, or unsupported."
+        : "A claim has no known source evidence.");
 
   // A lone non-official publisher can support a timely update, but it is not
   // a neutral fact record. Make that limit enforceable rather than relying on
@@ -234,25 +324,72 @@ export function evaluateCandidate(
         : "No official Israeli source is present, or the candidate is Narrative Watch."
       : "When official Israeli evidence is available, the first public passage must present that position before other claims.");
 
+  /* The paragraph-to-claim spine survives unchanged: the 40-character floor
+   * and the local claim index are what make a refutation auditable at all.
+   * Only the evidence leg differs, and there it is *required* to be empty. */
   const passageLinksValid = candidate.passages.length > 0 && candidate.passages.every((passage) =>
     passage.text.trim().length >= 40
     && Number.isInteger(passage.claimIndex)
     && passage.claimIndex >= 0
     && passage.claimIndex < candidate.claims.length
-    && passage.evidenceIds.length > 0
-    && passage.evidenceIds.every((id) => ids.has(id)),
+    && (analysis
+      ? passage.evidenceIds.length === 0
+      : passage.evidenceIds.length > 0 && passage.evidenceIds.every((id) => ids.has(id))),
   );
   add(checks, "paragraph_traceability", passageLinksValid,
-    passageLinksValid ? "Every public paragraph maps to one atomic claim and its source evidence." : "A paragraph has no valid claim and evidence path.");
+    passageLinksValid
+      ? analysis
+        ? "Every public paragraph maps to one atomic editorial claim and cites no source."
+        : "Every public paragraph maps to one atomic claim and its source evidence."
+      : analysis
+        ? "A paragraph has no valid claim path, or an unsourced analysis paragraph cites evidence."
+        : "A paragraph has no valid claim and evidence path.");
 
-  const sourceText = evidence.map((row) => `${row.title}\n${row.excerpt ?? ""}`).join("\n").toLowerCase();
+  /* Not exempted. An unsourced piece is the one place a fabricated figure has
+   * nothing at all to contradict it, so the corpus is widened rather than the
+   * check dropped: every exact number and quotation must still appear either
+   * somewhere in the whole collected packet or in the claim being refuted —
+   * quoting the narrative under refutation is the point of the piece. This
+   * stays non-circular (the article's own prose is never part of the corpus)
+   * and degrades correctly: an empty packet permits no figures at all. */
+  const citedSourceText = evidence.map((row) => `${row.title}\n${row.excerpt ?? ""}`).join("\n").toLowerCase();
+  const factCorpus = analysis
+    ? [
+        ...[...evidenceById.values()]
+          .filter((row) => Boolean(row.excerpt?.trim()))
+          .map((row) => `${row.title}\n${row.excerpt ?? ""}`),
+        candidate.basis.refutedClaim ?? "",
+      ].join("\n").toLowerCase()
+    : citedSourceText;
   const exactTokens = [
     ...candidate.body.matchAll(/\b\d[\d,.]*(?:%|\s+(?:people|soldiers|civilians|days|hours|missiles|rockets))?\b/gi),
   ].map((match) => match[0].toLowerCase());
   const quoted = [...candidate.body.matchAll(/[“"]([^”"]{15,})[”"]/g)].map((match) => match[1]!.toLowerCase());
-  const exactSupported = [...exactTokens, ...quoted].every((token) => sourceText.includes(token));
+  const exactSupported = [...exactTokens, ...quoted].every((token) => factCorpus.includes(token));
   add(checks, "exact_fact_fidelity", exactSupported,
-    exactSupported ? "Every exact number and direct quotation appears in the cited source packet." : "An exact number or quotation is absent from the cited source packet.");
+    exactSupported
+      ? analysis
+        ? "Every exact number and direct quotation appears in the collected source packet or in the claim being refuted."
+        : "Every exact number and direct quotation appears in the cited source packet."
+      : analysis
+        ? "An exact number or quotation appears nowhere in the collected source packet or in the claim being refuted."
+        : "An exact number or quotation is absent from the cited source packet.");
+
+  /* Vacuously true for a sourced record, so the check is still written and
+   * still recorded. For an unsourced one it is the disclosure itself: the
+   * organisation's own reasoning may only appear where the section, the empty
+   * citation list, and the published verification state all say what it is. */
+  const disclosed = !analysis
+    || (candidate.section === "narrative_watch"
+      && candidate.evidenceIds.length === 0
+      && candidate.basis.verificationState !== null
+      && REFUTATION_ASSESSMENTS.has(candidate.basis.verificationState));
+  add(checks, "analysis_disclosure", disclosed,
+    !analysis
+      ? "This record rests on cited sources, so no analysis disclosure is required."
+      : disclosed
+        ? `An unsourced refutation is published in Narrative Watch, cites nothing, and states the narrative as ${candidate.basis.verificationState}.`
+        : "An unsourced analysis may publish only as a Narrative Watch record that cites nothing and states the narrative as refuted, misleading, or unsupported.");
 
   return { passed: checks.every((check) => check.status === "pass"), checks };
 }

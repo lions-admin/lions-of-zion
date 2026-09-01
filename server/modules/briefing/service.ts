@@ -696,7 +696,11 @@ export function briefingService(database: unknown, options: { generate?: Generat
     for (const [index, article] of drafted.edition.articles.entries()) {
       if (article.section !== "narrative_watch" || !article.narrativeTitle) continue;
       const narrative = await narrativeWriter.autoCreateNarrative({
-        slug: `${localDate}-narrative-${index + 1}`,
+        // A numbered slot is not a narrative identity: forced same-day
+        // regeneration can select a different claim in the same position.
+        // Tie the durable public key to the claim title instead, allowing an
+        // unchanged recurring narrative to refresh while a new one is added.
+        slug: `${localDate}-narrative-${integrityHash(article.narrativeTitle).slice(0, 12)}`,
         title: article.narrativeTitle,
         summary: `Monitored in the automated daily briefing for ${localDate}.`,
         language: "en",

@@ -20,6 +20,8 @@ import { search } from "@/server/modules/search";
 import { entityTypeSchema } from "@/server/contracts/enums";
 import { reports } from "@/server/modules/reports";
 import { sendWorkspaceEmail } from "@/server/core/email";
+import { expirePublicPublicationCache } from "@/server/core/publication-cache";
+import { deliverBriefingAlert } from "@/server/modules/briefing/alerts";
 
 export type ConsumerContext = { entityType: string | null; entityId: string | null };
 export type Consumer = (payload: unknown, ctx: ConsumerContext) => Promise<void>;
@@ -72,6 +74,16 @@ const CONSUMERS: Record<string, Consumer> = {
         `Reporter note: ${report.reporterNote || "Not provided"}`,
       ].join("\n"),
     });
+  },
+
+  [TOPICS.publicationCacheInvalidate]: async () => {
+    expirePublicPublicationCache();
+  },
+
+  [TOPICS.briefingAlert]: async (payload) => {
+    const alertId = (payload as { alertId?: unknown } | null)?.alertId;
+    if (typeof alertId !== "string") return;
+    await deliverBriefingAlert(alertId);
   },
 };
 

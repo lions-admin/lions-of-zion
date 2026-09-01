@@ -135,6 +135,8 @@ export type DataClass = z.infer<typeof dataClassSchema>;
 export const SOURCE_KINDS = [
   "rss",
   "google_search",
+  "agent_search",
+  "gdelt",
   "api",
   "scraper",
   "telegram",

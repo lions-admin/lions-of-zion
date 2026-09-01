@@ -12,6 +12,7 @@ import "server-only";
 
 import { XMLParser } from "fast-xml-parser";
 import { integrityHash } from "@/server/core/hash";
+import { safeFetchText } from "@/server/core/safe-fetch";
 import type { ConnectorFetchResult, FetchedItem, SourceConnector } from "../connector";
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
@@ -70,6 +71,27 @@ export function parseFeed(xml: string): FetchedItem[] {
     });
   }
 
+  // RSS 1.0 uses RDF as its document root. Deutsche Welle publishes this
+  // variant; accepting it here prevents a syntactically valid feed from being
+  // treated as an empty response merely because it is not RSS 2.0 or Atom.
+  const rdf = fieldOf(doc, "rdf:RDF");
+  if (rdf) {
+    return asArray(fieldOf(rdf, "item")).map((item) => {
+      const link = textOf(fieldOf(item, "link"));
+      const title = textOf(fieldOf(item, "title")) ?? "(untitled)";
+      return {
+        externalId: textOf(fieldOf(item, "dwsyn:contentID"))
+          ?? (fieldOf(item, "@_rdf:about") as string | undefined)
+          ?? link
+          ?? integrityHash(title).slice(0, 32),
+        title,
+        url: link,
+        excerpt: textOf(fieldOf(item, "description")),
+        publishedAt: dateOf(fieldOf(item, "dc:date")),
+      };
+    });
+  }
+
   const feed = doc.feed;
   if (feed) {
     return asArray(fieldOf(feed, "entry")).map((entry) => {
@@ -97,10 +119,18 @@ export const rssConnector: SourceConnector = {
       return { status: "failed", items: [], errorMessage: "Source has no feed_url configured" };
     }
 
-    let response: Response;
+    let response: Awaited<ReturnType<typeof safeFetchText>>;
     try {
-      response = await fetch(source.feedUrl, {
-        headers: { accept: "application/rss+xml, application/atom+xml, application/xml, text/xml" },
+      response = await safeFetchText(source.feedUrl, {
+        accept: "application/rss+xml, application/atom+xml, application/xml, text/xml",
+        allowedContentTypes: [
+          /^application\/(rss\+xml|atom\+xml|xml)$/,
+          /^text\/(xml|plain)$/,
+        ],
+        timeoutMs: 15_000,
+        retryAttempts: 2,
+        retryBackoffMs: 300,
+        maxBytes: 2_000_000,
       });
     } catch (cause) {
       return {
@@ -110,26 +140,35 @@ export const rssConnector: SourceConnector = {
       };
     }
 
-    const body = await response.text();
+    const body = response.body;
     if (!response.ok) {
       return {
         status: "failed",
         httpStatus: response.status,
         items: [],
         rawBody: body,
+        rawContentType: response.contentType ?? undefined,
         errorMessage: `Feed returned HTTP ${response.status}`,
       };
     }
 
     try {
       const items = parseFeed(body);
-      return { status: "success", httpStatus: response.status, items, rawBody: body };
+      return {
+        status: items.length ? "success" : "partial",
+        httpStatus: response.status,
+        items,
+        rawBody: body,
+        rawContentType: response.contentType ?? undefined,
+        ...(items.length ? {} : { errorMessage: "Feed contained no RSS or Atom entries" }),
+      };
     } catch (cause) {
       return {
         status: "partial",
         httpStatus: response.status,
         items: [],
         rawBody: body,
+        rawContentType: response.contentType ?? undefined,
         errorMessage: `Could not parse feed: ${cause instanceof Error ? cause.message : String(cause)}`,
       };
     }

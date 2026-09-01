@@ -7,5 +7,5 @@ export const dynamic = "force-dynamic";
 
 export const GET = handler(async (_request, _ctx, { params }: { params: Promise<{ publicId: string }> }) => {
   const { publicId } = await params;
-  return ok(await publications().getPublicDetail(publicId));
+  return ok(await publications().getBriefingPublicDetail(publicId));
 });

@@ -22,20 +22,18 @@ describe("home front-page content", () => {
     expect(dates).toEqual(sorted);
   });
 
-  it("drops the one event that is authored on two pages", async () => {
+  it("keeps the historical October 7 record while excluding hostage news from active surfaces", async () => {
     const [warUpdate, october7] = await Promise.all([
       getWarUpdateEdition(),
       getOctober7Record(),
     ]);
 
-    /* Both halves must still exist in the source content — this is what makes
-       the drop below meaningful rather than a no-op. */
-    expect(warUpdate.entries.some((entry) => entry.id === "hostages-released")).toBe(true);
+    expect(warUpdate.entries.some((entry) => entry.id === "hostages-released")).toBe(false);
     expect(october7.timeline.some((entry) => entry.id === "final-hostages")).toBe(true);
 
     const ids = getAllMilestones().map((entry) => entry.id);
-    expect(ids).toContain("hostages-released");
-    expect(ids).not.toContain("final-hostages");
+    expect(ids).not.toContain("hostages-released");
+    expect(ids).toContain("final-hostages");
   });
 
   it("gives every milestone a unique id, so the merge cannot collide", async () => {

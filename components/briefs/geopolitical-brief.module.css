@@ -67,7 +67,7 @@
   color: var(--ink);
   font-family: var(--face-text);
   scrollbar-width: thin;
-  scrollbar-color: rgba(99, 179, 237, 0.28) transparent;
+  scrollbar-color: var(--gold-line) transparent;
 }
 
 /* The Brief's own scan, layered over the one `body` paints (`--scan-ground`,
@@ -91,9 +91,9 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(75% 60% at 50% 10%, rgba(87, 167, 217, 0.045), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(214, 226, 240, 0.012) 0 1px, transparent 1px 11px),
-    repeating-linear-gradient(90deg, transparent 0 79px, rgba(214, 226, 240, 0.01) 79px 80px);
+    radial-gradient(75% 60% at 50% 10%, rgba(246, 243, 235, 0.035), transparent 68%),
+    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.012) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(228, 224, 215, 0.01) 79px 80px);
   mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.34) 64%, transparent);
 }
 
@@ -128,7 +128,7 @@
   align-items: center;
   min-height: 4rem;
   padding: 0.65rem max(1.25rem, calc((100vw - 90rem) / 2));
-  border-bottom: 1px solid rgba(99, 179, 237, 0.2);
+  border-bottom: 1px solid var(--line);
   background: rgba(0, 0, 0, 0.96);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -260,9 +260,9 @@
   width: 3.8rem;
   height: 3.8rem;
   flex: none;
-  border: 1px solid rgba(99, 179, 237, 0.36);
+  border: 1px solid var(--gold-line);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 179, 237, 0.1), transparent 70%);
+  background: radial-gradient(circle, rgba(198, 161, 91, 0.1), transparent 70%);
 }
 
 .iconFrame img {
@@ -392,7 +392,7 @@
   padding: clamp(2rem, 5vw, 4.25rem) clamp(1.5rem, 5vw, 4.3rem) clamp(2.4rem, 5vw, 3.75rem);
   border-bottom: 1px solid var(--gold-line);
   background:
-    radial-gradient(circle at 90% 0%, rgba(99, 179, 237, 0.08), transparent 36%),
+    radial-gradient(circle at 90% 0%, rgba(198, 161, 91, 0.08), transparent 36%),
     linear-gradient(150deg, rgba(22, 22, 22, 0.72), transparent 62%);
 }
 
@@ -534,7 +534,7 @@
 .assessment {
   position: relative;
   background:
-    linear-gradient(90deg, rgba(99, 179, 237, 0.055), transparent 68%),
+    linear-gradient(90deg, rgba(198, 161, 91, 0.055), transparent 68%),
     var(--surface-raised);
 }
 

@@ -5,6 +5,14 @@ import { categorySlug, DOCUMENTATION_PACKAGE } from "@/lib/content/documentation
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { TESTIMONIES_PACKAGE } from "@/lib/content/testimonies";
 import { SITE_URL } from "@/lib/site-config";
+import { listBriefingPublications } from "@/lib/publications";
+import { encodePublicPublicationCursor } from "@/server/contracts/publication";
+
+// A sitemap must never retain a URL after an administrator archives a public
+// article. The publication query remains explicitly tagged and is expired by
+// the mutation handler; making this route dynamic also prevents a stale
+// prerendered sitemap from surviving at the CDN layer.
+export const dynamic = "force-dynamic";
 
 const DOC_PAGES = ["/methodology", "/corrections", "/information-war"];
 const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
@@ -28,10 +36,11 @@ const RESEARCH_INDEXES = ["/fake-resistance/playbook", "/fake-resistance/network
  * nothing at runtime.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [testimonies, documentation, researchCases] = await Promise.all([
+  const [testimonies, documentation, researchCases, publications] = await Promise.all([
     getIndex(TESTIMONIES_PACKAGE),
     getIndex(DOCUMENTATION_PACKAGE),
     getCaseIndex(),
+    allPublishedArticles(),
   ]);
 
   const record = (
@@ -100,6 +109,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.5,
     })),
+    ...publications.map((entry) => ({
+      url: `${SITE_URL}/articles/${entry.publicId}`,
+      lastModified: new Date(entry.updatedAt),
+      changeFrequency: "daily" as const,
+      priority: entry.section === "daily_brief" ? 0.8 : 0.7,
+    })),
     ...testimonies.map((entry) =>
       record(
         `/october-7/testimonies/${entry.id}`,
@@ -117,6 +132,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     ),
   ];
+}
+
+async function allPublishedArticles() {
+  const rows = [];
+  let cursor: string | undefined;
+  do {
+    const query = new URLSearchParams({ limit: "100", ...(cursor ? { cursor } : {}) });
+    // `/articles/[publicId]` is deliberately the briefing-only public route.
+    // Do not feed historical site-reference publications into this sitemap;
+    // they are not addressable through that route and would become dead URLs.
+    const page = await listBriefingPublications(query.toString());
+    rows.push(...page);
+    cursor = page.length === 100 ? encodePublicPublicationCursor(page[page.length - 1]!) : undefined;
+  } while (cursor && rows.length < 5_000);
+  return rows;
 }
 
 /** The source dates vary in shape; an unparseable one is omitted, not guessed. */

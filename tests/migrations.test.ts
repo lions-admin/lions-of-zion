@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { freshDatabase } from "@/server/db/testing";
 
 /**
  * The two ways migrations are applied must agree.
@@ -28,6 +29,12 @@ async function sqlFiles(): Promise<string[]> {
 }
 
 describe("migration integrity", () => {
+  it("applies the complete migration journal to a fresh PostgreSQL-compatible database", async () => {
+    const database = await freshDatabase();
+    const result = await database.execute<{ currentDatabase: string }>("SELECT current_database() AS \"currentDatabase\"");
+    expect(result.rows[0]?.currentDatabase).toBeTruthy();
+  });
+
   it("journals every SQL file on disk", async () => {
     const tags = new Set((await journal()).entries.map((e) => e.tag));
     const orphans = (await sqlFiles())

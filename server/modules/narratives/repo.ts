@@ -10,7 +10,7 @@ import "server-only";
  */
 
 import { and, desc, eq, lt, sql, type SQL } from "drizzle-orm";
-import { actor, narrative, narrativeItem, narrativeObservation } from "@/server/db/schema";
+import { actor, narrative, narrativeObservation } from "@/server/db/schema";
 import type { Actor, Narrative, NarrativeObservation } from "@/server/db/schema";
 import type { ListActors, ListNarratives } from "@/server/contracts/narrative";
 
@@ -62,6 +62,12 @@ export function narrativeRepo(db: unknown) {
         .orderBy(desc(narrative.createdAt)).limit(1);
       return rows[0] as unknown as Narrative | undefined;
     },
+    async narrativeByTitle(title: string): Promise<Narrative | undefined> {
+      const result = await d.execute(sql`
+        SELECT * FROM narrative WHERE lower(btrim(title)) = lower(btrim(${title})) ORDER BY updated_at DESC LIMIT 1
+      `);
+      return result.rows[0] as unknown as Narrative | undefined;
+    },
     async listNarratives(filters: ListNarratives): Promise<Narrative[]> {
       const clauses: SQL[] = [];
       if (filters.status) clauses.push(eq(narrative.status, filters.status));
@@ -77,7 +83,12 @@ export function narrativeRepo(db: unknown) {
     },
 
     async linkItem(values: Record<string, unknown>): Promise<void> {
-      await d.insert(narrativeItem).values(values).returning();
+      const value = values as { narrativeId: string; itemId: string; rationale: string; addedBy?: string | null };
+      await d.execute(sql`
+        INSERT INTO narrative_item (narrative_id, item_id, rationale, added_by)
+        VALUES (${value.narrativeId}, ${value.itemId}, ${value.rationale}, ${value.addedBy ?? null})
+        ON CONFLICT (narrative_id, item_id) DO UPDATE SET rationale = EXCLUDED.rationale
+      `);
     },
     async itemsFor(narrativeId: string): Promise<Record<string, unknown>[]> {
       const result = await d.execute(sql`

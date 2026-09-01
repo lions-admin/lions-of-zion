@@ -13,10 +13,20 @@ import "server-only";
 import { ApiError } from "@/server/http/responses";
 import type { SourceKind } from "@/server/contracts/enums";
 import type { SourceConnector } from "../connector";
-import { googleSearchConnector } from "./google-search";
 import { rssConnector } from "./rss";
+import { agentSearchConnector } from "./agent-search";
+import { officialApiConnector } from "./api";
 
-export const CONNECTORS: readonly SourceConnector[] = [rssConnector, googleSearchConnector];
+/** Google Search Grounding is intentionally not registered. It may answer an
+ * interactive question, but it is not a permitted permanent-link collector.
+ * Google Agent Search will land as a separate discovery adapter. */
+/**
+ * The briefing's production discovery contract is deliberately bounded to
+ * verified RSS/official endpoints and Google Agent Search. GDELT yielded
+ * repeated timeouts and is not a required provider, so legacy GDELT source
+ * rows remain visible to administrators but cannot be scheduled.
+ */
+export const CONNECTORS: readonly SourceConnector[] = [rssConnector, officialApiConnector, agentSearchConnector];
 
 export function connectorFor(kind: SourceKind): SourceConnector {
   const found = CONNECTORS.find((c) => c.kind === kind);

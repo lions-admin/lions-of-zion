@@ -12,11 +12,11 @@
 
 .summary {
   margin-bottom: 1.75rem;
-  color: var(--loz-ink-hi, #e9eef6);
-  font-family: var(--face-display, Charter, Georgia, serif);
-  font-size: var(--t-h3, 1.25rem);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
   font-style: italic;
-  line-height: var(--t-h3-lh, 1.4);
+  line-height: var(--t-h3-lh);
 }
 
 .part + .part {
@@ -28,13 +28,13 @@
 .partHeading {
   margin-bottom: 0.6rem;
   padding-top: 0.7rem;
-  border-top: 1px solid var(--loz-ember, #a85a61);
-  color: var(--loz-ember-peak, #d08d94);
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
+  border-top: 1px solid var(--data-ember);
+  color: var(--data-ember-peak);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
   font-weight: 400;
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  line-height: var(--t-data-lh, 1.45);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
   text-transform: uppercase;
 }
 
@@ -47,7 +47,7 @@
 
 .examples > li {
   padding-left: 1rem;
-  border-left: 1px solid var(--loz-gold-line, rgba(99, 179, 237, 0.24));
+  border-left: 1px solid var(--gold-line);
 }
 
 .examples > li + li {
@@ -57,9 +57,9 @@
 .examples > li > span {
   display: block;
   margin-top: 0.3rem;
-  color: var(--loz-ink-lo, #8494a8);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 /* A cue is something the reader does, so each one is marked with a check
@@ -69,9 +69,9 @@
 .cues > li {
   position: relative;
   padding-left: 1.5rem;
-  color: var(--loz-ink, #b9c5d4);
-  font-size: var(--t-body, 1.0625rem);
-  line-height: var(--t-body-lh, 1.7);
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .cues > li + li {
@@ -82,18 +82,18 @@
   position: absolute;
   top: 0;
   left: 0;
-  color: var(--loz-gold, #63b3ed);
+  color: var(--gold);
   content: '\2713';
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-body-lh, 1.7);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-body-lh);
 }
 
 .pending {
-  color: var(--loz-ink-lo, #8494a8);
-  font-size: var(--t-small, 0.9375rem);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
   font-style: italic;
-  line-height: var(--t-small-lh, 1.65);
+  line-height: var(--t-small-lh);
 }
 
 /* Findings from the case files that carry this chapter's technique tag.
@@ -108,7 +108,7 @@
 
 .findings > li {
   padding: 0.9rem 0 0;
-  border-top: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
+  border-top: 1px solid var(--line);
 }
 
 .findings > li:first-child {
@@ -122,9 +122,9 @@
 
 .findings > li > p {
   margin: 0;
-  color: var(--loz-ink, #b9c5d4);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .findingMeta {
@@ -136,8 +136,8 @@
 }
 
 .findingMeta > a {
-  color: var(--loz-ink-lo, #8494a8);
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
   letter-spacing: 0.04em;
 }

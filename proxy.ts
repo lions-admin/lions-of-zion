@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { neonAuth } from "@/server/core/auth/neon";
+import { readGoogleSession } from "@/server/core/auth/google-session";
+import { adminEmail } from "@/server/core/config";
 
 export default async function proxy(request: NextRequest) {
   if (request.nextUrl.hostname === "www.lionsofzion.io") {
@@ -11,6 +13,8 @@ export default async function proxy(request: NextRequest) {
   }
 
   if (request.nextUrl.pathname.startsWith("/admin") && request.nextUrl.pathname !== "/admin/login") {
+    const googleUser = await readGoogleSession(request);
+    if (googleUser?.email === adminEmail()) return NextResponse.next();
     return neonAuth().middleware({ loginUrl: "/admin/login" })(request);
   }
   return NextResponse.next();

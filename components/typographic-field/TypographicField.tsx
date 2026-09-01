@@ -1,36 +1,32 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useIntroHandoffReady } from "@/components/particle-nav/CinematicIntroGate";
-import { TypographicMotionEngine } from "./engine";
+import { TypographicMotionEngine, type TypographicFieldConfig } from "./engine";
 
 interface TypographicFieldProps {
-  canvasClassName: string;
-  statusClassName: string;
-  dotClassName: string;
+  canvasClassName?: string;
+  statusClassName?: string;
+  dotClassName?: string;
+  config?: Partial<TypographicFieldConfig>;
 }
 
 export function TypographicField({
-  canvasClassName,
-  statusClassName,
-  dotClassName,
+  canvasClassName = "",
+  statusClassName = "",
+  dotClassName = "",
+  config,
 }: TypographicFieldProps) {
-  const handoffReady = useIntroHandoffReady();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [status, setStatus] = useState("TYPOGRAPHIC ENGINE // STANDBY");
+  const [engineStatus, setEngineStatus] = useState("TYPOGRAPHIC ENGINE // STANDBY");
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (!handoffReady || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-      return;
-    }
+    const engine = new TypographicMotionEngine(canvas, config);
+    setIsReady(true);
 
-    const engine = new TypographicMotionEngine(canvasRef.current) as TypographicMotionEngine & {
-      rowCount: number;
-      charsPerRow: number;
-    };
     let metricsFrame = 0;
     let frameCount = 0;
     let lastMetricTime = performance.now();
@@ -42,8 +38,8 @@ export function TypographicField({
         const fps = Math.round((frameCount * 1000) / (now - lastMetricTime));
         const rows = engine.rowCount || 0;
         const glyphs = rows * (engine.charsPerRow || 0);
-        setStatus(
-          `TYPOGRAPHIC ENGINE // ${fps} FPS // ${rows} ROWS // ${glyphs.toLocaleString()} GLYPHS`,
+        setEngineStatus(
+          `TYPOGRAPHIC ENGINE // ${fps} FPS // ${rows} ROWS // ${glyphs.toLocaleString()} GLYPHS`
         );
         frameCount = 0;
         lastMetricTime = now;
@@ -52,11 +48,12 @@ export function TypographicField({
     };
 
     metricsFrame = requestAnimationFrame(updateMetrics);
+
     return () => {
       cancelAnimationFrame(metricsFrame);
       engine.destroy();
     };
-  }, [handoffReady]);
+  }, [config]);
 
   return (
     <>
@@ -64,12 +61,14 @@ export function TypographicField({
         ref={canvasRef}
         className={canvasClassName}
         aria-hidden="true"
-        data-engine-ready={handoffReady || undefined}
+        data-engine-ready={isReady ? "true" : undefined}
       />
-      <div className={statusClassName} aria-live="off">
-        <span className={dotClassName} aria-hidden="true" />
-        <span>{status}</span>
-      </div>
+      {statusClassName ? (
+        <div className={statusClassName} aria-live="off">
+          {dotClassName ? <span className={dotClassName} aria-hidden="true" /> : null}
+          <span>{engineStatus}</span>
+        </div>
+      ) : null}
     </>
   );
 }

@@ -30,14 +30,16 @@ const jsonLd = {
   ],
 };
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const raw = await searchParams;
+  const one = (key: string) => typeof raw[key] === "string" ? raw[key] : undefined;
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <LiveBriefHub />
+      <LiveBriefHub filters={{ date: one("date"), actor: one("actor"), topicLabel: one("topicLabel"), arena: one("arena") }} />
     </>
   );
 }

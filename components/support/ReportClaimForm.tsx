@@ -9,6 +9,7 @@
  * local rather than shared since it's a small, self-contained piece.
  */
 import { FormEvent, useRef, useState } from 'react';
+import { Button } from '@/components/ui';
 import styles from './support.module.css';
 
 const FAILURE_COPY: Record<string, string> = {
@@ -209,9 +210,15 @@ export function ReportClaimForm() {
         </p>
       ) : null}
 
-      <button type="submit" disabled={submitting}>
+      <Button
+        type="submit"
+        variant="primary"
+        size="md"
+        disabled={submitting}
+        isLoading={submitting}
+      >
         {submitting ? 'Sending…' : 'Send report'}
-      </button>
+      </Button>
     </form>
   );
 }

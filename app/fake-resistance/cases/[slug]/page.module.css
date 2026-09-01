@@ -14,9 +14,9 @@
 /* The section's own framing of the file, in its own voice. It opens the page,
    so it is set at reading weight rather than as a note. */
 .frame {
-  color: var(--loz-ink-hi, #e9eef6);
-  font-size: var(--t-body, 1.0625rem);
-  line-height: var(--t-body-lh, 1.7);
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 /* The limit the research imposed on its own subjects. It carries the gold
@@ -25,46 +25,46 @@
 .guard {
   margin-top: 1.25rem;
   padding: 0.9rem 1.1rem;
-  border-left: 2px solid var(--loz-gold, #63b3ed);
-  color: var(--loz-ink, #b9c5d4);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  border-left: 2px solid var(--gold);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .guard > span {
   display: block;
   margin-bottom: 0.35rem;
-  color: var(--loz-gold, #63b3ed);
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
-  letter-spacing: var(--t-data-tracking, 0.08em);
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .withheld {
   margin-top: 1.25rem;
-  color: var(--loz-ink-lo, #8494a8);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 /* The hypothesis the research declared before it had an answer. Set quieter
    than the findings it precedes — it is context for them, not one of them. */
 .framing {
   margin-bottom: 1.25rem;
-  color: var(--loz-ink-lo, #8494a8);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .confidence {
   margin-bottom: 1.5rem;
   padding: 0.8rem 1rem;
-  border-left: 2px solid var(--loz-ember, #a85a61);
+  border-left: 2px solid var(--data-ember);
   background: rgba(168, 90, 97, 0.07);
-  color: var(--loz-ink-hi, #e9eef6);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .bottomLine,
@@ -102,19 +102,19 @@
   position: absolute;
   top: 0;
   left: 0;
-  color: var(--loz-gold, #63b3ed);
+  color: var(--gold);
   content: counter(point, decimal-leading-zero);
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
-  letter-spacing: var(--t-data-tracking, 0.08em);
-  line-height: var(--t-body-lh, 1.7);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-body-lh);
 }
 
 .pointMain > p {
   margin: 0;
-  color: var(--loz-ink, #b9c5d4);
-  font-size: var(--t-body, 1.0625rem);
-  line-height: var(--t-body-lh, 1.7);
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .pointSources {
@@ -125,7 +125,7 @@
 
 .exhibits > li {
   padding-top: 1.4rem;
-  border-top: 1px solid var(--loz-gold-line, rgba(99, 179, 237, 0.24));
+  border-top: 1px solid var(--gold-line);
 }
 
 .exhibits > li + li {
@@ -145,17 +145,17 @@
 }
 
 .exhibitHead time {
-  color: var(--loz-ink-lo, #8494a8);
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
 }
 
 .exhibitStatement {
   margin: 0;
-  color: var(--loz-ink-hi, #e9eef6);
-  font-size: var(--t-body, 1.0625rem);
-  line-height: var(--t-body-lh, 1.7);
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .exhibitSources {
@@ -186,44 +186,44 @@
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 1px;
   margin-top: 1.5rem;
-  background: var(--loz-line, rgba(153, 179, 202, 0.14));
-  border: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
+  background: var(--line);
+  border: 1px solid var(--line);
 }
 
 .narrative {
   padding: 1.1rem 1.2rem;
-  background: var(--loz-ground, #06051d);
+  background: var(--ground);
 }
 
 .narrative h3 {
   margin: 0 0 0.5rem;
-  color: var(--loz-ink-hi, #e9eef6);
-  font-family: var(--face-display, Charter, Georgia, serif);
-  font-size: var(--t-h3, 1.25rem);
-  font-weight: var(--t-h3-weight, 500);
-  line-height: var(--t-h3-lh, 1.4);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
 }
 
 .narrative p {
   margin: 0;
-  color: var(--loz-ink, #b9c5d4);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .narrativeFrame,
 .narrativeAudience {
   margin-top: 0.7rem !important;
-  color: var(--loz-ink-lo, #8494a8) !important;
+  color: var(--ink-lo) !important;
 }
 
 .narrativeFrame > span,
 .narrativeAudience > span {
   display: block;
-  color: var(--loz-ember-peak, #d08d94);
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
-  letter-spacing: var(--t-data-tracking, 0.08em);
+  color: var(--data-ember-peak);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
@@ -232,10 +232,10 @@
 .edges > li,
 .contradictions > li {
   padding: 0.9rem 0;
-  border-top: 1px solid var(--loz-line, rgba(153, 179, 202, 0.14));
-  color: var(--loz-ink, #b9c5d4);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .edges > li > p {
@@ -250,14 +250,14 @@
 }
 
 .edgePair {
-  color: var(--loz-ink-hi, #e9eef6);
-  font-family: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  font-size: var(--t-data, 0.72rem);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
   letter-spacing: 0.04em;
-  line-height: var(--t-data-lh, 1.45);
+  line-height: var(--t-data-lh);
 }
 
 .edgePair > span {
   padding: 0 0.2rem;
-  color: var(--loz-ember-peak, #d08d94);
+  color: var(--data-ember-peak);
 }

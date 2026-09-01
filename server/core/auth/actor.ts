@@ -4,8 +4,10 @@ import { eq } from "drizzle-orm";
 import { ApiError } from "@/server/http/responses";
 import { adminEmail, appEnv } from "@/server/core/config";
 import { db } from "@/server/db/client";
-import { appUser, capabilityGrant } from "@/server/db/schema";
+import { capabilityGrant } from "@/server/db/schema";
 import { neonAuth } from "./neon";
+import { readGoogleSession } from "./google-session";
+import { upsertHumanUser } from "./users";
 import type { Actor } from "@/server/core/audit";
 
 const actors = new WeakMap<Request, Actor>();
@@ -35,8 +37,9 @@ export async function authenticateAdmin(request: Request): Promise<Actor> {
     }
   }
 
-  const result = await neonAuth().getSession();
-  const user = (result.data?.user ?? null) as SessionUser | null;
+  const googleUser = await readGoogleSession(request);
+  const result = googleUser ? null : await neonAuth().getSession();
+  const user = (googleUser ?? result?.data?.user ?? null) as SessionUser | null;
   const email = user?.email?.trim().toLowerCase();
   if (!user || !email) throw new ApiError("UNAUTHENTICATED", "Please sign in to continue.");
   if (email !== adminEmail()) {
@@ -93,16 +96,7 @@ export function requireCapability(actor: Actor, capability: string): void {
 async function ensureAdminActor(user: SessionUser, email: string): Promise<Actor> {
   const database = db();
   const displayName = user.name?.trim() || email;
-  const rows = await database
-    .insert(appUser)
-    .values({ externalId: user.id, email, displayName, isAutomated: false })
-    .onConflictDoUpdate({
-      target: appUser.externalId,
-      set: { email, displayName, disabledAt: null },
-    })
-    .returning();
-  const row = rows[0];
-  if (!row) throw new ApiError("INTERNAL_ERROR", "Could not initialize the admin account.");
+  const row = await upsertHumanUser(database, { externalId: user.id, email, displayName });
 
   for (const capability of ADMIN_CAPABILITIES) {
     await database

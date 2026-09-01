@@ -8,6 +8,7 @@
  */
 import { useMemo, useState } from 'react';
 import { VerificationBadge, SourceList, type TimelineEntry } from '@/components/content';
+import { Button } from '@/components/ui/Button';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 
@@ -26,7 +27,6 @@ const DATELINES: Record<string, string> = {
   'plan-announced': 'WASHINGTON',
   'ceasefire-signed': 'SHARM EL-SHEIKH',
   'ceasefire-effective': 'GAZA',
-  'hostages-released': 'GAZA',
 };
 
 function copyToClipboard(text: string) {
@@ -59,9 +59,14 @@ function DispatchActions({ entry }: { entry: TimelineEntry }) {
       <a href={`#${entry.id}`} className={styles.permalink} aria-label={`Permalink to ${entry.title}`}>
         # Permalink
       </a>
-      <button type="button" className={styles.shareButton} onClick={() => void share()}>
-        {copied ? 'Copied' : 'Share'}
-      </button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => void share()}
+        aria-label={copied ? "Link copied to clipboard" : "Share dispatch"}
+      >
+        {copied ? '✓ Copied' : 'Share'}
+      </Button>
     </div>
   );
 }
@@ -98,16 +103,16 @@ export function WireFeed({ entries }: { entries: TimelineEntry[] }) {
       {filters.length ? (
         <div className={styles.filterRow} role="group" aria-label="Filter by category">
           {filters.map((option) => (
-            <button
+            <Button
               key={option}
-              type="button"
-              className={styles.filterChip}
-              data-active={filter === option ? '' : undefined}
+              variant="filter"
+              size="sm"
+              isActive={filter === option}
               onClick={() => setFilter(option)}
               aria-pressed={filter === option}
             >
               {option}
-            </button>
+            </Button>
           ))}
         </div>
       ) : null}

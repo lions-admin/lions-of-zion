@@ -25,7 +25,7 @@ npm run dev
 
 Open <http://localhost:3000>. No configuration is needed: the frontend reads
 no environment variables and the test suite runs against an in-process
-database. Node 22.
+database. Node 24.
 
 ## Routes
 

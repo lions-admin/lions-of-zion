@@ -1,6 +1,8 @@
 import "server-only";
 
-import { QueueClient } from "@vercel/queue";
+import { QueueClient, type VercelRegion } from "@vercel/queue";
+import { queueRegion } from "./config";
 
-/** RSS, Functions and Neon all live in iad1; keep queue delivery there too. */
-export const queueClient = new QueueClient({ region: "iad1" });
+/** Explicitly configurable so the queue can be colocated with Functions and
+ * Postgres rather than silently assuming one region forever. */
+export const queueClient = new QueueClient({ region: queueRegion() as VercelRegion });

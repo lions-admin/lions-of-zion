@@ -1,1 +1,1 @@
-export { registeredUserCount, syncPublicUser } from "./service";
+export { registeredUserCount, syncPublicUser, syncVerifiedGoogleUser } from "./service";

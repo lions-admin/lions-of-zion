@@ -21,6 +21,8 @@ export const TOPICS = {
   embeddingRefresh: "embedding.refresh",
   itemDetected: "item.detected",
   emailNotification: "email.notification",
+  publicationCacheInvalidate: "publication.cache-invalidate",
+  briefingAlert: "briefing.alert",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];

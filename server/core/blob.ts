@@ -3,18 +3,12 @@ import "server-only";
 /**
  * Raw bytes, stored once per fetch rather than once per derived row.
  *
- * Always `access: "public"` — never `"private"`. That is not a shortcut, it
- * is the other half of the CHECK on `evidence`: restricted and secret material
- * is refused a `blob_url` at all, which is what makes an unguessable-but-public
- * URL an acceptable place to put everything that remains. Signed, private
- * blob access is a real Vercel Blob feature and is deliberately unused here —
- * introducing it would be the moment classification stops being enforced by
- * "no link exists" and starts depending on someone configuring access
- * correctly forever.
+ * Source captures are private operational records. Public article projections
+ * expose direct publisher URLs and permitted excerpts, never this object URL.
  */
 
 import { put } from "@vercel/blob";
-import { blobToken } from "./config";
+import { briefingBlobOptions } from "./config";
 
 export type StoredBlob = { url: string; contentType: string };
 
@@ -23,12 +17,15 @@ export async function storeRawBytes(
   data: string,
   contentType: string,
 ): Promise<StoredBlob> {
+  if (!pathname.startsWith("briefing/raw/")) {
+    throw new Error("Briefing source captures must use the isolated briefing/raw prefix.");
+  }
   const blob = await put(pathname, data, {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     allowOverwrite: false,
     contentType,
-    token: blobToken(),
+    ...briefingBlobOptions(),
   });
   return { url: blob.url, contentType: blob.contentType };
 }

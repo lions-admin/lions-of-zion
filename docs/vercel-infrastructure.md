@@ -1,110 +1,122 @@
 # Vercel infrastructure
 
-This is the verified deployment record for Lions of Zion. It describes names,
-boundaries and procedures, never secret values. The live project is
-`lionsofzion1/lions-of-zion`, served at `https://lionsofzion.io` with `www`
-redirecting to the canonical domain.
+This is the operational architecture for Lions of Zion. It records boundaries
+and verification steps, never credentials or assumed provider state. Confirm
+all identifiers and live settings in the relevant provider consoles before a
+Production change.
 
-## Runtime topology
+## Briefing topology
 
 ```mermaid
 flowchart LR
-  U[Visitor or Admin] --> CDN[Vercel CDN]
-  CDN --> F[Vercel Functions<br/>iad1 · Fluid Compute]
-  F --> DB[(Neon Postgres<br/>Production or Preview branch)]
-  F --> B[(Vercel Blob<br/>RSS or archive store)]
-  F --> Q[Vercel Queues<br/>outbox.dispatch]
-  F --> A[AI Gateway<br/>Vercel OIDC]
-  C[Vercel Cron] --> F
+  C[Vercel Cron] --> J[Durable briefing-job ledger]
+  J --> Q[Vercel Queues]
+  Q --> W[Briefing worker]
+  W --> D[(Neon Postgres)]
+  W --> B[Vercel Blob private briefing/raw]
+  W --> G[Google Agent Search via WIF]
+  W --> A[Vercel AI Gateway]
+  W --> P[Published article projections]
+  P --> CDN[Vercel CDN]
 ```
 
-Functions use the default Fluid Compute profile (2 GB / 1 vCPU) in `iad1`.
-Cron invokes ingestion, embeddings, outbox draining and daily maintenance;
-the outbox is durable in Postgres before it is dispatched to Queues.
+- Direct RSS/Atom feeds and Google Agent Search supply discovery.
+  Google is discovery-only and results are stored as original-publisher links.
+- `openai/gpt-5-nano` performs triage; `openai/gpt-5-mini` drafts. The
+  Grok public-chat profile remains independent.
+- The job ledger, not queue delivery, is the idempotency authority. Every
+  delivery carries only a job ID and can be retried safely.
+- The Daily Brief publishes automatically in Production only after
+  data-contract and quality gates pass. The database pause remains the
+  immediate stop control; Preview cannot publish. The production acceptance
+  sequence in `docs/briefing-operations.md` remains required operational
+  evidence and must be rerun after material provider or pipeline changes.
 
-## Services and expected monthly cost
+## Environment isolation
 
-| Service | Deployed use | Expected monthly cost |
-| --- | --- | ---: |
-| Vercel Pro | Hosting, CDN, Functions and deployments | $20 fixed; includes $20 infrastructure credit |
-| Vercel Functions | API, chat, RSS and background jobs in `iad1` | $0 expected overage |
-| Neon Launch | Postgres, pgvector and Preview branches in AWS us-east-1 | $6–$15 usage-based |
-| Neon Auth | One allowlisted administrator | $0 additional at this scale |
-| Vercel Blob | RSS snapshots and the separate archive store | $0 expected overage |
-| Vercel Queues | Reliable outbox delivery | $0 expected overage |
-| Vercel Cron | Scheduled ingestion, embedding, drain and maintenance | included in Function usage |
-| AI Gateway | Chat, administrative analysis and embeddings | $0–$5, hard-capped |
-| Domain | Existing `lionsofzion.io` connection | no new monthly cost |
+Production and Preview must use distinct resources and declare matching labels:
 
-The planning range is approximately **$26–$40/month**, including Pro. Neon is
-usage-based, so this is an estimate rather than a guarantee. Vercel Spend
-Management is set to $10 of additional usage with alerts at 50%, 75% and
-100%, without automatically disabling the site.
+```text
+DATABASE_RESOURCE_ENV
+BLOB_RESOURCE_ENV
+QUEUE_RESOURCE_ENV
+SEARCH_RESOURCE_ENV
+```
 
-## Data and environment boundaries
+Each must equal the runtime environment. `BRIEFING_BLOB_RESOURCE_ID` must not
+match `OCTOBER7_BLOB_RESOURCE_ID`. Preview is forced to dry-run for briefing
+collection and processing and cannot publish; the October 7 archive is outside
+this pipeline and retention process.
 
-Production uses the Neon project `lions-of-zion-db`, its main branch, and
-Production Vercel Blob variables. Preview uses an isolated Neon branch and
-separate RSS Blob storage. The archive store `lions-of-zion-archive` is public,
-in `iad1`, and currently holds 2,018 objects (about 1.94 GB); it is never used
-for RSS retention or cleanup. The two RSS stores are named
-`lions-of-zion-rss-preview` and `lions-of-zion-rss-production`.
+The administrator status view also shows one-way fingerprints for the database,
+briefing Blob store, October 7 archive store, Google search engine binding, and
+the queue resource when `BRIEFING_QUEUE_RESOURCE_ID` is supplied.
+These fingerprints are comparison aids only; they do not replace provider-side
+verification of queue and search resource ownership.
 
-The application reads these names only; values stay in Vercel Environment
-Variables:
+Provider-side completion record:
 
-`DATABASE_URL`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `ADMIN_EMAIL`,
-`BLOB_READ_WRITE_TOKEN`, `ARCHIVE_BLOB_STORE_ID`,
-`ARCHIVE_BLOB_WEBHOOK_PUBLIC_KEY`, `NEXT_PUBLIC_ARCHIVE_CDN`,
-`INTERNAL_API_SECRET`, `CRON_SECRET`, `RATE_LIMIT_HMAC_SECRET`, `APP_ENV`,
-`AI_DAILY_BUDGET_USD`, and `AI_MONTHLY_BUDGET_USD`.
+1. Create a separate Preview database branch and record its provider resource ID.
+2. Create a separate Preview Blob store and record its store ID.
+3. Create separate Preview queue and search bindings; do not reuse Production
+   identifiers or credentials.
+4. Repeat the check for Development, or explicitly document that Development
+   is local-only and has no production-connected briefing workers.
+5. Compare the resulting bindings in the administrator status view, then run
+   the isolated migration and restore checks before promoting code.
 
-AI Gateway uses Vercel OIDC in linked deployments; no permanent AI provider
-key is required in Production. **Google Cloud and Google Vertex are not part
-of this architecture.** `next/font/google` is a build-time font download, not
-a Google cloud dependency.
+Current Development record: the Vercel Development environment has no
+`DATABASE_URL`, briefing Blob resource, Agent Search binding, or queue binding.
+It is therefore local-only and cannot start a Production-connected briefing
+worker. The current Vercel environment listing also shows distinct briefing
+Blob store IDs for Preview and Production, both separate from the October 7
+archive store. This still does not prove Preview/Production separation for the
+database, queue, or search binding; those provider-side identifiers require
+verification.
 
-## AI and spend controls
+## Required production configuration
 
-- Public chat uses `anthropic/claude-haiku-4.5`.
-- Administrative processing uses `anthropic/claude-sonnet-5`.
-- Embeddings use `openai/text-embedding-3-small` (1,536 dimensions).
-- The application refuses the next request at $4.50 monthly spend; the
-  Gateway ceiling is $5.
-- Every completed call records the Gateway-reported cost in `ai_run`.
+Names only; see `.env.example` for the complete non-secret template.
 
-## Deploy and data runbook
+- Neon: `DATABASE_URL`, administrator-auth settings, and the resource label.
+- Vercel Blob: `BLOB_READ_WRITE_TOKEN`, briefing resource ID, and label.
+- Vercel Queues: Vercel OIDC capability, region, and resource label.
+- AI Gateway: Vercel OIDC or the approved local-development credential.
+- Google Agent Search: project, serving configuration, Workload Identity
+  Provider, service-account email, search label, hard query limit, and budget.
+- Internal routes: `CRON_SECRET`, `INTERNAL_API_SECRET`, and rate-limit key.
 
-1. Run migrations against Preview first: `npm run db:migrate` with the Preview
-   `DATABASE_URL`; verify pgvector and RLS before Production.
-2. Run the idempotent public import only after the Production admin exists:
-   `npm run db:import-public` with Production `DATABASE_URL`, `ADMIN_EMAIL` and
-   `APP_ENV=production`.
-3. Build and inspect a Vercel Preview deployment. Check health, authentication,
-   public search/chat, cron authorization and the `www` redirect.
-4. Promote deliberately through the Vercel CLI only after Preview passes. Git
-   pushes do not deploy this project automatically.
-5. Roll back by aliasing the last known-good Vercel deployment; do not roll
-   back database migrations destructively.
+Briefing cron and queue workers are explicitly pinned in `vercel.json` to
+`iad1` and a 300-second maximum. `tests/briefing-runtime.test.ts` guards these
+values; memory remains controlled by the active Vercel compute plan and must be
+verified in the provider settings rather than declared through this file.
 
-All cron handlers and queue consumers are authenticated, retry-safe and
-idempotent. If the source count exceeds 50 or an RSS run approaches the
-Function timeout, split ingestion into one Queue task per source.
+Google authentication is Vercel OIDC to Google STS to service-account
+impersonation. Do not create, upload, or store a long-lived JSON key.
 
-## Verification checklist
+## Schedules and triggers
 
-- `/api/internal/health` reports database, Blob, AI Gateway, Neon Auth and
-  internal-secret readiness without revealing values.
-- Anonymous requests can use health, public search and public chat only;
-  admin status and team APIs require the Neon Auth session plus database
-  capabilities.
-- Production contains one allowlisted admin and the ten imported public pages.
-  Preview cannot write to those Production resources.
-- **The repository carries 24 migrations (`0000`–`0023`).** `0021` and `0022`
-  were added with the structure audit. `0023_ai_run_service_returning` adds
-  the internal `app_service` read policy required by the embedding ledger's
-  `INSERT ... RETURNING` path. Production was verified on 2026-08-27: the
-  migration journal contains `0021`, `0022`, and `0023`; both prune functions
-  deny `PUBLIC` execute; and the service-role embedding insert succeeds.
-- Monitor Neon CU-hours, AI spend, Function errors, Queue age and Blob growth
-  for seven days after a material deployment.
+`vercel.json` owns the authoritative schedules. It includes recurring source
+collection, queue/outbox recovery, maintenance/alerts, and a 07:00 Israel-time
+editorial window with DST-safe UTC coverage. Each briefing queue stage has an
+explicit trigger topic:
+
+```text
+briefing-collect -> enrich -> cluster -> triage -> draft -> quality -> publish
+```
+
+The Database pause can stop publication without discarding collected evidence.
+
+## Deploy and recovery
+
+1. Snapshot the database and Blob state before a migration or broad cleanup.
+2. Apply migrations in an isolated Preview environment and run tests.
+3. Verify Preview labels, no-publication behavior, and source collection.
+4. Run the production acceptance sequence in `docs/briefing-operations.md`.
+5. Promote only after its documented evidence exists.
+
+For a faulty code deployment, use Vercel Instant Rollback. Database migrations
+are fix-forward or restored only to an isolated database; do not remove or
+reverse an applied Production migration in place. Full backup, restore,
+retention, and incident procedures are in `docs/briefing-operations.md` and
+`.ai/ROLLBACK.md`.

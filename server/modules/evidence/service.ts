@@ -31,7 +31,7 @@ export async function createEvidenceInTx(
 ): Promise<Evidence> {
   const repo = evidenceRepo(tx);
 
-  const row = await repo.insert({
+  const { row, inserted } = await repo.insertOrGet({
     sourceId: input.sourceId,
     sourceFetchId: input.sourceFetchId ?? null,
     kind: input.kind,
@@ -40,9 +40,21 @@ export async function createEvidenceInTx(
     excerpt: input.excerpt ?? null,
     externalId: input.externalId ?? null,
     url: input.url ?? null,
+    discoveryUrl: input.discoveryUrl ?? input.url ?? null,
+    canonicalUrl: input.canonicalUrl ?? input.url ?? null,
+    publisherDomain: input.publisherDomain ?? null,
+    normalizedContentHash: input.normalizedContentHash ?? null,
+    usableTextLength: input.usableTextLength ?? input.excerpt?.length ?? 0,
+    retrievalStatus: input.retrievalStatus ?? "discovered",
+    accessState: input.accessState ?? "open",
+    contentType: input.contentType ?? null,
+    discoveryMetadata: input.discoveryMetadata ?? null,
+    retentionClass: input.retentionClass ?? "metadata_excerpt",
     language: input.language,
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : null,
   });
+
+  if (!inserted) return row;
 
   await recordVersion(tx as Tx, evidence, row as never, {
     entityType: "evidence",
@@ -78,6 +90,10 @@ export async function findEvidenceByUrl(tx: unknown, url: string): Promise<Evide
   return evidenceRepo(tx).byUrl(url);
 }
 
+export async function findEvidenceByContentHash(tx: unknown, hash: string): Promise<Evidence | undefined> {
+  return evidenceRepo(tx).byNormalizedContentHash(hash);
+}
+
 export function evidenceService(db: unknown) {
   const run = db as unknown as Runner;
 
@@ -94,6 +110,38 @@ export function evidenceService(db: unknown) {
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
         return createEvidenceInTx(tx, input, actor, { requestId });
+      });
+    },
+
+    async enrich(
+      id: string,
+      fields: {
+        excerpt?: string | null; canonicalUrl?: string | null; url?: string | null;
+        publisherDomain?: string | null; normalizedContentHash?: string | null;
+        usableTextLength: number; retrievalStatus: "fetched" | "partial" | "failed";
+        accessState: "open" | "blocked" | "login_required" | "paywalled" | "unavailable";
+        contentType?: string | null;
+      },
+      actor: Actor,
+      requestId?: string,
+    ): Promise<Evidence> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = evidenceRepo(tx);
+        const before = await r.byId(id);
+        if (!before) throw notFound("Evidence");
+        const after = await r.update(id, { ...fields, updatedAt: new Date() });
+        await recordVersion(tx as Tx, evidence, after as never, {
+          entityType: "evidence", entityId: id, actor,
+          changeSummary: `Source retrieval ${fields.retrievalStatus}`,
+          changeSource: "workflow", requestId, before,
+        });
+        await r.insertProvenance({
+          evidenceId: id, action: "retrieved", actorUserId: actor.userId ?? null,
+          actorLabel: actor.label,
+          detail: { retrievalStatus: fields.retrievalStatus, accessState: fields.accessState, contentType: fields.contentType ?? null },
+        });
+        return after;
       });
     },
   };

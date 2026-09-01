@@ -1,5 +1,7 @@
 import "server-only";
 
+import { sql } from "drizzle-orm";
+
 /**
  * The four publication surfaces. Owns policy; owns no SQL of its own beyond
  * the repository below it.
@@ -14,6 +16,7 @@ import "server-only";
 
 import { ApiError, notFound } from "@/server/http/responses";
 import { recordVersion, setIdentity } from "@/server/core/versioning";
+import { writeAudit } from "@/server/core/audit";
 import { assertHumanReviewer, findReviewer } from "@/server/modules/assessments";
 import { homepageFeature, publication } from "@/server/db/schema";
 import { repo } from "./repo";
@@ -32,9 +35,21 @@ import type {
 } from "@/server/contracts/publication";
 import type { Actor } from "@/server/core/audit";
 import type { Publication } from "@/server/db/schema";
+import { emit, TOPICS } from "@/server/core/outbox";
 
 type Tx = Parameters<typeof setIdentity>[0];
 type Runner = { transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T> };
+
+type AutomationProvenance = {
+  briefingRunId: string;
+  machineAuthor: string;
+  candidateKeys: string[];
+};
+
+/** Provenance for machine-created drafts while public release is paused. */
+type DraftProvenance = Pick<AutomationProvenance, "briefingRunId" | "machineAuthor">;
+
+type GeneratedDraftProvenance = DraftProvenance & Pick<AutomationProvenance, "candidateKeys">;
 
 
 export function publicationService(db: unknown) {
@@ -48,6 +63,7 @@ export function publicationService(db: unknown) {
     },
 
     list: (filters: ListPublications) => repo(db).list(filters),
+    traceability: (id: string) => repo(db).adminTraceability(id),
 
     async create(input: CreatePublication, actor: Actor, requestId?: string): Promise<Publication> {
       return run.transaction(async (tx) => {
@@ -64,6 +80,11 @@ export function publicationService(db: unknown) {
           language: input.language,
           eventId: input.eventId ?? null,
           primaryTopicId: input.primaryTopicId ?? null,
+          editorialTopic: input.editorialTopic ?? null,
+          primaryActor: input.primaryActor ?? null,
+          arena: input.arena ?? null,
+          featuredIsraelStory: input.featuredIsraelStory ?? false,
+          narrativeWatchDetails: input.narrativeWatchDetails ?? null,
           scenarioLikelihood: input.scenarioLikelihood ?? null,
           scenarioIndicators: input.scenarioIndicators ?? null,
           createdBy: actor.userId ?? null,
@@ -72,6 +93,7 @@ export function publicationService(db: unknown) {
         if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
         if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
         if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
+        if (input.passages?.length) await r.linkPassages(row.id, input.passages);
 
         await recordVersion(tx as Tx, publication, row as never, {
           entityType: kindToEntityType(input.kind),
@@ -81,18 +103,180 @@ export function publicationService(db: unknown) {
           changeSource: "human_edit",
           requestId,
         });
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicId: row.publicId });
 
         return row;
+      });
+    },
+
+    /** Creates a complete generated edition as private drafts in one
+     * transaction. This is the safe processing mode while automatic release
+     * is paused or before production acceptance has passed. */
+    async createMany(
+      inputs: CreatePublication[],
+      actor: Actor,
+      requestId?: string,
+      provenance?: GeneratedDraftProvenance,
+    ): Promise<Publication[]> {
+      if (provenance && provenance.candidateKeys.length !== inputs.length) {
+        throw new ApiError("VALIDATION_ERROR", "Every generated draft requires one quality candidate key.");
+      }
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = repo(tx);
+        const rows: Publication[] = [];
+        for (const [inputIndex, input] of inputs.entries()) {
+          const row = await r.insert({
+            kind: input.kind,
+            section: input.section ?? "israel_update",
+            publicId: await uniquePublicId(r, input.title),
+            title: input.title,
+            summary: input.summary ?? null,
+            body: input.body,
+            language: input.language,
+            eventId: input.eventId ?? null,
+            primaryTopicId: input.primaryTopicId ?? null,
+            editorialTopic: input.editorialTopic ?? null,
+            primaryActor: input.primaryActor ?? null,
+            arena: input.arena ?? null,
+            featuredIsraelStory: input.featuredIsraelStory ?? false,
+            narrativeWatchDetails: input.narrativeWatchDetails ?? null,
+            scenarioLikelihood: input.scenarioLikelihood ?? null,
+            scenarioIndicators: input.scenarioIndicators ?? null,
+            briefingRunId: provenance?.briefingRunId ?? null,
+            briefingCandidateKey: provenance?.candidateKeys[inputIndex] ?? null,
+            machineAuthor: provenance?.machineAuthor ?? null,
+            status: "draft",
+            createdBy: actor.userId ?? null,
+          });
+          if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
+          if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
+          if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
+          if (input.passages?.length) await r.linkPassages(row.id, input.passages);
+          await recordVersion(tx as Tx, publication, row as never, {
+            entityType: kindToEntityType(input.kind),
+            entityId: row.id,
+            actor,
+            changeSummary: `${input.kind} generated as draft`,
+            changeSource: "workflow",
+            requestId,
+          });
+          rows.push(row);
+        }
+        if (rows.length > 1 && inputs[0]?.section === "daily_brief") {
+          await r.linkRelated(rows[0]!.id, rows.slice(1).map((row) => row.id));
+        }
+        return rows;
+      });
+    },
+
+    /** Promote an already materialised, quality-approved draft edition.
+     *
+     * This covers the narrow interval in which collection was allowed while
+     * automatic release was paused. It promotes the original rows (and their
+     * evidence, claim and narrative links), rather than re-running drafting or
+     * creating a second edition. Exact title, summary, body, kind and section
+     * matching deliberately fails closed if a draft was edited or ambiguous.
+     */
+    async resumeGeneratedDrafts(
+      inputs: CreatePublication[],
+      provenance: AutomationProvenance,
+      actor: Actor,
+      requestId?: string,
+    ): Promise<Publication[]> {
+      if (provenance.candidateKeys.length !== inputs.length) {
+        throw new ApiError("VALIDATION_ERROR", "Every resumed publication requires one quality candidate key.");
+      }
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = repo(tx);
+        const generated = await r.generatedDrafts(provenance.briefingRunId);
+        if (!generated.length) {
+          const existing = await r.automaticCandidates(provenance.briefingRunId, provenance.candidateKeys);
+          if (existing.length === inputs.length
+            && existing.every((row) => row.status === "published" && row.autoPublishedAt !== null)) {
+            const byCandidate = new Map(existing.map((row) => [row.briefingCandidateKey, row]));
+            return provenance.candidateKeys.map((candidateKey) => byCandidate.get(candidateKey)!);
+          }
+        }
+        if (generated.length !== inputs.length) {
+          throw new ApiError("CONFLICT", "The paused edition is incomplete and requires manual recovery.");
+        }
+        const matched = inputs.map((input) => {
+          const rows = generated.filter((row) => row.kind === input.kind
+            && row.section === (input.section ?? "israel_update")
+            && row.title === input.title
+            && (row.summary ?? null) === (input.summary ?? null)
+            && row.body === input.body);
+          if (rows.length !== 1) {
+            throw new ApiError("CONFLICT", "The paused edition no longer exactly matches its approved draft artifact.");
+          }
+          return rows[0]!;
+        });
+        if (new Set(matched.map((row) => row.id)).size !== inputs.length) {
+          throw new ApiError("CONFLICT", "The paused edition contains duplicate draft matches.");
+        }
+        for (const candidateKey of provenance.candidateKeys) {
+          if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
+            throw new ApiError("VALIDATION_ERROR", `Quality checks failed for ${candidateKey}.`);
+          }
+        }
+        const publishedAt = new Date();
+        const rows: Publication[] = [];
+        for (const [index, draft] of matched.entries()) {
+          await (tx as Tx).execute(sql`SELECT set_config('app.quality_candidate', ${provenance.candidateKeys[index]!}, true)`);
+          const row = await r.update(draft.id, {
+            status: "published",
+            publishedAt,
+            autoPublishedAt: publishedAt,
+            qualityApprovedAt: publishedAt,
+            briefingCandidateKey: provenance.candidateKeys[index]!,
+            machineAuthor: provenance.machineAuthor,
+            approvedBy: null,
+            updatedAt: publishedAt,
+          });
+          await recordVersion(tx as Tx, publication, row as never, {
+            entityType: kindToEntityType(row.kind),
+            entityId: row.id,
+            actor,
+            changeSummary: `${row.kind} automatically published from an approved paused draft`,
+            changeSource: "workflow",
+            requestId,
+            before: draft,
+          });
+          rows.push(row);
+        }
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicIds: rows.map((row) => row.publicId) });
+        return rows;
       });
     },
 
     /** Owner-authorized automation. This path is intentionally explicit: it
      * writes transparent `autoPublishedAt` provenance instead of impersonating
      * a human reviewer. */
-    async autoPublish(input: CreatePublication, actor: Actor, requestId?: string): Promise<Publication> {
+    async autoPublish(
+      input: CreatePublication,
+      provenance: AutomationProvenance,
+      actor: Actor,
+      requestId?: string,
+    ): Promise<Publication> {
+      if (provenance.candidateKeys.length !== 1) {
+        throw new ApiError("VALIDATION_ERROR", "Automatic publication requires one quality candidate key.");
+      }
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
         const r = repo(tx);
+        const candidateKey = provenance.candidateKeys[0]!;
+        const existing = await r.automaticCandidates(provenance.briefingRunId, [candidateKey]);
+        if (existing.length === 1) {
+          const row = existing[0]!;
+          if (row.status === "published" && row.autoPublishedAt !== null) return row;
+          throw new ApiError("CONFLICT", "A generated draft already exists for this candidate and requires paused-edition recovery.");
+        }
+        if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
+          throw new ApiError("VALIDATION_ERROR", "Automatic publication quality checks are incomplete or failed.");
+        }
+        await (tx as Tx).execute(sql`SELECT set_config('app.quality_candidate', ${candidateKey}, true)`);
         const publishedAt = new Date();
         const row = await r.insert({
           kind: input.kind,
@@ -104,17 +288,27 @@ export function publicationService(db: unknown) {
           language: input.language,
           eventId: input.eventId ?? null,
           primaryTopicId: input.primaryTopicId ?? null,
+          editorialTopic: input.editorialTopic ?? null,
+          primaryActor: input.primaryActor ?? null,
+          arena: input.arena ?? null,
+          featuredIsraelStory: input.featuredIsraelStory ?? false,
+          narrativeWatchDetails: input.narrativeWatchDetails ?? null,
           scenarioLikelihood: input.scenarioLikelihood ?? null,
           scenarioIndicators: input.scenarioIndicators ?? null,
           status: "published",
           publishedAt,
           autoPublishedAt: publishedAt,
+          qualityApprovedAt: publishedAt,
+          briefingRunId: provenance.briefingRunId,
+          briefingCandidateKey: candidateKey,
+          machineAuthor: provenance.machineAuthor,
           createdBy: null,
           approvedBy: null,
         });
         if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
         if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
         if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
+        if (input.passages?.length) await r.linkPassages(row.id, input.passages);
         await recordVersion(tx as Tx, publication, row as never, {
           entityType: kindToEntityType(input.kind),
           entityId: row.id,
@@ -123,19 +317,98 @@ export function publicationService(db: unknown) {
           changeSource: "workflow",
           requestId,
         });
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicId: row.publicId });
         return row;
       });
     },
 
     /** Publishes one completed scheduled edition atomically: failures cannot
      * leave a half-edition visible to readers. */
-    async autoPublishMany(inputs: CreatePublication[], actor: Actor, requestId?: string): Promise<Publication[]> {
+    async autoPublishMany(
+      inputs: CreatePublication[],
+      provenance: AutomationProvenance,
+      actor: Actor,
+      requestId?: string,
+    ): Promise<Publication[]> {
+      if (provenance.candidateKeys.length !== inputs.length) {
+        throw new ApiError("VALIDATION_ERROR", "Every automatic publication requires one quality candidate key.");
+      }
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
         const r = repo(tx);
+        const existing = await r.automaticCandidates(provenance.briefingRunId, provenance.candidateKeys);
+        if (existing.length) {
+          if (existing.length !== inputs.length) {
+            throw new ApiError("CONFLICT", "An incomplete automatic edition already exists and requires operator recovery.");
+          }
+          const byCandidate = new Map(existing.map((row) => [row.briefingCandidateKey, row]));
+          const ordered = provenance.candidateKeys.map((candidateKey) => byCandidate.get(candidateKey)!);
+          if (ordered.every((row) => row.status === "published" && row.autoPublishedAt !== null)) {
+            return ordered;
+          }
+
+          /* A run can reach the publish stage after automatic publishing was
+           * re-enabled. In that case the exact generated drafts already own
+           * the candidate keys. Promote them instead of treating draft rows as
+           * a completed automatic publication or inserting a duplicate edition. */
+          if (!ordered.every((row) => row.status === "draft" && row.autoPublishedAt === null)) {
+            throw new ApiError("CONFLICT", "The automatic edition has an unsupported mixed publication state.");
+          }
+          for (const [index, input] of inputs.entries()) {
+            const draft = ordered[index]!;
+            if (draft.kind !== input.kind
+              || draft.section !== (input.section ?? "israel_update")
+              || draft.title !== input.title
+              || (draft.summary ?? null) !== (input.summary ?? null)
+              || draft.body !== input.body) {
+              throw new ApiError("CONFLICT", "The stored generated drafts no longer match the approved edition.");
+            }
+          }
+          for (const candidateKey of provenance.candidateKeys) {
+            if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
+              throw new ApiError("VALIDATION_ERROR", `Quality checks failed for ${candidateKey}.`);
+            }
+          }
+          const publishedAt = new Date();
+          const rows: Publication[] = [];
+          for (const [index, draft] of ordered.entries()) {
+            await (tx as Tx).execute(sql`SELECT set_config('app.quality_candidate', ${provenance.candidateKeys[index]!}, true)`);
+            const row = await r.update(draft.id, {
+              status: "published",
+              publishedAt,
+              autoPublishedAt: publishedAt,
+              qualityApprovedAt: publishedAt,
+              approvedBy: null,
+              updatedAt: publishedAt,
+            });
+            await recordVersion(tx as Tx, publication, row as never, {
+              entityType: kindToEntityType(row.kind),
+              entityId: row.id,
+              actor,
+              changeSummary: `${row.kind} automatically published from an approved generated draft`,
+              changeSource: "workflow",
+              requestId,
+              before: draft,
+            });
+            rows.push(row);
+          }
+          if (rows.length > 1 && inputs[0]?.section === "daily_brief") {
+            await r.linkRelated(rows[0]!.id, rows.slice(1).map((row) => row.id));
+          }
+          await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicIds: rows.map((row) => row.publicId) });
+          return rows;
+        }
+        for (const candidateKey of provenance.candidateKeys) {
+          if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
+            throw new ApiError("VALIDATION_ERROR", `Quality checks failed for ${candidateKey}.`);
+          }
+        }
         const publishedAt = new Date();
         const rows: Publication[] = [];
-        for (const input of inputs) {
+        for (const [inputIndex, input] of inputs.entries()) {
+          await (tx as Tx).execute(
+            sql`SELECT set_config('app.quality_candidate', ${provenance.candidateKeys[inputIndex]!}, true)`,
+          );
           const row = await r.insert({
             kind: input.kind,
             section: input.section ?? "israel_update",
@@ -146,17 +419,27 @@ export function publicationService(db: unknown) {
             language: input.language,
             eventId: input.eventId ?? null,
             primaryTopicId: input.primaryTopicId ?? null,
+            editorialTopic: input.editorialTopic ?? null,
+            primaryActor: input.primaryActor ?? null,
+            arena: input.arena ?? null,
+            featuredIsraelStory: input.featuredIsraelStory ?? false,
+            narrativeWatchDetails: input.narrativeWatchDetails ?? null,
             scenarioLikelihood: input.scenarioLikelihood ?? null,
             scenarioIndicators: input.scenarioIndicators ?? null,
             status: "published",
             publishedAt,
             autoPublishedAt: publishedAt,
+            qualityApprovedAt: publishedAt,
+            briefingRunId: provenance.briefingRunId,
+            briefingCandidateKey: provenance.candidateKeys[inputIndex]!,
+            machineAuthor: provenance.machineAuthor,
             createdBy: null,
             approvedBy: null,
           });
           if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
           if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
           if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
+          if (input.passages?.length) await r.linkPassages(row.id, input.passages);
           await recordVersion(tx as Tx, publication, row as never, {
             entityType: kindToEntityType(input.kind),
             entityId: row.id,
@@ -167,23 +450,24 @@ export function publicationService(db: unknown) {
           });
           rows.push(row);
         }
+        if (rows.length > 1 && inputs[0]?.section === "daily_brief") {
+          await r.linkRelated(rows[0]!.id, rows.slice(1).map((row) => row.id));
+        }
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicIds: rows.map((row) => row.publicId) });
         return rows;
       });
     },
 
     async listPublic(filters: ListPublicPublications): Promise<PublicPublication[]> {
-      const rows = await repo(db).list({
-        kind: filters.kind,
-        section: filters.section,
-        status: "published",
-        eventId: undefined,
-        cursor: filters.cursor,
-        limit: filters.limit,
-      });
-      const byDate = filters.date
-        ? rows.filter((row) => row.publishedAt?.toISOString().slice(0, 10) === filters.date)
-        : rows;
-      return byDate.map(toPublicPublication);
+      const rows = await repo(db).listPublic(filters);
+      return rows.map(toPublicPublication);
+    },
+
+    /** The Daily Brief hub and homepage rails must not inherit historic site
+     * reference pages from the shared publication table. */
+    async listBriefingPublic(filters: ListPublicPublications): Promise<PublicPublication[]> {
+      const rows = await repo(db).listPublic(filters, true);
+      return rows.map(toPublicPublication);
     },
 
     async getPublic(publicId: string): Promise<PublicPublication> {
@@ -192,9 +476,25 @@ export function publicationService(db: unknown) {
       return toPublicPublication(row);
     },
 
+    async getBriefingPublic(publicId: string): Promise<PublicPublication> {
+      const row = await repo(db).byPublicId(publicId);
+      if (!row || !row.briefingRunId || (row.status !== "published" && row.status !== "updated")) {
+        throw notFound("Briefing publication");
+      }
+      return toPublicPublication(row);
+    },
+
     async getPublicDetail(publicId: string): Promise<PublicPublicationDetail> {
       const row = await repo(db).byPublicId(publicId);
       if (!row || (row.status !== "published" && row.status !== "updated")) throw notFound("Publication");
+      return { ...toPublicPublication(row), ...(await repo(db).publicReferences(row.id)) };
+    },
+
+    async getBriefingPublicDetail(publicId: string): Promise<PublicPublicationDetail> {
+      const row = await repo(db).byPublicId(publicId);
+      if (!row || !row.briefingRunId || (row.status !== "published" && row.status !== "updated")) {
+        throw notFound("Briefing publication");
+      }
       return { ...toPublicPublication(row), ...(await repo(db).publicReferences(row.id)) };
     },
 
@@ -207,11 +507,35 @@ export function publicationService(db: unknown) {
         };
       };
       const features = await d.select().from(homepageFeature).orderBy(homepageFeature.slot);
-      const live = await repo(db).list({ status: "published", limit: 100 });
+      const live = (await repo(db).listPublic({ limit: 100 }, true)).filter((row) =>
+        row.section === "israel_update" || row.section === "war_update" || row.section === "narrative_watch",
+      );
       const ordered = features
         .map((feature) => live.find((row) => row.id === feature.publicationId))
         .filter((row): row is Publication => Boolean(row));
       return (ordered.length ? ordered : live.slice(0, 3)).map(toPublicPublication);
+    },
+
+    async homepageFeatures(): Promise<Array<{ slot: number; publicationId: string }>> {
+      return repo(db).homepageFeatures();
+    },
+
+    async setHomepageFeature(slot: number, publicationId: string | null, actor: Actor): Promise<void> {
+      if (!Number.isInteger(slot) || slot < 1 || slot > 3) throw new ApiError("VALIDATION_ERROR", "Homepage slot must be 1, 2, or 3.");
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = repo(tx);
+        if (publicationId) {
+          const row = await r.byId(publicationId);
+          const eligible = row
+            && (row.status === "published" || row.status === "updated")
+            && row.briefingRunId !== null
+            && ["israel_update", "war_update", "narrative_watch"].includes(row.section);
+          if (!eligible) throw new ApiError("VALIDATION_ERROR", "Only a live news publication can occupy a homepage slot.");
+        }
+        await r.setHomepageFeature(slot, publicationId);
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { homepageSlot: slot, publicationId });
+      });
     },
 
     async update(
@@ -227,6 +551,13 @@ export function publicationService(db: unknown) {
         if (!before) throw notFound("Publication");
 
         const { changeSummary, ...fields } = input;
+        const nextSection = fields.section ?? before.section;
+        const nextNarrativeDetails = fields.narrativeWatchDetails === undefined
+          ? before.narrativeWatchDetails
+          : fields.narrativeWatchDetails;
+        if ((nextSection === "narrative_watch") !== Boolean(nextNarrativeDetails)) {
+          throw new ApiError("VALIDATION_ERROR", "Narrative Watch publications require structured monitoring details, and other sections may not carry them.");
+        }
         const after = await r.update(id, {
           ...Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined)),
           updatedAt: new Date(),
@@ -236,13 +567,39 @@ export function publicationService(db: unknown) {
           entityType: kindToEntityType(before.kind),
           entityId: id,
           actor,
-          changeSummary,
+          changeSummary: changeSummary?.trim() || "Updated publication",
           changeSource: "human_edit",
           requestId,
           before,
         });
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicId: after.publicId });
 
         return after;
+      });
+    },
+
+    /** Hard deletion is intentionally limited to drafts and already archived
+     * records. A live publication must first be archived, while its evidence,
+     * versions and audit history remain retained for accountability. */
+    async remove(id: string, actor: Actor, requestId?: string): Promise<void> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = repo(tx);
+        const before = await r.byId(id);
+        if (!before) throw notFound("Publication");
+        if (before.status !== "draft" && before.status !== "archived") {
+          throw new ApiError("PRECONDITION_FAILED", "Only drafts and archived publications may be permanently deleted. Archive a live publication first.");
+        }
+        await r.remove(id);
+        await writeAudit(tx as never, {
+          actor,
+          action: "publication.deleted",
+          entityType: kindToEntityType(before.kind),
+          entityId: id,
+          before,
+          requestId,
+        });
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicId: before.publicId });
       });
     },
 
@@ -302,6 +659,7 @@ export function publicationService(db: unknown) {
           requestId,
           before,
         });
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicId: after.publicId });
 
         return after;
       });
@@ -311,18 +669,31 @@ export function publicationService(db: unknown) {
 
 function toPublicPublication(row: Publication): PublicPublication {
   if (!row.publishedAt) throw new ApiError("NOT_FOUND", "Publication is not public.");
+  const title = row.section === "narrative_watch" ? publicNarrativeWatchTitle(row.title) : row.title;
   return {
     publicId: row.publicId,
     kind: row.kind,
     section: row.section,
-    title: row.title,
+    title,
     summary: row.summary,
     body: row.body,
     language: row.language,
     publishedAt: row.publishedAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     autoPublishedAt: row.autoPublishedAt?.toISOString() ?? null,
+    editorialTopic: row.editorialTopic,
+    primaryActor: row.primaryActor,
+    arena: row.arena,
+    featuredIsraelStory: row.featuredIsraelStory,
+    narrativeWatchDetails: row.narrativeWatchDetails as PublicPublication["narrativeWatchDetails"],
   };
+}
+
+/** Keep historic machine publications as clearly attributed claims too. */
+function publicNarrativeWatchTitle(title: string): string {
+  const trimmed = title.trim();
+  if (/^(?:reported|unverified|disputed)\s+(?:claim|report)\s*:/i.test(trimmed)) return trimmed;
+  return `Reported claim: ${trimmed}`.slice(0, 300);
 }
 
 /** `entity_type` predates the merged `publication` table and still names the

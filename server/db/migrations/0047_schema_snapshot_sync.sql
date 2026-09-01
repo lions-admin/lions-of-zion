@@ -1,0 +1,4 @@
+-- 0046 already applies source_fetch.raw_byte_size and its validity check.
+-- This journaled no-op records the schema snapshot generated after the
+-- hand-written capture-size migration, so future `db:generate` runs compare
+-- against the actual migration state instead of proposing the same change.

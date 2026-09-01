@@ -16,7 +16,7 @@ Open <http://localhost:3000>. **No configuration is required** — the frontend
 needs no environment variables, and the test suite runs against an in-process
 database.
 
-Requires Node 22 (what CI uses). The API routes will fail without a
+Requires Node 24 (what CI and Vercel use). The API routes will fail without a
 `DATABASE_URL`; see [`environment.md`](environment.md).
 
 ---
@@ -220,20 +220,33 @@ Git auto-deploy is **not connected**. Production deployment is a separate,
 manual Vercel operation, so a merge to `main` does not reach production on its
 own.
 
-`vercel.json` declares the Queue trigger and four production schedules:
+`vercel.json` declares transactional outbox and stage-specific briefing Queue
+triggers plus five production schedules:
 
 ```json
 {
   "functions": {
     "app/api/internal/queue/outbox-dispatch/route.ts": {
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox.dispatch" }]
+    },
+    "app/api/internal/queue/briefing/route.ts": {
+      "experimentalTriggers": [
+        { "type": "queue/v2beta", "topic": "briefing-collect" },
+        { "type": "queue/v2beta", "topic": "briefing-enrich" },
+        { "type": "queue/v2beta", "topic": "briefing-cluster" },
+        { "type": "queue/v2beta", "topic": "briefing-triage" },
+        { "type": "queue/v2beta", "topic": "briefing-draft" },
+        { "type": "queue/v2beta", "topic": "briefing-quality" },
+        { "type": "queue/v2beta", "topic": "briefing-publish" }
+      ]
     }
   },
   "crons": [
     { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
     { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
     { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
-    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
+    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" },
+    { "path": "/api/internal/cron/briefing", "schedule": "0,15,30,45 4,5 * * *" }
   ]
 }
 ```
@@ -243,11 +256,13 @@ For rolling back a bad production deploy, see
 
 ### Scheduled work
 
-Production schedules are active and authenticated by `CRON_SECRET`. Ingest
+Production schedules are authenticated by `CRON_SECRET`. Ingest
 runs at minutes 0 and 30, embeddings at 10 and 40, the outbox drain every 15
 minutes, and maintenance daily at 03:20 UTC. Every handler is idempotent and
-safe to retry. Preview has the same code but an isolated environment and must
-not be used to run Production jobs.
+safe to retry. The briefing cron covers 07:00 Israel time across daylight
+saving changes and is idempotent by Israel-local date and stage. Preview forces
+the briefing pipeline into dry-run and requires isolated resources. See
+[`briefing-operations.md`](briefing-operations.md).
 
 ### Provisioned dependency order
 
@@ -262,6 +277,8 @@ The deployed order is retained for recovery and new environments:
 4. **Vercel Queues** → link the project so the OIDC topic is available.
 5. **AI Gateway** → use Vercel OIDC; verify model profiles and keep the
    application/Gateway spend caps enabled.
+6. **Google Agent Search** → use Workload Identity Federation and service
+   account impersonation; never add a static key or JSON credential.
 
 Before changing a deployed dependency, read
 [`vercel-infrastructure.md`](vercel-infrastructure.md) and the
@@ -323,3 +340,13 @@ publishes it separately.
 re-checks the intro invariants — 12 beats, the `battlefield-for-truth` id,
 desktop and mobile line arrays rejoining to the canonical text — then runs
 `tsc --noEmit`. See `CLAUDE.md`.
+### מדידת לחץ חיבורים
+
+בסביבת בדיקה מבודדת בלבד מריצים `TEST_DATABASE_URL=... pnpm briefing:db-pressure`.
+הבדיקה מבצעת שאילתות `select 1` בלבד, מדווחת זמני `p50` ו־`p95`, ואינה משתמשת
+בכתובת מסד הנתונים של ייצור או בערכים מצונזרים. אפשר לשנות את העומס באמצעות
+`BRIEFING_DB_PRESSURE_CONCURRENCY` ו־`BRIEFING_DB_PRESSURE_ROUNDS`.
+
+בדיקת קישוריות הזנות יכולה לרוץ במקביל ברמת עומס מוגבלת באמצעות
+`pnpm briefing:sources:connectivity`; ברירת המחדל היא ארבע בקשות במקביל.
+להפעלת שער מחמיר שמחזיר כישלון אם הזנה כלשהי אינה תקינה משתמשים ב־`--strict`.

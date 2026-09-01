@@ -1,4 +1,4 @@
-import { consumerFor } from "@/server/jobs/consumers";
+import { dispatchOutboxMessage } from "@/server/modules/outbox";
 import { queueClient } from "@/server/core/queue-client";
 import type { OutboxDispatchMessage } from "@/server/core/queue";
 
@@ -13,11 +13,8 @@ import type { OutboxDispatchMessage } from "@/server/core/queue";
  * are the SDK's job, not this file's.
  */
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export const POST = queueClient.handleCallback(async (message: OutboxDispatchMessage) => {
-  const consumer = consumerFor(message.topic);
-  if (!consumer) {
-    throw new Error(`No consumer registered for outbox topic "${message.topic}"`);
-  }
-  await consumer(message.payload, { entityType: message.entityType, entityId: message.entityId });
+  await dispatchOutboxMessage(message);
 });

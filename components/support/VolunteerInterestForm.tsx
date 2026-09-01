@@ -4,6 +4,7 @@
  * Volunteer interest intake, wired to the public email-delivery endpoint.
  */
 import { FormEvent, useState } from 'react';
+import { Button } from '@/components/ui';
 import styles from './support.module.css';
 
 const VOLUNTEER_INBOX = 'volunteers@lionsofzion.io';
@@ -136,7 +137,15 @@ export function VolunteerInterestForm() {
       </div>
 
       {status === 'error' ? <p className={styles.fieldError} role="alert">We could not send this right now. Email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.</p> : null}
-      <button type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'Sending…' : 'Send interest'}</button>
+      <Button
+        type="submit"
+        variant="primary"
+        size="md"
+        disabled={status === 'sending'}
+        isLoading={status === 'sending'}
+      >
+        {status === 'sending' ? 'Sending…' : 'Send interest'}
+      </Button>
       <p className={styles.formNote}>Your message is sent securely to the volunteer desk.</p>
     </form>
   );

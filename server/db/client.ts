@@ -23,7 +23,7 @@ import { drizzle as drizzleNeon } from "drizzle-orm/neon-serverless";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { sql } from "drizzle-orm";
 import { Pool } from "@neondatabase/serverless";
-import { databaseUrl } from "@/server/core/config";
+import { databasePoolConfig, databaseUrl } from "@/server/core/config";
 import * as schema from "./schema";
 
 export type Database = ReturnType<typeof drizzleNeon<typeof schema>>;
@@ -42,7 +42,7 @@ export function db(): Database {
   const scoped = requestDatabase.getStore();
   if (scoped) return scoped.database;
   if (cached) return cached;
-  pool = new Pool({ connectionString: databaseUrl() });
+  pool = new Pool({ connectionString: databaseUrl(), ...databasePoolConfig() });
   cached = drizzleNeon(pool, { schema, casing: "snake_case" });
   return cached;
 }

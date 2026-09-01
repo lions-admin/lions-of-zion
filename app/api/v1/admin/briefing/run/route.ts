@@ -1,13 +1,23 @@
+import { z } from "zod";
 import { handler } from "@/server/http/handler";
 import { ok } from "@/server/http/responses";
 import { requireActor } from "@/server/core/auth/actor";
+import { enqueueEditorialPipeline } from "@/server/modules/briefing/jobs";
 import { briefing } from "@/server/modules/briefing";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-export const POST = handler(async (request, ctx) => {
+const bodySchema = z.object({ resumePausedEdition: z.literal(true) });
+
+export const POST = handler(async (request) => {
   const actor = requireActor(request);
-  return ok(await briefing().run(actor, ctx.requestId));
+  const body = await request.clone().text();
+  if (body) {
+    const parsed = bodySchema.parse(JSON.parse(body));
+    if (parsed.resumePausedEdition) return ok(await briefing().resumePausedEdition(actor));
+  }
+  const pipeline = await enqueueEditorialPipeline(new Date(), { force: true });
+  return ok(pipeline);
 });

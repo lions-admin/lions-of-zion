@@ -125,6 +125,20 @@ export function narrativeService(db: unknown) {
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, who.label);
         const r = narrativeRepo(tx);
+        const existing = await r.narrativeByTitle(input.title);
+        if (existing) {
+          const updated = await r.updateNarrative(existing.id, {
+            summary: input.summary ?? existing.summary,
+            status: existing.status === "retired" ? "emerging" : existing.status,
+            updatedAt: new Date(),
+          });
+          await recordVersion(tx as Tx, narrative, updated as never, {
+            entityType: "narrative", entityId: updated.id, actor: who,
+            changeSummary: "Automatically refreshed recurring briefing narrative",
+            changeSource: "workflow", requestId, before: existing,
+          });
+          return updated;
+        }
         const row = await r.insertNarrative({
           publicId: input.slug,
           title: input.title,

@@ -106,20 +106,29 @@ on an unknown id.
 `app/error.tsx` and `app/not-found.tsx` complete the shell. There is
 deliberately **no** `app/loading.tsx` — see the note under the home route.
 
-### The home route
+### The home route & Typographic Motion Engine
 
-The editorial home is the server-rendered destination. A fixed particle scene
-plays once per tab above it, then unmounts completely at handoff.
+The editorial home hero is a full-viewport typographic information matrix simulation rendered via `components/typographic-field/`.
 
 ```mermaid
-flowchart LR
-    Page["app/page.tsx"] --> Gate["CinematicIntroGate"]
-    Gate --> Scene["Scene.tsx — one R3F canvas<br/>WebGPU/TSL, WebGL2 fallback"]
-    Gate --> Home["Editorial signal-field home"]
-    Home --> Nav["SITE_NAVIGATION"]
-    Nav --> Shell["SiteHeader + EditorialShell"]
-    Scene --> Handoff["fade + renderer unmount"]
+flowchart TB
+    Page["app/page.tsx"] --> Shell["SiteHeader + Brand Lockup"]
+    Page --> Field["TypographicField (Canvas + Semantic DOM)"]
+    Field --> Engine["TypographicMotionEngine"]
+    Engine --> Bank["Canonical Corpus (28 Categories, 157 Handles)"]
+    Engine --> SysA["System A: Continuous Rightward Row Flow"]
+    Engine --> SysB["System B: Screen-Space Intensity & Visibility Field"]
+    Engine --> SysC["System C: Continuous Glyph Mutation Cycling"]
+    Engine --> SysD["System D: Panoramic Cylindrical Projection"]
 ```
+
+The Typographic Motion Engine operates with four independent coordinated systems:
+1. **Canonical Corpus (`lib/content/particle-bank.ts`)**: Exactly 28 word/phrase categories and 157 signal handles stored in a typed application data module. All glyph-particles originate strictly from this bank without unapproved filler characters.
+2. **System A (Continuous Row Flow)**: ~130–190 tightly packed horizontal rows on desktop moving continuously to the right with wrapping, smooth neighboring velocity variation, and gentle acceleration waves.
+3. **System B (Intensity & Visibility Field)**: Independent multi-octave FBM procedural noise field in screen space creating atmospheric depths (5%–30% visibility baseline), diagonal sweeps, and moving high-emphasis highlights.
+4. **System C (Character Mutation)**: Deterministic seeded glyph cycling and activity pulses evolving the visual matrix texture within 250ms using only glyphs present in the corpus.
+5. **System D (Panoramic Cylindrical Geometry)**: Unified cylindrical arc projection with horizontal edge compression, vertical curve tightening, and soft elliptical attenuation behind the semantic `LIONSOFZION` brand mark.
+
 
 **`app/page.tsx` is synchronous, and `app/loading.tsx` no longer exists.** A
 root-level `loading.tsx` wraps every route in a Suspense boundary; streaming

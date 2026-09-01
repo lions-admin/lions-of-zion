@@ -1,5 +1,7 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
+
 /**
  * The only file in the codebase that reads `process.env`.
  *
@@ -31,7 +33,7 @@ function required(name: string, wantedBy: string): string {
  * production — guessing "production" wrong is the expensive direction.
  */
 export function appEnv(): AppEnv {
-  const raw = process.env.APP_ENV ?? process.env.VERCEL_ENV ?? process.env.NODE_ENV;
+  const raw = process.env.VERCEL_ENV ?? process.env.APP_ENV ?? process.env.NODE_ENV;
   return raw === "production" || raw === "preview" ? raw : "development";
 }
 
@@ -49,17 +51,134 @@ export const isProduction = (): boolean => appEnv() === "production";
  */
 export const mayActOnTheWorld = (): boolean => isProduction();
 
-export const databaseUrl = (): string => required("DATABASE_URL", "the database client");
+/** Every mutable briefing resource declares the environment it belongs to.
+ * Deployed environments fail closed when a label is absent or mismatched, and
+ * the news Blob store must never be the October 7 archive store. */
+export function assertBriefingResourceIsolation(): void {
+  const environment = appEnv();
+  if (environment === "development") return;
+  const labels = [
+    ["DATABASE_RESOURCE_ENV", process.env.DATABASE_RESOURCE_ENV],
+    ["BLOB_RESOURCE_ENV", process.env.BLOB_RESOURCE_ENV],
+    ["QUEUE_RESOURCE_ENV", process.env.QUEUE_RESOURCE_ENV],
+    ["SEARCH_RESOURCE_ENV", process.env.SEARCH_RESOURCE_ENV],
+  ] as const;
+  for (const [name, value] of labels) {
+    if (value !== environment) throw new Error(`${name} must equal ${environment} before briefing mutation is allowed.`);
+  }
+  const briefingBlob = required("BRIEFING_BLOB_RESOURCE_ID", "briefing storage isolation");
+  const archiveBlob = required("OCTOBER7_BLOB_RESOURCE_ID", "October 7 archive storage isolation");
+  if (briefingBlob === archiveBlob) throw new Error("Briefing storage must be separate from the October 7 archive store.");
+}
+
+/**
+ * Safe operator diagnostics for comparing deployments. The values are
+ * one-way fingerprints, never connection strings, tokens, or provider IDs.
+ * This lets an administrator compare Preview and Production bindings without
+ * putting secrets in the dashboard or logs. Queue providers may expose their
+ * resource ID separately; when configured it is included in the same report.
+ */
+export function briefingResourceFingerprints(): Record<string, string | null> {
+  const fingerprint = (value: string | undefined): string | null => {
+    const trimmed = value?.trim();
+    return trimmed
+      ? createHash("sha256").update(trimmed).digest("hex").slice(0, 16)
+      : null;
+  };
+  return {
+    database: fingerprint(process.env.DATABASE_URL),
+    briefingBlob: fingerprint(process.env.BRIEFING_BLOB_RESOURCE_ID),
+    october7Blob: fingerprint(process.env.OCTOBER7_BLOB_RESOURCE_ID),
+    googleSearch: fingerprint(process.env.GOOGLE_AGENT_SEARCH_ENGINE_ID),
+    queue: fingerprint(process.env.BRIEFING_QUEUE_RESOURCE_ID),
+  };
+}
+
+export function databaseUrl(): string {
+  const value = required("DATABASE_URL", "the database client");
+  try {
+    const parsed = new URL(value);
+    if (!parsed.protocol.startsWith("postgres")) throw new Error("unsupported protocol");
+    return value;
+  } catch {
+    // `vercel env pull` intentionally writes `[SENSITIVE]` for protected
+    // values. Failing here makes an operator error actionable, rather than
+    // letting the database driver fail later with an unhelpful Invalid URL.
+    throw new Error(
+      "DATABASE_URL is not a PostgreSQL connection URL. A redacted value cannot run maintenance scripts; use an authorized database connection or invoke the protected production route.",
+    );
+  }
+}
+export function databasePoolConfig(): { max: number; idleTimeoutMillis: number; connectionTimeoutMillis: number } {
+  const positive = (name: string, fallback: number) => {
+    const value = Number(process.env[name]);
+    return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+  };
+  return {
+    max: positive("DATABASE_POOL_MAX", 8),
+    idleTimeoutMillis: positive("DATABASE_POOL_IDLE_TIMEOUT_MS", 20_000),
+    connectionTimeoutMillis: positive("DATABASE_POOL_CONNECTION_TIMEOUT_MS", 8_000),
+  };
+}
 export const testDatabaseUrl = (): string | undefined => process.env.TEST_DATABASE_URL;
 
-export const blobToken = (): string => required("BLOB_READ_WRITE_TOKEN", "blob storage");
+/** The briefing capture store has its own token when it is connected through
+ * Vercel Storage. Keep the generic token as a local/development fallback so
+ * existing archive and RSS workflows do not break while environments migrate. */
+export const blobToken = (): string =>
+  process.env.BRIEFING_BLOB_READ_WRITE_TOKEN?.trim() || required("BLOB_READ_WRITE_TOKEN", "blob storage");
+
+/**
+ * Production raw briefing material is stored in a dedicated private Blob
+ * store. Vercel Functions authenticate to it with a short-lived OIDC token,
+ * so no second long-lived token is required in Production. Local maintenance
+ * scripts retain the explicit-token fallback.
+ */
+export function briefingBlobOptions(): { storeId?: string; token?: string } {
+  const storeId = process.env.BRIEFING_BLOB_RESOURCE_ID?.trim();
+  if (storeId && process.env.VERCEL) return { storeId };
+  return { token: blobToken() };
+}
 export const xOAuthClientId = (): string => required("X_OAUTH_CLIENT_ID", "X OAuth");
 export const xOAuthClientSecret = (): string => required("X_OAUTH_CLIENT_SECRET", "X OAuth");
 export const xAuthSessionSecret = (): string =>
   required("X_AUTH_SESSION_SECRET", "public X authentication session cookies");
 export const hasXaiApiKey = (): boolean => Boolean(process.env.XAI_API_KEY);
-export const googleSearchApiKey = (): string =>
-  required("GOOGLE_SEARCH_API_KEY", "Google Search discovery");
+export type GoogleAgentSearchConfig = {
+  project: string;
+  location: string;
+  servingConfig: string;
+  workloadIdentityProvider: string;
+  serviceAccountEmail: string;
+};
+
+/** Agent Search uses Vercel OIDC -> Google STS -> service-account
+ * impersonation. No static Google key is accepted by this configuration. */
+export function googleAgentSearchConfig(): GoogleAgentSearchConfig {
+  if (appEnv() !== "development" && process.env.GOOGLE_SEARCH_API_KEY?.trim()) {
+    throw new Error("GOOGLE_SEARCH_API_KEY is forbidden outside development; use Workload Identity Federation.");
+  }
+  const project = required("GOOGLE_CLOUD_PROJECT", "Google Agent Search");
+  const location = process.env.GOOGLE_CLOUD_LOCATION?.trim() || "global";
+  const explicit = process.env.GOOGLE_AGENT_SEARCH_SERVING_CONFIG?.trim();
+  const engineId = process.env.GOOGLE_AGENT_SEARCH_ENGINE_ID?.trim();
+  const servingConfig = explicit || (engineId
+    ? `projects/${project}/locations/${location}/collections/default_collection/engines/${engineId}/servingConfigs/default_search`
+    : required("GOOGLE_AGENT_SEARCH_ENGINE_ID", "Google Agent Search"));
+  return {
+    project,
+    location,
+    servingConfig,
+    workloadIdentityProvider: required(
+      "GOOGLE_WORKLOAD_IDENTITY_PROVIDER",
+      "Google Workload Identity Federation",
+    ),
+    serviceAccountEmail: required(
+      "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+      "Google service-account impersonation",
+    ),
+  };
+}
 /** Vercel supplies `VERCEL_OIDC_TOKEN` automatically to linked deployments.
  * A static key remains a local-development fallback, not the production path. */
 export const hasAiGateway = (): boolean =>
@@ -70,11 +189,28 @@ export const internalApiSecret = (): string =>
  *  configured, and signs every cron invocation with it. Unset locally, which
  *  is why the guard treats "unset" as "refuse", never as "allow". */
 export const cronSecret = (): string | undefined => process.env.CRON_SECRET;
+export const queueRegion = (): string => process.env.BRIEFING_QUEUE_REGION?.trim() || process.env.VERCEL_REGION?.trim() || "iad1";
+/** Queue resource bindings are provisioned independently of the AI gateway.
+ * A model token or a Vercel OIDC token says nothing about queue delivery, so
+ * neither may make the health check report a queue that is not configured.
+ * The explicit environment label is the required binding marker; region is
+ * optional because Vercel can supply it at request time. */
+export const queueConfigured = (): boolean => Boolean(
+  process.env.QUEUE_RESOURCE_ENV?.trim() === appEnv() && appEnv() !== "development",
+);
 
 export const neonAuthBaseUrl = (): string =>
   required("NEON_AUTH_BASE_URL", "Neon Auth");
 export const neonAuthCookieSecret = (): string =>
   required("NEON_AUTH_COOKIE_SECRET", "Neon Auth session cookies");
+/** Separate, server-only signing key for the site's Google identity session.
+ * It is intentionally not the Google client secret and never reaches the browser. */
+export const googleAuthSessionSecret = (): string =>
+  required("GOOGLE_AUTH_SESSION_SECRET", "Google identity sessions");
+export const googleAuthSessionSecretIfConfigured = (): string | undefined =>
+  process.env.GOOGLE_AUTH_SESSION_SECRET?.trim() || undefined;
+export const googleIdentityClientId = (): string =>
+  required("NEXT_PUBLIC_GOOGLE_IDENTITY_CLIENT_ID", "Google identity verification");
 export const adminEmail = (): string =>
   required("ADMIN_EMAIL", "the single-admin allowlist").trim().toLowerCase();
 export const siteUrl = (): string => process.env.NEXT_PUBLIC_SITE_URL ?? "https://lionsofzion.io";
@@ -117,9 +253,9 @@ export const MODEL_PROFILES = {
   /** Translation, where fluency matters more than speed. */
   translation: "anthropic/claude-sonnet-5",
   /** Google-discovered public material only. Kept separate from Grok chat. */
-  briefingTriage: "openai/gpt-5.4-nano",
+  briefingTriage: "openai/gpt-5-nano",
   /** Publication-ready English drafts. Kept separate from Grok chat. */
-  briefingDraft: "openai/gpt-5.4-mini",
+  briefingDraft: "openai/gpt-5-mini",
   /** 1536 dimensions — must match the vector column. */
   embedding: "openai/text-embedding-3-small",
 } as const;
@@ -156,10 +292,71 @@ export function briefingAiBudgets(): { daily: number; monthly: number } {
   };
 }
 
-export const googleSearchMonthlyLimit = (): number => {
+export const agentSearchMonthlyLimit = (): number => {
   const parsed = Number(process.env.GOOGLE_SEARCH_MONTHLY_LIMIT);
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 5_000;
 };
+export const agentSearchMonthlyBudgetUsd = (): number | undefined => {
+  const parsed = Number(process.env.GOOGLE_SEARCH_MONTHLY_BUDGET_USD);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+};
+export const agentSearchEstimatedUnitCostUsd = (): number | undefined => {
+  const parsed = Number(process.env.GOOGLE_SEARCH_ESTIMATED_COST_PER_QUERY_USD);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+};
+
+export const briefingRawStorageWarningBytes = (): number | undefined => {
+  const parsed = Number(process.env.BRIEFING_RAW_STORAGE_WARNING_BYTES);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : undefined;
+};
+
+function featureFlag(name: string, fallback: boolean): boolean {
+  const raw = process.env[name]?.trim().toLowerCase();
+  if (!raw) return fallback;
+  if (["1", "true", "yes", "on"].includes(raw)) return true;
+  if (["0", "false", "no", "off"].includes(raw)) return false;
+  return fallback;
+}
+
+/** Independent controls keep collection useful while editorial processing or
+ * public release is paused. Automatic publication is fail-closed and can only
+ * be enabled in Production after the acceptance gates have passed. */
+export function briefingFeatures(): {
+  collection: boolean;
+  processing: boolean;
+  autoPublish: boolean;
+} {
+  return {
+    collection: appEnv() !== "preview" && featureFlag("BRIEFING_COLLECTION_ENABLED", true),
+    processing: appEnv() !== "preview" && featureFlag("BRIEFING_PROCESSING_ENABLED", false),
+    autoPublish: isProduction() && featureFlag("BRIEFING_AUTO_PUBLISH_ENABLED", false),
+  };
+}
+
+const BRIEFING_STAGES = ["enrich", "cluster", "triage", "draft", "quality", "publish"] as const;
+export type BriefingStageName = (typeof BRIEFING_STAGES)[number];
+
+function csvSet(name: string): Set<string> | undefined {
+  const raw = process.env[name]?.trim();
+  if (!raw) return undefined;
+  const values = new Set(raw.split(",").map((value) => value.trim()).filter(Boolean));
+  return values.size > 0 ? values : undefined;
+}
+
+/** Optional rollout allowlists. An unset list means all registered sources or
+ * stages; an explicit list makes it possible to canary one source or pause a
+ * single editorial stage without changing the broader pipeline flags. */
+export const briefingCollectionSourceAllowlist = (): Set<string> | undefined =>
+  csvSet("BRIEFING_COLLECTION_SOURCE_IDS");
+
+export const briefingEnabledStages = (): Set<BriefingStageName> => {
+  const configured = csvSet("BRIEFING_ENABLED_STAGES");
+  if (!configured) return new Set(BRIEFING_STAGES);
+  return new Set(BRIEFING_STAGES.filter((stage) => configured.has(stage)));
+};
+
+export const briefingStageEnabled = (stage: BriefingStageName): boolean =>
+  briefingEnabledStages().has(stage);
 
 /**
  * What is actually configured, for `/api/internal/health/deep`.
@@ -170,7 +367,11 @@ export const googleSearchMonthlyLimit = (): number => {
 export function configuredIntegrations(request?: Request): Record<string, boolean> {
   return {
     database: Boolean(process.env.DATABASE_URL),
-    blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    blob: Boolean(
+      process.env.BRIEFING_BLOB_RESOURCE_ID ||
+      process.env.BRIEFING_BLOB_READ_WRITE_TOKEN ||
+      process.env.BLOB_READ_WRITE_TOKEN,
+    ),
     // In Vercel Functions the short-lived token is injected into the request
     // context, not process.env. The Gateway SDK reads this same header through
     // @vercel/oidc, so the health check must mirror the runtime behaviour.

@@ -21,7 +21,7 @@ export function evidenceRepo(db: unknown) {
         where: (w: SQL | undefined) => { orderBy: (o: SQL) => { limit: (n: number) => Promise<Evidence[]> } };
       };
     };
-    insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<Evidence[]> } };
+    insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<Evidence[]>; onConflictDoNothing: () => { returning: () => Promise<Evidence[]> } } };
     update: (t: unknown) => { set: (v: unknown) => { where: (w: SQL) => { returning: () => Promise<Evidence[]> } } };
   };
 
@@ -55,7 +55,17 @@ export function evidenceRepo(db: unknown) {
       const rows = await d
         .select()
         .from(evidence)
-        .where(eq(evidence.url, url))
+        .where(eq(evidence.canonicalUrl, url))
+        .orderBy(desc(evidence.createdAt))
+        .limit(1);
+      return rows[0];
+    },
+
+    async byNormalizedContentHash(hash: string): Promise<Evidence | undefined> {
+      const rows = await d
+        .select()
+        .from(evidence)
+        .where(eq(evidence.normalizedContentHash, hash))
         .orderBy(desc(evidence.createdAt))
         .limit(1);
       return rows[0];
@@ -77,6 +87,29 @@ export function evidenceRepo(db: unknown) {
 
     async insert(values: Record<string, unknown>): Promise<Evidence> {
       const rows = await d.insert(evidence).values(values).returning();
+      return rows[0]!;
+    },
+
+    /** Insert without turning a concurrent duplicate into a failed fetch.
+     * The canonical URL, connector id, and normalized hash are all unique
+     * deduplication keys; an empty result means another worker won the race. */
+    async insertOrGet(values: Record<string, unknown>): Promise<{ row: Evidence; inserted: boolean }> {
+      const rows = await d.insert(evidence).values(values).onConflictDoNothing().returning();
+      if (rows[0]) return { row: rows[0], inserted: true };
+      const existing =
+        (typeof values.canonicalUrl === "string" ? await this.byUrl(values.canonicalUrl) : undefined) ??
+        (typeof values.sourceId === "string" && typeof values.externalId === "string"
+          ? await this.byExternalId(values.sourceId, values.externalId)
+          : undefined) ??
+        (typeof values.normalizedContentHash === "string"
+          ? await this.byNormalizedContentHash(values.normalizedContentHash)
+          : undefined);
+      if (!existing) throw new Error("Evidence insert conflicted but the existing evidence row could not be resolved.");
+      return { row: existing, inserted: false };
+    },
+
+    async update(id: string, values: Record<string, unknown>): Promise<Evidence> {
+      const rows = await d.update(evidence).set(values).where(eq(evidence.id, id)).returning();
       return rows[0]!;
     },
 

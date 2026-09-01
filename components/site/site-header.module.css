@@ -73,6 +73,11 @@
   white-space: nowrap;
 }
 
+.mobileTrigger {
+  display: none;
+}
+
+
 .navLink {
   min-height: 2.65rem;
   display: inline-flex;

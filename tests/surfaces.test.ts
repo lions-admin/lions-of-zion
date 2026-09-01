@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { eq, sql } from "drizzle-orm";
-import { SQLSTATE, freshDatabase, violation, type TestDatabase } from "@/server/db/testing";
+import { SQLSTATE, as, freshDatabase, violation, type TestDatabase } from "@/server/db/testing";
 import { publicationService } from "@/server/modules/publications/service";
 import { reportService } from "@/server/modules/reports/service";
 import { enforceRateLimit, REPORT_SUBMISSION } from "@/server/core/rate-limit";
-import { appUser, entityVersion, publication, report, reportStatusHistory } from "@/server/db/schema";
+import {
+  appUser,
+  entityVersion,
+  narrative,
+  publication,
+  publicationNarrative,
+  report,
+  reportStatusHistory,
+} from "@/server/db/schema";
 
 const actor = { label: "editor@example.org", userId: null };
 
@@ -147,6 +155,72 @@ describe("publications", () => {
       db.execute(sql`UPDATE publication SET status = 'published' WHERE id = ${row!.id}`),
     );
     expect(v.constraint).toBe("published_publication_has_timestamp_and_approver");
+  });
+
+  it("lets public readers see only narratives attached to live publications", async () => {
+    const db = await freshDatabase();
+    const [visible, privateNarrative] = await db
+      .insert(narrative)
+      .values([
+        { publicId: "n-visible", title: "Visible narrative", language: "en" },
+        { publicId: "n-private", title: "Private narrative", language: "en" },
+      ])
+      .returning();
+    const publishedAt = new Date();
+    const reviewer = await seedUser(db, "Narrative Reviewer");
+    const [live] = await db
+      .insert(publication)
+      .values({
+        kind: "brief",
+        section: "narrative_watch",
+        publicId: "live-narrative-brief",
+        title: "A published narrative brief",
+        body: "Source-grounded body.",
+        language: "en",
+        status: "published",
+        publishedAt,
+        approvedBy: reviewer.id,
+        narrativeWatchDetails: {
+          exactClaim: "A monitored claim.",
+          propagators: ["A named publisher"],
+          arenas: ["news"],
+          trendDirection: "stable",
+          israeliPosition: "The attributed Israeli position.",
+          securityContext: "Relevant security context.",
+          supportingEvidenceIds: [],
+          contradictingEvidenceIds: [],
+          verificationState: "unresolved",
+          knownUnknowns: ["Independent confirmation remains unavailable."],
+        },
+      })
+      .returning();
+    await db.insert(publicationNarrative).values({
+      publicationId: live!.id,
+      narrativeId: visible!.id,
+    });
+
+    await as(db, "app_public", null, async (publicDb) => {
+      const rows = await publicDb.select().from(narrative);
+      expect(rows.map((row) => row.publicId)).toEqual(["n-visible"]);
+
+      const detail = await publicationService(publicDb).getPublicDetail(live!.publicId);
+      expect(detail.narratives).toEqual([
+        expect.objectContaining({ publicId: "n-visible", title: "Visible narrative" }),
+      ]);
+    });
+
+    expect(privateNarrative!.publicId).toBe("n-private");
+  });
+
+  it("allows the service role to create narrative monitoring records", async () => {
+    const db = await freshDatabase();
+    await as(db, "app_service", "service:briefing", async (serviceDb) => {
+      const [row] = await serviceDb
+        .insert(narrative)
+        .values({ publicId: "n-service", title: "Service-created narrative", language: "en" })
+        .returning();
+      expect(row?.publicId).toBe("n-service");
+    });
   });
 });
 

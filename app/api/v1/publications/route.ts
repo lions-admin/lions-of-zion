@@ -2,7 +2,9 @@ import { handler, parseBody, parseQuery } from "@/server/http/handler";
 import { created, ok } from "@/server/http/responses";
 import { createPublicationSchema, listPublicationsSchema } from "@/server/contracts/publication";
 import { requireActor } from "@/server/core/auth/actor";
+import { requirePublicMutationEnvironment } from "@/server/core/public-mutation-guard";
 import { publications } from "@/server/modules/publications";
+import { expirePublicPublicationCache } from "@/server/core/publication-cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,7 +18,9 @@ export const GET = handler(async (request) => {
 
 export const POST = handler(async (request, ctx) => {
   const actor = requireActor(request);
+  requirePublicMutationEnvironment();
   const input = await parseBody(request, createPublicationSchema);
   const row = await publications().create(input, actor, ctx.requestId);
+  expirePublicPublicationCache();
   return created(row, `/api/v1/publications/${row.id}`);
 });

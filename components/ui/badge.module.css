@@ -1,0 +1,54 @@
+/* Hallmark & Modern Web · Component: Badge · Genre: Editorial Archive */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.gold {
+  background: rgba(198, 161, 91, 0.12);
+  color: var(--gold-hi, #ead39b);
+  border-color: var(--gold-line, rgba(198, 161, 91, 0.25));
+}
+
+.verified {
+  background: rgba(0, 188, 125, 0.12);
+  color: #2ee6a8;
+  border-color: rgba(0, 188, 125, 0.25);
+}
+
+.neutral {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink, #cbc7bd);
+  border-color: var(--line, rgba(246, 243, 235, 0.13));
+}
+
+.warning {
+  background: rgba(240, 177, 0, 0.12);
+  color: #ffc83b;
+  border-color: rgba(240, 177, 0, 0.25);
+}
+
+.danger {
+  background: rgba(255, 32, 86, 0.12);
+  color: #ff5e7e;
+  border-color: rgba(255, 32, 86, 0.25);
+}

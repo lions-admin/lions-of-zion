@@ -1,146 +1,236 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars, prefer-const */
-// @ts-nocheck -- faithful port of the supplied WebGL prototype; lifecycle is owned by React.
 /**
  * LIONSOFZION Typographic Motion Engine
  *
- * Full-screen ultra-dense typographic matrix simulation:
- * - System A: Continuous independent wrapped character text streams from LIONSOFZION_DATASET
- * - System B: Dynamic procedural visibility & intensity field with independent motion
- * - System C: Real-time continuous character pulse/activity keeping dataset phrases intact
- * - System D: Shared panoramic / elliptical cylindrical curvature projection
- * - Pure black background with restrained neutral and warm-signal hierarchy
- * - Optical center brand attenuation for LIONSOFZION
+ * Full-screen ultra-dense typographic information matrix simulation:
+ * - Sourced exclusively from the canonical 28-category word bank and 157-handle bank.
+ * - System A: Seamless continuous horizontal wrapping character streams flowing to the right.
+ * - System B: Independent procedural visibility & intensity field (multi-octave noise, sweeps, beams).
+ * - System C: Continuous seeded character glyph mutation cycling & activity pulses.
+ * - System D: Shared panoramic cylindrical / elliptical projection with soft brand attenuation.
+ * - Hardware-accelerated GPU instancing with WebGL2 / WebGL1 and 2D Canvas fallback.
+ * - Performance tiers (desktop/high, desktop/low, mobile, reduced-motion, no-GPU).
  */
 
-import { generateRowStreams } from "./dataset";
+import {
+  generateRowStreams,
+  getCanonicalMutationAtlasIndices,
+  ARROW_GLYPH,
+  ARROW_ATLAS_INDEX,
+  type RowStream,
+} from "./stream-generator";
 
-/**
- * 19. Centralized Typography Field Configuration
- */
-export const typographyFieldConfig = {
-  // Grid Density (increased font size for enhanced legibility while maintaining rich matrix density)
-  fontSizeDesktop: 8.8,          // Font size 8.8px
-  fontSizeMobile: 7.4,           // Slightly larger mobile glyphs at lower density
-  lineHeightDesktop: 12.0,       // Preserve information density with black breathing room
-  lineHeightMobile: 11.5,        // Reduce mobile row density
+export interface TypographicFieldConfig {
+  // Grid Density (130-190 desktop rows for ultra-dense matrix)
+  fontSizeDesktop: number;
+  fontSizeMobile: number;
+  lineHeightDesktop: number;
+  lineHeightMobile: number;
 
-  // Row Movement (System A)
-  velocityMin: 38.0,             // Minimum horizontal row velocity (px/sec)
-  velocityMax: 86.0,             // Maximum horizontal row velocity
-  velocityVariation: 0.85,       // Differential flow variation between rows
-  flowDirection: 1.0,            // Dominant flow (left-to-right)
-  mobileMotionScale: 0.82,       // Preserve urgency without over-driving small screens
-  surgeInterval: 6.5,            // Seconds between controlled acceleration waves
-  surgeDuration: 0.85,           // Acceleration-wave duration
-  surgeMultiplier: 1.35,         // Peak acceleration-wave multiplier
+  // System A: Row Movement
+  velocityMin: number;
+  velocityMax: number;
+  velocityVariation: number;
+  flowDirection: number;
+  mobileMotionScale: number;
+  surgeInterval: number;
+  surgeDuration: number;
+  surgeMultiplier: number;
 
-  // Visibility / Intensity Field Mask (System B)
-  maskSpeed: 0.30,               // Mask temporal evolution rate
-  maskScaleX: 0.0016,            // Mask horizontal spatial scale (creates wide horizontal bands)
-  maskScaleY: 0.0036,            // Mask vertical spatial scale
-  maskVelocityX: 42.0,           // Independent horizontal mask drift velocity (px/s)
-  maskVelocityY: -12.0,          // Independent vertical mask drift velocity (px/s)
-  maskThreshold: 0.53,           // Reveal more of the field without flattening its hierarchy
-  maskContrast: 0.22,            // Preserve distinct noise / analysis / signal levels
+  // System B: Screen-Space Visibility / Intensity Field
+  maskSpeed: number;
+  maskScaleX: number;
+  maskScaleY: number;
+  maskVelocityX: number;
+  maskVelocityY: number;
+  maskThreshold: number;
+  maskContrast: number;
 
-  // Character Activity Pulse (System C)
-  mutationRate: 24,              // Rare signal activations across the field
-  mutationBurstSize: 4,          // Restrained local signal cluster
-  mutationPulseDuration: 0.22,   // Brief activation without flashing
+  // System C: Character Glyph Mutation & Activity Pulse
+  mutationRate: number;
+  mutationBurstSize: number;
+  mutationPulseDuration: number;
 
-  // Panoramic / Elliptical Curvature Transform (System D)
-  curvatureStrength: 0.15,       // Gentle panoramic cylindrical bow
-  edgeCompression: 0.36,         // Horizontal glyph compression toward left/right edges
-  depthStrength: 0.22,           // Depth variation
-  edgeVignette: 0.24,            // Edge brightness falloff
+  // System D: Panoramic Cylindrical Projection
+  curvatureStrength: number;
+  edgeCompression: number;
+  depthStrength: number;
+  edgeVignette: number;
 
   // Central Brand Attenuation
-  centerRadiusX: 350,            // Desktop clearing radius X around the complete brand lockup
-  centerRadiusY: 250,            // Desktop clearing radius Y around the complete brand lockup
-  centerRadiusXMobile: 220,      // Mobile clearing radius X
-  centerRadiusYMobile: 180,      // Mobile clearing radius Y
-  centerMinAlpha: 0.045,         // Soft shadow behind the lion without swallowing nearby type
+  centerRadiusX: number;
+  centerRadiusY: number;
+  centerRadiusXMobile: number;
+  centerRadiusYMobile: number;
+  centerMinAlpha: number;
 
   // Interactivity
-  pointerStrength: 0.30,
-  pointerRadius: 160,
-  pointerVelocityBoost: 0.22,
+  pointerStrength: number;
+  pointerRadius: number;
+  pointerVelocityBoost: number;
 
   // Performance & DPR
+  dprCap: number;
+  fontFamily: string;
+}
+
+export const defaultFieldConfig: TypographicFieldConfig = {
+  // Desktop: ~130–190 rows depending on viewport height (7.0px pitch)
+  fontSizeDesktop: 6.2,
+  fontSizeMobile: 6.0,
+  lineHeightDesktop: 7.2,
+  lineHeightMobile: 8.8,
+
+  // Row Movement: all rows flow strictly to the right
+  velocityMin: 32.0,
+  velocityMax: 78.0,
+  velocityVariation: 0.75,
+  flowDirection: 1.0, // Strictly rightward
+  mobileMotionScale: 0.85,
+  surgeInterval: 6.8,
+  surgeDuration: 0.9,
+  surgeMultiplier: 1.35,
+
+  // Visibility / Intensity Field
+  maskSpeed: 0.28,
+  maskScaleX: 0.0015,
+  maskScaleY: 0.0032,
+  maskVelocityX: 38.0,
+  maskVelocityY: -10.0,
+  maskThreshold: 0.52,
+  maskContrast: 0.24,
+
+  // Continuous Character Mutation
+  mutationRate: 48, // Active mutations per second across the field
+  mutationBurstSize: 5,
+  mutationPulseDuration: 0.25,
+
+  // Panoramic Geometry
+  curvatureStrength: 0.16,
+  edgeCompression: 0.38,
+  depthStrength: 0.24,
+  edgeVignette: 0.26,
+
+  // Center Brand Attenuation
+  centerRadiusX: 360,
+  centerRadiusY: 260,
+  centerRadiusXMobile: 210,
+  centerRadiusYMobile: 170,
+  centerMinAlpha: 0.06,
+
+  // Interactivity
+  pointerStrength: 0.35,
+  pointerRadius: 180,
+  pointerVelocityBoost: 0.24,
+
+  // Performance
   dprCap: 2.0,
-  fontFamily: "'JetBrains Mono', monospace"
+  fontFamily: "'JetBrains Mono', monospace",
 };
 
-/**
- * TypographicMotionEngine Class
- */
+interface RowState {
+  charCodes: Uint16Array;
+  length: number;
+  offset: number;
+  baseVelocity: number;
+  velocity: number;
+  depth: number;
+  semanticLevel: number;
+  phase: number;
+}
+
 export class TypographicMotionEngine {
-  constructor(canvasElement, config = {}) {
-    this.canvas = canvasElement;
-    this.config = { ...typographyFieldConfig, ...config };
+  public canvas: HTMLCanvasElement;
+  public config: TypographicFieldConfig;
+  public isRunning = false;
+  public destroyed = false;
 
-    this.gl = null;
-    this.ctx = null;
-    this.useWebGL = true;
-    this.isWebGL2 = false;
-    this.extInstancing = null;
+  public rowCount = 0;
+  public charsPerRow = 0;
+  public width = 0;
+  public height = 0;
+  public dpr = 1;
 
-    this.width = 0;
-    this.height = 0;
-    this.dpr = 1;
+  private gl: WebGLRenderingContext | WebGL2RenderingContext | null = null;
+  private isWebGL2 = false;
+  private extInstancing: ANGLE_instanced_arrays | null = null;
+  private ctx: CanvasRenderingContext2D | null = null;
+  private useWebGL = true;
 
-    this.rows = [];
-    this.rowCount = 0;
-    this.charsPerRow = 0;
-    this.fontSize = 0;
-    this.lineHeight = 0;
-    this.charWidth = 0;
-    this.motionScale = 1;
-    this.centerRadiusX = this.config.centerRadiusX;
-    this.centerRadiusY = this.config.centerRadiusY;
+  private rows: RowState[] = [];
+  private mutationBoosts: Float32Array = new Float32Array(0);
+  private mutationTimers: Float32Array = new Float32Array(0);
+  private currentAscii: Uint8Array = new Uint8Array(0);
+  private canonicalAscii: Uint8Array = new Uint8Array(0);
+  private instanceData: Float32Array = new Float32Array(0);
 
-    this.time = 0;
-    this.lastTimestamp = 0;
-    this.maskOffsetX = 0;
-    this.maskOffsetY = 0;
+  private mutationCandidates: Uint8Array = new Uint8Array(0);
+  private mutationAccumulator = 0;
 
-    this.pointerX = -9999;
-    this.pointerY = -9999;
+  private time = 0;
+  private lastTimestamp = 0;
+  private maskOffsetX = 0;
+  private maskOffsetY = 0;
+
+  private pointerX = -9999;
+  private pointerY = -9999;
+  private pointerTargetX = -9999;
+  private pointerTargetY = -9999;
+
+  private animationFrameId: number | null = null;
+  private isReducedMotion = false;
+
+  // WebGL Buffers & Handles
+  private program: WebGLProgram | null = null;
+  private quadBuffer: WebGLBuffer | null = null;
+  private instanceBuffer: WebGLBuffer | null = null;
+  private atlasTexture: WebGLTexture | null = null;
+  private uniforms: Record<string, WebGLUniformLocation | null> = {};
+  private attribs: Record<string, number> = {};
+
+  private fontSize = 0;
+  private lineHeight = 0;
+  private charWidth = 0;
+  private motionScale = 1;
+  private centerRadiusX = 360;
+  private centerRadiusY = 260;
+
+  private handleWindowResize = () => this.handleResize();
+  private handlePointerMove = (event: PointerEvent) => {
+    const rect = this.canvas.getBoundingClientRect();
+    this.pointerTargetX = (event.clientX - rect.left) * this.dpr;
+    this.pointerTargetY = (event.clientY - rect.top) * this.dpr;
+  };
+  private handlePointerLeave = () => {
     this.pointerTargetX = -9999;
     this.pointerTargetY = -9999;
+  };
+  private handleVisibilityChange = () => {
+    if (document.hidden) {
+      this.stop();
+    } else if (!this.destroyed) {
+      this.start();
+    }
+  };
 
-    this.mutationAccumulator = 0;
-    this.mutationBoosts = null;
-    this.instanceData = null;
+  constructor(canvasElement: HTMLCanvasElement, customConfig: Partial<TypographicFieldConfig> = {}) {
+    this.canvas = canvasElement;
+    this.config = { ...defaultFieldConfig, ...customConfig };
+    this.mutationCandidates = getCanonicalMutationAtlasIndices();
 
-    this.isRunning = false;
-    this.animationFrameId = null;
-    this.destroyed = false;
-    this.handleWindowResize = () => this.handleResize();
-    this.handlePointerMove = (event) => {
-      const rect = this.canvas.getBoundingClientRect();
-      this.pointerTargetX = (event.clientX - rect.left) * this.dpr;
-      this.pointerTargetY = (event.clientY - rect.top) * this.dpr;
-    };
-    this.handlePointerLeave = () => {
-      this.pointerTargetX = -9999;
-      this.pointerTargetY = -9999;
-    };
-    this.handleVisibilityChange = () => {
-      if (document.hidden) this.stop();
-      else if (!this.destroyed) this.start();
-    };
+    this.isReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     this.init();
   }
 
-  async init() {
-    if (document.fonts) {
+  private async init() {
+    if (typeof document !== "undefined" && document.fonts) {
       try {
         await document.fonts.ready;
-        await document.fonts.load("600 44px 'JetBrains Mono'");
-      } catch (e) {
-        // Continue
+        await document.fonts.load("400 44px 'JetBrains Mono'");
+      } catch {
+        // Fallback gracefully
       }
     }
 
@@ -152,49 +242,55 @@ export class TypographicMotionEngine {
     this.start();
   }
 
-  initContext() {
-    const glOptions = {
+  private initContext() {
+    const glOptions: WebGLContextAttributes = {
       alpha: false,
-      antialias: true,
+      antialias: false,
       depth: false,
       stencil: false,
-      powerPreference: "high-performance"
+      powerPreference: "high-performance",
     };
 
-    this.gl = this.canvas.getContext("webgl2", glOptions);
-    this.isWebGL2 = !!this.gl;
+    try {
+      this.gl = this.canvas.getContext("webgl2", glOptions) as WebGL2RenderingContext | null;
+      this.isWebGL2 = !!this.gl;
 
-    if (!this.gl) {
-      this.gl = this.canvas.getContext("webgl", glOptions) ||
-                this.canvas.getContext("experimental-webgl", glOptions);
-      if (this.gl) {
-        this.extInstancing = this.gl.getExtension("ANGLE_instanced_arrays");
+      if (!this.gl) {
+        this.gl =
+          (this.canvas.getContext("webgl", glOptions) as WebGLRenderingContext | null) ||
+          (this.canvas.getContext("experimental-webgl", glOptions) as WebGLRenderingContext | null);
+        if (this.gl) {
+          this.extInstancing = this.gl.getExtension("ANGLE_instanced_arrays");
+        }
       }
+    } catch {
+      this.gl = null;
     }
 
     if (this.gl) {
       this.useWebGL = true;
       this.initWebGL();
     } else {
-      console.warn("WebGL not available. Falling back to 2D Canvas.");
       this.useWebGL = false;
       this.ctx = this.canvas.getContext("2d", { alpha: false });
     }
   }
 
-  initEventListeners() {
-    window.addEventListener("resize", this.handleWindowResize);
-    window.addEventListener("pointermove", this.handlePointerMove);
-    window.addEventListener("pointerleave", this.handlePointerLeave);
-    document.addEventListener("visibilitychange", this.handleVisibilityChange);
+  private initEventListeners() {
+    window.addEventListener("resize", this.handleWindowResize, { passive: true });
+    window.addEventListener("pointermove", this.handlePointerMove, { passive: true });
+    window.addEventListener("pointerleave", this.handlePointerLeave, { passive: true });
+    document.addEventListener("visibilitychange", this.handleVisibilityChange, { passive: true });
   }
 
-  handleResize() {
+  public handleResize() {
+    if (!this.canvas) return;
+
     const isMobile = window.innerWidth < 768;
-    this.dpr = Math.min(window.devicePixelRatio || 1, this.config.dprCap);
+    this.dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : this.config.dprCap);
     this.motionScale = isMobile ? this.config.mobileMotionScale : 1;
-    this.centerRadiusX = isMobile ? this.config.centerRadiusXMobile : this.config.centerRadiusX;
-    this.centerRadiusY = isMobile ? this.config.centerRadiusYMobile : this.config.centerRadiusY;
+    this.centerRadiusX = (isMobile ? this.config.centerRadiusXMobile : this.config.centerRadiusX) * this.dpr;
+    this.centerRadiusY = (isMobile ? this.config.centerRadiusYMobile : this.config.centerRadiusY) * this.dpr;
 
     this.width = Math.floor(window.innerWidth * this.dpr);
     this.height = Math.floor(window.innerHeight * this.dpr);
@@ -202,15 +298,17 @@ export class TypographicMotionEngine {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
 
-    this.lineHeight = (isMobile ? this.config.lineHeightMobile : this.config.lineHeightDesktop) * this.dpr;
-    this.charWidth = this.lineHeight * (40.0 / 64.0); // Exact cell aspect ratio
-    this.fontSize = (isMobile ? this.config.fontSizeMobile : this.config.fontSizeDesktop) * this.dpr;
+    const baseLineHeight = isMobile ? this.config.lineHeightMobile : this.config.lineHeightDesktop;
+    const baseFontSize = isMobile ? this.config.fontSizeMobile : this.config.fontSizeDesktop;
 
-    // Full vertical coverage with buffer rows
-    this.rowCount = Math.ceil(this.height / this.lineHeight) + 14;
-    // Span across full viewport width + panoramic wrap margin
-    const fieldWidth = this.width * 1.5;
-    this.charsPerRow = Math.ceil(fieldWidth / this.charWidth) + 10;
+    this.lineHeight = baseLineHeight * this.dpr;
+    this.fontSize = baseFontSize * this.dpr;
+    this.charWidth = this.lineHeight * (40.0 / 64.0); // Exact cell aspect ratio
+
+    // Density: desktop creates ~130–190 rows across viewport height
+    this.rowCount = Math.ceil(this.height / this.lineHeight) + 16;
+    const fieldWidth = this.width * 1.45;
+    this.charsPerRow = Math.ceil(fieldWidth / this.charWidth) + 12;
 
     this.initRowData();
 
@@ -219,48 +317,46 @@ export class TypographicMotionEngine {
     }
   }
 
-  initRowData() {
-    const rawStreams = generateRowStreams(this.rowCount, this.charsPerRow + 50);
+  private initRowData() {
+    const rawStreams: RowStream[] = generateRowStreams(this.rowCount, this.charsPerRow + 50, 42);
     this.rows = [];
 
     const totalChars = this.rowCount * this.charsPerRow;
     this.mutationBoosts = new Float32Array(totalChars);
+    this.mutationTimers = new Float32Array(totalChars);
+    this.currentAscii = new Uint8Array(totalChars);
+    this.canonicalAscii = new Uint8Array(totalChars);
     this.instanceData = new Float32Array(totalChars * 7);
 
     const totalRowWidth = this.charsPerRow * this.charWidth;
 
-    const velocitySpan = this.config.velocityMax - this.config.velocityMin;
-    const bandSpan = velocitySpan / 3;
-
     for (let r = 0; r < this.rowCount; r++) {
       const stream = rawStreams[r];
-      const depthBand = stream.level;
-      const wave = Math.sin(r * 0.73) * 0.5 + 0.5;
-      const bandProgress = 0.5 + (wave - 0.5) * this.config.velocityVariation;
-      const bandMin = this.config.velocityMin + depthBand * bandSpan;
-      const speed = (bandMin + bandSpan * bandProgress) * this.dpr * this.motionScale;
-      const direction = (r % 5 === 0) ? -0.55 : this.config.flowDirection;
-      const depth = [0.54, 0.82, 1.12][depthBand];
-      const baseVelocity = speed * direction;
+      const baseVelocity = stream.baseVelocity * this.dpr * this.motionScale;
 
       this.rows.push({
-        asciiCodes: stream.asciiCodes,
+        charCodes: stream.charCodes,
         length: this.charsPerRow,
-        offset: (r * 87.3) % totalRowWidth,
+        offset: (r * 113.7) % totalRowWidth,
         baseVelocity,
         velocity: baseVelocity,
-        depth: depth,
-        semanticLevel: depthBand,
-        phase: (r * 0.23) % Math.PI
+        depth: stream.depth,
+        semanticLevel: stream.semanticLevel,
+        phase: stream.phase,
       });
+
+      for (let c = 0; c < this.charsPerRow; c++) {
+        const ascii = stream.charCodes[c % stream.charCodes.length];
+        const idx = r * this.charsPerRow + c;
+        this.canonicalAscii[idx] = ascii;
+        this.currentAscii[idx] = ascii;
+      }
     }
   }
 
-  // ==========================================
-  // WebGL Pipeline Implementation
-  // ==========================================
-  initWebGL() {
+  private initWebGL() {
     const gl = this.gl;
+    if (!gl) return;
 
     this.createFontAtlas();
 
@@ -269,10 +365,10 @@ export class TypographicMotionEngine {
 
       attribute vec2 a_quadVertex; // [-0.5, -0.5] to [0.5, 0.5]
       attribute vec2 a_gridPos;    // (colIndex, rowIndex)
-      attribute float a_ascii;     // ASCII code
+      attribute float a_ascii;     // Character atlas index [0..95]
       attribute float a_rowOffset; // Row scroll offset in pixels
       attribute float a_rowSpeed;  // Row velocity
-      attribute float a_depth;     // Row depth
+      attribute float a_depth;     // Semantic depth factor
       attribute float a_mutation;  // Mutation pulse [0..1]
 
       uniform vec2 u_resolution;
@@ -296,47 +392,48 @@ export class TypographicMotionEngine {
         float col = a_gridPos.x;
         float row = a_gridPos.y;
 
-        // Base continuous horizontal flow wrapping
+        // Base horizontal continuous wrapping
         float fieldWidth = u_charsPerRow * u_charWidth;
-        float uncurvedX = mod(col * u_charWidth - a_rowOffset, fieldWidth);
-        
-        // Center uncurved field around screen center
+        float uncurvedX = mod(col * u_charWidth + a_rowOffset, fieldWidth);
+
         float halfW = u_resolution.x * 0.5;
         float halfH = u_resolution.y * 0.5;
         float shiftX = (fieldWidth - u_resolution.x) * 0.5;
         float screenX = uncurvedX - shiftX;
 
-        // Vertical screen coordinate covering entire screen
-        float screenY = (row - 6.0) * u_lineHeight + u_lineHeight * 0.5;
+        // Vertical screen coordinate covering entire viewport
+        float screenY = (row - 8.0) * u_lineHeight + u_lineHeight * 0.5;
 
-        // Center-relative normalized coordinates [-1.0 .. 1.0]
+        // Normalized screen coordinates [-1.0 .. 1.0]
         float nx = (screenX - halfW) / halfW;
         float ny = (screenY - halfH) / halfH;
 
-        // SYSTEM D: Panoramic Cylindrical Projection
-        float theta = nx * 0.70; // ~40 degrees
+        // SYSTEM D: Shared Panoramic Cylindrical Projection
+        float theta = nx * 0.72; // ~41 degrees cylindrical arc
         float compFactor = cos(theta);
-        float nxCurved = sin(theta) / sin(0.70);
+        float nxCurved = sin(theta) / sin(0.72);
 
-        // Vertical bow: gentle concave panoramic curve across the whole cylinder
-        float nyCurved = ny * (1.0 + u_curvature * (1.0 / max(compFactor, 0.1) - 1.0));
+        // Vertical curvature tightening near top and bottom boundaries
+        float nyCurved = ny * (1.0 + u_curvature * (1.0 / max(compFactor, 0.12) - 1.0));
 
-        // Quad scaled to exact character dimensions
-        vec2 charSize = vec2(u_charWidth * compFactor * (1.0 - u_edgeCompression * 0.25 * nx * nx), u_lineHeight);
+        // Quad geometry with edge compression
+        vec2 charSize = vec2(
+          u_charWidth * compFactor * (1.0 - u_edgeCompression * 0.22 * nx * nx),
+          u_lineHeight
+        );
         vec2 worldPos = vec2(halfW + nxCurved * halfW, halfH + nyCurved * halfH) + a_quadVertex * charSize;
 
-        // Map to clip space [-1, 1]
+        // Clip space [-1.0, 1.0]
         vec2 clipSpace = (worldPos / u_resolution) * 2.0 - 1.0;
         clipSpace.y = -clipSpace.y;
 
         gl_Position = vec4(clipSpace, 0.0, 1.0);
 
-        // Atlas UV coordinates (16 cols x 8 rows atlas for 128 chars)
-        float asciiIndex = clamp(a_ascii - 32.0, 0.0, 95.0);
-        float atlasCol = mod(asciiIndex, 16.0);
-        float atlasRow = floor(asciiIndex / 16.0);
+        // Atlas UV coordinates (16 cols x 8 rows atlas for 128 cells)
+        float atlasIndex = clamp(a_ascii, 0.0, 95.0);
+        float atlasCol = mod(atlasIndex, 16.0);
+        float atlasRow = floor(atlasIndex / 16.0);
 
-        // Precise upright texture coordinates
         float u = (atlasCol + (a_quadVertex.x + 0.5)) / 16.0;
         float v = (atlasRow + (a_quadVertex.y + 0.5)) / 8.0;
         v_uv = vec2(u, v);
@@ -386,11 +483,11 @@ export class TypographicMotionEngine {
       float fbm(vec2 p, float t) {
         float v = 0.0;
         mat2 rot = mat2(0.80, 0.60, -0.60, 0.80);
-        vec2 p1 = p + vec2(t * 0.10, -t * 0.05);
+        vec2 p1 = p + vec2(t * 0.08, -t * 0.04);
         v += 0.50 * smoothNoise(p1);
-        vec2 p2 = rot * p * 2.02 + vec2(13.4, 37.1) + vec2(-t * 0.08, t * 0.06);
+        vec2 p2 = rot * p * 2.04 + vec2(13.4, 37.1) + vec2(-t * 0.06, t * 0.05);
         v += 0.32 * smoothNoise(p2);
-        vec2 p3 = rot * p2 * 2.05 + vec2(41.7, 19.3) + vec2(t * 0.12, t * 0.09);
+        vec2 p3 = rot * p2 * 2.06 + vec2(41.7, 19.3) + vec2(t * 0.10, t * 0.08);
         v += 0.18 * smoothNoise(p3);
         return v;
       }
@@ -398,7 +495,7 @@ export class TypographicMotionEngine {
       void main() {
         // Sample glyph mask from JetBrains Mono texture atlas
         float glyphMask = texture2D(u_atlas, v_uv).a;
-        if (glyphMask < 0.05) {
+        if (glyphMask < 0.06) {
           discard;
         }
 
@@ -406,23 +503,22 @@ export class TypographicMotionEngine {
         vec2 maskCoord = (v_screenPos + u_maskOffset) * u_maskScale;
         float rawNoise = fbm(maskCoord, u_time);
 
-        // Smooth organic contrast curve
+        // Smooth contrast reveal curve
         float activeMask = smoothstep(u_maskThreshold - u_maskContrast, u_maskThreshold + u_maskContrast, rawNoise);
         
-        // Most information remains atmospheric; only selected fragments resolve.
-        float baseFloor = 0.10;
-        float intensity = baseFloor + activeMask * 0.72;
-
-        // Depth modulation
+        // 5%-30% base atmosphere visibility; sparse highlights resolve
+        float baseFloor = 0.08;
+        float intensity = baseFloor + activeMask * 0.74;
         intensity *= v_depth;
 
         // SYSTEM C: Character Activity Flash Pulse
-        intensity = clamp(intensity + v_mutation * 0.38, 0.0, 1.0);
+        intensity = clamp(intensity + v_mutation * 0.40, 0.0, 1.0);
 
-        // Optical Center Radial Attenuation for LIONSOFZION
-        vec2 centerDiff = (v_screenPos - u_resolution * 0.5) / u_centerRadius;
+        // Optical Center Soft Attenuation Mask (LIONSOFZION sits at 0.5, 0.47)
+        vec2 centerOrigin = vec2(u_resolution.x * 0.5, u_resolution.y * 0.47);
+        vec2 centerDiff = (v_screenPos - centerOrigin) / u_centerRadius;
         float centerDist = length(centerDiff);
-        float centerAtten = mix(u_centerMinAlpha, 1.0, smoothstep(0.35, 1.1, centerDist));
+        float centerAtten = mix(u_centerMinAlpha, 1.0, smoothstep(0.32, 1.08, centerDist));
         intensity *= centerAtten;
 
         // Edge Vignette Falloff
@@ -430,35 +526,40 @@ export class TypographicMotionEngine {
         float edgeFade = 1.0 - u_edgeVignette * nx2;
         intensity *= edgeFade;
 
-        // Interactive Pointer Glow
+        // Interactive Pointer Energy Source
         if (u_pointer.x > 0.0) {
           float pDist = length(v_screenPos - u_pointer);
           float pFactor = 1.0 - smoothstep(0.0, u_pointerRadius, pDist);
-          intensity += pFactor * 0.14;
+          intensity += pFactor * 0.16;
         }
 
-        // Neutral information hierarchy. Gold is reserved for resolved signal rows.
+        // Project Design Token Intensity Hierarchy
         vec3 color;
         float finalAlpha;
 
-        if (v_depth > 1.0 && intensity > 0.76) {
+        if (v_depth > 1.05 && intensity > 0.74) {
+          // Medium accent (muted gold) for resolved high-signal items
           color = vec3(0.63, 0.49, 0.25);
-          finalAlpha = 0.86 * glyphMask;
-        } else if (intensity < 0.24) {
-          color = vec3(0.16, 0.165, 0.17);
-          finalAlpha = 0.38 * glyphMask;
-        } else if (intensity < 0.52) {
-          float t = (intensity - 0.24) / 0.28;
-          color = mix(vec3(0.24, 0.245, 0.25), vec3(0.48, 0.485, 0.49), t);
-          finalAlpha = (0.44 + 0.18 * t) * glyphMask;
-        } else if (intensity < 0.80) {
-          float t = (intensity - 0.52) / 0.28;
-          color = mix(vec3(0.52, 0.525, 0.53), vec3(0.76, 0.765, 0.77), t);
-          finalAlpha = (0.64 + 0.18 * t) * glyphMask;
+          finalAlpha = 0.88 * glyphMask;
+        } else if (intensity < 0.22) {
+          // Deep inactive text (lowest-emphasis atmospheric ground)
+          color = vec3(0.14, 0.145, 0.15);
+          finalAlpha = 0.35 * glyphMask;
+        } else if (intensity < 0.50) {
+          // Low intensity (low-emphasis foreground)
+          float t = (intensity - 0.22) / 0.28;
+          color = mix(vec3(0.22, 0.225, 0.23), vec3(0.44, 0.445, 0.45), t);
+          finalAlpha = (0.42 + 0.18 * t) * glyphMask;
+        } else if (intensity < 0.78) {
+          // Active text (high-emphasis foreground)
+          float t = (intensity - 0.50) / 0.28;
+          color = mix(vec3(0.50, 0.505, 0.51), vec3(0.75, 0.755, 0.76), t);
+          finalAlpha = (0.62 + 0.18 * t) * glyphMask;
         } else {
-          float t = (intensity - 0.80) / 0.20;
-          color = mix(vec3(0.80, 0.795, 0.78), vec3(0.96, 0.95, 0.92), t);
-          finalAlpha = (0.84 + 0.12 * t) * glyphMask;
+          // Peak highlights (maximum-emphasis highlight)
+          float t = (intensity - 0.78) / 0.22;
+          color = mix(vec3(0.78, 0.775, 0.76), vec3(0.96, 0.95, 0.92), t);
+          finalAlpha = (0.84 + 0.14 * t) * glyphMask;
         }
 
         gl_FragColor = vec4(color, finalAlpha);
@@ -466,6 +567,7 @@ export class TypographicMotionEngine {
     `;
 
     this.program = this.createProgram(gl, vsSource, fsSource);
+    if (!this.program) return;
 
     this.uniforms = {
       resolution: gl.getUniformLocation(this.program, "u_resolution"),
@@ -487,7 +589,7 @@ export class TypographicMotionEngine {
       pointer: gl.getUniformLocation(this.program, "u_pointer"),
       pointerRadius: gl.getUniformLocation(this.program, "u_pointerRadius"),
       edgeVignette: gl.getUniformLocation(this.program, "u_edgeVignette"),
-      atlas: gl.getUniformLocation(this.program, "u_atlas")
+      atlas: gl.getUniformLocation(this.program, "u_atlas"),
     };
 
     this.attribs = {
@@ -497,32 +599,37 @@ export class TypographicMotionEngine {
       rowOffset: gl.getAttribLocation(this.program, "a_rowOffset"),
       rowSpeed: gl.getAttribLocation(this.program, "a_rowSpeed"),
       depth: gl.getAttribLocation(this.program, "a_depth"),
-      mutation: gl.getAttribLocation(this.program, "a_mutation")
+      mutation: gl.getAttribLocation(this.program, "a_mutation"),
     };
 
     this.quadBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -0.5, -0.5,
-       0.5, -0.5,
-      -0.5,  0.5,
-      -0.5,  0.5,
-       0.5, -0.5,
-       0.5,  0.5
-    ]), gl.STATIC_DRAW);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        -0.5, -0.5,
+         0.5, -0.5,
+        -0.5,  0.5,
+        -0.5,  0.5,
+         0.5, -0.5,
+         0.5,  0.5,
+      ]),
+      gl.STATIC_DRAW
+    );
 
     this.instanceBuffer = gl.createBuffer();
   }
 
-  createFontAtlas() {
+  private createFontAtlas() {
+    if (typeof document === "undefined") return;
     const atlasCanvas = document.createElement("canvas");
     atlasCanvas.width = 640;
     atlasCanvas.height = 512;
     const ctx = atlasCanvas.getContext("2d");
+    if (!ctx) return;
 
     ctx.clearRect(0, 0, atlasCanvas.width, atlasCanvas.height);
-
-    ctx.font = "600 44px 'JetBrains Mono', monospace";
+    ctx.font = "400 44px 'JetBrains Mono', monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff";
@@ -530,7 +637,8 @@ export class TypographicMotionEngine {
     const cellW = 40; // 640 / 16
     const cellH = 64; // 512 / 8
 
-    for (let i = 0; i < 96; i++) {
+    // ASCII 32 to 126 (slots 0 to 94)
+    for (let i = 0; i < 95; i++) {
       const char = String.fromCharCode(32 + i);
       const col = i % 16;
       const row = Math.floor(i / 16);
@@ -539,7 +647,15 @@ export class TypographicMotionEngine {
       ctx.fillText(char, cx, cy);
     }
 
+    // Slot 95: Canonical Arrow Glyph '→'
+    const arrowCol = ARROW_ATLAS_INDEX % 16;
+    const arrowRow = Math.floor(ARROW_ATLAS_INDEX / 16);
+    const acx = arrowCol * cellW + cellW * 0.5;
+    const acy = arrowRow * cellH + cellH * 0.5;
+    ctx.fillText(ARROW_GLYPH, acx, acy);
+
     const gl = this.gl;
+    if (!gl) return;
     this.atlasTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.atlasTexture);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -551,36 +667,46 @@ export class TypographicMotionEngine {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
 
-  createProgram(gl, vs, fs) {
+  private createProgram(gl: WebGLRenderingContext | WebGL2RenderingContext, vs: string, fs: string): WebGLProgram | null {
     const vShader = gl.createShader(gl.VERTEX_SHADER);
+    if (!vShader) return null;
     gl.shaderSource(vShader, vs);
     gl.compileShader(vShader);
     if (!gl.getShaderParameter(vShader, gl.COMPILE_STATUS)) {
       console.error("Vertex Shader Error:", gl.getShaderInfoLog(vShader));
+      gl.deleteShader(vShader);
+      return null;
     }
 
     const fShader = gl.createShader(gl.FRAGMENT_SHADER);
+    if (!fShader) return null;
     gl.shaderSource(fShader, fs);
     gl.compileShader(fShader);
     if (!gl.getShaderParameter(fShader, gl.COMPILE_STATUS)) {
       console.error("Fragment Shader Error:", gl.getShaderInfoLog(fShader));
+      gl.deleteShader(fShader);
+      return null;
     }
 
     const prog = gl.createProgram();
+    if (!prog) return null;
     gl.attachShader(prog, vShader);
     gl.attachShader(prog, fShader);
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
       console.error("Program Link Error:", gl.getProgramInfoLog(prog));
+      gl.deleteProgram(prog);
+      return null;
     }
     return prog;
   }
 
-  start() {
+  public start() {
     if (this.isRunning || this.destroyed) return;
     this.isRunning = true;
     this.lastTimestamp = performance.now();
-    const loop = (timestamp) => {
+
+    const loop = (timestamp: number) => {
       if (!this.isRunning) return;
       const dt = Math.min((timestamp - this.lastTimestamp) / 1000, 0.1);
       this.lastTimestamp = timestamp;
@@ -593,22 +719,25 @@ export class TypographicMotionEngine {
     this.animationFrameId = requestAnimationFrame(loop);
   }
 
-  stop() {
+  public stop() {
     this.isRunning = false;
-    if (this.animationFrameId) {
+    if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
   }
 
-  destroy() {
+  public destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
     this.stop();
-    window.removeEventListener("resize", this.handleWindowResize);
-    window.removeEventListener("pointermove", this.handlePointerMove);
-    window.removeEventListener("pointerleave", this.handlePointerLeave);
-    document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+
+    if (typeof window !== "undefined") {
+      window.removeEventListener("resize", this.handleWindowResize);
+      window.removeEventListener("pointermove", this.handlePointerMove);
+      window.removeEventListener("pointerleave", this.handlePointerLeave);
+      document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+    }
 
     if (this.gl) {
       if (this.quadBuffer) this.gl.deleteBuffer(this.quadBuffer);
@@ -618,9 +747,15 @@ export class TypographicMotionEngine {
     }
   }
 
-  update(dt) {
+  private update(dt: number) {
+    if (this.isReducedMotion) {
+      // In reduced motion, keep settled field without translations
+      return;
+    }
+
     this.time += dt;
 
+    // Smooth pointer damping
     if (this.pointerTargetX > 0) {
       this.pointerX += (this.pointerTargetX - this.pointerX) * 0.12;
       this.pointerY += (this.pointerTargetY - this.pointerY) * 0.12;
@@ -629,63 +764,98 @@ export class TypographicMotionEngine {
       this.pointerY = -9999;
     }
 
-    // SYSTEM A: Update continuous row flow with a controlled global acceleration wave.
+    // SYSTEM A: Row translation strictly to the right with gentle acceleration waves
     const surgePhase = this.time % this.config.surgeInterval;
     const surgeProgress = Math.min(1, surgePhase / this.config.surgeDuration);
-    const surgePulse = surgePhase < this.config.surgeDuration
-      ? Math.sin(Math.PI * surgeProgress) ** 2
-      : 0;
+    const surgePulse =
+      surgePhase < this.config.surgeDuration
+        ? Math.sin(Math.PI * surgeProgress) ** 2
+        : 0;
     const surge = 1 + (this.config.surgeMultiplier - 1) * surgePulse;
     const totalRowWidth = this.charsPerRow * this.charWidth;
+
     for (let r = 0; r < this.rowCount; r++) {
       const row = this.rows[r];
       let pointerBoost = 1;
       if (this.pointerY > 0) {
-        const rowY = (r - 6) * this.lineHeight + this.lineHeight * 0.5;
+        const rowY = (r - 8) * this.lineHeight + this.lineHeight * 0.5;
         const pointerDistance = Math.abs(rowY - this.pointerY);
         const pointerFalloff = Math.max(
           0,
-          1 - pointerDistance / (this.config.pointerRadius * this.dpr),
+          1 - pointerDistance / (this.config.pointerRadius * this.dpr)
         );
         pointerBoost += pointerFalloff * this.config.pointerVelocityBoost;
       }
+
       row.velocity = row.baseVelocity * surge * pointerBoost;
+      // Wrap seamlessly strictly to the right
       row.offset = (row.offset + row.velocity * dt) % totalRowWidth;
       if (row.offset < 0) row.offset += totalRowWidth;
     }
 
-    // SYSTEM B: Update Independent Mask Drift
+    // SYSTEM B: Independent Screen-Space Mask Drift
     this.maskOffsetX += this.config.maskVelocityX * this.dpr * this.motionScale * dt;
     this.maskOffsetY += this.config.maskVelocityY * this.dpr * this.motionScale * dt;
 
-    // SYSTEM C: Real-Time Character Activity Pulse (keeps exact dataset words intact)
-    this.mutationAccumulator += dt * this.config.mutationRate * this.motionScale;
+    // SYSTEM C: Character Glyph Mutation & Activity Pulse
+    const pointerNear = this.pointerX > 0;
+    const effectiveRate = this.config.mutationRate * (pointerNear ? 1.4 : 1.0) * this.motionScale;
+    this.mutationAccumulator += dt * effectiveRate;
+
     while (this.mutationAccumulator >= 1.0) {
       this.mutationAccumulator -= 1.0;
-      this.performLocalActivityPulse();
+      this.performCharacterMutation();
     }
 
-    // Decay mutation flash pulses
-    const decay = dt / this.config.mutationPulseDuration;
-    for (let i = 0; i < this.mutationBoosts.length; i++) {
+    // Update active mutation timers and glyph cycling
+    const totalChars = this.rowCount * this.charsPerRow;
+    for (let i = 0; i < totalChars; i++) {
+      if (this.mutationTimers[i] > 0) {
+        this.mutationTimers[i] -= dt;
+        if (this.mutationTimers[i] <= 0) {
+          this.mutationTimers[i] = 0;
+          this.currentAscii[i] = this.canonicalAscii[i]; // restore canonical glyph
+        } else {
+          // Cycle glyph during active mutation
+          if (Math.random() < 0.22) {
+            const cIdx = Math.floor(Math.random() * this.mutationCandidates.length);
+            this.currentAscii[i] = this.mutationCandidates[cIdx];
+          }
+        }
+      }
+
       if (this.mutationBoosts[i] > 0) {
-        this.mutationBoosts[i] = Math.max(0, this.mutationBoosts[i] - decay);
+        this.mutationBoosts[i] = Math.max(0, this.mutationBoosts[i] - dt / this.config.mutationPulseDuration);
       }
     }
   }
 
-  performLocalActivityPulse() {
-    const r = Math.floor(Math.random() * this.rowCount);
+  private performCharacterMutation() {
+    if (this.rowCount === 0 || this.charsPerRow === 0) return;
+
+    let r = Math.floor(Math.random() * this.rowCount);
     const c = Math.floor(Math.random() * this.charsPerRow);
 
-    for (let b = 0; b < this.config.mutationBurstSize; b++) {
-      const targetC = (c + b) % this.charsPerRow;
-      const index = r * this.charsPerRow + targetC;
-      this.mutationBoosts[index] = 1.0;
+    // If pointer is active, bias some mutations near pointer
+    if (this.pointerX > 0 && Math.random() < 0.35) {
+      const approxRow = Math.floor((this.pointerY / this.lineHeight) + 8);
+      r = Math.max(0, Math.min(this.rowCount - 1, approxRow + Math.floor(Math.random() * 5 - 2)));
+    }
+
+    const burst = this.config.mutationBurstSize;
+    for (let b = 0; b < burst; b++) {
+      const tc = (c + b) % this.charsPerRow;
+      const idx = r * this.charsPerRow + tc;
+
+      this.mutationBoosts[idx] = 1.0;
+      this.mutationTimers[idx] = 0.15 + Math.random() * 0.20; // 150ms-350ms lifetime
+
+      const candIdx = Math.floor(Math.random() * this.mutationCandidates.length);
+      this.currentAscii[idx] = this.mutationCandidates[candIdx];
     }
   }
 
-  render() {
+  public render() {
     if (this.useWebGL && this.gl) {
       this.renderWebGL();
     } else if (this.ctx) {
@@ -693,8 +863,10 @@ export class TypographicMotionEngine {
     }
   }
 
-  renderWebGL() {
+  private renderWebGL() {
     const gl = this.gl;
+    if (!gl || !this.program) return;
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -717,7 +889,7 @@ export class TypographicMotionEngine {
     gl.uniform2f(this.uniforms.maskScale, this.config.maskScaleX, this.config.maskScaleY);
     gl.uniform1f(this.uniforms.maskThreshold, this.config.maskThreshold);
     gl.uniform1f(this.uniforms.maskContrast, this.config.maskContrast);
-    gl.uniform2f(this.uniforms.centerRadius, this.centerRadiusX * this.dpr, this.centerRadiusY * this.dpr);
+    gl.uniform2f(this.uniforms.centerRadius, this.centerRadiusX, this.centerRadiusY);
     gl.uniform1f(this.uniforms.centerMinAlpha, this.config.centerMinAlpha);
     gl.uniform2f(this.uniforms.pointer, this.pointerX, this.pointerY);
     gl.uniform1f(this.uniforms.pointerRadius, this.config.pointerRadius * this.dpr);
@@ -738,8 +910,9 @@ export class TypographicMotionEngine {
         const depth = row.depth;
 
         for (let c = 0; c < this.charsPerRow; c++) {
-          const ascii = row.asciiCodes[c];
-          const mutation = this.mutationBoosts[r * this.charsPerRow + c] || 0.0;
+          const idx = r * this.charsPerRow + c;
+          const ascii = this.currentAscii[idx];
+          const mutation = this.mutationBoosts[idx] || 0.0;
 
           this.instanceData[ptr++] = c;
           this.instanceData[ptr++] = r;
@@ -761,14 +934,13 @@ export class TypographicMotionEngine {
       gl.bufferData(gl.ARRAY_BUFFER, this.instanceData, gl.DYNAMIC_DRAW);
 
       const stride = 7 * 4;
-
-      const setupInstancedAttrib = (loc, size, offset) => {
+      const setupInstancedAttrib = (loc: number, size: number, offset: number) => {
         if (loc >= 0) {
           gl.enableVertexAttribArray(loc);
           gl.vertexAttribPointer(loc, size, gl.FLOAT, false, stride, offset);
           if (this.isWebGL2) {
-            gl.vertexAttribDivisor(loc, 1);
-          } else {
+            (gl as WebGL2RenderingContext).vertexAttribDivisor(loc, 1);
+          } else if (this.extInstancing) {
             this.extInstancing.vertexAttribDivisorANGLE(loc, 1);
           }
         }
@@ -782,8 +954,8 @@ export class TypographicMotionEngine {
       setupInstancedAttrib(this.attribs.mutation, 1, 6 * 4);
 
       if (this.isWebGL2) {
-        gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, totalChars);
-      } else {
+        (gl as WebGL2RenderingContext).drawArraysInstanced(gl.TRIANGLES, 0, 6, totalChars);
+      } else if (this.extInstancing) {
         this.extInstancing.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, totalChars);
       }
     } else {
@@ -791,43 +963,45 @@ export class TypographicMotionEngine {
     }
   }
 
-  renderCanvas2D() {
+  private renderCanvas2D() {
     const ctx = this.ctx;
+    if (!ctx) return;
+
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, this.width, this.height);
 
-    ctx.font = `600 ${this.fontSize}px 'JetBrains Mono', monospace`;
+    ctx.font = `400 ${this.fontSize}px 'JetBrains Mono', monospace`;
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
 
     const halfW = this.width * 0.5;
     const halfH = this.height * 0.5;
-    const cRadX = this.centerRadiusX * this.dpr;
-    const cRadY = this.centerRadiusY * this.dpr;
+    const centerOriginY = this.height * 0.47;
+    const cRadX = this.centerRadiusX;
+    const cRadY = this.centerRadiusY;
     const fieldWidth = this.charsPerRow * this.charWidth;
     const shiftX = (fieldWidth - this.width) * 0.5;
-
     const t = this.time * this.config.maskSpeed;
 
     for (let r = 0; r < this.rowCount; r++) {
       const row = this.rows[r];
-      const screenY = (r - 6) * this.lineHeight + this.lineHeight * 0.5;
+      const screenY = (r - 8) * this.lineHeight + this.lineHeight * 0.5;
       const ny = (screenY - halfH) / halfH;
 
       for (let c = 0; c < this.charsPerRow; c++) {
-        let uncurvedX = ((c * this.charWidth - row.offset) % fieldWidth + fieldWidth) % fieldWidth;
-        let screenX = uncurvedX - shiftX;
+        const uncurvedX = ((c * this.charWidth + row.offset) % fieldWidth + fieldWidth) % fieldWidth;
+        const screenX = uncurvedX - shiftX;
 
         const nx = (screenX - halfW) / halfW;
-        const theta = nx * 0.70;
+        const theta = nx * 0.72;
         const compFactor = Math.cos(theta);
-        const nxCurved = Math.sin(theta) / Math.sin(0.70);
-        const nyCurved = ny * (1.0 + this.config.curvatureStrength * (1.0 / Math.max(compFactor, 0.1) - 1.0));
+        const nxCurved = Math.sin(theta) / Math.sin(0.72);
+        const nyCurved = ny * (1.0 + this.config.curvatureStrength * (1.0 / Math.max(compFactor, 0.12) - 1.0));
 
         const worldX = halfW + nxCurved * halfW;
         const worldY = halfH + nyCurved * halfH;
 
-        if (worldX < -30 || worldX > this.width + 30 || worldY < -30 || worldY > this.height + 30) {
+        if (worldX < -25 || worldX > this.width + 25 || worldY < -25 || worldY > this.height + 25) {
           continue;
         }
 
@@ -835,31 +1009,37 @@ export class TypographicMotionEngine {
         const my = (worldY + this.maskOffsetY) * this.config.maskScaleY;
         const noiseVal = Math.sin(mx + t * 0.8) * Math.cos(my - t * 0.6) * 0.5 + 0.5;
 
-        let activeCluster = (noiseVal - (this.config.maskThreshold - this.config.maskContrast)) / (this.config.maskContrast * 2);
+        let activeCluster =
+          (noiseVal - (this.config.maskThreshold - this.config.maskContrast)) /
+          (this.config.maskContrast * 2);
         activeCluster = Math.max(0, Math.min(1, activeCluster));
 
-        let intensity = (0.10 + activeCluster * 0.72) * row.depth;
-
-        const mutation = this.mutationBoosts[r * this.charsPerRow + c] || 0;
-        intensity = Math.min(1, intensity + mutation * 0.38);
+        let intensity = (0.08 + activeCluster * 0.74) * row.depth;
+        const idx = r * this.charsPerRow + c;
+        const mutation = this.mutationBoosts[idx] || 0;
+        intensity = Math.min(1, intensity + mutation * 0.40);
 
         const cdx = (worldX - halfW) / cRadX;
-        const cdy = (worldY - halfH) / cRadY;
+        const cdy = (worldY - centerOriginY) / cRadY;
         const cDist = Math.sqrt(cdx * cdx + cdy * cdy);
-        const centerAtten = this.config.centerMinAlpha + (1.0 - this.config.centerMinAlpha) * Math.min(1, Math.max(0, (cDist - 0.35) / 0.75));
+        const centerAtten =
+          this.config.centerMinAlpha +
+          (1.0 - this.config.centerMinAlpha) * Math.min(1, Math.max(0, (cDist - 0.32) / 0.76));
         intensity *= centerAtten;
 
-        const char = String.fromCharCode(row.asciiCodes[c]);
-        if (row.semanticLevel === 2 && intensity > 0.76) {
-          ctx.fillStyle = "rgba(161, 125, 64, 0.86)";
-        } else if (intensity < 0.24) {
-          ctx.fillStyle = "rgba(41, 42, 43, 0.38)";
-        } else if (intensity < 0.52) {
-          ctx.fillStyle = "rgba(92, 94, 96, 0.54)";
-        } else if (intensity < 0.80) {
-          ctx.fillStyle = "rgba(164, 166, 168, 0.74)";
+        const ascii = this.currentAscii[idx];
+        const char = ascii === ARROW_ATLAS_INDEX ? ARROW_GLYPH : String.fromCharCode(32 + ascii);
+
+        if (row.depth > 1.05 && intensity > 0.74) {
+          ctx.fillStyle = "rgba(161, 125, 64, 0.88)";
+        } else if (intensity < 0.22) {
+          ctx.fillStyle = "rgba(36, 37, 38, 0.35)";
+        } else if (intensity < 0.50) {
+          ctx.fillStyle = "rgba(85, 87, 89, 0.52)";
+        } else if (intensity < 0.78) {
+          ctx.fillStyle = "rgba(162, 164, 166, 0.72)";
         } else {
-          ctx.fillStyle = "rgba(240, 237, 229, 0.94)";
+          ctx.fillStyle = "rgba(242, 239, 232, 0.94)";
         }
 
         ctx.fillText(char, worldX, worldY);

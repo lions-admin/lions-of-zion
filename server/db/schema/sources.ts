@@ -57,6 +57,9 @@ export const source = pgTable(
       .references(() => sourceFamily.id),
     kind: sourceKind("kind").notNull(),
     slug: text("slug").notNull().unique(),
+    /** Stable connector identity. A display slug may change; a query/feed
+     * identity may not silently create a second logical source. */
+    logicalKey: text("logical_key").unique(),
     name: text("name").notNull(),
     homepageUrl: text("homepage_url"),
     /** The connector endpoint: a feed URL for `rss`, a base URL for `api`. Not
@@ -71,14 +74,20 @@ export const source = pgTable(
      *  return. */
     config: jsonb("config"),
     currentVersionId: uuid("current_version_id").references(() => entityVersion.id),
+    consecutiveFailures: integer("consecutive_failures").notNull().default(0),
+    lastSuccessfulFetchAt: tsCol("last_successful_fetch_at"),
+    disabledAt: tsCol("disabled_at"),
+    disabledReason: text("disabled_reason"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
     index("source_by_family").on(t.sourceFamilyId),
     index("source_by_kind_active").on(t.kind, t.active),
+    index("source_by_logical_key").on(t.logicalKey),
     nonBlank(t.name, "source_is_named"),
     isLanguage(t.language, "source_language_is_a_tag"),
+    check("source_failure_count_is_valid", sql`${t.consecutiveFailures} >= 0`),
     check(
       "polled_sources_have_a_feed_url",
       sql`${t.kind} NOT IN ('rss', 'api') OR ${t.feedUrl} IS NOT NULL`,
@@ -105,11 +114,14 @@ export const sourceFetch = pgTable(
      *  than once per item — a feed's raw body is one object, not N. */
     rawBlobUrl: text("raw_blob_url"),
     rawContentHash: sha256Col("raw_content_hash"),
+    rawContentType: text("raw_content_type"),
+    rawByteSize: integer("raw_byte_size"),
     createdAt: createdAt(),
   },
   (t) => [
     index("source_fetch_by_source").on(t.sourceId, t.startedAt),
     isSha256(t.rawContentHash, "source_fetch_raw_hash_is_sha256"),
+    check("source_fetch_raw_byte_size_is_valid", sql`${t.rawByteSize} IS NULL OR ${t.rawByteSize} > 0`),
     check(
       "failed_fetch_states_why",
       sql`${t.status} <> 'failed' OR length(btrim(coalesce(${t.errorMessage}, ''))) > 0`,

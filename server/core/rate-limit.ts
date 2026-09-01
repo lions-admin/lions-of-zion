@@ -29,6 +29,13 @@ export const VOLUNTEER_SUBMISSION: RateLimitPolicy = { limit: 5, windowSeconds: 
 export const SEARCH_QUERIES: RateLimitPolicy = { limit: 120, windowSeconds: 60 };
 export const CHAT_MESSAGES: RateLimitPolicy = { limit: 10, windowSeconds: 60 };
 export const CHAT_MESSAGES_DAILY: RateLimitPolicy = { limit: 100, windowSeconds: 86_400 };
+export const PUBLIC_API_READS: RateLimitPolicy = { limit: 600, windowSeconds: 60 };
+export const ADMIN_MUTATIONS: RateLimitPolicy = { limit: 30, windowSeconds: 60 };
+/** Outbound collection is deliberately constrained independently from public
+ * traffic. These are shared Postgres buckets, so concurrent Functions cannot
+ * accidentally turn a per-instance courtesy limit into unlimited traffic. */
+export const OUTBOUND_SOURCE_GLOBAL: RateLimitPolicy = { limit: 240, windowSeconds: 60 };
+export const OUTBOUND_SOURCE_DOMAIN: RateLimitPolicy = { limit: 15, windowSeconds: 60 };
 
 /** Derives a stable, non-reversible bucket from whatever identifies the
  *  caller. Vercel sets `x-forwarded-for`; absent that, everything shares one
@@ -36,6 +43,12 @@ export const CHAT_MESSAGES_DAILY: RateLimitPolicy = { limit: 100, windowSeconds:
 export function bucketFor(request: Request, scope: string): string {
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   const subject = forwarded || request.headers.get("x-real-ip") || "unknown";
+  return bucketForSubject(scope, subject);
+}
+
+/** Identical privacy properties to request buckets, for outbound provider and
+ * publisher limits. Raw hostnames never enter the rate-limit table. */
+export function bucketForSubject(scope: string, subject: string): string {
   return `${scope}:${createHmac("sha256", rateLimitHmacSecret())
     .update(subject)
     .digest("hex")

@@ -60,7 +60,6 @@ export function SectionPage({
   accent = 'gold',
   surface = 'default',
   aside,
-  breadcrumb,
   children,
 }: SectionPageProps) {
   const node = getSiteNavigationItem(id);

@@ -1,0 +1,3 @@
+-- Schema snapshot synchronization only. Migrations 0022 through 0036 contain
+-- the DDL; this no-op entry restores drizzle-kit's current schema baseline so
+-- future generated migrations compare against the deployed contract.

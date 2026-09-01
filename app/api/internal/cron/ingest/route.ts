@@ -1,8 +1,8 @@
 import { handler } from "@/server/http/handler";
 import { ok } from "@/server/http/responses";
 import { requireCron } from "@/server/http/internal-guard";
-import { CONNECTORS, activeSources, ingest, shouldCollectGoogleSource } from "@/server/modules/sources";
-import type { Actor } from "@/server/core/audit";
+import { briefingFeatures } from "@/server/core/config";
+import { enqueueDueCollectionJobs, recoverAndDispatchBriefingJobs } from "@/server/modules/briefing/jobs";
 
 /**
  * Walks every active source of every registered connector kind and runs it.
@@ -16,38 +16,18 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-const CRON_ACTOR: Actor = { label: "cron:ingest", userId: null };
-
 export const GET = handler(async (request) => {
   requireCron(request);
-
-  const results: Array<{ sourceId: string; status: string; evidenceCreated?: number; error?: string }> = [];
-
-  for (const connector of CONNECTORS) {
-    const due = await activeSources(connector.kind);
-    for (const src of due) {
-      if (connector.kind === "google_search") {
-        if (!(await shouldCollectGoogleSource(src.id))) {
-          results.push({ sourceId: src.id, status: "skipped: Google query limit or already collected today" });
-          continue;
-        }
-      }
-      try {
-        const result = await ingest(src.id, CRON_ACTOR);
-        results.push({
-          sourceId: src.id,
-          status: result.fetch.status,
-          evidenceCreated: result.evidenceCreated,
-        });
-      } catch (cause) {
-        results.push({
-          sourceId: src.id,
-          status: "failed",
-          error: cause instanceof Error ? cause.message : String(cause),
-        });
-      }
-    }
+  if (!briefingFeatures().collection) {
+    return ok({ ranAt: new Date().toISOString(), status: "paused", results: [] });
   }
 
-  return ok({ ranAt: new Date().toISOString(), results });
+  /* Queue redelivery is not our only recovery path. A transient provider
+   * failure leaves the durable job pending with its own retry time, and the
+   * next ingestion tick must pick it up even if the queue provider never
+   * redelivered its original message. */
+  const recovery = await recoverAndDispatchBriefingJobs();
+  const results = await enqueueDueCollectionJobs();
+
+  return ok({ ranAt: new Date().toISOString(), recovery, results });
 });

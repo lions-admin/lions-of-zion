@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { PublicationMeta, CorrectionHistory } from "@/components/content";
-import { getWarUpdateEdition } from "@/lib/content/war-update";
+import { StatusState } from "@/components/ui/StatusState";
 import { SITE_URL } from "@/lib/site-config";
-import { WireFeed } from "./WireFeed";
+import { listBriefingPublications } from "@/lib/publications";
 import styles from "./page.module.css";
 
 const TAGLINE =
-  "Sourced, time-stamped updates from the front and the home front.";
+  "Live, source-linked updates on Israel's war and regional security.";
 
 export const metadata: Metadata = {
   title: "War Update",
@@ -17,25 +16,18 @@ export const metadata: Metadata = {
   openGraph: {
     title: "War Update — LIONS OF ZION",
     description: TAGLINE,
-    type: "article",
+    type: "website",
   },
 };
 
 export default async function Page() {
-  const edition = await getWarUpdateEdition();
-  const latestDate = edition.entries.reduce(
-    (latest, entry) => (entry.datetime > latest ? entry.datetime : latest),
-    edition.entries[0]?.datetime ?? edition.publishedAt,
-  );
+  const publishedUpdates = await listBriefingPublications("?section=war_update&limit=12").catch(() => []);
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
-    headline: "War Update — documented ceasefire and diplomacy milestones",
+    "@type": "CollectionPage",
+    name: "War Update",
     description: TAGLINE,
-    datePublished: edition.publishedAt,
-    dateModified: latestDate,
-    author: { "@type": "Organization", name: "Lions of Zion" },
     publisher: { "@type": "Organization", name: "Lions of Zion" },
     url: `${SITE_URL}/war-update`,
   };
@@ -46,44 +38,36 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* A wire desk earns the right to caveat by filing first. The advisory
-          is a strip under the lede rule rather than a "Trust" block of its
-          own: read the h2 list alone and the document should be about the
-          period, not about its own apparatus. The Methodology link and the
-          edition metadata moved to the foot with it, where a reader who has
-          read the entries is the one asking for provenance. */}
-      <p className={styles.advisory}>
-        <span className={styles.advisoryLabel}>Editor’s note —</span>{" "}
-        {edition.trustStrip}
-      </p>
-
-      <SectionBlock heading={`Ceasefire, and not yet peace · ${edition.coverageWindow}`}>
-        <WireFeed entries={edition.entries} />
-      </SectionBlock>
-
-      <PublicationMeta
-        edition={edition.edition}
-        publishedAt={edition.publishedAt}
-        coverageWindow={edition.coverageWindow}
-        reviewedBy={edition.reviewedBy}
-        sourceCount={edition.sourceCount}
-      />
-
-      <p className={styles.colophonNote}>
-        Full sourcing standards and the corrections policy live on the{" "}
-        <Link href="/methodology">Methodology</Link> page.
-      </p>
-
-      {/* No source stack. `edition.sources` is the union of the sources each
-          dispatch already cites, so rendering it here printed every citation
-          on this page twice — invisible while both sat in the column, obvious
-          once each entry's sources moved out to the margin beside it. It also
-          made the margin note read as a preview rather than as the evidence.
-          Israel's Story took the same removal (`.ai/DECISIONS.md:499-504`).
-          The field stays in `lib/content/war-update.ts` — `sourceCount` reads
-          it for the `PublicationMeta` row, which preserves the count. */}
-
-      <CorrectionHistory corrections={edition.corrections} />
+      {publishedUpdates.length ? (
+        <SectionBlock heading="Latest published updates">
+          <ol className={styles.publishedUpdates}>
+            {publishedUpdates.map((update) => (
+              <li key={update.publicId}>
+                <Link href={`/articles/${update.publicId}`}>
+                  <time dateTime={update.publishedAt}>{formatDate(update.publishedAt)}</time>
+                  <strong>{update.title}</strong>
+                  {update.summary ? <span>{update.summary}</span> : null}
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </SectionBlock>
+      ) : (
+        <StatusState
+          eyebrow="LIVE WAR DESK"
+          title="No verified war update has been published yet."
+          description="This page carries only source-linked updates that have completed the briefing pipeline. It will not display sample or historical placeholder material."
+          actionText="Read the Daily Brief"
+          actionHref="/geopolitical-brief"
+        />
+      )}
     </SectionPage>
   );
+}
+
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeZone: "Asia/Jerusalem",
+  }).format(new Date(value));
 }

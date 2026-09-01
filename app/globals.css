@@ -369,6 +369,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: var(--ink-hi);
 }
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p, li, dd {
+  text-wrap: pretty;
+}
+
+blockquote, q {
+  hanging-punctuation: first;
+}
+
 canvas { display: block; }
 button, canvas { -webkit-tap-highlight-color: transparent; }
 
@@ -385,9 +398,9 @@ button, canvas { -webkit-tap-highlight-color: transparent; }
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(99, 179, 237, 0.3);
+  background-color: var(--gold-line);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(99, 179, 237, 0.5);
+  background-color: var(--gold);
 }

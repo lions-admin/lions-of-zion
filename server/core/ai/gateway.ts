@@ -19,9 +19,9 @@ import "server-only";
  *   3. **An unconfigured gateway.** Loudly, naming the variable.
  */
 
-import { generateText, embed, APICallError, gateway, Output } from "ai";
+import { generateText, embed, APICallError, gateway, RetryError } from "ai";
 import { xai } from "@ai-sdk/xai";
-import type { ZodType } from "zod";
+import { toJSONSchema, ZodError, type ZodType } from "zod";
 import { ApiError } from "@/server/http/responses";
 import { integrityHash } from "@/server/core/hash";
 import { aiBudgets, modelFor, type ModelProfile } from "@/server/core/config";
@@ -36,6 +36,10 @@ export type GenerateInput = {
    *  reading, not the most convenient one. */
   dataClass?: DataClass;
   maxOutputTokens?: number;
+  /** A bounded override for an unusually large, still server-side generation.
+   * Briefing editions need more time than chat replies, but may never exceed
+   * the function-level timeout. */
+  timeoutMs?: number;
   /** Cost attribution in the gateway's own dashboards. */
   tags?: string[];
   /** Give Grok access to its server-side live X search tool for this call. */
@@ -58,6 +62,14 @@ export type StructuredGenerateOutput<T> = GenerateOutput & { output: T };
  *  `ai_run`. Duplicated deliberately: the database refuses the record, this
  *  refuses the request. */
 const NEVER_SENT: readonly DataClass[] = ["restricted", "secret"];
+
+/** Explicit provider limits rather than AI SDK defaults. A bounded retry is
+ * enough for transient Gateway failures; the durable briefing job owns any
+ * later stage retry so a model request is never multiplied uncontrollably. */
+const AI_GENERATION_TIMEOUT_MS = 45_000;
+const AI_GENERATION_RETRIES = 1;
+const AI_EMBEDDING_TIMEOUT_MS = 20_000;
+const AI_EMBEDDING_RETRIES = 1;
 
 export function assertSendable(dataClass: DataClass): void {
   if (NEVER_SENT.includes(dataClass)) {
@@ -109,7 +121,9 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
 
   const model = modelFor(input.profile);
   const startedAt = Date.now();
+  const timeoutMs = input.timeoutMs ?? AI_GENERATION_TIMEOUT_MS;
 
+  let decoded: unknown;
   try {
     const result = model.startsWith("xai/")
       ? await generateText({
@@ -117,6 +131,8 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
           system: input.system,
           prompt: input.prompt,
           maxOutputTokens: input.maxOutputTokens,
+          timeout: timeoutMs,
+          maxRetries: AI_GENERATION_RETRIES,
           /* The provider tool is implemented by xAI, not by our server. The
              installed AI SDK 6 types predate provider-executed tools, while
              the xAI provider exposes the correct runtime contract. */
@@ -127,6 +143,8 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
           system: input.system,
           prompt: input.prompt,
           maxOutputTokens: input.maxOutputTokens,
+          timeout: timeoutMs,
+          maxRetries: AI_GENERATION_RETRIES,
           providerOptions: {
             gateway: {
               tags: input.tags ?? [`kind:${input.kind}`],
@@ -152,6 +170,7 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
       ),
     };
   } catch (cause) {
+    if (cause instanceof ApiError) throw cause;
     throw translateGatewayError(cause, model);
   }
 }
@@ -163,6 +182,7 @@ export async function generateStructured<T>(
 ): Promise<StructuredGenerateOutput<T>> {
   assertSendable(input.dataClass ?? "public");
   const model = modelFor(input.profile);
+  const timeoutMs = input.timeoutMs ?? AI_GENERATION_TIMEOUT_MS;
   if (model.startsWith("xai/")) {
     throw new ApiError("NOT_IMPLEMENTED", "Structured briefing output must use the configured OpenAI model.");
   }
@@ -171,21 +191,30 @@ export async function generateStructured<T>(
     const result = await generateText({
       model: gateway(model),
       system: input.system,
-      prompt: input.prompt,
+      /* The Gateway currently returns an empty structured-output event for
+         gpt-5-nano. Ask for plain JSON, then validate it locally. This keeps
+         the same strict contract — malformed output is rejected — while
+         avoiding the provider's incompatible structured-event transport. */
+      prompt: `${input.prompt}\n\nReturn one JSON object only, without markdown or commentary. It must validate against this JSON Schema:\n${JSON.stringify(toJSONSchema(input.schema))}`,
       maxOutputTokens: input.maxOutputTokens,
-      output: Output.object({ schema: input.schema }),
+      timeout: timeoutMs,
+      maxRetries: AI_GENERATION_RETRIES,
       providerOptions: {
         gateway: {
           tags: input.tags ?? [`kind:${input.kind}`],
           only: model.startsWith("anthropic/") ? ["anthropic"] : ["openai"],
           disallowPromptTraining: true,
         },
+        /* GPT-5 otherwise may consume the whole bounded response on hidden
+           reasoning before emitting the required JSON object. */
+        openai: { reasoningEffort: "minimal", textVerbosity: "low" },
       },
     });
     const inputTokens = result.usage?.inputTokens ?? null;
     const outputTokens = result.usage?.outputTokens ?? null;
+    const parsedOutput = parseStructuredJson(input.schema, result.text, result.finishReason, result.rawFinishReason);
     return {
-      output: result.output,
+      output: parsedOutput,
       text: result.text,
       model,
       inputTokens,
@@ -198,7 +227,51 @@ export async function generateStructured<T>(
       ),
     };
   } catch (cause) {
+    if (cause instanceof ApiError) throw cause;
     throw translateGatewayError(cause, model);
+  }
+}
+
+/** Parses plain model JSON into the same runtime contract previously enforced
+ * by the SDK's structured transport. No repair or partial acceptance occurs. */
+export function parseStructuredJson<T>(
+  schema: ZodType<T>,
+  text: string,
+  finishReason: string,
+  rawFinishReason: string | undefined,
+): T {
+  if (!text.trim()) {
+    const rawFinish = rawFinishReason ? `/${rawFinishReason}` : "";
+    throw new ApiError("INTERNAL_ERROR", `The model returned an empty JSON response (finish: ${finishReason}${rawFinish}).`);
+  }
+  let decoded: unknown;
+  try {
+    /* OpenAI occasionally adds a short sentence outside one complete JSON
+     * fence. That wrapper carries no editorial meaning, so accept exactly one
+     * fenced payload while still schema-validating the entire JSON object.
+     * Unfenced prose is never mined for embedded JSON. */
+    const trimmed = text.trim();
+    const fenced = [...trimmed.matchAll(/```(?:json)?\s*\n([\s\S]*?)\n?```/gi)];
+    const payload = fenced.length === 1 ? fenced[0]?.[1] : trimmed;
+    decoded = JSON.parse(payload);
+  } catch {
+    const rawFinish = rawFinishReason ? `/${rawFinishReason}` : "";
+    throw new ApiError(
+      "VALIDATION_ERROR",
+      `The model response was not valid JSON (finish: ${finishReason}${rawFinish}).`,
+    );
+  }
+  try {
+    return schema.parse(decoded);
+  } catch (cause) {
+    const rawFinish = rawFinishReason ? `/${rawFinishReason}` : "";
+    const detail = cause instanceof ZodError
+      ? cause.issues.slice(0, 4).map((issue) => `${issue.path.join(".") || "root"}: ${issue.message}`).join("; ")
+      : "unknown schema validation error";
+    throw new ApiError(
+      "VALIDATION_ERROR",
+      `The model JSON did not satisfy the structured contract (finish: ${finishReason}${rawFinish}; ${detail}).`,
+    );
   }
 }
 
@@ -221,6 +294,8 @@ export async function embedText(text: string): Promise<{
     const result = await embed({
       model: gateway.embeddingModel(model),
       value: text,
+      abortSignal: AbortSignal.timeout(AI_EMBEDDING_TIMEOUT_MS),
+      maxRetries: AI_EMBEDDING_RETRIES,
       providerOptions: {
         gateway: { only: ["openai"], tags: ["feature:embedding"], disallowPromptTraining: true },
       },
@@ -267,10 +342,10 @@ export function estimateCost(model: string, inputTokens: number, outputTokens: n
     ? { input: 1, output: 5 }
     : model === "anthropic/claude-sonnet-5"
       ? { input: 3, output: 15 }
-      : model === "openai/gpt-5.4-nano"
-        ? { input: 0.2, output: 1.25 }
-        : model === "openai/gpt-5.4-mini"
-          ? { input: 0.75, output: 4.5 }
+      : model === "openai/gpt-5-nano"
+        ? { input: 0.05, output: 0.4 }
+        : model === "openai/gpt-5-mini"
+          ? { input: 0.25, output: 2 }
       : model === "openai/text-embedding-3-small"
         ? { input: 0.02, output: 0 }
         : { input: 5, output: 25 };
@@ -286,10 +361,12 @@ export function estimateCost(model: string, inputTokens: number, outputTokens: n
  * review — ends up in a client's error log.
  */
 function translateGatewayError(cause: unknown, model: string): ApiError {
-  if (!APICallError.isInstance(cause)) {
-    return new ApiError("INTERNAL_ERROR", `The model call to ${model} failed.`);
+  const statusCode = gatewayStatusCode(cause);
+  if (statusCode === null) {
+    const failureType = cause instanceof Error ? cause.name : "UnknownError";
+    return new ApiError("INTERNAL_ERROR", `The model call to ${model} failed (${failureType}).`);
   }
-  switch (cause.statusCode) {
+  switch (statusCode) {
     case 402:
       return new ApiError("RATE_LIMITED", "The AI Gateway budget has been reached.");
     case 429:
@@ -306,4 +383,14 @@ function translateGatewayError(cause: unknown, model: string): ApiError {
     default:
       return new ApiError("INTERNAL_ERROR", `The model call to ${model} failed.`);
   }
+}
+
+function gatewayStatusCode(cause: unknown): number | null {
+  if (APICallError.isInstance(cause)) return cause.statusCode ?? null;
+  if (RetryError.isInstance(cause)) return gatewayStatusCode(cause.lastError);
+  if (cause && typeof cause === "object" && "statusCode" in cause) {
+    const statusCode = (cause as { statusCode?: unknown }).statusCode;
+    return typeof statusCode === "number" ? statusCode : null;
+  }
+  return null;
 }

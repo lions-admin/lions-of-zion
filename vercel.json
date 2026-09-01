@@ -1,7 +1,50 @@
 {
   "functions": {
+    "app/api/v1/admin/briefing/run/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"]
+    },
+    "app/api/internal/cron/briefing/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"]
+    },
     "app/api/internal/queue/outbox-dispatch/route.ts": {
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox.dispatch" }]
+    },
+    "app/api/internal/queue/briefing/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"],
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "briefing-collect", "retryAfterSeconds": 30 }]
+    },
+    "app/api/internal/queue/briefing/enrich/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"],
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "briefing-enrich", "retryAfterSeconds": 30 }]
+    },
+    "app/api/internal/queue/briefing/cluster/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"],
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "briefing-cluster", "retryAfterSeconds": 30 }]
+    },
+    "app/api/internal/queue/briefing/triage/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"],
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "briefing-triage", "retryAfterSeconds": 30 }]
+    },
+    "app/api/internal/queue/briefing/draft/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"],
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "briefing-draft", "retryAfterSeconds": 30 }]
+    },
+    "app/api/internal/queue/briefing/quality/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"],
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "briefing-quality", "retryAfterSeconds": 30 }]
+    },
+    "app/api/internal/queue/briefing/publish/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"],
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "briefing-publish", "retryAfterSeconds": 30 }]
     }
   },
   "crons": [
@@ -9,6 +52,6 @@
     { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
     { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
     { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" },
-    { "path": "/api/internal/cron/briefing", "schedule": "0 4,5 * * *" }
+    { "path": "/api/internal/cron/briefing", "schedule": "0,15,30,45 4,5 * * *" }
   ]
 }

@@ -20,9 +20,13 @@ export type FetchedItem = {
   externalId: string;
   title: string;
   url?: string;
+  discoveryUrl?: string;
+  canonicalUrl?: string;
   excerpt?: string;
   publishedAt?: Date;
   publisher?: { name: string; homepageUrl: string };
+  contentType?: string;
+  discoveryMetadata?: Record<string, unknown>;
 };
 
 export type ConnectorFetchResult = {
@@ -32,6 +36,8 @@ export type ConnectorFetchResult = {
   /** The full response body, stored to Blob once per fetch rather than once
    *  per item. Absent on a `failed` fetch that never got a body. */
   rawBody?: string;
+  /** Actual media type returned by the source, without parameters. */
+  rawContentType?: string;
   /** Required when `status` is `failed` or `partial` — the same rule the
    *  `source_fetch` table enforces with a CHECK. */
   errorMessage?: string;

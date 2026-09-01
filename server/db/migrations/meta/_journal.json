@@ -176,6 +176,167 @@
       "when": 1787932800000,
       "tag": "0024_geopolitical_brief_automation",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1788079200000,
+      "tag": "0025_public_narrative_projection",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1788079800000,
+      "tag": "0026_evidence_retrieval_contract",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1788081000000,
+      "tag": "0027_discovery_connectors",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1788082200000,
+      "tag": "0028_briefing_quality_traceability",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1788090900000,
+      "tag": "0029_publication_related",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1788091200000,
+      "tag": "0030_public_correction_projection",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1788091600000,
+      "tag": "0031_automatic_quality_gate",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1788092200000,
+      "tag": "0032_evidence_discovery_audit",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1788093000000,
+      "tag": "0033_story_clusters",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1788093600000,
+      "tag": "0034_briefing_jobs",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1788094200000,
+      "tag": "0035_briefing_runtime_control",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1788094800000,
+      "tag": "0036_publication_editorial_filters",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1788095400000,
+      "tag": "0037_schema_snapshot_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1788096000000,
+      "tag": "0038_narrative_watch_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1788095779278,
+      "tag": "0039_schema_snapshot_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1788096259468,
+      "tag": "0040_briefing_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1788096682950,
+      "tag": "0041_briefing_job_deferred_delivery",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1788096959838,
+      "tag": "0042_automatic-publication-idempotency",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1788097200000,
+      "tag": "0043_backfill_source_health",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1788097800000,
+      "tag": "0044_backfill_discovered_source_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1788181200000,
+      "tag": "0045_retire_duplicate_agent_search_queries",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1788184800000,
+      "tag": "0046_track_briefing_raw_capture_size",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1788213293243,
+      "tag": "0047_schema_snapshot_sync",
+      "breakpoints": true
     }
   ]
 }

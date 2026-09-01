@@ -57,12 +57,6 @@ const SOURCES: Source[] = [
     kind: 'Al Jazeera',
     url: 'https://www.aljazeera.com/news/2025/10/13/world-leaders-gather-in-egypt-for-signing-of-gaza-ceasefire-deal',
   },
-  {
-    id: 'cbs-hostages',
-    label: '20 living hostages were just released by Hamas under the ceasefire deal. Here’s who they are.',
-    kind: 'CBS News',
-    url: 'https://www.cbsnews.com/news/israel-hostages-released-by-hamas-who-they-are/',
-  },
   /* The Council's own record of the adoption, added beside the encyclopedia
      entry rather than in place of it: the vote this page prints is a fact the
      Council itself published, and a resolution is one of the few claims here
@@ -119,8 +113,8 @@ const ENTRIES: TimelineEntry[] = [
     dateLabel: 'Oct 9, 2025',
     category: 'Diplomacy',
     assessment: VERIFIED,
-    title: 'Israel and Hamas sign a ceasefire-hostage agreement in Sharm el-Sheikh',
-    body: 'The agreement covers a phased release of hostages and Palestinian detainees, an Israeli withdrawal from parts of Gaza, a surge in humanitarian aid, and the return of displaced Gazans to their home areas.',
+    title: 'Israel and Hamas sign a ceasefire agreement in Sharm el-Sheikh',
+    body: 'The agreement sets terms for an Israeli withdrawal from parts of Gaza, a surge in humanitarian aid, and the return of displaced Gazans to their home areas.',
     sources: [bySourceId('toi-full-text'), bySourceId('npr-next-steps')],
   },
   {
@@ -132,16 +126,6 @@ const ENTRIES: TimelineEntry[] = [
     title: 'The ceasefire takes effect',
     body: 'A formal ceasefire begins across Gaza. A peace summit follows on October 13 in Sharm El Sheikh to open implementation of the agreement’s first phase.',
     sources: [bySourceId('npr-next-steps'), bySourceId('aj-summit')],
-  },
-  {
-    id: 'hostages-released',
-    datetime: '2025-10-13',
-    dateLabel: 'Oct 13, 2025',
-    category: 'Hostages',
-    assessment: VERIFIED,
-    title: 'All 20 remaining living hostages are released within 72 hours',
-    body: 'Hamas releases all 20 living hostages still held in Gaza within three days of the ceasefire taking effect, in exchange for the release of Palestinian prisoners under the agreement’s terms.',
-    sources: [bySourceId('cbs-hostages')],
   },
   {
     id: 'unsc-2803',

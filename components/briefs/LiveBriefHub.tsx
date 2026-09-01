@@ -1,400 +1,149 @@
 import Link from "next/link";
-import { listPublicPublications } from "@/lib/publications";
-import {
-  CorrectionHistory,
-  FigureRow,
-  KnownUnknownPanel,
-  PublicationMeta,
-  SourceList,
-  Timeline,
-  VerificationBadge,
-} from "@/components/content";
-import { geopoliticalReferenceBrief as refBrief } from "./geopolitical-reference";
-import {
-  briefDevelopmentEntries,
-  STATUS_TO_ASSESSMENT,
-  toIsoDateOnly,
-  toSource,
-} from "./adapters";
-import { ReadingProgress } from "@/components/sections/ReadingProgress";
+import { listBriefingPublications } from "@/lib/publications";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { StatusState } from "@/components/ui/StatusState";
 import styles from "./live-brief.module.css";
 
-const STALE_AFTER_DAYS = 14;
+type Filters = { date?: string; actor?: string; topicLabel?: string; arena?: string };
 
-function isBriefStale(publishedAt: string): boolean {
-  const publishedMs = new Date(toIsoDateOnly(publishedAt)).getTime();
-  if (Number.isNaN(publishedMs)) return false;
-  const ageDays = (Date.now() - publishedMs) / (24 * 60 * 60 * 1000);
-  return ageDays > STALE_AFTER_DAYS;
-}
-
-export async function LiveBriefHub() {
-  const [briefs, allPublications, narratives] = await Promise.all([
-    listPublicPublications("?section=daily_brief&limit=12").catch(() => []),
-    listPublicPublications("?limit=18").catch(() => []),
-    listPublicPublications("?section=narrative_watch&limit=8").catch(() => []),
-  ]);
-
-  const lead = briefs[0] ?? null;
-  const updates = allPublications.filter(
-    (entry) => entry.section === "israel_update" || entry.section === "war_update",
-  );
-  const developmentEntries = briefDevelopmentEntries();
-  const corrections = refBrief.corrections;
-  const stale = isBriefStale(lead?.publishedAt ?? refBrief.publishedAt);
+export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
+  const query = new URLSearchParams({ limit: "100" });
+  for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
+  let publications: Publication[] = [];
+  let allPublications: Publication[] | null = null;
+  let dataUnavailable = false;
+  try {
+    [publications, allPublications] = await Promise.all([
+      listBriefingPublications(query.toString()),
+      Object.values(filters).some(Boolean) ? listBriefingPublications("limit=100") : Promise.resolve(null),
+    ]);
+  } catch (cause) {
+    dataUnavailable = true;
+    console.error("[briefing] public projection unavailable", cause instanceof Error ? cause.message : cause);
+  }
+  const filterSource = allPublications ?? publications;
+  const dailyBriefs = publications.filter((entry) => entry.section === "daily_brief");
+  const lead = dailyBriefs[0] ?? null;
+  const featuredIsrael = lead
+    ? publications.find((entry) => entry.featuredIsraelStory && israelDate(entry.publishedAt) === israelDate(lead.publishedAt)) ?? null
+    : null;
+  const updates = publications.filter((entry) => entry.section === "israel_update" || entry.section === "war_update");
+  const narratives = publications.filter((entry) => entry.section === "narrative_watch");
 
   return (
-    <main className={styles.page} data-reading-scroll>
-      <span id="brief-top" aria-hidden="true" />
-      <a href="#brief-content" className={styles.skipLink}>
-        Skip to brief
-      </a>
-      <div className={styles.quietBackdrop} aria-hidden="true" />
-
+    <main className={styles.page}>
       <SiteHeader activeSection="geopolitical-brief" />
-      <ReadingProgress
-        trackClassName={styles.progressTrack}
-        valueClassName={styles.progressValue}
-      />
+      <div className={styles.liveLayout}>
+        <header className={styles.deskHeader}>
+          <p className={styles.liveEyebrow}>LIONS OF ZION · INTELLIGENCE DESK</p>
+          <h1>The Daily Brief</h1>
+          <p>Source-linked reporting on Israel, the war, and the narratives shaping international attention.</p>
+        </header>
 
-      <div className={styles.layout}>
-        <article className={styles.article} id="brief-content">
-          <header className={styles.briefHeader}>
-            <div className={styles.briefEyebrow}>
-              <span>{lead ? "LIVE EDITION" : refBrief.edition}</span>
-              <VerificationBadge
-                assessment={lead ? "verified" : STATUS_TO_ASSESSMENT[refBrief.status]}
-              />
-            </div>
-            <p className={styles.topic}>{refBrief.title}</p>
-            <div className={styles.statHero}>
-              <p className={styles.heroFigure}>80 km</p>
-              <div className={styles.heroCopy}>
-                <h1>{lead ? lead.title : refBrief.headline}</h1>
-                <p className={styles.dek}>{lead?.summary ?? refBrief.dek}</p>
-              </div>
-            </div>
+        <ArchiveFilters filters={filters} publications={filterSource} />
 
-            <p className={styles.statQualifier}>
-              Publicly reported funded by 24 Jun 2026, against an announced programme scope of approximately 500 km.
-            </p>
-
-            <div className={styles.metaSpacer}>
-              <PublicationMeta
-                publishedAt={lead ? lead.publishedAt : refBrief.publishedAt}
-                coverageWindow={refBrief.coverageWindow}
-                sourceCount={refBrief.sourceCount}
-              />
-            </div>
-            {stale ? (
-              <p className={styles.staleNotice} role="note">
-                This edition is more than {STALE_AFTER_DAYS} days old — check for a newer one before treating it as current.
-              </p>
-            ) : null}
+        {dataUnavailable ? (
+          <StatusState
+            eyebrow="SERVICE STATUS"
+            title="The Daily Brief is temporarily unavailable."
+            description="Published editions remain secure in our archive. Our data pipeline is synchronizing latest reports."
+            actionText="Refresh Briefs"
+            actionHref="/geopolitical-brief"
+          />
+        ) : !lead ? (
+          <StatusState
+            eyebrow="CURRENT EDITION"
+            title="No valid Daily Brief is available for this selection."
+            description="Updates appear only after the complete edition clears source, evidence, and quality checks. Try clearing active filters."
+            actionText="Clear All Filters"
+            actionHref="/geopolitical-brief"
+          />
+        ) : (
+          <header className={styles.liveLead}>
+            <p className={styles.liveEyebrow}>CURRENT EDITION · {formatDate(lead.publishedAt)}</p>
+            <h2>{lead.title}</h2>
+            {lead.summary ? <p>{lead.summary}</p> : null}
+            <ButtonLink href={`/articles/${lead.publicId}`} variant="primary" size="md">
+              Read the full brief <span aria-hidden="true">↗</span>
+            </ButtonLink>
           </header>
+        )}
 
-          <nav className={styles.contents} aria-label="Brief sections">
-            <ol>
-              <li><a href="#snapshot">Snapshot</a></li>
-              <li><a href="#changes">Changes</a></li>
-              <li><a href="#developments">Developments</a></li>
-              <li><a href="#assessment">Assessment</a></li>
-              <li><a href="#narrative-watch">Narratives</a></li>
-              <li><a href="#unknowns">Unknowns</a></li>
-              <li><a href="#sources">Sources</a></li>
-              {updates.length > 0 ? (
-                <li><a href="#live-updates">Dispatches</a></li>
-              ) : null}
-              {briefs.length > 1 ? (
-                <li><a href="#archive">Archive</a></li>
-              ) : null}
-            </ol>
-          </nav>
-
-          <section className={styles.evidenceContract} aria-label="Evidence contract">
-            <span className={styles.evidenceKicker}>Evidence contract</span>
-            <dl>
-              <div>
-                <dt>Status</dt>
-                <dd>
-                  <VerificationBadge
-                    assessment={lead ? "verified" : STATUS_TO_ASSESSMENT[refBrief.status]}
-                  />
-                </dd>
-              </div>
-              <div>
-                <dt>Primary records</dt>
-                <dd>{refBrief.sourceCount}</dd>
-              </div>
-              <div>
-                <dt>Programme scope</dt>
-                <dd>≈500 km</dd>
-              </div>
-              <div>
-                <dt>Funded by review</dt>
-                <dd>80 km</dd>
-              </div>
-              <div>
-                <dt>Programme estimate</dt>
-                <dd>NIS 5.5B</dd>
-              </div>
-              <div>
-                <dt>Corrections</dt>
-                <dd>
-                  {corrections.length > 0 ? `${corrections.length} recorded` : "None recorded"}
-                </dd>
-              </div>
-            </dl>
+        {featuredIsrael ? (
+          <section className={styles.featureStory}>
+            <p className={styles.liveEyebrow}>ISRAEL · DAILY FEATURE</p>
+            <h2>{featuredIsrael.title}</h2>
+            {featuredIsrael.summary ? <p>{featuredIsrael.summary}</p> : null}
+            <Metadata item={featuredIsrael} />
+            <Link href={`/articles/${featuredIsrael.publicId}`} className={styles.readLink}>Read the feature <span aria-hidden="true">↗</span></Link>
           </section>
+        ) : null}
 
-          {/* 01 · EXECUTIVE SNAPSHOT */}
-          <section id="snapshot" className={styles.section}>
-            <div className={styles.sectionLabel}>
-              <h2>Executive snapshot</h2>
-            </div>
-            <div className={styles.summary}>
-              {refBrief.summary.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
-            <div className={styles.figuresSpacer}>
-              <FigureRow figures={[...refBrief.figures]} />
+        {updates.length ? <PublicationSection title="Israel and war updates" items={updates} /> : null}
+        {narratives.length ? <PublicationSection title="Narrative watch and false claims" items={narratives} narrative /> : (
+          <section className={styles.liveSection} aria-labelledby="narrative-watch-heading">
+            <h2 id="narrative-watch-heading">Narrative watch and false claims</h2>
+            <div className={styles.narrativeEmpty}>
+              <p>No verified narrative record has cleared the evidence threshold in this edition.</p>
+              <p>Claims are published here only when their wording, source trail, trend and evidence status can be shown clearly.</p>
             </div>
           </section>
-
-          {/* 02 · WHAT CHANGED */}
-          <section id="changes" className={styles.section}>
-            <div className={styles.sectionLabel}>
-              <h2>What changed</h2>
-            </div>
-            <ol className={styles.changeList}>
-              {refBrief.changes.map((change, index) => (
-                <li key={change}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <p>{change}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          {/* 03 · VERIFIED DEVELOPMENTS */}
-          <section id="developments" className={styles.section}>
-            <div className={styles.sectionLabel}>
-              <h2>Verified developments</h2>
-            </div>
-            {developmentEntries.length > 0 ? (
-              <Timeline variant="feed" entries={developmentEntries} />
-            ) : (
-              <p className={styles.sectionEmpty}>No developments recorded for this edition.</p>
-            )}
-          </section>
-
-          {/* 04 · ASSESSMENT */}
-          <section id="assessment" className={`${styles.section} ${styles.assessment}`}>
-            <div className={styles.sectionLabel}>
-              <h2>Assessment</h2>
-            </div>
-            <div className={styles.sectionContent}>
-              <p className={styles.assessmentNotice}>
-                Inference from the official record—not a reported event.
-              </p>
-              <p>{refBrief.assessment}</p>
-            </div>
-          </section>
-
-          {/* 05 · NARRATIVE WATCH & DISINFORMATION INTERCEPTS */}
-          <section id="narrative-watch" className={styles.section}>
-            <div className={styles.sectionLabel}>
-              <h2>Narrative watch</h2>
-            </div>
-            <div className={styles.sectionContent}>
-              <p className={styles.sectionIntro}>
-                Forensic audit of contested claims circulating in regional and international media,
-                benchmarked directly against official parliamentary and defense records.
-              </p>
-
-              <div className={styles.narrativeGrid}>
-                <div className={styles.narrativeEntry}>
-                  <div className={styles.narrativeHeader}>
-                    <span className={styles.narrativeKicker}>CLAIM UNDER AUDIT</span>
-                    <VerificationBadge assessment="false" confidence="high" />
-                  </div>
-                  <h3 className={styles.narrativeClaim}>
-                    &ldquo;Single Unified 500km Border Wall Completed Overnight&rdquo;
-                  </h3>
-                  <p className={styles.narrativeFact}>
-                    <strong>Ground truth on record:</strong> Official Knesset committee proceedings confirm
-                    that while a roughly 500km scope is planned, only 80km had been funded and commenced as
-                    of late June 2026. Delivery remains phased.
-                  </p>
-                  <div className={styles.narrativeSource}>
-                    <span>Source: Knesset Foreign Affairs &amp; Defense Committee</span>
-                  </div>
-                </div>
-
-                <div className={styles.narrativeEntry}>
-                  <div className={styles.narrativeHeader}>
-                    <span className={styles.narrativeKicker}>MANIPULATED CONTEXT</span>
-                    <VerificationBadge assessment="out_of_context" confidence="high" />
-                  </div>
-                  <h3 className={styles.narrativeClaim}>
-                    &ldquo;Controlled Demolitions Misrepresented as Offensive Strikes&rdquo;
-                  </h3>
-                  <p className={styles.narrativeFact}>
-                    <strong>Ground truth on record:</strong> Ministry of Defense engineering records
-                    establish that detonations along the eastern corridor were controlled clearances of
-                    legacy anti-tank minefields necessary for ground preparation.
-                  </p>
-                  <div className={styles.narrativeSource}>
-                    <span>Source: Israel Ministry of Defense Communiqué</span>
-                  </div>
-                </div>
-              </div>
-
-              {narratives.length > 0 ? (
-                <div className={styles.publishedNarrativesList}>
-                  <h3 className={styles.subhead}>Additional Tracked Narratives</h3>
-                  <ol className={styles.articleStream}>
-                    {narratives.map((item) => (
-                      <li key={item.publicId}>
-                        <Link href={`/articles/${item.publicId}`} className={styles.articleStreamLink}>
-                          <div className={styles.articleStreamBody}>
-                            <h4>{item.title}</h4>
-                            {item.summary ? <p>{item.summary}</p> : null}
-                          </div>
-                          <span className={styles.arrow} aria-hidden="true">↗</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              ) : null}
-
-              <div className={styles.iwCallout}>
-                <div className={styles.iwCalloutBody}>
-                  <strong>Cognitive Warfare Architecture</strong>
-                  <p>
-                    Explore the 5-stage amplification pipeline showing how fabricated claims travel from
-                    isolated sources to international headlines.
-                  </p>
-                </div>
-                <Link href="/information-war" className={styles.iwLink}>
-                  Information War Network <span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </div>
-          </section>
-
-          {/* 06 · KNOWN UNKNOWNS */}
-          <section id="unknowns" className={styles.section}>
-            <div className={styles.sectionLabel}>
-              <h2>Known unknowns</h2>
-            </div>
-            <KnownUnknownPanel
-              unknowns={[...refBrief.unknowns]}
-              wouldChange={[...refBrief.changeConditions]}
-            />
-          </section>
-
-          {/* 07 · SOURCE STACK */}
-          <section id="sources" className={styles.section}>
-            <div className={styles.sectionLabel}>
-              <h2>Source stack</h2>
-            </div>
-            {refBrief.sources.length > 0 ? (
-              <SourceList sources={refBrief.sources.map(toSource)} />
-            ) : (
-              <p className={styles.sectionEmpty}>No sources recorded for this edition.</p>
-            )}
-          </section>
-
-          {/* LIVE DISPATCHES (IF PRESENT) */}
-          {updates.length > 0 ? (
-            <section id="live-updates" className={styles.section}>
-              <div className={styles.sectionLabel}>
-                <h2>Incoming live dispatches</h2>
-              </div>
-              <ol className={styles.articleStream}>
-                {updates.map((update) => (
-                  <li key={update.publicId}>
-                    <Link href={`/articles/${update.publicId}`} className={styles.articleStreamLink}>
-                      <div className={styles.articleStreamBody}>
-                        <span className={styles.streamDate}>{formatDate(update.publishedAt)}</span>
-                        <h4>{update.title}</h4>
-                        {update.summary ? <p>{update.summary}</p> : null}
-                      </div>
-                      <span className={styles.arrow} aria-hidden="true">↗</span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ) : null}
-
-          {/* ARCHIVE (IF PRESENT) */}
-          {briefs.length > 1 ? (
-            <section id="archive" className={styles.section}>
-              <div className={styles.sectionLabel}>
-                <h2>Archived editions</h2>
-              </div>
-              <ol className={styles.articleStream}>
-                {briefs.slice(1).map((briefItem) => (
-                  <li key={briefItem.publicId}>
-                    <Link href={`/articles/${briefItem.publicId}`} className={styles.articleStreamLink}>
-                      <div className={styles.articleStreamBody}>
-                        <span className={styles.streamDate}>{formatDate(briefItem.publishedAt)}</span>
-                        <h4>{briefItem.title}</h4>
-                        {briefItem.summary ? <p>{briefItem.summary}</p> : null}
-                      </div>
-                      <span className={styles.arrow} aria-hidden="true">↗</span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ) : null}
-
-          {/* CORRECTIONS */}
-          <footer className={styles.corrections}>
-            <CorrectionHistory corrections={[...corrections]} />
-          </footer>
-
-          {/* CLOSING / COLOPHON */}
-          <div className={styles.closing}>
-            <span className={styles.closingMark}>
-              {lead ? "End of live dispatch" : "End of brief — Reference 001"}
-            </span>
-            <nav className={styles.closingNav} aria-label="Leave the brief">
-              <Link href="/">
-                <span aria-hidden="true">←</span> Return to the scan
-              </Link>
-              <Link href="/war-update">
-                Next desk · War Update <span aria-hidden="true">→</span>
-              </Link>
-              <a href="#brief-top">
-                Back to top <span aria-hidden="true">↑</span>
-              </a>
-            </nav>
-            <nav className={styles.docLinks} aria-label="Policy pages">
-              <Link href="/methodology">Methodology</Link>
-              <span aria-hidden="true">·</span>
-              <Link href="/corrections">Corrections</Link>
-            </nav>
-          </div>
-        </article>
+        )}
+        {dailyBriefs.length > 1 ? <PublicationSection title="Daily archive" items={dailyBriefs.slice(1)} /> : null}
       </div>
     </main>
   );
 }
 
+type Publication = Awaited<ReturnType<typeof listBriefingPublications>>[number];
+
+function ArchiveFilters({ filters, publications }: { filters: Filters; publications: Publication[] }) {
+  const values = (key: "primaryActor" | "editorialTopic" | "arena") =>
+    [...new Set(publications.map((item) => item[key]).filter((value): value is string => Boolean(value)))].sort();
+  return (
+    <form className={styles.filters} action="/geopolitical-brief" method="get">
+      <label><span>Date</span><input type="date" name="date" defaultValue={filters.date} /></label>
+      <label><span>Actor</span><select name="actor" defaultValue={filters.actor ?? ""}><option value="">All actors</option>{values("primaryActor").map((value) => <option key={value}>{value}</option>)}</select></label>
+      <label><span>Topic</span><select name="topicLabel" defaultValue={filters.topicLabel ?? ""}><option value="">All topics</option>{values("editorialTopic").map((value) => <option key={value}>{value}</option>)}</select></label>
+      <label><span>Arena</span><select name="arena" defaultValue={filters.arena ?? ""}><option value="">All arenas</option>{values("arena").map((value) => <option key={value}>{value}</option>)}</select></label>
+      <Button type="submit" variant="primary" size="md">Filter archive</Button>
+      {Object.values(filters).some(Boolean) ? (
+        <ButtonLink href="/geopolitical-brief" variant="ghost" size="md">
+          Clear
+        </ButtonLink>
+      ) : null}
+    </form>
+  );
+}
+
+function PublicationSection({ title, items, narrative = false }: { title: string; items: Publication[]; narrative?: boolean }) {
+  return (
+    <section className={styles.liveSection}>
+      <h2>{title}</h2>
+      <ol className={styles.liveList}>{items.map((item) => (
+        <li key={item.publicId}><Link href={`/articles/${item.publicId}`}>
+          <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+          <strong>{item.title}</strong>
+          {item.summary ? <span>{item.summary}</span> : null}
+          <Metadata item={item} narrative={narrative} />
+        </Link></li>
+      ))}</ol>
+    </section>
+  );
+}
+
+function Metadata({ item, narrative = false }: { item: Publication; narrative?: boolean }) {
+  const values = [item.editorialTopic, item.primaryActor, item.arena].filter(Boolean);
+  const details = item.narrativeWatchDetails;
+  return <>{values.length ? <small className={styles.storyMeta}>{narrative ? "MONITORED SIGNAL · " : ""}{values.join(" · ")}</small> : null}
+    {narrative && details ? <small className={styles.storyMeta}>CLAIM · {details.exactClaim} · TREND · {details.trendDirection} · STATUS · {details.verificationState}</small> : null}</>;
+}
+
 function formatDate(value: string): string {
-  try {
-    return new Intl.DateTimeFormat("en", {
-      dateStyle: "medium",
-      timeZone: "Asia/Jerusalem",
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
+}
+
+function israelDate(value: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value));
 }

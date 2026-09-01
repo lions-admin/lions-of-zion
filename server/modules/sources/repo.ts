@@ -9,7 +9,7 @@ import "server-only";
  */
 
 import { and, desc, eq, lt, sql, type SQL } from "drizzle-orm";
-import { source, sourceFamily, sourceFetch } from "@/server/db/schema";
+import { evidenceDiscovery, source, sourceFamily, sourceFetch } from "@/server/db/schema";
 import type { Source, SourceFamily, SourceFetch } from "@/server/db/schema";
 import type { ListSources } from "@/server/contracts/source";
 
@@ -111,6 +111,39 @@ export function sourceRepo(db: unknown) {
       const rows = await d.update(source).set(values).where(eq(source.id, id)).returning();
       return rows[0]!;
     },
+
+    async recordFetchHealth(
+      id: string,
+      status: "success" | "partial" | "failed",
+      finishedAt: Date,
+      errorMessage?: string,
+    ): Promise<void> {
+      if (status === "success") {
+        await (d as unknown as { execute: (q: SQL) => Promise<unknown> }).execute(sql`
+          UPDATE source
+          SET consecutive_failures = 0,
+              last_successful_fetch_at = ${finishedAt},
+              disabled_at = NULL,
+              disabled_reason = NULL,
+              updated_at = now()
+          WHERE id = ${id}
+        `);
+        return;
+      }
+      await (d as unknown as { execute: (q: SQL) => Promise<unknown> }).execute(sql`
+        UPDATE source
+        SET consecutive_failures = consecutive_failures + 1,
+            active = CASE WHEN consecutive_failures + 1 >= 5 THEN false ELSE active END,
+            disabled_at = CASE WHEN consecutive_failures + 1 >= 5 THEN now() ELSE disabled_at END,
+            disabled_reason = CASE
+              WHEN consecutive_failures + 1 >= 5
+              THEN ${(`Repeated ${status} fetches: ${errorMessage ?? "no usable feed data"}`).slice(0, 500)}
+              ELSE disabled_reason
+            END,
+            updated_at = now()
+        WHERE id = ${id}
+      `);
+    },
   };
 }
 
@@ -144,18 +177,25 @@ export function sourceFetchRepo(db: unknown) {
         .limit(1);
       return rows[0];
     },
-    async countForKindSince(kind: Source["kind"], since: Date): Promise<number> {
+    async countSuccessfulForKindSince(kind: Source["kind"], since: Date): Promise<number> {
       const result = await d.execute<{ count: string | number }>(sql`
         SELECT count(*)::text AS count
         FROM source_fetch sf
         JOIN source s ON s.id = sf.source_id
-        WHERE s.kind = ${kind} AND sf.started_at >= ${since}
+        WHERE s.kind = ${kind}
+          AND sf.started_at >= ${since}
+          AND sf.status IN ('success', 'partial')
       `);
       return Number(result.rows[0]?.count ?? 0);
     },
     async insert(values: Record<string, unknown>): Promise<SourceFetch> {
       const rows = await d.insert(sourceFetch).values(values).returning();
       return rows[0]!;
+    },
+    async insertDiscovery(values: Record<string, unknown>): Promise<void> {
+      await (d as unknown as {
+        insert: (t: unknown) => { values: (v: unknown) => { returning: () => Promise<unknown[]> } };
+      }).insert(evidenceDiscovery).values(values).returning();
     },
   };
 }

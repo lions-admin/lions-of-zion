@@ -1,16 +1,13 @@
 import { handler } from "@/server/http/handler";
 import { ok } from "@/server/http/responses";
 import { requireCron } from "@/server/http/internal-guard";
-import { briefing } from "@/server/modules/briefing";
-import type { Actor } from "@/server/core/audit";
+import { enqueueEditorialPipeline } from "@/server/modules/briefing/jobs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-const CRON_ACTOR: Actor = { label: "cron:briefing", userId: null };
-
-export const GET = handler(async (request, ctx) => {
+export const GET = handler(async (request) => {
   requireCron(request);
-  return ok(await briefing().runScheduled(CRON_ACTOR, ctx.requestId));
+  return ok(await enqueueEditorialPipeline());
 });

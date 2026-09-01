@@ -1,98 +1,63 @@
 # Automated Geopolitical Brief, News Articles, and Narrative Monitoring
 
-## Status
+## Current implementation state
 
-**In progress.** This document is the dedicated implementation checklist for
-the automated editorial pipeline. It is intentionally separate from
-`TODOS.md`.
+The application contains the production pipeline and all public/admin
+surfaces. Automatic publication is enabled only in Production and only after
+the data-contract and quality gates pass. The database pause remains the
+immediate stop control; Preview cannot publish. This protects the site from
+repeating the defective first run while preserving the owner's chosen
+automatic-publication workflow.
 
-## Product decision
+## Implemented in the repository
 
-- Google Search and verified RSS feeds discover public source material.
-- OpenAI processes, classifies, edits, and drafts English editorial content.
-- The existing Grok-powered public chat remains unchanged and is not part of
-  this pipeline.
-- Eligible output is published automatically each day under the approved
-  editorial policy. The administrator can immediately unpublish, archive, or
-  delete any article from the admin area.
-- The system must not invent articles, sources, claims, or citations. A failed
-  or empty run creates no publication.
-- X is not used for discovery, analysis, or publication in this feature.
+- Publication sections, public projections, source/evidence/narrative links,
+  editorial filters, versions, audit records, corrections, related articles,
+  three ordered homepage slots, canonical pages, sitemap, and social cards.
+- Direct-source RSS/Atom connector and Google Agent Search connector with
+  post-retrieval domain allowlist enforcement, publisher-family
+  attribution, canonical URL normalization, deduplication, fetch audit rows,
+  private raw Blob storage, and repeated-failure source disabling.
+- Israel-local durable collection and editorial jobs with queue delivery,
+  lease recovery, checkpoints, quarantine, pause/resume, idempotent stage
+  records, and idempotent automatic-publication candidate keys.
+- Structured OpenAI triage and drafting contracts using
+  `openai/gpt-5-nano` and `openai/gpt-5-mini`; no change to Grok chat.
+- Claim/evidence matrices, quality gates, budget ceilings, no partial-edition
+  publishing, transparent machine provenance, and a Daily Brief/Narrative
+  Watch contract that preserves uncertainty.
+- Administrator health, usage, spending, queue, failed-run, draft/publication,
+  traceability, edit, archive, and homepage-feature controls.
+- Public Daily Brief hub, separate Israel and War updates, Narrative Watch,
+  dated archive/filtering, homepage fallback headlines, and honest empty
+  states.
+- Production safety controls: resource isolation, Preview dry-run, safe fetch
+  protection, origin/rate-limit checks, security headers, deep health checks,
+  durable alerts, backup/restore/retention scripts, and runbooks.
 
-## Implementation checklist
+## Ongoing production acceptance
 
-### Content model and publication safety
+1. Google Agent Search is provisioned with Workload Identity Federation and a
+   least-privilege service account. Keep using the authenticated browser
+   session for provider changes; do not create a static key.
+2. Configure distinct Preview/Production environment variables and resource
+   labels. Keep the briefing Blob store separate from the October 7 archive.
+3. Create a backup and isolated restore target, then prove the restore drill.
+4. Seed sources, verify feeds in the target environment, and enable only feeds
+   with direct, usable publisher results.
+5. Run a live collection with publication paused. Sample direct URLs, dates,
+   excerpts, source families, and duplicate decisions.
+6. Run three controlled full editorial packets with publication paused; review
+   claim matrices and Narrative Watch output.
+7. Verify the public and administrator experience in Chrome and physical
+   mobile devices, then run the read-only production smoke command.
+8. Test a controlled provider failure, alert, retry, quarantine, and recovery.
+9. Production automatic publication is enabled by the owner decision. Keep
+   the database pause as the immediate stop control; pause publication if an
+   acceptance check fails, remediate it, and rerun the affected checks before
+   resuming it.
 
-- [ ] Add the `daily_brief`, `israel_update`, `war_update`, and
-      `narrative_watch` publication sections.
-- [ ] Link publications to narratives, source evidence, and information items.
-- [ ] Add three ordered homepage feature slots for published content.
-- [ ] Add public read models and endpoints that exclude drafts and internal
-      analysis.
-- [ ] Preserve version, source, model-run, and publication history for every
-      generated article.
-
-### Discovery and source monitoring
-
-- [ ] Add Google Search discovery with query, result, citation, and retrieval
-      audit records.
-- [ ] Keep RSS ingestion, verify feeds before activation, and surface failed or
-      stale feeds in the admin area.
-- [ ] Group duplicate and syndicated reporting by source family rather than
-      treating repeated copies as independent confirmation.
-- [ ] Record original publisher, canonical URL, language, source category, and
-      collection time for each discovered result.
-- [ ] Run topic and narrative queries covering Israel, the war, the IDF,
-      hostages, Iran, Hamas, Hezbollah, regional security, international
-      reporting, and hostile or misleading narratives.
-
-### OpenAI editorial pipeline
-
-- [ ] Add dedicated OpenAI model profiles for triage and drafting without
-      changing the Grok chat profile.
-- [ ] Use `GPT-5 Nano` for relevance, duplicate assistance, claim extraction,
-      topic routing, and narrative matching.
-- [ ] Use `GPT-5 Mini` for English brief, article, and narrative-watch drafts.
-- [ ] Require validated structured output. Invalid model output produces no
-      draft or publication.
-- [ ] Preserve the distinction between source claim, observed fact, analysis,
-      editorial conclusion, and uncertainty.
-- [ ] Present the official Israeli position first and centrally while keeping
-      claim confidence tied to the available source record.
-- [ ] Publish up to one daily brief, five news or analysis articles, and three
-      narrative-watch articles per Israel-local day.
-- [ ] Stop drafting at the feature-specific daily or monthly budget limit while
-      preserving collected evidence for a later run.
-
-### Admin and public experience
-
-- [ ] Show collection health, query usage, RSS status, draft/publication queue,
-      narrative activity, model spend, and failed runs in the admin dashboard.
-- [ ] Allow the administrator to edit, regenerate, publish, unpublish, archive,
-      delete, and feature an article.
-- [ ] Turn `/geopolitical-brief` into the Daily Brief and Updates hub.
-- [ ] Add separate canonical article pages at `/articles/[publicId]`.
-- [ ] Add the Narrative Watch and Global Trends area to the brief hub.
-- [ ] Add featured leading headlines and article links to the homepage.
-- [ ] Add article metadata, structured data, sitemap entries, sources,
-      corrections, and related context.
-
-### Scheduling and verification
-
-- [ ] Keep RSS collection on the existing recurring ingestion schedule.
-- [ ] Run Google discovery once daily with a 5,000-query monthly hard limit.
-- [ ] Run the editorial pipeline at 07:00 Israel time with idempotency by local
-      date and pipeline stage.
-- [ ] Set a $0.50 daily and $10 monthly OpenAI ceiling for this feature.
-- [ ] Verify collection, deduplication, automatic publication, unpublishing,
-      public API isolation, homepage placement, mobile rendering, and recovery
-      after a failed run.
-
-## Provider setup still required
-
-- [ ] Create and provide the Google Search credential in the authenticated
-      browser session.
-- [ ] Add the Google credential and the briefing budget settings to the
-      production environment.
-- [ ] Run a controlled production collection and publication smoke test after
-      the credential is configured.
+Detailed commands and acceptance evidence are in
+`docs/briefing-operations.md`. The task-level rebuild checklist remains in
+`GEOPOLITICAL_BRIEF_REBUILD_TODOS.md` and must not be marked complete before
+those provider and live acceptance actions are recorded.

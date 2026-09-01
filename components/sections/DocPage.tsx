@@ -118,12 +118,6 @@ export function DocPage({
   children,
 }: DocPageProps) {
   const withToc = rails === 'toc';
-  /* One level up, not home: a deep page's way out is its parent, which the
-     trail already names as its last item. Only without a trail is the parent
-     the scan itself. */
-  const exit = breadcrumb?.length
-    ? breadcrumb[breadcrumb.length - 1]
-    : { href: '/', label: 'the scan' };
   const pageClass = [
     styles.page,
     styles.surfaceQuiet,

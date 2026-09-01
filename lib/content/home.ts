@@ -53,24 +53,10 @@ import { october7Record } from './october-7';
 import { warUpdateEdition } from './war-update';
 
 /**
- * One real-world event authored twice.
- *
- * War Update's `hostages-released` and October 7's `final-hostages` are the
- * same release on 2025-10-13, written up independently for two pages that
- * both legitimately cover it. Merged into one list they print twice.
- *
- * This is an editorial fact about the corpus, not a case for a generic
- * same-day-same-topic heuristic: two genuinely different events can share a
- * date, and a heuristic would silently drop one of them. So the collision is
- * named. `assertKnownDuplicates` fails loudly if either id disappears, which
- * is what stops this list from quietly going stale.
- *
- * The kept id is War Update's: it is the section a reader following a
- * ceasefire timeline expects to land on.
+ * Known duplicate documentation is named explicitly rather than deduplicated
+ * by a generic same-day or same-topic heuristic.
  */
-const DUPLICATE_ENTRY_IDS: readonly { keep: string; drop: string }[] = [
-  { keep: 'hostages-released', drop: 'final-hostages' },
-];
+const DUPLICATE_ENTRY_IDS: readonly { keep: string; drop: string }[] = [];
 
 export type HomeMilestone = TimelineEntry & {
   /** Which file this milestone was documented in. */

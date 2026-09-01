@@ -15,8 +15,16 @@ import "server-only";
 
 import { ApiError, problem } from "./responses";
 import { authenticateAdmin, registerActor } from "@/server/core/auth/actor";
-import { bucketFor } from "@/server/core/rate-limit";
-import { withDatabaseRole, type DatabaseRole } from "@/server/db/client";
+import {
+  ADMIN_MUTATIONS,
+  bucketFor,
+  enforceRateLimit,
+  PUBLIC_API_READS,
+} from "@/server/core/rate-limit";
+import { db, withDatabaseRole, type DatabaseRole } from "@/server/db/client";
+import { siteUrl } from "@/server/core/config";
+import { briefingLog } from "@/server/core/log";
+import { requirePublicMutationEnvironment } from "@/server/core/public-mutation-guard";
 import type { ZodType } from "zod";
 
 export type RequestContext = { requestId: string; startedAt: number };
@@ -43,28 +51,52 @@ export function handler<T extends unknown[]>(
     const ctx: RequestContext = { requestId: requestIdOf(request), startedAt: Date.now() };
     try {
       const access = await accessFor(request);
-      const invoke = () => fn(request, ctx, ...rest);
+      const invoke = async () => {
+        if (access?.role === "app_public" && request.method === "GET") {
+          await enforceRateLimit(db(), bucketFor(request, "public-read"), PUBLIC_API_READS);
+        }
+        if (access?.role === "app_staff" && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+          requirePublicMutationEnvironment();
+          assertMutationOrigin(request);
+          await enforceRateLimit(db(), bucketFor(request, "admin-mutation"), ADMIN_MUTATIONS);
+        }
+        return fn(request, ctx, ...rest);
+      };
       const response = access
         ? await withDatabaseRole(access.role, access.identity, invoke)
         : await invoke();
       response.headers.set("x-request-id", ctx.requestId);
       return response;
     } catch (cause) {
-      if (cause instanceof ApiError) return problem(cause, ctx.requestId);
-      console.error(
-        JSON.stringify({
-          level: "error",
-          requestId: ctx.requestId,
-          url: request.url,
+      if (cause instanceof ApiError) {
+        briefingLog("warn", "http.request.rejected", { requestId: ctx.requestId }, {
           method: request.method,
           durationMs: Date.now() - ctx.startedAt,
-          message: cause instanceof Error ? cause.message : String(cause),
-          stack: cause instanceof Error ? cause.stack : undefined,
-        }),
-      );
+          code: cause.code,
+        });
+        return problem(cause, ctx.requestId);
+      }
+      briefingLog("error", "http.request.failed", { requestId: ctx.requestId }, {
+        method: request.method,
+        durationMs: Date.now() - ctx.startedAt,
+        errorClass: cause instanceof Error ? cause.name : "UnknownError",
+        errorMessage: cause instanceof Error ? cause.message.slice(0, 500) : "Unknown error",
+      });
       return problem(new ApiError("INTERNAL_ERROR", "Something went wrong"), ctx.requestId);
     }
   };
+}
+
+function assertMutationOrigin(request: Request): void {
+  const origin = request.headers.get("origin");
+  const allowed = new Set([new URL(request.url).origin, new URL(siteUrl()).origin]);
+  if (!origin || !allowed.has(origin)) {
+    throw new ApiError("FORBIDDEN", "The request origin is not allowed for an administrator mutation.");
+  }
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (fetchSite && fetchSite !== "same-origin" && fetchSite !== "same-site") {
+    throw new ApiError("FORBIDDEN", "Cross-site administrator mutations are not allowed.");
+  }
 }
 
 type Access = { role: DatabaseRole; identity: string };
@@ -97,7 +129,16 @@ async function accessFor(request: Request): Promise<Access | null> {
     return { role: "app_public", identity };
   }
 
-  const actor = await authenticateAdmin(request);
+  /* Authentication may create or reconnect the single human's app_user row.
+   * Do that bootstrap lookup under the service role, not the ambient database
+   * login. The latter is intentionally not granted application-table access
+   * in production, while app_service has the narrow write access needed for
+   * identity synchronization. The actual route then runs under app_staff. */
+  const actor = await withDatabaseRole(
+    "app_service",
+    "service:admin-auth-bootstrap",
+    () => authenticateAdmin(request),
+  );
   return { role: "app_staff", identity: actor.label };
 }
 

@@ -10,6 +10,7 @@ export {
   evidenceService,
   createEvidenceInTx,
   findEvidenceByExternalId,
+  findEvidenceByContentHash,
   findEvidenceByUrl,
   type EvidenceService,
 } from "./service";

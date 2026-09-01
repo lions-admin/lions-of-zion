@@ -19,10 +19,17 @@
 }
 .skipLink:focus { transform: translateY(0); }
 .progressTrack { position: fixed; z-index: 110; top: 0; right: 0; left: 0; height: 2px; }
-.progressValue { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--data-blue), var(--gold-hi)); transform: scaleX(0); transform-origin: left; }
+.progressValue { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-hi)); box-shadow: 0 0 10px rgba(198, 161, 91, 0.4); transform: scaleX(0); transform-origin: left; }
 .back { color: var(--gold-hi); text-decoration: none; }
+.topNav {
+  margin-bottom: 1.5rem;
+  margin-left: -0.75rem;
+}
+.kickerRow {
+  margin-bottom: 0.75rem;
+}
 .kicker, .meta {
-  margin-top: 2rem;
+  margin-top: 1.25rem;
   color: var(--gold);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -35,6 +42,17 @@
 .summary { font-size: clamp(1.1rem, 2vw, 1.4rem); line-height: 1.6; }
 .body { margin-top: 3rem; font-size: clamp(1.05rem, 1.8vw, 1.22rem); line-height: 1.8; }
 .body p { margin: 0 0 1.45rem; }
-.sources, .narratives { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
-.sources li, .narratives li { margin-bottom: 0.7rem; line-height: 1.5; }
-.sources a { color: var(--gold-hi); }
+.passage { margin-bottom: 1.8rem; }
+.claimRef { color: var(--ink-lo); font: 500 var(--t-data)/1.45 var(--face-data); }
+.inlineSources { display: flex; flex-wrap: wrap; gap: .45rem 1rem; margin: -.7rem 0 0; padding: 0; list-style: none; font: 500 var(--t-data)/1.4 var(--face-data); }
+.inlineSources a { color: var(--gold); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.sources, .narratives, .related, .corrections { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.sources li, .narratives li, .related li { margin-bottom: 0.7rem; line-height: 1.5; }
+.sources a, .related a { color: var(--gold-hi); }
+.corrections ol { padding-left: 1.2rem; }
+.corrections li { display: grid; gap: .35rem; margin-bottom: 1rem; }
+.corrections time { color: var(--ink-lo); font: 500 var(--t-data)/1.4 var(--face-data); }
+.narrativeDetails { margin-top: 3rem; padding: 1.5rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.narrativeDetails dl { display: grid; gap: 1rem; margin: 1.25rem 0 0; }
+.narrativeDetails dt { color: var(--gold); font: 500 var(--t-data)/1.2 var(--face-data); letter-spacing: .08em; text-transform: uppercase; }
+.narrativeDetails dd { margin: .35rem 0 0; line-height: 1.6; }

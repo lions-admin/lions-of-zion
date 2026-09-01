@@ -64,3 +64,27 @@ no longer expects, before assuming the rollback alone is sufficient.
   only repoints which build serves traffic, it does not restore a previous
   environment variable value. Check the Vercel project's environment
   variable history separately if a bad env change is part of the incident.
+
+## Briefing-specific data recovery
+
+The Daily Brief is a separate operational stream. A code rollback does not
+remove an article or undo a scheduled job that already wrote to Postgres.
+
+1. Immediately pause automatic publication from the administrator control.
+2. Archive an incorrect public article. This removes it from public APIs,
+   homepage placement, sitemap, and cache projections while preserving sources,
+   evidence, model runs, versions, and audit history.
+3. If a schema migration or bulk cleanup needs reversal, create/verify a
+   PostgreSQL backup first and restore it only to a newly provisioned isolated
+   target with:
+
+   ```bash
+   RESTORE_DATABASE_URL='postgresql://isolated-target' \
+     npm run briefing:restore:verify -- /secure/path/backup.dump --isolated
+   ```
+
+4. Inspect the restored migration journal, publication/evidence counts, and
+   the public smoke endpoints before deciding on a forward repair. Never point
+   the restore command at Production.
+5. Raw briefing captures are private objects under `briefing/raw/`. Retention
+   and cleanup never operate on the October 7 archive resource.

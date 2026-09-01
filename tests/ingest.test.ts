@@ -13,12 +13,14 @@ const RSS2 = `<?xml version="1.0" encoding="UTF-8"?>
       <title>Border incident reported</title>
       <link>https://example.org/a</link>
       <guid>urn:example:a</guid>
-      <description>A short summary.</description>
+      <description>A source-provided summary with enough context.</description>
+      <pubDate>Mon, 24 Aug 2026 10:00:00 GMT</pubDate>
     </item>
     <item>
       <title>Follow-up statement issued</title>
       <link>https://example.org/b</link>
       <guid>urn:example:b</guid>
+      <description>A useful follow-up summary with enough source context.</description>
     </item>
   </channel>
 </rss>`;
@@ -67,6 +69,15 @@ describe("ingestSource", () => {
     expect(rows).toHaveLength(2);
     expect(rows.map((r) => r.externalId).sort()).toEqual(["urn:example:a", "urn:example:b"]);
     expect(rows.every((r) => r.sourceFetchId === result.fetch.id)).toBe(true);
+    expect(rows[0]).toMatchObject({
+      canonicalUrl: "https://example.org/a",
+      url: "https://example.org/a",
+      discoveryUrl: "https://example.org/a",
+      publisherDomain: "example.org",
+      title: "Border incident reported",
+      excerpt: "A source-provided summary with enough context.",
+      publishedAt: new Date("2026-08-24T10:00:00.000Z"),
+    });
   });
 
   it("does not duplicate evidence on a second fetch of the same feed", async () => {
@@ -106,5 +117,18 @@ describe("ingestSource", () => {
     expect(result.fetch.status).toBe("failed");
     expect(result.fetch.errorMessage).toMatch(/network unreachable/);
     expect(result.evidenceCreated).toBe(0);
+  });
+
+  it("drops a result without a usable source excerpt instead of storing a thin evidence row", async () => {
+    const db = await freshDatabase();
+    const src = await seedRssSource(db);
+    const empty = RSS2.replace("A source-provided summary with enough context.", "").replace("A useful follow-up summary with enough source context.", "");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(empty, { status: 200 })));
+
+    const result = await ingestSource(db, src.id, actor, { storeRaw: stubStoreRaw });
+
+    expect(result.fetch).toMatchObject({ status: "partial", itemsSeen: 0, itemsNew: 0 });
+    expect(result.fetch.errorMessage).toBe("Source returned no usable direct publisher records.");
+    expect(await db.select().from(evidence).where(eq(evidence.sourceId, src.id))).toHaveLength(0);
   });
 });

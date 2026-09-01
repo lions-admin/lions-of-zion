@@ -25,6 +25,7 @@
  * honest baseline (copy) rather than a capability the page cannot know.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Button, ButtonLink } from '@/components/ui';
 import styles from './archive.module.css';
 
 /**
@@ -100,30 +101,32 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption }: ShareR
         further.
       </p>
       <div className={styles.shareRow}>
-        <a
-          className={styles.shareAction}
+        <ButtonLink
           href={xHref}
+          variant="secondary"
+          size="sm"
           target="_blank"
           rel="noopener noreferrer"
         >
           Share on X
-        </a>
-        <a
-          className={styles.shareAction}
+        </ButtonLink>
+        <ButtonLink
           href={facebookHref}
+          variant="secondary"
+          size="sm"
           target="_blank"
           rel="noopener noreferrer"
         >
           Share on Facebook
-        </a>
+        </ButtonLink>
         {canShare ? (
-          <button type="button" className={styles.shareAction} onClick={systemShare}>
+          <Button type="button" variant="secondary" size="sm" onClick={systemShare}>
             Share…
-          </button>
+          </Button>
         ) : (
-          <button type="button" className={styles.shareAction} onClick={copyCaption}>
+          <Button type="button" variant="secondary" size="sm" onClick={copyCaption}>
             Copy caption
-          </button>
+          </Button>
         )}
         {/* One place for the outcome, seen and announced alike. The button's
             own label never changes — feedback that rewrites the control is

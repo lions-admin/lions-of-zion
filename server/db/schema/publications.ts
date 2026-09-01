@@ -20,7 +20,7 @@
  */
 
 import { sql } from "drizzle-orm";
-import { check, index, integer, pgTable, primaryKey, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { evidence } from "./evidence";
 import { likelihoodBand, publicationKind, publicationSection, publicationStatus } from "./_enums";
 import { appUser } from "./identity";
@@ -49,9 +49,23 @@ export const publication = pgTable(
     /** A transparent audit marker for the owner-approved automatic policy.
      * It never pretends that a named human reviewed the article. */
     autoPublishedAt: tsCol("auto_published_at"),
+    /** Automatic editions are fail-closed: the service may set these only
+     * after all stored quality checks pass. */
+    qualityApprovedAt: tsCol("quality_approved_at"),
+    briefingRunId: uuid("briefing_run_id"),
+    /** Stable quality-candidate identity makes automatic publication retries
+     * idempotent even if the worker completed its DB transaction before its
+     * stage ledger could be marked complete. */
+    briefingCandidateKey: text("briefing_candidate_key"),
+    machineAuthor: text("machine_author"),
 
     eventId: uuid("event_id").references(() => event.id),
     primaryTopicId: uuid("primary_topic_id").references(() => topic.id),
+    editorialTopic: text("editorial_topic"),
+    primaryActor: text("primary_actor"),
+    arena: text("arena"),
+    featuredIsraelStory: boolean("featured_israel_story").notNull().default(false),
+    narrativeWatchDetails: jsonb("narrative_watch_details"),
 
     /** Scenarios only — a band, never a number. Enforced both ways below. */
     scenarioLikelihood: likelihoodBand("scenario_likelihood"),
@@ -74,7 +88,11 @@ export const publication = pgTable(
   (t) => [
     index("publication_by_kind_status").on(t.kind, t.status, t.createdAt),
     index("publication_by_section_status").on(t.section, t.status, t.publishedAt),
+    index("publication_by_editorial_filters").on(t.editorialTopic, t.primaryActor, t.arena, t.publishedAt),
     index("publication_live").on(t.publishedAt).where(sql`${t.publishedAt} IS NOT NULL`),
+    uniqueIndex("publication_automatic_candidate_once")
+      .on(t.briefingRunId, t.briefingCandidateKey)
+      .where(sql`${t.briefingRunId} IS NOT NULL AND ${t.briefingCandidateKey} IS NOT NULL`),
     nonBlank(t.title, "publication_is_titled"),
     nonBlank(t.body, "publication_has_a_body"),
     isLanguage(t.language, "publication_language_is_a_tag"),
@@ -87,12 +105,25 @@ export const publication = pgTable(
           OR (${t.publishedAt} IS NOT NULL
               AND (${t.approvedBy} IS NOT NULL OR ${t.autoPublishedAt} IS NOT NULL))`,
     ),
+    check(
+      "automatic_publication_has_quality_provenance",
+      sql`${t.autoPublishedAt} IS NULL OR (
+        ${t.qualityApprovedAt} IS NOT NULL
+        AND ${t.briefingRunId} IS NOT NULL
+        AND length(btrim(coalesce(${t.briefingCandidateKey}, ''))) > 0
+        AND length(btrim(coalesce(${t.machineAuthor}, ''))) > 0
+      )`,
+    ),
     /* A scenario states a likelihood band; nothing else may. Both directions
        matter: a scenario without one is an assertion wearing a hedge, and a
        brief with one is a forecast nobody reviewed as such. */
     check(
       "only_scenarios_state_a_likelihood",
       sql`(${t.kind} = 'scenario') = (${t.scenarioLikelihood} IS NOT NULL)`,
+    ),
+    check(
+      "narrative_watch_details_match_section",
+      sql`(${t.section} = 'narrative_watch') = (${t.narrativeWatchDetails} IS NOT NULL)`,
     ),
   ],
 );
@@ -144,6 +175,24 @@ export const publicationEvidence = pgTable(
   (t) => [
     primaryKey({ columns: [t.publicationId, t.evidenceId], name: "publication_evidence_pk" }),
     index("publication_evidence_by_evidence").on(t.evidenceId),
+  ],
+);
+
+/** Edition-level navigation. The first row in an automated batch is the
+ * Daily Brief; its related rows are the separate articles from that edition. */
+export const publicationRelated = pgTable(
+  "publication_related",
+  {
+    publicationId: uuid("publication_id").notNull().references(() => publication.id, { onDelete: "cascade" }),
+    relatedPublicationId: uuid("related_publication_id").notNull().references(() => publication.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.publicationId, t.relatedPublicationId], name: "publication_related_pk" }),
+    uniqueIndex("publication_related_position_unique").on(t.publicationId, t.position),
+    check("publication_related_not_self", sql`${t.publicationId} <> ${t.relatedPublicationId}`),
+    check("publication_related_position_positive", sql`${t.position} >= 1`),
   ],
 );
 

@@ -57,6 +57,7 @@ export function sourceService(db: unknown) {
           sourceFamilyId: input.sourceFamilyId,
           kind: input.kind,
           slug: input.slug,
+          logicalKey: input.logicalKey ?? deriveSourceLogicalKey(input),
           name: input.name,
           homepageUrl: input.homepageUrl ?? null,
           feedUrl: input.feedUrl ?? null,
@@ -87,8 +88,18 @@ export function sourceService(db: unknown) {
         if (!before) throw notFound("Source");
 
         const { changeSummary, ...fields } = input;
+        const logicalKey = input.logicalKey ?? (
+          input.feedUrl !== undefined || input.config !== undefined
+            ? deriveSourceLogicalKey({
+                kind: before.kind,
+                feedUrl: input.feedUrl ?? before.feedUrl ?? undefined,
+                config: input.config ?? (before.config as Record<string, unknown> | null) ?? undefined,
+              })
+            : undefined
+        );
         const after = await repo.update(id, {
           ...prune(fields),
+          ...(logicalKey !== undefined ? { logicalKey } : {}),
           updatedAt: new Date(),
         });
 
@@ -110,6 +121,18 @@ export function sourceService(db: unknown) {
 
 const prune = (o: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));
+
+export function normalizeSourceQuery(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+export function deriveSourceLogicalKey(input: Pick<CreateSource, "kind" | "feedUrl" | "config">): string | null {
+  if (input.feedUrl) return `${input.kind}:url:${input.feedUrl.trim().toLowerCase()}`;
+  const query = input.config?.query;
+  return typeof query === "string" && query.trim()
+    ? `${input.kind}:query:${normalizeSourceQuery(query)}`
+    : null;
+}
 
 export type SourceService = ReturnType<typeof sourceService>;
 export type SourceFamilyService = ReturnType<typeof sourceFamilyService>;

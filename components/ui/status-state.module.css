@@ -1,0 +1,62 @@
+/* Hallmark & Modern Web · Component: StatusState · Genre: Editorial Archive */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2.5rem, 5vw, 4.5rem) 1.5rem;
+  width: 100%;
+}
+
+.inner {
+  max-width: 34rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: rgba(16, 16, 16, 0.7);
+  border: 1px solid var(--line, rgba(246, 243, 235, 0.13));
+  border-radius: 8px;
+  padding: clamp(2rem, 3.5vw, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+.icon {
+  margin-bottom: 1.25rem;
+  color: var(--gold, #c6a15b);
+  font-size: 2rem;
+}
+
+.eyebrow {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold, #c6a15b);
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-sans, sans-serif);
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink-hi, #f6f3eb);
+  margin-bottom: 0.75rem;
+}
+
+.description {
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--ink, #cbc7bd);
+  margin-bottom: 1.5rem;
+}
+
+.action {
+  margin-top: 0.5rem;
+}

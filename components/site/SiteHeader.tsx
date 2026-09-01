@@ -133,8 +133,17 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
               <span className={styles.menuIndicator} aria-hidden="true" />
             </button>
 
-            {exploreOpen ? (
-              <div className={styles.explorePanel} id={explorePanelId}>
+            {/* Rendered whether or not it is open. It used to be
+                `{exploreOpen ? … : null}`, which meant the eight destinations
+                existed only after hydration: with scripting off the header
+                carried four links and nothing else. Visibility is CSS now, and
+                the stylesheet opens this on `:hover` and `:focus-within` too,
+                so the panel works before hydration and without JavaScript. */}
+            <div
+              className={styles.explorePanel}
+              id={explorePanelId}
+              data-open={exploreOpen || undefined}
+            >
                 <div className={styles.exploreHeading}>
                   <span className={styles.panelEyebrow}>Explore the system</span>
                   <span className={styles.panelIndex}>01—08</span>
@@ -162,8 +171,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
                     ))}
                   </div>
                 </div>
-              </div>
-            ) : null}
+            </div>
           </div>
           <Link className={`${styles.navLink} ${styles.accountLink}`} href="/account" onClick={closePanels}>
             Account
@@ -182,16 +190,42 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
           <span className={styles.menuIndicator} aria-hidden="true" />
         </button>
 
-        {mobileOpen ? (
-          <div className={styles.mobilePanel} id={mobilePanelId}>
-            <span className={styles.mobileLabel}>Sections</span>
-            {EXPLORE_NAVIGATION.map((item) => renderLink(item, true))}
-            <span className={styles.mobileLabel}>Resources</span>
-            <Link className={styles.mobileLink} href="/information-war" onClick={closePanels}>Investigations</Link>
-            {RESOURCE_NAVIGATION.map((item) => renderLink(item, true))}
-          </div>
-        ) : null}
+        {/* Same fix, and it mattered more here: below 48rem the stylesheet sets
+            `.desktopNavigation { display: none }`, so a phone with scripting
+            off reached this panel — and therefore every link in the header —
+            only through React state that never ran. It rendered no navigation
+            at all. The panel is always in the document now. */}
+        <div
+          className={styles.mobilePanel}
+          id={mobilePanelId}
+          data-open={mobileOpen || undefined}
+        >
+          <span className={styles.mobileLabel}>Sections</span>
+          {EXPLORE_NAVIGATION.map((item) => renderLink(item, true))}
+          <span className={styles.mobileLabel}>Resources</span>
+          <Link className={styles.mobileLink} href="/information-war" onClick={closePanels}>Investigations</Link>
+          {RESOURCE_NAVIGATION.map((item) => renderLink(item, true))}
+        </div>
       </nav>
+
+      {/* Without JavaScript the trigger button is inert, so the panel is laid
+          out as a plain static list instead of a dismissable overlay. Same
+          `<noscript><style>` tactic the intro gate uses to hide itself — the
+          class name is interpolated because CSS Modules hashes it. */}
+      <noscript>
+        <style>{`
+          @media (max-width: 40rem) {
+            .${styles.mobilePanel} {
+              display: grid !important;
+              position: static !important;
+              width: auto !important;
+              max-height: none !important;
+              animation: none !important;
+            }
+            .${styles.mobileTrigger} { display: none !important; }
+          }
+        `}</style>
+      </noscript>
     </header>
   );
 }

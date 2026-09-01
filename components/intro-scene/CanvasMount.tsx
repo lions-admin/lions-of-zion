@@ -30,7 +30,7 @@ import { shouldSwallowClick } from './introSignal';
 // The canvas is dynamic-imported and must never block LCP (brief §8):
 // three.js bytes only download after the page underneath is interactive.
 const Scene = dynamic(() => import('./Scene'), { ssr: false });
-/* Matches `.navContent`'s 700ms opacity transition. The two used to disagree by
+/* Matches `.posterContent`'s 700ms opacity transition. The two used to disagree by
    200ms, which is 200ms in which the page looks completely ready and silently
    eats every touch — the surest way to make someone tap again. */
 const HANDOFF_INPUT_GUARD_MS = 700;
@@ -283,7 +283,7 @@ export function IntroCanvas({
       data-intro-dismissed={introDismissed ? '' : undefined}
       onPointerMove={onPointerMove}
     >
-      <div className={styles.navContent} aria-hidden inert>
+      <div className={styles.posterContent} aria-hidden inert>
         {children}
       </div>
       {showCanvas ? (

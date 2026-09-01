@@ -134,6 +134,33 @@
   height: 0.75rem;
 }
 
+/* Both panels live in the document at all times so the header's links survive
+   with scripting off — see the comments in `SiteHeader.tsx`. Closed is the
+   default, and three things open the explore panel: React state (`data-open`),
+   hover, and focus inside it. The last two are what make it work before
+   hydration and without JavaScript, and `:focus-within` matches while the
+   trigger button itself is focused, so it opens on Tab and stays open while
+   tabbing through its links.
+
+   `visibility` rather than `display` because it animates, and because a
+   `visibility: hidden` subtree is correctly out of the tab order. */
+.explorePanel:not([data-open]) {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  /* `panelIn` is declared with `fill-mode: both`, and a filled animation
+     outranks a normal declaration — without this the closed panel keeps the
+     animation's final `opacity: 1` and only `visibility` holds it back. */
+  animation: none;
+}
+
+.exploreRoot:hover .explorePanel,
+.exploreRoot:focus-within .explorePanel {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .explorePanel {
   position: absolute;
   top: calc(100% + 0.68rem);
@@ -311,6 +338,11 @@
     cursor: pointer;
     text-shadow: 0 1px 0 #000, 0 0 0.8rem #000;
   }
+
+  /* The mobile panel is always in the document too, so at this width it must
+     be explicitly closed rather than relying on the `display: none` above,
+     which the `display: grid` below now overrides. */
+  .mobilePanel:not([data-open]) { display: none; }
 
   .mobilePanel {
     position: absolute;

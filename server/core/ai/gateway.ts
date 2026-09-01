@@ -123,7 +123,6 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
   const startedAt = Date.now();
   const timeoutMs = input.timeoutMs ?? AI_GENERATION_TIMEOUT_MS;
 
-  let decoded: unknown;
   try {
     const result = model.startsWith("xai/")
       ? await generateText({

@@ -149,11 +149,25 @@ for (const route of ROUTES) {
  * reader without scripting.
  *
  * This used to assert eight `a[data-node-index]` orbit links. The radial
- * navigation was removed on 2026-09-01, so the assertion now reads the real
- * header nav, which is what a reader without scripting actually gets. Note it
- * is four section links plus Account, not eight — the header's "Explore"
- * control is a button, so the remaining four destinations are reachable
- * without scripting only from `/not-found` and the sitemap. */
+ * navigation was removed on 2026-09-01, so the assertion reads the real header
+ * nav instead — and it names the eight destination routes rather than counting
+ * anchors, because a count cannot tell which one went missing.
+ *
+ * Both header panels were rendered behind React state until 2026-09-01, so
+ * with scripting off the header carried four links on a desktop and, below
+ * 40rem where `.desktopNavigation` is `display: none`, none at all. They are
+ * in the document unconditionally now; this is the assertion that keeps them
+ * there. */
+const SECTION_ROUTES = [
+  "/geopolitical-brief",
+  "/support-us",
+  "/war-update",
+  "/october-7",
+  "/our-heroes",
+  "/israels-story",
+  "/fake-resistance",
+  "/we-are",
+];
 const noJs = await browser.newContext({ javaScriptEnabled: false, reducedMotion: "reduce" });
 const noJsPage = await noJs.newPage();
 const noJsResponse = await noJsPage.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
@@ -162,21 +176,28 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
   console.error(`FAIL /: HTTP ${noJsResponse?.status() ?? 0} with JavaScript disabled`);
   failed = true;
 } else {
-  const links = await noJsPage
-    .locator('nav[aria-label="Primary navigation"] a[href^="/"]')
-    .count();
+  const nav = 'nav[aria-label="Primary navigation"]';
+  const missing = [];
+  for (const route of SECTION_ROUTES) {
+    if ((await noJsPage.locator(`${nav} a[href="${route}"]`).count()) === 0) missing.push(route);
+  }
+  const links = await noJsPage.locator(`${nav} a[href^="/"]`).count();
   const poster = await noJsPage.locator("picture img, img[src*='particle-nav']").count();
   const shell = await noJsPage.locator('div[hidden][id^="S:"]').count();
 
-  if (links < 4 || poster < 1 || shell > 0) {
+  if (missing.length > 0 || poster < 1 || shell > 0) {
     console.error(
-      `FAIL / without JavaScript: ${links}/4 header links, ${poster} poster, ` +
-        `${shell} hidden Suspense shell(s).` +
-        (shell > 0 ? " A root-level loading.tsx is the usual cause — see CLAUDE.md." : ""),
+      `FAIL / without JavaScript: ${missing.length} unreachable destination(s), ` +
+        `${poster} poster, ${shell} hidden Suspense shell(s).` +
+        (missing.length > 0 ? `\n  unreachable: ${missing.join(", ")}` : "") +
+        (shell > 0 ? "\n  A root-level loading.tsx is the usual cause — see CLAUDE.md." : ""),
     );
     failed = true;
   } else {
-    console.log(`ok   /            (no JavaScript: ${links} links, poster present)`);
+    console.log(
+      `ok   /            (no JavaScript: all ${SECTION_ROUTES.length} destinations, ` +
+        `${links} links, poster present)`,
+    );
   }
 }
 await noJs.close();

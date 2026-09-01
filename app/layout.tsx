@@ -8,7 +8,6 @@ import {
   JetBrains_Mono,
   Newsreader,
   Ramsina,
-  Space_Grotesk,
 } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
@@ -22,12 +21,6 @@ const geistMono = Geist_Mono({
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist",
-  display: "swap",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
   display: "swap",
 });
 
@@ -99,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable} ${ramsina.variable} ${jetBrainsMono.variable} ${dmSans.variable}`}
+      className={`${geist.variable} ${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable} ${ramsina.variable} ${jetBrainsMono.variable} ${dmSans.variable}`}
     >
       <body>{children}</body>
     </html>

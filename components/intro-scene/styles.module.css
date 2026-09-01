@@ -37,7 +37,7 @@
     visibility 0s linear 0s;
 }
 
-.root[data-intro-only] .navContent {
+.root[data-intro-only] .posterContent {
   opacity: 0;
   pointer-events: none;
 }
@@ -114,7 +114,7 @@
   letter-spacing: 0.09em;
 }
 
-.navContent {
+.posterContent {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -122,12 +122,12 @@
   transition: opacity 700ms ease;
 }
 
-.root[data-intro-active] .navContent {
+.root[data-intro-active] .posterContent {
   opacity: 0;
   pointer-events: none;
 }
 
-.root[data-handoff-blocked] .navContent {
+.root[data-handoff-blocked] .posterContent {
   pointer-events: none;
 }
 

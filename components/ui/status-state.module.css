@@ -1,11 +1,17 @@
-/* Hallmark & Modern Web · Component: StatusState · Genre: Editorial Archive */
+/* StatusState · design V3
+ *
+ * An empty or unavailable state, designed rather than forgotten: a raised
+ * surface, a data eyebrow, a display-face title, and one secondary action.
+ * The icon is the only gold on the panel; the eyebrow stays in ink so the
+ * emphasis is not split.
+ */
 
 .container {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(2.5rem, 5vw, 4.5rem) 1.5rem;
   width: 100%;
+  padding: clamp(var(--sp-7), 5vw, var(--sp-8)) var(--sp-5);
 }
 
 .inner {
@@ -15,48 +21,52 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  background: rgba(16, 16, 16, 0.7);
-  border: 1px solid var(--line, rgba(246, 243, 235, 0.13));
-  border-radius: 8px;
-  padding: clamp(2rem, 3.5vw, 3rem) clamp(1.5rem, 3vw, 2.5rem);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-3);
+  padding: clamp(var(--sp-6), 3.5vw, var(--sp-7)) clamp(var(--sp-5), 3vw, var(--sp-6));
+  box-shadow: var(--shadow-2);
 }
 
 .icon {
-  margin-bottom: 1.25rem;
-  color: var(--gold, #c6a15b);
+  margin-bottom: var(--sp-4);
+  color: var(--gold);
   font-size: 2rem;
+  line-height: 1;
 }
 
 .eyebrow {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--gold, #c6a15b);
-  margin-bottom: 0.75rem;
+  color: var(--ink);
+  margin-bottom: var(--sp-3);
 }
 
 .title {
-  font-family: var(--font-sans, sans-serif);
-  font-size: clamp(1.25rem, 2vw, 1.6rem);
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--ink-hi, #f6f3eb);
-  margin-bottom: 0.75rem;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+  margin-bottom: var(--sp-3);
+  text-wrap: balance;
 }
 
 .description {
-  font-family: var(--font-sans, sans-serif);
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--ink, #cbc7bd);
-  margin-bottom: 1.5rem;
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+  margin-bottom: var(--sp-5);
+  max-width: 44ch;
 }
 
 .action {
-  margin-top: 0.5rem;
+  margin-top: var(--sp-1);
 }

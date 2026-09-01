@@ -1,14 +1,28 @@
+/* Public auth control · design V3
+ *
+ * The identity line and the messages are sentences, so they are Plex, not
+ * mono. The two controls match the Button system's primary and secondary
+ * (they are hand-rolled only because the Google host sits beside them).
+ */
+
 .control {
   display: grid;
-  gap: 12px;
-  margin-top: 28px;
+  gap: var(--sp-3);
+  margin-top: var(--sp-6);
 }
 
-.identity,
+.identity {
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
 .muted {
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 .primary,
@@ -16,58 +30,86 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 10px 24px;
-  border-radius: 4px;
-  font-family: var(--face-data);
-  font-size: 0.88rem;
+  gap: var(--sp-2);
+  min-height: 2.75rem;
+  padding: var(--sp-2) var(--sp-5);
+  border-radius: var(--radius-2);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
+  line-height: 1;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
 .primary {
   border: 1px solid var(--gold);
-  color: var(--ink-hi);
-  background: rgba(198, 161, 91, 0.16);
-  box-shadow: 0 2px 12px rgba(198, 161, 91, 0.12);
+  color: var(--ground);
+  background: var(--gold);
+  box-shadow: var(--shadow-1);
 }
 
-.primary:hover {
-  background: rgba(198, 161, 91, 0.28);
+.primary:hover:not(:disabled) {
+  background: var(--gold-hi);
   border-color: var(--gold-hi);
-  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--gold);
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .secondary {
-  border: 1px solid var(--line);
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-edge);
+  color: var(--ink-hi);
+  background: linear-gradient(180deg, var(--glass-raised-top), var(--glass-raised-bottom));
 }
 
-.secondary:hover {
-  border-color: var(--gold-line);
-  color: var(--gold-hi);
-  background: rgba(255, 255, 255, 0.08);
+.secondary:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--ink-hi) 45%, transparent);
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-middle));
+  transform: translateY(-1px);
+}
+
+.secondary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .primary:focus-visible,
 .secondary:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 .primary:disabled,
 .secondary:disabled {
-  opacity: 0.55;
-  cursor: wait;
+  opacity: 0.5;
+  cursor: progress;
+  transform: none;
+  box-shadow: none;
 }
 
 .error {
-  color: var(--data-ember-peak);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
+  color: var(--state-danger);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .primary,
+  .secondary {
+    transition: none;
+  }
+
+  .primary:hover:not(:disabled),
+  .secondary:hover:not(:disabled) {
+    transform: none;
+  }
+}

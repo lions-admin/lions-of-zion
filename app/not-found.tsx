@@ -3,7 +3,8 @@
  *
  * Speaks in the signal-room voice of the section pages and re-offers the
  * whole nav contract: the eight destinations come straight from
- * `defaultNodes`, so this index can never drift from the orbit.
+ * `defaultNodes`, so this index can never drift from the orbit. The scan
+ * ground and its texture come from `body`; the page paints no backdrop.
  */
 import Link from 'next/link';
 import { SITE_NAVIGATION } from '@/lib/site-navigation';
@@ -14,7 +15,6 @@ export default function NotFound() {
   return (
     <main className={styles.page}>
       <SiteHeader />
-      <div className={styles.backdrop} aria-hidden="true" />
       <div className={styles.shell}>
         <header>
           <p className={styles.code}>404 · Signal lost</p>

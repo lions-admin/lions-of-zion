@@ -1,24 +1,21 @@
-/* Hallmark & Modern Web · Component: Card System · Genre: Editorial Archive */
+/* Card system · design V3
+ *
+ * A raised surface with a hairline, no local palette. Titles are entry
+ * titles and so speak in the display face; the eyebrow is data; the
+ * description is running text. The dossier variant carries the one gold
+ * mark — a rule down its left edge — and nothing else on the card is gold,
+ * so that rule stays an emphasis rather than a colour.
+ */
 
 .card {
-  --card-ground: #080808;
-  --card-border: var(--line, rgba(246, 243, 235, 0.13));
-  --card-gold-border: var(--gold-line, rgba(198, 161, 91, 0.25));
-  --card-ink-hi: var(--ink-hi, #f6f3eb);
-  --card-ink: var(--ink, #cbc7bd);
-  --card-ink-lo: var(--ink-lo, #88837b);
-  --card-gold: var(--gold, #c6a15b);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --dur-fast: 160ms;
-
   position: relative;
   display: flex;
   flex-direction: column;
-  background: var(--card-ground);
-  border: 1px solid var(--card-border);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 var(--line-soft);
+  border-radius: var(--radius-3);
+  padding: clamp(var(--sp-4), 2vw, var(--sp-5));
   text-decoration: none;
   overflow: hidden;
   transition:
@@ -33,142 +30,150 @@
 }
 
 .linkCard:hover {
-  border-color: var(--card-gold-border);
-  background: #0d0d0d;
+  border-color: var(--line-strong);
+  background: var(--surface-2);
   transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 8px 24px rgba(0, 0, 0, 0.6),
-    0 0 16px rgba(198, 161, 91, 0.08);
+  box-shadow: var(--shadow-2);
 }
 
 .linkCard:active {
-  transform: translateY(0) scale(0.99);
+  transform: translateY(0);
+  box-shadow: var(--shadow-1);
 }
 
+/* Focus: the global ring; offset only. */
 .linkCard:focus-visible {
-  outline: 2px solid var(--card-gold);
   outline-offset: 2px;
 }
 
-/* ── Variants ───────────────────────────────────────────────────── */
+/* ── Variants ────────────────────────────────────────────────────────── */
 
 .dossier {
-  border-left: 3px solid var(--card-gold);
-  background: linear-gradient(180deg, #0f0f0f 0%, #080808 100%);
+  border-left: 3px solid var(--gold);
+  background: var(--surface-2);
+}
+
+.dossier.linkCard:hover {
+  background: var(--surface-3);
 }
 
 .interactive {
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in oklab, var(--ink-hi) 2%, transparent);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
 .interactive:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(246, 243, 235, 0.25);
+  background: color-mix(in oklab, var(--ink-hi) 5%, transparent);
+  border-color: var(--line-strong);
 }
 
 .flat {
   background: transparent;
-  border-color: var(--card-border);
-  padding: 1rem 0;
+  box-shadow: none;
+  border-color: var(--line);
+  padding: var(--sp-4) 0;
   border-radius: 0;
   border-left: 0;
   border-right: 0;
   border-top: 0;
 }
 
-/* ── Header & Eyebrow ───────────────────────────────────────────── */
+/* ── Header & eyebrow ────────────────────────────────────────────────── */
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
 }
 
 .eyebrow {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--card-gold);
+  color: var(--ink);
 }
 
-/* ── Title ──────────────────────────────────────────────────────── */
+/* ── Title ───────────────────────────────────────────────────────────── */
 
 .title {
-  font-family: var(--font-sans, sans-serif);
-  font-size: clamp(1.1rem, 1.3vw, 1.35rem);
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--card-ink-hi);
-  margin-bottom: 0.5rem;
-  transition: color var(--dur-fast) var(--ease-out);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+  margin-bottom: var(--sp-2);
+  text-wrap: balance;
 }
 
-.linkCard:hover .title {
-  color: #fff;
-}
-
-/* ── Description ────────────────────────────────────────────────── */
+/* ── Description ─────────────────────────────────────────────────────── */
 
 .description {
-  font-family: var(--font-sans, sans-serif);
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--card-ink);
-  margin-bottom: 1rem;
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+  margin-bottom: var(--sp-4);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* ── Media ──────────────────────────────────────────────────────── */
+/* ── Media ───────────────────────────────────────────────────────────── */
 
 .media {
   position: relative;
   width: 100%;
-  margin-bottom: 1rem;
-  border-radius: 4px;
+  margin-bottom: var(--sp-4);
+  border-radius: var(--radius-2);
   overflow: hidden;
-  background: #111;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
 }
 
 .media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s var(--ease-out);
+  transition: transform var(--dur-slow) var(--ease-out);
 }
 
 .linkCard:hover .media img {
   transform: scale(1.03);
 }
 
-/* ── Footer ─────────────────────────────────────────────────────── */
+/* ── Footer ──────────────────────────────────────────────────────────── */
 
 .footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: var(--sp-3);
   margin-top: auto;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(246, 243, 235, 0.08);
-  font-size: 0.8125rem;
-  color: var(--card-ink-lo);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line-soft);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .card,
   .media img {
-    transition: none !important;
-    transform: none !important;
+    transition: none;
+  }
+
+  .linkCard:hover,
+  .linkCard:hover .media img {
+    transform: none;
   }
 }

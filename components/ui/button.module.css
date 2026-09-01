@@ -1,35 +1,32 @@
-/* Hallmark & Modern Web · Component: Button System · Genre: Editorial Archive */
+/* Button system · design V3
+ *
+ * Every value reads a token from `app/globals.css`; there are no local
+ * fallbacks, because a fallback that differs from the token is a second
+ * design system waiting to reappear. Plex Sans at 600 is the control voice;
+ * the one exception is the filter chip, which is set in the data face
+ * because a filter value is a data label, not a sentence.
+ *
+ * States: default · hover · focus-visible · active · disabled · loading ·
+ * isActive (filter only) · reduced motion. Hover changes colour and lifts by
+ * a transform only — nothing in the layout moves.
+ */
 
 .button {
-  --btn-gold: var(--gold, #c6a15b);
-  --btn-gold-hi: var(--gold-hi, #ead39b);
-  --btn-gold-line: var(--gold-line, rgba(198, 161, 91, 0.25));
-  --btn-ground: var(--ground, #000000);
-  --btn-ink-hi: var(--ink-hi, #f6f3eb);
-  --btn-ink: var(--ink, #cbc7bd);
-  --btn-ink-lo: var(--ink-lo, #88837b);
-  --btn-line: var(--line, rgba(246, 243, 235, 0.13));
-  --btn-danger: #ff2056;
-  --btn-font: var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif);
-  --btn-mono: var(--font-mono, ui-monospace, monospace);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --dur-fast: 160ms;
-
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  font-family: var(--btn-font);
+  gap: var(--sp-2);
+  font-family: var(--face-text);
   font-weight: 600;
+  letter-spacing: 0;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   vertical-align: middle;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--radius-2);
   border: 1px solid transparent;
-  outline: none;
   user-select: none;
   transition:
     background-color var(--dur-fast) var(--ease-out),
@@ -40,148 +37,159 @@
     opacity var(--dur-fast) var(--ease-out);
 }
 
-/* ── SIZES ──────────────────────────────────────────────────────── */
+/* ── Sizes ─────────────────────────────────────────────────────────────
+   Heights step 36 / 44 / 52. The small size grows to the 44px touch floor
+   wherever the pointer is a finger, so a compact desktop control never
+   becomes an under-sized mobile target. */
 
 .sm {
-  min-height: 2.25rem; /* 36px */
-  padding: 0 0.75rem;
-  font-size: 0.8125rem;
-  letter-spacing: 0.02em;
+  min-height: 2.25rem;
+  padding: 0 var(--sp-3);
+  font-size: var(--t-caption);
 }
 
 .md {
-  min-height: 2.75rem; /* 44px - Touch friendly standard */
-  padding: 0 1.25rem;
-  font-size: 0.9375rem;
-  letter-spacing: -0.01em;
+  min-height: 2.75rem;
+  padding: 0 calc(var(--sp-4) + var(--sp-1));
+  font-size: var(--t-small);
 }
 
 .lg {
-  min-height: 3.25rem; /* 52px */
-  padding: 0 1.75rem;
-  font-size: 1.0625rem;
-  letter-spacing: -0.015em;
+  min-height: 3.25rem;
+  padding: 0 calc(var(--sp-5) + var(--sp-1));
+  font-size: var(--t-body);
 }
 
-/* ── VARIANTS ───────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  .sm { min-height: 2.75rem; }
+}
 
-/* 1. Primary Gold */
+/* ── Variants ──────────────────────────────────────────────────────── */
+
+/* 1. Primary — the one gold control on a screen. */
 .primary {
-  background: var(--btn-gold);
-  color: #050505;
-  border-color: var(--btn-gold-hi);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: var(--gold);
+  color: var(--ground);
+  border-color: var(--gold);
+  box-shadow: var(--shadow-1);
 }
 
 .primary:hover:not(:disabled) {
-  background: var(--btn-gold-hi);
-  border-color: #fff;
+  background: var(--gold-hi);
+  border-color: var(--gold-hi);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(198, 161, 91, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .primary:active:not(:disabled) {
+  background: var(--gold);
+  border-color: var(--gold);
   transform: translateY(0);
-  background: var(--btn-gold);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
-/* 2. Secondary Outline */
+/* 2. Secondary — glass, shared with the floating navigation. */
 .secondary {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--btn-ink-hi);
-  border-color: var(--btn-line);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, var(--glass-raised-top), var(--glass-raised-bottom));
+  color: var(--ink-hi);
+  border-color: var(--glass-edge);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--glass-inner) 55%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(246, 243, 235, 0.35);
-  color: #fff;
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-middle));
+  border-color: color-mix(in oklab, var(--ink-hi) 45%, transparent);
   transform: translateY(-1px);
 }
 
 .secondary:active:not(:disabled) {
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(180deg, var(--glass-middle), var(--glass-bottom));
   transform: translateY(0);
 }
 
-/* 3. Filter Chip (Tactical Archive) */
+/* 3. Filter chip — a data label, so it speaks in the data face. */
 .filter {
   min-height: 2.25rem;
-  padding: 0 0.85rem;
-  background: rgba(18, 18, 18, 0.8);
-  color: var(--btn-ink-lo);
-  border-color: var(--btn-line);
-  font-family: var(--btn-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  padding: 0 var(--sp-3);
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--line);
+  border-radius: var(--radius-1);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  border-radius: 2px;
 }
 
 .filter:hover:not(:disabled) {
-  background: rgba(32, 32, 32, 0.9);
-  color: var(--btn-ink);
-  border-color: rgba(198, 161, 91, 0.4);
+  background: var(--surface-3);
+  color: var(--ink-hi);
+  border-color: var(--line-strong);
 }
 
 .filter.active {
-  background: rgba(198, 161, 91, 0.12);
-  color: var(--btn-gold-hi);
-  border-color: var(--btn-gold);
-  box-shadow: 0 0 12px rgba(198, 161, 91, 0.15);
+  background: var(--gold-wash);
+  color: var(--gold-hi);
+  border-color: var(--gold-line-strong);
 }
 
-/* 4. Ghost / Minimalist */
+/* 4. Ghost — text that acts. */
 .ghost {
   background: transparent;
-  color: var(--btn-ink-lo);
+  color: var(--ink);
   border-color: transparent;
 }
 
 .ghost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--btn-ink-hi);
+  background: color-mix(in oklab, var(--ink-hi) 7%, transparent);
+  color: var(--ink-hi);
 }
 
 .ghost:active:not(:disabled) {
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in oklab, var(--ink-hi) 4%, transparent);
 }
 
-/* 5. Danger */
+/* 5. Danger — the state ramp, desaturated to sit on the warm palette. */
 .danger {
-  background: rgba(255, 32, 86, 0.12);
-  color: #ff5e7e;
-  border-color: rgba(255, 32, 86, 0.3);
+  background: var(--state-danger-wash);
+  color: var(--state-danger);
+  border-color: var(--state-danger-line);
 }
 
 .danger:hover:not(:disabled) {
-  background: rgba(255, 32, 86, 0.22);
-  border-color: rgba(255, 32, 86, 0.6);
-  color: #fff;
+  background: color-mix(in oklab, var(--state-danger) 24%, transparent);
+  border-color: var(--state-danger);
+  color: var(--ink-hi);
 }
 
-/* ── STATES ─────────────────────────────────────────────────────── */
+.danger:active:not(:disabled) {
+  background: var(--state-danger-wash);
+}
 
-/* Focus Visible */
+/* ── States ────────────────────────────────────────────────────────── */
+
+/* Focus: the global `:focus-visible` ring applies. The offset is tightened
+   by one step so the ring hugs a control instead of floating off a chip. */
 .button:focus-visible {
-  outline: 2px solid var(--btn-gold-hi);
   outline-offset: 2px;
 }
 
-/* Disabled */
 .button:disabled,
+.button[aria-disabled="true"],
 .button.loading {
   opacity: 0.45;
   cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
+  transform: none;
+  box-shadow: none;
 }
 
-/* Spinner */
+.button.loading {
+  cursor: progress;
+  pointer-events: none;
+}
+
 .spinner {
   width: 1em;
   height: 1em;
@@ -208,12 +216,16 @@
   align-items: center;
 }
 
-/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   .button {
-    transition: none !important;
-    transform: none !important;
+    transition: none;
   }
+
+  .primary:hover:not(:disabled),
+  .secondary:hover:not(:disabled) {
+    transform: none;
+  }
+
   .spinner {
     animation-duration: 1.5s;
   }

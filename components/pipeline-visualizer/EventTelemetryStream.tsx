@@ -36,7 +36,7 @@ export function EventTelemetryStream({
       {/* ── זרם אירועים ויומן חי ── */}
       <div className={styles.logStreamContainer}>
         {eventLogs.length === 0 ? (
-          <div style={{ color: "var(--ink-lo, #88837b)" }}>ממתין לפעימות הדמיה…</div>
+          <div className={styles.logEmpty}>ממתין לפעימות הדמיה…</div>
         ) : (
           eventLogs.map((log) => {
             const levelClass =
@@ -61,7 +61,7 @@ export function EventTelemetryStream({
               <div key={log.id} className={styles.logRow}>
                 <span className={styles.logTimestamp} dir="ltr">[{log.timestamp}]</span>
                 <span className={levelClass}>[{levelHe}]</span>
-                <span style={{ color: "var(--gold-hi, #ead39b)" }}>[{log.nodeName}]</span>
+                <span className={styles.logNode}>[{log.nodeName}]</span>
                 <span className={styles.logMessage}>{log.message}</span>
               </div>
             );

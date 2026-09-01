@@ -62,7 +62,9 @@ export function PipelineControls({
             type="button"
             className={styles.playbackBtn}
             onClick={onPrevStep}
+            disabled={currentStepIndex === 0}
             title="שלב קודם"
+            aria-label="שלב קודם"
           >
             ⏮
           </button>
@@ -79,7 +81,9 @@ export function PipelineControls({
             type="button"
             className={styles.playbackBtn}
             onClick={onNextStep}
+            disabled={currentStepIndex >= currentJourney.steps.length - 1}
             title="שלב הבא"
+            aria-label="שלב הבא"
           >
             ⏭
           </button>
@@ -89,6 +93,7 @@ export function PipelineControls({
             className={styles.playbackBtn}
             onClick={onReset}
             title="איפוס הדמיה"
+            aria-label="איפוס הדמיה"
           >
             ↺
           </button>
@@ -115,7 +120,7 @@ export function PipelineControls({
       <div className={styles.stepTrackerBar} dir="rtl">
         <div className={styles.stepCounterLabel}>
           שלב {currentStepIndex + 1} מתוך {currentJourney.steps.length}:{" "}
-          <span style={{ color: "var(--gold-hi, #ead39b)" }}>
+          <span className={styles.stepCounterCurrent}>
             {currentJourney.steps[currentStepIndex]?.titleHe}
           </span>
         </div>
@@ -124,10 +129,12 @@ export function PipelineControls({
           {currentJourney.steps.map((st, idx) => {
             const isCurrent = idx === currentStepIndex;
             const isDone = idx < currentStepIndex;
+            const progress = Math.min(1, Math.max(0, stepProgress));
 
             return (
-              <div
+              <button
                 key={`${currentJourney.id}-step-${idx}`}
+                type="button"
                 className={`
                   ${styles.stepDot}
                   ${isCurrent ? styles.stepDotActive : ""}
@@ -135,14 +142,16 @@ export function PipelineControls({
                 `}
                 onClick={() => onGoToStep(idx)}
                 title={st.titleHe}
+                aria-label={`שלב ${idx + 1}: ${st.titleHe}`}
+                aria-current={isCurrent ? "step" : undefined}
               >
                 {isCurrent && isPlaying && (
-                  <div
+                  <span
                     className={styles.stepDotProgressFill}
-                    style={{ width: `${Math.min(100, Math.max(0, stepProgress * 100))}%` }}
+                    style={{ transform: `translateY(-50%) scaleX(${progress})` }}
                   />
                 )}
-              </div>
+              </button>
             );
           })}
         </div>

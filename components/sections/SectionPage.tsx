@@ -17,6 +17,7 @@
  * `components/particle-nav/config.ts`, so the hover card, the lede here, and
  * the page metadata stay one sentence in one place.
  */
+import Link from 'next/link';
 import { EditorialShell } from '@/components/site/EditorialShell';
 import { getSiteNavigationItem } from '@/lib/site-navigation';
 import { SectionToc } from './SectionToc';
@@ -60,6 +61,7 @@ export function SectionPage({
   accent = 'gold',
   surface = 'default',
   aside,
+  breadcrumb,
   children,
 }: SectionPageProps) {
   const node = getSiteNavigationItem(id);
@@ -90,6 +92,26 @@ export function SectionPage({
       progressValueClassName={styles.topProgressValue}
     >
       <div className={shellClass}>
+        {/* The trail a hub's child passes down — the same markup and class as
+            `DocPage`'s, so the two shells agree on where a page's ancestors
+            are written. The prop was accepted and dropped on the floor after
+            the identity band that used to carry it was retired in favour of
+            the site header; the five Fake Resistance branches and the two
+            archive indexes pass it, and this is what renders it. */}
+        {breadcrumb && breadcrumb.length > 0 ? (
+          <nav className={styles.documentTrail} aria-label="Breadcrumb">
+            <Link href="/">Home</Link>
+            <span aria-hidden="true">/</span>
+            {breadcrumb.map((crumb) => (
+              <span key={crumb.href} className={styles.trailSegment}>
+                <Link href={crumb.href}>{crumb.label}</Link>
+                <span aria-hidden="true">/</span>
+              </span>
+            ))}
+            <span className={styles.trailCurrent}>{title}</span>
+          </nav>
+        ) : null}
+
         <div className={styles.tocRail}>
           <SectionToc />
         </div>

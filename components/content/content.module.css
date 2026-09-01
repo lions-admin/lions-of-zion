@@ -12,60 +12,55 @@
  * rule can take.
  *
  * Ten routes render through these components, so this file is where the
- * site's reading type is actually decided. It is built on the Design V2
- * tokens in `app/globals.css` (`.ai/DESIGN-V2.md`) and holds the three
- * canonical treatments the rest of the site is forbidden to redefine:
+ * site's reading type is actually decided. It is built on the Design V3
+ * tokens in `app/globals.css` and holds the three canonical treatments the
+ * rest of the site is forbidden to redefine:
  *
- *   kicker      — an eyebrow/label above a thing.        --t-data, upper, gold
- *   date stamp  — when something happened.               --t-data, mono, ink-lo
- *   entry title — the name of an entry, card, or case.   --t-h3, Newsreader
+ *   kicker      — an eyebrow/label above a thing.   --face-data, --t-data, 500, upper, gold
+ *   date stamp  — when something happened.          --face-data, --t-data, ink-lo, tabular
+ *   entry title — the name of an entry, card, case.  --face-display, --t-h3, 500, near-zero tracking
  *
  * The audit that prompted the rewrite found five kicker variants and four
  * date variants across the site. If a page needs a kicker, it uses this one.
  *
- * Two rules hold everywhere below:
- *   1. Nothing is smaller than --t-data (0.72rem).
- *   2. Uppercase + tracking is for short data labels only. Every heading,
- *      title, and sentence is sentence case.
+ * Three rules hold everywhere below:
+ *   1. Nothing is smaller than --t-data (0.75rem).
+ *   2. Uppercase + tracking is for data labels of two words or fewer. Every
+ *      heading, title, and sentence is sentence case.
+ *   3. Every colour, size, radius, shadow and duration is a token or a
+ *      `color-mix()` of tokens. There are no literals in this file outside
+ *      comments — `grep` for `#`, `rgba(` and `oklch(` should return only
+ *      prose.
+ *
+ * V3 (2026-09-01) removed the "Hallmark material pass" that closed this file:
+ * it had put every entry title in the monospace, wrapped every list and
+ * timeline in a blurred glass panel, and rounded every chip into a pill. The
+ * reading surface is flat again — the scan is masked out of the reading
+ * column, so there is nothing for glass to shield the text from — and the
+ * three faces do the three jobs `globals.css` assigns them.
  */
 
 .tokens {
-  /* Local shorthand over the global scale. Fallbacks keep the components
-     renderable if they are ever mounted somewhere globals.css is not.
+  /* Local shorthand over the global scale. V3 reads the global names
+     directly: `--ground`, `--gold`, `--gold-hi`, `--line`, `--gold-line`,
+     `--ink*` and the three faces all inherit from `:root`, which
+     `app/layout.tsx` loads on every route. They are not restated here
+     because `--gold: var(--gold)` on the same element is a custom-property
+     cycle and computes to guaranteed-invalid, and a fallback literal would
+     make this file a second owner of the palette — which is exactly how the
+     library's panels stayed navy after the ground went black.
 
-     The three inks are deliberately absent: they used to be restated here as
-     raw hexes, which made this file a second owner of the neutral scale —
-     change `--ink` in globals.css and the shell's prose moved while every
-     Timeline body, card body and source label stayed behind. They are not
-     aliased either, because `--ink: var(--ink, …)` on the same element is a
-     custom-property cycle and computes to guaranteed-invalid. They simply
-     inherit from `:root`, which `app/layout.tsx` loads on every route. */
-  /* The literal is true black because the ground is: #06051d, the navy this
-     used to fall back to, was retired by owner decision on 2026-08-26. */
-  --ground: var(--loz-ground, #000000);
-  --gold: var(--loz-gold, #c6a15b);
-  --gold-hi: var(--loz-gold-bright, #ead39b);
-  --blue: var(--loz-blue, #d1cdc4);
-  --blue-peak: var(--loz-blue-peak, #f6f3eb);
-  --ember: var(--loz-ember, #a85a61);
-  --ember-peak: var(--loz-ember-peak, #d08d94);
-  /* Neutral, tracking `--line` in app/globals.css: the hairline blue
-     rgb(153,179,202) carried b−r of +49 — the strongest tint in the system —
-     and went to its luminance-matched grey when the ground went black. This
-     is a plain literal rather than an aliased fallback, so it has to be kept
-     in step by hand; if the two ever disagree, globals wins. */
-  --line: rgba(175, 175, 175, 0.14);
-  --gold-line: rgba(198, 161, 91, 0.24);
-  --ember-line: rgba(168, 90, 97, 0.32);
-  /* Was #0d1523. Missed by c7e92b2, which converted `rgba()` literals only —
-     so every raised panel in the shared library stayed navy on a black
-     ground. Luminance-matched, so the panel keeps its weight. */
-  --surface-raised: #141414;
-
-  --display: var(--face-display, Charter, Georgia, serif);
-  --text: var(--face-text, -apple-system, BlinkMacSystemFont, sans-serif);
-  --mono: var(--face-data, ui-monospace, 'SF Mono', Menlo, monospace);
-  --content-data-tracking: var(--brief-content-data-letter-spacing, var(--t-data-tracking, 0.08em));
+     What survives is the handful of names this file uses that `globals.css`
+     spells differently, and the two hooks the live brief reaches in through
+     to flatten the data voice on paper. */
+  --blue: var(--data-blue);
+  --blue-peak: var(--data-blue-peak);
+  --ember: var(--data-ember);
+  --ember-peak: var(--data-ember-peak);
+  --ember-line: color-mix(in oklab, var(--data-ember) 34%, transparent);
+  --ember-wash: color-mix(in oklab, var(--data-ember) 8%, transparent);
+  --surface-raised: var(--surface-2);
+  --content-data-tracking: var(--brief-content-data-letter-spacing, var(--t-data-tracking));
   --content-label-transform: var(--brief-content-label-transform, uppercase);
 }
 
@@ -75,9 +70,10 @@
   composes: tokens;
   display: block;
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
   text-transform: var(--content-label-transform);
 }
@@ -85,20 +81,24 @@
 .dateStamp {
   composes: tokens;
   color: var(--ink-lo);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 .entryTitle {
   composes: tokens;
   color: var(--ink-hi);
-  font-family: var(--display);
-  font-size: var(--t-h3, 1.25rem);
-  font-weight: var(--t-h3-weight, 500);
-  line-height: var(--t-h3-lh, 1.4);
-  letter-spacing: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
 }
 
 /* ── VerificationBadge ──────────────────────────────────────────────────── */
@@ -109,19 +109,21 @@
    fact-check exists to deliver — and the exception was granted assuming the
    stamp did visual work the colour ramp does not do (five of the nine
    assessments sit inside a 17.3° hue band). Set as what it is: a short phrase
-   at caption size, sentence case, no tracking. "Out of context" reads as
+   at caption size, sentence case, no tracking, in the interface face — a
+   verdict is a word a reader weighs, not a datum. "Out of context" reads as
    words rather than as a code. */
 .badge {
   composes: tokens;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: var(--sp-2);
   width: fit-content;
   max-width: 100%;
   color: var(--badge-color, var(--blue-peak));
-  font-family: var(--mono);
-  font-size: var(--t-caption, 0.8125rem);
-  line-height: var(--t-caption-lh, 1.5);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
 .badge i {
@@ -131,67 +133,54 @@
   border: 1px solid currentColor;
   border-radius: 50%;
   background: var(--badge-dot, var(--gold));
-  box-shadow: 0 0 10px var(--badge-glow, var(--gold-line));
 }
 
 /* Rides the badge's own size and casing now; the 0.04em it used to carry
    only existed to sit beside 0.08em of tracked capitals. */
 .badgeConfidence {
   color: var(--ink-lo);
+  font-weight: 400;
 }
 
-/* Assessment ramps are semantic data colour, not text hierarchy. Each value
-   is lifted to stay legible against the ground at --t-data. */
+/* Assessment ramps are semantic data colour, not text hierarchy, and they
+   come from the two data ramps `globals.css` reserves for exactly this. The
+   nine verdicts fall into four families: the one verified reading takes gold;
+   the five hostile readings take the ember ramp, the three strongest at its
+   peak and the two softer ones one step down; the two "not enough" readings
+   take the neutral data ramp; and satire — not a claim at all — takes the
+   plain ink with a dashed dot. The old file drew a private hue for each of
+   the nine, five of them inside a 17° band no reader could tell apart. */
 .badge[data-assessment='verified'] {
-  --badge-color: #e8c979;
-  --badge-dot: rgba(198, 161, 91, 0.45);
-  --badge-glow: rgba(198, 161, 91, 0.38);
+  --badge-color: var(--gold-hi);
+  --badge-dot: color-mix(in oklab, var(--gold) 45%, transparent);
 }
 
 .badge[data-assessment='verified'] i {
-  border-radius: 1px;
+  border-radius: var(--radius-1);
   transform: rotate(45deg);
 }
 
-.badge[data-assessment='false'] {
-  --badge-color: #ec8770;
-  --badge-dot: rgba(226, 114, 91, 0.5);
-  --badge-glow: rgba(226, 114, 91, 0.55);
-}
-
-.badge[data-assessment='misleading'] {
-  --badge-color: #e79b74;
-  --badge-dot: rgba(221, 138, 98, 0.42);
-  --badge-glow: rgba(221, 138, 98, 0.45);
-}
-
+.badge[data-assessment='false'],
+.badge[data-assessment='misleading'],
 .badge[data-assessment='manipulated'] {
-  --badge-color: #eb9068;
-  --badge-dot: rgba(224, 125, 85, 0.45);
-  --badge-glow: rgba(224, 125, 85, 0.5);
+  --badge-color: var(--ember-peak);
+  --badge-dot: color-mix(in oklab, var(--ember) 50%, transparent);
 }
 
 .badge[data-assessment='manipulated'] i {
-  border-radius: 1px;
+  border-radius: var(--radius-1);
 }
 
-.badge[data-assessment='out_of_context'] {
-  --badge-color: #dda484;
-  --badge-dot: rgba(207, 146, 112, 0.38);
-  --badge-glow: rgba(207, 146, 112, 0.4);
-}
-
+.badge[data-assessment='out_of_context'],
 .badge[data-assessment='contested'] {
-  --badge-color: #e6a972;
-  --badge-dot: rgba(217, 151, 95, 0.4);
-  --badge-glow: rgba(217, 151, 95, 0.45);
+  --badge-color: var(--ember);
+  --badge-dot: color-mix(in oklab, var(--ember) 38%, transparent);
 }
 
 .badge[data-assessment='unverified'],
 .badge[data-assessment='unsupported'] {
-  --badge-color: #a3b4c6;
-  --badge-dot: rgba(143, 164, 184, 0.3);
-  --badge-glow: rgba(143, 164, 184, 0.25);
+  --badge-color: var(--blue);
+  --badge-dot: color-mix(in oklab, var(--data-blue-dim) 60%, transparent);
 }
 
 .badge[data-assessment='unsupported'] i {
@@ -199,9 +188,8 @@
 }
 
 .badge[data-assessment='satire'] {
-  --badge-color: #bda6e4;
-  --badge-dot: rgba(171, 148, 214, 0.4);
-  --badge-glow: rgba(171, 148, 214, 0.45);
+  --badge-color: var(--ink);
+  --badge-dot: transparent;
 }
 
 .badge[data-assessment='satire'] i {
@@ -219,9 +207,9 @@
 
 .sourceList > li {
   display: grid;
-  grid-template-columns: 2.6rem minmax(0, 1fr);
-  gap: 1rem;
-  padding: 1.2rem 0;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
   border-top: 1px solid var(--line);
 }
 
@@ -234,26 +222,28 @@
      verified/hostile streams, assessment badges, the scan — and says it is
      never used to express text hierarchy, which is all this is. */
   color: var(--ink-lo);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-small-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 .sourceBody {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: var(--sp-2);
 }
 
 /* Publisher names run long ("Reuters Institute for the Study of Journalism,
    University of Oxford") — sentence case, not a tracked label. */
 .sourceKind {
   color: var(--ink-lo);
-  font-family: var(--text);
-  font-size: var(--t-caption, 0.8125rem);
-  font-weight: var(--t-caption-weight, 500);
-  line-height: var(--t-caption-lh, 1.5);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
 .sourceLabel,
@@ -261,27 +251,32 @@
   width: fit-content;
   max-width: 100%;
   color: var(--ink-hi);
-  font-family: var(--text);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
-  overflow-wrap: break-word;
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
 }
 
 .sourceBody a {
   text-decoration: underline;
   /* Gold, matching the `:hover` colour below — a link underlined in the data
      ramp reads as a classification it does not carry. */
-  text-decoration-color: rgba(198, 161, 91, 0.55);
-  text-underline-offset: 4px;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
 .sourceBody a:hover,
 .sourceBody a:focus-visible {
   color: var(--gold-hi);
+  text-decoration-color: currentColor;
 }
 
+/* The focus ring is the global `:focus-visible` treatment; a link inside a
+   dense stack only needs a little more room between the ring and the text. */
 .sourceBody a:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 4px;
 }
 
@@ -289,22 +284,25 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.4rem 1rem;
+  gap: var(--sp-2) var(--sp-4);
 }
 
 .sourceFootnotes time {
   color: var(--ink-lo);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 .archiveLink {
-  color: var(--blue-peak);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
 }
 
@@ -314,9 +312,9 @@
   composes: tokens;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.25rem 1.5rem;
+  gap: var(--sp-5) var(--sp-5);
   margin: 0;
-  padding-top: 1.25rem;
+  padding-top: var(--sp-5);
   border-top: 1px solid var(--line);
 }
 
@@ -328,21 +326,26 @@
    the legitimate uppercase-label case. They were 8px before this pass. */
 .publicationMeta dt {
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
   text-transform: var(--content-label-transform);
 }
 
+/* Values are dates, names and counts — the credibility apparatus. Set in the
+   text face at caption size, with figures tabular so "14 sources" and
+   "19 Aug 2026" line up across the three columns. */
 .publicationMeta dd {
-  margin: 0.4rem 0 0;
+  margin: var(--sp-2) 0 0;
   color: var(--ink);
-  font-family: var(--text);
-  font-size: var(--t-caption, 0.8125rem);
-  font-weight: var(--t-caption-weight, 500);
-  line-height: var(--t-caption-lh, 1.5);
-  overflow-wrap: break-word;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
 /* ── KnownUnknownPanel ──────────────────────────────────────────────────── */
@@ -351,7 +354,7 @@
   composes: tokens;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem;
+  gap: var(--sp-6);
 }
 
 .unknownGrid[data-single='true'] {
@@ -359,34 +362,40 @@
 }
 
 .unknownGrid > div + div {
-  padding-left: 2rem;
+  padding-left: var(--sp-6);
   border-left: 1px solid var(--line);
 }
 
 .unknownGrid h3 {
   margin: 0;
   color: var(--ink-hi);
-  font-family: var(--display);
-  font-size: var(--t-h3, 1.25rem);
-  font-weight: var(--t-h3-weight, 500);
-  line-height: var(--t-h3-lh, 1.4);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
 }
 
 .unknownGrid ul {
-  margin: 1rem 0 0;
-  padding-left: 1.1rem;
+  margin: var(--sp-4) 0 0;
+  padding-left: var(--sp-4);
 }
 
 .unknownGrid li {
-  margin-bottom: 0.7rem;
+  margin-bottom: var(--sp-3);
   color: var(--ink);
-  font-family: var(--text);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.unknownGrid li:last-child {
+  margin-bottom: 0;
 }
 
 .unknownGrid li::marker {
-  color: var(--gold);
+  color: var(--ink-lo);
 }
 
 /* ── CorrectionHistory ──────────────────────────────────────────────────── */
@@ -398,11 +407,12 @@
 
 .correctionsKicker {
   display: block;
-  margin-top: 1rem;
+  margin-top: var(--sp-4);
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
   text-transform: var(--content-label-transform);
 }
@@ -416,46 +426,48 @@
 .corrections ol > li {
   display: grid;
   grid-template-columns: 11rem minmax(0, 1fr);
-  gap: 1.5rem;
-  padding: 1rem 0;
+  gap: var(--sp-5);
+  padding: var(--sp-4) 0;
   border-bottom: 1px solid var(--line);
 }
 
 .correctionStamp {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--sp-1);
   color: var(--ink-lo);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 .correctionStamp small {
   color: var(--ink-lo);
-  font-size: var(--t-data, 0.72rem);
+  font-size: var(--t-data);
   letter-spacing: var(--content-data-tracking);
 }
 
 .corrections p {
   margin: 0;
   color: var(--ink);
-  font-family: var(--text);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 /* "None recorded" answers the kicker above it — it is a statement of state,
    not a label, so it is set as one. Uppercase here made the one place the
    page admits to having nothing shout louder than the content. */
 .correctionsEmpty {
-  padding: 1rem 0;
+  padding: var(--sp-4) 0;
   border-bottom: 1px solid var(--line);
   color: var(--ink-lo);
-  font-family: var(--face-text, sans-serif);
-  font-size: var(--t-caption, 0.8125rem);
-  line-height: var(--t-caption-lh, 1.5);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 /* ── FigureRow ──────────────────────────────────────────────────────────── */
@@ -464,9 +476,9 @@
   composes: tokens;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.1rem;
+  gap: var(--sp-4);
   margin: 0;
-  padding-top: 1.3rem;
+  padding-top: var(--sp-5);
   border-top: 1px solid var(--gold-line);
 }
 
@@ -475,7 +487,7 @@
 }
 
 .figures > div + div {
-  padding-left: 1.1rem;
+  padding-left: var(--sp-4);
   border-left: 1px solid var(--line);
 }
 
@@ -485,24 +497,32 @@
    where a broadsheet pulls a figure at 3–5×. --t-display is the next step on
    the scale and takes it to 3.38:1 at the clamp's ceiling.
 
+   The figure is a number, so it takes tabular figures and the display step's
+   own weight and tracking rather than a private 600. Gold-hi rather than
+   gold: the row is the one thing on its screen that earns the accent.
+
    Pages that want a monumental figure (October 7) still raise it in their own
    module; that override is more specific and is unaffected. */
 .figures dt {
   color: var(--gold-hi);
-  font-family: var(--display);
-  font-size: var(--t-display, 2.1rem);
-  font-weight: var(--t-display-weight, 600);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
   line-height: 1;
-  overflow-wrap: break-word;
+  letter-spacing: var(--t-display-tracking);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
 .figures dd {
   max-width: 12rem;
-  margin: 0.5rem 0 0;
+  margin: var(--sp-2) 0 0;
   color: var(--ink-lo);
-  font-family: var(--text);
-  font-size: var(--t-caption, 0.8125rem);
-  line-height: var(--t-caption-lh, 1.5);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
 /* ── Timeline ───────────────────────────────────────────────────────────── */
@@ -511,27 +531,24 @@
   composes: tokens;
   --rail: var(--gold-line);
   --dot: var(--gold);
-  --dot-glow: var(--gold-line);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .timeline[data-variant='history'] {
-  --rail: rgba(198, 161, 91, 0.3);
+  --rail: var(--gold-line-strong);
   --dot: var(--gold);
-  --dot-glow: rgba(198, 161, 91, 0.38);
 }
 
 .timeline[data-variant='spread'] {
-  --rail: rgba(168, 90, 97, 0.36);
+  --rail: var(--ember-line);
   --dot: var(--ember);
-  --dot-glow: rgba(168, 90, 97, 0.45);
 }
 
 .timelineEntry {
   position: relative;
-  padding: 0 0 2.1rem 1.9rem;
+  padding: 0 0 var(--sp-6) var(--sp-6);
   border-left: 1px solid var(--rail);
   /* One offset for every anchored thing on a dossier — see `--anchor-offset`
      in sections.module.css. The 6rem this replaced had no sticky element
@@ -540,14 +557,17 @@
 }
 
 .timeline[data-variant='history'] .timelineEntry {
-  padding-bottom: 1.6rem;
+  padding-bottom: var(--sp-5);
 }
 
 .timelineEntry:last-child {
   border-left-color: transparent;
-  padding-bottom: 0.25rem;
+  padding-bottom: var(--sp-1);
 }
 
+/* The marker sits on the rail, centred on the first line of the entry's
+   meta row. No glow: a soft halo on every entry of a ninety-entry timeline
+   is decoration, and the rail colour already says which stream this is. */
 .timelineEntry::before {
   content: '';
   position: absolute;
@@ -558,11 +578,10 @@
   border: 1px solid var(--dot);
   border-radius: 50%;
   background: var(--ground);
-  box-shadow: 0 0 10px var(--dot-glow);
 }
 
 .timeline[data-variant='spread'] .timelineEntry::before {
-  border-radius: 1px;
+  border-radius: var(--radius-1);
   transform: rotate(45deg);
 }
 
@@ -570,8 +589,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1rem;
-  font-family: var(--mono);
+  gap: var(--sp-2) var(--sp-4);
+  font-family: var(--face-data);
+  font-weight: var(--t-data-weight);
 }
 
 /* One date style. The `history` variant used to reset this to Cinzel at a
@@ -579,15 +599,16 @@
    variant you are reading. */
 .timelineMeta time {
   color: var(--ink-lo);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 .timelineTag {
   color: var(--ink-lo);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--content-data-tracking);
   text-transform: var(--content-label-transform);
 }
@@ -605,21 +626,24 @@
    sentences — the single biggest legibility change in this pass. */
 .timelineEntry h3 {
   max-width: 34rem;
-  margin: 0.6rem 0 0;
+  margin: var(--sp-2) 0 0;
   color: var(--ink-hi);
-  font-family: var(--display);
-  font-size: var(--t-h3, 1.25rem);
-  font-weight: var(--t-h3-weight, 500);
-  line-height: var(--t-h3-lh, 1.4);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
 }
 
 .timelineBody {
   max-width: 41rem;
-  margin-top: 0.6rem;
+  margin-top: var(--sp-3);
   color: var(--ink);
-  font-family: var(--text);
-  font-size: var(--t-body, 1.0625rem);
-  line-height: var(--t-body-lh, 1.7);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .timelineBody p {
@@ -630,7 +654,7 @@
    the same column, so it takes the same paragraph gap — see `--flow`. It was
    0.7rem against the shell's 1.15rem for the identical job. */
 .timelineBody p + p {
-  margin-top: var(--flow, 1.15rem);
+  margin-top: var(--flow);
 }
 
 .timelineSources {
@@ -655,14 +679,14 @@
 
 .timelineSources .sourceList > li {
   grid-template-columns: 2rem minmax(0, 1fr);
-  gap: 0.75rem;
-  padding: 0.8rem 0;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
 }
 
 .timelineSources .sourceLabel,
 .timelineSources .sourceBody a {
-  font-size: var(--t-caption, 0.8125rem);
-  line-height: var(--t-caption-lh, 1.5);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 /* ── Evidence in the margin ───────────────────────────────────────────────
@@ -702,7 +726,7 @@
  * the note in `app/our-heroes/page.module.css`.
  */
 .marginNote {
-  margin-top: 1rem;
+  margin-top: var(--sp-4);
 }
 
 @media (min-width: 1220px) {
@@ -720,7 +744,7 @@
      replaces it carries the stream colour. */
   .marginNote .sourceList > li {
     display: block;
-    padding: 0 0 0 0.8rem;
+    padding: 0 0 0 var(--sp-3);
     border-top: 0;
     border-left: 2px solid var(--gold-line);
   }
@@ -730,7 +754,7 @@
   }
 
   .marginNote .sourceList > li + li {
-    margin-top: 0.9rem;
+    margin-top: var(--sp-3);
   }
 
   .marginNote .sourceNumber {
@@ -738,9 +762,10 @@
   }
 
   .marginNote .sourceKind {
-    font-family: var(--mono);
-    font-size: var(--t-data, 0.72rem);
-    line-height: var(--t-data-lh, 1.45);
+    font-family: var(--face-data);
+    font-size: var(--t-data);
+    font-weight: var(--t-data-weight);
+    line-height: var(--t-data-lh);
     letter-spacing: 0.04em;
     /* Recessive ink, not the blue data ramp: that ramp carries meaning and
        never expresses text hierarchy — see `app/globals.css`. */
@@ -752,8 +777,8 @@
      which is a two-word label and the only thing here that is truly data. */
   .marginNote .sourceLabel,
   .marginNote .sourceBody a {
-    font-size: var(--t-caption, 0.8125rem);
-    line-height: var(--t-caption-lh, 1.5);
+    font-size: var(--t-caption);
+    line-height: var(--t-caption-lh);
   }
 }
 
@@ -762,7 +787,7 @@
 .card {
   composes: tokens;
   --card-accent: var(--gold);
-  --card-line: var(--gold-line);
+  --card-line: var(--gold-line-strong);
   position: relative;
   /* A card's reading measure is set by its grid track, not by the viewport —
      the same card class is 2-up on `/we-are` and the front page and 1-up on
@@ -773,12 +798,14 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  padding: 1.5rem 1.5rem 1.35rem;
+  padding: var(--sp-5) var(--sp-5) var(--sp-5);
   border: 1px solid var(--line);
   border-left: 2px solid var(--card-accent);
-  background:
-    linear-gradient(150deg, rgba(22, 22, 22, 0.72), transparent 62%),
-    rgba(13, 13, 13, 0.965);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-1);
+  transition: border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
 .card[data-accent='ember'] {
@@ -788,12 +815,13 @@
 
 /* The canonical kicker. */
 .cardEyebrow {
-  margin: 0 0 0.8rem;
+  margin: 0 0 var(--sp-3);
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
@@ -804,25 +832,33 @@
 .card h3 {
   margin: 0;
   color: var(--ink-hi);
-  font-family: var(--display);
-  font-size: var(--t-h3, 1.25rem);
-  font-weight: var(--t-h3-weight, 500);
-  line-height: var(--t-h3-lh, 1.4);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
 }
 
 .card h3 a {
   color: inherit;
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
+/* The whole card is the link's hit area; the title stays the accessible
+   name. Hover changes colour only — nothing moves. */
 .card h3 a::after {
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
 }
 
 .card:has(h3 a:hover) {
   border-color: var(--card-line);
+  background: var(--surface-2);
 }
 
 .card h3 a:hover,
@@ -830,26 +866,28 @@
   color: var(--gold-hi);
 }
 
+/* The ring belongs to the card, not the title: `::after` covers the card, so
+   the outline is drawn round the element the reader actually clicks. */
 .card h3 a:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 4px;
 }
 
 .cardMeta {
-  margin-top: 0.6rem;
+  margin-top: var(--sp-2);
   color: var(--ink-lo);
-  font-family: var(--text);
-  font-size: var(--t-caption, 0.8125rem);
-  font-weight: var(--t-caption-weight, 500);
-  line-height: var(--t-caption-lh, 1.5);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 .cardBody {
-  margin-top: 0.85rem;
+  margin-top: var(--sp-3);
   color: var(--ink);
-  font-family: var(--text);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .cardBody p {
@@ -857,7 +895,7 @@
 }
 
 .cardBody p + p {
-  margin-top: 0.7rem;
+  margin-top: var(--sp-3);
 }
 
 /* A card wide enough to hold a real measure gets the real reading size.
@@ -870,23 +908,23 @@
    they stack to one column on a wide-enough phone. */
 @container (min-width: 32rem) {
   .cardBody {
-    font-size: var(--t-body, 1.0625rem);
-    line-height: var(--t-body-lh, 1.7);
+    font-size: var(--t-body);
+    line-height: var(--t-body-lh);
   }
 
   .cardBody p + p {
-    margin-top: var(--flow, 1.15rem);
+    margin-top: var(--flow);
   }
 }
 
 .cardFooter {
-  margin-top: 1.15rem;
-  padding-top: 0.85rem;
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
   border-top: 1px solid var(--line);
   color: var(--ink-lo);
-  font-family: var(--text);
-  font-size: var(--t-caption, 0.8125rem);
-  line-height: var(--t-caption-lh, 1.5);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 /* ── ClaimRecordPair ────────────────────────────────────────────────────── */
@@ -895,35 +933,37 @@
   composes: tokens;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
   border: 1px solid var(--line);
-  background: rgba(13, 13, 13, 0.965);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
 }
 
 .claimPanel,
 .recordPanel {
   min-width: 0;
-  padding: 1.5rem;
+  padding: var(--sp-5);
 }
 
 .claimPanel {
   border-left: 2px solid var(--ember);
-  background: linear-gradient(90deg, rgba(168, 90, 97, 0.07), transparent 68%);
+  background: linear-gradient(90deg, var(--ember-wash), transparent 68%);
 }
 
 .recordPanel {
   border-left: 2px solid var(--gold);
-  background: linear-gradient(90deg, rgba(198, 161, 91, 0.065), transparent 68%);
+  background: linear-gradient(90deg, var(--gold-wash), transparent 68%);
 }
 
 /* These labels are phrases ("What the record shows"), so they are set as
-   phrases rather than tracked capitals. */
+   phrases rather than tracked capitals — interface face, label weight. */
 .claimRecord h3 {
-  margin: 0 0 0.9rem;
-  font-family: var(--text);
-  font-size: var(--t-caption, 0.8125rem);
+  margin: 0 0 var(--sp-3);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
   font-weight: 600;
-  line-height: var(--t-caption-lh, 1.5);
-  letter-spacing: 0.02em;
+  line-height: var(--t-caption-lh);
+  letter-spacing: 0.01em;
 }
 
 .claimPanel h3 {
@@ -936,15 +976,14 @@
 
 .claimRecordBody {
   color: var(--ink);
-  font-family: var(--text);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 /* No private paragraph colour. The ember left border and the 90deg wash
-   already say which panel this is; #c8b6b0 was a third signal saying the same
-   thing, off the three-ink scale, and dimmer for it — 9.92:1 over this panel
-   against --ink's 11.05:1. */
+   already say which panel this is; a third signal in a fourth grey was off
+   the three-ink scale and dimmer for it. */
 .claimPanel .claimRecordBody {
   color: var(--ink);
 }
@@ -958,7 +997,7 @@
 }
 
 .claimRecordBody p + p {
-  margin-top: var(--flow, 1.15rem);
+  margin-top: var(--flow);
 }
 
 /* ── SensitiveContent ───────────────────────────────────────────────────── */
@@ -966,6 +1005,7 @@
 .sensitive {
   composes: tokens;
   border: 1px solid var(--line);
+  border-radius: var(--radius-3);
   background: var(--surface-raised);
 }
 
@@ -973,104 +1013,113 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
 }
 
 .sensitiveWarning {
   margin: 0;
   color: var(--ink);
-  font-family: var(--text);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .sensitiveWarning::before {
   content: 'Sensitive material';
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--sp-2);
   color: var(--ember-peak);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 /* "View — contains difficult material" is a sentence a reader has to weigh,
    and it was set as 11.5px tracked capitals. Corrected here in the library
-   before the October 7 gate ever mounts it; the copy itself is not final. */
+   before the October 7 gate ever mounts it; the copy itself is not final.
+
+   A button, so the interface face at 600 — never the serif, never the mono.
+   Quiet by design: this gate stands in front of memorial material, so it is
+   a plain control on a raised surface, not a call to action. Every state is
+   shipped, and none of them moves the layout. */
 .sensitiveButton {
   min-height: 44px;
-  padding: 0 1.1rem;
-  border: 1px solid var(--gold-line);
-  background: transparent;
-  color: var(--gold-hi);
-  font-family: var(--mono);
-  font-size: var(--t-caption, 0.8125rem);
-  line-height: var(--t-caption-lh, 1.5);
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-3);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: var(--t-small-lh);
   cursor: pointer;
-  transition: border-color 160ms ease, background-color 160ms ease;
+  transition: border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
-.sensitiveButton:hover,
-.sensitiveButton:focus-visible {
-  border-color: var(--gold);
-  background: rgba(198, 161, 91, 0.09);
+.sensitiveButton:hover {
+  border-color: var(--gold-line-strong);
+  background: color-mix(in oklab, var(--surface-3) 80%, var(--gold) 20%);
 }
 
-.sensitiveButton:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 3px;
+.sensitiveButton:active {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.sensitiveButton:disabled {
+  border-color: var(--line-soft);
+  background: var(--surface-1);
+  color: var(--ink-lo);
+  cursor: not-allowed;
 }
 
 .sensitiveRevealed {
-  padding: 1.5rem;
+  padding: var(--sp-5);
 }
 
 .sensitiveRevealed > .sensitiveButton {
-  margin-top: 1.25rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sensitiveButton {
-    transition: none;
-  }
+  margin-top: var(--sp-5);
 }
 
 /* ── Research grades ──────────────────────────────────────────────────────
-   Confidence and evidence class are the research's own honesty layer, not
-   verdicts, so they are typed as quiet data rather than taking an assessment
-   ramp. The one exception is `inferred_coordination`: the weakest evidence
-   class the contract allows, and the one a reader most needs to see is weak,
-   so it carries the ember line the rest of this section uses for hostile
-   data. */
+   Confidence, identity status and evidence class are the research's own
+   honesty layer, not verdicts. They are typed as plain data labels — no box,
+   no fill, no pill — because a bordered chip is badge-shaped certainty, and
+   dressing a "possible" in the same chrome as a verified verdict would be
+   exactly the epistemic laundering the section documents. The one exception
+   is `inferred_coordination`: the weakest evidence class the contract allows,
+   and the one a reader most needs to see is weak, so it carries the ember the
+   rest of this section uses for hostile data. Both class names survive from
+   the chip era so the pages that reference them keep working. */
 
 .gradeChip {
   composes: tokens;
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: 0.15rem 0.5rem;
-  border: 1px solid var(--grade-line, var(--line));
-  border-radius: 2px;
-  color: var(--grade-color, var(--ink-lo));
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  color: var(--grade-color, var(--ink));
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
 
 .gradeChip[data-confidence='high'] {
   --grade-color: var(--ink-hi);
-  --grade-line: var(--gold-line);
 }
 
 .gradeChip[data-confidence='low'],
 .gradeChip[data-evidence='inferred_coordination'] {
   --grade-color: var(--ember-peak);
-  --grade-line: var(--ember-line);
 }
 
 /* ── RosterTable ────────────────────────────────────────────────────────── */
@@ -1080,32 +1129,38 @@
 .rosterScroll {
   composes: tokens;
   overflow-x: auto;
-  margin: 1.5rem 0;
+  margin: var(--sp-5) 0;
   border-top: 1px solid var(--gold-line);
 }
 
 .roster {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--text);
-  font-size: var(--t-caption, 0.8125rem);
-  line-height: var(--t-caption-lh, 1.5);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   text-align: left;
 }
 
 .roster th,
 .roster td {
-  padding: 0.7rem 0.9rem 0.7rem 0;
+  padding: var(--sp-3) var(--sp-4) var(--sp-3) 0;
   border-bottom: 1px solid var(--line);
   vertical-align: top;
 }
 
+.roster th:last-child,
+.roster td:last-child {
+  padding-right: 0;
+}
+
 .roster thead th {
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  font-weight: 400;
-  letter-spacing: var(--t-data-tracking, 0.08em);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -1117,14 +1172,16 @@
 .rosterName {
   display: block;
   color: var(--ink-hi);
+  font-weight: var(--t-caption-weight);
 }
 
 .rosterHandle {
   display: block;
-  margin-top: 0.15rem;
+  margin-top: var(--sp-1);
   color: var(--ink-lo);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
   overflow-wrap: anywhere;
 }
 
@@ -1141,8 +1198,10 @@
    of the note prose in the first place. */
 .rosterNumeric {
   color: var(--ink);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
@@ -1158,14 +1217,12 @@
 
 .identityChip[data-identity='confirmed'] {
   --grade-color: var(--ink-hi);
-  --grade-line: var(--gold-line);
 }
 
 /* Unresolved is the grade this section must never quietly upgrade, so it is
    the one that reads loudest in the table. */
 .identityChip[data-identity='unresolved'] {
   --grade-color: var(--ember-peak);
-  --grade-line: var(--ember-line);
 }
 
 /* ── TechniqueChip ──────────────────────────────────────────────────────── */
@@ -1175,47 +1232,59 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.5rem 0.75rem;
-  margin-top: 1rem;
+  gap: var(--sp-2) var(--sp-3);
+  margin-top: var(--sp-4);
 }
 
 .techniqueChipsLabel {
   color: var(--gold);
-  font-family: var(--mono);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
-  letter-spacing: var(--t-data-tracking, 0.08em);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .techniqueChipsRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: var(--sp-2);
 }
 
+/* A link to a playbook chapter. The chip shape is earned here — it is a
+   control, not a grade — and it takes the hairline radius, not a pill. The
+   hit box is 36px tall by default and 44px on a phone, where it is tapped. */
 .techniqueChip {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.6rem;
+  min-height: 2.25rem;
+  padding: 0 var(--sp-3);
   border: 1px solid var(--ember-line);
-  border-radius: 2px;
+  border-radius: var(--radius-1);
   color: var(--ember-peak);
-  font-family: var(--text);
-  font-size: var(--t-data, 0.72rem);
-  line-height: var(--t-data-lh, 1.45);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
   text-decoration: none;
-  transition: border-color 140ms ease, color 140ms ease;
+  transition: border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
 .techniqueChip:hover,
 .techniqueChip:focus-visible {
-  border-color: var(--ember-peak);
-  color: var(--gold-hi);
+  border-color: var(--ember);
+  background: var(--ember-wash);
+  color: var(--ink-hi);
+}
+
+.techniqueChip:active {
+  background: transparent;
 }
 
 .techniqueChip:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
@@ -1223,7 +1292,7 @@
 
 .networkFigure {
   composes: tokens;
-  margin: 2rem 0;
+  margin: var(--sp-6) 0;
 }
 
 /* The drawing has a minimum legible width; below it the figure scrolls inside
@@ -1247,99 +1316,83 @@
 }
 
 .networkDisc {
-  fill: rgba(168, 90, 97, 0.14);
+  fill: var(--ember-wash);
   stroke: var(--ember-line);
   stroke-width: 1;
 }
 
 .networkCount {
   fill: var(--ink-hi);
-  font-family: var(--mono);
-  font-size: 0.8rem;
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
 }
 
 .networkLabel {
   fill: var(--ink);
-  font-family: var(--text);
-  font-size: 0.72rem;
+  font-family: var(--face-text);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
 }
 
 .networkCenter {
   fill: var(--gold);
-  font-family: var(--mono);
-  font-size: 0.78rem;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: 0.04em;
 }
 
 /* The viewBox is 520 against a 32rem box, so these render at very close to
-   1:1 — which means the 0.72rem floor applies here exactly as it does to DOM
-   text, and nothing in this figure goes under it. */
+   1:1 — which means the --t-data floor applies here exactly as it does to
+   DOM text, and nothing in this figure goes under it. */
 .networkCenterSub {
   fill: var(--ink-lo);
-  font-family: var(--mono);
-  font-size: 0.72rem;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: 0.04em;
 }
 
 .networkCaption {
-  margin: 1rem 0 0;
+  margin: var(--sp-4) 0 0;
   color: var(--ink-lo);
-  font-family: var(--text);
-  font-size: var(--t-small, 0.9375rem);
-  line-height: var(--t-small-lh, 1.65);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 /* ── ResearchText ───────────────────────────────────────────────────────── */
 
 /* A handle set as code is visibly a handle rather than a name — the research
-   writes them this way and the distinction survives into the page. */
+   writes them this way and the distinction survives into the page. The size
+   is relative on purpose: it rides whatever step the sentence is set at. */
 .handle {
   color: var(--ink-hi);
-  font-family: var(--mono);
+  font-family: var(--face-data);
   font-size: 0.92em;
   overflow-wrap: anywhere;
 }
 
-/* Hallmark material pass — data semantics stay intact while every reading
-   object now belongs to the black-glass public system. */
-.kicker, .dateStamp, .sourceNumber, .sourceKind, .publicationMeta dt,
-.correctionsKicker, .correctionStamp, .timelineMeta, .cardEyebrow,
-.techniqueChipsLabel, .roster thead th {
-  color: var(--gold);
-  font-family: var(--font-mono);
-}
+/* ── Motion ─────────────────────────────────────────────────────────────── */
 
-.entryTitle, .unknownGrid h3, .timelineEntry h3, .card h3,
-.claimRecord h3, .figures dd {
-  color: var(--ink-hi);
-  font-family: var(--font-mono);
-  font-weight: 520;
-  letter-spacing: -.025em;
+@media (prefers-reduced-motion: reduce) {
+  .sourceBody a,
+  .card,
+  .card h3 a,
+  .sensitiveButton,
+  .techniqueChip {
+    transition: none;
+  }
 }
-
-.sourceList, .unknownGrid, .corrections, .figures, .timeline,
-.card, .claimPanel, .recordPanel, .sensitive, .rosterScroll, .networkFigure {
-  border-color: rgba(246, 243, 235, .15);
-  border-radius: .9rem;
-  background:
-    linear-gradient(180deg, rgba(125, 121, 113, .14), rgba(8, 8, 8, .54));
-  box-shadow: inset 0 1px rgba(255,255,255,.085), 0 1rem 2.8rem rgba(0,0,0,.2);
-  -webkit-backdrop-filter: blur(10px) saturate(.72);
-  backdrop-filter: blur(10px) saturate(.72);
-}
-
-.sourceList > li, .publicationMeta > div, .figures > div + div,
-.timelineEntry, .roster th, .roster td { border-color: rgba(246,243,235,.1); }
-.sourceBody a, .archiveLink, .card h3 a, .timelineSources a { color: var(--gold-hi); }
-.badge, .gradeChip, .identityChip, .techniqueChip { border-radius: 999px; font-family: var(--font-mono); }
-.sensitiveButton { min-height: 44px; border-radius: .7rem; background: rgba(113,56,47,.54); color: #fff1ee; font-family: var(--font-mono); }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 719px) {
   .publicationMeta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+    gap: var(--sp-4);
   }
 
   .unknownGrid {
@@ -1347,7 +1400,7 @@
   }
 
   .unknownGrid > div + div {
-    padding-top: 2rem;
+    padding-top: var(--sp-6);
     padding-left: 0;
     border-top: 1px solid var(--line);
     border-left: 0;
@@ -1355,28 +1408,29 @@
 
   .corrections ol > li {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.6rem;
+    gap: var(--sp-2);
   }
 
   .figures {
-    gap: 0.8rem;
+    gap: var(--sp-3);
   }
 
   /* The three-up row survives down to 360px, where each column is only about
-     100px wide. --t-display bottoms out at 2.1rem, and the Brief's widest
-     figure ("NIS 5.5B") is ~128px at that size, so it would break mid-token
+     100px wide. --t-display bottoms out at 2.5rem, and the Brief's widest
+     figure ("NIS 5.5B") is ~150px at that size, so it would break mid-token
      on `overflow-wrap` — the same failure a real-Chrome review caught on
      October 7's monument, which is why that one carries `white-space:
      nowrap`. Above this breakpoint the column is ~193px and up and the
      promotion holds. */
   .figures dt {
-    font-size: var(--t-h2, 1.55rem);
-    font-weight: var(--t-h2-weight, 500);
-    line-height: var(--t-h2-lh, 1.3);
+    font-size: var(--t-h2);
+    font-weight: var(--t-h2-weight);
+    line-height: var(--t-h2-lh);
+    letter-spacing: var(--t-h2-tracking);
   }
 
   .figures > div + div {
-    padding-left: 0.8rem;
+    padding-left: var(--sp-3);
   }
 
   .figures dd {
@@ -1385,11 +1439,11 @@
 
   .sourceList > li {
     grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.75rem;
+    gap: var(--sp-3);
   }
 
   .timelineEntry {
-    padding-left: 1.35rem;
+    padding-left: var(--sp-5);
   }
 
   .claimRecord {
@@ -1405,7 +1459,13 @@
   .recordPanel,
   .sensitiveGate,
   .sensitiveRevealed {
-    padding: 1.2rem 1rem;
+    padding: var(--sp-5) var(--sp-4);
+  }
+
+  /* Tapped, not clicked: the chip grows to the 44px convention. */
+  .techniqueChip {
+    min-height: 44px;
+    padding-inline: var(--sp-4);
   }
 }
 
@@ -1421,11 +1481,11 @@
 @media (max-width: 640px) {
   .figures {
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
+    gap: var(--sp-5);
   }
 
   .figures > div + div {
-    padding-top: 0.8rem;
+    padding-top: var(--sp-3);
     padding-left: 0;
     border-top: 1px solid var(--line);
     border-left: 0;

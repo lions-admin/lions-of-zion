@@ -1,5 +1,6 @@
 /*
- * Section pages — the broadsheet over the scan (`.ai/DESIGN-V2.md`, Phase 2).
+ * Section pages — the broadsheet over the scan (`.ai/DESIGN-V2.md`, Phase 2;
+ * re-set on the V3 tokens, 2026-09-01).
  *
  * Breakpoints. The canon, restated from `home.module.css` — 1220 (rails),
  * 900 (shell to one column), 719 (phone), 359 (the 320px floor) — because it
@@ -13,14 +14,20 @@
  * The shell this replaced put a 15rem emblem rail beside a 44rem panel and
  * centred the pair, which pushed the reading column right of centre, left the
  * rail floating in a dark void, and spent ~320px of every page on ceremony
- * before the first real sentence. The anatomy now is a masthead: one
- * full-width identity row, then a genuinely centred reading measure. There is
- * no closing apparatus — the page ends where the content ends. Side columns
- * are real grid columns that exist only when a page supplies rail content.
+ * before the first real sentence. The anatomy now is a masthead: the site's
+ * floating navigation above, a document trail where a page has ancestors,
+ * then a genuinely centred reading measure. There is no closing apparatus —
+ * the page ends where the content ends. Side columns are real grid columns
+ * that exist only when a page supplies rail content.
  *
- * Type and colour come from the V2 tokens in app/globals.css. Nothing here
- * invents a size or a grey — if a value is not in the scale, the page needs
- * rethinking rather than a new value.
+ * Type and colour come from the V3 tokens in app/globals.css. Nothing here
+ * invents a size, a grey, a radius or a duration — if a value is not in the
+ * scale, the page needs rethinking rather than a new value. The "Hallmark
+ * public shell" block that used to close this file is gone: it had set the
+ * headline and every h2 in the monospace, put the reading column back in a
+ * blurred glass card, and hung a glow on the progress bar. The reasoning at
+ * `.panel` below — no card, because the scan is already masked out of the
+ * column — was right the first time.
  */
 
 .page {
@@ -57,11 +64,16 @@
 
   /* Where an anchored heading comes to rest. Published here so the shell, the
      Timeline and the pages that hand-roll their own entries all offset by one
-     number: five different values shipped before this, from 2rem to 7rem, and
-     none of the large ones had a sticky element behind it to clear. The only
-     fixed top chrome on a dossier is `.topProgressTrack` at 2px, and that is
-     `display: none` above the rail breakpoint. */
-  --anchor-offset: 2rem;
+     number: five different values shipped before this, from 2rem to 7rem.
+
+     The number is set by the site header: `components/site/SiteHeader.tsx` is
+     `position: fixed` and its bar is 3.6rem tall inside 0.85rem of padding,
+     ≈4.45rem of chrome over the top of every reading route. An anchored
+     heading has to clear that and then breathe, so 5.5rem — roughly one body
+     line under the bar. The rails' sticky `top` below is the same number for
+     the same reason. (Until the header landed this said 2rem, with a note
+     that the only fixed top chrome was the 2px progress track.) */
+  --anchor-offset: 5.5rem;
 
   /* Since 2026-08-27 this element is no longer a scroll
      container, the document is. `min-height` rather than `height` — a page
@@ -74,8 +86,13 @@
      than against this element, which is the same behaviour from the other
      side and is why it still pins. */
   min-height: 100dvh;
+  /* Clears the fixed site header (see `--anchor-offset`). `globals.css` sets
+     52px on `[data-public-shell]` as a floor for every shell; this one knows
+     its header is taller than that. */
+  padding-top: 4.8rem;
   /* No ground of its own: `body` carries it, so a page cannot disagree with
      the site about what colour the site is. */
+  background: transparent;
   color: var(--ink);
   font-family: var(--face-text);
 }
@@ -85,22 +102,26 @@
 }
 
 /* Visually hidden until focused — same technique as the brief's own
-   `.skipLink` (geopolitical-brief.module.css). */
+   `.skipLink` (geopolitical-brief.module.css). A control, so the interface
+   face at button weight; the ring is the global one. */
 .skipLink {
   position: fixed;
-  top: 0.75rem;
-  left: 0.75rem;
+  top: var(--sp-3);
+  left: var(--sp-3);
   z-index: 100;
-  padding: 0.7rem 0.9rem;
-  background: rgba(0, 0, 0, 0.96);
-  border: 1px solid var(--gold);
-  color: var(--gold-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--gold-line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-3);
+  box-shadow: var(--shadow-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.2;
   text-decoration: none;
   transform: translateY(-180%);
-  transition: transform 160ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .skipLink:focus {
@@ -154,7 +175,11 @@
    0.25 ≈ 0.085 — a delta of about (5,10,13) against `--ground`, which reads as
    drift behind the page rather than text competing with text. Body ink stays
    above 12:1. Raise this and the audit's original complaint comes back:
-   half-legible fragments colliding with sentences. */
+   half-legible fragments colliding with sentences.
+
+   The mask stops are alpha values, not colours — `black` is full strength
+   and `--dim` a quarter of it — so they are named rather than spelled as a
+   literal. */
 .rowField {
   position: absolute;
   inset: 0;
@@ -163,23 +188,24 @@
      each margin is ~129px — the fade was consuming most of it and the rows
      never reached full strength anywhere. */
   --fade: 2.75rem;
+  --dim: color-mix(in srgb, black 25%, transparent);
   -webkit-mask-image: linear-gradient(
     90deg,
-    #000 0,
-    #000 calc(50% - var(--content-w) / 2 - var(--fade)),
-    rgba(0, 0, 0, 0.25) calc(50% - var(--content-w) / 2 - 0.75rem),
-    rgba(0, 0, 0, 0.25) calc(50% + var(--content-w) / 2 + 0.75rem),
-    #000 calc(50% + var(--content-w) / 2 + var(--fade)),
-    #000 100%
+    black 0,
+    black calc(50% - var(--content-w) / 2 - var(--fade)),
+    var(--dim) calc(50% - var(--content-w) / 2 - 0.75rem),
+    var(--dim) calc(50% + var(--content-w) / 2 + 0.75rem),
+    black calc(50% + var(--content-w) / 2 + var(--fade)),
+    black 100%
   );
   mask-image: linear-gradient(
     90deg,
-    #000 0,
-    #000 calc(50% - var(--content-w) / 2 - var(--fade)),
-    rgba(0, 0, 0, 0.25) calc(50% - var(--content-w) / 2 - 0.75rem),
-    rgba(0, 0, 0, 0.25) calc(50% + var(--content-w) / 2 + 0.75rem),
-    #000 calc(50% + var(--content-w) / 2 + var(--fade)),
-    #000 100%
+    black 0,
+    black calc(50% - var(--content-w) / 2 - var(--fade)),
+    var(--dim) calc(50% - var(--content-w) / 2 - 0.75rem),
+    var(--dim) calc(50% + var(--content-w) / 2 + 0.75rem),
+    black calc(50% + var(--content-w) / 2 + var(--fade)),
+    black 100%
   );
 }
 
@@ -188,6 +214,7 @@
   left: 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   white-space: nowrap; /* fragments render whole — never wrapped or ellipsised */
   will-change: transform;
@@ -198,8 +225,10 @@
   opacity: calc(0.34 * var(--register, 1));
 }
 
+/* The verified stream in the dim end of the neutral data ramp — the same
+   ramp the home scene draws it in. */
 .rowVerified {
-  color: #77736c;
+  color: var(--data-blue-dim);
   animation: driftRight var(--dur) linear infinite;
   animation-delay: var(--delay);
 }
@@ -261,6 +290,7 @@
 
 .shell {
   position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
   column-gap: var(--rail-gap);
@@ -268,38 +298,50 @@
   padding: clamp(2.25rem, 5vh, 4rem) clamp(1.25rem, 4vw, 3rem) var(--sp-8);
 }
 
+/* ---- document trail ------------------------------------------------------
+   Where this page sits: Home / hub / this file. It is the eyebrow of the
+   masthead, so it reads in the interface face at caption size and in
+   sentence case — the current item can be a 42-character archive title, and
+   tracked capitals on a sentence destroy its word shapes. Ancestors are links
+   in the recessive ink; the current item is the plain ink and is not a link.
+   Gold is not spent here: the rule under the standfirst is this page's one
+   accent. */
 .documentTrail {
   grid-column: 2;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-2);
   margin-bottom: var(--sp-5);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
 .documentTrail a {
-  color: var(--gold);
+  color: var(--ink-lo);
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .documentTrail a:hover,
 .documentTrail a:focus-visible {
-  color: var(--gold-hi);
+  color: var(--ink-hi);
   text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
 }
 
 .trailSegment {
   display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+  align-items: baseline;
+  gap: var(--sp-2);
 }
 
 .trailCurrent {
-  color: var(--ink-hi);
+  color: var(--ink);
   max-width: 42ch;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -307,22 +349,25 @@
 }
 
 /* ---- identity band -------------------------------------------------------
-   The masthead: who this is, which file, where it lives, and the way out.
-   One row, full width, entirely in the data voice — it identifies, it does
-   not perform. This is what replaced the 9.5rem emblem and the stack of
-   tracked capitals beside it. */
+   The masthead row that carried the wordmark, file number, route and exit
+   link. The site header has taken over that job and neither shell renders
+   the band today; the classes are kept, on the tokens, so a page that still
+   composes them keeps working and so the band can return without being
+   redesigned from memory. One row, full width, entirely in the data voice —
+   it identifies, it does not perform. */
 
 .identityBand {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem 1.15rem;
-  padding: 1.5rem 0 1.25rem;
+  gap: var(--sp-3) var(--sp-4);
+  padding: var(--sp-5) 0 var(--sp-4);
   margin-bottom: clamp(1.75rem, 4vh, 2.75rem);
   border-bottom: 1px solid var(--gold-line);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
 }
@@ -338,10 +383,15 @@
   opacity: 0.9;
 }
 
+/* The wordmark is a name, not a label: the interface face, no tracking. */
 .wordmark {
   color: var(--gold);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  letter-spacing: 0;
   text-decoration: none;
-  font-weight: 500;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .wordmark:hover {
@@ -356,7 +406,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.9rem;
+  gap: var(--sp-2) var(--sp-3);
   color: var(--ink-lo);
   text-transform: uppercase;
 }
@@ -366,8 +416,7 @@
 }
 
 .identitySep {
-  /* Hand-rolled `--line` at a heavier alpha, and neutralised with it. */
-  color: rgba(175, 175, 175, 0.35);
+  color: var(--line-strong);
 }
 
 /* Sits where `.identityRoute` would, and replaces it — the route slug and a
@@ -395,11 +444,18 @@
   display: none;
 }
 
-/* Pushes the exit link to the far edge of the band. */
+/* Pushes the exit link to the far edge of the band. A navigation
+   instruction, so the interface face and sentence case. */
 .identityExit {
   margin-left: auto;
-  color: var(--gold);
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  letter-spacing: 0;
+  text-transform: none;
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .identityExit:hover {
@@ -414,7 +470,7 @@
 .panel {
   grid-column: 2;
   min-width: 0;
-  animation: rise 500ms ease both;
+  animation: rise var(--dur-slow) var(--ease-out) both;
 }
 
 @keyframes rise {
@@ -430,39 +486,54 @@
 
 /* ---- headline block ------------------------------------------------------
    Was ~320px of ceremony before the first sentence; now ~140px. Sentence
-   case, real word shapes, the brightest thing on the page. */
+   case, real word shapes, the brightest thing on the page. Newsreader at
+   display size wants its 500 weight and negative tracking, and the optical
+   size axis is what makes it a display cut here and a text cut at --t-h3. */
 
 .title {
   font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-display);
   font-weight: var(--t-display-weight);
   line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-tracking);
   color: var(--ink-hi);
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 /* The same headline, stepped down when it is a caption rather than a title.
    Set outright rather than by adjusting the token: `--t-display` clamps with a
-   2.1rem floor, so nothing narrower than that is reachable through it. Still
+   2.5rem floor, so nothing narrower than that is reachable through it. Still
    the largest type on the page and still the display face — it just stops
    claiming that a 296-character sentence is a headline. `pretty`, not
    `balance`: balancing is for two or three lines, and these run to eight. */
 .titleLong {
   composes: title;
   font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
   max-width: 34ch;
   text-wrap: pretty;
 }
 
+/* The standfirst: the sentence that says what the page will prove, one step
+   above body in the display face. Roman, not italic — Newsreader's italic
+   at this size on black reads as a caption, and a standfirst is a claim. */
 .lede {
-  margin-top: var(--sp-3);
+  margin-top: var(--sp-4);
   max-width: 54ch;
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
   color: var(--ink);
+  text-wrap: pretty;
 }
 
+/* The page's one accent. */
 .ledeRule {
   width: 3.5rem;
   height: 1px;
@@ -480,12 +551,17 @@
   margin-bottom: var(--sp-4);
 }
 
+/* Section headings in the plain high ink: on a 9,000px document a gold h2
+   in every viewport is gold sprayed, not spent, and size already separates
+   this level from the headline above and the entry titles below. */
 .blockHeading h2 {
   font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
-  color: var(--gold);
+  letter-spacing: var(--t-h2-tracking);
+  color: var(--ink-hi);
   scroll-margin-top: var(--anchor-offset);
 }
 
@@ -503,16 +579,35 @@
   margin-bottom: 0;
 }
 
-:where(.body) ul {
+/* A hand-authored h3 inside a block takes the entry-title treatment, so a
+   page that writes its own subheads matches the library's. */
+:where(.body) h3 {
+  margin: var(--sp-6) 0 var(--sp-3);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+  scroll-margin-top: var(--anchor-offset);
+}
+
+:where(.body) ul,
+:where(.body) ol {
   margin: 0 0 var(--flow);
-  padding-left: 1.25rem;
+  padding-left: var(--sp-5);
 }
 
 :where(.body) li {
-  margin-bottom: 0.55rem;
+  margin-bottom: var(--sp-2);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
   color: var(--ink);
+}
+
+:where(.body) li:last-child {
+  margin-bottom: 0;
 }
 
 :where(.body) li::marker {
@@ -524,14 +619,45 @@
   font-weight: 600;
 }
 
+/* Prose links carry gold as a line, not as text: the word stays in the
+   reading ink and the underline says it goes somewhere. Hover lifts the
+   word to the accent; nothing moves. */
 :where(.body) a {
-  color: var(--gold);
+  color: var(--ink-hi);
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
 :where(.body) a:hover {
   color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}
+
+/* A pull quote or block quotation set in the display face, hung so the
+   opening mark sits in the margin and the first letter aligns with the
+   text above it (`hanging-punctuation: first` is global). */
+:where(.body) blockquote {
+  margin: var(--sp-6) 0;
+  padding-left: var(--sp-5);
+  border-left: 2px solid var(--gold-line);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  color: var(--ink-hi);
+  hanging-punctuation: first;
+  text-wrap: pretty;
+}
+
+:where(.body) blockquote p {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
 }
 
 /* ---- optional aside (≥1220px), in the brief's evidence-rail voice ---- */
@@ -543,22 +669,23 @@
 
 .sideRailInner {
   position: sticky;
-  top: 2rem;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
+  top: var(--anchor-offset);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   color: var(--ink-lo);
 }
 
 .sideRailInner :is(h2, h3, h4) {
   font-family: var(--face-data);
   font-size: var(--t-data);
-  font-weight: 600;
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--gold);
-  padding-top: 0.75rem;
-  margin-top: 1.1rem;
+  padding-top: var(--sp-3);
+  margin-top: var(--sp-4);
   border-top: 1px solid var(--gold-line);
 }
 
@@ -567,29 +694,35 @@
 }
 
 .sideRailInner dl {
-  margin: 0.6rem 0 0;
+  margin: var(--sp-3) 0 0;
 }
 
 .sideRailInner dt {
+  font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
-  margin-top: 0.75rem;
+  margin-top: var(--sp-3);
 }
 
 .sideRailInner dd {
-  margin: 0.3rem 0 0;
+  margin: var(--sp-1) 0 0;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .sideRailInner p {
-  margin: 0.6rem 0 0;
+  margin: var(--sp-3) 0 0;
 }
 
 .sideRailInner a {
-  color: var(--gold);
-  text-decoration: none;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
 }
 
 .sideRailInner a:hover {
@@ -612,25 +745,27 @@
 
 .tocRailInner {
   position: sticky;
-  top: 2rem;
+  top: var(--anchor-offset);
   /* A page with many sections on a short viewport would otherwise have its
      last entries cut off with no way to reach them. */
-  max-height: calc(100dvh - 4rem);
+  max-height: calc(100dvh - var(--anchor-offset) - var(--sp-6));
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(198, 161, 91, 0.28) transparent;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
+  scrollbar-color: var(--gold-line) transparent;
+  /* The rail is a list of the page's own headings — sentences — so it reads
+     in the interface face at caption size, not in the data voice. */
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
 /* "In this file" is three words and a phrase, not a data label — it takes
-   the rail's mono voice and its colour, but not the capitals. */
+   the rail's face and the recessive ink, never capitals. */
 .tocTitle {
-  padding-bottom: 0.7rem;
-  border-bottom: 1px solid var(--gold-line);
-  color: var(--gold);
-  letter-spacing: var(--t-data-tracking);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-lo);
 }
 
 .tocList {
@@ -639,28 +774,45 @@
   list-style: none;
 }
 
+/* Each entry carries a 2px rule on its left edge that is transparent until
+   the entry is current, so marking it moves nothing. The current entry is
+   the high ink beside a gold rule — gold as a mark, not as a second text
+   colour on every viewport. */
 .tocLink,
 .tocLinkActive {
   display: flex;
-  gap: 0.7rem;
-  padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(175, 175, 175, 0.08);
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0 var(--sp-2) var(--sp-3);
+  margin-left: calc(-1 * var(--sp-3));
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid var(--line-soft);
   color: var(--ink-lo);
   text-decoration: none;
-  transition: color 140ms ease;
+  transition: color var(--dur-fast) var(--ease-out),
+    border-left-color var(--dur-fast) var(--ease-out);
 }
 
 .tocLink:hover {
-  color: var(--ink-hi);
+  color: var(--ink);
 }
 
 .tocLinkActive {
-  color: var(--gold-hi);
+  border-left-color: var(--gold);
+  color: var(--ink-hi);
 }
 
 .tocNumber {
-  color: var(--accent);
+  flex: none;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: inherit;
   font-variant-numeric: tabular-nums;
+}
+
+.tocLinkActive .tocNumber {
+  color: var(--accent);
 }
 
 /* Depth of read, two placements, never both on screen at once: in the rail
@@ -668,7 +820,8 @@
    They are separate elements rather than one repositioned element because the
    rail is `display: none` at narrow widths and would take the bar with it.
    The shared component's own default classes are left alone so a future
-   consumer does not inherit this page's breakpoint. */
+   consumer does not inherit this page's breakpoint. No glow on either: a
+   progress bar is a measurement, and a halo is a claim about importance. */
 
 .topProgressTrack {
   position: fixed;
@@ -678,14 +831,14 @@
   z-index: 60;
   height: 2px;
   overflow: hidden;
+  background: transparent;
 }
 
 .topProgressValue {
   display: block;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--gold-hi));
-  box-shadow: 0 0 10px rgba(198, 161, 91, 0.28);
+  background: var(--accent);
   transform-origin: left;
   /* Resting state is empty, not full. The client effect applies scaleX via
      requestAnimationFrame, so without this the first painted frame — and the
@@ -698,8 +851,8 @@
 .depthTrack {
   display: block;
   height: 2px;
-  margin-top: 1.4rem;
-  background: rgba(175, 175, 175, 0.12);
+  margin-top: var(--sp-5);
+  background: var(--line-soft);
   overflow: hidden;
 }
 
@@ -707,7 +860,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--gold-hi));
+  background: var(--accent);
   transform-origin: left;
   /* Resting state is empty, not full. The client effect applies scaleX via
      requestAnimationFrame, so without this the first painted frame — and the
@@ -727,7 +880,7 @@
 
   .tocRail {
     display: block;
-    animation: rise 500ms ease 150ms both;
+    animation: rise var(--dur-slow) var(--ease-out) var(--dur-fast) both;
   }
 
   .topProgressTrack {
@@ -736,13 +889,17 @@
 
   .shellWithAside .sideRail {
     display: block;
-    animation: rise 500ms ease 150ms both;
+    animation: rise var(--dur-slow) var(--ease-out) var(--dur-fast) both;
   }
 }
 
+/* The focus ring itself is the global `:focus-visible` treatment in
+   `globals.css`; this only widens the offset so the ring clears descenders
+   and underlines in running text. Pages that noted this rule "outranks any
+   local declaration" (`app/fake-resistance/page.module.css`) still get the
+   same ring, from the global rule. */
 .page a:focus-visible,
 .askCta:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 3px;
 }
 
@@ -803,15 +960,26 @@
     margin-left: 0;
     flex-basis: 100%;
   }
+
+  /* The trail's links are tapped here; the flex box grows to the 44px
+     convention without moving the text off its baseline. */
+  .documentTrail a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
 }
 
 @media (max-width: 719px) {
   .page {
+    /* The header is shorter on a phone (`site-header.module.css`, ≤64rem). */
+    padding-top: 4.25rem;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .shell {
-    padding-bottom: 2.5rem;
+    padding-inline: var(--sp-4);
+    padding-bottom: var(--sp-6);
   }
 }
 
@@ -835,123 +1003,13 @@
   }
 
   .depthValue,
-  .topProgressValue {
+  .topProgressValue,
+  .skipLink,
+  .tocLink,
+  .tocLinkActive,
+  .documentTrail a,
+  .wordmark,
+  .identityExit {
     transition: none;
   }
-}
-
-/* Hallmark public shell: preserve the dossier anatomy and give it the same
-   black-glass material, warm type and restrained signal gold as the home. */
-.page {
-  padding-top: 4.8rem;
-  background: transparent;
-  font-family: var(--font-sans);
-}
-
-.shell {
-  position: relative;
-  z-index: 2;
-  padding-top: clamp(2.4rem, 6vh, 5rem);
-}
-
-.panel {
-  padding: clamp(1.35rem, 3.2vw, 2.65rem);
-  border: 1px solid var(--glass-edge);
-  border-radius: clamp(1rem, 2vw, 1.45rem);
-  background:
-    linear-gradient(180deg, var(--glass-top), var(--glass-middle) 18rem, var(--glass-bottom));
-  box-shadow:
-    inset 0 1px 0 var(--glass-inner),
-    0 1.5rem 5rem var(--glass-shadow);
-  -webkit-backdrop-filter: blur(15px) saturate(.72);
-  backdrop-filter: blur(15px) saturate(.72);
-}
-
-.panel::before {
-  content: "";
-  display: block;
-  width: 2.6rem;
-  height: 2px;
-  margin-bottom: var(--sp-5);
-  background: var(--gold);
-  box-shadow: 0 0 .9rem rgba(198, 161, 91, .24);
-}
-
-.title,
-.titleLong {
-  color: var(--ink-hi);
-  font-family: var(--font-mono);
-  font-weight: 520;
-  letter-spacing: -.04em;
-  overflow-wrap: anywhere;
-  text-shadow: 0 .15rem 1.2rem #000;
-}
-
-.lede {
-  color: var(--ink);
-  font-family: var(--font-sans);
-}
-
-.ledeRule { background: linear-gradient(90deg, var(--gold), transparent); }
-
-.documentTrail,
-.documentTrail a {
-  color: var(--gold);
-  font-family: var(--font-mono);
-}
-
-.identityBand {
-  padding-inline: clamp(.8rem, 2vw, 1.25rem);
-  border: 1px solid rgba(246, 243, 235, .14);
-  border-radius: .85rem;
-  background: linear-gradient(180deg, rgba(120,117,111,.14), rgba(8,8,8,.48));
-  box-shadow: inset 0 1px rgba(255,255,255,.1);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-
-.block { border-top-color: rgba(246, 243, 235, .12); }
-
-.blockHeading h2 {
-  color: var(--ink-hi);
-  font-family: var(--font-mono);
-  font-size: var(--t-h2);
-  font-weight: 520;
-  letter-spacing: -.025em;
-}
-
-.sideRailInner,
-.tocRailInner {
-  padding: 1rem;
-  border: 1px solid rgba(246, 243, 235, .15);
-  border-radius: .9rem;
-  background: linear-gradient(180deg, rgba(120,117,111,.12), rgba(6,6,6,.58));
-  box-shadow: inset 0 1px rgba(255,255,255,.09);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-
-.sideRailInner :is(h2, h3, h4),
-.tocRailInner :is(h2, h3, h4) {
-  color: var(--ink-hi);
-  font-family: var(--font-mono);
-  font-weight: 520;
-}
-
-.topProgressTrack { background: rgba(246, 243, 235, .1); }
-.topProgressValue { background: var(--gold); }
-
-.skipLink {
-  border-color: var(--gold);
-  border-radius: .65rem;
-  background: rgba(5,5,5,.9);
-  color: var(--ink-hi);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-
-@media (max-width: 719px) {
-  .page { padding-top: 4rem; }
-  .shell { padding-inline: .85rem; }
-  .panel { padding: 1.2rem; }
 }

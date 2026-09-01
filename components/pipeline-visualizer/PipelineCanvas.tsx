@@ -28,94 +28,21 @@ interface NodeLayout {
   h: number;
 }
 
-const KIND_META: Record<
-  string,
-  { label: string; icon: string; color: string; border: string; accent: string }
-> = {
-  source: {
-    label: "מקור מידע",
-    icon: "🌐",
-    color: "rgba(56, 189, 248, 0.12)",
-    border: "rgba(56, 189, 248, 0.4)",
-    accent: "#38bdf8",
-  },
-  table: {
-    label: "טבלת מסד",
-    icon: "🗄️",
-    color: "rgba(168, 85, 247, 0.12)",
-    border: "rgba(168, 85, 247, 0.4)",
-    accent: "#a855f7",
-  },
-  view: {
-    label: "היטל קריאה",
-    icon: "👁️",
-    color: "rgba(34, 197, 94, 0.12)",
-    border: "rgba(34, 197, 94, 0.4)",
-    accent: "#22c55e",
-  },
-  guard: {
-    label: "מחסום אבטחה",
-    icon: "🛡️",
-    color: "rgba(239, 68, 68, 0.12)",
-    border: "rgba(239, 68, 68, 0.4)",
-    accent: "#ef4444",
-  },
-  trigger: {
-    label: "טריגר SQL",
-    icon: "⚡",
-    color: "rgba(249, 115, 22, 0.12)",
-    border: "rgba(249, 115, 22, 0.4)",
-    accent: "#f97316",
-  },
-  cron: {
-    label: "מתזמן אוטומטי",
-    icon: "⏱️",
-    color: "rgba(234, 179, 8, 0.12)",
-    border: "rgba(234, 179, 8, 0.4)",
-    accent: "#eab308",
-  },
-  queue: {
-    label: "תור הודעות",
-    icon: "📬",
-    color: "rgba(236, 72, 153, 0.12)",
-    border: "rgba(236, 72, 153, 0.4)",
-    accent: "#ec4899",
-  },
-  connector: {
-    label: "מחבר נתונים",
-    icon: "🔌",
-    color: "rgba(6, 182, 212, 0.12)",
-    border: "rgba(6, 182, 212, 0.4)",
-    accent: "#06b6d4",
-  },
-  service: {
-    label: "שירות ליבה",
-    icon: "⚙️",
-    color: "rgba(139, 92, 246, 0.12)",
-    border: "rgba(139, 92, 246, 0.4)",
-    accent: "#8b5cf6",
-  },
-  model: {
-    label: "מודל שפה (AI)",
-    icon: "🧠",
-    color: "rgba(244, 63, 94, 0.12)",
-    border: "rgba(244, 63, 94, 0.4)",
-    accent: "#f43f5e",
-  },
-  gateway: {
-    label: "שער AI",
-    icon: "🚪",
-    color: "rgba(217, 70, 239, 0.12)",
-    border: "rgba(217, 70, 239, 0.4)",
-    accent: "#d946ef",
-  },
-  storage: {
-    label: "אחסון ענן (Blob)",
-    icon: "☁️",
-    color: "rgba(20, 184, 166, 0.12)",
-    border: "rgba(20, 184, 166, 0.4)",
-    accent: "#14b8a6",
-  },
+/* Kind colour lives in the stylesheet, keyed by `data-kind`, on the semantic
+   ramps — not here as twelve neon literals. */
+const KIND_META: Record<string, { label: string; icon: string }> = {
+  source: { label: "מקור מידע", icon: "🌐" },
+  table: { label: "טבלת מסד", icon: "🗄️" },
+  view: { label: "היטל קריאה", icon: "👁️" },
+  guard: { label: "מחסום אבטחה", icon: "🛡️" },
+  trigger: { label: "טריגר SQL", icon: "⚡" },
+  cron: { label: "מתזמן אוטומטי", icon: "⏱️" },
+  queue: { label: "תור הודעות", icon: "📬" },
+  connector: { label: "מחבר נתונים", icon: "🔌" },
+  service: { label: "שירות ליבה", icon: "⚙️" },
+  model: { label: "מודל שפה (AI)", icon: "🧠" },
+  gateway: { label: "שער AI", icon: "🚪" },
+  storage: { label: "אחסון ענן (Blob)", icon: "☁️" },
 };
 
 const BASE_LANES = [
@@ -571,17 +498,6 @@ export function PipelineCanvas({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <defs>
-            <filter id="goldGlowHtml" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter id="emberGlowHtml" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
           {/* Edges */}
           {visibleEdges.map((edge) => {
             const fromLayout = nodeLayouts[edge.from];
@@ -673,18 +589,13 @@ export function PipelineCanvas({
               <g key={pkt.id} transform={`translate(${pos.x}, ${pos.y})`}>
                 <circle
                   r={isQuarantine ? 10 : 9}
-                  fill={isQuarantine ? "#ef4444" : "#ead39b"}
                   className={
                     isQuarantine ? styles.packetParticleQuarantine : styles.packetParticle
                   }
                 />
                 <circle
                   r={isQuarantine ? 18 : 16}
-                  fill="none"
-                  stroke={
-                    isQuarantine ? "rgba(239, 68, 68, 0.6)" : "rgba(198, 161, 91, 0.6)"
-                  }
-                  strokeWidth={2}
+                  className={isQuarantine ? styles.packetRingQuarantine : styles.packetRing}
                 />
               </g>
             );
@@ -699,13 +610,7 @@ export function PipelineCanvas({
           const isActive = activeNodeId === node.id;
           const isSelected = selectedNodeId === node.id;
           const isQuarantined = node.id === "briefing_quarantine" && isActive;
-          const kindMeta = KIND_META[node.kind] || {
-            label: node.kind,
-            icon: "🔹",
-            color: "rgba(255,255,255,0.08)",
-            border: "rgba(255,255,255,0.2)",
-            accent: "#c6a15b",
-          };
+          const kindMeta = KIND_META[node.kind] || { label: node.kind, icon: "🔹" };
 
           return (
             <div
@@ -717,26 +622,29 @@ export function PipelineCanvas({
                 ${isQuarantined ? styles.htmlNodeCardQuarantined : ""}
                 ${draggingNodeId === node.id ? styles.htmlNodeCardDragging : ""}
               `}
+              data-kind={node.kind}
               style={{
                 left: `${layout.x}px`,
                 top: `${layout.y}px`,
                 width: `${layout.w}px`,
                 minHeight: `${layout.h}px`,
-                borderRight: `4px solid ${kindMeta.accent}`,
               }}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSelected}
               onMouseDown={(e) => handleCardMouseDown(e, node.id)}
               onClick={() => onSelectNode(node.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelectNode(node.id);
+                }
+              }}
               dir="rtl"
             >
               {/* Top Row: Kind Badge in Hebrew & Active Pulse */}
               <div className={styles.htmlCardTopRow}>
-                <span
-                  className={styles.htmlKindBadge}
-                  style={{
-                    backgroundColor: kindMeta.color,
-                    borderColor: kindMeta.border,
-                  }}
-                >
+                <span className={styles.htmlKindBadge}>
                   <span>{kindMeta.icon}</span>
                   <span>{kindMeta.label}</span>
                 </span>

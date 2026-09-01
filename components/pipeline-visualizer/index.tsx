@@ -66,7 +66,6 @@ export function PipelineVisualizer() {
             className={styles.glossaryPillBtn}
             onClick={() => handleOpenGlossary()}
             title="פתח מילון מונחים והסברים"
-            style={{ marginRight: "0.5rem" }}
           >
             📖 מילון מונחים (עברית/אנגלית)
           </button>

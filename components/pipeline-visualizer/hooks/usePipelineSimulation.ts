@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 import type {
   PipelineJourney,
   SimulationPacket,
@@ -11,10 +18,38 @@ import type {
 import { PIPELINE_NODES } from "../data/nodes";
 import { PIPELINE_JOURNEYS } from "../data/journeys";
 
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(onChange: () => void) {
+  const mql = window.matchMedia(REDUCED_MOTION_QUERY);
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+}
+
+function readReducedMotion() {
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
+
+function readReducedMotionOnServer() {
+  return false;
+}
+
 export function usePipelineSimulation() {
   const [selectedJourneyId, setSelectedJourneyId] = useState<string>("journey_verified_claim");
   const [currentStepIndex, setCurrentStepIndexState] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+
+  // The simulation is the one thing on the page that loops. Under reduced
+  // motion it opens paused; the play control still works. `null` means the
+  // reader has not touched playback yet, so the preference decides.
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    readReducedMotion,
+    readReducedMotionOnServer
+  );
+  const [playIntent, setPlayIntent] = useState<boolean | null>(null);
+  const isPlaying = playIntent ?? !prefersReducedMotion;
+  const setIsPlaying: (next: boolean) => void = setPlayIntent;
+
   const [speed, setSpeed] = useState<number>(1);
   const [stepProgress, setStepProgress] = useState<number>(0);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -148,31 +183,31 @@ export function usePipelineSimulation() {
   }, []);
 
   const nextStep = useCallback(() => {
-    setIsPlaying(false);
+    setPlayIntent(false);
     setCurrentStepIndexState((curr) => Math.min(curr + 1, currentJourney.steps.length - 1));
     setStepProgress(0);
   }, [currentJourney.steps.length]);
 
   const prevStep = useCallback(() => {
-    setIsPlaying(false);
+    setPlayIntent(false);
     setCurrentStepIndexState((curr) => Math.max(curr - 1, 0));
     setStepProgress(0);
   }, []);
 
   const goToStep = useCallback((index: number) => {
-    setIsPlaying(false);
+    setPlayIntent(false);
     setCurrentStepIndexState(Math.max(0, Math.min(index, currentJourney.steps.length - 1)));
     setStepProgress(0);
   }, [currentJourney.steps.length]);
 
   const togglePlay = useCallback(() => {
-    setIsPlaying((prev) => !prev);
-  }, []);
+    setPlayIntent((prev) => !(prev ?? !prefersReducedMotion));
+  }, [prefersReducedMotion]);
 
   const resetSimulation = useCallback(() => {
     setCurrentStepIndexState(0);
     setStepProgress(0);
-    setIsPlaying(true);
+    setPlayIntent(true);
   }, []);
 
   return {

@@ -32,14 +32,10 @@ export function NodeInspectorDrawer({ node, onClose }: NodeInspectorDrawerProps)
   return (
     <div className={styles.inspectorDrawer} dir="rtl">
       <div className={styles.drawerHeader}>
-        <div>
-          <span className={styles.brandBadge}>[{heKind}]</span>
-          <h2 className={styles.headerTitle} style={{ marginTop: "0.4rem" }}>
-            {node.nameHe}
-          </h2>
-          <p className={styles.headerSubtitle} style={{ direction: "ltr", textAlign: "right" }}>
-            {node.nameEn}
-          </p>
+        <div className={styles.drawerHeading}>
+          <span className={styles.drawerKicker}>{heKind}</span>
+          <h2 className={styles.drawerTitle}>{node.nameHe}</h2>
+          <p className={styles.drawerSubtitle}>{node.nameEn}</p>
         </div>
         <button
           type="button"
@@ -112,9 +108,9 @@ export function NodeInspectorDrawer({ node, onClose }: NodeInspectorDrawerProps)
         {node.terms.length > 0 && (
           <div className={styles.inspectorSection}>
             <span className={styles.inspectorLabel}>מונחים טכניים מקבילים</span>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+            <div className={styles.termChips}>
               {node.terms.map((t, idx) => (
-                <span key={idx} className={styles.brandBadge}>
+                <span key={idx} className={styles.termChip}>
                   {t.he} ({t.en})
                 </span>
               ))}

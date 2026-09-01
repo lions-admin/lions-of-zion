@@ -1,34 +1,23 @@
 /*
- * The Geopolitical Brief — re-typeset onto the V2 tokens (`.ai/DESIGN-V2.md`,
- * Phase 3).
+ * The Geopolitical Brief — the dossier layout: index rail, article, evidence
+ * rail. `GeopoliticalBrief.tsx` is the reference cut of that composition;
+ * `/geopolitical-brief` itself mounts `LiveBriefHub`.
  *
- * The layout audit called this page the model the Phase 2 shell was built
- * from, so the composition is untouched: index rail, article, evidence rail.
- * What changed is the type. This file was the worst micro-type offender on
- * the site — 22 of its 40 font-size declarations sat below the 0.72rem floor,
- * bottoming out at 0.49rem (8px) in the evidence rail — and every heading was
- * Cinzel, a face whose lowercase renders as faux small-caps.
+ * V3 pass. The composition is untouched — the layout audit called this page
+ * the model the section shell was built from — and the type moves onto the
+ * three faces and the eight steps: Newsreader for the headline, the subject
+ * line and the section headings, Plex for running text, JetBrains Mono for
+ * every date, count, label and status. The two local surface tints
+ * (`--surface` / `--surface-raised`) that no V2 token covered are now the
+ * system's `--surface-2` / `--surface-3`, and the six remaining colour
+ * literals — panel grounds, the footer bands, the progress glow, the error
+ * panel — read tokens or `color-mix()` of tokens.
  *
- * Colour and type now come from the global tokens. The only local custom
- * properties left are two surface tints that no token covers: this page's
- * raised panels are lighter than `--ground` and nothing in the scale
- * expresses that.
- *
- * Both are neutral. They were #090f1b and #0d1523 — navies — and commit
- * c7e92b2, which took every panel on the site off blue, converted only the
- * `rgba()` literals in this file and did not see these two or the `#070c15`
- * footer bands below. That is why the Brief still read blue after the ground
- * went black while the rest of the site did not: its panel tints, its
- * backdrop and every quiet label on it were the last blue left. Converted by
- * the same rule as everything else — the grey of equal luminance
- * (0.2126R + 0.7152G + 0.0722B) — so each panel keeps its exact weight
- * against the ground and loses only the hue.
+ * The evidence-margin contract is the one thing here another file reads, and
+ * it is preserved name for name: see `--rail-w` and friends below.
  */
 
 .page {
-  --surface: #0f0f0f;
-  --surface-raised: #141414;
-
   /* The evidence margin's geometry, matching this layout's own third track.
      `marginNote` (content.module.css) reads these; declaring them here rather
      than letting its fallbacks apply is what keeps the citations aligned to
@@ -57,10 +46,8 @@
   position: relative;
   /* The document scrolls, not this element — converted 2026-08-27 with the
      other four reading containers; the reasoning is at the lock in
-     `app/globals.css`. `overflow-y: auto` and `overscroll-behavior: contain`
-     went with it (both were properties of being a scroller), and
-     `scroll-behavior` moved to `html`. `overflow-x: clip` stays: it is a
-     sideways clip, not a scrollport, and the brief's rails need it. */
+     `app/globals.css`. `overflow-x: clip` stays: it is a sideways clip, not a
+     scrollport, and the brief's rails need it. */
   min-height: 100dvh;
   overflow-x: clip;
   /* Ground and texture come from `body` — `--scan-ground` in globals.css. */
@@ -71,53 +58,46 @@
 }
 
 /* The Brief's own scan, layered over the one `body` paints (`--scan-ground`,
-   app/globals.css). All three layers were blue, which on the old navy ground
-   was invisible and on true black is the single largest blue field on the
-   page — this backdrop is `position: fixed; inset: 0`, so it covers the whole
-   viewport behind the reading column.
-
-   Brought into line with `--scan-ground`'s own retune for black: the radial
-   keeps its blue, because that layer *is* the depth cue that the scan is
-   densest at the centre, and drops to the same 0.045; both rule fields go
-   neutral, because a rule field is texture and has no direction to signal.
-
-   The neutral alphas are scaled, not carried over. rgb(214,226,240) has 1.46×
-   the luma of rgb(87,167,217), so reusing 0.018/0.014 would have made the
-   weave visibly stronger than the one it replaces rather than the same
-   weight — 0.012 and 0.010 land it where it was. */
+   app/globals.css). A faint warm wash where the scan is densest and two
+   neutral rule fields, fading out down the page. Alphas are the ones the V2
+   retune landed on for true black; only the literals have become mixes of
+   the ink. */
 .quietBackdrop {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(75% 60% at 50% 10%, rgba(246, 243, 235, 0.035), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.012) 0 1px, transparent 1px 11px),
-    repeating-linear-gradient(90deg, transparent 0 79px, rgba(228, 224, 215, 0.01) 79px 80px);
-  mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.34) 64%, transparent);
+    radial-gradient(75% 60% at 50% 10%, color-mix(in srgb, var(--ink-hi) 3.5%, transparent), transparent 68%),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--ink-hi) 1.2%, transparent) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(90deg, transparent 0 79px, color-mix(in srgb, var(--ink-hi) 1%, transparent) 79px 80px);
+  mask-image: linear-gradient(to bottom, var(--ground), color-mix(in srgb, var(--ground) 34%, transparent) 64%, transparent);
 }
 
 .skipLink {
   position: fixed;
-  top: 0.75rem;
-  left: 0.75rem;
+  top: var(--sp-3);
+  left: var(--sp-3);
   z-index: 100;
-  padding: 0.7rem 0.9rem;
-  background: var(--surface);
+  padding: var(--sp-3) var(--sp-4);
   border: 1px solid var(--gold);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
   color: var(--gold-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  line-height: 1;
   text-decoration: none;
   transform: translateY(-180%);
-  transition: transform 160ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .skipLink:focus {
   transform: translateY(0);
 }
+
+/* ── Header ───────────────────────────────────────────────────────────── */
 
 .siteHeader {
   position: sticky;
@@ -127,9 +107,9 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   min-height: 4rem;
-  padding: 0.65rem max(1.25rem, calc((100vw - 90rem) / 2));
+  padding: var(--sp-3) max(var(--sp-5), calc((100vw - 90rem) / 2));
   border-bottom: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.96);
+  background: color-mix(in srgb, var(--ground) 96%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -144,38 +124,44 @@
 .backLink {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: var(--sp-3);
   justify-self: start;
   min-height: 44px;
   color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: 1;
   text-decoration: none;
-  text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .backLink > span:first-child {
   color: var(--gold);
-  font-size: 1rem;
-  transition: transform 180ms ease;
+  font-size: var(--t-body);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.backLink:hover,
+.backLink:focus-visible {
+  color: var(--ink-hi);
 }
 
 .backLink:hover > span:first-child,
 .backLink:focus-visible > span:first-child {
-  transform: translateX(-4px);
+  transform: translateX(-3px);
 }
 
-/* The wordmark is a name, not a label — it reads as one word-shape in the
-   display face rather than as tracked capitals. */
+/* The wordmark is a name, not a label — one word-shape in the display face. */
 .wordmark {
   justify-self: center;
   color: var(--gold);
   font-family: var(--face-display);
-  font-size: var(--t-caption);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: var(--t-small);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: 0;
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .wordmark:hover {
@@ -185,25 +171,26 @@
 .headerContext {
   display: flex;
   align-items: baseline;
-  gap: 0.8rem;
+  gap: var(--sp-3);
   justify-self: end;
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
   text-transform: uppercase;
 }
 
-.headerContext > span {
-  color: var(--ink-lo);
-}
-
 .headerContext small {
-  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
-     never expresses text hierarchy — see `app/globals.css`. */
   color: var(--ink-lo);
   font-size: inherit;
 }
 
+/* Reading progress: a hairline under the header that fills in gold. Rests
+   empty — the client effect applies scaleX via requestAnimationFrame, so
+   without this the first painted frame, and the whole no-JavaScript render,
+   is a bar at 100%. */
 .progressTrack {
   position: absolute;
   right: 0;
@@ -218,27 +205,24 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, var(--data-blue), var(--gold-hi));
-  box-shadow: 0 0 10px rgba(107, 183, 228, 0.6);
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
   transform-origin: left;
-  /* Resting state is empty, not full. The client effect applies scaleX via
-     requestAnimationFrame, so without this the first painted frame — and the
-     whole no-JavaScript render — is a bar at 100%, telling the reader they
-     finished a document they have not started. */
   transform: scaleX(0);
   transition: transform 80ms linear;
 }
+
+/* ── Layout ───────────────────────────────────────────────────────────── */
 
 .layout {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 13rem minmax(0, var(--article-w)) 14rem;
-  gap: clamp(2rem, 3vw, 3.5rem);
+  grid-template-columns: 13rem minmax(0, var(--article-w)) var(--rail-w);
+  gap: clamp(var(--sp-6), 3vw, 3.5rem);
   justify-content: center;
   width: min(100%, 94rem);
   margin: 0 auto;
-  padding: clamp(2.5rem, 6vh, 5rem) clamp(1.25rem, 3vw, 3rem) clamp(3rem, 8vh, 5rem);
+  padding: clamp(var(--sp-6), 6vh, var(--sp-8)) clamp(var(--sp-5), 3vw, var(--sp-7)) clamp(var(--sp-7), 8vh, var(--sp-8));
 }
 
 .indexRailInner {
@@ -249,25 +233,25 @@
 .railIdentity {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding-bottom: 1.2rem;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-5);
   border-bottom: 1px solid var(--gold-line);
 }
 
 .iconFrame {
   display: grid;
   place-items: center;
-  width: 3.8rem;
-  height: 3.8rem;
+  width: 3.75rem;
+  height: 3.75rem;
   flex: none;
   border: 1px solid var(--gold-line);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(198, 161, 91, 0.1), transparent 70%);
+  background: radial-gradient(circle, var(--gold-wash), transparent 70%);
 }
 
 .iconFrame img {
-  width: 2.05rem;
-  height: 2.05rem;
+  width: 2rem;
+  height: 2rem;
   filter: brightness(0) saturate(100%) invert(77%) sepia(35%) saturate(758%) hue-rotate(5deg) brightness(88%);
 }
 
@@ -275,7 +259,7 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 0.38rem;
+  gap: var(--sp-1);
 }
 
 /* Every short data label in the rails and the header speaks in one voice:
@@ -287,27 +271,28 @@
 .briefEyebrow {
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
 .railIdentity span {
-  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
-     never expresses text hierarchy — see `app/globals.css`. */
   color: var(--ink-lo);
 }
 
+/* The rail's title is a UI heading, not an editorial one: the sans, at
+   label weight. */
 .railIdentity strong {
-  color: var(--gold);
-  font-family: var(--face-display);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
   font-size: var(--t-caption);
-  font-weight: 600;
-  line-height: 1.35;
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
 .contents {
-  margin-top: 2rem;
+  margin-top: var(--sp-6);
 }
 
 .contents > span,
@@ -316,7 +301,7 @@
 }
 
 .contents ol {
-  margin-top: 0.8rem;
+  margin-top: var(--sp-3);
   list-style: none;
 }
 
@@ -328,31 +313,42 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* Hover moves nothing: the row takes an inset rule and the accent, and the
+   text stays where it was. */
 .contents a {
   display: flex;
   align-items: center;
-  min-height: 2.65rem;
+  min-height: 2.75rem;
+  padding-left: var(--sp-2);
   color: var(--ink);
   font-size: var(--t-caption);
-  line-height: 1.35;
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
   text-decoration: none;
-  transition: color 160ms ease, padding-left 180ms ease;
+  box-shadow: inset 2px 0 0 transparent;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .contents a:hover,
 .contents a:focus-visible {
-  padding-left: 0.35rem;
   color: var(--gold-hi);
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+
+.contents a:active {
+  color: var(--gold);
 }
 
 .railTrust {
   display: grid;
-  gap: 0.35rem;
-  margin-top: 1.8rem;
+  gap: var(--sp-1);
+  margin-top: var(--sp-6);
 }
 
 .railTrust span {
-  margin-top: 0.5rem;
+  margin-top: var(--sp-2);
   color: var(--ink-lo);
 }
 
@@ -361,112 +357,94 @@
   font-family: var(--face-data);
   font-size: var(--t-caption);
   font-weight: 400;
-  line-height: 1.5;
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
 }
 
-/* The card is gone, for the reason `sections.module.css` gives where it
-   removed the dossier's: the chrome was reading as a floating box rather than
-   as a page, and a reader comparing this brief to an archive record met a
-   bordered column with a foot against an unbordered one without. Reconciled in
-   this direction rather than by putting the card back, because that removal is
-   the recorded decision and this one was the straggler.
+/* ── Article ──────────────────────────────────────────────────────────── */
 
-   The ground stays, and is not chrome. Unlike the dossier's `ScanBackdrop` —
-   masked out of the reading band by `--content-w` — this page's
-   `.quietBackdrop` is `position: fixed; inset: 0` with no carve-out, so
-   without an opaque ground the corpus runs straight under the prose. That is
-   the mechanical difference between the two shells, and it is why only the
-   borders and the shadow could go. */
+/* No card chrome — the dossier shell removed its border and shadow, and the
+   brief followed. The ground stays and is not chrome: `.quietBackdrop` is
+   `position: fixed; inset: 0` with no carve-out, so without a near-opaque
+   ground the corpus would run straight under the prose. */
 .article {
   min-width: 0;
-  background: rgba(13, 13, 13, 0.965);
-  animation: articleIn 620ms ease both;
+  background: color-mix(in srgb, var(--surface-1) 96%, transparent);
+  animation: articleIn var(--dur-slow) var(--ease-out) both;
 }
 
 @keyframes articleIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .briefHeader {
-  padding: clamp(2rem, 5vw, 4.25rem) clamp(1.5rem, 5vw, 4.3rem) clamp(2.4rem, 5vw, 3.75rem);
+  padding: clamp(var(--sp-6), 5vw, var(--sp-8)) var(--section-pad-x) clamp(var(--sp-6), 5vw, 3.75rem);
   border-bottom: 1px solid var(--gold-line);
   background:
-    radial-gradient(circle at 90% 0%, rgba(198, 161, 91, 0.08), transparent 36%),
-    linear-gradient(150deg, rgba(22, 22, 22, 0.72), transparent 62%);
+    radial-gradient(circle at 90% 0%, var(--gold-wash), transparent 36%),
+    linear-gradient(150deg, color-mix(in srgb, var(--surface-3) 72%, transparent), transparent 62%);
 }
 
 .briefEyebrow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  /* Gold, not the blue data ramp: that ramp carries meaning and never
-     expresses text hierarchy — see `app/globals.css`. */
-  color: var(--gold);
+  gap: var(--sp-4);
+  color: var(--ink-lo);
 }
 
-/* The subject of the brief, not a label for it — set as a name in the
-   display face rather than as tracked capitals. */
+/* The subject of the brief, not a label for it — a name in the display face. */
 .topic {
-  margin-top: 2.2rem;
+  margin-top: var(--sp-6);
   color: var(--gold);
   font-family: var(--face-display);
   font-size: var(--t-h3);
-  font-weight: 500;
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
   line-height: var(--t-h3-lh);
 }
 
-/* The one true display moment on the site. Newsreader's optical-size axis
-   is doing the work here: at this size it resolves to the display cut, with
-   the tight fit and fine detail the face reserves for headlines. Sentence
-   case, because the point of retiring Cinzel was to get word shapes back —
-   this reads in one pass now instead of being spelled out letter by letter. */
+/* The one true display moment on the page. Newsreader's optical-size axis
+   resolves to the display cut here; sentence case, so it reads in one pass. */
 .briefHeader h1 {
   max-width: 20ch;
-  margin-top: 0.85rem;
-  color: var(--gold-hi);
+  margin-top: var(--sp-3);
+  color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2.4rem, 5vw, 4.1rem);
-  font-weight: 500;
-  letter-spacing: -0.012em;
-  line-height: 1.08;
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  letter-spacing: var(--t-display-tracking);
+  line-height: var(--t-display-lh);
   text-wrap: balance;
 }
 
-/* The standfirst: body size, but at full ink so it still outranks the
-   running text below it. */
+/* The standfirst: one step above body, display face, full ink. */
 .dek {
   max-width: 46ch;
-  margin-top: 1.45rem;
+  margin-top: var(--sp-5);
   color: var(--ink-hi);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
 }
 
 /* Spacing wrapper for the shared PublicationMeta component — it has no
    margin-top of its own (it's meant to sit inside a SectionBlock, which
    supplies that spacing elsewhere), so the brief header supplies it here. */
 .metaSpacer {
-  margin-top: 2.3rem;
+  margin-top: var(--sp-6);
 }
 
 .section {
-  padding: clamp(2.6rem, 5vw, 4.2rem) var(--section-pad-x);
+  padding: clamp(var(--sp-7), 5vw, 4.25rem) var(--section-pad-x);
   border-bottom: 1px solid var(--line);
   scroll-margin-top: 6rem;
 }
 
-/* The 01–06 markers that used to sit here are gone. They read as a sequence,
-   but the brief's sections are a fixed dossier structure — you don't step
-   through them, and nothing on the site cites a section by number, so the
-   numbering was an affordance no reader used. They were also propping up a
-   heading too weak to stand alone (Cinzel at 0.92rem, uppercase, tracked).
-   A real heading in the display face doesn't need the crutch. Matches
-   `.blockHeading` in sections.module.css, which lost its tick for the same
-   reason. */
 .sectionLabel {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--sp-5);
 }
 
 .sectionLabel h2 {
@@ -474,6 +452,7 @@
   font-family: var(--face-display);
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
   line-height: var(--t-h2-lh);
 }
 
@@ -489,13 +468,13 @@
 }
 
 .summary p + p {
-  margin-top: 1rem;
+  margin-top: var(--flow);
 }
 
 /* Spacing wrapper for the shared FigureRow component, same reasoning as
    .metaSpacer above. */
 .figuresSpacer {
-  margin-top: 2.4rem;
+  margin-top: var(--sp-6);
 }
 
 .changeList {
@@ -505,8 +484,8 @@
 .changeList li {
   display: grid;
   grid-template-columns: 2.5rem minmax(0, 1fr);
-  gap: 1.25rem;
-  padding: 1.2rem 0;
+  gap: var(--sp-5);
+  padding: var(--sp-4) 0;
   border-top: 1px solid var(--line);
 }
 
@@ -514,15 +493,16 @@
   border-bottom: 1px solid var(--line);
 }
 
-/* These numbers stay. Unlike the section markers, they enumerate items of
-   the same kind inside one list — which is what numbering is actually for. */
+/* These numbers enumerate items of the same kind inside one list — which is
+   what numbering is for. */
 .changeList li > span {
-  /* Recessive ink, not the blue data ramp: that ramp carries meaning and
-     never expresses text hierarchy — see `app/globals.css`. */
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-body-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 .changeList p {
@@ -534,8 +514,8 @@
 .assessment {
   position: relative;
   background:
-    linear-gradient(90deg, rgba(198, 161, 91, 0.055), transparent 68%),
-    var(--surface-raised);
+    linear-gradient(90deg, color-mix(in srgb, var(--gold) 5.5%, transparent), transparent 68%),
+    var(--surface-3);
 }
 
 .assessment::before {
@@ -548,35 +528,36 @@
   background: var(--gold);
 }
 
-/* This is a sentence, so it is set as one. It used to be tracked uppercase
-   mono at 0.58rem — the exact pattern the type audit flagged: display
-   treatment applied to running content. It carries the page's most important
-   epistemic distinction (inference vs. reported fact), which is an argument
-   for making it legible, not for making it look technical. */
+/* This is a sentence, so it is set as one. It carries the page's most
+   important epistemic distinction (inference vs. reported fact), which is an
+   argument for making it legible, not for making it look technical. */
 .assessmentNotice {
-  margin-bottom: 0.9rem;
+  margin-bottom: var(--sp-3);
   color: var(--gold-hi);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-weight: var(--t-caption-weight);
 }
 
-/* Shown when `publishedAt` is older than the staleness threshold — same
-   voice as .assessmentNotice on the ember ramp, since this is a warning
-   rather than routine editorial framing. */
+/* Shown when `publishedAt` is older than the staleness threshold — a warning,
+   so it takes the warn state, not the ember data ramp. */
 .staleNotice {
-  margin-top: 1rem;
-  color: var(--data-ember-peak);
+  margin-top: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--state-warn-line);
+  border-radius: var(--radius-2);
+  background: var(--state-warn-wash);
+  color: var(--state-warn);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-weight: var(--t-caption-weight);
 }
 
 /* Honest empty state for a section whose data array is empty — matches
-   CorrectionHistory's "None recorded" tone (content.module.css
-   .correctionsEmpty) rather than silently rendering nothing. */
+   CorrectionHistory's "None recorded" tone rather than silently rendering
+   nothing. */
 .sectionEmpty {
-  padding: 1rem 0;
+  padding: var(--sp-4) 0;
   border-bottom: 1px solid var(--line);
   color: var(--ink-lo);
   font-size: var(--t-small);
@@ -587,20 +568,22 @@
    for why. Styled now so it doesn't have to be designed under pressure
    later. */
 .briefError {
-  padding: 1.5rem;
-  border: 1px solid rgba(224, 120, 95, 0.35);
-  background: rgba(16, 10, 10, 0.6);
+  padding: var(--sp-5);
+  border: 1px solid var(--state-danger-line);
+  border-radius: var(--radius-3);
+  background: var(--state-danger-wash);
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
 
 .briefErrorTitle {
-  margin: 0 0 0.6rem;
-  color: var(--data-ember-peak);
+  margin: 0 0 var(--sp-2);
+  color: var(--state-danger);
   font-family: var(--face-display);
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
   line-height: var(--t-h3-lh);
 }
 
@@ -608,18 +591,18 @@
   color: var(--gold);
   text-decoration: underline;
   text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .briefError a:hover {
   color: var(--gold-hi);
 }
 
-/* Dark footer band behind the shared CorrectionHistory component — its own
+/* Footer band behind the shared CorrectionHistory component — its own
    internal kicker/list styling comes from content.module.css. */
 .corrections {
-  padding: 1.75rem clamp(1.5rem, 5vw, 4.3rem) 2rem;
-  /* Luminance-matched from #070c15, with the panel tints above. */
-  background: #0c0c0c;
+  padding: var(--sp-6) var(--section-pad-x) var(--sp-6);
+  background: var(--surface-1);
 }
 
 .closing {
@@ -627,38 +610,41 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6rem 1.5rem;
-  padding: 1.4rem clamp(1.5rem, 5vw, 4.3rem) 1.6rem;
+  gap: var(--sp-2) var(--sp-5);
+  padding: var(--sp-5) var(--section-pad-x) var(--sp-5);
   border-top: 1px solid var(--gold-line);
-  background: #0c0c0c;
+  background: var(--surface-1);
 }
 
 .closingMark {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
   text-transform: uppercase;
 }
 
 .closingNav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.2rem 1.7rem;
+  gap: var(--sp-1) var(--sp-6);
 }
 
+/* Navigation is interface: the sans, sentence case, label weight. */
 .closingNav a {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--sp-2);
   min-height: 44px;
   color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: 1;
   text-decoration: none;
-  text-transform: uppercase;
-  transition: color 160ms ease;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .closingNav span {
@@ -668,16 +654,20 @@
 .docLinks {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  gap: var(--sp-2);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: 1;
 }
 
 .docLinks a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--ink-lo);
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .docLinks a:hover,
@@ -690,51 +680,50 @@
   opacity: 0.5;
 }
 
-/* The evidence contract, now in the left rail under the coverage block —
-   it describes the document, not any one development, so it sits with the
-   identity rather than in the margin the citations have taken over. */
-/* A sibling of `.indexRail`, not a child of it — see the note at its call
-   site. Explicit column placement keeps it visually where it has always been,
-   under the rail in the left column, while leaving the sticky box to the TOC. */
+/* ── Evidence contract ────────────────────────────────────────────────────
+   A sibling of `.indexRail`, not a child of it — see the note at its call
+   site. Explicit column placement keeps it under the rail in the left column
+   while leaving the sticky box to the TOC. */
 .evidenceContract {
   grid-column: 1;
   align-self: start;
-  margin-top: 1.4rem;
-  padding-top: 1.2rem;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
   border-top: 1px solid var(--gold-line);
 }
 
 .evidenceContract dl {
-  margin-top: 0.9rem;
+  margin-top: var(--sp-3);
 }
 
 .evidenceContract dl > div {
-  padding: 0.75rem 0;
+  padding: var(--sp-3) 0;
   border-bottom: 1px solid var(--line);
 }
 
-/* This block carried the site's smallest type — 0.49rem, about 8px — on the
-   labels for its credibility claim: status, record count, corrections. The
-   one thing a reader is meant to check was the one thing they could not
-   read. */
+/* The labels of the credibility claim — status, record count, corrections —
+   at the floor and never below it. */
 .evidenceContract dt {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
   text-transform: uppercase;
 }
 
 .evidenceContract dd {
-  margin-top: 0.4rem;
+  margin-top: var(--sp-1);
   color: var(--ink);
   font-family: var(--face-data);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
 }
 
+/* Focus is drawn by the global rule; only the offset is local. */
 .page a:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 4px;
 }
 
@@ -742,14 +731,14 @@
   color: var(--gold-hi);
 }
 
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
 /* 1219.98, not 1220. `marginNote` (content.module.css) turns the evidence
    margin on at `min-width: 1220px`, and both rules were true at exactly
    1220px — the layout dropped to two tracks while the citations were still
    being pushed into a third that no longer existed. The two breakpoints are
    now edge-to-edge. */
 @media (max-width: 1219.98px) {
-  /* Two tracks: the evidence margin closes and the citations fall back into
-     the column beneath their developments. */
   .layout {
     grid-template-columns: 12rem minmax(0, var(--article-w));
   }
@@ -757,8 +746,8 @@
 
 @media (max-width: 900px) {
   .siteHeader {
-    padding-inline: 1.25rem;
-    background: linear-gradient(to bottom, var(--ground) calc(100% - 8px), rgba(0, 0, 0, 0.9));
+    padding-inline: var(--sp-5);
+    background: linear-gradient(to bottom, var(--ground) calc(100% - 8px), color-mix(in srgb, var(--ground) 90%, transparent));
   }
 
   .headerContext small {
@@ -767,8 +756,8 @@
 
   .layout {
     grid-template-columns: minmax(0, var(--article-w));
-    gap: 1.3rem;
-    padding-top: 1.5rem;
+    gap: var(--sp-5);
+    padding-top: var(--sp-5);
   }
 
   .indexRailInner {
@@ -786,12 +775,12 @@
 
   .contents > span {
     display: block;
-    margin-bottom: 0.65rem;
+    margin-bottom: var(--sp-3);
   }
 
   .contents ol {
     display: flex;
-    gap: 1.2rem;
+    gap: var(--sp-5);
     margin: 0;
     padding-right: 2.75rem;
     overflow-x: auto;
@@ -813,18 +802,24 @@
 
   .contents a {
     min-height: 44px;
+    padding-left: 0;
     border-bottom: 1px solid var(--line);
+    box-shadow: none;
     white-space: nowrap;
+  }
+
+  .contents a:hover,
+  .contents a:focus-visible {
+    box-shadow: inset 0 -2px 0 var(--gold);
   }
 }
 
 @media (max-width: 719px) {
   .page {
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    /* `scroll-padding-top` moved off this element with the scrollport. The
-       offset it provided is already carried by `scroll-margin-top` on the
-       anchor targets themselves (`:454`, `:930`), which resolves against
-       whichever scroller is in play — so nothing is lost by dropping it. */
+    /* The padding drops here, so the measure the track is sized from has to
+       know — `--section-pad-x` is the one place both read. */
+    --section-pad-x: 1.25rem;
   }
 
   .siteHeader {
@@ -832,9 +827,9 @@
     min-height: calc(3.5rem + env(safe-area-inset-top, 0px));
     padding:
       env(safe-area-inset-top, 0px)
-      max(1rem, env(safe-area-inset-right, 0px))
+      max(var(--sp-4), env(safe-area-inset-right, 0px))
       0
-      max(1rem, env(safe-area-inset-left, 0px));
+      max(var(--sp-4), env(safe-area-inset-left, 0px));
   }
 
   .backLink {
@@ -856,23 +851,19 @@
     justify-self: end;
   }
 
-  /* No size override — `--t-data` is the floor at every width. */
-
   .layout {
     width: 100%;
     gap: 0;
-    padding: 0 0 2.5rem;
+    padding: 0 0 var(--sp-6);
   }
 
   .indexRail {
     position: sticky;
     top: calc(3.5rem + env(safe-area-inset-top, 0px));
     z-index: 20;
-    padding: 0.45rem 1.25rem 0;
+    padding: var(--sp-2) var(--sp-5) 0;
     background: var(--ground);
     border-bottom: 1px solid var(--line);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
 
   .contents > span {
@@ -884,16 +875,17 @@
   }
 
   .contents ol {
-    gap: 1rem;
+    gap: var(--sp-4);
   }
 
   /* The contents list becomes a horizontal scroller here, so it switches to
      the data voice — but at the floor, not below it. */
   .contents a {
-    min-height: 2.85rem;
+    min-height: 44px;
     color: var(--ink-lo);
     font-family: var(--face-data);
     font-size: var(--t-data);
+    font-weight: var(--t-data-weight);
     letter-spacing: var(--t-data-tracking);
     text-transform: uppercase;
   }
@@ -905,58 +897,51 @@
   }
 
   .briefHeader {
-    padding: 2.2rem 1.25rem 2.5rem;
+    padding: var(--sp-6) var(--section-pad-x) var(--sp-6);
   }
 
   .topic {
-    margin-top: 1.8rem;
+    margin-top: var(--sp-5);
     font-size: var(--t-body);
   }
 
   .briefHeader h1 {
-    margin-top: 0.7rem;
-    font-size: clamp(2rem, 9vw, 2.7rem);
-    line-height: 1.1;
+    margin-top: var(--sp-3);
   }
 
   .dek {
-    margin-top: 1.2rem;
-  }
-
-  /* The padding drops here, so the measure the track is sized from has to know
-     — `--section-pad-x` is the one place both read. */
-  .page {
-    --section-pad-x: 1.25rem;
+    margin-top: var(--sp-4);
   }
 
   .section {
-    padding-block: 2.7rem;
+    padding-block: var(--sp-7);
     scroll-margin-top: 7rem;
   }
 
   .sectionLabel {
-    margin-bottom: 1.25rem;
+    margin-bottom: var(--sp-4);
   }
 
   .sectionLabel h2 {
     font-size: var(--t-h3);
+    letter-spacing: var(--t-h3-tracking);
     line-height: var(--t-h3-lh);
   }
 
   .changeList li {
     grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.8rem;
+    gap: var(--sp-3);
   }
 
   .corrections {
-    padding: 1.6rem 1.25rem 2rem;
+    padding: var(--sp-5) var(--section-pad-x) var(--sp-6);
   }
 
   .closing {
     align-items: flex-start;
     flex-direction: column;
-    gap: 0.9rem;
-    padding: 1.4rem 1.25rem 1.6rem;
+    gap: var(--sp-3);
+    padding: var(--sp-5) var(--section-pad-x);
   }
 
   .closingNav {
@@ -966,22 +951,16 @@
 }
 
 @media (max-width: 359px) {
-  .briefHeader,
-  .section,
-  .corrections,
-  .closing {
-    padding-inline: 1rem;
+  .page {
+    --section-pad-x: 1rem;
   }
 
   .indexRail {
-    padding-inline: 1rem;
+    padding-inline: var(--sp-4);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* `.page` stopped being a scroll container on 2026-08-27, so its
-     `scroll-behavior` reset moved to `html` in `globals.css`. */
-
   .article {
     animation: none;
   }

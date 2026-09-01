@@ -3,45 +3,52 @@ import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import styles from "./information-war-system.module.css";
 
+/*
+ * Headings and kickers are sentence case in the source. The V3 system allows
+ * uppercase only on data labels of two words or fewer — the stage `meta`
+ * strings and the diagram's labels qualify and are transformed by the
+ * stylesheet; the stage names, the hero and the footer line are headings and
+ * are not. The words are unchanged.
+ */
 const SYSTEM_STAGES = [
   {
     number: "01",
-    name: "DISCOVER",
+    name: "Discover",
     detail: "Public reporting enters through monitored search queries and verified feeds.",
-    meta: "GOOGLE SEARCH / RSS",
+    meta: "Google Search / RSS",
   },
   {
     number: "02",
-    name: "PRESERVE",
+    name: "Preserve",
     detail: "Each result keeps its publisher, URL, retrieval time, and original source family.",
-    meta: "SOURCE LEDGER",
+    meta: "Source ledger",
   },
   {
     number: "03",
-    name: "TRIAGE",
+    name: "Triage",
     detail: "Relevant stories, atomic claims, duplicates, urgency, and possible narratives are separated.",
-    meta: "STRUCTURED ANALYSIS",
+    meta: "Structured analysis",
   },
   {
     number: "04",
-    name: "VERIFY",
+    name: "Verify",
     detail: "Supporting and contradicting evidence stay attached to consequential claims.",
-    meta: "EVIDENCE GRAPH",
+    meta: "Evidence graph",
   },
   {
     number: "05",
-    name: "PUBLISH",
+    name: "Publish",
     detail: "The system produces traceable English briefs, updates, and narrative analysis.",
-    meta: "PUBLIC RECORD",
+    meta: "Public record",
   },
 ] as const;
 
 const PRESSURE_STAGES = [
-  ["EVENT", "Something happens in the physical world."],
-  ["FRAGMENT", "A partial image, quote, or claim becomes the first usable unit."],
-  ["AMPLIFICATION", "Repetition increases visibility and can imitate independent confirmation."],
-  ["PERCEPTION", "The repeated frame becomes the lens through which later facts are interpreted."],
-  ["PRESSURE", "Public belief influences institutions, policy, and freedom of action."],
+  ["Event", "Something happens in the physical world."],
+  ["Fragment", "A partial image, quote, or claim becomes the first usable unit."],
+  ["Amplification", "Repetition increases visibility and can imitate independent confirmation."],
+  ["Perception", "The repeated frame becomes the lens through which later facts are interpreted."],
+  ["Pressure", "Public belief influences institutions, policy, and freedom of action."],
 ] as const;
 
 export function InformationWarSystem() {
@@ -67,11 +74,11 @@ export function InformationWarSystem() {
           <div className={styles.coordinates}>31.7683° N / 35.2137° E</div>
         </div>
         <div className={styles.heroCopy}>
-          <p>THE BATTLEFIELD IS PERCEPTION.</p>
+          <p>The battlefield is perception.</p>
           <h1 id="war-heading">
-            <span>THIS IS AN</span>
-            <span>INFORMATION</span>
-            <span>WAR.</span>
+            <span>This is an</span>
+            <span>information</span>
+            <span>war.</span>
           </h1>
           <p className={styles.heroStatement}>
             Events shape reality. Narratives shape what the world believes those events mean.
@@ -81,7 +88,7 @@ export function InformationWarSystem() {
       </section>
 
       <section className={styles.definition} aria-labelledby="definition-heading">
-        <div className={styles.sectionIndex}>01 / THE BATTLEFIELD</div>
+        <div className={styles.sectionIndex}>01 / The battlefield</div>
         <div>
           <h2 id="definition-heading">A claim can cross the world before the evidence reaches the room.</h2>
           <p>
@@ -98,7 +105,7 @@ export function InformationWarSystem() {
 
       <section className={styles.pressure} aria-labelledby="pressure-heading">
         <div className={styles.sectionIntro}>
-          <div className={styles.sectionIndex}>02 / HOW PRESSURE FORMS</div>
+          <div className={styles.sectionIndex}>02 / How pressure forms</div>
           <h2 id="pressure-heading">One event. Five transformations.</h2>
         </div>
         <ol className={styles.pressureFlow}>
@@ -115,7 +122,7 @@ export function InformationWarSystem() {
 
       <section className={styles.independence} aria-labelledby="independence-heading">
         <div className={styles.sectionIntro}>
-          <div className={styles.sectionIndex}>03 / THE INDEPENDENCE TEST</div>
+          <div className={styles.sectionIndex}>03 / The independence test</div>
           <h2 id="independence-heading">Repetition is not corroboration.</h2>
           <p>
             The system groups syndicated copies under their upstream source family. Five copies of one
@@ -124,7 +131,7 @@ export function InformationWarSystem() {
         </div>
         <div className={styles.sourceDiagram} role="img" aria-label="Five headlines converging into one upstream source family">
           <div className={styles.copies}>
-            {["OUTLET A", "OUTLET B", "OUTLET C", "OUTLET D", "OUTLET E"].map((outlet) => (
+            {["Outlet A", "Outlet B", "Outlet C", "Outlet D", "Outlet E"].map((outlet) => (
               <span key={outlet}>{outlet}<i /></span>
             ))}
           </div>
@@ -136,16 +143,16 @@ export function InformationWarSystem() {
             <span />
           </div>
           <div className={styles.origin}>
-            <small>COUNTED AS</small>
-            <strong>ONE</strong>
-            <span>UPSTREAM ORIGIN</span>
+            <small>Counted as</small>
+            <strong>One</strong>
+            <span>Upstream origin</span>
           </div>
         </div>
       </section>
 
       <section className={styles.system} id="system" aria-labelledby="system-heading">
         <div className={styles.systemSticky}>
-          <div className={styles.sectionIndex}>04 / THE LIONS OF ZION SYSTEM</div>
+          <div className={styles.sectionIndex}>04 / The Lions of Zion system</div>
           <h2 id="system-heading">From open signal to public record.</h2>
           <p>
             Collection is automated. The evidence chain remains visible. Every public article can be
@@ -170,22 +177,22 @@ export function InformationWarSystem() {
       </section>
 
       <section className={styles.output} aria-labelledby="output-heading">
-        <div className={styles.sectionIndex}>05 / THE OUTPUT</div>
+        <div className={styles.sectionIndex}>05 / The output</div>
         <h2 id="output-heading">Evidence must travel.</h2>
         <p>
           The system turns a daily field of public signals into three readable outputs: a strategic brief,
           focused news and war updates, and a dedicated record of narratives moving across the global information space.
         </p>
         <div className={styles.outputLines}>
-          <span>DAILY BRIEF</span>
-          <span>ISRAEL + WAR UPDATES</span>
-          <span>NARRATIVE WATCH</span>
+          <span>Daily Brief</span>
+          <span>Israel + war updates</span>
+          <span>Narrative Watch</span>
         </div>
         <Link href="/geopolitical-brief">Enter The Israel Brief <span aria-hidden="true">→</span></Link>
       </section>
 
       <footer className={styles.footer}>
-        <span>LIONS OF ZION / TRUTH HAS A SIGNAL</span>
+        <span>Lions of Zion / Truth has a signal</span>
         <Link href="/methodology">Methodology</Link>
       </footer>
     </EditorialShell>

@@ -100,8 +100,8 @@ const narrativeWatchDraftSchema = z.object({
   propagators: z.array(z.string().min(1).max(300)).max(20),
   arenas: z.array(z.string().min(1).max(120)).min(1).max(20),
   trendDirection: z.enum(["rising", "stable", "declining", "new", "unclear"]),
-  israeliPosition: z.string().min(1).max(6_000).nullable(),
-  securityContext: z.string().min(1).max(6_000).nullable(),
+  israeliPosition: z.string().min(1).max(6_000).nullable().default(null),
+  securityContext: z.string().min(1).max(6_000).nullable().default(null),
   supportingEvidenceIds: z.array(z.uuid()).max(30),
   contradictingEvidenceIds: z.array(z.uuid()).max(30),
   verificationState: z.enum(["verified", "refuted", "misleading", "unsupported", "disputed", "unresolved"]),
@@ -117,12 +117,12 @@ const articleShape = {
   ),
   claims: z.array(articleClaimSchema).min(1).max(20),
   passages: z.array(articlePassageSchema).min(2).max(30),
-  narrativeTitle: z.string().min(1).max(300).nullable(),
+  narrativeTitle: z.string().min(1).max(300).nullable().default(null),
   editorialTopic: z.string().min(1).max(120),
-  primaryActor: z.string().min(1).max(160).nullable(),
+  primaryActor: z.string().min(1).max(160).nullable().default(null),
   arena: z.string().min(1).max(120),
   featuredIsraelStory: z.boolean(),
-  narrativeWatchDetails: narrativeWatchDraftSchema.nullable(),
+  narrativeWatchDetails: narrativeWatchDraftSchema.nullable().default(null),
 } as const;
 
 export const articleSchema = z.object(articleShape).superRefine((article, ctx) => {
@@ -211,8 +211,8 @@ const dailyBriefSchema = z.object({
   claims: z.array(claimSchema).min(1).max(30),
   situation: dailySectionSchema,
   keyEvents: dailySectionSchema,
-  israeliPosition: dailySectionSchema.nullable(),
-  internationalResponses: dailySectionSchema.nullable(),
+  israeliPosition: dailySectionSchema.nullable().default(null),
+  internationalResponses: dailySectionSchema.nullable().default(null),
   watchPoints: dailySectionSchema,
 });
 

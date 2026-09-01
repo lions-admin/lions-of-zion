@@ -31,7 +31,7 @@
   isolation: isolate;
   /* Ground and texture come from `body` (`--scan-ground`). The fixed
      `SiteHeader` is 3.6rem; the masthead clears it by one line. */
-  padding-top: var(--sp-8);
+  padding-top: var(--header-h);
   background: transparent;
   color: var(--ink);
   font-family: var(--face-text);

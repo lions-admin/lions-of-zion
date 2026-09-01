@@ -475,6 +475,7 @@ export function briefingRepo(db: unknown) {
         FROM source s
         LEFT JOIN source_fetch sf ON sf.source_id = s.id
         WHERE s.kind IN ('rss', 'api', 'gdelt', 'agent_search')
+          AND coalesce(s.config ->> 'retired', 'false') <> 'true'
         GROUP BY s.id
         ORDER BY s.active DESC, s.name
       `),

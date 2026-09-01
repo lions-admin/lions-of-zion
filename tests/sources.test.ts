@@ -123,13 +123,9 @@ describe("original-publisher classification", () => {
     }
   });
 
-  it("includes the official English government news feed as an inactive candidate", () => {
-    const official = BRIEFING_RSS_CANDIDATES.find((candidate) => candidate.slug === "gov-il-official-news");
-    expect(official).toMatchObject({
-      category: "official_israeli",
-      language: "en",
-      feedUrl: expect.stringContaining("/api/NewsApi/rss/"),
-    });
+  it("does not retain RSS endpoints that failed live verification", () => {
+    const retired = ["gov-il-official-news", "times-of-israel", "haaretz", "presstv", "unrwa", "washington-institute"];
+    expect(BRIEFING_RSS_CANDIDATES.some((candidate) => retired.includes(candidate.slug))).toBe(false);
   });
 
   it("retains editorial source categories after Google discovery", () => {

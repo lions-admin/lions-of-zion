@@ -841,10 +841,35 @@ export function briefingService(database: unknown, options: { generate?: Generat
     };
   }
 
+  /** Authenticated editorial preview of the persisted draft artifact. This is
+   * intentionally separate from public publication projections: a failed or
+   * in-progress edition must remain reviewable by the administrator without
+   * becoming visible to readers. */
+  async function draftPreview(localDate = israelLocalDate(now())) {
+    const edition = await store.editionByDate(localDate);
+    if (!edition) throw new ApiError("NOT_FOUND", "Briefing edition was not found.");
+    const drafted = draftArtifactSchema.parse(await requiredArtifact(store, edition.id, "draft"));
+    return {
+      localDate,
+      dailyBrief: {
+        title: drafted.edition.dailyBrief.title,
+        summary: drafted.edition.dailyBrief.summary,
+        body: dailyBody(drafted.edition.dailyBrief),
+      },
+      articles: drafted.edition.articles.map((article) => ({
+        section: article.section,
+        title: article.title,
+        summary: article.summary,
+        body: bodyFromPassages(article.passages),
+      })),
+    };
+  }
+
   return {
     run,
     runStage,
     resumePausedEdition,
+    draftPreview,
     setAutomaticPublicationPaused: (paused: boolean, actor: Actor) =>
       store.setAutomaticPublicationPaused(paused, actor.label),
     runScheduled: async (actor: Actor, requestId?: string) =>

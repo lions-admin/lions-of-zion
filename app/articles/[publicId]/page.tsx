@@ -59,6 +59,7 @@ export default async function ArticlePage({ params }: Props) {
     author: { "@type": "Organization", name: "Lions of Zion" },
     publisher: { "@type": "Organization", name: "Lions of Zion" },
   };
+  const visiblePassages = collapsePublicPassages(article.passages);
 
   return (
     <EditorialShell
@@ -90,7 +91,7 @@ export default async function ArticlePage({ params }: Props) {
           {article.updatedAt !== article.publishedAt ? " · Updated " + formatDate(article.updatedAt) : ""}
         </p>
         <div className={styles.body}>
-          {(article.passages.length ? article.passages : article.body.split(/\r?\n\r?\n+/).map((text, index) => ({ position: index + 1, text, claim: null, sources: [] }))).map((passage) => (
+          {(visiblePassages.length ? visiblePassages : article.body.split(/\r?\n\r?\n+/).map((text, index) => ({ position: index + 1, text, claim: null, sources: [] }))).map((passage) => (
             <section className={styles.passage} key={passage.position}>
               <p>{passage.text}</p>
               {passage.claim ? <p className={styles.claimRef}>Claim record: {passage.claim.title}{passage.claim.assessment ? ` · ${passage.claim.assessment}` : ""}</p> : null}
@@ -135,6 +136,29 @@ export default async function ArticlePage({ params }: Props) {
       </article>
     </EditorialShell>
   );
+}
+
+export function collapsePublicPassages<T extends PublicPublicationDetail["passages"][number]>(passages: T[]): T[] {
+  const visible: T[] = [];
+  for (const passage of passages) {
+    const duplicate = visible.some((existing) => {
+      if (!existing.claim || !passage.claim || existing.claim.publicId !== passage.claim.publicId) return false;
+      const existingPublishers = new Set(existing.sources.map((source) => source.publisher));
+      if (passage.sources.length && !passage.sources.some((source) => existingPublishers.has(source.publisher))) return false;
+      return wordSimilarity(existing.text, passage.text) >= 0.58;
+    });
+    if (!duplicate) visible.push(passage);
+  }
+  return visible;
+}
+
+function wordSimilarity(first: string, second: string): number {
+  const words = (value: string) => new Set(value.toLocaleLowerCase().match(/[\p{L}\p{N}]{4,}/gu) ?? []);
+  const a = words(first);
+  const b = words(second);
+  if (!a.size || !b.size) return 0;
+  const intersection = [...a].filter((word) => b.has(word)).length;
+  return intersection / (a.size + b.size - intersection);
 }
 
 function formatSourceDate(value: string): string {

@@ -24,9 +24,20 @@ vi.mock("@/lib/publications", () => ({
   isMissingPublication: () => false,
 }));
 
-import ArticlePage, { generateMetadata } from "@/app/articles/[publicId]/page";
+import ArticlePage, { collapsePublicPassages, generateMetadata } from "@/app/articles/[publicId]/page";
 
 describe("article structured data", () => {
+  it("collapses repeated public passages without hiding a distinct claim", () => {
+    const base = { claim: { publicId: "claim-1", title: "Claim", assessment: "unresolved" }, sources: [{ title: "Source", publisher: "Source", url: "https://source.example/a" }] };
+    const passages = collapsePublicPassages([
+      { ...base, position: 1, text: "The source reports a regional security update after a Sunday meeting." },
+      { ...base, position: 2, text: "The source reports a new regional security update following the Sunday meeting." },
+      { ...base, position: 3, text: "The source separately reports that independent verification remains unavailable." },
+    ]);
+    expect(passages).toHaveLength(2);
+    expect(passages.map((passage) => passage.position)).toEqual([1, 3]);
+  });
+
   const props = { params: Promise.resolve({ publicId: publication.publicId }) };
 
   it("publishes one canonical NewsArticle record with the stored dates", async () => {

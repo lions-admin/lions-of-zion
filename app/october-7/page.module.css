@@ -6,14 +6,16 @@
    ol/li) rather than their CSS-module class names, which are hashed and
    not safe to target directly from a sibling module.
 
-   Type and colour come from the V2 tokens in app/globals.css
-   (`.ai/DESIGN-V2.md`). */
+   Design V3 (`app/globals.css`). The memorial register spends gold exactly
+   once on this page: the three figures. Every rule, frame and link below
+   is set in the ink hairlines, so the number is the only thing that
+   glows. */
 
 .inscription {
-  margin: 2.25rem 0 2.5rem;
-  padding: 2.25rem 0;
-  border-top: 1px solid var(--gold-line);
-  border-bottom: 1px solid var(--gold-line);
+  margin: var(--sp-7) 0;
+  padding: var(--sp-6) 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .inscription > dl {
@@ -26,22 +28,26 @@
 }
 
 .inscription > dl > div {
-  padding: 0 1.5rem;
+  padding: 0 var(--sp-5);
   text-align: center;
 }
 
 .inscription > dl > div + div {
-  border-left: 1px solid var(--gold-line);
+  border-left: 1px solid var(--line-soft);
 }
 
+/* The one gold on the page. Set at the `--t-h2` step rather than a bespoke
+   clamp: a third of the 68ch measure is ~160px, and `--t-h2` tops out at
+   2.15rem, where "1,200+" — the widest figure — is ~115px in Newsreader and
+   never wraps. `--t-display` would break it at the desktop measure, and a
+   memorial reads quieter, not louder. */
 .inscription > dl > div > dt {
   font-family: var(--face-display);
-  /* Sized to always clear "1,200+" (the widest figure) inside a third of
-     the measure without wrapping — see the fifth-round real-Chrome review
-     that caught it breaking as "1,20" / "0+" at the old 4.25rem max. */
-  font-size: clamp(1.9rem, 4vw, 2.6rem);
-  font-weight: 500;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
   line-height: 1;
+  letter-spacing: var(--t-h2-tracking);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--gold-hi);
 }
@@ -52,9 +58,10 @@
    should not have to work to take the number's meaning. */
 .inscription > dl > div > dd {
   max-width: none;
-  margin: 0.9rem auto 0;
+  margin: var(--sp-3) auto 0;
   font-family: var(--face-text);
   font-size: var(--t-caption);
+  font-weight: 400;
   line-height: var(--t-caption-lh);
   letter-spacing: 0;
   text-transform: none;
@@ -64,24 +71,25 @@
 @media (max-width: 640px) {
   .inscription > dl {
     grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
+    gap: var(--sp-6);
   }
 
   .inscription > dl > div + div {
     border-left: none;
-    padding-top: 2rem;
-    border-top: 1px solid var(--gold-line);
+    padding-top: var(--sp-6);
+    border-top: 1px solid var(--line-soft);
   }
 }
 
 /* Slower rhythm down the record — more air between entries than the
-   default feed treatment, so the page is paced for reading, not scanning. */
+   default feed treatment, so the page is paced for reading, not scanning.
+   Whitespace between records is recovery time. */
 .record ol > li {
-  padding-bottom: 3.4rem;
+  padding-bottom: var(--sp-7);
 }
 
 .record ol > li:last-child {
-  padding-bottom: 0.25rem;
+  padding-bottom: var(--sp-1);
 }
 
 /*
@@ -89,48 +97,54 @@
  *
  * Each entry is one whole-block link and must read as one before hover: a
  * framed panel with a permanent "Open the archive →" line, not a heading that
- * happens to be clickable. The register stays muted — quiet frame, gold only
- * as confirmation — because this page is a monument, not a landing page.
+ * happens to be clickable. The register stays muted — a quiet frame that
+ * firms up on hover, no colour change, nothing moves — because this page is
+ * a monument, not a landing page.
  */
 .archiveEntries {
   list-style: none;
   display: grid;
-  gap: 1rem;
-  margin: 1.5rem 0 1.75rem;
+  gap: var(--sp-4);
+  margin: var(--sp-5) 0 var(--sp-6);
   padding: 0;
 }
 
 @media (min-width: 46rem) {
   .archiveEntries {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .archiveEntry {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: var(--sp-2);
   height: 100%;
-  padding: 1.2rem 1.3rem 1.1rem;
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
   border: 1px solid var(--line);
-  border-left: 2px solid var(--gold-line);
-  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
   text-decoration: none;
-  transition: border-color 140ms ease, background-color 140ms ease;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
 .archiveEntry:hover,
 .archiveEntry:focus-visible {
-  border-color: var(--gold-line);
-  border-left-color: var(--gold);
-  background: color-mix(in srgb, var(--gold) 8%, transparent);
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+
+.archiveEntry:active {
+  background: var(--surface-1);
 }
 
 .archiveEntryHead {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--sp-4);
 }
 
 .archiveEntryTitle {
@@ -138,18 +152,15 @@
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);
   font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
-}
-
-.archiveEntry:hover .archiveEntryTitle,
-.archiveEntry:focus-visible .archiveEntryTitle {
-  color: var(--gold-hi);
 }
 
 .archiveEntryCount {
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
   white-space: nowrap;
@@ -163,24 +174,20 @@
   flex-grow: 1;
 }
 
-/* Sentence case on purpose: the V2 rules allow uppercase+tracking only for
-   data labels of two words or fewer, and this is three. */
+/* Sentence case on purpose: uppercase+tracking is allowed only for data
+   labels of two words or fewer, and this is three. In the text face at
+   caption weight — it is a link's own label, not a datum. */
 .archiveEntryCta {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  letter-spacing: 0.04em;
-  color: var(--gold);
-  margin-top: 0.35rem;
+  margin-top: var(--sp-2);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .archiveEntry:hover .archiveEntryCta,
 .archiveEntry:focus-visible .archiveEntryCta {
-  color: var(--gold-hi);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .archiveEntry {
-    transition: none;
-  }
+  color: var(--ink-hi);
 }

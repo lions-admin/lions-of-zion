@@ -1,34 +1,10 @@
-/* Share control. Same button voice as the forms' submit (support.module.css)
-   — sentence case in the text face, for the reason recorded there: both of
-   this control's labels ("Share what's verified", "Copied — paste it
-   anywhere") are over the two-word uppercase budget. */
+/* Share control. The control itself is the shared `Button`
+   (`components/ui`, `variant="secondary"`) so it speaks in the site's one
+   button voice; this class only places it beneath the paragraph it
+   follows. Both labels ("Share what's verified", "Copied — paste it
+   anywhere") are over the two-word uppercase budget, and the Button keeps
+   them in sentence case. */
 
 .share {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  margin-top: 1.1rem;
-  padding: 0 1.1rem;
-  background: transparent;
-  border: 1px solid var(--gold);
-  border-radius: 2px;
-  color: var(--gold);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: 0;
-  text-transform: none;
-  cursor: pointer;
-  transition: border-color 180ms ease, color 180ms ease;
-}
-
-.share:hover,
-.share:focus-visible {
-  border-color: var(--gold-hi);
-  color: var(--gold-hi);
-}
-
-.share:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 3px;
+  margin-top: var(--sp-4);
 }

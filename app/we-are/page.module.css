@@ -1,121 +1,118 @@
 /* ---- The method: a real pipeline, not a numbered list pretending to be
    one. A continuous track runs through every stage; the human-review stage
-   breaks its shape (circle → diamond) because it is structurally different
-   from the rest — the one gate nothing automated can pass, not just another
-   step in a sequence.
+   breaks its shape (circle → diamond) and takes a panel of its own because
+   it is structurally different from the rest — the one gate nothing
+   automated can pass, not just another step in a sequence.
 
-   The track runs vertically at every width. Five columns inside this page's
-   ~600px reading measure gave each stage ~110px — body copy broke at two and
-   three words a line, and the gate stage (which carries an extra label) ran
-   twice its neighbours' height, ragging the row's bottom edge. A five-stage
-   process reads as a sequence down the page anyway, and one direction means
-   one behaviour to reason about. ---- */
+   Design V3 (`app/globals.css`). The track used to carry a looping light;
+   nothing loops on a reading surface now, and the gate is the page's one
+   gold — a still mark rather than a moving one. The track runs vertically
+   at every width: five columns inside this page's ~600px reading measure
+   gave each stage ~110px and body copy broke at two and three words a
+   line. ---- */
 
 .pipeline {
-  position: relative;
-  margin: 2rem 0 0;
-}
-
-.pipelineTrack {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0.45rem;
-  width: 2px;
-  overflow: hidden;
-  background: var(--gold-line);
-}
-
-.pipelineTrack::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  height: 40%;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    var(--gold),
-    transparent
-  );
-  animation: pipelineFlow 5s linear infinite;
-}
-
-@keyframes pipelineFlow {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(350%); }
+  margin: var(--sp-6) 0 0;
 }
 
 .pipelineList {
-  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: var(--sp-6);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .pipelineStage {
+  position: relative;
   display: grid;
-  grid-template-columns: 0.9rem minmax(0, 1fr);
+  grid-template-columns: var(--sp-4) minmax(0, 1fr);
   align-items: start;
-  gap: 1rem;
+  gap: var(--sp-4);
   min-width: 0;
   text-align: left;
 }
 
-.pipelineStage[data-gate] {
-  grid-template-columns: 1.1rem minmax(0, 1fr);
+/* The track is drawn per stage — each segment runs from this row's top to
+   the next row's top, across the list gap — so it starts at the first node
+   and ends at the last one instead of overrunning the list. The nodes are
+   opaque and positioned, so they sit over it. */
+.pipelineStage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: calc(-1 * var(--sp-6));
+  left: calc(var(--sp-2) - 1px);
+  width: 2px;
+  background: var(--line);
 }
 
+.pipelineStage:first-child::before {
+  top: var(--sp-2);
+}
+
+.pipelineStage:last-child::before {
+  bottom: auto;
+  height: calc(var(--sp-2) + var(--sp-2));
+}
+
+/* A stage marker: a ring on the track, centred on the title's first line. */
 .pipelineNode {
+  position: relative;
   display: block;
-  width: 0.9rem;
-  height: 0.9rem;
-  margin: 0.3rem 0 0;
-  border: 1.5px solid var(--gold);
+  width: var(--sp-3);
+  height: var(--sp-3);
+  margin: var(--sp-2) 0 0 calc(var(--sp-1) / 2);
+  border: 1.5px solid var(--ink-lo);
   border-radius: 50%;
   background: var(--ground);
-  box-shadow: 0 0 10px rgba(198, 161, 91, 0.35);
 }
 
+/* The gate: a filled diamond, the one gold on the page. */
 .pipelineStage[data-gate] .pipelineNode {
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 2px;
+  width: var(--sp-4);
+  height: var(--sp-4);
+  margin: calc(var(--sp-2) + var(--sp-4)) 0 0 0;
+  border-radius: var(--radius-1);
   border-color: var(--gold-hi);
   background: var(--gold);
   transform: rotate(45deg);
-  box-shadow: 0 0 14px rgba(198, 161, 91, 0.55);
 }
 
 .pipelineContent {
   min-width: 0;
 }
 
+/* The gate stage is a panel, not a paragraph: the structural difference
+   shows in the layout before a reader gets to the label. */
+.pipelineStage[data-gate] .pipelineContent {
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
 /* A stage name is a heading, not a label: sentence case in the display face
    rather than tracked capitals. */
 .pipelineContent h3 {
-  margin: 0 0 0.55rem;
+  margin: 0 0 var(--sp-2);
   font-family: var(--face-display);
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
-  letter-spacing: 0;
-  color: var(--gold-hi);
-}
-
-.pipelineStage[data-gate] .pipelineContent h3 {
-  color: var(--gold-hi);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
 }
 
 /* "Gate — human only": short, and genuinely a status stamp on the one stage
    nothing automated can pass, so it keeps the uppercase data voice. */
 .gateLabel {
   display: block;
-  margin: 0.4rem 0 0.6rem;
+  margin: 0 0 var(--sp-3);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
@@ -129,38 +126,27 @@
   color: var(--ink);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pipelineTrack {
-    background: var(--gold-line);
-  }
-
-  .pipelineTrack::after {
-    animation: none;
-    display: none;
-  }
-}
-
 /* Two up, not four. Four cards across this page's ~600px measure gave each
    ~135px: "Investigators" clipped its own last letter and every card's body
    broke at two or three words a line. */
 .roleGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0;
+  gap: var(--sp-4);
+  margin: var(--sp-5) 0;
 }
 
 .faq {
-  margin: 1.5rem 0 0;
+  margin: var(--sp-5) 0 0;
 }
 
 /* Each question/answer pair is its own wrapper element, so the separation
-   belongs between the pairs. It used to sit on `dt` with a `:first-child`
-   reset — but every `dt` *is* the first child of its own wrapper, so the
-   reset matched all of them and every answer ran straight into the next
-   question. */
+   belongs between the pairs: a line and a half of air, and a soft rule so
+   the gap inside a pair stays visibly smaller than the gap between them. */
 .faq > div + div {
-  margin-top: 1.75rem;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line-soft);
 }
 
 /* A question is read, not scanned — display face, sentence case, at the
@@ -170,14 +156,27 @@
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
 }
 
 .faq dd {
-  margin: 0.5rem 0 0;
+  margin: var(--sp-2) 0 0;
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
   color: var(--ink);
+}
+
+.faq dd a {
+  color: var(--ink-hi);
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.15em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.faq dd a:hover,
+.faq dd a:focus-visible {
+  text-decoration-color: var(--ink-hi);
 }
 
 @media (max-width: 600px) {

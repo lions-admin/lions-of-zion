@@ -1,7 +1,9 @@
 /* Shared form styling for ReportClaimForm and VolunteerInterestForm.
-   On the V2 tokens (`.ai/DESIGN-V2.md`) — these are real controls a person
-   fills in, so the labels sit at the readable end of the scale rather than
-   the 0.6rem tracked capitals they were. */
+   Design V3 (`app/globals.css`): these are real controls a person fills
+   in, so every one ships its states — default, hover, focus, invalid,
+   disabled — on the surface ramp and the state tokens, and the labels sit
+   at the readable end of the scale. The submit is the shared `Button`
+   (`components/ui`) and is not restyled here: one button voice, site-wide. */
 
 .form {
   max-width: 30rem;
@@ -10,12 +12,12 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 1.1rem;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
 }
 
-/* A field label is the thing that tells someone what to type. It was 0.6rem
-   tracked uppercase; it is caption-sized sentence case now. */
+/* A field label is the thing that tells someone what to type: caption
+   size, sentence case, the UI weight. */
 .field label {
   font-family: var(--face-text);
   font-size: var(--t-caption);
@@ -24,47 +26,90 @@
   color: var(--ink);
 }
 
+/* Default: a raised surface inside the panel, hairline edge. */
 .field input,
 .field textarea {
+  width: 100%;
   min-height: 44px;
-  padding: 0.6rem 0.75rem;
-  background: rgba(0, 0, 0, 0.6);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-2);
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--radius-2);
   color: var(--ink-hi);
   font-family: var(--face-text);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
-/* Undeclared until now, so the site's only real form inherited Chrome's UA
-   grey (#757575, 4.27:1) for text that carries instructions. Scoped to
-   `.field` so it does not reach the chat composer, which has its own. */
+/* Undeclared until now, so the site's only real form inherited the UA grey
+   for text that carries instructions. Scoped to `.field` so it does not
+   reach the chat composer, which has its own. */
 .field input::placeholder,
 .field textarea::placeholder {
   color: var(--ink-lo);
+  opacity: 1;
 }
 
 .field textarea {
   resize: vertical;
 }
 
+/* Hover: the edge firms; nothing moves. */
+.field input:hover:not(:disabled),
+.field textarea:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+
+/* Focus: the global ring draws itself; the field only lifts one surface
+   step and pulls the ring in by a pixel so it hugs the control. */
 .field input:focus-visible,
 .field textarea:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
-  border-color: var(--gold-hi);
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+}
+
+/* Invalid: the danger line, with its wash mixed into the surface so the
+   field still reads as a field and not as an alert. `:user-invalid` covers
+   the native `required` email on the volunteer form, which sets no
+   `aria-invalid` of its own — and unlike `:invalid` it waits until the
+   reader has actually touched the field. */
+.field input[aria-invalid='true'],
+.field textarea[aria-invalid='true'],
+.field input:user-invalid,
+.field textarea:user-invalid {
+  border-color: var(--state-danger-line);
+  background: color-mix(in srgb, var(--state-danger-wash) 50%, var(--surface-2));
+}
+
+.field input[aria-invalid='true']:focus-visible,
+.field textarea[aria-invalid='true']:focus-visible,
+.field input:user-invalid:focus-visible,
+.field textarea:user-invalid:focus-visible {
+  border-color: var(--state-danger);
+}
+
+/* Disabled: sunk to the panel's own surface, dimmed, honest cursor. */
+.field input:disabled,
+.field textarea:disabled {
+  background: var(--surface-1);
+  border-color: var(--line-soft);
+  color: var(--ink-lo);
+  cursor: not-allowed;
 }
 
 .fieldset {
-  margin-bottom: 1.1rem;
-  padding: 0.9rem 1rem;
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4) var(--sp-2);
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--radius-2);
 }
 
 .fieldset legend {
-  padding: 0 0.4rem;
+  padding: 0 var(--sp-2);
   font-family: var(--face-text);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
@@ -72,102 +117,91 @@
   color: var(--ink);
 }
 
+/* A whole row is the tap target, not the 16px box. */
 .checkboxRow {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 40px;
+  gap: var(--sp-3);
+  min-height: 44px;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.checkboxRow:hover {
+  color: var(--ink-hi);
 }
 
 .checkboxRow input {
-  width: 1.05rem;
-  height: 1.05rem;
+  flex: none;
+  width: var(--sp-4);
+  height: var(--sp-4);
+  margin: 0;
   accent-color: var(--gold);
+  cursor: pointer;
 }
 
 .checkboxRow input:focus-visible {
-  outline: 2px solid var(--gold-hi);
   outline-offset: 2px;
 }
 
-/* This used to stretch the uppercase budget to three words on the grounds
-   that a control label is where the data voice still reads as a button. The
-   budget is a word count, not a voice: V2 allows uppercase+tracking only for
-   data labels of two words or fewer, and "Continue by email" is three. The
-   carve-out was also already contradicted by another control that keeps the
-   rule — `app/october-7/page.module.css` `.archiveEntryCta`. So the text face
-   at caption size, sentence case; the gold rule and the 44px target are what
-   still say "button", and both submit labels change together because a group
-   of controls that switches case with its own word count reads as an accident
-   (`components/home/home.module.css`). */
-.form button[type='submit'] {
-  min-height: 44px;
-  padding: 0 1.3rem;
-  background: transparent;
-  border: 1px solid var(--gold);
-  border-radius: 2px;
-  color: var(--gold);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: 0;
-  text-transform: none;
-  cursor: pointer;
-  transition: border-color 180ms ease, color 180ms ease;
-}
-
-.form button[type='submit']:hover,
-.form button[type='submit']:focus-visible {
-  border-color: var(--gold-hi);
-  color: var(--gold-hi);
-}
-
-.form button[type='submit']:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 3px;
-}
-
-.form button[type='submit']:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* An error has to be read to be acted on — full body size, on the ember
-   ramp because that ramp means "something is wrong" everywhere else too. */
+/* An error has to be read to be acted on — small size, the danger tone,
+   and a rule in the danger line so it sits with the field it describes. */
 .fieldError {
-  margin: -0.4rem 0 0.9rem;
-  color: var(--data-ember-peak);
+  margin: calc(-1 * var(--sp-2)) 0 var(--sp-4);
+  padding-left: var(--sp-3);
+  border-left: 2px solid var(--state-danger-line);
+  color: var(--state-danger);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
 
+.fieldError a {
+  color: var(--ink-hi);
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.15em;
+}
+
 .formNote {
-  margin-top: 0.85rem;
+  margin-top: var(--sp-3);
   color: var(--ink-lo);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
 }
 
+.formNote a {
+  color: var(--ink);
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.15em;
+}
+
+/* Success: the receipt takes the ok ramp — a line, a wash on the surface —
+   and says once what happened. */
 .receipt {
   max-width: 30rem;
-  padding: 1.35rem 1.5rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 2px;
-  background: rgba(0, 0, 0, 0.6);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--state-ok-line);
+  border-left: 3px solid var(--state-ok);
+  border-radius: var(--radius-2);
+  background: color-mix(in srgb, var(--state-ok-wash) 60%, var(--surface-1));
 }
 
 .receipt p {
-  margin: 0 0 0.5rem;
-  color: var(--gold-hi);
+  margin: 0;
+  color: var(--ink-hi);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
 
+.receipt p + small {
+  display: block;
+  margin-top: var(--sp-2);
+}
+
 .receipt small {
-  color: var(--ink-lo);
+  color: var(--ink);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
 }

@@ -230,7 +230,10 @@ const storedEditionSchema = z.object({
 const selectionStorySchema = z.object({
   title: z.string().min(1).max(300),
   section: z.enum(ARTICLE_SECTIONS),
-  evidenceIds: z.array(z.uuid()).min(1).max(12),
+  // Triage is an untrusted routing stage. Let it return malformed identifiers
+  // so the explicit grounding filter below can discard only those references
+  // while preserving a story's valid packet IDs. Drafting remains UUID-strict.
+  evidenceIds: z.array(z.string().trim().min(1).max(100)).min(1).max(12),
   sourceClaim: z.string().min(1).max(2_000),
   narrativeTitle: z.string().min(1).max(300).nullable(),
 });

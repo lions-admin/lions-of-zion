@@ -169,6 +169,13 @@
   --focus-outline: 2px solid var(--gold-hi);
   --focus-offset: 3px;
 
+  /* Hover and pressed tints for controls on any surface, and the two control
+     heights (44px is the touch standard; 36px is the compact desktop size). */
+  --tint-hover: color-mix(in oklab, var(--ink-hi) 7%, transparent);
+  --tint-active: color-mix(in oklab, var(--ink-hi) 4%, transparent);
+  --control-h: 2.75rem;
+  --control-h-sm: 2.25rem;
+
   /* The scan's own ground — the site's background, in one place: the ground
      colour, a faint warm wash where the scan is densest, and the horizontal
      rule field the monitor draws over. Consumed by `body` and by the one

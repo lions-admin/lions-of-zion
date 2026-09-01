@@ -7,7 +7,11 @@ import styles from "./home.module.css";
 import { featuredPublications } from "@/lib/publications";
 
 export default async function Page() {
-  const headlines = await featuredPublications();
+  // The headline rail is an enhancement, not the page. A public read that
+  // fails — no database configured locally, or the projection briefly
+  // unavailable — must not take the site's front door down with it. Same
+  // tolerance `/war-update` already applies to its own optional list.
+  const headlines = await featuredPublications().catch(() => []);
   return (
     <main className={styles.page} data-home-scroll>
       <SiteHeader />

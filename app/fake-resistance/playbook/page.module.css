@@ -6,33 +6,39 @@
    it. The device is a labelled part, not a numbered one: the four parts are
    facets of one technique, not steps a reader performs in sequence.
 
-   Type and colour come from the V2 tokens in app/globals.css
-   (`.ai/DESIGN-V2.md`). Nothing here redeclares a face or a size that the
-   token scale already names. */
+   Values answer to the V3 tokens in app/globals.css. Nothing here redeclares
+   a face or a size that the token scale already names. */
 
+/* The chapter's standfirst: what the technique is, in one sentence, in the
+   display face at the lede step. Italic keeps it a summary rather than a
+   second heading. */
 .summary {
-  margin-bottom: 1.75rem;
+  margin-bottom: var(--sp-6);
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: var(--t-h3);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
   font-style: italic;
-  line-height: var(--t-h3-lh);
+  line-height: var(--t-lede-lh);
+  text-wrap: pretty;
 }
 
 .part + .part {
-  margin-top: 1.75rem;
+  margin-top: var(--sp-6);
 }
 
 /* The label sits on the ember rule rather than above it, so the four parts
-   read as one block with internal structure instead of four sections. */
+   read as one block with internal structure instead of four sections. It is
+   a data label — three words at most — so it takes the data face; the
+   global heading rule would otherwise set an h3 in the serif. */
 .partHeading {
-  margin-bottom: 0.6rem;
-  padding-top: 0.7rem;
+  margin-bottom: var(--sp-3);
+  padding-top: var(--sp-3);
   border-top: 1px solid var(--data-ember);
   color: var(--data-ember-peak);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  font-weight: 400;
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   line-height: var(--t-data-lh);
   text-transform: uppercase;
@@ -46,17 +52,17 @@
 }
 
 .examples > li {
-  padding-left: 1rem;
+  padding-left: var(--sp-4);
   border-left: 1px solid var(--gold-line);
 }
 
 .examples > li + li {
-  margin-top: 1rem;
+  margin-top: var(--sp-4);
 }
 
 .examples > li > span {
   display: block;
-  margin-top: 0.3rem;
+  margin-top: var(--sp-1);
   color: var(--ink-lo);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -68,14 +74,14 @@
    a list that already has semantics. */
 .cues > li {
   position: relative;
-  padding-left: 1.5rem;
+  padding-left: var(--sp-5);
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
 
 .cues > li + li {
-  margin-top: 0.7rem;
+  margin-top: var(--sp-3);
 }
 
 .cues > li::before {
@@ -101,13 +107,13 @@
    point at something the site is not currently publishing. */
 
 .findings {
-  margin: 1rem 0 0;
+  margin: var(--sp-4) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .findings > li {
-  padding: 0.9rem 0 0;
+  padding: var(--sp-4) 0 0;
   border-top: 1px solid var(--line);
 }
 
@@ -117,7 +123,7 @@
 }
 
 .findings > li + li {
-  margin-top: 0.9rem;
+  margin-top: var(--sp-4);
 }
 
 .findings > li > p {
@@ -131,13 +137,25 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.9rem;
-  margin-top: 0.5rem;
+  gap: var(--sp-2) var(--sp-4);
+  margin-top: var(--sp-2);
 }
 
+/* The case-file reference is a route, which is data — but it is a link, so
+   it keeps an underline and a hover. */
 .findingMeta > a {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.04em;
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  text-decoration-color: color-mix(in oklab, var(--ink-lo) 50%, transparent);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.findingMeta > a:hover,
+.findingMeta > a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
 }

@@ -1,75 +1,773 @@
-.shell { --face-display: var(--font-ramsina), var(--font-newsreader), Charter, Georgia, serif; --face-text: var(--font-plex-sans), sans-serif; --face-data: var(--font-geist-mono), ui-monospace, monospace; --ground: #000; --ink-hi: #eee; --ink: #c4c4c4; --ink-lo: #929292; --gold: #c9a24b; --gold-hi: #efd79a; --gold-line: rgba(201,162,75,.24); --line: rgba(175,175,175,.14); min-height: 100%; padding: clamp(24px, 6vw, 72px); color: var(--ink-hi); direction: rtl; }
-.card, .dashboard { width: min(100%, 1240px); margin: 0 auto; border: 1px solid var(--gold-line); background: rgba(0, 0, 0, .92); box-shadow: 0 30px 90px rgba(0,0,0,.4); padding: clamp(24px, 5vw, 56px); }
-.card { max-width: 520px; margin-top: 8vh; }
-.eyebrow { color: var(--gold); font: 500 var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking); text-transform: uppercase; }
-.shell h1 { margin-top: 12px; font: 600 var(--t-display)/var(--t-display-lh) var(--face-display); }
-.lede, .muted { color: var(--ink); margin-top: 12px; }
-.form { display: grid; gap: 16px; margin-top: 30px; }
-.form label { display: grid; gap: 7px; color: var(--ink); font-size: var(--t-small); }
-.form input { width: 100%; padding: 12px 14px; color: var(--ink-hi); background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 6px; font: inherit; }
-.form input:focus { outline: 2px solid var(--gold); outline-offset: 2px; }
-.primary, .secondary { min-height: 44px; padding: 10px 18px; border-radius: 6px; cursor: pointer; font: 600 var(--t-caption)/1 var(--face-text); }
-.primary { border: 1px solid var(--gold); color: #070b14; background: var(--gold-hi); }
-.secondary { border: 1px solid var(--line); color: var(--ink-hi); background: transparent; margin-top: 10px; }
-.primary:disabled, .secondary:disabled { opacity: .5; cursor: wait; }
-.error { margin-top: 16px; color: #f0a4aa; }
-.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); margin-top: 32px; }
-.summary div { display: grid; gap: 4px; padding: 18px; background: #0b111d; }
-.summary span { color: var(--ink-lo); font-size: var(--t-caption); }
-.summary strong { font-family: var(--face-data); }
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 24px 0; }
-.service { padding: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.02); }
-.service h2 { margin-top: 8px; font: 500 var(--t-h3)/var(--t-h3-lh) var(--face-data); }
-.ok, .wait { font: 500 var(--t-data)/1 var(--face-data); }
-.ok { color: #83d6b0; }
-.wait { color: #efd79a; }
-.notice { margin-top: 16px; color: #83d6b0; }
-.controlBar, .panel { margin-top: 24px; padding: 22px; border: 1px solid var(--line); background: rgba(255,255,255,.018); }
-.controlBar, .panelHead, .actionRow, .queueRow, .healthStrip { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.panel h2, .controlBar h2 { margin-top: 5px; font: 500 var(--t-h3)/var(--t-h3-lh) var(--face-display); }
-.sectionLabel { margin: 0; color: var(--gold); font: 600 var(--t-data)/1 var(--face-data); }
-.actionRow .primary, .actionRow .secondary, .controlBar .primary, .controlBar .secondary { margin-top: 0; }
-.compactMetrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 20px; background: var(--line); }
-.compactMetrics div { display: grid; gap: 4px; padding: 14px; background: #080d16; }
-.compactMetrics span { color: var(--ink-lo); font-size: var(--t-caption); }
-.compactMetrics strong { font-family: var(--face-data); }
-.queueRow, .healthStrip { justify-content: flex-start; flex-wrap: wrap; margin-top: 18px; }
-.queueRow span, .healthStrip span { padding: 8px 10px; border: 1px solid var(--line); font: 500 var(--t-data)/1 var(--face-data); }
-.tableWrap { overflow-x: auto; margin-top: 18px; }
-.table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: var(--t-caption); }
-.table th, .table td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: top; }
-.table th { color: var(--ink-lo); font-weight: 500; }
-.table td { color: var(--ink); }
-.table td small { display: block; max-width: 28ch; margin-top: 5px; color: #f0a4aa; }
-.twoColumns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.logList { display: grid; gap: 0; margin: 18px 0 0; padding: 0; list-style: none; }
-.logList li { display: grid; grid-template-columns: 7rem 1fr; gap: 6px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
-.logList span { grid-row: 1 / span 2; font: 500 var(--t-data)/1.4 var(--face-data); }
-.logList strong { font: 600 var(--t-caption)/1.4 var(--face-data); direction: ltr; text-align: right; }
-.logList small { color: var(--ink-lo); overflow-wrap: anywhere; }
-.editorPanel { margin-top: 36px; padding-top: 30px; border-top: 1px solid var(--gold-line); }
-.featureSlots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
-.featureSlots label, .editorForm label { display: grid; gap: 6px; color: var(--ink-lo); font-size: var(--t-caption); }
-.featureSlots select, .editorForm input, .editorForm textarea, .editorForm select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: #080d16; color: var(--ink-hi); font: inherit; }
-.editorLayout { display: grid; grid-template-columns: minmax(15rem, .65fr) minmax(0, 1.7fr); gap: 18px; margin-top: 20px; }
-.draftQueue { max-height: 54rem; overflow-y: auto; border: 1px solid var(--line); }
-.draftQueue button { width: 100%; display: grid; gap: 5px; padding: 14px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); text-align: right; cursor: pointer; }
-.draftQueue button:hover, .draftQueue .selectedDraft { background: rgba(201,162,75,.1); }
-.draftQueue span, .draftQueue small, .editorStatus { color: var(--ink-lo); font: 500 var(--t-data)/1.2 var(--face-data); direction: ltr; }
-.draftQueue strong { line-height: 1.35; }
-.editorForm { display: grid; gap: 16px; padding: 20px; border: 1px solid var(--line); }
-.editorForm textarea { resize: vertical; line-height: 1.55; direction: ltr; text-align: left; }
-.editorStatus { display: flex; justify-content: space-between; gap: 12px; }
-.formGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.checkbox { display: flex !important; grid-template-columns: auto 1fr; align-items: center; }
-.checkbox input { width: 18px; height: 18px; }
-.danger { min-height: 44px; padding: 10px 18px; border: 1px solid rgba(240,164,170,.45); border-radius: 6px; background: transparent; color: #f0a4aa; cursor: pointer; font-weight: 600; }
-.narrativeFields { display: grid; gap: 14px; margin: 0; padding: 16px; border: 1px solid var(--gold-line); }
-.narrativeFields legend { padding: 0 8px; color: var(--gold); font-weight: 600; }
-.traceability { padding: 14px; border: 1px solid var(--line); color: var(--ink); direction: ltr; text-align: left; }
-.traceability summary { color: var(--gold-hi); cursor: pointer; font-weight: 600; }
-.traceability ul { margin: 12px 0 0; padding-left: 20px; }
-.traceability a { color: var(--gold-hi); }
-@media (max-width: 900px) { .summary, .compactMetrics { grid-template-columns: repeat(2, 1fr); } .twoColumns { grid-template-columns: 1fr; } .controlBar, .panelHead { align-items: flex-start; flex-direction: column; } }
-@media (max-width: 900px) { .editorLayout { grid-template-columns: 1fr; } .draftQueue { max-height: 24rem; } }
-@media (max-width: 640px) { .summary, .compactMetrics, .grid, .featureSlots, .formGrid { grid-template-columns: 1fr; } .shell { padding: 16px; } .actionRow { width: 100%; flex-direction: column; align-items: stretch; } }
+/* The Hebrew operations dashboard and its login card, right-to-left.
+
+   Values answer to the V3 tokens in app/globals.css. This module used to
+   redefine `--face-*` locally onto Ramsina and Geist Mono — fonts the
+   document no longer loads, so every face here resolved to a fallback —
+   along with its own inks and gold. All of that is gone: the dashboard
+   inherits the three site faces and the site palette.
+
+   Headings here are UI headings in Hebrew, a script none of the display
+   face's fallbacks carry, so they opt out of the serif explicitly and set in
+   the text face — the opt-out app/globals.css sanctions for UI headings.
+   The data face is kept strictly for data: identifiers, statuses, counts,
+   timestamps, routes. Buttons follow the site Button voice: text face, 600,
+   `--radius-2`, 44px tall. State colours come from `--state-*`. */
+
+.shell {
+  min-height: 100%;
+  padding: clamp(var(--sp-5), 6vw, var(--sp-8));
+  color: var(--ink-hi);
+  direction: rtl;
+  font-family: var(--face-text);
+}
+
+/* ── Containers ───────────────────────────────────────────────────────── */
+
+.card,
+.dashboard {
+  width: min(100%, 1240px);
+  margin: 0 auto;
+  padding: clamp(var(--sp-5), 5vw, var(--sp-7));
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-3);
+}
+
+.card {
+  max-width: 520px;
+  margin-top: 8vh;
+}
+
+.dashboardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+/* ── Type ─────────────────────────────────────────────────────────────── */
+
+/* "Lions of Zion / Operations" is four words, so it stays sentence case:
+   a mono masthead line, not a tracked label. */
+.eyebrow {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.shell h1 {
+  margin-top: var(--sp-3);
+  font-family: var(--face-text);
+  font-size: var(--t-h2);
+  font-weight: 600;
+  line-height: var(--t-h2-lh);
+  letter-spacing: 0;
+}
+
+.lede,
+.muted {
+  margin-top: var(--sp-3);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.muted {
+  color: var(--ink-lo);
+}
+
+.panel h2,
+.controlBar h2 {
+  margin-top: var(--sp-1);
+  font-family: var(--face-text);
+  font-size: var(--t-h3);
+  font-weight: 600;
+  line-height: var(--t-h3-lh);
+  letter-spacing: 0;
+}
+
+/* Two or three words naming a panel: a data label. */
+.sectionLabel {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+/* ── Forms ────────────────────────────────────────────────────────────── */
+
+.form {
+  display: grid;
+  gap: var(--sp-4);
+  margin-top: var(--sp-6);
+}
+
+.form label {
+  display: grid;
+  gap: var(--sp-2);
+  color: var(--ink);
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: var(--t-small-lh);
+}
+
+.form input,
+.featureSlots select,
+.editorForm input,
+.editorForm textarea,
+.editorForm select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  color: var(--ink-hi);
+  font: inherit;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.form input:hover,
+.featureSlots select:hover,
+.editorForm input:hover,
+.editorForm textarea:hover,
+.editorForm select:hover {
+  border-color: var(--line-strong);
+}
+
+.form input:disabled,
+.featureSlots select:disabled,
+.editorForm input:disabled,
+.editorForm textarea:disabled,
+.editorForm select:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* ── Buttons — the site Button voice ─────────────────────────────────── */
+
+.primary,
+.secondary,
+.danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: 2.75rem;
+  padding: 0 var(--sp-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-2);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.primary {
+  border-color: var(--gold-hi);
+  color: var(--ground);
+  background: var(--gold);
+  box-shadow: var(--shadow-1);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--gold-hi);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--gold);
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.secondary {
+  margin-top: var(--sp-3);
+  border-color: var(--line);
+  color: var(--ink-hi);
+  background: var(--surface-2);
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+  transform: translateY(-1px);
+}
+
+.secondary:active:not(:disabled) {
+  background: var(--surface-2);
+  transform: translateY(0);
+}
+
+.danger {
+  border-color: var(--state-danger-line);
+  color: var(--state-danger);
+  background: transparent;
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--state-danger-wash);
+  border-color: var(--state-danger);
+}
+
+.danger:active:not(:disabled) {
+  background: transparent;
+}
+
+/* Disabled here means "busy": every control disables while a request is in
+   flight, so the cursor says so. */
+.primary:disabled,
+.secondary:disabled,
+.danger:disabled {
+  opacity: 0.45;
+  cursor: wait;
+  transform: none;
+  box-shadow: none;
+}
+
+.actionRow .primary,
+.actionRow .secondary,
+.actionRow .danger,
+.controlBar .primary,
+.controlBar .secondary,
+.controlBar .danger {
+  margin-top: 0;
+}
+
+/* The one link styled as a button, on the dashboard head. */
+.pipelineLink {
+  margin-top: 0;
+}
+
+/* ── Status ───────────────────────────────────────────────────────────── */
+
+.error {
+  margin-top: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--state-danger-line);
+  border-radius: var(--radius-2);
+  background: var(--state-danger-wash);
+  color: var(--state-danger);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.notice {
+  margin-top: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--state-ok-line);
+  border-radius: var(--radius-2);
+  background: var(--state-ok-wash);
+  color: var(--state-ok);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* A status value is data. */
+.ok,
+.wait {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.ok {
+  color: var(--state-ok);
+}
+
+.wait {
+  color: var(--state-warn);
+}
+
+/* ── Summary cells and metrics ────────────────────────────────────────── */
+
+.summary,
+.compactMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.summary {
+  margin-top: var(--sp-6);
+}
+
+.compactMetrics {
+  margin-top: var(--sp-5);
+}
+
+.summary div,
+.compactMetrics div {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+  background: var(--surface-2);
+}
+
+.summary div {
+  padding: var(--sp-4) var(--sp-5);
+}
+
+.compactMetrics div {
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.summary span,
+.compactMetrics span {
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+}
+
+.summary strong,
+.compactMetrics strong {
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-small-lh);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* ── Service cards ────────────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin: var(--sp-5) 0;
+}
+
+.service {
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+/* The service name is an integration identifier, so it stays in the data
+   face — one step above the floor so it reads as the cell's title. */
+.service h2 {
+  margin-top: var(--sp-2);
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-small-lh);
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ── Panels ───────────────────────────────────────────────────────────── */
+
+.controlBar,
+.panel {
+  margin-top: var(--sp-5);
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-2);
+}
+
+.controlBar,
+.panelHead,
+.actionRow,
+.queueRow,
+.healthStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.actionRow {
+  flex-wrap: wrap;
+}
+
+.queueRow,
+.healthStrip {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+.queueRow span,
+.healthStrip span {
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-1);
+  background: var(--surface-1);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────── */
+
+.tableWrap {
+  overflow-x: auto;
+  margin-top: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+}
+
+.table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.table th,
+.table td {
+  padding: var(--sp-3) var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  vertical-align: top;
+}
+
+.table thead th {
+  background: var(--surface-1);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table th {
+  color: var(--ink-lo);
+  font-weight: var(--t-caption-weight);
+}
+
+.table td {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.table td small {
+  display: block;
+  max-width: 28ch;
+  margin-top: var(--sp-1);
+  color: var(--state-danger);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+}
+
+.twoColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+
+/* ── Log lists ────────────────────────────────────────────────────────── */
+
+.logList {
+  display: grid;
+  gap: 0;
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.logList li {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--line);
+}
+
+.logList span {
+  grid-row: 1 / span 2;
+}
+
+/* Date, stage, key: data, kept left-to-right and right-aligned in the RTL
+   column. */
+.logList strong {
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.logList small {
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  overflow-wrap: anywhere;
+}
+
+/* ── Editor ───────────────────────────────────────────────────────────── */
+
+.editorPanel {
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--gold-line);
+}
+
+.featureSlots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+.featureSlots label,
+.editorForm label {
+  display: grid;
+  gap: var(--sp-2);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+}
+
+.editorLayout {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.65fr) minmax(0, 1.7fr);
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+}
+
+.draftQueue {
+  max-height: 54rem;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+
+.draftQueue button {
+  width: 100%;
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-4);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  text-align: right;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.draftQueue button:hover {
+  background: var(--surface-3);
+}
+
+.draftQueue .selectedDraft,
+.draftQueue .selectedDraft:hover {
+  background: var(--gold-wash);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.draftQueue button:focus-visible {
+  outline-offset: -3px;
+}
+
+.draftQueue span,
+.draftQueue small,
+.editorStatus {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  direction: ltr;
+}
+
+.draftQueue strong {
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: var(--t-small-lh);
+}
+
+.editorForm {
+  display: grid;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
+.editorForm textarea {
+  resize: vertical;
+  line-height: var(--t-small-lh);
+  direction: ltr;
+  text-align: left;
+}
+
+.editorStatus {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+
+/* Scoped under `.editorForm` so it outranks `.editorForm label` on
+   specificity rather than on `!important`. */
+.editorForm .checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 2.75rem;
+  color: var(--ink);
+  font-size: var(--t-small);
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  padding: 0;
+  accent-color: var(--gold);
+}
+
+.narrativeFields {
+  display: grid;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: var(--sp-4);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-2);
+}
+
+.narrativeFields legend {
+  padding: 0 var(--sp-2);
+  color: var(--gold);
+  font-size: var(--t-small);
+  font-weight: 600;
+}
+
+.traceability {
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  direction: ltr;
+  text-align: left;
+}
+
+.traceability summary {
+  color: var(--gold-hi);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.traceability ul {
+  margin: var(--sp-3) 0 0;
+  padding-left: var(--sp-5);
+}
+
+.traceability a {
+  color: var(--gold-hi);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .summary,
+  .compactMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .twoColumns,
+  .editorLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .controlBar,
+  .panelHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .draftQueue {
+    max-height: 24rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .summary,
+  .compactMetrics,
+  .grid,
+  .featureSlots,
+  .formGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shell {
+    padding: var(--sp-4);
+  }
+
+  .card,
+  .dashboard {
+    padding: var(--sp-5);
+  }
+
+  .actionRow {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .logList li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .logList span {
+    grid-row: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary:hover:not(:disabled),
+  .secondary:hover:not(:disabled) {
+    transform: none;
+  }
+}

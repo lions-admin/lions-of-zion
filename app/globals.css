@@ -1,70 +1,79 @@
-/* Hallmark · system: public intelligence interface · genre: atmospheric editorial */
+/* Lions of Zion · design system v3 — "the verification desk"
+ * Three faces, one scale, one accent. Every value on screen answers to this file.
+ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 /*
- * Design V2 tokens — `.ai/DESIGN-V2.md`, "The broadsheet over the scan".
+ * Design V3 tokens.
  *
- * The audit that prompted this found 51 distinct font sizes, 77 declarations
- * under 11px, and ~12 unrelated body grays. These tokens are the whole
- * vocabulary now: three faces, seven type steps, six colors. A page that
- * needs a size not in the scale is a page that needs rethinking, not a new
- * size.
+ * V2 (2026-08) collapsed 51 font sizes into seven steps and twelve greys into
+ * three inks, and that discipline is kept. What V3 fixes is the *voice*: the
+ * display face had silently become the monospace, so every headline on a
+ * newsroom site was set like a terminal; nine font families were loading for
+ * three jobs; state colours were neon literals on a warm-neutral palette; and
+ * radii, motion and focus had no vocabulary at all, so each module invented
+ * one. The three faces below are the only ones `app/layout.tsx` loads.
  */
 :root {
   /* ── Faces ──────────────────────────────────────────────────────────────
-     Ramsina for editorial headlines — articles, investigations, archive
-     records, and stories; IBM Plex Sans for running text and UI; Geist Mono
-     strictly for data — dates, counts, routes, status values. Newsreader
-     remains the serif fallback. Cinzel is deliberately absent: it belongs to
-     the home particle scene now, not to reading. */
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-  --font-sans: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  --face-display: var(--font-mono);
-  --face-text: var(--font-sans);
-  --face-data: var(--font-mono);
+     Newsreader — a variable text serif with a real optical-size axis — is
+     the editorial voice: headlines, entry titles, pull quotes, standfirsts.
+     IBM Plex Sans is running text and interface. JetBrains Mono is strictly
+     data: dates, counts, routes, status values, the scan. Nothing else. */
+  --face-display: var(--font-newsreader), 'Iowan Old Style', Charter, Georgia, serif;
+  --face-text: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --face-data: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
 
-  /* ── Type scale — seven steps, no exceptions ────────────────────────────
-     Each step ships its own line-height and weight so a consumer sets one
-     property and gets a designed result rather than reinventing the pairing.
-     `--t-data` is the floor: nothing on a reading surface goes below it. */
-  --t-display: clamp(2.1rem, 4vw, 2.75rem);
-  --t-display-lh: 1.15;
-  --t-display-weight: 600;
+  /* Aliases kept for the component library; new code reads the three faces. */
+  --font-serif: var(--face-display);
+  --font-sans: var(--face-text);
+  --font-mono: var(--face-data);
 
-  --t-h2: 1.55rem;
-  --t-h2-lh: 1.3;
+  /* ── Type scale — eight steps, each shipping its own line-height, weight
+     and tracking so a consumer sets one family of properties and gets a
+     designed result. `--t-data` is the floor: 12px, nothing below it. ── */
+  --t-display: clamp(2.5rem, 1.55rem + 3.4vw, 4.25rem);
+  --t-display-lh: 1.04;
+  --t-display-weight: 500;
+  --t-display-tracking: -0.015em;
+
+  --t-h2: clamp(1.65rem, 1.3rem + 1.1vw, 2.15rem);
+  --t-h2-lh: 1.18;
   --t-h2-weight: 500;
+  --t-h2-tracking: -0.01em;
 
-  --t-h3: 1.25rem;
-  --t-h3-lh: 1.4;
+  --t-h3: 1.3125rem;
+  --t-h3-lh: 1.32;
   --t-h3-weight: 500;
+  --t-h3-tracking: -0.005em;
+
+  /* The standfirst: one step above body, set in the display face, the
+     sentence that tells a reader what the page will prove. */
+  --t-lede: clamp(1.15rem, 1.05rem + 0.45vw, 1.35rem);
+  --t-lede-lh: 1.45;
+  --t-lede-weight: 400;
 
   --t-body: 1.0625rem;
-  --t-body-lh: 1.7;
+  --t-body-lh: 1.65;
 
   --t-small: 0.9375rem;
-  --t-small-lh: 1.65;
+  --t-small-lh: 1.6;
 
   --t-caption: 0.8125rem;
   --t-caption-lh: 1.5;
   --t-caption-weight: 500;
 
-  --t-data: 0.72rem;
+  --t-data: 0.75rem;
   --t-data-lh: 1.45;
-  /* Tracking cap for the one case uppercase is still allowed: data labels of
-     two words or fewer. Anything longer is sentence case. */
+  --t-data-weight: 500;
+  /* Tracking for the one case uppercase is allowed: data labels of two words
+     or fewer. Anything longer is sentence case. */
   --t-data-tracking: 0.08em;
 
-  /* ── Spacing — eight steps, tuned to the body line box ──────────────────
-     The V2 pass collapsed type and colour and left spacing alone, so the
-     three files that carry the reading system between them shipped 37
-     distinct rem values, 15 of them inside the 0.2–0.9rem band. These steps
-     are the vocabulary now, the same way the type steps are.
-
-     The ramp is anchored on the body line box — 1.0625rem × 1.7 = 28.9px —
-     so vertical space lands on the rhythm the text already sets rather than
-     beside it: --sp-4 is a third of it, --sp-6 is a little over two thirds,
-     --sp-7 is roughly one line, --sp-8 a line and a half. */
+  /* ── Spacing — nine steps on the body line box (1.0625rem × 1.65 ≈ 28px):
+     --sp-4 is a third of a line, --sp-7 roughly one line, --sp-8 a line and
+     a half, --sp-9 a section break. `--flow` is the paragraph gap and is
+     not a choice a page gets to make. */
   --sp-1: 0.25rem;
   --sp-2: 0.5rem;
   --sp-3: 0.75rem;
@@ -73,52 +82,37 @@
   --sp-6: 2rem;
   --sp-7: 3rem;
   --sp-8: 4.5rem;
-
-  /* The one named editorial value: the gap between sibling paragraphs. It is
-     not a step because it is not a choice a page gets to make — hand-authored
-     prose in a SectionBlock and a paragraph rendered by a content component
-     are the same paragraph to a reader, and before this they were 1.15rem and
-     0.7rem apart for the same job. */
+  --sp-9: 6rem;
   --flow: 1.15rem;
 
-  /* ── Color ──────────────────────────────────────────────────────────────
-     Gold is brand and unchanged. The neutrals are a real scale: three inks,
-     each with a job, replacing twelve drifting grays.
-
-     The ground was #06051d — rgb(7,11,20), a navy whose blue channel is
-     nearly three times its red, which is why the site read blue rather than
-     black. It is now true black, by owner decision on 2026-08-26. Every
-     ink/ground pair gets *more* contrast from this, never less, so no
-     contrast fix is weakened by it.
-
-     The inks are neutral for the same reason, one round later. Blackening the
-     ground did not stop the site reading blue, because the *scale* was tinted
-     too: #e9eef6 carries b−r of +13, #b9c5d4 +27 and #8494a8 +36, and the
-     tint grows as the ink gets quieter. That is backwards — `--ink-lo` is
-     what colours every quiet label on a reading page ("Status", "In this
-     brief", "Primary records"), so the most-tinted ink was on the largest
-     area of small type, over a ground with no blue left to justify it.
-
-     Each is replaced by its luminance-matched grey, the method commit c7e92b2
-     used for the panels: grey = 0.2126R + 0.7152G + 0.0722B. Contrast against
-     the ground is therefore held, not traded — measured against #000000, the
-     three inks move 18.03→18.10, 12.00→12.04 and 6.78→6.75, and the hairline
-     9.66→9.57. (Held, not identical: that formula is simple luma while WCAG
-     linearises first, so the pairs land within ±0.08 of where they were. No
-     pair crosses a threshold in either direction.)
-
-     Gold and the `--data-*` ramps below are hue-bearing and stay exactly as
-     they are — the point is that blue means something here again. */
+  /* ── Colour ─────────────────────────────────────────────────────────────
+     True black ground (owner decision, 2026-08-26), three luminance-matched
+     warm-neutral inks, and gold as the single accent — spent, never sprayed.
+     Contrast on black: ink-hi 18.1, ink 12.0, ink-lo 6.75. */
   --ground: #000000;
   --ink-hi: #f6f3eb;
   --ink: #cbc7bd;
   --ink-lo: #88837b;
   --gold: #c6a15b;
   --gold-hi: #ead39b;
+  --gold-dim: #8a6f3e;
 
-  /* Semantic data ramps. These carry meaning — verified/hostile streams,
-     assessment badges, the scan's two directions — and are never used to
-     express text hierarchy. */
+  /* Surfaces: three raised levels above the ground, warm-black so a panel
+     never reads blue. Used for cards, panels, inputs. */
+  --surface-1: #0a0a09;
+  --surface-2: #111110;
+  --surface-3: #181715;
+
+  /* Hairlines, three weights. */
+  --line: rgba(246, 243, 235, 0.13);
+  --line-soft: rgba(246, 243, 235, 0.07);
+  --line-strong: rgba(246, 243, 235, 0.24);
+  --gold-line: rgba(198, 161, 91, 0.25);
+  --gold-line-strong: rgba(198, 161, 91, 0.5);
+  --gold-wash: rgba(198, 161, 91, 0.1);
+
+  /* Semantic data ramps — meaning, never hierarchy: verified/hostile streams,
+     assessment badges, the scan's two directions. */
   --data-blue: #d1cdc4;
   --data-blue-dim: #716d66;
   --data-blue-peak: #f6f3eb;
@@ -126,15 +120,20 @@
   --data-ember-dim: #71382f;
   --data-ember-peak: #e8a397;
 
-  /* Hairlines, in the two weights the site actually uses. The neutral one was
-     rgb(153,179,202) — b−r of +49, the strongest tint in the file, on every
-     rule and panel edge on the site. Luminance-matched to 175 grey by the
-     same formula as the inks; the alpha is unchanged, so a hairline lands
-     where it always did. */
-  --line: rgba(246, 243, 235, 0.13);
-  --gold-line: rgba(198, 161, 91, 0.25);
+  /* State colours, desaturated to sit on the warm palette. Each ships a text
+     tone, a wash and a line so a badge, a form error and a status dot agree. */
+  --state-ok: #8fcfae;
+  --state-ok-wash: rgba(96, 178, 137, 0.14);
+  --state-ok-line: rgba(96, 178, 137, 0.35);
+  --state-warn: #e3b866;
+  --state-warn-wash: rgba(227, 184, 102, 0.14);
+  --state-warn-line: rgba(227, 184, 102, 0.35);
+  --state-danger: #e08a86;
+  --state-danger-wash: rgba(214, 105, 99, 0.14);
+  --state-danger-line: rgba(214, 105, 99, 0.4);
 
-  /* Shared glass used by navigation, reading surfaces, controls and overlays. */
+  /* Glass — shared by navigation, overlays and controls that float over the
+     scan. */
   --glass-top: rgba(150, 147, 140, 0.22);
   --glass-middle: rgba(45, 44, 42, 0.29);
   --glass-bottom: rgba(8, 8, 8, 0.64);
@@ -144,70 +143,42 @@
   --glass-inner: rgba(255, 255, 255, 0.25);
   --glass-shadow: rgba(0, 0, 0, 0.58);
 
-  /* Compatibility tokens for the public component library. */
-  --color-black: #000000;
-  --color-cosmic-void: #000000;
-  --color-abyssal-blue: #080808;
-  --color-steel-navy: #111111;
-  --color-deep-slate: #1c1b19;
-  --color-mist: #cbc7bd;
-  --color-fog: #e4e0d7;
-  --color-white: #f6f3eb;
-  --color-ice: #f6f3eb;
-  --color-blue: #c6a15b;
-  --color-green: #00bc7d;
-  --color-amber: #f0b100;
-  --color-red: #ff2056;
-  --color-border-soft: rgba(255, 255, 255, 0.08);
-  --text-caption: 0.875rem;
-  --space-1: 0.5rem;
-  --space-2: 1rem;
-  --space-3: 1.5rem;
-  --space-4: 2rem;
-  --space-6: 3rem;
-  --space-8: 4rem;
-  --radius-card: 8px;
-  --radius-pill: 9999px;
-  --shadow-pill: 0 4px 12px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* ── Shape, depth, motion, focus ───────────────────────────────────────
+     Three radii: hairline chips, controls, panels. Pills are for the one
+     floating navigation bar. */
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 8px;
+  --radius-pill: 999px;
 
-  /*
-   * The scan's own ground — the site's background, in one place.
-   *
-   * This is the texture the particle scene sits on: the ground colour, a faint
-   * blue wash where the scan is densest, and the horizontal rule field the
-   * monitor draws over. It used to be painted only by `ScanBackdrop`, so every
-   * surface that did not mount one — the home page's front page, the 404, the
-   * brief — sat on a flat panel instead, and the site read as though the
-   * matrix stopped at the fold. Declared here, consumed by `body` below and by
-   * the one surface that has to stay opaque over the live scene
-   * (`home.module.css`).
-   *
-   * The alphas are chosen against the ground, not by feel. Against the old
-   * navy ground the rule field needed a blue at 0.075 to be perceptible at
-   * all. On true black a neutral does the same work at half the strength:
-   * rgba(214,226,240,0.038) composites to rgb(8,9,9), a weave that is visible
-   * without tinting the page, and it keeps body text (`--ink`, #B9C5D4) above
-   * 13:1. The radial wash stays blue but drops to 0.045 — it is the cue that
-   * the scan is densest at the centre, and at the old 0.1 over black it read
-   * as a blue spotlight rather than as depth.
-   */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  --shadow-3: 0 24px 64px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 400ms;
+
+  /* One focus treatment for the whole site: a gold outline offset from the
+     element so a black gap separates it from any surface. Applied by the
+     `:focus-visible` rule below; modules may change the offset, never the
+     colour, and never animate its appearance. */
+  --focus-outline: 2px solid var(--gold-hi);
+  --focus-offset: 3px;
+
+  /* The scan's own ground — the site's background, in one place: the ground
+     colour, a faint warm wash where the scan is densest, and the horizontal
+     rule field the monitor draws over. Consumed by `body` and by the one
+     surface that has to stay opaque over the live scene (`home.module.css`). */
   --scan-ground:
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
 
-  /* ── Compatibility aliases ──────────────────────────────────────────────
-     One consumer, not the four this comment used to name: `grep -rn
-     'var(--loz-'` returns 7 hits and every one is in `content.module.css`
-     :25-34, where they survive as the `var(--loz-*, literal)` fallback
-     pattern that keeps the component library renderable on its own. The
-     files formerly listed here — `sections.module.css`,
-     `geopolitical-brief.module.css`, `support.module.css` and
-     `share-verified.module.css` — read the V2 names directly now.
-
-     Three of these ten have zero readers even there: `--loz-blue-dim`,
-     `--loz-ember-dim` and `--loz-body`. The whole block goes when
-     `content.module.css:25-34` is repointed at the V2 names, which do not
-     collide for `--ground`/`--gold`/`--gold-hi` the way the inks did. */
+  /* Compatibility aliases for `content.module.css` fallbacks. Zero other
+     readers; remove together with those fallbacks. */
   --loz-ground: var(--ground);
   --loz-gold: var(--gold);
   --loz-gold-bright: var(--gold-hi);
@@ -363,18 +334,26 @@ body {
   font-family: var(--face-text);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
-  /* Let Newsreader's optical-size axis respond to the rendered size. */
   font-optical-sizing: auto;
+  font-kerning: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--ink-hi);
 }
 
+/* Headlines are the editorial voice by default; a module that needs the
+   sans for a UI heading opts out explicitly. Balanced wrapping and the
+   optical-size axis are what make Newsreader read as a display cut at
+   display sizes and as a text cut at entry-title sizes. */
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-weight: var(--t-h3-weight);
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
-p, li, dd {
+p, li, dd, figcaption, blockquote {
   text-wrap: pretty;
 }
 
@@ -382,25 +361,51 @@ blockquote, q {
   hanging-punctuation: first;
 }
 
+strong, b { font-weight: 600; }
+
+/* Figures, dates and counts line up as columns wherever they appear. */
+time, data, code, kbd, samp, [data-numeric] {
+  font-variant-numeric: tabular-nums;
+}
+
+code, kbd, samp {
+  font-family: var(--face-data);
+  font-size: 0.92em;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--gold) 38%, transparent);
+  color: var(--ink-hi);
+}
+
+/* The one focus treatment. Every interactive element gets it for free; a
+   module may restyle the *shape* (offset, radius) but never the colour or
+   the fact of it, and never animates its appearance. */
+:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+:focus:not(:focus-visible) { outline: none; }
+
 canvas { display: block; }
-button, canvas { -webkit-tap-highlight-color: transparent; }
+button, canvas, a { -webkit-tap-highlight-color: transparent; }
+button, input, select, textarea { font: inherit; color: inherit; }
+img, video { max-width: 100%; height: auto; }
 
 [data-public-shell] { padding-top: 52px; }
 
-/* A minimal, restrained scroll affordance — not the browser default, but
-   not hidden either. Firefox/desktop-Safari read scrollbar-width/-color on
-   the individual scroll containers (sections.module.css, brief module). */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background-color: var(--gold-line);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--gold);
-}
+
+/* A restrained scroll affordance — not the browser default, not hidden. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: var(--gold-line); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--gold); }

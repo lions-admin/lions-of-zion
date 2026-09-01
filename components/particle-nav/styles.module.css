@@ -74,7 +74,7 @@
   flex-direction: column;
   justify-content: space-between;
   color: #f6f3eb;
-  font-family: var(--font-dm-sans), Arial, sans-serif;
+  font-family: var(--face-text);
   text-shadow: 0 1px 0 #000, 0 0 1.25rem rgba(0, 0, 0, 0.9);
 }
 
@@ -109,7 +109,7 @@
 .introFootnote {
   align-self: flex-start;
   color: #cbc7bd;
-  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-family: var(--face-data);
   font-size: 0.63rem;
   letter-spacing: 0.09em;
 }
@@ -204,7 +204,7 @@
 }
 
 .skipLabel {
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-family: var(--face-display);
   font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -246,7 +246,7 @@
 }
 
 .root[data-intro-only] .skipLabel {
-  font-family: var(--font-dm-sans), Arial, sans-serif;
+  font-family: var(--face-text);
   font-size: 0.78rem;
   font-weight: 720;
   letter-spacing: 0.04em;
@@ -447,7 +447,7 @@
    full sentence, and it was previously whispering it at 11.5px. */
 .cardName {
   display: block;
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-family: var(--face-display);
   font-size: 1.08rem;
   font-weight: 500;
   line-height: 1.18;
@@ -610,7 +610,7 @@
   transform: translateX(-50%);
   width: calc(100% - 0.5rem);
   margin-top: clamp(0.55rem, 1.3vmin, 0.8rem);
-  font-family: var(--font-cinzel), Georgia, 'Times New Roman', serif;
+  font-family: var(--face-display);
   /* The phone tier's size. 1.15vmin never reaches the 0.86rem maximum on a
      real device (that needs vmin ≥ 1196px), so this resolves to the 0.58rem
      floor here — below the design system's 0.72rem reading floor. Raising it

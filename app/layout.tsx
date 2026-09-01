@@ -1,43 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Cinzel,
-  DM_Sans,
-  Geist,
-  Geist_Mono,
-  IBM_Plex_Sans,
-  JetBrains_Mono,
-  Newsreader,
-  Ramsina,
-  Space_Grotesk,
-} from "next/font/google";
+import { IBM_Plex_Sans, JetBrains_Mono, Newsreader } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 import "./globals.css";
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-  display: "swap",
-});
-
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-  display: "swap",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
-});
-
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-cinzel",
-  display: "swap",
-});
-
+/*
+ * Three faces, three jobs — see the token block in `globals.css`.
+ * Newsreader is the editorial display and standfirst voice (variable, with
+ * the optical-size axis so it cuts differently at 60px and at 20px); IBM Plex
+ * Sans is running text and interface; JetBrains Mono is data only. Nothing
+ * else loads: the six families this file used to ship for the same three
+ * jobs were retired in the V3 pass.
+ */
 const newsreader = Newsreader({
   subsets: ["latin"],
   axes: ["opsz"],
@@ -54,22 +27,10 @@ const plexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
-const ramsina = Ramsina({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-ramsina",
-  display: "swap",
-});
-
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-jetbrains-mono",
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-dm-sans",
   display: "swap",
 });
 
@@ -99,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cinzel.variable} ${newsreader.variable} ${plexSans.variable} ${ramsina.variable} ${jetBrainsMono.variable} ${dmSans.variable}`}
+      className={`${newsreader.variable} ${plexSans.variable} ${jetBrainsMono.variable}`}
     >
       <body>{children}</body>
     </html>

@@ -178,6 +178,18 @@ export class TypographicMotionEngine {
 
   private animationFrameId: number | null = null;
   private isReducedMotion = false;
+  private reducedMotionQuery: MediaQueryList | null = null;
+
+  /*
+   * The face the glyph atlas is rasterised with. `next/font` serves JetBrains
+   * Mono under a hashed family name, so a literal 'JetBrains Mono' lookup
+   * resolves to whatever the OS has — usually the monospace fallback. The
+   * real family is read from the document's `--face-data` at init and only
+   * falls back to `config.fontFamily` when nothing is declared, or when a
+   * caller set `fontFamily` explicitly.
+   */
+  private fontFamily: string = defaultFieldConfig.fontFamily;
+  private fontFamilyExplicit = false;
 
   // WebGL Buffers & Handles
   private program: WebGLProgram | null = null;
@@ -211,27 +223,55 @@ export class TypographicMotionEngine {
       this.start();
     }
   };
+  private handleReducedMotionChange = (event: MediaQueryListEvent) => {
+    this.isReducedMotion = event.matches;
+    if (this.destroyed) return;
+    if (this.isReducedMotion) {
+      this.stop();
+      this.render();
+    } else {
+      this.start();
+    }
+  };
 
   constructor(canvasElement: HTMLCanvasElement, customConfig: Partial<TypographicFieldConfig> = {}) {
     this.canvas = canvasElement;
     this.config = { ...defaultFieldConfig, ...customConfig };
+    this.fontFamilyExplicit = typeof customConfig.fontFamily === "string";
+    this.fontFamily = this.config.fontFamily;
     this.mutationCandidates = getCanonicalMutationAtlasIndices();
 
-    this.isReducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+      this.reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      this.isReducedMotion = this.reducedMotionQuery.matches;
+    }
 
     this.init();
+  }
+
+  private resolveFontFamily(): string {
+    if (this.fontFamilyExplicit || typeof document === "undefined") {
+      return this.config.fontFamily;
+    }
+    const rootStyle = getComputedStyle(document.documentElement);
+    const declared =
+      rootStyle.getPropertyValue("--face-data").trim() ||
+      rootStyle.getPropertyValue("--font-jetbrains-mono").trim();
+    return declared || this.config.fontFamily;
   }
 
   private async init() {
     if (typeof document !== "undefined" && document.fonts) {
       try {
         await document.fonts.ready;
-        await document.fonts.load("400 44px 'JetBrains Mono'");
+        if (this.destroyed) return;
+        this.fontFamily = this.resolveFontFamily();
+        await document.fonts.load(`400 44px ${this.fontFamily}`);
       } catch {
         // Fallback gracefully
       }
+    } else {
+      this.fontFamily = this.resolveFontFamily();
     }
 
     if (this.destroyed) return;
@@ -281,6 +321,7 @@ export class TypographicMotionEngine {
     window.addEventListener("pointermove", this.handlePointerMove, { passive: true });
     window.addEventListener("pointerleave", this.handlePointerLeave, { passive: true });
     document.addEventListener("visibilitychange", this.handleVisibilityChange, { passive: true });
+    this.reducedMotionQuery?.addEventListener("change", this.handleReducedMotionChange);
   }
 
   public handleResize() {
@@ -314,6 +355,12 @@ export class TypographicMotionEngine {
 
     if (this.useWebGL && this.gl) {
       this.gl.viewport(0, 0, this.width, this.height);
+    }
+
+    // Under reduced motion there is no loop to repaint after a resize, so the
+    // settled field is drawn once here.
+    if (this.isReducedMotion && !this.isRunning && (this.gl || this.ctx)) {
+      this.render();
     }
   }
 
@@ -629,7 +676,7 @@ export class TypographicMotionEngine {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, atlasCanvas.width, atlasCanvas.height);
-    ctx.font = "400 44px 'JetBrains Mono', monospace";
+    ctx.font = `400 44px ${this.fontFamily}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff";
@@ -703,6 +750,15 @@ export class TypographicMotionEngine {
 
   public start() {
     if (this.isRunning || this.destroyed) return;
+
+    // Reduced motion: the field is a still — paint it once and hold. `update`
+    // already skips every translation in this mode, so a running loop would
+    // only redraw the same frame at 60fps.
+    if (this.isReducedMotion) {
+      this.render();
+      return;
+    }
+
     this.isRunning = true;
     this.lastTimestamp = performance.now();
 
@@ -737,6 +793,7 @@ export class TypographicMotionEngine {
       window.removeEventListener("pointermove", this.handlePointerMove);
       window.removeEventListener("pointerleave", this.handlePointerLeave);
       document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+      this.reducedMotionQuery?.removeEventListener("change", this.handleReducedMotionChange);
     }
 
     if (this.gl) {
@@ -970,7 +1027,7 @@ export class TypographicMotionEngine {
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, this.width, this.height);
 
-    ctx.font = `400 ${this.fontSize}px 'JetBrains Mono', monospace`;
+    ctx.font = `400 ${this.fontSize}px ${this.fontFamily}`;
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
 

@@ -31,21 +31,23 @@ export default async function Page() {
             />
           </div>
           <h1 id="home-wordmark" className={styles.wordmark}>LIONSOFZION</h1>
+          <p className={styles.supportingLine}>Powered by evidence, not narratives.</p>
           <span className={styles.signalMarker} aria-hidden="true" />
           <Link href="/information-war" className={styles.heroCta}>
             Discover our system
           </Link>
-          <p className={styles.supportingLine}>Powered by evidence, not narratives.</p>
         </div>
         {headlines.length ? (
           <aside className={styles.headlineRail} aria-label="Leading reports">
-            <p>FROM THE INTELLIGENCE DESK</p>
-            <ol>
+            <p className={styles.railLabel}>Intelligence desk</p>
+            <ol className={styles.railList}>
               {headlines.slice(0, 3).map((headline, index) => (
-                <li key={headline.publicId}>
-                  <Link href={`/articles/${headline.publicId}`}>
-                    <span>0{index + 1}</span>
-                    <strong>{headline.title}</strong>
+                <li key={headline.publicId} className={styles.railItem}>
+                  <Link href={`/articles/${headline.publicId}`} className={styles.railLink}>
+                    <span className={styles.railIndex} data-numeric>
+                      0{index + 1}
+                    </span>
+                    <strong className={styles.railTitle}>{headline.title}</strong>
                   </Link>
                 </li>
               ))}

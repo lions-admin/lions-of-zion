@@ -42,6 +42,12 @@
   --t-h2-weight: 500;
   --t-h2-tracking: -0.01em;
 
+  /* A display-ish numeral that fits a third of the 68ch measure — inscription
+     figures, chapter numerals, dashboard values. Tabular by convention. */
+  --t-figure: clamp(1.9rem, 1.4rem + 1.6vw, 2.4rem);
+  --t-figure-lh: 1.1;
+  --t-figure-weight: 500;
+
   --t-h3: 1.3125rem;
   --t-h3-lh: 1.32;
   --t-h3-weight: 500;

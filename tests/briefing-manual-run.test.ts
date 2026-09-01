@@ -104,4 +104,40 @@ describe("manual briefing execution", () => {
     expect(jobs[0]).toMatchObject({ stage: "triage", localDate: "2026-08-30", state: "pending" });
     expect(send).toHaveBeenCalledWith("briefing-triage", expect.anything(), expect.anything());
   });
+
+  it("restarts a previously published edition again while its replacement is processing", async () => {
+    vi.resetModules();
+    const database = await freshDatabase();
+    const send = vi.fn().mockResolvedValue(undefined);
+    await database.insert(briefingEdition).values({
+      localDate: "2026-08-30",
+      status: "processing",
+      contractVersion: "old-contract",
+      promptVersion: "old-prompt",
+      collectionOpenedAt: new Date(),
+      publishedAt: new Date(),
+    });
+
+    vi.doMock("@/server/db/client", () => ({ db: () => database }));
+    vi.doMock("@/server/core/config", () => ({
+      assertBriefingResourceIsolation: () => undefined,
+      briefingFeatures: () => ({ processing: true }),
+    }));
+    vi.doMock("@/server/core/queue-client", () => ({ queueClient: { send } }));
+    vi.doMock("@/server/modules/briefing/service", async () => {
+      const actual = await vi.importActual<typeof import("@/server/modules/briefing/service")>("@/server/modules/briefing/service");
+      return { ...actual, israelLocalHour: () => 7 };
+    });
+
+    const { enqueueEditorialPipeline } = await import("@/server/modules/briefing/jobs");
+    const result = await enqueueEditorialPipeline(new Date("2026-08-30T04:00:00.000Z"), {
+      force: true,
+      regenerateCompleted: true,
+    });
+    const jobs = await database.select().from(briefingJob);
+
+    expect(result.status).toBe("queued");
+    expect(jobs).toHaveLength(1);
+    expect(jobs[0]).toMatchObject({ stage: "triage", localDate: "2026-08-30", state: "pending" });
+  });
 });

@@ -570,7 +570,11 @@ export async function enqueueEditorialPipeline(
        manual run starts at triage and resets its downstream stages, retaining
        all prior artifacts and delivery audit rows for inspection. */
     const quality = await editions.artifact(editionId, "quality") as { passed?: unknown } | undefined;
-    const regenerateCompleted = options.regenerateCompleted && edition?.status === "published";
+    // A first forced regeneration reopens the edition as `processing` but
+    // deliberately retains `published_at` until its replacement passes every
+    // gate. A second explicit request must therefore still restart from
+    // triage rather than treating completed stale jobs as the current edition.
+    const regenerateCompleted = options.regenerateCompleted && Boolean(edition?.publishedAt);
     const restartFrom = regenerateCompleted || edition?.status === "quarantined" || edition?.status === "failed" || quality?.passed === false
       ? "triage"
       : undefined;

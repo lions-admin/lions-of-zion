@@ -37,7 +37,10 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
       <SiteHeader activeSection="geopolitical-brief" />
       <div className={styles.liveLayout}>
         <header className={styles.deskHeader}>
-          <p className={styles.liveEyebrow}>LIONS OF ZION · INTELLIGENCE DESK</p>
+          <p className={styles.liveEyebrow}>
+            <span className={styles.deskMark}>Lions of Zion</span>
+            <span>Intelligence desk</span>
+          </p>
           <h1>The Daily Brief</h1>
           <p>Source-linked reporting on Israel, the war, and the narratives shaping international attention.</p>
         </header>
@@ -62,7 +65,10 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
           />
         ) : (
           <header className={styles.liveLead}>
-            <p className={styles.liveEyebrow}>CURRENT EDITION · {formatDate(lead.publishedAt)}</p>
+            <p className={styles.liveEyebrow}>
+              <span>Current edition</span>
+              <time dateTime={lead.publishedAt}>{formatDate(lead.publishedAt)}</time>
+            </p>
             <h2>{lead.title}</h2>
             {lead.summary ? <p>{lead.summary}</p> : null}
             <ButtonLink href={`/articles/${lead.publicId}`} variant="primary" size="md">
@@ -73,7 +79,10 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
 
         {featuredIsrael ? (
           <section className={styles.featureStory}>
-            <p className={styles.liveEyebrow}>ISRAEL · DAILY FEATURE</p>
+            <p className={styles.liveEyebrow}>
+              <span>Israel</span>
+              <span>Daily feature</span>
+            </p>
             <h2>{featuredIsrael.title}</h2>
             {featuredIsrael.summary ? <p>{featuredIsrael.summary}</p> : null}
             <Metadata item={featuredIsrael} />
@@ -129,7 +138,7 @@ function PublicationSection({ title, items, narrative = false }: { title: string
       <ol className={styles.liveList}>{items.map((item) => (
         <li key={item.publicId}><Link href={`/articles/${item.publicId}`}>
           <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
-          <strong>{item.title}</strong>
+          <Headline title={item.title} narrative={narrative} />
           {item.summary ? <span>{item.summary}</span> : null}
           <Metadata item={item} narrative={narrative} />
         </Link></li>
@@ -138,11 +147,52 @@ function PublicationSection({ title, items, narrative = false }: { title: string
   );
 }
 
+/**
+ * Splits the public headline prefix `narrativeWatchTitle()` wrote — "Reported
+ * claim: " or "Analysis: " — off the title so it renders as a kicker above the
+ * headline rather than as the headline's first two words. Display-side only:
+ * this reads what the contract wrote and never writes a prefix, so
+ * `server/contracts/publication.ts` stays the single prefixer. A title with
+ * neither prefix renders unchanged.
+ */
+function Headline({ title, narrative }: { title: string; narrative: boolean }) {
+  const match = narrative ? /^(Reported claim|Analysis):\s*/.exec(title) : null;
+  if (!match) return <strong>{title}</strong>;
+  return (
+    <>
+      <span className={styles.claimKicker}>{match[1]}</span>
+      <strong>{title.slice(match[0].length)}</strong>
+    </>
+  );
+}
+
 function Metadata({ item, narrative = false }: { item: Publication; narrative?: boolean }) {
   const values = [item.editorialTopic, item.primaryActor, item.arena].filter(Boolean);
   const details = item.narrativeWatchDetails;
-  return <>{values.length ? <small className={styles.storyMeta}>{narrative ? "MONITORED SIGNAL · " : ""}{values.join(" · ")}</small> : null}
-    {narrative && details ? <small className={styles.storyMeta}>CLAIM · {details.exactClaim} · TREND · {details.trendDirection} · STATUS · {details.verificationState}{isAnalysisBasis(details) ? " · BASIS · ORGANISATION ANALYSIS, NO SOURCE CITED" : ""}</small> : null}</>;
+  return <>
+    {values.length ? (
+      <small className={styles.storyMeta}>
+        {narrative ? <span className={styles.metaLabel}>Monitored signal</span> : null}
+        <span>{values.join(" · ")}</span>
+      </small>
+    ) : null}
+    {narrative && details ? (
+      <dl className={styles.claimRecord}>
+        <dt>Claim</dt>
+        <dd>{details.exactClaim}</dd>
+        <dt>Trend</dt>
+        <dd data-value="">{details.trendDirection}</dd>
+        <dt>Status</dt>
+        <dd data-value="">{details.verificationState}</dd>
+        {isAnalysisBasis(details) ? (
+          <>
+            <dt>Basis</dt>
+            <dd>Organisation analysis, no source cited</dd>
+          </>
+        ) : null}
+      </dl>
+    ) : null}
+  </>;
 }
 
 function formatDate(value: string): string {

@@ -1,29 +1,56 @@
+/*
+ * "This is an information war" — the system page behind `/information-war`.
+ *
+ * V3 pass. Type moves onto the three faces and the eight steps: Newsreader
+ * for the hero statement, the section headings and the stage names; Plex for
+ * running text and the two calls to action; JetBrains Mono for indices,
+ * coordinates, stage metadata and the diagram's labels. Every colour literal
+ * — the near-black ground, the hero scrims, six alphas of gold and four of
+ * the ink — now reads a token or a `color-mix()` of one.
+ *
+ * Two loops are gone: the hero's sweeping light and the pulsing system
+ * nodes. Nothing loops on a reading surface. The entrances that remain are
+ * transform and opacity at `--dur-slow`.
+ *
+ * The two data ramps carry meaning in exactly one place: the independence
+ * diagram. Five syndicated copies converge in the ember ramp — the signal
+ * that imitates confirmation — onto one origin drawn in the blue ramp, the
+ * stream that was actually verified. Nowhere else on the page is either
+ * ramp used, and gold is spent on the kicker, the CTA's hover, and the
+ * stage marks.
+ */
+
 .page {
-  --war-gutter: clamp(1.25rem, 5vw, 5rem);
+  --war-gutter: clamp(var(--sp-5), 5vw, var(--sp-9));
+  --war-measure: 86rem;
+
   min-height: 100dvh;
   overflow: clip;
   color: var(--ink);
   background:
-    radial-gradient(90% 62% at 68% 15%, rgba(246, 243, 235, 0.05), transparent 72%),
+    radial-gradient(90% 62% at 68% 15%, color-mix(in srgb, var(--ink-hi) 5%, transparent), transparent 72%),
     var(--scan-ground),
-    #050507;
-  font-family: var(--font-sans);
+    var(--ground);
+  font-family: var(--face-text);
 }
 
 .skipLink {
   position: fixed;
   z-index: 120;
-  top: 0.75rem;
-  left: 0.75rem;
-  padding: 0.65rem 0.9rem;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
   border: 1px solid var(--gold);
-  background: #09090b;
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
   color: var(--gold-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  line-height: 1;
   text-decoration: none;
   transform: translateY(-180%);
-  transition: transform 150ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .skipLink:focus {
@@ -43,10 +70,12 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--gold);
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
   transform: scaleX(0);
   transform-origin: left;
 }
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
 
 .page > header + .hero {
   min-height: calc(100svh - 76px);
@@ -57,7 +86,7 @@
   display: grid;
   align-items: end;
   min-height: 100svh;
-  padding: clamp(8rem, 17vh, 12rem) var(--war-gutter) clamp(3rem, 7vh, 5rem);
+  padding: clamp(var(--sp-8), 17vh, 12rem) var(--war-gutter) clamp(var(--sp-7), 7vh, var(--sp-8));
   isolation: isolate;
 }
 
@@ -73,7 +102,12 @@
   position: absolute;
   z-index: 2;
   inset: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.62) 50%, rgba(0, 0, 0, 0.12));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ground) 96%, transparent) 0%,
+    color-mix(in srgb, var(--ground) 62%, transparent) 50%,
+    color-mix(in srgb, var(--ground) 12%, transparent)
+  );
 }
 
 .heroMedia::after {
@@ -81,7 +115,7 @@
   position: absolute;
   z-index: 3;
   inset: 0;
-  background: linear-gradient(0deg, #050507 0%, transparent 32%);
+  background: linear-gradient(0deg, var(--ground) 0%, transparent 32%);
 }
 
 .heroMedia img {
@@ -90,53 +124,62 @@
   filter: grayscale(1) contrast(1.24);
   opacity: 0.52;
   transform: scale(1.06);
-  animation: imageResolve 2.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: imageResolve var(--dur-slow) var(--ease-out) both;
 }
 
+/* The sweep was a 7s light that looped for as long as the page was open.
+   Retired: nothing loops on a reading surface. The element stays in the
+   markup and paints nothing. */
 .sweep {
-  position: absolute;
-  z-index: 4;
-  top: 0;
-  bottom: 0;
-  width: 22vw;
-  background: linear-gradient(90deg, transparent, rgba(198, 161, 91, 0.08), transparent);
-  animation: sweep 7s linear infinite;
+  display: none;
 }
 
 .coordinates {
   position: absolute;
   z-index: 5;
   right: var(--war-gutter);
-  bottom: 3rem;
-  color: var(--gold);
+  bottom: var(--sp-7);
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.12em;
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 .heroCopy {
   max-width: 72rem;
-  animation: reveal 900ms 120ms both;
+  animation: reveal var(--dur-slow) var(--ease-out) both;
 }
 
+/* The hero kicker is the one gold on the first screen. Section indices are
+   the same voice in recessive ink: a number in the data face, then a name in
+   sentence case. */
 .heroCopy > p:first-child,
 .sectionIndex {
-  color: var(--gold);
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0;
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.heroCopy > p:first-child {
+  color: var(--gold);
 }
 
 .hero h1 {
-  max-width: 11ch;
-  margin: 0.9rem 0 1.5rem;
+  max-width: 14ch;
+  margin: var(--sp-3) 0 var(--sp-5);
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(3.4rem, 9.2vw, 8rem);
-  font-weight: 500;
-  line-height: 0.88;
-  letter-spacing: -0.045em;
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  letter-spacing: var(--t-display-tracking);
+  line-height: var(--t-display-lh);
 }
 
 .hero h1 span {
@@ -146,57 +189,73 @@
 .heroStatement {
   max-width: 37rem;
   color: var(--ink);
-  font-size: clamp(1.05rem, 2vw, 1.35rem);
-  line-height: 1.6;
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
 }
 
+/* The two calls to action: a secondary button in the site's vocabulary.
+   Sans, 600, sentence case; hover takes the gold wash without moving. */
 .heroCopy > a,
 .output > a {
   display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding: 0.85rem 1.4rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 4px;
-  background: rgba(198, 161, 91, 0.12);
+  gap: var(--sp-3);
+  min-height: 2.75rem;
+  margin-top: var(--sp-5);
+  padding: 0 var(--sp-5);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-3);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: 0.08em;
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1;
   text-decoration: none;
-  text-transform: uppercase;
-  transition: background 160ms ease, border-color 160ms ease;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
 .heroCopy > a:hover,
 .output > a:hover {
-  background: rgba(198, 161, 91, 0.22);
-  border-color: var(--gold);
-  color: #fff;
+  background: var(--gold-wash);
+  border-color: var(--gold-line-strong);
+  color: var(--gold-hi);
 }
+
+.heroCopy > a:active,
+.output > a:active {
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+  color: var(--gold-hi);
+}
+
+/* ── Sections ─────────────────────────────────────────────────────────── */
 
 .definition {
   display: grid;
   grid-template-columns: minmax(12rem, 0.4fr) 1fr;
-  gap: clamp(2rem, 8vw, 9rem);
+  gap: clamp(var(--sp-6), 8vw, 9rem);
   width: min(80rem, calc(100% - (var(--war-gutter) * 2)));
   margin-inline: auto;
-  padding: clamp(6rem, 13vw, 12rem) 0;
-  border-top: 1px solid rgba(246, 243, 235, 0.12);
+  padding: clamp(var(--sp-9), 13vw, 12rem) 0;
+  border-top: 1px solid var(--line);
 }
 
 .definition h2,
 .sectionIntro h2,
 .systemSticky h2,
 .output h2 {
-  margin: 0 0 1.4rem;
+  margin: 0 0 var(--sp-5);
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2.2rem, 5vw, 4.5rem);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: -0.025em;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
+  line-height: var(--t-h2-lh);
 }
 
 .definition > div:last-child {
@@ -209,24 +268,30 @@
 .output > p {
   max-width: 60ch;
   color: var(--ink);
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
-  line-height: 1.75;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+.definition p + p {
+  margin-top: var(--flow);
 }
 
 .pressure,
 .independence,
 .system,
 .output {
-  width: min(86rem, calc(100% - (var(--war-gutter) * 2)));
+  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
   margin-inline: auto;
-  padding: clamp(5rem, 11vw, 10rem) 0;
-  border-top: 1px solid rgba(246, 243, 235, 0.12);
+  padding: clamp(var(--sp-8), 11vw, 10rem) 0;
+  border-top: 1px solid var(--line);
 }
 
 .sectionIntro {
   max-width: 58rem;
-  margin-bottom: clamp(3rem, 8vw, 6rem);
+  margin-bottom: clamp(var(--sp-7), 8vw, var(--sp-9));
 }
+
+/* ── How pressure forms ───────────────────────────────────────────────── */
 
 .pressureFlow {
   position: relative;
@@ -244,16 +309,16 @@
   right: 7%;
   left: 7%;
   height: 1px;
-  background: linear-gradient(90deg, var(--gold), rgba(246, 243, 235, 0.2));
+  background: linear-gradient(90deg, var(--gold), var(--line-strong));
   transform-origin: left;
-  animation: lineBuild 1.4s ease-out both;
+  animation: lineBuild var(--dur-slow) var(--ease-out) both;
 }
 
 .pressureFlow li {
   position: relative;
-  min-height: 15rem;
-  padding: 0 1.2rem;
-  border-left: 1px solid rgba(246, 243, 235, 0.08);
+  min-height: 14rem;
+  padding: 0 var(--sp-4);
+  border-left: 1px solid var(--line-soft);
 }
 
 .pressureFlow li:first-child {
@@ -264,39 +329,48 @@
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
 }
 
+/* The stage mark: a gold ring on a ground-coloured plate that masks the line
+   behind it. No glow. */
 .pressureFlow li > i {
   position: relative;
   z-index: 2;
   display: block;
   width: 0.75rem;
   height: 0.75rem;
-  margin: 1.4rem 0 2rem;
+  margin: var(--sp-5) 0 var(--sp-6);
   border: 1px solid var(--gold);
   border-radius: 50%;
-  background: #050507;
-  box-shadow: 0 0 0 0.55rem #050507, 0 0 1rem rgba(198, 161, 91, 0.4);
+  background: var(--ground);
+  box-shadow: 0 0 0 0.55rem var(--ground);
 }
 
 .pressureFlow h3 {
-  margin: 0 0 0.8rem;
-  color: var(--gold-hi);
-  font-family: var(--face-data);
-  font-size: 0.95rem;
-  letter-spacing: 0.12em;
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  line-height: var(--t-h3-lh);
 }
 
 .pressureFlow p {
   color: var(--ink);
-  font-size: 0.92rem;
-  line-height: 1.6;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
+
+/* ── The independence test ────────────────────────────────────────────── */
 
 .independence {
   display: grid;
   grid-template-columns: 0.72fr 1fr;
-  gap: clamp(3rem, 8vw, 8rem);
+  gap: clamp(var(--sp-7), 8vw, var(--sp-9));
   align-items: center;
 }
 
@@ -310,22 +384,27 @@
 .copies {
   display: grid;
   align-content: space-between;
-  padding-block: 0.7rem;
+  padding-block: var(--sp-3);
 }
 
+/* Five syndicated copies. Their indicator and their lines are the ember
+   ramp: this is the signal that looks like five confirmations. */
 .copies span {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 3.15rem;
-  border: 1px solid rgba(246, 243, 235, 0.16);
-  border-radius: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
   color: var(--ink);
-  background: rgba(18, 18, 22, 0.7);
+  background: color-mix(in srgb, var(--surface-3) 70%, transparent);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.09em;
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
 }
 
 .copies i {
@@ -334,8 +413,7 @@
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 0.8rem var(--gold);
+  background: var(--data-ember);
 }
 
 .convergence {
@@ -355,7 +433,7 @@
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, var(--gold), rgba(246, 243, 235, 0.2));
+  background: linear-gradient(90deg, var(--data-ember-dim), var(--data-blue-dim));
   transform: rotate(var(--angle, 0deg));
   transform-origin: right;
 }
@@ -370,14 +448,15 @@
   --angle: 15deg;
 }
 
+/* One origin. The blue ramp: the stream that was actually verified. */
 .origin {
   display: grid;
   place-content: center;
-  padding: 2rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 4px;
+  padding: var(--sp-6);
+  border: 1px solid var(--data-blue-dim);
+  border-radius: var(--radius-3);
   text-align: center;
-  background: radial-gradient(circle, rgba(198, 161, 91, 0.14), transparent 75%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--data-blue) 10%, transparent), transparent 75%);
 }
 
 .origin small,
@@ -385,27 +464,33 @@
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.1em;
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
 }
 
 .origin strong {
-  color: var(--gold-hi);
+  color: var(--data-blue-peak);
   font-family: var(--face-display);
-  font-size: clamp(4rem, 9vw, 6.5rem);
-  font-weight: 500;
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  letter-spacing: var(--t-display-tracking);
   line-height: 1;
 }
+
+/* ── The system ───────────────────────────────────────────────────────── */
 
 .system {
   display: grid;
   grid-template-columns: 0.65fr 1fr;
-  gap: clamp(3rem, 9vw, 10rem);
+  gap: clamp(var(--sp-7), 9vw, 10rem);
   align-items: start;
 }
 
 .systemSticky {
   position: sticky;
-  top: 6rem;
+  top: var(--sp-9);
 }
 
 .systemFlow {
@@ -418,18 +503,18 @@
 .systemFlow::before {
   content: "";
   position: absolute;
-  top: 1rem;
-  bottom: 2rem;
+  top: var(--sp-4);
+  bottom: var(--sp-6);
   left: 1.3rem;
   width: 1px;
-  background: linear-gradient(var(--gold), rgba(246, 243, 235, 0.15));
+  background: linear-gradient(var(--gold), var(--line-strong));
 }
 
 .systemFlow li {
   display: grid;
   grid-template-columns: 3rem 1fr;
-  gap: 1.5rem;
-  min-height: 12rem;
+  gap: var(--sp-5);
+  min-height: 11rem;
 }
 
 .node {
@@ -444,40 +529,50 @@
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
 }
 
+/* The node used to pulse forever. It is a mark now, not a beacon. */
 .node i {
   width: 1rem;
   height: 1rem;
-  margin-top: 1.2rem;
+  margin-top: var(--sp-4);
   border: 1px solid var(--gold);
   border-radius: 50%;
-  background: #050507;
-  box-shadow: 0 0 0 0.6rem #050507, 0 0 1.4rem rgba(198, 161, 91, 0.35);
-  animation: nodePulse 3s ease-out infinite;
+  background: var(--ground);
+  box-shadow: 0 0 0 0.6rem var(--ground);
 }
 
 .systemFlow small {
-  color: var(--gold);
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.1em;
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
 }
 
 .systemFlow h3 {
-  margin: 0.5rem 0;
+  margin: var(--sp-2) 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  font-weight: 500;
-  line-height: 1.05;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  line-height: var(--t-h3-lh);
 }
 
 .systemFlow p {
   max-width: 43rem;
   color: var(--ink);
-  line-height: 1.7;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
+
+/* ── The output ───────────────────────────────────────────────────────── */
 
 .output {
   min-height: 80svh;
@@ -485,60 +580,78 @@
   align-content: center;
 }
 
+/* The page's closing statement — its second display moment, in its own
+   viewport. */
 .output h2 {
-  max-width: 12ch;
-  font-size: clamp(3.2rem, 8vw, 7rem);
-  letter-spacing: -0.04em;
+  max-width: 14ch;
+  font-size: var(--t-display);
+  letter-spacing: var(--t-display-tracking);
+  line-height: var(--t-display-lh);
 }
 
 .outputLines {
   display: grid;
-  margin: 3rem 0;
-  border-top: 1px solid rgba(246, 243, 235, 0.12);
+  margin: var(--sp-7) 0;
+  border-top: 1px solid var(--line);
 }
 
 .outputLines span {
-  padding: 1rem 0;
-  border-bottom: 1px solid rgba(246, 243, 235, 0.12);
-  color: var(--ink);
-  font-family: var(--face-data);
-  font-size: clamp(0.75rem, 1.5vw, 1rem);
-  letter-spacing: 0.12em;
-  transition: padding 180ms ease, color 180ms ease;
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  line-height: var(--t-h3-lh);
 }
 
-.outputLines span:hover {
-  padding-left: 1rem;
-  color: var(--gold-hi);
-}
+/* ── Footer ───────────────────────────────────────────────────────────── */
 
 .footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  width: min(86rem, calc(100% - (var(--war-gutter) * 2)));
+  gap: var(--sp-2) var(--sp-5);
+  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
   margin-inline: auto;
-  padding: 2rem 0 3rem;
-  border-top: 1px solid rgba(246, 243, 235, 0.12);
+  padding: var(--sp-6) 0 var(--sp-7);
+  border-top: 1px solid var(--line);
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  letter-spacing: 0.08em;
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
 }
 
 .footer a {
-  color: var(--gold);
-  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-block: calc(-1 * var(--sp-3));
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.25em;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
 .footer a:hover {
   color: var(--gold-hi);
-  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
+
+/* ── Motion ───────────────────────────────────────────────────────────── */
 
 @keyframes reveal {
   from {
     opacity: 0;
-    transform: translateY(2rem);
+    transform: translateY(1rem);
   }
   to {
     opacity: 1;
@@ -549,22 +662,11 @@
 @keyframes imageResolve {
   from {
     opacity: 0;
-    transform: scale(1.14);
-    filter: blur(1rem) grayscale(1);
+    transform: scale(1.1);
   }
   to {
     opacity: 0.52;
     transform: scale(1.06);
-    filter: blur(0) grayscale(1) contrast(1.24);
-  }
-}
-
-@keyframes sweep {
-  from {
-    transform: translateX(-25vw);
-  }
-  to {
-    transform: translateX(125vw);
   }
 }
 
@@ -577,19 +679,15 @@
   }
 }
 
-@keyframes nodePulse {
-  65% {
-    box-shadow: 0 0 0 0.6rem #050507, 0 0 0 0.8rem rgba(198, 161, 91, 0);
-  }
-}
+/* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 800px) {
   .page {
-    --war-gutter: clamp(1.25rem, 5vw, 2.5rem);
+    --war-gutter: clamp(var(--sp-5), 5vw, var(--sp-6));
   }
 
   .hero {
-    min-height: 44rem;
+    min-height: 40rem;
   }
 
   .heroCopy {
@@ -599,12 +697,14 @@
 
   .hero h1 {
     max-width: 100%;
-    font-size: clamp(2.3rem, 9.2vw, 3.6rem);
-    letter-spacing: -0.035em;
   }
 
   .heroMedia::before {
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0.5));
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--ground) 94%, transparent),
+      color-mix(in srgb, var(--ground) 50%, transparent)
+    );
   }
 
   .coordinates {
@@ -620,7 +720,6 @@
   .definition h2,
   .sectionIntro h2,
   .systemSticky h2 {
-    font-size: clamp(1.9rem, 7vw, 2.7rem);
     overflow-wrap: normal;
   }
 
@@ -628,7 +727,6 @@
   .sectionIntro p,
   .systemSticky p,
   .output > p {
-    font-size: 0.98rem;
     overflow-wrap: normal;
   }
 
@@ -651,7 +749,7 @@
   .pressureFlow li {
     display: grid;
     grid-template-columns: 2.7rem 1fr;
-    min-height: 8rem;
+    min-height: 7rem;
     padding: 0;
     border-left: 0;
   }
@@ -663,7 +761,7 @@
   .pressureFlow li > i {
     position: absolute;
     left: 1rem;
-    margin: 1.4rem 0 0;
+    margin: var(--sp-5) 0 0;
   }
 
   .pressureFlow h3,
@@ -672,7 +770,7 @@
   }
 
   .pressureFlow h3 {
-    margin-top: 0.4rem;
+    margin-top: var(--sp-1);
   }
 
   .sourceDiagram {
@@ -680,25 +778,31 @@
     min-height: 22rem;
   }
 
+  /* No size override — `--t-data` is the floor at every width. The label
+     wraps instead. */
   .copies span {
-    font-size: 0.65rem;
+    padding-inline: var(--sp-2);
+    text-align: center;
   }
 
   .origin {
-    padding: 0.8rem;
+    padding: var(--sp-3);
   }
 
   .origin strong {
-    font-size: 3.5rem;
+    font-size: var(--t-h2);
+  }
+
+  .systemFlow li {
+    min-height: 0;
+    padding-bottom: var(--sp-6);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .heroMedia img,
   .heroCopy,
-  .sweep,
-  .pressureFlow::before,
-  .node i {
+  .pressureFlow::before {
     animation: none;
   }
 }

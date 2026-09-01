@@ -570,7 +570,10 @@ export function briefingService(database: unknown, options: { generate?: Generat
     }
     if (!output || !edition) throw new ApiError("VALIDATION_ERROR", "The drafting model did not produce a valid edition.");
     if (finalQualityFailures.length) {
-      throw new ApiError("VALIDATION_ERROR", "The drafting model did not meet the deterministic publication requirements after regeneration.");
+      throw new ApiError(
+        "VALIDATION_ERROR",
+        `The drafting model did not meet the deterministic publication requirements after regeneration: ${finalQualityFailures.join(" | ")}`,
+      );
     }
     const aiRunId = await recordBriefingRun(database, {
       kind: "summarize",

@@ -3,10 +3,19 @@
 Shared content-presentation components for the eight section pages, the
 Geopolitical Brief, and the home front page.
 
-**Styling comes from the V2 tokens in `app/globals.css`**, not from
-hard-coded values — three faces (Newsreader display, IBM Plex Sans text, Geist
-Mono data), seven size steps, six colours. Read `.ai/DESIGN-V2.md` before
-touching any of it. All styling lives in `content.module.css`.
+**Styling comes from the V3 tokens in `app/globals.css`**, not from
+hard-coded values — three faces (`--face-display` Newsreader, `--face-text`
+IBM Plex Sans, `--face-data` JetBrains Mono), eight size steps each with its
+own line-height, weight and tracking, and a palette of inks, gold, surfaces,
+lines and two data ramps. `content.module.css` contains no literal colour,
+size, radius or duration; every value is a token or a `color-mix()` of
+tokens. Read `app/globals.css` before touching any of it.
+
+The three canonical treatments live here and nowhere else — `kicker`
+(`--face-data`, `--t-data`, 500, uppercase, gold), `dateStamp` (`--face-data`,
+`--t-data`, `--ink-lo`, tabular figures) and `entryTitle` (`--face-display`,
+`--t-h3` with its weight, line-height and tracking). Page modules `composes:`
+them rather than restating them.
 
 > Cinzel is **retired from every reading surface** and belongs to the home
 > particle scene only. Reintroducing it here reverses a documented decision
@@ -55,10 +64,12 @@ published item as the API returns it is `PublishedItemView` from
 
 ## VerificationBadge
 
-Small mono-caps pill with a status dot, one exhaustive visual mapping for all
-nine assessment values (gold for `verified`; ember tones for the
-`false`/`misleading`/`manipulated`/`out_of_context`/`contested` family; muted
-blue-grey for `unverified`/`unsupported`; violet dashed for `satire`). Carries
+A short sentence-case phrase at caption size in the interface face, with a
+status dot — not a pill, not tracked capitals. One exhaustive visual mapping
+for all nine assessment values, drawn from the two data ramps: gold for
+`verified`; the ember ramp's peak for `false`/`misleading`/`manipulated` and
+one step down for `out_of_context`/`contested`; the neutral data ramp for
+`unverified`/`unsupported`; plain ink with a dashed dot for `satire`. Carries
 a `title` and `aria-label` explaining the verdict.
 
 ```ts
@@ -265,7 +276,9 @@ verdicts.**
   *not* `VerificationBadge`. A verdict says what the record shows about a
   claim; a confidence grade says how well the research knows its own finding.
   Rendering either through the verdict badge would let "we are fairly sure"
-  read as "this is verified".
+  read as "this is verified". For the same reason they render as plain data
+  labels — no border, no fill, no pill — and the `gradeChip`/`identityChip`
+  class names survive from the chip era only so page modules keep working.
 - `TechniqueChip` / `TechniqueChips` — link an exhibit to the playbook chapter
   that explains the technique it documents. The vocabulary lives in
   `lib/content/fake-resistance-playbook.ts` and is pinned by

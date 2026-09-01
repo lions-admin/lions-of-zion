@@ -184,11 +184,7 @@
    so nothing behind it competes with the labels. */
 .explorePanel,
 .mobilePanel {
-  background:
-    linear-gradient(180deg,
-      color-mix(in oklab, var(--surface-2) 97%, transparent),
-      color-mix(in oklab, var(--surface-1) 98%, transparent) 40%,
-      var(--ground));
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1) 40%, var(--ground));
 }
 
 .explorePanel::before,

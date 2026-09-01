@@ -1,11 +1,22 @@
 /*
  * Archive record surfaces — testimonies and documentation.
  *
- * Type and colour come from the V2 tokens in `app/globals.css` and nothing
- * here invents either. Read `.ai/DESIGN-V2.md` before changing this file.
- * Hard rules it observes: nothing below `--t-data`; uppercase plus tracking
- * only on data labels of two words or fewer; sentence case everywhere else;
- * Cinzel belongs to the particle scene and never appears on a reading page.
+ * Every value here answers to the V3 tokens in `app/globals.css`: the three
+ * faces, the eight type steps with their paired line-height / weight /
+ * tracking, the `--sp-*` spacing ramp, the ink and hairline scale, and the
+ * radius / motion vocabulary. Nothing in this file is a literal.
+ *
+ * The register is memorial. Testimony is the most solemn content on the site,
+ * so the treatment is subtractive: one display voice for the record's own
+ * headings and its quoted words, one text voice for prose and controls, one
+ * data voice for dates, file numbers, counts and provenance. No decoration on
+ * a record body, no hover theatre, and gold spent once — the page shell's
+ * rule under the headline already owns it, so nothing below competes.
+ *
+ * Rules this file observes: nothing below `--t-data`; uppercase plus tracking
+ * only on data labels of two words or fewer; the display face never on a
+ * control; the data face never running a sentence; focus rings come from the
+ * global `:focus-visible` rule and are only ever offset here, never recoloured.
  */
 
 /* ---------- prose ---------- */
@@ -15,55 +26,75 @@
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);
   font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
-  margin: 2.25rem 0 0.75rem;
-  text-wrap: balance;
+  /* One line box above, a third below: the gap into a section is the gap
+     between groups, the gap after its heading is the gap inside one. */
+  margin: var(--sp-7) 0 var(--sp-3);
 }
 
 /* Only the *opening* heading loses its lead-in — it sits directly under the
-   page's gold rule, where 2.25rem reads as a hole rather than as a break.
-   Every heading is now the first child of its own `<section>` (the region the
-   contents rail observes), so `.heading:first-child` had become true of all of
-   them and flattened the record into one undifferentiated column. The question
-   the reset has to ask is whether the *section* is first. */
+   page's gold rule, where a full line box reads as a hole rather than as a
+   break. Every heading is the first child of its own `<section>` (the region
+   the contents rail observes), so `.heading:first-child` had become true of
+   all of them and flattened the record into one undifferentiated column. The
+   question the reset has to ask is whether the *section* is first. */
 section:first-child > .heading {
   margin-top: 0;
 }
 
 .paragraph {
+  font-family: var(--face-text);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
   color: var(--ink);
-  margin: 0 0 1.1rem;
+  margin: 0 0 var(--flow);
 }
 
+/* The witness's own words, set apart from the surrounding prose.
+   Display face, italic, one step above body (`--t-lede`): the quote is the
+   record's standfirst — the sentence the reader is meant to carry away — and
+   the standfirst step is what the system already reserves for that job. The
+   rule beside it is a neutral hairline rather than gold, so the page keeps
+   its one gold emphasis under the headline and the quote reads as gravity,
+   not as highlight. `hanging-punctuation` lets an opening quotation mark
+   hang into the margin so the first letters of the lines align. */
 .quote {
-  margin: 1.5rem 0;
-  padding-left: 1.1rem;
-  border-left: 2px solid var(--gold-line);
+  margin: var(--sp-6) 0;
+  padding-left: var(--sp-5);
+  border-left: 1px solid var(--line-strong);
+  hanging-punctuation: first;
 }
 
 .quote p {
   font-family: var(--face-display);
-  font-size: var(--t-body);
-  line-height: 1.6;
+  font-style: italic;
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  font-weight: var(--t-lede-weight);
   color: var(--ink-hi);
   margin: 0;
+}
+
+.quote p + p {
+  margin-top: var(--sp-3);
 }
 
 /* A caption the source published as its own block, rather than attached to a
    figure. Set apart from the prose so it does not read as the record's voice. */
 .standaloneCaption {
+  font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
   color: var(--ink-lo);
-  margin: -0.4rem 0 1.2rem;
+  margin: calc(-1 * var(--sp-2)) 0 var(--sp-5);
 }
 
 /* ---------- figures ---------- */
 
 .figure {
-  margin: 1.75rem 0;
+  margin: var(--sp-6) 0;
 }
 
 .image,
@@ -72,8 +103,9 @@ section:first-child > .heading {
   width: 100%;
   height: auto;
   max-width: 100%;
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
-  border: 1px solid var(--line);
+  background: var(--surface-1);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-1);
 }
 
 .video {
@@ -81,66 +113,88 @@ section:first-child > .heading {
      fills the whole viewport and pushes the record off screen. */
   max-height: 70vh;
   object-fit: contain;
-  background: #000;
+  background: var(--ground);
 }
 
-/* Stands in for media the archive records but does not hold — the two videos
-   the source hosts on YouTube. Framed as a gap in the holding, not an error. */
-.externalMedia {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: 1.7;
-  letter-spacing: var(--t-data-tracking);
-  color: var(--ink-lo);
+/* A stated gap in the holding — one voice for three cases: the two videos
+   the source hosts on YouTube, an image that fails to arrive from the CDN,
+   and a filter that matches nothing. Framed as a gap rather than an error:
+   a dashed hairline, the text face at the small step, centred in the space
+   the missing thing would have taken. The data face is deliberately absent —
+   these are sentences, and mono running a sentence is a defect. */
+.externalMedia,
+.filterEmpty {
+  display: grid;
+  place-items: center;
+  min-height: clamp(6rem, 22vw, 9rem);
   margin: 0;
-  padding: 1rem 1.1rem;
+  padding: var(--sp-5) var(--sp-6);
   border: 1px dashed var(--line);
-  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border-radius: var(--radius-1);
+  background: color-mix(in srgb, var(--ground) 45%, transparent);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* When the image's dimensions are known the frame keeps its shape, capped so
+   a portrait 9:16 does not become a 1,200px hole; the record around it does
+   not reflow when the image fails, and the note sits where the picture was. */
+.imageUnavailable {
+  aspect-ratio: var(--frame-ratio, auto);
+  max-height: 40vh;
 }
 
 .caption {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  margin-top: 0.6rem;
+  gap: var(--sp-1);
+  margin-top: var(--sp-3);
 }
 
 .captionText {
+  font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
   color: var(--ink-lo);
 }
 
-/* Provenance, kept quiet but never removed. `--t-data` is the smallest step
-   the system allows; the mono face marks it as a record rather than prose.
+/* Provenance, kept quiet but never removed — six items across both archives
+   carry one. Data face at the data step, because a credit is a field on the
+   record rather than prose; `--ink` rather than `--ink-lo`, because the floor
+   for the quietest ink is the caption step and this sits one below it.
    Deliberately not a link — see `.ai/DECISIONS.md`, 2026-08-26. */
 .credit {
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  color: var(--ink-lo);
+  font-weight: var(--t-data-weight);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- record header ----------
-   `.recordHeader` used to wrap the two rules below and close them with a
-   full-width hairline of its own. It is gone: the dateline now renders inside
-   the page shell's `<header>`, where `.ledeRule` already closes the headline
-   block, and two rules 87px apart both claiming to end the header was the
-   defect. What is left is the two pieces themselves. */
+   The dateline renders inside the page shell's `<header>`, where `.ledeRule`
+   closes the headline block; what is here is the two pieces themselves. */
 
 .recordMeta {
   display: flex;
   flex-wrap: wrap;
   /* Sits where `.lede` sits on the pages that have one — the dateline has
      taken that slot in the shell's `<header>`, so it takes its lead-in too. */
-  margin-top: 0.85rem;
-  gap: 0.4rem 1.25rem;
+  margin-top: var(--sp-3);
+  gap: var(--sp-2) var(--sp-5);
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
 
 .recordMeta dt {
@@ -148,10 +202,25 @@ section:first-child > .heading {
   text-transform: uppercase;
 }
 
+/* The value beside the label. A witness's name is not data, so it is set in
+   the text face at the caption step with the tracking off; the date inside
+   it is, so `time` steps back to the data face. */
 .recordMeta dd {
   display: inline;
-  margin: 0 0 0 0.4rem;
+  margin: 0 0 0 var(--sp-2);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink);
+}
+
+.recordMeta time {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
 }
 
 .metaPair {
@@ -164,58 +233,73 @@ section:first-child > .heading {
 .languages {
   display: flex;
   flex-wrap: wrap;
-  /* Centred rather than baseline-aligned because the chips below are now a
-     44px box around a one-line label: with `baseline` the label would sit on
-     the chips' text while their boxes hung 13px above and below it. Both
-     sides are single-line and the same size, so centring keeps the label and
-     the chip text on the same line as before. */
+  /* Centred rather than baseline-aligned: the chips are a 44px box around a
+     one-line label, and with `baseline` the label would sit on the chips'
+     text while their boxes hung above and below it. */
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
 }
 
 .languagesLabel {
+  margin-right: var(--sp-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
 }
 
-/* These were sized as labels and then given a link. `--t-data` with 0.15rem
-   of padding is a 23.5px chip, and a testimony with seven locales is a row of
-   seven of them — the archive's most-tapped control on a phone. `.languages`
-   already wraps, so a seven-language row grows from one line to two rather
-   than overflowing, which is the right trade. */
+/* The filter-chip voice: data face at the data step, hairline radius, a
+   44px box. A seven-locale testimony is a row of seven of these — the
+   archive's most-tapped control on a phone — so the height holds at every
+   width. Each label is one word (a locale name), which is what allows the
+   uppercase and tracking. */
 .languageLink,
 .languageCurrent {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 2.75rem;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  line-height: var(--t-data-lh);
+  line-height: 1;
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  padding: 0.15rem 0.7rem;
-  border: 1px solid var(--line);
 }
 
 .languageLink {
   color: var(--ink);
+  background: color-mix(in srgb, var(--ink-hi) 4%, transparent);
   text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
-.languageLink:hover,
-.languageLink:focus-visible {
+.languageLink:hover {
   color: var(--ink-hi);
-  border-color: var(--gold-line);
+  background: color-mix(in srgb, var(--ink-hi) 8%, transparent);
+  border-color: var(--line-strong);
 }
 
+.languageLink:active {
+  background: color-mix(in srgb, var(--ink-hi) 2%, transparent);
+}
+
+/* The language being read: inverted, not gold. It is a state, not an
+   emphasis, and the headline's rule a few lines down already spends the
+   page's gold. */
 .languageCurrent {
   color: var(--ground);
-  background: var(--ink-lo);
-  border-color: var(--ink-lo);
+  background: var(--ink-hi);
+  border-color: var(--ink-hi);
 }
 
 /* ---------- index pages ---------- */
@@ -225,38 +309,44 @@ section:first-child > .heading {
   font-size: var(--t-h2);
   line-height: var(--t-h2-lh);
   font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
   color: var(--ink-hi);
-  margin: 2.5rem 0 0.35rem;
-  text-wrap: balance;
+  /* A section break above — a category is a chapter of the archive, and
+     after a 99-row list the eye needs the room — and almost nothing below,
+     because the count line belongs to the heading. */
+  margin: var(--sp-8) 0 var(--sp-1);
 }
 
 /* Each group sits in its own `<section>`, and `:first-of-type` is scoped to
    the parent — so written as `.groupHeading:first-of-type` this matched every
-   one of the seven headings, not the first, and the 2.5rem break above never
-   rendered anywhere. The only gap between a 99-row list and the next category
-   was `.recordList`'s 1.5rem. Scoping to the first *section* is what the rule
+   heading, not the first. Scoping to the first *section* is what the rule
    always meant. */
 section:first-of-type .groupHeading {
   margin-top: 0;
 }
 
 .groupCount {
+  margin: 0 0 var(--sp-4);
   font-family: var(--face-data);
   font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
-  margin: 0 0 1rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /*
  * Every row is one link, and it has to *read* as one before the pointer ever
  * touches it: the file number and the arrow are permanent affordances, not
- * hover rewards. Hover confirms — gold wash, gold rule, the arrow steps
- * forward — it does not reveal.
+ * hover rewards. Hover confirms — a neutral wash, the gold rule at the left
+ * edge, the arrow stepping forward — it does not reveal, and nothing moves
+ * except the arrow. The gold rule is the row's single emphasis; the title,
+ * number and arrow answer in ink so the hover spends gold once.
  */
 .recordList {
   list-style: none;
-  margin: 0 0 1.5rem;
+  margin: 0 0 var(--sp-6);
   padding: 0;
   border-top: 1px solid var(--line);
 }
@@ -266,68 +356,85 @@ section:first-of-type .groupHeading {
 }
 
 .recordLink {
+  --thumb-w: clamp(4rem, 12vw, 6rem);
+
   display: grid;
-  grid-template-columns: 2.9rem auto 1fr auto;
+  grid-template-columns: 2.75rem var(--thumb-w) minmax(0, 1fr) auto;
+  grid-template-areas: 'num thumb body arrow';
   align-items: center;
-  gap: 1rem;
-  padding: 0.95rem 0.85rem 0.95rem 0.75rem;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-3);
   color: var(--ink);
   text-decoration: none;
   border-left: 2px solid transparent;
-  transition: background-color 140ms ease, border-color 140ms ease;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.recordLink:hover,
+.recordLink:focus-visible {
+  background: color-mix(in srgb, var(--ink-hi) 4%, transparent);
+  border-left-color: var(--gold);
+}
+
+/* The row is the focus target; the ring hugs it rather than floating
+   outside the list's hairlines. */
+.recordLink:focus-visible {
+  outline-offset: -2px;
+}
+
+.recordNum {
+  grid-area: num;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.recordLink:hover .recordNum,
+.recordLink:focus-visible .recordNum {
+  color: var(--ink);
 }
 
 /* The record's own cover, small and square. Square because the covers run
    portrait and landscape both, and one crop box treats them alike; the w480
    derivative is served and CSS scales it down. Decorative by contract —
-   `alt=""` — the title beside it is the description. */
+   `alt=""` — the title beside it is the description. The same class dresses
+   the empty frame that stands in when a cover is absent or fails to load, so
+   the grid keeps its shape and the gap reads as a quiet plate, not a hole. */
 .recordThumb {
+  grid-area: thumb;
   display: block;
-  width: clamp(4.25rem, 13vw, 6.5rem);
+  width: var(--thumb-w);
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
-}
-
-.recordLink:hover,
-.recordLink:focus-visible {
-  background: rgba(198, 161, 91, 0.07);
-  border-left-color: var(--gold);
-}
-
-.recordNum {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  color: var(--ink-lo);
-  font-variant-numeric: tabular-nums;
-}
-
-.recordLink:hover .recordNum,
-.recordLink:focus-visible .recordNum {
-  color: var(--gold);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-1);
+  background: var(--surface-1);
 }
 
 .recordBody {
+  grid-area: body;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: var(--sp-1);
   min-width: 0;
 }
 
 .recordItemTitle {
   font-family: var(--face-display);
-  font-size: 1.125rem;
-  line-height: 1.45;
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
   text-wrap: balance;
-}
-
-.recordLink:hover .recordItemTitle,
-.recordLink:focus-visible .recordItemTitle {
-  color: var(--gold-hi);
+  overflow-wrap: anywhere;
 }
 
 /* Two lines of the record's own words, then silence. The clamp is layout
@@ -339,38 +446,59 @@ section:first-of-type .groupHeading {
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
 }
 
 .recordItemMeta {
+  margin-top: var(--sp-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
 
 .recordArrow {
+  grid-area: arrow;
   font-family: var(--face-data);
-  font-size: var(--t-small);
+  font-size: var(--t-body);
+  line-height: 1;
   color: var(--ink-lo);
-  transition: color 140ms ease, transform 140ms ease;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
 .recordLink:hover .recordArrow,
 .recordLink:focus-visible .recordArrow {
-  color: var(--gold-hi);
-  transform: translateX(0.25rem);
+  color: var(--ink-hi);
+  transform: translateX(var(--sp-1));
+}
+
+/* Below 540px the four-column row no longer fits a title: number, cover,
+   gaps and arrow left ~120px of measure at 320. The number moves under the
+   cover, the arrow — decorative and `aria-hidden` — goes, and the body takes
+   the width. */
+@media (max-width: 540px) {
+  .recordLink {
+    grid-template-columns: var(--thumb-w) minmax(0, 1fr);
+    grid-template-areas:
+      'thumb body'
+      'num body';
+    align-items: start;
+    row-gap: var(--sp-2);
+  }
+
+  .recordArrow {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .recordLink,
-  .recordArrow {
-    transition: none;
-  }
-
   .recordLink:hover .recordArrow,
   .recordLink:focus-visible .recordArrow {
     transform: none;
@@ -380,22 +508,30 @@ section:first-of-type .groupHeading {
 /* ---------- record footer: share, then the one credit ----------
    The two-paragraph provenance footer is gone — replaced by the share block
    on every record, with october7 keeping a single reduced credit line
-   (`.ai/DECISIONS.md`, 2026-08-27). */
+   (`.ai/DECISIONS.md`, 2026-08-27). A line and a half of recovery space
+   above it: the reader has just finished a witness's account. */
 
 .recordFooter {
-  margin-top: 2.5rem;
-  padding-top: 1.25rem;
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-5);
   border-top: 1px solid var(--line);
+}
+
+/* The share block's root. A hook for the component rather than a style — it
+   exists so the class the component references resolves. */
+.share {
+  display: block;
 }
 
 /* The one sentence of encouragement. Text face, not mono — it is the site
    speaking, not a data label — and a step above the credit so the footer has
    an order: ask first, whisper the credit last. */
 .shareLead {
-  margin: 0 0 0.9rem;
+  margin: 0 0 var(--sp-4);
+  max-width: 54ch;
   font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
   color: var(--ink);
 }
 
@@ -403,117 +539,109 @@ section:first-of-type .groupHeading {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
-/* The same chip the language switch established: 44px boxes, mono, bordered.
-   Sentence case — "Share on Facebook" is three words, past the uppercase
-   limit — so the tracking stays off too; tracked lowercase mono reads as a
-   glitch, not a label. */
-.shareAction {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0.15rem 0.8rem;
-  border: 1px solid var(--line);
-  background: none;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  color: var(--ink);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.shareAction:hover,
-.shareAction:focus-visible {
-  color: var(--ink-hi);
-  border-color: var(--gold-line);
-}
-
-.shareAction:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 2px;
-}
-
+/* The outcome of a copy, seen and announced alike. A status value, so the
+   data face; the state colours are the system's own, desaturated for the
+   warm palette. */
 .shareStatus {
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  color: var(--ink-lo);
+  font-weight: var(--t-data-weight);
+  color: var(--ink);
 }
 
-/* The surviving october7 credit — one quiet line under the share block. */
+.shareStatus[data-state='copied'] {
+  color: var(--state-ok);
+}
+
+.shareStatus[data-state='failed'] {
+  color: var(--state-danger);
+}
+
+/* The surviving october7 credit — one quiet line under the share block. A
+   sentence, so the text face at the caption step; the link inside it is the
+   single hyperlink the archive allows, and it is underlined so it is never
+   mistaken for prose. */
 .sourceCredit {
-  margin: 1.1rem 0 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  margin: var(--sp-4) 0 0;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
   color: var(--ink-lo);
 }
 
 .sourceCredit a {
   color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
   overflow-wrap: anywhere;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.sourceCredit a:hover {
+  color: var(--ink-hi);
+  text-decoration-color: currentColor;
 }
 
 /* ---------- per-media actions ----------
-   Inside the figcaption, after caption and credit. Quiet on purpose: these
-   are utilities under evidence, not calls to action — dotted hairline
-   underlines in the caption's own grey, waking to ink on hover. The negative
-   margin buys the 44px tap height without opening a hole in the caption
-   stack. */
+   Inside the figcaption, after caption and credit: download and share for
+   one held file. The site's ghost-button voice — text face, 600, control
+   radius, no border — so they read as this site's chrome and not as the
+   source's words, while staying quiet under evidence. The negative margins
+   buy the 44px tap height without opening a hole in the caption stack, and
+   the leading one lets the label's left edge sit on the caption's. */
 
 .mediaActions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.1rem;
+  gap: var(--sp-1);
+  margin: calc(-1 * var(--sp-2)) 0 calc(-1 * var(--sp-2)) calc(-1 * var(--sp-2));
 }
 
 .mediaAction {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  margin: -0.55rem 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  /* No tracking: "Share on X" is three words of sentence case, and tracking
-     belongs to the two-word uppercase data labels. Same reasoning as
-     `.shareAction` — these are controls, not field names. */
+  min-height: 2.75rem;
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-2);
+  background: transparent;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: 1;
+  font-weight: 600;
   color: var(--ink-lo);
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-color: color-mix(in srgb, var(--ink-lo) 55%, transparent);
-  text-underline-offset: 3px;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
-.mediaAction:hover,
-.mediaAction:focus-visible {
+.mediaAction:hover {
   color: var(--ink-hi);
-  text-decoration-style: solid;
-  text-decoration-color: currentColor;
+  background: color-mix(in srgb, var(--ink-hi) 6%, transparent);
 }
 
-.mediaAction:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 2px;
+.mediaAction:active {
+  background: color-mix(in srgb, var(--ink-hi) 3%, transparent);
 }
 
 /* ---------- index filter ---------- */
 
-/* Typed as a console field rather than as a form control: `--face-data` at
-   `--t-data`, which is the register the file numbers and meta lines already
-   use on these rows. */
 .filterBar {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem 0.75rem;
-  margin: 1.75rem 0 1.25rem;
-  padding-bottom: 0.9rem;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  margin: var(--sp-6) 0 var(--sp-5);
+  padding-bottom: var(--sp-4);
   border-bottom: 1px solid var(--line);
 }
 
@@ -521,32 +649,44 @@ section:first-of-type .groupHeading {
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
 }
 
+/* A form control, so the text face: what gets typed here is a witness's
+   name or a place, not data. A dark well over the glass, the control radius,
+   and the hairline stepping up on hover and to gold on focus beside the
+   global ring. */
 .filterInput {
   flex: 1 1 14rem;
-  min-height: 44px;
-  padding: 0.5rem 0.7rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.03);
+  min-height: 2.75rem;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: color-mix(in srgb, var(--ground) 55%, transparent);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
 .filterInput::placeholder {
   color: var(--ink-lo);
 }
 
+.filterInput:hover {
+  border-color: var(--line-strong);
+}
+
 .filterInput:focus-visible {
-  outline: 2px solid var(--gold-hi);
-  outline-offset: 2px;
+  border-color: var(--gold-line-strong);
+  background: color-mix(in srgb, var(--ground) 70%, transparent);
+  outline-offset: 1px;
 }
 
 .filterCount {
@@ -554,45 +694,83 @@ section:first-of-type .groupHeading {
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
+/* Shares the gap-in-the-holding frame above; the overrides are the margins
+   and the ink — this is a sentence the reader must act on, so it gets the
+   reading ink rather than the quiet one. */
 .filterEmpty {
-  margin: 1.5rem 0;
-  color: var(--ink-lo);
+  margin: var(--sp-6) 0;
+  min-height: 0;
+  color: var(--ink);
 }
 
 /* In flow and sticky, not a rail: `DocPage` deliberately omits `withRails`,
    and adding one would mean fixing `--content-w`, which assumes both rails or
-   neither. */
+   neither. The offset clears the fixed site header (0.85rem of padding over
+   a 3.6rem bar) with a step of air; the ground is translucent so the glass
+   panel still shows through the band as the list scrolls under it. */
 .categoryJump {
   position: sticky;
-  top: 0;
+  top: 5rem;
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem 0.55rem;
-  margin-bottom: 1.5rem;
-  padding: 0.6rem 0;
-  background: var(--ground);
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-6);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--line-soft);
+  background: color-mix(in srgb, var(--ground) 85%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
+/* The filter-chip voice — data face at the data step, hairline radius — in
+   sentence case, because a category name runs to three or four words and
+   uppercase is reserved for labels of two. Active is the pressed state and
+   the `aria-current` hook a scroll-spy could set; both spend the gold wash. */
 .categoryJump a {
-  padding: 0.3rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 var(--sp-3);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-1);
+  background: color-mix(in srgb, var(--ink-hi) 4%, transparent);
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  line-height: 1;
+  font-weight: var(--t-data-weight);
   text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
-.categoryJump a:hover,
-.categoryJump a:focus-visible {
-  border-color: var(--gold-line);
+.categoryJump a:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink-hi) 8%, transparent);
+  border-color: var(--gold-line-strong);
+}
+
+.categoryJump a:active,
+.categoryJump a[aria-current] {
   color: var(--gold-hi);
+  background: var(--gold-wash);
+  border-color: var(--gold);
+}
+
+/* A thumb, not a pointer: the chips grow to the 44px target where the
+   input is coarse or the viewport is a phone's. */
+@media (max-width: 768px), (pointer: coarse) {
+  .categoryJump a {
+    min-height: 2.75rem;
+  }
 }

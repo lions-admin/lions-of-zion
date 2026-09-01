@@ -10,6 +10,42 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-01 — Design V3: three faces, and the display face is a serif again
+
+The owner asked for the whole site raised to a premium standard — every
+component, button, and font. The audit that opened the work found that V2's
+discipline (seven type steps, three inks) had held, but its *voice* had not:
+`--face-display` resolved to the monospace, so every headline on a newsroom
+site was set like terminal output, while the token comment beside it still
+claimed Ramsina. Nine font families loaded for three jobs; two more were
+referenced and never loaded; five modules kept private font aliases that
+answered the question "what is the display face" five different ways.
+
+The ruling: **three faces, loaded once, named once.** Newsreader is the
+editorial voice — headlines, entry titles, standfirsts, pull quotes — because
+it is a variable serif with a real optical-size axis, so one file cuts as a
+display face at 60px and as a text face at 20px. IBM Plex Sans is running
+text and every control. JetBrains Mono is data only, and it stays because the
+home's glyph field rasterises with it. Cinzel, DM Sans, Geist, Geist Mono,
+Space Grotesk and Ramsina are gone from `app/layout.tsx`; a module that
+references `--font-<anything else>` is referencing a face that does not exist.
+
+Three smaller rulings ride with it. The display and h2 steps were raised
+(2.75rem cap → 4.25rem; 1.55rem → clamp to 2.15rem) because a broadsheet's
+headline has to *win* the squint test, and a `--t-lede` step was added for
+the standfirst, which every page had and no step named. The data floor moved
+from 0.72rem to 0.75rem — 11.5px sat under the legibility line the design
+skill itself draws. And state colours, surfaces, radii, shadows, motion and
+focus became tokens, with one global `:focus-visible` outline, because every
+module had invented its own and the site had four focus treatments and neon
+`#ff2056` on a warm-neutral palette.
+
+Also recorded here because `CLAUDE.md` still describes the older shape: the
+public home route no longer mounts the particle navigation. `app/page.tsx`
+renders `SiteHeader` and a brand hero over `components/typographic-field`;
+`components/particle-nav` survives only at `/particle-demo`. The particle-nav
+invariants in `CLAUDE.md` describe that harness, not the public home.
+
 ## 2026-09-01 — A refutation is a narrative, so it publishes into `narrative_watch`
 
 The owner ruled that an anti-Israel news item **is** a narrative — the thing the

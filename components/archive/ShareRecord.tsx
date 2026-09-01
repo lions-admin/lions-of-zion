@@ -100,11 +100,16 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption }: ShareR
         This record is kept public so it can be seen — sharing it carries it
         further.
       </p>
+      {/* `md`, not `sm`: the medium size is the Button system's 44px touch
+          standard, and this row is pressed with a thumb as often as a mouse.
+          The variant, faces, radius and every hover/active/focus/disabled
+          state come from the shared Button so the archive speaks in the
+          site's one control voice. */}
       <div className={styles.shareRow}>
         <ButtonLink
           href={xHref}
           variant="secondary"
-          size="sm"
+          size="md"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -113,25 +118,31 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption }: ShareR
         <ButtonLink
           href={facebookHref}
           variant="secondary"
-          size="sm"
+          size="md"
           target="_blank"
           rel="noopener noreferrer"
         >
           Share on Facebook
         </ButtonLink>
         {canShare ? (
-          <Button type="button" variant="secondary" size="sm" onClick={systemShare}>
+          <Button type="button" variant="secondary" size="md" onClick={systemShare}>
             Share…
           </Button>
         ) : (
-          <Button type="button" variant="secondary" size="sm" onClick={copyCaption}>
+          <Button type="button" variant="secondary" size="md" onClick={copyCaption}>
             Copy caption
           </Button>
         )}
         {/* One place for the outcome, seen and announced alike. The button's
             own label never changes — feedback that rewrites the control is
-            how a reader loses the thing they just pressed. */}
-        <span className={styles.shareStatus} role="status" aria-live="polite">
+            how a reader loses the thing they just pressed. `data-state`
+            carries the outcome to the stylesheet's ok/danger inks. */}
+        <span
+          className={styles.shareStatus}
+          role="status"
+          aria-live="polite"
+          data-state={copyState === 'idle' ? undefined : copyState}
+        >
           {copyState === 'copied' ? 'Copied.' : null}
           {copyState === 'failed' ? 'Couldn’t copy.' : null}
         </span>

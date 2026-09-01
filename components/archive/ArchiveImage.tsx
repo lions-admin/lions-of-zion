@@ -53,7 +53,18 @@ export function ArchiveImage({
   const [failed, setFailed] = useState(false);
 
   if (failed) {
-    return <p className={styles.externalMedia}>{unavailableNote}</p>;
+    // The frame keeps the image's shape where the package recorded one, so
+    // the record does not reflow around the gap and the note sits where the
+    // picture was. `--frame-ratio` is read by `.imageUnavailable`.
+    const frame =
+      width && height
+        ? ({ '--frame-ratio': `${width} / ${height}` } as React.CSSProperties)
+        : undefined;
+    return (
+      <p className={`${styles.externalMedia} ${styles.imageUnavailable}`} style={frame}>
+        {unavailableNote}
+      </p>
+    );
   }
 
   return (

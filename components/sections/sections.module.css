@@ -89,7 +89,7 @@
   /* Clears the fixed site header (see `--anchor-offset`). `globals.css` sets
      52px on `[data-public-shell]` as a floor for every shell; this one knows
      its header is taller than that. */
-  padding-top: 4.8rem;
+  padding-top: var(--header-h);
   /* No ground of its own: `body` carries it, so a page cannot disagree with
      the site about what colour the site is. */
   background: transparent;

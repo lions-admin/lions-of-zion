@@ -186,7 +186,7 @@
 
   /* The fixed floating header's occupied height, for anything sticky that
      must clear it. */
-  --header-h: 5rem;
+  --header-h: 4.8rem;
 
   /* The scan's own ground — the site's background, in one place: the ground
      colour, a faint warm wash where the scan is densest, and the horizontal
@@ -196,18 +196,6 @@
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
 
-  /* Compatibility aliases for `content.module.css` fallbacks. Zero other
-     readers; remove together with those fallbacks. */
-  --loz-ground: var(--ground);
-  --loz-gold: var(--gold);
-  --loz-gold-bright: var(--gold-hi);
-  --loz-blue: var(--data-blue);
-  --loz-blue-dim: var(--data-blue-dim);
-  --loz-blue-peak: var(--data-blue-peak);
-  --loz-ember: var(--data-ember);
-  --loz-ember-dim: var(--data-ember-dim);
-  --loz-ember-peak: var(--data-ember-peak);
-  --loz-body: var(--ink);
 }
 
 /*
@@ -412,7 +400,7 @@ button, canvas, a { -webkit-tap-highlight-color: transparent; }
 button, input, select, textarea { font: inherit; color: inherit; }
 img, video { max-width: 100%; height: auto; }
 
-[data-public-shell] { padding-top: 52px; }
+[data-public-shell] { padding-top: var(--header-h); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

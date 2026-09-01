@@ -14,7 +14,7 @@
   min-height: 100dvh;
   color: var(--ink);
   font-family: var(--face-text);
-  padding-top: 4.8rem;
+  padding-top: var(--header-h);
 }
 
 .shell {

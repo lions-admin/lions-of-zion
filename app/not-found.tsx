@@ -3,7 +3,7 @@
  *
  * Speaks in the signal-room voice of the section pages and re-offers the
  * whole nav contract: the eight destinations come straight from
- * `defaultNodes`, so this index can never drift from the orbit.
+ * `SITE_NAVIGATION`, so this index can never drift from the site header.
  */
 import Link from 'next/link';
 import { SITE_NAVIGATION } from '@/lib/site-navigation';
@@ -25,7 +25,7 @@ export default function NotFound() {
           </p>
           <div className={styles.rule} aria-hidden="true" />
           <Link href="/" className={styles.back}>
-            ← Back to the scan
+            ← Back to Lions of Zion
           </Link>
         </header>
 

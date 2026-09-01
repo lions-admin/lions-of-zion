@@ -15,17 +15,18 @@ or negotiate an owner request.
 
 ## What this is
 
-Lions of Zion is a Next.js particle experience with a front page under it. The
-preserved story intro hands off to a crowned-lion radial navigation over a
-particle-built network scan, which owns the whole first screen; below it the
-document continues into a front-page band of real editorial content. There is
-no photographic landing page after the intro. The eight destinations behind the
-nav are ordinary scrolling document pages.
+Lions of Zion is a Next.js editorial site with a cinematic particle intro over
+its front door. The story intro — one React Three Fiber scene with the crowned
+lion — plays once per tab above the home page, then unmounts and hands off to
+the editorial home underneath: `SiteHeader`, the `TypographicField` motion
+engine, the lion wordmark, one call to action, and a headline rail fed by
+`featuredPublications()`. There is no photographic landing page after the intro.
 
-The home route's below-the-fold band is new (`components/home/`); the invariant
-that it had none is retired — see `.ai/DECISIONS.md`. The scene above it still
-owns exactly one viewport and is still `position: fixed; inset: 0`, which is
-load-bearing and not a style choice.
+**The crowned-lion radial navigation is gone** (2026-09-01). The orbit menu, the
+particle network scan, the rings, the connectors and the spoke nodes were
+deleted; the intro and its lion were kept. The eight destinations still exist as
+ordinary scrolling document pages — they are reached through the site header,
+the sitemap, the 404 index and the section pages, not through an orbit.
 
 The repository also carries an independent information-model backend under
 `app/api/` and `server/`. The two halves share no source files and are kept
@@ -75,9 +76,7 @@ npm run test:watch                          # watch mode
 ```
 
 ```bash
-npm run verify:graphics -- http://localhost:3000 /tmp/lions-matrix
 node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final
-node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band
 node scripts/verify-doc-scroll.mjs http://localhost:3000
 node .claude/skills/verify-intro/capture.mjs
 node scripts/ci-smoke.mjs http://localhost:3000       # the only one CI runs
@@ -89,11 +88,18 @@ npm run map          # regenerate docs/project-map.html from the actual tree
 npm run map:check    # fail if it has drifted — never hand-edit that file
 ```
 
-Only `verify:graphics` has an npm script; run the rest with `node`. `docs/operations.md` has the full table of what each one asserts.
+None of the visual checks has an npm script any more — run them with `node`.
+(`verify:graphics` and `scripts/verify-composition.mjs` were deleted with the
+radial navigation: they asserted orbit link bounds at seven viewports and had
+nothing left to assert.) `docs/operations.md` has the full table of what each
+remaining one covers.
 
-Particle assets are rebuilt with `bake:nav-lion`, `bake:nav-icons`, and
-`poster:nav`; their source artwork is in `assets/` and their output lands in
-`public/particles`, `public/icons`, and `public/posters`.
+The lion particle bake is rebuilt with `bake:nav-lion`; its source artwork is in
+`assets/` and its output lands in `public/particles`. `bake:nav-icons` and
+`poster:nav` are gone — they baked the orbit node icons and the orbit poster.
+`public/posters/particle-nav.webp` survives as a committed asset and is still
+used: it is the site OG image, the `/information-war` hero, and the intro's
+no-JavaScript poster.
 
 Database commands (`db:generate`, `db:migrate`, `db:studio`) drive
 drizzle-kit against a real `DATABASE_URL`. The test suite never needs one.
@@ -101,14 +107,16 @@ drizzle-kit against a real `DATABASE_URL`. The test suite never needs one.
 ## Verification trap
 
 The in-app browser can report `visibilityState === "hidden"` and suspend
-`requestAnimationFrame`, making both scenes appear black. Headless Chromium
-falls back to SwiftShader, which the GPU probe correctly rejects, so the scene
-never mounts there either. Visual checks must use real Chrome via
-`playwright-core` with `headless: false`. **Five** scripts hardcode
+`requestAnimationFrame`, making the intro appear black. Headless Chromium falls
+back to SwiftShader, which the GPU probe correctly rejects, so the scene never
+mounts there either. Visual checks must use real Chrome via `playwright-core`
+with `headless: false`. **Three** scripts hardcode
 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` —
-`verify-composition.mjs`, `final-verify.mjs`, `verify-home-band.mjs`,
-`verify-doc-scroll.mjs` and `.claude/skills/verify-intro/capture.mjs` — so they
-only run on the macOS workstation, not in a Linux container.
+`final-verify.mjs`, `verify-doc-scroll.mjs` and
+`.claude/skills/verify-intro/capture.mjs` — so they only run on the macOS
+workstation, not in a Linux container. (There were five; `verify-composition.mjs`
+and `verify-home-band.mjs` both went with the radial navigation — the first
+asserted orbit link bounds, the second the front-page band beneath the orbit.)
 `scripts/verify-archive-assets.mjs` is the one visual-adjacent check that needs
 no browser at all: plain `fetch` against the CDN base, so it runs anywhere.
 **As of 2026-08-27 CI runs it:** the `archive-assets` job in
@@ -124,12 +132,13 @@ Chromium and is what CI runs. It walks **23 routes** — 17 hand-written in
 indexes — asserting route availability and console errors on each, and then
 loads `/` once more with JavaScript disabled. The archive half is derived;
 **the 17 are hand-maintained, so a new section route is smoke-tested only if
-someone remembers to add it**, and `/particle-demo` never is.
+someone remembers to add it**.
 
 **CI does guard the no-JavaScript invariant, as of 2026-08-27.** This section
 said the opposite, and both halves of that claim are now false. `ci-smoke.mjs`
 opens a `javaScriptEnabled: false` context and asserts the home route renders
-at least 8 orbit links, a poster `<img>`, and **zero** `div[hidden][id^="S:"]`
+its real server-side links, a poster `<img>`, and **zero**
+`div[hidden][id^="S:"]`
 Suspense shells; `tests/no-js-invariant.test.ts` is a cheap tripwire that fails
 if `app/loading.tsx` — or `app/template.tsx` or `app/default.tsx` — reappears.
 `final-verify.mjs` still covers the same ground a second time on the
@@ -143,14 +152,17 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 
 ## Frontend architecture
 
-`app/page.tsx` renders the editorial signal-field home inside
-`components/particle-nav/CinematicIntroGate.tsx`.
+`app/page.tsx` renders the editorial home — `SiteHeader`, the
+`TypographicField` hero, the lion wordmark, the call to action and the headline
+rail — inside `components/intro-scene/CinematicIntroGate.tsx`.
 
 - `components/intro/` contains only pure timeline data and CPU text-cloud
   sampling.
-- `components/particle-nav/` is the single React Three Fiber scene using Three
-  r185, WebGPU and TSL, with a WebGL2 fallback. On the public home it is an
-  entrance layer only and unmounts at handoff.
+- `components/intro-scene/` is the single React Three Fiber scene using Three
+  r185, WebGPU and TSL, with a WebGL2 fallback. It is an entrance layer only and
+  unmounts at handoff. (It was `components/particle-nav/` until 2026-09-01, when
+  the radial navigation it also carried was deleted; its baking scripts moved
+  from `scripts/particle-nav/` to `scripts/intro-scene/` in the same change.)
 - The editorial home exists in server HTML beneath the entrance. Without
   JavaScript the intro is hidden and the full page remains usable immediately.
 - `Scene.tsx` owns one timeline clock. Its mutable frame is shared by the lion,
@@ -158,31 +170,22 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 - Skip and reduced motion land on the editorial home; the root route
   accepts `?forceWebGL=1` for full-flow fallback verification.
 
-### Particle navigation invariants
+### The no-JavaScript invariant
 
-- All visible scan marks, readable context labels, platform symbols, lion,
-  rings, connectors, and node icons are particle geometry. There is no star
-  field and no raster background in the live scene.
-- `OrbitLayout` is the single responsive geometry contract shared by nodes,
-  connectors and projected DOM labels. Eight link bounds must stay within the
-  viewport at the seven viewports in `scripts/verify-composition.mjs`.
-- The real `<a href>` elements own semantics, pointer input and keyboard focus.
-  Canvas elements are presentation only.
-- The no-WebGL tier uses `public/posters/particle-nav.*` behind those same
-  links. Do not add a second set of *fallback* links: the front-page band's
-  file index is one index for every tier, not a tier-specific copy, which is
-  why the static mobile index it replaced was deleted rather than kept.
 - **The no-JavaScript defect is fixed: `app/loading.tsx` is deleted.** A
   root-level `loading.tsx` wraps *every* route in a Suspense boundary, and
   streaming SSR emits the real markup inside `<div hidden id="S:0">` for an
   inline `$RC` script to reveal — so with no JavaScript the loading shell stayed
-  and the page never appeared. The home route's prerendered HTML now carries
-  its 8 orbit links, the band links, and the poster with zero Suspense
-  boundaries. **Do not reintroduce a root-level `loading.tsx`**; scope any
-  loading state to its own segment and check a sibling content route's no-JS
-  render first (`.ai/DECISIONS.md`, 2026-08-26).
-- The live scene selects 45k, 90k, or 180k lion buffers by performance tier.
-- `/particle-demo?forceWebGL=1` is the supported fallback/tuning harness.
+  and the page never appeared. The home route's prerendered HTML now carries its
+  real links and the poster with zero Suspense boundaries. **Do not reintroduce
+  a root-level `loading.tsx`**; scope any loading state to its own segment and
+  check a sibling content route's no-JS render first (`.ai/DECISIONS.md`,
+  2026-08-26).
+- The real `<a href>` elements own semantics, pointer input and keyboard focus.
+  Canvas elements are presentation only.
+- The no-WebGL tier of the intro shows `public/posters/particle-nav.*`. That
+  poster is one committed asset serving three jobs — OG image,
+  `/information-war` hero, intro fallback — and is not a navigation surface.
 
 ### Intro timeline
 
@@ -196,36 +199,37 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
 - A `PostToolUse` hook re-checks these invariants after every edit and also runs
   `tsc --noEmit`, so a broken timeline surfaces before the next command.
 
-### Unified intro and navigation renderer
+### The intro renderer
 
-- `components/particle-nav/Scene.tsx` owns the only live renderer and timeline
-  clock. Do not mount a second canvas for the intro.
-- The intro and navigation share `public/particles/lion-v2-*.bin`; the crown,
-  face and mane must remain one LNP1 bake across both acts.
+- `components/intro-scene/Scene.tsx` owns the only live renderer and timeline
+  clock. Do not mount a second canvas.
+- The lion is `public/particles/lion-v2-*.bin`; the crown, face and mane must
+  remain one LNP1 bake, rebuilt only with `bake:nav-lion`.
+- The scene selects 45k, 90k, or 180k lion buffers by performance tier.
 - Intro copy is sampled on the CPU, then animated and rendered with TSL sprite
   materials. Do not reintroduce raw GLSL or `ShaderMaterial` at runtime.
 
 ### Section pages and the nav contract
 
-`lib/site-navigation.ts` `SITE_NAVIGATION` is the source of truth for the eight
-destinations — id, label, `displayName`, `href`, description and orbit
-position. `components/particle-nav/config.ts` `defaultNodes` is **derived** from
-it by a `.map()`, so edit the navigation module and not the nav config; from
-there it feeds the particle nodes, the DOM links, the hover cards, and the page
-shell. `label` is stored uppercase because the orbit and the
-static index set it that way as identity; **reading surfaces use
-`displayName`** — a CSS transform can't do this, since `capitalize` turns
-"ISRAEL'S STORY" into "Israel'S Story".
+`lib/site-navigation.ts` `SITE_NAVIGATION` is the **single** source of truth for
+the eight destinations — id, `label`, `displayName`, `href`, description,
+`emblem` and `tone`. It survived the removal of the radial navigation untouched;
+only the orbit *projection* of it died. It feeds `SiteHeader`, `app/sitemap.ts`,
+the 404 index in `app/not-found.tsx`, and `SectionPage` via
+`getSiteNavigationItem()`. There is no derived nav config any more — edit this
+module, and add any new consumer as another read of it. `label` is stored
+uppercase because the header and the static index set it that way as identity;
+**reading surfaces use `displayName`** — a CSS transform can't do this, since
+`capitalize` turns "ISRAEL'S STORY" into "Israel'S Story".
 
-- Every node id must have a matching `app/<id>/page.tsx`; `SectionPage` throws
-  on an unknown id, and the file-header index it prints is the node's real
-  position in `defaultNodes`. The current eight are `geopolitical-brief`,
-  `support-us`, `war-update`, `october-7`, `our-heroes`, `israels-story`,
-  `fake-resistance`, and `we-are`.
+- Every id in `SITE_NAVIGATION` must have a matching `app/<id>/page.tsx`;
+  `SectionPage` throws on an unknown id. The current eight are
+  `geopolitical-brief`, `support-us`, `war-update`, `october-7`, `our-heroes`,
+  `israels-story`, `fake-resistance`, and `we-are`.
 - **`/october-7` is a hub, and the archives beneath it are not a ninth node.**
   ~1,177 prerendered pages live under `/october-7/testimonies` and
   `/october-7/documentation`, read through `lib/content/archive.ts` and its two
-  faces. `defaultNodes` stays at eight — do not add one for them. The full
+  faces. `SITE_NAVIGATION` stays at eight — do not add one for them. The full
   brief is `docs/archive-integration.md`; four invariants matter here:
   **14 MB of JSON is committed and ~1.8 GB of media never is** (assets resolve
   by `media_id`, so only the `NEXT_PUBLIC_ARCHIVE_CDN` prefix changes);
@@ -274,7 +278,7 @@ static index set it that way as identity; **reading surfaces use
   `/fake-resistance/cases/<slug>` files, derived from `getCaseIndex()` rather
   than a hardcoded list, and all read through
   `lib/content/fake-resistance-cases.ts`. Both branches are child routes in
-  `app/sitemap.ts` and in `ci-smoke.mjs` `ROUTES`. `defaultNodes` stays at
+  `app/sitemap.ts` and in `ci-smoke.mjs` `ROUTES`. `SITE_NAVIGATION` stays at
   eight. The
   brief is `docs/fake-resistance-integration.md`; four invariants matter here:
   **the publication gate is `EDITORIAL_STAGE`, and it currently reads
@@ -325,8 +329,8 @@ static index set it that way as identity; **reading surfaces use
   slug, and retargets the exit link.
 - **The exit link goes one level up, not home.** `a.identityExit` in both
   `DocPage.tsx` and `SectionPage.tsx` derives its href and label from the
-  **last `breadcrumb` item** ("← Back to {label}"), falling back to `/` and
-  "Back to the scan" when no trail is passed. So the eight destinations,
+  **last `breadcrumb` item** ("← Back to {label}"), falling back to `/` when no
+  trail is passed. So the eight destinations,
   `/methodology` and `/corrections` are unchanged, while the archive indexes,
   all ~1,177 archive records and the five `/fake-resistance` child pages now
   step back to their real parent. Archive pages needed no per-page change —
@@ -368,7 +372,7 @@ static index set it that way as identity; **reading surfaces use
   `.ai/DECISIONS.md`** — on a public repo, for a public identity surface;
   the missing `.ai/DECISIONS.md` entry is the whole of it. (This paragraph also
   said `app/robots.ts` left `/admin` and `/auth` crawlable; that gap is closed —
-  it now disallows all four of `/particle-demo`, `/api/`, `/admin` and `/auth`.)
+  it now disallows `/api/`, `/admin` and `/auth`.)
 - The skip control and all section-page type are DOM text rather than
   particles — the documented exception to the all-particles rule
   (see `.ai/DECISIONS.md`).

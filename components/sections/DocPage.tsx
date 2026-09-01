@@ -2,7 +2,7 @@
  * Pages that live outside the 8-file orbit (`/methodology`, `/corrections`).
  *
  * Same shell as `SectionPage` — identity band, centred measure — minus the
- * file numbering, since these two have no `defaultNodes` entry. They were a
+ * file numbering, since these two have no `SITE_NAVIGATION` entry. They were a
  * visibly third layout variant before Phase 2 (their back-link floated
  * disconnected above a panel); the variants are one system now.
  *
@@ -82,7 +82,7 @@ export interface DocPageProps {
    *
    * Deliberately on the `<h1>` alone rather than on the `<main>`: this shell
    * also carries untranslated English chrome (the skip link, the wordmark,
-   * "← Back to the scan", the tagline, and the record's own metadata and
+   * "← Back to Lions of Zion", the tagline, and the record's own metadata and
    * provenance footer), so declaring the whole region foreign would trade one
    * WCAG 3.1.1 failure for a 3.1.2 one.
    */
@@ -98,7 +98,7 @@ export interface DocPageProps {
    *
    * The last item is also where the exit link points — "← Back to {label}" —
    * so a deep page steps one level up instead of jumping past its parent
-   * straight to the scan. Without a trail the exit keeps its original `/`
+   * straight home. Without a trail the exit keeps its original `/`
    * target and wording.
    */
   breadcrumb?: { href: string; label: string }[];

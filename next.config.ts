@@ -5,7 +5,13 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""} https://www.paypal.com https://www.paypalobjects.com https://accounts.google.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://www.paypal.com https://www.paypalobjects.com",
+  // `pics.paypal.com` serves the product images PayPal's hosted-buttons SDK
+  // injects on /support-us. Those URLs are built by the SDK from the merchant's
+  // own button configuration, so they cannot be re-hosted behind an origin
+  // already on this list — allowing the host is the only fix. Named exactly
+  // rather than as `*.paypal.com`: this is the one image origin observed, and
+  // a wildcard here would admit every PayPal subdomain to `img-src`.
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://www.paypal.com https://www.paypalobjects.com https://pics.paypal.com",
   "media-src 'self' blob: https://*.public.blob.vercel-storage.com",
   "font-src 'self' data:",
   `connect-src 'self' https://*.paypal.com https://*.paypalobjects.com https://accounts.google.com${isDevelopment ? " ws: wss:" : ""}`,
@@ -42,15 +48,6 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/particles/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
-        source: "/icons/:path*",
         headers: [
           {
             key: "Cache-Control",

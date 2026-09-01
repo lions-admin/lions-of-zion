@@ -6,6 +6,13 @@
 > `./12-…png` references below resolved to files that have never existed in this
 > repository at any commit — verified 2026-08-27. Read the walkthrough as prose;
 > the screenshots are not recoverable from git.
+>
+> **Also void as of 2026-09-01:** the crowned-lion radial navigation this review
+> analyses was deleted from the project. Every recommendation below that turns
+> on the orbit — the mobile composition, the "Explore the scan" mode, the
+> desktop default path — has no surface left to apply to. This document is an
+> *external* review, so its text is left as its author wrote it rather than
+> rewritten; see `.ai/DECISIONS.md` (2026-09-01).
 
 # Lions of Zion — Professional design review and major redesign plan
 

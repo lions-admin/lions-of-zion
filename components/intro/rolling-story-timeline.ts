@@ -66,7 +66,7 @@ export const ROLLING_POOL_SIZE = ROLLING_WINDOW_SIZE + 1;
  * either: it computes to 46.53s.)
  *
  * Two invariants hold these numbers, and both are asserted rather than left
- * to this comment — see `tests/particle-nav-layout.test.ts`:
+ * to this comment — see `tests/intro-rolling-timeline.test.ts`:
  *   - a layout's cadence must stay at or above `ROLLING_EXIT_DURATION`;
  *   - mobile's total must stay within 10% of desktop's, so a growing mobile
  *     line array cannot quietly buy itself more wall clock again.

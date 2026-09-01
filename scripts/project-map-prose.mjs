@@ -21,7 +21,7 @@ export const LAYERS = {
 
 export const SOT = new Set([
   "server/contracts", "server/core", "server/db", "content-packages",
-  "docs", ".ai", "assets", ".github", "components/particle-nav", "components/intro",
+  "docs", ".ai", "assets", ".github", "components/intro-scene", "components/intro",
 ]);
 
 /** @type {Record<string, {layer: string, role: string, lesson: string, sot?: boolean}>} */
@@ -39,7 +39,7 @@ export const AREAS = {
   "app/admin": {
     layer: "frontend",
     role: "לוח בקרה תפעולי בעברית",
-    lesson: "דשבורד מאחורי Neon Auth. קורא את GET /api/v1/admin/status. זה לא חלק מניווט החלקיקים — זה כלי של בעל האתר. /admin חסום למי שאינו החשבון היחיד.",
+    lesson: "דשבורד מאחורי Neon Auth. קורא את GET /api/v1/admin/status. זה לא חלק מהאתר הציבורי — זה כלי של בעל האתר. /admin חסום למי שאינו החשבון היחיד.",
   },
   "app/auth": {
     layer: "frontend",
@@ -49,17 +49,17 @@ export const AREAS = {
   "app/account": {
     layer: "frontend",
     role: "חשבון המבקר אחרי כניסת X",
-    lesson: "דף החשבון של מי שנכנס דרך X. לא יעד בניווט החלקיקים ולא חלק מלוח הניהול.",
+    lesson: "דף החשבון של מי שנכנס דרך X. לא אחד משמונת היעדים ולא חלק מלוח הניהול.",
   },
   "app/october-7": {
     layer: "frontend",
-    role: "מרכז 7 באוקטובר — לא צומת ניווט תשיעי",
-    lesson: "היעד בניווט הוא המרכז. מתחתיו ~1,177 דפים מוכנים מראש (עדויות ותיעוד) שנגזרים מהאינדקסים. defaultNodes נשאר שמונה — הארכיונים אינם צומת חדש. רנדרר אחד מגיש את שני הארכיונים בלי הסתעפות.",
+    role: "מרכז 7 באוקטובר — לא יעד תשיעי",
+    lesson: "היעד עצמו הוא המרכז. מתחתיו ~1,177 דפים מוכנים מראש (עדויות ותיעוד) שנגזרים מהאינדקסים. SITE_NAVIGATION נשאר שמונה — הארכיונים אינם יעד חדש. רנדרר אחד מגיש את שני הארכיונים בלי הסתעפות.",
   },
   "app/fake-resistance": {
     layer: "frontend",
     role: "מרכז התנגדות מזויפת",
-    lesson: "היעד בניווט הוא המרכז. מתחתיו מחברת הטכניקות, גרף הרשת, ושבעה תיקי מקרה. שער הפרסום הוא EDITORIAL_STAGE. הציונים לעולם לא משודרגים לתג אימות — הם תוויות במכוון.",
+    lesson: "היעד עצמו הוא המרכז. מתחתיו מחברת הטכניקות, גרף הרשת, ושבעה תיקי מקרה. שער הפרסום הוא EDITORIAL_STAGE. הציונים לעולם לא משודרגים לתג אימות — הם תוויות במכוון.",
   },
   "app/geopolitical-brief": {
     layer: "frontend",
@@ -101,30 +101,25 @@ export const AREAS = {
     role: "המתודולוגיה",
     lesson: "דף מדיניות על מעטפת DocPage — איך האתר בודק, מה הוא לא עושה, ואיפה הגבול בין עובדה לפרשנות.",
   },
-  "app/particle-demo": {
-    layer: "frontend",
-    role: "מעבדת הכוונון והנפילה־לאחור",
-    lesson: "לא יעד בניווט. חסום ב־robots, ולא נכנס ל־ci-smoke. ?forceWebGL=1 הוא מסלול האימות של שכבת WebGL2. כאן מכוונים את הסצנה בלי לגעת באתר החי.",
-  },
   "app/articles": {
     layer: "frontend",
     role: "מאמרים מפורסמים מה־API",
-    lesson: "דף דינמי לפי publicId. בניגוד לתיקים הסטטיים, כאן התוכן מגיע מפרסום חי במודל המידע — לא מחבילת JSON. לא צומת תשיעי בניווט.",
+    lesson: "דף דינמי לפי publicId. בניגוד לתיקים הסטטיים, כאן התוכן מגיע מפרסום חי במודל המידע — לא מחבילת JSON. לא יעד תשיעי.",
   },
   "app/information-war": {
     layer: "frontend",
     role: "משטח מלחמת המידע",
-    lesson: "דף קריאה נוסף מחוץ לשמונת יעדי הניווט. לא מרחיב את defaultNodes.",
+    lesson: "דף קריאה נוסף מחוץ לשמונת היעדים. לא מרחיב את SITE_NAVIGATION.",
   },
   "components": {
     layer: "frontend",
     role: "תיקיות פיצ'ר — הרכיבים לפי משטח",
-    lesson: "כל תיקייה כאן היא פיצ'ר, לא סוג רכיב. particle-nav היא הסצנה, content הם אבני הבניין העריכותיים, sections הן המעטפות. רכיב שמשמש מסלול אחד יכול לשבת ליד הדף או כאן — המאגר עושה את שניהם.",
+    lesson: "כל תיקייה כאן היא פיצ'ר, לא סוג רכיב. intro-scene היא הסצנה, content הם אבני הבניין העריכותיים, sections הן המעטפות. רכיב שמשמש מסלול אחד יכול לשבת ליד הדף או כאן — המאגר עושה את שניהם.",
   },
-  "components/particle-nav": {
+  "components/intro-scene": {
     layer: "frontend", sot: true,
     role: "הרנדרר החי היחיד ושעון ציר הזמן היחיד",
-    lesson: "קנבס אחד לאינטרו ולניווט. Scene.tsx מחזיק שעון אחד; הפריים המשתף מניע אריה, טקסט TSL וחשיפת ניווט בלי React state לכל פריים. אין סצנת כוכבים ואין רקע רסטר — כל סימן נראה הוא גאומטריית חלקיקים. defaultNodes ב־config.ts הוא חוזה שמונת היעדים.",
+    lesson: "קנבס אחד לאינטרו. Scene.tsx מחזיק שעון אחד; הפריים המשתף מניע אריה, טקסט TSL ומסירה מדורגת בלי React state לכל פריים. אין סצנת כוכבים ואין רקע רסטר — כל סימן נראה הוא גאומטריית חלקיקים. הסצנה היא שכבת כניסה בלבד ומתפרקת במסירה.",
   },
   "components/content": {
     layer: "frontend",
@@ -254,17 +249,12 @@ export const AREAS = {
   "public": {
     layer: "data",
     role: "פלט אפוי וקורפוס שנטענים לפי נתיב מילולי",
-    lesson: "שינוי שם שובר בשקט בזמן ריצה, בלי כשל ב־build. החוצצים, ה־SDF והפוסטרים אפויים ומחויבים במכוון — הם הארטיפקטים שנשלחים. public/archive/ היא סימלינק לפיתוח ולא נכנסת לגיט.",
+    lesson: "שינוי שם שובר בשקט בזמן ריצה, בלי כשל ב־build. חוצצי האריה והפוסטרים מחויבים במכוון — הם הארטיפקטים שנשלחים. public/archive/ היא סימלינק לפיתוח ולא נכנסת לגיט.",
   },
   "public/particles": {
     layer: "data",
     role: "חוצצי LNP1 של האריה",
     lesson: "שלוש רמות ביצועים: 45k, 90k, 180k. הסצנה בוחרת לפי מדד. נטענים לפי נתיב מילולי מתוך Scene.",
-  },
-  "public/icons": {
-    layer: "data",
-    role: "SDF לשמונת צמתי הניווט",
-    lesson: "אפויים מ־assets/source/icons. כל קובץ הוא אייקון צומת אחד. שינוי שם שובר את הסימן בסצנה.",
   },
   "public/posters": {
     layer: "data",
@@ -284,7 +274,7 @@ export const AREAS = {
   "assets": {
     layer: "data", sot: true,
     role: "מקורות האפייה — וגם ייבוא בזמן ריצה",
-    lesson: "לכן זה נשלח, לא רק חומר גלם מקומי. תמונת הייחוס של האריה ואייקוני המקור. שינוי כאן דורש אפייה מחדש (bake:nav-lion / bake:nav-icons / poster:nav) ואז commit של הפלט ב־public/.",
+    lesson: "לכן זה נשלח, לא רק חומר גלם מקומי. תמונת הייחוס של האריה. שינוי כאן דורש אפייה מחדש (bake:nav-lion) ואז commit של הפלט ב־public/particles/.",
   },
   "assets/reference": {
     layer: "data",
@@ -299,12 +289,12 @@ export const AREAS = {
   "assets/marketing": {
     layer: "data",
     role: "נכסי שיווק ותרומה",
-    lesson: "אייקוני הסכמה וגלריית תרומת PayPal. לא נכנסים לסצנת החלקיקים; נצרכים ממשטחי תמיכה ומזהות האפליקציה.",
+    lesson: "אייקוני הסכמה וגלריית תרומת PayPal. לא נכנסים לסצנת האינטרו; נצרכים ממשטחי תמיכה ומזהות האפליקציה.",
   },
-  "scripts/particle-nav": {
+  "scripts/intro-scene": {
     layer: "tests",
     role: "האפייה הדטרמיניסטית",
-    lesson: "חוצצים, SDF ופוסטר. אותו זרע — אותם בתים. אם הפלט ב־public/ השתנה בלי שינוי כאן, מישהו אפה מכונה אחרת או שינה זרע.",
+    lesson: "חוצצי האריה. אותו זרע — אותם בתים. אם הפלט ב־public/particles/ השתנה בלי שינוי כאן, מישהו אפה מכונה אחרת או שינה זרע.",
   },
   ".ai": {
     layer: "docs", sot: true,
@@ -410,7 +400,7 @@ export const FILES = {
   "next.config.ts": {
     layer: "deploy",
     role: "הגדרות Next",
-    lesson: "כותרות מטמון קבועות ל־/particles/ ול־/icons/ בלבד — אלה קבצים דטרמיניסטיים שמשקלם כבד. אל תוסיפו כאן מטמון גורף לדפי תוכן.",
+    lesson: "כותרות מטמון קבועות ל־/particles/ בלבד — קבצים דטרמיניסטיים שמשקלם כבד. אל תוסיפו כאן מטמון גורף לדפי תוכן.",
   },
   "vercel.json": {
     layer: "deploy", sot: true,
@@ -451,7 +441,7 @@ export const FILES = {
     layer: "frontend",
     role: "דף הבית — מה שנשלח בכתובת /",
     lesson: "מרנדר את עמוד המודיעין העריכתי בתוך CinematicIntroGate. האינטרו הוא שכבת כניסה חד־פעמית שמתפרקת במסירה; בלי JavaScript הוא מוסתר והעמוד נשאר מלא ושמיש.",
-    related: ["components/particle-nav/CinematicIntroGate.tsx", "app/layout.tsx", "lib/site-navigation.ts"],
+    related: ["components/intro-scene/CinematicIntroGate.tsx", "app/layout.tsx", "lib/site-navigation.ts"],
   },
   "app/layout.tsx": {
     layer: "frontend",
@@ -473,7 +463,7 @@ export const FILES = {
   "app/robots.ts": {
     layer: "frontend",
     role: "מה זחלנים רשאים לסרוק",
-    lesson: "חוסם /particle-demo ו־/api/. שימו לב: /admin ו־/auth אינם חסומים כאן — שני המשטחים ניתנים לסריקה.",
+    lesson: "חוסם /api/, /admin ו־/auth. כל השאר פתוח לסריקה, וה־sitemap מוצהר כאן.",
   },
   "app/error.tsx": {
     layer: "frontend",
@@ -495,16 +485,16 @@ export const FILES = {
     role: "תמונת השיתוף של האתר",
     lesson: "מה שמופיע כשמדביקים קישור ב־X או בוואטסאפ. לא הפוסטר של הסצנה — זה כרטיס OG.",
   },
-  "components/particle-nav/Scene.tsx": {
+  "components/intro-scene/Scene.tsx": {
     layer: "frontend", sot: true,
     role: "הרנדרר החי היחיד ושעון ציר הזמן היחיד",
-    lesson: "אל תרכבו קנבס שני לאינטרו. האינטרו והניווט חולקים את אותם חוצצי אריה. העתק האינטרו נדגם ב־CPU ואז מונפש בחומרי TSL — בלי GLSL גולמי ובלי ShaderMaterial בזמן ריצה.",
-    related: ["components/particle-nav/config.ts", "components/intro/story-timeline.ts"],
+    lesson: "אל תרכבו קנבס שני לאינטרו. האריה הוא אפייה אחת (lion-v2-*.bin) בשלוש רמות ביצועים. העתק האינטרו נדגם ב־CPU ואז מונפש בחומרי TSL — בלי GLSL גולמי ובלי ShaderMaterial בזמן ריצה.",
+    related: ["components/intro/story-timeline.ts", "app/page.tsx"],
   },
-  "components/particle-nav/config.ts": {
+  "lib/site-navigation.ts": {
     layer: "frontend", sot: true,
     role: "חוזה שמונת היעדים",
-    lesson: "defaultNodes הוא הקרנה של SITE_NAVIGATION שמוסיפה רק intent ונכס SDF לסצנה. שמות, כתובות ותיאורים אינם משוכפלים כאן.",
+    lesson: "SITE_NAVIGATION הוא מקור האמת היחיד לשמונת היעדים — מזהה, תווית, שם תצוגה, כתובת, תיאור, סמל וגוון. נקרא מ־SiteHeader, sitemap, דף 404 ו־SectionPage. label נשמר באותיות גדולות כזהות; משטחי קריאה משתמשים ב־displayName.",
   },
   "server/http/handler.ts": {
     layer: "backend", sot: true,
@@ -819,25 +809,18 @@ export function lessonFor(path, ctx = {}) {
         : "מטא־נתונים של חבילת התוכן. לא רשומת גוף — המידע שמאפשר לבנות אינדקסים, שפות ומדיה.",
     };
   }
-  if ((hit = m(/^public\/icons\/([^.]+)\.sdf\.png$/))) {
-    return {
-      layer: "data", kind: "asset", sot: false, related: [`assets/source/icons/${hit[1]}.svg`],
-      role: `SDF של צומת ${hit[1]}`,
-      lesson: "תמונת מרחק חתומה לאייקון החלקיקים. אפויה מ־assets/source/icons. נטענת לפי נתיב מילולי — שינוי שם שובר את הסימן בסצנה בלי כשל ב־build.",
-    };
-  }
   if ((hit = m(/^public\/particles\/lion-v2-(.+)\.bin$/))) {
     return {
-      layer: "data", kind: "buffer", sot: false, related: ["scripts/particle-nav/bake/bake-lion-reference.ts"],
+      layer: "data", kind: "buffer", sot: false, related: ["scripts/intro-scene/bake/bake-lion-reference.ts"],
       role: `חוצץ אריה ${hit[1]} נקודות`,
-      lesson: "פורמט LNP1. הסצנה בוחרת 45k / 90k / 180k לפי מדד ביצועים. כתר, פנים ורעמה הם אפייה אחת לשני המערכות.",
+      lesson: "פורמט LNP1. הסצנה בוחרת 45k / 90k / 180k לפי מדד ביצועים. כתר, פנים ורעמה הם אפייה אחת.",
     };
   }
   if ((hit = m(/^assets\/source\/icons\/([^.]+)\.svg$/))) {
     return {
-      layer: "data", kind: "asset", sot: false, related: [`public/icons/${hit[1]}.sdf.png`],
+      layer: "data", kind: "asset", sot: false, related: ["lib/site-navigation.ts"],
       role: `אייקון מקור של יעד ${hit[1]}`,
-      lesson: "מקור האפייה ל־SDF, וגם ייבוא של רכיב React. שני צרכנים, קובץ אחד. אחרי עריכה: npm run bake:nav-icons ואז commit של הפלט.",
+      lesson: "ייבוא של רכיב React בלבד. עד 1.9.2026 זה היה גם מקור אפיית ה־SDF לצמתי הניווט הרדיאלי; האפייה ההיא נמחקה עם הניווט.",
     };
   }
   if (m(/^assets\/marketing\//)) {
@@ -917,11 +900,11 @@ export function lessonFor(path, ctx = {}) {
             : "כלי מאגר. ראו את הטבלה ב־docs/operations.md לפני הרצה — חלקם הורסים או כותבים.",
     };
   }
-  if (m(/^scripts\/particle-nav\//)) {
+  if (m(/^scripts\/intro-scene\//)) {
     return {
-      layer: "tests", kind: "code", sot: false, related: ["scripts/particle-nav"],
+      layer: "tests", kind: "code", sot: false, related: ["scripts/intro-scene"],
       role: `שלב באפיית החלקיקים — ${base}`,
-      lesson: "דטרמיניסטי: אותו זרע, אותם בתים. הפלט נחת ב־public/particles, public/icons או public/posters ומחויב במכוון.",
+      lesson: "דטרמיניסטי: אותו זרע, אותם בתים. הפלט נוחת ב־public/particles ומחויב במכוון.",
     };
   }
   if (m(/^components\/[^/]+\/.+\.module\.css$/)) {

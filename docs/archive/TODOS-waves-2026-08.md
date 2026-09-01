@@ -1,5 +1,13 @@
 # TODOS.md — the August 2026 wave log
 
+> **Amended 2026-09-01, by explicit owner decision.** The crowned-lion radial
+> navigation was deleted from the project, and the owner ruled that it be purged
+> from the historical record as well. Passages here that described the orbit
+> menu were removed or rewritten to name `SITE_NAVIGATION`, which survived the
+> deletion and is now the only source of truth for the eight destinations. That
+> breaks this file's own "not to be corrected" rule below, deliberately; it is
+> recorded in `.ai/DECISIONS.md` (2026-09-01). The cinematic intro was kept.
+
 Lifted verbatim out of [`TODOS.md`](../../TODOS.md) on 2026-08-27, where it had
 grown to 610 of that file's 1,096 lines: eight session narratives, a
 findings survey and a finished integration wave, all written in the past tense
@@ -59,8 +67,6 @@ which cite it still resolve.
 
 - כפתור הצ׳ט וה־attention cue אינם קיימים בזמן האינטרו — לא מוסתרים. הסתרה ב־CSS
   השאירה renderer שני של WebGPU פעיל מאחורי אלמנט בלתי נראה למשך כל האינטרו.
-- ה־orbit נפתר מול מה שמצויר בפועל (`nodeHaloRadius`) ולא מול תיבת ה־DOM, והפתרון
-  האנכי מחשב כל קצה בנפרד עם רזרבה לשורת הכתובת בטלפון.
 - למתמטיקת ה־viewport של האינטרו יש בעלים אחד; תקרת השורה היא 86vw אמיתיים.
 - נמצא באג חי שלא היה ידוע: ב־768×1024 השורה הרחבה ביותר נרנדרה ב־170vw.
 
@@ -98,7 +104,7 @@ Resistance שהוחלף אחרי שהתגלה כנוגע במחלוקת אמית
 "דיווח על טענה" אמיתי מול `POST /api/v1/reports` הציבורי הקיים, וטופס
 התנדבות מבוסס `mailto:` (אין endpoint אמיתי לכך עדיין — יושר על פני זיוף
 מצב "נשלח"). נוספו `/methodology` ו־`/corrections` (`DocPage` — מעטפת קלה
-ללא file rail, לא מצטרפות ל־`defaultNodes`). "Ask the Lion about this file"
+ללא file rail, לא מצטרפות לשמונת היעדים). "Ask the Lion about this file"
 בתחתית כל עמוד דוסייה מחייב `ChatOpenProvider` חדש ב־`app/layout.tsx`
 (state שיתופי בין `ParticleChatLauncher` ל־`SectionPage`, שלא היה קיים
 קודם) — פותח את הצ׳ט עם שאלת פתיחה ממולאת מראש אך לא נשלחת אוטומטית.
@@ -286,13 +292,13 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
 - [x] `app/error.tsx` באותה שפה; ה־guard על `corrections[0]` תוקן בברייף עצמו.
 - [x] `app/loading.tsx` שמכסה את המרווח המת שבין `router.push` לרינדור העמוד.
 - [x] זיכרון session לאינטרו (`loz-intro-seen`): מבקר שכבר ראה או דילג נוחת
-  ישירות על הניווט, דרך מסלול ה־skip הקיים. **אימות ויזואלי סופי — רק
+  ישירות על דף הבית, דרך מסלול ה־skip הקיים. **אימות ויזואלי סופי — רק
   ב־Chrome אמיתי במק.**
 - [x] סרגל prev/next בתחתית כל עמוד דוסייה, ברוח מספור `File NN / 08`, מונע
-  מ־`defaultNodes`, עם wrap-around.
+  מ־`SITE_NAVIGATION`, עם wrap-around.
 - [x] רצועת כל־היעדים קומפקטית בתחתית כל עמוד + `aria-current="page"`.
 - [x] סיום אמיתי לכל עמוד: prev/next, אינדקס היעדים, שורת "File closed ·
-  Return to the scan", וכעת גם ה־CTA ההקשרי "Ask the Lion about this file"
+  Return to the front page", וכעת גם ה־CTA ההקשרי "Ask the Lion about this file"
   (פותח את הצ׳ט עם שאלת פתיחה ממולאת, לא נשלחת אוטומטית).
 - [ ] Footer גלובלי רזה: זהות, שמונת היעדים, Methodology / Corrections /
   Contact, כניסת צ׳ט — **עדיין לא נוסף ל־`app/layout.tsx`**. הנימוק המקורי
@@ -459,7 +465,7 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
   מאותם נתונים; אין יותר `corrections[0]` לא שמור.
 - [ ] **עמודי יעד חדשים** — **חלקי**: `/methodology` ו־`/corrections` נבנו
   (`components/sections/DocPage.tsx` — מעטפת קלה ללא file rail, לא
-  מצטרפות ל־`defaultNodes` כדי לא לשנות את מספור "File NN / 08"). עמוד
+  מצטרפות לשמונת היעדים כדי לא לשנות את מספור "File NN / 08"). עמוד
   הסכמה/הסרה למשפחות ועדים עדיין לא נבנה — נדרש אם Our Heroes ירצה
   להתרחב מעבר לשלוש הדמויות הציבוריות שכבר יש לו.
 
@@ -469,9 +475,9 @@ Heroes, Support Us) השאירו שינויים לא-commit-ים ב־worktree ש
   UNAUTHENTICATED / NOT_IMPLEMENTED ⇐ מצב "desk not connected", composer
   מושבת, ללא לולאת retry; בדיקת יכולת אחת בפתיחה; ‏requestId מוצג רק
   לשגיאות לא צפויות.
-- [x] שאלות מוצעות לפי עמוד — 3 chips נגזרים מ־`defaultNodes`, מוסתרים במצב
+- [x] שאלות מוצעות לפי עמוד — 3 chips נגזרים מ־`SITE_NAVIGATION`, מוסתרים במצב
   offline.
-- [x] תווית הקשרית לכל שמונת העמודים מ־`defaultNodes` ("Ask about October 7");
+- [x] תווית הקשרית לכל שמונת העמודים מ־`SITE_NAVIGATION` ("Ask about October 7");
   הברייף שומר על הנוסח הקיים.
 - [x] רינדור citations מוקלד מול `@/server/contracts/chat` — chips ממוספרים עם
   ציטוט נפתח; בטוח בהיעדרן.
@@ -529,8 +535,8 @@ packages live outside this repo and are not in git.
 
 ### A2 — Placement decisions ✅ settled
 
-- [x] Radial nav stays at eight nodes; `defaultNodes` untouched. Archives are
-      child routes of `/october-7`, not a ninth destination.
+- [x] The site stays at eight destinations; `SITE_NAVIGATION` untouched.
+      Archives are child routes of `/october-7`, not a ninth destination.
 - [x] Content ships as JSON in the repo (~51 MB measured) behind the
       `lib/content/` seam — not through the unprovisioned backend.
 - [x] Media (~1.8 GB served) goes to **Cloudflare R2** — inside its 10 GB free
@@ -544,7 +550,7 @@ packages live outside this repo and are not in git.
       real markup inside `<div hidden id="S:0">`. Measured in the prerendered
       HTML of `/october-7`: the skip link sat at 6124 **inside** that wrapper,
       revealed only by a `$RC` script at 24139. After removal it renders plain
-      in `<body>` at 4200, and the home route carries all eight orbit
+      in `<body>` at 4200, and the home route carries all eight
       destinations, the poster, and zero Suspense boundaries — restoring the
       `CLAUDE.md` invariant that was silently broken. The ground colour it
       claimed to protect is painted by `globals.css` on `html, body` anyway.
@@ -574,7 +580,7 @@ packages live outside this repo and are not in git.
       prose stay free of outbound links.
 - [x] 27 new tests (**358 total**); `ci-smoke` extended to 18 routes, sampling
       real record ids from the imported index so it cannot rot.
-- [x] `defaultNodes` untouched; nothing here touches `components/particle-nav/`.
+- [x] `SITE_NAVIGATION` untouched; nothing here touches the scene directory.
 
 **Found by the build, worth knowing:** two videos have no `package_path` — the
 source hosts them on YouTube and the packages record them without downloading

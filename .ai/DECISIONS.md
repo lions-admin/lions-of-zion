@@ -10,6 +10,58 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-01 — The radial navigation is deleted; the cinematic intro is kept
+
+Owner decision. The crowned-lion radial navigation — the eight-destination
+orbit menu, the particle network scan, the orbital rings, the connectors and
+the spoke nodes — is removed from the project. **The cinematic intro, including
+its lion, is kept**, re-wired to play once per tab over the editorial home.
+
+**What the home route is now:** `SiteHeader`, the `TypographicField` motion
+engine, the lion wordmark, one call to action and a headline rail read from
+`featuredPublications()`. It is an editorial page, not a navigation surface.
+
+**What went with the orbit:** `defaultNodes`, `OrbitLayout`/`computeOrbitLayout`,
+the eight orbit links, `NavLinks`, `scanCorpus`, `interactionMachine`,
+`/particle-demo`, `npm run verify:graphics` with `scripts/verify-composition.mjs`,
+`scripts/verify-home-band.mjs`, `bake:nav-icons`, `poster:nav`, and
+`public/icons/*.sdf.png`. The real-Chrome verification set drops from five
+scripts to three: `final-verify.mjs`, `verify-doc-scroll.mjs` and
+`.claude/skills/verify-intro/capture.mjs`.
+`components/particle-nav/` was renamed `components/intro-scene/`, and
+`scripts/particle-nav/` became `scripts/intro-scene/`, because the directory now
+holds only the intro.
+
+**Three things deliberately survived, and a reader should not "finish the job"
+by removing them:**
+
+- **`lib/site-navigation.ts` `SITE_NAVIGATION` is untouched, and is now the
+  only source of truth for the eight destinations.** The routes still exist and
+  are reached through the site header, `app/sitemap.ts`, the 404 index and
+  `SectionPage`. Only the orbit *projection* of that list died. Every
+  "no ninth node" guardrail in the documentation still holds — it now points at
+  `SITE_NAVIGATION` rather than at `defaultNodes`.
+- **`public/posters/particle-nav.webp` stays committed** even though nothing
+  regenerates it: it is the site OG image, the `/information-war` hero, and the
+  intro's no-JavaScript poster. Replacing it now means producing the image by
+  hand.
+- **`bake:nav-lion` and `public/particles/lion-v2-*.bin` stay**, along with the
+  real-Chrome verification trap and the twelve-beat intro timeline contract in
+  `components/intro/`. The lion is the intro's, not the navigation's.
+
+**The historical record was purged too, by explicit owner decision**, against
+this file's own append-only rule and against `docs/archive/README.md`'s rule
+that an archived document is never corrected. Nine entries wholly about the
+orbit were removed rather than annotated, `docs/archive/graphics-task-02.md`
+(the 2026 navigation-layer specification) was deleted rather than kept as a
+marked-historical record, and mixed entries kept their intro half and lost
+their navigation half. The reason to record *that* here, rather than let it be
+silent, is that the two rules it breaks exist precisely so a future reader can
+trust what they find: someone comparing this file against `git log` will see
+entries that vanished, and this paragraph is the answer to why.
+
+---
+
 ## 2026-09-01 — A refutation is a narrative, so it publishes into `narrative_watch`
 
 The owner ruled that an anti-Israel news item **is** a narrative — the thing the
@@ -554,10 +606,12 @@ rather than by reading the grant: `app_service` still prunes, `app_public` and
 
 `TODOS-design-audit.md` reached 83 of 83 closed with zero open items, and
 `docs/design-audit-2026-08-26.md` — the 219 KB evidence report it was generated
-from — has no task left to drive. Both move to `docs/archive/`, along with
-`docs/graphics-task-02.md` (already self-banner-marked HISTORICAL) and the
-2026-08-24 Codex review, which is superseded on both its axes and whose twelve
-evidence images were never committed beside it.
+from — has no task left to drive. Both move to `docs/archive/`, along with the
+2026 navigation-layer specification (already self-banner-marked HISTORICAL) and
+the 2026-08-24 Codex review, which is superseded on both its axes and whose
+twelve evidence images were never committed beside it. _(The navigation-layer
+specification was deleted outright on 2026-09-01 with the radial navigation it
+described.)_
 
 Archiving a task list is cheap. Archiving the reasoning that *closed* items
 without fixing them is not: those are the findings a future audit will file
@@ -591,8 +645,7 @@ and they should die the same way:**
   not a collapsed grid column.
 
 **Seven ids were filed twice by two agents.** Searching for a retired id should
-land here: `cross-cutting-orbit-labels-nine-px` →
-`home-scene-orbit-labels-below-legibility-floor`;
+land here:
 `archive-brief-998-non-english-pages-are-served-as-lang-en` and
 `cross-cutting-archive-lang-declared-english` → `archive-lang-declared-english`;
 `cross-cutting-error-page-cinzel` →
@@ -604,10 +657,9 @@ land here: `cross-cutting-orbit-labels-nine-px` →
 `home-scene-file-index-numbers-fail-contrast` →
 `cross-cutting-four-sub-aa-text-pairs`.
 
-One live pointer survives the archiving: **Phase 5, the home-scene orbit
-labels, is `.ai/DESIGN-V2.md`'s open question and always was** — an owner
-decision rather than an audit finding. The audit's in-place fix did not
-pre-empt it.
+_(2026-09-01: the audit's home-scene orbit findings, and the one live pointer
+that survived the archiving — an open question about the orbit labels — went
+with the radial navigation when it was deleted.)_
 
 ---
 
@@ -707,9 +759,9 @@ prerendered HTML of `/october-7`:
 
 It also silently violated a stated invariant. `CLAUDE.md` promises "without
 JavaScript the static navigation remains usable immediately"; it was not.
-After removal the home route's prerendered HTML carries all eight orbit
-destinations plus `/methodology` and `/corrections`, the poster `<img>`, and
-zero Suspense boundaries.
+After removal the home route's prerendered HTML carries all eight destinations
+plus `/methodology` and `/corrections`, the poster `<img>`, and zero Suspense
+boundaries.
 
 **What was traded, and why it costs nothing here.** The component's own
 docstring said its job was to "hold the ground color so navigation never
@@ -848,10 +900,10 @@ caught, each now recorded in the documents themselves:
   that the V2 type pass retired — `content.module.css` is 217 `var()` references
   and one literal.
 
-`docs/graphics-task-02.md` was kept and banner-marked historical rather than
-deleted: its reasoning about composition and registration is still worth
-reading, and the record of what was specified is worth having. A superseded
-document that says so is useful; one that does not is a trap.
+The 2026 navigation-layer specification was kept and banner-marked historical
+rather than deleted: a superseded document that says so is useful, one that
+does not is a trap. _(Superseded 2026-09-01: the radial navigation it specified
+was deleted from the project, and the document went with it.)_
 
 ---
 
@@ -905,35 +957,6 @@ uses rather than a cheaper neighbour.
 
 ---
 
-## 2026-08-26 — Orbit labels anchor their first line, not their centre
-
-Reported by the user with screenshots: the node buttons were untidy — some
-labels colliding with their icon ("SUPPORT US" ran across the shield,
-"WAR UPDATE" touched the X), some sitting visibly lower than their
-neighbours, some reading weaker than others.
-
-One geometric cause behind all three. The label was flex-centred as a block
-and then translated down, so the first line's position was a function of the
-line count: one-line labels sat low with a gap under the icon, two-line labels
-started at the node's centre — inside the icon's ink, which is lifted +0.095
-node-units but spans ±0.13 (`ICON_WORLD_SIZE`), so its bottom reaches
-~0.076·radius *below* centre. `.label` now anchors its **top** at a fixed
-offset below the node centre (`clamp(0.55rem, 1.3vmin, 0.8rem)`) and extra
-lines grow downward. Measured after: every node's first line sits at the
-identical offset per viewport (11.7px at 1440×900, 10px at 1024×768, 8.8px at
-390×844), every label bottom stays inside the ring, and the wider anchored box
-lets "SUPPORT US" fit on one line at desktop.
-
-**The `data-intent='participate'` dimming is gone, and should not return.**
-`opacity: 0.78` on the labels quietly broke the lock at the top of
-`styles.module.css` — #C9A24B clears 4.5:1 at full alpha, not at 78% of it.
-The intent grouping is carried by the front-page index's headings now; no
-label pays contrast for it. All labels also gained a ground-coloured backing
-halo (not a glow) so gold glyphs stay separated from scan rows drifting
-behind them — which is what "some labels look weak" actually was.
-
----
-
 ## 2026-08-25 — The scan's ground is one global background, not a per-page one
 
 Reported by the user, and correct: "the matrix background is the general
@@ -954,10 +977,10 @@ painting any, and is now only the rows' host. `#020409` is retired — the
 comment in `sections.module.css` that called it "the body's darker one" and
 worked around it can go.
 
-**One surface still paints its own, and has to**: the home front-page band
-scrolls over the live particle scene, so a transparent band would show the lion
-and the orbit through the text. It takes `--scan-ground` explicitly, so being
-opaque does not mean dropping out of the site's background.
+**One surface still paints its own, and has to**: the home page scrolls
+underneath the live intro scene, so a transparent surface would show the lion
+through the text. It takes `--scan-ground` explicitly, so being opaque does not
+mean dropping out of the site's background.
 
 **The levels were the real problem, and they were set by feel.** Globalising
 the plumbing changed nothing visible, because the values themselves were below
@@ -986,11 +1009,12 @@ complaint — half-legible fragments colliding with sentences — so it is the
 number to lower, never to raise.
 
 **The drifting rows stay per-page**, because their mask has to know where that
-page's text column is (`--content-w`). The home band mounts one through a new
-`surface="band"` variant: `position: fixed` would have painted it over the
-scene above, so it sticks to the top of an absolutely-positioned dock inside
-the band instead — which also keeps the rows at viewport density rather than
-thinning 16 of them over a band several screens tall.
+page's text column is (`--content-w`). A `surface="band"` variant exists for
+mounting one inside a scrolling document rather than against the viewport:
+`position: fixed` would have painted it over whatever sits above, so it sticks
+to the top of an absolutely-positioned dock instead — which also keeps the rows
+at viewport density rather than thinning 16 of them over a band several screens
+tall.
 
 Two things bit while wiring that up, both measured rather than reasoned:
 
@@ -1006,32 +1030,28 @@ Two things bit while wiring that up, both measured rather than reasoned:
 
 ---
 
-## 2026-08-25 — The home route grows a front page; the scene keeps its exact box
+## 2026-08-25 — The home route becomes a scrolling document; the scene keeps its exact box
 
-The home page surfaced no documented content, hid all eight section
-descriptions behind hover (invisible on touch, where a tap navigates in
-320ms), and still spoke the pre-V2 type language the rest of the site
-retired. A design review offered three directions and the user chose the
-editorial one: keep the particle scene as the hero, put real content below it.
+The home page surfaced no documented content and still spoke the pre-V2 type
+language the rest of the site retired. A design review offered three directions
+and the user chose the editorial one: keep the particle scene as the entrance,
+put real content underneath it.
 
 **This reverses `CLAUDE.md`'s "the home route has no content below the fold."**
 Recorded as a reversal, not a refactor, because a later reader would otherwise
-restore the invariant and delete the band.
+restore the invariant.
 
 **The scene stays `position: fixed; inset: 0`, verbatim.** The constraint the
 user set was that the matrix is not touched, and that turned out to decide the
 whole architecture rather than merely limit it. A shorter hero was measured,
 not assumed, and it fails: the camera's world height is a constant mapped onto
 container pixels, so a 65vh band renders the entire composition at 65% linear
-scale rather than reflowing it; at 320x568 the orbit lands on its documented
-emergency radius floor and adjacent nodes overlap; and the `vmin` ↔ container
-contract between `config.ts` and `styles.module.css` silently breaks, because
-CSS reads the viewport while the solver reads the container. Keeping the box
-fixed avoids all of it, and pays twice more: a fixed element's rect does not
-change as the page scrolls, so r3f never fires `setSize`, so neither
-`IntroText`'s glyph resample nor `NetworkScan`'s point-cloud rebuild is
-triggered by scrolling. `verify-composition.mjs` passes with every number
-unchanged at all seven viewports, which is the gate that proves it.
+scale rather than reflowing it, and the `vmin` ↔ container contract between the
+scene's config and its stylesheet silently breaks, because CSS reads the
+viewport while the solver reads the container. Keeping the box fixed avoids all
+of it, and pays once more: a fixed element's rect does not change as the page
+scrolls, so r3f never fires `setSize`, so `IntroText`'s glyph resample is not
+triggered by scrolling.
 
 **Document scroll is route-scoped through `:has()`, and the marker is an
 attribute for a specific reason.** `:has()` takes the specificity of its
@@ -1046,32 +1066,19 @@ the page still scrolled 3075px through a "locked" html.
 the opposite of what the chat launcher does. `data-intro-pending` is the
 server's claim and ships in the first HTML; nothing removes it when JavaScript
 never runs, so locking on it left no-JS visitors on a page that could not
-scroll to the only navigation it had. The launcher can afford that attribute
-because it sits above the fold and would otherwise flash; the band is below the
-fold and cannot flash.
+scroll to the only content it had.
 
 **The home route hides its scrollbar, alone.** Not taste: a classic scrollbar
 is 8px of layout, and `position: fixed; inset: 0` resolves against the viewport
 *minus* it, so the scene would have solved its composition against 1432px
-instead of 1440px — and at 320px wide that is enough to push the orbit onto its
-radius floor. `verify-home-band.mjs` asserts the scene's box equals the
-viewport exactly and failed on all six viewports before the rule existed.
-
-**The anchored strip rides in the orbit's own bottom margin, and the overlap is
-a separate number from the strip's height.** Collapsing the two made the strip
-cover the bottom node at three viewports. The free band under that node is
-small and measured — 41.6px at 1440x900, 37.4px at 1024x768, 32.5px at
-768x1024 — and the DOM link box reaches lower than the drawn ring, so the
-analytic estimate was not enough. The overlap is 1.75rem; the strip is 2.75rem
-and hangs the difference downward into the band, where nothing is in its way.
-If this ever collides again, shrink `--strip-overlap`; never the orbit.
+instead of 1440px. `verify-home-band.mjs` asserted the scene's box equals the
+viewport exactly and failed on all six viewports before the rule existed. _(That
+script was deleted on 2026-09-01 with the radial navigation and the front-page
+band it checked; the rule it justified stands.)_
 
 **The static mobile index is deleted, not demoted again.** It existed as the
-no-JS/no-GPU tier's home. The band is server-rendered for every tier, so
-keeping both would be two indexes of the same eight files drifting apart. The
-intent grouping it carried moved into the band as real headings over the files
-themselves, which is the first time that taxonomy has been legible — it was a
-0.53rem colour-coded legend in the scene's corner before.
+no-JS/no-GPU tier's home. The home document is server-rendered for every tier,
+so keeping both would be two indexes of the same eight files drifting apart.
 
 **The front-page render path is synchronous, deliberately.** An `await`
 anywhere in it puts the route behind `app/loading.tsx`'s Suspense boundary. A
@@ -1109,7 +1116,7 @@ build: `/`, `/war-update` and `/we-are` all render zero visible links and zero
 text; `/methodology`, whose page component is synchronous, renders fully.
 
 Proven by removing that one file and rebuilding: the home route then renders
-completely without JavaScript — 8 orbit links, 8 band links, poster visible,
+completely without JavaScript — every destination link present, poster visible,
 document scrollable, 4120px tall. The file was restored, because deleting it
 regresses the client-side navigation gap it was added for (TODOS W1) and that
 trade is the user's to make.
@@ -1184,7 +1191,7 @@ Four things worth not re-litigating:
 
 **The footer stayed deleted.** The mockup that sold the direction included
 prev/next and a file index; `4b13229` had removed exactly that three commits
-earlier, on the reasoning that the eight files are an orbit and not a sequence.
+earlier, on the reasoning that the eight files are a set and not a sequence.
 The user was asked and confirmed the deletion stands. A mockup is a proposal,
 not a mandate.
 
@@ -1573,36 +1580,6 @@ consciously, not a refactor side effect.
 
 ---
 
-## 2026-08-25 — The phone keeps the live orbit; the static index is a tier, not the home
-
-Reported from a real iPhone as "instead of opening on the circular menu it
-jumps straight to this strange page". The intro's outro assembles the orbit
-navigation on the phone, and the instant the story completed,
-`mobileStaticHome` unmounted the canvas and left the static editorial index.
-That handoff was added for battery — don't leave a WebGPU loop rendering
-behind a static page — but it made the product's centrepiece desktop-only and
-made the end of the intro read as a bug: the menu the outro spends 2.8s
-promising was replaced by a document.
-
-Now every width keeps the orbit when a live backend exists. The static index
-(`HomeSignalLayer`'s `.mobileHome`) is demoted to the no-JS/no-GPU tier,
-gated in CSS on the same `data-canvas` attribute the poster already keys on —
-so without JavaScript or when the GPU probe lands on `none`, a phone still
-gets the full editorial home. The ordering decision below (menu before the
-latest-brief card) still stands for that tier.
-
-The launcher pill is the constraint this uncovers: on phones it is a
-full-width dock ~84px above the safe-area inset, in exactly the band the
-orbit's bottom node used to own — the two had never shared a screen before.
-It is charged into `computeOrbitLayout` as our own bottom chrome
-(`CHAT_DOCK_PX`), *stacking on* the home indicator rather than flooring
-against it the way the URL-bar reserve does, so the bottom node clears the
-pill with the shared edge gap as breathing room above it. Do not resolve a
-future overlap by hiding the pill or shaving the halo; re-measure the dock
-and charge the reserve.
-
----
-
 ## 2026-08-25 — Marathon content is real and sourced, or labeled a reference
 
 The W1–W6 marathon authors content for pages that until now only described
@@ -1617,35 +1594,6 @@ presented as live output. This follows the existing "No false live state"
 principle; the same reasoning replaced the hardcoded `Monitoring · active`
 rail label with `Reference edition`. Do not reintroduce a live-sounding label
 or unsourced entries to make pages look more finished than the system is.
-
----
-
-## 2026-08-25 — DOM emblems render the SVG sources; SDF stays GPU-only
-
-The section-page rail rendered the baked `*.sdf.png` icons, which have no
-alpha channel and only ever looked acceptable through a blend-and-filter
-chain that broke on anything but the darkest ground — visually a black box.
-The DOM now uses the SVG icon sources (as the brief already did); the SDF
-bakes remain solely for the GPU sampler in the particle scene. Re-baking the
-SDFs with alpha is still worthwhile for the GPU path (Mac-gated task in
-TODOS), but do not point DOM `<img>` tags back at SDF bakes.
-
----
-
-## 2026-08-25 — The mobile home leads with the menu, not the latest brief
-
-Reported from a real iPhone as "it jumps straight to the brief" — with the URL
-still on `/`. Nothing navigated. The mobile home *opened* on the latest-brief
-card: brand and lion consumed the first ~400px, the full-width card reading
-"REFERENCE BRIEF · CONFIRMED / Open evidence desk" took the centre of the
-screen, and all eight destinations sat below the fold. After a 47-second intro,
-whatever this screen leads with is what a visitor believes they landed on.
-
-So the order is now brand → lion (8.75rem, down from 12rem) → the three
-navigation groups → the latest-brief card → footnote. The card is not removed —
-the latest verified item is the home's strongest proof of life — it is demoted
-to a card *on* the menu instead of standing where the menu should be. Do not
-move it back above the groups to "surface content": that reading was the bug.
 
 ---
 
@@ -1677,43 +1625,6 @@ present and dead, which is the better of the two.
 The CSS rule stays as a paint-time belt for the 900ms handoff window, and the
 three attribute names live in one module because there are three readers and a
 rename that reaches two of them fails silently.
-
-## 2026-08-25 — `nodeVisualRadius` is three contracts; the painted extent is a fourth field
-
-The orbit was solved against `nodeVisualRadius`, which is named for the ring but
-is also the DOM link's half-box — `.link` is sized to the same
-`clamp(min(w,h) * 0.056, 44, 68)` — and the connector's occlusion boundary.
-Widening it to cover what is drawn past the ring would have shortened every
-connector and desynchronised the hit target from the mark. So the halo is
-`nodeHaloRadius`, a separate field, and the old one keeps all three contracts.
-
-Its px term is empirical and says so. Per-particle jitter is derivable (4.3% of
-the radius); the sprite's half-size is bounded; but `bloomRadius` is a
-screen-space mip spread with no world extent to read off, so the only honest
-form for it is a number to re-measure when something clips.
-
-The vertical solve stopped collapsing the safe area with `Math.max`. That
-discarded direction and charged the larger reservation to both edges, which
-shrank the orbit and still left the bottom node sitting on its own reservation.
-Each edge is now charged its own, with `centerY` offsetting the ellipse by half
-the difference — from which a useful property falls out: reserving at the bottom
-raises the bottom node and leaves the top node exactly where it was.
-
-The bottom reserve is a floor and applies to phone widths only. A phone's
-reported viewport is not its visible one — a collapsing URL bar sits across the
-bottom of it, and `env(safe-area-inset-bottom)` describes the home indicator
-instead — while on desktop the reported viewport really is the visible one and
-charging it there would shrink the orbit for chrome that does not exist.
-
-`centerY` is folded into `nodePosition` rather than applied as a group offset in
-`Scene`. The group form would leave `Connectors` computing in lion-local space,
-where `normalize(node)` would aim at the ellipse's centre instead of the lion's.
-Through `nodePosition` the vector is already in world space and the lion is at
-the origin, so the connectors keep aiming at it and simply fan asymmetrically.
-
-`NetworkScan`'s stranded `+0.22 / -0.14 / +0.32` were left alone. Folding them
-onto the halo would shrink the scan-field exclusion by more than half — a
-visible density change that wants its own commit and its own screenshot.
 
 ## 2026-08-25 — The intro's line cap is a fraction, and the travel is scaled only where it clips
 
@@ -1867,8 +1778,8 @@ Added to `globalIgnores`, the same call already made for `scripts/**`.
 
 Worth knowing separately: the worktree at
 `.claude/worktrees/test-server-setup-391c0b` is ~941 MB and holds
-**uncommitted** frontend changes (`app/layout.tsx`,
-`components/particle-nav/*`, `.ai/*`). It was left alone deliberately — it is
+**uncommitted** frontend changes (`app/layout.tsx`, the scene directory,
+`.ai/*`). It was left alone deliberately — it is
 someone's work in progress, not cruft to clean up.
 
 ## 2026-08-24 — The four publication surfaces are one table
@@ -2250,29 +2161,30 @@ own `source_fetch` insert inside its own transaction. The network fetch and
 the Blob upload happen *before* that transaction opens — both are slow and
 external, and holding a Postgres transaction across either turns a slow feed
 into a held lock.
-## 2026-08-24 — The intro hands off to one deferred particle navigation, with a real static path
+## 2026-08-24 — The intro hands off to one deferred particle scene, with a real static path
 
 The photographic post-intro page was not adapted; it was retired. The target
-visual language is a single particle system — crowned lion, radial navigation
-and network scan — and keeping the photograph underneath would preserve the
-very composition this integration replaces.
+visual language is a single particle system — the crowned lion — and keeping
+the photograph underneath would preserve the very composition this integration
+replaces.
 
-The new GPU scene does not run beside the intro for the full story. It starts at
-`onOutroStart`, so its 2.8-second lion assembly coincides with the intro's
-2.8-second veil reveal. This preserves a continuous handoff without paying for
-two full particle engines for roughly forty seconds.
+The GPU scene does not run beside the intro for the full story. Its 2.8-second
+lion assembly coincides with the intro's 2.8-second veil reveal. This preserves
+a continuous handoff without paying for two full particle engines for roughly
+forty seconds.
 
-The navigation DOM and poster still render in the first HTML response. They are
-made inert only after hydration proves the intro can run. A `noscript` rule
-hides the intro enhancement, leaving the poster and the same eight real links
+The page's own DOM and its poster still render in the first HTML response. They
+are made inert only after hydration proves the intro can run. A `noscript` rule
+hides the intro enhancement, leaving the poster and the page's real links
 usable when JavaScript or GPU startup is unavailable. This is why the static
-path is not a second navigation implementation.
+path is not a second implementation of the page.
 
 ## 2026-08-24 — The cover fit is solved for, not chosen, and the document was wrong about it
 
-`docs/graphics-task-02.md` identified two ways the lion plane failed to cover its
-frame: above aspect ~1.76 horizontally, and on every phone in portrait. It also
-asserted that vertical cover "always held" in landscape. It did not. The old
+The graphics specification of the time identified two ways the lion plane
+failed to cover its frame: above aspect ~1.76 horizontally, and on every phone
+in portrait. It also asserted that vertical cover "always held" in landscape.
+It did not. The old
 `s = 1.02` gave a half-height of 3.14 against a requirement of 3.44 once the
 parallax amplitudes and the lion mesh's private `+0.14` lift are counted. The
 composition has been off the top or bottom of a 16:9 frame, at the extremes of
@@ -2288,69 +2200,6 @@ how they came to disagree.
 `tests/composition-fit.test.ts` states this as invariants rather than as a
 screenshot, because none of it is visible in a typecheck, a lint or a build, and
 it is only visible in a screenshot if somebody takes one at the right aspect.
-
-## 2026-08-24 — The navigation layer composites over the background rather than merging into it
-
-The task document says "do not build a second particle engine; extend the one
-that exists". The nav layer has its own renderer and its own canvas, which is a
-deliberate deviation.
-
-`LionExperience` is a 1,200-line imperative effect, not a reusable engine.
-Extending it in place would have meant adding the whole nav system to that file;
-extracting an engine from it is a larger refactor than this task, and one that
-would have put a rewrite of the deployed homepage in the same change as a new
-feature. Two canvases composited is also the pattern the repo already uses — the
-intro plays over the homepage exactly this way.
-
-What actually prevents divergence is not one renderer, it is one contract:
-`components/graphics/viewport.ts` owns measurement, the cover fit, the DPR
-policy and the focal point, and every layer reads it. The target/force model is
-shared by convention (`mix(targetA, targetB, t)` plus accumulated forces), and
-the six-draw-call budget is met within the layer.
-
-## 2026-08-24 — Recession is the only thing the navigation may ask of the lion
-
-`LionExperienceHandle.setRecession(t)` is the entire coupling between the two
-layers. The navigation says how present it needs the lion to be; the lion
-decides what that means — a quarter luminance, a thinned particle cloud, an
-ambient field on a slowed clock, and its hero wordmark retired, since the
-navigation's header carries the name from then on.
-
-At rest the navigation asks for 0.35, not 0. The lion is still the page. Opening
-a section asks for 1, and only then does the central mark take the centre —
-which is why the mark is gated on `recession > 0.5` rather than on a flag: there
-is one channel, and both sides read it.
-
-The handle writes the CSS variable as well as the render loop, because there may
-not be a render loop. Without a WebGL context the scene is a static image and
-the DOM half still has to step back.
-
-## 2026-08-24 — One breakpoint, shared, or the two halves cover each other's nodes
-
-The panel's footprint is declared in `ring-geometry.ts` and the ring is fitted
-into what is left of the frame; the stylesheet is told which mode it is in via
-`data-panel`.
-
-This is not tidiness. The first version let CSS decide with a media query while
-the geometry decided with its own aspect ramp, and at a square viewport the
-stylesheet opened a bottom sheet while the geometry was still fitting a circle.
-The sheet landed on three nodes and swallowed their clicks — caught by the
-browser pass, not by any test, and not visible in any single screenshot.
-
-`tests/nav-layout.test.ts` now asserts that the open layout has exactly one
-discontinuity and that it sits at the aspect `panelModeFor` declares. A second
-threshold appearing anywhere fails that test.
-
-## 2026-08-24 — Gold is bounded by geometry, and the bound caught a real breach
-
-The palette rule — gold never exceeds 6% of visible particles — is enforced by
-where gold can occur rather than by discipline: within 1.5 node radii of a
-hovered or active node, and nowhere else. That makes it checkable as an area
-bound, which is what `tests/nav-layout.test.ts` does.
-
-It failed on first run at 6.5%, at square aspects. The halo was gilding
-particles out to 2.3 node radii. The shader was clamped to the document's 1.5,
-not the test to the shader.
 
 ## 2026-08-23 — Hand-written migrations must be journalled, and a test says so
 

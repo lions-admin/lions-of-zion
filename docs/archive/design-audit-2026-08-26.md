@@ -1,5 +1,14 @@
 # Design audit — 2026-08-26
 
+> **Amended 2026-09-01, by explicit owner decision.** The crowned-lion radial
+> navigation was deleted from the project, and the owner ruled that it be purged
+> from the historical record as well as from the live documentation. **Eight
+> home-scene findings about the orbit menu, the network scan and the hover card
+> were removed from this file**, so the counts stated below no longer match what
+> it contains. That is a deliberate break of the archive's own "a record is
+> never corrected" rule; it is recorded in `.ai/DECISIONS.md` (2026-09-01). The
+> cinematic intro was kept, and every intro finding stands as filed.
+
 Five agents audited five surface families of the frontend — the home
 experience, the reading system, the eight destination pages, the October 7
 archives and the Geopolitical Brief, and the cross-cutting concerns
@@ -127,7 +136,7 @@ alone. The first nine are all one file each.
 
 ## The home experience
 
-Intro, particle navigation, front-page band. Audited from source: the dev
+Intro and front page. Audited from source: the dev
 server did not answer for this agent (`curl` returned 000), so the WebGPU
 scene, the intro and the poster tier were judged from code, CSS, the
 decoded poster asset and computed numbers rather than from a live render.
@@ -183,151 +192,6 @@ mobile line dwell from 5.0s to ~3.3s; per *sentence* the read time
 equalises, but confirm a two-line beat is still legible at that dwell in
 real Chrome before landing. `STORY_BEAT_STARTS`' 12-beat assumption and
 the desktop/mobile rejoin rule are untouched.
-
-### `home-scene-orbit-labels-below-legibility-floor` — the eight orbit labels render at 9.28–10.35px
-
-**medium** · typography · small effort
-`components/particle-nav/styles.module.css:390-411`,
-`components/particle-nav/styles.module.css:485-491`,
-`app/globals.css:48-52`, `.ai/DESIGN-V2.md:181-186`
-*(Filed independently by two agents — home-scene and cross-cutting — from
-source and from live measurement; merged here.)*
-
-**Problem.** `.label` is `clamp(0.58rem, 1.15vmin, 0.86rem)` in Cinzel 700
-uppercase at 0.17em tracking. The 0.86rem maximum needs vmin ≥ 1196.5px,
-which no common laptop or phone reaches (the repo's own 1254×1254 test
-viewport does). So the site's primary navigation renders below the design
-system's own 0.72rem floor on every real device, in the one face
-DESIGN-V2 Part 1 names as "the single biggest 'hard to read' driver"
-because its capitals have no word shapes.
-
-**Evidence.** `font-size: clamp(0.58rem, 1.15vmin, 0.86rem)` (398),
-`letter-spacing: 0.17em` (400), `text-transform: uppercase` (402),
-`font-family: var(--font-cinzel)` (397); the ≤640px block (486-490)
-tightens tracking to 0.12em but not size. Computed: **10.35px** at 1440×900
-in a 101×101 link box (`clamp(5.5rem, 11.2vmin, 8.5rem)`), **9.28px** at
-1024×768 and 390×844 where the 0.58rem floor takes over. `--t-data:
-0.72rem` = 11.52px (`globals.css:48`), stated as the floor for reading
-surfaces. Correction to the filed claim that this is a phone visitor's only
-readable navigation: it is not. `components/home/HomeFrontPage.tsx:159-185`
-renders every node's `displayName` at `--t-h3` (1.25rem) with its
-description on all tiers including mobile, and hover/focus preview cards
-carry the description on pointer devices. Labels remain `#C9A24B` at full
-alpha with a ground-coloured backing halo, contrast locked per the
-2026-08-26 DECISIONS entry.
-
-**Recommendation.** File the in-place fix, not a face swap: raise the
-desktop half — `clamp(0.72rem, 1.4vmin, 0.95rem)` with `letter-spacing:
-0.08em` at all widths — which clears the floor and the tracking cap
-without touching Cinzel, `CLAUDE.md`'s uppercase-as-identity rule, or
-DESIGN-V2's open Phase 5. Do **not** adopt the 0.72rem floor blindly at
-narrow widths: the mobile rule's own comment (486-488) records that
-tracking, not size, is the lever there because the longest word must keep
-fitting a ring at its 44px-radius floor, and at 320–390px the label box is
-only ~80px wide. "GEOPOLITICAL" alone is 12 tracked capitals already near
-that budget at 9.28px. Treat the phone tier as the case that genuinely
-needs the Phase 5 face decision — moving the orbit to sentence-case
-`displayName` is a user decision on record (`.ai/DESIGN-V2.md:312`), not
-something this audit can execute. Either change must be captured in real
-Chrome at the seven viewports in `scripts/verify-composition.mjs`; the
-2026-08-26 entry measured "every label bottom stays inside the ring" at the
-*current* sizes, and wrap count at a larger size is unverified.
-
-*Residual uncertainty:* whether an 11.5px tracked-caps label pushes
-"GEOPOLITICAL BRIEF" to three lines and overruns the ring is not settled
-from source.
-
-### `home-scene-poster-tier-has-no-navigation` — the fallback poster draws nothing at the eight node positions
-
-**medium** · composition · medium effort
-`scripts/particle-nav/make-poster.ts:35-43`,
-`scripts/particle-nav/make-poster.ts:88-104`,
-`components/particle-nav/ParticleNav.tsx:31-35`,
-`components/particle-nav/styles.module.css:142-155`
-
-**Problem.** `NODE_CENTRES` is computed only to feed `excluded()`, so the
-eight spokes are holes punched in the scan rather than marks drawn. The
-decoded `public/posters/particle-nav.webp` contains the crowned lion, one
-barely-visible ring and ten hostile-threat labels — nothing at any node
-position. The DOM links still carry the menu in the no-canvas tier, but
-their `1px rgba(201,162,75,0.22)` ring composites to `rgb(50,44,32)` on
-`#070b14`, about 1.4:1, which is the only mark left saying "this is a
-menu". Separately the asset is 1600×1600 while `.poster img` is
-`object-fit: cover`: at 1440×900 that crops 270px off the top and bottom
-(37.5%), taking "FAKE NEWS FACTORY" (y=112) and "DISINFORMATION NETWORK"
-(y=164) with it.
-
-**Evidence.** `NODE_CENTRES` (35) is referenced only at line 42 inside
-`excluded()`; the SVG body (88-104) is `rect + radialGradient +
-networkScan + 10 INTEL_LABELS + dottedRing ×3` (r 132/160/191px, opacity
-0.18/0.16/0.14), then a 400×400 lion composited by `sharp` (109-119).
-Decoded asset: 1600×1600, VP8 lossy. `.poster img { object-fit: cover }`
-(150-155). Label size at 1440×900 is 10.35px, not the filed 9.28px (that
-is the floor below vmin 807px). Mobile is out of scope:
-`styles.module.css:508-514` hides `.nav` below 719px without
-`data-canvas`, per `.ai/DECISIONS.md` 2026-08-25 ("The phone keeps the live
-orbit"), so the 53.8% portrait crop costs decorative labels, not
-navigation.
-
-**Recommendation.** Do **not** draw node rings and icons at `NODE_CENTRES`
-as originally filed — they will misregister. The poster's spokes sit at
-0.36W/0.40H of a 1600 square, while `NavLinks` places links at 36%/40% of
-the safe-inset viewport box; under `cover` at 1440×900 the x offsets
-coincide (518px) but the y offset is 576px in the cropped image against
-360px for the link, a ~216px mismatch that changes with every aspect
-ratio. Take the fix that aligns by construction instead: strengthen the
-node unit in CSS for the no-canvas tier only — raise the `.link` border
-toward the ~0.5 alpha needed for a 3:1 mark and add a dotted ring via a
-pseudo-element, gated on `.root:not([data-canvas])`. Separately, emit a
-16:10 landscape crop and a portrait crop behind `<source media>` in the
-existing `<picture>` so `cover` stops eating the labels, and raise
-`dottedRing` opacity to ~0.3 or drop it — at 0.14–0.18 it is invisible at
-WebP q72. None of this breaks an invariant: no second link set is added,
-and the poster is not a live-scene raster.
-
-*Residual uncertainty:* the exact alpha at which the no-canvas link ring
-reads as a node is a visual call that needs a capture.
-
-### `home-scene-first-screen-names-only-threats` — the scan's fixed glyph layer is 100% hostile labels
-
-**medium** · content-design · medium effort
-`components/particle-nav/layers/NetworkScan.tsx:54-88`,
-`components/particle-nav/HomeSignalLayer.tsx:24-28`,
-`app/opengraph-image.tsx:68-78`, `lib/content/war-update.ts:171-172`
-
-**Problem.** The glyph layer — the largest, brightest, slowest marks,
-commented in-file as "these are the readable ones" and slowed to
-`flowSpeed: 0.011` because "copy you are meant to finish reading cannot
-travel at ticker speed" — is 10/10 hostile on desktop and 6/6 on mobile.
-The one thing a visitor finishes reading on the first screen therefore
-carries no verdict from the verified side, on a site whose entire
-differentiator is that it issues verdicts.
-
-**Evidence.** `DESKTOP_LABELS` (54-65) is ten hostile strings;
-`MOBILE_LABELS` (67-74) is six, all hostile; `DESKTOP_ICONS` is 76-82 (not
-78-84 as filed), five platforms. The filed census — "everything a visitor
-can read is threat labels plus platforms" — is wrong twice over, and both
-corrections matter. `buildScanWords` (363-380) splits the corpus into
-`hostilePool` (red+amber) and `verifiedPool` (blue+neutral) and alternates
-rows 1:1 with the explicit comment "a background that is 85% red is a mood,
-not a monitor"; the verified pool is 79 fragments reading "FACT CHECK: …"
-and "CLAIM DEBUNKED: …". And `home.module.css:55-60`/`131-141` puts the
-anchored strip's line — "Latest documented milestone", date, headline —
-deliberately above the fold via `--strip-overlap`, asserted by
-`verify-home-band.mjs`. "All tiers" is also wrong:
-`styles.module.css:501-503` hides `.desktopOrientation` at ≤640px, so
-`HomeSignalLayer`'s first-person copy does not exist on mobile at all.
-
-**Recommendation.** Swap two or three of the ten hostile labels for verdict
-labels in the same gold ramp — "SOURCE CONFIRMED", "CROSS-CHECKED",
-"CORRECTION LOGGED" — placed on the opposite diagonal. Do not add a second
-blue ramp to the glyph set as originally proposed: `buildGlyphs` writes one
-merged buffer rendered by a single Sprite with one palette (398-420,
-549-579), so a second ramp means a second buffer, material and sprite — a
-new draw call, not "no new element". Leave the `HomeSignalLayer` rewrite
-out of scope; it is desktop-only, "Independent evidence network" already
-states a standard, and `opengraph-image.tsx:66` carries the same tagline
-and would have to move with it.
 
 ### `home-scene-intro-typeface-is-gentilis-and-brand-is-one-word` — the brand climax spells "LIONSOFZION"
 
@@ -417,54 +281,6 @@ sits at `radiusY` 1.915, 53% above the floor, not "close to" it.) If the
 cue lands, update the `globals.css:195-201` comment, which currently claims
 an affordance that only exists at ≥720×640.
 
-### `home-scene-orbit-order-contradicts-the-band-taxonomy` — nothing orders the orbit, and a comment says otherwise
-
-**medium** · hierarchy · medium effort
-`components/particle-nav/config.ts:75-148`,
-`components/particle-nav/config.ts:151-153`,
-`components/home/HomeFrontPage.tsx:40-44`,
-`components/home/HomeFrontPage.tsx:154-186`
-
-**Problem.** `nodeAngle(i, count) = π/2 − (i/count)·2π` maps array index
-straight to a clockwise position, and DOM order is array order
-(`NavLinks.tsx:24`). So the donate/join ask is second in tab order —
-before a visitor has been told who this is or seen a verified claim — and
-the page that answers "who are you and why should I believe you" is last.
-That half matters for keyboard and assistive-technology users, where the
-order genuinely is sequential. Separately,
-`HomeFrontPage.tsx:154-156` comments that the band's intent grouping is
-"the same taxonomy the orbit arranges itself by", which the code
-contradicts: the ring interleaves the three intents (now, participate, now,
-understand ×4, participate).
-
-**Evidence.** `defaultNodes` order and intents verified;
-indices 0..7 resolve to 90°, 45°, 0°, −45°, −90°, −135°, 180°,
-135°.
-`.item[data-intent='now'] .label { color: #efd79a }`
-(`styles.module.css:413-419`) is the scene's only differentiator and
-applies to indices 0 and 2; the adjacent comment records that the
-`participate` dimming was deliberately removed. Two filed claims are
-overstated and should not be argued: "clockwise reading order" is weak for
-a radial arrangement where all eight labels are simultaneously visible and
-equally styled, and `.ai/DECISIONS.md` documents that the intent taxonomy
-was moved *out* of the scene into the band on purpose, so "a visitor finds
-no trace of it when they look back up" argues against a decision rather
-than exposing an oversight.
-
-**Recommendation.** Minimum viable: correct the false comment at
-`HomeFrontPage.tsx:154-156`, and move `support-us` out of index 1 so the
-ask is not second in tab order. If the ring is reordered properly, split
-the contract — array index currently serves three masters (angular
-position, the band's `File NN / 08` at `HomeFrontPage.tsx:174`, and the
-file number `SectionPage` prints), so add an explicit `orbit: number` to
-`NavNode`, pass `node.orbit` to `nodePosition`, and leave array index
-owning the file number. `tests/particle-nav-layout.test.ts:138-149` asserts
-the array id order under the title "keeps the configured clockwise order
-beginning at twelve" and must be updated, or it will silently keep passing
-while meaning something different. Scope the argument to reading and tab
-order; "the ring should teach the band's taxonomy" reverses a documented
-decision and needs its own case.
-
 ### `home-scene-masthead-repeats-the-wordmark-verbatim` — the band's kicker restates the scene's, one screen apart
 
 **low** · composition · small effort
@@ -491,114 +307,6 @@ reads wordmark + "Truth has a signal.", and let the band own the framing.
 Keep the masthead's `<h1>`, rule and lede — `.ai/DECISIONS.md` records the
 `<h1>` as the home route's only one. Compressing the masthead's bottom
 margin is optional polish, not part of the fix.
-
-### `home-scene-scan-labels-are-arial` — the scene's canvas text names system faces directly
-
-**low** · typography · small effort (but see note)
-`components/particle-nav/layers/NetworkScan.tsx:240`,
-`components/particle-nav/layers/NetworkScan.tsx:242`,
-`components/particle-nav/layers/NetworkScan.tsx:404-412`,
-`scripts/particle-nav/make-poster.ts:98`
-
-**Problem.** `makeTextCanvas` defaults to `family = 'Arial, sans-serif'`
-and `buildGlyphs` calls it with no override, so the ten scan context labels
-are sampled from Arial. The drifting fragments use `MONO_STACK`, a raw
-system-mono stack, not the loaded Geist Mono. The poster bake repeats the
-Arial default. The scene is therefore the one surface where the site's own
-loaded families never apply.
-
-**Evidence.** Anchors exact. This is a brand-coherence gap, not a
-legibility one: the labels render at ~0.36 world units for two lines
-(`Math.max(0.21, lines * 0.18)`, 409) — roughly 42px total, ~20px per line
-at `SCALE` 118 — as particles at `opacity: 0.55` with `minSizePx 0.8 /
-maxSizePx 1.24`, where grotesque-vs-mono proportion is barely resolvable.
-Arial's Linux substitute is metric-compatible Liberation Sans and
-`MONO_STACK` ends in generic `monospace`, so no tier loses layout.
-
-**Recommendation.** Do not ship this as a drive-by.
-`.ai/DESIGN-V2.md:154-161, 313` makes the home scene's typographic voice an
-explicit open question for the user (Phase 5), so raise it as a decision.
-If accepted, the smaller and safer half is one named constant instead of
-two inline literals, with `--font-geist-mono` read once from
-`getComputedStyle(document.documentElement)` and the current strings kept
-as the fallback tail. Note that a `document.fonts.ready` await moves the
-whole glyph and word buffer construction behind a font load — a real change
-to scene startup that needs a real-Chrome capture and
-`verify-composition.mjs`'s eight-link bounds re-checked, since a mono face
-is wider per character and the label spans at 379 and glyph placement at
-409 are proportion-sensitive. `make-poster.ts:98` only matters on a re-bake
-— and a re-bake on a Linux box without Arial installed is itself a
-substitution risk.
-
-### `home-scene-idle-motion-dials-are-all-zero` — three sim dials ship at 0 under comments describing motion
-
-**low** · motion · small effort
-`components/particle-nav/config.ts:13-39`,
-`components/particle-nav/layers/OrbitalRings.tsx:2`,
-`components/particle-nav/layers/OrbitalRings.tsx:41-43`,
-`components/particle-nav/tsl/lionCompute.ts:153-155`
-
-**Problem.** `defaultSimParams` — commented "Brief §6 calibrated starting
-points" — ships `curlAmp: 0`, `repelStrength: 0` and
-`idleRotateDegPerSec: 0`. The lion has no ambient drift, the rings and rig
-never rotate, and pointer repulsion is dead, while four comments describe
-motion the code cannot produce: "counter-rotating at differing rates"
-(`OrbitalRings.tsx:2`), "idle rig rotation (0.6°/s)" (`Scene.tsx:226`),
-"±3°" (`Scene.tsx:229`, against a real `parallaxDeg` of 1.25), and
-"calibrated" (`config.ts:12`).
-
-**Evidence.** `curlAmp: 0` (16), `repelStrength: 0` (20),
-`idleRotateDegPerSec: 0` (32) against ranges `[0, 0.08]` (45), `[0, 6]`
-(49), `[0, 4]` (63). `OrbitalRings.tsx:41-43` and `Scene.tsx:226` multiply
-by 0; `lionCompute.ts:155` (`curlAmp.mul(6)`) and `:186`
-(`curlAmp.mul(60)`) both vanish. Values are original to commit `511c9fe`,
-never tuned; no test or DECISIONS entry pins them. Correction: the scene is
-not motionless — the pointer still drives camera parallax
-(`parallaxDeg: 1.25`, `Scene.tsx:229-237`) and hover particle streams
-(`streamFraction: 0.12`), and connectors pulse on `pulseLoopSec: 4.2`
-(`Connectors.tsx:74`).
-
-**Recommendation.** The zero-risk half needs no visual sign-off: correct or
-delete the four comments that assert motion. If idle rotation is restored,
-note that `Scene.tsx:226` rotates the whole rig and `activeAngle` at 238
-reads `rig.rotation.z`, so a nonzero value also drifts the activate-dolly
-direction and the projected DOM label geometry — check that against
-`OrbitLayout`'s eight-links-in-viewport invariant and
-`scripts/verify-composition.mjs`, not just against the 45k tier. Leaving
-`repelStrength` at 0 and deleting the branch is fine; keep the
-`repelRadius`/`repelStrength` panel entries only if `/particle-demo` is
-meant to stay a tuning harness for a live control.
-
-### `home-scene-hover-card-chrome-outranks-its-sentence` — the card's meta row is 9.28px and spends both accents on chrome
-
-**low** · hierarchy · trivial effort
-`components/particle-nav/styles.module.css:278-309`,
-`components/particle-nav/styles.module.css:253-276`,
-`components/particle-nav/NavLinks.tsx:46-56`
-
-**Problem.** The hover card's meta row sits at 0.58rem (9.28px) uppercase
-mono at 0.14em tracking and spends both saturated accents on a file number
-and a URL that duplicates the link's own `href`.
-
-**Evidence.** `.cardMeta` 0.58rem/0.14em/uppercase (287-289); `.cardRoute`
-`#57a7d9` (297-301); `.cardText` `#b6c4d6` at 0.74rem (303-309); two 1.5px
-`#57a7d9` corner brackets (264-276); card 14.5rem wide (234-238). The
-filed headline — "the description is the dimmest thing in it" — is false as
-measured. Over `--ground` `#070b14`: `.cardText` 11.0:1 at 11.84px,
-`.cardFile` 8.3:1 at 9.28px, `.cardRoute` 7.4:1 at 9.28px. The sentence is
-the brightest and largest element; the imbalance is saturation and bracket
-weight, not luminance. `.cardMeta` is also `aria-hidden="true"`
-(`NavLinks.tsx:47`) with the sentence exposed via `aria-describedby`, so
-the redundant URL never reaches assistive tech, and cards appear only under
-`@media (hover: hover)` (352) or `.link:focus-visible + .card` (342).
-
-**Recommendation.** Two real fixes, no inversion. Raise `.cardMeta` to
-`--t-data` (0.72rem) with `--t-data-tracking` (0.08em), and delete
-`.cardRoute` — it duplicates the href the browser already shows on hover
-and is aria-hidden anyway. Dropping the route is what makes the size bump
-fit: keeping both spans at 0.72rem with tracking overflows the 200px
-content box under `white-space: nowrap`. Leave `.cardText` at 0.74rem, and
-do not swap the scene's hardcoded palette for reading-page ink tokens.
 
 ### `home-scene-stylesheet-ignores-the-token-palette` — the scene consumes no palette token and carries three off-scale colours
 
@@ -701,42 +409,6 @@ places: the OG card's line is a 24px, letterSpacing-3 satori text node in a
 fixed 1200×630 card with only Geist Regular available, and a 25-word
 sentence will not lay out there — keep it as its own constant. The
 og:title "LIONS OF ZION — Truth Has a Signal" and the card's `alt` stay.
-
-### `home-scene-scan-breakpoint-disagrees-with-every-other-layer` — `NetworkScan` hardcodes 620 where everything else uses 720
-
-**low** · responsive · trivial effort
-`components/particle-nav/layers/NetworkScan.tsx:476-481`,
-`components/particle-nav/config.ts:216-217`,
-`components/intro/introLayout.ts:86-88`,
-`components/particle-nav/styles.module.css:493-515`
-
-**Problem.** `MOBILE_MAX_WIDTH = 720` carries the comment "Below this width
-the layout is the phone one, in every layer that asks", and two layers do
-not ask it: `NetworkScan` uses `size.width < 620` twice, and `Scene.tsx`
-hardcodes `720` rather than importing the constant.
-
-**Evidence.** `buildScanWords(..., size.width < 620, ...)` and
-`buildGlyphs(..., size.width < 620)` at 476 and 481 — the only two literals
-of their kind. The filed harm is refuted by the code directly below the
-anchor: the glyph sprite is built with `nodeHoles` and `heroHole`
-(487-497, 552-564) derived from the live `orbit` layout, so labels and
-platform glyphs are punched out wherever the nodes and their DOM labels
-actually sit, at any width. The 620/720 gap cannot cause a label/orbit
-collision. What compact actually changes is density and *inward* x
-positions (±0.76 → ±0.5) and size (lineHeight 0.18 → 0.13, iconHeight 0.34
-→ 0.25) — a fit threshold, not an orbit-avoidance switch.
-
-**Recommendation.** Do not blind-swap 620→720: that visibly drops four
-labels and two platform glyphs across the whole 620–719 band and is a
-composition change requiring a real-Chrome capture. Name the literal
-instead — `SCAN_COMPACT_MAX_WIDTH = 620` with a comment saying it is a
-label-density threshold distinct from the layout breakpoint — change
-`Scene.tsx:110/131` to use the imported `MOBILE_MAX_WIDTH`, and soften the
-`config.ts` comment to "every layer that asks *for the layout mode*".
-Aligning the two thresholds is a separate visual decision for the macOS
-workstation, with a 700×1000 entry added to `verify-composition.mjs`.
-
----
 
 ## The reading system
 
@@ -3539,7 +3211,6 @@ listed here so a search for it lands somewhere.
 
 | Filed as | Written above as |
 | --- | --- |
-| `cross-cutting-orbit-labels-nine-px` | `home-scene-orbit-labels-below-legibility-floor` |
 | `archive-brief-998-non-english-pages-are-served-as-lang-en` + `cross-cutting-archive-lang-declared-english` | `archive-lang-declared-english` |
 | `cross-cutting-error-page-cinzel` | `reading-system-error-page-is-a-preserved-v1-fossil` |
 | `reading-system-two-tables-of-contents-at-once` | `section-pages-israels-story-two-contents-lists` |

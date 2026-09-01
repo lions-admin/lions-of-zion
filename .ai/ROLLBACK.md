@@ -55,10 +55,12 @@ no longer expects, before assuming the rollback alone is sufficient.
 
 ## What this does *not* cover
 
-- Rolling back a bad `npm run bake:nav-lion` / `bake:nav-icons` /
-  `poster:nav` asset bake — those are static files in `public/`,
-  committed to git like any other file; reverting the commit that changed
-  them and redeploying is the right move there, not a Vercel promotion.
+- Rolling back a bad `npm run bake:nav-lion` asset bake — its output is static
+  files in `public/particles/`, committed to git like any other file; reverting
+  the commit that changed them and redeploying is the right move there, not a
+  Vercel promotion. The same applies to `public/posters/particle-nav.*`, which
+  is now hand-maintained: `bake:nav-icons` and `poster:nav` were deleted with
+  the radial navigation on 2026-09-01.
 - Rolling back environment variable changes made directly in the Vercel
   dashboard (`DATABASE_URL`, `AI_GATEWAY_API_KEY`, etc.) — Instant Rollback
   only repoints which build serves traffic, it does not restore a previous

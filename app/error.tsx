@@ -154,7 +154,7 @@ export default function ErrorBoundary({
             Re-establish signal
           </button>
           <Link href="/" className="loz-error-home">
-            ← Back to the scan
+            ← Back to Lions of Zion
           </Link>
         </div>
         {error.digest ? <p className="loz-error-digest">Ref {error.digest}</p> : null}

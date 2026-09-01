@@ -28,7 +28,7 @@ DS_CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 Verified working (Chrome 151, headless). Note this is unrelated to the repo's
 own "must use real Chrome with `headless: false`" rule in CLAUDE.md — that rule
-is about the **WebGPU particle scene**, which is out of scope for this sync.
+is about the **WebGPU particle intro**, which is out of scope for this sync.
 Plain DOM/CSS component previews are fine headless.
 
 ## Host shims for `next/*`
@@ -49,10 +49,12 @@ components — the same category as the converter externalizing React to
 
 ## Excluded from the bundle, and why
 
-- `components/particle-nav/**` — `three/webgpu` + TSL, needs a real GPU and the
+- `components/intro-scene/**` — `three/webgpu` + TSL, needs a real GPU and the
   baked `public/particles/lion-v2-*.bin` buffers. CLAUDE.md documents that
   headless Chromium's SwiftShader is correctly rejected by the GPU probe, so it
   can never produce a preview. It is a rendering engine, not a DS component.
+  (It was `components/particle-nav/**` until 2026-09-01, when the radial
+  navigation it also carried was deleted and the directory was renamed.)
 - `ChatParticleCanvas`, `ParticleChatLauncher` — pull the above in transitively
   (`ParticleChatLauncher` imports `ChatParticleCanvas`).
 - `ScanBackdrop` — an **async Server Component** that reads
@@ -80,7 +82,7 @@ need the ground to render anything meaningful.
 **Re-verified 2026-08-27, and the hazard this section described is gone.**
 
 It used to read `html, body { height: 100%; overflow: hidden }` — correct for a
-full-viewport particle scene that must never scroll, fatal for a design built
+full-viewport scene that must never scroll, fatal for a design built
 with the DS, which would have been unscrollable with content below the fold
 unreachable. The 2026-08-27 document-scroll conversion removed it. `globals.css`
 now sets `html, body { width: 100%; min-height: 100% }` and no overflow at all,

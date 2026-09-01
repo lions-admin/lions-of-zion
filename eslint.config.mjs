@@ -85,7 +85,7 @@ const eslintConfig = defineConfig([
      * set-state rule likewise misclassifies asynchronous GPU capability and
      * asset-loading effects. Keep the exception scoped to this engine only.
      */
-    files: ["components/particle-nav/**/*.{ts,tsx}"],
+    files: ["components/intro-scene/**/*.{ts,tsx}"],
     rules: {
       "react-hooks/immutability": "off",
       "react-hooks/set-state-in-effect": "off",

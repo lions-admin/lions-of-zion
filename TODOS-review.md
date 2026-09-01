@@ -148,7 +148,7 @@
 - `scripts/ci-smoke.mjs` — מערך `ROUTES` מתוחזק ידנית; לפי `CLAUDE.md`
   ראוט חדש נבדק ב־smoke **רק אם מישהו זוכר להוסיף אותו**.
 - `alternates.canonical` + JSON-LD בסוג המתאים, כמו יתר הראוטים.
-- `defaultNodes` **לא** משתנה — נשאר שמונה. זה ראוט־בן, לא יעד תשיעי,
+- `SITE_NAVIGATION` **לא** משתנה — נשאר שמונה. זה ראוט־בן, לא יעד תשיעי,
   בדיוק כמו `/fake-resistance/playbook` ו־`/network`.
 
 ~~**פתוח לשאלה:** האם ה־standfirst וה־`The machine`/`The tells` עוברים גם
@@ -160,7 +160,7 @@
 
 > **✅ בוצע 27.8** (`5802dbd`, `751f204`). חמשת החלקים בעמוד הראשי; שני ראוטי הענף
 > `official-narrative` ו־`social-media` (״The social-media front״) עם sitemap,
-> ‏`ROUTES`, canonical, JSON-LD ו־breadcrumb. `defaultNodes` נשאר שמונה.
+> ‏`ROUTES`, canonical, JSON-LD ו־breadcrumb. `SITE_NAVIGATION` נשאר שמונה.
 > חלק 2 נכתב כפסיקת הבעלים, בניסוח שמאשר את טענת התשתית ומסמן במפורש את
 > טענת הנרטיבים־מראש כשאלת מחקר פתוחה — ראו R-04.
 
@@ -223,7 +223,7 @@
 
 **עבודה נלווית:** שני ראוטים חדשים, לא אחד. כל אחד צריך `sitemap.ts`,
 `ROUTES` ב־`ci-smoke.mjs` (מתוחזק ידנית), canonical ו־JSON-LD.
-`defaultNodes` נשאר שמונה.
+`SITE_NAVIGATION` נשאר שמונה.
 
 ---
 

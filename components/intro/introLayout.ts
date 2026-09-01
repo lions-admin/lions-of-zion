@@ -14,13 +14,13 @@
  *     so on a 390px phone particles started 2.4 frame-widths off to the left
  *     and left the frame entirely on the way out, at readable alpha.
  *
- * Everything here is pure and unit-tested. The camera is the particle-nav one
+ * Everything here is pure and unit-tested. The camera is the intro-scene one
  * (45°, 8.2 units); `components/graphics/viewport.ts` looks like the obvious
  * home but belongs to the retired photographic scene at 34° and 10 units, and
  * every constant below would change meaning under it.
  */
 
-import { CAMERA_FOV, CAMERA_Z, MOBILE_MAX_WIDTH, viewSize } from '@/components/particle-nav/config';
+import { CAMERA_FOV, CAMERA_Z, MOBILE_MAX_WIDTH, viewSize } from '@/components/intro-scene/config';
 
 export type IntroLayoutName = 'mobile' | 'desktop';
 

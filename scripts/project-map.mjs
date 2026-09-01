@@ -486,20 +486,16 @@ const flowParticles = {
   title: "מאיפייה לסצנה",
   caption: "מקורות ב־assets/, פלט דטרמיניסטי ב־public/, רנדרר יחיד ב־Scene.tsx. שינוי שם ב־public/ שובר בשקט.",
   nodes: [
-    fn("asrc", 0, 0, "assets/source", "assets/source/", "אייקוני מקור"),
     fn("aref", 0, 1, "assets/reference", "assets/reference/", "תמונת האריה"),
-    fn("bakei", 1, 0, "scripts/particle-nav", "bake-icons", "SDF"),
-    fn("bakel", 1, 1, "scripts/particle-nav", "bake-lion", "LNP1"),
-    fn("bakep", 1, 2, "scripts/particle-nav", "make-poster", "פוסטר"),
-    fn("picons", 2, 0, "public/icons", "public/icons/", "8 SDF"),
+    fn("bakel", 1, 1, "scripts/intro-scene", "bake-lion", "LNP1"),
     fn("ppart", 2, 1, "public/particles", "public/particles/", "45 / 90 / 180k"),
     fn("ppost", 2, 2, "public/posters", "public/posters/", "no-WebGL"),
-    fn("scene", 3, 1, "components/particle-nav/Scene.tsx", "Scene.tsx", "רנדרר יחיד", "acc"),
+    fn("scene", 3, 1, "components/intro-scene/Scene.tsx", "Scene.tsx", "רנדרר יחיד", "acc"),
   ],
   edges: [
-    ["asrc", "bakei"], ["aref", "bakel"],
-    ["bakei", "picons"], ["bakel", "ppart"], ["bakep", "ppost"],
-    ["picons", "scene"], ["ppart", "scene"], ["ppost", "scene"],
+    ["aref", "bakel"],
+    ["bakel", "ppart"],
+    ["ppart", "scene"], ["ppost", "scene"],
   ],
 };
 

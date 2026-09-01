@@ -1,12 +1,12 @@
 # Lions of Zion
 
-A full-viewport Next.js particle experience, and an information-model backend
-that shares its repository and nothing else.
+A Next.js editorial site with a cinematic particle intro, and an
+information-model backend that shares its repository and nothing else.
 
-One React Three Fiber canvas and one Three.js WebGPU/TSL renderer own the
-story intro, the crowned lion, the live network scan and the radial
-navigation. WebGL2 is the supported fallback. Behind the navigation are eight
-ordinary scrolling document pages.
+One React Three Fiber canvas and one Three.js WebGPU/TSL renderer own the story
+intro and the crowned lion. WebGL2 is the supported fallback. The intro plays
+once per tab, then unmounts onto the editorial home beneath it. Eight ordinary
+scrolling document pages sit behind the site header.
 
 The backend under `app/api/` and `server/` ingests sources, attaches evidence
 to claims, has a second human review an assessment, and publishes what
@@ -29,17 +29,17 @@ database. Node 24.
 
 ## Routes
 
-The eight destinations behind the radial navigation:
+The eight destinations, reached from the site header:
 
 `/geopolitical-brief` · `/support-us` · `/war-update` · `/october-7` ·
 `/our-heroes` · `/israels-story` · `/fake-resistance` · `/we-are`
 
 Plus `/methodology` and `/corrections`, which are linked from the prose that
-means them rather than from the orbit.
+means them rather than from the header.
 
 `lib/site-navigation.ts` `SITE_NAVIGATION` is the single source of truth for
-all eight — it feeds the home header, reading shell, sitemap and the
-scene-specific `defaultNodes` projection.
+all eight — it feeds the site header, the reading shell, the sitemap and the
+404 index.
 
 ### The October 7 archive
 
@@ -49,7 +49,8 @@ two crawled archives in full:
 `/october-7/testimonies` — 179 records, up to seven languages
 `/october-7/documentation` — 335 records, English and Spanish, six categories
 
-They are child routes, not a ninth destination; `defaultNodes` stays at eight.
+They are child routes, not a ninth destination; `SITE_NAVIGATION` stays at
+eight.
 The records' JSON is committed under `content-packages/`, while their ~1.8 GB
 of media is not — it is served from `NEXT_PUBLIC_ARCHIVE_CDN`, or from a
 gitignored local symlink in development. See
@@ -59,18 +60,15 @@ gitignored local symlink in development. See
 
 - `components/intro/` holds only the pure story timeline and CPU text
   sampling. It renders nothing.
-- `components/particle-nav/` owns every live visual layer in one React Three
+- `components/intro-scene/` owns the whole live GPU layer in one React Three
   Fiber scene. All particle materials and simulation work use TSL.
-- `components/particle-nav/CinematicIntroGate.tsx` mounts the scene as a
+- `components/intro-scene/CinematicIntroGate.tsx` mounts the scene as a
   once-per-tab entrance above the server-rendered editorial home. The GPU
   renderer unmounts at handoff; it does not remain behind the page.
-- The live background is a particle-built network scan. There is no
-  photographic background and no star field.
 - With JavaScript disabled, the intro enhancement is hidden and the complete
   editorial home and its real links remain usable immediately.
 
 `/?forceWebGL=1` verifies the complete experience on WebGL2.
-`/particle-demo?forceWebGL=1` exposes the isolated tuning harness.
 
 ## Commands
 
@@ -96,18 +94,16 @@ rather than waiting for review.
 Visual verification, after starting the dev server:
 
 ```bash
-npm run verify:graphics -- http://localhost:3000 /tmp/lions-matrix
 node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final
-node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band
 node scripts/verify-doc-scroll.mjs http://localhost:3000
 node .claude/skills/verify-intro/capture.mjs
 node scripts/ci-smoke.mjs http://localhost:3000
 node scripts/verify-archive-assets.mjs <cdn-base>
 ```
 
-**Five** of these launch the installed macOS Google Chrome rather than a hidden
-pane or headless Chromium — the four `verify-*` scripts above `ci-smoke` and
-`capture.mjs`. A hidden pane throttles `requestAnimationFrame`, and headless
+**Three** of these launch the installed macOS Google Chrome rather than a
+hidden pane or headless Chromium — the two `verify-*` scripts above `ci-smoke`
+and `capture.mjs`. A hidden pane throttles `requestAnimationFrame`, and headless
 Chromium falls back to SwiftShader, which the GPU probe correctly rejects. They
 do not run on Linux or in CI.
 
@@ -119,12 +115,13 @@ against the CDN base. `docs/operations.md` has the table of what each asserts.
 
 ```bash
 npm run bake:nav-lion
-npm run bake:nav-icons
-npm run poster:nav
 ```
 
-Source artwork lives in `assets/`; generated runtime files land in
-`public/particles`, `public/icons`, and `public/posters`.
+Source artwork lives in `assets/`; the generated lion buffers land in
+`public/particles`. `bake:nav-icons` and `poster:nav` were deleted with the
+radial navigation — they produced the orbit node icons and the orbit poster.
+`public/posters/particle-nav.webp` is kept as a committed asset: it is the site
+OG image, the `/information-war` hero, and the intro's no-JavaScript poster.
 
 ## Deployment
 

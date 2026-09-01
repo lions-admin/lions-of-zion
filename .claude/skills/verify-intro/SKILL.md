@@ -10,11 +10,11 @@ Everything on this page animates inside `requestAnimationFrame`, which makes the
 usual verification paths useless:
 
 - **The in-app browser pane reports `visibilityState: "hidden"`.** The browser
-  suspends rAF, measured at 0 callbacks/sec. Both canvases render as a frozen
+  suspends rAF, measured at 0 callbacks/sec. The canvas renders as a frozen
   black rectangle no matter what the code does. Fronting the tab does not help.
 - **Headless Chromium falls back to SwiftShader.** A software rasteriser is
-  precisely the case `LionExperience`'s GPU probe rejects, so the homepage
-  scene never mounts.
+  precisely the case the intro scene's GPU probe rejects, so the scene never
+  mounts there.
 
 So verification means a real, headed Chrome. Nothing else proves anything.
 
@@ -38,7 +38,7 @@ face typechecks, lints, builds and logs nothing. Check each frame for:
 - Copy overlapping the lion — the lion vacates a lane as `lionRelocation`
   rises; text belongs in the space it left, not on its face.
 - The rolling window still erasing older lines rather than stacking forever.
-- The handoff completing: the intro unmounts and the homepage lion is revealed,
-  not black.
+- The handoff completing: the intro unmounts and the editorial home beneath it
+  is revealed, not black.
 - Duration landing where you expect. The script reports when the intro ended;
   it is a function of line count, not of any declared constant.

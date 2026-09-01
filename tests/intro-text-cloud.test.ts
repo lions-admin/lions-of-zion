@@ -10,7 +10,7 @@ import {
   quantizeIntroWidth,
 } from "@/components/intro/introLayout";
 import { ROLLING_STORY_LINES_BY_LAYOUT } from "@/components/intro/rolling-story-timeline";
-import { viewSize } from "@/components/particle-nav/config";
+import { viewSize } from "@/components/intro-scene/config";
 
 /* The sampler is pure and node-safe; it just needs the same font the browser
    loads. Nothing under tests/ has exercised it before, which is how a cap that

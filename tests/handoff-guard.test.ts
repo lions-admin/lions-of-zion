@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shouldSwallowClick } from "@/components/particle-nav/introSignal";
+import { shouldSwallowClick } from "@/components/intro-scene/introSignal";
 
 /* The bug this pins: on a phone the eight orbit links are `display: none`, so
    the guard that used to sit on their click handler protected nothing. The real

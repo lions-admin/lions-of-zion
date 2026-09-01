@@ -136,9 +136,10 @@ is needed.
 Decisions already made; these are constraints on the implementation, not open
 questions.
 
-- **The radial nav stays at eight nodes.** `components/particle-nav/config.ts`
-  `defaultNodes` is not touched. Everything lands under `/october-7` as child
-  routes. Adding a ninth node is a different decision nobody has taken.
+- **The site stays at eight destinations.** `lib/site-navigation.ts`
+  `SITE_NAVIGATION` is not touched. Everything lands under `/october-7` as
+  child routes. Adding a ninth destination is a different decision nobody has
+  taken.
 - **Not through the database.** (Written when the backend was unprovisioned;
   it is live as of 2026-08-26, but the archive still does not route through
   it — the reason below stands on its own.) Its auth
@@ -262,7 +263,7 @@ Two route-map details that will bite if unhandled:
    evidence margin — reuse the existing `marginNote` grid pattern from
    `components/content/content.module.css` rather than absolute positioning.
 4. **Index and record pages.** Use `components/sections/DocPage.tsx` as the
-   shell — it exists precisely for routes outside the eight-file orbit
+   shell — it exists precisely for routes outside the eight destinations
    (`/methodology`, `/corrections` use it) and takes `routeId`, `title`,
    `tagline`. Note it deliberately takes no rails; whether archive records want
    the citation rail is a live decision, and if so it needs a prop rather than
@@ -283,15 +284,17 @@ Two route-map details that will bite if unhandled:
   measurements. **Do not reintroduce a root-level `loading.tsx`;** if a route
   needs a loading state, scope it to that segment and verify a sibling content
   route's no-JavaScript render before keeping it.
-- **`verify:graphics` must come out unchanged.** None of this touches
-  `components/particle-nav/`. If its numbers move, something went wrong.
+- **The intro scene must come out unchanged.** None of this touches
+  `components/intro-scene/`. (This trap used to name `verify:graphics`, which
+  checked orbit composition; that script went with the radial navigation on
+  2026-09-01. `scripts/final-verify.mjs` is now the check that would notice.)
 - **Reading surfaces use `displayName`, not `label`.** `label` is stored
   uppercase as identity; CSS `capitalize` cannot fix it ("ISRAEL'S STORY" →
   "Israel'S Story").
 - **Type and colour come from the V2 tokens** in `app/globals.css`. Read
   `.ai/DESIGN-V2.md` first. Nothing below `--t-data` (0.72rem); uppercase plus
   tracking only for data labels of two words or fewer. **Cinzel belongs to the
-  particle scene only** — putting it on a reading page reverses a documented
+  intro scene only** — putting it on a reading page reverses a documented
   decision.
 - **`lib/content/` modules are all async except `home.ts`,** whose synchronous
   exports are load-bearing: an `await` in the home render path puts it behind

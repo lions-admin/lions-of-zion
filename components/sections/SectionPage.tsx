@@ -13,9 +13,9 @@
  * entry in the markup, which is what keeps reading order, screen readers and
  * the no-JS page correct.
  *
- * Everything derives from the nav contract in
- * `components/particle-nav/config.ts`, so the hover card, the lede here, and
- * the page metadata stay one sentence in one place.
+ * Everything derives from the navigation contract in
+ * `lib/site-navigation.ts`, so the lede here and the page metadata stay one
+ * sentence in one place.
  */
 import { EditorialShell } from '@/components/site/EditorialShell';
 import { getSiteNavigationItem } from '@/lib/site-navigation';
@@ -23,7 +23,7 @@ import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
 
 export interface SectionPageProps {
-  /** Route id — must match a `defaultNodes` entry. */
+  /** Route id — must match a `SITE_NAVIGATION` entry. */
   id: string;
   title: string;
   /** Defaults to the node's `description`, the same sentence the hover card shows. */
@@ -45,8 +45,8 @@ export interface SectionPageProps {
    * as `DocPage`'s. A hub's child page (`/fake-resistance/playbook`) passes
    * the trail down to its hub: it replaces the inert route span with links,
    * and its last item becomes the exit link's target, so "back" steps one
-   * level up instead of jumping past the parent straight to the scan. The
-   * eight orbit pages pass nothing and keep "← Back to the scan".
+   * level up instead of jumping past the parent straight home. The
+   * eight section pages pass nothing and keep "← Back to Lions of Zion".
    */
   breadcrumb?: { href: string; label: string }[];
   children: React.ReactNode;

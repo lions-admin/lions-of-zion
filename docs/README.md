@@ -41,9 +41,10 @@ described as though it works.
 
 - **[`archive/`](archive/README.md)** — documents that were true, did their job,
   and are kept for the record rather than for use. Nothing in it is a source of
-  truth, and nothing in it is to be corrected to match the present. It holds the
-  closed design audit (83 of 83) and its 219 KB evidence report, the superseded
-  navigation-layer specification, and an orphaned external review.
+  truth, and nothing in it is to be corrected to match the present — with one
+  recorded exception on 2026-09-01, described in that directory's README. It
+  holds the closed design audit (83 of 83) and its 219 KB evidence report, the
+  August 2026 wave log, and an orphaned external review.
 - [`engine-explainer.html`](engine-explainer.html) — a standalone explainer
   page for the particle engine.
 

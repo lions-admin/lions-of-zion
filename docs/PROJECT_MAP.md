@@ -14,11 +14,14 @@ and Flowise-style flow diagrams — and a click opens an explanation drawer.
 This file is the reference. The page needs no server and makes no network
 request.
 
-Two independent halves share this repository and **no source files**. A
-particle-driven public site, and an information-model API. They are kept apart
-by lint rules rather than by convention: `eslint.config.mjs` states the
-architecture as errors, so a violation fails `npm run lint` rather than a
-review.
+Two independent halves share this repository and **no source files**. An
+editorial public site under a particle intro, and an information-model API.
+They are kept apart by lint rules rather than by convention:
+`eslint.config.mjs` states the architecture as errors, so a violation fails
+`npm run lint` rather than a review.
+
+The file counts in the tree below are indicative and drift between audits; the
+generated [`project-map.html`](project-map.html) is the exact one.
 
 ## The tree
 
@@ -30,17 +33,17 @@ lions-of-zion/
 │   ├── auth/x/           3  Public X OAuth: begin, callback, signout.
 │   ├── october-7/        8  Hub + ~1,177 prerendered archive pages beneath it.
 │   ├── fake-resistance/  8  Hub + playbook, network, 7 case files.
-│   └── …                 8 dossier routes, corrections, methodology, particle-demo
-├── components/          97  Ten feature directories.
-│   ├── particle-nav/    36  THE scene: one canvas, one clock, intro + nav.
+│   └── …                 8 dossier routes, corrections, methodology
+├── components/              Feature directories.
+│   ├── intro-scene/         THE scene: one canvas, one clock, the intro lion.
 │   ├── content/         18  Shared editorial blocks + the evidence-margin grid.
-│   ├── chat/             9  Global launcher, modal, second canvas (desktop only).
-│   ├── archive/          8  One renderer for both archives, no branching.
-│   ├── sections/         8  SectionPage (7 dossiers) and DocPage (~1,180 routes).
-│   ├── briefs/           5  The Geopolitical Brief — the one bespoke layout.
-│   ├── support/          5  Report and volunteer forms.
+│   ├── archive/          9  One renderer for both archives, no branching.
+│   ├── sections/         7  SectionPage (7 dossiers) and DocPage (~1,180 routes).
+│   ├── briefs/           9  The Geopolitical Brief — the one bespoke layout.
+│   ├── support/          6  Report and volunteer forms.
+│   ├── typographic-field/ 4 The home hero's typographic motion engine.
 │   ├── intro/            4  Pure timeline data + CPU text sampling. No rendering.
-│   ├── home/             2  The below-the-fold front page.
+│   ├── site/             3  SiteHeader and the editorial shell.
 │   └── graphics/         1  Retired photographic-scene contract. One test holds it up.
 ├── lib/                 15  The frontend's content seam. Static today, swappable.
 │   └── content/         14  One module per surface; all async except home.ts.
@@ -58,7 +61,7 @@ lions-of-zion/
 ├── docs/                15  Reference documentation.
 │   └── archive/          5  Closed and superseded. Not sources of truth.
 ├── tests/               27  vitest + PGlite. 397 pass, 1 deliberate skip.
-├── scripts/             15  Verify (6), import (3), bake (5), ops (1).
+├── scripts/                 Verify, import, bake, ops.
 ├── public/              15  Baked output + typeface + scan corpus. Literal paths.
 ├── assets/               9  Bake sources — and runtime imports. This ships.
 ├── .ai/                  4  DECISIONS (why), STATE (now), DESIGN-V2, ROLLBACK.
@@ -70,17 +73,19 @@ lions-of-zion/
 **Generated, never committed:** `.next/`, `node_modules/`, `out/`, `build/`,
 `coverage/`, `ds-bundle/`, `.ds-sync/`, `screenshots/`, `.vercel/`,
 `.claude/worktrees/`, `public/archive/` (dev symlinks), `.blob-upload/`.
-`public/particles/*.bin`, `public/icons/*.sdf.png` and `public/posters/*` **are**
-generated and **are** committed, deliberately — they are the shipped artefacts.
+`public/particles/*.bin` and `public/posters/*` **are** generated and **are**
+committed, deliberately — they are the shipped artefacts. `public/icons/*.sdf.png`
+is the same kind of thing but is now orphaned: it held the orbit node icons, and
+`bake:nav-icons` was deleted with the radial navigation.
 
 ## Entry points
 
 | Entry | File | Notes |
 | --- | --- | --- |
-| Home | `app/page.tsx` → `CinematicIntroGate` | Editorial signal field beneath a once-per-tab particle entrance |
+| Home | `app/page.tsx` → `CinematicIntroGate` | Editorial home beneath a once-per-tab particle entrance |
 | Root layout | `app/layout.tsx` | 4 fonts and shared metadata |
-| The scene | `components/particle-nav/Scene.tsx` | The only live renderer and the only timeline clock |
-| Nav contract | `lib/site-navigation.ts` | `SITE_NAVIGATION` — exactly 8, projected into the particle scene |
+| The scene | `components/intro-scene/Scene.tsx` | The only live renderer and the only timeline clock |
+| Nav contract | `lib/site-navigation.ts` | `SITE_NAVIGATION` — exactly 8, read by the header, sitemap, 404 and section pages |
 | Every API request | `server/http/handler.ts` | Classifies, engages the RLS role, translates errors |
 | Every versioned write | `server/core/versioning.ts` `recordVersion()` | The only write path. Nothing else may UPDATE a versioned table |
 | Job intent | `server/core/outbox.ts` `emit()` | Written inside the causing transaction |
@@ -126,7 +131,7 @@ with no database.
 | What is deployed and what it costs | `docs/vercel-infrastructure.md` |
 | Reading-page type and layout | `.ai/DESIGN-V2.md` |
 | Delivery plan (Hebrew) | `TODOS.md` |
-| The eight destinations | `components/particle-nav/config.ts` `defaultNodes` |
+| The eight destinations | `lib/site-navigation.ts` `SITE_NAVIGATION` |
 | Repository shape | this file |
 
 A number that appears in two documents will drift. Migration counts were
@@ -138,7 +143,7 @@ alone, and everywhere else should link rather than restate.
 | You are adding | Put it in | Because |
 | --- | --- | --- |
 | A page | `app/<route>/page.tsx` | The folder name is the URL |
-| A ninth destination | **Stop.** `defaultNodes` is eight | Both hubs prove sub-routes are not new nodes |
+| A ninth destination | **Stop.** `SITE_NAVIGATION` is eight | Both hubs prove sub-routes are not new nodes |
 | A component used by 2+ routes | `components/<feature>/` | |
 | A component used by exactly one route | Beside its page, or `components/<feature>/` | Both are idiomatic; the repo does both |
 | Content a page reads | `lib/content/<surface>.ts` | The seam. Keep call sites stable |
@@ -158,9 +163,9 @@ alone, and everywhere else should link rather than restate.
 ## Two things that will bite
 
 **`public/` is addressed by literal path.** `public/particles/*.bin`,
-`public/icons/*.sdf.png`, `public/posters/*` and
-`public/assets/gentilis_regular.typeface.json` are loaded by string. A rename
-breaks the scene at runtime with nothing failing at build time.
+`public/posters/*` and `public/assets/gentilis_regular.typeface.json` are loaded
+by string. A rename breaks the scene at runtime with nothing failing at build
+time.
 
 **CI cannot see the no-JavaScript invariant.** `CLAUDE.md` marks "do not
 reintroduce a root-level `loading.tsx`" load-bearing, but `ci-smoke.mjs` runs

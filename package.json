@@ -7,8 +7,7 @@
   },
   "scripts": {
     "build": "next build",
-    "bake:nav-lion": "tsx scripts/particle-nav/bake/bake-lion-reference.ts",
-    "bake:nav-icons": "tsx scripts/particle-nav/bake/bake-icons.ts",
+    "bake:nav-lion": "tsx scripts/intro-scene/bake/bake-lion-reference.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "briefing:smoke": "bash scripts/verify-briefing-public.sh",
@@ -30,7 +29,6 @@
     "lint": "eslint",
     "map": "node scripts/project-map.mjs",
     "map:check": "node scripts/project-map.mjs --check",
-    "poster:nav": "tsx scripts/particle-nav/make-poster.ts",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -38,8 +36,7 @@
     "main:update": "node scripts/startup-sync.mjs --publish",
     "sync:start": "node scripts/startup-sync.mjs",
     "verify:changed": "tsx scripts/verify-changed.ts",
-    "verify:full": "npm run typecheck && npm run lint && npm test && npm run build && npm run map:check",
-    "verify:graphics": "node scripts/verify-composition.mjs"
+    "verify:full": "npm run typecheck && npm run lint && npm test && npm run build && npm run map:check"
   },
   "dependencies": {
     "@ai-sdk/xai": "^3.0.128",
@@ -71,7 +68,6 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
-    "leva": "0.10.1",
     "playwright-core": "^1.62.1",
     "sharp": "^0.35.3",
     "tsx": "4.23.12",

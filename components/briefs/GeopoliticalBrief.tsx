@@ -47,9 +47,9 @@ export function GeopoliticalBrief() {
       <div className={styles.quietBackdrop} aria-hidden="true" />
 
       <header className={styles.siteHeader}>
-        <Link href="/" className={styles.backLink} aria-label="Back to the scan">
+        <Link href="/" className={styles.backLink} aria-label="Back to Lions of Zion">
           <span aria-hidden="true">←</span>
-          <span>Back to the scan</span>
+          <span>Back to Lions of Zion</span>
         </Link>
         <Link href="/" className={styles.wordmark}>Lions of Zion</Link>
         <div className={styles.headerContext}>

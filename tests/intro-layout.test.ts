@@ -13,7 +13,7 @@ import {
   quantizeIntroWidth,
 } from "@/components/intro/introLayout";
 import { ROLLING_STORY_LINES_BY_LAYOUT } from "@/components/intro/rolling-story-timeline";
-import { viewSize } from "@/components/particle-nav/config";
+import { viewSize } from "@/components/intro-scene/config";
 
 const VIEWPORTS = [
   [320, 568],

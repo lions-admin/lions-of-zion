@@ -237,9 +237,9 @@ makes the manipulation charge stick:
 
 ## 4. Information architecture
 
-`/fake-resistance` follows the `/october-7` precedent exactly: **the node
-becomes a hub, and the research beneath it is not a ninth node.**
-`defaultNodes` stays at eight and is not touched.
+`/fake-resistance` follows the `/october-7` precedent exactly: **the
+destination becomes a hub, and the research beneath it is not a ninth
+destination.** `SITE_NAVIGATION` stays at eight and is not touched.
 
 ```
 /fake-resistance                    existing dossier page (SectionPage, accent="ember")
@@ -466,9 +466,9 @@ from the accounts it documents.
       by the published-case count + 1), `ci-smoke` green with new routes.
 - [x] No-JavaScript check of one case page and `/network` (prerendered HTML
       carries full content, zero Suspense boundaries — the archive bar).
-- [x] The particle scene is untouched, so `verify:graphics`/`final-verify`
-      need no re-run *unless* the root page's band or shell changed; if the
-      root page gained sections, run `final-verify` on the workstation.
+- [x] The particle scene is untouched, so `final-verify` needs no re-run
+      *unless* the root page's shell changed; if the root page gained
+      sections, run `final-verify` on the workstation.
 - [x] Journal: `DECISIONS.md` entry (naming policy, gated publication,
       category discipline), `STATE.md`, `TODOS.md` wave checkboxes.
 - [ ] **Production deploy only after Phase 0 + Phase 4 gates are met.**

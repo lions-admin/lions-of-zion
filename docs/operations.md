@@ -86,12 +86,12 @@ exist in one place and not the other. See
 ### The trap
 
 The in-app browser can report `visibilityState === "hidden"` and suspend
-`requestAnimationFrame`, making both scenes appear black. Headless Chromium
+`requestAnimationFrame`, making the intro appear black. Headless Chromium
 falls back to SwiftShader, which the GPU probe correctly rejects, so the scene
 never mounts there either.
 
 **Visual checks must use real Chrome** via `playwright-core` with
-`headless: false`. The **five** real-Chrome scripts hardcode
+`headless: false`. The **three** real-Chrome scripts hardcode
 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, so they run on
 the macOS workstation only — never in a Linux container or on CI.
 
@@ -103,9 +103,8 @@ Start the dev server first, then:
 
 | Command | Runs where | Checks |
 | --- | --- | --- |
-| `npm run verify:graphics -- http://localhost:3000 /tmp/lions-matrix` | macOS only | Orbit composition at 7 viewports, 320→2560 |
 | `node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final` | macOS only | Intro handoff, keyboard, WebGPU, forced WebGL2, no-JS fallback, overlays, console errors |
-| `node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band` | macOS only | The scene keeps its exact box; the band scrolls, is opaque, carries all eight links; the intro scroll lock holds |
+| `node scripts/verify-doc-scroll.mjs http://localhost:3000` | macOS only | Reading-page scroll behaviour and progress affordances (see below) |
 | `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
 | `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **23 routes** return 200 with no console errors — 17 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
 | `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
@@ -161,9 +160,9 @@ the document (converted 2026-08-27), and the whole payoff — a phone's URL bar
 collapsing, and the browser restoring scroll position on back-navigation — is
 invisible to `ci-smoke` and to headless Chromium. It also reads a
 `requestAnimationFrame`-driven progress bar, which the in-app browser suspends
-outright by reporting `visibilityState: "hidden"`. So, like the other four
-real-Chrome scripts, it
-drives real Chrome and only runs on the macOS workstation.
+outright by reporting `visibilityState: "hidden"`. So, like the other two
+real-Chrome scripts, it drives real Chrome and only runs on the macOS
+workstation.
 
 ```bash
 node scripts/verify-doc-scroll.mjs http://localhost:3000
@@ -179,8 +178,11 @@ the only one CI can run. It is deliberately modest — route availability and
 console errors only, no assertion about the particle scene, because real WebGPU
 support in headless CI Chromium is unreliable.
 
-`/?forceWebGL=1` runs the complete experience on WebGL2.
-`/particle-demo?forceWebGL=1` is the isolated tuning harness.
+`/?forceWebGL=1` runs the complete experience on WebGL2. There is no isolated
+tuning harness any more: `/particle-demo` was deleted with the radial
+navigation on 2026-09-01, and so were `npm run verify:graphics` and
+`scripts/verify-composition.mjs`, whose whole job was asserting orbit link
+bounds at seven viewports.
 
 ---
 
@@ -188,13 +190,18 @@ support in headless CI Chromium is unreliable.
 
 ```bash
 npm run bake:nav-lion    # → public/particles/lion-v2-{45k,90k,180k}.bin
-npm run bake:nav-icons   # → public/icons/*.sdf.png
-npm run poster:nav       # → public/posters/particle-nav.{webp,avif}
 ```
 
 Source artwork lives in `assets/`. The output is committed to git like any
 other file — rolling back a bad bake is a `git revert`, not a Vercel
 promotion.
+
+`bake:nav-icons` (`public/icons/*.sdf.png`) and `poster:nav`
+(`public/posters/particle-nav.{webp,avif}`) were deleted with the radial
+navigation. The poster files themselves stay committed — they are the site OG
+image, the `/information-war` hero and the intro's no-JavaScript poster — but
+nothing regenerates them; replacing one now means producing the image by hand.
+The `public/icons/*.sdf.png` files are orphaned and read by nothing.
 
 ---
 

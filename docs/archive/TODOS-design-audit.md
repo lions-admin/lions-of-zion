@@ -1,5 +1,14 @@
 # Design audit — task list
 
+> **Amended 2026-09-01, by explicit owner decision.** The crowned-lion radial
+> navigation was deleted from the project, and the owner ruled that it be purged
+> from the historical record as well as from the live documentation. **Eight
+> home-scene findings about the orbit menu, the network scan and the hover card
+> were removed from this file**, so the counts stated below no longer match what
+> it contains. That is a deliberate break of the archive's own "a record is
+> never corrected" rule; it is recorded in `.ai/DECISIONS.md` (2026-09-01). The
+> cinematic intro was kept, and every intro finding stands as filed.
+
 Generated from [`design-audit-2026-08-26.md`](design-audit-2026-08-26.md),
 which carries the full problem statement, the measured evidence and the
 tradeoffs for every id below. This file is the actionable form of that
@@ -206,7 +215,7 @@ the by-surface list below.
 Sixty tasks. Within each surface, severity first and cheapest first, so a
 session can take the top of a section and stop anywhere.
 
-### Home experience — intro, particle navigation, front-page band
+### Home experience — intro and front page
 
 15 tasks here.
 
@@ -253,22 +262,6 @@ session can take the top of a section and stop anywhere.
 
 #### Medium — 6
 
-- [x] `home-scene-orbit-labels-below-legibility-floor`
-      the eight orbit labels render at 9.28–10.35px
-      **Do:** File the in-place fix, not a face swap: raise the desktop half — `clamp(0.72rem, 1.4vmin, 0.95rem)` with `letter-spacing: 0.08em` at all widths — which clears the floor and the tracking cap without touching Cinzel, `CLAUDE.md`'s uppercase-as-identity rule, or …
-      `components/particle-nav/styles.module.css:390-411`, `components/particle-nav/styles.module.css:485-491`, `app/globals.css:48-52`, `.ai/DESIGN-V2.md:181-186`
-      `medium` · `typography` · `small effort`
-      **Needs a real-Chrome capture** at the seven `verify-composition.mjs`
-      viewports: whether 11.5–12.6px tracked caps push "GEOPOLITICAL BRIEF" to a
-      third line is not settled from source. The phone tier keeps its size, as
-      filed — that half is the DESIGN-V2 Phase 5 face decision.
-
-- [x] `home-scene-first-screen-names-only-threats`
-      the scan's fixed glyph layer is 100% hostile labels
-      **Do:** Swap two or three of the ten hostile labels for verdict labels in the same gold ramp — "SOURCE CONFIRMED", "CROSS-CHECKED", "CORRECTION LOGGED" — placed on the opposite diagonal. …
-      `components/particle-nav/layers/NetworkScan.tsx:54-88`, `components/particle-nav/HomeSignalLayer.tsx:24-28`, `app/opengraph-image.tsx:68-78`, `lib/content/war-update.ts:171-172`
-      `medium` · `content-design` · `medium effort`
-
 - [x] `home-scene-intro-typeface-is-gentilis-and-brand-is-one-word`
       the brand climax spells "LIONSOFZION"
       **Do:** Split into two items. **Ship now (trivial):** change `IntroText.tsx:122` to `['LIONS OF ZION']`. Verified safe — glyph advances sum to 8.456em vs 7.844em, so at `brandFontScale` 0.38 the cloud goes 2.98→3.21 world units against a desktop `lineMaxWidth` of at …
@@ -288,31 +281,7 @@ session can take the top of a section and stop anywhere.
       comment that still claims the affordance exists everywhere was left alone —
       shared file, another agent's surface.
 
-- [x] `home-scene-orbit-order-contradicts-the-band-taxonomy`
-      nothing orders the orbit, and a comment says otherwise
-      **Do:** Minimum viable: correct the false comment at `HomeFrontPage.tsx:154-156`, and move `support-us` out of index 1 so the ask is not second in tab order. …
-      `components/particle-nav/config.ts:75-148`, `components/particle-nav/config.ts:151-153`, `components/home/HomeFrontPage.tsx:40-44`, `components/home/HomeFrontPage.tsx:154-186`
-      `medium` · `hierarchy` · `medium effort`
-      `we-are` ↔ `support-us` swapped, so identity is second in tab order and the
-      ask is last; `tests/particle-nav-layout.test.ts` updated with it. Two file
-      numbers move (02 ↔ 08) and are derived everywhere they render.
-
-- [x] `home-scene-poster-tier-has-no-navigation`
-      the fallback poster draws nothing at the eight node positions
-      **Do:** Do **not** draw node rings and icons at `NODE_CENTRES` as originally filed — they will misregister. The poster's spokes sit at 0.36W/0.40H of a 1600 square, while `NavLinks` places links at 36%/40% of the safe-inset viewport box; …
-      `scripts/particle-nav/make-poster.ts:35-43`, `scripts/particle-nav/make-poster.ts:88-104`, `components/particle-nav/ParticleNav.tsx:31-35`, `components/particle-nav/styles.module.css:142-155`
-      `medium` · `composition` · `medium effort`
-      CSS half only — the fix that registers by construction. The 16:10/portrait
-      crops and the `dottedRing` opacity were left: both need `poster:nav` re-run,
-      and a re-bake resamples the Arial `INTEL_LABELS` on whatever machine runs it.
-
 #### Low — 8
-
-- [x] `home-scene-hover-card-chrome-outranks-its-sentence`
-      the card's meta row is 9.28px and spends both accents on chrome
-      **Do:** Two real fixes, no inversion. Raise `.cardMeta` to `--t-data` (0.72rem) with `--t-data-tracking` (0.08em), and delete `.cardRoute` — it duplicates the href the browser already shows on hover and is aria-hidden anyway. …
-      `components/particle-nav/styles.module.css:278-309`, `components/particle-nav/styles.module.css:253-276`, `components/particle-nav/NavLinks.tsx:46-56`
-      `low` · `hierarchy` · `trivial effort`
 
 - [x] `home-scene-metadata-describes-the-animation-not-the-desk`
       the root description describes the intro
@@ -322,12 +291,6 @@ session can take the top of a section and stop anywhere.
       `SITE_DESCRIPTION` added to `lib/site-config.ts`; the OG card's own line is
       deliberately not shared with it.
 
-- [x] `home-scene-scan-breakpoint-disagrees-with-every-other-layer`
-      `NetworkScan` hardcodes 620 where everything else uses 720
-      **Do:** Do not blind-swap 620→720: that visibly drops four labels and two platform glyphs across the whole 620–719 band and is a composition change requiring a real-Chrome capture. …
-      `components/particle-nav/layers/NetworkScan.tsx:476-481`, `components/particle-nav/config.ts:216-217`, `components/intro/introLayout.ts:86-88`, `components/particle-nav/styles.module.css:493-515`
-      `low` · `responsive` · `trivial effort`
-
 - [x] `home-scene-stylesheet-ignores-the-token-palette`
       the scene consumes no palette token and carries three off-scale colours
       **Do:** Not a find-and-replace. (a) Safe now: `#b6c4d6` (305) → `var(--ink)`. (b) `#a7b8ca` (469) and `#e7c979` (458) are visible changes to the wordmark block; …
@@ -336,45 +299,11 @@ session can take the top of a section and stop anywhere.
       `#b6c4d6` → `var(--ink)`; the two wordmark colours are now `--scene-*` on
       `.root`. The locked `#c9a24b`/`#efd79a` stay literal, as filed.
 
-- [x] `home-scene-idle-motion-dials-are-all-zero`
-      three sim dials ship at 0 under comments describing motion
-      **Do:** The zero-risk half needs no visual sign-off: correct or delete the four comments that assert motion. If idle rotation is restored, note that `Scene.tsx:226` rotates the whole rig and `activeAngle` at 238 reads `rig.rotation.z`, so a nonzero value also drifts …
-      `components/particle-nav/config.ts:13-39`, `components/particle-nav/layers/OrbitalRings.tsx:2`, `components/particle-nav/layers/OrbitalRings.tsx:41-43`, `components/particle-nav/tsl/lionCompute.ts:153-155`
-      `low` · `motion` · `small effort`
-      Comments only. Whether to restore `curlAmp`, `repelStrength` and
-      `idleRotateDegPerSec` is an owner decision — idle rotation also drifts the
-      activate-dolly direction and the projected label geometry.
-
 - [x] `home-scene-masthead-repeats-the-wordmark-verbatim`
       the band's kicker restates the scene's, one screen apart
       **Do:** Drop `.brandKicker` from `HomeSignalLayer` so the scene reads wordmark + "Truth has a signal.", and let the band own the framing. Keep the masthead's `<h1>`, rule and lede — `.ai/DECISIONS.md` records the `<h1>` as the home route's only one. …
       `components/particle-nav/HomeSignalLayer.tsx:24-28`, `components/home/HomeFrontPage.tsx:90-95`, `components/home/home.module.css:249-288`
       `low` · `composition` · `small effort`
-
-- [x] `home-scene-scan-labels-are-arial`
-      the scene's canvas text names system faces directly
-      **Do:** Do not ship this as a drive-by. `.ai/DESIGN-V2.md:154-161, 313` makes the home scene's typographic voice an explicit open question for the user (Phase 5), so raise it as a decision. …
-      `components/particle-nav/layers/NetworkScan.tsx:240`, `components/particle-nav/layers/NetworkScan.tsx:242`, `components/particle-nav/layers/NetworkScan.tsx:404-412`, `scripts/particle-nav/make-poster.ts:98`
-      `low` · `typography` · `small effort`
-      **Closed: the safe half shipped, the face is an owner decision.** The two
-      literals are one named `SANS_STACK`, value unchanged, with the reasoning
-      written into `NetworkScan.tsx` above it. Everything left in this finding
-      is the choice of typeface, which this list is the wrong place to hold:
-      `.ai/DESIGN-V2.md` Phase 5 already carries the home scene's typographic
-      voice as an explicit, optional, non-blocking user decision, and the
-      finding's own recommendation is "do not ship this as a drive-by — raise
-      it as a decision". Leaving it open here only invites the same answer at
-      every triage.
-      Two things a future owner decision has to budget for, both verified:
-      pointing the scene at the loaded Geist Mono moves the whole glyph and
-      word-buffer construction behind `document.fonts.ready` — a real
-      scene-startup change needing a capture and a re-check of
-      `verify-composition.mjs`'s eight link bounds, since a mono face is wider
-      per character. And `scripts/particle-nav/make-poster.ts:98` still spells
-      `Arial, sans-serif` inline (out of this agent's scope); it only bites on a
-      re-bake, and a re-bake on a box without Arial is itself a substitution
-      risk. The poster's ground is already `#000000`, so nothing there is stale
-      navy.
 
 - [x] `home-scene-story-copy-exists-nowhere-but-the-intro`
       the twelve-beat argument is used once per tab and reused nowhere
@@ -984,7 +913,6 @@ Filed twice by two agents. Searching for the retired id should land here.
 
 | Filed as | Tracked above as |
 | --- | --- |
-| `cross-cutting-orbit-labels-nine-px` | `home-scene-orbit-labels-below-legibility-floor` |
 | `archive-brief-998-non-english-pages-are-served-as-lang-en` | `archive-lang-declared-english` |
 | `cross-cutting-archive-lang-declared-english` | `archive-lang-declared-english` |
 | `cross-cutting-error-page-cinzel` | `reading-system-error-page-is-a-preserved-v1-fossil` |
@@ -1008,10 +936,6 @@ Filed twice by two agents. Searching for the retired id should land here.
       later change to it needs a redeploy, not just an env edit.
 - [x] ~~**Repair `package-lock.json`.**~~ Done — it was blocking CI on
       every pull request, not only this one.
-- [x] **Phase 5 — home-scene orbit labels** is recorded in `.ai/DESIGN-V2.md`
-      as open and a user decision, not an audit finding. The audit's
-      `home-scene-orbit-labels-below-legibility-floor` is the in-place fix
-      that does not pre-empt it. **Closed here 2026-08-27: it is tracked in
-      `DESIGN-V2` where it belongs, and the owner engaged this exact surface
-      the same day — the node ring grew to fit the labels, and the hover
-      card now speaks Cinzel. The Phase 5 question remains DESIGN-V2's.**
+- [x] **Phase 5 — the home-scene navigation labels.** Closed 2026-08-27, then
+      made moot on 2026-09-01 when the radial navigation was deleted from the
+      project; the surface the question was about no longer exists.

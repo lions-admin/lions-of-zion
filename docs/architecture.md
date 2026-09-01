@@ -19,9 +19,9 @@ that meet at exactly two seams: the shared vocabulary in `server/contracts/**`,
 and one server-only reader, `lib/publications.ts`, through which the site
 renders published articles.
 
-**The experience** is a WebGPU particle site: a story intro that hands off to
-a crowned-lion radial navigation over a live network scan, and eight document
-routes behind it.
+**The experience** is an editorial site under a WebGPU particle intro: a story
+intro with the crowned lion that hands off to the editorial home, and eight
+document routes reached from the site header.
 
 **The information model** is a backend for ingesting sources, attaching
 evidence to claims, having a second human review an assessment, and publishing
@@ -34,7 +34,7 @@ states the boundaries as `no-restricted-imports` errors, so a violation fails
 ```mermaid
 flowchart TB
     subgraph FE["Frontend — app/**, components/**, lib/**"]
-        Home["Home route<br/>particle scene + front page"]
+        Home["Home route<br/>particle intro + editorial home"]
         Docs["8 file routes + /methodology + /corrections"]
         Admin["/admin — client dashboard"]
     end
@@ -90,10 +90,11 @@ checkout with its own `node_modules`.
 ### Route map
 
 `lib/site-navigation.ts` `SITE_NAVIGATION` is the **single source of truth**
-for the eight destinations. It feeds the home header, reading shell,
-`app/sitemap.ts`, and the particle scene's `defaultNodes` projection.
-Every node id must have a matching `app/<id>/page.tsx`; `SectionPage` throws
-on an unknown id.
+for the eight destinations. It feeds `SiteHeader`, the reading shell,
+`app/sitemap.ts` and the 404 index in `app/not-found.tsx`. There is no derived
+projection of it any more — the particle scene's `defaultNodes` was deleted
+with the radial navigation on 2026-09-01. Every id in `SITE_NAVIGATION` must
+have a matching `app/<id>/page.tsx`; `SectionPage` throws on an unknown id.
 
 | Route | Rendered by | Notes |
 | --- | --- | --- |
@@ -109,11 +110,10 @@ on an unknown id.
 | `/fake-resistance` (+ 5 child routes) | `SectionPage` | `accent="ember"`. A hub: two investigation branches hang beneath it |
 | `/we-are` | `SectionPage` | |
 | `/articles/[publicId]` | `EditorialShell` + `lib/publications.ts` | One published article, including its analysis-mode marking |
-| `/methodology`, `/corrections` | `components/sections/DocPage.tsx` | Outside `defaultNodes` on purpose |
+| `/methodology`, `/corrections` | `components/sections/DocPage.tsx` | Outside `SITE_NAVIGATION` on purpose |
 | `/information-war` | `components/briefs/InformationWarSystem.tsx` | Own layout |
 | `/pipeline` | `components/pipeline-visualizer` | Hebrew live-pipeline visualisation |
 | `/account`, `/admin`, `/admin/login` | own layouts | Sign-in and the Hebrew ops dashboard |
-| `/particle-demo` | own layout | Tuning harness; `disallow`ed in `robots.ts` |
 
 `app/error.tsx` and `app/not-found.tsx` complete the shell. There is
 deliberately **no** `app/loading.tsx` — see the note under the home route.
@@ -158,23 +158,26 @@ JavaScript", and the earlier entry it supersedes.
 
 ### The renderer
 
-`components/particle-nav/Scene.tsx` owns the only live renderer and the only
-timeline clock. Its mutable frame is shared by the lion, the TSL story text
-and the staged navigation reveal without React state per frame.
+`components/intro-scene/Scene.tsx` owns the only live renderer and the only
+timeline clock. Its mutable frame is shared by the lion, the TSL story text and
+the staged handoff without React state per frame. The directory was
+`components/particle-nav/` until 2026-09-01; it was renamed when the radial
+navigation it also carried was deleted, and its baking scripts moved from
+`scripts/particle-nav/` to `scripts/intro-scene/` at the same time.
 
 Invariants that hold today:
 
-- Every visible mark — scan rows, labels, platform symbols, lion, rings,
-  connectors, node icons — is particle geometry. No star field, no raster
-  background in the live scene.
-- The intro and the navigation share `public/particles/lion-v2-*.bin`; one
-  LNP1 bake across both acts, selected at 45k / 90k / 180k by performance tier.
-- `OrbitLayout` is the single responsive geometry contract shared by nodes,
-  connectors and projected DOM labels.
+- Every visible mark in the intro — the lion and the story text — is particle
+  geometry. No star field, no raster background in the live scene.
+- The lion is `public/particles/lion-v2-*.bin`; one LNP1 bake, selected at
+  45k / 90k / 180k by performance tier, rebuilt only with `bake:nav-lion`.
+- The scene is an entrance layer only: it unmounts at handoff and does not
+  remain behind the page.
 - The real `<a href>` elements own semantics, pointer input and keyboard
   focus. Canvas elements are presentation only.
-- The no-WebGL tier falls back to `public/posters/particle-nav.*` behind those
-  same links — there is no second set of fallback links.
+- The no-WebGL tier of the intro shows `public/posters/particle-nav.*`. That
+  poster is also the site OG image and the `/information-war` hero, which is
+  why it survived the removal of the navigation that named it.
 
 `components/intro/` holds only pure timeline data and CPU text-cloud sampling;
 it renders nothing.
@@ -203,8 +206,8 @@ what keeps reading order, screen readers and the no-JS page correct.
 
 `ScanBackdrop` continues the corpus outside the reading band, masked via
 `--content-w`. It has two surfaces: `viewport` (fixed, for reading pages) and
-`band` (sticky, for the home front page, where `fixed` would paint over the
-particle scene above it).
+`band` (sticky, for use inside a scrolling document, where `fixed` would paint
+over the content above it).
 
 ### Content
 
@@ -597,7 +600,9 @@ Two mechanisms exist, at different levels of readiness:
 ### Caching
 
 - `next.config.ts` sets `Cache-Control: public, max-age=31536000, immutable`
-  on `/particles/*` and `/icons/*` — content-addressed bake output.
+  on `/particles/*` and `/icons/*` — content-addressed bake output. Only
+  `/particles/*` still has a producer: `/icons/*` held the orbit node icons and
+  is no longer written to.
 - Every one of the 66 `/api/**` routes declares `runtime = "nodejs"`, and every
   one that answers a `GET` also declares `dynamic = "force-dynamic"`. Nothing in
   the API is cached by Next. The eight without it are the queue-trigger routes,
@@ -629,9 +634,8 @@ seeing a story that was just archived.
   from Postgres: `public-read-cache.ts` and `last-good-read.ts`. Losing either
   costs a re-read, never a fact. (The module `index.ts` memoisation holds a
   connection pool, not data.)
-- **Client:** the particle nav's `interactionMachine` plus the intro gate's
-  blocking state. The renderer's per-frame state is a mutable object
-  outside React entirely, by design.
+- **Client:** the intro gate's blocking state. The renderer's per-frame state
+  is a mutable object outside React entirely, by design.
 - **Chat has no client persistence** — and no client surface either: the four
   chat routes under `/api/v1/chat` are live and public, but nothing in
   `app/**` or `components/**` calls them.
@@ -754,7 +758,7 @@ rediscovered; none of them is fixed by this document.
 6. **~~CI cannot guard the no-JavaScript invariant.~~ Closed 2026-08-27** —
    and closed by building both of the Linux-safe fixes this entry proposed.
    `scripts/ci-smoke.mjs` now opens a `javaScriptEnabled: false` context and
-   asserts the home route renders at least 8 orbit links, a poster `<img>` and
+   asserts the home route renders its real server-side links, a poster `<img>` and
    **zero** `div[hidden][id^="S:"]` Suspense shells; `tests/no-js-invariant.test.ts`
    is the fast tripwire, and it covers `app/template.tsx` and `app/default.tsx`
    as well as `app/loading.tsx`, since all three wrap every route the same way.

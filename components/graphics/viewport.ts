@@ -194,6 +194,6 @@ export function fitComposition(aspect: number): {
  * What remains is the part that is still load-bearing: the composition
  * constants and the cover fit, which `tests/composition-fit.test.ts` asserts
  * as invariants rather than as a screenshot. The live scene runs at a
- * different camera (45°/8.2u, see `particle-nav/Scene.tsx`), so these numbers
+ * different camera (45°/8.2u, see `intro-scene/Scene.tsx`), so these numbers
  * describe the preserved intro's contract and not the navigation's.
  * ------------------------------------------------------------------ */

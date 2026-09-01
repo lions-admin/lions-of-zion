@@ -8,8 +8,8 @@ hard-coded values — three faces (Newsreader display, IBM Plex Sans text, Geist
 Mono data), seven size steps, six colours. Read `.ai/DESIGN-V2.md` before
 touching any of it. All styling lives in `content.module.css`.
 
-> Cinzel is **retired from every reading surface** and belongs to the home
-> particle scene only. Reintroducing it here reverses a documented decision
+> Cinzel is **retired from every reading surface** and belongs to the
+> cinematic intro scene only. Reintroducing it here reverses a documented decision
 > (`.ai/DECISIONS.md`, "Cinzel is retired from every reading surface").
 
 ## The evidence margin

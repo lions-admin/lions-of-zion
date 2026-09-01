@@ -8,7 +8,7 @@
  * server.
  *
  * Deliberately excluded, with reasons (see .design-sync/NOTES.md):
- *   - components/particle-nav/**  — WebGPU/TSL via `three/webgpu`, needs a real
+ *   - components/intro-scene/**  — WebGPU/TSL via `three/webgpu`, needs a real
  *     GPU and the baked `public/particles/*.bin` buffers. It cannot render in
  *     a headless preview, and it is a rendering engine rather than a
  *     design-system component.

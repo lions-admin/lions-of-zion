@@ -61,9 +61,9 @@ That's what a real design director does for an owner.
 A few things look like design rules but are facts about the machine. Fighting
 them doesn't produce bolder design, it produces a broken page:
 
-- The home scene's `position: fixed; inset: 0` is structural — the particle
-  scene and the document band below it depend on it.
-- `defaultNodes` labels are stored uppercase as identity; reading surfaces
+- The intro scene's `position: fixed; inset: 0` is structural — the entrance
+  overlay and the document beneath it depend on it.
+- `SITE_NAVIGATION` labels are stored uppercase as identity; reading surfaces
   use `displayName` because `text-transform: capitalize` renders
   "ISRAEL'S STORY" as "Israel'S Story". That's a correctness fact, not taste.
 - No root-level `loading.tsx`, ever — it silently kills the no-JavaScript
@@ -117,12 +117,12 @@ change that affects rendering:
 
 ### The verification trap (read before screenshotting the home page)
 
-The browser pane suspends `requestAnimationFrame` — **the particle scene
+The browser pane suspends `requestAnimationFrame` — **the particle intro
 renders as frozen black there and that is not a bug in your change.** Reading
 pages (all `/[section]` routes, archives, briefs) are ordinary DOM and verify
-fine in the pane. For anything on the home scene or intro, use the real-Chrome
-scripts: `node .claude/skills/verify-intro/capture.mjs`,
-`scripts/verify-composition.mjs` (the seven-viewport orbit contract),
+fine in the pane, and so is the editorial home once the intro has handed off.
+For the intro itself, use the real-Chrome scripts:
+`node .claude/skills/verify-intro/capture.mjs`, `scripts/final-verify.mjs`,
 `scripts/verify-doc-scroll.mjs`. They only run on this macOS workstation.
 
 ## Psychology of the design
@@ -176,8 +176,8 @@ not changing the system; it's values that answer to no system at all.
 
 - `npm run typecheck` and `npm run lint` pass.
 - The self-review pass ran, at three widths, states checked.
-- The right verify script ran if the change touched the home scene, intro,
-  or scroll behavior.
+- The right verify script ran if the change touched the intro or scroll
+  behavior.
 - Anything you overruled is named, and the doc that used to require it is
   updated.
 - The report says what was verified, what was not, and why — honestly.

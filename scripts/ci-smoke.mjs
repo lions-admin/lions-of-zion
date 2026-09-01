@@ -2,7 +2,7 @@
  * CI route smoke test — every real route returns 200 and logs no console
  * errors. Uses Playwright's own bundled Chromium, not the macOS-only
  * `/Applications/Google Chrome.app/...` path the real-Chrome composition
- * scripts (`final-verify.mjs`, `verify-composition.mjs`) hardcode — those
+ * scripts (`final-verify.mjs`, `verify-doc-scroll.mjs`) hardcode — those
  * are for the workstation only and will not run on a Linux CI runner.
  *
  * Deliberately modest: route availability and console errors only. Real
@@ -145,8 +145,15 @@ for (const route of ROUTES) {
  * Chrome on macOS — so on Linux this is the only guard there is.
  *
  * The home route is the test case because it is the one with the most to
- * lose: eight orbit links and the poster are the whole navigation for a
- * reader without scripting. */
+ * lose: the header's links and the poster are the whole navigation for a
+ * reader without scripting.
+ *
+ * This used to assert eight `a[data-node-index]` orbit links. The radial
+ * navigation was removed on 2026-09-01, so the assertion now reads the real
+ * header nav, which is what a reader without scripting actually gets. Note it
+ * is four section links plus Account, not eight — the header's "Explore"
+ * control is a button, so the remaining four destinations are reachable
+ * without scripting only from `/not-found` and the sitemap. */
 const noJs = await browser.newContext({ javaScriptEnabled: false, reducedMotion: "reduce" });
 const noJsPage = await noJs.newPage();
 const noJsResponse = await noJsPage.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
@@ -155,13 +162,15 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
   console.error(`FAIL /: HTTP ${noJsResponse?.status() ?? 0} with JavaScript disabled`);
   failed = true;
 } else {
-  const links = await noJsPage.locator("a[data-node-index]").count();
+  const links = await noJsPage
+    .locator('nav[aria-label="Primary navigation"] a[href^="/"]')
+    .count();
   const poster = await noJsPage.locator("picture img, img[src*='particle-nav']").count();
   const shell = await noJsPage.locator('div[hidden][id^="S:"]').count();
 
-  if (links < 8 || poster < 1 || shell > 0) {
+  if (links < 4 || poster < 1 || shell > 0) {
     console.error(
-      `FAIL / without JavaScript: ${links}/8 orbit links, ${poster} poster, ` +
+      `FAIL / without JavaScript: ${links}/4 header links, ${poster} poster, ` +
         `${shell} hidden Suspense shell(s).` +
         (shell > 0 ? " A root-level loading.tsx is the usual cause — see CLAUDE.md." : ""),
     );

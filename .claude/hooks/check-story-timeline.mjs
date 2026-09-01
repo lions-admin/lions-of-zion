@@ -29,7 +29,7 @@ const ROLLING = "components/intro/rolling-story-timeline.ts";
 // The renderer that emphasises beats by id. This moved when the intro and the
 // navigation were unified onto one canvas; a stale path here silently disabled
 // check 3 for months, so an unreadable SCENE is now a hard error, not a skip.
-const SCENE = "components/particle-nav/layers/IntroText.tsx";
+const SCENE = "components/intro-scene/layers/IntroText.tsx";
 
 const out = (obj) => {
   process.stdout.write(JSON.stringify(obj));

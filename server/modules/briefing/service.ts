@@ -771,7 +771,7 @@ function dailyAsContent(brief: DraftDailyBrief): DraftContent {
     summary: brief.summary,
     evidenceIds: brief.evidenceIds,
     claims: brief.claims,
-    passages: allDailyPassages(brief),
+    passages: dedupeDraftPassages(allDailyPassages(brief)),
   };
 }
 
@@ -786,7 +786,26 @@ function qualityCandidate(
   content: DraftContent,
   section: QualityCandidate["section"],
 ): QualityCandidate {
-  return { ...content, key, section, body: bodyFromPassages(content.passages) };
+  const passages = dedupeDraftPassages(content.passages);
+  return { ...content, key, section, passages, body: bodyFromPassages(passages) };
+}
+
+/** Small drafting models sometimes restate the same source claim several
+ * times with slightly different wording. Keep the first traceable passage;
+ * preserve distinct evidence or genuinely different explanations. */
+export function dedupeDraftPassages(passages: readonly DraftPassage[]): DraftPassage[] {
+  const kept: DraftPassage[] = [];
+  for (const passage of passages) {
+    const words = meaningfulWords(passage.text);
+    const evidenceIds = new Set(passage.evidenceIds);
+    const duplicate = kept.some((existing) => {
+      if (existing.claimIndex !== passage.claimIndex) return false;
+      if (![...evidenceIds].some((id) => existing.evidenceIds.includes(id))) return false;
+      return jaccard(words, meaningfulWords(existing.text)) >= 0.58;
+    });
+    if (!duplicate) kept.push(passage);
+  }
+  return kept;
 }
 
 function bodyFromPassages(passages: readonly DraftPassage[]): string {
@@ -797,7 +816,7 @@ function publicationPassages(
   passages: readonly DraftPassage[],
   claimItems: readonly { id: string }[],
 ): NonNullable<CreatePublication["passages"]> {
-  return passages.map((passage) => ({
+  return dedupeDraftPassages(passages).map((passage) => ({
     text: passage.text,
     itemId: claimItems[passage.claimIndex]?.id,
     evidenceIds: passage.evidenceIds,
@@ -969,9 +988,10 @@ export function normalizeEditionForQuality(
   edition: z.infer<typeof editionSchema>,
   evidence: ReadonlyMap<string, BriefingEvidence>,
 ): z.infer<typeof editionSchema> {
+  const dailyBrief = dedupeDailyBriefPassages(normalizeDailyBriefOfficialContext(edition.dailyBrief, evidence));
   return {
     ...edition,
-    dailyBrief: normalizeDailyBriefOfficialContext(edition.dailyBrief, evidence),
+    dailyBrief,
     articles: edition.articles.map((article) => {
       const rows = article.evidenceIds.flatMap((id) => {
         const entry = evidence.get(id);
@@ -1017,6 +1037,7 @@ export function normalizeEditionForQuality(
         : article.title;
       return {
         ...article,
+        passages: dedupeDraftPassages(article.passages),
         title: publicTitle,
         section,
         claims,
@@ -1025,6 +1046,21 @@ export function normalizeEditionForQuality(
         narrativeWatchDetails,
       };
     }),
+  };
+}
+
+function dedupeDailyBriefPassages(brief: DraftDailyBrief): DraftDailyBrief {
+  return {
+    ...brief,
+    situation: { ...brief.situation, passages: dedupeDraftPassages(brief.situation.passages) },
+    keyEvents: { ...brief.keyEvents, passages: dedupeDraftPassages(brief.keyEvents.passages) },
+    israeliPosition: brief.israeliPosition
+      ? { ...brief.israeliPosition, passages: dedupeDraftPassages(brief.israeliPosition.passages) }
+      : null,
+    internationalResponses: brief.internationalResponses
+      ? { ...brief.internationalResponses, passages: dedupeDraftPassages(brief.internationalResponses.passages) }
+      : null,
+    watchPoints: { ...brief.watchPoints, passages: dedupeDraftPassages(brief.watchPoints.passages) },
   };
 }
 

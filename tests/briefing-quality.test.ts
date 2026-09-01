@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { evaluateCandidate, type QualityCandidate, type QualityEvidence } from "@/server/modules/briefing/quality";
+import { dedupeDraftPassages } from "@/server/modules/briefing/service";
 
 const evidence: QualityEvidence[] = [
   {
@@ -46,6 +47,17 @@ const candidate: QualityCandidate = {
 };
 
 describe("briefing quality gate", () => {
+  it("removes near-duplicate passages for the same traced claim", () => {
+    const passages = dedupeDraftPassages([
+      { text: "The ministry published a regional security update after its Sunday meeting.", claimIndex: 0, evidenceIds: [evidence[0]!.id] },
+      { text: "The ministry published a new regional security update following its Sunday meeting.", claimIndex: 0, evidenceIds: [evidence[0]!.id] },
+      { text: "The statement is an official account and independent reporting was not present in this packet.", claimIndex: 0, evidenceIds: [evidence[0]!.id] },
+    ]);
+    expect(passages).toHaveLength(2);
+    expect(passages[0]?.text).toContain("regional security update");
+    expect(passages[1]?.text).toContain("independent reporting");
+  });
+
   it("allows a narrowly attributed primary official report", () => {
     const result = evaluateCandidate(candidate, new Map(evidence.map((row) => [row.id, row])));
     expect(result.passed).toBe(true);

@@ -105,6 +105,11 @@ export function Reveal({
       return;
     }
 
+    /* Arming cancels the un-hydrated failsafe. Reaching this line is the
+       proof the failsafe was insuring against, and `armed` looks exactly
+       like `pending`, so nothing moves. */
+    element.dataset.reveal = "armed";
+
     return observe(element);
   }, []);
 

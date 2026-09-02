@@ -12,9 +12,19 @@
  *      applies at all, so the server's markup is simply visible. This is why
  *      the initial state lives in a media query instead of on the base class.
  *   2. `prefers-reduced-motion: no-preference` — same escape, for §21.
- *   3. `revealFailsafe` — if hydration is slow or never lands, the content
- *      arrives anyway after four seconds. An entrance animation must never be
- *      the reason a paragraph is unreadable.
+ *   3. `revealFailsafe` — if hydration never lands, the content arrives
+ *      anyway after four seconds. An entrance animation must never be the
+ *      reason a paragraph is unreadable.
+ *
+ * The three states are `pending` (server HTML, not yet hydrated), `armed`
+ * (hydrated, observer watching, still hidden) and `shown`. The middle one
+ * exists because the failsafe is a *timer*: while it was attached to
+ * `pending` it fired four seconds after load for every element on the page,
+ * including everything still below the fold, so anything a reader had not
+ * reached by then was already at opacity 1 and never animated at all. Arming
+ * on mount cancels the timer for the only case that can no longer need it —
+ * the one where JavaScript is demonstrably running — and leaves it in place
+ * for the case it was written for.
  */
 
 .reveal {
@@ -40,10 +50,15 @@
 .none { --reveal-shift: 0rem; }
 
 @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-  .reveal[data-reveal="pending"] {
+  .reveal[data-reveal="pending"],
+  .reveal[data-reveal="armed"] {
     opacity: 0;
     filter: blur(var(--reveal-blur));
     transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
+  }
+
+  /* Only the un-hydrated state is on a clock. */
+  .reveal[data-reveal="pending"] {
     animation: revealFailsafe var(--dur-enter) var(--ease-out) 4s forwards;
   }
 }

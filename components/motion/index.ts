@@ -23,8 +23,5 @@ export type { TickerProps } from "./Ticker";
 export { ShinyText } from "./ShinyText";
 export type { ShinyTextProps } from "./ShinyText";
 
-export { Spotlight } from "./Spotlight";
-export type { SpotlightProps } from "./Spotlight";
-
 export { ProgressiveBlur } from "./ProgressiveBlur";
 export type { ProgressiveBlurProps } from "./ProgressiveBlur";

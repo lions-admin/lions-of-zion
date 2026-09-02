@@ -1,7 +1,9 @@
 # `components/motion` — the motion primitive library
 
-Seven behaviours adapted from [Magic UI](https://magicui.design) in September
-2026, rewritten against this project's V3 tokens and CSS Modules.
+Six behaviours adapted from [Magic UI](https://magicui.design) in September
+2026, rewritten against this project's V3 tokens and CSS Modules. A seventh,
+`Spotlight` (from `magic-card`), was built, integrated, and then removed —
+see below.
 
 ## Why nothing was installed
 
@@ -34,8 +36,30 @@ server. **Dependencies added: none.**
 | `SignalBeam` | `animated-beam` | measure two elements against a container, quadratic Bézier, re-measure on resize | The travelling light is `pathLength="1"` + a CSS `stroke-dashoffset` walk, not a `motion`-driven `<linearGradient>`. Reads as a packet on a wire rather than a shine, and costs no JS after mount. Resize is rAF-batched |
 | `Ticker` | `number-ticker` | count to value when scrolled into view | rAF + easeOutExpo instead of `motion`'s spring. **The SSR output is the final value**, not `startValue` — the original sends `0` to crawlers, to no-JS readers and to the accessibility tree |
 | `ShinyText` | `animated-shiny-text` | `background-clip: text` sweep, mostly at rest | Timing kept verbatim (`0%,90%,100%` rest / `30%–60%` pass). Base colour moved onto the element so the label is legible with the animation gone |
-| `Spotlight` | `magic-card` | pointer-tracked radial gradient on surface and border | `motion`'s three springs and `next-themes` dropped; two custom properties written straight to the style attribute. 5% ink, not a 200px violet gradient. No listener at all on coarse pointers |
 | `ProgressiveBlur` | `progressive-blur` | stacked `backdrop-filter` layers under offset masks | 8 layers → 5, and the masks moved from inline styles into `nth-child` rules. Eight full-surface blur reads per frame over a live WebGPU scene was the cost that mattered |
+
+## Built, then removed
+
+**`Spotlight`** (`magic-card`) was ported in full — pointer-tracked radial
+gradients on surface and border, at 5% ink, with no listener on coarse
+pointers — and then deleted, because integration found it nowhere to live:
+
+* `components/ui/Card` has **zero call sites**. The card that actually ships
+  is `components/content/ContentCard`.
+* `ContentCard` is a non-interactive `<article>` at both its call sites.
+  A cursor spotlight on static editorial text is the SaaS-tile failure the
+  brief's §7 names by hand.
+* The `/fake-resistance` branch cards are the one genuinely interactive card
+  on the site, and they already carry a complete hover and focus treatment:
+  a 2px lift, hairline brightened to `--line-strong`, the ember top rule
+  brightened to its peak, surface raised a level, `--shadow-1` to
+  `--shadow-2`, and the title to `--gold-hi`. A 5% wash under that is
+  redundant, and would need a third wrapper element around an anchor already
+  wrapped for `Reveal`.
+* `/october-7` and `/our-heroes` are governed by §13 restraint.
+
+Keeping it would have meant shipping a Magic UI port that renders on no page
+— which is the residue the brief's §J asks to be swept up at the end.
 
 ## Rejected, and why
 

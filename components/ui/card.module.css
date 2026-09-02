@@ -79,26 +79,6 @@
   border-top: 0;
 }
 
-/* ── Spotlight host (opt-in, `spotlight` prop) ───────────────────────── */
-
-/* `components/motion/Spotlight` wraps the card rather than reaching into it,
-   so the card keeps its own border, radius, padding and variants and nothing
-   about its appearance at rest changes. Two things are needed from this side,
-   and both are structural rather than decorative:
-
-   1. The wrapper becomes the flow item — the grid or flex child the card used
-      to be. A single-child grid passes the full box straight through, so a
-      card in an equal-height row still stretches and `.footer`'s `margin-top:
-      auto` still pins the footer to the bottom. `display: block` would leave
-      the card at content height inside a stretched wrapper.
-   2. Spotlight's two layers take `border-radius: inherit`, and they inherit
-      from the wrapper, not from the card. Without this the surface wash and
-      the border arc would be square around an 8px card. */
-.spotHost {
-  display: grid;
-  border-radius: var(--radius-3);
-}
-
 /* ── Header & eyebrow ────────────────────────────────────────────────── */
 
 .header {

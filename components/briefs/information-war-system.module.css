@@ -374,7 +374,11 @@
   align-items: center;
 }
 
+/* `position: relative` so the measured beams, which are absolutely
+   positioned, take this box as their containing block. Being out of flow
+   they are not grid items and create no implicit tracks. */
 .sourceDiagram {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr minmax(5rem, 0.5fr) 1fr;
   align-items: stretch;
@@ -448,8 +452,18 @@
   --angle: 15deg;
 }
 
+/* The fan above is an approximation — two fixed angles for five rows, and
+   the lines stop short of the origin. It is what the no-JavaScript tier
+   gets, and it is honest enough there. Once `SourceConvergenceBeams` has
+   measured the real geometry the accurate wires exist, so the approximation
+   stands down rather than being drawn underneath them. */
+.sourceDiagram[data-beams="on"] .convergence span::before {
+  opacity: 0;
+}
+
 /* One origin. The blue ramp: the stream that was actually verified. */
 .origin {
+  position: relative;
   display: grid;
   place-content: center;
   padding: var(--sp-6);
@@ -468,6 +482,20 @@
   letter-spacing: var(--t-data-tracking);
   line-height: var(--t-data-lh);
   text-transform: uppercase;
+}
+
+/* The convergence point. Five ember marks on the copies, one blue mark
+   here — so the wires land on a point on the edge instead of running into
+   the box and crossing its type. */
+.originMark {
+  position: absolute;
+  top: 50%;
+  left: -0.5rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: -0.275rem;
+  border-radius: 50%;
+  background: var(--data-blue);
 }
 
 .origin strong {
@@ -493,6 +521,14 @@
   top: var(--sp-9);
 }
 
+/* The beams' measured host. A plain positioned block: the list keeps its
+   own layout, and the wrapper exists only so the SVGs have a containing
+   block that is not the sticky column's grid track. */
+.systemFlowHost {
+  position: relative;
+  min-width: 0;
+}
+
 .systemFlow {
   position: relative;
   margin: 0;
@@ -500,12 +536,19 @@
   list-style: none;
 }
 
+/* The rail is the wire, and it is CSS because it needs no measurement and
+   no JavaScript: it is present for a reader with scripting off and under
+   reduced motion, which is where the diagram's meaning has to survive. Its
+   left edge is the stage marks' centre — `.node` is a 3rem track with
+   `justify-items: center` and a 1rem mark, so that centre is at 1.5rem, and
+   the half-pixel centres the 1px rule on it. It read 1.3rem before, which
+   put the rail three pixels off the marks it threads. */
 .systemFlow::before {
   content: "";
   position: absolute;
   top: var(--sp-4);
   bottom: var(--sp-6);
-  left: 1.3rem;
+  left: calc(1.5rem - 0.5px);
   width: 1px;
   background: linear-gradient(var(--gold), var(--line-strong));
 }
@@ -570,6 +613,23 @@
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
+}
+
+/* ── Measured beams ───────────────────────────────────────────────────── */
+
+/* The flow's wire is `.systemFlow::before` above, so these beams carry the
+   packet only and their own track is suppressed — one wire, drawn by
+   whichever mechanism draws it better, and never two stacked a few pixels
+   apart. Under `prefers-reduced-motion` the packet removes itself and what
+   is left is exactly the diagram as it was. */
+.flowBeam {
+  --beam-track-width: 0;
+}
+
+/* The convergence is the opposite: here the beam's own track is the
+   accurate line, so it stays and the CSS fan hides. */
+.convergeBeam {
+  --beam-packet-width: 1.4;
 }
 
 /* ── The output ───────────────────────────────────────────────────────── */

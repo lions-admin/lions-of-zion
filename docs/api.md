@@ -230,7 +230,17 @@ GET /api/v1/search?q=…&entityType=information_item&limit=25
 ```json
 {
   "query": "…",
-  "hits": [ { "documentId": "…", "entityType": "…", "entityId": "…", "title": "…", "score": 0.031 } ],
+  "hits": [
+    {
+      "documentId": "…",
+      "entityType": "brief",
+      "entityId": "…",
+      "publicId": "what-we-know-…-x9y8z",
+      "href": "/articles/what-we-know-…-x9y8z",
+      "title": "…",
+      "score": 0.031
+    }
+  ],
   "semantic": false
 }
 ```
@@ -238,8 +248,20 @@ GET /api/v1/search?q=…&entityType=information_item&limit=25
 Anonymous by design: the projection contains only indexable material —
 restricted and secret evidence is refused a row at all by `isIndexable()`.
 
-**Not rate limited.** A `SEARCH_QUERIES` policy (120 per 60s) is declared in
-`server/core/rate-limit.ts` and is not referenced by any route.
+**Rate limited**, contrary to what this said until 2026-09-02: the route calls
+`rateLimit(bucketFor(request, "search"), SEARCH_QUERIES)` — 120 per 60s — on
+top of the ambient `PUBLIC_API_READS` (600 per 60s) that `handler.ts` applies
+to every anonymous GET.
+
+`publicId` and `href` were added on 2026-09-02 (migration
+`0048_search_destination`) and are the reason a hit is now usable. Before them
+a result carried `entityType` + `entityId` and nothing public could resolve
+either: `published-publications` filters on `public_id`, not on a uuid, and no
+route mapped one to the other. **`href` is nullable and the null is
+load-bearing** — an `information_item` has a public id and no page anywhere,
+and a publication is addressable only when it carries a `briefing_run_id`,
+because `/articles/[publicId]` is briefing-only. A client that builds a URL out
+of `publicId` will manufacture 404s; render an unreachable hit as unreachable.
 
 `score` is a Reciprocal Rank Fusion score, comparable *within* one result set
 and meaningless outside it. It is not a percentage and not a confidence, and
@@ -298,6 +320,28 @@ Chat **does not stream tokens**, and that is the point: a citation must have
 been retrieved before the sentence containing it is shown, and the database
 enforces that with a CHECK. Citations come from a structured tail, not from
 inline markers.
+
+A citation carries `{ documentId, quote, title, href }`. `title` and `href` were
+added on 2026-09-02 and are resolved from the search projection at read time,
+not copied into `chat_citation`: the citation must keep naming the document it
+named, while the document's title and location belong to the projection. Both
+are nullable — a document that has since left the index, or one an anonymous
+reader's RLS policy hides, resolves to neither, and the transcript renders the
+citation without a link rather than inventing one.
+
+> **Privacy defect, unfixed: `GET /api/v1/chat/threads` must not be built on.**
+> It applies no creator filter of its own. What keeps one anonymous caller out
+> of another's transcript is the `chat_thread_public_own` RLS policy, which
+> matches `created_by_label` against `app.identity` — and `app.identity` is
+> `anonymous:<HMAC of the caller's IP>`. Everyone behind one household router,
+> one office NAT or one carrier's CGNAT is therefore one identity, and this
+> endpoint will list them each other's conversations. `/ask` holds its thread
+> id in the browser and never calls it. The same mechanism has a second,
+> visible consequence: a thread is only reachable from the network that created
+> it, so changing network 404s the transcript.
+
+> **Correction, 2026-09-02:** the note below said no public page mounts a chat
+> client. `/ask` does, through `components/ask/`.
 
 > **Gap — half closed 2026-08-27.** This said every public chat message would
 > fail in production because `requireActor` throws regardless of the client's

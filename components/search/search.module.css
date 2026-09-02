@@ -1,0 +1,646 @@
+/* Search · design V3
+ *
+ * The instrument reads as an index, not a spotlight. Every result sits against
+ * a numbered gutter with a hairline running down it, group heads carry a
+ * two-digit count, and the ordinals are set in the data face — the same
+ * `01—08` vocabulary the site header's file index already speaks. That gutter
+ * is the one bold element here; everything else is deliberately quiet, because
+ * the list is the content and the panel is furniture.
+ *
+ * Type roles: the query is set in the display serif (a person is composing
+ * into an editorial corpus, and it wants that weight), result titles in the
+ * same serif one step down, and everything that is metadata — kind, path,
+ * ordinal, count, key hints — in the data face. Nothing is invented: every
+ * value below reads a token from `app/globals.css`.
+ *
+ * No `z-index` fight: the overlay is a native `<dialog>` in the browser's top
+ * layer. `--z-modal` is set anyway, so that a `showModal()` that never ran
+ * still lands above the page rather than under it.
+ */
+
+/* ── The overlay ──────────────────────────────────────────────────────── */
+
+.dialog:not([open]) {
+  display: none;
+}
+
+.dialog[open] {
+  display: grid;
+  align-items: start;
+  justify-items: center;
+  inline-size: 100vw;
+  max-inline-size: 100vw;
+  block-size: 100dvh;
+  max-block-size: 100dvh;
+  margin: 0;
+  padding: clamp(var(--sp-5), 9vh, var(--sp-9)) var(--sp-5) var(--sp-5);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  overflow: auto;
+  overscroll-behavior: contain;
+  z-index: var(--z-modal);
+}
+
+.dialog::backdrop {
+  background: var(--glass-bottom);
+  backdrop-filter: blur(10px) saturate(0.85);
+}
+
+/* ── The panel ────────────────────────────────────────────────────────── */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  font-family: var(--face-text);
+  color: var(--ink);
+}
+
+.panel[data-variant="overlay"] {
+  max-inline-size: 46rem;
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+
+/* No width of its own on the page: `sections.module.css` already caps the
+   reading column at `--reading-w` (68ch), so declaring `--measure-wide` here
+   would be a number the layout can never honour — a value answering to no
+   system, which is how a second one starts. */
+.panel[data-variant="page"] {
+  inline-size: 100%;
+}
+
+/* ── The query row ────────────────────────────────────────────────────── */
+
+.queryRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.panel[data-variant="page"] .queryRow {
+  padding-inline: 0;
+  border-bottom-color: var(--line);
+}
+
+.queryLabel {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.queryInput {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  min-block-size: var(--control-h);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+  font-optical-sizing: auto;
+}
+
+.queryInput::placeholder {
+  color: var(--ink-lo);
+}
+
+.queryInput:focus,
+.queryInput:focus-visible {
+  outline: none;
+}
+
+/* The focus ring belongs to the row, not to a borderless input inside it —
+   otherwise the outline traces a box the reader cannot see the edges of. */
+.queryRow:focus-within {
+  outline: var(--focus-outline);
+  outline-offset: calc(var(--focus-offset) * -1);
+  border-radius: var(--radius-2);
+}
+
+/* Safari draws its own decorations on `type="search"`; they are a second,
+   unstyled clear button beside ours. */
+.queryInput::-webkit-search-decoration,
+.queryInput::-webkit-search-cancel-button,
+.queryInput::-webkit-search-results-button {
+  appearance: none;
+}
+
+.dismiss {
+  flex: 0 0 auto;
+  min-block-size: var(--control-h-sm);
+  padding: 0 var(--sp-2);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.dismiss:hover {
+  color: var(--ink-hi);
+  border-color: var(--line-strong);
+  background: var(--tint-hover);
+}
+
+/* A running indicator, not a progress bar: the request reports no progress,
+   so a filling bar would be a fabricated measurement. */
+.pulse {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: calc(var(--line-w) * -1);
+  block-size: var(--line-w-thick);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.pulse[data-running] {
+  opacity: 1;
+}
+
+.pulse::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inline-size: 22%;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  animation: sweep 1.15s var(--ease-in-out) infinite;
+}
+
+@keyframes sweep {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(560%); }
+}
+
+/* ── Results ──────────────────────────────────────────────────────────── */
+
+.results {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: var(--sp-2);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.panel[data-variant="overlay"] .results {
+  max-block-size: min(58dvh, 32rem);
+}
+
+/* A newer query is in flight. The list dims rather than emptying: an emptying
+   list flickers, and the flicker reads as slower than the request is. */
+.results[data-stale] {
+  opacity: 0.45;
+}
+
+.emptyListbox {
+  display: none;
+}
+
+.group + .group {
+  margin-block-start: var(--sp-4);
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5) var(--sp-2) calc(var(--sp-5) + 3.25rem);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.panel[data-variant="page"] .groupHead {
+  padding-inline: 0 0;
+  padding-inline-start: 3.25rem;
+}
+
+.groupCount {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+/* ── One result ───────────────────────────────────────────────────────── */
+
+.hit {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr auto;
+  align-items: start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  text-decoration: none;
+  color: inherit;
+  scroll-margin-block: var(--sp-5);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.panel[data-variant="page"] .hit {
+  padding-inline: 0;
+}
+
+/* The gutter, and the site's file-index voice: a two-digit ordinal against a
+   hairline that runs the length of the list. */
+.hitOrdinal {
+  position: relative;
+  padding-inline-end: var(--sp-3);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: 1.9;
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.hitOrdinal::after {
+  content: "";
+  position: absolute;
+  inset-block: -0.35rem;
+  inset-inline-end: 0;
+  inline-size: var(--line-w);
+  background: var(--line-soft);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.hitBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-inline-size: 0;
+}
+
+.hitTitle {
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink);
+  text-wrap: pretty;
+  font-optical-sizing: auto;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.hitMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.hitPath {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink-lo);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-inline-size: 24ch;
+}
+
+/* The honest half of the result list: this record is in the index and has no
+   page to open. Stated, never hidden and never linked to a 404. */
+.hitUnreachable {
+  padding: 0 var(--sp-2);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  color: var(--ink-lo);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.hitArrow {
+  align-self: center;
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  color: var(--ink-lo);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.hitInert {
+  cursor: default;
+}
+
+/* Active — the keyboard's selection and the pointer's hover are one state.
+   No filled bar: the gutter rule goes gold, the ordinal with it, and the
+   surface lifts a single level. */
+.hit[data-active] {
+  background: var(--surface-2);
+}
+
+.hit[data-active] .hitTitle {
+  color: var(--ink-hi);
+}
+
+.hit[data-active] .hitOrdinal {
+  color: var(--gold);
+}
+
+.hit[data-active] .hitOrdinal::after {
+  background: var(--gold);
+}
+
+.hit[data-active] .hitArrow {
+  opacity: 1;
+  color: var(--gold);
+}
+
+/* An unreachable row still shows where the keyboard is, but never in the
+   colour that means "this opens". */
+.hitInert[data-active] .hitOrdinal {
+  color: var(--ink);
+}
+
+.hitInert[data-active] .hitOrdinal::after {
+  background: var(--line-strong);
+}
+
+.hit:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: calc(var(--focus-offset) * -1);
+}
+
+/* ── Notices: primer, empty, error ────────────────────────────────────── */
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-5);
+  max-inline-size: var(--measure-narrow);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.panel[data-variant="page"] .notice {
+  padding-inline: 0;
+}
+
+.noticeLead {
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  font-optical-sizing: auto;
+}
+
+.notice[data-tone="alert"] .noticeLead {
+  color: var(--state-warn);
+}
+
+.retry {
+  align-self: flex-start;
+  margin-block-start: var(--sp-2);
+  min-block-size: var(--control-h-sm);
+  padding: 0 var(--sp-4);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.retry:hover {
+  background: var(--tint-hover);
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  border-top: var(--line-w) solid var(--line-soft);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
+}
+
+.panel[data-variant="page"] .foot {
+  padding-inline: 0;
+  border-top-color: var(--line);
+}
+
+.footFact {
+  max-inline-size: var(--measure-caption);
+}
+
+.footKeys {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.footKeys kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.4rem;
+  padding: 0 var(--sp-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--ink);
+}
+
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── The launcher ─────────────────────────────────────────────────────── */
+
+.launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-block-size: var(--control-h-sm);
+  padding: 0 var(--sp-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.launcher:hover {
+  color: var(--ink-hi);
+  border-color: var(--line-strong);
+  background: var(--tint-hover);
+}
+
+.launcherGlyph {
+  display: inline-flex;
+  color: inherit;
+}
+
+.launcherHint {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  padding-inline-start: var(--sp-2);
+  border-inline-start: var(--line-w) solid var(--line-soft);
+}
+
+.launcher[data-variant="icon"] .launcherLabel,
+.launcher[data-variant="icon"] .launcherHint {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.launcher[data-variant="icon"] {
+  min-inline-size: var(--control-h-sm);
+  justify-content: center;
+  padding: 0;
+}
+
+/* ── The page's no-JavaScript state ───────────────────────────────────── */
+
+.noScript {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.noScriptIndex {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.noScriptIndex a {
+  color: var(--ink-hi);
+}
+
+/* An instrument that cannot run should not be shown. Without scripting the
+   input below is inert, and a dead control is worse than an explanation —
+   the same reasoning as the header's static index. */
+@media (scripting: none) {
+  .panel {
+    display: none;
+  }
+}
+
+/* ── Narrow ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 45rem) {
+  .dialog[open] {
+    padding: 0;
+  }
+
+  .panel[data-variant="overlay"] {
+    max-inline-size: 100%;
+    min-block-size: 100dvh;
+    border: 0;
+    border-radius: 0;
+    padding-block-start: env(safe-area-inset-top);
+  }
+
+  .panel[data-variant="overlay"] .results {
+    max-block-size: none;
+    flex: 1 1 auto;
+  }
+
+  .hit,
+  .groupHead,
+  .notice,
+  .foot,
+  .queryRow {
+    padding-inline: var(--sp-4);
+  }
+
+  .hit {
+    grid-template-columns: 2.5rem 1fr auto;
+    min-block-size: var(--control-h);
+  }
+
+  .footKeys {
+    display: none;
+  }
+}
+
+/* Coarse pointers get no hover-only affordance. */
+@media (hover: none) {
+  .hitArrow {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse::after {
+    animation: none;
+    inline-size: 100%;
+    background: var(--gold-dim);
+  }
+}

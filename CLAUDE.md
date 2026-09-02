@@ -121,11 +121,12 @@ production base on every push, in parallel with the gate job; the exhaustive
 `scripts/final-verify.mjs` covers intro handoff, keyboard, WebGPU, forced
 WebGL2, no-JavaScript fallback, overlays, and console errors.
 `scripts/ci-smoke.mjs` is the exception: it uses Playwright's own bundled
-Chromium and is what CI runs. It walks **23 routes** — 17 hand-written in
-`ROUTES`, plus 5 archive records and 1 research case derived from the package
+Chromium and is what CI runs. It walks **25 routes** — 19 hand-written in
+`ROUTES` (17 until 2026-09-02, when `/search` and `/ask` joined them), plus 5
+archive records and 1 research case derived from the package
 indexes — asserting route availability and console errors on each, and then
 loads `/` once more with JavaScript disabled. The archive half is derived;
-**the 17 are hand-maintained, so a new section route is smoke-tested only if
+**the 19 are hand-maintained, so a new section route is smoke-tested only if
 someone remembers to add it**, and `/particle-demo` never is.
 
 **CI does guard the no-JavaScript invariant, as of 2026-08-27.** This section
@@ -367,9 +368,13 @@ static index set it that way as identity; **reading surfaces use
 - **Two `app/` subtrees are not otherwise described here.**
   `app/admin/**` is a Hebrew ops dashboard behind Neon Auth
   (`/admin`, `/admin/login`), reading `GET /api/v1/admin/status`.
-  `app/auth/x/**` is a public X OAuth2 begin/callback/signout trio. The public
-  chat launcher and its X sign-in affordance were removed from the site shell;
-  these routes remain backend entry points. Both import
+  `app/auth/x/**` is a public X OAuth2 begin/callback/signout trio. The old
+  chat launcher and its X sign-in affordance were removed from the site shell,
+  and `app/auth/x/**` remains a backend entry point with no page behind it.
+  (The *chat API* is public again as of 2026-09-02: `/ask` mounts
+  `components/ask/`, which holds its thread id in the browser and never calls
+  `GET /api/v1/chat/threads` — see the privacy note in `docs/api.md`. It has no
+  connection to X sign-in.) Both import
   `@/server/modules/public-x-auth` under a purpose-written carve-out in
   `eslint.config.mjs`. Three things about this are unresolved rather than
   designed: the feature went from `chore(auth): quarantine unfinished X

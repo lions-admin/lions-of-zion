@@ -14,7 +14,11 @@ import { encodePublicPublicationCursor } from "@/server/contracts/publication";
 // prerendered sitemap from surviving at the CDN layer.
 export const dynamic = "force-dynamic";
 
-const DOC_PAGES = ["/methodology", "/corrections", "/information-war"];
+/* `/search` and `/ask` are instruments rather than documents, but they are
+   entry points a reader should be able to find, and neither has a query in its
+   canonical URL — the results a query produces are not pages and are not
+   listed. */
+const DOC_PAGES = ["/methodology", "/corrections", "/information-war", "/search", "/ask"];
 const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
 /** The two investigation branches the Fake Resistance hub opens onto. */
 const BRANCH_INDEXES = [

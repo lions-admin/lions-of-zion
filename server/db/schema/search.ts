@@ -45,6 +45,20 @@ export const searchDocument = pgTable(
     body: text("body").notNull(),
     language: text("language").notNull(),
 
+    /* ── Where the hit goes ──────────────────────────────────────────────
+       A result the reader cannot open is not a result. These two are written
+       by the same reindex that writes the text, so resolving a hit costs no
+       second query and no UNION over differently-shaped tables — the reason
+       this table is denormalised in the first place.
+
+       Both are nullable, and honestly so: `public_id` is absent for entities
+       that have none, and `href` is null whenever the entity has no public
+       page — every `information_item` today, and any publication without a
+       `briefing_run_id`, which `/articles/[publicId]` 404s. Migration 0048
+       carries the full argument. */
+    publicId: text("public_id"),
+    href: text("href"),
+
     tsSimple: tsvector("ts_simple").generatedAlwaysAs(
       sql`to_tsvector('simple', title || ' ' || body)`,
     ),

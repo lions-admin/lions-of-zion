@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import { freshDatabase, hasVectorDatabase, type TestDatabase } from "@/server/db/testing";
 import { searchService } from "@/server/modules/search/service";
 import { searchRepo } from "@/server/modules/search/repo";
+import { projectPublication } from "@/server/modules/search/projection";
 import { itemService } from "@/server/modules/items/service";
 import { consumerFor } from "@/server/jobs/consumers";
 import { outbox, searchDocument } from "@/server/db/schema";
@@ -140,6 +141,78 @@ describe("search_hybrid", () => {
     expect((await svc.search({ q: "border", entityType: "evidence", limit: 10 })).hits).toEqual([]);
   });
 
+  it("returns the destination alongside the hit, so a result can be opened", async () => {
+    /* The defect this closes: `entity_type` + `entity_id` are the only
+       identifiers a hit used to carry, and nothing public resolves either —
+       `published-publications` takes a `public_id`, not a uuid, and there is
+       no route at all from an internal id to a URL. Every result was a title
+       with nowhere to go. */
+    const db = await freshDatabase();
+    await searchRepo(db).upsert(
+      projectPublication({
+        id: crypto.randomUUID(),
+        publicId: "what-we-know-about-the-border-incident-x9y8z",
+        briefingRunId: crypto.randomUUID(),
+        kind: "brief",
+        title: "What we know about the border incident",
+        summary: null,
+        body: "The reporting so far.",
+        language: "en",
+      }),
+    );
+
+    const { hits } = await searchService(db).search({ q: "border incident", limit: 10 });
+    expect(hits[0]).toMatchObject({
+      publicId: "what-we-know-about-the-border-incident-x9y8z",
+      href: "/articles/what-we-know-about-the-border-incident-x9y8z",
+    });
+  });
+
+  it("returns a null destination rather than a fabricated one", async () => {
+    const db = await freshDatabase();
+    await searchRepo(db).upsert(
+      projectPublication({
+        id: crypto.randomUUID(),
+        publicId: "a-historic-reference-page-q1w2e",
+        briefingRunId: null,
+        kind: "brief",
+        title: "A historic reference page about the border",
+        summary: null,
+        body: "Written before the briefing existed.",
+        language: "en",
+      }),
+    );
+
+    const { hits } = await searchService(db).search({ q: "border", limit: 10 });
+    expect(hits[0]!.publicId).toBe("a-historic-reference-page-q1w2e");
+    expect(hits[0]!.href).toBeNull();
+  });
+
+  it("rewrites a destination that changed while the text did not", async () => {
+    /* A publication that acquires a briefing run becomes addressable without a
+       word of it changing. The upsert's "only when it actually changed" guard
+       compares the destination too, or that row would stay unreachable
+       forever. */
+    const db = await freshDatabase();
+    const row = {
+      id: crypto.randomUUID(),
+      publicId: "a-brief-that-was-adopted-m5n6b",
+      kind: "brief" as const,
+      title: "A brief that was adopted",
+      summary: null,
+      body: "Unchanged wording throughout.",
+      language: "en",
+    };
+    const repo = searchRepo(db);
+    await repo.upsert(projectPublication({ ...row, briefingRunId: null }));
+    expect((await searchService(db).search({ q: "adopted", limit: 5 })).hits[0]!.href).toBeNull();
+
+    await repo.upsert(projectPublication({ ...row, briefingRunId: crypto.randomUUID() }));
+    expect((await searchService(db).search({ q: "adopted", limit: 5 })).hits[0]!.href).toBe(
+      "/articles/a-brief-that-was-adopted-m5n6b",
+    );
+  });
+
   it("marks results as non-semantic when there is no vector arm", async () => {
     const db = await freshDatabase();
     await seedDocs(db, [["Border incident reported", "The war did not stay at the border", "en"]]);
@@ -167,6 +240,10 @@ describe("reindexing", () => {
     const { hits } = await searchService(db).search({ q: "October", limit: 10 });
     expect(hits).toHaveLength(1);
     expect(hits[0]!.entityId).toBe(item.id);
+    /* A real item, projected through the real reindex: it has a public id and
+       still no page to open, and the hit says exactly that. */
+    expect(hits[0]!.publicId).toBe(item.publicId);
+    expect(hits[0]!.href).toBeNull();
   });
 
   it("does not touch updated_at when the text has not changed", async () => {

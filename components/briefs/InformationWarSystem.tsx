@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
+import { SourceConvergenceBeams, SystemFlowBeams } from "./InformationWarBeams";
 import styles from "./information-war-system.module.css";
 
 /*
@@ -129,10 +130,15 @@ export function InformationWarSystem() {
             wire report count as one origin, not five independent confirmations.
           </p>
         </div>
-        <div className={styles.sourceDiagram} role="img" aria-label="Five headlines converging into one upstream source family">
+        {/* The container, the `role="img"` and its label belong to
+            `SourceConvergenceBeams`, which needs to be the measured host.
+            Everything inside it is still rendered here on the server; the
+            marks carry `data-beam-*` so the wires attach to points on the
+            boxes' edges rather than to the boxes' centres. */}
+        <SourceConvergenceBeams label="Five headlines converging into one upstream source family">
           <div className={styles.copies}>
             {["Outlet A", "Outlet B", "Outlet C", "Outlet D", "Outlet E"].map((outlet) => (
-              <span key={outlet}>{outlet}<i /></span>
+              <span key={outlet}>{outlet}<i data-beam-copy={outlet} /></span>
             ))}
           </div>
           <div className={styles.convergence}>
@@ -143,11 +149,12 @@ export function InformationWarSystem() {
             <span />
           </div>
           <div className={styles.origin}>
+            <i className={styles.originMark} data-beam-origin />
             <small>Counted as</small>
             <strong>One</strong>
             <span>Upstream origin</span>
           </div>
-        </div>
+        </SourceConvergenceBeams>
       </section>
 
       <section className={styles.system} id="system" aria-labelledby="system-heading">
@@ -159,21 +166,26 @@ export function InformationWarSystem() {
             corrected, removed, and traced back to its supporting material.
           </p>
         </div>
-        <ol className={styles.systemFlow}>
-          {SYSTEM_STAGES.map((stage) => (
-            <li key={stage.name}>
-              <div className={styles.node}>
-                <span>{stage.number}</span>
-                <i aria-hidden="true" />
-              </div>
-              <div>
-                <small>{stage.meta}</small>
-                <h3>{stage.name}</h3>
-                <p>{stage.detail}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        {/* `SystemFlowBeams` is a positioned wrapper and nothing else — the
+            list, its order and its text are unchanged and still server
+            markup. The stage marks are the beam anchors. */}
+        <SystemFlowBeams>
+          <ol className={styles.systemFlow}>
+            {SYSTEM_STAGES.map((stage) => (
+              <li key={stage.name}>
+                <div className={styles.node}>
+                  <span>{stage.number}</span>
+                  <i aria-hidden="true" data-beam-node={stage.number} />
+                </div>
+                <div>
+                  <small>{stage.meta}</small>
+                  <h3>{stage.name}</h3>
+                  <p>{stage.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </SystemFlowBeams>
       </section>
 
       <section className={styles.output} aria-labelledby="output-heading">

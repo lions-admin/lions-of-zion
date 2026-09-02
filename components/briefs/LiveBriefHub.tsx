@@ -2,9 +2,16 @@ import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { Reveal } from "@/components/motion";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { StatusState } from "@/components/ui/StatusState";
 import styles from "./live-brief.module.css";
+
+/* `--stagger` is one step of a sequence and the token file caps a sequence
+   at four items. A list here can run to a hundred, and an entrance delay
+   that keeps growing would leave the fiftieth row blank for seconds after
+   it has scrolled into view. */
+const MAX_STAGGER_INDEX = 3;
 
 type Filters = { date?: string; actor?: string; topicLabel?: string; arena?: string };
 
@@ -65,6 +72,17 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
           />
         ) : (
           <header className={styles.liveLead}>
+            {/* No `ShinyText` here, deliberately. Two reasons, either alone
+                sufficient. Editorially, neither eyebrow on this page names a
+                live state — "Current edition" classifies the lead and
+                "Intelligence desk" is a masthead — and this kicker is already
+                the single gold accent on the first screen, so a pass through
+                it is a second emphasis on the one thing that had emphasis.
+                Mechanically, the primitive cannot currently show a pass at
+                all: `shiny-text.module.css` sets an opaque `color` and paints
+                the gradient behind the glyphs through `background-clip:
+                text`, which puts it under fully opaque ink. Reported to the
+                library's owner rather than worked around from here. */}
             <p className={styles.liveEyebrow}>
               <span>Current edition</span>
               <time dateTime={lead.publishedAt}>{formatDate(lead.publishedAt)}</time>
@@ -135,13 +153,20 @@ function PublicationSection({ title, items, narrative = false }: { title: string
   return (
     <section className={styles.liveSection}>
       <h2>{title}</h2>
-      <ol className={styles.liveList}>{items.map((item) => (
-        <li key={item.publicId}><Link href={`/articles/${item.publicId}`}>
-          <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
-          <Headline title={item.title} narrative={narrative} />
-          {item.summary ? <span>{item.summary}</span> : null}
-          <Metadata item={item} narrative={narrative} />
-        </Link></li>
+      {/* `Reveal` takes its children as a prop, so each row is still server
+          markup and this file is still a Server Component. The entrance is
+          the shared one — opacity, a short rise, a focus pull, once. No
+          ticker, no marquee, nothing that keeps moving after it has
+          arrived. */}
+      <ol className={styles.liveList}>{items.map((item, index) => (
+        <Reveal as="li" key={item.publicId} index={Math.min(index, MAX_STAGGER_INDEX)}>
+          <Link href={`/articles/${item.publicId}`}>
+            <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+            <Headline title={item.title} narrative={narrative} />
+            {item.summary ? <span>{item.summary}</span> : null}
+            <Metadata item={item} narrative={narrative} />
+          </Link>
+        </Reveal>
       ))}</ol>
     </section>
   );

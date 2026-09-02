@@ -19,6 +19,10 @@
  */
 import Link from 'next/link';
 import { EditorialShell } from '@/components/site/EditorialShell';
+/* Deep import, not the `@/components/motion` barrel: the barrel re-exports
+   three more client components, and importing it here would register all four
+   as client entries for every page built on this shell to use one. */
+import { Reveal } from '@/components/motion/Reveal';
 import { getSiteNavigationItem } from '@/lib/site-navigation';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
@@ -169,13 +173,31 @@ export function SectionBlock({
 }) {
   const anchor = id ?? (slugify(heading) || undefined);
   return (
-    <section className={styles.block}>
+    /*
+     * The section is the unit that arrives, not the paragraphs inside it.
+     *
+     * `Reveal` is a client boundary, so the choice of where to put it is a
+     * cost decision as much as a design one, and the two answers agree here:
+     * a section is a large block a reader scrolls to as a whole, and there
+     * are three to eight of them on a page. Staging the entries *within* a
+     * section — timeline rows, sources, claim/record panels — would multiply
+     * the boundaries, stack a second blur on pixels this one already blurred,
+     * and stage a record that is not a sequence of arrivals.
+     *
+     * `children` stays a prop, so everything inside a section is still
+     * server-rendered and this file is still a server component.
+     *
+     * This shell's sibling, `DocPage`, deliberately gets none of this: it
+     * carries the ~1,177 archive routes, and `SectionBlock` is not part of
+     * that path.
+     */
+    <Reveal as="section" className={styles.block}>
       {/* The tick that used to sit beside this heading was a counterweight to
           tracked capitals. A sentence-case serif heading carries itself. */}
       <div className={styles.blockHeading}>
         <h2 id={anchor}>{heading}</h2>
       </div>
       {children}
-    </section>
+    </Reveal>
   );
 }

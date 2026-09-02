@@ -1,0 +1,86 @@
+/* BorderBeam · a signal running the edge of an active container
+ *
+ * Magic UI animates `offsetDistance` with `motion`. `offset-distance` is a
+ * plain animatable CSS property, so the same travel is one keyframe pair and
+ * no JavaScript at all — this file is the whole component; the TSX only
+ * places the element and passes tokens.
+ *
+ * The two-layer mask is the part worth keeping verbatim: a transparent border
+ * clipped to `border-box` intersected with `padding-box` leaves exactly the
+ * border ring visible, so the beam is confined to the edge without a second
+ * element or a pseudo-element hack, and `border-radius: inherit` means it
+ * follows whatever corner the host card already has.
+ *
+ * Colour: `--ink-hi` through `--ink-lo` to transparent. Gold is deliberately
+ * NOT the default — a border beam is a *state* (verifying, live, processing),
+ * and gold on this site is reserved for the one primary control per screen.
+ * `data-tone="gold"` exists for the single case that earns it.
+ */
+
+.beam {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: var(--beam-width, 1px) solid transparent;
+  pointer-events: none;
+
+  mask:
+    linear-gradient(transparent, transparent),
+    linear-gradient(#000, #000);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+  -webkit-mask:
+    linear-gradient(transparent, transparent),
+    linear-gradient(#000, #000);
+  -webkit-mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-in;
+}
+
+/* `offset-path: rect()` is what makes the travel constant-speed along an
+   arbitrary rectangle — a conic sweep would race the short edges. Where it
+   is unsupported the beam is simply absent, which is the correct
+   degradation for a decorative state marker: nothing else depends on it. */
+@supports (offset-path: rect(0 auto auto 0 round 1px)) {
+  .travel {
+    position: absolute;
+    aspect-ratio: 1;
+    width: var(--beam-size, 84px);
+    offset-path: rect(0 auto auto 0 round var(--beam-size, 84px));
+    offset-distance: var(--beam-offset, 0%);
+    background: linear-gradient(
+      to left,
+      var(--beam-peak, var(--ink-hi)),
+      var(--beam-tail, var(--ink-lo)),
+      transparent
+    );
+    animation: beamTravel var(--beam-duration, var(--dur-ambient)) linear infinite;
+    animation-delay: var(--beam-delay, 0s);
+    will-change: offset-distance;
+  }
+
+  .reverse {
+    animation-direction: reverse;
+  }
+}
+
+@keyframes beamTravel {
+  from { offset-distance: var(--beam-offset, 0%); }
+  to { offset-distance: calc(var(--beam-offset, 0%) + 100%); }
+}
+
+.beam[data-tone="gold"] {
+  --beam-peak: var(--gold-hi);
+  --beam-tail: var(--gold-dim);
+}
+
+.beam[data-tone="ember"] {
+  --beam-peak: var(--data-ember-peak);
+  --beam-tail: var(--data-ember-dim);
+}
+
+/* §21 — a continuous beam is exactly the class of animation reduced motion
+   asks to be rid of. It does not slow down; it stops and the ring goes with
+   it, because a stationary bright chip on one corner is worse than nothing. */
+@media (prefers-reduced-motion: reduce) {
+  .beam { display: none; }
+}

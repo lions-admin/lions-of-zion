@@ -1,0 +1,64 @@
+/* Reveal · staged entrance
+ *
+ * Ported from Magic UI's `blur-fade`, which drives opacity/translate/blur
+ * through `motion`'s variant system. The motion library is not a dependency
+ * here and is not worth 40 kB for a three-property transition, so the
+ * mechanism is the same and the engine is CSS: an IntersectionObserver flips
+ * one attribute, the transition below does the rest.
+ *
+ * Three guards make this safe on a site with a no-JavaScript invariant:
+ *
+ *   1. `scripting: enabled` — with JavaScript off the hidden state never
+ *      applies at all, so the server's markup is simply visible. This is why
+ *      the initial state lives in a media query instead of on the base class.
+ *   2. `prefers-reduced-motion: no-preference` — same escape, for §21.
+ *   3. `revealFailsafe` — if hydration is slow or never lands, the content
+ *      arrives anyway after four seconds. An entrance animation must never be
+ *      the reason a paragraph is unreadable.
+ */
+
+.reveal {
+  --reveal-delay: 0ms;
+  --reveal-blur: 5px;
+  --reveal-shift: 0.6rem;
+  --reveal-x: 0;
+  --reveal-y: 0;
+
+  transition:
+    opacity var(--dur-enter) var(--ease-out) var(--reveal-delay),
+    transform var(--dur-enter) var(--ease-out) var(--reveal-delay),
+    filter var(--dur-enter) var(--ease-out) var(--reveal-delay);
+}
+
+.up { --reveal-y: var(--reveal-shift); }
+.down { --reveal-y: calc(var(--reveal-shift) * -1); }
+.left { --reveal-x: var(--reveal-shift); }
+.right { --reveal-x: calc(var(--reveal-shift) * -1); }
+
+/* No shift at all — the entrance is opacity and focus only. Used where a
+   transform would fight a sticky or absolutely positioned parent. */
+.none { --reveal-shift: 0rem; }
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .reveal[data-reveal="pending"] {
+    opacity: 0;
+    filter: blur(var(--reveal-blur));
+    transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
+    animation: revealFailsafe var(--dur-enter) var(--ease-out) 4s forwards;
+  }
+}
+
+.reveal[data-reveal="shown"] {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  animation: none;
+}
+
+@keyframes revealFailsafe {
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}

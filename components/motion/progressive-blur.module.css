@@ -1,0 +1,127 @@
+/* ProgressiveBlur · a graded edge where one surface hands off to another
+ *
+ * Magic UI's version stacks eight `backdrop-filter` layers, each with an
+ * inline mask gradient, built in JavaScript on every render. The stack is the
+ * right idea — a single blur has a hard boundary, whereas layered blurs under
+ * offset masks read as a lens falling out of focus — but eight backdrop
+ * filters is eight full-surface reads per frame, and this site puts them over
+ * a live WebGPU scene.
+ *
+ * Five layers, in CSS, using `nth-child` for the mask offsets. The visual
+ * difference against eight is not findable; the cost difference is.
+ *
+ * The real job here is §8's handoff: the home scene must not end at a line.
+ * The band below it should feel like it comes into focus as the scan leaves.
+ */
+
+.blur {
+  position: absolute;
+  inset-inline: 0;
+  height: var(--blur-height, 30%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bottom { bottom: 0; }
+.top { top: 0; }
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* Masks step by 20% per layer with a 40% overlap, so no layer's edge lands
+   on another's — an overlap is what stops the stack reading as five bands. */
+.bottom .layer:nth-child(1) {
+  z-index: 1;
+  backdrop-filter: blur(0.6px);
+  -webkit-backdrop-filter: blur(0.6px);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 20%, #000 40%, transparent 60%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 20%, #000 40%, transparent 60%);
+}
+.bottom .layer:nth-child(2) {
+  z-index: 2;
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  mask-image: linear-gradient(to bottom, transparent 20%, #000 40%, #000 60%, transparent 80%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 20%, #000 40%, #000 60%, transparent 80%);
+}
+.bottom .layer:nth-child(3) {
+  z-index: 3;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  mask-image: linear-gradient(to bottom, transparent 40%, #000 60%, #000 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 40%, #000 60%, #000 80%, transparent 100%);
+}
+.bottom .layer:nth-child(4) {
+  z-index: 4;
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  mask-image: linear-gradient(to bottom, transparent 60%, #000 85%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 60%, #000 85%);
+}
+.bottom .layer:nth-child(5) {
+  z-index: 5;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  mask-image: linear-gradient(to bottom, transparent 80%, #000 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 80%, #000 100%);
+}
+
+.top .layer:nth-child(1) {
+  z-index: 1;
+  backdrop-filter: blur(0.6px);
+  -webkit-backdrop-filter: blur(0.6px);
+  mask-image: linear-gradient(to top, transparent 0%, #000 20%, #000 40%, transparent 60%);
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 20%, #000 40%, transparent 60%);
+}
+.top .layer:nth-child(2) {
+  z-index: 2;
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  mask-image: linear-gradient(to top, transparent 20%, #000 40%, #000 60%, transparent 80%);
+  -webkit-mask-image: linear-gradient(to top, transparent 20%, #000 40%, #000 60%, transparent 80%);
+}
+.top .layer:nth-child(3) {
+  z-index: 3;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  mask-image: linear-gradient(to top, transparent 40%, #000 60%, #000 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, transparent 40%, #000 60%, #000 80%, transparent 100%);
+}
+.top .layer:nth-child(4) {
+  z-index: 4;
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  mask-image: linear-gradient(to top, transparent 60%, #000 85%);
+  -webkit-mask-image: linear-gradient(to top, transparent 60%, #000 85%);
+}
+.top .layer:nth-child(5) {
+  z-index: 5;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  mask-image: linear-gradient(to top, transparent 80%, #000 100%);
+  -webkit-mask-image: linear-gradient(to top, transparent 80%, #000 100%);
+}
+
+/* A tint travelling with the blur, so the handoff also darkens toward the
+   ground the next section is painted on. */
+.tint {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+}
+
+.bottom .tint {
+  background: linear-gradient(to bottom, transparent, var(--ground));
+}
+
+.top .tint {
+  background: linear-gradient(to top, transparent, var(--ground));
+}
+
+/* Where backdrop-filter is unavailable the tint alone still makes a soft
+   edge — the handoff degrades to a gradient, which is what it was before. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .layer { display: none; }
+}

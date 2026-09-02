@@ -1,0 +1,82 @@
+/* SignalBeam · a packet crossing a measured wire between two elements
+ *
+ * The geometry is Magic UI's `animated-beam`, kept because it is the right
+ * one: measure both endpoints against a shared container, draw a quadratic
+ * Bézier through a control point offset by `curvature`, re-measure on
+ * resize. That part genuinely needs JavaScript and the TSX keeps it.
+ *
+ * What changed is the travelling light. Magic UI animates a
+ * `<linearGradient>`'s x1/x2 through `motion`, which means a React-driven
+ * animation frame for every beam on the page and a two-colour gradient whose
+ * default is orange-to-violet. Here the path declares `pathLength="1"`, so a
+ * dash pattern is expressed as a fraction of the wire regardless of its real
+ * length, and one CSS keyframe pair walks `stroke-dashoffset`. Cost per beam
+ * after mount: zero JavaScript, one compositor-friendly property.
+ *
+ * The result also reads better for this site. A gradient sweep is a shine; a
+ * short dash travelling a faint track is a packet moving through a pipeline,
+ * which is the thing the diagram is actually claiming.
+ */
+
+.svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* The wire itself: always visible, so the relationship the diagram asserts
+   survives reduced motion, print, and the moment before hydration. */
+.track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: var(--beam-track-width, 1);
+  stroke-linecap: round;
+}
+
+.packet {
+  fill: none;
+  stroke: var(--beam-ink, var(--ink-hi));
+  stroke-width: var(--beam-packet-width, 1.5);
+  stroke-linecap: round;
+  stroke-dasharray: var(--beam-packet-length, 0.055) 1;
+  animation: packetTravel var(--beam-duration, 4.5s) linear infinite;
+  animation-delay: var(--beam-delay, 0s);
+}
+
+/* A wider, dimmer dash under the packet gives it a leading edge without a
+   gradient — one extra path, no extra animation frame. */
+.halo {
+  stroke: var(--beam-ink, var(--ink-hi));
+  stroke-width: calc(var(--beam-packet-width, 1.5) * 3.5);
+  stroke-dasharray: calc(var(--beam-packet-length, 0.055) * 0.5) 1;
+  opacity: 0.16;
+}
+
+.reverse {
+  animation-direction: reverse;
+}
+
+/* From 1 to 0 walks the dash forward along the path. `pathLength="1"` on the
+   element is what makes these numbers mean "fractions of the wire". */
+@keyframes packetTravel {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+.ember { --beam-ink: var(--data-ember-peak); }
+.gold { --beam-ink: var(--gold-hi); }
+
+@media (prefers-reduced-motion: reduce) {
+  .packet,
+  .halo {
+    display: none;
+  }
+
+  /* The wire brightens to compensate: with the packet gone, the connection
+     is the only thing left to communicate, so it stops being a hint. */
+  .track {
+    stroke: var(--line-strong);
+  }
+}

@@ -1,0 +1,79 @@
+/* ShinyText · a slow pass of light over a small status label
+ *
+ * Magic UI's `animated-shiny-text` sweeps a light band through
+ * `background-clip: text` and holds still for most of the cycle — the timing
+ * (`0%, 90%, 100%` at rest, the pass between 30% and 60%) is the good part
+ * and is kept exactly, because a label that shines continuously is a label
+ * nobody can read.
+ *
+ * What is replaced is the palette and the scope. The demo is a
+ * white-through-neutral sweep on a pill big enough to be a heading. Here the
+ * base ink never changes — the label is `--ink-lo`, legible on its own with
+ * the animation removed — and the pass lifts it to `--ink-hi` and back. So
+ * the effect is a change in emphasis, not a change in whether the text is
+ * present. §28: the shine is never the state; the words are.
+ *
+ * Two words maximum, data face, uppercase — the one case the token file
+ * allows uppercase. Anything longer is a sentence and does not get this.
+ */
+
+.shiny {
+  --shiny-width: 5rem;
+
+  display: inline-block;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+
+  color: var(--shiny-base, var(--ink-lo));
+
+  background-image: linear-gradient(
+    110deg,
+    transparent 40%,
+    var(--shiny-peak, var(--ink-hi)) 50%,
+    transparent 60%
+  );
+  background-size: var(--shiny-width) 100%;
+  background-repeat: no-repeat;
+  background-position: calc(-100% - var(--shiny-width)) 0;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  animation: shinyPass var(--shiny-duration, 5s) var(--ease-in-out) infinite;
+}
+
+.gold {
+  --shiny-peak: var(--gold-hi);
+  --shiny-base: var(--gold-dim);
+}
+
+.ember {
+  --shiny-peak: var(--data-ember-peak);
+  --shiny-base: var(--data-ember-dim);
+}
+
+@keyframes shinyPass {
+  0%,
+  90%,
+  100% {
+    background-position: calc(-100% - var(--shiny-width)) 0;
+  }
+  30%,
+  60% {
+    background-position: calc(100% + var(--shiny-width)) 0;
+  }
+}
+
+/* Without the pass the label is still a legible data label in `--ink-lo`,
+   which is the point of putting the colour on the element rather than in
+   the gradient. */
+@media (prefers-reduced-motion: reduce) {
+  .shiny {
+    animation: none;
+    background-image: none;
+    color: var(--shiny-base, var(--ink-lo));
+  }
+}

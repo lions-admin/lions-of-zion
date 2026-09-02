@@ -170,6 +170,19 @@
   --dur-base: 240ms;
   --dur-slow: 400ms;
 
+  /* Two registers the three durations above did not name, added when the
+     motion primitives in `components/motion/` needed one timing vocabulary
+     rather than a per-component default. `--dur-enter` is the entrance
+     register: long enough that a blur resolves rather than snaps, inside the
+     300-600ms a reader reads as "arriving". `--dur-ambient` is the continuous
+     register — a border beam, a status shine — deliberately far slower than
+     anything interactive, because ambient motion competes with reading at any
+     speed a reader can follow. `--stagger` is one step of a sequence; four
+     items is the most that should ever carry it. */
+  --dur-enter: 520ms;
+  --dur-ambient: 7s;
+  --stagger: 70ms;
+
   /* One focus treatment for the whole site: a gold outline offset from the
      element so a black gap separates it from any surface. Applied by the
      `:focus-visible` rule below; modules may change the offset, never the

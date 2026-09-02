@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { PublicationMeta, Timeline } from "@/components/content";
+import { Reveal } from "@/components/motion";
 import { getIsraelsStoryEdition } from "@/lib/content/israels-story";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -82,7 +83,19 @@ export default async function Page() {
         const flagged = chapter.contested === true;
         return (
           <article key={chapter.id} id={chapter.id} className={styles.chapter}>
-            <header className={styles.chapterHead}>
+            {/* The chapter mark arrives as the reader reaches it — the one
+                motion on this page, and only on the head, not on the chapter
+                body: a blurred entrance across a whole chapter and its
+                timeline is a lot of surface to animate to say "a chapter
+                starts here". `as="header"` means no extra element and no
+                layout change; the numeral, the running position and the
+                title are the same grid they were.
+
+                No `index` stagger, deliberately. `index` multiplies a delay
+                by position, which only composes when a group crosses the
+                fold together — chapters are viewports apart, so chapter VII
+                would sit waiting 420ms for no reason a reader could see. */}
+            <Reveal as="header" className={styles.chapterHead}>
               <span className={styles.chapterNumeral} aria-hidden="true">
                 {toRoman(index + 1)}
               </span>
@@ -92,7 +105,7 @@ export default async function Page() {
                 </p>
                 <h2 className={styles.chapterTitle}>{chapter.title}</h2>
               </div>
-            </header>
+            </Reveal>
 
             <p
               className={

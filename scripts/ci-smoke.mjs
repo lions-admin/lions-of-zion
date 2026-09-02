@@ -207,9 +207,19 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
   await phonePage.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
   const phoneInvisible = [];
   for (const href of DESTINATIONS) {
-    if (!(await phonePage.locator(`a[href="${href}"]`).first().isVisible().catch(() => false))) {
-      phoneInvisible.push(href);
+    /* ANY instance visible is a pass, not the first. A destination legitimately
+       appears more than once — as a bar link, as a drawer cell, and in the
+       mobile sheet — and which of those is showing depends on the width. An
+       earlier version of this check tested `.first()` and reported four false
+       failures, because for exactly the destinations that also have a bar link,
+       index 0 is the bar link, which is correctly hidden on a phone. */
+    const all = phonePage.locator(`a[href="${href}"]`);
+    const count = await all.count();
+    let seen = false;
+    for (let i = 0; i < count && !seen; i += 1) {
+      seen = await all.nth(i).isVisible().catch(() => false);
     }
+    if (!seen) phoneInvisible.push(href);
   }
   await phone.close();
 

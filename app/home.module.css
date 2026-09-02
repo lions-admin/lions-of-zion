@@ -63,6 +63,36 @@
   display: block;
 }
 
+/* Where the field stops.
+ *
+ * The scan previously ran to a hard viewport cut: glyphs at full contrast
+ * against the bottom edge, with the rail and the telemetry sitting on live
+ * type. `ProgressiveBlur` grades the last 6rem instead, so the field falls
+ * out of focus into the ground rather than being guillotined by it.
+ *
+ * `z-index: 2` is the whole placement contract: above the canvas (1) and the
+ * fallback field (0), below the telemetry (5), the masthead (10) and the rail
+ * (12). None of the chrome is blurred — only the scan behind it.
+ *
+ * There is no editorial band under this hero on this branch, so this is not
+ * the §8 handoff between two surfaces yet; it is the floor the one surface
+ * needs either way, and it is already the right element for the handoff when
+ * the band lands.
+ *
+ * Qualified by `.hero` on purpose. `ProgressiveBlur`'s own `.blur` sets both
+ * `height` and `z-index` at one class of specificity, so a bare `.heroFade`
+ * would be a coin toss decided by which stylesheet the bundler emits first.
+ * (0,2,0) settles it in every build.
+ */
+.hero .heroFade {
+  z-index: 2;
+}
+
+/* A taller fall-off where there is height to spend it in. */
+@media (min-width: 64rem) {
+  .hero .heroFade { height: calc(var(--sp-9) + var(--sp-8)); }
+}
+
 .brandCenter {
   position: absolute;
   top: 47%;
@@ -285,6 +315,56 @@
 .railLink:hover .railTitle { color: var(--gold); }
 .railLink:hover .railIndex { color: var(--ink); }
 
+/* The rail's arrival, held until the entrance layer actually lets go.
+ *
+ * `CinematicIntroGate` renders this page into `display: contents` beneath a
+ * fixed, full-screen intro at z-index 1000, so every element here is inside
+ * the viewport and intersecting from the first frame. `Reveal`'s observer
+ * therefore fires at hydration and the entire stagger runs — and finishes —
+ * behind an opaque overlay. Forty-odd seconds later the intro dissolves onto
+ * a rail that is simply already there. The stagger is not in conflict with
+ * the intro; it is invisible to it, which is worse, because it costs the
+ * same and buys nothing.
+ *
+ * `data-intro-active` and `data-handoff-blocked` are both written by
+ * `CanvasMount` from client state (`useState(false)` and a post-hydration
+ * derivation), never by the server, and `globals.css` already keys the scroll
+ * lock off the pair. So they are the site's existing signal for "the
+ * entrance still owns the screen", and this reuses it rather than inventing
+ * a second one.
+ *
+ * The mechanism is cascade only — the observer is untouched. `html:has(…)`
+ * plus a class scores (0,2,1) against `.reveal[data-reveal="shown"]`'s
+ * (0,2,0), so `shown` is outranked while the attribute is present; when it
+ * goes at handoff the element falls back to `shown` and the primitive's own
+ * transition runs then, `--reveal-delay` stagger intact. That is the moment
+ * the stagger was for: the panel arriving after the masthead settles.
+ *
+ * Three failure paths were checked and all of them leave the rail readable:
+ *
+ *   · No JavaScript — the media query below never matches, and neither
+ *     attribute is ever written. The rail is in the server HTML, unstyled by
+ *     any of this. The `ci-smoke` no-JS assertion is untouched.
+ *   · Reduced motion — `Reveal` marks itself shown immediately and never
+ *     animates; the media query keeps this rule off it entirely, so the hold
+ *     can never strand a reader who asked for no motion.
+ *   · Hydration fails after the attributes are written — impossible, since
+ *     the attributes require hydration; and if it stalls before them,
+ *     `Reveal`'s own 4s `revealFailsafe` still runs, and an animation
+ *     declaration outranks this rule, so the rail appears regardless.
+ *
+ * Where `:has()` is unsupported the rule simply never matches and the
+ * behaviour is exactly what it was before this file changed.
+ */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  :global(html:has([data-intro-active])) .railHold,
+  :global(html:has([data-handoff-blocked])) .railHold {
+    opacity: 0;
+    filter: blur(var(--reveal-blur));
+    transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
+  }
+}
+
 /* Engine telemetry, bottom-left so it never sits under the rail. */
 .engineStatus {
   position: absolute;
@@ -342,6 +422,15 @@
     margin-top: var(--sp-4);
   }
   .engineStatus { display: none; }
+
+  /* On a phone the rail goes full-width against the bottom edge and becomes
+     the floor itself — the scan already ends on a panel, not on a cut. The
+     fade would sit entirely behind it, so it is removed rather than shrunk:
+     five backdrop-filter reads per frame over a live particle canvas is the
+     wrong thing to pay for on the device least able to pay it, and there is
+     nothing visible to buy with it. */
+  .hero .heroFade { display: none; }
+
   .headlineRail {
     right: var(--sp-3);
     bottom: var(--sp-3);

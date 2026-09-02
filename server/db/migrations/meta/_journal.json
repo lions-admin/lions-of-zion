@@ -337,6 +337,13 @@
       "when": 1788213293243,
       "tag": "0047_schema_snapshot_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1788216893243,
+      "tag": "0048_search_destination",
+      "breakpoints": true
     }
   ]
 }

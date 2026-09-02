@@ -27,6 +27,11 @@ const ROUTES = [
   "/we-are",
   "/methodology",
   "/corrections",
+  /* The two query tools. Both render their instrument and fetch nothing until
+     a reader asks something, so a smoke walk here is a genuine check of the
+     route and its console rather than of the API behind it. */
+  "/search",
+  "/ask",
   "/october-7/testimonies",
   "/october-7/documentation",
   "/fake-resistance/playbook",

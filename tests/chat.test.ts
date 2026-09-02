@@ -81,6 +81,58 @@ describe("threads and transcripts", () => {
     expect(runs[0]!.kind).toBe("chat");
   });
 
+  it("resolves a citation to a title, so the reader is not shown a bare uuid", async () => {
+    const db = await freshDatabase();
+    const ids = await seedDocs(db, ["Border incident"]);
+    const svc = chatService(db, {
+      answer: stubAnswer("The reporting says the incident occurred at dawn.", ids),
+      retrieve: stubRetrieve(ids),
+    });
+
+    const thread = await svc.createThread({}, actor);
+    const answered = await svc.ask(thread.id, { content: "What happened at the border?" }, actor);
+
+    /* The POST response and the transcript resolve identically — one code
+       path, so a client cannot see two different citations for one row. */
+    const fromTranscript = (await svc.transcript(thread.id))[1]!.citations;
+    expect(answered.citations).toEqual(fromTranscript);
+    expect(fromTranscript[0]).toMatchObject({
+      documentId: ids[0],
+      title: "Border incident",
+      /* An information item has no public page; the citation says so rather
+         than pointing somewhere that 404s. */
+      href: null,
+    });
+  });
+
+  it("loses the citation entirely when its document leaves the index", async () => {
+    /* Not the behaviour you would design, and pinned here because it is the
+       behaviour that exists: `chat_citation.document_id` references
+       `search_document` `ON DELETE CASCADE`, and `searchService.reindex()`
+       deletes that row whenever an entity stops being indexable — an item
+       unpublished, evidence reclassified. So a transcript this module
+       describes as un-editable does silently lose a footnote when the
+       document behind it is withdrawn, and the answer keeps its wording.
+       Resolving the citation through a LEFT JOIN is still right: the same
+       null arises for an anonymous reader whose RLS policy hides a row that
+       has not been deleted at all. */
+    const db = await freshDatabase();
+    const ids = await seedDocs(db, ["Withdrawn document"]);
+    const svc = chatService(db, {
+      answer: stubAnswer("An answer resting on it.", ids),
+      retrieve: stubRetrieve(ids),
+    });
+    const thread = await svc.createThread({}, actor);
+    await svc.ask(thread.id, { content: "What does it say?" }, actor);
+    expect((await svc.transcript(thread.id))[1]!.citations).toHaveLength(1);
+
+    await db.execute(sql`DELETE FROM search_document WHERE id = ${ids[0]!}`);
+
+    const after = await svc.transcript(thread.id);
+    expect(after[1]!.content).toBe("An answer resting on it.");
+    expect(after[1]!.citations).toEqual([]);
+  });
+
   it("allocates sequence numbers in the database, not the caller", async () => {
     const db = await freshDatabase();
     const ids = await seedDocs(db, ["A"]);

@@ -33,19 +33,33 @@ export function searchRepo(db: unknown) {
      * what keeps `updated_at` — and therefore the embedding backlog — from
      * churning every time an unrelated field on the source entity moves. A
      * reindex that touches nothing must cost nothing downstream.
+     *
+     * `public_id` and `href` join that comparison rather than being written
+     * unconditionally. A publication that acquires a `briefing_run_id` after
+     * it was first indexed changes its destination without changing a word of
+     * its text, and leaving them out of the WHERE would leave that row
+     * permanently unreachable. Including them costs an `updated_at` bump on
+     * such a row, which reorders the embedding backlog but cannot add to it —
+     * the backlog is `indexed_content_hash IS DISTINCT FROM content_hash`, and
+     * `content_hash` is generated from title and body alone.
      */
     async upsert(p: Projection): Promise<void> {
       await d.execute(sql`
-        INSERT INTO search_document (entity_type, entity_id, title, body, language)
-        VALUES (${p.entityType}, ${p.entityId}, ${p.title}, ${p.body}, ${p.language})
+        INSERT INTO search_document (entity_type, entity_id, title, body, language, public_id, href)
+        VALUES (${p.entityType}, ${p.entityId}, ${p.title}, ${p.body}, ${p.language},
+                ${p.publicId}, ${p.href})
         ON CONFLICT (entity_type, entity_id) DO UPDATE
           SET title = excluded.title,
               body = excluded.body,
               language = excluded.language,
+              public_id = excluded.public_id,
+              href = excluded.href,
               updated_at = now()
           WHERE search_document.title IS DISTINCT FROM excluded.title
              OR search_document.body IS DISTINCT FROM excluded.body
              OR search_document.language IS DISTINCT FROM excluded.language
+             OR search_document.public_id IS DISTINCT FROM excluded.public_id
+             OR search_document.href IS DISTINCT FROM excluded.href
       `);
     },
 
@@ -81,7 +95,7 @@ export function searchRepo(db: unknown) {
       const fetchLimit = entityType ? limit * 4 : limit;
 
       const result = await d.execute(sql`
-        SELECT document_id, entity_type, entity_id, title, score
+        SELECT document_id, entity_type, entity_id, public_id, href, title, score
         FROM search_hybrid(${q}, ${embeddingLiteral}, ${fetchLimit})
       `);
 
@@ -89,6 +103,8 @@ export function searchRepo(db: unknown) {
         document_id: string;
         entity_type: EntityType;
         entity_id: string;
+        public_id: string | null;
+        href: string | null;
         title: string;
         score: number | string;
       }[];
@@ -100,6 +116,8 @@ export function searchRepo(db: unknown) {
           documentId: r.document_id,
           entityType: r.entity_type,
           entityId: r.entity_id,
+          publicId: r.public_id ?? null,
+          href: r.href ?? null,
           title: r.title,
           score: Number(r.score),
         }));

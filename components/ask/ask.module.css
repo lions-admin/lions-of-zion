@@ -1,0 +1,740 @@
+/* Ask the desk · design V3
+ *
+ * The hierarchy here is deliberately upside-down from a chat product. In a
+ * chat product the message is the object and the sources, if any, are a
+ * footnote. On a verification desk the sources are the object: they get the
+ * rule, the numbered gutter, the gold, and the pull-quote setting, while the
+ * answer's prose sits in ordinary body type underneath a small data-face
+ * label. A reader skimming this page should be able to see what an answer
+ * rests on before they read the answer.
+ *
+ * There are no bubbles, no avatars, no alternating alignment. One exchange is
+ * one record: label, question, label, answer, sources. That is the same
+ * anatomy as every other document on this site, which is the point — the
+ * assistant's output is held to the page's standards, not to a messaging app's.
+ *
+ * Every value reads a token from `app/globals.css`.
+ */
+
+.desk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+/* ── Transcript ───────────────────────────────────────────────────────── */
+
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-7);
+}
+
+.transcript:empty {
+  display: none;
+}
+
+.record {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.record + .record {
+  padding-block-start: var(--sp-6);
+  border-block-start: var(--line-w) solid var(--line-soft);
+}
+
+.recordLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.recordLabel + .question,
+.recordLabel + .answer,
+.recordLabel + .problemLead {
+  margin-block-start: var(--sp-1);
+}
+
+.record[data-tone="alert"] .recordLabel {
+  color: var(--state-warn);
+}
+
+.question {
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
+  color: var(--ink-hi);
+  text-wrap: balance;
+  font-optical-sizing: auto;
+}
+
+/* The site closes a headline with a short gold bar, not a full-width rule
+   (`sections.module.css` `.ledeRule`). A question put to the desk is a
+   headline, so it closes the same way — inventing a second headline idiom for
+   this page would be the start of a second design system. */
+.question::after {
+  content: "";
+  display: block;
+  inline-size: 3.5rem;
+  block-size: var(--line-w);
+  margin-block-start: var(--sp-4);
+  background: var(--gold);
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flow);
+  max-inline-size: var(--measure-reading);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+  text-wrap: pretty;
+  /* Single newlines inside a paragraph are the model's own line breaks and
+     are kept; the text is not parsed as Markdown. */
+  white-space: pre-line;
+}
+
+/* ── Sources — the part that matters ──────────────────────────────────── */
+
+.sources {
+  margin-block-start: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-block-start: var(--line-w-thick) solid var(--gold);
+  border-radius: 0 0 var(--radius-3) var(--radius-3);
+}
+
+.sourcesHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-block-end: var(--sp-4);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  /* Not gold. The 2px rule above this line is already spending the accent on
+     this block; a gold label under a gold rule is the accent sprayed rather
+     than spent. */
+  color: var(--ink-hi);
+}
+
+.sourcesCount {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.sourceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.source {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: var(--sp-3);
+  align-items: start;
+}
+
+.source + .source {
+  padding-block-start: var(--sp-4);
+  border-block-start: var(--line-w) solid var(--line-soft);
+}
+
+.sourceOrdinal {
+  position: relative;
+  padding-inline-end: var(--sp-3);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: 1.8;
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+}
+
+.sourceOrdinal::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: var(--line-w);
+  background: var(--line);
+}
+
+.sourceBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-inline-size: 0;
+}
+
+.sourceLink,
+.sourceTitle {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: pretty;
+  font-optical-sizing: auto;
+}
+
+.sourceLink {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: var(--line-w);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.sourceLink:hover {
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold-hi);
+}
+
+.sourceTitle {
+  color: var(--ink);
+}
+
+.sourceArrow {
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.sourceLink:hover .sourceArrow {
+  color: var(--gold-hi);
+}
+
+.sourceUnreachable {
+  padding: 0 var(--sp-2);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: 1.7;
+  color: var(--ink-lo);
+}
+
+.sourceQuote {
+  margin: 0;
+  padding-inline-start: var(--sp-4);
+  border-inline-start: var(--line-w-thick) solid var(--line-strong);
+  font-family: var(--face-display);
+  font-size: var(--t-small);
+  line-height: 1.55;
+  color: var(--ink);
+  font-optical-sizing: auto;
+}
+
+.sourceQuote::before { content: "“"; }
+.sourceQuote::after { content: "”"; }
+
+/* The absence of sources, printed as loudly as their presence. */
+.noSources {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-5);
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--line-w) dashed var(--line);
+  border-radius: var(--radius-2);
+  max-inline-size: var(--measure-reading);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.noSourcesMark {
+  flex: 0 0 auto;
+  inline-size: var(--sp-3);
+  block-size: var(--sp-3);
+  border: var(--line-w) solid var(--ink-lo);
+  border-radius: var(--radius-pill);
+  transform: translateY(0.1em);
+}
+
+/* ── The wait ─────────────────────────────────────────────────────────── */
+
+.waiting {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-5);
+  padding: var(--sp-5);
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  max-inline-size: var(--measure-reading);
+  overflow: hidden;
+}
+
+.waitingLead {
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  color: var(--ink-hi);
+  font-optical-sizing: auto;
+}
+
+.waitingBody {
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.waitingClock {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.waitingSeconds {
+  font-size: var(--t-figure);
+  line-height: var(--t-figure-lh);
+  font-weight: var(--t-figure-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--ink-hi);
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────── */
+
+.primer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  max-inline-size: var(--measure-reading);
+}
+
+.primerLead {
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  color: var(--ink-hi);
+  text-wrap: balance;
+  font-optical-sizing: auto;
+}
+
+.primerBody {
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.primerExamples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-3);
+  padding: 0;
+  list-style: none;
+}
+
+.primerExample {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  inline-size: 100%;
+  min-block-size: var(--control-h);
+  padding: var(--sp-2) var(--sp-4);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.primerExample:hover:not(:disabled) {
+  color: var(--ink-hi);
+  border-color: var(--line-strong);
+  background: var(--tint-hover);
+}
+
+.primerExample:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primerExampleArrow {
+  flex: 0 0 auto;
+  font-family: var(--face-data);
+  color: var(--ink-lo);
+}
+
+.primerExample:hover:not(:disabled) .primerExampleArrow {
+  color: var(--gold);
+}
+
+/* ── Composer ─────────────────────────────────────────────────────────── */
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+}
+
+.composer:focus-within {
+  border-color: var(--line-strong);
+}
+
+.composerLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.composerField {
+  inline-size: 100%;
+  resize: vertical;
+  min-block-size: calc(var(--control-h) * 1.6);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  font-weight: var(--t-lede-weight);
+  font-optical-sizing: auto;
+}
+
+.composerField::placeholder {
+  color: var(--ink-lo);
+}
+
+.composerField:focus-visible {
+  outline: none;
+}
+
+.composerField:disabled {
+  color: var(--ink-lo);
+  cursor: not-allowed;
+}
+
+.composerFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding-block-start: var(--sp-3);
+  border-block-start: var(--line-w) solid var(--line-soft);
+}
+
+.composerHint {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
+}
+
+.composerHint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.4rem;
+  padding: 0 var(--sp-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--ink);
+}
+
+.composerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.counter {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.counterValue {
+  color: var(--ink);
+}
+
+.counter[data-tone="near"],
+.counter[data-tone="near"] .counterValue {
+  color: var(--state-warn);
+}
+
+.counter[data-tone="over"] {
+  color: var(--state-danger);
+}
+
+.askButton {
+  min-block-size: var(--control-h-sm);
+  padding: 0 var(--sp-5);
+  border: var(--line-w) solid var(--gold-line-strong);
+  border-radius: var(--radius-2);
+  background: var(--gold-wash);
+  color: var(--gold-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+
+.askButton:hover:not(:disabled) {
+  background: var(--gold-line);
+  border-color: var(--gold);
+}
+
+.askButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Problem and unavailable states ───────────────────────────────────── */
+
+.problemLead {
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  color: var(--state-warn);
+  text-wrap: balance;
+  font-optical-sizing: auto;
+}
+
+.problemDetail {
+  max-inline-size: var(--measure-reading);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.unavailable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  border: var(--line-w) solid var(--state-warn-line);
+  border-radius: var(--radius-3);
+  background: var(--state-warn-wash);
+}
+
+.systemNote {
+  padding: var(--sp-3) var(--sp-4);
+  border-inline-start: var(--line-w-thick) solid var(--line-strong);
+  max-inline-size: var(--measure-reading);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+/* ── Desk footer ──────────────────────────────────────────────────────── */
+
+.deskFoot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  padding-block-start: var(--sp-4);
+  border-block-start: var(--line-w) solid var(--line-soft);
+}
+
+.deskFootNote {
+  max-inline-size: var(--measure-caption);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.resetButton {
+  flex: 0 0 auto;
+  min-block-size: var(--control-h-sm);
+  padding: 0 var(--sp-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.resetButton:hover {
+  color: var(--ink-hi);
+  border-color: var(--line-strong);
+}
+
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Launcher ─────────────────────────────────────────────────────────── */
+
+.launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-block-size: var(--control-h-sm);
+  padding: 0 var(--sp-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  text-decoration: none;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.launcher:hover {
+  color: var(--ink-hi);
+  border-color: var(--line-strong);
+  background: var(--tint-hover);
+}
+
+.launcherGlyph {
+  display: inline-flex;
+}
+
+.launcher[data-variant="icon"] .launcherLabel {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.launcher[data-variant="icon"] {
+  min-inline-size: var(--control-h-sm);
+  justify-content: center;
+  padding: 0;
+}
+
+/* ── The page's no-JavaScript state ───────────────────────────────────── */
+
+.noScript {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-inline-size: var(--measure-reading);
+}
+
+/* The desk cannot run without scripting — it is a request-and-answer loop, not
+   a document. Showing a dead composer would be worse than saying so. */
+@media (scripting: none) {
+  .desk {
+    display: none;
+  }
+}
+
+/* ── Narrow ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 45rem) {
+  .sources {
+    padding-inline: var(--sp-4);
+  }
+
+  .source {
+    grid-template-columns: 2rem 1fr;
+  }
+
+  .composerActions {
+    inline-size: 100%;
+    justify-content: space-between;
+  }
+
+  .askButton {
+    min-block-size: var(--control-h);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transcript {
+    scroll-behavior: auto;
+  }
+}

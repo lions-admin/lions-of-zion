@@ -94,7 +94,7 @@ export function chatService(
         seq: m.seq,
         role: m.role as ChatMessageView["role"],
         content: m.content,
-        citations: (citations[m.id] ?? []).map((c) => ({ documentId: c.documentId, quote: c.quote })),
+        citations: citations[m.id] ?? [],
         createdAt: m.createdAt.toISOString(),
       }));
     },
@@ -190,13 +190,19 @@ export function chatService(
         await txRepo.attachToolRuns(threadId, message.id);
         await txRepo.addCitations(message.id, citations);
 
+        /* Read the citations back rather than re-shaping the ones just
+           written: it is the same resolution the transcript performs, so a
+           client that renders the POST response and a client that re-fetches
+           the transcript cannot disagree about what a citation points at. */
+        const stored = await txRepo.citationsFor([message.id]);
+
         return {
           id: message.id,
           threadId,
           seq: message.seq,
           role: "assistant" as const,
           content: message.content,
-          citations: citations.map((c) => ({ documentId: c.documentId, quote: c.quote ?? null })),
+          citations: stored[message.id] ?? [],
           createdAt: message.createdAt.toISOString(),
         };
       });

@@ -10,10 +10,10 @@ import "server-only";
  * somewhere else.
  */
 
-import { and, asc, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
 import { chatCitation, chatMessage, chatThread, chatToolRun } from "@/server/db/schema";
 import type { ChatMessage, ChatThread, ChatToolRun } from "@/server/db/schema";
-import type { RetrievedDocument } from "@/server/contracts/chat";
+import type { Citation, RetrievedDocument } from "@/server/contracts/chat";
 
 type AnyDb = Record<string, (...args: never[]) => never>;
 
@@ -104,18 +104,44 @@ export function chatRepo(db: unknown) {
         .returning();
     },
 
-    async citationsFor(messageIds: string[]): Promise<Record<string, { documentId: string; quote: string | null }[]>> {
+    /**
+     * The citations on these messages, resolved to something a reader can open.
+     *
+     * The join is a LEFT JOIN and the two resolved columns are nullable on
+     * purpose. `chat_citation` is append-only and must keep naming the
+     * document it named; `search_document` is a projection that can be
+     * rewritten or removed under it. When it has been — the document was
+     * unpublished, or an anonymous reader's RLS policy hides it — the citation
+     * still renders, without a title and without a link, which is the honest
+     * rendering of "this was cited and you cannot currently read it".
+     */
+    async citationsFor(messageIds: string[]): Promise<Record<string, Citation[]>> {
       if (!messageIds.length) return {};
-      const rows = (await d
-        .select()
-        .from(chatCitation)
-        .where(inArray(chatCitation.messageId, messageIds))
-        .orderBy(asc(chatCitation.createdAt))
-        .limit(1000)) as unknown as { messageId: string; documentId: string; quote: string | null }[];
+      const result = await d.execute(sql`
+        SELECT c.message_id, c.document_id, c.quote, sd.title, sd.href
+        FROM chat_citation c
+        LEFT JOIN search_document sd ON sd.id = c.document_id
+        WHERE c.message_id IN (${sql.join(messageIds.map((id) => sql`${id}`), sql`, `)})
+        ORDER BY c.created_at ASC
+        LIMIT 1000
+      `);
 
-      const grouped: Record<string, { documentId: string; quote: string | null }[]> = {};
+      const rows = result.rows as {
+        message_id: string;
+        document_id: string;
+        quote: string | null;
+        title: string | null;
+        href: string | null;
+      }[];
+
+      const grouped: Record<string, Citation[]> = {};
       for (const row of rows) {
-        (grouped[row.messageId] ??= []).push({ documentId: row.documentId, quote: row.quote });
+        (grouped[row.message_id] ??= []).push({
+          documentId: row.document_id,
+          quote: row.quote,
+          title: row.title ?? null,
+          href: row.href ?? null,
+        });
       }
       return grouped;
     },

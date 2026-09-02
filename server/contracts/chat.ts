@@ -21,9 +21,27 @@ export const postMessageSchema = z.object({
 });
 export type PostMessage = z.infer<typeof postMessageSchema>;
 
+/**
+ * What the reader is shown as the source of a sentence.
+ *
+ * `documentId` alone was the whole citation until 2026-09-02, and a bare uuid
+ * is not a citation — it is a promise that one exists. On a desk whose entire
+ * claim is that assertions are checkable, an answer footnoted with
+ * `4f9c…-…` and no way to reach the document is the weakest possible version
+ * of the strongest thing this product does.
+ *
+ * `title` and `href` are read from the search projection at transcript time
+ * rather than copied into `chat_citation`: the citation must keep naming the
+ * document it named, but the document's title and location are the
+ * projection's to change. Both are nullable — a document that has since been
+ * unpublished, or one with no public page (see `searchHitSchema.href`),
+ * resolves to nothing, and the transcript says so instead of inventing a URL.
+ */
 export const citationSchema = z.object({
   documentId: uuidSchema,
   quote: z.string().nullable(),
+  title: z.string().nullable(),
+  href: z.string().nullable(),
 });
 export type Citation = z.infer<typeof citationSchema>;
 

@@ -17,6 +17,20 @@ export const searchHitSchema = z.object({
   documentId: uuidSchema,
   entityType: entityTypeSchema,
   entityId: uuidSchema,
+  /** The entity's stable public identifier, where it has one. */
+  publicId: z.string().nullable(),
+  /**
+   * Where a reader goes to read this — the destination the hit resolves to,
+   * written into the projection rather than derived by a client from
+   * `entityType` + `entityId`, neither of which anything public can resolve.
+   *
+   * **Null is a real answer and must be rendered as one.** A publication is
+   * addressable only through `/articles/[publicId]`, which is briefing-only;
+   * an information item has a public id and no page at all. A client that
+   * fabricates a URL from `publicId` will manufacture 404s. Show an
+   * unreachable hit as unreachable, or do not show it.
+   */
+  href: z.string().nullable(),
   title: z.string(),
   /** Reciprocal Rank Fusion score. Comparable *within* one result set and
    *  meaningless outside it — deliberately not a percentage or a confidence,

@@ -1,7 +1,7 @@
 /**
  * The motion primitive library.
  *
- * Eight behaviours were taken from Magic UI (magicui.design) and rewritten
+ * Six behaviours were taken from Magic UI (magicui.design) and rewritten
  * against this project's tokens and architecture. None of the original source
  * survives verbatim; what carried over is the mechanism, which is the part
  * that was worth having. See `README.md` in this directory for what each one

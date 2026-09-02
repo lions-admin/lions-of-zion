@@ -36,6 +36,54 @@ Wanted by: `server/db/client.ts`, and `drizzle-kit` for `db:migrate` /
 `db:push` / `db:studio`. Generating migrations from the schema needs no
 database at all.
 
+#### Remote workspaces and fresh checkouts
+
+`.env.local` is intentionally ignored by Git, so it does not follow the
+repository into a remote workspace, a new clone, or another worktree. A
+remote session that renders a database-backed route must be provisioned again
+before starting `next dev`.
+
+Do not treat `vercel env pull` as proof that the database is usable. Vercel
+writes `[SENSITIVE]` for protected values, and `vercel env run` can receive the
+same placeholder. That value is not a connection string; the application will
+reject it with `DATABASE_URL is not a PostgreSQL connection URL`.
+
+Use this recovery sequence:
+
+1. Provision the remote workspace's secret store with a **pooled connection
+   string from a Neon Preview branch**, exposed to the process as
+   `DATABASE_URL`. Do not use the Production branch for ordinary development.
+2. Set `DATABASE_URL_UNPOOLED` from the same Preview branch when migration or
+   administrative tooling needs it, and label the binding with
+   `DATABASE_RESOURCE_ENV=preview`.
+3. If the workspace has an authenticated Neon CLI profile, discover the
+   project and Preview branch rather than copying IDs from documentation:
+
+   ```bash
+   npx neonctl projects list --output json
+   npx neonctl branches list --project-id <project-id> --output json
+   npx neonctl connection-string <preview-branch> \
+     --project-id <project-id> --role-name neondb_owner \
+     --database-name neondb --pooled
+   ```
+
+   Write the returned value directly to the workspace secret store or its
+   mode-`0600` `.env.local`; never paste it into chat, task logs, commits, or
+   documentation. Repeat without `--pooled` only for
+   `DATABASE_URL_UNPOOLED`.
+4. Restart the development server after provisioning. Confirm a
+   database-backed page returns successfully without printing the secret:
+
+   ```bash
+   curl --fail --silent --output /dev/null http://localhost:3000/geopolitical-brief
+   ```
+
+If the remote runtime has neither an injected Preview secret nor authorized
+Neon access, it cannot repair this locally. Use the deployed Preview URL for
+review and ask an authorized operator to provision the workspace. Never work
+around the guard by weakening `databaseUrl()` validation or committing a
+connection string.
+
 ### `TEST_DATABASE_URL`
 A real Postgres **with pgvector**, for the integration tests PGlite cannot run.
 Leave unset to skip those tests — `hasVectorDatabase()` gates them.

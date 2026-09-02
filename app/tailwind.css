@@ -1,0 +1,197 @@
+/*
+ * Tailwind entry — machine-owned. The shadcn CLI appends here (`components.json`
+ * points `tailwind.css` at this file, never at `globals.css`), so nothing in here
+ * is safe to hand-tune except the blocks marked below.
+ *
+ * `app/globals.css` stays hand-authored and owns the reset and the V3 tokens.
+ * Nothing in this file may be a base rule.
+ */
+
+/* Layer order is fixed at first appearance, and Next warns that CSS ordering can
+   differ between dev and the build — so this statement is duplicated verbatim at
+   the top of `globals.css`. A repeated `@layer` statement is a no-op; having it in
+   both files makes each self-sufficient against the chunker reordering them. */
+@layer theme, base, components, utilities;
+
+/* Imported individually rather than as the `tailwindcss` bundle, purely so that
+   Preflight can be left out. Preflight would inject a second `*` reset,
+   `h1{font-size:inherit;font-weight:inherit}` (erasing the V3 type scale on every
+   heading), `button{background:transparent}` (erasing button.module.css's five
+   variants) and `img{display:block}` — into layer(base), where each loses to the
+   CSS Modules anyway. It would be 3 kB of dead weight that is occasionally not
+   dead. `app/globals.css` is this project's preflight. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/* `source(none)` turns off automatic content detection; these three roots turn it
+   back on for the 292 files that are actually source. Without it Tailwind walks
+   all 1,467 non-ignored files — including the 906 KB docs/project-map.html and
+   1.1 MB of content-package media JSON — extracting class candidates from Hebrew
+   prose and blob URLs. Paths are relative to this stylesheet. */
+@source "../app";
+@source "../components";
+@source "../lib";
+
+/* The site has one mode; `<html className="dark …">` in app/layout.tsx arms this
+   so registry components' `dark:` variants are live rather than dead markup. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* An explicit name for the project's real responsive seam (720px). Tailwind's
+   `md:` is 768px and is deliberately left alone — remapping it would silently
+   move the mental model of 40 existing stylesheets that were written against
+   it. Use `seam:` when writing a utility that must agree with the orbit and
+   intro breakpoint, which `tests/particle-nav-layout.test.ts` pins exactly. */
+@custom-variant seam (@media (width >= 45rem));
+
+/*
+ * ── THE TOKEN BRIDGE ────────────────────────────────────────────────────────
+ *
+ * `@theme inline` compiles `.bg-gold` to `background-color: var(--gold)` rather
+ * than copying the value, so the V3 block in `globals.css` stays the single
+ * source of truth and Tailwind only dereferences it. `inline` is also what makes
+ * the faces work at all: the next/font variables are declared on <html>, deeper
+ * than :root, so a non-inline theme would snapshot them as empty.
+ *
+ * Every key below is named DIFFERENTLY from the token it points at. A key
+ * identical to its own source (`--radius-1: var(--radius-1)`) is a self-reference
+ * Tailwind cannot see through, and it silently yields an invalid value.
+ *
+ * Tailwind's default theme is deliberately NOT wiped with `--*: initial`. Magic
+ * UI source is only near-verbatim because `text-white`, `border-white/10`,
+ * `px-6`, `size-full` and `rounded-2xl` resolve; clearing the defaults would mean
+ * hand-editing every component, which is the thing this integration exists to
+ * avoid.
+ */
+@theme inline {
+  /* ── Faces. Re-pointing Tailwind's three defaults means `font-sans`,
+     `font-serif` and `font-mono` in verbatim registry source land on IBM Plex
+     Sans, Newsreader and JetBrains Mono with no edit. */
+  --font-sans: var(--face-text);
+  --font-serif: var(--face-display);
+  --font-mono: var(--face-data);
+  --font-display: var(--face-display);
+  --font-data: var(--face-data);
+
+  /* ── Type. Each step carries its own line-height, weight and tracking, so
+     `text-lede` is the designed result rather than a bare size. */
+  --text-display: var(--t-display);
+  --text-display--line-height: var(--t-display-lh);
+  --text-display--font-weight: var(--t-display-weight);
+  --text-display--letter-spacing: var(--t-display-tracking);
+
+  --text-h2: var(--t-h2);
+  --text-h2--line-height: var(--t-h2-lh);
+  --text-h2--font-weight: var(--t-h2-weight);
+  --text-h2--letter-spacing: var(--t-h2-tracking);
+
+  --text-figure: var(--t-figure);
+  --text-figure--line-height: var(--t-figure-lh);
+  --text-figure--font-weight: var(--t-figure-weight);
+
+  --text-h3: var(--t-h3);
+  --text-h3--line-height: var(--t-h3-lh);
+  --text-h3--font-weight: var(--t-h3-weight);
+  --text-h3--letter-spacing: var(--t-h3-tracking);
+
+  --text-lede: var(--t-lede);
+  --text-lede--line-height: var(--t-lede-lh);
+  --text-lede--font-weight: var(--t-lede-weight);
+
+  --text-body: var(--t-body);
+  --text-body--line-height: var(--t-body-lh);
+
+  --text-small: var(--t-small);
+  --text-small--line-height: var(--t-small-lh);
+
+  --text-caption: var(--t-caption);
+  --text-caption--line-height: var(--t-caption-lh);
+  --text-caption--font-weight: var(--t-caption-weight);
+
+  --text-data: var(--t-data);
+  --text-data--line-height: var(--t-data-lh);
+  --text-data--font-weight: var(--t-data-weight);
+  --text-data--letter-spacing: var(--t-data-tracking);
+
+  /* ── Colour, under the V3 names. */
+  --color-ground: var(--ground);
+  --color-ink-hi: var(--ink-hi);
+  --color-ink: var(--ink);
+  --color-ink-lo: var(--ink-lo);
+  --color-gold: var(--gold);
+  --color-gold-hi: var(--gold-hi);
+  --color-gold-dim: var(--gold-dim);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-gold-line: var(--gold-line);
+  --color-gold-line-strong: var(--gold-line-strong);
+  --color-gold-wash: var(--gold-wash);
+  --color-ember: var(--data-ember);
+  --color-ember-dim: var(--data-ember-dim);
+  --color-ember-peak: var(--data-ember-peak);
+  --color-ember-wash: var(--data-ember-wash);
+  --color-ok: var(--state-ok);
+  --color-ok-wash: var(--state-ok-wash);
+  --color-ok-line: var(--state-ok-line);
+  --color-warn: var(--state-warn);
+  --color-warn-wash: var(--state-warn-wash);
+  --color-warn-line: var(--state-warn-line);
+  --color-danger: var(--state-danger);
+  --color-danger-wash: var(--state-danger-wash);
+  --color-danger-line: var(--state-danger-line);
+
+  /* shadcn's semantic names aliased onto the same tokens. This is the block that
+     makes a near-verbatim install possible: any registry component reading
+     `bg-background`, `text-muted-foreground`, `border-border` or `ring-ring`
+     lands on the verification desk with zero edits. */
+  --color-background: var(--ground);
+  --color-foreground: var(--ink-hi);
+  --color-card: var(--surface-1);
+  --color-card-foreground: var(--ink-hi);
+  --color-popover: var(--surface-2);
+  --color-popover-foreground: var(--ink-hi);
+  --color-primary: var(--gold);
+  --color-primary-foreground: var(--ground);
+  --color-secondary: var(--surface-2);
+  --color-secondary-foreground: var(--ink-hi);
+  --color-muted: var(--surface-2);
+  --color-muted-foreground: var(--ink-lo);
+  --color-accent: var(--surface-3);
+  --color-accent-foreground: var(--ink-hi);
+  --color-destructive: var(--state-danger);
+  --color-destructive-foreground: var(--ground);
+  --color-border: var(--line);
+  --color-input: var(--line-strong);
+  --color-ring: var(--gold-hi);
+
+  /* ── Shape, depth, stacking, measure. */
+  --radius-hairline: var(--radius-1);
+  --radius-control: var(--radius-2);
+  --radius-panel: var(--radius-3);
+  --shadow-raise: var(--shadow-1);
+  --shadow-float: var(--shadow-2);
+  --shadow-lift: var(--shadow-3);
+
+  /* ── Motion.
+     `--ease-out`, `--ease-in` and `--ease-in-out` are deliberately absent:
+     globals.css declares all three unlayered on :root, and unlayered beats
+     layer(theme), so `ease-out` in verbatim registry source ALREADY resolves to
+     the house curve cubic-bezier(.16,1,.3,1) rather than Tailwind's. That
+     shadowing is intentional; redeclaring them here would only make it a
+     self-reference. The two keys below move the bare `transition` utility off
+     Tailwind's 150ms default and onto the house register. */
+  --default-transition-duration: var(--dur-base);
+  --default-transition-timing-function: var(--ease-out);
+
+  /* ── Spacing. Nothing to remap: the V3 nine-step scale is already an exact
+     subset of Tailwind's 0.25rem base — sp-1→1, sp-2→2, sp-3→3, sp-4→4,
+     sp-5→6, sp-6→8, sp-7→12, sp-8→18, sp-9→24 — so `px-6` in a verbatim
+     component IS `--sp-5`. Only the two off-scale chrome measurements are
+     named here. */
+  --spacing-header: var(--header-h);
+  --spacing-control: var(--control-h);
+  --spacing-control-sm: var(--control-h-sm);
+}

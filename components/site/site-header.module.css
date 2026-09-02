@@ -460,3 +460,72 @@
   .explorePanel,
   .mobilePanel { animation: none; }
 }
+
+/* ── Panel visibility, and the no-JavaScript tier ──────────────────────────
+ *
+ * Added 2026-09-02, fixing a defect that had made `ci-smoke.mjs` fail and had
+ * left five of the eight destinations unreachable without JavaScript.
+ *
+ * Both panels used to be mounted on client state (`{open ? <div/> : null}`), so
+ * neither existed in the server HTML. The markup now always ships and `hidden`
+ * carries the state instead. Two rules are needed to make that hold.
+ *
+ * First: `hidden` is a UA-stylesheet `display: none`, and the mobile block below
+ * sets `.mobilePanel { display: grid }`, which outranks it. The attribute
+ * selector restores the win at equal-or-higher specificity.
+ */
+.explorePanel[hidden],
+.mobilePanel[hidden] {
+  display: none;
+}
+
+/*
+ * Second: with scripting off, `hidden` is never removed — a panel opened only by
+ * a click handler can never be opened. So the section index stops being a
+ * dropdown and becomes a static list under the bar. This is the same "the static
+ * index is a tier, not the home" reasoning already recorded for the phone.
+ *
+ * `scripting: none` is the mechanism `components/motion/Reveal.tsx` already
+ * relies on, so support is assumed rather than newly bet on.
+ */
+@media (scripting: none) {
+  /* A control that cannot do anything should not claim it can. */
+  .exploreTrigger,
+  .mobileTrigger {
+    display: none;
+  }
+
+  .header {
+    position: static;
+    pointer-events: auto;
+  }
+
+  .bar {
+    width: 100%;
+    max-width: none;
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  /* The index takes its place in the flow rather than floating over the page. */
+  .explorePanel[hidden] {
+    display: block;
+    position: static;
+    width: 100%;
+    max-height: none;
+    transform: none;
+    animation: none;
+    margin-top: var(--sp-3);
+  }
+
+  .exploreColumns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-4);
+  }
+
+  /* The mobile panel would repeat the same eight links a second time. */
+  .mobilePanel[hidden] {
+    display: none;
+  }
+}

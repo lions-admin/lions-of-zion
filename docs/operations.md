@@ -13,8 +13,12 @@ npm run dev
 ```
 
 Open <http://localhost:3000>. **No configuration is required** — the frontend
-needs no environment variables, and the test suite runs against an in-process
-database.
+and static routes need no environment variables, and the test suite runs
+against an in-process database. Database-backed pages and API routes need a
+real Preview `DATABASE_URL`. Fresh clones, worktrees, and remote workspaces do
+not inherit `.env.local`; follow the
+[remote-workspace recovery procedure](environment.md#remote-workspaces-and-fresh-checkouts)
+before starting the server.
 
 Requires Node 24 (what CI and Vercel use). The API routes will fail without a
 `DATABASE_URL`; see [`environment.md`](environment.md).
@@ -377,10 +381,19 @@ Expected without `TEST_DATABASE_URL`. PGlite has no pgvector, and no package
 publishes it separately.
 
 ### A story-timeline edit was rejected by a hook
-`.claude/hooks/check-story-timeline.mjs` runs on every `Edit`/`Write` and
-re-checks the intro invariants — 12 beats, the `battlefield-for-truth` id,
-desktop and mobile line arrays rejoining to the canonical text — then runs
-`tsc --noEmit`. See `CLAUDE.md`.
+**It was not — that hook no longer runs.** It was removed in `7229053` and
+`.claude/settings.json` is now `"hooks": {}`. The script is still there and
+still correct; run it by hand:
+
+```bash
+node .claude/hooks/check-story-timeline.mjs
+```
+
+It checks the intro invariants — 12 beats, the `battlefield-for-truth` id,
+desktop and mobile line arrays rejoining to the canonical text, and the mobile
+runtime staying within 10% of desktop. `tests/particle-nav-layout.test.ts`
+asserts the same budgets and *does* run in CI, so `npm test` is the gate that
+actually catches a broken timeline. See `CLAUDE.md`.
 ### מדידת לחץ חיבורים
 
 בסביבת בדיקה מבודדת בלבד מריצים `TEST_DATABASE_URL=... pnpm briefing:db-pressure`.

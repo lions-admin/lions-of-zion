@@ -1,7 +1,39 @@
 /* Lions of Zion · design system v3 — "the verification desk"
  * Three faces, one scale, one accent. Every value on screen answers to this file.
  */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/*
+ * ── THE CASCADE CONTRACT — read before moving any rule in this file ─────────
+ *
+ * Tailwind v4 is wired (`app/tailwind.css`), and CSS layers decide who wins
+ * before specificity is even consulted. Two consequences govern this file:
+ *
+ * 1. UNLAYERED BEATS EVERY LAYER, at any specificity. So `* { margin: 0 }` left
+ *    unlayered would defeat every `m-*` / `p-*` utility in every Magic UI
+ *    component — they would render with correct colour and no layout at all.
+ *    Every ELEMENT DEFAULT therefore lives in `@layer base` below.
+ *
+ * 2. The converse is a feature, and three blocks depend on it. The `:has()`
+ *    intro locks, the `:focus-visible` ring and the `prefers-reduced-motion`
+ *    kill-switch stay UNLAYERED on purpose, so that no registry component can
+ *    out-rank them. Move the intro lock into a layer and every CSS Module
+ *    outranks it and a 47-second cinematic becomes scrollable; layer the
+ *    kill-switch and `animate-*` utilities defeat reduced motion.
+ *
+ * `tests/tailwind-cascade.test.ts` pins both halves.
+ *
+ * The statement below is duplicated verbatim at the top of `app/tailwind.css`.
+ * Layer order is fixed at first appearance and Next warns that CSS order can
+ * differ between dev and the build, so each file declares it independently. A
+ * repeated `@layer` statement is a no-op.
+ */
+@layer theme, base, components, utilities;
+
+@layer base {
+  /* The project's preflight. Tailwind's own is deliberately never imported —
+     see the note in `app/tailwind.css`. */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+}
 
 /*
  * Design V3 tokens.
@@ -29,7 +61,7 @@
   --font-sans: var(--face-text);
   --font-mono: var(--face-data);
 
-  /* ── Type scale — eight steps, each shipping its own line-height, weight
+  /* ── Type scale — nine steps, each shipping its own line-height, weight
      and tracking so a consumer sets one family of properties and gets a
      designed result. `--t-data` is the floor: 12px, nothing below it. ── */
   --t-display: clamp(2.5rem, 1.55rem + 3.4vw, 4.25rem);
@@ -209,6 +241,64 @@
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
 
+  /* ── Stacking order ─────────────────────────────────────────────────────
+     Added 2026-09-02. Before this the file had no z-index vocabulary at all,
+     so modules invented one: an audit found 22 distinct literals in use
+     (`1000`, `120`, `110`, `100`, `60`, `50`, `30`, `25`, `20`, `18`, `15`,
+     `14`, `12`, `10`, `6`, `5`, `4`, `3`, `2`, `1`, `0`, `-1`) with no
+     relation between them. These ten are the whole vocabulary; a module that
+     needs a value not on this list is describing a layer the design does not
+     have. Gaps of 100 leave room to insert without renumbering. */
+  --z-under: -1;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-header: 200;
+  --z-overlay: 300;
+  --z-panel: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  /* The cinematic entrance layer, which must clear everything. */
+  --z-intro: 1000;
+
+  /* ── Reading measures ───────────────────────────────────────────────────
+     The 68ch reading measure was named in a comment here but never
+     tokenised, so 17 distinct `ch` values had accumulated across the
+     modules (80, 72, 68, 64, 62, 60, 58, 54, 46, 44, 42, 34, 32, 28, 24,
+     20, 14). These five are the ones the design actually distinguishes. */
+  --measure-wide: 80ch;
+  --measure-reading: 68ch;
+  --measure-narrow: 54ch;
+  --measure-caption: 44ch;
+  --measure-data: 24ch;
+
+  /* ── Hairline weights ───────────────────────────────────────────────── */
+  --line-w: 1px;
+  --line-w-thick: 2px;
+
+  /* ── Breakpoints ────────────────────────────────────────────────────────
+     Honest limitation: a custom property cannot be used inside a `@media`
+     prelude, so these do NOT replace the literals in the modules. They exist
+     so the canonical seams have names, for container queries and for JS that
+     must agree with the CSS. The real seams are two:
+
+       --bp-seam   720px — the one breakpoint the orbit and the intro share.
+                   `tests/particle-nav-layout.test.ts` and
+                   `tests/intro-layout.test.ts` both pin it at exactly this
+                   value (`introLayoutName(719)` is mobile, `(720)` desktop),
+                   so it is a contract, not a preference.
+       --bp-rails 1220px — where SectionPage grows its TOC rail and the
+                   evidence margin.
+
+     The audit found 26 breakpoints in mixed units, including `768px` and
+     `48rem` — the same seam written twice — and `640px`/`40rem` likewise.
+     New work uses these two unless it has a reason not to. Note Tailwind's
+     `md:` is 768px and is deliberately NOT remapped onto 720px: doing so
+     would silently move the mental model of 40 existing stylesheets. Use the
+     explicit `seam:` variant declared in `app/tailwind.css` instead. */
+  --bp-seam: 45rem;
+  --bp-rails: 76.25rem;
+
 }
 
 /*
@@ -349,49 +439,59 @@ html:has([data-handoff-blocked]) body {
   overflow: hidden;
 }
 
-html { color-scheme: dark; }
-body {
-  font-family: var(--face-text);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  font-optical-sizing: auto;
-  font-kerning: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: var(--ink-hi);
+@layer base {
+  html { color-scheme: dark; }
+
+  body {
+    font-family: var(--face-text);
+    font-size: var(--t-body);
+    line-height: var(--t-body-lh);
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--ink-hi);
+  }
+
+  /* Headlines are the editorial voice by default; a module that needs the
+     sans for a UI heading opts out explicitly. Balanced wrapping and the
+     optical-size axis are what make Newsreader read as a display cut at
+     display sizes and as a text cut at entry-title sizes. */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--face-display);
+    font-optical-sizing: auto;
+    font-weight: var(--t-h3-weight);
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  p, li, dd, figcaption, blockquote {
+    text-wrap: pretty;
+  }
+
+  blockquote, q {
+    hanging-punctuation: first;
+  }
+
+  strong, b { font-weight: 600; }
+
+  /* Figures, dates and counts line up as columns wherever they appear. */
+  time, data, code, kbd, samp, [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  code, kbd, samp {
+    font-family: var(--face-data);
+    font-size: 0.92em;
+  }
+
+  canvas { display: block; }
+  button, canvas, a { -webkit-tap-highlight-color: transparent; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  img, video { max-width: 100%; height: auto; }
 }
 
-/* Headlines are the editorial voice by default; a module that needs the
-   sans for a UI heading opts out explicitly. Balanced wrapping and the
-   optical-size axis are what make Newsreader read as a display cut at
-   display sizes and as a text cut at entry-title sizes. */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-weight: var(--t-h3-weight);
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-}
-
-p, li, dd, figcaption, blockquote {
-  text-wrap: pretty;
-}
-
-blockquote, q {
-  hanging-punctuation: first;
-}
-
-strong, b { font-weight: 600; }
-
-/* Figures, dates and counts line up as columns wherever they appear. */
-time, data, code, kbd, samp, [data-numeric] {
-  font-variant-numeric: tabular-nums;
-}
-
-code, kbd, samp {
-  font-family: var(--face-data);
-  font-size: 0.92em;
-}
+/* ── Unlayered from here down, each for a stated reason ──────────────────── */
 
 ::selection {
   background: color-mix(in oklab, var(--gold) 38%, transparent);
@@ -400,7 +500,11 @@ code, kbd, samp {
 
 /* The one focus treatment. Every interactive element gets it for free; a
    module may restyle the *shape* (offset, radius) but never the colour or
-   the fact of it, and never animates its appearance. */
+   the fact of it, and never animates its appearance.
+
+   Unlayered deliberately: a registry component shipping
+   `focus-visible:outline-none` must not be able to remove it. Magic UI's own
+   rings become additive decoration on top of the gold outline. */
 :focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-offset);
@@ -408,13 +512,15 @@ code, kbd, samp {
 
 :focus:not(:focus-visible) { outline: none; }
 
-canvas { display: block; }
-button, canvas, a { -webkit-tap-highlight-color: transparent; }
-button, input, select, textarea { font: inherit; color: inherit; }
-img, video { max-width: 100%; height: auto; }
-
 [data-public-shell] { padding-top: var(--header-h); }
 
+/* The master kill-switch. Unlayered `!important`, and it must stay that way:
+   a layered `!important` beats an unlayered one, so importing Tailwind's
+   utilities with the `important` flag would let every `animate-*` class
+   defeat this. `app/tailwind.css` never sets that flag; the tripwire test
+   pins it. Note this is CSS-only — it cannot reach `motion`'s inline
+   transforms, which is why any `motion` mount needs `<MotionConfig
+   reducedMotion="user">`. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

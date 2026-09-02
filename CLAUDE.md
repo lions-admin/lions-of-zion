@@ -22,10 +22,12 @@ document continues into a front-page band of real editorial content. There is
 no photographic landing page after the intro. The eight destinations behind the
 nav are ordinary scrolling document pages.
 
-The home route's below-the-fold band is new (`components/home/`); the invariant
-that it had none is retired — see `.ai/DECISIONS.md`. The scene above it still
-owns exactly one viewport and is still `position: fixed; inset: 0`, which is
-load-bearing and not a style choice.
+**Corrected 2026-09-02: there is no `components/home/` directory**, and this
+paragraph claimed one for months. The home route is `app/page.tsx` plus
+`app/home.module.css`: the entrance gate, a hero carrying the typographic field
+and wordmark, and a three-item "Intelligence desk" headline rail. The scene
+above it still owns exactly one viewport and is still `position: fixed;
+inset: 0`, which is load-bearing and not a style choice.
 
 The repository also carries an independent information-model backend under
 `app/api/` and `server/`. The two halves share no source files and are kept
@@ -193,8 +195,15 @@ Any edit to intro timing, copy, or composition must be captured in real Chrome.
   `STORY_BEAT_STARTS` assume exactly 12 beats.
 - The id `battlefield-for-truth` is referenced by the renderer.
 - Desktop and mobile line arrays must rejoin to the canonical text.
-- A `PostToolUse` hook re-checks these invariants after every edit and also runs
-  `tsc --noEmit`, so a broken timeline surfaces before the next command.
+- **The `PostToolUse` hook this line used to promise does not run.** It was
+  removed in `7229053` ("chore: remove agent workflow gates") and
+  `.claude/settings.json` now reads `"hooks": {}`; the script survives at
+  `.claude/hooks/check-story-timeline.mjs` and can be run by hand. Nothing
+  re-checks these invariants after an edit, and nothing runs `tsc --noEmit`
+  for you — run `npm run typecheck` yourself. What *is* still enforced is the
+  CI-side copy: `tests/particle-nav-layout.test.ts` asserts the same cadence,
+  pool-size and mobile-drift budget, so a broken timeline fails `npm test`
+  rather than the next command.
 
 ### Unified intro and navigation renderer
 

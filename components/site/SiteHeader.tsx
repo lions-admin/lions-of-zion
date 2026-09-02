@@ -133,8 +133,16 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
               <span className={styles.menuIndicator} aria-hidden="true" />
             </button>
 
-            {exploreOpen ? (
-              <div className={styles.explorePanel} id={explorePanelId}>
+            {/* Rendered unconditionally and hidden with the `hidden` attribute
+                rather than mounted on state. Conditional mounting kept this
+                panel out of the server HTML entirely, and with it five of the
+                eight destinations — `support-us`, `war-update`, `our-heroes`,
+                `fake-resistance` and `we-are` had no reachable link anywhere on
+                the site without JavaScript. `ci-smoke.mjs` asserts all eight are
+                present; `@media (scripting: none)` in the stylesheet renders
+                this as a static index, since a panel that can only be opened by
+                a click handler cannot be opened at all. */}
+            <div className={styles.explorePanel} id={explorePanelId} hidden={!exploreOpen}>
                 <div className={styles.exploreHeading}>
                   <span className={styles.panelEyebrow}>Explore the system</span>
                   <span className={styles.panelIndex}>01—08</span>
@@ -162,8 +170,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
                     ))}
                   </div>
                 </div>
-              </div>
-            ) : null}
+            </div>
           </div>
           <Link className={`${styles.navLink} ${styles.accountLink}`} href="/account" onClick={closePanels}>
             Account
@@ -182,15 +189,16 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
           <span className={styles.menuIndicator} aria-hidden="true" />
         </button>
 
-        {mobileOpen ? (
-          <div className={styles.mobilePanel} id={mobilePanelId}>
+        {/* Same reasoning as the explore panel above: always in the DOM, hidden
+            by attribute. On a phone with scripting off this was the whole
+            navigation, and it was rendering nothing at all. */}
+        <div className={styles.mobilePanel} id={mobilePanelId} hidden={!mobileOpen}>
             <span className={styles.mobileLabel}>Sections</span>
             {EXPLORE_NAVIGATION.map((item) => renderLink(item, true))}
             <span className={styles.mobileLabel}>Resources</span>
             <Link className={styles.mobileLink} href="/information-war" onClick={closePanels}>Investigations</Link>
             {RESOURCE_NAVIGATION.map((item) => renderLink(item, true))}
-          </div>
-        ) : null}
+        </div>
       </nav>
     </header>
   );

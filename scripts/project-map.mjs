@@ -184,13 +184,13 @@ const entryPoints = files.filter((f) =>
   /^app\/.*(page|layout|route|loading|error|not-found|template|default)\.tsx?$/.test(f) ||
   /^app\/(sitemap|robots|manifest|opengraph-image)\.tsx?$/.test(f) ||
   /^app\/(icon|apple-icon|favicon)\.[a-z]+$/.test(f) ||
-  /^(next\.config|proxy|drizzle\.config|vitest\.config|eslint\.config)\.(ts|mjs)$/.test(f) ||
+  /^(next\.config|proxy|drizzle\.config|vitest\.config|eslint\.config|postcss\.config)\.(ts|mjs)$/.test(f) ||
   /^tests\/.*\.test\.ts$/.test(f) ||
   /^(scripts|content-packages)\//.test(f) ||
   /^server\/db\/migrations\//.test(f) ||
   /^\.(github|claude)\//.test(f) ||
   /^\.design-sync\//.test(f) ||
-  /^(package|package-lock|tsconfig|vercel)\.json$/.test(f) ||
+  /^(package|package-lock|tsconfig|vercel|components)\.json$/.test(f) ||
   /^\.(gitignore|vercelignore|mcp\.json)$/.test(f));
 const reached = new Set(entryPoints);
 const stack = [...entryPoints];

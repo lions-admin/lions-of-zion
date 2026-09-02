@@ -68,7 +68,9 @@ them doesn't produce bolder design, it produces a broken page:
   "ISRAEL'S STORY" as "Israel'S Story". That's a correctness fact, not taste.
 - No root-level `loading.tsx`, ever — it silently kills the no-JavaScript
   render of every route (documented postmortem in `.ai/DECISIONS.md`).
-- A PostToolUse hook runs `tsc --noEmit` after every edit. A red hook is a
+- No hook typechecks for you — the `PostToolUse` gate was removed in
+  `7229053`, and `.claude/settings.json` is `"hooks": {}`. Run
+  `npm run typecheck` yourself before reporting done; a red typecheck is a
   stop, not a footnote.
 - The verification trap below.
 

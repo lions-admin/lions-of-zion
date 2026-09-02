@@ -5,27 +5,47 @@ Six behaviours adapted from [Magic UI](https://magicui.design) in September
 `Spotlight` (from `magic-card`), was built, integrated, and then removed —
 see below.
 
-## Why nothing was installed
+## Why these six were ported rather than installed
 
-Magic UI ships through the shadcn registry as Tailwind-class components that
-import `cn()` from `@/lib/utils` and animate with the `motion` package. This
-project has none of those three things:
+**Updated 2026-09-02: Tailwind v4, shadcn and `motion` are now installed** (see
+`app/tailwind.css`, `components.json`, and the cascade note at the top of
+`app/globals.css`). The paragraphs below describe why these six were ported
+*before* that happened, and they remain the reason the six stay ported rather
+than being replaced by their registry originals.
 
-* **No Tailwind.** `tailwindcss` resolves in `node_modules` only as a
-  transitive dependency of `@neondatabase/auth-ui` and `@react-email/tailwind`.
-  There is no `tailwind.config`, no `postcss.config`, and no `@import
-  "tailwindcss"`. Styling is CSS Modules over the custom properties in
-  `app/globals.css`.
-* **No shadcn.** There is no `components.json`, so `shadcn add` has nothing to
-  write into. The brief's instruction not to initialise a second shadcn config
-  resolves, here, to not initialising a first one for seven components.
-* **No animation library.** Adding `motion` would put ~40 kB gzipped of
-  client JavaScript in front of a home route that already carries a Three.js
-  WebGPU scene, to tween properties the compositor animates for free.
+When these were written the project had none of the three things Magic UI needs:
+Tailwind resolved in `node_modules` only as a transitive dependency, there was no
+`components.json`, and no animation library. Porting six mechanisms was the
+smaller change than standing up the stack for six components.
 
-So the registry sources were read (`https://magicui.design/r/<name>.json`) and
-the *mechanisms* were ported. Five of the seven are pure CSS and render on the
-server. **Dependencies added: none.**
+That calculus changed when the brief called for Magic UI across the whole
+product, and the stack went in. **These six still do not move**, for reasons that
+outlived the original argument:
+
+* **Five of the six render on the server with zero client JavaScript.** Their
+  registry equivalents are all `"use client"` and half pull `motion`.
+* **`motion` server-renders its `initial` variant as an inline style** —
+  `opacity: 0` — and with JavaScript off nothing ever removes it. The content is
+  present in the DOM and invisible. `scripts/ci-smoke.mjs` counts nodes, not
+  visibility, so that failure passes CI green. This directory is what the home
+  route and every no-JS tier uses instead.
+* `Ticker` and `Reveal` are corrections of their originals, not translations —
+  see the table below. Replacing them would reintroduce the bugs.
+
+**The tier rule.** `/` and everything `CinematicIntroGate` wraps: no Magic UI, no
+`motion`, ever — use this directory. Reading routes: a registry component only if
+it is pure CSS and degrades to visible content. Client-only surfaces (`/admin`,
+`/particle-demo`): full Magic UI, wrapped in `<MotionConfig reducedMotion="user">`
+because the CSS kill-switch in `globals.css` cannot reach inline transforms.
+
+**Do not re-export anything `motion`-based from `index.ts`.** This barrel is
+imported by routes that must stay light; a single `motion` re-export puts 34 kB
+into every one of them. Registry components live in `components/magicui/` and are
+imported by path.
+
+Naming hazard, noted rather than renamed: this directory is `components/motion/`
+and the npm package is `motion`. A file importing from both is legal and reads
+badly.
 
 ## What each one came from
 

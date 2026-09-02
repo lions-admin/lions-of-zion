@@ -113,7 +113,18 @@ describe("briefing featured Israel story", () => {
     ]) as never);
 
     expect(edition.dailyBrief.evidenceIds).toContain(officialId);
-    expect(edition.dailyBrief.situation.passages[0]?.evidenceIds).toEqual([officialId]);
+
+    /* Corrected 2026-09-02. This asserted `situation.passages[0]`, and had been
+       failing ever since it was written in 9a7e16f — `normalizeDailyBriefOfficialContext`
+       never touches `situation`. That is the right behaviour, not a bug to fix:
+       an official Israeli source IS the Israeli position, so the normalizer
+       synthesises a passage there (creating the section when the draft left it
+       null) and leaves the situation reporting whatever it actually reported.
+       Asserting the real contract also pins the section's creation, which the
+       old expectation did not cover. */
+    expect(edition.dailyBrief.situation.passages[0]?.evidenceIds).toEqual([adversarialId]);
+    expect(edition.dailyBrief.israeliPosition?.label).toBe("Israeli position");
+    expect(edition.dailyBrief.israeliPosition?.passages[0]?.evidenceIds).toEqual([officialId]);
     expect(edition.articles[0]?.section).toBe("narrative_watch");
     expect(edition.articles[0]?.title).toBe("Reported claim: Regional outlet advances an unverified claim");
     expect(edition.articles[0]?.claims[0]).toMatchObject({ layer: "source_claim", attributedTo: "Regional outlet" });

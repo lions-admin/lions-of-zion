@@ -145,8 +145,23 @@ for (const route of ROUTES) {
  * Chrome on macOS — so on Linux this is the only guard there is.
  *
  * The home route is the test case because it is the one with the most to
- * lose: eight orbit links and the poster are the whole navigation for a
- * reader without scripting. */
+ * lose: the section index and the poster are the whole navigation for a reader
+ * without scripting.
+ *
+ * Rewritten 2026-09-02. This used to count `a[data-node-index]` — the eight
+ * orbit links of the particle radial navigation. That navigation is no longer
+ * on the home route: `CinematicIntroGate` runs the scene with `introOnly`, and
+ * `NavLinks` is now mounted only by `/particle-demo`. So the assertion was
+ * testing an implementation the design had left, and it had been FAILING —
+ * which is how a real defect hid behind it. The header's Explore panel was
+ * mounted on client state, so with scripting off five of the eight destinations
+ * (`support-us`, `war-update`, `our-heroes`, `fake-resistance`, `we-are`) had no
+ * reachable link anywhere on the site.
+ *
+ * What is asserted now is the invariant that actually matters and does not
+ * name an implementation: every destination in SITE_NAVIGATION, plus the two
+ * reference routes, is reachable by href from the home route with scripting
+ * off. That is strictly stronger than the old count. */
 const noJs = await browser.newContext({ javaScriptEnabled: false, reducedMotion: "reduce" });
 const noJsPage = await noJs.newPage();
 const noJsResponse = await noJsPage.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
@@ -155,19 +170,38 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
   console.error(`FAIL /: HTTP ${noJsResponse?.status() ?? 0} with JavaScript disabled`);
   failed = true;
 } else {
-  const links = await noJsPage.locator("a[data-node-index]").count();
+  /* Kept in step with `lib/site-navigation.ts` by hand: this script is plain
+     node with no bundler, so it cannot import the TypeScript module. A new
+     section that is not added here is not smoke-tested. */
+  const DESTINATIONS = [
+    "/geopolitical-brief", "/support-us", "/war-update", "/october-7",
+    "/our-heroes", "/israels-story", "/fake-resistance", "/we-are",
+    "/methodology", "/corrections",
+  ];
+
+  const missing = [];
+  for (const href of DESTINATIONS) {
+    if ((await noJsPage.locator(`a[href="${href}"]`).count()) === 0) missing.push(href);
+  }
   const poster = await noJsPage.locator("picture img, img[src*='particle-nav']").count();
   const shell = await noJsPage.locator('div[hidden][id^="S:"]').count();
 
-  if (links < 8 || poster < 1 || shell > 0) {
+  if (missing.length > 0 || poster < 1 || shell > 0) {
     console.error(
-      `FAIL / without JavaScript: ${links}/8 orbit links, ${poster} poster, ` +
+      `FAIL / without JavaScript: ${DESTINATIONS.length - missing.length}/` +
+        `${DESTINATIONS.length} destinations reachable, ${poster} poster, ` +
         `${shell} hidden Suspense shell(s).` +
+        (missing.length > 0
+          ? ` Unreachable: ${missing.join(", ")}. A panel mounted on client state` +
+            " is the usual cause — render it always and toggle `hidden`."
+          : "") +
         (shell > 0 ? " A root-level loading.tsx is the usual cause — see CLAUDE.md." : ""),
     );
     failed = true;
   } else {
-    console.log(`ok   /            (no JavaScript: ${links} links, poster present)`);
+    console.log(
+      `ok   /            (no JavaScript: ${DESTINATIONS.length} destinations, poster present)`,
+    );
   }
 }
 await noJs.close();

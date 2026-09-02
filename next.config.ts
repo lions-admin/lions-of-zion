@@ -5,7 +5,11 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""} https://www.paypal.com https://www.paypalobjects.com https://accounts.google.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://www.paypal.com https://www.paypalobjects.com",
+  /* `pics.paypal.com` serves the donate button's own button artwork. It was
+     missing until 2026-09-02, so every image on the PayPal button was blocked
+     by CSP in production and `/support-us` logged three console errors —
+     which is a `ci-smoke.mjs` failure, since that script tolerates zero. */
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://www.paypal.com https://www.paypalobjects.com https://pics.paypal.com",
   "media-src 'self' blob: https://*.public.blob.vercel-storage.com",
   "font-src 'self' data:",
   `connect-src 'self' https://*.paypal.com https://*.paypalobjects.com https://accounts.google.com${isDevelopment ? " ws: wss:" : ""}`,

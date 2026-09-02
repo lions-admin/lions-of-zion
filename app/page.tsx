@@ -4,11 +4,11 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { CinematicIntroGate } from "@/components/particle-nav/CinematicIntroGate";
 import { TypographicField } from "@/components/typographic-field/TypographicField";
 /* Imported from the modules rather than through `components/motion/index.ts`.
-   `package.json` declares no `sideEffects` field, so a bundler must treat every
-   module the barrel re-exports as side-effectful — and a CSS import is exactly
-   that. Going through the barrel would land all seven `*.module.css` files in
-   this route's stylesheet, five of which nothing here renders, on the one route
-   whose first paint the whole site is judged by. */
+   `package.json` now DOES declare a CSS-only `sideEffects` list, which
+   makes the barrel tree-shakeable, so this is belt-and-braces rather than
+   necessary. It is kept because this route's first paint is the one the whole
+   site is judged by, and a direct path cannot regress if that declaration is
+   ever dropped. */
 import { ProgressiveBlur } from "@/components/motion/ProgressiveBlur";
 import { Reveal } from "@/components/motion/Reveal";
 import lionMark from "@/logos/79eef03d-4ddc-47a4-a17b-f4d0e13e7fa6.png";

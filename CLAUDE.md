@@ -16,11 +16,26 @@ or negotiate an owner request.
 ## What this is
 
 Lions of Zion is a Next.js particle experience with a front page under it. The
-preserved story intro hands off to a crowned-lion radial navigation over a
-particle-built network scan, which owns the whole first screen; below it the
-document continues into a front-page band of real editorial content. There is
-no photographic landing page after the intro. The eight destinations behind the
-nav are ordinary scrolling document pages.
+preserved story intro plays as a disposable entrance layer and hands off to an
+editorial home. There is no photographic landing page after the intro, and the
+eight destinations are ordinary scrolling document pages.
+
+**Corrected 2026-09-02.** This paragraph described the intro handing off to "a
+crowned-lion radial navigation over a particle-built network scan, which owns
+the whole first screen". That has not been true for some time:
+`CinematicIntroGate` runs the scene with `introOnly`, so it unmounts at handoff,
+and `NavLinks` — the eight orbit anchors carrying `data-node-index` — is now
+mounted only by `/particle-demo`. What the home route actually renders beneath
+the entrance is `app/page.tsx`: a hero carrying the typographic field, the
+wordmark, one CTA, and a three-item "Intelligence desk" headline rail.
+
+The difference was load-bearing and had already cost something. `ci-smoke.mjs`
+asserted eight `a[data-node-index]` links in the no-JavaScript render of `/`,
+and had been failing — which hid a real defect behind a stale assertion: the
+header's section index was mounted on client state, so with scripting off five
+of the eight destinations had no reachable link anywhere on the site. Both are
+fixed; the smoke test now asserts that every destination is reachable by href,
+which names no implementation and cannot rot the same way.
 
 **Corrected 2026-09-02: there is no `components/home/` directory**, and this
 paragraph claimed one for months. The home route is `app/page.tsx` plus

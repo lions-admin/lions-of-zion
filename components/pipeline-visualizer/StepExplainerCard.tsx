@@ -41,7 +41,7 @@ export function StepExplainerCard({
             onClick={() => onOpenGlossary()}
             title="פתח מילון מונחים והסברים"
           >
-            📖 מילון מונחים
+            מילון מונחים
           </button>
           <button
             type="button"
@@ -59,7 +59,6 @@ export function StepExplainerCard({
         <div className={styles.explainerBody}>
           {/* מה קורה כעת */}
           <div className={styles.explainerMainText}>
-            <span className={styles.explainerIcon}>💡</span>
             <div className={styles.explainerContent}>
               <strong>מה קורה כעת:</strong> {currentStep.descriptionHe}
             </div>
@@ -75,7 +74,7 @@ export function StepExplainerCard({
                   className={styles.nodeLinkBtn}
                   onClick={() => onSelectNode(node.id)}
                 >
-                  {node.nameHe} <span className={styles.nodeLinkEn} dir="ltr">({node.nameEn})</span> 🔍
+                  {node.nameHe} <span className={styles.nodeLinkEn} dir="ltr">({node.nameEn})</span>
                 </button>
               </div>
 
@@ -97,7 +96,7 @@ export function StepExplainerCard({
           {currentStep.payloadSnippet && (
             <div className={styles.explainerPayloadBox}>
               <div className={styles.payloadBoxHeader}>
-                <span>📦 נתוני המידע שעוברים כעת ברשת:</span>
+                <span>נתוני המידע שעוברים כעת ברשת:</span>
               </div>
               <pre className={styles.payloadPre} dir="ltr">
                 {typeof currentStep.payloadSnippet === "string"

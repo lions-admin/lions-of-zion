@@ -54,7 +54,7 @@ export function TermsGlossaryModal({
         {/* Header */}
         <div className={styles.glossaryModalHeader}>
           <div>
-            <h2 className={styles.glossaryModalTitle}>📖 מילון מונחים והסברים מלא (עברית / אנגלית)</h2>
+            <h2 className={styles.glossaryModalTitle}>מילון מונחים והסברים מלא (עברית / אנגלית)</h2>
             <p className={styles.glossaryModalSubtitle}>
               הסבר מעמיק, בעברית פשוטה ומדויקת, לכל מושג טכני, מודל או טבלה בארכיטקטורת המערכת.
             </p>
@@ -126,7 +126,7 @@ export function TermsGlossaryModal({
 
                 {term.exampleHe && (
                   <div className={styles.glossaryExampleBox}>
-                    <strong>💡 דוגמה מהמערכת:</strong> {term.exampleHe}
+                    <strong>דוגמה מהמערכת:</strong> {term.exampleHe}
                   </div>
                 )}
               </div>

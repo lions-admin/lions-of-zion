@@ -249,7 +249,7 @@ describe("briefing quality gate", () => {
     expect(result.passed).toBe(false);
   });
 
-  it("requires official Israeli evidence to anchor the first passage when it is available", () => {
+  it("allows official Israeli evidence to appear after the first passage", () => {
     const independent: QualityEvidence = {
       ...evidence[0]!,
       id: "44444444-4444-4444-8444-444444444444",
@@ -267,8 +267,8 @@ describe("briefing quality gate", () => {
       })),
     };
     const result = evaluateCandidate(outOfOrder, new Map([[evidence[0]!.id, evidence[0]!], [independent.id, independent]]));
-    expect(result.checks.find((check) => check.name === "official_position_first")?.status).toBe("fail");
-    expect(result.passed).toBe(false);
+    expect(result.checks.some((check) => check.name === "official_position_first")).toBe(false);
+    expect(result.passed).toBe(true);
   });
 
   /* `REQUIRED_QUALITY_CHECKS` is what `publications/repo.ts` counts before it

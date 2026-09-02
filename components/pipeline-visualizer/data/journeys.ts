@@ -139,8 +139,8 @@ export const PIPELINE_JOURNEYS: PipelineJourney[] = [
     id: "journey_daily_brief",
     titleHe: "מסלול הפקת בריף גיאו־פוליטי יומי אוטומטי (07:00)",
     titleEn: "Automated Daily Briefing Pipeline (07:00)",
-    descriptionHe: "צינור 7 השלבים האוטומטי: איסוף $\\to$ העשרה $\\to$ אשכול $\\to$ טריאז' AI $\\to$ ניסוח $\\to$ 18 בדיקות איכות $\\to$ פרסום אוטומטי.",
-    descriptionEn: "Full 7-stage automated brief pipeline: Collect -> Enrich -> Cluster -> Triage -> Draft -> 18 Quality Gates -> Auto-Publish.",
+    descriptionHe: "צינור 7 השלבים האוטומטי: איסוף $\\to$ העשרה $\\to$ אשכול $\\to$ טריאז' AI $\\to$ ניסוח $\\to$ 17 בדיקות איכות $\\to$ פרסום אוטומטי.",
+    descriptionEn: "Full 7-stage automated brief pipeline: Collect -> Enrich -> Cluster -> Triage -> Draft -> 17 Quality Gates -> Auto-Publish.",
     category: "briefing",
     steps: [
       {
@@ -198,8 +198,8 @@ export const PIPELINE_JOURNEYS: PipelineJourney[] = [
       },
       {
         nodeId: "briefing_quality_gate",
-        titleHe: "7. שער 18 בדיקות איכות דטרמיניסטיות",
-        titleEn: "7. 18 Deterministic quality checks evaluated",
+        titleHe: "7. שער 17 בדיקות איכות דטרמיניסטיות",
+        titleEn: "7. 17 Deterministic quality checks evaluated",
         descriptionHe: "בדיקת מקורות ועצמאותם, היעדר טקסט ממלא, דיוק עובדות ומספרים, עקיבות פסקאות, וגילוי נאות להפרכה ללא מקורות. אף בדיקה אינה מדולגת, וכל המועמדים עברו (100% pass).",
         descriptionEn: "Evaluates sourcing and independence, non-placeholder prose, exact fact fidelity, traceability, and analysis disclosure. No check is skipped; all passed.",
         payloadSnippet: { checksEvaluated: 126, candidates: 7, passed: true, failedChecks: [] },

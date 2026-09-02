@@ -1322,7 +1322,11 @@ function normalizeDailyBriefOfficialContext(
   if (!official) return dailyBrief;
 
   const hasOfficialPassage = allDailyPassages(dailyBrief).some((passage) => passage.evidenceIds.includes(official.id));
-  if (hasOfficialPassage && dailyBrief.evidenceIds.includes(official.id)) return dailyBrief;
+  if (hasOfficialPassage) {
+    return dailyBrief.evidenceIds.includes(official.id)
+      ? dailyBrief
+      : { ...dailyBrief, evidenceIds: [...dailyBrief.evidenceIds, official.id] };
+  }
 
   const sourceText = `${official.title}. ${official.excerpt?.trim() ?? ""}`.replace(/\s+/g, " ").trim().slice(0, 4_000);
   const claimIndex = dailyBrief.claims.length;
@@ -1349,7 +1353,9 @@ function normalizeDailyBriefOfficialContext(
     ...dailyBrief,
     evidenceIds: [...new Set([...dailyBrief.evidenceIds, official.id])],
     claims: [...dailyBrief.claims, claim],
-    situation: { ...dailyBrief.situation, passages: [passage, ...dailyBrief.situation.passages] },
+    israeliPosition: dailyBrief.israeliPosition
+      ? { ...dailyBrief.israeliPosition, passages: [passage, ...dailyBrief.israeliPosition.passages] }
+      : { label: "Israeli position", passages: [passage] },
   };
 }
 
@@ -1414,7 +1420,7 @@ const TRIAGE_SYSTEM = [
   "When a cluster has only hostile_state_media evidence, route it to Narrative Watch or omit it. A hostile-state report alone is evidence of that outlet's claim, not independent proof of the event it describes.",
   "When every source for a story is hostile-state, regional-critical, critical-media, or critical-institutional, route it to Narrative Watch or omit it.",
   "Select a story when every evidenceId resolves to supplied public evidence. One valid source is sufficient. Use additional independent source families when available, but never require them and never describe one family as independent corroboration.",
-  "Present the official Israeli position first when it exists in the packet, while preserving attribution and uncertainty.",
+  "Include the official Israeli position clearly when it exists in the packet, while preserving attribution and uncertainty.",
   "Select no more than five narrative-watch stories and three Israel Updates. A narrative-watch story must identify a precise recurring claim or framing, not merely a controversial topic.",
   "Aim for at least one narrative-watch story and one Israel Update each day, and select more when the material genuinely supports it. These minimums are a target, not a quota: never invent one to fill it. A day without suitable material ships without that item.",
   "Return only the validated structured result.",
@@ -1423,7 +1429,7 @@ const TRIAGE_SYSTEM = [
 const DRAFT_SYSTEM = [
   "Write publication-ready English journalism for Lions of Zion. The edition has exactly three jobs: refute anti-Israel narratives, publish one regional geopolitical Daily Brief, and publish one genuinely interesting Israel story.",
   "Never add a fact, quotation, source, number, chronology, motive, casualty figure, or citation absent from the packet.",
-  "Present the official Israeli position first when available, then clearly attribute other claims. Preserve dispute and uncertainty.",
+  "Include the official Israeli position clearly when available and attribute all competing claims. Preserve dispute and uncertainty.",
   "An article supported solely by hostile_state_media evidence may be Narrative Watch only. Never present it as a confirmed Israel update.",
   "When every cited source is hostile-state, regional-critical, critical-media, or critical-institutional, the article MUST be Narrative Watch.",
   "Decompose every article into atomic claims. Label each as source_claim, observed_fact, model_inference, or editorial_conclusion and attach explained supporting, contradicting, or contextual evidence edges.",
@@ -1451,7 +1457,7 @@ const DRAFT_SYSTEM = [
   "An israel_update reads the sources and then writes something new from that reading: an innovation and why it matters, a piece of history the day's events illuminate, a civic or community achievement, a story of recovery or resilience. It is not a rewrite of one wire report. Ground every claim in the packet as usual, but the shape, the argument and the significance are yours to compose. Do not use unsupported promotional language.",
   "",
   "The Daily Brief must contain a situation snapshot, key events, the Israeli position when available, relevant international responses when available, and watch points. Security, war and operational material belongs here rather than in a standalone article.",
-  "If an official Israeli source appears in the selected packet, the Daily Brief MUST cite it and open with a passage anchored in that source.",
+  "If an official Israeli source appears in the selected packet, the Daily Brief MUST cite it in the relevant section.",
   "Set editorialTopic, primaryActor, and arena from the evidence. featuredIsraelStory may be true only for one eligible source-grounded article whose section is exactly israel_update; it must be false for the Daily Brief and for Narrative Watch articles.",
   "",
   "VOLUME. Exactly one Daily Brief. Aim for at least one Narrative Watch refutation and at least one Israel Update, and write more when the material genuinely supports it — up to five Narrative Watch articles and three Israel Updates. These minimums are a target, NOT a quota. Never invent a story to fill one. A day without suitable material ships without that item.",

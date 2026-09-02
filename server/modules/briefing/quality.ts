@@ -89,7 +89,6 @@ export const REQUIRED_QUALITY_CHECKS = [
   "hostile_only_routing",
   "adversarial_only_routing",
   "daily_brief_official_context",
-  "official_position_first",
   "paragraph_traceability",
   "exact_fact_fidelity",
   "analysis_disclosure",
@@ -312,17 +311,6 @@ export function evaluateCandidate(
         ? "The Daily Brief includes an official Israeli source."
         : "Official Israeli context is required only for the Daily Brief."
       : "The Daily Brief requires at least one official Israeli source; do not publish a daily edition without it.");
-
-  const officialEvidenceIds = new Set(officialIsraeliEvidence.map((row) => row.id));
-  const officialPositionFirst = candidate.section === "narrative_watch"
-    || officialEvidenceIds.size === 0
-    || candidate.passages[0]?.evidenceIds.some((id) => officialEvidenceIds.has(id)) === true;
-  add(checks, "official_position_first", officialPositionFirst,
-    officialPositionFirst
-      ? officialEvidenceIds.size > 0 && candidate.section !== "narrative_watch"
-        ? "The first public passage is anchored in official Israeli evidence."
-        : "No official Israeli source is present, or the candidate is Narrative Watch."
-      : "When official Israeli evidence is available, the first public passage must present that position before other claims.");
 
   /* The paragraph-to-claim spine survives unchanged: the 40-character floor
    * and the local claim index are what make a refutation auditable at all.

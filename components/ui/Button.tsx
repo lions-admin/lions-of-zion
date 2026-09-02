@@ -2,130 +2,221 @@ import React, { forwardRef } from "react";
 import Link from "next/link";
 import styles from "./button.module.css";
 
-export type ButtonVariant = "primary" | "secondary" | "filter" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md" | "lg";
+/**
+ * The control primitive. Seven variants, four sizes, an icon-only shape, and
+ * the full state matrix: default · hover · focus-visible · active · disabled ·
+ * loading · active(toggle) · reduced motion.
+ *
+ * `components/ui/README.md` maps every variant to the shipping control it is
+ * meant to replace. Read it before adding an eighth.
+ */
+export type ButtonVariant =
+  | "primary"
+  | "solid"
+  | "secondary"
+  | "toolbar"
+  | "filter"
+  | "ghost"
+  | "danger";
+
+export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 interface CommonButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  /** Marks a toggle as pressed. Passing it at all declares the control a
+   *  toggle, so the component emits `aria-pressed` — see `ariaPressedFor`. */
   isActive?: boolean;
   isLoading?: boolean;
+  /** Square control carrying only an icon. The union below makes
+   *  `aria-label` mandatory when this is true, so a nameless icon button
+   *  fails the typecheck rather than shipping unreadable. */
+  iconOnly?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
 }
 
-export interface ButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "children">,
-    CommonButtonProps {}
+/** `iconOnly` buys its own accessible name. */
+type IconOnlyContract =
+  | { iconOnly: true; "aria-label": string }
+  | { iconOnly?: false | undefined };
 
-export interface ButtonLinkProps
-  extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "children">,
-    CommonButtonProps {
-  href: string;
-}
+export type ButtonProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "children"
+> &
+  CommonButtonProps &
+  IconOnlyContract;
+
+export type ButtonLinkProps = Omit<
+  React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  "children"
+> &
+  CommonButtonProps &
+  IconOnlyContract & { href: string };
 
 function getButtonClassName(
   variant: ButtonVariant = "primary",
   size: ButtonSize = "md",
   isActive = false,
   isLoading = false,
-  customClassName = ""
+  iconOnly = false,
+  customClassName = "",
 ) {
-  const classes = [
+  return [
     styles.button,
     styles[variant],
     styles[size],
+    iconOnly ? styles.iconOnly : "",
     isActive ? styles.active : "",
     isLoading ? styles.loading : "",
     customClassName,
-  ];
-  return classes.filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * `isActive` is a visual state *and* a semantic one, and it used to be only
+ * the first: a pressed filter chip looked selected and announced nothing.
+ *
+ * The rule: passing `isActive` at all is what declares the control a toggle,
+ * so `aria-pressed` is emitted with its real value — `false` included, since
+ * a toggle that only announces itself when on is worse than one that never
+ * does. A caller that has already said what the control is (`aria-pressed`
+ * by hand, `aria-current` for navigation, `aria-selected`/`role` for a tab)
+ * keeps its own answer; nothing here overrides it.
+ */
+function ariaPressedFor(
+  props: { isActive?: boolean } & React.AriaAttributes & { role?: string },
+): boolean | undefined {
+  if ("aria-pressed" in props) return props["aria-pressed"] as boolean | undefined;
+  if (!("isActive" in props)) return undefined;
+  if (props["aria-current"] !== undefined) return undefined;
+  if (props["aria-selected"] !== undefined) return undefined;
+  if (props.role !== undefined) return undefined;
+  return Boolean(props.isActive);
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
+  function Button(props, ref) {
+    const {
       variant = "primary",
       size = "md",
       isActive = false,
       isLoading = false,
+      iconOnly = false,
       leftIcon,
       rightIcon,
       className,
       children,
       disabled,
       type = "button",
-      ...props
-    },
-    ref
-  ) => {
+      ...rest
+    } = props;
+
     return (
       <button
         ref={ref}
         type={type}
         disabled={disabled || isLoading}
-        aria-busy={isLoading}
-        className={getButtonClassName(variant, size, isActive, isLoading, className)}
-        {...props}
+        aria-busy={isLoading || undefined}
+        aria-pressed={ariaPressedFor(props)}
+        className={getButtonClassName(
+          variant,
+          size,
+          isActive,
+          isLoading,
+          iconOnly,
+          className,
+        )}
+        {...rest}
       >
         {isLoading ? (
           <span className={styles.spinner} aria-hidden="true" />
         ) : leftIcon ? (
-          <span className={styles.icon}>{leftIcon}</span>
+          <span className={styles.icon} aria-hidden="true">
+            {leftIcon}
+          </span>
         ) : null}
         <span className={styles.content}>{children}</span>
-        {!isLoading && rightIcon ? <span className={styles.icon}>{rightIcon}</span> : null}
+        {!isLoading && rightIcon ? (
+          <span className={styles.icon} aria-hidden="true">
+            {rightIcon}
+          </span>
+        ) : null}
       </button>
     );
-  }
+  },
 );
 
-Button.displayName = "Button";
-
 export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
-  (
-    {
+  function ButtonLink(props, ref) {
+    const {
       variant = "primary",
       size = "md",
       isActive = false,
       isLoading = false,
+      iconOnly = false,
       leftIcon,
       rightIcon,
       className,
       children,
       href,
-      ...props
-    },
-    ref
-  ) => {
+      ...rest
+    } = props;
+
     const combinedClassName = getButtonClassName(
       variant,
       size,
       isActive,
       isLoading,
-      className
+      iconOnly,
+      className,
     );
 
-    if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:")) {
+    const body = (
+      <>
+        {leftIcon ? (
+          <span className={styles.icon} aria-hidden="true">
+            {leftIcon}
+          </span>
+        ) : null}
+        <span className={styles.content}>{children}</span>
+        {rightIcon ? (
+          <span className={styles.icon} aria-hidden="true">
+            {rightIcon}
+          </span>
+        ) : null}
+      </>
+    );
+
+    const shared = {
+      className: combinedClassName,
+      "aria-disabled": isLoading || undefined,
+      /* A link is never a toggle; `isActive` on a ButtonLink means "this is
+         where you are", which is `aria-current`, not `aria-pressed`. */
+      "aria-current": props["aria-current"] ?? (isActive ? ("page" as const) : undefined),
+    };
+
+    if (
+      href.startsWith("http://") ||
+      href.startsWith("https://") ||
+      href.startsWith("mailto:")
+    ) {
       return (
-        <a ref={ref} href={href} className={combinedClassName} aria-disabled={isLoading || undefined} {...props}>
-          {leftIcon ? <span className={styles.icon}>{leftIcon}</span> : null}
-          <span className={styles.content}>{children}</span>
-          {rightIcon ? <span className={styles.icon}>{rightIcon}</span> : null}
+        <a ref={ref} href={href} {...shared} {...rest}>
+          {body}
         </a>
       );
     }
 
     return (
-      <Link ref={ref} href={href} className={combinedClassName} aria-disabled={isLoading || undefined} {...props}>
-        {leftIcon ? <span className={styles.icon}>{leftIcon}</span> : null}
-        <span className={styles.content}>{children}</span>
-        {rightIcon ? <span className={styles.icon}>{rightIcon}</span> : null}
+      <Link ref={ref} href={href} {...shared} {...rest}>
+        {body}
       </Link>
     );
-  }
+  },
 );
-
-ButtonLink.displayName = "ButtonLink";

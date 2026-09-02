@@ -1,0 +1,68 @@
+/* Tooltip · design V3
+ *
+ * Deliberately plain: a small dark panel, a hairline, one arrow. A tooltip is
+ * a footnote on a control, and a decorated footnote is a distraction from the
+ * thing it is annotating.
+ *
+ * It is positioned against its own trigger — no portal, no floating-ui — so
+ * it moves with the page and needs no measurement pass. The consequence is
+ * that a trigger inside a clipping container can clip its tip; that is stated
+ * in `components/ui/README.md` rather than papered over.
+ */
+
+.root {
+  position: relative;
+  display: inline-flex;
+  /* The wrapper must not become a layout object of its own: it inherits the
+     trigger's box and adds nothing. */
+  vertical-align: middle;
+}
+
+.tip {
+  position: absolute;
+  left: 50%;
+  z-index: var(--z-overlay);
+  width: max-content;
+  max-width: var(--measure-caption);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface-3);
+  color: var(--ink-hi);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-2);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 400;
+  line-height: var(--t-caption-lh);
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: start;
+  text-wrap: pretty;
+  /* The tip is hoverable — WCAG 1.4.13 — so the pointer can travel onto it to
+     read a long one. It sits inside the trigger's wrapper, which is what
+     keeps that from counting as leaving the trigger. */
+  pointer-events: auto;
+}
+
+.top {
+  bottom: calc(100% + var(--sp-2));
+  transform: translateX(-50%);
+}
+
+.bottom {
+  top: calc(100% + var(--sp-2));
+  transform: translateX(-50%);
+}
+
+/* The bridge: an invisible strip across the gap, so a pointer moving from the
+   trigger to the tip never crosses dead ground and never dismisses it. */
+.tip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--sp-2);
+}
+
+.top::before { top: 100%; }
+.bottom::before { bottom: 100%; }

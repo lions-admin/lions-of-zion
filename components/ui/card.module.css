@@ -1,91 +1,139 @@
-/* Card system · design V3
+/* Card · design V3 — the chrome surface primitive
  *
- * A raised surface with a hairline, no local palette. Titles are entry
- * titles and so speak in the display face; the eyebrow is data; the
- * description is running text. The dossier variant carries the one gold
- * mark — a rule down its left edge — and nothing else on the card is gold,
- * so that rule stays an emphasis rather than a colour.
+ * Rewritten 2026-09-02. The previous file described four variants
+ * (`default` / `dossier` / `interactive` / `flat`) that existed on no page:
+ * a gold *left* rule for "dossier" when the shipping dossier mark is an ember
+ * *top* rule, and a backdrop-blurred glass card that duplicated the secondary
+ * button and appeared nowhere. Nothing imported any of it, so all 179 lines
+ * were dead. These three variants are traced from surfaces that ship.
+ *
+ * What this is NOT: the editorial card. `components/content/ContentCard` is an
+ * `<article>` that carries a record — an eyebrow, a title, a body and a
+ * citation — and it stays there. This is the container that chrome sits in:
+ * a branch card, a dialog panel, a media tile, a skeleton host, a list row.
+ * `components/ui/README.md` states the boundary.
+ *
+ * The type treatments below (eyebrow, title, description) are token-identical
+ * to `content.module.css`'s `kicker` / `entryTitle`. If the two ever diverge,
+ * content is the source of truth for editorial type and this file follows.
  */
 
 .card {
+  /* The rule along the card's top edge, and the eyebrow that names the card.
+     Unaccented they are hairline and ink; an accent class swaps all three so
+     the rule, its hover peak and the eyebrow always agree. */
+  --card-rule: var(--line);
+  --card-rule-peak: var(--line-strong);
+  --card-eyebrow: var(--ink);
+
   position: relative;
   display: flex;
   flex-direction: column;
+  height: 100%;
   background: var(--surface-1);
-  border: 1px solid var(--line);
-  box-shadow: inset 0 1px 0 var(--line-soft);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
+  box-shadow: inset 0 var(--line-w) 0 var(--line-soft);
   padding: clamp(var(--sp-4), 2vw, var(--sp-5));
+  color: inherit;
   text-decoration: none;
-  overflow: hidden;
   transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
-}
-
-.linkCard {
-  cursor: pointer;
-}
-
-.linkCard:hover {
-  border-color: var(--line-strong);
-  background: var(--surface-2);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-2);
-}
-
-.linkCard:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-1);
-}
-
-/* Focus: the global ring; offset only. */
-.linkCard:focus-visible {
-  outline-offset: 2px;
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
 }
 
 /* ── Variants ────────────────────────────────────────────────────────── */
 
+/* 1. Panel — the default container. A raised surface with a hairline and
+      nothing else to say. Dialogs, media tiles, control panels, the host a
+      skeleton stands in for. */
+
+/* 2. Dossier — the branch/section card: a 2px accent rule across the top
+      edge, tighter radius, `--shadow-1` at rest. This is the treatment
+      `app/fake-resistance/page.module.css` `.branchCard` reached for by
+      hand, generalised so the accent is a prop rather than a section's
+      colour baked into a primitive. */
 .dossier {
-  border-left: 3px solid var(--gold);
-  background: var(--surface-2);
+  border-top: var(--line-w-thick) solid var(--card-rule);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-1);
+  padding: var(--sp-6) var(--sp-5) var(--sp-5);
 }
 
-.dossier.linkCard:hover {
-  background: var(--surface-3);
-}
-
-.interactive {
-  background: color-mix(in oklab, var(--ink-hi) 2%, transparent);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-
-.interactive:hover {
-  background: color-mix(in oklab, var(--ink-hi) 5%, transparent);
-  border-color: var(--line-strong);
-}
-
-.flat {
+/* 3. Quiet — no surface at all, one hairline underneath. A list row: the
+      archive index, a roster line, a stack of records that must read as one
+      column rather than as a pile of objects. */
+.quiet {
   background: transparent;
   box-shadow: none;
-  border-color: var(--line);
-  padding: var(--sp-4) 0;
+  border: 0;
+  border-bottom: var(--line-w) solid var(--line);
   border-radius: 0;
-  border-left: 0;
-  border-right: 0;
-  border-top: 0;
+  padding: var(--sp-4) 0;
 }
 
-/* ── Header & eyebrow ────────────────────────────────────────────────── */
+/* ── Accent ──────────────────────────────────────────────────────────── */
+
+.gold {
+  --card-rule: var(--gold);
+  --card-rule-peak: var(--gold-hi);
+  --card-eyebrow: var(--gold-hi);
+}
+
+.ember {
+  --card-rule: var(--data-ember);
+  --card-rule-peak: var(--data-ember-peak);
+  --card-eyebrow: var(--data-ember-peak);
+}
+
+/* ── Interactive ─────────────────────────────────────────────────────────
+   The one interactive card treatment on the site, kept whole: a 2px lift,
+   the hairline to `--line-strong`, the accent rule to its peak, the surface
+   up a level, `--shadow-1` to `--shadow-2`, and the title to gold. Hover and
+   focus-visible carry exactly the same treatment — a keyboard reader gets
+   the affordance, not a consolation ring. */
+
+.interactive {
+  cursor: pointer;
+}
+
+.interactive:hover,
+.interactive:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  border-top-color: var(--card-rule-peak);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-2);
+}
+
+.interactive:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-1);
+}
+
+/* The site-wide focus ring; the card only pushes it clear of its own raised
+   surface. */
+.interactive:focus-visible {
+  outline-offset: calc(var(--focus-offset) + var(--line-w));
+}
+
+.quiet.interactive:hover,
+.quiet.interactive:focus-visible {
+  transform: none;
+  background: var(--tint-active);
+  box-shadow: none;
+  border-bottom-color: var(--line-strong);
+}
+
+/* ── Header, eyebrow, count ──────────────────────────────────────────── */
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: var(--sp-3);
+  gap: var(--sp-4);
   margin-bottom: var(--sp-3);
 }
 
@@ -96,7 +144,22 @@
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--ink);
+  /* An accented card's eyebrow speaks in the accent — the card's own
+     structure naming itself, and the only place the accent appears as type
+     rather than as a rule. Inherited through a custom property so it needs
+     no descendant selector and survives any nesting the caller chooses. */
+  color: var(--card-eyebrow);
+}
+
+/* A count is data and stays sentence-quiet: tabular, `--ink-lo`, never
+   competing with the title it sits beside. */
+.count {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
 }
 
 /* ── Title ───────────────────────────────────────────────────────────── */
@@ -111,6 +174,12 @@
   color: var(--ink-hi);
   margin-bottom: var(--sp-2);
   text-wrap: balance;
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.interactive:hover .title,
+.interactive:focus-visible .title {
+  color: var(--gold-hi);
 }
 
 /* ── Description ─────────────────────────────────────────────────────── */
@@ -119,8 +188,13 @@
   font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
-  color: var(--ink);
-  margin-bottom: var(--sp-4);
+  color: var(--ink-lo);
+  max-width: var(--measure-narrow);
+}
+
+/* Clamping is opt-in. A card in a fixed-height grid needs it; a card in a
+   column must not silently truncate a record. */
+.clamp {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -136,7 +210,7 @@
   border-radius: var(--radius-2);
   overflow: hidden;
   background: var(--surface-2);
-  border: 1px solid var(--line-soft);
+  border: var(--line-w) solid var(--line-soft);
 }
 
 .media img {
@@ -146,8 +220,34 @@
   transition: transform var(--dur-slow) var(--ease-out);
 }
 
-.linkCard:hover .media img {
+.interactive:hover .media img {
   transform: scale(1.03);
+}
+
+/* ── Call to action ──────────────────────────────────────────────────────
+   Pinned to the card's foot so the affordance aligns across a row of cards
+   whose descriptions run different lengths. Gold: a card's one spend. */
+
+.cta {
+  display: inline-flex;
+  align-items: baseline;
+  margin-top: auto;
+  padding-top: var(--sp-5);
+  color: var(--gold);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+}
+
+.ctaArrow {
+  display: inline-block;
+  margin-inline-start: 0.4em;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.interactive:hover .ctaArrow,
+.interactive:focus-visible .ctaArrow {
+  transform: translateX(0.3em);
 }
 
 /* ── Footer ──────────────────────────────────────────────────────────── */
@@ -159,21 +259,21 @@
   gap: var(--sp-3);
   margin-top: auto;
   padding-top: var(--sp-3);
-  border-top: 1px solid var(--line-soft);
+  border-top: var(--line-w) solid var(--line-soft);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
 
+/* The global kill-switch collapses the durations; the transforms still have
+   to land on their rest state so nothing sits nudged. */
 @media (prefers-reduced-motion: reduce) {
-  .card,
-  .media img {
-    transition: none;
-  }
-
-  .linkCard:hover,
-  .linkCard:hover .media img {
+  .interactive:hover,
+  .interactive:focus-visible,
+  .interactive:hover .media img,
+  .interactive:hover .ctaArrow,
+  .interactive:focus-visible .ctaArrow {
     transform: none;
   }
 }

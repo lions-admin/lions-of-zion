@@ -186,7 +186,34 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
   const poster = await noJsPage.locator("picture img, img[src*='particle-nav']").count();
   const shell = await noJsPage.locator('div[hidden][id^="S:"]').count();
 
-  if (missing.length > 0 || poster < 1 || shell > 0) {
+  /* The same check at phone width, and it is not redundant.
+   *
+   * The desktop pass above counts DOM nodes, which a `display: none` ancestor
+   * does not remove — so a navigation that is present but hidden on a phone
+   * passes it. That is not hypothetical: when the panels were first made to
+   * render unconditionally, the section index still lived inside the
+   * desktop-only link group, and the mobile sheet was being suppressed as a
+   * duplicate. A phone with scripting off had NO navigation at all, and this
+   * script reported "all routes clean" because it never looked below 720px.
+   *
+   * `isVisible()` is what closes it: it resolves layout, so an index hidden by
+   * an ancestor's `display: none` fails here even though it is in the DOM. */
+  const phone = await browser.newContext({
+    javaScriptEnabled: false,
+    reducedMotion: "reduce",
+    viewport: { width: 390, height: 844 },
+  });
+  const phonePage = await phone.newPage();
+  await phonePage.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  const phoneInvisible = [];
+  for (const href of DESTINATIONS) {
+    if (!(await phonePage.locator(`a[href="${href}"]`).first().isVisible().catch(() => false))) {
+      phoneInvisible.push(href);
+    }
+  }
+  await phone.close();
+
+  if (missing.length > 0 || phoneInvisible.length > 0 || poster < 1 || shell > 0) {
     console.error(
       `FAIL / without JavaScript: ${DESTINATIONS.length - missing.length}/` +
         `${DESTINATIONS.length} destinations reachable, ${poster} poster, ` +
@@ -195,12 +222,16 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
           ? ` Unreachable: ${missing.join(", ")}. A panel mounted on client state` +
             " is the usual cause — render it always and toggle `hidden`."
           : "") +
+        (phoneInvisible.length > 0
+          ? ` Present but NOT VISIBLE at 390px: ${phoneInvisible.join(", ")}.` +
+            " A desktop-only ancestor with `display: none` is the usual cause."
+          : "") +
         (shell > 0 ? " A root-level loading.tsx is the usual cause — see CLAUDE.md." : ""),
     );
     failed = true;
   } else {
     console.log(
-      `ok   /            (no JavaScript: ${DESTINATIONS.length} destinations, poster present)`,
+      `ok   /            (no JavaScript: ${DESTINATIONS.length} destinations reachable and visible at 390px, poster present)`,
     );
   }
 }

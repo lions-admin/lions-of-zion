@@ -1,0 +1,255 @@
+/* Site colophon · design V3
+ *
+ * The closing slab of every reading route. Three jobs and no fourth: say whose
+ * desk this is, index the whole site once, and put Methodology and Corrections
+ * where a doubting reader will look for them.
+ *
+ * It is a slab rather than a transparent band on purpose. `ScanBackdrop` is
+ * `position: fixed`, so the corpus keeps drifting behind whatever follows the
+ * document; a footer of forty small links over live scan rows is unreadable.
+ * `--surface-1` on the site's true-black ground reads as a deliberate closing
+ * panel, and the `--z-raised` step is what puts it above that fixed layer —
+ * without it the rows paint over the links, since a fixed element outranks
+ * static content at the same z.
+ *
+ * The file index repeats the header drawer's vocabulary exactly — mono number,
+ * name, gold spine on the page you are on — because a reader should not have
+ * to learn the site's numbering twice.
+ */
+
+.footer {
+  position: relative;
+  z-index: var(--z-raised);
+  border-top: var(--line-w) solid var(--line);
+  background: var(--surface-1);
+  color: var(--ink);
+  font-family: var(--face-text);
+}
+
+.inner {
+  max-width: var(--chrome-w);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.5fr) minmax(0, 0.9fr);
+  gap: clamp(var(--sp-6), 4vw, var(--sp-8));
+  padding: clamp(var(--sp-7), 5vw, var(--sp-9)) clamp(var(--sp-5), 4vw, var(--sp-8)) clamp(var(--sp-6), 4vw, var(--sp-8));
+}
+
+/* ── Masthead ──────────────────────────────────────────────────────────── */
+
+.masthead {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-4);
+}
+
+.brand {
+  display: grid;
+  gap: var(--sp-2);
+  text-decoration: none;
+  color: var(--ink-hi);
+}
+
+/* Larger than the header's wordmark and set in the same editorial face: this
+   is the signature at the bottom of the document, not a control. */
+.brandName {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  text-wrap: balance;
+}
+
+.brandRole {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.brand:hover .brandRole { color: var(--ink); }
+
+.statement {
+  max-width: var(--measure-caption);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+/* ── Groups ────────────────────────────────────────────────────────────── */
+
+.filesGroup,
+.referenceGroup {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-4);
+}
+
+.groupLabel {
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
+.fileList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(var(--sp-5), 3vw, var(--sp-7));
+  list-style: none;
+}
+
+.referenceList {
+  display: grid;
+  gap: 0;
+  list-style: none;
+}
+
+/* ── File rows ─────────────────────────────────────────────────────────── */
+
+.fileRow {
+  display: grid;
+  grid-template-columns: var(--sp-6) minmax(0, 1fr);
+  gap: var(--sp-2);
+  align-items: baseline;
+  padding: var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-3);
+  margin-left: calc(var(--sp-3) * -1);
+  border-top: var(--line-w) solid var(--line-soft);
+  color: var(--ink);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+
+.fileRow:hover { color: var(--ink-hi); background: var(--tint-active); }
+
+.fileRow[aria-current="page"] {
+  color: var(--ink-hi);
+  box-shadow: inset var(--line-w-thick) 0 0 var(--gold);
+}
+
+.fileIndex {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.fileRow:hover .fileIndex { color: var(--ink); }
+.fileRow[aria-current="page"] .fileIndex { color: var(--gold); }
+
+.fileName {
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+/* ── Reference rows ────────────────────────────────────────────────────── */
+
+.referenceRow {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-3);
+  margin-left: calc(var(--sp-3) * -1);
+  border-top: var(--line-w) solid var(--line-soft);
+  color: var(--ink);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+
+.referenceRow:hover { color: var(--ink-hi); background: var(--tint-active); }
+
+.referenceRow[aria-current="page"] {
+  color: var(--ink-hi);
+  box-shadow: inset var(--line-w-thick) 0 0 var(--gold);
+}
+
+.referenceName {
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink-hi);
+}
+
+.referenceRow[aria-current="page"] .referenceName { color: var(--gold-hi); }
+
+.referenceDescription {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+/* ── Colophon ──────────────────────────────────────────────────────────── */
+
+.colophon {
+  max-width: var(--chrome-w);
+  margin-inline: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3) var(--sp-5);
+  padding: var(--sp-4) clamp(var(--sp-5), 4vw, var(--sp-8)) clamp(var(--sp-5), 3vw, var(--sp-6));
+  border-top: var(--line-w) solid var(--line);
+}
+
+/* The year is data; "Lions of Zion" is a name. Mono is reserved for data, so
+   this is the interface face with tabular figures rather than a mono line
+   running a proper noun. */
+.copyright {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.toTop {
+  padding-block: var(--sp-2);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.toTop:hover { color: var(--ink-hi); }
+
+/* ── Seams ─────────────────────────────────────────────────────────────────
+ * The two canonical ones from `globals.css`: 76.25rem (`--bp-rails`) and
+ * 45rem (`--bp-seam`). A media prelude cannot read a custom property, so they
+ * are literals here — see the honest note beside those tokens.
+ */
+
+@media (max-width: 76.25rem) {
+  .inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .masthead { grid-column: 1 / -1; }
+}
+
+@media (max-width: 45rem) {
+  .inner { grid-template-columns: minmax(0, 1fr); }
+  .fileList { grid-template-columns: minmax(0, 1fr); }
+  .fileRow,
+  .referenceRow { min-height: var(--control-h); align-content: center; }
+  .colophon { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brandRole,
+  .fileRow,
+  .fileIndex,
+  .referenceRow,
+  .toTop { transition-duration: 0ms; }
+}

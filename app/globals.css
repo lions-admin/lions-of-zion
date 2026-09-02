@@ -272,6 +272,15 @@
   --measure-caption: 44ch;
   --measure-data: 24ch;
 
+  /* ── Chrome container ───────────────────────────────────────────────────
+     Added 2026-09-02 with the site masthead and colophon. The `--measure-*`
+     steps above are *reading* measures in `ch` and say nothing about how wide
+     a full-bleed chrome surface may run; the header's file drawer and the
+     footer both need one figure, and two files each writing `92rem` is how a
+     second design system starts. Not for content — a reading column that
+     reaches for this is reaching for the wrong token. */
+  --chrome-w: 92rem;
+
   /* ── Hairline weights ───────────────────────────────────────────────── */
   --line-w: 1px;
   --line-w-thick: 2px;

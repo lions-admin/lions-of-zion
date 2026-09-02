@@ -10,6 +10,125 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-02 — The site has a footer. The 2026-08-25 "no global footer" decision is reversed by owner ruling
+
+The owner asked for a real site footer, explicitly overruling the entry of
+2026-08-25 further down this file. That entry stays where it is, because a
+reversed decision keeps its record — but it no longer has authority, and every
+document that cited it has been updated in this change. A doc that keeps
+claiming a revoked authority makes the next session obey a ghost.
+
+The old entry was **right about its mechanism and wrong about the need**. Its
+argument was that a footer mounted in `app/layout.tsx` would land on `/` too,
+where the scene owns exactly one viewport, and that special-casing the home
+route inside the root layout is worse than not building one. That reasoning is
+still correct and is exactly why this footer is *not* in `app/layout.tsx`.
+
+`components/site/SiteFooter.tsx` is mounted by `components/site/EditorialShell.tsx`,
+after `<main>`. That is the whole reading surface — the eight destinations,
+`/methodology`, `/corrections`, `/information-war`, `/articles/[publicId]` and
+all ~1,177 archive records — and nothing else. The home route, `/admin`,
+`/particle-demo` and `/pipeline` never see it, without a single conditional:
+the mount point *is* the condition, which is the shape the old entry asked for
+if one were ever built ("conditional on not being the home route, not a blanket
+layout addition").
+
+What it carries: the wordmark and the desk's one-line statement of what it is;
+the eight files as a numbered index, using the header drawer's exact vocabulary
+so a reader does not learn the site's numbering twice; a reference column with
+Methodology, Corrections, The Information War and Account — the trust surface,
+which is the thing a doubting reader goes to a footer to find; and a colophon
+with the year and a no-JavaScript "back to the top of this file" anchor onto
+`#page-content`, the same target the skip link already uses. There is no
+newsletter capture, no social row and no logo wall. A verification desk's
+footer is an index and an address.
+
+Two engineering facts are load-bearing and will look like style if left
+unstated. **It is a `--surface-1` slab, not a transparent band**: `ScanBackdrop`
+is `position: fixed`, so the corpus keeps drifting behind everything that
+follows the document, and forty small links over live scan rows are
+unreadable. And it carries **`position: relative; z-index: var(--z-raised)`**,
+because a fixed element outranks static content at the same z — without the
+step the scan paints over the links.
+
+`SectionPage` still renders no footer of its own; the page ends where the
+content ends, and the shell around it closes. The "Methodology · Corrections"
+row that the 2026-08-25 entry added to `SectionPage` and to the Brief's closing
+nav was left in place rather than deleted: those are page-level exits, they sit
+inside the reading measure, and removing them is `components/sections/`'s call
+to make, not the chrome's.
+
+## 2026-09-02 — The masthead is a full-bleed bar, and the chrome may no longer name a destination
+
+Three defects in one component, and the third is the reason the first two got
+rebuilt rather than patched.
+
+**The header captioned its own destinations, and the captions had drifted.**
+`PRIMARY_NAVIGATION` was a hand-written array inside `SiteHeader.tsx`:
+`/israels-story` was "Israel Explained" while `lib/site-navigation.ts` and the
+page itself both say "Israel's Story"; `/geopolitical-brief` was "Today";
+`/information-war` was "Investigations", which is what `/fake-resistance`
+actually is. A reader clicked one name and arrived at a page carrying another,
+which on a site whose argument is care with words is a content failure and not
+a typo. The fix is structural rather than three corrected strings:
+`components/site/navigation-model.ts` builds every label from `displayName`,
+and **the chrome may not name a destination**. The class of bug cannot recur.
+
+**The bar was a floating centred pill of six anonymous links** — the generic
+product-nav, on the one site least able to afford it. It is now a full-bleed
+bar of exactly `--header-h` carrying, left to right: the wordmark set in the
+editorial face (the only display-face mark in the chrome); four destination
+names; an "All files" trigger; and Support Us as a hairline control. State is
+carried by one hairline under a link — `--line-strong` on hover, `--gold` when
+it is the page you are on — so hover and *here* are distinguishable and neither
+shifts layout. Gold is spent on exactly one idea in the component: *here*.
+Which is why the Support control resolves to ink on hover rather than gold, and
+why `Account` left the bar for the drawer and the footer: a bar slot is a claim
+about editorial weight, and a single-operator account page has none.
+
+Below 64rem the four names are **dropped whole rather than thinned**, because
+"the two that still fit" is how a bar acquires a hierarchy nobody can defend;
+the drawer carries all twelve links at every width. When the current file is one
+the bar cannot show, the trigger takes the gold hairline, so "you are here"
+always has somewhere to live. The drawer opens on **click, not hover** — a
+full-bleed panel that covers the page on pointer transit is a usability defect,
+and dropping hover also removed the `onBlurCapture`/`relatedTarget` dance the
+old panel needed.
+
+**And the no-JavaScript repair from earlier the same day was still broken on a
+phone.** The drawer lived inside the group of primary links, and the phone
+breakpoint sets `display: none` on that group — which hid the drawer with it —
+while the `scripting: none` block suppressed the mobile sheet as the duplicate.
+So a phone with scripting off had *no* navigation at all. `ci-smoke.mjs` runs
+at a desktop viewport and could not see it. The drawer is now a direct child of
+`<header>`, so hiding the bar's links at any width cannot take the index with
+them, and the `scripting: none` block is width-independent. The rule that
+produced the original defect stands unchanged and is worth restating: **never
+mount navigation on client state — render it always and toggle `hidden`.**
+
+One further structural change rides with this. `EditorialShell` now renders the
+masthead and the colophon as **siblings of `<main>`, not children of it**.
+`<header>` maps to the `banner` landmark and `<footer>` to `contentinfo` only
+when neither is inside `main`/`article`/`section`; the masthead had been inside
+`<main>` on every reading route, so the site had no banner landmark anywhere
+and its primary navigation was announced as part of the article. The skip link
+stays first in the DOM ahead of the masthead, wrapped in a zero-height
+`.skipHost` whose only job is a stacking context above `--z-header` — it is
+`position: fixed` at the top-left corner, which used to be beside a centred
+pill and is now underneath a full-bleed bar.
+
+Not done, and deliberately: the header is still mounted per-page by
+`app/page.tsx`, `app/not-found.tsx`, `app/error.tsx`, `app/account/page.tsx`
+and `LiveBriefHub`, rather than once in `app/layout.tsx`. The root layout also
+wraps `/admin`, `/particle-demo` and `/pipeline`, which must not wear public
+chrome; the root layout cannot read the pathname without making itself a client
+subtree; and on `/` the masthead has to stay inside `CinematicIntroGate`, whose
+destination div carries `inert` and `aria-hidden` for the length of the intro —
+hoisted out of the gate, the header would be focusable and screen-reader-visible
+over a 47-second cinematic. The right shape is a `app/(public)/` route group
+with its own layout, which is a move of ~25 route directories and not a chrome
+change.
+
 ## 2026-09-01 — Design V3: three faces, and the display face is a serif again
 
 The owner asked for the whole site raised to a premium standard — every
@@ -1533,6 +1652,16 @@ Corrections" link row was added directly to `SectionPage`'s own footer
 A sitewide footer with identity/contact/chat-entry is still a real,
 open TODOS item; if it's ever built, it must be conditional on not being
 the home route, not a blanket layout addition.
+
+**REVERSED 2026-09-02 by owner ruling — see the entry at the top of this file.**
+The footer was built and is mounted by `EditorialShell`, not by
+`app/layout.tsx`. The mechanical half of this entry was never overturned and is
+the reason for that mount point: the root layout still wraps `/`, `/admin`,
+`/particle-demo` and `/pipeline`, the home scene still owns exactly one
+viewport, and special-casing the home route inside the root layout would still
+be worse than the alternative. The last sentence above is the specification the
+new footer meets, not the objection it had to clear. Kept here because a
+reversed decision keeps its record.
 
 ## 2026-08-25 — War Update's first edition covers the live Oct 2025 ceasefire, not the superseded Jan 2025 one
 

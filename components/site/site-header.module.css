@@ -1,217 +1,283 @@
-/* Site header · design V3
+/* Site masthead · design V3
  *
- * One floating glass pill over the scan, an explore panel beneath it, and a
- * mobile panel that replaces both under 40rem. Every value reads a token:
- * the glass ramp, the three radii (pill for the bar, panel radius for the
- * panels), the deepest shadow, and the two faces — Plex Sans for every
- * label and control, JetBrains Mono for the two things here that are data
- * (the section numbers and the "01—08" index).
+ * A full-bleed bar of exactly `--header-h`, over glass, closed by one
+ * hairline. It replaced a floating centred pill, for a reason that is design
+ * direction rather than taste: a pill of six anonymous links is the generic
+ * product-nav, and this site's whole argument is that it is *somebody's*
+ * desk. The masthead states whose, then where you are, then where you can go.
  *
- * The current page is marked once, with a gold dot under its label; hover
- * is a tint. That keeps gold to one mark per bar and keeps the two states
- * distinguishable. Behaviour — Escape, outside pointer, focus, body scroll
- * lock, aria — lives in SiteHeader.tsx and is untouched.
+ * Three things carry state and nothing else does:
+ *   · a hairline under a bar link — `--line-strong` on hover, `--gold` when
+ *     it is the page you are on. One element, three states, no layout shift.
+ *   · a gold hairline on the "All files" trigger when the current file is one
+ *     the bar cannot show at this width, so "you are here" always has a home.
+ *   · a gold spine on the drawer/sheet row for the current file.
+ * Gold is spent on exactly one idea in this component — *here* — which is why
+ * hover, the trigger's open state and the Support control all resolve to ink.
+ *
+ * Faces: Newsreader for the wordmark (the one editorial mark in the chrome),
+ * Plex Sans for every label and control, JetBrains Mono for the two things
+ * that are data — the file numbers and the "01 — 08" count.
+ *
+ * Behaviour — Escape, outside pointer, focus return, body scroll lock, aria —
+ * lives in SiteHeader.tsx.
  */
 
 .header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 100;
-  padding: var(--sp-3) var(--sp-4);
+  z-index: var(--z-header);
   color: var(--ink-hi);
   font-family: var(--face-text);
   direction: ltr;
-  pointer-events: none;
 }
 
-.bar,
-.explorePanel,
-.mobilePanel {
-  border: 1px solid var(--glass-edge);
-  background: linear-gradient(180deg, var(--glass-top), var(--glass-middle) 44%, var(--glass-bottom));
-  box-shadow:
-    inset 0 1px 0 var(--glass-inner),
-    inset 0 -1px 0 var(--glass-shadow),
-    var(--shadow-3);
+/* ── The bar ───────────────────────────────────────────────────────────── */
+
+.bar {
+  height: var(--header-h);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(var(--sp-4), 2.5vw, var(--sp-7));
+  padding-inline: clamp(var(--sp-4), 3vw, var(--sp-7));
+  /* Over the home scene this is 77px of veil on a black field; over a reading
+     page it is the same veil on the same ground. One treatment, both. */
+  border-bottom: var(--line-w) solid var(--line);
+  background: linear-gradient(180deg, var(--glass-middle), var(--glass-bottom));
+  box-shadow: inset 0 var(--line-w) 0 var(--glass-inner);
   -webkit-backdrop-filter: blur(16px) saturate(0.76);
   backdrop-filter: blur(16px) saturate(0.76);
 }
 
-.bar {
-  position: relative;
-  width: fit-content;
-  max-width: calc(100vw - 2rem);
-  min-height: 3.6rem;
-  display: flex;
-  align-items: center;
-  margin-inline: auto;
-  padding: var(--sp-2) var(--sp-2);
-  border-radius: var(--radius-pill);
-  pointer-events: auto;
+/* ── Brand ─────────────────────────────────────────────────────────────── */
+
+.brand {
+  display: inline-grid;
+  gap: var(--sp-1);
+  align-content: center;
+  padding-block: var(--sp-1);
+  text-decoration: none;
+  color: var(--ink-hi);
 }
 
-.desktopNavigation,
-.primaryLinks {
-  display: flex;
-  align-items: center;
-}
-
-.desktopNavigation { gap: var(--sp-1); }
-.primaryLinks { gap: 0; }
-
-.divider {
-  width: 1px;
-  height: var(--sp-5);
-  margin-inline: var(--sp-1);
-  background: var(--line-strong);
-}
-
-/* ── Links in the bar ──────────────────────────────────────────────── */
-
-.navLink,
-.mobileLink,
-.mobileTrigger {
-  font-family: var(--face-text);
+/* The one place the display face appears in the chrome. Newsreader's optical
+   size axis is what lets a 17px cut still read as a masthead rather than as a
+   paragraph that wandered in, so no tracking is added on top of it. */
+.brandName {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-body);
   font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.1;
   white-space: nowrap;
 }
 
-.navLink {
-  position: relative;
-  min-height: 2.75rem;
-  display: inline-flex;
+/* Two words, so uppercase is allowed — see the V3 data-label rule. */
+.brandRole {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.brand:hover .brandRole { color: var(--ink); }
+
+/* ── Bar links ─────────────────────────────────────────────────────────── */
+
+.barNav {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-2);
-  padding-inline: clamp(var(--sp-3), 1.15vw, var(--sp-4));
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--ink);
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.barLink,
+.filesTrigger,
+.support,
+.menuTrigger {
+  font-family: var(--face-text);
   font-size: var(--t-small);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out);
 }
 
-.navLink:hover,
-.exploreTrigger[aria-expanded="true"] {
-  background: color-mix(in oklab, var(--ink-hi) 8%, transparent);
-  color: var(--ink-hi);
+.barLink {
+  --link-pad: var(--sp-3);
+  position: relative;
+  height: var(--control-h);
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--link-pad);
+  border-radius: var(--radius-2);
+  color: var(--ink);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
-/* Current page: full ink and one gold dot beneath the label. Absolute, so
-   the label does not shift between pages. */
-.navLink[aria-current="page"] {
-  color: var(--ink-hi);
-}
-
-.navLink[aria-current="page"]::after {
+/* The state rule. Reserved on every link, painted on two of them. */
+.barLink::after,
+.filesTrigger::after {
   content: "";
   position: absolute;
-  left: 50%;
-  bottom: 0.3rem;
-  width: 0.25rem;
-  height: 0.25rem;
-  border-radius: 50%;
-  background: var(--gold);
-  transform: translateX(-50%);
-}
-
-.accountLink {
-  border: 1px solid var(--line-strong);
-  color: var(--ink-hi);
-}
-
-.navLink:active,
-.mobileLink:active,
-.mobileTrigger:active { opacity: 0.64; }
-
-/* The trigger dot is a neutral affordance until its panel is open. The live
-   dot is gold because "live" is a state, not decoration. */
-.liveDot,
-.menuIndicator {
-  width: 0.375rem;
-  height: 0.375rem;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--ink-lo);
+  left: var(--link-pad);
+  right: var(--link-pad);
+  bottom: var(--sp-2);
+  height: var(--line-w);
+  background: transparent;
   transition: background-color var(--dur-fast) var(--ease-out);
 }
 
-.liveDot,
-[aria-expanded="true"] > .menuIndicator {
-  background: var(--gold);
-}
+.barLink:hover { color: var(--ink-hi); }
+.barLink:hover::after { background: var(--line-strong); }
 
-/* Focus: the global ring; tighten the offset so it hugs the pill. */
-.navLink:focus-visible,
-.mobileTrigger:focus-visible {
-  outline-offset: 2px;
-}
+.barLink[aria-current="page"] { color: var(--ink-hi); }
+.barLink[aria-current="page"]::after { background: var(--gold); }
 
-/* ── Explore panel ─────────────────────────────────────────────────── */
+/* ── Utility cluster ───────────────────────────────────────────────────── */
 
-.exploreRoot { position: relative; }
-
-.exploreRoot::after {
-  content: "";
-  position: absolute;
-  inset: 100% 0 auto;
-  height: var(--sp-3);
-}
-
-.explorePanel {
-  position: absolute;
-  top: calc(100% + var(--sp-3));
-  left: 50%;
-  width: min(62rem, calc(100vw - 2rem));
-  max-height: calc(100vh - 6rem);
-  overflow-y: auto;
-  padding: clamp(var(--sp-4), 2vw, var(--sp-5));
-  border-radius: var(--radius-3);
-  transform: translateX(-58%);
-  animation: panelIn var(--dur-base) var(--ease-out) both;
-}
-
-/* The pill bar is 58px of glass over the scan and can afford to be
-   translucent; a panel covers a headline and cannot. Near-opaque ground,
-   so nothing behind it competes with the labels. */
-.explorePanel,
-.mobilePanel {
-  background: linear-gradient(180deg, var(--surface-2), var(--surface-1) 40%, var(--ground));
-}
-
-.explorePanel::before,
-.mobilePanel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: linear-gradient(135deg, color-mix(in oklab, var(--ink-hi) 5%, transparent), transparent 42%);
-  pointer-events: none;
-}
-
-.exploreHeading {
+.utility {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--sp-4);
-  padding: 0 var(--sp-1) var(--sp-3);
-  border-bottom: 1px solid var(--line);
+  align-items: center;
+  gap: var(--sp-2);
+  justify-self: end;
 }
 
-/* Panel labels ("Explore the system", "Resources", "Sections") are UI
-   labels, so they are Plex at the caption step in sentence case. The
-   index number and the "01—08" count are data, so they are mono. */
+.filesTrigger {
+  --link-pad: var(--sp-3);
+  position: relative;
+  height: var(--control-h);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-inline: var(--link-pad);
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink-hi);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.filesTrigger:hover::after { background: var(--line-strong); }
+/* The current file is one this width's bar cannot show. */
+.filesTrigger[data-here]::after { background: var(--gold); }
+
+.filesCount {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.chevron {
+  /* Height comes from the 10×6 viewBox, so the glyph can never be squashed. */
+  width: var(--sp-3);
+  height: auto;
+  flex: 0 0 auto;
+  color: var(--ink-lo);
+  transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.filesTrigger:hover .chevron { color: var(--ink); }
+.filesTrigger[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+  color: var(--ink-hi);
+}
+
+/* The desk's action, stated in the site's own words. A hairline control, not
+   a filled button: gold in this bar means "here", and an accent spent on a
+   permanent call to action is the urgency theatre this site documents. */
+.support {
+  height: var(--control-h-sm);
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--sp-4);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--ink-hi);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.support:hover {
+  border-color: var(--ink-lo);
+  background: var(--tint-hover);
+}
+
+.support[aria-current="page"] {
+  border-color: var(--gold-line-strong);
+}
+
+.barLink:active,
+.support:active,
+.filesTrigger:active,
+.menuTrigger:active { opacity: 0.7; }
+
+/* The global gold ring, hugged a little tighter to these small controls. */
+.barLink:focus-visible,
+.filesTrigger:focus-visible,
+.support:focus-visible,
+.menuTrigger:focus-visible,
+.brand:focus-visible { outline-offset: 2px; }
+
+/* ── The drawer ────────────────────────────────────────────────────────────
+ *
+ * Full-bleed under the bar, so it reads as the file cabinet opening rather
+ * than a floating card. The eight are a hairline contact sheet: the grid's own
+ * background shows through 1px gaps, which is what keeps the rules perfect at
+ * four, two and one column with no per-cell border arithmetic.
+ */
+
+.filesPanel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: calc(100dvh - var(--header-h));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-bottom: var(--line-w) solid var(--line);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-3);
+  animation: drawerIn var(--dur-base) var(--ease-out) both;
+}
+
+.filesInner {
+  max-width: var(--chrome-w);
+  margin-inline: auto;
+  padding: clamp(var(--sp-5), 2.5vw, var(--sp-7)) clamp(var(--sp-4), 3vw, var(--sp-7)) clamp(var(--sp-6), 3vw, var(--sp-7));
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.panelHead + .fileGrid,
+.panelHead + .referenceGrid { margin-top: var(--sp-5); }
+.fileGrid + .panelHead { margin-top: clamp(var(--sp-5), 2.5vw, var(--sp-7)); }
+
+/* Panel labels are interface, so Plex at the caption step in sentence case;
+   the count is data, so mono. */
 .panelEyebrow,
-.mobileLabel {
+.sheetLabel {
   font-family: var(--face-text);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
@@ -219,61 +285,75 @@
   color: var(--ink-lo);
 }
 
-.panelIndex,
-.indexNumber {
+.panelCount {
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
 }
 
-.panelIndex { color: var(--gold); }
-.indexNumber { color: var(--ink); padding-top: 0.2em; }
-
-.exploreColumns {
+.fileGrid {
   display: grid;
-  grid-template-columns: minmax(0, 2.35fr) minmax(13rem, 0.8fr);
-  gap: clamp(var(--sp-4), 2.3vw, var(--sp-6));
-  padding-top: var(--sp-2);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--line-w);
+  background: var(--line-soft);
+  border: var(--line-w) solid var(--line-soft);
 }
 
-.sectionIndex {
+.fileCell {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.indexLink {
-  min-height: 6.2rem;
-  display: grid;
-  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--sp-3);
-  padding: var(--sp-4) var(--sp-3);
-  border-bottom: 1px solid var(--line-soft);
+  align-content: start;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  background: var(--surface-1);
   color: var(--ink-hi);
   text-decoration: none;
   transition: background-color var(--dur-fast) var(--ease-out);
 }
 
-.indexLink:nth-child(odd) { border-right: 1px solid var(--line-soft); }
-.indexLink:hover { background: color-mix(in oklab, var(--ink-hi) 6%, transparent); }
+.fileCell:hover { background: var(--surface-2); }
 
-.indexCopy { display: grid; gap: var(--sp-1); min-width: 0; }
+/* Inset, so the ring sits inside the 1px hairline gap instead of overlapping
+   the two cells next to it. */
+.fileCell:focus-visible,
+.referenceCell:focus-visible { outline-offset: -3px; }
 
-.indexCopy strong {
-  font-family: var(--face-text);
-  font-size: var(--t-body);
-  font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1.3;
-  color: var(--ink-hi);
+/* Here. The one gold mark a drawer may carry. */
+.fileCell[aria-current="page"] {
+  background: var(--surface-2);
+  box-shadow: inset var(--line-w-thick) 0 0 var(--gold);
 }
 
-.indexCopy small,
-.resourceLink small {
-  font-family: var(--face-text);
+.fileIndex {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.fileCell:hover .fileIndex { color: var(--ink); }
+.fileCell[aria-current="page"] .fileIndex { color: var(--gold); }
+
+.fileName {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+  text-wrap: balance;
+}
+
+.fileDescription {
   font-size: var(--t-caption);
   font-weight: 400;
   line-height: var(--t-caption-lh);
@@ -281,251 +361,272 @@
   text-wrap: pretty;
 }
 
-.indexArrow {
-  font-size: var(--t-caption);
-  line-height: 1.3;
-  color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out);
-}
+/* ── Reference block ───────────────────────────────────────────────────── */
 
-.indexLink:hover .indexArrow { color: var(--gold); }
-
-.resourceColumn {
-  display: flex;
-  flex-direction: column;
-  padding: var(--sp-3) 0 0 var(--sp-1);
-}
-
-.resourceColumn > .panelEyebrow { margin-bottom: var(--sp-2); }
-
-.resourceLink {
+.referenceGrid {
   display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-5);
+}
+
+.referenceCell {
+  display: grid;
+  align-content: start;
   gap: var(--sp-1);
-  padding: var(--sp-3) 0;
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--ink-hi);
-  font-size: var(--t-small);
-  font-weight: 500;
-  line-height: 1.3;
+  padding-block: var(--sp-1);
+  color: var(--ink);
   text-decoration: none;
 }
 
-.resourceLink > span {
+.referenceName {
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: 1.3;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.resourceLink:hover > span { color: var(--gold-hi); }
+.referenceCell:hover .referenceName { color: var(--ink-hi); }
+.referenceCell[aria-current="page"] .referenceName { color: var(--gold-hi); }
 
-.mobileTrigger,
-.mobilePanel { display: none; }
-
-@keyframes panelIn {
-  from { opacity: 0; transform: translate(-58%, -0.35rem); }
-  to { opacity: 1; transform: translate(-58%, 0); }
+.referenceDescription {
+  font-size: var(--t-caption);
+  font-weight: 400;
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
-@keyframes panelInMobile {
-  from { opacity: 0; transform: translateY(-0.35rem); }
+.referenceCell:hover .referenceDescription { color: var(--ink); }
+
+/* ── The phone sheet ───────────────────────────────────────────────────── */
+
+.menuTrigger {
+  height: var(--control-h);
+  display: none;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-inline: var(--sp-3);
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink-hi);
+}
+
+/* Two rules, not three: a hamburger drawn with the same hairline the rest of
+   the chrome uses. The lower one goes gold when the reader is inside a file. */
+.menuGlyph {
+  position: relative;
+  width: var(--sp-4);
+  height: var(--sp-2);
+  flex: 0 0 auto;
+}
+
+.menuGlyph::before,
+.menuGlyph::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--line-w);
+  background: var(--ink);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.menuGlyph::before { top: 0; }
+.menuGlyph::after { bottom: 0; }
+
+.menuTrigger[data-here] .menuGlyph::after { background: var(--gold); }
+.menuTrigger[aria-expanded="true"] .menuGlyph::before,
+.menuTrigger[aria-expanded="true"] .menuGlyph::after { background: var(--ink-hi); }
+
+.menuPanel {
+  position: fixed;
+  inset: var(--header-h) 0 0;
+  display: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--surface-1);
+  animation: sheetIn var(--dur-base) var(--ease-out) both;
+}
+
+.sheetLabel {
+  display: block;
+  padding: var(--sp-5) clamp(var(--sp-4), 5vw, var(--sp-6)) var(--sp-2);
+}
+
+.sheetRow {
+  display: grid;
+  grid-template-columns: var(--sp-6) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--sp-7);
+  padding-inline: clamp(var(--sp-4), 5vw, var(--sp-6));
+  border-top: var(--line-w) solid var(--line-soft);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.sheetRow:hover,
+.sheetRow:active { background: var(--tint-hover); color: var(--ink-hi); }
+
+.sheetRow[aria-current="page"] {
+  color: var(--ink-hi);
+  box-shadow: inset var(--line-w-thick) 0 0 var(--gold);
+}
+
+.sheetIndex {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.sheetRow[aria-current="page"] .sheetIndex { color: var(--gold); }
+
+.sheetName {
+  font-size: var(--t-body);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.sheetRow:focus-visible { outline-offset: -3px; }
+
+@keyframes drawerIn {
+  from { opacity: 0; transform: translateY(-0.4rem); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Tablet ────────────────────────────────────────────────────────── */
+@keyframes sheetIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
+/* ── Seams ─────────────────────────────────────────────────────────────────
+ *
+ * Two of the three are the canonical ones named in `globals.css`: 76.25rem
+ * (`--bp-rails`, where reading pages grow their side rails) and 45rem
+ * (`--bp-seam`, the one breakpoint the orbit and the intro share). The third,
+ * 64rem, is a fit constraint rather than a design seam — four destination
+ * names set at `--t-small` stop fitting beside the brand and the utility
+ * cluster below roughly 1024px — and it is the seam the previous header
+ * already used. A prelude cannot read a custom property, so these are
+ * literals; see the honest note beside `--bp-seam`.
+ */
+
+@media (max-width: 76.25rem) {
+  .fileGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .referenceGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* The band between this seam and the one below is where four destination
+     names are tightest against the brand and the utility cluster. Tightening
+     the padding buys ~32px; the state rule follows it, because both read
+     `--link-pad`. */
+  .barLink { --link-pad: var(--sp-2); }
+}
+
+/* Below this the bar carries no destination names at all — the set is dropped
+   whole rather than thinned, and the drawer carries all twelve links. */
 @media (max-width: 64rem) {
-  .header { padding: var(--sp-2) var(--sp-3); }
-
-  .bar {
-    width: min(100%, 50rem);
-    max-width: calc(100vw - 1.5rem);
-    min-height: 3.35rem;
-    justify-content: center;
-    padding: var(--sp-1) var(--sp-2);
-  }
-
-  .desktopNavigation { width: 100%; justify-content: space-between; }
-  .primaryLinks { flex: 1; justify-content: space-around; }
-  .navLink { padding-inline: clamp(var(--sp-2), 1.3vw, var(--sp-3)); font-size: var(--t-caption); }
-  .accountLink { display: none; }
-  .explorePanel { transform: translateX(-72%); }
-
-  @keyframes panelIn {
-    from { opacity: 0; transform: translate(-72%, -0.35rem); }
-    to { opacity: 1; transform: translate(-72%, 0); }
-  }
+  .barNav { display: none; }
 }
 
-/* ── Phone ─────────────────────────────────────────────────────────── */
-
-@media (max-width: 40rem) {
-  .bar {
-    width: fit-content;
-    min-width: 8.25rem;
-    margin-left: auto;
-    margin-right: 0;
-    padding: var(--sp-1);
-  }
-
-  .desktopNavigation { display: none; }
-
-  .mobileTrigger {
-    position: relative;
-    min-width: 7.6rem;
-    min-height: 2.75rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--sp-3);
-    padding-inline: var(--sp-4);
-    border: 0;
-    border-radius: var(--radius-pill);
-    background: transparent;
-    color: var(--ink-hi);
-    font-size: var(--t-small);
-    cursor: pointer;
-  }
-
-  .mobilePanel {
-    position: absolute;
-    top: calc(100% + var(--sp-2));
-    right: 0;
-    width: min(25rem, calc(100vw - 1.5rem));
-    max-height: calc(100dvh - 5.5rem);
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--sp-1);
-    overflow-y: auto;
-    padding: var(--sp-3);
-    border-radius: var(--radius-3);
-    animation: panelInMobile var(--dur-base) var(--ease-out) both;
-  }
-
-  .mobileLabel {
-    grid-column: 1 / -1;
-    padding: var(--sp-3) var(--sp-3) var(--sp-1);
-  }
-
-  /* Every row is a 48px target. The dot column is reserved on every row so
-     the current page's gold dot never shifts a label. */
-  .mobileLink {
-    min-height: var(--sp-7);
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    padding-inline: var(--sp-3);
-    border-radius: var(--radius-2);
-    color: var(--ink);
-    font-size: var(--t-small);
-    text-decoration: none;
-    transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
-  }
-
-  .mobileLink::before {
-    content: "";
-    flex: 0 0 auto;
-    width: 0.25rem;
-    height: 0.25rem;
-    border-radius: 50%;
-    background: transparent;
-  }
-
-  .mobileLink:hover {
-    background: color-mix(in oklab, var(--ink-hi) 8%, transparent);
-    color: var(--ink-hi);
-  }
-
-  .mobileLink[aria-current="page"] {
-    color: var(--ink-hi);
-  }
-
-  .mobileLink[aria-current="page"]::before {
-    background: var(--gold);
-  }
-
-  .mobileLink:focus-visible {
-    outline-offset: 0;
-  }
-}
-
-@media (max-width: 30rem) {
-  .mobilePanel { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 45rem) {
+  .bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .filesTrigger,
+  .support { display: none; }
+  .menuTrigger { display: inline-flex; }
+  .menuPanel { display: block; }
+  /* A drawer left open on a wide viewport must not survive a resize past the
+     seam that removes its trigger — there would be no way to close it. The
+     `scripting: none` block below re-opens it as a static index, and wins
+     because `[hidden]` outranks this. */
+  .filesPanel { display: none; }
+  .fileGrid,
+  .referenceGrid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navLink,
-  .mobileLink,
-  .liveDot,
-  .menuIndicator,
-  .indexArrow,
-  .resourceLink > span { transition-duration: 0ms; }
-  .explorePanel,
-  .mobilePanel { animation: none; }
+  .filesPanel,
+  .menuPanel { animation: none; }
+  .barLink,
+  .barLink::after,
+  .filesTrigger::after,
+  .chevron,
+  .sheetRow,
+  .support,
+  .fileCell,
+  .fileIndex,
+  .referenceName,
+  .referenceDescription,
+  .menuGlyph::before,
+  .menuGlyph::after,
+  .brandRole { transition-duration: 0ms; }
 }
 
 /* ── Panel visibility, and the no-JavaScript tier ──────────────────────────
  *
- * Added 2026-09-02, fixing a defect that had made `ci-smoke.mjs` fail and had
- * left five of the eight destinations unreachable without JavaScript.
+ * Both panels always ship in the server HTML and carry their state in
+ * `hidden`; nothing here may be mounted on client state. When they were, five
+ * of the eight destinations had no reachable link anywhere on the site without
+ * JavaScript. Two rules make the attribute hold.
  *
- * Both panels used to be mounted on client state (`{open ? <div/> : null}`), so
- * neither existed in the server HTML. The markup now always ships and `hidden`
- * carries the state instead. Two rules are needed to make that hold.
- *
- * First: `hidden` is a UA-stylesheet `display: none`, and the mobile block below
- * sets `.mobilePanel { display: grid }`, which outranks it. The attribute
- * selector restores the win at equal-or-higher specificity.
+ * First: `hidden` is a UA-stylesheet `display: none`, and the blocks above set
+ * `display: block` on `.menuPanel` at phone width. The attribute selector wins
+ * the tie back at equal-or-higher specificity.
  */
-.explorePanel[hidden],
-.mobilePanel[hidden] {
+.filesPanel[hidden],
+.menuPanel[hidden] {
   display: none;
 }
 
 /*
- * Second: with scripting off, `hidden` is never removed — a panel opened only by
- * a click handler can never be opened. So the section index stops being a
- * dropdown and becomes a static list under the bar. This is the same "the static
- * index is a tier, not the home" reasoning already recorded for the phone.
+ * Second: with scripting off, `hidden` is never removed — a panel opened only
+ * by a click handler can never be opened. So the drawer stops being a dropdown
+ * and takes its place in the flow as a static index.
+ *
+ * This block is width-independent on purpose. Its predecessor was not, and the
+ * gap was real: the drawer lived inside the group the phone breakpoint hides,
+ * and the phone sheet was suppressed here, so a phone with scripting off had
+ * *no* navigation at all. `ci-smoke.mjs` runs at a desktop viewport and could
+ * not see it. The drawer is now a direct child of `<header>`, so hiding the
+ * bar's links at any width cannot take the index with them.
  *
  * `scripting: none` is the mechanism `components/motion/Reveal.tsx` already
  * relies on, so support is assumed rather than newly bet on.
  */
 @media (scripting: none) {
   /* A control that cannot do anything should not claim it can. */
-  .exploreTrigger,
-  .mobileTrigger {
+  .filesTrigger,
+  .menuTrigger {
     display: none;
   }
 
   .header {
     position: static;
-    pointer-events: auto;
   }
 
   .bar {
-    width: 100%;
-    max-width: none;
-    flex-wrap: wrap;
     height: auto;
+    min-height: var(--header-h);
+    padding-block: var(--sp-3);
   }
 
-  /* The index takes its place in the flow rather than floating over the page. */
-  .explorePanel[hidden] {
+  .filesPanel[hidden] {
     display: block;
     position: static;
-    width: 100%;
     max-height: none;
-    transform: none;
+    overflow: visible;
+    box-shadow: none;
     animation: none;
-    margin-top: var(--sp-3);
   }
 
-  .exploreColumns {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--sp-4);
-  }
-
-  /* The mobile panel would repeat the same eight links a second time. */
-  .mobilePanel[hidden] {
+  /* The sheet would repeat the same twelve links a second time. */
+  .menuPanel[hidden] {
     display: none;
   }
 }

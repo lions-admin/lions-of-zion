@@ -1,7 +1,7 @@
 /**
  * Pages that live outside the 8-file orbit (`/methodology`, `/corrections`).
  *
- * Same shell as `SectionPage` — identity band, centred measure — minus the
+ * Same shell as `SectionPage` — document trail, centred measure — minus the
  * file numbering, since these two have no `defaultNodes` entry. They were a
  * visibly third layout variant before Phase 2 (their back-link floated
  * disconnected above a panel); the variants are one system now.
@@ -81,25 +81,23 @@ export interface DocPageProps {
    * archive record translated into Portuguese, say.
    *
    * Deliberately on the `<h1>` alone rather than on the `<main>`: this shell
-   * also carries untranslated English chrome (the skip link, the wordmark,
-   * "← Back to the scan", the tagline, and the record's own metadata and
-   * provenance footer), so declaring the whole region foreign would trade one
-   * WCAG 3.1.1 failure for a 3.1.2 one.
+   * also carries untranslated English chrome (the skip link, the document
+   * trail, the tagline, and the record's own metadata and provenance
+   * footer), so declaring the whole region foreign would trade one WCAG
+   * 3.1.1 failure for a 3.1.2 one.
    */
   titleLang?: string;
   /**
-   * Ancestors of this page, nearest root first, rendered in the identity band.
+   * Ancestors of this page, nearest root first, rendered as the document
+   * trail above the headline.
    *
-   * The band's `/{routeId}` is an inert `<span>`, and the only other exits are
-   * two links to `/`. On a policy page that is fine — those link to each other
-   * from their own prose. On an archive record it is not: the prose is a
-   * witness account that links to nothing, so moving to the next testimony
-   * costs a full round trip through the particle scene.
-   *
-   * The last item is also where the exit link points — "← Back to {label}" —
-   * so a deep page steps one level up instead of jumping past its parent
-   * straight to the scan. Without a trail the exit keeps its original `/`
-   * target and wording.
+   * Without one the trail is just "Home / {title}". On a policy page that is
+   * fine — `/methodology` and `/corrections` link to each other from their
+   * own prose. On an archive record it is not: the prose is a witness account
+   * that links to nothing, so moving to the next testimony would cost a full
+   * round trip through the particle scene. Each ancestor is its own link, so
+   * a deep page steps one level up rather than jumping past its parent
+   * straight to the scan.
    */
   breadcrumb?: { href: string; label: string }[];
   children: React.ReactNode;

@@ -350,120 +350,6 @@
   white-space: nowrap;
 }
 
-/* ---- identity band -------------------------------------------------------
-   The masthead row that carried the wordmark, file number, route and exit
-   link. The site header has taken over that job and neither shell renders
-   the band today; the classes are kept, on the tokens, so a page that still
-   composes them keeps working and so the band can return without being
-   redesigned from memory. One row, full width, entirely in the data voice —
-   it identifies, it does not perform. */
-
-.identityBand {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-3) var(--sp-4);
-  padding: var(--sp-5) 0 var(--sp-4);
-  margin-bottom: clamp(1.75rem, 4vh, 2.75rem);
-  border-bottom: var(--line-w) solid var(--gold-line);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-}
-
-.identityEmblem {
-  width: 1.6rem;
-  height: 1.6rem;
-  flex: none;
-  /* white source glyph tinted onto the gold ramp — same filter chain the
-     brief's rail icon uses, without the halo it needed at 9.5rem */
-  filter: brightness(0) saturate(100%) invert(77%) sepia(35%) saturate(758%)
-    hue-rotate(5deg) brightness(88%);
-  opacity: 0.9;
-}
-
-/* The wordmark is a name, not a label: the interface face, no tracking. */
-.wordmark {
-  color: var(--gold);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 600;
-  letter-spacing: 0;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.wordmark:hover {
-  color: var(--gold-hi);
-}
-
-/* The uppercase sits here rather than on the band, which inherited it to
-   "Lions of Zion" and "← Back to the scan" — a wordmark set against the way
-   the brand is written, and a navigation instruction set as a data label.
-   What is left under it genuinely is data: "FILE 01 / 08", "/WAR-UPDATE". */
-.identityMeta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2) var(--sp-3);
-  color: var(--ink-lo);
-  text-transform: uppercase;
-}
-
-.identityRoute {
-  color: var(--accent);
-}
-
-.identitySep {
-  color: var(--line-strong);
-}
-
-/* Sits where `.identityRoute` would, and replaces it — the route slug and a
-   breadcrumb ending in the same place would say the same thing twice. Inherits
-   the band's size and tracking, so it needs no type of its own. */
-.breadcrumb {
-  display: inline;
-  color: var(--accent);
-}
-
-.breadcrumb a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.breadcrumb a:hover,
-.breadcrumb a:focus-visible {
-  color: var(--gold-hi);
-  text-decoration: underline;
-}
-
-/* The band already wraps at 900px; the last separator would otherwise dangle
-   at the end of a line with nothing after it. */
-.breadcrumb span:last-child > span[aria-hidden] {
-  display: none;
-}
-
-/* Pushes the exit link to the far edge of the band. A navigation
-   instruction, so the interface face and sentence case. */
-.identityExit {
-  margin-left: auto;
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: 0;
-  text-transform: none;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.identityExit:hover {
-  color: var(--gold-hi);
-}
-
 /* ---- the reading column --------------------------------------------------
    No card: no border, no translucent panel, no blur. With the scan masked out
    of this band there is nothing to shield the text from, and the card chrome
@@ -953,54 +839,15 @@
 
   .panel,
   .documentTrail,
-  .identityBand,
   .tocRail,
   .sideRail {
     grid-column: 1;
   }
 
-  .identityBand {
-    /* The padding and the row gap shrink because the two links below now
-       carry 44px boxes, and those boxes supply the same breathing room the
-       padding used to. Measured: 13.6px sits above and below each link's
-       text inside its own box, so 0.4rem of band padding lands the wordmark
-       20px from the top (it was 18.4px) and the rule 20px under the exit
-       (it was 20px). Net cost of the whole change is ~12px of band height. */
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
-    margin-bottom: 1.75rem;
-    gap: 0 0.85rem;
-  }
-
-  /* The band wraps here, and a leading separator orphaned at the start of a
-     wrapped line reads as a typo. It only earns its place inline. */
-  .identitySep {
-    display: none;
-  }
-
-  /* `SectionPage` deliberately ends where the content ends, so this band is
-     the only way out of a file — and with JavaScript off it is the only
-     navigation on the page at all. Both links were bare inline anchors at
-     `--t-data`, i.e. 16.7px stripes. Growing the flex box rather than adding
-     padding keeps the gold text on the band's own baseline. This is the 44px
-     convention `.askCta`, `.share` and the orbit links already keep, not a
-     WCAG AA conformance fix — the Spacing exception means these never failed
-     2.5.8. */
-  .wordmark,
-  .identityExit {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--control-h);
-  }
-
-  .identityExit {
-    /* A right-pushed exit link would strand itself on its own line. */
-    margin-left: 0;
-    flex-basis: 100%;
-  }
-
   /* The trail's links are tapped here; the flex box grows to the 44px
-     convention without moving the text off its baseline. */
+     convention without moving the text off its baseline. It is the whole of
+     a section page's navigation with JavaScript off, so the target size is
+     not optional. */
   .documentTrail a {
     display: inline-flex;
     align-items: center;
@@ -1045,9 +892,7 @@
   .skipLink,
   .tocLink,
   .tocLinkActive,
-  .documentTrail a,
-  .wordmark,
-  .identityExit {
+  .documentTrail a {
     transition: none;
   }
 }

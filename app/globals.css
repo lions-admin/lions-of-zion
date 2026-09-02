@@ -278,15 +278,6 @@
   --measure-caption: 44ch;
   --measure-data: 24ch;
 
-  /* A sixth, added 2026-09-02, because `ch` resolves against the *element's
-     own* font-size and the five above are calibrated on the body step. On a
-     display-face headline they are not narrower measures, they are no-ops:
-     `--measure-caption` at `--t-h2` computes to ~47rem, wider than the 68ch
-     column itself, so capping a long headline with it silently removes the
-     cap. This is the headline measure — `sections.module.css` `.titleLong`,
-     where a 296-character archive title has to stop being a headline. */
-  --measure-title: 34ch;
-
   /* ── Hairline weights ───────────────────────────────────────────────── */
   --line-w: 1px;
   --line-w-thick: 2px;

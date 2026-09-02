@@ -53,10 +53,10 @@ export function PipelineVisualizer() {
         <div className={styles.headerLeft}>
           <div className={styles.headerTitle}>
             <span>LIONS OF ZION</span>
-            <span className={styles.brandBadge}>ארכיטקטורת המערכת וצינור המידע החי</span>
+            <span className={styles.brandBadge}>ארכיטקטורת המערכת וצינור המידע</span>
           </div>
           <div className={styles.headerSubtitle}>
-            הדמיה אינטראקטיבית מלאה של מנוע אימות הטענות, שערי ה־SQL, מכונת הבריף היומי ושכבות האבטחה
+            הדמיה אינטראקטיבית מתוסרטת של מנוע אימות הטענות, שערי ה־SQL, מכונת הבריף היומי ושכבות האבטחה — מבוססת על מבנה הקוד, ולא על הרצה חיה
           </div>
         </div>
 
@@ -67,7 +67,7 @@ export function PipelineVisualizer() {
             onClick={() => handleOpenGlossary()}
             title="פתח מילון מונחים והסברים"
           >
-            📖 מילון מונחים (עברית/אנגלית)
+            מילון מונחים (עברית/אנגלית)
           </button>
 
           <div className={styles.viewModeGroup}>

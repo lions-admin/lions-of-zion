@@ -1,0 +1,568 @@
+/* The influence network · design system v3 — "the verification desk".
+ *
+ * One grammar runs through every mark in this file: **the less established a
+ * thing is, the less solid it is drawn.** A documented relationship is a solid
+ * rule, an observed interaction is dashed, an inferred coordination is dotted;
+ * a confirmed identity is a filled mark and a probable one is hollow. That is
+ * the whole visual argument, and it is why nothing here is coloured by
+ * community — seven hues would spend the palette on the one attribute that
+ * carries no epistemic weight, and would draw a conspiracy board while doing
+ * it. Community is position: members sit together, bracketed in the gutter.
+ *
+ * The page's accent rule, set in `app/fake-resistance/network/page.module.css`,
+ * holds here too: ember marks the network's own structure, gold stays on the
+ * desk's apparatus — the group brackets and the controls.
+ *
+ * The row height is derived from the type tokens rather than chosen, so the
+ * rows sit on the same rhythm as the prose around them and the arc layer,
+ * which stretches to whatever box it is given, follows without a constant to
+ * keep in sync. Every other value answers to `app/globals.css`.
+ */
+
+.figure {
+  margin: var(--sp-7) 0;
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────────
+   Hidden entirely without scripting, where they would be inert chrome on a
+   drawing that is already complete. */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4) var(--sp-6);
+  padding-bottom: var(--sp-4);
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+@media (scripting: none) {
+  .controls,
+  .panelCue {
+    display: none;
+  }
+}
+
+.filterSet {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.filterLegend {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h-sm);
+  padding: 0 var(--sp-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.chip:hover:not(:disabled) {
+  background: var(--tint-hover);
+  border-color: var(--line-strong);
+}
+
+.chip:active:not(:disabled) {
+  background: var(--tint-active);
+}
+
+/* Off is the stated state, not the absent one: a muted filter keeps its label
+   and its count and loses its ink, so a reader can always see what was set
+   aside rather than inferring it from what is missing. */
+.chip[aria-pressed='false'] {
+  color: var(--ink-lo);
+  border-style: dashed;
+}
+
+.chip:disabled {
+  color: var(--ink-lo);
+  border-color: var(--line-soft);
+  cursor: default;
+}
+
+/* A 16px sample of the arc the chip governs — the legend and the control are
+   the same object, so there is nothing to cross-reference. */
+.chipRule {
+  width: 1rem;
+  height: 0;
+  border-top-width: var(--line-w);
+  border-top-style: solid;
+  border-top-color: currentcolor;
+}
+
+.chip[data-evidence='documented_relationship'] .chipRule {
+  border-top-width: var(--line-w-thick);
+}
+
+.chip[data-evidence='observed_interaction'] .chipRule {
+  border-top-style: dashed;
+}
+
+.chip[data-evidence='inferred_coordination'] .chipRule {
+  border-top-style: dotted;
+}
+
+.chip[data-confidence] .chipRule {
+  border-top-width: var(--line-w-thick);
+}
+
+.chip[data-confidence='medium'] .chipRule {
+  opacity: 0.62;
+}
+
+.chip[data-confidence='low'] .chipRule {
+  opacity: 0.34;
+}
+
+.chipCount {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* ── The plot ─────────────────────────────────────────────────────────────
+   Three bands: a numbered gutter, the ordered rows, and the arc layer. The
+   rows reserve the arc band with a margin so a node's mark lands exactly on
+   the arc origin; nothing here is absolutely positioned against a guess. */
+.plot {
+  --row-h: calc(var(--t-small) * var(--t-small-lh) + var(--sp-2));
+  --gutter-w: 1.25rem;
+  --arc-w: clamp(4.5rem, 28%, 11rem);
+  --mark: 0.5rem;
+
+  position: relative;
+  margin-top: var(--sp-5);
+  height: calc(var(--rows) * var(--row-h));
+}
+
+.brackets {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--gutter-w);
+}
+
+/* One bracket per contiguous run of a community: a gold hairline down the
+   gutter with the research's own group number at its head. */
+.bracket {
+  position: absolute;
+  inset-inline-start: 0;
+  top: calc(var(--start) * var(--row-h));
+  height: calc(var(--size) * var(--row-h));
+  display: block;
+  padding-top: calc((var(--row-h) - 1em) / 2);
+  padding-inline-start: var(--sp-1);
+  border-inline-start: var(--line-w) solid var(--gold-line);
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The rows the research placed in no community keep the bracket and lose the
+   gold: they are not a group, they are what was left over. */
+.bracket[data-numbered='no'] {
+  border-inline-start-color: var(--line);
+  color: var(--ink-lo);
+}
+
+.rows {
+  margin: 0;
+  margin-inline-start: var(--gutter-w);
+  margin-inline-end: var(--arc-w);
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  height: var(--row-h);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+/* The break between connected components. An inset shadow rather than a
+   border, because a border would move the row off the grid the arcs assume. */
+.row[data-break='yes'] {
+  box-shadow: inset 0 var(--line-w) 0 var(--line-strong);
+}
+
+.row[data-related='no'],
+.row[data-dropped='yes'] {
+  opacity: 0.34;
+}
+
+.node {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: end;
+  cursor: pointer;
+}
+
+.node:hover .name,
+.node:focus-visible .name {
+  color: var(--ink-hi);
+}
+
+.node[aria-pressed='true'] .name {
+  color: var(--data-ember-peak);
+}
+
+.node:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 0;
+}
+
+@media (scripting: none) {
+  .node {
+    cursor: default;
+  }
+}
+
+.name {
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.degree {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* The mark carries two facts and no colour: shape is what the entity is,
+   fill is how well its identity is established. */
+.mark {
+  width: var(--mark);
+  height: var(--mark);
+  /* Half of the mark overhangs into the arc band so its centre sits exactly on
+     the arc origin — the line leaves the entity, not the space beside it. */
+  margin-inline-end: calc(var(--mark) / -2);
+  border: var(--line-w) solid var(--ink-lo);
+  box-sizing: border-box;
+}
+
+.mark[data-type='person'] {
+  border-radius: var(--radius-pill);
+}
+
+.mark[data-type='organization'] {
+  border-radius: 0;
+}
+
+.mark[data-type='account'] {
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+.mark[data-identity='confirmed'] {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.arcs {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: var(--arc-w);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.arc {
+  fill: none;
+  stroke: var(--ink-lo);
+  stroke-width: var(--line-w);
+  transition:
+    stroke var(--dur-fast) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out);
+}
+
+/* Evidence class — solidity. */
+.arc[data-evidence='documented_relationship'] {
+  stroke-width: var(--line-w-thick);
+}
+
+.arc[data-evidence='observed_interaction'] {
+  stroke-dasharray: 5 4;
+}
+
+.arc[data-evidence='inferred_coordination'] {
+  stroke-dasharray: 0.5 4;
+  stroke-linecap: round;
+}
+
+/* Confidence — ink weight. Separate property from the rule above, so the two
+   grades compose instead of one silently winning. */
+.arc[data-confidence='high'] {
+  stroke: var(--ink);
+}
+
+.arc[data-confidence='medium'] {
+  stroke: var(--ink-lo);
+}
+
+.arc[data-confidence='low'],
+.arc[data-confidence='ungraded'] {
+  stroke: color-mix(in oklab, var(--ink-lo) 55%, transparent);
+}
+
+/* State. Ordered after the grades on purpose: highlighting changes the hue and
+   leaves the dash pattern alone, so an inferred edge stays visibly inferred
+   even while it is lit. */
+.arc[data-lit='no'] {
+  stroke: var(--line);
+}
+
+.arc[data-lit='yes'] {
+  stroke: var(--data-ember-peak);
+}
+
+.arc[data-hidden='yes'] {
+  opacity: 0;
+}
+
+/* ── Group key ────────────────────────────────────────────────────────── */
+.groupKey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-5);
+  margin: var(--sp-5) 0 0;
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-soft);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+/* The two runs the research placed in no community carry a label and no
+   numeral, matching their gutter bracket, which is likewise unnumbered. */
+.groupKeyItem b {
+  margin-inline-end: var(--sp-1);
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Selection panel ──────────────────────────────────────────────────────
+   Fixed minimum height so choosing a name does not shunt the page under the
+   reader's cursor. */
+.panel {
+  min-height: 7rem;
+  margin-top: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
+/* The one sentence in the rest state that only makes sense with a runtime.
+   Declared here so the class exists outside its media query, and hidden by the
+   `scripting: none` block above alongside the controls it refers to. */
+.panelCue {
+  color: inherit;
+}
+
+.panelRest {
+  margin: 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  max-width: var(--measure-narrow);
+  text-wrap: pretty;
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  margin: 0;
+}
+
+.panelName {
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  line-height: var(--t-h3-lh);
+}
+
+.panelFacts {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.panelEdges {
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panelEdge {
+  padding-top: var(--sp-3);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.panelEdge + .panelEdge {
+  margin-top: var(--sp-3);
+}
+
+/* An edge the current filter has set aside is still listed — a filter that
+   silently shortens the evidence for a name is worse than no filter. */
+.panelEdge[data-muted='yes'] {
+  opacity: 0.45;
+}
+
+.panelEdgeHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-4);
+  margin: 0;
+}
+
+.panelEdgePair {
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.panelEdgePair b {
+  color: var(--ink-hi);
+  font-weight: 600;
+}
+
+.panelGrade {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.panelGrade[data-evidence='documented_relationship'] {
+  color: var(--ink);
+}
+
+.panelStatement {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  max-width: var(--measure-reading);
+  text-wrap: pretty;
+}
+
+/* ── Caption ──────────────────────────────────────────────────────────── */
+.caption {
+  margin-top: var(--sp-4);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  max-width: var(--measure-reading);
+  text-wrap: pretty;
+}
+
+.caption p + p {
+  margin-top: var(--sp-3);
+}
+
+.caption b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.isolated {
+  color: var(--ink);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Below the shared seam the arc band would take a third of a phone screen from
+   the names, which are the part that has to stay readable. The arcs narrow
+   instead of the labels; the page's own edge list carries every statement in
+   full for anyone the drawing loses. */
+@media (max-width: 45rem) {
+  .plot {
+    /* The gutter narrows but not to nothing. An arc's reach is a fixed
+       fraction of this band, so squeezing it flattens the short within-
+       community arcs — the ones whose tightness against the axis is the
+       reading — before it flattens anything else. 30% keeps the shortest at
+       about 8px of bow while still leaving the longest name its full width. */
+    --arc-w: clamp(4rem, 30%, 8rem);
+    --gutter-w: 1rem;
+  }
+
+  .panelHead {
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+}

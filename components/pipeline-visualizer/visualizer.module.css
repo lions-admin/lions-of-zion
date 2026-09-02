@@ -3,7 +3,28 @@
  * Every value here answers to `app/globals.css`. This module adds exactly one
  * thing of its own: Hebrew-capable fallback stacks behind the three faces,
  * because Newsreader and IBM Plex Sans carry no Hebrew glyphs and this is the
- * one RTL surface on the site. Gold means "the live step" and nothing else. */
+ * one RTL surface on the site. Gold means "the live step" and nothing else.
+ *
+ * ## Two things that stay physical on purpose
+ *
+ * The canvas is a coordinate space, not a text flow. `.canvasPlane`,
+ * `.htmlSvgOverlay` and every node card are positioned from `top`/`left` in
+ * pixels computed by `PipelineCanvas`, and the SVG edge paths are drawn in the
+ * same frame; making any of that logical would let an inherited `dir` move the
+ * cards out from under their own wires. `.inspectorDrawer` likewise: it is
+ * pinned right and animates in with `slideInRtl`, coherent as one physical
+ * pair on a surface that is only ever RTL.
+ *
+ * ## What is deliberately not done here yet
+ *
+ * The twelve control classes at the top share one recipe rather than being
+ * `components/ui/Button`, and `TermsGlossaryModal` / `NodeInspectorDrawer`
+ * hand-roll the only modal and the only drawer on the site. Both migrations
+ * were held on 2026-09-02: `components/ui/README.md` — the variant mapping
+ * this module would migrate *onto* — does not exist yet, and inventing a
+ * second primitive to race it would leave two to reconcile instead of one.
+ * The recipe below is already one recipe, so the migration is a rename rather
+ * than a redesign whenever that README lands. */
 
 .visualizerShell {
   /* Per-glyph fallback walks the whole list, so Latin still resolves at the
@@ -20,6 +41,32 @@
   --well: color-mix(in srgb, var(--ground) 60%, transparent);
   --panel: color-mix(in srgb, var(--surface-1) 96%, transparent);
   --panel-raised: color-mix(in srgb, var(--surface-2) 96%, transparent);
+
+  /* The card ladder. `app/globals.css` names the site's *layers* — base,
+     raised, sticky, panel, modal — and the node cards all live in exactly one
+     of them: raised. What they also need is an order *among themselves*, so a
+     card being pointed at, opened or dragged rises above its neighbours. That
+     is sibling ordering inside a layer, not a layer of its own, so it is
+     derived from `--z-raised` here rather than spending four more entries of a
+     ten-name global vocabulary. Nothing on this ladder can reach the next
+     layer up: `--z-sticky` is 100 and the ladder tops out at 13.
+
+     One relationship changed in the process. The floating canvas toolbar used
+     to sit at 15 and a dragged card at 20, so dropping a card on the toolbar
+     buried the zoom and fit controls until the reader moved it again. The
+     toolbar is now `--z-sticky`, above the whole ladder. */
+  --z-card: var(--z-raised);
+  --z-card-hover: calc(var(--z-raised) + 1);
+  --z-card-active: calc(var(--z-raised) + 2);
+  --z-card-dragging: calc(var(--z-raised) + 3);
+
+  /* The status-pulse register. `--dur-ambient` (7s) is the site's continuous
+     register and is deliberately slower than a reader can follow, which is
+     right for a border beam and wrong for a heartbeat: a pulse that cannot be
+     perceived as a pulse reports nothing. This is the one surface with live
+     status marks, so the register is local to it. */
+  --dur-pulse: 1s;
+  --dur-pulse-slow: 1.2s;
 
   display: flex;
   flex-direction: column;
@@ -61,7 +108,7 @@
   font-weight: 600;
   color: var(--ink);
   background: transparent;
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   cursor: pointer;
   white-space: nowrap;
@@ -151,7 +198,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--ink);
   background: var(--wash-1);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   white-space: nowrap;
 }
@@ -166,8 +213,8 @@
   padding: var(--sp-3) var(--sp-5);
   background: var(--panel);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--line);
-  z-index: 25;
+  border-bottom: var(--line-w) solid var(--line);
+  z-index: var(--z-header);
 }
 
 .headerLeft {
@@ -195,7 +242,7 @@
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink-lo);
-  max-width: 72ch;
+  max-width: var(--measure-wide);
 }
 
 .headerControls {
@@ -210,7 +257,7 @@
   gap: var(--sp-1);
   padding: var(--sp-1);
   background: var(--wash-1);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
 }
 
@@ -238,8 +285,8 @@
   gap: var(--sp-3) var(--sp-4);
   padding: var(--sp-2) var(--sp-5);
   background: var(--panel-raised);
-  border-bottom: 1px solid var(--line);
-  z-index: 20;
+  border-bottom: var(--line-w) solid var(--line);
+  z-index: var(--z-sticky);
 }
 
 .journeySelector {
@@ -297,7 +344,7 @@
   gap: var(--sp-1);
   padding: var(--sp-1);
   background: var(--wash-1);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
 }
 
@@ -332,7 +379,7 @@
   gap: var(--sp-2) var(--sp-5);
   padding: var(--sp-2) var(--sp-5);
   background: var(--panel);
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: var(--line-w) solid var(--line-soft);
 }
 
 .stepCounterLabel {
@@ -412,9 +459,9 @@
 .explainerCardContainer {
   padding: var(--sp-3) var(--sp-5);
   background: linear-gradient(180deg, var(--surface-3) 0%, var(--surface-1) 100%);
-  border-bottom: 1px solid var(--gold-line);
+  border-bottom: var(--line-w) solid var(--gold-line);
   box-shadow: var(--shadow-2);
-  z-index: 18;
+  z-index: var(--z-raised);
 }
 
 .explainerHeader {
@@ -468,7 +515,7 @@
   gap: var(--sp-3);
   margin-top: var(--sp-3);
   padding-top: var(--sp-3);
-  border-top: 1px solid var(--line-soft);
+  border-top: var(--line-w) solid var(--line-soft);
 }
 
 .explainerMainText {
@@ -478,12 +525,7 @@
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink-hi);
-  max-width: 80ch;
-}
-
-.explainerIcon {
-  font-size: var(--t-body);
-  line-height: var(--t-small-lh);
+  max-width: var(--measure-wide);
 }
 
 .explainerContent strong {
@@ -540,13 +582,13 @@
   background: var(--well);
   padding: var(--sp-1) var(--sp-2);
   border-radius: var(--radius-1);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
 }
 
 .explainerPayloadBox {
   padding: var(--sp-2) var(--sp-3);
   background: var(--well);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
 }
 
@@ -611,10 +653,10 @@
   padding: var(--sp-2) var(--sp-3);
   background: var(--panel);
   backdrop-filter: blur(14px);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-2);
-  z-index: 15;
+  z-index: var(--z-sticky);
 }
 
 .toolbarButtonGroup {
@@ -651,7 +693,7 @@
 .canvasToolbarHint {
   padding-inline-end: var(--sp-2);
   margin-inline-end: var(--sp-1);
-  border-inline-end: 1px solid var(--line);
+  border-inline-end: var(--line-w) solid var(--line);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   color: var(--ink-lo);
@@ -669,7 +711,7 @@
   position: absolute;
   padding: var(--sp-4);
   background: color-mix(in srgb, var(--surface-2) 45%, transparent);
-  border: 1px solid var(--line-soft);
+  border: var(--line-w) solid var(--line-soft);
   border-radius: var(--radius-3);
   pointer-events: none;
 }
@@ -719,7 +761,7 @@
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 5;
+  z-index: var(--z-base);
 }
 
 .edgePath {
@@ -751,12 +793,12 @@
 
 .packetParticle {
   fill: var(--gold-hi);
-  animation: pulseGlow 1.2s var(--ease-in-out) infinite alternate;
+  animation: pulseGlow var(--dur-pulse-slow) var(--ease-in-out) infinite alternate;
 }
 
 .packetParticleQuarantine {
   fill: var(--state-danger);
-  animation: pulseGlowQuarantine 1s var(--ease-in-out) infinite alternate;
+  animation: pulseGlowQuarantine var(--dur-pulse) var(--ease-in-out) infinite alternate;
 }
 
 .packetRing {
@@ -791,11 +833,11 @@
   padding: var(--sp-3) var(--sp-4);
   background: var(--panel);
   backdrop-filter: blur(10px);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);
   cursor: pointer;
-  z-index: 10;
+  z-index: var(--z-card);
   overflow: hidden;
   transition:
     border-color var(--dur-fast) var(--ease-out),
@@ -851,20 +893,20 @@
 .htmlNodeCard:hover {
   border-color: var(--line-strong);
   box-shadow: var(--shadow-2);
-  z-index: 12;
+  z-index: var(--z-card-hover);
 }
 
 .htmlNodeCard.htmlNodeCardActive {
   border-color: var(--gold);
   background: color-mix(in srgb, var(--surface-3) 90%, var(--gold));
   box-shadow: var(--shadow-2);
-  z-index: 14;
+  z-index: var(--z-card-active);
 }
 
 .htmlNodeCard.htmlNodeCardSelected {
   border-color: var(--ink-hi);
-  box-shadow: 0 0 0 1px var(--ink-hi), var(--shadow-2);
-  z-index: 14;
+  box-shadow: 0 0 0 var(--line-w) var(--ink-hi), var(--shadow-2);
+  z-index: var(--z-card-active);
 }
 
 .htmlNodeCard.htmlNodeCardQuarantined {
@@ -876,7 +918,7 @@
   opacity: 0.85;
   box-shadow: var(--shadow-3);
   cursor: grabbing;
-  z-index: 20;
+  z-index: var(--z-card-dragging);
 }
 
 .htmlCardTopRow {
@@ -910,7 +952,7 @@
   height: var(--sp-2);
   border-radius: var(--radius-pill);
   background: var(--gold-hi);
-  animation: pulseDot 1s var(--ease-in-out) infinite alternate;
+  animation: pulseDot var(--dur-pulse) var(--ease-in-out) infinite alternate;
 }
 
 @keyframes pulseDot {
@@ -945,7 +987,7 @@
   background: var(--well);
   padding: 0 var(--sp-2);
   border-radius: var(--radius-1);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
 }
 
 .htmlTablePill {
@@ -975,9 +1017,9 @@
   flex-direction: column;
   background: color-mix(in srgb, var(--surface-2) 98%, transparent);
   backdrop-filter: blur(20px);
-  border-left: 1px solid var(--line-strong);
+  border-left: var(--line-w) solid var(--line-strong);
   box-shadow: var(--shadow-3);
-  z-index: 30;
+  z-index: var(--z-panel);
   animation: slideInRtl var(--dur-base) var(--ease-out);
 }
 
@@ -992,7 +1034,7 @@
   justify-content: space-between;
   gap: var(--sp-4);
   padding: var(--sp-5);
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 .drawerHeading {
@@ -1072,7 +1114,7 @@
 .failureAlertBox {
   padding: var(--sp-3) var(--sp-4);
   background: var(--state-danger-wash);
-  border: 1px solid var(--state-danger-line);
+  border: var(--line-w) solid var(--state-danger-line);
   border-radius: var(--radius-2);
 }
 
@@ -1084,7 +1126,7 @@
   font-weight: var(--t-data-weight);
   color: var(--ink-hi);
   background: var(--well);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   word-break: break-all;
 }
@@ -1105,8 +1147,8 @@
   flex-direction: column;
   height: 140px;
   background: var(--panel);
-  border-top: 1px solid var(--line);
-  z-index: 20;
+  border-top: var(--line-w) solid var(--line);
+  z-index: var(--z-sticky);
 }
 
 .telemetryHeader {
@@ -1117,7 +1159,7 @@
   gap: var(--sp-2) var(--sp-5);
   padding: var(--sp-2) var(--sp-5);
   background: color-mix(in srgb, var(--ground) 85%, transparent);
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: var(--line-w) solid var(--line-soft);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-weight: var(--t-caption-weight);
@@ -1215,7 +1257,7 @@
   padding: var(--sp-5);
   background: color-mix(in srgb, var(--ground) 82%, transparent);
   backdrop-filter: blur(10px);
-  z-index: 100;
+  z-index: var(--z-modal);
 }
 
 .glossaryModalContent {
@@ -1226,7 +1268,7 @@
   max-height: 88vh;
   overflow: hidden;
   background: color-mix(in srgb, var(--surface-2) 98%, transparent);
-  border: 1px solid var(--line-strong);
+  border: var(--line-w) solid var(--line-strong);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-3);
 }
@@ -1237,7 +1279,7 @@
   justify-content: space-between;
   gap: var(--sp-4);
   padding: var(--sp-5);
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 .glossaryModalTitle {
@@ -1256,7 +1298,7 @@
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink-lo);
-  max-width: 64ch;
+  max-width: var(--measure-reading);
 }
 
 .glossarySearchRow {
@@ -1264,7 +1306,7 @@
   flex-direction: column;
   gap: var(--sp-3);
   padding: var(--sp-4) var(--sp-5) var(--sp-3);
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: var(--line-w) solid var(--line-soft);
 }
 
 .glossarySearchInput {
@@ -1275,7 +1317,7 @@
   line-height: var(--t-small-lh);
   color: var(--ink-hi);
   background: var(--well);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   transition: border-color var(--dur-fast) var(--ease-out);
 }
@@ -1337,7 +1379,7 @@
   gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-5);
   background: var(--wash-1);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
 }
 
@@ -1403,7 +1445,7 @@
   color: var(--ink);
   background: var(--well);
   border-radius: var(--radius-2);
-  border-inline-start: 2px solid var(--line-strong);
+  border-inline-start: var(--line-w-thick) solid var(--line-strong);
 }
 
 .glossaryDeepSection strong {
@@ -1417,7 +1459,7 @@
   line-height: var(--t-small-lh);
   color: var(--data-blue);
   background: color-mix(in srgb, var(--data-blue) 6%, transparent);
-  border: 1px solid color-mix(in srgb, var(--data-blue) 18%, transparent);
+  border: var(--line-w) solid color-mix(in srgb, var(--data-blue) 18%, transparent);
   border-radius: var(--radius-2);
 }
 
@@ -1511,13 +1553,13 @@
   .modalCloseBtn,
   .glossaryCatTab,
   .stepDot {
-    min-height: 2.75rem;
+    min-height: var(--control-h);
   }
 
   .drawerCloseBtn,
   .modalCloseBtn {
     width: 2.75rem;
-    height: 2.75rem;
+    height: var(--control-h);
   }
 }
 

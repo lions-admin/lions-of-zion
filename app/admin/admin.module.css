@@ -28,7 +28,7 @@
   width: min(100%, 1240px);
   margin: 0 auto;
   padding: clamp(var(--sp-5), 5vw, var(--sp-7));
-  border: 1px solid var(--gold-line);
+  border: var(--line-w) solid var(--gold-line);
   border-radius: var(--radius-3);
   background: var(--surface-1);
   box-shadow: var(--shadow-3);
@@ -125,9 +125,9 @@
 .editorForm textarea,
 .editorForm select {
   width: 100%;
-  min-height: 2.75rem;
+  min-height: var(--control-h);
   padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: var(--surface-2);
   color: var(--ink-hi);
@@ -163,9 +163,9 @@
   align-items: center;
   justify-content: center;
   gap: var(--sp-2);
-  min-height: 2.75rem;
+  min-height: var(--control-h);
   padding: 0 var(--sp-5);
-  border: 1px solid transparent;
+  border: var(--line-w) solid transparent;
   border-radius: var(--radius-2);
   font-family: var(--face-text);
   font-size: var(--t-small);
@@ -263,7 +263,7 @@
 .error {
   margin-top: var(--sp-4);
   padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--state-danger-line);
+  border: var(--line-w) solid var(--state-danger-line);
   border-radius: var(--radius-2);
   background: var(--state-danger-wash);
   color: var(--state-danger);
@@ -274,7 +274,7 @@
 .notice {
   margin-top: var(--sp-4);
   padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--state-ok-line);
+  border: var(--line-w) solid var(--state-ok-line);
   border-radius: var(--radius-2);
   background: var(--state-ok-wash);
   color: var(--state-ok);
@@ -306,8 +306,8 @@
 .compactMetrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  border: 1px solid var(--line);
+  gap: var(--line-w);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: var(--line);
   overflow: hidden;
@@ -367,7 +367,7 @@
 
 .service {
   padding: var(--sp-4) var(--sp-5);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: var(--surface-2);
 }
@@ -390,7 +390,7 @@
 .panel {
   margin-top: var(--sp-5);
   padding: var(--sp-5);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   background: var(--surface-2);
 }
@@ -421,7 +421,7 @@
 .queueRow span,
 .healthStrip span {
   padding: var(--sp-2) var(--sp-3);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-1);
   background: var(--surface-1);
   font-family: var(--face-data);
@@ -436,7 +436,7 @@
 .tableWrap {
   overflow-x: auto;
   margin-top: var(--sp-4);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
 }
 
@@ -451,8 +451,8 @@
 .table th,
 .table td {
   padding: var(--sp-3) var(--sp-3);
-  border-bottom: 1px solid var(--line);
-  text-align: right;
+  border-bottom: var(--line-w) solid var(--line);
+  text-align: start;
   vertical-align: top;
 }
 
@@ -476,7 +476,7 @@
 
 .table td small {
   display: block;
-  max-width: 28ch;
+  max-width: var(--measure-data);
   margin-top: var(--sp-1);
   color: var(--state-danger);
   font-size: var(--t-data);
@@ -504,7 +504,7 @@
   grid-template-columns: 7rem minmax(0, 1fr);
   gap: var(--sp-1) var(--sp-3);
   padding: var(--sp-3) 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
 }
 
 .logList span {
@@ -536,7 +536,7 @@
 .editorPanel {
   margin-top: var(--sp-6);
   padding-top: var(--sp-6);
-  border-top: 1px solid var(--gold-line);
+  border-top: var(--line-w) solid var(--gold-line);
 }
 
 .featureSlots {
@@ -566,7 +566,7 @@
 .draftQueue {
   max-height: 54rem;
   overflow-y: auto;
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: var(--surface-1);
 }
@@ -577,7 +577,7 @@
   gap: var(--sp-1);
   padding: var(--sp-4);
   border: 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
   background: transparent;
   color: var(--ink);
   text-align: right;
@@ -621,7 +621,7 @@
   display: grid;
   gap: var(--sp-4);
   padding: var(--sp-5);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   background: var(--surface-1);
 }
@@ -651,7 +651,7 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  min-height: 2.75rem;
+  min-height: var(--control-h);
   color: var(--ink);
   font-size: var(--t-small);
   cursor: pointer;
@@ -670,7 +670,7 @@
   gap: var(--sp-4);
   margin: 0;
   padding: var(--sp-4);
-  border: 1px solid var(--gold-line);
+  border: var(--line-w) solid var(--gold-line);
   border-radius: var(--radius-2);
 }
 
@@ -683,7 +683,7 @@
 
 .traceability {
   padding: var(--sp-4);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: var(--surface-2);
   color: var(--ink);
@@ -699,9 +699,12 @@
   font-weight: 600;
 }
 
+/* The one direction bug this Hebrew dashboard actually had: a list indent set
+   on the physical left, which in RTL puts the gap on the side the markers are
+   not on. Logical, so the markers keep their indent. */
 .traceability ul {
   margin: var(--sp-3) 0 0;
-  padding-left: var(--sp-5);
+  padding-inline-start: var(--sp-5);
 }
 
 .traceability a {

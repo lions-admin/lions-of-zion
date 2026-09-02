@@ -15,21 +15,27 @@ export function EventTelemetryStream({
 }: EventTelemetryStreamProps) {
   return (
     <div className={styles.telemetryConsole} dir="rtl">
-      {/* ── שורת סטטוס ומדדים מבצעיים ── */}
+      {/* ── שורת סטטוס ומדדים ──
+          Every figure that used to sit here was invented: a Jerusalem wall
+          clock frozen at 07:04:12, an outbox depth, and a dollar spend to
+          three decimal places. None of them came from anywhere — this console
+          is fed by `usePipelineSimulation`, which reads a script. They now
+          state what the architecture *guarantees*, which is true whether or
+          not anything is running, and the badge says plainly that the run is
+          a simulation. */}
       <div className={styles.telemetryHeader}>
         <div className={styles.telemetryMetricsRow}>
           <div className={styles.metricBadge}>
             <span className={styles.metricDot} />
-            <span>מצב מנוע: פעיל ותקין</span>
+            <span>הדמיה מתוסרטת — אינה טלמטריה חיה</span>
           </div>
-          <div>שעון ירושלים: 07:04:12</div>
           <div>שלב נוכחי: {activeStepNodeName || "המתנה לתחילת הרצה"}</div>
         </div>
 
         <div className={styles.telemetryMetricsRow} dir="ltr">
-          <div>OUTBOX PENDING: 0</div>
+          <div>OUTBOX: TRANSACTIONAL</div>
           <div>RLS: ENFORCED</div>
-          <div>AI BUDGET: $0.024 / $50.00</div>
+          <div>AI BUDGET: CAPPED</div>
         </div>
       </div>
 

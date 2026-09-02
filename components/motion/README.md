@@ -1,16 +1,16 @@
 # `components/motion` — the motion primitive library
 
-Six behaviours adapted from [Magic UI](https://magicui.design) in September
-2026, rewritten against this project's V3 tokens and CSS Modules. A seventh,
-`Spotlight` (from `magic-card`), was built, integrated, and then removed —
-see below.
+Five behaviours adapted from [Magic UI](https://magicui.design) in September
+2026, rewritten against this project's V3 tokens and CSS Modules. Two more,
+`Spotlight` (from `magic-card`) and `Ticker` (from `number-ticker`), were
+built and then removed — see below.
 
-## Why these six were ported rather than installed
+## Why these five were ported rather than installed
 
 **Updated 2026-09-02: Tailwind v4, shadcn and `motion` are now installed** (see
 `app/tailwind.css`, `components.json`, and the cascade note at the top of
 `app/globals.css`). The paragraphs below describe why these six were ported
-*before* that happened, and they remain the reason the six stay ported rather
+*before* that happened, and they remain the reason the five that are left stay ported rather
 than being replaced by their registry originals.
 
 When these were written the project had none of the three things Magic UI needs:
@@ -19,18 +19,18 @@ Tailwind resolved in `node_modules` only as a transitive dependency, there was n
 smaller change than standing up the stack for six components.
 
 That calculus changed when the brief called for Magic UI across the whole
-product, and the stack went in. **These six still do not move**, for reasons that
+product, and the stack went in. **These five still do not move**, for reasons that
 outlived the original argument:
 
-* **Five of the six render on the server with zero client JavaScript.** Their
+* **Four of the five render on the server with zero client JavaScript.** Their
   registry equivalents are all `"use client"` and half pull `motion`.
 * **`motion` server-renders its `initial` variant as an inline style** —
   `opacity: 0` — and with JavaScript off nothing ever removes it. The content is
   present in the DOM and invisible. `scripts/ci-smoke.mjs` counts nodes, not
   visibility, so that failure passes CI green. This directory is what the home
   route and every no-JS tier uses instead.
-* `Ticker` and `Reveal` are corrections of their originals, not translations —
-  see the table below. Replacing them would reintroduce the bugs.
+* `Reveal` is a correction of its original, not a translation — see the table
+  below. Replacing it would reintroduce the bug.
 
 **The tier rule.** `/` and everything `CinematicIntroGate` wraps: no Magic UI, no
 `motion`, ever — use this directory. Reading routes: a registry component only if
@@ -54,11 +54,20 @@ badly.
 | `Reveal` | `blur-fade` | opacity + shift + blur on enter, once | One shared `IntersectionObserver` for the document instead of `useInView` per node; CSS transition instead of `motion` variants; a `scripting: enabled` guard and a 4s failsafe so the no-JS tier and a failed hydration both still show the content |
 | `BorderBeam` | `border-beam` | `offset-path: rect()` travel + the padding-box/border-box mask ring | `motion` dropped entirely — `offset-distance` is a plain animatable property, so this is now a server component with zero JS. Ink instead of `#ffaa40 → #9c40ff`; gold is opt-in, not the default |
 | `SignalBeam` | `animated-beam` | measure two elements against a container, quadratic Bézier, re-measure on resize | The travelling light is `pathLength="1"` + a CSS `stroke-dashoffset` walk, not a `motion`-driven `<linearGradient>`. Reads as a packet on a wire rather than a shine, and costs no JS after mount. Resize is rAF-batched |
-| `Ticker` | `number-ticker` | count to value when scrolled into view | rAF + easeOutExpo instead of `motion`'s spring. **The SSR output is the final value**, not `startValue` — the original sends `0` to crawlers, to no-JS readers and to the accessibility tree |
 | `ShinyText` | `animated-shiny-text` | `background-clip: text` sweep, mostly at rest | Timing kept verbatim (`0%,90%,100%` rest / `30%–60%` pass). Base colour moved onto the element so the label is legible with the animation gone |
 | `ProgressiveBlur` | `progressive-blur` | stacked `backdrop-filter` layers under offset masks | 8 layers → 5, and the masks moved from inline styles into `nth-child` rules. Eight full-surface blur reads per frame over a live WebGPU scene was the cost that mattered |
 
 ## Built, then removed
+
+**`Ticker`** (`number-ticker`) was ported with a real correction to its
+original — the SSR output was the final value rather than `startValue`, so a
+crawler, a no-JavaScript reader and the accessibility tree all got the number
+instead of `0` — and was then deleted on 2026-09-02, having never acquired a
+call site. Nothing on this site counts a figure into place: the archive counts
+are prose, the dashboard figures are read once and are not animated, and §11
+of the brief rules out a ticker for Live Updates. The correction is recorded
+here in case the component is ever wanted again; the file was residue, and the
+brief's §J asks for residue to be swept.
 
 **`Spotlight`** (`magic-card`) was ported in full — pointer-tracked radial
 gradients on surface and border, at 5% ink, with no listener on coarse
@@ -112,7 +121,7 @@ Import from the barrel (`@/components/motion`). `package.json` declares
 `sideEffects: ["*.css", "**/*.css"]`, which is what makes that safe: every
 module here imports a CSS Module, and a CSS import is a side effect, so
 without that declaration a bundler must assume the barrel needs all seven
-stylesheets and a route rendering one primitive ships five it never uses.
+stylesheets and a route rendering one primitive ships four it never uses.
 
 `app/page.tsx` imports the two it uses by path instead. That predates the
 `sideEffects` declaration and is now belt-and-braces rather than necessary;
@@ -128,7 +137,7 @@ is judged by, and a direct path cannot regress if the field is ever removed.
   `prefers-reduced-motion: reduce`, with JavaScript off, or on a coarse
   pointer, each one removes itself and leaves the thing it was decorating
   intact and legible. No state is communicated by animation alone.
-* **`Reveal`, `Spotlight`, `SignalBeam` and `Ticker` are client components;
-  the other three are not.** All four take `children` as a prop, so a server
+* **`Reveal` and `SignalBeam` are client components; the other three are
+  not.** Both take `children` as a prop, so a server
   component wrapped in one stays a server component. No page became
   `"use client"` for anything in this directory.

@@ -29,20 +29,26 @@ interface NodeLayout {
 }
 
 /* Kind colour lives in the stylesheet, keyed by `data-kind`, on the semantic
-   ramps — not here as twelve neon literals. */
-const KIND_META: Record<string, { label: string; icon: string }> = {
-  source: { label: "מקור מידע", icon: "🌐" },
-  table: { label: "טבלת מסד", icon: "🗄️" },
-  view: { label: "היטל קריאה", icon: "👁️" },
-  guard: { label: "מחסום אבטחה", icon: "🛡️" },
-  trigger: { label: "טריגר SQL", icon: "⚡" },
-  cron: { label: "מתזמן אוטומטי", icon: "⏱️" },
-  queue: { label: "תור הודעות", icon: "📬" },
-  connector: { label: "מחבר נתונים", icon: "🔌" },
-  service: { label: "שירות ליבה", icon: "⚙️" },
-  model: { label: "מודל שפה (AI)", icon: "🧠" },
-  gateway: { label: "שער AI", icon: "🚪" },
-  storage: { label: "אחסון ענן (Blob)", icon: "☁️" },
+   ramps — not here as twelve neon literals.
+
+   The twelve emoji that used to ride alongside these labels are gone. Each one
+   sat next to a Hebrew word that already named the kind, so they carried no
+   information the badge did not already carry, and a row of pictograms is the
+   wrong register for a page describing an evidence pipeline. What distinguishes
+   the kinds visually is `data-kind`, which the stylesheet reads. */
+const KIND_META: Record<string, { label: string }> = {
+  source: { label: "מקור מידע" },
+  table: { label: "טבלת מסד" },
+  view: { label: "היטל קריאה" },
+  guard: { label: "מחסום אבטחה" },
+  trigger: { label: "טריגר SQL" },
+  cron: { label: "מתזמן אוטומטי" },
+  queue: { label: "תור הודעות" },
+  connector: { label: "מחבר נתונים" },
+  service: { label: "שירות ליבה" },
+  model: { label: "מודל שפה (AI)" },
+  gateway: { label: "שער AI" },
+  storage: { label: "אחסון ענן (Blob)" },
 };
 
 const BASE_LANES = [
@@ -370,7 +376,7 @@ export function PipelineCanvas({
             onClick={() => setZoom((z) => Math.min(2.5, z * 1.2))}
             title="הגדל תצוגה"
           >
-            ➕ הגדל
+            + הגדל
           </button>
           <span className={styles.zoomPercentageBadge}>{Math.round(zoom * 100)}%</span>
           <button
@@ -379,7 +385,7 @@ export function PipelineCanvas({
             onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}
             title="הקטן תצוגה"
           >
-            ➖ הקטן
+            − הקטן
           </button>
           <button
             type="button"
@@ -401,7 +407,7 @@ export function PipelineCanvas({
             }}
             title="התאם את כל המערכת למסך"
           >
-            ⛶ התאם הכל
+            התאם הכל
           </button>
         </div>
 
@@ -451,7 +457,7 @@ export function PipelineCanvas({
         </div>
 
         <div className={styles.canvasToolbarHint}>
-          💡 גלילת עכבר מזיזה את המפה | החזק Ctrl/Cmd עם גלגלת לזום | לחץ וגרור כרטיסיות לשינוי מיקום
+          גלילת עכבר מזיזה את המפה | החזק Ctrl/Cmd עם גלגלת לזום | לחץ וגרור כרטיסיות לשינוי מיקום
         </div>
       </div>
 
@@ -610,7 +616,7 @@ export function PipelineCanvas({
           const isActive = activeNodeId === node.id;
           const isSelected = selectedNodeId === node.id;
           const isQuarantined = node.id === "briefing_quarantine" && isActive;
-          const kindMeta = KIND_META[node.kind] || { label: node.kind, icon: "🔹" };
+          const kindMeta = KIND_META[node.kind] ?? { label: node.kind };
 
           return (
             <div
@@ -644,10 +650,7 @@ export function PipelineCanvas({
             >
               {/* Top Row: Kind Badge in Hebrew & Active Pulse */}
               <div className={styles.htmlCardTopRow}>
-                <span className={styles.htmlKindBadge}>
-                  <span>{kindMeta.icon}</span>
-                  <span>{kindMeta.label}</span>
-                </span>
+                <span className={styles.htmlKindBadge}>{kindMeta.label}</span>
 
                 <div className={styles.htmlCardActions}>
                   {node.terms.length > 0 && (
@@ -677,7 +680,7 @@ export function PipelineCanvas({
                 </code>
                 {node.dbTable && (
                   <span className={styles.htmlTablePill} dir="ltr">
-                    🗄️ {node.dbTable}
+                    {node.dbTable}
                   </span>
                 )}
               </div>

@@ -1,5 +1,0 @@
-/* Ticker · a figure counting into place */
-.ticker {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-}

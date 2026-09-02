@@ -9,6 +9,7 @@ import {
   SourceList,
 } from '@/components/content';
 import { getCaseIndex, getResearchNetwork } from '@/lib/content/fake-resistance-cases';
+import { UNRESOLVED_LABELS } from '@/lib/content/fake-resistance-network-communities';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 
@@ -70,7 +71,11 @@ export default async function Page() {
           behind it is describing something the evidence did not find.
         </p>
 
-        <NetworkFigure communities={network.communities} bridgeCount={network.bridges.length} />
+        <NetworkFigure
+          roster={network.roster}
+          edges={network.edges}
+          communities={network.communities}
+        />
 
         <div className={styles.communityList}>
           {network.communities.map((community) => (
@@ -83,6 +88,19 @@ export default async function Page() {
             </div>
           ))}
         </div>
+
+        <p className={styles.communityNote}>
+          The lists above are the report&rsquo;s own, and{' '}
+          {UNRESOLVED_LABELS.length} of the names in them —{' '}
+          <span className={styles.communityNoteNames}>
+            {UNRESOLVED_LABELS.map((entry) => entry.label).join(', ')}
+          </span>{' '}
+          — belong to accounts the research did not enter into its entity
+          roster. They are counted in a community here and cannot be counted in
+          the drawing above, which is built from the roster. The gap is the
+          report&rsquo;s, and it is left visible rather than closed by guessing
+          at an identity.
+        </p>
       </SectionBlock>
 
       <SectionBlock heading="The bridges between them">

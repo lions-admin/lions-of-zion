@@ -108,6 +108,12 @@
   /* Tracking for the one case uppercase is allowed: data labels of two words
      or fewer. Anything longer is sentence case. */
   --t-data-tracking: 0.08em;
+  /* The data voice's second register, added 2026-09-02: mono set in *sentence
+     case* — a date, a chapter numeral, a grade label, a source kind — which
+     needs a little air but not the separation tracked capitals need. It was
+     already in use as a bare `0.04em` in nine places across five modules with
+     no name; this names it rather than changing it. */
+  --t-data-tracking-tight: 0.04em;
 
   /* ── Spacing — nine steps on the body line box (1.0625rem × 1.65 ≈ 28px):
      --sp-4 is a third of a line, --sp-7 roughly one line, --sp-8 a line and
@@ -271,6 +277,15 @@
   --measure-narrow: 54ch;
   --measure-caption: 44ch;
   --measure-data: 24ch;
+
+  /* A sixth, added 2026-09-02, because `ch` resolves against the *element's
+     own* font-size and the five above are calibrated on the body step. On a
+     display-face headline they are not narrower measures, they are no-ops:
+     `--measure-caption` at `--t-h2` computes to ~47rem, wider than the 68ch
+     column itself, so capping a long headline with it silently removes the
+     cap. This is the headline measure — `sections.module.css` `.titleLong`,
+     where a 296-character archive title has to stop being a headline. */
+  --measure-title: 34ch;
 
   /* ── Hairline weights ───────────────────────────────────────────────── */
   --line-w: 1px;

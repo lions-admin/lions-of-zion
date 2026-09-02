@@ -27,7 +27,7 @@
 .guard {
   margin-top: var(--sp-5);
   padding: var(--sp-4) var(--sp-5);
-  border-left: 2px solid var(--gold);
+  border-left: var(--line-w-thick) solid var(--gold);
   background: var(--gold-wash);
   border-radius: 0 var(--radius-2) var(--radius-2) 0;
   color: var(--ink);
@@ -67,7 +67,7 @@
 .confidence {
   margin-bottom: var(--sp-5);
   padding: var(--sp-4) var(--sp-5);
-  border-left: 2px solid var(--data-ember);
+  border-left: var(--line-w-thick) solid var(--data-ember);
   border-radius: 0 var(--radius-2) var(--radius-2) 0;
   background: color-mix(in oklab, var(--data-ember) 8%, transparent);
   color: var(--ink-hi);
@@ -135,7 +135,7 @@
 
 .exhibits > li {
   padding-top: var(--sp-5);
-  border-top: 1px solid var(--gold-line);
+  border-top: var(--line-w) solid var(--gold-line);
 }
 
 .exhibits > li + li {
@@ -197,9 +197,11 @@
 .narratives {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 1px;
+  /* The gap *is* the rule between the frames — the grid's background shows
+     through it — so it takes the hairline weight, not a spacing step. */
+  gap: var(--line-w);
   margin-top: var(--sp-5);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: var(--line);
   overflow: hidden;
@@ -253,7 +255,7 @@
 .edges > li,
 .contradictions > li {
   padding: var(--sp-4) 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -280,6 +282,6 @@
 }
 
 .edgePair > span {
-  padding: 0 0.2rem;
+  padding: 0 var(--sp-1);
   color: var(--data-ember-peak);
 }

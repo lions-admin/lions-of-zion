@@ -17,7 +17,7 @@
 
 .fileIndex > li {
   padding: var(--sp-5) 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
 }
 
 .fileIndex > li > a {
@@ -31,7 +31,7 @@
   text-wrap: balance;
   text-decoration: underline;
   text-decoration-color: color-mix(in oklab, var(--gold) 45%, transparent);
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: var(--line-w);
   text-underline-offset: 0.22em;
   transition:
     color var(--dur-fast) var(--ease-out),

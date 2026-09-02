@@ -34,7 +34,7 @@
   /* The reading measure, published as a variable because the backdrop mask
      has to know exactly where the reading column is in order to stay out of
      it. One number, three consumers now, still no drift. */
-  --reading-w: min(68ch, 100%);
+  --reading-w: min(var(--measure-reading), 100%);
 
   /* Rail geometry. `--rail-gap` is the grid's own column gap, named so the
      margin-source rule can offset by exactly it rather than restating the
@@ -108,9 +108,11 @@
   position: fixed;
   top: var(--sp-3);
   left: var(--sp-3);
-  z-index: 100;
+  /* Above the fixed site header, which sits at `--z-sticky`. A skip link
+     painting under the chrome it exists to jump past is not a skip link. */
+  z-index: var(--z-overlay);
   padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--gold-line-strong);
+  border: var(--line-w) solid var(--gold-line-strong);
   border-radius: var(--radius-2);
   background: var(--surface-3);
   box-shadow: var(--shadow-2);
@@ -290,7 +292,7 @@
 
 .shell {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-raised);
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
   column-gap: var(--rail-gap);
@@ -342,7 +344,7 @@
 
 .trailCurrent {
   color: var(--ink);
-  max-width: 42ch;
+  max-width: var(--measure-caption);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -364,7 +366,7 @@
   gap: var(--sp-3) var(--sp-4);
   padding: var(--sp-5) 0 var(--sp-4);
   margin-bottom: clamp(1.75rem, 4vh, 2.75rem);
-  border-bottom: 1px solid var(--gold-line);
+  border-bottom: var(--line-w) solid var(--gold-line);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -514,7 +516,7 @@
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
-  max-width: 34ch;
+  max-width: var(--measure-title);
   text-wrap: pretty;
 }
 
@@ -523,7 +525,7 @@
    at this size on black reads as a caption, and a standfirst is a claim. */
 .lede {
   margin-top: var(--sp-4);
-  max-width: 54ch;
+  max-width: var(--measure-narrow);
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-lede);
@@ -535,8 +537,8 @@
 
 /* The page's one accent. */
 .ledeRule {
-  width: 3.5rem;
-  height: 1px;
+  width: var(--sp-7);
+  height: var(--line-w);
   margin-top: var(--sp-5);
   background: var(--gold);
 }
@@ -655,7 +657,7 @@
   color: var(--ink-hi);
   text-decoration: underline;
   text-decoration-color: var(--gold-line-strong);
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: var(--line-w);
   text-underline-offset: 0.2em;
   transition: color var(--dur-fast) var(--ease-out),
     text-decoration-color var(--dur-fast) var(--ease-out);
@@ -672,7 +674,7 @@
 :where(.body) blockquote {
   margin: var(--sp-6) 0;
   padding-left: var(--sp-5);
-  border-left: 2px solid var(--gold-line);
+  border-left: var(--line-w-thick) solid var(--gold-line);
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-lede);
@@ -715,7 +717,7 @@
   color: var(--gold);
   padding-top: var(--sp-3);
   margin-top: var(--sp-4);
-  border-top: 1px solid var(--gold-line);
+  border-top: var(--line-w) solid var(--gold-line);
 }
 
 .sideRailInner :is(h2, h3, h4):first-child {
@@ -793,7 +795,7 @@
    the rail's face and the recessive ink, never capitals. */
 .tocTitle {
   padding-bottom: var(--sp-2);
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
   color: var(--ink-lo);
 }
 
@@ -813,8 +815,8 @@
   gap: var(--sp-2);
   padding: var(--sp-2) 0 var(--sp-2) var(--sp-3);
   margin-left: calc(-1 * var(--sp-3));
-  border-left: 2px solid transparent;
-  border-bottom: 1px solid var(--line-soft);
+  border-left: var(--line-w-thick) solid transparent;
+  border-bottom: var(--line-w) solid var(--line-soft);
   color: var(--ink-lo);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out),
@@ -857,8 +859,11 @@
   top: 0;
   right: 0;
   left: 0;
-  z-index: 60;
-  height: 2px;
+  /* Site chrome, the same tier as the fixed header. The two never overlap:
+     the header's own box is transparent above its glass pill, which starts
+     below this 2px line. */
+  z-index: var(--z-sticky);
+  height: var(--line-w-thick);
   overflow: hidden;
   background: transparent;
 }
@@ -874,12 +879,14 @@
      whole no-JavaScript render — is a bar at 100%, telling the reader they
      finished a document they have not started. */
   transform: scaleX(0);
-  transition: transform 80ms linear;
+  /* Half of --dur-fast: enough to smooth the rAF steps, short enough that
+     the bar never lags the scroll it is reporting. */
+  transition: transform calc(var(--dur-fast) / 2) linear;
 }
 
 .depthTrack {
   display: block;
-  height: 2px;
+  height: var(--line-w-thick);
   margin-top: var(--sp-5);
   background: var(--line-soft);
   overflow: hidden;
@@ -896,7 +903,9 @@
      whole no-JavaScript render — is a bar at 100%, telling the reader they
      finished a document they have not started. */
   transform: scaleX(0);
-  transition: transform 80ms linear;
+  /* Half of --dur-fast: enough to smooth the rAF steps, short enough that
+     the bar never lags the scroll it is reporting. */
+  transition: transform calc(var(--dur-fast) / 2) linear;
 }
 
 @media (min-width: 1220px) {
@@ -929,7 +938,7 @@
    same ring, from the global rule. */
 .page a:focus-visible,
 .askCta:focus-visible {
-  outline-offset: 3px;
+  outline-offset: var(--focus-offset);
 }
 
 /* ---- narrow ---- */
@@ -981,7 +990,7 @@
   .identityExit {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    min-height: var(--control-h);
   }
 
   .identityExit {
@@ -995,7 +1004,7 @@
   .documentTrail a {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    min-height: var(--control-h);
   }
 }
 

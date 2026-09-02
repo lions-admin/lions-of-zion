@@ -25,7 +25,7 @@
 .module {
   min-width: 0;
   padding: var(--sp-5) var(--sp-5) var(--sp-6);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   background: var(--surface-1);
   box-shadow: var(--shadow-1);
@@ -37,7 +37,7 @@
   gap: var(--sp-2);
   margin-bottom: var(--sp-4);
   padding-bottom: var(--sp-4);
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: var(--line-w) solid var(--line-soft);
 }
 
 /* "Module · Report" — a two-word tool marker, so uppercase is in bounds. */
@@ -85,7 +85,7 @@
 .practice {
   min-width: 0;
   padding-top: var(--sp-4);
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
 }
 
 /* "Standing practice" / "Secure donation" — two-word state markers in the
@@ -97,7 +97,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
 }
 

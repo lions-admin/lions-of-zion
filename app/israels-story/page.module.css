@@ -14,7 +14,7 @@
   gap: var(--sp-4);
   margin: var(--sp-6) 0 0;
   padding: var(--sp-5);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   background: var(--surface-1);
 }
@@ -37,11 +37,11 @@
   display: flex;
   align-items: baseline;
   gap: var(--sp-4);
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-2) 0;
   color: var(--ink);
   text-decoration: none;
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: var(--line-w) solid var(--line-soft);
   transition: color var(--dur-fast) var(--ease-out);
 }
 
@@ -64,7 +64,7 @@
   font-family: var(--face-display);
   font-size: var(--t-body);
   font-weight: var(--t-h3-weight);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
@@ -79,9 +79,14 @@
 .chapter {
   margin-top: var(--sp-8);
   padding-top: var(--sp-7);
-  border-top: 1px solid var(--line);
-  /* Clears the 52px public shell with a line of air beneath it. */
-  scroll-margin-top: var(--sp-8);
+  border-top: var(--line-w) solid var(--line);
+  /* Where every anchored thing on a dossier comes to rest. This read
+     `--sp-8` (4.5rem = 72px) under a comment about a 52px shell that no
+     longer exists: the fixed header is ~4.45rem of chrome, so a jumped-to
+     chapter was landing about flush under it rather than with the line of
+     air the comment promised. `--anchor-offset` is that number, published
+     once in sections.module.css. */
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
 .chapter:first-of-type {
@@ -105,10 +110,10 @@
   font-size: var(--t-display);
   font-weight: var(--t-display-weight);
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: var(--t-data-tracking-tight);
   color: transparent;
-  -webkit-text-stroke: 1px var(--gold-line-strong);
-  text-stroke: 1px var(--gold-line-strong);
+  -webkit-text-stroke: var(--line-w) var(--gold-line-strong);
+  text-stroke: var(--line-w) var(--gold-line-strong);
 }
 
 /* "Chapter II of VII" — three words, so sentence case in the data voice. */
@@ -118,7 +123,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
@@ -136,7 +141,7 @@
 /* The chapter's standfirst: the display face one step above body, the
    sentence that tells a reader what the chapter will show. */
 .chapterIntro {
-  max-width: 42rem;
+  max-width: var(--measure-reading);
   margin: 0 0 var(--sp-6);
   font-family: var(--face-display);
   font-size: var(--t-lede);
@@ -153,7 +158,7 @@
    everywhere else on the site too. */
 .chapterIntroFlagged {
   padding: var(--sp-4) var(--sp-5);
-  border-left: 2px solid var(--data-ember);
+  border-left: var(--line-w-thick) solid var(--data-ember);
   border-radius: 0 var(--radius-2) var(--radius-2) 0;
   background: color-mix(in srgb, var(--data-ember) 8%, transparent);
   color: var(--ink);

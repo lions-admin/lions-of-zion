@@ -6,8 +6,8 @@
   top: 0;
   right: 0;
   left: 0;
-  z-index: 60;
-  height: 2px;
+  z-index: var(--z-sticky);
+  height: var(--line-w-thick);
   background: transparent;
   overflow: hidden;
 }
@@ -23,7 +23,9 @@
      whole no-JavaScript render — is a bar at 100%, telling the reader they
      finished a document they have not started. */
   transform: scaleX(0);
-  transition: transform 80ms linear;
+  /* Half of --dur-fast: enough to smooth the rAF steps, short enough that
+     the bar never lags the scroll it is reporting. */
+  transition: transform calc(var(--dur-fast) / 2) linear;
 }
 
 @media (prefers-reduced-motion: reduce) {

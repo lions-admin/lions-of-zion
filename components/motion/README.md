@@ -128,6 +128,26 @@ stylesheets and a route rendering one primitive ships four it never uses.
 it is left alone because the home route's first paint is the one this site
 is judged by, and a direct path cannot regress if the field is ever removed.
 
+## The `Reveal` trap: nothing pinned to the bottom of the viewport
+
+`Reveal`'s shared observer runs with `rootMargin: "0px 0px -10% 0px"`. That
+shrinks the root by a tenth at the bottom — the point being that an element
+should reveal a little *before* it reaches the fold, not exactly at it.
+
+The consequence, found the hard way on 2026-09-02: **an element pinned to the
+viewport's foot can never intersect.** At 1440×810 the effective root ends at
+729px, so a strip occupying 765–810 stays `armed` and sits at `opacity: 0`
+forever. The four-second failsafe does not rescue it either — that keyframe is
+on `pending`, not `armed`, because `armed` means the observer *is* watching.
+
+Nothing in the primitive is wrong. The mistake is conceptual: a scroll
+entrance is for content a reader travels to. Chrome fixed to an edge —
+a status line, a flash strip, a toolbar — has no such moment and should simply
+be present, the way `.engineStatus` on the home hero always has been.
+
+If you catch a `Reveal`-wrapped element that never appears, check its box
+against the bottom tenth of the viewport before suspecting the observer.
+
 ## Rules
 
 * **Ambient motion is `--dur-ambient`; entrances are `--dur-enter`; hovers

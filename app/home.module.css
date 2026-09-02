@@ -243,39 +243,44 @@
 /* The headline rail: a panel on the first raised surface, translucent
    enough that the field reads through it, with the display face on the
    titles because they are editorial content, not interface. */
+/* The intelligence desk is a flash strip along the hero's foot, not a panel.
+ *
+ * It was a 29rem card pinned bottom-right, and it cut the wordmark in half:
+ * measured in real Chrome, 177px of overlap at 1280, 100px at 1440, 20px at
+ * 1600, clearing only at 1920 — and the card is near-opaque, so a reader at
+ * either of the two most common laptop widths saw the brand with its last
+ * letters missing. Narrowing the card dodged that; moving it out of the
+ * wordmark's band removes the conflict instead, which is the owner's call and
+ * the better one. Nothing now competes with the masthead for the centre.
+ *
+ * One line, three items, each truncated — deliberately NOT a crawl. A moving
+ * headline is unreadable at any speed and is an urgency device this site
+ * documents other people using; see the Fake Resistance playbook. Everything
+ * is on screen at once and holds still. */
 .headlineRail {
   position: absolute;
-  right: clamp(var(--sp-4), 3.5vw, var(--sp-7));
-  bottom: clamp(var(--sp-4), 3vw, var(--sp-6));
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 12;
-  /* The rail yields to the wordmark, never the other way round.
-   *
-   * Measured 2026-09-02 in real Chrome: the wordmark is centred and its
-   * half-width settles at ~308px once `--t-display` reaches its clamp ceiling,
-   * so a fixed 29rem panel pinned bottom-right crossed into it — 177px of
-   * overlap at 1280, 100px at 1440, 20px at 1600, clearing only at 1920. The
-   * panel is near-opaque, so what a reader saw was the brand with its last
-   * letters cut off, at the two most common laptop widths.
-   *
-   * 22.75rem is that half-width, the right gutter, and a hairline of clearance —
-   * the wordmark's box includes trailing letter-spacing, so touching boxes read
-   * as touching type. Subtracting it from 50vw
-   * gives the space that actually exists to the right of the wordmark, so the
-   * panel can never reach it. The panel narrows on smaller screens and the
-   * brand stays whole; that is the correct way round for a masthead. */
-  width: min(29rem, calc(50vw - 22.75rem));
-  padding: var(--sp-4) var(--sp-5);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-3);
-  background: color-mix(in oklab, var(--surface-1) 90%, transparent);
-  box-shadow: var(--shadow-3);
+  display: flex;
+  align-items: stretch;
+  /* The touch floor, because every item in here is a link. */
+  min-height: var(--control-h);
+  padding-inline: clamp(var(--sp-4), 3.5vw, var(--sp-7));
+  border-top: var(--line-w) solid var(--line);
+  background: color-mix(in oklab, var(--surface-1) 82%, transparent);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   pointer-events: auto;
 }
 
 .railLabel {
-  margin: 0 0 var(--sp-3);
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  margin: 0;
+  padding-right: var(--sp-4);
   color: var(--gold-dim);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -283,108 +288,84 @@
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .railList {
-  display: grid;
+  display: flex;
+  flex: 1 1 auto;
+  /* Without this a flex item refuses to shrink below its content, and the
+     ellipsis below would never engage. */
+  min-width: 0;
   gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.railItem { border-top: 1px solid var(--line-soft); }
+/* The divider is a left rule between items, not a top rule above them —
+   the strip runs horizontally now. */
+.railItem {
+  flex: 1 1 0;
+  min-width: 0;
+  border-top: 0;
+  border-left: var(--line-w) solid var(--line-soft);
+}
+
+.railItem:first-child { border-left: 0; }
 
 .railLink {
-  display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
-  gap: var(--sp-3);
+  display: flex;
+  gap: var(--sp-2);
   align-items: baseline;
-  padding: var(--sp-3) 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--sp-4);
   color: var(--ink-hi);
   text-decoration: none;
-  outline-offset: 2px;
+  outline-offset: -3px;
 }
 
 .railIndex {
+  flex: 0 0 auto;
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
-  line-height: var(--t-small-lh);
+  line-height: var(--control-h);
   font-variant-numeric: tabular-nums;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
 .railTitle {
+  min-width: 0;
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-small);
   font-weight: 500;
-  line-height: var(--t-small-lh);
+  line-height: var(--control-h);
   letter-spacing: 0;
-  overflow-wrap: anywhere;
+  /* One line is the whole point of the strip; the full headline is one click
+     away and the title attribute is not a substitute, so nothing is hidden
+     that the reader cannot reach. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
 .railLink:hover .railTitle { color: var(--gold); }
 .railLink:hover .railIndex { color: var(--ink); }
 
-/* The rail's arrival, held until the entrance layer actually lets go.
- *
- * `CinematicIntroGate` renders this page into `display: contents` beneath a
- * fixed, full-screen intro at z-index 1000, so every element here is inside
- * the viewport and intersecting from the first frame. `Reveal`'s observer
- * therefore fires at hydration and the entire stagger runs — and finishes —
- * behind an opaque overlay. Forty-odd seconds later the intro dissolves onto
- * a rail that is simply already there. The stagger is not in conflict with
- * the intro; it is invisible to it, which is worse, because it costs the
- * same and buys nothing.
- *
- * `data-intro-active` and `data-handoff-blocked` are both written by
- * `CanvasMount` from client state (`useState(false)` and a post-hydration
- * derivation), never by the server, and `globals.css` already keys the scroll
- * lock off the pair. So they are the site's existing signal for "the
- * entrance still owns the screen", and this reuses it rather than inventing
- * a second one.
- *
- * The mechanism is cascade only — the observer is untouched. `html:has(…)`
- * plus a class scores (0,2,1) against `.reveal[data-reveal="shown"]`'s
- * (0,2,0), so `shown` is outranked while the attribute is present; when it
- * goes at handoff the element falls back to `shown` and the primitive's own
- * transition runs then, `--reveal-delay` stagger intact. That is the moment
- * the stagger was for: the panel arriving after the masthead settles.
- *
- * Three failure paths were checked and all of them leave the rail readable:
- *
- *   · No JavaScript — the media query below never matches, and neither
- *     attribute is ever written. The rail is in the server HTML, unstyled by
- *     any of this. The `ci-smoke` no-JS assertion is untouched.
- *   · Reduced motion — `Reveal` marks itself shown immediately and never
- *     animates; the media query keeps this rule off it entirely, so the hold
- *     can never strand a reader who asked for no motion.
- *   · Hydration fails after the attributes are written — impossible, since
- *     the attributes require hydration; and if it stalls before them,
- *     `Reveal`'s own 4s `revealFailsafe` still runs, and an animation
- *     declaration outranks this rule, so the rail appears regardless.
- *
- * Where `:has()` is unsupported the rule simply never matches and the
- * behaviour is exactly what it was before this file changed.
- */
-@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-  :global(html:has([data-intro-active])) .railHold,
-  :global(html:has([data-handoff-blocked])) .railHold {
-    opacity: 0;
-    filter: blur(var(--reveal-blur));
-    transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
-  }
-}
-
-/* Engine telemetry, bottom-left so it never sits under the rail. */
+/* Engine telemetry, sitting just above the flash strip. */
 .engineStatus {
   position: absolute;
-  left: var(--sp-5);
-  bottom: var(--sp-5);
+  /* Same gutter as the flash strip directly below it and the masthead above —
+     it sits between them now, so its old `--sp-5` read as a misalignment
+     rather than an independent margin. */
+  left: clamp(var(--sp-4), 3.5vw, var(--sp-7));
+  /* Clears the flash strip, which owns the foot of the hero at `--control-h`. */
+  bottom: calc(var(--control-h) + var(--sp-4));
   z-index: 5;
   display: flex;
   align-items: center;
@@ -408,6 +389,26 @@
 }
 
 @keyframes statusPulse { 50% { opacity: 0.28; } }
+
+/* How many headlines fit is a measurement, not a preference.
+ *
+ * At 1440, three items get 396px each and truncate a 76-character headline at
+ * about 45 — cut mid-word, in the substantive half, on every one. Two get
+ * ~600px: one whole, one at 95%. Below 1220 even two fall to 66%/60%.
+ *
+ * So one item is the default and the second appears only above the width where
+ * it can be read whole. A strip whose every headline is severed promises less
+ * than a shorter strip that keeps its word; the other reports are one click
+ * away, in the same place they have always been. */
+.railItem:nth-child(n + 2) { display: none; }
+
+/* 1220px is where the reading pages already grow their margins, so the strip
+   gains its second headline where the site as a whole gets wider. Placed after
+   the rule above deliberately: both selectors score (0,2,0), so source order is
+   what decides, and a `min-width` block earlier in the file would simply lose. */
+@media (min-width: 76.25rem) {
+  .railItem:nth-child(2) { display: revert; }
+}
 
 @media (max-width: 64rem) {
   .brandCenter { top: 48%; }
@@ -446,13 +447,17 @@
      nothing visible to buy with it. */
   .hero .heroFade { display: none; }
 
-  .headlineRail {
-    right: var(--sp-3);
-    bottom: var(--sp-3);
-    width: calc(100vw - 1.5rem);
-    padding: var(--sp-3) var(--sp-4);
-  }
-  .railItem:nth-child(n + 3) { display: none; }
+  .headlineRail { padding-inline: var(--sp-4); }
+}
+
+/* 720px — the one breakpoint the orbit and the intro already share, so the
+   strip changes register where the rest of the page does. Below it a single
+   headline is all that reads: at 375px two items leave ~120px each, and the
+   label alone would eat a third of the row. */
+@media (max-width: 45rem) {
+  .headlineRail { padding-inline: var(--sp-3); }
+  .railLabel { display: none; }
+  .railLink { padding-inline: 0; }
 }
 
 @media (max-width: 23.5rem) {

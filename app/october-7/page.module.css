@@ -14,8 +14,8 @@
 .inscription {
   margin: var(--sp-7) 0;
   padding: var(--sp-6) 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 .inscription > dl {
@@ -33,7 +33,7 @@
 }
 
 .inscription > dl > div + div {
-  border-left: 1px solid var(--line-soft);
+  border-left: var(--line-w) solid var(--line-soft);
 }
 
 /* The one gold on the page. Set at the `--t-h2` step rather than a bespoke
@@ -77,7 +77,7 @@
   .inscription > dl > div + div {
     border-left: none;
     padding-top: var(--sp-6);
-    border-top: 1px solid var(--line-soft);
+    border-top: var(--line-w) solid var(--line-soft);
   }
 }
 
@@ -109,7 +109,10 @@
   padding: 0;
 }
 
-@media (min-width: 46rem) {
+/* The site's one horizontal seam (`--bp-seam`, 45rem/720px), not the 46rem
+   this carried: a private width 16px away from the canon is drift, and the
+   two doors have no reason to open at their own threshold. */
+@media (min-width: 720px) {
   .archiveEntries {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -121,7 +124,7 @@
   gap: var(--sp-2);
   height: 100%;
   padding: var(--sp-5) var(--sp-5) var(--sp-4);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   background: var(--surface-1);
   text-decoration: none;

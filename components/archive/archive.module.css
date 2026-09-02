@@ -62,7 +62,7 @@ section:first-child > .heading {
 .quote {
   margin: var(--sp-6) 0;
   padding-left: var(--sp-5);
-  border-left: 1px solid var(--line-strong);
+  border-left: var(--line-w) solid var(--line-strong);
   hanging-punctuation: first;
 }
 
@@ -104,7 +104,7 @@ section:first-child > .heading {
   height: auto;
   max-width: 100%;
   background: var(--surface-1);
-  border: 1px solid var(--line-soft);
+  border: var(--line-w) solid var(--line-soft);
   border-radius: var(--radius-1);
 }
 
@@ -129,7 +129,7 @@ section:first-child > .heading {
   min-height: clamp(6rem, 22vw, 9rem);
   margin: 0;
   padding: var(--sp-5) var(--sp-6);
-  border: 1px dashed var(--line);
+  border: var(--line-w) dashed var(--line);
   border-radius: var(--radius-1);
   background: color-mix(in srgb, var(--ground) 45%, transparent);
   font-family: var(--face-text);
@@ -261,9 +261,9 @@ section:first-child > .heading {
 .languageCurrent {
   display: inline-flex;
   align-items: center;
-  min-height: 2.75rem;
+  min-height: var(--control-h);
   padding: 0 var(--sp-3);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -348,11 +348,11 @@ section:first-of-type .groupHeading {
   list-style: none;
   margin: 0 0 var(--sp-6);
   padding: 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
 }
 
 .recordItem {
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 .recordLink {
@@ -366,7 +366,7 @@ section:first-of-type .groupHeading {
   padding: var(--sp-4) var(--sp-3);
   color: var(--ink);
   text-decoration: none;
-  border-left: 2px solid transparent;
+  border-left: var(--line-w-thick) solid transparent;
   transition:
     background-color var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out);
@@ -413,7 +413,7 @@ section:first-of-type .groupHeading {
   width: var(--thumb-w);
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border: 1px solid var(--line-soft);
+  border: var(--line-w) solid var(--line-soft);
   border-radius: var(--radius-1);
   background: var(--surface-1);
 }
@@ -514,7 +514,7 @@ section:first-of-type .groupHeading {
 .recordFooter {
   margin-top: var(--sp-8);
   padding-top: var(--sp-5);
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
 }
 
 /* The share block's root. A hook for the component rather than a style — it
@@ -528,7 +528,7 @@ section:first-of-type .groupHeading {
    an order: ask first, whisper the credit last. */
 .shareLead {
   margin: 0 0 var(--sp-4);
-  max-width: 54ch;
+  max-width: var(--measure-narrow);
   font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -578,7 +578,9 @@ section:first-of-type .groupHeading {
   color: var(--ink);
   text-decoration: underline;
   text-decoration-color: var(--line-strong);
-  text-underline-offset: 3px;
+  /* The site's underline offset is em-relative everywhere else, so it
+     tracks the type step instead of drifting against it at 3px. */
+  text-underline-offset: 0.2em;
   overflow-wrap: anywhere;
   transition:
     color var(--dur-fast) var(--ease-out),
@@ -609,7 +611,7 @@ section:first-of-type .groupHeading {
 .mediaAction {
   display: inline-flex;
   align-items: center;
-  min-height: 2.75rem;
+  min-height: var(--control-h);
   padding: 0 var(--sp-2);
   border-radius: var(--radius-2);
   background: transparent;
@@ -642,7 +644,7 @@ section:first-of-type .groupHeading {
   gap: var(--sp-2) var(--sp-3);
   margin: var(--sp-6) 0 var(--sp-5);
   padding-bottom: var(--sp-4);
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 .filterLabel {
@@ -661,9 +663,9 @@ section:first-of-type .groupHeading {
    global ring. */
 .filterInput {
   flex: 1 1 14rem;
-  min-height: 2.75rem;
+  min-height: var(--control-h);
   padding: 0 var(--sp-3);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: color-mix(in srgb, var(--ground) 55%, transparent);
   color: var(--ink-hi);
@@ -712,19 +714,26 @@ section:first-of-type .groupHeading {
 
 /* In flow and sticky, not a rail: `DocPage` deliberately omits `withRails`,
    and adding one would mean fixing `--content-w`, which assumes both rails or
-   neither. The offset clears the fixed site header (0.85rem of padding over
-   a 3.6rem bar) with a step of air; the ground is translucent so the glass
-   panel still shows through the band as the list scrolls under it. */
+   neither. The offset clears the fixed site header with a step of air, and it
+   is `--anchor-offset` — the number `sections.module.css` publishes for
+   exactly this and that `.tocRailInner` and `.sideRailInner` already read.
+   This was a bare `5rem`, i.e. a fifth private value for one measurement,
+   which is the drift that token exists to end. The fallback keeps this
+   component renderable outside that shell. The ground is translucent so the
+   glass panel still shows through the band as the list scrolls under it. */
 .categoryJump {
   position: sticky;
-  top: 5rem;
-  z-index: 5;
+  top: var(--anchor-offset, 5rem);
+  /* Above the record list it covers, below the fixed header at
+     `--z-sticky` — this panel has a backdrop-filter and must never paint
+     over the site's own chrome. */
+  z-index: var(--z-raised);
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
   margin-bottom: var(--sp-6);
   padding: var(--sp-3) 0;
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: var(--line-w) solid var(--line-soft);
   background: color-mix(in srgb, var(--ground) 85%, transparent);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -737,9 +746,9 @@ section:first-of-type .groupHeading {
 .categoryJump a {
   display: inline-flex;
   align-items: center;
-  min-height: 2.25rem;
+  min-height: var(--control-h-sm);
   padding: 0 var(--sp-3);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-1);
   background: color-mix(in srgb, var(--ink-hi) 4%, transparent);
   color: var(--ink-lo);
@@ -768,9 +777,11 @@ section:first-of-type .groupHeading {
 }
 
 /* A thumb, not a pointer: the chips grow to the 44px target where the
-   input is coarse or the viewport is a phone's. */
-@media (max-width: 768px), (pointer: coarse) {
+   input is coarse or the viewport is a phone's. 719 rather than the 768 this
+   carried — the canon's phone width, and the same seam the rest of this
+   surface opens on. `(pointer: coarse)` catches the tablets between them. */
+@media (max-width: 719px), (pointer: coarse) {
   .categoryJump a {
-    min-height: 2.75rem;
+    min-height: var(--control-h);
   }
 }

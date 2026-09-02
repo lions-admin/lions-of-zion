@@ -34,7 +34,7 @@
 .partHeading {
   margin-bottom: var(--sp-3);
   padding-top: var(--sp-3);
-  border-top: 1px solid var(--data-ember);
+  border-top: var(--line-w) solid var(--data-ember);
   color: var(--data-ember-peak);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -53,7 +53,7 @@
 
 .examples > li {
   padding-left: var(--sp-4);
-  border-left: 1px solid var(--gold-line);
+  border-left: var(--line-w) solid var(--gold-line);
 }
 
 .examples > li + li {
@@ -114,7 +114,7 @@
 
 .findings > li {
   padding: var(--sp-4) 0 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
 }
 
 .findings > li:first-child {

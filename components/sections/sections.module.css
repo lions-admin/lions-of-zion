@@ -34,7 +34,7 @@
   /* The reading measure, published as a variable because the backdrop mask
      has to know exactly where the reading column is in order to stay out of
      it. One number, three consumers now, still no drift. */
-  --reading-w: min(68ch, 100%);
+  --reading-w: min(var(--measure-reading), 100%);
 
   /* Rail geometry. `--rail-gap` is the grid's own column gap, named so the
      margin-source rule can offset by exactly it rather than restating the
@@ -108,9 +108,11 @@
   position: fixed;
   top: var(--sp-3);
   left: var(--sp-3);
-  z-index: 100;
+  /* Above the fixed site header, which sits at `--z-sticky`. A skip link
+     painting under the chrome it exists to jump past is not a skip link. */
+  z-index: var(--z-overlay);
   padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--gold-line-strong);
+  border: var(--line-w) solid var(--gold-line-strong);
   border-radius: var(--radius-2);
   background: var(--surface-3);
   box-shadow: var(--shadow-2);
@@ -290,7 +292,7 @@
 
 .shell {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-raised);
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
   column-gap: var(--rail-gap);
@@ -342,124 +344,10 @@
 
 .trailCurrent {
   color: var(--ink);
-  max-width: 42ch;
+  max-width: var(--measure-caption);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* ---- identity band -------------------------------------------------------
-   The masthead row that carried the wordmark, file number, route and exit
-   link. The site header has taken over that job and neither shell renders
-   the band today; the classes are kept, on the tokens, so a page that still
-   composes them keeps working and so the band can return without being
-   redesigned from memory. One row, full width, entirely in the data voice —
-   it identifies, it does not perform. */
-
-.identityBand {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-3) var(--sp-4);
-  padding: var(--sp-5) 0 var(--sp-4);
-  margin-bottom: clamp(1.75rem, 4vh, 2.75rem);
-  border-bottom: 1px solid var(--gold-line);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-}
-
-.identityEmblem {
-  width: 1.6rem;
-  height: 1.6rem;
-  flex: none;
-  /* white source glyph tinted onto the gold ramp — same filter chain the
-     brief's rail icon uses, without the halo it needed at 9.5rem */
-  filter: brightness(0) saturate(100%) invert(77%) sepia(35%) saturate(758%)
-    hue-rotate(5deg) brightness(88%);
-  opacity: 0.9;
-}
-
-/* The wordmark is a name, not a label: the interface face, no tracking. */
-.wordmark {
-  color: var(--gold);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 600;
-  letter-spacing: 0;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.wordmark:hover {
-  color: var(--gold-hi);
-}
-
-/* The uppercase sits here rather than on the band, which inherited it to
-   "Lions of Zion" and "← Back to the scan" — a wordmark set against the way
-   the brand is written, and a navigation instruction set as a data label.
-   What is left under it genuinely is data: "FILE 01 / 08", "/WAR-UPDATE". */
-.identityMeta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2) var(--sp-3);
-  color: var(--ink-lo);
-  text-transform: uppercase;
-}
-
-.identityRoute {
-  color: var(--accent);
-}
-
-.identitySep {
-  color: var(--line-strong);
-}
-
-/* Sits where `.identityRoute` would, and replaces it — the route slug and a
-   breadcrumb ending in the same place would say the same thing twice. Inherits
-   the band's size and tracking, so it needs no type of its own. */
-.breadcrumb {
-  display: inline;
-  color: var(--accent);
-}
-
-.breadcrumb a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.breadcrumb a:hover,
-.breadcrumb a:focus-visible {
-  color: var(--gold-hi);
-  text-decoration: underline;
-}
-
-/* The band already wraps at 900px; the last separator would otherwise dangle
-   at the end of a line with nothing after it. */
-.breadcrumb span:last-child > span[aria-hidden] {
-  display: none;
-}
-
-/* Pushes the exit link to the far edge of the band. A navigation
-   instruction, so the interface face and sentence case. */
-.identityExit {
-  margin-left: auto;
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: 0;
-  text-transform: none;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.identityExit:hover {
-  color: var(--gold-hi);
 }
 
 /* ---- the reading column --------------------------------------------------
@@ -514,7 +402,7 @@
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
-  max-width: 34ch;
+  max-width: var(--measure-title);
   text-wrap: pretty;
 }
 
@@ -523,7 +411,7 @@
    at this size on black reads as a caption, and a standfirst is a claim. */
 .lede {
   margin-top: var(--sp-4);
-  max-width: 54ch;
+  max-width: var(--measure-narrow);
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-lede);
@@ -535,8 +423,8 @@
 
 /* The page's one accent. */
 .ledeRule {
-  width: 3.5rem;
-  height: 1px;
+  width: var(--sp-7);
+  height: var(--line-w);
   margin-top: var(--sp-5);
   background: var(--gold);
 }
@@ -655,7 +543,7 @@
   color: var(--ink-hi);
   text-decoration: underline;
   text-decoration-color: var(--gold-line-strong);
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: var(--line-w);
   text-underline-offset: 0.2em;
   transition: color var(--dur-fast) var(--ease-out),
     text-decoration-color var(--dur-fast) var(--ease-out);
@@ -672,7 +560,7 @@
 :where(.body) blockquote {
   margin: var(--sp-6) 0;
   padding-left: var(--sp-5);
-  border-left: 2px solid var(--gold-line);
+  border-left: var(--line-w-thick) solid var(--gold-line);
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-lede);
@@ -715,7 +603,7 @@
   color: var(--gold);
   padding-top: var(--sp-3);
   margin-top: var(--sp-4);
-  border-top: 1px solid var(--gold-line);
+  border-top: var(--line-w) solid var(--gold-line);
 }
 
 .sideRailInner :is(h2, h3, h4):first-child {
@@ -793,7 +681,7 @@
    the rail's face and the recessive ink, never capitals. */
 .tocTitle {
   padding-bottom: var(--sp-2);
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
   color: var(--ink-lo);
 }
 
@@ -813,8 +701,8 @@
   gap: var(--sp-2);
   padding: var(--sp-2) 0 var(--sp-2) var(--sp-3);
   margin-left: calc(-1 * var(--sp-3));
-  border-left: 2px solid transparent;
-  border-bottom: 1px solid var(--line-soft);
+  border-left: var(--line-w-thick) solid transparent;
+  border-bottom: var(--line-w) solid var(--line-soft);
   color: var(--ink-lo);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out),
@@ -857,8 +745,11 @@
   top: 0;
   right: 0;
   left: 0;
-  z-index: 60;
-  height: 2px;
+  /* Site chrome, the same tier as the fixed header. The two never overlap:
+     the header's own box is transparent above its glass pill, which starts
+     below this 2px line. */
+  z-index: var(--z-sticky);
+  height: var(--line-w-thick);
   overflow: hidden;
   background: transparent;
 }
@@ -874,12 +765,14 @@
      whole no-JavaScript render — is a bar at 100%, telling the reader they
      finished a document they have not started. */
   transform: scaleX(0);
-  transition: transform 80ms linear;
+  /* Half of --dur-fast: enough to smooth the rAF steps, short enough that
+     the bar never lags the scroll it is reporting. */
+  transition: transform calc(var(--dur-fast) / 2) linear;
 }
 
 .depthTrack {
   display: block;
-  height: 2px;
+  height: var(--line-w-thick);
   margin-top: var(--sp-5);
   background: var(--line-soft);
   overflow: hidden;
@@ -896,7 +789,9 @@
      whole no-JavaScript render — is a bar at 100%, telling the reader they
      finished a document they have not started. */
   transform: scaleX(0);
-  transition: transform 80ms linear;
+  /* Half of --dur-fast: enough to smooth the rAF steps, short enough that
+     the bar never lags the scroll it is reporting. */
+  transition: transform calc(var(--dur-fast) / 2) linear;
 }
 
 @media (min-width: 1220px) {
@@ -929,7 +824,7 @@
    same ring, from the global rule. */
 .page a:focus-visible,
 .askCta:focus-visible {
-  outline-offset: 3px;
+  outline-offset: var(--focus-offset);
 }
 
 /* ---- narrow ---- */
@@ -944,58 +839,19 @@
 
   .panel,
   .documentTrail,
-  .identityBand,
   .tocRail,
   .sideRail {
     grid-column: 1;
   }
 
-  .identityBand {
-    /* The padding and the row gap shrink because the two links below now
-       carry 44px boxes, and those boxes supply the same breathing room the
-       padding used to. Measured: 13.6px sits above and below each link's
-       text inside its own box, so 0.4rem of band padding lands the wordmark
-       20px from the top (it was 18.4px) and the rule 20px under the exit
-       (it was 20px). Net cost of the whole change is ~12px of band height. */
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
-    margin-bottom: 1.75rem;
-    gap: 0 0.85rem;
-  }
-
-  /* The band wraps here, and a leading separator orphaned at the start of a
-     wrapped line reads as a typo. It only earns its place inline. */
-  .identitySep {
-    display: none;
-  }
-
-  /* `SectionPage` deliberately ends where the content ends, so this band is
-     the only way out of a file — and with JavaScript off it is the only
-     navigation on the page at all. Both links were bare inline anchors at
-     `--t-data`, i.e. 16.7px stripes. Growing the flex box rather than adding
-     padding keeps the gold text on the band's own baseline. This is the 44px
-     convention `.askCta`, `.share` and the orbit links already keep, not a
-     WCAG AA conformance fix — the Spacing exception means these never failed
-     2.5.8. */
-  .wordmark,
-  .identityExit {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-  }
-
-  .identityExit {
-    /* A right-pushed exit link would strand itself on its own line. */
-    margin-left: 0;
-    flex-basis: 100%;
-  }
-
   /* The trail's links are tapped here; the flex box grows to the 44px
-     convention without moving the text off its baseline. */
+     convention without moving the text off its baseline. It is the whole of
+     a section page's navigation with JavaScript off, so the target size is
+     not optional. */
   .documentTrail a {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    min-height: var(--control-h);
   }
 }
 
@@ -1036,9 +892,7 @@
   .skipLink,
   .tocLink,
   .tocLinkActive,
-  .documentTrail a,
-  .wordmark,
-  .identityExit {
+  .documentTrail a {
     transition: none;
   }
 }

@@ -13,7 +13,7 @@
   position: relative;
   margin-top: var(--sp-6);
   padding: var(--sp-6) var(--sp-6) var(--sp-5);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   background: var(--surface-1);
 }
 
@@ -29,7 +29,7 @@
   position: absolute;
   width: var(--sp-4);
   height: var(--sp-4);
-  border: 1px solid var(--line-strong);
+  border: var(--line-w) solid var(--line-strong);
   pointer-events: none;
 }
 
@@ -68,7 +68,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
@@ -94,7 +94,7 @@
 /* The one gold in the card. */
 .citationRule {
   width: var(--sp-7);
-  height: 1px;
+  height: var(--line-w);
   margin: var(--sp-3) 0 var(--sp-4);
   background: var(--gold);
 }
@@ -110,7 +110,7 @@
 /* One word — "Fallen", "Rescuer", "Fighter" — so uppercase is in bounds. */
 .citationRole {
   padding: var(--sp-1) var(--sp-2);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -127,14 +127,14 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
 
 .citationBody {
   margin: 0;
-  max-width: 42rem;
+  max-width: var(--measure-reading);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
   color: var(--ink);
@@ -156,7 +156,7 @@
 .citationSources {
   margin-top: var(--sp-6);
   padding-top: var(--sp-5);
-  border-top: 1px solid var(--line-soft);
+  border-top: var(--line-w) solid var(--line-soft);
 }
 
 /* One word, and the same label the rest of the site uses — take the
@@ -183,6 +183,10 @@
   }
 }
 
+/* 600, and it earns its place: below it the citation's own `--sp-6` frame
+   plus the shell's padding leaves under 40 characters on the widest line of
+   a name-and-rank block, which is where the citation stops reading as a
+   formal record and starts reading as a cramped one. */
 @media (max-width: 600px) {
   .citation {
     padding: var(--sp-5) var(--sp-4);
@@ -203,7 +207,7 @@
 .standfirst {
   margin: var(--sp-5) 0 0;
   padding: 0 0 0 var(--sp-4);
-  border-left: 2px solid var(--line-strong);
+  border-left: var(--line-w-thick) solid var(--line-strong);
   font-family: var(--face-display);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);

@@ -18,7 +18,7 @@
 .advisory {
   margin: 0 0 var(--sp-6);
   padding-bottom: var(--sp-5);
-  border-bottom: 1px solid var(--gold-line);
+  border-bottom: var(--line-w) solid var(--gold-line);
   font-style: italic;
 }
 
@@ -62,8 +62,12 @@
 
 .dispatch {
   padding: var(--sp-5) 0;
-  border-top: 1px solid var(--gold-line);
-  scroll-margin-top: var(--sp-9);
+  border-top: var(--line-w) solid var(--gold-line);
+  /* Where every anchored thing on a dossier comes to rest —
+     `--anchor-offset` in sections.module.css, the number set by the fixed
+     header. This was `--sp-9` (6rem), a fourth private answer to a question
+     the shell already answers. */
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
 .dispatch:first-child {
@@ -105,8 +109,8 @@
 /* Category is a semantic data chip: sentence case, since it can be three
    words ("Front · Home front"). */
 .category {
-  padding: 0.12rem var(--sp-2);
-  border: 1px solid var(--gold-line);
+  padding: var(--sp-1) var(--sp-2);
+  border: var(--line-w) solid var(--gold-line);
   border-radius: var(--radius-1);
   color: var(--gold);
 }
@@ -118,7 +122,7 @@
 }
 
 .wireBody {
-  max-width: 40rem;
+  max-width: var(--measure-reading);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
   color: var(--ink);
@@ -165,11 +169,11 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--gold-line);
+  border-top: var(--line-w) solid var(--gold-line);
 }
 
 .publishedUpdates li {
-  border-bottom: 1px solid var(--gold-line);
+  border-bottom: var(--line-w) solid var(--gold-line);
 }
 
 .publishedUpdates a {
@@ -201,7 +205,7 @@
 }
 
 .publishedUpdates span {
-  max-width: 42rem;
+  max-width: var(--measure-reading);
   color: var(--ink-lo);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -217,8 +221,8 @@
 }
 
 .latest {
-  padding: 0.1rem 0.45rem;
-  border: 1px solid var(--gold-line);
+  padding: var(--sp-1) var(--sp-2);
+  border: var(--line-w) solid var(--gold-line);
   border-radius: var(--radius-1);
   color: var(--gold-hi);
   letter-spacing: var(--t-data-tracking);
@@ -237,7 +241,7 @@
 .permalink {
   display: inline-flex;
   align-items: center;
-  min-height: 2.25rem;
+  min-height: var(--control-h-sm);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -253,14 +257,12 @@
   color: var(--gold-hi);
 }
 
-@media (max-width: 768px) {
+/* A thumb, not a pointer — the same seam and the same test the archive's
+   category chips use. The `(max-width: 600px)` block that used to close this
+   file is gone: its one rule restated `.dispatch`'s own default padding, so
+   it had no effect and cost the file a sixth breakpoint. */
+@media (max-width: 719px), (pointer: coarse) {
   .permalink {
-    min-height: 2.75rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .dispatch {
-    padding: var(--sp-5) 0;
+    min-height: var(--control-h);
   }
 }

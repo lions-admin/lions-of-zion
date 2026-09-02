@@ -108,6 +108,12 @@
   /* Tracking for the one case uppercase is allowed: data labels of two words
      or fewer. Anything longer is sentence case. */
   --t-data-tracking: 0.08em;
+  /* The data voice's second register, added 2026-09-02: mono set in *sentence
+     case* — a date, a chapter numeral, a grade label, a source kind — which
+     needs a little air but not the separation tracked capitals need. It was
+     already in use as a bare `0.04em` in nine places across five modules with
+     no name; this names it rather than changing it. */
+  --t-data-tracking-tight: 0.04em;
 
   /* ── Spacing — nine steps on the body line box (1.0625rem × 1.65 ≈ 28px):
      --sp-4 is a third of a line, --sp-7 roughly one line, --sp-8 a line and

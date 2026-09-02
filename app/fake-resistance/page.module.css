@@ -15,9 +15,15 @@
   margin: 0 0 var(--sp-5);
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: var(--t-lede);
+  /* Body size, not `--t-lede`. The shell above already sets the tagline at
+     the lede step, and this paragraph sat directly under it at the same
+     step in a brighter ink — two elements at one level, which is the
+     hierarchy defect the squint test is for. The display face at body size
+     is the lead-in voice: distinctly the shell's strapline, then this, then
+     the sans body. */
+  font-size: var(--t-body);
   font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
+  line-height: var(--t-body-lh);
   text-wrap: pretty;
 }
 
@@ -38,7 +44,10 @@
   margin-top: var(--sp-6);
 }
 
-@media (min-width: 680px) {
+/* The site's one horizontal seam (`--bp-seam`, 45rem/720px). At the 680 this
+   carried, the pair went two-up while each card was still under 300px — a
+   decision moment set too small to read as one. */
+@media (min-width: 720px) {
   .branches {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -59,8 +68,8 @@
   flex-direction: column;
   min-height: 100%;
   padding: var(--sp-6) var(--sp-5) var(--sp-5);
-  border: 1px solid var(--line);
-  border-top: 2px solid var(--data-ember);
+  border: var(--line-w) solid var(--line);
+  border-top: var(--line-w-thick) solid var(--data-ember);
   border-radius: var(--radius-2);
   background: var(--surface-1);
   box-shadow: var(--shadow-1);

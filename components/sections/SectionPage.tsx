@@ -1,9 +1,16 @@
 /**
  * Section page shell: a file opened from the scan, set as a document.
  *
- * One full-width identity band (wordmark, file number, route, status, the way
- * out), then a genuinely centred reading measure. There is no closing
- * apparatus — the page ends where the content ends.
+ * A document trail where the page has ancestors, then a genuinely centred
+ * reading measure. There is no closing apparatus — the page ends where the
+ * content ends.
+ *
+ * The identity band this shell used to open with (wordmark, file number,
+ * route, the way out) is gone: the site header took that job, both shells
+ * stopped rendering the band, and its 155 lines of CSS were deleted on
+ * 2026-09-02 after a stale claim in CLAUDE.md had kept them alive. What
+ * replaced it is better — `.documentTrail` renders the *whole* ancestry as
+ * links rather than a single "← Back to {label}".
  *
  * Above 1220px both margins work, which is the whole of "the intelligence
  * desk" direction: the left rail navigates the document and shows depth of
@@ -46,12 +53,12 @@ export interface SectionPageProps {
    */
   aside?: React.ReactNode;
   /**
-   * Ancestors of this page, nearest root first — the same shape and band slot
-   * as `DocPage`'s. A hub's child page (`/fake-resistance/playbook`) passes
-   * the trail down to its hub: it replaces the inert route span with links,
-   * and its last item becomes the exit link's target, so "back" steps one
-   * level up instead of jumping past the parent straight to the scan. The
-   * eight orbit pages pass nothing and keep "← Back to the scan".
+   * Ancestors of this page, nearest root first — the same shape and the same
+   * slot as `DocPage`'s. A hub's child page (`/fake-resistance/playbook`) passes
+   * the trail down to its hub, so "back" steps one level up instead of
+   * jumping past the parent straight to the scan. Every ancestor is its own
+   * link. The eight orbit pages pass nothing and render no trail at all —
+   * they have no ancestor but the scan, and the site header reaches it.
    */
   breadcrumb?: { href: string; label: string }[];
   children: React.ReactNode;

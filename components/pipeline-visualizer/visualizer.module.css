@@ -1,40 +1,11 @@
-/* Pipeline visualizer · design system v3 — "the verification desk".
- *
- * Every value here answers to `app/globals.css`. This module adds exactly one
- * thing of its own: Hebrew-capable fallback stacks behind the three faces,
- * because Newsreader and IBM Plex Sans carry no Hebrew glyphs and this is the
- * one RTL surface on the site. Gold means "the live step" and nothing else.
- *
- * ## Two things that stay physical on purpose
- *
- * The canvas is a coordinate space, not a text flow. `.canvasPlane`,
- * `.htmlSvgOverlay` and every node card are positioned from `top`/`left` in
- * pixels computed by `PipelineCanvas`, and the SVG edge paths are drawn in the
- * same frame; making any of that logical would let an inherited `dir` move the
- * cards out from under their own wires. `.inspectorDrawer` likewise: it is
- * pinned right and animates in with `slideInRtl`, coherent as one physical
- * pair on a surface that is only ever RTL.
- *
- * ## What is deliberately not done here yet
- *
- * The twelve control classes at the top share one recipe rather than being
- * `components/ui/Button`, and `TermsGlossaryModal` / `NodeInspectorDrawer`
- * hand-roll the only modal and the only drawer on the site. Both migrations
- * were held on 2026-09-02: `components/ui/README.md` — the variant mapping
- * this module would migrate *onto* — does not exist yet, and inventing a
- * second primitive to race it would leave two to reconcile instead of one.
- * The recipe below is already one recipe, so the migration is a rename rather
- * than a redesign whenever that README lands. */
+
 
 .visualizerShell {
-  /* Per-glyph fallback walks the whole list, so Latin still resolves at the
-     first face; only Hebrew reaches the appended system faces. Serif for the
-     display voice (Times New Roman and David both carry Hebrew), sans for
-     text and interface. */
+
   --face-display-he: var(--face-display), 'Times New Roman', 'David', serif;
   --face-text-he: var(--face-text), 'Arial Hebrew', 'Noto Sans Hebrew', 'Segoe UI', sans-serif;
 
-  /* Translucent neutrals derived from the inks; the module has no literals. */
+
   --wash-1: color-mix(in srgb, var(--ink-hi) 4%, transparent);
   --wash-2: color-mix(in srgb, var(--ink-hi) 7%, transparent);
   --wash-3: color-mix(in srgb, var(--ink-hi) 11%, transparent);
@@ -42,29 +13,13 @@
   --panel: color-mix(in srgb, var(--surface-1) 96%, transparent);
   --panel-raised: color-mix(in srgb, var(--surface-2) 96%, transparent);
 
-  /* The card ladder. `app/globals.css` names the site's *layers* — base,
-     raised, sticky, panel, modal — and the node cards all live in exactly one
-     of them: raised. What they also need is an order *among themselves*, so a
-     card being pointed at, opened or dragged rises above its neighbours. That
-     is sibling ordering inside a layer, not a layer of its own, so it is
-     derived from `--z-raised` here rather than spending four more entries of a
-     ten-name global vocabulary. Nothing on this ladder can reach the next
-     layer up: `--z-sticky` is 100 and the ladder tops out at 13.
 
-     One relationship changed in the process. The floating canvas toolbar used
-     to sit at 15 and a dragged card at 20, so dropping a card on the toolbar
-     buried the zoom and fit controls until the reader moved it again. The
-     toolbar is now `--z-sticky`, above the whole ladder. */
   --z-card: var(--z-raised);
   --z-card-hover: calc(var(--z-raised) + 1);
   --z-card-active: calc(var(--z-raised) + 2);
   --z-card-dragging: calc(var(--z-raised) + 3);
 
-  /* The status-pulse register. `--dur-ambient` (7s) is the site's continuous
-     register and is deliberately slower than a reader can follow, which is
-     right for a border beam and wrong for a heartbeat: a pulse that cannot be
-     perceived as a pulse reports nothing. This is the one surface with live
-     status marks, so the register is local to it. */
+
   --dur-pulse: 1s;
   --dur-pulse-slow: 1.2s;
 
@@ -81,10 +36,7 @@
   overflow: hidden;
 }
 
-/* ── Shared control recipe ────────────────────────────────────────────────
-   One button, twelve places. Plex Sans at 600, caption step, hairline border.
-   Hover and active change colour only — nothing moves. Focus is the global
-   ring; only the offset is tuned where a control sits on a dark well. */
+
 .viewModeBtn,
 .journeyTab,
 .playbackBtn,
@@ -166,8 +118,7 @@
   cursor: not-allowed;
 }
 
-/* The raised "selected" state shared by every segmented control. Neutral:
-   the selection is a fact about the interface, not the page's emphasis. */
+
 .viewModeBtnActive,
 .journeyTabActive,
 .canvasToolBtnActive,
@@ -177,10 +128,7 @@
   border-color: var(--line-strong);
 }
 
-/* ── Chips ────────────────────────────────────────────────────────────────
-   Hebrew chips sit in the text face at the caption step (13px is the floor
-   for Hebrew glyphs here); Latin data chips sit in the data face at the data
-   step. Both share one shape. */
+
 .brandBadge,
 .stepBadge,
 .htmlLaneBadge,
@@ -203,7 +151,7 @@
   white-space: nowrap;
 }
 
-/* ── Header bar ─────────────────────────────────────────────────────────── */
+
 .headerBar {
   display: flex;
   align-items: center;
@@ -276,7 +224,7 @@
   border-color: var(--line-strong);
 }
 
-/* ── Journey and playback bar ────────────────────────────────────────────── */
+
 .controlBar {
   display: flex;
   align-items: center;
@@ -320,7 +268,7 @@
   color: var(--ink-hi);
 }
 
-/* The one primary control on the bar: filled, not gold. */
+
 .playbackBtnPlay {
   min-width: 5.5rem;
   color: var(--ground);
@@ -370,7 +318,7 @@
   border-color: var(--line-strong);
 }
 
-/* ── Step tracker ───────────────────────────────────────────────────────── */
+
 .stepTrackerBar {
   display: flex;
   align-items: center;
@@ -404,8 +352,7 @@
   max-width: 32rem;
 }
 
-/* Each dot is a real button with a 24px hit box; the visible track is the
-   pseudo-element, so the target and the mark can differ. */
+
 .stepDot {
   position: relative;
   flex: 1;
@@ -455,7 +402,7 @@
   pointer-events: none;
 }
 
-/* ── Step explainer ─────────────────────────────────────────────────────── */
+
 .explainerCardContainer {
   padding: var(--sp-3) var(--sp-5);
   background: linear-gradient(180deg, var(--surface-3) 0%, var(--surface-1) 100%);
@@ -480,7 +427,7 @@
   min-width: 0;
 }
 
-/* The kicker for "now": the one gold chip on the page. */
+
 .stepBadge {
   color: var(--gold-hi);
   background: var(--gold-wash);
@@ -614,7 +561,7 @@
   scrollbar-width: thin;
 }
 
-/* ── Main stage ─────────────────────────────────────────────────────────── */
+
 .mainStage {
   display: flex;
   flex: 1;
@@ -640,7 +587,7 @@
   cursor: grabbing;
 }
 
-/* ── Floating canvas toolbar ────────────────────────────────────────────── */
+
 .canvasFloatingToolbar {
   position: absolute;
   top: var(--sp-3);
@@ -699,14 +646,14 @@
   color: var(--ink-lo);
 }
 
-/* ── Transformable plane ────────────────────────────────────────────────── */
+
 .canvasPlane {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-/* ── Lanes ──────────────────────────────────────────────────────────────── */
+
 .htmlLaneColumn {
   position: absolute;
   padding: var(--sp-4);
@@ -755,7 +702,7 @@
   color: var(--ink-lo);
 }
 
-/* ── Edges and packets ──────────────────────────────────────────────────── */
+
 .htmlSvgOverlay {
   position: absolute;
   top: 0;
@@ -783,8 +730,7 @@
   stroke-width: 3;
 }
 
-/* The one deliberate loop on the page: the packet in flight. It is the
-   live-flow indicator, and the reduced-motion block at the end stops it. */
+
 .packetParticle,
 .packetParticleQuarantine {
   transform-box: fill-box;
@@ -823,7 +769,7 @@
   100% { transform: scale(1.3); opacity: 1; }
 }
 
-/* ── Node cards ─────────────────────────────────────────────────────────── */
+
 .htmlNodeCard {
   --kind-accent: var(--ink-lo);
   position: absolute;
@@ -845,8 +791,7 @@
     background-color var(--dur-fast) var(--ease-out);
 }
 
-/* The kind accent is a bar on the inline-start edge, coloured by the
-   semantic ramps rather than by twelve neon hues. */
+
 .htmlNodeCard::before {
   content: "";
   position: absolute;
@@ -856,7 +801,7 @@
   background: var(--kind-accent);
 }
 
-/* Inbound evidence and its plumbing read as the verified stream. */
+
 .htmlNodeCard[data-kind="source"],
 .htmlNodeCard[data-kind="connector"],
 .htmlNodeCard[data-kind="storage"] {
@@ -868,14 +813,14 @@
   --kind-accent: var(--data-blue-dim);
 }
 
-/* The system's own records and services are neutral. */
+
 .htmlNodeCard[data-kind="table"],
 .htmlNodeCard[data-kind="view"],
 .htmlNodeCard[data-kind="service"] {
   --kind-accent: var(--ink-lo);
 }
 
-/* Enforcement: a trigger constrains, a guard refuses. */
+
 .htmlNodeCard[data-kind="trigger"] {
   --kind-accent: var(--state-warn);
 }
@@ -884,7 +829,7 @@
   --kind-accent: var(--state-danger);
 }
 
-/* Model output is unverified until a human gate: the ember stream. */
+
 .htmlNodeCard[data-kind="model"],
 .htmlNodeCard[data-kind="gateway"] {
   --kind-accent: var(--data-ember);
@@ -946,7 +891,7 @@
   background: var(--wash-2);
 }
 
-/* The live marker on the active card. Loops with the packet; stops with it. */
+
 .activePulseDot {
   width: var(--sp-2);
   height: var(--sp-2);
@@ -1005,7 +950,7 @@
   color: var(--ink);
 }
 
-/* ── Node inspector drawer ──────────────────────────────────────────────── */
+
 .inspectorDrawer {
   position: absolute;
   top: 0;
@@ -1141,7 +1086,7 @@
   white-space: normal;
 }
 
-/* ── Telemetry console ──────────────────────────────────────────────────── */
+
 .telemetryConsole {
   display: flex;
   flex-direction: column;
@@ -1174,7 +1119,7 @@
   gap: var(--sp-2) var(--sp-4);
 }
 
-/* The Latin metrics row is data; the Hebrew status row is interface text. */
+
 .telemetryMetricsRow[dir="ltr"] {
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -1238,7 +1183,7 @@
   color: var(--ink);
 }
 
-/* The message is a Hebrew sentence: text face, never mono. */
+
 .logMessage {
   font-family: var(--face-text-he);
   font-size: var(--t-caption);
@@ -1247,7 +1192,7 @@
   color: var(--ink-hi);
 }
 
-/* ── Glossary modal ─────────────────────────────────────────────────────── */
+
 .modalBackdrop {
   position: fixed;
   inset: 0;
@@ -1468,7 +1413,7 @@
   font-weight: 600;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────── */
+
 @media (max-width: 767px) {
   .headerBar,
   .controlBar,
@@ -1507,7 +1452,7 @@
     max-width: none;
   }
 
-  /* Mouse instructions mean nothing on a touch screen. */
+
   .canvasToolbarHint {
     display: none;
   }
@@ -1538,7 +1483,7 @@
   }
 }
 
-/* Tap targets: every control clears 44px where the pointer is a finger. */
+
 @media (pointer: coarse) {
   .viewModeBtn,
   .journeyTab,
@@ -1563,10 +1508,7 @@
   }
 }
 
-/* ── Reduced motion ─────────────────────────────────────────────────────────
-   The global rule already collapses every animation to a single 0.01ms run;
-   this restates it for the three deliberate loops so the intent is local and
-   the drawer still appears in place rather than off-screen. */
+
 @media (prefers-reduced-motion: reduce) {
   .packetParticle,
   .packetParticleQuarantine,

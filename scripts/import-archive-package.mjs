@@ -5,7 +5,7 @@
  *   node scripts/import-archive-package.mjs <package-dir> <name> [--link-assets]
  *
  * Both source packages are built to the `october7-integration-package@1`
- * contract and live outside this repository (see `docs/archive-integration.md`).
+ * contract and live outside this repository.
  * This script copies in only what the site renders, and never the media.
  *
  * What is taken, and what is deliberately left behind:

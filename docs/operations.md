@@ -48,13 +48,11 @@ npx vitest run -t "publishes"
 npm run test:watch
 ```
 
-The full gate — `typecheck`, `lint`, `test`, `build`, `map:check` — is what CI runs on
-every push and pull request to `main`, and is worth running before asking for
-review.
+The full gate — `typecheck`, `lint`, `test`, and `build` — is what CI runs on
+every push and pull request to `main`.
 
-`verify:changed` reads tracked and untracked working-tree changes, runs the
-checks selected by the diff, and suggests any useful manual follow-up. Its
-visual and intro notes are advisory; they do not block a task.
+`verify:changed` reads tracked and untracked working-tree changes and runs the
+automated checks selected by the diff.
 
 `sync:start` is an optional convenience command. It fetches `origin`, updates
 `main` when the tree permits it, deletes branches already merged into main, and
@@ -85,122 +83,6 @@ exist in one place and not the other. See
 
 ---
 
-## Visual verification
-
-### The trap
-
-The in-app browser can report `visibilityState === "hidden"` and suspend
-`requestAnimationFrame`, making both scenes appear black. Headless Chromium
-falls back to SwiftShader, which the GPU probe correctly rejects, so the scene
-never mounts there either.
-
-**Visual checks must use real Chrome** via `playwright-core` with
-`headless: false`. The **five** real-Chrome scripts hardcode
-`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, so they run on
-the macOS workstation only — never in a Linux container or on CI.
-
-Any edit to intro timing, copy, or composition must be captured in real Chrome.
-
-### The scripts
-
-Start the dev server first, then:
-
-| Command | Runs where | Checks |
-| --- | --- | --- |
-| `npm run verify:graphics -- http://localhost:3000 /tmp/lions-matrix` | macOS only | Orbit composition at 7 viewports, 320→2560 |
-| `node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final` | macOS only | Intro handoff, keyboard, WebGPU, forced WebGL2, no-JS fallback, overlays, console errors |
-| `node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band` | macOS only | The scene keeps its exact box; the band scrolls, is opaque, carries all eight links; the intro scroll lock holds |
-| `node .claude/skills/verify-intro/capture.mjs` | macOS only | Intro frames, for review |
-| `node scripts/ci-smoke.mjs http://localhost:3000` | anywhere | **23 routes** return 200 with no console errors — 17 hand-written in `ROUTES`, plus 5 archive records and 1 research case derived from the package indexes |
-| `node scripts/verify-archive-assets.mjs <base-url> [--all]` | anywhere | Every archive asset resolves at that base. Sampled by default; `--all` checks all 2,018 |
-| _CI environment_ | GitHub Actions | `.github/workflows/ci.yml` sets `NEXT_PUBLIC_ARCHIVE_CDN` at the workflow level. It is inlined at build time, so without it every archive record route logs a media 404 and the smoke job fails. The store is public; no secret is involved |
-| `npm run map` / `npm run map:check` | anywhere | Regenerates `docs/project-map.html` (Hebrew list + flowchart of every tracked file) by scanning the repository, or fails if it has drifted. Reports import-boundary violations and migration/snapshot drift on stderr |
-
-### Archive assets
-
-`verify-archive-assets.mjs` exists because nothing else can catch a wrong
-`NEXT_PUBLIC_ARCHIVE_CDN`. The ~1.8 GB behind the archive never enters git, so
-a page whose media 404s still builds, still passes the tests and still renders
-its text.
-
-**CI now runs it** — the `archive-assets` job in `.github/workflows/ci.yml`
-(wired 2026-08-27) checks the production base on every push and pull request,
-in parallel with the gate job. It uses the sampled default: 80 of the 2,018
-referenced assets on a fixed stride, about ten seconds, which catches the
-wholesale failures this script exists for — a wrong base, an unpopulated or
-emptied bucket, an access change. It does not prove every object, so the
-exhaustive run stays a manual step after an upload or any change to the
-variable (about 4–5 minutes):
-
-```bash
-node scripts/verify-archive-assets.mjs https://m70ph8nwojvanarn.public.blob.vercel-storage.com --all
-```
-
-That base is the provisioned store, Vercel Blob `lions-of-zion-archive`
-(`store_M70Ph8nWOJVAnaRn`). Last full run 2026-08-27: 2,018 checked,
-0 unreachable.
-
-**`NEXT_PUBLIC_ARCHIVE_CDN` is substituted at build time**, so changing it
-takes a rebuild: in production a redeploy — an env edit alone leaves the old
-value baked into the prerendered HTML — and locally a dev-server restart, not
-a refresh. A fresh clone has neither the variable (`.env.example` is
-untracked) nor the `public/archive` symlinks, so `npm run dev` renders every
-archive image broken until one of the two exists; `docs/environment.md` has
-the local setup.
-
-Locally the same check runs against the symlinks
-`import-archive-package.mjs --link-assets` creates:
-
-```bash
-node scripts/verify-archive-assets.mjs http://localhost:3000/archive
-```
-
-Two october7 videos are hosted on YouTube and have no file in the package; the
-script counts them separately rather than reporting them missing.
-
-### Document scroll
-
-`verify-doc-scroll.mjs` covers what nothing else can: the reading routes scroll
-the document (converted 2026-08-27), and the whole payoff — a phone's URL bar
-collapsing, and the browser restoring scroll position on back-navigation — is
-invisible to `ci-smoke` and to headless Chromium. It also reads a
-`requestAnimationFrame`-driven progress bar, which the in-app browser suspends
-outright by reporting `visibilityState: "hidden"`. So, like the other four
-real-Chrome scripts, it
-drives real Chrome and only runs on the macOS workstation.
-
-```bash
-node scripts/verify-doc-scroll.mjs http://localhost:3000
-```
-
-It asserts per route only what that route actually mounts: `DocPage` gates
-`ReadingProgress` on `withToc`, so the archive index has no bar to track, and
-the Brief has its own static contents nav rather than `SectionToc`, so nothing
-there sets `aria-current`.
-
-`ci-smoke.mjs` is the only one that uses Playwright's own bundled Chromium, and
-the only one CI can run. It is deliberately modest — route availability and
-console errors only, no assertion about the particle scene, because real WebGPU
-support in headless CI Chromium is unreliable.
-
-`/?forceWebGL=1` runs the complete experience on WebGL2.
-`/particle-demo?forceWebGL=1` is the isolated tuning harness.
-
----
-
-## Rebuilding particle assets
-
-```bash
-npm run bake:nav-lion    # → public/particles/lion-v2-{45k,90k,180k}.bin
-npm run bake:nav-icons   # → public/icons/*.sdf.png
-npm run poster:nav       # → public/posters/particle-nav.{webp,avif}
-```
-
-Source artwork lives in `assets/`. The output is committed to git like any
-other file — rolling back a bad bake is a `git revert`, not a Vercel
-promotion.
-
----
 
 ## CI
 
@@ -380,20 +262,6 @@ behind; the row's `last_error` and `attempts` columns say which.
 Expected without `TEST_DATABASE_URL`. PGlite has no pgvector, and no package
 publishes it separately.
 
-### A story-timeline edit was rejected by a hook
-**It was not — that hook no longer runs.** It was removed in `7229053` and
-`.claude/settings.json` is now `"hooks": {}`. The script is still there and
-still correct; run it by hand:
-
-```bash
-node .claude/hooks/check-story-timeline.mjs
-```
-
-It checks the intro invariants — 12 beats, the `battlefield-for-truth` id,
-desktop and mobile line arrays rejoining to the canonical text, and the mobile
-runtime staying within 10% of desktop. `tests/particle-nav-layout.test.ts`
-asserts the same budgets and *does* run in CI, so `npm test` is the gate that
-actually catches a broken timeline. See `CLAUDE.md`.
 ### מדידת לחץ חיבורים
 
 בסביבת בדיקה מבודדת בלבד מריצים `TEST_DATABASE_URL=... pnpm briefing:db-pressure`.

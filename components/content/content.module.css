@@ -1,58 +1,7 @@
-/*
- * Shared visual language for the content component library.
- *
- * Breakpoints. The canon, restated from `home.module.css` — 1220 (rails),
- * 900 (shell to one column), 719 (phone), 359 (the 320px floor) — because it
- * lived in one file's comment and was enforced by memory. It is repeated
- * wherever a stylesheet is entitled to open a media query. A fifth width has
- * to earn its place in a comment beside it, giving the measured width at
- * which the thing it governs stops working; this file's own 640, where
- * `.figures` collapses, is written up down there. A custom property cannot
- * be read inside a media query, so a comment is the only greppable form this
- * rule can take.
- *
- * Ten routes render through these components, so this file is where the
- * site's reading type is actually decided. It is built on the Design V3
- * tokens in `app/globals.css` and holds the three canonical treatments the
- * rest of the site is forbidden to redefine:
- *
- *   kicker      — an eyebrow/label above a thing.   --face-data, --t-data, 500, upper, gold
- *   date stamp  — when something happened.          --face-data, --t-data, ink-lo, tabular
- *   entry title — the name of an entry, card, case.  --face-display, --t-h3, 500, near-zero tracking
- *
- * The audit that prompted the rewrite found five kicker variants and four
- * date variants across the site. If a page needs a kicker, it uses this one.
- *
- * Three rules hold everywhere below:
- *   1. Nothing is smaller than --t-data (0.75rem).
- *   2. Uppercase + tracking is for data labels of two words or fewer. Every
- *      heading, title, and sentence is sentence case.
- *   3. Every colour, size, radius, shadow and duration is a token or a
- *      `color-mix()` of tokens. There are no literals in this file outside
- *      comments — `grep` for `#`, `rgba(` and `oklch(` should return only
- *      prose.
- *
- * V3 (2026-09-01) removed the "Hallmark material pass" that closed this file:
- * it had put every entry title in the monospace, wrapped every list and
- * timeline in a blurred glass panel, and rounded every chip into a pill. The
- * reading surface is flat again — the scan is masked out of the reading
- * column, so there is nothing for glass to shield the text from — and the
- * three faces do the three jobs `globals.css` assigns them.
- */
+
 
 .tokens {
-  /* Local shorthand over the global scale. V3 reads the global names
-     directly: `--ground`, `--gold`, `--gold-hi`, `--line`, `--gold-line`,
-     `--ink*` and the three faces all inherit from `:root`, which
-     `app/layout.tsx` loads on every route. They are not restated here
-     because `--gold: var(--gold)` on the same element is a custom-property
-     cycle and computes to guaranteed-invalid, and a fallback literal would
-     make this file a second owner of the palette — which is exactly how the
-     library's panels stayed navy after the ground went black.
 
-     What survives is the handful of names this file uses that `globals.css`
-     spells differently, and the two hooks the live brief reaches in through
-     to flatten the data voice on paper. */
   --blue: var(--data-blue);
   --blue-peak: var(--data-blue-peak);
   --ember: var(--data-ember);
@@ -60,18 +9,13 @@
   --ember-line: color-mix(in oklab, var(--data-ember) 34%, transparent);
   --ember-wash: color-mix(in oklab, var(--data-ember) 8%, transparent);
   --surface-raised: var(--surface-2);
-  /* The library draws two markers — the badge's status dot and the
-     timeline's rail dot — and they shipped at 0.40rem and 0.42rem, near
-     enough to be the same mark and different enough to be an accident.
-     Named here at one value rather than snapped onto `--sp-*`: this is a
-     drawn dimension, not a step of the spacing rhythm, and the nearest
-     spacing steps (4px / 8px) are both wrong for a 1px-bordered ring. */
+
   --mark: 0.42rem;
   --content-data-tracking: var(--brief-content-data-letter-spacing, var(--t-data-tracking));
   --content-label-transform: var(--brief-content-label-transform, uppercase);
 }
 
-/* ── The three canonical treatments ─────────────────────────────────────── */
+
 
 .kicker {
   composes: tokens;
@@ -108,17 +52,9 @@
   text-wrap: balance;
 }
 
-/* ── VerificationBadge ──────────────────────────────────────────────────── */
 
-/* This file used to declare a sanctioned exception to the ≤2-word uppercase
-   rule here, on the reasoning that a badge is micro-chrome. It is retired: a
-   verdict is the least micro thing on the site — it is the sentence the whole
-   fact-check exists to deliver — and the exception was granted assuming the
-   stamp did visual work the colour ramp does not do (five of the nine
-   assessments sit inside a 17.3° hue band). Set as what it is: a short phrase
-   at caption size, sentence case, no tracking, in the interface face — a
-   verdict is a word a reader weighs, not a datum. "Out of context" reads as
-   words rather than as a code. */
+
+
 .badge {
   composes: tokens;
   display: inline-flex;
@@ -142,21 +78,13 @@
   background: var(--badge-dot, var(--gold));
 }
 
-/* Rides the badge's own size and casing now; the 0.04em it used to carry
-   only existed to sit beside 0.08em of tracked capitals. */
+
 .badgeConfidence {
   color: var(--ink-lo);
   font-weight: 400;
 }
 
-/* Assessment ramps are semantic data colour, not text hierarchy, and they
-   come from the two data ramps `globals.css` reserves for exactly this. The
-   nine verdicts fall into four families: the one verified reading takes gold;
-   the five hostile readings take the ember ramp, the three strongest at its
-   peak and the two softer ones one step down; the two "not enough" readings
-   take the neutral data ramp; and satire — not a claim at all — takes the
-   plain ink with a dashed dot. The old file drew a private hue for each of
-   the nine, five of them inside a 17° band no reader could tell apart. */
+
 .badge[data-assessment='verified'] {
   --badge-color: var(--gold-hi);
   --badge-dot: color-mix(in oklab, var(--gold) 45%, transparent);
@@ -203,7 +131,7 @@
   border-style: dashed;
 }
 
-/* ── SourceList ─────────────────────────────────────────────────────────── */
+
 
 .sourceList {
   composes: tokens;
@@ -214,10 +142,7 @@
 
 .sourceList > li {
   display: grid;
-  /* One gutter for the source number at every width and in the margin —
-     it shipped as 2.5rem here and 2rem in the two narrower contexts, for a
-     column holding the same two mono digits. `--sp-6` is the wider of the
-     two and the one on the scale. */
+
   grid-template-columns: var(--sp-6) minmax(0, 1fr);
   gap: var(--sp-4);
   padding: var(--sp-4) 0;
@@ -229,9 +154,7 @@
 }
 
 .sourceNumber {
-  /* Was the blue data ramp. `globals.css` reserves that ramp for meaning —
-     verified/hostile streams, assessment badges, the scan — and says it is
-     never used to express text hierarchy, which is all this is. */
+
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -247,8 +170,7 @@
   gap: var(--sp-2);
 }
 
-/* Publisher names run long ("Reuters Institute for the Study of Journalism,
-   University of Oxford") — sentence case, not a tracked label. */
+
 .sourceKind {
   color: var(--ink-lo);
   font-family: var(--face-text);
@@ -270,8 +192,7 @@
 
 .sourceBody a {
   text-decoration: underline;
-  /* Gold, matching the `:hover` colour below — a link underlined in the data
-     ramp reads as a classification it does not carry. */
+
   text-decoration-color: var(--gold-line-strong);
   text-decoration-thickness: var(--line-w);
   text-underline-offset: 0.2em;
@@ -285,8 +206,7 @@
   text-decoration-color: currentColor;
 }
 
-/* The focus ring is the global `:focus-visible` treatment; a link inside a
-   dense stack only needs a little more room between the ring and the text. */
+
 .sourceBody a:focus-visible {
   outline-offset: 4px;
 }
@@ -317,7 +237,7 @@
   letter-spacing: var(--content-data-tracking);
 }
 
-/* ── PublicationMeta ────────────────────────────────────────────────────── */
+
 
 .publicationMeta {
   composes: tokens;
@@ -333,8 +253,7 @@
   min-width: 0;
 }
 
-/* Terms are all ≤2 words ("Edition", "Reviewed by", "Coverage window") —
-   the legitimate uppercase-label case. They were 8px before this pass. */
+
 .publicationMeta dt {
   color: var(--gold);
   font-family: var(--face-data);
@@ -345,9 +264,7 @@
   text-transform: var(--content-label-transform);
 }
 
-/* Values are dates, names and counts — the credibility apparatus. Set in the
-   text face at caption size, with figures tabular so "14 sources" and
-   "19 Aug 2026" line up across the three columns. */
+
 .publicationMeta dd {
   margin: var(--sp-2) 0 0;
   color: var(--ink);
@@ -359,7 +276,7 @@
   overflow-wrap: anywhere;
 }
 
-/* ── KnownUnknownPanel ──────────────────────────────────────────────────── */
+
 
 .unknownGrid {
   composes: tokens;
@@ -409,7 +326,7 @@
   color: var(--ink-lo);
 }
 
-/* ── CorrectionHistory ──────────────────────────────────────────────────── */
+
 
 .corrections {
   composes: tokens;
@@ -469,9 +386,7 @@
   line-height: var(--t-small-lh);
 }
 
-/* "None recorded" answers the kicker above it — it is a statement of state,
-   not a label, so it is set as one. Uppercase here made the one place the
-   page admits to having nothing shout louder than the content. */
+
 .correctionsEmpty {
   padding: var(--sp-4) 0;
   border-bottom: var(--line-w) solid var(--line);
@@ -481,7 +396,7 @@
   line-height: var(--t-caption-lh);
 }
 
-/* ── FigureRow ──────────────────────────────────────────────────────────── */
+
 
 .figures {
   composes: tokens;
@@ -502,18 +417,7 @@
   border-left: var(--line-w) solid var(--line);
 }
 
-/* A pulled figure is emphasis, not a heading. At --t-h2 it was the same
-   token, face and weight as `.blockHeading h2`, differing only in colour, so
-   the row read as a third heading level — 1.91:1 against its own caption
-   where a broadsheet pulls a figure at 3–5×. --t-display is the next step on
-   the scale and takes it to 3.38:1 at the clamp's ceiling.
 
-   The figure is a number, so it takes tabular figures and the display step's
-   own weight and tracking rather than a private 600. Gold-hi rather than
-   gold: the row is the one thing on its screen that earns the accent.
-
-   Pages that want a monumental figure (October 7) still raise it in their own
-   module; that override is more specific and is unaffected. */
 .figures dt {
   color: var(--gold-hi);
   font-family: var(--face-display);
@@ -536,7 +440,7 @@
   line-height: var(--t-caption-lh);
 }
 
-/* ── Timeline ───────────────────────────────────────────────────────────── */
+
 
 .timeline {
   composes: tokens;
@@ -561,9 +465,7 @@
   position: relative;
   padding: 0 0 var(--sp-6) var(--sp-6);
   border-left: var(--line-w) solid var(--rail);
-  /* One offset for every anchored thing on a dossier — see `--anchor-offset`
-     in sections.module.css. The 6rem this replaced had no sticky element
-     behind it to clear. The fallback is for a host that is not that shell. */
+
   scroll-margin-top: var(--anchor-offset, 2rem);
 }
 
@@ -576,14 +478,12 @@
   padding-bottom: var(--sp-1);
 }
 
-/* The marker sits on the rail, centred on the first line of the entry's
-   meta row. No glow: a soft halo on every entry of a ninety-entry timeline
-   is decoration, and the rail colour already says which stream this is. */
+
 .timelineEntry::before {
   content: '';
   position: absolute;
   top: 0.45rem;
-  /* Centred on the rail: half the mark, plus its own hairline border. */
+
   left: calc(var(--mark) / -2 - var(--line-w));
   width: var(--mark);
   height: var(--mark);
@@ -606,9 +506,7 @@
   font-weight: var(--t-data-weight);
 }
 
-/* One date style. The `history` variant used to reset this to Cinzel at a
-   different size — that variance is gone; the rail colour already says which
-   variant you are reading. */
+
 .timelineMeta time {
   color: var(--ink-lo);
   font-size: var(--t-data);
@@ -633,11 +531,9 @@
   color: var(--gold);
 }
 
-/* One entry-title style, shared by every variant. These are sentences
-   ("Israel opens the war with a surprise air strike") and are set as
-   sentences — the single biggest legibility change in this pass. */
+
 .timelineEntry h3 {
-  /* 54ch at `--t-h3` is ~35.4rem — what the 34rem literal was reaching for. */
+
   max-width: var(--measure-narrow);
   margin: var(--sp-2) 0 0;
   color: var(--ink-hi);
@@ -651,8 +547,7 @@
 }
 
 .timelineBody {
-  /* The reading measure itself: 68ch at `--t-body` is ~40.8rem, which is
-     what the 41rem literal was. */
+
   max-width: var(--measure-reading);
   margin-top: var(--sp-3);
   color: var(--ink);
@@ -665,9 +560,7 @@
   margin: 0;
 }
 
-/* Full-measure body-size prose that abuts hand-authored SectionBlock prose in
-   the same column, so it takes the same paragraph gap — see `--flow`. It was
-   0.7rem against the shell's 1.15rem for the identical job. */
+
 .timelineBody p + p {
   margin-top: var(--flow);
 }
@@ -676,9 +569,7 @@
   composes: marginNote;
 }
 
-/* The two-track host. The second track is zero-wide, so the entry keeps the
-   reading measure exactly; the note is given its own width and overflows into
-   the margin, while still contributing its height to the row. */
+
 @media (min-width: 1220px) {
   .timelineEntry {
     display: grid;
@@ -703,42 +594,7 @@
   line-height: var(--t-caption-lh);
 }
 
-/* ── Evidence in the margin ───────────────────────────────────────────────
- * The one structural idea of the "intelligence desk" direction: above
- * 1220px a per-item citation leaves the reading column and sits in the right
- * margin, level with the record it documents. The claim and the evidence for
- * it are then read in one glance instead of one being a footnote to the
- * other — the same principle `.ai/DECISIONS.md` already records for chat
- * ("the verdict travels beside the retrieved text, never inside it").
- *
- * The citation stays inside its entry in the markup, so reading order, screen
- * readers and the no-JS page are unchanged, and below the breakpoint none of
- * this applies — sources return to the flow exactly as before.
- *
- * **Why a grid and not absolute positioning.** The first build placed the note
- * absolutely at `left: 100%`. It was measured, and it fails: on Fake
- * Resistance's claim-propagation timeline the entries run 97–127px tall while
- * their citations run 136–150px, so notes overran the entries below them.
- * Absolute positioning cannot reserve space, and no amount of extra padding
- * *guarantees* it will not happen again with different content. Here the entry
- * becomes a two-track grid whose second track is zero-wide: the note paints
- * into the margin, but it still sits in the grid row, so the row is at least
- * as tall as the note. Overlap stops being something to verify and becomes
- * something the layout cannot express.
- *
- * The host therefore needs its record and its evidence as *sibling* elements
- * — `.timelineMain` next to `.timelineSources` — which is why `Timeline.tsx`
- * wraps its meta/title/body together.
- *
- * `--rail-w` / `--rail-gap` come from `.page` in sections.module.css; the
- * fallbacks keep a component renderable if it is ever mounted outside that
- * shell, per this file's convention.
- *
- * Composed by the per-item source wrappers: `.timelineSources` here, and
- * `.dispatchSources` / `.caseFileSources` in the two page modules that
- * hand-roll their own entry markup. Our Heroes deliberately opts out — see
- * the note in `app/our-heroes/page.module.css`.
- */
+
 .marginNote {
   margin-top: var(--sp-4);
 }
@@ -752,10 +608,7 @@
     margin-left: var(--rail-gap, var(--sp-6));
   }
 
-  /* In the margin the citation is a note, not a numbered row: the number's
-     job was to cross-reference a stack at the foot of the page, and a source
-     sitting beside its own claim has nothing left to point at. The rule that
-     replaces it carries the stream colour. */
+
   .marginNote .sourceList > li {
     display: block;
     padding: 0 0 0 var(--sp-3);
@@ -781,14 +634,11 @@
     font-weight: var(--t-data-weight);
     line-height: var(--t-data-lh);
     letter-spacing: var(--t-data-tracking-tight);
-    /* Recessive ink, not the blue data ramp: that ramp carries meaning and
-       never expresses text hierarchy — see `app/globals.css`. */
+
     color: var(--ink-lo);
   }
 
-  /* The label is an article headline — a sentence — so it takes the caption
-     step, not the data floor. `--t-data` is reserved for the kind above it,
-     which is a two-word label and the only thing here that is truly data. */
+
   .marginNote .sourceLabel,
   .marginNote .sourceBody a {
     font-size: var(--t-caption);
@@ -796,18 +646,14 @@
   }
 }
 
-/* ── ContentCard ────────────────────────────────────────────────────────── */
+
 
 .card {
   composes: tokens;
   --card-accent: var(--gold);
   --card-line: var(--gold-line-strong);
   position: relative;
-  /* A card's reading measure is set by its grid track, not by the viewport —
-     the same card class is 2-up on `/we-are` and the front page and 1-up on
-     `/support-us` — so `.cardBody` below asks the card how wide it is rather
-     than asking the screen. Every grid that holds one is track-sized
-     (`minmax(0, 1fr)`), so inline-size containment costs nothing. */
+
   container-type: inline-size;
   display: flex;
   min-width: 0;
@@ -827,7 +673,7 @@
   --card-line: var(--ember-line);
 }
 
-/* The canonical kicker. */
+
 .cardEyebrow {
   margin: 0 0 var(--sp-3);
   color: var(--gold);
@@ -861,8 +707,7 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-/* The whole card is the link's hit area; the title stays the accessible
-   name. Hover changes colour only — nothing moves. */
+
 .card h3 a::after {
   content: '';
   position: absolute;
@@ -880,8 +725,7 @@
   color: var(--gold-hi);
 }
 
-/* The ring belongs to the card, not the title: `::after` covers the card, so
-   the outline is drawn round the element the reader actually clicks. */
+
 .card h3 a:focus-visible {
   outline-offset: 4px;
 }
@@ -912,14 +756,7 @@
   margin-top: var(--sp-3);
 }
 
-/* A card wide enough to hold a real measure gets the real reading size.
-   Promoting `.cardBody` outright was the obvious fix and it makes the common
-   case worse: a 2-up card is ~330px, less 48px of padding ≈ 282px, which at
-   17px is ~33ch — tighter than the ~40ch being objected to. 32rem is where
-   the card's own content box reaches ~464px, about 45ch at --t-body; below it
-   --t-small is doing the job it is documented for. Today that is
-   `/support-us`'s single-column `.skillGrid`, and the front-page cards once
-   they stack to one column on a wide-enough phone. */
+
 @container (min-width: 32rem) {
   .cardBody {
     font-size: var(--t-body);
@@ -941,7 +778,7 @@
   line-height: var(--t-caption-lh);
 }
 
-/* ── ClaimRecordPair ────────────────────────────────────────────────────── */
+
 
 .claimRecord {
   composes: tokens;
@@ -969,8 +806,7 @@
   background: linear-gradient(90deg, var(--gold-wash), transparent 68%);
 }
 
-/* These labels are phrases ("What the record shows"), so they are set as
-   phrases rather than tracked capitals — interface face, label weight. */
+
 .claimRecord h3 {
   margin: 0 0 var(--sp-3);
   font-family: var(--face-text);
@@ -995,9 +831,7 @@
   line-height: var(--t-small-lh);
 }
 
-/* No private paragraph colour. The ember left border and the 90deg wash
-   already say which panel this is; a third signal in a fourth grey was off
-   the three-ink scale and dimmer for it. */
+
 .claimPanel .claimRecordBody {
   color: var(--ink);
 }
@@ -1014,7 +848,7 @@
   margin-top: var(--flow);
 }
 
-/* ── SensitiveContent ───────────────────────────────────────────────────── */
+
 
 .sensitive {
   composes: tokens;
@@ -1052,14 +886,7 @@
   text-transform: uppercase;
 }
 
-/* "View — contains difficult material" is a sentence a reader has to weigh,
-   and it was set as 11.5px tracked capitals. Corrected here in the library
-   before the October 7 gate ever mounts it; the copy itself is not final.
 
-   A button, so the interface face at 600 — never the serif, never the mono.
-   Quiet by design: this gate stands in front of memorial material, so it is
-   a plain control on a raised surface, not a call to action. Every state is
-   shipped, and none of them moves the layout. */
 .sensitiveButton {
   min-height: var(--control-h);
   padding: 0 var(--sp-4);
@@ -1102,16 +929,7 @@
   margin-top: var(--sp-5);
 }
 
-/* ── Research grades ──────────────────────────────────────────────────────
-   Confidence, identity status and evidence class are the research's own
-   honesty layer, not verdicts. They are typed as plain data labels — no box,
-   no fill, no pill — because a bordered chip is badge-shaped certainty, and
-   dressing a "possible" in the same chrome as a verified verdict would be
-   exactly the epistemic laundering the section documents. The one exception
-   is `inferred_coordination`: the weakest evidence class the contract allows,
-   and the one a reader most needs to see is weak, so it carries the ember the
-   rest of this section uses for hostile data. Both class names survive from
-   the chip era so the pages that reference them keep working. */
+
 
 .gradeChip {
   composes: tokens;
@@ -1136,10 +954,9 @@
   --grade-color: var(--ember-peak);
 }
 
-/* ── RosterTable ────────────────────────────────────────────────────────── */
 
-/* The reading measure is fixed; a wide table scrolls inside its own box
-   rather than pushing the page sideways. */
+
+
 .rosterScroll {
   composes: tokens;
   overflow-x: auto;
@@ -1208,8 +1025,7 @@
   white-space: nowrap;
 }
 
-/* Counts line up as a column, which is the whole reason they were pulled out
-   of the note prose in the first place. */
+
 .rosterNumeric {
   color: var(--ink);
   font-family: var(--face-data);
@@ -1233,13 +1049,12 @@
   --grade-color: var(--ink-hi);
 }
 
-/* Unresolved is the grade this section must never quietly upgrade, so it is
-   the one that reads loudest in the table. */
+
 .identityChip[data-identity='unresolved'] {
   --grade-color: var(--ember-peak);
 }
 
-/* ── TechniqueChip ──────────────────────────────────────────────────────── */
+
 
 .techniqueChips {
   composes: tokens;
@@ -1266,9 +1081,7 @@
   gap: var(--sp-2);
 }
 
-/* A link to a playbook chapter. The chip shape is earned here — it is a
-   control, not a grade — and it takes the hairline radius, not a pill. The
-   hit box is 36px tall by default and 44px on a phone, where it is tapped. */
+
 .techniqueChip {
   display: inline-flex;
   align-items: center;
@@ -1302,15 +1115,14 @@
   outline-offset: 2px;
 }
 
-/* ── NetworkFigure ──────────────────────────────────────────────────────── */
+
 
 .networkFigure {
   composes: tokens;
   margin: var(--sp-6) 0;
 }
 
-/* The drawing has a minimum legible width; below it the figure scrolls inside
-   its own box rather than shrinking the labels past the type floor. */
+
 .networkScroll {
   overflow-x: auto;
 }
@@ -1358,9 +1170,7 @@
   letter-spacing: var(--t-data-tracking-tight);
 }
 
-/* The viewBox is 520 against a 32rem box, so these render at very close to
-   1:1 — which means the --t-data floor applies here exactly as it does to
-   DOM text, and nothing in this figure goes under it. */
+
 .networkCenterSub {
   fill: var(--ink-lo);
   font-family: var(--face-data);
@@ -1377,11 +1187,9 @@
   line-height: var(--t-small-lh);
 }
 
-/* ── ResearchText ───────────────────────────────────────────────────────── */
 
-/* A handle set as code is visibly a handle rather than a name — the research
-   writes them this way and the distinction survives into the page. The size
-   is relative on purpose: it rides whatever step the sentence is set at. */
+
+
 .handle {
   color: var(--ink-hi);
   font-family: var(--face-data);
@@ -1389,7 +1197,7 @@
   overflow-wrap: anywhere;
 }
 
-/* ── Motion ─────────────────────────────────────────────────────────────── */
+
 
 @media (prefers-reduced-motion: reduce) {
   .sourceBody a,
@@ -1401,7 +1209,7 @@
   }
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────── */
+
 
 @media (max-width: 719px) {
   .publicationMeta {
@@ -1429,13 +1237,7 @@
     gap: var(--sp-3);
   }
 
-  /* The three-up row survives down to 360px, where each column is only about
-     100px wide. --t-display bottoms out at 2.5rem, and the Brief's widest
-     figure ("NIS 5.5B") is ~150px at that size, so it would break mid-token
-     on `overflow-wrap` — the same failure a real-Chrome review caught on
-     October 7's monument, which is why that one carries `white-space:
-     nowrap`. Above this breakpoint the column is ~193px and up and the
-     promotion holds. */
+
   .figures dt {
     font-size: var(--t-h2);
     font-weight: var(--t-h2-weight);
@@ -1475,22 +1277,14 @@
     padding: var(--sp-5) var(--sp-4);
   }
 
-  /* Tapped, not clicked: the chip grows to the 44px convention. */
+
   .techniqueChip {
     min-height: var(--control-h);
     padding-inline: var(--sp-4);
   }
 }
 
-/* A key-figures row exists to be read at a glance, and this one stayed
-   three-up across the entire phone range — the 719px block above only
-   narrows its gap. At 390px each column is 108px wide, which is four lines
-   of caption, and the row becomes the slowest thing on the page. It collapses
-   at 640 rather than 719 for two reasons: 640 is the threshold October 7
-   already picked for the same row in its own module, and at 600px the
-   columns are 178px and still working — collapsing at 719 would trade a
-   readable three-up for ~190px of scroll. This lives here, in the shared
-   component, so every page that renders a FigureRow gets it. */
+
 @media (max-width: 640px) {
   .figures {
     grid-template-columns: minmax(0, 1fr);

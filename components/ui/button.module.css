@@ -1,26 +1,7 @@
-/* Button system · design V3
- *
- * Every value reads a token from `app/globals.css`; there are no local
- * fallbacks, because a fallback that differs from the token is a second
- * design system waiting to reappear. Plex Sans at 600 is the control voice;
- * the one exception is the filter chip, which is set in the data face
- * because a filter value is a data label, not a sentence.
- *
- * States: default · hover · focus-visible · active · disabled · loading ·
- * isActive · reduced motion. Hover changes colour and lifts by a transform
- * only — nothing in the layout moves.
- *
- * The seven variants are derived from an audit of every control that
- * actually ships (2026-09-02), not invented: ten hand-rolled button classes
- * across `pipeline-visualizer`, `site-header`, `content` and `support-us`.
- * `components/ui/README.md` carries the variant → use-case mapping and names
- * which shipping class each variant replaces.
- */
+
 
 .button {
-  /* One height per size, read twice: as the min-height of a labelled control
-     and as the min-width of an icon-only one, so a square control cannot
-     drift from the row it sits in. */
+
   --btn-h: var(--control-h);
 
   position: relative;
@@ -49,15 +30,7 @@
     opacity var(--dur-fast) var(--ease-out);
 }
 
-/* ── Sizes ─────────────────────────────────────────────────────────────
-   Heights step 28 / 36 / 44 / 52, each derived from `--control-h` rather
-   than written as a literal. `xs` is the dense-toolbar step — a speed
-   toggle, a zoom control, a page number — and `md` is the touch standard.
 
-   Both small steps grow to the 44px touch floor wherever the pointer is a
-   finger. That is deliberate and it has a consequence worth stating: a
-   dense toolbar does not get to ship 28px targets on a phone, it has to
-   wrap or scroll. */
 
 .xs {
   --btn-h: calc(var(--control-h) - var(--sp-4));
@@ -90,18 +63,16 @@
   }
 }
 
-/* An icon-only control is square at its size and carries its name in
-   `aria-label` — the TypeScript signature requires one, so a nameless icon
-   button does not compile. */
+
 .iconOnly {
   min-width: var(--btn-h);
   padding: 0;
   gap: 0;
 }
 
-/* ── Variants ──────────────────────────────────────────────────────── */
 
-/* 1. Primary — the one gold control on a screen. */
+
+
 .primary {
   background: var(--gold);
   color: var(--ground);
@@ -122,11 +93,7 @@
   box-shadow: none;
 }
 
-/* 2. Solid — the emphasised control on a *reading* page, where glass is
-   wrong: there is nothing behind a document to blur, and a backdrop filter
-   over opaque type only costs a compositor layer. Surface and hairline,
-   with the page's gold entering on hover alone. This is the treatment
-   `content.module.css` `.sensitiveButton` reached for by hand. */
+
 .solid {
   background: var(--surface-3);
   color: var(--ink-hi);
@@ -149,9 +116,7 @@
   color: var(--gold-hi);
 }
 
-/* 3. Secondary — glass, and glass has one job: floating *over* the particle
-   scene, where there is something to blur. Shared with the floating
-   navigation. On a reading page use `solid`. */
+
 .secondary {
   background: linear-gradient(180deg, var(--glass-raised-top), var(--glass-raised-bottom));
   color: var(--ink-hi);
@@ -172,12 +137,7 @@
   transform: translateY(0);
 }
 
-/* 4. Toolbar — the quiet control in a dense row. Nothing at rest but its
-   label, so eight of them side by side read as one strip rather than eight
-   objects; a hairline and a tint arrive on hover to say the thing is live.
-   The hairline is present-but-transparent at rest, so nothing reflows when
-   it appears. Distinct from `ghost`, which never grows a border and belongs
-   in prose rather than in chrome. */
+
 .toolbar {
   background: transparent;
   color: var(--ink);
@@ -201,10 +161,7 @@
   color: var(--ink-hi);
 }
 
-/* 5. Filter chip — a data label, so it speaks in the data face. The size
-   prop still governs its box; only the voice is overridden here, which was
-   not true before: the chip hard-set its own height and padding, so
-   `size="lg"` silently rendered at 36px. */
+
 .filter {
   background: var(--surface-2);
   color: var(--ink);
@@ -229,7 +186,7 @@
   border-color: var(--gold-line-strong);
 }
 
-/* 6. Ghost — text that acts. */
+
 .ghost {
   background: transparent;
   color: var(--ink);
@@ -249,7 +206,7 @@
   color: var(--gold-hi);
 }
 
-/* 7. Danger — the state ramp, desaturated to sit on the warm palette. */
+
 .danger {
   background: var(--state-danger-wash);
   color: var(--state-danger);
@@ -266,10 +223,9 @@
   background: var(--state-danger-wash);
 }
 
-/* ── States ────────────────────────────────────────────────────────── */
 
-/* Focus: the global `:focus-visible` ring applies. The offset is tightened
-   by one step so the ring hugs a control instead of floating off a chip. */
+
+
 .button:focus-visible {
   outline-offset: calc(var(--focus-offset) - var(--line-w));
 }
@@ -314,7 +270,7 @@
   align-items: center;
 }
 
-/* An icon-only control has no content span to lay out. */
+
 .iconOnly .content:empty {
   display: none;
 }
@@ -329,10 +285,7 @@
     transform: none;
   }
 
-  /* The global kill-switch collapses the duration to 0.01ms, which would
-     leave the spinner frozen at one angle and reading as a stuck control.
-     A slow, legible rotation is the honest substitute for a busy state that
-     is genuinely still happening. */
+
   .spinner {
     animation-duration: 1.5s !important;
   }

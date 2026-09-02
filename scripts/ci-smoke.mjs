@@ -1,15 +1,4 @@
-/**
- * CI route smoke test — every real route returns 200 and logs no console
- * errors. Uses Playwright's own bundled Chromium, not the macOS-only
- * `/Applications/Google Chrome.app/...` path the real-Chrome composition
- * scripts (`final-verify.mjs`, `verify-composition.mjs`) hardcode — those
- * are for the workstation only and will not run on a Linux CI runner.
- *
- * Deliberately modest: route availability and console errors only. Real
- * WebGPU support in headless CI Chromium is unreliable, so this makes no
- * assertion about the WebGPU/particle scene rendering — that stays a
- * real-Chrome, workstation-only check.
- */
+
 import { readFile } from "node:fs/promises";
 import { chromium } from "playwright-core";
 
@@ -145,34 +134,7 @@ for (const route of ROUTES) {
   }
 }
 
-/* The no-JavaScript invariant, which nothing else in CI can see.
- *
- * CLAUDE.md marks "do not reintroduce a root-level `loading.tsx`" as
- * load-bearing: a root Suspense boundary makes streaming SSR emit the real
- * markup inside `<div hidden id="S:0">` for an inline script to reveal, so
- * with scripting off the loading shell stays and the page never appears.
- * Every check above runs with JavaScript enabled and would pass against
- * exactly that build. `scripts/final-verify.mjs` catches it, but needs real
- * Chrome on macOS — so on Linux this is the only guard there is.
- *
- * The home route is the test case because it is the one with the most to
- * lose: the section index and the poster are the whole navigation for a reader
- * without scripting.
- *
- * Rewritten 2026-09-02. This used to count `a[data-node-index]` — the eight
- * orbit links of the particle radial navigation. That navigation is no longer
- * on the home route: `CinematicIntroGate` runs the scene with `introOnly`, and
- * `NavLinks` is now mounted only by `/particle-demo`. So the assertion was
- * testing an implementation the design had left, and it had been FAILING —
- * which is how a real defect hid behind it. The header's Explore panel was
- * mounted on client state, so with scripting off five of the eight destinations
- * (`support-us`, `war-update`, `our-heroes`, `fake-resistance`, `we-are`) had no
- * reachable link anywhere on the site.
- *
- * What is asserted now is the invariant that actually matters and does not
- * name an implementation: every destination in SITE_NAVIGATION, plus the two
- * reference routes, is reachable by href from the home route with scripting
- * off. That is strictly stronger than the old count. */
+
 const noJs = await browser.newContext({ javaScriptEnabled: false, reducedMotion: "reduce" });
 const noJsPage = await noJs.newPage();
 const noJsResponse = await noJsPage.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });

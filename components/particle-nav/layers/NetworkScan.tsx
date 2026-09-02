@@ -267,20 +267,7 @@ function appendCanvasParticles(
  */
 const SCAN_COMPACT_MAX_WIDTH = 620;
 
-/*
- * The two families the scene rasterises text with, named rather than inlined.
- *
- * Neither is a loaded site face: this is the one surface where Newsreader,
- * IBM Plex and Geist Mono never apply. That is a brand-coherence gap and not
- * a legibility one — these glyphs are resampled to particles at ~20px a line
- * with `minSizePx 0.8`, where grotesque-versus-mono proportion is barely
- * resolvable — and the home scene's typographic voice is an open question for
- * the owner (`.ai/DESIGN-V2.md` Phase 5), so it is not changed here. Reading
- * `--font-geist-mono` off the document would also move the whole glyph and
- * word buffer construction behind `document.fonts.ready`, which is a real
- * change to scene startup: a mono face is wider per character, and both the
- * label spans and the glyph placement below are proportion-sensitive.
- */
+
 const SANS_STACK = 'Arial, sans-serif';
 const MONO_STACK = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 

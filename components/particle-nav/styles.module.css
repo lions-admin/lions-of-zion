@@ -1,12 +1,4 @@
-/*
- * Accessibility rules locked here (brief §9):
- *  - label colour #C9A24B clears 4.5:1 on the ground — never dim it for
- *    atmosphere. The ground was #070B14 and the margin was 4.5:1 exactly; it
- *    is #000000 since 2026-08-26, where the same gold clears 8.75:1 (the
- *    figure `config.ts` `defaultTheme` already carries). The rule is the
- *    floor, not the measurement, so it stands unchanged.
- *  - focus ring 2px #EFD79A, 3px offset — never remove the outline
- */
+
 
 .root {
   --safe-top: env(safe-area-inset-top, 0px);
@@ -21,10 +13,7 @@
   background: #000000;
 }
 
-/* The homepage now uses this renderer only for the opening story. It owns the
-   viewport while active, then fades to the server-rendered editorial page and
-   becomes non-interactive. The Canvas is unmounted by `NavClient` at the same
-   handoff, so an invisible GPU loop never survives behind the site. */
+
 .root[data-intro-only] {
   position: fixed;
   inset: 0;
@@ -55,8 +44,7 @@
   display: contents;
 }
 
-/* A sparse, glass-like frame lets the entrance belong to the same visual
-   language as the editorial homepage without competing with the particle lion. */
+
 .introOverlay {
   position: absolute;
   inset: 0;
@@ -131,9 +119,7 @@
   pointer-events: none;
 }
 
-/* The one intro mark that is real type rather than particle geometry: a 10-glyph
-   word sampled at 12px reads as blur, and the capsule it used to sit in was the
-   brightest shape in the corner, so it drove the scene bloom. */
+
 .skipIntro {
   position: absolute;
   right: calc(clamp(1rem, 3vw, 2.5rem) + var(--safe-right));
@@ -149,7 +135,7 @@
   color: #c9a24b;
   cursor: pointer;
   opacity: 0;
-  /* the delay stands in for the old particle build at t = 0.85s */
+
   transition: opacity 600ms ease 850ms, color 200ms ease;
 }
 
@@ -157,20 +143,14 @@
   opacity: 1;
 }
 
-/* Pressed. The outro runs for 2.8s after this, and a control that looks
-   untouched for 2.8s gets tapped again — which is how a second tap ends up
-   landing on the navigation at the moment it arrives. */
+
 .root[data-live] .skipIntro[data-skipping] {
   opacity: 0;
   pointer-events: none;
   transition: opacity 220ms ease;
 }
 
-/* On a phone the control is rule + gap + label + chevron, around 205px, which
-   is two thirds of a 320px frame sitting in the corner the brand cloud reaches
-   into. Tighten the spacing and the rule rather than the type: the label is the
-   part that has to stay readable, and the 52px band above keeps the target the
-   same size it was. */
+
 @media (max-width: 480px) {
   .skipIntro {
     gap: 0.5rem;
@@ -231,8 +211,7 @@
   outline-offset: 3px;
 }
 
-/* Intro-only chrome adopts the homepage's dark glass rather than the legacy
-   gold utility treatment used by the interactive particle navigation. */
+
 .root[data-intro-only] .skipIntro {
   min-height: 2.75rem;
   padding: 0 0.85rem;
@@ -282,7 +261,7 @@
   border: 0;
 }
 
-/* ---- poster (no-WebGL2 tier + pre-canvas frame) ---- */
+
 .poster {
   position: absolute;
   inset: 0;
@@ -303,7 +282,7 @@
   opacity: 0;
 }
 
-/* ---- canvas ---- */
+
 .canvasWrap {
   position: absolute;
   inset: 0;
@@ -322,7 +301,7 @@
   transition: opacity var(--fade-ms, 180ms) ease-out;
 }
 
-/* ---- the real nav ---- */
+
 .nav {
   position: absolute;
   inset: 0;
@@ -337,8 +316,7 @@
   inset: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
 }
 
-/* Pure-CSS radial layout for the no-JS path; the live canvas overrides
-   left/top with projected px on these same elements. */
+
 .item {
   position: absolute;
   left: var(--x, 50%);
@@ -347,15 +325,11 @@
 }
 
 .link {
-  position: relative; /* the label anchors to the node's centre, below */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Coupled to `computeOrbitLayout`'s `clamp(min(w,h) * 0.066, 44, 82)` —
-     13.2vmin is 2 × 0.066, 5.5rem is 2 × 44px, 10.25rem is 2 × 82px. Slope and
-     ceiling grown because the tracked-caps labels overflowed the old 68px ring
-     on desktop; the phone floor stays, since raising it broke the 320–390px
-     horizontal solve. */
+
   width: clamp(5.5rem, 13.2vmin, 10.25rem);
   height: clamp(5.5rem, 13.2vmin, 10.25rem);
   min-width: 44px;
@@ -363,7 +337,7 @@
   padding: clamp(0.45rem, 1.2vmin, 0.8rem);
   border-radius: 50%;
   text-decoration: none;
-  color: #c9a24b; /* locked: 8.75:1 on #000000, floor 4.5:1 */
+  color: #c9a24b;
   border: 1px solid rgba(201, 162, 75, 0.22);
   transition: color 200ms ease, border-color 200ms ease, text-shadow 200ms ease;
 }
@@ -375,15 +349,8 @@
   text-shadow: 0 0 18px rgba(239, 215, 154, 0.45);
 }
 
-/* ---- hover/focus preview cards ----
-   A CSS-only sibling of the real link: works in the no-JS tier, never steals
-   pointer input, and opens inward toward the lion — the one direction that
-   always has room on the ellipse. Screen readers get the same sentence via
-   aria-describedby whether or not the card is visible. */
-/* A pane of glass, not a panel: the scene stays visible through it, blurred
-   and slightly enriched, and a light-catching top edge does the work a border
-   used to. The gold edge on the left is kept — it is the same device the
-   reading pages run down a claim panel — but thinned to a glint. */
+
+
 .card {
   position: absolute;
   z-index: 3;
@@ -409,7 +376,7 @@
   transform: var(--card-center) var(--card-slide, none);
 }
 
-/* The gold glint down the leading edge. */
+
 .card::before {
   content: '';
   position: absolute;
@@ -440,11 +407,7 @@
   border-bottom: 1.5px solid #57a7d9;
 }
 
-/* Cinzel, because this card lives inside the particle scene and that is the
-   scene's own voice — the orbit labels around it are set in it too. `CLAUDE.md`
-   confines Cinzel to exactly here and keeps it off every reading page. Set at
-   a real size with open tracking: the card is the one place the scene speaks a
-   full sentence, and it was previously whispering it at 11.5px. */
+
 .cardName {
   display: block;
   font-family: var(--face-display);
@@ -456,8 +419,7 @@
   text-wrap: balance;
 }
 
-/* Drawn, not placed — it extends as the card settles, the card's one moving
-   part and the only thing that animates at all. */
+
 .cardRule {
   display: block;
   width: 2.6rem;
@@ -479,8 +441,7 @@
   text-wrap: pretty;
 }
 
-/* Centering and the closed-state slide are custom properties, so the reveal
-   rule below can zero the slide without fighting per-side specificity. */
+
 .card[data-side='left'] {
   right: calc(100% + 0.65rem);
   top: 50%;
@@ -509,7 +470,7 @@
   --card-slide: translateY(6px);
 }
 
-/* Keyboard reveal works on every device… */
+
 .link:focus-visible + .card {
   opacity: 1;
   visibility: visible;
@@ -521,9 +482,7 @@
   transform: scaleX(1);
 }
 
-/* …pointer reveal only where hover is real, so a tap during the 320 ms
-   navigation timer never flashes a card. The 140 ms delay keeps pass-through
-   mouse traffic from flickering cards open. */
+
 @media (hover: hover) {
   .link:hover + .card {
     opacity: 1;
@@ -537,8 +496,7 @@
   }
 }
 
-/* The rule is the card's only movement. Someone who asked for less of it gets
-   a card that is simply there. */
+
 @media (prefers-reduced-motion: reduce) {
   .cardRule {
     transform: scaleX(1);
@@ -546,36 +504,23 @@
   }
 }
 
-/* visible focus ring: 2px #EFD79A, 3px offset — do not remove (brief §9) */
+
 .link:focus-visible {
   outline: 2px solid #efd79a;
   outline-offset: 3px;
 }
 
-/* once the canvas is live the drawn ring replaces the CSS border */
+
 .root[data-live] .link {
   border-color: transparent;
 }
 
-/* ---- the no-canvas tier's node unit ----
-   Without a canvas the poster is the only backdrop, and it draws nothing at
-   the eight node positions: `make-poster.ts` computes NODE_CENTRES only to
-   punch holes in the scan with. So the 1px border below was the single mark
-   saying "this is a menu", and at 0.22 alpha it composites to 1.4:1 on the
-   ground — invisible.
 
-   Fixed here rather than in the bake on purpose. The poster's spokes sit at
-   0.36W/0.40H of a 1600px square while these links sit at 36%/40% of the
-   safe-inset viewport box; under `object-fit: cover` those only coincide at
-   1:1, so marks painted into the raster misregister by ~200px at 1440×900
-   and by a different amount at every other aspect. CSS registers by
-   construction. No second link set is added — this is the same <a>. */
 .root:not([data-canvas]) .link {
-  border-color: rgba(201, 162, 75, 0.55); /* 3.2:1 on #000000 — reads as a mark */
+  border-color: rgba(201, 162, 75, 0.55);
 }
 
-/* The dotted ring the live scene draws around every node, for the tier that
-   has no live scene to draw it. */
+
 .root:not([data-canvas]) .link::before {
   content: '';
   position: absolute;
@@ -585,24 +530,7 @@
   pointer-events: none;
 }
 
-/*
- * The label anchors its FIRST LINE at a fixed distance below the node's
- * centre, and extra lines grow downward.
- *
- * It used to be flex-centred as a block and then translated down, which made
- * the first line's position a function of the line count: one-line labels
- * ("WE ARE", "OCTOBER 7") sat low with a gap under the icon, while two-line
- * labels ("SUPPORT US", "WAR UPDATE") started right at the node centre — on
- * top of the icon's ink, which is lifted +0.095 node-units but spans ±0.13
- * (`iconCluster.ts` ICON_WORLD_SIZE), so its bottom reaches ~0.076·radius
- * BELOW centre. The shield sat behind "SUPPORT". Anchoring the top makes
- * every node's first line level with its neighbours' and keeps the icon band
- * clear regardless of how many lines a label needs.
- *
- * The offset clears the icon's lowest ink (~4–5px below centre at desktop
- * radii) with breathing room; two lines at the tighter 1.28 leading still end
- * inside the ring at every radius the clamp can produce.
- */
+
 .label {
   position: absolute;
   top: 50%;
@@ -611,40 +539,22 @@
   width: calc(100% - 0.5rem);
   margin-top: clamp(0.55rem, 1.3vmin, 0.8rem);
   font-family: var(--face-display);
-  /* The phone tier's size. 1.15vmin never reaches the 0.86rem maximum on a
-     real device (that needs vmin ≥ 1196px), so this resolves to the 0.58rem
-     floor here — below the design system's 0.72rem reading floor. Raising it
-     is a phone-layout question the orbit cannot answer on its own: the label
-     box is the link box, ~80px at 320–390px wide, and "GEOPOLITICAL" is
-     twelve tracked capitals already near that budget. `.ai/DESIGN-V2.md`
-     Phase 5 owns that decision (sentence-case `displayName` is one option on
-     record); the ≥720px rule below takes the half that needs no face change. */
+
   font-size: clamp(0.58rem, 1.15vmin, 0.86rem);
   font-weight: 700;
-  /* Was 0.17em, over the token scale's 0.08em cap for tracked capitals.
-     Tightening is monotone for fit at every width, so it applies at all of
-     them — including the phone tier, where tracking was already the lever. */
+
   letter-spacing: var(--t-data-tracking);
   text-align: center;
   text-transform: uppercase;
   text-wrap: balance;
   line-height: 1.28;
-  /* A dark backing halo, not a glow: the scan's rows drift behind these
-     labels, and gold-on-noise is what made some of them look weak. The
-     ground-coloured shadow separates the glyphs from whatever passes by —
-     and the ground is #000000 now, not the old navy these were written
-     against. (`.card`'s `rgba(0, 0, 0, 0.9)` backdrop is still the navy; it
-     is a panel tint rather than a claim about the ground, so it is left for
-     a decision rather than changed here.) */
+
   text-shadow:
     0 0 6px rgba(0, 0, 0, 0.95),
     0 0 2px rgba(0, 0, 0, 0.9);
 }
 
-/* Above the phone layout breakpoint there is room to clear the 0.72rem
-   reading floor without touching Cinzel or the uppercase-as-identity rule:
-   at 1440×900 this is 12.6px against the 10.35px it replaces, and at
-   1024×768 the 0.72rem minimum takes over instead of the old 0.58rem. */
+
 @media (min-width: 720px) {
   .label {
     font-size: clamp(0.72rem, 1.4vmin, 0.95rem);
@@ -659,10 +569,7 @@
     0 0 2px rgba(0, 0, 0, 0.9);
 }
 
-/* `data-intent='participate']` used to dim its labels to opacity 0.78 — which
-   quietly broke the lock at the top of this file: #C9A24B clears 4.5:1 at
-   full alpha and not at 78% of it. The intent grouping is communicated by the
-   front-page index's headings now; no label pays contrast for it. */
+
 
 @media (max-width: 719px) {
   .root {
@@ -670,9 +577,7 @@
     height: 100dvh;
   }
 
-  /* Without a live backend (`data-canvas` absent — no JS, or the GPU probe
-     landed on `none`) the poster stands alone here and the front-page band
-     below the scene is the navigation. With one, the phone keeps the orbit. */
+
   .nav {
     display: none;
   }
@@ -682,8 +587,7 @@
   }
 }
 
-/* Reduced motion is a designed path (brief §7): DOM transitions collapse to
-   quick colour cross-fades; the canvas side is handled via uniforms. */
+
 @media (prefers-reduced-motion: reduce) {
   .poster,
   .canvasWrap,

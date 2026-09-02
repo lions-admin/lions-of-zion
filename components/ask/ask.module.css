@@ -1,20 +1,4 @@
-/* Ask the desk · design V3
- *
- * The hierarchy here is deliberately upside-down from a chat product. In a
- * chat product the message is the object and the sources, if any, are a
- * footnote. On a verification desk the sources are the object: they get the
- * rule, the numbered gutter, the gold, and the pull-quote setting, while the
- * answer's prose sits in ordinary body type underneath a small data-face
- * label. A reader skimming this page should be able to see what an answer
- * rests on before they read the answer.
- *
- * There are no bubbles, no avatars, no alternating alignment. One exchange is
- * one record: label, question, label, answer, sources. That is the same
- * anatomy as every other document on this site, which is the point — the
- * assistant's output is held to the page's standards, not to a messaging app's.
- *
- * Every value reads a token from `app/globals.css`.
- */
+
 
 .desk {
   display: flex;
@@ -22,7 +6,7 @@
   gap: var(--sp-6);
 }
 
-/* ── Transcript ───────────────────────────────────────────────────────── */
+
 
 .transcript {
   display: flex;
@@ -76,10 +60,7 @@
   font-optical-sizing: auto;
 }
 
-/* The site closes a headline with a short gold bar, not a full-width rule
-   (`sections.module.css` `.ledeRule`). A question put to the desk is a
-   headline, so it closes the same way — inventing a second headline idiom for
-   this page would be the start of a second design system. */
+
 .question::after {
   content: "";
   display: block;
@@ -99,12 +80,11 @@
   line-height: var(--t-body-lh);
   color: var(--ink);
   text-wrap: pretty;
-  /* Single newlines inside a paragraph are the model's own line breaks and
-     are kept; the text is not parsed as Markdown. */
+
   white-space: pre-line;
 }
 
-/* ── Sources — the part that matters ──────────────────────────────────── */
+
 
 .sources {
   margin-block-start: var(--sp-5);
@@ -127,9 +107,7 @@
   font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  /* Not gold. The 2px rule above this line is already spending the accent on
-     this block; a gold label under a gold rule is the accent sprayed rather
-     than spent. */
+
   color: var(--ink-hi);
 }
 
@@ -259,7 +237,7 @@
 .sourceQuote::before { content: "“"; }
 .sourceQuote::after { content: "”"; }
 
-/* The absence of sources, printed as loudly as their presence. */
+
 .noSources {
   display: flex;
   align-items: baseline;
@@ -285,7 +263,7 @@
   transform: translateY(0.1em);
 }
 
-/* ── The wait ─────────────────────────────────────────────────────────── */
+
 
 .waiting {
   position: relative;
@@ -337,7 +315,7 @@
   color: var(--ink-hi);
 }
 
-/* ── Empty state ──────────────────────────────────────────────────────── */
+
 
 .primer {
   display: flex;
@@ -416,7 +394,7 @@
   color: var(--gold);
 }
 
-/* ── Composer ─────────────────────────────────────────────────────────── */
+
 
 .composer {
   display: flex;
@@ -556,7 +534,7 @@
   cursor: not-allowed;
 }
 
-/* ── Problem and unavailable states ───────────────────────────────────── */
+
 
 .problemLead {
   font-family: var(--face-display);
@@ -597,7 +575,7 @@
   text-wrap: pretty;
 }
 
-/* ── Desk footer ──────────────────────────────────────────────────────── */
+
 
 .deskFoot {
   display: flex;
@@ -649,7 +627,7 @@
   white-space: nowrap;
 }
 
-/* ── Launcher ─────────────────────────────────────────────────────────── */
+
 
 .launcher {
   display: inline-flex;
@@ -695,7 +673,7 @@
   padding: 0;
 }
 
-/* ── The page's no-JavaScript state ───────────────────────────────────── */
+
 
 .noScript {
   display: flex;
@@ -704,15 +682,14 @@
   max-inline-size: var(--measure-reading);
 }
 
-/* The desk cannot run without scripting — it is a request-and-answer loop, not
-   a document. Showing a dead composer would be worse than saying so. */
+
 @media (scripting: none) {
   .desk {
     display: none;
   }
 }
 
-/* ── Narrow ───────────────────────────────────────────────────────────── */
+
 
 @media (max-width: 45rem) {
   .sources {

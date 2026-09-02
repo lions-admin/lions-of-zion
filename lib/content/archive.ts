@@ -6,7 +6,7 @@
  * contract. Both packages satisfy it identically where it matters: the
  * story↔media relation is key-for-key the same and one archive's block types
  * are a strict subset of the other's, so nothing below branches on which
- * package a record came from. See `docs/archive-integration.md`.
+ * package a record came from.
  *
  * Like the rest of `lib/content/`, this is the seam a real published-content
  * query would land on: callers ask for a record by id, not for a file.

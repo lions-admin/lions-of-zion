@@ -38,7 +38,7 @@ describe("agent workflow contract", () => {
     };
     const ci = await read(".github/workflows/ci.yml");
     expect(packageJson.scripts["verify:full"]).toBe(
-      "npm run typecheck && npm run lint && npm test && npm run build && npm run map:check",
+      "npm run typecheck && npm run lint && npm test && npm run build",
     );
     expect(ci).toContain("run: npm run verify:full");
   });
@@ -48,7 +48,6 @@ describe("changed-file verification planning", () => {
   it("does not turn a documentation edit into a full build", () => {
     const plan = buildVerificationPlan([{ path: "docs/operations.md" }]);
     expect(plan.steps).toEqual([]);
-    expect(plan.visual).toBe(false);
   });
 
   it("checks types, lint, and tests for application code", () => {
@@ -56,27 +55,10 @@ describe("changed-file verification planning", () => {
     expect(plan.steps.map((step) => step.id)).toEqual(["typecheck", "lint", "test"]);
   });
 
-  it("checks map drift when a route is added", () => {
-    const plan = buildVerificationPlan([{ path: "app/new-route/page.tsx", structural: true }]);
-    expect(plan.steps.map((step) => step.id)).toContain("map");
-    expect(plan.visual).toBe(true);
-  });
-
-  it("runs migration-aware tests and the map check for a new migration", () => {
+  it("runs migration-aware tests for a new migration", () => {
     const plan = buildVerificationPlan([
       { path: "server/db/migrations/0023_example.sql", structural: true },
     ]);
-    expect(plan.steps.map((step) => step.id)).toEqual(["test", "map"]);
-  });
-
-  it("requires browser evidence for visual and intro changes", () => {
-    const visual = buildVerificationPlan([{ path: "components/home/home.module.css" }]);
-    expect(visual.visual).toBe(true);
-    expect(visual.intro).toBe(false);
-
-    const intro = buildVerificationPlan([{ path: "components/intro/story-timeline.ts" }]);
-    expect(intro.visual).toBe(true);
-    expect(intro.intro).toBe(true);
-    expect(intro.visualGuidance.join(" ")).toContain("--mobile");
+    expect(plan.steps.map((step) => step.id)).toEqual(["test"]);
   });
 });

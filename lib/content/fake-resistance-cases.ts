@@ -3,8 +3,7 @@
  *
  * `content-packages/fake-resistance/` holds what
  * `scripts/import-research-cases.mjs` took out of the nine research packets
- * that live outside this repository. See `docs/fake-resistance-integration.md`
- * for the brief, and `.ai/DECISIONS.md` for the two decisions that govern what
+ * that live outside this repository. See `.ai/DECISIONS.md` for decisions that govern what
  * may appear on these pages: the naming policy, and the frame the section is
  * published in.
  *

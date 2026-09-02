@@ -7,8 +7,7 @@
  * The research lives outside this repository as nine packets built to the
  * `research packet data model` contract that ships with the delivery
  * (`research-disinformation-networks/references/data-model.md`): a `case.yaml`,
- * a `report.md`, and eleven relational CSVs per case. See
- * `docs/fake-resistance-integration.md` for the full brief.
+ * a `report.md`, and eleven relational CSVs per case.
  *
  * What is taken, and what is deliberately left behind:
  *
@@ -397,8 +396,8 @@ fs.mkdirSync(path.join(out, 'cases'), { recursive: true });
 /* ── the vendor scrub ──────────────────────────────────────────────────────
    The research pulled its X data through a paid third-party relay whose API
    endpoints (`api.<vendor>.io/…`) demand a key and return an error for every
-   reader, in every browser, always. The owner ruled (2026-08-27, TODOS-review
-   R-09) that neither those dead endpoints nor the vendor's name appear
+   reader, in every browser, always. The owner ruled that neither those dead
+   endpoints nor the vendor's name appear
    anywhere in this repository: the attribution survives as text — an
    "X API query" label beside its `retrievedAt` — because the research really
    did use that data and hiding it would hide the evidence trail, but the URL

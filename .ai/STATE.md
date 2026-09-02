@@ -8,28 +8,6 @@ and research-framing rules. Agent hooks are disabled; checks and project notes
 are optional tools and cannot block work. `sync:start` reports open branches
 without stopping the task.
 
-## Latest — 2026-08-27, structure audit; the design-audit wave is closed
-
-`main` is at `f8f84ce` (merged PR #16). The branch
-`docs/architecture-audit-and-design-sync` that the previous entry described as
-in flight was pushed, merged and deleted; every item it listed is done.
-
-Two waves landed since: the design audit closed **83 of 83** with zero open
-items (`69fd027`), and the reading routes were converted to scroll the document
-rather than themselves (`423b9f5`) — which is why a phone's URL bar now
-collapses and back-navigation restores position without `sessionStorage`.
-
-The work in progress is a full structure audit on
-`codex/project-structure-audit`: every project-owned file classified with
-evidence, the closed audit archived, the documentation reconciled against the
-code, and an interactive project map. `PROJECT_STRUCTURE_AUDIT.md` carries the
-per-path table; `docs/PROJECT_MAP.md` carries the shape.
-
-**Read [`docs/vercel-infrastructure.md`](../docs/vercel-infrastructure.md)**
-for the deployed topology, environment names, cost guardrails and runbook. The
-canonical production site is `https://lionsofzion.io`. Git pushes do not deploy;
-production remains a deliberate Vercel CLI action. **The repository is public,
-so a push is itself an act of publication.**
 
 ## Decided and applied 2026-08-27
 

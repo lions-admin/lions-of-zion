@@ -46,15 +46,7 @@ export interface DocPageProps {
    * instead. `/methodology` and `/corrections` keep their real taglines.
    */
   tagline?: string;
-  /**
-   * The record's own identity — witness, date, archive, language switch —
-   * rendered inside the `<header>` so the gold rule closes the headline block
-   * with the dateline in it, which is the masthead anatomy DESIGN-V2 asks for
-   * and the shape `GeopoliticalBrief`'s `<header>` already has.
-   *
-   * A node rather than fields: it is built where the record is, by the caller
-   * that already holds it, so this shell stays ignorant of archive schema.
-   */
+
   dateline?: React.ReactNode;
   /**
    * Steps the title down when it is a caption rather than a headline.

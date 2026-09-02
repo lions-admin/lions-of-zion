@@ -1,69 +1,26 @@
-/* Lions of Zion · design system v3 — "the verification desk"
- * Three faces, one scale, one accent. Every value on screen answers to this file.
- */
 
-/*
- * ── THE CASCADE CONTRACT — read before moving any rule in this file ─────────
- *
- * Tailwind v4 is wired (`app/tailwind.css`), and CSS layers decide who wins
- * before specificity is even consulted. Two consequences govern this file:
- *
- * 1. UNLAYERED BEATS EVERY LAYER, at any specificity. So `* { margin: 0 }` left
- *    unlayered would defeat every `m-*` / `p-*` utility in every Magic UI
- *    component — they would render with correct colour and no layout at all.
- *    Every ELEMENT DEFAULT therefore lives in `@layer base` below.
- *
- * 2. The converse is a feature, and three blocks depend on it. The `:has()`
- *    intro locks, the `:focus-visible` ring and the `prefers-reduced-motion`
- *    kill-switch stay UNLAYERED on purpose, so that no registry component can
- *    out-rank them. Move the intro lock into a layer and every CSS Module
- *    outranks it and a 47-second cinematic becomes scrollable; layer the
- *    kill-switch and `animate-*` utilities defeat reduced motion.
- *
- * `tests/tailwind-cascade.test.ts` pins both halves.
- *
- * The statement below is duplicated verbatim at the top of `app/tailwind.css`.
- * Layer order is fixed at first appearance and Next warns that CSS order can
- * differ between dev and the build, so each file declares it independently. A
- * repeated `@layer` statement is a no-op.
- */
+
+
 @layer theme, base, components, utilities;
 
 @layer base {
-  /* The project's preflight. Tailwind's own is deliberately never imported —
-     see the note in `app/tailwind.css`. */
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 }
 
-/*
- * Design V3 tokens.
- *
- * V2 (2026-08) collapsed 51 font sizes into seven steps and twelve greys into
- * three inks, and that discipline is kept. What V3 fixes is the *voice*: the
- * display face had silently become the monospace, so every headline on a
- * newsroom site was set like a terminal; nine font families were loading for
- * three jobs; state colours were neon literals on a warm-neutral palette; and
- * radii, motion and focus had no vocabulary at all, so each module invented
- * one. The three faces below are the only ones `app/layout.tsx` loads.
- */
+
 :root {
-  /* ── Faces ──────────────────────────────────────────────────────────────
-     Newsreader — a variable text serif with a real optical-size axis — is
-     the editorial voice: headlines, entry titles, pull quotes, standfirsts.
-     IBM Plex Sans is running text and interface. JetBrains Mono is strictly
-     data: dates, counts, routes, status values, the scan. Nothing else. */
+
   --face-display: var(--font-newsreader), 'Iowan Old Style', Charter, Georgia, serif;
   --face-text: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   --face-data: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
 
-  /* Aliases kept for the component library; new code reads the three faces. */
+
   --font-serif: var(--face-display);
   --font-sans: var(--face-text);
   --font-mono: var(--face-data);
 
-  /* ── Type scale — nine steps, each shipping its own line-height, weight
-     and tracking so a consumer sets one family of properties and gets a
-     designed result. `--t-data` is the floor: 12px, nothing below it. ── */
+
   --t-display: clamp(2.5rem, 1.55rem + 3.4vw, 4.25rem);
   --t-display-lh: 1.04;
   --t-display-weight: 500;
@@ -74,8 +31,7 @@
   --t-h2-weight: 500;
   --t-h2-tracking: -0.01em;
 
-  /* A display-ish numeral that fits a third of the 68ch measure — inscription
-     figures, chapter numerals, dashboard values. Tabular by convention. */
+
   --t-figure: clamp(1.9rem, 1.4rem + 1.6vw, 2.4rem);
   --t-figure-lh: 1.1;
   --t-figure-weight: 500;
@@ -85,8 +41,7 @@
   --t-h3-weight: 500;
   --t-h3-tracking: -0.005em;
 
-  /* The standfirst: one step above body, set in the display face, the
-     sentence that tells a reader what the page will prove. */
+
   --t-lede: clamp(1.15rem, 1.05rem + 0.45vw, 1.35rem);
   --t-lede-lh: 1.45;
   --t-lede-weight: 400;
@@ -105,20 +60,12 @@
   --t-data: 0.75rem;
   --t-data-lh: 1.45;
   --t-data-weight: 500;
-  /* Tracking for the one case uppercase is allowed: data labels of two words
-     or fewer. Anything longer is sentence case. */
+
   --t-data-tracking: 0.08em;
-  /* The data voice's second register, added 2026-09-02: mono set in *sentence
-     case* — a date, a chapter numeral, a grade label, a source kind — which
-     needs a little air but not the separation tracked capitals need. It was
-     already in use as a bare `0.04em` in nine places across five modules with
-     no name; this names it rather than changing it. */
+
   --t-data-tracking-tight: 0.04em;
 
-  /* ── Spacing — nine steps on the body line box (1.0625rem × 1.65 ≈ 28px):
-     --sp-4 is a third of a line, --sp-7 roughly one line, --sp-8 a line and
-     a half, --sp-9 a section break. `--flow` is the paragraph gap and is
-     not a choice a page gets to make. */
+
   --sp-1: 0.25rem;
   --sp-2: 0.5rem;
   --sp-3: 0.75rem;
@@ -130,10 +77,7 @@
   --sp-9: 6rem;
   --flow: 1.15rem;
 
-  /* ── Colour ─────────────────────────────────────────────────────────────
-     True black ground (owner decision, 2026-08-26), three luminance-matched
-     warm-neutral inks, and gold as the single accent — spent, never sprayed.
-     Contrast on black: ink-hi 18.1, ink 12.0, ink-lo 6.75. */
+
   --ground: #000000;
   --ink-hi: #f6f3eb;
   --ink: #cbc7bd;
@@ -142,13 +86,12 @@
   --gold-hi: #ead39b;
   --gold-dim: #8a6f3e;
 
-  /* Surfaces: three raised levels above the ground, warm-black so a panel
-     never reads blue. Used for cards, panels, inputs. */
+
   --surface-1: #0a0a09;
   --surface-2: #111110;
   --surface-3: #181715;
 
-  /* Hairlines, three weights. */
+
   --line: rgba(246, 243, 235, 0.13);
   --line-soft: rgba(246, 243, 235, 0.07);
   --line-strong: rgba(246, 243, 235, 0.24);
@@ -156,8 +99,7 @@
   --gold-line-strong: rgba(198, 161, 91, 0.5);
   --gold-wash: rgba(198, 161, 91, 0.1);
 
-  /* Semantic data ramps — meaning, never hierarchy: verified/hostile streams,
-     assessment badges, the scan's two directions. */
+
   --data-blue: #d1cdc4;
   --data-blue-dim: #716d66;
   --data-blue-peak: #f6f3eb;
@@ -166,8 +108,7 @@
   --data-ember-peak: #e8a397;
   --data-ember-wash: rgba(201, 115, 101, 0.08);
 
-  /* State colours, desaturated to sit on the warm palette. Each ships a text
-     tone, a wash and a line so a badge, a form error and a status dot agree. */
+
   --state-ok: #8fcfae;
   --state-ok-wash: rgba(96, 178, 137, 0.14);
   --state-ok-line: rgba(96, 178, 137, 0.35);
@@ -178,8 +119,7 @@
   --state-danger-wash: rgba(214, 105, 99, 0.14);
   --state-danger-line: rgba(214, 105, 99, 0.4);
 
-  /* Glass — shared by navigation, overlays and controls that float over the
-     scan. */
+
   --glass-top: rgba(150, 147, 140, 0.22);
   --glass-middle: rgba(45, 44, 42, 0.29);
   --glass-bottom: rgba(8, 8, 8, 0.64);
@@ -189,9 +129,7 @@
   --glass-inner: rgba(255, 255, 255, 0.25);
   --glass-shadow: rgba(0, 0, 0, 0.58);
 
-  /* ── Shape, depth, motion, focus ───────────────────────────────────────
-     Three radii: hairline chips, controls, panels. Pills are for the one
-     floating navigation bar. */
+
   --radius-1: 2px;
   --radius-2: 4px;
   --radius-3: 8px;
@@ -208,53 +146,30 @@
   --dur-base: 240ms;
   --dur-slow: 400ms;
 
-  /* Two registers the three durations above did not name, added when the
-     motion primitives in `components/motion/` needed one timing vocabulary
-     rather than a per-component default. `--dur-enter` is the entrance
-     register: long enough that a blur resolves rather than snaps, inside the
-     300-600ms a reader reads as "arriving". `--dur-ambient` is the continuous
-     register — a border beam, a status shine — deliberately far slower than
-     anything interactive, because ambient motion competes with reading at any
-     speed a reader can follow. `--stagger` is one step of a sequence; four
-     items is the most that should ever carry it. */
+
   --dur-enter: 520ms;
   --dur-ambient: 7s;
   --stagger: 70ms;
 
-  /* One focus treatment for the whole site: a gold outline offset from the
-     element so a black gap separates it from any surface. Applied by the
-     `:focus-visible` rule below; modules may change the offset, never the
-     colour, and never animate its appearance. */
+
   --focus-outline: 2px solid var(--gold-hi);
   --focus-offset: 3px;
 
-  /* Hover and pressed tints for controls on any surface, and the two control
-     heights (44px is the touch standard; 36px is the compact desktop size). */
+
   --tint-hover: color-mix(in oklab, var(--ink-hi) 7%, transparent);
   --tint-active: color-mix(in oklab, var(--ink-hi) 4%, transparent);
   --control-h: 2.75rem;
   --control-h-sm: 2.25rem;
 
-  /* The fixed floating header's occupied height, for anything sticky that
-     must clear it. */
+
   --header-h: 4.8rem;
 
-  /* The scan's own ground — the site's background, in one place: the ground
-     colour, a faint warm wash where the scan is densest, and the horizontal
-     rule field the monitor draws over. Consumed by `body` and by the one
-     surface that has to stay opaque over the live scene (`home.module.css`). */
+
   --scan-ground:
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
 
-  /* ── Stacking order ─────────────────────────────────────────────────────
-     Added 2026-09-02. Before this the file had no z-index vocabulary at all,
-     so modules invented one: an audit found 22 distinct literals in use
-     (`1000`, `120`, `110`, `100`, `60`, `50`, `30`, `25`, `20`, `18`, `15`,
-     `14`, `12`, `10`, `6`, `5`, `4`, `3`, `2`, `1`, `0`, `-1`) with no
-     relation between them. These ten are the whole vocabulary; a module that
-     needs a value not on this list is describing a layer the design does not
-     have. Gaps of 100 leave room to insert without renumbering. */
+
   --z-under: -1;
   --z-base: 0;
   --z-raised: 10;
@@ -264,24 +179,10 @@
   --z-panel: 400;
   --z-modal: 500;
   --z-toast: 600;
-  /* The cinematic entrance layer, which must clear everything. */
+
   --z-intro: 1000;
 
-  /* ── Reading measures ───────────────────────────────────────────────────
-     The 68ch reading measure was named in a comment here but never
-     tokenised, so 17 distinct `ch` values had accumulated across the
-     modules (80, 72, 68, 64, 62, 60, 58, 54, 46, 44, 42, 34, 32, 28, 24,
-     20, 14). These are the ones the design actually distinguishes.
 
-     THE CAVEAT THAT MAKES THESE NOT INTERCHANGEABLE — found in the field on
-     2026-09-02, and the reason `--measure-title` exists: `ch` resolves against
-     the *element's own* font-size. Every value below is calibrated on the body
-     step, so applying one to display type silently inflates it —
-     `--measure-caption` set on a `--t-h2` element computes to roughly 47rem,
-     which is wider than the reading column it was meant to sit inside, i.e. no
-     cap at all. Use `--measure-title` for anything set in the display face; a
-     296-character archive title is a real input, and capping it with a
-     body-calibrated measure would have deleted the cap rather than set one. */
   --measure-wide: 80ch;
   --measure-reading: 68ch;
   --measure-narrow: 54ch;
@@ -289,73 +190,20 @@
   --measure-title: 34ch;
   --measure-data: 24ch;
 
-  /* ── Chrome container ───────────────────────────────────────────────────
-     Added 2026-09-02 with the site masthead and colophon. The `--measure-*`
-     steps above are *reading* measures in `ch` and say nothing about how wide
-     a full-bleed chrome surface may run; the header's file drawer and the
-     footer both need one figure, and two files each writing `92rem` is how a
-     second design system starts. Not for content — a reading column that
-     reaches for this is reaching for the wrong token. */
+
   --chrome-w: 92rem;
 
-  /* ── Hairline weights ───────────────────────────────────────────────── */
+
   --line-w: 1px;
   --line-w-thick: 2px;
 
-  /* ── Breakpoints ────────────────────────────────────────────────────────
-     Honest limitation: a custom property cannot be used inside a `@media`
-     prelude, so these do NOT replace the literals in the modules. They exist
-     so the canonical seams have names, for container queries and for JS that
-     must agree with the CSS. The real seams are two:
 
-       --bp-seam   720px — the one breakpoint the orbit and the intro share.
-                   `tests/particle-nav-layout.test.ts` and
-                   `tests/intro-layout.test.ts` both pin it at exactly this
-                   value (`introLayoutName(719)` is mobile, `(720)` desktop),
-                   so it is a contract, not a preference.
-       --bp-rails 1220px — where SectionPage grows its TOC rail and the
-                   evidence margin.
-
-     The audit found 26 breakpoints in mixed units, including `768px` and
-     `48rem` — the same seam written twice — and `640px`/`40rem` likewise.
-     New work uses these two unless it has a reason not to. Note Tailwind's
-     `md:` is 768px and is deliberately NOT remapped onto 720px: doing so
-     would silently move the mental model of 40 existing stylesheets. Use the
-     explicit `seam:` variant declared in `app/tailwind.css` instead. */
   --bp-seam: 45rem;
   --bp-rails: 76.25rem;
 
 }
 
-/*
- * The document scrolls. Every reading route is part of it.
- *
- * This was inverted on 2026-08-27, and the write-up that used to live here
- * explaining why it had *not* been is now the record of what the change had
- * to move. Until then every reading route declared `height: 100dvh;
- * overflow-y: auto` and scrolled inside itself, which cost a reader-facing
- * thing on ~1,190 routes: a phone's URL bar only auto-collapses for a
- * *document* scroll, so each page permanently spent the ~60–90px every other
- * site reclaims after the first swipe, and browser scroll restoration on
- * back-navigation never applied.
- *
- * A document has exactly one scroller, so this had to convert whole — five
- * stylesheets in one change (`sections.module.css` `.page`, which is
- * SectionPage and DocPage and therefore the whole archive; the brief;
- * `not-found`; `error.tsx`; `admin`), plus the three consumers that read the
- * container directly, plus the sticky elements whose scrollport changed
- * underneath them. Leaving any one of them on `100dvh` would have given that
- * route a dead outer scrollbar around a live inner one.
- *
- * What each container became: `min-height`, not `height`. Mobile safe areas
- * are reserved as padding — a document cannot be shortened like an inner
- * scroller.
- *
- * `scroll-behavior` lives here now rather than on five separate elements,
- * with the reduced-motion reset beside it. Anchor offsets did not move:
- * they were already `scroll-margin-top` on the targets, which resolves
- * against whatever scroller is in play.
- */
+
 html {
   scroll-behavior: smooth;
 }
@@ -369,38 +217,16 @@ html {
 html, body {
   width: 100%;
   min-height: 100%;
-  /* One black, and one texture, under everything. `#020409` — a second,
-     darker ground that only ever showed where a page forgot to paint — is
-     retired; `sections.module.css` already called it "the body's darker one"
-     and worked around it. */
+
   background-color: var(--ground);
   background-image: var(--scan-ground);
   background-attachment: fixed;
   overflow-x: clip;
 }
 
-/*
- * The home route no longer needs unlocking — the document scrolls by default
- * now — but its two other rules still stand, and the reason the marker is an
- * *attribute* rather than an id is unchanged and still load-bearing.
- *
- * `:has()` takes the specificity of its argument, so `html:has(#id)` would
- * score (1,0,1) and outrank the intro lock below at (0,1,1) — the lock would
- * never win and a 47-second intro would be scrollable. Matching attribute for
- * attribute puts both on the same specificity and lets source order decide,
- * which is the whole point of the ordering. This file fell into that trap
- * once already.
- */
 
-/*
- * The sideways clip belongs to `html` alone.
- *
- * `overflow-x: hidden` on `body` makes body a scroll container — one that
- * never scrolls, because the document does — and `position: sticky` then
- * resolves against that dead scrollport and never sticks. That is not
- * theoretical: it is what kept the front page's scan backdrop pinned a screen
- * and a half above the viewport, so the band rendered flat.
- */
+
+
 html:has([data-home-scroll]) {
   overflow-x: clip;
   overflow-y: visible;
@@ -410,22 +236,7 @@ html:has([data-home-scroll]) body {
   overflow: visible;
 }
 
-/*
- * …and this route, alone, hides its scrollbar.
- *
- * Not a style preference — a classic scrollbar is 8px of layout, and
- * `position: fixed; inset: 0` resolves against the viewport *minus* it. The
- * scene would silently solve its whole composition against 1432px instead of
- * 1440px, and at a 320px viewport that is enough to push the orbit's radius
- * onto its emergency floor. Measured, not assumed: `verify-home-band.mjs`
- * asserts the scene's box equals the viewport exactly, and failed on all six
- * viewports before this rule existed.
- *
- * The affordance is not lost — the anchored strip carries an explicit "The
- * front page ↓" link, and keyboard scrolling is untouched. Reading routes are
- * unaffected: they scroll inside their own containers and keep the styled
- * scrollbar below.
- */
+
 html:has([data-home-scroll]) {
   scrollbar-width: none;
 }
@@ -434,32 +245,12 @@ html:has([data-home-scroll])::-webkit-scrollbar {
   display: none;
 }
 
-/*
- * A 47-second cinematic that can be scrolled away from is broken, so the lock
- * comes back while the intro owns the screen. After it, source order lets
- * these win over the rule above — and every non-intro path unlocks for free,
- * because none of these attributes is ever written: reduced motion, a second
- * visit in the same tab, a GPU probe landing on `none`, and no JavaScript at
- * all, which is the tier where the band *is* the navigation.
- */
+
 html:has([data-intro-active]),
 html:has([data-intro-active]) body,
 html:has([data-handoff-blocked]),
 html:has([data-handoff-blocked]) body {
-  /* Both elements, and the height with them. Locking `html` alone is not
-     enough: with `body` left `height: auto; overflow-y: visible` from the rule
-     above, the body simply becomes the scroll container instead — measured,
-     the page still scrolled 3075px through a "locked" html.
 
-     `data-intro-pending` is deliberately NOT in this list. That attribute is
-     the server's claim, present in
-     the first HTML, and nothing removes it when JavaScript never runs — so
-     locking on it left the no-JS tier permanently unscrollable, with the band
-     it depends on for navigation hidden behind it. Measured: zero reachable
-     links on a phone with JS disabled. `data-intro-active` requires
-     hydration, so it means what this rule needs it to mean. The cost is a
-     sub-hydration window in which the page could scroll; the band is below
-     the fold throughout it, and hydration re-locks immediately. */
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -479,10 +270,7 @@ html:has([data-handoff-blocked]) body {
     color: var(--ink-hi);
   }
 
-  /* Headlines are the editorial voice by default; a module that needs the
-     sans for a UI heading opts out explicitly. Balanced wrapping and the
-     optical-size axis are what make Newsreader read as a display cut at
-     display sizes and as a text cut at entry-title sizes. */
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--face-display);
     font-optical-sizing: auto;
@@ -501,7 +289,7 @@ html:has([data-handoff-blocked]) body {
 
   strong, b { font-weight: 600; }
 
-  /* Figures, dates and counts line up as columns wherever they appear. */
+
   time, data, code, kbd, samp, [data-numeric] {
     font-variant-numeric: tabular-nums;
   }
@@ -517,20 +305,14 @@ html:has([data-handoff-blocked]) body {
   img, video { max-width: 100%; height: auto; }
 }
 
-/* ── Unlayered from here down, each for a stated reason ──────────────────── */
+
 
 ::selection {
   background: color-mix(in oklab, var(--gold) 38%, transparent);
   color: var(--ink-hi);
 }
 
-/* The one focus treatment. Every interactive element gets it for free; a
-   module may restyle the *shape* (offset, radius) but never the colour or
-   the fact of it, and never animates its appearance.
 
-   Unlayered deliberately: a registry component shipping
-   `focus-visible:outline-none` must not be able to remove it. Magic UI's own
-   rings become additive decoration on top of the gold outline. */
 :focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-offset);
@@ -540,13 +322,7 @@ html:has([data-handoff-blocked]) body {
 
 [data-public-shell] { padding-top: var(--header-h); }
 
-/* The master kill-switch. Unlayered `!important`, and it must stay that way:
-   a layered `!important` beats an unlayered one, so importing Tailwind's
-   utilities with the `important` flag would let every `animate-*` class
-   defeat this. `app/tailwind.css` never sets that flag; the tripwire test
-   pins it. Note this is CSS-only — it cannot reach `motion`'s inline
-   transforms, which is why any `motion` mount needs `<MotionConfig
-   reducedMotion="user">`. */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -556,7 +332,7 @@ html:has([data-handoff-blocked]) body {
   }
 }
 
-/* A restrained scroll affordance — not the browser default, not hidden. */
+
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background-color: var(--gold-line); border-radius: 4px; }

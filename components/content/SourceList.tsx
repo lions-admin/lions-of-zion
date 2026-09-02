@@ -18,7 +18,7 @@ export type Source = {
  * because its address was an API endpoint no reader could ever open, or a
  * finding about an aggregate sample no single link could honestly stand for.
  * With nothing to click, *when* the data was pulled is the provenance a
- * reader still gets (TODOS-review R-09, owner ruling 2026-08-27).
+ * reader still gets.
  */
 function retrievedLabel(value: string): string {
   const date = new Date(value);

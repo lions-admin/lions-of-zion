@@ -1,12 +1,6 @@
 # Lions of Zion
 
-A full-viewport Next.js particle experience, and an information-model backend
-that shares its repository and nothing else.
-
-One React Three Fiber canvas and one Three.js WebGPU/TSL renderer own the
-story intro, the crowned lion, the live network scan and the radial
-navigation. WebGL2 is the supported fallback. Behind the navigation are eight
-ordinary scrolling document pages.
+A Next.js public site and an information-model backend that share a repository.
 
 The backend under `app/api/` and `server/` ingests sources, attaches evidence
 to claims, has a second human review an assessment, and publishes what
@@ -29,17 +23,14 @@ database. Node 24.
 
 ## Routes
 
-The eight destinations behind the radial navigation:
+The eight primary destinations:
 
 `/geopolitical-brief` · `/support-us` · `/war-update` · `/october-7` ·
 `/our-heroes` · `/israels-story` · `/fake-resistance` · `/we-are`
 
-Plus `/methodology` and `/corrections`, which are linked from the prose that
-means them rather than from the orbit.
+Plus `/methodology` and `/corrections`.
 
-`lib/site-navigation.ts` `SITE_NAVIGATION` is the single source of truth for
-all eight — it feeds the home header, reading shell, sitemap and the
-scene-specific `defaultNodes` projection.
+`lib/site-navigation.ts` `SITE_NAVIGATION` is the source of truth for all eight.
 
 ### The October 7 archive
 
@@ -49,28 +40,10 @@ two crawled archives in full:
 `/october-7/testimonies` — 179 records, up to seven languages
 `/october-7/documentation` — 335 records, English and Spanish, six categories
 
-They are child routes, not a ninth destination; `defaultNodes` stays at eight.
 The records' JSON is committed under `content-packages/`, while their ~1.8 GB
-of media is not — it is served from `NEXT_PUBLIC_ARCHIVE_CDN`, or from a
-gitignored local symlink in development. See
-[`docs/archive-integration.md`](docs/archive-integration.md).
+of media is not. It is served from `NEXT_PUBLIC_ARCHIVE_CDN`, or from a
+gitignored local symlink in development.
 
-## Graphics architecture
-
-- `components/intro/` holds only the pure story timeline and CPU text
-  sampling. It renders nothing.
-- `components/particle-nav/` owns every live visual layer in one React Three
-  Fiber scene. All particle materials and simulation work use TSL.
-- `components/particle-nav/CinematicIntroGate.tsx` mounts the scene as a
-  once-per-tab entrance above the server-rendered editorial home. The GPU
-  renderer unmounts at handoff; it does not remain behind the page.
-- The live background is a particle-built network scan. There is no
-  photographic background and no star field.
-- With JavaScript disabled, the intro enhancement is hidden and the complete
-  editorial home and its real links remain usable immediately.
-
-`/?forceWebGL=1` verifies the complete experience on WebGL2.
-`/particle-demo?forceWebGL=1` exposes the isolated tuning harness.
 
 ## Commands
 
@@ -84,47 +57,11 @@ npm run verify:full     # complete handoff and CI gate
 npm run main:update     # merge a completed serious round into main and push it
 ```
 
-```bash
-npm run map          # regenerate docs/project-map.html from the actual tree
-npm run map:check    # fail if it has drifted
-```
-
 `npm run lint` is where the architecture boundaries are enforced —
 `eslint.config.mjs` states them as errors, so a violation fails the build
 rather than waiting for review.
 
-Visual verification, after starting the dev server:
 
-```bash
-npm run verify:graphics -- http://localhost:3000 /tmp/lions-matrix
-node scripts/final-verify.mjs http://localhost:3000 /tmp/lions-final
-node scripts/verify-home-band.mjs http://localhost:3000 /tmp/lions-home-band
-node scripts/verify-doc-scroll.mjs http://localhost:3000
-node .claude/skills/verify-intro/capture.mjs
-node scripts/ci-smoke.mjs http://localhost:3000
-node scripts/verify-archive-assets.mjs <cdn-base>
-```
-
-**Five** of these launch the installed macOS Google Chrome rather than a hidden
-pane or headless Chromium — the four `verify-*` scripts above `ci-smoke` and
-`capture.mjs`. A hidden pane throttles `requestAnimationFrame`, and headless
-Chromium falls back to SwiftShader, which the GPU probe correctly rejects. They
-do not run on Linux or in CI.
-
-The last two run anywhere: `ci-smoke.mjs` uses Playwright's own Chromium, and
-`verify-archive-assets.mjs` needs no browser at all — it is plain `fetch`
-against the CDN base. `docs/operations.md` has the table of what each asserts.
-
-## Rebuilding particle assets
-
-```bash
-npm run bake:nav-lion
-npm run bake:nav-icons
-npm run poster:nav
-```
-
-Source artwork lives in `assets/`; generated runtime files land in
-`public/particles`, `public/icons`, and `public/posters`.
 
 ## Deployment
 
@@ -143,9 +80,5 @@ Start at [`docs/`](docs/README.md).
 | [`docs/data-model.md`](docs/data-model.md) | Tables, triggers, versioning, RLS |
 | [`docs/environment.md`](docs/environment.md) | Environment variables, by name |
 | [`docs/operations.md`](docs/operations.md) | Install, verify, CI, deploy, troubleshoot |
-| [`docs/PROJECT_MAP.md`](docs/PROJECT_MAP.md) | The repository's shape: every area's role, the entry points, where a new file goes |
-| [`docs/project-map.html`](docs/project-map.html) | Every file, in Hebrew: list + flowchart. Generated by `npm run map`; never edit it by hand |
-| [`docs/archive/`](docs/archive/README.md) | Documents that did their job. Not sources of truth |
 | [`CLAUDE.md`](CLAUDE.md) | The working brief and the invariants |
 | [`.ai/DECISIONS.md`](.ai/DECISIONS.md) | The ADR log — why things are the way they are |
-| [`PROJECT_STRUCTURE_AUDIT.md`](PROJECT_STRUCTURE_AUDIT.md) | Every area classified with its evidence, and what was deliberately left alone |

@@ -104,7 +104,7 @@ if (failures.length) {
   console.error(
     '\nAssets are missing. Upload assets/originals and assets/web from each\n' +
       'integration package to the bucket, preserving paths under <pkg>/, then\n' +
-      're-run. See docs/archive-integration.md.',
+      're-run.',
   );
   process.exit(1);
 }

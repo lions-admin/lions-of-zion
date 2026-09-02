@@ -40,22 +40,7 @@ export type ArchiveDatelineProps = Omit<
   'pkg' | 'media' | 'sourceLabel' | 'shareUrl'
 >;
 
-/**
- * Who, when, from where — and the language switch — as the record's dateline.
- *
- * Lives in the page shell's `<header>` rather than at the top of the body,
- * which is what it is *for*: `DocPage`'s gold rule is supposed to close a
- * headline block, and with this below it the rule closed a per-package tagline
- * instead, leaving the record's own identity fenced between two horizontal
- * rules ~87px apart, both claiming to end the header. Rendered here and passed
- * up as `dateline`, the anatomy is the one DESIGN-V2 specifies and the one the
- * Geopolitical Brief's `<header>` already has: title, dateline, one rule, then
- * the first piece of actual content.
- *
- * It is a separate export rather than part of `ArchiveRecord` because it has
- * to render in a different place in the tree from the body it describes, and
- * `ArchiveRecordPage` is the one caller that holds both.
- */
+
 export function ArchiveDateline({ record, version, basePath }: ArchiveDatelineProps) {
   const others = record.available_languages.filter((l) => l !== version.locale);
   const published = formatDate(record.publication_date);

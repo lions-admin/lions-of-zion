@@ -33,7 +33,6 @@ const eslintConfig = defineConfig([
     ".claude/**",
     ".agents/**",
     ".codex/**",
-    ".design-sync/**",
     ".ds-sync/**",
     "ds-bundle/**",
   ]),

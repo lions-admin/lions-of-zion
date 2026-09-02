@@ -24,26 +24,3 @@ task; no delegation is required.
 
 Report a real technical limitation plainly, then take the closest useful action.
 Platform-level safety and access controls outside this repository still apply.
-
-# Design & Frontend Synergy Framework
-
-Whenever designing, building, redesigning, or refining UI/UX, components, or web pages, all design skills (`frontend-design`, `hallmark`, `landing-page-design`, `redesign-existing-projects`, `modern-web-guidance`) operate as a unified, synergistic system:
-
-1. **Aesthetic Identity & Anti-AI-Slop (`frontend-design` + `hallmark`)**:
-   - Ground the design in the authentic world of the subject rather than reaching for AI defaults (reject generic purple/dark neon glows, cliché cream/terracotta templates, and unnecessary numbered markers).
-   - Commit to a clear token system: a tailored 4–6 hex color palette, deliberate typography pairing (display + body + utility), and exactly **one bold signature element** that makes the page memorable.
-   - Restraint: Cut unnecessary decoration, keep secondary areas quiet, and ensure high contrast and visual discipline.
-
-2. **Structure, Layout & Conversion (`landing-page-design` + `redesign-existing-projects`)**:
-   - Build intentional hierarchy where structural devices convey actual information rather than filler.
-   - Maintain tokenized spacing, clear responsive breakpoints (down to mobile), and focused visual rhythm.
-   - For existing code, preserve functionality while upgrading aesthetic precision, eliminating weak empty/loading states, and fixing sloppy styling.
-
-3. **Human-Centric Content & Copywriting (`frontend-design`)**:
-   - Write clear, active-voice microcopy from the user's perspective (e.g., "Save changes" over "Submit").
-   - Eliminate vague corporate jargon and placeholder filler; ensure UI vocabulary remains consistent across all states.
-
-4. **Modern Technical Execution (`modern-web-guidance`)**:
-   - Implement clean semantic HTML, modern CSS (Grid/Flexbox, subgrid, container queries, custom properties), and smooth, purposeful motion.
-   - Ensure full accessibility (keyboard focus, screen-reader readiness, reduced motion support).
-

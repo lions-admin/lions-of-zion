@@ -30,9 +30,6 @@ import { ASSESSMENT_VALUES } from "@/server/contracts/enums";
  * broken reference here does not merely render a hole — it can render a claim
  * with its sourcing detached, or a grade stronger than the research assigned.
  * These tests hold the seam to the rules the integration promised.
- *
- * The brief is `docs/fake-resistance-integration.md`; the two governing
- * decisions are in `.ai/DECISIONS.md`.
  */
 const PACKAGE = path.join(process.cwd(), "content-packages", "fake-resistance");
 

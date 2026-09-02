@@ -179,21 +179,3 @@ export function fitComposition(aspect: number): {
     halfH: visH / 2,
   };
 }
-
-
-/* ------------------------------------------------------------------ *
- * What used to live below this line
- *
- * A `Viewport` class, a device-tier detector, `hasWebGL`, `dprFor`,
- * `worldToScreenIn`, `readSafeArea` and a `publishForVerification` that wrote
- * `window.__lionFit`. All of it served the retired photographic landing scene;
- * none of it had a single caller left, and the `__lionFit` global had one
- * writer and no reader — its docstring claimed `verify-composition.mjs` read
- * it, which was never true. Removed 2026-08-27; `git log` has it.
- *
- * What remains is the part that is still load-bearing: the composition
- * constants and the cover fit, which `tests/composition-fit.test.ts` asserts
- * as invariants rather than as a screenshot. The live scene runs at a
- * different camera (45°/8.2u, see `particle-nav/Scene.tsx`), so these numbers
- * describe the preserved intro's contract and not the navigation's.
- * ------------------------------------------------------------------ */

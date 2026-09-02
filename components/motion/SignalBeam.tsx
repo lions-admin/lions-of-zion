@@ -14,7 +14,6 @@
 
 import {
   useEffect,
-  useId,
   useRef,
   useState,
   type CSSProperties,
@@ -61,7 +60,6 @@ export function SignalBeam({
   className,
   label,
 }: SignalBeamProps) {
-  const id = useId();
   const [path, setPath] = useState("");
   const [box, setBox] = useState({ width: 0, height: 0 });
   const frame = useRef(0);
@@ -151,8 +149,8 @@ export function SignalBeam({
       }
     >
       <path className={styles.track} d={path} pathLength={1} />
-      <path className={`${packetClass} ${styles.halo}`} d={path} pathLength={1} key={`${id}-halo`} />
-      <path className={packetClass} d={path} pathLength={1} key={`${id}-packet`} />
+      <path className={`${packetClass} ${styles.halo}`} d={path} pathLength={1} />
+      <path className={packetClass} d={path} pathLength={1} />
     </svg>
   );
 }

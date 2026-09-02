@@ -265,11 +265,22 @@
      The 68ch reading measure was named in a comment here but never
      tokenised, so 17 distinct `ch` values had accumulated across the
      modules (80, 72, 68, 64, 62, 60, 58, 54, 46, 44, 42, 34, 32, 28, 24,
-     20, 14). These five are the ones the design actually distinguishes. */
+     20, 14). These are the ones the design actually distinguishes.
+
+     THE CAVEAT THAT MAKES THESE NOT INTERCHANGEABLE — found in the field on
+     2026-09-02, and the reason `--measure-title` exists: `ch` resolves against
+     the *element's own* font-size. Every value below is calibrated on the body
+     step, so applying one to display type silently inflates it —
+     `--measure-caption` set on a `--t-h2` element computes to roughly 47rem,
+     which is wider than the reading column it was meant to sit inside, i.e. no
+     cap at all. Use `--measure-title` for anything set in the display face; a
+     296-character archive title is a real input, and capping it with a
+     body-calibrated measure would have deleted the cap rather than set one. */
   --measure-wide: 80ch;
   --measure-reading: 68ch;
   --measure-narrow: 54ch;
   --measure-caption: 44ch;
+  --measure-title: 34ch;
   --measure-data: 24ch;
 
   /* ── Hairline weights ───────────────────────────────────────────────── */

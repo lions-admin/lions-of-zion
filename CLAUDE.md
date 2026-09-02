@@ -347,15 +347,20 @@ static index set it that way as identity; **reading surfaces use
   `breadcrumb` — added 2026-08-27 (R-06) with the shape `DocPage` already
   used — renders the trail in the identity band *in place of* the inert route
   slug, and retargets the exit link.
-- **The exit link goes one level up, not home.** `a.identityExit` in both
-  `DocPage.tsx` and `SectionPage.tsx` derives its href and label from the
-  **last `breadcrumb` item** ("← Back to {label}"), falling back to `/` and
-  "Back to the scan" when no trail is passed. So the eight destinations,
-  `/methodology` and `/corrections` are unchanged, while the archive indexes,
-  all ~1,177 archive records and the five `/fake-resistance` child pages now
-  step back to their real parent. Archive pages needed no per-page change —
-  `ArchiveRecordPage` was already passing `breadcrumb={archiveTrail(pkg)}`, and
-  the fix was to *use* it (`.ai/DECISIONS.md`, R-06).
+- **The whole trail is shown, and the "exit link" this line used to describe is
+  gone.** Corrected 2026-09-02: this claimed `a.identityExit` in `DocPage.tsx`
+  and `SectionPage.tsx` derived a single "← Back to {label}" from the last
+  `breadcrumb` item. Neither shell mounts `.identityExit` — or `.identityBand`,
+  `.wordmark`, `.identityMeta`, `.identityRoute` or `.breadcrumb`. The site
+  header took that job, and both shells render `.documentTrail`, a
+  `nav[aria-label="Breadcrumb"]` showing **every** level as a link rather than
+  only the parent. That is strictly better than what this paragraph promised,
+  and the R-06 intent — a page steps back to its real parent, not to the
+  home scene — is satisfied by it. `ArchiveRecordPage` still passes
+  `breadcrumb={archiveTrail(pkg)}`, so the archive indexes, all ~1,177 records
+  and the five `/fake-resistance` child pages get their true trail.
+  The ~110 lines of CSS behind the old claim are being deleted; a stale
+  invariant kept them alive for months because it read as load-bearing.
 - **The evidence margin is a grid, never absolute positioning.** `marginNote`
   in `content.module.css` makes the record's host a two-track grid whose second
   track is zero-wide, so a citation taller than its record lengthens its own

@@ -15,6 +15,16 @@ import { encodePublicPublicationCursor } from "@/server/contracts/publication";
 export const dynamic = "force-dynamic";
 
 const DOC_PAGES = ["/methodology", "/corrections", "/information-war"];
+/**
+ * The two live reading surfaces over the published record.
+ *
+ * Above `DOC_PAGES` and level with the archive indexes: these are indexes over
+ * material that changes daily, not policy pages. Neither is paginated *into*
+ * the sitemap — `/updates?cursor=…` is one page of one collection and its rows
+ * are already listed individually as `/articles/{publicId}` below, so listing
+ * the cursor pages would ask a crawler to index the same records twice.
+ */
+const RECORD_INDEXES = ["/updates", "/fact-check"];
 const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
 /** The two investigation branches the Fake Resistance hub opens onto. */
 const BRANCH_INDEXES = [
@@ -83,6 +93,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}${path}`,
       changeFrequency: "monthly" as const,
       priority: 0.6,
+    })),
+    ...RECORD_INDEXES.map((path) => ({
+      url: `${SITE_URL}${path}`,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
     })),
     // Above the reference works: a branch page is the hub's decision moment,
     // one step below the eight destinations themselves.

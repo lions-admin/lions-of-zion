@@ -1,0 +1,605 @@
+/*
+ * The fact-check desk.
+ *
+ * The signature element is the ladder rail in `.chain`: every statement the
+ * record makes is a rung, and the rung is marked by whether a source is
+ * attached to it. It is a picture of the evidence chain rather than a
+ * decoration of it, which is the whole reason it earns a graphic at all on a
+ * page about verification.
+ *
+ * Two restraints hold everywhere below. Colour is spent only on the verdict
+ * and on the uncited mark — the two places a reader must not misread — and the
+ * three state tokens are the only hues used. And nothing animates: a page whose
+ * subject is manipulation does not get to move things to hold attention.
+ *
+ * CSS Modules only, no Tailwind utilities: this subtree mounts inside
+ * `DocPage`'s `:where(.body)` element rules, which are unlayered and would beat
+ * any utility in `@layer utilities`.
+ */
+
+.desk {
+  display: grid;
+  gap: var(--sp-8);
+}
+
+.entries {
+  display: grid;
+  gap: var(--sp-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  padding: var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
+.entryHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  margin: 0 0 var(--sp-3);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.entryVerdict {
+  padding: 0.2rem var(--sp-2);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  color: var(--ink-lo);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.entryVerdict[data-tone="ok"] {
+  border-color: var(--state-ok-line);
+  background: var(--state-ok-wash);
+  color: var(--state-ok);
+}
+
+.entryVerdict[data-tone="warn"] {
+  border-color: var(--state-warn-line);
+  background: var(--state-warn-wash);
+  color: var(--state-warn);
+}
+
+.entryVerdict[data-tone="danger"] {
+  border-color: var(--state-danger-line);
+  background: var(--state-danger-wash);
+  color: var(--state-danger);
+}
+
+.entryBasis {
+  padding: 0.2rem var(--sp-2);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-1);
+  color: var(--ink-hi);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.entryStamp {
+  margin-left: auto;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── The disclosure ─────────────────────────────────────────────────────── */
+
+.summary {
+  display: flex;
+  align-items: start;
+  gap: var(--sp-3);
+  cursor: pointer;
+  /* The native marker is replaced by `.summaryHint`, which can be positioned
+     against the first text line rather than floated by the UA. */
+  list-style: none;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-2);
+}
+
+/* The claim itself, verbatim, in the display face — it is the thing the reader
+   came looking for and is set as a headline, not as metadata. */
+.claimText {
+  flex: 1;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  line-height: var(--t-h3-lh);
+  text-wrap: pretty;
+}
+
+.summaryHint {
+  flex: none;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-top: 0.42rem;
+  border-right: var(--line-w-thick) solid var(--ink-lo);
+  border-bottom: var(--line-w-thick) solid var(--ink-lo);
+  transform: rotate(45deg);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.summary:hover .claimText {
+  color: var(--gold-hi);
+}
+
+.summary:hover .summaryHint {
+  border-color: var(--gold);
+}
+
+/* The chevron's open state is a transform, not an animation, so it survives
+   the reduced-motion kill-switch in `globals.css` — that switch zeroes
+   durations rather than removing transforms, which is exactly right here: the
+   state still reads, it just arrives instantly. No local guard is needed and
+   adding one would be dead CSS. */
+.disclosure[open] .summaryHint {
+  transform: rotate(-135deg);
+}
+
+.entryLink {
+  margin: var(--sp-3) 0 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+}
+
+.entryLink a {
+  color: var(--ink-hi);
+  text-decoration: none;
+}
+
+.entryLink a:hover {
+  color: var(--gold-hi);
+}
+
+/* ── The ladder ─────────────────────────────────────────────────────────── */
+
+.ladder {
+  display: grid;
+  gap: var(--sp-6);
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.rungBlock {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.rungLabel {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+.rungLabel span {
+  color: var(--gold-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The claim, quoted. The gold rule on the left is the one place the accent is
+   spent inside a ladder, and it marks the only verbatim text on the page that
+   is not this desk's own words. */
+.claimQuote {
+  margin: 0;
+  padding-left: var(--sp-4);
+  border-left: var(--line-w-thick) solid var(--gold-line-strong);
+}
+
+.claimQuote p {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  font-style: italic;
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  text-wrap: pretty;
+}
+
+.claimFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--sp-4);
+  margin: 0;
+}
+
+.claimFacts dt {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+.claimFacts dd {
+  margin: var(--sp-1) 0 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* ── The evidence chain ─────────────────────────────────────────────────── */
+
+.chain {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.chainCount {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+.chainFigure {
+  color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+}
+
+.chainList {
+  display: grid;
+  gap: var(--sp-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each rung. The 2px bar on the left is the state: ink where the statement
+   cites something, amber where it does not. Two states, one axis, and the
+   words underneath say the same thing — the colour is never the only carrier. */
+.rung {
+  padding-left: var(--sp-4);
+  border-left: var(--line-w-thick) solid var(--line-strong);
+}
+
+.rung[data-cited="false"] {
+  border-left-color: var(--state-warn-line);
+}
+
+.rungText {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.rungClaim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.rungClaim > span:first-child {
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.rungSources {
+  display: grid;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rungSources li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.rungSources a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.rungSources a:hover {
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold-line-strong);
+}
+
+.rungSources span {
+  color: var(--ink);
+}
+
+.rungSources small {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.rungUncited {
+  margin: var(--sp-2) 0 0;
+  color: var(--state-warn);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.onFile,
+.analysisNote,
+.emptyRung,
+.positionNote {
+  max-width: var(--measure-narrow);
+  margin: 0;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  text-wrap: pretty;
+}
+
+/* The disclosure that the record cites nothing is not a footnote about the
+   record — it is the record's most important property, so it reads at body
+   size in full ink behind a hairline. */
+.analysisNote {
+  max-width: var(--measure-reading);
+  padding: var(--sp-4);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* ── The verdict ────────────────────────────────────────────────────────── */
+
+.verdictLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin: 0;
+}
+
+.verdictMark {
+  padding: var(--sp-1) var(--sp-3);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.verdictMark[data-tone="ok"] {
+  border-color: var(--state-ok-line);
+  background: var(--state-ok-wash);
+  color: var(--state-ok);
+}
+
+.verdictMark[data-tone="warn"] {
+  border-color: var(--state-warn-line);
+  background: var(--state-warn-wash);
+  color: var(--state-warn);
+}
+
+.verdictMark[data-tone="danger"] {
+  border-color: var(--state-danger-line);
+  background: var(--state-danger-wash);
+  color: var(--state-danger);
+}
+
+.verdictMeaning {
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.basisLine {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.basisLine[data-basis="analysis"] {
+  color: var(--ink-hi);
+}
+
+.unknowns {
+  margin-top: var(--sp-2);
+}
+
+/* ── Position and context ───────────────────────────────────────────────── */
+
+.position h4 {
+  margin: 0 0 var(--sp-1);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+.position p {
+  max-width: var(--measure-narrow);
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.position + .position {
+  margin-top: var(--sp-4);
+}
+
+/* ── The ladder's foot ──────────────────────────────────────────────────── */
+
+.ladderFoot {
+  display: grid;
+  gap: var(--sp-3);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.readFull {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h-sm);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.readFull:hover {
+  color: var(--gold-hi);
+}
+
+.ladderStamp {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--t-data-lh);
+}
+
+.correctionsHost {
+  margin-top: var(--sp-2);
+}
+
+/* ── What is not shown ──────────────────────────────────────────────────── */
+
+.limits {
+  padding: var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
+.limitsHeading {
+  margin: 0 0 var(--sp-4);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  line-height: var(--t-h3-lh);
+}
+
+.limitsList {
+  display: grid;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.limitsList li {
+  max-width: var(--measure-reading);
+  padding-left: var(--sp-4);
+  border-left: var(--line-w) solid var(--line);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.limitsList strong {
+  color: var(--ink-hi);
+  font-weight: 600;
+}
+
+.limitsNote {
+  max-width: var(--measure-reading);
+  margin: var(--sp-5) 0 0;
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-soft);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.limitsNote a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.limitsNote a:hover {
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold-line-strong);
+}
+
+/* ── Narrow ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 45rem) {
+  .entry,
+  .limits {
+    padding: var(--sp-4);
+  }
+
+  .entryStamp {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}

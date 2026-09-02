@@ -5,42 +5,95 @@ import { SourceConvergenceBeams, SystemFlowBeams } from "./InformationWarBeams";
 import styles from "./information-war-system.module.css";
 
 /*
+ * The seven stages, each carrying the rule that actually enforces it.
+ *
  * Headings and kickers are sentence case in the source. The V3 system allows
  * uppercase only on data labels of two words or fewer — the stage `meta`
  * strings and the diagram's labels qualify and are transformed by the
  * stylesheet; the stage names, the hero and the footer line are headings and
- * are not. The words are unchanged.
+ * are not.
+ *
+ * `detail` says what the stage is for. `mechanism` says what stops it being
+ * skipped, and every one of those sentences was checked against the code
+ * before it was written here — the migration, the constraint or the schema
+ * refinement is named in the comment beside it. A page arguing that evidence
+ * must be traceable does not get to make untraceable claims about itself.
+ *
+ * This replaced a five-stage version (Discover / Preserve / Triage / Verify /
+ * Publish). The two stages it gained are not decoration: analysis and
+ * verification were folded into "Verify", which flattened the single most
+ * important distinction in the system — writing an assessment and having a
+ * second person approve it are different acts with different guarantees.
  */
 const SYSTEM_STAGES = [
   {
     number: "01",
-    name: "Discover",
+    name: "Source",
     detail: "Public reporting enters through monitored search queries and verified feeds.",
-    meta: "Google Search / RSS",
+    meta: "Source ledger",
+    /* `source_family` — the grouping the independence test above runs on. */
+    mechanism:
+      "Every source belongs to a named family. That is what lets five syndicated copies of one wire report be counted as one origin instead of five.",
   },
   {
     number: "02",
-    name: "Preserve",
+    name: "Ingestion",
     detail: "Each result keeps its publisher, URL, retrieval time, and original source family.",
-    meta: "Source ledger",
+    meta: "Provenance record",
+    /* `evidence_provenance_is_append_only` — migration 0005. */
+    mechanism:
+      "Provenance is append-only in the database. A record of where something came from and when it was fetched cannot be edited afterwards, only added to.",
   },
   {
     number: "03",
-    name: "Triage",
-    detail: "Relevant stories, atomic claims, duplicates, urgency, and possible narratives are separated.",
-    meta: "Structured analysis",
+    name: "Detection",
+    detail: "Relevant stories, atomic claims, duplicates, and candidate narratives are separated.",
+    /* Two words is the V3 ceiling for an uppercase data label, and
+       `.systemFlow small` transforms these — so "Clustering and triage"
+       would have shipped as a three-word shout. */
+    meta: "Clustering",
+    mechanism:
+      "Reports of the same event are clustered before anything is written about them, so volume never reaches an editor disguised as corroboration.",
   },
   {
     number: "04",
-    name: "Verify",
-    detail: "Supporting and contradicting evidence stay attached to consequential claims.",
-    meta: "Evidence graph",
+    name: "Analysis",
+    detail:
+      "A claim is assessed against the material on record, and the assessment states what it could not establish.",
+    meta: "Assessment record",
+    /* `item_assessment_states_its_gaps` (0006) and the immutability trigger
+       in 0007 — an assessment cannot be rewritten after the fact. */
+    mechanism:
+      "An assessment scores ten separate confidence dimensions, and a database constraint refuses one that leaves its known gaps blank. Once written it is immutable: a changed finding is a new assessment, not an edited one.",
   },
   {
     number: "05",
-    name: "Publish",
-    detail: "The system produces traceable English briefs, updates, and narrative analysis.",
+    name: "Evidence",
+    detail: "Supporting and contradicting material stays attached to the statements it bears on.",
+    meta: "Evidence chain",
+    /* `createPublicationSchema`'s passage refinement, server/contracts. */
+    mechanism:
+      "A publication is refused unless every passage cites the evidence under it. The single exception is a Narrative Watch record published as our own analysis, which must cite nothing anywhere — never partly.",
+  },
+  {
+    number: "06",
+    name: "Verification",
+    detail: "Nothing publishes on the say-so of whoever wrote it.",
+    meta: "Publish gate",
+    /* `enforce_publication_publish_gate`, migration 0031. Both branches are
+       stated because the two publication routes have different guarantees,
+       and `/updates` marks which route each entry took. */
+    mechanism:
+      "A database trigger holds the gate, so no code path reaches publication around it. An editor's publication must be approved by a human who is not the author. An automatic one must carry its run provenance and have passed all twelve named quality checks — and may not also claim human approval.",
+  },
+  {
+    number: "07",
+    name: "Publication",
+    detail: "The record goes public, and stays correctable.",
     meta: "Public record",
+    /* `entity_version_is_append_only` and `audit_log_is_append_only`, 0001. */
+    mechanism:
+      "Every published record is versioned and every version is kept. A correction is a new version with a stated reason, and the history travels with the record rather than replacing it.",
   },
 ] as const;
 
@@ -165,6 +218,24 @@ export function InformationWarSystem() {
             Collection is automated. The evidence chain remains visible. Every public article can be
             corrected, removed, and traced back to its supporting material.
           </p>
+          {/* The one thing this diagram must say about itself. Seven stages
+              drawn with a moving signal on them look exactly like a monitor,
+              and no public telemetry endpoint exists — the per-stage run and
+              queue figures behind `/api/v1/admin/briefing` are staff-only. A
+              diagram implying live numbers it does not have would be the same
+              move this page spends five sections documenting, so the page
+              says plainly what it is and points at the two surfaces that do
+              carry live output. */}
+          <p className={styles.systemDisclosure}>
+            <strong>This diagram describes how the system is built, not what it is
+            doing right now.</strong>{" "}
+            It carries no live counters and no status figures, because the
+            per-stage telemetry is internal and we would rather draw nothing
+            than draw a number we cannot show you. What the system has actually
+            produced is public: every entry is in the{" "}
+            <Link href="/updates">updates feed</Link>, and every checked claim is
+            on the <Link href="/fact-check">fact-check desk</Link>.
+          </p>
         </div>
         {/* `SystemFlowBeams` is a positioned wrapper and nothing else — the
             list, its order and its text are unchanged and still server
@@ -181,6 +252,11 @@ export function InformationWarSystem() {
                   <small>{stage.meta}</small>
                   <h3>{stage.name}</h3>
                   <p>{stage.detail}</p>
+                  {/* The rule under the stage. Set apart because it is a
+                      different kind of sentence — checkable rather than
+                      descriptive — and a reader should be able to tell which
+                      claims on this page they could go and verify. */}
+                  <p className={styles.mechanism}>{stage.mechanism}</p>
                 </div>
               </li>
             ))}
@@ -193,14 +269,25 @@ export function InformationWarSystem() {
         <h2 id="output-heading">Evidence must travel.</h2>
         <p>
           The system turns a daily field of public signals into three readable outputs: a strategic brief,
-          focused news and war updates, and a dedicated record of narratives moving across the global information space.
+          a chronological record of everything published, and a desk of checked claims with the sources
+          each one rests on.
         </p>
-        <div className={styles.outputLines}>
-          <span>Daily Brief</span>
-          <span>Israel + war updates</span>
-          <span>Narrative Watch</span>
-        </div>
-        <Link href="/geopolitical-brief">Enter The Israel Brief <span aria-hidden="true">→</span></Link>
+        {/* These three were inert `<span>`s naming outputs a reader then had
+            to go and find. They are the outputs, so they are the way to them. */}
+        <nav className={styles.outputLines} aria-label="Where the system publishes">
+          <Link href="/geopolitical-brief">
+            The Daily Brief
+            <small>Today&rsquo;s edition, with the lead and the featured story</small>
+          </Link>
+          <Link href="/updates">
+            Updates
+            <small>Every entry, newest first, with the minute and route it published by</small>
+          </Link>
+          <Link href="/fact-check">
+            Fact check
+            <small>Claims in circulation, the verdict, and the evidence chain</small>
+          </Link>
+        </nav>
       </section>
 
       <footer className={styles.footer}>

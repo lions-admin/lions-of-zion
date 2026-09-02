@@ -195,10 +195,12 @@
   line-height: var(--t-lede-lh);
 }
 
-/* The two calls to action: a secondary button in the site's vocabulary.
-   Sans, 600, sentence case; hover takes the gold wash without moving. */
-.heroCopy > a,
-.output > a {
+/* The hero's call to action: a secondary button in the site's vocabulary.
+   Sans, 600, sentence case; hover takes the gold wash without moving.
+   `.output > a` was grouped here until the closing section's single CTA
+   became the three-row index in `.outputLines`; the selector matched nothing
+   after that and is gone rather than left to look load-bearing. */
+.heroCopy > a {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
@@ -220,15 +222,13 @@
     color var(--dur-fast) var(--ease-out);
 }
 
-.heroCopy > a:hover,
-.output > a:hover {
+.heroCopy > a:hover {
   background: var(--gold-wash);
   border-color: var(--gold-line-strong);
   color: var(--gold-hi);
 }
 
-.heroCopy > a:active,
-.output > a:active {
+.heroCopy > a:active {
   background: color-mix(in srgb, var(--gold) 18%, transparent);
   color: var(--gold-hi);
 }
@@ -615,6 +615,59 @@
   line-height: var(--t-body-lh);
 }
 
+/* The checkable rule under each stage.
+   A step down in size and ink, behind a hairline, so a reader can see at a
+   glance which sentences on this page are description and which are claims
+   about a constraint that either exists or does not. The specificity beats
+   `.systemFlow p` above by one class, which is the whole reason it is
+   selected that way rather than as a bare element. */
+.systemFlow .mechanism {
+  max-width: var(--measure-reading);
+  margin-top: var(--sp-3);
+  padding-left: var(--sp-4);
+  border-left: var(--line-w) solid var(--gold-line);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+/* The diagram's statement about itself. Full ink, not the recessive tone —
+   it is a disclosure about what the reader is looking at, and a disclosure
+   set quieter than the thing it qualifies is a disclosure in name only.
+   Scoped through `.systemSticky` deliberately: the grouped `.systemSticky p`
+   rule above scores (0,1,1) and would otherwise win the size and colour off a
+   bare single-class selector. */
+.systemSticky .systemDisclosure {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.systemSticky .systemDisclosure strong {
+  color: var(--ink-hi);
+  font-weight: 600;
+}
+
+.systemSticky .systemDisclosure a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.25em;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.systemSticky .systemDisclosure a:hover {
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold-line-strong);
+}
+
 /* ── Measured beams ───────────────────────────────────────────────────── */
 
 /* The flow's wire is `.systemFlow::before` above, so these beams carry the
@@ -649,14 +702,22 @@
   line-height: var(--t-display-lh);
 }
 
+/* The page's closing index. These were three inert labels naming outputs the
+   reader then had to hunt for; they are links now, so the rows carry a
+   destination and a one-line description of what is at it. The gold slab on
+   the left is drawn at zero width and grows on hover — it cannot shift the
+   text, because the text's padding does not depend on it. */
 .outputLines {
   display: grid;
-  margin: var(--sp-7) 0;
+  margin: var(--sp-7) 0 0;
   border-top: 1px solid var(--line);
 }
 
-.outputLines span {
-  padding: var(--sp-4) 0;
+.outputLines a {
+  position: relative;
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-5) 0 var(--sp-5) var(--sp-5);
   border-bottom: 1px solid var(--line);
   color: var(--ink-hi);
   font-family: var(--face-display);
@@ -664,7 +725,38 @@
   font-weight: var(--t-h3-weight);
   letter-spacing: var(--t-h3-tracking);
   line-height: var(--t-h3-lh);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
 }
+
+.outputLines a::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 0;
+  background: var(--gold);
+  transition: width var(--dur-fast) var(--ease-out);
+}
+
+.outputLines a small {
+  max-width: var(--measure-narrow);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: var(--t-caption-lh);
+}
+
+.outputLines a:hover {
+  color: var(--gold-hi);
+}
+
+.outputLines a:hover::before {
+  width: var(--line-w-thick);
+}
+
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
 

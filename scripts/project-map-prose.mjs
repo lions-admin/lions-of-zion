@@ -74,7 +74,7 @@ export const AREAS = {
   "app/war-update": {
     layer: "frontend",
     role: "עדכון הלחימה",
-    lesson: "תיק קריאה שמפצל רכיב לקוח (WireFeed) לסינון ולקישורים קבועים. התוכן מ־lib/content/war-update.ts.",
+    lesson: "תיק קריאה על מעטפת SectionPage, המציג עדכונים שפורסמו דרך listBriefingPublications. רכיב הלקוח WireFeed נמחק ב־2026-09-02 — הוא לא יובא מאף מקום. המדור war_update פרש מהייצור אך נשאר ערך enum חוקי, ולכן הדף והארכיון ממשיכים לעבוד.",
   },
   "app/we-are": {
     layer: "frontend",
@@ -114,7 +114,17 @@ export const AREAS = {
   "app/information-war": {
     layer: "frontend",
     role: "משטח מלחמת המידע",
-    lesson: "דף קריאה נוסף מחוץ לשמונת יעדי הניווט. לא מרחיב את defaultNodes.",
+    lesson: "דף קריאה נוסף מחוץ לשמונת יעדי הניווט. לא מרחיב את defaultNodes. שבעת השלבים הם הסבר מעוצב ולא מוניטור: אין endpoint טלמטריה ציבורי, והדף אומר את זה במפורש במקום לצייר מספרים שאין לו.",
+  },
+  "app/updates": {
+    layer: "frontend",
+    role: "רשומת כל מה שפורסם",
+    lesson: "פיד כרונולוגי עם דפדוף cursor אמיתי (keyset), הצומת היחיד באתר שמהלך על nextCursor. הקריאה עוברת unstable_cache עם revalidate של 300 שניות, ולכן הדף מצהיר במפורש שאינו realtime — אין נקודת LIVE, אין זמן יחסי, וכל חותמת היא מוחלטת בשעון ירושלים. autoPublishedAt מסמן פרסום אוטומטי מול פרסום של עורך.",
+  },
+  "app/fact-check": {
+    layer: "frontend",
+    role: "שולחן בדיקת העובדות",
+    lesson: "טענות במחזור, הפסיקה, ושרשרת הראיות מ־passages[].sources[] — הרשת הציבורית היחידה שקיימת. הגילוי הוא <details> נטיב ולכן הדף פועל בלי JavaScript. עשרת ממדי הביטחון וטבלת הראיות הם staff-only, והדף אומר מה אינו מוצג במקום להמציא לזה ממשק.",
   },
   "components": {
     layer: "frontend",
@@ -150,6 +160,16 @@ export const AREAS = {
     layer: "frontend",
     role: "התדריך הגאופוליטי — הפריסה הייחודית",
     lesson: "הדף היחיד עם פריסה וטיפול התקדמות־קריאה משלו. התוכן עדיין חתך ייחוס ב־geopolitical-reference.ts, מותאם דרך adapters.ts אל רכיבי content/.",
+  },
+  "components/live": {
+    layer: "frontend",
+    role: "פיד העדכונים",
+    lesson: "רכיבי שרת בלבד פרט לעטיפות Reveal, ולכן הסינון והדפדוף הם קישורים ועובדים בלי JavaScript. FeedStatus הוא משטח הכנות של הפיד: הוא אומר בקול את חלון החמש הדקות של המטמון במקום להסתיר אותו. publication-labels.ts מפריד במכוון בין verificationState (שש ערכים) ל־AssessmentValue (תשעה) — הם לא אותו enum ואסור לרנדר אחד דרך השני.",
+  },
+  "components/factcheck": {
+    layer: "frontend",
+    role: "סולם הטענה: טענה, ראיות, פסיקה, תגובה",
+    lesson: "EvidenceChain מצייר את passages[].sources[] — כל משפט מול מה שהוא נשען עליו, כולל סימון מפורש של משפט בלי מקור. שום ציון לא משודרג: evidenceBasis נקרא === \"analysis\" ולעולם לא כשלילה. FactCheckLimits מונה במפורש את מה שאינו ציבורי.",
   },
   "components/support": {
     layer: "frontend",

@@ -62,6 +62,19 @@ server. **Dependencies added: none.**
   `kinetic-text`** — no surface on this site needs them; see the mapping
   table in the task report.
 
+## Importing
+
+Import from the barrel (`@/components/motion`). `package.json` declares
+`sideEffects: ["*.css", "**/*.css"]`, which is what makes that safe: every
+module here imports a CSS Module, and a CSS import is a side effect, so
+without that declaration a bundler must assume the barrel needs all seven
+stylesheets and a route rendering one primitive ships five it never uses.
+
+`app/page.tsx` imports the two it uses by path instead. That predates the
+`sideEffects` declaration and is now belt-and-braces rather than necessary;
+it is left alone because the home route's first paint is the one this site
+is judged by, and a direct path cannot regress if the field is ever removed.
+
 ## Rules
 
 * **Ambient motion is `--dur-ambient`; entrances are `--dur-enter`; hovers

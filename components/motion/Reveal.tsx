@@ -40,6 +40,11 @@ export type RevealTag =
   | "ul"
   | "p"
   | "figure"
+  | "figcaption"
+  | "blockquote"
+  | "h2"
+  | "h3"
+  | "h4"
   | "span";
 
 /* One observer for the document, not one per element. Elements register

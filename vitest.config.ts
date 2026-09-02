@@ -34,5 +34,25 @@ export default defineConfig({
     hookTimeout: 30_000,
     include: ["tests/**/*.test.ts"],
     environment: "node",
+    /* One PGlite instance per test file, each a full Postgres in WASM, is
+       heavy enough that unbounded parallelism starves the pool rather than
+       speeding it up. `.ai/STATE.md` already recorded that the suite gets
+       OOM-killed (exit 137) at default parallelism alongside another heavy
+       process, and that two workers is the reliable setting — but that lived
+       only in prose, so `npm run verify:full`, which is the gate CI runs and
+       the one this repo tells you to run, did not honour it.
+
+       Measured 2026-09-02 on this workstation: the default pool produced 110
+       failures, every one a 30-60s timeout in files the change never touched;
+       the same suite at two workers passed 72/72 files and 696 tests. The
+       failures were the machine, not the code, and a gate that cannot tell
+       you which is not a gate.
+
+       Set here rather than as a flag on the `test` script so every entry
+       point agrees — `npm test`, `verify:full`, `test:watch`, and a bare
+       `npx vitest run`. `maxWorkers` is the vitest 4 spelling; the older
+       `poolOptions.forks.maxForks` is gone from `InlineConfig` and typecheck
+       rejects it. */
+    maxWorkers: 2,
   },
 });

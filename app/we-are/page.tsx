@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { ContentCard } from "@/components/content";
+import { Reveal } from "@/components/motion";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -109,10 +110,20 @@ export default function Page() {
           step: nothing automated can pass it.
         </p>
         <div className={styles.pipeline}>
+          {/* The one place on this page where a stagger carries information
+              rather than decorating: these are the ordered stages of a real
+              pipeline, and they arrive in the order a claim moves through
+              them. `direction="none"` on purpose — the track behind the
+              stages is drawn per-row with `::before`, so a shifted row would
+              shift its own segment of the line and open a gap in it. Opacity
+              and focus only; the track stays where it is drawn. */}
           <ol className={styles.pipelineList}>
-            {METHOD_STEPS.map((step) => (
-              <li
+            {METHOD_STEPS.map((step, index) => (
+              <Reveal
+                as="li"
                 key={step.title}
+                index={index}
+                direction="none"
                 className={styles.pipelineStage}
                 data-gate={step.gate ? "" : undefined}
               >
@@ -124,7 +135,7 @@ export default function Page() {
                   ) : null}
                   <p>{step.body}</p>
                 </div>
-              </li>
+              </Reveal>
             ))}
           </ol>
         </div>

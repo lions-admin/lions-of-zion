@@ -44,6 +44,15 @@
   }
 }
 
+/* `Reveal` needs an element of its own to fade, so each card sits inside one.
+   The slot is a grid rather than a plain block so the anchor stretches to the
+   row's height the way it did when it was the grid item itself — the pair
+   stay the same height whatever their descriptions run to. It carries no
+   visual of its own. */
+.branchSlot {
+  display: grid;
+}
+
 .branchCard {
   position: relative;
   display: flex;

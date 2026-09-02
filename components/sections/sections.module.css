@@ -547,6 +547,35 @@
   margin-top: var(--sp-7);
 }
 
+/* The first section does not animate in.
+ *
+ * `components/motion/Reveal` holds its subject at `opacity: 0` from the first
+ * paint until hydration flips the attribute, and everywhere below the fold
+ * that costs nothing — the observer fires as the reader arrives, which is
+ * after hydration by definition. The top of the document is the one place
+ * where it is a content cost rather than an effect: on a phone the first
+ * section is inside the fold, so a slow hydration would leave a reader
+ * looking at a headline over empty space. The `revealFailsafe` animation is
+ * a four-second backstop, not a budget.
+ *
+ * So the first block opts out and simply is there, and the entrance starts
+ * from the second — which is also the better reading of it: sections arrive
+ * as you scroll into them, rather than the page assembling itself in front of
+ * someone who has not moved yet.
+ *
+ * The selector scores (0,3,0) against Reveal's (0,2,0) `.reveal[data-reveal=
+ * "pending"]`, so it wins on specificity and does not depend on which of the
+ * two CSS modules the bundler emits first. If a page ever puts some other
+ * <section> ahead of its blocks, `:first-of-type` simply matches nothing and
+ * every block animates — the failure direction is the harmless one.
+ */
+.block:first-of-type[data-reveal='pending'] {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  animation: none;
+}
+
 .blockHeading {
   margin-bottom: var(--sp-4);
 }

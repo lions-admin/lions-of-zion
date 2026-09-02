@@ -33,6 +33,12 @@ const ROUTES = [
   "/fake-resistance/network",
   "/fake-resistance/official-narrative",
   "/fake-resistance/social-media",
+  /* The two live surfaces over the published record. Both read the API's
+     public projection and both must render — with the correct empty state —
+     when the build has no database, which is exactly the environment CI runs
+     in, so this is the check that keeps their `StatusState` paths honest. */
+  "/updates",
+  "/fact-check",
 ];
 
 /**

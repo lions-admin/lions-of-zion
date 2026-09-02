@@ -241,6 +241,28 @@ static index set it that way as identity; **reading surfaces use
 `displayName`** — a CSS transform can't do this, since `capitalize` turns
 "ISRAEL'S STORY" into "Israel'S Story".
 
+**The site chrome derives from it too, and may not re-name anything.**
+`components/site/navigation-model.ts` is the one IA model the masthead, the
+"All files" drawer, the phone sheet and `SiteFooter` all read, and every label
+in it is `displayName`. The header used to keep its own hand-written label
+array, and it had drifted: `/israels-story` was captioned "Israel Explained",
+`/geopolitical-brief` was "Today", and `/information-war` was "Investigations",
+which is what `/fake-resistance` actually is. Add a destination in
+`lib/site-navigation.ts` and it appears in the chrome; never add one to the
+chrome.
+
+**Never mount navigation on client state.** Both header panels always render
+and carry their open/closed state in the `hidden` attribute;
+`@media (scripting: none)` in `site-header.module.css` turns the drawer into a
+static index in the flow. Mounted conditionally (`{open ? <div/> : null}`) they
+left five of the eight destinations with no reachable link anywhere on the site
+without JavaScript. `ci-smoke.mjs` asserts all ten destinations are reachable
+by href from `/` with scripting off — **at a desktop viewport only**, which is
+how a second, width-dependent instance of the same defect survived it: the
+drawer had lived inside the group the phone breakpoint hides, so a phone with
+scripting off had no navigation at all. The drawer is now a direct child of
+`<header>` for that reason.
+
 - Every node id must have a matching `app/<id>/page.tsx`; `SectionPage` throws
   on an unknown id, and the file-header index it prints is the node's real
   position in `defaultNodes`. The current eight are `geopolitical-brief`,
@@ -333,8 +355,15 @@ static index set it that way as identity; **reading surfaces use
   chapter can never point at something the site is not publishing, and
   `EDITORIAL_STAGE` — not the importer — advances a case's lifecycle.
 - `components/sections/SectionPage.tsx` is the dossier shell for seven of them:
-  a full-width identity band and a centred 68ch reading measure. There is no
-  footer — the page ends where the content ends (`.ai/DECISIONS.md`).
+  a full-width identity band and a centred 68ch reading measure. `SectionPage`
+  still renders no footer of its own — the page ends where the content ends —
+  but **the site now has one, and the "no global footer" decision of
+  2026-08-25 is reversed by owner ruling** (`.ai/DECISIONS.md`, 2026-09-02).
+  `components/site/SiteFooter.tsx` is mounted by `EditorialShell` after
+  `<main>`, so it closes every reading route and the whole archive. It is
+  deliberately **not** in `app/layout.tsx` and must not be moved there: the root
+  layout also wraps `/`, `/admin`, `/particle-demo` and `/pipeline`, and the
+  home scene owns exactly one viewport. The mount point is the condition.
   Above 1220px both margins work: `SectionToc.tsx` builds an "In this file"
   rail on the left from the rendered `h2`s (no per-page data, so it cannot
   drift), and each record's citation moves into the right margin beside it.

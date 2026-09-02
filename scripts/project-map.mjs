@@ -1297,7 +1297,16 @@ function toFragment(doc) {
 
 if (process.argv.includes("--check")) {
   const cur = read(OUT);
-  const norm = (t) => t.replace(/נסרק [\d-]+ [\d:]+ · <code>[0-9a-f]+<\/code>[^<]*<code>[^<]*<\/code>/, "");
+  /* Normalise away BOTH places the generation stamp appears, not just the
+     visible one. It is also embedded in the DATA payload as `"head"`, and
+     leaving that in made the check unsatisfiable: you regenerate the map,
+     commit it, and the commit itself changes HEAD — so the very act of
+     committing an up-to-date map made it report as out of date. The check is
+     about the repository's structure, and the SHA is metadata about when the
+     scan ran, not part of that structure. */
+  const norm = (t) => t
+    .replace(/נסרק [\d-]+ [\d:]+ · <code>[0-9a-f]+<\/code>[^<]*<code>[^<]*<\/code>/, "")
+    .replace(/"head":"[0-9a-f]+"/, '"head":""');
   if (norm(cur) !== norm(html)) {
     console.error("project-map.html is out of date — run: npm run map");
     process.exit(1);

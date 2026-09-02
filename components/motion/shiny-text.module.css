@@ -27,22 +27,51 @@
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 
-  color: var(--shiny-base, var(--ink-lo));
+  /* Both the base ink and the moving highlight are background layers, and
+     the glyphs are a window onto them.
 
-  background-image: linear-gradient(
-    110deg,
-    transparent 40%,
-    var(--shiny-peak, var(--ink-hi)) 50%,
-    transparent 60%
-  );
-  background-size: var(--shiny-width) 100%;
-  background-repeat: no-repeat;
-  background-position: calc(-100% - var(--shiny-width)) 0;
+     The first cut of this file set the base as `color` and only the highlight
+     as a background. That does not work, and the failure is silent:
+     `background-clip: text` clips the background to the glyph shapes, but the
+     glyphs are then painted over it in `color` — and every ink in this
+     palette is opaque, so the highlight was covered by the very text it was
+     meant to pass through. The animation ran and nothing moved. Caught only
+     because someone built a call site and looked at it.
+
+     So the fill has to come from the background too. Layer one is the pass;
+     layer two is a flat wash of the base ink; both are clipped to the text,
+     and `color` is transparent so neither is hidden. */
+  color: transparent;
+
+  background-image:
+    linear-gradient(
+      110deg,
+      transparent 40%,
+      var(--shiny-peak, var(--ink-hi)) 50%,
+      transparent 60%
+    ),
+    linear-gradient(
+      var(--shiny-base, var(--ink-lo)),
+      var(--shiny-base, var(--ink-lo))
+    );
+  background-size: var(--shiny-width) 100%, 100% 100%;
+  background-repeat: no-repeat, no-repeat;
+  background-position: calc(-100% - var(--shiny-width)) 0, 0 0;
 
   -webkit-background-clip: text;
   background-clip: text;
 
   animation: shinyPass var(--shiny-duration, 5s) var(--ease-in-out) infinite;
+}
+
+/* Transparent text with no background clip is invisible text, so the whole
+   treatment is withheld where the clip is unsupported and the label renders
+   as the plain data label it always was. */
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+  .shiny {
+    color: var(--shiny-base, var(--ink-lo));
+    background-image: none;
+  }
 }
 
 .gold {
@@ -74,6 +103,9 @@
   .shiny {
     animation: none;
     background-image: none;
+    /* Back to a painted glyph — with no background left to show through,
+       transparent text would be no text. */
     color: var(--shiny-base, var(--ink-lo));
+    -webkit-text-fill-color: var(--shiny-base, var(--ink-lo));
   }
 }

@@ -248,7 +248,22 @@
   right: clamp(var(--sp-4), 3.5vw, var(--sp-7));
   bottom: clamp(var(--sp-4), 3vw, var(--sp-6));
   z-index: 12;
-  width: min(29rem, calc(100vw - 2rem));
+  /* The rail yields to the wordmark, never the other way round.
+   *
+   * Measured 2026-09-02 in real Chrome: the wordmark is centred and its
+   * half-width settles at ~308px once `--t-display` reaches its clamp ceiling,
+   * so a fixed 29rem panel pinned bottom-right crossed into it — 177px of
+   * overlap at 1280, 100px at 1440, 20px at 1600, clearing only at 1920. The
+   * panel is near-opaque, so what a reader saw was the brand with its last
+   * letters cut off, at the two most common laptop widths.
+   *
+   * 22.75rem is that half-width, the right gutter, and a hairline of clearance —
+   * the wordmark's box includes trailing letter-spacing, so touching boxes read
+   * as touching type. Subtracting it from 50vw
+   * gives the space that actually exists to the right of the wordmark, so the
+   * panel can never reach it. The panel narrows on smaller screens and the
+   * brand stays whole; that is the correct way round for a masthead. */
+  width: min(29rem, calc(50vw - 22.75rem));
   padding: var(--sp-4) var(--sp-5);
   border: 1px solid var(--line);
   border-radius: var(--radius-3);

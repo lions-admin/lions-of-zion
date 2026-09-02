@@ -1,0 +1,159 @@
+/* Dialog · design V3
+ *
+ * Built on the native `<dialog>` element with `showModal()`, which is what
+ * makes the focus management correct rather than approximately correct: the
+ * platform traps focus, marks the rest of the document inert, restores focus
+ * to the invoker on close, handles Escape, and puts the panel in the top
+ * layer — so no `--z-*` value is involved at all and no `z-index` race is
+ * possible. A hand-rolled focus trap is the single most commonly broken piece
+ * of a design system; this one declines to write it.
+ */
+
+.dialog {
+  width: min(100% - var(--sp-6), var(--measure-narrow));
+  max-height: calc(100dvh - var(--sp-7));
+  padding: 0;
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+  color: var(--ink-hi);
+  box-shadow: var(--shadow-3);
+  /* The body scrolls inside the panel, and `visible` lets it paint square
+     over a `--radius-3` corner. The cost is stated in the README: a tooltip
+     opened inside a dialog is clipped by this. */
+  overflow: hidden;
+}
+
+.wide {
+  width: min(100% - var(--sp-6), var(--measure-reading));
+}
+
+.dialog::backdrop {
+  background: color-mix(in oklab, var(--ground) 78%, transparent);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+/* The entrance, done with `@starting-style` and `allow-discrete` so the panel
+   fades in without a scrap of JavaScript animation state — `display` and
+   `overlay` are discrete properties, and this is the only way to transition
+   them. Reduced motion is handled by the global kill-switch: it collapses the
+   durations, the panel appears at its rest state, and nothing is left mid-way
+   because both ends of the transition are defined. */
+.dialog,
+.dialog::backdrop {
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    display var(--dur-base) allow-discrete,
+    overlay var(--dur-base) allow-discrete;
+  opacity: 0;
+}
+
+.dialog {
+  transform: translateY(var(--sp-2)) scale(0.99);
+}
+
+.dialog[open],
+.dialog[open]::backdrop {
+  opacity: 1;
+}
+
+.dialog[open] {
+  transform: none;
+}
+
+@starting-style {
+  .dialog[open],
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+
+  .dialog[open] {
+    transform: translateY(var(--sp-2)) scale(0.99);
+  }
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────── */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+  /* The panel is what receives focus on open, so the title is the first thing
+     announced rather than the close control. It must not draw a ring for
+     that: the ring belongs to things a reader tabbed to. */
+  outline: none;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+  text-wrap: balance;
+}
+
+.description {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  max-width: var(--measure-caption);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-5);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+/*
+ * The document behind a modal must not scroll. `showModal()` marks the page
+ * inert but does not lock its scroller, so this does — and reserves the
+ * scrollbar's gutter at the same time, because taking an 8px scrollbar away
+ * without reserving its space shifts the whole page sideways at the exact
+ * moment the reader's attention moves to the panel.
+ *
+ * `:global` because the target is the document element and the hook is an
+ * attribute this component owns. CSS Modules are emitted unlayered, and the
+ * selector scores above `html:has([data-home-scroll])` in globals.css, so it
+ * wins where both apply.
+ */
+:global(html:has(dialog[data-loz-dialog][open])) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}

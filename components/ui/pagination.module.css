@@ -1,0 +1,69 @@
+/* Pagination · design V3
+ *
+ * Page numbers are data, so they are set in the data face with tabular
+ * figures: the numerals in a row of pages line up, and the row does not
+ * shuffle sideways when the current page goes from 9 to 10. The current page
+ * is marked by surface and weight as well as by gold, so the mark survives a
+ * greyscale print.
+ */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--sp-6);
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+}
+
+/* The page numbers, wider than the ends so a three-digit page still reads as
+   one control rather than as a squeeze. */
+.page {
+  min-width: var(--control-h-sm);
+  font-family: var(--face-data);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (pointer: coarse) {
+  .page {
+    min-width: var(--control-h);
+  }
+}
+
+.current {
+  color: var(--gold-hi);
+}
+
+/* A step that has nowhere to go is present and inert, not missing: removing
+   it would move the whole row sideways on the first and last page. */
+.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* The elision. Not a control, so it is not a target and not in the tab
+   order — it is punctuation between two ranges. */
+.gap {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: var(--control-h-sm);
+  padding-bottom: var(--sp-1);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
+}

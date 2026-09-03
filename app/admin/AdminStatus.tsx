@@ -61,7 +61,18 @@ export function AdminStatus() {
   /** The read was refused for want of a session, not because anything broke. */
   const [authRequired, setAuthRequired] = useState(false);
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
-  const controlBar = useRef<HTMLDivElement | null>(null);
+  /**
+   * STATE-004 — where focus lands when the control that opened a confirmation
+   * is gone by the time it closes.
+   *
+   * This used to point at the `controlBar` div, which carries no `tabIndex`:
+   * `HTMLElement.focus()` on a non-focusable element is a silent no-op, so the
+   * fallback was written, typed and never able to fire. It points at the
+   * status section instead, which is `tabIndex={-1}` and already named by its
+   * own heading, so landing there announces where the operator is rather than
+   * an anonymous group.
+   */
+  const statusSection = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
     const responses = await Promise.all([
@@ -161,7 +172,13 @@ export function AdminStatus() {
       </p>
 
       {/* ── System status ────────────────────────────────────────────── */}
-      <section className={styles.section} id="console-status" aria-labelledby="console-status-heading">
+      <section
+        className={styles.section}
+        id="console-status"
+        aria-labelledby="console-status-heading"
+        ref={statusSection}
+        tabIndex={-1}
+      >
         <div className={styles.panelHead}>
           <div>
             <p className={styles.sectionLabel}>System status</p>
@@ -170,7 +187,7 @@ export function AdminStatus() {
           <p className={styles.headNote}>{status.environment} · {status.region}</p>
         </div>
 
-        <div className={styles.controlBar} ref={controlBar}>
+        <div className={styles.controlBar}>
           <div>
             <p className={styles.sectionLabel}>Publication control</p>
             <h3>{paused ? "Automatic publication is paused" : "Automatic publication is active"}</h3>
@@ -382,7 +399,7 @@ export function AdminStatus() {
       <ConfirmDialog
         intent={confirmIntent}
         onClose={() => setConfirmIntent(null)}
-        fallbackFocusRef={controlBar}
+        fallbackFocusRef={statusSection}
       />
     </>
   );

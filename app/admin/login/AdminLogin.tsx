@@ -116,11 +116,29 @@ export function AdminLogin() {
         aria-busy={busy || undefined}
         aria-describedby={[message ? errorId : null, busy ? pendingId : null].filter(Boolean).join(" ") || undefined}
       >
+        {/* AUTH-001 — the password-manager contract, which is carried by these
+            two attributes and nothing else.
+
+            `username` rather than `email`: on a sign-in form the identifier
+            field's field-name token is `username`, and that is the token
+            managers and browsers pair with `current-password` to recognise a
+            login pair and offer to fill and to save it. `type="email"` still
+            gives the right keyboard and the right validation; it is the
+            autocomplete token that does the recognising. `autocomplete`
+            takes exactly one field-name token, so "username email" is not
+            available as a way of saying both.
+
+            Neither field is ever remounted: no `key`, no conditional mount,
+            and `Field` derives its id from a `useId()` that is stable across
+            renders — a remount between renders is what makes a manager
+            re-fill or, worse, silently drop what it filled. `disabled={busy}`
+            toggles, but `submit()` reads `FormData` before the first state
+            change for exactly that reason. */}
         <Field
           label="Administrator email"
           name="email"
           type="email"
-          autoComplete="email"
+          autoComplete="username"
           autoCapitalize="none"
           spellCheck={false}
           disabled={busy}
@@ -136,7 +154,12 @@ export function AdminLogin() {
           required
         />
 
-        {message ? <p id={errorId} className={styles.error} {...assertiveLive}>{message}</p> : null}
+        {/* Mounted at all times and empty when idle, for the same reason the
+            polite region below is: an `role="alert"` region inserted into the
+            document in the same commit as its text is announced unreliably,
+            and a refused sign-in is the one message on this page that must be
+            heard. `.error:empty` keeps it out of the layout. */}
+        <p id={errorId} className={styles.error} {...assertiveLive}>{message ?? ""}</p>
         {/* Mounted at all times and empty when idle: a polite region that is
             added to the page at the same moment as its text is announced
             unreliably. `:empty` keeps it out of the layout. */}

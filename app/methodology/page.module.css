@@ -93,6 +93,16 @@
     border-color var(--dur-fast) var(--ease-out);
 }
 
+/* The height was already handled above; a one-word term ("Scope") still
+   measured 41px wide, three short of the floor. Width only under a coarse
+   pointer, so a mouse keeps the term hugging its own text. */
+@media (pointer: coarse) {
+  .glanceTerm a {
+    min-inline-size: var(--control-h);
+    justify-content: flex-start;
+  }
+}
+
 .glanceTerm a:hover,
 .glanceTerm a:focus-visible {
   color: var(--gold-hi);

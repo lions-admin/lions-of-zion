@@ -262,7 +262,7 @@ describe("externalBriefingPublishService", () => {
 
     const runs = await database.select().from(briefingRun).where(eq(briefingRun.localDate, "2026-09-03"));
     expect(runs).toHaveLength(1);
-    expect(runs[0]!.stage).toBe("external_publish");
+    expect(runs[0]!.stage).toBe("external_publish:smoke-run-published-0001");
 
     const checks = await database.select().from(briefingQualityCheck)
       .where(eq(briefingQualityCheck.briefingRunId, runs[0]!.id));
@@ -304,6 +304,24 @@ describe("externalBriefingPublishService", () => {
     expect(await database.select().from(briefingRun)).toHaveLength(1);
     expect(await database.select().from(externalBriefingSubmission)).toHaveLength(1);
     expect(await database.select().from(publication)).toHaveLength(1);
+  });
+
+  it("allows separate external editions for the same local date", async () => {
+    const database = await freshDatabase();
+    const service = externalBriefingPublishService(database);
+    const localDate = "2026-09-06";
+
+    await service.publish(basePackage("smoke-run-same-date-0001", localDate), actor);
+    await service.publish(basePackage("smoke-run-same-date-0002", localDate), actor);
+
+    const runs = await database.select().from(briefingRun).where(eq(briefingRun.localDate, localDate));
+    expect(runs).toHaveLength(2);
+    expect(runs.map((run) => run.stage).sort()).toEqual([
+      "external_publish:smoke-run-same-date-0001",
+      "external_publish:smoke-run-same-date-0002",
+    ]);
+    expect(await database.select().from(externalBriefingSubmission)).toHaveLength(2);
+    expect(await database.select().from(publication)).toHaveLength(2);
   });
 
   it("rejects a reused runId carrying different package content", async () => {

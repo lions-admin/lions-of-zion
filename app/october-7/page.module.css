@@ -213,6 +213,17 @@
   text-decoration-color: var(--gold);
 }
 
+/* 201x30 and 153x30 measured at every coarse width — the two entrances to the
+   whole archive, both under the target floor. `inline-flex` keeps the
+   underline hugging the words rather than stretching to the panel. */
+@media (pointer: coarse) {
+  .doorLink {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--control-h);
+  }
+}
+
 /* The heading is the link, and the panel around it is not.
    A whole-panel overlay (`::after { inset: 0 }`) was tried and dropped: these
    panels hold a category list and two counts a reader may well want to select

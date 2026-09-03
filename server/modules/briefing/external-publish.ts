@@ -163,24 +163,16 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
           });
         }
 
-        /* ── 2. One briefing_run row per local date ─────────────────────── */
-        let briefingRunId: string;
-        try {
-          const runResult = await d.execute<{ id: string }>(sql`
-            INSERT INTO briefing_run (local_date, stage, status, started_at)
-            VALUES (${pkg.localDate}, 'external_publish', 'running', now())
-            RETURNING id
-          `);
-          briefingRunId = runResult.rows[0]!.id;
-        } catch (cause) {
-          if (isUniqueViolation(cause, "briefing_run_once_per_stage_day")) {
-            throw new ApiError(
-              "CONFLICT",
-              `An edition for ${pkg.localDate} has already been submitted under a different runId.`,
-            );
-          }
-          throw cause;
-        }
+        /* ── 2. One briefing_run row per external submission ──────────────
+         * Internal stages retain their daily idempotency key. External
+         * submissions are instead keyed by their already-unique runId, so
+         * distinct editions may be published for the same local date. */
+        const runResult = await d.execute<{ id: string }>(sql`
+          INSERT INTO briefing_run (local_date, stage, status, started_at)
+          VALUES (${pkg.localDate}, ${externalPublishStage(pkg.runId)}, 'running', now())
+          RETURNING id
+        `);
+        const briefingRunId = runResult.rows[0]!.id;
 
         const store = briefingRepo(tx);
         const sources = sourceRepo(tx);
@@ -439,21 +431,11 @@ function sortKeysDeep(value: unknown): unknown {
   return value;
 }
 
-/** Walks to the deepest `cause` (Drizzle wraps driver errors once) and checks
- * the Postgres SQLSTATE and constraint name, mirroring the convention
- * `server/db/testing.ts`'s `violation()` helper documents and uses for tests. */
-function isUniqueViolation(error: unknown, constraint: string): boolean {
-  let current: unknown = error;
-  while (
-    current
-    && typeof current === "object"
-    && "cause" in current
-    && (current as { cause?: unknown }).cause
-  ) {
-    current = (current as { cause: unknown }).cause;
-  }
-  const pg = current as { code?: string; constraint?: string };
-  return pg.code === "23505" && pg.constraint === constraint;
+/** Keep external runs independent without weakening the internal pipeline's
+ * `(local_date, stage)` idempotency constraint. `runId` is contract-validated
+ * and unique in `external_briefing_submission`. */
+function externalPublishStage(runId: string): string {
+  return `external_publish:${runId}`;
 }
 
 /* ── Publisher and citation resolution ───────────────────────────────────── */

@@ -17,6 +17,7 @@
  *
  * Exit code is 1 when any CRITICAL finding is present, so this can gate CI.
  */
+import { execSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import { chromium } from "playwright-core";
 
@@ -84,6 +85,10 @@ const SIMPLE = [
   "/our-heroes",
   "/war-update",
   "/we-are",
+  /* Dev-only: `next.config.ts` redirects this to `/` when NODE_ENV is not
+     development (DEV-001). It is a route pattern in `app/`, so QA-001 counts
+     it, and it is reachable in exactly the environment this audit runs in. */
+  "/particle-demo",
 ];
 
 async function readPackage(pkg) {
@@ -109,7 +114,10 @@ async function sampleDynamicRoutes() {
     }
     const doc = documentation.find((e) => e.category) ?? documentation[0];
     if (doc) {
-      complex.push(`/october-7/documentation/${doc.category ?? "uncategorized"}/${doc.id}`);
+      const category = doc.category ?? "uncategorized";
+      complex.push(`/october-7/documentation/${category}/${doc.id}`);
+      const other = doc.languages.find((l) => l !== doc.defaultLanguage);
+      if (other) simple.push(`/october-7/documentation/${category}/${doc.id}/${other}`);
     }
   } catch {
     console.log("note: october-7 content not imported — archive record routes skipped");
@@ -120,6 +128,19 @@ async function sampleDynamicRoutes() {
     if (first) simple.push(`/fake-resistance/cases/${first.slug}`);
   } catch {
     console.log("note: fake-resistance research not imported — case route skipped");
+  }
+  /* The article family has no content package behind it — its records live in
+     the database — so the id comes from the public projection the site itself
+     serves. Hard-coding one would leave this checking a dead route the first
+     time the edition rolls. */
+  try {
+    const response = await fetch(`${BASE}/api/v1/published-publications?limit=1`);
+    const body = await response.json();
+    const first = body?.publications?.[0]?.publicId;
+    if (first) complex.push(`/articles/${first}`);
+    else console.log("note: no published publication — /articles/[publicId] skipped");
+  } catch {
+    console.log("note: could not read published publications — /articles route skipped");
   }
   return { complex, simple };
 }
@@ -406,8 +427,40 @@ const plan = routeFlag
       })),
     ];
 
+/**
+ * QA-001: every route pattern in `app/` must have at least one real instance
+ * in the plan. Asserting this here rather than in prose is the point — a new
+ * route added without a fixture should fail the audit, not quietly widen the
+ * gap between what this script checks and what the site serves.
+ */
+function coverageGaps(planned) {
+  const patterns = execSync("find app -name page.tsx", { encoding: "utf8" })
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((f) => f.replace(/^app/, "").replace(/\/page\.tsx$/, "") || "/");
+
+  const matches = (pattern, url) => {
+    const p = pattern.split("/").filter(Boolean);
+    const u = url.split("?")[0].split("/").filter(Boolean);
+    if (p.length !== u.length) return false;
+    return p.every((seg, i) => (seg.startsWith("[") ? u[i].length > 0 : seg === u[i]));
+  };
+
+  return patterns.filter((pattern) => !planned.some((url) => matches(pattern, url)));
+}
+
+const gaps = coverageGaps(plan.map((entry) => entry.route));
+if (gaps.length > 0) {
+  console.log(`\nROUTE COVERAGE GAP — ${gaps.length} pattern(s) with no instance in this run:`);
+  for (const g of gaps) console.log(`  ! ${g}`);
+} else {
+  console.log(`route coverage: all ${plan.length} planned URLs cover every pattern in app/\n`);
+}
+
 const browser = await chromium.launch({ headless: true });
 const results = [];
+let coverageFailed = gaps.length > 0 && !routeFlag;
 let critical = 0;
 let warnings = 0;
 
@@ -579,4 +632,4 @@ if (jsonPath) {
 }
 
 console.log(`\n${critical} critical, ${warnings} warning across ${results.length} route/viewport pairs`);
-process.exit(critical > 0 ? 1 : 0);
+process.exit(critical > 0 || coverageFailed ? 1 : 0);

@@ -95,6 +95,23 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
+/* Same contract as `.documentTrail a` in `components/sections`: a breadcrumb
+   is a standalone navigation affordance, not a link in running prose, so the
+   coarse floor applies. (Two implementations of one trail — CLEAN-002.) */
+@media (pointer: coarse) {
+  .breadcrumb {
+    align-items: center;
+  }
+
+  .breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--control-h);
+    min-inline-size: var(--control-h);
+  }
+}
+
 .breadcrumb a:hover,
 .breadcrumb a:focus-visible {
   color: var(--ink-hi);
@@ -428,4 +445,18 @@
   letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
   text-align: center;
+}
+
+/* Coarse-pointer target floor (A11Y-006). A skip link is the first thing a
+   switch or touch user reaches; it is not a link in running prose, so WCAG
+   2.5.8's inline exception does not cover it.
+   NOTE: this is the 4th of five separate `.skipLink` implementations in the
+   repo (editorial-shell, sections, article, information-war-system, account).
+   Recorded against CLEAN-002 — they should be one primitive. */
+@media (pointer: coarse) {
+  .skipLink {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--control-h);
+  }
 }

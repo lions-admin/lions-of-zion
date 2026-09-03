@@ -344,6 +344,13 @@
       "when": 1788216893243,
       "tag": "0048_search_destination",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1788445212279,
+      "tag": "0049_external_briefing_submission",
+      "breakpoints": true
     }
   ]
 }

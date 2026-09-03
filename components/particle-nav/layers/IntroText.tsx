@@ -22,11 +22,23 @@ import {
   mapTextToLionSources,
   packLionSourcePositions,
 } from '@/components/intro/lionSourceMap';
+import { STREAM_PREROLL_LINE } from '@/components/intro/streamPath';
 import {
   createIntroTextMaterial,
   type IntroTextMaterialOptions,
 } from '../tsl/introTextMaterial';
 import type { ExperienceFrame } from '../introFrame';
+
+type ActiveLine = NonNullable<ExperienceFrame['story']>['activeLines'][number];
+
+/* Shared empty list, so the frame loop's `?? NO_ACTIVE_LINES` fallback does
+   not allocate a literal on the frames before the first `ExperienceFrame`. */
+const NO_ACTIVE_LINES: readonly ActiveLine[] = [];
+
+/* The pre-rolling line's pool slot. Fixed: slot is `index % ROLLING_POOL_SIZE`
+   and the line index is a constant, so this is resolved once here rather than
+   recomputed per frame. */
+const PREROLL_SLOT = STREAM_PREROLL_LINE % ROLLING_POOL_SIZE;
 
 interface TextUnit {
   sprite: Sprite;
@@ -89,9 +101,9 @@ export function IntroText({
   const layout = intro.name;
   const groupRefs = useRef<(Group | null)[]>([]);
   const lineWidthsRef = useRef<number[]>([]);
-  const activeBySlotRef = useRef<
-    (NonNullable<ExperienceFrame['story']>['activeLines'][number] | null)[]
-  >(Array.from({ length: ROLLING_POOL_SIZE }, () => null));
+  const activeBySlotRef = useRef<(ActiveLine | null)[]>(
+    Array.from({ length: ROLLING_POOL_SIZE }, () => null),
+  );
   const brandRef = useRef<Group>(null);
   const [textSet, setTextSet] = useState<TextSet | null>(null);
 
@@ -206,16 +218,44 @@ export function IntroText({
     const story = experience?.story;
     const activeBySlot = activeBySlotRef.current;
     activeBySlot.fill(null);
-    for (const line of story?.activeLines ?? []) activeBySlot[line.slot] = line;
+    for (const line of story?.activeLines ?? NO_ACTIVE_LINES) activeBySlot[line.slot] = line;
     const lionScale = experience?.lionScale ?? 1;
     const lionY = experience?.lionY ?? 0;
+    /* Stream pre-roll (plan §3, 4.20–4.35 s). `textFlow` opens over the 0.15 s
+       before the first line's build and `latestLineIndex` is still null, which
+       is exactly this window and nothing else. The first line's unit is shown
+       with `build` at zero so its leading particles ride `flowLead` out of the
+       lion and gather in the throat; the row it streams toward is row 0, the
+       same position it holds at `build = 0` once it is active, so nothing
+       shifts on the handover frame. */
+    const preRoll =
+      experience && story && story.latestLineIndex === null ? experience.textFlow : 0;
 
     for (let slot = 0; slot < ROLLING_POOL_SIZE; slot++) {
       const group = groupRefs.current[slot];
       const active = activeBySlot[slot];
       const units = textSet.lines;
       for (let i = slot; i < units.length; i += ROLLING_POOL_SIZE) units[i].sprite.visible = false;
-      if (!group || !active || !experience) continue;
+      if (!group || !experience) continue;
+      if (!active) {
+        if (slot !== PREROLL_SLOT || preRoll <= 0) continue;
+        const preRollUnit = units[STREAM_PREROLL_LINE];
+        if (!preRollUnit) continue;
+        preRollUnit.sprite.visible = experience.textOpacity > 0.001;
+        group.position.set(0, intro.rowTop, 0.08);
+        const pu = preRollUnit.handle.uniforms;
+        (pu.build as { value: number }).value = 0;
+        (pu.disperse as { value: number }).value = 0;
+        (pu.opacity as { value: number }).value = experience.textOpacity;
+        (pu.focus as { value: number }).value = 0;
+        (pu.pxToWorld as { value: number }).value = pxToWorldRef.current;
+        (pu.dpr as { value: number }).value = dprRef.current;
+        (pu.flowLead as { value: number }).value = preRoll;
+        (pu.lionScale as { value: number }).value = lionScale;
+        (pu.lionY as { value: number }).value = lionY;
+        (pu.groupOffset as { value: Vector3 }).value.copy(group.position);
+        continue;
+      }
       const unit = units[active.index];
       if (!unit) continue;
       unit.sprite.visible = experience.textOpacity > 0.001;
@@ -230,6 +270,13 @@ export function IntroText({
       (u.focus as { value: number }).value = emphasized ? active.isJoin ? 0.36 : 0.14 : 0;
       (u.pxToWorld as { value: number }).value = pxToWorldRef.current;
       (u.dpr as { value: number }).value = dprRef.current;
+      /* `textFlow` is 1 for the whole story, so holding it here keeps the lead
+         at exactly the value the last pre-roll frame wrote — the handover is
+         continuous — while `max(built, lead)` hands control to the build as
+         soon as it passes the throat. Every other line reads 0 and is
+         untouched by the pre-roll path. */
+      (u.flowLead as { value: number }).value =
+        active.index === STREAM_PREROLL_LINE ? experience.textFlow : 0;
       /* The source must stay on the lion while the lion is still settling and
          the row slides: lion transform and row offset, every frame. */
       (u.lionScale as { value: number }).value = lionScale;

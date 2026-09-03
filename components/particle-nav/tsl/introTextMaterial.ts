@@ -18,6 +18,12 @@ import {
   vec2,
   vec3,
 } from 'three/tsl';
+import {
+  STREAM_LEAD_SHARE,
+  STREAM_STAGGER_SPAN,
+  STREAM_THROAT_T,
+  STREAM_TRAVEL_WINDOW,
+} from '@/components/intro/streamPath';
 import type { TextCloud } from '@/components/intro/textCloud';
 
 export interface IntroTextMaterialOptions {
@@ -36,8 +42,6 @@ export interface IntroTextMaterialOptions {
   lionSources?: Float32Array;
 }
 
-/* Where along the entry path the particle passes through the throat. */
-const THROAT_T = 0.42;
 /* World gap between the lion's lowest particle and the throat. */
 const THROAT_GAP = 0.14;
 /* The throat is narrow by design: a channel, not a curtain. Half-width, world. */
@@ -48,15 +52,12 @@ const THROAT_MIN_RISE = 0.3;
 const CURL_AMPLITUDE = 0.035;
 const LANE_DRIFT = 0.08;
 
-/**
- * Build-order stagger. `order` is the particle's x position within its line,
- * so a line draws left to right; each particle then spends this window in
- * flight. The window is wide enough for the stream to be seen as a stream —
- * 28% of an 0.8 s entrance is ~220 ms per particle — and the last particle
- * lands exactly at `build = 1`.
- */
-const STAGGER_SPAN = 0.72;
-const TRAVEL_WINDOW = 1 - STAGGER_SPAN;
+/* The build-order stagger and the throat's place on the path are shared with
+   `components/intro/streamPath.ts`, which mirrors this arithmetic on the CPU so
+   `tests/intro-preroll.test.ts` can pin the pre-roll's timing without a GPU.
+   The window is wide enough for the stream to be seen as a stream — 28% of an
+   0.8 s entrance is ~220 ms per particle — and the last particle lands exactly
+   at `build = 1`. */
 
 export function createIntroTextMaterial(
   cloud: TextCloud,
@@ -110,6 +111,12 @@ export function createIntroTextMaterial(
     lionBottom: uniform(-0.85),
     /** World position of the sprite's parent group: the row this line occupies. */
     groupOffset: uniform(new Vector3()),
+    /**
+     * `ExperienceFrame.textFlow` for the line that pre-rolls, 0 for every
+     * other unit. Carries the leading subset down to the throat before the
+     * build starts — see `components/intro/streamPath.ts`.
+     */
+    flowLead: uniform(0),
   };
   const material = new SpriteNodeMaterial({
     transparent: true,
@@ -122,13 +129,17 @@ export function createIntroTextMaterial(
   const trait = traits.element(instanceIndex);
   const seed = trait.xyz;
   const glyph = point.xyz;
-  const start = point.w.mul(STAGGER_SPAN);
-  const built = smoothstep(start, start.add(TRAVEL_WINDOW), uniforms.build);
+  const start = point.w.mul(STREAM_STAGGER_SPAN);
+  const built = smoothstep(start, start.add(STREAM_TRAVEL_WINDOW), uniforms.build);
   const eraseStart = point.w.mul(0.52);
   const erased = smoothstep(eraseStart, eraseStart.add(0.3), uniforms.disperse);
   const windTarget = glyph.add(uniforms.windBias.add(seed.mul(uniforms.windSpan)));
 
   let visiblePosition;
+  /* Alpha follows the path parameter, not the build: during the pre-roll the
+     leading particles have left the lion while `build` is still zero, and a
+     presence keyed on `build` would move them invisibly. */
+  let presence;
   if (sources) {
     /* Everything below is in the sprite's group-local frame, which is the row
        frame: world = local + groupOffset. */
@@ -153,10 +164,17 @@ export function createIntroTextMaterial(
     );
 
     /* One progress drives both legs, so the path and the glyph stagger cannot
-       drift apart: `built` is the same value that reveals the letter. */
-    const t = built;
-    const tA = clamp(t.div(THROAT_T), 0, 1);
-    const tB = clamp(t.sub(THROAT_T).div(1 - THROAT_T), 0, 1);
+       drift apart: `built` is the same value that reveals the letter. The
+       stream pre-roll adds the only other term — a lead, taken by the head of
+       the build order and capped at the throat, so those particles are already
+       out of the lion and gathered below it when the build starts. `max` of two
+       continuous functions has no seam at the handover, and `built` reaches 1
+       for every particle at `build = 1`, so the line still lands on schedule. */
+    const leadShare = float(1).sub(smoothstep(0, STREAM_LEAD_SHARE, point.w));
+    const lead = uniforms.flowLead.mul(leadShare).mul(STREAM_THROAT_T);
+    const t = max(built, lead);
+    const tA = clamp(t.div(STREAM_THROAT_T), 0, 1);
+    const tB = clamp(t.sub(STREAM_THROAT_T).div(1 - STREAM_THROAT_T), 0, 1);
 
     /* (a → b) Out of the surface, drawn inward and down into the throat. The
        control point sits under the source, so the first motion is downward. */
@@ -173,7 +191,7 @@ export function createIntroTextMaterial(
       glyph.z,
     );
     const legB = quadraticBezier(throat, ctrlB, glyph, tB);
-    const onPath = mix(legA, legB, step(THROAT_T, t));
+    const onPath = mix(legA, legB, step(STREAM_THROAT_T, t));
 
     /* Curl is a texture on the stream, not a force: seeded, small, and gone at
        both ends so a particle leaves exactly from the lion and lands exactly
@@ -185,12 +203,20 @@ export function createIntroTextMaterial(
       cos(t.mul(7).add(seed.z.mul(6.2832))).mul(CURL_AMPLITUDE),
     ).mul(envelope);
     visiblePosition = onPath.add(curl);
+    /* The reveal is the transfer, not a fade: a particle is drawn from the
+       moment it leaves the lion. In flight it carries a little less alpha than
+       when it has landed, which keeps the stream legible against the row it is
+       still building and lets the settled glyph read at full weight. */
+    presence = smoothstep(0, 0.04, t).mul(mix(float(0.6), float(1), t));
   } else {
     /* `bias + span * seed` reproduces the authored spans exactly: the old
        `(seed - 0.5) * s` forms are the same line with the half folded into the
        bias, which is what lets one uniform pair carry every axis. */
     const origin = glyph.add(uniforms.originBias.add(seed.mul(uniforms.originSpan)));
     visiblePosition = mix(origin, glyph, built);
+    /* With no source the generic slide keeps its fade, since it has nothing
+       to show. */
+    presence = built;
   }
 
   const edgeDrift = sin(time.mul(0.9).add(seed.x.mul(18))).mul(trait.w).mul(0.012);
@@ -205,20 +231,12 @@ export function createIntroTextMaterial(
     .mul(mix(float(1), float(1.25), uniforms.focus))
     .mul(uniforms.dpr)
     .mul(uniforms.pxToWorld);
-  const printHead = smoothstep(0.075, 0, uniforms.build.sub(start.add(TRAVEL_WINDOW * 0.7)).abs());
+  const printHead = smoothstep(0.075, 0, uniforms.build.sub(start.add(STREAM_TRAVEL_WINDOW * 0.7)).abs());
   material.colorNode = mix(
     color(new Color(options.coreColor ?? '#F1EDE4')),
     color(new Color(options.edgeColor ?? '#FFFFFF')),
     trait.w.mul(0.72).add(printHead.mul(0.18)),
   );
-  /* The reveal is the transfer, not a fade: a particle is drawn from the
-     moment it leaves the lion. In flight it carries a little less alpha than
-     when it has landed, which keeps the stream legible against the row it is
-     still building and lets the settled glyph read at full weight. With no
-     source the generic slide keeps its fade, since it has nothing to show. */
-  const presence = sources
-    ? smoothstep(0, 0.04, built).mul(mix(float(0.6), float(1), built))
-    : built;
   material.opacityNode = smoothstep(0.5, 0.1, uv().sub(vec2(0.5)).length())
     .mul(presence)
     .mul(float(1).sub(erased))

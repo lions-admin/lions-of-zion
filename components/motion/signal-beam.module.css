@@ -41,7 +41,7 @@
   stroke-width: var(--beam-packet-width, 1.5);
   stroke-linecap: round;
   stroke-dasharray: var(--beam-packet-length, 0.055) 1;
-  animation: packetTravel var(--beam-duration, 4.5s) linear infinite;
+  animation: packetTravel var(--beam-duration, var(--dur-ambient)) linear infinite;
   animation-delay: var(--beam-delay, 0s);
 }
 

@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
   StatusState,
+  absenceStatus,
 } from "@/components/ui";
 import sectionStyles from "@/components/sections/sections.module.css";
 import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
@@ -35,6 +36,14 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
     dataUnavailable = true;
     console.error("[briefing] public projection unavailable", cause instanceof Error ? cause.message : cause);
   }
+  /* STATE-005: the three absences on this page are different facts and are
+     said as different facts. `filtering` is what separates "this selection
+     matched nothing" from "nothing has been published" — without it, a reader
+     who filtered to a quiet Tuesday is told the desk has published no brief,
+     and a reader who did not filter is told to clear filters that do not
+     exist. `dataUnavailable` outranks both: during an outage nothing below is
+     evidence of anything, so no section-level empty state is rendered. */
+  const filtering = Object.values(filters).some(Boolean);
   const filterSource = allPublications ?? publications;
   const dailyBriefs = publications.filter((entry) => entry.section === "daily_brief");
   const lead = dailyBriefs[0] ?? null;
@@ -72,21 +81,38 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
         />
 
         {dataUnavailable ? (
+          /* A failed read, on the error ramp and `role="alert"`. This used to
+             carry no `status` at all, which defaulted it to `empty` — an
+             outage rendered in the same voice as "no brief was published",
+             which is the exact substitution STATE-005 exists to stop. */
           <StatusState
+            status={absenceStatus("unavailable")}
             eyebrow="SERVICE STATUS"
-            title="The Daily Brief is temporarily unavailable."
-            description="Published editions remain secure in our archive. Our data pipeline is synchronizing latest reports."
-            actionText="Refresh Briefs"
+            title="The Daily Brief could not be read."
+            description="This is a fault on our side, not an empty desk. Published editions are intact and return as soon as the read succeeds."
+            actionText="Try again"
             actionHref="/geopolitical-brief"
           />
         ) : !lead ? (
-          <StatusState
-            eyebrow="CURRENT EDITION"
-            title="No valid Daily Brief is available for this selection."
-            description="Updates appear only after the complete edition clears source, evidence, and quality checks. Try clearing active filters."
-            actionText="Clear All Filters"
-            actionHref="/geopolitical-brief"
-          />
+          filtering ? (
+            <StatusState
+              status={absenceStatus("no-matches")}
+              eyebrow="CURRENT EDITION"
+              title="No Daily Brief matches this selection."
+              description="The archive holds editions; none of them carries every filter set above. Clear the filters to see the current edition."
+              actionText="Clear all filters"
+              actionHref="/geopolitical-brief"
+            />
+          ) : (
+            <StatusState
+              status={absenceStatus("nothing-published")}
+              eyebrow="CURRENT EDITION"
+              title="No Daily Brief has been published yet."
+              description="An edition appears here only after it clears source, evidence, and quality checks in full. This page never carries a partial or placeholder edition."
+              actionText="How the checks work"
+              actionHref="/information-war#system"
+            />
+          )
         ) : (
           <header className={styles.liveLead}>
             {/* No `ShinyText` here, deliberately. Two reasons, either alone
@@ -126,7 +152,11 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
         ) : null}
 
         {updates.length ? <PublicationSection title="Israel and war updates" items={updates} /> : null}
-        {narratives.length ? <PublicationSection title="Narrative watch and false claims" items={narratives} narrative /> : (
+        {narratives.length ? <PublicationSection title="Narrative watch and false claims" items={narratives} narrative /> : dataUnavailable ? null : (
+          /* Not rendered during an outage: `narratives` is empty because the
+             read failed, and "no narrative record was published" would be a
+             statement about the desk's output made by a broken fetch. The
+             service-status panel above is the whole answer in that case. */
           <section className={styles.liveSection} aria-labelledby="narrative-watch-heading">
             <h2 id="narrative-watch-heading">Narrative watch and false claims</h2>
             {/* This used to say nothing had "cleared the evidence threshold".
@@ -134,7 +164,11 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
                 such threshold, so the old wording would have described the
                 new content type as a failure. */}
             <div className={styles.narrativeEmpty}>
-              <p>No narrative record was published in this edition.</p>
+              <p>
+                {filtering
+                  ? "No narrative record matches this selection."
+                  : "No narrative record was published in this edition."}
+              </p>
               <p>Records appear here in two forms — a reported claim with its source trail, or our own analysis answering a claim no public source yet documents. Both state their wording, trend and evidence status in full, and an unsourced record is labelled as analysis on its face.</p>
             </div>
           </section>

@@ -23,6 +23,56 @@ const STATUS_LABEL: Record<StatusKind, string> = {
   disabled: "Unavailable",
 };
 
+/**
+ * STATE-005 — why there is nothing to show.
+ *
+ * "Nothing here" has five different causes on this site and they are not
+ * interchangeable. The one that must never be dressed as the others is
+ * `unavailable`: a failed read rendered as an empty record turns an outage
+ * into a claim about the published body of work — on `/corrections` that
+ * claim is "we have never been wrong", and on `/geopolitical-brief` it is
+ * "no brief cleared its checks today". Both are false and both are damaging.
+ *
+ * So the cause is named at the call site and the visual kind is derived from
+ * it here, rather than each surface picking a `status` by eye:
+ *
+ *  - `empty-record`      the read succeeded and the record genuinely holds
+ *                        nothing. A real ledger with no rows in it.
+ *  - `no-matches`        the record holds rows; this query or filter set
+ *                        excluded all of them. Recoverable by the reader, and
+ *                        the recovery is always offered.
+ *  - `nothing-published` nothing has cleared the publish gate for this
+ *                        section yet. Distinct from `empty-record` because
+ *                        material exists upstream — it is not public.
+ *  - `unavailable`       the read failed, or the service is not connected.
+ *                        Not an absence of content. Rendered on the error
+ *                        ramp with `role="alert"`.
+ *  - `auth-required`     the content exists and this visitor may not see it.
+ *                        A warning, not a failure: nothing is broken.
+ *
+ * The `unavailable → error` row is the load-bearing one; `tests/state-causes.test.ts`
+ * pins it so a future edit cannot quietly make an outage look empty.
+ */
+export type AbsenceCause =
+  | "empty-record"
+  | "no-matches"
+  | "nothing-published"
+  | "unavailable"
+  | "auth-required";
+
+export const ABSENCE_STATUS: Record<AbsenceCause, StatusKind> = {
+  "empty-record": "empty",
+  "no-matches": "empty",
+  "nothing-published": "empty",
+  unavailable: "error",
+  "auth-required": "warning",
+};
+
+/** The visual/ARIA kind for a stated cause. Never guess one; state the cause. */
+export function absenceStatus(cause: AbsenceCause): StatusKind {
+  return ABSENCE_STATUS[cause];
+}
+
 export interface StatusStateProps {
   status?: StatusKind;
   eyebrow?: string;

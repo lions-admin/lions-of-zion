@@ -6,7 +6,7 @@
  * the renderer). A dark exclusion mask is authored into the point layout so
  * the lion, spokes and navigation labels retain hierarchy.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Sprite } from 'three/webgpu';
 import { NODE_Z, nodePosition, type OrbitLayout } from '../config';
@@ -16,6 +16,20 @@ import {
 } from '../tsl/networkScanMaterial';
 import { loadScanFragments, type ScanFragment } from '../scanCorpus';
 import type { ParticleNavTheme, SimParams } from '../types';
+import type { ExperienceFrame } from '../introFrame';
+import { computeIntroLayout } from '@/components/intro/introLayout';
+import {
+  INTRO_SCAN_FIELD_TARGET,
+  INTRO_SCAN_GLYPH_TARGET,
+  INTRO_SCAN_WORD_TARGET,
+  LION_MASK_X_PER_SCALE,
+  LION_MASK_Y_PER_SCALE,
+  introScanMultiplier,
+  solveLionScanMask,
+  solveScanCorridor,
+  type LionScanMask,
+  type ScanCorridor,
+} from '@/components/intro/scanIntro';
 
 const CAMERA_Z = 8.2;
 const FOV = 45;
@@ -27,6 +41,16 @@ const FIELD_Z = -1.35;
  * rings they were supposed to clear.
  */
 const NODE_TO_FIELD = (CAMERA_Z - FIELD_Z) / (CAMERA_Z - NODE_Z);
+/**
+ * The hero hole has always been projected with the node-plane factor (the
+ * lion sits at z = 0, a hair behind the nodes, and the 4% over-size was part
+ * of the captured navigation composition). The per-frame hole keeps the same
+ * factor so the settled navigation state is pixel-identical to before.
+ */
+const HERO_TO_FIELD = NODE_TO_FIELD;
+/** Text plane (`IntroText` places rows at z = 0.08) to field plane. */
+const TEXT_Z = 0.08;
+const TEXT_TO_FIELD = (CAMERA_Z - FIELD_Z) / (CAMERA_Z - TEXT_Z);
 
 interface PointCloudData {
   field: Float32Array;
@@ -458,6 +482,74 @@ function buildGlyphs(halfWidth: number, halfHeight: number, compact: boolean) {
   return new Float32Array(output);
 }
 
+interface ScanLayerHandles {
+  field: NetworkScanMaterialHandle;
+  wordsHostile: NetworkScanMaterialHandle;
+  wordsVerified: NetworkScanMaterialHandle;
+  glyphs: NetworkScanMaterialHandle;
+  handles: readonly NetworkScanMaterialHandle[];
+}
+
+type ScanCorridorLayout = Parameters<typeof solveScanCorridor>[0];
+
+function setUniform(handle: NetworkScanMaterialHandle, name: keyof NetworkScanMaterialHandle['uniforms'], value: number) {
+  (handle.uniforms[name] as { value: number }).value = value;
+}
+
+/**
+ * Writes every per-frame uniform on the four layers from the shared frame.
+ * Called from the frame loop and once at build time, so a rebuilt layer is
+ * never drawn from its constructor defaults. Allocates nothing: the mask and
+ * corridor are solved into `scratch`.
+ *
+ * Opacity is the navigation value from `params` *multiplied* by the intro
+ * multiplier — never replaced, so the control panel's sliders and the outro's
+ * full strength keep meaning. With no frame yet (`null`) the scan is dark.
+ */
+function syncScanUniforms(
+  layers: ScanLayerHandles,
+  frame: ExperienceFrame | null,
+  params: SimParams,
+  layout: ScanCorridorLayout,
+  scratch: ScanUniformScratch,
+  pxToWorld: number,
+  dpr: number,
+  reducedMotion: boolean,
+) {
+  const scanReveal = frame?.scanReveal ?? 0;
+  const navReveal = frame?.navReveal ?? 0;
+  const readingMask = frame?.readingMask ?? 0;
+  const mask = solveLionScanMask(frame?.lionScale ?? 0, frame?.lionY ?? 0, scratch.mask);
+  const corridor = solveScanCorridor(layout, frame?.story ?? null, scratch.corridor);
+
+  for (const handle of layers.handles) {
+    setUniform(handle, 'pxToWorld', pxToWorld);
+    setUniform(handle, 'dpr', dpr);
+    setUniform(handle, 'reducedMotion', reducedMotion ? 1 : 0);
+    setUniform(handle, 'heroCenterY', mask.centerY * HERO_TO_FIELD);
+    setUniform(handle, 'heroMaskX', Math.max(1e-3, mask.halfX * HERO_TO_FIELD));
+    setUniform(handle, 'heroMaskY', Math.max(1e-3, mask.halfY * HERO_TO_FIELD));
+    setUniform(handle, 'corridorY', corridor.centerY * TEXT_TO_FIELD);
+    setUniform(handle, 'corridorHalfHeight', Math.max(1e-3, corridor.halfHeight * TEXT_TO_FIELD));
+    setUniform(handle, 'corridorHalfWidth', Math.max(1e-3, corridor.halfWidth * TEXT_TO_FIELD));
+    setUniform(handle, 'corridorStrength', readingMask);
+  }
+  setUniform(
+    layers.field,
+    'opacity',
+    params.scanFieldOpacity * introScanMultiplier(scanReveal, navReveal, INTRO_SCAN_FIELD_TARGET),
+  );
+  const wordOpacity =
+    params.scanWordOpacity * introScanMultiplier(scanReveal, navReveal, INTRO_SCAN_WORD_TARGET);
+  setUniform(layers.wordsHostile, 'opacity', wordOpacity);
+  setUniform(layers.wordsVerified, 'opacity', wordOpacity);
+  setUniform(
+    layers.glyphs,
+    'opacity',
+    params.scanGlyphOpacity * introScanMultiplier(scanReveal, navReveal, INTRO_SCAN_GLYPH_TARGET),
+  );
+}
+
 function disposeHandle(handle: NetworkScanMaterialHandle) {
   handle.material.dispose();
   (handle.storage as unknown as { value?: { dispose(): void }; dispose?: () => void }).value?.dispose();
@@ -472,6 +564,18 @@ export interface NetworkScanProps {
   dprRef: { current: number };
   pointBudget: number;
   params: SimParams;
+  /**
+   * The shared per-frame intro state, written by `Scene.tsx`. Read here for
+   * `scanReveal`/`navReveal` (opacity), `lionScale`/`lionY` (hero hole) and
+   * `readingMask` plus the story rows (text corridor). Null before the first
+   * scene frame, which is treated as a fully dark scan.
+   */
+  experienceFrameRef: { current: ExperienceFrame | null };
+}
+
+interface ScanUniformScratch {
+  mask: LionScanMask;
+  corridor: ScanCorridor;
 }
 
 export function NetworkScan({
@@ -482,8 +586,22 @@ export function NetworkScan({
   dprRef,
   pointBudget,
   params,
+  experienceFrameRef,
 }: NetworkScanProps) {
   const size = useThree((state) => state.size);
+  /* The same row/brand geometry `IntroText` reads, so the corridor and the
+     text cannot disagree about where the lines are. Pure and cheap. */
+  const introLayout = useMemo(
+    () => computeIntroLayout(size.width, size.height),
+    [size.height, size.width],
+  );
+  const scratch = useMemo<ScanUniformScratch>(
+    () => ({
+      mask: { centerY: 0, halfX: 1, halfY: 1 },
+      corridor: { centerY: 0, halfHeight: 1, halfWidth: 1 },
+    }),
+    [],
+  );
   const [fragments, setFragments] = useState<ScanFragment[]>(FALLBACK_FRAGMENTS);
 
   useEffect(() => {
@@ -529,9 +647,10 @@ export function NetworkScan({
         hy: ring + 0.32,
       };
     });
+    // Initial values only; `syncScanUniforms` moves the hole with the lion.
     const heroHole = {
-      maskX: 1.62 * orbit.centerScale * depthScale,
-      maskY: 1.42 * orbit.centerScale * depthScale,
+      maskX: LION_MASK_X_PER_SCALE * orbit.centerScale * depthScale,
+      maskY: LION_MASK_Y_PER_SCALE * orbit.centerScale * depthScale,
     };
     const field = createNetworkScanMaterial(data.field, theme, {
       z: FIELD_Z,
@@ -611,29 +730,50 @@ export function NetworkScan({
     glyphSprite.count = data.glyphs.length / 4;
     glyphSprite.frustumCulled = false;
     glyphSprite.renderOrder = -29;
-    return {
+    const result = {
       field,
       wordsHostile,
       wordsVerified,
       glyphs,
+      handles: [field, wordsHostile, wordsVerified, glyphs],
       fieldSprite,
       hostileSprite,
       verifiedSprite,
       glyphSprite,
     };
+    return result;
   }, [data, orbit, theme]);
 
+  /* A rebuild happens on every resize, including across the 620 px compact
+     threshold and the 720 px intro breakpoint. Fresh materials carry the
+     navigation opacity and the centred hole, so they are brought level with
+     the current frame at commit, before the loop's next tick draws them —
+     otherwise the intro could flash a full-strength, unmasked scan for a
+     frame. Refs are read here, not during render. */
+  useLayoutEffect(() => {
+    syncScanUniforms(
+      built,
+      experienceFrameRef.current,
+      params,
+      introLayout,
+      scratch,
+      pxToWorldRef.current,
+      dprRef.current,
+      reducedMotion,
+    );
+  }, [built, dprRef, experienceFrameRef, introLayout, params, pxToWorldRef, reducedMotion, scratch]);
+
   useFrame(() => {
-    for (const handle of [built.field, built.wordsHostile, built.wordsVerified, built.glyphs]) {
-      (handle.uniforms.pxToWorld as { value: number }).value = pxToWorldRef.current;
-      (handle.uniforms.dpr as { value: number }).value = dprRef.current;
-      (handle.uniforms.reducedMotion as { value: number }).value = reducedMotion ? 1 : 0;
-    }
-    (built.field.uniforms.opacity as { value: number }).value = params.scanFieldOpacity;
-    for (const handle of [built.wordsHostile, built.wordsVerified]) {
-      (handle.uniforms.opacity as { value: number }).value = params.scanWordOpacity;
-    }
-    (built.glyphs.uniforms.opacity as { value: number }).value = params.scanGlyphOpacity;
+    syncScanUniforms(
+      built,
+      experienceFrameRef.current,
+      params,
+      introLayout,
+      scratch,
+      pxToWorldRef.current,
+      dprRef.current,
+      reducedMotion,
+    );
   });
 
   useEffect(

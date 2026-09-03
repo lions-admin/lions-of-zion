@@ -13,6 +13,7 @@ import {
   hash,
   instanceIndex,
   instancedArray,
+  max,
   mix,
   sin,
   smoothstep,
@@ -22,7 +23,17 @@ import {
   vec2,
   vec3,
 } from 'three/tsl';
+import { TEXT_CORRIDOR_MUTE } from '@/components/intro/scanIntro';
 import type { ParticleNavTheme } from '../types';
+
+/**
+ * Normalised distance (1 = the corridor's edge) over which the text-corridor
+ * mute fades back to full scan. Wider than the node holes' 0.74→1 because the
+ * corridor moves every frame with the rows and a crisp edge would be seen
+ * sliding.
+ */
+const CORRIDOR_EDGE_INNER = 1;
+const CORRIDOR_EDGE_OUTER = 1.4;
 
 export interface NetworkMaterialOptions {
   z: number;
@@ -43,10 +54,13 @@ export interface NetworkMaterialOptions {
    */
   flowSpeed?: number;
   /**
-   * Half-axes of a soft elliptical hole at the origin. A flowing layer cannot
-   * rely on build-time exclusion — its points travel the full width, so
-   * whatever was placed clear of the hero eventually crosses it. The hole has
-   * to be evaluated per frame, against the drifted position.
+   * Initial half-axes of a soft elliptical hole around the lion. A flowing
+   * layer cannot rely on build-time exclusion — its points travel the full
+   * width, so whatever was placed clear of the hero eventually crosses it.
+   * The hole is evaluated per frame, against the drifted position, and its
+   * centre Y and half-axes are uniforms (`heroCenterY`, `heroMaskX`,
+   * `heroMaskY`) so it can follow the intro's relocated lion without a
+   * rebuild. Omit both to build a layer with no hero hole at all.
    */
   maskX?: number;
   maskY?: number;
@@ -82,6 +96,19 @@ export function createNetworkScanMaterial(
     dpr: uniform(1),
     reducedMotion: uniform(0),
     opacity: uniform(options.opacity),
+    /* Hero hole, on this layer's plane. Written per frame from the lion's
+       live scale and Y; the initial values are the static centred hole. */
+    heroCenterY: uniform(0),
+    heroMaskX: uniform(options.maskX ?? 1),
+    heroMaskY: uniform(options.maskY ?? 1),
+    /* Text corridor, on this layer's plane. A soft box the scan is dimmed
+       through while the story is read: `corridorStrength` is the reading
+       mask (0 = no effect), the rest is geometry written per frame. Half
+       extents start at 1, never 0, so the division below is always defined. */
+    corridorY: uniform(0),
+    corridorHalfHeight: uniform(1),
+    corridorHalfWidth: uniform(1),
+    corridorStrength: uniform(0),
   };
 
   const p = storage.element(instanceIndex);
@@ -109,7 +136,10 @@ export function createNetworkScanMaterial(
     : smoothstep(
         0.86,
         1.24,
-        vec2(x.div(options.maskX), p.y.div(options.maskY)).length(),
+        vec2(
+          x.div(uniforms.heroMaskX),
+          p.y.sub(uniforms.heroCenterY).div(uniforms.heroMaskY),
+        ).length(),
       );
   // Eight holes is a known, tiny count, so the graph is unrolled rather than
   // looped; positions are constant for a layout and the layer is rebuilt on
@@ -124,6 +154,20 @@ export function createNetworkScanMaterial(
       ),
     );
   }
+
+  // 0 inside the corridor, 1 outside, softened over the outer band; the mute
+  // itself keeps `1 - TEXT_CORRIDOR_MUTE` of the scan alive at full strength,
+  // scaled by how far the reading mask is open.
+  const corridorNorm = max(
+    abs(x).div(uniforms.corridorHalfWidth),
+    abs(p.y.sub(uniforms.corridorY)).div(uniforms.corridorHalfHeight),
+  );
+  const outsideCorridor = smoothstep(CORRIDOR_EDGE_INNER, CORRIDOR_EDGE_OUTER, corridorNorm);
+  const corridorMute = float(1).sub(
+    uniforms.corridorStrength
+      .mul(float(TEXT_CORRIDOR_MUTE))
+      .mul(float(1).sub(outsideCorridor)),
+  );
 
   const depthScale = (8.2 - options.z) / 8.2;
   material.scaleNode = mix(float(options.minSizePx), float(options.maxSizePx), p.z)
@@ -168,6 +212,7 @@ export function createNetworkScanMaterial(
     .mul(baseAlpha)
     .mul(shimmerDepth)
     .mul(underMenu)
+    .mul(corridorMute)
     .mul(float(1).add(scanBand.mul(options.scan ? 1.35 : 0)));
 
   return { material, storage, uniforms };

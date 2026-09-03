@@ -169,20 +169,20 @@ Keep `navReveal` separate. The background must awaken before the navigation outr
 
 ### Phase D — Wake the GPU scan during the intro
 
-- [ ] In `components/particle-nav/Scene.tsx`, stop tying `networkRef.visible` to `navReveal` during the intro. Drive it from `ExperienceFrame.scanReveal`.
-- [ ] Pass an intro opacity multiplier into `components/particle-nav/layers/NetworkScan.tsx` and multiply, rather than replace, `scanFieldOpacity`, `scanWordOpacity`, and `scanGlyphOpacity` from `defaultSimParams`.
-- [ ] In `components/particle-nav/tsl/networkScanMaterial.ts`, make the hero exclusion mask capable of following the relocated lion and add a separate soft text-column exclusion/muting region. Prefer uniforms so the masks move without rebuilding geometry/materials.
-- [ ] Keep the scan nearly absent at the opening, reveal it during the rise, and reach full intro target only after the first lines are readable.
-- [ ] Use the existing corpus and blue/ember/neutral palette. Do not create new labels, metrics, claims, or social proof.
-- [ ] Tune the intro target below the normal navigation target. Starting point: field `0.45`, words `0.30`, glyphs `0.24` multiplied by the existing respective opacity values; validate from captures rather than treating these as final facts.
-- [ ] Ensure `NetworkScan` remains `pointer-events: none` through the canvas and does not enter the accessibility tree.
+- [x] In `components/particle-nav/Scene.tsx`, stop tying `networkRef.visible` to `navReveal` during the intro. Drive it from `ExperienceFrame.scanReveal`. *(Visible on `max(scanReveal, navReveal) > SCAN_VISIBLE_THRESHOLD`; the outro scale easing stays on `navReveal`; `visible={!intro}` removed so the ref is the only owner.)*
+- [x] Pass an intro opacity multiplier into `components/particle-nav/layers/NetworkScan.tsx` and multiply, rather than replace, `scanFieldOpacity`, `scanWordOpacity`, and `scanGlyphOpacity` from `defaultSimParams`. *(`experienceFrameRef` prop; `introScanMultiplier(scanReveal, navReveal, target)` in `components/intro/scanIntro.ts` = `mix(target·scanReveal, 1, navReveal)`; pinned by `tests/intro-scan.test.ts`.)*
+- [x] In `components/particle-nav/tsl/networkScanMaterial.ts`, make the hero exclusion mask capable of following the relocated lion and add a separate soft text-column exclusion/muting region. Prefer uniforms so the masks move without rebuilding geometry/materials. *(Uniforms `heroCenterY`/`heroMaskX`/`heroMaskY` from `lionY`/`lionScale`, and `corridorY`/`corridorHalfHeight`/`corridorHalfWidth`/`corridorStrength` from the live story rows and `readingMask`; the corridor dims to 15% (`TEXT_CORRIDOR_MUTE` 0.85), never hard-cuts; static node holes kept.)*
+- [~] Keep the scan nearly absent at the opening, reveal it during the rise, and reach full intro target only after the first lines are readable. *(By construction: multiplier is 0 until `SCAN_REVEAL_START` 3.70 s and reaches the target at `SCAN_REVEAL_END` 6.80 s, after `STORY_START`; a null frame is treated as dark. Browser confirmation pending.)*
+- [x] Use the existing corpus and blue/ember/neutral palette. Do not create new labels, metrics, claims, or social proof. *(No corpus, label, or palette change in Phase D.)*
+- [~] Tune the intro target below the normal navigation target. Starting point: field `0.45`, words `0.30`, glyphs `0.24` multiplied by the existing respective opacity values; validate from captures rather than treating these as final facts. *(`INTRO_SCAN_FIELD_TARGET`/`WORD`/`GLYPH` in `components/intro/scanIntro.ts` at the starting values; capture validation pending.)*
+- [x] Ensure `NetworkScan` remains `pointer-events: none` through the canvas and does not enter the accessibility tree. *(Unchanged: the `<Canvas>` keeps `style={{ pointerEvents: 'none' }}`, `aria-hidden` and `role="presentation"`; NetworkScan renders only `<primitive>` sprites.)*
 
 **Phase D acceptance**
 
-- [ ] Scan is effectively invisible during the black/setup opening.
-- [ ] Scan becomes perceptible during lion relocation, without a hard cut.
-- [ ] Lion silhouette and every text line retain a clean contrast corridor.
-- [ ] Scan animation and opacity do not flash when resizing across the 720 px intro layout breakpoint or the 620 px compact scan threshold.
+- [~] Scan is effectively invisible during the black/setup opening. *(Code: group hidden below `SCAN_VISIBLE_THRESHOLD`, opacity multiplier 0 until 3.70 s, null frame = dark. Browser check pending.)*
+- [~] Scan becomes perceptible during lion relocation, without a hard cut. *(Code: one continuous eased ramp from 3.70 s; `tests/intro-scan.test.ts` pins monotonicity. Browser check pending.)*
+- [~] Lion silhouette and every text line retain a clean contrast corridor. *(Code: hero hole follows `lionY`/`lionScale`; `solveScanCorridor` is tested to cover every visible row and the brand at every cue on both layouts. Browser check pending.)*
+- [~] Scan animation and opacity do not flash when resizing across the 720 px intro layout breakpoint or the 620 px compact scan threshold. *(Code: rebuilt materials are synced in a `useLayoutEffect` on `built` before their first tick, so no navigation-strength or unmasked frame leaks. Browser check pending.)*
 
 ### Phase E — Make the scan backdrop a shared public-site layer
 

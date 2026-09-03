@@ -45,6 +45,7 @@ import {
   smoothstep01,
 } from '@/components/intro/story-timeline';
 import { settledLionPlacement } from '@/components/intro/introLayout';
+import { SCAN_VISIBLE_THRESHOLD } from '@/components/intro/scanIntro';
 
 const CAMERA_Z = 8.2;
 const FOV = 45;
@@ -235,8 +236,12 @@ function SceneContent(props: SceneProps) {
       };
     }
     const navReveal = experienceFrameRef.current.navReveal;
+    const scanReveal = experienceFrameRef.current.scanReveal;
     if (networkRef.current) {
-      networkRef.current.visible = navReveal > 0.02;
+      /* The scan wakes during the rise on `scanReveal`, long before the
+         navigation outro; the outro then owns the last of the scale easing.
+         The ref is the only owner of this group's visibility. */
+      networkRef.current.visible = Math.max(scanReveal, navReveal) > SCAN_VISIBLE_THRESHOLD;
       networkRef.current.scale.setScalar(0.965 + navReveal * 0.035);
     }
     if (ringsRef.current) {
@@ -337,7 +342,7 @@ function SceneContent(props: SceneProps) {
     <>
       <AdaptiveDpr />
       <group ref={rigRef}>
-        <group ref={networkRef} visible={!intro}>
+        <group ref={networkRef}>
           <NetworkScan
             orbit={orbit}
             theme={theme}
@@ -346,6 +351,7 @@ function SceneContent(props: SceneProps) {
             dprRef={dprRef}
             pointBudget={tier.networkPoints}
             params={params}
+            experienceFrameRef={experienceFrameRef}
           />
         </group>
         <group ref={ringsRef} visible={!intro}>

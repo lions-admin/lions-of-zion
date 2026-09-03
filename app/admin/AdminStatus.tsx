@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { createAuthClient } from "@neondatabase/auth/next";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Skeleton, SkeletonRegion } from "@/components/ui/Skeleton";
+import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
+import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import styles from "./admin.module.css";
 
 type Status = { status: string; environment: string; region: string; aiBudgetUsd: number; integrations: Record<string, boolean>; resourceFingerprints?: Record<string, string | null>; publicReadCache: { hits: number; misses: number; hitRatio: number | null; loads: number; averageLoadMs: number | null } };
@@ -29,10 +30,26 @@ type BriefingStatus = {
 };
 type DeepHealth = { status: string; checks: Record<string, { status: string; latencyMs: number }> };
 
-const auth = createAuthClient();
-
+/**
+ * ADMIN-002 — the console's three read-and-operate areas.
+ *
+ * The page used to be one undifferentiated column: a seventeen-cell metric
+ * grid that mixed deployment identity, user counts, search spend and
+ * pipeline throughput, then panels in the order they were written, with
+ * "force a rerun of today's edition" sitting in the same row as a health
+ * check. It is now three named areas, each holding the numbers, the panels
+ * and the operations that belong to it:
+ *
+ * - **System status** — what this deployment is, what it is connected to,
+ *   and the one switch that decides whether anything reaches readers.
+ * - **Pipeline** — runs, queues, cost, and the operations that move them.
+ * - **Sources** — collection health and throughput, and per-source recovery.
+ *
+ * Anything irreversible or publicly visible lives in a `dangerZone` at the
+ * end of its area and opens the shared confirmation, never a bare button in
+ * a row of routine ones.
+ */
 export function AdminStatus() {
-  const router = useRouter();
   const [status, setStatus] = useState<Status | null>(null);
   const [userCount, setUserCount] = useState<UserCount | null>(null);
   const [briefing, setBriefing] = useState<BriefingStatus | null>(null);
@@ -40,6 +57,8 @@ export function AdminStatus() {
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
+  const controlBar = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
     const responses = await Promise.all([
@@ -52,17 +71,45 @@ export function AdminStatus() {
     setStatus(nextStatus as Status); setUserCount(nextCount as UserCount); setBriefing(nextBriefing as BriefingStatus);
   }, []);
 
+  const reload = useCallback(() => {
+    setError(null);
+    void load().catch((cause: Error) => setError(cause.message));
+  }, [load]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => { void load().catch((cause: Error) => setError(cause.message)); }, 0);
     return () => window.clearTimeout(timer);
   }, [load]);
 
-  if (error && !status) return <p className={styles.error} {...assertiveLive}>{error}</p>;
-  if (!status || !userCount || !briefing) return <p className={styles.muted}>Loading status…</p>;
+  if (error && !(status && userCount && briefing)) {
+    return (
+      <StatusState
+        status="error"
+        className={styles.consoleState}
+        title="The console could not be loaded"
+        description={error}
+        actionText="Try again"
+        onAction={reload}
+      />
+    );
+  }
+
+  if (!status || !userCount || !briefing) {
+    return (
+      <SkeletonRegion label="Loading the operations console" className={styles.consoleState}>
+        <Skeleton shape="block" height="5.5rem" />
+        <div className={styles.skeletonGrid}>
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((cell) => <Skeleton key={cell} shape="block" height="4rem" />)}
+        </div>
+        <Skeleton shape="block" height="12rem" />
+      </SkeletonRegion>
+    );
+  }
 
   const totalAttempts = briefing.sources.reduce((sum, source) => sum + source.attempts, 0);
   const totalSuccess = briefing.sources.reduce((sum, source) => sum + source.successfulAttempts, 0);
   const controlsDisabled = busy !== null;
+  const paused = briefing.automaticPublicationPaused;
   const searchCost = briefing.googleUsage.estimatedSpendUsd === null
     ? "Not set"
     : `$${briefing.googleUsage.estimatedSpendUsd.toFixed(4)}${briefing.googleUsage.monthlyBudgetUsd === null ? "" : ` / $${briefing.googleUsage.monthlyBudgetUsd.toFixed(2)}`}`;
@@ -70,196 +117,299 @@ export function AdminStatus() {
     ? "No data"
     : `${(status.publicReadCache.hitRatio * 100).toFixed(1)}% · ${status.publicReadCache.averageLoadMs ?? 0}ms`;
   const migrationStatus = briefing.migration.available
-    ? `Migrations applied: ${briefing.migration.applied} · latest version: ${briefing.migration.latestId ?? "unknown"}${briefing.migration.latestAppliedAt ? ` · ${formatDate(briefing.migration.latestAppliedAt)}` : ""}`
+    ? `${briefing.migration.applied} migrations applied · latest version ${briefing.migration.latestId ?? "unknown"}${briefing.migration.latestAppliedAt ? ` · ${formatDate(briefing.migration.latestAppliedAt)}` : ""}`
     : "Migration status is not available in this environment.";
 
   return (
     <>
       {error ? <p className={styles.error} {...assertiveLive}>{error}</p> : null}
       {message ? <p className={styles.notice} {...politeLive}>{message}</p> : null}
+      {/* Mounted at all times so the polite region exists before it speaks. */}
+      <p className={styles.consolePending} {...politeLive}>
+        {busy ? "Running an operation. Controls stay disabled until it finishes." : ""}
+      </p>
 
-      <div className={styles.summary}>
-        <Metric label="Environment" value={status.environment} />
-        <Metric label="Queue region" value={status.region} />
-        <Metric label="Monthly briefing cap" value={`$${status.aiBudgetUsd.toFixed(2)}`} />
-        <Metric label="Registered users" value={String(userCount.registeredUsers)} />
-        <Metric label="Collection attempts this week" value={String(totalAttempts)} />
-        <Metric label="Successful collections this week" value={String(totalSuccess)} />
-        <Metric label="Pending evidence" value={String(briefing.unprocessedEvidence)} />
-        <Metric label="Story clusters in 24 hours" value={String(briefing.clustersLast24Hours)} />
-        <Metric label="Search attempts this month" value={String(briefing.googleUsage.attemptsThisMonth)} />
-        <Metric label="Successful searches this month" value={String(briefing.googleUsage.successfulQueriesThisMonth)} />
-        <Metric label="Estimated search cost" value={searchCost} />
-        <Metric label="Public cache hits" value={cacheHits} />
-        <Metric label="Raw results in 24 hours" value={String(briefing.pipelineCounts.rawResults)} />
-        <Metric label="Unique results in 24 hours" value={String(briefing.pipelineCounts.uniqueResults)} />
-        <Metric label="Enriched evidence in 24 hours" value={String(briefing.pipelineCounts.enrichedEvidence)} />
-        <Metric label="Extracted claims in 24 hours" value={String(briefing.pipelineCounts.extractedClaims)} />
-        <Metric label="Raw volume (30 days)" value={`${(briefing.pipelineCounts.rawBytes30d / 1024 / 1024).toFixed(2)} MB`} />
-      </div>
+      {/* ── System status ────────────────────────────────────────────── */}
+      <section className={styles.section} id="console-status" aria-labelledby="console-status-heading">
+        <div className={styles.panelHead}>
+          <div>
+            <p className={styles.sectionLabel}>System status</p>
+            <h2 id="console-status-heading">This deployment and what it is connected to</h2>
+          </div>
+          <p className={styles.headNote}>{status.environment} · {status.region}</p>
+        </div>
 
-      <section className={styles.panel}>
-        <p className={styles.sectionLabel}>Resource identity</p>
-        <p className={styles.muted}>One-way fingerprints only, for comparing environments. Secrets and full identifiers are not shown.</p>
-        <div className={styles.compactMetrics}>
-          {Object.entries(status.resourceFingerprints ?? {}).map(([name, fingerprint]) => (
-            <Metric key={name} label={name} value={fingerprint ?? "Not set"} />
+        <div className={styles.controlBar} ref={controlBar}>
+          <div>
+            <p className={styles.sectionLabel}>Publication control</p>
+            <h3>{paused ? "Automatic publication is paused" : "Automatic publication is active"}</h3>
+            <p className={styles.muted}>
+              {paused
+                ? "Approved editions wait for a person. Collection and processing continue, so nothing is lost while this is off."
+                : "Approved editions publish to the public site on their own. Collection and processing run independently of this switch."}
+            </p>
+          </div>
+          <div className={styles.actionRow}>
+            <Button
+              variant={paused ? "primary" : "secondary"}
+              type="button"
+              disabled={controlsDisabled}
+              onClick={() => requestPublicationControl(!paused)}
+            >
+              {paused ? "Resume automatic publication" : "Pause automatic publication"}
+            </Button>
+            {!paused ? (
+              <Button variant="primary" type="button" disabled={controlsDisabled} onClick={requestEditionPublication}>
+                Publish today&apos;s approved edition
+              </Button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className={styles.summary}>
+          <Metric label="Environment" value={status.environment} />
+          <Metric label="Queue region" value={status.region} />
+          <Metric label="Monthly briefing cap" value={`$${status.aiBudgetUsd.toFixed(2)}`} />
+          <Metric label="Registered users" value={String(userCount.registeredUsers)} />
+          <Metric label="Public cache hits" value={cacheHits} />
+          <Metric label="Sign-in" value="Google identity active" />
+        </div>
+
+        <div className={styles.grid}>
+          {Object.entries(status.integrations).map(([name, active]) => (
+            <article className={styles.service} key={name}>
+              <span className={active ? styles.ok : styles.wait}>{active ? "Ready" : "Waiting"}</span>
+              <h3>{name}</h3>
+            </article>
           ))}
         </div>
-      </section>
 
-      <section className={styles.controlBar}>
-        <div>
-          <p className={styles.sectionLabel}>Publication control</p>
-          <h2>{briefing.automaticPublicationPaused ? "Automatic publication is paused" : "Automatic publication is active"}</h2>
-          <p className={styles.muted}>Collection and processing continue independently. This pause does not stop them.</p>
-        </div>
-        <div className={styles.actionRow}>
-          <span className={styles.ok}>Google sign-in is active</span>
-          <Button
-            variant={briefing.automaticPublicationPaused ? "primary" : "secondary"}
-            type="button"
-            disabled={controlsDisabled}
-            onClick={() => mutateControl(!briefing.automaticPublicationPaused)}
-          >
-            {briefing.automaticPublicationPaused ? "Resume automatic publication" : "Pause automatic publication"}
-          </Button>
-          {!briefing.automaticPublicationPaused ? (
-            <Button variant="primary" type="button" disabled={controlsDisabled} onClick={resumePausedEdition}>
-              Publish today&apos;s approved edition
-            </Button>
-          ) : null}
+        <div className={styles.twoColumns}>
+          <div className={styles.panel}>
+            <p className={styles.sectionLabel}>Resource identity</p>
+            <p className={styles.muted}>One-way fingerprints only, for comparing environments. Secrets and full identifiers are never shown here.</p>
+            <div className={styles.compactMetrics}>
+              {Object.entries(status.resourceFingerprints ?? {}).map(([name, fingerprint]) => (
+                <Metric key={name} label={name} value={fingerprint ?? "Not set"} />
+              ))}
+            </div>
+          </div>
+          <div className={styles.panel}>
+            <p className={styles.sectionLabel}>Database schema</p>
+            <p className={styles.muted}>{migrationStatus}</p>
+            <p className={styles.sectionLabel}>Operational alerts</p>
+            {briefing.alerts.length ? (
+              <ul className={styles.logList}>{briefing.alerts.map((entry) => <li key={entry.id}><span className={entry.severity === "critical" ? styles.wait : styles.ok}>{entry.severity}</span><strong>{entry.kind}</strong><small>{entry.message} · {entry.notifiedAt ? "notification sent" : "notification pending"}</small></li>)}</ul>
+            ) : <p className={styles.muted}>No open alerts.</p>}
+          </div>
         </div>
       </section>
 
-      <section className={styles.panel}>
-        <p className={styles.sectionLabel}>Database schema</p>
-        <p className={styles.muted}>{migrationStatus}</p>
-      </section>
-
-      <section className={styles.panel}>
+      {/* ── Pipeline ─────────────────────────────────────────────────── */}
+      <section className={styles.section} id="console-pipeline" aria-labelledby="console-pipeline-heading">
         <div className={styles.panelHead}>
           <div>
             <p className={styles.sectionLabel}>Daily pipeline</p>
-            <h2>Runs, queues, and costs</h2>
+            <h2 id="console-pipeline-heading">Runs, queues, and cost</h2>
           </div>
           <div className={styles.actionRow}>
             <Button variant="secondary" type="button" disabled={controlsDisabled} onClick={runDeepHealth}>Deep health check</Button>
-            <Button variant="secondary" type="button" disabled={controlsDisabled} onClick={syncRssCatalog}>Sync source URLs</Button>
             <Button variant="primary" type="button" disabled={controlsDisabled} onClick={runBriefing}>Run processing now</Button>
-            <Button variant="danger" type="button" disabled={controlsDisabled} onClick={forceFullBriefingRerun}>Force today&apos;s edition rerun</Button>
           </div>
         </div>
+
         <div className={styles.compactMetrics}>
           <Metric label="Cost in 24 hours" value={`$${briefing.spend.last24HoursUsd.toFixed(4)}`} />
           <Metric label="Cost in 30 days" value={`$${briefing.spend.last30DaysUsd.toFixed(4)}`} />
           <Metric label="Failures this week" value={String(briefing.failedRuns)} />
           <Metric label="Open quarantine" value={String(briefing.quarantine.length)} />
+          <Metric label="Story clusters in 24 hours" value={String(briefing.clustersLast24Hours)} />
+          <Metric label="Pending evidence" value={String(briefing.unprocessedEvidence)} />
+          <Metric label="Raw results in 24 hours" value={String(briefing.pipelineCounts.rawResults)} />
+          <Metric label="Unique results in 24 hours" value={String(briefing.pipelineCounts.uniqueResults)} />
+          <Metric label="Enriched evidence in 24 hours" value={String(briefing.pipelineCounts.enrichedEvidence)} />
+          <Metric label="Extracted claims in 24 hours" value={String(briefing.pipelineCounts.extractedClaims)} />
+          <Metric label="Raw volume (30 days)" value={`${(briefing.pipelineCounts.rawBytes30d / 1024 / 1024).toFixed(2)} MB`} />
+          <Metric label="Latest run" value={briefing.latestRunAt ? formatDate(briefing.latestRunAt) : "None recorded"} />
         </div>
-        {deepHealth ? <div className={styles.healthStrip}>{Object.entries(deepHealth.checks).map(([name, check]) => <span key={name} className={check.status === "ok" ? styles.ok : styles.wait}>{name} · {check.status} · {check.latencyMs}ms</span>)}</div> : null}
+
+        {deepHealth ? (
+          <div className={styles.healthStrip}>
+            {Object.entries(deepHealth.checks).map(([name, check]) => (
+              <span key={name} className={check.status === "ok" ? styles.ok : styles.wait}>{name} · {check.status} · {check.latencyMs}ms</span>
+            ))}
+          </div>
+        ) : null}
         <div className={styles.queueRow}>{briefing.jobs.map((job) => <span key={job.state}><strong>{job.count}</strong> {job.state}</span>)}</div>
+
+        <div className={styles.twoColumns}>
+          <div className={styles.panel}>
+            <p className={styles.sectionLabel}>Recent runs</p>
+            {briefing.runs.length ? (
+              <ul className={styles.logList}>{briefing.runs.map((run) => <li key={run.id}><span className={run.status === "completed" ? styles.ok : styles.wait}>{run.status}</span><strong>{run.localDate} · {run.stage}</strong><small>{run.inputCount} in, {run.outputCount} out{run.error ? ` · ${run.error}` : ""}</small></li>)}</ul>
+            ) : <p className={styles.muted}>No runs recorded yet.</p>}
+          </div>
+          <div className={styles.panel}>
+            <p className={styles.sectionLabel}>Quality quarantine</p>
+            {briefing.quarantine.length ? (
+              <ul className={styles.logList}>{briefing.quarantine.map((entry) => <li key={entry.id}><span className={styles.wait}>{entry.stage}</span><strong>{entry.candidateKey}</strong><small>{entry.reason}</small></li>)}</ul>
+            ) : <p className={styles.muted}>No items in quarantine.</p>}
+          </div>
+        </div>
+
+        <div className={styles.twoColumns}>
+          <div className={styles.panel}>
+            <p className={styles.sectionLabel}>Narrative trends</p>
+            {briefing.narrativeTrends.length ? (
+              <ul className={styles.logList}>{briefing.narrativeTrends.map((entry) => <li key={entry.id}><span className={styles.wait}>{entry.status}</span><strong>{entry.title}</strong><small>{entry.observationCount} observations{entry.lastSeenAt ? ` · ${formatDate(entry.lastSeenAt)}` : ""}</small></li>)}</ul>
+            ) : <p className={styles.muted}>No active trends.</p>}
+          </div>
+          <div className={styles.panel}>
+            <p className={styles.sectionLabel}>Cost by model and stage</p>
+            <div className={styles.tableWrap}>
+              <table className={`${styles.table} ${styles.tableCompact}`}>
+                <thead><tr><th>Model</th><th>Stage</th><th>Calls</th><th>Cost</th></tr></thead>
+                <tbody>{briefing.spend.byModel.map((entry) => <tr key={`${entry.model}:${entry.stage}`}><td>{entry.model}</td><td>{entry.stage}</td><td>{entry.calls}</td><td>${entry.costUsd.toFixed(4)}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.dangerZone}>
+          <p className={styles.dangerLabel}>Irreversible actions</p>
+          <p className={styles.muted}>A forced rerun regenerates today&apos;s edition from the start and spends model budget again. It names its consequence before it runs.</p>
+          <div className={styles.actionRow}>
+            <Button variant="danger" type="button" disabled={controlsDisabled} onClick={requestForcedRerun}>
+              Force today&apos;s edition rerun
+            </Button>
+          </div>
+        </div>
       </section>
 
-      <section className={styles.panel}>
+      {/* ── Sources ──────────────────────────────────────────────────── */}
+      <section className={styles.section} id="console-sources" aria-labelledby="console-sources-heading">
         <div className={styles.panelHead}>
           <div>
             <p className={styles.sectionLabel}>Sources</p>
-            <h2>Health and throughput, last seven days</h2>
+            <h2 id="console-sources-heading">Collection health and throughput</h2>
+          </div>
+          <div className={styles.actionRow}>
+            <Button variant="secondary" type="button" disabled={controlsDisabled} onClick={syncRssCatalog}>Sync source URLs</Button>
           </div>
         </div>
-        <div className={styles.tableWrap}><table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Source</th>
-              <th>Kind</th>
-              <th>Status</th>
-              <th>Attempts</th>
-              <th>Successes</th>
-              <th>Seen</th>
-              <th>New</th>
-              <th>Last success</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>{briefing.sources.map((source) => <tr key={source.id}>
-            <td><strong>{source.name}</strong>{source.disabledReason || source.verificationError ? <small>{source.disabledReason ?? source.verificationError}</small> : null}</td>
-            <td>{source.kind}</td>
-            <td>
-              <span className={source.active && source.consecutiveFailures === 0 ? styles.ok : styles.wait}>
-                {source.active ? `${source.consecutiveFailures} failures` : "Disabled"}
-              </span>
-            </td>
-            <td>{source.attempts}</td>
-            <td>{source.successfulAttempts}</td>
-            <td>{source.itemsSeen}</td>
-            <td>{source.itemsNew}</td>
-            <td>{source.lastSuccessfulFetchAt ? formatDate(source.lastSuccessfulFetchAt) : "—"}</td>
-            <td>
-              {["rss", "api", "agent_search"].includes(source.kind) && !source.active ? (
-                <Button variant="secondary" type="button" disabled={controlsDisabled} onClick={() => verifySource(source)}>
-                  Verify and enable
-                </Button>
-              ) : "—"}
-            </td>
-          </tr>)}</tbody>
-        </table></div>
-      </section>
 
-      <section className={styles.twoColumns}>
-        <div className={styles.panel}>
-          <p className={styles.sectionLabel}>Recent runs</p>
-          <ul className={styles.logList}>{briefing.runs.map((run) => <li key={run.id}><span className={run.status === "completed" ? styles.ok : styles.wait}>{run.status}</span><strong>{run.localDate} · {run.stage}</strong><small>{run.inputCount} ← {run.outputCount}{run.error ? ` · ${run.error}` : ""}</small></li>)}</ul>
+        <div className={styles.compactMetrics}>
+          <Metric label="Collection attempts this week" value={String(totalAttempts)} />
+          <Metric label="Successful collections this week" value={String(totalSuccess)} />
+          <Metric label="Search attempts this month" value={String(briefing.googleUsage.attemptsThisMonth)} />
+          <Metric label="Successful searches this month" value={String(briefing.googleUsage.successfulQueriesThisMonth)} />
+          <Metric label="Estimated search cost" value={searchCost} />
+          <Metric label="Sources configured" value={String(briefing.sources.length)} />
         </div>
-        <div className={styles.panel}>
-          <p className={styles.sectionLabel}>Quality quarantine</p>
-          {briefing.quarantine.length ? (
-            <ul className={styles.logList}>{briefing.quarantine.map((entry) => <li key={entry.id}><span className={styles.wait}>{entry.stage}</span><strong>{entry.candidateKey}</strong><small>{entry.reason}</small></li>)}</ul>
-          ) : <p className={styles.muted}>No items in quarantine.</p>}
-        </div>
-      </section>
 
-      <section className={styles.twoColumns}>
-        <div className={styles.panel}>
-          <p className={styles.sectionLabel}>Narrative trends</p>
-          {briefing.narrativeTrends.length ? (
-            <ul className={styles.logList}>{briefing.narrativeTrends.map((entry) => <li key={entry.id}><span className={styles.wait}>{entry.status}</span><strong>{entry.title}</strong><small>{entry.observationCount} observations{entry.lastSeenAt ? ` · ${formatDate(entry.lastSeenAt)}` : ""}</small></li>)}</ul>
-          ) : <p className={styles.muted}>No active trends.</p>}
-        </div>
-        <div className={styles.panel}>
-          <p className={styles.sectionLabel}>Operational alerts</p>
-          {briefing.alerts.length ? (
-            <ul className={styles.logList}>{briefing.alerts.map((entry) => <li key={entry.id}><span className={entry.severity === "critical" ? styles.wait : styles.ok}>{entry.severity}</span><strong>{entry.kind}</strong><small>{entry.message} · {entry.notifiedAt ? "sent" : "pending"}</small></li>)}</ul>
-          ) : <p className={styles.muted}>No open alerts.</p>}
-        </div>
-      </section>
-
-      <section className={styles.panel}>
-        <p className={styles.sectionLabel}>Cost by model and stage</p>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
-            <thead><tr><th>Model</th><th>Stage</th><th>Calls</th><th>Cost</th></tr></thead>
-            <tbody>{briefing.spend.byModel.map((entry) => <tr key={`${entry.model}:${entry.stage}`}><td>{entry.model}</td><td>{entry.stage}</td><td>{entry.calls}</td><td>${entry.costUsd.toFixed(4)}</td></tr>)}</tbody>
+            <caption className={styles.tableCaption}>Health and throughput over the last seven days. A disabled source stays disabled until a live check returns a valid feed.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Source</th>
+                <th scope="col">Kind</th>
+                <th scope="col">Status</th>
+                <th scope="col">Attempts</th>
+                <th scope="col">Successes</th>
+                <th scope="col">Seen</th>
+                <th scope="col">New</th>
+                <th scope="col">Last success</th>
+                <th scope="col">Recovery</th>
+              </tr>
+            </thead>
+            <tbody>{briefing.sources.map((source) => <tr key={source.id}>
+              <th scope="row"><strong>{source.name}</strong>{source.disabledReason || source.verificationError ? <small>{source.disabledReason ?? source.verificationError}</small> : null}</th>
+              <td>{source.kind}</td>
+              <td>
+                <span className={source.active && source.consecutiveFailures === 0 ? styles.ok : styles.wait}>
+                  {source.active ? `Active · ${source.consecutiveFailures} failures` : "Disabled"}
+                </span>
+              </td>
+              <td>{source.attempts}</td>
+              <td>{source.successfulAttempts}</td>
+              <td>{source.itemsSeen}</td>
+              <td>{source.itemsNew}</td>
+              <td>{source.lastSuccessfulFetchAt ? formatDate(source.lastSuccessfulFetchAt) : "—"}</td>
+              <td>
+                {["rss", "api", "agent_search"].includes(source.kind) && !source.active ? (
+                  <Button variant="secondary" size="sm" type="button" disabled={controlsDisabled} onClick={() => verifySource(source)}>
+                    Verify and enable
+                  </Button>
+                ) : "—"}
+              </td>
+            </tr>)}</tbody>
           </table>
         </div>
       </section>
 
-      <div className={styles.grid}>{Object.entries(status.integrations).map(([name, active]) => <article className={styles.service} key={name}><span className={active ? styles.ok : styles.wait}>{active ? "Ready" : "Waiting"}</span><h2>{name}</h2></article>)}</div>
-      <Button
-        variant="secondary"
-        type="button"
-        onClick={async () => { await auth.signOut(); router.replace("/admin/login"); router.refresh(); }}
-      >
-        Sign out
-      </Button>
+      <ConfirmDialog
+        intent={confirmIntent}
+        onClose={() => setConfirmIntent(null)}
+        fallbackFocusRef={controlBar}
+      />
     </>
   );
 
-  async function mutateControl(paused: boolean) {
+  /* ── Confirmed operations ───────────────────────────────────────────
+     Everything that changes what the public sees, or spends the budget
+     again, states its consequence first. */
+
+  function requestPublicationControl(nextPaused: boolean) {
+    setConfirmIntent(nextPaused
+      ? {
+        action: "Pause automatic publication",
+        target: "Automatic publication for this deployment",
+        consequence: "Approved editions stop reaching the public site until this is resumed. Collection and processing continue, so nothing is lost — but nothing new is published either.",
+        confirmLabel: "Pause automatic publication",
+        tone: "danger",
+        run: () => mutateControl(true),
+      }
+      : {
+        action: "Resume automatic publication",
+        target: "Automatic publication for this deployment",
+        consequence: "Approved editions publish themselves to the public site again, with no further prompt before each one.",
+        confirmLabel: "Resume automatic publication",
+        tone: "primary",
+        run: () => mutateControl(false),
+      });
+  }
+
+  function requestEditionPublication() {
+    setConfirmIntent({
+      action: "Publish today's approved edition now",
+      target: "Today's edition",
+      targetDetail: new Intl.DateTimeFormat("en-GB", { dateStyle: "full" }).format(new Date()),
+      consequence: "Every approved article in today's edition becomes readable on public pages and available to search engines immediately. Taking one down again means archiving it, which readers may already have seen.",
+      confirmLabel: "Publish the edition",
+      tone: "primary",
+      run: resumePausedEdition,
+    });
+  }
+
+  function requestForcedRerun() {
+    setConfirmIntent({
+      action: "Force a full rerun of today's edition",
+      target: "Today's briefing edition",
+      targetDetail: new Intl.DateTimeFormat("en-GB", { dateStyle: "full" }).format(new Date()),
+      consequence: "Today's edition is regenerated from the start and model budget is spent again. New output that passes the quality gates publishes automatically and replaces what readers see now.",
+      confirmLabel: "Force the rerun",
+      tone: "danger",
+      run: forceFullBriefingRerun,
+    });
+  }
+
+  async function mutateControl(nextPaused: boolean) {
     setBusy("control"); setError(null); setMessage(null);
     try {
-      const response = await fetch("/api/v1/admin/briefing/control", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ automaticPublicationPaused: paused }) });
+      const response = await fetch("/api/v1/admin/briefing/control", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ automaticPublicationPaused: nextPaused }) });
       if (!response.ok) throw new Error("Unable to update publication control.");
-      await load(); setMessage(paused ? "Automatic publication is paused." : "Automatic publication is active.");
+      await load(); setMessage(nextPaused ? "Automatic publication is paused." : "Automatic publication is active.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "The operation failed."); } finally { setBusy(null); }
   }
   async function runBriefing() {
@@ -285,7 +435,6 @@ export function AdminStatus() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : "The operation failed."); } finally { setBusy(null); }
   }
   async function forceFullBriefingRerun() {
-    if (!window.confirm("Rerun today's edition? New output will pass the quality gates and publish automatically if approved.")) return;
     setBusy("force-rerun"); setError(null); setMessage(null);
     try {
       const response = await fetch("/api/v1/admin/briefing/run", {

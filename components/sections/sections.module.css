@@ -47,14 +47,33 @@
  *                                  and `still` composes a stationary frame.
  * A route family's numbers come from `scanProfiles.ts`; a page's own
  * `register` (`.registerMuted`) and `surface` (`.surfaceQuiet`) stack on top
- * as per-page multipliers. */
+ * as per-page multipliers.
+ *
+ * `user-select: none` is the fourth half of "inert", added with the §7 audit.
+ * `pointer-events: none` stops the rows catching a click; it does nothing
+ * about a keyboard Select-All, which was picking up sixteen corpus fragments
+ * and interleaving them through the copied article. `aria-hidden` keeps them
+ * out of the accessibility tree; this keeps them out of the clipboard. */
 .backdrop {
   position: fixed;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
   --scan-intensity: 1;
   --scan-speed: 1;
+}
+
+/* Both properties above are inherited, so every row already had them. Stated
+   again on the subtree so the invariant is a rule a reader — and
+   `tests/intro-accessibility.test.ts` — can point at, rather than a fact
+   about CSS inheritance that a later `pointer-events: auto` on one row would
+   quietly repeal. The subtree is the row field and sixteen spans. */
+.backdrop * {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .backdrop[data-speed="slow"] {
@@ -89,9 +108,24 @@
 }
 
 
+/* The rows start below the masthead, not behind it.
+ *
+ * `--header-h` of inset, from the §7 contrast audit. `SiteHeader`'s bar is
+ * `linear-gradient(--glass-middle, --glass-bottom)` — alpha 0.29 at its top
+ * edge — over a 16px `backdrop-filter`, so it is a veil and not a lid, and a
+ * drifting row was compositing straight through it. Measured against the
+ * bar's own smallest text (`.brandRole`, `--ink-lo` at `--t-data`, which
+ * reads 5.38:1 on the bare ground) a loud row under the thin end of that
+ * gradient took it to 3.29:1 — below the 4.5 floor, and not a number any
+ * profile intensity this side of invisible could recover.
+ *
+ * Insetting the field is the structural answer rather than the numeric one:
+ * `.page` already starts its content at `padding-top: var(--header-h)`, so
+ * the strip being given up holds nothing but ground, and the header now
+ * blurs an empty backdrop instead of a moving one. */
 .rowField {
   position: absolute;
-  inset: 0;
+  inset: var(--header-h) 0 0;
   overflow: hidden;
 
   --fade: 2.75rem;

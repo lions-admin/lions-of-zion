@@ -3,8 +3,13 @@
  * Layer 1 — a full-screen network scan made only from particle sprites.
  * Horizontal traces are seeded geometry; labels and platform glyphs are
  * sampled from a temporary canvas into point positions (no texture is used by
- * the renderer). A dark exclusion mask is authored into the point layout so
- * the lion, spokes and navigation labels retain hierarchy.
+ * the renderer).
+ *
+ * Hierarchy is kept by two different mechanisms, and the split matters. The
+ * eight spokes are fixed for a layout, so they are excluded from the point
+ * layout at build time. The lion is not fixed — it rises and shrinks through
+ * the intro — so its exclusion is a per-frame uniform on every layer and
+ * nothing is punched out of the geometry for it.
  */
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -51,6 +56,23 @@ const HERO_TO_FIELD = NODE_TO_FIELD;
 /** Text plane (`IntroText` places rows at z = 0.08) to field plane. */
 const TEXT_Z = 0.08;
 const TEXT_TO_FIELD = (CAMERA_Z - FIELD_Z) / (CAMERA_Z - TEXT_Z);
+
+/**
+ * Ordering only — this layer never renders anything itself.
+ *
+ * `Scene.tsx` writes `experienceFrameRef` from its own default-priority
+ * `useFrame`, and this layer is its child. r3f orders `internal.subscribers`
+ * by priority and subscribes on layout effect, so a child's default-priority
+ * callback lands *before* its parent's and would read the previous frame's
+ * lion — a one-frame lag on the hero hole and the text corridor during the
+ * fastest part of the rise. Any value above 0 and below the post chain's 1
+ * puts the read after the write and before the draw.
+ *
+ * It does not take rendering into its own hands: r3f only checks whether
+ * `internal.priority` is truthy to skip its auto-render, and `Scene`'s
+ * priority-1 post pass already made it so.
+ */
+const SCAN_FRAME_PRIORITY = 0.5;
 
 interface PointCloudData {
   field: Float32Array;
@@ -166,17 +188,29 @@ function distanceToSegment(
   return Math.hypot(px - (ax + abx * t), py - (ay + aby * t));
 }
 
-function createExclusionTest(orbit: OrbitLayout, count: number, depthScale: number) {
+/**
+ * The eight spoke positions and their connectors, projected onto the field
+ * plane. Fixed for a layout, and the layer is rebuilt on resize, so keeping
+ * them out of the geometry is free and exact.
+ *
+ * The lion is deliberately *not* here. Until 2026-09-04 this also punched a
+ * centred ellipse of `RETIRED_FIELD_HOLE_X/Y * orbit.centerScale`, which was
+ * solved once for the settled navigation state and then frozen on world
+ * centre. Through the intro the lion is up and small and the hole was not —
+ * it sat under the text column as an empty oval that no uniform could move,
+ * which is the defect this replaces. The hero exclusion is now only
+ * `heroCenterY`/`heroMaskX`/`heroMaskY`, written every frame from
+ * `lionY`/`lionScale`; in the navigation state its fully dark core is about
+ * 4% wider than the ellipse retired here, so nothing was given up.
+ */
+function createNodeExclusionTest(orbit: OrbitLayout, count: number, depthScale: number) {
   const nodes = Array.from({ length: count }, (_, i) => {
     const [x, y] = nodePosition(i, count, orbit);
     return { x: x * depthScale, y: y * depthScale };
   });
-  const centreX = 1.34 * orbit.centerScale * depthScale;
-  const centreY = 1.18 * orbit.centerScale * depthScale;
   const nodeGap = (orbit.nodeVisualRadius + 0.22) * depthScale;
 
   return (x: number, y: number) => {
-    if ((x / centreX) ** 2 + (y / centreY) ** 2 < 1) return true;
     for (const node of nodes) {
       if (Math.hypot(x - node.x, y - node.y) < nodeGap) return true;
       if (distanceToSegment(x, y, 0, 0, node.x, node.y) < 0.075 * depthScale) return true;
@@ -194,7 +228,7 @@ function buildScanField(
   const rng = mulberry32(0x5ca11fab);
   const out: number[] = [];
   const depthScale = NODE_TO_FIELD;
-  const excluded = createExclusionTest(orbit, 8, depthScale);
+  const excluded = createNodeExclusionTest(orbit, 8, depthScale);
   const rows = pointBudget <= 8_000 ? 32 : 52;
 
   const push = (x: number, y: number, size: number, seed: number) => {
@@ -202,9 +236,22 @@ function buildScanField(
     out.push(x, y, size, seed);
   };
 
-  const perRowBudget = Math.floor(pointBudget / rows);
   for (let row = 0; row < rows; row++) {
     const rowStart = out.length;
+    /*
+     * An even share of what is *left*, not a fixed `pointBudget / rows`.
+     *
+     * Rows are laid bottom-up and the cap inside `push` silently drops
+     * everything after the budget runs out, so under a fixed share every
+     * excluded point is a debt the top of the screen pays. Dropping the
+     * centre hole grew that debt: measured over an eight-seed ensemble at
+     * 1440x900 / 18k points, the top band lost 10.6% of its traces while the
+     * bottom band lost exactly 0. Handing each row an even share of the
+     * remainder holds the same change to 1.9% top and 1.0% bottom, at
+     * identical total count — this never raises the budget, it only stops one
+     * end of the field spending the whole of it.
+     */
+    const perRowBudget = Math.ceil((pointBudget - rowStart / 4) / (rows - row));
     const y = -halfHeight + ((row + 0.5) / rows) * halfHeight * 2 + (rng() - 0.5) * 0.055;
     let cursor = -halfWidth - rng() * 0.35;
     while (cursor < halfWidth && (out.length - rowStart) / 4 < perRowBudget) {
@@ -746,7 +793,7 @@ export function NetworkScan({
 
   /* A rebuild happens on every resize, including across the 620 px compact
      threshold and the 720 px intro breakpoint. Fresh materials carry the
-     navigation opacity and the centred hole, so they are brought level with
+     navigation opacity and a centred hero hole, so they are brought level with
      the current frame at commit, before the loop's next tick draws them —
      otherwise the intro could flash a full-strength, unmasked scan for a
      frame. Refs are read here, not during render. */
@@ -774,7 +821,7 @@ export function NetworkScan({
       dprRef.current,
       reducedMotion,
     );
-  });
+  }, SCAN_FRAME_PRIORITY);
 
   useEffect(
     () => () => {

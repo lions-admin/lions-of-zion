@@ -23,7 +23,11 @@ import {
   vec2,
   vec3,
 } from 'three/tsl';
-import { TEXT_CORRIDOR_MUTE } from '@/components/intro/scanIntro';
+import {
+  LION_MASK_EDGE_INNER,
+  LION_MASK_EDGE_OUTER,
+  TEXT_CORRIDOR_MUTE,
+} from '@/components/intro/scanIntro';
 import type { ParticleNavTheme } from '../types';
 
 /**
@@ -131,11 +135,16 @@ export function createNetworkScanMaterial(
     .sub(options.halfWidth);
   const x = options.flow ? wrappedX : p.x;
   material.positionNode = vec3(x, p.y, options.z);
+  // The only hero exclusion there is. `NetworkScan` stopped punching a centred
+  // hole into the field geometry on 2026-09-04, because a build-time hole is
+  // frozen at world centre while the lion rises and shrinks through the intro.
+  // The band is shared with `lionScanMaskOpacity`, the CPU mirror the
+  // navigation state is proved against.
   const heroMask = options.maskX === undefined || options.maskY === undefined
     ? float(1)
     : smoothstep(
-        0.86,
-        1.24,
+        LION_MASK_EDGE_INNER,
+        LION_MASK_EDGE_OUTER,
         vec2(
           x.div(uniforms.heroMaskX),
           p.y.sub(uniforms.heroCenterY).div(uniforms.heroMaskY),

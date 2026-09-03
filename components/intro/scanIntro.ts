@@ -82,6 +82,51 @@ export function solveLionScanMask(
 }
 
 /**
+ * The band the hole is faded through, in half-axis units: fully dark at or
+ * inside `INNER`, untouched at or outside `OUTER`.
+ *
+ * `networkScanMaterial.ts` imports these for its `smoothstep`, and
+ * `lionScanMaskOpacity` below mirrors that `smoothstep` on the CPU. One
+ * definition, because the whole point of the pair is that the navigation
+ * state can be proved arithmetically against a shader nothing can run under
+ * vitest.
+ */
+export const LION_MASK_EDGE_INNER = 0.86;
+export const LION_MASK_EDGE_OUTER = 1.24;
+
+/**
+ * The centred ellipse `buildScanField` used to punch out of the field
+ * geometry at build time, in lion-plane units per unit of
+ * `orbit.centerScale`.
+ *
+ * Retired 2026-09-04. It was solved once, at build time, from
+ * `orbit.centerScale` and frozen on world centre — correct for the settled
+ * navigation state and wrong for every intro frame, where the lion has risen
+ * and shrunk and the hole stayed behind as an empty oval under the text
+ * column that no uniform could move. The field is generated uniformly now and
+ * the runtime mask above is the only hero exclusion.
+ *
+ * These stay because they are the bound that mask has to keep covering:
+ * `LION_MASK_EDGE_INNER * LION_MASK_{X,Y}_PER_SCALE` exceeds them, so the
+ * fully dark core of the runtime hole contains the retired one at every
+ * `centerScale`. `tests/intro-scan.test.ts` pins it.
+ */
+export const RETIRED_FIELD_HOLE_X = 1.34;
+export const RETIRED_FIELD_HOLE_Y = 1.18;
+
+/**
+ * The hero hole's opacity multiplier at a point on the mask's own plane: 0
+ * inside the hole, 1 clear of it, smooth between. The CPU mirror of the
+ * `smoothstep` in `networkScanMaterial.ts`, including its `1e-3` floor on the
+ * half-axes, which is what `NetworkScan` clamps the uniforms to.
+ */
+export function lionScanMaskOpacity(x: number, y: number, mask: LionScanMask): number {
+  const nx = x / Math.max(1e-3, mask.halfX);
+  const ny = (y - mask.centerY) / Math.max(1e-3, mask.halfY);
+  return smoothstep(LION_MASK_EDGE_INNER, LION_MASK_EDGE_OUTER, Math.hypot(nx, ny));
+}
+
+/**
  * How far the scan is dimmed inside the text corridor at full `readingMask`:
  * `1 - TEXT_CORRIDOR_MUTE` of its opacity survives. A dim, not a hole — the
  * corridor is where the story is read, and a black rectangle behind moving
@@ -149,4 +194,10 @@ export function solveScanCorridor(
 
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
+}
+
+/** GLSL/TSL `smoothstep`, so the CPU mirror above matches the node graph. */
+function smoothstep(edge0: number, edge1: number, x: number): number {
+  const t = clamp01((x - edge0) / (edge1 - edge0));
+  return t * t * (3 - 2 * t);
 }

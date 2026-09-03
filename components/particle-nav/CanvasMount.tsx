@@ -33,6 +33,37 @@ const Scene = dynamic(() => import('./Scene'), { ssr: false });
    silently eats every touch — the surest way to make someone tap again. */
 const HANDOFF_INPUT_GUARD_MS = 700;
 
+/**
+ * The entrance's dead-man switch.
+ *
+ * `Scene` reports `onReady` from its first *composed* frame — not from a
+ * loaded font, not from a decoded lion — so a canvas that is merely slow and
+ * a canvas that will never paint look identical from here until one of them
+ * paints. And the second case is reachable: `usePerfTier` calls the backend
+ * `webgpu` on the strength of `'gpu' in navigator` alone, without ever asking
+ * for an adapter, so every machine that advertises WebGPU and cannot deliver
+ * it — no adapter, a blocklisted GPU, a lost device, a shader that will not
+ * compile, a VM — takes the intro path and then never renders.
+ *
+ * What that leaves on screen is the worst state this component can produce.
+ * `[data-intro-only]` is `position: fixed`, `inset: 0`, `z-index: 1000` on
+ * `#000`, so it is the whole viewport; `onIntroComplete` can only come from
+ * the frame loop that is not running, so `introDone` never flips; and
+ * `.skipIntro` is still `opacity: 0`, because its reveal is keyed on
+ * `[data-live]` — which is `canvasLive`, the signal that never arrived. The
+ * page is a black rectangle for the rest of the session. Escape still works,
+ * and the invisible Skip is still focusable and still takes a blind tap in
+ * the corner, but neither of those is a fallback anyone can find.
+ *
+ * So readiness itself is bounded. A healthy first frame lands inside a few
+ * hundred milliseconds; this is an order of magnitude past that, and it is
+ * cleared the moment `canvasLive` arrives, so it can only fire on a canvas
+ * that genuinely never painted. When it fires it runs the ordinary handoff —
+ * marked seen, guarded, `introDismissed` — and the server-rendered home
+ * underneath becomes the page, which is exactly the no-GPU result.
+ */
+const INTRO_READY_TIMEOUT_MS = 6_000;
+
 export interface NavClientProps {
   nodes: NavNode[];
   radius: number;
@@ -236,6 +267,16 @@ export function NavClient({
     if (handoffTimerRef.current) clearTimeout(handoffTimerRef.current);
   }, []);
 
+  /* See `INTRO_READY_TIMEOUT_MS`. Armed only while the entrance is actually
+     running and the canvas has not reported a frame; the first frame clears
+     it, so on every working device this timer is disarmed long before it
+     could fire. */
+  useEffect(() => {
+    if (!introRunning || canvasLive) return;
+    const id = window.setTimeout(completeIntro, INTRO_READY_TIMEOUT_MS);
+    return () => window.clearTimeout(id);
+  }, [canvasLive, completeIntro, introRunning]);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -307,8 +348,6 @@ export function NavClient({
   }, [handoffBlocked, introRunning]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
     const startGesture = () => {
       gestureStartRef.current = performance.now();
     };
@@ -317,16 +356,31 @@ export function NavClient({
       event.preventDefault();
       event.stopPropagation();
     };
-    // Capture, so a gesture is recorded even where the target is inert.
+    /* All four on the window, in the capture phase.
+     *
+     * The gesture listeners are on the window because a gesture must be
+     * recorded even where the target is inert. The click listener is on the
+     * window for a different and, until now, unmet reason: the links this
+     * guard exists to protect are not inside this component. `CanvasMount`'s
+     * `children` on the home route is the poster; `CinematicIntroGate` renders
+     * the page itself into `.introDestination`, a *sibling* of this container.
+     * A listener on `containerRef` therefore covered the eight orbit links —
+     * `display: none` below 720px — and never once saw the full-width card to
+     * the Geopolitical Brief that the comment above describes.
+     *
+     * `shouldSwallowClick` short-circuits on `navLiveAt === 0`, so the window
+     * scope costs nothing on the routes that never run an intro, and it is
+     * one-shot on the route that does: every gesture after the navigation goes
+     * live postdates `liveAtRef`. */
     window.addEventListener('pointerdown', startGesture, true);
     window.addEventListener('touchstart', startGesture, true);
     window.addEventListener('keydown', startGesture, true);
-    container.addEventListener('click', swallowStaleClick, true);
+    window.addEventListener('click', swallowStaleClick, true);
     return () => {
       window.removeEventListener('pointerdown', startGesture, true);
       window.removeEventListener('touchstart', startGesture, true);
       window.removeEventListener('keydown', startGesture, true);
-      container.removeEventListener('click', swallowStaleClick, true);
+      window.removeEventListener('click', swallowStaleClick, true);
     };
   }, []);
 

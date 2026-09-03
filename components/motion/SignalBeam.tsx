@@ -52,7 +52,12 @@ export interface SignalBeamProps {
    * for fan-ins where the endpoints stack instead of sitting side by side.
    */
   curveAxis?: "x" | "y";
-  /** Seconds for one traverse. */
+  /**
+   * Seconds for one traverse. Defaults to the ambient register (§13: an
+   * ambient loop cycles no faster than 5s), which is `--dur-ambient` — the
+   * one number a beam restates in TypeScript, because the duration is a prop
+   * rather than a custom property.
+   */
   duration?: number;
   delay?: number;
   reverse?: boolean;
@@ -241,7 +246,7 @@ export function SignalBeam({
   toRef,
   curvature = 0,
   curveAxis = "x",
-  duration = 4.5,
+  duration = 7,
   delay = 0,
   reverse = false,
   tone = "signal",

@@ -61,45 +61,48 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  color: #f6f3eb;
+  color: var(--ink-hi);
   font-family: var(--face-text);
-  text-shadow: 0 1px 0 #000, 0 0 1.25rem rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 0 var(--ground), 0 0 1.25rem rgba(0, 0, 0, 0.9);
 }
 
+/* Entrance chrome is rules and type, not glass pills: a hairline over the
+   masthead line, a hairline under the footnote, everything on the token
+   contract. The scrim behind the letters is the text-shadow the parent
+   already carries. */
 .introMasthead,
 .introFootnote {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  align-items: baseline;
+  gap: var(--sp-3);
   width: fit-content;
-  min-height: 2.5rem;
-  padding: 0.55rem 0.8rem;
-  border: 1px solid rgba(246, 243, 235, 0.23);
-  border-radius: 0.72rem;
-  background: linear-gradient(180deg, rgba(150, 147, 140, 0.2), rgba(8, 8, 8, 0.58));
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.18), 0 0.7rem 2rem rgba(0, 0, 0, 0.42);
-  -webkit-backdrop-filter: blur(12px) saturate(0.72);
-  backdrop-filter: blur(12px) saturate(0.72);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.035em;
-  line-height: 1;
+  padding-block: var(--sp-2);
+  border-top: var(--line-w) solid var(--line);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
   text-transform: uppercase;
+}
+
+.introMasthead {
+  border-top: 0;
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 .introMasthead span + span,
 .introFootnote span + span {
-  padding-left: 0.75rem;
-  border-left: 1px solid rgba(246, 243, 235, 0.18);
-  color: #c6a15b;
+  padding-left: var(--sp-3);
+  border-left: var(--line-w) solid var(--line-soft);
+  color: var(--ink);
 }
 
 .introFootnote {
   align-self: flex-start;
-  color: #cbc7bd;
-  font-family: var(--face-data);
-  font-size: 0.63rem;
-  letter-spacing: 0.09em;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
 
 .navContent {
@@ -132,7 +135,7 @@
   padding: 0 0.25rem;
   border: 0;
   background: transparent;
-  color: #c9a24b;
+  color: var(--gold);
   cursor: pointer;
   opacity: 0;
 
@@ -198,7 +201,7 @@
 
 .skipIntro:hover,
 .skipIntro:focus-visible {
-  color: #efd79a;
+  color: var(--gold-hi);
 }
 
 .skipIntro:hover .skipRule,
@@ -207,40 +210,44 @@
 }
 
 .skipIntro:focus-visible {
-  outline: 2px solid #efd79a;
-  outline-offset: 3px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 
+/* The entrance's one control: a quiet bordered button on a ground scrim —
+   token radius, token lines, no glass. */
 .root[data-intro-only] .skipIntro {
-  min-height: 2.75rem;
-  padding: 0 0.85rem;
-  border: 1px solid rgba(246, 243, 235, 0.27);
-  border-radius: 0.72rem;
-  background: linear-gradient(180deg, rgba(150, 147, 140, 0.22), rgba(8, 8, 8, 0.68));
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.22), 0 0.8rem 2.3rem rgba(0, 0, 0, 0.5);
-  -webkit-backdrop-filter: blur(14px) saturate(0.72);
-  backdrop-filter: blur(14px) saturate(0.72);
-  color: #f6f3eb;
+  min-height: var(--control-h);
+  padding: 0 var(--sp-4);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  background: color-mix(in oklab, var(--ground) 78%, transparent);
+  color: var(--ink-hi);
 }
 
 .root[data-intro-only] .skipLabel {
   font-family: var(--face-text);
-  font-size: 0.78rem;
-  font-weight: 720;
+  font-size: var(--t-caption);
+  font-weight: 600;
   letter-spacing: 0.04em;
 }
 
 .root[data-intro-only] .skipIntro:hover,
 .root[data-intro-only] .skipIntro:focus-visible {
-  border-color: rgba(234, 211, 155, 0.65);
-  background: linear-gradient(180deg, rgba(180, 175, 164, 0.28), rgba(10, 10, 10, 0.72));
-  color: #f6f3eb;
+  border-color: var(--gold-line-strong);
+  background: color-mix(in oklab, var(--ground) 88%, transparent);
+  color: var(--ink-hi);
+}
+
+.root[data-intro-only] .skipIntro:active {
+  border-color: var(--gold-line);
+  background: var(--ground);
 }
 
 .root[data-intro-only] .skipIntro:focus-visible {
-  outline: 2px solid #ead39b;
-  outline-offset: 3px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -366,15 +373,15 @@
   padding: clamp(0.45rem, 1.2vmin, 0.8rem);
   border-radius: 50%;
   text-decoration: none;
-  color: #c9a24b;
-  border: 1px solid rgba(201, 162, 75, 0.22);
+  color: var(--gold);
+  border: var(--line-w) solid var(--gold-line);
   transition: color 200ms ease, border-color 200ms ease, text-shadow 200ms ease;
 }
 
 .link:hover,
 .link:focus-visible {
-  color: #efd79a;
-  border-color: rgba(239, 215, 154, 0.9);
+  color: var(--gold-hi);
+  border-color: var(--gold-hi);
   text-shadow: 0 0 18px rgba(239, 215, 154, 0.45);
 }
 
@@ -422,18 +429,20 @@
   );
 }
 
+/* Corner marks in the neutral rule voice — the retired data-blue must not
+   survive here as decoration. */
 .card::before {
   top: -1px;
   left: -1px;
-  border-top: 1.5px solid #57a7d9;
-  border-left: 1.5px solid #57a7d9;
+  border-top: var(--line-w) solid var(--line-strong);
+  border-left: var(--line-w) solid var(--line-strong);
 }
 
 .card::after {
   right: -1px;
   bottom: -1px;
-  border-right: 1.5px solid #57a7d9;
-  border-bottom: 1.5px solid #57a7d9;
+  border-right: var(--line-w) solid var(--line-strong);
+  border-bottom: var(--line-w) solid var(--line-strong);
 }
 
 
@@ -535,8 +544,8 @@
 
 
 .link:focus-visible {
-  outline: 2px solid #efd79a;
-  outline-offset: 3px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 
@@ -591,7 +600,7 @@
 }
 
 .item[data-intent='now'] .label {
-  color: #efd79a;
+  color: var(--gold-hi);
   text-shadow:
     0 0 18px rgba(201, 162, 75, 0.28),
     0 0 6px rgba(0, 0, 0, 0.95),

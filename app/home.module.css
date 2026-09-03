@@ -1,16 +1,22 @@
 /*
- * The home hero — the masthead over the glyph field.
+ * The home hero — the single cinematic threshold (HOME-001..004).
  *
  * Design V3: every value here answers to `globals.css`. The serif wordmark
  * over the monospace field is the whole contrast of this screen — the brand
- * is set in the editorial voice, the scan beneath it in the data voice — so
- * nothing else on the hero may borrow the display face except the three
- * headline titles, which are editorial content.
+ * is set in the editorial voice, the scan beneath it in the data voice.
  *
- * Gold is spent once: on the signal marker between the standfirst and the
- * control. The rail label and the status dot carry the dimmed gold, so the
- * marker stays the one emphasis.
+ * The composition is document flow, not absolute pins: a flex column of
+ * masthead (centred by auto margins), file index, and signal rail, over a
+ * field layer pinned to the first viewport. That is what keeps the lion,
+ * wordmark, CTA pair, index, and rail one focal system at 1440, 1920, and
+ * 2560 — the same column, with only the auto margins absorbing the height —
+ * and what lets 320×568 scroll instead of clip.
+ *
+ * Gold is spent once per viewport: the primary Daily Brief action. The rail
+ * and telemetry dots carry the dimmed gold; nothing else on the screen is
+ * gold at rest.
  */
+
 .page {
   position: relative;
   min-height: 100dvh;
@@ -22,14 +28,24 @@
 
 .hero {
   position: relative;
-  width: 100%;
-  height: 100svh;
-  min-height: 40rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  flex-direction: column;
+  min-height: 100svh;
+  padding-top: calc(var(--header-h) + var(--sp-4));
   background: var(--ground);
+}
+
+/* ---- The field layer: first viewport only, decorative throughout ---- */
+
+.fieldLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100svh;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
 }
 
 .fallbackField,
@@ -41,75 +57,59 @@
 }
 
 /* What renders under the canvas until the engine paints — and all that
-   renders when it never does: the same dark pool the engine attenuates
-   around the brand, and the same rule field the site's ground carries. */
+   renders when it never does: the site's own scan ground, so the no-JS and
+   no-GPU states are the rest of the site's surface, not a special case. */
 .fallbackField {
   z-index: 0;
-  background:
-    radial-gradient(
-      ellipse at 50% 46%,
-      color-mix(in oklab, var(--ground) 74%, transparent) 0 22%,
-      transparent 54%
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent 0 10px,
-      color-mix(in oklab, var(--ink-hi) 3%, transparent) 10px 11px
-    );
+  background-image: var(--scan-ground);
 }
 
 .matrixCanvas {
   z-index: 1;
   display: block;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.matrixCanvas[data-engine-ready] {
+  opacity: 1;
 }
 
 /* Where the field stops.
  *
- * The scan previously ran to a hard viewport cut: glyphs at full contrast
- * against the bottom edge, with the rail and the telemetry sitting on live
- * type. `ProgressiveBlur` grades the last 6rem instead, so the field falls
- * out of focus into the ground rather than being guillotined by it.
+ * `ProgressiveBlur` grades the last spans of the scan so the field falls out
+ * of focus into the ground rather than being guillotined by the rail.
+ * Above the canvas (1) and the fallback (0); the chrome lives outside this
+ * layer entirely, so nothing readable is ever under the blur.
  *
- * `z-index: 2` is the whole placement contract: above the canvas (1) and the
- * fallback field (0), below the telemetry (5), the masthead (10) and the rail
- * (12). None of the chrome is blurred — only the scan behind it.
- *
- * There is no editorial band under this hero on this branch, so this is not
- * the §8 handoff between two surfaces yet; it is the floor the one surface
- * needs either way, and it is already the right element for the handoff when
- * the band lands.
- *
- * Qualified by `.hero` on purpose. `ProgressiveBlur`'s own `.blur` sets both
- * `height` and `z-index` at one class of specificity, so a bare `.heroFade`
- * would be a coin toss decided by which stylesheet the bundler emits first.
- * (0,2,0) settles it in every build.
- */
-.hero .heroFade {
+ * Qualified by `.fieldLayer` on purpose: `ProgressiveBlur`'s own `.blur`
+ * sets `height` and `z-index` at one class of specificity, and a bare
+ * `.heroFade` would be a coin toss decided by stylesheet emission order. */
+.fieldLayer .heroFade {
   z-index: 2;
 }
 
-/* A taller fall-off where there is height to spend it in. */
 @media (min-width: 64rem) {
-  .hero .heroFade { height: calc(var(--sp-9) + var(--sp-8)); }
+  .fieldLayer .heroFade { height: calc(var(--sp-9) + var(--sp-8)); }
 }
 
-.brandCenter {
-  position: absolute;
-  top: 47%;
-  left: 50%;
+/* ---- The masthead ---- */
+
+.masthead {
+  position: relative;
   z-index: 10;
-  width: min(48rem, calc(100vw - 2rem));
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
+  width: min(48rem, calc(100vw - 2rem));
+  margin-block: auto;
+  margin-inline: auto;
   text-align: center;
 }
 
 .brandMark {
   position: relative;
-  width: clamp(18rem, 29vw, 24rem);
+  width: clamp(15rem, 24vw, 21rem);
   aspect-ratio: 1226 / 1283;
   flex: 0 0 auto;
   opacity: 0.94;
@@ -123,13 +123,12 @@
 
 .brandMark img { object-fit: contain; }
 
-/* The masthead. Newsreader at display size wants weight 500; the wide
-   tracking is what turns a serif word into a nameplate, and it is reduced
-   with the viewport so eleven letters never outrun 320px. `letter-spacing`
-   trails after the last glyph, so the padding-left restores optical centre. */
+/* The nameplate. Newsreader at display size wants weight 500; the wide
+   tracking is what turns a serif word into a masthead, and it narrows with
+   the viewport so eleven letters never outrun 320px. `letter-spacing` trails
+   after the last glyph, so the padding-left restores optical centre. */
 .wordmark {
   position: relative;
-  z-index: 2;
   max-width: 100%;
   min-width: 0;
   margin: calc(-1 * var(--sp-5)) 0 0;
@@ -149,7 +148,7 @@
 }
 
 /* The standfirst, in the display italic, in ink rather than gold. */
-.supportingLine {
+.standfirst {
   margin: var(--sp-3) 0 0;
   color: var(--ink);
   font-family: var(--face-display);
@@ -162,123 +161,183 @@
   text-shadow: 0 0.15rem 0.8rem color-mix(in oklab, var(--ground) 96%, transparent);
 }
 
-/* The one gold on the screen. */
-.signalMarker {
-  width: 0.3rem;
-  height: 0.3rem;
-  margin-top: var(--sp-5);
-  border-radius: var(--radius-pill);
-  background: var(--gold);
-}
+/* ---- The actions (HOME-002) ----
+ *
+ * Both controls are the shared ButtonLink primitive; this file only adds the
+ * restrained Interactive Hover adaptation to the primary — a left-origin
+ * sweep to the brighter gold, existing radius, no pill, no gradient — and
+ * only where a fine pointer and unreduced motion both exist. Touch and
+ * reduced motion get the primitive's own static hover/active colours. */
 
-/* The control — the site's button voice on glass, because it sits over a
-   moving field. Hover lifts by transform alone; the surface change is the
-   glass-raised pair so nothing in the box model moves. */
-.heroCta {
-  min-width: 16rem;
-  min-height: 3.25rem;
-  display: inline-flex;
+.actions {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  margin-top: var(--sp-5);
-  padding-inline: var(--sp-6);
-  border: 1px solid var(--glass-edge);
-  border-radius: var(--radius-2);
-  background-color: var(--glass-middle);
-  background-image: linear-gradient(
-    180deg,
-    var(--glass-top) 0%,
-    var(--glass-middle) 46%,
-    var(--glass-bottom) 100%
-  );
-  box-shadow:
-    inset 0 1px 0 var(--glass-inner),
-    var(--shadow-2);
-  -webkit-backdrop-filter: blur(12px) saturate(0.88);
-  backdrop-filter: blur(12px) saturate(0.88);
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-body);
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  pointer-events: auto;
-  outline-offset: 4px;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+  gap: var(--sp-3);
+  margin-top: var(--sp-6);
 }
 
-.heroCta:hover {
-  border-color: color-mix(in oklab, var(--ink-hi) 42%, transparent);
-  background-color: var(--glass-raised-top);
-  background-image: linear-gradient(180deg, var(--glass-raised-top), var(--glass-raised-bottom));
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 var(--glass-inner),
-    var(--shadow-3);
+.hero .ctaPrimary {
+  min-width: 16rem;
 }
 
-.heroCta:active {
-  transform: translateY(0);
-  box-shadow:
-    inset 0 1px 0 var(--glass-inner),
-    var(--shadow-1);
+.hero .ctaSecondary {
+  min-width: 11rem;
 }
 
-.heroCta[aria-disabled="true"] {
-  cursor: not-allowed;
-  opacity: 0.45;
-  transform: none;
+.ctaArrow {
+  display: inline-block;
+  margin-left: var(--sp-2);
 }
-.heroCta[data-state="loading"] { cursor: progress; opacity: 0.62; }
-.heroCta[data-state="error"] { border-color: var(--state-danger); }
-.heroCta[data-state="success"] { border-color: var(--state-ok); }
 
-/* The intelligence desk is a flash strip along the hero's foot, not a panel.
- *
- * It was a 29rem card pinned bottom-right, and it cut the wordmark in half:
- * measured in real Chrome, 177px of overlap at 1280, 100px at 1440, 20px at
- * 1600, clearing only at 1920 — and the card is near-opaque, so a reader at
- * either of the two most common laptop widths saw the brand with its last
- * letters missing. Narrowing the card dodged that; moving it out of the
- * wordmark's band removes the conflict instead, which is the owner's call and
- * the better one. Nothing now competes with the masthead for the centre.
- *
- * Up to three items, composed as Card `row` so the shared anatomy owns the
- * link. Titles wrap (`overflow-wrap: anywhere`) rather than ellipsize — a
- * clip at 320px hides the half of the headline that names the claim.
- * Deliberately NOT a crawl: a moving headline is unreadable at any speed
- * and is an urgency device this site documents other people using. */
-.headlineRail {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.ctaCount {
+  margin-left: var(--sp-2);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking-tight);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero .actions .ctaPrimary {
+    overflow: hidden;
+  }
+
+  .hero .actions .ctaPrimary > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Suppress the primitive's instant hover swap so the sweep carries it. */
+  .hero .actions .ctaPrimary:hover:not([aria-disabled="true"]) {
+    --btn-bg: var(--gold);
+  }
+
+  .hero .actions .ctaPrimary::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--gold-hi);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .hero .actions .ctaPrimary:hover:not([aria-disabled="true"])::before,
+  .hero .actions .ctaPrimary:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .hero .actions .ctaPrimary .ctaArrow {
+    transition: translate var(--dur-fast) var(--ease-out);
+  }
+
+  .hero .actions .ctaPrimary:hover .ctaArrow {
+    translate: 0.2em 0;
+  }
+}
+
+/* ---- The file index: the rebuilt hero navigation ---- */
+
+.fileIndex {
+  position: relative;
   z-index: 12;
-  display: flex;
-  align-items: stretch;
-  /* The touch floor, because every item in here is a link. */
-  min-height: var(--control-h);
-  padding-inline: clamp(var(--sp-4), 3.5vw, var(--sp-7));
-  border-top: var(--line-w) solid var(--line);
-  background: color-mix(in oklab, var(--surface-1) 82%, transparent);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  pointer-events: auto;
+  width: min(var(--chrome-w), 100%);
+  margin-inline: auto;
+  padding: var(--sp-3) clamp(var(--sp-4), 3.5vw, var(--sp-7));
 }
 
-.railLabel {
+.fileList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileItem {
+  display: flex;
+  border-left: var(--line-w) solid var(--line-soft);
+}
+
+.fileItem:first-child { border-left: 0; }
+
+.fileLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h);
+  padding-inline: var(--sp-4);
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  text-shadow: 0 1px 0 var(--ground), 0 0 0.5rem color-mix(in oklab, var(--ground) 92%, transparent);
+  white-space: nowrap;
+  outline-offset: -3px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.fileNo {
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.fileName {
+  min-width: 0;
+}
+
+.fileLink:hover,
+.fileLink:focus-visible {
+  color: var(--ink-hi);
+}
+
+.fileLink:hover .fileNo,
+.fileLink:focus-visible .fileNo {
+  color: var(--ink);
+}
+
+.fileLink:active {
+  color: var(--ink-hi);
+}
+
+/* ---- The signal rail (HOME-003) ---- */
+
+.signalRail {
+  position: relative;
+  z-index: 12;
+  border-top: var(--line-w) solid var(--line);
+  background: var(--surface-1);
+}
+
+.railInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--sp-5);
+  row-gap: var(--sp-1);
+  width: min(var(--chrome-w), 100%);
+  min-height: calc(var(--control-h) + var(--sp-2));
+  margin-inline: auto;
+  padding: var(--sp-2) clamp(var(--sp-4), 3.5vw, var(--sp-7));
+}
+
+.railFlag {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
+  gap: var(--sp-2);
   margin: 0;
-  padding-right: var(--sp-4);
   color: var(--gold-dim);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -289,102 +348,124 @@
   white-space: nowrap;
 }
 
-.railList {
-  display: flex;
-  flex: 1 1 auto;
-  /* Without this a flex item refuses to shrink below its content, and
-     titles overflow the strip instead of wrapping. */
-  min-width: 0;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.railDot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: var(--radius-pill);
+  background: var(--gold-dim);
 }
 
-/* The divider is a left rule between items, not a top rule above them —
-   the strip runs horizontally now. */
-.railItem {
+.railSignal {
   display: flex;
-  flex: 1 1 0;
+  flex: 1 1 16rem;
   min-width: 0;
-  border-top: 0;
-  border-left: var(--line-w) solid var(--line-soft);
-}
-
-.railItem:first-child { border-left: 0; }
-
-/* Card.row is a column hairline on a list; here it is a cell in a foot
-   strip. Extra specificity beats `.row` / `.interactive` so the rail does
-   not read as stacked feature cards: transparent, no radius, no tint. */
-.headlineRail .railCard {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--sp-2);
-  width: 100%;
-  min-width: 0;
-  min-height: var(--control-h);
-  height: auto;
-  padding: var(--sp-2) var(--sp-4);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  color: var(--ink-hi);
-  outline-offset: -3px;
+  column-gap: var(--sp-4);
+  row-gap: var(--sp-1);
 }
 
-.headlineRail .railCard:hover,
-.headlineRail .railCard:focus-visible,
-.headlineRail .railCard:active {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.headlineRail .railIndex {
+.railMeta {
+  display: flex;
   flex: 0 0 auto;
-  color: var(--ink-lo);
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--sp-3);
+  margin: 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
-  line-height: var(--t-small-lh);
-  font-variant-numeric: tabular-nums;
-  transition: color var(--dur-fast) var(--ease-out);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  text-transform: uppercase;
 }
 
-.headlineRail .railTitle {
+.railSource { color: var(--ink); }
+
+/* Colour is additive here: the word is the cue, the tone only underlines it. */
+.railStatus { color: var(--ink); }
+.railStatus[data-tone="ok"] { color: var(--state-ok); }
+.railStatus[data-tone="warn"] { color: var(--state-warn); }
+.railStatus[data-tone="danger"] { color: var(--state-danger); }
+
+.railTime {
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+.railTitle {
+  display: inline-flex;
+  align-items: center;
   min-width: 0;
-  margin-bottom: 0;
+  min-height: var(--control-h-sm);
+  color: var(--ink-hi);
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-small);
   font-weight: 500;
   line-height: var(--t-small-lh);
   letter-spacing: 0;
+  text-decoration: none;
   overflow-wrap: anywhere;
-  white-space: normal;
+  outline-offset: -3px;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.headlineRail .railCard:hover .railTitle,
-.headlineRail .railCard:focus-visible .railTitle { color: var(--gold); }
-.headlineRail .railCard:hover .railIndex,
-.headlineRail .railCard:focus-visible .railIndex { color: var(--ink); }
+.railTitle:hover,
+.railTitle:focus-visible {
+  color: var(--gold);
+}
 
-/* Engine telemetry, sitting just above the flash strip. */
+.railTitle:active {
+  color: var(--gold-hi);
+}
+
+.railEmpty {
+  flex: 1 1 16rem;
+  margin: 0;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.railAll {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: var(--control-h);
+  margin-left: auto;
+  padding-inline: var(--sp-2);
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  outline-offset: -3px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.railAll:hover,
+.railAll:focus-visible {
+  color: var(--ink-hi);
+}
+
+.railAll:active {
+  color: var(--gold);
+}
+
+/* ---- Engine telemetry: top right, opposite the brand, wide screens only.
+ * A genuinely live readout, so its dot may breathe — on the ambient clock,
+ * never faster; reduced motion freezes it through the global kill switch. */
+
 .engineStatus {
   position: absolute;
-  /* Same gutter as the flash strip directly below it and the masthead above —
-     it sits between them now, so its old `--sp-5` read as a misalignment
-     rather than an independent margin. */
-  left: clamp(var(--sp-4), 3.5vw, var(--sp-7));
-  /* Clears the flash strip, which owns the foot of the hero at `--control-h`. */
-  bottom: calc(var(--control-h) + var(--sp-4));
+  top: calc(var(--header-h) + var(--sp-4));
+  right: clamp(var(--sp-4), 3.5vw, var(--sp-7));
   z-index: 5;
-  display: flex;
+  display: none;
   align-items: center;
   gap: var(--sp-2);
   color: var(--ink-lo);
@@ -394,7 +475,10 @@
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
-  pointer-events: none;
+}
+
+@media (min-width: 64rem) {
+  .engineStatus { display: flex; }
 }
 
 .statusDot {
@@ -402,30 +486,21 @@
   height: 0.375rem;
   border-radius: var(--radius-pill);
   background: var(--gold-dim);
-  animation: statusPulse 2.8s var(--ease-in-out) infinite;
+  animation: statusPulse var(--dur-ambient) var(--ease-in-out) infinite;
 }
 
 @keyframes statusPulse { 50% { opacity: 0.28; } }
 
-/* How many headlines sit in the strip is a measurement, not a preference.
- *
- * Titles wrap rather than clip, so three items at laptop width turn the foot
- * into a stack. One item is the default; the second appears only above the
- * width where the reading pages already grow their margins. The other reports
- * stay one click away. */
-.railItem:nth-child(n + 2) { display: none; }
+/* ---- Responsive composition (HOME-004 at the top, 320px at the bottom) ---- */
 
-/* 1220px is where the reading pages already grow their margins, so the strip
-   gains its second headline where the site as a whole gets wider. Placed after
-   the rule above deliberately: both selectors score (0,2,0), so source order is
-   what decides, and a `min-width` block earlier in the file would simply lose. */
-@media (min-width: 76.25rem) {
-  .railItem:nth-child(2) { display: flex; }
+/* 2560-class: the column holds; the mark may grow into the room. */
+@media (min-width: 120rem) {
+  .brandMark { width: 23rem; }
+  .fileIndex { padding-block: var(--sp-4); }
 }
 
 @media (max-width: 64rem) {
-  .brandCenter { top: 48%; }
-  .brandMark { width: clamp(15.5rem, 38vw, 20rem); }
+  .brandMark { width: clamp(14rem, 34vw, 18rem); }
   .wordmark {
     padding-left: 0.14em;
     letter-spacing: 0.14em;
@@ -433,48 +508,68 @@
 }
 
 @media (max-width: 48rem) {
-  .hero { min-height: 40rem; }
-  .brandCenter {
-    top: 43%;
-    width: calc(100vw - 1.5rem);
-  }
-  .brandMark { width: clamp(13rem, 58vw, 17rem); }
+  .hero { padding-top: calc(var(--header-h) + var(--sp-3)); }
+  .masthead { width: calc(100vw - 1.5rem); }
+  .brandMark { width: clamp(12rem, 52vw, 16rem); }
   .wordmark {
     margin-top: calc(-1 * var(--sp-4));
     padding-left: 0.12em;
     letter-spacing: 0.12em;
   }
-  .signalMarker { margin-top: var(--sp-4); }
-  .heroCta {
+  .actions {
+    width: 100%;
+    margin-top: var(--sp-5);
+  }
+  .hero .ctaPrimary,
+  .hero .ctaSecondary {
     width: 100%;
     min-width: 0;
-    margin-top: var(--sp-4);
   }
-  .engineStatus { display: none; }
 
-  /* On a phone the rail goes full-width against the bottom edge and becomes
-     the floor itself — the scan already ends on a panel, not on a cut. The
-     fade would sit entirely behind it, so it is removed rather than shrunk:
-     five backdrop-filter reads per frame over a live particle canvas is the
-     wrong thing to pay for on the device least able to pay it, and there is
-     nothing visible to buy with it. */
-  .hero .heroFade { display: none; }
-
-  .headlineRail { padding-inline: var(--sp-4); }
+  /* On a phone the foot chrome sits on the field's floor already; five
+     backdrop-filter reads per frame over a live canvas is the wrong thing to
+     pay for on the device least able to pay it. */
+  .fieldLayer .heroFade { display: none; }
 }
 
-/* 720px — the one breakpoint the orbit and the intro already share, so the
-   strip changes register where the rest of the page does. Below it a single
-   headline is all that reads: at 375px two items leave ~120px each, and the
-   label alone would eat a third of the row. */
+/* 720px — the seam the rest of the site turns on. The index becomes a
+   two-column ledger and the rail stacks its lines. */
 @media (max-width: 45rem) {
-  .headlineRail { padding-inline: var(--sp-3); }
-  .railLabel { display: none; }
-  .headlineRail .railCard { padding-inline: 0; }
+  .fileIndex { padding-inline: var(--sp-4); }
+
+  .fileList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: stretch;
+  }
+
+  .fileItem {
+    border-left: 0;
+    border-top: var(--line-w) solid var(--line-soft);
+  }
+
+  .fileItem:nth-child(-n + 2) { border-top: 0; }
+
+  .fileLink {
+    flex: 1 1 auto;
+    padding-inline: var(--sp-2);
+    white-space: normal;
+  }
+
+  .railInner { padding-inline: var(--sp-4); }
+
+  .railSignal { flex-basis: 100%; }
+
+  .railTitle { flex-basis: 100%; }
+
+  .railAll {
+    margin-left: 0;
+    padding-inline: 0;
+  }
 }
 
 @media (max-width: 23.5rem) {
-  .brandMark { width: 12.75rem; }
+  .brandMark { width: 11.5rem; }
   .wordmark {
     padding-left: 0.06em;
     letter-spacing: 0.06em;

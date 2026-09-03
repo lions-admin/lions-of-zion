@@ -318,8 +318,12 @@ describe("the fact-check desk", () => {
 });
 
 describe("/updates route wiring", () => {
+  /* The page component is synchronous now — the shell has to be, or the
+     masthead goes back behind a Suspense fallback only the client can resolve.
+     The read it used to `await` sits inside an inner boundary, and `render`
+     waits for `allReady`, so the feed is still in the markup this returns. */
   const updates = (search: Record<string, string> = {}) =>
-    UpdatesPage({ searchParams: Promise.resolve(search) }).then(render);
+    render(UpdatesPage({ searchParams: Promise.resolve(search) }) as React.ReactElement);
 
   it("offers an older page only when the page came back exactly full", async () => {
     listBriefingPublications.mockResolvedValue([watch, brief]);
@@ -361,8 +365,9 @@ describe("/updates route wiring", () => {
 });
 
 describe("/fact-check route wiring", () => {
+  /* Synchronous for the same reason as `/updates` above. */
   const page = (search: Record<string, string> = {}) =>
-    FactCheckPage({ searchParams: Promise.resolve(search) }).then(render);
+    render(FactCheckPage({ searchParams: Promise.resolve(search) }) as React.ReactElement);
 
   it("opens the first check when no claim is in the query", async () => {
     listBriefingPublications.mockResolvedValue([watch]);

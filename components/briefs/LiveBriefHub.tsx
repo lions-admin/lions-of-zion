@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { ButtonLink } from "@/components/ui/Button";
+import { SkeletonDesk } from "@/components/ui/Skeleton";
 import {
   Card,
   CardCount,
@@ -21,7 +23,52 @@ import styles from "./live-brief.module.css";
 
 type Filters = BriefFilterValues;
 
-export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
+/**
+ * The desk shell — masthead, skip link, footer, kicker, h1, standfirst.
+ *
+ * Deliberately **not** async. This route used to carry a segment-root
+ * `app/geopolitical-brief/loading.tsx`, and because the site mounts its header,
+ * nav and footer here inside the page rather than in `app/layout.tsx`, that
+ * file put the entire chrome behind a Suspense boundary only client JavaScript
+ * could resolve: with scripting off the route rendered its title and nothing
+ * else. The shell renders synchronously now and the read of the public
+ * projection is the only thing behind a boundary. Making this function `async`
+ * again — for any reason — puts the chrome back behind the fallback.
+ */
+export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
+  return (
+    <EditorialShell
+      routeId="geopolitical-brief"
+      className={styles.page}
+      skipLinkClassName={sectionStyles.skipLink}
+      progressTrackClassName={sectionStyles.topProgressTrack}
+      progressValueClassName={sectionStyles.topProgressValue}
+      showProgress={false}
+    >
+      <div className={styles.liveLayout}>
+        <header className={styles.deskHeader}>
+          <p className={styles.liveEyebrow}>
+            <span className={styles.deskMark}>Lions of Zion</span>
+            <span>Intelligence desk</span>
+          </p>
+          <h1>The Daily Brief</h1>
+          <p>Source-linked reporting on Israel, the war, and the narratives shaping international attention.</p>
+        </header>
+
+        {/* The filters live inside the boundary because their option lists are
+            derived from the same read — there is no honest way to draw them
+            before it lands. `inline` drops the standalone family geometry: the
+            shell above has already paid for the header offset and the measure. */}
+        <Suspense fallback={<SkeletonDesk inline label="Loading the Daily Brief" />}>
+          <LiveBriefEdition filters={filters} />
+        </Suspense>
+      </div>
+    </EditorialShell>
+  );
+}
+
+/** The async region: the projection read and everything derived from it. */
+async function LiveBriefEdition({ filters }: { filters: Filters }) {
   const query = new URLSearchParams({ limit: "100" });
   for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
   let publications: Publication[] = [];
@@ -54,25 +101,8 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
   const narratives = publications.filter((entry) => entry.section === "narrative_watch");
 
   return (
-    <EditorialShell
-      routeId="geopolitical-brief"
-      className={styles.page}
-      skipLinkClassName={sectionStyles.skipLink}
-      progressTrackClassName={sectionStyles.topProgressTrack}
-      progressValueClassName={sectionStyles.topProgressValue}
-      showProgress={false}
-    >
-      <div className={styles.liveLayout}>
-        <header className={styles.deskHeader}>
-          <p className={styles.liveEyebrow}>
-            <span className={styles.deskMark}>Lions of Zion</span>
-            <span>Intelligence desk</span>
-          </p>
-          <h1>The Daily Brief</h1>
-          <p>Source-linked reporting on Israel, the war, and the narratives shaping international attention.</p>
-        </header>
-
-        <BriefFilters
+    <>
+      <BriefFilters
           key={`${filters.date ?? ""}|${filters.actor ?? ""}|${filters.topicLabel ?? ""}|${filters.arena ?? ""}`}
           filters={filters}
           actors={uniqueValues(filterSource, "primaryActor")}
@@ -173,9 +203,8 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
             </div>
           </section>
         )}
-        {dailyBriefs.length > 1 ? <PublicationSection title="Daily archive" items={dailyBriefs.slice(1)} /> : null}
-      </div>
-    </EditorialShell>
+      {dailyBriefs.length > 1 ? <PublicationSection title="Daily archive" items={dailyBriefs.slice(1)} /> : null}
+    </>
   );
 }
 

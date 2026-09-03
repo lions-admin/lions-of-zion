@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { DocPage } from "@/components/sections/DocPage";
 import { UpdateFeed } from "@/components/live";
+import { SkeletonDesk } from "@/components/ui/Skeleton";
 import { listBriefingPublications } from "@/lib/publications";
 import { PUBLICATION_SECTIONS } from "@/server/contracts/enums";
 import type { PublicationSection } from "@/server/contracts/enums";
@@ -44,7 +46,56 @@ function asSection(value: string | undefined): PublicationSection | undefined {
   return PUBLICATION_SECTIONS.find((section) => section === value);
 }
 
-export default async function UpdatesPage({ searchParams }: { searchParams: Search }) {
+/*
+ * The shell is rendered synchronously; only the record streams.
+ *
+ * This page used to carry a segment-root `app/updates/loading.tsx`. Next wraps
+ * the *whole segment* in a Suspense boundary when one exists, and because this
+ * site mounts its header, nav and footer inside each page through
+ * `EditorialShell` rather than in `app/layout.tsx`, that boundary swallowed the
+ * entire chrome: with scripting off the route rendered its title and nothing
+ * else. The boundary is inside the shell now, so the masthead, the document
+ * trail, the h1 and the standfirst are in the initial HTML and only the read of
+ * the public projection is behind a fallback.
+ *
+ * `searchParams` is passed down as the promise rather than awaited here: this
+ * component must stay synchronous, or the shell goes back to waiting on the
+ * request before any of it can be flushed.
+ */
+export default function UpdatesPage({ searchParams }: { searchParams: Search }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: TITLE,
+    description: TAGLINE,
+    url: PAGE_URL,
+    publisher: { "@type": "Organization", name: "Lions of Zion" },
+  };
+
+  return (
+    <DocPage
+      routeId="updates"
+      title={TITLE}
+      tagline={TAGLINE}
+      rails="toc"
+      breadcrumb={[{ href: "/geopolitical-brief", label: "The Daily Brief" }]}
+    >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/* `inline` because the shell above already paid for the header offset
+          and the measure. The standalone family geometry is a whole-page
+          stand-in and would count both a second time. */}
+      <Suspense fallback={<SkeletonDesk inline label="Loading the record" />}>
+        <UpdatesRecord searchParams={searchParams} />
+      </Suspense>
+    </DocPage>
+  );
+}
+
+/** The one genuinely async region: a page of the public projection. */
+async function UpdatesRecord({ searchParams }: { searchParams: Search }) {
   const raw = await searchParams;
   const section = asSection(one(raw, "section"));
   const cursor = one(raw, "cursor");
@@ -77,34 +128,13 @@ export default async function UpdatesPage({ searchParams }: { searchParams: Sear
   const nextCursor =
     entries.length === PAGE_SIZE && last ? encodePublicPublicationCursor(last) : undefined;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: TITLE,
-    description: TAGLINE,
-    url: PAGE_URL,
-    publisher: { "@type": "Organization", name: "Lions of Zion" },
-  };
-
   return (
-    <DocPage
-      routeId="updates"
-      title={TITLE}
-      tagline={TAGLINE}
-      rails="toc"
-      breadcrumb={[{ href: "/geopolitical-brief", label: "The Daily Brief" }]}
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <UpdateFeed
-        entries={entries}
-        section={section}
-        paged={cursor !== undefined}
-        nextCursor={nextCursor}
-        unavailable={unavailable}
-      />
-    </DocPage>
+    <UpdateFeed
+      entries={entries}
+      section={section}
+      paged={cursor !== undefined}
+      nextCursor={nextCursor}
+      unavailable={unavailable}
+    />
   );
 }

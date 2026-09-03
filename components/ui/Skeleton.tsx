@@ -128,18 +128,34 @@ export function SkeletonRow({ label, className = "", ...props }: SkeletonRegionP
   );
 }
 
+/**
+ * Where the fallback stands.
+ *
+ * `false` — the default — is the standalone stand-in for a whole page: a full
+ * viewport tall, offset by the header, carrying the family scan. `true` is for
+ * a fallback nested *inside* a shell that is already in the HTML above it,
+ * where that geometry would count the header offset twice and push a viewport
+ * of empty tint below real content.
+ */
+export interface FamilySkeletonProps extends SkeletonRegionProps {
+  inline?: boolean;
+}
+
 function FamilyShell({
   family,
   label,
   className,
+  inline = false,
   children,
   ...props
-}: SkeletonRegionProps & { family: "desk" | "dossier" | "institution" }) {
+}: FamilySkeletonProps & { family: "desk" | "dossier" | "institution" }) {
   return (
     <SkeletonRegion
       label={label}
       data-family={family}
-      className={[styles.family, className].filter(Boolean).join(" ")}
+      className={[styles.family, inline ? styles.familyInline : "", className]
+        .filter(Boolean)
+        .join(" ")}
       {...props}
     >
       <div className={styles.familyChrome}>
@@ -154,7 +170,7 @@ export function SkeletonDesk({
   label = "Loading the desk",
   className = "",
   ...props
-}: SkeletonRegionProps) {
+}: FamilySkeletonProps) {
   return (
     <FamilyShell family="desk" label={label} className={className} {...props}>
       <Skeleton shape="label" width="7rem" />
@@ -172,7 +188,7 @@ export function SkeletonDossier({
   label = "Loading the record",
   className = "",
   ...props
-}: SkeletonRegionProps) {
+}: FamilySkeletonProps) {
   return (
     <FamilyShell family="dossier" label={label} className={className} {...props}>
       <Skeleton shape="label" width="9rem" />
@@ -190,7 +206,7 @@ export function SkeletonInstitution({
   label = "Loading the page",
   className = "",
   ...props
-}: SkeletonRegionProps) {
+}: FamilySkeletonProps) {
   return (
     <FamilyShell family="institution" label={label} className={className} {...props}>
       <Skeleton shape="label" width="8rem" />

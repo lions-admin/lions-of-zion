@@ -98,10 +98,24 @@ export function AdminLogin() {
   }
 
   const busy = pending !== null;
+  /* A11Y-007. A refused sign-in is a fact about the submission, not about
+     either field — the API does not say which of the two was wrong, and
+     marking both `aria-invalid` would be a guess. So it stays a form-level
+     summary and the form is described by it, which is what makes it reachable
+     from inside the fields rather than only announced once on arrival. The
+     ids are stable, so a second failure re-points at the same element. */
+  const errorId = `${formId}-error`;
+  const pendingId = `${formId}-pending`;
 
   return (
     <div className={styles.authStack}>
-      <form className={styles.form} id={formId} onSubmit={submit} aria-busy={busy || undefined}>
+      <form
+        className={styles.form}
+        id={formId}
+        onSubmit={submit}
+        aria-busy={busy || undefined}
+        aria-describedby={[message ? errorId : null, busy ? pendingId : null].filter(Boolean).join(" ") || undefined}
+      >
         <Field
           label="Administrator email"
           name="email"
@@ -122,11 +136,11 @@ export function AdminLogin() {
           required
         />
 
-        {message ? <p className={styles.error} {...assertiveLive}>{message}</p> : null}
+        {message ? <p id={errorId} className={styles.error} {...assertiveLive}>{message}</p> : null}
         {/* Mounted at all times and empty when idle: a polite region that is
             added to the page at the same moment as its text is announced
             unreliably. `:empty` keeps it out of the layout. */}
-        <p className={styles.authPending} {...politeLive}>
+        <p id={pendingId} className={styles.authPending} {...politeLive}>
           {pending === "signin" ? "Signing in. Please wait." : pending === "signup" ? "Creating the administrator account. Please wait." : ""}
         </p>
 

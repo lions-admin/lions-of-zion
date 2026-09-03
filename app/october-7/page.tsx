@@ -89,7 +89,7 @@ export default async function Page() {
   return (
     <SectionPage
       id="october-7"
-      register="muted"
+      register="silent"
       surface="quiet"
       title="October 7"
       tagline={TAGLINE}

@@ -41,7 +41,7 @@ export interface SectionPageProps {
   /** Defaults to the node's `description`, the same sentence the hover card shows. */
   tagline?: string;
   /** `muted`: the backdrop nearly holds its breath (October 7). */
-  register?: 'default' | 'muted';
+  register?: 'default' | 'muted' | 'silent';
   /** `ember`: data accents take the hostile-stream ramp (Fake Resistance). */
   accent?: 'gold' | 'ember';
   /** `quiet`: a dimmer scan behind the page, for long reading. */

@@ -35,6 +35,16 @@ export interface DocPageProps {
    * this every record drew the same nine corpus fragments in the same places.
    */
   backdropSeed?: string;
+  /**
+   * How loud the scan backdrop is behind this page.
+   *
+   * `'silent'` renders no backdrop at all, which is what the October 7
+   * material takes: the corpus rows drift continuously, which makes them a
+   * ticker, and OCT-001 rules a ticker out of the memorial and everything
+   * under it. Everything else keeps `'muted'`, which is what this shell has
+   * always passed.
+   */
+  register?: 'default' | 'muted' | 'silent';
   title: string;
   /**
    * The one-line description under the title.
@@ -105,6 +115,7 @@ export function DocPage({
   rails = 'none',
   titleLang,
   breadcrumb,
+  register = 'muted',
   children,
 }: DocPageProps) {
   const withToc = rails === 'toc';
@@ -116,7 +127,7 @@ export function DocPage({
        archive record ran the scan at 0.7 while the `/october-7` hub that owns
        those records ran it at 0.45. Applying the class is what makes the two
        agree. */
-    styles.registerMuted,
+    register === 'muted' ? styles.registerMuted : '',
     /* This shell carries one rail, not the section pages' pair, so widening
        the mask by a single rail is the arithmetic the audit asked for. It is
        not expressible: `.rowField`'s mask is symmetric about 50%, so a
@@ -135,7 +146,7 @@ export function DocPage({
     <EditorialShell
       routeId={routeId}
       backdropSeed={backdropSeed}
-      register="muted"
+      register={register}
       showProgress={withToc}
       className={pageClass}
       skipLinkClassName={styles.skipLink}

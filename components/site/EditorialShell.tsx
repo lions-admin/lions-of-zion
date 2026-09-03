@@ -10,7 +10,7 @@ import styles from "./editorial-shell.module.css";
 interface EditorialShellProps {
   routeId: string;
   backdropSeed?: string;
-  register?: "default" | "muted";
+  register?: "default" | "muted" | "silent";
   showProgress?: boolean;
   className: string;
   skipLinkClassName: string;

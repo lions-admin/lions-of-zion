@@ -50,6 +50,7 @@ export default async function Page() {
       // Both indexes and every record share this route, so each supplies the
       // seed that makes its slice of the corpus its own.
       backdropSeed="october-7/documentation"
+      register="silent"
       title="Documentation"
       tagline={TAGLINE}
       breadcrumb={[{ href: '/october-7', label: 'October 7' }]}

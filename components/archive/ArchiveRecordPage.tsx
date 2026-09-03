@@ -216,6 +216,10 @@ export async function ArchiveRecordPage({
       // slug and not the locale: a record's translations are one record, and
       // switching language should not reshuffle the page around it.
       backdropSeed={slug}
+      /* No scan backdrop on a record. The corpus rows drift continuously,
+         which makes them a ticker, and OCT-001 rules a ticker out of this
+         material — the memorial and every record under it. */
+      register="silent"
       title={title}
       titleScale={title.length > LONG_TITLE ? 'long' : 'default'}
       titleLang={version.locale}

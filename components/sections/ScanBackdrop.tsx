@@ -98,7 +98,7 @@ export interface ScanBackdropProps {
    * seeding existed to prevent. They pass their own slug instead.
    */
   seed?: string;
-  register?: 'default' | 'muted';
+  register?: 'default' | 'muted' | 'silent';
   /**
    * Where this backdrop lives.
    *
@@ -118,6 +118,13 @@ export async function ScanBackdrop({
   register = 'default',
   surface = 'viewport',
 }: ScanBackdropProps) {
+  /* Silent renders nothing — not a dimmer sample, not a slower drift, nothing.
+     The rows drift continuously by design, which makes this a ticker, and
+     OCT-001's acceptance line rules a ticker out of the October 7 memorial
+     outright. `prefers-reduced-motion` already stops it, but a reader who has
+     not set that preference is the reader this rule is about. */
+  if (register === 'silent') return null;
+
   const fragments = await loadFragments();
   const rng = mulberry32(hashSeed(seed ?? routeId));
   const hostile = fragments.filter((f) => f.tone === 'red' || f.tone === 'amber');

@@ -32,6 +32,13 @@ export interface AskComposerProps {
   hint?: string;
   label?: string;
   placeholder?: string;
+  /**
+   * Text to put back in the box (STATE-003). The desk uses it to hand a failed
+   * question back for editing, so recovering from an error never means
+   * retyping. `nonce` is what makes a second recall of the *same* text arrive
+   * — a bare string prop would compare equal and be ignored.
+   */
+  seed?: { text: string; nonce: number };
 }
 
 export function AskComposer({
@@ -40,10 +47,22 @@ export function AskComposer({
   hint,
   label = "Your question",
   placeholder = "What does the desk hold on…",
+  seed,
 }: AskComposerProps) {
   const [value, setValue] = useState("");
   const id = useId();
   const counterId = `${id}-count`;
+  const hintId = `${id}-hint`;
+
+  /* Adjusted during render rather than in an effect — React re-runs this pass
+     before painting, so the refilled box never flashes empty, and the
+     alternative is the cascading render `react-hooks/set-state-in-effect`
+     refuses. Same pattern as `SearchPanel`'s selection reset. */
+  const [seeded, setSeeded] = useState(seed?.nonce ?? 0);
+  if (seed && seed.nonce !== seeded) {
+    setSeeded(seed.nonce);
+    setValue(seed.text);
+  }
 
   const length = value.trim().length;
   const over = length - LIMIT;
@@ -74,7 +93,13 @@ export function AskComposer({
         rows={3}
         placeholder={placeholder}
         disabled={disabled}
-        aria-describedby={length ? counterId : undefined}
+        /* A11Y-007: the hint under the box is part of this field's
+           description, not decoration beside it. It carries the Enter /
+           Shift+Enter contract in the idle state and the reason the box is
+           disabled in the others — a reader who never sees it is told
+           nothing about either. The counter joins it once there is
+           something to count. */
+        aria-describedby={[hintId, length ? counterId : null].filter(Boolean).join(" ")}
         aria-invalid={over > 0 || undefined}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={(event) => {
@@ -86,7 +111,7 @@ export function AskComposer({
         }}
       />
       <div className={styles.composerFoot}>
-        <p className={styles.composerHint}>
+        <p className={styles.composerHint} id={hintId}>
           {hint ?? (
             <>
               <kbd>↵</kbd> to ask, <kbd>⇧</kbd>

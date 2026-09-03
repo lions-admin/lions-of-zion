@@ -55,6 +55,21 @@ export interface UseAskThread {
   /** Seconds since the turn started. Real elapsed time, not a fake progress. */
   elapsed: number;
   ask: (question: string) => Promise<void>;
+  /**
+   * Send the failed question again, unchanged (STATE-003).
+   *
+   * The composer clears on submit, so after a failure the only surviving copy
+   * of what was typed is `pending` — and before this existed, the sole way
+   * back from a rate limit or a gateway error was to retype the question from
+   * memory. Retry costs nothing typed. No-op unless a turn actually failed.
+   */
+  retry: () => void;
+  /**
+   * Take the failed question back out of the error record so it can be edited
+   * (STATE-003, the "unless explicitly chosen" half). Clears the error and
+   * returns the text for the composer to hold; the turn is not re-sent.
+   */
+  recall: () => string | null;
   /** Abort the in-flight turn. Not an error: the wait ends and the desk
    *  returns to idle. */
   cancel: () => void;
@@ -194,6 +209,21 @@ export function useAskThread(): UseAskThread {
     [asking, storedThread],
   );
 
+  /* `ask` refuses to start while `asking`, and `asking` is false the moment
+     `problem` is set — so a retry from the error state runs, and a retry
+     hammered during a live turn cannot queue a second one. */
+  const retry = useCallback(() => {
+    if (!pending) return;
+    void ask(pending);
+  }, [ask, pending]);
+
+  const recall = useCallback(() => {
+    const question = pending;
+    setProblem(null);
+    setPending(null);
+    return question;
+  }, [pending]);
+
   const cancel = useCallback(() => {
     abort.current?.abort();
     abort.current = null;
@@ -212,5 +242,5 @@ export function useAskThread(): UseAskThread {
     writeThread(null);
   }, []);
 
-  return { messages, status, problem, pending, elapsed, ask, cancel, lostThread, reset };
+  return { messages, status, problem, pending, elapsed, ask, retry, recall, cancel, lostThread, reset };
 }

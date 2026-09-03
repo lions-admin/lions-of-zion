@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { StatusState } from "@/components/ui/StatusState";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import type { PublicPublication, PublicPublicationDetail } from "@/server/contracts/publication";
 import { ClaimEntry } from "./ClaimEntry";
 import { FACT_CHECK_PATH } from "./paths";
@@ -27,7 +27,7 @@ export function FactCheckDesk({
     <div className={styles.desk}>
       {unavailable ? (
         <StatusState
-          status="error"
+          status={absenceStatus("unavailable")}
           eyebrow="DESK STATUS"
           title="The published record could not be read."
           description="This is a fault on our side, not an empty desk. Published checks are unaffected and return when the read succeeds."
@@ -36,7 +36,7 @@ export function FactCheckDesk({
         />
       ) : records.length === 0 ? (
         <StatusState
-          status="empty"
+          status={absenceStatus("nothing-published")}
           eyebrow="DESK STATUS"
           title="No claim has been checked and published yet."
           description="A check appears here only once it has cleared the evidence and quality gates. This page never carries a worked example invented to fill it."

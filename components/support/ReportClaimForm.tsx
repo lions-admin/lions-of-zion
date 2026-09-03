@@ -116,7 +116,23 @@ export function ReportClaimForm() {
   }
 
   return (
-    <form className={styles.form} onSubmit={submit}>
+    /*
+      A11Y-007. Two different messages describe this form as a whole rather
+      than any one field: the no-JavaScript notice (which is why the submit
+      button is not there) and the send failure (which the API reports about
+      the submission, not about a field). Both are referenced here so a reader
+      inside the fields can reach them, while the per-field guard stays on the
+      two fields it actually names. `aria-describedby` tolerates ids that are
+      not in the document, so the failure id can be listed unconditionally —
+      but it is listed conditionally anyway, because an empty reference is one
+      more thing a future edit can get wrong.
+    */
+    <form
+      className={styles.form}
+      onSubmit={submit}
+      aria-busy={submitting || undefined}
+      aria-describedby={["report-noscript", state.status === 'error' ? "report-failure" : null].filter(Boolean).join(" ")}
+    >
       {/*
         With scripting off this form has no submit path at all: there is no
         `action`, so the button performs a native GET to /support-us, the page
@@ -136,7 +152,7 @@ export function ReportClaimForm() {
       */}
       <noscript>
         <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
-        <p className={styles.fieldError}>
+        <p id="report-noscript" className={styles.fieldError}>
           This form needs JavaScript to send a report. Nothing typed here can reach the desk with
           it turned off — email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a> instead,
           with the link and what you believe is wrong with it.
@@ -188,8 +204,14 @@ export function ReportClaimForm() {
       />
 
       {state.status === 'error' ? (
-        <p className={styles.fieldError} {...assertiveLive}>
+        <p id="report-failure" className={styles.fieldError} {...assertiveLive}>
           {state.message}{' '}
+          {/* STATE-003: the fields below still hold everything that was typed —
+              nothing here clears them — and saying so is the difference
+              between a reader pressing the button again and a reader assuming
+              the report is gone and leaving. */}
+          Nothing you typed was cleared; the button sends it again as it stands.
+          {' '}
           {/* A failed send with no alternative leaves a reader who found a real
               error with nowhere to put it. */}
           You can also email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.

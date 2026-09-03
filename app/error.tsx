@@ -27,13 +27,26 @@ import { SiteHeader } from '@/components/site/SiteHeader';
 export default function ErrorBoundary({
   error,
   reset,
+  retry,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
+  retry?: () => void;
 }) {
   useEffect(() => {
     console.error(error);
   }, [error]);
+
+  /* STATE-003 — one recovery contract across every error boundary on the site.
+     Next 16.3 hands an error boundary both: `retry` re-fetches and then
+     re-renders, `reset` only re-renders the tree that already failed. For the
+     failure this page actually catches — a read that did not come back — the
+     second one re-runs the render against the same missing data and fails
+     again, so a reader gets a button that visibly does nothing. `retry` when
+     the runtime offers it, `reset` when it does not.
+     `app/articles/[publicId]/error.tsx` has done this since ARTICLE-003; this
+     is the root boundary catching up to it rather than a new idea. */
+  const recover = retry ?? reset;
 
   return (
     <main className="loz-error">
@@ -178,7 +191,7 @@ export default function ErrorBoundary({
           record is intact. Re-establish the signal, or return to the scan.
         </p>
         <div className="loz-error-actions">
-          <button type="button" className="loz-error-retry" onClick={() => reset()}>
+          <button type="button" className="loz-error-retry" onClick={() => recover()}>
             Re-establish signal
           </button>
           <Link href="/" className="loz-error-home">

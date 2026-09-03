@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Skeleton, SkeletonRegion } from "@/components/ui/Skeleton";
-import { StatusState } from "@/components/ui/StatusState";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
+import { AuthRequired, refusedForAuth } from "./auth-required";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import styles from "./admin.module.css";
 
@@ -57,6 +58,8 @@ export function AdminStatus() {
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** The read was refused for want of a session, not because anything broke. */
+  const [authRequired, setAuthRequired] = useState(false);
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   const controlBar = useRef<HTMLDivElement | null>(null);
 
@@ -66,25 +69,53 @@ export function AdminStatus() {
       fetch("/api/v1/admin/user-count", { cache: "no-store" }),
       fetch("/api/v1/admin/briefing", { cache: "no-store" }),
     ]);
+    /* STATE-005. A signed-out or expired session answers 401/403 to all three
+       of these, and reporting that as "Unable to load system status" tells an
+       operator the console is broken when the console is fine and they are
+       simply not signed in — two different problems with two different first
+       moves. `authenticateAdmin()` fails closed on every route under
+       `/api/v1/admin`, so this is the ordinary state after a session lapses,
+       not an edge case. */
+    if (refusedForAuth(responses)) throw new AuthRequired();
     if (responses.some((response) => !response.ok)) throw new Error("Unable to load system status.");
     const [nextStatus, nextCount, nextBriefing] = await Promise.all(responses.map((response) => response.json()));
     setStatus(nextStatus as Status); setUserCount(nextCount as UserCount); setBriefing(nextBriefing as BriefingStatus);
   }, []);
 
+  const fail = useCallback((cause: Error) => {
+    if (cause instanceof AuthRequired) { setAuthRequired(true); return; }
+    setError(cause.message);
+  }, []);
+
   const reload = useCallback(() => {
     setError(null);
-    void load().catch((cause: Error) => setError(cause.message));
-  }, [load]);
+    setAuthRequired(false);
+    void load().catch(fail);
+  }, [load, fail]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => { void load().catch((cause: Error) => setError(cause.message)); }, 0);
+    const timer = window.setTimeout(() => { void load().catch(fail); }, 0);
     return () => window.clearTimeout(timer);
-  }, [load]);
+  }, [load, fail]);
+
+  if (authRequired && !(status && userCount && briefing)) {
+    return (
+      <StatusState
+        status={absenceStatus("auth-required")}
+        className={styles.consoleState}
+        eyebrow="SESSION"
+        title="Sign in to open the console"
+        description="This session is not signed in, or it has expired. Nothing is wrong with the console — it refuses to answer an unauthenticated read, which is what it is supposed to do."
+        actionText="Go to sign-in"
+        actionHref="/admin/login"
+      />
+    );
+  }
 
   if (error && !(status && userCount && briefing)) {
     return (
       <StatusState
-        status="error"
+        status={absenceStatus("unavailable")}
         className={styles.consoleState}
         title="The console could not be loaded"
         description={error}

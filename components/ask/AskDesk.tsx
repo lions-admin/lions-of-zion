@@ -35,7 +35,7 @@
  * number this component would have to keep in step with the server.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardEyebrow } from "@/components/ui/Card";
 import { StatusState } from "@/components/ui/StatusState";
@@ -54,10 +54,21 @@ const EXAMPLES = [
 ];
 
 export function AskDesk() {
-  const { messages, status, problem, pending, elapsed, ask, cancel, lostThread, reset } =
+  const { messages, status, problem, pending, elapsed, ask, retry, recall, cancel, lostThread, reset } =
     useAskThread();
   const exchanges = toExchanges(messages);
   const tail = useRef<HTMLDivElement>(null);
+
+  /* STATE-003. The composer clears on submit, so a failed turn used to leave
+     the reader with the question visible in an error record and no way back to
+     it but retyping. Two ways back now: send it again unchanged, or take it
+     into the box and edit it. The nonce is what lets the same text be recalled
+     twice. */
+  const [seed, setSeed] = useState<{ text: string; nonce: number } | undefined>(undefined);
+  const recallIntoComposer = () => {
+    const question = recall();
+    if (question) setSeed({ text: question, nonce: Date.now() });
+  };
 
   /* Move to the newest record when one arrives — but never on first paint, and
      never past the composer. `block: "nearest"` keeps a restored transcript
@@ -123,6 +134,8 @@ export function AskDesk() {
             code={problem.code}
             detail={problem.detail}
             question={pending}
+            onRetry={retry}
+            onEdit={recallIntoComposer}
           />
         ) : null}
 
@@ -147,6 +160,7 @@ export function AskDesk() {
           <EvidenceBoundary />
           <AskComposer
             onAsk={ask}
+            seed={seed}
             disabled={busy || status === "restoring"}
             label={hasHistory ? "Follow-up" : "Your question"}
             placeholder={hasHistory ? "Ask a follow-up…" : undefined}
@@ -235,10 +249,14 @@ function ProblemRecord({
   code,
   detail,
   question,
+  onRetry,
+  onEdit,
 }: {
   code: string;
   detail: string;
   question: string | null;
+  onRetry: () => void;
+  onEdit: () => void;
 }) {
   const rateLimited = code === "RATE_LIMITED";
   return (
@@ -258,6 +276,25 @@ function ProblemRecord({
         <p className={styles.problemDetail}>
           Nothing was lost — ask again once the window has passed.
         </p>
+      ) : null}
+      {/* STATE-003: the question above is the only surviving copy of what was
+          typed. It leaves here in one of two ways the reader chooses — sent
+          again as written, or handed back to the box to be changed. Neither
+          asks anyone to retype it. A rate limit is not offered an immediate
+          resend, because the next attempt would fail the same way and spend
+          another of the window's allowance; editing is still offered, and the
+          edited question can be sent when the window has passed. */}
+      {question ? (
+        <div className={styles.problemActions}>
+          {rateLimited ? null : (
+            <Button type="button" variant="secondary" size="md" onClick={onRetry}>
+              Ask this again
+            </Button>
+          )}
+          <Button type="button" variant="ghost" size="md" onClick={onEdit}>
+            Edit the question
+          </Button>
+        </div>
       ) : null}
     </article>
   );

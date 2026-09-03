@@ -6,7 +6,9 @@ import { CheckboxField } from "@/components/ui/CheckboxField";
 import { Field } from "@/components/ui/Field";
 import { FieldGroup } from "@/components/ui/FieldGroup";
 import { SelectField } from "@/components/ui/SelectField";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
+import { AuthRequired, refusedForAuth } from "./auth-required";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import styles from "./admin.module.css";
 
@@ -57,6 +59,15 @@ export function PublicationManager() {
   const [selectedId, setSelectedId] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<Notice | null>(null);
+  /**
+   * STATE-005: whether the queue is empty because the read succeeded and found
+   * nothing, or because the read failed. Both used to render "No publications
+   * yet." — an outage telling an operator the queue is clear, which is the one
+   * wrong thing to tell someone about to decide there is no work to do.
+   */
+  const [loadFailed, setLoadFailed] = useState(false);
+  /** Refused for want of a session, which is not a fault. */
+  const [authRequired, setAuthRequired] = useState(false);
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* Where focus lands when the control that opened a confirmation no longer
      exists — a deleted publication takes its own action row with it. */
@@ -67,16 +78,34 @@ export function PublicationManager() {
       fetch("/api/v1/publications?limit=100&briefingOnly=true", { cache: "no-store" }),
       fetch("/api/v1/admin/homepage-features", { cache: "no-store" }),
     ]);
+    /* Same distinction as the status console above: a refused read and a
+       broken one need different first moves from the operator. */
+    if (refusedForAuth([publicationResponse, featureResponse])) throw new AuthRequired();
     if (!publicationResponse.ok || !featureResponse.ok) throw new Error("Unable to load publications.");
     const publicationPayload = await publicationResponse.json() as { publications: Publication[] };
     const featurePayload = await featureResponse.json() as { features: Array<{ slot: number; publicationId: string }> };
     setItems(publicationPayload.publications); setFeatures(featurePayload.features);
     setSelectedId((current) => current || publicationPayload.publications[0]?.id || "");
+    setLoadFailed(false);
+    setAuthRequired(false);
   }, []);
+  const fail = useCallback((cause: Error) => {
+    if (cause instanceof AuthRequired) { setAuthRequired(true); return; }
+    setLoadFailed(true);
+    setMessage({ kind: "error", text: cause.message });
+  }, []);
+
+  const reload = useCallback(() => {
+    setMessage(null);
+    setAuthRequired(false);
+    void load().catch(fail);
+  }, [load, fail]);
   useEffect(() => {
-    const timer = window.setTimeout(() => { void load().catch((cause: Error) => setMessage({ kind: "error", text: cause.message })); }, 0);
+    const timer = window.setTimeout(() => {
+      void load().catch(fail);
+    }, 0);
     return () => window.clearTimeout(timer);
-  }, [load]);
+  }, [load, fail]);
 
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
   const eligible = items.filter((item) =>
@@ -94,8 +123,14 @@ export function PublicationManager() {
         </div>
         <p className={styles.headNote}>{items.length} in the queue · {eligible.length} eligible for the homepage</p>
       </div>
-      {message?.kind === "error" ? <p className={styles.error} {...assertiveLive}>{message.text}</p> : null}
-      {message?.kind === "ok" ? <p className={styles.notice} {...politeLive}>{message.text}</p> : null}
+      {/* A11Y-007 — the console's one notice line is the validation summary
+          for every form below it: a save that the API refuses is reported
+          here, not on the field it came from. The ids let the editor form and
+          the placement selects point at it with `aria-describedby`, so an
+          operator who is inside the form when it fails is told why without
+          having to go looking for a paragraph above the panel. */}
+      {message?.kind === "error" ? <p id="console-error" className={styles.error} {...assertiveLive}>{message.text}</p> : null}
+      {message?.kind === "ok" ? <p id="console-notice" className={styles.notice} {...politeLive}>{message.text}</p> : null}
 
       <div className={styles.panel}>
         <p className={styles.sectionLabel}>Homepage placement</p>
@@ -124,7 +159,29 @@ export function PublicationManager() {
           tabIndex={-1}
           aria-label="Publications, newest first"
         >
-          {items.length === 0 ? <p className={styles.queueEmpty}>No publications yet.</p> : null}
+          {items.length === 0 && authRequired ? (
+            <StatusState
+              status={absenceStatus("auth-required")}
+              eyebrow="SESSION"
+              title="Sign in to see the queue"
+              description="The queue exists and is unchanged; this session is not signed in, so the API refuses to serve it."
+              actionText="Go to sign-in"
+              actionHref="/admin/login"
+            />
+          ) : null}
+          {items.length === 0 && loadFailed ? (
+            <StatusState
+              status={absenceStatus("unavailable")}
+              eyebrow="QUEUE STATUS"
+              title="The queue could not be read"
+              description="This is a failed read, not an empty queue. Nothing has been deleted; retry the read before concluding there is no work waiting."
+              actionText="Try again"
+              onAction={reload}
+            />
+          ) : null}
+          {items.length === 0 && !loadFailed && !authRequired ? (
+            <p className={styles.queueEmpty}>No publications yet. The read succeeded and the queue is genuinely empty.</p>
+          ) : null}
           {items.map((item) => (
             <Button
               type="button"
@@ -145,6 +202,7 @@ export function PublicationManager() {
           ? <PublicationForm
               key={selected.id}
               publication={selected}
+              noticeId={message?.kind === "error" ? "console-error" : message?.kind === "ok" ? "console-notice" : undefined}
               busy={busy}
               onSave={save}
               onTransition={requestTransition}
@@ -274,11 +332,14 @@ export function PublicationManager() {
   }
 }
 
-function PublicationForm({ publication, busy, onSave, onTransition, onArchive, onDelete }: { publication: Publication; busy: boolean; onSave: (id: string, form: HTMLFormElement) => void; onTransition: (publication: Publication, to: Publication["status"]) => void; onArchive: (publication: Publication) => void; onDelete: (publication: Publication) => void }) {
+function PublicationForm({ publication, busy, noticeId, onSave, onTransition, onArchive, onDelete }: { publication: Publication; busy: boolean; noticeId?: string; onSave: (id: string, form: HTMLFormElement) => void; onTransition: (publication: Publication, to: Publication["status"]) => void; onArchive: (publication: Publication) => void; onDelete: (publication: Publication) => void }) {
   const canArchive = publication.status !== "archived";
   const canDelete = publication.status === "archived" || publication.status === "draft";
 
-  return <form className={styles.editorForm} id="console-editor" aria-label={`Editing ${publication.title}`} onSubmit={(event) => { event.preventDefault(); onSave(publication.id, event.currentTarget); }}>
+  /* A11Y-007: the form's result is reported in the console notice above the
+     panel, so the form is described by it. `aria-busy` states the pending save
+     on the element that is actually pending. */
+  return <form className={styles.editorForm} id="console-editor" aria-label={`Editing ${publication.title}`} aria-describedby={noticeId} aria-busy={busy || undefined} onSubmit={(event) => { event.preventDefault(); onSave(publication.id, event.currentTarget); }}>
     <div className={styles.editorStatus}>
       <span>{STATUS_LABEL[publication.status]} · {SECTION_LABEL[publication.section]}</span>
       <span>{publication.publicId}</span>
@@ -405,21 +466,41 @@ type Traceability = {
 };
 
 function PublicationTrace({ publicationId }: { publicationId: string }) {
-  const [trace, setTrace] = useState<Traceability | null>(null);
+  /**
+   * STATE-005. Three states, and they used to be one: the catch set `trace`
+   * back to `null`, which is also the initial value, so a failed read rendered
+   * "Loading traceability…" for as long as the panel stayed open. An operator
+   * waiting on a spinner that will never resolve is worse off than one told
+   * the read failed, because only the second one knows to reload.
+   */
+  const [trace, setTrace] = useState<{ kind: "loading" } | { kind: "unavailable" } | { kind: "ready"; value: Traceability }>({ kind: "loading" });
   useEffect(() => {
+    /* No reset to `loading` here: `PublicationForm` carries `key={selected.id}`,
+       so a different publication remounts this component rather than changing
+       its prop, and a synchronous `setState` in an effect is what
+       `react-hooks/set-state-in-effect` refuses. */
     let live = true;
     fetch(`/api/v1/publications/${publicationId}/traceability`, { cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("trace unavailable")))
-      .then((payload: Traceability) => { if (live) setTrace(payload); })
-      .catch(() => { if (live) setTrace(null); });
+      .then((payload: Traceability) => { if (live) setTrace({ kind: "ready", value: payload }); })
+      .catch(() => { if (live) setTrace({ kind: "unavailable" }); });
     return () => { live = false; };
   }, [publicationId]);
-  if (!trace) return <p className={styles.muted}>Loading traceability…</p>;
+  if (trace.kind === "loading") return <p className={styles.muted} aria-busy="true">Loading traceability…</p>;
+  if (trace.kind === "unavailable") {
+    return (
+      <p className={styles.error} {...assertiveLive}>
+        The traceability record could not be read. This is a failed read, not an article without a
+        run — reload the console to try again.
+      </p>
+    );
+  }
+  const record = trace.value;
   return <details className={styles.traceability}><summary>Traceability: run, model, and sources</summary>
-    <p>{trace.briefingRun ? `${trace.briefingRun.localDate} · ${trace.briefingRun.stage} · ${trace.briefingRun.status} · ${trace.briefingRun.id}` : "Manual publication with no system run."}</p>
-    {trace.edition ? <p>{`Edition ${trace.edition.id} · contract ${trace.edition.contractVersion} · prompt ${trace.edition.promptVersion} · ${trace.edition.status}`}</p> : null}
-    <ul>{trace.modelRuns.map((run) => <li key={run.id}>{run.model} · {run.stage} · ${run.costUsd.toFixed(4)}</li>)}</ul>
-    <ul>{trace.claims.map((claim) => <li key={claim.id}>{claim.title} · {claim.assessment} · {claim.evidenceCount} evidence · {claim.aiRunId ?? "no model run"}</li>)}</ul>
-    <ul>{trace.sources.map((source) => <li key={source.id}>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title} · {source.publisher} · {source.retrievalStatus}</li>)}</ul>
+    <p>{record.briefingRun ? `${record.briefingRun.localDate} · ${record.briefingRun.stage} · ${record.briefingRun.status} · ${record.briefingRun.id}` : "Manual publication with no system run."}</p>
+    {record.edition ? <p>{`Edition ${record.edition.id} · contract ${record.edition.contractVersion} · prompt ${record.edition.promptVersion} · ${record.edition.status}`}</p> : null}
+    <ul>{record.modelRuns.map((run) => <li key={run.id}>{run.model} · {run.stage} · ${run.costUsd.toFixed(4)}</li>)}</ul>
+    <ul>{record.claims.map((claim) => <li key={claim.id}>{claim.title} · {claim.assessment} · {claim.evidenceCount} evidence · {claim.aiRunId ?? "no model run"}</li>)}</ul>
+    <ul>{record.sources.map((source) => <li key={source.id}>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title} · {source.publisher} · {source.retrievalStatus}</li>)}</ul>
   </details>;
 }

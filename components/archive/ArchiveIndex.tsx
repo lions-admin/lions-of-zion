@@ -10,7 +10,7 @@ import {
   useSyncExternalStore,
   type MouseEvent,
 } from 'react';
-import { Button, Pagination, StatusState } from '@/components/ui';
+import { Button, Pagination, StatusState, absenceStatus } from '@/components/ui';
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
 import {
   type ArchiveListEntry,
@@ -320,6 +320,12 @@ export function ArchiveIndex({
             onChange={(event) => onQuery(event.target.value)}
             placeholder={searchHint}
             autoComplete="off"
+            /* A11Y-007: the summary sentence below is this field's
+               description — what the current query and category actually
+               resolved to. It doubles as the polite live region, so a reader
+               using the box hears results settle as they type and a reader
+               who tabs back into it is re-told where they are. */
+            aria-describedby={`${inputId}-summary`}
           />
         </div>
 
@@ -351,7 +357,7 @@ export function ArchiveIndex({
           keystroke, and it is a sentence rather than a bare ratio, because
           "24 of 99" does not say which 99 or why. */}
       <div className={styles.summary}>
-        <p className={styles.summaryLine} role="status" aria-live="polite">
+        <p id={`${inputId}-summary`} className={styles.summaryLine} role="status" aria-live="polite">
           {shown === 0
             ? `No record matches. The archive holds ${groupDigits(total)}.`
             : `Showing ${groupDigits(start + 1)}–${groupDigits(start + visible.length)} of ${groupDigits(shown)}${
@@ -374,14 +380,28 @@ export function ArchiveIndex({
         aria-label={`${searchLabel} results`}
       >
         {shown === 0 ? (
-          <StatusState
-            status="empty"
-            eyebrow="No match"
-            title="Nothing in the archive matches this."
-            description={`The archive holds ${groupDigits(total)} records. Try a name, a place, or a different category.`}
-            actionText="Clear filters"
-            onAction={onReset}
-          />
+          /* STATE-005: "nothing matches" and "there is nothing" are different
+             facts, and only the first has a recovery. Offering "Clear filters"
+             on an archive that holds no records at all would hand the reader a
+             control that changes nothing and implies they narrowed something
+             they did not. */
+          total === 0 ? (
+            <StatusState
+              status={absenceStatus("empty-record")}
+              eyebrow="Empty index"
+              title="This archive holds no records yet."
+              description="The index loaded and carries nothing. Nothing is filtered out and nothing failed to load — there is simply nothing filed here so far."
+            />
+          ) : (
+            <StatusState
+              status={absenceStatus("no-matches")}
+              eyebrow="No match"
+              title="Nothing in the archive matches this."
+              description={`The archive holds ${groupDigits(total)} records. Try a name, a place, or a different category.`}
+              actionText="Clear filters"
+              onAction={onReset}
+            />
+          )
         ) : (
           <ArchiveRecordList
             variant={variant}

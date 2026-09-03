@@ -568,6 +568,17 @@
   text-wrap: pretty;
 }
 
+/* STATE-003 — the two ways out of a failed turn. Wrapping rather than
+   shrinking: at 320px these are two full-width controls, not two clipped
+   ones, and both keep the 44px floor the Button primitive sets. */
+.problemActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-2);
+}
+
 .unavailable {
   display: flex;
   flex-direction: column;

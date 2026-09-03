@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { CinematicIntroGate } from "@/components/particle-nav/CinematicIntroGate";
+import { ScanBackdrop } from "@/components/sections/ScanBackdrop";
+import { HOME_SCAN_PROFILE } from "@/components/sections/scanProfiles";
 import { TypographicField } from "@/components/typographic-field/TypographicField";
 import { ButtonLink } from "@/components/ui/Button";
 import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
@@ -37,7 +39,8 @@ import type { PublicPublication } from "@/server/contracts/publication";
  *  - reduced motion: the field paints one settled frame and stops; the
  *    entrance never runs.
  *  - no-JS: `.fallbackField` (the site's scan ground) stands in for the
- *    canvas, and the header, CTAs, file index, and rail are all plain hrefs.
+ *    canvas with the shared CSS scan band drifting over it, and the header,
+ *    CTAs, file index, and rail are all plain hrefs.
  *
  * The brand block is deliberately NOT wrapped in `Reveal`. The gate hands off
  * by fading its own fixed layer out over 700ms, so the masthead already has
@@ -71,6 +74,14 @@ export default async function Page() {
 
   return (
     <CinematicIntroGate>
+      {/* Without JavaScript there is no intro to hand off from, and the
+          server-rendered `data-intro-pending` that `.scanDock` waits on never
+          clears — the same reason `CinematicIntroGate` hides `[data-intro-only]`
+          this way. The band shows over the static scan ground, as on every
+          other route. */}
+      <noscript>
+        <style>{"[data-home-scan] { display: block !important; }"}</style>
+      </noscript>
       <main className={styles.page} data-home-scroll>
         <SiteHeader />
 
@@ -82,6 +93,21 @@ export default async function Page() {
               fall-off at the foot. */}
           <div className={styles.fieldLayer} aria-hidden="true">
             <div className={styles.fallbackField} />
+            {/* The shared public-site scan, the same server-rendered rows every
+                reading route drifts behind, docked as a band under the canvas.
+                It stays hidden until the intro has handed off and steps aside
+                once the field's engine paints — the field's canvas is opaque,
+                so the two are never on screen together; see `.scanDock`. */}
+            <div className={styles.scanDock} data-home-scan>
+              <ScanBackdrop
+                routeId="home"
+                surface="band"
+                register={HOME_SCAN_PROFILE.register}
+                intensity={HOME_SCAN_PROFILE.intensity}
+                density={HOME_SCAN_PROFILE.density}
+                speed={HOME_SCAN_PROFILE.speed}
+              />
+            </div>
             <TypographicField
               canvasClassName={styles.matrixCanvas}
               statusClassName={styles.engineStatus}

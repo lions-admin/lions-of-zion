@@ -64,6 +64,47 @@
   background-image: var(--scan-ground);
 }
 
+/* The shared scan band (`ScanBackdrop`, `surface="band"`), between the static
+ * ground and the canvas. Same DOM order and z-index as the fallback, so it
+ * paints over the texture and under the field.
+ *
+ * Layering, decided: the home never runs two moving scan layers. The field's
+ * canvas is opaque (`alpha: false`, cleared to black), so once its engine
+ * paints nothing beneath it is visible anyway; this rule just stops the
+ * hidden drift from ticking. So the band is the moving layer only when the
+ * field is not — no JavaScript, or the moment between handoff and the
+ * engine's first paint — and the field owns the screen the rest of the time,
+ * with the band at a whisper (`HOME_SCAN_PROFILE`: low, slow) for the frames
+ * both exist. Flipping this to a faint overlay above the canvas is one rule
+ * here, not a component change.
+ *
+ * Handoff: `data-intro-pending` is the server's claim that the entrance will
+ * run, `data-intro-active` is it running, `data-handoff-blocked` is the
+ * post-intro input guard. The band is `display: none` through all three —
+ * no compositor work under the GPU intro — and appears when the last clears.
+ * The `noscript` rule in `app/page.tsx` lifts the pending state when there is
+ * no JavaScript to clear it.
+ *
+ * `--content-w` is the mask width `.rowField` dims through: the masthead's
+ * column, so the wordmark and the standfirst are not read over drifting rows. */
+.scanDock {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  --content-w: min(48rem, calc(100vw - 2rem));
+}
+
+html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .scanDock {
+  display: none;
+}
+
+/* Hidden only after the canvas has faded in over it, so the ground is never
+   bare for a frame between the band leaving and the field arriving. */
+.fieldLayer:has([data-engine-ready]) .scanDock {
+  visibility: hidden;
+  transition: visibility 0s linear var(--dur-slow);
+}
+
 .matrixCanvas {
   z-index: 1;
   display: block;

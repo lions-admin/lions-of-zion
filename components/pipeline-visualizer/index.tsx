@@ -7,12 +7,15 @@ import { PipelineCanvas } from "./PipelineCanvas";
 import { PipelineControls } from "./PipelineControls";
 import { StepExplainerCard } from "./StepExplainerCard";
 import { TermsGlossaryModal } from "./TermsGlossaryModal";
-import { NodeInspectorDrawer } from "./NodeInspectorDrawer";
+import { NodeInspector } from "./NodeInspector";
+import { useViewportGate, WORKBENCH_QUERY } from "./hooks/useViewportGate";
 import { EventTelemetryStream } from "./EventTelemetryStream";
 import { CHROME } from "./copy";
 import styles from "./visualizer.module.css";
 
 export function PipelineVisualizer() {
+  /* Which shell the inspector gets is a viewport question; see NodeInspector. */
+  const isWorkbench = useViewportGate(WORKBENCH_QUERY);
   const {
     selectedJourneyId,
     currentJourney,
@@ -128,8 +131,9 @@ export function PipelineVisualizer() {
           onOpenGlossary={handleOpenGlossary}
         />
 
-        <NodeInspectorDrawer
+        <NodeInspector
           node={selectedNode}
+          asModal={!isWorkbench}
           stepTitleEn={
             selectedNode && currentStep?.nodeId === selectedNode.id
               ? currentStep.titleEn

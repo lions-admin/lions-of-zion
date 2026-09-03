@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { JourneyStep } from "./types";
 import { PIPELINE_NODES } from "./data/nodes";
@@ -31,17 +31,27 @@ export function StepExplainerCard({
   onSelectNode,
 }: StepExplainerCardProps) {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const bodyId = useId();
   const node = PIPELINE_NODES.find((n) => n.id === currentStep.nodeId);
   const payloadText = formatPayload(currentStep.payloadSnippet);
 
+  /* The explainer stays inline rather than becoming a dialog. It is the
+     running commentary on the step the simulation is on — reading it and
+     watching the stage are the same act, and a sheet you have to dismiss to
+     see what it describes would break that. What it borrows from the shared
+     dialog behaviour is the disclosure contract: a labelled trigger that
+     owns `aria-expanded` and points at the region it controls. */
   return (
-    <div className={styles.explainerCardContainer}>
+    <section
+      className={styles.explainerCardContainer}
+      aria-label={CHROME.regionExplainer}
+    >
       <div className={styles.explainerHeader}>
         <div className={styles.explainerHeaderRight}>
           <span className={styles.stepBadge}>
             {CHROME.stepOf(stepIndex + 1, totalSteps)}
           </span>
-          <h3 className={styles.explainerTitle}>{currentStep.titleEn}</h3>
+          <h2 className={styles.explainerTitle}>{currentStep.titleEn}</h2>
         </div>
 
         <div className={styles.explainerHeaderActions}>
@@ -60,14 +70,17 @@ export function StepExplainerCard({
             size="sm"
             onClick={() => setIsExpanded((prev) => !prev)}
             title={isExpanded ? CHROME.collapseTitle : CHROME.expandTitle}
+            aria-expanded={isExpanded}
+            aria-controls={bodyId}
           >
-            {isExpanded ? `▲ ${CHROME.collapse}` : `▼ ${CHROME.expand}`}
+            <span aria-hidden="true">{isExpanded ? "\u25B2" : "\u25BC"}</span>
+            {isExpanded ? CHROME.collapse : CHROME.expand}
           </Button>
         </div>
       </div>
 
       {isExpanded && (
-        <div className={styles.explainerBody}>
+        <div id={bodyId} className={styles.explainerBody}>
           <div className={styles.explainerMainText}>
             <div className={styles.explainerContent}>
               <strong>{CHROME.nowHappening}:</strong> {currentStep.descriptionEn}
@@ -116,6 +129,6 @@ export function StepExplainerCard({
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 }

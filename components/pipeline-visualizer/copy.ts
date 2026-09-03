@@ -1,4 +1,4 @@
-import type { NodeKind } from "./types";
+import type { NodeCategory, NodeKind } from "./types";
 
 export type NodeInspectorCopy = {
   what: string;
@@ -74,6 +74,37 @@ export const LANE_COPY = [
     laneIndex: 6,
   },
 ] as const;
+
+/**
+ * The eight node categories, as a lane filter reads them.
+ *
+ * Typed against `NodeCategory` rather than `string` on purpose: the
+ * glossary's own category list below is a loose record and is missing
+ * `publish`, which is how a filter built on it would have hidden three
+ * components with no error anywhere. A ninth category added to `types.ts`
+ * now fails the typecheck here until it is named.
+ */
+export const CATEGORY_LABELS: Record<NodeCategory, string> = {
+  ingest: "Ingest",
+  evidence: "Evidence",
+  model: "Verification",
+  briefing: "Daily brief",
+  search: "Search",
+  ai: "AI",
+  publish: "Publication",
+  infra: "Governance",
+};
+
+export const CATEGORY_ORDER: readonly NodeCategory[] = [
+  "ingest",
+  "evidence",
+  "model",
+  "briefing",
+  "search",
+  "ai",
+  "publish",
+  "infra",
+];
 
 export const GLOSSARY_CATEGORY_LABELS: Record<string, string> = {
   all: "All terms",

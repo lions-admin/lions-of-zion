@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { CheckboxField } from "@/components/ui/CheckboxField";
 import { Field } from "@/components/ui/Field";
 import { FieldGroup } from "@/components/ui/FieldGroup";
 import { SelectField } from "@/components/ui/SelectField";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
+import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import styles from "./admin.module.css";
 
 type Publication = {
@@ -32,12 +33,34 @@ type Publication = {
 
 type Notice = { kind: "ok" | "error"; text: string };
 
+/* Enum values are the wire format, not operator chrome. The console reads in
+   English words everywhere a status or a section is shown. */
+const STATUS_LABEL: Record<Publication["status"], string> = {
+  draft: "Draft",
+  under_review: "In review",
+  approved: "Approved",
+  published: "Published",
+  updated: "Updated",
+  archived: "Archived",
+};
+
+const SECTION_LABEL: Record<Publication["section"], string> = {
+  daily_brief: "Daily Brief",
+  israel_update: "Israel Update",
+  war_update: "War Update",
+  narrative_watch: "Narrative Watch",
+};
+
 export function PublicationManager() {
   const [items, setItems] = useState<Publication[]>([]);
   const [features, setFeatures] = useState<Array<{ slot: number; publicationId: string }>>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<Notice | null>(null);
+  const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
+  /* Where focus lands when the control that opened a confirmation no longer
+     exists — a deleted publication takes its own action row with it. */
+  const queueRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
     const [publicationResponse, featureResponse] = await Promise.all([
@@ -63,32 +86,45 @@ export function PublicationManager() {
   );
 
   return (
-    <section className={styles.editorPanel}>
+    <section className={styles.section} id="console-queue" aria-labelledby="console-queue-heading">
       <div className={styles.panelHead}>
         <div>
-          <p className={styles.sectionLabel}>Editorial</p>
-          <h2>Edit and place publications</h2>
+          <p className={styles.sectionLabel}>Publication queue</p>
+          <h2 id="console-queue-heading">Review, place, and edit publications</h2>
         </div>
+        <p className={styles.headNote}>{items.length} in the queue · {eligible.length} eligible for the homepage</p>
       </div>
       {message?.kind === "error" ? <p className={styles.error} {...assertiveLive}>{message.text}</p> : null}
       {message?.kind === "ok" ? <p className={styles.notice} {...politeLive}>{message.text}</p> : null}
-      <div className={styles.featureSlots}>
-        {[1, 2, 3].map((slot) => (
-          <SelectField
-            key={slot}
-            className={styles.editorField}
-            label={`Lead headline ${slot}`}
-            value={features.find((feature) => feature.slot === slot)?.publicationId ?? ""}
-            onChange={(event) => setSlot(slot, event.target.value || null)}
-            disabled={busy}
-          >
-            <option value="">Automatic selection</option>
-            {eligible.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
-          </SelectField>
-        ))}
+
+      <div className={styles.panel}>
+        <p className={styles.sectionLabel}>Homepage placement</p>
+        <p className={styles.muted}>Three lead slots. An empty slot falls back to automatic selection. Only published briefing articles outside the Daily Brief are eligible.</p>
+        <div className={styles.featureSlots}>
+          {[1, 2, 3].map((slot) => (
+            <SelectField
+              key={slot}
+              className={styles.editorField}
+              label={`Lead headline ${slot}`}
+              value={features.find((feature) => feature.slot === slot)?.publicationId ?? ""}
+              onChange={(event) => setSlot(slot, event.target.value || null)}
+              disabled={busy}
+            >
+              <option value="">Automatic selection</option>
+              {eligible.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+            </SelectField>
+          ))}
+        </div>
       </div>
+
       <div className={styles.editorLayout}>
-        <aside className={styles.draftQueue} aria-label="Publication list">
+        <aside
+          className={styles.draftQueue}
+          ref={queueRef}
+          tabIndex={-1}
+          aria-label="Publications, newest first"
+        >
+          {items.length === 0 ? <p className={styles.queueEmpty}>No publications yet.</p> : null}
           {items.map((item) => (
             <Button
               type="button"
@@ -99,18 +135,77 @@ export function PublicationManager() {
               className={item.id === selectedId ? `${styles.queueItem} ${styles.selectedDraft}` : styles.queueItem}
               onClick={() => setSelectedId(item.id)}
             >
-              <span>{item.status}</span>
+              <span>{STATUS_LABEL[item.status]}</span>
               <strong>{item.title}</strong>
-              <small>{item.section}</small>
+              <small>{SECTION_LABEL[item.section]}</small>
             </Button>
           ))}
         </aside>
         {selected
-          ? <PublicationForm key={selected.id} publication={selected} busy={busy} onSave={save} onTransition={transition} onArchive={archive} onDelete={remove} />
-          : <p className={styles.muted}>No publications to edit.</p>}
+          ? <PublicationForm
+              key={selected.id}
+              publication={selected}
+              busy={busy}
+              onSave={save}
+              onTransition={requestTransition}
+              onArchive={requestArchive}
+              onDelete={requestDelete}
+            />
+          : <p className={styles.muted}>Select a publication to edit it.</p>}
       </div>
+
+      <ConfirmDialog
+        intent={confirmIntent}
+        onClose={() => setConfirmIntent(null)}
+        fallbackFocusRef={queueRef}
+      />
     </section>
   );
+
+  function targetDetail(publication: Publication) {
+    return `${publication.publicId} · ${SECTION_LABEL[publication.section]} · ${STATUS_LABEL[publication.status]}`;
+  }
+
+  /* The three confirmation requests. Each one names the action, the exact
+     publication, and what the operator cannot take back. */
+  function requestArchive(publication: Publication) {
+    setConfirmIntent({
+      action: "Remove this publication from the site and archive it",
+      target: publication.title,
+      targetDetail: targetDetail(publication),
+      consequence: "The article stops being served on public pages and in search results as soon as the change lands. An archived publication can be restored to draft from this queue.",
+      confirmLabel: "Remove and archive",
+      tone: "danger",
+      run: () => archive(publication.id),
+    });
+  }
+
+  function requestDelete(publication: Publication) {
+    setConfirmIntent({
+      action: "Delete this publication permanently",
+      target: publication.title,
+      targetDetail: targetDetail(publication),
+      consequence: "The publication and its version history are deleted and cannot be restored from this console. Linked evidence and the review record are kept.",
+      confirmLabel: "Delete permanently",
+      tone: "danger",
+      run: () => remove(publication.id),
+    });
+  }
+
+  function requestTransition(publication: Publication, to: Publication["status"]) {
+    /* Publication is the one workflow step that reaches the public, so it is
+       the one that asks. The rest move between internal states. */
+    if (to !== "published") { void transition(publication.id, to); return; }
+    setConfirmIntent({
+      action: publication.status === "updated" ? "Publish this update now" : "Publish this article now",
+      target: publication.title,
+      targetDetail: targetDetail(publication),
+      consequence: "The article becomes readable on public pages and available to search engines immediately. Taking it down again means archiving it, which readers may already have seen.",
+      confirmLabel: publication.status === "updated" ? "Publish update" : "Publish now",
+      tone: "primary",
+      run: () => transition(publication.id, to),
+    });
+  }
 
   async function save(id: string, form: HTMLFormElement) {
     setBusy(true); setMessage(null);
@@ -148,7 +243,6 @@ export function PublicationManager() {
     } catch (cause) { setMessage({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." }); } finally { setBusy(false); }
   }
   async function transition(id: string, to: Publication["status"]) {
-    if (to === "published" && !window.confirm("Publish this article now? After publication it will appear on public pages and in search engines.")) return;
     setBusy(true); setMessage(null);
     try {
       const response = await fetch(`/api/v1/publications/${id}/transition`, {
@@ -171,7 +265,6 @@ export function PublicationManager() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("Permanently delete this publication? Evidence and review history will be kept.")) return;
     setBusy(true); setMessage(null);
     try {
       const response = await fetch(`/api/v1/publications/${id}`, { method: "DELETE" });
@@ -181,9 +274,15 @@ export function PublicationManager() {
   }
 }
 
-function PublicationForm({ publication, busy, onSave, onTransition, onArchive, onDelete }: { publication: Publication; busy: boolean; onSave: (id: string, form: HTMLFormElement) => void; onTransition: (id: string, to: Publication["status"]) => void; onArchive: (id: string) => void; onDelete: (id: string) => void }) {
-  return <form className={styles.editorForm} onSubmit={(event) => { event.preventDefault(); onSave(publication.id, event.currentTarget); }}>
-    <div className={styles.editorStatus}><span>{publication.status}</span><span>{publication.publicId}</span></div>
+function PublicationForm({ publication, busy, onSave, onTransition, onArchive, onDelete }: { publication: Publication; busy: boolean; onSave: (id: string, form: HTMLFormElement) => void; onTransition: (publication: Publication, to: Publication["status"]) => void; onArchive: (publication: Publication) => void; onDelete: (publication: Publication) => void }) {
+  const canArchive = publication.status !== "archived";
+  const canDelete = publication.status === "archived" || publication.status === "draft";
+
+  return <form className={styles.editorForm} id="console-editor" aria-label={`Editing ${publication.title}`} onSubmit={(event) => { event.preventDefault(); onSave(publication.id, event.currentTarget); }}>
+    <div className={styles.editorStatus}>
+      <span>{STATUS_LABEL[publication.status]} · {SECTION_LABEL[publication.section]}</span>
+      <span>{publication.publicId}</span>
+    </div>
     <Field className={styles.editorField} name="title" label="Title" defaultValue={publication.title} required />
     <Field className={styles.editorField} name="summary" label="Summary" defaultValue={publication.summary ?? ""} multiline rows={4} />
     <Field className={styles.editorField} name="body" label="Article body" defaultValue={publication.body} multiline rows={18} required />
@@ -207,8 +306,8 @@ function PublicationForm({ publication, busy, onSave, onTransition, onArchive, o
           relabel a sourced piece as analysis — or, worse, strip the disclosure
           off an unsourced one — with no change to the evidence underneath. */}
       <div className={styles.editorStatus}>
-        <span>evidence basis</span>
-        <span>{publication.narrativeWatchDetails.evidenceBasis === "analysis" ? "analysis · no source cited" : "sourced"}</span>
+        <span>Evidence basis</span>
+        <span>{publication.narrativeWatchDetails.evidenceBasis === "analysis" ? "Analysis · no source cited" : "Sourced"}</span>
       </div>
       <p className={styles.muted}>Evidence basis is derived from whether the article cites evidence and cannot be chosen on this form. To change it, change the evidence linked to the article.</p>
       <Field className={styles.editorField} name="exactClaim" label="Exact claim" defaultValue={publication.narrativeWatchDetails.exactClaim} multiline rows={4} required />
@@ -227,13 +326,13 @@ function PublicationForm({ publication, busy, onSave, onTransition, onArchive, o
       <Field className={styles.editorField} name="israeliPosition" label="Israeli position" defaultValue={publication.narrativeWatchDetails.israeliPosition ?? ""} multiline rows={5} />
       <Field className={styles.editorField} name="securityContext" label="Security context" defaultValue={publication.narrativeWatchDetails.securityContext ?? ""} multiline rows={5} />
     </FieldGroup> : null}
-    <PublicationTrace publicationId={publication.id} />
     <CheckboxField
       className={styles.editorField}
       name="featuredIsraelStory"
       label="Featured daily Israel story"
       defaultChecked={publication.featuredIsraelStory}
     />
+    <PublicationTrace publicationId={publication.id} />
     <div className={styles.actionRow}>
       <Button variant="primary" type="submit" disabled={busy}>Save changes</Button>
       {publicationActions(publication.status).map((action) => (
@@ -242,22 +341,33 @@ function PublicationForm({ publication, busy, onSave, onTransition, onArchive, o
           variant={action.primary ? "primary" : "secondary"}
           type="button"
           disabled={busy}
-          onClick={() => onTransition(publication.id, action.to)}
+          onClick={() => onTransition(publication, action.to)}
         >
           {action.label}
         </Button>
       ))}
-      {publication.status !== "archived" ? (
-        <Button variant="danger" type="button" disabled={busy} onClick={() => onArchive(publication.id)}>
-          Remove from site and archive
-        </Button>
-      ) : null}
-      {(publication.status === "archived" || publication.status === "draft") ? (
-        <Button variant="danger" type="button" disabled={busy} onClick={() => onDelete(publication.id)}>
-          Delete permanently
-        </Button>
-      ) : null}
     </div>
+    {canArchive || canDelete ? (
+      /* ADMIN-002: destructive actions are their own zone, last in reading
+         order and last in tab order, so nothing irreversible sits beside
+         Save. Each one opens the shared confirmation. */
+      <div className={styles.dangerZone}>
+        <p className={styles.dangerLabel}>Irreversible actions</p>
+        <p className={styles.muted}>Each one names its target and its consequence before it runs.</p>
+        <div className={styles.actionRow}>
+          {canArchive ? (
+            <Button variant="danger" type="button" disabled={busy} onClick={() => onArchive(publication)}>
+              Remove from site and archive
+            </Button>
+          ) : null}
+          {canDelete ? (
+            <Button variant="danger" type="button" disabled={busy} onClick={() => onDelete(publication)}>
+              Delete permanently
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    ) : null}
   </form>;
 }
 

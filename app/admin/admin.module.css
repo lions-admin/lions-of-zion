@@ -689,6 +689,132 @@
   color: var(--gold-hi);
 }
 
+/* ── Console sections — ADMIN-002 ─────────────────────────────────────── */
+
+/* One area of the console: status, pipeline, sources, queue, editor. A gold
+   rule opens each one, so the five areas are legible as five without a box
+   per area. `scroll-margin-top` is for the section rail's anchors. */
+.section {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--gold-line);
+  scroll-margin-top: var(--sp-5);
+}
+
+.section:first-of-type {
+  margin-top: var(--sp-6);
+}
+
+/* A count or a timestamp sitting opposite a panel heading. */
+.headNote {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.queueEmpty {
+  padding: var(--sp-4);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* ── Destructive zone ─────────────────────────────────────────────────── */
+
+/* Irreversible controls are never in the same row as Save. They sit in their
+   own bounded zone, last in reading order and therefore last in tab order. */
+.dangerZone {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border: var(--line-w) solid var(--state-danger-line);
+  border-radius: var(--radius-2);
+  background: var(--state-danger-wash);
+}
+
+.dangerLabel {
+  margin: 0;
+  color: var(--state-danger);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.dangerZone .actionRow {
+  margin-top: var(--sp-2);
+  justify-content: flex-start;
+}
+
+/* ── Destructive confirmation — STATE-004 ─────────────────────────────── */
+
+/* Action, target, consequence, in that order and always all three. The
+   labels are data-face so the eye finds the same three rows in every
+   confirmation without reading them again. */
+.confirmFacts {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: var(--sp-3) var(--sp-4);
+  margin: 0;
+}
+
+.confirmFacts dt {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.confirmFacts dd {
+  margin: 0;
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.confirmFacts dd small {
+  display: block;
+  margin-top: var(--sp-1);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  direction: ltr;
+}
+
+.confirmDanger {
+  color: var(--state-danger);
+}
+
+.confirmPending {
+  margin-top: var(--sp-4);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+}
+
+@media (max-width: 640px) {
+  .confirmFacts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-1) 0;
+  }
+
+  .confirmFacts dd {
+    margin-bottom: var(--sp-3);
+  }
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {

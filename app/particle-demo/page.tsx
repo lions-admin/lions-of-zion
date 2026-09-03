@@ -3,8 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Leva } from "leva";
-import { NavClient, defaultNodes } from "@/components/particle-nav";
-import { NavLinks } from "@/components/particle-nav/NavLinks";
+import { NavClient } from "@/components/particle-nav";
 import { useSimControls } from "@/components/particle-nav/dev/ControlPanel";
 import { detectBackend } from "@/components/particle-nav/hooks/usePerfTier";
 import {
@@ -50,7 +49,6 @@ function Demo() {
     <main style={{ height: "100dvh", position: "relative" }}>
       {mounted ? (
         <NavClient
-          nodes={defaultNodes}
           radius={RADIUS}
           forceWebGL={forceWebGL}
           simOverrides={sim}
@@ -65,9 +63,7 @@ function Demo() {
                   })
               : undefined
           }
-        >
-          <NavLinks nodes={defaultNodes} radius={RADIUS} />
-        </NavClient>
+        />
       ) : (
         <div
           style={{

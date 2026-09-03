@@ -5,7 +5,7 @@
  */
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Group, Sprite, Vector3, type WebGPURenderer } from 'three/webgpu';
+import { Group, Sprite, type WebGPURenderer } from 'three/webgpu';
 import {
   LION_BRAND_SOURCE_LINE,
   lionExtractionEnvelope,
@@ -13,7 +13,6 @@ import {
 } from '@/components/intro/lionSourceMap';
 import type { LionSim } from '../tsl/lionCompute';
 import { createLionMaterial } from '../tsl/pointMaterial';
-import type { InteractionFrame } from '../hooks/useInteraction';
 import type { ParticleNavTheme, SimParams } from '../types';
 import type { ExperienceFrame } from '../introFrame';
 
@@ -22,12 +21,6 @@ export interface LionCoreProps {
   theme: ParticleNavTheme;
   params: SimParams;
   reducedMotion: boolean;
-  /** Latest smoothed interaction values — written by the Scene each frame. */
-  frameRef: { current: InteractionFrame | null };
-  /** World-space pointer at the lion plane. */
-  pointerRef: { current: Vector3 };
-  /** Bézier of the active connector, lion-local. */
-  bezierRef: { current: { start: Vector3; ctrl: Vector3; end: Vector3 } };
   pxToWorldRef: { current: number };
   dprRef: { current: number };
   scale?: number;
@@ -39,9 +32,6 @@ export function LionCore({
   theme,
   params,
   reducedMotion,
-  frameRef,
-  pointerRef,
-  bezierRef,
   pxToWorldRef,
   dprRef,
   scale = 1,
@@ -49,7 +39,6 @@ export function LionCore({
 }: LionCoreProps) {
   const gl = useThree((s) => s.gl) as unknown as WebGPURenderer;
   const groupRef = useRef<Group>(null);
-  const local = useMemo(() => new Vector3(), []);
 
   const handle = useMemo(() => createLionMaterial(sim, theme), [sim, theme]);
 
@@ -68,7 +57,6 @@ export function LionCore({
 
   useFrame((_, delta) => {
     const u = sim.uniforms;
-    const f = frameRef.current;
     const experience = experienceFrameRef?.current;
     const assemble = experience?.assemble ?? 1;
     (u.assemble as { value: number }).value = reducedMotion ? 1 : assemble;
@@ -80,24 +68,12 @@ export function LionCore({
     (u.curlTimescale as { value: number }).value = params.curlTimescale;
     (u.repelRadius as { value: number }).value = params.repelRadius;
     (u.repelStrength as { value: number }).value = params.repelStrength;
-    (u.streamFraction as { value: number }).value = params.streamFraction;
     (u.reducedMotion as { value: number }).value = reducedMotion ? 1 : 0;
 
-    // pointer world → lion local (the rig may be rotated)
-    if (groupRef.current) {
-      local.copy(pointerRef.current);
-      groupRef.current.worldToLocal(local);
-      (u.pointer as { value: Vector3 }).value.copy?.(local);
-    }
-
-    if (f) {
-      (u.hoverAmount as { value: number }).value = f.hoverAmount;
-      (u.burst as { value: number }).value = f.burstPulse;
-      const bez = bezierRef.current;
-      (u.bezStart as { value: Vector3 }).value.copy?.(bez.start);
-      (u.bezCtrl as { value: Vector3 }).value.copy?.(bez.ctrl);
-      (u.bezEnd as { value: Vector3 }).value.copy?.(bez.end);
-    }
+    /* Pointer repulsion, the hover particle stream and the activation burst
+       all belonged to the orbital navigation and went with it. The pointer
+       uniform is left at its far-away default so the repulsion term in the
+       compute resolves to zero without a branch. */
 
     const hu = handle.uniforms;
     (hu.pxToWorld as { value: number }).value = pxToWorldRef.current;

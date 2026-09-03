@@ -73,7 +73,24 @@ export default async function Page() {
     : null;
 
   return (
-    <CinematicIntroGate>
+    <CinematicIntroGate
+      /* The entrance is composed over the same scan the settled home shows.
+         Passed from this server component because `ScanBackdrop` reads the
+         corpus from disk and the gate is a client boundary. The seed matches
+         the home's, so the two instances sample the same fragments in the
+         same places and the cross-fade at handoff is a change of phase, not
+         of content. */
+      background={
+        <ScanBackdrop
+          routeId="home"
+          surface="viewport"
+          register={HOME_SCAN_PROFILE.register}
+          intensity={HOME_SCAN_PROFILE.intensity}
+          density={HOME_SCAN_PROFILE.density}
+          speed={HOME_SCAN_PROFILE.speed}
+        />
+      }
+    >
       {/* Without JavaScript there is no intro to hand off from, and the
           server-rendered `data-intro-pending` that `.scanDock` waits on never
           clears — the same reason `CinematicIntroGate` hides `[data-intro-only]`

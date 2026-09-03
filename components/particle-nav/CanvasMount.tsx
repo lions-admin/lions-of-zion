@@ -7,19 +7,16 @@
  * 320 ms navigation timer, which never waits for the animation.
  */
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { usePerfTier } from './hooks/usePerfTier';
 import { useReducedMotion } from './hooks/useReducedMotion';
-import { useInteractionDriver } from './hooks/useInteraction';
 import {
   defaultSimParams,
   defaultTheme,
   CANVAS_FADE_MS,
-  NAVIGATE_AT_MS,
   type SafeAreaInsets,
 } from './config';
-import type { NavNode, ParticleNavProps, SimParams } from './types';
+import type { ParticleNavProps, SimParams } from './types';
 import styles from './styles.module.css';
 import { STORY_PARAGRAPHS } from '@/components/intro/story-timeline';
 import type { IntroControls } from './introFrame';
@@ -65,14 +62,28 @@ const HANDOFF_INPUT_GUARD_MS = 700;
 const INTRO_READY_TIMEOUT_MS = 6_000;
 
 export interface NavClientProps {
-  nodes: NavNode[];
+  /** Lion base radius, feeding the responsive `centerScale`. */
   radius: number;
   active?: boolean;
   theme?: ParticleNavProps['theme'];
   forceWebGL?: boolean;
   simOverrides?: Partial<SimParams>;
   onFrameStats?: (ms: number, fps: number) => void;
-  children: React.ReactNode;
+  /**
+   * The destination the entrance hands off to. Optional: `/particle-demo`
+   * mounts the scene with nothing behind it.
+   */
+  children?: React.ReactNode;
+  /**
+   * What the entrance is composed over, behind the transparent canvas.
+   *
+   * The site's own CSS scan backdrop, passed in rather than imported: it is a
+   * server component that reads the corpus from disk, and this file is a
+   * client boundary. The entrance paints its own opaque ground and holds the
+   * destination at `opacity: 0`, so it cannot simply let the page's band show
+   * through — it needs an instance of its own.
+   */
+  introBackground?: React.ReactNode;
   intro?: boolean;
   /**
    * Use the scene only as the cinematic entrance. Once the story completes,
@@ -126,7 +137,6 @@ function useIntroSeen() {
 }
 
 export function NavClient({
-  nodes,
   radius,
   active = true,
   theme: themeOverride,
@@ -138,12 +148,9 @@ export function NavClient({
   introOnly = false,
   onIntroBlockingChange,
   introOverlay,
+  introBackground,
 }: NavClientProps) {
-  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const labelElsRef = useRef<(HTMLElement | null)[]>([]);
-  const pointerNdcRef = useRef({ x: 0, y: 0 });
-  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handoffTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const introControlsRef = useRef<IntroControls>({
     paused: false,
@@ -155,11 +162,10 @@ export function NavClient({
   const reducedMotion = useReducedMotion();
   const hydrated = useHydrated();
   const introSeen = useIntroSeen();
-  const driver = useInteractionDriver(nodes.length);
 
   const [wantCanvas, setWantCanvas] = useState(false);
   const [canvasLive, setCanvasLive] = useState(false);
-  const [fading, setFading] = useState(false);
+  const [fading] = useState(false);
   const [safeArea, setSafeArea] = useState<SafeAreaInsets>({ top: 0, right: 0, bottom: 0, left: 0 });
   const [introDone, setIntroDone] = useState(false);
   const [handoffBlocked, setHandoffBlocked] = useState(false);
@@ -170,10 +176,6 @@ export function NavClient({
     () => ({ ...defaultSimParams, ...simOverrides }),
     [simOverrides],
   );
-
-  useEffect(() => {
-    driver.machine.setReducedMotion(reducedMotion);
-  }, [driver, reducedMotion]);
 
   // ---- deferred mount: idle callback or visibility, whichever first
   useEffect(() => {
@@ -247,12 +249,7 @@ export function NavClient({
   const completeIntro = useCallback(() => {
     // iOS can retarget the tail of a touch gesture after the Skip control
     // unmounts. Keep the revealed home visible but inert long enough for that
-    // gesture to finish, and cancel any navigation timer that might have been
-    // armed before the handoff.
-    if (navTimerRef.current) {
-      clearTimeout(navTimerRef.current);
-      navTimerRef.current = null;
-    }
+    // gesture to finish.
     if (handoffTimerRef.current) clearTimeout(handoffTimerRef.current);
     markIntroSeen();
     setIntroDone(true);
@@ -402,69 +399,14 @@ export function NavClient({
     };
   }, []);
 
-  // ---- machine wiring on the server-rendered links (focus == hover, §9)
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const links = Array.from(
-      container.querySelectorAll<HTMLAnchorElement>('a[data-node-index]'),
-    ).sort(
-      (a, b) => Number(a.dataset.nodeIndex) - Number(b.dataset.nodeIndex),
-    );
-    labelElsRef.current = links.map((l) => l.closest('li'));
+  /* The orbital navigation this component used to wire up — hover and focus
+     into the interaction machine, activation into a 320 ms router push, and
+     the projected label elements the Scene positioned each frame — was
+     retired on 2026-09-04. The home page carries its own navigation, and the
+     entrance no longer renders links of its own. */
 
-    const cleanups: (() => void)[] = [];
-    links.forEach((link) => {
-      const i = Number(link.dataset.nodeIndex);
-      const enter = () => driver.machine.hover(i);
-      const leave = () => driver.machine.unhover(i);
-      const click = (e: MouseEvent) => {
-        // modified/middle clicks keep native behaviour (new tab etc.)
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-        if (introRunning || handoffBlocked) {
-          e.preventDefault();
-          return;
-        }
-        e.preventDefault();
-        driver.machine.activate(i);
-        setFading(true);
-        if (navTimerRef.current) clearTimeout(navTimerRef.current);
-        // Navigation fires at 320 ms — it must not wait for the animation (§7).
-        navTimerRef.current = setTimeout(() => {
-          router.push(link.getAttribute('href') ?? '/');
-        }, NAVIGATE_AT_MS);
-      };
-      link.addEventListener('pointerenter', enter);
-      link.addEventListener('pointerleave', leave);
-      link.addEventListener('focus', enter);
-      link.addEventListener('blur', leave);
-      link.addEventListener('click', click);
-      cleanups.push(() => {
-        link.removeEventListener('pointerenter', enter);
-        link.removeEventListener('pointerleave', leave);
-        link.removeEventListener('focus', enter);
-        link.removeEventListener('blur', leave);
-        link.removeEventListener('click', click);
-      });
-    });
-    return () => {
-      cleanups.forEach((fn) => fn());
-      if (navTimerRef.current) clearTimeout(navTimerRef.current);
-    };
-  }, [driver, handoffBlocked, introRunning, nodes, router]);
-
-  const onPointerMove = useCallback((e: React.PointerEvent) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    pointerNdcRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    pointerNdcRef.current.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-  }, []);
-
-  const getLabelEls = useCallback(() => labelElsRef.current, []);
-
-  // Every width keeps the live orbit after the intro. The static editorial
-  // index in HomeSignalLayer is the no-JS/no-GPU tier only, gated in CSS on
-  // the same `data-canvas` attribute.
+  // The static editorial index in HomeSignalLayer is the no-JS/no-GPU tier
+  // only, gated in CSS on the same `data-canvas` attribute.
   const showCanvas = active && wantCanvas && tier && tier.backend !== 'none' && !introDismissed;
   const hasLiveBackend = Boolean(active && tier && tier.backend !== 'none');
 
@@ -480,9 +422,13 @@ export function NavClient({
       data-handoff-blocked={handoffBlocked ? '' : undefined}
       data-intro-only={introOnly ? '' : undefined}
       data-intro-dismissed={introDismissed ? '' : undefined}
-      onPointerMove={onPointerMove}
       style={{ ['--fade-ms' as string]: `${CANVAS_FADE_MS}ms` }}
     >
+      {introBackground && introRunning ? (
+        <div className={styles.introBackground} aria-hidden="true">
+          {introBackground}
+        </div>
+      ) : null}
       <div
         className={styles.navContent}
         aria-hidden={introOnly || introRunning || undefined}
@@ -496,17 +442,13 @@ export function NavClient({
           aria-hidden="true"
         >
           <Scene
-            nodes={nodes}
             radius={radius}
             theme={theme}
             params={params}
             tier={tier}
             reducedMotion={reducedMotion}
-            driver={driver}
             forceWebGL={forceWebGL}
             safeArea={safeArea}
-            pointerNdcRef={pointerNdcRef}
-            getLabelEls={getLabelEls}
             onReady={() => setCanvasLive(true)}
             onFrameStats={onFrameStats}
             intro={introRunning}

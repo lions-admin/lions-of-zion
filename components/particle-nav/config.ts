@@ -1,5 +1,4 @@
-import type { NavNode, ParticleNavTheme, SimParams } from './types';
-import { SITE_NAVIGATION, type SiteSectionId } from '@/lib/site-navigation';
+import type { ParticleNavTheme, SimParams } from './types';
 
 export const defaultTheme: ParticleNavTheme = {
   /* The renderer's clear colour, separate from the CSS `--ground` token and
@@ -40,24 +39,11 @@ export const defaultSimParams: SimParams = {
   curlTimescale: 0.15,
   repelRadius: 0.35,
   repelStrength: 0,
-  streamFraction: 0.12,
-  streamDurationMs: 700,
-  returnDurationMs: 900,
   pointSizeMin: 0.9,
   pointSizeMax: 1.85,
-  scanFieldOpacity: 0.3,
-  scanWordOpacity: 0.52,
-  scanGlyphOpacity: 0.55,
   bloomThreshold: 0.46,
   bloomStrength: 0.38,
   bloomRadius: 0.26,
-  idleRotateDegPerSec: 0,
-  parallaxDeg: 1.25,
-  parallaxDamping: 0.08,
-  pulseLoopSec: 4.2,
-  pulseStaggerSec: 0.35,
-  activateImpulse: 2.4,
-  activateDollyDistance: 0.8,
 };
 
 /** UI ranges for the dev control panel + README tunables table. */
@@ -69,26 +55,13 @@ export const simParamRanges: Record<keyof SimParams, [number, number, number]> =
   curlTimescale: [0, 1, 0.01],
   repelRadius: [0.05, 1.2, 0.01],
   repelStrength: [0, 6, 0.05],
-  streamFraction: [0, 0.4, 0.01],
-  streamDurationMs: [100, 2000, 10],
-  returnDurationMs: [100, 2500, 10],
   pointSizeMin: [0.5, 4, 0.05],
   pointSizeMax: [0.5, 6, 0.05],
   // the ambient scan and its readable glyphs are tuned against each other,
   // so both are on the demo panel rather than baked into the layer
-  scanFieldOpacity: [0, 1, 0.01],
-  scanWordOpacity: [0, 1, 0.01],
-  scanGlyphOpacity: [0, 1, 0.01],
   bloomThreshold: [0, 1, 0.01],
   bloomStrength: [0, 2, 0.01], // over-bloom is what makes particle work look cheap
   bloomRadius: [0, 1, 0.01],
-  idleRotateDegPerSec: [0, 4, 0.05],
-  parallaxDeg: [0, 10, 0.1],
-  parallaxDamping: [0.01, 0.3, 0.005],
-  pulseLoopSec: [1, 10, 0.1],
-  pulseStaggerSec: [0, 1, 0.01],
-  activateImpulse: [0, 8, 0.1],
-  activateDollyDistance: [0, 3, 0.05],
 };
 
 export const NAVIGATE_AT_MS = 320; // navigation never waits for the animation (brief §7)
@@ -110,43 +83,6 @@ export const CANVAS_FADE_MS = 180;
  * is unchanged (both nodes are `participate`), and the two file numbers that
  * moved are derived everywhere they appear.
  */
-const NODE_INTENTS: Record<SiteSectionId, NonNullable<NavNode['intent']>> = {
-  'geopolitical-brief': 'now',
-  'we-are': 'participate',
-  'war-update': 'now',
-  'october-7': 'understand',
-  'our-heroes': 'understand',
-  'israels-story': 'understand',
-  'fake-resistance': 'understand',
-  'support-us': 'participate',
-};
-
-/**
- * Particle geometry extends the public navigation source with scene-only
- * fields. Labels, routes and descriptions can no longer drift from the DOM
- * header or sitemap.
- */
-export const defaultNodes: NavNode[] = SITE_NAVIGATION.map((item) => ({
-  id: item.id,
-  label: item.label,
-  displayName: item.displayName,
-  href: item.href,
-  description: item.description,
-  iconSdfUrl: `/icons/${item.id}.sdf.png`,
-  intent: NODE_INTENTS[item.id],
-}));
-
-/** Clockwise from 12 o'clock — spoke order is configuration, not geometry. */
-export function nodeAngle(index: number, count: number): number {
-  return Math.PI / 2 - (index / count) * Math.PI * 2;
-}
-
-/**
- * Nodes sit just in front of the lion plane. The brief's layer numbers (+2/+4)
- * are stacking order, not world offsets — large z steps here would perspective-
- * enlarge the ring out of frame at the 8.2-unit camera distance.
- */
-export const NODE_Z = 0.3;
 
 export interface SafeAreaInsets {
   top: number;
@@ -314,21 +250,4 @@ export function computeOrbitLayout(
     safeInset: { x: insetX, top: insetTop, bottom: insetBottom },
     centerScale: width < 480 ? 0.78 + narrowT * 0.22 : 1,
   };
-}
-
-export function nodePosition(
-  index: number,
-  count: number,
-  radius:
-    | number
-    | (Pick<OrbitLayout, 'radiusX' | 'radiusY'> & Partial<Pick<OrbitLayout, 'centerY'>>),
-): [number, number, number] {
-  const a = nodeAngle(index, count);
-  const circular = typeof radius === 'number';
-  const radiusX = circular ? radius : radius.radiusX;
-  const radiusY = circular ? radius : radius.radiusY;
-  /* Passing a bare number still means a circle centred on the lion, which is
-     what the dev harness and the icon bakes want. */
-  const centerY = circular ? 0 : (radius.centerY ?? 0);
-  return [Math.cos(a) * radiusX, Math.sin(a) * radiusY + centerY, NODE_Z];
 }

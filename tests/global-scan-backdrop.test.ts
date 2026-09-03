@@ -176,7 +176,16 @@ describe("route coverage — one shared backdrop per public route, none on the i
     const page = read("app/page.tsx");
     expect(page).toContain('import { ScanBackdrop } from "@/components/sections/ScanBackdrop"');
     expect(page).toMatch(/<ScanBackdrop[^>]*routeId="home"[^>]*surface="band"/);
-    expect(page.match(/<ScanBackdrop/g)?.length).toBe(1);
+    /* Two instances, one per composition, and no more: the band docked under
+       the typographic field for the settled home, and the entrance's own,
+       passed to `CinematicIntroGate` because that gate is a client boundary
+       and paints an opaque ground the page's band cannot show through. Only
+       one of them is ever mounted and moving at a time — the entrance's is
+       rendered only while the intro runs and paused once it is dismissed,
+       and the dock is `display: none` for the whole of that. */
+    expect(page.match(/<ScanBackdrop/g)?.length).toBe(2);
+    expect(page).toMatch(/<CinematicIntroGate[\s\S]{0,600}?background=\{/);
+    expect(page).toMatch(/<ScanBackdrop[^>]*surface="viewport"/);
     expect(page).toMatch(/className=\{styles\.scanDock\} data-home-scan/);
 
     const css = read("app/home.module.css");

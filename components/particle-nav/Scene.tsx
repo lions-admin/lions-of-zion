@@ -1,31 +1,35 @@
 'use client';
 /**
- * The canvas. One <Canvas>, one camera, five sibling layers under a rig group
- * (brief §4). WebGPU init is async — the gl factory MUST await renderer.init()
- * or the canvas stays silently blank (brief §2.1 rule 1).
+ * The canvas. One <Canvas>, one camera, two sibling layers: the lion and the
+ * story text. WebGPU init is async — the gl factory MUST await
+ * renderer.init() or the canvas stays silently blank (brief §2.1 rule 1).
+ *
+ * The canvas clears **transparent**. The entrance's background is the site's
+ * own CSS scan backdrop, rendered by the page underneath; an opaque clear
+ * would paint black over it. Nothing in the post chain assumes an opaque
+ * background — `pass()` carries the scene's own alpha and the bloom node is
+ * added to it.
+ *
+ * This layer used to carry four more siblings: a GPU intelligence scan and an
+ * orbital ring navigation of eight nodes with connectors and projected DOM
+ * labels. Both were retired by owner instruction on 2026-09-04 — the scan
+ * because the site's CSS backdrop is the background now, the orbit because
+ * the home page carries its own navigation. Their removal took the
+ * interaction machine with it: hover, the activation burst, the connector
+ * Bézier the lion streamed particles along, and the activate dolly all
+ * existed to serve those nodes and have no source without them.
  */
 import { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { AdaptiveDpr } from '@react-three/drei';
-import { Group, PerspectiveCamera, Vector3, WebGPURenderer } from 'three/webgpu';
-import { NetworkScan } from './layers/NetworkScan';
-import { OrbitalRings } from './layers/OrbitalRings';
+import { Group, PerspectiveCamera, WebGPURenderer } from 'three/webgpu';
 import { LionCore } from './layers/LionCore';
-import { SpokeNodes } from './layers/SpokeNodes';
-import { Connectors, connectorBezier } from './layers/Connectors';
 import { IntroText } from './layers/IntroText';
 import { useLionBuffers } from './hooks/useLionBuffers';
 import { createPost, type PostHandle } from './tsl/post';
-import {
-  computeOrbitLayout,
-  MOBILE_MAX_WIDTH,
-  nodeAngle,
-  nodePosition,
-  type SafeAreaInsets,
-} from './config';
-import type { InteractionDriver, InteractionFrame } from './hooks/useInteraction';
+import { computeOrbitLayout, MOBILE_MAX_WIDTH, type SafeAreaInsets } from './config';
 import type { PerfTier } from './hooks/usePerfTier';
-import type { NavNode, ParticleNavTheme, SimParams } from './types';
+import type { ParticleNavTheme, SimParams } from './types';
 import type { ExperienceFrame, IntroControls } from './introFrame';
 import {
   getActiveTextTransfer,
@@ -39,13 +43,11 @@ import {
   getFormationEnvelope,
   getLionOpacityEnvelope,
   getRelocationEnvelope,
-  getScanRevealEnvelope,
   getTextFlowEnvelope,
   getTextOpacityEnvelope,
   smoothstep01,
 } from '@/components/intro/story-timeline';
 import { settledLionPlacement } from '@/components/intro/introLayout';
-import { SCAN_VISIBLE_THRESHOLD } from '@/components/intro/scanIntro';
 
 const CAMERA_Z = 8.2;
 const FOV = 45;
@@ -66,19 +68,13 @@ export const FRAME_WRITER_PRIORITY = -1;
 export const TIMELINE_MAX_STEP = 0.1;
 
 export interface SceneProps {
-  nodes: NavNode[];
   radius: number;
   theme: ParticleNavTheme;
   params: SimParams;
   tier: PerfTier;
   reducedMotion: boolean;
-  driver: InteractionDriver;
   forceWebGL?: boolean;
   safeArea: SafeAreaInsets;
-  /** NDC pointer written by the DOM layer (canvas itself is pointer-inert). */
-  pointerNdcRef: { current: { x: number; y: number } };
-  /** Label wrapper elements, index-aligned with nodes. */
-  getLabelEls: () => (HTMLElement | null)[];
   onReady?: () => void;
   onFrameStats?: (ms: number, fps: number) => void;
   intro?: boolean;
@@ -88,15 +84,11 @@ export interface SceneProps {
 
 function SceneContent(props: SceneProps) {
   const {
-    nodes,
     radius,
     theme,
     params,
     tier,
     reducedMotion,
-    driver,
-    pointerNdcRef,
-    getLabelEls,
     onReady,
     onFrameStats,
     safeArea,
@@ -109,37 +101,33 @@ function SceneContent(props: SceneProps) {
   const scene = useThree((s) => s.scene);
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
+  /* `computeOrbitLayout` outlived the orbit it was named for: `centerScale`
+     is the lion's responsive base size, and the placement below is solved
+     against it. */
   const orbit = useMemo(
     () => computeOrbitLayout(size.width, size.height, radius, safeArea),
     [radius, safeArea, size.height, size.width],
   );
   /* The settled lion's scale and Y, solved from the same viewport, safe-area
-     and camera the orbit uses, so the crown stays under the frame edge and
-     the entrance chrome at every size. Memoised: nothing in the frame loop
-     re-derives it. */
+     and camera, so the crown stays under the frame edge and the entrance
+     chrome at every size. Memoised: nothing in the frame loop re-derives it. */
   const lionPlacement = useMemo(
     () => settledLionPlacement(size.width, size.height, safeArea, orbit),
     [orbit, safeArea, size.height, size.width],
   );
 
-  const rigRef = useRef<Group>(null);
-  const networkRef = useRef<Group>(null);
-  const ringsRef = useRef<Group>(null);
-  const spokesRef = useRef<Group>(null);
-  const connectorsRef = useRef<Group>(null);
-  const frameRef = useRef<InteractionFrame | null>(null);
+  const rootRef = useRef<Group>(null);
   const experienceFrameRef = useRef<ExperienceFrame | null>(null);
   const pxToWorldRef = useRef(0.007);
   const dprRef = useRef(1);
-  const pointerWorldRef = useRef(new Vector3(0, 0, 99));
-  const bezierRef = useRef(connectorBezier(0, nodes.length, orbit));
   const postRef = useRef<PostHandle | null>(null);
   const readyRef = useRef(false);
   const introCompleteRef = useRef(false);
   const timelineTimeRef = useRef(0);
-  const timelineLayoutRef = useRef<'desktop' | 'mobile'>(size.width < MOBILE_MAX_WIDTH ? 'mobile' : 'desktop');
+  const timelineLayoutRef = useRef<'desktop' | 'mobile'>(
+    size.width < MOBILE_MAX_WIDTH ? 'mobile' : 'desktop',
+  );
   const statsRef = useRef({ acc: 0, frames: 0, last: 0 });
-  const tmp = useMemo(() => ({ v: new Vector3(), w: new Vector3() }), []);
 
   const sim = useLionBuffers(tier.particles, params);
 
@@ -158,15 +146,13 @@ function SceneContent(props: SceneProps) {
      this first; `internal.priority` only counts *positive* priorities
      (`internal.priority += priority > 0 ? 1 : 0`), so this does not touch
      r3f's auto-render gate — the priority-1 post pass below already owns
-     that. Without the ordering, `LionCore`, `IntroText` and `NetworkScan`
-     all subscribed after this one but at the default priority and read the
-     *previous* frame's `ExperienceFrame`: during the 1.1 s rise the lion
-     moved a frame further than the text particles born on its surface, so
-     the stream detached from the lion it is supposed to come out of. */
+     that. Without the ordering, `LionCore` and `IntroText` both subscribed
+     after this one but at the default priority and read the *previous*
+     frame's `ExperienceFrame`: during the 1.1 s rise the lion moved a frame
+     further than the text particles born on its surface, so the stream
+     detached from the lion it is supposed to come out of. */
   useFrame((state, delta) => {
     const now = performance.now();
-    const frame = driver.tick(now, delta, params);
-    frameRef.current = frame;
 
     const timelineLayout = size.width < MOBILE_MAX_WIDTH ? 'mobile' : 'desktop';
     if (timelineLayoutRef.current !== timelineLayout) {
@@ -223,10 +209,10 @@ function SceneContent(props: SceneProps) {
       const textFlow = getTextFlowEnvelope(timelineTime, story.outroProgress);
       /* One continuous eased trajectory from the centred assembled lion to
          its settled place above the text column: X never moves, only scale
-         and Y, and both come from `settledLionPlacement` — the assembled size,
-         the settled size (floored at 42%/55% of it) and a Y capped by the
-         measured crown clearance. `lionPlacement.name` and `timelineLayout`
-         read the same breakpoint, so they cannot disagree. */
+         and Y, and both come from `settledLionPlacement` — the assembled
+         size, the settled size (floored at 42%/55% of it) and a Y capped by
+         the measured crown clearance. `lionPlacement.name` and
+         `timelineLayout` read the same breakpoint, so they cannot disagree. */
       const largeScale = lionPlacement.assembledScale;
       const storyScale = lionPlacement.scale;
       const storyY = lionPlacement.y;
@@ -244,9 +230,7 @@ function SceneContent(props: SceneProps) {
         lionRelocation: relocation,
         textFlow,
         activeTextTransfer: getActiveTextTransfer(story),
-        scanReveal: getScanRevealEnvelope(timelineTime),
-        readingMask: textFlow,
-        navReveal: outro,
+        outro,
         textOpacity: getTextOpacityEnvelope(story.outroProgress),
         story,
       };
@@ -266,88 +250,26 @@ function SceneContent(props: SceneProps) {
         lionRelocation: 0,
         textFlow: 0,
         activeTextTransfer: 0,
-        scanReveal: 1,
-        readingMask: 0,
-        navReveal: 1,
+        outro: 1,
         textOpacity: 0,
         story,
       };
-    }
-    const navReveal = experienceFrameRef.current.navReveal;
-    const scanReveal = experienceFrameRef.current.scanReveal;
-    if (networkRef.current) {
-      /* The scan wakes during the rise on `scanReveal`, long before the
-         navigation outro; the outro then owns the last of the scale easing.
-         The ref is the only owner of this group's visibility. */
-      networkRef.current.visible = Math.max(scanReveal, navReveal) > SCAN_VISIBLE_THRESHOLD;
-      networkRef.current.scale.setScalar(0.965 + navReveal * 0.035);
-    }
-    if (ringsRef.current) {
-      ringsRef.current.visible = navReveal > 0.18;
-      ringsRef.current.scale.setScalar(0.95 + navReveal * 0.05);
-    }
-    if (connectorsRef.current) connectorsRef.current.visible = navReveal > 0.3;
-    if (spokesRef.current) {
-      spokesRef.current.visible = navReveal > 0.42;
-      spokesRef.current.scale.setScalar(0.93 + navReveal * 0.07);
     }
 
     // world-per-CSS-px at the lion plane; sprite scale nodes multiply this
     pxToWorldRef.current = (2 * CAMERA_Z * Math.tan((FOV * Math.PI) / 360)) / size.height;
     dprRef.current = 1; // px sizes are CSS px — device px scaling comes from the render DPR
 
-    // ---- idle rig rotation — reduced motion holds still, and so does
-    //      `defaultSimParams`, which ships `idleRotateDegPerSec: 0`
-    const rig = rigRef.current;
-    if (rig && !reducedMotion) {
-      rig.rotation.z += ((params.idleRotateDegPerSec * Math.PI) / 180) * delta;
-    }
-
-    // ---- pointer parallax (±`parallaxDeg`, 1.25° as shipped) with 0.08
-    //      damping + activate dolly
-    const ndc = pointerNdcRef.current;
-    const responsiveParallax = intro || size.width <= 768 ? 0 : params.parallaxDeg;
-    const maxOffset = Math.tan((responsiveParallax * Math.PI) / 180) * CAMERA_Z;
-    const damp = 1 - Math.pow(1 - params.parallaxDamping, delta * 60);
-    const targetX = reducedMotion ? 0 : ndc.x * maxOffset;
-    const targetY = reducedMotion ? 0 : ndc.y * maxOffset;
-    camera.position.x += (targetX - camera.position.x) * damp;
-    camera.position.y += (targetY - camera.position.y) * damp;
-    const activeAngle = nodeAngle(frame.streamNode, nodes.length) + (rig?.rotation.z ?? 0);
-    const dollyAmount = frame.dolly * params.activateDollyDistance;
-    camera.position.z = CAMERA_Z - dollyAmount * 0.7;
-    camera.position.x += Math.cos(activeAngle) * dollyAmount * 0.35;
-    camera.position.y += Math.sin(activeAngle) * dollyAmount * 0.35;
+    /* The camera is fixed. Pointer parallax and the activate dolly were orbit
+       affordances: the parallax tracked a pointer the entrance never has (the
+       canvas is pointer-inert and the destination is inert underneath), and
+       the dolly pushed toward the node being activated. Neither has a subject
+       now, and a still camera is what the lion-to-text transfer is composed
+       against. */
     camera.lookAt(0, 0, 0);
-
-    // ---- pointer world position on the lion plane (z≈0)
-    tmp.v.set(ndc.x, ndc.y, 0.5).unproject(camera);
-    tmp.w.copy(tmp.v).sub(camera.position).normalize();
-    const t = -camera.position.z / tmp.w.z;
-    pointerWorldRef.current.copy(camera.position).addScaledVector(tmp.w, t);
-
-    // ---- active connector Bézier (lion-local == rig-local space)
-    bezierRef.current = connectorBezier(frame.streamNode, nodes.length, orbit);
 
     // ---- live bloom tuning (demo control panel)
     postRef.current?.setBloom(params.bloomThreshold, params.bloomStrength, params.bloomRadius);
-
-    // ---- DOM label projection: node world coord → CSS px on the <a> wrappers
-    const els = getLabelEls();
-    if (rig && els.length) {
-      for (let i = 0; i < nodes.length; i++) {
-        const el = els[i];
-        if (!el) continue;
-        const [nx, ny, nz] = nodePosition(i, nodes.length, orbit);
-        tmp.v.set(nx, ny, nz);
-        rig.localToWorld(tmp.v);
-        tmp.v.project(camera);
-        const px = (tmp.v.x * 0.5 + 0.5) * size.width;
-        const py = (-tmp.v.y * 0.5 + 0.5) * size.height;
-        el.style.left = `${px.toFixed(1)}px`;
-        el.style.top = `${py.toFixed(1)}px`;
-      }
-    }
 
     // ---- frame stats (dev overlay, ?stats)
     if (onFrameStats) {
@@ -364,7 +286,7 @@ function SceneContent(props: SceneProps) {
     }
 
     // Ready = frames are flowing. The lion may still be streaming in, but the
-    // network/rings/nodes frame is composed — don't hold the whole canvas hidden.
+    // frame is composed — don't hold the whole canvas hidden.
     if (!readyRef.current) {
       readyRef.current = true;
       onReady?.();
@@ -379,67 +301,19 @@ function SceneContent(props: SceneProps) {
   return (
     <>
       <AdaptiveDpr />
-      <group ref={rigRef}>
-        <group ref={networkRef}>
-          <NetworkScan
-            orbit={orbit}
-            theme={theme}
-            reducedMotion={reducedMotion}
-            pxToWorldRef={pxToWorldRef}
-            dprRef={dprRef}
-            pointBudget={tier.networkPoints}
-            params={params}
-            experienceFrameRef={experienceFrameRef}
-          />
-        </group>
-        <group ref={ringsRef} visible={!intro}>
-          <OrbitalRings
-            theme={theme}
-            params={params}
-            reducedMotion={reducedMotion}
-            pxToWorldRef={pxToWorldRef}
-            dprRef={dprRef}
-            scale={orbit.centerScale}
-          />
-        </group>
+      <group ref={rootRef}>
         {sim ? (
           <LionCore
             sim={sim}
             theme={theme}
             params={params}
             reducedMotion={reducedMotion}
-            frameRef={frameRef}
-            pointerRef={pointerWorldRef}
-            bezierRef={bezierRef}
             pxToWorldRef={pxToWorldRef}
             dprRef={dprRef}
             scale={orbit.centerScale}
             experienceFrameRef={experienceFrameRef}
           />
         ) : null}
-        <group ref={spokesRef} visible={!intro}>
-          <SpokeNodes
-            nodes={nodes}
-            orbit={orbit}
-            theme={theme}
-            reducedMotion={reducedMotion}
-            frameRef={frameRef}
-            pxToWorldRef={pxToWorldRef}
-            dprRef={dprRef}
-            lightweight={tier.particles === 45_000}
-          />
-        </group>
-        <group ref={connectorsRef} visible={!intro}>
-          <Connectors
-            nodes={nodes}
-            orbit={orbit}
-            theme={theme}
-            params={params}
-            reducedMotion={reducedMotion}
-            frameRef={frameRef}
-            pxToWorldRef={pxToWorldRef}
-          />
-        </group>
       </group>
       {intro ? (
         <IntroText
@@ -463,10 +337,14 @@ export default function Scene(props: SceneProps) {
         const renderer = new WebGPURenderer({
           canvas: glProps.canvas as HTMLCanvasElement,
           antialias: false,
+          /* Transparent, so the site's CSS scan backdrop shows through the
+             entrance. `alpha` has to be asked for at construction — a zero
+             clear alpha on an opaque context only yields black. */
+          alpha: true,
           forceWebGL: forceWebGL || tier.backend === 'webgl2',
         });
         await renderer.init();
-        renderer.setClearColor(theme.background, 1);
+        renderer.setClearColor(theme.background, 0);
         return renderer;
       }}
       camera={{ fov: FOV, near: 0.1, far: 130, position: [0, 0, CAMERA_Z] }}

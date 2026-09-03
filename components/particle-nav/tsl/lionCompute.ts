@@ -17,13 +17,10 @@ import {
   vec3,
   vec4,
   hash,
-  fract,
   mix,
   min,
   smoothstep,
-  normalize,
   length,
-  step,
   pow,
   uniform,
   instancedArray,
@@ -65,12 +62,6 @@ export interface LionSim {
     pointer: ReturnType<typeof uniform>;
     repelRadius: ReturnType<typeof uniform>;
     repelStrength: ReturnType<typeof uniform>;
-    streamFraction: ReturnType<typeof uniform>;
-    hoverAmount: ReturnType<typeof uniform>;
-    bezStart: ReturnType<typeof uniform>;
-    bezCtrl: ReturnType<typeof uniform>;
-    bezEnd: ReturnType<typeof uniform>;
-    burst: ReturnType<typeof uniform>;
     reducedMotion: ReturnType<typeof uniform>;
   };
   initCompute: object;
@@ -119,12 +110,6 @@ export function createLionSim(decoded: DecodedLionBake, params: SimParams): Lion
     pointer: uniform(new Vector3(0, 0, 99)),
     repelRadius: uniform(params.repelRadius),
     repelStrength: uniform(params.repelStrength),
-    streamFraction: uniform(params.streamFraction),
-    hoverAmount: uniform(0),
-    bezStart: uniform(new Vector3()),
-    bezCtrl: uniform(new Vector3()),
-    bezEnd: uniform(new Vector3()),
-    burst: uniform(0),
     reducedMotion: uniform(0),
   };
 
@@ -137,7 +122,6 @@ export function createLionSim(decoded: DecodedLionBake, params: SimParams): Lion
     const pos = positions.element(instanceIndex);
     const vel = velocities.element(instanceIndex);
     const home = homes.element(instanceIndex).xyz.toVar();
-    const seed = hash(instanceIndex).toVar();
 
     const dt = min(uniforms.delta, float(1 / 30)).toVar();
 
@@ -165,26 +149,12 @@ export function createLionSim(decoded: DecodedLionBake, params: SimParams): Lion
       pos.xyz.assign(pos.xyz.add(target.sub(pos.xyz).mul(blend)));
       vel.xyz.assign(vec3(0, 0, 0));
     }).Else(() => {
-      // Hover stream: the seed<fraction subset targets a point along the active
-      // connector's Bézier instead of home. t along the curve comes from the
-      // seed, so the stream is stable frame to frame.
-      const inStream = step(seed, uniforms.streamFraction).toVar();
-      const t = fract(seed.mul(13.7331)).toVar();
-      const omt = float(1).sub(t);
-      const bez = uniforms.bezStart
-        .mul(omt.mul(omt))
-        .add(uniforms.bezCtrl.mul(omt.mul(t).mul(2)))
-        .add(uniforms.bezEnd.mul(t.mul(t)));
-      const scatter = vec3(
-        hash(instanceIndex.add(101)).sub(0.5),
-        hash(instanceIndex.add(211)).sub(0.5),
-        hash(instanceIndex.add(307)).sub(0.5),
-      ).mul(0.22);
-      const streamMix = uniforms.hoverAmount.mul(inStream);
-      const target = home.add(bez.add(scatter).sub(home).mul(streamMix)).toVar();
-
-      // Spring to target (which IS home whenever the stream is off).
-      const force = target.sub(pos.xyz).mul(uniforms.stiffness).toVar();
+      /* Spring to home. The target used to be a mix of home and a point on
+         the active connector's Bézier — the hover stream that carried
+         particles toward whichever orbital node was under the pointer. The
+         orbit was retired on 2026-09-04, so there is no second target and no
+         `streamFraction`, `hoverAmount` or Bézier left to mix with. */
+      const force = home.sub(pos.xyz).mul(uniforms.stiffness).toVar();
 
       // Ambient curl drift — below conscious notice.
       const curl = curlNoise(
@@ -198,10 +168,8 @@ export function createLionSim(decoded: DecodedLionBake, params: SimParams): Lion
       const repel = smoothstep(uniforms.repelRadius, float(0), dist).mul(uniforms.repelStrength);
       force.addAssign(dp.div(dist).mul(repel));
 
-      // Activate burst — radial impulse, uniform is a one-frame pulse.
-      If(uniforms.burst.greaterThan(0.001), () => {
-        vel.xyz.addAssign(normalize(pos.xyz.add(vec3(0, 0, 0.001))).mul(uniforms.burst));
-      });
+      /* The activation burst went with the orbit too: it was the radial
+         impulse fired when a node was chosen. */
 
       vel.xyz.addAssign(force.mul(dt));
       // Damping is specified per 60 Hz step — dt-correct it.

@@ -8,7 +8,6 @@ import {
   useSyncExternalStore,
 } from 'react';
 import { MediaBlock } from '@/components/content/MediaBlock';
-import { defaultNodes } from './config';
 import { NavClient } from './CanvasMount';
 import styles from './styles.module.css';
 
@@ -33,7 +32,14 @@ function useHydrated() {
  * story plays as a single, disposable entrance layer. The scene unmounts at
  * handoff; it never remains as a second renderer behind the page.
  */
-export function CinematicIntroGate({ children }: { children: React.ReactNode }) {
+export function CinematicIntroGate({
+  children,
+  background,
+}: {
+  children: React.ReactNode;
+  /** The entrance's background layer — see `NavClient`'s `introBackground`. */
+  background?: React.ReactNode;
+}) {
   // Start blocked so the destination's WebGL engine cannot mount for a frame
   // underneath the particle intro before NavClient reports its real state.
   const [blocked, setBlocked] = useState(true);
@@ -65,11 +71,11 @@ export function CinematicIntroGate({ children }: { children: React.ReactNode }) 
   return (
     <>
       <NavClient
-        nodes={defaultNodes}
         radius={INTRO_RADIUS}
         intro
         introOnly
         onIntroBlockingChange={handleBlockingChange}
+        introBackground={background}
         introOverlay={
           <div className={styles.introChrome}>
             <div className={styles.introMasthead}>

@@ -30,15 +30,15 @@ export interface ExperienceFrame {
   /** Build progress of the newest entering line; 0 when no line is entering. */
   activeTextTransfer: number;
   /**
-   * Intelligence-scan presence during the intro, 0..1. Independent of
-   * `navReveal`: the scan wakes during the rise, long before the navigation
-   * outro, and the outro then takes it the rest of the way.
+   * Eased outro progress, 0..1. It returns the lion to its centred base size
+   * and releases the text while the entrance fades to the page underneath.
+   *
+   * This was `navReveal`, and it revealed an orbital navigation that no
+   * longer exists; `scanReveal` and `readingMask` sat beside it and drove a
+   * GPU scan layer that no longer exists either. Both were removed with
+   * their consumers on 2026-09-04 rather than left as fields nothing reads.
    */
-  scanReveal: number;
-  /** Strength of the reading-corridor mask over the scan, 0..1. */
-  readingMask: number;
-  /** Navigation outro reveal. Keep separate from `scanReveal`. */
-  navReveal: number;
+  outro: number;
   textOpacity: number;
   story: RollingStoryFrame;
 }

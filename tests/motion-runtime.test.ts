@@ -298,6 +298,42 @@ describe("MOTION-003 — Reveal is limited to sections and ordered processes", (
   });
 });
 
+describe("the entrance's background is the site's own scan, and it stops", () => {
+  /**
+   * The GPU scan that used to paint behind the lion was retired on
+   * 2026-09-04; the entrance is composed over an instance of the same CSS
+   * `ScanBackdrop` the settled home shows. Two properties have to hold, and
+   * neither is visible in a screenshot:
+   *
+   *  - the entrance's canvas must clear *transparent*, or it paints over the
+   *    backdrop it is supposed to sit on;
+   *  - the backdrop must actually stop once the entrance is dismissed.
+   *    `visibility: hidden` hides an animation without ending it, so the
+   *    layer would otherwise keep sixteen rows drifting for the life of the
+   *    page behind the settled home — the second moving layer the home's own
+   *    dock is paused to avoid.
+   */
+  it("the canvas asks for alpha and clears fully transparent", () => {
+    const scene = read("components/particle-nav/Scene.tsx");
+    expect(scene).toMatch(/alpha: true,/);
+    expect(scene).toMatch(/setClearColor\(theme\.background, 0\)/);
+    expect(scene).not.toMatch(/setClearColor\(theme\.background, 1\)/);
+  });
+
+  it("the entrance's backdrop is paused once the intro is dismissed", () => {
+    const css = read("components/particle-nav/styles.module.css");
+    expect(css).toMatch(
+      /\[data-intro-dismissed\] \.introBackground \*[\s\S]{0,80}?animation-play-state: paused/,
+    );
+    /* And the home's own dock stays off for the whole of the entrance, so the
+       two instances are never both moving. */
+    const home = read("app/home.module.css");
+    expect(home).toMatch(
+      /data-intro-pending[\s\S]{0,160}?\.scanDock \{\s*display: none/,
+    );
+  });
+});
+
 describe("the intro clock advances by a bounded step", () => {
   /**
    * The bug this pins. `Scene.tsx` advanced `timelineTimeRef` by r3f's raw
@@ -357,13 +393,18 @@ describe("the frame writer runs before the layers that read it", () => {
   });
 
   it("no reader of the shared frame subscribes before the writer", () => {
-    /* Any layer priority must be greater than the writer's. The scan layer
-       names its own; the rest are default (0). */
-    const scan = read("components/particle-nav/layers/NetworkScan.tsx");
-    const named = scan.match(/const SCAN_FRAME_PRIORITY = ([\d.]+)/);
-    expect(named).not.toBeNull();
-    expect(Number(named![1])).toBeGreaterThan(0);
-    expect(Number(named![1])).toBeLessThan(1);
+    /* Every reader is at the default priority (0), which sorts after the
+       writer's negative value and before the post pass's 1. The scan layer
+       that used to name its own 0.5 was retired with the orbit on
+       2026-09-04; if a layer ever needs an explicit priority again it must
+       land strictly between those two. */
+    for (const file of ["layers/LionCore.tsx", "layers/IntroText.tsx"]) {
+      const source = read(`components/particle-nav/${file}`);
+      for (const [, priority] of source.matchAll(/\}\s*,\s*(-?[\d.]+)\s*\);/g)) {
+        expect(Number(priority), `${file} frame priority`).toBeGreaterThan(-1);
+        expect(Number(priority), `${file} frame priority`).toBeLessThan(1);
+      }
+    }
   });
 });
 
@@ -526,20 +567,19 @@ describe("§6 — the intro's per-frame and lifecycle budget", () => {
    *   - `getRollingStoryFrame()` returns a fresh frame object whose
    *     `activeLines` is built with `flatMap`, so an array plus one object per
    *     active line;
-   *   - the `ExperienceFrame` itself is written as an object literal;
-   *   - `connectorBezier()` builds six `Vector3`s, and the DOM label
-   *     projection formats two template strings per node.
+   *   - the `ExperienceFrame` itself is written as an object literal.
    *
-   * All four predate this phase and all four are in a file this pass does not
-   * own. They are listed rather than hidden so the exemption is a decision on
-   * the record: the fix is a mutable frame written in place and a cached
-   * Bézier, and it belongs to whoever owns `Scene.tsx` next.
+   * The other two — `connectorBezier()`'s six `Vector3`s and the two
+   * template strings per projected DOM label — went with the orbital
+   * navigation on 2026-09-04. What is left is listed rather than hidden, so
+   * the exemption stays a decision on the record: the fix is a mutable frame
+   * written in place.
    */
   const KNOWN_FRAME_ALLOCATORS = [`${PARTICLE_NAV}/Scene.tsx`];
 
   /** Helpers that build a mapping, a cloud or a layout — never per frame. */
   const REBUILD_HELPERS =
-    /\b(getRollingStoryFrame|connectorBezier|mapTextToLionSources|packLionSourcePositions|lionExtractionPool|buildTextCloud|computeIntroLayout|createIntroTextMaterial|createLionMaterial|createNetworkScanMaterial|decodeLionBake)\(/;
+    /\b(getRollingStoryFrame|mapTextToLionSources|packLionSourcePositions|lionExtractionPool|buildTextCloud|computeIntroLayout|createIntroTextMaterial|createLionMaterial|decodeLionBake)\(/;
 
   const ALLOCATION_PATTERNS: readonly [string, RegExp][] = [
     ["a constructor call", /new [A-Z]/],
@@ -552,7 +592,7 @@ describe("§6 — the intro's per-frame and lifecycle budget", () => {
   it("every frame loop in the particle scene is found and parsed", () => {
     /* Non-empty, or the whole sweep below passes by matching nothing. */
     const files = frameFiles();
-    expect(files.length).toBeGreaterThan(4);
+    expect(files.length).toBeGreaterThan(1);
     for (const file of files) {
       const callbacks = frameCallbacks(read(file));
       expect(callbacks.length, file).toBeGreaterThan(0);
@@ -590,73 +630,8 @@ describe("§6 — the intro's per-frame and lifecycle budget", () => {
     }
   });
 
-  it("the scan's per-frame sync solves into scratch rather than allocating", () => {
-    const scan = read(`${PARTICLE_NAV}/layers/NetworkScan.tsx`);
-    /* One function, called from the loop and from the commit that follows a
-       rebuild, so a fresh material is never drawn from its defaults. */
-    expect(scan).toMatch(/useFrame\(\(\) => \{\s*syncScanUniforms\(/);
-    expect(scan).toMatch(/useLayoutEffect\(\(\) => \{\s*syncScanUniforms\(/);
-    expect(scan).toMatch(/scratch: ScanUniformScratch/);
-    expect(scan).toMatch(/useMemo<ScanUniformScratch>/);
-    /* Both solvers write into the caller's object and return it. */
-    const scanIntro = read("components/intro/scanIntro.ts");
-    expect(scanIntro).toMatch(/out: LionScanMask,\n\): LionScanMask \{/);
-    expect(scanIntro).toMatch(/out: ScanCorridor,\n\): ScanCorridor \{/);
-  });
-
-  it("the text set is rebuilt only when the bake or the quantized layout changes", () => {
-    const text = read(`${PARTICLE_NAV}/layers/IntroText.tsx`);
-    /* The width feeding the glyph solve is bucketed, so a resize drag
-       resamples at most once per bucket instead of once per frame. */
-    expect(text).toMatch(/quantizeIntroWidth\(size\.width\)/);
-    expect(text).toMatch(/useMemo\(\(\) => computeIntroLayout\([^)]*\), \[layoutKey\]\)/);
-    expect(text).toMatch(/\}, \[layoutKey, lionHomes\]\)/);
-    expect(read("components/intro/introLayout.ts")).toMatch(
-      /Math\.round\(width \/ INTRO_WIDTH_QUANTUM_PX\) \* INTRO_WIDTH_QUANTUM_PX/,
-    );
-  });
-
-  it("every storage node the text layer adds is released with its material", () => {
-    const material = read(`${PARTICLE_NAV}/tsl/introTextMaterial.ts`);
-    /* `sources` is the node Phase C added; it joins the two that were already
-       disposed rather than being freed on a path of its own. */
-    expect(material).toMatch(
-      /const storages = sources \? \[positions, traits, sources\] : \[positions, traits\]/,
-    );
-    expect(material).toMatch(/material\.dispose\(\);/);
-    const text = read(`${PARTICLE_NAV}/layers/IntroText.tsx`);
-    /* Every unit the set owns, on both exits of the effect that built it. */
-    expect(text).toMatch(/for \(const unit of \[\.\.\.set\.lines, set\.brand\]\) unit\.handle\.dispose\(\)/);
-    expect(text).toMatch(/if \(cancelled\) disposeSet\(created\)/);
-    expect(text).toMatch(/if \(created\) disposeSet\(created\)/);
-  });
-
-  it("the lion material owns no storage of its own, so disposing it is complete", () => {
-    const point = read(`${PARTICLE_NAV}/tsl/pointMaterial.ts`);
-    /* It reads the sim's buffers and never calls `instancedArray`, so the
-       extraction uniforms Phase C added are plain uniform nodes with nothing
-       to free — `handle.material.dispose()` in `LionCore` is the whole job. */
-    expect(point).not.toMatch(/instancedArray\(/);
-    expect(point).toMatch(/extraction: uniform\(0\)/);
-    expect(point).toMatch(/extractionSeed: uniform\(0, 'uint'\)/);
-    expect(read(`${PARTICLE_NAV}/layers/LionCore.tsx`)).toMatch(
-      /useEffect\(\(\) => \(\) => handle\.material\.dispose\(\), \[handle\]\)/,
-    );
-    /* The sim's own buffers stay on the one path that owns them. */
-    expect(read(`${PARTICLE_NAV}/hooks/useLionBuffers.ts`)).toMatch(
-      /return \(\) => \{\s*cancelled = true;\s*created\?\.dispose\(\);/,
-    );
-  });
-
   it("every layer that builds GPU state also tears it down", () => {
-    for (const file of [
-      "layers/IntroText.tsx",
-      "layers/LionCore.tsx",
-      "layers/NetworkScan.tsx",
-      "layers/OrbitalRings.tsx",
-      "layers/Connectors.tsx",
-      "layers/SpokeNodes.tsx",
-    ]) {
+    for (const file of ["layers/IntroText.tsx", "layers/LionCore.tsx"]) {
       expect(read(`${PARTICLE_NAV}/${file}`), file).toMatch(/dispose/);
     }
   });

@@ -26,6 +26,27 @@
     visibility 0s linear 0s;
 }
 
+/* The entrance's background: the site's own CSS scan backdrop, behind the
+   transparent canvas and under everything else the entrance draws.
+   `.root` still paints black underneath, so the ground is never bare while
+   the backdrop's server HTML arrives. */
+.introBackground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  --content-w: min(48rem, calc(100vw - 2rem));
+}
+
+/* Stopped, not merely unpainted, once the entrance has handed off. The layer
+   keeps its place in the tree while it fades out, and `visibility: hidden`
+   hides an animation without ending it — sixteen rows would otherwise drift
+   for the life of the page behind the settled home, which is exactly the
+   second moving layer the home's own dock is paused to avoid. */
+.root[data-intro-dismissed] .introBackground * {
+  animation-play-state: paused;
+}
+
 .root[data-intro-only] .navContent {
   opacity: 0;
   pointer-events: none;

@@ -95,7 +95,13 @@
   --ink-lo: #88837b;
   --gold: #c6a15b;
   --gold-hi: #ead39b;
-  --gold-dim: #8a6f3e;
+  /* Lifted from #8a6f3e on 2026-09-03. It is used as small text in two
+     places — the fact-check ladder's rung numbers and the homepage rail flag —
+     and at the old value those measured 4.42:1 and 4.17:1 against a 4.5 floor
+     (A11Y-004). #977544 clears it everywhere it lands: 4.94:1 on the black
+     ground, 4.66:1 on surface-1. Its other uses are backgrounds and beam
+     tails, where a step of lightness this small is not visible. */
+  --gold-dim: #977544;
 
   --surface-1: #0a0a09;
   --surface-2: #111110;
@@ -123,7 +129,11 @@
    * Verified by `scripts/ui-audit.mjs`, which computes this in the page. */
   --control-line: rgba(246, 243, 235, 0.4);
   --gold-line: rgba(198, 161, 91, 0.25);
-  --gold-line-strong: rgba(198, 161, 91, 0.5);
+  /* Raised from 0.5 on 2026-09-03. This is the selected state on filter chips
+     and stage toggles — a control boundary, so 1.4.11's 3:1 applies, and at
+     0.5 it measured 2.73-2.80:1 on every ground it sits on. 0.6 clears it at
+     3.45-3.53:1. `--gold-line` below is decorative framing and is unchanged. */
+  --gold-line-strong: rgba(198, 161, 91, 0.6);
   --gold-wash: rgba(198, 161, 91, 0.1);
 
   /* data-blue was retired to warm grey; keep the names so existing modules

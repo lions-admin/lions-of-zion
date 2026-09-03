@@ -359,12 +359,20 @@ const CONTRAST = () => {
   const findings = [];
   const seen = new Set();
 
+  /* WCAG 1.4.3 and 1.4.11 both exempt an inactive component: a disabled
+     control is *meant* to read as unavailable, and dimming it is how that is
+     said. Ask's submit label measured 1.55:1 and is disabled until the reader
+     types — reporting that as a defect would push the design toward making
+     disabled look enabled. */
+  const inactive = (el) =>
+    !!el.closest("[disabled], [aria-disabled='true'], fieldset[disabled]");
+
   /* Text. Only elements that directly own a text node — otherwise a wrapper is
      reported for its children's text and every finding appears many times. */
   for (const el of document.body.querySelectorAll("*")) {
     if (!isRendered(el)) continue;
     const ownText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
-    if (!ownText) continue;
+    if (!ownText || inactive(el)) continue;
     const s = getComputedStyle(el);
     const fg = parse(s.color);
     if (!fg || fg.a === 0) continue;
@@ -385,7 +393,7 @@ const CONTRAST = () => {
 
   /* Non-text UI: a control's own boundary against what surrounds it. 3:1. */
   for (const el of document.querySelectorAll("button, input, select, textarea, [role=button], [role=checkbox], [role=switch]")) {
-    if (!isRendered(el)) continue;
+    if (!isRendered(el) || inactive(el)) continue;
     const s = getComputedStyle(el);
     const bw = parseFloat(s.borderTopWidth) || 0;
     const outer = el.parentElement ? backdrop(el.parentElement) : [0, 0, 0];

@@ -59,7 +59,9 @@
   font-weight: 600;
   color: var(--ink);
   background: transparent;
-  border: var(--line-w) solid var(--line);
+  /* Every selector in this group is a control, so `--control-line` rather
+     than the editorial hairline (A11Y-004: measured 1.28:1 against 3). */
+  border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-2);
   cursor: pointer;
   white-space: nowrap;
@@ -824,7 +826,9 @@
   padding: var(--sp-3) var(--sp-4);
   background: var(--panel);
   backdrop-filter: blur(10px);
-  border: var(--line-w) solid var(--line);
+  /* The card is the control here — it takes focus, it takes a click, and its
+     border is what says so. `--control-line`, not the hairline (A11Y-004). */
+  border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);
   cursor: pointer;

@@ -50,7 +50,9 @@
   min-height: var(--control-h);
   min-width: var(--control-h);
   padding: 0 var(--sp-3);
-  border: var(--line-w) solid var(--line);
+  /* A control boundary, so `--control-line` and not the editorial hairline
+     (A11Y-004: this measured 1.28:1 against a floor of 3). */
+  border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-2);
   background: transparent;
   color: var(--ink);

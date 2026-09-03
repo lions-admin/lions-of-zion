@@ -8,6 +8,7 @@ import { FieldGroup } from "@/components/ui/FieldGroup";
 import { SelectField } from "@/components/ui/SelectField";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
+import { AuthRequired, refusedForAuth } from "./auth-required";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import styles from "./admin.module.css";
 
@@ -65,6 +66,8 @@ export function PublicationManager() {
    * wrong thing to tell someone about to decide there is no work to do.
    */
   const [loadFailed, setLoadFailed] = useState(false);
+  /** Refused for want of a session, which is not a fault. */
+  const [authRequired, setAuthRequired] = useState(false);
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* Where focus lands when the control that opened a confirmation no longer
      exists — a deleted publication takes its own action row with it. */
@@ -75,23 +78,34 @@ export function PublicationManager() {
       fetch("/api/v1/publications?limit=100&briefingOnly=true", { cache: "no-store" }),
       fetch("/api/v1/admin/homepage-features", { cache: "no-store" }),
     ]);
+    /* Same distinction as the status console above: a refused read and a
+       broken one need different first moves from the operator. */
+    if (refusedForAuth([publicationResponse, featureResponse])) throw new AuthRequired();
     if (!publicationResponse.ok || !featureResponse.ok) throw new Error("Unable to load publications.");
     const publicationPayload = await publicationResponse.json() as { publications: Publication[] };
     const featurePayload = await featureResponse.json() as { features: Array<{ slot: number; publicationId: string }> };
     setItems(publicationPayload.publications); setFeatures(featurePayload.features);
     setSelectedId((current) => current || publicationPayload.publications[0]?.id || "");
     setLoadFailed(false);
+    setAuthRequired(false);
   }, []);
+  const fail = useCallback((cause: Error) => {
+    if (cause instanceof AuthRequired) { setAuthRequired(true); return; }
+    setLoadFailed(true);
+    setMessage({ kind: "error", text: cause.message });
+  }, []);
+
   const reload = useCallback(() => {
     setMessage(null);
-    void load().catch((cause: Error) => { setLoadFailed(true); setMessage({ kind: "error", text: cause.message }); });
-  }, [load]);
+    setAuthRequired(false);
+    void load().catch(fail);
+  }, [load, fail]);
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void load().catch((cause: Error) => { setLoadFailed(true); setMessage({ kind: "error", text: cause.message }); });
+      void load().catch(fail);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [load]);
+  }, [load, fail]);
 
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
   const eligible = items.filter((item) =>
@@ -145,6 +159,16 @@ export function PublicationManager() {
           tabIndex={-1}
           aria-label="Publications, newest first"
         >
+          {items.length === 0 && authRequired ? (
+            <StatusState
+              status={absenceStatus("auth-required")}
+              eyebrow="SESSION"
+              title="Sign in to see the queue"
+              description="The queue exists and is unchanged; this session is not signed in, so the API refuses to serve it."
+              actionText="Go to sign-in"
+              actionHref="/admin/login"
+            />
+          ) : null}
           {items.length === 0 && loadFailed ? (
             <StatusState
               status={absenceStatus("unavailable")}
@@ -155,7 +179,7 @@ export function PublicationManager() {
               onAction={reload}
             />
           ) : null}
-          {items.length === 0 && !loadFailed ? (
+          {items.length === 0 && !loadFailed && !authRequired ? (
             <p className={styles.queueEmpty}>No publications yet. The read succeeded and the queue is genuinely empty.</p>
           ) : null}
           {items.map((item) => (

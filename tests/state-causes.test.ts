@@ -334,6 +334,29 @@ describe("form semantics (A11Y-007)", () => {
     }
   });
 
+  it("uses the fifth cause where it applies: a refused read is not a broken one", () => {
+    /* Every route under `/api/v1/admin` fails closed, so 401/403 is the
+       ordinary state after a session lapses. Reported as a load failure it
+       tells an operator the console is broken when the console is working and
+       they are simply signed out — "retry" and "sign in" are different first
+       moves and only one of them helps. */
+    const shared = read("app/admin/auth-required.ts");
+    expect(shared).toContain("response.status === 401 || response.status === 403");
+
+    for (const panel of ["app/admin/AdminStatus.tsx", "app/admin/PublicationManager.tsx"]) {
+      const source = read(panel);
+      expect(source, panel).toContain("refusedForAuth(");
+      expect(source, panel).toContain('absenceStatus("auth-required")');
+      expect(source, panel).toContain('actionHref="/admin/login"');
+      /* And the auth branch is checked before the failure branch, or the
+         generic outage panel wins and the distinction is decorative. */
+      expect(
+        source.indexOf('absenceStatus("auth-required")'),
+        `${panel} must test for a refused read before a failed one`,
+      ).toBeLessThan(source.indexOf('absenceStatus("unavailable")'));
+    }
+  });
+
   it("points the admin editor and both sign-in surfaces at their summary", () => {
     /* A save the API refuses is reported in one console notice, not on a
        field — so the form has to name it, or an operator inside the form is

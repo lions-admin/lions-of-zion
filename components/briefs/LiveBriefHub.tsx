@@ -144,17 +144,16 @@ async function LiveBriefEdition({ filters }: { filters: Filters }) {
         )
       ) : (
         <header className={styles.liveLead}>
-          {/* No `ShinyText` here, deliberately. Two reasons, either alone
-              sufficient. Editorially, neither eyebrow on this page names a
-              live state — "Current edition" classifies the lead and
-              "Intelligence desk" is a masthead — and this kicker is already
-              the single gold accent on the first screen, so a pass through
-              it is a second emphasis on the one thing that had emphasis.
-              Mechanically, the primitive cannot currently show a pass at
-              all: `shiny-text.module.css` sets an opaque `color` and paints
-              the gradient behind the glyphs through `background-clip:
-              text`, which puts it under fully opaque ink. Reported to the
-              library's owner rather than worked around from here. */}
+          {/* No animated treatment on this kicker, deliberately: neither
+              eyebrow on this page names a live state — "Current edition"
+              classifies the lead and "Intelligence desk" is a masthead — and
+              this kicker is already the single gold accent on the first
+              screen, so a pass through it is a second emphasis on the one
+              thing that had emphasis. (This used to name `ShinyText` and a
+              bug in it. The bug was fixed in the stylesheet; the primitive
+              itself is gone under CLEAN-008 for want of a caller. The
+              editorial reason stood on its own and is why this is still a
+              plain label.) */}
           <p className={styles.liveEyebrow}>
             <span>Current edition</span>
             <time dateTime={lead.publishedAt}>{formatDate(lead.publishedAt)}</time>

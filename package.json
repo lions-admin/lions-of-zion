@@ -2,7 +2,7 @@
   "name": "lions-of-zion",
   "version": "0.1.0",
   "private": true,
-  "//sideEffects": "Every module under components/motion imports a CSS Module, which is a side effect, so without this a bundler must assume importing the barrel needs all six stylesheets — and a route rendering one primitive shipped five it never used. Listing CSS as the only side effect lets the barrel be tree-shaken while keeping stylesheets from being dropped.",
+  "//sideEffects": "Every module under components/motion imports a CSS Module, which is a side effect, so without this a bundler must assume importing the barrel needs all five stylesheets — and a route rendering one primitive shipped four it never used. Listing CSS as the only side effect lets the barrel be tree-shaken while keeping stylesheets from being dropped.",
   "sideEffects": [
     "*.css",
     "**/*.css"
@@ -64,7 +64,6 @@
     "drizzle-orm": "^0.45.2",
     "fast-xml-parser": "^5.11.0",
     "lucide-react": "^0.555.0",
-    "motion": "^13.1.1",
     "next": "16.3.2",
     "nodemailer": "^9.0.5",
     "react": "19.2.8",

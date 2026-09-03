@@ -353,6 +353,49 @@ describe("STATE-004 — one implementation, used by every destructive action (so
     }
   });
 
+  it("confirms what reaches readers, not only what is styled as dangerous", () => {
+    /* The acceptance clause is "dangerous", and `variant="danger"` is only
+       the visual half of that. Publishing and pausing publication are not
+       styled red — pausing is the cautious move and publishing is the
+       ordinary one — but both change what the public sees, and both are the
+       kind of thing an operator should not be able to do by landing on a
+       button. Each is checked by name, so a rebuild that quietly drops one
+       fails here rather than in Production. */
+    const status = read("app/admin/AdminStatus.tsx");
+    const queue = read("app/admin/PublicationManager.tsx");
+
+    for (const [file, source, handler] of [
+      ["AdminStatus.tsx", status, "requestPublicationControl"],
+      ["AdminStatus.tsx", status, "requestEditionPublication"],
+      ["AdminStatus.tsx", status, "requestForcedRerun"],
+      ["PublicationManager.tsx", queue, "requestTransition"],
+      ["PublicationManager.tsx", queue, "requestArchive"],
+      ["PublicationManager.tsx", queue, "requestDelete"],
+    ] as const) {
+      const declared = source.indexOf(`function ${handler}`);
+      expect(declared, `${handler} exists in ${file}`).toBeGreaterThan(-1);
+      const body = source.slice(declared);
+      const scope = body.slice(0, body.indexOf("\n  }"));
+      expect(scope, `${handler} opens a confirmation`).toContain("setConfirmIntent(");
+
+      /* And every intent it can build carries all four parts. A handler with
+         two branches — pause and resume, publish and publish-update — is
+         where one of them quietly loses its consequence, so the four keys are
+         counted rather than merely found: `action` appears n times, and so
+         must the other three. */
+      const count = (key: string) => [...scope.matchAll(new RegExp(`(?<![\\w.])${key}:`, "g"))].length;
+      const branches = count("action");
+      expect(branches, `${handler} builds at least one intent`).toBeGreaterThan(0);
+      for (const key of ["target", "consequence", "confirmLabel"]) {
+        expect(count(key), `every intent in ${handler} states ${key}`).toBe(branches);
+      }
+    }
+
+    /* The status transition that reaches the public is the one that asks;
+       the rest move between internal states and do not. */
+    expect(queue).toMatch(/if \(to !== "published"\)[\s\S]{0,80}return;/);
+  });
+
   it("gives every confirmation a focus fallback that can actually take focus", () => {
     let checked = 0;
     for (const [file, source] of sources) {

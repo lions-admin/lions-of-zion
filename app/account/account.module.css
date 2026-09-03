@@ -1,50 +1,97 @@
-/* The account surface: one quiet raised object over the live field.
-   Values answer to the V3 tokens in app/globals.css. English, left-to-right. */
+/* The account surface · design V3 (`app/globals.css`).
 
-.shell {
+   One panel on the black ground, at the institution family's density.
+   The glass card that used to sit here — a 16px `backdrop-filter` blur behind
+   a gold border — is gone: hierarchy on this site comes from typography, a
+   rule, and space, and a sign-in page is the last place to spend a blur.
+
+   Everything above and below the panel (skip link, masthead, footer) is
+   `EditorialShell`'s. The two classes it asks this file for are the page's
+   own and the skip link's. */
+
+.page {
+  /* Two inherited contracts the shell's `ScanBackdrop` reads out of whichever
+     page class it lands inside. `components/sections/sections.module.css`
+     sets both on its own `.page`, and its selectors are scoped to that hashed
+     class — so a page built directly on `EditorialShell` has to declare them
+     or the scan runs unmasked and at full strength behind the reading column.
+     Custom properties inherit, which is what makes this work across modules:
+
+       --content-w  the column `.rowField` masks the drifting rows out of.
+       --register   the institution family's quieted scan (SYS-002). */
+  --content-w: min(var(--family-measure, var(--measure-reading)), 100%);
+  --register: 0.2;
+
   min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  padding: var(--sp-9) var(--sp-5) var(--sp-8);
+  /* The masthead is fixed, so the document starts below it. */
+  padding-top: var(--header-h);
+  background: transparent;
   color: var(--ink);
   font-family: var(--face-text);
 }
 
-.card {
-  position: relative;
-  width: min(100%, 34rem);
-  margin: 0 auto;
-  padding: clamp(var(--sp-6), 5vw, var(--sp-7));
-  border: 1px solid var(--gold-line);
-  border-radius: var(--radius-3);
-  background: color-mix(in oklab, var(--surface-1) 86%, transparent);
-  box-shadow: var(--shadow-3);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+/* Same shape as `components/sections/sections.module.css`: fixed at the
+   top-left corner, above the header, and off-screen until it is focused. */
+.skipLink {
+  position: fixed;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  z-index: var(--z-overlay);
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--line-w) solid var(--gold-line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-3);
+  box-shadow: var(--shadow-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  transform: translateY(-180%);
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
-/* The one gold mark on the card. */
-.card::before {
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+.panel {
+  position: relative;
+  z-index: var(--z-raised);
+  /* Centred, and never edge-to-edge on a phone. */
+  width: min(34rem, calc(100% - 2 * var(--family-pad-inline)));
+  margin: var(--family-pad-block) auto var(--sp-9);
+  padding: clamp(var(--sp-5), 5vw, var(--sp-7));
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-1);
+}
+
+/* The one gold mark on the panel. */
+.panel::before {
   content: "";
   display: block;
   width: 2.5rem;
-  height: 2px;
-  margin-inline-start: 0;
+  height: var(--line-w-thick);
   margin-bottom: var(--sp-5);
   background: var(--gold);
 }
 
 /* Three words, so sentence case: a mono masthead line, not a tracked label. */
 .eyebrow {
+  margin: 0;
   color: var(--gold);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
 }
 
-.card h1 {
-  margin-top: var(--sp-3);
+.title {
+  margin: var(--sp-3) 0 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-h2);
@@ -54,19 +101,16 @@
 }
 
 .lede {
-  max-width: 32ch;
-  margin-top: var(--sp-3);
+  max-width: var(--measure-caption);
+  margin: var(--sp-3) 0 0;
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
 
 @media (max-width: 480px) {
-  .shell {
-    padding-inline: var(--sp-4);
-  }
-
-  .card {
+  .panel {
     padding: var(--sp-5);
+    margin-block: var(--sp-6) var(--sp-8);
   }
 }

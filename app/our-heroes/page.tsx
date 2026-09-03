@@ -42,6 +42,12 @@ export async function generateMetadata(): Promise<Metadata> {
  * rather than a list of sections. Nothing here is revealed on hover and
  * nothing is behind a control: the sources sit in the record, open, beside
  * the sentences they support.
+ *
+ * Every record takes the same `row` composition, the featured one included.
+ * It used to be `dossier` — a bordered, shadowed surface around one person
+ * while the others sat on hairlines — which made the page's hierarchy a
+ * matter of packaging on a page whose whole subject is people. The featured
+ * record is distinguished by one step of type and nothing else.
  */
 function MemorialRecord({
   hero,
@@ -54,7 +60,7 @@ function MemorialRecord({
     <Card
       as="article"
       id={hero.id}
-      variant={featured ? "dossier" : "row"}
+      variant="row"
       className={featured ? styles.featured : styles.record}
     >
       <CardTitle
@@ -68,10 +74,14 @@ function MemorialRecord({
         <span className={styles.meta}>{hero.meta}</span>
       </CardHeader>
       <p className={styles.story}>{hero.summary}</p>
-      {/* Above 64rem this moves out of the record's flow and stands beside
-          the story rather than under it, so a citation is adjacent to the
-          claim it carries. Below that it stays where it is — a stacked
-          column is the correct reading order and the only one on a phone. */}
+      {/* Above 1220px this leaves the record's column and stands in the
+          page's right margin, level with the story, so a citation sits
+          beside the claim it carries. The escape is `marginNote` — the
+          same mechanism the timeline entries use — and it costs the
+          reading measure nothing. Below that it stays here, under the
+          story. Either way it is in the record and in the markup, so
+          reading order, screen readers and the printed page are the
+          same in both. */}
       <div className={styles.sources}>
         <span className={styles.sourcesKicker}>Sources</span>
         <SourceList sources={hero.sources} />

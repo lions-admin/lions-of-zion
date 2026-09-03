@@ -1,8 +1,19 @@
 /* Quiet memorial. Names and stories are the record; there is no tally,
-   no commendation frame, and no two-up grid of equal tiles. Featured is
-   Card.dossier; the rest are Card.row, stacked. Sources live in the
-   record — visible without hover, and from 64rem up standing beside the
-   sentences they carry rather than under them (HEROES-001).
+   no commendation frame, and no two-up grid of equal tiles.
+
+   Every record is `Card.row` — a hairline and spacing, not a box. The
+   featured record used to be `Card.dossier`: a surface, a border, a
+   radius and a shadow around one person while the others sat on rules.
+   That is a hierarchy of packaging, and it was the least quiet thing on
+   a memorial page. The distinction is typographic now — the featured
+   name is set a step larger and nothing else changes — which is both
+   what HEROES-001 asks for and what the token contract already says:
+   default grouping is a 1px rule and spacing, not a card.
+
+   Dropping the box is also what lets the citations reach the margin.
+   `.marginNote` escapes into the page's right margin through a
+   zero-width second column, and a note escaping a bordered card would
+   have floated outside its own border with nothing holding it.
 
    Nothing on this page is revealed by hover, and nothing is behind a
    control: a reader who cannot hover, or who prints the page, gets every
@@ -102,15 +113,6 @@
   margin-bottom: var(--sp-7);
 }
 
-/* Doubled to beat Card.dossier `height: 100%` at equal specificity. */
-.featured.featured {
-  height: auto;
-}
-
-.featured + .record {
-  margin-top: var(--sp-6);
-}
-
 .header {
   flex-wrap: wrap;
 }
@@ -119,6 +121,7 @@
   overflow-wrap: anywhere;
 }
 
+/* The featured record's whole distinction: one step of type. */
 .featuredName.featuredName {
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
@@ -146,7 +149,24 @@
   color: var(--ink);
 }
 
+/* Citations adjacent to the claim (HEROES-001).
+   `marginNote` is the shell's existing escape into the page's right
+   margin — the same one the timeline entries use — so this reuses a
+   proven mechanism instead of inventing a second one. It is also why
+   there is no two-column split inside the record: `.panel` is capped at
+   `--family-measure` (68ch) at *every* viewport width, so splitting the
+   record itself would have cut the story to roughly 38 characters a line
+   and the citations to less than half a rail. The margin costs the
+   reading measure nothing, because the column it lands in is zero-width.
+   Below 1220px the note comes back under the story, which is the correct
+   reading order and the only one that fits a phone. */
 .sources {
+  composes: marginNote from '../../components/content/content.module.css';
+}
+
+/* Doubled so the divider survives whatever order the two modules land in
+   the bundle — `marginNote` sets a margin of its own at this width. */
+.sources.sources {
   margin-top: var(--sp-5);
   padding-top: var(--sp-4);
   border-top: var(--line-w) solid var(--line-soft);
@@ -157,42 +177,53 @@
   margin-bottom: var(--sp-3);
 }
 
-/* Citations adjacent to the claim.
-   Wide enough for two real columns, and no earlier: the story keeps the
-   reading measure and the sources take a fixed side column against a rule,
-   so the evidence is beside the sentences instead of after them. Both
-   compositions are grids here — `Card.row` already is one and `.dossier`
-   is a flex column — so the doubled selectors beat both at their own
-   specificity, and the name and the role/date row span the full width. */
-@media (min-width: 64rem) {
+@media (min-width: 1220px) {
+  /* The zero-width second column is the whole trick: the note is placed
+     in it and overflows into the page margin, so column one keeps the
+     full reading measure. Both compositions are declared because
+     `Card.row` is already a grid and the record must stay one here. */
   .record.record,
   .featured.featured {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(13rem, 19rem);
-    column-gap: var(--sp-7);
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) 0;
   }
 
   .record.record > .name,
-  .featured.featured > .name,
+  .featured.featured > .name {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
   .record.record > .header,
   .featured.featured > .header {
-    grid-column: 1 / -1;
+    grid-column: 1;
+    grid-row: 2;
   }
 
   .record.record > .story,
   .featured.featured > .story {
     grid-column: 1;
+    grid-row: 3;
   }
 
+  /* Row three, not row one: the sources sit beside the story they
+     support rather than beside the name. `marginNote` supplies the
+     width and the offset; this only says which row. */
   .record.record > .sources,
   .featured.featured > .sources {
     grid-column: 2;
+    grid-row: 3;
     margin-top: 0;
     padding-top: 0;
-    padding-left: var(--sp-5);
     border-top: 0;
-    border-left: var(--line-w) solid var(--line-soft);
+  }
+
+  /* Gold stays scarce. In the column the kicker is a divider between the
+     story and its evidence and earns the accent; in the margin it is a
+     caption on a note that is already set apart, and three gold labels
+     down one margin is three focal points competing on one screen. */
+  .sources .sourcesKicker {
+    color: var(--ink-lo);
   }
 }
 

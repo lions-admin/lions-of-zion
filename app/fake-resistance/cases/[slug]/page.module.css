@@ -13,6 +13,45 @@
    library as plain text labels, never badge-shaped, and nothing here dresses
    them up. */
 
+/* ── The face sheet ───────────────────────────────────────────────────────
+   The file's own bookkeeping — id, dates, counts — as one rule-bounded row
+   of labelled figures before the prose. Rules and spacing, not a card. */
+.fileFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4) var(--sp-6);
+  margin: 0 0 var(--sp-6);
+  padding: var(--sp-4) 0;
+  border-top: var(--line-w) solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.fileFact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.fileFact dt {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+.fileFact dd {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-small-lh);
+  font-variant-numeric: tabular-nums;
+}
+
 /* The section's own framing of the file, in its own voice. It opens the page,
    so it is set at reading weight rather than as a note. */
 .frame {
@@ -136,6 +175,10 @@
 .exhibits > li {
   padding-top: var(--sp-5);
   border-top: var(--line-w) solid var(--gold-line);
+  /* The playbook's finding links land on these ids. The shell's anchor rule
+     covers h2s and sectioning elements, not list items, so the header
+     clearance has to live here — same number `sections.module.css` sets. */
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
 .exhibits > li + li {

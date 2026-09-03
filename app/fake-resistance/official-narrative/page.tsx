@@ -156,6 +156,61 @@ export default async function Page() {
         </p>
       </SectionBlock>
 
+      {/* The comparative layer (INV-003): the three cases against each other
+          before any of them at length. A real <table> at desktop; below the
+          seam the CSS restacks each row into a labelled record, and the
+          explicit ARIA roles keep the table semantics through that restyle.
+          Status and evidence basis are cells, so both survive the stack. */}
+      <SectionBlock heading="The cases at a glance">
+        <p>
+          The three files compared: what each claim was graded, what evidence
+          basis the grade rests on, and when the record caught up. Each case
+          opens its full file below.
+        </p>
+        <div className={styles.compareScroll}>
+          <table className={styles.compare} role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th scope="col" role="columnheader">Exhibit</th>
+                <th scope="col" role="columnheader">Case</th>
+                <th scope="col" role="columnheader">Status</th>
+                <th scope="col" role="columnheader">Evidence basis</th>
+                <th scope="col" role="columnheader">Corrected</th>
+              </tr>
+            </thead>
+            <tbody role="rowgroup">
+              {edition.cases.map((c, i) => (
+                <tr key={c.id} role="row">
+                  <th scope="row" role="rowheader" data-label="Exhibit">
+                    <span className={styles.compareExhibit}>
+                      {exhibitLetter(i)}
+                    </span>
+                  </th>
+                  <td role="cell" data-label="Case">
+                    <a className={styles.compareCase} href={`#${c.id}`}>
+                      {c.title}
+                    </a>
+                  </td>
+                  <td role="cell" data-label="Status">
+                    <VerificationBadge assessment={c.verdict} />
+                  </td>
+                  <td role="cell" data-label="Evidence basis">
+                    {c.sources.length}{" "}
+                    {c.sources.length === 1 ? "source" : "sources"} —{" "}
+                    {c.sources.map((s) => s.kind).join(", ")}
+                  </td>
+                  <td role="cell" data-label="Corrected">
+                    <time dateTime={c.datetime}>
+                      {correctionDateLabel(c.datetime)}
+                    </time>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionBlock>
+
       <SectionBlock heading="Case files">
         <p>
           Each documented campaign gets a file with the same structure: the

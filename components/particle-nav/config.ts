@@ -232,6 +232,23 @@ export const CAMERA_Z = 8.2;
 export const CAMERA_FOV = 45;
 
 /**
+ * The baked lion's vertical extent, in lion-local units at group scale 1.
+ *
+ * `LionCore` applies `lionScale` and `lionY` to the group, so the crown's
+ * highest particle sits at `lionY + LION_LOCAL_TOP * lionScale` in world
+ * units and the mane's lowest at `lionY + LION_LOCAL_BOTTOM * lionScale`.
+ * These are the LNP1 `header.bounds` of the three LODs, rounded outward:
+ * measured 2026-09-03 as y ∈ [-0.8525, 0.8115] (90k), [-0.8380, 0.8115]
+ * (180k), [-0.8270, 0.8052] (45k). Re-measure with the bake header — never
+ * by reading a storage buffer back — if `scripts/particle-nav/bake` changes
+ * its 1.72 frame scale. The crown's z is behind the lion plane
+ * (-0.064..-0.017), so perspective only ever shrinks its projected height;
+ * no magnification term is needed on the top edge.
+ */
+export const LION_LOCAL_TOP = 0.815;
+export const LION_LOCAL_BOTTOM = -0.855;
+
+/**
  * The camera's visible extent in world units at the lion plane.
  *
  * Every layer needs this and, until now, three of them re-derived it from

@@ -44,6 +44,7 @@ import {
   getTextOpacityEnvelope,
   smoothstep01,
 } from '@/components/intro/story-timeline';
+import { settledLionPlacement } from '@/components/intro/introLayout';
 
 const CAMERA_Z = 8.2;
 const FOV = 45;
@@ -95,6 +96,14 @@ function SceneContent(props: SceneProps) {
   const orbit = useMemo(
     () => computeOrbitLayout(size.width, size.height, radius, safeArea),
     [radius, safeArea, size.height, size.width],
+  );
+  /* The settled lion's scale and Y, solved from the same viewport, safe-area
+     and camera the orbit uses, so the crown stays under the frame edge and
+     the entrance chrome at every size. Memoised: nothing in the frame loop
+     re-derives it. */
+  const lionPlacement = useMemo(
+    () => settledLionPlacement(size.width, size.height, safeArea, orbit),
+    [orbit, safeArea, size.height, size.width],
   );
 
   const rigRef = useRef<Group>(null);
@@ -173,10 +182,15 @@ function SceneContent(props: SceneProps) {
       const relocation = getRelocationEnvelope(timelineTime);
       const outro = smoothstep01(story.outroProgress);
       const textFlow = getTextFlowEnvelope(timelineTime, story.outroProgress);
-      const narrow = timelineLayout === 'mobile';
-      const largeScale = (narrow ? 1.65 : 2.65) * orbit.centerScale;
-      const storyScale = (narrow ? 0.46 : 0.55) * orbit.centerScale;
-      const storyY = narrow ? 2.45 : 2.35;
+      /* One continuous eased trajectory from the centred assembled lion to
+         its settled place above the text column: X never moves, only scale
+         and Y, and both come from `settledLionPlacement` — the assembled size,
+         the settled size (floored at 42%/55% of it) and a Y capped by the
+         measured crown clearance. `lionPlacement.name` and `timelineLayout`
+         read the same breakpoint, so they cannot disagree. */
+      const largeScale = lionPlacement.assembledScale;
+      const storyScale = lionPlacement.scale;
+      const storyY = lionPlacement.y;
       const preOutroScale = largeScale + (storyScale - largeScale) * relocation;
       const preOutroY = storyY * relocation;
       experienceFrameRef.current = {

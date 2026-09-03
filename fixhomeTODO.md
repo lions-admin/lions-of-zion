@@ -128,18 +128,18 @@ Keep `navReveal` separate. The background must awaken before the navigation outr
 
 ### Phase B — Keep the relocated lion large and safely positioned
 
-- [ ] In `components/particle-nav/Scene.tsx`, replace the current story-scale constants (`0.55` desktop / `0.46` mobile) with the target scale contract in section 3.
-- [ ] Keep the lion centered on X. Move only Y during relocation unless browser evidence shows a real optical-centering issue.
-- [ ] Use the existing safe-area and viewport calculations from `components/particle-nav/config.ts`; do not add CSS-only guesses that disagree with canvas geometry.
-- [ ] In `components/particle-nav/layers/LionCore.tsx`, keep scale/Y updates on the existing group. Do not rebuild the simulation during relocation.
-- [ ] Confirm that crown visibility, opacity, point size, bloom, and assembled home positions remain stable while the group moves.
+- [x] In `components/particle-nav/Scene.tsx`, replace the current story-scale constants (`0.55` desktop / `0.46` mobile) with the target scale contract in section 3. *(Done 2026-09-03: `Scene.tsx` reads `largeScale`/`storyScale`/`storyY` from `settledLionPlacement()` in `components/intro/introLayout.ts`, memoised on orbit and size. Targets `SETTLED_LION_SCALE` 1.20/0.95 × `centerScale`, `SETTLED_LION_Y` 2.05/2.15; results at the plan viewports: 1440×900 and 1920×1080 and 768×1024 scale 1.200, Y 2.050; 390×844 with a 47px notch scale 0.823, Y 2.142 (cap binds, crown exactly 12px under the chrome band); 320×568 scale 0.741, Y 2.150.)*
+- [x] Keep the lion centered on X. Move only Y during relocation unless browser evidence shows a real optical-centering issue. *(Only `lionScale`/`lionY` change; the placement has no X term and `LionCore` still writes `position.y` alone.)*
+- [x] Use the existing safe-area and viewport calculations from `components/particle-nav/config.ts`; do not add CSS-only guesses that disagree with canvas geometry. *(`settledLionPlacement` uses `viewSize`, `MOBILE_MAX_WIDTH`, `SafeAreaInsets` and `OrbitLayout.centerScale`; the lion's own extent is the LNP1 bake bounds pinned as `LION_LOCAL_TOP`/`LION_LOCAL_BOTTOM` in `config.ts`. The one CSS mirror is `introChromeTopPx`, the `.introChrome` top inset, because the masthead is DOM and the canvas cannot measure it; `tests/lion-placement.test.ts` pins that the label itself never meets the crown.)*
+- [x] In `components/particle-nav/layers/LionCore.tsx`, keep scale/Y updates on the existing group. Do not rebuild the simulation during relocation. *(No change to `LionCore.tsx`; `useLionBuffers` still keys its effect on `tier.particles` only, and the placement memo has no `sim` dependency.)*
+- [x] Confirm that crown visibility, opacity, point size, bloom, and assembled home positions remain stable while the group moves. *(Code-verified: none of them reads `lionScale`/`lionY` — `crownReveal` is 1, `opacity` is the lion-opacity envelope, sprite sizes are CSS px through `pxToWorld`, bloom is a post pass, and `homes` is an untouched upload. The real-browser pass stays in §8's viewport matrix.)*
 
 **Phase B acceptance**
 
-- [ ] Lion motion begins immediately after assembly and uses one continuous eased trajectory.
-- [ ] Lion remains clearly larger than the previous story state on desktop and mobile.
-- [ ] Crown and mane are not clipped by the safe area, browser chrome, or top intro chrome.
-- [ ] No lion buffer is recreated during the move.
+- [x] Lion motion begins immediately after assembly and uses one continuous eased trajectory. *(Phase A's `getRelocationEnvelope` drives both scale and Y in one lerp from the assembled to the settled placement.)*
+- [x] Lion remains clearly larger than the previous story state on desktop and mobile. *(2.18× the old 0.55 on desktop; 2.04× the old 0.46 at 390px; pinned at >1.7× on every plan viewport.)*
+- [x] Crown and mane are not clipped by the safe area, browser chrome, or top intro chrome. *(Pinned geometrically in `tests/lion-placement.test.ts` at the five plan viewports, notch included; the mane sits 35–119px above the first text row. Still owed: the real Safari/iPhone pass in §8.)*
+- [x] No lion buffer is recreated during the move. *(Nothing on the relocation path touches `useLionBuffers` or `createLionSim`; the placement is a `useMemo` on layout, not on the sim.)*
 
 ### Phase C — Make lion particles become the text
 

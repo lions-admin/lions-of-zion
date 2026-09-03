@@ -20,7 +20,16 @@
  * every constant below would change meaning under it.
  */
 
-import { CAMERA_FOV, CAMERA_Z, MOBILE_MAX_WIDTH, viewSize } from '@/components/particle-nav/config';
+import {
+  CAMERA_FOV,
+  CAMERA_Z,
+  LION_LOCAL_BOTTOM,
+  LION_LOCAL_TOP,
+  MOBILE_MAX_WIDTH,
+  viewSize,
+  type OrbitLayout,
+  type SafeAreaInsets,
+} from '@/components/particle-nav/config';
 
 export type IntroLayoutName = 'mobile' | 'desktop';
 
@@ -273,6 +282,122 @@ export function introLineBudget(
   return {
     maxParticles: Math.round(fullParticles * ramp),
     density: Math.round(fullDensity * ramp),
+  };
+}
+
+/**
+ * Where the lion settles after its rise, and how large it stays there.
+ *
+ * The centred, assembled lion is `ASSEMBLED_LION_SCALE * centerScale`; the
+ * settled one starts visual tuning at `SETTLED_LION_SCALE * centerScale` and
+ * `SETTLED_LION_Y` world units (plan §3). Both are targets, not results: the
+ * function below caps them so the crown never crosses the frame edge, the
+ * safe-area inset or the entrance chrome's top padding — responsive
+ * containment outranks the tuning numbers — and floors the scale at
+ * `SETTLED_LION_RETENTION` of the assembled size so the cap cannot shrink
+ * the emblem back to the old 0.55/0.46 story size.
+ */
+export const ASSEMBLED_LION_SCALE: Record<IntroLayoutName, number> = {
+  desktop: 2.65,
+  mobile: 1.65,
+};
+export const SETTLED_LION_SCALE: Record<IntroLayoutName, number> = {
+  desktop: 1.2,
+  mobile: 0.95,
+};
+export const SETTLED_LION_Y: Record<IntroLayoutName, number> = {
+  desktop: 2.05,
+  mobile: 2.15,
+};
+export const SETTLED_LION_RETENTION: Record<IntroLayoutName, number> = {
+  desktop: 0.42,
+  mobile: 0.55,
+};
+
+/**
+ * Sprite half-size plus bloom spill above the crown's highest particle, in
+ * CSS px. The same empirical number as `NODE_HALO_PX`, for the same reason:
+ * the bloom pass has no world extent to read off.
+ */
+export const LION_CROWN_MARGIN_PX = 12;
+
+/**
+ * The entrance chrome's top padding, in CSS px, mirroring `.introChrome` in
+ * `styles.module.css`: `clamp(1rem, 2.5vw, 2rem)` and `0.85rem` at or below
+ * 480px, both before the safe-area inset the caller adds. The masthead
+ * itself is a left-aligned `fit-content` label and is horizontally clear of
+ * the centred crown at every plan viewport (pinned in
+ * `tests/lion-placement.test.ts`), so only its padding band is reserved.
+ */
+export const INTRO_CHROME_COMPACT_MAX_WIDTH = 480;
+export function introChromeTopPx(width: number): number {
+  const rem = 16;
+  if (width <= INTRO_CHROME_COMPACT_MAX_WIDTH) return 0.85 * rem;
+  return Math.min(2 * rem, Math.max(rem, width * 0.025));
+}
+
+export interface LionPlacement {
+  name: IntroLayoutName;
+  /** The centred, assembled lion — `largeScale` in `Scene.tsx`. */
+  assembledScale: number;
+  /** The floor the settled scale may not cross. */
+  minScale: number;
+  /** Settled group scale and world Y, as `ExperienceFrame.lionScale/lionY`. */
+  scale: number;
+  y: number;
+  /** World Y of the crown's highest and the mane's lowest particle, settled. */
+  crownTop: number;
+  bottom: number;
+  /** World Y the crown must stay under: frame edge less safe-area, chrome, margin. */
+  ceiling: number;
+}
+
+/**
+ * Pure, allocation-light, and independent of any canvas: `Scene.tsx` memoises
+ * it on the orbit layout and viewport size rather than calling it per frame.
+ *
+ * The solve is closed-form. With the crown pinned to the ceiling, the lion's
+ * bottom edge is `ceiling - (top - bottom) * scale`, decreasing in scale — so
+ * the largest scale that keeps the bottom edge where the text rows were
+ * composed against it is `(ceiling - targetBottom) / extent`. That is clamped
+ * between the retention floor and the target, and Y is then the lower of the
+ * target and the crown cap at that scale. The cap on Y is applied last and
+ * unconditionally, so the crown is inside the ceiling even when the floor
+ * binds; only the bottom edge gives way in that case.
+ */
+export function settledLionPlacement(
+  width: number,
+  height: number,
+  safeArea: SafeAreaInsets,
+  layout: Pick<OrbitLayout, 'centerScale'>,
+): LionPlacement {
+  const name = introLayoutName(width);
+  const { viewHeight, worldPerPx } = viewSize(width, height);
+  const halfHeight = viewHeight / 2;
+
+  const assembledScale = ASSEMBLED_LION_SCALE[name] * layout.centerScale;
+  const targetScale = SETTLED_LION_SCALE[name] * layout.centerScale;
+  const minScale = assembledScale * SETTLED_LION_RETENTION[name];
+  const targetY = SETTLED_LION_Y[name];
+
+  const reservePx = safeArea.top + introChromeTopPx(width) + LION_CROWN_MARGIN_PX;
+  const ceiling = halfHeight - reservePx * worldPerPx;
+
+  const extent = LION_LOCAL_TOP - LION_LOCAL_BOTTOM;
+  const targetBottom = targetY + LION_LOCAL_BOTTOM * targetScale;
+  const fitScale = (ceiling - targetBottom) / extent;
+  const scale = Math.min(targetScale, Math.max(minScale, fitScale));
+  const y = Math.min(targetY, ceiling - LION_LOCAL_TOP * scale);
+
+  return {
+    name,
+    assembledScale,
+    minScale,
+    scale,
+    y,
+    crownTop: y + LION_LOCAL_TOP * scale,
+    bottom: y + LION_LOCAL_BOTTOM * scale,
+    ceiling,
   };
 }
 

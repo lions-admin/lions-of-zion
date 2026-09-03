@@ -360,27 +360,32 @@ If a proposed test file was not needed, replace the command with the actual focu
 - [ ] Capture frame stats with the existing particle diagnostics where available; report numbers rather than “feels smooth.”
 - [ ] Inspect memory/resource cleanup by replaying/unmounting the particle scene through `/particle-demo`; no steadily growing buffer/material count or repeated listener registration.
 
-## 9. Evidence ledger — fill during implementation
+## 9. Evidence ledger — filled during implementation
+
+All automated results below were re-run by the parent session on the merged
+branch, not copied from an agent's report. Rows marked **owner** are the
+browser matrix in §8: no dev server was started during implementation, and
+nothing in this table claims a pixel that was not rendered.
 
 | Check | Status | Evidence / result |
 | --- | --- | --- |
-| Repository synchronized before work | [x] | `claude/fixhometodo-task-d3bbde` at `8700701` = `origin/main` `8700701`; working tree clean before Phase A (2026-09-03) |
-| Focused timeline/background tests | [~] | Phase A: `npx vitest run tests/intro-timeline.test.ts tests/motion-runtime.test.ts tests/handoff-guard.test.ts` → 3 files, 44 tests passed. Phase E: `npx vitest run tests/global-scan-backdrop.test.ts tests/motion-runtime.test.ts tests/css-module-contract.test.ts tests/home-content.test.ts tests/no-js-invariant.test.ts tests/live-surfaces.test.ts tests/shell-landmarks.test.ts tests/ui-contracts.test.ts` → 8 files, 88 tests passed; typecheck clean; lint 0 errors (3 known `server/` warnings). |
-| Typecheck | [~] | Phase A: `npm run typecheck` → clean (re-run at the end) |
-| Lint | [ ] | Command and result |
-| Full tests | [ ] | Command and pass/fail count |
-| Production build | [ ] | Command and result |
-| Chromium desktop | [ ] | Viewport, backend, capture path |
-| Chromium forced WebGL2 | [ ] | Viewport, capture path |
-| Chromium mobile | [ ] | Viewport, capture path |
-| Safari macOS | [ ] | Version, viewport, result |
-| Safari iPhone | [ ] | Device/iOS version, viewport, result or explicit blocker |
-| Reduced motion | [ ] | Browser/device and result |
-| Skip/handoff touch guard | [ ] | Tested stages and result |
-| No-GPU/no-JS fallback | [ ] | Method and result |
-| Public route backdrop profiles | [ ] | Routes checked and result |
-| Console/runtime errors | [ ] | Result |
-| Performance/resource cleanup | [ ] | Measurements and result |
+| Repository synchronized before work | [x] | `claude/fixhometodo-task-d3bbde` at `8700701` = `origin/main` `8700701`, tree clean (2026-09-03). Work is eight commits: `53e44ed` A, `f83beaf` B, `f951b35` C, `7d527a5` D, `ef4b9cf` E, `3ab0ca6` F, `ee581bb` pre-roll/§6, `9918dfa` §7, `28dbcb0` scan hole, `0d19426` frame order. |
+| Focused timeline/background tests | [x] | `npx vitest run tests/intro-timeline.test.ts tests/intro-scan.test.ts tests/intro-preroll.test.ts tests/motion-runtime.test.ts` → 4 files, **91 passed** (2026-09-04). |
+| Typecheck | [x] | `npm run typecheck` → `✓ Types generated successfully`, `tsc --noEmit` silent. |
+| Lint | [x] | `npm run lint` → **0 errors**, 3 warnings, all pre-existing and in `server/` (`gateway.ts` `decoded`, `briefing/service.ts` `StoredArticle`, `publications/service.ts` `index`). No warning is in a file this work touched. |
+| Full tests | [x] | `npm test` → **91 files, 903 passed, 1 skipped** (the skip is the pgvector semantic-search case, which needs `TEST_DATABASE_URL`; PGlite has no pgvector). Baseline before this work was 86 files / 787 passed. |
+| Production build | [x] | `npm run build` → `✓ Compiled successfully`, all routes emitted, exit 0. **Note:** Turbopack rejects a symlinked `node_modules` (`Symlink [project]/node_modules is invalid, it points out of the filesystem root`), so the worktree needs a real copy rather than a link before building. Tests, typecheck and lint all work through the symlink; only the build does not. |
+| Chromium desktop | [ ] | **owner** — §8 matrix, 1440×900 and 1920×1080. |
+| Chromium forced WebGL2 | [ ] | **owner** — `/?forceWebGL=1`. |
+| Chromium mobile | [ ] | **owner** — 390×844 and 320×568. |
+| Safari macOS | [ ] | **owner** — must be real Safari, not Chromium emulation. |
+| Safari iPhone | [ ] | **owner** — the iOS/WebKit gesture-retargeting property in §7 cannot be closed without it. |
+| Reduced motion | [~] | Structure verified and pinned: the GPU intro is bypassed (`reducedMotion` gates both `introRunning` and `introDismissed`, no second shortened timeline exists), and the CSS scan resolves to a composed frame — `animation: none`, each row at its server-sampled `--rest`, loud rows stepped to their dim token — which also beats `globals.css`'s blanket `animation-duration: 0.01ms !important`. `tests/intro-fallbacks.test.ts`, `tests/intro-accessibility.test.ts`. **owner** for the visual result. |
+| Skip/handoff touch guard | [~] | `tests/handoff-guard.test.ts` unchanged and passing. **One real bug fixed:** the capture listener was bound to `containerRef`, but since the gate refactor the page renders into `.introDestination`, a *sibling* of that container — so the guard covered only the eight orbit links, which are `display: none` below 720 px, and never the full-width mobile links it was written for. Now on `window`. **owner** for the live Safari/iPhone pass. |
+| No-GPU/no-JS fallback | [x] | **Two real bugs fixed.** (1) The no-JS home shipped `inert`: `CinematicIntroGate` starts `blocked = true`, so the server HTML wrapped the whole page in `inert aria-hidden`, and neither attribute is reachable from CSS, so the existing `<noscript>` rules could not undo it — with scripting off every link was dead and the document was out of the accessibility tree, permanently. The DOM projection is now gated on hydration. (2) A renderer that never paints hung the route without bound: `usePerfTier` returns `webgpu` on `'gpu' in navigator` alone, never calling `requestAdapter()`, so a failed `renderer.init()` meant `useFrame` never ran, so `onReady` and `onIntroComplete` never fired and the fixed black entrance owned the viewport for the session with an invisible Skip button. Bounded by a 6 s readiness timeout routed through the normal completion path. Both pinned in `tests/intro-fallbacks.test.ts`. |
+| Public route backdrop profiles | [x] | Every `app/**/page.tsx` traced. All public routes reach `EditorialShell` through `SectionPage`, `DocPage`, `LiveBriefHub` or `InformationWarSystem`, or directly (`/articles/[publicId]`, `/account`); `/` mounts the band itself; `/admin`, `/admin/login`, `/particle-demo`, `/pipeline` mount nothing and are listed in `INTERNAL_ROUTE_IDS` so the exclusion is explicit rather than accidental. One backdrop per route, asserted including that `app/layout.tsx` mounts none. `tests/global-scan-backdrop.test.ts`. |
+| Console/runtime errors | [ ] | **owner** — needs a live page; typecheck and build are clean, and no test exercises a WebGPU device. |
+| Performance/resource cleanup | [x] | Tier table exercised as a function: 45k particles **and** bloom off for every coarse-pointer/WebGL2 pair at every reported memory, `maxDpr ≤ 2` across the whole table. Six of the scene's seven `useFrame` loops allocate nothing; the seventh is `Scene.tsx`'s writer, whose four allocations (the story frame's `flatMap`, the `ExperienceFrame` literal, six `Vector3`s in `connectorBezier`, two template strings per label) **all pre-date this work** and are recorded as a named exemption in `tests/motion-runtime.test.ts` rather than left implicit. The new `sources` storage node is in the material's dispose list and `disposeSet` runs on both exits of the build effect. Mapping and glyph work happens only on `[layoutKey, lionHomes]`, never per frame. The renderer still unmounts at handoff. **owner** for measured frame stats and the `/particle-demo` replay leak check. |
 
 ## 10. Definition of done and required final report
 
@@ -395,15 +400,19 @@ The final report must be brief and must contain exactly these four sections:
 
 ## 11. Final acceptance gate
 
-- [ ] Lion assembles from gold particles in the center.
-- [ ] Lion rises immediately after assembly.
-- [ ] Lion remains large, clear, and dominant at upper center.
-- [ ] Text begins immediately below the lion when relocation completes.
-- [ ] Lion-origin particles visibly form the text; the reveal is not a standalone fade.
-- [ ] Intelligence scan fades in during the intro without stealing focus.
-- [ ] The same shared scan language is available across all public site surfaces with per-page/shell intensity, density, and speed control.
-- [ ] Background does not harm performance, scrolling, clicking, focus, dialogs, or content contrast.
-- [ ] Reduced motion, no-GPU, no-JS, Skip Intro, and iOS/WebKit handoff behavior remain correct.
-- [ ] Desktop, tablet, mobile, forced WebGL2, and real Safari evidence is recorded.
-- [ ] Focused tests, typecheck, lint, full tests, and production build pass.
-- [ ] Unrelated content, navigation, and behavior are unchanged.
+Ticked where code and tests can carry the claim; `[~]` where the structure is
+implemented and pinned but the claim itself is about pixels, which needs the
+owner's §8 browser pass. Nothing here is ticked on a report alone.
+
+- [x] Lion assembles from gold particles in the center. — unchanged behaviour, now on the 0.65–3.25 s formation envelope.
+- [x] Lion rises immediately after assembly. — `RELOCATION_START === FORMATION_END` by construction; `tests/intro-timeline.test.ts` walks the whole interval and proves relocation is strictly advancing from the first frame after assembly, with no `lion-hold` stage left to land in.
+- [~] Lion remains large, clear, and dominant at upper center. — settled scale is 1.20 desktop / 0.95 mobile × `centerScale` against the old 0.55 / 0.46, floored at 42% / 55% of assembled, with Y capped by a crown clearance solved from the viewport, the safe area and the entrance chrome. Contained at all five plan viewports in `tests/lion-placement.test.ts`; only 390×844 with a notch binds the cap, trimming 1%.
+- [x] Text begins immediately below the lion when relocation completes. — `STORY_START === RELOCATION_END`; the first line exists on that boundary at `build = 0` and is null one step before it. Row 0 clears the mane by 35–119px at every plan viewport.
+- [~] Lion-origin particles visibly form the text; the reveal is not a standalone fade. — every text particle is mapped to a real lion home by a hash the shader and the CPU share, and travels lion → throat → glyph on the line's own build clock. The pre-roll gap the Phase C agent reported is closed: the head of the first line departs on `textFlow` and parks in the throat before any glyph exists. Opacity keys on the path parameter, not on `build`, so there is no independent fade to mistake for the reveal. **Browser** for the visual claim.
+- [~] Intelligence scan fades in during the intro without stealing focus. — driven by `scanReveal`, not `navReveal`; one eased ramp 3.70 → 6.80 s to an intro target below the navigation target; hero hole follows the risen lion and the text corridor mutes 85% behind copy. The frozen centre ellipse that would have sat under the story text is gone, replaced by the runtime mask, with the navigation state proven unchanged to within 3.5–4%. **Browser** for contrast in motion.
+- [x] The same shared scan language is available across all public site surfaces with per-page/shell intensity, density, and speed control. — one `ScanBackdrop`, one profile map, four families plus home, four internal routes explicitly silent.
+- [~] Background does not harm performance, scrolling, clicking, focus, dialogs, or content contrast. — pointer, paint order, selection and the composited contrast of every named surface are computed and pinned; the sticky header failed at 3.29:1 and was fixed structurally, and two profile intensities were lowered. One pre-existing token defect is flagged and not fixed: `--gold-dim` reads 4.37:1 on the peak `--scan-ground` pixel **with no scan at all**. **Browser** for the live interaction pass.
+- [~] Reduced motion, no-GPU, no-JS, Skip Intro, and iOS/WebKit handoff behavior remain correct. — three real defects found and fixed here, all of which predate this work: the no-JS home shipped `inert`, a renderer that never painted hung the route without bound, and the stale-gesture guard was bound to the wrong tree. **Browser/device** for the WebKit property itself.
+- [ ] Desktop, tablet, mobile, forced WebGL2, and real Safari evidence is recorded. — **outstanding, owner.** No dev server was started during implementation.
+- [x] Focused tests, typecheck, lint, full tests, and production build pass. — 91 files / 903 passed / 1 skipped; typecheck clean; lint 0 errors; build compiled successfully.
+- [x] Unrelated content, navigation, and behavior are unchanged. — no narrative copy, no route, no navigation label or order, and nothing under `server/`, `app/api/` or the publication path was touched. The suite's 86 pre-existing files all still pass.

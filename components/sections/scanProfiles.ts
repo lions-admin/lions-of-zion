@@ -37,10 +37,34 @@ export function clampScanIntensity(value: number | undefined): number {
   return Math.min(1, Math.max(0, value));
 }
 
+/**
+ * The contrast budget these numbers answer to (§7 audit, 2026-09-04).
+ *
+ * Effective row opacity is `0.34 × register × intensity`, and inside
+ * `--content-w` the `.rowField` mask multiplies it by a further 0.25. Every
+ * surface a reader reads sits inside that mask: `.withRails` widens
+ * `--content-w` over both rails at the 1220px breakpoint, and below it the
+ * rails are `display: none` and everything is in the measure column.
+ *
+ * The binding token is `--ink-lo` (#88837b) — captions, metadata, TOC links,
+ * the home file numbers — which reads 4.93:1 on the brightest pixel of
+ * `--scan-ground` before the scan adds anything, against a 4.5 floor. So the
+ * whole scan layer has 0.43 of ratio to spend, and these intensities are what
+ * fits inside it against a loud verified row (`--ink`, the brightest thing
+ * the backdrop paints). The numbers are recomputed and asserted per family in
+ * `tests/intro-accessibility.test.ts`; raising one fails that suite.
+ */
 export const FAMILY_SCAN_PROFILES: Readonly<Record<RouteFamily, ScanProfile>> = {
   /* Live tools keep a live-tool presence: the fullest of the three, at the
-     stylesheet's normal drift. */
-  desk: { register: 'default', intensity: 0.6, density: 'medium', speed: 'normal' },
+     stylesheet's normal drift.
+
+     0.5, down from 0.6 in the §7 audit. At 0.6 the masked reading column put
+     `--ink-lo` at 4.51:1 — over the floor by 0.01, which is not a margin, and
+     desk is the family whose column carries the most 12–13px data-face
+     metadata (fact-check rung labels, update stamps, search facets). 0.5
+     reads 4.59:1 and is also exactly the register desk ran at before the
+     profile map existed. */
+  desk: { register: 'default', intensity: 0.5, density: 'medium', speed: 'normal' },
   /* Long reading. Low and slow, so a dossier reads as a file open on a desk
      with the monitor still running somewhere behind it. */
   dossier: { register: 'default', intensity: 0.45, density: 'medium', speed: 'slow' },
@@ -52,10 +76,20 @@ export const FAMILY_SCAN_PROFILES: Readonly<Record<RouteFamily, ScanProfile>> = 
  * The home band. Low and slow because the home is the one route with another
  * moving layer — the typographic field — and the two are never on screen at
  * full strength together; `home.module.css` documents the layering.
+ *
+ * 0.30, down from 0.35 in the §7 audit, and the one profile that was over the
+ * line rather than close to it. The home is the only route whose mask is
+ * narrower than its chrome: `.scanDock` sets `--content-w` to the masthead's
+ * 48rem column, while `.fileIndex` below it runs the full `--chrome-w`, so
+ * the eight file numbers (`.fileNo`, `--ink-lo` at `--t-data`) are the one
+ * piece of small text on the site that meets the band **unmasked**. At 0.35
+ * that measured 4.48:1; at 0.30 it is 4.64:1. Widening the dock's mask over
+ * the file index instead would have dimmed the band across the whole screen,
+ * which is the same as deleting it.
  */
 export const HOME_SCAN_PROFILE: ScanProfile = {
   register: 'default',
-  intensity: 0.35,
+  intensity: 0.3,
   density: 'low',
   speed: 'slow',
 };

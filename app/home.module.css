@@ -70,8 +70,8 @@
  *
  * Layering, decided: the home never runs two moving scan layers. The field's
  * canvas is opaque (`alpha: false`, cleared to black), so once its engine
- * paints nothing beneath it is visible anyway; this rule just stops the
- * hidden drift from ticking. So the band is the moving layer only when the
+ * paints nothing beneath it is visible anyway. So the band is the moving
+ * layer only when the
  * field is not — no JavaScript, or the moment between handoff and the
  * engine's first paint — and the field owns the screen the rest of the time,
  * with the band at a whisper (`HOME_SCAN_PROFILE`: low, slow) for the frames
@@ -103,6 +103,26 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
 .fieldLayer:has([data-engine-ready]) .scanDock {
   visibility: hidden;
   transition: visibility 0s linear var(--dur-slow);
+}
+
+/* And actually stopped, not merely unpainted.
+ *
+ * `visibility: hidden` hides an animation; it does not stop it. The comment
+ * above used to say this rule ended the drift, and on Chromium it does — but
+ * only as a side effect of `content-visibility: auto` on `.backdropBand`
+ * skipping a subtree that is no longer relevant to the user. Where that
+ * property is unsupported the sixteen rows kept animating for the life of the
+ * page behind an opaque canvas: compositor work with nothing on the other end
+ * of it, and the "one moving layer" rule true only in what you could see.
+ *
+ * The universal selector is how a stylesheet reaches rows another CSS module
+ * hashes the class names of; the subtree is the backdrop, its row field and
+ * sixteen spans. `animation-play-state` cannot be delayed the way `visibility`
+ * is above, so the rows stand still from the first frame of the cross-fade —
+ * under a black canvas going 0 → 1 over `--dur-slow`, above rows already at a
+ * tenth of an opacity. */
+.fieldLayer:has([data-engine-ready]) .scanDock * {
+  animation-play-state: paused;
 }
 
 .matrixCanvas {

@@ -43,47 +43,27 @@
   gap: var(--sp-2);
 }
 
+/* The chip is the shared `Button` on `variant="secondary"`, which owns the
+   ground, the border, the hover/active/disabled states and the 44px coarse
+   floor. What survives here is what Button has no opinion about: the caption
+   step these labels are set at, the square floor a one-word filter needs on a
+   fine pointer too, and the dashed rule that marks a muted class. The whole
+   base control used to be restated at this selector — border, background,
+   padding, cursor, transitions and four state rules — which both duplicated
+   Button (CLEAN-002) and pinned the border colour where Button's `--btn-line`
+   could not reach it. */
 .chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: var(--control-h);
   min-width: var(--control-h);
-  padding: 0 var(--sp-3);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--face-text);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
   line-height: var(--t-caption-lh);
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
 }
 
-.chip:hover:not(:disabled) {
-  background: var(--tint-hover);
-  border-color: var(--line-strong);
-}
-
-.chip:active:not(:disabled) {
-  background: var(--tint-active);
-}
-
-
+/* Muted, not off: the class is still in the legend and still counted, so it
+   keeps its label and loses its solid rule. */
 .chip[aria-pressed='false'] {
   color: var(--ink-lo);
   border-style: dashed;
-}
-
-.chip:disabled {
-  color: var(--ink-lo);
-  border-color: var(--line-soft);
-  cursor: default;
 }
 
 

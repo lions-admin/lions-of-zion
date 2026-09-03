@@ -347,40 +347,6 @@
   list-style: none;
 }
 
-.primerExample {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  inline-size: 100%;
-  min-block-size: var(--control-h);
-  padding: var(--sp-2) var(--sp-4);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-align: start;
-  cursor: pointer;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.primerExample:hover:not(:disabled) {
-  color: var(--ink-hi);
-  border-color: var(--line-strong);
-  background: var(--tint-hover);
-}
-
-.primerExample:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 
 
 .composer {

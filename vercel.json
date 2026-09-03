@@ -1,4 +1,10 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "briefing-packages": false
+    }
+  },
   "functions": {
     "app/api/v1/admin/briefing/run/route.ts": {
       "maxDuration": 300,

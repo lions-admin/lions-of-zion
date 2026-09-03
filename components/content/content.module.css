@@ -897,83 +897,164 @@
 
 
 
+/* ---------- sensitive material (OCT-005) ----------
+ *
+ * The one place ember is not decoration: this is danger material, and the
+ * system reserves the ramp for exactly that. It is spent on a single hairline
+ * and the category label, never on a fill — a panel that shouts is a panel a
+ * reader learns to dismiss, and this one has to be read.
+ *
+ * Two layouts from one anatomy. `block` is a standalone panel with its own
+ * hairline; `frame` fills `MediaBlock`'s `.frame`, which already owns the
+ * border, the radius and the aspect box — so the gate draws no second box and
+ * the caption, credit and provenance row below it stay outside the gate
+ * entirely. There is no blurred plate behind either one: nothing is rendered
+ * until the reader asks (see `SensitiveContent.tsx`).
+ */
+
 .sensitive {
   composes: tokens;
+  --sensitive-line: color-mix(in oklab, var(--data-ember) 30%, transparent);
+}
+
+.sensitive[data-layout='block'] {
   border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
+  border-left: var(--line-w-thick) solid var(--sensitive-line);
+  border-radius: var(--radius-2);
   background: var(--surface-raised);
+}
+
+/* Inside a media frame the gate *is* the frame's content: it fills the box the
+   package's aspect ratio already reserved, so opening the material does not
+   move the caption under it by a pixel. */
+.sensitive[data-layout='frame'] {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.sensitive[data-layout='frame'] > * {
+  min-width: 0;
+  min-height: 0;
 }
 
 .sensitiveGate {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--sp-4);
+  gap: var(--sp-3);
   padding: var(--sp-5);
 }
 
-.sensitiveWarning {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
+.sensitive[data-layout='frame'] .sensitiveGate {
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  overflow-y: auto;
+  text-align: center;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--data-ember) 5%, transparent) 0 2px,
+      transparent 2px 11px
+    );
 }
 
-.sensitiveWarning::before {
-  content: 'Sensitive material';
-  display: block;
-  margin-bottom: var(--sp-2);
+/* The category, named. Two words or fewer is the rule for tracked capitals and
+   these run longer ("Abductions to the Gaza Strip"), so it is sentence case in
+   the data face — a label, not a headline. */
+.sensitiveCategory {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: 0;
   color: var(--ember-peak);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  letter-spacing: var(--t-data-tracking-tight);
 }
 
+/* The mark carries the state where colour cannot: a filled diamond, so the
+   label is legible as a warning without relying on the ember. */
+.sensitiveMark {
+  flex: none;
+  width: var(--mark);
+  height: var(--mark);
+  background: var(--data-ember);
+  transform: rotate(45deg);
+}
 
-.sensitiveButton {
-  min-height: var(--control-h);
-  padding: 0 var(--sp-4);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-2);
-  background: var(--surface-3);
-  color: var(--ink-hi);
+.sensitiveWarning {
+  max-width: var(--measure-narrow);
+  margin: 0 0 var(--sp-2);
+  color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--t-small);
-  font-weight: 600;
   line-height: var(--t-small-lh);
-  cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
+  text-wrap: pretty;
 }
 
-.sensitiveButton:hover {
-  border-color: var(--gold-line-strong);
-  background: color-mix(in oklab, var(--surface-3) 80%, var(--gold) 20%);
+/* Focus lands here on reveal, so the ring must be visible and must not be
+   clipped by the media frame's `overflow: hidden`. */
+.sensitiveRegion:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: -3px;
 }
 
-.sensitiveButton:active {
-  background: var(--surface-2);
-  color: var(--ink);
-}
-
-.sensitiveButton:disabled {
-  border-color: var(--line-soft);
-  background: var(--surface-1);
-  color: var(--ink-lo);
-  cursor: not-allowed;
-}
-
-.sensitiveRevealed {
+.sensitive[data-layout='block'] .sensitiveRegion {
   padding: var(--sp-5);
 }
 
-.sensitiveRevealed > .sensitiveButton {
-  margin-top: var(--sp-5);
+.sensitive[data-layout='frame'] .sensitiveRegion {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100%;
+}
+
+.sensitiveMaterial {
+  min-width: 0;
+  min-height: 0;
+}
+
+.sensitive[data-layout='frame'] .sensitiveMaterial > :is(img, video) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--media-fit, cover);
+}
+
+/* The way back out, and the reminder of what is open. Inside a frame it sits
+   over the foot of the material rather than under it — the material fills the
+   box, and a control that scrolled out of reach is not a way out. */
+.sensitiveClose {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  margin-top: var(--sp-4);
+}
+
+.sensitive[data-layout='frame'] .sensitiveClose {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  background: color-mix(in srgb, var(--ground) 78%, transparent);
+  border-top: var(--line-w) solid var(--sensitive-line);
+}
+
+.sensitiveHint {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  color: var(--ember-peak);
+}
+
+.sensitiveHintKey {
+  color: var(--ink-lo);
 }
 
 
@@ -1250,7 +1331,6 @@
   .sourceBody a,
   .card,
   .card h3 a,
-  .sensitiveButton,
   .techniqueChip {
     transition: none;
   }
@@ -1320,7 +1400,7 @@
   .claimPanel,
   .recordPanel,
   .sensitiveGate,
-  .sensitiveRevealed {
+  .sensitive[data-layout='block'] .sensitiveRegion {
     padding: var(--sp-5) var(--sp-4);
   }
 

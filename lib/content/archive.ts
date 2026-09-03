@@ -213,7 +213,19 @@ export function assetSrcSet(pkg: ArchivePackageName, media: ArchiveMedia): strin
 }
 
 /** An index entry with its cover resolved to a servable URL — for listings. */
-export type ArchiveIndexDisplayEntry = ArchiveIndexEntry & { thumb: string | null };
+export type ArchiveIndexDisplayEntry = ArchiveIndexEntry & {
+  thumb: string | null;
+  /**
+   * The cover's intrinsic size, so a row's plate reserves its box before the
+   * bytes arrive (OCT-007). Every image and thumbnail in both packages
+   * records both values — verified, not assumed — so this is null only when
+   * the entry has no cover at all.
+   */
+  thumbWidth: number | null;
+  thumbHeight: number | null;
+  /** `srcset` over the cover's baked derivatives; '' where none were baked. */
+  thumbSrcSet: string;
+};
 
 /**
  * Resolve each entry's `cover` (a `media_id`) to the URL an index row can
@@ -234,8 +246,95 @@ export async function withCoverThumbs(
       ? item.web_variants.reduce((a, b) => (b.width < a.width ? b : a))
       : undefined;
     const path = variant?.path ?? item?.package_path ?? null;
-    return { ...entry, thumb: path ? assetUrl(pkg, path) : null };
+    return {
+      ...entry,
+      thumb: path ? assetUrl(pkg, path) : null,
+      thumbWidth: variant?.width ?? item?.width ?? null,
+      thumbHeight: variant?.height ?? item?.height ?? null,
+      thumbSrcSet: item ? assetSrcSet(pkg, item) : '',
+    };
   });
+}
+
+/**
+ * What a record actually holds, without opening it.
+ *
+ * The index carries a title, a date, a cover and an excerpt — enough for a
+ * uniform row and not enough to tell a fifteen-section testimony from a
+ * two-line caption, or a film from a photograph. Both distinctions are the
+ * whole point of the two rebuilt indexes (OCT-002/OCT-003): the documentation
+ * archive is 209 films and 126 photographs filed under the source's own
+ * categories, and the testimony archive is 178 accounts running from a
+ * paragraph to 7,525 words.
+ *
+ * Nothing here is inferred or invented — `medium` is which block types the
+ * source published, `words` is the record's own text, `sections` is its own
+ * headings. A record with neither image nor video block is `text`.
+ */
+export type ArchiveRecordDigest = {
+  medium: 'video' | 'image' | 'text';
+  videos: number;
+  images: number;
+  /** Words in the default-language version's own text. */
+  words: number;
+  /** Headings in that version — how far the record is structured. */
+  sections: number;
+};
+
+function digestOf(record: ArchiveRecord): ArchiveRecordDigest {
+  const version = pickVersion(record);
+  let videos = 0;
+  let images = 0;
+  let sections = 0;
+  for (const block of version.content_blocks ?? []) {
+    if (block.type === 'video') videos += 1;
+    else if (block.type === 'image') images += 1;
+    else if (block.type === 'heading' && block.text) sections += 1;
+  }
+  return {
+    medium: videos > 0 ? 'video' : images > 0 ? 'image' : 'text',
+    videos,
+    images,
+    words: (version.full_text ?? '').split(/\s+/).filter(Boolean).length,
+    sections,
+  };
+}
+
+/**
+ * Every record's digest, keyed by id — one pass over the package, kept.
+ *
+ * Read once per process and cached beside the index and the media registry,
+ * for the same reason: the two index routes are rendered from it and each
+ * record file is otherwise opened by exactly one page. The cost is 2.6 MB
+ * (documentation) or 9.3 MB (testimonies) of JSON read and discarded, once;
+ * what survives is five numbers per record.
+ *
+ * Read in bounded batches rather than one `Promise.all` over 514 files: the
+ * build renders ~1,177 pages from the same process and exhausting the file
+ * descriptor table to save a few milliseconds is not a trade worth making.
+ */
+export async function getRecordDigests(
+  pkg: ArchivePackageName,
+): Promise<Map<string, ArchiveRecordDigest>> {
+  const key = `${pkg}/__digests`;
+  let hit = cache.get(key) as Promise<Map<string, ArchiveRecordDigest>> | undefined;
+  if (!hit) {
+    hit = (async () => {
+      const index = await getIndex(pkg);
+      const digests = new Map<string, ArchiveRecordDigest>();
+      const BATCH = 32;
+      for (let i = 0; i < index.length; i += BATCH) {
+        const slice = index.slice(i, i + BATCH);
+        const records = await Promise.all(slice.map((entry) => getRecord(pkg, entry.id)));
+        records.forEach((record, n) => {
+          if (record) digests.set(slice[n].id, digestOf(record));
+        });
+      }
+      return digests;
+    })();
+    cache.set(key, hit);
+  }
+  return hit;
 }
 
 /** The version a locale should render, falling back to the record's default. */

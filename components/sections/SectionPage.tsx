@@ -24,12 +24,12 @@
  * `components/particle-nav/config.ts`, so the hover card, the lede here, and
  * the page metadata stay one sentence in one place.
  */
-import Link from 'next/link';
 import { EditorialShell } from '@/components/site/EditorialShell';
 /* Deep import, not the `@/components/motion` barrel: the barrel re-exports
    three more client components, and importing it here would register all four
    as client entries for every page built on this shell to use one. */
 import { Reveal } from '@/components/motion/Reveal';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { getSiteNavigationItem } from '@/lib/site-navigation';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
@@ -98,7 +98,6 @@ export function SectionPage({
       routeId={id}
       register={register}
       className={pageClass}
-      skipLinkClassName={styles.skipLink}
       progressTrackClassName={styles.topProgressTrack}
       progressValueClassName={styles.topProgressValue}
     >
@@ -110,17 +109,11 @@ export function SectionPage({
             the site header; the five Fake Resistance branches and the two
             archive indexes pass it, and this is what renders it. */}
         {breadcrumb && breadcrumb.length > 0 ? (
-          <nav className={styles.documentTrail} aria-label="Breadcrumb">
-            <Link href="/">Home</Link>
-            <span aria-hidden="true">/</span>
-            {breadcrumb.map((crumb) => (
-              <span key={crumb.href} className={styles.trailSegment}>
-                <Link href={crumb.href}>{crumb.label}</Link>
-                <span aria-hidden="true">/</span>
-              </span>
-            ))}
-            <span className={styles.trailCurrent}>{title}</span>
-          </nav>
+          <Breadcrumb
+            className={styles.documentTrail}
+            trail={breadcrumb}
+            current={title}
+          />
         ) : null}
 
         <div className={styles.tocRail}>

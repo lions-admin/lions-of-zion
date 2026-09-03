@@ -19,8 +19,8 @@
  * They are linked from the prose of the pages that mean them and from the
  * scan, and do not join the radial nav itself (see `.ai/DECISIONS.md`).
  */
-import Link from 'next/link';
 import { EditorialShell } from '@/components/site/EditorialShell';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
 
@@ -138,22 +138,15 @@ export function DocPage({
       register="muted"
       showProgress={withToc}
       className={pageClass}
-      skipLinkClassName={styles.skipLink}
       progressTrackClassName={styles.topProgressTrack}
       progressValueClassName={styles.topProgressValue}
     >
       <div className={styles.shell}>
-        <nav className={styles.documentTrail} aria-label="Breadcrumb">
-          <Link href="/">Home</Link>
-          <span aria-hidden="true">/</span>
-          {breadcrumb?.map((crumb) => (
-            <span key={crumb.href} className={styles.trailSegment}>
-              <Link href={crumb.href}>{crumb.label}</Link>
-              <span aria-hidden="true">/</span>
-            </span>
-          ))}
-          <span className={styles.trailCurrent}>{title}</span>
-        </nav>
+        <Breadcrumb
+          className={styles.documentTrail}
+          trail={breadcrumb}
+          current={title}
+        />
 
         {withToc ? (
           <div className={styles.tocRail}>

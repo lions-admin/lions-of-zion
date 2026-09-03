@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ButtonLink } from "@/components/ui/Button";
 import styles from "./article.module.css";
 
@@ -17,18 +17,15 @@ export default function ArticleNotFound() {
       register="muted"
       showProgress={false}
       className={styles.page}
-      skipLinkClassName={styles.skipLink}
       progressTrackClassName={styles.progressTrack}
       progressValueClassName={styles.progressValue}
     >
       <article className={styles.article} id="page-content">
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-          <Link href="/">Home</Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/geopolitical-brief">Daily Brief</Link>
-          <span aria-hidden="true">/</span>
-          <span className={styles.breadcrumbCurrent}>Record not found</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          trail={[{ href: "/geopolitical-brief", label: "Daily Brief" }]}
+          current="Record not found"
+        />
         <header className={styles.head}>
           <p className={styles.kicker}>Missing record</p>
           <h1>No published article at this address</h1>

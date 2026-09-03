@@ -151,7 +151,6 @@ export function InformationWarSystem() {
       routeId="information-war"
       register="muted"
       className={styles.page}
-      skipLinkClassName={styles.skipLink}
       progressTrackClassName={styles.progressTrack}
       progressValueClassName={styles.progressValue}
     >

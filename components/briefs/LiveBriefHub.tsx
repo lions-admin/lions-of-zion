@@ -40,7 +40,6 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
     <EditorialShell
       routeId="geopolitical-brief"
       className={styles.page}
-      skipLinkClassName={sectionStyles.skipLink}
       progressTrackClassName={sectionStyles.topProgressTrack}
       progressValueClassName={sectionStyles.topProgressValue}
       showProgress={false}

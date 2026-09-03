@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
@@ -19,6 +18,7 @@ import {
 } from "@/components/content";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
+import { Breadcrumb, type BreadcrumbCrumb } from "@/components/ui/Breadcrumb";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
 import styles from "./article.module.css";
 
@@ -94,19 +94,16 @@ export default async function ArticlePage({ params }: Props) {
       backdropSeed={article.publicId}
       register="muted"
       className={styles.page}
-      skipLinkClassName={styles.skipLink}
       progressTrackClassName={styles.progressTrack}
       progressValueClassName={styles.progressValue}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className={styles.article} id="page-content">
-        <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-          <Link href="/">Home</Link>
-          <span aria-hidden="true">/</span>
-          <Link href={parent.href}>{parent.label}</Link>
-          <span aria-hidden="true">/</span>
-          <span className={styles.breadcrumbCurrent}>{article.title}</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          trail={[parent]}
+          current={article.title}
+        />
 
         <header className={styles.head}>
           <div className={styles.kickerRow}>
@@ -354,7 +351,7 @@ export function collapsePublicPassages<T extends PublicPublicationDetail["passag
   return visible;
 }
 
-function parentCrumb(section: PublicPublicationDetail["section"]): { href: string; label: string } {
+function parentCrumb(section: PublicPublicationDetail["section"]): BreadcrumbCrumb {
   if (section === "war_update") return { href: "/updates", label: "Updates" };
   return { href: "/geopolitical-brief", label: "Daily Brief" };
 }

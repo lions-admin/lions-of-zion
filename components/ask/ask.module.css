@@ -338,14 +338,6 @@
   font-optical-sizing: auto;
 }
 
-.primerBody {
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink-lo);
-  text-wrap: pretty;
-}
-
 .primerExamples {
   display: flex;
   flex-direction: column;
@@ -387,16 +379,6 @@
 .primerExample:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.primerExampleArrow {
-  flex: 0 0 auto;
-  font-family: var(--face-data);
-  color: var(--ink-lo);
-}
-
-.primerExample:hover:not(:disabled) .primerExampleArrow {
-  color: var(--gold);
 }
 
 
@@ -520,34 +502,6 @@
   color: var(--state-danger);
 }
 
-.askButton {
-  min-block-size: var(--control-h-sm);
-  padding: 0 var(--sp-5);
-  border: var(--line-w) solid var(--gold-line-strong);
-  border-radius: var(--radius-2);
-  background: var(--gold-wash);
-  color: var(--gold-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out);
-}
-
-.askButton:hover:not(:disabled) {
-  background: var(--gold-line);
-  border-color: var(--gold);
-}
-
-.askButton:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 
 
 .problemLead {
@@ -626,27 +580,6 @@
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: var(--sp-4);
-}
-
-.resetButton {
-  flex: 0 0 auto;
-  min-block-size: var(--control-h-sm);
-  padding: 0 var(--sp-3);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: transparent;
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  cursor: pointer;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
-}
-
-.resetButton:hover {
-  color: var(--ink-hi);
-  border-color: var(--line-strong);
 }
 
 .srOnly {
@@ -731,10 +664,6 @@
   .composerActions {
     inline-size: 100%;
     justify-content: space-between;
-  }
-
-  .askButton {
-    min-block-size: var(--control-h);
   }
 
   .waitingMeta {

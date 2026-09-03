@@ -1,0 +1,2 @@
+Daily Brief packages are committed into this directory as .json files.
+Each push of a .json here publishes that edition. See ../README.md

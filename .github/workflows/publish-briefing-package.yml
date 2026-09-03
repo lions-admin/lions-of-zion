@@ -1,0 +1,156 @@
+# Publishes a Daily Brief package committed to this branch.
+#
+# This branch (`briefing-packages`) exists so that publishing a daily edition
+# does not deploy the site. It is an orphan branch: it shares no history with
+# `main` and carries only packages, this workflow, and a `vercel.json` that
+# sets `git.deploymentEnabled` false for the branch, so pushing here creates
+# no Vercel deployment. Packages are never merged into `main`.
+#
+# The editorial work happens entirely outside this repository: ChatGPT
+# collects the sources, analyses the claims, and produces the package JSON.
+# This workflow only does the mechanical half:
+#
+#   1. validate the package against server/contracts/external-briefing.ts
+#   2. POST it to /api/internal/briefing/external-publish
+#   3. verify the edition is actually visible on the public site
+#
+# It needs no AI credential. If a step here ever starts deciding what an
+# edition says, that split has been broken.
+#
+# ## Two checkouts, on purpose
+#
+# The package comes from the pushed commit on this branch. The validation
+# code comes from `main`, because this orphan branch deliberately carries no
+# application code — that way the contract used to validate a package can
+# never drift from the contract the server actually enforces.
+#
+# ## How to publish
+#
+# Commit ChatGPT's JSON as `briefing-packages/<name>.json` on this branch and
+# push. To re-run one file, or to validate without publishing, use the
+# Actions tab: Run workflow > set `package_path` (and `dry_run`).
+# Resubmitting an already-published package is safe: the ingest API is
+# idempotent on `runId` and returns the original ids.
+#
+# ## Required repository secret
+#   - EXTERNAL_BRIEFING_INGEST_SECRET
+#       Sent as the `x-external-briefing-secret` header. Must match the value
+#       set on the deployment named by BRIEFING_INGEST_BASE_URL.
+#
+# ## Optional, non-secret repository Variable
+#   - BRIEFING_INGEST_BASE_URL
+#       Where to publish. Defaults to https://lionsofzion.io when unset.
+
+name: Publish Daily Brief Package
+
+on:
+  push:
+    branches: [briefing-packages]
+    paths:
+      - 'briefing-packages/**/*.json'
+  workflow_dispatch:
+    inputs:
+      package_path:
+        description: 'Path to the package on this branch, e.g. briefing-packages/2026-09-04.json'
+        required: true
+        type: string
+      dry_run:
+        description: 'Validate and summarise the package, but do not publish it'
+        required: false
+        type: boolean
+        default: false
+
+# The ingest API refuses a second edition for the same local date, so two
+# pushes landing close together must publish in sequence rather than race
+# and fail the loser confusingly.
+concurrency:
+  group: publish-daily-brief
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Validate, publish, and verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main (validation code)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: repo
+
+      - name: Check out the pushed commit (the package)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          # The diff below spans the whole push, which can be several
+          # commits, so the commit it pushed *from* must be present.
+          fetch-depth: 0
+          path: packages
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: repo/package-lock.json
+
+      - name: Install dependencies
+        working-directory: repo
+        run: npm ci
+
+      - name: Work out which package file(s) to publish
+        id: select
+        working-directory: packages
+        env:
+          DISPATCH_PATH: ${{ inputs.package_path }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "${DISPATCH_PATH}" ]; then
+            if [ ! -f "${DISPATCH_PATH}" ]; then
+              echo "::error::No such file on this branch: ${DISPATCH_PATH}"
+              exit 1
+            fi
+            printf '%s\n' "${DISPATCH_PATH}" > "${RUNNER_TEMP}/packages.txt"
+          elif [ -z "${PUSH_BEFORE//0/}" ]; then
+            # First push to a new branch: `before` is all zeros and names no
+            # commit, so there is no range to diff. Take every package
+            # present in the commit instead.
+            find briefing-packages -name '*.json' -type f | sort > "${RUNNER_TEMP}/packages.txt"
+          else
+            # Every .json under briefing-packages/ added or modified across
+            # the whole push, not just its last commit. Deletions are
+            # excluded (--diff-filter=d) so removing an old package never
+            # republishes it.
+            git diff --name-only --diff-filter=d "${PUSH_BEFORE}" "${PUSH_AFTER}" \
+              | grep -E '^briefing-packages/.*\.json$' > "${RUNNER_TEMP}/packages.txt" || true
+          fi
+          if [ ! -s "${RUNNER_TEMP}/packages.txt" ]; then
+            echo "::notice::No briefing package files to publish."
+          fi
+          echo "count=$(wc -l < "${RUNNER_TEMP}/packages.txt" | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          cat "${RUNNER_TEMP}/packages.txt"
+
+      - name: Validate, publish, and verify
+        if: steps.select.outputs.count != '0'
+        working-directory: repo
+        env:
+          EXTERNAL_BRIEFING_INGEST_SECRET: ${{ secrets.EXTERNAL_BRIEFING_INGEST_SECRET }}
+          BRIEFING_INGEST_BASE_URL: ${{ vars.BRIEFING_INGEST_BASE_URL }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          status=0
+          while IFS= read -r package; do
+            [ -n "$package" ] || continue
+            # The path is relative to the packages checkout, not to repo/.
+            absolute="${GITHUB_WORKSPACE}/packages/${package}"
+            echo "::group::$package"
+            if [ "${DRY_RUN}" = "true" ]; then
+              npm run briefing:publish -- "$absolute" --dry-run || status=1
+            else
+              npm run briefing:publish -- "$absolute" || status=1
+            fi
+            echo "::endgroup::"
+          done < "${RUNNER_TEMP}/packages.txt"
+          exit $status

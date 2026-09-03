@@ -1,0 +1,25 @@
+{
+  "//": "Budgets for scripts/perf-report.mjs. Every number under `bundle` was measured on this repository with `npm run build` and then given 5% headroom on a size or one whole unit on a count; none of them is a round number somebody liked the look of. Regenerate with `npm run perf:report -- --update-budgets` and read the diff — a budget that moves up is a decision, not a formality. Numbers under `runtime` are null until someone runs `npm run perf:runtime -- <origin>` with `--update-budgets` against a server they started; a null budget reports as `uncalibrated` and warns, and is never treated as a pass.",
+  "measuredOn": "2026-09-03",
+  "measuredAgainst": "commit 51dc373, Next.js 16.3.2 Turbopack production build, gzip -9",
+  "bundle": {
+    "shared_js_gz_kb": 174.5,
+    "reading_route_js_gz_kb": 198.1,
+    "home_js_gz_kb": 216.8,
+    "route_css_gz_kb": 42.2,
+    "font_preload_kb": 405.4,
+    "client_module_files": 74,
+    "client_page_components": 2
+  },
+  "runtime": {
+    "home_lcp_ms": null,
+    "home_cls": null,
+    "home_gpu_first_frame_ms": null,
+    "reading_lcp_ms": null,
+    "reading_cls": null,
+    "archive_lcp_ms": null,
+    "archive_cls": null,
+    "archive_filter_ms": null,
+    "archive_inp_ms": null
+  }
+}

@@ -46,6 +46,7 @@ export default async function Page() {
       />
       {unavailable ? (
         <StatusState
+          headingLevel={2}
           status={absenceStatus("unavailable")}
           eyebrow="SERVICE STATUS"
           title="War updates are temporarily unavailable."
@@ -69,6 +70,7 @@ export default async function Page() {
         </SectionBlock>
       ) : (
         <StatusState
+          headingLevel={2}
           status={absenceStatus("nothing-published")}
           eyebrow="LIVE WAR DESK"
           title="No verified war update has been published yet."

@@ -153,6 +153,8 @@
 .claimText {
   flex: 1;
   min-width: 0;
+  /* It is an `<h2>` now (see ClaimEntry); drop the UA heading margins. */
+  margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-h3);

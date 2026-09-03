@@ -92,7 +92,12 @@ export function ClaimEntry({
                   {revised ? `Updated ${stamp(stampAt)}` : stamp(stampAt)}
                 </time>
               </span>
-              <span className={styles.claimText}>{details.exactClaim}</span>
+              {/* Already styled at the h3 type role; it was simply not a
+                  heading, which left the ladder's rungs jumping h1 -> h3 and
+                  gave a screen-reader user no way to list the claims on the
+                  page. A heading inside a `<summary>` is valid and is the
+                  pattern accordions use. */}
+              <h2 className={styles.claimText}>{details.exactClaim}</h2>
               {rationale ? <span className={styles.entryRationale}>{rationale}</span> : null}
             </span>
             <span className={styles.summaryHint} aria-hidden="true" />

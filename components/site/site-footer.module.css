@@ -238,6 +238,15 @@
 
 .toTop:hover { color: var(--ink-hi); }
 
+/* A standalone affordance at the foot of a long file, not an inline link. */
+@media (pointer: coarse) {
+  .toTop {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--control-h);
+  }
+}
+
 /* ── Seams ─────────────────────────────────────────────────────────────────
  * The two canonical ones from `globals.css`: 76.25rem (`--bp-rails`) and
  * 45rem (`--bp-seam`). A media prelude cannot read a custom property, so they

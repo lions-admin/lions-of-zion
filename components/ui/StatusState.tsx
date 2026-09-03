@@ -77,6 +77,14 @@ export interface StatusStateProps {
   status?: StatusKind;
   eyebrow?: string;
   title: string;
+  /**
+   * Where this state sits in the page's heading order. It defaults to `3`,
+   * which is right when the state replaces content already under a section
+   * heading — and wrong when it stands directly under the page title, which
+   * is what left `/war-update` reading h1 -> h3. The caller knows its own
+   * depth; the primitive cannot.
+   */
+  headingLevel?: 2 | 3 | 4;
   description?: string;
   icon?: React.ReactNode;
   actionText?: string;
@@ -89,6 +97,7 @@ export function StatusState({
   status,
   eyebrow,
   title,
+  headingLevel = 3,
   description,
   icon,
   actionText,
@@ -100,6 +109,7 @@ export function StatusState({
   const blocking = kind === "error";
   const shownEyebrow = eyebrow ?? (status ? STATUS_LABEL[status] : "ARCHIVE STATUS");
   const busy = kind === "loading" || kind === "processing";
+  const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
 
   return (
     <div
@@ -114,7 +124,7 @@ export function StatusState({
         </div>
         {status ? <span className={styles.kind}>{STATUS_LABEL[status]}</span> : null}
         {shownEyebrow ? <span className={styles.eyebrow}>{shownEyebrow}</span> : null}
-        <h3 className={styles.title}>{title}</h3>
+        <Heading className={styles.title}>{title}</Heading>
         {description ? <p className={styles.description}>{description}</p> : null}
         {actionText ? (
           <div className={styles.action}>

@@ -603,19 +603,38 @@ for (const route of NO_JS_ROUTES) {
   try {
     const response = await noJsPage.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
     const status = response?.status() ?? 0;
-    const counts = await noJsPage.evaluate(() => ({
-      links: document.querySelectorAll("a[href]").length,
-      headings: document.querySelectorAll("h1,h2,h3").length,
-      main: document.querySelectorAll("main").length,
-      /* An unresolved streaming shell means the server sent a hole that only
-         script can fill — with scripting off the reader never gets content. */
-      suspenseHoles: document.querySelectorAll("div[hidden][id^='S:']").length,
-    }));
-    const bad = status !== 200 || counts.links === 0 || counts.main !== 1 || counts.suspenseHoles > 0;
+    /* Count what a reader can actually SEE. A hole's contents sit in the DOM
+       inside `div[hidden]`, so counting nodes reports a page as full when the
+       reader is looking at nothing — which is exactly how seven routes shipped
+       serving 11 to 23 characters with scripting off and every check passing. */
+    const counts = await noJsPage.evaluate(() => {
+      const visible = (el) => {
+        const s = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        return s.display !== "none" && s.visibility !== "hidden" && r.width > 0 && r.height > 0;
+      };
+      return {
+        links: [...document.querySelectorAll("a[href]")].filter(visible).length,
+        headings: [...document.querySelectorAll("h1,h2,h3")].filter(visible).length,
+        main: document.querySelectorAll("main").length,
+        text: (document.body.innerText || "").trim().length,
+        /* One unresolved shell is the design: the shell, nav and headings
+           render synchronously and only the async data region streams. What is
+           a defect is a shell with nothing readable around it. */
+        suspenseHoles: document.querySelectorAll("div[hidden][id^='S:']").length,
+      };
+    });
+    const bad =
+      status !== 200 ||
+      counts.main !== 1 ||
+      counts.links < 10 ||
+      counts.headings < 1 ||
+      counts.text < 300;
     if (bad) critical += 1;
     console.log(
-      `${bad ? "CRITICAL" : "ok      "} ${route}: HTTP ${status}, ${counts.links} links, ` +
-        `${counts.headings} headings, ${counts.main} main, ${counts.suspenseHoles} unresolved shells`,
+      `${bad ? "CRITICAL" : "ok      "} ${route}: HTTP ${status}, ${counts.links} visible links, ` +
+        `${counts.headings} headings, ${counts.main} main, ${counts.text} chars, ` +
+        `${counts.suspenseHoles} streaming hole(s)`,
     );
   } catch (error) {
     critical += 1;

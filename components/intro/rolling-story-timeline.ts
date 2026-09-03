@@ -158,6 +158,39 @@ export function getRollingOutroStart(layout: StoryLayout): number {
   return TIMINGS[layout].outroStart;
 }
 
+/**
+ * Where Skip Intro seeks to. It seeks *forward* to the outro and never
+ * rewinds: assigning the outro start unconditionally meant a second tap during
+ * the 2.8 s outro sent the clock back to the outro's start, so an impatient
+ * tapper could hold the handoff open indefinitely — and was, by construction,
+ * still tapping at the instant the navigation appeared underneath.
+ */
+export function getRollingSkipTime(time: number, layout: StoryLayout): number {
+  return Math.max(normalizeTime(time, layout), TIMINGS[layout].outroStart);
+}
+
+/**
+ * Carry the clock across a layout change mid-intro. The lion stages are
+ * layout-blind, so a time before the story is kept exactly; only the story
+ * portion is mapped proportionally between the two layouts' spans, so a
+ * viewer who has read a third of the lines is still a third of the way in.
+ */
+export function retimeRollingStory(
+  time: number,
+  from: StoryLayout,
+  to: StoryLayout,
+): number {
+  if (from === to) return time;
+  const normalized = normalizeTime(time, from);
+  if (normalized <= ROLLING_STORY_START) return normalized;
+  const fromSpan = TIMINGS[from].finalTime - ROLLING_STORY_START;
+  const toSpan = TIMINGS[to].finalTime - ROLLING_STORY_START;
+  return (
+    ROLLING_STORY_START +
+    ((normalized - ROLLING_STORY_START) / fromSpan) * toSpan
+  );
+}
+
 export type RollingStoryLineBoundary = Readonly<{
   index: number;
   enterStart: number;
@@ -557,6 +590,21 @@ export function getRollingStoryFrame(
     ),
     activeLines,
   };
+}
+
+/**
+ * Build progress of the newest line that has entered — the value the lion's
+ * extraction mask and the text material's transfer path share, read off the
+ * frame already solved rather than re-derived from the clock. Zero before the
+ * first line and once the story has ended. Allocation-free: it runs per frame.
+ */
+export function getActiveTextTransfer(frame: RollingStoryFrame): number {
+  const latest = frame.latestLineIndex;
+  if (latest === null) return 0;
+  for (const line of frame.activeLines) {
+    if (line.index === latest) return line.build;
+  }
+  return 0;
 }
 
 function buildCueTimes(layout: StoryLayout): readonly number[] {

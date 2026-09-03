@@ -28,16 +28,21 @@ import type { PerfTier } from './hooks/usePerfTier';
 import type { NavNode, ParticleNavTheme, SimParams } from './types';
 import type { ExperienceFrame, IntroControls } from './introFrame';
 import {
+  getActiveTextTransfer,
   getNextRollingCue,
   getRollingFinalTime,
-  getRollingOutroStart,
+  getRollingSkipTime,
   getRollingStoryFrame,
+  retimeRollingStory,
 } from '@/components/intro/rolling-story-timeline';
 import {
-  FORMATION_END,
-  FORMATION_START,
-  RELOCATION_END,
-  RELOCATION_START,
+  getFormationEnvelope,
+  getLionOpacityEnvelope,
+  getRelocationEnvelope,
+  getScanRevealEnvelope,
+  getTextFlowEnvelope,
+  getTextOpacityEnvelope,
+  smoothstep01,
 } from '@/components/intro/story-timeline';
 
 const CAMERA_Z = 8.2;
@@ -63,12 +68,6 @@ export interface SceneProps {
   introControlsRef?: { current: IntroControls };
   onIntroComplete?: () => void;
 }
-
-const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-const smooth01 = (value: number) => {
-  const t = clamp01(value);
-  return t * t * (3 - 2 * t);
-};
 
 function SceneContent(props: SceneProps) {
   const {
@@ -136,9 +135,13 @@ function SceneContent(props: SceneProps) {
 
     const timelineLayout = size.width < MOBILE_MAX_WIDTH ? 'mobile' : 'desktop';
     if (timelineLayoutRef.current !== timelineLayout) {
-      const oldFinal = getRollingFinalTime(timelineLayoutRef.current);
-      const newFinal = getRollingFinalTime(timelineLayout);
-      timelineTimeRef.current = (timelineTimeRef.current / oldFinal) * newFinal;
+      /* The lion stages are layout-blind and keep their exact time; only the
+         story portion is carried proportionally between the two cadences. */
+      timelineTimeRef.current = retimeRollingStory(
+        timelineTimeRef.current,
+        timelineLayoutRef.current,
+        timelineLayout,
+      );
       timelineLayoutRef.current = timelineLayout;
     }
     if (intro) {
@@ -146,14 +149,11 @@ function SceneContent(props: SceneProps) {
       if (controls?.skipRequested) {
         controls.skipRequested = false;
         controls.paused = false;
-        /* Never rewind. Skip seeks *forward* to the outro; assigning it
-           unconditionally meant a second tap during the 2.8s outro sent the
-           clock back to the outro's start, so an impatient tapper could hold
-           the handoff open indefinitely — and was, by construction, still
-           tapping at the instant the navigation appeared underneath. */
-        timelineTimeRef.current = Math.max(
+        /* Never rewind: `getRollingSkipTime` seeks *forward* to the outro,
+           and is pinned by `tests/intro-timeline.test.ts`. */
+        timelineTimeRef.current = getRollingSkipTime(
           timelineTimeRef.current,
-          getRollingOutroStart(timelineLayout),
+          timelineLayout,
         );
       }
       if (controls?.nextCueRequested) {
@@ -168,8 +168,11 @@ function SceneContent(props: SceneProps) {
       }
       const timelineTime = timelineTimeRef.current;
       const story = getRollingStoryFrame(timelineTime, timelineLayout);
-      const relocation = smooth01((timelineTime - RELOCATION_START) / (RELOCATION_END - RELOCATION_START));
-      const outro = smooth01(story.outroProgress);
+      /* Every stage value comes from the pure envelopes; nothing here divides
+         the clock by a boundary of its own. */
+      const relocation = getRelocationEnvelope(timelineTime);
+      const outro = smoothstep01(story.outroProgress);
+      const textFlow = getTextFlowEnvelope(timelineTime, story.outroProgress);
       const narrow = timelineLayout === 'mobile';
       const largeScale = (narrow ? 1.65 : 2.65) * orbit.centerScale;
       const storyScale = (narrow ? 0.46 : 0.55) * orbit.centerScale;
@@ -178,15 +181,20 @@ function SceneContent(props: SceneProps) {
       const preOutroY = storyY * relocation;
       experienceFrameRef.current = {
         time: timelineTime,
-        assemble: smooth01((timelineTime - FORMATION_START) / (FORMATION_END - FORMATION_START)),
+        assemble: getFormationEnvelope(timelineTime),
         // The crowned lion is now the shared identity in both acts. Its crown
         // assembles with the face, avoiding a second asset or renderer.
         crownReveal: 1,
-        lionOpacity: smooth01((timelineTime - 1) / 0.42),
+        lionOpacity: getLionOpacityEnvelope(timelineTime),
         lionScale: preOutroScale + (orbit.centerScale - preOutroScale) * outro,
         lionY: preOutroY * (1 - outro),
+        lionRelocation: relocation,
+        textFlow,
+        activeTextTransfer: getActiveTextTransfer(story),
+        scanReveal: getScanRevealEnvelope(timelineTime),
+        readingMask: textFlow,
         navReveal: outro,
-        textOpacity: 1 - smooth01((story.outroProgress - 0.32) / 0.68),
+        textOpacity: getTextOpacityEnvelope(story.outroProgress),
         story,
       };
       if (story.isComplete && !introCompleteRef.current) {
@@ -202,6 +210,11 @@ function SceneContent(props: SceneProps) {
         lionOpacity: 1,
         lionScale: orbit.centerScale,
         lionY: 0,
+        lionRelocation: 0,
+        textFlow: 0,
+        activeTextTransfer: 0,
+        scanReveal: 1,
+        readingMask: 0,
         navReveal: 1,
         textOpacity: 0,
         story,

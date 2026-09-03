@@ -8,18 +8,18 @@
 
 ## 0. How the next agent must use this file
 
-- [ ] Work from `/Users/danielsmac/Documents/lions-of-zion` only.
-- [ ] Before editing, run `git fetch --prune origin` and inspect `git status --short --branch`.
-- [ ] Do not overwrite, reset, clean, or rebase user work. If `main` has diverged or the working tree is dirty, preserve it and resolve the synchronization state before implementation.
-- [ ] Read `AGENTS.md` and the relevant installed Next.js 16 guides before changing code:
+- [x] Work from `/Users/danielsmac/Documents/lions-of-zion` only. *(Executed from the owner's session worktree `.claude/worktrees/project-deployment-4bad09` on branch `claude/fixhometodo-task-d3bbde`, clean and level with `origin/main` at `8700701`; `node_modules` symlinked from the main checkout.)*
+- [x] Before editing, run `git fetch --prune origin` and inspect `git status --short --branch`.
+- [x] Do not overwrite, reset, clean, or rebase user work. If `main` has diverged or the working tree is dirty, preserve it and resolve the synchronization state before implementation.
+- [x] Read `AGENTS.md` and the relevant installed Next.js 16 guides before changing code:
   - `node_modules/next/dist/docs/01-app/01-getting-started/03-layouts-and-pages.md`
   - `node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md`
   - `node_modules/next/dist/docs/01-app/02-guides/lazy-loading.md`
   - `node_modules/next/dist/docs/03-architecture/supported-browsers.md`
   - `node_modules/next/dist/docs/03-architecture/accessibility.md`
-- [ ] Execute the phases in order. Do not mark a checkbox complete until its acceptance checks have been run.
-- [ ] Keep the implementation inside the existing particle renderer, timeline, CSS background, and design-token systems. Do not add an animation library, a second persistent GPU canvas, or a parallel design system.
-- [ ] Do not alter copy, navigation, routes, publication logic, authentication, or unrelated page behavior.
+- [x] Execute the phases in order. Do not mark a checkbox complete until its acceptance checks have been run.
+- [x] Keep the implementation inside the existing particle renderer, timeline, CSS background, and design-token systems. Do not add an animation library, a second persistent GPU canvas, or a parallel design system.
+- [x] Do not alter copy, navigation, routes, publication logic, authentication, or unrelated page behavior.
 - [ ] Record final evidence in section 9 and update the final handoff in section 10.
 
 ## 1. Current implementation map
@@ -61,10 +61,10 @@
 
 - [ ] **One cinematic renderer during the intro.** Continue using the existing `Scene.tsx` canvas. Do not mount a new canvas or DOM particle system.
 - [ ] **One lightweight global backdrop after handoff.** Reuse/refactor `ScanBackdrop.tsx` for public-site background coverage. Do not keep the WebGPU intro scene alive behind the site; `tests/motion-runtime.test.ts` explicitly protects renderer unmount at handoff.
-- [ ] **One shared clock.** Lion formation, rise, stream-to-text, text construction, scan awakening, and outro must derive from the same `timelineTimeRef` and a pure frame function. Do not coordinate them with unrelated React timers or CSS delays.
+- [x] **One shared clock.** Lion formation, rise, stream-to-text, text construction, scan awakening, and outro must derive from the same `timelineTimeRef` and a pure frame function. Do not coordinate them with unrelated React timers or CSS delays.
 - [ ] **Deterministic particle lineage.** Text particles must begin at deterministic samples of the baked lion geometry, not at arbitrary off-screen points. The same seed/index mapping must produce the same frame after reload.
 - [ ] **The lion remains the primary mark.** Extraction uses a small stable subset and must not make the lion collapse, flicker, or become visually secondary.
-- [ ] **No extra pause after formation.** Relocation begins on the same timeline boundary at which formation completes.
+- [x] **No extra pause after formation.** Relocation begins on the same timeline boundary at which formation completes.
 - [ ] **No ordinary text fade as the main reveal.** Opacity may support antialiasing/legibility, but glyph construction must visibly follow the lion-origin particle transfer.
 - [ ] **Public content stays readable.** The moving scan is decorative, `aria-hidden`, pointer-inert, behind UI, masked/dimmed through reading areas, and configurable per surface.
 - [ ] **Internal routes are explicit.** Apply the global backdrop to public routes. Keep `/admin`, `/admin/login`, `/particle-demo`, and `/pipeline` on an explicit `silent` or purpose-specific profile unless the owner requests otherwise; these are operator/debug tools, not public editorial surfaces.
@@ -108,12 +108,12 @@ Keep `navReveal` separate. The background must awaken before the navigation outr
 
 ### Phase A — Pin timing and geometry before visual work
 
-- [ ] Update `components/intro/story-timeline.ts` so relocation starts at formation completion. Remove the current `3.8–6.3 s` dead hold from the runtime path; keep compatibility aliases only if tests or callers need them.
-- [ ] Update `components/intro/rolling-story-timeline.ts` so `ROLLING_STORY_START` follows the new relocation end and all final/cleanup/outro times remain derived rather than copied as stale absolute constants.
-- [ ] Add pure helpers for formation, relocation, scan reveal, and text-flow envelopes. Do not duplicate timing math in `Scene.tsx`, `IntroText.tsx`, or shaders.
-- [ ] Extend `components/particle-nav/introFrame.ts` with the new explicit frame fields.
-- [ ] Update `components/particle-nav/Scene.tsx` to consume the pure timing helpers and retain timeline progress proportionally across the existing mobile/desktop resize transition.
-- [ ] Add `tests/intro-timeline.test.ts` covering exact boundary continuity:
+- [x] Update `components/intro/story-timeline.ts` so relocation starts at formation completion. *(Done 2026-09-03: `BLACK_END 0.65`, `FORMATION_END 3.25`, `RELOCATION_START = FORMATION_END`, `RELOCATION_END 4.35 = STORY_START`. `LION_HOLD_*` and the `lion-hold` stage removed; no caller or test needed an alias. The legacy beat table is now offsets from `STORY_START`.)* Remove the current `3.8–6.3 s` dead hold from the runtime path; keep compatibility aliases only if tests or callers need them.
+- [x] Update `components/intro/rolling-story-timeline.ts` so `ROLLING_STORY_START` follows the new relocation end *(already derived; added `getRollingSkipTime`, `retimeRollingStory`, `getActiveTextTransfer`)* and all final/cleanup/outro times remain derived rather than copied as stale absolute constants.
+- [x] Add pure helpers for formation, relocation, scan reveal, and text-flow envelopes. *(`getFormationEnvelope`, `getRelocationEnvelope`, `getLionOpacityEnvelope`, `getScanRevealEnvelope`, `getTextFlowEnvelope`, `getTextOpacityEnvelope`, `smoothstep01` in `story-timeline.ts`; `Scene.tsx` no longer divides the clock itself.)* Do not duplicate timing math in `Scene.tsx`, `IntroText.tsx`, or shaders.
+- [x] Extend `components/particle-nav/introFrame.ts` with the new explicit frame fields. *(`lionRelocation`, `textFlow`, `activeTextTransfer`, `scanReveal`, `readingMask`.)*
+- [x] Update `components/particle-nav/Scene.tsx` to consume the pure timing helpers and retain timeline progress proportionally *(lion stages keep exact time across a resize; only the story span is mapped)* across the existing mobile/desktop resize transition.
+- [x] Add `tests/intro-timeline.test.ts` covering exact boundary continuity *(19 tests, all passing)*:
   - formation end equals relocation start;
   - relocation end equals first rolling-text start;
   - scan is near zero at opening, nonzero during rise, and at target after its ramp;
@@ -122,9 +122,9 @@ Keep `navReveal` separate. The background must awaken before the navigation outr
 
 **Phase A acceptance**
 
-- [ ] There is no timeline interval after full assembly in which the lion remains centered waiting to rise.
-- [ ] At the relocation completion boundary, the first text build has started or starts on that same boundary.
-- [ ] All timing behavior is testable without rendering a canvas.
+- [x] There is no timeline interval after full assembly in which the lion remains centered waiting to rise.
+- [x] At the relocation completion boundary, the first text build has started or starts on that same boundary.
+- [x] All timing behavior is testable without rendering a canvas.
 
 ### Phase B — Keep the relocated lion large and safely positioned
 
@@ -362,9 +362,9 @@ If a proposed test file was not needed, replace the command with the actual focu
 
 | Check | Status | Evidence / result |
 | --- | --- | --- |
-| Repository synchronized before work | [ ] | Branch, local SHA, remote SHA, working-tree state |
-| Focused timeline/background tests | [ ] | Command and pass/fail count |
-| Typecheck | [ ] | Command and result |
+| Repository synchronized before work | [x] | `claude/fixhometodo-task-d3bbde` at `8700701` = `origin/main` `8700701`; working tree clean before Phase A (2026-09-03) |
+| Focused timeline/background tests | [~] | Phase A: `npx vitest run tests/intro-timeline.test.ts tests/motion-runtime.test.ts tests/handoff-guard.test.ts` → 3 files, 44 tests passed. `global-scan-backdrop` pending Phase E. |
+| Typecheck | [~] | Phase A: `npm run typecheck` → clean (re-run at the end) |
 | Lint | [ ] | Command and result |
 | Full tests | [ ] | Command and pass/fail count |
 | Production build | [ ] | Command and result |

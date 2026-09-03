@@ -1,20 +1,68 @@
+/**
+ * The intro's master clock, in seconds from the first frame.
+ *
+ * Every boundary is derived from the one before it, so a tuning change moves
+ * the whole sequence together instead of opening a gap between two absolute
+ * numbers — which is how the lion came to sit centred for 2.5 s between
+ * formation and relocation. Relocation now begins on the very boundary at
+ * which formation completes, and the first text line builds on the boundary
+ * at which relocation completes. Those zero-gap joins are pinned by
+ * `tests/intro-timeline.test.ts`.
+ *
+ * Derived values pass through `cue()` so that two constants which are meant
+ * to be the same instant compare `===` rather than differing in the last
+ * binary digit — the rolling timeline rounds its entry starts the same way.
+ */
+function cue(value: number): number {
+  return Math.round((value + Number.EPSILON) * 1_000) / 1_000;
+}
+
 export const BLACK_START = 0;
-export const BLACK_END = 1;
+export const BLACK_END = 0.65;
 export const FORMATION_START = BLACK_END;
-export const FORMATION_END = 3.8;
-export const LION_HOLD_START = FORMATION_END;
-export const LION_HOLD_END = 6.3;
-export const RELOCATION_START = LION_HOLD_END;
-export const RELOCATION_END = 8.5;
+export const FORMATION_DURATION = 2.6;
+export const FORMATION_END = cue(FORMATION_START + FORMATION_DURATION); // 3.25
+/** No hold: the rise starts on the same boundary at which formation ends. */
+export const RELOCATION_START = FORMATION_END;
+export const RELOCATION_DURATION = 1.1;
+export const RELOCATION_END = cue(RELOCATION_START + RELOCATION_DURATION); // 4.35
+/** The first rolling line builds on the boundary at which relocation ends. */
 export const STORY_START = RELOCATION_END;
+
+/** The lion fades up over the opening of formation. */
+export const LION_OPACITY_DURATION = 0.42;
+/**
+ * A narrow particle throat opens below the lion just before the first line
+ * builds, so the first glyphs do not appear from nowhere.
+ */
+export const STREAM_PREROLL_DURATION = 0.15;
+export const STREAM_PREROLL_START = cue(STORY_START - STREAM_PREROLL_DURATION); // 4.20
+/**
+ * The intelligence scan wakes during the rise and reaches its intro target
+ * only after the first lines are readable. Independent of the navigation
+ * outro's `navReveal`, which is what used to gate it.
+ */
+export const SCAN_REVEAL_START = cue(FORMATION_END + 0.45); // 3.70
+export const SCAN_REVEAL_END = cue(STORY_START + 2.45); // 6.80
 
 export const BEAT_ENTER_DURATION = 0.55;
 export const BEAT_EXIT_DURATION = 0.55;
 export const BEAT_OVERLAP_DURATION = 0.2;
 export const FINAL_ENTER_DURATION = 0.85;
 
-export const FINAL_BEAT_START = 37.71;
-export const FINAL_TIME = 38.56;
+/**
+ * The approved beat schedule, kept as offsets from `STORY_START` so the
+ * earlier story start moves every cue with it rather than leaving a table of
+ * stale absolute seconds. The runtime reads the rolling timeline; this beat
+ * table survives for its frame API and its documented cue spacing.
+ */
+const STORY_BEAT_OFFSETS = [
+  0, 2.82, 5.4, 8.1, 10.92, 13.74, 16.5, 19.08, 21.53, 23.99, 26.51,
+] as const;
+const FINAL_BEAT_OFFSET = 29.21;
+
+export const FINAL_BEAT_START = cue(STORY_START + FINAL_BEAT_OFFSET);
+export const FINAL_TIME = cue(FINAL_BEAT_START + FINAL_ENTER_DURATION);
 
 export type StoryLayout = "desktop" | "mobile";
 
@@ -134,20 +182,10 @@ export const STORY_PARAGRAPHS = [
 ] as const;
 
 /** Approved cue points; the last entry is the persistent final beat. */
-export const STORY_BEAT_STARTS = [
-  8.5,
-  11.32,
-  13.9,
-  16.6,
-  19.42,
-  22.24,
-  25,
-  27.58,
-  30.03,
-  32.49,
-  35.01,
+export const STORY_BEAT_STARTS: readonly number[] = Object.freeze([
+  ...STORY_BEAT_OFFSETS.map((offset) => cue(STORY_START + offset)),
   FINAL_BEAT_START,
-] as const;
+]);
 
 export type StoryBeatBoundary = Readonly<{
   index: number;
@@ -180,7 +218,6 @@ export type StoryBeatFrame = Readonly<{
 export type TimelineStage =
   | "black"
   | "lion-formation"
-  | "lion-hold"
   | "lion-relocation"
   | "story"
   | "final-build"
@@ -218,6 +255,84 @@ function normalizeTimelineTime(time: number): number {
   return Math.max(0, Math.min(FINAL_TIME, time));
 }
 
+/** Hermite ease-in-out on a clamped 0..1 input. The one easing the intro uses. */
+export function smoothstep01(value: number): number {
+  const t = clamp01(value);
+  return t * t * (3 - 2 * t);
+}
+
+function safeTime(time: number): number {
+  return Number.isNaN(time) ? 0 : time;
+}
+
+/*
+ * Pure stage envelopes. Each is the eased 0..1 progress of one named stage
+ * and nothing else, so `Scene.tsx`, the text layer and the scan material all
+ * read the same clock instead of each dividing the time by its own copy of
+ * the boundaries. Keep them allocation-free: they run once per frame.
+ */
+
+/** Lion gathers at centre; reaches 1 exactly at `FORMATION_END`. */
+export function getFormationEnvelope(time: number): number {
+  return smoothstep01(
+    progressBetween(safeTime(time), FORMATION_START, FORMATION_END),
+  );
+}
+
+/** Lion rises; begins on `FORMATION_END`, reaches 1 at `RELOCATION_END`. */
+export function getRelocationEnvelope(time: number): number {
+  return smoothstep01(
+    progressBetween(safeTime(time), RELOCATION_START, RELOCATION_END),
+  );
+}
+
+/** Lion point opacity over the opening of formation. */
+export function getLionOpacityEnvelope(time: number): number {
+  return smoothstep01(
+    progressBetween(
+      safeTime(time),
+      FORMATION_START,
+      FORMATION_START + LION_OPACITY_DURATION,
+    ),
+  );
+}
+
+/**
+ * Intelligence-scan presence during the intro: zero through the black
+ * opening and the first part of formation, perceptible during the rise, at
+ * its intro target once the first lines are readable. Separate from the
+ * navigation outro's reveal on purpose — see `SCAN_REVEAL_START`.
+ */
+export function getScanRevealEnvelope(time: number): number {
+  return smoothstep01(
+    progressBetween(safeTime(time), SCAN_REVEAL_START, SCAN_REVEAL_END),
+  );
+}
+
+/**
+ * Text visibility through the outro: the story text releases over the back
+ * two-thirds of the outro so the navigation can arrive beneath it.
+ */
+export function getTextOpacityEnvelope(outroProgress: number): number {
+  return 1 - smoothstep01((clamp01(outroProgress) - 0.32) / 0.68);
+}
+
+/**
+ * Global enable for lion-to-text emission: opens over the stream pre-roll so
+ * a throat exists below the lion when the first line starts to build, holds
+ * at 1 through the story, and releases with the text through the outro.
+ */
+export function getTextFlowEnvelope(
+  time: number,
+  outroProgress = 0,
+): number {
+  return (
+    smoothstep01(
+      progressBetween(safeTime(time), STREAM_PREROLL_START, STORY_START),
+    ) * getTextOpacityEnvelope(outroProgress)
+  );
+}
+
 /**
  * The approved timing treats a standalone em dash as a spoken/display token.
  * Counting whitespace-delimited tokens therefore reproduces every cue point.
@@ -242,7 +357,7 @@ export function getStoryLines(
 
 export const STORY_BEAT_BOUNDARIES: readonly StoryBeatBoundary[] =
   STORY_BEATS.map((beat, index) => {
-    const start = STORY_BEAT_STARTS[index];
+    const start = STORY_BEAT_STARTS[index] ?? FINAL_BEAT_START;
     const nextStart = STORY_BEAT_STARTS[index + 1] ?? null;
     const wordCount = countStoryWords(beat.text);
 
@@ -341,7 +456,6 @@ export function getTimelineStage(time: number): TimelineStage {
   const normalizedTime = normalizeTimelineTime(time);
   if (normalizedTime < BLACK_END) return "black";
   if (normalizedTime < FORMATION_END) return "lion-formation";
-  if (normalizedTime < LION_HOLD_END) return "lion-hold";
   if (normalizedTime < RELOCATION_END) return "lion-relocation";
   if (normalizedTime < FINAL_BEAT_START) return "story";
   if (normalizedTime < FINAL_TIME) return "final-build";

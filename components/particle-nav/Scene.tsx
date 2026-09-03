@@ -57,6 +57,14 @@ const FOV = 45;
  */
 export const FRAME_WRITER_PRIORITY = -1;
 
+/**
+ * The largest slice of the intro clock a single frame may advance, in
+ * seconds — a 10 fps floor. See the comment at the advance itself: the frame
+ * delta is wall-clock, and the entrance is the part of the session where
+ * wall-clock and rendered time diverge most.
+ */
+export const TIMELINE_MAX_STEP = 0.1;
+
 export interface SceneProps {
   nodes: NavNode[];
   radius: number;
@@ -188,9 +196,22 @@ function SceneContent(props: SceneProps) {
         timelineTimeRef.current = getNextRollingCue(timelineTimeRef.current, timelineLayout);
       }
       if (!controls?.paused) {
+        /* Advance by a *bounded* step, never by the raw frame delta. r3f
+           hands over the wall-clock time since the previous frame, and the
+           entrance is exactly where that number is least trustworthy: the
+           renderer's first frames wait on WebGPU init and shader
+           compilation, the tab may be backgrounded, and a GC pause or a
+           dropped frame costs whole seconds. Added unbounded, one such stall
+           skipped that many seconds of narrative — and a large enough first
+           delta ran the clock straight past `getRollingFinalTime`, so
+           `story.isComplete` fired on the first frame and the intro handed
+           off having shown nothing. Clamping trades exact wall-clock
+           duration on a struggling machine for the guarantee that every
+           stage is actually played; `TIMELINE_MAX_STEP` is a 10 fps floor,
+           below which the intro runs slow rather than skipping. */
         timelineTimeRef.current = Math.min(
           getRollingFinalTime(timelineLayout),
-          timelineTimeRef.current + delta,
+          timelineTimeRef.current + Math.min(delta, TIMELINE_MAX_STEP),
         );
       }
       const timelineTime = timelineTimeRef.current;

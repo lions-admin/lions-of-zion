@@ -90,9 +90,11 @@ describe("a canvas that never paints still hands off", () => {
 
     /* Armed on the intro running without a live canvas, and cleared by one. */
     expect(source).toMatch(
-      /if \(!introRunning \|\| canvasLive\) return;[\s\S]{0,200}?setTimeout\(completeIntro, INTRO_READY_TIMEOUT_MS\)/,
+      /if \(!introRunning \|\| canvasLive\) return;[\s\S]{0,900}?setTimeout\(completeIntro, INTRO_READY_TIMEOUT_MS\)/,
     );
-    expect(source).toMatch(/return \(\) => window\.clearTimeout\(id\)/);
+    /* Cleared on teardown. The cleanup became a block when the timer was
+       gated on visibility, so match the call rather than the arrow's shape. */
+    expect(source).toMatch(/return \(\) => \{[\s\S]{0,200}?window\.clearTimeout\(id\)/);
   });
 
   it("routes the timeout through the ordinary guarded handoff", () => {
@@ -344,5 +346,41 @@ describe("the no-JavaScript home", () => {
     expect(css()).toMatch(
       /\.root\[data-canvas\] \.poster,\s*\n\s*\.root\[data-live\] \.poster \{[\s\S]{0,60}?opacity: 0/,
     );
+  });
+});
+
+describe("the readiness timeout counts only visible time", () => {
+  const source = readFileSync(
+    path.join(process.cwd(), "components/particle-nav/CanvasMount.tsx"),
+    "utf8",
+  );
+
+  /**
+   * The bound on readiness exists for a canvas that will never paint. A
+   * hidden tab is not that: it has no `requestAnimationFrame` at all, so the
+   * first frame cannot arrive however healthy the renderer is. Counting that
+   * time dismissed the entrance for anyone who opened the site in a
+   * background tab — a cmd-click, a restored session — and came back to it a
+   * few seconds later. Observed 2026-09-04 in a throttled preview pane,
+   * which reproduces exactly that condition.
+   */
+  it("does not arm while the document is hidden", () => {
+    expect(source).toMatch(/document\.visibilityState !== ['"]visible['"]/);
+  });
+
+  it("re-arms when the tab becomes visible again", () => {
+    expect(source).toMatch(
+      /addEventListener\(\s*['"]visibilitychange['"],\s*arm\s*\)/,
+    );
+    expect(source).toMatch(
+      /removeEventListener\(\s*['"]visibilitychange['"],\s*arm\s*\)/,
+    );
+  });
+
+  it("still clears the timer on teardown and on the first frame", () => {
+    /* `canvasLive` in the dependency list is what disarms it on a healthy
+       canvas; the cleanup is what stops a stale timer firing after unmount. */
+    expect(source).toMatch(/\[canvasLive, completeIntro, introRunning\]/);
+    expect(source).toMatch(/window\.clearTimeout\(id\)/);
   });
 });

@@ -273,8 +273,26 @@ export function NavClient({
      could fire. */
   useEffect(() => {
     if (!introRunning || canvasLive) return;
-    const id = window.setTimeout(completeIntro, INTRO_READY_TIMEOUT_MS);
-    return () => window.clearTimeout(id);
+    let id = 0;
+    /* Counted only while the document is visible. A hidden tab has no
+       `requestAnimationFrame`, so a canvas that has not painted there is not
+       a canvas that failed — it is a canvas that was never asked to draw.
+       Counting that time dismissed the entrance for anyone who opens the
+       site in a background tab and switches to it a few seconds later, which
+       is the opposite of what this timer is for. Re-armed on every
+       visibility change, so the six seconds are six seconds of real
+       opportunity to paint. */
+    const arm = () => {
+      window.clearTimeout(id);
+      if (document.visibilityState !== 'visible') return;
+      id = window.setTimeout(completeIntro, INTRO_READY_TIMEOUT_MS);
+    };
+    arm();
+    document.addEventListener('visibilitychange', arm);
+    return () => {
+      window.clearTimeout(id);
+      document.removeEventListener('visibilitychange', arm);
+    };
   }, [canvasLive, completeIntro, introRunning]);
 
   useEffect(() => {

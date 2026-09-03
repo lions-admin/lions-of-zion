@@ -298,6 +298,40 @@ describe("MOTION-003 — Reveal is limited to sections and ordered processes", (
   });
 });
 
+describe("the intro clock advances by a bounded step", () => {
+  /**
+   * The bug this pins. `Scene.tsx` advanced `timelineTimeRef` by r3f's raw
+   * frame delta, which is wall-clock time since the previous frame — and the
+   * entrance is exactly where that diverges from rendered time: WebGPU init
+   * and shader compilation stall the first frames, a backgrounded tab is
+   * throttled to ~1 fps, and a GC pause costs whole seconds. Measured in
+   * Chrome on 2026-09-04, the intro handed off ~3 s after load having played
+   * nothing: one large delta carried the clock past `getRollingFinalTime`,
+   * so `story.isComplete` was true on an early frame. A throttled pane
+   * showed the same fault the other way round, advancing a second of
+   * narrative per frame.
+   */
+  const scene = read("components/particle-nav/Scene.tsx");
+
+  it("clamps the per-frame step rather than adding the raw delta", () => {
+    expect(scene).toMatch(/export const TIMELINE_MAX_STEP = ([\d.]+);/);
+    /* The advance must go through the clamp — not `+ delta` on its own. */
+    expect(scene).toMatch(
+      /timelineTimeRef\.current \+ Math\.min\(delta, TIMELINE_MAX_STEP\)/,
+    );
+    expect(scene).not.toMatch(/timelineTimeRef\.current \+ delta[,)]/);
+  });
+
+  it("the clamp is a slow-machine floor, not a speed limit on a healthy one", () => {
+    const step = Number(scene.match(/TIMELINE_MAX_STEP = ([\d.]+);/)![1]);
+    /* Never below a 60 fps frame, or every machine would run in slow motion. */
+    expect(step).toBeGreaterThan(1 / 60);
+    /* Never so large that a stall can still skip a whole stage: the shortest
+       stage in the timeline is the 0.15 s stream pre-roll. */
+    expect(step).toBeLessThanOrEqual(0.15);
+  });
+});
+
 describe("the frame writer runs before the layers that read it", () => {
   /**
    * `Scene.tsx` writes one `ExperienceFrame` per tick and four layers read

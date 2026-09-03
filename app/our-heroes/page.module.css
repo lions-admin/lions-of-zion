@@ -1,8 +1,110 @@
 /* Quiet memorial. Names and stories are the record; there is no tally,
-   no commendation frame, and no two-up grid of equal tiles. Featured is
-   Card.dossier; the rest are Card.row, stacked. Sources live in the
-   record — visible without hover, not a margin note that a former grid
-   would have collided. */
+   no commendation frame, and no two-up grid of equal tiles.
+
+   Every record is `Card.row` — a hairline and spacing, not a box. The
+   featured record used to be `Card.dossier`: a surface, a border, a
+   radius and a shadow around one person while the others sat on rules.
+   That is a hierarchy of packaging, and it was the least quiet thing on
+   a memorial page. The distinction is typographic now — the featured
+   name is set a step larger and nothing else changes — which is both
+   what HEROES-001 asks for and what the token contract already says:
+   default grouping is a 1px rule and spacing, not a card.
+
+   Dropping the box is also what lets the citations reach the margin.
+   `.marginNote` escapes into the page's right margin through a
+   zero-width second column, and a note escaping a bordered card would
+   have floated outside its own border with nothing holding it.
+
+   Nothing on this page is revealed by hover, and nothing is behind a
+   control: a reader who cannot hover, or who prints the page, gets every
+   name, every story and every citation. */
+
+/* ---- the roll of names ---- */
+
+.roll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: var(--sp-7) 0 0;
+  padding: 0 0 var(--sp-5);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.rollKicker {
+  composes: kicker from '../../components/content/content.module.css';
+}
+
+.rollList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A name is a link and a link is a target: the row answers to the control
+   floor, which `app/globals.css` raises to 44px on a coarse pointer. */
+.rollList a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  min-height: var(--control-h-sm);
+  padding: var(--sp-2) 0;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: var(--line-w) solid var(--line-soft);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.rollList li:last-child a {
+  border-bottom: none;
+}
+
+.rollList a:hover,
+.rollList a:focus-visible {
+  color: var(--ink-hi);
+}
+
+.rollList a:focus-visible {
+  outline-offset: 0;
+}
+
+/* The name is the larger of the two, in the reading face, because that is
+   the thing the page is for. */
+.rollName {
+  min-width: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  overflow-wrap: anywhere;
+}
+
+.rollRole {
+  flex: none;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+/* Above 1220px `SectionToc`'s rail lists these same names, so a second
+   full list of them on one screen is noise. Hidden rather than deleted:
+   the rail is client-side only, and without this a no-JavaScript reader
+   would lose the roll entirely. Same trade, same wording, as the era
+   index on Israel's Story. */
+@media (min-width: 1220px) and (scripting: enabled) {
+  .roll {
+    display: none;
+  }
+}
+
+/* ---- the records ---- */
 
 .records {
   display: flex;
@@ -11,19 +113,15 @@
   margin-bottom: var(--sp-7);
 }
 
-/* Doubled to beat Card.dossier `height: 100%` at equal specificity. */
-.featured.featured {
-  height: auto;
-}
-
-.featured + .record {
-  margin-top: var(--sp-6);
-}
-
 .header {
   flex-wrap: wrap;
 }
 
+.name.name {
+  overflow-wrap: anywhere;
+}
+
+/* The featured record's whole distinction: one step of type. */
 .featuredName.featuredName {
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
@@ -51,7 +149,24 @@
   color: var(--ink);
 }
 
+/* Citations adjacent to the claim (HEROES-001).
+   `marginNote` is the shell's existing escape into the page's right
+   margin — the same one the timeline entries use — so this reuses a
+   proven mechanism instead of inventing a second one. It is also why
+   there is no two-column split inside the record: `.panel` is capped at
+   `--family-measure` (68ch) at *every* viewport width, so splitting the
+   record itself would have cut the story to roughly 38 characters a line
+   and the citations to less than half a rail. The margin costs the
+   reading measure nothing, because the column it lands in is zero-width.
+   Below 1220px the note comes back under the story, which is the correct
+   reading order and the only one that fits a phone. */
 .sources {
+  composes: marginNote from '../../components/content/content.module.css';
+}
+
+/* Doubled so the divider survives whatever order the two modules land in
+   the bundle — `marginNote` sets a margin of its own at this width. */
+.sources.sources {
   margin-top: var(--sp-5);
   padding-top: var(--sp-4);
   border-top: var(--line-w) solid var(--line-soft);
@@ -60,6 +175,56 @@
 .sourcesKicker {
   composes: kicker from '../../components/content/content.module.css';
   margin-bottom: var(--sp-3);
+}
+
+@media (min-width: 1220px) {
+  /* The zero-width second column is the whole trick: the note is placed
+     in it and overflows into the page margin, so column one keeps the
+     full reading measure. Both compositions are declared because
+     `Card.row` is already a grid and the record must stay one here. */
+  .record.record,
+  .featured.featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+
+  .record.record > .name,
+  .featured.featured > .name {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .record.record > .header,
+  .featured.featured > .header {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .record.record > .story,
+  .featured.featured > .story {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  /* Row three, not row one: the sources sit beside the story they
+     support rather than beside the name. `marginNote` supplies the
+     width and the offset; this only says which row. */
+  .record.record > .sources,
+  .featured.featured > .sources {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  /* Gold stays scarce. In the column the kicker is a divider between the
+     story and its evidence and earns the accent; in the margin it is a
+     caption on a note that is already set apart, and three gold labels
+     down one margin is three focal points competing on one screen. */
+  .sources .sourcesKicker {
+    color: var(--ink-lo);
+  }
 }
 
 /* The consent boundary's standfirst. Local rather than composed from War

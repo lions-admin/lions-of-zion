@@ -76,6 +76,19 @@
   line-height: var(--t-small-lh);
 }
 
+/* The word first, the ramp second. Ember means contested everywhere on this
+   site, but it is never the only thing saying so. */
+.eraFlag {
+  flex: none;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--data-ember);
+}
+
 /* Tablet: still one list, wrapping into a compact strip rather than a
    second column of chapters. */
 @media (min-width: 45rem) {
@@ -189,6 +202,20 @@
   border-radius: 0 var(--radius-2) var(--radius-2) 0;
   background: color-mix(in srgb, var(--data-ember) 8%, transparent);
   color: var(--ink);
+}
+
+/* The stamp that carries the flag. Inline rather than a block above the
+   intro: the whole intro *is* the framing of the dispute, so the label
+   opens the sentence it qualifies instead of standing over it. */
+.chapterIntroLabel {
+  font-style: normal;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--data-ember-peak);
+  white-space: nowrap;
 }
 
 /* spine: the dates carry the chapter; the intro is a kicker, not a lede. */

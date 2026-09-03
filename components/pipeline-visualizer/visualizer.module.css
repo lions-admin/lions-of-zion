@@ -1523,3 +1523,397 @@
     transition: none;
   }
 }
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Structure view (PIPE-004) and the inspector panel shell (PIPE-003).
+
+   The map is a 3400x1600 plane behind a viewport. This is the stage that
+   works without one: the same components and the same journey as text in
+   reading order. It is not a mobile fallback — it is available at every
+   size, and it is also the keyboard and screen-reader reading of the
+   diagram, so nothing here is reachable only by dragging a canvas.
+
+   Everything below is rules, spacing and type. No card packaging, no glow,
+   and no colour carrying meaning on its own: every state that matters is
+   also written down.
+   ───────────────────────────────────────────────────────────────────── */
+
+.structureRegion {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: var(--sp-5) var(--sp-4) var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-7);
+}
+
+.structureSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.structureSectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line-strong);
+}
+
+.structureHeading {
+  margin: 0;
+  font-size: var(--t-section);
+  line-height: var(--t-section-lh);
+  color: var(--ink-hi);
+}
+
+.structureIntro {
+  margin: 0;
+  max-width: 68ch;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+}
+
+.structureCount,
+.structureEmpty {
+  margin: 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  color: var(--ink-lo);
+}
+
+.structureEmpty {
+  padding: var(--sp-4) 0;
+}
+
+/* The map toggle can be asked for where no map fits. Saying nothing would
+   read as a broken control, so the reason is stated in place. */
+.stageNotice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-3);
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+
+.stageNoticeTitle {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-hi);
+}
+
+.stageNoticeBody {
+  margin: 0;
+  max-width: 62ch;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+}
+
+/* ── Process: the journey as an ordered reading ──────────────────────── */
+
+.processList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.processItem {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-1) 0;
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.processItem:last-child {
+  border-bottom: 0;
+}
+
+.processButton {
+  flex: 1 1 22rem;
+  min-width: 0;
+  min-height: var(--control-h);
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) 0;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-1);
+  text-align: start;
+  cursor: pointer;
+  color: inherit;
+}
+
+.processButton:hover .processTitle {
+  color: var(--gold-hi);
+}
+
+.processButton:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.processIndex {
+  flex: none;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.processText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.processTitle {
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink-hi);
+  overflow-wrap: anywhere;
+}
+
+.processDescription {
+  max-width: 68ch;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+.processMeta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* Reached steps are marked by a rule weight and by the word "Current step",
+   never by colour alone. */
+.processItemCurrent {
+  border-inline-start: 2px solid var(--gold);
+  padding-inline-start: var(--sp-3);
+}
+
+.processItemCurrent .processIndex,
+.processItemCurrent .processTitle {
+  color: var(--gold-hi);
+}
+
+.processItemDone .processIndex,
+.processItemDone .processTitle {
+  color: var(--ink-lo);
+}
+
+.processCurrentTag {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-hi);
+}
+
+/* ── Components: 47 of them, grouped by lane ─────────────────────────── */
+
+.laneFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding-top: var(--sp-1);
+}
+
+.laneGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-top: var(--sp-4);
+}
+
+.laneGroupTitle {
+  margin: 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-hi);
+}
+
+.laneGroupDescription {
+  margin: 0;
+  max-width: 68ch;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+}
+
+.nodeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.nodeRow {
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.nodeRowButton {
+  width: 100%;
+  min-height: var(--control-h);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-2) var(--sp-3) 0;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-1);
+  text-align: start;
+  cursor: pointer;
+  color: inherit;
+}
+
+.nodeRowButton:hover .nodeRowName {
+  color: var(--gold-hi);
+}
+
+.nodeRowButton:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.nodeRowTop {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.nodeRowKind {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.nodeRowName {
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink-hi);
+  overflow-wrap: anywhere;
+}
+
+.nodeRowWhat {
+  max-width: 68ch;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+.nodeRowTable {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-1) var(--sp-3);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.nodeRowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: 0 0 var(--sp-3);
+}
+
+/* Both flags carry their own words in the markup; the rule and weight here
+   only make them easier to find. */
+.nodeRowFlag {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  color: var(--ink-lo);
+}
+
+.nodeRowFlagActive {
+  color: var(--gold-hi);
+}
+
+.nodeRowActive {
+  border-inline-start: 2px solid var(--gold);
+  padding-inline-start: var(--sp-3);
+}
+
+.nodeRowSelected {
+  background: var(--surface-1);
+}
+
+/* ── Inspector panel shell (the non-modal workbench aside) ───────────── */
+
+.inspectorPanel {
+  flex: none;
+  width: min(24rem, 40vw);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--sp-4);
+  border-inline-start: var(--line-w) solid var(--line-strong);
+  background: var(--panel);
+}
+
+.inspectorSections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+@media (max-width: 63.99rem) {
+  .structureRegion {
+    padding: var(--sp-4) var(--sp-3) var(--sp-7);
+  }
+
+  .inspectorPanel {
+    width: 100%;
+  }
+}
+
+/* The stage switch. Two named views, not an icon toggle: an operator should
+   be able to read which stage they are on without hovering anything. */
+.stageSwitch {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4) 0;
+}
+
+.stageSwitchLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}

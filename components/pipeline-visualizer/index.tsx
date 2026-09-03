@@ -8,6 +8,7 @@ import { PipelineControls } from "./PipelineControls";
 import { StepExplainerCard } from "./StepExplainerCard";
 import { TermsGlossaryModal } from "./TermsGlossaryModal";
 import { NodeInspector } from "./NodeInspector";
+import { StructureListView } from "./StructureListView";
 import { useViewportGate, WORKBENCH_QUERY } from "./hooks/useViewportGate";
 import { EventTelemetryStream } from "./EventTelemetryStream";
 import { CHROME } from "./copy";
@@ -16,6 +17,12 @@ import styles from "./visualizer.module.css";
 export function PipelineVisualizer() {
   /* Which shell the inspector gets is a viewport question; see NodeInspector. */
   const isWorkbench = useViewportGate(WORKBENCH_QUERY);
+  /* Which stage the reader asked for. The map is only ever the *effective*
+     stage where one fits; below the gate the request is kept but the
+     structure view answers, and StructureListView says why. */
+  const [stagePreference, setStagePreference] = useState<"map" | "structure">("map");
+  const stageIsMap = stagePreference === "map";
+  const showMap = stageIsMap && isWorkbench;
   const {
     selectedJourneyId,
     currentJourney,
@@ -29,6 +36,7 @@ export function PipelineVisualizer() {
     selectedNode,
     viewPerspective,
     activeCategoryFilter,
+    setActiveCategoryFilter,
     eventLogs,
     activePackets,
     selectJourney,
@@ -119,17 +127,56 @@ export function PipelineVisualizer() {
         onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
       />
 
-      <div className={styles.mainStage}>
-        <PipelineCanvas
-          activeNodeId={currentStep?.nodeId ?? null}
-          nextStepNodeId={nextStepNode}
-          activePackets={activePackets}
-          selectedNodeId={selectedNodeId}
-          viewPerspective={viewPerspective}
-          activeCategoryFilter={activeCategoryFilter}
-          onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
-          onOpenGlossary={handleOpenGlossary}
-        />
+      <div className={styles.stageSwitch} role="group" aria-label={CHROME.stageGroupLabel}>
+        <span className={styles.stageSwitchLabel}>{CHROME.stageGroupLabel}</span>
+        <Button
+          type="button"
+          variant="filter"
+          size="sm"
+          isActive={!stageIsMap}
+          onClick={() => setStagePreference("structure")}
+        >
+          {CHROME.stageStructure}
+        </Button>
+        <Button
+          type="button"
+          variant="filter"
+          size="sm"
+          isActive={stageIsMap}
+          onClick={() => setStagePreference("map")}
+        >
+          {CHROME.stageMap}
+        </Button>
+      </div>
+
+      <div className={styles.mainStage} aria-label={CHROME.regionStage}>
+        {showMap ? (
+          <PipelineCanvas
+            activeNodeId={currentStep?.nodeId ?? null}
+            nextStepNodeId={nextStepNode}
+            activePackets={activePackets}
+            selectedNodeId={selectedNodeId}
+            viewPerspective={viewPerspective}
+            activeCategoryFilter={activeCategoryFilter}
+            onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
+            onOpenGlossary={handleOpenGlossary}
+          />
+        ) : (
+          <StructureListView
+            currentJourney={currentJourney}
+            currentStepIndex={currentStepIndex}
+            activeNodeId={currentStep?.nodeId ?? null}
+            selectedNodeId={selectedNodeId}
+            viewPerspective={viewPerspective}
+            activeCategoryFilter={activeCategoryFilter}
+            mapIsAvailable={isWorkbench}
+            stageIsMap={stageIsMap}
+            onGoToStep={setCurrentStepIndex}
+            onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
+            onSetCategoryFilter={setActiveCategoryFilter}
+            onOpenGlossary={handleOpenGlossary}
+          />
+        )}
 
         <NodeInspector
           node={selectedNode}

@@ -101,12 +101,13 @@ export function SectionPage({
       progressTrackClassName={styles.topProgressTrack}
     >
       <div className={shellClass}>
-        {/* The trail a hub's child passes down — the same markup and class as
-            `DocPage`'s, so the two shells agree on where a page's ancestors
-            are written. The prop was accepted and dropped on the floor after
-            the identity band that used to carry it was retired in favour of
-            the site header; the five Fake Resistance branches and the two
-            archive indexes pass it, and this is what renders it. */}
+        {/* The trail a hub's child passes down — the shared `Breadcrumb`, the
+            same one `DocPage` mounts, so the two shells agree on where a
+            page's ancestors are written. The prop was accepted and dropped on
+            the floor after the identity band that used to carry it was
+            retired in favour of the site header; the five Fake Resistance
+            branches and the two archive indexes pass it, and this is what
+            renders it. */}
         {breadcrumb && breadcrumb.length > 0 ? (
           <Breadcrumb
             className={styles.documentTrail}

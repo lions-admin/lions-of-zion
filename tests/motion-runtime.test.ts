@@ -322,10 +322,10 @@ describe("A11Y-010 / §21 — every continuous animation has a reduced-motion re
    * The kill switch freezes an animation; it cannot say what should be left
    * standing in its place. A design-system primitive has to answer that
    * itself — a stationary bright chip on one corner of a border beam is worse
-   * than no beam, and shiny text frozen mid-pass is transparent glyphs over a
-   * removed background, which is no text at all. So the rule is enforced
-   * where the answer is load-bearing rather than everywhere the switch
-   * already reaches.
+   * than no beam, and the removed `ShinyText` was the sharper case: frozen
+   * mid-pass it left transparent glyphs over a background that was gone,
+   * which is no text at all. So the rule is enforced where the answer is
+   * load-bearing rather than everywhere the switch already reaches.
    */
   it("every motion primitive that loops declares its own reduced-motion result", () => {
     const looping = styleFiles().filter(

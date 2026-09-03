@@ -327,6 +327,12 @@ export function PublicationManager() {
     try {
       const response = await fetch(`/api/v1/publications/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Deleting the publication failed.");
+      /* `load()` only fills the selection when it is empty, so without this
+         the id of the row just deleted stays selected: the queue reloads with
+         work still in it while the editor beside it says "Select a
+         publication to edit it." Clearing first lets the reload land on the
+         first remaining row. */
+      setSelectedId("");
       await load(); setMessage({ kind: "ok", text: "Publication deleted. Evidence and review history were kept." });
     } catch (cause) { setMessage({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." }); } finally { setBusy(false); }
   }

@@ -39,6 +39,19 @@
   gap: var(--sp-4);
 }
 
+/* ADMIN-002. The header's control group. Deliberately a plain `row` with no
+   `order` and no `-reverse`: CSS that reorders a flex line moves what the eye
+   sees but never what Tab visits, which is the exact shape of a
+   keyboard-order-versus-visual-order failure. Nothing under `app/admin/`
+   reorders, and `tests/admin-console.test.ts` fails the build if that
+   changes. */
+.headActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
 /* ── Type ─────────────────────────────────────────────────────────────── */
 
 /* "Lions of Zion / Operations" is four words, so it stays sentence case:
@@ -306,6 +319,14 @@
   color: var(--state-danger);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
+}
+
+/* AUTH-001. Sign-in mounts its `role="alert"` region empty and fills it on
+   failure, for the same reason `.consolePending` is mounted empty: a live
+   region inserted in the same commit as its text is announced unreliably.
+   An empty alert must then hold no space and draw no box. */
+.error:empty {
+  display: none;
 }
 
 .notice {

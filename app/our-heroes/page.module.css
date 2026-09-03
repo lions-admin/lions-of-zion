@@ -1,8 +1,99 @@
 /* Quiet memorial. Names and stories are the record; there is no tally,
    no commendation frame, and no two-up grid of equal tiles. Featured is
    Card.dossier; the rest are Card.row, stacked. Sources live in the
-   record — visible without hover, not a margin note that a former grid
-   would have collided. */
+   record — visible without hover, and from 64rem up standing beside the
+   sentences they carry rather than under them (HEROES-001).
+
+   Nothing on this page is revealed by hover, and nothing is behind a
+   control: a reader who cannot hover, or who prints the page, gets every
+   name, every story and every citation. */
+
+/* ---- the roll of names ---- */
+
+.roll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: var(--sp-7) 0 0;
+  padding: 0 0 var(--sp-5);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.rollKicker {
+  composes: kicker from '../../components/content/content.module.css';
+}
+
+.rollList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A name is a link and a link is a target: the row answers to the control
+   floor, which `app/globals.css` raises to 44px on a coarse pointer. */
+.rollList a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  min-height: var(--control-h-sm);
+  padding: var(--sp-2) 0;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: var(--line-w) solid var(--line-soft);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.rollList li:last-child a {
+  border-bottom: none;
+}
+
+.rollList a:hover,
+.rollList a:focus-visible {
+  color: var(--ink-hi);
+}
+
+.rollList a:focus-visible {
+  outline-offset: 0;
+}
+
+/* The name is the larger of the two, in the reading face, because that is
+   the thing the page is for. */
+.rollName {
+  min-width: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  overflow-wrap: anywhere;
+}
+
+.rollRole {
+  flex: none;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+/* Above 1220px `SectionToc`'s rail lists these same names, so a second
+   full list of them on one screen is noise. Hidden rather than deleted:
+   the rail is client-side only, and without this a no-JavaScript reader
+   would lose the roll entirely. Same trade, same wording, as the era
+   index on Israel's Story. */
+@media (min-width: 1220px) and (scripting: enabled) {
+  .roll {
+    display: none;
+  }
+}
+
+/* ---- the records ---- */
 
 .records {
   display: flex;
@@ -22,6 +113,10 @@
 
 .header {
   flex-wrap: wrap;
+}
+
+.name.name {
+  overflow-wrap: anywhere;
 }
 
 .featuredName.featuredName {
@@ -60,6 +155,45 @@
 .sourcesKicker {
   composes: kicker from '../../components/content/content.module.css';
   margin-bottom: var(--sp-3);
+}
+
+/* Citations adjacent to the claim.
+   Wide enough for two real columns, and no earlier: the story keeps the
+   reading measure and the sources take a fixed side column against a rule,
+   so the evidence is beside the sentences instead of after them. Both
+   compositions are grids here — `Card.row` already is one and `.dossier`
+   is a flex column — so the doubled selectors beat both at their own
+   specificity, and the name and the role/date row span the full width. */
+@media (min-width: 64rem) {
+  .record.record,
+  .featured.featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 19rem);
+    column-gap: var(--sp-7);
+    align-items: start;
+  }
+
+  .record.record > .name,
+  .featured.featured > .name,
+  .record.record > .header,
+  .featured.featured > .header {
+    grid-column: 1 / -1;
+  }
+
+  .record.record > .story,
+  .featured.featured > .story {
+    grid-column: 1;
+  }
+
+  .record.record > .sources,
+  .featured.featured > .sources {
+    grid-column: 2;
+    margin-top: 0;
+    padding-top: 0;
+    padding-left: var(--sp-5);
+    border-top: 0;
+    border-left: var(--line-w) solid var(--line-soft);
+  }
 }
 
 /* The consent boundary's standfirst. Local rather than composed from War

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { PublicationMeta, SourceList } from "@/components/content";
 import {
@@ -32,6 +33,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * One record: a name, what they did, and where it is written down.
+ *
+ * The name is the first thing in the record and the largest thing in it —
+ * `CardTitle` renders an `h2`, so it is also what the contents rail and the
+ * mobile drawer list, which means the page's navigation is a list of people
+ * rather than a list of sections. Nothing here is revealed on hover and
+ * nothing is behind a control: the sources sit in the record, open, beside
+ * the sentences they support.
+ */
 function MemorialRecord({
   hero,
   featured = false,
@@ -46,7 +57,10 @@ function MemorialRecord({
       variant={featured ? "dossier" : "row"}
       className={featured ? styles.featured : styles.record}
     >
-      <CardTitle as="h2" className={featured ? styles.featuredName : ""}>
+      <CardTitle
+        as="h2"
+        className={featured ? `${styles.name} ${styles.featuredName}` : styles.name}
+      >
         {hero.name}
       </CardTitle>
       <CardHeader className={styles.header}>
@@ -54,6 +68,10 @@ function MemorialRecord({
         <span className={styles.meta}>{hero.meta}</span>
       </CardHeader>
       <p className={styles.story}>{hero.summary}</p>
+      {/* Above 64rem this moves out of the record's flow and stands beside
+          the story rather than under it, so a citation is adjacent to the
+          claim it carries. Below that it stays where it is — a stacked
+          column is the correct reading order and the only one on a phone. */}
       <div className={styles.sources}>
         <span className={styles.sourcesKicker}>Sources</span>
         <SourceList sources={hero.sources} />
@@ -87,6 +105,7 @@ function heroesJsonLd(edition: Awaited<ReturnType<typeof getOurHeroesEdition>>) 
 
 export default async function Page() {
   const edition = await getOurHeroesEdition();
+  const roll = [edition.featured, ...edition.profiles];
 
   return (
     <SectionPage
@@ -116,6 +135,26 @@ export default async function Page() {
           it.
         </p>
       </SectionBlock>
+
+      {/* The names, before anything is said about them.
+          A roll, not a summary and not a count: no tally of the fallen, no
+          figure to compare, nothing that turns people into a metric. It is
+          also the page's no-JavaScript navigation — the contents rail lists
+          exactly these names above 1220px and the drawer does below it, so
+          this list hides only where the rail has taken the job. */}
+      <nav className={styles.roll} aria-label="Names in this edition">
+        <span className={styles.rollKicker}>In this edition</span>
+        <ul className={styles.rollList}>
+          {roll.map((hero) => (
+            <li key={hero.id}>
+              <Link href={`#${hero.id}`}>
+                <span className={styles.rollName}>{hero.name}</span>
+                <span className={styles.rollRole}>{hero.role}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       <div className={styles.records}>
         <MemorialRecord hero={edition.featured} featured />

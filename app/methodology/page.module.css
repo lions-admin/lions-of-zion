@@ -1,0 +1,249 @@
+/* Methodology as an institutional standard.
+   ------------------------------------------------------------------
+   METHOD-001 asks that a reader can answer "how was this assessed?"
+   without scrolling, and reach the detail from there. That is what
+   `.summary` and `.glance` are: the standard in one paragraph, then a
+   contents of the standard itself — every entry a link to the section
+   that holds the rule in full.
+
+   METHOD-002 asks for a static relationship diagram with every step
+   and gate still textual. `.process` is that diagram: an ordered list
+   with a drawn track, a numeral, a stage name, and, on the one stage
+   nothing automated can pass, a written gate label and a panel of its
+   own. There is no Signal Beam here and no animation of any kind — the
+   pipeline is a standard, not an event, so nothing about it arrives.
+   It reads identically with scripting off and under reduced motion
+   because it is the same static markup in both.
+
+   Design V3 (`app/globals.css`). Institution family: rules, spacing and
+   type carry the hierarchy. Gold is spent twice on this page — the
+   summary's rule and the gate — and nowhere else. */
+
+/* ---- the standard, in one paragraph ---- */
+
+.summary {
+  margin: 0 0 var(--sp-6);
+  padding-left: var(--sp-5);
+  border-left: var(--line-w-thick) solid var(--gold-line-strong);
+  max-width: var(--measure-reading);
+}
+
+/* Beats `:where(.body) p`, which is zero-specificity by construction. */
+.summaryText {
+  margin: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  color: var(--ink-hi);
+}
+
+/* ---- a contents of the standard ---- */
+
+.glanceKicker {
+  composes: kicker from '../../components/content/content.module.css';
+  margin-bottom: var(--sp-3);
+}
+
+.glance {
+  margin: 0;
+  padding: 0;
+  border-top: var(--line-w) solid var(--line);
+}
+
+/* One row per rule: the rule's name is the link, the sentence beside it
+   is what a reader gets if they never follow it. Rows are a grid from
+   the seam up and stack below it — no card, no tile, no second column
+   of navigation. */
+.glanceRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-1);
+  padding: var(--sp-3) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.glanceRow:last-child {
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.glanceTerm {
+  margin: 0;
+  min-width: 0;
+}
+
+/* A navigation target, so it answers to the control floor rather than to
+   the line box. `--control-h-sm` becomes 44px on a coarse pointer in
+   `app/globals.css`; on a fine pointer it stays a text link. */
+.glanceTerm a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h-sm);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: var(--line-w) solid var(--line-strong);
+  transition: color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.glanceTerm a:hover,
+.glanceTerm a:focus-visible {
+  color: var(--gold-hi);
+  border-bottom-color: var(--gold-line-strong);
+}
+
+.glanceDef {
+  margin: 0;
+  min-width: 0;
+  max-width: var(--measure-reading);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+}
+
+@media (min-width: 45rem) {
+  .glanceRow {
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: var(--sp-5);
+    align-items: baseline;
+  }
+}
+
+/* ---- the process, as a relationship diagram (METHOD-002) ---- */
+
+.process {
+  margin: var(--sp-5) 0 var(--flow);
+  padding: 0;
+  list-style: none;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--sp-4) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--sp-4);
+  min-width: 0;
+  padding-bottom: var(--sp-6);
+}
+
+.stage:last-child {
+  padding-bottom: 0;
+}
+
+/* The track is drawn per stage, from this row's node to the next row's,
+   so it begins at the first marker and ends at the last instead of
+   overrunning the list. */
+.stage::before {
+  content: '';
+  position: absolute;
+  top: var(--sp-2);
+  bottom: 0;
+  left: calc(var(--sp-2) - var(--line-w));
+  width: var(--line-w-thick);
+  background: var(--line);
+}
+
+.stage:last-child::before {
+  display: none;
+}
+
+.stageNode {
+  position: relative;
+  display: block;
+  width: var(--sp-3);
+  height: var(--sp-3);
+  margin: var(--sp-2) 0 0 calc(var(--sp-1) / 2);
+  border: var(--line-w-thick) solid var(--ink-lo);
+  border-radius: 50%;
+  background: var(--ground);
+}
+
+/* The gate: a filled diamond, and the page's one moment of gold in the
+   body. Its shape differs from the round stage markers because the stage
+   itself differs in kind — a reader sees that before reading the label. */
+.stage[data-gate] .stageNode {
+  width: var(--sp-4);
+  height: var(--sp-4);
+  margin-left: 0;
+  border-radius: var(--radius-1);
+  border-color: var(--gold-hi);
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+
+.stageBody {
+  min-width: 0;
+}
+
+/* The gate stage takes a panel, so the structural difference is in the
+   layout and not only in the words. */
+.stage[data-gate] .stageBody {
+  padding: var(--sp-4) var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
+.stageHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.stageNumber {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.stageName {
+  margin: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+}
+
+/* "Gate — human only": a status stamp on the one stage nothing automated
+   can pass, so it keeps the tracked data voice. Written out, never a
+   colour alone. */
+.stageGate {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.stageNote {
+  margin: 0;
+  max-width: var(--measure-reading);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+}
+
+@media (max-width: 45rem) {
+  .stage[data-gate] .stageBody {
+    padding: var(--sp-4);
+  }
+}

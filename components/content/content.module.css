@@ -386,6 +386,53 @@
   line-height: var(--t-small-lh);
 }
 
+/* CORR-001, additive. An entry on the sitewide ledger is detached from the
+   record it corrected, so it may carry a link back to it; an entry inside an
+   article already sits on its record and carries neither of these. The
+   wrapper exists only so the note and that link stack — the note's own
+   styling above is untouched. */
+.correctionEntry {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.correctionRecord {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h-sm);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--content-data-tracking);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.correctionRecord:hover,
+.correctionRecord:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}
+
+/* The same line when the record is not reachable — context, not a dead link. */
+.correctionContext.correctionContext {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--content-data-tracking);
+}
+
 
 .correctionsEmpty {
   padding: var(--sp-4) 0;

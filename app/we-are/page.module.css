@@ -143,6 +143,72 @@
   overflow-wrap: anywhere;
 }
 
+/* Principles, one per row rather than four in a paragraph. The name is the
+   scan target and sits in the data voice; the commitment beside it is read
+   at body. A hairline between rows, no card — a promise is not a product
+   feature. From the seam up the name takes its own column so four
+   commitments line up and can be compared. */
+.principles {
+  margin: var(--sp-5) 0 0;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.principles > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-1);
+  padding: var(--sp-4) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.principles > div:last-child {
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.principles dt {
+  min-width: 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-hi);
+}
+
+.principles dd {
+  margin: 0;
+  min-width: 0;
+  max-width: var(--measure-reading);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+}
+
+.principles dd a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.principles dd a:hover,
+.principles dd a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}
+
+@media (min-width: 45rem) {
+  .principles > div {
+    grid-template-columns: 13rem minmax(0, 1fr);
+    gap: var(--sp-5);
+    align-items: baseline;
+  }
+}
+
 .faq {
   margin: var(--sp-5) 0 0;
 }

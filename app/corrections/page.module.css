@@ -1,0 +1,49 @@
+/* The public correction ledger.
+   ------------------------------------------------------------------
+   CORR-001 turns on one distinction: "nothing has needed a correction"
+   and "the log could not be loaded" must not look alike. They are two
+   different `StatusState` kinds here — empty and error, each with its
+   own written eyebrow, title and sentence — so the difference survives
+   a reader who is skimming, a screen reader (`role="status"` against
+   `role="alert"`), and a stylesheet that fails to load.
+
+   The ledger head above them is the frame that makes an empty log read
+   as a record rather than as a missing feature: it states what the
+   ledger covers and how many entries stand in it, in both states.
+
+   Design V3 (`app/globals.css`). Institution family: rules and spacing,
+   no card. */
+
+.ledger {
+  margin-top: var(--sp-5);
+}
+
+.ledgerHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.ledgerKicker {
+  composes: kicker from '../../components/content/content.module.css';
+}
+
+/* The count is the ledger's one number, and it is a count of records —
+   not a metric, not a score, and not styled as one. Ink, not gold. */
+.ledgerCount {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.ledgerState {
+  margin-top: var(--sp-5);
+}

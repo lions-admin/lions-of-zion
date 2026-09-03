@@ -82,6 +82,13 @@ export default async function Page() {
                   {toRoman(index + 1)}
                 </span>
                 <span className={styles.eraTitle}>{chapter.title}</span>
+                {/* The flag reaches the index, not only the chapter. A
+                    reader choosing where to start should know which era is
+                    disputed before they land in it — and it is a word, not
+                    a colour, for the same reason it is a word below. */}
+                {chapter.contested === true ? (
+                  <span className={styles.eraFlag}>Contested</span>
+                ) : null}
               </Link>
             </li>
           ))}
@@ -113,6 +120,11 @@ export default async function Page() {
             </header>
 
             <div className={styles.chapterBody}>
+              {/* The contested flag was an ember rule and an ember wash and
+                  nothing else — colour as the sole cue, which the token
+                  contract rules out and which reaches nobody reading in
+                  monochrome, in high contrast, or in print. The word does the
+                  work now; the ramp only agrees with it. */}
               <p
                 className={
                   flagged
@@ -120,6 +132,10 @@ export default async function Page() {
                     : styles.chapterIntro
                 }
               >
+                {flagged ? (
+                  <span className={styles.chapterIntroLabel}>Contested —</span>
+                ) : null}
+                {flagged ? " " : null}
                 {chapter.intro}
               </p>
 

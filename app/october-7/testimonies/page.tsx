@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import { ArchiveFullIndex, ArchiveIndex, type ArchiveFacet } from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
-import { getRecordDigests, withCoverThumbs } from '@/lib/content/archive';
+import {
+  getRecordDigests,
+  manifestLanguages,
+  withCoverThumbs,
+} from '@/lib/content/archive';
 import {
   TESTIMONIES_PACKAGE,
   getTestimoniesManifest,
@@ -63,7 +67,10 @@ export default async function Page() {
       count,
     }));
 
-  const languages = manifest.languages.length;
+  /* Through the helper: this package's manifest writes `languages` as a
+     per-language count map rather than an array, so `.length` was
+     `undefined` and the sentence below never rendered. */
+  const languages = manifestLanguages(manifest).length;
 
   return (
     <DocPage

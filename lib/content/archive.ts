@@ -112,13 +112,33 @@ export type ArchiveCategory = {
   names?: Record<string, string | null>;
 };
 
+/**
+ * A package's `manifest.json`, as the two packages on disk actually shape it.
+ *
+ * `languages` is **not** one type across them, and declaring it `string[]`
+ * was a lie the compiler could not catch — `readPackageFile` casts unvalidated
+ * JSON. `hamas-massacre` writes `["en","es"]`; `october7` writes
+ * `{"de":34,"en":179,…}`, a per-language record count. `manifest.languages.length`
+ * was therefore `undefined` on october7, which is how `/october-7` shipped an
+ * empty `<dd>` under "Languages" and `/october-7/testimonies` silently dropped
+ * the sentence naming how many languages the archive holds.
+ *
+ * Read it through `manifestLanguages()` rather than directly.
+ */
 export type ArchiveManifest = {
   name: string;
   sourceSite: string | null;
   defaultLanguage: string;
-  languages: string[];
+  languages: string[] | Record<string, number>;
   counts: { records: number; media: number; translationLinks: number; categories: number };
 };
+
+/** The language codes a package holds, whichever shape its manifest used. */
+export function manifestLanguages(manifest: ArchiveManifest): string[] {
+  const { languages } = manifest;
+  if (Array.isArray(languages)) return [...languages].sort();
+  return Object.keys(languages ?? {}).sort();
+}
 
 const ROOT = path.join(process.cwd(), 'content-packages');
 

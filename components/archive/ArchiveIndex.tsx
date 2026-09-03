@@ -307,7 +307,13 @@ export function ArchiveIndex({
 
   return (
     <div className={styles.index}>
-      <div className={styles.controls}>
+      {/* `data-needs-js` marks the two regions that are inert without a
+          client: the filter controls, and a pager whose `?page=N` targets are
+          served by the same prerendered HTML as page 1. `ArchiveFullIndex`
+          hides both from inside its own `<noscript>` and lists every record
+          in their place, so scripting off yields a complete archive rather
+          than eight dead controls above a truncated one. */}
+      <div className={styles.controls} data-needs-js="">
         <div className={styles.searchField}>
           <label className={styles.searchLabel} htmlFor={inputId}>
             Find in this archive
@@ -423,7 +429,7 @@ export function ArchiveIndex({
       </div>
 
       {pageCount > 1 ? (
-        <div className={styles.pager} onClick={onPagerClick}>
+        <div className={styles.pager} data-needs-js="" onClick={onPagerClick}>
           <Pagination
             page={page}
             pageCount={pageCount}

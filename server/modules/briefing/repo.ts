@@ -329,7 +329,9 @@ export function briefingRepo(db: unknown) {
     async recordClaim(
       itemId: string,
       claim: DraftClaim,
-      aiRunId: string,
+      /** Null for a claim materialised from an externally composed package —
+       * no `ai_run` row backs it. The column is nullable for exactly this. */
+      aiRunId: string | null,
     ): Promise<void> {
       await d.execute(sql`
         INSERT INTO briefing_claim (

@@ -3,9 +3,13 @@ import "server-only";
 import { db } from "@/server/db/client";
 import { withDatabaseRole } from "@/server/db/client";
 import { briefingService, type BriefingService } from "./service";
+import { externalBriefingPublishService, type ExternalBriefingPublishService } from "./external-publish";
 import { briefingJobMessageSchema, briefingJobStore, processBriefingJob } from "./jobs";
 
 export const briefing = (): BriefingService => briefingService(db());
+
+export const externalBriefingPublish = (): ExternalBriefingPublishService => externalBriefingPublishService(db());
+export { externalBriefingPublishService, type ExternalBriefingPublishService } from "./external-publish";
 
 /** Queue routes only authenticate and hand off here; the module owns the
  * database claim, pause/defer, checkpoint, and failure semantics. */

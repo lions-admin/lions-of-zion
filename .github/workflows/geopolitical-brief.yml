@@ -1,0 +1,67 @@
+# Runs scripts/external-briefing-compose.ts on a schedule and on demand.
+# That script collects news from RSS feeds, makes one AI call to draft a
+# Daily Brief edition, and POSTs it to an internal ingest API. This workflow
+# only invokes it via `npm run briefing:compose`; it does not implement it.
+#
+# Required GitHub Actions secrets (Settings > Secrets and variables > Actions):
+#   - EXTERNAL_BRIEFING_INGEST_SECRET
+#       Sent as the `x-external-briefing-secret` header to authenticate to
+#       the ingest endpoint.
+#   - AI_GATEWAY_API_KEY
+#       Static AI Gateway credential. Verified against
+#       server/core/config.ts `hasAiGateway()` (~line 184), which reads
+#       `process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY ||
+#       process.env.XAI_API_KEY`. There is no automatic VERCEL_OIDC_TOKEN
+#       outside a Vercel deployment, so this runner needs the
+#       AI_GATEWAY_API_KEY fallback explicitly.
+#
+# Optional, non-secret GitHub Actions repository/environment Variable
+# (Settings > Secrets and variables > Actions > Variables):
+#   - BRIEFING_INGEST_BASE_URL
+#       Base URL the script POSTs the composed brief to. Defaults to
+#       https://lionsofzion.io when unset. Set this on a manual
+#       workflow_dispatch run to point at a preview deployment instead,
+#       without editing this file. An unset repo variable resolves to an
+#       empty string, which the script treats the same as unset.
+
+name: Geopolitical Daily Brief
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: assemble the brief and log it, but skip the POST to the ingest API"
+        required: false
+        type: boolean
+        default: false
+  # Israel has no single fixed UTC offset: it is UTC+2 (IST) in winter and
+  # UTC+3 (IDT) in summer under DST. A fixed UTC cron hour therefore lands at
+  # a different local time depending on the season. 04:00 UTC + 2h (winter)
+  # = 06:00 local; 04:00 UTC + 3h (summer) = 07:00 local. Both are a
+  # reasonable early-morning window for a daily brief, so 04:00 UTC is used
+  # year-round rather than maintaining two seasonal cron entries.
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs:
+  compose:
+    name: Compose and publish the Daily Brief
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Compose and publish the Daily Brief
+        env:
+          EXTERNAL_BRIEFING_INGEST_SECRET: ${{ secrets.EXTERNAL_BRIEFING_INGEST_SECRET }}
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+          BRIEFING_INGEST_BASE_URL: ${{ vars.BRIEFING_INGEST_BASE_URL }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npm run briefing:compose -- --dry-run
+          else
+            npm run briefing:compose
+          fi

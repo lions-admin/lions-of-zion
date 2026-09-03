@@ -126,8 +126,11 @@ export const runIdSchema = z
 /* ── Publishers ─────────────────────────────────────────────────────────────
  *
  * One entry per outlet the package read. These become `source` rows (kind
- * `external_package`), registered inactive: this endpoint publishes an
- * edition, it does not enrol a feed the ingestion cron will then poll. */
+ * `manual` — the same fallback `server/modules/sources/ingest.ts` already
+ * uses for a publisher discovered by attribution rather than its own feed;
+ * `SOURCE_KINDS` has no dedicated value for this), registered inactive: this
+ * endpoint publishes an edition, it does not enrol a feed the ingestion cron
+ * will then poll. */
 export const externalPublisherSchema = z.object({
   key: packageKeySchema,
   name: z.string().trim().min(1).max(200),

@@ -52,7 +52,7 @@ export const LANE_COPY = [
   {
     id: "briefing",
     title: "4. Daily brief pipeline",
-    description: "Collect, cluster, triage, draft, and run quality checks at 07:00",
+    description: "Collect, cluster, triage, draft, and publish at 07:00",
     laneIndex: 3,
   },
   {
@@ -348,21 +348,13 @@ export const NODE_COPY: Record<string, NodeInspectorCopy> = {
     output: "A full edition draft in which every record cites pack evidence — except at most one narrative_watch refutation that cites nothing and publishes as this organisation’s own analysis (evidenceBasis: analysis) with an explicit public mark.",
     failureMode: "Output that cites an evidence id missing from the pack fails Zod validation at once. A sourceless refutation that still cites any evidence — in a claim, a passage, or narrativeWatchDetails — also fails: all-or-nothing.",
   },
-  briefing_quality_gate: {
-    what: "A deterministic engine that runs 17 hard checks on every publication candidate before a single approval row.",
-    why: "No model output may bypass quality rules: direct sources, independence, passage traceability, and numeric fidelity. No check is skipped — the sourceless-refutation exemption lives inside a pass condition, so all 17 rows are logged even when one is not applicable.",
-    input: "The brief and article drafts against the evidence store.",
-    does: "Evaluates known_evidence, direct_publishers, processable_source_text, source_independence, specific_title, substantive_body, non_placeholder_body, title_source_alignment, claim_evidence_matrix, claim_source_independence, single_source_attribution, hostile_only_routing, adversarial_only_routing, daily_brief_official_context, paragraph_traceability, exact_fact_fidelity, analysis_disclosure.",
-    output: "Full pass (100%) or rejection.",
-    failureMode: "One failed check sends the candidate to briefing_quarantine, freezes the edition, and raises an alert.",
-  },
   briefing_quarantine: {
-    what: "A quarantine table isolating every candidate that failed quality checks, with reason and payload.",
-    why: "Stops unverified copy reaching the public and lets editors inspect the failure on the desk.",
-    input: "A candidate that failed draft or quality.",
+    what: "A legacy and operational quarantine table for malformed drafts and failed processing jobs.",
+    why: "Keeps technically invalid payloads and failed jobs available for diagnosis without blocking valid generated editions.",
+    input: "A malformed draft or a processing job that exhausted its retries.",
     does: "Records candidate_key, stage, reason, payload, and sets the edition to quarantined.",
     output: "A quarantine row for editorial review.",
-    failureMode: "The edition will not auto-publish while an open quarantine row remains.",
+    failureMode: "Only the affected invalid payload or failed job is retained for inspection.",
   },
   briefing_alert: {
     what: "Durable operational alerts with no classified content and fingerprint-based de-duplication.",
@@ -556,8 +548,8 @@ export const GLOSSARY_COPY: Record<string, GlossaryTermCopy> = {
     example: "Five sites quoting the same tweet count as one source, and the system will refuse a verified verdict.",
   },
   Quarantine: {
-    short: "An automatic isolation area for articles or briefs that failed quality checks and must not publish.",
-    deep: "If an AI-written daily brief fails even one of the quality checks (for example an unapproved source, or a refutation not marked as this organisation’s own analysis), it is moved at once to briefing_quarantine and blocked from the public until a human reviews it.",
+    short: "An operational isolation area for malformed payloads and processing jobs that exhaust their retries.",
+    deep: "The editorial quality-review gate is disabled. This table remains only for technical failures such as invalid structured data or exhausted processing retries.",
     example: "An article that rests on a single non-official source without attribution and a written caveat is quarantined, and editors get an urgent alert.",
   },
   Triage: {

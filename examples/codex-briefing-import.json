@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "idempotencyKey": "2026-09-03-daily-codex-experiment-v1",
+  "editorialDate": "2026-09-03",
+  "sources": [
+    {
+      "key": "source-1",
+      "title": "Replace with the exact source headline",
+      "publisher": "Replace with publisher name",
+      "url": "https://example.com/exact-source-page",
+      "excerpt": "Replace with a short factual excerpt from the source.",
+      "publishedAt": "2026-09-03T06:00:00.000Z"
+    }
+  ],
+  "publications": [
+    {
+      "candidateKey": "daily-brief",
+      "section": "daily_brief",
+      "title": "Replace with the daily brief title",
+      "summary": "Replace with a concise summary.",
+      "body": "Replace with the complete English article body.",
+      "sourceKeys": ["source-1"],
+      "editorialTopic": "Israel",
+      "arena": "Middle East",
+      "featuredIsraelStory": false
+    }
+  ]
+}

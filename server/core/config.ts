@@ -185,6 +185,8 @@ export const hasAiGateway = (): boolean =>
   Boolean(process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY || process.env.XAI_API_KEY);
 export const internalApiSecret = (): string =>
   required("INTERNAL_API_SECRET", "the internal route guard");
+export const codexBriefingImportSecret = (): string =>
+  required("CODEX_BRIEFING_IMPORT_SECRET", "the Codex briefing import route");
 /** Vercel sets this automatically once the env var of the same name is
  *  configured, and signs every cron invocation with it. Unset locally, which
  *  is why the guard treats "unset" as "refuse", never as "allow". */
@@ -333,7 +335,7 @@ export function briefingFeatures(): {
   };
 }
 
-const BRIEFING_STAGES = ["enrich", "cluster", "triage", "draft", "quality", "publish"] as const;
+const BRIEFING_STAGES = ["enrich", "cluster", "triage", "draft", "publish"] as const;
 export type BriefingStageName = (typeof BRIEFING_STAGES)[number];
 
 function csvSet(name: string): Set<string> | undefined {

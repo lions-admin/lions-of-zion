@@ -69,7 +69,6 @@ const BASE_NODE_POSITIONS: Record<string, { laneIdx: number; rowIdx: number }> =
   briefing_cluster_q: { laneIdx: 3, rowIdx: 2.7 },
   briefing_triage_model: { laneIdx: 3, rowIdx: 3.6 },
   briefing_draft_model: { laneIdx: 3, rowIdx: 4.5 },
-  briefing_quality_gate: { laneIdx: 3, rowIdx: 5.4 },
   briefing_quarantine: { laneIdx: 3, rowIdx: 6.3 },
   briefing_alert: { laneIdx: 3, rowIdx: 7.2 },
 

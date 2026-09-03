@@ -411,7 +411,16 @@
   border-radius: var(--radius-3);
 }
 
+/* The ring belongs to the visible box, not to the borderless textarea inside
+   it — which is why `.composerField` suppresses its own outline. But the box
+   was indicating focus with a hairline colour change alone, `--line` to
+   `--line-strong`, well under the 3:1 an indicator owes (A11Y-003). It now
+   carries the same `--focus-outline` every other control in the system uses.
+   `:focus-within` rather than `:focus-visible` because the element that takes
+   focus is the child. */
 .composer:focus-within {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
   border-color: var(--line-strong);
 }
 

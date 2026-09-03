@@ -324,22 +324,56 @@ async function auditFocus(page, steps = 25) {
           (r.top < pr.top + RING || r.bottom > pr.bottom - RING);
         if (cutX || cutY) clipped = true;
       }
+      /* A borderless input inside a bordered box legitimately suppresses its
+         own outline and lets the box carry the ring on `:focus-within`. Only
+         reading the focused element calls that pattern unstyled, so look up a
+         couple of levels for the indicator before reporting one missing. */
+      const hasRing = (node) => {
+        const ns = getComputedStyle(node);
+        return (
+          (ns.outlineStyle !== "none" && ns.outlineWidth !== "0px") || ns.boxShadow !== "none"
+        );
+      };
+      let ringOwner = null;
+      let hop = el;
+      for (let i = 0; i < 3 && hop && hop !== document.body; i += 1) {
+        if (hasRing(hop)) { ringOwner = hop; break; }
+        hop = hop.parentElement;
+      }
+
       return {
         el: `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""}${text ? ` "${text.slice(0, 40)}"` : ""}`,
+        ring: !!ringOwner,
+        /* `input[type=date]` has internal tab stops for its day/month/year
+           segments. Moving between them keeps `document.activeElement` on the
+           input but stops matching `:focus-visible`, so no `:focus-visible`
+           rule applies and the ring correctly disappears. Asking for one there
+           is asking the browser to contradict itself. */
+        focusVisible: el.matches(":focus-visible"),
         outlineStyle: style.outlineStyle,
         outlineWidth: style.outlineWidth,
         boxShadow: style.boxShadow,
         inViewport:
           r.top < window.innerHeight && r.bottom > 0 && r.left < window.innerWidth && r.right > 0,
         clipped,
-        name: !!(el.getAttribute("aria-label") || (el.textContent || "").trim() ||
-          el.getAttribute("title") || el.getAttribute("aria-labelledby")),
+        /* A form control's name usually comes from an associated <label>,
+           not from its own text — checking only text content reports every
+           correctly-labelled input as nameless. Cover both label routes plus
+           the ARIA ones, and fall back to a placeholder, which names a
+           control weakly but does name it. */
+        name: !!(
+          el.getAttribute("aria-label") ||
+          el.getAttribute("aria-labelledby") ||
+          el.getAttribute("title") ||
+          (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)) ||
+          el.closest("label") ||
+          el.getAttribute("placeholder") ||
+          (el.textContent || "").trim()
+        ),
       };
     });
     if (!state) break;
-    const noRing =
-      (state.outlineStyle === "none" || state.outlineWidth === "0px") && state.boxShadow === "none";
-    if (noRing) problems.push({ kind: "no-focus-ring", ...state });
+    if (!state.ring && state.focusVisible) problems.push({ kind: "no-focus-ring", ...state });
     if (state.clipped) problems.push({ kind: "focus-ring-clipped", ...state });
     if (!state.name) problems.push({ kind: "no-accessible-name", ...state });
   }

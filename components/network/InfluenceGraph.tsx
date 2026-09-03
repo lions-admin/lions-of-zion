@@ -9,15 +9,16 @@ import type {
   ResearchConfidence,
 } from '@/lib/content/fake-resistance-cases';
 import { Button } from '@/components/ui/Button';
+import { StatusState } from '@/components/ui/StatusState';
 import { buildGraphLayout } from './layout';
 import styles from './influence-graph.module.css';
 
 /**
- * The influence network, drawn.
+ * The influence network, drawn — and, below the seam, listed.
  *
  * `layout.ts` carries the argument for the form — an arc diagram, ordered by
  * component then community then degree. This file is what a reader touches,
- * and three rules govern it.
+ * and four rules govern it.
  *
  * **The grades are the drawing.** Evidence class and confidence are what this
  * research is careful about, so they are what the ink is spent on. A line's
@@ -42,6 +43,25 @@ import styles from './influence-graph.module.css';
  * ordering is fixed for the life of the page. A reader who turns off inferred
  * edges is looking at the same drawing with less in it, not a new one — so
  * what the filter removed is legible, which is the entire point of having one.
+ * When a filter combination leaves nothing, the figure says so in words and
+ * offers the way back (NET-004); it never presents an empty gutter as a
+ * finding.
+ *
+ * **The drawing is the desktop form; the list is the mobile form** (NET-001).
+ * Below the 45rem seam the plot and its inspector stand down and the same
+ * data renders as an entity/relationship list — native `<details>` per
+ * entity, each connection stated in full with its evidence class and
+ * confidence as text. No graph interaction is required to reach any finding
+ * on either form: the desktop DOM's roster is real markup, the page's own
+ * edge list below the figure carries every statement, and the mobile list
+ * works with no JavaScript at all.
+ *
+ * Motion (NET-003): the only animation in this figure is a travelling pulse
+ * on a **documented** relationship's arc while its entity is selected —
+ * selection state, not ambience. Observed and inferred edges are never
+ * animated (their distinction stays in the line style and the text labels),
+ * nothing moves when nothing is selected, and under reduced motion the pulse
+ * is removed entirely, leaving the static lit arc it decorates.
  *
  * Everything the drawing says is also in the DOM beside it: the ordered list
  * of entities is the figure's own markup, the panel restates a selection in
@@ -57,6 +77,13 @@ export type InfluenceGraphProps = {
   roster: CaseEntity[];
   edges: CaseEdge[];
   communities: NetworkCommunity[];
+  /**
+   * The figure's async contract (NET-004). The current caller prerenders the
+   * data at build time and never passes this; a future caller that fetches
+   * the network can hand the state through instead of inventing its own
+   * placeholder around the figure.
+   */
+  status?: 'loading' | 'error';
 };
 
 const EVIDENCE_ORDER: EvidenceClass[] = [
@@ -102,7 +129,7 @@ function relationText(relation: string): string {
   return relation.replace(/_/g, ' ').toLowerCase();
 }
 
-export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphProps) {
+export function InfluenceGraph({ roster, edges, communities, status }: InfluenceGraphProps) {
   const layout = useMemo(
     () => buildGraphLayout(roster, edges, communities),
     [roster, edges, communities],
@@ -157,12 +184,42 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
     return live;
   }, [layout.arcs, isShown]);
 
+  /** How many edges the current filters leave standing. */
+  const shownCount = useMemo(
+    () => layout.arcs.filter((arc) => isShown(arc.edge)).length,
+    [layout.arcs, isShown],
+  );
+
+  const filtersActive = mutedClasses.length > 0 || mutedConfidence.length > 0;
+
+  const resetFilters = useCallback(() => {
+    setMutedClasses([]);
+    setMutedConfidence([]);
+  }, []);
+
   const selectedNode = layout.nodes.find((node) => node.entity.id === selected);
   const selectedEdges = selected
     ? layout.arcs
         .filter((arc) => arc.edge.fromId === selected || arc.edge.toId === selected)
         .map((arc) => arc.edge)
     : [];
+
+  /**
+   * The selection pulse (NET-003): only the selected entity's *documented*
+   * relationships, only while a selection stands (hover alone does not arm
+   * it), and only over arcs the filters have not hidden. Everything else about
+   * an edge's grade stays where it always was — in the line style and the
+   * words beside it.
+   */
+  const beamArcs =
+    selected !== null
+      ? layout.arcs.filter(
+          (arc) =>
+            arc.edge.evidenceClass === 'documented_relationship' &&
+            isShown(arc.edge) &&
+            (arc.edge.fromId === selected || arc.edge.toId === selected),
+        )
+      : [];
 
   const nameOf = useMemo(
     () => new Map(layout.nodes.map((node) => [node.entity.id, node.entity.name])),
@@ -185,6 +242,56 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
   const componentBreaks = new Set(
     layout.components.slice(1).map((component) => component.startRow),
   );
+
+  /* ── The figure's own async/degenerate states (NET-004) ─────────────────
+     Each one is words, not an empty gutter: a reader who lands here in a
+     state other than "drawn" is told what stands in the drawing's place. */
+
+  if (status === 'loading') {
+    return (
+      <StatusState
+        status="loading"
+        eyebrow="Network figure"
+        title="Assembling the network"
+        description="The entity roster and its recorded connections are still loading. The findings below this figure do not depend on it."
+      />
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <StatusState
+        status="error"
+        eyebrow="Network figure"
+        title="The network figure could not load"
+        description="The connection data did not arrive. Every documented edge is also listed in full further down this page, so no finding is lost with the drawing."
+      />
+    );
+  }
+
+  if (edges.length === 0) {
+    return (
+      <StatusState
+        status="empty"
+        eyebrow="Network figure"
+        title="No recorded connections"
+        description="The research roster carries entities but no edges between them, so there is no network to draw. If the underlying research records a connection, it will appear here."
+      />
+    );
+  }
+
+  if (layout.rowCount === 0) {
+    /* Edges exist but none joins two roster entities — the data is
+       inconsistent with itself, which is an error, not an empty set. */
+    return (
+      <StatusState
+        status="error"
+        eyebrow="Network figure"
+        title="The connection data does not match the roster"
+        description="Every recorded edge names at least one entity the roster does not carry, so nothing can be drawn without guessing at an identity. The edge statements are listed in full further down this page."
+      />
+    );
+  }
 
   return (
     <figure className={styles.figure}>
@@ -247,8 +354,22 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
             })}
           </div>
         </div>
+
+        {filtersActive ? (
+          <Button
+            type="button"
+            variant="text"
+            size="md"
+            className={styles.resetControl}
+            onClick={resetFilters}
+          >
+            Show all connections
+          </Button>
+        ) : null}
       </div>
 
+      {/* The desktop form: the arc plot. Below the seam it stands down in
+          favour of the entity list — same data, no drawing (NET-001). */}
       <div className={styles.plot} style={{ ['--rows' as string]: layout.rowCount }}>
         <div className={styles.brackets} aria-hidden="true">
           {layout.groups.map((group) => (
@@ -353,8 +474,95 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
               />
             );
           })}
+          {/* The selection pulse rides on top of the lit arc it decorates.
+              `pathLength` normalises every arc to the same cycle, so short
+              and long spans pulse at one cadence. Removed entirely under
+              reduced motion — the lit arc underneath is the static state. */}
+          {beamArcs.map((arc) => (
+            <path
+              key={`beam-${arc.edge.id}`}
+              d={arc.d}
+              pathLength={100}
+              className={styles.beam}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
         </svg>
       </div>
+
+      {/* The mobile form (NET-001): the same nodes in the same order, each a
+          native disclosure over its own relationship records. No JavaScript,
+          no drawing, no graph gesture stands between a reader and a finding. */}
+      {shownCount === 0 ? (
+        /* The empty-filter state, told where the mobile form can see it —
+           the inspector panel that carries it on desktop is hidden below the
+           seam. Only one of the two renders at any width. */
+        <div className={styles.listFilterEmpty} role="status">
+          <p className={styles.filterEmptyText}>
+            No connections match the current filters — every evidence class or
+            confidence grade still switched on has zero edges. Switch a filter
+            back on, or show everything:
+          </p>
+          <Button type="button" variant="secondary" size="md" onClick={resetFilters}>
+            Show all connections
+          </Button>
+        </div>
+      ) : null}
+
+      <ol className={styles.listView} aria-label="Entities and their recorded connections">
+        {layout.nodes.map((node) => {
+          const { entity } = node;
+          const nodeArcs = layout.arcs.filter(
+            (arc) => arc.edge.fromId === entity.id || arc.edge.toId === entity.id,
+          );
+          return (
+            <li key={entity.id} className={styles.listEntity}>
+              <details>
+                <summary className={styles.listSummary}>
+                  <span className={styles.listName}>{entity.name}</span>
+                  <span className={styles.listFacts}>
+                    {node.degree} connection{node.degree === 1 ? '' : 's'} ·{' '}
+                    {TYPE_LABEL[entity.type]} · {IDENTITY_LABEL[entity.identityStatus]}
+                    {node.community
+                      ? ` · Community ${node.community}`
+                      : node.role
+                        ? ` · ${node.role}`
+                        : ''}
+                  </span>
+                </summary>
+                <ul className={styles.listEdges}>
+                  {nodeArcs.map(({ edge }) => {
+                    const outward = edge.fromId === entity.id;
+                    const otherId = outward ? edge.toId : edge.fromId;
+                    const directed = edge.direction !== 'undirected';
+                    const shown = isShown(edge);
+                    return (
+                      <li key={edge.id} className={styles.listEdge} data-muted={shown ? undefined : 'yes'}>
+                        <p className={styles.listEdgeHead}>
+                          <span className={styles.listEdgePair}>
+                            {directed ? (outward ? 'to' : 'from') : 'with'}{' '}
+                            <b>{nameOf.get(otherId) ?? otherId}</b> — {relationText(edge.relation)}
+                          </span>
+                          <span className={styles.listGrade} data-evidence={edge.evidenceClass}>
+                            {EVIDENCE_LABEL[edge.evidenceClass]}
+                            {edge.confidence ? ` · ${CONFIDENCE_LABEL[edge.confidence]} confidence` : ''}
+                          </span>
+                        </p>
+                        <p className={styles.listStatement}>{edge.statement}</p>
+                        {!shown ? (
+                          <p className={styles.listMutedNote}>
+                            Hidden by the current filters.
+                          </p>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
+            </li>
+          );
+        })}
+      </ol>
 
       <p className={styles.groupKey}>
         {layout.groups.map((group) => (
@@ -366,7 +574,20 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
       </p>
 
       <div className={styles.panel} aria-live="polite">
-        {selectedNode ? (
+        {shownCount === 0 ? (
+          /* The empty-filter state (NET-004): every edge is muted. Words plus
+             the way back, never a silently blank drawing. */
+          <div className={styles.filterEmpty}>
+            <p className={styles.filterEmptyText}>
+              No connections match the current filters — every evidence class
+              or confidence grade still switched on has zero edges. Switch a
+              filter back on, or show everything:
+            </p>
+            <Button type="button" variant="secondary" size="md" onClick={resetFilters}>
+              Show all connections
+            </Button>
+          </div>
+        ) : selectedNode ? (
           <>
             <p className={styles.panelHead}>
               <span className={styles.panelName}>{selectedNode.entity.name}</span>
@@ -380,6 +601,15 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
                   ? `${selectedNode.community} · ${communityName.get(selectedNode.community) ?? 'Community'}`
                   : (selectedNode.role ?? 'Not placed in a community')}
               </span>
+              <Button
+                type="button"
+                variant="text"
+                size="sm"
+                className={styles.panelClear}
+                onClick={() => setSelected(null)}
+              >
+                Clear selection
+              </Button>
             </p>
             <ul className={styles.panelEdges}>
               {selectedEdges.map((edge) => {
@@ -418,13 +648,20 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
       </div>
 
       <figcaption className={styles.caption}>
-        <p>
+        <p className={styles.captionArcGrammar}>
           Each row is one entity, ordered by the group the research placed it in;
           each arc is one recorded connection, reaching as far as the two rows are
           apart. A <b>solid</b> arc is a documented relationship, a <b>dashed</b>{' '}
           one an observed interaction, a <b>dotted</b> one inferred coordination —
           and a fainter line is a lower confidence grade. Nothing here is drawn
           more firmly than the research graded it.
+        </p>
+        <p className={styles.captionListGrammar}>
+          Each entry is one entity, ordered by the group the research placed it
+          in; open one to read its recorded connections, each labelled with the
+          kind of evidence behind it — <b>documented</b>, <b>observed</b>, or{' '}
+          <b>inferred</b> — and the researchers&rsquo; confidence grade. Nothing
+          here is stated more firmly than the research graded it.
         </p>
         <p>
           {layout.isolated.length > 0 ? (

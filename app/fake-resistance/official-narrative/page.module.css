@@ -14,6 +14,146 @@
    Values answer to the V3 tokens in app/globals.css. The outer box is
    `Card variant="dossier"`; kickers still compose from the content library. */
 
+/* ── The cases at a glance (INV-003) ──────────────────────────────────────
+   One comparative table above the full files. Desktop reads it as columns;
+   below the seam each row restacks into a labelled record — the same cells,
+   so status and evidence basis never leave the collapsed view. */
+
+.compareScroll {
+  margin-top: var(--sp-5);
+  overflow-x: auto;
+}
+
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.compare thead th {
+  padding: 0 var(--sp-4) var(--sp-2) 0;
+  border-bottom: var(--line-w) solid var(--line-strong);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.compare tbody th,
+.compare tbody td {
+  padding: var(--sp-3) var(--sp-4) var(--sp-3) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-align: left;
+  vertical-align: top;
+}
+
+.compare tbody th {
+  font-weight: inherit;
+  white-space: nowrap;
+}
+
+.compare time {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-small-lh);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The exhibit letter, same voice as the tag on the full file below. */
+.compareExhibit {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-small-lh);
+  text-transform: uppercase;
+}
+
+.compareCase {
+  color: var(--ink-hi);
+  font-weight: 600;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in oklab, var(--ink-lo) 50%, transparent);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.compareCase:hover,
+.compareCase:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentcolor;
+}
+
+@media (max-width: 45rem) {
+  /* Stacked records. The header row leaves the screen but not the
+     accessibility tree, and every cell writes its own column label from
+     `data-label`, so nothing about a case's status or evidence basis is
+     lost to the stack. */
+  .compare,
+  .compare tbody,
+  .compare tbody tr,
+  .compare tbody th,
+  .compare tbody td {
+    display: block;
+    width: 100%;
+  }
+
+  .compare thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .compare tbody tr {
+    padding: var(--sp-4) 0;
+    border-bottom: var(--line-w) solid var(--line);
+  }
+
+  .compare tbody tr:first-child {
+    border-top: var(--line-w) solid var(--line-strong);
+  }
+
+  .compare tbody th,
+  .compare tbody td {
+    padding: var(--sp-2) 0 0;
+    border-bottom: 0;
+  }
+
+  .compare tbody th::before,
+  .compare tbody td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: var(--sp-1);
+    color: var(--ink-lo);
+    font-family: var(--face-data);
+    font-size: var(--t-data);
+    font-weight: var(--t-data-weight);
+    letter-spacing: var(--t-data-tracking);
+    line-height: var(--t-data-lh);
+    text-transform: uppercase;
+  }
+
+  .compare tbody th {
+    white-space: normal;
+  }
+}
+
 /* The dossier box is `Card variant="dossier"`. This class only keeps layout
    the primitive does not own: stacking gap, stamp positioning context, and
    the two-track source rail. Doubled selector beats Card's `display:flex`

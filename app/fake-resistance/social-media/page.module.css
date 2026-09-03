@@ -1,6 +1,7 @@
 /* The file index, promoted from the section's root page to a branch of its
-   own. A list of destinations, not a sequence, so no numbering: the reader
-   picks one, and nothing about the second follows from the first.
+   own. A list of destinations, not a sequence — but each entry says what it
+   is, what it asks, what stands behind it, and where it goes (INV-005), so
+   no card in the column is a generic teaser.
 
    Each entry is `Card variant="row"` — a record in a column, not a repeated
    box. Values answer to the V3 tokens in app/globals.css. */
@@ -16,6 +17,23 @@
   overflow-wrap: anywhere;
 }
 
-.fileMeta {
-  margin-top: var(--sp-2);
+/* The record's evidence line: a labelled fact about what the file rests on,
+   in the data voice, above the destination cue the Card primitive pins. */
+.fileEvidence {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking-tight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.fileEvidence > span {
+  display: block;
+  margin-bottom: var(--sp-1);
+  color: var(--data-ember-peak);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
 }

@@ -127,6 +127,12 @@
   line-height: 1;
 }
 
+/* The standing way back once any filter is muted. Button owns its states;
+   this only seats it on the control row's baseline. */
+.resetControl {
+  align-self: center;
+}
+
 
 .plot {
   --row-h: calc(var(--t-small) * var(--t-small-lh) + var(--sp-2));
@@ -370,6 +376,41 @@
   opacity: 0;
 }
 
+/* ── The selection pulse (NET-003) ────────────────────────────────────────
+   One travelling dash over a documented relationship's arc, present only
+   while its entity is selected. The arc underneath stays lit and solid, so
+   the pulse is emphasis on top of state, never the state itself. `pathLength`
+   is normalised to 100 in the markup, so the dash figures below are percent
+   of any arc's length. */
+.beam {
+  fill: none;
+  stroke: var(--data-ember-peak);
+  stroke-width: var(--line-w-thick);
+  stroke-linecap: round;
+  stroke-dasharray: 12 88;
+  animation: beam-travel 2.4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes beam-travel {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Static equivalent: the pulse is removed outright, leaving the lit solid
+   arc and the text labels that carry the same fact. A frozen dash fragment
+   would read as data, so it is not left behind. */
+@media (prefers-reduced-motion: reduce) {
+  .beam {
+    display: none;
+  }
+}
+
 
 .groupKey {
   display: flex;
@@ -417,12 +458,35 @@
   text-wrap: pretty;
 }
 
+/* The empty-filter state (NET-004): words and the way back, inside the
+   aria-live panel so the zero-match condition is announced as it happens. */
+.filterEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+
+.filterEmptyText {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  max-width: var(--measure-narrow);
+  text-wrap: pretty;
+}
+
 .panelHead {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--sp-2) var(--sp-4);
   margin: 0;
+}
+
+/* Button owns its states; this pushes the control to the row's far edge. */
+.panelClear {
+  margin-inline-start: auto;
 }
 
 .panelName {
@@ -541,13 +605,214 @@
   border: 0;
 }
 
+/* ── The mobile form (NET-001): entity/relationship list ──────────────────
+   The same nodes in the same order, each a native <details> over its own
+   relationship records. Hidden above the seam, where the plot and inspector
+   carry the figure; shown below it, where an arc gutter would be a thumb-wide
+   sliver. Works with no JavaScript. */
+
+.listView {
+  display: none;
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.listEntity {
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+/* The disclosure row: NET-002's floor holds here too — the summary is the
+   control, and it never drops under --control-h. */
+.listSummary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--sp-1);
+  min-height: var(--control-h);
+  padding: var(--sp-3) var(--sp-6) var(--sp-3) var(--sp-2);
+  cursor: pointer;
+  list-style: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.listSummary::-webkit-details-marker {
+  display: none;
+}
+
+/* The disclosure mark, at the row's far edge. Absolute rather than a flex
+   item: as a child of the column flex it would stack above the name. */
+.listSummary::before {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  right: var(--sp-2);
+  transform: translateY(-50%);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  line-height: 1;
+}
+
+.listEntity details[open] > .listSummary::before {
+  content: '−';
+  color: var(--data-ember-peak);
+}
+
+.listSummary:hover {
+  background: var(--tint-hover);
+}
+
+.listSummary:active {
+  background: var(--tint-active);
+}
+
+.listSummary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 0;
+}
+
+.listEntity details[open] > .listSummary .listName {
+  color: var(--data-ember-peak);
+}
+
+.listName {
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: var(--t-small-lh);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.listFacts {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}
+
+.listEdges {
+  margin: 0;
+  padding: 0 var(--sp-2) var(--sp-4);
+  list-style: none;
+}
+
+.listEdge {
+  padding-top: var(--sp-3);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.listEdge + .listEdge {
+  margin-top: var(--sp-3);
+}
+
+.listEdge[data-muted='yes'] {
+  opacity: 0.45;
+}
+
+.listEdgeHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-1) var(--sp-4);
+  margin: 0;
+}
+
+.listEdgePair {
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.listEdgePair b {
+  color: var(--ink-hi);
+  font-weight: 600;
+}
+
+.listGrade {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.listGrade[data-evidence='documented_relationship'] {
+  color: var(--ink);
+}
+
+.listStatement {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+/* The textual half of the muted treatment: opacity alone is a colour cue. */
+.listMutedNote {
+  margin: var(--sp-1) 0 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+/* The mobile twin of the panel's empty-filter notice; the panel that carries
+   it on desktop is display: none below the seam. */
+.listFilterEmpty {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
+/* The caption speaks to whichever form is on screen. */
+.captionListGrammar {
+  display: none;
+}
 
 @media (max-width: 45rem) {
-  .plot {
-
-    --arc-w: clamp(4rem, 30%, 8rem);
-    --gutter-w: 1rem;
+  /* Below the seam the drawing and its inspector stand down; the list is
+     the figure (NET-001). The filters above and the community key below
+     apply to both forms and stay. */
+  .plot,
+  .panel,
+  .captionArcGrammar {
+    display: none;
   }
+
+  .listView {
+    display: block;
+  }
+
+  .listFilterEmpty {
+    display: flex;
+  }
+
+  .captionListGrammar {
+    display: block;
+  }
+
+  /* The empty-filter state must still be told below the seam, where the
+     aria-live panel is gone: the list dims and every hidden edge is
+     labelled, and the standing reset control above remains the way back. */
 
   .panelHead {
     flex-direction: column;

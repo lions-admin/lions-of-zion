@@ -54,8 +54,23 @@ export function VolunteerInterestForm() {
     );
   }
 
+  const sending = status === 'sending';
+
   return (
-    <form className={styles.form} onSubmit={submit}>
+    /*
+      A11Y-007. The send failure is a fact about the submission, not about any
+      one field — the endpoint composes a mail from all five and reports one
+      result — so it stays a form-level summary and the form is described by
+      it. The no-JavaScript notice is referenced the same way: with scripting
+      on it is not in the DOM at all and the reference is simply ignored, which
+      is the behaviour wanted in both tiers.
+    */
+    <form
+      className={styles.form}
+      onSubmit={submit}
+      aria-busy={sending || undefined}
+      aria-describedby={['volunteer-noscript', status === 'error' ? 'volunteer-failure' : null].filter(Boolean).join(' ')}
+    >
       {/*
         Same failure as the report form with scripting off — no `action`, so
         submit is a native GET to /support-us and the reload reads as a send.
@@ -69,7 +84,7 @@ export function VolunteerInterestForm() {
       */}
       <noscript>
         <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
-        <p className={styles.formNote}>
+        <p id="volunteer-noscript" className={styles.formNote}>
           This form pre-fills an email, which needs JavaScript. Write to{' '}
           <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead and tell us your
           languages, skill areas and availability.
@@ -81,6 +96,7 @@ export function VolunteerInterestForm() {
         label="Name (optional)"
         type="text"
         value={name}
+        disabled={sending}
         onChange={(event) => setName(event.target.value)}
       />
 
@@ -90,10 +106,14 @@ export function VolunteerInterestForm() {
         type="email"
         required
         value={email}
+        disabled={sending}
         onChange={(event) => setEmail(event.target.value)}
       />
 
-      <FieldGroup legend="Skill areas">
+      {/* A11Y-007: a real `<fieldset>` with a `<legend>`, so the three boxes
+          are announced as one named group rather than three loose controls.
+          `disabled` on the fieldset reaches every box inside it. */}
+      <FieldGroup legend="Skill areas" disabled={sending}>
         {SKILL_AREAS.map((skill) => (
           <CheckboxField
             key={skill}
@@ -109,6 +129,7 @@ export function VolunteerInterestForm() {
         label="Languages you work in"
         type="text"
         value={languages}
+        disabled={sending}
         onChange={(event) => setLanguages(event.target.value)}
         placeholder="Hebrew, Arabic, English…"
       />
@@ -118,23 +139,25 @@ export function VolunteerInterestForm() {
         label="Availability"
         type="text"
         value={availability}
+        disabled={sending}
         onChange={(event) => setAvailability(event.target.value)}
         placeholder="A few hours a week, evenings…"
       />
 
       {status === 'error' ? (
-        <p className={styles.fieldError} {...assertiveLive}>
-          We could not send this right now. Email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.
+        <p id="volunteer-failure" className={styles.fieldError} {...assertiveLive}>
+          We could not send this right now. Nothing you typed was cleared — press Send interest
+          again, or email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.
         </p>
       ) : null}
       <Button
         type="submit"
         variant="primary"
         size="md"
-        disabled={status === 'sending'}
-        isLoading={status === 'sending'}
+        disabled={sending}
+        isLoading={sending}
       >
-        {status === 'sending' ? 'Sending…' : 'Send interest'}
+        {sending ? 'Sending…' : 'Send interest'}
       </Button>
       <p className={styles.formNote}>Your message is sent securely to the volunteer desk.</p>
     </form>

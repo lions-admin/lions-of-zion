@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { StatusState } from "@/components/ui/StatusState";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { SITE_URL } from "@/lib/site-config";
 import { listBriefingPublications } from "@/lib/publications";
 import styles from "./page.module.css";
@@ -46,7 +46,7 @@ export default async function Page() {
       />
       {unavailable ? (
         <StatusState
-          status="error"
+          status={absenceStatus("unavailable")}
           eyebrow="SERVICE STATUS"
           title="War updates are temporarily unavailable."
           description="The published record is intact. This page could not read it just now."
@@ -69,7 +69,7 @@ export default async function Page() {
         </SectionBlock>
       ) : (
         <StatusState
-          status="empty"
+          status={absenceStatus("nothing-published")}
           eyebrow="LIVE WAR DESK"
           title="No verified war update has been published yet."
           description="This page carries only source-linked updates that have completed the briefing pipeline. It will not display sample or historical placeholder material."

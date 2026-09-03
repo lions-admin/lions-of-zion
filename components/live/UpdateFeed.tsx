@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PUBLICATION_SECTIONS } from "@/server/contracts/enums";
 import type { PublicationSection } from "@/server/contracts/enums";
 import type { PublicPublication } from "@/server/contracts/publication";
-import { StatusState } from "@/components/ui/StatusState";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { groupByDay } from "./feed-time";
 import { FeedStatus } from "./FeedStatus";
 import { SECTION_LABELS } from "./publication-labels";
@@ -91,7 +91,7 @@ export function UpdateFeed({
 
       {unavailable ? (
         <StatusState
-          status="error"
+          status={absenceStatus("unavailable")}
           eyebrow="FEED STATUS"
           title="The published record could not be read."
           description="This is a fault on our side, not an empty archive. Published entries are unaffected and the feed returns when the read succeeds."
@@ -99,17 +99,30 @@ export function UpdateFeed({
           actionHref={href(section)}
         />
       ) : days.length === 0 ? (
+        /* STATE-005 — three causes, not one. A cursor page that comes back
+           empty is neither: the record is not empty, the reader has simply
+           walked past the end of it, and telling them "nothing has been
+           published" would be a false statement about the archive they were
+           just reading. A section filter with no rows is a filter result,
+           recoverable by clearing it. Only the unfiltered first page can
+           honestly say nothing has been published. */
         <StatusState
-          status="empty"
+          status={absenceStatus(paged ? "no-matches" : section ? "no-matches" : "nothing-published")}
           eyebrow="FEED STATUS"
           title={
-            section
-              ? `Nothing has been published in ${SECTION_LABELS[section]} yet.`
-              : "Nothing has been published yet."
+            paged
+              ? "You have reached the end of the record."
+              : section
+                ? `No entry in ${SECTION_LABELS[section]} has been published yet.`
+                : "Nothing has been published yet."
           }
-          description="Entries appear here only after they have cleared the evidence and quality checks. This page never shows sample or placeholder material to fill the space."
-          actionText={section ? "Show every section" : "How the checks work"}
-          actionHref={section ? href(undefined) : "/information-war#system"}
+          description={
+            paged
+              ? "There is nothing older than the last page you were on. The entries above it are still there."
+              : "Entries appear here only after they have cleared the evidence and quality checks. This page never shows sample or placeholder material to fill the space."
+          }
+          actionText={paged ? "Back to the newest entries" : section ? "Show every section" : "How the checks work"}
+          actionHref={paged ? href(section) : section ? href(undefined) : "/information-war#system"}
         />
       ) : (
         /* A day is a `<section>` with an id, not a list item, and that is

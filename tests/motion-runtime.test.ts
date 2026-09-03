@@ -2,6 +2,8 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { tierFor } from "@/components/particle-nav/hooks/usePerfTier";
+
 /**
  * MOTION-002 / PERF-006 / PERF-007 — the motion runtime inventory, pinned.
  *
@@ -39,6 +41,45 @@ function filesMatching(pattern: RegExp): string[] {
 
 const sourceFiles = () => filesMatching(/\.tsx?$/);
 const styleFiles = () => filesMatching(/\.css$/);
+
+/**
+ * Comments are prose and prose is full of `.map()`, `new Vector3` and stray
+ * parentheses, so they go before anything counts braces or looks for a
+ * pattern. String and template literals are deliberately left in: a template
+ * literal built inside a frame loop is itself an allocation this file looks
+ * for.
+ */
+function stripComments(source: string): string {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+}
+
+/**
+ * Every `useFrame(...)` call in a file, as source text, found by matching
+ * parentheses through the comment-stripped file. `balanced` is false if the
+ * scan ran off the end — which would mean an unbalanced parenthesis survived
+ * the strip, and the caller should fail rather than silently pass on a body
+ * that is really the whole rest of the file.
+ */
+function frameCallbacks(source: string): { balanced: boolean; body: string }[] {
+  const stripped = stripComments(source);
+  const out: { balanced: boolean; body: string }[] = [];
+  let from = 0;
+  for (;;) {
+    const at = stripped.indexOf("useFrame(", from);
+    if (at === -1) return out;
+    let depth = 0;
+    let i = at + "useFrame".length;
+    for (; i < stripped.length; i++) {
+      const c = stripped[i];
+      if (c === "(") depth++;
+      else if (c === ")" && --depth === 0) break;
+    }
+    out.push({ balanced: depth === 0, body: stripped.slice(at, i + 1) });
+    from = i + 1;
+  }
+}
 
 describe("MOTION-002 — the animation-loop inventory", () => {
   /**
@@ -355,6 +396,199 @@ describe("A11Y-010 / §21 — every continuous animation has a reduced-motion re
       )) {
         expect(Number(seconds), `${file}: ${seconds}s ambient loop`).toBeGreaterThanOrEqual(5);
       }
+    }
+  });
+});
+
+/**
+ * §6 of `fixhomeTODO.md` — the intro's performance and lifecycle budget.
+ *
+ * Phase C put a lion → throat → glyph path in the text material and Phase D a
+ * per-frame uniform sync in the scan, so the two things §6 actually guards
+ * against are a layer that starts allocating once per frame at 60 Hz, and a
+ * storage node that outlives the material that owns it. Both are source-level
+ * properties; neither has a runtime under vitest, since there is no WebGPU
+ * device here. The tier table is the exception and is exercised as a function.
+ */
+describe("§6 — the intro's per-frame and lifecycle budget", () => {
+  const PARTICLE_NAV = "components/particle-nav";
+  const frameFiles = () =>
+    sourceFiles().filter(
+      (file) => file.startsWith(`${PARTICLE_NAV}/`) && /useFrame\(/.test(read(file)),
+    );
+
+  it("the tier table still holds the three budgets §6 names", () => {
+    /* A coarse pointer or a WebGL2 fallback drops to the smallest LOD with no
+       bloom, whatever memory the device reports. */
+    for (const memory of [undefined, 2, 4, 8, 32]) {
+      for (const [backend, coarse] of [
+        ["webgpu", true],
+        ["webgl2", false],
+        ["webgl2", true],
+      ] as const) {
+        const tier = tierFor(backend, memory, coarse);
+        const label = `${backend}/${coarse}/${memory}`;
+        expect(tier.particles, label).toBe(45_000);
+        expect(tier.bloom, label).toBe("off");
+      }
+    }
+    /* Nothing anywhere in the table exceeds DPR 2. */
+    for (const backend of ["webgpu", "webgl2", "none"] as const) {
+      for (const memory of [undefined, 2, 4, 8, 32]) {
+        for (const coarse of [false, true]) {
+          expect(
+            tierFor(backend, memory, coarse).maxDpr,
+            `${backend}/${memory}/${coarse}`,
+          ).toBeLessThanOrEqual(2);
+        }
+      }
+    }
+    /* The full tier is still the full tier — the cap is a ceiling, not a
+       flattening of the table. */
+    expect(tierFor("webgpu", 8, false).particles).toBe(180_000);
+    expect(tierFor("webgpu", 8, false).bloom).toBe("full");
+    expect(tierFor("webgpu", 4, false).particles).toBe(90_000);
+  });
+
+  /**
+   * The declared exemption, with its reasons. `Scene.tsx` owns the frame
+   * solve, and three of its steps allocate on every frame:
+   *
+   *   - `getRollingStoryFrame()` returns a fresh frame object whose
+   *     `activeLines` is built with `flatMap`, so an array plus one object per
+   *     active line;
+   *   - the `ExperienceFrame` itself is written as an object literal;
+   *   - `connectorBezier()` builds six `Vector3`s, and the DOM label
+   *     projection formats two template strings per node.
+   *
+   * All four predate this phase and all four are in a file this pass does not
+   * own. They are listed rather than hidden so the exemption is a decision on
+   * the record: the fix is a mutable frame written in place and a cached
+   * Bézier, and it belongs to whoever owns `Scene.tsx` next.
+   */
+  const KNOWN_FRAME_ALLOCATORS = [`${PARTICLE_NAV}/Scene.tsx`];
+
+  /** Helpers that build a mapping, a cloud or a layout — never per frame. */
+  const REBUILD_HELPERS =
+    /\b(getRollingStoryFrame|connectorBezier|mapTextToLionSources|packLionSourcePositions|lionExtractionPool|buildTextCloud|computeIntroLayout|createIntroTextMaterial|createLionMaterial|createNetworkScanMaterial|decodeLionBake)\(/;
+
+  const ALLOCATION_PATTERNS: readonly [string, RegExp][] = [
+    ["a constructor call", /new [A-Z]/],
+    ["an array-returning method", /\.(map|flatMap|filter|slice|concat|split|join)\(/],
+    ["Array.from", /Array\.from\(/],
+    ["an object literal", /=\s*\{/],
+    ["a template literal", /`/],
+  ];
+
+  it("every frame loop in the particle scene is found and parsed", () => {
+    /* Non-empty, or the whole sweep below passes by matching nothing. */
+    const files = frameFiles();
+    expect(files.length).toBeGreaterThan(4);
+    for (const file of files) {
+      const callbacks = frameCallbacks(read(file));
+      expect(callbacks.length, file).toBeGreaterThan(0);
+      for (const { balanced } of callbacks) expect(balanced, file).toBe(true);
+    }
+    /* A stale exemption is as bad as a missing one. */
+    for (const file of KNOWN_FRAME_ALLOCATORS) expect(files, file).toContain(file);
+  });
+
+  it("no unexempt frame loop allocates, rebuilds or sets React state", () => {
+    for (const file of frameFiles()) {
+      if (KNOWN_FRAME_ALLOCATORS.includes(file)) continue;
+      const source = read(file);
+      /* The component's own state setters, by name — the precise form of "sets
+         React state", with none of a generic `set[A-Z]` pattern's false hits on
+         `setScalar`/`setUniform`. */
+      const setters = [
+        ...source.matchAll(/const \[\s*\w+\s*,\s*(set[A-Z]\w*)\s*\]\s*=\s*useState/g),
+      ].map((match) => match[1]);
+      for (const { body } of frameCallbacks(source)) {
+        for (const [label, pattern] of ALLOCATION_PATTERNS) {
+          expect(pattern.test(body), `${file}: frame loop contains ${label}`).toBe(false);
+        }
+        expect(
+          REBUILD_HELPERS.test(body),
+          `${file}: frame loop calls a builder that belongs in an effect`,
+        ).toBe(false);
+        for (const setter of setters) {
+          expect(
+            new RegExp(`\\b${setter}\\(`).test(body),
+            `${file}: frame loop calls ${setter}`,
+          ).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("the scan's per-frame sync solves into scratch rather than allocating", () => {
+    const scan = read(`${PARTICLE_NAV}/layers/NetworkScan.tsx`);
+    /* One function, called from the loop and from the commit that follows a
+       rebuild, so a fresh material is never drawn from its defaults. */
+    expect(scan).toMatch(/useFrame\(\(\) => \{\s*syncScanUniforms\(/);
+    expect(scan).toMatch(/useLayoutEffect\(\(\) => \{\s*syncScanUniforms\(/);
+    expect(scan).toMatch(/scratch: ScanUniformScratch/);
+    expect(scan).toMatch(/useMemo<ScanUniformScratch>/);
+    /* Both solvers write into the caller's object and return it. */
+    const scanIntro = read("components/intro/scanIntro.ts");
+    expect(scanIntro).toMatch(/out: LionScanMask,\n\): LionScanMask \{/);
+    expect(scanIntro).toMatch(/out: ScanCorridor,\n\): ScanCorridor \{/);
+  });
+
+  it("the text set is rebuilt only when the bake or the quantized layout changes", () => {
+    const text = read(`${PARTICLE_NAV}/layers/IntroText.tsx`);
+    /* The width feeding the glyph solve is bucketed, so a resize drag
+       resamples at most once per bucket instead of once per frame. */
+    expect(text).toMatch(/quantizeIntroWidth\(size\.width\)/);
+    expect(text).toMatch(/useMemo\(\(\) => computeIntroLayout\([^)]*\), \[layoutKey\]\)/);
+    expect(text).toMatch(/\}, \[layoutKey, lionHomes\]\)/);
+    expect(read("components/intro/introLayout.ts")).toMatch(
+      /Math\.round\(width \/ INTRO_WIDTH_QUANTUM_PX\) \* INTRO_WIDTH_QUANTUM_PX/,
+    );
+  });
+
+  it("every storage node the text layer adds is released with its material", () => {
+    const material = read(`${PARTICLE_NAV}/tsl/introTextMaterial.ts`);
+    /* `sources` is the node Phase C added; it joins the two that were already
+       disposed rather than being freed on a path of its own. */
+    expect(material).toMatch(
+      /const storages = sources \? \[positions, traits, sources\] : \[positions, traits\]/,
+    );
+    expect(material).toMatch(/material\.dispose\(\);/);
+    const text = read(`${PARTICLE_NAV}/layers/IntroText.tsx`);
+    /* Every unit the set owns, on both exits of the effect that built it. */
+    expect(text).toMatch(/for \(const unit of \[\.\.\.set\.lines, set\.brand\]\) unit\.handle\.dispose\(\)/);
+    expect(text).toMatch(/if \(cancelled\) disposeSet\(created\)/);
+    expect(text).toMatch(/if \(created\) disposeSet\(created\)/);
+  });
+
+  it("the lion material owns no storage of its own, so disposing it is complete", () => {
+    const point = read(`${PARTICLE_NAV}/tsl/pointMaterial.ts`);
+    /* It reads the sim's buffers and never calls `instancedArray`, so the
+       extraction uniforms Phase C added are plain uniform nodes with nothing
+       to free — `handle.material.dispose()` in `LionCore` is the whole job. */
+    expect(point).not.toMatch(/instancedArray\(/);
+    expect(point).toMatch(/extraction: uniform\(0\)/);
+    expect(point).toMatch(/extractionSeed: uniform\(0, 'uint'\)/);
+    expect(read(`${PARTICLE_NAV}/layers/LionCore.tsx`)).toMatch(
+      /useEffect\(\(\) => \(\) => handle\.material\.dispose\(\), \[handle\]\)/,
+    );
+    /* The sim's own buffers stay on the one path that owns them. */
+    expect(read(`${PARTICLE_NAV}/hooks/useLionBuffers.ts`)).toMatch(
+      /return \(\) => \{\s*cancelled = true;\s*created\?\.dispose\(\);/,
+    );
+  });
+
+  it("every layer that builds GPU state also tears it down", () => {
+    for (const file of [
+      "layers/IntroText.tsx",
+      "layers/LionCore.tsx",
+      "layers/NetworkScan.tsx",
+      "layers/OrbitalRings.tsx",
+      "layers/Connectors.tsx",
+      "layers/SpokeNodes.tsx",
+    ]) {
+      expect(read(`${PARTICLE_NAV}/${file}`), file).toMatch(/dispose/);
     }
   });
 });

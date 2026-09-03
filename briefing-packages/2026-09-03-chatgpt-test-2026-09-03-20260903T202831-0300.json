@@ -1,0 +1,457 @@
+{
+  "runId": "chatgpt-test-2026-09-03-20260903T202831-0300",
+  "localDate": "2026-09-03",
+  "contractVersion": "external-briefing-v1",
+  "composer": "ChatGPT scheduled geopolitical brief",
+  "publishers": [
+    {
+      "key": "reuters",
+      "name": "Reuters",
+      "homepageUrl": "https://www.reuters.com/",
+      "language": "en",
+      "country": "GB",
+      "official": false
+    },
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "he-IL",
+      "country": "IL",
+      "official": true
+    }
+  ],
+  "citations": [
+    {
+      "key": "reuters-ali-taher-iran-warning",
+      "publisherKey": "reuters",
+      "title": "Iran warns US against Israeli attack on south Lebanon ridge held by Hezbollah, sources say",
+      "url": "https://www.reuters.com/world/middle-east/iran-warns-us-against-israeli-attack-south-lebanon-ridge-held-by-hezbollah-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T07:02:13Z",
+      "excerpt": "Iran has warned the United States that it would respond forcefully to an Israeli offensive on a mountainous ridge in southern Lebanon where Iranian military personnel are holed up alongside Hezbollah fighters, three officials briefed on the message told Reuters. Hezbollah is believed to have built an underground command center and weapons stores within the Ali al-Taher ridge, according to Lebanese security sources. Reuters said it could not independently confirm the military situation at the ridge.",
+      "language": "en"
+    },
+    {
+      "key": "idf-war-diary-2026-09-02",
+      "publisherKey": "idf",
+      "title": "יומן המלחמה - 02/09/26",
+      "url": "https://www.idf.il/%D7%90%D7%AA%D7%A8%D7%99-%D7%99%D7%97%D7%99%D7%93%D7%95%D7%AA/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%AA%D7%9E%D7%95%D7%A0%D7%AA-%D7%94%D7%9E%D7%A6%D7%91-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-%D7%94%D7%99%D7%9E%D7%99%D7%9D/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-02-09-26/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-02T17:30:00+03:00",
+      "excerpt": "08:50 | חיזבאללה שיגר במהלך הלילה שני רחפני נפץ לעבר כוחות צה״ל במרחב רכס עלי טאהר, הלוחמים ירו לעבר אחד הרחפנים ויירטו אותו. אין נפגעים לכוחותינו. בתגובה לפעולה זו, צה״ל תקף תשתיות של חיזבאללה במרחב נבטיה שבדרום לבנון. צה״ל מסר כי התשתיות שימשו לתכנון והכוונת מתווי טרור וכי התקיפות בוצעו להסרת איום מיידי.",
+      "language": "he-IL"
+    },
+    {
+      "key": "reuters-us-house-boycott-bill",
+      "publisherKey": "reuters",
+      "title": "US House passes bill to crack down on university boycotts of Israel",
+      "url": "https://www.reuters.com/world/us/us-house-passes-bill-crack-down-university-boycotts-israel-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T16:30:35Z",
+      "excerpt": "The U.S. House of Representatives passed legislation on Thursday to block federal aid for universities that boycott Israel. The Republican-majority chamber voted 237-169 in favor of the Protect Economic and Academic Freedom Act, which would have to pass the Senate in order to become law. The bill's sponsors said it was not intended to hinder academic speech or debate, but to prevent the targeting of Israel and Judaism.",
+      "language": "en"
+    },
+    {
+      "key": "reuters-us-israel-defense-tech",
+      "publisherKey": "reuters",
+      "title": "Rights groups urge US lawmakers to drop provision to deepen defense ties with Israel",
+      "url": "https://www.reuters.com/legal/government/rights-groups-urge-us-lawmakers-drop-provision-deepen-defense-ties-with-israel-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T15:07:02Z",
+      "excerpt": "A provision of the 2027 National Defense Authorization Act seeks to deepen cooperation between the U.S. and Israeli defense sectors by accelerating joint military technology development and other partnerships. Reuters reported that the measure would set up frameworks for joint ventures, licensing agreements and U.S.-based co-production partnerships with Israeli industry. Fifty-six advocacy groups urged lawmakers to remove the provision, while supporters say deeper ties could speed military innovation and technology development.",
+      "language": "en"
+    },
+    {
+      "key": "reuters-gaza-seed-bank",
+      "publisherKey": "reuters",
+      "title": "Gaza seed bank helps farmers cultivate the little land they have left",
+      "url": "https://www.reuters.com/world/middle-east/gaza-seed-bank-helps-farmers-cultivate-little-land-they-have-left-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T06:03:40Z",
+      "excerpt": "Reuters reported that Gaza farmers are rebuilding a local seed bank and cultivating land near the Yellow Line. The report said Reuters has previously reported that Israel unilaterally moved concrete blocks marking the line deeper into Hamas-controlled territory. Local farmers said this reduced access to viable farmland. The Israeli military did not immediately respond to Reuters' request for comment on the story, while Israel has said earlier import restrictions were aimed at pressuring Hamas during ceasefire talks.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "Israel regional security brief — September 3, 2026",
+    "summary": "The most consequential development is renewed escalation risk around the Ali al-Taher ridge in southern Lebanon, where Reuters reports an Iranian warning to Washington and the IDF reports repeated Hezbollah explosive-drone attacks. In Washington, the House advanced legislation targeting university boycotts of Israel while a separate defense bill provision would deepen U.S.-Israeli military-technology cooperation. A Reuters report from Gaza raises an unresolved claim about movement of the Yellow Line that lacks a specific Israeli response in the cited report.",
+    "citationKeys": [
+      "reuters-ali-taher-iran-warning",
+      "idf-war-diary-2026-09-02",
+      "reuters-us-house-boycott-bill",
+      "reuters-us-israel-defense-tech",
+      "reuters-gaza-seed-bank"
+    ],
+    "claims": [
+      {
+        "title": "Ali al-Taher is a current escalation flashpoint",
+        "text": "Reuters reports that Iran warned the United States it would respond forcefully to a full Israeli offensive on Ali al-Taher, while the IDF says Hezbollah launched explosive drones at Israeli troops there and that Israel struck Hezbollah infrastructure in response.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Reuters and the Israel Defense Forces",
+        "uncertainty": "Reuters could not independently confirm the military situation inside the ridge, including reported IRGC presence.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-ali-taher-iran-warning",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Reuters directly reports the Iranian warning, Hezbollah presence and uncertainty about the ridge's internal military situation."
+          },
+          {
+            "citationKey": "idf-war-diary-2026-09-02",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "The IDF directly reports Hezbollah explosive-drone launches and Israeli retaliatory strikes around the ridge."
+          }
+        ]
+      },
+      {
+        "title": "US House passed anti-boycott legislation focused on Israel",
+        "text": "The U.S. House passed the Protect Economic and Academic Freedom Act by 237-169; the measure would restrict federal aid to universities that boycott Israel and still requires Senate passage to become law.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": "U.S. House of Representatives as reported by Reuters",
+        "uncertainty": "The bill has not become law and its Senate prospects remain unresolved.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-us-house-boycott-bill",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Reuters reports the House vote, bill name, purpose and requirement for Senate passage."
+          }
+        ]
+      },
+      {
+        "title": "A US defense bill provision would deepen US-Israel defense technology cooperation",
+        "text": "Section 219 of the 2027 NDAA would create frameworks for deeper U.S.-Israeli military-technology development, joint ventures, licensing and U.S.-based co-production, while advocacy groups are urging Congress to remove it.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": "Reuters",
+        "uncertainty": "The provision awaits Senate action and could still be changed or removed during the legislative process.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-us-israel-defense-tech",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Reuters describes both the provision's cooperation mechanisms and the organized opposition to it."
+          }
+        ]
+      },
+      {
+        "title": "Yellow Line movement claim remains unresolved in the cited Gaza report",
+        "text": "Reuters says it previously reported that Israel unilaterally moved concrete markers of the Yellow Line deeper into Hamas-controlled territory; the cited report says the Israeli military did not immediately respond to a request for comment on the story.",
+        "layer": "source_claim",
+        "assessment": "unresolved",
+        "attributedTo": "Reuters",
+        "uncertainty": "The cited report does not provide a specific Israeli response to the marker-movement claim, so this edition does not treat it as independently verified.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-gaza-seed-bank",
+            "relation": "supports",
+            "strength": "adequate",
+            "rationale": "Reuters states the claim and notes the absence of an immediate Israeli military response in the report."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Situation",
+      "passages": [
+        {
+          "text": "Southern Lebanon is the clearest immediate escalation point. Reuters reports an Iranian warning tied to an Israeli offensive on Ali al-Taher, while the IDF reports repeated Hezbollah explosive-drone activity against Israeli troops there.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-ali-taher-iran-warning", "idf-war-diary-2026-09-02"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key events",
+      "passages": [
+        {
+          "text": "In Washington, the House passed a bill aimed at denying federal aid to universities that boycott Israel; it still requires Senate passage.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-us-house-boycott-bill"]
+        },
+        {
+          "text": "A separate defense authorization provision would deepen U.S.-Israeli defense-technology cooperation through joint development, licensing and co-production frameworks, though organized opposition is seeking its removal.",
+          "claimIndex": 2,
+          "citationKeys": ["reuters-us-israel-defense-tech"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli position",
+      "passages": [
+        {
+          "text": "The IDF says Hezbollah launched two explosive drones toward Israeli troops at Ali al-Taher, that one was intercepted with no Israeli casualties, and that subsequent strikes on Hezbollah infrastructure near Nabatieh were intended to remove an immediate threat.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-war-diary-2026-09-02"]
+        }
+      ]
+    },
+    "internationalResponses": {
+      "label": "International responses",
+      "passages": [
+        {
+          "text": "Iran's reported warning to Washington raises the risk that an Israeli move at Ali al-Taher could broaden the conflict; a White House official told Reuters that the account of the message or U.S. pressure on Israel was not accurate.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-ali-taher-iran-warning"]
+        },
+        {
+          "text": "U.S. lawmakers are simultaneously debating stronger anti-boycott protections for Israel and deeper bilateral defense-industry integration, reflecting continuing institutional support alongside political opposition.",
+          "claimIndex": 2,
+          "citationKeys": ["reuters-us-house-boycott-bill", "reuters-us-israel-defense-tech"]
+        }
+      ]
+    },
+    "watchPoints": {
+      "label": "Watch points",
+      "passages": [
+        {
+          "text": "Watch for any Israeli decision to expand operations at Ali al-Taher, any Iranian or Hezbollah retaliation, and whether reported IRGC presence at the ridge receives independent confirmation.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-ali-taher-iran-warning", "idf-war-diary-2026-09-02"]
+        },
+        {
+          "text": "Watch for a direct Israeli response or independent geolocation evidence addressing Reuters' unresolved report that Yellow Line markers were moved deeper into Hamas-controlled territory.",
+          "claimIndex": 3,
+          "citationKeys": ["reuters-gaza-seed-bank"]
+        }
+      ]
+    }
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "Ali al-Taher ridge becomes the region's immediate escalation test",
+      "summary": "Reuters reports that Iran warned Washington against a full Israeli offensive on the Ali al-Taher ridge, while the IDF says Hezbollah has launched explosive drones at Israeli troops there. The core confirmed point is active Hezbollah-IDF friction; reported IRGC presence remains unconfirmed by Reuters.",
+      "citationKeys": ["reuters-ali-taher-iran-warning", "idf-war-diary-2026-09-02"],
+      "claims": [
+        {
+          "title": "Hezbollah launched explosive drones at Israeli troops near Ali al-Taher",
+          "text": "The IDF says Hezbollah launched two explosive drones toward Israeli troops at the ridge and that one was intercepted without Israeli casualties.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces",
+          "uncertainty": "This is an official Israeli military account of the incident.",
+          "citationLinks": [
+            {
+              "citationKey": "idf-war-diary-2026-09-02",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "The IDF war diary directly states the drone launches, interception and lack of casualties."
+            }
+          ]
+        },
+        {
+          "title": "Iranian warning and IRGC presence are attributed reports",
+          "text": "Reuters reports that Iran warned the United States of forceful retaliation if Israel launches a full offensive and that officials said IRGC personnel were present with Hezbollah fighters at the ridge.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "Officials cited by Reuters",
+          "uncertainty": "Reuters says it could not independently confirm the military situation at Ali al-Taher, and a White House official disputed the account of the warning or U.S. pressure.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-ali-taher-iran-warning",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "Reuters attributes the warning and presence claims to officials while explicitly stating limits on independent verification."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The IDF's directly stated account is that Hezbollah launched explosive drones at Israeli troops around Ali al-Taher and that Israel struck Hezbollah infrastructure near Nabatieh in response to an immediate threat.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-war-diary-2026-09-02"]
+        },
+        {
+          "text": "Reuters adds a higher-stakes but less certain layer: officials say Tehran warned Washington against a full Israeli offensive and that IRGC personnel are inside the ridge; Reuters could not independently confirm the internal military situation.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-ali-taher-iran-warning"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Lebanon escalation",
+      "primaryActor": "Hezbollah and Iran",
+      "arena": "Lebanon",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null
+    },
+    {
+      "section": "israel_update",
+      "title": "US House advances legislation targeting university boycotts of Israel",
+      "summary": "The House voted 237-169 for legislation that would block federal aid to universities that boycott Israel. Sponsors frame it as an anti-discrimination measure, while opponents argue it could burden protected expression. Senate passage is still required.",
+      "citationKeys": ["reuters-us-house-boycott-bill"],
+      "claims": [
+        {
+          "title": "House passed the anti-boycott bill",
+          "text": "The U.S. House passed the Protect Economic and Academic Freedom Act by 237-169, and the measure must still pass the Senate before becoming law.",
+          "layer": "observed_fact",
+          "assessment": "verified",
+          "attributedTo": "Reuters",
+          "uncertainty": "Future Senate action is unresolved.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-us-house-boycott-bill",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Reuters reports the vote total, bill name and legislative status."
+            }
+          ]
+        },
+        {
+          "title": "Supporters and opponents dispute the bill's speech implications",
+          "text": "Sponsors say the bill targets discrimination against Israel and Judaism rather than academic debate, while opponents including Representative Jerrold Nadler argue that free-expression protections are at stake.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "U.S. lawmakers cited by Reuters",
+          "uncertainty": "The disagreement concerns legal and policy effects that have not yet been tested because the bill is not law.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-us-house-boycott-bill",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Reuters records both the sponsors' anti-discrimination rationale and opponents' free-expression concerns."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The verified event is the House vote: 237-169 in favor of the Protect Economic and Academic Freedom Act, with Senate passage still required.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-us-house-boycott-bill"]
+        },
+        {
+          "text": "The political narrative remains contested. Supporters describe the measure as preventing discriminatory targeting of Israel and Judaism, while critics say protected expression could be affected.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-us-house-boycott-bill"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Anti-Israel boycotts",
+      "primaryActor": "United States Congress",
+      "arena": "United States",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Reuters Yellow Line movement claim lacks a specific Israeli response in the cited report",
+      "summary": "Reuters says it previously reported that Israel unilaterally moved Yellow Line markers deeper into Hamas-controlled territory. Because the cited article gives no specific Israeli response to that precise claim and this edition has no independent geolocation evidence, the claim is classified unresolved rather than verified or refuted.",
+      "citationKeys": ["reuters-gaza-seed-bank"],
+      "claims": [
+        {
+          "title": "Claim that Yellow Line markers were moved deeper into Hamas-controlled territory",
+          "text": "Reuters states that it previously reported Israel had unilaterally moved concrete blocks marking the Yellow Line deeper into Hamas-controlled territory.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "Reuters",
+          "uncertainty": "The cited article says the Israeli military did not immediately respond to Reuters' request for comment and does not present independent geolocation evidence in the text retained here.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-gaza-seed-bank",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "The article states the claim but does not provide a specific Israeli rebuttal or independent verification package in the retained text."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The monitored claim is narrowly defined: that Israel moved concrete Yellow Line markers deeper into Hamas-controlled territory, reducing access to land near the line.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-gaza-seed-bank"]
+        },
+        {
+          "text": "This edition does not elevate the claim beyond unresolved because the cited report contains no specific Israeli response to marker movement and no independently reviewed geolocation evidence is included in this collection.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-gaza-seed-bank"]
+        }
+      ],
+      "narrativeTitle": "Yellow Line marker movement in Gaza",
+      "editorialTopic": "Gaza territorial-control claims",
+      "primaryActor": "Israel Defense Forces",
+      "arena": "Gaza",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Israel unilaterally moved concrete blocks marking the Yellow Line deeper into Hamas-controlled territory.",
+        "propagators": ["Reuters"],
+        "arenas": ["Gaza", "international media"],
+        "trendDirection": "unclear",
+        "israeliPosition": "The cited Reuters report says the Israeli military did not immediately respond to its request for comment on the story. Israel's earlier stated rationale for import restrictions in the same report concerned pressure on Hamas during ceasefire talks, not the specific marker-movement allegation.",
+        "securityContext": "The Yellow Line is the demarcation referenced in the October 2025 Israel-Hamas ceasefire and lies near areas where Israeli troops operate; access near the line carries security risk.",
+        "supportingCitationKeys": ["reuters-gaza-seed-bank"],
+        "contradictingCitationKeys": [],
+        "verificationState": "unresolved",
+        "knownUnknowns": [
+          "No specific Israeli response to the marker-movement claim appears in the cited report.",
+          "No independent geolocation or satellite analysis was collected in this run.",
+          "The precise current placement of all Yellow Line markers was not independently verified."
+        ]
+      }
+    },
+    {
+      "section": "israel_update",
+      "title": "US defense bill provision points to deeper joint technology development with Israel",
+      "summary": "A provision in the 2027 U.S. defense authorization bill would deepen U.S.-Israeli military-technology cooperation through joint ventures, licensing and U.S.-based co-production. Advocacy groups are lobbying for its removal, so its final form remains uncertain.",
+      "citationKeys": ["reuters-us-israel-defense-tech"],
+      "claims": [
+        {
+          "title": "Section 219 would expand bilateral defense-technology frameworks",
+          "text": "Reuters reports that Section 219 seeks to accelerate joint military technology development and establish frameworks for joint ventures, licensing agreements and U.S.-based co-production partnerships with Israeli industry.",
+          "layer": "observed_fact",
+          "assessment": "verified",
+          "attributedTo": "Reuters",
+          "uncertainty": "The Senate has not completed action on the NDAA and the provision could change.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-us-israel-defense-tech",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Reuters describes the provision's concrete cooperation mechanisms and current legislative status."
+            }
+          ]
+        },
+        {
+          "title": "Opposition groups argue the integration is dangerous",
+          "text": "Fifty-six advocacy groups urged lawmakers to remove the provision, arguing that deeper integration with Israel's defense sector would be dangerous; supporters cited by Reuters say closer ties could speed military innovation and technology development.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "Advocacy groups and supporters cited by Reuters",
+          "uncertainty": "These are competing policy judgments, not settled factual findings.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-us-israel-defense-tech",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Reuters reports both the opposition letter and the supporters' stated innovation rationale."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The provision is a concrete sign of continued institutional interest in deeper U.S.-Israeli defense innovation, including joint development, licensing and co-production structures.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-us-israel-defense-tech"]
+        },
+        {
+          "text": "Its passage is not assured: advocacy groups are pressing Congress to remove the section, while supporters argue that deeper ties could accelerate military innovation and technology development.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-us-israel-defense-tech"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "US-Israel defense innovation",
+      "primaryActor": "United States and Israel",
+      "arena": "United States",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null
+    }
+  ]
+}

@@ -153,3 +153,30 @@
     display: none;
   }
 }
+
+/*
+ * The same family shapes, used as an *inner* boundary's fallback.
+ *
+ * The standalone geometry above is a whole-page stand-in: a full viewport
+ * tall, offset by the header, carrying the family scan. That is right for a
+ * fallback that replaces the page and wrong for one that sits inside a shell
+ * already rendered above it — the header offset would be counted twice and
+ * `100dvh` would push a viewport of empty tint below real content. The inline
+ * variant drops exactly those three, and lets the surrounding shell keep
+ * owning the measure and the inline padding it already set.
+ */
+.familyInline {
+  min-height: 0;
+  padding-top: 0;
+  background-image: none;
+}
+
+.familyInline .familyChrome {
+  width: 100%;
+  padding-block: 0;
+  padding-inline: 0;
+}
+
+.familyInline .familyBody {
+  width: 100%;
+}

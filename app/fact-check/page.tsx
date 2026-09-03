@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { DocPage } from "@/components/sections/DocPage";
 import { FactCheckDesk } from "@/components/factcheck";
+import { SkeletonDesk } from "@/components/ui/Skeleton";
 import {
   getPublicPublication,
   isMissingPublication,
@@ -49,7 +51,57 @@ function one(raw: Record<string, string | string[] | undefined>, key: string): s
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
-export default async function FactCheckPage({ searchParams }: { searchParams: Search }) {
+/*
+ * The shell is rendered synchronously; only the desk streams.
+ *
+ * `app/fact-check/loading.tsx` used to sit at the segment root, which put the
+ * whole segment — and therefore the `EditorialShell` chrome this site mounts
+ * inside each page rather than in `app/layout.tsx` — behind a Suspense
+ * boundary only client JavaScript could resolve. With scripting off the route
+ * rendered its title and nothing else. The boundary is inside the shell now.
+ *
+ * This component must stay synchronous, so `searchParams` travels down as the
+ * promise instead of being awaited here.
+ */
+export default function FactCheckPage({ searchParams }: { searchParams: Search }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: TITLE,
+    description: TAGLINE,
+    url: PAGE_URL,
+    publisher: { "@type": "Organization", name: "Lions of Zion" },
+  };
+
+  return (
+    <DocPage
+      routeId="fact-check"
+      title={TITLE}
+      tagline={TAGLINE}
+      /* No rails, deliberately. The page carries one `h2` — "What this page
+         does not show" — and `SectionToc` needs two before a contents list is
+         navigation rather than noise, so `rails="toc"` here would render an
+         empty rail and still widen the band the scan stays out of. `/updates`
+         does take the rail, because its day groups are real sections with
+         anchors and the rail becomes a date index over the feed. */
+      rails="none"
+      breadcrumb={[{ href: "/geopolitical-brief", label: "The Daily Brief" }]}
+    >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/* `inline`: the shell above already paid for the header offset and the
+          measure, and the standalone family geometry would count both twice. */}
+      <Suspense fallback={<SkeletonDesk inline label="Loading the checked claims" />}>
+        <FactCheckRecords searchParams={searchParams} />
+      </Suspense>
+    </DocPage>
+  );
+}
+
+/** The async region: the list read, plus the detail reads inside the budget. */
+async function FactCheckRecords({ searchParams }: { searchParams: Search }) {
   const raw = await searchParams;
   const openClaimId = one(raw, "claim");
 
@@ -96,39 +148,12 @@ export default async function FactCheckPage({ searchParams }: { searchParams: Se
   const details = new Map<string, PublicPublicationDetail>();
   for (const detail of detailed) if (detail) details.set(detail.publicId, detail);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: TITLE,
-    description: TAGLINE,
-    url: PAGE_URL,
-    publisher: { "@type": "Organization", name: "Lions of Zion" },
-  };
-
   return (
-    <DocPage
-      routeId="fact-check"
-      title={TITLE}
-      tagline={TAGLINE}
-      /* No rails, deliberately. The page carries one `h2` — "What this page
-         does not show" — and `SectionToc` needs two before a contents list is
-         navigation rather than noise, so `rails="toc"` here would render an
-         empty rail and still widen the band the scan stays out of. `/updates`
-         does take the rail, because its day groups are real sections with
-         anchors and the rail becomes a date index over the feed. */
-      rails="none"
-      breadcrumb={[{ href: "/geopolitical-brief", label: "The Daily Brief" }]}
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <FactCheckDesk
-        records={records}
-        details={details}
-        unavailable={unavailable}
-        openClaimId={openClaimId}
-      />
-    </DocPage>
+    <FactCheckDesk
+      records={records}
+      details={details}
+      unavailable={unavailable}
+      openClaimId={openClaimId}
+    />
   );
 }

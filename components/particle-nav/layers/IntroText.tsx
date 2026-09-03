@@ -17,6 +17,12 @@ import {
   quantizeIntroWidth,
 } from '@/components/intro/introLayout';
 import {
+  LION_BRAND_SOURCE_LINE,
+  lionHomeExtent,
+  mapTextToLionSources,
+  packLionSourcePositions,
+} from '@/components/intro/lionSourceMap';
+import {
   createIntroTextMaterial,
   type IntroTextMaterialOptions,
 } from '../tsl/introTextMaterial';
@@ -45,6 +51,8 @@ function makeUnit(
   return { sprite, handle };
 }
 
+/* The one disposal path: every storage node a unit owns — glyph positions,
+   traits and the lion sources — goes through `handle.dispose()`. */
 function disposeSet(set: TextSet) {
   for (const unit of [...set.lines, set.brand]) unit.handle.dispose();
 }
@@ -54,6 +62,13 @@ export interface IntroTextProps {
   pxToWorldRef: { current: number };
   dprRef: { current: number };
   lightweight: boolean;
+  /**
+   * The lion's decoded homes (`LionSim.homeData`), or null until the bake has
+   * loaded. Text particles are born on these positions, so no text set is
+   * built before they exist — the first line is not needed until 4.35 s and
+   * the lion has to be on screen long before that.
+   */
+  lionHomes: Float32Array | null;
 }
 
 export function IntroText({
@@ -61,6 +76,7 @@ export function IntroText({
   pxToWorldRef,
   dprRef,
   lightweight,
+  lionHomes,
 }: IntroTextProps) {
   const size = useThree((state) => state.size);
   /* One primitive key, so a resize drag resamples at most once per 16px bucket
@@ -79,12 +95,18 @@ export function IntroText({
   const brandRef = useRef<Group>(null);
   const [textSet, setTextSet] = useState<TextSet | null>(null);
 
+  /* Rebuilt when the quantised layout or the lion bake changes — the two
+     inputs the source mapping depends on — and never per frame. */
   useEffect(() => {
     let cancelled = false;
     let created: TextSet | null = null;
     const lineWidths: number[] = [];
     let brandWidth = 0;
     setTextSet(null);
+    if (!lionHomes) return;
+    const homes = lionHomes;
+    const lionCount = homes.length >> 2;
+    const lionBottom = lionHomeExtent(homes).minY;
     const loader = new FontLoader();
     loader.load(
       '/assets/gentilis_regular.typeface.json',
@@ -103,6 +125,14 @@ export function IntroText({
           0.001,
         );
         const storyScale = Math.min(current.fontScale, current.lineMaxWidth / widest);
+        const sourced = (cloud: ReturnType<typeof buildTextCloud>, sourceLine: number) => {
+          const indices = mapTextToLionSources(cloud.count, lionCount, sourceLine);
+          const unit = makeUnit(cloud, {
+            lionSources: packLionSourcePositions(homes, indices, sourceLine),
+          });
+          (unit.handle.uniforms.lionBottom as { value: number }).value = lionBottom;
+          return unit;
+        };
         const lineUnits = lines.map((line, index) => {
           const isFinal = index === final;
           const budget = introLineBudget(index, lines.length, layout, lightweight);
@@ -117,7 +147,7 @@ export function IntroText({
             seed: index * 20_003 + (mobile ? 101 : 0),
           });
           lineWidths.push(cloud.width);
-          return makeUnit(cloud);
+          return sourced(cloud, index);
         });
         /* The name is three words everywhere else on the site, and the
            climax is where it is read most carefully. Gentilis' space glyph is
@@ -137,7 +167,7 @@ export function IntroText({
           seed: mobile ? 91_131 : 91_117,
         });
         brandWidth = brandCloud.width;
-        const brand = makeUnit(brandCloud);
+        const brand = sourced(brandCloud, LION_BRAND_SOURCE_LINE);
         created = { lines: lineUnits, brand };
         lineWidthsRef.current = [...lineWidths, brandWidth];
         if (cancelled) disposeSet(created);
@@ -151,7 +181,7 @@ export function IntroText({
       if (created) disposeSet(created);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layoutKey]);
+  }, [layoutKey, lionHomes]);
 
   /* Travel is per line and per frame width, but it only changes when one of
      those changes — so it is written here rather than in the frame loop. */
@@ -177,6 +207,8 @@ export function IntroText({
     const activeBySlot = activeBySlotRef.current;
     activeBySlot.fill(null);
     for (const line of story?.activeLines ?? []) activeBySlot[line.slot] = line;
+    const lionScale = experience?.lionScale ?? 1;
+    const lionY = experience?.lionY ?? 0;
 
     for (let slot = 0; slot < ROLLING_POOL_SIZE; slot++) {
       const group = groupRefs.current[slot];
@@ -198,6 +230,11 @@ export function IntroText({
       (u.focus as { value: number }).value = emphasized ? active.isJoin ? 0.36 : 0.14 : 0;
       (u.pxToWorld as { value: number }).value = pxToWorldRef.current;
       (u.dpr as { value: number }).value = dprRef.current;
+      /* The source must stay on the lion while the lion is still settling and
+         the row slides: lion transform and row offset, every frame. */
+      (u.lionScale as { value: number }).value = lionScale;
+      (u.lionY as { value: number }).value = lionY;
+      (u.groupOffset as { value: Vector3 }).value.copy(group.position);
     }
 
     if (brandRef.current && experience && story) {
@@ -211,6 +248,9 @@ export function IntroText({
       (u.focus as { value: number }).value = 0.2;
       (u.pxToWorld as { value: number }).value = pxToWorldRef.current;
       (u.dpr as { value: number }).value = dprRef.current;
+      (u.lionScale as { value: number }).value = lionScale;
+      (u.lionY as { value: number }).value = lionY;
+      (u.groupOffset as { value: Vector3 }).value.copy(brandRef.current.position);
     }
 
   });

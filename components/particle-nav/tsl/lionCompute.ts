@@ -42,6 +42,13 @@ type Vec4Storage = ReturnType<typeof vec4Array>;
 export interface LionSim {
   count: number;
   crownStart: number;
+  /**
+   * The decoded bake homes, vec4-aligned xyz in lion-model space, kept on the
+   * CPU so the intro text can sample lion-surface positions without ever
+   * reading a GPU buffer back. Treat as immutable: the storage upload took its
+   * own copy, and `components/intro/lionSourceMap.ts` only reads it.
+   */
+  homeData: Float32Array;
   positions: Vec4Storage;
   velocities: Vec4Storage;
   homes: Vec4Storage;
@@ -206,6 +213,7 @@ export function createLionSim(decoded: DecodedLionBake, params: SimParams): Lion
   return {
     count,
     crownStart: decoded.header.crownStart,
+    homeData: decoded.positions,
     positions,
     velocities,
     homes,

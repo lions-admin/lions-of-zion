@@ -354,8 +354,8 @@
       "claims": [
         {
           "title": "House vote advanced anti-boycott legislation involving Israel",
-          "text": "The House voted 237-169 for legislation that would restrict specified federal aid for universities that boycott Israel; Senate passage is still required.",
-          "layer": "observed_fact",
+          "text": "Reuters reports that the House voted 237-169 for legislation that would restrict specified federal aid for universities that boycott Israel; Senate passage is still required.",
+          "layer": "source_claim",
           "assessment": "verified",
           "attributedTo": "Reuters",
           "uncertainty": "The bill has not become law and may change or fail in the Senate.",
@@ -371,7 +371,7 @@
       ],
       "passages": [
         {
-          "text": "The U.S. House passed the Protect Economic and Academic Freedom Act by 237-169, advancing a federal response to institution-level university boycotts of Israel.",
+          "text": "Reuters reports that the U.S. House passed the Protect Economic and Academic Freedom Act by 237-169, advancing a federal response to institution-level university boycotts of Israel.",
           "claimIndex": 0,
           "citationKeys": ["reuters-house-boycott"]
         },

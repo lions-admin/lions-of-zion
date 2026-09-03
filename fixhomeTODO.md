@@ -143,28 +143,29 @@ Keep `navReveal` separate. The background must awaken before the navigation outr
 
 ### Phase C — Make lion particles become the text
 
-- [ ] Preserve the canonical text and line breaks in `components/intro/story-timeline.ts`. Do not edit narrative copy.
-- [ ] Expose deterministic CPU lion home positions from `components/particle-nav/tsl/lionCompute.ts` through `LionSim` (or preserve an equivalent immutable decoded array in `useLionBuffers.ts`). Do not read GPU buffers back every frame.
-- [ ] Pass the lion source geometry from `components/particle-nav/Scene.tsx` into `components/particle-nav/layers/IntroText.tsx`.
-- [ ] For each text cloud, map every text particle to a deterministic lion source sample. Use a stable hashed/stratified index mapping so the stream is distributed across the mane/face/crown instead of selecting one contiguous bake range.
-- [ ] Extend `components/particle-nav/tsl/introTextMaterial.ts` so the entry path is:
+- [x] Preserve the canonical text and line breaks in `components/intro/story-timeline.ts`. Do not edit narrative copy. *(Untouched.)*
+- [x] Expose deterministic CPU lion home positions from `components/particle-nav/tsl/lionCompute.ts` through `LionSim` (or preserve an equivalent immutable decoded array in `useLionBuffers.ts`). Do not read GPU buffers back every frame. *(`LionSim.homeData` — the decoded vec4 array; the storage upload takes its own copy.)*
+- [x] Pass the lion source geometry from `components/particle-nav/Scene.tsx` into `components/particle-nav/layers/IntroText.tsx`. *(`lionHomes={sim?.homeData ?? null}`; the text set is not built until the bake exists.)*
+- [x] For each text cloud, map every text particle to a deterministic lion source sample. Use a stable hashed/stratified index mapping so the stream is distributed across the mane/face/crown instead of selecting one contiguous bake range. *(`components/intro/lionSourceMap.ts`: per-line PCG-hashed pool, stratified with a bijective index scramble; pinned by `tests/lion-source-map.test.ts`.)*
+- [x] Extend `components/particle-nav/tsl/introTextMaterial.ts` so the entry path is:
   1. exact sampled lion-surface position after current lion scale/Y transform;
   2. a narrow organic throat immediately below the settled lion;
   3. the particle's final glyph position.
-- [ ] Use a quadratic or cubic curve plus restrained seeded curl/jitter. The stream must read as downward extraction, not rain, an explosion, or a horizontal fly-in.
-- [ ] Keep the current glyph-order stagger so letters assemble progressively. Drive the path and glyph build with the same line progress; do not start an independent timer.
-- [ ] Update `components/particle-nav/layers/IntroText.tsx` each frame with the lion transform and the current row/group offset so the source point remains visually attached to the moved lion even while rolling rows shift.
-- [ ] Add a small deterministic extraction mask/envelope in `components/particle-nav/tsl/pointMaterial.ts` and set its uniforms from `LionCore.tsx`. Briefly dim only the subset represented by the outgoing transfer, then restore it. Cap the affected subset during tuning (start at 4–7%); the lion must stay solid and dominant.
-- [ ] Preserve current exit/disperse behavior after a line leaves the rolling window, unless it visibly conflicts with the new downward-source path.
-- [ ] Dispose every new TSL storage node/material in the existing cleanup paths. Do not introduce per-frame allocations or React state updates.
+  *(Two quadratic legs joined at the throat, in the row's group-local frame; uniforms `lionScale`, `lionY`, `lionBottom`, `groupOffset`. Shader path is typecheck-verified only — needs the owner's browser pass.)*
+- [x] Use a quadratic or cubic curve plus restrained seeded curl/jitter. The stream must read as downward extraction, not rain, an explosion, or a horizontal fly-in. *(Control points sit under the source and under the throat; curl is 0.035 world, zero at both ends. Whether it reads right is a browser judgement.)*
+- [x] Keep the current glyph-order stagger so letters assemble progressively. Drive the path and glyph build with the same line progress; do not start an independent timer. *(`built` drives both; the per-particle travel window widened from 17% to 28% of the build so the stream is visible, last particle still lands at `build = 1`.)*
+- [x] Update `components/particle-nav/layers/IntroText.tsx` each frame with the lion transform and the current row/group offset so the source point remains visually attached to the moved lion even while rolling rows shift. *(Uniform writes only.)*
+- [x] Add a small deterministic extraction mask/envelope in `components/particle-nav/tsl/pointMaterial.ts` and set its uniforms from `LionCore.tsx`. Briefly dim only the subset represented by the outgoing transfer, then restore it. Cap the affected subset during tuning (start at 4–7%); the lion must stay solid and dominant. *(`LION_EXTRACTION_FRACTION = 0.06`, dim 0.85 at peak, envelope `lionExtractionEnvelope()`; the dimmed pool is the pool the line samples, same hash and seed on both sides.)*
+- [x] Preserve current exit/disperse behavior after a line leaves the rolling window, unless it visibly conflicts with the new downward-source path. *(Kept unchanged. The wind exit travels up-right, through the region the lion now occupies; flagged for the browser pass.)*
+- [x] Dispose every new TSL storage node/material in the existing cleanup paths. Do not introduce per-frame allocations or React state updates. *(`sources` joins `positions`/`traits` in the material's dispose; pinned by a source-level test.)*
 
 **Phase C acceptance**
 
-- [ ] The first visible particles of every incoming line can be traced to the lion or the throat immediately beneath it.
-- [ ] The stream and glyph construction overlap continuously; there is no frame where the stream ends and the text then fades in separately.
-- [ ] The lion loses only a subtle subset during emission and never appears to collapse.
-- [ ] Reloading at the same viewport produces the same particle routes and line construction.
-- [ ] Mobile uses the reduced 45k tier and remains legible without increasing DPR beyond the existing cap of 2.
+- [ ] The first visible particles of every incoming line can be traced to the lion or the throat immediately beneath it. *(Browser-only.)*
+- [ ] The stream and glyph construction overlap continuously; there is no frame where the stream ends and the text then fades in separately. *(Browser-only.)*
+- [ ] The lion loses only a subtle subset during emission and never appears to collapse. *(Browser-only.)*
+- [ ] Reloading at the same viewport produces the same particle routes and line construction. *(Mapping determinism is pinned by `tests/lion-source-map.test.ts`; the frame itself is a browser check.)*
+- [ ] Mobile uses the reduced 45k tier and remains legible without increasing DPR beyond the existing cap of 2. *(Tier, budgets and DPR cap untouched; legibility is a browser check.)*
 
 ### Phase D — Wake the GPU scan during the intro
 

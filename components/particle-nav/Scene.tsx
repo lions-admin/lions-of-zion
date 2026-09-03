@@ -389,6 +389,7 @@ function SceneContent(props: SceneProps) {
           pxToWorldRef={pxToWorldRef}
           dprRef={dprRef}
           lightweight={tier.particles === 45_000}
+          lionHomes={sim?.homeData ?? null}
         />
       ) : null}
     </>

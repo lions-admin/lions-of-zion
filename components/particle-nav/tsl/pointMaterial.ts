@@ -18,6 +18,10 @@ import {
   uv,
   vec2,
 } from 'three/tsl';
+import {
+  LION_EXTRACTION_DIM,
+  LION_EXTRACTION_FRACTION,
+} from '@/components/intro/lionSourceMap';
 import type { LionSim } from './lionCompute';
 import type { ParticleNavTheme } from '../types';
 
@@ -32,6 +36,17 @@ export interface LionMaterialHandle {
     dpr: ReturnType<typeof uniform>;
     opacity: ReturnType<typeof uniform>;
     crownReveal: ReturnType<typeof uniform>;
+    /**
+     * Extraction envelope, 0..1 — how far the line's subset is dimmed right
+     * now. `lionExtractionEnvelope()` in `components/intro/lionSourceMap.ts`.
+     */
+    extraction: ReturnType<typeof uniform>;
+    /**
+     * uint seed added to the instance index before hashing. The same seed
+     * selects the line's source pool on the CPU, so the particles that dim
+     * are the particles the text is made of. `lionExtractionSeed(line)`.
+     */
+    extractionSeed: ReturnType<typeof uniform>;
   };
 }
 
@@ -50,11 +65,23 @@ export function createLionMaterial(sim: LionSim, theme: ParticleNavTheme): LionM
     dpr: uniform(1),
     opacity: uniform(1),
     crownReveal: uniform(1),
+    extraction: uniform(0),
+    extractionSeed: uniform(0, 'uint'),
   };
 
   const seed = hash(instanceIndex.add(977));
+  /* Extraction mask: the subset whose hash falls under the fraction is the
+     pool the current line draws its particles from (the CPU evaluates the
+     same PCG hash with the same seed). It thins while the transfer is active
+     and is restored as the line lands. A small fraction and a partial dim,
+     never a removal — the lion stays the primary mark. */
+  const extracted = step(
+    hash(instanceIndex.add(uniforms.extractionSeed)),
+    float(LION_EXTRACTION_FRACTION),
+  ).mul(uniforms.extraction);
   material.positionNode = sim.positions.element(instanceIndex).xyz;
   material.scaleNode = mix(uniforms.sizeMinPx, uniforms.sizeMaxPx, seed)
+    .mul(float(1).sub(extracted.mul(0.35)))
     .mul(uniforms.dpr)
     .mul(uniforms.pxToWorld);
 
@@ -71,7 +98,8 @@ export function createLionMaterial(sim: LionSim, theme: ParticleNavTheme): LionM
   material.opacityNode = smoothstep(0.5, 0.16, d)
     .mul(mix(0.05, 0.13, seed))
     .mul(uniforms.opacity)
-    .mul(regionVisibility);
+    .mul(regionVisibility)
+    .mul(float(1).sub(extracted.mul(LION_EXTRACTION_DIM)));
 
   return { material, uniforms };
 }

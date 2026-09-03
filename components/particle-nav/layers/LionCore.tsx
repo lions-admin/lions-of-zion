@@ -6,6 +6,11 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Group, Sprite, Vector3, type WebGPURenderer } from 'three/webgpu';
+import {
+  LION_BRAND_SOURCE_LINE,
+  lionExtractionEnvelope,
+  lionExtractionSeed,
+} from '@/components/intro/lionSourceMap';
 import type { LionSim } from '../tsl/lionCompute';
 import { createLionMaterial } from '../tsl/pointMaterial';
 import type { InteractionFrame } from '../hooks/useInteraction';
@@ -101,6 +106,20 @@ export function LionCore({
     (hu.sizeMaxPx as { value: number }).value = params.pointSizeMax;
     (hu.opacity as { value: number }).value = experience?.lionOpacity ?? 1;
     (hu.crownReveal as { value: number }).value = experience?.crownReveal ?? 1;
+
+    /* Extraction mask. The newest entering line is the one drawing from the
+       lion, so its build progress and its index pick the envelope and the
+       pool. While the brand wordmark builds every story line is already held
+       at 1, so it takes over with its own pool. Nothing here allocates. */
+    const story = experience?.story;
+    const brandBuilding = !!story && story.brandProgress > 0 && story.brandProgress < 1;
+    const transfer = brandBuilding ? story.brandProgress : experience?.activeTextTransfer ?? 0;
+    const sourceLine = brandBuilding ? LION_BRAND_SOURCE_LINE : story?.latestLineIndex ?? 0;
+    (hu.extraction as { value: number }).value = lionExtractionEnvelope(
+      transfer,
+      experience?.textFlow ?? 0,
+    );
+    (hu.extractionSeed as { value: number }).value = lionExtractionSeed(sourceLine);
 
     if (groupRef.current) {
       groupRef.current.scale.setScalar(experience?.lionScale ?? scale);

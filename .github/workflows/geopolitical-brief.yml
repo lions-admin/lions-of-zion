@@ -1,67 +1,138 @@
-# Runs scripts/external-briefing-compose.ts on a schedule and on demand.
-# That script collects news from RSS feeds, makes one AI call to draft a
-# Daily Brief edition, and POSTs it to an internal ingest API. This workflow
-# only invokes it via `npm run briefing:compose`; it does not implement it.
+# Receives an externally authored Daily Brief package and publishes it.
 #
-# Required GitHub Actions secrets (Settings > Secrets and variables > Actions):
+# This workflow does NOT compose the edition. Source collection, claim
+# analysis and package authoring happen outside this repository (ChatGPT);
+# the finished JSON arrives here as a file under `briefing-packages/`. All
+# this workflow does is the mechanical half:
+#
+#   1. validate the file against `server/contracts/external-briefing.ts`
+#   2. POST it to /api/internal/briefing/external-publish
+#   3. verify the result is actually visible on the public site
+#
+# It therefore needs no AI credential. If a step here ever starts deciding
+# what the edition says, that boundary has been broken.
+#
+# ## How to publish an edition
+#
+# Commit ChatGPT's JSON as `briefing-packages/<anything>.json` and push to
+# the default branch — the push triggers this workflow for the files that
+# push added or changed. The file in git is the audit record of exactly what
+# was published, which is why the package is committed rather than pasted
+# into a form field (a realistic package is 30-40 KB, and `workflow_dispatch`
+# inputs cap out at 65,535 characters for all inputs combined).
+#
+# To re-run one file by hand, or to check a package without publishing it,
+# use the Actions tab: Run workflow > set `package_path` (and `dry_run` to
+# validate only). Resubmitting a package that already published is safe —
+# the ingest API is idempotent on `runId` and returns the original ids.
+#
+# ## Required GitHub Actions secret
 #   - EXTERNAL_BRIEFING_INGEST_SECRET
 #       Sent as the `x-external-briefing-secret` header to authenticate to
-#       the ingest endpoint.
-#   - AI_GATEWAY_API_KEY
-#       Static AI Gateway credential. Verified against
-#       server/core/config.ts `hasAiGateway()` (~line 184), which reads
-#       `process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY ||
-#       process.env.XAI_API_KEY`. There is no automatic VERCEL_OIDC_TOKEN
-#       outside a Vercel deployment, so this runner needs the
-#       AI_GATEWAY_API_KEY fallback explicitly.
+#       the ingest endpoint. Must match the value set on the deployment
+#       named by BRIEFING_INGEST_BASE_URL.
 #
-# Optional, non-secret GitHub Actions repository/environment Variable
-# (Settings > Secrets and variables > Actions > Variables):
+# ## Optional, non-secret repository/environment Variable
 #   - BRIEFING_INGEST_BASE_URL
-#       Base URL the script POSTs the composed brief to. Defaults to
-#       https://lionsofzion.io when unset. Set this on a manual
-#       workflow_dispatch run to point at a preview deployment instead,
-#       without editing this file. An unset repo variable resolves to an
-#       empty string, which the script treats the same as unset.
+#       Where to publish. Defaults to https://lionsofzion.io when unset.
+#       Point it at a preview deployment to rehearse. An unset repo variable
+#       resolves to an empty string, which the script treats as unset.
+#
+# AI_GATEWAY_API_KEY is deliberately NOT used here any more. It remains
+# required only by `npm run briefing:compose`, the in-repo composer this
+# workflow no longer runs.
 
-name: Geopolitical Daily Brief
+name: Publish Daily Brief Package
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'briefing-packages/**.json'
   workflow_dispatch:
     inputs:
+      package_path:
+        description: 'Path to the package JSON, e.g. briefing-packages/2026-09-04.json'
+        required: true
+        type: string
       dry_run:
-        description: "Dry run: assemble the brief and log it, but skip the POST to the ingest API"
+        description: 'Validate and summarise the package, but do not publish it'
         required: false
         type: boolean
         default: false
-  # Israel has no single fixed UTC offset: it is UTC+2 (IST) in winter and
-  # UTC+3 (IDT) in summer under DST. A fixed UTC cron hour therefore lands at
-  # a different local time depending on the season. 04:00 UTC + 2h (winter)
-  # = 06:00 local; 04:00 UTC + 3h (summer) = 07:00 local. Both are a
-  # reasonable early-morning window for a daily brief, so 04:00 UTC is used
-  # year-round rather than maintaining two seasonal cron entries.
-  schedule:
-    - cron: '0 4 * * *'
+
+# Two pushes landing close together must not publish concurrently: the ingest
+# API refuses a second edition for the same local date, so an overlapping run
+# would fail confusingly rather than queue behind the first.
+concurrency:
+  group: publish-daily-brief
+  cancel-in-progress: false
 
 jobs:
-  compose:
-    name: Compose and publish the Daily Brief
+  publish:
+    name: Validate, publish, and verify
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The diff below spans the whole push, which can be several
+          # commits, so the commit it pushed *from* must be present. A
+          # shallow clone deep enough for one commit would silently miss a
+          # package added in any but the last commit of a multi-commit push.
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
+
       - run: npm ci
-      - name: Compose and publish the Daily Brief
+
+      - name: Work out which package file(s) to publish
+        id: packages
+        env:
+          DISPATCH_PATH: ${{ inputs.package_path }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "${DISPATCH_PATH}" ]; then
+            if [ ! -f "${DISPATCH_PATH}" ]; then
+              echo "::error::No such file: ${DISPATCH_PATH}"
+              exit 1
+            fi
+            printf '%s\n' "${DISPATCH_PATH}" > packages.txt
+          else
+            # Every .json under briefing-packages/ added or modified across
+            # the whole push, not just its last commit. Deletions are
+            # excluded (--diff-filter=d) so removing an old package never
+            # republishes anything.
+            git diff --name-only --diff-filter=d "${PUSH_BEFORE}" "${PUSH_AFTER}" \
+              | grep -E '^briefing-packages/.*\.json$' > packages.txt || true
+          fi
+          if [ ! -s packages.txt ]; then
+            echo "::notice::No briefing package files to publish."
+          fi
+          echo "count=$(wc -l < packages.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          cat packages.txt
+
+      - name: Validate, publish, and verify
+        if: steps.packages.outputs.count != '0'
         env:
           EXTERNAL_BRIEFING_INGEST_SECRET: ${{ secrets.EXTERNAL_BRIEFING_INGEST_SECRET }}
-          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
           BRIEFING_INGEST_BASE_URL: ${{ vars.BRIEFING_INGEST_BASE_URL }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            npm run briefing:compose -- --dry-run
-          else
-            npm run briefing:compose
-          fi
+          set -euo pipefail
+          status=0
+          while IFS= read -r package; do
+            [ -n "$package" ] || continue
+            echo "::group::$package"
+            if [ "${DRY_RUN}" = "true" ]; then
+              npm run briefing:publish -- "$package" --dry-run || status=1
+            else
+              npm run briefing:publish -- "$package" || status=1
+            fi
+            echo "::endgroup::"
+          done < packages.txt
+          exit $status

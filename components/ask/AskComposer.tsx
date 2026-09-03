@@ -58,7 +58,7 @@ export function AskComposer({
      before painting, so the refilled box never flashes empty, and the
      alternative is the cascading render `react-hooks/set-state-in-effect`
      refuses. Same pattern as `SearchPanel`'s selection reset. */
-  const [seeded, setSeeded] = useState(seed?.nonce ?? 0);
+  const [seeded, setSeeded] = useState<number | null>(null);
   if (seed && seed.nonce !== seeded) {
     setSeeded(seed.nonce);
     setValue(seed.text);

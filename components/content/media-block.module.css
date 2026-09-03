@@ -46,6 +46,14 @@
   color: var(--ink);
 }
 
+/* The one part of a caption that is prose. Credit and provenance below it
+   are in the data voice; this is not, and it is the part that can carry a
+   long sentence, so it must be free to wrap. */
+.captionText {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
 .credit,
 .provenance {
   font-family: var(--face-data);

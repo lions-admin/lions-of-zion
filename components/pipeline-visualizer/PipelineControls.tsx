@@ -180,9 +180,6 @@ export function PipelineControls({
                 aria-label={CHROME.stepAria(idx + 1, st.titleEn)}
                 aria-current={isCurrent ? "step" : undefined}
               >
-                <span className={styles.stepDotIndex} aria-hidden="true">
-                  {idx + 1}
-                </span>
                 {isCurrent && isPlaying && (
                   <span
                     className={styles.stepDotProgressFill}

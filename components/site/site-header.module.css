@@ -486,6 +486,17 @@
   padding: var(--sp-4) 0 var(--sp-2);
 }
 
+/* A label and its rows. The rows carry their own top hairline, so the only
+   thing the group owes is closing the last one — a stack of top-bordered rows
+   otherwise ends open against the drawer floor. */
+.sheetGroup {
+  display: block;
+}
+
+.sheetGroup:last-of-type .sheetRow:last-child {
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
 .sheetRow {
   display: grid;
   grid-template-columns: var(--sp-6) minmax(0, 1fr);

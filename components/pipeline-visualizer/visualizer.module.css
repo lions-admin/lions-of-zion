@@ -352,6 +352,15 @@
 }
 
 
+/* The label swaps between "Play" and "Pause" while the simulation runs.
+   Without a floor the whole transport group shifts sideways on every toggle,
+   which moves the Next button out from under the reader's finger. */
+.playButton {
+  min-width: 6rem;
+  justify-content: center;
+}
+
+
 .stepDot {
   position: relative;
   flex: 1;
@@ -570,7 +579,46 @@
   min-height: 560px;
 }
 
-.interactiveCanvasContainer {
+/* The map: toolbar in the flow, then the pan/zoom stage under it.
+   `min-width: 0` is load-bearing. Without it a flex child refuses to shrink
+   below its content, and the content here is a 2458px canvas plane — which is
+   exactly how every interactive node ended up outside the viewport at 1024,
+   1440 and 1920 with only the root's `overflow-x: clip` hiding it. */
+.mapRegion {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* The toolbar used to be `position: absolute` over the diagram it controls
+   and free to wrap down across it. It is a region in the flow now: it takes
+   the height it needs, scrolls sideways within itself when it cannot fit, and
+   never covers content or leaves the viewport. */
+.stageToolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface-1);
+  border-bottom: var(--line-w) solid var(--line);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.stageToolbar > * {
+  flex: none;
+}
+
+/* The pan/zoom stage. This clips the transformed plane, so anything the
+   reader cannot see is reachable by dragging rather than gone. `touch-action:
+   none` is what lets the pointer handlers pan on a touch screen instead of
+   the browser scrolling the page out from under them. */
+.canvasViewport {
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -579,30 +627,12 @@
     radial-gradient(var(--wash-1) 1px, transparent 1px);
   background-size: 100% 100%, 32px 32px;
   cursor: grab;
+  touch-action: none;
   user-select: none;
 }
 
-.interactiveCanvasContainer:active {
+.canvasViewport[data-panning] {
   cursor: grabbing;
-}
-
-
-.canvasFloatingToolbar {
-  position: absolute;
-  top: var(--sp-3);
-  right: var(--sp-3);
-  max-width: calc(100% - 2 * var(--sp-3));
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--sp-2) var(--sp-4);
-  padding: var(--sp-2) var(--sp-3);
-  background: var(--panel);
-  backdrop-filter: blur(14px);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-2);
-  z-index: var(--z-sticky);
 }
 
 .toolbarButtonGroup {
@@ -1125,6 +1155,13 @@
   font-weight: var(--t-data-weight);
 }
 
+/* Standing guarantees, not live readings: stated flat and quiet so they do
+   not compete with the metrics that actually change. */
+.telemetryGuarantee {
+  color: var(--ink-lo);
+  white-space: nowrap;
+}
+
 .metricBadge {
   display: flex;
   align-items: center;
@@ -1159,6 +1196,15 @@
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   color: var(--ink-lo);
+}
+
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .logRow {
@@ -1452,11 +1498,6 @@
 
   .canvasToolbarHint {
     display: none;
-  }
-
-  .canvasFloatingToolbar {
-    left: var(--sp-3);
-    max-width: none;
   }
 
   .drawerHeader,

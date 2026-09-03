@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useMemo } from "react";
+import React, { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/Button";
 import type {
   SimulationPacket,
   ViewPerspective,
   NodeCategory,
 } from "./types";
-import { PIPELINE_NODES } from "./data/nodes";
+import { BASE_NODE_POSITIONS, NODES_IN_DIAGRAM_ORDER } from "./data/layout";
 import { PIPELINE_EDGES } from "./data/edges";
 import { CHROME, LANE_COPY, kindLabel, nodeInspectorCopy } from "./copy";
 import styles from "./visualizer.module.css";
@@ -38,67 +38,13 @@ interface NodeLayout {
    visually is `data-kind`, which the stylesheet reads. */
 const BASE_LANES = LANE_COPY;
 
-const BASE_NODE_POSITIONS: Record<string, { laneIdx: number; rowIdx: number }> = {
-  /* Lane 0: Ingest */
-  family: { laneIdx: 0, rowIdx: 0 },
-  source: { laneIdx: 0, rowIdx: 1 },
-  cron_ingest: { laneIdx: 0, rowIdx: 2 },
-  connector: { laneIdx: 0, rowIdx: 3 },
-  blob_storage: { laneIdx: 0, rowIdx: 4 },
-  source_fetch: { laneIdx: 0, rowIdx: 5 },
-  evidence_discovery: { laneIdx: 0, rowIdx: 6 },
+/* Below this a pointer press is a click, not a drag. Without it every tap
+   on a touch screen registered as a one-pixel card drag, and a deliberate
+   drag also fired the card's click and opened the inspector on release. */
+const DRAG_THRESHOLD_PX = 4;
 
-  /* Lane 1: Evidence */
-  evidence: { laneIdx: 1, rowIdx: 0.5 },
-  evidence_provenance: { laneIdx: 1, rowIdx: 1.8 },
-  status_axes: { laneIdx: 1, rowIdx: 3.1 },
-  item: { laneIdx: 1, rowIdx: 4.4 },
-  item_evidence: { laneIdx: 1, rowIdx: 5.7 },
-
-  /* Lane 2: Verification */
-  verdict_rules: { laneIdx: 2, rowIdx: 0.5 },
-  item_assessment: { laneIdx: 2, rowIdx: 1.8 },
-  review_queue: { laneIdx: 2, rowIdx: 3.1 },
-  enforce_publish_gate: { laneIdx: 2, rowIdx: 4.4 },
-  published_item_view: { laneIdx: 2, rowIdx: 5.7 },
-
-  /* Lane 3: Briefing */
-  cron_briefing: { laneIdx: 3, rowIdx: 0 },
-  briefing_collect_q: { laneIdx: 3, rowIdx: 0.9 },
-  briefing_enrich_q: { laneIdx: 3, rowIdx: 1.8 },
-  briefing_cluster_q: { laneIdx: 3, rowIdx: 2.7 },
-  briefing_triage_model: { laneIdx: 3, rowIdx: 3.6 },
-  briefing_draft_model: { laneIdx: 3, rowIdx: 4.5 },
-  briefing_quarantine: { laneIdx: 3, rowIdx: 6.3 },
-  briefing_alert: { laneIdx: 3, rowIdx: 7.2 },
-
-  /* Lane 4: Search */
-  outbox: { laneIdx: 4, rowIdx: 0 },
-  cron_outbox_drain: { laneIdx: 4, rowIdx: 1 },
-  outbox_dispatch_q: { laneIdx: 4, rowIdx: 2 },
-  search_document: { laneIdx: 4, rowIdx: 3 },
-  cron_embed: { laneIdx: 4, rowIdx: 4 },
-  search_hybrid: { laneIdx: 4, rowIdx: 5 },
-  rrf_fusion: { laneIdx: 4, rowIdx: 6 },
-
-  /* Lane 5: AI & Chat */
-  ai_gateway: { laneIdx: 5, rowIdx: 0 },
-  ai_run_ledger: { laneIdx: 5, rowIdx: 1 },
-  ai_suggestion: { laneIdx: 5, rowIdx: 2 },
-  human_approval_gate: { laneIdx: 5, rowIdx: 3 },
-  chat_thread: { laneIdx: 5, rowIdx: 4 },
-  chat_tool_run: { laneIdx: 5, rowIdx: 5 },
-  citation_guard: { laneIdx: 5, rowIdx: 6 },
-
-  /* Lane 6: Governance */
-  publication: { laneIdx: 6, rowIdx: 0 },
-  rls_policy: { laneIdx: 6, rowIdx: 1 },
-  entity_version: { laneIdx: 6, rowIdx: 2 },
-  audit_log: { laneIdx: 6, rowIdx: 3 },
-  rate_limit_guard: { laneIdx: 6, rowIdx: 4 },
-  public_reports: { laneIdx: 6, rowIdx: 5 },
-  briefing_control: { laneIdx: 6, rowIdx: 6 },
-};
+const MIN_ZOOM = 0.15;
+const MAX_ZOOM = 2.5;
 
 function getBezierPoint(
   p0: { x: number; y: number },
@@ -138,14 +84,18 @@ export function PipelineCanvas({
   const [zoom, setZoom] = useState<number>(0.7);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 30, y: 30 });
   const [isPanning, setIsPanning] = useState<boolean>(false);
-  const [panStart, setPanStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const panStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Custom dragged positions override
   const [customPositions, setCustomPositions] = useState<Record<string, { x: number; y: number }>>({});
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const dragOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const pendingDragRef = useRef<{ nodeId: string; x: number; y: number } | null>(null);
+  const dragMovedRef = useRef<boolean>(false);
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const planeRef = useRef<HTMLDivElement | null>(null);
+  const hasAutoFitRef = useRef<boolean>(false);
 
   // Calculate dynamic lane positions based on spacing multiplier
   const laneWidth = 350;
@@ -199,9 +149,24 @@ export function PipelineCanvas({
   const totalCanvasWidth = Math.max(3400, 7 * (laneWidth + laneGap) + 200);
   const totalCanvasHeight = Math.max(1600, 9 * rowHeight + 300);
 
-  // Filter visible nodes based on category / perspective
+  /* What "fit" actually has to fit. Measured from the lanes and the cards
+     rather than assumed, so a dragged card cannot end up outside the frame
+     the fit control claims covers everything. */
+  const contentBounds = useMemo(() => {
+    let right = 0;
+    let bottom = 0;
+    for (const lane of computedLanes) right = Math.max(right, lane.x + lane.w);
+    for (const layout of Object.values(nodeLayouts)) {
+      right = Math.max(right, layout.x + layout.w);
+      bottom = Math.max(bottom, layout.y + layout.h);
+    }
+    return { width: right + 50, height: Math.max(bottom, 400) + 50 };
+  }, [computedLanes, nodeLayouts]);
+
+  // Filter visible nodes based on category / perspective. Diagram order, so
+  // the tab sequence walks the lanes the way the eye does.
   const visibleNodes = useMemo(() => {
-    return PIPELINE_NODES.filter((n) => {
+    return NODES_IN_DIAGRAM_ORDER.filter((n) => {
       if (activeCategoryFilter !== "all" && n.cat !== activeCategoryFilter) {
         return false;
       }
@@ -218,108 +183,185 @@ export function PipelineCanvas({
     return PIPELINE_EDGES.filter((e) => visibleNodeIds.has(e.from) && visibleNodeIds.has(e.to));
   }, [visibleNodeIds]);
 
-  // Handle Wheel: Normal scrolling pans vertically/horizontally. Ctrl/Cmd+Wheel zooms.
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-      setZoom((prev) => Math.max(0.3, Math.min(2.5, prev * zoomFactor)));
-    } else {
-      // Natural pan without scroll trapping
+  const fitAll = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const { clientWidth, clientHeight } = viewport;
+    if (clientWidth < 1 || clientHeight < 1) return;
+
+    const scale = Math.max(
+      MIN_ZOOM,
+      Math.min(
+        MAX_ZOOM,
+        Math.min(clientWidth / contentBounds.width, clientHeight / contentBounds.height),
+      ),
+    );
+
+    setZoom(scale);
+    setPan({
+      x: Math.max(0, (clientWidth - contentBounds.width * scale) / 2),
+      y: Math.max(0, (clientHeight - contentBounds.height * scale) / 2),
+    });
+  }, [contentBounds]);
+
+  /* The map region is `display: none` until the viewport can hold it, so
+     there is no size to fit at mount. Wait for the first measurable box —
+     which is also the moment a rotation or a resize brings the region into
+     existence — and fit once. After that the view is the reader's. */
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(() => {
+      if (hasAutoFitRef.current) return;
+      if (viewport.clientWidth < 1 || viewport.clientHeight < 1) return;
+      hasAutoFitRef.current = true;
+      fitAll();
+    });
+
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [fitAll]);
+
+  /* React registers root wheel listeners passively, so an `onWheel` prop
+     cannot call `preventDefault` — Ctrl+wheel zoomed the diagram *and* the
+     browser. A native non-passive listener is the only way to own it. */
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+        const factor = event.deltaY < 0 ? 1.08 : 0.92;
+        setZoom((prev) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prev * factor)));
+        return;
+      }
+
+      /* Plain scrolling pans. The map only exists inside a fixed-height
+         stage, so there is no page scroll being stolen here. */
+      event.preventDefault();
       setPan((prev) => ({
-        x: prev.x - (e.shiftKey ? e.deltaY : e.deltaX),
-        y: prev.y - (e.shiftKey ? 0 : e.deltaY),
+        x: prev.x - (event.shiftKey ? event.deltaY : event.deltaX),
+        y: prev.y - (event.shiftKey ? 0 : event.deltaY),
       }));
-    }
+    };
+
+    viewport.addEventListener("wheel", onWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", onWheel);
   }, []);
 
-  // Pan start on background
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target !== containerRef.current && !(e.target as HTMLElement).classList.contains(styles.canvasPlane)) {
-      return;
-    }
+  /* Pointer events, not mouse events. The map is reachable on an iPad in
+     landscape, where the old mouse-only handlers meant a 3400px plane with
+     no way to move it at all. */
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    const target = e.target as HTMLElement;
+    if (target !== viewportRef.current && target !== planeRef.current) return;
     setIsPanning(true);
-    setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    panStartRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
   }, [pan]);
 
-  // Pan & Card Drag Move
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (isPanning) {
       setPan({
-        x: e.clientX - panStart.x,
-        y: e.clientY - panStart.y,
+        x: e.clientX - panStartRef.current.x,
+        y: e.clientY - panStartRef.current.y,
       });
-    } else if (draggingNodeId) {
-      const newX = (e.clientX - pan.x) / zoom - dragOffset.x;
-      const newY = (e.clientY - pan.y) / zoom - dragOffset.y;
-
-      setCustomPositions((prev) => ({
-        ...prev,
-        [draggingNodeId]: {
-          x: Math.max(10, newX),
-          y: Math.max(10, newY),
-        },
-      }));
+      return;
     }
-  }, [isPanning, panStart, draggingNodeId, pan, zoom, dragOffset]);
 
-  const handleMouseUp = useCallback(() => {
+    const pending = pendingDragRef.current;
+    if (pending && !draggingNodeId) {
+      const moved =
+        Math.abs(e.clientX - pending.x) + Math.abs(e.clientY - pending.y);
+      if (moved < DRAG_THRESHOLD_PX) return;
+      setDraggingNodeId(pending.nodeId);
+      dragMovedRef.current = true;
+    }
+
+    const activeDrag = draggingNodeId ?? pendingDragRef.current?.nodeId;
+    if (!activeDrag || !dragMovedRef.current) return;
+
+    const rect = viewportRef.current?.getBoundingClientRect();
+    const originX = rect ? rect.left : 0;
+    const originY = rect ? rect.top : 0;
+    const newX = (e.clientX - originX - pan.x) / zoom - dragOffsetRef.current.x;
+    const newY = (e.clientY - originY - pan.y) / zoom - dragOffsetRef.current.y;
+
+    setCustomPositions((prev) => ({
+      ...prev,
+      [activeDrag]: { x: Math.max(10, newX), y: Math.max(10, newY) },
+    }));
+  }, [isPanning, draggingNodeId, pan, zoom]);
+
+  const handlePointerUp = useCallback(() => {
     setIsPanning(false);
     setDraggingNodeId(null);
+    pendingDragRef.current = null;
   }, []);
 
-  // Card Drag Start
-  const handleCardMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
+  const handleCardPointerDown = useCallback((e: React.PointerEvent, nodeId: string) => {
     e.stopPropagation();
     const layout = nodeLayouts[nodeId];
     if (!layout) return;
 
-    const mouseCanvasX = (e.clientX - pan.x) / zoom;
-    const mouseCanvasY = (e.clientY - pan.y) / zoom;
+    const rect = viewportRef.current?.getBoundingClientRect();
+    const originX = rect ? rect.left : 0;
+    const originY = rect ? rect.top : 0;
+    const pointerCanvasX = (e.clientX - originX - pan.x) / zoom;
+    const pointerCanvasY = (e.clientY - originY - pan.y) / zoom;
 
-    setDraggingNodeId(nodeId);
-    setDragOffset({
-      x: mouseCanvasX - layout.x,
-      y: mouseCanvasY - layout.y,
-    });
+    dragOffsetRef.current = {
+      x: pointerCanvasX - layout.x,
+      y: pointerCanvasY - layout.y,
+    };
+    dragMovedRef.current = false;
+    pendingDragRef.current = { nodeId, x: e.clientX, y: e.clientY };
   }, [nodeLayouts, pan, zoom]);
 
-  // Reset custom card positions
+  const handleCardClick = useCallback((nodeId: string) => {
+    /* A completed drag ends in a click. Selecting the card the reader was
+       only repositioning is not what they asked for. */
+    if (dragMovedRef.current) {
+      dragMovedRef.current = false;
+      return;
+    }
+    onSelectNode(nodeId);
+  }, [onSelectNode]);
+
   const resetCardPositions = () => {
     setCustomPositions({});
   };
 
   return (
-    <div
-      ref={containerRef}
-      className={styles.interactiveCanvasContainer}
-      onWheel={handleWheel}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      dir="ltr"
-    >
-      <div className={styles.canvasFloatingToolbar}>
-        <div className={styles.toolbarButtonGroup}>
+    <div className={styles.mapRegion}>
+      {/* The toolbar used to float over the canvas, absolutely positioned
+          against the top-right corner and free to wrap down over the
+          diagram it controls. It is a region in the flow now: it takes the
+          height it needs, scrolls sideways within itself when it cannot fit,
+          and never covers content or leaves the viewport. */}
+      <div className={styles.stageToolbar}>
+        <div className={styles.toolbarButtonGroup} role="group" aria-label={CHROME.resetView}>
           <Button
             type="button"
             variant="toolbar"
             size="sm"
-            onClick={() => setZoom((z) => Math.min(2.5, z * 1.2))}
+            onClick={() => setZoom((z) => Math.min(MAX_ZOOM, z * 1.2))}
             title={CHROME.zoomIn}
+            aria-label={CHROME.zoomIn}
           >
-            + {CHROME.zoomIn}
+            <span aria-hidden="true">+</span>
           </Button>
           <span className={styles.zoomPercentageBadge}>{Math.round(zoom * 100)}%</span>
           <Button
             type="button"
             variant="toolbar"
             size="sm"
-            onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}
+            onClick={() => setZoom((z) => Math.max(MIN_ZOOM, z * 0.8))}
             title={CHROME.zoomOut}
+            aria-label={CHROME.zoomOut}
           >
-            − {CHROME.zoomOut}
+            <span aria-hidden="true">−</span>
           </Button>
           <Button
             type="button"
@@ -331,24 +373,21 @@ export function PipelineCanvas({
             }}
             title={CHROME.resetView}
           >
-            ↺ {CHROME.resetView}
+            {CHROME.resetView}
           </Button>
           <Button
             type="button"
             variant="toolbar"
             size="sm"
-            onClick={() => {
-              setZoom(0.48);
-              setPan({ x: 10, y: 10 });
-            }}
+            onClick={fitAll}
             title={CHROME.fitAll}
           >
             {CHROME.fitAll}
           </Button>
         </div>
 
-        <div className={styles.toolbarButtonGroup}>
-          <span className={styles.toolbarGroupLabel}>{CHROME.spacing}:</span>
+        <div className={styles.toolbarButtonGroup} role="group" aria-label={CHROME.spacing}>
+          <span className={styles.toolbarGroupLabel}>{CHROME.spacing}</span>
           <Button
             type="button"
             variant="filter"
@@ -389,234 +428,254 @@ export function PipelineCanvas({
           )}
         </div>
 
-        <div className={styles.canvasToolbarHint}>{CHROME.canvasHint}</div>
+        <p className={styles.canvasToolbarHint}>{CHROME.canvasPanHint}</p>
       </div>
 
-      {/* ── Transformable Canvas Plane ── */}
       <div
-        className={styles.canvasPlane}
-        style={{
-          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-          transformOrigin: "0 0",
-          width: `${totalCanvasWidth}px`,
-          height: `${totalCanvasHeight}px`,
-        }}
+        ref={viewportRef}
+        className={styles.canvasViewport}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+        data-panning={isPanning ? "" : undefined}
+        dir="ltr"
       >
-        {/* ── Lanes Visual Columns ── */}
-        {computedLanes.map((lane) => (
-          <div
-            key={lane.id}
-            className={styles.htmlLaneColumn}
-            style={{
-              left: `${lane.x}px`,
-              top: `20px`,
-              width: `${lane.w}px`,
-              height: `${totalCanvasHeight - 60}px`,
-            }}
-          >
-            <div className={styles.htmlLaneHeader}>
-              <div className={styles.htmlLaneBadgeRow}>
-                <span className={styles.htmlLaneBadge}>{CHROME.lane(lane.laneIndex + 1)}</span>
-              </div>
-              <h4 className={styles.htmlLaneTitleHe}>{lane.title}</h4>
-              <p className={styles.htmlLaneDesc}>{lane.description}</p>
-            </div>
-          </div>
-        ))}
-
-        {/* ── SVG Connection Overlay Layer (Cubic Bezier Edges & Traveling Packets) ── */}
-        <svg
-          className={styles.htmlSvgOverlay}
-          style={{ width: `${totalCanvasWidth}px`, height: `${totalCanvasHeight}px` }}
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+        {/* ── Transformable Canvas Plane ── */}
+        <div
+          ref={planeRef}
+          className={styles.canvasPlane}
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: "0 0",
+            width: `${totalCanvasWidth}px`,
+            height: `${totalCanvasHeight}px`,
+          }}
         >
-          {/* Edges */}
-          {visibleEdges.map((edge) => {
-            const fromLayout = nodeLayouts[edge.from];
-            const toLayout = nodeLayouts[edge.to];
-            if (!fromLayout || !toLayout) return null;
-
-            const isEdgeActive =
-              (activeNodeId === edge.from && nextStepNodeId === edge.to) ||
-              (activeNodeId === edge.to && nextStepNodeId === edge.from);
-
-            let startX = fromLayout.x + fromLayout.w;
-            let startY = fromLayout.y + fromLayout.h / 2;
-            let endX = toLayout.x;
-            let endY = toLayout.y + toLayout.h / 2;
-
-            if (Math.abs(fromLayout.x - toLayout.x) < 70) {
-              startX = fromLayout.x + fromLayout.w / 2;
-              startY = fromLayout.y + fromLayout.h;
-              endX = toLayout.x + toLayout.w / 2;
-              endY = toLayout.y;
-            }
-
-            const dx = Math.abs(endX - startX) * 0.5;
-            const dy = Math.abs(endY - startY) * 0.5;
-
-            const p0 = { x: startX, y: startY };
-            const p1 =
-              Math.abs(fromLayout.x - toLayout.x) < 70
-                ? { x: startX, y: startY + dy }
-                : { x: startX + dx, y: startY };
-            const p2 =
-              Math.abs(fromLayout.x - toLayout.x) < 70
-                ? { x: endX, y: endY - dy }
-                : { x: endX - dx, y: endY };
-            const p3 = { x: endX, y: endY };
-
-            const d = `M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`;
-
-            return (
-              <g key={`${edge.from}->${edge.to}`}>
-                <path
-                  d={d}
-                  className={`
-                    ${styles.edgePath}
-                    ${isEdgeActive ? styles.edgePathActive : ""}
-                    ${edge.isQuarantine ? styles.edgePathQuarantine : ""}
-                  `}
-                />
-              </g>
-            );
-          })}
-
-          {/* Dynamic Traveling Data Packets */}
-          {activePackets.map((pkt) => {
-            const fromLayout = nodeLayouts[pkt.fromNodeId];
-            const toLayout = nodeLayouts[pkt.toNodeId];
-            if (!fromLayout) return null;
-
-            let startX = fromLayout.x + fromLayout.w;
-            let startY = fromLayout.y + fromLayout.h / 2;
-            let endX = toLayout ? toLayout.x : startX;
-            let endY = toLayout ? toLayout.y + toLayout.h / 2 : startY;
-
-            if (toLayout && Math.abs(fromLayout.x - toLayout.x) < 70) {
-              startX = fromLayout.x + fromLayout.w / 2;
-              startY = fromLayout.y + fromLayout.h;
-              endX = toLayout.x + toLayout.w / 2;
-              endY = toLayout.y;
-            }
-
-            const dx = Math.abs(endX - startX) * 0.5;
-            const dy = Math.abs(endY - startY) * 0.5;
-
-            const p0 = { x: startX, y: startY };
-            const p1 =
-              toLayout && Math.abs(fromLayout.x - toLayout.x) < 70
-                ? { x: startX, y: startY + dy }
-                : { x: startX + dx, y: startY };
-            const p2 =
-              toLayout && Math.abs(fromLayout.x - toLayout.x) < 70
-                ? { x: endX, y: endY - dy }
-                : { x: endX - dx, y: endY };
-            const p3 = { x: endX, y: endY };
-
-            const pos = getBezierPoint(p0, p1, p2, p3, pkt.progress);
-            const isQuarantine = pkt.kind === "quarantine" || pkt.kind === "alert";
-
-            return (
-              <g key={pkt.id} transform={`translate(${pos.x}, ${pos.y})`}>
-                <circle
-                  r={isQuarantine ? 10 : 9}
-                  className={
-                    isQuarantine ? styles.packetParticleQuarantine : styles.packetParticle
-                  }
-                />
-                <circle
-                  r={isQuarantine ? 18 : 16}
-                  className={isQuarantine ? styles.packetRingQuarantine : styles.packetRing}
-                />
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* ── Rich HTML Node Cards ── */}
-        {visibleNodes.map((node) => {
-          const layout = nodeLayouts[node.id];
-          if (!layout) return null;
-
-          const isActive = activeNodeId === node.id;
-          const isSelected = selectedNodeId === node.id;
-          const isQuarantined = node.id === "briefing_quarantine" && isActive;
-          const copy = nodeInspectorCopy(node.id);
-          const snippet = copy?.what
-            ? copy.what.length > 70
-              ? copy.what.substring(0, 70) + "…"
-              : copy.what
-            : null;
-          const showTablePill = Boolean(node.dbTable && node.dbTable !== node.nameEn);
-
-          return (
+          {/* ── Lanes Visual Columns ── */}
+          {computedLanes.map((lane) => (
             <div
-              key={node.id}
-              className={`
-                ${styles.htmlNodeCard}
-                ${isActive ? styles.htmlNodeCardActive : ""}
-                ${isSelected ? styles.htmlNodeCardSelected : ""}
-                ${isQuarantined ? styles.htmlNodeCardQuarantined : ""}
-                ${draggingNodeId === node.id ? styles.htmlNodeCardDragging : ""}
-              `}
-              data-kind={node.kind}
+              key={lane.id}
+              className={styles.htmlLaneColumn}
               style={{
-                left: `${layout.x}px`,
-                top: `${layout.y}px`,
-                width: `${layout.w}px`,
-                minHeight: `${layout.h}px`,
-              }}
-              role="button"
-              tabIndex={0}
-              aria-pressed={isSelected}
-              onMouseDown={(e) => handleCardMouseDown(e, node.id)}
-              onClick={() => onSelectNode(node.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onSelectNode(node.id);
-                }
+                left: `${lane.x}px`,
+                top: `20px`,
+                width: `${lane.w}px`,
+                height: `${totalCanvasHeight - 60}px`,
               }}
             >
-              <div className={styles.htmlCardTopRow}>
-                <span className={styles.htmlKindBadge}>{kindLabel(node.kind)}</span>
-
-                <div className={styles.htmlCardActions}>
-                  {node.terms.length > 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="xs"
-                      className={styles.cardGlossaryBtn}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenGlossary(node.nameEn);
-                      }}
-                      title={CHROME.explainTitle}
-                    >
-                      ? {CHROME.explain}
-                    </Button>
-                  )}
-                  {isActive && <span className={styles.activePulseDot} />}
+              <div className={styles.htmlLaneHeader}>
+                <div className={styles.htmlLaneBadgeRow}>
+                  <span className={styles.htmlLaneBadge}>{CHROME.lane(lane.laneIndex + 1)}</span>
                 </div>
+                <h3 className={styles.htmlLaneTitleHe}>{lane.title}</h3>
+                <p className={styles.htmlLaneDesc}>{lane.description}</p>
               </div>
-
-              <h5 className={styles.htmlNodeTitleHe}>{node.nameEn}</h5>
-
-              {showTablePill && node.dbTable ? (
-                <div className={styles.htmlNodeTitleEnRow}>
-                  <span className={styles.htmlTablePill} dir="ltr">
-                    {node.dbTable}
-                  </span>
-                </div>
-              ) : null}
-
-              {snippet ? <p className={styles.htmlNodeSnippet}>{snippet}</p> : null}
             </div>
-          );
-        })}
+          ))}
+
+          {/* ── SVG Connection Overlay Layer (Cubic Bezier Edges & Traveling Packets) ── */}
+          <svg
+            className={styles.htmlSvgOverlay}
+            style={{ width: `${totalCanvasWidth}px`, height: `${totalCanvasHeight}px` }}
+            fill="none"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Edges */}
+            {visibleEdges.map((edge) => {
+              const fromLayout = nodeLayouts[edge.from];
+              const toLayout = nodeLayouts[edge.to];
+              if (!fromLayout || !toLayout) return null;
+
+              const isEdgeActive =
+                (activeNodeId === edge.from && nextStepNodeId === edge.to) ||
+                (activeNodeId === edge.to && nextStepNodeId === edge.from);
+
+              let startX = fromLayout.x + fromLayout.w;
+              let startY = fromLayout.y + fromLayout.h / 2;
+              let endX = toLayout.x;
+              let endY = toLayout.y + toLayout.h / 2;
+
+              if (Math.abs(fromLayout.x - toLayout.x) < 70) {
+                startX = fromLayout.x + fromLayout.w / 2;
+                startY = fromLayout.y + fromLayout.h;
+                endX = toLayout.x + toLayout.w / 2;
+                endY = toLayout.y;
+              }
+
+              const dx = Math.abs(endX - startX) * 0.5;
+              const dy = Math.abs(endY - startY) * 0.5;
+
+              const p0 = { x: startX, y: startY };
+              const p1 =
+                Math.abs(fromLayout.x - toLayout.x) < 70
+                  ? { x: startX, y: startY + dy }
+                  : { x: startX + dx, y: startY };
+              const p2 =
+                Math.abs(fromLayout.x - toLayout.x) < 70
+                  ? { x: endX, y: endY - dy }
+                  : { x: endX - dx, y: endY };
+              const p3 = { x: endX, y: endY };
+
+              const d = `M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`;
+
+              return (
+                <g key={`${edge.from}->${edge.to}`}>
+                  <path
+                    d={d}
+                    className={[
+                      styles.edgePath,
+                      isEdgeActive ? styles.edgePathActive : "",
+                      edge.isQuarantine ? styles.edgePathQuarantine : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                  />
+                </g>
+              );
+            })}
+
+            {/* Dynamic Traveling Data Packets */}
+            {activePackets.map((pkt) => {
+              const fromLayout = nodeLayouts[pkt.fromNodeId];
+              const toLayout = nodeLayouts[pkt.toNodeId];
+              if (!fromLayout) return null;
+
+              let startX = fromLayout.x + fromLayout.w;
+              let startY = fromLayout.y + fromLayout.h / 2;
+              let endX = toLayout ? toLayout.x : startX;
+              let endY = toLayout ? toLayout.y + toLayout.h / 2 : startY;
+
+              if (toLayout && Math.abs(fromLayout.x - toLayout.x) < 70) {
+                startX = fromLayout.x + fromLayout.w / 2;
+                startY = fromLayout.y + fromLayout.h;
+                endX = toLayout.x + toLayout.w / 2;
+                endY = toLayout.y;
+              }
+
+              const dx = Math.abs(endX - startX) * 0.5;
+              const dy = Math.abs(endY - startY) * 0.5;
+
+              const p0 = { x: startX, y: startY };
+              const p1 =
+                toLayout && Math.abs(fromLayout.x - toLayout.x) < 70
+                  ? { x: startX, y: startY + dy }
+                  : { x: startX + dx, y: startY };
+              const p2 =
+                toLayout && Math.abs(fromLayout.x - toLayout.x) < 70
+                  ? { x: endX, y: endY - dy }
+                  : { x: endX - dx, y: endY };
+              const p3 = { x: endX, y: endY };
+
+              const pos = getBezierPoint(p0, p1, p2, p3, pkt.progress);
+              const isQuarantine = pkt.kind === "quarantine" || pkt.kind === "alert";
+
+              return (
+                <g key={pkt.id} transform={`translate(${pos.x}, ${pos.y})`}>
+                  <circle
+                    r={isQuarantine ? 10 : 9}
+                    className={
+                      isQuarantine ? styles.packetParticleQuarantine : styles.packetParticle
+                    }
+                  />
+                  <circle
+                    r={isQuarantine ? 18 : 16}
+                    className={isQuarantine ? styles.packetRingQuarantine : styles.packetRing}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* ── Rich HTML Node Cards ── */}
+          {visibleNodes.map((node) => {
+            const layout = nodeLayouts[node.id];
+            if (!layout) return null;
+
+            const isActive = activeNodeId === node.id;
+            const isSelected = selectedNodeId === node.id;
+            const isQuarantined = node.id === "briefing_quarantine" && isActive;
+            const copy = nodeInspectorCopy(node.id);
+            const snippet = copy?.what
+              ? copy.what.length > 70
+                ? copy.what.substring(0, 70) + "…"
+                : copy.what
+              : null;
+            const showTablePill = Boolean(node.dbTable && node.dbTable !== node.nameEn);
+
+            return (
+              <div
+                key={node.id}
+                data-node-card={node.id}
+                className={[
+                  styles.htmlNodeCard,
+                  isActive ? styles.htmlNodeCardActive : "",
+                  isSelected ? styles.htmlNodeCardSelected : "",
+                  isQuarantined ? styles.htmlNodeCardQuarantined : "",
+                  draggingNodeId === node.id ? styles.htmlNodeCardDragging : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                data-kind={node.kind}
+                style={{
+                  left: `${layout.x}px`,
+                  top: `${layout.y}px`,
+                  width: `${layout.w}px`,
+                  minHeight: `${layout.h}px`,
+                }}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected}
+                onPointerDown={(e) => handleCardPointerDown(e, node.id)}
+                onClick={() => handleCardClick(node.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelectNode(node.id);
+                  }
+                }}
+              >
+                <div className={styles.htmlCardTopRow}>
+                  <span className={styles.htmlKindBadge}>{kindLabel(node.kind)}</span>
+
+                  <div className={styles.htmlCardActions}>
+                    {node.terms.length > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="xs"
+                        className={styles.cardGlossaryBtn}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenGlossary(node.nameEn);
+                        }}
+                        title={CHROME.explainTitle}
+                      >
+                        {CHROME.explain}
+                      </Button>
+                    )}
+                    {isActive && <span className={styles.activePulseDot} />}
+                  </div>
+                </div>
+
+                <h4 className={styles.htmlNodeTitleHe}>{node.nameEn}</h4>
+
+                {showTablePill && node.dbTable ? (
+                  <div className={styles.htmlNodeTitleEnRow}>
+                    <span className={styles.htmlTablePill} dir="ltr">
+                      {node.dbTable}
+                    </span>
+                  </div>
+                ) : null}
+
+                {snippet ? <p className={styles.htmlNodeSnippet}>{snippet}</p> : null}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

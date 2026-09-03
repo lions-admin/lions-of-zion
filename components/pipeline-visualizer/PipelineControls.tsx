@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import type { PipelineJourney } from "./types";
 import { PIPELINE_JOURNEYS } from "./data/journeys";
@@ -38,11 +39,29 @@ export function PipelineControls({
   onReset,
 }: PipelineControlsProps) {
   const currentTitle = currentJourney.steps[currentStepIndex]?.titleEn ?? "";
+  const railRef = useRef<HTMLDivElement | null>(null);
+  const activeStepRef = useRef<HTMLButtonElement | null>(null);
+
+  /* The rail scrolls within its own region rather than stretching the bar
+     off the viewport, which means the playhead can leave view while the
+     simulation runs. Bring it back by moving the rail's own scrollLeft —
+     never `scrollIntoView`, which walks every scrollable ancestor and would
+     drag the whole page around on a phone. */
+  useEffect(() => {
+    const rail = railRef.current;
+    const dot = activeStepRef.current;
+    if (!rail || !dot) return;
+    if (rail.scrollWidth <= rail.clientWidth) return;
+
+    const target = dot.offsetLeft - (rail.clientWidth - dot.offsetWidth) / 2;
+    const max = rail.scrollWidth - rail.clientWidth;
+    rail.scrollLeft = Math.max(0, Math.min(max, target));
+  }, [currentStepIndex, selectedJourneyId]);
 
   return (
     <>
-      <div className={styles.controlBar}>
-        <div className={styles.journeySelector}>
+      <section className={styles.controlBar} aria-label={CHROME.regionControls}>
+        <div className={styles.journeySelector} role="group" aria-label="Journey">
           {PIPELINE_JOURNEYS.map((journey) => (
             <Button
               key={journey.id}
@@ -68,16 +87,18 @@ export function PipelineControls({
             title={CHROME.prevStep}
             aria-label={CHROME.prevStep}
           >
-            ⏮
+            <span aria-hidden="true">⏮</span>
           </Button>
 
           <Button
             type="button"
             variant="primary"
             size="sm"
+            className={styles.playButton}
             onClick={onTogglePlay}
           >
-            {isPlaying ? `⏸ ${CHROME.pause}` : `▶ ${CHROME.play}`}
+            <span aria-hidden="true">{isPlaying ? "⏸" : "▶"}</span>
+            {isPlaying ? CHROME.pause : CHROME.play}
           </Button>
 
           <Button
@@ -90,7 +111,7 @@ export function PipelineControls({
             title={CHROME.nextStep}
             aria-label={CHROME.nextStep}
           >
-            ⏭
+            <span aria-hidden="true">⏭</span>
           </Button>
 
           <Button
@@ -102,10 +123,10 @@ export function PipelineControls({
             title={CHROME.reset}
             aria-label={CHROME.reset}
           >
-            ↺
+            <span aria-hidden="true">↺</span>
           </Button>
 
-          <div className={styles.speedSelector}>
+          <div className={styles.speedSelector} role="group" aria-label="Speed">
             {[0.5, 1, 2, 4].map((s) => (
               <Button
                 key={s}
@@ -120,15 +141,23 @@ export function PipelineControls({
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className={styles.stepTrackerBar}>
-        <div className={styles.stepCounterLabel}>
+      <nav className={styles.stepTrackerBar} aria-label={CHROME.regionSteps}>
+        <p className={styles.stepCounterLabel}>
           {CHROME.stepOf(currentStepIndex + 1, currentJourney.steps.length)}:{" "}
           <span className={styles.stepCounterCurrent}>{currentTitle}</span>
-        </div>
+        </p>
 
-        <div className={styles.stepDotsContainer}>
+        {/* The scrubber is a documented bespoke control: a rail of segments
+            rather than a slider, because a journey's steps are named states
+            and not a continuum. What it is not allowed to be is small. Each
+            segment carries its own 44px hit area — on a fine pointer the
+            visible bar sits inside a taller transparent target, and on a
+            coarse pointer the rail stops dividing the width and starts
+            scrolling, so the twenty-step journeys keep full-size targets at
+            320px instead of eight-pixel slivers. */}
+        <div className={styles.stepDotsContainer} ref={railRef}>
           {currentJourney.steps.map((st, idx) => {
             const isCurrent = idx === currentStepIndex;
             const isDone = idx < currentStepIndex;
@@ -137,17 +166,23 @@ export function PipelineControls({
             return (
               <button
                 key={`${currentJourney.id}-step-${idx}`}
+                ref={isCurrent ? activeStepRef : undefined}
                 type="button"
-                className={`
-                  ${styles.stepDot}
-                  ${isCurrent ? styles.stepDotActive : ""}
-                  ${isDone ? styles.stepDotCompleted : ""}
-                `}
+                className={[
+                  styles.stepDot,
+                  isCurrent ? styles.stepDotActive : "",
+                  isDone ? styles.stepDotCompleted : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => onGoToStep(idx)}
                 title={st.titleEn}
                 aria-label={CHROME.stepAria(idx + 1, st.titleEn)}
                 aria-current={isCurrent ? "step" : undefined}
               >
+                <span className={styles.stepDotIndex} aria-hidden="true">
+                  {idx + 1}
+                </span>
                 {isCurrent && isPlaying && (
                   <span
                     className={styles.stepDotProgressFill}
@@ -158,7 +193,7 @@ export function PipelineControls({
             );
           })}
         </div>
-      </div>
+      </nav>
     </>
   );
 }

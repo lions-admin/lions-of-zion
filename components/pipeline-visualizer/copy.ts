@@ -1,4 +1,4 @@
-import type { NodeKind } from "./types";
+import type { NodeCategory, NodeKind } from "./types";
 
 export type NodeInspectorCopy = {
   what: string;
@@ -74,6 +74,37 @@ export const LANE_COPY = [
     laneIndex: 6,
   },
 ] as const;
+
+/**
+ * The eight node categories, as a lane filter reads them.
+ *
+ * Typed against `NodeCategory` rather than `string` on purpose: the
+ * glossary's own category list below is a loose record and is missing
+ * `publish`, which is how a filter built on it would have hidden three
+ * components with no error anywhere. A ninth category added to `types.ts`
+ * now fails the typecheck here until it is named.
+ */
+export const CATEGORY_LABELS: Record<NodeCategory, string> = {
+  ingest: "Ingest",
+  evidence: "Evidence",
+  model: "Verification",
+  briefing: "Daily brief",
+  search: "Search",
+  ai: "AI",
+  publish: "Publication",
+  infra: "Governance",
+};
+
+export const CATEGORY_ORDER: readonly NodeCategory[] = [
+  "ingest",
+  "evidence",
+  "model",
+  "briefing",
+  "search",
+  "ai",
+  "publish",
+  "infra",
+];
 
 export const GLOSSARY_CATEGORY_LABELS: Record<string, string> = {
   all: "All terms",
@@ -153,6 +184,55 @@ export const CHROME = {
   glossaryTable: "Table",
   glossaryDeep: "Engineering notes",
   glossaryExample: "Example in this system",
+
+  /* Region names. Every one of these is an accessible landmark label, so
+     they have to read as places in a tool rather than as sentences. */
+  regionControls: "Simulation controls",
+  regionSteps: "Journey steps",
+  regionExplainer: "Current step",
+  regionStage: "System stage",
+  regionMap: "System map",
+  regionStructure: "System structure",
+  regionInspector: "Component inspector",
+  regionTelemetry: "Event log",
+
+  /* Stage view. The map is the enhancement; the structure list is the
+     surface that always works, including where the map cannot fit. */
+  stageGroupLabel: "Stage",
+  stageStructure: "Structure",
+  stageMap: "Map",
+  stageMapUnavailableTitle: "The map needs a larger viewport",
+  stageMapUnavailable:
+    "The lane topology needs at least 1024×640 to be read without panning. Everything it shows is below, as a list.",
+
+  /* Structure view. */
+  structureProcessHeading: "Process",
+  structureProcessIntro: (journey: string) =>
+    `Every step of ${journey}, in order. Select a step to move the simulation to it.`,
+  structureComponentsHeading: "Components",
+  structureComponentsIntro:
+    "Every component in the architecture, grouped by lane. Select one to open its inspector.",
+  structureStepAction: "Go to step",
+  structureNodeAction: "Open inspector",
+  structureCurrentStep: "Current step",
+  structureVisitedInJourney: "In this journey",
+  structureEmpty: "No components match this lane filter.",
+  structureCount: (shown: number, total: number) =>
+    shown === total ? `${total} components` : `${shown} of ${total} components`,
+
+  /* Lane filter — this drives the category filter the simulation hook has
+     always exposed and nothing had ever wired up. */
+  laneFilterLabel: "Lane",
+  laneFilterAll: "All",
+
+  /* Telemetry disclosure. */
+  telemetryCollapse: "Collapse event log",
+  telemetryExpand: "Expand event log",
+
+  /* Canvas. */
+  canvasPanHint: "Drag to pan · Ctrl or Cmd and scroll to zoom",
+  canvasRegionHelp:
+    "An interactive map. Every component on it is also listed in the structure view, which needs no panning.",
 } as const;
 
 export const NODE_COPY: Record<string, NodeInspectorCopy> = {

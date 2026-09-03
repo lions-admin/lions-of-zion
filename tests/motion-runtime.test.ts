@@ -298,6 +298,41 @@ describe("MOTION-003 — Reveal is limited to sections and ordered processes", (
   });
 });
 
+describe("the frame writer runs before the layers that read it", () => {
+  /**
+   * `Scene.tsx` writes one `ExperienceFrame` per tick and four layers read
+   * it. r3f sorts `useFrame` subscribers ascending by priority and, being a
+   * child, every layer subscribed *after* the writer at the same default
+   * priority — so each read the previous frame's lion transform. Over the
+   * 1.1 s rise that detached the text stream from the lion it is emitted
+   * from. The writer is now negative, which orders it first.
+   *
+   * The negative value also matters to r3f's auto-render gate:
+   * `internal.priority += priority > 0 ? 1 : 0` counts only positive
+   * priorities, so this must stay negative rather than becoming 0 or a
+   * small positive number, or the post pass's ownership of rendering would
+   * be the only thing holding the gate.
+   */
+  const scene = read("components/particle-nav/Scene.tsx");
+
+  it("the writer subscribes at a negative priority, ahead of every reader", () => {
+    expect(scene).toMatch(/const FRAME_WRITER_PRIORITY = -\d/);
+    expect(scene).toMatch(/\}, FRAME_WRITER_PRIORITY\);/);
+    /* The post pass keeps priority 1, so it still runs last. */
+    expect(scene).toMatch(/postRef\.current\?\.post\.render\(\);\s*\}, 1\);/);
+  });
+
+  it("no reader of the shared frame subscribes before the writer", () => {
+    /* Any layer priority must be greater than the writer's. The scan layer
+       names its own; the rest are default (0). */
+    const scan = read("components/particle-nav/layers/NetworkScan.tsx");
+    const named = scan.match(/const SCAN_FRAME_PRIORITY = ([\d.]+)/);
+    expect(named).not.toBeNull();
+    expect(Number(named![1])).toBeGreaterThan(0);
+    expect(Number(named![1])).toBeLessThan(1);
+  });
+});
+
 describe("PERF-006 — capability caps on GPU and layered work", () => {
   it("the particle scene caps pixel ratio and particle count per tier", () => {
     const tier = read("components/particle-nav/hooks/usePerfTier.ts");

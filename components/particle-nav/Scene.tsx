@@ -50,6 +50,13 @@ import { SCAN_VISIBLE_THRESHOLD } from '@/components/intro/scanIntro';
 const CAMERA_Z = 8.2;
 const FOV = 45;
 
+/**
+ * Frame order in this scene, ascending: this writer, then every layer that
+ * reads `experienceFrameRef` at its own priority, then the post pass at 1.
+ * Negative on purpose — see the comment on the writer's `useFrame`.
+ */
+export const FRAME_WRITER_PRIORITY = -1;
+
 export interface SceneProps {
   nodes: NavNode[];
   radius: number;
@@ -138,6 +145,16 @@ function SceneContent(props: SceneProps) {
     };
   }, [gl, scene, camera, params, tier.bloom]);
 
+  /* The frame writer runs before every layer that reads what it writes.
+     r3f sorts subscribers ascending by priority, so a negative value puts
+     this first; `internal.priority` only counts *positive* priorities
+     (`internal.priority += priority > 0 ? 1 : 0`), so this does not touch
+     r3f's auto-render gate — the priority-1 post pass below already owns
+     that. Without the ordering, `LionCore`, `IntroText` and `NetworkScan`
+     all subscribed after this one but at the default priority and read the
+     *previous* frame's `ExperienceFrame`: during the 1.1 s rise the lion
+     moved a frame further than the text particles born on its surface, so
+     the stream detached from the lion it is supposed to come out of. */
   useFrame((state, delta) => {
     const now = performance.now();
     const frame = driver.tick(now, delta, params);
@@ -331,7 +348,7 @@ function SceneContent(props: SceneProps) {
       readyRef.current = true;
       onReady?.();
     }
-  });
+  }, FRAME_WRITER_PRIORITY);
 
   // Render through the post chain; priority 1 disables r3f's auto-render.
   useFrame(() => {

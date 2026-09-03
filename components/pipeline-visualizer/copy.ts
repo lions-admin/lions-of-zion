@@ -180,6 +180,11 @@ export const CHROME = {
   glossarySubtitle: "Technical terms, models, and tables in the system architecture.",
   glossaryClose: "Close glossary",
   glossarySearch: "Search a term (for example: Outbox, RLS, embeddings)…",
+  /* A11Y-007. The placeholder above is not an accessible name: it is last in
+     the accessible-name calculation, several screen readers ignore it
+     entirely, and it disappears the moment anyone types — so the one control
+     in this dialog was announced as an unlabelled edit field. */
+  glossarySearchLabel: "Search the glossary",
   glossaryEmpty: (query: string) => `No terms match “${query}”.`,
   glossaryTable: "Table",
   glossaryDeep: "Engineering notes",

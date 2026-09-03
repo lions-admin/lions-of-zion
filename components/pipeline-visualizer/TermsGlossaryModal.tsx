@@ -61,8 +61,9 @@ function GlossaryBody({ initialSearch }: { initialSearch: string }) {
     <>
       <div className={styles.glossarySearchRow}>
         <input
-          type="text"
+          type="search"
           className={styles.glossarySearchInput}
+          aria-label={CHROME.glossarySearchLabel}
           placeholder={CHROME.glossarySearch}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

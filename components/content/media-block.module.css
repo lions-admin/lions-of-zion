@@ -23,6 +23,17 @@
   object-fit: var(--media-fit, cover);
 }
 
+/* A `SensitiveContent` gate stands in for the media until the reader opens it
+   (OCT-005). It is then the frame's only child, so it fills the box the
+   package's aspect ratio already reserved — the caption, credit and
+   provenance row below stay outside the gate and do not move when it opens. */
+.frame > [data-sensitive] {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
 .caption {
   display: flex;
   flex-direction: column;

@@ -8,13 +8,51 @@ import {
 } from '@/lib/content/archive';
 import { buildXShareText, xIntentUrl } from '@/lib/content/share-text';
 import { MediaBlock } from '@/components/content/MediaBlock';
+import { SensitiveContent } from '@/components/content/SensitiveContent';
 import { ArchiveImage } from './ArchiveImage';
 import styles from './archive.module.css';
+
+/**
+ * What this record holds that a reader should choose before seeing (OCT-005).
+ *
+ * Derived by `ArchiveRecordPage` from the package and the source's own
+ * category — never from a judgement made here about an individual record, and
+ * never from metadata the archive does not hold.
+ *
+ *  - `all` — the documentation archive. Every one of its 335 records *is* a
+ *    photograph or a film of the attack, filed by the source under one of six
+ *    categories it named itself. There is no such thing as an ungraphic record
+ *    in it.
+ *  - `video` — the testimony archive. The account is the record and is not
+ *    gated; the footage published alongside it is from that day, and is.
+ *  - `none` — nothing to gate.
+ */
+export type ArchiveSensitivity = {
+  gate: 'all' | 'video' | 'none';
+  /** The source's own filing, named on the gate. */
+  category: string;
+  /** How the material is described on the gate, in one sentence. */
+  note: string;
+};
 
 export type ArchiveBlocksProps = {
   pkg: ArchivePackageName;
   blocks: ArchiveBlock[];
   media: Map<string, ArchiveMedia>;
+  /** Which of this record's media stand behind a stated choice. */
+  sensitivity?: ArchiveSensitivity;
+  /**
+   * `record` renders the source's publication order — the testimony archive,
+   * where the account is the record and its figures sit inside it.
+   *
+   * `exhibit` lifts the media above the text — the documentation archive,
+   * where the record is one film or photograph and the text is its
+   * description. Its 335 records are stored heading-then-paragraph-then-media,
+   * so publication order buried the exhibit under two restatements of the
+   * page's own `h1`. Nothing is dropped or rewritten; the description is set
+   * under the thing it describes.
+   */
+  layout?: 'record' | 'exhibit';
   /**
    * The title the page already renders as its `h1`. A leading `heading` block
    * that repeats it is dropped — see `dropLeadingChrome`.
@@ -166,6 +204,8 @@ export function ArchiveBlocks({
   pkg,
   blocks,
   media,
+  sensitivity,
+  layout = 'record',
   renderedTitle,
   shareUrl,
   shareTitle,
@@ -184,19 +224,44 @@ export function ArchiveBlocks({
     renderedTitle,
   );
 
+  const render = (block: ArchiveBlock, key: string) => (
+    <Block
+      key={key}
+      pkg={pkg}
+      block={block}
+      media={media}
+      sensitivity={sensitivity}
+      shareUrl={shareUrl}
+      shareTitle={shareTitle}
+    />
+  );
+
+  if (layout === 'exhibit') {
+    const isMedia = (block: ArchiveBlock) =>
+      block.type === 'image' || block.type === 'video';
+    const exhibits = ordered.filter(isMedia);
+    const description = ordered.filter((block) => !isMedia(block));
+    return (
+      <>
+        <div className={styles.exhibit}>
+          {exhibits.map((block, i) => render(block, `exhibit-${i}`))}
+        </div>
+        {description.length > 0 ? (
+          <section className={styles.description} aria-labelledby="record-description">
+            <h2 className={styles.descriptionHeading} id="record-description">
+              What this shows
+            </h2>
+            {description.map((block, i) => render(block, `description-${i}`))}
+          </section>
+        ) : null}
+      </>
+    );
+  }
+
   return (
     <>
       {groupByHeading(ordered).map((group, gi) => {
-        const body = group.body.map((block, i) => (
-          <Block
-            key={`${block.type}-${i}`}
-            pkg={pkg}
-            block={block}
-            media={media}
-            shareUrl={shareUrl}
-            shareTitle={shareTitle}
-          />
-        ));
+        const body = group.body.map((block, i) => render(block, `${block.type}-${i}`));
         if (!group.heading || !group.id) {
           return <Fragment key={`lede-${gi}`}>{body}</Fragment>;
         }
@@ -217,11 +282,42 @@ type ArchiveMediaBlockProps = {
   pkg: ArchivePackageName;
   block: ArchiveBlock;
   media: Map<string, ArchiveMedia>;
+  sensitivity?: ArchiveSensitivity;
   shareUrl?: string;
   shareTitle?: string;
 };
 
-function Block({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockProps) {
+/**
+ * Whether this medium stands behind a stated choice on this record, and what
+ * the gate says when it does.
+ *
+ * The label names the thing and its filing — "Film · The Nova Party Massacre"
+ * — so the reader knows what they are about to open and where it came from
+ * before they open it. Nothing here describes what is *in* the material: the
+ * archive published no such description, and writing one would be inventing
+ * evidence on an evidentiary surface.
+ */
+function gateFor(
+  sensitivity: ArchiveSensitivity | undefined,
+  medium: 'video' | 'image',
+): { category: string; warning: string } | null {
+  if (!sensitivity || sensitivity.gate === 'none') return null;
+  if (sensitivity.gate === 'video' && medium !== 'video') return null;
+  const label = medium === 'video' ? 'Film' : 'Photograph';
+  return {
+    category: `${label} · ${sensitivity.category}`,
+    warning: sensitivity.note,
+  };
+}
+
+function Block({
+  pkg,
+  block,
+  media,
+  sensitivity,
+  shareUrl,
+  shareTitle,
+}: ArchiveMediaBlockProps) {
   switch (block.type) {
     // A heading with text never reaches here — `groupByHeading` lifts it out
     // to open its own `<section>`. Only an empty one falls through, and an
@@ -256,6 +352,7 @@ function Block({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockPro
           pkg={pkg}
           block={block}
           media={media}
+          sensitivity={sensitivity}
           shareUrl={shareUrl}
           shareTitle={shareTitle}
         />
@@ -267,6 +364,7 @@ function Block({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockPro
           pkg={pkg}
           block={block}
           media={media}
+          sensitivity={sensitivity}
           shareUrl={shareUrl}
           shareTitle={shareTitle}
         />
@@ -277,7 +375,14 @@ function Block({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockPro
   }
 }
 
-function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockProps) {
+function ImageBlock({
+  pkg,
+  block,
+  media,
+  sensitivity,
+  shareUrl,
+  shareTitle,
+}: ArchiveMediaBlockProps) {
   const item = block.media_id ? media.get(block.media_id) : undefined;
   // Only the two external videos lack a file, never an image — but a record
   // that referenced a missing one would crash the whole build rather than
@@ -303,6 +408,19 @@ function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlo
   const alt =
     item.alt_text ?? caption ?? 'Image published with this record. The archive holds no description of it.';
 
+  const gate = gateFor(sensitivity, 'image');
+  const picture = (
+    <ArchiveImage
+      src={assetUrl(pkg, item.package_path)}
+      srcSet={srcSet || undefined}
+      sizes={srcSet ? '(max-width: 720px) 100vw, 720px' : undefined}
+      width={item.width ?? undefined}
+      height={item.height ?? undefined}
+      alt={alt}
+      unavailableNote="An image published with this record is not loading from this archive."
+    />
+  );
+
   return (
     <MediaBlock
       className={styles.figure}
@@ -311,20 +429,28 @@ function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlo
       provenance={mediaActionRow({ pkg, item, caption, shareUrl, shareTitle })}
       aspectRatio={packageAspectRatio(item.width, item.height)}
     >
-      <ArchiveImage
-        src={assetUrl(pkg, item.package_path)}
-        srcSet={srcSet || undefined}
-        sizes={srcSet ? '(max-width: 720px) 100vw, 720px' : undefined}
-        width={item.width ?? undefined}
-        height={item.height ?? undefined}
-        alt={alt}
-        unavailableNote="An image published with this record is not loading from this archive."
-      />
+      {/* The gate goes *inside* the frame, so caption, credit and the download
+          and share row stay outside it — a reader who chooses not to look can
+          still read what the archive holds, and cite it. */}
+      {gate ? (
+        <SensitiveContent layout="frame" category={gate.category} warning={gate.warning}>
+          {picture}
+        </SensitiveContent>
+      ) : (
+        picture
+      )}
     </MediaBlock>
   );
 }
 
-function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockProps) {
+function VideoBlock({
+  pkg,
+  block,
+  media,
+  sensitivity,
+  shareUrl,
+  shareTitle,
+}: ArchiveMediaBlockProps) {
   const item = block.media_id ? media.get(block.media_id) : undefined;
   if (!item) return null;
 
@@ -359,6 +485,41 @@ function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlo
   const width = item.width ?? poster?.width ?? undefined;
   const height = item.height ?? poster?.height ?? undefined;
 
+  const gate = gateFor(sensitivity, 'video');
+  /* All 209 videos are H.264 + AAC with `moov` ahead of `mdat`, so they begin
+     playing without downloading the whole file. `preload="metadata"` keeps a
+     page of records from pulling megabytes nobody asked for, and there is no
+     `autoplay` anywhere in this archive — behind a gate the element does not
+     exist at all until the reader asks for it.
+
+     The poster is dropped when the clip is gated: a poster frame *is* the
+     film's first frame, so painting one behind a "Show this material" button
+     would hand over exactly what the button is asking about.
+
+     Dimensions fall back to the poster's: every october7 video item carries
+     null width/height, so without this the element lays out at the 300x150
+     intrinsic default and jumps when metadata arrives — mid-read, on records
+     holding up to 25 clips. The poster is always there to ask:
+     `tests/archive-content.test.ts:107` asserts every locally held video has
+     one, and all 74 posters carry both values. Package ratio is passed to
+     MediaBlock so a 16/10 editorial default does not crop these — they are
+     overwhelmingly portrait phone clips. */
+  const film = (
+    <video
+      className={styles.video}
+      controls
+      preload="metadata"
+      poster={
+        !gate && poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined
+      }
+      width={width}
+      height={height}
+    >
+      <source src={assetUrl(pkg, item.package_path)} type={item.mime_type ?? 'video/mp4'} />
+      Your browser cannot play this video.
+    </video>
+  );
+
   return (
     <MediaBlock
       className={`${styles.figure} ${styles.heldVideo}`}
@@ -367,29 +528,13 @@ function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlo
       provenance={mediaActionRow({ pkg, item, caption, shareUrl, shareTitle })}
       aspectRatio={packageAspectRatio(width, height)}
     >
-      {/* All 209 videos are H.264 + AAC with `moov` ahead of `mdat`, so they
-          begin playing without downloading the whole file. `preload="metadata"`
-          keeps a page of records from pulling megabytes nobody asked for.
-
-          Dimensions fall back to the poster's: every october7 video item
-          carries null width/height, so without this the element lays out at
-          the 300x150 intrinsic default and jumps when metadata arrives —
-          mid-read, on records holding up to 25 clips. The poster is always
-          there to ask: `tests/archive-content.test.ts:107` asserts every
-          locally held video has one, and all 74 posters carry both values.
-          Package ratio is passed to MediaBlock so a 16/10 editorial default
-          does not crop these — they are overwhelmingly portrait phone clips. */}
-      <video
-        className={styles.video}
-        controls
-        preload="metadata"
-        poster={poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined}
-        width={width}
-        height={height}
-      >
-        <source src={assetUrl(pkg, item.package_path)} type={item.mime_type ?? 'video/mp4'} />
-        Your browser cannot play this video.
-      </video>
+      {gate ? (
+        <SensitiveContent layout="frame" category={gate.category} warning={gate.warning}>
+          {film}
+        </SensitiveContent>
+      ) : (
+        film
+      )}
     </MediaBlock>
   );
 }

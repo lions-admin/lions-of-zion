@@ -295,20 +295,34 @@ async function auditFocus(page, steps = 25) {
   await page.evaluate(() => document.body.focus());
   for (let i = 0; i < steps; i += 1) {
     await page.keyboard.press("Tab");
+    /* Tabbing scrolls the target into view; measuring before that settles
+       reports the pre-scroll rectangle and invents findings. */
+    await page.waitForTimeout(30);
     const state = await page.evaluate(() => {
       const el = document.activeElement;
       if (!el || el === document.body) return null;
       const style = getComputedStyle(el);
       const r = el.getBoundingClientRect();
       const text = (el.getAttribute("aria-label") || el.textContent || "").trim().replace(/\s+/g, " ");
+      /* A ring is only really cut when the ancestor doing the clipping CANNOT
+         scroll the element back into view. An `overflow: auto` scroller that
+         has the element parked off to one side is not a defect — tabbing to
+         it scrolls it in. Flagging those produced more noise than findings,
+         so the axis has to be both clipped and unscrollable to count. */
+      const RING = 5; /* --focus-offset 3px + a 2px outline */
       let clipped = false;
       for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
         const ps = getComputedStyle(p);
-        if (ps.overflow === "hidden" || ps.overflowY === "hidden" || ps.overflowX === "hidden") {
-          const pr = p.getBoundingClientRect();
-          /* Two device pixels of headroom is what a 2px ring needs. */
-          if (r.left < pr.left + 2 || r.right > pr.right - 2 || r.top < pr.top + 2) clipped = true;
-        }
+        const pr = p.getBoundingClientRect();
+        const cutX =
+          (ps.overflowX === "hidden" || ps.overflowX === "clip") &&
+          p.scrollWidth <= p.clientWidth + 1 &&
+          (r.left < pr.left + RING || r.right > pr.right - RING);
+        const cutY =
+          (ps.overflowY === "hidden" || ps.overflowY === "clip") &&
+          p.scrollHeight <= p.clientHeight + 1 &&
+          (r.top < pr.top + RING || r.bottom > pr.bottom - RING);
+        if (cutX || cutY) clipped = true;
       }
       return {
         el: `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""}${text ? ` "${text.slice(0, 40)}"` : ""}`,

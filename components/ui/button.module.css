@@ -72,6 +72,10 @@
   .lg,
   .iconOnly {
     --btn-h: var(--control-h);
+    /* The height floor alone left a short label ("1x", "AI", a zoom glyph)
+       44px tall and 34px wide, which is half a target. The floor is a square,
+       so it belongs on both axes. */
+    min-width: var(--control-h);
   }
 
   .lg {

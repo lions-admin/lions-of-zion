@@ -236,13 +236,28 @@
   z-index: var(--z-sticky);
 }
 
+/* Seven journey names, the longest 48 characters. Sideways scrolling is the
+   right answer on a phone, where it is a native gesture — and the wrong one
+   at desktop width, where the row still overflowed at 1440 and tabbing to the
+   last chip left it sitting outside the viewport with its focus ring cut.
+   So: scroll where the gesture exists, wrap where the room does. */
 .journeySelector {
   display: flex;
   gap: var(--sp-2);
   overflow-x: auto;
   min-width: 0;
-  padding-block: var(--sp-1);
+  /* A scroller clips the focus ring of its first and last child unless it
+     leaves room for it. `--focus-offset` + the 2px outline is the room. */
+  padding: var(--sp-1) calc(var(--focus-offset) + 2px);
+  scroll-padding-inline: calc(var(--focus-offset) + 2px);
   scrollbar-width: thin;
+}
+
+@media (min-width: 64rem) {
+  .journeySelector {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
 
 .journeyTab {
@@ -607,6 +622,7 @@
   border-bottom: var(--line-w) solid var(--line);
   overflow-x: auto;
   overscroll-behavior-x: contain;
+  scroll-padding-inline: calc(var(--focus-offset) + 2px);
   scrollbar-width: thin;
 }
 
@@ -1328,7 +1344,8 @@
   display: flex;
   gap: var(--sp-1);
   overflow-x: auto;
-  padding-block: var(--sp-1);
+  padding: var(--sp-1) calc(var(--focus-offset) + 2px);
+  scroll-padding-inline: calc(var(--focus-offset) + 2px);
   scrollbar-width: thin;
 }
 

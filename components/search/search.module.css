@@ -134,6 +134,15 @@
   inset-block: 0;
   inline-size: 22%;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+/* The bar sits at `opacity: 0` whenever no request is in flight, but the
+   sweep was declared on `.pulse::after` unconditionally — an invisible
+   infinite loop running on every page that mounts the search panel. It is
+   gated on the same attribute the visibility is. The 1.15s period stays: this
+   is a processing indicator, the documented exception to the five-second
+   ambient floor. */
+.pulse[data-running]::after {
   animation: sweep 1.15s var(--ease-in-out) infinite;
 }
 

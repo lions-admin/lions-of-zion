@@ -66,11 +66,19 @@
 }
 
 
+/* The band variant is the only one that can leave the viewport — `.backdrop`
+   is `position: fixed`, so while the route is mounted it is on screen by
+   definition and there is no offscreen state to pause. `content-visibility`
+   is what stops the drift here without a client boundary: `ScanBackdrop` is
+   an async server component, and an IntersectionObserver would mean
+   hydrating a decorative layer to switch off a decoration. */
 .backdropBand {
   position: sticky;
   inset: auto;
   top: 0;
   height: 100dvh;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100dvh;
 }
 
 

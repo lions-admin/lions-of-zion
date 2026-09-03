@@ -8,6 +8,7 @@ import {
   Timeline,
   VerificationBadge,
 } from "@/components/content";
+import { Card, CardTitle } from "@/components/ui/Card";
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
 import { SITE_URL } from "@/lib/site-config";
 import type { AssessmentValue } from "@/server/contracts/enums";
@@ -165,7 +166,14 @@ export default async function Page() {
         </p>
 
         {edition.cases.map((c, i) => (
-          <article key={c.id} id={c.id} className={styles.caseFile}>
+          <Card
+            key={c.id}
+            variant="dossier"
+            accent="ember"
+            as="article"
+            id={c.id}
+            className={styles.caseFile}
+          >
             <span
               className={styles.stamp}
               data-tone={STAMP_TONE[c.verdict]}
@@ -176,14 +184,15 @@ export default async function Page() {
 
             {/* The exhibit and its sources are siblings so the case can become
                 a two-track grid above 1220px and file the citation in the
-                margin — `marginNote`, content.module.css. */}
+                margin — `marginNote`, content.module.css. Nested links live
+                in the body, so the Card itself is not a destination. */}
             <div className={styles.caseFileMain}>
               <div className={styles.caseFileHeader}>
                 <span className={styles.exhibitTag}>Exhibit {exhibitLetter(i)}</span>
                 <time dateTime={c.datetime}>{c.dateLabel}</time>
                 <VerificationBadge assessment={c.verdict} />
               </div>
-              <h3 className={styles.caseTitle}>{c.title}</h3>
+              <CardTitle className={styles.caseTitle}>{c.title}</CardTitle>
               <ClaimRecordPair
                 claim={c.claim}
                 record={c.record}
@@ -212,7 +221,7 @@ export default async function Page() {
             <div className={styles.caseFileSources}>
               <SourceList sources={c.sources} />
             </div>
-          </article>
+          </Card>
         ))}
       </SectionBlock>
 

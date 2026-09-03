@@ -7,6 +7,7 @@ import type { ArchiveIndexEntry } from '@/lib/content/archive';
    `ArchiveIndexFilter`, a client component, and the seam reads the filesystem.
    (`ArchiveIndexEntry` arrives as a type only — types cross that boundary.) */
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
+import { MediaBlock } from '@/components/content/MediaBlock';
 import styles from './archive.module.css';
 
 /**
@@ -97,13 +98,15 @@ export function ArchiveRecordList({
             <span className={styles.recordNum} aria-hidden="true">
               {String(numbers?.[i] ?? startAt + i).padStart(3, '0')}
             </span>
-            {entry.thumb ? (
-              <RecordThumb src={entry.thumb} />
-            ) : (
-              /* Every entry carries a cover today; if one ever does not, the
-                 grid keeps its shape and the gap reads as a quiet blank. */
-              <span className={styles.recordThumb} aria-hidden="true" />
-            )}
+            <MediaBlock layout="thumb" aspectRatio="1 / 1">
+              {entry.thumb ? (
+                <RecordThumb src={entry.thumb} />
+              ) : (
+                /* Every entry carries a cover today; if one ever does not, the
+                   grid keeps its shape and the gap reads as a quiet blank. */
+                <span className={styles.recordThumb} aria-hidden="true" />
+              )}
+            </MediaBlock>
             <span className={styles.recordBody}>
               <span className={styles.recordItemTitle}>
                 {displayTitle(entry.title ?? entry.id)}

@@ -5,9 +5,21 @@ import { SITE_URL } from "@/lib/site-config";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
 import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublicationDetail } from "@/server/contracts/publication";
+import {
+  SECTION_LABELS,
+  TREND_LABELS,
+  VERIFICATION_STATES,
+} from "@/components/live/publication-labels";
+import {
+  CorrectionHistory,
+  KnownUnknownPanel,
+  PublicationMeta,
+  SourceList,
+  type Source,
+} from "@/components/content";
 import { EditorialShell } from "@/components/site/EditorialShell";
-import { ButtonLink } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
+import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
 import styles from "./article.module.css";
 
 type Props = { params: Promise<{ publicId: string }> };
@@ -65,10 +77,20 @@ export default async function ArticlePage({ params }: Props) {
      absent or unrecognised must be treated as a sourced one, which is the
      reading that keeps its citations required. */
   const isAnalysis = isAnalysisBasis(article.narrativeWatchDetails);
+  const parent = parentCrumb(article.section);
+  const details = article.narrativeWatchDetails;
+  const passages = visiblePassages.length
+    ? visiblePassages
+    : article.body.split(/\r?\n\r?\n+/).map((text, index) => ({
+        position: index + 1,
+        text,
+        claim: null,
+        sources: [],
+      }));
 
   return (
     <EditorialShell
-      routeId="geopolitical-brief"
+      routeId="articles"
       backdropSeed={article.publicId}
       register="muted"
       className={styles.page}
@@ -78,59 +100,147 @@ export default async function ArticlePage({ params }: Props) {
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className={styles.article} id="page-content">
-        <div className={styles.topNav}>
-          <ButtonLink href="/geopolitical-brief" variant="ghost" size="sm">
-            ← Daily Brief and Updates
-          </ButtonLink>
-        </div>
-        <div className={styles.kickerRow}>
-          <Badge variant="gold" dot>
-            {article.section.replace(/_/g, " ")}
-          </Badge>
-          {isAnalysis ? (
-            <Badge variant="neutral">Organisation analysis · no documentary source</Badge>
+        <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+          <Link href="/">Home</Link>
+          <span aria-hidden="true">/</span>
+          <Link href={parent.href}>{parent.label}</Link>
+          <span aria-hidden="true">/</span>
+          <span className={styles.breadcrumbCurrent}>{article.title}</span>
+        </nav>
+
+        <header className={styles.head}>
+          <div className={styles.kickerRow}>
+            <Badge variant="gold" dot>
+              {SECTION_LABELS[article.section]}
+            </Badge>
+            {isAnalysis ? (
+              <Badge variant="neutral">Organisation analysis · no documentary source</Badge>
+            ) : null}
+            {article.featuredIsraelStory ? (
+              <Badge variant="gold">Featured Israel story</Badge>
+            ) : null}
+          </div>
+          <h1>{article.title}</h1>
+          {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
+        </header>
+
+        <section className={styles.facts} aria-label="Publication facts">
+          <PublicationMeta
+            publishedAt={formatDate(article.publishedAt)}
+            updatedAt={article.updatedAt !== article.publishedAt ? formatDate(article.updatedAt) : undefined}
+            edition={article.autoPublishedAt ? "Automatically published daily edition" : undefined}
+            sourceCount={isAnalysis && !article.sources.length ? undefined : article.sources.length}
+          />
+          {article.editorialTopic || article.primaryActor || article.arena ? (
+            <dl className={styles.factsExtra}>
+              {article.editorialTopic ? (
+                <div>
+                  <dt>Topic</dt>
+                  <dd>{article.editorialTopic}</dd>
+                </div>
+              ) : null}
+              {article.primaryActor ? (
+                <div>
+                  <dt>Primary actor</dt>
+                  <dd>{article.primaryActor}</dd>
+                </div>
+              ) : null}
+              {article.arena ? (
+                <div>
+                  <dt>Arena</dt>
+                  <dd>{article.arena}</dd>
+                </div>
+              ) : null}
+            </dl>
           ) : null}
-        </div>
-        <h1>{article.title}</h1>
-        {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
-        <p className={styles.meta}>
-          Published {formatDate(article.publishedAt)}
-          {article.autoPublishedAt ? " · Automatically published daily edition" : ""}
-          {article.updatedAt !== article.publishedAt ? " · Updated " + formatDate(article.updatedAt) : ""}
-        </p>
+        </section>
+
+        {details ? (
+          <section className={styles.narrativeDetails}>
+            <p className={styles.kicker}>Narrative Watch</p>
+            <h2>{isAnalysis ? "Analysis record" : "Claim record"}</h2>
+            {/* Deliberately a paragraph above the list rather than a tenth row
+                inside it. Nine metadata rows are skimmed; this one is the whole
+                promise the record rests on and has to be read. */}
+            {isAnalysis ? (
+              <p className={styles.analysisNote}>
+                This record answers a circulating narrative rather than reporting one. The assessment
+                is our own and cites no documentary source — read it as Lions of Zion&rsquo;s analysis,
+                not as documented fact. The claim it answers is stated in full below.
+              </p>
+            ) : null}
+            <p className={styles.verdictLine}>
+              <Badge status={details.verificationState}>
+                {VERIFICATION_STATES[details.verificationState].label}
+              </Badge>
+              <span className={styles.verdictMeaning}>
+                {VERIFICATION_STATES[details.verificationState].meaning}
+              </span>
+            </p>
+            <dl>
+              <div>
+                <dt>Evidence basis</dt>
+                <dd>{isAnalysis ? ANALYSIS_AUTHOR : "Cited public sources"}</dd>
+              </div>
+              <div>
+                <dt>Exact claim</dt>
+                <dd>{details.exactClaim}</dd>
+              </div>
+              <div>
+                <dt>Trend</dt>
+                <dd>{TREND_LABELS[details.trendDirection]}</dd>
+              </div>
+              <div>
+                <dt>Observed propagators</dt>
+                <dd>{details.propagators.join(", ") || "No attributable propagator is recorded."}</dd>
+              </div>
+              <div>
+                <dt>Arenas</dt>
+                <dd>{details.arenas.join(", ")}</dd>
+              </div>
+              {details.israeliPosition ? (
+                <div>
+                  <dt>Israeli position</dt>
+                  <dd>{details.israeliPosition}</dd>
+                </div>
+              ) : null}
+              {details.securityContext ? (
+                <div>
+                  <dt>Security context</dt>
+                  <dd>{details.securityContext}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </section>
+        ) : null}
+
         <div className={styles.body}>
-          {(visiblePassages.length ? visiblePassages : article.body.split(/\r?\n\r?\n+/).map((text, index) => ({ position: index + 1, text, claim: null, sources: [] }))).map((passage) => (
+          {passages.map((passage) => (
             <section className={styles.passage} key={passage.position}>
-              <p>{passage.text}</p>
-              {passage.claim ? <p className={styles.claimRef}>Claim record: {passage.claim.title}{passage.claim.assessment ? ` · ${passage.claim.assessment}` : ""}</p> : null}
-              {passage.sources.length ? <ul className={styles.inlineSources}>{passage.sources.map((source, index) => <li key={source.url ?? source.title + index}>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.publisher}</a> : source.publisher}</li>)}</ul> : null}
+              <div className={styles.passageMain}>
+                <p>{passage.text}</p>
+                {passage.claim ? (
+                  <p className={styles.claimRef}>
+                    <span>
+                      Claim record: {passage.claim.title}
+                    </span>
+                    {passage.claim.assessment ? (
+                      <Badge status={badgeStatus(passage.claim.assessment)}>
+                        {passage.claim.assessment.replaceAll("_", " ")}
+                      </Badge>
+                    ) : null}
+                  </p>
+                ) : null}
+              </div>
+              {passage.sources.length ? (
+                <div className={styles.passageSources}>
+                  <SourceList sources={asSourceList(passage.sources)} />
+                </div>
+              ) : null}
             </section>
           ))}
         </div>
-        {article.narrativeWatchDetails ? <section className={styles.narrativeDetails}>
-          <p className={styles.kicker}>Narrative Watch</p><h2>{isAnalysis ? "Analysis record" : "Claim record"}</h2>
-          {/* Deliberately a paragraph above the list rather than a tenth row
-              inside it. Nine metadata rows are skimmed; this one is the whole
-              promise the record rests on and has to be read. */}
-          {isAnalysis ? (
-            <p className={styles.analysisNote}>
-              This record answers a circulating narrative rather than reporting one. The assessment
-              is our own and cites no documentary source — read it as Lions of Zion&rsquo;s analysis,
-              not as documented fact. The claim it answers is stated in full below.
-            </p>
-          ) : null}
-          <dl>
-            <div><dt>Evidence basis</dt><dd>{isAnalysis ? ANALYSIS_AUTHOR : "Cited public sources"}</dd></div>
-            <div><dt>Exact claim</dt><dd>{article.narrativeWatchDetails.exactClaim}</dd></div>
-            <div><dt>Trend</dt><dd>{article.narrativeWatchDetails.trendDirection}</dd></div>
-            <div><dt>Verification status</dt><dd>{article.narrativeWatchDetails.verificationState}</dd></div>
-            <div><dt>Observed propagators</dt><dd>{article.narrativeWatchDetails.propagators.join(", ") || "No attributable propagator is recorded."}</dd></div>
-            <div><dt>Arenas</dt><dd>{article.narrativeWatchDetails.arenas.join(", ")}</dd></div>
-            {article.narrativeWatchDetails.israeliPosition ? <div><dt>Israeli position</dt><dd>{article.narrativeWatchDetails.israeliPosition}</dd></div> : null}
-            {article.narrativeWatchDetails.securityContext ? <div><dt>Security context</dt><dd>{article.narrativeWatchDetails.securityContext}</dd></div> : null}
-            <div><dt>Known unknowns</dt><dd>{article.narrativeWatchDetails.knownUnknowns.join(" ") || "No further unknowns are recorded."}</dd></div>
-          </dl>
-        </section> : null}
+
         {/* An analysis record has nothing to list here, and a bare "no sources"
             line reads as a malfunction. State the position instead: the absence
             is the disclosure, not a gap in the page. If such a record ever does
@@ -148,25 +258,83 @@ export default async function ArticlePage({ params }: Props) {
           <section className={styles.sources}>
             <h2>Public sources</h2>
             {article.sources.length ? (
-              <ul>
+              <ol className={styles.sourceStack}>
                 {article.sources.map((source, index) => (
                   <li key={source.url ?? source.title + index}>
-                    {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title}
-                    <span> — {source.publisher}{source.publishedAt ? ` · ${formatSourceDate(source.publishedAt)}` : ""}</span>
+                    {source.url ? (
+                      <a href={source.url} target="_blank" rel="noreferrer">
+                        {source.title} <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span>{source.title}</span>
+                    )}
+                    <span className={styles.sourceMeta}>
+                      {source.publisher}
+                      {source.publishedAt ? ` · ${formatSourceDate(source.publishedAt)}` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p>No public sources are listed for this article.</p>
+            )}
+          </section>
+        )}
+
+        {details ? (
+          <section className={styles.unknowns}>
+            <h2>Known unknowns</h2>
+            {details.knownUnknowns.length ? (
+              <KnownUnknownPanel unknowns={details.knownUnknowns} />
+            ) : (
+              <p>No further unknowns are recorded.</p>
+            )}
+          </section>
+        ) : null}
+
+        {article.relatedArticles.length || article.narratives.length ? (
+          <section className={styles.related}>
+            <h2>Related coverage</h2>
+            {article.relatedArticles.length ? (
+              <ul className={styles.relatedList}>
+                {article.relatedArticles.map((related) => (
+                  <li key={related.publicId}>
+                    <Card href={`/articles/${related.publicId}`} variant="row">
+                      <CardEyebrow>{SECTION_LABELS[related.section]}</CardEyebrow>
+                      <CardTitle as="h3">{related.title}</CardTitle>
+                      {related.summary ? <CardDescription>{related.summary}</CardDescription> : null}
+                    </Card>
                   </li>
                 ))}
               </ul>
-            ) : <p>No public sources are listed for this article.</p>}
-          </section>
-        )}
-        {article.narratives.length ? (
-          <section className={styles.narratives}>
-            <h2>Related Narrative Watch records</h2>
-            <ul>{article.narratives.map((narrative) => <li key={narrative.publicId}>{narrative.title} · {narrative.status}</li>)}</ul>
+            ) : null}
+            {article.narratives.length ? (
+              <>
+                <h3 className={styles.relatedSubhead}>Related Narrative Watch records</h3>
+                <ul className={styles.narrativeList}>
+                  {article.narratives.map((narrative) => (
+                    <li key={narrative.publicId}>
+                      {narrative.title} · {narrative.status.replaceAll("_", " ")}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
           </section>
         ) : null}
-        {article.relatedArticles.length ? <section className={styles.related}><h2>Related coverage</h2><ul>{article.relatedArticles.map((related) => <li key={related.publicId}><Link href={`/articles/${related.publicId}`}>{related.title}</Link></li>)}</ul></section> : null}
-        {article.corrections.length ? <section className={styles.corrections}><h2>Corrections and updates</h2><ol>{article.corrections.map((correction) => <li key={correction.version}><time dateTime={correction.changedAt}>{formatDate(correction.changedAt)}</time><span>{correction.summary}</span></li>)}</ol></section> : null}
+
+        {article.corrections.length ? (
+          <section className={styles.corrections}>
+            <h2>Corrections and updates</h2>
+            <CorrectionHistory
+              corrections={article.corrections.map((correction) => ({
+                date: formatDate(correction.changedAt),
+                note: correction.summary,
+                version: `v${correction.version}`,
+              }))}
+            />
+          </section>
+        ) : null}
       </article>
     </EditorialShell>
   );
@@ -184,6 +352,26 @@ export function collapsePublicPassages<T extends PublicPublicationDetail["passag
     if (!duplicate) visible.push(passage);
   }
   return visible;
+}
+
+function parentCrumb(section: PublicPublicationDetail["section"]): { href: string; label: string } {
+  if (section === "war_update") return { href: "/updates", label: "Updates" };
+  return { href: "/geopolitical-brief", label: "Daily Brief" };
+}
+
+function asSourceList(
+  sources: { title: string; publisher: string; url: string | null }[],
+): Source[] {
+  return sources.map((source, index) => ({
+    id: source.url ?? `${source.title}:${source.publisher}:${index}`,
+    label: source.title,
+    kind: source.publisher,
+    url: source.url ?? undefined,
+  }));
+}
+
+function badgeStatus(value: string): BadgeStatus {
+  return Object.hasOwn(BADGE_GRAMMAR, value) ? (value as BadgeStatus) : "neutral";
 }
 
 function wordSimilarity(first: string, second: string): number {

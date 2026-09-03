@@ -1,13 +1,8 @@
-/* Badge · design V3
+/* Badge — SYS-011
  *
- * A status value is data, so a badge is set in the data face at the data
- * step with its tracking. Each tone reads one ramp — text, wash, line — so a
- * badge, a form error and a status dot always agree. A badge may wrap: a long
- * label on a narrow screen must break, not overflow.
- *
- * Tones are named for the ramp, never for the meaning. `ok` is not
- * `verified`: an editorial verdict is `components/content/VerificationBadge`,
- * which is deliberately not a pill.
+ * One grammar for system, evidence, and verification status.
+ * Text is required; the mark shape differs by ramp so colour is never the
+ * only cue. Radius --radius-1. Not a pill.
  */
 
 .badge {
@@ -27,18 +22,44 @@
   overflow-wrap: anywhere;
 }
 
-/* Half the data step, so the dot scales with the label it sits beside
-   rather than being a fixed 6px that drifts if the step ever moves. */
-.dot {
+.mark {
   flex: 0 0 auto;
   width: calc(var(--t-data) / 2);
   height: calc(var(--t-data) / 2);
-  border-radius: 50%;
   background: currentColor;
+  border: var(--line-w) solid currentColor;
+}
+
+.label {
+  min-width: 0;
+}
+
+.square .mark {
+  border-radius: var(--radius-1);
+}
+
+.diamond .mark {
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+.circle .mark {
+  border-radius: 50%;
+}
+
+.hollow .mark {
+  border-radius: 50%;
+  background: transparent;
+}
+
+.dashed .mark {
+  border-radius: 50%;
+  background: transparent;
+  border-style: dashed;
 }
 
 .neutral {
-  background: color-mix(in oklab, var(--ink-hi) 5%, transparent);
+  background: var(--surface-2);
   color: var(--ink);
   border-color: var(--line);
 }
@@ -50,9 +71,9 @@
 }
 
 .ember {
-  background: var(--data-ember-wash);
-  color: var(--data-ember-peak);
-  border-color: color-mix(in oklab, var(--data-ember) 40%, transparent);
+  background: var(--ember-wash);
+  color: var(--ember-peak);
+  border-color: color-mix(in oklab, var(--ember) 40%, transparent);
 }
 
 .ok {

@@ -195,44 +195,16 @@
 /* ── Frames ────────────────────────────────────────────────────────────── */
 
 .narratives {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  /* The gap *is* the rule between the frames — the grid's background shows
-     through it — so it takes the hairline weight, not a spacing step. */
-  gap: var(--line-w);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
   margin-top: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--line);
-  overflow: hidden;
+  padding: 0;
+  list-style: none;
 }
 
-.narrative {
-  padding: var(--sp-5);
-  background: var(--surface-1);
-}
-
-.narrative h3 {
-  margin: 0 0 var(--sp-2);
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-}
-
-.narrative p {
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-/* Scoped under `.narrative` so these outrank `.narrative p` on specificity
-   rather than on `!important`. */
-.narrative .narrativeFrame,
-.narrative .narrativeAudience {
+.narratives .narrativeFrame,
+.narratives .narrativeAudience {
   margin-top: var(--sp-3);
   color: var(--ink-lo);
 }

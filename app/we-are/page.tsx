@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { ContentCard } from "@/components/content";
+import {
+  Card,
+  CardDescription,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { Reveal } from "@/components/motion";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -50,6 +56,29 @@ const METHOD_STEPS = [
   {
     title: "Publish & search",
     body: "Only what clears review becomes part of the public, searchable record — carrying its sources with it.",
+  },
+];
+
+const ROLES = [
+  {
+    eyebrow: "Find",
+    title: "Investigators",
+    body: "Trace a claim to its origin; geolocation, chronolocation and archive work.",
+  },
+  {
+    eyebrow: "Check",
+    title: "Verification reviewers",
+    body: "The second, non-author reviewer every assessment requires before it can publish.",
+  },
+  {
+    eyebrow: "Read",
+    title: "Linguists & translators",
+    body: "Primary material across the languages of the region and the networks that target it.",
+  },
+  {
+    eyebrow: "Build",
+    title: "Engineers",
+    body: "The tools that make verified material fast to check and easy to carry.",
   },
 ];
 
@@ -146,24 +175,17 @@ export default function Page() {
           The network runs on volunteered expertise across a few broad
           areas — not a fixed org chart, and not names published here.
         </p>
-        <div className={styles.roleGrid}>
-          <ContentCard eyebrow="Find" title="Investigators">
-            Trace a claim to its origin; geolocation, chronolocation and
-            archive work.
-          </ContentCard>
-          <ContentCard eyebrow="Check" title="Verification reviewers">
-            The second, non-author reviewer every assessment requires
-            before it can publish.
-          </ContentCard>
-          <ContentCard eyebrow="Read" title="Linguists & translators">
-            Primary material across the languages of the region and the
-            networks that target it.
-          </ContentCard>
-          <ContentCard eyebrow="Build" title="Engineers">
-            The tools that make verified material fast to check and easy
-            to carry.
-          </ContentCard>
-        </div>
+        <ul className={styles.roleRoster}>
+          {ROLES.map((role) => (
+            <Card as="li" key={role.title} variant="row">
+              <CardHeader>
+                <CardEyebrow>{role.eyebrow}</CardEyebrow>
+              </CardHeader>
+              <CardTitle>{role.title}</CardTitle>
+              <CardDescription>{role.body}</CardDescription>
+            </Card>
+          ))}
+        </ul>
       </SectionBlock>
 
       <SectionBlock heading="Principles">

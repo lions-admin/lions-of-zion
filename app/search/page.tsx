@@ -32,14 +32,15 @@ export default async function SearchRoute({ searchParams }: Props) {
 
       {/* Search runs in the browser against a rate-limited public endpoint.
           Serving it from the server instead would put an unmetered second door
-          on the same query — so without scripting this page says so plainly
-          and hands over the index it can offer, rather than showing a control
-          that does nothing. */}
+          on the same query. The FieldShell above is still in this page so a
+          no-JS reader sees the labelled control; this block explains why it
+          will not query, and hands over the index the page can offer. */}
       <noscript>
         <div className={styles.noScript}>
           <p>
-            Search runs in your browser and needs JavaScript. Every published
-            file is still reachable from the index below.
+            Search runs in your browser and needs JavaScript. The field above
+            will not query the index until then. Every published file is still
+            reachable from the index below.
           </p>
           <ul className={styles.noScriptIndex}>
             {SITE_NAVIGATION.map((item) => (

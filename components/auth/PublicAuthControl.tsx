@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { googleIdentityClientId, loadGoogleIdentity, signInWithGoogleCredential, type GoogleSignedInUser } from "./google-identity";
 import styles from "./public-auth-control.module.css";
 
@@ -10,6 +12,7 @@ export function PublicAuthControl() {
   const [user, setUser] = useState<GoogleSignedInUser | null | undefined>(undefined);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const googleButton = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,11 +25,13 @@ export function PublicAuthControl() {
   const signIn = useCallback(async (credential: string) => {
     setPending(true);
     setMessage(null);
+    setNotice(null);
     try {
       await signInWithGoogleCredential(credential);
+      setNotice("Signed in.");
       router.push("/account");
     } catch (error) {
-      setMessage(error instanceof Error && error.message ? error.message : "ההתחברות נכשלה. נסה שוב.");
+      setMessage(error instanceof Error && error.message ? error.message : "Sign-in failed. Try again.");
       setPending(false);
     }
   }, [router]);
@@ -39,40 +44,48 @@ export function PublicAuthControl() {
     void loadGoogleIdentity().then((identity) => {
       if (cancelled || !googleButton.current) return;
       identity.initialize({ client_id: clientId, callback: ({ credential }) => {
-        if (!credential) { setMessage("Google לא החזיר אישור התחברות."); return; }
+        if (!credential) { setMessage("Google did not return a sign-in credential."); return; }
         void signIn(credential);
       } });
       googleButton.current.replaceChildren();
-      identity.renderButton(googleButton.current, { theme: "outline", size: "large", text: "signin_with", width: 280, locale: "he" });
-    }).catch((error: unknown) => setMessage(error instanceof Error ? error.message : "לא ניתן לטעון את Google."));
+      identity.renderButton(googleButton.current, { theme: "outline", size: "large", text: "signin_with", width: 280, locale: "en" });
+    }).catch((error: unknown) => setMessage(error instanceof Error ? error.message : "Google could not be loaded."));
     return () => { cancelled = true; };
   }, [signIn, user]);
 
   async function signOut() {
     setPending(true);
     setMessage(null);
+    setNotice(null);
     const result = await fetch("/api/public-auth/sign-out", { method: "POST" });
     if (!result.ok) {
-      setMessage("היציאה נכשלה. נסה שוב.");
+      setMessage("Sign-out failed. Try again.");
       setPending(false);
       return;
     }
     setUser(null);
     setPending(false);
+    setNotice("Signed out.");
   }
 
-  if (user === undefined) return <p className={styles.muted}>טוען התחברות…</p>;
+  if (user === undefined) {
+    return (
+      <p className={styles.muted} {...politeLive}>
+        Checking sign-in…
+      </p>
+    );
+  }
 
   if (user) {
     return (
       <div className={styles.control}>
         <p className={styles.identity}>
-          מחובר כ־{user.name || user.email}
+          Signed in as {user.name || user.email}
         </p>
-        <button className={styles.secondary} type="button" onClick={signOut} disabled={pending}>
-          {pending ? "יוצא…" : "יציאה"}
-        </button>
-        {message && <p className={styles.error} role="alert">{message}</p>}
+        <Button variant="secondary" size="md" type="button" onClick={signOut} disabled={pending} isLoading={pending}>
+          {pending ? "Signing out…" : "Sign out"}
+        </Button>
+        {message ? <p className={styles.error} {...assertiveLive}>{message}</p> : null}
       </div>
     );
   }
@@ -80,9 +93,10 @@ export function PublicAuthControl() {
   return (
     <div className={styles.control}>
       {googleIdentityClientId()
-        ? <div ref={googleButton} aria-label="כניסה עם Google" />
-        : <p className={styles.muted}>התחברות עם Google תופעל לאחר הגדרת מזהה הלקוח המאובטח שלה.</p>}
-      {message && <p className={styles.error} role="alert">{message}</p>}
+        ? <div ref={googleButton} aria-label="Sign in with Google" />
+        : <p className={styles.muted}>Google sign-in will appear once its client ID is configured.</p>}
+      {notice ? <p className={styles.muted} {...politeLive}>{notice}</p> : null}
+      {message ? <p className={styles.error} {...assertiveLive}>{message}</p> : null}
     </div>
   );
 }

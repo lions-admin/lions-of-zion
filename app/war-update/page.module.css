@@ -182,6 +182,8 @@
   padding: var(--sp-5) 0;
   color: var(--ink);
   text-decoration: none;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .publishedUpdates time {

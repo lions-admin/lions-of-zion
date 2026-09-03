@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { usePipelineSimulation } from "./hooks/usePipelineSimulation";
 import { PipelineCanvas } from "./PipelineCanvas";
 import { PipelineControls } from "./PipelineControls";
@@ -8,6 +9,7 @@ import { StepExplainerCard } from "./StepExplainerCard";
 import { TermsGlossaryModal } from "./TermsGlossaryModal";
 import { NodeInspectorDrawer } from "./NodeInspectorDrawer";
 import { EventTelemetryStream } from "./EventTelemetryStream";
+import { CHROME } from "./copy";
 import styles from "./visualizer.module.css";
 
 export function PipelineVisualizer() {
@@ -37,7 +39,6 @@ export function PipelineVisualizer() {
     resetSimulation,
   } = usePipelineSimulation();
 
-  // Glossary modal state
   const [isGlossaryOpen, setIsGlossaryOpen] = useState<boolean>(false);
   const [glossarySearchQuery, setGlossarySearchQuery] = useState<string>("");
 
@@ -48,54 +49,49 @@ export function PipelineVisualizer() {
 
   return (
     <div className={styles.visualizerShell}>
-      {/* ── שורת כותרת עליונה (Header Bar) ── */}
-      <header className={styles.headerBar} dir="rtl">
+      <header className={styles.headerBar}>
         <div className={styles.headerLeft}>
           <div className={styles.headerTitle}>
             <span>LIONS OF ZION</span>
-            <span className={styles.brandBadge}>ארכיטקטורת המערכת וצינור המידע</span>
+            <h1 className={styles.brandBadge}>{CHROME.brandBadge}</h1>
           </div>
-          <div className={styles.headerSubtitle}>
-            הדמיה אינטראקטיבית מתוסרטת של מנוע אימות הטענות, שערי ה־SQL, מכונת הבריף היומי ושכבות האבטחה — מבוססת על מבנה הקוד, ולא על הרצה חיה
-          </div>
+          <div className={styles.headerSubtitle}>{CHROME.headerSubtitle}</div>
         </div>
 
-        <div className={styles.headerControls} dir="ltr">
-          <button
+        <div className={styles.headerControls}>
+          <Button
             type="button"
-            className={styles.glossaryPillBtn}
+            variant="secondary"
+            size="sm"
             onClick={() => handleOpenGlossary()}
-            title="פתח מילון מונחים והסברים"
+            title={CHROME.glossaryButtonTitle}
           >
-            מילון מונחים (עברית/אנגלית)
-          </button>
+            {CHROME.glossaryButton}
+          </Button>
 
           <div className={styles.viewModeGroup}>
-            <button
+            <Button
               type="button"
-              className={`
-                ${styles.viewModeBtn}
-                ${viewPerspective === "pipelines" ? styles.viewModeBtnActive : ""}
-              `}
+              variant="filter"
+              size="sm"
+              isActive={viewPerspective === "pipelines"}
               onClick={() => setViewPerspective("pipelines")}
             >
-              כל המערכת (7 מסלולים)
-            </button>
-            <button
+              {CHROME.viewAllPipelines}
+            </Button>
+            <Button
               type="button"
-              className={`
-                ${styles.viewModeBtn}
-                ${viewPerspective === "briefing" ? styles.viewModeBtnActive : ""}
-              `}
+              variant="filter"
+              size="sm"
+              isActive={viewPerspective === "briefing"}
               onClick={() => setViewPerspective("briefing")}
             >
-              מכונת הבריף היומי
-            </button>
+              {CHROME.viewBriefing}
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* ── פקדי ניווט ותרחישים (Controls & Scenarios Bar) ── */}
       <PipelineControls
         selectedJourneyId={selectedJourneyId}
         currentJourney={currentJourney}
@@ -112,7 +108,6 @@ export function PipelineVisualizer() {
         onReset={resetSimulation}
       />
 
-      {/* ── כרטיס הסבר שלב בולט וברור (Step Story Explainer) ── */}
       <StepExplainerCard
         currentStep={currentStep}
         stepIndex={currentStepIndex}
@@ -121,7 +116,6 @@ export function PipelineVisualizer() {
         onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
       />
 
-      {/* ── משטח ההדמיה האינטראקטיבי (Pan & Zoom Canvas + Draggable Cards) ── */}
       <div className={styles.mainStage}>
         <PipelineCanvas
           activeNodeId={currentStep?.nodeId ?? null}
@@ -134,20 +128,22 @@ export function PipelineVisualizer() {
           onOpenGlossary={handleOpenGlossary}
         />
 
-        {/* מגירת ניתוח רכיב מעמיקה */}
         <NodeInspectorDrawer
           node={selectedNode}
+          stepTitleEn={
+            selectedNode && currentStep?.nodeId === selectedNode.id
+              ? currentStep.titleEn
+              : undefined
+          }
           onClose={() => setSelectedNodeId(null)}
         />
       </div>
 
-      {/* ── מסוף יומן אירועים ומדדים חיים ── */}
       <EventTelemetryStream
         eventLogs={eventLogs}
-        activeStepNodeName={currentStep?.titleHe}
+        activeStepNodeName={currentStep?.titleEn}
       />
 
-      {/* ── מילון מונחים והסברים מלא ── */}
       <TermsGlossaryModal
         isOpen={isGlossaryOpen}
         initialSearch={glossarySearchQuery}

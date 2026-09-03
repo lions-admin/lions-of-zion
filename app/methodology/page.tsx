@@ -28,7 +28,7 @@ const METHODOLOGY_JSON_LD = {
 
 export default function Page() {
   return (
-    <DocPage routeId="methodology" title="Methodology" tagline={TAGLINE}>
+    <DocPage routeId="methodology" title="Methodology" tagline={TAGLINE} rails="toc">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }}

@@ -18,6 +18,7 @@
  */
 
 import { useId, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import styles from "./ask.module.css";
 
 const LIMIT = 600;
@@ -29,9 +30,17 @@ export interface AskComposerProps {
   disabled: boolean;
   /** Placed under the field: what the reader should know before asking. */
   hint?: string;
+  label?: string;
+  placeholder?: string;
 }
 
-export function AskComposer({ onAsk, disabled, hint }: AskComposerProps) {
+export function AskComposer({
+  onAsk,
+  disabled,
+  hint,
+  label = "Your question",
+  placeholder = "What does the desk hold on…",
+}: AskComposerProps) {
   const [value, setValue] = useState("");
   const id = useId();
   const counterId = `${id}-count`;
@@ -56,19 +65,20 @@ export function AskComposer({ onAsk, disabled, hint }: AskComposerProps) {
       }}
     >
       <label className={styles.composerLabel} htmlFor={id}>
-        Your question
+        {label}
       </label>
       <textarea
         id={id}
         className={styles.composerField}
         value={value}
         rows={3}
-        placeholder="What does the desk hold on…"
+        placeholder={placeholder}
         disabled={disabled}
         aria-describedby={length ? counterId : undefined}
         aria-invalid={over > 0 || undefined}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={(event) => {
+          if (event.nativeEvent.isComposing || event.key === "Process") return;
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             submit();
@@ -86,7 +96,7 @@ export function AskComposer({ onAsk, disabled, hint }: AskComposerProps) {
         </p>
         <div className={styles.composerActions}>
           {length ? (
-            <p className={styles.counter} id={counterId} data-tone={tone} role="status">
+            <p className={styles.counter} id={counterId} data-tone={tone}>
               {over > 0 ? (
                 <>Trim {over} {over === 1 ? "character" : "characters"}</>
               ) : (
@@ -96,9 +106,9 @@ export function AskComposer({ onAsk, disabled, hint }: AskComposerProps) {
               )}
             </p>
           ) : null}
-          <button type="submit" className={styles.askButton} disabled={!canSubmit}>
+          <Button type="submit" variant="primary" size="md" disabled={!canSubmit}>
             Ask
-          </button>
+          </Button>
         </div>
       </div>
     </form>

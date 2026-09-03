@@ -13,12 +13,12 @@ export default function AdminPage() {
         <div className={styles.dashboardHead}>
           <div>
             <p className={styles.eyebrow}>Lions of Zion / Operations</p>
-            <h1>מצב המערכות</h1>
-            <p className={styles.lede}>תצוגת מצב בסיסית לשירותי ההשקה ב־Vercel.</p>
+            <h1>System status</h1>
+            <p className={styles.lede}>A basic status view of the launch services on Vercel.</p>
           </div>
           <Link href="/pipeline" className={`${styles.secondary} ${styles.pipelineLink}`}>
             <span aria-hidden="true">⎋</span>
-            <span>הדמיית צינור המערכת החיה (Pipeline Visualizer)</span>
+            <span>System architecture map (Pipeline Visualizer)</span>
           </Link>
         </div>
         <AdminStatus />

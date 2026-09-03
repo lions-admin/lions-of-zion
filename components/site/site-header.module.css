@@ -19,8 +19,9 @@
  * Plex Sans for every label and control, JetBrains Mono for the two things
  * that are data — the file numbers and the "01 — 08" count.
  *
- * Behaviour — Escape, outside pointer, focus return, body scroll lock, aria —
- * lives in SiteHeader.tsx.
+ * Behaviour — files-panel Escape/outside-click and iOS body scroll lock live
+ * in SiteHeader.tsx. The menu Dialog owns trap, Escape, backdrop, and focus
+ * return.
  */
 
 .header {
@@ -152,19 +153,46 @@
   justify-self: end;
 }
 
-.filesTrigger {
+.deskActions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.deskSearch,
+.deskAsk {
+  min-height: var(--control-h);
+  min-width: var(--control-h);
+}
+
+/* Shared Button wraps children in its own content span. Gap, hairline and
+   chevron must target through that span; Button's border/background/weight
+   must not paint a pill over the masthead. `.header` beats Button's single
+   class for display, padding, and hover wash. */
+.header .filesTrigger {
   --link-pad: var(--sp-3);
+  --btn-bg: transparent;
+  --btn-fg: var(--ink-hi);
+  --btn-line: transparent;
   position: relative;
   height: var(--control-h);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  padding-inline: var(--link-pad);
+  min-height: var(--control-h);
+  padding: 0 var(--link-pad);
   border: 0;
-  border-radius: var(--radius-2);
   background: transparent;
+  font-weight: 500;
   color: var(--ink-hi);
-  transition: color var(--dur-fast) var(--ease-out);
+  box-shadow: none;
+}
+
+.header .filesTrigger > * {
+  gap: var(--sp-2);
+}
+
+.header .filesTrigger:hover:not(:disabled),
+.header .filesTrigger:active:not(:disabled) {
+  --btn-bg: transparent;
+  background: transparent;
 }
 
 .filesTrigger:hover::after { background: var(--line-strong); }
@@ -228,9 +256,9 @@
 
 /* The global gold ring, hugged a little tighter to these small controls. */
 .barLink:focus-visible,
-.filesTrigger:focus-visible,
+.header .filesTrigger:focus-visible,
 .support:focus-visible,
-.menuTrigger:focus-visible,
+.header .menuTrigger:focus-visible,
 .brand:focus-visible { outline-offset: 2px; }
 
 /* ── The drawer ────────────────────────────────────────────────────────────
@@ -401,16 +429,29 @@
 
 /* ── The phone sheet ───────────────────────────────────────────────────── */
 
-.menuTrigger {
+.header .menuTrigger {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink-hi);
+  --btn-line: transparent;
   height: var(--control-h);
+  min-height: var(--control-h);
   display: none;
-  align-items: center;
-  gap: var(--sp-3);
-  padding-inline: var(--sp-3);
+  padding: 0 var(--sp-3);
   border: 0;
-  border-radius: var(--radius-2);
   background: transparent;
+  font-weight: 500;
   color: var(--ink-hi);
+  box-shadow: none;
+}
+
+.header .menuTrigger > * {
+  gap: var(--sp-3);
+}
+
+.header .menuTrigger:hover:not(:disabled),
+.header .menuTrigger:active:not(:disabled) {
+  --btn-bg: transparent;
+  background: transparent;
 }
 
 /* Two rules, not three: a hamburger drawn with the same hairline the rest of
@@ -440,20 +481,9 @@
 .menuTrigger[aria-expanded="true"] .menuGlyph::before,
 .menuTrigger[aria-expanded="true"] .menuGlyph::after { background: var(--ink-hi); }
 
-.menuPanel {
-  position: fixed;
-  inset: var(--header-h) 0 0;
-  display: none;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--surface-1);
-  animation: sheetIn var(--dur-base) var(--ease-out) both;
-}
-
 .sheetLabel {
   display: block;
-  padding: var(--sp-5) clamp(var(--sp-4), 5vw, var(--sp-6)) var(--sp-2);
+  padding: var(--sp-4) 0 var(--sp-2);
 }
 
 .sheetRow {
@@ -461,8 +491,8 @@
   grid-template-columns: var(--sp-6) minmax(0, 1fr);
   align-items: center;
   gap: var(--sp-3);
-  min-height: var(--sp-7);
-  padding-inline: clamp(var(--sp-4), 5vw, var(--sp-6));
+  min-height: var(--control-h);
+  padding-inline: 0;
   border-top: var(--line-w) solid var(--line-soft);
   color: var(--ink);
   text-decoration: none;
@@ -502,11 +532,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes sheetIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* ── Seams ─────────────────────────────────────────────────────────────────
  *
  * Two of the three are the canonical ones named in `globals.css`: 76.25rem
@@ -537,10 +562,9 @@
 
 @media (max-width: 45rem) {
   .bar { grid-template-columns: minmax(0, 1fr) auto; }
-  .filesTrigger,
+  .header .filesTrigger,
   .support { display: none; }
-  .menuTrigger { display: inline-flex; }
-  .menuPanel { display: block; }
+  .header .menuTrigger { display: inline-flex; }
   /* A drawer left open on a wide viewport must not survive a resize past the
      seam that removes its trigger — there would be no way to close it. The
      `scripting: none` block below re-opens it as a static index, and wins
@@ -551,8 +575,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .filesPanel,
-  .menuPanel { animation: none; }
+  .filesPanel { animation: none; }
   .barLink,
   .barLink::after,
   .filesTrigger::after,
@@ -570,23 +593,17 @@
 
 /* ── Panel visibility, and the no-JavaScript tier ──────────────────────────
  *
- * Both panels always ship in the server HTML and carry their state in
- * `hidden`; nothing here may be mounted on client state. When they were, five
- * of the eight destinations had no reachable link anywhere on the site without
- * JavaScript. Two rules make the attribute hold.
+ * `filesPanel` always ships in the server HTML and carries its state in
+ * `hidden`; it may not be mounted on client state. When it was, five of the
+ * eight destinations had no reachable link anywhere on the site without
+ * JavaScript. `hidden` is a UA-stylesheet `display: none`; the attribute
+ * selector wins against the phone block's `.filesPanel { display: none }`.
  *
- * First: `hidden` is a UA-stylesheet `display: none`, and the blocks above set
- * `display: block` on `.menuPanel` at phone width. The attribute selector wins
- * the tie back at equal-or-higher specificity.
- */
-.filesPanel[hidden],
-.menuPanel[hidden] {
-  display: none;
-}
-
-/*
- * Second: with scripting off, `hidden` is never removed — a panel opened only
- * by a click handler can never be opened. So the drawer stops being a dropdown
+ * The menu is a JS-only Dialog. Native `<dialog>` without `open` is already
+ * not shown; filesPanel is the no-JS index, so the Dialog may stay JS-only.
+ *
+ * With scripting off, `hidden` is never removed — a panel opened only by a
+ * click handler can never be opened. So the drawer stops being a dropdown
  * and takes its place in the flow as a static index.
  *
  * This block is width-independent on purpose. Its predecessor was not, and the
@@ -599,10 +616,15 @@
  * `scripting: none` is the mechanism `components/motion/Reveal.tsx` already
  * relies on, so support is assumed rather than newly bet on.
  */
+.filesPanel[hidden] {
+  display: none;
+}
+
 @media (scripting: none) {
-  /* A control that cannot do anything should not claim it can. */
-  .filesTrigger,
-  .menuTrigger {
+  /* A control that cannot do anything should not claim it can.
+     `.header` beats Button's `.button { display: inline-flex }`. */
+  .header .filesTrigger,
+  .header .menuTrigger {
     display: none;
   }
 
@@ -623,10 +645,5 @@
     overflow: visible;
     box-shadow: none;
     animation: none;
-  }
-
-  /* The sheet would repeat the same twelve links a second time. */
-  .menuPanel[hidden] {
-    display: none;
   }
 }

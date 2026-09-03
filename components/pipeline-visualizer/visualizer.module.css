@@ -2,8 +2,7 @@
 
 .visualizerShell {
 
-  --face-display-he: var(--face-display), 'Times New Roman', 'David', serif;
-  --face-text-he: var(--face-text), 'Arial Hebrew', 'Noto Sans Hebrew', 'Segoe UI', sans-serif;
+
 
 
   --wash-1: color-mix(in srgb, var(--ink-hi) 4%, transparent);
@@ -29,7 +28,7 @@
   min-height: calc(100vh - var(--sp-8));
   background: var(--ground);
   color: var(--ink);
-  font-family: var(--face-text-he);
+  font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   position: relative;
@@ -54,7 +53,7 @@
   justify-content: center;
   gap: var(--sp-1);
   padding: var(--sp-1) var(--sp-3);
-  font-family: var(--face-text-he);
+  font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-weight: 600;
@@ -139,7 +138,7 @@
   align-items: center;
   gap: var(--sp-1);
   padding: var(--sp-1) var(--sp-2);
-  font-family: var(--face-text-he);
+  font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-weight: var(--t-caption-weight);
@@ -177,7 +176,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--sp-2) var(--sp-3);
-  font-family: var(--face-display-he);
+  font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);
@@ -435,7 +434,7 @@
 }
 
 .explainerTitle {
-  font-family: var(--face-display-he);
+  font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);
@@ -677,7 +676,7 @@
 
 .htmlLaneTitleHe {
   margin: 0 0 var(--sp-1) 0;
-  font-family: var(--face-display-he);
+  font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);
@@ -907,7 +906,7 @@
 
 .htmlNodeTitleHe {
   margin: 0;
-  font-family: var(--face-display-he);
+  font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-body);
   line-height: 1.3;
@@ -995,7 +994,7 @@
 
 .drawerTitle {
   margin: 0;
-  font-family: var(--face-display-he);
+  font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h2);
   line-height: var(--t-h2-lh);
@@ -1006,8 +1005,7 @@
 
 .drawerSubtitle {
   margin: 0;
-  direction: ltr;
-  text-align: right;
+  text-align: start;
   font-family: var(--face-data);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
@@ -1157,7 +1155,7 @@
 }
 
 .logEmpty {
-  font-family: var(--face-text-he);
+  font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   color: var(--ink-lo);
@@ -1185,7 +1183,7 @@
 
 
 .logMessage {
-  font-family: var(--face-text-he);
+  font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-weight: 400;
@@ -1229,7 +1227,7 @@
 
 .glossaryModalTitle {
   margin: 0 0 var(--sp-1) 0;
-  font-family: var(--face-display-he);
+  font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);
@@ -1250,14 +1248,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
-  padding: var(--sp-4) var(--sp-5) var(--sp-3);
+  padding: 0 0 var(--sp-3);
   border-bottom: var(--line-w) solid var(--line-soft);
 }
 
 .glossarySearchInput {
   width: 100%;
   padding: var(--sp-2) var(--sp-4);
-  font-family: var(--face-text-he);
+  font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink-hi);
@@ -1302,12 +1300,11 @@
 
 .glossaryListContainer {
   flex: 1;
-  overflow-y: auto;
-  padding: var(--sp-5);
+  overflow: visible;
+  padding: var(--sp-4) 0 0;
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
-  scrollbar-width: thin;
 }
 
 .glossaryEmptyState {
@@ -1346,7 +1343,7 @@
 
 .glossaryTermHe {
   margin: 0;
-  font-family: var(--face-display-he);
+  font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);

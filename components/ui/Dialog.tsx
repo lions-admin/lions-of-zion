@@ -5,23 +5,11 @@ import { Button } from "./Button";
 import styles from "./dialog.module.css";
 
 /**
- * A modal dialog on the native `<dialog>` element.
+ * Modal or end-edge drawer on the native `<dialog>` element.
  *
- * The whole reason to build on the platform element is focus: `showModal()`
- * traps focus inside the panel, marks the rest of the document inert, closes
- * on Escape, restores focus to whatever opened it, and renders in the top
- * layer so no `z-index` can lose to anything. Every one of those is a thing
- * hand-rolled dialogs get subtly wrong, and none of it is code here.
- *
- * What this component adds: React state as the single source of truth (the
- * platform's own close paths are intercepted and routed back through
- * `onClose`), a backdrop click, the labelled header, and the scroll lock the
- * platform does not do.
- *
- * Tier: a client component with state. It must not reach the home route — see
- * `components/motion/README.md`. With JavaScript off it renders a closed
- * `<dialog>`, which is invisible and inert; anything a reader must be able to
- * read has to exist on the page as well, never only in a dialog.
+ * `showModal()` traps focus, marks the rest of the document inert, closes on
+ * Escape, restores focus to the opener, and renders in the top layer. React
+ * `open` remains the source of truth; platform close paths call `onClose`.
  */
 export interface DialogProps {
   open: boolean;
@@ -33,7 +21,10 @@ export interface DialogProps {
   title: string;
   /** One sentence under the title, wired to `aria-describedby`. */
   description?: string;
-  /** Widen the panel from the narrow measure to the reading measure. */
+  /** `modal` is a centred panel. `drawer` is a full-height end-edge sheet. */
+  variant?: "modal" | "drawer";
+  /** Widen the modal from the narrow measure to the reading measure, or the
+   *  drawer from a compact column to the narrow measure. */
   size?: "narrow" | "wide";
   /** A click on the backdrop closes by default. Turn it off for a dialog
    *  holding unsaved input, where a stray click should not discard work. */
@@ -41,6 +32,8 @@ export interface DialogProps {
   closeLabel?: string;
   footer?: React.ReactNode;
   className?: string;
+  /** Forwarded onto the native `<dialog>` so a trigger's `aria-controls` can point at it. */
+  id?: string;
   children: React.ReactNode;
 }
 
@@ -49,11 +42,13 @@ export function Dialog({
   onClose,
   title,
   description,
+  variant = "modal",
   size = "narrow",
   dismissOnBackdrop = true,
   closeLabel = "Close",
   footer,
   className = "",
+  id,
   children,
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -111,10 +106,17 @@ export function Dialog({
   return (
     <dialog
       ref={ref}
+      id={id}
       data-loz-dialog=""
+      data-variant={variant}
       aria-labelledby={titleId}
       aria-describedby={description ? descriptionId : undefined}
-      className={[styles.dialog, size === "wide" ? styles.wide : "", className]
+      className={[
+        styles.dialog,
+        variant === "drawer" ? styles.drawer : styles.modal,
+        size === "wide" ? styles.wide : "",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
       onCancel={handleCancel}

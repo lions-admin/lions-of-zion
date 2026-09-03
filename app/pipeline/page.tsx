@@ -13,9 +13,9 @@ import { PipelineVisualizer } from "@/components/pipeline-visualizer";
  * readings; and `app/robots.ts` disallows the route.
  */
 export const metadata = {
-  title: "מפת ארכיטקטורת המערכת | Lions of Zion",
+  title: "System architecture map | Lions of Zion",
   description:
-    "הדמיה אינטראקטיבית מתוסרטת של זרימת המידע, מנוע אימות הטענות, שערי הפרסום ומכונת הבריף היומי — מבוססת על מבנה הקוד, ואינה מציגה נתוני הרצה חיים.",
+    "A scripted interactive model of information flow, claim verification, publication gates, and the daily brief — based on the codebase, not live runtime data.",
   robots: { index: false, follow: false },
 };
 

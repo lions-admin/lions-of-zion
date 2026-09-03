@@ -1,128 +1,38 @@
-/* Citation/commendation composition, local to Our Heroes. No photos exist
-   for these profiles (rights-sensitive, deliberate) so the formal register
-   and the corner-bracket frame — a citation, not a card — carry the weight
-   instead.
+/* Quiet memorial. Names and stories are the record; there is no tally,
+   no commendation frame, and no two-up grid of equal tiles. Featured is
+   Card.dossier; the rest are Card.row, stacked. Sources live in the
+   record — visible without hover, not a margin note that a former grid
+   would have collided. */
 
-   Design V3 (`app/globals.css`). The name is the point of this page: it was
-   tracked Cinzel capitals, which reads as an inscription rather than a
-   person. It is Newsreader in sentence case, so a name has word shapes and
-   looks like it belongs to someone. Gold is spent once per citation, on the
-   short rule beneath the name; the frame, the role and the metadata are ink. */
+.records {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-7);
+  margin-bottom: var(--sp-7);
+}
 
-.citation {
-  position: relative;
+/* Doubled to beat Card.dossier `height: 100%` at equal specificity. */
+.featured.featured {
+  height: auto;
+}
+
+.featured + .record {
   margin-top: var(--sp-6);
-  padding: var(--sp-6) var(--sp-6) var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  background: var(--surface-1);
 }
 
-.citation:first-of-type {
-  margin-top: var(--sp-5);
+.header {
+  flex-wrap: wrap;
 }
 
-/* Corner brackets — the citation's one signature device, a thin frame in
-   the hairline ink rather than any further ornament. */
-.citation::before,
-.citation::after {
-  content: '';
-  position: absolute;
-  width: var(--sp-4);
-  height: var(--sp-4);
-  border: var(--line-w) solid var(--line-strong);
-  pointer-events: none;
-}
-
-.citation::before {
-  top: -1px;
-  left: -1px;
-  border-right: none;
-  border-bottom: none;
-}
-
-.citation::after {
-  bottom: -1px;
-  right: -1px;
-  border-left: none;
-  border-top: none;
-}
-
-.citationFeatured {
-  padding: var(--sp-7) var(--sp-7) var(--sp-6);
-  background: var(--surface-2);
-}
-
-.citationFeatured::before,
-.citationFeatured::after {
-  width: var(--sp-5);
-  height: var(--sp-5);
-}
-
-/* The citation's opening formula. Deliberately *not* composing the canonical
-   `.kicker`: that is uppercase, which the type rules reserve for data labels
-   of two words or fewer. This is a phrase with a date in it, so it stays in
-   sentence case and just holds the data voice. */
-.citationKicker {
-  margin: 0 0 var(--sp-4);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
-
-.citationName {
-  margin: 0;
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  color: var(--ink-hi);
-}
-
-/* The featured citation steps up one rung of the scale — no bespoke clamp. */
-.citationFeatured .citationName {
+.featuredName.featuredName {
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
 }
 
-/* The one gold in the card. */
-.citationRule {
-  width: var(--sp-7);
-  height: var(--line-w);
-  margin: var(--sp-3) 0 var(--sp-4);
-  background: var(--gold);
-}
-
-.citationClassify {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-5);
-}
-
-/* One word — "Fallen", "Rescuer", "Fighter" — so uppercase is in bounds. */
-.citationRole {
-  padding: var(--sp-1) var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-/* Dates and places: data face, figures as a column. */
-.citationMeta {
+.meta {
+  min-width: 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -130,9 +40,10 @@
   letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
+  overflow-wrap: anywhere;
 }
 
-.citationBody {
+.story {
   margin: 0;
   max-width: var(--measure-reading);
   font-size: var(--t-body);
@@ -140,70 +51,21 @@
   color: var(--ink);
 }
 
-/*
- * These sources stay inside the card, deliberately — this is the one page in
- * the set that does NOT take the margin-note treatment (`marginNote` in
- * content.module.css).
- *
- * The rule the rest of the site follows is that a full-measure record puts
- * its evidence in the margin, because such a record has no boundary of its
- * own to hold it. A citation card does: the source is already beside the
- * claim, inside the same bordered object. And these cards sit two-up in
- * `.citationGrid`, where `left: 100%` resolves against the grid cell rather
- * than the reading column — the left card's note would land on top of the
- * right card. Measured, not assumed.
- */
-.citationSources {
-  margin-top: var(--sp-6);
-  padding-top: var(--sp-5);
+.sources {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
   border-top: var(--line-w) solid var(--line-soft);
 }
 
-/* One word, and the same label the rest of the site uses — take the
-   canonical treatment rather than declaring a fifth variant of it. */
-.citationSourcesKicker {
+.sourcesKicker {
   composes: kicker from '../../components/content/content.module.css';
   margin-bottom: var(--sp-3);
 }
 
-.citationGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-5);
-  margin-top: var(--sp-5);
-}
-
-.citationGrid .citation {
-  margin-top: 0;
-}
-
-@media (max-width: 719px) {
-  .citationGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* 600, and it earns its place: below it the citation's own `--sp-6` frame
-   plus the shell's padding leaves under 40 characters on the widest line of
-   a name-and-rank block, which is where the citation stops reading as a
-   formal record and starts reading as a cramped one. */
-@media (max-width: 600px) {
-  .citation {
-    padding: var(--sp-5) var(--sp-4);
-  }
-
-  .citationFeatured {
-    padding: var(--sp-6) var(--sp-5) var(--sp-5);
-  }
-}
-
-/* The consent boundary's standfirst. Deliberately local rather than
-   `composes:`-ed from War Update's `.advisory`: the two say different things
-   and should be free to diverge, and the 2026-08-25 composition decision
-   keeps per-page treatments in the page's own module. A data label, a
-   left rule and the italic reading voice — enough to mark it as a limit on
-   what the page claims, not enough to make it look like chrome a reader may
-   skip. The label is this block's one gold. */
+/* The consent boundary's standfirst. Local rather than composed from War
+   Update's `.advisory`: the two say different things. A data label, a
+   left rule and the italic reading voice — a limit on what the page
+   claims, not chrome a reader may skip. The label is this block's one gold. */
 .standfirst {
   margin: var(--sp-5) 0 0;
   padding: 0 0 0 var(--sp-4);

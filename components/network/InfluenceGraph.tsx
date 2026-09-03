@@ -8,6 +8,7 @@ import type {
   NetworkCommunity,
   ResearchConfidence,
 } from '@/lib/content/fake-resistance-cases';
+import { Button } from '@/components/ui/Button';
 import { buildGraphLayout } from './layout';
 import styles from './influence-graph.module.css';
 
@@ -197,12 +198,14 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
               const count = counts.evidence.get(value) ?? 0;
               const on = !mutedClasses.includes(value);
               return (
-                <button
+                <Button
                   key={value}
                   type="button"
+                  variant="filter"
+                  size="md"
                   className={styles.chip}
                   data-evidence={value}
-                  aria-pressed={on}
+                  isActive={on}
                   disabled={count === 0}
                   title={EVIDENCE_HINT[value]}
                   onClick={() => toggle(mutedClasses, value, setMutedClasses)}
@@ -210,7 +213,7 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
                   <span className={styles.chipRule} aria-hidden="true" />
                   {EVIDENCE_LABEL[value]}
                   <span className={styles.chipCount}>{count}</span>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -225,19 +228,21 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
               const count = counts.confidence.get(value) ?? 0;
               const on = !mutedConfidence.includes(value);
               return (
-                <button
+                <Button
                   key={value}
                   type="button"
+                  variant="filter"
+                  size="md"
                   className={styles.chip}
                   data-confidence={value}
-                  aria-pressed={on}
+                  isActive={on}
                   disabled={count === 0}
                   onClick={() => toggle(mutedConfidence, value, setMutedConfidence)}
                 >
                   <span className={styles.chipRule} aria-hidden="true" />
                   {CONFIDENCE_LABEL[value]}
                   <span className={styles.chipCount}>{count}</span>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -281,8 +286,10 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
                 data-dropped={liveRows.has(entity.id) ? undefined : 'yes'}
                 data-related={active === null ? undefined : connected ? 'yes' : 'no'}
               >
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="md"
                   className={styles.node}
                   tabIndex={interactive ? 0 : -1}
                   aria-pressed={selected === entity.id}
@@ -296,7 +303,8 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
                   {/* Exactly three grid items: the name, the degree, the mark.
                       The two facts the mark encodes with shape and fill are
                       spelled out for a screen reader inside the degree, which
-                      keeps the count at three. */}
+                      keeps the count at three. The grid lives on Button's
+                      inner content span, not on the control itself. */}
                   <span className={styles.degree}>
                     {node.degree}
                     <span className={styles.srOnly}>
@@ -311,7 +319,7 @@ export function InfluenceGraph({ roster, edges, communities }: InfluenceGraphPro
                     data-identity={entity.identityStatus}
                     aria-hidden="true"
                   />
-                </button>
+                </Button>
               </li>
             );
           })}

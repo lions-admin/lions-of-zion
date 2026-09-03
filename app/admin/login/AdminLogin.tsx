@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createAuthClient } from "@neondatabase/auth/next";
 import { useRouter } from "next/navigation";
 import { googleIdentityClientId, loadGoogleIdentity, signInWithGoogleCredential } from "@/components/auth/google-identity";
+import { Button, Field } from "@/components/ui";
 import styles from "../admin.module.css";
 
 const auth = createAuthClient();
@@ -24,7 +25,7 @@ export function AdminLogin() {
 
       window.location.assign(callbackURL);
     } catch (error) {
-      setMessage(error instanceof Error && error.message ? error.message : "ההתחברות עם Google נכשלה. נסה שוב.");
+      setMessage(error instanceof Error && error.message ? error.message : "Google sign-in failed. Try again.");
       setPending(false);
     }
   }
@@ -37,12 +38,12 @@ export function AdminLogin() {
     void loadGoogleIdentity().then((identity) => {
       if (cancelled || !googleButton.current) return;
       identity.initialize({ client_id: clientId, callback: ({ credential }) => {
-        if (!credential) { setMessage("Google לא החזיר אישור התחברות."); return; }
+        if (!credential) { setMessage("Google did not return a sign-in credential."); return; }
         void signInWithGoogle(credential);
       } });
       googleButton.current.replaceChildren();
-      identity.renderButton(googleButton.current, { theme: "outline", size: "large", text: "signin_with", width: 380, locale: "he" });
-    }).catch((error: unknown) => setMessage(error instanceof Error ? error.message : "לא ניתן לטעון את Google."));
+      identity.renderButton(googleButton.current, { theme: "outline", size: "large", text: "signin_with", width: 380, locale: "en" });
+    }).catch((error: unknown) => setMessage(error instanceof Error ? error.message : "Google could not be loaded."));
     return () => { cancelled = true; };
   }, []);
 
@@ -62,38 +63,39 @@ export function AdminLogin() {
         : await auth.signIn.email({ email, password });
 
       if (result.error) {
-        setMessage(result.error.message || "הכניסה נכשלה. בדוק את הפרטים ונסה שוב.");
+        setMessage(result.error.message || "Sign-in failed. Check the details and try again.");
         setPending(false);
         return;
       }
       router.replace("/admin");
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error && error.message ? error.message : "הכניסה נכשלה. נסה שוב.");
+      setMessage(error instanceof Error && error.message ? error.message : "Sign-in failed. Try again.");
       setPending(false);
     }
   }
 
   return (
     <form className={styles.form} onSubmit={submit}>
-      <label>
-        כתובת אימייל
-        <input name="email" type="email" autoComplete="email" required dir="ltr" />
-      </label>
-      <label>
-        סיסמה
-        <input name="password" type="password" autoComplete="current-password" minLength={8} required dir="ltr" />
-      </label>
+      <Field label="Email" name="email" type="email" autoComplete="email" required />
+      <Field
+        label="Password"
+        name="password"
+        type="password"
+        autoComplete="current-password"
+        minLength={8}
+        required
+      />
       {message && <p className={styles.error} role="alert">{message}</p>}
-      <button className={styles.primary} disabled={pending} type="submit" value="signin">
-        {pending ? "מתחבר…" : "כניסה"}
-      </button>
-      <button className={styles.secondary} disabled={pending} type="submit" value="signup">
-        יצירת חשבון מנהל ראשוני
-      </button>
+      <Button variant="primary" size="md" disabled={pending} isLoading={pending} type="submit" value="signin">
+        {pending ? "Signing in…" : "Sign in"}
+      </Button>
+      <Button variant="secondary" size="md" disabled={pending} type="submit" value="signup">
+        Create the first admin account
+      </Button>
       {googleIdentityClientId()
-        ? <div ref={googleButton} aria-label="כניסה עם Google" />
-        : <p className={styles.muted}>התחברות עם Google תופעל לאחר הגדרת מזהה הלקוח המאובטח שלה.</p>}
+        ? <div ref={googleButton} aria-label="Sign in with Google" />
+        : <p className={styles.muted}>Google sign-in will appear once its client ID is configured.</p>}
     </form>
   );
 }

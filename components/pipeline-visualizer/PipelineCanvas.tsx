@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useMemo } from "react";
+import { Button } from "@/components/ui/Button";
 import type {
   SimulationPacket,
   ViewPerspective,
@@ -8,6 +9,7 @@ import type {
 } from "./types";
 import { PIPELINE_NODES } from "./data/nodes";
 import { PIPELINE_EDGES } from "./data/edges";
+import { CHROME, LANE_COPY, kindLabel, nodeInspectorCopy } from "./copy";
 import styles from "./visualizer.module.css";
 
 interface PipelineCanvasProps {
@@ -31,77 +33,10 @@ interface NodeLayout {
 /* Kind colour lives in the stylesheet, keyed by `data-kind`, on the semantic
    ramps — not here as twelve neon literals.
 
-   The twelve emoji that used to ride alongside these labels are gone. Each one
-   sat next to a Hebrew word that already named the kind, so they carried no
-   information the badge did not already carry, and a row of pictograms is the
-   wrong register for a page describing an evidence pipeline. What distinguishes
-   the kinds visually is `data-kind`, which the stylesheet reads. */
-const KIND_META: Record<string, { label: string }> = {
-  source: { label: "מקור מידע" },
-  table: { label: "טבלת מסד" },
-  view: { label: "היטל קריאה" },
-  guard: { label: "מחסום אבטחה" },
-  trigger: { label: "טריגר SQL" },
-  cron: { label: "מתזמן אוטומטי" },
-  queue: { label: "תור הודעות" },
-  connector: { label: "מחבר נתונים" },
-  service: { label: "שירות ליבה" },
-  model: { label: "מודל שפה (AI)" },
-  gateway: { label: "שער AI" },
-  storage: { label: "אחסון ענן (Blob)" },
-};
-
-const BASE_LANES = [
-  {
-    id: "ingest",
-    titleHe: "1. איסוף ואחסון גולמי",
-    titleEn: "Ingestion & Raw Blob",
-    descHe: "לכידת עמודי מקור, חישוב חתימת SHA-256 ומניעת כפילויות",
-    laneIndex: 0,
-  },
-  {
-    id: "evidence",
-    titleHe: "2. מאגר ראיות וטענות",
-    titleEn: "Evidence & Claims",
-    descHe: "רישום פריטי מידע, הצלבת עובדות ושובל ייחוס ראייתי",
-    laneIndex: 1,
-  },
-  {
-    id: "model",
-    titleHe: "3. מנוע אימות ושער פרסום",
-    titleEn: "Verification & Gate",
-    descHe: "מנוע חוקים טהור ושער 2 בני אדם לפני פרסום לציבור",
-    laneIndex: 2,
-  },
-  {
-    id: "briefing",
-    titleHe: "4. צינור בריף אוטומטי",
-    titleEn: "Daily Brief Machine",
-    descHe: "איסוף, אשכול, סינון, ניסוח ו־17 בדיקות איכות ב־07:00",
-    laneIndex: 3,
-  },
-  {
-    id: "search",
-    titleHe: "5. חיפוש ואינדוקס",
-    titleEn: "Search & Outbox",
-    descHe: "תיבת יוצא, אינדוקס רב-לשוני והטמעות וקטוריות",
-    laneIndex: 4,
-  },
-  {
-    id: "ai",
-    titleHe: "6. שער AI וצ'אט מודיעיני",
-    titleEn: "AI Gateway & Chat",
-    descHe: "תשובות מעוגנות מסמכים ושומר ציטוטים למניעת הזיות",
-    laneIndex: 5,
-  },
-  {
-    id: "infra",
-    titleHe: "7. משילות, RLS וציבור",
-    titleEn: "Governance & Public",
-    descHe: "אבטחת שורות במסד (RLS), הגבלת קצב ודיווחי ציבור",
-    laneIndex: 6,
-  },
-];
+   Kind labels used to sit next to pictograms. The pictograms carried no
+   information the badge did not already carry. What distinguishes the kinds
+   visually is `data-kind`, which the stylesheet reads. */
+const BASE_LANES = LANE_COPY;
 
 const BASE_NODE_POSITIONS: Record<string, { laneIdx: number; rowIdx: number }> = {
   /* Lane 0: Ingest */
@@ -366,99 +301,96 @@ export function PipelineCanvas({
       onMouseLeave={handleMouseUp}
       dir="ltr"
     >
-      {/* ── Top Floating Canvas Toolbar ── */}
-      <div className={styles.canvasFloatingToolbar} dir="rtl">
-        {/* Zoom Controls */}
+      <div className={styles.canvasFloatingToolbar}>
         <div className={styles.toolbarButtonGroup}>
-          <button
+          <Button
             type="button"
-            className={styles.canvasToolBtn}
+            variant="toolbar"
+            size="sm"
             onClick={() => setZoom((z) => Math.min(2.5, z * 1.2))}
-            title="הגדל תצוגה"
+            title={CHROME.zoomIn}
           >
-            + הגדל
-          </button>
+            + {CHROME.zoomIn}
+          </Button>
           <span className={styles.zoomPercentageBadge}>{Math.round(zoom * 100)}%</span>
-          <button
+          <Button
             type="button"
-            className={styles.canvasToolBtn}
+            variant="toolbar"
+            size="sm"
             onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}
-            title="הקטן תצוגה"
+            title={CHROME.zoomOut}
           >
-            − הקטן
-          </button>
-          <button
+            − {CHROME.zoomOut}
+          </Button>
+          <Button
             type="button"
-            className={styles.canvasToolBtn}
+            variant="toolbar"
+            size="sm"
             onClick={() => {
               setZoom(0.7);
               setPan({ x: 30, y: 30 });
             }}
-            title="איפוס גודל ומיקום"
+            title={CHROME.resetView}
           >
-            ↺ איפוס 100%
-          </button>
-          <button
+            ↺ {CHROME.resetView}
+          </Button>
+          <Button
             type="button"
-            className={styles.canvasToolBtn}
+            variant="toolbar"
+            size="sm"
             onClick={() => {
               setZoom(0.48);
               setPan({ x: 10, y: 10 });
             }}
-            title="התאם את כל המערכת למסך"
+            title={CHROME.fitAll}
           >
-            התאם הכל
-          </button>
+            {CHROME.fitAll}
+          </Button>
         </div>
 
-        {/* Spacing Controls (הרחקה וריווח קופסאות) */}
         <div className={styles.toolbarButtonGroup}>
-          <span className={styles.toolbarGroupLabel}>ריווח קופסאות:</span>
-          <button
+          <span className={styles.toolbarGroupLabel}>{CHROME.spacing}:</span>
+          <Button
             type="button"
-            className={`
-              ${styles.canvasToolBtn}
-              ${spacingMultiplier === 1.0 ? styles.canvasToolBtnActive : ""}
-            `}
+            variant="filter"
+            size="sm"
+            isActive={spacingMultiplier === 1.0}
             onClick={() => setSpacingMultiplier(1.0)}
           >
-            צפוף
-          </button>
-          <button
+            {CHROME.compact}
+          </Button>
+          <Button
             type="button"
-            className={`
-              ${styles.canvasToolBtn}
-              ${spacingMultiplier === 1.3 ? styles.canvasToolBtnActive : ""}
-            `}
+            variant="filter"
+            size="sm"
+            isActive={spacingMultiplier === 1.3}
             onClick={() => setSpacingMultiplier(1.3)}
           >
-            מרווח (רגיל)
-          </button>
-          <button
+            {CHROME.comfortable}
+          </Button>
+          <Button
             type="button"
-            className={`
-              ${styles.canvasToolBtn}
-              ${spacingMultiplier === 1.8 ? styles.canvasToolBtnActive : ""}
-            `}
+            variant="filter"
+            size="sm"
+            isActive={spacingMultiplier === 1.8}
             onClick={() => setSpacingMultiplier(1.8)}
           >
-            רחב במיוחד ↔
-          </button>
+            {CHROME.extraWide}
+          </Button>
           {Object.keys(customPositions).length > 0 && (
-            <button
+            <Button
               type="button"
-              className={styles.canvasToolBtn}
+              variant="toolbar"
+              size="sm"
               onClick={resetCardPositions}
-              title="החזר את כל הקופסאות לסידור האוטומטי"
+              title={CHROME.rearrangeTitle}
             >
-              סדר מחדש
-            </button>
+              {CHROME.rearrange}
+            </Button>
           )}
         </div>
 
-        <div className={styles.canvasToolbarHint}>
-          גלילת עכבר מזיזה את המפה | החזק Ctrl/Cmd עם גלגלת לזום | לחץ וגרור כרטיסיות לשינוי מיקום
-        </div>
+        <div className={styles.canvasToolbarHint}>{CHROME.canvasHint}</div>
       </div>
 
       {/* ── Transformable Canvas Plane ── */}
@@ -482,17 +414,13 @@ export function PipelineCanvas({
               width: `${lane.w}px`,
               height: `${totalCanvasHeight - 60}px`,
             }}
-            dir="rtl"
           >
             <div className={styles.htmlLaneHeader}>
               <div className={styles.htmlLaneBadgeRow}>
-                <span className={styles.htmlLaneBadge}>מסלול {lane.laneIndex + 1}</span>
+                <span className={styles.htmlLaneBadge}>{CHROME.lane(lane.laneIndex + 1)}</span>
               </div>
-              <h4 className={styles.htmlLaneTitleHe}>{lane.titleHe}</h4>
-              <span className={styles.htmlLaneTitleEn} dir="ltr">
-                {lane.titleEn}
-              </span>
-              <p className={styles.htmlLaneDesc}>{lane.descHe}</p>
+              <h4 className={styles.htmlLaneTitleHe}>{lane.title}</h4>
+              <p className={styles.htmlLaneDesc}>{lane.description}</p>
             </div>
           </div>
         ))}
@@ -616,7 +544,13 @@ export function PipelineCanvas({
           const isActive = activeNodeId === node.id;
           const isSelected = selectedNodeId === node.id;
           const isQuarantined = node.id === "briefing_quarantine" && isActive;
-          const kindMeta = KIND_META[node.kind] ?? { label: node.kind };
+          const copy = nodeInspectorCopy(node.id);
+          const snippet = copy?.what
+            ? copy.what.length > 70
+              ? copy.what.substring(0, 70) + "…"
+              : copy.what
+            : null;
+          const showTablePill = Boolean(node.dbTable && node.dbTable !== node.nameEn);
 
           return (
             <div
@@ -646,49 +580,41 @@ export function PipelineCanvas({
                   onSelectNode(node.id);
                 }
               }}
-              dir="rtl"
             >
-              {/* Top Row: Kind Badge in Hebrew & Active Pulse */}
               <div className={styles.htmlCardTopRow}>
-                <span className={styles.htmlKindBadge}>{kindMeta.label}</span>
+                <span className={styles.htmlKindBadge}>{kindLabel(node.kind)}</span>
 
                 <div className={styles.htmlCardActions}>
                   {node.terms.length > 0 && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="xs"
                       className={styles.cardGlossaryBtn}
                       onClick={(e) => {
                         e.stopPropagation();
                         onOpenGlossary(node.nameEn);
                       }}
-                      title="לחץ להסבר מונח במילון"
+                      title={CHROME.explainTitle}
                     >
-                      ? הסבר
-                    </button>
+                      ? {CHROME.explain}
+                    </Button>
                   )}
                   {isActive && <span className={styles.activePulseDot} />}
                 </div>
               </div>
 
-              {/* Main Hebrew Title */}
-              <h5 className={styles.htmlNodeTitleHe}>{node.nameHe}</h5>
+              <h5 className={styles.htmlNodeTitleHe}>{node.nameEn}</h5>
 
-              {/* Technical English identifier with code badge */}
-              <div className={styles.htmlNodeTitleEnRow}>
-                <code className={styles.htmlCodeBadge} dir="ltr">
-                  {node.nameEn}
-                </code>
-                {node.dbTable && (
+              {showTablePill && node.dbTable ? (
+                <div className={styles.htmlNodeTitleEnRow}>
                   <span className={styles.htmlTablePill} dir="ltr">
                     {node.dbTable}
                   </span>
-                )}
-              </div>
+                </div>
+              ) : null}
 
-              {/* Clear Summary in Hebrew */}
-              <p className={styles.htmlNodeSnippet}>
-                {node.what.length > 70 ? node.what.substring(0, 70) + "…" : node.what}
-              </p>
+              {snippet ? <p className={styles.htmlNodeSnippet}>{snippet}</p> : null}
             </div>
           );
         })}

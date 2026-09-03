@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { PublicationMeta, SourceList } from "@/components/content";
+import {
+  Card,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { getOurHeroesEdition } from "@/lib/content/our-heroes";
 import type { HeroProfile } from "@/lib/content/our-heroes";
 import { SITE_URL } from "@/lib/site-config";
@@ -26,25 +32,33 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function Citation({ hero, featured }: { hero: HeroProfile; featured?: boolean }) {
+function MemorialRecord({
+  hero,
+  featured = false,
+}: {
+  hero: HeroProfile;
+  featured?: boolean;
+}) {
   return (
-    <article
-      className={`${styles.citation} ${featured ? styles.citationFeatured : ""}`}
-      aria-label={`Citation: ${hero.name}`}
+    <Card
+      as="article"
+      id={hero.id}
+      variant={featured ? "dossier" : "row"}
+      className={featured ? styles.featured : styles.record}
     >
-      <p className={styles.citationKicker}>In recognition — October 7, 2023</p>
-      <h3 className={styles.citationName}>{hero.name}</h3>
-      <div className={styles.citationRule} aria-hidden="true" />
-      <div className={styles.citationClassify}>
-        <span className={styles.citationRole}>{hero.role}</span>
-        <span className={styles.citationMeta}>{hero.meta}</span>
-      </div>
-      <p className={styles.citationBody}>{hero.summary}</p>
-      <div className={styles.citationSources}>
-        <span className={styles.citationSourcesKicker}>Sources</span>
+      <CardTitle as="h2" className={featured ? styles.featuredName : ""}>
+        {hero.name}
+      </CardTitle>
+      <CardHeader className={styles.header}>
+        <CardEyebrow>{hero.role}</CardEyebrow>
+        <span className={styles.meta}>{hero.meta}</span>
+      </CardHeader>
+      <p className={styles.story}>{hero.summary}</p>
+      <div className={styles.sources}>
+        <span className={styles.sourcesKicker}>Sources</span>
         <SourceList sources={hero.sources} />
       </div>
-    </article>
+    </Card>
   );
 }
 
@@ -75,22 +89,20 @@ export default async function Page() {
   const edition = await getOurHeroesEdition();
 
   return (
-    <SectionPage id="our-heroes" surface="quiet" title="Our Heroes" tagline={TAGLINE}>
+    <SectionPage
+      id="our-heroes"
+      register="muted"
+      surface="quiet"
+      title="Our Heroes"
+      tagline={TAGLINE}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(heroesJsonLd(edition)) }}
       />
-      {/* The consent boundary comes first, and marked. It is a binding
-          commitment (`.ai/DECISIONS.md`, 2026-08-25), and read after three
-          corner-bracketed citations it arrives too late: the frame, the "In
-          recognition" formula and the commendation register have by then
-          told a reader these are memorials built with the families, which is
-          exactly what they are not. War Update is the in-repo precedent for
-          both the treatment and the placement. The wording is unchanged and
-          ungated; only the heading is new, so it names the limit rather than
-          reading as a production note. The `.standfirst` rules are local —
-          War Update's module is not `composes:`-ed and the shell is not
-          touched (2026-08-25 composition decision). */}
+      {/* Consent is the first claim this page makes. Wording is the binding
+          boundary (`.ai/DECISIONS.md`, 2026-08-25) and is not gated or
+          paraphrased. The standfirst treatment stays local. */}
       <SectionBlock heading="What this page will not publish">
         <p className={styles.standfirst}>
           <span className={styles.standfirstLabel}>Consent boundary —</span>{" "}
@@ -105,20 +117,13 @@ export default async function Page() {
         </p>
       </SectionBlock>
 
-      <SectionBlock heading="Citations">
-        <Citation hero={edition.featured} featured />
-        <div className={styles.citationGrid}>
-          {edition.profiles.map((hero) => (
-            <Citation key={hero.id} hero={hero} />
-          ))}
-        </div>
-      </SectionBlock>
+      <div className={styles.records}>
+        <MemorialRecord hero={edition.featured} featured />
+        {edition.profiles.map((hero) => (
+          <MemorialRecord key={hero.id} hero={hero} />
+        ))}
+      </div>
 
-      {/* A colophon, not a masthead: `publishedAt` and `reviewedBy` were
-          declared and reaching no reader, while the other three editorial
-          destinations rendered the same two through `PublicationMeta`. At the
-          foot, where a reader who has read the page is the one asking who
-          checked it. */}
       <PublicationMeta
         publishedAt={edition.publishedAt}
         reviewedBy={edition.reviewedBy}

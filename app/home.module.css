@@ -240,9 +240,6 @@
 .heroCta[data-state="error"] { border-color: var(--state-danger); }
 .heroCta[data-state="success"] { border-color: var(--state-ok); }
 
-/* The headline rail: a panel on the first raised surface, translucent
-   enough that the field reads through it, with the display face on the
-   titles because they are editorial content, not interface. */
 /* The intelligence desk is a flash strip along the hero's foot, not a panel.
  *
  * It was a 29rem card pinned bottom-right, and it cut the wordmark in half:
@@ -253,10 +250,11 @@
  * wordmark's band removes the conflict instead, which is the owner's call and
  * the better one. Nothing now competes with the masthead for the centre.
  *
- * One line, three items, each truncated — deliberately NOT a crawl. A moving
- * headline is unreadable at any speed and is an urgency device this site
- * documents other people using; see the Fake Resistance playbook. Everything
- * is on screen at once and holds still. */
+ * Up to three items, composed as Card `row` so the shared anatomy owns the
+ * link. Titles wrap (`overflow-wrap: anywhere`) rather than ellipsize — a
+ * clip at 320px hides the half of the headline that names the claim.
+ * Deliberately NOT a crawl: a moving headline is unreadable at any speed
+ * and is an urgency device this site documents other people using. */
 .headlineRail {
   position: absolute;
   right: 0;
@@ -294,8 +292,8 @@
 .railList {
   display: flex;
   flex: 1 1 auto;
-  /* Without this a flex item refuses to shrink below its content, and the
-     ellipsis below would never engage. */
+  /* Without this a flex item refuses to shrink below its content, and
+     titles overflow the strip instead of wrapping. */
   min-width: 0;
   gap: 0;
   margin: 0;
@@ -306,6 +304,7 @@
 /* The divider is a left rule between items, not a top rule above them —
    the strip runs horizontally now. */
 .railItem {
+  display: flex;
   flex: 1 1 0;
   min-width: 0;
   border-top: 0;
@@ -314,48 +313,66 @@
 
 .railItem:first-child { border-left: 0; }
 
-.railLink {
+/* Card.row is a column hairline on a list; here it is a cell in a foot
+   strip. Extra specificity beats `.row` / `.interactive` so the rail does
+   not read as stacked feature cards: transparent, no radius, no tint. */
+.headlineRail .railCard {
   display: flex;
-  gap: var(--sp-2);
+  flex: 1 1 auto;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: baseline;
+  gap: var(--sp-2);
+  width: 100%;
   min-width: 0;
-  height: 100%;
-  padding: 0 var(--sp-4);
+  min-height: var(--control-h);
+  height: auto;
+  padding: var(--sp-2) var(--sp-4);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   color: var(--ink-hi);
-  text-decoration: none;
   outline-offset: -3px;
 }
 
-.railIndex {
+.headlineRail .railCard:hover,
+.headlineRail .railCard:focus-visible,
+.headlineRail .railCard:active {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.headlineRail .railIndex {
   flex: 0 0 auto;
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
-  line-height: var(--control-h);
+  line-height: var(--t-small-lh);
   font-variant-numeric: tabular-nums;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.railTitle {
+.headlineRail .railTitle {
   min-width: 0;
+  margin-bottom: 0;
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-small);
   font-weight: 500;
-  line-height: var(--control-h);
+  line-height: var(--t-small-lh);
   letter-spacing: 0;
-  /* One line is the whole point of the strip; the full headline is one click
-     away and the title attribute is not a substitute, so nothing is hidden
-     that the reader cannot reach. */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.railLink:hover .railTitle { color: var(--gold); }
-.railLink:hover .railIndex { color: var(--ink); }
+.headlineRail .railCard:hover .railTitle,
+.headlineRail .railCard:focus-visible .railTitle { color: var(--gold); }
+.headlineRail .railCard:hover .railIndex,
+.headlineRail .railCard:focus-visible .railIndex { color: var(--ink); }
 
 /* Engine telemetry, sitting just above the flash strip. */
 .engineStatus {
@@ -390,16 +407,12 @@
 
 @keyframes statusPulse { 50% { opacity: 0.28; } }
 
-/* How many headlines fit is a measurement, not a preference.
+/* How many headlines sit in the strip is a measurement, not a preference.
  *
- * At 1440, three items get 396px each and truncate a 76-character headline at
- * about 45 — cut mid-word, in the substantive half, on every one. Two get
- * ~600px: one whole, one at 95%. Below 1220 even two fall to 66%/60%.
- *
- * So one item is the default and the second appears only above the width where
- * it can be read whole. A strip whose every headline is severed promises less
- * than a shorter strip that keeps its word; the other reports are one click
- * away, in the same place they have always been. */
+ * Titles wrap rather than clip, so three items at laptop width turn the foot
+ * into a stack. One item is the default; the second appears only above the
+ * width where the reading pages already grow their margins. The other reports
+ * stay one click away. */
 .railItem:nth-child(n + 2) { display: none; }
 
 /* 1220px is where the reading pages already grow their margins, so the strip
@@ -407,7 +420,7 @@
    the rule above deliberately: both selectors score (0,2,0), so source order is
    what decides, and a `min-width` block earlier in the file would simply lose. */
 @media (min-width: 76.25rem) {
-  .railItem:nth-child(2) { display: revert; }
+  .railItem:nth-child(2) { display: flex; }
 }
 
 @media (max-width: 64rem) {
@@ -457,7 +470,7 @@
 @media (max-width: 45rem) {
   .headlineRail { padding-inline: var(--sp-3); }
   .railLabel { display: none; }
-  .railLink { padding-inline: 0; }
+  .headlineRail .railCard { padding-inline: 0; }
 }
 
 @media (max-width: 23.5rem) {

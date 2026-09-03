@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { Reveal } from "@/components/motion";
+import {
+  Card,
+  CardCount,
+  CardCta,
+  CardDescription,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { getPlaybook, techniqueHref } from "@/lib/content/fake-resistance-playbook";
@@ -145,55 +154,43 @@ export default async function Page() {
             are simply there. */}
         <nav aria-label="Investigation branches" className={styles.branches}>
           <Reveal className={styles.branchSlot} index={0}>
-            <Link
+            <Card
+              variant="dossier"
+              accent="ember"
               href="/fake-resistance/official-narrative"
-              className={styles.branchCard}
             >
-              <span className={styles.branchKicker}>
-                <span className={styles.branchTag}>Branch 01</span>
-                <span className={styles.branchCount}>
-                  {officialCount} case files
-                </span>
-              </span>
-              <span className={styles.branchTitle}>
-                Official narrative engineering
-              </span>
-              <span className={styles.branchDesc}>
+              <CardHeader>
+                <CardEyebrow>Branch 01</CardEyebrow>
+                <CardCount>{officialCount} case files</CardCount>
+              </CardHeader>
+              <CardTitle>Official narrative engineering</CardTitle>
+              <CardDescription>
                 Three worked exhibits — the claim as it spread, its origin, its
                 amplification, and the evidence that unmade it — with the order
                 in which the record caught up.
-              </span>
-              <span className={styles.branchCta}>
-                Open the file
-                <span className={styles.branchArrow} aria-hidden="true">
-                  →
-                </span>
-              </span>
-            </Link>
+              </CardDescription>
+              <CardCta>Open the file</CardCta>
+            </Card>
           </Reveal>
 
           <Reveal className={styles.branchSlot} index={1}>
-            <Link
+            <Card
+              variant="dossier"
+              accent="ember"
               href="/fake-resistance/social-media"
-              className={styles.branchCard}
             >
-              <span className={styles.branchKicker}>
-                <span className={styles.branchTag}>Branch 02</span>
-                <span className={styles.branchCount}>{socialCount} files</span>
-              </span>
-              <span className={styles.branchTitle}>The social-media front</span>
-              <span className={styles.branchDesc}>
+              <CardHeader>
+                <CardEyebrow>Branch 02</CardEyebrow>
+                <CardCount>{socialCount} files</CardCount>
+              </CardHeader>
+              <CardTitle>The social-media front</CardTitle>
+              <CardDescription>
                 The influence-network research: a {playbook.length}-technique
                 playbook, the cross-network synthesis, and seven documented case
                 files, graded exactly as the research graded them.
-              </span>
-              <span className={styles.branchCta}>
-                Open the file
-                <span className={styles.branchArrow} aria-hidden="true">
-                  →
-                </span>
-              </span>
-            </Link>
+              </CardDescription>
+              <CardCta>Open the file</CardCta>
+            </Card>
           </Reveal>
         </nav>
       </SectionBlock>

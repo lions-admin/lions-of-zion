@@ -9,6 +9,6 @@
 
 export { FactCheckDesk, FACT_CHECK_PATH } from "./FactCheckDesk";
 export type { FactCheckDeskProps } from "./FactCheckDesk";
-export { ClaimEntry } from "./ClaimEntry";
+export { ClaimEntry, claimAnchorId, claimPermalink } from "./ClaimEntry";
 export { ClaimLadder } from "./ClaimLadder";
 export { EvidenceChain } from "./EvidenceChain";

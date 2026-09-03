@@ -4,7 +4,7 @@
  * Volunteer interest intake, wired to the public email-delivery endpoint.
  */
 import { FormEvent, useState } from 'react';
-import { Button } from '@/components/ui';
+import { Button, CheckboxField, Field, FieldGroup, assertiveLive, politeLive } from '@/components/ui';
 import styles from './support.module.css';
 
 const VOLUNTEER_INBOX = 'volunteers@lionsofzion.io';
@@ -47,7 +47,11 @@ export function VolunteerInterestForm() {
   };
 
   if (status === 'sent') {
-    return <div className={styles.receipt} role="status"><p>Thanks — your interest reached the volunteer desk.</p></div>;
+    return (
+      <div className={styles.receipt} {...politeLive}>
+        <p>Thanks — your interest reached the volunteer desk.</p>
+      </div>
+    );
   }
 
   return (
@@ -72,71 +76,57 @@ export function VolunteerInterestForm() {
         </p>
       </noscript>
 
-      <div className={styles.field}>
-        <label htmlFor="volunteer-name">Name (optional)</label>
-        <input
-          id="volunteer-name"
-          type="text"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-      </div>
+      <Field
+        id="volunteer-name"
+        label="Name (optional)"
+        type="text"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+      />
 
-      {/* The only field the form cannot do without: submitting opens a
-          `mailto:`, and without a reply address the desk receives an offer of
-          help it can never answer. Marked in the label to match the
-          "(optional)" on Name — the rule should be readable before the submit,
-          not discovered by it. The skill checkboxes stay ungated: the group
-          has no error affordance, and an offer of help with no box ticked is
-          still an offer of help. */}
-      <div className={styles.field}>
-        <label htmlFor="volunteer-email">Email (required)</label>
-        <input
-          id="volunteer-email"
-          type="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </div>
+      <Field
+        id="volunteer-email"
+        label="Email"
+        type="email"
+        required
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+      />
 
-      <fieldset className={styles.fieldset}>
-        <legend>Skill areas</legend>
+      <FieldGroup legend="Skill areas">
         {SKILL_AREAS.map((skill) => (
-          <label key={skill} className={styles.checkboxRow}>
-            <input
-              type="checkbox"
-              checked={skills.includes(skill)}
-              onChange={() => toggleSkill(skill)}
-            />
-            {skill}
-          </label>
+          <CheckboxField
+            key={skill}
+            label={skill}
+            checked={skills.includes(skill)}
+            onChange={() => toggleSkill(skill)}
+          />
         ))}
-      </fieldset>
+      </FieldGroup>
 
-      <div className={styles.field}>
-        <label htmlFor="volunteer-languages">Languages you work in</label>
-        <input
-          id="volunteer-languages"
-          type="text"
-          value={languages}
-          onChange={(event) => setLanguages(event.target.value)}
-          placeholder="Hebrew, Arabic, English…"
-        />
-      </div>
+      <Field
+        id="volunteer-languages"
+        label="Languages you work in"
+        type="text"
+        value={languages}
+        onChange={(event) => setLanguages(event.target.value)}
+        placeholder="Hebrew, Arabic, English…"
+      />
 
-      <div className={styles.field}>
-        <label htmlFor="volunteer-availability">Availability</label>
-        <input
-          id="volunteer-availability"
-          type="text"
-          value={availability}
-          onChange={(event) => setAvailability(event.target.value)}
-          placeholder="A few hours a week, evenings…"
-        />
-      </div>
+      <Field
+        id="volunteer-availability"
+        label="Availability"
+        type="text"
+        value={availability}
+        onChange={(event) => setAvailability(event.target.value)}
+        placeholder="A few hours a week, evenings…"
+      />
 
-      {status === 'error' ? <p className={styles.fieldError} role="alert">We could not send this right now. Email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.</p> : null}
+      {status === 'error' ? (
+        <p className={styles.fieldError} {...assertiveLive}>
+          We could not send this right now. Email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.
+        </p>
+      ) : null}
       <Button
         type="submit"
         variant="primary"

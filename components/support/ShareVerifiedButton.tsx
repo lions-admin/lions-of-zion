@@ -10,7 +10,7 @@
  * actually being shared instead of implying more than it does.
  */
 import { useState } from 'react';
-import { Button } from '@/components/ui';
+import { Button, politeLive } from '@/components/ui';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './share-verified.module.css';
 
@@ -40,15 +40,21 @@ export function ShareVerifiedButton() {
   };
 
   return (
-    <Button
-      type="button"
-      variant="secondary"
-      size="md"
-      className={styles.share}
-      aria-live="polite"
-      onClick={() => void share()}
-    >
-      {copied ? 'Copied — paste it anywhere' : "Share what's verified"}
-    </Button>
+    <>
+      <Button
+        type="button"
+        variant="secondary"
+        size="md"
+        className={styles.share}
+        onClick={() => void share()}
+      >
+        {copied ? 'Copied — paste it anywhere' : "Share what's verified"}
+      </Button>
+      {/* Spreading politeLive onto the Button would set role="status" and drop
+          the control. The copied label is announced from this sibling instead. */}
+      <p className={styles.srOnly} {...politeLive}>
+        {copied ? 'Copied — paste it anywhere' : ''}
+      </p>
+    </>
   );
 }

@@ -2,9 +2,10 @@ import Link from "next/link";
 import { StatusState } from "@/components/ui/StatusState";
 import type { PublicPublication, PublicPublicationDetail } from "@/server/contracts/publication";
 import { ClaimEntry } from "./ClaimEntry";
+import { FACT_CHECK_PATH } from "./paths";
 import styles from "./fact-check.module.css";
 
-export const FACT_CHECK_PATH = "/fact-check";
+export { FACT_CHECK_PATH } from "./paths";
 
 export interface FactCheckDeskProps {
   /** Narrative Watch records, newest first. */
@@ -12,13 +13,21 @@ export interface FactCheckDeskProps {
   /** Full records by `publicId`, for the rows deep enough in the page to warrant the read. */
   details: Map<string, PublicPublicationDetail>;
   unavailable: boolean;
+  /** `?claim=` publicId. When set, that row starts open; otherwise the first row does. */
+  openClaimId?: string;
 }
 
-export function FactCheckDesk({ records, details, unavailable }: FactCheckDeskProps) {
+export function FactCheckDesk({
+  records,
+  details,
+  unavailable,
+  openClaimId,
+}: FactCheckDeskProps) {
   return (
     <div className={styles.desk}>
       {unavailable ? (
         <StatusState
+          status="error"
           eyebrow="DESK STATUS"
           title="The published record could not be read."
           description="This is a fault on our side, not an empty desk. Published checks are unaffected and return when the read succeeds."
@@ -27,6 +36,7 @@ export function FactCheckDesk({ records, details, unavailable }: FactCheckDeskPr
         />
       ) : records.length === 0 ? (
         <StatusState
+          status="empty"
           eyebrow="DESK STATUS"
           title="No claim has been checked and published yet."
           description="A check appears here only once it has cleared the evidence and quality gates. This page never carries a worked example invented to fill it."
@@ -40,10 +50,11 @@ export function FactCheckDesk({ records, details, unavailable }: FactCheckDeskPr
               key={record.publicId}
               record={record}
               detail={details.get(record.publicId)}
-              /* The newest check opens on arrival: it is what a reader who
-                 followed a link here came for, and one open row is the page
+              /* A `?claim=` match wins: back-navigation restores that open
+                 state from the server params. With no claim in the URL, the
+                 newest check opens on arrival — one open row is the page
                  showing its work rather than asking to be clicked. */
-              open={index === 0}
+              open={openClaimId ? record.publicId === openClaimId : index === 0}
               /* `--stagger` caps a sequence at four steps. */
               index={Math.min(index, 3)}
             />

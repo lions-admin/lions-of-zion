@@ -1,18 +1,26 @@
-/* StatusState · design V3
+/* StatusState — SYS-010
  *
- * An empty or unavailable state, designed rather than forgotten: a raised
- * surface, a data eyebrow, a display-face title, and one secondary action.
- * The icon is the only gold on the panel; the eyebrow stays in ink so the
- * emphasis is not split.
+ * Async anatomy. Colour uses --async-*; the kind label is always in text.
+ * Animation is decorative. Error is role=alert; every other kind is polite.
  */
 
 .container {
+  --status-fg: var(--async-empty);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   padding: clamp(var(--sp-7), 5vw, var(--sp-8)) var(--sp-5);
 }
+
+.idle { --status-fg: var(--async-idle); }
+.loading { --status-fg: var(--async-loading); }
+.processing { --status-fg: var(--async-processing); }
+.success { --status-fg: var(--async-success); }
+.warning { --status-fg: var(--async-warning); }
+.error { --status-fg: var(--async-error); }
+.empty { --status-fg: var(--async-empty); }
+.disabled { --status-fg: var(--async-disabled); }
 
 .inner {
   max-width: var(--measure-narrow);
@@ -23,16 +31,68 @@
   text-align: center;
   background: var(--surface-1);
   border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
+  border-radius: var(--radius-2);
   padding: clamp(var(--sp-6), 3.5vw, var(--sp-7)) clamp(var(--sp-5), 3vw, var(--sp-6));
-  box-shadow: var(--shadow-2);
 }
 
-.icon {
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: var(--sp-4);
-  color: var(--gold);
+  color: var(--status-fg);
   font-size: var(--t-figure);
   line-height: 1;
+}
+
+.indicator {
+  display: block;
+  width: var(--sp-5);
+  height: var(--sp-5);
+  border: var(--line-w-thick) solid var(--status-fg);
+  border-radius: var(--radius-1);
+}
+
+.loading .indicator,
+.processing .indicator {
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+.success .indicator {
+  border-radius: var(--radius-1);
+  background: var(--status-fg);
+}
+
+.warning .indicator {
+  transform: rotate(45deg);
+}
+
+.error .indicator {
+  background: var(--status-fg);
+}
+
+.empty .indicator,
+.idle .indicator,
+.disabled .indicator {
+  background: transparent;
+  border-radius: 50%;
+}
+
+.disabled .indicator {
+  border-style: dashed;
+}
+
+.kind {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--status-fg);
+  margin-bottom: var(--sp-2);
 }
 
 .eyebrow {
@@ -69,4 +129,20 @@
 
 .action {
   margin-top: var(--sp-1);
+}
+
+.disabled .inner {
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading .indicator,
+  .processing .indicator {
+    animation: none;
+    border-right-color: var(--status-fg);
+  }
 }

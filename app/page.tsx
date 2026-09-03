@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { CinematicIntroGate } from "@/components/particle-nav/CinematicIntroGate";
+import { Card, CardCount, CardTitle } from "@/components/ui/Card";
 import { TypographicField } from "@/components/typographic-field/TypographicField";
 /* Imported from the modules rather than through `components/motion/index.ts`.
    `package.json` now DOES declare a CSS-only `sideEffects` list, which
@@ -86,12 +87,18 @@ export default async function Page() {
               <ol className={styles.railList}>
                 {headlines.slice(0, 3).map((headline, index) => (
                   <li className={styles.railItem} key={headline.publicId}>
-                    <Link href={`/articles/${headline.publicId}`} className={styles.railLink}>
-                      <span className={styles.railIndex} data-numeric>
+                    <Card
+                      variant="row"
+                      href={`/articles/${headline.publicId}`}
+                      className={styles.railCard}
+                    >
+                      <CardCount className={styles.railIndex} data-numeric>
                         0{index + 1}
-                      </span>
-                      <strong className={styles.railTitle}>{headline.title}</strong>
-                    </Link>
+                      </CardCount>
+                      <CardTitle as="span" className={styles.railTitle}>
+                        {headline.title}
+                      </CardTitle>
+                    </Card>
                   </li>
                 ))}
               </ol>

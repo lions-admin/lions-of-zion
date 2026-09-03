@@ -130,14 +130,17 @@
   color: var(--ink);
 }
 
-/* Two up, not four. Four cards across this page's ~600px measure gave each
-   ~135px: "Investigators" clipped its own last letter and every card's body
-   broke at two or three words a line. */
-.roleGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-4);
+/* Editorial roster, not a marketing grid. Card.row owns the hairline
+   between records; this list only stacks them. */
+.roleRoster {
   margin: var(--sp-5) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roleRoster > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .faq {
@@ -181,13 +184,4 @@
 .faq dd a:hover,
 .faq dd a:focus-visible {
   text-decoration-color: var(--ink-hi);
-}
-
-/* 600, and it earns its place: two role cards inside this page's measure
-   are ~135px each below it, which is where "Investigators" stops fitting on
-   one line and every card body breaks at two or three words. */
-@media (max-width: 600px) {
-  .roleGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

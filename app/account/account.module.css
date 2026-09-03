@@ -1,10 +1,5 @@
-/* The account surface: one quiet raised object over the live field, in
-   Hebrew, right-to-left. Values answer to the V3 tokens in app/globals.css.
-
-   The heading is a UI heading in a sign-in card, not an editorial headline,
-   and it is Hebrew — a script none of the display face's fallbacks carry —
-   so it opts out of the serif explicitly and sets in the text face, as
-   app/globals.css sanctions for UI headings. */
+/* The account surface: one quiet raised object over the live field.
+   Values answer to the V3 tokens in app/globals.css. English, left-to-right. */
 
 .shell {
   min-height: 100dvh;
@@ -12,7 +7,6 @@
   place-items: center;
   padding: var(--sp-9) var(--sp-5) var(--sp-8);
   color: var(--ink);
-  direction: rtl;
   font-family: var(--face-text);
 }
 
@@ -52,11 +46,11 @@
 .card h1 {
   margin-top: var(--sp-3);
   color: var(--ink-hi);
-  font-family: var(--face-text);
+  font-family: var(--face-display);
   font-size: var(--t-h2);
-  font-weight: 600;
+  font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
-  letter-spacing: 0;
+  letter-spacing: var(--t-h2-tracking);
 }
 
 .lede {

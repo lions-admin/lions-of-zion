@@ -38,6 +38,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // The dev badge sits in the corner the intro plays in.
   devIndicators: false,
+  async redirects() {
+    if (isDevelopment) return [];
+    return [{ source: "/particle-demo", destination: "/", permanent: false }];
+  },
   async headers() {
     return [
       {

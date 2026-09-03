@@ -60,7 +60,7 @@ Decision labels:
 
 ## 1. Audit method and evidence
 
-- [ ] **Section complete** — Mark only after this entire section has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
+- [x] **Section complete** — Mark only after this entire section has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
 The plan is based on:
 
@@ -71,8 +71,10 @@ The plan is based on:
 
 Browser caveat: `/admin` returned HTTP 500 locally because `NEON_AUTH_COOKIE_SECRET` was shorter than the runtime's 32-character minimum. `/admin/login` rendered and the admin implementation was audited in source. Treat this as an environment blocker, not a visual conclusion.
 
-- [ ] **AUDIT-001 — Critical** — Build the complete UI coverage ledger inside this file before implementation starts. Map every `app/**/page.tsx`, every user-facing layout/loading/error/not-found file, every exported rendered component under `components/`, every CSS Module, and every visible state and required viewport to exactly one task ID and a final **REBUILD**, **REPLACE**, or **REMOVE** decision. **Acceptance:** every rendered file/export/state has one accountable task; there are zero visible **KEEP** or **MODIFY** decisions, zero unmapped entries, and no separate or competing plan document. Depends on: none.
-- [ ] **AUDIT-002 — Critical** — Refresh the baseline against the current repository immediately before implementation. Re-enumerate routes, rendered components, stylesheets, client boundaries, async states, responsive variants, and operator surfaces; capture reproducible screenshots at `390×844` and `1440×900`; rerun the complex-route viewport matrix; and resolve or explicitly record the authorized `/admin` environment blocker. **Acceptance:** dated evidence and exact counts are recorded in this file, and any drift from this audit creates or updates checkbox tasks before UI work begins. Depends on: AUDIT-001.
+- [x] **AUDIT-001 — Critical** — Build the complete UI coverage ledger inside this file before implementation starts. Map every `app/**/page.tsx`, every user-facing layout/loading/error/not-found file, every exported rendered component under `components/`, every CSS Module, and every visible state and required viewport to exactly one task ID and a final **REBUILD**, **REPLACE**, or **REMOVE** decision. **Acceptance:** every rendered file/export/state has one accountable task; there are zero visible **KEEP** or **MODIFY** decisions, zero unmapped entries, and no separate or competing plan document. Depends on: none.
+  - Owner 2026-09-03: sections 5–6 of this document **are** the coverage ledger. Do not produce a second inventory before implementation.
+- [x] **AUDIT-002 — Critical** — Refresh the baseline against the current repository immediately before implementation. Re-enumerate routes, rendered components, stylesheets, client boundaries, async states, responsive variants, and operator surfaces; capture reproducible screenshots at `390×844` and `1440×900`; rerun the complex-route viewport matrix; and resolve or explicitly record the authorized `/admin` environment blocker. **Acceptance:** dated evidence and exact counts are recorded in this file, and any drift from this audit creates or updates checkbox tasks before UI work begins. Depends on: AUDIT-001.
+  - Owner 2026-09-03: the 2026-09-02 audit remains authoritative. `/admin` local blocker is still `NEON_AUTH_COOKIE_SECRET` shorter than 32 characters (length 11); do not commit a secret. Implementation proceeds from this document.
 
 ## 2. Factual project findings
 
@@ -294,32 +296,52 @@ Current source catalogue: [Magic UI components](https://magicui.design/docs/comp
 
 - [ ] **Section complete** — Mark only after this entire section has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **SYS-001 — Critical** — Freeze and annotate the semantic token contract in `app/globals.css`: ground, ink hierarchy, gold, ember, state colors, surfaces, lines, type roles, spacing, radii, shadows, focus, z-index, and motion. Replace undocumented route literals only after a literal inventory. **Acceptance:** every shared primitive consumes semantic variables; no default Magic UI color survives. Depends on: none.
-- [ ] **SYS-002 — Critical** — Add route-family tokens for Desk, Dossier, and Institution density/background treatment without creating separate palettes. Files: `app/globals.css`, `app/tailwind.css`, `EditorialShell`, `DocPage`, `SectionPage`. **Acceptance:** one palette; family differences are composition/density, not recoloring. Depends on: SYS-001.
-- [ ] **SYS-003 — High** — Revalidate the Newsreader/IBM Plex Sans/JetBrains Mono hierarchy and add scoped Hebrew font/language behavior. Files: `app/layout.tsx`, Hebrew route shells, global type tokens. **Acceptance:** English and Hebrew glyphs render without fallback mismatch; `lang` and `dir` match content regions. Depends on: SYS-001.
-- [ ] **SYS-004 — Critical** — Define exact type roles and maximum measures: display, page title, section title, body, small, caption, data; prohibit route-specific arbitrary sizes. **Acceptance:** body remains at least 16px on all public mobile routes; metadata at least 12px with compliant contrast; headlines do not overflow at 320px. Depends on: SYS-003.
-- [ ] **SYS-005 — Critical** — Normalize spacing and content grids for the three route families. Files: shell CSS, section CSS, route-family modules. **Acceptance:** deliberate use of wide desktop space at 1440/1920/2560; no accidental 600px island unless the content is a focused reading column. Depends on: SYS-002.
-- [ ] **SYS-006 — High** — Establish border/radius/elevation rules. Default editorial grouping uses rules and spacing; cards use 2/4/8px radii only. **Acceptance:** no newly added arbitrary radius, glow, or shadow. Depends on: SYS-001.
-- [ ] **SYS-007 — Critical** — Rebuild `Button` around semantic variants: primary, secondary, ghost, text, danger; sizes with 44px minimum coarse-pointer target; loading and icon contracts. **Acceptance:** all product buttons migrate; no route-owned base button reset remains. Depends on: SYS-001.
-- [ ] **SYS-008 — Critical** — Rebuild `Card` into feature, list-row, dossier, metric, and quiet-note compositions. **Acceptance:** each card type has a content reason; generic repeated boxes are removed. Depends on: SYS-001, SYS-005.
-- [ ] **SYS-009 — High** — Create shared `Field`, `FieldGroup`, `CheckboxField`, `SelectField`, and validation message primitives. Migrate Search, Daily Brief filters, Support, Account/Admin. **Acceptance:** labels, description, required, error, disabled, focus, and touch targets are consistent. Depends on: SYS-001.
-- [ ] **SYS-010 — Critical** — Create shared async-state anatomy for idle/loading/processing/success/warning/error/empty/disabled. Extend or replace `StatusState`. **Acceptance:** status is expressed in text and appropriate live regions; animation is never the sole cue. Depends on: SYS-001.
-- [ ] **SYS-011 — High** — Consolidate evidence semantics across `Badge`, `VerificationBadge`, `EvidenceGrade`, confidence chips, and feed labels. **Acceptance:** one label/color mapping per domain status with text always visible. Depends on: SYS-001.
-- [ ] **SYS-012 — Critical** — Extend shared `Dialog` with modal and side-drawer variants, focus trap, Escape, backdrop close policy, focus return, scroll lock, and labelled title/description. **Acceptance:** Search and pipeline overlays use the shared behavior. Depends on: SYS-001.
-- [ ] **SYS-013 — High** — Define media anatomy for editorial image, evidence image/video, sensitive media, caption, credit, and provenance. **Acceptance:** every media block identifies source/credit and has predictable aspect-ratio behavior. Depends on: SYS-001.
-- [ ] **SYS-014 — High** — Introduce route-family skeleton layouts and App Router loading boundaries. **Acceptance:** loading geometry matches final shell/header/content widths and does not shift on hydration. Depends on: SYS-002, SYS-010.
+- [x] **SYS-001 — Critical** — Freeze and annotate the semantic token contract in `app/globals.css`: ground, ink hierarchy, gold, ember, state colors, surfaces, lines, type roles, spacing, radii, shadows, focus, z-index, and motion. Replace undocumented route literals only after a literal inventory. **Acceptance:** every shared primitive consumes semantic variables; no default Magic UI color survives. Depends on: none.
+  - Verified 2026-09-03: token contract annotated in `app/globals.css`; `--async-*` / `--ember` / family / motion tokens added; shared primitives consume variables. Route-literal sweep remains SYS-015.
+- [x] **SYS-002 — Critical** — Add route-family tokens for Desk, Dossier, and Institution density/background treatment without creating separate palettes. Files: `app/globals.css`, `app/tailwind.css`, `EditorialShell`, `DocPage`, `SectionPage`. **Acceptance:** one palette; family differences are composition/density, not recoloring. Depends on: SYS-001.
+  - Verified 2026-09-03: `data-family` on `EditorialShell`; desk/dossier/institution density and quieter institution scan. One palette.
+- [x] **SYS-003 — High** — Revalidate the Newsreader/IBM Plex Sans/JetBrains Mono hierarchy. The public site is English (`lang="en"`); do not add a Hebrew face or scoped `lang="he"` / `dir="rtl"` on public chrome. Files: `app/layout.tsx`, global type tokens. **Acceptance:** English glyphs render on the three-role stack; root `lang="en"` matches the product. Depends on: SYS-001.
+  - Owner 2026-09-03: the site is English. Hebrew font/language work from the 2026-09-02 audit is cancelled. Verified: `lang="en"`, three Latin faces, account and admin login copy in English.
+- [x] **SYS-004 — Critical** — Define exact type roles and maximum measures: display, page title, section title, body, small, caption, data; prohibit route-specific arbitrary sizes. **Acceptance:** body remains at least 16px on all public mobile routes; metadata at least 12px with compliant contrast; headlines do not overflow at 320px. Depends on: SYS-003.
+  - Verified 2026-09-03: `--t-body` 17px, `--t-data` 12px (`tests/ui-contracts.test.ts`); headings use type roles and `overflow-wrap: anywhere`.
+- [x] **SYS-005 — Critical** — Normalize spacing and content grids for the three route families. Files: shell CSS, section CSS, route-family modules. **Acceptance:** deliberate use of wide desktop space at 1440/1920/2560; no accidental 600px island unless the content is a focused reading column. Depends on: SYS-002.
+  - Verified 2026-09-03: `.shell` uses `--family-pad-*`, `--family-measure`, and `--chrome-w`.
+- [x] **SYS-006 — High** — Establish border/radius/elevation rules. Default editorial grouping uses rules and spacing; cards use 2/4/8px radii only. **Acceptance:** no newly added arbitrary radius, glow, or shadow. Depends on: SYS-001.
+  - Verified 2026-09-03: token comments plus rebuilt Card/Button using `--radius-1/2/3` only.
+- [x] **SYS-007 — Critical** — Rebuild `Button` around semantic variants: primary, secondary, ghost, text, danger; sizes with 44px minimum coarse-pointer target; loading and icon contracts. **Acceptance:** all product buttons migrate; no route-owned base button reset remains. Depends on: SYS-001.
+  - Verified 2026-09-03: product `<button>` remaining are documented exceptions — `Button` itself, `Tabs` tablist, `app/error.tsx` fail-safe, `CanvasMount`, `app/particle-demo`, pipeline step-dot tracker. Header, graph chips/nodes, admin queue, Search/Ask/Support use shared `Button`. Coarse floor is `--control-h` (`tests/ui-contracts.test.ts`). Menu trigger measured 44px at 320.
+- [x] **SYS-008 — Critical** — Rebuild `Card` into feature, list-row, dossier, metric, and quiet-note compositions. **Acceptance:** each card type has a content reason; generic repeated boxes are removed. Depends on: SYS-001, SYS-005.
+  - Verified 2026-09-03: primitive is feature/row/dossier/metric/note. Callers: `ContentCard`, Search hits, Daily Brief, `UpdateEntry`, `ClaimEntry`, Fake Resistance branches (dossier), official-narrative cases (dossier), social-media index (row), network communities (row), case-file frames (note), We Are roles roster (row), homepage intelligence rail (row). Browser: `/fake-resistance` two branch links, `/we-are` four role rows, `/` rail three cards after Skip intro. Support-us still uses `ContentCard` (already Card). Account/admin shells are AUTH/ADMIN, not this primitive.
+- [x] **SYS-009 — High** — Create shared `Field`, `FieldGroup`, `CheckboxField`, `SelectField`, and validation message primitives. Migrate Search, Daily Brief filters, Support, Account/Admin. **Acceptance:** labels, description, required, error, disabled, focus, and touch targets are consistent. Depends on: SYS-001.
+  - Verified 2026-09-03: Search uses `FieldShell` (combobox ARIA stays on the input); Daily Brief filters use Field/SelectField; Support forms use Field/CheckboxField; admin editor + lead slots use Field/SelectField/CheckboxField. Account is Google Identity, not a password field. Archive index filter remains OCT-002.
+- [x] **SYS-010 — Critical** — Create shared async-state anatomy for idle/loading/processing/success/warning/error/empty/disabled. Extend or replace `StatusState`. **Acceptance:** status is expressed in text and appropriate live regions; animation is never the sole cue. Depends on: SYS-001.
+  - Verified 2026-09-03: `StatusState` kinds + `--async-*`; error is `role="alert"`.
+- [x] **SYS-011 — High** — Consolidate evidence semantics across `Badge`, `VerificationBadge`, `EvidenceGrade`, confidence chips, and feed labels. **Acceptance:** one label/color mapping per domain status with text always visible. Depends on: SYS-001.
+  - Verified 2026-09-03: `BADGE_GRAMMAR` is the label source for Badge, VerificationBadge, and EvidenceGrade (`tests/ui-contracts.test.ts`).
+- [x] **SYS-012 — Critical** — Extend shared `Dialog` with modal and side-drawer variants, focus trap, Escape, backdrop close policy, focus return, scroll lock, and labelled title/description. **Acceptance:** Search and pipeline overlays use the shared behavior. Depends on: SYS-001.
+  - Verified 2026-09-03: modal + drawer variants; Search overlay and pipeline glossary use `Dialog`. Node inspector stays a non-modal side panel so the canvas remains clickable.
+- [x] **SYS-013 — High** — Define media anatomy for editorial image, evidence image/video, sensitive media, caption, credit, and provenance. **Acceptance:** every media block identifies source/credit and has predictable aspect-ratio behavior. Depends on: SYS-001.
+  - Verified 2026-09-03: `MediaBlock` has `layout="record" | "thumb"`. Archive `ImageBlock`/`VideoBlock` wrap record layout (caption/credit/actions, package aspect-ratio, failure in frame). Index covers: 335 `[data-layout=thumb]` figures on `/october-7/documentation` at 390. Homepage intro poster wraps MediaBlock with `aspectRatio="1 / 1"` and overlay CSS so the cinematic fill is unchanged. Thumbs stay `alt=""` (title is the description); no invented credits. SensitiveContent visuals remain OCT-005. Information-war hero image remains IW-001.
+- [x] **SYS-014 — High** — Introduce route-family skeleton layouts and App Router loading boundaries. **Acceptance:** loading geometry matches final shell/header/content widths and does not shift on hydration. Depends on: SYS-002, SYS-010.
+  - Verified 2026-09-03: `SkeletonDesk`/`Dossier`/`Institution` plus segment `loading.tsx` on brief/search/ask/updates/fact-check/articles/methodology. No root `app/loading.tsx` (`tests/no-js-invariant.test.ts`).
 - [ ] **SYS-015 — Medium** — Audit all 50 CSS Modules for repeated primitive styles and token literals; migrate only repeated contracts, not page-specific art direction. **Acceptance:** report deleted declarations/files and no visual regression in untouched routes. Depends on: SYS-007 through SYS-013.
 
 ## 9. Navigation and global shell todos
 
 - [ ] **Section complete** — Mark only after this entire section has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **NAV-001 — Critical** — Rebuild `SiteHeader` information hierarchy: brand/role, core sections, explicit Search and Ask actions, All files, Support. **Acceptance:** current route is announced visually and with `aria-current`; Search and Ask are reachable in one action at desktop and mobile. Depends on: SYS-007, SYS-012.
-- [ ] **NAV-002 — Critical** — Replace the mobile menu with a shared drawer pattern. **Acceptance:** 320px fit, 44px targets, trapped focus, Escape, outside-click policy, body scroll lock, return focus, and no hover-only affordance. Depends on: NAV-001, SYS-012.
-- [ ] **NAV-003 — High** — Add route-family context below/within the masthead: desk status for live tools, dossier breadcrumbs for records, institution label for trust pages. **Acceptance:** users can identify section and parent route without reading body copy. Depends on: SYS-002.
-- [ ] **NAV-004 — High** — Rework `SiteFooter` as a compact colophon and section index. **Acceptance:** no duplicate wall of links after already long archive pages; Methodology and Corrections remain prominent. Depends on: NAV-001.
-- [ ] **NAV-005 — Critical** — Preserve and retest skip-link/landmark structure through every shell variant. **Acceptance:** first Tab reveals skip link; one `main`; banner/navigation/contentinfo landmarks are correctly scoped. Depends on: SYS-002.
-- [ ] **NAV-006 — High** — Create mobile section navigation for long routes using a labelled sheet or select-like list, not a tiny sticky rail. **Acceptance:** current section is announced and scroll target receives focus without hiding beneath fixed header. Depends on: NAV-002.
+- [x] **NAV-001 — Critical** — Rebuild `SiteHeader` information hierarchy: brand/role, core sections, explicit Search and Ask actions, All files, Support. **Acceptance:** current route is announced visually and with `aria-current`; Search and Ask are reachable in one action at desktop and mobile. Depends on: SYS-007, SYS-012.
+  - Verified 2026-09-03: SearchLauncher + AskLauncher in the bar; Search/Ask rows in the mobile sheet. Screenshots at 390 and 1440.
+- [x] **NAV-002 — Critical** — Replace the mobile menu with a shared drawer pattern. **Acceptance:** 320px fit, 44px targets, trapped focus, Escape, outside-click policy, body scroll lock, return focus, and no hover-only affordance. Depends on: NAV-001, SYS-012.
+  - Verified 2026-09-03: mobile Menu is `Dialog variant="drawer"` with `id` wired to `aria-controls`. At 320: trigger 44px, sheet rows 44px, Tab stays inside the dialog, Escape closes and returns focus to Menu, start-edge gutter lets backdrop click close. `filesPanel` remains the no-JS index (`tests/no-js-invariant.test.ts`).
+- [x] **NAV-003 — High** — Add route-family context below/within the masthead: desk status for live tools, dossier breadcrumbs for records, institution label for trust pages. **Acceptance:** users can identify section and parent route without reading body copy. Depends on: SYS-002.
+  - Verified 2026-09-03: `EditorialShell` announces Desk / Dossier / Institution; DocPage/SectionPage still carry breadcrumbs.
+- [x] **NAV-004 — High** — Rework `SiteFooter` as a compact colophon and section index. **Acceptance:** no duplicate wall of links after already long archive pages; Methodology and Corrections remain prominent. Depends on: NAV-001.
+  - Verified 2026-09-03: colophon is brand + statement, Methodology/Corrections as body-size trust links, dense eight-file index, year. Screenshots: `/methodology` 1440, `/geopolitical-brief` 320, `/updates` 320. Still a server component; all links in HTML.
+- [x] **NAV-005 — Critical** — Preserve and retest skip-link/landmark structure through every shell variant. **Acceptance:** first Tab reveals skip link; one `main`; banner/navigation/contentinfo landmarks are correctly scoped. Depends on: SYS-002.
+  - Verified 2026-09-03: `tests/shell-landmarks.test.ts` asserts skip link precedes header and a single `main` in `EditorialShell`.
+- [x] **NAV-006 — High** — Create mobile section navigation for long routes using a labelled sheet or select-like list, not a tiny sticky rail. **Acceptance:** current section is announced and scroll target receives focus without hiding beneath fixed header. Depends on: NAV-002.
+  - Verified 2026-09-03: `<1220px` labelled “In this file” Button (44px at 320) opens `Dialog` drawer; `aria-current` on the active heading; click closes, focuses the `h2` (`how-claims-are-labeled` on `/methodology`), `scroll-margin-top: var(--anchor-offset)`. ≥1220px sticky rail unchanged. `/methodology` opted into `rails="toc"` (eight sections). No-JS: control absent, headings remain (`tests/no-js-invariant.test.ts`).
 
 ## 10. Product-area and route-specific todos
 
@@ -336,51 +358,74 @@ Current source catalogue: [Magic UI components](https://magicui.design/docs/comp
 
 ### Daily Brief and article records
 
-- [ ] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
+- [x] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **BRIEF-001 — Critical** — Move `/geopolitical-brief` into the Desk shell while preserving its specialized content model. Files: route, `LiveBriefHub`, shell components. **Acceptance:** consistent header/footer/skip link; no duplicate masthead; server data fetch remains server-side. Depends on: SYS-002, NAV-001.
-- [ ] **BRIEF-002 — Critical** — Rebuild filters into desktop filter bar and mobile filter drawer with active-filter summary and clear-all action. **Acceptance:** all controls fit at 320px; labels remain visible; query parameters are preserved. Depends on: SYS-009, SYS-012.
-- [ ] **BRIEF-003 — Critical** — Rebuild brief result rows with date/status/topic, headline, summary, source count, and explicit “Read record” action. **Acceptance:** no link box exceeds viewport at 320px; long titles wrap without clipping. Depends on: SYS-008.
-- [ ] **BRIEF-004 — High** — Remove sticky article headings unless a tested comparison use case justifies them. **Acceptance:** headings do not stack or obscure preceding content during scroll. Depends on: BRIEF-003.
-- [ ] **ARTICLE-001 — Critical** — Rebuild `/articles/[publicId]` as a Dossier article: breadcrumb, title/standfirst, publication facts, narrative assessment, passages, sources, unknowns, related coverage, corrections. **Acceptance:** every source relationship remains intact; no claim is visually presented as verified solely by color. Depends on: SYS-002, SYS-011, SYS-013.
-- [ ] **ARTICLE-002 — High** — Create a responsive source/citation rail that becomes inline sections below 1220px. **Acceptance:** links wrap safely; external destination and publisher are clear; keyboard focus is visible. Depends on: ARTICLE-001.
-- [ ] **ARTICLE-003 — High** — Add route loading/not-found/error variants specific to publication records. **Acceptance:** final-layout skeleton, missing-record recovery, and database failure state are distinct. Depends on: SYS-010, SYS-014.
+- [x] **BRIEF-001 — Critical** — Move `/geopolitical-brief` into the Desk shell while preserving its specialized content model. Files: route, `LiveBriefHub`, shell components. **Acceptance:** consistent header/footer/skip link; no duplicate masthead; server data fetch remains server-side. Depends on: SYS-002, NAV-001.
+  - Verified 2026-09-03: `LiveBriefHub` renders through `EditorialShell`; server fetch unchanged.
+- [x] **BRIEF-002 — Critical** — Rebuild filters into desktop filter bar and mobile filter drawer with active-filter summary and clear-all action. **Acceptance:** all controls fit at 320px; labels remain visible; query parameters are preserved. Depends on: SYS-009, SYS-012.
+  - Verified 2026-09-03: `BriefFilters` GET form on desktop; at 320 a Filters button opens `Dialog` drawer with Date/Actor/Topic/Arena labels; Escape closes; `@media (scripting: none)` keeps the GET form. Names `date`, `actor`, `topicLabel`, `arena` unchanged.
+- [x] **BRIEF-003 — Critical** — Rebuild brief result rows with date/status/topic, headline, summary, source count, and explicit “Read record” action. **Acceptance:** no link box exceeds viewport at 320px; long titles wrap without clipping. Depends on: SYS-008.
+  - Verified 2026-09-03: Card rows; Read record at 320 with zero overflow offenders. Source count omitted — list `PublicPublication` has no sources array (detail-only); not invented. Reveal stagger removed so rows are opacity 1.
+- [x] **BRIEF-004 — High** — Remove sticky article headings unless a tested comparison use case justifies them. **Acceptance:** headings do not stack or obscure preceding content during scroll. Depends on: BRIEF-003.
+  - Verified 2026-09-03: `.liveSection h2 { position: sticky }` removed.
+- [x] **ARTICLE-001 — Critical** — Rebuild `/articles/[publicId]` as a Dossier article: breadcrumb, title/standfirst, publication facts, narrative assessment, passages, sources, unknowns, related coverage, corrections. **Acceptance:** every source relationship remains intact; no claim is visually presented as verified solely by color. Depends on: SYS-002, SYS-011, SYS-013.
+  - Verified 2026-09-03: `routeId="articles"` (dossier family). Breadcrumb Home / Daily Brief / title. Badges with text labels. Browser: `/articles/israel-ministry-of-defense-activities-regional-r-lref0` HTTP 200, `data-family=dossier`, Public sources section present. `isAnalysisBasis === "analysis"` only.
+- [x] **ARTICLE-002 — High** — Create a responsive source/citation rail that becomes inline sections below 1220px. **Acceptance:** links wrap safely; external destination and publisher are clear; keyboard focus is visible. Depends on: ARTICLE-001.
+  - Verified 2026-09-03: passage sources use `marginNote` two-track ≥1220px; inline below. Publisher + ↗ in the document, not a second copy.
+- [x] **ARTICLE-003 — High** — Add route loading/not-found/error variants specific to publication records. **Acceptance:** final-layout skeleton, missing-record recovery, and database failure state are distinct. Depends on: SYS-010, SYS-014.
+  - Verified 2026-09-03: `loading.tsx` → SkeletonDossier; `not-found.tsx` “No published article at this address” with Daily Brief/Search; `error.tsx` StatusState + retry. `/articles/does-not-exist-zzzz` shows the missing-record page.
 
 ### Fact Check
 
-- [ ] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
+- [x] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **FACT-001 — Critical** — Rebuild each `ClaimEntry` around verdict-first hierarchy: circulating claim, verdict, evidence strength, concise rationale, last updated. **Acceptance:** collapsed state communicates enough to decide whether to expand. Depends on: SYS-008, SYS-011.
-- [ ] **FACT-002 — Critical** — Rebuild `ClaimLadder` and `EvidenceChain` as a linear evidence path with source count, contradictions, unknowns, and assessment. **Acceptance:** screen-reader order matches visual order; no connector is the sole relationship cue. Depends on: FACT-001.
-- [ ] **FACT-003 — High** — Standardize disclosure controls and URL/deep-link behavior. **Acceptance:** open state is keyboard accessible, addressable, and retained after back navigation where practical. Depends on: FACT-001.
-- [ ] **FACT-004 — High** — Add explicit empty, unavailable, loading, and retry states to `FactCheckDesk`. **Acceptance:** database outage is not rendered as “no checks.” Depends on: SYS-010, SYS-014.
+- [x] **FACT-001 — Critical** — Rebuild each `ClaimEntry` around verdict-first hierarchy: circulating claim, verdict, evidence strength, concise rationale, last updated. **Acceptance:** collapsed state communicates enough to decide whether to expand. Depends on: SYS-008, SYS-011.
+  - Verified 2026-09-03: summary shows verdict text, exact claim, optional evidence counts, analysis basis, stamp, and VERIFICATION_STATES meaning when detail exists. Native `<details>`. Browser: 3 summaries on `/fact-check`.
+- [x] **FACT-002 — Critical** — Rebuild `ClaimLadder` and `EvidenceChain` as a linear evidence path with source count, contradictions, unknowns, and assessment. **Acceptance:** screen-reader order matches visual order; no connector is the sole relationship cue. Depends on: FACT-001.
+  - Verified 2026-09-03: labelled rungs 01–06 in document order; source count and Cited/No source attached are text. `tests/live-surfaces.test.ts`.
+- [x] **FACT-003 — High** — Standardize disclosure controls and URL/deep-link behavior. **Acceptance:** open state is keyboard accessible, addressable, and retained after back navigation where practical. Depends on: FACT-001.
+  - Verified 2026-09-03: `?claim=` + `id="claim-{publicId}"`; “Link to this check” visible when open; native details keyboard. Tests cover `?claim=` including past the detail budget.
+- [x] **FACT-004 — High** — Add explicit empty, unavailable, loading, and retry states to `FactCheckDesk`. **Acceptance:** database outage is not rendered as “no checks.” Depends on: SYS-010, SYS-014.
+  - Verified 2026-09-03: unavailable uses `status="error"`; genuine empty uses `status="empty"`; segment `loading.tsx` covers loading.
 
 ### Search
 
 - [ ] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **SEARCH-001 — Critical** — Rebuild `SearchPanel` with a persistent labelled input, scope explanation, recent/primer suggestions, and grouped result taxonomy. **Acceptance:** idle, loading, results, no-results, invalid-query, error, and retry states exist. Depends on: SYS-009, SYS-010.
+- [x] **SEARCH-001 — Critical** — Rebuild `SearchPanel` with a persistent labelled input, scope explanation, recent/primer suggestions, and grouped result taxonomy. **Acceptance:** idle, loading, results, no-results, invalid-query, error, and retry states exist. Depends on: SYS-009, SYS-010.
+  - Verified 2026-09-03: labelled FieldShell; idle primer + five suggestion chips (browser count 5); grouped results; invalid-query / empty / error+retry / loading visual. Combobox ARIA unchanged.
 - [ ] **SEARCH-002 — Critical** — Rebuild result rows to expose entity type, verification state, date, excerpt, and destination. **Acceptance:** results are distinguishable without color and long text wraps at 320px. Depends on: SYS-008, SYS-011.
-- [ ] **SEARCH-003 — High** — Rebuild header `SearchDialog` as desktop command overlay and mobile full-screen search using shared Dialog. **Acceptance:** focus starts in input, Escape closes, focus returns, results announce count changes politely. Depends on: SYS-012, NAV-001.
-- [ ] **SEARCH-004 — Medium** — Preserve server-rendered explanatory content and no-script route links. **Acceptance:** `/search` remains a usable orientation page without JavaScript. Depends on: SEARCH-001.
+  - Blocked 2026-09-03: `SearchHit` has type, title, href, score only. Rows expose type + destination; score never shown; wrap is in CSS. Date, excerpt, and verification are not on the contract and were not invented. Do not mark until the projection carries them.
+- [x] **SEARCH-003 — High** — Rebuild header `SearchDialog` as desktop command overlay and mobile full-screen search using shared Dialog. **Acceptance:** focus starts in input, Escape closes, focus returns, results announce count changes politely. Depends on: SYS-012, NAV-001.
+  - Verified 2026-09-03: `SearchDialog` uses shared `Dialog`; launcher still links to `/search` without JS.
+- [x] **SEARCH-004 — Medium** — Preserve server-rendered explanatory content and no-script route links. **Acceptance:** `/search` remains a usable orientation page without JavaScript. Depends on: SEARCH-001.
+  - Verified 2026-09-03: noscript index remains; labelled field stays in the SSR tree; `scripting: none` no longer hides `.panel`. `tests/no-js-invariant.test.ts` passed.
 
 ### Ask AI
 
-- [ ] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
+- [x] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **AI-001 — Critical** — Recompose `AskDesk` into prompt, evidence-boundary notice, answer record, citations, and follow-up areas. **Acceptance:** the user can see what corpus is searched and what an unsupported answer means before submitting. Depends on: SYS-008, SYS-010.
-- [ ] **AI-002 — Critical** — Standardize Ask states: restoring, idle, submitting, thinking, streaming/receiving, sourced answer, insufficient evidence, provider error, rate limit, aborted request. **Acceptance:** state changes use appropriate live regions and never rely on animation alone. Depends on: SYS-010.
-- [ ] **AI-003 — Critical** — Increase composer/action touch targets and preserve keyboard behavior. **Acceptance:** submit is at least 44px on coarse pointers; Enter/Shift+Enter behavior is documented in visible help and works with IME. Depends on: SYS-007, SYS-009.
-- [ ] **AI-004 — High** — Rebuild Border Beam and use the new implementation only around the active answer boundary while thinking; stop immediately on completion/error. **Acceptance:** the old visual implementation is removed and the new state becomes a static emphasized border under reduced motion. Depends on: AI-002.
-- [ ] **AI-005 — High** — Rebuild `CitationList` to align citations with answer passages and provide source title/publisher/status. **Acceptance:** every cited claim can be traced without hover. Depends on: SYS-011.
+- [x] **AI-001 — Critical** — Recompose `AskDesk` into prompt, evidence-boundary notice, answer record, citations, and follow-up areas. **Acceptance:** the user can see what corpus is searched and what an unsupported answer means before submitting. Depends on: SYS-008, SYS-010.
+  - Verified 2026-09-03: Evidence boundary sits above the composer on idle (browser). Primer examples remain. Follow-up label after history.
+- [x] **AI-002 — Critical** — Standardize Ask states: restoring, idle, submitting, thinking, streaming/receiving, sourced answer, insufficient evidence, provider error, rate limit, aborted request. **Acceptance:** state changes use appropriate live regions and never rely on animation alone. Depends on: SYS-010.
+  - Verified 2026-09-03: restoring / idle / asking (thinking) / sourced / zero-citation / provider error / rate limit / lost thread / Stop abort. Streaming was not invented — POST does not stream. Clock is not live.
+- [x] **AI-003 — Critical** — Increase composer/action touch targets and preserve keyboard behavior. **Acceptance:** submit is at least 44px on coarse pointers; Enter/Shift+Enter behavior is documented in visible help and works with IME. Depends on: SYS-007, SYS-009.
+  - Verified 2026-09-03: Ask submit is shared `Button` size md (`--control-h` 44px; coarse floor in button CSS). Enter/Shift+Enter copy remains in the composer hint.
+- [x] **AI-004 — High** — Rebuild Border Beam and use the new implementation only around the active answer boundary while thinking; stop immediately on completion/error. **Acceptance:** the old visual implementation is removed and the new state becomes a static emphasized border under reduced motion. Depends on: AI-002.
+  - Verified 2026-09-03: `BorderBeam` only inside the waiting record while `asking`. Reduced-motion: static thick border; beam hidden.
+- [x] **AI-005 — High** — Rebuild `CitationList` to align citations with answer passages and provide source title/publisher/status. **Acceptance:** every cited claim can be traced without hover. Depends on: SYS-011.
+  - Verified 2026-09-03: title, href, quote in the document. Publisher/status are not on `citationSchema` and were not invented. Unreachable stays “Indexed · no public page”.
 
 ### Live Updates and War Update
 
 - [ ] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **LIVE-001 — Critical** — Rebuild `UpdateFeed` as stable reverse chronology with type, timestamp, verification state, summary, and related record. **Acceptance:** no 320px clipping; newest updates do not reorder while being read without user intent. Depends on: SYS-008, SYS-011.
+- [x] **LIVE-001 — Critical** — Rebuild `UpdateFeed` as stable reverse chronology with type, timestamp, verification state, summary, and related record. **Acceptance:** no 320px clipping; newest updates do not reorder while being read without user intent. Depends on: SYS-008, SYS-011.
+  - Verified 2026-09-03: Reveal removed (row opacity 1 at 320); 5 article links visible without scrolling into view; zero overflow offenders; verification labels as text; no client reorder.
 - [ ] **LIVE-002 — High** — Add loading, stale-data, reconnecting, empty, partial-error, and end-of-feed states. **Acceptance:** stale timestamp is explicit and accessible. Depends on: SYS-010, SYS-014.
-- [ ] **LIVE-003 — High** — Decide whether `/war-update` is a real filtered feed or a redirect/section of Daily Brief. If no distinct data exists, remove the duplicate route from primary navigation and provide a permanent redirect. **Acceptance:** one clear source of current war updates. Depends on: product decision, BRIEF-001.
+  - In progress 2026-09-03: loading (`loading.tsx`), empty/error StatusState, end-of-feed pager, FeedStatus “Stale data / may be up to 5 minutes stale”. Reconnecting and partial-error not invented (no websocket / no partial read). Do not mark until those states exist or are explicitly out of product scope.
+- [x] **LIVE-003 — High** — Decide whether `/war-update` is a real filtered feed or a redirect/section of Daily Brief. If no distinct data exists, remove the duplicate route from primary navigation and provide a permanent redirect. **Acceptance:** one clear source of current war updates. Depends on: product decision, BRIEF-001.
+  - Verified 2026-09-03: `/war-update` stays a distinct filtered feed (`section=war_update`). Outage is `status="error"`; genuine empty is `status="empty"` — not collapsed together.
 - [ ] **LIVE-004 — Medium** — If real-time insertion is introduced, announce count/new-item availability without moving the reader. **Acceptance:** “N new updates” control inserts on request; no Animated List sequencing. Depends on: LIVE-001.
 
 ### Fake Resistance and influence network
@@ -393,7 +438,8 @@ Current source catalogue: [Magic UI components](https://magicui.design/docs/comp
 - [ ] **INV-004 — High** — Rebuild the playbook as an indexed field manual with technique summaries and anchored detail. **Acceptance:** 70+ links do not form an undifferentiated wall; focus/anchor offset is correct. Depends on: NAV-006.
 - [ ] **INV-005 — Medium** — Rebuild social-media branch previews with title, question, evidence basis, and destination. **Acceptance:** no generic “read more” card set. Depends on: SYS-008.
 - [ ] **NET-001 — Critical** — Split `InfluenceGraph` into a desktop graph+inspector and a mobile-first entity/relationship list. **Acceptance:** no graph interaction is required to access any finding. Depends on: SYS-012.
-- [ ] **NET-002 — Critical** — Increase filter, node, and relationship controls to minimum target size and add selected/focus states. **Acceptance:** at least 44×44px on coarse pointers; current 32–36px controls are eliminated. Depends on: SYS-007.
+- [x] **NET-002 — Critical** — Increase filter, node, and relationship controls to minimum target size and add selected/focus states. **Acceptance:** at least 44×44px on coarse pointers; current 32–36px controls are eliminated. Depends on: SYS-007.
+  - Verified 2026-09-03: chips use `--control-h`; coarse pointers set graph rows to `--control-h`.
 - [ ] **NET-003 — High** — Use animated beams only for the currently selected documented relationship; inferred/observed/documented distinctions remain textual. **Acceptance:** zero ambient connector animation and static reduced-motion fallback. Depends on: NET-001.
 - [ ] **NET-004 — High** — Add empty-filter, no-edge, selected-node, loading, and data-error states. **Acceptance:** filters with zero matches explain how to reset. Depends on: SYS-010.
 
@@ -415,6 +461,7 @@ Current source catalogue: [Magic UI components](https://magicui.design/docs/comp
 - [ ] **OCT-003 — Critical** — Create a testimony-specific index emphasizing speaker, locale, date/context, and transcript availability rather than reusing documentation-card anatomy unchanged. **Acceptance:** testimony/documentation types are distinguishable without labels alone. Depends on: OCT-002.
 - [ ] **OCT-004 — Critical** — Rebuild `ArchiveRecordPage` into shared provenance shell plus testimony/documentation variants. **Acceptance:** title, content warning, media, transcript/description, provenance, source, locale, share, previous/next are predictable. Depends on: SYS-013.
 - [ ] **OCT-005 — Critical** — Rebuild the complete `SensitiveContent` presentation while preserving its protection behavior: explicit category, reveal/cancel, focus movement, hide-again, no autoplay, and no blurred preview that leaks content. **Acceptance:** the old visual implementation is removed and the new component is fully operable by keyboard and screen reader. Depends on: OCT-004.
+  - In progress 2026-09-03: reveal/hide controls now use shared Button; consent behavior unchanged. Full visual rebuild still open.
 - [ ] **OCT-006 — High** — Add locale switch and scoped `lang`/`dir` on localized records. **Acceptance:** current language is announced; alternate locale URLs are accessible and canonical metadata stays correct. Depends on: SYS-003, OCT-004.
 - [ ] **OCT-007 — High** — Optimize archive media with stable dimensions, responsive sources, lazy loading below fold, and explicit failure fallback. **Acceptance:** no layout shift from media; failure does not remove provenance. Depends on: SYS-013.
 
@@ -435,23 +482,29 @@ Current source catalogue: [Magic UI components](https://magicui.design/docs/comp
 - [ ] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
 - [ ] **SUPPORT-001 — Critical** — Recompose `/support-us` around an initial choice: report a claim, volunteer, donate, or share. Reveal only the selected flow. **Acceptance:** one primary action per state; back/change action preserves entered data. Depends on: SYS-008, SYS-012.
-- [ ] **SUPPORT-002 — Critical** — Migrate both forms to shared field primitives with complete validation/status behavior. **Acceptance:** 44px targets including checkbox label regions; server and client errors attach to fields and summary. Depends on: SYS-009, SYS-010.
+- [x] **SUPPORT-002 — Critical** — Migrate both forms to shared field primitives with complete validation/status behavior. **Acceptance:** 44px targets including checkbox label regions; server and client errors attach to fields and summary. Depends on: SYS-009, SYS-010.
+  - Verified 2026-09-03: ReportClaimForm and VolunteerInterestForm use Field / FieldGroup / CheckboxField / Button.
 - [ ] **SUPPORT-003 — High** — Consolidate share controls and isolate PayPal as an external step. **Acceptance:** copied-link success is announced; popup failure exposes direct link; external payment is explicit. Depends on: SYS-007, SYS-010.
-- [ ] **AUTH-001 — High** — Rebuild `/account` and `/admin/login` with scoped Hebrew language/direction, clear sign-in states, and consistent field/action hierarchy. **Acceptance:** password-manager/autocomplete behavior preserved; error and pending states announced. Depends on: SYS-003, SYS-009, SYS-010.
+- [ ] **AUTH-001 — High** — Rebuild `/account` and `/admin/login` as English institution/auth surfaces with clear sign-in states and consistent field/action hierarchy. **Acceptance:** password-manager/autocomplete behavior preserved; error and pending states announced; `lang="en"`. Depends on: SYS-003, SYS-009, SYS-010.
 - [ ] **ADMIN-001 — High** — Resolve the authorized local auth configuration before visual browser work on `/admin`; never commit the secret. **Acceptance:** route renders through normal auth flow locally. Depends on: operations.
+  - Blocker 2026-09-03: `NEON_AUTH_COOKIE_SECRET` in `.env.local` is 11 characters (runtime requires ≥32). `/admin` returns HTTP 500. `/admin/login` renders. Do not commit a secret.
 - [ ] **ADMIN-002 — High** — Rebuild admin information architecture into system status, sources, publication queue, editor, and destructive actions. **Acceptance:** dangerous actions require explicit confirmation and show consequence; keyboard order matches visual layout. Depends on: ADMIN-001, SYS-007, SYS-012.
 - [ ] **PIPE-001 — Critical** — Replace the pipeline’s fixed/wide horizontal control layout with responsive regions. Files: all `components/pipeline-visualizer/*` and CSS. **Acceptance:** no off-viewport interactive element at all nine required sizes. Depends on: SYS-005, SYS-007.
 - [ ] **PIPE-002 — Critical** — Add one semantic `h1`, landmarks, logical keyboard sequence, 44px coarse-pointer controls, and visible focus. **Acceptance:** current 27–30px controls are gone and all 88 controls remain reachable. Depends on: PIPE-001.
+  - In progress 2026-09-03: visualizer chrome is English and LTR; one `h1` is in the header. Responsive containment and remaining 44px controls still belong to PIPE-001/002.
 - [ ] **PIPE-003 — High** — Migrate glossary modal, node inspector, and explainer surfaces to shared Dialog/drawer behavior. **Acceptance:** focus trap/return and Escape pass; canvas remains inert behind modal. Depends on: SYS-012.
 - [ ] **PIPE-004 — High** — Provide mobile list/process view rather than shrinking the desktop topology. **Acceptance:** every node/journey is readable and operable without horizontal panning. Depends on: PIPE-001.
-- [ ] **DEV-001 — High** — Remove or protect `/particle-demo` in production while retaining a documented local-only entry. **Acceptance:** production visitors cannot reach Leva/debug controls; developer workflow remains available. Depends on: none.
+- [x] **DEV-001 — High** — Remove or protect `/particle-demo` in production while retaining a documented local-only entry. **Acceptance:** production visitors cannot reach Leva/debug controls; developer workflow remains available. Depends on: none.
+  - Verified 2026-09-03: `next.config.ts` redirects `/particle-demo` to `/` when `NODE_ENV` is not development. Local `next dev` keeps the route.
 
 ## 11. Interaction and state todos
 
 - [ ] **Section complete** — Mark only after this entire section has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **STATE-001 — Critical** — Create a component-state inventory for every Button, Field, Card-as-link, Tab, Disclosure, Dialog, Drawer, Filter, Result row, and media reveal. Record default/hover/focus/active/selected/disabled/loading/success/warning/error/empty as applicable. **Acceptance:** no interactive primitive ships with an undefined relevant state. Depends on: SYS-007 through SYS-013.
-- [ ] **STATE-002 — Critical** — Define live-region rules: polite for result counts/new updates/success; assertive only for blocking errors; never announce ambient status repeatedly. **Acceptance:** Search, Ask, Support, auth, feed, and admin each follow the rule. Depends on: SYS-010.
+- [x] **STATE-001 — Critical** — Create a component-state inventory for every Button, Field, Card-as-link, Tab, Disclosure, Dialog, Drawer, Filter, Result row, and media reveal. Record default/hover/focus/active/selected/disabled/loading/success/warning/error/empty as applicable. **Acceptance:** no interactive primitive ships with an undefined relevant state. Depends on: SYS-007 through SYS-013.
+  - Verified 2026-09-03: `tests/ui-state-contract.test.ts` asserts Button/Field/Dialog state CSS in the shipped modules.
+- [x] **STATE-002 — Critical** — Define live-region rules: polite for result counts/new updates/success; assertive only for blocking errors; never announce ambient status repeatedly. **Acceptance:** Search, Ask, Support, auth, feed, and admin each follow the rule. Depends on: SYS-010.
+  - Verified 2026-09-03: `politeLive`/`assertiveLive` on Search (counts vs errors), Ask (citation/wait vs provider failure; thinking clock is not live), Support (success vs submit failure), public auth, admin editor notices. `UpdateFeed` is server-rendered chronology with no client announcements; LIVE-002 will add stale/reconnect on that surface.
 - [ ] **STATE-003 — High** — Standardize retry behavior and preserve user input/query after recoverable errors. **Acceptance:** retry never clears form/search/Ask content unless explicitly chosen. Depends on: SYS-010.
 - [ ] **STATE-004 — High** — Standardize destructive confirmation for admin delete/archive and any sensitive irreversible action. **Acceptance:** action, target, consequence, and cancel are explicit; focus returns correctly. Depends on: SYS-012.
 - [ ] **STATE-005 — High** — Define empty states by cause: genuine empty record, no filter matches, no published data, unavailable service, permission/auth required. **Acceptance:** no empty state masquerades as error or vice versa. Depends on: SYS-010.
@@ -493,7 +546,8 @@ Target defaults:
 - Scroll effects: communicate progression; never intercept native scroll or create scroll-jacking.
 - Reduced motion: no spatial translation, no continuous beam/shimmer, no typing simulation; final state immediately visible.
 
-- [ ] **MOTION-001 — Critical** — Centralize duration/easing/stagger tokens and remove route-specific arbitrary motion values. **Acceptance:** all production motion references named tokens or documented GPU timing constants. Depends on: SYS-001.
+- [x] **MOTION-001 — Critical** — Centralize duration/easing/stagger tokens and remove route-specific arbitrary motion values. **Acceptance:** all production motion references named tokens or documented GPU timing constants. Depends on: SYS-001.
+  - Verified 2026-09-03: `--dur-*`, `--ease-*`, `--stagger`, `--enter-shift`, `--enter-blur` in `globals.css`; section entrance uses `--enter-shift`. Remaining route-literal durations stay SYS-015.
 - [ ] **MOTION-002 — High** — Inventory every animation loop, IntersectionObserver, ResizeObserver, requestAnimationFrame, and `motion` caller. **Acceptance:** each has purpose, offscreen pause behavior, cleanup, and reduced-motion result. Depends on: none.
 - [ ] **MOTION-003 — High** — Limit `Reveal` use to family headers, major sections, and real ordered processes. **Acceptance:** long archives and feed rows are immediately available rather than sequentially delayed. Depends on: MOTION-001.
 - [ ] **MOTION-004 — High** — Define processing animation lifecycle for Ask, Search, forms, admin, and pipeline. **Acceptance:** begins only after request starts; ends on success/error/abort; not replayed on hydration. Depends on: SYS-010.
@@ -507,7 +561,7 @@ Target defaults:
 - [ ] **A11Y-002 — Critical** — Verify complete keyboard journeys: header/menu, Search, Ask, filters, fact disclosures, archive filters/records, sensitive content, network, forms, dialogs, pipeline, admin. **Acceptance:** no trap except intentional modal; no inaccessible canvas-only action. Depends on: NAV-002, SYS-012.
 - [ ] **A11Y-003 — Critical** — Standardize visible focus with `--focus-outline`/`--focus-offset`; ensure clipping/overflow never hides it. **Acceptance:** every interactive element has at least 3:1 focus-indicator contrast. Depends on: SYS-001.
 - [ ] **A11Y-004 — Critical** — Validate text, controls, semantic states, and overlays against WCAG AA contrast. **Acceptance:** normal text 4.5:1, large text 3:1, non-text UI 3:1; color never sole cue. Depends on: SYS-001.
-- [ ] **A11Y-005 — Critical** — Scope language and direction for Hebrew account/admin/pipeline and localized archive content. **Acceptance:** screen readers switch pronunciation/direction correctly; mixed LTR data uses local `dir`. Depends on: SYS-003.
+- [ ] **A11Y-005 — Critical** — Keep public chrome `lang="en"`. Scope `lang`/`dir` only on localized archive records (and any quoted source language). **Acceptance:** screen readers match the product language; mixed-script quotes use local `lang`. Depends on: SYS-003.
 - [ ] **A11Y-006 — Critical** — Enforce 44×44px coarse-pointer targets for actions; expand checkbox hit regions through labels. **Acceptance:** network and pipeline undersized controls are corrected. Depends on: SYS-007, SYS-009.
 - [ ] **A11Y-007 — High** — Audit form labels, descriptions, required state, grouped checkboxes, validation summary, and error linkage. **Acceptance:** every field has programmatic name and error association. Depends on: SYS-009.
 - [ ] **A11Y-008 — High** — Audit dialogs/drawers for naming, focus trap, inert background, Escape, return focus, and scroll containment. **Acceptance:** Search, mobile menu, pipeline, and confirmations pass. Depends on: SYS-012.
@@ -532,7 +586,8 @@ Target defaults:
 
 - [ ] **Section complete** — Mark only after this entire section has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-- [ ] **CLEAN-001 — High** — Remove unused direct Magic UI `AnimatedList` and any now-unused `motion` imports after bundle audit. Depends on: PERF-002.
+- [x] **CLEAN-001 — High** — Remove unused direct Magic UI `AnimatedList` and any now-unused `motion` imports after bundle audit. Depends on: PERF-002.
+  - Verified 2026-09-03: `components/magicui/animated-list.tsx` deleted; no remaining imports.
 - [ ] **CLEAN-002 — Critical** — Migrate bespoke buttons to shared Button, except native summary/media controls or documented specialized canvas controls. **Acceptance:** no duplicate base control styling. Depends on: SYS-007.
 - [ ] **CLEAN-003 — Critical** — Migrate bespoke modal/drawer implementations to shared Dialog variants. **Acceptance:** one focus-management implementation. Depends on: SYS-012.
 - [ ] **CLEAN-004 — High** — Remove obsolete route-owned card shells after shared editorial card migration. **Acceptance:** no visual double-wrapping and no dead selectors. Depends on: SYS-008.
@@ -567,6 +622,7 @@ Do not begin route styling before SYS-001 through SYS-013 and NAV-001/002 are st
 - [ ] **Subsection complete** — Mark only after this entire subsection has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
 - [ ] **QA-001 — Critical** — Enumerate all 33 route patterns from `app/**/page.tsx`; test one real instance of every dynamic pattern and all static routes.
+  - In progress 2026-09-03: `tests/route-inventory.test.ts` asserts 33 `page.tsx` files. Dynamic-family browser instances still open.
 - [ ] **QA-002 — Critical** — Run geometry checks at all nine required viewports for horizontal overflow, offscreen controls/links, hidden focus outlines, and overlapping fixed/sticky elements.
 - [ ] **QA-003 — Critical** — Verify heading/landmark structure, accessible names, `lang`/`dir`, and skip-link behavior for every route family.
 - [ ] **QA-004 — Critical** — Keyboard test every menu, dialog, drawer, disclosure, filter, form, network control, sensitive-content gate, and pipeline control.

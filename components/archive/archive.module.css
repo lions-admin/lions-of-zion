@@ -91,10 +91,21 @@ section:first-child > .heading {
   margin: calc(-1 * var(--sp-2)) 0 var(--sp-5);
 }
 
-/* ---------- figures ---------- */
+/* ---------- figures ----------
+   Anatomy is MediaBlock (`figure.block > div.frame`). `.figure` is the
+   className passed in for record spacing; the primitive owns border, radius,
+   and the aspect-ratio frame. Do not re-apply those here or the box doubles. */
 
 .figure {
   margin: var(--sp-6) 0;
+}
+
+/* Portrait phone clips: contain (not the editorial `cover` default) and a
+   height ceiling so one clip cannot push the record off screen. Variables
+   are read by `media-block.module.css`. */
+.heldVideo {
+  --media-fit: contain;
+  --media-max-height: 70vh;
 }
 
 .image,
@@ -103,17 +114,6 @@ section:first-child > .heading {
   width: 100%;
   height: auto;
   max-width: 100%;
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line-soft);
-  border-radius: var(--radius-1);
-}
-
-.video {
-  /* A portrait phone clip is the common case here; without a ceiling one
-     fills the whole viewport and pushes the record off screen. */
-  max-height: 70vh;
-  object-fit: contain;
-  background: var(--ground);
 }
 
 /* A stated gap in the holding — one voice for three cases: the two videos
@@ -140,41 +140,25 @@ section:first-child > .heading {
   text-wrap: balance;
 }
 
-/* When the image's dimensions are known the frame keeps its shape, capped so
-   a portrait 9:16 does not become a 1,200px hole; the record around it does
-   not reflow when the image fails, and the note sits where the picture was. */
+/* Inside MediaBlock the primitive frame is the box; the note fills it and
+   does not draw a second border. `.imageUnavailable` without a parent
+   figure still keeps a cap if this class is reused. */
+.figure .externalMedia {
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
 .imageUnavailable {
   aspect-ratio: var(--frame-ratio, auto);
   max-height: 40vh;
 }
 
-.caption {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-  margin-top: var(--sp-3);
-}
-
-.captionText {
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  font-weight: var(--t-caption-weight);
-  color: var(--ink-lo);
-}
-
-/* Provenance, kept quiet but never removed — six items across both archives
-   carry one. Data face at the data step, because a credit is a field on the
-   record rather than prose; `--ink` rather than `--ink-lo`, because the floor
-   for the quietest ink is the caption step and this sits one below it.
-   Deliberately not a link — see `.ai/DECISIONS.md`, 2026-08-26. */
-.credit {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
+.figure .imageUnavailable {
+  aspect-ratio: auto;
+  max-height: none;
 }
 
 /* ---------- record header ----------
@@ -401,21 +385,15 @@ section:first-of-type .groupHeading {
   color: var(--ink);
 }
 
-/* The record's own cover, small and square. Square because the covers run
-   portrait and landscape both, and one crop box treats them alike; the w480
-   derivative is served and CSS scales it down. Decorative by contract —
-   `alt=""` — the title beside it is the description. The same class dresses
-   the empty frame that stands in when a cover is absent or fails to load, so
-   the grid keeps its shape and the gap reads as a quiet plate, not a hole. */
+/* Fill inside MediaBlock `layout="thumb"`. The primitive owns the square
+   plate (border, radius, `--thumb-w` column); this is the img or the empty
+   node so a failed load still occupies the frame. Decorative by contract —
+   `alt=""` — the title beside it is the description. */
 .recordThumb {
-  grid-area: thumb;
   display: block;
-  width: var(--thumb-w);
-  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: var(--line-w) solid var(--line-soft);
-  border-radius: var(--radius-1);
-  background: var(--surface-1);
 }
 
 .recordBody {
@@ -606,6 +584,9 @@ section:first-of-type .groupHeading {
   align-items: center;
   gap: var(--sp-1);
   margin: calc(-1 * var(--sp-2)) 0 calc(-1 * var(--sp-2)) calc(-1 * var(--sp-2));
+  /* MediaBlock provenance is uppercase data; this row is English chrome. */
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .mediaAction {
@@ -621,6 +602,8 @@ section:first-of-type .groupHeading {
   font-weight: 600;
   color: var(--ink-lo);
   text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0;
   transition:
     background-color var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out);

@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SectionBlock, SectionPage } from '@/components/sections/SectionPage';
+import {
+  Card,
+  CardCount,
+  CardDescription,
+  CardTitle,
+} from '@/components/ui/Card';
 import { getCaseIndex } from '@/lib/content/fake-resistance-cases';
 import { getPlaybook } from '@/lib/content/fake-resistance-playbook';
 import { SITE_URL } from '@/lib/site-config';
@@ -95,25 +101,29 @@ export default async function Page() {
         </p>
         <ul className={styles.fileIndex}>
           <li>
-            <Link href="/fake-resistance/playbook">The playbook</Link>
-            <span className={styles.fileDesc}>
-              {playbook.length} manipulation techniques in full — the move, the
-              psychology behind it, where it is documented here, and how to
-              catch it.
-            </span>
-            <span className={styles.fileMeta}>
-              {playbook.length} chapters
-            </span>
+            <Card variant="row" href="/fake-resistance/playbook" className={styles.fileRow}>
+              <CardTitle>The playbook</CardTitle>
+              <CardDescription>
+                {playbook.length} manipulation techniques in full — the move, the
+                psychology behind it, where it is documented here, and how to
+                catch it.
+              </CardDescription>
+              <CardCount className={styles.fileMeta}>
+                {playbook.length} chapters
+              </CardCount>
+            </Card>
           </li>
           <li>
-            <Link href="/fake-resistance/network">The network</Link>
-            <span className={styles.fileDesc}>
-              What the case files add up to: seven communities, the documented
-              bridges between them, and the findings that survived every
-              attempt to break them — including the ones that cut against the
-              premise.
-            </span>
-            <span className={styles.fileMeta}>Cross-case synthesis</span>
+            <Card variant="row" href="/fake-resistance/network" className={styles.fileRow}>
+              <CardTitle>The network</CardTitle>
+              <CardDescription>
+                What the case files add up to: seven communities, the documented
+                bridges between them, and the findings that survived every
+                attempt to break them — including the ones that cut against the
+                premise.
+              </CardDescription>
+              <CardCount className={styles.fileMeta}>Cross-case synthesis</CardCount>
+            </Card>
           </li>
         </ul>
       </SectionBlock>
@@ -128,13 +138,17 @@ export default async function Page() {
         <ul className={styles.fileIndex}>
           {cases.map((entry) => (
             <li key={entry.slug}>
-              <Link href={`/fake-resistance/cases/${entry.slug}`}>
-                {entry.title.split(':')[0].trim()}
-              </Link>
-              <span className={styles.fileDesc}>{entry.question}</span>
-              <span className={styles.fileMeta}>
-                {entry.counts.exhibits} exhibits · {entry.counts.sources} sources
-              </span>
+              <Card
+                variant="row"
+                href={`/fake-resistance/cases/${entry.slug}`}
+                className={styles.fileRow}
+              >
+                <CardTitle>{entry.title.split(':')[0].trim()}</CardTitle>
+                <CardDescription>{entry.question}</CardDescription>
+                <CardCount className={styles.fileMeta}>
+                  {entry.counts.exhibits} exhibits · {entry.counts.sources} sources
+                </CardCount>
+              </Card>
             </li>
           ))}
         </ul>

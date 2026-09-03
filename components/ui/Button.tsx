@@ -3,23 +3,40 @@ import Link from "next/link";
 import styles from "./button.module.css";
 
 /**
- * The control primitive. Seven variants, four sizes, an icon-only shape, and
- * the full state matrix: default · hover · focus-visible · active · disabled ·
- * loading · active(toggle) · reduced motion.
- *
- * `components/ui/README.md` maps every variant to the shipping control it is
- * meant to replace. Read it before adding an eighth.
+ * Product control. Documented variants: primary, secondary, ghost, text,
+ * danger. `solid`, `toolbar`, and `filter` remain as mapped aliases so
+ * existing callers typecheck.
  */
 export type ButtonVariant =
   | "primary"
-  | "solid"
   | "secondary"
-  | "toolbar"
-  | "filter"
   | "ghost"
-  | "danger";
+  | "text"
+  | "danger"
+  | "solid"
+  | "toolbar"
+  | "filter";
+
+export const BUTTON_SEMANTIC_VARIANTS = [
+  "primary",
+  "secondary",
+  "ghost",
+  "text",
+  "danger",
+] as const;
 
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
+
+const VARIANT_CLASS: Record<ButtonVariant, string> = {
+  primary: styles.primary,
+  secondary: styles.secondary,
+  ghost: styles.ghost,
+  text: styles.text,
+  danger: styles.danger,
+  solid: styles.secondary,
+  toolbar: styles.toolbar,
+  filter: styles.filter,
+};
 
 interface CommonButtonProps {
   variant?: ButtonVariant;
@@ -67,7 +84,7 @@ function getButtonClassName(
 ) {
   return [
     styles.button,
-    styles[variant],
+    VARIANT_CLASS[variant],
     styles[size],
     iconOnly ? styles.iconOnly : "",
     isActive ? styles.active : "",
@@ -141,6 +158,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             {leftIcon}
           </span>
         ) : null}
+        {isLoading ? <span className={styles.srOnly}>Loading</span> : null}
         <span className={styles.content}>{children}</span>
         {!isLoading && rightIcon ? (
           <span className={styles.icon} aria-hidden="true">
@@ -179,13 +197,16 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
 
     const body = (
       <>
-        {leftIcon ? (
+        {isLoading ? (
+          <span className={styles.spinner} aria-hidden="true" />
+        ) : leftIcon ? (
           <span className={styles.icon} aria-hidden="true">
             {leftIcon}
           </span>
         ) : null}
+        {isLoading ? <span className={styles.srOnly}>Loading</span> : null}
         <span className={styles.content}>{children}</span>
-        {rightIcon ? (
+        {!isLoading && rightIcon ? (
           <span className={styles.icon} aria-hidden="true">
             {rightIcon}
           </span>
@@ -196,6 +217,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     const shared = {
       className: combinedClassName,
       "aria-disabled": isLoading || undefined,
+      "aria-busy": isLoading || undefined,
       /* A link is never a toggle; `isActive` on a ButtonLink means "this is
          where you are", which is `aria-current`, not `aria-pressed`. */
       "aria-current": props["aria-current"] ?? (isActive ? ("page" as const) : undefined),

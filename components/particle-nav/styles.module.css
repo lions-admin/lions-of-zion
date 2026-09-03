@@ -262,19 +262,48 @@
 }
 
 
+/* MediaBlock's figure is the fill layer. Its inner frame keeps editorial
+   aspect-ratio, border, radius, and surface unless restyled here — that
+   would collapse the overlay into a boxed 1:1 tile. */
 .poster {
+  --media-fit: cover;
+  --media-max-height: none;
   position: absolute;
   inset: 0;
   z-index: 0;
   display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   transition: opacity 600ms ease;
 }
 
-.poster img {
+.poster > div {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  aspect-ratio: auto;
+  max-height: none;
+}
+
+.poster picture,
+.poster img {
   display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.poster img {
+  object-fit: cover;
 }
 
 .root[data-canvas] .poster,

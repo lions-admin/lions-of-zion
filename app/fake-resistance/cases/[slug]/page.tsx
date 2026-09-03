@@ -13,6 +13,7 @@ import {
   Timeline,
   VerificationBadge,
 } from '@/components/content';
+import { Card, CardDescription, CardTitle } from '@/components/ui/Card';
 import { caseParams, getCase } from '@/lib/content/fake-resistance-cases';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
@@ -240,11 +241,13 @@ export default async function Page({ params }: Params) {
             the shape a claim is poured into, which is why the same one
             survives being repeatedly falsified.
           </p>
-          <div className={styles.narratives}>
+          <ul className={styles.narratives}>
             {record.narratives.map((narrative) => (
-              <article key={narrative.id} className={styles.narrative}>
-                <h3>{narrative.title}</h3>
-                {narrative.summary ? <p>{narrative.summary}</p> : null}
+              <Card as="li" key={narrative.id} variant="note">
+                <CardTitle>{narrative.title}</CardTitle>
+                {narrative.summary ? (
+                  <CardDescription>{narrative.summary}</CardDescription>
+                ) : null}
                 {narrative.frame ? (
                   <p className={styles.narrativeFrame}>
                     <span>The move</span> {narrative.frame}
@@ -255,9 +258,9 @@ export default async function Page({ params }: Params) {
                     <span>Aimed at</span> {narrative.audience}
                   </p>
                 ) : null}
-              </article>
+              </Card>
             ))}
-          </div>
+          </ul>
         </SectionBlock>
       ) : null}
 

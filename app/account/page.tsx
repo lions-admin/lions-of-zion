@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 export default function AccountPage() {
   return (
-    <main className={styles.shell} data-reading-scroll>
+    <main className={styles.shell} data-reading-scroll data-family="institution">
       <SiteHeader />
       <section className={styles.card}>
         <p className={styles.eyebrow}>Lions of Zion</p>
-        <h1>אזור משתמשים</h1>
-        <p className={styles.lede}>התחבר כדי לשמור את הגישה שלך ולחזור בקלות.</p>
+        <h1>Account</h1>
+        <p className={styles.lede}>Sign in to keep your access and return to the desk.</p>
         <PublicAuthControl />
       </section>
     </main>

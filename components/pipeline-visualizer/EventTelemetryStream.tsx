@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import type { SimulationEventLog } from "./types";
+import { CHROME } from "./copy";
 import styles from "./visualizer.module.css";
 
 interface EventTelemetryStreamProps {
@@ -14,9 +14,8 @@ export function EventTelemetryStream({
   activeStepNodeName,
 }: EventTelemetryStreamProps) {
   return (
-    <div className={styles.telemetryConsole} dir="rtl">
-      {/* ── שורת סטטוס ומדדים ──
-          Every figure that used to sit here was invented: a Jerusalem wall
+    <div className={styles.telemetryConsole}>
+      {/* Every figure that used to sit here was invented: a Jerusalem wall
           clock frozen at 07:04:12, an outbox depth, and a dollar spend to
           three decimal places. None of them came from anywhere — this console
           is fed by `usePipelineSimulation`, which reads a script. They now
@@ -27,22 +26,23 @@ export function EventTelemetryStream({
         <div className={styles.telemetryMetricsRow}>
           <div className={styles.metricBadge}>
             <span className={styles.metricDot} />
-            <span>הדמיה מתוסרטת — אינה טלמטריה חיה</span>
+            <span>{CHROME.telemetrySimulated}</span>
           </div>
-          <div>שלב נוכחי: {activeStepNodeName || "המתנה לתחילת הרצה"}</div>
+          <div>
+            {CHROME.currentStep}: {activeStepNodeName || CHROME.waitingToStart}
+          </div>
         </div>
 
-        <div className={styles.telemetryMetricsRow} dir="ltr">
+        <div className={styles.telemetryMetricsRow}>
           <div>OUTBOX: TRANSACTIONAL</div>
           <div>RLS: ENFORCED</div>
           <div>AI BUDGET: CAPPED</div>
         </div>
       </div>
 
-      {/* ── זרם אירועים ויומן חי ── */}
       <div className={styles.logStreamContainer}>
         {eventLogs.length === 0 ? (
-          <div className={styles.logEmpty}>ממתין לפעימות הדמיה…</div>
+          <div className={styles.logEmpty}>{CHROME.logEmpty}</div>
         ) : (
           eventLogs.map((log) => {
             const levelClass =
@@ -54,19 +54,10 @@ export function EventTelemetryStream({
                     ? styles.logLevelSuccess
                     : styles.logLevelInfo;
 
-            const levelHe =
-              log.level === "error"
-                ? "שגיאה/פסילה"
-                : log.level === "warn"
-                  ? "אזהרה"
-                  : log.level === "success"
-                    ? "הצלחה"
-                    : "מידע";
-
             return (
               <div key={log.id} className={styles.logRow}>
-                <span className={styles.logTimestamp} dir="ltr">[{log.timestamp}]</span>
-                <span className={levelClass}>[{levelHe}]</span>
+                <span className={styles.logTimestamp}>[{log.timestamp}]</span>
+                <span className={levelClass}>[{CHROME.logLevel[log.level]}]</span>
                 <span className={styles.logNode}>[{log.nodeName}]</span>
                 <span className={styles.logMessage}>{log.message}</span>
               </div>

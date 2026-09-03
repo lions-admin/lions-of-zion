@@ -19,9 +19,22 @@
  * has no page. Hiding those rows instead was the alternative and is worse —
  * it would mean a reader searching for a claim we hold is told we do not hold
  * it.
+ *
+ * `SearchHit` is only documentId, entityType, entityId, publicId, href,
+ * title, score. The row renders type, title, and destination (`href`, or
+ * “Indexed · no public page”). Score is never shown. Date, excerpt, and
+ * verification are not on the contract — SEARCH-002 is data-blocked for
+ * those three rather than inventing them.
  */
 
-import Link from "next/link";
+import {
+  Card,
+  CardCta,
+  CardDescription,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import type { SearchHit } from "@/server/contracts/search";
 import { entityLabel, entityLabelPlural, groupByEntity } from "./vocabulary";
 import styles from "./search.module.css";
@@ -69,61 +82,100 @@ export function SearchResults({
           </p>
           {group.items.map((hit) => {
             const index = ++flat;
-            const active = index === activeIndex;
-            const id = optionId(index);
-            const ordinal = String(index + 1).padStart(2, "0");
-
-            if (!hit.href) {
-              return (
-                <div
-                  key={hit.documentId}
-                  id={id}
-                  role="option"
-                  aria-selected={active}
-                  aria-disabled="true"
-                  className={`${styles.hit} ${styles.hitInert}`}
-                  data-active={active ? "" : undefined}
-                  onPointerMove={() => onHover(index)}
-                >
-                  <span className={styles.hitOrdinal} aria-hidden="true">{ordinal}</span>
-                  <span className={styles.hitBody}>
-                    <span className={styles.hitTitle}>{hit.title}</span>
-                    <span className={styles.hitMeta}>
-                      {entityLabel(hit.entityType)}
-                      <span className={styles.hitUnreachable}>Indexed · no public page</span>
-                    </span>
-                  </span>
-                </div>
-              );
-            }
-
             return (
-              <Link
+              <SearchHitOption
                 key={hit.documentId}
-                id={id}
-                href={hit.href}
-                role="option"
-                aria-selected={active}
-                className={styles.hit}
-                data-active={active ? "" : undefined}
-                tabIndex={-1}
-                onPointerMove={() => onHover(index)}
-                onClick={onNavigate}
-              >
-                <span className={styles.hitOrdinal} aria-hidden="true">{ordinal}</span>
-                <span className={styles.hitBody}>
-                  <span className={styles.hitTitle}>{hit.title}</span>
-                  <span className={styles.hitMeta}>
-                    {entityLabel(hit.entityType)}
-                    <span className={styles.hitPath}>{hit.href}</span>
-                  </span>
-                </span>
-                <span className={styles.hitArrow} aria-hidden="true">↗</span>
-              </Link>
+                hit={hit}
+                index={index}
+                active={index === activeIndex}
+                id={optionId(index)}
+                onHover={onHover}
+                onNavigate={onNavigate}
+              />
             );
           })}
         </div>
       ))}
     </div>
+  );
+}
+
+function SearchHitOption({
+  hit,
+  index,
+  active,
+  id,
+  onHover,
+  onNavigate,
+}: {
+  hit: SearchHit;
+  index: number;
+  active: boolean;
+  id: string;
+  onHover: (index: number) => void;
+  onNavigate: () => void;
+}) {
+  const ordinal = String(index + 1).padStart(2, "0");
+  const href = hit.href;
+  const inner = (
+    <>
+      <span className={styles.hitOrdinal} aria-hidden="true">
+        {ordinal}
+      </span>
+      <div className={styles.hitBody}>
+        <CardHeader className={styles.hitHeader}>
+          <CardEyebrow>{entityLabel(hit.entityType)}</CardEyebrow>
+        </CardHeader>
+        <CardTitle as="span" className={styles.hitTitle}>
+          {hit.title}
+        </CardTitle>
+        {href ? (
+          <CardDescription className={styles.hitDestination}>{href}</CardDescription>
+        ) : (
+          <CardDescription className={styles.hitDestination}>
+            <span className={styles.hitUnreachable}>Indexed · no public page</span>
+          </CardDescription>
+        )}
+      </div>
+      {href ? <CardCta className={styles.hitCta}>Open</CardCta> : null}
+    </>
+  );
+
+  if (!href) {
+    return (
+      <Card
+        variant="row"
+        as="div"
+        id={id}
+        role="option"
+        aria-selected={active}
+        aria-disabled="true"
+        tabIndex={-1}
+        className={`${styles.hit} ${styles.hitInert}`}
+        data-active={active ? "" : undefined}
+        data-entity-type={hit.entityType}
+        onPointerMove={() => onHover(index)}
+      >
+        {inner}
+      </Card>
+    );
+  }
+
+  return (
+    <Card
+      variant="row"
+      href={href}
+      id={id}
+      role="option"
+      aria-selected={active}
+      tabIndex={-1}
+      className={styles.hit}
+      data-active={active ? "" : undefined}
+      data-entity-type={hit.entityType}
+      onPointerMove={() => onHover(index)}
+      onClick={onNavigate}
+    >
+      {inner}
+    </Card>
   );
 }

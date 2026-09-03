@@ -7,6 +7,7 @@ import {
   assetUrl,
 } from '@/lib/content/archive';
 import { buildXShareText, xIntentUrl } from '@/lib/content/share-text';
+import { MediaBlock } from '@/components/content/MediaBlock';
 import { ArchiveImage } from './ArchiveImage';
 import styles from './archive.module.css';
 
@@ -212,7 +213,7 @@ export function ArchiveBlocks({
   );
 }
 
-type MediaBlockProps = {
+type ArchiveMediaBlockProps = {
   pkg: ArchivePackageName;
   block: ArchiveBlock;
   media: Map<string, ArchiveMedia>;
@@ -220,7 +221,7 @@ type MediaBlockProps = {
   shareTitle?: string;
 };
 
-function Block({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps) {
+function Block({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockProps) {
   switch (block.type) {
     // A heading with text never reaches here — `groupByHeading` lifts it out
     // to open its own `<section>`. Only an empty one falls through, and an
@@ -276,7 +277,7 @@ function Block({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps) {
   }
 }
 
-function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps) {
+function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockProps) {
   const item = block.media_id ? media.get(block.media_id) : undefined;
   // Only the two external videos lack a file, never an image — but a record
   // that referenced a missing one would crash the whole build rather than
@@ -303,7 +304,13 @@ function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps
     item.alt_text ?? caption ?? 'Image published with this record. The archive holds no description of it.';
 
   return (
-    <figure className={styles.figure}>
+    <MediaBlock
+      className={styles.figure}
+      caption={caption ?? undefined}
+      credit={credit ?? undefined}
+      provenance={mediaActionRow({ pkg, item, caption, shareUrl, shareTitle })}
+      aspectRatio={packageAspectRatio(item.width, item.height)}
+    >
       <ArchiveImage
         src={assetUrl(pkg, item.package_path)}
         srcSet={srcSet || undefined}
@@ -313,20 +320,11 @@ function ImageBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps
         alt={alt}
         unavailableNote="An image published with this record is not loading from this archive."
       />
-      <Caption caption={caption} credit={credit}>
-        <MediaActions
-          pkg={pkg}
-          item={item}
-          caption={caption}
-          shareUrl={shareUrl}
-          shareTitle={shareTitle}
-        />
-      </Caption>
-    </figure>
+    </MediaBlock>
   );
 }
 
-function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps) {
+function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: ArchiveMediaBlockProps) {
   const item = block.media_id ? media.get(block.media_id) : undefined;
   if (!item) return null;
 
@@ -341,23 +339,34 @@ function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps
   // to download, and a "Download" that cannot deliver is a false control.
   if (!item.package_path) {
     return (
-      <figure className={styles.figure}>
+      <MediaBlock
+        className={styles.figure}
+        caption={caption ?? undefined}
+        credit={credit ?? undefined}
+      >
         <p className={styles.externalMedia}>
           A video published with this record is hosted on{' '}
           {item.external_platform ?? 'an external platform'} and is not held in
           this archive.
         </p>
-        <Caption caption={caption} credit={credit} />
-      </figure>
+      </MediaBlock>
     );
   }
 
   // Every locally held video carries a poster — verified, not assumed.
   const posterId = block.thumbnail_media_id ?? item.thumbnail_media_id ?? null;
   const poster = posterId ? media.get(posterId) : undefined;
+  const width = item.width ?? poster?.width ?? undefined;
+  const height = item.height ?? poster?.height ?? undefined;
 
   return (
-    <figure className={styles.figure}>
+    <MediaBlock
+      className={`${styles.figure} ${styles.heldVideo}`}
+      caption={caption ?? undefined}
+      credit={credit ?? undefined}
+      provenance={mediaActionRow({ pkg, item, caption, shareUrl, shareTitle })}
+      aspectRatio={packageAspectRatio(width, height)}
+    >
       {/* All 209 videos are H.264 + AAC with `moov` ahead of `mdat`, so they
           begin playing without downloading the whole file. `preload="metadata"`
           keeps a page of records from pulling megabytes nobody asked for.
@@ -368,30 +377,52 @@ function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps
           mid-read, on records holding up to 25 clips. The poster is always
           there to ask: `tests/archive-content.test.ts:107` asserts every
           locally held video has one, and all 74 posters carry both values.
-          No `aspect-ratio` floor — these are overwhelmingly portrait phone
-          clips, so a 16/9 default would reserve a wrong-shaped box and cause
-          the jump it was meant to prevent. */}
+          Package ratio is passed to MediaBlock so a 16/10 editorial default
+          does not crop these — they are overwhelmingly portrait phone clips. */}
       <video
         className={styles.video}
         controls
         preload="metadata"
         poster={poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined}
-        width={item.width ?? poster?.width ?? undefined}
-        height={item.height ?? poster?.height ?? undefined}
+        width={width}
+        height={height}
       >
         <source src={assetUrl(pkg, item.package_path)} type={item.mime_type ?? 'video/mp4'} />
         Your browser cannot play this video.
       </video>
-      <Caption caption={caption} credit={credit}>
-        <MediaActions
-          pkg={pkg}
-          item={item}
-          caption={caption}
-          shareUrl={shareUrl}
-          shareTitle={shareTitle}
-        />
-      </Caption>
-    </figure>
+    </MediaBlock>
+  );
+}
+
+function packageAspectRatio(
+  width?: number | null,
+  height?: number | null,
+): string | undefined {
+  return width && height ? `${width} / ${height}` : undefined;
+}
+
+function mediaActionRow({
+  pkg,
+  item,
+  caption,
+  shareUrl,
+  shareTitle,
+}: {
+  pkg: ArchivePackageName;
+  item: ArchiveMedia;
+  caption: string | null;
+  shareUrl?: string;
+  shareTitle?: string;
+}) {
+  if (!shareUrl || !shareTitle || !item.package_path) return undefined;
+  return (
+    <MediaActions
+      pkg={pkg}
+      item={item}
+      caption={caption}
+      shareUrl={shareUrl}
+      shareTitle={shareTitle}
+    />
   );
 }
 
@@ -399,6 +430,10 @@ function VideoBlock({ pkg, block, media, shareUrl, shareTitle }: MediaBlockProps
  * Download and share for one held media file — plain anchors, no client
  * JavaScript, which is what keeps ~1,027 of these free on a page that can
  * hold twenty-five.
+ *
+ * Rendered in MediaBlock's `provenance` slot so the row stays inside the
+ * `figcaption` after caption and credit. The archive has no provenance
+ * string to invent; this is site chrome, not a source credit.
  *
  * The download serves the *original* file straight from the CDN:
  * `?download=1` makes the Blob store answer `Content-Disposition:
@@ -457,28 +492,3 @@ function MediaActions({
   );
 }
 
-/**
- * Caption and credit as text — the source's words never become links.
- * `children` is the media action row: it lives inside the `figcaption`
- * because a `<figure>` allows flow content only *before or after* one
- * `figcaption`, and putting the actions between media and caption would
- * split a caption from the image it describes.
- */
-function Caption({
-  caption,
-  credit,
-  children,
-}: {
-  caption: string | null;
-  credit: string | null;
-  children?: React.ReactNode;
-}) {
-  if (!caption && !credit && !children) return null;
-  return (
-    <figcaption className={styles.caption}>
-      {caption ? <span className={styles.captionText}>{caption}</span> : null}
-      {credit ? <span className={styles.credit}>{credit}</span> : null}
-      {children}
-    </figcaption>
-  );
-}

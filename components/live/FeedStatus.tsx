@@ -17,9 +17,11 @@ import styles from "./live-feed.module.css";
  * that publishes a playbook of manipulation techniques, the disclosure is not
  * a footnote to the feature — it is part of the feature.
  *
- * Nothing here animates and nothing here counts up. `Ticker` would be a
- * plausible flourish on the entry count and is deliberately not used: an
- * animated number implies a number that changes.
+ * Nothing here animates, pulses, or counts up. `Ticker` would be a plausible
+ * flourish on the entry count and is deliberately not used: an animated
+ * number implies a number that changes. There is no reconnecting or
+ * websocket state — this page is a cached snapshot, not a socket — and no
+ * `aria-live` on the strip, because the text does not change after paint.
  */
 export function FeedStatus({
   entryCount,
@@ -41,7 +43,7 @@ export function FeedStatus({
           <dd>The published record</dd>
         </div>
         <div>
-          <dt>Refresh</dt>
+          <dt>Stale data</dt>
           <dd>
             At most every {minutes} minutes
           </dd>
@@ -58,9 +60,10 @@ export function FeedStatus({
           <dd>Jerusalem, 24-hour</dd>
         </div>
       </dl>
-      <p className={styles.statusNote}>
-        This is not a realtime wire. Each entry carries the exact minute it was
-        published, but the list itself is rebuilt on a {minutes}-minute cycle, so
+      <p className={styles.statusNote} id="feed-staleness">
+        This is not a realtime wire. This snapshot may be up to {minutes}{" "}
+        minutes stale. Each entry carries the exact minute it was published, but
+        the list itself is rebuilt on a {minutes}-minute cache cycle, so
         something published a moment ago may not be here yet. Nothing on this
         page updates while you read it &mdash; reload to see the current record.
       </p>

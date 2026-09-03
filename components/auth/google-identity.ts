@@ -69,7 +69,7 @@ export async function signInWithGoogleCredential(credential: string): Promise<Go
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("החיבור מול שירות ההתחברות לא הסתיים בזמן. נסה שוב מאוחר יותר.");
+      throw new Error("The sign-in service did not finish in time. Try again later.");
     }
     throw error;
   } finally {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useState, type ReactNode } from 'react';
+import { Button } from '@/components/ui/Button';
 import styles from './content.module.css';
 
 export type SensitiveContentProps = {
@@ -22,28 +23,30 @@ export function SensitiveContent({ warning, children }: SensitiveContentProps) {
       {revealed ? (
         <div className={styles.sensitiveRevealed} id={regionId}>
           {children}
-          <button
+          <Button
             type="button"
-            className={styles.sensitiveButton}
+            variant="ghost"
+            size="md"
             aria-expanded="true"
             aria-controls={regionId}
             onClick={() => setRevealed(false)}
           >
             Hide this material
-          </button>
+          </Button>
         </div>
       ) : (
         <div className={styles.sensitiveGate}>
           <p className={styles.sensitiveWarning}>{warning}</p>
-          <button
+          <Button
             type="button"
-            className={styles.sensitiveButton}
+            variant="secondary"
+            size="md"
             aria-expanded="false"
             aria-controls={regionId}
             onClick={() => setRevealed(true)}
           >
             View — contains difficult material
-          </button>
+          </Button>
         </div>
       )}
     </div>

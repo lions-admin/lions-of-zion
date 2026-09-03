@@ -8,6 +8,7 @@ import {
   ResearchText,
   SourceList,
 } from '@/components/content';
+import { Card, CardDescription, CardEyebrow, CardHeader, CardTitle } from '@/components/ui/Card';
 import { getCaseIndex, getResearchNetwork } from '@/lib/content/fake-resistance-cases';
 import { UNRESOLVED_LABELS } from '@/lib/content/fake-resistance-network-communities';
 import { SITE_URL } from '@/lib/site-config';
@@ -77,17 +78,20 @@ export default async function Page() {
           communities={network.communities}
         />
 
-        <div className={styles.communityList}>
+        <ul className={styles.communityList}>
           {network.communities.map((community) => (
-            <div key={community.number} className={styles.community}>
-              <h3>{community.name}</h3>
-              <p className={styles.communityNodes}>{community.nodes.join(' · ')}</p>
+            <Card as="li" key={community.number} variant="row">
+              <CardHeader>
+                <CardEyebrow>{String(community.number).padStart(2, '0')}</CardEyebrow>
+              </CardHeader>
+              <CardTitle>{community.name}</CardTitle>
+              <CardDescription>{community.nodes.join(' · ')}</CardDescription>
               <p className={styles.communityBinding}>
                 <span>What holds it together</span> {community.binding}
               </p>
-            </div>
+            </Card>
           ))}
-        </div>
+        </ul>
 
         <p className={styles.communityNote}>
           The lists above are the report&rsquo;s own, and{' '}

@@ -1,4 +1,5 @@
 import type { EvidenceClass, ResearchConfidence } from '@/lib/content/fake-resistance-cases';
+import { BADGE_GRAMMAR } from '@/components/ui/Badge';
 import styles from './content.module.css';
 
 /**
@@ -12,9 +13,9 @@ import styles from './content.module.css';
  * for this section to overstate itself.
  */
 const CONFIDENCE_LABEL: Record<ResearchConfidence, string> = {
-  high: 'High confidence',
-  medium: 'Medium confidence',
-  low: 'Low confidence',
+  high: BADGE_GRAMMAR.high.label,
+  medium: BADGE_GRAMMAR.medium.label,
+  low: BADGE_GRAMMAR.low.label,
 };
 
 const CONFIDENCE_EXPLANATION: Record<ResearchConfidence, string> = {
@@ -24,9 +25,9 @@ const CONFIDENCE_EXPLANATION: Record<ResearchConfidence, string> = {
 };
 
 const EVIDENCE_LABEL: Record<EvidenceClass, string> = {
-  documented_relationship: 'Documented',
-  observed_interaction: 'Observed',
-  inferred_coordination: 'Inferred',
+  documented_relationship: BADGE_GRAMMAR.documented.label,
+  observed_interaction: BADGE_GRAMMAR.observed.label,
+  inferred_coordination: BADGE_GRAMMAR.inferred.label,
 };
 
 const EVIDENCE_EXPLANATION: Record<EvidenceClass, string> = {

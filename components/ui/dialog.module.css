@@ -1,28 +1,62 @@
-
+/* Dialog — SYS-012
+ *
+ * Modal: centred panel. Drawer: full-height end-edge sheet.
+ * Scroll lock is on html:has(open). Motion uses --enter-shift / --dur-base.
+ */
 
 .dialog {
-  width: min(100% - var(--sp-6), var(--measure-narrow));
-  max-height: calc(100dvh - var(--sp-7));
   padding: 0;
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
+  border: 0;
   color: var(--ink-hi);
-  box-shadow: var(--shadow-3);
-
   overflow: hidden;
 }
 
-.wide {
+.modal {
+  width: min(100% - var(--sp-6), var(--measure-narrow));
+  max-height: calc(100dvh - var(--sp-7));
+  border: var(--line-w) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-3);
+}
+
+.modal.wide {
   width: min(100% - var(--sp-6), var(--measure-reading));
+}
+
+.drawer {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.drawer[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer .panel {
+  margin-inline-start: auto;
+  /* Leave a start-edge strip so backdrop close works at 320px, where
+     `min(100%, 22.5rem)` would otherwise fill the viewport. */
+  width: min(calc(100% - var(--sp-5)), 22.5rem);
+  height: 100%;
+  background: var(--surface-1);
+  border-inline-start: var(--line-w) solid var(--line-strong);
+  box-shadow: var(--shadow-3);
+}
+
+.drawer.wide .panel {
+  width: min(100%, var(--measure-narrow));
 }
 
 .dialog::backdrop {
   background: color-mix(in oklab, var(--ground) 78%, transparent);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
 }
-
 
 .dialog,
 .dialog::backdrop {
@@ -34,8 +68,16 @@
   opacity: 0;
 }
 
-.dialog {
-  transform: translateY(var(--sp-2)) scale(0.99);
+.modal {
+  transform: translateY(var(--enter-shift));
+}
+
+.drawer .panel {
+  transform: translateX(var(--enter-shift));
+}
+
+:dir(rtl) .drawer .panel {
+  transform: translateX(calc(-1 * var(--enter-shift)));
 }
 
 .dialog[open],
@@ -43,7 +85,8 @@
   opacity: 1;
 }
 
-.dialog[open] {
+.dialog[open].modal,
+.drawer[open] .panel {
   transform: none;
 }
 
@@ -53,18 +96,23 @@
     opacity: 0;
   }
 
-  .dialog[open] {
-    transform: translateY(var(--sp-2)) scale(0.99);
+  .dialog[open].modal {
+    transform: translateY(var(--enter-shift));
+  }
+
+  .drawer[open] .panel {
+    transform: translateX(var(--enter-shift));
+  }
+
+  :dir(rtl) .drawer[open] .panel {
+    transform: translateX(calc(-1 * var(--enter-shift)));
   }
 }
-
-
 
 .panel {
   display: flex;
   flex-direction: column;
   max-height: inherit;
-
   outline: none;
 }
 
@@ -123,8 +171,16 @@
   border-top: var(--line-w) solid var(--line-soft);
 }
 
-
 :global(html:has(dialog[data-loz-dialog][open])) {
   overflow: hidden;
   scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog,
+  .dialog::backdrop,
+  .drawer .panel {
+    transition: none;
+    transform: none;
+  }
 }

@@ -17,6 +17,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "briefing:smoke": "bash scripts/verify-briefing-public.sh",
+    "briefing:codex:send": "tsx scripts/send-codex-briefing.ts",
     "db:import-public": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-public-content.ts",
     "db:studio": "drizzle-kit studio",
     "briefing:sources:seed": "NODE_OPTIONS=--conditions=react-server tsx scripts/seed-briefing-sources.ts",

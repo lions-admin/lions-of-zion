@@ -2,78 +2,230 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import type { ArchiveIndexEntry } from '@/lib/content/archive';
-/* From the pure module, not the seam: this list renders inside
-   `ArchiveIndexFilter`, a client component, and the seam reads the filesystem.
-   (`ArchiveIndexEntry` arrives as a type only — types cross that boundary.) */
+import type {
+  ArchiveIndexDisplayEntry,
+  ArchiveRecordDigest,
+} from '@/lib/content/archive';
+/* From the pure module, not the seam: this list renders inside `ArchiveIndex`,
+   a client component, and the seam reads the filesystem. (The entry types
+   arrive as types only — those cross the boundary.) */
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
+import { MediaBlock } from '@/components/content/MediaBlock';
 import styles from './archive.module.css';
 
 /**
- * What a row paints. `thumb` is the entry's cover already resolved to a URL —
- * `withCoverThumbs` does that server-side, because resolution needs the media
- * registry and the registry must never reach the client.
+ * What a row paints.
+ *
+ * `thumb` and its dimensions are the entry's cover already resolved
+ * server-side — resolution needs the media registry, and the registry must
+ * never reach the client. `digest` is the five numbers `getRecordDigests`
+ * derives from the record itself: which medium the source published, how much
+ * text the record holds, how far it is sectioned.
  */
-export type ArchiveListEntry = ArchiveIndexEntry & { thumb?: string | null };
+export type ArchiveListEntry = ArchiveIndexDisplayEntry & {
+  digest?: ArchiveRecordDigest;
+};
+
+/** Which archive a row belongs to — and therefore what shape it takes. */
+export type ArchiveRowVariant = 'testimony' | 'documentation';
 
 export type ArchiveRecordListProps = {
   records: ArchiveListEntry[];
+  variant: ArchiveRowVariant;
   /** Builds each record's URL; the two archives shape theirs differently. */
-  href: (entry: ArchiveIndexEntry) => string;
+  href: (entry: ArchiveListEntry) => string;
   /**
-   * Where this list's numbering starts, 1-based. The documentation index
-   * renders one list per category but the file numbers run through the whole
-   * archive — restarting at 001 in every category would make the number a
-   * row counter instead of an identity.
-   */
-  startAt?: number;
-  /**
-   * Whether each row carries a meta line under its title. Default on.
-   *
-   * The documentation index turns it off. Its records have no witness, every
-   * one has exactly two languages, and the date is the source CMS's crawl
-   * timestamp rather than the event's — so `meta()` resolves to two strings
-   * across all 335 rows ("2023 · 2 languages" ×314, "2024 · 2 languages"
-   * ×21), and the 21 attach a wrong year to a 2023 event. Testimonies keep
-   * it: 177 of their 179 rows are distinct, because the witness carries real
-   * signal there.
-   */
-  showMeta?: boolean;
-  /**
-   * Explicit file number per record, aligned to `records`.
-   *
-   * `startAt + i` is right for an unfiltered list and wrong the moment rows
-   * are hidden: the number is the record's identity, not its position in the
-   * current view, so filtering must not renumber what is left.
+   * Explicit file number per record, aligned to `records`. Documentation only
+   * — the number is the exhibit's identity and runs through the whole archive,
+   * so filtering must never renumber what is left.
    */
   numbers?: number[];
+  /** The category a documentation row belongs to, aligned to `records`. */
+  categories?: (string | undefined)[];
+  /** Names the list for a screen reader listing landmarks. */
+  label: string;
 };
 
 /**
- * An index of archive records, in the register of the rest of the site: each
- * row is a numbered file entry, and the whole row is one link.
+ * Two archives, two row anatomies — the point of OCT-003.
  *
- * The rows carry the record's cover and an excerpt of its own words — an
- * owner decision (2026-08-27) reversing the earlier text-only stance. The
- * form holds the line the old comment was defending: this is a *file list*
- * with a small identifying image per row, not a gallery — the image is
- * decorative (`alt=""`, the title is the description), square, small, and
- * lazy, so 335 rows do not become the heaviest page on the site.
+ * They were one list, and being one list was the defect: a first-person
+ * account and a piece of captured footage arrived as the same numbered strip
+ * with the same square plate, distinguishable only by reading the URL. The
+ * archives are not the same kind of thing and the rows no longer pretend they
+ * are.
  *
- * A hover preview was considered and rejected in review: hover has no touch
- * equivalent, and a rich row reads the same on every device.
+ *  - **Testimony** is a person. The row leads with the witness, then the line
+ *    the source gave their account, then the account's own opening words, then
+ *    what is held: when it was published, how long the account runs, which
+ *    languages it exists in. No file number — a witness is not an exhibit —
+ *    and the portrait plate sits at the end of the row, after the words.
+ *
+ *  - **Documentation** is an exhibit. The row keeps the numbered-file
+ *    treatment, the square plate leads, and the line above the caption says
+ *    what the source actually published — film or photograph — and which of
+ *    its six categories filed it.
+ *
+ * Documentation rows deliberately do not print the excerpt. The importer takes
+ * it from the record's own text, and on this archive the record's text *is*
+ * the caption: 277 of 335 excerpts are byte-identical to the title and the
+ * other 58 differ by a stray space or a trailing digit. Printing both put the
+ * same sentence twice on almost every row.
  */
-function RecordThumb({ src }: { src: string }) {
+export function ArchiveRecordList({
+  records,
+  variant,
+  href,
+  numbers,
+  categories,
+  label,
+}: ArchiveRecordListProps) {
+  return (
+    <ol className={styles.recordList} data-variant={variant} aria-label={label}>
+      {records.map((entry, i) => (
+        <li key={entry.id} className={styles.recordItem}>
+          <Link className={styles.recordLink} href={href(entry)}>
+            {variant === 'testimony' ? (
+              <TestimonyRow entry={entry} />
+            ) : (
+              <DocumentationRow
+                entry={entry}
+                number={numbers?.[i]}
+                category={categories?.[i]}
+              />
+            )}
+          </Link>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function TestimonyRow({ entry }: { entry: ArchiveListEntry }) {
+  const words = entry.digest?.words ?? 0;
+  return (
+    <>
+      <span className={styles.witnessBody}>
+        {entry.witness ? (
+          <span className={styles.witnessName}>{displayWitness(entry.witness)}</span>
+        ) : null}
+        <span className={styles.witnessTitle}>
+          {displayTitle(entry.title ?? entry.id)}
+        </span>
+        {entry.excerpt ? (
+          <span className={styles.witnessExcerpt}>{entry.excerpt}</span>
+        ) : null}
+        <span className={styles.witnessFacts}>
+          {entry.date ? (
+            <span className={styles.witnessFact}>{formatDay(entry.date)}</span>
+          ) : null}
+          {/* Transcript availability, stated as the amount actually held
+              rather than as a yes/no badge: "412 words" and "7,525 words" are
+              different reading commitments and a reader deciding where to
+              start is owed the difference. */}
+          <span className={styles.witnessFact}>
+            {words > 0 ? `${groupDigits(words)} words held` : 'No transcript held'}
+          </span>
+        </span>
+        <span className={styles.witnessLocales}>
+          <span className={styles.srOnly}>Available in: </span>
+          {entry.languages.map((locale) => (
+            <span
+              key={locale}
+              className={styles.witnessLocale}
+              data-default={locale === entry.defaultLanguage ? '' : undefined}
+            >
+              {locale.toUpperCase()}
+            </span>
+          ))}
+        </span>
+      </span>
+      {/* 3/4 portrait, and after the words: the plate identifies the account,
+          it does not introduce the person. */}
+      <MediaBlock layout="thumb" aspectRatio="3 / 4" className={styles.witnessPlate}>
+        <RecordThumb entry={entry} />
+      </MediaBlock>
+    </>
+  );
+}
+
+function DocumentationRow({
+  entry,
+  number,
+  category,
+}: {
+  entry: ArchiveListEntry;
+  number?: number;
+  category?: string;
+}) {
+  const medium = entry.digest ? MEDIUM_LABEL[entry.digest.medium] : null;
+  return (
+    <>
+      {number === undefined ? null : (
+        <span className={styles.exhibitNum} aria-hidden="true">
+          {String(number).padStart(3, '0')}
+        </span>
+      )}
+      <MediaBlock layout="thumb" aspectRatio="1 / 1" className={styles.exhibitPlate}>
+        <RecordThumb entry={entry} />
+      </MediaBlock>
+      <span className={styles.exhibitBody}>
+        <span className={styles.exhibitFiling}>
+          {medium ? <span className={styles.exhibitMedium}>{medium}</span> : null}
+          {category ? <span className={styles.exhibitCategory}>{category}</span> : null}
+        </span>
+        <span className={styles.exhibitTitle}>
+          {displayTitle(entry.title ?? entry.id)}
+        </span>
+      </span>
+      <span className={styles.exhibitArrow} aria-hidden="true">
+        →
+      </span>
+    </>
+  );
+}
+
+const MEDIUM_LABEL: Record<ArchiveRecordDigest['medium'], string> = {
+  video: 'Film',
+  image: 'Photograph',
+  text: 'Written record',
+};
+
+/**
+ * A row's cover, and what stands in its place when it does not arrive.
+ *
+ * Three states, and they are three different facts (OCT-007): the cover loads;
+ * the entry has no cover at all, which is a quiet empty plate; the cover was
+ * requested and refused, which is a dashed plate — a stated gap in the
+ * holding, in the same voice `ArchiveImage` uses on the record page. Both
+ * blanks keep the frame's box, so nothing below a failed row moves.
+ *
+ * Decorative by contract (`alt=""`): the title beside it is the description,
+ * and inventing one would be inventing metadata the archive does not hold.
+ */
+function RecordThumb({ entry }: { entry: ArchiveListEntry }) {
   const [failed, setFailed] = useState(false);
-  if (failed) {
-    return <span className={styles.recordThumb} aria-hidden="true" />;
+
+  if (!entry.thumb) {
+    return <span className={styles.recordPlate} data-state="empty" aria-hidden="true" />;
   }
+  if (failed) {
+    return <span className={styles.recordPlate} data-state="failed" aria-hidden="true" />;
+  }
+
   return (
     /* eslint-disable-next-line @next/next/no-img-element -- a CDN
        archive derivative, same reasoning as `ArchiveImage`. */
     <img
       className={styles.recordThumb}
-      src={src}
+      src={entry.thumb}
+      srcSet={entry.thumbSrcSet || undefined}
+      /* The plate is 4–6rem on the exhibit rows and 4.5–7rem on the testimony
+         rows; 160px covers both at 2x, so the browser picks the w480
+         derivative and never the 4K original. */
+      sizes={entry.thumbSrcSet ? '160px' : undefined}
+      width={entry.thumbWidth ?? undefined}
+      height={entry.thumbHeight ?? undefined}
       alt=""
       loading="lazy"
       decoding="async"
@@ -82,57 +234,20 @@ function RecordThumb({ src }: { src: string }) {
   );
 }
 
-export function ArchiveRecordList({
-  records,
-  href,
-  startAt = 1,
-  showMeta = true,
-  numbers,
-}: ArchiveRecordListProps) {
-  return (
-    <ol className={styles.recordList} start={startAt}>
-      {records.map((entry, i) => (
-        <li key={entry.id} className={styles.recordItem}>
-          <Link className={styles.recordLink} href={href(entry)}>
-            <span className={styles.recordNum} aria-hidden="true">
-              {String(numbers?.[i] ?? startAt + i).padStart(3, '0')}
-            </span>
-            {entry.thumb ? (
-              <RecordThumb src={entry.thumb} />
-            ) : (
-              /* Every entry carries a cover today; if one ever does not, the
-                 grid keeps its shape and the gap reads as a quiet blank. */
-              <span className={styles.recordThumb} aria-hidden="true" />
-            )}
-            <span className={styles.recordBody}>
-              <span className={styles.recordItemTitle}>
-                {displayTitle(entry.title ?? entry.id)}
-              </span>
-              {entry.excerpt ? (
-                <span className={styles.recordExcerpt}>{entry.excerpt}</span>
-              ) : null}
-              {showMeta ? (
-                <span className={styles.recordItemMeta}>{meta(entry)}</span>
-              ) : null}
-            </span>
-            <span className={styles.recordArrow} aria-hidden="true">
-              →
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ol>
-  );
+/* Both formatters are deterministic on purpose. This renders on the server for
+   the first window and again on the client after hydration, and `toLocaleString`
+   would resolve against two different ICU environments and mismatch. */
+const MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+function formatDay(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
 }
 
-function meta(entry: ArchiveIndexEntry): string {
-  const parts: string[] = [];
-  if (entry.witness) parts.push(displayWitness(entry.witness));
-  if (entry.date) {
-    const date = new Date(entry.date);
-    if (!Number.isNaN(date.getTime())) parts.push(String(date.getUTCFullYear()));
-  }
-  // Only worth saying when there is a choice to make.
-  if (entry.languages.length > 1) parts.push(`${entry.languages.length} languages`);
-  return parts.join(' · ');
+function groupDigits(value: number): string {
+  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

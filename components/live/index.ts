@@ -1,9 +1,10 @@
 /**
  * The updates feed.
  *
- * Server components throughout apart from the `Reveal` wrappers the feed uses
- * for its day groups, so `/updates` renders complete with JavaScript off —
- * including its section filters and its cursor paging, which are links.
+ * Server components throughout. `/updates` renders complete with JavaScript
+ * off — including its section filters and its cursor paging, which are links.
+ * Day groups are plain sections, not `Reveal` wrappers, so rows are in the
+ * HTML at opacity 1.
  */
 
 export { UpdateFeed, UPDATES_PATH } from "./UpdateFeed";

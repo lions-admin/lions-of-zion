@@ -21,7 +21,6 @@ import {
 } from "@/server/db/schema";
 import type { Publication } from "@/server/db/schema";
 import { decodePublicPublicationCursor, type ListPublicPublications, type ListPublications } from "@/server/contracts/publication";
-import { REQUIRED_QUALITY_CHECKS } from "@/server/modules/briefing/quality";
 
 /* Structural typing: the same repository runs against the Neon pool in
    production and PGlite in tests, and neither driver's concrete type belongs
@@ -124,16 +123,6 @@ export function repo(db: unknown) {
     },
     async remove(id: string): Promise<void> {
       await d.execute(sql`DELETE FROM publication WHERE id = ${id}`);
-    },
-    async qualityCandidatePassed(briefingRunId: string, candidateKey: string): Promise<boolean> {
-      const result = await d.execute<{ passed: boolean; checks: string | number }>(sql`
-        SELECT bool_and(status = 'pass') AS passed, count(*)::text AS checks
-        FROM briefing_quality_check
-        WHERE briefing_run_id = ${briefingRunId}
-          AND candidate_key = ${candidateKey}
-      `);
-      const row = result.rows[0];
-      return row?.passed === true && Number(row.checks) === REQUIRED_QUALITY_CHECKS.length;
     },
     async automaticCandidates(briefingRunId: string, candidateKeys: readonly string[]): Promise<Publication[]> {
       if (!candidateKeys.length) return [];

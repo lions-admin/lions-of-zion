@@ -1,0 +1,88 @@
+/* The donation hand-off · design V3 (`app/globals.css`).
+
+   Two registers, deliberately different: the house step is the page's own
+   voice on the page's own surface, and the external step is a bounded region
+   that visibly belongs to someone else. Nothing here draws a button — the
+   house control is the shared `Button`, and PayPal renders its own inside
+   `.embedHost`, which is exactly why that box is fenced. */
+
+.step {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.house {
+  display: grid;
+  gap: var(--sp-4);
+  justify-items: start;
+}
+
+.external {
+  margin: 0;
+  max-width: var(--measure-narrow);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* The fence. A hairline and a recessed surface, no gold: this region is not
+   the site's, and dressing it in the site's accent would say it was. */
+.embed {
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+}
+
+.embedLabel {
+  margin: 0 0 var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line-soft);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+/* PayPal renders its hosted button in here. The height is reserved so the
+   panel does not jump when the SDK finally answers. */
+.embedHost {
+  min-height: 86px;
+}
+
+.pending {
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.failure {
+  margin: 0 0 var(--sp-4);
+  padding-left: var(--sp-3);
+  border-left: var(--line-w-thick) solid var(--state-danger-line);
+  color: var(--state-danger);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.fallback {
+  margin: var(--sp-4) 0 0;
+  max-width: var(--measure-narrow);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.fallbackLink {
+  color: var(--ink-hi);
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.15em;
+}
+
+.fallbackLink:hover {
+  text-decoration-color: var(--gold);
+}

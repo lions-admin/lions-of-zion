@@ -164,6 +164,16 @@ export function briefingRepo(db: unknown) {
       return result.rows[0];
     },
 
+    async runByDateStage(localDate: string, stage: string): Promise<{ id: string } | undefined> {
+      const result = await d.execute<{ id: string }>(sql`
+        SELECT id
+        FROM briefing_run
+        WHERE local_date = ${localDate} AND stage = ${stage}
+        LIMIT 1
+      `);
+      return result.rows[0];
+    },
+
     async saveArtifact(
       editionId: string,
       stage: "enrich" | "cluster" | "triage" | "draft" | "quality",

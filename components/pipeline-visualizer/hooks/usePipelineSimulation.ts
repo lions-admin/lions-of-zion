@@ -79,14 +79,13 @@ export function usePipelineSimulation() {
     return PIPELINE_NODES.find((n) => n.id === selectedNodeId) ?? null;
   }, [selectedNodeId]);
 
-  // Derive event logs dynamically in Hebrew for all steps up to current step
   const eventLogs = useMemo<SimulationEventLog[]>(() => {
     const logs: SimulationEventLog[] = [];
     for (let i = currentStepIndex; i >= 0; i--) {
       const step = currentJourney.steps[i];
       if (!step) continue;
       const node = PIPELINE_NODES.find((n) => n.id === step.nodeId);
-      const nodeName = node ? `${node.nameHe} (${node.nameEn})` : step.nodeId;
+      const nodeName = node ? node.nameEn : step.nodeId;
       logs.push({
         id: `${currentJourney.id}-step-${i}`,
         timestamp: `07:04:${String(10 + i * 2).padStart(2, "0")}`,
@@ -94,8 +93,8 @@ export function usePipelineSimulation() {
         nodeId: step.nodeId,
         nodeName,
         level: step.logEvent?.level ?? "info",
-        message: `${step.titleHe}: ${step.descriptionHe}`,
-        detail: step.descriptionHe,
+        message: `${step.titleEn}: ${step.descriptionEn}`,
+        detail: step.descriptionEn,
         metrics: step.logEvent?.metrics,
       });
     }
@@ -154,7 +153,7 @@ export function usePipelineSimulation() {
           fromNodeId: currentStep.nodeId,
           toNodeId: currentStep.nodeId,
           progress: stepProgress,
-          label: currentStep.titleHe,
+          label: currentStep.titleEn,
           kind: currentStep.logEvent?.level === "error" ? "alert" : "data",
         },
       ];
@@ -165,7 +164,7 @@ export function usePipelineSimulation() {
         fromNodeId: currentStep.nodeId,
         toNodeId: nextStepNode,
         progress: stepProgress,
-        label: currentStep.titleHe,
+        label: currentStep.titleEn,
         kind:
           currentStep.logEvent?.level === "error"
             ? "quarantine"

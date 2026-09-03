@@ -1,6 +1,12 @@
-import type { ReactNode } from 'react';
-import Link from 'next/link';
-import styles from './content.module.css';
+import type { ReactNode } from "react";
+import {
+  Card,
+  CardDescription,
+  CardEyebrow,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 
 export type ContentCardProps = {
   eyebrow?: string;
@@ -8,26 +14,31 @@ export type ContentCardProps = {
   meta?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
-  accent?: 'gold' | 'ember';
+  accent?: "gold" | "ember";
   href?: string;
 };
 
+/** SYS-008 — editorial card composed from the shared Card primitive. */
 export function ContentCard({
   eyebrow,
   title,
   meta,
   children,
   footer,
-  accent = 'gold',
+  accent = "gold",
   href,
 }: ContentCardProps) {
   return (
-    <article className={styles.card} data-accent={accent}>
-      {eyebrow ? <p className={styles.cardEyebrow}>{eyebrow}</p> : null}
-      <h3>{href ? <Link href={href}>{title}</Link> : title}</h3>
-      {meta ? <div className={styles.cardMeta}>{meta}</div> : null}
-      <div className={styles.cardBody}>{children}</div>
-      {footer ? <div className={styles.cardFooter}>{footer}</div> : null}
-    </article>
+    <Card variant="feature" accent={accent} href={href}>
+      {eyebrow ? (
+        <CardHeader>
+          <CardEyebrow>{eyebrow}</CardEyebrow>
+        </CardHeader>
+      ) : null}
+      <CardTitle>{title}</CardTitle>
+      {meta ? <CardDescription>{meta}</CardDescription> : null}
+      <CardDescription>{children}</CardDescription>
+      {footer ? <CardFooter>{footer}</CardFooter> : null}
+    </Card>
   );
 }

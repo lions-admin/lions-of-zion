@@ -1,19 +1,33 @@
-/* A published article: one centred reading measure under the editorial
-   shell's progress bar. Headline at the display step in the display face,
-   standfirst at the lede step, a data-face meta row, and body prose on the
-   body step with the paragraph gap the whole site uses. Values answer to the
-   V3 tokens in app/globals.css. */
+/* A published article as a Dossier record: breadcrumb, title/standfirst,
+   publication facts, narrative assessment, passages with a citation rail
+   that hangs into the margin above 1220px, then sources, unknowns, related
+   coverage, and corrections. Values answer to the V3 tokens in
+   app/globals.css. The rail is CSS placement of the same nodes — never a
+   second copy. */
 
 .page {
+  --rail-w: clamp(9rem, 14vw, 13rem);
+  --rail-gap: clamp(1.5rem, 3vw, 2.5rem);
+  --reading-w: min(var(--family-measure, var(--measure-reading)), 100%);
   min-height: 100dvh;
   color: var(--ink);
 }
 
 .article {
   position: relative;
-  width: min(48rem, calc(100% - 2.5rem));
+  width: min(var(--reading-w), calc(100% - 2 * var(--family-pad-inline, var(--sp-5))));
   margin: 0 auto;
   padding: clamp(var(--sp-7), 7vw, var(--sp-8)) 0 var(--sp-9);
+  overflow: visible;
+}
+
+@media (min-width: 1220px) {
+  .article {
+    width: min(
+      calc(var(--reading-w) + var(--rail-w) + var(--rail-gap)),
+      calc(100% - 2 * var(--family-pad-inline, var(--sp-5)))
+    );
+  }
 }
 
 /* ── Shell chrome ─────────────────────────────────────────────────────── */
@@ -59,17 +73,55 @@
   transform-origin: left;
 }
 
-.back {
-  color: var(--gold-hi);
-  text-decoration: none;
+/* ── Breadcrumb ───────────────────────────────────────────────────────── */
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-2);
+  max-width: var(--reading-w);
+  margin-bottom: var(--sp-5);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
-.topNav {
-  margin-bottom: var(--sp-5);
-  margin-left: calc(-1 * var(--sp-3));
+.breadcrumb a {
+  color: var(--ink-lo);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.breadcrumb a:hover,
+.breadcrumb a:focus-visible {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.breadcrumbCurrent {
+  color: var(--ink);
+  max-width: var(--measure-caption);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Head ─────────────────────────────────────────────────────────────── */
+
+.head,
+.facts,
+.narrativeDetails,
+.unknowns,
+.sources,
+.related,
+.corrections {
+  max-width: var(--reading-w);
+}
 
 .kickerRow {
   display: flex;
@@ -79,8 +131,7 @@
   margin-bottom: var(--sp-3);
 }
 
-.kicker,
-.meta {
+.kicker {
   margin-top: var(--sp-5);
   color: var(--gold);
   font-family: var(--face-data);
@@ -91,19 +142,12 @@
   text-transform: uppercase;
 }
 
-/* The meta row is a sentence of dates, not a label: sentence case, tabular,
-   no tracking. */
-.meta {
-  color: var(--ink-lo);
-  letter-spacing: 0;
-  text-transform: none;
-  font-variant-numeric: tabular-nums;
-}
-
 .article h1,
-.article h2 {
+.article h2,
+.article h3 {
   color: var(--ink-hi);
   font-family: var(--face-display);
+  overflow-wrap: anywhere;
 }
 
 .article h1 {
@@ -121,6 +165,13 @@
   letter-spacing: var(--t-h2-tracking);
 }
 
+.article h3 {
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
 .summary {
   color: var(--ink-hi);
   font-family: var(--face-display);
@@ -130,7 +181,44 @@
   text-wrap: pretty;
 }
 
-/* ── Body ─────────────────────────────────────────────────────────────── */
+/* ── Publication facts ────────────────────────────────────────────────── */
+
+.facts {
+  margin-top: var(--sp-6);
+}
+
+.factsExtra {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-5);
+  margin: var(--sp-5) 0 0;
+}
+
+.factsExtra dt {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.factsExtra dd {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 44.99rem) {
+  .factsExtra {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── Body / citation rail ─────────────────────────────────────────────── */
 
 .body {
   margin-top: var(--sp-7);
@@ -146,7 +234,15 @@
   margin-bottom: var(--sp-6);
 }
 
+.passageMain {
+  min-width: 0;
+}
+
 .claimRef {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -154,67 +250,97 @@
   line-height: var(--t-data-lh);
 }
 
-.inlineSources {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2) var(--sp-4);
-  margin: calc(-1 * var(--sp-3)) 0 0;
-  padding: 0;
-  list-style: none;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
+.passageSources {
+  composes: marginNote from '../../../components/content/content.module.css';
+  min-width: 0;
 }
 
-.inlineSources a {
-  color: var(--gold);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+@media (min-width: 1220px) {
+  .passage {
+    display: grid;
+    grid-template-columns: minmax(0, var(--reading-w)) 0;
+  }
+
+  .passageMain {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+}
+
+.article a:focus-visible {
+  outline-offset: 4px;
 }
 
 /* ── Apparatus ────────────────────────────────────────────────────────── */
 
 .sources,
-.narratives,
-.related,
-.corrections {
+.unknowns,
+.related {
   margin-top: var(--sp-7);
   padding-top: var(--sp-5);
   border-top: 1px solid var(--line);
 }
 
-.sources li,
-.narratives li,
-.related li {
+.corrections {
+  margin-top: var(--sp-7);
+}
+
+.sourceStack {
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceStack > li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
   margin-bottom: var(--sp-3);
+  min-width: 0;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
 
-.sources a,
+.sourceStack a,
 .related a {
   color: var(--gold-hi);
+  overflow-wrap: anywhere;
 }
 
-.corrections ol {
-  padding-left: var(--sp-5);
+.sourceStack a:hover,
+.sourceStack a:focus-visible,
+.related a:hover,
+.related a:focus-visible {
+  color: var(--gold);
 }
 
-.corrections li {
-  display: grid;
-  gap: var(--sp-1);
-  margin-bottom: var(--sp-4);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-.corrections time {
+.sourceMeta {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
+  overflow-wrap: anywhere;
+}
+
+.relatedList,
+.narrativeList {
+  display: grid;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relatedSubhead {
+  margin-top: var(--sp-6);
+}
+
+.narrativeList li {
+  margin-bottom: var(--sp-3);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .narrativeDetails {
@@ -244,6 +370,22 @@
   margin: var(--sp-1) 0 0;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.verdictLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: var(--sp-5) 0 0;
+}
+
+.verdictMeaning {
+  min-width: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 /* The unsourced-analysis disclosure. Marked by a rule and the full body
@@ -257,4 +399,33 @@
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
+}
+
+/* ── Missing-record / database-failure recovery ───────────────────────── */
+
+.recovery {
+  width: min(var(--reading-w), calc(100% - 2 * var(--family-pad-inline, var(--sp-5))));
+  margin: 0 auto;
+  padding: clamp(var(--sp-7), 7vw, var(--sp-8)) 0 var(--sp-9);
+}
+
+.recoveryNav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+.recoveryRef {
+  margin-top: var(--sp-4);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }

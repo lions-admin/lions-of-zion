@@ -1,23 +1,15 @@
-/* The Hebrew operations dashboard and its login card, right-to-left.
+/* The operations dashboard and its login card.
 
-   Values answer to the V3 tokens in app/globals.css. This module used to
-   redefine `--face-*` locally onto Ramsina and Geist Mono — fonts the
-   document no longer loads, so every face here resolved to a fallback —
-   along with its own inks and gold. All of that is gone: the dashboard
-   inherits the three site faces and the site palette.
-
-   Headings here are UI headings in Hebrew, a script none of the display
-   face's fallbacks carry, so they opt out of the serif explicitly and set in
-   the text face — the opt-out app/globals.css sanctions for UI headings.
-   The data face is kept strictly for data: identifiers, statuses, counts,
-   timestamps, routes. Buttons follow the site Button voice: text face, 600,
-   `--radius-2`, 44px tall. State colours come from `--state-*`. */
+   Values answer to the V3 tokens in app/globals.css. The dashboard inherits
+   the three site faces and the site palette. The data face is kept strictly
+   for data: identifiers, statuses, counts, timestamps, routes. Buttons follow
+   the site Button voice: text face, 600, `--radius-2`, 44px tall. State
+   colours come from `--state-*`. */
 
 .shell {
   min-height: 100%;
   padding: clamp(var(--sp-5), 6vw, var(--sp-8));
   color: var(--ink-hi);
-  direction: rtl;
   font-family: var(--face-text);
 }
 
@@ -119,11 +111,7 @@
   line-height: var(--t-small-lh);
 }
 
-.form input,
-.featureSlots select,
-.editorForm input,
-.editorForm textarea,
-.editorForm select {
+.form input {
   width: 100%;
   min-height: var(--control-h);
   padding: var(--sp-3) var(--sp-4);
@@ -137,19 +125,11 @@
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.form input:hover,
-.featureSlots select:hover,
-.editorForm input:hover,
-.editorForm textarea:hover,
-.editorForm select:hover {
+.form input:hover {
   border-color: var(--line-strong);
 }
 
-.form input:disabled,
-.featureSlots select:disabled,
-.editorForm input:disabled,
-.editorForm textarea:disabled,
-.editorForm select:disabled {
+.form input:disabled {
   opacity: 0.55;
   cursor: wait;
 }
@@ -511,8 +491,7 @@
   grid-row: 1 / span 2;
 }
 
-/* Date, stage, key: data, kept left-to-right and right-aligned in the RTL
-   column. */
+/* Date, stage, key: data, kept left-to-right. */
 .logList strong {
   font-family: var(--face-data);
   font-size: var(--t-caption);
@@ -520,7 +499,7 @@
   line-height: var(--t-caption-lh);
   font-variant-numeric: tabular-nums;
   direction: ltr;
-  text-align: right;
+  text-align: start;
   overflow-wrap: anywhere;
 }
 
@@ -546,14 +525,11 @@
   margin-top: var(--sp-4);
 }
 
-.featureSlots label,
-.editorForm label {
-  display: grid;
-  gap: var(--sp-2);
-  color: var(--ink-lo);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
+/* Shared Field adds `.field + .field { margin-top }`. These layouts already
+   space with grid gap, so the extra margin would stagger a two-column row. */
+.editorPanel .editorField.editorField,
+.editorPanel .narrativeFields.narrativeFields {
+  margin-top: 0;
 }
 
 .editorLayout {
@@ -564,6 +540,8 @@
 }
 
 .draftQueue {
+  display: flex;
+  flex-direction: column;
   max-height: 54rem;
   overflow-y: auto;
   border: var(--line-w) solid var(--line);
@@ -571,32 +549,54 @@
   background: var(--surface-1);
 }
 
-.draftQueue button {
-  width: 100%;
+/* SYS-007: flatten shared Button chrome into a stack of rows. Repeated
+   class beats `.button.ghost.md.active` (four classes) on the same node. */
+.draftQueue .queueItem.queueItem.queueItem {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink);
+  --btn-line: transparent;
   display: grid;
-  gap: var(--sp-1);
+  width: 100%;
+  justify-content: stretch;
+  align-items: stretch;
   padding: var(--sp-4);
   border: 0;
   border-bottom: var(--line-w) solid var(--line);
-  background: transparent;
-  color: var(--ink);
-  text-align: right;
-  cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease-out);
+  border-radius: 0;
+  box-shadow: none;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-align: start;
+  text-transform: none;
+  white-space: normal;
 }
 
-.draftQueue button:hover {
-  background: var(--surface-3);
+.draftQueue .queueItem.queueItem.queueItem:hover:not(:disabled) {
+  --btn-bg: var(--surface-3);
+  --btn-fg: var(--ink);
 }
 
-.draftQueue .selectedDraft,
-.draftQueue .selectedDraft:hover {
-  background: var(--gold-wash);
+.draftQueue .selectedDraft.selectedDraft.selectedDraft,
+.draftQueue .selectedDraft.selectedDraft.selectedDraft:hover:not(:disabled) {
+  --btn-bg: var(--gold-wash);
+  --btn-fg: var(--ink-hi);
   box-shadow: inset 3px 0 0 var(--gold);
 }
 
-.draftQueue button:focus-visible {
+.draftQueue .queueItem:focus-visible {
   outline-offset: -3px;
+}
+
+/* Button wraps children in a `.content` span; stack status / title / section. */
+.draftQueue .queueItem > span {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  justify-items: start;
+  align-items: start;
+  gap: var(--sp-1);
+  white-space: normal;
+  text-align: start;
 }
 
 .draftQueue span,
@@ -612,6 +612,7 @@
 
 .draftQueue strong {
   color: var(--ink-hi);
+  font-family: var(--face-text);
   font-size: var(--t-small);
   font-weight: 600;
   line-height: var(--t-small-lh);
@@ -645,27 +646,7 @@
   gap: var(--sp-3);
 }
 
-/* Scoped under `.editorForm` so it outranks `.editorForm label` on
-   specificity rather than on `!important`. */
-.editorForm .checkbox {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: var(--control-h);
-  color: var(--ink);
-  font-size: var(--t-small);
-  cursor: pointer;
-}
-
-.checkbox input {
-  width: 18px;
-  height: 18px;
-  min-height: 0;
-  padding: 0;
-  accent-color: var(--gold);
-}
-
-.narrativeFields {
+.editorForm .narrativeFields {
   display: grid;
   gap: var(--sp-4);
   margin: 0;
@@ -699,9 +680,6 @@
   font-weight: 600;
 }
 
-/* The one direction bug this Hebrew dashboard actually had: a list indent set
-   on the physical left, which in RTL puts the gap on the side the markers are
-   not on. Logical, so the markers keep their indent. */
 .traceability ul {
   margin: var(--sp-3) 0 0;
   padding-inline-start: var(--sp-5);

@@ -83,10 +83,17 @@
   --color-gold-line: var(--gold-line);
   --color-gold-line-strong: var(--gold-line-strong);
   --color-gold-wash: var(--gold-wash);
-  --color-ember: var(--data-ember);
-  --color-ember-dim: var(--data-ember-dim);
-  --color-ember-peak: var(--data-ember-peak);
-  --color-ember-wash: var(--data-ember-wash);
+  --color-ember: var(--ember);
+  --color-ember-dim: var(--ember-dim);
+  --color-ember-peak: var(--ember-peak);
+  --color-ember-wash: var(--ember-wash);
+  --color-async-idle: var(--async-idle);
+  --color-async-loading: var(--async-loading);
+  --color-async-processing: var(--async-processing);
+  --color-async-success: var(--async-success);
+  --color-async-warning: var(--async-warning);
+  --color-async-error: var(--async-error);
+  --color-async-empty: var(--async-empty);
   --color-ok: var(--state-ok);
   --color-ok-wash: var(--state-ok-wash);
   --color-ok-line: var(--state-ok-line);
@@ -134,4 +141,8 @@
   --spacing-header: var(--header-h);
   --spacing-control: var(--control-h);
   --spacing-control-sm: var(--control-h-sm);
+  --spacing-family-block: var(--family-pad-block);
+  --spacing-family-inline: var(--family-pad-inline);
+  --spacing-family-gap: var(--family-gap);
+  --max-width-family: var(--family-measure);
 }

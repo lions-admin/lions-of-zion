@@ -8,34 +8,29 @@ interface SiteFooterProps {
   activeSection?: string;
 }
 
+const TRUST_HREFS = new Set(["/methodology", "/corrections"]);
+
 /**
- * The colophon.
- *
- * Built 2026-09-02 on an owner ruling that reverses the 2026-08-25 decision
- * "no global footer in `app/layout.tsx`". That decision was right about its own
- * mechanism and wrong about the need: a footer mounted in the root layout would
- * land on `/`, `/admin` and `/particle-demo` as well, and the home scene owns
- * exactly one viewport. So this is mounted by `EditorialShell` — every reading
- * route, the whole archive, and nothing else — which is precisely the
- * "conditional on not being the home route" shape the old entry asked for if
- * one were ever built. See `.ai/DECISIONS.md`.
+ * Compact colophon: whose desk this is, Methodology and Corrections, a dense
+ * index of the eight files, and the year. It is not a second wall of the same
+ * destinations the header already offered on a long archive page.
  *
  * A server component with no client JavaScript: every link is in the
- * prerendered HTML, so on any reading route this is a second, complete index of
- * the site for a reader with scripting off.
+ * prerendered HTML, so on any reading route this remains a complete index for
+ * a reader with scripting off.
  *
- * Restraint is the register. No newsletter capture, no social row, no "trusted
- * by" strip — a verification desk's footer is an index and an address, and the
- * things a reader checks it for are Methodology and Corrections.
+ * No newsletter capture, no social row, no "trusted by" strip.
  */
 export function SiteFooter({ activeSection }: SiteFooterProps) {
   const current = (href: string) => isCurrentChromeLink(activeSection, href);
   const year = new Date().getFullYear();
+  const trustLinks = REFERENCE_LINKS.filter((link) => TRUST_HREFS.has(link.href));
+  const furtherLinks = REFERENCE_LINKS.filter((link) => !TRUST_HREFS.has(link.href));
 
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
-        <div className={styles.masthead}>
+        <div className={styles.identity}>
           <Link href="/" className={styles.brand}>
             <span className={styles.brandName}>Lions of Zion</span>
             <span className={styles.brandRole}>Evidence desk</span>
@@ -43,42 +38,53 @@ export function SiteFooter({ activeSection }: SiteFooterProps) {
           <p className={styles.statement}>{SITE_DESCRIPTION}</p>
         </div>
 
-        <nav className={styles.filesGroup} aria-label="Sections">
-          <p className={styles.groupLabel}>The eight files</p>
-          <ul className={styles.fileList}>
-            {FILE_LINKS.map((link) => (
+        <nav className={styles.reference} aria-label="Reference">
+          <ul className={styles.trustList}>
+            {trustLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={styles.fileRow}
+                  className={styles.trustLink}
                   aria-current={current(link.href) ? "page" : undefined}
                 >
-                  <span className={styles.fileIndex}>{link.index}</span>
-                  <span className={styles.fileName}>{link.label}</span>
+                  {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-        </nav>
-
-        <nav className={styles.referenceGroup} aria-label="Reference">
-          <p className={styles.groupLabel}>Reference</p>
-          <ul className={styles.referenceList}>
-            {REFERENCE_LINKS.map((link) => (
+          <ul className={styles.furtherList}>
+            {furtherLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={styles.referenceRow}
+                  className={styles.furtherLink}
                   aria-current={current(link.href) ? "page" : undefined}
                 >
-                  <span className={styles.referenceName}>{link.label}</span>
-                  <span className={styles.referenceDescription}>{link.description}</span>
+                  {link.label}
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
       </div>
+
+      <nav className={styles.files} aria-label="Sections">
+        <p className={styles.filesLabel}>The eight files</p>
+        <ul className={styles.fileList}>
+          {FILE_LINKS.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className={styles.fileLink}
+                aria-current={current(link.href) ? "page" : undefined}
+              >
+                <span className={styles.fileIndex}>{link.index}</span>
+                <span className={styles.fileName}>{link.label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       <div className={styles.colophon}>
         <p className={styles.copyright}>© {year} Lions of Zion</p>

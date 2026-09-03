@@ -17,12 +17,7 @@ import { itemEvidenceService } from "@/server/modules/assessments/service";
 import { narrativeService } from "@/server/modules/narratives/service";
 import { publicationService } from "@/server/modules/publications/service";
 import { briefingRepo, type BriefingEvidence } from "./repo";
-import {
-  evaluateCandidate,
-  type DraftPassage,
-  type QualityCandidate,
-  type QualityCheck,
-} from "./quality";
+import { type DraftPassage } from "./quality";
 import type { Actor } from "@/server/core/audit";
 import {
   ANALYSIS_AUTHOR,
@@ -52,7 +47,7 @@ const ARTICLE_SECTIONS = ["israel_update", "narrative_watch"] as const;
  * reason at all. Nothing writes the legacy value any more; this only reads it.
  */
 const STORED_ARTICLE_SECTIONS = ["israel_update", "war_update", "narrative_watch"] as const;
-const PIPELINE_STAGES = ["enrich", "cluster", "triage", "draft", "quality", "publish"] as const;
+const PIPELINE_STAGES = ["enrich", "cluster", "triage", "draft", "publish"] as const;
 export type EditorialStage = (typeof PIPELINE_STAGES)[number];
 
 const evidenceLinkSchema = z.object({
@@ -251,16 +246,9 @@ const triageArtifactSchema = z.object({
   aiRunId: z.uuid(),
 });
 const draftArtifactSchema = z.object({ edition: storedEditionSchema, aiRunId: z.uuid() });
-const qualityArtifactSchema = z.object({
-  passed: z.boolean(),
-  qualityRunId: z.uuid(),
-  candidateKeys: z.array(z.string()),
-});
-
 type DraftArticle = z.infer<typeof articleSchema>;
 type StoredArticle = z.infer<typeof storedArticleSchema>;
 type StoredEdition = z.infer<typeof storedEditionSchema>;
-type NarrativeWatchDraft = StoredArticle["narrativeWatchDetails"];
 type DraftDailyBrief = z.infer<typeof dailyBriefSchema>;
 type DraftContent = Pick<DraftArticle, "title" | "summary" | "evidenceIds" | "claims" | "passages">;
 
@@ -384,11 +372,8 @@ export function briefingService(database: unknown, options: { generate?: Generat
         case "draft":
           result = await draft(editionId, runId, localDate, actor);
           break;
-        case "quality":
-          result = await quality(editionId, runId);
-          break;
         case "publish":
-          result = await publish(editionId, localDate, actor, requestId);
+          result = await publish(editionId, runId, localDate, actor, requestId);
           break;
       }
       await store.complete(runId, result.inputCount, result.outputCount);
@@ -527,8 +512,7 @@ export function briefingService(database: unknown, options: { generate?: Generat
     const basePrompt = `Israel-local editorial date: ${localDate}\n\nSelected stories:\n${JSON.stringify(triaged.stories)}\n\nRefutation targets:\n${refutationTargets}\n\nPublic evidence packet:\n${sourcePacket(selectedEvidence)}`;
     let output: StructuredGenerateOutput<z.infer<typeof editionSchema>> | undefined;
     let edition: StoredEdition | undefined;
-    let qualityFeedback = "";
-    let finalQualityFailures: string[] = [];
+    let schemaFeedback = "";
     for (let attempt = 1; attempt <= 2; attempt += 1) {
       let candidate: StructuredGenerateOutput<z.infer<typeof editionSchema>>;
       try {
@@ -545,7 +529,7 @@ export function briefingService(database: unknown, options: { generate?: Generat
           tags: ["feature:briefing", "stage:draft", `attempt:${attempt}`, `contract:${BRIEFING_CONTRACT_VERSION}`],
           schema: editionSchema,
           system: DRAFT_SYSTEM,
-          prompt: `${basePrompt}${qualityFeedback}`,
+          prompt: `${basePrompt}${schemaFeedback}`,
         });
       } catch (cause) {
         /* `generateStructured` throws when the response fails the schema, and
@@ -556,28 +540,19 @@ export function briefingService(database: unknown, options: { generate?: Generat
          * immediately, because a second call would not fix it. */
         const retryable = cause instanceof ApiError && cause.code === "VALIDATION_ERROR";
         if (!retryable || attempt === 2) throw cause;
-        qualityFeedback = `\n\nThe previous draft was rejected before quality checks and must be corrected:\n${cause.message}`;
+        schemaFeedback = `\n\nThe previous response did not match the required data structure. Return the complete edition again and correct this exact error:\n${cause.message}`;
         continue;
       }
-      const normalized = normalizeEditionForQuality(
+      const normalized = normalizeEditionForPublication(
         limitEditionArticles(normalizeFeaturedIsraelStory(candidate.output)),
         evidenceById,
       );
       validateDraftEvidence(normalized, evidenceById);
-      const failures = draftQualityFailures(normalized, evidenceById);
       output = candidate;
       edition = normalized;
-      finalQualityFailures = failures;
-      if (!failures.length) break;
-      qualityFeedback = `\n\nThe previous draft failed deterministic quality checks. Regenerate the entire edition and fix these exact failures before returning it:\n${failures.join("\n")}`;
+      break;
     }
     if (!output || !edition) throw new ApiError("VALIDATION_ERROR", "The drafting model did not produce a valid edition.");
-    if (finalQualityFailures.length) {
-      throw new ApiError(
-        "VALIDATION_ERROR",
-        `The drafting model did not meet the deterministic publication requirements after regeneration: ${finalQualityFailures.join(" | ")}`,
-      );
-    }
     const aiRunId = await recordBriefingRun(database, {
       kind: "summarize",
       model: output.model,
@@ -597,56 +572,13 @@ export function briefingService(database: unknown, options: { generate?: Generat
     return { shouldContinue: true, inputCount: triaged.stories.length, outputCount: edition.articles.length + 1 };
   }
 
-  async function quality(
-    editionId: string,
-    runId: string,
-  ): Promise<Omit<BriefingStageResult, "stage" | "status">> {
-    const evidence = await evidenceForArtifact(editionId);
-    const evidenceById = new Map(evidence.map((entry) => [entry.id, entry]));
-    const drafted = draftArtifactSchema.parse(await requiredArtifact(store, editionId, "draft"));
-    const candidates = [
-      qualityCandidate("daily-brief", dailyAsContent(drafted.edition.dailyBrief), "daily_brief", null),
-      ...drafted.edition.articles.map((article, index) =>
-        qualityCandidate(`article-${index + 1}`, article, article.section, article.narrativeWatchDetails)),
-    ];
-    let passed = true;
-    for (const [index, candidate] of candidates.entries()) {
-      const decision = evaluateCandidate(candidate, evidenceById);
-      await store.recordQualityChecks(runId, candidate.key, decision.checks);
-      if (!decision.passed) {
-        passed = false;
-        await store.quarantine(
-          runId,
-          candidate.key,
-          "quality",
-          failedChecks(decision.checks),
-          index === 0 ? drafted.edition.dailyBrief : drafted.edition.articles[index - 1],
-        );
-      }
-    }
-    await store.saveArtifact(editionId, "quality", integrityHash(JSON.stringify(candidates.map((entry) => entry.key))), {
-      passed,
-      qualityRunId: runId,
-      candidateKeys: candidates.map((entry) => entry.key),
-    });
-    if (!passed) {
-      await store.markEditionById(editionId, "quarantined");
-      throw new ApiError("VALIDATION_ERROR", "The generated edition did not meet the publication quality gate.");
-    }
-    await store.resolveQuarantine(runId, candidates.map((candidate) => candidate.key));
-    return { shouldContinue: true, inputCount: candidates.length, outputCount: candidates.length };
-  }
-
   async function publish(
     editionId: string,
+    runId: string,
     localDate: string,
     actor: Actor,
     requestId?: string,
   ): Promise<Omit<BriefingStageResult, "stage" | "status">> {
-    const quality = qualityArtifactSchema.parse(await requiredArtifact(store, editionId, "quality"));
-    if (!quality.passed) {
-      return { shouldContinue: false, inputCount: 0, outputCount: 0, reason: "edition_failed_quality" };
-    }
     const drafted = draftArtifactSchema.parse(await requiredArtifact(store, editionId, "draft"));
     const features = briefingFeatures();
     const control = await store.control();
@@ -751,18 +683,19 @@ export function briefingService(database: unknown, options: { generate?: Generat
       narrativeWatchDetails: article.narrativeWatchDetails ?? undefined,
     }))];
 
+    const candidateKeys = inputs.map((_, index) => index === 0 ? "daily-brief" : `article-${index}`);
     const created = automaticPublication
       ? await publicationWriter.autoPublishMany(inputs, {
-          briefingRunId: quality.qualityRunId,
+          briefingRunId: runId,
           machineAuthor: MACHINE_AUTHOR,
-          candidateKeys: quality.candidateKeys,
+          candidateKeys,
           supersedeLocalDate: await store.editionByDate(localDate).then((edition) =>
             edition?.publishedAt ? localDate : undefined),
         }, actor, requestId)
       : await publicationWriter.createMany(inputs, actor, requestId, {
-          briefingRunId: quality.qualityRunId,
+          briefingRunId: runId,
           machineAuthor: MACHINE_AUTHOR,
-          candidateKeys: quality.candidateKeys,
+          candidateKeys,
         });
       if (automaticPublication) await txStore.markEdition(localDate, "published");
       return {
@@ -795,9 +728,7 @@ export function briefingService(database: unknown, options: { generate?: Generat
     return { status: "completed", localDate, evidenceCount, publications: 0 };
   }
 
-  /** Complete the one safe recovery path for an edition produced while
-   * publication was paused. This never drafts again: it only promotes the
-   * exact stored draft rows after re-checking the recorded quality gate. */
+  /** Complete the recovery path for an edition produced while publication was paused. */
   async function resumePausedEdition(actor: Actor, requestId?: string): Promise<BriefingRunResult> {
     const localDate = israelLocalDate(now());
     const features = briefingFeatures();
@@ -807,8 +738,8 @@ export function briefingService(database: unknown, options: { generate?: Generat
     }
     const edition = await store.editionByDate(localDate);
     if (!edition) return { status: "skipped", localDate, evidenceCount: 0, publications: 0, reason: "no_edition" };
-    const quality = qualityArtifactSchema.parse(await requiredArtifact(store, edition.id, "quality"));
-    if (!quality.passed) return { status: "skipped", localDate, evidenceCount: 0, publications: 0, reason: "edition_failed_quality" };
+    const publishRun = await store.runByDateStage(localDate, "publish");
+    if (!publishRun) return { status: "skipped", localDate, evidenceCount: 0, publications: 0, reason: "no_publish_run" };
     const drafted = draftArtifactSchema.parse(await requiredArtifact(store, edition.id, "draft"));
     const inputs: CreatePublication[] = [{
       kind: "brief",
@@ -826,10 +757,11 @@ export function briefingService(database: unknown, options: { generate?: Generat
       language: "en",
     }))];
     const writer = publicationService(database);
+    const candidateKeys = inputs.map((_, index) => index === 0 ? "daily-brief" : `article-${index}`);
     const published = await writer.resumeGeneratedDrafts(inputs, {
-      briefingRunId: quality.qualityRunId,
+      briefingRunId: publishRun.id,
       machineAuthor: MACHINE_AUTHOR,
-      candidateKeys: quality.candidateKeys,
+      candidateKeys,
     }, actor, requestId);
     await store.markEdition(localDate, "published");
     return {
@@ -986,33 +918,6 @@ function dailyBody(brief: DraftDailyBrief): string {
   const sections = [brief.situation, brief.keyEvents, brief.israeliPosition, brief.internationalResponses, brief.watchPoints]
     .filter((section): section is NonNullable<typeof section> => Boolean(section));
   return sections.map((section) => `## ${section.label}\n\n${bodyFromPassages(section.passages)}`).join("\n\n");
-}
-
-/**
- * The narrative details carry the three facts the quality gate cannot read off
- * the prose: whether this record cites anything, which claim it answers, and
- * what it concluded about that claim. The Daily Brief has no such details and
- * passes `null`, which is read as an ordinary sourced record.
- */
-function qualityCandidate(
-  key: string,
-  content: DraftContent,
-  section: QualityCandidate["section"],
-  details: NarrativeWatchDraft,
-): QualityCandidate {
-  const passages = dedupeDraftPassages(content.passages);
-  return {
-    ...content,
-    key,
-    section,
-    passages,
-    body: bodyFromPassages(passages),
-    basis: {
-      evidenceBasis: details?.evidenceBasis ?? "sourced",
-      refutedClaim: details?.exactClaim ?? null,
-      verificationState: details?.verificationState ?? null,
-    },
-  };
 }
 
 /** Small drafting models sometimes restate the same source claim several
@@ -1224,7 +1129,7 @@ export function isProcessableEvidence(entry: BriefingEvidence): boolean {
  * present in its closed evidence packet, so a valid report is not discarded
  * because a small model misplaced an otherwise correctly grounded story.
  */
-export function normalizeEditionForQuality(
+export function normalizeEditionForPublication(
   edition: z.infer<typeof editionSchema>,
   evidence: ReadonlyMap<string, BriefingEvidence>,
 ): StoredEdition {
@@ -1359,21 +1264,6 @@ function normalizeDailyBriefOfficialContext(
   };
 }
 
-function draftQualityFailures(
-  edition: StoredEdition,
-  evidence: ReadonlyMap<string, BriefingEvidence>,
-): string[] {
-  const candidates = [
-    qualityCandidate("daily-brief", dailyAsContent(edition.dailyBrief), "daily_brief", null),
-    ...edition.articles.map((article, index) =>
-      qualityCandidate(`article-${index + 1}`, article, article.section, article.narrativeWatchDetails)),
-  ];
-  return candidates.flatMap((candidate) => {
-    const decision = evaluateCandidate(candidate, evidence);
-    return decision.checks.filter((check) => check.status === "fail").map((check) => `${candidate.key}: ${check.name} — ${check.detail}`);
-  });
-}
-
 /**
  * The closed evidence packet as the model sees it.
  *
@@ -1402,10 +1292,6 @@ function sourcePacket(evidence: BriefingEvidence[]): string {
     publishedAt: entry.publishedAt?.toISOString() ?? null,
     capturedAt: entry.capturedAt.toISOString(),
   })).join("\n");
-}
-
-function failedChecks(checks: readonly QualityCheck[]): string {
-  return checks.filter((check) => check.status === "fail").map((check) => `${check.name}: ${check.detail}`).join(" | ").slice(0, 4_000) || "Quality checks failed.";
 }
 
 const TRIAGE_SYSTEM = [

@@ -23,7 +23,9 @@ const PAGE_SIZE = 20;
  * Each expansion is a second cached read for the full record, so this is the
  * one number on the page that trades completeness for cost. Eight covers the
  * desk's realistic daily output several times over; anything past it keeps its
- * claim and verdict and links to the record instead of hiding either.
+ * claim and verdict and links to the record instead of hiding either. A
+ * `?claim=` match past this budget is fetched as well, so an addressable open
+ * state can still restore after back navigation.
  */
 const DETAIL_BUDGET = 8;
 
@@ -40,7 +42,17 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function FactCheckPage() {
+type Search = Promise<Record<string, string | string[] | undefined>>;
+
+function one(raw: Record<string, string | string[] | undefined>, key: string): string | undefined {
+  const value = raw[key];
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+export default async function FactCheckPage({ searchParams }: { searchParams: Search }) {
+  const raw = await searchParams;
+  const openClaimId = one(raw, "claim");
+
   let records: PublicPublication[] = [];
   let unavailable = false;
   try {
@@ -55,11 +67,18 @@ export default async function FactCheckPage() {
     );
   }
 
+  const budget = records.slice(0, DETAIL_BUDGET);
+  const addressed =
+    openClaimId && !budget.some((record) => record.publicId === openClaimId)
+      ? records.find((record) => record.publicId === openClaimId)
+      : undefined;
+  const toFetch = addressed ? [...budget, addressed] : budget;
+
   /* A record that vanished between the list read and the detail read is not an
      error for the page: the row keeps its claim and verdict from the list and
      falls back to the link. Anything else is rethrown rather than swallowed. */
   const detailed = await Promise.all(
-    records.slice(0, DETAIL_BUDGET).map(async (record) => {
+    toFetch.map(async (record) => {
       try {
         return await getPublicPublication(record.publicId);
       } catch (cause) {
@@ -104,7 +123,12 @@ export default async function FactCheckPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <FactCheckDesk records={records} details={details} unavailable={unavailable} />
+      <FactCheckDesk
+        records={records}
+        details={details}
+        unavailable={unavailable}
+        openClaimId={openClaimId}
+      />
     </DocPage>
   );
 }

@@ -1,26 +1,41 @@
-
-
-
 @layer theme, base, components, utilities;
 
 @layer base {
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
 }
 
+/*
+ * SYS-001 — frozen semantic token contract.
+ *
+ * This file is the only place a new colour, type role, space step, radius,
+ * duration, z-index, or focus treatment may be born. Route CSS Modules consume
+ * these names; they do not invent literals. SYS-015 is the later sweep that
+ * deletes remaining route literals — do not do that sweep here.
+ *
+ * One palette. Desk / Dossier / Institution (SYS-002) change density, scan
+ * strength, and measure — never hue.
+ *
+ * Gold is scarce: selection, active navigation, primary action, verified
+ * emphasis, one focal moment per viewport. Ember is adversarial/contested
+ * material and danger only. Status colour is never the sole cue.
+ */
 
 :root {
-
+  /* --- Type faces (SYS-003) ---
+     Display = Newsreader (editorial). Text = IBM Plex Sans (body/UI).
+     Data = JetBrains Mono. The site is English; no Hebrew face is loaded. */
   --face-display: var(--font-newsreader), 'Iowan Old Style', Charter, Georgia, serif;
   --face-text: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   --face-data: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
-
 
   --font-serif: var(--face-display);
   --font-sans: var(--face-text);
   --font-mono: var(--face-data);
 
-
+  /* --- Type roles (SYS-004) ---
+     display / h2 / figure / h3 / lede / body / small / caption / data.
+     Body is 17px (above the 16px mobile floor). Caption 13px. Data 12px
+     (metadata floor). Headlines wrap at 320 via overflow-wrap on headings. */
   --t-display: clamp(2.5rem, 1.55rem + 3.4vw, 4.25rem);
   --t-display-lh: 1.04;
   --t-display-weight: 500;
@@ -31,7 +46,6 @@
   --t-h2-weight: 500;
   --t-h2-tracking: -0.01em;
 
-
   --t-figure: clamp(1.9rem, 1.4rem + 1.6vw, 2.4rem);
   --t-figure-lh: 1.1;
   --t-figure-weight: 500;
@@ -40,7 +54,6 @@
   --t-h3-lh: 1.32;
   --t-h3-weight: 500;
   --t-h3-tracking: -0.005em;
-
 
   --t-lede: clamp(1.15rem, 1.05rem + 0.45vw, 1.35rem);
   --t-lede-lh: 1.45;
@@ -60,12 +73,10 @@
   --t-data: 0.75rem;
   --t-data-lh: 1.45;
   --t-data-weight: 500;
-
   --t-data-tracking: 0.08em;
-
   --t-data-tracking-tight: 0.04em;
 
-
+  /* --- Space --- */
   --sp-1: 0.25rem;
   --sp-2: 0.5rem;
   --sp-3: 0.75rem;
@@ -77,7 +88,7 @@
   --sp-9: 6rem;
   --flow: 1.15rem;
 
-
+  /* --- Colour: ground / ink / gold / ember --- */
   --ground: #000000;
   --ink-hi: #f6f3eb;
   --ink: #cbc7bd;
@@ -86,11 +97,9 @@
   --gold-hi: #ead39b;
   --gold-dim: #8a6f3e;
 
-
   --surface-1: #0a0a09;
   --surface-2: #111110;
   --surface-3: #181715;
-
 
   --line: rgba(246, 243, 235, 0.13);
   --line-soft: rgba(246, 243, 235, 0.07);
@@ -99,7 +108,9 @@
   --gold-line-strong: rgba(198, 161, 91, 0.5);
   --gold-wash: rgba(198, 161, 91, 0.1);
 
-
+  /* data-blue was retired to warm grey; keep the names so existing modules
+     do not invent a second blue. Ember is the only chromatic alert besides
+     the semantic state ramp. */
   --data-blue: #d1cdc4;
   --data-blue-dim: #716d66;
   --data-blue-peak: #f6f3eb;
@@ -107,8 +118,12 @@
   --data-ember-dim: #71382f;
   --data-ember-peak: #e8a397;
   --data-ember-wash: rgba(201, 115, 101, 0.08);
+  --ember: var(--data-ember);
+  --ember-dim: var(--data-ember-dim);
+  --ember-peak: var(--data-ember-peak);
+  --ember-wash: var(--data-ember-wash);
 
-
+  /* --- Semantic state (SYS-010). Text labels required; colour is not a cue. --- */
   --state-ok: #8fcfae;
   --state-ok-wash: rgba(96, 178, 137, 0.14);
   --state-ok-line: rgba(96, 178, 137, 0.35);
@@ -119,7 +134,17 @@
   --state-danger-wash: rgba(214, 105, 99, 0.14);
   --state-danger-line: rgba(214, 105, 99, 0.4);
 
+  --async-idle: var(--ink-lo);
+  --async-loading: var(--gold);
+  --async-processing: var(--gold-hi);
+  --async-success: var(--state-ok);
+  --async-warning: var(--state-warn);
+  --async-error: var(--state-danger);
+  --async-empty: var(--ink);
+  --async-disabled: var(--ink-lo);
 
+  /* Glass is a leftover HUD ramp. New chrome prefers rules + surfaces.
+     Kept so existing modules do not re-literalise. Do not add new glass. */
   --glass-top: rgba(150, 147, 140, 0.22);
   --glass-middle: rgba(45, 44, 42, 0.29);
   --glass-bottom: rgba(8, 8, 8, 0.64);
@@ -129,7 +154,10 @@
   --glass-inner: rgba(255, 255, 255, 0.25);
   --glass-shadow: rgba(0, 0, 0, 0.58);
 
-
+  /* --- Radius / elevation (SYS-006) ---
+     Default grouping is a 1px rule and spacing, not a card.
+     Cards may use 2 / 4 / 8px only. No new arbitrary radius, glow, or shadow.
+     --radius-pill is for true chips/avatars, not buttons. */
   --radius-1: 2px;
   --radius-2: 4px;
   --radius-3: 8px;
@@ -139,36 +167,44 @@
   --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
   --shadow-3: 0 24px 64px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
 
+  /* --- Motion (MOTION-001) ---
+     Hover/press: --dur-fast + --ease-out.
+     Component state: --dur-base + --ease-out.
+     Section entrance: --dur-enter, max 10px translate, max 6px blur.
+     Stagger: --stagger, max six items.
+     Ambient loops: --dur-ambient, homepage and genuine live states only. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-fast: 160ms;
   --dur-base: 240ms;
   --dur-slow: 400ms;
-
-
   --dur-enter: 520ms;
   --dur-ambient: 7s;
   --stagger: 70ms;
-
+  --enter-shift: 10px;
+  --enter-blur: 6px;
 
   --focus-outline: 2px solid var(--gold-hi);
   --focus-offset: 3px;
 
-
   --tint-hover: color-mix(in oklab, var(--ink-hi) 7%, transparent);
   --tint-active: color-mix(in oklab, var(--ink-hi) 4%, transparent);
+
+  /* 44px floor. Coarse pointers must not go below --control-h.
+     --control-h-sm is fine-pointer only (SYS-007). */
   --control-h: 2.75rem;
   --control-h-sm: 2.25rem;
-
+  --control-h-coarse: 2.75rem;
 
   --header-h: 4.8rem;
-
 
   --scan-ground:
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
-
+  --scan-ground-quiet:
+    radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.028), transparent 68%),
+    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.014) 0 1px, transparent 1px 9px);
 
   --z-under: -1;
   --z-base: 0;
@@ -179,9 +215,7 @@
   --z-panel: 400;
   --z-modal: 500;
   --z-toast: 600;
-
   --z-intro: 1000;
-
 
   --measure-wide: 80ch;
   --measure-reading: 68ch;
@@ -190,19 +224,50 @@
   --measure-title: 34ch;
   --measure-data: 24ch;
 
-
   --chrome-w: 92rem;
-
-
   --line-w: 1px;
   --line-w-thick: 2px;
-
-
   --bp-seam: 45rem;
   --bp-rails: 76.25rem;
 
+  /* --- Route families (SYS-002) ---
+     Defaults match Dossier. Desk and Institution override density only. */
+  --family-pad-block: var(--sp-8);
+  --family-pad-inline: var(--sp-5);
+  --family-gap: var(--sp-6);
+  --family-measure: var(--measure-reading);
+  --family-scan: var(--scan-ground);
 }
 
+@media (pointer: coarse) {
+  :root {
+    --control-h-sm: var(--control-h-coarse);
+  }
+}
+
+[data-family="desk"] {
+  --family-pad-block: var(--sp-6);
+  --family-pad-inline: var(--sp-5);
+  --family-gap: var(--sp-5);
+  --family-measure: var(--measure-wide);
+  --family-scan: var(--scan-ground);
+}
+
+[data-family="dossier"] {
+  --family-pad-block: var(--sp-8);
+  --family-pad-inline: var(--sp-6);
+  --family-gap: var(--sp-7);
+  --family-measure: var(--measure-reading);
+  --family-scan: var(--scan-ground);
+}
+
+[data-family="institution"] {
+  --family-pad-block: var(--sp-8);
+  --family-pad-inline: var(--sp-6);
+  --family-gap: var(--sp-6);
+  --family-measure: var(--measure-reading);
+  --family-scan: var(--scan-ground-quiet);
+}
 
 html {
   scroll-behavior: smooth;
@@ -217,15 +282,15 @@ html {
 html, body {
   width: 100%;
   min-height: 100%;
-
   background-color: var(--ground);
   background-image: var(--scan-ground);
   background-attachment: fixed;
   overflow-x: clip;
 }
 
-
-
+body:has([data-family="institution"]) {
+  background-image: var(--scan-ground-quiet);
+}
 
 html:has([data-home-scroll]) {
   overflow-x: clip;
@@ -236,7 +301,6 @@ html:has([data-home-scroll]) body {
   overflow: visible;
 }
 
-
 html:has([data-home-scroll]) {
   scrollbar-width: none;
 }
@@ -245,12 +309,10 @@ html:has([data-home-scroll])::-webkit-scrollbar {
   display: none;
 }
 
-
 html:has([data-intro-active]),
 html:has([data-intro-active]) body,
 html:has([data-handoff-blocked]),
 html:has([data-handoff-blocked]) body {
-
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -270,14 +332,18 @@ html:has([data-handoff-blocked]) body {
     color: var(--ink-hi);
   }
 
-
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--face-display);
     font-optical-sizing: auto;
     font-weight: var(--t-h3-weight);
     text-wrap: balance;
     overflow-wrap: anywhere;
+    max-width: var(--measure-title);
   }
+
+  h1 { font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tracking); font-weight: var(--t-display-weight); max-width: none; }
+  h2 { font-size: var(--t-h2); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-tracking); font-weight: var(--t-h2-weight); }
+  h3 { font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tracking); }
 
   p, li, dd, figcaption, blockquote {
     text-wrap: pretty;
@@ -288,7 +354,6 @@ html:has([data-handoff-blocked]) body {
   }
 
   strong, b { font-weight: 600; }
-
 
   time, data, code, kbd, samp, [data-numeric] {
     font-variant-numeric: tabular-nums;
@@ -305,13 +370,10 @@ html:has([data-handoff-blocked]) body {
   img, video { max-width: 100%; height: auto; }
 }
 
-
-
 ::selection {
   background: color-mix(in oklab, var(--gold) 38%, transparent);
   color: var(--ink-hi);
 }
-
 
 :focus-visible {
   outline: var(--focus-outline);
@@ -322,7 +384,6 @@ html:has([data-handoff-blocked]) body {
 
 [data-public-shell] { padding-top: var(--header-h); }
 
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -332,8 +393,7 @@ html:has([data-handoff-blocked]) body {
   }
 }
 
-
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background-color: var(--gold-line); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background-color: var(--gold-line); border-radius: var(--radius-2); }
 ::-webkit-scrollbar-thumb:hover { background-color: var(--gold); }

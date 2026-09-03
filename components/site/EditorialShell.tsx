@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ReadingProgress } from "@/components/sections/ReadingProgress";
 import { ScanBackdrop } from "@/components/sections/ScanBackdrop";
 import { resolveSiteSectionId } from "@/lib/site-navigation";
+import { routeFamily } from "./route-family";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 import styles from "./editorial-shell.module.css";
@@ -70,6 +71,7 @@ export function EditorialShell({
   children,
 }: EditorialShellProps) {
   const activeSection = activeChromeSection(routeId);
+  const family = routeFamily(routeId);
 
   return (
     <>
@@ -79,7 +81,8 @@ export function EditorialShell({
         </a>
       </div>
       <SiteHeader activeSection={activeSection} />
-      <main className={className} data-reading-scroll data-public-shell>
+      <main className={className} data-reading-scroll data-public-shell data-family={family}>
+        <p className={styles.familyContext}>{family === "desk" ? "Desk" : family === "institution" ? "Institution" : "Dossier"}</p>
         {showProgress ? (
           <ReadingProgress
             trackClassName={progressTrackClassName}

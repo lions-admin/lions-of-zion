@@ -33,10 +33,8 @@ export const PIPELINE_EDGES: PipelineEdge[] = [
   { from: "briefing_triage_model", to: "ai_gateway", label: "Classify Prompt", isAsync: true },
   { from: "briefing_triage_model", to: "briefing_draft_model", label: "Selected Stories" },
   { from: "briefing_draft_model", to: "ai_gateway", label: "Structured Draft", isAsync: true },
-  { from: "briefing_draft_model", to: "briefing_quality_gate", label: "Draft Edition" },
-  { from: "briefing_control", to: "briefing_quality_gate", label: "Auto-Publish Switch" },
-  { from: "briefing_quality_gate", to: "publication", label: "100% Pass Auto-Publish" },
-  { from: "briefing_quality_gate", to: "briefing_quarantine", label: "Failed Gate (Quarantine)", isQuarantine: true },
+  { from: "briefing_draft_model", to: "publication", label: "Automatic Publication" },
+  { from: "briefing_control", to: "publication", label: "Auto-Publish Switch" },
   { from: "briefing_quarantine", to: "briefing_alert", label: "Durable Alert", isTrigger: true },
 
   /* ── Search, Outbox & Embeddings ── */

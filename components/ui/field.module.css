@@ -1,0 +1,192 @@
+/* Field primitives — SYS-009
+ *
+ * Visible label, description, required, error, disabled, focus-visible.
+ * Coarse targets are --control-h (44px); the checkbox label region counts.
+ */
+
+.field,
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.field + .field,
+.group + .field,
+.field + .group,
+.group + .group {
+  margin-top: var(--sp-4);
+}
+
+.label,
+.legend {
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+}
+
+.legend {
+  padding: 0 var(--sp-2);
+}
+
+.required {
+  margin-inline-start: var(--sp-2);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
+.control {
+  width: 100%;
+  min-height: var(--control-h-sm);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-2);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+select.control {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.1rem) calc(50% - 0.18rem),
+    calc(100% - 0.75rem) calc(50% - 0.18rem);
+  background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
+  background-repeat: no-repeat;
+  padding-inline-end: var(--sp-6);
+}
+
+:dir(rtl) select.control {
+  background-position:
+    0.75rem calc(50% - 0.18rem),
+    1.1rem calc(50% - 0.18rem);
+}
+
+.control::placeholder {
+  color: var(--ink-lo);
+  opacity: 1;
+}
+
+textarea.control {
+  min-height: calc(var(--control-h) * 2);
+  resize: vertical;
+}
+
+.control:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+
+.control:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+}
+
+.field[data-invalid] .control,
+.control[aria-invalid="true"] {
+  border-color: var(--state-danger-line);
+  background: color-mix(in oklab, var(--state-danger-wash) 50%, var(--surface-2));
+}
+
+.field[data-invalid] .control:focus-visible,
+.control[aria-invalid="true"]:focus-visible {
+  border-color: var(--state-danger);
+}
+
+.control:disabled {
+  background: var(--surface-1);
+  border-color: var(--line-soft);
+  color: var(--async-disabled);
+  cursor: not-allowed;
+}
+
+.group {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+}
+
+.group[disabled] {
+  color: var(--async-disabled);
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  min-height: var(--control-h-sm);
+  margin: 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.check:hover {
+  color: var(--ink-hi);
+}
+
+.checkbox {
+  flex: none;
+  width: var(--sp-4);
+  height: var(--sp-4);
+  margin-block: 0.35em 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.checkbox:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.checkbox:disabled {
+  cursor: not-allowed;
+}
+
+.checkText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+  padding-block: var(--sp-2);
+}
+
+.error {
+  margin: 0;
+  padding-inline-start: var(--sp-3);
+  border-inline-start: var(--line-w-thick) solid var(--state-danger-line);
+  color: var(--state-danger);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+@media (pointer: coarse) {
+  .control,
+  .check {
+    min-height: var(--control-h);
+  }
+}

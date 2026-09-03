@@ -21,14 +21,47 @@
  * Escape clearing before closing is deliberate. The alternative — always
  * close — throws away a half-typed query on a keypress people use to mean
  * "undo the last thing", and re-opening starts from nothing.
+ *
+ * Combobox ARIA lives on the input, not on FieldShell. FieldShell owns the
+ * visible label; a second label would compete with it.
+ *
+ * Live regions (STATE-002): one polite region for counts and invalid-query;
+ * blocking errors use StatusState `status="error"` (`role="alert"`). Ambient
+ * loading is visible (pulse + copy) and is not announced.
+ *
+ * States on `data-search-state`: idle, loading, results, no-results,
+ * invalid-query, error. Retry is the error action, not a separate view.
  */
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { FieldShell } from "@/components/ui/Field";
+import { StatusState } from "@/components/ui/StatusState";
+import fieldStyles from "@/components/ui/field.module.css";
+import { politeLive } from "@/components/ui/live-region";
 import { SearchResults } from "./SearchResults";
 import { useSearch } from "./useSearch";
 import { ApiProblem } from "./http";
 import styles from "./search.module.css";
+
+/**
+ * Idle primer chips. These are queries, not records — they fill the box.
+ * Wording is taken from published product language (a claim, a name, a
+ * place); none of them names an unpublished file.
+ *
+ *   staged footage  — Fake Resistance, Arma 3 combat-video case
+ *   Yahya Sinwar    — October 7 timeline
+ *   Haifa           — Fake Resistance, evacuation-video case
+ *   October 7       — published section
+ *   Nahal Oz        — Our Heroes (Tibon)
+ */
+const PRIMER_QUERIES = ["staged footage", "Yahya Sinwar", "Haifa", "October 7", "Nahal Oz"] as const;
+
+const RECENTS_KEY = "loz.search.recent";
+const RECENTS_EVENT = "loz-search-recents";
+const RECENTS_MAX = 5;
+const EMPTY_RECENTS: string[] = [];
 
 export interface SearchPanelProps {
   variant: "overlay" | "page";
@@ -51,6 +84,7 @@ export function SearchPanel({
 }: SearchPanelProps) {
   const router = useRouter();
   const { query, setQuery, answered, hits, state, semantic, problem, retry } = useSearch(initialQuery);
+  const recents = useSyncExternalStore(subscribeRecents, readRecents, () => EMPTY_RECENTS);
 
   /* The selection resets when a new result set lands. Adjusted during render
      rather than in an effect: React runs the extra pass before painting, so
@@ -73,6 +107,9 @@ export function SearchPanel({
   const inputId = `${baseId}-query`;
   const inputRef = useRef<HTMLInputElement>(null);
   const optionId = useCallback((index: number) => `${baseId}-option-${index}`, [baseId]);
+  const remember = useCallback((value: string) => {
+    rememberQuery(value);
+  }, []);
 
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus();
@@ -113,6 +150,7 @@ export function SearchPanel({
         const hit = hits[activeIndex];
         if (!hit?.href) break;
         event.preventDefault();
+        remember(query);
         router.push(hit.href);
         onDismiss?.();
         break;
@@ -131,18 +169,46 @@ export function SearchPanel({
     }
   };
 
-  const handleChange = (next: string) => {
-    setQuery(next);
-    onQueryChange?.(next);
-  };
+  const handleChange = useCallback(
+    (next: string) => {
+      setQuery(next);
+      onQueryChange?.(next);
+    },
+    [setQuery, onQueryChange],
+  );
+
+  const fillQuery = useCallback(
+    (next: string) => {
+      handleChange(next);
+      remember(next);
+      inputRef.current?.focus();
+    },
+    [handleChange, remember],
+  );
 
   const trimmed = query.trim();
+  const tooShort = trimmed.length === 1;
   const showingStale = state === "loading" && hits.length > 0;
+  const searchState =
+    state === "error" && problem
+      ? "error"
+      : !trimmed
+        ? "idle"
+        : tooShort
+          ? "invalid-query"
+          : state === "loading"
+            ? "loading"
+            : state === "ready" && !hits.length
+              ? "no-results"
+              : "results";
   const body = useMemo(() => {
     if (state === "error" && problem) {
       return <PanelProblem problem={problem} onRetry={retry} />;
     }
-    if (!trimmed) return <PanelPrimer />;
+    if (!trimmed) return <PanelPrimer recents={recents} onPick={fillQuery} />;
+    if (tooShort) {
+      return <p className={styles.notice}>Type at least two characters to search.</p>;
+    }
     if (state === "loading" && !hits.length) {
       return <p className={styles.notice}>Searching the index…</p>;
     }
@@ -150,39 +216,47 @@ export function SearchPanel({
       return <PanelEmpty query={answered} semantic={semantic} />;
     }
     return null;
-  }, [state, problem, retry, trimmed, hits.length, answered, semantic]);
+  }, [state, problem, retry, trimmed, tooShort, hits.length, answered, semantic, recents, fillQuery]);
+
+  /* Counts and invalid-query only. Loading is visible, not announced.
+     Blocking errors are the assertive notice, not this region. */
+  const liveMessage = tooShort
+    ? "Query too short"
+    : trimmed && state === "ready"
+      ? `${hits.length} ${hits.length === 1 ? "result" : "results"}${answered ? ` for ${answered}` : ""}.`
+      : "";
 
   return (
-    <div className={styles.panel} data-variant={variant}>
+    <div className={styles.panel} data-variant={variant} data-search-state={searchState}>
       <div className={styles.queryRow}>
-        <label className={styles.queryLabel} htmlFor={inputId}>
-          Search the corpus
-        </label>
-        <input
-          ref={inputRef}
-          id={inputId}
-          className={styles.queryInput}
-          type="search"
-          value={query}
-          placeholder="A claim, a name, a place"
-          autoComplete="off"
-          autoCorrect="off"
-          spellCheck={false}
-          enterKeyHint="search"
-          role="combobox"
-          aria-expanded={hits.length > 0}
-          aria-controls={listboxId}
-          aria-autocomplete="list"
-          aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
-          onChange={(event) => handleChange(event.target.value)}
-          onKeyDown={onKeyDown}
-        />
-        {variant === "overlay" ? (
-          <button type="button" className={styles.dismiss} onClick={() => onDismiss?.()}>
-            <span aria-hidden="true">Esc</span>
-            <span className={styles.srOnly}>Close search</span>
-          </button>
-        ) : null}
+        <FieldShell fieldId={inputId} label="Search the corpus" className={styles.queryField}>
+          <div className={styles.queryControl}>
+            <input
+              ref={inputRef}
+              id={inputId}
+              className={`${fieldStyles.control} ${styles.queryInput}`}
+              type="search"
+              value={query}
+              placeholder="A claim, a name, a place"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="search"
+              role="combobox"
+              aria-expanded={hits.length > 0}
+              aria-controls={listboxId}
+              aria-autocomplete="list"
+              aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
+              onChange={(event) => handleChange(event.target.value)}
+              onKeyDown={onKeyDown}
+            />
+            {variant === "overlay" ? (
+              <Button type="button" variant="ghost" size="sm" onClick={() => onDismiss?.()} aria-label="Close search">
+                Esc
+              </Button>
+            ) : null}
+          </div>
+        </FieldShell>
         {/* A determinate bar would be a lie — the request has no progress to
             report. This is a state indicator that happens to move. */}
         <span className={styles.pulse} data-running={state === "loading" ? "" : undefined} aria-hidden="true" />
@@ -190,7 +264,11 @@ export function SearchPanel({
 
       {body}
 
-      {hits.length > 0 ? (
+      <p className={styles.srOnly} {...politeLive}>
+        {liveMessage}
+      </p>
+
+      {hits.length > 0 && !tooShort ? (
         <SearchResults
           hits={hits}
           activeIndex={activeIndex}
@@ -198,7 +276,10 @@ export function SearchPanel({
           listboxId={listboxId}
           listboxLabel={answered ? `Results for ${answered}` : "Results"}
           onHover={setActiveIndex}
-          onNavigate={() => onDismiss?.()}
+          onNavigate={() => {
+            remember(query);
+            onDismiss?.();
+          }}
           stale={showingStale}
         />
       ) : (
@@ -206,15 +287,6 @@ export function SearchPanel({
            is empty, or the combobox points at nothing. */
         <div id={listboxId} role="listbox" aria-label="Results" className={styles.emptyListbox} />
       )}
-
-      {/* The count, for a reader who cannot see the list. The combobox pattern
-          announces the active option but never how many there are, and "seven
-          results" is the first thing a sighted reader gets for free. */}
-      <p className={styles.srOnly} role="status" aria-live="polite">
-        {state === "ready" && answered
-          ? `${hits.length} ${hits.length === 1 ? "result" : "results"} for ${answered}.`
-          : ""}
-      </p>
 
       <p className={styles.foot}>
         <span className={styles.footFact}>
@@ -236,43 +308,155 @@ export function SearchPanel({
   );
 }
 
-function PanelPrimer() {
+function PanelPrimer({ recents, onPick }: { recents: string[]; onPick: (query: string) => void }) {
+  const recentsId = useId();
+  const primersId = useId();
+  const primers = PRIMER_QUERIES.filter(
+    (query) => !recents.some((recent) => recent.toLowerCase() === query.toLowerCase()),
+  );
+
   return (
-    <div className={styles.notice}>
+    <div className={styles.primer}>
       <p>
         This searches what the desk has published — briefs, analyses and updates — and the
         claims behind them. Names and transliterations match even when spelled differently.
       </p>
+      {recents.length > 0 ? (
+        <SuggestionChips
+          labelledBy={recentsId}
+          label="Recent"
+          queries={recents}
+          onPick={onPick}
+        />
+      ) : null}
+      {primers.length > 0 ? (
+        <SuggestionChips
+          labelledBy={primersId}
+          label="Try a claim, a name, or a place"
+          queries={primers}
+          onPick={onPick}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function SuggestionChips({
+  labelledBy,
+  label,
+  queries,
+  onPick,
+}: {
+  labelledBy: string;
+  label: string;
+  queries: readonly string[];
+  onPick: (query: string) => void;
+}) {
+  return (
+    <div className={styles.suggestions}>
+      <p className={styles.suggestionsLabel} id={labelledBy}>
+        {label}
+      </p>
+      <ul className={styles.chips} aria-labelledby={labelledBy}>
+        {queries.map((query) => (
+          <li key={query}>
+            <Button type="button" variant="ghost" size="md" onClick={() => onPick(query)}>
+              {query}
+            </Button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 function PanelEmpty({ query, semantic }: { query: string; semantic: boolean }) {
   return (
-    <div className={styles.notice}>
-      <p className={styles.noticeLead}>Nothing in the index matches “{query}”.</p>
-      <p>
-        {semantic
+    <StatusState
+      status="empty"
+      className={styles.status}
+      eyebrow="SEARCH"
+      title={`Nothing in the index matches “${query}”.`}
+      description={
+        semantic
           ? "Try fewer words, or the name of a person or place."
-          : "This deployment matches words and names rather than meaning, so a paraphrase will miss. Try the words as they would appear in the text, or a name."}
-      </p>
-    </div>
+          : "This deployment matches words and names rather than meaning, so a paraphrase will miss. Try the words as they would appear in the text, or a name."
+      }
+    />
   );
 }
 
 function PanelProblem({ problem, onRetry }: { problem: ApiProblem; onRetry: () => void }) {
   const limited = problem.code === "RATE_LIMITED";
   return (
-    <div className={styles.notice} data-tone="alert">
-      <p className={styles.noticeLead}>{limited ? "Too many searches, too fast." : "The search failed."}</p>
-      {/* The API's own `detail` names the ceiling and the window; restating it
-          in our words would drift from the real limit the moment it changes. */}
-      <p>{problem.detail}</p>
-      {limited ? <p>Wait a moment and search again — nothing is lost.</p> : (
-        <button type="button" className={styles.retry} onClick={onRetry}>
-          Try again
-        </button>
-      )}
-    </div>
+    <StatusState
+      status="error"
+      className={styles.status}
+      eyebrow="SEARCH"
+      title={limited ? "Too many searches, too fast." : "The search failed."}
+      description={
+        limited
+          ? `${problem.detail} Wait a moment and search again — nothing is lost.`
+          : problem.detail
+      }
+      actionText={limited ? undefined : "Try again"}
+      onAction={limited ? undefined : onRetry}
+    />
   );
+}
+
+function subscribeRecents(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === RECENTS_KEY || event.key === null) onStoreChange();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(RECENTS_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(RECENTS_EVENT, onStoreChange);
+  };
+}
+
+let recentsSnapshot: string[] = EMPTY_RECENTS;
+let recentsRaw: string | null = null;
+
+function readRecents(): string[] {
+  try {
+    const raw = window.localStorage.getItem(RECENTS_KEY);
+    if (raw === recentsRaw) return recentsSnapshot;
+    recentsRaw = raw;
+    if (!raw) {
+      recentsSnapshot = EMPTY_RECENTS;
+      return recentsSnapshot;
+    }
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      recentsSnapshot = EMPTY_RECENTS;
+      return recentsSnapshot;
+    }
+    const next = parsed
+      .filter((item): item is string => typeof item === "string" && item.trim().length >= 2)
+      .slice(0, RECENTS_MAX);
+    recentsSnapshot = next.length ? next : EMPTY_RECENTS;
+    return recentsSnapshot;
+  } catch {
+    recentsRaw = null;
+    recentsSnapshot = EMPTY_RECENTS;
+    return recentsSnapshot;
+  }
+}
+
+function rememberQuery(query: string) {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return;
+  const next = [trimmed, ...readRecents().filter((item) => item.toLowerCase() !== trimmed.toLowerCase())].slice(
+    0,
+    RECENTS_MAX,
+  );
+  try {
+    window.localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+  } catch {
+    /* Private mode — recents stay in this visit's memory only if the write fails. */
+  }
+  window.dispatchEvent(new Event(RECENTS_EVENT));
 }

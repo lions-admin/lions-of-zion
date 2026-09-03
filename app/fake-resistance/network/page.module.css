@@ -11,39 +11,11 @@
    gold is kept for the desk's own apparatus (numbering, the binding label). */
 
 .communityList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: var(--line-w);
-  margin-top: var(--sp-6);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--line);
-  overflow: hidden;
-}
-
-.community {
-  padding: var(--sp-5);
-  background: var(--surface-1);
-}
-
-.community h3 {
-  margin: 0 0 var(--sp-2);
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-}
-
-/* Account handles are data. */
-.communityNodes {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
+  display: flex;
+  flex-direction: column;
+  margin: var(--sp-6) 0 0;
+  padding: 0;
+  list-style: none;
   overflow-wrap: anywhere;
 }
 

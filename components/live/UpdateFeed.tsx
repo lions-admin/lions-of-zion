@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Reveal } from "@/components/motion";
 import { PUBLICATION_SECTIONS } from "@/server/contracts/enums";
 import type { PublicationSection } from "@/server/contracts/enums";
 import type { PublicPublication } from "@/server/contracts/publication";
@@ -9,11 +8,6 @@ import { FeedStatus } from "./FeedStatus";
 import { SECTION_LABELS } from "./publication-labels";
 import { UpdateEntry } from "./UpdateEntry";
 import styles from "./live-feed.module.css";
-
-/** `--stagger` caps a sequence at four steps; a day group beyond the fourth
- *  arrives with the ones above it rather than waiting on a delay that would
- *  keep growing down a page that can run to a hundred entries. */
-const MAX_STAGGER_INDEX = 3;
 
 export const UPDATES_PATH = "/updates";
 
@@ -54,9 +48,13 @@ function href(section: PublicationSection | undefined, cursor?: string): string 
  *
  * Every control on the page is a link. Filtering and paging work with
  * JavaScript off, they are addressable and shareable, and the back button does
- * what a reader expects — which is also why there is no client component here
- * beyond `Reveal`, whose entire failure mode is that the content is simply
- * already visible.
+ * what a reader expects. There is no client component on this surface: day
+ * groups are ordinary sections so a 320 screenshot and a no-JS reader see
+ * the rows immediately, rather than waiting on IntersectionObserver.
+ *
+ * The list does not reorder, pulse, or insert while it is being read. A
+ * newer snapshot arrives only when the reader follows a filter, a pager
+ * link, or reloads — all user intent.
  */
 export function UpdateFeed({
   entries,
@@ -93,6 +91,7 @@ export function UpdateFeed({
 
       {unavailable ? (
         <StatusState
+          status="error"
           eyebrow="FEED STATUS"
           title="The published record could not be read."
           description="This is a fault on our side, not an empty archive. Published entries are unaffected and the feed returns when the read succeeds."
@@ -101,6 +100,7 @@ export function UpdateFeed({
         />
       ) : days.length === 0 ? (
         <StatusState
+          status="empty"
           eyebrow="FEED STATUS"
           title={
             section
@@ -119,13 +119,11 @@ export function UpdateFeed({
            resolve to the whole page and every day would share one anchor, so
            the contents rail would list nothing usable. As a section, the rail
            becomes a real date index over the feed. */
-        <div className={styles.feed}>
-          {days.map((day, index) => (
-            <Reveal
-              as="section"
+        <div className={styles.feed} aria-describedby="feed-staleness">
+          {days.map((day) => (
+            <section
               key={day.key}
               id={`day-${day.key}`}
-              index={Math.min(index, MAX_STAGGER_INDEX)}
               className={styles.day}
             >
               <h2 className={styles.dayHeading}>
@@ -136,7 +134,7 @@ export function UpdateFeed({
                   <UpdateEntry entry={entry} key={entry.publicId} />
                 ))}
               </ol>
-            </Reveal>
+            </section>
           ))}
         </div>
       )}

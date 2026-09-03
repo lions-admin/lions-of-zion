@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
 import { PIPELINE_GLOSSARY, type GlossaryTerm } from "./data/glossary";
+import { CHROME, GLOSSARY_CATEGORY_LABELS, glossaryTermCopy } from "./copy";
 import styles from "./visualizer.module.css";
 
 interface TermsGlossaryModalProps {
@@ -10,22 +13,29 @@ interface TermsGlossaryModalProps {
   onClose: () => void;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  all: "כל המונחים",
-  ingest: "איסוף ומקורות",
-  evidence: "ראיות וטענות",
-  model: "אימות וחוקים",
-  briefing: "בריף יומי",
-  search: "חיפוש ו־Outbox",
-  ai: "בינה מלאכותית (AI)",
-  infra: "תשתית ואבטחה",
-};
-
 export function TermsGlossaryModal({
   isOpen,
   initialSearch = "",
   onClose,
 }: TermsGlossaryModalProps) {
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      title={CHROME.glossaryTitle}
+      description={CHROME.glossarySubtitle}
+      variant="modal"
+      size="wide"
+      closeLabel={CHROME.glossaryClose}
+    >
+      {isOpen ? (
+        <GlossaryBody key={initialSearch} initialSearch={initialSearch} />
+      ) : null}
+    </Dialog>
+  );
+}
+
+function GlossaryBody({ initialSearch }: { initialSearch: string }) {
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
@@ -36,104 +46,83 @@ export function TermsGlossaryModal({
       }
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
+      const english = glossaryTermCopy(t.termEn);
       return (
         t.termEn.toLowerCase().includes(q) ||
         t.termHe.toLowerCase().includes(q) ||
-        t.shortDescriptionHe.toLowerCase().includes(q) ||
-        t.deepExplanationHe.toLowerCase().includes(q) ||
+        (english?.short.toLowerCase().includes(q) ?? false) ||
+        (english?.deep.toLowerCase().includes(q) ?? false) ||
         (t.relatedDbTable && t.relatedDbTable.toLowerCase().includes(q))
       );
     });
   }, [searchQuery, selectedCategory]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.modalBackdrop} onClick={onClose} dir="rtl">
-      <div className={styles.glossaryModalContent} onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className={styles.glossaryModalHeader}>
-          <div>
-            <h2 className={styles.glossaryModalTitle}>מילון מונחים והסברים מלא (עברית / אנגלית)</h2>
-            <p className={styles.glossaryModalSubtitle}>
-              הסבר מעמיק, בעברית פשוטה ומדויקת, לכל מושג טכני, מודל או טבלה בארכיטקטורת המערכת.
-            </p>
-          </div>
-          <button
-            type="button"
-            className={styles.modalCloseBtn}
-            onClick={onClose}
-            aria-label="סגור מילון"
-          >
-            ✕
-          </button>
+    <>
+      <div className={styles.glossarySearchRow}>
+        <input
+          type="text"
+          className={styles.glossarySearchInput}
+          placeholder={CHROME.glossarySearch}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
+        <div className={styles.glossaryCategoryTabs}>
+          {Object.entries(GLOSSARY_CATEGORY_LABELS).map(([cat, label]) => (
+            <Button
+              key={cat}
+              type="button"
+              variant="filter"
+              size="xs"
+              isActive={selectedCategory === cat}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {label}
+            </Button>
+          ))}
         </div>
+      </div>
 
-        {/* Search & Category Filter */}
-        <div className={styles.glossarySearchRow}>
-          <input
-            type="text"
-            className={styles.glossarySearchInput}
-            placeholder="חפש מונח באנגלית או בעברית (למשל: Outbox, RLS, אימות, וקטורים)..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            autoFocus
-          />
-
-          <div className={styles.glossaryCategoryTabs}>
-            {Object.entries(CATEGORY_LABELS).map(([cat, label]) => (
-              <button
-                key={cat}
-                type="button"
-                className={`
-                  ${styles.glossaryCatTab}
-                  ${selectedCategory === cat ? styles.glossaryCatTabActive : ""}
-                `}
-                onClick={() => setSelectedCategory(cat)}
-              >
-                {label}
-              </button>
-            ))}
+      <div className={styles.glossaryListContainer}>
+        {filteredTerms.length === 0 ? (
+          <div className={styles.glossaryEmptyState}>
+            {CHROME.glossaryEmpty(searchQuery)}
           </div>
-        </div>
-
-        {/* Term List */}
-        <div className={styles.glossaryListContainer}>
-          {filteredTerms.length === 0 ? (
-            <div className={styles.glossaryEmptyState}>
-              לא נמצאו מונחים התואמים את החיפוש &quot;{searchQuery}&quot;.
-            </div>
-          ) : (
-            filteredTerms.map((term: GlossaryTerm) => (
+        ) : (
+          filteredTerms.map((term: GlossaryTerm) => {
+            const english = glossaryTermCopy(term.termEn);
+            return (
               <div key={term.termEn} className={styles.glossaryCard}>
                 <div className={styles.glossaryCardTop}>
                   <div className={styles.glossaryTitleGroup}>
-                    <h3 className={styles.glossaryTermHe}>{term.termHe}</h3>
-                    <span className={styles.glossaryTermEn} dir="ltr">({term.termEn})</span>
+                    <h3 className={styles.glossaryTermHe}>{term.termEn}</h3>
                   </div>
                   {term.relatedDbTable && (
                     <span className={styles.glossaryTableTag} dir="ltr">
-                      טבלה: <code>{term.relatedDbTable}</code>
+                      {CHROME.glossaryTable}: <code>{term.relatedDbTable}</code>
                     </span>
                   )}
                 </div>
 
-                <p className={styles.glossaryShortDesc}>{term.shortDescriptionHe}</p>
-
-                <div className={styles.glossaryDeepSection}>
-                  <strong>הסבר הנדסי מעמיק:</strong> {term.deepExplanationHe}
-                </div>
-
-                {term.exampleHe && (
-                  <div className={styles.glossaryExampleBox}>
-                    <strong>דוגמה מהמערכת:</strong> {term.exampleHe}
-                  </div>
-                )}
+                {english ? (
+                  <>
+                    <p className={styles.glossaryShortDesc}>{english.short}</p>
+                    <div className={styles.glossaryDeepSection}>
+                      <strong>{CHROME.glossaryDeep}:</strong> {english.deep}
+                    </div>
+                    {english.example && (
+                      <div className={styles.glossaryExampleBox}>
+                        <strong>{CHROME.glossaryExample}:</strong> {english.example}
+                      </div>
+                    )}
+                  </>
+                ) : null}
               </div>
-            ))
-          )}
-        </div>
+            );
+          })
+        )}
       </div>
-    </div>
+    </>
   );
 }

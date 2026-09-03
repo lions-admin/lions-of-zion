@@ -1,7 +1,5 @@
 /**
- * The chrome primitives. Read `components/ui/README.md` before adding one —
- * it carries the variant → use-case mapping and the boundary against
- * `components/content`.
+ * The chrome primitives.
  *
  * Import from this barrel. `package.json` declares
  * `sideEffects: ["*.css", "**\/*.css"]`, which is what makes that safe: every
@@ -22,3 +20,8 @@ export * from "./Dialog";
 export * from "./Tabs";
 export * from "./Tooltip";
 export * from "./Pagination";
+export * from "./Field";
+export * from "./FieldGroup";
+export * from "./CheckboxField";
+export * from "./SelectField";
+export * from "./live-region";

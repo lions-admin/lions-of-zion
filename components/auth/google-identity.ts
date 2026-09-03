@@ -23,18 +23,37 @@ export async function loadGoogleIdentity(): Promise<GoogleAccountsId> {
   if (existing) return existing;
 
   await new Promise<void>((resolve, reject) => {
+    /* A tag that never fires `load` or `error` — blocked by an extension, cut
+       off by a captive portal, or already finished before this listener was
+       attached — used to leave the promise pending for the life of the page,
+       so the sign-in surface showed an empty box and said nothing. A rejection
+       is something the caller can announce; a hang is not. The flow itself is
+       untouched: same script, same origin, same consent. */
+    const timer = window.setTimeout(
+      () => reject(new Error("Google Identity Services did not load in time. Reload and try again.")),
+      15_000,
+    );
+    const done = () => {
+      window.clearTimeout(timer);
+      resolve();
+    };
+    const failed = () => {
+      window.clearTimeout(timer);
+      reject(new Error("Google Identity Services failed to load."));
+    };
+
     const script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
     if (script) {
-      script.addEventListener("load", () => resolve(), { once: true });
-      script.addEventListener("error", () => reject(new Error("Google Identity Services failed to load.")), { once: true });
+      script.addEventListener("load", done, { once: true });
+      script.addEventListener("error", failed, { once: true });
       return;
     }
     const next = document.createElement("script");
     next.id = SCRIPT_ID;
     next.src = SCRIPT_URL;
     next.async = true;
-    next.onload = () => resolve();
-    next.onerror = () => reject(new Error("Google Identity Services failed to load."));
+    next.onload = done;
+    next.onerror = failed;
     document.head.append(next);
   });
 
@@ -69,7 +88,7 @@ export async function signInWithGoogleCredential(credential: string): Promise<Go
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("החיבור מול שירות ההתחברות לא הסתיים בזמן. נסה שוב מאוחר יותר.");
+      throw new Error("The sign-in service did not finish in time. Try again later.");
     }
     throw error;
   } finally {

@@ -1,17 +1,47 @@
-import Image from "next/image";
 import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { SourceConvergenceBeams, SystemFlowBeams } from "./InformationWarBeams";
 import styles from "./information-war-system.module.css";
 
 /*
+ * `/information-war` — the argument, then the machine (IW-001 rebuild).
+ *
+ * The factual transformation sequence is the only thing preserved from the
+ * previous build: the five pressure stages, the seven system stages with
+ * their checked `mechanism` sentences, the independence claim, and the
+ * disclosure that this page carries no live telemetry. Everything rendered
+ * around that — the photographic hero, the horizontal pressure strip, the
+ * left-right convergence fan, the node-rail stage list, the closing
+ * full-viewport display moment — is replaced.
+ *
+ * The rebuilt page is one column of five numbered sections, each with a
+ * single reading path (kicker → heading → prose → list) and exactly one
+ * explanatory diagram:
+ *
+ *   01 The battlefield        · speed asymmetry, two labelled rules
+ *   02 How pressure forms     · escalation chain with a reach bar per stage
+ *   03 The independence test  · five copies converging on one origin
+ *   04 The system             · the seven-stage chain on one rail
+ *   05 The output             · the record forking into its three surfaces
+ *
+ * Every diagram is server markup. The only client boundary is the two beam
+ * hosts in `InformationWarBeams.tsx`, and neither diagram needs them to be
+ * understood — CSS draws a fallback connector that stands down when the
+ * measured wires mount.
+ *
+ * The hero is typographic (IW-002): the heading is one sentence whose
+ * accessible text is exactly "This is an information war." — the line
+ * breaks come from block spans that keep their word spaces, so what a
+ * screen reader hears and what the page shows are the same sentence.
+ */
+
+/*
  * The seven stages, each carrying the rule that actually enforces it.
  *
  * Headings and kickers are sentence case in the source. The V3 system allows
  * uppercase only on data labels of two words or fewer — the stage `meta`
- * strings and the diagram's labels qualify and are transformed by the
- * stylesheet; the stage names, the hero and the footer line are headings and
- * are not.
+ * strings qualify and are transformed by the stylesheet; the stage names,
+ * the hero and the footer line are headings and are not.
  *
  * `detail` says what the stage is for. `mechanism` says what stops it being
  * skipped, and every one of those sentences was checked against the code
@@ -48,8 +78,8 @@ const SYSTEM_STAGES = [
     number: "03",
     name: "Detection",
     detail: "Relevant stories, atomic claims, duplicates, and candidate narratives are separated.",
-    /* Two words is the V3 ceiling for an uppercase data label, and
-       `.systemFlow small` transforms these — so "Clustering and triage"
+    /* Two words is the V3 ceiling for an uppercase data label, and the
+       stage meta style transforms these — so "Clustering and triage"
        would have shipped as a three-word shout. */
     meta: "Clustering",
     mechanism:
@@ -105,6 +135,16 @@ const PRESSURE_STAGES = [
   ["Pressure", "Public belief influences institutions, policy, and freedom of action."],
 ] as const;
 
+/* The reading order, stated once and used twice: the hero's index and the
+   sections' own ids. */
+const READING_ORDER = [
+  ["battlefield", "The battlefield"],
+  ["pressure", "How pressure forms"],
+  ["independence", "The independence test"],
+  ["system", "The system"],
+  ["output", "The output"],
+] as const;
+
 export function InformationWarSystem() {
   return (
     <EditorialShell
@@ -115,104 +155,162 @@ export function InformationWarSystem() {
       progressTrackClassName={styles.progressTrack}
       progressValueClassName={styles.progressValue}
     >
+      {/* ── The threshold ─────────────────────────────────────────────
+          Typographic, on the bare ground. The previous build set a
+          grayscale photograph with scrims and a coordinates readout
+          behind this heading; the readout implied instrumentation the
+          page does not have, and the photograph fought the sentence.
+          The sentence is the hero. */}
       <section className={styles.hero} id="page-content" aria-labelledby="war-heading">
-        <div className={styles.heroMedia} aria-hidden="true">
-          <Image
-            src="/posters/particle-nav.webp"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-          />
-          <div className={styles.sweep} />
-          <div className={styles.coordinates}>31.7683° N / 35.2137° E</div>
-        </div>
         <div className={styles.heroCopy}>
-          <p>The battlefield is perception.</p>
+          <p className={styles.kicker}>The battlefield is perception.</p>
+          {/* Three block spans set the intended line breaks; the word
+              spaces live inside the spans, so the element's text — the
+              accessible name — is exactly the sentence (IW-002). */}
           <h1 id="war-heading">
-            <span>This is an</span>
-            <span>information</span>
-            <span>war.</span>
+            <span>{"This is an "}</span>
+            <span>{"information "}</span>
+            <span>{"war."}</span>
           </h1>
           <p className={styles.heroStatement}>
             Events shape reality. Narratives shape what the world believes those events mean.
           </p>
-          <a href="#system">Explore the system <span aria-hidden="true">↓</span></a>
+          <a className={styles.heroCta} href="#system">
+            Explore the system <span aria-hidden="true">↓</span>
+          </a>
         </div>
+        <nav className={styles.heroIndex} aria-label="Reading order">
+          {READING_ORDER.map(([id, name], index) => (
+            <a key={id} href={`#${id}`}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              {name}
+            </a>
+          ))}
+        </nav>
       </section>
 
-      <section className={styles.definition} aria-labelledby="definition-heading">
-        <div className={styles.sectionIndex}>01 / The battlefield</div>
-        <div>
-          <h2 id="definition-heading">A claim can cross the world before the evidence reaches the room.</h2>
+      {/* ── 01 · The battlefield ──────────────────────────────────────
+          Reading path: the definition. Diagram: the speed asymmetry the
+          definition rests on — two rules covering the same interval,
+          drawn to different lengths. Qualitative by design: the page
+          carries no figures it cannot show. */}
+      <section className={styles.section} id="battlefield" aria-labelledby="battlefield-heading">
+        <p className={styles.index}>01 / The battlefield</p>
+        <div className={styles.sectionBody}>
+          <h2 id="battlefield-heading">
+            A claim can cross the world before the evidence reaches the room.
+          </h2>
           <p>
-            Information warfare is the contest to define meaning at speed. A true fragment can be stripped
-            of context. An unresolved claim can be repeated as fact. Five headlines can look like five
-            confirmations even when all five descend from one original report.
+            Information warfare is the contest to define meaning at speed. A true fragment can be
+            stripped of context. An unresolved claim can be repeated as fact. Five headlines can look
+            like five confirmations even when all five descend from one original report.
           </p>
           <p>
             The answer is not louder messaging. It is a faster, visible chain from source to claim,
             from claim to evidence, and from evidence to a public explanation.
           </p>
-        </div>
-      </section>
-
-      <section className={styles.pressure} aria-labelledby="pressure-heading">
-        <div className={styles.sectionIntro}>
-          <div className={styles.sectionIndex}>02 / How pressure forms</div>
-          <h2 id="pressure-heading">One event. Five transformations.</h2>
-        </div>
-        <ol className={styles.pressureFlow}>
-          {PRESSURE_STAGES.map(([name, detail], index) => (
-            <li key={name}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
+          <figure className={styles.speedDiagram}>
+            <div className={styles.speedRow} data-tone="claim">
+              <span>The claim, repeated</span>
               <i aria-hidden="true" />
-              <h3>{name}</h3>
-              <p>{detail}</p>
-            </li>
-          ))}
-        </ol>
+            </div>
+            <div className={styles.speedRow} data-tone="evidence">
+              <span>The evidence behind it</span>
+              <i aria-hidden="true" />
+            </div>
+            <figcaption>
+              The same interval of time, measured from the same event. The gap between the two lines
+              is where a narrative sets.
+            </figcaption>
+          </figure>
+        </div>
       </section>
 
-      <section className={styles.independence} aria-labelledby="independence-heading">
-        <div className={styles.sectionIntro}>
-          <div className={styles.sectionIndex}>03 / The independence test</div>
+      {/* ── 02 · How pressure forms ───────────────────────────────────
+          Reading path: the five transformations, in order. Diagram: the
+          reach bar under each stage — the frame's audience widens while
+          the underlying facts do not change. The bar turns ember from
+          Amplification on, where repetition starts imitating
+          confirmation: the adversarial move, in the adversarial color. */}
+      <section className={styles.section} id="pressure" aria-labelledby="pressure-heading">
+        <p className={styles.index}>02 / How pressure forms</p>
+        <div className={styles.sectionBody}>
+          <h2 id="pressure-heading">One event. Five transformations.</h2>
+          <ol className={styles.pressureSteps}>
+            {PRESSURE_STAGES.map(([name, detail], index) => (
+              <li key={name}>
+                <span className={styles.stepNumber}>{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3>{name}</h3>
+                  <p>{detail}</p>
+                  <i className={styles.reach} aria-hidden="true" />
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className={styles.diagramNote}>Reach of the frame →. The facts have not changed.</p>
+        </div>
+      </section>
+
+      {/* ── 03 · The independence test ────────────────────────────────
+          Reading path: the claim in prose. Diagram: five copies over one
+          origin. The visible connector has two forms — a CSS bus for the
+          no-JavaScript tier, measured wires once the beams mount — and
+          the caption below states the relation in text, which is what
+          remains authoritative under reduced motion. */}
+      <section className={styles.section} id="independence" aria-labelledby="independence-heading">
+        <p className={styles.index}>03 / The independence test</p>
+        <div className={styles.sectionBody}>
           <h2 id="independence-heading">Repetition is not corroboration.</h2>
           <p>
             The system groups syndicated copies under their upstream source family. Five copies of one
             wire report count as one origin, not five independent confirmations.
           </p>
+          {/* The container, the `role="img"` and its label belong to
+              `SourceConvergenceBeams`, which needs to be the measured host.
+              Everything inside it is still rendered here on the server; the
+              marks carry `data-beam-*` so the wires attach to points on the
+              boxes' edges rather than to the boxes' centres. */}
+          <SourceConvergenceBeams label="Five syndicated copies of one wire report converging into a single upstream source family, counted as one origin">
+            <div className={styles.copyRow}>
+              {["Outlet A", "Outlet B", "Outlet C", "Outlet D", "Outlet E"].map((outlet) => (
+                <span key={outlet}>
+                  {outlet}
+                  <i data-beam-copy={outlet} />
+                </span>
+              ))}
+            </div>
+            <div className={styles.busField} aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className={styles.origin}>
+              <i className={styles.originMark} data-beam-origin />
+              <small>Counted as</small>
+              <strong>One</strong>
+              <span>Upstream source family</span>
+            </div>
+          </SourceConvergenceBeams>
+          <p className={styles.diagramNote}>
+            Five copies → one origin. Syndication, not corroboration.
+          </p>
         </div>
-        {/* The container, the `role="img"` and its label belong to
-            `SourceConvergenceBeams`, which needs to be the measured host.
-            Everything inside it is still rendered here on the server; the
-            marks carry `data-beam-*` so the wires attach to points on the
-            boxes' edges rather than to the boxes' centres. */}
-        <SourceConvergenceBeams label="Five headlines converging into one upstream source family">
-          <div className={styles.copies}>
-            {["Outlet A", "Outlet B", "Outlet C", "Outlet D", "Outlet E"].map((outlet) => (
-              <span key={outlet}>{outlet}<i data-beam-copy={outlet} /></span>
-            ))}
-          </div>
-          <div className={styles.convergence}>
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-          </div>
-          <div className={styles.origin}>
-            <i className={styles.originMark} data-beam-origin />
-            <small>Counted as</small>
-            <strong>One</strong>
-            <span>Upstream origin</span>
-          </div>
-        </SourceConvergenceBeams>
       </section>
 
+      {/* ── 04 · The system ───────────────────────────────────────────
+          Reading path: the seven stages, each a step card carrying its
+          description and the rule that enforces it. Diagram: the rail
+          the cards hang on — one wire from Source to Publication, with
+          the beams' packets riding it where motion is allowed. The intro
+          column is sticky only where the viewport is wide AND tall
+          enough to afford it (IW-003); everywhere else it reads inline
+          ahead of the chain. */}
       <section className={styles.system} id="system" aria-labelledby="system-heading">
-        <div className={styles.systemSticky}>
-          <div className={styles.sectionIndex}>04 / The Lions of Zion system</div>
+        <div className={styles.systemIntro}>
+          <p className={styles.index}>04 / The Lions of Zion system</p>
           <h2 id="system-heading">From open signal to public record.</h2>
           <p>
             Collection is automated. The evidence chain remains visible. Every public article can be
@@ -227,29 +325,31 @@ export function InformationWarSystem() {
               says plainly what it is and points at the two surfaces that do
               carry live output. */}
           <p className={styles.systemDisclosure}>
-            <strong>This diagram describes how the system is built, not what it is
-            doing right now.</strong>{" "}
-            It carries no live counters and no status figures, because the
-            per-stage telemetry is internal and we would rather draw nothing
-            than draw a number we cannot show you. What the system has actually
-            produced is public: every entry is in the{" "}
-            <Link href="/updates">updates feed</Link>, and every checked claim is
-            on the <Link href="/fact-check">fact-check desk</Link>.
+            <strong>
+              This diagram describes how the system is built, not what it is doing right now.
+            </strong>{" "}
+            It carries no live counters and no status figures, because the per-stage telemetry is
+            internal and we would rather draw nothing than draw a number we cannot show you. What the
+            system has actually produced is public: every entry is in the{" "}
+            <Link href="/updates">updates feed</Link>, and every checked claim is on the{" "}
+            <Link href="/fact-check">fact-check desk</Link>.
           </p>
         </div>
         {/* `SystemFlowBeams` is a positioned wrapper and nothing else — the
             list, its order and its text are unchanged and still server
             markup. The stage marks are the beam anchors. */}
         <SystemFlowBeams>
-          <ol className={styles.systemFlow}>
+          <ol className={styles.stageChain}>
             {SYSTEM_STAGES.map((stage) => (
               <li key={stage.name}>
-                <div className={styles.node}>
-                  <span>{stage.number}</span>
+                <div className={styles.stageRail}>
                   <i aria-hidden="true" data-beam-node={stage.number} />
                 </div>
-                <div>
-                  <small>{stage.meta}</small>
+                <div className={styles.stageBody}>
+                  <p className={styles.stageMeta}>
+                    <span>{stage.number}</span>
+                    <span>{stage.meta}</span>
+                  </p>
                   <h3>{stage.name}</h3>
                   <p>{stage.detail}</p>
                   {/* The rule under the stage. Set apart because it is a
@@ -264,30 +364,38 @@ export function InformationWarSystem() {
         </SystemFlowBeams>
       </section>
 
-      <section className={styles.output} aria-labelledby="output-heading">
-        <div className={styles.sectionIndex}>05 / The output</div>
-        <h2 id="output-heading">Evidence must travel.</h2>
-        <p>
-          The system turns a daily field of public signals into three readable outputs: a strategic brief,
-          a chronological record of everything published, and a desk of checked claims with the sources
-          each one rests on.
-        </p>
-        {/* These three were inert `<span>`s naming outputs a reader then had
-            to go and find. They are the outputs, so they are the way to them. */}
-        <nav className={styles.outputLines} aria-label="Where the system publishes">
-          <Link href="/geopolitical-brief">
-            The Daily Brief
-            <small>Today&rsquo;s edition, with the lead and the featured story</small>
-          </Link>
-          <Link href="/updates">
-            Updates
-            <small>Every entry, newest first, with the minute and route it published by</small>
-          </Link>
-          <Link href="/fact-check">
-            Fact check
-            <small>Claims in circulation, the verdict, and the evidence chain</small>
-          </Link>
-        </nav>
+      {/* ── 05 · The output ───────────────────────────────────────────
+          Reading path: what the system publishes. Diagram: the record
+          forking into its three public surfaces — a rail with three
+          stubs, each stub landing on the link that is the surface. */}
+      <section className={styles.section} id="output" aria-labelledby="output-heading">
+        <p className={styles.index}>05 / The output</p>
+        <div className={styles.sectionBody}>
+          <h2 id="output-heading">Evidence must travel.</h2>
+          <p>
+            The system turns a daily field of public signals into three readable outputs: a strategic
+            brief, a chronological record of everything published, and a desk of checked claims with
+            the sources each one rests on.
+          </p>
+          <nav className={styles.outputMap} aria-label="Where the system publishes">
+            <p className={styles.outputRoot}>
+              <i aria-hidden="true" />
+              The public record
+            </p>
+            <Link href="/geopolitical-brief">
+              <strong>The Daily Brief</strong>
+              <small>Today&rsquo;s edition, with the lead and the featured story</small>
+            </Link>
+            <Link href="/updates">
+              <strong>Updates</strong>
+              <small>Every entry, newest first, with the minute and route it published by</small>
+            </Link>
+            <Link href="/fact-check">
+              <strong>Fact check</strong>
+              <small>Claims in circulation, the verdict, and the evidence chain</small>
+            </Link>
+          </nav>
+        </div>
       </section>
 
       <footer className={styles.footer}>

@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { ContentCard } from "@/components/content";
-import { Reveal } from "@/components/motion";
+import {
+  Card,
+  CardDescription,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -50,6 +55,29 @@ const METHOD_STEPS = [
   {
     title: "Publish & search",
     body: "Only what clears review becomes part of the public, searchable record — carrying its sources with it.",
+  },
+];
+
+const ROLES = [
+  {
+    eyebrow: "Find",
+    title: "Investigators",
+    body: "Trace a claim to its origin; geolocation, chronolocation and archive work.",
+  },
+  {
+    eyebrow: "Check",
+    title: "Verification reviewers",
+    body: "The second, non-author reviewer every assessment requires before it can publish.",
+  },
+  {
+    eyebrow: "Read",
+    title: "Linguists & translators",
+    body: "Primary material across the languages of the region and the networks that target it.",
+  },
+  {
+    eyebrow: "Build",
+    title: "Engineers",
+    body: "The tools that make verified material fast to check and easy to carry.",
   },
 ];
 
@@ -110,20 +138,25 @@ export default function Page() {
           step: nothing automated can pass it.
         </p>
         <div className={styles.pipeline}>
-          {/* The one place on this page where a stagger carries information
-              rather than decorating: these are the ordered stages of a real
-              pipeline, and they arrive in the order a claim moves through
-              them. `direction="none"` on purpose — the track behind the
-              stages is drawn per-row with `::before`, so a shifted row would
-              shift its own segment of the line and open a gap in it. Opacity
-              and focus only; the track stays where it is drawn. */}
+          {/* The per-stage `Reveal` that used to be here is gone, and the
+              reasoning that kept it does not survive contact with the rest of
+              the system. `SectionBlock` is already this section's entrance,
+              so every stage was blurring pixels the section had just blurred;
+              and a pipeline is a process order, not a chronology — the stages
+              do not *happen* as a reader scrolls, so staging their arrival
+              described something untrue about them. Reveal is for section
+              entrances and real chronological progression (the dated entries
+              on Israel's Story). Removing it also takes the last client
+              boundary off this route: the page is server-rendered whole.
+
+              The same five stages, in the same order and with the same one
+              gate, are drawn on `/methodology` — two pages describing one
+              pipeline differently is how a reader learns not to trust
+              either. */}
           <ol className={styles.pipelineList}>
-            {METHOD_STEPS.map((step, index) => (
-              <Reveal
-                as="li"
+            {METHOD_STEPS.map((step) => (
+              <li
                 key={step.title}
-                index={index}
-                direction="none"
                 className={styles.pipelineStage}
                 data-gate={step.gate ? "" : undefined}
               >
@@ -135,10 +168,19 @@ export default function Page() {
                   ) : null}
                   <p>{step.body}</p>
                 </div>
-              </Reveal>
+              </li>
             ))}
           </ol>
         </div>
+        {/* Proof, not assertion: the stages above are what happens, and the
+            rules they enforce — what counts as a source, how a claim is
+            labeled, what the method cannot support — are written down where a
+            reader can hold this page to them. */}
+        <p>
+          The standard those stages enforce is published in full on the{" "}
+          <Link href="/methodology">Methodology</Link> page, including the
+          things it cannot yet do.
+        </p>
       </SectionBlock>
 
       <SectionBlock heading="Roles">
@@ -146,36 +188,57 @@ export default function Page() {
           The network runs on volunteered expertise across a few broad
           areas — not a fixed org chart, and not names published here.
         </p>
-        <div className={styles.roleGrid}>
-          <ContentCard eyebrow="Find" title="Investigators">
-            Trace a claim to its origin; geolocation, chronolocation and
-            archive work.
-          </ContentCard>
-          <ContentCard eyebrow="Check" title="Verification reviewers">
-            The second, non-author reviewer every assessment requires
-            before it can publish.
-          </ContentCard>
-          <ContentCard eyebrow="Read" title="Linguists & translators">
-            Primary material across the languages of the region and the
-            networks that target it.
-          </ContentCard>
-          <ContentCard eyebrow="Build" title="Engineers">
-            The tools that make verified material fast to check and easy
-            to carry.
-          </ContentCard>
-        </div>
+        <ul className={styles.roleRoster}>
+          {ROLES.map((role) => (
+            <Card as="li" key={role.title} variant="row">
+              <CardHeader>
+                <CardEyebrow>{role.eyebrow}</CardEyebrow>
+              </CardHeader>
+              <CardTitle>{role.title}</CardTitle>
+              <CardDescription>{role.body}</CardDescription>
+            </Card>
+          ))}
+        </ul>
       </SectionBlock>
 
+      {/* One paragraph carried four separate commitments in a row, separated
+          by colons, which is the shape of a list that has not been written as
+          one — a reader scanning for "what do they promise about funding?"
+          had to read all four to find it. Every clause below is the clause
+          that was in that paragraph; only the structure changed. Each is
+          named, and the two that are enforced rather than promised say which
+          they are. */}
       <SectionBlock heading="Principles">
-        <p>
-          Independence: no sponsor gets a say in what gets published or how
-          it&apos;s assessed. Funding: not yet public — see{" "}
-          <Link href="/support-us">Support Us</Link> for what exists today.
-          Privacy: a report can be submitted with no name attached, and stays
-          that way unless the reporter chooses otherwise. Conflicts of
-          interest: a reviewer does not approve their own work — that rule is
-          enforced by the system, not just asked for.
-        </p>
+        <dl className={styles.principles}>
+          <div>
+            <dt>Independence</dt>
+            <dd>
+              No sponsor gets a say in what gets published or how it&apos;s
+              assessed.
+            </dd>
+          </div>
+          <div>
+            <dt>Funding</dt>
+            <dd>
+              Not yet public — see <Link href="/support-us">Support Us</Link>{" "}
+              for what exists today.
+            </dd>
+          </div>
+          <div>
+            <dt>Privacy</dt>
+            <dd>
+              A report can be submitted with no name attached, and stays that
+              way unless the reporter chooses otherwise.
+            </dd>
+          </div>
+          <div>
+            <dt>Conflicts of interest</dt>
+            <dd>
+              A reviewer does not approve their own work — that rule is
+              enforced by the system, not just asked for.
+            </dd>
+          </div>
+        </dl>
       </SectionBlock>
 
       <SectionBlock heading="FAQ">

@@ -10,12 +10,11 @@ import "./tailwind.css";
 import "./globals.css";
 
 /*
- * Three faces, three jobs — see the token block in `globals.css`.
+ * Three faces, three jobs — see the token block in `globals.css` (SYS-003).
  * Newsreader is the editorial display and standfirst voice (variable, with
  * the optical-size axis so it cuts differently at 60px and at 20px); IBM Plex
- * Sans is running text and interface; JetBrains Mono is data only. Nothing
- * else loads: the six families this file used to ship for the same three
- * jobs were retired in the V3 pass.
+ * Sans is running text and interface; JetBrains Mono is data only.
+ * The public site is English (`lang="en"`). Do not load a Hebrew face.
  */
 const newsreader = Newsreader({
   subsets: ["latin"],

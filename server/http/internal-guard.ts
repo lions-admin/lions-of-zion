@@ -12,8 +12,9 @@ import "server-only";
  * both would mean rotating either one silently breaks the other.
  */
 
+import { createHash, timingSafeEqual } from "node:crypto";
 import { ApiError } from "./responses";
-import { cronSecret, internalApiSecret } from "@/server/core/config";
+import { codexBriefingImportSecret, cronSecret, internalApiSecret } from "@/server/core/config";
 
 export function requireCron(request: Request): void {
   const expected = cronSecret();
@@ -27,5 +28,15 @@ export function requireInternalSecret(request: Request): void {
   const header = request.headers.get("x-internal-secret");
   if (header !== internalApiSecret()) {
     throw new ApiError("UNAUTHENTICATED", "This route requires the internal secret.");
+  }
+}
+
+export function requireCodexBriefingImportSecret(request: Request): void {
+  const supplied = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+  const expected = codexBriefingImportSecret();
+  const suppliedHash = createHash("sha256").update(supplied).digest();
+  const expectedHash = createHash("sha256").update(expected).digest();
+  if (!supplied || !timingSafeEqual(suppliedHash, expectedHash)) {
+    throw new ApiError("UNAUTHENTICATED", "This route requires the Codex briefing import secret.");
   }
 }

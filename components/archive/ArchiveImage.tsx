@@ -21,7 +21,9 @@
  *
  * The fallback borrows `.externalMedia`, the treatment the two YouTube videos
  * already use, so the archive says "this is a gap in the holding" in one voice
- * rather than two.
+ * rather than two. It is only the media node — never a `<figure>` — so it
+ * sits in MediaBlock's frame and a load failure does not drop caption, credit,
+ * or the action row.
  */
 import { useState } from 'react';
 import styles from './archive.module.css';
@@ -53,15 +55,10 @@ export function ArchiveImage({
   const [failed, setFailed] = useState(false);
 
   if (failed) {
-    // The frame keeps the image's shape where the package recorded one, so
-    // the record does not reflow around the gap and the note sits where the
-    // picture was. `--frame-ratio` is read by `.imageUnavailable`.
-    const frame =
-      width && height
-        ? ({ '--frame-ratio': `${width} / ${height}` } as React.CSSProperties)
-        : undefined;
+    // MediaBlock's frame already holds the package ratio; this node only
+    // replaces the `<img>` so caption/credit/provenance stay on the figure.
     return (
-      <p className={`${styles.externalMedia} ${styles.imageUnavailable}`} style={frame}>
+      <p className={`${styles.externalMedia} ${styles.imageUnavailable}`}>
         {unavailableNote}
       </p>
     );

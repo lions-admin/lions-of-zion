@@ -4,19 +4,10 @@ import styles from "./skeleton.module.css";
 /**
  * Loading placeholders that match the layout they stand in for.
  *
- * There were none anywhere on this site before 2026-09-02, and the reason to
- * add them is not decoration: a skeleton whose box differs from the content's
- * box turns a wait into a jump, which is the defect it exists to prevent. So
- * `SkeletonCard` matches `Card variant="dossier"` padding for padding, and
- * `SkeletonRow` matches an archive index row.
- *
- * Server-renderable and CSS-only — no `motion`, no client boundary — so these
- * are safe on every tier including the home route.
- *
- * Announcing the wait: every shape is `aria-hidden`, because a bar is not
- * content. Pass `label` on a composed shape (or wrap your own group in
- * `SkeletonRegion`) and the region becomes a `role="status"` with that label,
- * so a screen reader hears "Loading records" once rather than nothing at all.
+ * Every shape is `aria-hidden`. Pass `label` on a composed shape (or wrap a
+ * group in `SkeletonRegion`) so the region is a `role="status"` and a screen
+ * reader hears the wait once. Family compositions match header + content
+ * geometry via `--header-h`, `--family-measure`, and `--chrome-w`.
  */
 
 export type SkeletonShape = "text" | "title" | "label" | "block" | "circle";
@@ -134,5 +125,79 @@ export function SkeletonRow({ label, className = "", ...props }: SkeletonRegionP
         <Skeleton shape="text" width="90%" />
       </span>
     </SkeletonRegion>
+  );
+}
+
+function FamilyShell({
+  family,
+  label,
+  className,
+  children,
+  ...props
+}: SkeletonRegionProps & { family: "desk" | "dossier" | "institution" }) {
+  return (
+    <SkeletonRegion
+      label={label}
+      data-family={family}
+      className={[styles.family, className].filter(Boolean).join(" ")}
+      {...props}
+    >
+      <div className={styles.familyChrome}>
+        <div className={styles.familyBody}>{children}</div>
+      </div>
+    </SkeletonRegion>
+  );
+}
+
+/** Desk family: header offset, wide measure, stacked result rows. */
+export function SkeletonDesk({
+  label = "Loading the desk",
+  className = "",
+  ...props
+}: SkeletonRegionProps) {
+  return (
+    <FamilyShell family="desk" label={label} className={className} {...props}>
+      <Skeleton shape="label" width="7rem" />
+      <Skeleton shape="title" width="42%" />
+      <SkeletonText lines={2} />
+      <SkeletonRow />
+      <SkeletonRow />
+      <SkeletonRow />
+    </FamilyShell>
+  );
+}
+
+/** Dossier family: header offset, reading measure, title + body + record. */
+export function SkeletonDossier({
+  label = "Loading the record",
+  className = "",
+  ...props
+}: SkeletonRegionProps) {
+  return (
+    <FamilyShell family="dossier" label={label} className={className} {...props}>
+      <Skeleton shape="label" width="9rem" />
+      <Skeleton shape="title" width="70%" />
+      <Skeleton shape="text" width="88%" />
+      <Skeleton shape="block" className={styles.dossierMedia} />
+      <SkeletonText lines={5} />
+      <SkeletonCard />
+    </FamilyShell>
+  );
+}
+
+/** Institution family: header offset, quieter column, statement + notes. */
+export function SkeletonInstitution({
+  label = "Loading the page",
+  className = "",
+  ...props
+}: SkeletonRegionProps) {
+  return (
+    <FamilyShell family="institution" label={label} className={className} {...props}>
+      <Skeleton shape="label" width="8rem" />
+      <Skeleton shape="title" width="50%" />
+      <SkeletonText lines={4} />
+      <Skeleton shape="text" width="40%" />
+      <SkeletonText lines={3} />
+    </FamilyShell>
   );
 }

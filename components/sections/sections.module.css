@@ -2,7 +2,7 @@
 
 .page {
 
-  --reading-w: min(var(--measure-reading), 100%);
+  --reading-w: min(var(--family-measure, var(--measure-reading)), 100%);
 
 
   --rail-w: clamp(9rem, 14vw, 13rem);
@@ -159,16 +159,30 @@
   animation-duration: calc(var(--dur) * 3);
 }
 
+/* SYS-002: family density, not a second palette. Institution quiets the HUD
+   scan so policy/trust pages read as documents. Desk keeps a live-tool presence. */
+.page[data-family="institution"] .row {
+  --register: 0.2;
+  animation-duration: calc(var(--dur) * 4);
+}
+
+.page[data-family="desk"] .row {
+  --register: 0.5;
+}
+
 
 
 .shell {
   position: relative;
   z-index: var(--z-raised);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--reading-w) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--family-measure)) minmax(0, 1fr);
   column-gap: var(--rail-gap);
   align-content: start;
-  padding: clamp(2.25rem, 5vh, 4rem) clamp(1.25rem, 4vw, 3rem) var(--sp-8);
+  width: min(100%, var(--chrome-w));
+  margin-inline: auto;
+  padding: var(--family-pad-block) var(--family-pad-inline) var(--sp-8);
+  gap: var(--family-gap) 0;
 }
 
 
@@ -225,7 +239,7 @@
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(var(--enter-shift));
   }
   to {
     opacity: 1;
@@ -306,6 +320,14 @@
   line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
   color: var(--ink-hi);
+  scroll-margin-top: var(--anchor-offset);
+}
+
+/* NAV-006: hash/focus targets must clear the fixed header. The rail reads
+   h2s and, when the id sits on the region (Israel's Story, the updates
+   feed), that section/article as well. Archive h2s are not `.blockHeading`. */
+.body h2,
+.body :is(section, article)[id] {
   scroll-margin-top: var(--anchor-offset);
 }
 
@@ -469,14 +491,19 @@
 
 
 .tocRail {
-  display: none;
-  grid-column: 1;
+  display: block;
+  grid-column: 2;
+  justify-self: stretch;
+  width: auto;
+  min-width: 0;
+}
 
-  justify-self: end;
-  width: var(--rail-w);
+.tocRail:empty {
+  display: none;
 }
 
 .tocRailInner {
+  display: none;
   position: sticky;
   top: var(--anchor-offset);
 
@@ -489,6 +516,118 @@
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
   line-height: var(--t-caption-lh);
+}
+
+/* NAV-006: labelled control in the reading column. Hidden at the rail
+   breakpoint, where `.tocRailInner` takes over. */
+.tocMobile {
+  margin-bottom: var(--sp-5);
+}
+
+.tocMobile .tocMobileTrigger {
+  width: 100%;
+  min-height: var(--control-h);
+  padding-inline: 0;
+  border-radius: 0;
+  border-bottom: var(--line-w) solid var(--line);
+  white-space: normal;
+  --btn-bg: transparent;
+  --btn-fg: var(--ink-hi);
+  --btn-line: transparent;
+}
+
+.tocMobile .tocMobileTrigger > * {
+  width: 100%;
+  min-width: 0;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.tocMobileCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  min-width: 0;
+  overflow: hidden;
+  text-align: start;
+}
+
+.tocMobileKicker {
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
+.tocMobileCurrent {
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink-hi);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tocMobileChevron {
+  flex: none;
+  width: 10px;
+  height: 6px;
+  color: var(--ink-lo);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.tocMobileTrigger[aria-expanded="true"] .tocMobileChevron {
+  transform: rotate(180deg);
+}
+
+.tocSheetList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tocSheetLink,
+.tocSheetLinkActive {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--control-h);
+  padding-inline: var(--sp-1);
+  border-top: var(--line-w) solid var(--line-soft);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.tocSheetList > li:first-child .tocSheetLink,
+.tocSheetList > li:first-child .tocSheetLinkActive {
+  border-top: 0;
+}
+
+.tocSheetLink:hover,
+.tocSheetLink:active,
+.tocSheetLink:focus-visible {
+  background: var(--tint-hover);
+  color: var(--ink-hi);
+}
+
+.tocSheetLinkActive {
+  color: var(--ink-hi);
+  box-shadow: inset var(--line-w-thick) 0 0 var(--gold);
+}
+
+.tocSheetLinkActive .tocNumber {
+  color: var(--accent);
+}
+
+.tocSheetLink:focus-visible,
+.tocSheetLinkActive:focus-visible {
+  outline-offset: -3px;
 }
 
 
@@ -596,7 +735,18 @@
 
   .tocRail {
     display: block;
+    grid-column: 1;
+    justify-self: end;
+    width: var(--rail-w);
     animation: rise var(--dur-slow) var(--ease-out) var(--dur-fast) both;
+  }
+
+  .tocRailInner {
+    display: block;
+  }
+
+  .tocMobile {
+    display: none;
   }
 
   .topProgressTrack {
@@ -670,7 +820,14 @@
   .skipLink,
   .tocLink,
   .tocLinkActive,
+  .tocMobileChevron,
+  .tocSheetLink,
+  .tocSheetLinkActive,
   .documentTrail a {
     transition: none;
+  }
+
+  .tocMobileTrigger[aria-expanded="true"] .tocMobileChevron {
+    transform: none;
   }
 }

@@ -24,17 +24,22 @@
 
 .entries {
   display: grid;
-  gap: var(--sp-6);
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.entry {
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
+.entryItem {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Card.row is the surface; the boxed shell is gone so rows stack on a hairline. */
+.entries .entry {
+  overflow-wrap: anywhere;
+  min-width: 0;
+  padding-block: var(--sp-5);
 }
 
 .entryHead {
@@ -42,7 +47,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-2) var(--sp-3);
-  margin: 0 0 var(--sp-3);
+  margin: 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -91,7 +96,30 @@
   font-variant-numeric: tabular-nums;
 }
 
+.entryStrength {
+  color: var(--ink-lo);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+.entryRationale {
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  letter-spacing: 0;
+  line-height: var(--t-small-lh);
+  text-transform: none;
+  text-wrap: pretty;
+}
+
 /* ── The disclosure ─────────────────────────────────────────────────────── */
+
+.disclosure {
+  /* The anchor target is the row's `<details>`, so the offset that clears the
+     fixed site header has to live here. `--anchor-offset` is declared on
+     `.page` in `sections.module.css` and inherits down. */
+  scroll-margin-top: var(--anchor-offset);
+}
 
 .summary {
   display: flex;
@@ -101,6 +129,13 @@
   /* The native marker is replaced by `.summaryHint`, which can be positioned
      against the first text line rather than floated by the UA. */
   list-style: none;
+}
+
+.summaryBody {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: var(--sp-2);
 }
 
 .summary::-webkit-details-marker {
@@ -117,6 +152,7 @@
    came looking for and is set as a headline, not as metadata. */
 .claimText {
   flex: 1;
+  min-width: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-h3);
@@ -124,6 +160,7 @@
   letter-spacing: var(--t-h3-tracking);
   line-height: var(--t-h3-lh);
   text-wrap: pretty;
+  overflow-wrap: anywhere;
 }
 
 .summaryHint {
@@ -170,6 +207,25 @@
 
 .entryLink a:hover {
   color: var(--gold-hi);
+}
+
+.permalink {
+  margin: var(--sp-4) 0 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+}
+
+.permalink a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.permalink a:hover {
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold-line-strong);
 }
 
 /* ── The ladder ─────────────────────────────────────────────────────────── */
@@ -293,6 +349,25 @@
   border-left-color: var(--state-warn-line);
 }
 
+.rungMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  text-transform: uppercase;
+}
+
+.rung[data-cited="false"] .rungMeta span {
+  color: var(--state-warn);
+}
+
 .rungText {
   margin: 0;
   color: var(--ink);
@@ -337,10 +412,12 @@
 }
 
 .rungSources a {
+  min-width: 0;
   color: var(--ink-hi);
   text-decoration: underline;
   text-decoration-color: var(--line-strong);
   text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
   transition: text-decoration-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 
@@ -456,7 +533,7 @@
 }
 
 .unknowns {
-  margin-top: var(--sp-2);
+  margin: 0;
 }
 
 /* ── Position and context ───────────────────────────────────────────────── */
@@ -593,7 +670,6 @@
 /* ── Narrow ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 45rem) {
-  .entry,
   .limits {
     padding: var(--sp-4);
   }

@@ -5,6 +5,8 @@ export type NetworkFigureProps = {
   roster: CaseEntity[];
   edges: CaseEdge[];
   communities: NetworkCommunity[];
+  /** Passed through to the figure's async contract — see `InfluenceGraph`. */
+  status?: 'loading' | 'error';
 };
 
 /**
@@ -34,7 +36,12 @@ export type NetworkFigureProps = {
  * well each connection is evidenced. The last of those is the point of the
  * research, and the ring could not say it at all.
  */
-export function NetworkFigure({ roster, edges, communities }: NetworkFigureProps) {
-  if (roster.length === 0 || edges.length === 0) return null;
-  return <InfluenceGraph roster={roster} edges={edges} communities={communities} />;
+export function NetworkFigure({ roster, edges, communities, status }: NetworkFigureProps) {
+  /* Degenerate data used to return null here, which made an empty roster
+     indistinguishable from a figure that never existed. The figure now owns
+     its empty, error, and loading states (NET-004) and says which one it is
+     in, so everything passes through. */
+  return (
+    <InfluenceGraph roster={roster} edges={edges} communities={communities} status={status} />
+  );
 }

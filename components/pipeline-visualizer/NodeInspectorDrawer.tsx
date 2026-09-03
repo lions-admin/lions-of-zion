@@ -1,117 +1,117 @@
 "use client";
 
-import React from "react";
+import { Button } from "@/components/ui/Button";
 import type { PipelineNode } from "./types";
+import { CHROME, kindLabel, nodeInspectorCopy } from "./copy";
 import styles from "./visualizer.module.css";
 
 interface NodeInspectorDrawerProps {
   node: PipelineNode | null;
+  stepTitleEn?: string;
   onClose: () => void;
 }
 
-const KIND_HEBREW_MAP: Record<string, string> = {
-  source: "מקור נתונים",
-  table: "טבלת מסד נתונים",
-  view: "היטל קריאה מוגן",
-  guard: "מחסום אבטחה ואימות",
-  trigger: "טריגר SQL אטומי",
-  cron: "מתזמן Vercel Cron",
-  queue: "תור Vercel Queue",
-  connector: "מחבר נתונים וסריקה",
-  service: "שירות ליבה עסקי",
-  model: "מודל שפה (AI)",
-  gateway: "שער קישוריות AI",
-  storage: "אחסון קבצים (Blob)",
-};
-
-export function NodeInspectorDrawer({ node, onClose }: NodeInspectorDrawerProps) {
+export function NodeInspectorDrawer({
+  node,
+  stepTitleEn,
+  onClose,
+}: NodeInspectorDrawerProps) {
   if (!node) return null;
 
-  const heKind = KIND_HEBREW_MAP[node.kind] || node.kind;
+  const copy = nodeInspectorCopy(node.id);
 
   return (
-    <div className={styles.inspectorDrawer} dir="rtl">
+    <div className={styles.inspectorDrawer}>
       <div className={styles.drawerHeader}>
         <div className={styles.drawerHeading}>
-          <span className={styles.drawerKicker}>{heKind}</span>
-          <h2 className={styles.drawerTitle}>{node.nameHe}</h2>
-          <p className={styles.drawerSubtitle}>{node.nameEn}</p>
+          <span className={styles.drawerKicker}>{kindLabel(node.kind)}</span>
+          <h2 className={styles.drawerTitle}>{node.nameEn}</h2>
+          {stepTitleEn ? <p className={styles.drawerSubtitle}>{stepTitleEn}</p> : null}
         </div>
-        <button
+        <Button
           type="button"
-          className={styles.drawerCloseBtn}
+          variant="toolbar"
+          size="sm"
+          iconOnly
           onClick={onClose}
-          aria-label="סגור מגירת מידע"
-          title="סגור"
+          aria-label={CHROME.inspectorClose}
+          title={CHROME.inspectorClose}
         >
-          ✕
-        </button>
+          <span aria-hidden="true">✕</span>
+        </Button>
       </div>
 
       <div className={styles.drawerBody}>
-        {/* תפקיד במערכת */}
-        <div className={styles.inspectorSection}>
-          <span className={styles.inspectorLabel}>מה המרכיב עושה (תפקיד במערכת)</span>
-          <p className={styles.inspectorValueHe}>{node.what}</p>
-        </div>
+        {copy ? (
+          <>
+            <div className={styles.inspectorSection}>
+              <span className={styles.inspectorLabel}>{CHROME.inspectorWhat}</span>
+              <p className={styles.inspectorValueHe}>{copy.what}</p>
+            </div>
 
-        {/* רציונל הנדסי */}
-        <div className={styles.inspectorSection}>
-          <span className={styles.inspectorLabel}>מדוע זה בנוי כך (רציונל הנדסי וארכיטקטוני)</span>
-          <p className={styles.inspectorValueHe}>{node.why}</p>
-        </div>
+            <div className={styles.inspectorSection}>
+              <span className={styles.inspectorLabel}>{CHROME.inspectorWhy}</span>
+              <p className={styles.inspectorValueHe}>{copy.why}</p>
+            </div>
 
-        {/* קלט ופלט */}
-        <div className={styles.inspectorSection}>
-          <span className={styles.inspectorLabel}>קלט שהרכיב מקבל (Inputs)</span>
-          <p className={styles.inspectorValueHe}>{node.input}</p>
-        </div>
+            <div className={styles.inspectorSection}>
+              <span className={styles.inspectorLabel}>{CHROME.inspectorInput}</span>
+              <p className={styles.inspectorValueHe}>{copy.input}</p>
+            </div>
 
-        <div className={styles.inspectorSection}>
-          <span className={styles.inspectorLabel}>תוצר ופלט המופק (Outputs)</span>
-          <p className={styles.inspectorValueHe}>{node.output}</p>
-        </div>
+            <div className={styles.inspectorSection}>
+              <span className={styles.inspectorLabel}>{CHROME.inspectorDoes}</span>
+              <p className={styles.inspectorValueHe}>{copy.does}</p>
+            </div>
 
-        {/* טיפול בכשלים וחסינות */}
-        <div className={styles.inspectorSection}>
-          <span className={styles.inspectorLabel}>טיפול בכשלים ומנגנוני הגנה (Failure Mode)</span>
-          <div className={styles.failureAlertBox}>
-            <p className={styles.inspectorValueHe}>{node.failureMode}</p>
-          </div>
-        </div>
+            <div className={styles.inspectorSection}>
+              <span className={styles.inspectorLabel}>{CHROME.inspectorOutput}</span>
+              <p className={styles.inspectorValueHe}>{copy.output}</p>
+            </div>
 
-        {/* טבלת מסד נתונים */}
+            <div className={styles.inspectorSection}>
+              <span className={styles.inspectorLabel}>{CHROME.inspectorFailure}</span>
+              <div className={styles.failureAlertBox}>
+                <p className={styles.inspectorValueHe}>{copy.failureMode}</p>
+              </div>
+            </div>
+          </>
+        ) : null}
+
         {node.dbTable && (
           <div className={styles.inspectorSection}>
-            <span className={styles.inspectorLabel}>טבלת מסד נתונים (Database Table)</span>
-            <div className={styles.codeBox} dir="ltr">{node.dbTable}</div>
+            <span className={styles.inspectorLabel}>{CHROME.inspectorTable}</span>
+            <div className={styles.codeBox} dir="ltr">
+              {node.dbTable}
+            </div>
           </div>
         )}
 
-        {/* אילוץ / טריגר SQL */}
         {node.sqlConstraintOrTrigger && (
           <div className={styles.inspectorSection}>
-            <span className={styles.inspectorLabel}>אילוץ או טריגר SQL מובנה</span>
-            <div className={styles.codeBox} dir="ltr">{node.sqlConstraintOrTrigger}</div>
+            <span className={styles.inspectorLabel}>{CHROME.inspectorSql}</span>
+            <div className={styles.codeBox} dir="ltr">
+              {node.sqlConstraintOrTrigger}
+            </div>
           </div>
         )}
 
-        {/* קובץ קוד במערכת */}
         {node.codePath && (
           <div className={styles.inspectorSection}>
-            <span className={styles.inspectorLabel}>קובץ קוד במערכת (Source Reference)</span>
-            <div className={styles.codeBox} dir="ltr">{node.codePath}</div>
+            <span className={styles.inspectorLabel}>{CHROME.inspectorCode}</span>
+            <div className={styles.codeBox} dir="ltr">
+              {node.codePath}
+            </div>
           </div>
         )}
 
-        {/* מונחים מקצועיים */}
         {node.terms.length > 0 && (
           <div className={styles.inspectorSection}>
-            <span className={styles.inspectorLabel}>מונחים טכניים מקבילים</span>
+            <span className={styles.inspectorLabel}>{CHROME.inspectorTerms}</span>
             <div className={styles.termChips}>
               {node.terms.map((t, idx) => (
                 <span key={idx} className={styles.termChip}>
-                  {t.he} ({t.en})
+                  {t.en}
                 </span>
               ))}
             </div>

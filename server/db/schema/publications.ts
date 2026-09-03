@@ -49,11 +49,11 @@ export const publication = pgTable(
     /** A transparent audit marker for the owner-approved automatic policy.
      * It never pretends that a named human reviewed the article. */
     autoPublishedAt: tsCol("auto_published_at"),
-    /** Automatic editions are fail-closed: the service may set these only
-     * after all stored quality checks pass. */
+    /** Legacy marker retained for historical rows created while the removed
+     * quality-review stage was active. New automatic rows leave it null. */
     qualityApprovedAt: tsCol("quality_approved_at"),
     briefingRunId: uuid("briefing_run_id"),
-    /** Stable quality-candidate identity makes automatic publication retries
+    /** Stable candidate identity makes automatic publication retries
      * idempotent even if the worker completed its DB transaction before its
      * stage ledger could be marked complete. */
     briefingCandidateKey: text("briefing_candidate_key"),
@@ -106,10 +106,9 @@ export const publication = pgTable(
               AND (${t.approvedBy} IS NOT NULL OR ${t.autoPublishedAt} IS NOT NULL))`,
     ),
     check(
-      "automatic_publication_has_quality_provenance",
+      "automatic_publication_has_machine_provenance",
       sql`${t.autoPublishedAt} IS NULL OR (
-        ${t.qualityApprovedAt} IS NOT NULL
-        AND ${t.briefingRunId} IS NOT NULL
+        ${t.briefingRunId} IS NOT NULL
         AND length(btrim(coalesce(${t.briefingCandidateKey}, ''))) > 0
         AND length(btrim(coalesce(${t.machineAuthor}, ''))) > 0
       )`,

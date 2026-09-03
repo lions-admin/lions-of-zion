@@ -1,30 +1,31 @@
-/* Book-chapter composition, local to Israel's Story: a contents page, then
-   chapters that announce themselves with a numeral and a running position.
+/* Book-chapter composition, local to Israel's Story: a compact era index,
+   then chapters that alternate intro-measure / spine / record layouts.
 
    Design V3 (`app/globals.css`). The numerals were Cinzel — a face with no
    real lowercase and no optical sizing. They are Newsreader, whose `opsz`
    axis renders display proportions at the chapter mark and text proportions
    in the paragraph beneath it. Gold is spent once per chapter, on the drawn
-   numeral; the contents list, the running position and the chapter title
-   are all ink. */
+   numeral; the era index, the running position and the chapter title
+   are all ink.
 
-.contents {
+   Chapters stay a linear stack of articles. The three `data-rhythm` values
+   change composition inside a chapter; they do not become a card grid. */
+
+.eraIndex {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  gap: var(--sp-3);
   margin: var(--sp-6) 0 0;
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
+  padding: 0 0 var(--sp-5);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 /* One word. */
-.contentsKicker {
+.eraKicker {
   composes: kicker from '../../components/content/content.module.css';
 }
 
-.contentsList {
+.eraList {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -33,35 +34,36 @@
   list-style: none;
 }
 
-.contentsList a {
+.eraList a {
   display: flex;
   align-items: baseline;
-  gap: var(--sp-4);
-  min-height: var(--control-h);
-  padding: var(--sp-2) 0;
+  gap: var(--sp-3);
+  min-height: var(--control-h-sm);
+  padding: var(--sp-1) 0;
   color: var(--ink);
   text-decoration: none;
   border-bottom: var(--line-w) solid var(--line-soft);
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.contentsList li:last-child a {
+.eraList li:last-child a {
   border-bottom: none;
 }
 
-.contentsList a:hover,
-.contentsList a:focus-visible {
+.eraList a:hover,
+.eraList a:focus-visible {
   color: var(--ink-hi);
 }
 
-.contentsList a:focus-visible {
+.eraList a:focus-visible {
   outline-offset: 0;
 }
 
-.contentsNumeral {
+.eraNumeral {
   flex: none;
   width: calc(var(--sp-6) + var(--sp-2));
   font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-body);
   font-weight: var(--t-h3-weight);
   letter-spacing: var(--t-data-tracking-tight);
@@ -69,9 +71,42 @@
   color: var(--ink-lo);
 }
 
-.contentsTitle {
+.eraTitle {
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
+}
+
+/* The word first, the ramp second. Ember means contested everywhere on this
+   site, but it is never the only thing saying so. */
+.eraFlag {
+  flex: none;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--data-ember);
+}
+
+/* Tablet: still one list, wrapping into a compact strip rather than a
+   second column of chapters. */
+@media (min-width: 45rem) {
+  .eraList {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: var(--sp-5);
+    row-gap: 0;
+  }
+
+  .eraList a {
+    border-bottom: none;
+    padding-inline-end: var(--sp-4);
+  }
+
+  .eraList li:not(:last-child) a {
+    border-inline-end: var(--line-w) solid var(--line-soft);
+  }
 }
 
 /* ---- a chapter ---- */
@@ -80,12 +115,8 @@
   margin-top: var(--sp-8);
   padding-top: var(--sp-7);
   border-top: var(--line-w) solid var(--line);
-  /* Where every anchored thing on a dossier comes to rest. This read
-     `--sp-8` (4.5rem = 72px) under a comment about a 52px shell that no
-     longer exists: the fixed header is ~4.45rem of chrome, so a jumped-to
-     chapter was landing about flush under it rather than with the line of
-     air the comment promised. `--anchor-offset` is that number, published
-     once in sections.module.css. */
+  /* Where every anchored thing on a dossier comes to rest. `--anchor-offset`
+     is published once in sections.module.css (NAV-006). */
   scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
@@ -107,6 +138,7 @@
    each chapter's viewport. */
 .chapterNumeral {
   font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-display);
   font-weight: var(--t-display-weight);
   line-height: 1;
@@ -131,6 +163,7 @@
 .chapterTitle {
   margin: 0;
   font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
@@ -138,12 +171,19 @@
   color: var(--ink-hi);
 }
 
+.chapterBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
 /* The chapter's standfirst: the display face one step above body, the
    sentence that tells a reader what the chapter will show. */
 .chapterIntro {
   max-width: var(--measure-reading);
-  margin: 0 0 var(--sp-6);
+  margin: 0;
   font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-lede);
   font-weight: var(--t-lede-weight);
   line-height: var(--t-lede-lh);
@@ -164,23 +204,138 @@
   color: var(--ink);
 }
 
+/* The stamp that carries the flag. Inline rather than a block above the
+   intro: the whole intro *is* the framing of the dispute, so the label
+   opens the sentence it qualifies instead of standing over it. */
+.chapterIntroLabel {
+  font-style: normal;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--data-ember-peak);
+  white-space: nowrap;
+}
+
+/* spine: the dates carry the chapter; the intro is a kicker, not a lede. */
+.chapter[data-rhythm="spine"] .chapterNumeral {
+  font-size: var(--t-h2);
+}
+
+.chapter[data-rhythm="spine"] .chapterHead {
+  margin-bottom: var(--sp-4);
+}
+
+.chapter[data-rhythm="spine"] .chapterIntro {
+  max-width: var(--measure-narrow);
+  font-size: var(--t-body);
+  font-family: var(--face-text);
+  line-height: var(--t-body-lh);
+}
+
+/* record: intro as a side measure beside the timeline from the seam up.
+   Below that, the same stacked column as every other chapter. */
+@media (min-width: 45rem) {
+  .chapter[data-rhythm="record"] .chapterBody {
+    display: grid;
+    grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+    column-gap: var(--sp-7);
+    align-items: start;
+  }
+
+  .chapter[data-rhythm="record"] .chapterIntro {
+    max-width: none;
+  }
+}
+
 @media (max-width: 640px) {
   .chapterHead {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--sp-3);
   }
+
+  .chapter[data-rhythm="record"] .chapterBody {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Chronology only. Dated entries arrive as they enter the viewport; chapter
+   chrome does not. `ol > li` is Timeline's real structure — hashed CSS
+   module classes are not. Unsupported browsers and reduced motion keep the
+   full static list. */
+@keyframes eraProgress {
+  from {
+    opacity: 0;
+    filter: blur(var(--enter-blur));
+    transform: translate3d(0, var(--enter-shift), 0);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .eraTimeline ol > li {
+      animation-name: eraProgress;
+      animation-duration: var(--dur-enter);
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eraTimeline ol > li {
+    animation: none;
+    filter: none;
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@media print {
+  .eraTimeline ol > li {
+    animation: none;
+    filter: none;
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.gapNote {
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-7);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.gapNote h2 {
+  margin: 0 0 var(--sp-4);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  color: var(--ink-hi);
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
 /* Above 1220px `SectionToc`'s "In this file" rail lists these same chapters,
-   so the panel is the second contents list on one screen — and the two
-   disagree, because the rail also picks up the "Sources and further reading"
-   heading. Hidden rather than deleted: the rail is client-side only and is
-   itself `display: none` below 1220px, so deleting this block would leave
-   mobile and no-JavaScript readers with no contents at all.
+   so a second full contents list on one screen is noise. Hidden rather than
+   deleted: the rail is client-side only, so deleting this block would leave
+   no-JavaScript readers with no era index. The mobile sheet (NAV-006) is
+   extra; the in-page list remains the linear map below the rail breakpoint.
    The rail is shared chrome and stays untouched (`.ai/DECISIONS.md`,
    2026-08-25); the Roman numerals survive on the chapter heads. */
-@media (min-width: 1220px) {
-  .contents {
+@media (min-width: 1220px) and (scripting: enabled) {
+  .eraIndex {
     display: none;
   }
 }

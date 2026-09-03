@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublication } from "@/server/contracts/publication";
 import { clock, stamp } from "./feed-time";
@@ -8,8 +9,8 @@ import styles from "./live-feed.module.css";
 /**
  * One entry in the record.
  *
- * The row's whole job is provenance: when, by what route, on what basis. Four
- * facts are drawn from the public projection and none is inferred:
+ * The row's whole job is provenance: when, by what route, on what basis.
+ * Facts are drawn from the public projection and none is inferred:
  *
  *   · `publishedAt` — the exact minute, absolute, never relative.
  *   · `autoPublishedAt` — whether the machine published this or an editor did.
@@ -20,6 +21,8 @@ import styles from "./live-feed.module.css";
  *   · `evidenceBasis` — for a Narrative Watch record, whether it cites sources
  *     at all. Read `=== "analysis"` via `isAnalysisBasis`, never the negation:
  *     rows predating the field carry no key and must fall to the strict side.
+ *   · related record — `editorialTopic`, `primaryActor`, and `arena` when the
+ *     projection carries them, beside the title link to `/articles/{publicId}`.
  *
  * The title links to `/articles/{publicId}`, which stays the canonical home of
  * the record. This feed is an index over it, not a second copy of it.
@@ -32,7 +35,7 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
   const verdict = details ? VERIFICATION_STATES[details.verificationState] : null;
 
   return (
-    <li className={styles.entry}>
+    <Card as="li" variant="row" className={styles.entry}>
       <p className={styles.dateline}>
         <time className={styles.clock} dateTime={entry.publishedAt} title={stamp(entry.publishedAt)}>
           {clock(entry.publishedAt)}
@@ -47,22 +50,30 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
         </span>
       </p>
 
-      <h3 className={styles.title}>
+      <CardTitle className={styles.title}>
         <Link href={`/articles/${entry.publicId}`}>{entry.title}</Link>
-      </h3>
+      </CardTitle>
 
-      {entry.summary ? <p className={styles.summary}>{entry.summary}</p> : null}
+      {entry.summary ? (
+        <CardDescription className={styles.summary}>{entry.summary}</CardDescription>
+      ) : null}
 
-      {verdict || analysis || revised || entry.arena || entry.primaryActor ? (
+      {verdict || analysis || revised || entry.arena || entry.primaryActor || entry.editorialTopic ? (
         <p className={styles.marks}>
           {verdict ? (
-            <span className={styles.verdict} data-tone={verdict.tone} title={verdict.meaning}>
+            <span
+              className={styles.verdict}
+              data-tone={verdict.tone}
+              title={verdict.meaning}
+              aria-label={`${verdict.label}: ${verdict.meaning}`}
+            >
               {verdict.label}
             </span>
           ) : null}
           {analysis ? (
             <span className={styles.basis}>Our own analysis &mdash; cites no source</span>
           ) : null}
+          {entry.editorialTopic ? <span className={styles.facet}>{entry.editorialTopic}</span> : null}
           {entry.primaryActor ? <span className={styles.facet}>{entry.primaryActor}</span> : null}
           {entry.arena ? <span className={styles.facet}>{entry.arena}</span> : null}
           {revised ? (
@@ -72,6 +83,6 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
           ) : null}
         </p>
       ) : null}
-    </li>
+    </Card>
   );
 }

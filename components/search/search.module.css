@@ -78,9 +78,6 @@
 
 .queryRow {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
   padding: var(--sp-4) var(--sp-5);
   border-bottom: var(--line-w) solid var(--line-soft);
 }
@@ -90,47 +87,21 @@
   border-bottom-color: var(--line);
 }
 
-.queryLabel {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+.queryField {
+  min-width: 0;
+}
+
+.queryControl {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
 }
 
 .queryInput {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  width: auto;
   min-inline-size: 0;
-  min-block-size: var(--control-h);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
-  letter-spacing: var(--t-lede-tracking);
-  font-optical-sizing: auto;
-}
-
-.queryInput::placeholder {
-  color: var(--ink-lo);
-}
-
-.queryInput:focus,
-.queryInput:focus-visible {
-  outline: none;
-}
-
-/* The focus ring belongs to the row, not to a borderless input inside it —
-   otherwise the outline traces a box the reader cannot see the edges of. */
-.queryRow:focus-within {
-  outline: var(--focus-outline);
-  outline-offset: calc(var(--focus-offset) * -1);
-  border-radius: var(--radius-2);
 }
 
 /* Safari draws its own decorations on `type="search"`; they are a second,
@@ -139,32 +110,6 @@
 .queryInput::-webkit-search-cancel-button,
 .queryInput::-webkit-search-results-button {
   appearance: none;
-}
-
-.dismiss {
-  flex: 0 0 auto;
-  min-block-size: var(--control-h-sm);
-  padding: 0 var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: transparent;
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.dismiss:hover {
-  color: var(--ink-hi);
-  border-color: var(--line-strong);
-  background: var(--tint-hover);
 }
 
 /* A running indicator, not a progress bar: the request reports no progress,
@@ -237,6 +182,7 @@
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
+  overflow-wrap: anywhere;
 }
 
 .panel[data-variant="page"] .groupHead {
@@ -252,20 +198,26 @@
 /* ── One result ───────────────────────────────────────────────────────── */
 
 .hit {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Beats Card `.row` (single class) so the ordinal gutter survives the
+   shared composition. `overflow-wrap: anywhere` is the 320px wrap contract. */
+.results .hit {
   display: grid;
-  grid-template-columns: 3.25rem 1fr auto;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--sp-3);
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: var(--sp-3) var(--sp-5);
   text-decoration: none;
   color: inherit;
   scroll-margin-block: var(--sp-5);
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
 }
 
-.panel[data-variant="page"] .hit {
+.panel[data-variant="page"] .results .hit {
   padding-inline: 0;
 }
 
@@ -299,60 +251,42 @@
   flex-direction: column;
   gap: var(--sp-1);
   min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 
-.hitTitle {
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  line-height: var(--t-h3-lh);
-  font-weight: var(--t-h3-weight);
-  letter-spacing: var(--t-h3-tracking);
-  color: var(--ink);
-  text-wrap: pretty;
-  font-optical-sizing: auto;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.hitMeta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+.results .hitHeader {
+  margin-bottom: var(--sp-1);
   gap: var(--sp-2);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
+  flex-wrap: wrap;
 }
 
-.hitPath {
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--ink-lo);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-inline-size: 24ch;
+.results .hitTitle {
+  margin-bottom: var(--sp-1);
+  overflow-wrap: anywhere;
+}
+
+.results .hitDestination {
+  max-width: none;
+  overflow-wrap: anywhere;
 }
 
 /* The honest half of the result list: this record is in the index and has no
    page to open. Stated, never hidden and never linked to a 404. */
 .hitUnreachable {
+  display: inline;
   padding: 0 var(--sp-2);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-1);
   color: var(--ink-lo);
   text-transform: none;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
-.hitArrow {
+.results .hitCta {
   align-self: center;
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  color: var(--ink-lo);
+  margin-top: 0;
+  padding-top: 0;
   opacity: 0;
   transition: opacity var(--dur-fast) var(--ease-out);
 }
@@ -380,9 +314,8 @@
   background: var(--gold);
 }
 
-.hit[data-active] .hitArrow {
+.hit[data-active] .hitCta {
   opacity: 1;
-  color: var(--gold);
 }
 
 /* An unreachable row still shows where the keyboard is, but never in the
@@ -402,52 +335,75 @@
 
 /* ── Notices: primer, empty, error ────────────────────────────────────── */
 
-.notice {
+.notice,
+.primer {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   padding: var(--sp-5);
   max-inline-size: var(--measure-narrow);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink-lo);
   text-wrap: pretty;
+  overflow-wrap: anywhere;
 }
 
-.panel[data-variant="page"] .notice {
+.panel[data-variant="page"] .notice,
+.panel[data-variant="page"] .primer {
   padding-inline: 0;
 }
 
-.noticeLead {
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  line-height: var(--t-lede-lh);
-  font-optical-sizing: auto;
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
 }
 
-.notice[data-tone="alert"] .noticeLead {
-  color: var(--state-warn);
+.suggestionsLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
 }
 
-.retry {
-  align-self: flex-start;
-  margin-block-start: var(--sp-2);
-  min-block-size: var(--control-h-sm);
-  padding: 0 var(--sp-4);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-2);
-  background: transparent;
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease-out);
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.retry:hover {
-  background: var(--tint-hover);
+.chips li {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chips button {
+  max-width: 100%;
+  height: auto;
+  white-space: normal;
+  text-align: start;
+  overflow-wrap: anywhere;
+  border-color: var(--line);
+}
+
+.status {
+  padding: var(--sp-5);
+  justify-content: flex-start;
+}
+
+.status h3 {
+  overflow-wrap: anywhere;
+}
+
+.panel[data-variant="page"] .status {
+  padding-inline: 0;
 }
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
@@ -583,11 +539,13 @@
   color: var(--ink-hi);
 }
 
-/* An instrument that cannot run should not be shown. Without scripting the
-   input below is inert, and a dead control is worse than an explanation —
-   the same reasoning as the header's static index. */
+/* The labelled FieldShell stays in the page so a no-JS reader can see the
+   control and the noscript index together. Chips, the pulse, and key hints
+   do nothing without a script, so they go. */
 @media (scripting: none) {
-  .panel {
+  .suggestions,
+  .pulse,
+  .footKeys {
     display: none;
   }
 }
@@ -612,16 +570,18 @@
     flex: 1 1 auto;
   }
 
-  .hit,
+  .results .hit,
   .groupHead,
   .notice,
+  .primer,
+  .status,
   .foot,
   .queryRow {
     padding-inline: var(--sp-4);
   }
 
-  .hit {
-    grid-template-columns: 2.5rem 1fr auto;
+  .results .hit {
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
     min-block-size: var(--control-h);
   }
 
@@ -632,7 +592,7 @@
 
 /* Coarse pointers get no hover-only affordance. */
 @media (hover: none) {
-  .hitArrow {
+  .results .hitCta {
     opacity: 1;
   }
 }

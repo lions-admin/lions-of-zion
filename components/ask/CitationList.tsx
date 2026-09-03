@@ -3,20 +3,19 @@
 /**
  * The sources under an answer — the reason this surface exists.
  *
- * This is a verification desk, so the citations are given more structure and
- * more weight than the prose above them: numbered, ruled, each carrying the
- * span the answer claims to rest on. The database has already refused any
- * citation naming a document that retrieval did not return, so what appears
- * here is checked before it is rendered — but a reader cannot see a guarantee,
- * only a link, which is why the link matters.
+ * A citation here is exactly `citationSchema`: `documentId`, `quote`, `title`,
+ * `href`. There is no publisher and no status field. Inventing either from a
+ * path would be a claim this desk cannot check, so the list shows what the
+ * contract actually carries: the title, where it goes, and the span the
+ * answer rests on. All three are in the document, not behind a hover.
  *
  * Three states, all stated rather than implied:
  *
- *   * **cited and reachable** — a link to the document.
+ *   * **cited and reachable** — title, the href as destination, the quote.
  *   * **cited and unreachable** — the document is in the index and has no
- *     public page (`href: null`; see `searchHitSchema`). It is still listed,
- *     because concealing what an answer rested on to keep the list tidy is the
- *     opposite of the point.
+ *     public page (`href: null`; see `searchHitSchema`). Destination reads
+ *     "Indexed · no public page". Concealing what an answer rested on to
+ *     keep the list tidy is the opposite of the point.
  *   * **nothing cited** — printed as loudly as a citation would be. The
  *     assistant holds ordinary conversations as well as evidence-backed ones,
  *     and "this answer rests on nothing in the index" is the single most
@@ -54,16 +53,17 @@ export function CitationList({ citations }: { citations: Citation[] }) {
               {citation.href ? (
                 <Link className={styles.sourceLink} href={citation.href}>
                   {citation.title ?? "Untitled record"}
-                  <span className={styles.sourceArrow} aria-hidden="true">↗</span>
                 </Link>
               ) : (
-                <p className={styles.sourceTitle}>
-                  {citation.title ?? "A record that has since left the index"}
-                  <span className={styles.sourceUnreachable}>
-                    {citation.title ? "Indexed · no public page" : "No longer indexed"}
-                  </span>
-                </p>
+                <p className={styles.sourceTitle}>{citation.title ?? "Untitled record"}</p>
               )}
+              <p className={styles.sourceDestination}>
+                {citation.href ? (
+                  citation.href
+                ) : (
+                  <span className={styles.sourceUnreachable}>Indexed · no public page</span>
+                )}
+              </p>
               {citation.quote ? (
                 <blockquote className={styles.sourceQuote}>{citation.quote}</blockquote>
               ) : null}

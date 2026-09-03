@@ -88,11 +88,9 @@
 
 .sources {
   margin-block-start: var(--sp-5);
-  padding: var(--sp-4) var(--sp-5) var(--sp-5);
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-block-start: var(--line-w-thick) solid var(--gold);
-  border-radius: 0 0 var(--radius-3) var(--radius-3);
+  padding-block-start: var(--sp-4);
+  border-block-start: var(--line-w) solid var(--line);
+  max-inline-size: var(--measure-reading);
 }
 
 .sourcesHead {
@@ -167,16 +165,13 @@
 
 .sourceLink,
 .sourceTitle {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
   font-family: var(--face-display);
   font-size: var(--t-h3);
   line-height: var(--t-h3-lh);
   font-weight: var(--t-h3-weight);
   letter-spacing: var(--t-h3-tracking);
   text-wrap: pretty;
+  overflow-wrap: anywhere;
   font-optical-sizing: auto;
 }
 
@@ -191,7 +186,8 @@
     text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
-.sourceLink:hover {
+.sourceLink:hover,
+.sourceLink:focus-visible {
   color: var(--gold-hi);
   text-decoration-color: var(--gold-hi);
 }
@@ -200,18 +196,18 @@
   color: var(--ink);
 }
 
-.sourceArrow {
+.sourceDestination {
+  margin: 0;
   font-family: var(--face-data);
-  font-size: var(--t-caption);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.sourceLink:hover .sourceArrow {
-  color: var(--gold-hi);
+  overflow-wrap: anywhere;
 }
 
 .sourceUnreachable {
+  display: inline-block;
   padding: 0 var(--sp-2);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-1);
@@ -231,6 +227,7 @@
   font-size: var(--t-small);
   line-height: 1.55;
   color: var(--ink);
+  overflow-wrap: anywhere;
   font-optical-sizing: auto;
 }
 
@@ -293,6 +290,14 @@
   line-height: var(--t-small-lh);
   color: var(--ink-lo);
   text-wrap: pretty;
+}
+
+.waitingMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
 }
 
 .waitingClock {
@@ -577,23 +582,30 @@
 
 
 
+.deskPrompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.boundary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-inline-size: var(--measure-reading);
+}
+
+.boundaryBody {
+  max-inline-size: none;
+  margin: 0;
+}
+
 .deskFoot {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: var(--sp-4);
-  padding-block-start: var(--sp-4);
-  border-block-start: var(--line-w) solid var(--line-soft);
-}
-
-.deskFootNote {
-  max-inline-size: var(--measure-caption);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  color: var(--ink-lo);
-  text-wrap: pretty;
 }
 
 .resetButton {
@@ -692,10 +704,6 @@
 
 
 @media (max-width: 45rem) {
-  .sources {
-    padding-inline: var(--sp-4);
-  }
-
   .source {
     grid-template-columns: 2rem 1fr;
   }
@@ -708,10 +716,22 @@
   .askButton {
     min-block-size: var(--control-h);
   }
+
+  .waitingMeta {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .transcript {
     scroll-behavior: auto;
+  }
+
+  /* BorderBeam hides itself; the waiting answer keeps a static emphasized
+     border so the state is still visible without a travelling beam. */
+  .waiting {
+    border-width: var(--line-w-thick);
+    border-color: var(--ink-hi);
   }
 }

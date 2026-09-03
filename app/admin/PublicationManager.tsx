@@ -1,6 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { CheckboxField } from "@/components/ui/CheckboxField";
+import { Field } from "@/components/ui/Field";
+import { FieldGroup } from "@/components/ui/FieldGroup";
+import { SelectField } from "@/components/ui/SelectField";
+import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import styles from "./admin.module.css";
 
 type Publication = {
@@ -24,26 +30,28 @@ type Publication = {
   createdAt: string;
 };
 
+type Notice = { kind: "ok" | "error"; text: string };
+
 export function PublicationManager() {
   const [items, setItems] = useState<Publication[]>([]);
   const [features, setFeatures] = useState<Array<{ slot: number; publicationId: string }>>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<Notice | null>(null);
 
   const load = useCallback(async () => {
     const [publicationResponse, featureResponse] = await Promise.all([
       fetch("/api/v1/publications?limit=100&briefingOnly=true", { cache: "no-store" }),
       fetch("/api/v1/admin/homepage-features", { cache: "no-store" }),
     ]);
-    if (!publicationResponse.ok || !featureResponse.ok) throw new Error("לא ניתן לטעון את הפרסומים.");
+    if (!publicationResponse.ok || !featureResponse.ok) throw new Error("Unable to load publications.");
     const publicationPayload = await publicationResponse.json() as { publications: Publication[] };
     const featurePayload = await featureResponse.json() as { features: Array<{ slot: number; publicationId: string }> };
     setItems(publicationPayload.publications); setFeatures(featurePayload.features);
     setSelectedId((current) => current || publicationPayload.publications[0]?.id || "");
   }, []);
   useEffect(() => {
-    const timer = window.setTimeout(() => { void load().catch((cause: Error) => setMessage(cause.message)); }, 0);
+    const timer = window.setTimeout(() => { void load().catch((cause: Error) => setMessage({ kind: "error", text: cause.message })); }, 0);
     return () => window.clearTimeout(timer);
   }, [load]);
 
@@ -56,12 +64,50 @@ export function PublicationManager() {
 
   return (
     <section className={styles.editorPanel}>
-      <div className={styles.panelHead}><div><p className={styles.sectionLabel}>מערכת</p><h2>עריכה ומיקום פרסומים</h2></div></div>
-      {message ? <p className={styles.notice} role="status">{message}</p> : null}
-      <div className={styles.featureSlots}>{[1, 2, 3].map((slot) => <label key={slot}><span>כותרת מובילה {slot}</span><select value={features.find((feature) => feature.slot === slot)?.publicationId ?? ""} onChange={(event) => setSlot(slot, event.target.value || null)} disabled={busy}><option value="">בחירה אוטומטית</option>{eligible.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></label>)}</div>
+      <div className={styles.panelHead}>
+        <div>
+          <p className={styles.sectionLabel}>Editorial</p>
+          <h2>Edit and place publications</h2>
+        </div>
+      </div>
+      {message?.kind === "error" ? <p className={styles.error} {...assertiveLive}>{message.text}</p> : null}
+      {message?.kind === "ok" ? <p className={styles.notice} {...politeLive}>{message.text}</p> : null}
+      <div className={styles.featureSlots}>
+        {[1, 2, 3].map((slot) => (
+          <SelectField
+            key={slot}
+            className={styles.editorField}
+            label={`Lead headline ${slot}`}
+            value={features.find((feature) => feature.slot === slot)?.publicationId ?? ""}
+            onChange={(event) => setSlot(slot, event.target.value || null)}
+            disabled={busy}
+          >
+            <option value="">Automatic selection</option>
+            {eligible.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+          </SelectField>
+        ))}
+      </div>
       <div className={styles.editorLayout}>
-        <aside className={styles.draftQueue} aria-label="רשימת פרסומים">{items.map((item) => <button type="button" key={item.id} className={item.id === selectedId ? styles.selectedDraft : ""} onClick={() => setSelectedId(item.id)}><span>{item.status}</span><strong>{item.title}</strong><small>{item.section}</small></button>)}</aside>
-        {selected ? <PublicationForm key={selected.id} publication={selected} busy={busy} onSave={save} onTransition={transition} onArchive={archive} onDelete={remove} /> : <p className={styles.muted}>אין פרסומים לעריכה.</p>}
+        <aside className={styles.draftQueue} aria-label="Publication list">
+          {items.map((item) => (
+            <Button
+              type="button"
+              key={item.id}
+              variant="ghost"
+              size="md"
+              isActive={item.id === selectedId}
+              className={item.id === selectedId ? `${styles.queueItem} ${styles.selectedDraft}` : styles.queueItem}
+              onClick={() => setSelectedId(item.id)}
+            >
+              <span>{item.status}</span>
+              <strong>{item.title}</strong>
+              <small>{item.section}</small>
+            </Button>
+          ))}
+        </aside>
+        {selected
+          ? <PublicationForm key={selected.id} publication={selected} busy={busy} onSave={save} onTransition={transition} onArchive={archive} onDelete={remove} />
+          : <p className={styles.muted}>No publications to edit.</p>}
       </div>
     </section>
   );
@@ -89,20 +135,20 @@ export function PublicationManager() {
     };
     try {
       const response = await fetch(`/api/v1/publications/${id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      if (!response.ok) throw new Error("שמירת הפרסום נכשלה.");
-      await load(); setMessage("הפרסום נשמר.");
-    } catch (cause) { setMessage(cause instanceof Error ? cause.message : "הפעולה נכשלה."); } finally { setBusy(false); }
+      if (!response.ok) throw new Error("Saving the publication failed.");
+      await load(); setMessage({ kind: "ok", text: "Publication saved." });
+    } catch (cause) { setMessage({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." }); } finally { setBusy(false); }
   }
   async function archive(id: string) {
     setBusy(true); setMessage(null);
     try {
       const response = await fetch(`/api/v1/publications/${id}/transition`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ to: "archived" }) });
-      if (!response.ok) throw new Error("העברה לארכיון נכשלה.");
-      await load(); setMessage("הפרסום הוסר מהאתר ונשמר בארכיון.");
-    } catch (cause) { setMessage(cause instanceof Error ? cause.message : "הפעולה נכשלה."); } finally { setBusy(false); }
+      if (!response.ok) throw new Error("Archiving failed.");
+      await load(); setMessage({ kind: "ok", text: "The publication was removed from the site and archived." });
+    } catch (cause) { setMessage({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." }); } finally { setBusy(false); }
   }
   async function transition(id: string, to: Publication["status"]) {
-    if (to === "published" && !window.confirm("לפרסם את הכתבה לציבור עכשיו? לאחר הפרסום היא תופיע בעמודים הציבוריים ובמנועי חיפוש.")) return;
+    if (to === "published" && !window.confirm("Publish this article now? After publication it will appear on public pages and in search engines.")) return;
     setBusy(true); setMessage(null);
     try {
       const response = await fetch(`/api/v1/publications/${id}/transition`, {
@@ -110,44 +156,52 @@ export function PublicationManager() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ to }),
       });
-      if (!response.ok) throw new Error("עדכון מצב הפרסום נכשל.");
+      if (!response.ok) throw new Error("Updating publication status failed.");
       await load();
-      setMessage(transitionMessage(to));
-    } catch (cause) { setMessage(cause instanceof Error ? cause.message : "הפעולה נכשלה."); } finally { setBusy(false); }
+      setMessage({ kind: "ok", text: transitionMessage(to) });
+    } catch (cause) { setMessage({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." }); } finally { setBusy(false); }
   }
   async function setSlot(slot: number, publicationId: string | null) {
     setBusy(true); setMessage(null);
     try {
       const response = await fetch("/api/v1/admin/homepage-features", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ slot, publicationId }) });
-      if (!response.ok) throw new Error("עדכון הכותרת המובילה נכשל.");
-      await load(); setMessage("מיקום עמוד הבית עודכן.");
-    } catch (cause) { setMessage(cause instanceof Error ? cause.message : "הפעולה נכשלה."); } finally { setBusy(false); }
+      if (!response.ok) throw new Error("Updating the lead headline failed.");
+      await load(); setMessage({ kind: "ok", text: "Homepage placement updated." });
+    } catch (cause) { setMessage({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." }); } finally { setBusy(false); }
   }
 
   async function remove(id: string) {
-    if (!window.confirm("למחוק לצמיתות את הפרסום? הראיות והיסטוריית הביקורת יישמרו.")) return;
+    if (!window.confirm("Permanently delete this publication? Evidence and review history will be kept.")) return;
     setBusy(true); setMessage(null);
     try {
       const response = await fetch(`/api/v1/publications/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error("מחיקת הפרסום נכשלה.");
-      await load(); setMessage("הפרסום נמחק. הראיות והיסטוריית הביקורת נשמרו.");
-    } catch (cause) { setMessage(cause instanceof Error ? cause.message : "הפעולה נכשלה."); } finally { setBusy(false); }
+      if (!response.ok) throw new Error("Deleting the publication failed.");
+      await load(); setMessage({ kind: "ok", text: "Publication deleted. Evidence and review history were kept." });
+    } catch (cause) { setMessage({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." }); } finally { setBusy(false); }
   }
 }
 
 function PublicationForm({ publication, busy, onSave, onTransition, onArchive, onDelete }: { publication: Publication; busy: boolean; onSave: (id: string, form: HTMLFormElement) => void; onTransition: (id: string, to: Publication["status"]) => void; onArchive: (id: string) => void; onDelete: (id: string) => void }) {
   return <form className={styles.editorForm} onSubmit={(event) => { event.preventDefault(); onSave(publication.id, event.currentTarget); }}>
     <div className={styles.editorStatus}><span>{publication.status}</span><span>{publication.publicId}</span></div>
-    <label><span>כותרת</span><input name="title" defaultValue={publication.title} required /></label>
-    <label><span>תקציר</span><textarea name="summary" defaultValue={publication.summary ?? ""} rows={4} /></label>
-    <label><span>גוף הכתבה</span><textarea name="body" defaultValue={publication.body} rows={18} required /></label>
+    <Field className={styles.editorField} name="title" label="Title" defaultValue={publication.title} required />
+    <Field className={styles.editorField} name="summary" label="Summary" defaultValue={publication.summary ?? ""} multiline rows={4} />
+    <Field className={styles.editorField} name="body" label="Article body" defaultValue={publication.body} multiline rows={18} required />
     <div className={styles.formGrid}>
-      <label><span>מדור</span><select name="section" defaultValue={publication.section}>{publication.section === "narrative_watch" ? <option value="narrative_watch">מעקב נרטיבים</option> : <><option value="daily_brief">בריף יומי</option><option value="israel_update">עדכון ישראל</option><option value="war_update">עדכון מלחמה</option></>}</select></label>
-      <label><span>נושא</span><input name="editorialTopic" defaultValue={publication.editorialTopic ?? ""} /></label>
-      <label><span>שחקן מרכזי</span><input name="primaryActor" defaultValue={publication.primaryActor ?? ""} /></label>
-      <label><span>זירה</span><input name="arena" defaultValue={publication.arena ?? ""} /></label>
+      <SelectField className={styles.editorField} name="section" label="Section" defaultValue={publication.section}>
+        {publication.section === "narrative_watch"
+          ? <option value="narrative_watch">Narrative Watch</option>
+          : <>
+            <option value="daily_brief">Daily Brief</option>
+            <option value="israel_update">Israel Update</option>
+            <option value="war_update">War Update</option>
+          </>}
+      </SelectField>
+      <Field className={styles.editorField} name="editorialTopic" label="Topic" defaultValue={publication.editorialTopic ?? ""} />
+      <Field className={styles.editorField} name="primaryActor" label="Primary actor" defaultValue={publication.primaryActor ?? ""} />
+      <Field className={styles.editorField} name="arena" label="Arena" defaultValue={publication.arena ?? ""} />
     </div>
-    {publication.narrativeWatchDetails ? <fieldset className={styles.narrativeFields}><legend>פרטי מעקב נרטיב</legend>
+    {publication.narrativeWatchDetails ? <FieldGroup legend="Narrative Watch details" className={styles.narrativeFields}>
       {/* Read-only on purpose: the basis is derived from whether the article
           cites anything, never chosen. A form control here would let an editor
           relabel a sourced piece as analysis — or, worse, strip the disclosure
@@ -156,47 +210,76 @@ function PublicationForm({ publication, busy, onSave, onTransition, onArchive, o
         <span>evidence basis</span>
         <span>{publication.narrativeWatchDetails.evidenceBasis === "analysis" ? "analysis · no source cited" : "sourced"}</span>
       </div>
-      <p className={styles.muted}>בסיס הראיות נגזר מכך שהכתבה מצטטת ראיות, ואינו ניתן לבחירה בטופס. כדי לשנותו יש לשנות את הראיות המקושרות לכתבה.</p>
-      <label><span>הטענה המדויקת</span><textarea name="exactClaim" defaultValue={publication.narrativeWatchDetails.exactClaim} rows={4} required /></label>
+      <p className={styles.muted}>Evidence basis is derived from whether the article cites evidence and cannot be chosen on this form. To change it, change the evidence linked to the article.</p>
+      <Field className={styles.editorField} name="exactClaim" label="Exact claim" defaultValue={publication.narrativeWatchDetails.exactClaim} multiline rows={4} required />
       <div className={styles.formGrid}>
-        <label><span>מפיצים — שורה לכל גורם</span><textarea name="propagators" defaultValue={publication.narrativeWatchDetails.propagators.join("\n")} rows={4} /></label>
-        <label><span>זירות — שורה לכל זירה</span><textarea name="narrativeArenas" defaultValue={publication.narrativeWatchDetails.arenas.join("\n")} rows={4} required /></label>
-        <label><span>מגמה</span><select name="trendDirection" defaultValue={publication.narrativeWatchDetails.trendDirection}><option value="new">חדשה</option><option value="rising">עולה</option><option value="stable">יציבה</option><option value="declining">יורדת</option><option value="unclear">לא ברורה</option></select></label>
-        <label><span>לא ידוע — שורה לכל נקודה</span><textarea name="knownUnknowns" defaultValue={publication.narrativeWatchDetails.knownUnknowns.join("\n")} rows={4} /></label>
+        <Field className={styles.editorField} name="propagators" label="Propagators — one per line" defaultValue={publication.narrativeWatchDetails.propagators.join("\n")} multiline rows={4} />
+        <Field className={styles.editorField} name="narrativeArenas" label="Arenas — one per line" defaultValue={publication.narrativeWatchDetails.arenas.join("\n")} multiline rows={4} required />
+        <SelectField className={styles.editorField} name="trendDirection" label="Trend" defaultValue={publication.narrativeWatchDetails.trendDirection}>
+          <option value="new">New</option>
+          <option value="rising">Rising</option>
+          <option value="stable">Stable</option>
+          <option value="declining">Declining</option>
+          <option value="unclear">Unclear</option>
+        </SelectField>
+        <Field className={styles.editorField} name="knownUnknowns" label="Known unknowns — one per line" defaultValue={publication.narrativeWatchDetails.knownUnknowns.join("\n")} multiline rows={4} />
       </div>
-      <label><span>העמדה הישראלית</span><textarea name="israeliPosition" defaultValue={publication.narrativeWatchDetails.israeliPosition ?? ""} rows={5} /></label>
-      <label><span>הקשר ביטחוני</span><textarea name="securityContext" defaultValue={publication.narrativeWatchDetails.securityContext ?? ""} rows={5} /></label>
-    </fieldset> : null}
+      <Field className={styles.editorField} name="israeliPosition" label="Israeli position" defaultValue={publication.narrativeWatchDetails.israeliPosition ?? ""} multiline rows={5} />
+      <Field className={styles.editorField} name="securityContext" label="Security context" defaultValue={publication.narrativeWatchDetails.securityContext ?? ""} multiline rows={5} />
+    </FieldGroup> : null}
     <PublicationTrace publicationId={publication.id} />
-    <label className={styles.checkbox}><input type="checkbox" name="featuredIsraelStory" defaultChecked={publication.featuredIsraelStory} /><span>כתבה ישראלית יומית מובילה</span></label>
+    <CheckboxField
+      className={styles.editorField}
+      name="featuredIsraelStory"
+      label="Featured daily Israel story"
+      defaultChecked={publication.featuredIsraelStory}
+    />
     <div className={styles.actionRow}>
-      <button className={styles.primary} type="submit" disabled={busy}>שמור שינויים</button>
-      {publicationActions(publication.status).map((action) => <button key={action.to} className={action.primary ? styles.primary : styles.secondary} type="button" disabled={busy} onClick={() => onTransition(publication.id, action.to)}>{action.label}</button>)}
-      {publication.status !== "archived" ? <button className={styles.danger} type="button" disabled={busy} onClick={() => onArchive(publication.id)}>הסר מהאתר והעבר לארכיון</button> : null}
-      {(publication.status === "archived" || publication.status === "draft") ? <button className={styles.danger} type="button" disabled={busy} onClick={() => onDelete(publication.id)}>מחיקה לצמיתות</button> : null}
+      <Button variant="primary" type="submit" disabled={busy}>Save changes</Button>
+      {publicationActions(publication.status).map((action) => (
+        <Button
+          key={action.to}
+          variant={action.primary ? "primary" : "secondary"}
+          type="button"
+          disabled={busy}
+          onClick={() => onTransition(publication.id, action.to)}
+        >
+          {action.label}
+        </Button>
+      ))}
+      {publication.status !== "archived" ? (
+        <Button variant="danger" type="button" disabled={busy} onClick={() => onArchive(publication.id)}>
+          Remove from site and archive
+        </Button>
+      ) : null}
+      {(publication.status === "archived" || publication.status === "draft") ? (
+        <Button variant="danger" type="button" disabled={busy} onClick={() => onDelete(publication.id)}>
+          Delete permanently
+        </Button>
+      ) : null}
     </div>
   </form>;
 }
 
 function publicationActions(status: Publication["status"]): Array<{ to: Publication["status"]; label: string; primary?: boolean }> {
   switch (status) {
-    case "draft": return [{ to: "under_review", label: "העבר לבדיקה" }];
-    case "under_review": return [{ to: "approved", label: "אשר לפרסום", primary: true }, { to: "draft", label: "החזר לטיוטה" }];
-    case "approved": return [{ to: "published", label: "פרסם עכשיו", primary: true }, { to: "draft", label: "החזר לטיוטה" }];
-    case "updated": return [{ to: "published", label: "פרסם עדכון", primary: true }];
-    case "archived": return [{ to: "draft", label: "שחזר לטיוטה" }];
+    case "draft": return [{ to: "under_review", label: "Send to review" }];
+    case "under_review": return [{ to: "approved", label: "Approve for publication", primary: true }, { to: "draft", label: "Return to draft" }];
+    case "approved": return [{ to: "published", label: "Publish now", primary: true }, { to: "draft", label: "Return to draft" }];
+    case "updated": return [{ to: "published", label: "Publish update", primary: true }];
+    case "archived": return [{ to: "draft", label: "Restore to draft" }];
     default: return [];
   }
 }
 
 function transitionMessage(to: Publication["status"]): string {
   return ({
-    draft: "הפרסום הוחזר לטיוטה.",
-    under_review: "הפרסום הועבר לבדיקה.",
-    approved: "הפרסום אושר ומוכן לפרסום.",
-    published: "הפרסום עלה לאתר.",
-    updated: "הפרסום סומן כמעודכן.",
-    archived: "הפרסום הועבר לארכיון.",
+    draft: "Publication returned to draft.",
+    under_review: "Publication sent to review.",
+    approved: "Publication approved and ready to publish.",
+    published: "Publication is live.",
+    updated: "Publication marked as updated.",
+    archived: "Publication archived.",
   } as const)[to];
 }
 
@@ -221,12 +304,12 @@ function PublicationTrace({ publicationId }: { publicationId: string }) {
       .catch(() => { if (live) setTrace(null); });
     return () => { live = false; };
   }, [publicationId]);
-  if (!trace) return <p className={styles.muted}>טוען עקיבות…</p>;
-  return <details className={styles.traceability}><summary>עקיבות: ריצה, דגם ומקורות</summary>
-    <p>{trace.briefingRun ? `${trace.briefingRun.localDate} · ${trace.briefingRun.stage} · ${trace.briefingRun.status} · ${trace.briefingRun.id}` : "פרסום ידני ללא ריצת מערכת."}</p>
-    {trace.edition ? <p>{`מהדורה ${trace.edition.id} · חוזה ${trace.edition.contractVersion} · הנחיה ${trace.edition.promptVersion} · ${trace.edition.status}`}</p> : null}
+  if (!trace) return <p className={styles.muted}>Loading traceability…</p>;
+  return <details className={styles.traceability}><summary>Traceability: run, model, and sources</summary>
+    <p>{trace.briefingRun ? `${trace.briefingRun.localDate} · ${trace.briefingRun.stage} · ${trace.briefingRun.status} · ${trace.briefingRun.id}` : "Manual publication with no system run."}</p>
+    {trace.edition ? <p>{`Edition ${trace.edition.id} · contract ${trace.edition.contractVersion} · prompt ${trace.edition.promptVersion} · ${trace.edition.status}`}</p> : null}
     <ul>{trace.modelRuns.map((run) => <li key={run.id}>{run.model} · {run.stage} · ${run.costUsd.toFixed(4)}</li>)}</ul>
-    <ul>{trace.claims.map((claim) => <li key={claim.id}>{claim.title} · {claim.assessment} · {claim.evidenceCount} ראיות · {claim.aiRunId ?? "ללא ריצת דגם"}</li>)}</ul>
+    <ul>{trace.claims.map((claim) => <li key={claim.id}>{claim.title} · {claim.assessment} · {claim.evidenceCount} evidence · {claim.aiRunId ?? "no model run"}</li>)}</ul>
     <ul>{trace.sources.map((source) => <li key={source.id}>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title} · {source.publisher} · {source.retrievalStatus}</li>)}</ul>
   </details>;
 }

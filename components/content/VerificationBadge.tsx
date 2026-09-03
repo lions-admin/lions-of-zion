@@ -1,4 +1,5 @@
 import type { AssessmentValue, ConfidenceSummary } from '@/server/contracts/enums';
+import { BADGE_GRAMMAR } from '@/components/ui/Badge';
 import styles from './content.module.css';
 
 export type VerificationBadgeProps = {
@@ -10,41 +11,41 @@ export type VerificationBadgeProps = {
  *  typecheck here before it silently renders unstyled. */
 const ASSESSMENT_PRESENTATION: Record<AssessmentValue, { label: string; explanation: string }> = {
   verified: {
-    label: 'Verified',
+    label: BADGE_GRAMMAR.verified.label,
     explanation: 'Verified: supported by the evidence on record.',
   },
   false: {
-    label: 'False',
+    label: BADGE_GRAMMAR.false.label,
     explanation: 'Assessed as false: the claim is contradicted by the evidence.',
   },
   misleading: {
-    label: 'Misleading',
+    label: BADGE_GRAMMAR.misleading.label,
     explanation:
       'Assessed as misleading: built on real elements arranged to create a false impression.',
   },
   manipulated: {
-    label: 'Manipulated',
+    label: BADGE_GRAMMAR.manipulated.label,
     explanation: 'Assessed as manipulated: the underlying media or record has been altered.',
   },
   out_of_context: {
-    label: 'Out of context',
+    label: BADGE_GRAMMAR.out_of_context.label,
     explanation:
       'Assessed as out of context: genuine material presented outside its real time, place, or meaning.',
   },
   contested: {
-    label: 'Contested',
+    label: BADGE_GRAMMAR.contested.label,
     explanation: 'Contested: credible sources disagree and the record does not yet settle it.',
   },
   unsupported: {
-    label: 'Unsupported',
+    label: BADGE_GRAMMAR.unsupported.label,
     explanation: 'Unsupported: we searched and found no evidence for the claim.',
   },
   unverified: {
-    label: 'Unverified',
+    label: BADGE_GRAMMAR.unverified.label,
     explanation: 'Unverified: not yet assessed against the evidence.',
   },
   satire: {
-    label: 'Satire',
+    label: BADGE_GRAMMAR.satire.label,
     explanation: 'Satire: not a factual claim — presented as satire or parody.',
   },
 };

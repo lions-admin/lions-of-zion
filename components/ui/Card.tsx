@@ -3,29 +3,41 @@ import Link from "next/link";
 import styles from "./card.module.css";
 
 /**
- * The chrome surface primitive: a container with a hairline, a state matrix
- * and an optional accent rule. Three anatomies, all traced from surfaces that
- * ship — see the header of `card.module.css`.
- *
- * It is deliberately not the editorial card. A record with an eyebrow, a
- * title, a body and a citation is `components/content/ContentCard`, which
- * renders an `<article>` and knows the publication's vocabulary. This one
- * knows surfaces, hairlines, focus and lift, and nothing about what it holds.
- * `components/ui/README.md` states the boundary and where each belongs.
+ * Editorial surface compositions: feature, list-row, dossier, metric, and
+ * quiet-note. `panel` maps to feature and `quiet` maps to row so existing
+ * types keep compiling. Accent is the top/start rule colour, not a glow.
  */
-export type CardVariant = "panel" | "dossier" | "quiet";
+export type CardVariant =
+  | "feature"
+  | "row"
+  | "dossier"
+  | "metric"
+  | "note"
+  | "panel"
+  | "quiet";
+
 export type CardAccent = "none" | "gold" | "ember";
+
+const VARIANT_CLASS: Record<CardVariant, string> = {
+  feature: styles.feature,
+  row: styles.row,
+  dossier: styles.dossier,
+  metric: styles.metric,
+  note: styles.note,
+  panel: styles.feature,
+  quiet: styles.row,
+};
 
 type CardOwnProps = {
   variant?: CardVariant;
-  /** The colour of the top rule and the eyebrow. Sections own their accent;
-   *  the primitive does not bake one in. */
+  /** Alias of `variant` — same five compositions. */
+  tone?: CardVariant;
+  /** Colour of the accent rule and the eyebrow. */
   accent?: CardAccent;
   /** Renders the whole card as a link and arms the interactive treatment. */
   href?: string;
-  /** Arms the interactive treatment without a link — for a card whose whole
-   *  surface is a button or a label. The caller owns the semantics; a `<div>`
-   *  with a click handler is not a control. */
+  /** Arms the interactive treatment without a link. The caller owns the
+   *  semantics; a `<div>` with a click handler is not a control. */
   interactive?: boolean;
   as?: React.ElementType;
   className?: string;
@@ -36,7 +48,8 @@ export type CardProps = Omit<React.HTMLAttributes<HTMLElement>, "children"> &
   CardOwnProps;
 
 export function Card({
-  variant = "panel",
+  variant,
+  tone,
   accent = "none",
   href,
   interactive,
@@ -45,11 +58,12 @@ export function Card({
   children,
   ...props
 }: CardProps) {
+  const composition = variant ?? tone ?? "feature";
   const isInteractive = interactive ?? href !== undefined;
 
   const classes = [
     styles.card,
-    styles[variant],
+    VARIANT_CLASS[composition],
     accent === "none" ? "" : styles[accent],
     isInteractive ? styles.interactive : "",
     className,
@@ -162,8 +176,7 @@ export function CardMedia({
  * The pinned affordance at a card's foot. Not a control — the card itself is
  * the link — so it renders as text with an arrow that travels on hover, and
  * carries `aria-hidden` because the card's own accessible name already says
- * where it goes. A second announcement of "Open the file" would make every
- * card in a grid read identically.
+ * where it goes.
  */
 export function CardCta({
   className = "",

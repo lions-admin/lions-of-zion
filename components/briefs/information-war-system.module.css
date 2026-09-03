@@ -1,36 +1,41 @@
 /*
- * "This is an information war" — the system page behind `/information-war`.
+ * "This is an information war." — the system page behind `/information-war`.
  *
- * V3 pass. Type moves onto the three faces and the eight steps: Newsreader
- * for the hero statement, the section headings and the stage names; Plex for
- * running text and the two calls to action; JetBrains Mono for indices,
- * coordinates, stage metadata and the diagram's labels. Every colour literal
- * — the near-black ground, the hero scrims, six alphas of gold and four of
- * the ink — now reads a token or a `color-mix()` of one.
+ * IW-001 rebuild. One column, five numbered sections, each with a single
+ * reading path and one explanatory diagram. The ground is bare black: the
+ * photographic hero, its scrims, the sweeping light and the coordinates
+ * readout are gone — the previous build's telemetry dressings implied
+ * instrumentation the page does not have. Hierarchy comes from the type
+ * scale, hairline rules and the section index column; nothing glows.
  *
- * Two loops are gone: the hero's sweeping light and the pulsing system
- * nodes. Nothing loops on a reading surface. The entrances that remain are
- * transform and opacity at `--dur-slow`.
+ * Color discipline: gold marks the reader's own position and path — the
+ * kicker, the hero CTA's hover, the stage marks, the output fork's root.
+ * Ember appears exactly where the adversarial signal does: the racing
+ * claim's rule (01), the widening reach bars from Amplification on (02),
+ * and the syndicated copies' wires (03). The blue data ramp is reserved for
+ * the verified stream: the evidence rule and the single upstream origin.
  *
- * The two data ramps carry meaning in exactly one place: the independence
- * diagram. Five syndicated copies converge in the ember ramp — the signal
- * that imitates confirmation — onto one origin drawn in the blue ramp, the
- * stream that was actually verified. Nowhere else on the page is either
- * ramp used, and gold is spent on the kicker, the CTA's hover, and the
- * stage marks.
+ * Motion: one entrance on the hero copy, and the beams' packets — which
+ * pause offscreen, cap page-wide, and vanish under reduced motion, leaving
+ * static connectors whose relations are stated in visible captions.
+ *
+ * Mobile discipline (IW-003): nothing pins on a constrained viewport. The
+ * system intro is sticky only where the viewport is both wide and tall
+ * enough to afford a pinned column; every diagram reads inline, top to
+ * bottom, at 320×568.
  */
 
 .page {
   --war-gutter: clamp(var(--sp-5), 5vw, var(--sp-9));
-  --war-measure: 86rem;
+  --war-measure: 72rem;
+  --copy-gap: var(--sp-3);
 
   min-height: 100dvh;
   overflow: clip;
   color: var(--ink);
-  background:
-    radial-gradient(90% 62% at 68% 15%, color-mix(in srgb, var(--ink-hi) 5%, transparent), transparent 72%),
-    var(--scan-ground),
-    var(--ground);
+  /* No background of its own: the body already carries the black ground and
+     the site-wide scan texture, and painting over them here would make this
+     the one route with a flatter black than the rest of the site. */
   font-family: var(--face-text);
 }
 
@@ -57,10 +62,11 @@
   transform: translateY(0);
 }
 
+/* Reading progress sits under the fixed masthead, not behind its glass. */
 .progressTrack {
   position: fixed;
-  z-index: 110;
-  top: 0;
+  z-index: var(--z-sticky);
+  top: var(--header-h);
   right: 0;
   left: 0;
   height: 2px;
@@ -70,110 +76,43 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+  background: var(--gold);
   transform: scaleX(0);
   transform-origin: left;
 }
 
-/* ── Hero ─────────────────────────────────────────────────────────────── */
-
-.page > header + .hero {
-  min-height: calc(100svh - 76px);
-}
+/* ── The threshold ────────────────────────────────────────────────────── */
 
 .hero {
-  position: relative;
   display: grid;
-  align-items: end;
-  min-height: 100svh;
-  padding: clamp(var(--sp-8), 17vh, 12rem) var(--war-gutter) clamp(var(--sp-7), 7vh, var(--sp-8));
-  isolation: isolate;
+  grid-template-rows: 1fr auto;
+  min-height: calc(100svh - var(--header-h));
+  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
+  margin-inline: auto;
+  padding-block: clamp(var(--sp-7), 9vh, var(--sp-9)) var(--sp-5);
 }
 
-.heroMedia {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  overflow: hidden;
+.heroCopy {
+  align-self: center;
+  max-width: 46rem;
+  animation: heroEnter var(--dur-enter) var(--ease-out) both;
 }
 
-.heroMedia::before {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--ground) 96%, transparent) 0%,
-    color-mix(in srgb, var(--ground) 62%, transparent) 50%,
-    color-mix(in srgb, var(--ground) 12%, transparent)
-  );
-}
-
-.heroMedia::after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  background: linear-gradient(0deg, var(--ground) 0%, transparent 32%);
-}
-
-.heroMedia img {
-  object-fit: cover;
-  object-position: 62% center;
-  filter: grayscale(1) contrast(1.24);
-  opacity: 0.52;
-  transform: scale(1.06);
-  animation: imageResolve var(--dur-slow) var(--ease-out) both;
-}
-
-/* The sweep was a 7s light that looped for as long as the page was open.
-   Retired: nothing loops on a reading surface. The element stays in the
-   markup and paints nothing. */
-.sweep {
-  display: none;
-}
-
-.coordinates {
-  position: absolute;
-  z-index: 5;
-  right: var(--war-gutter);
-  bottom: var(--sp-7);
-  color: var(--ink-lo);
+.kicker {
+  margin: 0;
+  color: var(--gold);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
 }
 
-.heroCopy {
-  max-width: 72rem;
-  animation: reveal var(--dur-slow) var(--ease-out) both;
-}
-
-/* The hero kicker is the one gold on the first screen. Section indices are
-   the same voice in recessive ink: a number in the data face, then a name in
-   sentence case. */
-.heroCopy > p:first-child,
-.sectionIndex {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: 0;
-  line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-.heroCopy > p:first-child {
-  color: var(--gold);
-}
-
+/* The sentence is the hero. Block spans set the intended breaks; their word
+   spaces stay in the text, so the accessible name is the whole sentence
+   (IW-002). */
 .hero h1 {
-  max-width: 14ch;
-  margin: var(--sp-3) 0 var(--sp-5);
+  margin: var(--sp-4) 0 var(--sp-5);
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-display);
@@ -187,7 +126,8 @@
 }
 
 .heroStatement {
-  max-width: 37rem;
+  max-width: 34rem;
+  margin: 0;
   color: var(--ink);
   font-family: var(--face-display);
   font-size: var(--t-lede);
@@ -195,21 +135,16 @@
   line-height: var(--t-lede-lh);
 }
 
-/* The hero's call to action: a secondary button in the site's vocabulary.
-   Sans, 600, sentence case; hover takes the gold wash without moving.
-   `.output > a` was grouped here until the closing section's single CTA
-   became the three-row index in `.outputLines`; the selector matched nothing
-   after that and is gone rather than left to look load-bearing. */
-.heroCopy > a {
+.heroCta {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
-  min-height: 2.75rem;
-  margin-top: var(--sp-5);
+  min-height: var(--control-h);
+  margin-top: var(--sp-6);
   padding: 0 var(--sp-5);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-2);
-  background: var(--surface-3);
+  background: var(--surface-2);
   color: var(--ink-hi);
   font-family: var(--face-text);
   font-size: var(--t-small);
@@ -222,34 +157,100 @@
     color var(--dur-fast) var(--ease-out);
 }
 
-.heroCopy > a:hover {
+.heroCta:hover {
   background: var(--gold-wash);
   border-color: var(--gold-line-strong);
   color: var(--gold-hi);
 }
 
-.heroCopy > a:active {
+.heroCta:active {
   background: color-mix(in srgb, var(--gold) 18%, transparent);
   color: var(--gold-hi);
 }
 
-/* ── Sections ─────────────────────────────────────────────────────────── */
-
-.definition {
-  display: grid;
-  grid-template-columns: minmax(12rem, 0.4fr) 1fr;
-  gap: clamp(var(--sp-6), 8vw, 9rem);
-  width: min(80rem, calc(100% - (var(--war-gutter) * 2)));
-  margin-inline: auto;
-  padding: clamp(var(--sp-9), 13vw, 12rem) 0;
-  border-top: 1px solid var(--line);
+.heroCta:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
 }
 
-.definition h2,
-.sectionIntro h2,
-.systemSticky h2,
-.output h2 {
+/* The reading order, closing the threshold: five numbered anchors into the
+   document. Each is a full 44px target. */
+.heroIndex {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--sp-6);
+  border-top: 1px solid var(--line);
+  padding-top: var(--sp-2);
+}
+
+.heroIndex a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h);
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: 1;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.heroIndex a span {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.heroIndex a:hover,
+.heroIndex a:hover span {
+  color: var(--gold-hi);
+}
+
+.heroIndex a:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+/* ── Sections ─────────────────────────────────────────────────────────── */
+
+.section,
+.system {
+  display: grid;
+  gap: var(--sp-5);
+  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
+  margin-inline: auto;
+  padding-block: clamp(var(--sp-8), 10vw, var(--sp-9));
+  border-top: 1px solid var(--line);
+  scroll-margin-top: calc(var(--header-h) + var(--sp-4));
+}
+
+/* The section index: a number in the data face, then a name in sentence
+   case — the page's one recurring voice. */
+.index {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0;
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.sectionBody {
+  min-width: 0;
+}
+
+.sectionBody h2,
+.systemIntro h2 {
   margin: 0 0 var(--sp-5);
+  max-width: 24ch;
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-h2);
@@ -258,74 +259,140 @@
   line-height: var(--t-h2-lh);
 }
 
-.definition > div:last-child {
-  max-width: 55rem;
-}
-
-.definition p,
-.sectionIntro p,
-.systemSticky p,
-.output > p {
+.sectionBody > p,
+.systemIntro > p {
   max-width: 60ch;
+  margin: 0;
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
 
-.definition p + p {
+.sectionBody > p + p,
+.systemIntro > p + p {
   margin-top: var(--flow);
 }
 
-.pressure,
-.independence,
-.system,
-.output {
-  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
-  margin-inline: auto;
-  padding: clamp(var(--sp-8), 11vw, 10rem) 0;
-  border-top: 1px solid var(--line);
+/* Inside the intro column the index is not a grid child of the section, so
+   the section gap cannot space it — it carries its own margin. */
+.systemIntro .index {
+  margin-bottom: var(--sp-4);
 }
 
-.sectionIntro {
-  max-width: 58rem;
-  margin-bottom: clamp(var(--sp-7), 8vw, var(--sp-9));
+/* The one-line statement under a diagram: the relation in text, present at
+   every tier — no JavaScript, reduced motion, print. */
+.diagramNote {
+  margin: var(--sp-4) 0 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0;
+  line-height: var(--t-data-lh);
 }
 
-/* ── How pressure forms ───────────────────────────────────────────────── */
+/* ── 01 · Speed asymmetry ─────────────────────────────────────────────── */
 
-.pressureFlow {
-  position: relative;
+.speedDiagram {
+  margin: var(--sp-7) 0 0;
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line-soft);
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin: 0;
+  gap: var(--sp-4);
+}
+
+.speedRow {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.speedRow span {
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0;
+  line-height: var(--t-data-lh);
+}
+
+/* The full interval is the faint track; the distance covered is the value
+   rule, with its endpoint marked. Lengths are qualitative by design — the
+   page draws no figure it cannot show. */
+.speedRow i {
+  position: relative;
+  display: block;
+  height: 1px;
+  background: var(--line-soft);
+}
+
+.speedRow i::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+}
+
+.speedRow i::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-top: -0.2rem;
+  border-radius: 50%;
+}
+
+.speedRow[data-tone="claim"] i::before {
+  width: 97%;
+  background: var(--data-ember);
+}
+
+.speedRow[data-tone="claim"] i::after {
+  left: 97%;
+  background: var(--data-ember-peak);
+}
+
+.speedRow[data-tone="evidence"] i::before {
+  width: 24%;
+  background: var(--data-blue);
+}
+
+.speedRow[data-tone="evidence"] i::after {
+  left: 24%;
+  background: var(--data-blue-peak);
+}
+
+.speedDiagram figcaption {
+  max-width: var(--measure-narrow);
+  margin-top: var(--sp-2);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+/* ── 02 · The escalation chain ────────────────────────────────────────── */
+
+.pressureSteps {
+  margin: var(--sp-6) 0 0;
   padding: 0;
   list-style: none;
 }
 
-.pressureFlow::before {
-  content: "";
-  position: absolute;
-  top: 2.2rem;
-  right: 7%;
-  left: 7%;
-  height: 1px;
-  background: linear-gradient(90deg, var(--gold), var(--line-strong));
-  transform-origin: left;
-  animation: lineBuild var(--dur-slow) var(--ease-out) both;
+.pressureSteps li {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: var(--sp-4);
+  padding-block: var(--sp-5);
+  border-top: 1px solid var(--line-soft);
 }
 
-.pressureFlow li {
-  position: relative;
-  min-height: 14rem;
-  padding: 0 var(--sp-4);
-  border-left: 1px solid var(--line-soft);
+.pressureSteps li:first-child {
+  border-top: 0;
+  padding-top: 0;
 }
 
-.pressureFlow li:first-child {
-  border-left: 0;
-}
-
-.pressureFlow li > span {
+.stepNumber {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -334,22 +401,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* The stage mark: a gold ring on a ground-coloured plate that masks the line
-   behind it. No glow. */
-.pressureFlow li > i {
-  position: relative;
-  z-index: 2;
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
-  margin: var(--sp-5) 0 var(--sp-6);
-  border: 1px solid var(--gold);
-  border-radius: 50%;
-  background: var(--ground);
-  box-shadow: 0 0 0 0.55rem var(--ground);
-}
-
-.pressureFlow h3 {
+.pressureSteps h3 {
   margin: 0 0 var(--sp-2);
   color: var(--ink-hi);
   font-family: var(--face-display);
@@ -359,20 +411,49 @@
   line-height: var(--t-h3-lh);
 }
 
-.pressureFlow p {
+.pressureSteps p {
+  max-width: 52ch;
+  margin: 0;
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
 
-/* ── The independence test ────────────────────────────────────────────── */
-
-.independence {
-  display: grid;
-  grid-template-columns: 0.72fr 1fr;
-  gap: clamp(var(--sp-7), 8vw, var(--sp-9));
-  align-items: center;
+/* The diagram: one bar per stage, widening as the frame's reach grows. The
+   first two stages are the event itself — neutral ink. From Amplification
+   on the signal is imitating confirmation, and the bar turns ember. */
+.reach {
+  display: block;
+  height: var(--line-w-thick);
+  margin-top: var(--sp-4);
 }
+
+.pressureSteps li:nth-child(1) .reach {
+  width: 12%;
+  background: var(--line-strong);
+}
+
+.pressureSteps li:nth-child(2) .reach {
+  width: 30%;
+  background: var(--line-strong);
+}
+
+.pressureSteps li:nth-child(3) .reach {
+  width: 52%;
+  background: var(--data-ember-dim);
+}
+
+.pressureSteps li:nth-child(4) .reach {
+  width: 76%;
+  background: var(--data-ember);
+}
+
+.pressureSteps li:nth-child(5) .reach {
+  width: 100%;
+  background: var(--data-ember-peak);
+}
+
+/* ── 03 · The convergence ─────────────────────────────────────────────── */
 
 /* `position: relative` so the measured beams, which are absolutely
    positioned, take this box as their containing block. Being out of flow
@@ -380,101 +461,114 @@
 .sourceDiagram {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr minmax(5rem, 0.5fr) 1fr;
-  align-items: stretch;
-  min-height: 26rem;
+  margin-top: var(--sp-7);
 }
 
-.copies {
+.copyRow {
   display: grid;
-  align-content: space-between;
-  padding-block: var(--sp-3);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--copy-gap);
 }
 
-/* Five syndicated copies. Their indicator and their lines are the ember
-   ramp: this is the signal that looks like five confirmations. */
-.copies span {
+/* Five syndicated copies. Their marks and their wires are the ember ramp:
+   this is the signal that looks like five confirmations. */
+.copyRow > span {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3.15rem;
+  display: grid;
+  place-content: center;
+  min-height: 3rem;
+  padding: var(--sp-2) var(--sp-1);
   border: 1px solid var(--line);
   border-radius: var(--radius-2);
+  background: var(--surface-1);
   color: var(--ink);
-  background: color-mix(in srgb, var(--surface-3) 70%, transparent);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   line-height: var(--t-data-lh);
+  text-align: center;
   text-transform: uppercase;
 }
 
-.copies i {
+.copyRow i {
   position: absolute;
-  right: -0.5rem;
+  bottom: -0.28rem;
+  left: 50%;
   width: 0.45rem;
   height: 0.45rem;
+  margin-left: -0.225rem;
   border-radius: 50%;
   background: var(--data-ember);
 }
 
-.convergence {
-  display: grid;
-  grid-template-rows: repeat(5, 1fr);
-}
-
-.convergence span {
+/* The no-JavaScript connector: five drops into a collector, one drop to the
+   origin. An approximation, and honest as one — once the beams have
+   measured the real geometry it stands down. */
+.busField {
   position: relative;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--copy-gap);
+  height: clamp(3.5rem, 9vw, 5.5rem);
+  transition: opacity var(--dur-base) var(--ease-out);
 }
 
-.convergence span::before {
+.busField > span {
+  position: relative;
+}
+
+.busField > span::before {
   content: "";
   position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
+  top: 0;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: 42%;
+  background: var(--data-ember-dim);
+}
+
+.busField::before {
+  content: "";
+  position: absolute;
+  top: 42%;
+  right: 10%;
+  left: 10%;
   height: 1px;
-  background: linear-gradient(90deg, var(--data-ember-dim), var(--data-blue-dim));
-  transform: rotate(var(--angle, 0deg));
-  transform-origin: right;
+  background: linear-gradient(90deg, var(--data-ember-dim), var(--data-blue-dim), var(--data-ember-dim));
 }
 
-.convergence span:nth-child(1),
-.convergence span:nth-child(2) {
-  --angle: -15deg;
+.busField::after {
+  content: "";
+  position: absolute;
+  top: 42%;
+  bottom: 0;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  background: var(--data-blue-dim);
 }
 
-.convergence span:nth-child(4),
-.convergence span:nth-child(5) {
-  --angle: 15deg;
-}
-
-/* The fan above is an approximation — two fixed angles for five rows, and
-   the lines stop short of the origin. It is what the no-JavaScript tier
-   gets, and it is honest enough there. Once `SourceConvergenceBeams` has
-   measured the real geometry the accurate wires exist, so the approximation
-   stands down rather than being drawn underneath them. */
-.sourceDiagram[data-beams="on"] .convergence span::before {
+.sourceDiagram[data-beams="on"] .busField {
   opacity: 0;
 }
 
 /* One origin. The blue ramp: the stream that was actually verified. */
 .origin {
   position: relative;
+  justify-self: center;
   display: grid;
-  place-content: center;
-  padding: var(--sp-6);
+  justify-items: center;
+  gap: var(--sp-1);
+  min-width: min(18rem, 100%);
+  padding: var(--sp-5) var(--sp-6);
   border: 1px solid var(--data-blue-dim);
-  border-radius: var(--radius-3);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
   text-align: center;
-  background: radial-gradient(circle, color-mix(in srgb, var(--data-blue) 10%, transparent), transparent 75%);
 }
 
 .origin small,
-.origin span {
+.origin > span {
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -484,121 +578,168 @@
   text-transform: uppercase;
 }
 
-/* The convergence point. Five ember marks on the copies, one blue mark
-   here — so the wires land on a point on the edge instead of running into
-   the box and crossing its type. */
+.origin strong {
+  color: var(--data-blue-peak);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
+  line-height: 1.1;
+}
+
+/* The convergence point: the wires land on a mark on the box's top edge
+   instead of running into its type. */
 .originMark {
   position: absolute;
-  top: 50%;
-  left: -0.5rem;
+  top: -0.3rem;
+  left: 50%;
   width: 0.55rem;
   height: 0.55rem;
-  margin-top: -0.275rem;
+  margin-left: -0.275rem;
   border-radius: 50%;
   background: var(--data-blue);
 }
 
-.origin strong {
-  color: var(--data-blue-peak);
-  font-family: var(--face-display);
-  font-size: var(--t-display);
-  font-weight: var(--t-display-weight);
-  letter-spacing: var(--t-display-tracking);
-  line-height: 1;
+/* ── 04 · The system chain ────────────────────────────────────────────── */
+
+.systemIntro {
+  min-width: 0;
 }
 
-/* ── The system ───────────────────────────────────────────────────────── */
-
-.system {
-  display: grid;
-  grid-template-columns: 0.65fr 1fr;
-  gap: clamp(var(--sp-7), 9vw, 10rem);
-  align-items: start;
+/* The diagram's statement about itself. Full ink, not the recessive tone —
+   it is a disclosure about what the reader is looking at, and a disclosure
+   set quieter than the thing it qualifies is a disclosure in name only. */
+.systemIntro .systemDisclosure {
+  max-width: 60ch;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
 }
 
-.systemSticky {
-  position: sticky;
-  top: var(--sp-9);
+.systemIntro .systemDisclosure strong {
+  color: var(--ink-hi);
+  font-weight: 600;
+}
+
+.systemIntro .systemDisclosure a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.25em;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.systemIntro .systemDisclosure a:hover {
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold-line-strong);
 }
 
 /* The beams' measured host. A plain positioned block: the list keeps its
    own layout, and the wrapper exists only so the SVGs have a containing
-   block that is not the sticky column's grid track. */
-.systemFlowHost {
+   block. */
+.stageChainHost {
   position: relative;
   min-width: 0;
 }
 
-.systemFlow {
+.stageChain {
   position: relative;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.stageChain li {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  gap: var(--sp-5);
+}
+
+.stageRail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: calc(var(--sp-5) + 0.1rem);
+}
+
 /* The rail is the wire, and it is CSS because it needs no measurement and
    no JavaScript: it is present for a reader with scripting off and under
-   reduced motion, which is where the diagram's meaning has to survive. Its
-   left edge is the stage marks' centre — `.node` is a 3rem track with
-   `justify-items: center` and a 1rem mark, so that centre is at 1.5rem, and
-   the half-pixel centres the 1px rule on it. It read 1.3rem before, which
-   put the rail three pixels off the marks it threads. */
-.systemFlow::before {
+   reduced motion, which is where the diagram's meaning has to survive. It
+   is drawn per row so it can begin at the first mark and end at the last
+   one — a rail running past the final stage would imply a stage that does
+   not exist. 2.05rem is the marks' centre: the rail column's padding-top
+   plus half the mark. */
+.stageRail::before {
   content: "";
   position: absolute;
-  top: var(--sp-4);
-  bottom: var(--sp-6);
-  left: calc(1.5rem - 0.5px);
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 0.5px);
   width: 1px;
-  background: linear-gradient(var(--gold), var(--line-strong));
+  background: var(--line-strong);
 }
 
-.systemFlow li {
-  display: grid;
-  grid-template-columns: 3rem 1fr;
-  gap: var(--sp-5);
-  min-height: 11rem;
+.stageChain li:first-child .stageRail::before {
+  top: 2.05rem;
+  background: linear-gradient(var(--gold), var(--line-strong) 12rem);
 }
 
-.node {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  justify-items: center;
-  align-content: start;
+.stageChain li:last-child .stageRail::before {
+  bottom: auto;
+  height: 2.05rem;
 }
 
-.node span {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-/* The node used to pulse forever. It is a mark now, not a beacon. */
-.node i {
-  width: 1rem;
-  height: 1rem;
-  margin-top: var(--sp-4);
+/* A mark, not a beacon: a gold ring on a ground-coloured plate that masks
+   the rail behind it. No glow, no pulse. */
+.stageRail i {
+  width: 0.85rem;
+  height: 0.85rem;
   border: 1px solid var(--gold);
   border-radius: 50%;
   background: var(--ground);
-  box-shadow: 0 0 0 0.6rem var(--ground);
+  box-shadow: 0 0 0 0.45rem var(--ground);
 }
 
-.systemFlow small {
-  color: var(--ink-lo);
+/* Each stage is a step card hanging off the rail: hairline-topped, its
+   number and register label first, then the name, the description, and the
+   checkable rule. */
+.stageBody {
+  padding: var(--sp-5) 0 var(--sp-6);
+}
+
+.stageChain li + li .stageBody {
+  border-top: 1px solid var(--line-soft);
+}
+
+.stageMeta {
+  display: flex;
+  gap: var(--sp-3);
+  margin: 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
   line-height: var(--t-data-lh);
+}
+
+.stageMeta span:first-child {
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+.stageMeta span + span {
+  color: var(--ink-lo);
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
 }
 
-.systemFlow h3 {
+.stageChain h3 {
   margin: var(--sp-2) 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
@@ -608,20 +749,19 @@
   line-height: var(--t-h3-lh);
 }
 
-.systemFlow p {
-  max-width: 43rem;
+.stageChain p {
+  max-width: var(--measure-reading);
+  margin: 0;
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
 
-/* The checkable rule under each stage.
-   A step down in size and ink, behind a hairline, so a reader can see at a
-   glance which sentences on this page are description and which are claims
-   about a constraint that either exists or does not. The specificity beats
-   `.systemFlow p` above by one class, which is the whole reason it is
-   selected that way rather than as a bare element. */
-.systemFlow .mechanism {
+/* The checkable rule under each stage: a step down in size and ink, behind
+   a gold hairline, so a reader can see at a glance which sentences on this
+   page are description and which are claims about a constraint that either
+   exists or does not. */
+.stageChain .mechanism {
   max-width: var(--measure-reading);
   margin-top: var(--sp-3);
   padding-left: var(--sp-4);
@@ -632,131 +772,116 @@
   text-wrap: pretty;
 }
 
-/* The diagram's statement about itself. Full ink, not the recessive tone —
-   it is a disclosure about what the reader is looking at, and a disclosure
-   set quieter than the thing it qualifies is a disclosure in name only.
-   Scoped through `.systemSticky` deliberately: the grouped `.systemSticky p`
-   rule above scores (0,1,1) and would otherwise win the size and colour off a
-   bare single-class selector. */
-.systemSticky .systemDisclosure {
-  margin-top: var(--sp-5);
-  padding-top: var(--sp-4);
-  border-top: var(--line-w) solid var(--line);
-  color: var(--ink);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-wrap: pretty;
-}
-
-.systemSticky .systemDisclosure strong {
-  color: var(--ink-hi);
-  font-weight: 600;
-}
-
-.systemSticky .systemDisclosure a {
-  color: var(--ink-hi);
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 0.25em;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    text-decoration-color var(--dur-fast) var(--ease-out);
-}
-
-.systemSticky .systemDisclosure a:hover {
-  color: var(--gold-hi);
-  text-decoration-color: var(--gold-line-strong);
-}
-
 /* ── Measured beams ───────────────────────────────────────────────────── */
 
-/* The flow's wire is `.systemFlow::before` above, so these beams carry the
+/* The chain's wire is `.stageChain::before` above, so these beams carry the
    packet only and their own track is suppressed — one wire, drawn by
-   whichever mechanism draws it better, and never two stacked a few pixels
-   apart. Under `prefers-reduced-motion` the packet removes itself and what
-   is left is exactly the diagram as it was. */
+   whichever mechanism draws it better, never two stacked a few pixels
+   apart. Under reduced motion the packet removes itself and what is left
+   is exactly the diagram as the rail draws it. */
 .flowBeam {
   --beam-track-width: 0;
 }
 
 /* The convergence is the opposite: here the beam's own track is the
-   accurate line, so it stays and the CSS fan hides. */
+   accurate line, so it stays and the CSS bus hides. */
 .convergeBeam {
   --beam-packet-width: 1.4;
 }
 
-/* ── The output ───────────────────────────────────────────────────────── */
+/* ── 05 · The output fork ─────────────────────────────────────────────── */
 
-.output {
-  min-height: 80svh;
+.outputMap {
+  position: relative;
+  margin-top: var(--sp-7);
+  padding-left: 2.25rem;
   display: grid;
-  align-content: center;
 }
 
-/* The page's closing statement — its second display moment, in its own
-   viewport. */
-.output h2 {
-  max-width: 14ch;
-  font-size: var(--t-display);
-  letter-spacing: var(--t-display-tracking);
-  line-height: var(--t-display-lh);
+/* The fork's trunk: from the root mark down to the last stub. */
+.outputMap::before {
+  content: "";
+  position: absolute;
+  top: 0.9rem;
+  bottom: 2.8rem;
+  left: calc(0.5rem - 0.5px);
+  width: 1px;
+  background: var(--line-strong);
 }
 
-/* The page's closing index. These were three inert labels naming outputs the
-   reader then had to hunt for; they are links now, so the rows carry a
-   destination and a one-line description of what is at it. The gold slab on
-   the left is drawn at zero width and grows on hover — it cannot shift the
-   text, because the text's padding does not depend on it. */
-.outputLines {
-  display: grid;
-  margin: var(--sp-7) 0 0;
-  border-top: 1px solid var(--line);
+.outputRoot {
+  position: relative;
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-hi);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  line-height: var(--t-caption-lh);
 }
 
-.outputLines a {
+/* The root node: one gold mark on the trunk. */
+.outputRoot i {
+  position: absolute;
+  top: 50%;
+  left: calc(-1.75rem - 0.3rem + 0.5px);
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-top: -0.3rem;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.outputMap a {
   position: relative;
   display: grid;
   gap: var(--sp-1);
-  padding: var(--sp-5) 0 var(--sp-5) var(--sp-5);
-  border-bottom: 1px solid var(--line);
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--line-soft);
   color: var(--ink-hi);
+  text-decoration: none;
+}
+
+/* The stub: trunk to link, one hairline each. */
+.outputMap a::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(-2.25rem + 0.5rem);
+  width: calc(1.75rem - var(--sp-2));
+  height: 1px;
+  background: var(--line-strong);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.outputMap a strong {
   font-family: var(--face-display);
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   letter-spacing: var(--t-h3-tracking);
   line-height: var(--t-h3-lh);
-  text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.outputLines a::before {
-  content: "";
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  width: 0;
-  background: var(--gold);
-  transition: width var(--dur-fast) var(--ease-out);
-}
-
-.outputLines a small {
+.outputMap a small {
   max-width: var(--measure-narrow);
   color: var(--ink-lo);
   font-family: var(--face-text);
   font-size: var(--t-caption);
   font-weight: 400;
-  letter-spacing: 0;
   line-height: var(--t-caption-lh);
 }
 
-.outputLines a:hover {
+.outputMap a:hover strong {
   color: var(--gold-hi);
 }
 
-.outputLines a:hover::before {
-  width: var(--line-w-thick);
+.outputMap a:hover::before {
+  background: var(--gold);
 }
 
+.outputMap a:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
 
@@ -779,7 +904,7 @@
 .footer a {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: var(--control-h);
   margin-block: calc(-1 * var(--sp-3));
   color: var(--ink);
   font-family: var(--face-text);
@@ -800,10 +925,10 @@
 
 /* ── Motion ───────────────────────────────────────────────────────────── */
 
-@keyframes reveal {
+@keyframes heroEnter {
   from {
     opacity: 0;
-    transform: translateY(1rem);
+    transform: translateY(var(--enter-shift));
   }
   to {
     opacity: 1;
@@ -811,150 +936,66 @@
   }
 }
 
-@keyframes imageResolve {
-  from {
-    opacity: 0;
-    transform: scale(1.1);
-  }
-  to {
-    opacity: 0.52;
-    transform: scale(1.06);
-  }
-}
-
-@keyframes lineBuild {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
 /* ── Responsive ───────────────────────────────────────────────────────── */
 
-@media (max-width: 800px) {
+/* The speed rows earn a label column once there is room for one. */
+@media (min-width: 561px) {
+  .speedRow {
+    grid-template-columns: 13rem minmax(0, 1fr);
+    align-items: center;
+    gap: var(--sp-4);
+  }
+}
+
+/* The index column steps beside the body once the viewport affords it. */
+@media (min-width: 841px) {
+  .section {
+    grid-template-columns: minmax(10rem, 0.26fr) minmax(0, 1fr);
+    gap: clamp(var(--sp-6), 6vw, var(--sp-9));
+  }
+
+  .system {
+    grid-template-columns: minmax(14rem, 0.62fr) minmax(0, 1fr);
+    gap: clamp(var(--sp-6), 6vw, var(--sp-9));
+    align-items: start;
+  }
+}
+
+/* The intro column pins only where the viewport is wide AND tall enough to
+   afford a pinned scene (IW-003). A 320×568 viewport — or a short landscape
+   phone — reads everything inline. */
+@media (min-width: 1000px) and (min-height: 640px) {
+  .systemIntro {
+    position: sticky;
+    top: calc(var(--header-h) + var(--sp-5));
+  }
+}
+
+@media (max-width: 840px) {
   .page {
-    --war-gutter: clamp(var(--sp-5), 5vw, var(--sp-6));
+    --war-gutter: clamp(var(--sp-4), 5vw, var(--sp-6));
+    --copy-gap: var(--sp-2);
   }
 
   .hero {
-    min-height: 40rem;
+    min-height: min(calc(100svh - var(--header-h)), 44rem);
   }
 
-  .heroCopy {
-    width: 100%;
-    min-width: 0;
+  .heroIndex {
+    column-gap: var(--sp-5);
   }
 
-  .hero h1 {
-    max-width: 100%;
-  }
-
-  .heroMedia::before {
-    background: linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--ground) 94%, transparent),
-      color-mix(in srgb, var(--ground) 50%, transparent)
-    );
-  }
-
-  .coordinates {
-    display: none;
-  }
-
-  .definition,
-  .independence,
-  .system {
-    grid-template-columns: 1fr;
-  }
-
-  .definition h2,
-  .sectionIntro h2,
-  .systemSticky h2 {
-    overflow-wrap: normal;
-  }
-
-  .definition p,
-  .sectionIntro p,
-  .systemSticky p,
-  .output > p {
-    overflow-wrap: normal;
-  }
-
-  .systemSticky {
-    position: static;
-  }
-
-  .pressureFlow {
-    grid-template-columns: 1fr;
-  }
-
-  .pressureFlow::before {
-    top: 0;
-    bottom: 0;
-    left: 1.35rem;
-    width: 1px;
-    height: auto;
-  }
-
-  .pressureFlow li {
-    display: grid;
-    grid-template-columns: 2.7rem 1fr;
-    min-height: 7rem;
-    padding: 0;
-    border-left: 0;
-  }
-
-  .pressureFlow li > span {
-    grid-column: 2;
-  }
-
-  .pressureFlow li > i {
-    position: absolute;
-    left: 1rem;
-    margin: var(--sp-5) 0 0;
-  }
-
-  .pressureFlow h3,
-  .pressureFlow p {
-    grid-column: 2;
-  }
-
-  .pressureFlow h3 {
-    margin-top: var(--sp-1);
-  }
-
-  .sourceDiagram {
-    grid-template-columns: 1fr minmax(3rem, 0.3fr) 1fr;
-    min-height: 22rem;
-  }
-
-  /* No size override — `--t-data` is the floor at every width. The label
-     wraps instead. */
-  .copies span {
-    padding-inline: var(--sp-2);
-    text-align: center;
-  }
-
-  .origin {
-    padding: var(--sp-3);
-  }
-
-  .origin strong {
-    font-size: var(--t-h2);
-  }
-
-  .systemFlow li {
-    min-height: 0;
-    padding-bottom: var(--sp-6);
+  .stageChain li {
+    gap: var(--sp-4);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .heroMedia img,
-  .heroCopy,
-  .pressureFlow::before {
+  .heroCopy {
     animation: none;
+  }
+
+  .busField {
+    transition: none;
   }
 }

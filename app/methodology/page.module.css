@@ -108,13 +108,15 @@
   color: var(--ink);
 }
 
-@media (min-width: 45rem) {
-  .glanceRow {
-    grid-template-columns: 14rem minmax(0, 1fr);
-    gap: var(--sp-5);
-    align-items: baseline;
-  }
-}
+/* There is deliberately no wide two-column variant here.
+   A `min-width: 45rem` *viewport* query looked obvious and was wrong:
+   `.panel` is column two of a shell capped at `--family-measure`, so
+   this list never gets more than a reading measure no matter how wide
+   the window is. Giving a 14rem term column out of it left these
+   sentences around 45 characters a line — and they are sentences, not
+   labels. Stacked, each definition gets the whole measure, and the
+   tracked term above it is a stronger scan anchor than an aligned
+   column would have been. */
 
 /* ---- the process, as a relationship diagram (METHOD-002) ---- */
 

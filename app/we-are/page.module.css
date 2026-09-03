@@ -201,9 +201,18 @@
   text-decoration-color: currentColor;
 }
 
+/* Two columns here and not on Methodology's contents list, for a reason
+   that is about the text rather than the width: these are four short
+   commitments a reader compares against each other, so an aligned name
+   column earns its space. The names are also short enough that 12rem
+   holds the longest of them on one line — "Conflicts of interest" sets
+   to about 176px in the tracked data voice, which is why this is not
+   11rem — while leaving the commitment a workable measure. `.panel` is
+   capped at `--family-measure`, so what this splits is a reading
+   measure, never the viewport. */
 @media (min-width: 45rem) {
   .principles > div {
-    grid-template-columns: 13rem minmax(0, 1fr);
+    grid-template-columns: 12rem minmax(0, 1fr);
     gap: var(--sp-5);
     align-items: baseline;
   }

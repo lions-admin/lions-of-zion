@@ -1,0 +1,476 @@
+{
+  "runId": "chatgpt-test-2026-09-03-20260903T204900-idt",
+  "localDate": "2026-09-03",
+  "contractVersion": "external-briefing-v1",
+  "composer": "ChatGPT scheduled geopolitical brief",
+  "publishers": [
+    {
+      "key": "reuters",
+      "name": "Reuters",
+      "homepageUrl": "https://www.reuters.com/",
+      "language": "en",
+      "country": "GB",
+      "official": false
+    },
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "he-IL",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "toi",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "reuters-ali-taher-warning",
+      "publisherKey": "reuters",
+      "title": "Iran warns US against Israeli attack on south Lebanon ridge held by Hezbollah, sources say",
+      "url": "https://www.reuters.com/world/middle-east/iran-warns-us-against-israeli-attack-south-lebanon-ridge-held-by-hezbollah-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T07:02:00Z",
+      "excerpt": "Reuters reports that three officials briefed on an Iranian message said Tehran warned Washington that a full Israeli offensive on the Ali al-Taher ridge in southern Lebanon would trigger a major Iranian response. Lebanese security sources described Hezbollah command and weapons infrastructure at the ridge. Reuters said it could not independently verify the military situation there, and an Israeli military assessment cited in the report disputed claims that IRGC personnel were present.",
+      "language": "en"
+    },
+    {
+      "key": "idf-war-diary-sept2",
+      "publisherKey": "idf",
+      "title": "יומן המלחמה - 02/09",
+      "url": "https://www.idf.il/%D7%90%D7%AA%D7%A8%D7%99-%D7%99%D7%97%D7%99%D7%93%D7%95%D7%AA/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%AA%D7%9E%D7%95%D7%A0%D7%AA-%D7%94%D7%9E%D7%A6%D7%91-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-%D7%94%D7%99%D7%9E%D7%99%D7%9D/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-02-09-26/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-02T17:30:00+03:00",
+      "excerpt": "The IDF's September 2 war diary states that Hezbollah launched two explosive drones toward Israeli troops in the Ali al-Taher ridge area, that one was intercepted and no Israeli troops were injured, and that Israel then struck Hezbollah infrastructure near Nabatieh which the military said was used to plan attacks. The same diary also reports the destruction of more than 26 kilometers of another underground route by the Northern Brigade and Yahalom.",
+      "language": "he-IL"
+    },
+    {
+      "key": "reuters-house-boycott",
+      "publisherKey": "reuters",
+      "title": "US House passes bill to crack down on university boycotts of Israel",
+      "url": "https://www.reuters.com/world/us/us-house-passes-bill-crack-down-university-boycotts-israel-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T16:30:00Z",
+      "excerpt": "Reuters reports that the U.S. House voted 237-169 for the Protect Economic and Academic Freedom Act, legislation intended to block specified federal aid for universities that boycott Israel. The bill still requires Senate approval to become law. Sponsors said it targets discriminatory institutional boycotts rather than academic debate, while opponents including Representative Jerrold Nadler raised free-expression objections despite opposing the BDS movement.",
+      "language": "en"
+    },
+    {
+      "key": "reuters-defense-tech",
+      "publisherKey": "reuters",
+      "title": "Rights groups urge US lawmakers to drop provision to deepen defense ties with Israel",
+      "url": "https://www.reuters.com/legal/government/rights-groups-urge-us-lawmakers-drop-provision-deepen-defense-ties-with-israel-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T15:07:00Z",
+      "excerpt": "Reuters reports that a provision in the 2027 U.S. National Defense Authorization Act would deepen cooperation between American and Israeli defense sectors through joint technology development, licensing, joint ventures and U.S.-based co-production. A coalition of advocacy groups urged lawmakers to remove the provision. The measure remains subject to the Senate and the wider authorization process, so its final form is not settled.",
+      "language": "en"
+    },
+    {
+      "key": "toi-lebanon-release",
+      "publisherKey": "toi",
+      "title": "Red Cross says it facilitated return to Lebanon of man detained by Israel",
+      "url": "https://www.timesofisrael.com/liveblog_entry/red-cross-says-it-facilitated-return-to-lebanon-of-man-detained-by-israel/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T14:59:00+03:00",
+      "excerpt": "The Times of Israel, citing the International Committee of the Red Cross and Lebanese officials, reported that Malek Ghazi was released from Israeli custody and handed to the Lebanese army through the ICRC. The report said Hebrew media expected five Lebanese prisoners to be returned as a goodwill gesture. The release was described as the first such handover since the latest Israel-Hezbollah war began six months earlier.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "Israel security and diplomacy brief — September 3, 2026",
+    "summary": "The most immediate security risk is concentrated around the Ali al-Taher ridge in southern Lebanon, where Reuters reports an Iranian warning against a full Israeli assault and the IDF reports recent Hezbollah explosive-drone attacks on Israeli troops. Alongside that escalation risk, a Lebanese detainee was released through the ICRC, while U.S. lawmakers advanced both anti-boycott legislation and deeper defense-technology cooperation involving Israel.",
+    "citationKeys": [
+      "reuters-ali-taher-warning",
+      "idf-war-diary-sept2",
+      "reuters-house-boycott",
+      "reuters-defense-tech",
+      "toi-lebanon-release"
+    ],
+    "claims": [
+      {
+        "title": "Ali al-Taher remains a verified Israel-Hezbollah friction point",
+        "text": "Reuters reports an Iranian warning tied to a potential Israeli assault on Ali al-Taher, while the IDF reports that Hezbollah launched two explosive drones toward Israeli troops at the ridge and that Israel struck Hezbollah infrastructure in response.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Reuters and the Israel Defense Forces",
+        "uncertainty": "Reuters could not independently verify the internal military situation at the ridge, including competing claims about IRGC presence.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-ali-taher-warning",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Reuters directly reports the warning, the ridge's strategic significance, and uncertainty about forces inside it."
+          },
+          {
+            "citationKey": "idf-war-diary-sept2",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "The IDF directly reports the explosive-drone incident and its retaliatory strikes near the ridge."
+          }
+        ]
+      },
+      {
+        "title": "A Lebanese detainee was transferred back to Lebanon through the ICRC",
+        "text": "The Times of Israel reported, citing the ICRC and Lebanese officials, that Malek Ghazi was released by Israel and transferred to the Lebanese army, with additional releases expected.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "International Committee of the Red Cross and Lebanese officials, as reported by The Times of Israel",
+        "uncertainty": "The cited live update did not independently establish the full terms or timing of all anticipated additional releases.",
+        "citationLinks": [
+          {
+            "citationKey": "toi-lebanon-release",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "The report directly attributes the transfer to the ICRC and Lebanese officials and identifies the released detainee."
+          }
+        ]
+      },
+      {
+        "title": "The U.S. House passed legislation targeting university boycotts of Israel",
+        "text": "The U.S. House passed the Protect Economic and Academic Freedom Act by 237-169; the legislation would restrict specified federal aid for universities that boycott Israel and still requires Senate approval.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": "U.S. House of Representatives as reported by Reuters",
+        "uncertainty": "The measure is not law and its Senate prospects remain unresolved.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-house-boycott",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Reuters reports the vote count, bill name, intended mechanism and need for Senate passage."
+          }
+        ]
+      },
+      {
+        "title": "U.S.-Israel defense technology cooperation could deepen under the NDAA",
+        "text": "Reuters reports that a 2027 NDAA provision would expand U.S.-Israeli defense technology development and co-production frameworks, while a coalition of advocacy groups is lobbying for its removal.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Reuters",
+        "uncertainty": "The provision remains subject to Senate action and reconciliation and may change before enactment.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-defense-tech",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Reuters describes both the proposed cooperation mechanisms and the organized opposition to the provision."
+          }
+        ]
+      },
+      {
+        "title": "The IDF reports destroying more than 26 kilometers of another underground route",
+        "text": "The IDF's September 2 war diary reports that the Northern Brigade and Yahalom destroyed more than 26 kilometers of an additional underground route.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": "This is an official military account; the cited source does not provide independent third-party verification of the measurement or destruction assessment.",
+        "citationLinks": [
+          {
+            "citationKey": "idf-war-diary-sept2",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "The official IDF diary states the length and identifies the units involved."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Situation",
+      "passages": [
+        {
+          "text": "Southern Lebanon is the most immediate escalation point in the retained reporting: Reuters describes an Iranian warning tied to Ali al-Taher, while the IDF reports recent Hezbollah explosive-drone attacks against Israeli troops there.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-ali-taher-warning", "idf-war-diary-sept2"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key events",
+      "passages": [
+        {
+          "text": "A Lebanese detainee, Malek Ghazi, was transferred back to Lebanon through the ICRC, a limited confidence-building step amid continuing Israel-Lebanon tensions.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-lebanon-release"]
+        },
+        {
+          "text": "In Washington, the House passed legislation aimed at penalizing institution-level university boycotts of Israel, while a separate defense bill provision could expand bilateral military-technology cooperation.",
+          "claimIndex": 2,
+          "citationKeys": ["reuters-house-boycott", "reuters-defense-tech"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli position",
+      "passages": [
+        {
+          "text": "The IDF says Hezbollah launched two explosive drones toward its forces around Ali al-Taher, one was intercepted with no Israeli casualties, and strikes near Nabatieh targeted Hezbollah infrastructure used to plan attacks and remove an immediate threat.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-war-diary-sept2"]
+        }
+      ]
+    },
+    "internationalResponses": {
+      "label": "International responses",
+      "passages": [
+        {
+          "text": "Reuters reports that Iran warned Washington of a major response to a full Israeli assault at Ali al-Taher; a White House official disputed the reported account of the message or U.S. pressure on Israel.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-ali-taher-warning"]
+        },
+        {
+          "text": "U.S. legislators are simultaneously debating anti-boycott protections involving Israel and mechanisms for deeper defense-industrial cooperation, with both measures facing political opposition and further legislative steps.",
+          "claimIndex": 3,
+          "citationKeys": ["reuters-house-boycott", "reuters-defense-tech"]
+        }
+      ]
+    },
+    "watchPoints": {
+      "label": "Watch points",
+      "passages": [
+        {
+          "text": "Watch for any Israeli decision to expand ground operations at Ali al-Taher, any Iranian or Hezbollah retaliation, and independent evidence clarifying disputed claims about IRGC personnel at the ridge.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-ali-taher-warning", "idf-war-diary-sept2"]
+        },
+        {
+          "text": "Watch whether the Lebanon detainee handover leads to additional releases or broader negotiations, and whether the U.S. Senate advances either the anti-boycott bill or the defense-cooperation provision.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-lebanon-release", "reuters-house-boycott", "reuters-defense-tech"]
+        }
+      ]
+    }
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "Ali al-Taher ridge remains a verified Israel-Hezbollah friction point",
+      "summary": "Reuters reports that Iran warned Washington against a full Israeli assault on Ali al-Taher, while the IDF reports Hezbollah explosive-drone attacks on Israeli troops there. The active friction is well sourced; claims about IRGC presence inside the ridge remain disputed and unverified by Reuters.",
+      "citationKeys": ["reuters-ali-taher-warning", "idf-war-diary-sept2"],
+      "claims": [
+        {
+          "title": "Hezbollah drone attacks and Israeli response at Ali al-Taher",
+          "text": "The IDF reports that Hezbollah launched two explosive drones toward Israeli troops at Ali al-Taher and that Israel struck Hezbollah infrastructure near Nabatieh in response.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces",
+          "uncertainty": "The operational details are an official Israeli military account rather than independent battlefield verification.",
+          "citationLinks": [
+            {
+              "citationKey": "idf-war-diary-sept2",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "The IDF diary directly describes the drone launches, interception, absence of Israeli casualties and subsequent strikes."
+            }
+          ]
+        },
+        {
+          "title": "Iranian warning and IRGC-presence claim",
+          "text": "Reuters reports that Iranian officials conveyed a warning against a full Israeli offensive and that officials said IRGC personnel were at the ridge, but Reuters could not independently confirm the military situation and cited an Israeli assessment disputing IRGC presence.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "Regional officials and an Israeli military assessment, as reported by Reuters",
+          "uncertainty": "The existence and composition of forces inside the ridge are not independently established in the cited reporting.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-ali-taher-warning",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Reuters records both the warning and competing claims about Iranian personnel, while explicitly noting its verification limits."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The core confirmed development is continuing Hezbollah-IDF friction around Ali al-Taher. The IDF reports explosive-drone attacks on its forces and retaliatory strikes on Hezbollah infrastructure near Nabatieh.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-war-diary-sept2"]
+        },
+        {
+          "text": "Reuters adds a wider escalation risk: officials say Iran warned against a full Israeli assault, but the report does not independently confirm claims that IRGC personnel are inside the ridge and notes a conflicting Israeli assessment.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-ali-taher-warning"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Lebanon escalation",
+      "primaryActor": "Hezbollah",
+      "arena": "Lebanon",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null
+    },
+    {
+      "section": "israel_update",
+      "title": "Lebanese detainee returned through ICRC channel",
+      "summary": "The Times of Israel reports that Malek Ghazi was released from Israeli custody and handed to the Lebanese army through the International Committee of the Red Cross. The transfer is a concrete diplomatic-humanitarian step, though the full scope and timing of additional expected releases remained uncertain in the cited update.",
+      "citationKeys": ["toi-lebanon-release"],
+      "claims": [
+        {
+          "title": "Malek Ghazi transferred to Lebanon",
+          "text": "The ICRC and Lebanese officials said Malek Ghazi was released by Israel and transferred to the Lebanese army, according to The Times of Israel.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "International Committee of the Red Cross and Lebanese officials, as reported by The Times of Israel",
+          "uncertainty": "The cited update says further releases were expected but does not establish that they had already occurred.",
+          "citationLinks": [
+            {
+              "citationKey": "toi-lebanon-release",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "The live update directly reports the ICRC-facilitated transfer and identifies the detainee."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Malek Ghazi was released from Israeli custody and transferred to the Lebanese army through the ICRC, according to the cited live reporting.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-lebanon-release"]
+        },
+        {
+          "text": "The report framed the handover as the first such transfer since the latest Israel-Hezbollah war began and said additional Lebanese detainee releases were expected, but had not all been completed at publication time.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-lebanon-release"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Israel-Lebanon diplomacy",
+      "primaryActor": "Israel and Lebanon",
+      "arena": "Lebanon",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null
+    },
+    {
+      "section": "israel_update",
+      "title": "US House passes bill targeting university boycotts of Israel",
+      "summary": "The U.S. House passed the Protect Economic and Academic Freedom Act 237-169. The measure would restrict specified federal aid for universities that boycott Israel, but it still requires Senate passage. Supporters describe it as an anti-discrimination measure; opponents raise free-expression concerns.",
+      "citationKeys": ["reuters-house-boycott"],
+      "claims": [
+        {
+          "title": "House vote advanced anti-boycott legislation involving Israel",
+          "text": "The House voted 237-169 for legislation that would restrict specified federal aid for universities that boycott Israel; Senate passage is still required.",
+          "layer": "observed_fact",
+          "assessment": "verified",
+          "attributedTo": "Reuters",
+          "uncertainty": "The bill has not become law and may change or fail in the Senate.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-house-boycott",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Reuters reports the vote count, scope of the bill and its remaining legislative step."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The U.S. House passed the Protect Economic and Academic Freedom Act by 237-169, advancing a federal response to institution-level university boycotts of Israel.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-house-boycott"]
+        },
+        {
+          "text": "The measure remains unresolved because Senate approval is still required; its supporters emphasize anti-discrimination, while opponents cited in the report raise free-expression concerns.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-house-boycott"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Antisemitism and anti-Israel activity",
+      "primaryActor": "U.S. Congress",
+      "arena": "United States",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null
+    },
+    {
+      "section": "israel_update",
+      "title": "IDF reports destruction of more than 26 kilometers of another underground route",
+      "summary": "The IDF reports that its Northern Brigade and Yahalom destroyed more than 26 kilometers of an additional underground route. This is retained as an official Israeli operational achievement, with the important caveat that the cited source is the military's own account and does not provide independent measurement verification.",
+      "citationKeys": ["idf-war-diary-sept2"],
+      "claims": [
+        {
+          "title": "More than 26 kilometers of underground route destroyed",
+          "text": "The IDF says the Northern Brigade and Yahalom destroyed more than 26 kilometers of an additional underground route.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces",
+          "uncertainty": "The measurement and destruction assessment are presented as an official military claim and are not independently verified in the cited source.",
+          "citationLinks": [
+            {
+              "citationKey": "idf-war-diary-sept2",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "The IDF war diary directly gives the length and credits the Northern Brigade and Yahalom."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The IDF's September 2 war diary reports that the Northern Brigade and Yahalom destroyed more than 26 kilometers of another underground route.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-war-diary-sept2"]
+        },
+        {
+          "text": "This is presented as an official Israeli operational achievement; because the retained source is the IDF itself, the edition preserves uncertainty about independent measurement and battle-damage verification.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-war-diary-sept2"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Israeli military capability",
+      "primaryActor": "Israel Defense Forces",
+      "arena": "Gaza",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null
+    },
+    {
+      "section": "israel_update",
+      "title": "US-Israel defense technology cooperation faces a Senate test",
+      "summary": "Reuters reports that a provision in the 2027 NDAA would deepen U.S.-Israeli defense technology development, licensing, joint ventures and co-production. Advocacy groups are seeking its removal, and the provision remains subject to Senate action and the final authorization process.",
+      "citationKeys": ["reuters-defense-tech"],
+      "claims": [
+        {
+          "title": "NDAA provision would deepen bilateral defense technology cooperation",
+          "text": "A provision in the 2027 NDAA would expand U.S.-Israel defense-sector cooperation through joint technology development, licensing, joint ventures and U.S.-based co-production, according to Reuters.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Reuters",
+          "uncertainty": "The provision is not final and could be amended or removed during Senate consideration and reconciliation.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-defense-tech",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Reuters describes the cooperation mechanisms and the opposition campaign against the provision."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The proposed NDAA language would create additional mechanisms for U.S.-Israeli military-technology development, licensing, joint ventures and U.S.-based co-production.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-defense-tech"]
+        },
+        {
+          "text": "The provision remains politically contested: advocacy groups are urging lawmakers to remove it, and its final status depends on Senate action and the broader authorization process.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-defense-tech"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "US-Israel defense cooperation",
+      "primaryActor": "United States and Israel",
+      "arena": "United States",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null
+    }
+  ]
+}

@@ -8,7 +8,8 @@
  * a live WebGPU scene.
  *
  * Five layers, in CSS, using `nth-child` for the mask offsets. The visual
- * difference against eight is not findable; the cost difference is.
+ * difference against eight is not findable; the cost difference is. On a
+ * coarse pointer it is two — see the tier block at the foot of this file.
  *
  * The real job here is §8's handoff: the home scene must not end at a line.
  * The band below it should feel like it comes into focus as the scan leaves.
@@ -124,4 +125,55 @@
    edge — the handoff degrades to a gradient, which is what it was before. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .layer { display: none; }
+}
+
+/* PERF-006 / §7 — fewer layers on the low tier.
+ *
+ * A backdrop-filter is a full read of everything painted behind the element,
+ * once per layer per frame. Five of them is the desktop budget; on a coarse
+ * pointer it is five surface reads on the GPU least able to spend them, and
+ * it is the same signal `usePerfTier` already tiers the particle scene down
+ * on, so the two agree about what "low tier" means.
+ *
+ * Two layers, not zero: dropping to a plain gradient loses the out-of-focus
+ * read entirely, and the three thin layers are the ones carrying the least
+ * of it. The survivors are 4 and 5 — the deep end of the falloff — remasked
+ * to span the band so the stack still resolves smoothly instead of starting
+ * abruptly at 60%. The overlap between them is what keeps it from reading as
+ * two bands, exactly as it does at five.
+ */
+@media (pointer: coarse) {
+  .layer:nth-child(1),
+  .layer:nth-child(2),
+  .layer:nth-child(3) {
+    display: none;
+  }
+
+  .bottom .layer:nth-child(4) {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 45%, #000 75%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 45%, #000 75%, transparent 100%);
+  }
+
+  .bottom .layer:nth-child(5) {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to bottom, transparent 55%, #000 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 55%, #000 100%);
+  }
+
+  .top .layer:nth-child(4) {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 75%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 45%, #000 75%, transparent 100%);
+  }
+
+  .top .layer:nth-child(5) {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, transparent 55%, #000 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 55%, #000 100%);
+  }
 }

@@ -60,8 +60,8 @@ Every item in the pool carries a "citationKey" — a package-local identifier �
 ## What to produce, in priority order
 
 1. **Refute anti-Israel narratives, if the material supports it.** This is optional — not every run will find a narrative worth refuting. If the pool contains a claim hostile to Israel that is unsupported, misleading, or contradicted by other material in the pool, you may compose one "narrative_watch" article about it. If nothing in the pool rises to that, skip this.
-2. **The Daily Brief is mandatory.** Exactly one regional geopolitical situation report, covering the most significant developments in the pool.
-3. **Optionally, one "israel_update" article** — an interesting Israel story (innovation, resilience, achievement, society) that reads the sources and composes something new, rather than re-reporting a single article's content.
+2. **The Daily Brief is mandatory, and must cite at least one "official" (category "official_israeli") item from the pool somewhere — a claim, a passage, doesn't matter where.** This is a hard structural requirement, checked mechanically; a Daily Brief that cites none is rejected outright regardless of how good the rest of it is. When the day's official material is thin (e.g. it is reference data rather than breaking news), work it in honestly as brief context — for instance, a line noting the current state of official Israeli civil-defense or government data relevant to the day's coverage — rather than omitting it. Never fabricate an official statement that is not in the pool to satisfy this.
+3. **Optionally, one "israel_update" article** — an interesting Israel story (innovation, resilience, achievement, society) that reads the sources and composes something new, rather than re-reporting a single article's content. "Composes something new" means a new angle or synthesis, not new vocabulary: every article's and the Daily Brief's "title" must be built from concrete words — names, places, organizations, event terms — that literally appear in its own cited sources' titles or excerpts, checked mechanically by word overlap. An abstract or purely editorial title (e.g. built around words like "resilience" or "readiness" that appear nowhere in the source material itself) fails that check even when the underlying story is accurate.
 
 Produce **zero to a few** articles total (max 8), never more than one narrative_watch and one israel_update unless the pool clearly supports more than one of each. "articles[].section" may only be "${EXTERNAL_ARTICLE_SECTIONS.join('" or "')}" — never "war_update" and never "daily_brief" (the Daily Brief is the separate top-level "dailyBrief" field, not an article).
 
@@ -107,7 +107,12 @@ export async function draftEdition(collected: readonly CollectedItem[]): Promise
     excerpt: item.excerpt,
   }));
 
-  const prompt = `Available source material (${material.length} items). Each item's "citationKey" is the only identifier you may cite for it.\n\n${JSON.stringify(material, null, 2)}`;
+  const officialKeys = pool.filter((item) => item.official).map((item) => item.citationKey);
+  const officialReminder = officialKeys.length
+    ? `\n\nThe following citationKey(s) are official Israeli sources ("official_israeli"): ${officialKeys.join(", ")}. Per rule 2 above, the Daily Brief MUST cite at least one of these somewhere — do not skip this.`
+    : "";
+
+  const prompt = `Available source material (${material.length} items). Each item's "citationKey" is the only identifier you may cite for it.\n\n${JSON.stringify(material, null, 2)}${officialReminder}`;
 
   const result = await generateStructured({
     profile: "briefingDraft",

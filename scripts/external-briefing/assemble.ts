@@ -89,12 +89,40 @@ export function deriveRunId(now: Date = new Date()): string {
   return `local-${now.getTime()}`;
 }
 
+/**
+ * The model reliably cites the right material inside claims and passages but
+ * is inconsistent about also echoing every one of those keys back into the
+ * record's own top-level `citationKeys` — and the server's quality gate
+ * (`claim_evidence_matrix`, `paragraph_traceability`) resolves a claim's or
+ * passage's citations against exactly that top-level list, not against the
+ * package as a whole. A key cited deep inside a record but missing from its
+ * own top-level list fails those checks even though the citation is
+ * perfectly valid. Recomputing the field as the record's own full reference
+ * union — rather than trusting what the model wrote there — removes this
+ * failure mode outright instead of leaving it to prompt wording. Confirmed
+ * empirically: this was the second of two systematic (not random) rejection
+ * reasons across consecutive live drafts.
+ */
+function withNormalizedTopLevelCitations(output: DraftOutput): DraftOutput {
+  return {
+    dailyBrief: {
+      ...output.dailyBrief,
+      citationKeys: [...new Set(citedKeysForBrief(output.dailyBrief))],
+    },
+    articles: output.articles.map((article) => ({
+      ...article,
+      citationKeys: [...new Set(citedKeysForArticle(article))],
+    })),
+  };
+}
+
 export function assemblePackage(
   collected: readonly CollectedItem[],
-  output: DraftOutput,
+  rawOutput: DraftOutput,
   composer: string,
   now: Date = new Date(),
 ): ExternalBriefingPackage {
+  const output = withNormalizedTopLevelCitations(rawOutput);
   const cited = referencedCitationKeys(output);
   const survivingItems = collected.filter((item) => cited.has(item.citationKey));
 

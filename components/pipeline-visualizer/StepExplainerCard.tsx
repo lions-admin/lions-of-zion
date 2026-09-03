@@ -93,9 +93,8 @@ export function StepExplainerCard({
                 <span>{CHROME.activeComponent}:</span>
                 <Button
                   type="button"
-                  variant="text"
+                  variant="secondary"
                   size="sm"
-                  className={styles.nodeLinkBtn}
                   onClick={() => onSelectNode(node.id)}
                 >
                   {node.nameEn}

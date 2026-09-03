@@ -1,7 +1,7 @@
 /* October 7 — the one page built for restraint, not rhythm.
    Every other dossier page reads like a feed; this one reads like
-   something carved. No motion, no cards, no stat-tile grid — a plaque and
-   a slow, evenly-spaced record. Overrides reach the shared
+   something carved. No motion, no rounded card grid, no stat-tile row — a
+   plaque and a slow, evenly-spaced record. Overrides reach the shared
    FigureRow/Timeline components through their real DOM structure (dl/dt/dd,
    ol/li) rather than their CSS-module class names, which are hashed and
    not safe to target directly from a sibling module.
@@ -9,7 +9,44 @@
    Design V3 (`app/globals.css`). The memorial register spends gold exactly
    once on this page: the three figures. Every rule, frame and link below
    is set in the ink hairlines, so the number is the only thing that
-   glows. */
+   glows. Ember appears once, on the documentation door's advisory, where it
+   is danger rather than emphasis.
+
+   This page renders no `SectionBlock`, so it stages no entrance animation
+   and mounts no client boundary (OCT-001): the sections below are plain
+   markup with anchored headings, and nothing on the page moves. */
+
+/* ---------- sections ---------- */
+
+.section {
+  margin-top: var(--sp-8);
+}
+
+.section:first-of-type {
+  margin-top: 0;
+}
+
+/* The same step and face `.blockHeading h2` sets in `sections.module.css`,
+   restated here because this page no longer renders that wrapper. The
+   `scroll-margin` comes from `.body h2` in the shell, so an anchor still
+   clears the fixed header. */
+.sectionHeading {
+  margin: 0 0 var(--sp-4);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  color: var(--ink-hi);
+}
+
+.lede {
+  max-width: var(--measure-reading);
+  text-wrap: pretty;
+}
+
+/* ---------- the inscription ---------- */
 
 .inscription {
   margin: var(--sp-7) 0;
@@ -93,104 +130,207 @@
 }
 
 /*
- * The two doors into the archives this page holds.
+ * ---------- the two doors ----------
  *
- * Each entry is one whole-block link and must read as one before hover: a
- * framed panel with a permanent "Open the archive →" line, not a heading that
- * happens to be clickable. The register stays muted — a quiet frame that
- * firms up on hover, no colour change, nothing moves — because this page is
- * a monument, not a landing page.
+ * Not a matched pair of cards, and that is the point (OCT-001). The old hub
+ * gave testimony and documentation the same framed panel with the same
+ * count and the same "Open the archive →", so the only thing separating a
+ * witness's account from 335 pieces of graphic footage was the word in the
+ * heading. Each door is now built from its own facts, and each states what it
+ * will show before it is opened.
+ *
+ * The register stays muted throughout: a hairline frame, no fill change on
+ * hover, no transform, no shadow. This page is a monument, not a landing
+ * page. What separates the two is structure and content, never colour.
  */
-.archiveEntries {
-  list-style: none;
+
+.doors {
   display: grid;
-  gap: var(--sp-4);
-  margin: var(--sp-5) 0 var(--sp-6);
-  padding: 0;
+  gap: var(--sp-5);
+  margin: var(--sp-6) 0 var(--sp-7);
 }
 
-/* The site's one horizontal seam (`--bp-seam`, 45rem/720px), not the 46rem
-   this carried: a private width 16px away from the canon is drift, and the
-   two doors have no reason to open at their own threshold. */
+/* The site's one horizontal seam (`--bp-seam`, 45rem/720px). The doors have
+   no reason to open at a threshold of their own. */
 @media (min-width: 720px) {
-  .archiveEntries {
+  .doors {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
   }
 }
 
-.archiveEntry {
+.door {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   height: 100%;
-  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+  padding: var(--sp-5);
   border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
-  text-decoration: none;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.archiveEntry:hover,
-.archiveEntry:focus-visible {
-  border-color: var(--line-strong);
-  background: var(--surface-2);
-}
-
-.archiveEntry:active {
+  border-radius: var(--radius-2);
   background: var(--surface-1);
 }
 
-.archiveEntryHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-4);
+/* The one structural asymmetry that is pure treatment: the testimony door
+   carries a left rule in ink, the way a quotation does, and the documentation
+   door carries none — it is a filing cabinet, not a voice. */
+.door[data-kind='testimony'] {
+  border-left: var(--line-w-thick) solid var(--line-strong);
 }
 
-.archiveEntryTitle {
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  line-height: var(--t-h3-lh);
-  font-weight: var(--t-h3-weight);
-  letter-spacing: var(--t-h3-tracking);
-  color: var(--ink-hi);
-}
-
-.archiveEntryCount {
+.doorKind {
+  margin: 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
   color: var(--ink-lo);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 
-.archiveEntryDesc {
+.doorTitle {
+  margin: 0;
+  max-width: none;
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  line-height: var(--t-figure-lh);
+  font-weight: var(--t-figure-weight);
+  color: var(--ink-hi);
+}
+
+/* The whole heading is the link, and the underline is permanent: an
+   affordance a reader has to hover to discover is not an affordance. */
+.doorLink {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.14em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.doorLink:hover,
+.doorLink:focus-visible {
+  text-decoration-color: var(--gold);
+}
+
+/* The heading is the link, and the panel around it is not.
+   A whole-panel overlay (`::after { inset: 0 }`) was tried and dropped: these
+   panels hold a category list and two counts a reader may well want to select
+   or copy, and an invisible link laid over them swallows the selection. The
+   heading is set at the figure step, so the target is large without needing
+   the trick. The panel still answers, through `:focus-within`. */
+.door:focus-within {
+  border-color: var(--line-strong);
+}
+
+.doorText {
+  margin: 0;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink);
-  flex-grow: 1;
+  text-wrap: pretty;
 }
 
-/* Sentence case on purpose: uppercase+tracking is allowed only for data
-   labels of two words or fewer, and this is three. In the text face at
-   caption weight — it is a link's own label, not a datum. */
-.archiveEntryCta {
-  margin-top: var(--sp-2);
+/* Two facts per door, and they are different facts on each: accounts and
+   languages on one, films and photographs on the other. The scale of the
+   archive is the thing this page failed to convey, so it is set at the
+   figure step — one below the inscription's, which keeps the page's single
+   gold moment unchallenged. */
+.doorFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-5);
+  margin: var(--sp-2) 0 0;
+}
+
+.doorFacts dt {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.doorFacts dd {
+  margin: var(--sp-1) 0 0;
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: 1;
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+}
+
+/* The six categories the source filed the archive under, with their real
+   counts — the fastest honest answer to "what is in there". A ruled list,
+   not chips: these are not controls on this page. */
+.doorCategories {
+  list-style: none;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.doorCategories li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-2) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.doorCategoryName {
   font-family: var(--face-text);
   font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
   line-height: var(--t-caption-lh);
   color: var(--ink);
-  transition: color var(--dur-fast) var(--ease-out);
 }
 
-.archiveEntry:hover .archiveEntryCta,
-.archiveEntry:focus-visible .archiveEntryCta {
-  color: var(--ink-hi);
+.doorCategoryCount {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+/* Sensitivity, stated on the door. The testimony door's is ink — it is a
+   description of how the archive behaves. The documentation door's is ember,
+   because there it is a warning, and ember is what the system reserves for
+   that. Both sit at the foot of the panel, last thing before the reader
+   decides. */
+.doorAdvisory {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: auto 0 0;
+  padding-top: var(--sp-4);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.doorAdvisoryMark {
+  flex: none;
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-top: 0.3em;
+  background: var(--ink-lo);
+  transform: rotate(45deg);
+}
+
+.doorAdvisory[data-severity='high'] {
+  color: var(--ink);
+}
+
+.doorAdvisory[data-severity='high'] .doorAdvisoryMark {
+  background: var(--data-ember);
 }

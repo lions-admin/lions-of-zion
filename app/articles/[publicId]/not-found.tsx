@@ -1,5 +1,5 @@
 import { EditorialShell } from "@/components/site/EditorialShell";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { ButtonLink } from "@/components/ui/Button";
 import styles from "./article.module.css";
 
@@ -17,8 +17,6 @@ export default function ArticleNotFound() {
       register="muted"
       showProgress={false}
       className={styles.page}
-      progressTrackClassName={styles.progressTrack}
-      progressValueClassName={styles.progressValue}
     >
       <article className={styles.article} id="page-content">
         <Breadcrumb

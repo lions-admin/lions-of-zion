@@ -152,7 +152,6 @@ export function InformationWarSystem() {
       register="muted"
       className={styles.page}
       progressTrackClassName={styles.progressTrack}
-      progressValueClassName={styles.progressValue}
     >
       {/* ── The threshold ─────────────────────────────────────────────
           Typographic, on the bare ground. The previous build set a

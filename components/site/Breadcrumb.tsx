@@ -1,5 +1,5 @@
 import Link from "next/link";
-import styles from "./breadcrumb.module.css";
+import styles from "./editorial-shell.module.css";
 
 export interface BreadcrumbCrumb {
   href: string;
@@ -23,14 +23,18 @@ interface BreadcrumbProps {
 }
 
 /**
- * The document trail — one implementation.
+ * The document trail — one implementation (CLEAN-002).
  *
  * There were two: `.documentTrail` in `components/sections/sections.module.css`
  * (DocPage and SectionPage) and `.breadcrumb` in the article route's module.
  * They rendered the same markup with the same separators and drifted only in
  * what they had been remembered to carry — the article trail had no
  * reduced-motion rule, so its links kept animating their colour for a reader
- * who asked them not to. Both are this component now (CLEAN-002).
+ * who asked them not to. Both are this component now.
+ *
+ * It sits beside `EditorialShell` and borrows its stylesheet rather than
+ * owning one: see the note on `.trail` in `editorial-shell.module.css` for
+ * what a separate module under `components/ui/` cost the CSS budget.
  *
  * The separators are `aria-hidden`: a screen reader gets the links and the
  * `Breadcrumb` label, not a row of slashes.
@@ -44,12 +48,12 @@ export function Breadcrumb({ trail, current, className }: BreadcrumbProps) {
       <Link href="/">Home</Link>
       <span aria-hidden="true">/</span>
       {trail?.map((crumb) => (
-        <span key={crumb.href} className={styles.segment}>
+        <span key={crumb.href} className={styles.trailSegment}>
           <Link href={crumb.href}>{crumb.label}</Link>
           <span aria-hidden="true">/</span>
         </span>
       ))}
-      <span className={styles.current}>{current}</span>
+      <span className={styles.trailCurrent}>{current}</span>
     </nav>
   );
 }

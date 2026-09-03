@@ -14,10 +14,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-  StatusState,
-  absenceStatus,
-} from "@/components/ui";
-import sectionStyles from "@/components/sections/sections.module.css";
+} from "@/components/ui/Card";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
 import styles from "./live-brief.module.css";
 
@@ -40,8 +38,6 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
     <EditorialShell
       routeId="geopolitical-brief"
       className={styles.page}
-      progressTrackClassName={sectionStyles.topProgressTrack}
-      progressValueClassName={sectionStyles.topProgressValue}
       showProgress={false}
     >
       <div className={styles.liveLayout}>

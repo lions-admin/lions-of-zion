@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
-import { Field, SelectField } from "@/components/ui";
+import { Field } from "@/components/ui/Field";
+import { SelectField } from "@/components/ui/SelectField";
 import styles from "./live-brief.module.css";
 
 const FILTER_ACTION = "/geopolitical-brief";

@@ -4,7 +4,11 @@
  * Volunteer interest intake, wired to the public email-delivery endpoint.
  */
 import { FormEvent, useState } from 'react';
-import { Button, CheckboxField, Field, FieldGroup, assertiveLive, politeLive } from '@/components/ui';
+import { Button } from '@/components/ui/Button';
+import { CheckboxField } from '@/components/ui/CheckboxField';
+import { Field } from '@/components/ui/Field';
+import { FieldGroup } from '@/components/ui/FieldGroup';
+import { assertiveLive, politeLive } from '@/components/ui/live-region';
 import styles from './support.module.css';
 
 const VOLUNTEER_INBOX = 'volunteers@lionsofzion.io';

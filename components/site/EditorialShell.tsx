@@ -20,8 +20,11 @@ interface EditorialShellProps {
    * whole control including its coarse target floor and its focus transform.
    */
   skipLinkClassName?: string;
-  progressTrackClassName: string;
-  progressValueClassName: string;
+  /** Deltas over `ReadingProgress`'s own bar, not replacements for it — see
+   *  the note in `reading-progress.module.css`. Both optional; most routes
+   *  want the bar exactly as the primitive draws it. */
+  progressTrackClassName?: string;
+  progressValueClassName?: string;
   children: ReactNode;
 }
 

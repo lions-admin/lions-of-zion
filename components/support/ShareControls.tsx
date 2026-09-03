@@ -29,7 +29,7 @@
  *    a control that did nothing and said nothing.
  */
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { Button, ButtonLink, type ButtonVariant } from '@/components/ui';
+import { Button, ButtonLink, type ButtonVariant } from '@/components/ui/Button';
 import styles from './share-controls.module.css';
 
 /**

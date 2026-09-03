@@ -39,23 +39,10 @@
   font-family: var(--face-text);
 }
 
-/* Reading progress sits under the fixed masthead, not behind its glass. */
+/* Reading progress sits under the fixed masthead, not behind its glass. The
+   bar is `reading-progress.module.css`; this moves it, and nothing else. */
 .progressTrack {
-  position: fixed;
-  z-index: var(--z-sticky);
-  top: var(--header-h);
-  right: 0;
-  left: 0;
-  height: 2px;
-}
-
-.progressValue {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: var(--gold);
-  transform: scaleX(0);
-  transform-origin: left;
+  --progress-top: var(--header-h);
 }
 
 /* ── The threshold ────────────────────────────────────────────────────── */

@@ -29,7 +29,7 @@ import { EditorialShell } from '@/components/site/EditorialShell';
    three more client components, and importing it here would register all four
    as client entries for every page built on this shell to use one. */
 import { Reveal } from '@/components/motion/Reveal';
-import { Breadcrumb } from '@/components/ui/Breadcrumb';
+import { Breadcrumb } from '@/components/site/Breadcrumb';
 import { getSiteNavigationItem } from '@/lib/site-navigation';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
@@ -99,7 +99,6 @@ export function SectionPage({
       register={register}
       className={pageClass}
       progressTrackClassName={styles.topProgressTrack}
-      progressValueClassName={styles.topProgressValue}
     >
       <div className={shellClass}>
         {/* The trail a hub's child passes down — the same markup and class as

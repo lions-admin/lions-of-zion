@@ -85,3 +85,89 @@
   text-transform: uppercase;
   color: var(--ink-lo);
 }
+
+/*
+ * The document trail — one implementation (CLEAN-002).
+ *
+ * There were two: `.documentTrail` in `components/sections/sections.module.css`
+ * (DocPage and SectionPage) and `.breadcrumb` in the article route's module.
+ * They rendered the same markup with the same separators and drifted only in
+ * what each had been remembered to carry — the article trail had no
+ * reduced-motion rule, so its links kept animating their colour for a reader
+ * who had asked them not to.
+ *
+ * It lives in the shell's stylesheet rather than in a module of its own on
+ * purpose. A new CSS Module under `components/ui/` reachable from both
+ * `DocPage` and the article page regrouped Turbopack's CSS chunks and put an
+ * extra 27 kB of stylesheet on the critical path of every route — +4.4 kB
+ * gzip each, enough to take `worst route CSS` past its budget. Every route
+ * that can render a trail already loads this file for `EditorialShell`.
+ *
+ * Placement — which grid column the trail sits in, how wide it may run —
+ * belongs to the shell that mounts it and arrives as a `className`.
+ */
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-2);
+  margin-bottom: var(--sp-5);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+}
+
+.trail a {
+  color: var(--ink-lo);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.trail a:hover,
+.trail a:focus-visible {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.trailSegment {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.trailCurrent {
+  max-width: var(--measure-caption);
+  overflow: hidden;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A trail is a standalone navigation affordance, not a link inside running
+   prose, so WCAG 2.5.8's inline exception does not cover it and the 44px
+   floor applies. Scoped to a coarse pointer so the trail keeps its caption
+   rhythm under a mouse. */
+@media (pointer: coarse) {
+  .trail,
+  .trailSegment {
+    align-items: center;
+  }
+
+  .trail a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--control-h);
+    min-inline-size: var(--control-h);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trail a {
+    transition: none;
+  }
+}

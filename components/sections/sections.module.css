@@ -631,29 +631,6 @@
 
 
 
-.topProgressTrack {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-
-  z-index: var(--z-sticky);
-  height: var(--line-w-thick);
-  overflow: hidden;
-  background: transparent;
-}
-
-.topProgressValue {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: var(--accent);
-  transform-origin: left;
-
-  transform: scaleX(0);
-
-  transition: transform calc(var(--dur-fast) / 2) linear;
-}
 
 .depthTrack {
   display: block;
@@ -697,6 +674,10 @@
     display: none;
   }
 
+  /* The bar itself is `reading-progress.module.css`, and it reads `--accent`
+     from `.page` above it — this class carries one rule and no other. At
+     1220px the TOC rail appears with its own depth indicator, and two
+     progress readings on one screen is one too many. */
   .topProgressTrack {
     display: none;
   }
@@ -758,7 +739,6 @@
   }
 
   .depthValue,
-  .topProgressValue,
   .tocLink,
   .tocLinkActive,
   .tocMobileChevron,

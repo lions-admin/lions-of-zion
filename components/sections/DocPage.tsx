@@ -20,7 +20,7 @@
  * scan, and do not join the radial nav itself (see `.ai/DECISIONS.md`).
  */
 import { EditorialShell } from '@/components/site/EditorialShell';
-import { Breadcrumb } from '@/components/ui/Breadcrumb';
+import { Breadcrumb } from '@/components/site/Breadcrumb';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
 
@@ -139,7 +139,6 @@ export function DocPage({
       showProgress={withToc}
       className={pageClass}
       progressTrackClassName={styles.topProgressTrack}
-      progressValueClassName={styles.topProgressValue}
     >
       <div className={styles.shell}>
         <Breadcrumb

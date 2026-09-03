@@ -18,7 +18,7 @@ import {
 } from "@/components/content";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
-import { Breadcrumb, type BreadcrumbCrumb } from "@/components/ui/Breadcrumb";
+import { Breadcrumb, type BreadcrumbCrumb } from "@/components/site/Breadcrumb";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
 import styles from "./article.module.css";
 
@@ -94,8 +94,6 @@ export default async function ArticlePage({ params }: Props) {
       backdropSeed={article.publicId}
       register="muted"
       className={styles.page}
-      progressTrackClassName={styles.progressTrack}
-      progressValueClassName={styles.progressValue}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className={styles.article} id="page-content">

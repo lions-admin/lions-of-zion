@@ -307,6 +307,108 @@ const MEASURE = (enforceTargetFloor) => {
 };
 
 /**
+ * WCAG AA contrast, computed in the page (A11Y-004).
+ *
+ * Colour is read off `getComputedStyle`, which resolves tokens, `color-mix`
+ * and `oklch` to real rgb — so this checks what the reader sees rather than
+ * what the stylesheet says. Backgrounds are resolved by walking up until an
+ * opaque ancestor is found, because a transparent element sits on whatever is
+ * behind it and comparing text to `rgba(0,0,0,0)` is meaningless.
+ */
+const CONTRAST = () => {
+  const lin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  const ratio = (a, b) => { const l1 = lum(a) + 0.05, l2 = lum(b) + 0.05; return Math.max(l1, l2) / Math.min(l1, l2); };
+  const parse = (s) => {
+    const m = (s || "").match(/-?\d+(\.\d+)?/g);
+    if (!m) return null;
+    const [r, g, b, a] = m.map(Number);
+    return { rgb: [r, g, b], a: a === undefined ? 1 : a };
+  };
+  /* Composite a translucent colour over what is behind it. */
+  const over = (fg, bg) => fg.rgb.map((c, i) => c * fg.a + bg[i] * (1 - fg.a));
+
+  const backdrop = (el) => {
+    let stack = [];
+    for (let n = el; n; n = n.parentElement) {
+      const c = parse(getComputedStyle(n).backgroundColor);
+      if (!c) continue;
+      if (c.a > 0) stack.push(c);
+      if (c.a === 1) break;
+    }
+    let base = [0, 0, 0];
+    for (let i = stack.length - 1; i >= 0; i -= 1) base = over(stack[i], base);
+    return base;
+  };
+
+  const isRendered = (el) => {
+    if (el.closest("[hidden], [inert], [aria-hidden='true']")) return false;
+    const s = getComputedStyle(el);
+    if (s.display === "none" || s.visibility === "hidden" || Number(s.opacity) === 0) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.top < window.innerHeight * 3;
+  };
+
+  const label = (el) => {
+    const t = (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40);
+    const cls = typeof el.className === "string" && el.className
+      ? "." + el.className.trim().split(/\s+/)[0] : "";
+    return `${el.tagName.toLowerCase()}${cls}${t ? ` "${t}"` : ""}`;
+  };
+
+  const findings = [];
+  const seen = new Set();
+
+  /* Text. Only elements that directly own a text node — otherwise a wrapper is
+     reported for its children's text and every finding appears many times. */
+  for (const el of document.body.querySelectorAll("*")) {
+    if (!isRendered(el)) continue;
+    const ownText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
+    if (!ownText) continue;
+    const s = getComputedStyle(el);
+    const fg = parse(s.color);
+    if (!fg || fg.a === 0) continue;
+    const bg = backdrop(el);
+    const c = ratio(over(fg, bg), bg);
+    const px = parseFloat(s.fontSize);
+    const weight = Number(s.fontWeight) || 400;
+    /* WCAG "large text": 18.66px bold, or 24px at any weight. */
+    const large = px >= 24 || (px >= 18.66 && weight >= 700);
+    const floor = large ? 3 : 4.5;
+    if (c + 0.005 < floor) {
+      const key = label(el) + "|" + Math.round(c * 100);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      findings.push({ kind: "text", el: label(el), ratio: Number(c.toFixed(2)), floor, px: Math.round(px), weight });
+    }
+  }
+
+  /* Non-text UI: a control's own boundary against what surrounds it. 3:1. */
+  for (const el of document.querySelectorAll("button, input, select, textarea, [role=button], [role=checkbox], [role=switch]")) {
+    if (!isRendered(el)) continue;
+    const s = getComputedStyle(el);
+    const bw = parseFloat(s.borderTopWidth) || 0;
+    const outer = el.parentElement ? backdrop(el.parentElement) : [0, 0, 0];
+    let c = null, what = null;
+    if (bw > 0) {
+      const bc = parse(s.borderTopColor);
+      if (bc && bc.a > 0) { c = ratio(over(bc, outer), outer); what = "border"; }
+    }
+    if (c === null) {
+      const own = parse(s.backgroundColor);
+      if (own && own.a > 0) { c = ratio(over(own, outer), outer); what = "fill"; }
+    }
+    if (c !== null && c + 0.005 < 3) {
+      const key = "ui|" + label(el) + "|" + Math.round(c * 100);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      findings.push({ kind: "non-text", el: label(el), ratio: Number(c.toFixed(2)), floor: 3, what });
+    }
+  }
+  return findings;
+};
+
+/**
  * Focus visibility, checked by actually driving Tab rather than by reading
  * CSS. A focus ring that a `overflow: hidden` ancestor clips is styled
  * correctly and still invisible, and only geometry catches that.
@@ -483,6 +585,7 @@ for (const { route, viewports } of plan) {
     let status = 0;
     let measured = null;
     let focusProblems = [];
+    let contrastProblems = [];
     try {
       const response = await page.goto(`${BASE}${route}`, {
         waitUntil: "networkidle",
@@ -495,6 +598,10 @@ for (const { route, viewports } of plan) {
            widest width rather than at all nine. */
         if (viewport.width === viewports[0].width || viewport.width === 1440) {
           focusProblems = await auditFocus(page);
+          /* Contrast walks every element, so it runs at the same two widths
+             focus does rather than at all nine. Colour does not change with
+             viewport here; layout and therefore stacking can. */
+          contrastProblems = await page.evaluate(CONTRAST);
         }
       }
     } catch (error) {
@@ -553,6 +660,13 @@ for (const { route, viewports } of plan) {
           level: "WARNING",
           kind: "sticky-band",
           detail: `${band.el} is fixed/sticky and covers ${band.pct}% of viewport height`,
+        });
+      }
+      for (const p of contrastProblems) {
+        findings.push({
+          level: "CRITICAL",
+          kind: `contrast-${p.kind}`,
+          detail: `${p.ratio}:1 against a floor of ${p.floor} — ${p.what ? p.what + " of " : ""}${p.el}`,
         });
       }
       for (const p of focusProblems) {

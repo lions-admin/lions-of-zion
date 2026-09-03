@@ -111,7 +111,7 @@
 .secondary {
   --btn-bg: var(--surface-2);
   --btn-fg: var(--ink-hi);
-  --btn-line: var(--line-strong);
+  --btn-line: var(--control-line);
 }
 
 .secondary:hover:not(:disabled) {
@@ -206,7 +206,7 @@
 .toolbar:hover:not(:disabled) {
   --btn-bg: var(--tint-hover);
   --btn-fg: var(--ink-hi);
-  --btn-line: var(--line);
+  --btn-line: var(--control-line);
 }
 
 .toolbar:active:not(:disabled) {
@@ -216,14 +216,14 @@
 .toolbar.active {
   --btn-bg: var(--surface-3);
   --btn-fg: var(--ink-hi);
-  --btn-line: var(--line-strong);
+  --btn-line: var(--control-line);
 }
 
 /* Mapped alias: filter chip. Secondary grammar in the data face. */
 .filter {
   --btn-bg: var(--surface-2);
   --btn-fg: var(--ink);
-  --btn-line: var(--line);
+  --btn-line: var(--control-line);
   border-radius: var(--radius-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -235,7 +235,7 @@
 .filter:hover:not(:disabled) {
   --btn-bg: var(--surface-3);
   --btn-fg: var(--ink-hi);
-  --btn-line: var(--line-strong);
+  --btn-line: var(--control-line);
 }
 
 .filter.active {

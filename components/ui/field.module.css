@@ -54,7 +54,7 @@
   min-height: var(--control-h-sm);
   padding: var(--sp-3) var(--sp-4);
   background: var(--surface-2);
-  border: var(--line-w) solid var(--line);
+  border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-2);
   color: var(--ink-hi);
   font-family: var(--face-text);
@@ -125,7 +125,7 @@ textarea.control {
 .group {
   margin: 0;
   padding: var(--sp-3) var(--sp-4) var(--sp-4);
-  border: var(--line-w) solid var(--line);
+  border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-2);
 }
 

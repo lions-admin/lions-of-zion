@@ -14,6 +14,12 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { cache } from 'react';
+import {
+  clampScanIntensity,
+  type ScanDensity,
+  type ScanRegister,
+  type ScanSpeed,
+} from './scanProfiles';
 import styles from './sections.module.css';
 
 type ScanTone = 'red' | 'amber' | 'blue' | 'neutral';
@@ -98,7 +104,26 @@ export interface ScanBackdropProps {
    * seeding existed to prevent. They pass their own slug instead.
    */
   seed?: string;
-  register?: 'default' | 'muted' | 'silent';
+  register?: ScanRegister;
+  /**
+   * How loud, `0..1`, clamped. Multiplies the row-opacity ceiling the
+   * stylesheet owns; `1` is the design's maximum, not opaque. Emitted as
+   * `--scan-intensity` on the root and read by `.row`.
+   */
+  intensity?: number;
+  /**
+   * Which deterministic subset of the sampled rows is shown — `high` is all
+   * of them, `medium` and `low` hide fixed `nth-child` positions in
+   * `sections.module.css`. The sample itself does not change with density, so
+   * the same seed shows the same fragments in the same places at every level.
+   */
+  density?: ScanDensity;
+  /**
+   * Drift tempo. `normal` is the sampled duration, `slow` stretches it, and
+   * `still` runs no animation at all: the rows stand at their composed
+   * reduced-motion rest positions, which is a frame and not a freeze.
+   */
+  speed?: ScanSpeed;
   /**
    * Where this backdrop lives.
    *
@@ -116,6 +141,9 @@ export async function ScanBackdrop({
   routeId,
   seed,
   register = 'default',
+  intensity,
+  density = 'high',
+  speed = 'normal',
   surface = 'viewport',
 }: ScanBackdropProps) {
   /* Silent renders nothing — not a dimmer sample, not a slower drift, nothing.
@@ -155,10 +183,19 @@ export async function ScanBackdrop({
     };
   });
 
+  /* The three controls travel as attributes and one custom property. Nothing
+     here animates through React: the stylesheet reads them, and a page that
+     wants a different profile re-renders once with different props. */
+  const scanIntensity = clampScanIntensity(intensity);
+
   return (
     <div
       className={`${styles.backdrop} ${surface === 'band' ? styles.backdropBand : ''}`}
       aria-hidden="true"
+      data-register={register}
+      data-density={density}
+      data-speed={speed}
+      style={{ ['--scan-intensity' as string]: scanIntensity.toFixed(3) }}
     >
       {/* The rows sit in their own layer because that layer is masked out of
           the reading column (see `.rowField`). Masking the backdrop itself

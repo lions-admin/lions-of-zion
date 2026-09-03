@@ -32,12 +32,44 @@
 
 
 
+/* The scan, behind everything.
+ *
+ * Decorative and inert: `aria-hidden` in the markup, `pointer-events: none`
+ * here, and no z-index of its own — it paints at `.page`'s base while `.shell`
+ * sits at `--z-raised` above it, so it never comes between a reader and a
+ * link, a control, a selection or a focus ring.
+ *
+ * Three controls arrive from `ScanBackdrop` and are read below, never
+ * animated through React:
+ *   `--scan-intensity` (0..1)      scales the row-opacity ceiling;
+ *   `data-density`  low|medium|high hides a fixed `nth-child` subset of rows;
+ *   `data-speed`    still|slow|normal multiplies the sampled drift duration,
+ *                                  and `still` composes a stationary frame.
+ * A route family's numbers come from `scanProfiles.ts`; a page's own
+ * `register` (`.registerMuted`) and `surface` (`.surfaceQuiet`) stack on top
+ * as per-page multipliers. */
 .backdrop {
   position: fixed;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  --scan-intensity: 1;
+  --scan-speed: 1;
+}
 
+.backdrop[data-speed="slow"] {
+  --scan-speed: 2;
+}
+
+/* Density: a deterministic subset, chosen so both streams survive. Rows
+   alternate verified/hostile by index, so hiding every even row would hide
+   every ember row; `5n` and `3n+1` each keep the mix. */
+.backdrop[data-density="medium"] .row:nth-child(5n) {
+  display: none;
+}
+
+.backdrop[data-density="low"] .row:not(:nth-child(3n + 1)) {
+  display: none;
 }
 
 
@@ -94,19 +126,26 @@
   white-space: nowrap;
   will-change: transform;
 
-  opacity: calc(0.34 * var(--register, 1));
+  /* 0.34 is the ceiling. `--register` is the page's own dimmer (muted, quiet,
+     focus-within); `--scan-intensity` is the family's, from the profile. */
+  opacity: calc(0.34 * var(--register, 1) * var(--scan-intensity, 1));
+
+  /* `--dur` is the sampled 45–90s; `--scan-speed` is the profile's tempo and
+     `--scan-tempo` the page's. The floor is therefore 45s — nine times the
+     five-second ambient minimum — at every setting. */
+  --drift: calc(var(--dur) * var(--scan-speed, 1) * var(--scan-tempo, 1));
 }
 
 
 .rowVerified {
   color: var(--data-blue-dim);
-  animation: driftRight var(--dur) linear infinite;
+  animation: driftRight var(--drift) linear infinite;
   animation-delay: var(--delay);
 }
 
 .rowHostile {
   color: var(--data-ember-dim);
-  animation: driftLeft var(--dur) linear infinite;
+  animation: driftLeft var(--drift) linear infinite;
   animation-delay: var(--delay);
 }
 
@@ -127,31 +166,41 @@
 
 :where(.page:focus-within) .row {
   --register: 0.6;
-  animation-duration: calc(var(--dur) * 2);
+  --scan-tempo: 2;
 }
 
 
 .surfaceQuiet .row {
   --register: 0.7;
-  animation-duration: calc(var(--dur) * 1.8);
+  --scan-tempo: 1.8;
 }
 
 .registerMuted .row {
 
   --register: 0.45;
-  animation-duration: calc(var(--dur) * 3);
+  --scan-tempo: 3;
 }
 
-/* SYS-002: family density, not a second palette. Institution quiets the HUD
-   scan so policy/trust pages read as documents. Desk keeps a live-tool presence. */
-.page[data-family="institution"] .row {
-  --register: 0.2;
-  animation-duration: calc(var(--dur) * 4);
+/* SYS-002: family density, not a second palette. The family numbers used to
+   be `.page[data-family] .row` overrides here; they are now the profiles in
+   `scanProfiles.ts`, passed by `EditorialShell` as `--scan-intensity` and
+   `data-speed`, so the home band — which has no `.page` and no family — runs
+   the same implementation on the same scale. */
+
+/* The composed still frame: what `speed="still"` shows, and what reduced
+   motion shows. Each row stands at its own sampled rest position — a share of
+   the travel it has (viewport minus its own width), so rows spread across the
+   full width and a long fragment never overflows the right edge — and the
+   loud rows step back to the dim colour of their stream. A drift caught
+   mid-flight would leave a bright fragment wherever the clock happened to
+   stop; this is a frame that was composed, not a frame that was frozen. */
+.backdrop[data-speed="still"] .row {
+  animation: none;
+  transform: translateX(calc((100vw - 100%) * var(--rest, 0) / 100));
 }
 
-.page[data-family="desk"] .row {
-  --register: 0.5;
-}
+.backdrop[data-speed="still"] .rowLoud.rowVerified { color: var(--data-blue-dim); }
+.backdrop[data-speed="still"] .rowLoud.rowHostile { color: var(--data-ember-dim); }
 
 
 
@@ -727,11 +776,15 @@
 
 @media (prefers-reduced-motion: reduce) {
 
+  /* The same composed frame as `data-speed="still"` above. */
   .row {
     animation: none;
 
     transform: translateX(calc((100vw - 100%) * var(--rest, 0) / 100));
   }
+
+  .rowLoud.rowVerified { color: var(--data-blue-dim); }
+  .rowLoud.rowHostile { color: var(--data-ember-dim); }
 
   .panel,
   .tocRail,

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ReadingProgress } from "@/components/sections/ReadingProgress";
 import { ScanBackdrop } from "@/components/sections/ScanBackdrop";
+import { scanProfileForRoute } from "@/components/sections/scanProfiles";
 import { resolveSiteSectionId } from "@/lib/site-navigation";
 import { routeFamily } from "./route-family";
 import { SiteFooter } from "./SiteFooter";
@@ -10,6 +11,12 @@ import styles from "./editorial-shell.module.css";
 interface EditorialShellProps {
   routeId: string;
   backdropSeed?: string;
+  /**
+   * The page's own dimmer over its family profile. `muted` and `silent` are
+   * what `SectionPage`/`DocPage` pass through; left out, the route's profile
+   * from `scanProfiles.ts` decides. Intensity, density and speed always come
+   * from that profile — a page does not pick those, its family does.
+   */
   register?: "default" | "muted" | "silent";
   showProgress?: boolean;
   className: string;
@@ -73,7 +80,7 @@ function activeChromeSection(routeId: string): string {
 export function EditorialShell({
   routeId,
   backdropSeed,
-  register = "default",
+  register,
   showProgress = true,
   className,
   skipLinkClassName,
@@ -83,6 +90,7 @@ export function EditorialShell({
 }: EditorialShellProps) {
   const activeSection = activeChromeSection(routeId);
   const family = routeFamily(routeId);
+  const scan = scanProfileForRoute(routeId);
 
   return (
     <>
@@ -100,7 +108,14 @@ export function EditorialShell({
             valueClassName={progressValueClassName}
           />
         ) : null}
-        <ScanBackdrop routeId={routeId} seed={backdropSeed} register={register} />
+        <ScanBackdrop
+          routeId={routeId}
+          seed={backdropSeed}
+          register={register ?? scan.register}
+          intensity={scan.intensity}
+          density={scan.density}
+          speed={scan.speed}
+        />
         {children}
       </main>
       <SiteFooter activeSection={activeSection} />

@@ -186,33 +186,33 @@ Keep `navReveal` separate. The background must awaken before the navigation outr
 
 ### Phase E — Make the scan backdrop a shared public-site layer
 
-- [ ] Keep `components/sections/ScanBackdrop.tsx` as the shared non-GPU implementation and extend its public contract. Suggested props:
+- [x] Keep `components/sections/ScanBackdrop.tsx` as the shared non-GPU implementation and extend its public contract. Done as `intensity?: number` (clamped via `clampScanIntensity`), `density?: 'low'|'medium'|'high'`, `speed?: 'still'|'slow'|'normal'`; `register`/`surface`/`routeId`/`seed` unchanged, defaults (`high`, `normal`, intensity 1) reproduce the previous output. Suggested props:
   - `intensity?: number` clamped to `0..1`;
   - `density?: 'low' | 'medium' | 'high'` or a bounded row count;
   - `speed?: 'still' | 'slow' | 'normal'` or a bounded multiplier;
   - preserve `register`, `surface`, `routeId`, and `seed` compatibility during migration.
-- [ ] Emit the controls as CSS custom properties/data attributes on the backdrop root. Do not animate through React renders.
-- [ ] Update `components/sections/sections.module.css` so intensity scales row opacity, density selects a deterministic subset, and speed scales duration. Keep `pointer-events: none`, `overflow: hidden`, and reduced-motion stationary placement.
-- [ ] Keep one backdrop instance per rendered public route. Do not accidentally stack the root static texture, an `EditorialShell` moving backdrop, and a second page-local moving backdrop at full strength.
-- [ ] Continue mounting the shared backdrop through `components/site/EditorialShell.tsx` for reading routes, but pass an explicit profile per route family:
+- [x] Emit the controls as CSS custom properties/data attributes on the backdrop root. Do not animate through React renders. Root carries `data-register`, `data-density`, `data-speed` and `--scan-intensity`; pinned by `tests/global-scan-backdrop.test.ts` via `renderToStaticMarkup`.
+- [x] Update `components/sections/sections.module.css` so intensity scales row opacity, density selects a deterministic subset, and speed scales duration. Keep `pointer-events: none`, `overflow: hidden`, and reduced-motion stationary placement. `opacity: 0.34 × --register × --scan-intensity`; `medium` hides `:nth-child(5n)`, `low` keeps `:nth-child(3n+1)` (both keep the verified/hostile mix); `--drift = --dur × --scan-speed × --scan-tempo` (floor stays 45s); `still` and reduced motion share one composed frame (rest positions, loud rows dropped to their dim colour). The `.page[data-family] .row` overrides moved into the profile map.
+- [x] Keep one backdrop instance per rendered public route. Do not accidentally stack the root static texture, an `EditorialShell` moving backdrop, and a second page-local moving backdrop at full strength. Source-pinned: exactly one `<ScanBackdrop>` in `EditorialShell` and one in `app/page.tsx`; the root `--scan-ground` stays the static texture underneath; the home band is `display: none` until handoff and `visibility: hidden` once the field's opaque canvas paints, so the field and the band never move together.
+- [x] Continue mounting the shared backdrop through `components/site/EditorialShell.tsx` for reading routes, but pass an explicit profile per route family — `components/sections/scanProfiles.ts` (`FAMILY_SCAN_PROFILES`: desk 0.6/medium/normal, dossier 0.45/medium/slow, institution 0.3/low/slow; a page's `muted`/`silent` register still stacks on top, so `/october-7/**` stays silent):
   - desk: medium density, normal speed, low-to-medium intensity;
   - dossier: medium density, slow speed, low intensity;
   - institution: low density, slow or still, very low intensity;
   - memorial-sensitive surfaces: `silent` where already required.
-- [ ] Mount the same `ScanBackdrop` component on the home route in `app/page.tsx` using `surface="band"`, behind semantic content and after intro handoff. Place/style it through `app/home.module.css`; do not use a home-only clone.
-- [ ] Decide route coverage explicitly for public routes not currently rendered through `EditorialShell` by tracing `SectionPage`, `DocPage`, `LiveBriefHub`, `InformationWarSystem`, and direct page roots. Add the shared backdrop at the closest existing shared shell, not individually in every leaf page.
-- [ ] Keep `/admin`, `/admin/login`, `/particle-demo`, and `/pipeline` explicitly silent or purpose-specific. Document the exclusion rather than leaving it accidental.
-- [ ] If `app/layout.tsx` is changed, keep it a server component and do not move pathname/provider logic into it solely for this effect. Prefer existing shell boundaries. If a client controller becomes unavoidable, isolate it in a tiny component and justify its bundle/runtime cost.
-- [ ] Preserve the global `--scan-ground` fallback in `app/globals.css` for no-JS and no-motion states. The moving backdrop enhances it; it does not replace the black ground or make content depend on JavaScript.
+- [x] Mount the same `ScanBackdrop` component on the home route in `app/page.tsx` using `surface="band"`, behind semantic content and after intro handoff. Place/style it through `app/home.module.css`; do not use a home-only clone. Docked in `.fieldLayer` (`.scanDock`, z 0, under the canvas) with `HOME_SCAN_PROFILE`; hidden by `html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked])` until handoff, with a `noscript` override so the no-JS home gets the band over the static ground like every other route.
+- [x] Decide route coverage explicitly for public routes not currently rendered through `EditorialShell` by tracing `SectionPage`, `DocPage`, `LiveBriefHub`, `InformationWarSystem`, and direct page roots. Traced 2026-09-03: all four render `EditorialShell`, and every `app/**/page.tsx` except `/`, `/admin`, `/admin/login`, `/particle-demo`, `/pipeline` reaches it through one of them (or directly: `/articles/[publicId]`, `/account`). No leaf needed a mount; the test pins that the four shells contain `<EditorialShell` and no `<ScanBackdrop`.
+- [x] Keep `/admin`, `/admin/login`, `/particle-demo`, and `/pipeline` explicitly silent or purpose-specific. `INTERNAL_ROUTE_IDS` in `scanProfiles.ts` answers `SILENT_SCAN_PROFILE` for all four (comment there says why); the test pins the map and that the four page roots and `app/layout.tsx` mount no backdrop.
+- [x] (not needed) `app/layout.tsx` is unchanged; every mount sits at an existing shell boundary and no client controller was added. If `app/layout.tsx` is changed, keep it a server component and do not move pathname/provider logic into it solely for this effect. Prefer existing shell boundaries. If a client controller becomes unavoidable, isolate it in a tiny component and justify its bundle/runtime cost.
+- [x] Preserve the global `--scan-ground` fallback in `app/globals.css` for no-JS and no-motion states. `globals.css` untouched; `tests/motion-runtime.test.ts` still passes on it. The moving backdrop enhances it; it does not replace the black ground or make content depend on JavaScript.
 
 **Phase E acceptance**
 
-- [ ] Home and every public route family use the same `ScanBackdrop` implementation/API.
-- [ ] Page/shell code can select intensity, density, and speed without editing the backdrop internals.
-- [ ] There is never more than one continuously moving CSS scan layer on a route after the intro handoff.
-- [ ] Background never blocks scrolling, links, form controls, selection, focus rings, dialogs, or sticky UI.
-- [ ] Reading columns retain the existing soft mask/dimming behavior.
-- [ ] Reduced motion renders a stable, composed scan frame or the static `--scan-ground`, with no continuous drift.
+- [x] Home and every public route family use the same `ScanBackdrop` implementation/API. (`tests/global-scan-backdrop.test.ts`)
+- [x] Page/shell code can select intensity, density, and speed without editing the backdrop internals. (`scanProfiles.ts` → `EditorialShell` / `app/page.tsx`)
+- [x] There is never more than one continuously moving CSS scan layer on a route after the intro handoff. Source-pinned (one mount per shell, one on home, none in the root layout); browser confirmation still owed under §8.
+- [ ] Background never blocks scrolling, links, form controls, selection, focus rings, dialogs, or sticky UI. Structural half done: `pointer-events: none`, no z-index of its own, `.shell` at `--z-raised` above it, `.fieldLayer` inert — pinned in the test. Browser check pending.
+- [x] Reading columns retain the existing soft mask/dimming behavior. `.rowField` mask untouched; the home dock sets `--content-w` to the masthead column so the same mask dims behind the wordmark.
+- [x] Reduced motion renders a stable, composed scan frame or the static `--scan-ground`, with no continuous drift. Source-pinned (`animation: none`, rest transform, loud rows dimmed, under both `data-speed="still"` and the media query); browser confirmation still owed under §8.
 
 ### Phase F — Preserve Skip Intro, fallbacks, and handoff safety
 
@@ -364,7 +364,7 @@ If a proposed test file was not needed, replace the command with the actual focu
 | Check | Status | Evidence / result |
 | --- | --- | --- |
 | Repository synchronized before work | [x] | `claude/fixhometodo-task-d3bbde` at `8700701` = `origin/main` `8700701`; working tree clean before Phase A (2026-09-03) |
-| Focused timeline/background tests | [~] | Phase A: `npx vitest run tests/intro-timeline.test.ts tests/motion-runtime.test.ts tests/handoff-guard.test.ts` → 3 files, 44 tests passed. `global-scan-backdrop` pending Phase E. |
+| Focused timeline/background tests | [~] | Phase A: `npx vitest run tests/intro-timeline.test.ts tests/motion-runtime.test.ts tests/handoff-guard.test.ts` → 3 files, 44 tests passed. Phase E: `npx vitest run tests/global-scan-backdrop.test.ts tests/motion-runtime.test.ts tests/css-module-contract.test.ts tests/home-content.test.ts tests/no-js-invariant.test.ts tests/live-surfaces.test.ts tests/shell-landmarks.test.ts tests/ui-contracts.test.ts` → 8 files, 88 tests passed; typecheck clean; lint 0 errors (3 known `server/` warnings). |
 | Typecheck | [~] | Phase A: `npm run typecheck` → clean (re-run at the end) |
 | Lint | [ ] | Command and result |
 | Full tests | [ ] | Command and pass/fail count |

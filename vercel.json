@@ -8,6 +8,10 @@
       "maxDuration": 300,
       "regions": ["iad1"]
     },
+    "app/api/internal/briefing/external-publish/route.ts": {
+      "maxDuration": 300,
+      "regions": ["iad1"]
+    },
     "app/api/internal/queue/outbox-dispatch/route.ts": {
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox.dispatch" }]
     },

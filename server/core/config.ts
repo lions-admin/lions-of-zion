@@ -185,6 +185,8 @@ export const hasAiGateway = (): boolean =>
   Boolean(process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY || process.env.XAI_API_KEY);
 export const internalApiSecret = (): string =>
   required("INTERNAL_API_SECRET", "the internal route guard");
+export const externalBriefingIngestSecret = (): string =>
+  required("EXTERNAL_BRIEFING_INGEST_SECRET", "the external briefing ingest guard");
 export const codexBriefingImportSecret = (): string =>
   required("CODEX_BRIEFING_IMPORT_SECRET", "the Codex briefing import route");
 /** Vercel sets this automatically once the env var of the same name is

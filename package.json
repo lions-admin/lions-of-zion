@@ -32,6 +32,7 @@
     "briefing:retention:dry-run": "NODE_OPTIONS=--conditions=react-server tsx scripts/prune-briefing-raw-blobs.ts",
     "briefing:retention:apply": "NODE_OPTIONS=--conditions=react-server tsx scripts/prune-briefing-raw-blobs.ts --apply",
     "briefing:smoke:production": "node scripts/verify-briefing-production.mjs",
+    "briefing:compose": "NODE_OPTIONS=--conditions=react-server tsx scripts/external-briefing-compose.ts",
     "dev": "next dev",
     "lint": "eslint",
     "poster:nav": "tsx scripts/particle-nav/make-poster.ts",

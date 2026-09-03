@@ -1,0 +1,139 @@
+{
+  "runId": "chatgpt-test-2026-09-03-20260903T233000-0300",
+  "localDate": "2026-09-03",
+  "contractVersion": "external-briefing-v1",
+  "composer": "ChatGPT scheduled geopolitical brief",
+  "publishers": [
+    {"key":"reuters","name":"Reuters","homepageUrl":"https://www.reuters.com/","language":"en","country":"GB","official":false},
+    {"key":"idf","name":"Israel Defense Forces","homepageUrl":"https://www.idf.il/","language":"he-IL","country":"IL","official":true},
+    {"key":"toi","name":"The Times of Israel","homepageUrl":"https://www.timesofisrael.com/","language":"en","country":"IL","official":false}
+  ],
+  "citations": [
+    {
+      "key":"reuters-ali-taher-warning",
+      "publisherKey":"reuters",
+      "title":"Iran warns US against Israeli attack on south Lebanon ridge held by Hezbollah, sources say",
+      "url":"https://www.reuters.com/world/middle-east/iran-warns-us-against-israeli-attack-south-lebanon-ridge-held-by-hezbollah-2026-09-03/",
+      "canonicalUrl":null,
+      "publishedAt":"2026-09-03T07:02:00Z",
+      "excerpt":"Reuters reports that three officials briefed on an Iranian message said Tehran warned Washington that a full Israeli offensive on the Ali al-Taher ridge in southern Lebanon would trigger a major Iranian response. Lebanese security sources described Hezbollah command and weapons infrastructure at the ridge. Reuters said it could not independently verify the military situation there, and an Israeli military assessment cited in the report disputed claims that IRGC personnel were present.",
+      "language":"en"
+    },
+    {
+      "key":"idf-war-diary-sept2",
+      "publisherKey":"idf",
+      "title":"יומן המלחמה - 02/09/26",
+      "url":"https://www.idf.il/%D7%90%D7%AA%D7%A8%D7%99-%D7%99%D7%97%D7%99%D7%93%D7%95%D7%AA/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%AA%D7%9E%D7%95%D7%A0%D7%AA-%D7%94%D7%9E%D7%A6%D7%91-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-%D7%94%D7%99%D7%9E%D7%99%D7%9D/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-02-09-26/",
+      "canonicalUrl":null,
+      "publishedAt":"2026-09-02T17:30:00+03:00",
+      "excerpt":"The IDF's September 2 war diary states that Hezbollah launched two explosive drones toward Israeli troops in the Ali al-Taher ridge area, that one was intercepted and no Israeli troops were injured, and that Israel then struck Hezbollah infrastructure near Nabatieh which the military said was used to plan attacks. The same diary says the strikes were intended to remove an immediate threat and that Israeli forces would continue acting against threats in the ridge area.",
+      "language":"he-IL"
+    },
+    {
+      "key":"reuters-house-boycott",
+      "publisherKey":"reuters",
+      "title":"US House passes bill to crack down on university boycotts of Israel",
+      "url":"https://www.reuters.com/world/us/us-house-passes-bill-crack-down-university-boycotts-israel-2026-09-03/",
+      "canonicalUrl":null,
+      "publishedAt":"2026-09-03T16:30:00Z",
+      "excerpt":"Reuters reports that the U.S. House voted 237-169 for the Protect Economic and Academic Freedom Act, legislation intended to block specified federal aid for universities that boycott Israel. The bill still requires Senate approval to become law. Sponsors said it targets discriminatory institutional boycotts rather than academic debate, while opponents including Representative Jerrold Nadler raised free-expression objections despite opposing the BDS movement.",
+      "language":"en"
+    },
+    {
+      "key":"toi-lebanon-release",
+      "publisherKey":"toi",
+      "title":"Red Cross says it facilitated return to Lebanon of man detained by Israel",
+      "url":"https://www.timesofisrael.com/liveblog_entry/red-cross-says-it-facilitated-return-to-lebanon-of-man-detained-by-israel/",
+      "canonicalUrl":null,
+      "publishedAt":"2026-09-03T14:59:00+03:00",
+      "excerpt":"The Times of Israel, citing the International Committee of the Red Cross and Lebanese officials, reported that Malek Ghazi was released from Israeli custody and handed to the Lebanese army through the ICRC. The report said Hebrew media expected five Lebanese prisoners to be returned as a goodwill gesture. The release was described as the first such handover since the latest Israel-Hezbollah war began six months earlier.",
+      "language":"en"
+    }
+  ],
+  "dailyBrief": {
+    "title":"Israel security, diplomacy and anti-boycott brief — September 3, 2026",
+    "summary":"The immediate security focus remains southern Lebanon, where Reuters reports an Iranian warning over a potential Israeli assault on Ali al-Taher and the IDF reports recent Hezbollah explosive-drone attacks against Israeli troops. A Lebanese detainee was transferred through the ICRC in a limited diplomatic confidence-building step, while the U.S. House advanced legislation targeting institutional university boycotts of Israel.",
+    "citationKeys":["reuters-ali-taher-warning","idf-war-diary-sept2","reuters-house-boycott","toi-lebanon-release"],
+    "claims":[
+      {
+        "title":"Ali al-Taher remains an active Israel-Hezbollah friction point",
+        "text":"Reuters reports an Iranian warning tied to a potential Israeli assault on Ali al-Taher, while the IDF reports Hezbollah explosive-drone attacks against Israeli troops there and Israeli strikes on Hezbollah infrastructure in response.",
+        "layer":"source_claim","assessment":"verified","attributedTo":"Reuters and the Israel Defense Forces",
+        "uncertainty":"Reuters could not independently verify the internal military situation at the ridge, including competing claims about IRGC personnel.",
+        "citationLinks":[
+          {"citationKey":"reuters-ali-taher-warning","relation":"supports","strength":"strong","rationale":"Reuters directly reports the Iranian warning and explicitly states limits on independent verification."},
+          {"citationKey":"idf-war-diary-sept2","relation":"supports","strength":"strong","rationale":"The IDF directly reports the explosive-drone incident, no Israeli casualties and retaliatory strikes near Nabatieh."}
+        ]
+      },
+      {
+        "title":"A Lebanese detainee was transferred back through the ICRC",
+        "text":"The Times of Israel reported, citing the ICRC and Lebanese officials, that Malek Ghazi was released from Israeli custody and transferred to the Lebanese army.",
+        "layer":"source_claim","assessment":"verified","attributedTo":"International Committee of the Red Cross and Lebanese officials, as reported by The Times of Israel",
+        "uncertainty":"The cited update does not independently establish the full terms or final timing of all additional anticipated releases.",
+        "citationLinks":[{"citationKey":"toi-lebanon-release","relation":"supports","strength":"strong","rationale":"The report directly attributes the completed handover to the ICRC and Lebanese officials."}]
+      },
+      {
+        "title":"The U.S. House passed legislation targeting university boycotts of Israel",
+        "text":"Reuters reports that the U.S. House passed the Protect Economic and Academic Freedom Act by 237-169; the measure would restrict specified federal aid for universities that boycott Israel and still requires Senate passage.",
+        "layer":"source_claim","assessment":"verified","attributedTo":"Reuters",
+        "uncertainty":"The measure is not law, its Senate prospects remain unresolved, and opponents dispute its implications for free expression.",
+        "citationLinks":[{"citationKey":"reuters-house-boycott","relation":"supports","strength":"strong","rationale":"Reuters reports the vote count, bill purpose, legislative status and competing free-expression arguments."}]
+      }
+    ],
+    "situation":{"label":"Situation","passages":[{"text":"Southern Lebanon remains the clearest immediate escalation point in the retained reporting: Reuters describes an Iranian warning tied to Ali al-Taher, while the IDF reports recent Hezbollah explosive-drone activity against Israeli troops there.","claimIndex":0,"citationKeys":["reuters-ali-taher-warning","idf-war-diary-sept2"]}]},
+    "keyEvents":{"label":"Key events","passages":[
+      {"text":"Malek Ghazi was transferred from Israeli custody to the Lebanese army through the ICRC, according to the ICRC and Lebanese officials cited by The Times of Israel.","claimIndex":1,"citationKeys":["toi-lebanon-release"]},
+      {"text":"The U.S. House passed legislation targeting institution-level university boycotts of Israel, but the measure still requires Senate approval before it can become law.","claimIndex":2,"citationKeys":["reuters-house-boycott"]}
+    ]},
+    "israeliPosition":{"label":"Israeli position","passages":[{"text":"The IDF says Hezbollah launched two explosive drones toward its troops around Ali al-Taher, one was intercepted with no Israeli casualties, and subsequent strikes targeted Hezbollah infrastructure used to plan attacks and were intended to remove an immediate threat.","claimIndex":0,"citationKeys":["idf-war-diary-sept2"]}]},
+    "internationalResponses":{"label":"International responses","passages":[
+      {"text":"Reuters reports that Iran warned Washington of a major response to a full Israeli assault at Ali al-Taher, while a U.S. official disputed the reported characterization of the message or American pressure on Israel.","claimIndex":0,"citationKeys":["reuters-ali-taher-warning"]},
+      {"text":"The House vote reflects continuing U.S. political debate over how federal policy should address institutional boycotts of Israel, with sponsors framing the bill as anti-discrimination and opponents raising speech concerns.","claimIndex":2,"citationKeys":["reuters-house-boycott"]}
+    ]},
+    "watchPoints":{"label":"Watch points","passages":[
+      {"text":"Watch for any expansion of operations at Ali al-Taher, Iranian or Hezbollah retaliation, and independent evidence clarifying disputed claims about IRGC personnel at the ridge.","claimIndex":0,"citationKeys":["reuters-ali-taher-warning","idf-war-diary-sept2"]},
+      {"text":"Watch whether the Lebanon handover produces additional confidence-building steps and whether the U.S. Senate advances or changes the anti-boycott legislation.","claimIndex":1,"citationKeys":["toi-lebanon-release","reuters-house-boycott"]}
+    ]}
+  },
+  "articles":[
+    {
+      "section":"israel_update",
+      "title":"Ali al-Taher remains an active Israel-Hezbollah friction point",
+      "summary":"Reuters reports an Iranian warning against a full Israeli assault on Ali al-Taher, while the IDF reports Hezbollah explosive-drone attacks against Israeli troops and Israeli retaliatory strikes. Active friction is well sourced; claims concerning IRGC personnel at the ridge remain disputed and not independently verified by Reuters.",
+      "citationKeys":["reuters-ali-taher-warning","idf-war-diary-sept2"],
+      "claims":[
+        {"title":"Hezbollah drone attacks and Israeli response at Ali al-Taher","text":"The IDF reports that Hezbollah launched two explosive drones toward Israeli troops at Ali al-Taher and that Israel struck Hezbollah infrastructure near Nabatieh in response.","layer":"source_claim","assessment":"verified","attributedTo":"Israel Defense Forces","uncertainty":"The operational details are an official Israeli military account rather than independent battlefield verification.","citationLinks":[{"citationKey":"idf-war-diary-sept2","relation":"supports","strength":"strong","rationale":"The official IDF diary describes the drone launches, interception, lack of casualties and retaliatory strikes."}]},
+        {"title":"Reported IRGC presence at the ridge remains disputed","text":"Reuters reports regional officials alleging Iranian military personnel are present with Hezbollah at Ali al-Taher, while an Israeli military assessment cited by Reuters disputed that claim.","layer":"source_claim","assessment":"disputed","attributedTo":"Regional officials and an Israeli military assessment, as reported by Reuters","uncertainty":"Reuters explicitly states it could not independently verify the internal military situation at the ridge.","citationLinks":[{"citationKey":"reuters-ali-taher-warning","relation":"supports","strength":"strong","rationale":"Reuters presents both the allegation and the contradictory Israeli assessment and notes the verification limit."}]}
+      ],
+      "passages":[
+        {"text":"The IDF says Hezbollah recently launched explosive drones toward Israeli troops around Ali al-Taher and that Israeli strikes near Nabatieh targeted infrastructure used to plan attacks.","claimIndex":0,"citationKeys":["idf-war-diary-sept2"]},
+        {"text":"Reuters reports that Iran warned Washington against a full Israeli assault on the ridge, but says it could not independently verify claims about Iranian military personnel inside the position.","claimIndex":1,"citationKeys":["reuters-ali-taher-warning"]}
+      ],
+      "narrativeTitle":null,"editorialTopic":"Lebanon escalation","primaryActor":"Hezbollah","arena":"Southern Lebanon","featuredIsraelStory":false,"narrativeWatch":null
+    },
+    {
+      "section":"israel_update",
+      "title":"Lebanese detainee returned through ICRC channel",
+      "summary":"The Times of Israel reports, citing the ICRC and Lebanese officials, that Malek Ghazi was released from Israeli custody and handed to the Lebanese army. The completed transfer is verified as an attributed source claim, while the timing and completion of additional expected releases remain uncertain.",
+      "citationKeys":["toi-lebanon-release"],
+      "claims":[{"title":"Malek Ghazi was handed to Lebanon through the ICRC","text":"The ICRC and Lebanese officials said Malek Ghazi was released from Israeli custody and handed to the Lebanese army through the ICRC.","layer":"source_claim","assessment":"verified","attributedTo":"International Committee of the Red Cross and Lebanese officials, as reported by The Times of Israel","uncertainty":"The report does not independently establish all terms of the arrangement or the completion time for other anticipated releases.","citationLinks":[{"citationKey":"toi-lebanon-release","relation":"supports","strength":"strong","rationale":"The report directly identifies the released detainee and attributes the completed transfer to the ICRC and Lebanese officials."}]}],
+      "passages":[
+        {"text":"Malek Ghazi was transferred from Israeli custody to the Lebanese army through the ICRC, according to the ICRC and Lebanese officials cited in the report.","claimIndex":0,"citationKeys":["toi-lebanon-release"]},
+        {"text":"The handover was described as the first such transfer since the latest Israel-Hezbollah war began, while further releases were expected but not established as completed in the cited update.","claimIndex":0,"citationKeys":["toi-lebanon-release"]}
+      ],
+      "narrativeTitle":null,"editorialTopic":"Israel-Lebanon diplomacy","primaryActor":"Israel and Lebanon","arena":"Lebanon diplomacy","featuredIsraelStory":true,"narrativeWatch":null
+    },
+    {
+      "section":"israel_update",
+      "title":"US House passes bill targeting university boycotts of Israel",
+      "summary":"Reuters reports that the U.S. House passed the Protect Economic and Academic Freedom Act 237-169. Sponsors say it targets discriminatory institutional boycotts of Israel, while opponents raise free-expression concerns. The measure still requires Senate approval and is not yet law.",
+      "citationKeys":["reuters-house-boycott"],
+      "claims":[{"title":"Reuters reports House passage of the anti-boycott bill","text":"Reuters reports that the House passed the Protect Economic and Academic Freedom Act by 237-169, with the bill targeting specified federal aid for universities that boycott Israel.","layer":"source_claim","assessment":"verified","attributedTo":"Reuters","uncertainty":"The bill still requires Senate approval, and its final legal effect remains unresolved; opponents contest its free-expression implications.","citationLinks":[{"citationKey":"reuters-house-boycott","relation":"supports","strength":"strong","rationale":"Reuters directly reports the House vote, intended funding restriction, Senate requirement and competing arguments."}]}],
+      "passages":[
+        {"text":"Reuters reports that the U.S. House voted 237-169 for legislation intended to restrict specified federal aid for universities that boycott Israel.","claimIndex":0,"citationKeys":["reuters-house-boycott"]},
+        {"text":"The bill remains pending in the Senate; supporters describe it as an anti-discrimination measure, while opponents argue that it could threaten protected academic or political expression.","claimIndex":0,"citationKeys":["reuters-house-boycott"]}
+      ],
+      "narrativeTitle":null,"editorialTopic":"Antisemitism and boycotts","primaryActor":"U.S. Congress","arena":"United States","featuredIsraelStory":false,"narrativeWatch":null
+    }
+  ]
+}

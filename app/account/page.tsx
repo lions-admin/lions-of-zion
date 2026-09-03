@@ -38,9 +38,6 @@ export default function AccountPage() {
       routeId="account"
       showProgress={false}
       className={styles.page}
-      skipLinkClassName={styles.skipLink}
-      progressTrackClassName=""
-      progressValueClassName=""
     >
       <section className={styles.panel} id="page-content" aria-labelledby="account-title">
         <p className={styles.eyebrow}>Lions of Zion</p>

@@ -641,12 +641,6 @@
 
 /* ── Editor ───────────────────────────────────────────────────────────── */
 
-.editorPanel {
-  margin-top: var(--sp-6);
-  padding-top: var(--sp-6);
-  border-top: var(--line-w) solid var(--gold-line);
-}
-
 .featureSlots {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -656,8 +650,8 @@
 
 /* Shared Field adds `.field + .field { margin-top }`. These layouts already
    space with grid gap, so the extra margin would stagger a two-column row. */
-.editorPanel .editorField.editorField,
-.editorPanel .narrativeFields.narrativeFields {
+.editorField.editorField,
+.narrativeFields.narrativeFields {
   margin-top: 0;
 }
 

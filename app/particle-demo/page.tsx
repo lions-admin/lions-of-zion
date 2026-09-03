@@ -74,7 +74,7 @@ function Demo() {
             display: "grid",
             placeItems: "center",
             height: "100%",
-            color: "#c9a24b",
+            color: "#c6a15b",
           }}
         >
           unmounted (cycle {cycles}/50)

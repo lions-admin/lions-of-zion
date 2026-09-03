@@ -32,30 +32,6 @@
 
 /* Same shape as `components/sections/sections.module.css`: fixed at the
    top-left corner, above the header, and off-screen until it is focused. */
-.skipLink {
-  position: fixed;
-  top: var(--sp-3);
-  left: var(--sp-3);
-  z-index: var(--z-overlay);
-  padding: var(--sp-3) var(--sp-4);
-  border: var(--line-w) solid var(--gold-line-strong);
-  border-radius: var(--radius-2);
-  background: var(--surface-3);
-  box-shadow: var(--shadow-2);
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  transform: translateY(-180%);
-  transition: transform var(--dur-fast) var(--ease-out);
-}
-
-.skipLink:focus {
-  transform: translateY(0);
-}
-
 .panel {
   position: relative;
   z-index: var(--z-raised);
@@ -115,16 +91,3 @@
   }
 }
 
-/* Coarse-pointer target floor (A11Y-006). A skip link is the first thing a
-   switch or touch user reaches; it is not a link in running prose, so WCAG
-   2.5.8's inline exception does not cover it.
-   NOTE: this is the 3th of five separate `.skipLink` implementations in the
-   repo (editorial-shell, sections, article, information-war-system, account).
-   Recorded against CLEAN-002 — they should be one primitive. */
-@media (pointer: coarse) {
-  .skipLink {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--control-h);
-  }
-}

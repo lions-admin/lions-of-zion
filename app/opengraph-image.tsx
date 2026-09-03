@@ -4,7 +4,7 @@ export const alt = "LIONS OF ZION — Truth Has a Signal";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const GOLD = "#c9a24b";
+const GOLD = "#c6a15b";
 const GROUND = "#000000";
 
 // next/og bundles exactly one font (Geist Regular) and satori cannot reach
@@ -23,7 +23,7 @@ export default function Image() {
           justifyContent: "center",
           background: GROUND,
           backgroundImage:
-            "radial-gradient(circle at 50% 42%, rgba(201, 162, 75, 0.14), rgba(0, 0, 0, 0) 62%)",
+            "radial-gradient(circle at 50% 42%, rgba(198, 161, 91, 0.14), rgba(0, 0, 0, 0) 62%)",
         }}
       >
         {/* Crown mark, matching app/icon.svg */}

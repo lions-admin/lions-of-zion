@@ -136,6 +136,7 @@
   border-radius: var(--radius-2);
 }
 
+/* The visually-hidden contract lives once, in `app/globals.css`. */
 .srOnly {
   composes: srOnly from global;
 }

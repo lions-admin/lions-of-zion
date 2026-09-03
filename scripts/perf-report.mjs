@@ -567,6 +567,19 @@ const measured = {
   reading_route_js_gz_kb: Number(kb(worstReading.js.gz)),
   home_js_gz_kb: Number(kb(home.js.gz)),
   route_css_gz_kb: Number(kb(Math.max(...publicRoutes.map((r) => r.css.gz)))),
+  /* The metric that actually tracks the work.
+   *
+   * `route_css_gz_kb` above is not monotonic in CSS size, and that is not a
+   * theory: deleting ~11 kB of provably unreachable CSS moved it from 38.3 to
+   * 42.8 kB gz. Turbopack packs shared CSS into ~120 kB buckets and ships
+   * every bucket to every route; removing rules moved the bucket boundary, so
+   * `archive.module.css` and `influence-graph.module.css` fell from
+   * route-private chunks into the universal set. A multi-page session now
+   * downloads less CSS in total and a cold first route downloads more.
+   *
+   * Total emitted CSS has no such cliff — it went 64.9 to 60.7 kB gz across
+   * the same change — so it is the number a cleanup pass can be held to. */
+  total_css_gz_kb: Number(kb(css.emittedGz)),
   font_preload_kb: Number(kb(Math.max(...publicRoutes.map((r) => r.fontPreloadBytes)))),
   client_module_files: client.count,
   client_page_components: client.clientPages.length,
@@ -577,6 +590,7 @@ const checks = [
   checkBudget("worst public reading route JS", measured.reading_route_js_gz_kb, budgets.bundle.reading_route_js_gz_kb, " kB gz"),
   checkBudget("homepage JS", measured.home_js_gz_kb, budgets.bundle.home_js_gz_kb, " kB gz"),
   checkBudget("worst route CSS", measured.route_css_gz_kb, budgets.bundle.route_css_gz_kb, " kB gz"),
+  checkBudget("total CSS emitted", measured.total_css_gz_kb, budgets.bundle.total_css_gz_kb, " kB gz"),
   checkBudget("preloaded fonts per route", measured.font_preload_kb, budgets.bundle.font_preload_kb, " kB"),
   checkBudget('"use client" files', measured.client_module_files, budgets.bundle.client_module_files, " files"),
   checkBudget("client route pages", measured.client_page_components, budgets.bundle.client_page_components, " pages"),

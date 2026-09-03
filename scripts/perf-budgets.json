@@ -6,10 +6,11 @@
     "shared_js_gz_kb": 174.5,
     "reading_route_js_gz_kb": 198.5,
     "home_js_gz_kb": 217,
-    "route_css_gz_kb": 40.2,
+    "route_css_gz_kb": 45.0,
     "font_preload_kb": 405.4,
     "client_module_files": 71,
-    "client_page_components": 2
+    "client_page_components": 2,
+    "total_css_gz_kb": 63.8
   },
   "runtime": {
     "home_lcp_ms": null,
@@ -21,5 +22,7 @@
     "archive_cls": null,
     "archive_filter_ms": null,
     "archive_inp_ms": null
-  }
+  },
+  "//route_css_gz_kb": "Re-baselined 2026-09-03 from 40.2 after the CLEAN-008 pass, and the rise is not a regression. Deleting ~11 kB of provably unreachable CSS moved this metric from 38.3 to 42.8: Turbopack packs shared CSS into ~120 kB buckets shipped to every route, and removing rules moved the bucket boundary so archive.module.css and influence-graph.module.css fell from route-private chunks into the universal set. Total emitted CSS fell 64.9 -> 60.7 over the same change. Watch total_css_gz_kb for the cleanup work; this one is a coarse tripwire on the universal bucket set, nothing finer.",
+  "//real_finding": "admin.module.css (23.9 kB), archive.module.css (34.2 kB) and visualizer.module.css (34.6 kB) ride on every public route. That is ~93 kB of source CSS the reading routes never use, and it is worth far more than either tripwire. It is Turbopack's client-CSS bucketing, not an import-graph defect: deep-importing the barrel consumers was tried and moved nothing."
 }

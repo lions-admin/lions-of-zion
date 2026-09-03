@@ -345,8 +345,6 @@ function collectAssets() {
 async function measureRuntime(base) {
   const { chromium } = await import("playwright-core");
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  const page = await context.newPage();
 
   const instrument = () => {
     globalThis.__perf = { lcp: 0, cls: 0, inp: 0 };
@@ -365,22 +363,46 @@ async function measureRuntime(base) {
     }).observe({ type: "event", buffered: true, durationThreshold: 16 });
   };
 
+  /**
+   * A fresh context and page for every route, and the instrument installed
+   * exactly once on it.
+   *
+   * Reusing one page across routes made these numbers fiction. `israels-story`
+   * read 3,508 ms on a reused page and 84 ms on a fresh one, measured against
+   * the same server seconds apart, three runs each — `addInitScript`
+   * accumulates across calls, so by the second route several observers are
+   * writing to the same object and the last entry wins whatever it is. A
+   * calibration run had already written a 4,445 ms budget off the bad reading,
+   * which is 53x the real value and would have waved through any regression
+   * short of a catastrophe.
+   */
   const visit = async (route) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
     await page.addInitScript(instrument);
+    /* A backgrounded page paints no frames, and no frames means no
+       largest-contentful-paint entry — which arrives here as a flat 0 and
+       would pass every budget it is checked against. Foreground it. */
+    await page.bringToFront();
     await page.goto(`${base}${route}`, { waitUntil: "networkidle" });
     /* Layout shift keeps accruing after `networkidle`: fonts swap in and
        below-fold media resolves. A second of quiet is what separates a real
        CLS reading from an optimistic one. */
     await page.waitForTimeout(1000);
-    return page.evaluate(() => globalThis.__perf);
+    const perf = await page.evaluate(() => globalThis.__perf);
+    return { ...perf, page, context };
   };
 
   const out = {};
+  /* An LCP of exactly 0 means the observer saw nothing, not that the page
+     painted instantly. Recording that as a number would enshrine a budget
+     nothing can exceed; `null` is reported as uncalibrated instead. */
+  const lcp = (v) => (v > 0 ? Math.round(v) : null);
 
   const home = await visit("/");
-  out.home_lcp_ms = Math.round(home.lcp);
+  out.home_lcp_ms = lcp(home.lcp);
   out.home_cls = Number(home.cls.toFixed(4));
-  out.home_gpu_first_frame_ms = await page.evaluate(async () => {
+  out.home_gpu_first_frame_ms = await home.page.evaluate(async () => {
     const start = performance.now();
     const canvas = document.querySelector("canvas");
     if (!canvas) return 0;
@@ -388,24 +410,30 @@ async function measureRuntime(base) {
     return Math.round(performance.now() - start);
   });
 
+  await home.context.close();
+
   const reading = await visit("/israels-story");
-  out.reading_lcp_ms = Math.round(reading.lcp);
+  out.reading_lcp_ms = lcp(reading.lcp);
   out.reading_cls = Number(reading.cls.toFixed(4));
 
+  await reading.context.close();
+
   const archive = await visit("/october-7/testimonies");
-  out.archive_lcp_ms = Math.round(archive.lcp);
+  out.archive_lcp_ms = lcp(archive.lcp);
   out.archive_cls = Number(archive.cls.toFixed(4));
 
-  /* One real interaction on the archive filter, timed end to end. */
-  const filter = page.locator('input[type="search"], input[type="text"]').first();
+  /* One real interaction on the archive filter, timed end to end — on the
+     archive's own page, which is the one holding the filter. */
+  const filter = archive.page.locator('input[type="search"], input[type="text"]').first();
   if (await filter.count()) {
     const started = Date.now();
     await filter.click();
-    await filter.type("kib", { delay: 30 });
-    await page.waitForTimeout(400);
+    await filter.pressSequentially("kib", { delay: 30 });
+    await archive.page.waitForTimeout(400);
     out.archive_filter_ms = Date.now() - started;
-    out.archive_inp_ms = Math.round((await page.evaluate(() => globalThis.__perf)).inp);
+    out.archive_inp_ms = Math.round((await archive.page.evaluate(() => globalThis.__perf)).inp);
   }
+  await archive.context.close();
 
   await browser.close();
   return out;
@@ -429,6 +457,12 @@ function loadBudgets() {
  * number somebody ran and committed.
  */
 function checkBudget(name, actual, budget, unit) {
+  /* An unmeasured actual is not a pass. `actual > budget` is false when
+     `actual` is null, so without this the metrics that failed to record read
+     as "ok" against a real budget — the loudest possible way to be quiet. */
+  if (actual === null || actual === undefined) {
+    return { name, actual: null, budget: budget ?? null, unit, state: "unmeasured" };
+  }
   if (budget === null || budget === undefined) {
     return { name, actual, budget: null, unit, state: "uncalibrated" };
   }
@@ -482,7 +516,14 @@ function renderText(data) {
   p("Budgets");
   p("-".repeat(108));
   for (const c of data.checks) {
-    const flag = c.state === "over" ? "OVER  " : c.state === "uncalibrated" ? "UNCAL " : "ok    ";
+    const flag =
+      c.state === "over"
+        ? "OVER  "
+        : c.state === "uncalibrated"
+          ? "UNCAL "
+          : c.state === "unmeasured"
+            ? "NOMEAS"
+            : "ok    ";
     const budget = c.budget === null ? "(never measured)" : `${c.budget}${c.unit}`;
     p(`  ${flag}${c.name.padEnd(46)} ${String(c.actual).padStart(10)}${c.unit}  budget ${budget}`);
   }
@@ -576,6 +617,10 @@ if (UPDATE) {
   }
   if (runtime) {
     for (const [key, value] of Object.entries(runtime)) {
+      /* A metric that did not measure leaves its budget exactly as it was,
+         calibrated or not. Writing one from `null` is how a broken probe
+         becomes a green gate. */
+      if (value === null || value === undefined) continue;
       next.runtime[key] = key.endsWith("_ms") ? Math.round(value * 1.25) : Number((value * 1.5).toFixed(3));
     }
   }
@@ -589,6 +634,13 @@ else console.log(renderText(data));
 
 const over = checks.filter((c) => c.state === "over");
 const uncalibrated = checks.filter((c) => c.state === "uncalibrated");
+const unmeasured = checks.filter((c) => c.state === "unmeasured");
+if (unmeasured.length > 0) {
+  console.error(
+    `\n${unmeasured.length} metric(s) produced no reading: ${unmeasured.map((c) => c.name).join(", ")}.` +
+      ` A probe that records nothing is not a pass.`,
+  );
+}
 if (uncalibrated.length && !AS_JSON) {
   console.error(`\n${uncalibrated.length} budget(s) never measured — run with --update-budgets on a machine you trust.`);
 }

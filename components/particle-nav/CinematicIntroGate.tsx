@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useState } from 'react';
+import { MediaBlock } from '@/components/content/MediaBlock';
 import { defaultNodes } from './config';
 import { NavClient } from './CanvasMount';
 import styles from './styles.module.css';
@@ -45,10 +46,12 @@ export function CinematicIntroGate({ children }: { children: React.ReactNode }) 
           </div>
         }
       >
-        <picture className={styles.poster}>
-          <source srcSet="/posters/particle-nav.avif" type="image/avif" />
-          <img src="/posters/particle-nav.webp" alt="" draggable={false} />
-        </picture>
+        <MediaBlock className={styles.poster} aspectRatio="1 / 1">
+          <picture>
+            <source srcSet="/posters/particle-nav.avif" type="image/avif" />
+            <img src="/posters/particle-nav.webp" alt="" draggable={false} />
+          </picture>
+        </MediaBlock>
       </NavClient>
       <noscript>
         <style>{'[data-intro-only] { display: none !important; }'}</style>

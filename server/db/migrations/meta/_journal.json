@@ -348,8 +348,15 @@
     {
       "idx": 49,
       "version": "7",
+      "when": 1788441293000,
+      "tag": "0049_remove_briefing_quality_gate",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
       "when": 1788445212279,
-      "tag": "0049_external_briefing_submission",
+      "tag": "0050_external_briefing_submission",
       "breakpoints": true
     }
   ]

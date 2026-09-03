@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { AskLauncher } from "@/components/ask/AskLauncher";
+import { SearchLauncher } from "@/components/search/SearchLauncher";
+import { Button } from "@/components/ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
 import {
   BAR_LINKS,
   FILE_LINKS,
@@ -42,13 +46,15 @@ function Chevron() {
  * where that is stated.
  *
  * ── THE NO-JAVASCRIPT CONTRACT ───────────────────────────────────────────
- * Neither panel may be mounted on client state. Both are always in the server
- * HTML and carry their state in the `hidden` attribute, and
- * `@media (scripting: none)` in the stylesheet turns the file drawer into a
- * static index in the flow. This is not defensive style: when the panels were
- * `{open ? <div/> : null}`, five of the eight destinations had no reachable
- * link anywhere on the site without JavaScript. `scripts/ci-smoke.mjs` asserts
- * all ten destinations are reachable by href from `/` with scripting off.
+ * `filesPanel` may not be mounted on client state. It is always in the server
+ * HTML and carries its state in the `hidden` attribute, and
+ * `@media (scripting: none)` in the stylesheet turns it into a static index
+ * in the flow. The mobile menu is a JS-only Dialog; that is allowed because
+ * the files panel is the no-JS index. Do not unmount `filesPanel`, and do not
+ * turn it into a Dialog. When the panels were `{open ? <div/> : null}`, five
+ * of the eight destinations had no reachable link anywhere on the site without
+ * JavaScript. `scripts/ci-smoke.mjs` asserts all ten destinations are
+ * reachable by href from `/` with scripting off.
  *
  * The drawer is also a direct child of `<header>`, not a descendant of the
  * primary-link group. That is load-bearing too: while it lived inside the
@@ -65,20 +71,18 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
   const filesTriggerRef = useRef<HTMLButtonElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
 
+  /* Files panel is not a Dialog, so Escape and outside-click live here.
+     The menu Dialog owns its own cancel/backdrop/focus-return; handling
+     those again would race `showModal()` and skip focus return. */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (menuOpen) {
-        setMenuOpen(false);
-        menuTriggerRef.current?.focus();
-      } else if (filesOpen) {
-        setFilesOpen(false);
-        filesTriggerRef.current?.focus();
-      }
+      if (!filesOpen) return;
+      setFilesOpen(false);
+      filesTriggerRef.current?.focus();
     };
     const handlePointerDown = (event: PointerEvent) => {
       if (headerRef.current?.contains(event.target as Node)) return;
-      setMenuOpen(false);
       setFilesOpen(false);
     };
 
@@ -88,7 +92,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [filesOpen, menuOpen]);
+  }, [filesOpen]);
 
   /* The mobile sheet is a full-height surface over the document; the drawer is
      a dropdown and deliberately does not lock the page. */
@@ -176,9 +180,15 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
         </nav>
 
         <div className={styles.utility}>
-          <button
+          <div className={styles.deskActions}>
+            <SearchLauncher variant="icon" className={styles.deskSearch} />
+            <AskLauncher variant="icon" className={styles.deskAsk} />
+          </div>
+          <Button
             ref={filesTriggerRef}
             type="button"
+            variant="ghost"
+            size="md"
             className={styles.filesTrigger}
             aria-expanded={filesOpen}
             aria-controls={filesPanelId}
@@ -188,7 +198,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             All files
             <span className={styles.filesCount}>08</span>
             <Chevron />
-          </button>
+          </Button>
 
           <Link
             href={SUPPORT_LINK.href}
@@ -199,9 +209,11 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             {SUPPORT_LINK.label}
           </Link>
 
-          <button
+          <Button
             ref={menuTriggerRef}
             type="button"
+            variant="ghost"
+            size="md"
             className={styles.menuTrigger}
             aria-expanded={menuOpen}
             aria-controls={menuPanelId}
@@ -210,7 +222,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
           >
             {menuOpen ? "Close" : "Menu"}
             <span className={styles.menuGlyph} aria-hidden="true" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -236,8 +248,38 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
         </div>
       </div>
 
-      {/* The phone sheet. Same rule: always rendered, `hidden` toggled. */}
-      <div className={styles.menuPanel} id={menuPanelId} hidden={!menuOpen}>
+      <Dialog
+        id={menuPanelId}
+        open={menuOpen}
+        onClose={() => {
+          setMenuOpen(false);
+          menuTriggerRef.current?.focus();
+        }}
+        title="Menu"
+        description="Search, Ask, files, and reference."
+        variant="drawer"
+      >
+        <nav className={styles.sheetGroup} aria-label="Desk">
+          <span className={styles.sheetLabel}>Desk</span>
+          <Link
+            href="/search"
+            className={styles.sheetRow}
+            aria-current={current("/search") ? "page" : undefined}
+            onClick={closePanels}
+          >
+            <span className={styles.sheetIndex}>·</span>
+            <span className={styles.sheetName}>Search</span>
+          </Link>
+          <Link
+            href="/ask"
+            className={styles.sheetRow}
+            aria-current={current("/ask") ? "page" : undefined}
+            onClick={closePanels}
+          >
+            <span className={styles.sheetIndex}>·</span>
+            <span className={styles.sheetName}>Ask</span>
+          </Link>
+        </nav>
         <nav className={styles.sheetGroup} aria-label="All sections">
           <span className={styles.sheetLabel}>Files</span>
           {FILE_LINKS.map(renderSheetRow)}
@@ -246,7 +288,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
           <span className={styles.sheetLabel}>Reference</span>
           {REFERENCE_LINKS.map(renderSheetRow)}
         </nav>
-      </div>
+      </Dialog>
     </header>
   );
 }

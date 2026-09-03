@@ -48,12 +48,16 @@ export interface UseAskThread {
   messages: ChatMessageView[];
   status: AskStatus;
   problem: ApiProblem | null;
-  /** The question currently in flight, shown while the answer composes so the
-   *  reader can see what they asked. */
+  /** The question this turn is about: in flight while `asking`, and kept on
+   *  the error record so a failed question is still visible. Cleared on
+   *  success, cancel, and reset. */
   pending: string | null;
   /** Seconds since the turn started. Real elapsed time, not a fake progress. */
   elapsed: number;
   ask: (question: string) => Promise<void>;
+  /** Abort the in-flight turn. Not an error: the wait ends and the desk
+   *  returns to idle. */
+  cancel: () => void;
   /** True when a stored conversation could not be reopened. */
   lostThread: boolean;
   reset: () => void;
@@ -80,7 +84,9 @@ export function useAskThread(): UseAskThread {
      Not stored: an empty thread is not worth restoring on the next visit. */
   const createdThread = useRef<string | null>(null);
 
-  const asking = pending !== null;
+  /* `pending` is also kept after a failed turn so the error record can show
+     the question. Asking is the in-flight window only. */
+  const asking = pending !== null && problem === null;
   const restoring = Boolean(storedThread) && loadedThread !== storedThread && !asking && !problem;
   const status: AskStatus = problem ? "error" : asking ? "asking" : restoring ? "restoring" : "idle";
 
@@ -172,8 +178,12 @@ export function useAskThread(): UseAskThread {
            first question failed is not worth restoring on the next visit. */
         writeThread(id);
       } catch (cause) {
-        if (isAbort(cause)) return;
-        setPending(null);
+        if (isAbort(cause)) {
+          setPending(null);
+          return;
+        }
+        /* Keep `pending` so the error record can name the question. Asking
+           becomes false because `problem` is set. */
         setProblem(
           cause instanceof ApiProblem
             ? cause
@@ -184,8 +194,15 @@ export function useAskThread(): UseAskThread {
     [asking, storedThread],
   );
 
+  const cancel = useCallback(() => {
+    abort.current?.abort();
+    abort.current = null;
+    setPending(null);
+  }, []);
+
   const reset = useCallback(() => {
     abort.current?.abort();
+    abort.current = null;
     createdThread.current = null;
     setMessages([]);
     setLoadedThread(null);
@@ -195,5 +212,5 @@ export function useAskThread(): UseAskThread {
     writeThread(null);
   }, []);
 
-  return { messages, status, problem, pending, elapsed, ask, lostThread, reset };
+  return { messages, status, problem, pending, elapsed, ask, cancel, lostThread, reset };
 }

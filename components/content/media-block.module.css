@@ -1,0 +1,78 @@
+.block {
+  margin: 0;
+  min-width: 0;
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  /* `--media-aspect` from `aspectRatio` when the asset recorded dimensions.
+     `--media-max-height` / `--media-fit` are optional caller overrides
+     (archive portrait video: 70vh contain). */
+  aspect-ratio: var(--media-aspect, 16 / 10);
+  max-height: var(--media-max-height, none);
+}
+
+.frame > :is(img, video) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--media-fit, cover);
+}
+
+/* A `SensitiveContent` gate stands in for the media until the reader opens it
+   (OCT-005). It is then the frame's only child, so it fills the box the
+   package's aspect ratio already reserved — the caption, credit and
+   provenance row below stay outside the gate and do not move when it opens. */
+.frame > [data-sensitive] {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-top: var(--sp-2);
+  max-width: var(--measure-caption);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+}
+
+.credit,
+.provenance {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  text-transform: uppercase;
+}
+
+/* Index/list covers: square plate, not the 16/10 editorial frame.
+   Occupies the parent grid's `thumb` column when `--thumb-w` is set
+   (archive rows). Frame border is the empty/failed plate. */
+.thumb,
+.block[data-layout='thumb'] {
+  --media-aspect: 1 / 1;
+  grid-area: thumb;
+  width: var(--thumb-w, 100%);
+}
+
+.thumb .frame,
+.block[data-layout='thumb'] .frame {
+  aspect-ratio: var(--media-aspect, 1 / 1);
+}
+
+.thumb .frame > span,
+.block[data-layout='thumb'] .frame > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

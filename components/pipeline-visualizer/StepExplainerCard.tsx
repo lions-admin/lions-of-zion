@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import type { JourneyStep } from "./types";
 import { PIPELINE_NODES } from "./data/nodes";
+import { CHROME } from "./copy";
 import styles from "./visualizer.module.css";
+
+const HEBREW = /[\u0590-\u05FF]/;
+
+function formatPayload(payload: JourneyStep["payloadSnippet"]): string | null {
+  if (payload == null) return null;
+  const text = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+  return HEBREW.test(text) ? null : text;
+}
 
 interface StepExplainerCardProps {
   currentStep: JourneyStep;
@@ -21,92 +31,104 @@ export function StepExplainerCard({
   onSelectNode,
 }: StepExplainerCardProps) {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const bodyId = useId();
   const node = PIPELINE_NODES.find((n) => n.id === currentStep.nodeId);
+  const payloadText = formatPayload(currentStep.payloadSnippet);
 
+  /* The explainer stays inline rather than becoming a dialog. It is the
+     running commentary on the step the simulation is on — reading it and
+     watching the stage are the same act, and a sheet you have to dismiss to
+     see what it describes would break that. What it borrows from the shared
+     dialog behaviour is the disclosure contract: a labelled trigger that
+     owns `aria-expanded` and points at the region it controls. */
   return (
-    <div className={styles.explainerCardContainer} dir="rtl">
-      {/* ── Header ── */}
+    <section
+      className={styles.explainerCardContainer}
+      aria-label={CHROME.regionExplainer}
+    >
       <div className={styles.explainerHeader}>
         <div className={styles.explainerHeaderRight}>
           <span className={styles.stepBadge}>
-            שלב {stepIndex + 1} מתוך {totalSteps}
+            {CHROME.stepOf(stepIndex + 1, totalSteps)}
           </span>
-          <h3 className={styles.explainerTitle}>{currentStep.titleHe}</h3>
+          <h2 className={styles.explainerTitle}>{currentStep.titleEn}</h2>
         </div>
 
         <div className={styles.explainerHeaderActions}>
-          <button
+          <Button
             type="button"
-            className={styles.glossaryPillBtn}
+            variant="secondary"
+            size="sm"
             onClick={() => onOpenGlossary()}
-            title="פתח מילון מונחים והסברים"
+            title={CHROME.glossaryButtonTitle}
           >
-            מילון מונחים
-          </button>
-          <button
+            {CHROME.glossaryButton}
+          </Button>
+          <Button
             type="button"
-            className={styles.explainerToggleBtn}
+            variant="ghost"
+            size="sm"
             onClick={() => setIsExpanded((prev) => !prev)}
-            title={isExpanded ? "כווץ הסבר" : "הרחב הסבר"}
+            title={isExpanded ? CHROME.collapseTitle : CHROME.expandTitle}
+            aria-expanded={isExpanded}
+            aria-controls={bodyId}
           >
-            {isExpanded ? "▲ כווץ" : "▼ הרחב הסבר"}
-          </button>
+            <span aria-hidden="true">{isExpanded ? "\u25B2" : "\u25BC"}</span>
+            {isExpanded ? CHROME.collapse : CHROME.expand}
+          </Button>
         </div>
       </div>
 
-      {/* ── Body ── */}
       {isExpanded && (
-        <div className={styles.explainerBody}>
-          {/* מה קורה כעת */}
+        <div id={bodyId} className={styles.explainerBody}>
           <div className={styles.explainerMainText}>
             <div className={styles.explainerContent}>
-              <strong>מה קורה כעת:</strong> {currentStep.descriptionHe}
+              <strong>{CHROME.nowHappening}:</strong> {currentStep.descriptionEn}
             </div>
           </div>
 
-          {/* רכיב מעורב וקישורים */}
           {node && (
             <div className={styles.explainerNodeLinkRow}>
               <div className={styles.explainerNodeBadge}>
-                <span>רכיב פעיל:</span>
-                <button
+                <span>{CHROME.activeComponent}:</span>
+                <Button
                   type="button"
+                  variant="text"
+                  size="sm"
                   className={styles.nodeLinkBtn}
                   onClick={() => onSelectNode(node.id)}
                 >
-                  {node.nameHe} <span className={styles.nodeLinkEn} dir="ltr">({node.nameEn})</span>
-                </button>
+                  {node.nameEn}
+                </Button>
               </div>
 
               {node.dbTable && (
-                <div className={styles.explainerTableBadge} dir="ltr">
-                  <span>טבלה:</span> <code>{node.dbTable}</code>
+                <div className={styles.explainerTableBadge}>
+                  <span>{CHROME.table}:</span> <code>{node.dbTable}</code>
                 </div>
               )}
 
               {node.sqlConstraintOrTrigger && (
-                <div className={styles.explainerTriggerBadge} dir="ltr">
-                  <span>אילוץ SQL:</span> <code>{node.sqlConstraintOrTrigger}</code>
+                <div className={styles.explainerTriggerBadge}>
+                  <span>{CHROME.sqlConstraint}:</span>{" "}
+                  <code>{node.sqlConstraintOrTrigger}</code>
                 </div>
               )}
             </div>
           )}
 
-          {/* הצגת נתונים שעוברים בשלב (Payload / Data Snippet) */}
-          {currentStep.payloadSnippet && (
+          {payloadText && (
             <div className={styles.explainerPayloadBox}>
               <div className={styles.payloadBoxHeader}>
-                <span>נתוני המידע שעוברים כעת ברשת:</span>
+                <span>{CHROME.payloadHeader}:</span>
               </div>
               <pre className={styles.payloadPre} dir="ltr">
-                {typeof currentStep.payloadSnippet === "string"
-                  ? currentStep.payloadSnippet
-                  : JSON.stringify(currentStep.payloadSnippet, null, 2)}
+                {payloadText}
               </pre>
             </div>
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 }

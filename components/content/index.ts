@@ -13,3 +13,4 @@ export { TechniqueChip, TechniqueChips, type TechniqueChipProps } from './Techni
 export { ConfidenceChip, EvidenceClassChip } from './EvidenceGrade';
 export { ResearchText } from './ResearchText';
 export { NetworkFigure, type NetworkFigureProps } from './NetworkFigure';
+export { MediaBlock, type MediaBlockProps } from './MediaBlock';

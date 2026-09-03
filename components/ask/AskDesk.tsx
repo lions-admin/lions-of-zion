@@ -1,7 +1,13 @@
 "use client";
 
 /**
- * The desk: transcript, the wait, and the box.
+ * The desk: evidence boundary, transcript, the wait, and the box.
+ *
+ * Layout before a submit (idle / primer): primer examples, evidence-boundary
+ * notice, then the composer. The notice used to sit under the box, which meant
+ * a reader could send a question without seeing what corpus is searched or
+ * what an unsupported answer means. It is now above the composer in every
+ * state that still has one.
  *
  * ## The waiting state is where the guarantee gets explained
  *
@@ -13,10 +19,12 @@
  * animation faked over that would be a lie about the mechanism, and this site
  * documents people who do that for a living.
  *
- * So the wait says what is happening and why, and shows the only honest
- * measurement available — elapsed seconds. `BorderBeam` is the one moving
- * thing: a project primitive, pure CSS, no JavaScript, and it decorates a
- * state that is also stated in words.
+ * So `asking` is thinking, not streaming. The wait says what is happening and
+ * why, and shows the only honest measurement available — elapsed seconds,
+ * which are never announced. `BorderBeam` is the one moving thing, and only
+ * around the active waiting answer; it unmounts on success, error, or abort.
+ * Under `prefers-reduced-motion` the beam is gone and the waiting panel keeps
+ * a static emphasized border.
  *
  * ## Errors are records, not toasts
  *
@@ -28,6 +36,10 @@
  */
 
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/Button";
+import { Card, CardDescription, CardEyebrow } from "@/components/ui/Card";
+import { StatusState } from "@/components/ui/StatusState";
+import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { BorderBeam } from "@/components/motion";
 import { AnswerRecord } from "./AnswerRecord";
 import { toExchanges } from "./exchanges";
@@ -42,7 +54,8 @@ const EXAMPLES = [
 ];
 
 export function AskDesk() {
-  const { messages, status, problem, pending, elapsed, ask, lostThread, reset } = useAskThread();
+  const { messages, status, problem, pending, elapsed, ask, cancel, lostThread, reset } =
+    useAskThread();
   const exchanges = toExchanges(messages);
   const tail = useRef<HTMLDivElement>(null);
 
@@ -64,7 +77,8 @@ export function AskDesk() {
   }, [count, status]);
 
   /* What a screen reader is told when the wait ends. The answer arrives as a
-     new record far up the page and nothing else would announce it. */
+     new record far up the page and nothing else would announce it. Elapsed
+     seconds never enter this string. */
   const settled = exchanges.at(-1);
   const announcement =
     status === "idle" && settled?.answer
@@ -75,6 +89,7 @@ export function AskDesk() {
 
   const unavailable = problem?.code === "NOT_IMPLEMENTED";
   const busy = status === "asking";
+  const hasHistory = count > 0;
 
   return (
     <div className={styles.desk}>
@@ -86,7 +101,13 @@ export function AskDesk() {
         </p>
       ) : null}
 
-      {count === 0 && !busy && !problem ? <AskPrimer onPick={ask} disabled={busy} /> : null}
+      {status === "restoring" ? (
+        <p className={styles.systemNote} {...politeLive} aria-busy="true">
+          Reopening the last conversation from this browser.
+        </p>
+      ) : null}
+
+      {count === 0 && status === "idle" ? <AskPrimer onPick={ask} disabled={busy} /> : null}
 
       <div className={styles.transcript}>
         {exchanges.map((exchange) => (
@@ -94,96 +115,151 @@ export function AskDesk() {
         ))}
 
         {busy && pending ? (
-          <article className={styles.record}>
-            <p className={styles.recordLabel}>Question</p>
-            <p className={styles.question}>{pending}</p>
-            <Waiting elapsed={elapsed} />
-          </article>
+          <Waiting question={pending} elapsed={elapsed} onStop={cancel} />
         ) : null}
 
         {problem && !unavailable ? (
-          <article className={styles.record} data-tone="alert">
-            {pending ? (
-              <>
-                <p className={styles.recordLabel}>Question</p>
-                <p className={styles.question}>{pending}</p>
-              </>
-            ) : null}
-            <p className={styles.recordLabel}>Not answered</p>
-            <p className={styles.problemLead}>
-              {problem.code === "RATE_LIMITED"
-                ? "You have reached the limit on questions."
-                : "The question did not get an answer."}
-            </p>
-            <p className={styles.problemDetail}>{problem.detail}</p>
-            {problem.code === "RATE_LIMITED" ? (
-              <p className={styles.problemDetail}>
-                Nothing was lost — ask again once the window has passed.
-              </p>
-            ) : null}
-          </article>
+          <ProblemRecord
+            code={problem.code}
+            detail={problem.detail}
+            question={pending}
+          />
         ) : null}
 
         <div ref={tail} aria-hidden="true" />
       </div>
 
-      <p className={styles.srOnly} role="status" aria-live="polite">
+      <p className={styles.srOnly} {...politeLive}>
         {announcement}
       </p>
 
       {unavailable ? (
-        <div className={styles.unavailable}>
-          <p className={styles.problemLead}>This desk&rsquo;s assistant is not connected here.</p>
-          <p className={styles.problemDetail}>{problem.detail}</p>
-          <p className={styles.problemDetail}>
-            Nothing you can do in this browser will change that, so the box is closed rather than
-            left to fail again. The corpus itself is searchable in the meantime.
-          </p>
-        </div>
-      ) : (
-        <AskComposer
-          onAsk={ask}
-          disabled={busy || status === "restoring"}
-          hint={
-            busy ? "Waiting for the current answer before the next question." : undefined
-          }
+        /* StatusState error already uses role="alert" (assertiveLive). */
+        <StatusState
+          status="error"
+          title="This desk's assistant is not connected here."
+          description={`${problem.detail} The corpus itself is searchable in the meantime.`}
+          actionText="Search the corpus"
+          actionHref="/search"
         />
+      ) : (
+        <div className={styles.deskPrompt}>
+          <EvidenceBoundary />
+          <AskComposer
+            onAsk={ask}
+            disabled={busy || status === "restoring"}
+            label={hasHistory ? "Follow-up" : "Your question"}
+            placeholder={hasHistory ? "Ask a follow-up…" : undefined}
+            hint={
+              busy
+                ? "Waiting for the current answer before the next question."
+                : status === "restoring"
+                  ? "Reopening the last conversation."
+                  : undefined
+            }
+          />
+          {hasHistory ? (
+            <div className={styles.deskFoot}>
+              <Button type="button" variant="ghost" size="md" onClick={reset}>
+                Start a new conversation
+              </Button>
+            </div>
+          ) : null}
+        </div>
       )}
-
-      <div className={styles.deskFoot}>
-        <p className={styles.deskFootNote}>
-          Answers are composed from what this desk has published, and every one lists what it
-          used. An answer with nothing under it found nothing, and says so.
-        </p>
-        {count > 0 ? (
-          <button type="button" className={styles.resetButton} onClick={reset}>
-            Start a new conversation
-          </button>
-        ) : null}
-      </div>
     </div>
   );
 }
 
-function Waiting({ elapsed }: { elapsed: number }) {
+function EvidenceBoundary() {
   return (
-    <div className={styles.waiting} role="status" aria-live="polite">
-      {/* The default ink tone, not gold. `components/motion/README.md` reserves
-          gold for the one primary control on a screen, and a border beam is a
-          state marker — which is exactly what the signal tone is for. */}
-      <BorderBeam duration={9} size={120} />
-      <p className={styles.waitingLead}>Searching the index, then composing.</p>
-      <p className={styles.waitingBody}>
-        The answer arrives whole. Nothing is streamed here on purpose: every citation is checked
-        against what retrieval actually returned before a word of the answer is stored, so a
-        fabricated source is refused rather than shown to you and withdrawn. It can take up to two
-        minutes.
+    <Card
+      variant="note"
+      as="aside"
+      className={styles.boundary}
+      aria-labelledby="ask-boundary-title"
+    >
+      <CardEyebrow id="ask-boundary-title">Evidence boundary</CardEyebrow>
+      <CardDescription className={styles.boundaryBody}>
+        This desk searches the published corpus it holds — the same record Search reads.
+        Every answer lists the documents it used. An answer with nothing under it found
+        nothing in that corpus: treat it as conversation, not as a finding.
+      </CardDescription>
+    </Card>
+  );
+}
+
+function Waiting({
+  question,
+  elapsed,
+  onStop,
+}: {
+  question: string;
+  elapsed: number;
+  onStop: () => void;
+}) {
+  return (
+    <article className={styles.record} aria-busy="true">
+      <p className={styles.recordLabel}>Question</p>
+      <p className={styles.question}>{question}</p>
+      <div className={styles.waiting}>
+        {/* The default ink tone, not gold. Gold is reserved for the one
+            primary control on a screen; a border beam is a state marker. */}
+        <BorderBeam duration={9} size={120} />
+        {/* Live region is the lead only. The elapsed clock ticks every second and
+            must not sit inside a polite region or it would re-announce the wait. */}
+        <p className={styles.waitingLead} {...politeLive}>
+          Searching the index, then composing.
+        </p>
+        <p className={styles.waitingBody}>
+          The answer arrives whole. Nothing is streamed here on purpose: every citation is checked
+          against what retrieval actually returned before a word of the answer is stored, so a
+          fabricated source is refused rather than shown to you and withdrawn. It can take up to two
+          minutes.
+        </p>
+        <div className={styles.waitingMeta}>
+          <p className={styles.waitingClock}>
+            <span className={styles.waitingSeconds}>{String(elapsed).padStart(2, "0")}</span>
+            <span>seconds elapsed</span>
+          </p>
+          <Button type="button" variant="ghost" size="md" onClick={onStop}>
+            Stop
+          </Button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ProblemRecord({
+  code,
+  detail,
+  question,
+}: {
+  code: string;
+  detail: string;
+  question: string | null;
+}) {
+  const rateLimited = code === "RATE_LIMITED";
+  return (
+    <article className={styles.record} data-tone="alert" {...assertiveLive}>
+      {question ? (
+        <>
+          <p className={styles.recordLabel}>Question</p>
+          <p className={styles.question}>{question}</p>
+        </>
+      ) : null}
+      <p className={styles.recordLabel}>Not answered</p>
+      <p className={styles.problemLead}>
+        {rateLimited ? "You have reached the limit on questions." : "The question did not get an answer."}
       </p>
-      <p className={styles.waitingClock}>
-        <span className={styles.waitingSeconds}>{String(elapsed).padStart(2, "0")}</span>
-        <span>seconds elapsed</span>
-      </p>
-    </div>
+      <p className={styles.problemDetail}>{detail}</p>
+      {rateLimited ? (
+        <p className={styles.problemDetail}>
+          Nothing was lost — ask again once the window has passed.
+        </p>
+      ) : null}
+    </article>
   );
 }
 
@@ -193,18 +269,12 @@ function AskPrimer({ onPick, disabled }: { onPick: (q: string) => void; disabled
       <p className={styles.primerLead}>
         Ask about what this desk has published, and the claims behind it.
       </p>
-      <p className={styles.primerBody}>
-        The assistant reads the published corpus before answering and lists what it used. It will
-        say when it found nothing rather than filling the gap — an answer with no sources under it
-        is conversation, not a finding.
-      </p>
       <ul className={styles.primerExamples}>
         {EXAMPLES.map((example) => (
           <li key={example}>
-            <button type="button" className={styles.primerExample} disabled={disabled} onClick={() => onPick(example)}>
+            <Button type="button" variant="ghost" size="md" disabled={disabled} onClick={() => onPick(example)}>
               {example}
-              <span className={styles.primerExampleArrow} aria-hidden="true">→</span>
-            </button>
+            </Button>
           </li>
         ))}
       </ul>

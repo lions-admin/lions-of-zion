@@ -21,7 +21,13 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const publishedUpdates = await listBriefingPublications("?section=war_update&limit=12").catch(() => []);
+  let publishedUpdates: Awaited<ReturnType<typeof listBriefingPublications>> = [];
+  let unavailable = false;
+  try {
+    publishedUpdates = await listBriefingPublications("?section=war_update&limit=12");
+  } catch {
+    unavailable = true;
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -38,7 +44,16 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {publishedUpdates.length ? (
+      {unavailable ? (
+        <StatusState
+          status="error"
+          eyebrow="SERVICE STATUS"
+          title="War updates are temporarily unavailable."
+          description="The published record is intact. This page could not read it just now."
+          actionText="Read the Daily Brief"
+          actionHref="/geopolitical-brief"
+        />
+      ) : publishedUpdates.length ? (
         <SectionBlock heading="Latest published updates">
           <ol className={styles.publishedUpdates}>
             {publishedUpdates.map((update) => (
@@ -54,6 +69,7 @@ export default async function Page() {
         </SectionBlock>
       ) : (
         <StatusState
+          status="empty"
           eyebrow="LIVE WAR DESK"
           title="No verified war update has been published yet."
           description="This page carries only source-linked updates that have completed the briefing pipeline. It will not display sample or historical placeholder material."

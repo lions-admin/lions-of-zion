@@ -1,142 +1,19 @@
-/* Support Us reads as a toolkit, not an article — this is the one page whose
-   job is action, not reading. Two real, working modules (Report, Volunteer)
-   get panel chrome; the two standing-practice items (Amplify, Sustain) sit
-   in a lighter strip below, distinguishing a live channel from a practice
-   rather than dressing both up the same way.
+/* Support Us · design V3 (`app/globals.css`).
 
-   Design V3 (`app/globals.css`). Panels sit on the surface ramp behind the
-   ink hairlines; the page's gold is spent by the shared Button, once per
-   module, on the one control that acts. Everything else is ink. The page
-   asks plainly, once. */
+   This is the one page whose job is action rather than reading, and it now
+   asks a single question before it shows anything: report, volunteer, share,
+   or donate. The composition of the chooser and of each flow lives with the
+   component that owns it (`components/support/support-flows.module.css`);
+   what is left here is the sentence that frames the choice.
 
-/* Single column at every width. The toolkit's container is the 68ch reading
-   measure, not the viewport, so two-up put every control in this form at
-   285px — too narrow to read back a URL a reader has just pasted, on the one
-   public write path the site has. The two modules are a sequence anyway —
-   report a claim, then offer a skill — not a comparison. `.practiceGrid`
-   stays two-up below; it carries no controls. */
-.toolkit {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--sp-5);
-  margin: var(--sp-6) 0 var(--sp-2);
-}
+   The panel chrome the two forms used to sit in is gone with the two-up
+   toolkit it belonged to. Four modules dressed as panels, three of them
+   hidden, is chrome drawn for nobody — the open flow is the page. */
 
-.module {
-  min-width: 0;
-  padding: var(--sp-5) var(--sp-5) var(--sp-6);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
-  box-shadow: var(--shadow-1);
-}
-
-.moduleHeader {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-4);
-  padding-bottom: var(--sp-4);
-  border-bottom: var(--line-w) solid var(--line-soft);
-}
-
-/* "Module · Report" — a two-word tool marker, so uppercase is in bounds. */
-.moduleLabel {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
-}
-
-.moduleTitle {
+.chooserLede {
   margin: 0;
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  color: var(--ink-hi);
-}
-
-.moduleLede {
-  margin: 0 0 var(--sp-5);
+  max-width: var(--measure-narrow);
+  color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
-  color: var(--ink);
-}
-
-.skillGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--sp-3);
-  margin: 0 0 var(--sp-5);
-}
-
-.practiceGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-5);
-  margin-top: var(--sp-5);
-}
-
-.practice {
-  min-width: 0;
-  padding-top: var(--sp-4);
-  border-top: var(--line-w) solid var(--line);
-}
-
-/* "Standing practice" / "Secure donation" — two-word state markers in the
-   data voice, sentence case so both read the same way as each other. */
-.practiceLabel {
-  display: block;
-  margin-bottom: var(--sp-2);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
-  color: var(--ink-lo);
-}
-
-.practice h3 {
-  margin: 0 0 var(--sp-3);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  color: var(--ink-hi);
-}
-
-.practice p {
-  margin: 0;
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  color: var(--ink);
-}
-
-.practice p + p {
-  margin-top: var(--flow);
-}
-
-/* The no-JavaScript donate link is the shared `ButtonLink`; this class only
-   places it. */
-.donateLink {
-  margin-top: var(--sp-5);
-}
-
-/* PayPal renders its hosted button into this box after its SDK loads.
-   The height is reserved so the strip does not jump when it arrives. */
-.paypalButton {
-  min-height: 86px;
-  margin-top: var(--sp-5);
-}
-
-@media (max-width: 900px) {
-  .practiceGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

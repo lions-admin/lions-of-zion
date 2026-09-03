@@ -1,16 +1,8 @@
-/* Skeleton · design V3
+/* Skeleton — SYS-014
  *
- * A skeleton exists for one reason: to stop the page moving when the content
- * lands. So every shape here is measured in the same tokens the real thing
- * uses — a text line is exactly `--t-body` × `--t-body-lh`, a card's padding
- * is the card's padding — and a skeleton that does not match its final layout
- * is worse than no skeleton, because it converts a wait into a jump.
- *
- * The sweep is a pseudo-element, not the base background. The global
- * reduced-motion kill-switch collapses an animation's *duration*, which would
- * leave a moving gradient frozen at an arbitrary offset and reading as a
- * broken paint; keeping the sweep in `::after` means removing it below leaves
- * a clean static tint, with no `!important` anywhere.
+ * A skeleton exists to stop the page moving when the content lands. Shapes
+ * use the same tokens as the real type and cards. The sweep lives in
+ * `::after` so reduced-motion can drop it and leave a static tint.
  */
 
 .skeleton {
@@ -19,8 +11,6 @@
   overflow: hidden;
   background: var(--surface-2);
   border-radius: var(--radius-1);
-  /* Nothing inside a skeleton is text, but callers pass children through for
-     sizing. Keep any of it invisible. */
   color: transparent;
   user-select: none;
 }
@@ -40,37 +30,27 @@
 }
 
 @keyframes sweep {
-  /* Mostly at rest, like every other ambient motion in this system: the sweep
-     passes once and then waits. A continuous shimmer on a reading page is a
-     progress bar pretending to be one. */
   0%, 60% { transform: translateX(-100%); }
   85%, 100% { transform: translateX(100%); }
 }
 
-/* ── Shapes ──────────────────────────────────────────────────────────── */
-
-/* A line of running text: the body step's own line box, inset top and bottom
-   so a stack of them has the same rhythm as the paragraph it replaces. */
 .text {
   height: calc(var(--t-body) * var(--t-body-lh) * 0.62);
   margin-block: calc(var(--t-body) * var(--t-body-lh) * 0.19);
   border-radius: var(--radius-1);
 }
 
-/* An entry title — `--t-h3` and its line-height. */
 .title {
   height: calc(var(--t-h3) * var(--t-h3-lh) * 0.7);
   margin-block: calc(var(--t-h3) * var(--t-h3-lh) * 0.15);
   border-radius: var(--radius-1);
 }
 
-/* A data label — an eyebrow, a date stamp, a count. */
 .label {
   height: calc(var(--t-data) * var(--t-data-lh));
   border-radius: var(--radius-1);
 }
 
-/* A rectangle: media, a chart, a map. The caller sets the aspect ratio. */
 .block {
   border-radius: var(--radius-2);
 }
@@ -80,21 +60,15 @@
   flex: 0 0 auto;
 }
 
-/* ── Composed shapes ─────────────────────────────────────────────────── */
-
 .lines {
   display: flex;
   flex-direction: column;
 }
 
-/* The last line of a paragraph is short — the single cue that reads as prose
-   rather than as a stack of bars. */
 .lines > .text:last-child {
   width: 62%;
 }
 
-/* Matches `Card` variant="dossier": the same padding, the same radius, the
-   same 2px top rule, so the real card lands in the box the skeleton held. */
 .card {
   display: flex;
   flex-direction: column;
@@ -113,7 +87,6 @@
   padding-top: var(--sp-5);
 }
 
-/* Matches an archive index row: a cover thumbnail, a title and an excerpt. */
 .row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -136,7 +109,33 @@
   min-width: 0;
 }
 
-/* Screen readers get the label; the shapes themselves are `aria-hidden`. */
+.family {
+  width: 100%;
+  min-height: 100dvh;
+  padding-top: var(--header-h);
+  background-image: var(--family-scan);
+}
+
+.familyChrome {
+  width: min(100%, var(--chrome-w));
+  margin-inline: auto;
+  padding-block: var(--family-pad-block);
+  padding-inline: var(--family-pad-inline);
+}
+
+.familyBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--family-gap);
+  width: min(100%, var(--family-measure));
+}
+
+.dossierMedia {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-2);
+}
+
 .srOnly {
   position: absolute;
   width: 1px;

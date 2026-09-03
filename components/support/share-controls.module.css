@@ -1,0 +1,65 @@
+/* Share control · design V3 (`app/globals.css`).
+
+   The controls themselves are the shared `Button`/`ButtonLink`, so this file
+   only lays the row out and inks the one status line. No second button voice
+   here, and no colour that is not a state token. */
+
+.share {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.lead {
+  margin: 0;
+  max-width: var(--measure-narrow);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* Wraps rather than scrolls: three or four controls at 44px do not fit a
+   narrow viewport in one line, and a share row is not a toolbar. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+}
+
+/* The status box holds its line's height whether or not there is a line, so
+   the row beneath it does not jump when an outcome arrives. */
+.status {
+  min-height: var(--t-small-lh);
+}
+
+.statusLine {
+  margin: 0;
+  max-width: var(--measure-narrow);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.status[data-state='copied'] .statusLine {
+  color: var(--state-ok);
+}
+
+.status[data-state='failed'] .statusLine {
+  color: var(--state-danger);
+}
+
+/* The fallback URL is the point of the failure state, so it is readable as a
+   URL — the data face, and a rule under it that says it is a link. */
+.directLink {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking-tight);
+  color: var(--ink-hi);
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+}
+
+.directLink:hover {
+  text-decoration-color: var(--gold);
+}

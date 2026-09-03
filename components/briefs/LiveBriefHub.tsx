@@ -1,19 +1,24 @@
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
 import { isAnalysisBasis } from "@/server/contracts/publication";
-import { SiteHeader } from "@/components/site/SiteHeader";
-import { Reveal } from "@/components/motion";
-import { Button, ButtonLink } from "@/components/ui/Button";
-import { StatusState } from "@/components/ui/StatusState";
+import { EditorialShell } from "@/components/site/EditorialShell";
+import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
+import { ButtonLink } from "@/components/ui/Button";
+import {
+  Card,
+  CardCount,
+  CardDescription,
+  CardEyebrow,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  StatusState,
+} from "@/components/ui";
+import sectionStyles from "@/components/sections/sections.module.css";
+import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
 import styles from "./live-brief.module.css";
 
-/* `--stagger` is one step of a sequence and the token file caps a sequence
-   at four items. A list here can run to a hundred, and an entrance delay
-   that keeps growing would leave the fiftieth row blank for seconds after
-   it has scrolled into view. */
-const MAX_STAGGER_INDEX = 3;
-
-type Filters = { date?: string; actor?: string; topicLabel?: string; arena?: string };
+type Filters = BriefFilterValues;
 
 export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
   const query = new URLSearchParams({ limit: "100" });
@@ -40,8 +45,14 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
   const narratives = publications.filter((entry) => entry.section === "narrative_watch");
 
   return (
-    <main className={styles.page}>
-      <SiteHeader activeSection="geopolitical-brief" />
+    <EditorialShell
+      routeId="geopolitical-brief"
+      className={styles.page}
+      skipLinkClassName={sectionStyles.skipLink}
+      progressTrackClassName={sectionStyles.topProgressTrack}
+      progressValueClassName={sectionStyles.topProgressValue}
+      showProgress={false}
+    >
       <div className={styles.liveLayout}>
         <header className={styles.deskHeader}>
           <p className={styles.liveEyebrow}>
@@ -52,7 +63,13 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
           <p>Source-linked reporting on Israel, the war, and the narratives shaping international attention.</p>
         </header>
 
-        <ArchiveFilters filters={filters} publications={filterSource} />
+        <BriefFilters
+          key={`${filters.date ?? ""}|${filters.actor ?? ""}|${filters.topicLabel ?? ""}|${filters.arena ?? ""}`}
+          filters={filters}
+          actors={uniqueValues(filterSource, "primaryActor")}
+          topics={uniqueValues(filterSource, "editorialTopic")}
+          arenas={uniqueValues(filterSource, "arena")}
+        />
 
         {dataUnavailable ? (
           <StatusState
@@ -124,49 +141,45 @@ export async function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
         )}
         {dailyBriefs.length > 1 ? <PublicationSection title="Daily archive" items={dailyBriefs.slice(1)} /> : null}
       </div>
-    </main>
+    </EditorialShell>
   );
 }
 
 type Publication = Awaited<ReturnType<typeof listBriefingPublications>>[number];
 
-function ArchiveFilters({ filters, publications }: { filters: Filters; publications: Publication[] }) {
-  const values = (key: "primaryActor" | "editorialTopic" | "arena") =>
-    [...new Set(publications.map((item) => item[key]).filter((value): value is string => Boolean(value)))].sort();
-  return (
-    <form className={styles.filters} action="/geopolitical-brief" method="get">
-      <label><span>Date</span><input type="date" name="date" defaultValue={filters.date} /></label>
-      <label><span>Actor</span><select name="actor" defaultValue={filters.actor ?? ""}><option value="">All actors</option>{values("primaryActor").map((value) => <option key={value}>{value}</option>)}</select></label>
-      <label><span>Topic</span><select name="topicLabel" defaultValue={filters.topicLabel ?? ""}><option value="">All topics</option>{values("editorialTopic").map((value) => <option key={value}>{value}</option>)}</select></label>
-      <label><span>Arena</span><select name="arena" defaultValue={filters.arena ?? ""}><option value="">All arenas</option>{values("arena").map((value) => <option key={value}>{value}</option>)}</select></label>
-      <Button type="submit" variant="primary" size="md">Filter archive</Button>
-      {Object.values(filters).some(Boolean) ? (
-        <ButtonLink href="/geopolitical-brief" variant="ghost" size="md">
-          Clear
-        </ButtonLink>
-      ) : null}
-    </form>
-  );
+function uniqueValues(publications: Publication[], key: "primaryActor" | "editorialTopic" | "arena"): string[] {
+  return [...new Set(publications.map((item) => item[key]).filter((value): value is string => Boolean(value)))].sort();
 }
 
 function PublicationSection({ title, items, narrative = false }: { title: string; items: Publication[]; narrative?: boolean }) {
   return (
     <section className={styles.liveSection}>
       <h2>{title}</h2>
-      {/* `Reveal` takes its children as a prop, so each row is still server
-          markup and this file is still a Server Component. The entrance is
-          the shared one — opacity, a short rise, a focus pull, once. No
-          ticker, no marquee, nothing that keeps moving after it has
-          arrived. */}
-      <ol className={styles.liveList}>{items.map((item, index) => (
-        <Reveal as="li" key={item.publicId} index={Math.min(index, MAX_STAGGER_INDEX)}>
-          <Link href={`/articles/${item.publicId}`}>
-            <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+      <ol className={styles.liveList}>{items.map((item) => (
+        <li key={item.publicId}>
+          {/* Nested Read-record control: the row is a surface, not a link. */}
+          <Card variant="row" as="article" className={styles.liveRow}>
+            <CardHeader className={styles.liveRowHeader}>
+              <CardEyebrow>
+                {rowStatus(item, narrative)}
+                {item.editorialTopic ? ` · ${item.editorialTopic}` : ""}
+              </CardEyebrow>
+              <CardCount>
+                <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+              </CardCount>
+            </CardHeader>
             <Headline title={item.title} narrative={narrative} />
-            {item.summary ? <span>{item.summary}</span> : null}
+            {item.summary ? (
+              <CardDescription className={styles.liveRowSummary}>{item.summary}</CardDescription>
+            ) : null}
             <Metadata item={item} narrative={narrative} />
-          </Link>
-        </Reveal>
+            <CardFooter className={styles.liveRowAction}>
+              <ButtonLink href={`/articles/${item.publicId}`} variant="text" size="md">
+                Read record
+              </ButtonLink>
+            </CardFooter>
+          </Card>
+        </li>
       ))}</ol>
     </section>
   );
@@ -182,13 +195,19 @@ function PublicationSection({ title, items, narrative = false }: { title: string
  */
 function Headline({ title, narrative }: { title: string; narrative: boolean }) {
   const match = narrative ? /^(Reported claim|Analysis):\s*/.exec(title) : null;
-  if (!match) return <strong>{title}</strong>;
+  if (!match) return <CardTitle>{title}</CardTitle>;
   return (
     <>
-      <span className={styles.claimKicker}>{match[1]}</span>
-      <strong>{title.slice(match[0].length)}</strong>
+      <CardEyebrow className={styles.claimKicker}>{match[1]}</CardEyebrow>
+      <CardTitle>{title.slice(match[0].length)}</CardTitle>
     </>
   );
+}
+
+function rowStatus(item: Publication, narrative: boolean): string {
+  const details = item.narrativeWatchDetails;
+  if (narrative && details) return VERIFICATION_STATES[details.verificationState].label;
+  return SECTION_LABELS[item.section];
 }
 
 function Metadata({ item, narrative = false }: { item: Publication; narrative?: boolean }) {

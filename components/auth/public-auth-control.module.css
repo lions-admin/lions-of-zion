@@ -1,115 +1,98 @@
-/* Public auth control · design V3
- *
- * The identity line and the messages are sentences, so they are Plex, not
- * mono. The two controls match the Button system's primary and secondary
- * (they are hand-rolled only because the Google host sits beside them).
- */
+/* Public auth control · design V3 (`app/globals.css`).
+
+   The identity line and the messages are sentences, so they are Plex, not
+   mono. There are no button styles in this file any more: it used to carry a
+   hand-rolled `.primary`/`.secondary` pair — glass gradients, a hover lift,
+   a full set of states — which nothing had referenced since the control moved
+   onto the shared `Button`. Dead CSS that also disagreed with the design
+   system is worse than dead CSS. */
 
 .control {
   display: grid;
-  gap: var(--sp-3);
+  gap: var(--sp-4);
   margin-top: var(--sp-6);
 }
 
-.identity {
+/* The signed-out prompt: what signing in is for, before the button that does
+   it. */
+.prompt {
+  margin: 0;
   color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
 
+/* Google renders its own button in here. It is fenced and left alone —
+   Google's brand and Google's control, not restyled to pass as the site's. */
+.googleHost {
+  min-height: var(--control-h);
+}
+
+/* Who you are, as a small record: label, name, address. */
+.identity {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-4);
+  border: var(--line-w) solid var(--line);
+  border-left: var(--line-w-thick) solid var(--gold-line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+
+.identityLabel {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.identityName {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+/* An address is data, and reads as data. */
+.identityEmail {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+}
+
 .muted {
+  margin: 0;
   color: var(--ink-lo);
   font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
 }
 
-.primary,
-.secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-2);
-  min-height: 2.75rem;
-  padding: var(--sp-2) var(--sp-5);
-  border-radius: var(--radius-2);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
-}
-
-.primary {
-  border: 1px solid var(--gold);
-  color: var(--ground);
-  background: var(--gold);
-  box-shadow: var(--shadow-1);
-}
-
-.primary:hover:not(:disabled) {
-  background: var(--gold-hi);
-  border-color: var(--gold-hi);
-  transform: translateY(-1px);
-}
-
-.primary:active:not(:disabled) {
-  background: var(--gold);
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.secondary {
-  border: 1px solid var(--glass-edge);
-  color: var(--ink-hi);
-  background: linear-gradient(180deg, var(--glass-raised-top), var(--glass-raised-bottom));
-}
-
-.secondary:hover:not(:disabled) {
-  border-color: color-mix(in oklab, var(--ink-hi) 45%, transparent);
-  background: linear-gradient(180deg, var(--glass-top), var(--glass-middle));
-  transform: translateY(-1px);
-}
-
-.secondary:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.primary:focus-visible,
-.secondary:focus-visible {
-  outline-offset: 2px;
-}
-
-.primary:disabled,
-.secondary:disabled {
-  opacity: 0.5;
-  cursor: progress;
-  transform: none;
-  box-shadow: none;
-}
-
+/* A blocking error is read before it is acted on: the danger tone and a rule
+   in the danger line, the same shape the support forms use. */
 .error {
+  margin: 0;
+  padding-left: var(--sp-3);
+  border-left: var(--line-w-thick) solid var(--state-danger-line);
   color: var(--state-danger);
   font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .primary,
-  .secondary {
-    transition: none;
-  }
-
-  .primary:hover:not(:disabled),
-  .secondary:hover:not(:disabled) {
-    transform: none;
-  }
 }

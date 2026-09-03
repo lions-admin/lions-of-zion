@@ -2,14 +2,19 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { DocPage } from '@/components/sections/DocPage';
 import {
+  type ArchiveIndexEntry,
   type ArchivePackageName,
   displayTitle,
+  displayWitness,
+  getCategories,
+  getIndex,
   getMediaRegistry,
   getRecord,
   pickVersion,
 } from '@/lib/content/archive';
 import { SITE_URL } from '@/lib/site-config';
-import { ArchiveDateline, ArchiveRecord } from './ArchiveRecord';
+import type { ArchiveSensitivity } from './ArchiveBlocks';
+import { ArchiveDateline, ArchiveRecord, type ArchiveNeighbour } from './ArchiveRecord';
 
 export type ArchiveRecordPageArgs = {
   pkg: ArchivePackageName;
@@ -42,14 +47,9 @@ const LONG_TITLE = 90;
  */
 const RAIL_HEADINGS = 3;
 
-/**
- * The shared body of every archive record route.
- *
- * Four routes render a record — testimonies and documentation, each at a
- * default language and at a locale — and they differ only in which package
- * they read and what their URLs look like. Keeping the loading, the 404 and
- * the shell here is what stops those four drifting apart.
- */
+/** The route segment standing in for a record the source left uncategorised. */
+const UNCATEGORISED = 'uncategorized';
+
 /**
  * Where this record sits, for the identity band and for `BreadcrumbList`.
  *
@@ -64,6 +64,117 @@ function archiveTrail(pkg: ArchivePackageName) {
   return [{ href: '/october-7', label: 'October 7' }, index];
 }
 
+/**
+ * What this record holds behind a stated choice (OCT-005).
+ *
+ * The rule is the *package*, and it is a fact about the two archives rather
+ * than a judgement about any one record — there is no severity field to read,
+ * and inventing one record-by-record would be inventing metadata on an
+ * evidentiary surface.
+ *
+ *  - **hamas-massacre** is documentation of the attack. Every one of its 335
+ *    records is a film (209) or a photograph (126) of that day, filed by the
+ *    source under one of six categories it named itself. `all`.
+ *  - **october7** is first-person accounts. The account is the record and is
+ *    never covered — covering a witness's own words would be the archive
+ *    refusing to say what it exists to say. The footage published alongside it
+ *    is from that day: `video`.
+ */
+function sensitivityFor(
+  pkg: ArchivePackageName,
+  categoryName: string | null,
+): ArchiveSensitivity {
+  if (pkg === 'hamas-massacre') {
+    return {
+      gate: 'all',
+      category: categoryName ?? 'Documentation of 7 October 2023',
+      note: 'This is documentation of the 7 October 2023 attack, published by the source as evidence of it. It is graphic.',
+    };
+  }
+  return {
+    gate: 'video',
+    category: 'Published with this account',
+    note: 'This account was published with footage recorded on 7 October 2023. It is graphic.',
+  };
+}
+
+/**
+ * The record either side of this one, in its own index's order.
+ *
+ * Testimonies are ordered newest first and documentation is ordered inside its
+ * category, which is what the two index routes show — so "next" here means the
+ * next row of the list the reader came from, not the next line of a JSON file.
+ *
+ * Both lists are read from the cached package index, so this costs nothing per
+ * page beyond a scan of an array already in memory.
+ */
+async function neighboursFor(
+  pkg: ArchivePackageName,
+  slug: string,
+): Promise<{ previous: ArchiveNeighbour | null; next: ArchiveNeighbour | null }> {
+  const index = await getIndex(pkg);
+
+  let ordered: ArchiveIndexEntry[];
+  if (pkg === 'october7') {
+    // Newest first where a date exists; undated records sort last rather than
+    // being dropped. The same comparator `getTestimonyIndex` uses — restated
+    // rather than imported so this module stays package-neutral.
+    ordered = [...index].sort((a, b) => {
+      if (a.date && b.date) return b.date.localeCompare(a.date);
+      if (a.date) return -1;
+      if (b.date) return 1;
+      return (a.title ?? a.id).localeCompare(b.title ?? b.id);
+    });
+  } else {
+    // Documentation neighbours stay inside the record's own category: that is
+    // the list the index shows and the one the reader was walking.
+    const here = index.find((entry) => entry.id === slug);
+    if (!here) return { previous: null, next: null };
+    const category = here.category ?? UNCATEGORISED;
+    ordered = index.filter((entry) => (entry.category ?? UNCATEGORISED) === category);
+  }
+
+  const at = ordered.findIndex((entry) => entry.id === slug);
+  if (at === -1) return { previous: null, next: null };
+
+  const href = (entry: ArchiveIndexEntry) =>
+    pkg === 'october7'
+      ? `/october-7/testimonies/${entry.id}`
+      : `/october-7/documentation/${entry.category ?? UNCATEGORISED}/${entry.id}`;
+
+  const shape = (entry: ArchiveIndexEntry | undefined): ArchiveNeighbour | null =>
+    entry
+      ? {
+          href: href(entry),
+          title: displayTitle(entry.title ?? entry.id),
+          witness: entry.witness ? displayWitness(entry.witness) : null,
+        }
+      : null;
+
+  return { previous: shape(ordered[at - 1]), next: shape(ordered[at + 1]) };
+}
+
+/** The source's own name for the category a record was filed under. */
+async function categoryNameFor(
+  pkg: ArchivePackageName,
+  categoryId: string | null,
+): Promise<string | null> {
+  if (!categoryId) return null;
+  const categories = await getCategories(pkg);
+  const match = categories.find((c) => c.category_id === categoryId);
+  return match?.names?.en ?? match?.category_id ?? null;
+}
+
+/**
+ * The shared body of every archive record route.
+ *
+ * Four routes render a record — testimonies and documentation, each at a
+ * default language and at a locale — and they differ only in which package
+ * they read and what their URLs look like. Keeping the loading, the 404, the
+ * shell, the sensitivity rule and the neighbour arithmetic here is what stops
+ * those four drifting apart, and what makes one record template predictable
+ * across all ~1,177 pages (OCT-004).
+ */
 export async function ArchiveRecordPage({
   pkg,
   slug,
@@ -81,8 +192,14 @@ export async function ArchiveRecordPage({
     notFound();
   }
 
+  const variant = pkg === 'october7' ? 'testimony' : 'documentation';
   const version = pickVersion(record, locale);
-  const media = await getMediaRegistry(pkg);
+  const [media, categoryName, neighbours] = await Promise.all([
+    getMediaRegistry(pkg),
+    categoryNameFor(pkg, record.category_id),
+    neighboursFor(pkg, slug),
+  ]);
+
   const title = displayTitle(version.title);
   const headings = version.content_blocks.filter(
     (block) => block.type === 'heading' && block.text,
@@ -106,7 +223,13 @@ export async function ArchiveRecordPage({
       // or 670 pages, and printing it here put boilerplate where the record's
       // own identity belongs. The dateline takes that slot instead.
       dateline={
-        <ArchiveDateline record={record} version={version} basePath={basePath} />
+        <ArchiveDateline
+          variant={variant}
+          record={record}
+          version={version}
+          basePath={basePath}
+          categoryName={categoryName}
+        />
       }
       rails={headings >= RAIL_HEADINGS ? 'toc' : 'none'}
       breadcrumb={archiveTrail(pkg)}
@@ -131,12 +254,17 @@ export async function ArchiveRecordPage({
       />
       <ArchiveRecord
         pkg={pkg}
+        variant={variant}
         record={record}
         version={version}
         media={media}
         basePath={basePath}
         sourceLabel={sourceLabel}
         shareUrl={shareUrl}
+        categoryName={categoryName}
+        sensitivity={sensitivityFor(pkg, categoryName)}
+        previous={neighbours.previous}
+        next={neighbours.next}
       />
     </DocPage>
   );

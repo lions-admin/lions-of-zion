@@ -9,7 +9,7 @@
  * local rather than shared since it's a small, self-contained piece.
  */
 import { FormEvent, useRef, useState } from 'react';
-import { Button } from '@/components/ui';
+import { Button, Field, assertiveLive, politeLive } from '@/components/ui';
 import styles from './support.module.css';
 
 const FAILURE_COPY: Record<string, string> = {
@@ -61,7 +61,7 @@ export function ReportClaimForm() {
   const [reporterNote, setReporterNote] = useState('');
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
   const [touched, setTouched] = useState(false);
-  const urlRef = useRef<HTMLInputElement>(null);
+  const urlRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   const hasContent = Boolean(url.trim() || body.trim());
   const submitting = state.status === 'submitting';
@@ -105,7 +105,7 @@ export function ReportClaimForm() {
 
   if (state.status === 'sent') {
     return (
-      <div className={styles.receipt} role="status">
+      <div className={styles.receipt} {...politeLive}>
         <p>Report received — reference {state.publicId}.</p>
         <small>
           Submitted anonymously unless you gave an email. It will be reviewed by the desk; nothing
@@ -143,66 +143,52 @@ export function ReportClaimForm() {
         </p>
       </noscript>
 
-      <div className={styles.field}>
-        <label htmlFor="report-url">Link to the claim</label>
-        <input
-          id="report-url"
-          ref={urlRef}
-          type="url"
-          value={url}
-          onChange={(event) => setUrl(event.target.value)}
-          placeholder="https://…"
-          disabled={submitting}
-          aria-invalid={guardTripped}
-          aria-describedby={guardTripped ? 'report-guard' : undefined}
-        />
-      </div>
+      <Field
+        ref={urlRef}
+        id="report-url"
+        label="Link to the claim"
+        type="url"
+        value={url}
+        onChange={(event) => setUrl(event.target.value)}
+        placeholder="https://…"
+        disabled={submitting}
+        error={guardTripped ? "A report needs a link or a description." : undefined}
+      />
 
-      <div className={styles.field}>
-        <label htmlFor="report-body">Or describe it</label>
-        <textarea
-          id="report-body"
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-          rows={3}
-          placeholder="What did you see, and where?"
-          disabled={submitting}
-          aria-invalid={guardTripped}
-          aria-describedby={guardTripped ? 'report-guard' : undefined}
-        />
-      </div>
+      <Field
+        id="report-body"
+        label="Or describe it"
+        multiline
+        rows={3}
+        value={body}
+        onChange={(event) => setBody(event.target.value)}
+        placeholder="What did you see, and where?"
+        disabled={submitting}
+        error={guardTripped ? "A report needs a link or a description." : undefined}
+      />
 
-      {guardTripped ? (
-        <p id="report-guard" className={styles.fieldError} role="alert">
-          A report needs a link or a description.
-        </p>
-      ) : null}
+      <Field
+        id="report-email"
+        label="Email (optional)"
+        type="email"
+        value={reporterEmail}
+        onChange={(event) => setReporterEmail(event.target.value)}
+        placeholder="Only if you want a follow-up"
+        disabled={submitting}
+      />
 
-      <div className={styles.field}>
-        <label htmlFor="report-email">Email (optional)</label>
-        <input
-          id="report-email"
-          type="email"
-          value={reporterEmail}
-          onChange={(event) => setReporterEmail(event.target.value)}
-          placeholder="Only if you want a follow-up"
-          disabled={submitting}
-        />
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="report-note">Anything else the desk should know (optional)</label>
-        <textarea
-          id="report-note"
-          value={reporterNote}
-          onChange={(event) => setReporterNote(event.target.value)}
-          rows={2}
-          disabled={submitting}
-        />
-      </div>
+      <Field
+        id="report-note"
+        label="Anything else the desk should know (optional)"
+        multiline
+        rows={2}
+        value={reporterNote}
+        onChange={(event) => setReporterNote(event.target.value)}
+        disabled={submitting}
+      />
 
       {state.status === 'error' ? (
-        <p className={styles.fieldError} role="alert">
+        <p className={styles.fieldError} {...assertiveLive}>
           {state.message}{' '}
           {/* A failed send with no alternative leaves a reader who found a real
               error with nowhere to put it. */}

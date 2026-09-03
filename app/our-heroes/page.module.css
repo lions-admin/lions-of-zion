@@ -1,128 +1,136 @@
-/* Citation/commendation composition, local to Our Heroes. No photos exist
-   for these profiles (rights-sensitive, deliberate) so the formal register
-   and the corner-bracket frame — a citation, not a card — carry the weight
-   instead.
+/* Quiet memorial. Names and stories are the record; there is no tally,
+   no commendation frame, and no two-up grid of equal tiles.
 
-   Design V3 (`app/globals.css`). The name is the point of this page: it was
-   tracked Cinzel capitals, which reads as an inscription rather than a
-   person. It is Newsreader in sentence case, so a name has word shapes and
-   looks like it belongs to someone. Gold is spent once per citation, on the
-   short rule beneath the name; the frame, the role and the metadata are ink. */
+   Every record is `Card.row` — a hairline and spacing, not a box. The
+   featured record used to be `Card.dossier`: a surface, a border, a
+   radius and a shadow around one person while the others sat on rules.
+   That is a hierarchy of packaging, and it was the least quiet thing on
+   a memorial page. The distinction is typographic now — the featured
+   name is set a step larger and nothing else changes — which is both
+   what HEROES-001 asks for and what the token contract already says:
+   default grouping is a 1px rule and spacing, not a card.
 
-.citation {
-  position: relative;
-  margin-top: var(--sp-6);
-  padding: var(--sp-6) var(--sp-6) var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  background: var(--surface-1);
+   Dropping the box is also what lets the citations reach the margin.
+   `.marginNote` escapes into the page's right margin through a
+   zero-width second column, and a note escaping a bordered card would
+   have floated outside its own border with nothing holding it.
+
+   Nothing on this page is revealed by hover, and nothing is behind a
+   control: a reader who cannot hover, or who prints the page, gets every
+   name, every story and every citation. */
+
+/* ---- the roll of names ---- */
+
+.roll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: var(--sp-7) 0 0;
+  padding: 0 0 var(--sp-5);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
-.citation:first-of-type {
-  margin-top: var(--sp-5);
+.rollKicker {
+  composes: kicker from '../../components/content/content.module.css';
 }
 
-/* Corner brackets — the citation's one signature device, a thin frame in
-   the hairline ink rather than any further ornament. */
-.citation::before,
-.citation::after {
-  content: '';
-  position: absolute;
-  width: var(--sp-4);
-  height: var(--sp-4);
-  border: var(--line-w) solid var(--line-strong);
-  pointer-events: none;
+.rollList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.citation::before {
-  top: -1px;
-  left: -1px;
-  border-right: none;
+/* A name is a link and a link is a target: the row answers to the control
+   floor, which `app/globals.css` raises to 44px on a coarse pointer. */
+.rollList a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  min-height: var(--control-h-sm);
+  padding: var(--sp-2) 0;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: var(--line-w) solid var(--line-soft);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.rollList li:last-child a {
   border-bottom: none;
 }
 
-.citation::after {
-  bottom: -1px;
-  right: -1px;
-  border-left: none;
-  border-top: none;
-}
-
-.citationFeatured {
-  padding: var(--sp-7) var(--sp-7) var(--sp-6);
-  background: var(--surface-2);
-}
-
-.citationFeatured::before,
-.citationFeatured::after {
-  width: var(--sp-5);
-  height: var(--sp-5);
-}
-
-/* The citation's opening formula. Deliberately *not* composing the canonical
-   `.kicker`: that is uppercase, which the type rules reserve for data labels
-   of two words or fewer. This is a phrase with a date in it, so it stays in
-   sentence case and just holds the data voice. */
-.citationKicker {
-  margin: 0 0 var(--sp-4);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
-
-.citationName {
-  margin: 0;
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
+.rollList a:hover,
+.rollList a:focus-visible {
   color: var(--ink-hi);
 }
 
-/* The featured citation steps up one rung of the scale — no bespoke clamp. */
-.citationFeatured .citationName {
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
+.rollList a:focus-visible {
+  outline-offset: 0;
 }
 
-/* The one gold in the card. */
-.citationRule {
-  width: var(--sp-7);
-  height: var(--line-w);
-  margin: var(--sp-3) 0 var(--sp-4);
-  background: var(--gold);
+/* The name is the larger of the two, in the reading face, because that is
+   the thing the page is for. */
+.rollName {
+  min-width: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  overflow-wrap: anywhere;
 }
 
-.citationClassify {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-5);
-}
-
-/* One word — "Fallen", "Rescuer", "Fighter" — so uppercase is in bounds. */
-.citationRole {
-  padding: var(--sp-1) var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
+.rollRole {
+  flex: none;
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--ink-lo);
 }
 
-/* Dates and places: data face, figures as a column. */
-.citationMeta {
+/* Above 1220px `SectionToc`'s rail lists these same names, so a second
+   full list of them on one screen is noise. Hidden rather than deleted:
+   the rail is client-side only, and without this a no-JavaScript reader
+   would lose the roll entirely. Same trade, same wording, as the era
+   index on Israel's Story. */
+@media (min-width: 1220px) and (scripting: enabled) {
+  .roll {
+    display: none;
+  }
+}
+
+/* ---- the records ---- */
+
+.records {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-7);
+  margin-bottom: var(--sp-7);
+}
+
+.header {
+  flex-wrap: wrap;
+}
+
+.name.name {
+  overflow-wrap: anywhere;
+}
+
+/* The featured record's whole distinction: one step of type. */
+.featuredName.featuredName {
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+.meta {
+  min-width: 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -130,9 +138,10 @@
   letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
+  overflow-wrap: anywhere;
 }
 
-.citationBody {
+.story {
   margin: 0;
   max-width: var(--measure-reading);
   font-size: var(--t-body);
@@ -140,70 +149,88 @@
   color: var(--ink);
 }
 
-/*
- * These sources stay inside the card, deliberately — this is the one page in
- * the set that does NOT take the margin-note treatment (`marginNote` in
- * content.module.css).
- *
- * The rule the rest of the site follows is that a full-measure record puts
- * its evidence in the margin, because such a record has no boundary of its
- * own to hold it. A citation card does: the source is already beside the
- * claim, inside the same bordered object. And these cards sit two-up in
- * `.citationGrid`, where `left: 100%` resolves against the grid cell rather
- * than the reading column — the left card's note would land on top of the
- * right card. Measured, not assumed.
- */
-.citationSources {
-  margin-top: var(--sp-6);
-  padding-top: var(--sp-5);
+/* Citations adjacent to the claim (HEROES-001).
+   `marginNote` is the shell's existing escape into the page's right
+   margin — the same one the timeline entries use — so this reuses a
+   proven mechanism instead of inventing a second one. It is also why
+   there is no two-column split inside the record: `.panel` is capped at
+   `--family-measure` (68ch) at *every* viewport width, so splitting the
+   record itself would have cut the story to roughly 38 characters a line
+   and the citations to less than half a rail. The margin costs the
+   reading measure nothing, because the column it lands in is zero-width.
+   Below 1220px the note comes back under the story, which is the correct
+   reading order and the only one that fits a phone. */
+.sources {
+  composes: marginNote from '../../components/content/content.module.css';
+}
+
+/* Doubled so the divider survives whatever order the two modules land in
+   the bundle — `marginNote` sets a margin of its own at this width. */
+.sources.sources {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
   border-top: var(--line-w) solid var(--line-soft);
 }
 
-/* One word, and the same label the rest of the site uses — take the
-   canonical treatment rather than declaring a fifth variant of it. */
-.citationSourcesKicker {
+.sourcesKicker {
   composes: kicker from '../../components/content/content.module.css';
   margin-bottom: var(--sp-3);
 }
 
-.citationGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-5);
-  margin-top: var(--sp-5);
-}
+@media (min-width: 1220px) {
+  /* The zero-width second column is the whole trick: the note is placed
+     in it and overflows into the page margin, so column one keeps the
+     full reading measure. Both compositions are declared because
+     `Card.row` is already a grid and the record must stay one here. */
+  .record.record,
+  .featured.featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
 
-.citationGrid .citation {
-  margin-top: 0;
-}
+  .record.record > .name,
+  .featured.featured > .name {
+    grid-column: 1;
+    grid-row: 1;
+  }
 
-@media (max-width: 719px) {
-  .citationGrid {
-    grid-template-columns: minmax(0, 1fr);
+  .record.record > .header,
+  .featured.featured > .header {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .record.record > .story,
+  .featured.featured > .story {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  /* Row three, not row one: the sources sit beside the story they
+     support rather than beside the name. `marginNote` supplies the
+     width and the offset; this only says which row. */
+  .record.record > .sources,
+  .featured.featured > .sources {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  /* Gold stays scarce. In the column the kicker is a divider between the
+     story and its evidence and earns the accent; in the margin it is a
+     caption on a note that is already set apart, and three gold labels
+     down one margin is three focal points competing on one screen. */
+  .sources .sourcesKicker {
+    color: var(--ink-lo);
   }
 }
 
-/* 600, and it earns its place: below it the citation's own `--sp-6` frame
-   plus the shell's padding leaves under 40 characters on the widest line of
-   a name-and-rank block, which is where the citation stops reading as a
-   formal record and starts reading as a cramped one. */
-@media (max-width: 600px) {
-  .citation {
-    padding: var(--sp-5) var(--sp-4);
-  }
-
-  .citationFeatured {
-    padding: var(--sp-6) var(--sp-5) var(--sp-5);
-  }
-}
-
-/* The consent boundary's standfirst. Deliberately local rather than
-   `composes:`-ed from War Update's `.advisory`: the two say different things
-   and should be free to diverge, and the 2026-08-25 composition decision
-   keeps per-page treatments in the page's own module. A data label, a
-   left rule and the italic reading voice — enough to mark it as a limit on
-   what the page claims, not enough to make it look like chrome a reader may
-   skip. The label is this block's one gold. */
+/* The consent boundary's standfirst. Local rather than composed from War
+   Update's `.advisory`: the two say different things. A data label, a
+   left rule and the italic reading voice — a limit on what the page
+   claims, not chrome a reader may skip. The label is this block's one gold. */
 .standfirst {
   margin: var(--sp-5) 0 0;
   padding: 0 0 0 var(--sp-4);

@@ -1,20 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { Reveal } from "@/components/motion";
+import {
+  Card,
+  CardCount,
+  CardCta,
+  CardDescription,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { getPlaybook, techniqueHref } from "@/lib/content/fake-resistance-playbook";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
-/* The section's root is a hub, not a dossier: it says what Fake Resistance
-   is, names the front it belongs to, and hands the reader to one of two
-   investigation branches. The worked exhibits live on
-   `/fake-resistance/official-narrative`; the research index lives on
-   `/fake-resistance/social-media`. What stays here is the method material —
-   the machine and its tells — because recognizing the technique is the one
-   thing every branch needs the reader to carry in. */
+/* The section's root is a Dossier hub, not an essay (INV-001): a thesis, the
+   most recent case file, the two investigation branches, the network entry,
+   and an index of the methods — in that order, so a reader reaches a case or
+   a branch before any long-form argument begins. The argument itself (the
+   consciousness war, the supply chain) still lives here, below the files it
+   frames. The worked exhibits live on `/fake-resistance/official-narrative`;
+   the research index lives on `/fake-resistance/social-media`. */
 
 const TAGLINE =
   "Inside the influence machine: how manufactured outrage is built and amplified.";
@@ -27,6 +35,18 @@ export const metadata: Metadata = {
   openGraph: { title: "Fake Resistance — LIONS OF ZION", description: TAGLINE },
 };
 
+/** A date the reader can read, from the ISO stamp the research recorded. */
+function dateLabel(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export default async function Page() {
   const [edition, cases] = await Promise.all([
     getFakeResistanceEdition(),
@@ -38,6 +58,12 @@ export default async function Page() {
   // content seams, so adding a case file updates the card with no edit here.
   const officialCount = edition.cases.length;
   const socialCount = cases.length + 2; // playbook + network + the case files
+
+  // The hub's featured file is simply the newest — the research's own
+  // `updatedAt`, not an editorial pick that would need maintaining here.
+  const featured = [...cases].sort((a, b) =>
+    b.updatedAt.localeCompare(a.updatedAt),
+  )[0];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -61,6 +87,13 @@ export default async function Page() {
         description:
           "The influence-network research: the techniques, the cross-network synthesis, and seven documented case files.",
         url: `${PAGE_URL}/social-media`,
+      },
+      {
+        "@type": "WebPage",
+        name: "The network",
+        description:
+          "What the seven case files add up to — the cross-network synthesis.",
+        url: `${PAGE_URL}/network`,
       },
     ],
   };
@@ -86,11 +119,130 @@ export default async function Page() {
         Fake Resistance is this desk&rsquo;s file on that machine. Not on the
         people who disagree — disagreement is not a finding — but on the
         apparatus that manufactures the appearance of one: the recycled
-        footage, the amplifier accounts, the laundered consensus. This page
-        sets out the front that machine fights on, the two investigations
-        that document it from opposite ends, and the methods it runs on.
+        footage, the amplifier accounts, the laundered consensus. The files
+        come first; the framing they sit in follows below them.
       </p>
 
+      {/* ── The decision moment, before any essay (INV-001) ─────────────── */}
+      <SectionBlock heading="Open a file">
+        {featured ? (
+          <Card
+            variant="dossier"
+            accent="ember"
+            href={`/fake-resistance/cases/${featured.slug}`}
+            className={styles.featured}
+          >
+            <CardHeader>
+              <CardEyebrow>Latest case file</CardEyebrow>
+              <CardCount>
+                <time dateTime={featured.updatedAt}>
+                  {dateLabel(featured.updatedAt)}
+                </time>
+              </CardCount>
+            </CardHeader>
+            <CardTitle>{featured.title.split(":")[0].trim()}</CardTitle>
+            <CardDescription>{featured.question}</CardDescription>
+            <p className={styles.featuredEvidence}>
+              <span>Evidence basis</span>
+              {featured.counts.exhibits} graded findings ·{" "}
+              {featured.counts.sources} sources on record
+            </p>
+            <CardCta>Open the case file</CardCta>
+          </Card>
+        ) : null}
+
+        {/* The hub's fork. The cards used to carry their own staggered Reveal
+            wrappers; the motion contract reserves entrance motion for section
+            arrivals, and this section already arrives as one (`SectionBlock`
+            is the Reveal). The cards are simply here — hover, focus and
+            semantics are the Card primitive's own. */}
+        <nav aria-label="Investigation branches" className={styles.branches}>
+          <div className={styles.branchSlot}>
+            <Card
+              variant="dossier"
+              accent="ember"
+              href="/fake-resistance/official-narrative"
+            >
+              <CardHeader>
+                <CardEyebrow>Branch 01</CardEyebrow>
+                <CardCount>{officialCount} case files</CardCount>
+              </CardHeader>
+              <CardTitle>Official narrative engineering</CardTitle>
+              <CardDescription>
+                Three worked exhibits — the claim as it spread, its origin, its
+                amplification, and the evidence that unmade it — with the order
+                in which the record caught up.
+              </CardDescription>
+              <CardCta>Open the file</CardCta>
+            </Card>
+          </div>
+
+          <div className={styles.branchSlot}>
+            <Card
+              variant="dossier"
+              accent="ember"
+              href="/fake-resistance/social-media"
+            >
+              <CardHeader>
+                <CardEyebrow>Branch 02</CardEyebrow>
+                <CardCount>{socialCount} files</CardCount>
+              </CardHeader>
+              <CardTitle>The social-media front</CardTitle>
+              <CardDescription>
+                The influence-network research: a {playbook.length}-technique
+                playbook, the cross-network synthesis, and seven documented case
+                files, graded exactly as the research graded them.
+              </CardDescription>
+              <CardCta>Open the file</CardCta>
+            </Card>
+          </div>
+        </nav>
+
+        {/* The network entry: the synthesis over the case files, reachable
+            from the hub without walking through a branch first. */}
+        <ul className={styles.networkEntry}>
+          <li>
+            <Card variant="row" href="/fake-resistance/network">
+              <CardHeader>
+                <CardEyebrow>Synthesis</CardEyebrow>
+                <CardCount>{cases.length} case files, mapped</CardCount>
+              </CardHeader>
+              <CardTitle>The influence network</CardTitle>
+              <CardDescription>
+                What the case files add up to: seven communities, the
+                documented bridges between them, and the findings that survived
+                every attempt to break them.
+              </CardDescription>
+              <CardCta>Open the network file</CardCta>
+            </Card>
+          </li>
+        </ul>
+      </SectionBlock>
+
+      {/* ── The methods index (INV-001) ─────────────────────────────────── */}
+      <SectionBlock heading="The methods">
+        <p>
+          Every file above documents some combination of the same{" "}
+          {playbook.length} moves. None of them alone is proof — together, and
+          documented, they are a pattern. Each entry below opens that
+          technique&rsquo;s chapter in{" "}
+          <Link href="/fake-resistance/playbook">the playbook</Link>: what the
+          move is, the mental shortcut it exploits, and what you can check for
+          yourself.
+        </p>
+        <ol className={styles.methodsIndex}>
+          {playbook.map((chapter) => (
+            <li key={chapter.id}>
+              <Link href={techniqueHref(chapter.id)} className={styles.methodRow}>
+                <span className={styles.methodTitle}>{chapter.title}</span>
+                <span className={styles.methodSummary}>{chapter.summary}</span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </SectionBlock>
+
+      {/* ── The framing, below the files it frames ──────────────────────── */}
       <SectionBlock heading="The consciousness war">
         <p>
           The fight over what happened has its own name in Hebrew:{" "}
@@ -127,77 +279,6 @@ export default async function Page() {
         </p>
       </SectionBlock>
 
-      <SectionBlock heading="Two branches">
-        <p>
-          The investigation behind this section runs on two fronts, and they
-          are different kinds of work. One follows engineered claims into the
-          official record — material built to be mistaken for war reporting,
-          and the corrections that unmade it. The other maps the social-media
-          machine itself: the accounts, the networks between them, and the
-          techniques they run. Each branch is a file of its own.
-        </p>
-
-        {/* Two cards, one stagger step apart: the page's decision moment
-            arrives as the reader reaches it, in the order it is read. Reveal
-            is a wrapper, so the anchors keep their own hover, focus and
-            semantics, and both `SectionPage` and this page stay server
-            components. With JavaScript off or reduced motion set, the cards
-            are simply there. */}
-        <nav aria-label="Investigation branches" className={styles.branches}>
-          <Reveal className={styles.branchSlot} index={0}>
-            <Link
-              href="/fake-resistance/official-narrative"
-              className={styles.branchCard}
-            >
-              <span className={styles.branchKicker}>
-                <span className={styles.branchTag}>Branch 01</span>
-                <span className={styles.branchCount}>
-                  {officialCount} case files
-                </span>
-              </span>
-              <span className={styles.branchTitle}>
-                Official narrative engineering
-              </span>
-              <span className={styles.branchDesc}>
-                Three worked exhibits — the claim as it spread, its origin, its
-                amplification, and the evidence that unmade it — with the order
-                in which the record caught up.
-              </span>
-              <span className={styles.branchCta}>
-                Open the file
-                <span className={styles.branchArrow} aria-hidden="true">
-                  →
-                </span>
-              </span>
-            </Link>
-          </Reveal>
-
-          <Reveal className={styles.branchSlot} index={1}>
-            <Link
-              href="/fake-resistance/social-media"
-              className={styles.branchCard}
-            >
-              <span className={styles.branchKicker}>
-                <span className={styles.branchTag}>Branch 02</span>
-                <span className={styles.branchCount}>{socialCount} files</span>
-              </span>
-              <span className={styles.branchTitle}>The social-media front</span>
-              <span className={styles.branchDesc}>
-                The influence-network research: a {playbook.length}-technique
-                playbook, the cross-network synthesis, and seven documented case
-                files, graded exactly as the research graded them.
-              </span>
-              <span className={styles.branchCta}>
-                Open the file
-                <span className={styles.branchArrow} aria-hidden="true">
-                  →
-                </span>
-              </span>
-            </Link>
-          </Reveal>
-        </nav>
-      </SectionBlock>
-
       <SectionBlock heading="The machine">
         <p>
           The supply chain has four links. A claim is seeded by a small set of
@@ -220,48 +301,6 @@ export default async function Page() {
           Documenting an amplifier network takes account-level evidence
           gathered over time, which is what{" "}
           <Link href="/fake-resistance/network">the network file</Link> is for.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock heading="The tells">
-        <p>
-          A manufactured wave looks spontaneous from inside and mechanical
-          from above. The recurring signatures:
-        </p>
-        <ul>
-          <li>
-            <Link href={techniqueHref("synchronized-amplification")}>
-              Synchronized timing
-            </Link>{" "}
-            — a claim erupting everywhere at once, in near-identical phrasing,
-            across accounts with no connection to each other.
-          </li>
-          <li>
-            <Link href={techniqueHref("identity-games")}>
-              Amplifier accounts created in the same narrow window
-            </Link>
-            , with thin histories and borrowed profile material.
-          </li>
-          <li>
-            <Link href={techniqueHref("recycled-media")}>
-              Imagery that traces to a different time and place
-            </Link>{" "}
-            — another war, another year, sometimes a video game.
-          </li>
-          <li>
-            <Link href={techniqueHref("verdict-captioning")}>
-              A caption that says what the footage does not
-            </Link>
-            , so an assertion arrives feeling like something you witnessed.
-          </li>
-        </ul>
-        <p>
-          None of these alone is proof. Together, and documented, they are a
-          pattern — and patterns can be shown. All {playbook.length} techniques
-          are treated in full in{" "}
-          <Link href="/fake-resistance/playbook">the playbook</Link>: what each
-          move is, the mental shortcut it exploits, and what you can check for
-          yourself.
         </p>
       </SectionBlock>
     </SectionPage>

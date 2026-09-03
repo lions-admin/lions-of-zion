@@ -1,5 +1,11 @@
 # Automated Geopolitical Brief, News Articles, and Narrative Monitoring
 
+> **Current operating mode (2026-09-03):** the owner disabled the editorial
+> quality-review stage. The active chain is collect → enrich → cluster →
+> triage → draft → publish. Structured-schema validation, authentication,
+> source attribution, idempotency, audit records, and atomic publication remain.
+> The quality-gate section below documents the retired implementation only.
+
 ## What the edition is for
 
 The daily edition serves exactly three jobs, in this order of priority:
@@ -130,7 +136,7 @@ fall to the strict side — the reading that keeps citations required.
 `toPublicPublication` normalises this on read, because that path casts rather
 than parses and the zod default never ran there.
 
-## The quality gate
+## Retired quality gate (historical reference only)
 
 `REQUIRED_QUALITY_CHECKS` names **eighteen** deterministic checks, run after
 drafting and before any row can receive an automatic-publish marker. Model

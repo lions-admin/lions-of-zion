@@ -130,14 +130,92 @@
   color: var(--ink);
 }
 
-/* Two up, not four. Four cards across this page's ~600px measure gave each
-   ~135px: "Investigators" clipped its own last letter and every card's body
-   broke at two or three words a line. */
-.roleGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-4);
+/* Editorial roster, not a marketing grid. Card.row owns the hairline
+   between records; this list only stacks them. */
+.roleRoster {
   margin: var(--sp-5) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roleRoster > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Principles, one per row rather than four in a paragraph. The name is the
+   scan target and sits in the data voice; the commitment beside it is read
+   at body. A hairline between rows, no card — a promise is not a product
+   feature. From the seam up the name takes its own column so four
+   commitments line up and can be compared. */
+.principles {
+  margin: var(--sp-5) 0 0;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.principles > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-1);
+  padding: var(--sp-4) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.principles > div:last-child {
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.principles dt {
+  min-width: 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-hi);
+}
+
+.principles dd {
+  margin: 0;
+  min-width: 0;
+  max-width: var(--measure-reading);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+}
+
+.principles dd a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.principles dd a:hover,
+.principles dd a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}
+
+/* Two columns here and not on Methodology's contents list, for a reason
+   that is about the text rather than the width: these are four short
+   commitments a reader compares against each other, so an aligned name
+   column earns its space. The names are also short enough that 12rem
+   holds the longest of them on one line — "Conflicts of interest" sets
+   to about 176px in the tracked data voice, which is why this is not
+   11rem — while leaving the commitment a workable measure. `.panel` is
+   capped at `--family-measure`, so what this splits is a reading
+   measure, never the viewport. */
+@media (min-width: 45rem) {
+  .principles > div {
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: var(--sp-5);
+    align-items: baseline;
+  }
 }
 
 .faq {
@@ -181,13 +259,4 @@
 .faq dd a:hover,
 .faq dd a:focus-visible {
   text-decoration-color: var(--ink-hi);
-}
-
-/* 600, and it earns its place: two role cards inside this page's measure
-   are ~135px each below it, which is where "Investigators" stops fitting on
-   one line and every card body breaks at two or three words. */
-@media (max-width: 600px) {
-  .roleGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

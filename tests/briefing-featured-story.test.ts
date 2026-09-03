@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   limitEditionArticles,
-  normalizeEditionForQuality,
+  normalizeEditionForPublication,
   normalizeTriageStories,
   normalizeFeaturedIsraelStory,
   storyHasCitableSupport,
@@ -89,7 +89,7 @@ describe("briefing featured Israel story", () => {
   it("normalizes adversarial routing, single-source attribution, and the Daily Brief official lead", () => {
     const officialId = "11111111-1111-4111-8111-111111111111";
     const adversarialId = "22222222-2222-4222-8222-222222222222";
-    const edition = normalizeEditionForQuality({
+    const edition = normalizeEditionForPublication({
       dailyBrief: {
         title: "Israel daily security update",
         summary: "A source-grounded summary of the current Israeli security picture.",
@@ -136,7 +136,7 @@ describe("briefing featured Israel story", () => {
     /* A sourced Narrative Watch record is a *report of* a claim; an unsourced
      * one is our own answer to it. The two cannot share a headline prefix, and
      * the basis is derived here rather than taken from the model. */
-    const edition = normalizeEditionForQuality({
+    const edition = normalizeEditionForPublication({
       dailyBrief: {
         title: "Israel daily security update",
         summary: "A source-grounded summary of the current Israeli security picture.",

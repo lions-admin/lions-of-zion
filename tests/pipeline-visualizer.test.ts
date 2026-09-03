@@ -64,10 +64,9 @@ describe("Pipeline Visualizer Graph Integrity", () => {
     expect(publishGateNode).toBeDefined();
     expect(publishGateNode?.kind).toBe("trigger");
 
-    // 4. Briefing quality gate with quarantine
-    const qualityGateNode = PIPELINE_NODES.find((n) => n.id === "briefing_quality_gate");
+    // 4. Retired quality-review stage is absent; technical quarantine remains visible.
     const quarantineNode = PIPELINE_NODES.find((n) => n.id === "briefing_quarantine");
-    expect(qualityGateNode).toBeDefined();
+    expect(PIPELINE_NODES.find((n) => n.id === "briefing_quality_gate")).toBeUndefined();
     expect(quarantineNode).toBeDefined();
 
     // 5. Chat citation guard

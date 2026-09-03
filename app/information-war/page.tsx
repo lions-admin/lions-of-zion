@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { InformationWarSystem } from "@/components/briefs/InformationWarSystem";
 import { SITE_URL } from "@/lib/site-config";
 
-const TITLE = "This Is an Information War";
+/* Sentence case, matching the page's own heading — the browser tab, the
+   accessible name and the visual heading all read the same sentence
+   (IW-002). The trailing period stays on the heading, not the title: a
+   `<title>` is a name, not a sentence. */
+const TITLE = "This is an information war";
 const DESCRIPTION =
   "How narratives become pressure, and how Lions of Zion turns public-source signals into traceable reporting.";
 

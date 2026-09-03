@@ -57,6 +57,35 @@ export default async function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      {/* The manual's contents (INV-004): every chapter as one indexed row —
+          number, name, one-line summary, and how much of it this site has
+          documented — before any chapter begins. The counts differentiate
+          the rows: a reader can tell a technique with published exhibits
+          from one still awaiting its first, without opening either. */}
+      <SectionBlock heading="Contents">
+        <ol className={styles.contents}>
+          {chapters.map((chapter) => {
+            const documentedCount =
+              chapter.documented.length + (examples.get(chapter.id) ?? []).length;
+            return (
+              <li key={chapter.id}>
+                <a href={`#${chapter.id}`} className={styles.contentsRow}>
+                  <span className={styles.contentsTitle}>{chapter.title}</span>
+                  <span className={styles.contentsSummary}>{chapter.summary}</span>
+                  <span className={styles.contentsMeta}>
+                    {documentedCount === 0
+                      ? 'No documented exhibit yet'
+                      : documentedCount === 1
+                        ? '1 documented exhibit'
+                        : `${documentedCount} documented exhibits`}
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </SectionBlock>
+
       <SectionBlock heading="Why this page exists">
         <p>
           Manufactured outrage is not mainly a problem of false facts. It is a

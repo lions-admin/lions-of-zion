@@ -143,6 +143,10 @@ export class TypographicMotionEngine {
   public config: TypographicFieldConfig;
   public isRunning = false;
   public destroyed = false;
+  /** Total frames the render loop has actually drawn. The telemetry line
+   *  derives its FPS from deltas of this, so it reports the engine's real
+   *  rate rather than the rate of whatever loop happens to be reading it. */
+  public framesRendered = 0;
 
   public rowCount = 0;
   public charsPerRow = 0;
@@ -178,6 +182,7 @@ export class TypographicMotionEngine {
 
   private animationFrameId: number | null = null;
   private isReducedMotion = false;
+  private isOffscreen = false;
   private reducedMotionQuery: MediaQueryList | null = null;
 
   /*
@@ -749,7 +754,7 @@ export class TypographicMotionEngine {
   }
 
   public start() {
-    if (this.isRunning || this.destroyed) return;
+    if (this.isRunning || this.destroyed || this.isOffscreen) return;
 
     // Reduced motion: the field is a still — paint it once and hold. `update`
     // already skips every translation in this mode, so a running loop would
@@ -769,10 +774,29 @@ export class TypographicMotionEngine {
 
       this.update(dt);
       this.render();
+      this.framesRendered += 1;
 
       this.animationFrameId = requestAnimationFrame(loop);
     };
     this.animationFrameId = requestAnimationFrame(loop);
+  }
+
+  /**
+   * MOTION-005 — offscreen pause, owned by the engine so it composes with the
+   * other two gates. `visibilitychange` calls `start()` when a tab returns,
+   * and without this flag that restart would resume a field the reader had
+   * scrolled away from; with it, `start()` refuses until the observer that
+   * scrolled it off says it is back.
+   */
+  public setOffscreen(offscreen: boolean) {
+    if (this.isOffscreen === offscreen) return;
+    this.isOffscreen = offscreen;
+    if (this.destroyed) return;
+    if (offscreen) {
+      this.stop();
+    } else if (typeof document === "undefined" || !document.hidden) {
+      this.start();
+    }
   }
 
   public stop() {

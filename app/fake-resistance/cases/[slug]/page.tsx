@@ -13,6 +13,7 @@ import {
   Timeline,
   VerificationBadge,
 } from '@/components/content';
+import { Card, CardDescription, CardTitle } from '@/components/ui/Card';
 import { caseParams, getCase } from '@/lib/content/fake-resistance-cases';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
@@ -139,6 +140,50 @@ export default async function Page({ params }: Params) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      {/* The file's face sheet: what this record is, in figures, before any
+          prose — every value is the research's own bookkeeping (`caseId`,
+          `updatedAt`, the counts, the publication record), not a summary
+          written here. It is the case template's orientation layer: a reader
+          knows the file's size and freshness before deciding how to read it. */}
+      <dl className={styles.fileFacts}>
+        <div className={styles.fileFact}>
+          <dt>File</dt>
+          <dd>{record.caseId}</dd>
+        </div>
+        <div className={styles.fileFact}>
+          <dt>Updated</dt>
+          <dd>
+            <time dateTime={record.updatedAt}>{dateLabel(record.updatedAt)}</time>
+          </dd>
+        </div>
+        {record.publication ? (
+          <div className={styles.fileFact}>
+            <dt>Published</dt>
+            <dd>
+              <time dateTime={record.publication.publishedAt}>
+                {dateLabel(record.publication.publishedAt)}
+              </time>
+            </dd>
+          </div>
+        ) : null}
+        <div className={styles.fileFact}>
+          <dt>Entities</dt>
+          <dd>{record.counts.entities}</dd>
+        </div>
+        <div className={styles.fileFact}>
+          <dt>Graded findings</dt>
+          <dd>{record.counts.exhibits}</dd>
+        </div>
+        <div className={styles.fileFact}>
+          <dt>Connections</dt>
+          <dd>{record.counts.edges}</dd>
+        </div>
+        <div className={styles.fileFact}>
+          <dt>Sources</dt>
+          <dd>{record.counts.sources}</dd>
+        </div>
+      </dl>
+
       {record.framing ? (
         <SectionBlock heading="What this file is about">
           <p className={styles.frame}>{record.framing.frame}</p>
@@ -240,11 +285,13 @@ export default async function Page({ params }: Params) {
             the shape a claim is poured into, which is why the same one
             survives being repeatedly falsified.
           </p>
-          <div className={styles.narratives}>
+          <ul className={styles.narratives}>
             {record.narratives.map((narrative) => (
-              <article key={narrative.id} className={styles.narrative}>
-                <h3>{narrative.title}</h3>
-                {narrative.summary ? <p>{narrative.summary}</p> : null}
+              <Card as="li" key={narrative.id} variant="note">
+                <CardTitle>{narrative.title}</CardTitle>
+                {narrative.summary ? (
+                  <CardDescription>{narrative.summary}</CardDescription>
+                ) : null}
                 {narrative.frame ? (
                   <p className={styles.narrativeFrame}>
                     <span>The move</span> {narrative.frame}
@@ -255,9 +302,9 @@ export default async function Page({ params }: Params) {
                     <span>Aimed at</span> {narrative.audience}
                   </p>
                 ) : null}
-              </article>
+              </Card>
             ))}
-          </div>
+          </ul>
         </SectionBlock>
       ) : null}
 

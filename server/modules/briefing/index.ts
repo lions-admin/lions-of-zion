@@ -5,11 +5,20 @@ import { withDatabaseRole } from "@/server/db/client";
 import { briefingService, type BriefingService } from "./service";
 import { externalBriefingPublishService, type ExternalBriefingPublishService } from "./external-publish";
 import { briefingJobMessageSchema, briefingJobStore, processBriefingJob } from "./jobs";
+import { importCodexBriefing } from "./codex-import";
+import type { CodexBriefingImport } from "@/server/contracts/codex-briefing-import";
+import type { Actor } from "@/server/core/audit";
 
 export const briefing = (): BriefingService => briefingService(db());
 
 export const externalBriefingPublish = (): ExternalBriefingPublishService => externalBriefingPublishService(db());
 export { externalBriefingPublishService, type ExternalBriefingPublishService } from "./external-publish";
+
+export const receiveCodexBriefing = (
+  input: CodexBriefingImport,
+  actor: Actor,
+  requestId?: string,
+) => importCodexBriefing(db(), input, actor, requestId);
 
 /** Queue routes only authenticate and hand off here; the module owns the
  * database claim, pause/defer, checkpoint, and failure semantics. */

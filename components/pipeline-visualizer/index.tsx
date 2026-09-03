@@ -1,16 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { usePipelineSimulation } from "./hooks/usePipelineSimulation";
 import { PipelineCanvas } from "./PipelineCanvas";
 import { PipelineControls } from "./PipelineControls";
 import { StepExplainerCard } from "./StepExplainerCard";
 import { TermsGlossaryModal } from "./TermsGlossaryModal";
-import { NodeInspectorDrawer } from "./NodeInspectorDrawer";
+import { NodeInspector } from "./NodeInspector";
+import { StructureListView } from "./StructureListView";
+import { useViewportGate, WORKBENCH_QUERY } from "./hooks/useViewportGate";
 import { EventTelemetryStream } from "./EventTelemetryStream";
+import { CHROME } from "./copy";
 import styles from "./visualizer.module.css";
 
 export function PipelineVisualizer() {
+  /* Which shell the inspector gets is a viewport question; see NodeInspector. */
+  const isWorkbench = useViewportGate(WORKBENCH_QUERY);
+  /* Which stage the reader asked for. The map is only ever the *effective*
+     stage where one fits; below the gate the request is kept but the
+     structure view answers, and StructureListView says why. */
+  const [stagePreference, setStagePreference] = useState<"map" | "structure">("map");
+  const stageIsMap = stagePreference === "map";
+  const showMap = stageIsMap && isWorkbench;
   const {
     selectedJourneyId,
     currentJourney,
@@ -24,6 +36,7 @@ export function PipelineVisualizer() {
     selectedNode,
     viewPerspective,
     activeCategoryFilter,
+    setActiveCategoryFilter,
     eventLogs,
     activePackets,
     selectJourney,
@@ -37,7 +50,6 @@ export function PipelineVisualizer() {
     resetSimulation,
   } = usePipelineSimulation();
 
-  // Glossary modal state
   const [isGlossaryOpen, setIsGlossaryOpen] = useState<boolean>(false);
   const [glossarySearchQuery, setGlossarySearchQuery] = useState<string>("");
 
@@ -48,54 +60,49 @@ export function PipelineVisualizer() {
 
   return (
     <div className={styles.visualizerShell}>
-      {/* ── שורת כותרת עליונה (Header Bar) ── */}
-      <header className={styles.headerBar} dir="rtl">
+      <header className={styles.headerBar}>
         <div className={styles.headerLeft}>
           <div className={styles.headerTitle}>
             <span>LIONS OF ZION</span>
-            <span className={styles.brandBadge}>ארכיטקטורת המערכת וצינור המידע</span>
+            <h1 className={styles.brandBadge}>{CHROME.brandBadge}</h1>
           </div>
-          <div className={styles.headerSubtitle}>
-            הדמיה אינטראקטיבית מתוסרטת של מנוע אימות הטענות, שערי ה־SQL, מכונת הבריף היומי ושכבות האבטחה — מבוססת על מבנה הקוד, ולא על הרצה חיה
-          </div>
+          <div className={styles.headerSubtitle}>{CHROME.headerSubtitle}</div>
         </div>
 
-        <div className={styles.headerControls} dir="ltr">
-          <button
+        <div className={styles.headerControls}>
+          <Button
             type="button"
-            className={styles.glossaryPillBtn}
+            variant="secondary"
+            size="sm"
             onClick={() => handleOpenGlossary()}
-            title="פתח מילון מונחים והסברים"
+            title={CHROME.glossaryButtonTitle}
           >
-            מילון מונחים (עברית/אנגלית)
-          </button>
+            {CHROME.glossaryButton}
+          </Button>
 
           <div className={styles.viewModeGroup}>
-            <button
+            <Button
               type="button"
-              className={`
-                ${styles.viewModeBtn}
-                ${viewPerspective === "pipelines" ? styles.viewModeBtnActive : ""}
-              `}
+              variant="filter"
+              size="sm"
+              isActive={viewPerspective === "pipelines"}
               onClick={() => setViewPerspective("pipelines")}
             >
-              כל המערכת (7 מסלולים)
-            </button>
-            <button
+              {CHROME.viewAllPipelines}
+            </Button>
+            <Button
               type="button"
-              className={`
-                ${styles.viewModeBtn}
-                ${viewPerspective === "briefing" ? styles.viewModeBtnActive : ""}
-              `}
+              variant="filter"
+              size="sm"
+              isActive={viewPerspective === "briefing"}
               onClick={() => setViewPerspective("briefing")}
             >
-              מכונת הבריף היומי
-            </button>
+              {CHROME.viewBriefing}
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* ── פקדי ניווט ותרחישים (Controls & Scenarios Bar) ── */}
       <PipelineControls
         selectedJourneyId={selectedJourneyId}
         currentJourney={currentJourney}
@@ -112,7 +119,6 @@ export function PipelineVisualizer() {
         onReset={resetSimulation}
       />
 
-      {/* ── כרטיס הסבר שלב בולט וברור (Step Story Explainer) ── */}
       <StepExplainerCard
         currentStep={currentStep}
         stepIndex={currentStepIndex}
@@ -121,33 +127,74 @@ export function PipelineVisualizer() {
         onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
       />
 
-      {/* ── משטח ההדמיה האינטראקטיבי (Pan & Zoom Canvas + Draggable Cards) ── */}
-      <div className={styles.mainStage}>
-        <PipelineCanvas
-          activeNodeId={currentStep?.nodeId ?? null}
-          nextStepNodeId={nextStepNode}
-          activePackets={activePackets}
-          selectedNodeId={selectedNodeId}
-          viewPerspective={viewPerspective}
-          activeCategoryFilter={activeCategoryFilter}
-          onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
-          onOpenGlossary={handleOpenGlossary}
-        />
+      <div className={styles.stageSwitch} role="group" aria-label={CHROME.stageGroupLabel}>
+        <span className={styles.stageSwitchLabel}>{CHROME.stageGroupLabel}</span>
+        <Button
+          type="button"
+          variant="filter"
+          size="sm"
+          isActive={!stageIsMap}
+          onClick={() => setStagePreference("structure")}
+        >
+          {CHROME.stageStructure}
+        </Button>
+        <Button
+          type="button"
+          variant="filter"
+          size="sm"
+          isActive={stageIsMap}
+          onClick={() => setStagePreference("map")}
+        >
+          {CHROME.stageMap}
+        </Button>
+      </div>
 
-        {/* מגירת ניתוח רכיב מעמיקה */}
-        <NodeInspectorDrawer
+      <div className={styles.mainStage} aria-label={CHROME.regionStage}>
+        {showMap ? (
+          <PipelineCanvas
+            activeNodeId={currentStep?.nodeId ?? null}
+            nextStepNodeId={nextStepNode}
+            activePackets={activePackets}
+            selectedNodeId={selectedNodeId}
+            viewPerspective={viewPerspective}
+            activeCategoryFilter={activeCategoryFilter}
+            onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
+            onOpenGlossary={handleOpenGlossary}
+          />
+        ) : (
+          <StructureListView
+            currentJourney={currentJourney}
+            currentStepIndex={currentStepIndex}
+            activeNodeId={currentStep?.nodeId ?? null}
+            selectedNodeId={selectedNodeId}
+            viewPerspective={viewPerspective}
+            activeCategoryFilter={activeCategoryFilter}
+            mapIsAvailable={isWorkbench}
+            stageIsMap={stageIsMap}
+            onGoToStep={setCurrentStepIndex}
+            onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
+            onSetCategoryFilter={setActiveCategoryFilter}
+            onOpenGlossary={handleOpenGlossary}
+          />
+        )}
+
+        <NodeInspector
           node={selectedNode}
+          asModal={!isWorkbench}
+          stepTitleEn={
+            selectedNode && currentStep?.nodeId === selectedNode.id
+              ? currentStep.titleEn
+              : undefined
+          }
           onClose={() => setSelectedNodeId(null)}
         />
       </div>
 
-      {/* ── מסוף יומן אירועים ומדדים חיים ── */}
       <EventTelemetryStream
         eventLogs={eventLogs}
-        activeStepNodeName={currentStep?.titleHe}
+        activeStepNodeName={currentStep?.titleEn}
       />
 
-      {/* ── מילון מונחים והסברים מלא ── */}
       <TermsGlossaryModal
         isOpen={isGlossaryOpen}
         initialSearch={glossarySearchQuery}

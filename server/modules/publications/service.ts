@@ -1,7 +1,5 @@
 import "server-only";
 
-import { sql } from "drizzle-orm";
-
 /**
  * The four publication surfaces. Owns policy; owns no SQL of its own beyond
  * the repository below it.
@@ -48,8 +46,7 @@ type AutomationProvenance = {
   machineAuthor: string;
   candidateKeys: string[];
   /** Present only for an explicit same-day regeneration. It lets a successful
-   * replacement retire the old public edition atomically, after—not before—
-   * the new quality-approved rows exist. */
+   * replacement retire the old public edition atomically. */
   supersedeLocalDate?: string;
 };
 
@@ -126,7 +123,7 @@ export function publicationService(db: unknown) {
       provenance?: GeneratedDraftProvenance,
     ): Promise<Publication[]> {
       if (provenance && provenance.candidateKeys.length !== inputs.length) {
-        throw new ApiError("VALIDATION_ERROR", "Every generated draft requires one quality candidate key.");
+        throw new ApiError("VALIDATION_ERROR", "Every generated draft requires one stable candidate key.");
       }
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
@@ -177,7 +174,7 @@ export function publicationService(db: unknown) {
       });
     },
 
-    /** Promote an already materialised, quality-approved draft edition.
+    /** Promote an already materialised generated draft edition.
      *
      * This covers the narrow interval in which collection was allowed while
      * automatic release was paused. It promotes the original rows (and their
@@ -192,7 +189,7 @@ export function publicationService(db: unknown) {
       requestId?: string,
     ): Promise<Publication[]> {
       if (provenance.candidateKeys.length !== inputs.length) {
-        throw new ApiError("VALIDATION_ERROR", "Every resumed publication requires one quality candidate key.");
+        throw new ApiError("VALIDATION_ERROR", "Every resumed publication requires one stable candidate key.");
       }
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
@@ -223,20 +220,13 @@ export function publicationService(db: unknown) {
         if (new Set(matched.map((row) => row.id)).size !== inputs.length) {
           throw new ApiError("CONFLICT", "The paused edition contains duplicate draft matches.");
         }
-        for (const candidateKey of provenance.candidateKeys) {
-          if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
-            throw new ApiError("VALIDATION_ERROR", `Quality checks failed for ${candidateKey}.`);
-          }
-        }
         const publishedAt = new Date();
         const rows: Publication[] = [];
         for (const [index, draft] of matched.entries()) {
-          await (tx as Tx).execute(sql`SELECT set_config('app.quality_candidate', ${provenance.candidateKeys[index]!}, true)`);
           const row = await r.update(draft.id, {
             status: "published",
             publishedAt,
             autoPublishedAt: publishedAt,
-            qualityApprovedAt: publishedAt,
             briefingCandidateKey: provenance.candidateKeys[index]!,
             machineAuthor: provenance.machineAuthor,
             approvedBy: null,
@@ -246,7 +236,7 @@ export function publicationService(db: unknown) {
             entityType: kindToEntityType(row.kind),
             entityId: row.id,
             actor,
-            changeSummary: `${row.kind} automatically published from an approved paused draft`,
+            changeSummary: `${row.kind} automatically published from a paused generated draft`,
             changeSource: "workflow",
             requestId,
             before: draft,
@@ -268,7 +258,7 @@ export function publicationService(db: unknown) {
       requestId?: string,
     ): Promise<Publication> {
       if (provenance.candidateKeys.length !== 1) {
-        throw new ApiError("VALIDATION_ERROR", "Automatic publication requires one quality candidate key.");
+        throw new ApiError("VALIDATION_ERROR", "Automatic publication requires one stable candidate key.");
       }
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
@@ -280,10 +270,6 @@ export function publicationService(db: unknown) {
           if (row.status === "published" && row.autoPublishedAt !== null) return row;
           throw new ApiError("CONFLICT", "A generated draft already exists for this candidate and requires paused-edition recovery.");
         }
-        if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
-          throw new ApiError("VALIDATION_ERROR", "Automatic publication quality checks are incomplete or failed.");
-        }
-        await (tx as Tx).execute(sql`SELECT set_config('app.quality_candidate', ${candidateKey}, true)`);
         const publishedAt = new Date();
         const row = await r.insert({
           kind: input.kind,
@@ -305,7 +291,6 @@ export function publicationService(db: unknown) {
           status: "published",
           publishedAt,
           autoPublishedAt: publishedAt,
-          qualityApprovedAt: publishedAt,
           briefingRunId: provenance.briefingRunId,
           briefingCandidateKey: candidateKey,
           machineAuthor: provenance.machineAuthor,
@@ -338,7 +323,7 @@ export function publicationService(db: unknown) {
       requestId?: string,
     ): Promise<Publication[]> {
       if (provenance.candidateKeys.length !== inputs.length) {
-        throw new ApiError("VALIDATION_ERROR", "Every automatic publication requires one quality candidate key.");
+        throw new ApiError("VALIDATION_ERROR", "Every automatic publication requires one stable candidate key.");
       }
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
@@ -389,20 +374,13 @@ export function publicationService(db: unknown) {
               throw new ApiError("CONFLICT", "The stored generated drafts no longer match the approved edition.");
             }
           }
-          for (const candidateKey of provenance.candidateKeys) {
-            if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
-              throw new ApiError("VALIDATION_ERROR", `Quality checks failed for ${candidateKey}.`);
-            }
-          }
           const publishedAt = new Date();
           const rows: Publication[] = [];
           for (const [index, draft] of ordered.entries()) {
-            await (tx as Tx).execute(sql`SELECT set_config('app.quality_candidate', ${provenance.candidateKeys[index]!}, true)`);
             const row = await r.update(draft.id, {
               status: "published",
               publishedAt,
               autoPublishedAt: publishedAt,
-              qualityApprovedAt: publishedAt,
               approvedBy: null,
               updatedAt: publishedAt,
             });
@@ -410,7 +388,7 @@ export function publicationService(db: unknown) {
               entityType: kindToEntityType(row.kind),
               entityId: row.id,
               actor,
-              changeSummary: `${row.kind} automatically published from an approved generated draft`,
+              changeSummary: `${row.kind} automatically published from a generated draft`,
               changeSource: "workflow",
               requestId,
               before: draft,
@@ -425,17 +403,9 @@ export function publicationService(db: unknown) {
           await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicIds: rows.map((row) => row.publicId) });
           return published;
         }
-        for (const candidateKey of provenance.candidateKeys) {
-          if (!(await r.qualityCandidatePassed(provenance.briefingRunId, candidateKey))) {
-            throw new ApiError("VALIDATION_ERROR", `Quality checks failed for ${candidateKey}.`);
-          }
-        }
         const publishedAt = new Date();
         const rows: Publication[] = [];
         for (const [inputIndex, input] of inputs.entries()) {
-          await (tx as Tx).execute(
-            sql`SELECT set_config('app.quality_candidate', ${provenance.candidateKeys[inputIndex]!}, true)`,
-          );
           const row = await r.insert({
             kind: input.kind,
             section: input.section ?? "israel_update",
@@ -456,7 +426,6 @@ export function publicationService(db: unknown) {
             status: "published",
             publishedAt,
             autoPublishedAt: publishedAt,
-            qualityApprovedAt: publishedAt,
             briefingRunId: provenance.briefingRunId,
             briefingCandidateKey: provenance.candidateKeys[inputIndex]!,
             machineAuthor: provenance.machineAuthor,

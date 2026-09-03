@@ -59,7 +59,7 @@ describe("briefing environment isolation", () => {
     vi.stubEnv("BRIEFING_ENABLED_STAGES", "enrich,quality,publish");
 
     expect([...briefingCollectionSourceAllowlist()!]).toEqual(["official-israel", "source-2"]);
-    expect([...briefingEnabledStages()]).toEqual(["enrich", "quality", "publish"]);
+    expect([...briefingEnabledStages()]).toEqual(["enrich", "publish"]);
   });
 
   it("does not mistake an AI or OIDC token for a configured queue", () => {

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
+import { SectionPage } from "@/components/sections/SectionPage";
 import { PublicationMeta, Timeline } from "@/components/content";
-import { Reveal } from "@/components/motion";
 import { getIsraelsStoryEdition } from "@/lib/content/israels-story";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -35,6 +34,15 @@ function toRoman(value: number): string {
   return result;
 }
 
+/** Layout only — cycles the three editorial compositions so consecutive
+ *  chapters do not share a template. Not a historical grouping. */
+const RHYTHMS = ["lede", "spine", "record"] as const;
+type ChapterRhythm = (typeof RHYTHMS)[number];
+
+function chapterRhythm(index: number): ChapterRhythm {
+  return RHYTHMS[index % RHYTHMS.length];
+}
+
 export default async function Page() {
   const edition = await getIsraelsStoryEdition();
   const total = edition.chapters.length;
@@ -61,16 +69,26 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <nav className={styles.contents} aria-label="Chapters">
-        <span className={styles.contentsKicker}>Contents</span>
-        <ol className={styles.contentsList}>
+      {/* In-page era index: compact, roman, hash-anchored. SectionToc's
+          desktop rail and mobile sheet are extra; this list is the no-JS
+          contents and the mobile linear map. */}
+      <nav className={styles.eraIndex} aria-label="Eras">
+        <span className={styles.eraKicker}>Eras</span>
+        <ol className={styles.eraList}>
           {edition.chapters.map((chapter, index) => (
             <li key={chapter.id}>
               <Link href={`#${chapter.id}`}>
-                <span className={styles.contentsNumeral} aria-hidden="true">
+                <span className={styles.eraNumeral} aria-hidden="true">
                   {toRoman(index + 1)}
                 </span>
-                <span className={styles.contentsTitle}>{chapter.title}</span>
+                <span className={styles.eraTitle}>{chapter.title}</span>
+                {/* The flag reaches the index, not only the chapter. A
+                    reader choosing where to start should know which era is
+                    disputed before they land in it — and it is a word, not
+                    a colour, for the same reason it is a word below. */}
+                {chapter.contested === true ? (
+                  <span className={styles.eraFlag}>Contested</span>
+                ) : null}
               </Link>
             </li>
           ))}
@@ -81,21 +99,15 @@ export default async function Page() {
         /* The flag travels with the content, not with a string literal in
            the renderer — see `contested` on `StoryChapter`. */
         const flagged = chapter.contested === true;
+        const rhythm = chapterRhythm(index);
         return (
-          <article key={chapter.id} id={chapter.id} className={styles.chapter}>
-            {/* The chapter mark arrives as the reader reaches it — the one
-                motion on this page, and only on the head, not on the chapter
-                body: a blurred entrance across a whole chapter and its
-                timeline is a lot of surface to animate to say "a chapter
-                starts here". `as="header"` means no extra element and no
-                layout change; the numeral, the running position and the
-                title are the same grid they were.
-
-                No `index` stagger, deliberately. `index` multiplies a delay
-                by position, which only composes when a group crosses the
-                fold together — chapters are viewports apart, so chapter VII
-                would sit waiting 420ms for no reason a reader could see. */}
-            <Reveal as="header" className={styles.chapterHead}>
+          <article
+            key={chapter.id}
+            id={chapter.id}
+            className={styles.chapter}
+            data-rhythm={rhythm}
+          >
+            <header className={styles.chapterHead}>
               <span className={styles.chapterNumeral} aria-hidden="true">
                 {toRoman(index + 1)}
               </span>
@@ -105,31 +117,50 @@ export default async function Page() {
                 </p>
                 <h2 className={styles.chapterTitle}>{chapter.title}</h2>
               </div>
-            </Reveal>
+            </header>
 
-            <p
-              className={
-                flagged
-                  ? `${styles.chapterIntro} ${styles.chapterIntroFlagged}`
-                  : styles.chapterIntro
-              }
-            >
-              {chapter.intro}
-            </p>
+            <div className={styles.chapterBody}>
+              {/* The contested flag was an ember rule and an ember wash and
+                  nothing else — colour as the sole cue, which the token
+                  contract rules out and which reaches nobody reading in
+                  monochrome, in high contrast, or in print. The word does the
+                  work now; the ramp only agrees with it. */}
+              <p
+                className={
+                  flagged
+                    ? `${styles.chapterIntro} ${styles.chapterIntroFlagged}`
+                    : styles.chapterIntro
+                }
+              >
+                {flagged ? (
+                  <span className={styles.chapterIntroLabel}>Contested —</span>
+                ) : null}
+                {flagged ? " " : null}
+                {chapter.intro}
+              </p>
 
-            {/* No chapter source list. `chapter.sources` is the union of the
-                sources its own entries already cite, so rendering it here
-                printed every citation on this page twice — invisible while
-                both sat in the column, obvious once each entry's sources moved
-                out to the margin beside it. The field stays in
-                `lib/content/israels-story.ts`; only the second rendering of it
-                is gone. */}
-            <Timeline variant="history" entries={chapter.timeline} />
+              {/* No chapter source list. `chapter.sources` is the union of the
+                  sources its own entries already cite, so rendering it here
+                  printed every citation on this page twice — invisible while
+                  both sat in the column, obvious once each entry's sources moved
+                  out to the margin beside it. The field stays in
+                  `lib/content/israels-story.ts`; only the second rendering of it
+                  is gone.
+
+                  Motion lives on the dated entries (see `.eraTimeline`), not on
+                  this chapter chrome. */}
+              <div className={styles.eraTimeline}>
+                <Timeline variant="history" entries={chapter.timeline} />
+              </div>
+            </div>
           </article>
         );
       })}
 
-      <SectionBlock heading="What this edition does not yet cover">
+      <section className={styles.gapNote}>
+        <h2 id="what-this-edition-does-not-yet-cover">
+          What this edition does not yet cover
+        </h2>
         <p>
           This is a working edition, chapters added one at a time as each
           could be sourced and checked properly — not the whole story yet.
@@ -139,7 +170,7 @@ export default async function Page() {
           careful sourcing than any session so far has had time for — a
           next step, not an omission to gloss over.
         </p>
-      </SectionBlock>
+      </section>
 
       {/* A colophon, not a masthead: the fields exist and were reaching no
           reader, while the other three editorial destinations rendered the

@@ -115,8 +115,11 @@ const PUBLIC_V1 = [
 
 async function accessFor(request: Request): Promise<Access | null> {
   const path = new URL(request.url).pathname;
-  if (path.startsWith("/api/internal/cron/") || path.startsWith("/api/internal/queue/")) {
-    return { role: "app_service", identity: path.startsWith("/api/internal/cron/") ? "service:cron" : "service:queue" };
+  if (path.startsWith("/api/internal/cron/") || path.startsWith("/api/internal/queue/") || path.startsWith("/api/internal/codex/")) {
+    const identity = path.startsWith("/api/internal/cron/")
+      ? "service:cron"
+      : path.startsWith("/api/internal/queue/") ? "service:queue" : "service:codex";
+    return { role: "app_service", identity };
   }
   if (!path.startsWith("/api/v1/")) return null;
 

@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { PublicationMeta, SourceList } from "@/components/content";
+import {
+  Card,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { getOurHeroesEdition } from "@/lib/content/our-heroes";
 import type { HeroProfile } from "@/lib/content/our-heroes";
 import { SITE_URL } from "@/lib/site-config";
@@ -26,25 +33,60 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function Citation({ hero, featured }: { hero: HeroProfile; featured?: boolean }) {
+/**
+ * One record: a name, what they did, and where it is written down.
+ *
+ * The name is the first thing in the record and the largest thing in it —
+ * `CardTitle` renders an `h2`, so it is also what the contents rail and the
+ * mobile drawer list, which means the page's navigation is a list of people
+ * rather than a list of sections. Nothing here is revealed on hover and
+ * nothing is behind a control: the sources sit in the record, open, beside
+ * the sentences they support.
+ *
+ * Every record takes the same `row` composition, the featured one included.
+ * It used to be `dossier` — a bordered, shadowed surface around one person
+ * while the others sat on hairlines — which made the page's hierarchy a
+ * matter of packaging on a page whose whole subject is people. The featured
+ * record is distinguished by one step of type and nothing else.
+ */
+function MemorialRecord({
+  hero,
+  featured = false,
+}: {
+  hero: HeroProfile;
+  featured?: boolean;
+}) {
   return (
-    <article
-      className={`${styles.citation} ${featured ? styles.citationFeatured : ""}`}
-      aria-label={`Citation: ${hero.name}`}
+    <Card
+      as="article"
+      id={hero.id}
+      variant="row"
+      className={featured ? styles.featured : styles.record}
     >
-      <p className={styles.citationKicker}>In recognition — October 7, 2023</p>
-      <h3 className={styles.citationName}>{hero.name}</h3>
-      <div className={styles.citationRule} aria-hidden="true" />
-      <div className={styles.citationClassify}>
-        <span className={styles.citationRole}>{hero.role}</span>
-        <span className={styles.citationMeta}>{hero.meta}</span>
-      </div>
-      <p className={styles.citationBody}>{hero.summary}</p>
-      <div className={styles.citationSources}>
-        <span className={styles.citationSourcesKicker}>Sources</span>
+      <CardTitle
+        as="h2"
+        className={featured ? `${styles.name} ${styles.featuredName}` : styles.name}
+      >
+        {hero.name}
+      </CardTitle>
+      <CardHeader className={styles.header}>
+        <CardEyebrow>{hero.role}</CardEyebrow>
+        <span className={styles.meta}>{hero.meta}</span>
+      </CardHeader>
+      <p className={styles.story}>{hero.summary}</p>
+      {/* Above 1220px this leaves the record's column and stands in the
+          page's right margin, level with the story, so a citation sits
+          beside the claim it carries. The escape is `marginNote` — the
+          same mechanism the timeline entries use — and it costs the
+          reading measure nothing. Below that it stays here, under the
+          story. Either way it is in the record and in the markup, so
+          reading order, screen readers and the printed page are the
+          same in both. */}
+      <div className={styles.sources}>
+        <span className={styles.sourcesKicker}>Sources</span>
         <SourceList sources={hero.sources} />
       </div>
-    </article>
+    </Card>
   );
 }
 
@@ -73,24 +115,23 @@ function heroesJsonLd(edition: Awaited<ReturnType<typeof getOurHeroesEdition>>) 
 
 export default async function Page() {
   const edition = await getOurHeroesEdition();
+  const roll = [edition.featured, ...edition.profiles];
 
   return (
-    <SectionPage id="our-heroes" surface="quiet" title="Our Heroes" tagline={TAGLINE}>
+    <SectionPage
+      id="our-heroes"
+      register="muted"
+      surface="quiet"
+      title="Our Heroes"
+      tagline={TAGLINE}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(heroesJsonLd(edition)) }}
       />
-      {/* The consent boundary comes first, and marked. It is a binding
-          commitment (`.ai/DECISIONS.md`, 2026-08-25), and read after three
-          corner-bracketed citations it arrives too late: the frame, the "In
-          recognition" formula and the commendation register have by then
-          told a reader these are memorials built with the families, which is
-          exactly what they are not. War Update is the in-repo precedent for
-          both the treatment and the placement. The wording is unchanged and
-          ungated; only the heading is new, so it names the limit rather than
-          reading as a production note. The `.standfirst` rules are local —
-          War Update's module is not `composes:`-ed and the shell is not
-          touched (2026-08-25 composition decision). */}
+      {/* Consent is the first claim this page makes. Wording is the binding
+          boundary (`.ai/DECISIONS.md`, 2026-08-25) and is not gated or
+          paraphrased. The standfirst treatment stays local. */}
       <SectionBlock heading="What this page will not publish">
         <p className={styles.standfirst}>
           <span className={styles.standfirstLabel}>Consent boundary —</span>{" "}
@@ -105,20 +146,33 @@ export default async function Page() {
         </p>
       </SectionBlock>
 
-      <SectionBlock heading="Citations">
-        <Citation hero={edition.featured} featured />
-        <div className={styles.citationGrid}>
-          {edition.profiles.map((hero) => (
-            <Citation key={hero.id} hero={hero} />
+      {/* The names, before anything is said about them.
+          A roll, not a summary and not a count: no tally of the fallen, no
+          figure to compare, nothing that turns people into a metric. It is
+          also the page's no-JavaScript navigation — the contents rail lists
+          exactly these names above 1220px and the drawer does below it, so
+          this list hides only where the rail has taken the job. */}
+      <nav className={styles.roll} aria-label="Names in this edition">
+        <span className={styles.rollKicker}>In this edition</span>
+        <ul className={styles.rollList}>
+          {roll.map((hero) => (
+            <li key={hero.id}>
+              <Link href={`#${hero.id}`}>
+                <span className={styles.rollName}>{hero.name}</span>
+                <span className={styles.rollRole}>{hero.role}</span>
+              </Link>
+            </li>
           ))}
-        </div>
-      </SectionBlock>
+        </ul>
+      </nav>
 
-      {/* A colophon, not a masthead: `publishedAt` and `reviewedBy` were
-          declared and reaching no reader, while the other three editorial
-          destinations rendered the same two through `PublicationMeta`. At the
-          foot, where a reader who has read the page is the one asking who
-          checked it. */}
+      <div className={styles.records}>
+        <MemorialRecord hero={edition.featured} featured />
+        {edition.profiles.map((hero) => (
+          <MemorialRecord key={hero.id} hero={hero} />
+        ))}
+      </div>
+
       <PublicationMeta
         publishedAt={edition.publishedAt}
         reviewedBy={edition.reviewedBy}

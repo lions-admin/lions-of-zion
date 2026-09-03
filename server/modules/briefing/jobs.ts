@@ -21,7 +21,7 @@ import {
 import type { Source } from "@/server/db/schema";
 import type { Actor } from "@/server/core/audit";
 
-export const BRIEFING_JOB_STAGES = ["collect", "enrich", "cluster", "triage", "draft", "quality", "publish"] as const;
+export const BRIEFING_JOB_STAGES = ["collect", "enrich", "cluster", "triage", "draft", "publish"] as const;
 export type BriefingJobStage = (typeof BRIEFING_JOB_STAGES)[number];
 export const BRIEFING_JOB_CONTRACT_VERSION = 1;
 /** Vercel Queue's documented maximum message retention. The job ledger—not
@@ -162,8 +162,7 @@ export function briefingJobStore(database: unknown) {
     },
 
     // This preserves the old delivery rows and run/artifact audit trail while
-    // making a human-requested regeneration possible after a quality gate
-    // quarantines an otherwise unpublished edition.
+    // making a human-requested regeneration possible after a failed edition.
     async restartStageJob(id: string): Promise<JobRow | undefined> {
       const result = await d.execute<JobRow>(sql`
         UPDATE briefing_job
@@ -569,13 +568,10 @@ export async function enqueueEditorialPipeline(
     /* A failed or quarantined edition has no public output. A deliberate
        manual run starts at triage and resets its downstream stages, retaining
        all prior artifacts and delivery audit rows for inspection. */
-    const quality = await editions.artifact(editionId, "quality") as { passed?: unknown } | undefined;
     // A first forced regeneration reopens the edition as `processing` but
-    // deliberately retains `published_at` until its replacement passes every
-    // gate. A second explicit request must therefore still restart from
-    // triage rather than treating completed stale jobs as the current edition.
+    // deliberately retains `published_at` until its replacement is ready.
     const regenerateCompleted = options.regenerateCompleted && Boolean(edition?.publishedAt);
-    const restartFrom = regenerateCompleted || edition?.status === "quarantined" || edition?.status === "failed" || quality?.passed === false
+    const restartFrom = regenerateCompleted || edition?.status === "quarantined" || edition?.status === "failed"
       ? "triage"
       : undefined;
     if (restartFrom) {
@@ -657,8 +653,7 @@ async function editorialJobReadyToDispatch(database: unknown, job: JobRow): Prom
     cluster: "enrich",
     triage: "cluster",
     draft: "triage",
-    quality: "draft",
-    publish: "quality",
+    publish: "draft",
   };
   const prior = previous[job.stage as Exclude<BriefingJobStage, "collect">];
   return prior ? stageCanAdvance(database, job.editionId, prior) : false;
@@ -676,8 +671,7 @@ async function stageCanAdvance(database: unknown, editionId: string, stage: Excl
   if (stage === "enrich") return Array.isArray(payload.evidenceIds) && payload.evidenceIds.length > 0;
   if (stage === "cluster") return Array.isArray(payload.clusters) && payload.clusters.length > 0;
   if (stage === "triage") return Array.isArray(payload.stories) && payload.stories.length > 0;
-  if (stage === "draft") return Boolean(payload.edition);
-  return payload.passed === true;
+  return stage === "draft" && Boolean(payload.edition);
 }
 
 export async function enqueueDueCollectionJobs(now = new Date()): Promise<Array<{

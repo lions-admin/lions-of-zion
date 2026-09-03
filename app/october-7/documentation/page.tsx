@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
-import { ArchiveIndexFilter } from '@/components/archive';
+import { ArchiveFullIndex, ArchiveIndex, type ArchiveFacet } from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
-import { withCoverThumbs } from '@/lib/content/archive';
+import { getRecordDigests, withCoverThumbs } from '@/lib/content/archive';
 import {
   DOCUMENTATION_PACKAGE,
+  UNCATEGORISED,
   getDocumentationGroups,
 } from '@/lib/content/documentation';
 import { SITE_URL } from '@/lib/site-config';
 
 const TAGLINE = 'The documentation record of October 7, filed as it was published.';
 const PAGE_URL = `${SITE_URL}/october-7/documentation`;
+const BASE_PATH = '/october-7/documentation';
 
 export const metadata: Metadata = {
   title: 'Documentation',
@@ -18,15 +20,29 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const groups = await getDocumentationGroups();
-  const total = groups.reduce((sum, group) => sum + group.records.length, 0);
-  // Covers resolve here, server-side — rows need URLs, not media_ids.
-  const withThumbs = await Promise.all(
-    groups.map(async (group) => ({
-      ...group,
-      records: await withCoverThumbs(DOCUMENTATION_PACKAGE, group.records),
-    })),
-  );
+  const [groups, digests] = await Promise.all([
+    getDocumentationGroups(),
+    getRecordDigests(DOCUMENTATION_PACKAGE),
+  ]);
+
+  /* Flattened in the source's own menu order, so the file numbers run through
+     the whole archive in the order the source filed it — the number is the
+     exhibit's identity, and it must not change when a category is chosen. */
+  const flat = groups.flatMap((group) => group.records);
+  const withThumbs = await withCoverThumbs(DOCUMENTATION_PACKAGE, flat);
+  const records = withThumbs.map((entry) => ({
+    ...entry,
+    digest: digests.get(entry.id),
+  }));
+
+  const facets: ArchiveFacet[] = groups.map((group) => ({
+    value: group.slug,
+    label: group.title,
+    count: group.records.length,
+  }));
+
+  const films = records.filter((r) => r.digest?.medium === 'video').length;
+  const photographs = records.filter((r) => r.digest?.medium === 'image').length;
 
   return (
     <DocPage
@@ -39,30 +55,38 @@ export default async function Page() {
       breadcrumb={[{ href: '/october-7', label: 'October 7' }]}
     >
       <p>
-        {total} records archived from Hamas-Massacre.net, in English and
-        Spanish, kept in the categories the source filed them under. Each is
-        reproduced as published, with its credits intact.
+        {records.length} records archived from Hamas-Massacre.net — {films} films
+        and {photographs} photographs — in English and Spanish, kept in the
+        categories the source filed them under. Each is reproduced as published,
+        with its credits intact.
       </p>
       <p>
-        Much of this material is graphic. It is documentation of a massacre,
-        and it is presented as documentation — described, dated and credited,
-        so that what it shows can be checked rather than argued about.
+        Every record here is graphic. It is documentation of a massacre, and it
+        is presented as documentation — described, dated and filed, so that what
+        it shows can be checked rather than argued about. No film or photograph
+        on this site is shown until you ask for it, and nothing plays by itself.
       </p>
 
-      {/* No meta line — see `showMeta`. These records carry no witness, all
-          have two languages, and the date is the crawl timestamp, so it
-          resolved to two strings across all 335 rows. File numbers run
-          through the whole archive and are assigned before filtering. */}
-      <ArchiveIndexFilter
-        groups={withThumbs.map((group) => ({
-          slug: group.slug,
-          title: group.title,
-          records: group.records,
-        }))}
-        basePath="/october-7/documentation"
-        showMeta={false}
-        showCategoryJump
-        label="Find"
+      {/* The sticky category jump is gone: it moved the page without changing
+          what was on it, so a reader still had 335 equally-weighted rows below
+          them. The categories are a filter now, and they carry their counts. */}
+      <ArchiveIndex
+        variant="documentation"
+        records={records}
+        basePath={BASE_PATH}
+        uncategorised={UNCATEGORISED}
+        facets={facets}
+        facetLegend="Category"
+        searchLabel="Documentation"
+        searchHint="Filter by description, place or category"
+      />
+
+      <ArchiveFullIndex
+        entries={flat}
+        basePath={BASE_PATH}
+        categorised
+        uncategorised={UNCATEGORISED}
+        heading="Every record"
       />
     </DocPage>
   );

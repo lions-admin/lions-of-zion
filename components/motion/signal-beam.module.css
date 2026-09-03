@@ -58,6 +58,20 @@
   animation-direction: reverse;
 }
 
+/* Set by the shared visibility system (IW-004). Offscreen beams pause their
+   packet — the wire stays, the work stops. */
+.svg[data-beam-idle] .packet,
+.svg[data-beam-idle] .halo {
+  animation-play-state: paused;
+}
+
+/* Past the page-wide animation cap: static track, no packet. The beam
+   inherits a slot when an animated one leaves the viewport. */
+.svg[data-beam-capped] .packet,
+.svg[data-beam-capped] .halo {
+  display: none;
+}
+
 /* From 1 to 0 walks the dash forward along the path. `pathLength="1"` on the
    element is what makes these numbers mean "fractions of the wire". */
 @keyframes packetTravel {

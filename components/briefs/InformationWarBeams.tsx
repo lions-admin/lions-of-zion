@@ -12,20 +12,23 @@
  *
  * Neither diagram depends on a beam to be understood:
  *
- *   · The system flow already owns its wire — `.systemFlow::before`, a rail
- *     that needs no JavaScript. The beams there contribute the travelling
- *     packet only and their own track is suppressed, so nothing is drawn
- *     twice and reduced motion leaves the diagram exactly as it is today.
- *   · The convergence fan is the opposite case. Its CSS lines are five 1px
- *     rules at two fixed angles — an approximation that does not actually
- *     reach the origin. The measured beams do, so once they have mounted the
- *     approximation stands down. With JavaScript off it is still there, and
- *     under reduced motion the beams keep their track and lose only the
+ *   · The system chain owns its wire — `.stageChain`'s CSS rail, which needs
+ *     no JavaScript. The beams there contribute the travelling packet only
+ *     and their own track is suppressed, so nothing is drawn twice and
+ *     reduced motion leaves the diagram exactly as the rail draws it.
+ *   · The convergence diagram's no-JavaScript form is a CSS bus: five drops
+ *     into a collector, one drop to the origin. Once the measured wires
+ *     exist the bus stands down. With JavaScript off it is still there, and
+ *     under reduced motion the beams keep their tracks and lose only the
  *     packet.
  *
- * Both are `role="img"`/list structures whose relationship is already stated
- * in prose and in an `aria-label`, so no beam is the sole statement of
- * anything and none takes `SignalBeam`'s `label` prop.
+ * Both are `role="img"`/list structures whose relationship is stated in
+ * prose, in a visible caption, and in an `aria-label`, so no beam is the
+ * sole statement of anything and none takes `SignalBeam`'s `label` prop.
+ *
+ * Measurement discipline lives inside `SignalBeam` itself now (IW-004): one
+ * shared observer system, no layout reads while a diagram is offscreen, and
+ * a page-wide cap on simultaneous packets.
  */
 
 import {
@@ -55,7 +58,7 @@ function anchor(element: HTMLElement): Anchor {
  *
  * One packet per span between consecutive stage marks, phase-offset by an
  * even share of the cycle so the eye reads a signal moving down the chain
- * rather than five things blinking together. Collection is continuous, which
+ * rather than six things blinking together. Collection is continuous, which
  * is what a continuously occupied pipeline says.
  */
 export function SystemFlowBeams({ children }: { children: ReactNode }) {
@@ -73,7 +76,7 @@ export function SystemFlowBeams({ children }: { children: ReactNode }) {
   const spans = Math.max(nodes.length - 1, 1);
 
   return (
-    <div ref={hostRef} className={styles.systemFlowHost}>
+    <div ref={hostRef} className={styles.stageChainHost}>
       {children}
       {nodes.slice(0, -1).map((from, index) => (
         <SignalBeam
@@ -98,10 +101,10 @@ export function SystemFlowBeams({ children }: { children: ReactNode }) {
  * `03 / The independence test` — five syndicated copies, one upstream origin.
  *
  * The relationship the beams draw is the section's whole claim: five
- * headlines that descend from one report are one confirmation. Each wire runs
- * from a copy's ember mark to the origin's mark, so the lines land on points
- * instead of crossing the boxes, and they overlap as they arrive — which is
- * the convergence stated geometrically rather than suggested.
+ * headlines that descend from one report are one confirmation. Each wire
+ * drops from a copy's ember mark down into the origin's mark, so the lines
+ * land on points instead of crossing the boxes, and they overlap as they
+ * arrive — the convergence stated geometrically rather than suggested.
  */
 export function SourceConvergenceBeams({
   label,
@@ -130,7 +133,7 @@ export function SourceConvergenceBeams({
       className={styles.sourceDiagram}
       role="img"
       aria-label={label}
-      /* Set only once the measured wires exist, so the CSS fan is never
+      /* Set only once the measured wires exist, so the CSS bus is never
          removed on a tier that has nothing to replace it with. */
       data-beams={copies.length ? "on" : undefined}
     >
@@ -141,11 +144,12 @@ export function SourceConvergenceBeams({
           containerRef={hostRef}
           fromRef={from}
           toRef={originRef}
-          /* Zero curvature is not a straight line here: `SignalBeam` puts
-             the control point at `(midX, startY)`, so the wire leaves the
-             copy horizontally and bends into the origin. That is the fan-in
-             a converging diagram wants, and it holds its shape when the
-             middle column narrows on a phone and the angles go steep. */
+          /* The copies sit above the origin, so the wire's main axis is
+             vertical: each leaves its copy straight down, then bends into
+             the origin's mark. Zero curvature keeps the control on the
+             copy's own column, which holds the fan's shape when the diagram
+             narrows on a phone and the angles go steep. */
+          curveAxis="y"
           curvature={0}
           duration={AMBIENT_SECONDS}
           delay={(index * AMBIENT_SECONDS) / copies.length}

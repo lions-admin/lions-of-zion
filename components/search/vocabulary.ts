@@ -15,7 +15,18 @@
  * discover that eight labels are missing.
  */
 
-import { ENTITY_TYPES, type EntityType } from "@/server/contracts/enums";
+/**
+ * **The import below must stay type-only.** `server/contracts/enums.ts` builds
+ * every one of its Zod schemas at module scope (`enumOf(...)` is a call, so no
+ * bundler may treat it as pure), which means a single *value* import from this
+ * file — `ENTITY_TYPES` was one until 2026-09-03 — links the whole of `zod`
+ * into the client graph. This module is reached from `SearchPanel` →
+ * `SearchDialog` → `SearchLauncher` → `SiteHeader`, and `SiteHeader` is on
+ * every public route, so that one word cost **62.7 kB gzip / 278.6 kB raw of
+ * first-load JS on all thirty of them** (measured, `docs/performance-budgets.md`).
+ * A type import is erased and costs nothing.
+ */
+import type { EntityType } from "@/server/contracts/enums";
 
 const LABELS: Record<EntityType, string> = {
   information_item: "Claim",
@@ -67,7 +78,14 @@ export function entityLabelPlural(type: EntityType): string {
 
 export function entityRank(type: EntityType): number {
   const index = ORDER.indexOf(type);
-  return index === -1 ? ORDER.length + ENTITY_TYPES.indexOf(type) : index;
+  if (index !== -1) return index;
+  /* The tiebreak for a type `ORDER` forgot. It reads `LABELS`, not the
+     `ENTITY_TYPES` array it used to, because `LABELS` is declared
+     `Record<EntityType, string>` — TypeScript already refuses to compile it
+     unless it names every type — so its key order is an equally complete and
+     equally stable fallback that carries no second copy of the enum and no
+     import of `zod`. */
+  return ORDER.length + Object.keys(LABELS).indexOf(type);
 }
 
 export interface HitGroup<T> {

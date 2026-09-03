@@ -5,14 +5,19 @@ import {
   INTRO_SCAN_FIELD_TARGET,
   INTRO_SCAN_GLYPH_TARGET,
   INTRO_SCAN_WORD_TARGET,
+  LION_MASK_EDGE_INNER,
+  LION_MASK_EDGE_OUTER,
   LION_MASK_X_PER_SCALE,
   LION_MASK_Y_PER_SCALE,
+  RETIRED_FIELD_HOLE_X,
+  RETIRED_FIELD_HOLE_Y,
   SCAN_CORRIDOR_BRAND_PAD,
   SCAN_CORRIDOR_ROW_PAD,
   SCAN_CORRIDOR_SIDE_PAD,
   SCAN_VISIBLE_THRESHOLD,
   TEXT_CORRIDOR_MUTE,
   introScanMultiplier,
+  lionScanMaskOpacity,
   solveLionScanMask,
   solveScanCorridor,
   type LionScanMask,
@@ -143,6 +148,83 @@ describe("solveLionScanMask", () => {
   });
 });
 
+/**
+ * The build-time hole `buildScanField` used to punch is gone (2026-09-04): it
+ * was sized once from `orbit.centerScale`, frozen on world centre, and so sat
+ * under the text column as an empty oval for the whole intro. What has to hold
+ * is that the *runtime* mask still covers it in the settled navigation state,
+ * where the lion is back at `lionY = 0` and `lionScale = orbit.centerScale`.
+ *
+ * `lionScanMaskOpacity` mirrors the material's `smoothstep` on the CPU and
+ * shares its two edge constants with it, so this is a proof about the shader
+ * and not about a second implementation of it.
+ */
+describe("the runtime hero mask covers the retired build-time hole", () => {
+  /* Every `orbit.centerScale` the layout can produce: 1 at >= 480 px, and
+     0.78 + narrowT * 0.22 below it, so 0.78 at 320 px. */
+  const centerScales = [1, 0.95, 0.876, 0.82, 0.78];
+
+  it("is fully dark at least 3% beyond the retired ellipse, on both axes", () => {
+    expect(LION_MASK_EDGE_INNER * LION_MASK_X_PER_SCALE).toBeGreaterThan(
+      RETIRED_FIELD_HOLE_X * 1.03,
+    );
+    expect(LION_MASK_EDGE_INNER * LION_MASK_Y_PER_SCALE).toBeGreaterThan(
+      RETIRED_FIELD_HOLE_Y * 1.03,
+    );
+    /* Measured margins, so a change to any of the four numbers has to be
+       deliberate: 1.3932 vs 1.34 in x (+3.97%), 1.2212 vs 1.18 in y (+3.49%). */
+    expect(LION_MASK_EDGE_INNER * LION_MASK_X_PER_SCALE).toBeCloseTo(1.3932, 10);
+    expect(LION_MASK_EDGE_INNER * LION_MASK_Y_PER_SCALE).toBeCloseTo(1.2212, 10);
+  });
+
+  it("kills the scan everywhere the retired hole did, at every centre scale", () => {
+    const mask: LionScanMask = { centerY: 0, halfX: 0, halfY: 0 };
+    for (const scale of centerScales) {
+      solveLionScanMask(scale, 0, mask);
+      /* The retired hole's whole boundary, plus its interior on a coarse
+         grid — a build-time test dropped a point when it was *inside* the
+         ellipse, so the boundary is the tight case. */
+      for (let i = 0; i < 64; i += 1) {
+        const a = (i / 64) * Math.PI * 2;
+        for (const r of [0.25, 0.6, 0.9, 1]) {
+          const x = Math.cos(a) * RETIRED_FIELD_HOLE_X * scale * r;
+          const y = Math.sin(a) * RETIRED_FIELD_HOLE_Y * scale * r;
+          expect(lionScanMaskOpacity(x, y, mask), `scale=${scale} a=${a} r=${r}`).toBe(0);
+        }
+      }
+      expect(lionScanMaskOpacity(0, 0, mask)).toBe(0);
+    }
+  });
+
+  it("fades out rather than cutting, and is clear of the lion by the outer edge", () => {
+    const mask: LionScanMask = { centerY: 0, halfX: 0, halfY: 0 };
+    solveLionScanMask(1, 0, mask);
+    expect(LION_MASK_EDGE_OUTER).toBeGreaterThan(LION_MASK_EDGE_INNER);
+    // Monotone from dark to clear along +x, and 1 at the outer edge.
+    let previous = -1;
+    for (let i = 0; i <= 40; i += 1) {
+      const x = (i / 40) * LION_MASK_EDGE_OUTER * LION_MASK_X_PER_SCALE * 1.2;
+      const value = lionScanMaskOpacity(x, 0, mask);
+      expect(value).toBeGreaterThanOrEqual(previous);
+      previous = value;
+    }
+    expect(lionScanMaskOpacity(LION_MASK_EDGE_OUTER * LION_MASK_X_PER_SCALE, 0, mask)).toBe(1);
+    expect(lionScanMaskOpacity(LION_MASK_EDGE_OUTER * LION_MASK_Y_PER_SCALE * 1.01, 0, mask)).toBeGreaterThan(0);
+  });
+
+  it("moves the emptiness with the lion instead of leaving it at world centre", () => {
+    /* The defect, stated as arithmetic: mid-intro the lion has risen and
+       shrunk, and world centre — where the story column sits — must carry
+       scan again. A build-time hole could not do this. */
+    const mask: LionScanMask = { centerY: 0, halfX: 0, halfY: 0 };
+    solveLionScanMask(0.42, 2.1, mask);
+    expect(lionScanMaskOpacity(0, 0, mask)).toBe(1);
+    expect(lionScanMaskOpacity(0, 2.1, mask)).toBe(0);
+    // And it is dark under the lion at its own new height, not at the old one.
+    expect(lionScanMaskOpacity(0.5, 2.1, mask)).toBe(0);
+  });
+});
+
 describe("solveScanCorridor", () => {
   const layouts = [
     computeIntroLayout(1440, 900),
@@ -245,6 +327,80 @@ describe("NetworkScan.tsx multiplies the navigation opacities", () => {
     expect(source).toMatch(/frame\?\.scanReveal \?\? 0/);
     expect(source).toMatch(/frame\?\.navReveal \?\? 0/);
   });
+
+  it("writes all three hero-hole uniforms on every layer, every frame", () => {
+    const sync = source.match(/function syncScanUniforms\([\s\S]*?\n\}\n/);
+    expect(sync, "syncScanUniforms").not.toBeNull();
+    const body = sync?.[0] ?? "";
+    expect(body).toMatch(/const mask = solveLionScanMask\(\s*frame\?\.lionScale \?\? 0,\s*frame\?\.lionY \?\? 0,/);
+    /* Inside the loop over `layers.handles`, so a layer added later cannot
+       silently keep its constructor hole. */
+    const perLayer = body.match(/for \(const handle of layers\.handles\) \{([\s\S]*?)\n {2}\}/);
+    expect(perLayer, "per-layer uniform loop").not.toBeNull();
+    for (const name of ["heroCenterY", "heroMaskX", "heroMaskY"]) {
+      expect(perLayer?.[1], name).toMatch(new RegExp(`setUniform\\(handle, '${name}',`));
+    }
+  });
+});
+
+/**
+ * The Phase D defect, fixed 2026-09-04. `createExclusionTest` punched a
+ * centred ellipse into the field geometry at build time, sized from
+ * `orbit.centerScale` and frozen at world centre — so for the whole intro,
+ * while the lion was up and small, an empty oval sat under the story column
+ * and no uniform could move it. The generator is uniform now; the eight fixed
+ * spoke exclusions stay, because those really do not move.
+ */
+describe("NetworkScan.tsx no longer punches a centred hole into the field", () => {
+  const source = read(LAYER);
+
+  it("keeps only the node and spoke exclusions at build time", () => {
+    const helper = source.match(
+      /function createNodeExclusionTest\([\s\S]*?\n\}\n/,
+    );
+    expect(helper, "createNodeExclusionTest").not.toBeNull();
+    const body = helper?.[0] ?? "";
+    // The eight rings and the eight spokes, and nothing else.
+    expect(body).toMatch(/nodePosition\(i, count, orbit\)/);
+    expect(body).toMatch(/Math\.hypot\(x - node\.x, y - node\.y\) < nodeGap/);
+    expect(body).toMatch(/distanceToSegment\(x, y, 0, 0, node\.x, node\.y\)/);
+    /* `orbit.centerScale` is the only lion-sized quantity available at build
+       time, so a centred hole of any radius would have to reach for it. */
+    expect(body).not.toMatch(/centerScale/);
+    expect(body).not.toMatch(/centreX|centreY/);
+  });
+
+  it("has no other build-time centre exclusion anywhere in the layer", () => {
+    expect(source).not.toMatch(/createExclusionTest/);
+    expect(source).not.toMatch(/\(x \/ centreX\)/);
+    expect(source).toMatch(/const excluded = createNodeExclusionTest\(orbit, 8, depthScale\);/);
+  });
+
+  it("holds the field to the tier budget and does not let one end spend it all", () => {
+    /* Removing the hole moves points into the centre, which the global cap
+       inside `push` used to pay for out of the last rows generated — the top
+       band measured 10.6% thinner at 1440x900 / 18k over an eight-seed
+       ensemble. An even share of the *remaining* budget holds that to 1.9%
+       at an unchanged total, without raising `pointBudget`. */
+    expect(source).toMatch(
+      /const perRowBudget = Math\.ceil\(\(pointBudget - rowStart \/ 4\) \/ \(rows - row\)\);/,
+    );
+    expect(source).not.toMatch(/Math\.floor\(pointBudget \/ rows\)/);
+    // The hard cap is still the tier budget and nothing else.
+    expect(source).toMatch(/if \(out\.length >= pointBudget \* 4 \|\| excluded\(x, y\)\) return;/);
+    expect(read(SCENE)).toMatch(/pointBudget=\{tier\.networkPoints\}/);
+  });
+
+  it("reads the frame after Scene writes it, not a frame late", () => {
+    const priority = source.match(/const SCAN_FRAME_PRIORITY = ([\d.]+);/);
+    expect(priority, "SCAN_FRAME_PRIORITY").not.toBeNull();
+    const value = Number(priority?.[1]);
+    /* Above 0 so r3f sorts it after `Scene`'s default-priority writer, below
+       the post chain's 1 so it still runs before the draw. */
+    expect(value).toBeGreaterThan(0);
+    expect(value).toBeLessThan(1);
+    expect(source).toMatch(/\}, SCAN_FRAME_PRIORITY\);/);
+  });
 });
 
 describe("networkScanMaterial.ts exposes the lion hole and the text corridor as uniforms", () => {
@@ -268,6 +424,13 @@ describe("networkScanMaterial.ts exposes the lion hole and the text corridor as 
     expect(source).toMatch(/x\.div\(uniforms\.heroMaskX\)/);
     expect(source).toMatch(/p\.y\.sub\(uniforms\.heroCenterY\)\.div\(uniforms\.heroMaskY\)/);
     expect(source).not.toMatch(/x\.div\(options\.maskX\)/);
+  });
+
+  it("fades the hero hole through the shared edge band, not its own literals", () => {
+    /* One definition, so `lionScanMaskOpacity` really is a proof about this
+       node graph rather than a second guess at it. */
+    expect(source).toMatch(/LION_MASK_EDGE_INNER,\s*LION_MASK_EDGE_OUTER,/);
+    expect(source).not.toMatch(/smoothstep\(\s*0\.86,\s*1\.24,/);
   });
 
   it("keeps the static node holes and applies the corridor as a dim in the opacity chain", () => {

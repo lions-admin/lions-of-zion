@@ -3,7 +3,7 @@ import Link from "next/link";
 import { DocPage } from "@/components/sections/DocPage";
 import { SectionBlock } from "@/components/sections/SectionPage";
 import { CorrectionHistory, type Correction } from "@/components/content";
-import { StatusState } from "@/components/ui";
+import { StatusState } from "@/components/ui/StatusState";
 import { getCorrectionsLog } from "@/lib/content/corrections";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";

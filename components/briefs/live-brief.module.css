@@ -205,8 +205,6 @@
 }
 
 
-
-.emptyState,
 .liveLead {
   display: grid;
   align-content: center;
@@ -215,8 +213,6 @@
   gap: var(--sp-5);
   padding-block: var(--sp-6);
 }
-
-.emptyState h2,
 .liveLead h2 {
   max-width: 24ch;
   margin: 0;
@@ -228,8 +224,6 @@
   line-height: var(--t-h2-lh);
   text-wrap: balance;
 }
-
-.emptyState > p:last-child,
 .liveLead > p:not(.liveEyebrow) {
   max-width: 46rem;
   margin: 0;
@@ -476,97 +470,11 @@
 }
 
 
-.statHero {
-  display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(18rem, 0.85fr);
-  align-items: end;
-  gap: clamp(var(--sp-6), 6vw, var(--sp-9));
-}
-
-.heroFigure {
-
-  --brief-stat-size: clamp(4rem, 12vw, 8rem);
-
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--brief-stat-size);
-  font-weight: var(--t-data-weight);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-  line-height: 0.9;
-}
-
-.statQualifier {
-  max-width: 58ch;
-  margin: 0;
-  padding-block-start: var(--sp-4);
-  border-block-start: 2px solid var(--gold);
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
-}
-
-.evidenceContract dl {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-2);
-}
-
-.evidenceContract dl > div {
-  min-width: 0;
-  padding: var(--sp-4);
-}
-
-.evidenceContract dl > div + div {
-  border-inline-start: 1px solid var(--line);
-}
-
-.evidenceContract dt {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
-}
-
-.evidenceContract dd {
-  margin: var(--sp-2) 0 0;
-  color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-h3);
-  font-weight: var(--t-data-weight);
-  font-variant-numeric: tabular-nums;
-  line-height: var(--t-h3-lh);
-}
-
-
 
 @media (max-width: 59.99rem) {
-  .statHero {
-    grid-template-columns: 1fr;
-    gap: var(--sp-5);
-  }
-
   .liveSection {
     grid-template-columns: 1fr;
     gap: var(--sp-4);
-  }
-
-  .evidenceContract dl {
-    grid-template-columns: 1fr;
-  }
-
-  .evidenceContract dl > div + div {
-    border-inline-start: 0;
-    border-block-start: 1px solid var(--line);
   }
 }
 
@@ -587,7 +495,6 @@
     display: grid;
   }
 
-  .emptyState,
   .liveLead {
     min-height: 0;
     padding-block: var(--sp-5);

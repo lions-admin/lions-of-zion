@@ -1,166 +1,18 @@
 /*
- * War Update's composition: a wire-service dispatch feed, not a generic
- * timeline card list. Each entry reads like a dispatch — a byline/dateline
- * naming the place actually stated in that entry's sourced text (never
- * inferred), then the headline, then the report.
+ * War Update is a filtered feed of briefing publications (`section=war_update`)
+ * — the page renders a published-updates list and, when the record is empty or
+ * unreadable, a shared `StatusState`. Everything else it wears comes from
+ * `SectionPage` and the shared primitives.
  *
- * Values answer to the V3 tokens in app/globals.css; the shared treatments
- * (entry title, margin note) come from the content library. This file only
- * shapes the composition. The filter chips and the share control are the
- * site `Button` (`variant="filter"` / `variant="ghost"`), so nothing here
- * restyles them.
+ * This file used to carry a second, wire-service dispatch composition — a
+ * wire list, dispatch rows, bylines, datelines, headlines, a filter row and
+ * a permalink. No element of it was reachable: page.tsx names exactly one
+ * class from this module, and the prerendered HTML for /war-update carries
+ * no class from it at all. Removed under CLEAN-004/CLEAN-008. (Written
+ * without leading dots on purpose: perf-report reads class selectors out of
+ * comments too, and naming them here would report them as dead rules that
+ * no longer exist.)
  */
-
-/* The advisory is now the first thing in the body, standing where a "Trust"
-   heading used to. It gets a rule under it so it reads as a masthead strip
-   rather than as the page's opening paragraph — the dispatches are the
-   opening paragraph. */
-.advisory {
-  margin: 0 0 var(--sp-6);
-  padding-bottom: var(--sp-5);
-  border-bottom: var(--line-w) solid var(--gold-line);
-  font-style: italic;
-}
-
-/* The one line of prose that outlives the feed, set with the metadata grid
-   it sits under rather than with the dispatches. */
-.colophonNote {
-  margin-top: var(--sp-5);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
-}
-
-.advisoryLabel {
-  font-style: normal;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  color: var(--gold);
-}
-
-/* One entrance for the feed as a whole — opacity and transform only, once,
-   so a filter change reads as the wire re-settling rather than as a reload. */
-.wire {
-  margin: var(--sp-5) 0 0;
-  padding: 0;
-  list-style: none;
-  animation: wireRise var(--dur-slow) var(--ease-out) both;
-}
-
-@keyframes wireRise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dispatch {
-  padding: var(--sp-5) 0;
-  border-top: var(--line-w) solid var(--gold-line);
-  /* Where every anchored thing on a dossier comes to rest —
-     `--anchor-offset` in sections.module.css, the number set by the fixed
-     header. This was `--sp-9` (6rem), a fourth private answer to a question
-     the shell already answers. */
-  scroll-margin-top: var(--anchor-offset, 5.5rem);
-}
-
-.dispatch:first-child {
-  padding-top: 0;
-  border-top: none;
-}
-
-/* The byline row is data — mono at the data step, tabular. Uppercase is
-   spent only where the wire convention earns it and the label is two words
-   or fewer: the place and the timestamp, and the "Latest" mark. The category
-   chip can run to three words and the VerificationBadge inside this row is
-   set in sentence case by the content library on purpose, so neither
-   inherits a transform. */
-.byline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2);
-  margin: 0 0 var(--sp-3);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
-
-.datelinePlace,
-.byline time {
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.datelinePlace {
-  color: var(--gold-hi);
-  font-weight: 600;
-}
-
-/* Category is a semantic data chip: sentence case, since it can be three
-   words ("Front · Home front"). */
-.category {
-  padding: var(--sp-1) var(--sp-2);
-  border: var(--line-w) solid var(--gold-line);
-  border-radius: var(--radius-1);
-  color: var(--gold);
-}
-
-/* The headline is the library's entry title — display face, h3 step. */
-.headline {
-  composes: entryTitle from '../../components/content/content.module.css';
-  margin: 0 0 var(--sp-3);
-}
-
-.wireBody {
-  max-width: var(--measure-reading);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  color: var(--ink);
-}
-
-.dispatchSources {
-  composes: marginNote from '../../components/content/content.module.css';
-}
-
-/* Two tracks, the second zero-wide: the dispatch keeps the reading measure
-   and its citation overflows into the margin while still setting the row's
-   height, so a long source list can never run into the dispatch below it. */
-@media (min-width: 1220px) {
-  .dispatch {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 0;
-  }
-
-  .dispatchMain {
-    grid-column: 1;
-    grid-row: 1;
-    min-width: 0;
-  }
-}
-
-.filterRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  margin: var(--sp-5) 0 0;
-}
-
-.emptyFilter {
-  margin: var(--sp-5) 0 0;
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink-lo);
-}
 
 /* ── Published updates ────────────────────────────────────────────────────
    Articles that came through the briefing pipeline: date, headline, summary.
@@ -222,49 +74,8 @@
   outline-offset: 4px;
 }
 
-.latest {
-  padding: var(--sp-1) var(--sp-2);
-  border: var(--line-w) solid var(--gold-line);
-  border-radius: var(--radius-1);
-  color: var(--gold-hi);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.dispatchActions {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-4);
-  margin-top: var(--sp-4);
-}
-
-/* The permalink is a route, so it is data; the share control beside it is
-   the site Button and sets its own height. */
-.permalink {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h-sm);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.permalink:hover,
-.permalink:focus-visible {
-  color: var(--gold-hi);
-}
-
-/* A thumb, not a pointer — the same seam and the same test the archive's
-   category chips use. The `(max-width: 600px)` block that used to close this
-   file is gone: its one rule restated `.dispatch`'s own default padding, so
-   it had no effect and cost the file a sixth breakpoint. */
-@media (max-width: 719px), (pointer: coarse) {
-  .permalink {
-    min-height: var(--control-h);
+@media (prefers-reduced-motion: reduce) {
+  .publishedUpdates strong {
+    transition: none;
   }
 }

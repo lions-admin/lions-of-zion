@@ -1,9 +1,19 @@
-/* The default treatment for `ReadingProgress` when a page passes no classes
-   of its own: a 2px hairline pinned to the top of the viewport, filled in the
-   accent. No glow — a progress bar is a measurement, not an emphasis. */
+/* The reading-progress bar, and the only implementation of it (SYS-015): a
+   2px hairline pinned across the top of the viewport, filled in the accent.
+   No glow — a progress bar is a measurement, not an emphasis.
+
+   Two variables are the whole extension surface, and a caller sets them on
+   an ancestor or on the class it passes in:
+
+     --accent         the fill. `sections.module.css` sets it per route
+                      family, which is how `accent="ember"` recolours the bar
+                      along with the rest of the page. Falls back to gold.
+     --progress-top   where the bar hangs. `/information-war` puts it under
+                      the fixed masthead rather than over it. Defaults to the
+                      top of the viewport. */
 .progressTrack {
   position: fixed;
-  top: 0;
+  top: var(--progress-top, 0);
   right: 0;
   left: 0;
   z-index: var(--z-sticky);
@@ -16,7 +26,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--gold);
+  background: var(--accent, var(--gold));
   transform-origin: left;
   /* Resting state is empty, not full. The client effect applies scaleX via
      requestAnimationFrame, so without this the first painted frame — and the

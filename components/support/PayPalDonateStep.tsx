@@ -26,7 +26,8 @@
  * money path may depend on a script the site does not control.
  */
 import { useEffect, useRef, useState } from "react";
-import { Button, ButtonLink, assertiveLive, politeLive } from "@/components/ui";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import styles from "./paypal-step.module.css";
 
 const PAYPAL_CLIENT_ID =

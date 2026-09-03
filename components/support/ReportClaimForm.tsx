@@ -9,7 +9,9 @@
  * local rather than shared since it's a small, self-contained piece.
  */
 import { FormEvent, useRef, useState } from 'react';
-import { Button, Field, assertiveLive, politeLive } from '@/components/ui';
+import { Button } from '@/components/ui/Button';
+import { Field } from '@/components/ui/Field';
+import { assertiveLive, politeLive } from '@/components/ui/live-region';
 import styles from './support.module.css';
 
 const FAILURE_COPY: Record<string, string> = {

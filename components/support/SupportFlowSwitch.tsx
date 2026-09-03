@@ -36,7 +36,7 @@
  * this file knows is which one is showing.
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Button } from '@/components/ui';
+import { Button } from '@/components/ui/Button';
 import styles from './support-flows.module.css';
 
 export type SupportFlow = {

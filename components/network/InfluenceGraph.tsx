@@ -308,7 +308,7 @@ export function InfluenceGraph({ roster, edges, communities, status }: Influence
                 <Button
                   key={value}
                   type="button"
-                  variant="filter"
+                  variant="secondary"
                   size="md"
                   className={styles.chip}
                   data-evidence={value}
@@ -338,7 +338,7 @@ export function InfluenceGraph({ roster, edges, communities, status }: Influence
                 <Button
                   key={value}
                   type="button"
-                  variant="filter"
+                  variant="secondary"
                   size="md"
                   className={styles.chip}
                   data-confidence={value}

@@ -1,25 +1,75 @@
-/* The shell's own two rules. Everything else a reading route wears is styled
-   by the page's module, the masthead's, or the colophon's. */
+/* The shell's own rules. Everything else a reading route wears is styled by
+   the page's module, the masthead's, or the colophon's. */
 
 /*
  * A stacking context for the skip link, and nothing else.
  *
- * The link itself is `position: fixed` at the top-left corner and is styled by
- * each page's own module (`sections.module.css` `.skipLink` and its siblings),
- * where it carries `z-index: 100`. The masthead is `--z-header` (200) and is
- * now a full-bleed bar rather than a centred pill, so that corner is covered:
- * on focus the link would slide out *behind* the bar and a keyboard reader
- * would see nothing move.
+ * The link itself is `position: fixed` at the top-left corner. The masthead is
+ * `--z-header` (200) and is a full-bleed bar rather than a centred pill, so
+ * that corner is covered: on focus the link would slide out *behind* the bar
+ * and a keyboard reader would see nothing move.
  *
- * Raising it here rather than in the page modules keeps the fix in one file
- * and out of five. A zero-height positioned wrapper does not affect layout,
- * and a `fixed` child still resolves against the viewport because nothing here
- * establishes a containing block for it — no transform, no filter, no
- * `contain`.
+ * A zero-height positioned wrapper does not affect layout, and a `fixed` child
+ * still resolves against the viewport because nothing here establishes a
+ * containing block for it — no transform, no filter, no `contain`.
  */
 .skipHost {
   position: relative;
   z-index: var(--z-overlay);
+}
+
+/*
+ * The skip link — one implementation (CLEAN-002).
+ *
+ * There were five: this file carried only the coarse-pointer floor while
+ * `sections`, `article`, `information-war-system` and `account` each declared
+ * the whole control. They agreed on the mechanism (fixed, translated out of
+ * view, translated back on focus) and disagreed on the surface: the article
+ * route's sat on `--ground` in gold ink at the caption step with no shadow,
+ * the others on `--surface-3` in `--ink-hi` at the small step with
+ * `--shadow-2`. A keyboard reader crossing between routes saw two different
+ * controls for the same job. This is the surface all four that render it now
+ * use; `EditorialShell` applies it unless a caller passes its own class.
+ */
+.skipLink {
+  position: fixed;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  z-index: var(--z-overlay);
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--line-w) solid var(--gold-line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-3);
+  box-shadow: var(--shadow-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  transform: translateY(-180%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+/* Coarse-pointer target floor (A11Y-006). A skip link is the first thing a
+   switch or touch user reaches; it is not a link in running prose, so WCAG
+   2.5.8's inline exception does not cover it. */
+@media (pointer: coarse) {
+  .skipLink {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--control-h);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skipLink {
+    transition: none;
+  }
 }
 
 .familyContext {
@@ -36,16 +86,88 @@
   color: var(--ink-lo);
 }
 
-/* Coarse-pointer target floor (A11Y-006). A skip link is the first thing a
-   switch or touch user reaches; it is not a link in running prose, so WCAG
-   2.5.8's inline exception does not cover it.
-   NOTE: this is the 1th of five separate `.skipLink` implementations in the
-   repo (editorial-shell, sections, article, information-war-system, account).
-   Recorded against CLEAN-002 — they should be one primitive. */
+/*
+ * The document trail — one implementation (CLEAN-002).
+ *
+ * There were two: `.documentTrail` in `components/sections/sections.module.css`
+ * (DocPage and SectionPage) and `.breadcrumb` in the article route's module.
+ * They rendered the same markup with the same separators and drifted only in
+ * what each had been remembered to carry — the article trail had no
+ * reduced-motion rule, so its links kept animating their colour for a reader
+ * who had asked them not to.
+ *
+ * It lives in the shell's stylesheet rather than in a module of its own on
+ * purpose. A new CSS Module under `components/ui/` reachable from both
+ * `DocPage` and the article page regrouped Turbopack's CSS chunks and put an
+ * extra 27 kB of stylesheet on the critical path of every route — +4.4 kB
+ * gzip each, enough to take `worst route CSS` past its budget. Every route
+ * that can render a trail already loads this file for `EditorialShell`.
+ *
+ * Placement — which grid column the trail sits in, how wide it may run —
+ * belongs to the shell that mounts it and arrives as a `className`.
+ */
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-2);
+  margin-bottom: var(--sp-5);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+}
+
+.trail a {
+  color: var(--ink-lo);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.trail a:hover,
+.trail a:focus-visible {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.trailSegment {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.trailCurrent {
+  max-width: var(--measure-caption);
+  overflow: hidden;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A trail is a standalone navigation affordance, not a link inside running
+   prose, so WCAG 2.5.8's inline exception does not cover it and the 44px
+   floor applies. Scoped to a coarse pointer so the trail keeps its caption
+   rhythm under a mouse. */
 @media (pointer: coarse) {
-  .skipLink {
+  .trail,
+  .trailSegment {
+    align-items: center;
+  }
+
+  .trail a {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-block-size: var(--control-h);
+    min-inline-size: var(--control-h);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trail a {
+    transition: none;
   }
 }

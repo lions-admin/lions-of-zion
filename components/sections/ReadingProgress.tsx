@@ -1,13 +1,20 @@
 'use client';
 
 /**
- * Shared with the Geopolitical Brief (`components/briefs/ReadingProgress.tsx`
- * used to be its own copy of this exact logic). Tracks scroll progress of
- * the nearest `[data-reading-scroll]` ancestor. `trackClassName`/
- * `valueClassName` let a page substitute its own exact visual treatment
- * (the brief keeps its original `.progressTrack`/`.progressValue`, sitting
- * inside its sticky header) while everything else gets the default —
- * a thin fixed line pinned to the top of the viewport.
+ * Tracks scroll progress of the nearest `[data-reading-scroll]` ancestor.
+ *
+ * The bar itself is this module's, always. There were four copies of it —
+ * here, `sections.module.css` `.topProgress*`, the article route's, and
+ * `information-war-system.module.css` — because `trackClassName` and
+ * `valueClassName` used to *replace* the treatment rather than add to it, so
+ * every caller restated the whole 2px line. They had drifted: the article's
+ * carried a gradient and a `box-shadow` glow against this file's own stated
+ * rule that a progress bar is a measurement and not an emphasis, and two of
+ * the four had lost the transition and the reduced-motion result with it.
+ *
+ * The classes now compose, so a caller passes only its delta: the two
+ * variables this bar reads (`--accent` for its fill, `--progress-top` for
+ * where it hangs) and whatever the page needs to do to it at a breakpoint.
  */
 import { useEffect, useRef } from 'react';
 import styles from './reading-progress.module.css';
@@ -63,8 +70,14 @@ export function ReadingProgress({ trackClassName, valueClassName }: ReadingProgr
   }, []);
 
   return (
-    <span className={trackClassName ?? styles.progressTrack} aria-hidden="true">
-      <span ref={valueRef} className={valueClassName ?? styles.progressValue} />
+    <span
+      className={[styles.progressTrack, trackClassName].filter(Boolean).join(" ")}
+      aria-hidden="true"
+    >
+      <span
+        ref={valueRef}
+        className={[styles.progressValue, valueClassName].filter(Boolean).join(" ")}
+      />
     </span>
   );
 }

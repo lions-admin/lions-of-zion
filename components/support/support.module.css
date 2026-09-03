@@ -101,52 +101,6 @@
   cursor: not-allowed;
 }
 
-.fieldset {
-  margin-bottom: var(--sp-4);
-  padding: var(--sp-3) var(--sp-4) var(--sp-2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-2);
-}
-
-.fieldset legend {
-  padding: 0 var(--sp-2);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
-  color: var(--ink);
-}
-
-/* A whole row is the tap target, not the 16px box. */
-.checkboxRow {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  min-height: 44px;
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-  cursor: pointer;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.checkboxRow:hover {
-  color: var(--ink-hi);
-}
-
-.checkboxRow input {
-  flex: none;
-  width: var(--sp-4);
-  height: var(--sp-4);
-  margin: 0;
-  accent-color: var(--gold);
-  cursor: pointer;
-}
-
-.checkboxRow input:focus-visible {
-  outline-offset: 2px;
-}
-
 /* An error has to be read to be acted on — small size, the danger tone,
    and a rule in the danger line so it sits with the field it describes. */
 .fieldError {

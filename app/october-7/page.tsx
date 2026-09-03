@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SectionPage } from "@/components/sections/SectionPage";
 import { FigureRow, PublicationMeta, SourceList, Timeline } from "@/components/content";
 import { getOctober7Record } from "@/lib/content/october-7";
-import { getRecordDigests } from "@/lib/content/archive";
+import { getRecordDigests, manifestLanguages } from "@/lib/content/archive";
 import {
   DOCUMENTATION_PACKAGE,
   getDocumentationGroups,
@@ -74,7 +74,10 @@ export default async function Page() {
   const counts = {
     testimonies: testimonies.counts.records,
     documentation: documentation.counts.records,
-    languages: testimonies.languages.length,
+    // Through the helper, never `.length`: october7's manifest writes
+    // `languages` as a per-language count map, so the array read produced
+    // `undefined` and this door shipped an empty "Languages" value.
+    languages: manifestLanguages(testimonies).length,
     films: 0,
     photographs: 0,
   };

@@ -103,6 +103,11 @@ export function SensitiveContent({
             {category}
           </p>
           <p className={styles.sensitiveWarning}>{warning}</p>
+          {/* A record can hold twenty-five of these, so the label alone —
+              "Show this material", twenty-five times — tells a screen-reader
+              user nothing about what any one of them opens. The description
+              is the category line already stated above the button, so what a
+              reader hears before pressing is what a reader sees. */}
           <Button
             ref={revealRef}
             type="button"
@@ -110,6 +115,7 @@ export function SensitiveContent({
             size="md"
             aria-expanded={false}
             aria-controls={regionId}
+            aria-describedby={categoryId}
             onClick={reveal}
           >
             Show this material

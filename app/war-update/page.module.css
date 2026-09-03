@@ -4,10 +4,14 @@
  * unreadable, a shared `StatusState`. Everything else it wears comes from
  * `SectionPage` and the shared primitives.
  *
- * This file used to carry a second, wire-service dispatch composition
- * (`.wire`, `.dispatch`, `.byline`, `.headline`, `.filterRow`, …). No element
- * of it was reachable: `page.tsx` names exactly one class from this module.
- * Removed under CLEAN-004/CLEAN-008.
+ * This file used to carry a second, wire-service dispatch composition — a
+ * wire list, dispatch rows, bylines, datelines, headlines, a filter row and
+ * a permalink. No element of it was reachable: page.tsx names exactly one
+ * class from this module, and the prerendered HTML for /war-update carries
+ * no class from it at all. Removed under CLEAN-004/CLEAN-008. (Written
+ * without leading dots on purpose: perf-report reads class selectors out of
+ * comments too, and naming them here would report them as dead rules that
+ * no longer exist.)
  */
 
 /* ── Published updates ────────────────────────────────────────────────────

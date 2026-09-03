@@ -33,8 +33,9 @@
 /* ── Breadcrumb ─────────────────────────────────────────── */
 
 /* Width only. The trail is the shared `Breadcrumb` primitive
-   (`components/ui/breadcrumb.module.css`), which owns its type, its link
-   contract, its coarse target floor and its truncation — CLEAN-002. */
+   (`components/site/Breadcrumb.tsx`, styled by the `.trail` rules in
+   `editorial-shell.module.css`), which owns its type, its link contract, its
+   coarse target floor and its truncation — CLEAN-002. */
 .breadcrumb {
   max-width: var(--reading-w);
 }

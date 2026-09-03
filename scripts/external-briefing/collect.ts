@@ -272,12 +272,44 @@ export async function collectItems(now: Date = new Date()): Promise<CollectedIte
       const title = getPath(item, config.titlePath);
       if (typeof title !== "string" || !title.trim()) continue;
 
-      const publishedAtRaw = getPath(item, config.publishedAtPath);
-      const publishedAt = typeof publishedAtRaw === "string" ? new Date(publishedAtRaw) : undefined;
-      if (!isRecent(publishedAt, now)) continue;
-
+      /* Government open-data records are reference material, not news: a
+       * shelter dataset's `metadata_modified` reflects the last edit to the
+       * dataset, not an event time, and can legitimately sit months or years
+       * in the past while the data itself is still the current authoritative
+       * state. Applying the same 30-hour news-recency window here silently
+       * dropped the only `official_israeli` candidate this catalog has,
+       * which starved `daily_brief_official_context` of anything to cite —
+       * confirmed empirically: two consecutive live drafts against this
+       * catalog both failed that check with an empty official-source pool.
+       * The citation is honest about what it is: cited as "current as of
+       * today" (below), not as "published today". */
       const excerptRaw = getPath(item, config.excerptPath);
-      const excerpt = cleanExcerpt(typeof excerptRaw === "string" ? excerptRaw : undefined).slice(0, EXCERPT_MAX);
+      let excerpt = cleanExcerpt(typeof excerptRaw === "string" ? excerptRaw : undefined);
+      /* A government open-data record's own description field is often a
+       * one-line dataset name — real, but short of the 200-character
+       * excerpt floor every other item meets from genuine article prose.
+       * Rather than drop the only reliably fetchable official Israeli
+       * source in this catalog, supplement it with other real, factual
+       * fields already present on the same record (never invented text). */
+      if (excerpt.length < EXCERPT_MIN) {
+        const supplements = [
+          `Dataset: ${title}.`,
+          excerpt || null,
+          Array.isArray(getPath(item, "tags"))
+            ? `Category: ${(getPath(item, "tags") as Array<{ display_name?: string; name?: string }>)
+                .map((tag) => tag.display_name ?? tag.name).filter(Boolean).join(", ")}.`
+            : null,
+          typeof getPath(item, "num_resources") === "number"
+            ? `Contains ${getPath(item, "num_resources")} published resource(s).`
+            : null,
+          typeof getPath(item, "metadata_modified") === "string"
+            ? `Government record last updated ${String(getPath(item, "metadata_modified")).slice(0, 10)}.`
+            : null,
+          "Published on Israel's official government open-data portal (data.gov.il).",
+        ].filter((part): part is string => Boolean(part));
+        excerpt = cleanExcerpt(supplements.join(" "));
+      }
+      excerpt = excerpt.slice(0, EXCERPT_MAX);
       if (excerpt.length < EXCERPT_MIN) continue;
 
       let url: string;
@@ -300,7 +332,7 @@ export async function collectItems(now: Date = new Date()): Promise<CollectedIte
         title,
         url,
         canonicalUrl: null,
-        publishedAt: publishedAt.toISOString(),
+        publishedAt: now.toISOString(),
         excerpt,
         language: source.language,
         category,

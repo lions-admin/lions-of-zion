@@ -69,3 +69,7 @@ public/archive/
 # Browser console captures from local MCP-driven checks. Debug output tied to
 # one machine and one session, and it can carry whatever the page logged.
 .playwright-mcp/
+
+# scripts/backup-briefing-database.sh output: full pg_dump snapshots taken
+# before a production migration. Local-only — never belongs in a public repo.
+/backups/

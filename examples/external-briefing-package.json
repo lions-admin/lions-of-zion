@@ -1,0 +1,109 @@
+{
+  "runId": "example-do-not-publish-0001",
+  "localDate": "2026-01-01",
+  "contractVersion": "external-briefing-v1",
+  "composer": "chatgpt-daily-brief-composer",
+  "publishers": [
+    {
+      "key": "gov-il",
+      "name": "Government of Israel — Official Portal",
+      "homepageUrl": "https://www.gov.il",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "jpost",
+      "name": "The Jerusalem Post",
+      "homepageUrl": "https://www.jpost.com",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "c-gov",
+      "publisherKey": "gov-il",
+      "title": "Israel Government Open Data Portal — Civil Defence and Shelter Datasets",
+      "url": "https://data.gov.il/dataset/shelters-verification-check-2026-09-02",
+      "publishedAt": "2026-01-01T08:00:00Z",
+      "excerpt": "Israel's official open-data portal (data.gov.il) publishes and maintains a catalog of civil-defence and public-shelter datasets across municipalities, updated by local authorities as part of ongoing home-front readiness reporting infrastructure operated by the national government.",
+      "language": "en"
+    },
+    {
+      "key": "c-jpost",
+      "publisherKey": "jpost",
+      "title": "Jerusalem Post Reviews Civil-Defence Data Transparency Efforts",
+      "url": "https://www.jpost.com/israel-news/civil-defence-data-transparency-review-2026",
+      "publishedAt": "2026-01-01T08:00:00Z",
+      "excerpt": "The Jerusalem Post reports that Israel's open civil-defence data initiative continues to expand, with municipalities across the country contributing updated shelter and preparedness datasets to the national open-data portal for public transparency.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "Israel's Open Civil-Defence Data Initiative Continues Expansion, Jerusalem Post Reports",
+    "summary": "Israel's national open-data portal continues publishing civil-defence and shelter datasets, with Jerusalem Post reporting ongoing transparency efforts by municipalities nationwide.",
+    "citationKeys": [
+      "c-gov",
+      "c-jpost"
+    ],
+    "claims": [
+      {
+        "title": "Government open-data portal maintains civil-defence datasets",
+        "text": "Israel's official open-data portal publishes and maintains civil-defence and public-shelter datasets contributed by municipalities as part of national home-front readiness infrastructure.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Government of Israel — Official Portal",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "c-gov",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "The official government portal directly publishes and describes these datasets."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Situation",
+      "passages": [
+        {
+          "text": "Israel's open-data portal continues to serve as the national repository for civil-defence and shelter datasets, with municipalities contributing updated records as part of ongoing home-front readiness reporting.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "c-gov"
+          ]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key Events",
+      "passages": [
+        {
+          "text": "Jerusalem Post reporting corroborates that the transparency initiative around civil-defence data has continued expanding, with additional municipalities contributing datasets this year.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "c-jpost"
+          ]
+        }
+      ]
+    },
+    "israeliPosition": null,
+    "internationalResponses": null,
+    "watchPoints": {
+      "label": "Watch Points",
+      "passages": [
+        {
+          "text": "The government's open-data portal is expected to continue expanding its civil-defence dataset coverage as more municipalities participate in the national transparency initiative.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "c-gov"
+          ]
+        }
+      ]
+    }
+  },
+  "articles": []
+}

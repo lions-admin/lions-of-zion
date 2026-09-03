@@ -10,6 +10,7 @@
 import {
   externalBriefingPublishResultSchema,
   type ExternalBriefingPackage,
+  type ExternalBriefingPublishResult,
 } from "@/server/contracts/external-briefing";
 
 const DEFAULT_TARGET_URL = "https://lionsofzion.io";
@@ -29,12 +30,17 @@ type ProblemBody = {
   };
 };
 
-export async function submitPackage(pkg: ExternalBriefingPackage): Promise<void> {
+/** Returns the parsed result on success, or null on any failure (having
+ * already logged it and set a non-zero exit code). A caller that only
+ * needs the exit code can ignore the return value. */
+export async function submitPackage(
+  pkg: ExternalBriefingPackage,
+): Promise<ExternalBriefingPublishResult | null> {
   const secret = process.env.EXTERNAL_BRIEFING_INGEST_SECRET;
   if (!secret) {
     console.error("EXTERNAL_BRIEFING_INGEST_SECRET is not set. Refusing to submit without the ingest secret.");
     process.exitCode = 1;
-    return;
+    return null;
   }
 
   const url = `${targetBaseUrl()}/api/internal/briefing/external-publish`;
@@ -51,7 +57,7 @@ export async function submitPackage(pkg: ExternalBriefingPackage): Promise<void>
   } catch (cause) {
     console.error(`Request to ${url} failed: ${cause instanceof Error ? cause.message : String(cause)}`);
     process.exitCode = 1;
-    return;
+    return null;
   }
 
   const bodyText = await response.text();
@@ -73,7 +79,7 @@ export async function submitPackage(pkg: ExternalBriefingPackage): Promise<void>
         console.error(`  ${issue.path.join(".") || "(root)"}: ${issue.message}`);
       }
       process.exitCode = 1;
-      return;
+      return null;
     }
 
     const result = parsed.data;
@@ -85,7 +91,7 @@ export async function submitPackage(pkg: ExternalBriefingPackage): Promise<void>
       console.log(`  [${publication.section}] ${publication.title}`);
       console.log(`    ${publication.url}`);
     }
-    return;
+    return result;
   }
 
   const problem = bodyJson as ProblemBody | undefined;
@@ -101,4 +107,5 @@ export async function submitPackage(pkg: ExternalBriefingPackage): Promise<void>
     console.error(bodyText);
   }
   process.exitCode = 1;
+  return null;
 }

@@ -2,7 +2,8 @@
 
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { ConsoleNarratives } from "@/server/contracts/admin-console";
-import { EmptyLine, Pill, ReadGate, STATUS_LABEL, formatDate, type PillTone } from "./console-primitives";
+import { EmptyLine, Pill, ReadGate, formatDate, type PillTone } from "./console-primitives";
+import { NARRATIVE_STATUS_LABEL, STATUS_LABEL, T, TREND_LABEL } from "./lexicon";
 import { useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
 
@@ -19,28 +20,29 @@ export function NarrativesPanel({ signal }: { signal: number }) {
   return (
     <section className={styles.subArea} id="console-narratives" aria-labelledby="console-narratives-heading">
       <div className={styles.panelTitle}>
-        <h3 id="console-narratives-heading">Narratives in circulation</h3>
+        <h3 id="console-narratives-heading">נרטיבים בתפוצה</h3>
         {narratives.value ? (
           <p className={styles.headNote}>
-            {narratives.value.counts.new} new · {narratives.value.counts.rising} rising · {narratives.value.counts.declining} declining
+            {TREND_LABEL.new}: {narratives.value.counts.new} · {TREND_LABEL.rising}: {narratives.value.counts.rising} · {TREND_LABEL.declining}:{" "}
+            {narratives.value.counts.declining}
           </p>
         ) : null}
       </div>
-      <ReadGate state={narratives.state} what="the narratives" reload={narratives.reload} skeleton={<Skeleton shape="block" height="12rem" />}>
+      <ReadGate state={narratives.state} what={`ה${T.narratives}`} reload={narratives.reload} skeleton={<Skeleton shape="block" height="12rem" />}>
         {(value) =>
           value.narratives.length ? (
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th scope="col">Narrative</th>
-                    <th scope="col">Trend</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Seen this week</th>
-                    <th scope="col">Prior week</th>
-                    <th scope="col">Evidence</th>
-                    <th scope="col">Last seen</th>
-                    <th scope="col">Answered by</th>
+                    <th scope="col">{T.narrative}</th>
+                    <th scope="col">מגמה</th>
+                    <th scope="col">מצב</th>
+                    <th scope="col">אזכורים השבוע</th>
+                    <th scope="col">בשבוע הקודם</th>
+                    <th scope="col">{T.evidence}</th>
+                    <th scope="col">אוזכר לאחרונה</th>
+                    <th scope="col">נענה על ידי</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -48,16 +50,16 @@ export function NarrativesPanel({ signal }: { signal: number }) {
                     <tr key={narrative.id}>
                       <th scope="row">
                         <strong>{narrative.title}</strong>
-                        <small className={styles.plainSmall}>first seen {formatDate(narrative.firstSeenAt)}</small>
+                        <small className={styles.plainSmall}>אוזכר לראשונה {formatDate(narrative.firstSeenAt)}</small>
                       </th>
                       <td>
-                        <Pill tone={TREND_TONE[narrative.trend] ?? "neutral"}>{narrative.trend}</Pill>
+                        <Pill tone={TREND_TONE[narrative.trend] ?? "neutral"}>{TREND_LABEL[narrative.trend] ?? narrative.trend}</Pill>
                       </td>
-                      <td>{narrative.status}</td>
+                      <td>{NARRATIVE_STATUS_LABEL[narrative.status] ?? narrative.status}</td>
                       <td>{narrative.observations7d}</td>
                       <td>{narrative.observationsPrior7d}</td>
                       <td>
-                        {narrative.evidence.supporting} for · {narrative.evidence.contradicting} against
+                        {narrative.evidence.supporting} תומכות · {narrative.evidence.contradicting} סותרות
                         {narrative.evidence.verificationState ? <small className={styles.plainSmall}>{narrative.evidence.verificationState}</small> : null}
                       </td>
                       <td>{formatDate(narrative.lastSeenAt)}</td>
@@ -71,7 +73,7 @@ export function NarrativesPanel({ signal }: { signal: number }) {
                             ))}
                           </ul>
                         ) : (
-                          <Pill tone={narrative.trend === "rising" || narrative.trend === "new" ? "warn" : "neutral"}>nothing yet</Pill>
+                          <Pill tone={narrative.trend === "rising" || narrative.trend === "new" ? "warn" : "neutral"}>טרם נענה</Pill>
                         )}
                       </td>
                     </tr>
@@ -80,7 +82,7 @@ export function NarrativesPanel({ signal }: { signal: number }) {
               </table>
             </div>
           ) : (
-            <EmptyLine>No narratives are being tracked. The read succeeded and the list is genuinely empty.</EmptyLine>
+            <EmptyLine>לא מנוטרים נרטיבים. הקריאה הצליחה והרשימה באמת ריקה.</EmptyLine>
           )
         }
       </ReadGate>

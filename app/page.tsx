@@ -15,9 +15,21 @@ import { stamp } from "@/components/live/feed-time";
    site is judged by, and a direct path cannot regress if that declaration is
    ever dropped. */
 import { ProgressiveBlur } from "@/components/motion/ProgressiveBlur";
+import { SignalRotator } from "@/components/home/SignalRotator";
 import styles from "./home.module.css";
 import { featuredPublications } from "@/lib/publications";
 import type { PublicPublication } from "@/server/contracts/publication";
+
+/**
+ * How many of the record's features the rail will turn through.
+ *
+ * A ceiling, not an expectation: `publications.featured()` returns the three
+ * pinned homepage slots, or the three newest live rows when none is pinned,
+ * so today the rail turns through three. The cap is here so that widening the
+ * homepage feature table does not silently hand the hero's floor a rotation
+ * nobody sized it for.
+ */
+const RAIL_SIGNALS = 5;
 
 /**
  * The homepage — the single cinematic threshold (HOME-001).
@@ -25,8 +37,9 @@ import type { PublicPublication } from "@/server/contracts/publication";
  * One signature surface, composed in document flow rather than the absolute
  * pins it replaced: the masthead as a column beside the animal from 48rem up
  * and centred over him below it, the signal rail at the foot. Every layer of
- * it is server HTML; the hero video and the particle entrance are progressive
- * enhancement on top, and removing JavaScript removes only them.
+ * it is server HTML; the hero video, the particle entrance and the rail's
+ * turn through the record are progressive enhancement on top, and removing
+ * JavaScript removes only them — the rail still paints a real headline.
  *
  * The ground was a WebGPU field of glyphs over a docked scan band until
  * 2026-09-04. It is a photographic shot now — see `HeroVideo` for why it ships
@@ -39,7 +52,8 @@ import type { PublicPublication } from "@/server/contracts/publication";
  *  - poster: `CinematicIntroGate` owns the arrival; this page is inert under
  *    it until handoff and untouched by it after.
  *  - reduced motion: no source is ever handed to either video element, so the
- *    still is not merely what is shown — it is all that is fetched.
+ *    still is not merely what is shown — it is all that is fetched, and the
+ *    signal rail holds its first headline rather than turning.
  *  - no-JS: `.posterField` paints the video's own first frame from the
  *    stylesheet, and the `<noscript>` list below is the route index, because
  *    `SiteHeader` hides every destination name under 64rem behind a drawer
@@ -68,12 +82,12 @@ export default async function Page() {
     );
   }
 
-  /* One stable current signal (HOME-003), not a rotation: the desk's lead
-     feature, or the newest live publication when nothing is pinned. */
-  const signal = headlines.at(0);
-  const verdict = signal?.narrativeWatchDetails
-    ? VERIFICATION_STATES[signal.narrativeWatchDetails.verificationState]
-    : null;
+  /* The desk's pinned features, newest live publications when nothing is
+     pinned. The first is the one the server paints; the rest are what the
+     rail turns to. Every one of them is already in hand — this is the same
+     read the page has always made, and the rotation added no query to it. */
+  const signals = headlines.slice(0, RAIL_SIGNALS);
+  const signal = signals.at(0);
 
   return (
     <CinematicIntroGate
@@ -188,36 +202,51 @@ export default async function Page() {
               </nav>
             </noscript>
 
-            {/* HOME-003 — one stable current signal with source, status, and
-                time, then the door to the whole record. Not a crawl: a moving
-                headline is unreadable at any speed and is an urgency device
-                this site documents other people using. Everything here is
-                server HTML, so the update text is in the DOM in every state. */}
-            <aside className={styles.signalRail} aria-label="Latest published update">
+            {/* HOME-003 — the current signal with source, status and time,
+                then the door to the whole record.
+
+                It turns now, at the owner's instruction, through the features
+                the record already hands this page. This comment used to
+                refuse a rotation on two grounds and only one of them was
+                about rotation: a *moving* headline is unreadable at any
+                speed, and a ticker that never stops is an urgency device this
+                site documents other people using. Both are answered by making
+                the turn discrete rather than continuous. The headline arrives,
+                then stands still for `--dur-ambient` — seven seconds, longer
+                than it takes to read a headline — then leaves. Nothing moves
+                while anything is being read, and a band that changes eight
+                times a minute at most manufactures no urgency. It also holds
+                on hover and on focus, so a reader going for the link keeps
+                the link they were going for.
+
+                What did not change: item zero is rendered here, on the
+                server. `SignalRotator` takes over after hydration, and with
+                no script, or under reduced motion, that first headline is
+                simply the headline. The update text is still in the DOM in
+                every state. */}
+            <aside
+              className={styles.signalRail}
+              aria-label="Latest published update"
+              /* The hover/focus hold covers the whole band, not just the
+                 rotating item — `SignalRotator` finds it by this. */
+              data-signal-rail
+            >
               <div className={styles.railInner}>
                 <p className={styles.railFlag}>
                   <span className={styles.railDot} aria-hidden="true" />
                   Latest
                 </p>
                 {signal ? (
-                  <div className={styles.railSignal}>
-                    <p className={styles.railMeta}>
-                      <span className={styles.railSource}>{SECTION_LABELS[signal.section]}</span>
-                      <span className={styles.railStatus} data-tone={verdict?.tone ?? "neutral"}>
-                        {verdict ? verdict.label : "Published"}
-                      </span>
-                      <time
-                        className={styles.railTime}
-                        dateTime={signal.publishedAt}
-                        title={`${stamp(signal.publishedAt)} (Asia/Jerusalem)`}
-                      >
-                        {stamp(signal.publishedAt)}
-                      </time>
-                    </p>
-                    <Link href={`/articles/${signal.publicId}`} className={styles.railTitle}>
-                      {signal.title}
-                    </Link>
-                  </div>
+                  signals.length > 1 ? (
+                    <SignalRotator
+                      className={styles.railStage}
+                      items={signals.map((item) => railSignal(item))}
+                    />
+                  ) : (
+                    /* One signal is not a rotation. No stage, no timer, no
+                       client boundary — the markup the rail has always had. */
+                    railSignal(signal)
+                  )
                 ) : (
                   <p className={styles.railEmpty}>
                     {recordUnavailable
@@ -235,5 +264,43 @@ export default async function Page() {
         </section>
       </main>
     </CinematicIntroGate>
+  );
+}
+
+/**
+ * One signal, exactly as the rail has always rendered it.
+ *
+ * A plain function rather than a component, and it stays on the server: the
+ * section label, the verdict tone, the Jerusalem stamp and the article link
+ * are composed here whether the rail is turning or standing still, so the two
+ * states cannot drift into rendering the same publication differently. What
+ * `SignalRotator` receives is a list of these — already rendered, opaque to
+ * it — which is what keeps a publication's shape out of a client component
+ * and this route's stylesheet out of `components/`.
+ */
+function railSignal(item: PublicPublication) {
+  const verdict = item.narrativeWatchDetails
+    ? VERIFICATION_STATES[item.narrativeWatchDetails.verificationState]
+    : null;
+
+  return (
+    <div key={item.publicId} className={styles.railSignal}>
+      <p className={styles.railMeta}>
+        <span className={styles.railSource}>{SECTION_LABELS[item.section]}</span>
+        <span className={styles.railStatus} data-tone={verdict?.tone ?? "neutral"}>
+          {verdict ? verdict.label : "Published"}
+        </span>
+        <time
+          className={styles.railTime}
+          dateTime={item.publishedAt}
+          title={`${stamp(item.publishedAt)} (Asia/Jerusalem)`}
+        >
+          {stamp(item.publishedAt)}
+        </time>
+      </p>
+      <Link href={`/articles/${item.publicId}`} className={styles.railTitle}>
+        {item.title}
+      </Link>
+    </div>
   );
 }

@@ -1,0 +1,81 @@
+/* Signal rotator · the home rail's discrete turn (HOME-003)
+ *
+ * Two slots in one grid cell rather than two absolutely positioned layers.
+ * The stage then takes the height of the taller of them, so the rail keeps
+ * its own height through a change and the hero's floor does not step while
+ * one headline hands over to the next.
+ *
+ * The whole of the motion is here: 240ms of opacity and a 10px slide, then
+ * seven seconds of nothing at all. `--dur-ambient` is the site's ambient
+ * loop token and it is what the dwell is, so it is declared here as
+ * `--rail-dwell` and read from the DOM by `SignalRotator` — the timer and
+ * the stylesheet cannot drift apart because there is only one value.
+ */
+
+.stage {
+  --rail-dwell: var(--dur-ambient);
+
+  display: grid;
+  min-width: 0;
+}
+
+/* Both slots claim the same cell; `min-width` because a grid item's automatic
+   minimum size would otherwise refuse to let the headline ellipsise. */
+.slot {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+/* Item zero, as the server painted it. No entrance: the rail is furniture at
+   the hero's foot and the page deliberately does not reveal it, so the first
+   headline is simply already there. */
+.slot[data-phase="settled"] {
+  animation: none;
+}
+
+.slot[data-phase="entering"] {
+  animation: railEnter var(--dur-base) var(--ease-out) both;
+}
+
+/* Held at the far end by `both` until the component drops it on
+   `animationend` — the reader never sees it snap back to full opacity. */
+.slot[data-phase="leaving"] {
+  pointer-events: none;
+  animation: railLeave var(--dur-base) var(--ease-out) both;
+}
+
+/* In from the right, out to the left: one direction of travel, so the turn
+   reads as a sequence rather than a shuffle. */
+@keyframes railEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--enter-shift), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes railLeave {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(calc(var(--enter-shift) * -1), 0, 0);
+  }
+}
+
+/* Belt and braces. The rotation is already off in JavaScript under this
+   preference — no timer is armed and the leaving slot is never rendered —
+   and the global reset in `globals.css` cuts animation durations besides.
+   This is the third guard, and the one that holds if either of the other
+   two is ever edited away. */
+@media (prefers-reduced-motion: reduce) {
+  .slot[data-phase="entering"],
+  .slot[data-phase="leaving"] {
+    animation: none;
+  }
+}

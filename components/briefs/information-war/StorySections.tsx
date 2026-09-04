@@ -92,6 +92,9 @@ export function DailyCycle() {
           </li>
         ))}
       </ol>
+      <p className={styles.cycleLoop} aria-hidden="true">
+        <span>↺</span> The edition feeds back into continuous monitoring — the loop never closes.
+      </p>
       <p className={styles.diagramNote}>
         Collection never sleeps; the edition is daily. That is the whole rhythm: a continuous intake, one
         published brief per day, and a public record that stays correctable afterwards.

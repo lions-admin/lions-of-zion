@@ -280,12 +280,13 @@
 }
 
 /* The full interval is the faint track; the distance covered is the value
-   rule, with its endpoint marked. Lengths are qualitative by design — the
-   page draws no figure it cannot show. */
+   rule, with an arrowhead marking the direction of travel. Lengths are
+   qualitative by design — the page draws no figure it cannot show. */
 .speedRow i {
   position: relative;
   display: block;
-  height: 1px;
+  height: 2px;
+  border-radius: 2px;
   background: var(--line-soft);
 }
 
@@ -294,17 +295,19 @@
   position: absolute;
   top: 0;
   left: 0;
-  height: 1px;
+  height: 2px;
+  border-radius: 2px;
 }
 
 .speedRow i::after {
   content: "";
   position: absolute;
   top: 50%;
-  width: 0.4rem;
-  height: 0.4rem;
-  margin-top: -0.2rem;
-  border-radius: 50%;
+  width: 0;
+  height: 0;
+  margin-top: -0.45rem;
+  border-top: 0.45rem solid transparent;
+  border-bottom: 0.45rem solid transparent;
 }
 
 .speedRow[data-tone="claim"] i::before {
@@ -314,7 +317,7 @@
 
 .speedRow[data-tone="claim"] i::after {
   left: 97%;
-  background: var(--data-ember-peak);
+  border-left: 0.7rem solid var(--data-ember-peak);
 }
 
 .speedRow[data-tone="evidence"] i::before {
@@ -324,7 +327,7 @@
 
 .speedRow[data-tone="evidence"] i::after {
   left: 24%;
-  background: var(--data-blue-peak);
+  border-left: 0.7rem solid var(--data-blue-peak);
 }
 
 .speedDiagram figcaption {
@@ -486,10 +489,10 @@
   content: "";
   position: absolute;
   top: 0;
-  left: calc(50% - 0.5px);
-  width: 1px;
+  left: calc(50% - 1px);
+  width: 2px;
   height: 42%;
-  background: var(--data-ember-dim);
+  background: linear-gradient(var(--data-ember), var(--data-ember-dim));
 }
 
 .busField::before {
@@ -498,7 +501,7 @@
   top: 42%;
   right: 10%;
   left: 10%;
-  height: 1px;
+  height: 2px;
   background: linear-gradient(90deg, var(--data-ember-dim), var(--data-blue-dim), var(--data-ember-dim));
 }
 
@@ -507,8 +510,8 @@
   position: absolute;
   top: 42%;
   bottom: 0;
-  left: calc(50% - 0.5px);
-  width: 1px;
+  left: calc(50% - 1px);
+  width: 2px;
   background: var(--data-blue-dim);
 }
 
@@ -621,7 +624,7 @@
 
 .stageChain li {
   display: grid;
-  grid-template-columns: 1.5rem minmax(0, 1fr);
+  grid-template-columns: 2.5rem minmax(0, 1fr);
   gap: var(--sp-5);
 }
 
@@ -630,52 +633,89 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: calc(var(--sp-5) + 0.1rem);
+  padding-top: calc(var(--sp-5) + 1.4rem);
 }
 
-/* The rail is the wire, and it is CSS because it needs no measurement and
-   no JavaScript: it is present for a reader with scripting off and under
-   reduced motion, which is where the diagram's meaning has to survive. It
-   is drawn per row so it can begin at the first mark and end at the last
-   one — a rail running past the final stage would imply a stage that does
-   not exist. 2.05rem is the marks' centre: the rail column's padding-top
-   plus half the mark. */
+/* The rail is the flowchart's spine: a 2px gold-lit wire with a travelling
+   dash flow that states the processing direction even with JavaScript off.
+   The dashes ride `background-position`, never layout, and vanish under
+   reduced motion — leaving the solid wire, which carries the meaning. */
 .stageRail::before {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(50% - 0.5px);
-  width: 1px;
-  background: var(--line-strong);
+  left: calc(50% - 1px);
+  width: 2px;
+  background: linear-gradient(var(--gold) 0%, var(--line-strong) 30%, var(--line-strong) 100%);
+}
+
+.stageRail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--gold-hi) 0,
+    var(--gold-hi) 0.5rem,
+    transparent 0.5rem,
+    transparent 1rem
+  );
+  animation: railFlow 2.4s linear infinite;
+}
+
+@keyframes railFlow {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 1rem;
+  }
 }
 
 .stageChain li:first-child .stageRail::before {
-  top: 2.05rem;
-  background: linear-gradient(var(--gold), var(--line-strong) 12rem);
+  top: 2.6rem;
+}
+
+.stageChain li:first-child .stageRail::after {
+  top: 2.6rem;
 }
 
 .stageChain li:last-child .stageRail::before {
   bottom: auto;
-  height: 2.05rem;
+  height: 2.6rem;
 }
 
-/* A mark, not a beacon: a gold ring on a ground-coloured plate that masks
-   the rail behind it. No glow, no pulse. */
+.stageChain li:last-child .stageRail::after {
+  bottom: auto;
+  height: 2.6rem;
+  animation: none;
+  opacity: 0.45;
+}
+
+/* The mark is a node: a gold ring with a filled core on a plate masking
+   the wire, large enough to read as a flowchart vertex at a glance. */
 .stageRail i {
-  width: 0.85rem;
-  height: 0.85rem;
-  border: 1px solid var(--gold);
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 2px solid var(--gold);
   border-radius: 50%;
-  background: var(--ground);
-  box-shadow: 0 0 0 0.45rem var(--ground);
+  background: radial-gradient(circle, var(--gold) 0 0.2rem, var(--ground) 0.21rem);
+  box-shadow: 0 0 0 0.5rem var(--ground);
+  z-index: 1;
 }
 
-/* Each stage is a step card hanging off the rail: hairline-topped, its
-   number and register label first, then the name, the description, and the
-   checkable rule. */
+/* Each stage is a flowchart card: bordered, surfaced, and headed by a
+   numbered badge plus the real job-stage chip. */
 .stageBody {
-  padding: var(--sp-5) 0 var(--sp-6);
+  margin-block: var(--sp-3) var(--sp-4);
+  padding: var(--sp-5);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-3);
+  background: var(--surface-2);
 }
 
 .stageChain li + li .stageBody {
@@ -684,6 +724,7 @@
 
 .stageMeta {
   display: flex;
+  align-items: center;
   gap: var(--sp-3);
   margin: 0;
   font-family: var(--face-data);
@@ -692,15 +733,30 @@
   line-height: var(--t-data-lh);
 }
 
+/* Numbered badge + job-stage chip: the card reads as a flowchart vertex
+   with its machine name attached. */
 .stageMeta span:first-child {
-  color: var(--ink-lo);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding-inline: var(--sp-2);
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1a1408;
   font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
 
 .stageMeta span + span {
-  color: var(--ink-lo);
+  padding: 0.2rem var(--sp-3);
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  color: var(--gold-hi);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .stageChain h3 {
@@ -768,9 +824,9 @@
   position: absolute;
   top: 0.9rem;
   bottom: 2.8rem;
-  left: calc(0.5rem - 0.5px);
-  width: 1px;
-  background: var(--line-strong);
+  left: calc(0.5rem - 1px);
+  width: 2px;
+  background: linear-gradient(var(--gold), var(--line-strong) 10rem);
 }
 
 .outputRoot {
@@ -798,20 +854,28 @@
   position: relative;
   display: grid;
   gap: var(--sp-1);
-  padding: var(--sp-4) 0;
-  border-top: 1px solid var(--line-soft);
+  margin-block-start: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
   color: var(--ink-hi);
   text-decoration: none;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-/* The stub: trunk to link, one hairline each. */
+.outputMap a:hover {
+  border-color: var(--gold-line);
+}
+
+/* The stub: trunk to card, one 2px branch each. */
 .outputMap a::before {
   content: "";
   position: absolute;
   top: 50%;
   left: calc(-2.25rem + 0.5rem);
   width: calc(1.75rem - var(--sp-2));
-  height: 1px;
+  height: 2px;
   background: var(--line-strong);
   transition: background-color var(--dur-fast) var(--ease-out);
 }
@@ -1039,19 +1103,65 @@
   margin: var(--sp-5) 0 0;
   padding: 0;
   display: grid;
-  gap: var(--sp-2);
+  gap: 0;
 }
 
 .journeySteps li {
+  position: relative;
   display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
+  grid-template-columns: 2.75rem minmax(0, 1fr);
   gap: var(--sp-4);
-  padding: var(--sp-4);
-  border-inline-start: 2px solid var(--line-strong);
+  padding-block: var(--sp-4);
 }
 
-.journeySteps li:last-child {
-  border-inline-start-color: var(--gold);
+/* The journey's spine: one continuous wire with a numbered node per step
+   and a flow arrow into the next card. Pure flowchart grammar. */
+.journeySteps li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 1.3125rem;
+  width: 2px;
+  background: var(--line-strong);
+}
+
+.journeySteps li:first-child::before {
+  top: 1.75rem;
+  background: linear-gradient(var(--gold), var(--line-strong) 8rem);
+}
+
+.journeySteps li:last-child::before {
+  bottom: auto;
+  height: 1.75rem;
+}
+
+.journeySteps .stepNumber {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  background: var(--ground);
+  color: var(--gold-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: 700;
+}
+
+.journeySteps li > div {
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+.journeySteps li:last-child > div {
+  border-color: var(--gold-line);
 }
 
 .journeySteps h3 {
@@ -1081,14 +1191,47 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--sp-3);
+  gap: var(--sp-5);
+  justify-items: center;
 }
 
+/* The funnel: each tier narrows, so the eye reads many signals condensing
+   into one assessment. Widths are geometric, not data — the caption below
+   states the only counted quantity (distinct source families). */
 .narrativeSteps li {
-  padding: var(--sp-4);
-  border: 1px solid var(--line);
+  position: relative;
+  width: 100%;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-2);
   background: var(--surface-2);
+  text-align: center;
+}
+
+.narrativeSteps li:nth-child(2) {
+  width: 86%;
+}
+
+.narrativeSteps li:nth-child(3) {
+  width: 72%;
+  border-color: var(--gold-line);
+}
+
+.narrativeSteps li:nth-child(4) {
+  width: 58%;
+  min-width: min(16rem, 100%);
+  border-color: var(--gold);
+  background: var(--surface-3);
+}
+
+.narrativeSteps li + li::before {
+  content: "↓";
+  position: absolute;
+  top: -1.35rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold);
+  font-weight: 700;
 }
 
 .narrativeSteps h3 {
@@ -1111,17 +1254,70 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--sp-2);
+  gap: 0;
 }
 
 .cycleSteps li {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
   gap: var(--sp-4);
   padding-block: var(--sp-3);
-  border-block-start: 1px solid var(--line);
+  padding-inline-start: var(--sp-5);
   font-size: var(--t-caption);
   line-height: 1.6;
+}
+
+.cycleSteps li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0.4rem;
+  width: 2px;
+  background: var(--line-strong);
+}
+
+.cycleSteps li:first-child::before {
+  top: 1rem;
+}
+
+.cycleSteps li:last-child::before {
+  bottom: auto;
+  height: 1rem;
+}
+
+.cycleSteps li::after {
+  content: "";
+  position: absolute;
+  top: 1.1rem;
+  inset-inline-start: 0.15rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+/* The loop-back strip: the diagram's closing arrow, drawn as a banner so
+   the cycle reads as a loop rather than a list that ends. Duplicate of the
+   caption below for sighted readers — hence `aria-hidden` in markup. */
+.cycleLoop {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0 0;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px dashed var(--gold-line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  color: var(--gold-hi);
+  font-size: var(--t-small);
+  font-weight: 600;
+}
+
+.cycleLoop span {
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
 .cycleSteps strong {
@@ -1218,5 +1414,11 @@
 
   .busField {
     transition: none;
+  }
+
+  /* The travelling dashes park: the solid wire carries the diagram. */
+  .stageRail::after {
+    animation: none;
+    opacity: 0.35;
   }
 }

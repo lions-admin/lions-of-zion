@@ -408,6 +408,10 @@ export type ConsoleSecurity = z.infer<typeof consoleSecuritySchema>;
 
 export const consoleAlertSchema = z.object({
   id: z.uuid(),
+  /** The alert's dedupe identity — the same recurring condition keeps one
+   *  row and one fingerprint, so an operator can tell "this is still the
+   *  Tuesday feed failure" from "this is a second, different failure". */
+  fingerprint: z.string(),
   kind: z.string(),
   severity: z.enum(["warning", "critical"]),
   message: z.string(),

@@ -98,31 +98,38 @@
 
   /* --- Colour: ground / ink / accent / ember ---
    *
-   * The accent is coral, not gold. The tokens are still called `--gold*`
-   * because 289 declarations across 44 stylesheets and three components read
-   * those names, and renaming them inside the same change that re-grades the
-   * palette would bury the re-grade in a 47-file mechanical diff. The names are
-   * wrong and should be swept to `--accent*` on their own; until then, read
-   * `--gold` as "the one accent".
+   * The accent is amber. The tokens are still called `--gold*` because 289
+   * declarations across 44 stylesheets and three components read those names,
+   * and renaming them inside a change that re-grades the palette would bury the
+   * re-grade in a 47-file mechanical diff. Read `--gold` as "the one accent";
+   * the sweep to `--accent*` should be its own commit.
    *
-   * Measured against the A11Y-004 floor before it was adopted: #fc5f2b is
-   * 6.81:1 on the black ground and 6.42:1 on surface-1, where the gold it
-   * replaced was 8.65 and 8.16. `--gold-dim` carries small text — the
-   * fact-check rung numbers and the home rail flag — and #d4521f holds 5.03 and
-   * 4.74 against the 4.5 those two need. */
+   * Measured against the A11Y-004 floor before adoption. #f0b429 is 11.27:1 on
+   * the black ground and 10.63:1 on surface-1 — it has to clear 4.5 in both
+   * directions, because this token is used as text on the ground AND as a fill
+   * with black text on it. `--gold-dim` carries small text (the fact-check rung
+   * numbers, the home rail flag) and #b8860b holds 6.45 and 6.09.
+   *
+   * This is the third accent in a day: gold #c6a15b, then coral #fc5f2b from a
+   * reference system, now amber. The coral is why the comment on
+   * `--gold-line-strong` below reads the way it does — swapping a hue silently
+   * moved an alpha that a comment had recorded as safe, and nothing but
+   * `scripts/ui-audit.mjs` noticed. */
   --ground: #000000;
   --ink-hi: #f6f3eb;
   --ink: #cbc7bd;
   --ink-lo: #88837b;
-  --gold: #fc5f2b;
-  --gold-hi: #ff8b64;
-  /* Lifted from #8a6f3e on 2026-09-03. It is used as small text in two
-     places — the fact-check ladder's rung numbers and the homepage rail flag —
-     and at the old value those measured 4.42:1 and 4.17:1 against a 4.5 floor
-     (A11Y-004). #977544 clears it everywhere it lands: 4.94:1 on the black
-     ground, 4.66:1 on surface-1. Its other uses are backgrounds and beam
-     tails, where a step of lightness this small is not visible. */
-  --gold-dim: #d4521f;
+  --gold: #f0b429;
+  --gold-hi: #f7cd6b;
+  /* The dim step, and the one that actually constrains the hue: it is used as
+     SMALL TEXT in two places — the fact-check ladder's rung numbers and the
+     homepage rail flag — so it owes the full 4.5:1 of A11Y-004 rather than the
+     3:1 a large or non-text element would. Its history is a record of that
+     floor being missed and then held: #8a6f3e measured 4.42 and 4.17 and
+     failed; #977544 held 4.94 and 4.66; #b8860b holds 6.45 on the black ground
+     and 6.09 on surface-1. Its other uses are backgrounds and beam tails,
+     where a step of lightness this small is not visible. */
+  --gold-dim: #b8860b;
 
   --surface-1: #0a0a09;
   --surface-2: #111110;
@@ -149,17 +156,16 @@
    *
    * Verified by `scripts/ui-audit.mjs`, which computes this in the page. */
   --control-line: rgba(246, 243, 235, 0.4);
-  --gold-line: rgba(252, 95, 43, 0.25);
-  /* Raised from 0.5 to 0.6 on 2026-09-03, and to 0.7 on 2026-09-04. This is
-     the selected state on filter chips and stage toggles — a control boundary,
-     so 1.4.11's 3:1 applies. 0.6 cleared it at 3.45-3.53:1 while the accent was
-     gold; coral is darker than the gold it replaced, and at the same alpha it
-     measured 2.88 on surface-2 and 2.92 on black, i.e. the re-grade silently
-     broke the guarantee this comment was written to record. 0.7 restores it at
-     3.52 and 3.67. `--gold-line` below is decorative framing, is not a control
-     boundary, and is unchanged. */
-  --gold-line-strong: rgba(252, 95, 43, 0.7);
-  --gold-wash: rgba(252, 95, 43, 0.1);
+  --gold-line: rgba(240, 180, 41, 0.25);
+  /* The alpha here is a measurement, not a taste, and it has to be re-measured
+     every time the hue changes. This is the selected state on filter chips and
+     stage toggles — a control boundary, so WCAG 1.4.11's 3:1 applies.
+     0.5 failed at 2.73-2.80 with gold; 0.6 cleared it at 3.45-3.53. Coral is
+     darker and dropped it back to 2.88 at that same 0.6, which `ui-audit`
+     caught. Amber at 0.55 measures 3.76 on surface-2. `--gold-line` below is
+     decorative framing, is not a control boundary, and tracks no floor. */
+  --gold-line-strong: rgba(240, 180, 41, 0.55);
+  --gold-wash: rgba(240, 180, 41, 0.1);
 
   /* data-blue was retired to warm grey; keep the names so existing modules
      do not invent a second blue. Ember is the only chromatic alert besides

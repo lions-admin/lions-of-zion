@@ -23,3 +23,11 @@ public/archive
 
 # Upload resume state for archive asset scripts.
 .blob-upload
+
+# MidJourney capture/engine scratch trees. These are untracked sibling git
+# worktrees of a separate repo holding source PNGs; they are never part of the
+# application. A CLI `vercel --prod` uploaded midjrny-wt-capture and
+# midjrny-wt-engine on 2026-09-04 and the build died in tsc on their
+# vite.config.ts (TS2307: cannot find module 'vite'), because tsconfig excluded
+# only "midjrny". This file and tsconfig.json both use a glob now.
+midjrny*

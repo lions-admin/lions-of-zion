@@ -201,7 +201,16 @@ describe("retry preserves what was typed (STATE-003)", () => {
     const desk = read("components/ask/AskDesk.tsx");
     expect(desk).toContain("onRetry={retry}");
     expect(desk).toContain("onEdit={recallIntoComposer}");
-    expect(desk).toContain("seed={seed}");
+    /* The edit path has to end somewhere the reader can see and change the
+       text. It was a `seed` prop on `AskComposer`, whose nonce let the same
+       question be recalled twice; the composer is `PromptInput` now, which
+       owns its own text, so the recall writes into it through the controller
+       that `PromptInputProvider` lifts out. What this pins is that
+       `recallIntoComposer` still puts the question somewhere — not which of
+       the two mechanisms is doing it. */
+    expect(desk).toMatch(
+      /const recallIntoComposer = \(\) => \{[\s\S]*?controller\.textInput\.setInput\(question\)/,
+    );
   });
 
   it("keeps every field of a failed report submission on screen", async () => {

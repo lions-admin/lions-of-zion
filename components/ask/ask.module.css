@@ -736,3 +736,24 @@
   flex: 1 1 auto;
   min-block-size: 0;
 }
+
+/* The transcript's empty state, which is where the primer and the evidence
+ * boundary live until a question is asked.
+ *
+ * `ConversationEmptyState` centres its children and centres their text, which
+ * is right for the two-line "no messages yet" it was built for and wrong for a
+ * paragraph explaining what an unsourced answer means. Start-aligned, and
+ * capped at the reading measure so the boundary note is a column and not a
+ * banner. `justify-content` is `start` so the block sits under the panel's
+ * header rather than floating in the middle of an empty desk. */
+.deskEmpty {
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--sp-6);
+  padding: var(--sp-5) 0;
+  text-align: start;
+}
+
+.deskEmpty > * {
+  max-inline-size: var(--measure-reading);
+}

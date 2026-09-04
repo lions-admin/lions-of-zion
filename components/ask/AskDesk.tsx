@@ -35,7 +35,6 @@
  * number this component would have to keep in step with the server.
  */
 
-import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardEyebrow } from "@/components/ui/Card";
 import { StatusState } from "@/components/ui/StatusState";
@@ -43,17 +42,26 @@ import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { BorderBeam } from "@/components/motion";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputProvider,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  usePromptInputController,
+} from "@/components/ai-elements/prompt-input";
+import {
   Suggestion,
   Suggestions,
 } from "@/components/ai-elements/suggestion";
 import {
   Conversation,
   ConversationContent,
+  ConversationEmptyState,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { AnswerRecord } from "./AnswerRecord";
 import { toExchanges } from "./exchanges";
-import { AskComposer } from "./AskComposer";
 import { useAskThread } from "./useAskThread";
 import styles from "./ask.module.css";
 
@@ -63,20 +71,35 @@ const EXAMPLES = [
   "How does this desk decide that something is verified?",
 ];
 
+/* The provider is here and not inside `PromptInput` so the input's text can be
+   set from outside the box — which is what "take the failed question back into
+   the composer and edit it" needs. `PromptInput` is self-managing without it;
+   with it, `usePromptInputController` reaches the same state from the desk. */
 export function AskDesk() {
+  return (
+    <PromptInputProvider>
+      <AskDeskBody />
+    </PromptInputProvider>
+  );
+}
+
+function AskDeskBody() {
+  const controller = usePromptInputController();
   const { messages, status, problem, pending, elapsed, ask, retry, recall, cancel, lostThread, reset } =
     useAskThread();
   const exchanges = toExchanges(messages);
 
-  /* STATE-003. The composer clears on submit, so a failed turn used to leave
-     the reader with the question visible in an error record and no way back to
-     it but retyping. Two ways back now: send it again unchanged, or take it
-     into the box and edit it. The nonce is what lets the same text be recalled
-     twice. */
-  const [seed, setSeed] = useState<{ text: string; nonce: number } | undefined>(undefined);
+  /* STATE-003. The composer clears on submit, so a failed turn would otherwise
+     leave the reader with the question visible in an error record and no way
+     back to it but retyping. Two ways back: send it again unchanged, or take it
+     into the box and edit it.
+     The `seed` prop and its nonce that used to carry this are gone with
+     `AskComposer` — `PromptInput` holds its own text, so the recall writes
+     straight into it through the controller. Re-recalling the same question
+     works without a nonce because the write is unconditional. */
   const recallIntoComposer = () => {
     const question = recall();
-    if (question) setSeed({ text: question, nonce: Date.now() });
+    if (question) controller.textInput.setInput(question);
   };
 
   /* Scroll position belongs to `Conversation` now. What stood here was an
@@ -126,8 +149,6 @@ export function AskDesk() {
         </p>
       ) : null}
 
-      {count === 0 && status === "idle" ? <AskPrimer onPick={ask} disabled={busy} /> : null}
-
       {/* The transcript is AI Elements' `Conversation`, which is the same job
           the `MessageScroller` here did for an hour and is the one Vercel keeps
           in step with its own chat SDK. It sticks to the live edge, releases
@@ -136,6 +157,20 @@ export function AskDesk() {
           which is what stood here before it. */}
       <Conversation className={styles.transcriptFrame}>
         <ConversationContent className={styles.transcript}>
+          {/* The primer and the evidence boundary live *inside* the transcript
+              now, as its empty state, and that is the whole of this change.
+              They were stacked above and below it, so on an empty desk the
+              transcript was a thin strip between two blocks of explanatory
+              prose and the panel did not read as a chat at all. Here they
+              occupy the space they are explaining, and the moment a question is
+              asked they give it up. */}
+          {count === 0 && status === "idle" ? (
+            <ConversationEmptyState className={styles.deskEmpty}>
+              <AskPrimer onPick={ask} disabled={busy} />
+              <EvidenceBoundary />
+            </ConversationEmptyState>
+          ) : null}
+
           {exchanges.map((exchange) => (
             <AnswerRecord key={exchange.key} exchange={exchange} />
           ))}
@@ -172,30 +207,44 @@ export function AskDesk() {
           actionHref="/search"
         />
       ) : (
-        <div className={styles.deskPrompt}>
-          <EvidenceBoundary />
-          <AskComposer
-            onAsk={ask}
-            seed={seed}
-            disabled={busy || status === "restoring"}
-            label={hasHistory ? "Follow-up" : "Your question"}
-            placeholder={hasHistory ? "Ask a follow-up…" : undefined}
-            hint={
-              busy
-                ? "Waiting for the current answer before the next question."
-                : status === "restoring"
-                  ? "Reopening the last conversation."
-                  : undefined
-            }
-          />
-          {hasHistory ? (
-            <div className={styles.deskFoot}>
-              <Button type="button" variant="ghost" size="md" onClick={reset}>
-                Start a new conversation
+        /* One box at the foot, which is what a chat input is. `AskComposer`
+            was a labelled form with its own counter and hint rows stacked under
+            it — correct as a form, and a third block of chrome on a panel that
+            already had two.
+            `PromptInput` carries file attachments and a drop target this desk
+            has no use for; they are inert with no `accept` and no menu mounted,
+            and the parts used here are the textarea, the footer and the submit.
+            `status` drives the button's own spinner and stop control, so the
+            cancel path that lived in the composer's chrome is the button. */
+        <PromptInput
+          className={styles.deskPrompt}
+          onSubmit={(message) => {
+            const question = message.text.trim();
+            if (question) ask(question);
+          }}
+        >
+          <PromptInputBody>
+            <PromptInputTextarea
+              disabled={busy || status === "restoring"}
+              placeholder={
+                hasHistory ? "Ask a follow-up…" : "What does the desk hold on…"
+              }
+            />
+          </PromptInputBody>
+          <PromptInputFooter>
+            {hasHistory ? (
+              <Button type="button" variant="ghost" size="sm" onClick={reset}>
+                New conversation
               </Button>
-            </div>
-          ) : null}
-        </div>
+            ) : (
+              <span />
+            )}
+            <PromptInputSubmit
+              status={busy ? "submitted" : problem ? "error" : undefined}
+              onStop={cancel}
+            />
+          </PromptInputFooter>
+        </PromptInput>
       )}
     </div>
   );

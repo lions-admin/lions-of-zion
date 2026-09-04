@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { OPS_TOOLS, CONFIRMED_OPS_TOOLS } from "@/server/contracts/admin-console";
+import { AREA_LABEL } from "@/app/admin/lexicon";
 
 /**
  * The console shell, and the one property the operations chat exists to have.
@@ -15,6 +16,13 @@ import { OPS_TOOLS, CONFIRMED_OPS_TOOLS } from "@/server/contracts/admin-console
  * markup, and are named as such: the shell renders skeletons until its
  * effects run, and the properties below are about which code paths exist,
  * which is not something a first paint can show.
+ *
+ * The console reads in Hebrew, and nothing below hard-codes a Hebrew string.
+ * The words come from `app/admin/lexicon.ts`, which is where they are
+ * decided, so rewording an area does not break a test that was never about
+ * the wording. What is pinned instead is that the five areas are wired to the
+ * five lexicon entries and that those entries actually hold Hebrew — an area
+ * quietly reverting to English is the failure this still has to catch.
  */
 
 const ROOT = process.cwd();
@@ -27,9 +35,14 @@ describe("the shell", () => {
   const page = read("app/admin/page.tsx");
 
   it("mounts five areas and the docked chat", () => {
-    for (const label of ["Overview", "Pipeline", "Sources", "Editorial Desk", "System & Security"]) {
-      expect(shell, `${label} is an area`).toContain(`label: "${label}"`);
+    /* Each area takes its label from the lexicon rather than a literal, so
+       the five words are decided in one place and the panels can head
+       themselves with the same ones. */
+    for (const key of ["overview", "pipeline", "sources", "editorial", "system"] as const) {
+      expect(shell, `${key} is an area`).toContain(`label: AREA_LABEL.${key}`);
+      expect(AREA_LABEL[key], `${key} is named in Hebrew`).toMatch(/[֐-׿]/);
     }
+    expect(Object.keys(AREA_LABEL), "five areas, no more").toHaveLength(5);
     /* Docked, not tabbed: it is the surface used while reading another. */
     expect(shell).toContain("<OpsChat");
     expect(shell).not.toMatch(/<Tab value="chat"/);
@@ -44,11 +57,15 @@ describe("the shell", () => {
     expect(shell).toContain("onStateChanged={reloadActiveArea}");
   });
 
-  it("keeps the console in English and keeps the sign-out control mounted", () => {
-    /* Operator chrome stays English whatever a locale wrapper does to the
-       pages around it, and ADMIN-002's sign-out slot survived the rebuild —
+  it("declares the console's language and direction, and keeps the sign-out control mounted", () => {
+    /* The console is the owner's own operating surface and reads in Hebrew.
+       `dir` is asserted alongside `lang` because a Hebrew page left in a
+       left-to-right run is the actual bug: every label lands on the wrong
+       side of the thing it labels, and it reads as broken CSS rather than as
+       a missing attribute. ADMIN-002's sign-out slot survived the rebuild —
        it was written once before and mounted nowhere. */
-    expect(page).toContain('lang="en"');
+    expect(page).toContain('lang="he"');
+    expect(page).toContain('dir="rtl"');
     expect(page).toContain("<SignOutButton />");
   });
 });
@@ -89,7 +106,11 @@ describe("the operations chat", () => {
 
   it("treats a missing endpoint as a state with words, not a broken composer", () => {
     expect(code).toContain("RouteUnavailable");
-    expect(chat).toContain("The operations chat is not available in this deployment");
+    /* The words are Hebrew now, so what is pinned is the shape rather than
+       the sentence: the 404 branch renders a named `StatusState` of its own
+       instead of falling through to a composer that cannot send. */
+    expect(code).toMatch(/if \(unavailable\)/);
+    expect(code).toMatch(/absenceStatus\("unavailable"\)/);
     /* The composer cannot be used before capabilities arrive, so a send can
        never be attempted against a route that answered 404. */
     expect(code).toMatch(/disabled=\{sending \|\| !capabilities\}/);
@@ -108,7 +129,14 @@ describe("what the console tells the operator the assistant can do", () => {
        client — a hard-coded list is a list that goes stale silently. */
     expect(chat).toContain("capabilities.tools.map");
     expect(chat).toContain("tool.requiresConfirmation");
-    expect(chat).toContain("asks first");
+    /* Two names per tool, and both are shown. `tool.label` is the Hebrew one
+       the operator reads; `tool.name` is the Latin identifier that appears in
+       `audit_log`, which is what they grep for afterwards. Dropping either
+       leaves the list unusable, in two different ways. `tool.description` is
+       deliberately not rendered — it is English prompt text for the model. */
+    expect(chat).toContain("{tool.label}");
+    expect(chat).toContain("{tool.name}");
+    expect(chat).not.toContain("{tool.description}");
   });
 
   it("has a contract where the confirmed tools are a subset of the tools", () => {

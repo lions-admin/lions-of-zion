@@ -228,6 +228,13 @@ describe("AUTH-001 — the sign-in surface states its language (rendered)", () =
    "Action, target, consequence and cancel are explicit" is four things, and
    the failure mode is that three of them are present and one is not. */
 
+/* Deliberately left in English while the dialog's own labels are Hebrew. The
+   four fields below are caller-supplied — a real intent arrives from a panel,
+   already worded — and keeping them visibly distinct from the component's
+   labels is what makes the assertions below prove the right thing: that the
+   dialog renders the caller's words verbatim and contributes only the three
+   row labels and the cancel. If both halves were Hebrew, a component that
+   substituted its own text for the caller's would be harder to catch. */
 const intent = {
   action: "Delete this publication permanently",
   target: "Reported claim: a hospital was struck",
@@ -255,7 +262,11 @@ describe("STATE-004 — the destructive confirmation (rendered)", () => {
     expect(titleId).toBeTruthy();
     expect(markup).toMatch(new RegExp(`<h2[^>]*id="${titleId}"[^>]*>${intent.action}`));
 
-    for (const term of ["Action", "Target", "Consequence"]) {
+    /* The three rows, in Hebrew now — the labels are the console's, the
+       values are the caller's. Three of them, never two: the failure mode
+       STATE-004 exists for is a confirmation that names the action and the
+       target and quietly omits what it will cost. */
+    for (const term of ["הפעולה", "על מה", "המשמעות"]) {
       expect(markup, `${term} is one of the three labelled rows`).toContain(`<dt>${term}</dt>`);
     }
     expect(markup).toContain(intent.target);
@@ -264,7 +275,7 @@ describe("STATE-004 — the destructive confirmation (rendered)", () => {
 
     /* The confirming control repeats the verb. "OK" confirms nothing. */
     expect(markup).toContain(intent.confirmLabel);
-    expect(markup).toContain(">Cancel<");
+    expect(markup).toContain(">ביטול<");
   });
 
   it("puts cancel before confirm, so the safe control is the one Tab reaches first", async () => {
@@ -272,14 +283,14 @@ describe("STATE-004 — the destructive confirmation (rendered)", () => {
     /* DOM order is tab order here — see the CSS assertions below, and
        `dialog.module.css`'s footer is `justify-content: flex-end`, which
        moves the pair as a block without reordering it. */
-    expect(at(markup, ">Cancel<")).toBeLessThan(at(markup, `>${intent.confirmLabel}<`));
+    expect(at(markup, ">ביטול<")).toBeLessThan(at(markup, `>${intent.confirmLabel}<`));
   });
 
   it("offers a way out that names itself as a way out", async () => {
     const markup = await render(createElement(ConfirmDialog, { intent, onClose: () => {} }));
     /* The header control on a destructive confirmation is not a neutral
        "Close" — dismissing it is a cancel, and it says so. */
-    expect(markup).toContain('aria-label="Cancel and close"');
+    expect(markup).toContain('aria-label="ביטול וסגירה"');
   });
 
   it("uses the danger variant for anything not explicitly marked routine", async () => {
@@ -472,16 +483,33 @@ describe("ADMIN-002 — the console header (rendered)", () => {
   it("reads and tabs in the same sequence: heading, map, sign out", async () => {
     const markup = prose(await render(createElement(AdminPage)));
     const heading = at(markup, "<h1");
-    const map = at(markup, "System architecture map");
+    /* Anchored on the link's destination rather than its text. What this test
+       is about is DOM order — which is tab order — and that is a fact about
+       the document, not about which language the label is written in. The
+       label moved to Hebrew; `/pipeline` did not, and cannot without the link
+       ceasing to be this link. */
+    const map = at(markup, 'href="/pipeline"');
     const signOut = at(markup, "Sign out");
     expect(heading).toBeGreaterThan(-1);
     expect(heading).toBeLessThan(map);
     expect(map).toBeLessThan(signOut);
   });
 
-  it("declares the console's language on the console itself", async () => {
+  it("declares the console's language *and* its direction on the console itself", async () => {
     const markup = await render(createElement(AdminPage));
-    expect(markup).toMatch(/<main[^>]*lang="en"/);
+    /* The console is the owner's own operating surface and reads in Hebrew,
+       while the root element and the whole public site stay `lang="en"` —
+       `tests/english-chrome.test.ts` holds that other half.
+
+       `dir` is asserted here and not left to the stylesheet because a Hebrew
+       page in a left-to-right run is the failure that actually happens: every
+       label lands on the wrong side of the thing it labels, and it presents
+       as a layout bug, so it gets chased through the CSS instead of through
+       the one missing attribute. Both, or neither, is the property. */
+    const main = markup.match(/<main[^>]*>/)?.[0];
+    expect(main, "the console renders a <main>").toBeTruthy();
+    expect(main).toMatch(/lang="he"/);
+    expect(main).toMatch(/dir="rtl"/);
   });
 });
 

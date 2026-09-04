@@ -6,11 +6,29 @@
    the site Button voice: text face, 600, `--radius-2`, 44px tall. State
    colours come from `--state-*`. */
 
+/* The console reads in Hebrew — it is the owner's own operating surface — so
+   it is the one place in the app that overrides the two type faces. The
+   public site is untouched: `--face-text` and `--face-data` keep their Latin
+   definitions in `globals.css`, and both overrides below are scoped to this
+   element and its descendants.
+
+   `--face-data` is redefined rather than replaced. JetBrains Mono has no
+   Hebrew glyphs at all, and CSS font fallback is per-glyph, not per-string:
+   a Latin identifier, an HTTP code or a tabular figure still lands on
+   JetBrains Mono, while a Hebrew word in the same cell falls straight past
+   every Latin-only monospace to IBM Plex Sans Hebrew — the same superfamily
+   the console's running text uses, so the two match in weight and colour.
+   The Hebrew entry goes last on purpose: put first, it would swallow the
+   digits and `font-variant-numeric: tabular-nums` would stop lining columns
+   up, which is the whole reason the data face is monospaced. */
 .shell {
   min-height: 100%;
   padding: clamp(var(--sp-5), 6vw, var(--sp-8));
   color: var(--ink-hi);
-  font-family: var(--face-text);
+  font-family: var(--font-plex-sans-hebrew), var(--face-text);
+  --face-data:
+    var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo,
+    var(--font-plex-sans-hebrew), monospace;
 }
 
 /* ── Containers ───────────────────────────────────────────────────────── */
@@ -750,6 +768,10 @@
   background: var(--surface-1);
 }
 
+/* The console reads right to left; the articles it edits do not — the public
+   site is English. So the editor body is an explicit left-to-right run inside
+   an RTL page, and `left` here is the same edge as `start` because the
+   element sets its own direction. Not a stray physical property. */
 .editorForm textarea {
   resize: vertical;
   line-height: var(--t-small-lh);
@@ -793,6 +815,8 @@
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
+  /* Ids, routes and model slugs: a left-to-right run of its own, so `left` is
+     `start` here too. */
   direction: ltr;
   text-align: left;
 }
@@ -1504,9 +1528,15 @@
 
 /* ── The console shell ────────────────────────────────────────────────── */
 
-/* The chat is a right rail on a wide screen and a full-width panel below the
+/* The chat is a side rail on a wide screen and a full-width panel below the
    areas on a narrow one. It is never behind a tab: it is the surface an
-   operator uses *while* reading another. */
+   operator uses *while* reading another.
+
+   Which side is deliberately not stated: grid columns are laid out along the
+   inline axis, so under the console's `dir="rtl"` the areas take the first
+   (right) column and the rail follows on the left, exactly as they would swap
+   the other way in an English build. Nothing in this block names a physical
+   side, which is why the mirroring needs no rule of its own. */
 .consoleLayout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

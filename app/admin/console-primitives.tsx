@@ -4,41 +4,27 @@ import { useCallback, useState, type ReactNode } from "react";
 import { Skeleton, SkeletonRegion } from "@/components/ui/Skeleton";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
-import type { PublicationSection, PublicationStatus } from "@/server/contracts/enums";
+import type { PublicationStatus } from "@/server/contracts/enums";
 import { AuthRequired } from "./auth-required";
+/* `SECTION_LABEL` and `STATUS_LABEL` are re-exported below without being read
+   here, so they are not imported; `STAGE_LABEL` is, because `stageLabel()`
+   falls back through it. */
+import { ABSENCE, LOCALE, STAGE_LABEL, T } from "./lexicon";
 import type { ReadState } from "./useConsoleRead";
 import { RouteUnavailable } from "./useConsoleRead";
 import styles from "./admin.module.css";
 
 /* ── Words ─────────────────────────────────────────────────────────────── */
 
-/* Enum values are the wire format, not operator chrome. The console reads in
-   English words everywhere a status or a section is shown. */
-export const STATUS_LABEL: Record<PublicationStatus, string> = {
-  draft: "Draft",
-  under_review: "In review",
-  approved: "Approved",
-  published: "Published",
-  updated: "Updated",
-  archived: "Archived",
-};
-
-export const SECTION_LABEL: Record<PublicationSection, string> = {
-  daily_brief: "Daily Brief",
-  israel_update: "Israel Update",
-  war_update: "War Update",
-  narrative_watch: "Narrative Watch",
-};
-
-export const STAGE_LABEL: Record<string, string> = {
-  collect: "Collect",
-  enrich: "Enrich",
-  cluster: "Cluster",
-  triage: "Triage",
-  draft: "Draft",
-  quality: "Quality",
-  publish: "Publish",
-};
+/* Enum values are the wire format, not operator chrome: `under_review` is
+   what is in the column and in the audit log, "בבדיקה" is what the operator
+   reads. The three maps live in `lexicon.ts` and are re-exported here rather
+   than redeclared, because the failure mode of a console translated across a
+   dozen files at once is not a mistranslation — it is two files disagreeing
+   about what one status is called. Every panel already imports these three
+   from this module, so the re-export keeps that call site while leaving one
+   definition of each. */
+export { SECTION_LABEL, STAGE_LABEL, STATUS_LABEL } from "./lexicon";
 
 export function stageLabel(stage: string): string {
   return STAGE_LABEL[stage] ?? stage;
@@ -46,47 +32,85 @@ export function stageLabel(stage: string): string {
 
 /* ── Formatting ────────────────────────────────────────────────────────── */
 
-const dateTime = new Intl.DateTimeFormat("en-GB", { dateStyle: "short", timeStyle: "short" });
-const fullDate = new Intl.DateTimeFormat("en-GB", { dateStyle: "full" });
+/**
+ * Wraps one formatted value in FIRST STRONG ISOLATE \u2068 … POP DIRECTIONAL
+ * ISOLATE \u2069 — the string-level equivalent of `<bdi>`.
+ *
+ * This is not decoration. The console runs `dir="rtl"`, and the bidirectional
+ * algorithm resolves neutral characters against the *paragraph* direction, not
+ * against the values on either side of them. So `${formatUsd(spend)} / ${formatUsd(budget)}`
+ * — which is exactly what the Sources area renders — puts a neutral slash
+ * between two left-to-right runs inside a right-to-left paragraph, and the two
+ * runs reorder around it: the budget paints where the spend should be. The
+ * operator reads a real number in the wrong slot, which is worse than reading
+ * nothing.
+ *
+ * An isolate ends that: each value becomes one atomic, neutral-typed unit that
+ * the surrounding text orders as a whole and never reaches inside. It has to be
+ * done here rather than in CSS, because the values are interpolated into
+ * template strings by panels this module cannot see, and `unicode-bidi` can
+ * only isolate an element — there is no element around a `${}` in a template
+ * literal. It has to be done here rather than at each call site for the same
+ * reason: five panels interpolate these four functions, and the one that
+ * forgets is the one that misreports a cost.
+ *
+ * The two characters are zero-width and invisible. They do travel with a
+ * copy-paste; that is the cost, and it is much smaller than a swapped figure.
+ */
+const isolate = (value: string) => `\u2068${value}\u2069`;
+
+/* `he-IL` orders a date the way an Israeli reader expects and keeps the
+   digits Latin, which is what lets a timestamp sit legibly next to the Latin
+   identifier it belongs to. */
+const dateTime = new Intl.DateTimeFormat(LOCALE, { dateStyle: "short", timeStyle: "short" });
+const fullDate = new Intl.DateTimeFormat(LOCALE, { dateStyle: "full" });
 
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : dateTime.format(date);
+  return isolate(Number.isNaN(date.getTime()) ? value : dateTime.format(date));
 }
 
 export function today(): string {
   return fullDate.format(new Date());
 }
 
+/* The dollar sign stays: the budget is denominated in USD, the AI Gateway
+   bills in USD, and rendering it as anything else would invent a conversion
+   nobody performed. */
 export function formatUsd(value: number | null | undefined, digits = 4): string {
-  if (value === null || value === undefined) return "Not set";
-  return `$${value.toFixed(digits)}`;
+  if (value === null || value === undefined) return T.notSet;
+  return isolate(`$${value.toFixed(digits)}`);
 }
 
+/* `ms`, `s` and `min` are SI symbols, not English words — they are written
+   this way in Hebrew technical text too, and they are what the same numbers
+   are called in the logs these durations come from. Translating a unit
+   symbol would make the console and its own log disagree. */
 export function formatDuration(ms: number | null | undefined): string {
   if (ms === null || ms === undefined) return "—";
-  if (ms < 1000) return `${Math.round(ms)} ms`;
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)} s`;
-  return `${(ms / 60_000).toFixed(1)} min`;
+  if (ms < 1000) return isolate(`${Math.round(ms)} ms`);
+  if (ms < 60_000) return isolate(`${(ms / 1000).toFixed(1)} s`);
+  return isolate(`${(ms / 60_000).toFixed(1)} min`);
 }
 
 export function formatPercent(fraction: number | null | undefined): string {
   if (fraction === null || fraction === undefined) return "—";
-  return `${Math.round(fraction * 100)}%`;
+  return isolate(`${Math.round(fraction * 100)}%`);
 }
 
-/** How long ago, in the coarse units an operator scans a log by. */
+/** How long ago, in the coarse units an operator scans a log by. Prose, so
+ *  it is translated; the number inside it stays a Latin digit. */
 export function formatAgo(value: string | null | undefined): string {
-  if (!value) return "never";
+  if (!value) return T.never;
   const delta = Date.now() - new Date(value).getTime();
   if (!Number.isFinite(delta)) return value;
   const minutes = Math.round(delta / 60_000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 1) return "הרגע";
+  if (minutes < 60) return `לפני ${minutes} דק׳`;
   const hours = Math.round(minutes / 60);
-  if (hours < 48) return `${hours} h ago`;
-  return `${Math.round(hours / 24)} d ago`;
+  if (hours < 48) return `לפני ${hours} שע׳`;
+  return `לפני ${Math.round(hours / 24)} ימים`;
 }
 
 /* ── Cells ─────────────────────────────────────────────────────────────── */
@@ -148,14 +172,14 @@ export function useOperations(onAuthRequired?: () => void) {
     (cause: unknown) => {
       if (cause instanceof AuthRequired) {
         onAuthRequired?.();
-        setNotice({ kind: "error", text: "This session is no longer signed in. Sign in again to continue." });
+        setNotice({ kind: "error", text: "הסשן אינו מחובר עוד. יש להתחבר מחדש כדי להמשיך." });
         return;
       }
       if (cause instanceof RouteUnavailable) {
         setNotice({ kind: "error", text: cause.message });
         return;
       }
-      setNotice({ kind: "error", text: cause instanceof Error ? cause.message : "The operation failed." });
+      setNotice({ kind: "error", text: cause instanceof Error ? cause.message : "הפעולה נכשלה." });
     },
     [onAuthRequired],
   );
@@ -198,7 +222,7 @@ export function ConsoleNotices({ busy, notice, idPrefix }: { busy: string | null
         </p>
       ) : null}
       <p className={styles.consolePending} {...politeLive}>
-        {busy ? "Running an operation. Controls stay disabled until it finishes." : ""}
+        {busy ? "פעולה רצה. הפקדים נשארים מושבתים עד שהיא מסתיימת." : ""}
       </p>
     </>
   );
@@ -221,7 +245,8 @@ export function ReadGate<T>({
   children,
 }: {
   state: ReadState<T>;
-  /** "the pipeline", "the source table" — completes the sentences below. */
+  /** The noun the four sentences below complete: "התהליך", "טבלת המקורות".
+   *  Definite, and without a leading "את" — `ABSENCE` supplies that. */
   what: string;
   reload: () => void;
   skeleton?: ReactNode;
@@ -229,7 +254,7 @@ export function ReadGate<T>({
 }) {
   if (state.kind === "loading") {
     return (
-      <SkeletonRegion label={`Loading ${what}`} className={styles.consoleState}>
+      <SkeletonRegion label={ABSENCE.loading(what)} className={styles.consoleState}>
         {skeleton ?? (
           <>
             <Skeleton shape="block" height="5.5rem" />
@@ -249,10 +274,10 @@ export function ReadGate<T>({
       <StatusState
         status={absenceStatus("auth-required")}
         className={styles.consoleState}
-        eyebrow="SESSION"
-        title="Sign in to open the console"
-        description="This session is not signed in, or it has expired. Nothing is wrong with the console — it refuses to answer an unauthenticated read, which is what it is supposed to do."
-        actionText="Go to sign-in"
+        eyebrow="סשן"
+        title={ABSENCE.authTitle}
+        description={ABSENCE.authBody}
+        actionText={ABSENCE.authAction}
         actionHref="/admin/login"
       />
     );
@@ -262,10 +287,10 @@ export function ReadGate<T>({
       <StatusState
         status={absenceStatus("unavailable")}
         className={styles.consoleState}
-        eyebrow="NOT AVAILABLE"
-        title={`This deployment does not serve ${what} yet`}
-        description="The route answered 404. The console is built against the shared contract ahead of every endpoint; the rest of the console keeps working. Nothing has failed."
-        actionText="Check again"
+        eyebrow="לא זמין"
+        title={ABSENCE.unavailableTitle(what)}
+        description={ABSENCE.unavailableBody}
+        actionText={ABSENCE.unavailableAction}
         onAction={reload}
       />
     );
@@ -275,9 +300,9 @@ export function ReadGate<T>({
       <StatusState
         status={absenceStatus("unavailable")}
         className={styles.consoleState}
-        title={`Could not read ${what}`}
+        title={ABSENCE.failedTitle(what)}
         description={state.message}
-        actionText="Try again"
+        actionText={ABSENCE.failedAction}
         onAction={reload}
       />
     );
@@ -290,7 +315,7 @@ export function ReadGate<T>({
 export function InlineAbsence({ state, what, reload }: { state: ReadState<unknown>; what: string; reload: () => void }) {
   if (state.kind === "loading") {
     return (
-      <SkeletonRegion label={`Loading ${what}`} className={styles.inlineSkeleton}>
+      <SkeletonRegion label={ABSENCE.loading(what)} className={styles.inlineSkeleton}>
         <Skeleton shape="text" width="60%" />
         <Skeleton shape="text" width="80%" />
         <Skeleton shape="text" width="45%" />
@@ -300,23 +325,23 @@ export function InlineAbsence({ state, what, reload }: { state: ReadState<unknow
   if (state.kind === "unavailable") {
     return (
       <p className={styles.absence} {...politeLive}>
-        Not available in this deployment: the route for {what} answered 404. Nothing has failed.
+        לא זמין בפריסה הזו: המסלול של {what} החזיר 404. שום דבר לא נכשל.
       </p>
     );
   }
   if (state.kind === "auth-required") {
     return (
       <p className={styles.absence} {...politeLive}>
-        Sign in to read {what}.
+        יש להתחבר כדי לקרוא את {what}.
       </p>
     );
   }
   if (state.kind === "failed") {
     return (
       <p className={styles.error} {...assertiveLive}>
-        Could not read {what}: {state.message}{" "}
+        לא ניתן לקרוא את {what}: {state.message}{" "}
         <button type="button" className={styles.linkButton} onClick={reload}>
-          Try again
+          {T.tryAgain}
         </button>
       </p>
     );

@@ -230,6 +230,11 @@ export const T = {
   duplicates: "כפילויות",
   errors: "שגיאות",
   lastError: "שגיאה אחרונה",
+  /* A budget or a threshold nobody has set yet. Distinct from `none`: `none`
+     is a count of zero, `notSet` is the absence of a configured value, and a
+     console that renders both as "אין" cannot tell an unconfigured limit
+     from a limit of nothing. */
+  notSet: "לא הוגדר",
 
   /* Time */
   last24h: "ב-24 השעות האחרונות",

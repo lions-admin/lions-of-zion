@@ -37,8 +37,10 @@ export type ConsoleRead<T> = {
 export const api = (path: string) => `/api/v1/${path}`;
 
 export class RouteUnavailable extends Error {
+  /* The path stays as it is: it is the route the operator would curl, and it
+     is what appears in the network panel. The sentence around it is theirs. */
   constructor(path: string) {
-    super(`${path} is not available in this deployment.`);
+    super(`${path} אינו זמין בפריסה הזו.`);
     this.name = "RouteUnavailable";
   }
 }
@@ -48,7 +50,7 @@ export async function readConsole<T>(path: string): Promise<T> {
   const response = await fetch(api(path), { cache: "no-store" });
   if (refusedForAuth([response])) throw new AuthRequired();
   if (response.status === 404) throw new RouteUnavailable(path);
-  if (!response.ok) throw new Error(`Unable to read ${path}.`);
+  if (!response.ok) throw new Error(`לא ניתן לקרוא את ${path}.`);
   return (await response.json()) as T;
 }
 
@@ -78,7 +80,7 @@ export function useConsoleRead<T>(path: string, { signal = 0, enabled = true }: 
         if (!live) return;
         if (cause instanceof AuthRequired) setState({ kind: "auth-required" });
         else if (cause instanceof RouteUnavailable) setState({ kind: "unavailable" });
-        else setState({ kind: "failed", message: cause instanceof Error ? cause.message : `Unable to read ${path}.` });
+        else setState({ kind: "failed", message: cause instanceof Error ? cause.message : `לא ניתן לקרוא את ${path}.` });
       });
     return () => {
       live = false;
@@ -117,7 +119,7 @@ export async function callConsole<T = unknown>(
   }
   if (!response.ok) {
     const detail = payload && typeof payload === "object" && "detail" in payload ? String((payload as { detail: unknown }).detail) : null;
-    throw new Error(detail || init.failure || `${path} failed.`);
+    throw new Error(detail || init.failure || `${path} נכשל.`);
   }
   return payload as T;
 }

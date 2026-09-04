@@ -23,7 +23,11 @@
 :root {
   /* --- Type faces (SYS-003) ---
      Display = Newsreader (editorial). Text = IBM Plex Sans (body/UI).
-     Data = JetBrains Mono. The site is English; no Hebrew face is loaded. */
+     Data = JetBrains Mono. The public site is English and these three tokens
+     stay Latin. A Hebrew face (IBM Plex Sans Hebrew) *is* loaded by
+     `app/layout.tsx` and exposed as `--font-plex-sans-hebrew`, but it is
+     wired into no token here: only the operations console reaches for it,
+     in `app/admin/admin.module.css`. Do not put it in `--face-text`. */
   --face-display: var(--font-newsreader), 'Iowan Old Style', Charter, Georgia, serif;
   --face-text: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   --face-data: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;

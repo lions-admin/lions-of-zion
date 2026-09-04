@@ -539,6 +539,11 @@ export const T = {
    identityReady: "זהות Google פעילה",
    identityMissing: "זהות Google אינה מוגדרת",
    identityUnknown: "מצב הזהות אינו ידוע",
+
+   /* The operations chat's two placements: the docked rail on a wide screen,
+      and the toggle and drawer on a narrow one. */
+   openOpsChat: "עוזר התפעול",
+   closeOpsChat: "סגירת עוזר התפעול",
 } as const;
 
 /* ── The sentences panels report an operation back with ────────────────── */

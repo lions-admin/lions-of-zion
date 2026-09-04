@@ -115,7 +115,7 @@ export function SystemPanel({ signal }: { signal: number }) {
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
 
       <Tabs value={sub} onValueChange={select} activation="manual" className={styles.subTabs}>
-        <div className={cmd.consoleNav}>
+        <div className={`${cmd.consoleNav} ${cmd.consoleNavSub}`}>
         <TabList shape="segmented" label="תת-אזורים של מערכת ואבטחה">
           {SUB_AREAS.map((entry) => (
             <Tab key={entry.key} value={entry.key}>

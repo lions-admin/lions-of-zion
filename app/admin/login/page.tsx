@@ -8,8 +8,9 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
   return (
     /* The document is already `lang="en"` at the root. Stating it here as
        well is the guarantee for a surface that must stay English chrome
-       whatever a future locale wrapper does to the pages around it. */
-    <main className={styles.shell} lang="en" data-reading-scroll>
+       whatever a future locale wrapper does to the pages around it. The
+       shell centres the card — see `.loginShell` in admin.module.css. */
+    <main className={`${styles.shell} ${styles.loginShell}`} lang="en" data-reading-scroll>
       <section className={styles.card} aria-labelledby="signin-heading">
         <p className={styles.eyebrow}>Lions of Zion / Operations</p>
         <h1 id="signin-heading">Operator sign-in</h1>

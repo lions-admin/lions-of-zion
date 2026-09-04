@@ -303,7 +303,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
               {entry.role === "assistant" ? "העוזר" : entry.role === "tool" ? "פעולה" : "את/ה"}
               <span className={styles.chipNote}> · {formatAgo(entry.createdAt)}</span>
             </p>
-            <p className={styles.verdictBody}>{entry.content}</p>
+            <p className={styles.messageBody}>{entry.content}</p>
             {entry.toolCalls?.length ? (
               <div className={styles.chipRow}>
                 {entry.toolCalls.map((call) => (

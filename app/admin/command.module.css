@@ -20,6 +20,14 @@
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
+  /* The console's coordinated sticky scheme. The area nav pins at top: 0;
+     everything else that sticks — the System sub-tab row and the operations
+     chat rail — pins at this offset instead, so two sticky rows can never
+     overlap each other or the rail. The value is the nav's measured height
+     (its own padding + the segmented tab list + the rule) with headroom for
+     the coarse-pointer tab height; it is a spacing decision, not a
+     coincidence, and the rail's own top adds a gutter on top of it. */
+  --console-nav-h: 6rem;
 }
 
 /* Decorative field. Rendered once per console inside an `aria-hidden`
@@ -83,6 +91,15 @@
   margin-block-end: var(--sp-4);
   background: color-mix(in srgb, var(--ground) 82%, transparent);
   border-block-end: var(--line-w) solid var(--line);
+}
+
+/* The System area's sub-tab row is a second sticky nav inside the same
+ * scroll container. Same treatment, one level down: it pins below the area
+ * nav (never at top: 0, where the two rows would overlap) and one z-index
+ * step under it — an ordered ladder, not an escalation. */
+.consoleNavSub {
+  top: var(--console-nav-h);
+  z-index: 4;
 }
 
 /* The shared TabList keeps its semantics; the command layer only adjusts
@@ -348,20 +365,28 @@
 
 /* ── Pipeline flow ─────────────────────────────────────────────── */
 
+/* The seven stages wrap; they never scroll. `auto-fit` lays out as many
+ * 9.5rem tracks as the container honestly fits and collapses the slack —
+ * seven columns on a wide console, three or four beside a mid-size rail,
+ * one on a phone — so no viewport width produces a horizontal scrollbar and
+ * no node is ever narrower than its own labels. The connectors are
+ * decorative: at a row's end one extends a few pixels into the gutter, and
+ * a flow that has wrapped to two rows reads as a run that continues, which
+ * it is. DOM order is collect → publish and stays that way; under the
+ * console's `dir="rtl"` the whole grid mirrors, so a Hebrew reader follows
+ * the flow right-to-left with no reordering code and no `order` property. */
 .flow {
   list-style: none;
   margin: var(--sp-3) 0 0;
   padding: 0;
   display: grid;
-  gap: 0;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
+  gap: var(--sp-3) 0;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
 }
 
 .flowNode {
   position: relative;
-  min-width: 10rem;
+  min-width: 0;
   padding: var(--sp-3);
   padding-block-start: var(--sp-4);
   border-block-start: 2px solid var(--line);
@@ -586,28 +611,9 @@
     margin-block-start: var(--sp-3);
   }
 
-  .flow {
-    grid-template-columns: minmax(0, 1fr);
-    overflow-x: visible;
-  }
-
-  .flowNode {
-    border-block-start: none;
-    border-inline-start: 2px solid var(--line);
-    padding-block-start: var(--sp-2);
-    padding-inline-start: var(--sp-4);
-    margin-inline-end: 0;
-    margin-block-end: var(--sp-2);
-  }
-
-  .flowNode::before {
-    top: var(--sp-2);
-    inset-inline-start: -5px;
-  }
-
-  .flowNode::after {
-    content: none;
-  }
+  /* The flow needs no narrow-screen rule of its own: `auto-fit` above
+     already lays out one column on a phone and wraps everywhere between,
+     so the stage labels never overlap and nothing overflows. */
 }
 
 @media (max-width: 40rem) {

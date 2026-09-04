@@ -1391,7 +1391,26 @@ function EnvironmentSection({ signal }: { signal: number }) {
                 label="פגיעות במטמון הציבורי"
                 value={value.publicReadCache.hitRatio === null ? "אין נתונים" : `${(value.publicReadCache.hitRatio * 100).toFixed(1)}% · ${value.publicReadCache.averageLoadMs ?? 0} ms`}
               />
-              <Stat label="התחברות" value="זהות Google פעילה" />
+              {/* The sign-in integration's readiness is read, never asserted:
+                  the status payload's `neonAuth` boolean is the fact; a key it
+                  does not carry is an unknown, and must not read as ready. */}
+              <Stat
+                label={T.identityPanel}
+                tone={
+                  value.integrations.neonAuth === undefined
+                    ? undefined
+                    : value.integrations.neonAuth
+                      ? "ok"
+                      : "warn"
+                }
+                value={
+                  value.integrations.neonAuth === undefined
+                    ? T.identityUnknown
+                    : value.integrations.neonAuth
+                      ? T.identityReady
+                      : T.identityMissing
+                }
+              />
             </StatGrid>
 
             <div className={styles.grid}>

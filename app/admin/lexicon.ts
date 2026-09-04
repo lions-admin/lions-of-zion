@@ -525,11 +525,20 @@ export const T = {
   lexicalOnly: "מילון בלבד",
   embedRuns: "ריצות הטמעה",
 
-  /* Agent Search's recorded spend, beside the estimate. The registry at
-     fetch time writes what the fetch cost; absent means nothing reported a
-     cost, which is not zero. */
-  actualSearchSpend: "בפועל מרישום האחזורות",
-  notRecorded: "לא נרשם",
+   /* Agent Search's recorded spend, beside the estimate. The registry at
+      fetch time writes what the fetch cost; absent means nothing reported a
+      cost, which is not zero. */
+   actualSearchSpend: "בפועל מרישום האחזורות",
+   notRecorded: "לא נרשם",
+
+   /* The sign-in integration's readiness, read from the status read's
+      integrations map (key `neonAuth`) rather than asserted. A key the
+      payload does not carry is a third state — unknown — and never reads as
+      ready. */
+   identityPanel: "התחברות",
+   identityReady: "זהות Google פעילה",
+   identityMissing: "זהות Google אינה מוגדרת",
+   identityUnknown: "מצב הזהות אינו ידוע",
 } as const;
 
 /* ── The sentences panels report an operation back with ────────────────── */

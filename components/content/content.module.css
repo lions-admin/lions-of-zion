@@ -710,14 +710,9 @@
 
 
 .cardEyebrow {
+  composes: dataLabel from global;
   margin: 0 0 var(--sp-3);
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .card[data-accent='ember'] .cardEyebrow {
@@ -953,16 +948,12 @@
    these run longer ("Abductions to the Gaza Strip"), so it is sentence case in
    the data face — a label, not a headline. */
 .sensitiveCategory {
+  composes: dataMeta from global;
   display: flex;
   align-items: baseline;
   gap: var(--sp-2);
   margin: 0;
   color: var(--ember-peak);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
 }
 
 /* The mark carries the state where colour cannot: a filled diamond, so the
@@ -1033,11 +1024,7 @@
 }
 
 .sensitiveHint {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
+  composes: dataMeta from global;
   color: var(--ember-peak);
 }
 
@@ -1143,11 +1130,8 @@
 
 
 .rosterNumeric {
+  composes: dataValue from global;
   color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
@@ -1182,13 +1166,8 @@
 }
 
 .techniqueChipsLabel {
+  composes: dataLabel from global;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .techniqueChipsRow {

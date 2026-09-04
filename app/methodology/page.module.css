@@ -249,12 +249,7 @@
    can pass, so it keeps the tracked data voice. Written out, never a
    colour alone. */
 .stageGate {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--gold);
 }
 

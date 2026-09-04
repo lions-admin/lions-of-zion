@@ -179,17 +179,12 @@
 }
 
 .groupHead {
+  composes: dataLabel from global;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-3);
   padding: var(--sp-2) var(--sp-5) var(--sp-2) calc(var(--sp-5) + 3.25rem);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--ink-lo);
   overflow-wrap: anywhere;
 }
@@ -370,12 +365,7 @@
 }
 
 .suggestionsLabel {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink-lo);
 }
 

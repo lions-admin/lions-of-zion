@@ -20,13 +20,9 @@
 /* The record's evidence line: a labelled fact about what the file rests on,
    in the data voice, above the destination cue the Card primitive pins. */
 .fileEvidence {
+  composes: dataMeta from global;
   margin: var(--sp-3) 0 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
-  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
 }
 

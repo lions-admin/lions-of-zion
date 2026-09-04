@@ -90,11 +90,8 @@
 /* "Lions of Zion / Operations" is four words, so it stays sentence case:
    a mono masthead line, not a tracked label. */
 .eyebrow {
+  composes: dataValue from global;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 .shell h1 {
@@ -130,14 +127,9 @@
 
 /* Two or three words naming a panel: a data label. */
 .sectionLabel {
+  composes: dataLabel from global;
   margin: 0;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 /* ── Forms ────────────────────────────────────────────────────────────── */
@@ -180,12 +172,9 @@
 }
 
 .authPending {
+  composes: dataValue from global;
   margin: 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 /* Idle, the live region is mounted but has nothing to say. */
@@ -209,14 +198,9 @@
 
 .altLabel,
 .bootstrapLabel {
+  composes: dataLabel from global;
   margin: 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 /* Google renders its own button here. Reserve the height so the block does
@@ -709,14 +693,11 @@
    editor's public id. The id is an identifier, so it takes the data face and
    its own left-to-right run inside the RTL form. */
 .editorStatus {
+  composes: dataValue from global;
   display: flex;
   justify-content: space-between;
   gap: var(--sp-3);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   direction: ltr;
 }
 
@@ -779,12 +760,9 @@
 
 /* A count or a timestamp sitting opposite a panel heading. */
 .headNote {
+  composes: dataValue from global;
   margin: 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
 }
 
@@ -809,14 +787,9 @@
 }
 
 .dangerLabel {
+  composes: dataLabel from global;
   margin: 0;
   color: var(--state-danger);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .dangerZone .actionRow {

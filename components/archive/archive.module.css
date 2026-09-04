@@ -119,16 +119,11 @@ section:first-child > .heading {
 }
 
 .advisoryLabel {
+  composes: dataLabel from global;
   display: flex;
   align-items: center;
   gap: var(--sp-2);
   margin: 0 0 var(--sp-2);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--ember-peak);
 }
 
@@ -179,13 +174,8 @@ section:first-child > .heading {
 }
 
 .descriptionHeading {
+  composes: dataLabel from global;
   margin: 0 0 var(--sp-3);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--ink-lo);
   max-width: none;
 }
@@ -325,12 +315,7 @@ section:first-child > .heading {
 
 .languagesLabel,
 .languagesAlso {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink-lo);
 }
 
@@ -401,12 +386,8 @@ section:first-child > .heading {
 /* The 149 testimonies and every documentation record that exist in one
    language say so, rather than leaving a silence a reader has to interpret. */
 .languageOnly {
+  composes: dataMeta from global;
   margin-top: var(--sp-4);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
 }
 
@@ -631,12 +612,7 @@ section:first-child > .heading {
    face and the tracking say "this is who", the way a byline does; the account
    itself answers in the display face below it. */
 .witnessName {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink-lo);
   transition: color var(--dur-fast) var(--ease-out);
 }
@@ -673,15 +649,11 @@ section:first-child > .heading {
 }
 
 .witnessFacts {
+  composes: dataMeta from global;
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-1) var(--sp-3);
   margin-top: var(--sp-2);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
   font-variant-numeric: tabular-nums;
 }
@@ -766,16 +738,11 @@ section:first-child > .heading {
    captions scannable, because "Film · Mass Rapes" and "Photograph · The Nova
    Party Massacre" are the two facts a reader is actually sorting by. */
 .exhibitFiling {
+  composes: dataLabel from global;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--sp-1) var(--sp-2);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .exhibitMedium {
@@ -898,13 +865,8 @@ section:first-child > .heading {
 }
 
 .provenanceHeading {
+  composes: dataLabel from global;
   margin: 0 0 var(--sp-3);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--ink-lo);
   max-width: none;
 }
@@ -968,10 +930,7 @@ section:first-child > .heading {
    data face; the state colours are the system's own, desaturated for the
    warm palette. */
 .shareStatus {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
+  composes: dataValue from global;
   color: var(--ink);
 }
 
@@ -1053,12 +1012,7 @@ section:first-child > .heading {
 }
 
 .neighbourWay {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink-lo);
 }
 
@@ -1080,11 +1034,7 @@ section:first-child > .heading {
 }
 
 .neighbourWitness {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
+  composes: dataMeta from global;
   color: var(--ink-lo);
 }
 

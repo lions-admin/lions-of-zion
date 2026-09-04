@@ -28,13 +28,8 @@
 }
 
 .filterLegend {
+  composes: dataLabel from global;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
 }
 
 .chips {
@@ -479,11 +474,8 @@
 }
 
 .panelFacts {
+  composes: dataValue from global;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 .panelEdges {
@@ -527,13 +519,8 @@
 }
 
 .panelGrade {
+  composes: dataLabel from global;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -660,11 +647,8 @@
 }
 
 .listFacts {
+  composes: dataValue from global;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 .listEdges {
@@ -707,13 +691,8 @@
 }
 
 .listGrade {
+  composes: dataLabel from global;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -731,14 +710,9 @@
 
 /* The textual half of the muted treatment: opacity alone is a colour cue. */
 .listMutedNote {
+  composes: dataLabel from global;
   margin: var(--sp-1) 0 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
 }
 
 /* The mobile twin of the panel's empty-filter notice; the panel that carries

@@ -40,13 +40,9 @@
 /* The card's evidence line: what stands behind the file, as a labelled fact
    rather than a teaser. */
 .featuredEvidence {
+  composes: dataMeta from global;
   margin: var(--sp-3) 0 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
-  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
 }
 

@@ -178,13 +178,8 @@
 }
 
 .doorKind {
+  composes: dataLabel from global;
   margin: 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--ink-lo);
 }
 
@@ -302,11 +297,7 @@
 }
 
 .doorCategoryCount {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
+  composes: dataMeta from global;
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }

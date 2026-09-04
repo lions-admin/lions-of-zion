@@ -352,13 +352,10 @@
 
 .explainerTableBadge,
 .explainerTriggerBadge {
+  composes: dataValue from global;
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
   color: var(--ink-lo);
 }
 
@@ -388,11 +385,8 @@
 }
 
 .payloadPre {
+  composes: dataValue from global;
   margin: 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
   color: var(--ink);
   white-space: pre-wrap;
   word-break: break-all;
@@ -484,12 +478,9 @@
 }
 
 .zoomPercentageBadge {
+  composes: dataValue from global;
   min-width: 3rem;
   text-align: center;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-hi);
 }
@@ -768,10 +759,7 @@
 }
 
 .htmlTablePill {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
+  composes: dataValue from global;
   color: var(--ink-lo);
 }
 
@@ -947,16 +935,13 @@
 }
 
 .logStreamContainer {
+  composes: dataValue from global;
   flex: 1;
   overflow-y: auto;
   padding: var(--sp-2) var(--sp-5);
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
   font-variant-numeric: tabular-nums;
   scrollbar-width: thin;
 }
@@ -1104,10 +1089,7 @@
 }
 
 .glossaryTableTag {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
+  composes: dataValue from global;
   color: var(--ink-lo);
 }
 
@@ -1280,11 +1262,8 @@
 
 .structureCount,
 .structureEmpty {
+  composes: dataValue from global;
   margin: 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
   color: var(--ink-lo);
 }
 

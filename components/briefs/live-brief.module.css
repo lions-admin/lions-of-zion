@@ -60,16 +60,13 @@
 
 
 .liveEyebrow {
+  composes: dataValue from global;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--sp-1) var(--sp-3);
   margin: 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
 }
 
@@ -171,12 +168,7 @@
 }
 
 .filterTriggerLabel {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
+  composes: dataLabel from global;
 }
 
 .filterTriggerSummary {
@@ -269,16 +261,13 @@
 
 
 .storyMeta {
+  composes: dataValue from global;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--sp-1) var(--sp-2);
   min-width: 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   overflow-wrap: anywhere;
 }
 

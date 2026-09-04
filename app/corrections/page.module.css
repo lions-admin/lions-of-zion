@@ -35,11 +35,7 @@
 /* The count is the ledger's one number, and it is a count of records —
    not a metric, not a score, and not styled as one. Ink, not gold. */
 .ledgerCount {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
+  composes: dataMeta from global;
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }

@@ -57,13 +57,9 @@
 
 /* Three words, so sentence case: a mono masthead line, not a tracked label. */
 .eyebrow {
+  composes: dataMeta from global;
   margin: 0;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
 }
 
 .title {

@@ -360,11 +360,8 @@
 }
 
 .stepNumber {
+  composes: dataValue from global;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
 }
 
@@ -723,14 +720,11 @@
 }
 
 .stageMeta {
+  composes: dataValue from global;
   display: flex;
   align-items: center;
   gap: var(--sp-3);
   margin: 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 /* Numbered badge + job-stage chip: the card reads as a flowchart vertex
@@ -914,6 +908,7 @@
 /* ── Footer ───────────────────────────────────────────────────────────── */
 
 .footer {
+  composes: dataValue from global;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -923,10 +918,6 @@
   padding: var(--sp-6) 0 var(--sp-7);
   border-top: 1px solid var(--line);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 .footer a {

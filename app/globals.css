@@ -231,6 +231,19 @@
 
   --header-h: 4.8rem;
 
+  /* How far `AskDock`'s trigger is lifted off the bottom edge.
+   *
+   * Not a decoration margin — it is the height of the chrome the button has to
+   * clear. The home's signal rail is pinned to the hero's floor, so at first
+   * paint it occupies exactly the corner the trigger sits in, and the button
+   * covered the rail's own "all updates" link. Lifting it is the fix; reserving
+   * inline space inside the rail was the other option and it would have put a
+   * hole in the rail on every route that has no dock collision to solve.
+   *
+   * The rail wraps to several rows on a phone and is a single row from 48rem,
+   * which is why this has two values and not one. */
+  --dock-lift: var(--sp-9);
+
   --scan-ground:
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);

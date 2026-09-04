@@ -41,7 +41,21 @@ export type IconProps = Omit<React.SVGProps<SVGSVGElement>, "name"> & {
 
 const ICONS: Record<IconName, React.ReactNode> = {
   search: <><circle cx="10.5" cy="10.5" r="5.8" /><path d="m15 15 4.5 4.5" /></>,
-  ask: <path d="M3.2 4.1h17.6v10.8H10l-4.4 4v-4H3.2z" />,
+  /* Lucide `sparkles`, transcribed rather than imported.
+     `lucide-react` is a dependency and this is its geometry verbatim, but the
+     package ships one component per icon with its own size/stroke props, and
+     pulling it in here would put a second icon system beside this one for a
+     single glyph. This set already fixes stroke width, join and cap; the path
+     is all that was missing. The blocky speech bubble it replaces was drawn by
+     hand and looked it. */
+  ask: (
+    <>
+      <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
+      <path d="M20 2v4" />
+      <path d="M22 4h-4" />
+      <circle cx="4" cy="20" r="2" />
+    </>
+  ),
   menu: <><path d="M3 7h18" /><path d="M3 12h18" /><path d="M3 17h18" /></>,
   close: <><path d="m5 5 14 14" /><path d="m19 5-14 14" /></>,
   "arrow-right": <><path d="M4 12h15" /><path d="m13 6 6 6-6 6" /></>,

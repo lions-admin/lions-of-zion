@@ -647,20 +647,20 @@
 
 /* ---- The dock: the desk reachable from anywhere ---- */
 
-/* Fixed bottom-start, and `inset-inline-start` rather than `left` because the
- * admin console runs Hebrew and this component is not the place to hard-code a
- * side. `--z-sticky` and not `--z-panel`: the trigger sits above page content
- * and under the header's own drawers, which must be able to cover it. The
- * dialog it opens is in the platform's top layer and answers to no z-index
- * here at all.
+/* Fixed bottom-end, and written as `inset-inline-end` rather than `right`
+ * because the admin console runs Hebrew and this component is not the place to
+ * hard-code a side. `--z-sticky` and not `--z-panel`: the trigger sits above
+ * page content and under the header's own drawers, which must be able to cover
+ * it. The dialog it opens is in the platform's top layer and answers to no
+ * z-index here at all.
  *
  * `env(safe-area-inset-*)` is what keeps it clear of the iOS home indicator and
  * of Safari's floating URL bar — the exact corner this button lives in. */
 .dockTrigger {
   position: fixed;
   z-index: var(--z-sticky);
-  inset-block-end: calc(var(--sp-5) + env(safe-area-inset-bottom, 0px));
-  inset-inline-start: calc(var(--sp-5) + env(safe-area-inset-left, 0px));
+  inset-block-end: calc(var(--dock-lift) + env(safe-area-inset-bottom, 0px));
+  inset-inline-end: calc(var(--sp-5) + env(safe-area-inset-right, 0px));
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -693,6 +693,15 @@
 .dockGlyph {
   display: inline-flex;
   color: var(--gold);
+}
+
+/* From 48rem the signal rail collapses to a single row, so the lift that
+   clears four wrapped rows on a phone would leave the button stranded in
+   mid-air here. See `--dock-lift`. */
+@media (min-width: 48rem) {
+  .dockTrigger {
+    inset-block-end: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* The label is the affordance on a pointer and noise on a phone, where the

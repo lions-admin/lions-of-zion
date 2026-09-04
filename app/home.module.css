@@ -571,7 +571,12 @@
 }
 
 .railAll {
+  /* `gap`, because this is a flex container: the literal space inside
+     `<span aria-hidden> →</span>` in `app/page.tsx` can never render here —
+     flex layout drops whitespace between items — so the label and the arrow
+     were touching at every width. A shared fix; desktop had it too. */
   display: inline-flex;
+  gap: var(--sp-2);
   flex: 0 0 auto;
   align-items: center;
   min-height: var(--control-h);
@@ -657,27 +662,158 @@
   }
 }
 
+/* ---- Phone: the lion is the page, the interface frames it ----
+ *
+ * What this block undoes, and why each piece was wrong on a phone:
+ *
+ * The masthead was vertically centred (`margin-block: auto`) and centre-set,
+ * which put the wordmark straight across the lion's muzzle — the strongest
+ * part of the photograph — and the tagline over his mane. Measured at 320 the
+ * title also ran to within 2px of both edges. Type over a portrait belongs
+ * where the portrait is quiet: it moves to the lower third, over the chest and
+ * forelegs, and sets from the start edge so the face and mane are left alone.
+ * That is a cinematic cover rather than a caption laid on a picture.
+ *
+ * The title comes down about 14% and loses half its tracking. `--t-display`
+ * bottoms out at its 2.75rem clamp floor on every phone width, so it was the
+ * same 44px at 320 as at 430 while the space around it shrank.
+ *
+ * The CTA was 92-94% of the screen: 52px tall, fully round, and filled with
+ * `--gold` at full saturation, which made it — not the lion — the most
+ * dominant object in the frame. `globals.css` reserves the accent for "one
+ * focal moment per viewport", and the focal moment on this page is the
+ * animal. It becomes a dark plate with a gold edge: still the only control in
+ * the composition, still a 44px target, no longer a headline. */
 @media (max-width: 48rem) {
-  .hero { padding-top: calc(var(--header-h) + var(--sp-3)); }
-  .masthead { width: calc(100vw - 1.5rem); }
-    .wordmark {
-    margin-top: calc(-1 * var(--sp-4));
-    padding-left: 0.12em;
-    letter-spacing: 0.12em;
-  }
-  .actions {
-    width: 100%;
-    margin-top: var(--sp-5);
-  }
-  .hero .ctaPrimary {
-    width: 100%;
-    min-width: 0;
+  .hero {
+    padding-top: calc(var(--header-h) + var(--sp-3));
+    padding-bottom: var(--sp-6);
   }
 
-  /* On a phone the foot chrome sits on the field's floor already; five
-     backdrop-filter reads per frame over a live canvas is the wrong thing to
-     pay for on the device least able to pay it. */
+  /* Bottom third, start-aligned. `margin-block: auto` is what centred it. */
+  .masthead {
+    width: calc(100vw - 2rem);
+    align-items: flex-start;
+    margin-block: auto 0;
+    text-align: start;
+  }
+
+  .wordmark {
+    margin-top: 0;
+    padding-left: 0;
+    font-size: clamp(2.25rem, 0.9rem + 6vw, 2.75rem);
+    letter-spacing: 0.06em;
+  }
+
+  /* Not italic. An italic all-caps line reads as a strapline on a poster; the
+     upright is quieter and, at this size over a photograph, more legible. It
+     also takes the brighter ink — it sits on the lion's chest, which is the
+     lightest ground any copy on this page lands on. */
+  .standfirst {
+    margin-top: var(--sp-2);
+    /* No ch cap. At 22ch this broke to three lines, which turns a tagline into
+       a paragraph; the masthead's own width plus `balance` gives it the two
+       even lines the sentence actually wants. */
+    max-width: 100%;
+    text-wrap: balance;
+    color: var(--ink-hi);
+    font-style: normal;
+    font-size: var(--t-small);
+    line-height: var(--t-small-lh);
+    letter-spacing: 0.01em;
+  }
+
+  .actions {
+    width: auto;
+    justify-content: flex-start;
+    margin-top: var(--sp-5);
+  }
+
+  .hero .ctaPrimary {
+    width: auto;
+    min-width: 0;
+    --btn-h: var(--control-h);
+    --btn-bg: color-mix(in oklab, var(--ground) 86%, transparent);
+    --btn-fg: var(--gold-hi);
+    --btn-line: var(--gold-line-strong);
+    border-radius: var(--radius-2);
+    font-size: var(--t-small);
+  }
+
+  /* The blurred fade stays off — a full-width backdrop-filter recomposited
+     every frame over a live canvas is the wrong thing to pay for here, which
+     is what the rule it replaces said. But "no fade" is not the only
+     alternative to an expensive one: a linear-gradient costs a paint and
+     nothing per frame, and it is what closes the hard tonal step where the
+     photograph used to meet the rail. */
   .fieldLayer .heroFade { display: none; }
+
+  /* The fade belongs at the seam, which is the TOP of the rail — the rail is
+     inside `.hero`, so a gradient pinned to the hero's own bottom edge sits
+     under the rail rather than where the photograph meets it. */
+  .signalRail::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 100%;
+    block-size: var(--sp-8);
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--ground));
+  }
+
+  /* And the rail itself drops to the ground it is fading into. `--surface-1`
+     is #272a2a against a photograph graded down to #0b0b0b, and that step is
+     the hard line, not the absence of a blur. */
+  .signalRail {
+    background: var(--ground);
+    border-top-color: var(--line-soft);
+  }
+
+  /* The metadata was one undifferentiated mono string — source, status and
+     timestamp at the same size, weight and colour, with the timestamp running
+     off the edge at 320. Now they are ranked: the status is the only thing
+     that carries a verdict, so it is the only one set as a mark; the source
+     and the time recede; and the row wraps instead of clipping. */
+  /* `flex: 0 0 auto` is why the timestamp ran off the screen: the row is
+     allowed to wrap, but at max-content width it never needs to — measured at
+     372px inside a 320px viewport. Giving it the container's width is what
+     lets `flex-wrap` do anything at all. */
+  .railMeta {
+    flex: 1 1 100%;
+    min-inline-size: 0;
+    flex-wrap: wrap;
+    row-gap: var(--sp-1);
+    column-gap: var(--sp-3);
+  }
+
+  .railSource {
+    color: var(--ink-lo);
+  }
+
+  /* No `color` here on purpose: `[data-tone]` above owns it, and the word is
+     the cue with the tone only underlining it. This adds the mark, not the
+     meaning. */
+  .railStatus {
+    padding: 0 var(--sp-2);
+    border: var(--line-w) solid var(--line);
+    border-radius: var(--radius-1);
+  }
+
+  .railTime {
+    flex: 0 0 auto;
+    color: var(--ink-lo);
+  }
+
+  /* The headline is the thing a reader came for. */
+  /* Two lines. Clamped to one, the only headline on the page ended in an
+     ellipsis at every phone width — the reader got a category and a timestamp
+     in full and the actual news cut off. */
+  .railTitle {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: var(--t-small);
+    line-height: var(--t-small-lh);
+  }
 }
 
 /* 720px — the seam the rest of the site turns on. The index becomes a

@@ -365,6 +365,17 @@
   }
 }
 
+/* The chrome is shorter on a phone. 4.8rem of header above a full-bleed hero
+   is a seventh of the screen spent on a wordmark and two controls, and every
+   pixel of it is taken from the photograph. `site-header.module.css` sets the
+   bar to match; this token is what the hero's own top padding reads, so the
+   two have to move together. */
+@media (max-width: 48rem) {
+  :root {
+    --header-h: 3.5rem;
+  }
+}
+
 [data-family="desk"] {
   --family-pad-block: var(--sp-6);
   --family-pad-inline: var(--sp-5);

@@ -222,7 +222,14 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             data-here={hereInFiles || undefined}
             onClick={() => setMenuOpen((open) => !open)}
           >
-            {menuOpen ? "Close" : "Menu"}
+            {/* In a span so the phone can hide it without taking the button's
+                accessible name with it. `display: none` removes a node from the
+                accessibility tree, and the icon beside this is decorative — a
+                bare text node here would have left the trigger nameless the
+                moment it was hidden. The mobile rule sets it screen-reader-only
+                instead, so the word survives for anyone who cannot see the
+                glyph. */}
+            <span className={styles.menuLabel}>{menuOpen ? "Close" : "Menu"}</span>
             <Icon
               className={styles.menuIcon}
               name={menuOpen ? "close" : "menu"}

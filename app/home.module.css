@@ -410,6 +410,20 @@
     transform: scaleX(1);
   }
 
+  /* The label has to leave the gold the sweep brings with it.
+   *
+   * This block was written when the CTA was a solid gold fill with a black
+   * label, so the sweep only had to brighten the plate. The CTA is now a dark
+   * plate with a `--gold-hi` label — and the sweep paints `--gold-hi` behind
+   * it, so at rest and on hover the text and the incoming ground were the same
+   * value and the label disappeared into it. It goes to the ground colour for
+   * the duration, which is what the fill wants under it anyway. */
+  .hero .actions .ctaPrimary:hover:not([aria-disabled="true"]),
+  .hero .actions .ctaPrimary:focus-visible {
+    --btn-fg: var(--ground);
+    --btn-line: var(--gold-hi);
+  }
+
   .hero .actions .ctaPrimary .ctaArrow {
     transition: translate var(--dur-fast) var(--ease-out);
   }
@@ -681,11 +695,21 @@
   border-top-color: var(--line-soft);
 }
 
+/* Under the masthead, explicitly.
+ *
+ * The rail is `z-index: 12` and the masthead is `10`, so this 72px fade —
+ * painted above the rail's top edge — was drawn over the bottom of the call to
+ * action, which sits exactly on the seam: the CTA's box ended at 598 and the
+ * fade began at 526, veiling 72px of it. It is a tonal transition for the
+ * photograph, not something that should touch a control, so it is put behind
+ * the masthead rather than the masthead lifted over the rail — the rail's own
+ * content must still paint above it. */
 .signalRail::before {
   content: "";
   position: absolute;
   inset-inline: 0;
   bottom: 100%;
+  z-index: -1;
   block-size: var(--sp-8);
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--ground));
@@ -724,9 +748,20 @@
 
 /* The strapline, upright. Italic all-caps is a poster's device; upright in
    the bright ink is quieter and, over a photograph, more legible. */
+/* The strapline reads as a sentence, not as a label.
+ *
+ * It was `--face-display` set in the body's global uppercase at 15px on the
+ * phone — a condensed grotesque, all caps, small, which is the terminal-ish
+ * register the rest of this pass has been taking out of the lower third. It is
+ * the only line of prose in the hero, so it is set as one: sentence case, a
+ * step larger, and with the tracking opened slightly because the face is
+ * narrow. `text-transform` has to be stated here because `globals.css` sets
+ * `uppercase` on `body`. */
 .standfirst {
   font-style: normal;
+  text-transform: none;
   color: var(--ink-hi);
+  letter-spacing: 0.005em;
 }
 
 /* The CTA as a plate with a gold edge: still the only control in the
@@ -796,9 +831,8 @@
        even lines the sentence actually wants. */
     max-width: 100%;
     text-wrap: balance;
-    font-size: var(--t-small);
-    line-height: var(--t-small-lh);
-    letter-spacing: 0.01em;
+    font-size: var(--t-lede);
+    line-height: var(--t-lede-lh);
   }
 
   .actions {

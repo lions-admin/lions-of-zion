@@ -453,18 +453,13 @@
 }
 
 .railFlag {
+  composes: dataLabel from global;
   display: flex;
   flex: 0 0 auto;
   align-items: center;
   gap: var(--sp-2);
   margin: 0;
   color: var(--gold-dim);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 

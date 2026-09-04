@@ -603,3 +603,53 @@ html:has([data-handoff-blocked]) body {
   white-space: nowrap;
   border: 0;
 }
+
+/* The three data type roles, composed by the CSS Modules that need them with
+   `composes: dataLabel from global` — the same contract as `.srOnly` above,
+   arrived at the same way.
+ *
+ * 245 rules across 44 stylesheets reach for `--face-data`, and they did it by
+ * re-assembling the role by hand from four to six primitive tokens every time.
+ * That produced 54 distinct signatures where the system documents one type
+ * role, and the drift is not theoretical: `.eyebrow` is set two different ways
+ * in two stylesheets, 27 rules omit `--t-data-weight` and 21 omit
+ * `--t-data-lh`, so those inherit whatever is ambient and render at a weight
+ * and leading nobody chose.
+ *
+ * Three roles rather than one, because the measurement found three real
+ * shapes and flattening them would be a redesign rather than a consolidation:
+ *
+ *   dataLabel  stamped labels and definition terms — `.sectionLabel`,
+ *              `.kicker`, `dt`. Tracked and uppercased.
+ *   dataMeta   counts and running meta lines — `.ledgerCount`,
+ *              `.chapterProgress`, `.doorCategoryCount`. Tighter tracking
+ *              because they carry numerals and read as a phrase, not a stamp.
+ *   dataValue  statuses, references and timestamps — `.editorStatus`,
+ *              `.claimRef`, `time`. Neither tracked nor uppercased.
+ *
+ * These carry type only. Colour, layout and spacing stay in the composing
+ * rule, which is why a rule can compose one of these and keep everything else
+ * it already said. */
+.dataLabel {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.dataMeta {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+}
+
+.dataValue {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+}

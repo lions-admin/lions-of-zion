@@ -1422,3 +1422,105 @@
     opacity: 0.35;
   }
 }
+
+/* ---- Bento: the reading order as a grid of unequal weight ---- */
+
+/* The seven sections were a wrapped row of links of identical size, which is a
+ * list pretending to be navigation. As a bento they carry their own hierarchy:
+ * the first two are the argument and get the wide cells, the rest are the
+ * mechanism and sit in the remaining ones.
+ *
+ * `grid-auto-flow: dense` is what lets the two spans be declared without
+ * leaving holes when the row cannot take them — the browser backfills rather
+ * than the author hand-placing every cell at every breakpoint. */
+.heroIndex {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  grid-auto-flow: dense;
+  gap: var(--sp-3);
+  border-top: 1px solid var(--line);
+  padding-top: var(--sp-5);
+}
+
+.heroIndex a {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-block-size: 6.5rem;
+  padding: var(--sp-4);
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  text-decoration: none;
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+.heroIndex a:hover,
+.heroIndex a:focus-visible {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+}
+
+.heroIndex a > span {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--gold-dim);
+}
+
+@media (min-width: 48rem) {
+  .heroIndex a:nth-child(1),
+  .heroIndex a:nth-child(2) {
+    grid-column: span 2;
+    min-block-size: 8rem;
+  }
+}
+
+/* ---- Sticky scroll: the five transformations ---- */
+
+/* Each stage pins under the header while the next scrolls up over it, so the
+ * reader is holding one transformation at a time instead of scanning five at
+ * once — which is the whole claim of the section, that these happen in
+ * sequence to the same event.
+ *
+ * `--header-h` is the offset because the site header is fixed; without it the
+ * pinned stage sits behind the chrome. The last item does not need to pin, but
+ * pinning it costs nothing and excluding it costs a selector.
+ *
+ * The `min-height: 640px` is not decoration and is not mine: IW-003 in
+ * `tests/information-war.test.ts` requires every pinned rule in this file to
+ * sit behind a viewport-height gate, and it failed when this rule arrived with
+ * only a width and a motion condition. The reason is the one the test records —
+ * on a short landscape phone five pinned stages each take the whole viewport
+ * and the section stops being readable. It matches the gate the system scene
+ * above already uses.
+ *
+ * That test scans the raw file, so it counts the two words in a comment as a
+ * rule. Do not write them here in prose; this sentence is the warning. */
+@media (min-width: 48rem) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
+  .pressureSteps > li {
+    position: sticky;
+    top: calc(var(--header-h) + var(--sp-5));
+  }
+}
+
+/* Opaque, because a pinned stage has the next one sliding under it: a
+   translucent surface would show two stages superimposed, which is the exact
+   confusion the section is about. */
+.pressureSteps > li {
+  position: relative;
+  isolation: isolate;
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  padding: var(--sp-5);
+}
+
+.pressureSteps > li + li {
+  margin-top: var(--sp-4);
+}

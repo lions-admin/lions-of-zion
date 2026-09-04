@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { PointerHighlight } from "@/components/motion/PointerHighlight";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { SourceConvergenceBeams } from "./InformationWarBeams";
 import { SystemMap } from "./information-war/SystemMap";
@@ -11,6 +12,7 @@ import {
   OutputsFork,
   SignalJourney,
 } from "./information-war/StorySections";
+import cardStyles from "@/components/ui/card.module.css";
 import styles from "./information-war-system.module.css";
 
 /*
@@ -78,9 +80,15 @@ export function InformationWarSystem() {
             Explore the system <span aria-hidden="true">↓</span>
           </a>
         </div>
+        {/* The reading order as a bento rather than a wrapped row: the first
+            two cells span wide because they are the argument, the rest carry
+            the mechanism. `PointerHighlight` is the pointer-tracked light the
+            interactive Card already uses — it is the primitive this project
+            wrote for exactly this and then had no second caller for. */}
         <nav className={styles.heroIndex} aria-label="Reading order">
           {READING_ORDER.map(([id, name], index) => (
-            <a key={id} href={`#${id}`}>
+            <a key={id} href={`#${id}`} className={cardStyles.pointerSurface}>
+              <PointerHighlight />
               <span>{String(index + 1).padStart(2, "0")}</span>
               {name}
             </a>
@@ -126,7 +134,8 @@ export function InformationWarSystem() {
           <h2 id="pressure-heading">One event. Five transformations.</h2>
           <ol className={styles.pressureSteps}>
             {PRESSURE_STAGES.map(([name, detail], index) => (
-              <li key={name}>
+              <li key={name} className={cardStyles.pointerSurface}>
+                <PointerHighlight />
                 <span className={styles.stepNumber}>{String(index + 1).padStart(2, "0")}</span>
                 <div>
                   <h3>{name}</h3>

@@ -121,7 +121,13 @@
   --ground: #0b0b0b;
   --ink-hi: #f6f3eb;
   --ink: #cbc7bd;
-  --ink-lo: #9a958c;
+  /* Muted body copy, and the token the surface re-grade kept catching out. It
+     has to clear 4.5:1 on the LIGHTEST surface it can land on, not on the
+     ground: #9a958c passed on the ground at 6.61 and on surface-1 at 4.86, then
+     `ui-audit` found it at 4.36 on the mechanism notes of /information-war,
+     which sit a tone higher, and it would have been 3.88 on surface-3.
+     #a8a29a holds 7.78 / 5.72 / 5.13 / 4.57 across all four. */
+  --ink-lo: #a8a29a;
   --gold: #f0b429;
   --gold-hi: #f7cd6b;
   /* The dim step, and the one that actually constrains the hue: it is used as

@@ -328,7 +328,7 @@
   font-optical-sizing: auto;
   font-size: var(--t-display);
   font-weight: var(--t-display-weight);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   line-height: var(--t-display-lh);
   text-transform: uppercase;
   text-shadow: 0 0.2rem 1.2rem color-mix(in oklab, var(--ground) 96%, transparent);
@@ -662,6 +662,86 @@
   }
 }
 
+
+/* ---- The lower third, at every width ----
+ *
+ * The rail's ground and fade, the status mark, the upright tagline and the
+ * plate CTA were all written inside `@media (max-width: 48rem)` and never
+ * reached the desktop — which still had the `--surface-1` slab, an italic
+ * strapline, a 256×52 fully-round gold pill, and metadata set entirely in
+ * mono at one size and one weight. Nothing here is new; it is the phone's
+ * treatment promoted, with two desktop-only adjustments: the headline goes to
+ * `--t-body` because at 15px it was the smallest thing on the rail while being
+ * the only thing a reader came for, and it stays one line because the row is
+ * wide enough to hold it. */
+
+/* The seam. */
+.signalRail {
+  background: var(--ground);
+  border-top-color: var(--line-soft);
+}
+
+.signalRail::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  block-size: var(--sp-8);
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--ground));
+}
+
+/* Rank inside the rail: headline, then category and status, then time. Mono
+   is for the metadata only; the headline is set in the display face. */
+.railMeta {
+  flex: 1 1 100%;
+  min-inline-size: 0;
+  row-gap: var(--sp-1);
+  column-gap: var(--sp-3);
+}
+
+.railSource {
+  color: var(--ink-lo);
+}
+
+/* A mark, not a button: hairline, the smallest radius, and the tone colour
+   `[data-tone]` already gives the word. */
+.railStatus {
+  padding: 0 var(--sp-2);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+}
+
+.railTime {
+  flex: 0 0 auto;
+  color: var(--ink-lo);
+}
+
+.railTitle {
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+/* The strapline, upright. Italic all-caps is a poster's device; upright in
+   the bright ink is quieter and, over a photograph, more legible. */
+.standfirst {
+  font-style: normal;
+  color: var(--ink-hi);
+}
+
+/* The CTA as a plate with a gold edge: still the only control in the
+   composition, still 44px, no longer the loudest object in the frame. */
+.hero .ctaPrimary {
+  width: auto;
+  min-width: 0;
+  --btn-h: var(--control-h);
+  --btn-bg: color-mix(in oklab, var(--ground) 86%, transparent);
+  --btn-fg: var(--gold-hi);
+  --btn-line: var(--gold-line-strong);
+  border-radius: var(--radius-2);
+  font-size: var(--t-small);
+}
+
 /* ---- Phone: the lion is the page, the interface frames it ----
  *
  * What this block undoes, and why each piece was wrong on a phone:
@@ -716,8 +796,6 @@
        even lines the sentence actually wants. */
     max-width: 100%;
     text-wrap: balance;
-    color: var(--ink-hi);
-    font-style: normal;
     font-size: var(--t-small);
     line-height: var(--t-small-lh);
     letter-spacing: 0.01em;
@@ -729,16 +807,6 @@
     margin-top: var(--sp-5);
   }
 
-  .hero .ctaPrimary {
-    width: auto;
-    min-width: 0;
-    --btn-h: var(--control-h);
-    --btn-bg: color-mix(in oklab, var(--ground) 86%, transparent);
-    --btn-fg: var(--gold-hi);
-    --btn-line: var(--gold-line-strong);
-    border-radius: var(--radius-2);
-    font-size: var(--t-small);
-  }
 
   /* The blurred fade stays off — a full-width backdrop-filter recomposited
      every frame over a live canvas is the wrong thing to pay for here, which
@@ -748,71 +816,12 @@
      photograph used to meet the rail. */
   .fieldLayer .heroFade { display: none; }
 
-  /* The fade belongs at the seam, which is the TOP of the rail — the rail is
-     inside `.hero`, so a gradient pinned to the hero's own bottom edge sits
-     under the rail rather than where the photograph meets it. */
-  .signalRail::before {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: 100%;
-    block-size: var(--sp-8);
-    pointer-events: none;
-    background: linear-gradient(to bottom, transparent, var(--ground));
-  }
-
-  /* And the rail itself drops to the ground it is fading into. `--surface-1`
-     is #272a2a against a photograph graded down to #0b0b0b, and that step is
-     the hard line, not the absence of a blur. */
-  .signalRail {
-    background: var(--ground);
-    border-top-color: var(--line-soft);
-  }
-
-  /* The metadata was one undifferentiated mono string — source, status and
-     timestamp at the same size, weight and colour, with the timestamp running
-     off the edge at 320. Now they are ranked: the status is the only thing
-     that carries a verdict, so it is the only one set as a mark; the source
-     and the time recede; and the row wraps instead of clipping. */
-  /* `flex: 0 0 auto` is why the timestamp ran off the screen: the row is
-     allowed to wrap, but at max-content width it never needs to — measured at
-     372px inside a 320px viewport. Giving it the container's width is what
-     lets `flex-wrap` do anything at all. */
-  .railMeta {
-    flex: 1 1 100%;
-    min-inline-size: 0;
-    flex-wrap: wrap;
-    row-gap: var(--sp-1);
-    column-gap: var(--sp-3);
-  }
-
-  .railSource {
-    color: var(--ink-lo);
-  }
-
-  /* No `color` here on purpose: `[data-tone]` above owns it, and the word is
-     the cue with the tone only underlining it. This adds the mark, not the
-     meaning. */
-  .railStatus {
-    padding: 0 var(--sp-2);
-    border: var(--line-w) solid var(--line);
-    border-radius: var(--radius-1);
-  }
-
-  .railTime {
-    flex: 0 0 auto;
-    color: var(--ink-lo);
-  }
-
-  /* The headline is the thing a reader came for. */
   /* Two lines. Clamped to one, the only headline on the page ended in an
      ellipsis at every phone width — the reader got a category and a timestamp
      in full and the actual news cut off. */
   .railTitle {
     -webkit-line-clamp: 2;
     line-clamp: 2;
-    font-size: var(--t-small);
-    line-height: var(--t-small-lh);
   }
 }
 

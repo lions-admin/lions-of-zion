@@ -781,9 +781,13 @@
      identifies a control, so WCAG 1.4.11's 3:1 applies to it; the decorative
      token was what it carried until `scripts/ui-audit.mjs` measured it in the
      page at 1.34:1 and failed the build on it. */
-  border: var(--line-w) solid var(--gold-line-strong);
-  border-radius: var(--radius-pill);
-  background: var(--surface-2);
+  /* Neutral edge, small radius, at every width. The pill with a permanent
+     gold ring read as the generic AI button it was trying not to be; the
+     accent now arrives on hover and focus, and the shape matches the desk's
+     other controls. */
+  border: var(--line-w) solid var(--control-line);
+  border-radius: var(--radius-2);
+  background: color-mix(in oklab, var(--ground) 82%, transparent);
   color: var(--ink);
   font-family: var(--face-data);
   font-size: var(--t-data);
@@ -816,6 +820,16 @@
 @media (min-width: 48rem) {
   .dockTrigger {
     inset-block-end: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* On the home route the rail is ~76px tall and pinned to the floor, and the
+     48px lift above put the trigger across its top edge — inside the rail's
+     pointer-hold band, so every approach to Ask paused and resumed the
+     rotation. 6.25rem clears the rail with a `--sp-4` gap; right-aligned,
+     immediately above it, it reads as the rail's own utility. The number is a
+     measurement and goes stale if the rail grows a row. */
+  html:has([data-home-scroll]) .dockTrigger {
+    inset-block-end: calc(6.25rem + env(safe-area-inset-bottom, 0px));
   }
 }
 

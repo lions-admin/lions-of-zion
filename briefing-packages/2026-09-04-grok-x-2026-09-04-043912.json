@@ -1,1 +1,342 @@
-{"runId":"grok-x-2026-09-04-043912","localDate":"2026-09-04","contractVersion":"external-briefing-v1","composer":"Grok scheduled geopolitical brief","note":"see artifacts file if truncated"}
+{
+  "runId": "grok-x-2026-09-04-043912",
+  "localDate": "2026-09-04",
+  "contractVersion": "external-briefing-v1",
+  "composer": "Grok scheduled geopolitical brief",
+  "publishers": [
+    {"key": "idf", "name": "Israel Defense Forces", "homepageUrl": "https://www.idf.il/", "language": "en", "country": "IL", "official": true},
+    {"key": "pmo", "name": "Prime Minister of Israel", "homepageUrl": "https://www.gov.il/en/departments/prime_ministers_office", "language": "en", "country": "IL", "official": true},
+    {"key": "toi", "name": "The Times of Israel", "homepageUrl": "https://www.timesofisrael.com/", "language": "en", "country": "IL", "official": false},
+    {"key": "reuters", "name": "Reuters", "homepageUrl": "https://www.reuters.com/", "language": "en", "country": "GB", "official": false}
+  ],
+  "citations": [
+    {
+      "key": "idf-ali-taher",
+      "publisherKey": "idf",
+      "title": "IDF completed clearing of Hezbollah underground infrastructure in the Ali al-Taher Ridge",
+      "url": "https://x.com/IDF/status/2095569785522360508",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T17:49:05Z",
+      "excerpt": "The IDF completed the clearing of Hezbollah’s underground infrastructure in the Ali al-Taher Ridge area and is operating to neutralize it. The terrorists who were present inside the infrastructure carried out terror attacks against Israel and IDF soldiers and were eliminated or fled the area. The infrastructure is a strategic underground network that was built over 2 decades and funded and planned by the Iranian terror regime, containing command centers, weapons, living quarters and more. The operation to neutralize the underground infrastructure sites is still ongoing; upon completion, the IDF will adjust its defensive posture in accordance with the situational assessment.",
+      "language": "en"
+    },
+    {
+      "key": "toi-ali-taher",
+      "publisherKey": "toi",
+      "title": "IDF says it entered, cleared Hezbollah’s Ali Taher Ridge tunnels ahead of demolition",
+      "url": "https://www.timesofisrael.com/idf-says-it-entered-cleared-hezbollahs-ali-taher-ridge-tunnels-ahead-of-demolition/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T20:50:00+03:00",
+      "excerpt": "The Israel Defense Forces said Thursday night that it had finished clearing a strategic underground facility belonging to the Hezbollah terror group beneath a mountainous ridge in southern Lebanon in recent weeks. According to the IDF, troops of the 36th Division achieved operational control of the ridge area above and below ground and cleared two major tunnel routes under Ali Taher of Hezbollah operatives, killing some of them while others fled. The IDF described the facility as strategic infrastructure that was built over two decades and financed and planned by Iran. Following the activity, the ability to carry out terror attacks against Israeli civilians and IDF troops from the infrastructure has been neutralized. Despite a Reuters report claiming Israel had put off storming Ali Taher and that IRGC members were inside, the military said troops had been operating inside the tunnels for several weeks and indicated no IRGC members were inside when the routes were captured. Israeli forces continue to operate inside a self-declared security zone which runs around 10 kilometers deep inside Lebanese territory.",
+      "language": "en"
+    },
+    {
+      "key": "reuters-iran-warning",
+      "publisherKey": "reuters",
+      "title": "Iran warns US against Israeli attack on south Lebanon ridge held by Hezbollah, sources say",
+      "url": "https://www.reuters.com/world/middle-east/iran-warns-us-against-israeli-attack-south-lebanon-ridge-held-by-hezbollah-2026-09-03/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T07:02:00Z",
+      "excerpt": "Iran has warned the United States that it would respond forcefully to an Israeli offensive on a mountainous ridge in southern Lebanon where Iranian military personnel are holed up alongside Hezbollah fighters, three officials briefed on the message told Reuters. Two regional officials said over a dozen members of the Islamic Revolutionary Guards Corps, including at least two senior officers, were with Hezbollah fighters. A third source said the message was delivered around mid-August and that as a result of U.S. pressure, Israel had put off storming Ali al-Taher. A White House official said this is not accurate. Reuters could not independently confirm the military situation at Ali al-Taher. Maariv, citing a military source, said the Israeli military assessed there were no IRGC forces in Ali al-Taher.",
+      "language": "en"
+    },
+    {
+      "key": "idf-yellow-two",
+      "publisherKey": "idf",
+      "title": "ELIMINATED: 2 terrorists who crossed the Yellow Line in northern Gaza",
+      "url": "https://x.com/IDF/status/2095512795265524120",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T14:02:37Z",
+      "excerpt": "ELIMINATED: 2 terrorists who crossed the Yellow Line in northern Gaza and approached IDF troops in a manner that posed an immediate threat. The terrorists were eliminated in order to remove the threat they posed. The IDF said the two crossed the Yellow Line in northern Gaza and approached troops in a way that created an immediate threat requiring an immediate response to protect the force operating in the area.",
+      "language": "en"
+    },
+    {
+      "key": "idf-yellow-one",
+      "publisherKey": "idf",
+      "title": "CEASEFIRE VIOLATION: A terrorist crossed the Yellow Line",
+      "url": "https://x.com/IDF/status/2095429350682202216",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T08:31:03Z",
+      "excerpt": "CEASEFIRE VIOLATION: A terrorist crossed the Yellow Line and approached IDF troops operating in the area, in a manner that posed an immediate threat. In response, the terrorist was eliminated in order to remove the threat he posed. The IDF presented the incident as a ceasefire violation in Gaza after a terrorist crossed the Yellow Line and approached troops.",
+      "language": "en"
+    },
+    {
+      "key": "pmo-toast",
+      "publisherKey": "pmo",
+      "title": "Prime Minister Netanyahu Rosh Hashanah toast at the Kirya",
+      "url": "https://x.com/IsraeliPM/status/2095555686025286088",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T16:53:03Z",
+      "excerpt": "Prime Minister Benjamin Netanyahu held today a Rosh Hashanah toast together with Defense Minister Israel Katz, IDF Chief of the General Staff Lt. Gen. Eyal Zamir, and members of the IDF General Staff Forum at the Kirya in Tel Aviv. Netanyahu said Israel faced the threat of annihilation by a regime that aspires to eradicate us and wants to arm itself with nuclear bombs to destroy us. He said this regime is currently faltering and weaker than ever before, and that the central mission still before us is to topple this regime. He added: I say to our enemies, do not mess with us. If you have learned anything, do not mess with us.",
+      "language": "en"
+    },
+    {
+      "key": "toi-katz-iran",
+      "publisherKey": "toi",
+      "title": "Iran has warned US it will respond forcefully to any Israeli offensive on south Lebanon ridge",
+      "url": "https://www.timesofisrael.com/iran-warned-us-against-israeli-attack-on-south-lebanon-ridge-held-by-hezbollah/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-09-03T12:27:00+03:00",
+      "excerpt": "Defense Minister Israel Katz said an Iranian attack on Israel would free the IDF from all constraints, and that in such a scenario the military would strike all infrastructure, including energy infrastructure, and return Iran to the Stone Age and darkness. Katz said there are signs that heavy economic pressure on Iran and fear of an uprising and the fall of the regime could push them to desperate measures. He added that Israel is well prepared, defensively and offensively, for every possibility, and the IDF is ready to carry out the mission.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "IDF clears Ali al-Taher tunnels as Gaza Yellow Line fire continues",
+    "summary": "The IDF said it finished clearing Hezbollah underground infrastructure under Ali al-Taher Ridge and is working to neutralize the site, while reporting Yellow Line crossings in northern Gaza. Netanyahu and Katz warned Iran against attacking Israel. Reuters same-day claims that Israel had put off storming the ridge remain disputed.",
+    "citationKeys": ["idf-ali-taher", "toi-ali-taher", "reuters-iran-warning", "idf-yellow-two", "idf-yellow-one", "pmo-toast", "toi-katz-iran"],
+    "claims": [
+      {
+        "title": "IDF completed clearing Hezbollah tunnels under Ali al-Taher",
+        "text": "The IDF said it completed clearing Hezbollah underground infrastructure in the Ali al-Taher Ridge area, a strategic network built over 2 decades and funded and planned by Iran, and that neutralization continues before a defensive posture adjustment.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": "Independent reporters have not inspected the cleared tunnels; no body count was published.",
+        "citationLinks": [
+          {"citationKey": "idf-ali-taher", "relation": "supports", "strength": "strong", "rationale": "Official English IDF completion statement."},
+          {"citationKey": "toi-ali-taher", "relation": "supports", "strength": "strong", "rationale": "Adds 36th Division, two major tunnel routes, and 10 kilometers buffer-zone detail."}
+        ]
+      },
+      {
+        "title": "Reuters IRGC and postponed-storm claims are disputed",
+        "text": "Reuters reported anonymous officials saying Iran warned Washington against an Israeli offensive at Ali al-Taher, that over a dozen IRGC members were there, and that Israel had put off storming the ridge. The IDF later said troops had operated inside the tunnels for weeks and indicated no IRGC members were inside when the routes were captured.",
+        "layer": "source_claim",
+        "assessment": "disputed",
+        "attributedTo": "Reuters anonymous officials versus the Israel Defense Forces",
+        "uncertainty": "Reuters could not independently confirm the ridge. A White House official said the pressure characterization is not accurate.",
+        "citationLinks": [
+          {"citationKey": "reuters-iran-warning", "relation": "supports", "strength": "strong", "rationale": "Originating wire report of the warning and IRGC claim."},
+          {"citationKey": "toi-ali-taher", "relation": "contradicts", "strength": "adequate", "rationale": "Records the IDF multi-week underground operation and absence of indicated IRGC captives."}
+        ]
+      },
+      {
+        "title": "IDF reports Yellow Line crossings in northern Gaza",
+        "text": "The IDF said a terrorist crossed the Yellow Line in a ceasefire violation and was eliminated, and later that 2 terrorists crossed the Yellow Line in northern Gaza and were eliminated after approaching troops.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": "The posts do not identify the dead beyond terrorists and do not include Gaza-side casualty claims.",
+        "citationLinks": [
+          {"citationKey": "idf-yellow-one", "relation": "supports", "strength": "strong", "rationale": "Official ceasefire-violation post."},
+          {"citationKey": "idf-yellow-two", "relation": "supports", "strength": "strong", "rationale": "Official post on the two-person crossing."}
+        ]
+      },
+      {
+        "title": "Netanyahu and Katz warn Iran against attacking Israel",
+        "text": "Netanyahu told enemies do not mess with us and described toppling Iran’s regime as the central remaining mission. Katz said an Iranian attack would free the IDF from all constraints and that Israel would strike all infrastructure, including energy infrastructure.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Prime Minister Benjamin Netanyahu and Defense Minister Israel Katz",
+        "uncertainty": "These are deterrent statements, not evidence of an imminent Iranian strike on Israel in the scan window.",
+        "citationLinks": [
+          {"citationKey": "pmo-toast", "relation": "supports", "strength": "strong", "rationale": "Official PMO toast remarks."},
+          {"citationKey": "toi-katz-iran", "relation": "supports", "strength": "strong", "rationale": "Times of Israel quotes Katz energy-infrastructure warning."}
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Situation",
+      "passages": [
+        {
+          "text": "The security picture combined a completed IDF clearance of Hezbollah’s Ali al-Taher underground complex in the southern Lebanon buffer zone with Yellow Line crossings in northern Gaza. Official Israeli statements presented both as responses to immediate threats.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-ali-taher", "toi-ali-taher", "idf-yellow-two"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key Events",
+      "passages": [
+        {
+          "text": "The IDF said the 36th Division achieved operational control above and below ground at Ali al-Taher, cleared two major tunnel routes, and is working to neutralize a complex built over two decades with Iranian planning and funding.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-ali-taher", "idf-ali-taher"]
+        },
+        {
+          "text": "In Gaza the IDF reported a morning Yellow Line crossing labeled a ceasefire violation and a later incident in which 2 terrorists crossed the Yellow Line and were eliminated.",
+          "claimIndex": 2,
+          "citationKeys": ["idf-yellow-one", "idf-yellow-two"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli position",
+      "passages": [
+        {
+          "text": "The IDF said terrorists inside the Ali al-Taher infrastructure had attacked Israel and IDF soldiers, that the ability to attack from the site has been neutralized, and that after neutralization the army will adjust its defensive posture. Netanyahu said do not mess with us. Katz said an Iranian attack would free the IDF from all constraints, including strikes on energy infrastructure.",
+          "claimIndex": 3,
+          "citationKeys": ["idf-ali-taher", "pmo-toast", "toi-katz-iran"]
+        }
+      ]
+    },
+    "internationalResponses": {
+      "label": "International responses",
+      "passages": [
+        {
+          "text": "Reuters reported that Iran warned the United States a full Israeli offensive on Ali al-Taher would meet a large-scale Iranian attack. A White House official told Reuters the characterization of the message or of U.S. pressure on Israel was not accurate.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-iran-warning"]
+        }
+      ]
+    },
+    "watchPoints": {
+      "label": "Watch Points",
+      "passages": [
+        {
+          "text": "Watch whether neutralization at Ali al-Taher draws an Iranian or Hezbollah response, whether any verified evidence appears for the Reuters IRGC-presence claim, and whether Yellow Line incidents in northern Gaza remain limited force-protection engagements.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-ali-taher", "reuters-iran-warning", "idf-yellow-two"]
+        }
+      ]
+    }
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF clears Hezbollah tunnels under Ali al-Taher Ridge",
+      "summary": "The IDF said it finished clearing Hezbollah underground infrastructure under Ali al-Taher, a strategic complex built over 2 decades with Iranian funding and planning. Neutralization continues. The announcement undercuts same-day Reuters framing that Israel had put off storming the ridge.",
+      "citationKeys": ["idf-ali-taher", "toi-ali-taher", "reuters-iran-warning"],
+      "claims": [
+        {
+          "title": "Official IDF clearance statement",
+          "text": "The IDF said it completed clearing Hezbollah underground infrastructure in the Ali al-Taher Ridge area, that operatives there had attacked Israel and IDF soldiers and were eliminated or fled, and that neutralization is ongoing.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces",
+          "uncertainty": "The army did not publish a shaft-by-shaft map or a body count.",
+          "citationLinks": [
+            {"citationKey": "idf-ali-taher", "relation": "supports", "strength": "strong", "rationale": "Primary official statement."}
+          ]
+        },
+        {
+          "title": "36th Division cleared two major tunnel routes",
+          "text": "Times of Israel, citing the IDF, reported that 36th Division troops achieved operational control above and below ground and cleared two major tunnel routes in a facility financed and planned by Iran inside a security zone about 10 kilometers deep.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces as reported by The Times of Israel",
+          "uncertainty": "Physical details are the army account as relayed by Times of Israel.",
+          "citationLinks": [
+            {"citationKey": "toi-ali-taher", "relation": "supports", "strength": "strong", "rationale": "Contains 36th Division, two routes, and 10 kilometers."}
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "On Thursday evening the IDF said it had completed clearing Hezbollah underground infrastructure in the Ali al-Taher Ridge area and was operating to neutralize it. The army said the complex was a strategic network built over 2 decades, funded and planned by Iran.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-ali-taher"]
+        },
+        {
+          "text": "Times of Israel reported that 36th Division troops took operational control of the ridge above and below ground, cleared two major tunnel routes, and said the ability to carry out terror attacks from the infrastructure against Israeli civilians and IDF troops has been neutralized.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-ali-taher"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Lebanon underground infrastructure",
+      "primaryActor": "Israel Defense Forces",
+      "arena": "Southern Lebanon",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null
+    },
+    {
+      "section": "israel_update",
+      "title": "IDF reports Yellow Line crossings in northern Gaza",
+      "summary": "The IDF said terrorists crossed the Yellow Line in northern Gaza twice on 3 September and approached troops in a manner that posed an immediate threat. The first incident was labeled a ceasefire violation.",
+      "citationKeys": ["idf-yellow-one", "idf-yellow-two"],
+      "claims": [
+        {
+          "title": "Two Yellow Line crossing incidents",
+          "text": "The IDF reported a morning ceasefire violation in which a terrorist crossed the Yellow Line and was eliminated, and a later incident in which 2 terrorists crossed the Yellow Line in northern Gaza and were eliminated after approaching troops.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces",
+          "uncertainty": "These posts do not include independent video of the approach path or Gaza-side identification.",
+          "citationLinks": [
+            {"citationKey": "idf-yellow-one", "relation": "supports", "strength": "strong", "rationale": "Official morning ceasefire-violation post."},
+            {"citationKey": "idf-yellow-two", "relation": "supports", "strength": "strong", "rationale": "Official afternoon two-person crossing post."}
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The IDF labeled a morning Yellow Line crossing in northern Gaza a ceasefire violation after a terrorist approached troops in a manner that posed an immediate threat and was eliminated.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-yellow-one"]
+        },
+        {
+          "text": "Later the army said 2 terrorists crossed the Yellow Line in northern Gaza and were eliminated after approaching IDF troops in a manner that posed an immediate threat.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-yellow-two"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Gaza ceasefire line",
+      "primaryActor": "Israel Defense Forces",
+      "arena": "Northern Gaza",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Iran warned the United States Israel put off storming Ali al-Taher ridge",
+      "summary": "Reuters said Iran warned Washington against an Israeli offensive at Ali al-Taher and that IRGC personnel were inside, with one official saying Israel had put off the storm. The IDF later said the underground fight had already run for weeks.",
+      "citationKeys": ["reuters-iran-warning", "toi-ali-taher", "idf-ali-taher"],
+      "claims": [
+        {
+          "title": "Reuters IRGC and postponed-storm claims remain unverified",
+          "text": "Reuters attributed to anonymous officials a claim that over a dozen IRGC members were with Hezbollah at Ali al-Taher and that Israel had put off storming the ridge after an Iranian warning. Reuters could not independently confirm the military situation. A White House official said this is not accurate.",
+          "layer": "source_claim",
+          "assessment": "unsupported",
+          "attributedTo": "Anonymous officials briefed to Reuters",
+          "uncertainty": "No public primary Iranian, Omani, or U.S. document of the warning was produced.",
+          "citationLinks": [
+            {"citationKey": "reuters-iran-warning", "relation": "supports", "strength": "strong", "rationale": "Originating account, including the verification limit."}
+          ]
+        },
+        {
+          "title": "IDF clearance contradicts the postponed-assault storyline",
+          "text": "The IDF said it completed clearing the underground infrastructure after weeks of operations. Times of Israel notes that timeline undercuts the claim Israel had put off storming the ridge.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces as reported by The Times of Israel",
+          "uncertainty": "Absence of reported IRGC captives is not complete proof no IRGC member was ever present.",
+          "citationLinks": [
+            {"citationKey": "idf-ali-taher", "relation": "supports", "strength": "strong", "rationale": "Official completion statement."},
+            {"citationKey": "toi-ali-taher", "relation": "contradicts", "strength": "adequate", "rationale": "Contrasts Reuters postponed-storm claim with the IDF timeline."}
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The exportable frame was a Reuters account of an Iranian warning, an alleged IRGC presence of over a dozen men, and a claim that Israel had put off storming Ali al-Taher. Reuters could not independently confirm the ridge, and a White House official rejected the pressure characterization.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-iran-warning"]
+        },
+        {
+          "text": "Hours later the IDF said the underground infrastructure had already been cleared after weeks of operations and that neutralization continues. Times of Israel recorded that this timeline undercuts the same-day postponed-assault story.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-ali-taher", "idf-ali-taher"]
+        }
+      ],
+      "narrativeTitle": "Iran warning used to imply Israel delayed Ali al-Taher",
+      "editorialTopic": "Ali al-Taher information fight",
+      "primaryActor": "Reuters source network and IDF",
+      "arena": "Wire circulation and X",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Iran warned the United States that it would respond forcefully to an Israeli offensive on Ali al-Taher, IRGC personnel were holed up there with Hezbollah, and as a result of U.S. pressure Israel had put off storming the ridge.",
+        "propagators": ["Reuters anonymous regional officials", "Hezbollah media office comments to Reuters"],
+        "arenas": ["Wire services", "X"],
+        "trendDirection": "new",
+        "israeliPosition": "The IDF said it completed clearing Hezbollah underground infrastructure at Ali al-Taher after weeks of operations, that attackers there were eliminated or fled, and that neutralization continues.",
+        "securityContext": "Ali al-Taher sits in Israel’s self-declared southern Lebanon security zone, about 10 kilometers inside Lebanon on Times of Israel’s description, and was identified as underground infrastructure built over two decades with Iranian planning and funding.",
+        "supportingCitationKeys": ["reuters-iran-warning"],
+        "contradictingCitationKeys": ["idf-ali-taher", "toi-ali-taher"],
+        "verificationState": "disputed",
+        "knownUnknowns": ["Whether any IRGC personnel were present earlier in the siege", "Exact text of any Iranian message sent via Oman"]
+      }
+    }
+  ]
+}

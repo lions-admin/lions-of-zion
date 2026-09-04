@@ -35,12 +35,19 @@
  * number this component would have to keep in step with the server.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardEyebrow } from "@/components/ui/Card";
 import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { BorderBeam } from "@/components/motion";
+import {
+  MessageScroller,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from "@/components/magicui/message-scroller";
 import { AnswerRecord } from "./AnswerRecord";
 import { toExchanges } from "./exchanges";
 import { AskComposer } from "./AskComposer";
@@ -57,7 +64,6 @@ export function AskDesk() {
   const { messages, status, problem, pending, elapsed, ask, retry, recall, cancel, lostThread, reset } =
     useAskThread();
   const exchanges = toExchanges(messages);
-  const tail = useRef<HTMLDivElement>(null);
 
   /* STATE-003. The composer clears on submit, so a failed turn used to leave
      the reader with the question visible in an error record and no way back to
@@ -70,33 +76,20 @@ export function AskDesk() {
     if (question) setSeed({ text: question, nonce: Date.now() });
   };
 
-  /* Move to the newest record when one arrives — but never on first paint, and
-     never past the composer. `block: "nearest"` keeps a restored transcript
-     where the reader left it instead of yanking the page. */
+  /* Scroll position belongs to `MessageScroller` now. What stood here was an
+     effect that moved a `tail` ref into view on every new record and had to
+     read `prefers-reduced-motion` by hand, because an explicit `"smooth"`
+     overrides the CSS kill switch in `globals.css`. The scroller anchors on the
+     question instead of chasing the bottom, and reads the preference itself. */
   const count = exchanges.length;
-  const firstRender = useRef(true);
-  useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    /* `behavior` has to be decided here: an explicit `"smooth"` overrides the
-       CSS, so the reduced-motion kill switch in `globals.css` cannot reach it.
-       This is the one place on these two surfaces where that is true. */
-    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    tail.current?.scrollIntoView({ block: "nearest", behavior: calm ? "auto" : "smooth" });
-  }, [count, status]);
 
-  /* What a screen reader is told when the wait ends. The answer arrives as a
-     new record far up the page and nothing else would announce it. Elapsed
-     seconds never enter this string. */
+  /* `settled` is still the last exchange — the state chip below reads it. What
+     went with the transcript rewrite is the announcement string it used to
+     build: `MessageScrollerContent` is a `role="log"` with
+     `aria-relevant="additions"`, so the arriving answer is announced by the
+     region that contains it. Building a second sentence about the same event
+     and putting it in a second live region announced it twice. */
   const settled = exchanges.at(-1);
-  const announcement =
-    status === "idle" && settled?.answer
-      ? `Answer received, ${settled.answer.citations.length === 0
-          ? "citing nothing"
-          : `citing ${settled.answer.citations.length} ${settled.answer.citations.length === 1 ? "source" : "sources"}`}.`
-      : "";
 
   const unavailable = problem?.code === "NOT_IMPLEMENTED";
   const busy = status === "submitting" || status === "loading";
@@ -132,10 +125,35 @@ export function AskDesk() {
 
       {count === 0 && status === "idle" ? <AskPrimer onPick={ask} disabled={busy} /> : null}
 
-      <div className={styles.transcript}>
-        {exchanges.map((exchange) => (
-          <AnswerRecord key={exchange.key} exchange={exchange} />
-        ))}
+      {/* The transcript is a `MessageScroller`, which owns scroll position now.
+          `scrollAnchor` on every turn is what puts the question near the top of
+          the viewport with a peek of the previous one above it, so an answer is
+          read downward from the thing it answers rather than being hunted for.
+          `defaultScrollPosition="last-anchor"` is for the reopened thread that
+          `thread-store.ts` restores: it lands on the final turn, not the top of
+          a conversation the reader already had.
+
+          It replaced a `tail` ref and a `scrollIntoView` that had to decide the
+          reduced-motion behaviour by hand, because an explicit `"smooth"`
+          overrides the CSS kill switch. The scroller reads the preference
+          itself. */}
+      <MessageScrollerProvider autoScroll defaultScrollPosition="last-anchor">
+        <MessageScroller className={styles.transcriptFrame}>
+          <MessageScrollerViewport>
+            {/* `role="log"` and its own announcements come from the content
+                element. The explicit `politeLive` paragraph this component used
+                to carry has gone with it: two live regions describing the same
+                arriving answer is two announcements of it. */}
+            <MessageScrollerContent className={styles.transcript}>
+              {exchanges.map((exchange) => (
+                <MessageScrollerItem
+                  key={exchange.key}
+                  messageId={exchange.key}
+                  scrollAnchor
+                >
+                  <AnswerRecord exchange={exchange} />
+                </MessageScrollerItem>
+              ))}
 
         {busy && pending ? (
           <Waiting
@@ -156,12 +174,10 @@ export function AskDesk() {
           />
         ) : null}
 
-        <div ref={tail} aria-hidden="true" />
-      </div>
-
-      <p className={styles.srOnly} {...politeLive}>
-        {announcement}
-      </p>
+            </MessageScrollerContent>
+          </MessageScrollerViewport>
+        </MessageScroller>
+      </MessageScrollerProvider>
 
       {unavailable ? (
         /* StatusState error already uses role="alert" (assertiveLive). */
@@ -233,8 +249,13 @@ function Waiting({
 }) {
   return (
     <article className={styles.record} aria-busy="true">
-      <p className={styles.recordLabel}>Question</p>
-      <p className={styles.question}>{question}</p>
+      {/* The pending question renders as the same bubble it will keep once the
+          answer lands under it — the turn does not change shape when it
+          resolves. The label goes, because the alignment already says whose
+          turn this is. */}
+      <div className={styles.turn} data-role="question">
+        <p className={styles.bubble}>{question}</p>
+      </div>
       <div className={styles.waiting}>
         {/* The default ink tone, not gold. Gold is reserved for the one
             primary control on a screen; a border beam is a state marker. */}
@@ -281,10 +302,9 @@ function ProblemRecord({
   return (
     <article className={styles.record} data-tone="alert" {...assertiveLive}>
       {question ? (
-        <>
-          <p className={styles.recordLabel}>Question</p>
-          <p className={styles.question}>{question}</p>
-        </>
+        <div className={styles.turn} data-role="question">
+          <p className={styles.bubble}>{question}</p>
+        </div>
       ) : null}
       <p className={styles.recordLabel}>Not answered</p>
       <p className={styles.problemLead}>

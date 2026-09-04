@@ -567,7 +567,7 @@ export function PipelinePanel({ signal }: { signal: number }) {
                   {briefing.value.spend.byModel.map((entry) => (
                     <tr key={`${entry.model}:${entry.stage}`}>
                       {/* The model slug is what the gateway bills against. */}
-                      <td>{entry.model}</td>
+                      <td><bdi>{entry.model}</bdi></td>
                       <td>{stageWord(entry.stage)}</td>
                       <td>{entry.calls}</td>
                       <td>{formatUsd(entry.costUsd)}</td>

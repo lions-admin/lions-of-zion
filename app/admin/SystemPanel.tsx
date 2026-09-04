@@ -325,7 +325,7 @@ function UsersSection({ signal }: { signal: number }) {
                     <tr key={user.id}>
                       <th scope="row">
                         <strong>{user.displayName}</strong>
-                        <small className={styles.plainSmall}>{user.email ?? "ללא דוא״ל"}</small>
+                        <small className={styles.plainSmall}><bdi>{user.email ?? "ללא דוא״ל"}</bdi></small>
                         {user.disabledAt ? <small>הושבת {formatDate(user.disabledAt)}</small> : null}
                       </th>
                       <td>
@@ -845,9 +845,9 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
         </td>
         <td>
           {entry.entityType}
-          {entry.entityId ? <small className={styles.plainSmall}>{entry.entityId}</small> : null}
+          {entry.entityId ? <small className={styles.plainSmall}><bdi title={entry.entityId}>{entry.entityId}</bdi></small> : null}
         </td>
-        <td>{entry.requestId ?? "—"}</td>
+        <td><bdi title={entry.requestId ?? undefined}>{entry.requestId ?? "—"}</bdi></td>
         <td>
           {entry.hasBefore || entry.hasAfter ? (
             <Button variant="ghost" size="sm" type="button" aria-expanded={open} aria-controls={`audit-${entry.id}`} onClick={toggle}>
@@ -1300,13 +1300,13 @@ function SettingsSection({ signal }: { signal: number }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {value.schedules.map((schedule) => (
-                      <tr key={schedule.path}>
-                        <td>{schedule.path}</td>
-                        <td>{schedule.schedule}</td>
-                        <td>{schedule.description}</td>
-                      </tr>
-                    ))}
+                      {value.schedules.map((schedule) => (
+                        <tr key={schedule.path}>
+                          <td><bdi>{schedule.path}</bdi></td>
+                          <td><bdi>{schedule.schedule}</bdi></td>
+                          <td>{schedule.description}</td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1325,7 +1325,7 @@ function SettingsSection({ signal }: { signal: number }) {
                     {value.models.map((model) => (
                       <tr key={model.profile}>
                         <td>{model.profile}</td>
-                        <td>{model.slug}</td>
+                        <td><bdi>{model.slug}</bdi></td>
                       </tr>
                     ))}
                   </tbody>

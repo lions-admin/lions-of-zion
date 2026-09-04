@@ -300,7 +300,7 @@ export function SourcesPanel({ signal }: { signal: number }) {
               ) : (
                 <>
                 <div className={`${styles.tableWrap} ${cmd.desktopOnly}`}>
-                  <table className={styles.table}>
+                  <table className={`${styles.table} ${styles.tableWide}`}>
                     <caption className={styles.tableCaption}>
                       תקינות ותפוקה בשבעת הימים האחרונים. מקור מושבת נשאר מושבת עד שבדיקה חיה מחזירה פיד תקין, או עד שאדם מפעיל אותו עם סיבה.
                     </caption>
@@ -328,7 +328,7 @@ export function SourcesPanel({ signal }: { signal: number }) {
                           <th scope="row">
                             <strong>{source.name}</strong>
                             {/* The slug, language and country codes are the source's identity in the database. */}
-                            <small className={styles.plainSmall}>{source.slug}{source.language ? ` · ${source.language}` : ""}{source.country ? ` · ${source.country}` : ""}</small>
+                            <small className={styles.plainSmall}><bdi>{source.slug}</bdi>{source.language ? ` · ${source.language}` : ""}{source.country ? ` · ${source.country}` : ""}</small>
                             {source.disabledReason || source.lastError ? <small>{source.disabledReason ?? source.lastError}</small> : null}
                           </th>
                           <td>{source.family?.label ?? "—"}</td>

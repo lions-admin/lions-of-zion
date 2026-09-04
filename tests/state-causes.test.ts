@@ -343,9 +343,14 @@ describe("form semantics (A11Y-007)", () => {
     const shared = read("app/admin/auth-required.ts");
     expect(shared).toContain("response.status === 401 || response.status === 403");
 
-    for (const panel of ["app/admin/AdminStatus.tsx", "app/admin/PublicationManager.tsx"]) {
+    /* The console became five areas plus a chat, and the distinction moved
+       with it rather than being copied six times: `useConsoleRead` turns a
+       401/403 into the typed absence, and `ReadGate` renders it. Both halves
+       are checked, because either one alone is decorative. */
+    expect(read("app/admin/useConsoleRead.ts")).toContain("refusedForAuth(");
+
+    for (const panel of ["app/admin/console-primitives.tsx", "app/admin/OpsChat.tsx"]) {
       const source = read(panel);
-      expect(source, panel).toContain("refusedForAuth(");
       expect(source, panel).toContain('absenceStatus("auth-required")');
       expect(source, panel).toContain('actionHref="/admin/login"');
       /* And the auth branch is checked before the failure branch, or the
@@ -361,9 +366,11 @@ describe("form semantics (A11Y-007)", () => {
     /* A save the API refuses is reported in one console notice, not on a
        field — so the form has to name it, or an operator inside the form is
        told nothing. */
-    const manager = read("app/admin/PublicationManager.tsx");
+    const manager = read("app/admin/EditorialDesk.tsx");
     expect(manager).toContain("aria-describedby={noticeId}");
-    expect(manager).toContain('id="console-error"');
+    /* The id is per-area now that five areas each carry their own notice —
+       one shared "console-error" would have two elements claiming it. */
+    expect(manager).toContain('"console-editorial-error"');
 
     const login = read("app/admin/login/AdminLogin.tsx");
     expect(login).toContain("aria-describedby={[message ? errorId : null");

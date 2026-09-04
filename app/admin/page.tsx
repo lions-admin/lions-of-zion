@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { AdminStatus } from "./AdminStatus";
-import { PublicationManager } from "./PublicationManager";
+import { OperationsConsole } from "./OperationsConsole";
 import { SignOutButton } from "./SignOutButton";
 import styles from "./admin.module.css";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Infrastructure status" };
+export const metadata = { title: "Operations console" };
 
 export default function AdminPage() {
   return (
@@ -17,8 +16,11 @@ export default function AdminPage() {
         <div className={styles.dashboardHead}>
           <div>
             <p className={styles.eyebrow}>Lions of Zion / Operations</p>
-            <h1>System status</h1>
-            <p className={styles.lede}>A basic status view of the launch services on Vercel.</p>
+            <h1>Operations console</h1>
+            <p className={styles.lede}>
+              Run the pipeline, watch the sources, work the editorial queue, and read the record of
+              everything that happened.
+            </p>
           </div>
           {/* ADMIN-002. The console's two header controls, in one group laid
               out as a plain `row` with no `order` and no reversal, so the
@@ -35,8 +37,7 @@ export default function AdminPage() {
             <SignOutButton />
           </div>
         </div>
-        <AdminStatus />
-        <PublicationManager />
+        <OperationsConsole />
       </section>
     </main>
   );

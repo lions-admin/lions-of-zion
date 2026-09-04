@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { politeLive } from "@/components/ui/live-region";
@@ -31,6 +31,9 @@ export type ConfirmIntent = {
   confirmLabel: string;
   /** `danger` for deletion, de-publication, and anything irreversible. */
   tone?: "danger" | "primary";
+  /** One input the action needs before it can run — a reason for the audit
+   *  log. Rendered under the three facts, never in place of them. */
+  body?: ReactNode;
   run: () => void | Promise<void>;
 };
 
@@ -134,6 +137,7 @@ function ConfirmPanel({ intent, onClose, fallbackFocusRef }: ConfirmPanelProps) 
         <dt>Consequence</dt>
         <dd className={danger ? styles.confirmDanger : undefined}>{intent.consequence}</dd>
       </dl>
+      {intent.body ? <div className={styles.confirmBody}>{intent.body}</div> : null}
       {running ? (
         <p className={styles.confirmPending} {...politeLive}>
           Running the action. The result is reported on the console.

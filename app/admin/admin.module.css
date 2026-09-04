@@ -1003,3 +1003,538 @@
     transform: none;
   }
 }
+
+/* ── The five-area console ──────────────────────────────────────────────
+   Everything below serves the areas split out of the old single-column
+   status page: a stage strip for the pipeline, lanes for the editorial
+   desk, meters for budgets, and the operations chat. It reuses the same
+   tokens as the surfaces above — no new colour is introduced here, only
+   new arrangements of the palette already in `globals.css`. */
+
+.area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.subArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.subArea:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.subTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.panelTitle {
+  margin: 0;
+  font-family: var(--face-text);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+}
+
+/* ── State pills and tone ─────────────────────────────────────────────── */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 0.15rem var(--sp-2);
+  border: var(--line-w) solid currentColor;
+  border-radius: var(--radius-pill);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.toneOk { color: var(--state-ok); background: var(--state-ok-wash); }
+.toneWarn { color: var(--state-warn); background: var(--state-warn-wash); }
+.toneDanger { color: var(--state-danger); background: var(--state-danger-wash); }
+.toneGold { color: var(--gold); background: var(--gold-wash); }
+.toneNeutral { color: var(--ink-lo); background: var(--surface-2); }
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.chipNote {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+/* ── The pipeline stage strip ─────────────────────────────────────────── */
+
+.stageWrap {
+  overflow-x: auto;
+  padding-bottom: var(--sp-2);
+}
+
+.stageStrip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(9.5rem, 1fr);
+  gap: var(--sp-2);
+  min-width: 100%;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: var(--line-w) solid var(--line-soft);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+/* A stage is coloured by the worst thing happening in it, never by both. */
+.stageLive { border-color: var(--gold-line-strong); background: var(--gold-wash); }
+.stageWarn { border-color: var(--state-warn-line); background: var(--state-warn-wash); }
+.stageDanger { border-color: var(--state-danger-line); background: var(--state-danger-wash); }
+
+.stageRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.stageCount {
+  font-family: var(--face-data);
+  font-size: var(--t-figure);
+  font-weight: var(--t-figure-weight);
+  line-height: var(--t-figure-lh);
+  color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+}
+
+.stageFacts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.stageError {
+  color: var(--state-danger);
+  overflow-wrap: anywhere;
+}
+
+.stageSkeleton {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(9.5rem, 1fr);
+  gap: var(--sp-2);
+}
+
+.runFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+/* ── The editorial desk ───────────────────────────────────────────────── */
+
+.laneWrap {
+  overflow-x: auto;
+  padding-bottom: var(--sp-2);
+}
+
+.lanes {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(15rem, 1fr);
+  gap: var(--sp-3);
+  align-items: start;
+  min-width: 100%;
+}
+
+.lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: var(--line-w) solid var(--line-soft);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+.laneHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.laneCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  width: 100%;
+  padding: var(--sp-3);
+  border: var(--line-w) solid var(--line-soft);
+  border-radius: var(--radius-1);
+  background: var(--surface-1);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+
+.laneCard:hover { border-color: var(--gold-line); }
+
+.laneCard:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.selectedDraft {
+  border-color: var(--gold-line-strong);
+  background: var(--gold-wash);
+}
+
+.laneSkeleton {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(15rem, 1fr);
+  gap: var(--sp-3);
+}
+
+/* ── Budget meters ────────────────────────────────────────────────────── */
+
+.meterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--sp-4);
+}
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.meterHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.meterTrack {
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+/* The fill's colour is set inline from the utilisation, so the bar and the
+   warning list can never disagree about whether a budget is in trouble. */
+.meterFill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-base) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meterFill,
+  .laneCard { transition: none; }
+}
+
+.warnList,
+.reasonList,
+.secretList,
+.plainList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.warnList li,
+.reasonList li {
+  padding-inline-start: var(--sp-3);
+  border-inline-start: var(--line-w-thick) solid var(--state-warn-line);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+.secretList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-block: var(--sp-2);
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.plainSmall {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+/* ── Alerts, incidents, audit ─────────────────────────────────────────── */
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alertRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: var(--line-w) solid var(--line-soft);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+.alertMessage {
+  flex: 1 1 18rem;
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  overflow-wrap: anywhere;
+}
+
+.alertActions {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: flex-end;
+}
+
+.filterActions {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.auditDetail {
+  padding: var(--sp-3);
+  border: var(--line-w) solid var(--line-soft);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+.diffGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--sp-3);
+}
+
+/* Audit payloads are arbitrary jsonb and routinely wider than the panel. */
+.json {
+  max-height: 22rem;
+  margin: 0;
+  padding: var(--sp-3);
+  overflow: auto;
+  border-radius: var(--radius-1);
+  background: var(--surface-3);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--t-caption);
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.versionList li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-block: var(--sp-2);
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.cellActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.errorCell {
+  color: var(--state-danger);
+  overflow-wrap: anywhere;
+}
+
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.linkButton:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.inlineSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.absence {
+  margin: 0;
+  padding: var(--sp-4);
+  border: var(--line-w) dashed var(--line);
+  border-radius: var(--radius-2);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+/* ── Narrative verdicts ───────────────────────────────────────────────── */
+
+.verdict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.verdictWord {
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.verdictBody {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+/* An unassessed narrative must not read as a cleared one. */
+.verdictOff { color: var(--ink-lo); }
+
+/* ── The confirmation dialog's optional input ─────────────────────────── */
+
+.confirmBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+/* ── The console shell ────────────────────────────────────────────────── */
+
+/* The chat is a right rail on a wide screen and a full-width panel below the
+   areas on a narrow one. It is never behind a tab: it is the surface an
+   operator uses *while* reading another. */
+.consoleLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-6);
+  margin-top: var(--sp-6);
+}
+
+@media (min-width: 64rem) {
+  .consoleLayout {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+    align-items: start;
+  }
+
+  .consoleRail {
+    position: sticky;
+    top: var(--sp-5);
+    max-height: calc(100dvh - var(--sp-8));
+    overflow-y: auto;
+  }
+}
+
+.consoleTabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  min-width: 0;
+}
+
+.consoleRail {
+  min-width: 0;
+}

@@ -93,8 +93,15 @@ const uncommented = (source: string) =>
 
 const ADMIN_SOURCES = [
   "app/admin/page.tsx",
-  "app/admin/AdminStatus.tsx",
-  "app/admin/PublicationManager.tsx",
+  "app/admin/OperationsConsole.tsx",
+  "app/admin/OverviewPanel.tsx",
+  "app/admin/PipelinePanel.tsx",
+  "app/admin/SourcesPanel.tsx",
+  "app/admin/EditorialDesk.tsx",
+  "app/admin/NarrativesPanel.tsx",
+  "app/admin/SystemPanel.tsx",
+  "app/admin/OpsChat.tsx",
+  "app/admin/console-primitives.tsx",
   "app/admin/ConfirmDialog.tsx",
   "app/admin/SignOutButton.tsx",
   "app/admin/login/page.tsx",
@@ -361,16 +368,25 @@ describe("STATE-004 — one implementation, used by every destructive action (so
        kind of thing an operator should not be able to do by landing on a
        button. Each is checked by name, so a rebuild that quietly drops one
        fails here rather than in Production. */
-    const status = read("app/admin/AdminStatus.tsx");
-    const queue = read("app/admin/PublicationManager.tsx");
+    const overview = read("app/admin/OverviewPanel.tsx");
+    const pipeline = read("app/admin/PipelinePanel.tsx");
+    const desk = read("app/admin/EditorialDesk.tsx");
+    const sources = read("app/admin/SourcesPanel.tsx");
 
     for (const [file, source, handler] of [
-      ["AdminStatus.tsx", status, "requestPublicationControl"],
-      ["AdminStatus.tsx", status, "requestEditionPublication"],
-      ["AdminStatus.tsx", status, "requestForcedRerun"],
-      ["PublicationManager.tsx", queue, "requestTransition"],
-      ["PublicationManager.tsx", queue, "requestArchive"],
-      ["PublicationManager.tsx", queue, "requestDelete"],
+      ["OverviewPanel.tsx", overview, "requestPublicationControl"],
+      ["OverviewPanel.tsx", overview, "requestEditionPublication"],
+      ["PipelinePanel.tsx", pipeline, "requestPublicationControl"],
+      ["PipelinePanel.tsx", pipeline, "requestForcedRerun"],
+      ["PipelinePanel.tsx", pipeline, "requestRetry"],
+      ["EditorialDesk.tsx", desk, "requestTransition"],
+      ["EditorialDesk.tsx", desk, "requestArchive"],
+      ["EditorialDesk.tsx", desk, "requestDelete"],
+      /* Two arrived with the rebuild and belong to the same clause: a
+         rollback replaces what readers see, and switching a source off
+         stops collection. */
+      ["EditorialDesk.tsx", desk, "requestRollback"],
+      ["SourcesPanel.tsx", sources, "requestSourceActive"],
     ] as const) {
       const declared = source.indexOf(`function ${handler}`);
       expect(declared, `${handler} exists in ${file}`).toBeGreaterThan(-1);
@@ -393,7 +409,7 @@ describe("STATE-004 — one implementation, used by every destructive action (so
 
     /* The status transition that reaches the public is the one that asks;
        the rest move between internal states and do not. */
-    expect(queue).toMatch(/if \(to !== "published"\)[\s\S]{0,80}return;/);
+    expect(desk).toMatch(/if \(to !== "published"\)[\s\S]{0,80}return;/);
   });
 
   it("gives every confirmation a focus fallback that can actually take focus", () => {
@@ -419,9 +435,12 @@ describe("STATE-004 — one implementation, used by every destructive action (so
         checked += 1;
       }
     }
-    /* Both consoles pass one, and a console that stopped passing one would
-       otherwise slip through this loop in silence. */
-    expect(checked).toBe(2);
+    /* One per area, plus the operations chat — whose confirmation is the
+       only one on the console that is not opened by a control the operator
+       pressed, so the fallback is the *only* place focus can go. A panel
+       that stopped passing one would otherwise slip through this loop in
+       silence, which is how `controlBar` survived the last rebuild. */
+    expect(checked).toBe(6);
   });
 
   it("restores focus once, on unmount, rather than on each of five close paths", () => {
@@ -517,7 +536,7 @@ describe("ADMIN-002 — keyboard order matches visual layout (source)", () => {
   });
 
   it("keeps irreversible controls last in the reading order of their own area", () => {
-    for (const file of ["app/admin/AdminStatus.tsx", "app/admin/PublicationManager.tsx"]) {
+    for (const file of ["app/admin/PipelinePanel.tsx", "app/admin/EditorialDesk.tsx"]) {
       const source = read(file);
       const zone = source.indexOf("styles.dangerZone");
       expect(zone, `${file} has a danger zone`).toBeGreaterThan(-1);
@@ -536,20 +555,33 @@ describe("ADMIN-002 — keyboard order matches visual layout (source)", () => {
   });
 
   it("names the console's areas, so the sequence is one an operator can predict", () => {
-    const status = read("app/admin/AdminStatus.tsx");
-    const queue = read("app/admin/PublicationManager.tsx");
-    /* ADMIN-002's information architecture: system status, pipeline,
-       sources, then the publication queue and its editor. Each is a labelled
-       `<section>`, in that order, and tab order follows it. */
-    const order = ["console-status", "console-pipeline", "console-sources"];
+    /* ADMIN-002's information architecture, now five areas rather than one
+       column: overview, pipeline, sources, the editorial desk, then system
+       and security — in that order in the tab row, so the sequence a reader
+       sees is the sequence Tab visits. The chat is docked rather than
+       tabbed, because it is the surface used *while* reading another. */
+    const shell = read("app/admin/OperationsConsole.tsx");
+    const order = ["overview", "pipeline", "sources", "editorial", "system"];
     let previous = -1;
-    for (const id of order) {
-      const position = status.indexOf(`id="${id}"`);
-      expect(position, `${id} is a named area`).toBeGreaterThan(previous);
-      expect(status).toContain(`aria-labelledby="${id}-heading"`);
+    for (const value of order) {
+      const position = shell.indexOf(`value: "${value}"`);
+      expect(position, `${value} is a named area`).toBeGreaterThan(previous);
+      expect(shell).toContain(`<TabPanel value="${value}">`);
       previous = position;
     }
-    expect(queue).toContain('id="console-queue"');
-    expect(queue).toContain('aria-labelledby="console-queue-heading"');
+    /* Manual activation, or arrowing across the row fires five reads. */
+    expect(shell).toContain('activation="manual"');
+    expect(read("app/admin/OpsChat.tsx")).toContain('id="console-chat"');
+
+    /* Each area still labels its own region by its own heading. */
+    for (const [file, id] of [
+      ["app/admin/OverviewPanel.tsx", "console-overview"],
+      ["app/admin/PipelinePanel.tsx", "console-pipeline"],
+      ["app/admin/SourcesPanel.tsx", "console-sources"],
+      ["app/admin/EditorialDesk.tsx", "console-editorial"],
+      ["app/admin/SystemPanel.tsx", "console-system"],
+    ] as const) {
+      expect(read(file), `${id} is a named area`).toContain(`id="${id}"`);
+    }
   });
 });

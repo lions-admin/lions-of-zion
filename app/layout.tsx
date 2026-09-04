@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import {
+  Archivo_Narrow,
   IBM_Plex_Sans,
   Inter_Tight,
   IBM_Plex_Sans_Hebrew,
   JetBrains_Mono,
+  Roboto_Mono,
   Newsreader,
 } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
@@ -30,6 +32,23 @@ import { AskDock } from "@/components/ask/AskDock";
  * nothing outside `admin.module.css`'s `.shell` rule ever renders in it.
  * `tests/english-chrome.test.ts` pins both halves of that.
  */
+const archivoNarrow = Archivo_Narrow({
+  subsets: ["latin"],
+  /* 400 only. The reference system's rule is "no bold" — loading a weight the
+     tokens are forbidden to ask for is dead bytes on every page. */
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-archivo-narrow",
+  display: "swap",
+});
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-roboto-mono",
+  display: "swap",
+});
+
 const interTight = Inter_Tight({
   subsets: ["latin"],
   /* 400 and 700 only, which is the reference system's whole range. The display
@@ -101,7 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`dark ${interTight.variable} ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
+      className={`dark ${archivoNarrow.variable} ${robotoMono.variable} ${interTight.variable} ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
     >
       <body>
         {children}

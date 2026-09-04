@@ -16,25 +16,22 @@
   min-width: 0;
   color: inherit;
   text-decoration: none;
-  /* A glass plate, not a bordered box.
+  /* A lighter plate on a darker canvas, with a line around it. That is the
+   * whole of the depth — the system refuses elevation, so there is no shadow
+   * here and `--shadow-*` are `none` anyway.
    *
-   * The fill is `--frost` — a tint too faint to name, whose whole job is to say
-   * that something is there — and the edge is `--shadow-1`, a 1px inset frost
-   * stroke rather than a border. Two reasons it is a shadow and not a border:
-   * an inset stroke does not add to the box, so a card can sit flush inside a
-   * grid the way a bordered one cannot; and it lights the plate's edge instead
-   * of drawing a line around it, which is what makes the surface read as lit
-   * rather than outlined on a black ground.
-   *
-   * `--radius-3` and not `--radius-2`: cards are the 16px family, inputs and
-   * badges the 6px one. */
-  background: var(--frost);
-  border: 0;
+   * The separation is tonal and it is slight by design: #272a2a on #0b0b0b is
+   * 1.36:1, which is a difference you read as a surface rather than as a
+   * colour. The 1px hairline is what makes the edge legible at that ratio, and
+   * is why it is a real border again rather than the inset stroke it briefly
+   * was — with no shadow token left to carry it, an inset shadow would have
+   * been an edge that disappears the moment elevation is reversed. */
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
   transition:
     background-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
+    border-color var(--dur-base) var(--ease-out);
 }
 
 /* Feature — lead / section entry. Raised, room for media + title. */
@@ -159,13 +156,13 @@
   cursor: pointer;
 }
 
-/* Hover brightens the plate and lights its edge harder — there is no border
-   left to change the colour of, so the edge is the first layer of
-   `--shadow-2`, and the halo underneath it is what the lift used to be. */
+/* Hover raises the plate a tone and strengthens its line. Not a lift: there is
+   nothing to lift onto, and a shadow would be the one thing this system says
+   not to reach for. */
 .interactive:hover,
 .interactive:focus-visible {
-  background: var(--frost-raised);
-  box-shadow: var(--shadow-2);
+  background: var(--surface-2);
+  border-color: var(--line-strong);
 }
 
 .feature.interactive:hover,

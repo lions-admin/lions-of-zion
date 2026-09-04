@@ -28,13 +28,16 @@
      Plex Sans Hebrew) is loaded and exposed the same way, wired into no token:
      only the operations console reaches for it, in `app/admin/admin.module.css`.
      Do not put either of them in `--face-text`. */
-  /* One geometric sans across display and text, after the reference system
-     this palette and scale come from — it sets everything in a single family
-     and reserves the mono for data. `--font-newsreader` is still loaded and
-     still reachable; it is no longer a role. */
-  --face-display: var(--font-inter-tight), 'Inter Tight', 'General Sans', Switzer, -apple-system, sans-serif;
-  --face-text: var(--font-inter-tight), 'Inter Tight', 'General Sans', Switzer, -apple-system, sans-serif;
-  --face-data: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  /* One condensed grotesque across display and text, and the mono for data —
+     the reference system's own arrangement.
+     'Pragmatica Cond' is named in the stack but will not resolve for anyone:
+     it is a commercial Paratype face and is not loaded here. Archivo Narrow is
+     the free grotesque closest to it in character, and is what actually
+     renders. Inter Tight, Newsreader and Plex Sans are all still loaded and
+     still exposed as `--font-*`; none of them holds a role. */
+  --face-display: var(--font-archivo-narrow), 'Archivo Narrow', 'Pragmatica Cond', Oswald, sans-serif;
+  --face-text: var(--font-archivo-narrow), 'Archivo Narrow', 'Pragmatica Cond', Oswald, sans-serif;
+  --face-data: var(--font-roboto-mono), 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --font-serif: var(--face-display);
   --font-sans: var(--face-text);
@@ -115,10 +118,10 @@
    * `--gold-line-strong` below reads the way it does — swapping a hue silently
    * moved an alpha that a comment had recorded as safe, and nothing but
    * `scripts/ui-audit.mjs` noticed. */
-  --ground: #000000;
+  --ground: #0b0b0b;
   --ink-hi: #f6f3eb;
   --ink: #cbc7bd;
-  --ink-lo: #88837b;
+  --ink-lo: #9a958c;
   --gold: #f0b429;
   --gold-hi: #f7cd6b;
   /* The dim step, and the one that actually constrains the hue: it is used as
@@ -129,11 +132,14 @@
      failed; #977544 held 4.94 and 4.66; #b8860b holds 6.45 on the black ground
      and 6.09 on surface-1. Its other uses are backgrounds and beam tails,
      where a step of lightness this small is not visible. */
-  --gold-dim: #b8860b;
+  --gold-dim: #c08d14;
 
-  --surface-1: #0a0a09;
-  --surface-2: #111110;
-  --surface-3: #181715;
+  /* One shade under the canvas, for a bar that has to read as behind it. */
+  --abyss: #050505;
+
+  --surface-1: #272a2a;
+  --surface-2: #2e3232;
+  --surface-3: #353a3a;
 
   --line: rgba(246, 243, 235, 0.13);
   --line-soft: rgba(246, 243, 235, 0.07);
@@ -157,14 +163,21 @@
    * Verified by `scripts/ui-audit.mjs`, which computes this in the page. */
   --control-line: rgba(246, 243, 235, 0.4);
   --gold-line: rgba(240, 180, 41, 0.25);
-  /* The alpha here is a measurement, not a taste, and it has to be re-measured
-     every time the hue changes. This is the selected state on filter chips and
-     stage toggles — a control boundary, so WCAG 1.4.11's 3:1 applies.
-     0.5 failed at 2.73-2.80 with gold; 0.6 cleared it at 3.45-3.53. Coral is
-     darker and dropped it back to 2.88 at that same 0.6, which `ui-audit`
-     caught. Amber at 0.55 measures 3.76 on surface-2. `--gold-line` below is
-     decorative framing, is not a control boundary, and tracks no floor. */
-  --gold-line-strong: rgba(240, 180, 41, 0.55);
+  /* The alpha here is a measurement, not a taste, and it has to be re-derived
+     every time either the hue OR the surfaces move. This is the selected state
+     on filter chips and stage toggles — a control boundary, so WCAG 1.4.11's
+     3:1 applies, and it applies on the lightest surface it can land on, not
+     just the darkest.
+     Its history in one day: 0.6 for gold; 0.6 silently broken to 2.88 by coral,
+     which `scripts/ui-audit.mjs` caught in the page; 0.55 for amber on the old
+     near-black surfaces; and 0.55 broken again to 2.95 on `--surface-3` when
+     the surfaces were re-graded to this system's charcoals — that one nothing
+     rendered, so no audit would have found it and it was caught by computing
+     the ratio against all four grounds directly. 0.6 clears them at 4.31, 3.71,
+     3.50 and 3.24.
+     `--gold-line` below is decorative framing, is not a control boundary, and
+     tracks no floor. */
+  --gold-line-strong: rgba(240, 180, 41, 0.6);
   --gold-wash: rgba(240, 180, 41, 0.1);
 
   /* data-blue was retired to warm grey; keep the names so existing modules
@@ -219,35 +232,22 @@
      --radius-pill is for true chips/avatars, not buttons. */
   --radius-1: 4px;
   --radius-2: 6px;
-  --radius-3: 16px;
+  --radius-3: 10px;
   --radius-pill: 999px;
 
-  /* Elevation is built from an inset frost edge and a soft halo, not from a
-   * conventional drop shadow. A dark drop on a black ground is invisible: it
-   * has nothing to darken. What reads instead is the lit top edge of a plate
-   * and the glow it throws inward — the surface looks backlit rather than
-   * lifted, which is the only kind of depth that survives on `#000`.
+  /* Elevation is refused.
    *
-   * The frost is the ink at low alpha, not the blue-white of the system this
-   * came from: the accent here is warm, and a cool edge against it reads as a
-   * second temperature nobody chose. */
-  --shadow-1: rgba(246, 243, 235, 0.12) 0 0 0 1px inset;
-  --shadow-2:
-    rgba(246, 243, 235, 0.2) 0 1px 0 0 inset,
-    rgba(246, 243, 235, 0.05) 0 24px 48px inset,
-    rgba(0, 0, 0, 0.3) 0 16px 32px;
-  --shadow-3:
-    rgba(246, 243, 235, 0.24) 0 1px 0 0 inset,
-    rgba(246, 243, 235, 0.07) 0 32px 64px inset,
-    rgba(0, 0, 0, 0.45) 0 24px 64px;
+   * The system this came from defines surfaces through tonal contrast and 1px
+   * hairline borders and carries no shadow at all — a card is a lighter plate
+   * on a darker canvas with a line around it, and that is the whole of the
+   * depth. The three tokens stay rather than being deleted because 28
+   * declarations across the stylesheets read them; `none` is how the refusal
+   * reaches all 28 at once, and the day any of this is reversed it is reversed
+   * here rather than in 28 places. */
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: none;
 
-  /* The glass plate itself: a tint so faint it is not a colour, only the fact
-     that something is there. Paired with `--shadow-1`'s inset edge it is the
-     whole of a card — no border, no fill anyone could name. */
-  --frost: rgba(246, 243, 235, 0.03);
-  --frost-raised: rgba(246, 243, 235, 0.06);
-  --frost-edge: rgba(246, 243, 235, 0.12);
-  --frost-edge-strong: rgba(246, 243, 235, 0.24);
 
   /* --- Motion (MOTION-001) ---
      Hover/press: --dur-fast + --ease-out.
@@ -384,6 +384,24 @@ html {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* Uppercase, everywhere, weight 400 — the reference system's central rule:
+ * "no bold, no mixed case, no decoration".
+ *
+ * One declaration on `body`, deliberately, and this comment is the reason. That
+ * system is a marketing site with almost no running prose; this one publishes
+ * long-form articles and several hundred October 7 testimony pages, and
+ * uppercase measurably slows reading of continuous text. The owner was told
+ * that and chose the rule in full, so it is applied in full — and it is applied
+ * as a single inherited declaration so that reversing it, or scoping it to
+ * chrome only, is one line rather than an audit.
+ *
+ * `text-transform` changes rendering, not content: the DOM text, the accessible
+ * name and anything copied out of the page are unaffected. Hebrew is caseless
+ * and unaffected too, which matters for the operations console. */
+body {
+  text-transform: uppercase;
 }
 
 html, body {

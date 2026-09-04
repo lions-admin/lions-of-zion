@@ -70,6 +70,124 @@ describe("the shell", () => {
   });
 });
 
+describe("the console's added reads", () => {
+  const overview = read("app/admin/OverviewPanel.tsx");
+  const pipeline = read("app/admin/PipelinePanel.tsx");
+
+  it("keeps the new overview regions off the area's poll budget", () => {
+    /* The overview declares three 30s polls — summary, briefing, status.
+       The costs meters and the outbox backlog are mount + signal only, so
+       opening the console adds no route to the timer. */
+    expect(overview).toContain('useConsoleRead<ConsoleCosts>("admin/console/costs", { signal });');
+    expect(overview).toContain('useConsoleRead<ConsoleIncidents>("admin/console/incidents", { signal });');
+    expect(overview.match(/pollInterval: OVERVIEW_POLL_MS/g)).toHaveLength(3);
+  });
+
+  it("reads the draft preview pre-contract, held until its region is opened", () => {
+    expect(pipeline).toContain("useConsoleRead<DraftPreview>(");
+    expect(pipeline).toContain("`admin/briefing/draft?date=${encodeURIComponent(draftDate)}`");
+    expect(pipeline).toContain("{ signal, enabled: draftOpen }");
+    /* "Today" is the server's own Israel-local date, mirrored in the
+       wire-shape module because `app/**` cannot import the briefing module. */
+    expect(read("app/admin/briefing-shapes.ts")).toContain('timeZone: "Asia/Jerusalem"');
+  });
+});
+
+describe("the drilldown, fetch-log and recovery reads (source)", () => {
+  /* The P1 wave's regions, pinned the same way the earlier ones are:
+     structurally over the sources, because the panels render skeletons until
+     their effects run. What is pinned is which payload each region reads,
+     through which gate, and which route each control calls. */
+
+  const pipeline = read("app/admin/PipelinePanel.tsx");
+  const sources = read("app/admin/SourcesPanel.tsx");
+  const system = read("app/admin/SystemPanel.tsx");
+  const lexicon = read("app/admin/lexicon.ts");
+
+  it("holds the edition drilldown until one edition is asked, and opens it as an end-edge drawer", () => {
+    expect(pipeline).toContain("useConsoleRead<ConsoleEditionDrilldown>(");
+    expect(pipeline).toContain("`admin/console/editions/${encodeURIComponent(localDate)}`");
+    expect(pipeline).toContain("enabled: localDate !== null");
+    expect(pipeline).toContain('variant="drawer"');
+  });
+
+  it("surfaces every piece of the drilldown payload the contract carries", () => {
+    for (const piece of ["drill.value.edition", "drill.value.runs", "drill.value.runAi", "drill.value.artifacts", "drill.value.claims", "drill.value.jobs"]) {
+      expect(pipeline, piece).toContain(piece);
+    }
+    /* The artifact's payload is the expandable JSON; the hash is truncated,
+       not shown whole. */
+    expect(pipeline).toContain("inputHash.slice(0, 12)");
+    expect(pipeline).toContain("JSON.stringify(artifact.payload, null, 2)");
+  });
+
+  it("holds the fetch log until one source is asked, and reads today's rollup from the same payload", () => {
+    expect(sources).toContain("useConsoleRead<ConsoleSourceFetches>(");
+    expect(sources).toContain("`admin/console/sources/${source.id}/fetches?limit=50`");
+    expect(sources).toContain("enabled: source !== null");
+    for (const piece of ["fetches.value.fetches", "fetches.value.today"]) {
+      expect(sources, piece).toContain(piece);
+    }
+  });
+
+  it("drains the outbox and runs the maintenance tick straight through the shared operation state", () => {
+    expect(system).toContain('"admin/console/outbox/drain"');
+    expect(system).toContain('"admin/console/maintenance/tick"');
+    /* Both are reversible, so neither opens a confirmation: the handler is
+       `ops.run` alone. */
+    for (const handler of ["drainOutboxNow", "runMaintenanceTick"]) {
+      const declared = system.indexOf(`function ${handler}`);
+      expect(declared, `${handler} exists`).toBeGreaterThan(-1);
+      const body = system.slice(declared, system.indexOf("\n  }", declared));
+      expect(body, `${handler} runs through ops.run`).toContain("ops.run(");
+      expect(body, `${handler} asks for nothing`).not.toContain("setConfirmIntent(");
+    }
+  });
+
+  it("resolves a quarantined row without asking, and discards only through the shared confirmation with a required note", () => {
+    expect(system).toContain("`admin/console/quarantine/${entry.id}/resolve`");
+    expect(system).toContain("`admin/console/quarantine/${entry.id}/discard`");
+
+    const resolveDeclared = system.indexOf("function resolveQuarantine");
+    const resolveBody = system.slice(resolveDeclared, system.indexOf("\n  }", resolveDeclared));
+    expect(resolveBody).toContain("ops.run(");
+    expect(resolveBody).not.toContain("setConfirmIntent(");
+
+    const discardDeclared = system.indexOf("function requestDiscard");
+    expect(discardDeclared, "requestDiscard exists").toBeGreaterThan(-1);
+    const body = system.slice(discardDeclared, system.indexOf("\n  }", discardDeclared));
+    expect(body).toContain("setConfirmIntent(");
+    expect(body).toMatch(/tone:\s*"danger"/);
+    expect(body, "the note field is required and bounded like the route's schema").toMatch(/required/);
+    expect(body).toContain("maxLength={500}");
+    /* The route refuses an empty note; the client refuses it first, before
+       anything is sent. */
+    expect(system).toMatch(/noteRef\.current\.trim\(\)/);
+    expect(system).toMatch(/if \(!note\) throw/);
+    expect(system).toContain("body: { note },");
+  });
+
+  it("routes the collect sweep through the shared confirmation and surfaces its counts", () => {
+    expect(sources).toContain('"admin/console/sources/collect-sweep"');
+    const declared = sources.indexOf("function requestSweep");
+    expect(declared, "requestSweep exists").toBeGreaterThan(-1);
+    const body = sources.slice(declared, sources.indexOf("\n  }", declared));
+    expect(body).toContain("setConfirmIntent(");
+    for (const piece of ["result.enqueued", "result.alreadyCompleted", "result.dispatchFailed"]) {
+      expect(sources, piece).toContain(piece);
+    }
+  });
+
+  it("keeps the new label maps in the lexicon, each holding Hebrew", () => {
+    for (const name of ["RUN_STATUS_LABEL", "CLAIM_LAYER_LABEL", "ASSESSMENT_LABEL", "FETCH_STATUS_LABEL"]) {
+      const map = lexicon.slice(lexicon.indexOf(`export const ${name}`));
+      expect(map.startsWith("export const"), `${name} is a lexicon export`).toBe(true);
+      const body = map.slice(0, map.indexOf("};"));
+      expect(body, `${name} holds Hebrew`).toMatch(/[֐-׿]/);
+    }
+  });
+});
+
 describe("the operations chat", () => {
   const chat = read("app/admin/OpsChat.tsx");
   const code = uncommented(chat);

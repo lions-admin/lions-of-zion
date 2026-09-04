@@ -8,6 +8,9 @@ import { capabilityGrant } from "@/server/db/schema";
 import { neonAuth } from "./neon";
 import { readGoogleSession } from "./google-session";
 import { upsertHumanUser } from "./users";
+import { briefingLog } from "@/server/core/log";
+import { setIdentity } from "@/server/core/versioning";
+import { writeAudit } from "@/server/core/audit";
 import type { Actor } from "@/server/core/audit";
 
 const actors = new WeakMap<Request, Actor>();
@@ -43,6 +46,31 @@ export async function authenticateAdmin(request: Request): Promise<Actor> {
   const email = user?.email?.trim().toLowerCase();
   if (!user || !email) throw new ApiError("UNAUTHENTICATED", "Please sign in to continue.");
   if (email !== adminEmail()) {
+    /* A refused sign-in is telemetry, not just a gate: an attempted account
+     * that is not the allowlisted one goes on the record (`audit_log` is
+     * writable by the service role this bootstrap runs under, the way the
+     * crons write). Only the 403 refusal is audited — a 401 with no session
+     * has no actor to record, and the development `x-actor-label` bypass
+     * returned above. The refusal stands even if its record could not be
+     * written; the 403 is the gate, so its failure is logged, not swallowed
+     * into a 500. */
+    try {
+      await db().transaction(async (tx) => {
+        await setIdentity(tx as never, email);
+        await writeAudit(tx as never, {
+          actor: { label: email, userId: null },
+          action: "auth.refused",
+          entityType: "system",
+          entityId: null,
+          after: { reason: "admin_email_mismatch" },
+        });
+      });
+    } catch (cause) {
+      briefingLog("warn", "auth.refused.audit_failed", {}, {
+        attemptedEmail: email,
+        errorClass: cause instanceof Error ? cause.name : "UnknownError",
+      });
+    }
     throw new ApiError("FORBIDDEN", "This account is not authorized for the admin area.");
   }
 

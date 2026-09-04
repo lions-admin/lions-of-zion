@@ -131,6 +131,82 @@ describe("console reads on an empty database", () => {
   });
 });
 
+describe("console region wiring (source)", () => {
+  /* The three regions this console added are pinned the way the shell pins
+     its structure: structurally over the sources, because the panels render
+     skeletons until their effects run. What is pinned here is which payload
+     each region surfaces, not which words it labels it with. */
+
+  it("surfaces the costs meters, the status read's integrations and fingerprints, and the outbox backlog on the overview", () => {
+    const overview = readFileSync(path.join(process.cwd(), "app/admin/OverviewPanel.tsx"), "utf8");
+    /* The budget region reads the costs payload piece by piece — the four
+       utilisations, and the search budget it can genuinely be null. */
+    for (const piece of [
+      "utilisation.aiDaily", "utilisation.aiMonthly", "utilisation.briefingMonthly", "utilisation.searchMonthly",
+      "budgets.search.monthlyQueries === null",
+    ]) {
+      expect(overview, piece).toContain(piece);
+    }
+    /* Integration readiness and the resource fingerprints come from the
+       already-polled status read — nothing new is fetched for them. */
+    expect(overview).toContain("status.value.integrations");
+    expect(overview).toContain("status.value.resourceFingerprints");
+    /* The outbox backlog is the incidents read's `outbox` object. */
+    for (const piece of ["outbox.undelivered", "outbox.deadLettered", "outbox.oldestAt"]) {
+      expect(overview, piece).toContain(piece);
+    }
+  });
+
+  it("renders the draft preview from the artifact's daily brief and per-section articles", () => {
+    const pipeline = readFileSync(path.join(process.cwd(), "app/admin/PipelinePanel.tsx"), "utf8");
+    expect(pipeline).toContain("draft.value.dailyBrief");
+    expect(pipeline).toContain("draft.value.articles");
+    expect(pipeline).toContain("SECTION_LABEL[article.section]");
+    /* Degradation rides the shared absence line, with the two-cause 404
+       note under it. */
+    expect(pipeline).toContain("<InlineAbsence state={draft.state} what={T.draftWhat} reload={draft.reload} />");
+    expect(pipeline).toContain("ABSENCE.draftEditionAbsent");
+  });
+
+  it("wires the P1 wave's regions to the contract payloads they surface", () => {
+    const pipeline = readFileSync(path.join(process.cwd(), "app/admin/PipelinePanel.tsx"), "utf8");
+    const sources = readFileSync(path.join(process.cwd(), "app/admin/SourcesPanel.tsx"), "utf8");
+    const system = readFileSync(path.join(process.cwd(), "app/admin/SystemPanel.tsx"), "utf8");
+
+    /* The edition drilldown drawer: the edition's identity, the per-stage
+       runs, the model calls, the artifacts, the claims and the jobs. */
+    for (const piece of ["drill.value.edition.", "drill.value.runs.map", "drill.value.runAi.map", "drill.value.artifacts.map", "drill.value.claims.map", "drill.value.jobs.length"]) {
+      expect(pipeline, piece).toContain(piece);
+    }
+
+    /* The fetch log drawer: the per-attempt rows and the same day's rollup
+       from the one read. */
+    for (const piece of ["fetches.value.fetches.map", "fetches.value.today.attempts", "fetches.value.today.boundaryAt"]) {
+      expect(sources, piece).toContain(piece);
+    }
+
+    /* The incidents area's recovery controls: the outbox block drains, the
+       maintenance block ticks, and the quarantine rows carry both decisions. */
+    for (const piece of [
+      '"admin/console/outbox/drain"',
+      '"admin/console/maintenance/tick"',
+      "`admin/console/quarantine/${entry.id}/resolve`",
+      "`admin/console/quarantine/${entry.id}/discard`",
+      "value.outbox.undelivered",
+      "value.outbox.deadLettered",
+      "value.outbox.oldestAt",
+    ]) {
+      expect(system, piece).toContain(piece);
+    }
+
+    /* The sources area's sweep surfaces the result counts, whatever the
+       status word around them. */
+    for (const piece of ["result.enqueued", "result.alreadyCompleted", "result.dispatchFailed"]) {
+      expect(sources, piece).toContain(piece);
+    }
+  });
+});
+
 describe("pipeline health", () => {
   it("counts a running job with a lapsed lease as stuck everywhere it is shown", async () => {
     const db = await freshDatabase();

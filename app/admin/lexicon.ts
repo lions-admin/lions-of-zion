@@ -132,6 +132,36 @@ export const FETCH_STATUS_LABEL: Record<string, string> = {
   failed: "נכשל",
 };
 
+/* ── Edition drilldown ────────────────────────────────────────────────── */
+
+/* A per-stage run row's status. Feminine, because the subject is a `ריצה` —
+   the same inflection `EDITION_STATUS_LABEL` uses for an edition. */
+export const RUN_STATUS_LABEL: Record<string, string> = {
+  running: "רצה",
+  completed: "הושלמה",
+  failed: "נכשלה",
+};
+
+/* The claim layers the drilldown lists. Enum values on the wire; these are
+   the words an operator reads beside them. */
+export const CLAIM_LAYER_LABEL: Record<string, string> = {
+  source_claim: "טענת מקור",
+  observed_fact: "עובדה שנצפתה",
+  model_inference: "הסקת מודל",
+  editorial_conclusion: "מסקנת מערכת",
+};
+
+/* The machine assessments attached to a claim. Distinct from the quality
+   check's pass/fail: this is what the pipeline judged the claim itself. */
+export const ASSESSMENT_LABEL: Record<string, string> = {
+  verified: "מאומת",
+  refuted: "נסתר",
+  misleading: "מטעה",
+  unsupported: "בלתי נתמך",
+  disputed: "שנוי במחלוקת",
+  unresolved: "בלתי מוכרע",
+};
+
 /* ── Narratives ───────────────────────────────────────────────────────── */
 
 export const NARRATIVE_STATUS_LABEL: Record<string, string> = {
@@ -184,6 +214,13 @@ export const T = {
   auditLog: "יומן ביקורת",
   version: "גרסה",
   versions: "גרסאות",
+  /* The briefing pipeline's recorded checks. Feminine, because the subject
+     is a `בקרה` — a check `passes` (`עברה`) or `fails` (`נכשלה`), the same
+     inflection EDITION_STATUS_LABEL uses for an edition. The check names
+     themselves are identifiers and stay Latin; see rule 2 above. */
+  qualityChecks: "בקרות איכות",
+  checkPassed: "עברה",
+  checkFailed: "נכשלה",
 
   /* States */
   active: "פעיל",
@@ -211,9 +248,9 @@ export const T = {
   current: "נוכחית",
 
   /* Hebrew inflects for number and gender and the singular forms above do
-     not carry over. These are the plurals the panels actually needed —
-     `נכשל` cannot head a count of sources, and `תקוע` cannot head a count of
-     jobs. Add the form you need rather than bending one that nearly fits. */
+      not carry over. These are the plurals the panels actually needed —
+      `נכשל` cannot head a count of sources, and `תקוע` cannot head a count of
+      jobs. Add the form you need rather than bending one that nearly fits. */
   failingPlural: "כושלים",
   failuresPlural: "כשלים",
   stuckPluralF: "תקועות",
@@ -231,9 +268,9 @@ export const T = {
   errors: "שגיאות",
   lastError: "שגיאה אחרונה",
   /* A budget or a threshold nobody has set yet. Distinct from `none`: `none`
-     is a count of zero, `notSet` is the absence of a configured value, and a
-     console that renders both as "אין" cannot tell an unconfigured limit
-     from a limit of nothing. */
+      is a count of zero, `notSet` is the absence of a configured value, and a
+      console that renders both as "אין" cannot tell an unconfigured limit
+      from a limit of nothing. */
   notSet: "לא הוגדר",
 
   /* Time */
@@ -265,6 +302,148 @@ export const T = {
   tryAgain: "לנסות שוב",
   loadOlder: "טעינת ישנים יותר",
   applyFilters: "החלת סינון",
+
+  /* ── Costs, readiness and the inner delivery queue (overview) ──────── */
+
+  /* The overview's budget region: the four meters of System & Security's
+     costs sub-area, read there first. The labels mirror that sub-area's so
+     the same meter never carries two names on the same console. */
+  budgetsPanel: "תקציבים והוצאות",
+  budgets: "תקציבים",
+  costsRead: "תקציבי הפריסה",
+  warnNotePrefix: "אזהרה ב",
+  noBudget: "אין תקציב",
+  noQueryBudget: "אין תקציב שאילתות",
+  queries: "שאילתות",
+  meterAiDaily: "AI, יומי",
+  meterAiMonthly: "AI, חודשי",
+  meterBriefingMonthly: "בריף, חודשי",
+  meterSearchMonthly: "חיפוש, חודשי",
+  ofTotal: "מתוך",
+  integrations: "חיבורים",
+  resourceIdentity: "זהות משאבים",
+  fingerprintNote: "טביעות אצבע חד-כיווניות, להשוואה בין סביבות. סודות ומזהים מלאים אינם מוצגים כאן לעולם.",
+  outboxPanel: "תור המסירה הפנימי",
+  outboxUndelivered: "Outbox — לא נמסרו",
+  outboxDeadLettered: "Outbox — נזנחו",
+  outboxOldest: "הישן ביותר שלא נמסר",
+
+  /* ── The draft preview (pipeline) ──────────────────────────────────── */
+
+  /* The persisted draft artifact, read per Israel-local date. `draftWhat`
+     is the definite form the absence sentences complete ("הפריסה הזו עדיין
+     לא מגישה את …"). */
+  draftPreview: "תצוגת טיוטה",
+  draftWhat: "תצוגת הטיוטה",
+  draftPreviewNote: "הנוסח שנוסח ונשמר למהדורה, לפני הפרסום — כפי שהקורא יקרא אותו.",
+  headline: "כותרת",
+  summary: "תקציר",
+  body: "גוף הכתבה",
+  date: "תאריך",
+
+  /* ── The edition drilldown (pipeline) ──────────────────────────────── */
+
+  /* One edition's full recovery payload, opened as an end-edge drawer from
+     the editions list. */
+  editionDetail: "פירוט המהדורה",
+  editionDetailToggle: "פירוט",
+  editionWhat: "פירוט המהדורה",
+  editionDetailClose: "סגירת פירוט המהדורה",
+  contractVersion: "גרסת חוזה",
+  promptVersion: "גרסת פרומפט",
+  opened: "נפתחה",
+  closed: "נסגרה",
+  publishedWord: "פורסמה",
+  runsByStage: "ריצות לפי שלב",
+  input: "נכנסו",
+  output: "יצאו",
+  duration: "משך",
+  started: "התחילה",
+  finished: "הסתיימה",
+  aiRuns: "קריאות מודל לפי שלב",
+  model: "מודל",
+  profile: "פרופיל",
+  tokensIn: "אסימוני קלט",
+  tokensOut: "אסימוני פלט",
+  latency: "השהיה",
+  artifacts: "מוצרי ביניים",
+  latestVersion: "הגרסה האחרונה לכל שלב",
+  artifactVersion: "גרסה",
+  payload: "מטען",
+  details: "פרטים",
+  claims: "טענות",
+  layer: "שכבה",
+  assessment: "הערכה מכונה",
+  attributedTo: "ייחוס",
+  uncertainty: "אי-ודאות",
+
+  /* ── The fetch log (sources) ───────────────────────────────────────── */
+
+  /* One source's fetch attempts, newest first, plus the same day's rollup —
+     both from the one `fetches` read. */
+  fetchLog: "יומן שליפות",
+  fetchWhat: "יומן השליפות",
+  fetchLogClose: "סגירת יומן השליפות",
+  todayBlock: "היום",
+  itemsSeen: "נראו",
+  itemsNew: "חדשים",
+  fetchesPartial: "חלקיות",
+  fetchesFailed: "כושלות",
+  boundaryAt: "גבול היום",
+  bytes: "נפח",
+  httpStatus: "HTTP",
+
+  /* ── Recovery: outbox, maintenance, quarantine (system) ────────────── */
+
+  /* The manual outbox drain: reversible, so it is asked for nothing. */
+  drainNow: "ניקוז מיידי",
+  drainFailure: "לא ניתן לנקז את תור המסירה.",
+  outboxDrainNote: "מוציא את הרשומות הממתינות אל התור עכשיו, במקום לחכות לטיק. הפעולה הפיכה — מה שלא נמסר נשאר בתור.",
+  /* The manual maintenance tick: the same run the cron does, on demand. */
+  runMaintenance: "הרצת תחזוקה",
+  maintenancePanel: "תחזוקה",
+  maintenanceNote: "אותה ריצה שהקרון מריץ מדי רגע: שחזור משימות תקועות, ניקוי מפתחות אידמפוטנטיות והגבלות קצב, והערכת התראות.",
+  maintenanceFailure: "לא ניתן להריץ את התחזוקה.",
+  /* Quality-quarantine decisions: resolve without asking, discard only
+     through the shared confirmation, with a note the audit log requires. */
+  qualityQuarantine: "בידוד בקרת איכות",
+  quarantineDecisionNote: "לכל רשומה שתי הכרעות: סימון כטופל כשהיא כבר מטופלת בפועל, או הסרה מהתור כשהיא לא תרוץ שוב. ההסרה מבקשת סיבה ליומן הביקורת.",
+  discard: "הסרה מהתור",
+  discardAction: "הסרת רשומת בידוד מהתור",
+  discardConsequence: "הרשומה יוצאת מתור ההתאוששות ולא תרוץ שוב בשום סבב. אין לה פלט ואין מה להחזיר; הסיבה נרשמת ביומן הביקורת.",
+  discardFailure: "לא ניתן להסיר את הרשומה מהתור.",
+  quarantineResolveFailure: "לא ניתן לסמן את הרשומה כטופלה.",
+  reason: "סיבה",
+  reasonNote: "שורה אחת, ליומן הביקורת. חובה.",
+  pendingDecision: "ממתינות להכרעה",
+
+  /* ── The collection sweep (sources) ────────────────────────────────── */
+
+  /* Budget-adjacent even though it is reversible, so it confirms — and sits
+     in a zone of its own, last in the sources area. */
+  collectNow: "איסוף מיידי",
+  sweepTarget: "כל המקורות הפעילים בפריסה הזו",
+  sweepConsequence: "סבב שליפה רץ עכשיו על כל המקורות הפעילים, מחוץ לתור המתוכנן, ומוציא מתקציב החיפוש והעיבוד. המקורות עצמם והגדרותיהם אינם משתנים, והמשימות שנכנסות ניתנות לניהול כרגיל מאזור התהליך.",
+  sweepNote: "האיסוף המיידי מריץ סבב שליפה על כל המקורות הפעילים עכשיו, מחוץ לתור המתוכנן, ומוציא מתקציב החיפוש והעיבוד.",
+  sweepPanelLabel: "פעולה שמוציאה תקציב",
+  sweepFailure: "לא ניתן להתחיל את האיסוף המיידי.",
+} as const;
+
+/* ── The sentences panels report an operation back with ────────────────── */
+
+/* The one-off result lines a `useOperations` notice carries. Numbers stay
+   Latin inside Hebrew prose; see the rules at the top of this file. */
+export const SENTENCE = {
+  drained: (attempted: number, dispatched: number, failed: number) =>
+    `נוסו ${attempted} רשומות, נמסרו ${dispatched}, נכשלו ${failed}.`,
+  maintenanceDone: (recovered: number, evaluated: number, created: number) =>
+    `התחזוקה הסתיימה: שוחזרו ${recovered} משימות, נבדקו ${evaluated} התראות, נוצרו ${created}.`,
+  swept: (enqueued: number, alreadyCompleted: number, dispatchFailed: number) =>
+    `האיסוף המיידי רץ: נכנסו לתור ${enqueued} מקורות, כבר הושלמו ${alreadyCompleted}${dispatchFailed ? `, נכשלה השליחה של ${dispatchFailed}` : ""}.`,
+  sweepPaused: () => "העיבוד מושהה, ולכן הסבב לא הורץ. שום מקור לא נשלח.",
+  quarantineResolved: (key: string) => `הרשומה ${key} סומנה כטופלה.`,
+  quarantineDiscarded: (key: string) => `הרשומה ${key} הוסרה מתור ההתאוששות ולא תרוץ שוב.`,
+  needReason: () => "נדרשת סיבה כדי להסיר רשומה מהתור. שום דבר לא שונה.",
 } as const;
 
 /* ── Absence and failure, phrased as causes rather than blanks ────────── */
@@ -286,6 +465,12 @@ export const ABSENCE = {
   failedAction: T.tryAgain,
 
   loading: (what: string) => `טוען ${what}`,
+
+  /* The draft route answers 404 for a day with no edition as well as for a
+     route the deployment does not serve, so the unavailable state has two
+     causes the read alone cannot tell apart. This line names the one the
+     shared absence wording does not cover. */
+  draftEditionAbsent: "ייתכן שאין מהדורה לתאריך הנבחר — המסלול מחזיר 404 גם עבור יום ללא מהדורה.",
 } as const;
 
 /* ── Formatting, Hebrew locale ────────────────────────────────────────── */

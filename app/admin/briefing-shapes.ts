@@ -69,3 +69,37 @@ export type Traceability = {
   claims: Array<{ id: string; title: string; assessment: string; aiRunId: string | null; evidenceCount: number }>;
   sources: Array<{ id: string; title: string; publisher: string; url: string | null; retrievalStatus: string }>;
 };
+
+/* ── The draft preview route ────────────────────────────────────────────── */
+
+/**
+ * `GET /api/v1/admin/briefing/draft` is read pre-contract, like the routes
+ * above. The shape is the briefing service's `draftPreview()` payload —
+ * the persisted draft artifact's rendered output, exactly what the daily
+ * publication path turns into publications, served before publication so a
+ * failed or in-progress edition stays reviewable.
+ */
+export type DraftPreview = {
+  localDate: string;
+  dailyBrief: { title: string; summary: string; body: string };
+  articles: Array<{
+    section: "daily_brief" | "israel_update" | "war_update" | "narrative_watch";
+    title: string;
+    summary: string;
+    body: string;
+  }>;
+};
+
+/**
+ * Today's Israel-local `YYYY-MM-DD`, computed the way the server computes it
+ * (`server/modules/briefing/service.ts` — `en-CA` under `Asia/Jerusalem`).
+ * The layering boundary lets `app/**` import only `@/server/contracts/*`, so
+ * the formula is mirrored here rather than imported; a drift would surface
+ * as a draft preview read one day off the edition the pipeline filed.
+ */
+export function israelLocalDate(now = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(now);
+}

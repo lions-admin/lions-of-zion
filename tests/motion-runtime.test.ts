@@ -108,6 +108,11 @@ describe("MOTION-002 — the animation-loop inventory", () => {
   const KNOWN_SINGLE_FRAME = [
     "components/sections/ReadingProgress.tsx",
     "components/sections/SectionToc.tsx",
+    /* One coalesced frame per pointer-move burst: the handler books at most
+       one rAF at a time, and `clear()` — on pointerleave, blur,
+       visibilitychange and the unmount cleanup — cancels the booked frame
+       before nulling the handle. Registered 2026-09-05. */
+    "components/motion/PointerHighlight.tsx",
   ];
 
   /**

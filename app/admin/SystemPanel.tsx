@@ -16,7 +16,10 @@ import type {
   ConsoleSettings,
   ConsoleUsers,
   CostSurface,
+  DrainOutboxResult,
+  MaintenanceTickResult,
   PipelineJob,
+  QuarantineOutcome,
   RetryJobResult,
 } from "@/server/contracts/admin-console";
 import { ENTITY_TYPES } from "@/server/contracts/enums";
@@ -27,6 +30,7 @@ import {
   ConsoleNotices,
   EmptyLine,
   InlineAbsence,
+  Metric,
   PanelTitle,
   Pill,
   ReadGate,
@@ -39,7 +43,7 @@ import {
   useOperations,
   type PillTone,
 } from "./console-primitives";
-import { AREA_LABEL, JOB_STATE_LABEL, SECTION_LABEL, SEVERITY_LABEL, T } from "./lexicon";
+import { AREA_LABEL, JOB_STATE_LABEL, SECTION_LABEL, SEVERITY_LABEL, SENTENCE, T } from "./lexicon";
 import { AuthRequired } from "./auth-required";
 import { AlertList, Stat, StatGrid } from "./_command/StatusCards";
 import { RouteUnavailable, callConsole, readConsole, useConsoleRead, type ReadState } from "./useConsoleRead";
@@ -79,6 +83,10 @@ export function SystemPanel({ signal }: { signal: number }) {
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* STATE-004 — the focus fallback: the area itself. */
   const areaRef = useRef<HTMLElement | null>(null);
+  /* The discard note is typed inside the confirmation; it lives in a ref so
+     the dialog does not re-render its opener on every keystroke — the same
+     pattern the source enable/disable reason uses. */
+  const noteRef = useRef<string>("");
   const ops = useOperations();
   /* Incidents re-reads after a resolve or a retry through this local signal,
      added to the shell's. */
@@ -110,7 +118,16 @@ export function SystemPanel({ signal }: { signal: number }) {
         <TabPanel value="audit">{visited.has("audit") ? <AuditSection signal={signal} /> : null}</TabPanel>
         <TabPanel value="incidents">
           {visited.has("incidents") ? (
-            <IncidentsSection signal={signal + incidentsTick} disabled={ops.disabled} onResolve={resolveAlert} onRetry={requestRetry} />
+            <IncidentsSection
+              signal={signal + incidentsTick}
+              disabled={ops.disabled}
+              onResolve={resolveAlert}
+              onRetry={requestRetry}
+              onDrain={drainOutboxNow}
+              onMaintenance={runMaintenanceTick}
+              onQuarantineResolve={resolveQuarantine}
+              onDiscard={requestDiscard}
+            />
           ) : null}
         </TabPanel>
         <TabPanel value="security">{visited.has("security") ? <SecuritySection signal={signal} disabled={ops.disabled} run={ops.run} /> : null}</TabPanel>
@@ -161,6 +178,92 @@ export function SystemPanel({ signal }: { signal: number }) {
       });
       setIncidentsTick((current) => current + 1);
       return `ההתראה ${kind} סומנה כטופלה.`;
+    });
+  }
+
+  /* The outbox drain is reversible — whatever is not delivered stays in the
+     queue — so it is asked for nothing. The route's body is optional; a bare
+     POST drains with the drain's own default ceiling. */
+  async function drainOutboxNow() {
+    await ops.run("outbox-drain", async () => {
+      const result = await callConsole<DrainOutboxResult>("admin/console/outbox/drain", {
+        method: "POST",
+        failure: T.drainFailure,
+      });
+      setIncidentsTick((current) => current + 1);
+      return SENTENCE.drained(result.attempted, result.dispatched, result.failed);
+    });
+  }
+
+  /* The maintenance tick is the same run the cron does every minute. The
+     runners bind the database internally, so a real call outside production
+     can answer problem+json — `callConsole` turns that into a thrown Error
+     with the problem's detail, and `ops.run` surfaces it as the area's error
+     notice like any other failure. */
+  async function runMaintenanceTick() {
+    await ops.run("maintenance-tick", async () => {
+      const result = await callConsole<MaintenanceTickResult>("admin/console/maintenance/tick", {
+        method: "POST",
+        failure: T.maintenanceFailure,
+      });
+      setIncidentsTick((current) => current + 1);
+      return SENTENCE.maintenanceDone(result.briefingJobs.recovered, result.briefingAlerts.evaluated, result.briefingAlerts.created);
+    });
+  }
+
+  /* Resolving a quarantined candidate is asked for nothing: it records that
+     the candidate was handled. Discarding removes it from the recovery
+     queue with no re-run, so that goes through the shared confirmation and
+     the note the route requires. */
+  async function resolveQuarantine(entry: ConsoleIncidents["quarantine"][number]) {
+    await ops.run(`quarantine:${entry.id}`, async () => {
+      await callConsole<QuarantineOutcome>(`admin/console/quarantine/${entry.id}/resolve`, {
+        method: "POST",
+        body: {},
+        failure: T.quarantineResolveFailure,
+      });
+      setIncidentsTick((current) => current + 1);
+      return SENTENCE.quarantineResolved(entry.candidateKey);
+    });
+  }
+
+  function requestDiscard(entry: ConsoleIncidents["quarantine"][number]) {
+    noteRef.current = "";
+    setConfirmIntent({
+      action: T.discardAction,
+      target: entry.candidateKey,
+      targetDetail: `${stageLabel(entry.stage)} · ${formatDate(entry.createdAt)}`,
+      consequence: T.discardConsequence,
+      confirmLabel: T.discard,
+      tone: "danger",
+      run: () => discardQuarantine(entry),
+      body: (
+        <Field
+          className={styles.editorField}
+          name="note"
+          label={T.reason}
+          description={T.reasonNote}
+          required
+          maxLength={500}
+          onChange={(event) => {
+            noteRef.current = event.currentTarget.value;
+          }}
+        />
+      ),
+    });
+  }
+
+  async function discardQuarantine(entry: ConsoleIncidents["quarantine"][number]) {
+    const note = noteRef.current.trim();
+    await ops.run(`discard:${entry.id}`, async () => {
+      if (!note) throw new Error(SENTENCE.needReason());
+      await callConsole<QuarantineOutcome>(`admin/console/quarantine/${entry.id}/discard`, {
+        method: "POST",
+        body: { note },
+        failure: T.discardFailure,
+      });
+      setIncidentsTick((current) => current + 1);
+      return SENTENCE.quarantineDiscarded(entry.candidateKey);
     });
   }
 }
@@ -752,11 +855,19 @@ function IncidentsSection({
   disabled,
   onResolve,
   onRetry,
+  onDrain,
+  onMaintenance,
+  onQuarantineResolve,
+  onDiscard,
 }: {
   signal: number;
   disabled: boolean;
   onResolve: (alertId: string, kind: string, note: string) => void;
   onRetry: (job: PipelineJob, resetAttempts: boolean) => void;
+  onDrain: () => void;
+  onMaintenance: () => void;
+  onQuarantineResolve: (entry: ConsoleIncidents["quarantine"][number]) => void;
+  onDiscard: (entry: ConsoleIncidents["quarantine"][number]) => void;
 }) {
   const incidents = useConsoleRead<ConsoleIncidents>("admin/console/incidents", { signal });
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -898,6 +1009,31 @@ function IncidentsSection({
             )}
           </div>
 
+          <div className={styles.panel}>
+            <PanelTitle note={`${value.outbox.undelivered} ${T.outboxUndelivered}`}>{T.outboxPanel}</PanelTitle>
+            <p className={styles.muted}>{T.outboxDrainNote}</p>
+            <div className={styles.compactMetrics}>
+              <Metric label={T.outboxUndelivered} value={String(value.outbox.undelivered)} tone={value.outbox.undelivered ? "warn" : "ok"} />
+              <Metric label={T.outboxDeadLettered} value={String(value.outbox.deadLettered)} tone={value.outbox.deadLettered ? "danger" : "ok"} />
+              <Metric label={T.outboxOldest} value={value.outbox.oldestAt ? formatAgo(value.outbox.oldestAt) : T.none} />
+            </div>
+            <div className={styles.actionRow}>
+              <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={onDrain}>
+                {T.drainNow}
+              </Button>
+            </div>
+          </div>
+
+          <div className={styles.panel}>
+            <PanelTitle>{T.maintenancePanel}</PanelTitle>
+            <p className={styles.muted}>{T.maintenanceNote}</p>
+            <div className={styles.actionRow}>
+              <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={onMaintenance}>
+                {T.runMaintenance}
+              </Button>
+            </div>
+          </div>
+
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
               <PanelTitle>ריצות שנכשלו</PanelTitle>
@@ -923,45 +1059,58 @@ function IncidentsSection({
               )}
             </div>
             <div className={styles.panel}>
-              <PanelTitle>בידוד בקרת איכות</PanelTitle>
-              {value.quarantine.length ? (
+              <PanelTitle>טופלו לאחרונה</PanelTitle>
+              {value.recentlyResolved.length ? (
                 <ul className={styles.logList}>
-                  {value.quarantine.map((entry) => (
-                    <li key={entry.id}>
+                  {value.recentlyResolved.map((alert) => (
+                    <li key={alert.id}>
                       <span>
-                        <Pill tone="warn">{stageLabel(entry.stage)}</Pill>
+                        <Pill tone="ok">טופלה</Pill>
                       </span>
-                      <strong>{entry.candidateKey}</strong>
+                      <strong>{alert.kind}</strong>
                       <small>
-                        {entry.reason} · {formatDate(entry.createdAt)}
+                        {alert.message} · טופלה {formatDate(alert.resolvedAt)}
                       </small>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <EmptyLine>אין פריטים בבידוד.</EmptyLine>
+                <EmptyLine>לא טופל דבר לאחרונה.</EmptyLine>
               )}
             </div>
           </div>
 
+          {/* The quarantine decisions are this sub-area's last region and its
+              only dangerous one: resolve is asked for nothing, discard removes
+              the candidate from the recovery queue for good and goes through
+              the shared confirmation with a required note. */}
           <div className={styles.panel}>
-            <PanelTitle>טופלו לאחרונה</PanelTitle>
-            {value.recentlyResolved.length ? (
+            <PanelTitle note={`${value.quarantine.length} ${T.pendingDecision}`}>{T.qualityQuarantine}</PanelTitle>
+            <p className={styles.muted}>{T.quarantineDecisionNote}</p>
+            {value.quarantine.length ? (
               <ul className={styles.logList}>
-                {value.recentlyResolved.map((alert) => (
-                  <li key={alert.id}>
+                {value.quarantine.map((entry) => (
+                  <li key={entry.id}>
                     <span>
-                      <Pill tone="ok">טופלה</Pill>
+                      <Pill tone="warn">{stageLabel(entry.stage)}</Pill>
                     </span>
-                    <strong>{alert.kind}</strong>
+                    <strong>{entry.candidateKey}</strong>
                     <small>
-                      {alert.message} · טופלה {formatDate(alert.resolvedAt)}
+                      {entry.reason} · {formatDate(entry.createdAt)}
                     </small>
+                    <div className={styles.cellActions}>
+                      <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onQuarantineResolve(entry)}>
+                        {T.resolve}
+                      </Button>
+                      <Button variant="danger" size="sm" type="button" disabled={disabled} onClick={() => onDiscard(entry)}>
+                        {T.discard}
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <EmptyLine>לא טופל דבר לאחרונה.</EmptyLine>
+              <EmptyLine>אין פריטים בבידוד.</EmptyLine>
             )}
           </div>
         </>

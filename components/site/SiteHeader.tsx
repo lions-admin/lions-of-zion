@@ -7,6 +7,7 @@ import { SearchLauncher } from "@/components/search/SearchLauncher";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
+import { FILES_COUNT_LABEL } from "@/lib/site-navigation";
 import {
   BAR_LINKS,
   FILE_LINKS,
@@ -193,7 +194,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             onClick={() => setFilesOpen((open) => !open)}
           >
             All files
-            <span className={styles.filesCount}>08</span>
+            <span className={styles.filesCount}>{FILES_COUNT_LABEL}</span>
             <Chevron />
           </Button>
 
@@ -234,7 +235,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
         <div className={styles.filesInner}>
           <div className={styles.panelHead}>
             <span className={styles.panelEyebrow}>The eight files</span>
-            <span className={styles.panelCount}>01 — 08</span>
+            <span className={styles.panelCount}>{`01 — ${FILES_COUNT_LABEL}`}</span>
           </div>
 
           <nav className={styles.fileGrid} aria-label="All sections">

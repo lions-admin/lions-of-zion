@@ -795,7 +795,11 @@
 
 }
 
-@media (max-width: 719px) {
+/* The canonical phone seam, `--bp-seam` (45rem = 720px). This block used
+   to read 719px, which split the seam: the home's index and the site
+   header turned at ≤720 while this page turned at ≤719, so exactly one
+   width (720) rendered half phone, half desktop. Unified on 720. */
+@media (max-width: 45rem) {
   .page {
 
     padding-top: 4.25rem;

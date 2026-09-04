@@ -42,6 +42,9 @@ function stubContext(overrides: Partial<OpsToolContext> = {}): OpsToolContext & 
       users: note("users", { staff: [], registeredPublicUsers: 4 }),
       costs: note("costs", { spend: { monthToDateUsd: 1.5 }, warnings: [] }),
       incidents: note("incidents", { openAlerts: [], stuckJobs: [] }),
+      editionDrilldown: note("editionDrilldown", { localDate: "2026-09-04", runs: [], artifacts: [], runAi: [], claims: [], jobs: [] }),
+      sourceFetches: note("sourceFetches", { sourceId: "s", fetches: [], today: { attempts: 0, successes: 0, partial: 0, failed: 0, itemsSeen: 0, itemsNew: 0, lastError: null, boundaryAt: "2026-09-04T00:00:00.000Z" } }),
+      qualityChecks: note("qualityChecks", { candidates: [], required: [], filter: { runId: null, localDate: null } }),
       /* Deliberately shaped like the real thing: booleans, never values. */
       security: note("security", { secrets: [{ name: "OPENAI_API_KEY", configured: true }] }),
       settings: note("settings", {}),
@@ -221,6 +224,37 @@ describe("a turn", () => {
     expect(await auditRows(db)).toEqual([
       { action: "ops.tool.get_overview", entityType: "system", entityId: null },
     ]);
+  });
+
+  it("runs the quality-checks read through the console and never asks for confirmation", async () => {
+    const db = await freshDatabase();
+    const ctx = stubContext();
+    expect(opsTool("get_quality_checks")?.requiresConfirmation).toBe(false);
+    const response = await agentOn(db, ctx, scripted([
+      { tool: "get_quality_checks", args: { localDate: "2026-09-04" } },
+    ])).turn({ history: [], message: "How did quality checks go on the 4th?", confirmations: [] }, actor);
+
+    expect(ctx.calls).toEqual(["qualityChecks"]);
+    expect(response.stateChanged).toBe(false);
+    expect(response.pendingConfirmations).toEqual([]);
+  });
+
+  it("runs the edition and fetch reads through the console and never asks for confirmation", async () => {
+    const db = await freshDatabase();
+    const ctx = stubContext();
+    expect(opsTool("get_edition")?.requiresConfirmation).toBe(false);
+    expect(opsTool("get_source_fetches")?.requiresConfirmation).toBe(false);
+    const response = await agentOn(db, ctx, scripted([
+      { tool: "get_edition", args: { localDate: "2026-09-04" } },
+      { tool: "get_source_fetches", args: { id: SRC } },
+    ])).turn(
+      { history: [], message: "Show the September 4 edition and this source's fetches.", confirmations: [] },
+      actor,
+    );
+
+    expect(ctx.calls).toEqual(["editionDrilldown", "sourceFetches"]);
+    expect(response.stateChanged).toBe(false);
+    expect(response.pendingConfirmations).toEqual([]);
   });
 
   it("records the turn's spend against the operations console profile", async () => {

@@ -15,9 +15,11 @@ import { z } from "zod";
 import {
   aiRunKindSchema,
   entityTypeSchema,
+  fetchStatusSchema,
   narrativeStatusSchema,
   publicationSectionSchema,
   publicationStatusSchema,
+  reportStatusSchema,
   sourceKindSchema,
 } from "./enums";
 
@@ -137,6 +139,138 @@ export const retryJobResultSchema = z.object({
 });
 export type RetryJobResult = z.infer<typeof retryJobResultSchema>;
 
+/* ── 2b. Briefing quality checks ──────────────────────────────────────────── */
+
+/**
+ * The briefing pipeline's own audit rows, one per (run, candidate, check) as
+ * `briefingRepo.recordQualityChecks` writes them. The rows carry model-
+ * adjacent prose; the detail is truncated defensively to 500 characters by
+ * the shaping side so a runaway failure string cannot blow up a console
+ * render or a transcript — and the wire bound matches the bound here.
+ */
+export const qualityCheckResultSchema = z.object({
+  checkName: z.string().min(1),
+  status: z.enum(["pass", "fail"]),
+  detail: z.string().max(500).nullable(),
+});
+export type QualityCheckResult = z.infer<typeof qualityCheckResultSchema>;
+
+export const qualityCheckCandidateSchema = z.object({
+  runId: z.uuid(),
+  /** The run's Israel-local calendar date, echoed so a date-filtered read
+   *  names the day without the caller holding it. */
+  localDate: z.string(),
+  candidateKey: z.string().min(1),
+  stage: z.string(),
+  passCount: count,
+  failCount: count,
+  total: count,
+  /** True when every recorded check passed. */
+  passed: z.boolean(),
+  checks: z.array(qualityCheckResultSchema),
+});
+export type QualityCheckCandidate = z.infer<typeof qualityCheckCandidateSchema>;
+
+/** Filter by exactly one of a run or an Israel-local calendar date. */
+export const listQualityChecksSchema = z.object({
+  runId: z.uuid().optional(),
+  localDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+}).refine(
+  (input) => (input.runId === undefined) !== (input.localDate === undefined),
+  { message: "Filter by exactly one of runId or localDate." },
+);
+export type ListQualityChecks = z.infer<typeof listQualityChecksSchema>;
+
+export const consoleQualityChecksSchema = z.object({
+  generatedAt: isoDate,
+  /** The check names the briefing quality module requires, in the order it
+   *  runs them; a candidate's matrix is read against this list. */
+  required: z.array(z.string().min(1)),
+  filter: z.object({ runId: z.uuid().nullable(), localDate: z.string().nullable() }),
+  candidates: z.array(qualityCheckCandidateSchema),
+});
+export type ConsoleQualityChecks = z.infer<typeof consoleQualityChecksSchema>;
+
+/* ── 2c. Edition drilldown ────────────────────────────────────────────────── */
+
+/** Filter by the edition's Israel-local calendar date — the same key the
+ *  pipeline screens show, unique on `briefing_edition`. */
+export const listEditionDrilldownSchema = z.object({
+  localDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+export type ListEditionDrilldown = z.infer<typeof listEditionDrilldownSchema>;
+
+export const consoleEditionRunSchema = z.object({
+  id: z.uuid(),
+  stage: z.string(),
+  status: z.string(),
+  inputCount: count,
+  outputCount: count,
+  errorMessage: z.string().nullable(),
+  startedAt: isoDate,
+  finishedAt: nullableIsoDate,
+});
+export type ConsoleEditionRun = z.infer<typeof consoleEditionRunSchema>;
+
+export const consoleEditionRunAiSchema = z.object({
+  stage: z.string(),
+  aiRunId: z.uuid(),
+  model: z.string(),
+  profile: z.string(),
+  kind: z.string(),
+  inputTokens: count.nullable(),
+  outputTokens: count.nullable(),
+  costUsd: usd.nullable(),
+  latencyMs: z.number().int().nonnegative().nullable(),
+  status: z.string(),
+  createdAt: isoDate,
+});
+export type ConsoleEditionRunAi = z.infer<typeof consoleEditionRunAiSchema>;
+
+export const consoleEditionArtifactSchema = z.object({
+  stage: z.string(),
+  /** Only the latest version per stage travels on the wire. */
+  artifactVersion: z.number().int().positive(),
+  inputHash: z.string(),
+  payload: z.unknown(),
+  createdAt: isoDate,
+});
+export type ConsoleEditionArtifact = z.infer<typeof consoleEditionArtifactSchema>;
+
+export const consoleEditionClaimSchema = z.object({
+  itemId: z.uuid(),
+  layer: z.enum(["source_claim", "observed_fact", "model_inference", "editorial_conclusion"]),
+  machineAssessment: z.enum(["verified", "refuted", "misleading", "unsupported", "disputed", "unresolved"]),
+  attributedTo: z.string().nullable(),
+  uncertainty: z.string().nullable(),
+  createdAt: isoDate,
+});
+export type ConsoleEditionClaim = z.infer<typeof consoleEditionClaimSchema>;
+
+/** One edition's full recovery payload. The claims come back through the
+ *  edition's publications (`publication_item` → `briefing_claim`), the only
+ *  relation that scopes the item-keyed claim table to a calendar date. */
+export const consoleEditionDrilldownSchema = z.object({
+  generatedAt: isoDate,
+  localDate: z.string(),
+  edition: z.object({
+    id: z.uuid(),
+    localDate: z.string(),
+    status: z.string(),
+    contractVersion: z.string(),
+    promptVersion: z.string(),
+    collectionOpenedAt: isoDate,
+    collectionClosedAt: nullableIsoDate,
+    publishedAt: nullableIsoDate,
+  }),
+  runs: z.array(consoleEditionRunSchema),
+  runAi: z.array(consoleEditionRunAiSchema),
+  artifacts: z.array(consoleEditionArtifactSchema),
+  claims: z.array(consoleEditionClaimSchema),
+  jobs: z.array(pipelineJobSchema),
+});
+export type ConsoleEditionDrilldown = z.infer<typeof consoleEditionDrilldownSchema>;
+
 /* ── 3. Sources ───────────────────────────────────────────────────────────── */
 
 export const consoleSourceSchema = z.object({
@@ -185,6 +319,55 @@ export const setSourceActiveSchema = z.object({
   reason: z.string().trim().min(1).max(500),
 });
 export type SetSourceActive = z.infer<typeof setSourceActiveSchema>;
+
+/* ── 3b. Source fetch log ─────────────────────────────────────────────────── */
+
+export const sourceFetchesQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type SourceFetchesQuery = z.infer<typeof sourceFetchesQuerySchema>;
+
+/** One fetch attempt, newest first per source. Insert-only rows: the log is
+ *  append-only evidence of what the source did, never a mutable status. */
+export const sourceFetchSchema = z.object({
+  id: z.uuid(),
+  status: fetchStatusSchema,
+  startedAt: isoDate,
+  finishedAt: isoDate,
+  httpStatus: count.nullable(),
+  itemsSeen: count,
+  itemsNew: count,
+  errorMessage: z.string().nullable(),
+  searchQuery: z.string().nullable(),
+  rawBlobUrl: z.string().nullable(),
+  rawByteSize: count.nullable(),
+  createdAt: isoDate,
+});
+export type SourceFetch = z.infer<typeof sourceFetchSchema>;
+
+export const listSourceFetchesSchema = sourceFetchesQuerySchema.extend({ id: z.uuid() });
+export type ListSourceFetches = z.infer<typeof listSourceFetchesSchema>;
+
+export const consoleSourceFetchesSchema = z.object({
+  generatedAt: isoDate,
+  sourceId: z.uuid(),
+  limit: count,
+  fetches: z.array(sourceFetchSchema),
+  /** The same day as Israel-local midnight — boundary inclusive, so a fetch
+   *  that started exactly at midnight counts. Failed fetches contribute their
+   *  attempt and error but no items. */
+  today: z.object({
+    boundaryAt: isoDate,
+    attempts: count,
+    successes: count,
+    partial: count,
+    failed: count,
+    itemsSeen: count,
+    itemsNew: count,
+    lastError: z.string().nullable(),
+  }),
+});
+export type ConsoleSourceFetches = z.infer<typeof consoleSourceFetchesSchema>;
 
 /* ── 4. Editorial desk ────────────────────────────────────────────────────── */
 
@@ -463,6 +646,56 @@ export type PublicationVersion = z.infer<typeof publicationVersionSchema>;
 export const rollbackPublicationSchema = z.object({ versionId: z.uuid() });
 export type RollbackPublication = z.infer<typeof rollbackPublicationSchema>;
 
+/* ── 10b. Manual outbox drain and maintenance tick ────────────────────────── */
+
+export const drainOutboxSchema = z.object({
+  /** Rows handed to the queue per call; the same ceiling `drainOutbox` itself
+   *  applies. Omit to use that default. */
+  limit: z.coerce.number().int().min(1).max(250).optional(),
+});
+export type DrainOutbox = z.infer<typeof drainOutboxSchema>;
+
+export const drainOutboxResultSchema = z.object({
+  attempted: count,
+  dispatched: count,
+  failed: count,
+});
+export type DrainOutboxResult = z.infer<typeof drainOutboxResultSchema>;
+
+export const maintenanceTickResultSchema = z.object({
+  maintenance: z.object({ rateLimits: count, idempotencyKeys: count }),
+  briefingJobs: z.object({
+    recovered: count,
+    configurationRecovered: count,
+    processingResumed: count,
+    dispatched: count,
+    quarantined: count,
+  }),
+  briefingAlerts: z.object({ evaluated: count, created: count }),
+});
+export type MaintenanceTickResult = z.infer<typeof maintenanceTickResultSchema>;
+
+/* ── 10c. Quality quarantine decisions ───────────────────────────────────── */
+
+export const resolveQuarantineSchema = z.object({ note: z.string().trim().max(500).optional() });
+export type ResolveQuarantine = z.infer<typeof resolveQuarantineSchema>;
+
+/** A note is required to discard: discarding a candidate removes it from the
+ *  recovery queue with no re-run, so the reason must be stated. */
+export const discardQuarantineSchema = z.object({ note: z.string().trim().min(1).max(500) });
+export type DiscardQuarantine = z.infer<typeof discardQuarantineSchema>;
+
+export const quarantineOutcomeSchema = z.object({
+  id: z.uuid(),
+  candidateKey: z.string(),
+  stage: z.string(),
+  reason: z.string(),
+  status: z.enum(["open", "resolved", "discarded"]),
+  resolvedAt: nullableIsoDate,
+  createdAt: isoDate,
+});
+export type QuarantineOutcome = z.infer<typeof quarantineOutcomeSchema>;
+
 /* ── 11. Settings (read-only in this phase) ───────────────────────────────── */
 
 export const consoleSettingsSchema = z.object({
@@ -498,6 +731,9 @@ export const OPS_TOOLS = [
   "get_users",
   "get_costs",
   "get_incidents",
+  "get_quality_checks",
+  "get_edition",
+  "get_source_fetches",
   "get_security",
   "get_settings",
   "search_audit",
@@ -555,6 +791,11 @@ export const opsMessageSchema = z.object({
     /** A summary the UI can show; the full result stays server-side. */
     resultSummary: z.string().nullable(),
     ok: z.boolean(),
+    /* Optional and additive, so a client built before this field existed
+       still parses. `aiRunId` is the turn's own `ai_run` row and `costUsd`
+       its whole-turn figure — turn-attributed, never a per-tool split. */
+    aiRunId: z.string().optional(),
+    costUsd: usd.optional(),
   })).optional(),
 });
 export type OpsMessage = z.infer<typeof opsMessageSchema>;
@@ -619,3 +860,176 @@ export const opsCapabilitiesSchema = z.object({
   })),
 });
 export type OpsCapabilities = z.infer<typeof opsCapabilitiesSchema>;
+
+/* ── 13. Reports desk ─────────────────────────────────────────────────────── */
+
+/** Filter by an optional status; page newest first on a
+ *  `(created_at, id)` keyset — `report.id` is a random uuid, so the bigint
+ *  `auditPage` cursor does not apply and the composite is what keeps
+ *  same-millisecond inserts ordered. */
+export const listConsoleReportsSchema = z.object({
+  status: reportStatusSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  /** `"<createdAt ISO>|<report id>"` — the keyset cursor `reports` serves. */
+  cursor: z.string().optional(),
+});
+export type ListConsoleReports = z.infer<typeof listConsoleReportsSchema>;
+
+export const consoleReportSchema = z.object({
+  id: z.uuid(),
+  publicId: z.string(),
+  url: z.string().nullable(),
+  body: z.string().nullable(),
+  reporterEmail: z.string().nullable(),
+  reporterNote: z.string().nullable(),
+  status: reportStatusSchema,
+  resolutionNote: z.string().nullable(),
+  itemId: z.uuid().nullable(),
+  createdAt: isoDate,
+  updatedAt: isoDate,
+  /** How many entries the append-only status trail holds for this report. */
+  trailCount: count,
+  /** The trail's latest entry, or null when the report was never moved. */
+  latestTrail: z.object({
+    toStatus: reportStatusSchema,
+    actorLabel: z.string(),
+    occurredAt: isoDate,
+  }).nullable(),
+});
+export type ConsoleReport = z.infer<typeof consoleReportSchema>;
+
+export const consoleReportsSchema = z.object({
+  generatedAt: isoDate,
+  filter: z.object({ status: reportStatusSchema.nullable() }),
+  limit: count,
+  reports: z.array(consoleReportSchema),
+  nextCursor: z.string().nullable(),
+});
+export type ConsoleReports = z.infer<typeof consoleReportsSchema>;
+
+/* ── 14. Public-chat moderation ───────────────────────────────────────────── */
+
+export const listChatThreadsQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(25),
+  /** `"<createdAt ISO>|<thread id>"` — the keyset cursor `chatThreads` serves. */
+  cursor: z.string().optional(),
+});
+export type ListChatThreadsQuery = z.infer<typeof listChatThreadsQuerySchema>;
+
+export const consoleChatThreadSchema = z.object({
+  id: z.uuid(),
+  title: z.string().nullable(),
+  createdByLabel: z.string(),
+  createdAt: isoDate,
+  archivedAt: nullableIsoDate,
+  messageCount: count,
+  lastMessageAt: nullableIsoDate,
+});
+export type ConsoleChatThread = z.infer<typeof consoleChatThreadSchema>;
+
+export const consoleChatThreadsSchema = z.object({
+  generatedAt: isoDate,
+  limit: count,
+  threads: z.array(consoleChatThreadSchema),
+  nextCursor: z.string().nullable(),
+});
+export type ConsoleChatThreads = z.infer<typeof consoleChatThreadsSchema>;
+
+/** One tool invocation from the thread's evidence trail. */
+export const consoleChatToolRunSchema = z.object({
+  tool: z.string(),
+  status: z.string(),
+  /** How many documents retrieval actually returned. */
+  resultCount: count,
+  latencyMs: z.number().int().nonnegative().nullable(),
+});
+export type ConsoleChatToolRun = z.infer<typeof consoleChatToolRunSchema>;
+
+/** The recorded model call behind an assistant message, when it has one. */
+export const consoleChatRunSchema = z.object({
+  aiRunId: z.uuid(),
+  model: z.string(),
+  profile: z.string(),
+  inputTokens: count.nullable(),
+  outputTokens: count.nullable(),
+  costUsd: usd,
+});
+export type ConsoleChatRun = z.infer<typeof consoleChatRunSchema>;
+
+export const consoleChatMessageSchema = z.object({
+  id: z.uuid(),
+  seq: z.number().int().positive(),
+  role: z.enum(["user", "assistant", "system"]),
+  content: z.string(),
+  createdAt: isoDate,
+  toolRuns: z.array(consoleChatToolRunSchema),
+  run: consoleChatRunSchema.nullable(),
+});
+export type ConsoleChatMessage = z.infer<typeof consoleChatMessageSchema>;
+
+export const consoleChatTranscriptSchema = z.object({
+  generatedAt: isoDate,
+  thread: z.object({
+    id: z.uuid(),
+    title: z.string().nullable(),
+    createdByLabel: z.string(),
+    createdAt: isoDate,
+    archivedAt: nullableIsoDate,
+  }),
+  messages: z.array(consoleChatMessageSchema),
+});
+export type ConsoleChatTranscript = z.infer<typeof consoleChatTranscriptSchema>;
+
+export const archiveChatThreadResultSchema = z.object({
+  id: z.uuid(),
+  archivedAt: isoDate,
+  wasArchived: z.literal(true),
+});
+export type ArchiveChatThreadResult = z.infer<typeof archiveChatThreadResultSchema>;
+
+/* ── 15. System internals ─────────────────────────────────────────────────── */
+
+/**
+ * The read-only figures the operator needs to tell whether the machine is
+ * keeping up: the embedding backlog (documents whose text has moved since
+ * their embedding was computed), whether the semantic arm is live in this
+ * database, the public-read cache's process counters, and the embedding model
+ * runs of the last day. Only figures the underlying stores actually expose.
+ */
+export const consoleSystemInternalsSchema = z.object({
+  generatedAt: isoDate,
+  embeddingBacklog: z.object({
+    /** Documents awaiting a re-embed. */
+    stale: count,
+    /** All documents in the search projection. */
+    indexed: count,
+  }),
+  /** The SQL function's own answer — never inferred from results. */
+  semanticArm: z.boolean(),
+  publicReadCache: z.object({
+    hits: count,
+    misses: count,
+    loads: count,
+    hitRatio: z.number().min(0).max(1).nullable(),
+    averageLoadMs: z.number().nonnegative().nullable(),
+  }),
+  embeddingRuns: z.object({ last24h: count, lastRunAt: nullableIsoDate }),
+});
+export type ConsoleSystemInternals = z.infer<typeof consoleSystemInternalsSchema>;
+
+/* ── 16. Collection sweep on demand ───────────────────────────────────────── */
+
+export const collectSweepResultSchema = z.object({
+  ranAt: isoDate,
+  status: z.enum(["ran", "paused"]),
+  enqueued: count,
+  alreadyCompleted: count,
+  dispatchFailed: count,
+  results: z.array(z.object({
+    sourceId: z.uuid(),
+    jobId: z.uuid(),
+    status: z.enum(["queued", "already_completed", "dispatch_failed"]),
+    error: z.string().nullable(),
+  })),
+});
+export type CollectSweepResult = z.infer<typeof collectSweepResultSchema>;

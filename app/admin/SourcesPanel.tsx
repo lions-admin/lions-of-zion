@@ -2,9 +2,10 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
 import { Field } from "@/components/ui/Field";
 import { Skeleton } from "@/components/ui/Skeleton";
-import type { ConsoleSource, ConsoleSources } from "@/server/contracts/admin-console";
+import type { CollectSweepResult, ConsoleSource, ConsoleSourceFetches, ConsoleSources } from "@/server/contracts/admin-console";
 import type { BriefingStatus } from "./briefing-shapes";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import {
@@ -13,13 +14,16 @@ import {
   EmptyLine,
   InlineAbsence,
   Metric,
+  PanelTitle,
   Pill,
   ReadGate,
   formatDate,
+  formatDuration,
   formatUsd,
   useOperations,
+  type PillTone,
 } from "./console-primitives";
-import { AREA_LABEL, SOURCE_KIND_LABEL, T } from "./lexicon";
+import { AREA_LABEL, FETCH_STATUS_LABEL, SENTENCE, SOURCE_KIND_LABEL, T } from "./lexicon";
 import { callConsole, useConsoleRead } from "./useConsoleRead";
 import cmd from "./command.module.css";
 import styles from "./admin.module.css";
@@ -29,6 +33,8 @@ import styles from "./admin.module.css";
 const VERIFIABLE_KINDS = new Set(["rss", "api", "agent_search"]);
 
 const kindWord = (kind: string) => SOURCE_KIND_LABEL[kind] ?? kind;
+
+const fetchTone = (status: string): PillTone => (status === "success" ? "ok" : status === "partial" ? "warn" : "danger");
 
 /**
  * One source as a card: the narrow-screen replacement for a row of the
@@ -40,11 +46,13 @@ export function SourceCard({
   disabled,
   onVerify,
   onToggle,
+  onFetches,
 }: {
   source: ConsoleSource;
   disabled: boolean;
   onVerify: (source: ConsoleSource) => void;
   onToggle: (source: ConsoleSource) => void;
+  onFetches?: () => void;
 }) {
   return (
     <article className={cmd.sourceCard} aria-label={source.name}>
@@ -72,6 +80,11 @@ export function SourceCard({
         <p className={cmd.sourceCardError}>{source.disabledReason ?? source.lastError}</p>
       ) : null}
       <div className={cmd.sourceCardActions}>
+        {onFetches ? (
+          <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={onFetches}>
+            {T.fetchLog}
+          </Button>
+        ) : null}
         {VERIFIABLE_KINDS.has(source.kind) && !source.active ? (
           <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onVerify(source)}>
             אימות והפעלה
@@ -86,6 +99,99 @@ export function SourceCard({
 }
 
 /**
+ * One source's fetch log, in an end-edge drawer — the same shape
+ * `VersionsDrawer` uses on the editorial desk. The read is held until a
+ * source is asked for; the log is append-only evidence, so everything here
+ * is read-only: the per-attempt rows newest first, and the same day's
+ * rollup, which is boundary-inclusive at Israel-local midnight.
+ */
+function FetchesDrawer({ source, onClose }: { source: ConsoleSource | null; onClose: () => void }) {
+  const fetches = useConsoleRead<ConsoleSourceFetches>(
+    source ? `admin/console/sources/${source.id}/fetches?limit=50` : "",
+    { enabled: source !== null },
+  );
+  return (
+    <Dialog
+      open={source !== null}
+      onClose={onClose}
+      variant="drawer"
+      size="wide"
+      title={T.fetchLog}
+      description={source?.name}
+      closeLabel={T.fetchLogClose}
+    >
+      {source ? (
+        <>
+          <InlineAbsence state={fetches.state} what={T.fetchWhat} reload={fetches.reload} />
+          {fetches.state.kind === "ready" && fetches.value ? (
+            <>
+              {/* The "today" block: the same payload's rollup for the day
+                  that began at `boundaryAt`. A failed fetch contributes its
+                  attempt and its error but no items. */}
+              <div className={styles.panel}>
+                <PanelTitle note={`${T.todayBlock} · ${T.boundaryAt} ${formatDate(fetches.value.today.boundaryAt)}`}>{T.todayBlock}</PanelTitle>
+                <div className={styles.compactMetrics}>
+                  <Metric label={T.attempts} value={String(fetches.value.today.attempts)} />
+                  <Metric label={T.successes} value={String(fetches.value.today.successes)} />
+                  <Metric label={T.fetchesPartial} value={String(fetches.value.today.partial)} tone={fetches.value.today.partial ? "warn" : undefined} />
+                  <Metric label={T.fetchesFailed} value={String(fetches.value.today.failed)} tone={fetches.value.today.failed ? "danger" : undefined} />
+                  <Metric label={T.itemsSeen} value={String(fetches.value.today.itemsSeen)} />
+                  <Metric label={T.itemsNew} value={String(fetches.value.today.itemsNew)} />
+                </div>
+                {fetches.value.today.lastError ? <p className={styles.error}>{fetches.value.today.lastError}</p> : null}
+              </div>
+
+              <div className={styles.panel}>
+                <PanelTitle>{T.fetchLog}</PanelTitle>
+                {fetches.value.fetches.length ? (
+                  <div className={styles.tableWrap}>
+                    <table className={`${styles.table} ${styles.tableCompact}`}>
+                      <thead>
+                        <tr>
+                          <th scope="col">{T.colStatus}</th>
+                          <th scope="col">{T.started}</th>
+                          <th scope="col">{T.duration}</th>
+                          <th scope="col">{T.itemsSeen}</th>
+                          <th scope="col">{T.itemsNew}</th>
+                          <th scope="col">{T.httpStatus}</th>
+                          <th scope="col">{T.bytes}</th>
+                          <th scope="col">{T.lastError}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {fetches.value.fetches.map((fetch) => (
+                          <tr key={fetch.id}>
+                            <td>
+                              <Pill tone={fetchTone(fetch.status)}>{FETCH_STATUS_LABEL[fetch.status] ?? fetch.status}</Pill>
+                            </td>
+                            <td>
+                              {formatDate(fetch.startedAt)}
+                              <small className={styles.plainSmall}>{`${T.finished} ${formatDate(fetch.finishedAt)}`}</small>
+                            </td>
+                            <td>{formatDuration(new Date(fetch.finishedAt).getTime() - new Date(fetch.startedAt).getTime())}</td>
+                            <td>{fetch.itemsSeen}</td>
+                            <td>{fetch.itemsNew}</td>
+                            <td>{fetch.httpStatus ?? "—"}</td>
+                            <td>{fetch.rawByteSize === null ? "—" : `${(fetch.rawByteSize / 1024).toFixed(1)} KB`}</td>
+                            <td className={styles.errorCell}>{fetch.errorMessage ?? "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyLine>עדיין לא נרשמו שליפות למקור הזה.</EmptyLine>
+                )}
+              </div>
+            </>
+          ) : null}
+        </>
+      ) : null}
+    </Dialog>
+  );
+}
+
+/**
  * Sources — collection health and throughput, one row per source, and the
  * two per-row recoveries: a live verification fetch that re-enables a
  * feed-backed source, and a manual enable or disable with a reason that is
@@ -95,6 +201,9 @@ export function SourcesPanel({ signal }: { signal: number }) {
   const sources = useConsoleRead<ConsoleSources>("admin/console/sources", { signal });
   const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal });
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
+  /* The fetch log is opened per source row, in a drawer that holds its own
+     read the same way the quality matrix holds its date-gated one. */
+  const [fetchesFor, setFetchesFor] = useState<ConsoleSource | null>(null);
   const [familyFilter, setFamilyFilter] = useState<string>("");
   /* STATE-004 — the focus fallback, on the area itself. */
   const areaRef = useRef<HTMLElement | null>(null);
@@ -198,7 +307,8 @@ export function SourcesPanel({ signal }: { signal: number }) {
                         <th scope="col">נראו</th>
                         <th scope="col">חדשים</th>
                         <th scope="col">{T.duplicates}</th>
-                        <th scope="col">שחזור</th>
+                        <th scope="col">{T.fetchLog}</th>
+                        <th scope="col">{T.colRecovery}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -232,6 +342,9 @@ export function SourcesPanel({ signal }: { signal: number }) {
                           <td>{source.week.duplicates}</td>
                           <td>
                             <div className={styles.cellActions}>
+                              <Button variant="secondary" size="sm" type="button" disabled={ops.disabled} onClick={() => setFetchesFor(source)}>
+                                {T.fetchLog}
+                              </Button>
                               {VERIFIABLE_KINDS.has(source.kind) && !source.active ? (
                                 <Button variant="secondary" size="sm" type="button" disabled={ops.disabled} onClick={() => verifySource(source)}>
                                   אימות והפעלה
@@ -257,6 +370,7 @@ export function SourcesPanel({ signal }: { signal: number }) {
                       disabled={ops.disabled}
                       onVerify={verifySource}
                       onToggle={(item) => requestSourceActive(item, !item.active)}
+                      onFetches={() => setFetchesFor(source)}
                     />
                   ))}
                 </div>
@@ -267,7 +381,22 @@ export function SourcesPanel({ signal }: { signal: number }) {
         }}
       </ReadGate>
 
+      {/* The sweep spends the search and processing budgets outside the
+          scheduled cadence, so it confirms through the shared dialog and
+          sits in a zone of its own — last in this area's reading and tab
+          order, the way the pipeline's forced rerun is. */}
+      <div className={styles.dangerZone}>
+        <p className={styles.dangerLabel}>{T.sweepPanelLabel}</p>
+        <p className={styles.muted}>{T.sweepNote}</p>
+        <div className={styles.actionRow}>
+          <Button variant="danger" type="button" disabled={ops.disabled} onClick={() => requestSweep()}>
+            {T.collectNow}
+          </Button>
+        </div>
+      </div>
+
       <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
+      <FetchesDrawer source={fetchesFor} onClose={() => setFetchesFor(null)} />
     </section>
   );
 
@@ -342,6 +471,33 @@ export function SourcesPanel({ signal }: { signal: number }) {
       return changed
         ? `נוספו ${result.created ?? 0} מקורות ועודכנו ${result.updated ?? 0}; כולם נשארים מושבתים עד לבדיקה חיה.`
         : "כתובות המקורות כבר מעודכנות.";
+    });
+  }
+
+  /* The sweep is reversible — the jobs it enqueues are the cron's own
+     cadence decisions — but it spends the budget outside the cadence, so it
+     is confirmed and stated like an irreversible one. */
+  function requestSweep() {
+    setConfirmIntent({
+      action: T.collectNow,
+      target: T.sweepTarget,
+      consequence: T.sweepConsequence,
+      confirmLabel: T.collectNow,
+      tone: "danger",
+      run: () => runSweep(),
+    });
+  }
+
+  async function runSweep() {
+    await ops.run("collect-sweep", async () => {
+      const result = await callConsole<CollectSweepResult>("admin/console/sources/collect-sweep", {
+        method: "POST",
+        failure: T.sweepFailure,
+      });
+      reloadAll();
+      return result.status === "ran"
+        ? SENTENCE.swept(result.enqueued, result.alreadyCompleted, result.dispatchFailed)
+        : SENTENCE.sweepPaused();
     });
   }
 }

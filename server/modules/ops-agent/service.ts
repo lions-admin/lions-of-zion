@@ -116,44 +116,80 @@ export function opsAgentService(
   const run = database as Runner;
   const now = options.now ?? (() => new Date());
 
-  /** One audit row per executed tool, in its own transaction so a later
-   *  failure in the loop cannot erase the record of what already ran. */
-  async function audit(input: {
+  /** One audit row per executed tool, buffered for the turn and written per
+   *  row in its own transaction at flush, so a later failure in the loop
+   *  cannot erase the record of what already ran.
+   *
+   * The buffering has one cause: both `audit_log` and `ai_run` are
+   * append-only, and the turn's run row is recorded only after the model
+   * call returns — the model call is exactly where the tools execute. Flushing
+   * after the run row is the only way the rows can carry the turn linkage
+   * (`afterState.turn` below). `turn()` flushes in a `finally`, so a model
+   * call that throws mid-loop still flushes everything executed before it. */
+  type BufferedToolAudit = {
+    tool: OpsToolDefinition;
+    args: Record<string, unknown>;
+    actor: Actor;
+    requestId?: string;
+    suffix: string;
+    before: unknown;
+    after: unknown;
+  };
+
+  async function flushAudits(buffered: BufferedToolAudit[], turn: { aiRunId: string | null; costUsd: number | null }): Promise<void> {
+    for (const row of buffered) {
+      await run.transaction(async (tx) => {
+        await writeAudit(tx as never, {
+          actor: row.actor,
+          action: `ops.tool.${row.tool.name}${row.suffix}`,
+          entityType: row.tool.entityType,
+          entityId: row.tool.entityId(row.args),
+          before: row.before,
+          after: turn.aiRunId == null
+            ? row.after
+            : { ...(row.after as Record<string, unknown> | null), turn: { aiRunId: turn.aiRunId, costUsd: turn.costUsd } },
+          requestId: row.requestId ?? null,
+        });
+      });
+    }
+  }
+
+  const bufferedAudit = (buffered: BufferedToolAudit[]) => (input: {
     tool: OpsToolDefinition;
     args: Record<string, unknown>;
     actor: Actor;
     requestId?: string;
     outcome: "ran" | "failed" | "declined";
     detail: unknown;
-  }): Promise<void> {
+  }): void => {
     const suffix = input.outcome === "ran" ? "" : `.${input.outcome}`;
-    await run.transaction(async (tx) => {
-      await writeAudit(tx as never, {
-        actor: input.actor,
-        action: `ops.tool.${input.tool.name}${suffix}`,
-        entityType: input.tool.entityType,
-        entityId: input.tool.entityId(input.args),
-        before: input.args,
-        after: input.detail,
-        requestId: input.requestId ?? null,
-      });
+    buffered.push({
+      tool: input.tool,
+      args: input.args,
+      actor: input.actor,
+      requestId: input.requestId,
+      suffix,
+      before: input.args,
+      after: input.detail,
     });
-  }
+  };
 
   async function execute(
     tool: OpsToolDefinition,
     args: Record<string, unknown>,
     actor: Actor,
     requestId?: string,
+    buffered: BufferedToolAudit[] = [],
   ): Promise<{ ok: boolean; summary: string; result: unknown }> {
+    const audit = bufferedAudit(buffered);
     try {
       const result = await tool.run(ctx, args, actor, requestId);
       const summary = tool.summarise(result);
-      await audit({ tool, args, actor, requestId, outcome: "ran", detail: { ok: true, summary } });
+      audit({ tool, args, actor, requestId, outcome: "ran", detail: { ok: true, summary } });
       return { ok: true, summary, result };
     } catch (cause) {
       const summary = `${errorClass(cause)}: ${errorMessageFor(cause)}`;
-      await audit({ tool, args, actor, requestId, outcome: "failed", detail: { ok: false, error: errorClass(cause) } });
+      audit({ tool, args, actor, requestId, outcome: "failed", detail: { ok: false, error: errorClass(cause) } });
       return { ok: false, summary, result: { error: errorClass(cause), message: errorMessageFor(cause) } };
     }
   }
@@ -176,142 +212,173 @@ export function opsAgentService(
       const produced: OpsMessage[] = [];
       const pending: OpsConfirmation[] = [];
       let stateChanged = false;
+      /* The turn's tool-execution audit rows, buffered until the turn's run
+         row gives the linkage every row carries. */
+      const toolAudits: BufferedToolAudit[] = [];
+      const turnLink: { aiRunId: string | null; costUsd: number | null } = { aiRunId: null, costUsd: null };
 
       /* 1. The decisions the operator made on the previous turn's proposals.
             These run before the model is asked anything, so the model's next
             answer is written knowing what actually happened. */
-      for (const decision of body.confirmations) {
-        const payload = verifyConfirmation({
-          token: decision.token,
-          id: decision.id,
-          actorLabel: actor.label,
-          now: now(),
-        });
-        const tool = opsTool(payload.tool);
-        if (!tool) throw new ApiError("VALIDATION_ERROR", "This confirmation names an operation that no longer exists.");
+      try {
+        for (const decision of body.confirmations) {
+          const payload = verifyConfirmation({
+            token: decision.token,
+            id: decision.id,
+            actorLabel: actor.label,
+            now: now(),
+          });
+          const tool = opsTool(payload.tool);
+          if (!tool) throw new ApiError("VALIDATION_ERROR", "This confirmation names an operation that no longer exists.");
 
-        if (!decision.approved) {
-          await audit({ tool, args: payload.args, actor, requestId, outcome: "declined", detail: { approved: false } });
-          produced.push(message("tool", `${tool.name} was declined by the operator and did not run.`, {
-            toolCalls: [{ id: decision.id, tool: tool.name, args: payload.args, resultSummary: "declined", ok: false }],
+          if (!decision.approved) {
+            bufferedAudit(toolAudits)({ tool, args: payload.args, actor, requestId, outcome: "declined", detail: { approved: false } });
+            produced.push(message("tool", `${tool.name} was declined by the operator and did not run.`, {
+              toolCalls: [{ id: decision.id, tool: tool.name, args: payload.args, resultSummary: "declined", ok: false }],
+            }));
+            continue;
+          }
+
+          const outcome = await execute(tool, payload.args, actor, requestId, toolAudits);
+          stateChanged = stateChanged || outcome.ok;
+          produced.push(message("tool", `${tool.name}: ${outcome.summary}`, {
+            toolCalls: [{ id: decision.id, tool: tool.name, args: payload.args, resultSummary: outcome.summary, ok: outcome.ok }],
           }));
-          continue;
         }
 
-        const outcome = await execute(tool, payload.args, actor, requestId);
-        stateChanged = stateChanged || outcome.ok;
-        produced.push(message("tool", `${tool.name}: ${outcome.summary}`, {
-          toolCalls: [{ id: decision.id, tool: tool.name, args: payload.args, resultSummary: outcome.summary, ok: outcome.ok }],
-        }));
-      }
+        /* 2. The tool set handed to the model. A confirmed tool's `execute`
+              deliberately performs nothing — it records a proposal. */
+        const tools: ToolSet = {};
+        for (const definition of OPS_TOOL_DEFINITIONS) {
+          tools[definition.name] = defineTool({
+            description: definition.description,
+            /* `io: "input"` because the model produces the *input* side: two
+               tool schemas carry a coercion or a transform, and the output
+               shape would ask the model for the already-parsed value. Zod
+               refuses to represent a transform at all without it. */
+            inputSchema: jsonSchema(
+              z.toJSONSchema(definition.input, { io: "input", unrepresentable: "any" }) as Record<string, unknown>,
+            ),
+            execute: async (args: unknown) => {
+              const parsed = (args ?? {}) as Record<string, unknown>;
+              if (definition.requiresConfirmation) {
+                const issued = issueConfirmation({
+                  tool: definition.name,
+                  args: parsed,
+                  actorLabel: actor.label,
+                  now: now(),
+                });
+                pending.push({
+                  id: issued.id,
+                  tool: definition.name,
+                  args: parsed,
+                  consequence: definition.consequence(parsed),
+                  target: definition.target(parsed),
+                  expiresAt: issued.expiresAt.toISOString(),
+                  token: issued.token,
+                });
+                return {
+                  status: CONFIRMATION_REQUIRED,
+                  id: issued.id,
+                  consequence: definition.consequence(parsed),
+                  note: "The operator has been asked. Explain what you propose and stop; do not call this again.",
+                };
+              }
+              const outcome = await execute(definition, parsed, actor, requestId, toolAudits);
+              stateChanged = stateChanged || (outcome.ok && !definition.name.startsWith("get_") && definition.name !== "search_audit");
+              return outcome.result;
+            },
+          });
+        }
 
-      /* 2. The tool set handed to the model. A confirmed tool's `execute`
-            deliberately performs nothing — it records a proposal. */
-      const tools: ToolSet = {};
-      for (const definition of OPS_TOOL_DEFINITIONS) {
-        tools[definition.name] = defineTool({
-          description: definition.description,
-          /* `io: "input"` because the model produces the *input* side: two
-             tool schemas carry a coercion or a transform, and the output
-             shape would ask the model for the already-parsed value. Zod
-             refuses to represent a transform at all without it. */
-          inputSchema: jsonSchema(
-            z.toJSONSchema(definition.input, { io: "input", unrepresentable: "any" }) as Record<string, unknown>,
-          ),
-          execute: async (args: unknown) => {
-            const parsed = (args ?? {}) as Record<string, unknown>;
-            if (definition.requiresConfirmation) {
-              const issued = issueConfirmation({
-                tool: definition.name,
-                args: parsed,
-                actorLabel: actor.label,
-                now: now(),
-              });
-              pending.push({
-                id: issued.id,
-                tool: definition.name,
-                args: parsed,
-                consequence: definition.consequence(parsed),
-                target: definition.target(parsed),
-                expiresAt: issued.expiresAt.toISOString(),
-                token: issued.token,
-              });
-              return {
-                status: CONFIRMATION_REQUIRED,
-                id: issued.id,
-                consequence: definition.consequence(parsed),
-                note: "The operator has been asked. Explain what you propose and stop; do not call this again.",
-              };
-            }
-            const outcome = await execute(definition, parsed, actor, requestId);
-            stateChanged = stateChanged || (outcome.ok && !definition.name.startsWith("get_") && definition.name !== "search_audit");
-            return outcome.result;
-          },
+        /* 3. The model. */
+        const messages: ModelMessage[] = [
+          ...body.history
+            .filter((entry) => entry.role !== "tool")
+            .map((entry) => ({
+              role: entry.role === "assistant" ? ("assistant" as const) : ("user" as const),
+              content: entry.content,
+            })),
+          { role: "user", content: body.message },
+        ];
+
+        const result = await options.run({
+          profile: "opsConsole",
+          kind: "chat",
+          system: OPS_SYSTEM_PROMPT,
+          messages,
+          tools,
+          /* Console material is operational state, never public copy, and the
+             CHECK on `ai_run` still refuses anything restricted. */
+          dataClass: "internal",
         });
-      }
 
-      /* 3. The model. */
-      const messages: ModelMessage[] = [
-        ...body.history
-          .filter((entry) => entry.role !== "tool")
-          .map((entry) => ({
-            role: entry.role === "assistant" ? ("assistant" as const) : ("user" as const),
-            content: entry.content,
-          })),
-        { role: "user", content: body.message },
-      ];
+        /* 4. The turn's spend, recorded like every other model call here. The
+              returned row id is the linkage every tool-execution audit row of
+              this turn carries — and it is known only now, which is why the
+              rows are buffered. */
+        const aiRunId = await run.transaction(async (tx) => {
+          return recordOpsConsoleRun(tx, {
+            model: result.model,
+            inputTokens: result.inputTokens,
+            outputTokens: result.outputTokens,
+            costUsd: result.costUsd,
+            latencyMs: result.latencyMs,
+            inputHash: result.inputHash || integrityHash(body.message),
+            actor,
+          });
+        });
+        turnLink.aiRunId = aiRunId;
+        /* Turn-level on purpose: `ai_run` carries one figure for the whole
+           turn. A per-tool split the ledger does not record must not be
+           fabricated here. */
+        turnLink.costUsd = result.costUsd;
 
-      const result = await options.run({
-        profile: "opsConsole",
-        kind: "chat",
-        system: OPS_SYSTEM_PROMPT,
-        messages,
-        tools,
-        /* Console material is operational state, never public copy, and the
-           CHECK on `ai_run` still refuses anything restricted. */
-        dataClass: "internal",
-      });
+        /* 5. The reply, with a chip per tool the loop actually called. */
+        const toolCalls = result.steps.map((step) => {
+          const definition = opsTool(step.toolName);
+          const output = step.result as { status?: string; error?: string } | null;
+          return {
+            id: step.toolCallId,
+            tool: (definition?.name ?? step.toolName) as OpsMessage["toolCalls"] extends undefined ? never : OpsConfirmation["tool"],
+            args: (step.args ?? {}) as Record<string, unknown>,
+            resultSummary: output?.status === CONFIRMATION_REQUIRED
+              ? "awaiting confirmation"
+              : definition && output && !output.error
+                ? definition.summarise(step.result)
+                : output?.error ?? null,
+            ok: !output?.error,
+          };
+        });
 
-      /* 4. The turn's spend, recorded like every other model call here. */
-      await run.transaction(async (tx) => {
-        await recordOpsConsoleRun(tx, {
+        produced.push(message("assistant", result.text, toolCalls.length ? { toolCalls } : {}));
+
+        /* The turn-attributed cost, attached additively to every chip this
+           turn produced — model-loop and confirmation-decision entries alike. */
+        if (turnLink.aiRunId) {
+          for (const entry of produced) {
+            if (!entry.toolCalls?.length) continue;
+            entry.toolCalls = entry.toolCalls.map((call) => ({
+              ...call,
+              aiRunId: turnLink.aiRunId!,
+              costUsd: turnLink.costUsd!,
+            }));
+          }
+        }
+
+        return opsChatResponseSchema.parse({
+          messages: produced,
+          pendingConfirmations: pending,
           model: result.model,
-          inputTokens: result.inputTokens,
-          outputTokens: result.outputTokens,
           costUsd: result.costUsd,
           latencyMs: result.latencyMs,
-          inputHash: result.inputHash || integrityHash(body.message),
-          actor,
+          stateChanged,
         });
-      });
-
-      /* 5. The reply, with a chip per tool the loop actually called. */
-      const toolCalls = result.steps.map((step) => {
-        const definition = opsTool(step.toolName);
-        const output = step.result as { status?: string; error?: string } | null;
-        return {
-          id: step.toolCallId,
-          tool: (definition?.name ?? step.toolName) as OpsMessage["toolCalls"] extends undefined ? never : OpsConfirmation["tool"],
-          args: (step.args ?? {}) as Record<string, unknown>,
-          resultSummary: output?.status === CONFIRMATION_REQUIRED
-            ? "awaiting confirmation"
-            : definition && output && !output.error
-              ? definition.summarise(step.result)
-              : output?.error ?? null,
-          ok: !output?.error,
-        };
-      });
-
-      produced.push(message("assistant", result.text, toolCalls.length ? { toolCalls } : {}));
-
-      return opsChatResponseSchema.parse({
-        messages: produced,
-        pendingConfirmations: pending,
-        model: result.model,
-        costUsd: result.costUsd,
-        latencyMs: result.latencyMs,
-        stateChanged,
-      });
+      } finally {
+        /* Whatever threw — the model call, a confirmation token, a record
+           failure — every tool that executed before it stays on the record. */
+        await flushAudits(toolAudits, turnLink);
+      }
     },
   };
 }

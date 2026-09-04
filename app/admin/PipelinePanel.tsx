@@ -2,9 +2,20 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
+import { Field } from "@/components/ui/Field";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { PIPELINE_STAGES, type ConsolePipeline, type PipelineJob, type RetryJobResult } from "@/server/contracts/admin-console";
-import type { BriefingStatus, DeepHealth } from "./briefing-shapes";
+import {
+  PIPELINE_STAGES,
+  type ConsoleEditionDrilldown,
+  type ConsolePipeline,
+  type ConsoleQualityChecks,
+  type PipelineJob,
+  type QualityCheckCandidate,
+  type RetryJobResult,
+} from "@/server/contracts/admin-console";
+import type { BriefingStatus, DeepHealth, DraftPreview } from "./briefing-shapes";
+import { israelLocalDate } from "./briefing-shapes";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import { PipelineFlow } from "./_command/PipelineFlow";
 import cmd from "./command.module.css";
@@ -18,12 +29,25 @@ import {
   Pill,
   ReadGate,
   formatDate,
+  formatDuration,
   formatUsd,
   jobTone,
   today,
   useOperations,
+  type PillTone,
 } from "./console-primitives";
-import { AREA_LABEL, EDITION_STATUS_LABEL, JOB_STATE_LABEL, STAGE_LABEL, T } from "./lexicon";
+import {
+  ABSENCE,
+  AREA_LABEL,
+  ASSESSMENT_LABEL,
+  CLAIM_LAYER_LABEL,
+  EDITION_STATUS_LABEL,
+  JOB_STATE_LABEL,
+  RUN_STATUS_LABEL,
+  SECTION_LABEL,
+  STAGE_LABEL,
+  T,
+} from "./lexicon";
 import { callConsole, readConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
 
@@ -33,6 +57,43 @@ import styles from "./admin.module.css";
    route serves, so neither lookup can be assumed to hit. */
 const stageWord = (stage: string) => STAGE_LABEL[stage] ?? stage;
 const stateWord = (state: string) => JOB_STATE_LABEL[state] ?? state;
+
+/* A candidate's checks, in the order the briefing quality module runs them —
+   the payload's `required` list — with a recorded name the list does not know
+   (a row from an older contract) following, by name. */
+function orderedChecks(candidate: QualityCheckCandidate, required: readonly string[]) {
+  return [
+    ...required.flatMap((name) => {
+      const check = candidate.checks.find((entry) => entry.checkName === name);
+      return check ? [check] : [];
+    }),
+    ...candidate.checks.filter((entry) => !required.includes(entry.checkName)),
+  ];
+}
+
+/** The draft body is English markdown — the `##` sections the daily body
+ *  builder writes, then blank-line-separated passages. Rendered read-only:
+ *  the console displays the persisted artifact, it does not re-edit it. */
+function DraftBody({ body }: { body: string }) {
+  const sections = body.split(/^## /m).map((part) => part.trim()).filter(Boolean);
+  return (
+    <>
+      {sections.map((section, index) => {
+        const lines = section.split("\n");
+        /* A `##` section carries its own label line; a `##`-less body carries
+           none, so the whole section is prose. */
+        const label = sections.length > 1 ? lines[0] ?? "" : null;
+        const paragraphs = (sections.length > 1 ? lines.slice(1) : lines).join("\n").split(/\n{2,}/).map((text) => text.trim()).filter(Boolean);
+        return (
+          <div key={index}>
+            {label ? <p className={styles.headNote}>{label}</p> : null}
+            {paragraphs.length ? paragraphs.map((text, i) => <p key={i}>{text}</p>) : <p className={styles.muted}>—</p>}
+          </div>
+        );
+      })}
+    </>
+  );
+}
 
 /* A briefing edition runs through its own five states, which are neither job
    states nor publication statuses. They belong in `lexicon.ts` next to the
@@ -158,6 +219,32 @@ const PIPELINE_POLL_MS = 30_000;
 export function PipelinePanel({ signal }: { signal: number }) {
   const pipeline = useConsoleRead<ConsolePipeline>("admin/console/pipeline", { signal, pollInterval: PIPELINE_POLL_MS });
   const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal, pollInterval: PIPELINE_POLL_MS });
+  /* The quality matrix is opened per edition, so its filter is an
+     Israel-local date and the read is held (`enabled: false`) until an
+     operator asks for one. A 404 falls to its own unavailable state. */
+  const [qualityDate, setQualityDate] = useState<string | null>(null);
+  const quality = useConsoleRead<ConsoleQualityChecks>(
+    qualityDate ? `admin/console/quality-checks?localDate=${encodeURIComponent(qualityDate)}` : "",
+    { signal, enabled: qualityDate !== null },
+  );
+  /* The edition drilldown is opened per edition row, so its read is held the
+     same way — `enabled: localDate !== null` inside the drawer component —
+     and a 404 falls to its own unavailable state inside the drawer. */
+  const [drillDate, setDrillDate] = useState<string | null>(null);
+  /* R9 — the draft preview: the persisted draft artifact for one
+     Israel-local date. Held read — `enabled: draftOpen` — so opening the
+     console adds no route to the pipeline's 30s poll budget, and the date
+     defaults to the way the server computes "today" (mirrored in
+     `briefing-shapes.ts`; the server module itself is out of reach under the
+     layering boundary). A 404 here names two causes — no edition for the
+     chosen date, or a route the deployment does not serve — and both fall
+     to the same unavailable state, so the region says so under it. */
+  const [draftOpen, setDraftOpen] = useState(false);
+  const [draftDate, setDraftDate] = useState<string>(() => israelLocalDate());
+  const draft = useConsoleRead<DraftPreview>(
+    draftOpen ? `admin/briefing/draft?date=${encodeURIComponent(draftDate)}` : "",
+    { signal, enabled: draftOpen },
+  );
   const [deepHealth, setDeepHealth] = useState<DeepHealth | null>(null);
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* STATE-004 — the focus fallback: the area itself, `tabIndex={-1}` and
@@ -273,6 +360,25 @@ export function PipelinePanel({ signal }: { signal: number }) {
                           {edition.collectionClosedAt ? ` · נסגרה ${formatDate(edition.collectionClosedAt)}` : ""}
                           {edition.publishedAt ? ` · פורסמה ${formatDate(edition.publishedAt)}` : ""}
                         </small>
+                        <div className={styles.cellActions}>
+                          <Button
+                            variant={qualityDate === edition.localDate ? "primary" : "secondary"}
+                            size="sm"
+                            type="button"
+                            onClick={() => setQualityDate(qualityDate === edition.localDate ? null : edition.localDate)}
+                          >
+                            {T.qualityChecks}
+                          </Button>
+                          <Button
+                            variant={drillDate === edition.localDate ? "primary" : "secondary"}
+                            size="sm"
+                            type="button"
+                            aria-expanded={drillDate === edition.localDate}
+                            onClick={() => setDrillDate(drillDate === edition.localDate ? null : edition.localDate)}
+                          >
+                            {T.editionDetailToggle}
+                          </Button>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -280,6 +386,96 @@ export function PipelinePanel({ signal }: { signal: number }) {
                   <EmptyLine>עדיין לא נרשמו מהדורות.</EmptyLine>
                 )}
               </div>
+            </div>
+
+            {/* ── Quality checks — one matrix per edition row, its own read ── */}
+            {qualityDate ? (
+              <div className={styles.panel} aria-label="מטריצת בקרות האיכות של המהדורה">
+                <PanelTitle note={qualityDate}>{`בקרות האיכות · ${qualityDate}`}</PanelTitle>
+                <InlineAbsence state={quality.state} what="מטריצת בקרות האיכות" reload={quality.reload} />
+                {quality.state.kind === "ready" && quality.value ? (
+                  quality.value.candidates.length ? (
+                    <ul className={styles.logList}>
+                      {quality.value.candidates.map((candidate) => {
+                        const checks = orderedChecks(candidate, quality.value!.required);
+                        const failed = checks.filter((check) => check.status === "fail");
+                        return (
+                          <li key={`${candidate.runId}:${candidate.candidateKey}`}>
+                            <span>
+                              <Pill tone={candidate.passed ? "ok" : "danger"}>
+                                {candidate.passed ? T.checkPassed : T.checkFailed}
+                              </Pill>
+                            </span>
+                            {/* The candidate key is the identifier the quality
+                                rows and the quarantine are filed under. */}
+                            <strong><bdi>{candidate.candidateKey}</bdi></strong>
+                            <small>
+                              {candidate.passCount} מתוך {candidate.total} עברו · {stageWord(candidate.stage)}
+                            </small>
+                            <div className={styles.queueRow} aria-label="מצב הבקרות">
+                              {checks.map((check) => (
+                                <span key={check.checkName}>
+                                  <small><bdi>{check.checkName}</bdi></small> ·{" "}
+                                  <Pill tone={check.status === "pass" ? "ok" : "danger"}>
+                                    {check.status === "pass" ? T.checkPassed : T.checkFailed}
+                                  </Pill>
+                                </span>
+                              ))}
+                            </div>
+                            {failed.map((check) =>
+                              check.detail ? (
+                                <p key={check.checkName} className={styles.error}>
+                                  <bdi>{check.checkName}</bdi>: {check.detail}
+                                </p>
+                              ) : null,
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <EmptyLine>אין רשומות בקרות איכות ליום הזה.</EmptyLine>
+                  )
+                ) : null}
+              </div>
+            ) : null}
+
+            {/* ── Draft preview — the persisted artifact for one date ───── */}
+            <div className={styles.panel}>
+              <PanelTitle note={draftDate}>{T.draftPreview}</PanelTitle>
+              <p className={styles.muted}>{T.draftPreviewNote}</p>
+              <div className={styles.actionRow}>
+                <Button variant={draftOpen ? "primary" : "secondary"} type="button" aria-expanded={draftOpen} onClick={() => setDraftOpen(!draftOpen)}>
+                  {draftOpen ? T.close : T.draftPreview}
+                </Button>
+                <Field
+                  className={styles.editorField}
+                  type="date"
+                  label={T.date}
+                  value={draftDate}
+                  onChange={(event) => setDraftDate(event.currentTarget.value || israelLocalDate())}
+                />
+              </div>
+              <InlineAbsence state={draft.state} what={T.draftWhat} reload={draft.reload} />
+              {draft.state.kind === "unavailable" ? <p className={styles.muted}>{ABSENCE.draftEditionAbsent}</p> : null}
+              {draft.state.kind === "ready" && draft.value ? (
+                <>
+                  <article>
+                    <p className={styles.sectionLabel}>{SECTION_LABEL.daily_brief}</p>
+                    <h4>{draft.value.dailyBrief.title}</h4>
+                    <p className={styles.muted}>{draft.value.dailyBrief.summary}</p>
+                    <DraftBody body={draft.value.dailyBrief.body} />
+                  </article>
+                  {draft.value.articles.map((article, index) => (
+                    <article key={index}>
+                      <p className={styles.sectionLabel}>{SECTION_LABEL[article.section]}</p>
+                      <h4>{article.title}</h4>
+                      <p className={styles.muted}>{article.summary}</p>
+                      <DraftBody body={article.body} />
+                    </article>
+                  ))}
+                </>
+              ) : null}
             </div>
           </>
         )}
@@ -397,6 +593,7 @@ export function PipelinePanel({ signal }: { signal: number }) {
       </div>
 
       <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
+      <EditionDrawer localDate={drillDate} onClose={() => setDrillDate(null)} />
     </section>
   );
 
@@ -499,4 +696,196 @@ export function PipelinePanel({ signal }: { signal: number }) {
       return "בדיקת התקינות המעמיקה הסתיימה. התוצאה שלה מוצגת מעל השלבים.";
     });
   }
+}
+
+/**
+ * One edition's full recovery payload, in an end-edge drawer — the same
+ * shape `VersionsDrawer` uses on the editorial desk. The read is held until
+ * an edition is asked for, so opening the console adds no route to the
+ * pipeline's poll budget, and a 404 falls to the drawer's own unavailable
+ * state rather than to the area's. Everything here is read-only: the runs,
+ * the model calls, the artifacts, the claims and the jobs are the record of
+ * what the edition did, not controls on it.
+ */
+function EditionDrawer({ localDate, onClose }: { localDate: string | null; onClose: () => void }) {
+  const drill = useConsoleRead<ConsoleEditionDrilldown>(
+    localDate ? `admin/console/editions/${encodeURIComponent(localDate)}` : "",
+    { enabled: localDate !== null },
+  );
+  const runWord = (status: string) => RUN_STATUS_LABEL[status] ?? status;
+  const assessmentTone = (value: string): PillTone =>
+    value === "verified" ? "ok" : value === "refuted" || value === "misleading" ? "danger" : value === "unresolved" ? "neutral" : "warn";
+  return (
+    <Dialog
+      open={localDate !== null}
+      onClose={onClose}
+      variant="drawer"
+      size="wide"
+      title={T.editionDetail}
+      description={localDate ?? undefined}
+      closeLabel={T.editionDetailClose}
+    >
+      {localDate ? (
+        <>
+          <InlineAbsence state={drill.state} what={T.editionWhat} reload={drill.reload} />
+          {drill.state.kind === "ready" && drill.value ? (
+            <>
+              {/* The edition's own identity: its status word, its contract
+                  and prompt versions, and its three windows. */}
+              <div className={styles.compactMetrics}>
+                <Metric
+                  label={T.colStatus}
+                  value={EDITION_STATUS_LABEL[drill.value.edition.status] ?? drill.value.edition.status}
+                  tone={drill.value.edition.status === "published" ? "ok" : drill.value.edition.status === "failed" ? "danger" : "warn"}
+                />
+                <Metric label={T.contractVersion} value={drill.value.edition.contractVersion} />
+                <Metric label={T.promptVersion} value={drill.value.edition.promptVersion} />
+                <Metric label={T.opened} value={formatDate(drill.value.edition.collectionOpenedAt)} />
+                <Metric label={T.closed} value={formatDate(drill.value.edition.collectionClosedAt)} />
+                <Metric label={T.publishedWord} value={formatDate(drill.value.edition.publishedAt)} />
+              </div>
+
+              <div className={styles.panel}>
+                <PanelTitle note={drill.value.localDate}>{T.runsByStage}</PanelTitle>
+                {drill.value.runs.length ? (
+                  <div className={styles.tableWrap}>
+                    <table className={`${styles.table} ${styles.tableCompact}`}>
+                      <thead>
+                        <tr>
+                          <th scope="col">{T.colStage}</th>
+                          <th scope="col">{T.colStatus}</th>
+                          <th scope="col">{T.input}</th>
+                          <th scope="col">{T.output}</th>
+                          <th scope="col">{T.duration}</th>
+                          <th scope="col">{T.lastError}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {drill.value.runs.map((run) => (
+                          <tr key={run.id}>
+                            <td>{stageWord(run.stage)}</td>
+                            <td>
+                              <Pill tone={run.status === "completed" ? "ok" : run.status === "failed" ? "danger" : "gold"}>{runWord(run.status)}</Pill>
+                            </td>
+                            <td>{run.inputCount}</td>
+                            <td>{run.outputCount}</td>
+                            {/* The duration is derived here, from the two
+                                timestamps the row carries — the wire does not
+                                carry a duration field. */}
+                            <td>{run.finishedAt ? formatDuration(new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime()) : "—"}</td>
+                            <td className={styles.errorCell}>{run.errorMessage ?? "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyLine>עדיין לא נרשמו ריצות למהדורה הזו.</EmptyLine>
+                )}
+              </div>
+
+              <div className={styles.panel}>
+                <PanelTitle>{T.aiRuns}</PanelTitle>
+                {drill.value.runAi.length ? (
+                  <div className={styles.tableWrap}>
+                    <table className={`${styles.table} ${styles.tableCompact}`}>
+                      <thead>
+                        <tr>
+                          <th scope="col">{T.colStage}</th>
+                          <th scope="col">{T.model}</th>
+                          <th scope="col">{T.profile}</th>
+                          <th scope="col">{T.tokensIn}</th>
+                          <th scope="col">{T.tokensOut}</th>
+                          <th scope="col">{T.cost}</th>
+                          <th scope="col">{T.latency}</th>
+                          <th scope="col">{T.colStatus}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {drill.value.runAi.map((ai) => (
+                          <tr key={ai.aiRunId}>
+                            <td>{stageWord(ai.stage)}</td>
+                            {/* The model slug and the profile are what the
+                                gateway bills against; they stay Latin. */}
+                            <td><bdi>{ai.model}</bdi></td>
+                            <td><bdi>{ai.profile}</bdi></td>
+                            <td>{ai.inputTokens ?? "—"}</td>
+                            <td>{ai.outputTokens ?? "—"}</td>
+                            <td>{formatUsd(ai.costUsd)}</td>
+                            <td>{formatDuration(ai.latencyMs)}</td>
+                            <td>
+                              <Pill tone={ai.status === "ok" ? "ok" : "warn"}>{ai.status}</Pill>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyLine>אין קריאות מודל רשומות למהדורה הזו.</EmptyLine>
+                )}
+              </div>
+
+              <div className={styles.panel}>
+                <PanelTitle note={T.latestVersion}>{T.artifacts}</PanelTitle>
+                {drill.value.artifacts.length ? (
+                  <ul className={styles.logList}>
+                    {drill.value.artifacts.map((artifact) => (
+                      <li key={`${artifact.stage}:${artifact.artifactVersion}`}>
+                        <span>
+                          <Pill tone="neutral">{stageWord(artifact.stage)}</Pill>
+                        </span>
+                        <strong>{`${T.artifactVersion} ${artifact.artifactVersion}`}</strong>
+                        <small>
+                          inputHash <bdi>{artifact.inputHash.slice(0, 12)}</bdi> · {formatDate(artifact.createdAt)}
+                        </small>
+                        {/* The payload is the artifact's own JSON, expandable
+                            the way an audit row's before/after is. */}
+                        <details className={styles.traceability}>
+                          <summary>{T.details}</summary>
+                          <pre className={styles.json}>{artifact.payload === undefined ? "—" : JSON.stringify(artifact.payload, null, 2)}</pre>
+                        </details>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <EmptyLine>אין מוצרי ביניים שמורים למהדורה הזו.</EmptyLine>
+                )}
+              </div>
+
+              <div className={styles.panel}>
+                <PanelTitle note={`${drill.value.claims.length} ${T.claims}`}>{T.claims}</PanelTitle>
+                {drill.value.claims.length ? (
+                  <ul className={styles.logList}>
+                    {drill.value.claims.map((claim) => (
+                      <li key={claim.itemId}>
+                        <span>
+                          <Pill tone="neutral">{CLAIM_LAYER_LABEL[claim.layer] ?? claim.layer}</Pill>
+                        </span>
+                        <strong>
+                          <Pill tone={assessmentTone(claim.machineAssessment)}>{ASSESSMENT_LABEL[claim.machineAssessment] ?? claim.machineAssessment}</Pill>
+                        </strong>
+                        <small>
+                          {T.attributedTo} {claim.attributedTo ?? "—"}
+                          {claim.uncertainty ? ` · ${T.uncertainty} ${claim.uncertainty}` : ""}
+                          {` · ${formatDate(claim.createdAt)}`}
+                        </small>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <EmptyLine>אין טענות משויכות למהדורה הזו.</EmptyLine>
+                )}
+              </div>
+
+              <div className={styles.panel}>
+                <PanelTitle>{T.jobs}</PanelTitle>
+                {drill.value.jobs.length ? <JobTable jobs={drill.value.jobs} compact /> : <EmptyLine>אין משימות רשומות למהדורה הזו.</EmptyLine>}
+              </div>
+            </>
+          ) : null}
+        </>
+      ) : null}
+    </Dialog>
+  );
 }

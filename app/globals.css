@@ -333,12 +333,26 @@ html:has([data-home-scroll]) body {
   overflow: visible;
 }
 
+/* Thin, not hidden: the home scrolls and the affordance must be shown.
+   Standard engines take `scrollbar-width: thin` with a quiet thumb; the
+   webkit block is its equivalent — 6px, token line colour, pill radius,
+   transparent track — because `scrollbar-width` reaches nothing there. */
 html:has([data-home-scroll]) {
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
 }
 
 html:has([data-home-scroll])::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+}
+
+html:has([data-home-scroll])::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--radius-pill);
+}
+
+html:has([data-home-scroll])::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 html:has([data-intro-active]),

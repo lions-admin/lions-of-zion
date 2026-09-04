@@ -65,9 +65,19 @@ rather than waiting for review.
 
 ## Deployment
 
-Git auto-deploy is not connected. Production deployment is a separate, manual
-Vercel operation — a merge to `main` does not reach production on its own. CI
-runs the full gate plus a route smoke test and does not deploy.
+Git auto-deploy is connected: a push to `main` reaches Production on its own,
+live on `lionsofzion.io` within about two minutes. CI runs the full gate plus a
+route smoke test and does not deploy. (This paragraph said the opposite until
+2026-09-04 — see `docs/operations.md` for the mechanism.)
+
+## The Daily Brief
+
+`/geopolitical-brief` publishes one edition per Israel-local day, fulfilled
+from an externally composed package delivered to
+`POST /api/internal/briefing/external-publish` (idempotent by run ID) or from
+the administrator's run button (`POST /api/v1/admin/briefing/run`). There is no
+scheduled cron — the old 07:00 briefing schedule was removed on 2026-09-03.
+See [`docs/operations.md`](docs/operations.md).
 
 ## Documentation
 

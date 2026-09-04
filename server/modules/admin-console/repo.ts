@@ -16,7 +16,13 @@ import "server-only";
  */
 
 import { sql, type SQL } from "drizzle-orm";
-import type { ListAudit } from "@/server/contracts/admin-console";
+import type {
+  ListAudit,
+  ListChatThreadsQuery,
+  ListConsoleReports,
+  ListQualityChecks,
+  ListSourceFetches,
+} from "@/server/contracts/admin-console";
 
 type Db = {
   execute: <T>(query: unknown) => Promise<{ rows: T[] }>;
@@ -204,6 +210,105 @@ export type FailedRunRow = { id: string; localDate: string; stage: string; error
 export type QuarantineRow = { id: string; candidateKey: string; stage: string; reason: string; createdAt: Ts };
 export type OutboxRow = { undelivered: Count; oldestAt: Ts; deadLettered: Count };
 
+export type QuarantineEntryRow = {
+  id: string;
+  candidateKey: string;
+  stage: string;
+  reason: string;
+  status: string;
+  resolvedAt: Ts;
+  createdAt: Ts;
+};
+
+export type EditionDetailRow = {
+  id: string;
+  localDate: string;
+  status: string;
+  contractVersion: string;
+  promptVersion: string;
+  collectionOpenedAt: Ts;
+  collectionClosedAt: Ts;
+  publishedAt: Ts;
+};
+
+export type EditionRunRow = {
+  id: string;
+  stage: string;
+  status: string;
+  inputCount: number;
+  outputCount: number;
+  errorMessage: string | null;
+  startedAt: Ts;
+  finishedAt: Ts;
+};
+
+export type EditionRunAiRow = {
+  stage: string;
+  aiRunId: string;
+  model: string;
+  profile: string;
+  kind: string;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  costUsd: Count | null;
+  latencyMs: number | null;
+  status: string;
+  createdAt: Ts;
+};
+
+export type EditionArtifactRow = {
+  stage: string;
+  artifactVersion: number;
+  inputHash: string;
+  payload: unknown;
+  createdAt: Ts;
+};
+
+export type EditionClaimRow = {
+  itemId: string;
+  layer: string;
+  machineAssessment: string;
+  attributedTo: string | null;
+  uncertainty: string | null;
+  createdAt: Ts;
+};
+
+export type SourceFetchRow = {
+  id: string;
+  status: string;
+  startedAt: Ts;
+  finishedAt: Ts;
+  httpStatus: number | null;
+  itemsSeen: number;
+  itemsNew: number;
+  errorMessage: string | null;
+  searchQuery: string | null;
+  rawBlobUrl: string | null;
+  rawByteSize: number | null;
+  createdAt: Ts;
+};
+
+export type SourceFetchTodayRow = {
+  boundaryAt: Ts;
+  attempts: Count;
+  successes: Count;
+  partial: Count;
+  failed: Count;
+  itemsSeen: Count;
+  itemsNew: Count;
+  lastError: string | null;
+};
+
+export type QualityCheckRow = {
+  runId: string;
+  localDate: string;
+  candidateKey: string;
+  stage: string;
+  checkName: string;
+  status: string;
+  detail: string;
+};
+
 export type VersionRow = {
   versionId: string;
   versionNumber: number;
@@ -227,6 +332,75 @@ export type ConsoleJobState = {
   sourceId: string | null;
   editionId: string | null;
   checkpoint: unknown;
+};
+
+export type ReportDeskRow = {
+  id: string;
+  publicId: string;
+  url: string | null;
+  body: string | null;
+  reporterEmail: string | null;
+  reporterNote: string | null;
+  status: string;
+  resolutionNote: string | null;
+  itemId: string | null;
+  createdAt: Ts;
+  updatedAt: Ts;
+  trailCount: Count;
+  latestTrail: { toStatus: string; actorLabel: string; occurredAt: Ts } | null;
+};
+
+export type ChatThreadRow = {
+  id: string;
+  title: string | null;
+  createdByLabel: string;
+  createdAt: Ts;
+  archivedAt: Ts;
+  messageCount: Count;
+  lastMessageAt: Ts;
+};
+
+export type ChatThreadByIdRow = {
+  id: string;
+  title: string | null;
+  createdByLabel: string;
+  createdAt: Ts;
+  archivedAt: Ts;
+};
+
+export type ArchivedChatThreadRow = { id: string; archivedAt: Ts };
+
+export type ChatMessageRow = {
+  id: string;
+  seq: number;
+  role: string;
+  content: string;
+  createdAt: Ts;
+  aiRunId: string | null;
+};
+
+export type ChatToolRunRow = {
+  messageId: string;
+  tool: string;
+  status: string;
+  latencyMs: number | null;
+  resultCount: Count;
+};
+
+export type ChatAiRunRow = {
+  aiRunId: string;
+  model: string;
+  profile: string;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  costUsd: Count | null;
+};
+
+export type SystemInternalsRow = {
+  staleBacklog: Count;
+  indexed: Count;
+  embeddingRuns24h: Count;
+  embeddingLastRunAt: Ts;
 };
 
 const JOB_COLUMNS = sql`
@@ -363,6 +537,89 @@ export function adminConsoleRepo(db: unknown) {
       LIMIT ${limit}
     `),
 
+    /** The briefing pipeline's own quality audit rows, one join deep: the
+     *  run is the only relation the matrix needs, because `briefing_run`
+     *  already carries the Israel-local `local_date` and `stage` — no
+     *  `briefing_edition` detour. EXPLAIN could not be run on PGlite, so the
+     *  query stays trivially cheap: both filter columns sit inside the one
+     *  relation and both filter paths hit a real index (`briefing_run`'s
+     *  primary id, or `briefing_run_by_date`'s leading `local_date`).
+     *  Ordering by `(runId, candidateKey)` here; the REQUIRED ordinal is
+     *  applied in `service.ts`, which owns the check-name list. */
+    qualityChecks: (input: ListQualityChecks) => many<QualityCheckRow>(sql`
+      SELECT q.briefing_run_id AS "runId",
+             r.local_date AS "localDate",
+             q.candidate_key AS "candidateKey",
+             r.stage,
+             q.check_name AS "checkName",
+             q.status,
+             q.detail
+      FROM briefing_quality_check q
+      JOIN briefing_run r ON r.id = q.briefing_run_id
+      WHERE ${input.runId !== undefined ? sql`r.id = ${input.runId}` : sql`r.local_date = ${input.localDate}`}
+      ORDER BY q.briefing_run_id, q.candidate_key, q.created_at, q.check_name
+    `),
+
+    /* ── edition drilldown ─────────────────────────────────────────────────── */
+
+    /** One read per relation, keyed by the edition's unique Israel-local
+     *  date. The claims are the one relation needing a detour: `briefing_claim`
+     *  is keyed by item, so it is scoped through the edition's publications
+     *  (`briefing_run` → `publication_item`), the same join
+     *  `publications/repo.ts` makes for a single publication. */
+    edition: (localDate: string) => one<EditionDetailRow>(sql`
+      SELECT id, local_date AS "localDate", status, contract_version AS "contractVersion",
+             prompt_version AS "promptVersion", collection_opened_at AS "collectionOpenedAt",
+             collection_closed_at AS "collectionClosedAt", published_at
+      FROM briefing_edition WHERE local_date = ${localDate}
+    `),
+
+    editionRuns: (localDate: string) => many<EditionRunRow>(sql`
+      SELECT id, stage, status, input_count AS "inputCount", output_count AS "outputCount",
+             error_message AS "errorMessage", started_at AS "startedAt", finished_at AS "finishedAt"
+      FROM briefing_run WHERE local_date = ${localDate}
+      ORDER BY created_at, stage
+    `),
+
+    editionRunAi: (localDate: string) => many<EditionRunAiRow>(sql`
+      SELECT bra.stage, bra.ai_run_id AS "aiRunId", ar.model, ar.model_profile AS profile,
+             ar.kind::text AS kind, ar.input_tokens AS "inputTokens", ar.output_tokens AS "outputTokens",
+             ar.cost_usd AS "costUsd", ar.latency_ms AS "latencyMs", ar.status, bra.created_at AS "createdAt"
+      FROM briefing_run_ai bra
+      JOIN briefing_run r ON r.id = bra.briefing_run_id
+      JOIN ai_run ar ON ar.id = bra.ai_run_id
+      WHERE r.local_date = ${localDate}
+      ORDER BY bra.created_at, bra.stage
+    `),
+
+    editionArtifacts: (localDate: string) => many<EditionArtifactRow>(sql`
+      SELECT DISTINCT ON (a.stage) a.stage, a.artifact_version AS "artifactVersion",
+             a.input_hash AS "inputHash", a.payload, a.created_at AS "createdAt"
+      FROM briefing_stage_artifact a
+      JOIN briefing_edition e ON e.id = a.edition_id
+      WHERE e.local_date = ${localDate}
+      ORDER BY a.stage, a.artifact_version DESC
+    `),
+
+    editionClaims: (localDate: string) => many<EditionClaimRow>(sql`
+      SELECT bc.item_id AS "itemId", bc.layer, bc.machine_assessment AS "machineAssessment",
+             bc.attributed_to AS "attributedTo", bc.uncertainty, bc.created_at AS "createdAt"
+      FROM briefing_claim bc
+      JOIN information_item ii ON ii.id = bc.item_id
+      JOIN publication_item pi ON pi.item_id = ii.id
+      JOIN publication p ON p.id = pi.publication_id
+      JOIN briefing_run r ON r.id = p.briefing_run_id
+      WHERE r.local_date = ${localDate}
+      ORDER BY bc.created_at, ii.created_at
+    `),
+
+    editionJobs: (localDate: string, limit = 200) => many<JobRow>(sql`
+      SELECT ${JOB_COLUMNS} ${JOB_FROM}
+      WHERE j.local_date = ${localDate}
+      ORDER BY j.created_at DESC
+      LIMIT ${limit}
+    `),
+
     /* ── sources ──────────────────────────────────────────────────────────── */
 
     sources: () => many<SourceRow>(sql`
@@ -401,6 +658,41 @@ export function adminConsoleRepo(db: unknown) {
       LEFT JOIN source s ON s.source_family_id = f.id
       GROUP BY f.id
       ORDER BY f.label
+    `),
+
+    /* ── source fetch log ─────────────────────────────────────────────────── */
+
+    sourceExists: (id: string) => one<{ id: string }>(sql`SELECT id FROM source WHERE id = ${id}`),
+
+    sourceFetches: (input: ListSourceFetches) => many<SourceFetchRow>(sql`
+      SELECT f.id, f.status::text AS status, f.started_at AS "startedAt", f.finished_at AS "finishedAt",
+             f.http_status AS "httpStatus", f.items_seen AS "itemsSeen", f.items_new AS "itemsNew",
+             f.error_message AS "errorMessage", f.search_query AS "searchQuery",
+             f.raw_blob_url AS "rawBlobUrl", f.raw_byte_size AS "rawByteSize", f.created_at AS "createdAt"
+      FROM source_fetch f
+      WHERE f.source_id = ${input.id}
+      ORDER BY f.started_at DESC
+      LIMIT ${input.limit}
+    `),
+
+    /** Israel-local "today": `date_trunc` runs on the wall-clock time in
+     *  Asia/Jerusalem — the zone `briefing/service.ts` `israelLocalDate` and
+     *  `israelCollectionWindow` use — and converts back to an instant, so the
+     *  boundary is the true midnight and DST is Postgres's problem. The
+     *  comparison is inclusive. */
+    sourceFetchesToday: (sourceId: string) => one<SourceFetchTodayRow>(sql`
+      SELECT
+        (date_trunc('day', now() AT TIME ZONE 'Asia/Jerusalem') AT TIME ZONE 'Asia/Jerusalem') AS "boundaryAt",
+        count(*) AS attempts,
+        count(*) FILTER (WHERE f.status = 'success') AS successes,
+        count(*) FILTER (WHERE f.status = 'partial') AS partial,
+        count(*) FILTER (WHERE f.status = 'failed') AS failed,
+        coalesce(sum(f.items_seen) FILTER (WHERE f.status <> 'failed'), 0) AS "itemsSeen",
+        coalesce(sum(f.items_new) FILTER (WHERE f.status <> 'failed'), 0) AS "itemsNew",
+        (array_agg(f.error_message ORDER BY f.started_at DESC) FILTER (WHERE f.error_message IS NOT NULL))[1] AS "lastError"
+      FROM source_fetch f
+      WHERE f.source_id = ${sourceId}
+        AND f.started_at >= (date_trunc('day', now() AT TIME ZONE 'Asia/Jerusalem') AT TIME ZONE 'Asia/Jerusalem')
     `),
 
     /* ── editorial ────────────────────────────────────────────────────────── */
@@ -553,6 +845,137 @@ export function adminConsoleRepo(db: unknown) {
       ORDER BY id DESC LIMIT ${limit}
     `),
 
+    /* ── reports desk ────────────────────────────────────────────────────── */
+
+    /** Newest first on the `(created_at, id)` keyset — `report.id` is a
+     *  random uuid, so a plain `id DESC` is not an order. Each row carries
+     *  its append-only status-trail count and the trail's latest entry — the
+     *  read a triage decision is made against. `LIMIT + 1` marks the cursor
+     *  boundary; the service slices and shapes. */
+    reports: (input: ListConsoleReports) => {
+      const where: SQL[] = [sql`true`];
+      if (input.cursor) {
+        const [at, id] = input.cursor.split("|");
+        where.push(sql`(r.created_at, r.id) < (${at}::timestamptz, ${id}::uuid)`);
+      }
+      if (input.status) where.push(sql`r.status = ${input.status}`);
+      return many<ReportDeskRow>(sql`
+        SELECT r.id, r.public_id AS "publicId", r.url, r.body,
+               r.reporter_email AS "reporterEmail", r.reporter_note AS "reporterNote",
+               r.status::text AS status, r.resolution_note AS "resolutionNote",
+               r.item_id AS "itemId",
+               r.created_at AS "createdAt", r.updated_at AS "updatedAt",
+               count(h.id) AS "trailCount",
+               (SELECT jsonb_build_object(
+                  'toStatus', hh.to_status::text,
+                  'actorLabel', hh.actor_label,
+                  'occurredAt', hh.created_at
+                )
+                FROM report_status_history hh
+                WHERE hh.report_id = r.id
+                ORDER BY hh.created_at DESC, hh.id DESC
+                LIMIT 1) AS "latestTrail"
+        FROM report r
+        LEFT JOIN report_status_history h ON h.report_id = r.id
+        WHERE ${sql.join(where, sql` AND `)}
+        GROUP BY r.id
+        ORDER BY r.created_at DESC, r.id DESC
+        LIMIT ${input.limit + 1}
+      `);
+    },
+
+    /* ── public-chat moderation ──────────────────────────────────────────── */
+
+    /** Newest first on the `(created_at, id)` keyset — `id` breaks the ties
+     *  a same-millisecond insert pair would otherwise race for. */
+    chatThreads: (input: ListChatThreadsQuery) => {
+      const where: SQL[] = [sql`true`];
+      if (input.cursor) {
+        const [at, id] = input.cursor.split("|");
+        where.push(sql`(t.created_at, t.id) < (${at}::timestamptz, ${id}::uuid)`);
+      }
+      return many<ChatThreadRow>(sql`
+        SELECT t.id, t.title, t.created_by_label AS "createdByLabel",
+               t.created_at AS "createdAt", t.archived_at AS "archivedAt",
+               count(m.id) AS "messageCount", max(m.created_at) AS "lastMessageAt"
+        FROM chat_thread t
+        LEFT JOIN chat_message m ON m.thread_id = t.id
+        WHERE ${sql.join(where, sql` AND `)}
+        GROUP BY t.id
+        ORDER BY t.created_at DESC, t.id DESC
+        LIMIT ${input.limit + 1}
+      `);
+    },
+
+    chatThreadById: (id: string) => one<ChatThreadByIdRow>(sql`
+      SELECT t.id, t.title, t.created_by_label AS "createdByLabel",
+             t.created_at AS "createdAt", t.archived_at AS "archivedAt"
+      FROM chat_thread t WHERE t.id = ${id}
+    `),
+
+    /** Ordered the way the transcript reads: `seq` is monotonic within the
+     *  thread (`chat_message_is_sequential`), `created_at` breaks nothing. */
+    chatMessages: (threadId: string) => many<ChatMessageRow>(sql`
+      SELECT m.id, m.seq, m.role, m.content, m.created_at AS "createdAt", m.ai_run_id AS "aiRunId"
+      FROM chat_message m
+      WHERE m.thread_id = ${threadId}
+      ORDER BY m.seq
+    `),
+
+    /** The thread's evidence trail, grouped by the message it belongs to.
+     *  `result_document_ids` is what retrieval actually returned — the same
+     *  list the citation trigger reads. */
+    chatToolRuns: (threadId: string) => many<ChatToolRunRow>(sql`
+      SELECT t.message_id AS "messageId", t.tool, t.status,
+             t.latency_ms AS "latencyMs",
+             coalesce(cardinality(t.result_document_ids), 0) AS "resultCount"
+      FROM chat_tool_run t
+      WHERE t.thread_id = ${threadId}
+      ORDER BY t.created_at, t.id
+    `),
+
+    /** The `ai_run` linkage of the assistant messages, resolved in one read
+     *  from the ids the messages name — the cost ledger of the conversation. */
+    chatAiRuns: (runIds: readonly string[]) => {
+      if (runIds.length === 0) return Promise.resolve<ChatAiRunRow[]>([]);
+      return many<ChatAiRunRow>(sql`
+        SELECT ar.id AS "aiRunId", ar.model, ar.model_profile AS profile,
+               ar.input_tokens AS "inputTokens", ar.output_tokens AS "outputTokens",
+               ar.cost_usd AS "costUsd"
+        FROM ai_run ar
+        WHERE ar.id IN (${sql.join(runIds.map((id) => sql`${id}::uuid`), sql`, `)})
+      `);
+    },
+
+    /** Archives a thread the way `closeQuarantine` closes an entry: only an
+     *  unarchived row, refusing already-archived ones by returning nothing. */
+    archiveChatThread: (id: string) => one<ArchivedChatThreadRow>(sql`
+      UPDATE chat_thread SET archived_at = now()
+      WHERE id = ${id} AND archived_at IS NULL
+      RETURNING id, archived_at AS "archivedAt"
+    `),
+
+    /* ── system internals ────────────────────────────────────────────────── */
+
+    /** The embedding backlog is the exact comparison
+     *  `search/repo.ts` `embeddingBacklog` lists — two hashes, no "pending"
+     *  column — mirrored here as a count so the console never restates it
+     *  differently. The embed-run figures come from the same `ai_run` ledger
+     *  every other cost figure reads. */
+    systemInternals: () => one<SystemInternalsRow>(sql`
+      SELECT
+        (SELECT count(*) FROM search_document
+           WHERE indexed_content_hash IS DISTINCT FROM content_hash) AS "staleBacklog",
+        (SELECT count(*) FROM search_document) AS "indexed",
+        (SELECT count(*) FROM ai_run
+           WHERE kind = 'embed' AND created_at >= now() - interval '24 hours') AS "embeddingRuns24h",
+        (SELECT max(created_at) FROM ai_run WHERE kind = 'embed') AS "embeddingLastRunAt"
+    `),
+
+    /** The semantic arm is live in this database only where the column the
+     *  migration conditionally adds actually exists — never inferred. */
+    systemSemanticArm: () => one<{ ok: boolean }>(sql`SELECT search_has_semantic_arm() AS ok`),
+
     /* ── incidents ────────────────────────────────────────────────────────── */
 
     openAlerts: (limit = 50) => many<AlertRow>(sql`
@@ -617,6 +1040,24 @@ export function adminConsoleRepo(db: unknown) {
     `),
 
     alertById: (id: string) => one<AlertRow>(sql`SELECT ${ALERT_COLUMNS} FROM briefing_alert WHERE id = ${id}`),
+
+    /** One quarantine entry in full, open or closed — the `before` read a
+     *  resolve/discard decision audits against. */
+    quarantineById: (id: string) => one<QuarantineEntryRow>(sql`
+      SELECT id, candidate_key AS "candidateKey", stage, reason, status,
+             resolved_at AS "resolvedAt", created_at AS "createdAt"
+      FROM briefing_quarantine WHERE id = ${id}
+    `),
+
+    /** Closes an entry the way `resolveAlert` closes an alert: only an open
+     *  row, only to the status asked, refusing already-closed rows by
+     *  returning nothing. */
+    closeQuarantine: (id: string, status: "resolved" | "discarded") => one<QuarantineEntryRow>(sql`
+      UPDATE briefing_quarantine SET status = ${status}, resolved_at = now()
+      WHERE id = ${id} AND status = 'open'
+      RETURNING id, candidate_key AS "candidateKey", stage, reason, status,
+                resolved_at AS "resolvedAt", created_at AS "createdAt"
+    `),
 
     resolveAlert: (id: string) => one<AlertRow>(sql`
       UPDATE briefing_alert SET resolved_at = now(), updated_at = now()

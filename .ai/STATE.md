@@ -9,6 +9,26 @@ are optional tools and cannot block work. `sync:start` reports open branches
 without stopping the task.
 
 
+## 2026-09-04 — Production-console verification PENDING: three bindings and the queue topic
+
+Three production bindings cannot be verified from code — the **Vercel Queue
+resource binding**, the **AI Gateway OIDC binding**, and the **Google
+Workload Identity Federation binding**. The docs
+(`docs/vercel-infrastructure.md`) describe them as provisioned, but the Vercel
+console itself has not been checked from this pass. Status: **PENDING
+production-console verification.** Do not treat them as confirmed, and do not
+treat them as broken — the positive git evidence is that commit `c1e579b`
+(2026-09-03) records a full end-to-end Production run of the briefing pipeline
+the same day it removed the briefing cron schedule: a real edition composed
+and published, visible on `/geopolitical-brief`, with an identical resend
+returning status `duplicate` and no new row, all confirmed via the public API.
+
+The same pass found `vercel.json:49-53` still declaring a `briefing-quality`
+queue trigger whose route file no longer exists (retired by migration `0049`);
+see `.ai/DECISIONS.md` 2026-09-04. Per instruction, `vercel.json` was not
+touched — the Production console check is pending there too.
+
+
 ## Decided and applied 2026-08-27
 
 The publication gate is real now: `EDITORIAL_STAGE` withdraws every Fake

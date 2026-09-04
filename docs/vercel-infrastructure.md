@@ -9,7 +9,7 @@ Production change.
 
 ```mermaid
 flowchart LR
-  C[Vercel Cron] --> J[Durable briefing-job ledger]
+  C[External composer / admin run] --> J[Durable briefing-job ledger]
   J --> Q[Vercel Queues]
   Q --> W[Briefing worker]
   W --> D[(Neon Postgres)]
@@ -26,10 +26,12 @@ flowchart LR
   Grok public-chat profile remains independent.
 - The job ledger, not queue delivery, is the idempotency authority. Every
   delivery carries only a job ID and can be retried safely.
-- The Daily Brief publishes automatically in Production only after
-  data-contract and quality gates pass. The database pause remains the
-  immediate stop control; Preview cannot publish. The production acceptance
-  sequence in `docs/briefing-operations.md` remains required operational
+- The Daily Brief publishes in Production only after data-contract and quality
+  gates pass — on receipt of an externally composed edition or an
+  administrator-triggered run; there is no scheduled publication. The database
+  pause remains the immediate stop control; Preview cannot publish. The
+  production acceptance sequence in `docs/briefing-operations.md` remains
+  required operational
   evidence and must be rerun after material provider or pipeline changes.
 
 ## Environment isolation
@@ -96,14 +98,48 @@ impersonation. Do not create, upload, or store a long-lived JSON key.
 
 ## Schedules and triggers
 
-`vercel.json` owns the authoritative schedules. It includes recurring source
-collection, queue/outbox recovery, maintenance/alerts, and a 07:00 Israel-time
-editorial window with DST-safe UTC coverage. Each briefing queue stage has an
-explicit trigger topic:
+`vercel.json` owns the authoritative schedules. **The briefing edition has no
+scheduled trigger**: commit `c1e579b` (2026-09-03) removed the
+`0,15,30,45 4,5 * * *` cron that covered 07:00 Israel time. Four active crons
+remain:
+
+```json
+{
+  "crons": [
+    { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
+    { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
+    { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
+    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
+  ]
+}
+```
+
+An edition is now fulfilled on receipt of a package at
+`POST /api/internal/briefing/external-publish` — the externally composed path,
+idempotent on `external_briefing_submission.run_id` — or by the administrator's
+`POST /api/v1/admin/briefing/run`.
+
+`/api/internal/cron/briefing` still exists but is unscheduled. It calls
+`enqueueEditorialPipeline()` and, without force, returns one of `queued`,
+`outside_schedule` (any invocation outside the 07:00 Israel local hour —
+`server/modules/briefing/jobs.ts:543`), `waiting_for_collection`, or
+`already_completed`. Its `vercel.json` functions entry (`maxDuration: 300`,
+`iad1`) remains, so re-enabling the schedule is a one-line addition to the
+`crons` array. It must land between editions, per `CLAUDE.md`'s deploy rule:
+**"A deploy that adds or removes a briefing quality check must land between
+editions (07:00 Asia/Jerusalem), in either direction — a rollback strands an
+in-flight edition just as the deploy did."**
+
+Each briefing queue stage has an explicit trigger topic:
 
 ```text
-briefing-collect -> enrich -> cluster -> triage -> draft -> quality -> publish
+briefing-collect -> enrich -> cluster -> triage -> draft -> publish
 ```
+
+`vercel.json` still declares a `briefing-quality` topic trigger, but the
+quality stage was folded into publish by migration `0049` and no
+`app/api/internal/queue/briefing/quality/route.ts` exists — retired in place;
+see `.ai/DECISIONS.md` 2026-09-04.
 
 The Database pause can stop publication without discarding collected evidence.
 
@@ -115,8 +151,11 @@ The Database pause can stop publication without discarding collected evidence.
 4. Run the production acceptance sequence in `docs/briefing-operations.md`.
 5. Promote only after its documented evidence exists. A promotion that changes
    the briefing pipeline's contract — the quality-check list, a stage artifact
-   shape — belongs between editions rather than during one; the run is 07:00
-   Israel time and `docs/operations.md` has the mechanism.
+   shape — belongs between editions rather than during one; there is no fixed
+   run window anymore, so "between editions" means between a published edition
+   and the next package receipt or admin run. A rollback strands an in-flight
+   edition exactly as the deploy did, and `CLAUDE.md` states the rule for
+   deploys that add or remove a briefing quality check.
 6. When the release changed `server/modules/sources/catalog.ts`, run the
    catalog sync and then activate the new sources by hand. The sync only
    creates, and everything it creates is inactive, so a rewritten discovery

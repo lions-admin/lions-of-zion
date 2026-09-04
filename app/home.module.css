@@ -6,11 +6,13 @@
  * is set in the editorial voice, the scan beneath it in the data voice.
  *
  * The composition is document flow, not absolute pins: a flex column of
- * masthead (centred by auto margins), file index, and signal rail, over a
- * field layer pinned to the first viewport. That is what keeps the lion,
- * wordmark, CTA pair, index, and rail one focal system at 1440, 1920, and
- * 2560 — the same column, with only the auto margins absorbing the height —
- * and what lets 320×568 scroll instead of clip.
+ * masthead and files deck over a field layer pinned to the first viewport.
+ * On mobile the masthead is still centred by flex auto-margins. On desktop
+ * (≥768px) the hero distributes three defined zones instead: a spacer under
+ * the header, the brand, and the files deck anchored to the floor — so the
+ * deck expands upward from 100svh and the optical centre stays high. That is
+ * what keeps the lion, wordmark, CTA, index, and rail one focal system at
+ * 1024, 1440, 1920, and 2560, and what lets 320×568 scroll instead of clip.
  *
  * Gold is spent once per viewport: the primary Daily Brief action. The rail
  * and telemetry dots carry the dimmed gold; nothing else on the screen is
@@ -163,9 +165,81 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
   flex-direction: column;
   align-items: center;
   width: min(48rem, calc(100vw - 2rem));
+  /* Mobile's only height distributor. The desktop structure zeroes this
+     inside its `min-width: 48rem` guard — see the height-structure block. */
   margin-block: auto;
   margin-inline: auto;
   text-align: center;
+}
+
+/* ---- Desktop height structure: three defined zones (HOME-001..004) ----
+ *
+ * Mobile keeps the composition above untouched — the masthead's auto
+ * margins stay its only height distributor below 768px. From 768px up the
+ * hero stops distributing by auto margins and anchors to three zones:
+ *
+ *   Zone A — a spacer under the header, `clamp(4rem, 10svh, 12rem)`, which
+ *   absorbs the first free height so the brand sits high rather than
+ *   mid-stacked;
+ *   Zone B — the brand itself;
+ *   Zone C — the files deck, pushed to the floor by `justify-content:
+ *   space-between`, so the flexible space between the actions and the deck
+ *   is the leftover itself and the deck's layers expand from the floor
+ *   upward.
+ *
+ * `min-width: 48rem` on every rule here and below is the guard: nothing in
+ * this structure is allowed to reach a phone. */
+@media (min-width: 48rem) {
+  .hero {
+    justify-content: space-between;
+  }
+
+  .masthead {
+    margin-block: 0;
+    margin-top: clamp(4rem, 10svh, 12rem);
+  }
+
+  /* The deck's frame: a column with a defined floor-gap. Between the
+     index's own bottom padding and the rail's top rule it composes to
+     28–32px, in place of the old 12px seam. */
+  .filesDeck {
+    display: flex;
+    flex-direction: column;
+    row-gap: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  .signalRail {
+    padding-bottom: var(--sp-2);
+  }
+
+  .signalRail {
+    padding-bottom: var(--sp-2);
+  }
+}
+
+/* ---- Zone C, width-coordinated: the index gets a name ----
+ *
+ * A small mono label, counted from the navigation list — the same lexicon
+ * voice as the rail flag and the file numbers, in ink-lo, spent on no
+ * colour. It names the nav (its accessible name comes from here too) and
+ * is the third place the file count is computed rather than typed. */
+.fileIndexName {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--sp-3);
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.fileIndexCount {
+  font-variant-numeric: tabular-nums;
 }
 
 .brandMark {
@@ -224,11 +298,13 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
 
 /* ---- The actions (HOME-002) ----
  *
- * Both controls are the shared ButtonLink primitive; this file only adds the
- * restrained Interactive Hover adaptation to the primary — a left-origin
- * sweep to the brighter gold, existing radius, no pill, no gradient — and
- * only where a fine pointer and unreduced motion both exist. Touch and
- * reduced motion get the primitive's own static hover/active colours. */
+ * One control, the shared ButtonLink primitive; this file only adds the
+ * restrained Interactive Hover adaptation to it — a left-origin sweep to
+ * the brighter gold, existing radius, no pill, no gradient — and only where
+ * a fine pointer and unreduced motion both exist. Touch and reduced motion
+ * get the primitive's own static hover/active colours. The secondary
+ * "All files" affordance this block used to style was removed: the index
+ * names itself, and the header trigger opens the drawer. */
 
 .actions {
   display: flex;
@@ -243,22 +319,9 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
   min-width: 16rem;
 }
 
-.hero .ctaSecondary {
-  min-width: 11rem;
-}
-
 .ctaArrow {
   display: inline-block;
   margin-left: var(--sp-2);
-}
-
-.ctaCount {
-  margin-left: var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
@@ -554,10 +617,56 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
 
 /* ---- Responsive composition (HOME-004 at the top, 320px at the bottom) ---- */
 
-/* 2560-class: the column holds; the mark may grow into the room. */
+/* 1024–1440: the first tuned band. The deck takes a defined floor-gap on
+ * top of the flexible space-between leftover, where the free height can
+ * afford one. */
+@media (min-width: 64rem) {
+  .filesDeck { margin-top: clamp(1rem, 4svh, 3rem); }
+}
+
+/* 1440–1920: spacer up a step, zone C padding up with it. */
+@media (min-width: 90rem) {
+  .masthead { margin-top: clamp(6rem, 12svh, 10rem); }
+  .filesDeck { margin-top: clamp(1.5rem, 4svh, 4rem); }
+  .fileIndex { padding-block: var(--sp-4); }
+  .signalRail { padding-bottom: var(--sp-3); }
+}
+
+/* ≥1920: the column holds; the mark may grow into the room. */
 @media (min-width: 120rem) {
+  .masthead { margin-top: clamp(8rem, 14svh, 12rem); }
+  .filesDeck { margin-top: clamp(2rem, 5svh, 5rem); }
   .brandMark { width: 23rem; }
   .fileIndex { padding-block: var(--sp-4); }
+}
+
+/* Short desktop viewports — the 768–896px-tall laptops. Any of the spacer
+ * values above would eat their 13-odd px of free height and push the rail
+ * past the fold, so here the spacer steps down and the deck's floor-gap
+ * goes to zero: the flexible space-between leftover carries the whole
+ * composition, as the acceptance intends. */
+@media (min-width: 48rem) and (max-height: 56rem) {
+  .masthead { margin-top: clamp(1rem, 2svh, 2rem); }
+  .filesDeck { margin-top: 0; }
+}
+
+/* 768–1200: the rail wraps by rule, not by accident. This is the band
+ * where a long headline has the least room beside its metadata and could
+ * wrap to as many lines as the width allowed, growing the hero past
+ * 100svh with nothing to stop it. One line, clipped with ellipsis — the
+ * full text is the link's title in the record; here the rail is a cue. */
+@media (min-width: 48rem) and (max-width: 75rem) {
+  .railSignal { flex-wrap: nowrap; }
+
+  .railTitle {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 
 @media (max-width: 64rem) {
@@ -581,8 +690,7 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
     width: 100%;
     margin-top: var(--sp-5);
   }
-  .hero .ctaPrimary,
-  .hero .ctaSecondary {
+  .hero .ctaPrimary {
     width: 100%;
     min-width: 0;
   }

@@ -13,7 +13,6 @@ import { useReducedMotion } from './hooks/useReducedMotion';
 import {
   defaultSimParams,
   defaultTheme,
-  CANVAS_FADE_MS,
   type SafeAreaInsets,
 } from './config';
 import type { ParticleNavProps, SimParams } from './types';
@@ -165,7 +164,6 @@ export function NavClient({
 
   const [wantCanvas, setWantCanvas] = useState(false);
   const [canvasLive, setCanvasLive] = useState(false);
-  const [fading] = useState(false);
   const [safeArea, setSafeArea] = useState<SafeAreaInsets>({ top: 0, right: 0, bottom: 0, left: 0 });
   const [introDone, setIntroDone] = useState(false);
   const [handoffBlocked, setHandoffBlocked] = useState(false);
@@ -326,16 +324,17 @@ export function NavClient({
    * Nothing may be activated by a gesture that began before it was there.
    *
    * The previous guard put its check on `a[data-node-index]` — the eight orbit
-   * links. Those are `display: none` below 720px, so on the device where this
-   * actually goes wrong the guard was attached to elements that cannot be
-   * tapped. The real mobile destinations are `HomeSignalLayer`'s `next/link`s,
-   * and they had no guard at all: only `pointer-events: none` for a fixed
-   * window, which is a time bound on a problem that is not about time.
+   * links, since retired whole. On the device where this actually goes wrong
+   * the guard was attached to elements that cannot be tapped, and the real
+   * destinations — the home's own server-rendered links, index, rail and
+   * full-width primary CTA alike — had no guard at all: only
+   * `pointer-events: none` for a fixed window, which is a time bound on a
+   * problem that is not about time.
    *
    * WebKit hit-tests a tap at `touchend`, against whatever is live *then*. So a
    * finger that goes down while the navigation is inert and lifts after it goes
    * live activates whatever it happens to be resting on — and on a phone the
-   * largest thing under it is a full-width link to the Geopolitical Brief.
+   * largest thing under it is the home's full-width "Read the Daily Brief".
    *
    * The bound that actually holds is the gesture's own start: a click is the
    * user's choice only if the gesture that produced it began after the
@@ -405,8 +404,10 @@ export function NavClient({
      retired on 2026-09-04. The home page carries its own navigation, and the
      entrance no longer renders links of its own. */
 
-  // The static editorial index in HomeSignalLayer is the no-JS/no-GPU tier
-  // only, gated in CSS on the same `data-canvas` attribute.
+  // The canvas is enhancement only. The home carries its navigation in its
+  // own server HTML — index, rail, CTAs — so the renderer mounts when a real
+  // tier exists and stays off otherwise; `data-canvas` on the host marks
+  // which, and the poster drops only then.
   const showCanvas = active && wantCanvas && tier && tier.backend !== 'none' && !introDismissed;
   const hasLiveBackend = Boolean(active && tier && tier.backend !== 'none');
 
@@ -422,7 +423,6 @@ export function NavClient({
       data-handoff-blocked={handoffBlocked ? '' : undefined}
       data-intro-only={introOnly ? '' : undefined}
       data-intro-dismissed={introDismissed ? '' : undefined}
-      style={{ ['--fade-ms' as string]: `${CANVAS_FADE_MS}ms` }}
     >
       {introBackground && introRunning ? (
         <div className={styles.introBackground} aria-hidden="true">
@@ -438,7 +438,7 @@ export function NavClient({
       </div>
       {showCanvas ? (
         <div
-          className={`${styles.canvasWrap} ${fading ? styles.fadeOut : ''} ${canvasLive ? styles.canvasLive : ''}`}
+          className={`${styles.canvasWrap} ${canvasLive ? styles.canvasLive : ''}`}
           aria-hidden="true"
         >
           <Scene

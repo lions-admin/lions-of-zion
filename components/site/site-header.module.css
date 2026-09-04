@@ -122,6 +122,10 @@
   padding-inline: var(--link-pad);
   border-radius: var(--radius-2);
   color: var(--ink);
+  /* One weight step down from the shared control rule: label-only links,
+     no pills — the hairline carries the three link states, so the labels
+     sit quieter than the "All files" trigger beside them. */
+  font-weight: 400;
   transition: color var(--dur-fast) var(--ease-out);
 }
 

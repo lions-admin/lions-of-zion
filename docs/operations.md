@@ -121,14 +121,17 @@ schema — the first tool call would have failed its audit write. The order is
 rollback` is the fast undo if a push lands ahead of its schema.
 
 `vercel.json` declares the transactional outbox and stage-specific briefing
-Queue triggers plus five production schedules.
+Queue triggers plus four production schedules.
 
 Each briefing stage owns a route file under
 `app/api/internal/queue/briefing/`, and each carries `regions: ["iad1"]`,
 `maxDuration: 300`, and exactly one `queue/v2beta` trigger with
 `retryAfterSeconds: 30` — `briefing-collect` on the segment root, then
-`enrich`, `cluster`, `triage`, `draft`, `quality`, `publish`, one topic per
-file. `app/api/internal/cron/briefing` and `app/api/v1/admin/briefing/run`
+`enrich`, `cluster`, `triage`, `draft`, `publish`, one topic per file. (The
+`quality` stage was folded into publish by migration `0049`; `vercel.json`
+still declares its trigger topic but the route file is gone — retired in
+place, see `.ai/DECISIONS.md` 2026-09-04.)
+`app/api/internal/cron/briefing` and `app/api/v1/admin/briefing/run`
 carry the same region and duration without a trigger. The outbox dispatcher
 takes the `outbox.dispatch` topic and the platform defaults; its own
 `maxDuration` is declared in the route file, not here.
@@ -139,8 +142,7 @@ takes the `outbox.dispatch` topic and the platform defaults; its own
     { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
     { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
     { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
-    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" },
-    { "path": "/api/internal/cron/briefing", "schedule": "0,15,30,45 4,5 * * *" }
+    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
   ]
 }
 ```
@@ -153,8 +155,15 @@ For rolling back a bad production deploy, see
 Production schedules are authenticated by `CRON_SECRET`. Ingest
 runs at minutes 0 and 30, embeddings at 10 and 40, the outbox drain every 15
 minutes, and maintenance daily at 03:20 UTC. Every handler is idempotent and
-safe to retry. The briefing cron covers 07:00 Israel time across daylight
-saving changes and is idempotent by Israel-local date and stage. Preview forces
+safe to retry. **The briefing edition has no scheduled work**: commit
+`c1e579b` (2026-09-03) removed the `0,15,30,45 4,5 * * *` cron that covered
+07:00 Israel time. An edition is fulfilled when a package arrives at
+`POST /api/internal/briefing/external-publish` — the externally composed path,
+idempotent on `external_briefing_submission.run_id` — or by the
+administrator's `POST /api/v1/admin/briefing/run`. The
+`/api/internal/cron/briefing` route still exists but is unscheduled; see
+[`vercel-infrastructure.md`](vercel-infrastructure.md#schedules-and-triggers)
+for its return conditions and what re-enabling requires. Preview forces
 the briefing pipeline into dry-run and requires isolated resources. See
 [`briefing-operations.md`](briefing-operations.md).
 
@@ -172,8 +181,11 @@ number exactly `REQUIRED_QUALITY_CHECKS.length`, so an edition whose checks
 were written under one version of that list cannot be automatically published
 by another. **A deploy that adds or removes a check must land between
 editions**, in either direction — a rollback strands an in-flight edition
-exactly as the deploy did. The run is 07:00 Asia/Jerusalem. Nothing is lost
-when one is caught mid-flight; its articles can be published by hand from the
+exactly as the deploy did. There is no fixed run window anymore: an edition
+publishes when a package is received or the admin run is triggered, so
+"between editions" means between a published edition and the next package
+receipt or run. Nothing is lost when one is caught mid-flight; its articles
+can be published by hand from the
 administrator's publication manager.
 
 ### Source catalog changes

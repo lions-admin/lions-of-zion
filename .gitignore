@@ -76,3 +76,6 @@ public/archive/
 
 # Loose credential drops (a pasted key file must never reach a public repo)
 *.rtf
+
+# Midjourney assets/scratch
+midjrny/

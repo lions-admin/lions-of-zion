@@ -1,23 +1,11 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  useSyncExternalStore,
-} from 'react';
+import { useCallback, useState, useSyncExternalStore } from 'react';
 import { MediaBlock } from '@/components/content/MediaBlock';
 import { NavClient } from './CanvasMount';
 import styles from './styles.module.css';
 
 const INTRO_RADIUS = 3.3;
-
-const IntroHandoffContext = createContext(true);
-
-export function useIntroHandoffReady() {
-  return useContext(IntroHandoffContext);
-}
 
 /* Same shape as `CanvasMount`'s: the server snapshot is false, and the first
    commit after hydration flips it. */
@@ -99,15 +87,13 @@ export function CinematicIntroGate({
       <noscript>
         <style>{'[data-intro-only] { display: none !important; }'}</style>
       </noscript>
-      <IntroHandoffContext.Provider value={!blocked}>
-        <div
-          className={styles.introDestination}
-          inert={inertDestination || undefined}
-          aria-hidden={inertDestination || undefined}
-        >
-          {children}
-        </div>
-      </IntroHandoffContext.Provider>
+      <div
+        className={styles.introDestination}
+        inert={inertDestination || undefined}
+        aria-hidden={inertDestination || undefined}
+      >
+        {children}
+      </div>
     </>
   );
 }

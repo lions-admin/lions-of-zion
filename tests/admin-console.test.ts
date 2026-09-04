@@ -384,6 +384,7 @@ describe("STATE-004 — one implementation, used by every destructive action (so
     const pipeline = read("app/admin/PipelinePanel.tsx");
     const desk = read("app/admin/EditorialDesk.tsx");
     const sources = read("app/admin/SourcesPanel.tsx");
+    const system = read("app/admin/SystemPanel.tsx");
 
     for (const [file, source, handler] of [
       ["OverviewPanel.tsx", overview, "requestPublicationControl"],
@@ -395,10 +396,16 @@ describe("STATE-004 — one implementation, used by every destructive action (so
       ["EditorialDesk.tsx", desk, "requestArchive"],
       ["EditorialDesk.tsx", desk, "requestDelete"],
       /* Two arrived with the rebuild and belong to the same clause: a
-         rollback replaces what readers see, and switching a source off
-         stops collection. */
+          rollback replaces what readers see, and switching a source off
+          stops collection. */
       ["EditorialDesk.tsx", desk, "requestRollback"],
       ["SourcesPanel.tsx", sources, "requestSourceActive"],
+      /* Two arrived with the P1 wave: the collection sweep spends the
+          search and processing budgets outside the cadence, and discarding a
+          quarantined candidate removes it from the recovery queue with no
+          re-run. */
+      ["SourcesPanel.tsx", sources, "requestSweep"],
+      ["SystemPanel.tsx", system, "requestDiscard"],
     ] as const) {
       const declared = source.indexOf(`function ${handler}`);
       expect(declared, `${handler} exists in ${file}`).toBeGreaterThan(-1);
@@ -472,6 +479,25 @@ describe("STATE-004 — one implementation, used by every destructive action (so
 });
 
 /* ── ADMIN-002: information architecture and keyboard order ─────────────── */
+
+describe("the draft preview region (source)", () => {
+  const pipeline = read("app/admin/PipelinePanel.tsx");
+
+  it("holds its read until the region is opened, dated by the server's own 'today'", () => {
+    expect(pipeline).toContain("enabled: draftOpen");
+    expect(pipeline).toMatch(/useState<string>\(\(\) => israelLocalDate\(\)\)/);
+  });
+
+  it("opens through an aria-expanded toggle and a shared labelled Field", () => {
+    expect(pipeline).toMatch(/aria-expanded=\{draftOpen\}/);
+    expect(pipeline).toMatch(/<Field[\s\S]*?type="date"[\s\S]*?label=\{T\.date\}/);
+  });
+
+  it("names the second cause of its 404, which a no-edition day shares with a missing route", () => {
+    expect(pipeline).toMatch(/draft\.state\.kind === "unavailable"/);
+    expect(pipeline).toContain("ABSENCE.draftEditionAbsent");
+  });
+});
 
 describe("ADMIN-002 — the console header (rendered)", () => {
   it("gives the operator a way to end the session, in the header", async () => {
@@ -568,17 +594,17 @@ describe("ADMIN-002 — keyboard order matches visual layout (source)", () => {
   });
 
   it("keeps irreversible controls last in the reading order of their own area", () => {
-    for (const file of ["app/admin/PipelinePanel.tsx", "app/admin/EditorialDesk.tsx"]) {
+    for (const file of ["app/admin/PipelinePanel.tsx", "app/admin/EditorialDesk.tsx", "app/admin/SourcesPanel.tsx"]) {
       const source = read(file);
       const zone = source.indexOf("styles.dangerZone");
       expect(zone, `${file} has a danger zone`).toBeGreaterThan(-1);
 
       /* Last in its *area*, not last in the file: the console's pipeline
-         danger zone is followed by the whole Sources section, which is
-         routine work in a different area. The boundary is the next named
-         area, or the end of the component. A routine control between the
-         danger zone and that boundary is one an operator tabs *through* on
-         the way past something irreversible. */
+          danger zone is followed by the whole Sources section, which is
+          routine work in a different area. The boundary is the next named
+          area, or the end of the component. A routine control between the
+          danger zone and that boundary is one an operator tabs *through* on
+          the way past something irreversible. */
       const boundary = source.indexOf("<section", zone);
       const area = source.slice(zone, boundary === -1 ? undefined : boundary);
       expect(area.match(/variant="(primary|secondary)"/),
@@ -614,6 +640,46 @@ describe("ADMIN-002 — keyboard order matches visual layout (source)", () => {
       ["app/admin/SystemPanel.tsx", "console-system"],
     ] as const) {
       expect(read(file), `${id} is a named area`).toContain(`id="${id}"`);
+    }
+  });
+});
+
+describe("the incidents recovery controls (source)", () => {
+  /* The P1 wave's additions to the system area. The shared danger-zone-last
+     test above cannot see sub-areas — its boundary is the next `<section`,
+     and the other six sub-areas of `SystemPanel` follow the incidents one in
+     the same file — so the placement property for the discard control is
+     pinned here at the granularity that exists: last decision on the row,
+     and the quarantine decisions the last region of the sub-area. */
+  const system = read("app/admin/SystemPanel.tsx");
+  const incidents = system.slice(
+    system.indexOf("function IncidentsSection"),
+    system.indexOf("/* ── Security"),
+  );
+
+  it("places the discard control last on its row, after resolve", () => {
+    const rows = incidents.slice(incidents.indexOf("value.quarantine.map"), incidents.indexOf("</ul>", incidents.indexOf("value.quarantine.map")));
+    expect(rows, "the quarantine rows render").toContain("T.resolve");
+    expect(rows).toContain("T.discard");
+    expect(rows.indexOf("T.resolve"), "resolve is asked first").toBeLessThan(rows.indexOf("T.discard"));
+    expect(rows, "the discard control is styled as the dangerous one").toContain('variant="danger"');
+  });
+
+  it("sits the quarantine decisions after every other region of the incidents sub-area", () => {
+    const decisions = incidents.indexOf("value.quarantine.map");
+    for (const earlier of ["value.openAlerts.map", "value.stuckJobs", "value.outbox.undelivered", "value.failedRuns.map", "value.recentlyResolved.map"]) {
+      expect(incidents.indexOf(earlier), `${earlier} is read before the quarantine decisions`).toBeGreaterThan(-1);
+      expect(incidents.indexOf(earlier)).toBeLessThan(decisions);
+    }
+  });
+
+  it("leaves the two reversible recovery actions unconfirmed", () => {
+    for (const handler of ["drainOutboxNow", "runMaintenanceTick", "resolveQuarantine"]) {
+      const declared = system.indexOf(`function ${handler}`);
+      expect(declared, `${handler} exists`).toBeGreaterThan(-1);
+      const body = system.slice(declared, system.indexOf("\n  }", declared));
+      expect(body, `${handler} runs through the shared operation state`).toContain("ops.run(");
+      expect(body, `${handler} is asked for nothing`).not.toContain("setConfirmIntent(");
     }
   });
 });

@@ -19,16 +19,22 @@ import type {
   AuditEntry,
   AuditPage,
   ConsoleCosts,
+  ConsoleEditionDrilldown,
   ConsoleEditorial,
   ConsoleIncidents,
   ConsoleNarratives,
   ConsoleOverview,
   ConsolePipeline,
+  ConsoleQualityChecks,
   ConsoleSecurity,
   ConsoleSettings,
+  ConsoleSourceFetches,
   ConsoleSources,
   ConsoleUsers,
   ListAudit,
+  ListEditionDrilldown,
+  ListQualityChecks,
+  ListSourceFetches,
   PublicationVersion,
   ResolveAlert,
   RetryJob,
@@ -53,6 +59,9 @@ export interface ConsoleReads {
   users(): Promise<ConsoleUsers>;
   costs(): Promise<ConsoleCosts>;
   incidents(): Promise<ConsoleIncidents>;
+  qualityChecks(input: ListQualityChecks): Promise<ConsoleQualityChecks>;
+  editionDrilldown(input: ListEditionDrilldown): Promise<ConsoleEditionDrilldown>;
+  sourceFetches(input: ListSourceFetches): Promise<ConsoleSourceFetches>;
   security(request?: Request): Promise<ConsoleSecurity>;
   settings(): Promise<ConsoleSettings>;
   audit(input: ListAudit): Promise<AuditPage>;

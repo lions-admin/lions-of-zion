@@ -32,8 +32,12 @@ the publish stage.
 ## Pipeline and schedule
 
 Collection creates one durable job per source and half-hour Israel-local
-window. The 07:00 Israel-local scheduler retries every fifteen minutes across
-the two possible UTC hours used by Israeli daylight saving time. It queues:
+window. There is no scheduled briefing scheduler any more: commit `c1e579b`
+(2026-09-03) removed its schedule from `vercel.json`, so an edition is queued
+by the admin run button (`POST /api/v1/admin/briefing/run`) or arrives as an
+external package (`POST /api/internal/briefing/external-publish`). The briefing
+cron route still exists for a scheduled return; re-enabling it requires the
+briefing deploy rule documented in CLAUDE.md. Stage delivery still queues:
 
 ```text
 enrich -> cluster -> triage -> draft -> quality -> publish
@@ -461,10 +465,11 @@ owner must perform the final password change directly in the provider UI.
 
 ## Deploying between editions
 
-The briefing cron runs at 07:00 Asia/Jerusalem — `0,15,30,45 4,5 * * *` in
-`vercel.json`, covering both UTC hours Israeli daylight saving can put it in.
-Deploy the briefing pipeline **outside that window**, and prefer a time when no
-edition is mid-flight.
+There is no scheduled briefing window any more — commit `c1e579b` (2026-09-03)
+removed the briefing cron schedule from `vercel.json`, and editions start on
+demand from the admin run button or the external composer. The old caution
+still applies: deploy the briefing pipeline when no edition is mid-flight, and
+prefer a quiet time.
 
 The reason is not general caution. One edition's stages are separate runs, so a
 deploy can land between them, and a change to the quality contract then applies

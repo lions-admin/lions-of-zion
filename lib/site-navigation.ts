@@ -100,6 +100,9 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
   },
 ] as const;
 
+/** Two-digit file count, derived from the list so it can never drift. */
+export const FILES_COUNT_LABEL = String(SITE_NAVIGATION.length).padStart(2, "0");
+
 export function getSiteNavigationItem(id: string) {
   return SITE_NAVIGATION.find((item) => item.id === id);
 }

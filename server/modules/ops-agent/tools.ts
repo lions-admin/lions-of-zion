@@ -34,6 +34,9 @@ import {
   CONFIRMED_OPS_TOOLS,
   OPS_TOOLS,
   listAuditSchema,
+  listEditionDrilldownSchema,
+  listQualityChecksSchema,
+  listSourceFetchesSchema,
   retryJobSchema,
   resolveAlertSchema,
   rollbackPublicationSchema,
@@ -222,6 +225,60 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => {
       const r = result as { openAlerts?: unknown[]; stuckJobs?: unknown[] };
       return `${r.openAlerts?.length ?? 0} open alerts, ${r.stuckJobs?.length ?? 0} stuck jobs`;
+    },
+  }),
+  define("get_quality_checks", {
+    label: "מטריצת בקרות האיכות",
+    description:
+      "The briefing pipeline's recorded quality checks, one per candidate article: pass and fail counts, "
+      + "the per-check status and the failing detail. Filter by exactly one of a run id or an Israel-local "
+      + "date. Use it to answer why a candidate was held or held back by the gates.",
+    input: listQualityChecksSchema,
+    consequence: () => "Reads recorded quality checks. Changes nothing.",
+    target: () => "Briefing quality checks",
+    entityType: "system",
+    entityId: () => null,
+    run: (ctx, args) => ctx.console.qualityChecks(listQualityChecksSchema.parse(args)),
+    summarise: (result) => {
+      const r = result as { candidates?: Array<{ passCount?: number; total?: number; failCount?: number }> };
+      const candidates = r.candidates ?? [];
+      const passed = candidates.reduce((sum, c) => sum + (c.passCount ?? 0), 0);
+      const failed = candidates.reduce((sum, c) => sum + (c.failCount ?? 0), 0);
+      return `${candidates.length} candidates: ${passed} checks passed, ${failed} failed`;
+    },
+  }),
+  define("get_edition", {
+    label: "תחקיר מהדורה",
+    description:
+      "One edition's full drilldown by its Israel-local date: the stage ledger with counts and errors, the "
+      + "model runs behind each stage with tokens and cost, the latest stored artifact per stage, the claims "
+      + "the edition rests on, and the edition's stage jobs. The recovery screen for a day that went wrong.",
+    input: listEditionDrilldownSchema,
+    consequence: () => "Reads one edition. Changes nothing.",
+    target: (args) => `Edition ${str(args, "localDate")}`,
+    entityType: "system",
+    entityId: () => null,
+    run: (ctx, args) => ctx.console.editionDrilldown(listEditionDrilldownSchema.parse(args)),
+    summarise: (result) => {
+      const r = result as { edition?: { status?: string }; runs?: unknown[]; claims?: unknown[] };
+      return `edition ${r.edition?.status ?? "?"}; ${r.runs?.length ?? 0} stage runs, ${r.claims?.length ?? 0} claims`;
+    },
+  }),
+  define("get_source_fetches", {
+    label: "יומן איסוף מקור",
+    description:
+      "A source's fetch log, newest first — status, items seen and new, errors, raw storage pointers — plus "
+      + "the same day's roll-up since Israel-local midnight. Use it to answer what a source did and when, "
+      + "and whether its trouble started today.",
+    input: listSourceFetchesSchema,
+    consequence: () => "Reads a source's fetch log. Changes nothing.",
+    target: (args) => `Source ${str(args, "id")}`,
+    entityType: "source",
+    entityId: (args) => str(args, "id"),
+    run: (ctx, args) => ctx.console.sourceFetches(listSourceFetchesSchema.parse(args)),
+    summarise: (result) => {
+      const r = result as { fetches?: unknown[]; today?: { attempts?: number; failed?: number } };
+      return `${r.fetches?.length ?? 0} fetches; today ${r.today?.attempts ?? 0} attempts, ${r.today?.failed ?? 0} failed`;
     },
   }),
   define("get_security", {

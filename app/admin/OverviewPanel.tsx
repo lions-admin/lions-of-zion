@@ -3,7 +3,8 @@
 import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
-import type { ConsoleOverview, OpsCapabilities } from "@/server/contracts/admin-console";
+import { politeLive } from "@/components/ui/live-region";
+import type { ConsoleCosts, ConsoleIncidents, ConsoleOverview, OpsCapabilities } from "@/server/contracts/admin-console";
 import type { BriefingStatus, Status } from "./briefing-shapes";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import { AlertList, CommandCard, Stat, StatGrid, VerdictBanner } from "./_command/StatusCards";
@@ -18,9 +19,11 @@ import {
   ReadGate,
   formatAgo,
   formatDate,
+  formatPercent,
   formatUsd,
   today,
   useOperations,
+  type PillTone,
 } from "./console-primitives";
 import { AREA_LABEL, JOB_STATE_LABEL, SEVERITY_LABEL, STAGE_LABEL, T } from "./lexicon";
 import { callConsole, useConsoleRead } from "./useConsoleRead";
@@ -46,16 +49,23 @@ export function OverviewPanel({ signal }: { signal: number }) {
   const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal, pollInterval: OVERVIEW_POLL_MS });
   const status = useConsoleRead<Status>("admin/status", { signal, pollInterval: OVERVIEW_POLL_MS });
   /* What the console can do, from the same capability list the operations
-   * chat renders — read here rather than copied, so the two never disagree.
-   * Static enough to skip polling; the shell signal still refreshes it. */
+    * chat renders — read here rather than copied, so the two never disagree.
+    * Static enough to skip polling; the shell signal still refreshes it. */
   const capabilities = useConsoleRead<OpsCapabilities>("admin/ops/capabilities", { signal });
+  /* The costs meters and the inner delivery queue: mount + signal only, no
+    * new poll — the 30s budget above is the area's whole poll spend, and the
+    * shell signal refreshes these with everything else. `status` already
+    * carries the integrations and the resource fingerprints; the regions
+    * below only surface them. */
+  const costs = useConsoleRead<ConsoleCosts>("admin/console/costs", { signal });
+  const incidents = useConsoleRead<ConsoleIncidents>("admin/console/incidents", { signal });
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /**
-   * STATE-004 — where focus lands when the control that opened a confirmation
-   * is gone by the time it closes. The area itself is `tabIndex={-1}` and
-   * named by its own heading, so landing there announces where the operator
-   * is rather than an anonymous group.
-   */
+    * STATE-004 — where focus lands when the control that opened a confirmation
+    * is gone by the time it closes. The area itself is `tabIndex={-1}` and
+    * named by its own heading, so landing there announces where the operator
+    * is rather than an anonymous group.
+    */
   const areaRef = useRef<HTMLElement | null>(null);
 
   const reloadAll = useCallback(() => {
@@ -240,6 +250,77 @@ export function OverviewPanel({ signal }: { signal: number }) {
         </div>
       </div>
 
+      {/* ── Costs, readiness and the inner delivery queue ────────────────
+          The four budget meters of System & Security's costs sub-area, the
+          integration readiness and the resource fingerprints the status
+          read above already carries, and the outbox backlog. Both console
+          reads are mount + signal only, so the area's poll spend stays the
+          three 30s reads it declares above. */}
+      <div className={styles.twoColumns}>
+        <div className={styles.panel}>
+          <PanelTitle>{T.budgetsPanel}</PanelTitle>
+          <InlineAbsence state={costs.state} what={T.costsRead} reload={costs.reload} />
+          {costs.value ? (
+            <>
+              {costs.value.warnings.length ? (
+                <ul className={styles.warnList} {...politeLive}>
+                  {costs.value.warnings.map((warning) => (
+                    <li key={warning} className={styles.warnNote}>
+                      {warning}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <PanelTitle note={`${T.warnNotePrefix} ${formatPercent(costs.value.warnAt)}`}>{T.budgets}</PanelTitle>
+              <div className={styles.meterGrid}>
+                <BudgetMeter label={T.meterAiDaily} fraction={costs.value.utilisation.aiDaily} spent={formatUsd(costs.value.spend.today, 2)} budget={formatUsd(costs.value.budgets.ai.dailyUsd, 2)} warnAt={costs.value.warnAt} />
+                <BudgetMeter label={T.meterAiMonthly} fraction={costs.value.utilisation.aiMonthly} spent={formatUsd(costs.value.spend.monthToDateUsd, 2)} budget={formatUsd(costs.value.budgets.ai.monthlyUsd, 2)} warnAt={costs.value.warnAt} />
+                <BudgetMeter label={T.meterBriefingMonthly} fraction={costs.value.utilisation.briefingMonthly} spent={formatUsd(costs.value.spend.monthToDateUsd, 2)} budget={formatUsd(costs.value.budgets.briefing.monthlyUsd, 2)} warnAt={costs.value.warnAt} />
+                <BudgetMeter
+                  label={T.meterSearchMonthly}
+                  fraction={costs.value.utilisation.searchMonthly}
+                  spent={`${costs.value.search.successfulQueriesThisMonth} ${T.queries}`}
+                  budget={costs.value.budgets.search.monthlyQueries === null ? T.noQueryBudget : `${costs.value.budgets.search.monthlyQueries} ${T.queries}`}
+                  warnAt={costs.value.warnAt}
+                />
+              </div>
+            </>
+          ) : null}
+        </div>
+        <div className={styles.panel}>
+          <PanelTitle>{T.integrations}</PanelTitle>
+          <InlineAbsence state={status.state} what="מצב הפריסה" reload={status.reload} />
+          {status.value ? (
+            <div className={styles.grid}>
+              {Object.entries(status.value.integrations).map(([name, active]) => (
+                <article className={styles.service} key={name}>
+                  <Pill tone={active ? "ok" : "warn"}>{active ? T.ready : T.waiting}</Pill>
+                  <h4>{name}</h4>
+                </article>
+              ))}
+            </div>
+          ) : null}
+          <PanelTitle>{T.resourceIdentity}</PanelTitle>
+          <p className={styles.muted}>{T.fingerprintNote}</p>
+          {status.value ? (
+            <StatGrid>
+              {Object.entries(status.value.resourceFingerprints ?? {}).map(([name, fingerprint]) => (
+                <Stat key={name} label={name} value={fingerprint ?? T.notSet} />
+              ))}
+            </StatGrid>
+          ) : null}
+          <PanelTitle>{T.outboxPanel}</PanelTitle>
+          <InlineAbsence state={incidents.state} what={T.outboxPanel} reload={incidents.reload} />
+          {incidents.value ? (
+            <StatGrid>
+              <Stat label={T.outboxUndelivered} value={String(incidents.value.outbox.undelivered)} tone={incidents.value.outbox.undelivered ? "warn" : "ok"} />
+              <Stat label={T.outboxDeadLettered} value={String(incidents.value.outbox.deadLettered)} tone={incidents.value.outbox.deadLettered ? "danger" : "ok"} />
+              <Stat label={T.outboxOldest} value={incidents.value.outbox.oldestAt ? formatAgo(incidents.value.outbox.oldestAt) : T.none} />
+            </StatGrid>
+          ) : null}
+        </div>
+      </div>
+
       <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
     </section>
   );
@@ -329,4 +410,28 @@ export function OverviewPanel({ signal }: { signal: number }) {
           : "אין מהדורה מאושרת להשלמה היום.";
     });
   }
+}
+
+/** One spend-versus-budget bar — the markup, the colour ramp and the
+ *  threshold behaviour of System & Security's costs meter, mirrored rather
+ *  than imported because that sub-area owns its own; the labels travel with
+ *  it through the lexicon, and a `null` budget is stated, never rendered as
+ *  a zero. */
+function BudgetMeter({ label, fraction, spent, budget, warnAt }: { label: string; fraction: number | null; spent: string; budget: string; warnAt: number }) {
+  const tone: PillTone = fraction === null ? "neutral" : fraction >= 1 ? "danger" : fraction >= warnAt ? "warn" : "ok";
+  const width = fraction === null ? 0 : Math.min(100, Math.round(fraction * 100));
+  return (
+    <div className={styles.meter}>
+      <div className={styles.meterHead}>
+        <span>{label}</span>
+        <Pill tone={tone}>{fraction === null ? T.noBudget : formatPercent(fraction)}</Pill>
+      </div>
+      <div className={styles.meterTrack} role="img" aria-label={`${label}: ${spent} ${T.ofTotal} ${budget}`}>
+        <span className={`${styles.meterFill} ${styles[`meter${tone === "danger" ? "Danger" : tone === "warn" ? "Warn" : "Ok"}`]}`} style={{ width: `${width}%` }} />
+      </div>
+      <p className={styles.headNote}>
+        {spent} {T.ofTotal} {budget}
+      </p>
+    </div>
+  );
 }

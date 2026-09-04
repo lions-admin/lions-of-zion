@@ -13,7 +13,10 @@ import {
   auditLog,
   briefingAlert,
   briefingJob,
+  briefingQuarantine,
+  briefingRun,
   entityVersion,
+  outbox,
   publication,
   source,
   sourceFamily,
@@ -199,5 +202,147 @@ describe("publication versions and rollback", () => {
     const [foreign] = await console.publicationVersions(two.id);
     await expect(console.rollbackPublication(one.id, { versionId: foreign!.versionId }, actor)).rejects.toThrow(/not found/);
     await expect(console.publicationVersions("00000000-0000-0000-0000-000000000000")).rejects.toThrow(/not found/);
+  });
+});
+
+describe("drainOutbox", () => {
+  it("dispatches every pending row through the real drain, marks them published, and audits in a separate transaction", async () => {
+    const db = await freshDatabase();
+    await db.insert(outbox).values([
+      { topic: "search.reindex", payload: { id: "a" } },
+      { topic: "publication.cache-invalidate", payload: { id: "b" } },
+    ]);
+    const sent: string[] = [];
+    const console = adminConsoleService(db, {
+      dispatch: null,
+      outboxDispatch: async (row) => { sent.push(String((row as { id: unknown }).id)); },
+    });
+
+    const result = await console.drainOutbox({}, actor, "req-drain");
+    expect(result).toEqual({ attempted: 2, dispatched: 2, failed: 0 });
+    expect(sent).toHaveLength(2);
+    const rows = await db.select().from(outbox);
+    expect(rows.every((row) => row.publishedAt !== null)).toBe(true);
+    const [audit] = await db.select().from(auditLog);
+    expect(audit).toMatchObject({ action: "ops.outbox.drained", entityType: "system", entityId: null, requestId: "req-drain" });
+    expect(audit!.afterState).toMatchObject({ dispatched: 2, failed: 0 });
+  });
+
+  it("is idempotent by nature: a second drain takes whatever remains", async () => {
+    const db = await freshDatabase();
+    await db.insert(outbox).values({ topic: "search.reindex", payload: { id: "a" } });
+    const console = adminConsoleService(db, {
+      dispatch: null,
+      outboxDispatch: async () => { throw new Error("queue said no"); },
+    });
+
+    const first = await console.drainOutbox({}, actor);
+    expect(first).toEqual({ attempted: 1, dispatched: 0, failed: 1 });
+    const [row] = await db.select().from(outbox);
+    expect(row!.publishedAt).toBeNull();
+    expect(row!.attempts).toBe(1);
+    expect(row!.lastError).toBe("queue said no");
+    /* The backoff pushed availability forward, so the second drain — seconds
+       later, with nothing to dispatch — attempts nothing rather than retrying
+       the failed row early. */
+    const second = await console.drainOutbox({}, actor);
+    expect(second).toEqual({ attempted: 0, dispatched: 0, failed: 0 });
+    expect((await db.select().from(auditLog)).filter((row) => row.action === "ops.outbox.drained")).toHaveLength(2);
+  });
+
+  it("hands through the limit", async () => {
+    const db = await freshDatabase();
+    await db.insert(outbox).values([
+      { topic: "search.reindex", payload: { id: "a" }, availableAt: new Date(Date.now() - 60_000) },
+      { topic: "search.reindex", payload: { id: "b" }, availableAt: new Date() },
+      { topic: "search.reindex", payload: { id: "c" }, availableAt: new Date() },
+    ]);
+    const console = adminConsoleService(db, {
+      dispatch: null,
+      outboxDispatch: async () => undefined,
+    });
+    const result = await console.drainOutbox({ limit: 2 }, actor);
+    expect(result).toEqual({ attempted: 2, dispatched: 2, failed: 0 });
+    expect((await db.select().from(outbox)).filter((row) => row.publishedAt !== null)).toHaveLength(2);
+  });
+});
+
+describe("runMaintenanceTick", () => {
+  it("runs prune, job recovery and alert evaluation in order and audits the counts", async () => {
+    const db = await freshDatabase();
+    const order: string[] = [];
+    const console = adminConsoleService(db, {
+      dispatch: null,
+      runPrune: async () => { order.push("prune"); return { rateLimits: 3, idempotencyKeys: 1 }; },
+      recoverBriefingJobs: async () => { order.push("recover"); return { recovered: 2, configurationRecovered: 0, processingResumed: 1, dispatched: 3, quarantined: 0 }; },
+      evaluateBriefingAlerts: async () => { order.push("alerts"); return { evaluated: 4, created: 1 }; },
+    });
+
+    const result = await console.runMaintenanceTick(actor, "req-tick");
+    expect(order).toEqual(["prune", "recover", "alerts"]);
+    expect(result).toEqual({
+      maintenance: { rateLimits: 3, idempotencyKeys: 1 },
+      briefingJobs: { recovered: 2, configurationRecovered: 0, processingResumed: 1, dispatched: 3, quarantined: 0 },
+      briefingAlerts: { evaluated: 4, created: 1 },
+    });
+    const [audit] = await db.select().from(auditLog);
+    expect(audit).toMatchObject({ action: "ops.maintenance.tick", entityType: "system", requestId: "req-tick" });
+    expect(audit!.afterState).toMatchObject({ briefingAlerts: { created: 1 }, maintenance: { rateLimits: 3 } });
+  });
+});
+
+describe("resolveQuarantine and discardQuarantine", () => {
+  it("resolves an open entry once and refuses an already-closed one", async () => {
+    const db = await freshDatabase();
+    const [run] = await db.insert(briefingRun).values({
+      localDate: "2026-09-03", stage: "enrich", status: "completed", startedAt: new Date(),
+    }).returning();
+    const [entry] = await db.insert(briefingQuarantine).values({
+      briefingRunId: run!.id, candidateKey: "story-1", stage: "triage", reason: "held back",
+    }).returning();
+    const console = adminConsoleService(db, { dispatch: null });
+
+    const outcome = await console.resolveQuarantine(entry!.id, { note: "checked, valid" }, actor, "req-q");
+    expect(outcome).toMatchObject({ id: entry!.id, candidateKey: "story-1", stage: "triage", status: "resolved" });
+    expect(outcome.resolvedAt).not.toBeNull();
+    const [stored] = await db.select().from(briefingQuarantine).where(eq(briefingQuarantine.id, entry!.id));
+    expect(stored).toMatchObject({ status: "resolved" });
+    expect(stored!.resolvedAt).not.toBeNull();
+    const [audit] = await db.select().from(auditLog);
+    expect(audit).toMatchObject({ action: "ops.quarantine.resolved", entityType: "event", entityId: entry!.id, requestId: "req-q" });
+    expect(audit!.beforeState).toMatchObject({ status: "open", reason: "held back" });
+    expect(audit!.afterState).toMatchObject({ status: "resolved", note: "checked, valid" });
+
+    await expect(console.resolveQuarantine(entry!.id, {}, actor)).rejects.toThrow(/already resolved/);
+    await expect(console.discardQuarantine(entry!.id, { note: "discarding a closed entry" }, actor)).rejects.toThrow(/already resolved/);
+    await expect(console.resolveQuarantine("00000000-0000-0000-0000-000000000000", {}, actor)).rejects.toThrow(/not found/);
+  });
+
+  it("discards an open entry and requires a note", async () => {
+    const db = await freshDatabase();
+    const [run] = await db.insert(briefingRun).values({
+      localDate: "2026-09-03", stage: "enrich", status: "completed", startedAt: new Date(),
+    }).returning();
+    const [entry] = await db.insert(briefingQuarantine).values({
+      briefingRunId: run!.id, candidateKey: "story-2", stage: "triage", reason: "duplicate",
+    }).returning();
+    const console = adminConsoleService(db, { dispatch: null });
+
+    const outcome = await console.discardQuarantine(entry!.id, { note: "duplicate of a published story" }, actor);
+    expect(outcome).toMatchObject({ id: entry!.id, status: "discarded" });
+    const [stored] = await db.select().from(briefingQuarantine).where(eq(briefingQuarantine.id, entry!.id));
+    expect(stored).toMatchObject({ status: "discarded" });
+    expect(stored!.resolvedAt).not.toBeNull();
+    const [audit] = await db.select().from(auditLog);
+    expect(audit).toMatchObject({ action: "ops.quarantine.discarded", entityType: "event", entityId: entry!.id });
+    expect(audit!.afterState).toMatchObject({ status: "discarded", note: "duplicate of a published story" });
+
+    await expect(console.discardQuarantine("00000000-0000-0000-0000-000000000000", { note: "why" }, actor)).rejects.toThrow(/not found/);
+
+    /* The note is required on the wire: a discard with no stated reason is a
+       contract failure at the route boundary, not here. */
+    const { discardQuarantineSchema } = await import("@/server/contracts/admin-console");
+    expect(discardQuarantineSchema.safeParse({}).success).toBe(false);
+    expect(discardQuarantineSchema.safeParse({ note: "  " }).success).toBe(false);
   });
 });

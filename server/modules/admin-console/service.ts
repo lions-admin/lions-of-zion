@@ -18,44 +18,85 @@ import "server-only";
  */
 
 import {
+  archiveChatThreadResultSchema,
   auditEntrySchema,
   auditPageSchema,
+  collectSweepResultSchema,
+  consoleChatThreadsSchema,
+  consoleChatTranscriptSchema,
+  consoleEditionDrilldownSchema,
+  consoleReportsSchema,
+  consoleSourceFetchesSchema,
   consoleCostsSchema,
   consoleEditorialSchema,
   consoleIncidentsSchema,
   consoleNarrativesSchema,
   consoleOverviewSchema,
   consolePipelineSchema,
+  consoleQualityChecksSchema,
+  consoleReportSchema,
   consoleSecuritySchema,
   consoleSettingsSchema,
   consoleSourcesSchema,
+  consoleSystemInternalsSchema,
   consoleUsersSchema,
+  drainOutboxResultSchema,
+  maintenanceTickResultSchema,
   PIPELINE_STAGES,
   publicationVersionSchema,
   retryJobResultSchema,
+  type ArchiveChatThreadResult,
   type AuditEntry,
   type AuditPage,
+  type CollectSweepResult,
   type ConsoleAlert,
+  type ConsoleChatThread,
+  type ConsoleChatThreads,
+  type ConsoleChatTranscript,
   type ConsoleCosts,
+  type ConsoleEditionArtifact,
+  type ConsoleEditionClaim,
+  type ConsoleEditionDrilldown,
+  type ConsoleEditionRun,
+  type ConsoleEditionRunAi,
   type ConsoleEditorial,
   type ConsoleIncidents,
   type ConsoleNarratives,
   type ConsoleOverview,
   type ConsolePipeline,
+  type ConsoleQualityChecks,
+  type ConsoleReport,
+  type ConsoleReports,
   type ConsoleSecurity,
   type ConsoleSettings,
+  type ConsoleSourceFetches,
   type ConsoleSources,
+  type ConsoleSystemInternals,
   type ConsoleUsers,
   type CostSurface,
+  type DiscardQuarantine,
+  type DrainOutbox,
+  type DrainOutboxResult,
   type EditorialCard,
   type ListAudit,
+  type ListChatThreadsQuery,
+  type ListConsoleReports,
+  type ListEditionDrilldown,
+  type ListQualityChecks,
+  type ListSourceFetches,
+  type MaintenanceTickResult,
   type PipelineJob,
   type PublicationVersion,
+  type QualityCheckCandidate,
+  type QualityCheckResult,
+  type QuarantineOutcome,
   type ResolveAlert,
+  type ResolveQuarantine,
   type RetryJob,
   type RetryJobResult,
   type RollbackPublication,
   type SetSourceActive,
+  type SourceFetch,
 } from "@/server/contracts/admin-console";
 import { updatePublicationSchema } from "@/server/contracts/publication";
 import {
@@ -78,13 +119,36 @@ import {
 } from "@/server/core/config";
 import { ADMIN_CAPABILITIES } from "@/server/core/auth/actor";
 import { writeAudit, type Actor } from "@/server/core/audit";
+import { publicReadCacheStats } from "@/server/core/public-read-cache";
+import { runMaintenance } from "@/server/core/maintenance";
+import { drainOutbox, type DrainResult } from "@/server/core/outbox";
 import { setIdentity } from "@/server/core/versioning";
 import { ApiError, notFound } from "@/server/http/responses";
 import { publicationService } from "@/server/modules/publications";
 import { sourceService } from "@/server/modules/sources";
 import { BRIEFING_DISCOVERY_QUERIES } from "@/server/modules/sources/catalog";
-import { dispatchBriefingJob } from "@/server/modules/briefing/jobs";
-import { adminConsoleRepo, type AuditRow, type AlertRow, type ConsoleJobState, type JobRow } from "./repo";
+import { dispatchBriefingJob, recoverAndDispatchBriefingJobs, enqueueDueCollectionJobs } from "@/server/modules/briefing/jobs";
+import { evaluateAndQueueBriefingAlerts } from "@/server/modules/briefing/alerts";
+import { REQUIRED_QUALITY_CHECKS } from "@/server/modules/briefing/quality";
+import {
+  adminConsoleRepo,
+  type AlertRow,
+  type AuditRow,
+  type ChatAiRunRow,
+  type ChatMessageRow,
+  type ChatThreadRow,
+  type ChatToolRunRow,
+  type ConsoleJobState,
+  type EditionArtifactRow,
+  type EditionClaimRow,
+  type EditionRunAiRow,
+  type EditionRunRow,
+  type JobRow,
+  type QualityCheckRow,
+  type QuarantineEntryRow,
+  type ReportDeskRow,
+  type SourceFetchRow,
+} from "./repo";
 
 /* ── Schedules ──────────────────────────────────────────────────────────────
    Mirrors `vercel.json` `crons`. `tests/admin-console-reads.test.ts` pins the
@@ -240,6 +304,152 @@ function toAuditEntry(row: AuditRow): AuditEntry {
   };
 }
 
+/** Stages sort in pipeline order; a stage name the pipeline no longer knows
+ *  (a row from an older contract) sorts last, by name — the same convention
+ *  the quality matrix uses for check names. */
+const pipelineOrder = new Map<string, number>(PIPELINE_STAGES.map((stage, index) => [stage, index]));
+const byPipelineOrder = (stage: string): number => pipelineOrder.get(stage) ?? PIPELINE_STAGES.length;
+const byStage = <T extends { stage: string }>(rows: T[]): T[] =>
+  [...rows].sort((a, b) => byPipelineOrder(a.stage) - byPipelineOrder(b.stage));
+
+function toEditionRun(row: EditionRunRow): ConsoleEditionRun {
+  return {
+    id: row.id,
+    stage: row.stage,
+    status: row.status,
+    inputCount: num(row.inputCount),
+    outputCount: num(row.outputCount),
+    errorMessage: row.errorMessage,
+    startedAt: isoRequired(row.startedAt),
+    finishedAt: iso(row.finishedAt),
+  };
+}
+
+function toEditionRunAi(row: EditionRunAiRow): ConsoleEditionRunAi {
+  return {
+    stage: row.stage,
+    aiRunId: row.aiRunId,
+    model: row.model,
+    profile: row.profile,
+    kind: row.kind,
+    inputTokens: row.inputTokens == null ? null : num(row.inputTokens),
+    outputTokens: row.outputTokens == null ? null : num(row.outputTokens),
+    costUsd: row.costUsd == null ? null : money(row.costUsd),
+    latencyMs: row.latencyMs == null ? null : num(row.latencyMs),
+    status: row.status,
+    createdAt: isoRequired(row.createdAt),
+  };
+}
+
+function toEditionArtifact(row: EditionArtifactRow): ConsoleEditionArtifact {
+  return {
+    stage: row.stage,
+    artifactVersion: num(row.artifactVersion),
+    inputHash: row.inputHash,
+    payload: row.payload ?? null,
+    createdAt: isoRequired(row.createdAt),
+  };
+}
+
+function toEditionClaim(row: EditionClaimRow): ConsoleEditionClaim {
+  return {
+    itemId: row.itemId,
+    layer: row.layer as ConsoleEditionClaim["layer"],
+    machineAssessment: row.machineAssessment as ConsoleEditionClaim["machineAssessment"],
+    attributedTo: row.attributedTo,
+    uncertainty: row.uncertainty,
+    createdAt: isoRequired(row.createdAt),
+  };
+}
+
+function toSourceFetch(row: SourceFetchRow): SourceFetch {
+  return {
+    id: row.id,
+    status: row.status as SourceFetch["status"],
+    startedAt: isoRequired(row.startedAt),
+    finishedAt: isoRequired(row.finishedAt),
+    httpStatus: row.httpStatus == null ? null : num(row.httpStatus),
+    itemsSeen: num(row.itemsSeen),
+    itemsNew: num(row.itemsNew),
+    errorMessage: row.errorMessage,
+    searchQuery: row.searchQuery,
+    rawBlobUrl: row.rawBlobUrl,
+    rawByteSize: row.rawByteSize == null ? null : num(row.rawByteSize),
+    createdAt: isoRequired(row.createdAt),
+  };
+}
+
+function toQuarantineOutcome(row: QuarantineEntryRow): QuarantineOutcome {
+  return {
+    id: row.id,
+    candidateKey: row.candidateKey,
+    stage: row.stage,
+    reason: row.reason,
+    status: row.status as QuarantineOutcome["status"],
+    resolvedAt: iso(row.resolvedAt),
+    createdAt: isoRequired(row.createdAt),
+  };
+}
+
+function toConsoleReport(row: ReportDeskRow): ConsoleReport {
+  return consoleReportSchema.parse({
+    id: row.id,
+    publicId: row.publicId,
+    url: row.url,
+    body: row.body,
+    reporterEmail: row.reporterEmail,
+    reporterNote: row.reporterNote,
+    status: row.status,
+    resolutionNote: row.resolutionNote,
+    itemId: row.itemId,
+    createdAt: isoRequired(row.createdAt),
+    updatedAt: isoRequired(row.updatedAt),
+    trailCount: num(row.trailCount),
+    latestTrail: row.latestTrail == null ? null : {
+      toStatus: row.latestTrail.toStatus,
+      actorLabel: row.latestTrail.actorLabel,
+      occurredAt: isoRequired(row.latestTrail.occurredAt),
+    },
+  });
+}
+
+function toChatThread(row: ChatThreadRow): ConsoleChatThread {
+  return {
+    id: row.id,
+    title: row.title,
+    createdByLabel: row.createdByLabel,
+    createdAt: isoRequired(row.createdAt),
+    archivedAt: iso(row.archivedAt),
+    messageCount: num(row.messageCount),
+    lastMessageAt: iso(row.lastMessageAt),
+  };
+}
+
+/** The keyset cursor both desk reads serve: the boundary row's instant and
+ *  id, joined by `|`. The instant is ISO — it never carries the separator. */
+const keysetCursor = (row: { createdAt: Ts; id: string }): string =>
+  `${isoRequired(row.createdAt)}|${row.id}`;
+
+function decodeKeyset(cursor: string): { at: string; id: string } {
+  const index = cursor.indexOf("|");
+  const at = index > 0 ? cursor.slice(0, index) : "";
+  const id = index > 0 ? cursor.slice(index + 1) : "";
+  if (!at || !/^\d{4}-\d{2}-\d{2}T/.test(at) || !id) {
+    throw new ApiError("VALIDATION_ERROR", "The cursor is not a keyset cursor this read served.");
+  }
+  return { at, id };
+}
+
+/** The detail bound the contract serves (`≤ 500`); one "…" marks the cut. */
+const MAX_CHECK_DETAIL = 500;
+
+function truncateCheckDetail(detail: string | null): string | null {
+  if (detail == null) return null;
+  return detail.length > MAX_CHECK_DETAIL
+    ? `${detail.slice(0, MAX_CHECK_DETAIL - 1)}…`
+    : detail;
+}
+
 /** Which console surface an `ai_run` belongs to. Profiles are the primary
  *  key; `kind` breaks the tie for the public chat, which records its calls
  *  under the `fast` profile with `kind = 'chat'`. */
@@ -275,6 +485,29 @@ export type AdminConsoleOptions = {
   /** How a requeued job reaches the worker. Defaults to the briefing queue
    *  when one is bound; otherwise the next cron recovery tick picks it up. */
   dispatch?: ((job: ConsoleJobState) => Promise<void>) | null;
+  /** How a manual outbox drain dispatches one row. Defaults to the real queue
+   *  client; tests inject a stub so they never authenticate against it. */
+  outboxDispatch?: ((row: unknown) => Promise<void>) | null;
+  /** The runners behind `drainOutbox()` and `runMaintenanceTick()`. Defaults
+   *  to the live exports, bound to `db()` exactly as the internal cron routes
+   *  call them; tests inject stubs, because those exports bind their own
+   *  connection and a test database is never reachable through `db()`. */
+  drain?: (opts: { limit?: number }) => Promise<DrainResult>;
+  runPrune?: () => Promise<{ rateLimits: number; idempotencyKeys: number }>;
+  recoverBriefingJobs?: () => Promise<{
+    recovered: number;
+    configurationRecovered: number;
+    processingResumed: number;
+    dispatched: number;
+    quarantined: number;
+  }>;
+  evaluateBriefingAlerts?: () => Promise<{ evaluated: number; created: number }>;
+  /** The runner behind `runCollectionSweep()`. Defaults to the real export,
+   *  bound to `db()` exactly as the internal cron ingest route calls it;
+   *  tests inject a stub, because that export binds its own connection. */
+  collectionSweep?: () => Promise<
+    Array<{ sourceId: string; jobId: string; status: "queued" | "already_completed" | "dispatch_failed"; error?: string }>
+  >;
   now?: () => Date;
 };
 
@@ -285,6 +518,12 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
   const dispatch = options.dispatch === undefined
     ? (queueConfigured() ? (job: ConsoleJobState) => dispatchBriefingJob(job as never) : null)
     : options.dispatch;
+  const drain = options.drain ?? ((opts: { limit?: number }) =>
+    drainOutbox(db, { limit: opts.limit, dispatch: options.outboxDispatch ?? undefined }));
+  const runPrune = options.runPrune ?? runMaintenance;
+  const recoverBriefingJobs = options.recoverBriefingJobs ?? recoverAndDispatchBriefingJobs;
+  const evaluateBriefingAlerts = options.evaluateBriefingAlerts ?? (() => evaluateAndQueueBriefingAlerts());
+  const collectionSweep = options.collectionSweep ?? (() => enqueueDueCollectionJobs());
 
   return {
     async overview(): Promise<ConsoleOverview> {
@@ -361,6 +600,245 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           collectionClosedAt: iso(row.collectionClosedAt),
           publishedAt: iso(row.publishedAt),
         })),
+      });
+    },
+
+    /**
+     * The briefing pipeline's own quality audit rows, shaped into a per-
+     * candidate matrix. The check-name list and its order come from
+     * `REQUIRED_QUALITY_CHECKS` — the same frozen list the SQL publish gate
+     * counts — so the console can never show a check the pipeline stopped
+     * recording, and a check the pipeline adds appears in the required list
+     * without this file ever changing. A check name the list does not know
+     * (a row from an older contract) sorts after the known ones, by name.
+     */
+    async qualityChecks(input: ListQualityChecks): Promise<ConsoleQualityChecks> {
+      const rows = await repo.qualityChecks(input);
+      const ordinal = new Map<string, number>(REQUIRED_QUALITY_CHECKS.map((name, index) => [name, index]));
+      const grouped = new Map<string, QualityCheckRow[]>();
+      for (const row of rows) {
+        const key = `${row.runId}\u0000${row.candidateKey}`;
+        const list = grouped.get(key);
+        if (list) list.push(row);
+        else grouped.set(key, [row]);
+      }
+      const candidates: QualityCheckCandidate[] = [...grouped.values()].map((list) => {
+        const head = list[0]!;
+        const checks: QualityCheckResult[] = list
+          .map((row) => ({
+            checkName: row.checkName,
+            status: row.status as QualityCheckResult["status"],
+            detail: truncateCheckDetail(row.detail),
+          }))
+          .sort((a, b) => {
+            const at = (check: QualityCheckResult) => ordinal.get(check.checkName);
+            if (at(a) !== undefined && at(b) !== undefined) return at(a)! - at(b)!;
+            if (at(a) !== undefined) return -1;
+            if (at(b) !== undefined) return 1;
+            return a.checkName.localeCompare(b.checkName);
+          });
+        const failCount = checks.filter((check) => check.status === "fail").length;
+        return {
+          runId: head.runId,
+          localDate: head.localDate,
+          candidateKey: head.candidateKey,
+          stage: head.stage,
+          passCount: checks.length - failCount,
+          failCount,
+          total: checks.length,
+          passed: failCount === 0,
+          checks,
+        };
+      });
+      return consoleQualityChecksSchema.parse({
+        generatedAt: now().toISOString(),
+        required: [...REQUIRED_QUALITY_CHECKS],
+        filter: { runId: input.runId ?? null, localDate: input.localDate ?? null },
+        candidates,
+      });
+    },
+
+    /**
+     * One edition's full recovery payload: the stage ledger, the model runs
+     * behind each stage, the stored artifacts (latest version per stage), the
+     * claims the edition rests on, and the edition's stage jobs. Read-only —
+     * the same aggregates `publications/repo.ts` serves for a single
+     * publication, scoped here to the whole Israel-local calendar date.
+     */
+    async editionDrilldown(input: ListEditionDrilldown): Promise<ConsoleEditionDrilldown> {
+      const [edition, runs, runAi, artifacts, claims, jobs] = await Promise.all([
+        repo.edition(input.localDate), repo.editionRuns(input.localDate), repo.editionRunAi(input.localDate),
+        repo.editionArtifacts(input.localDate), repo.editionClaims(input.localDate), repo.editionJobs(input.localDate),
+      ]);
+      if (!edition) throw notFound("Edition");
+      return consoleEditionDrilldownSchema.parse({
+        generatedAt: now().toISOString(),
+        localDate: input.localDate,
+        edition: {
+          id: edition.id,
+          localDate: edition.localDate,
+          status: edition.status,
+          contractVersion: edition.contractVersion,
+          promptVersion: edition.promptVersion,
+          collectionOpenedAt: isoRequired(edition.collectionOpenedAt),
+          collectionClosedAt: iso(edition.collectionClosedAt),
+          publishedAt: iso(edition.publishedAt),
+        },
+        runs: byStage(runs.map(toEditionRun)),
+        runAi: byStage(runAi.map(toEditionRunAi)),
+        artifacts: byStage(artifacts.map(toEditionArtifact)),
+        claims: claims.map(toEditionClaim),
+        jobs: jobs.map(toJob),
+      });
+    },
+
+    /**
+     * A source's fetch log, newest first, with the same day's roll-up. The
+     * boundary comes back from the database, so the read and the aggregate
+     * agree on one instant even around a DST change.
+     */
+    async sourceFetches(input: ListSourceFetches): Promise<ConsoleSourceFetches> {
+      const exists = await repo.sourceExists(input.id);
+      if (!exists) throw notFound("Source");
+      const [fetches, today] = await Promise.all([repo.sourceFetches(input), repo.sourceFetchesToday(input.id)]);
+      return consoleSourceFetchesSchema.parse({
+        generatedAt: now().toISOString(),
+        sourceId: input.id,
+        limit: input.limit,
+        fetches: fetches.map(toSourceFetch),
+        today: {
+          boundaryAt: isoRequired(today?.boundaryAt),
+          attempts: num(today?.attempts),
+          successes: num(today?.successes),
+          partial: num(today?.partial),
+          failed: num(today?.failed),
+          itemsSeen: num(today?.itemsSeen),
+          itemsNew: num(today?.itemsNew),
+          lastError: today?.lastError ?? null,
+        },
+      });
+    },
+
+    /**
+     * The reports desk read: inbound submissions newest first, each with its
+     * append-only status-trail count and latest entry. Cross-domain by
+     * design — the console is a read model over tables other modules own,
+     * the same direct-SQL pattern `quarantineById` follows. The triage
+     * writes stay with the reports module's own staff routes.
+     */
+    async reports(input: ListConsoleReports): Promise<ConsoleReports> {
+      if (input.cursor) decodeKeyset(input.cursor);
+      const rows = await repo.reports(input);
+      const page = rows.slice(0, input.limit);
+      const more = rows.length > input.limit;
+      return consoleReportsSchema.parse({
+        generatedAt: now().toISOString(),
+        filter: { status: input.status ?? null },
+        limit: input.limit,
+        reports: page.map(toConsoleReport),
+        nextCursor: more && page.length ? keysetCursor(page[page.length - 1]!) : null,
+      });
+    },
+
+    /**
+     * The moderation list for public chat: threads newest first with their
+     * message counts and last-message-at, `(created_at, id)` keyset, ceiling
+     * 50 on the wire — the same bound `chatThreads`' own keyset applies.
+     */
+    async chatThreads(input: ListChatThreadsQuery): Promise<ConsoleChatThreads> {
+      if (input.cursor) decodeKeyset(input.cursor);
+      const rows = await repo.chatThreads(input);
+      const page = rows.slice(0, input.limit);
+      const more = rows.length > input.limit;
+      return consoleChatThreadsSchema.parse({
+        generatedAt: now().toISOString(),
+        limit: input.limit,
+        threads: page.map(toChatThread),
+        nextCursor: more && page.length ? keysetCursor(page[page.length - 1]!) : null,
+      });
+    },
+
+    /**
+     * One thread's full transcript in reading order: the messages, the tool
+     * runs retrieval made behind each message, and — via the assistant
+     * message's `ai_run_id` — the recorded model call with its cost. The
+     * assistant linkage is the point: a conversation whose turns cannot be
+     * attributed to a recorded run is one whose citations cannot be checked.
+     */
+    async chatTranscript(threadId: string): Promise<ConsoleChatTranscript> {
+      const thread = await repo.chatThreadById(threadId);
+      if (!thread) throw notFound("Chat thread");
+      const [messages, toolRuns] = await Promise.all([
+        repo.chatMessages(threadId), repo.chatToolRuns(threadId),
+      ]);
+      const runsByMessage = new Map<string, ChatToolRunRow[]>();
+      for (const row of toolRuns) {
+        const list = runsByMessage.get(row.messageId) ?? [];
+        list.push(row);
+        runsByMessage.set(row.messageId, list);
+      }
+      const runIds = [...new Set(messages.map((m) => m.aiRunId).filter((id): id is string => id !== null))];
+      const aiRuns = await repo.chatAiRuns(runIds);
+      const aiRunsById = new Map<string, ChatAiRunRow>(aiRuns.map((row) => [row.aiRunId, row]));
+      return consoleChatTranscriptSchema.parse({
+        generatedAt: now().toISOString(),
+        thread: {
+          id: thread.id,
+          title: thread.title,
+          createdByLabel: thread.createdByLabel,
+          createdAt: isoRequired(thread.createdAt),
+          archivedAt: iso(thread.archivedAt),
+        },
+        messages: messages.map((m: ChatMessageRow) => {
+          const run = m.aiRunId ? aiRunsById.get(m.aiRunId) : undefined;
+          return {
+            id: m.id,
+            seq: num(m.seq),
+            role: m.role as "user" | "assistant" | "system",
+            content: m.content,
+            createdAt: isoRequired(m.createdAt),
+            toolRuns: (runsByMessage.get(m.id) ?? []).map((row) => ({
+              tool: row.tool,
+              status: row.status,
+              resultCount: num(row.resultCount),
+              latencyMs: row.latencyMs == null ? null : num(row.latencyMs),
+            })),
+            run: run == null ? null : {
+              aiRunId: run.aiRunId,
+              model: run.model,
+              profile: run.profile,
+              inputTokens: run.inputTokens == null ? null : num(run.inputTokens),
+              outputTokens: run.outputTokens == null ? null : num(run.outputTokens),
+              costUsd: money(run.costUsd),
+            },
+          };
+        }),
+      });
+    },
+
+    /**
+     * The machine's own internals, read-only: the embedding backlog (the
+     * exact two-hash comparison `search/repo.ts` serves), the semantic arm's
+     * honest answer from the SQL function, the public-read cache's process
+     * counters, and the embedding ledger's day. Only figures those stores
+     * actually expose.
+     */
+    async systemInternals(): Promise<ConsoleSystemInternals> {
+      const [row, semanticArm] = await Promise.all([
+        repo.systemInternals(), repo.systemSemanticArm(),
+      ]);
+      return consoleSystemInternalsSchema.parse({
+        generatedAt: now().toISOString(),
+        embeddingBacklog: {
+          stale: num(row?.staleBacklog),
+          indexed: num(row?.indexed),
+        },
+        semanticArm: semanticArm?.ok ?? false,
+        publicReadCache: publicReadCacheStats(),
+        embeddingRuns: {
+          last24h: num(row?.embeddingRuns24h),
+          lastRunAt: iso(row?.embeddingLastRunAt),
+        },
       });
     },
 
@@ -875,6 +1353,181 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
         });
         const versions = await r.publicationVersions(id);
         return { id, versionNumber: num(versions[0]?.versionNumber ?? 0), restoredFrom: version.versionId };
+      });
+    },
+
+    /**
+     * Drains pending outbox rows through `drainOutbox` — the same export the
+     * internal cron route runs, so a stuck backlog needs no cron wait. The
+     * drain dispatches per row with autocommit updates: no single transaction
+     * wraps it, so the audit row goes in its own transaction after the fact,
+     * the same separation `retryJob` draws between its commit and its queue
+     * send. Idempotent by nature — a second call drains whatever remains.
+     */
+    async drainOutbox(input: DrainOutbox, actor: Actor, requestId?: string): Promise<DrainOutboxResult> {
+      const outcome = await drain({ limit: input.limit });
+      await run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.outbox.drained",
+          entityType: "system",
+          entityId: null,
+          after: outcome,
+          requestId,
+        });
+      });
+      return drainOutboxResultSchema.parse(outcome);
+    },
+
+    /**
+     * The maintenance cron's sequence, on demand: prune first, then job
+     * recovery, then alert evaluation — the order the internal cron route
+     * lists its runners. Read the returned counts against the audit row.
+     */
+    async runMaintenanceTick(actor: Actor, requestId?: string): Promise<MaintenanceTickResult> {
+      const maintenance = await runPrune();
+      const briefingJobs = await recoverBriefingJobs();
+      const briefingAlerts = await evaluateBriefingAlerts();
+      await run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.maintenance.tick",
+          entityType: "system",
+          entityId: null,
+          after: { maintenance, briefingJobs, briefingAlerts },
+          requestId,
+        });
+      });
+      return maintenanceTickResultSchema.parse({ maintenance, briefingJobs, briefingAlerts });
+    },
+
+    /**
+     * Archives a public-chat thread from the moderation desk. `archived_at`
+     * had no write path anywhere before this: the chat module owns no
+     * archival of its own, so the recovery write lives with the console's
+     * other by-id recovery writes, refusing an already-archived thread and
+     * auditing in the same transaction.
+     */
+    async archiveChatThread(id: string, actor: Actor, requestId?: string): Promise<ArchiveChatThreadResult> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = adminConsoleRepo(tx);
+        const before = await r.chatThreadById(id);
+        if (!before) throw notFound("Chat thread");
+        if (before.archivedAt) {
+          throw new ApiError("PRECONDITION_FAILED", "This chat thread is already archived.");
+        }
+        const after = await r.archiveChatThread(id);
+        if (!after) throw new ApiError("CONFLICT", "The thread changed while it was being archived.");
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.chat.thread_archived",
+          entityType: "system",
+          entityId: id,
+          before: { archivedAt: null },
+          after: { title: before.title, createdByLabel: before.createdByLabel, createdAt: isoRequired(before.createdAt) },
+          requestId,
+        });
+        return archiveChatThreadResultSchema.parse({
+          id: after.id,
+          archivedAt: isoRequired(after.archivedAt),
+          wasArchived: true,
+        });
+      });
+    },
+
+    /**
+     * The ingest cron's collection half, on demand. The runner is exactly
+     * what the cron route calls — `enqueueDueCollectionJobs`, whose gates
+     * (`briefingFeatures().collection`, the source allowlist, the Agent
+     * Search ceilings and `shouldCollectSource`) enqueue only due sources,
+     * nothing more. Like the drain and the maintenance tick, the sweep
+     * itself dispatches outside any single transaction, so its audit row
+     * goes in its own transaction after the fact.
+     */
+    async runCollectionSweep(actor: Actor, requestId?: string): Promise<CollectSweepResult> {
+      const paused = !briefingFeatures().collection;
+      const results = paused ? [] : await collectionSweep();
+      const outcome = {
+        ranAt: now().toISOString(),
+        status: (paused ? "paused" : "ran") as "ran" | "paused",
+        enqueued: results.filter((row) => row.status === "queued").length,
+        alreadyCompleted: results.filter((row) => row.status === "already_completed").length,
+        dispatchFailed: results.filter((row) => row.status === "dispatch_failed").length,
+        results: results.map((row) => ({
+          sourceId: row.sourceId,
+          jobId: row.jobId,
+          status: row.status,
+          error: row.error ?? null,
+        })),
+      };
+      await run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.collection.sweep",
+          entityType: "system",
+          entityId: null,
+          after: { status: outcome.status, enqueued: outcome.enqueued, alreadyCompleted: outcome.alreadyCompleted, dispatchFailed: outcome.dispatchFailed },
+          requestId,
+        });
+      });
+      return collectSweepResultSchema.parse(outcome);
+    },
+
+    /** Marks a quality-quarantine candidate resolved once its cause is dealt
+     *  with — the recovery twin of `resolveAlert`, refusing an entry that is
+     *  already closed. */
+    async resolveQuarantine(id: string, input: ResolveQuarantine, actor: Actor, requestId?: string): Promise<QuarantineOutcome> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = adminConsoleRepo(tx);
+        const before = await r.quarantineById(id);
+        if (!before) throw notFound("Quarantine entry");
+        if (before.status !== "open") {
+          throw new ApiError("PRECONDITION_FAILED", `This quarantine entry is already ${before.status}.`);
+        }
+        const after = await r.closeQuarantine(id, "resolved");
+        if (!after) throw new ApiError("CONFLICT", "The quarantine entry changed while it was being resolved.");
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.quarantine.resolved",
+          entityType: "event",
+          entityId: id,
+          before: { status: before.status, reason: before.reason },
+          after: { status: "resolved", note: input.note?.trim() || null },
+          requestId,
+        });
+        return toQuarantineOutcome(after);
+      });
+    },
+
+    /** Removes a quarantine candidate from the recovery queue with no re-run.
+     *  A note is required on the wire — discarding without a stated reason is
+     *  a contract failure at the route boundary, never here. */
+    async discardQuarantine(id: string, input: DiscardQuarantine, actor: Actor, requestId?: string): Promise<QuarantineOutcome> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = adminConsoleRepo(tx);
+        const before = await r.quarantineById(id);
+        if (!before) throw notFound("Quarantine entry");
+        if (before.status !== "open") {
+          throw new ApiError("PRECONDITION_FAILED", `This quarantine entry is already ${before.status}.`);
+        }
+        const after = await r.closeQuarantine(id, "discarded");
+        if (!after) throw new ApiError("CONFLICT", "The quarantine entry changed while it was being discarded.");
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.quarantine.discarded",
+          entityType: "event",
+          entityId: id,
+          before: { status: before.status, reason: before.reason },
+          after: { status: "discarded", note: input.note },
+          requestId,
+        });
+        return toQuarantineOutcome(after);
       });
     },
   };

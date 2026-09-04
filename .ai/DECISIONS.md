@@ -10,6 +10,64 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-04 — `briefing-quality` is a declared queue topic with no route: retired in place, not dead weight
+
+`vercel.json` still carries a `queue/v2beta` trigger for topic
+`briefing-quality` (`vercel.json:49-53`), but
+`app/api/internal/queue/briefing/quality/route.ts` does not exist — the stage
+directory holds only `cluster`, `draft`, `enrich`, `publish` and `triage`. The
+quality-review stage was folded into publish by migration
+`0049_remove_briefing_quality_gate.sql`, which redefines
+`enforce_publication_publish_gate` to require machine provenance instead of
+quality provenance (`0049…:1-9, 26-38`) and completes any in-flight quality
+jobs with `last_error = 'Quality-review stage retired by owner instruction'`
+(`0049…:57-60`). `BRIEFING_JOB_STAGES` (`server/modules/briefing/jobs.ts:24`)
+no longer names `quality`: it is `collect, enrich, cluster, triage, draft,
+publish`. One remnant survives in code — `server/modules/briefing/repo.ts:179`
+still carries `quality` in a stage type union — harmless until edited; recorded
+here rather than "fixed" now.
+
+**What is verified and what is not.** Everything above is verifiable on disk
+today. Whether the Production Vercel project actually holds and would activate
+this trigger entry as `vercel.json` states is a console question:
+**verification PENDING — the production console has not been checked from this
+pass.** Until it is, do not add a `quality` stage consumer "to make
+`vercel.json` consistent", and do not delete the trigger entry either: the
+standing instruction for this pass is *don't add and don't delete right now*.
+The declared-but-unrouted topic is retired in place, and cleaning it up belongs
+to whatever decision eventually removes it — by the same two-deploy rule that
+governs retiring any topic.
+
+## 2026-09-04 — The briefing edition has no scheduled trigger; external-publish and the admin run are the fulfilled path
+
+Commit `c1e579b` (2026-09-03) removed the `0,15,30,45 4,5 * * *` cron that
+covered 07:00 Israel time from `vercel.json` — deliberately, and only after
+the external-publish trial succeeded end to end against Production: a real
+edition published, appeared on `/geopolitical-brief`, and an identical resend
+returned status `duplicate` with no new row, all verified via the public API
+(per the commit message). The route `/api/internal/cron/briefing` was **not**
+deleted; only its scheduled invocation was. An unscheduled invocation still
+returns, without force, `queued`, `outside_schedule` (any call outside the
+07:00 Israel local hour — `server/modules/briefing/jobs.ts:543`),
+`waiting_for_collection`, or `already_completed`.
+
+**This is not an accident, and a later reader must not "fix" it by re-adding
+the cron.** An edition is now fulfilled when a package arrives at
+`POST /api/internal/briefing/external-publish` (idempotent on
+`external_briefing_submission.run_id`,
+`0050_external_briefing_submission.sql:13`) or when the administrator triggers
+`POST /api/v1/admin/briefing/run`. The doc corrections of 2026-09-04
+(`docs/vercel-infrastructure.md`, `docs/operations.md`, `README.md`) describe
+this state; they are corrections of description, not a change of behaviour.
+Re-enabling the schedule is a one-line `crons` addition — the route's
+`vercel.json` functions block (`maxDuration: 300`, `iad1`) was never removed —
+but it must land between editions, per `CLAUDE.md`'s deploy rule: *"A deploy
+that adds or removes a briefing quality check must land between editions
+(07:00 Asia/Jerusalem), in either direction — a rollback strands an in-flight
+edition just as the deploy did."*
+
+---
+
 ## 2026-09-01 — A refutation is a narrative, so it publishes into `narrative_watch`
 
 The owner ruled that an anti-Israel news item **is** a narrative — the thing the

@@ -664,7 +664,7 @@
     transparent 0.5rem,
     transparent 1rem
   );
-  animation: railFlow 2.4s linear infinite;
+  animation: railFlow 5s linear infinite;
 }
 
 @keyframes railFlow {

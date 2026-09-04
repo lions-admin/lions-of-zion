@@ -24,12 +24,13 @@ export const defaultTheme: ParticleNavTheme = {
  *   - `idleRotateDegPerSec: 0` holds the rig and the orbital rings still.
  *
  * Restoring any of them is a visual decision that needs a real-Chrome capture
- * — idle rotation especially, because `Scene.tsx` rotates the whole rig and
- * reads `rig.rotation.z` back into the activate-dolly direction, so a nonzero
- * value drifts the projected DOM label geometry too and has to be checked
- * against `OrbitLayout`'s eight-links-in-viewport invariant. The scene is not
- * motionless meanwhile: pointer parallax, hover particle streams and the
- * connector pulse all run.
+ * — and restoring `repelStrength` is more than a dial: the camera is fixed
+ * (`Scene.tsx`, the still-camera note in its frame writer), the canvas is
+ * `pointer-events: none`, and the pointer affordances this array's dials
+ * once fed — pointer parallax, hover streams, the connector the lion
+ * streamed along — went with the retired orbit. What runs meanwhile is the
+ * intro timeline itself: the assembly, and the lion-to-text transfer that
+ * the fixed camera is composed against.
  */
 export const defaultSimParams: SimParams = {
   springStiffness: 8.0,
@@ -65,7 +66,6 @@ export const simParamRanges: Record<keyof SimParams, [number, number, number]> =
 };
 
 export const NAVIGATE_AT_MS = 320; // navigation never waits for the animation (brief §7)
-export const CANVAS_FADE_MS = 180;
 
 /*
  * The eight destinations, and the one array that carries three contracts:
@@ -136,7 +136,11 @@ export const NODE_BOTTOM_RESERVE_PX = 56;
  * bugs: `NetworkScan`'s SCAN_COMPACT_MAX_WIDTH is a label-density threshold,
  * a separate question with a separate answer.
  */
-export const MOBILE_MAX_WIDTH = 720;
+/* 721, not 720: every CSS layer asks `max-width: 45rem` (width ≤ 720px),
+   while this JS check asks `width < N`. N = 721 is what encodes the same
+   seam; a literal 720 left exactly one viewport width (720px) where the
+   CSS said phone and the scene said desktop. */
+export const MOBILE_MAX_WIDTH = 721;
 
 export interface OrbitLayout {
   radiusX: number;

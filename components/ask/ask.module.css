@@ -718,46 +718,15 @@
   .dockTrigger { transition: none; }
 }
 
-/* ---- Bubbles ---- */
-
-/* A turn is a row that knows which side it belongs to. `data-role` rather than
-   two classes, because the two sides are one thing seen from two ends and a
-   reader of this file should not have to hold two names for it. */
-.turn {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.turn[data-role="question"] {
-  align-items: flex-end;
-}
-
-/* The answer is not a peer reply and is not aligned like one: it takes the full
-   width, keeps the reading measure, and carries the source block under it. See
-   the note in `AnswerRecord.tsx` for why only one side of this is a bubble. */
-.turn[data-role="answer"] {
-  align-items: stretch;
-  gap: var(--sp-2);
-}
-
-/* The question. Capped well under the column so the shape reads as a bubble
-   rather than as a paragraph with a rounded edge, and squared at the corner it
-   points from — the one asymmetry is what gives it a direction. */
-.bubble {
-  max-inline-size: min(30rem, 82%);
-  padding: var(--sp-3) var(--sp-4);
-  background: var(--surface-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  border-end-end-radius: var(--radius-1);
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  text-align: start;
-  overflow-wrap: anywhere;
-}
+/* The bubble rules that stood here for one commit are gone.
+ *
+ * They aligned the question right, capped it, rounded it, and squared the one
+ * corner it points from — and every line of that is what AI Elements'
+ * `MessageContent` already does under `from="user"`, using the semantic colour
+ * tokens `tailwind.css` maps onto this palette. Writing it twice meant two
+ * places to keep a bubble's shape in step.
+ *
+ * `.turn` went with them: `Message` is the row that knows which side it is. */
 
 /* The frame the scroller fills. It has to be a bounded box with its own scroll,
    or `MessageScrollerViewport` has nothing to scroll inside and the whole

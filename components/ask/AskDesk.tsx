@@ -41,6 +41,11 @@ import { Card, CardDescription, CardEyebrow } from "@/components/ui/Card";
 import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { BorderBeam } from "@/components/motion";
+import { Message, MessageContent } from "@/components/ai-elements/message";
+import {
+  Suggestion,
+  Suggestions,
+} from "@/components/ai-elements/suggestion";
 import {
   Conversation,
   ConversationContent,
@@ -231,9 +236,9 @@ function Waiting({
           answer lands under it — the turn does not change shape when it
           resolves. The label goes, because the alignment already says whose
           turn this is. */}
-      <div className={styles.turn} data-role="question">
-        <p className={styles.bubble}>{question}</p>
-      </div>
+      <Message from="user">
+        <MessageContent>{question}</MessageContent>
+      </Message>
       <div className={styles.waiting}>
         {/* The default ink tone, not gold. Gold is reserved for the one
             primary control on a screen; a border beam is a state marker. */}
@@ -280,9 +285,9 @@ function ProblemRecord({
   return (
     <article className={styles.record} data-tone="alert" {...assertiveLive}>
       {question ? (
-        <div className={styles.turn} data-role="question">
-          <p className={styles.bubble}>{question}</p>
-        </div>
+        <Message from="user">
+          <MessageContent>{question}</MessageContent>
+        </Message>
       ) : null}
       <p className={styles.recordLabel}>Not answered</p>
       <p className={styles.problemLead}>
@@ -323,15 +328,22 @@ function AskPrimer({ onPick, disabled }: { onPick: (q: string) => void; disabled
       <p className={styles.primerLead}>
         Ask about what this desk has published, and the claims behind it.
       </p>
-      <ul className={styles.primerExamples}>
+      {/* AI Elements' `Suggestions` is a horizontal rail of pills. Worth
+          knowing about the trade it makes here: it sets `whitespace-nowrap`,
+          and these three examples are whole sentences, so on a narrow drawer
+          they scroll sideways instead of stacking. That is the library's
+          shape — a row of short prompts — and these are long ones. If they
+          read badly, the fix is shorter examples, not a re-styled rail. */}
+      <Suggestions className={styles.primerExamples}>
         {EXAMPLES.map((example) => (
-          <li key={example}>
-            <Button type="button" variant="ghost" size="md" disabled={disabled} onClick={() => onPick(example)}>
-              {example}
-            </Button>
-          </li>
+          <Suggestion
+            key={example}
+            suggestion={example}
+            onClick={onPick}
+            disabled={disabled}
+          />
         ))}
-      </ul>
+      </Suggestions>
     </div>
   );
 }

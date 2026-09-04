@@ -16,6 +16,11 @@
  * sources in their own block underneath, because the citation list is the
  * point of this surface and a chat bubble is not a shape that can hold one.
  *
+ * That distinction is AI Elements' own: `MessageContent` rounds and fills only
+ * under `from="user"` and leaves the assistant side as open text. The hand-
+ * rolled `.turn`/`.bubble` pair that did this for one commit is gone; what it
+ * was expressing was already the library's model.
+ *
  * The answer's text is split into paragraphs on blank lines and rendered as
  * text. It is deliberately **not** parsed as Markdown: the model's output is
  * untrusted input, a Markdown renderer is a meaningful attack surface for
@@ -23,6 +28,7 @@
  * a better failure than a link this desk did not write.
  */
 
+import { Message, MessageContent } from "@/components/ai-elements/message";
 import { CitationList } from "./CitationList";
 import type { Exchange } from "./exchanges";
 import styles from "./ask.module.css";
@@ -40,13 +46,13 @@ export function AnswerRecord({ exchange }: { exchange: Exchange }) {
   return (
     <article className={styles.record}>
       {question ? (
-        <div className={styles.turn} data-role="question">
-          <p className={styles.bubble}>{question}</p>
-        </div>
+        <Message from="user">
+          <MessageContent>{question}</MessageContent>
+        </Message>
       ) : null}
 
       {answer ? (
-        <div className={styles.turn} data-role="answer">
+        <Message from="assistant">
           {/* The label survives on the answer side only. On the question side
               the alignment says whose turn it is; on this side the reader is
               being told they are reading the desk, not a correspondent. */}
@@ -57,7 +63,7 @@ export function AnswerRecord({ exchange }: { exchange: Exchange }) {
             ))}
           </div>
           <CitationList citations={answer.citations} />
-        </div>
+        </Message>
       ) : null}
     </article>
   );

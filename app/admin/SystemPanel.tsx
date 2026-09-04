@@ -27,7 +27,6 @@ import {
   ConsoleNotices,
   EmptyLine,
   InlineAbsence,
-  Metric,
   PanelTitle,
   Pill,
   ReadGate,
@@ -42,7 +41,9 @@ import {
 } from "./console-primitives";
 import { AREA_LABEL, JOB_STATE_LABEL, SECTION_LABEL, SEVERITY_LABEL, T } from "./lexicon";
 import { AuthRequired } from "./auth-required";
+import { AlertList, Stat, StatGrid } from "./_command/StatusCards";
 import { RouteUnavailable, callConsole, readConsole, useConsoleRead, type ReadState } from "./useConsoleRead";
+import cmd from "./command.module.css";
 import styles from "./admin.module.css";
 
 type SubArea = "users" | "costs" | "audit" | "incidents" | "security" | "settings" | "environment";
@@ -95,6 +96,7 @@ export function SystemPanel({ signal }: { signal: number }) {
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
 
       <Tabs value={sub} onValueChange={select} activation="manual" className={styles.subTabs}>
+        <div className={cmd.consoleNav}>
         <TabList shape="segmented" label="תת-אזורים של מערכת ואבטחה">
           {SUB_AREAS.map((entry) => (
             <Tab key={entry.key} value={entry.key}>
@@ -102,6 +104,7 @@ export function SystemPanel({ signal }: { signal: number }) {
             </Tab>
           ))}
         </TabList>
+        </div>
         <TabPanel value="users">{visited.has("users") ? <UsersSection signal={signal} /> : null}</TabPanel>
         <TabPanel value="costs">{visited.has("costs") ? <CostsSection signal={signal} /> : null}</TabPanel>
         <TabPanel value="audit">{visited.has("audit") ? <AuditSection signal={signal} /> : null}</TabPanel>
@@ -170,18 +173,18 @@ function UsersSection({ signal }: { signal: number }) {
     <ReadGate state={users.state} what="המשתמשים וההרשאות" reload={users.reload}>
       {(value) => (
         <>
-          <div className={styles.compactMetrics}>
-            <Metric label="חשבונות צוות" value={String(value.staff.length)} />
-            <Metric label="משתמשים ציבוריים רשומים" value={String(value.registeredPublicUsers)} />
-            <Metric
+          <StatGrid>
+            <Stat label="חשבונות צוות" value={String(value.staff.length)} />
+            <Stat label="משתמשים ציבוריים רשומים" value={String(value.registeredPublicUsers)} />
+            <Stat
               label="התחברויות שנחסמו"
               /* `null` means the count was never recorded, which is not the
                  same fact as a count of zero. The two must not share a word. */
               value={value.blockedSignInAttempts === null ? "לא נרשם" : String(value.blockedSignInAttempts)}
               tone={value.blockedSignInAttempts ? "warn" : undefined}
             />
-            <Metric label="נוצר" value={formatDate(value.generatedAt)} />
-          </div>
+            <Stat label="נוצר" value={formatDate(value.generatedAt)} />
+          </StatGrid>
           {value.blockedSignInAttempts === null ? (
             <p className={styles.muted}>סירובי התחברות נרשמים ביומן ואינם נשמרים במסד הנתונים, ולכן אין מונה להציג. זה אינו אפס.</p>
           ) : null}
@@ -282,36 +285,61 @@ function Meter({ label, fraction, spent, budget, warnAt }: { label: string; frac
 }
 
 function CostTable<T extends Record<string, unknown>>({ caption, rows, columns }: { caption: string; rows: T[]; columns: Array<{ key: string; label: string; render: (row: T) => string }> }) {
+  const [titleColumn, ...factColumns] = columns;
   return (
-    <div className={styles.tableWrap}>
-      <table className={`${styles.table} ${styles.tableCompact}`}>
-        <caption className={styles.tableCaption}>{caption}</caption>
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th key={column.key} scope="col">
-                {column.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length ? (
-            rows.map((row, index) => (
-              <tr key={index}>
-                {columns.map((column) => (
-                  <td key={column.key}>{column.render(row)}</td>
-                ))}
-              </tr>
-            ))
-          ) : (
+    <>
+      <div className={`${styles.tableWrap} ${cmd.desktopOnly}`}>
+        <table className={`${styles.table} ${styles.tableCompact}`}>
+          <caption className={styles.tableCaption}>{caption}</caption>
+          <thead>
             <tr>
-              <td colSpan={columns.length}>לא נרשם דבר.</td>
+              {columns.map((column) => (
+                <th key={column.key} scope="col">
+                  {column.label}
+                </th>
+              ))}
             </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {rows.length ? (
+              rows.map((row, index) => (
+                <tr key={index}>
+                  {columns.map((column) => (
+                    <td key={column.key}>{column.render(row)}</td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={columns.length}>לא נרשם דבר.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {/* Narrow screens get cards: the first column names the row, the rest
+          become labelled facts. Same strings, no separate data path. */}
+      <div className={cmd.sourceCards} aria-label={caption}>
+        {rows.length ? (
+          rows.map((row, index) => (
+            <article key={index} className={cmd.sourceCard}>
+              <div className={cmd.sourceCardHead}>
+                <h3 className={cmd.sourceCardName}>
+                  <bdi>{titleColumn.render(row)}</bdi>
+                </h3>
+              </div>
+              {factColumns.map((column) => (
+                <p key={column.key} className={cmd.sourceCardMeta}>
+                  {column.label} <bdi>{column.render(row)}</bdi>
+                </p>
+              ))}
+            </article>
+          ))
+        ) : (
+          <p className={cmd.sourceCardMeta}>לא נרשם דבר.</p>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -330,12 +358,12 @@ function CostsSection({ signal }: { signal: number }) {
               ))}
             </ul>
           ) : null}
-          <div className={styles.summary}>
-            <Metric label="היום" value={formatUsd(value.spend.today)} />
-            <Metric label={T.last24h} value={formatUsd(value.spend.last24HoursUsd)} />
-            <Metric label="מתחילת החודש" value={formatUsd(value.spend.monthToDateUsd, 2)} />
-            <Metric label={T.last30d} value={formatUsd(value.spend.last30DaysUsd, 2)} />
-          </div>
+          <StatGrid>
+            <Stat label="היום" value={formatUsd(value.spend.today)} />
+            <Stat label={T.last24h} value={formatUsd(value.spend.last24HoursUsd)} />
+            <Stat label="מתחילת החודש" value={formatUsd(value.spend.monthToDateUsd, 2)} />
+            <Stat label={T.last30d} value={formatUsd(value.spend.last30DaysUsd, 2)} />
+          </StatGrid>
 
           <div className={styles.panel}>
             <PanelTitle note={`אזהרה ב-${formatPercent(value.warnAt)}`}>תקציבים</PanelTitle>
@@ -397,12 +425,12 @@ function CostsSection({ signal }: { signal: number }) {
             </div>
             <div className={styles.panel}>
               <PanelTitle>שימוש בחיפוש</PanelTitle>
-              <div className={styles.compactMetrics}>
-                <Metric label={`${T.attempts} ${T.thisMonth}`} value={String(value.search.attemptsThisMonth)} />
-                <Metric label="שאילתות מוצלחות" value={String(value.search.successfulQueriesThisMonth)} />
-                <Metric label="הוצאה משוערת" value={formatUsd(value.search.estimatedSpendUsd)} />
-                <Metric label="תקרה חודשית" value={formatUsd(value.budgets.search.monthlyUsd, 2)} />
-              </div>
+              <StatGrid>
+                <Stat label={`${T.attempts} ${T.thisMonth}`} value={String(value.search.attemptsThisMonth)} />
+                <Stat label="שאילתות מוצלחות" value={String(value.search.successfulQueriesThisMonth)} />
+                <Stat label="הוצאה משוערת" value={formatUsd(value.search.estimatedSpendUsd)} />
+                <Stat label="תקרה חודשית" value={formatUsd(value.budgets.search.monthlyUsd, 2)} />
+              </StatGrid>
             </div>
           </div>
 
@@ -551,7 +579,7 @@ function AuditSection({ signal }: { signal: number }) {
         {(rows) =>
           rows.length ? (
             <>
-              <div className={styles.tableWrap}>
+              <div className={`${styles.tableWrap} ${cmd.desktopOnly}`}>
                 <table className={styles.table}>
                   <caption className={styles.tableCaption}>החדשות ביותר בראש. יש להרחיב שורה כדי לקרוא מה השתנה.</caption>
                   <thead>
@@ -573,6 +601,12 @@ function AuditSection({ signal }: { signal: number }) {
                   </tbody>
                 </table>
               </div>
+              {/* Narrow screens get cards, not a shrunken six-column table. */}
+              <div className={cmd.sourceCards} aria-label="רשומות ביקורת">
+                {rows.map((entry) => (
+                  <AuditCard key={entry.id} entry={entry} />
+                ))}
+              </div>
               <div className={styles.actionRow}>
                 {nextBefore ? (
                   <Button variant="secondary" type="button" isLoading={loadingMore} onClick={loadOlder}>
@@ -592,9 +626,13 @@ function AuditSection({ signal }: { signal: number }) {
   );
 }
 
-function AuditRow({ entry }: { entry: AuditEntry }) {
+type AuditDetail = { kind: "idle" } | { kind: "loading" } | { kind: "ready"; value: AuditEntry } | { kind: "failed"; message: string };
+
+/** One audit entry's expandable before/after read, shared by the desktop
+ *  table row and the narrow-screen card — one fetch path, two layouts. */
+function useAuditDetail(entry: AuditEntry) {
   const [open, setOpen] = useState(false);
-  const [detail, setDetail] = useState<{ kind: "idle" } | { kind: "loading" } | { kind: "ready"; value: AuditEntry } | { kind: "failed"; message: string }>({ kind: "idle" });
+  const [detail, setDetail] = useState<AuditDetail>({ kind: "idle" });
 
   async function toggle() {
     const next = !open;
@@ -607,6 +645,71 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
       setDetail({ kind: "failed", message: cause instanceof Error ? cause.message : "לא ניתן לקרוא את הרשומה." });
     }
   }
+
+  return { open, toggle, detail };
+}
+
+function AuditDetailBody({ detail, entryId }: { detail: AuditDetail; entryId: string }) {
+  /* The id stays mounted in every state so the expander's `aria-controls`
+     always points at a live element. */
+  return (
+    <div id={`audit-${entryId}`}>
+      {detail.kind === "loading" ? <p className={styles.muted} aria-busy="true">קורא את הרשומה…</p> : null}
+      {detail.kind === "failed" ? <p className={styles.error}>{detail.message}</p> : null}
+      {detail.kind === "ready" ? (
+        <div className={styles.diffGrid}>
+          <div>
+            <p className={styles.sectionLabel}>לפני</p>
+            <pre className={styles.json}>{detail.value.beforeState === undefined ? "—" : JSON.stringify(detail.value.beforeState, null, 2)}</pre>
+          </div>
+          <div>
+            <p className={styles.sectionLabel}>אחרי</p>
+            <pre className={styles.json}>{detail.value.afterState === undefined ? "—" : JSON.stringify(detail.value.afterState, null, 2)}</pre>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * One audit entry as a card: the narrow-screen replacement for a table row.
+ * Exported for visual QA previews; the audit section is its only production user.
+ */
+export function AuditCard({ entry }: { entry: AuditEntry }) {
+  const { open, toggle, detail } = useAuditDetail(entry);
+  const canExpand = entry.hasBefore || entry.hasAfter;
+  return (
+    <article className={cmd.sourceCard} aria-label={`${entry.action} · ${entry.id}`}>
+      <div className={cmd.sourceCardHead}>
+        <h3 className={cmd.sourceCardName}>
+          <bdi>{entry.action}</bdi>
+        </h3>
+        <Pill tone="neutral">{entry.entityType}</Pill>
+      </div>
+      <p className={cmd.sourceCardMeta}>
+        {entry.actorLabel} · {formatDate(entry.occurredAt)}
+      </p>
+      {entry.entityId ? (
+        <p className={cmd.sourceCardId}>
+          <bdi>{entry.entityId}</bdi>
+        </p>
+      ) : null}
+      <p className={cmd.sourceCardMeta}>בקשה <bdi>{entry.requestId ?? "—"}</bdi></p>
+      <div className={cmd.sourceCardActions}>
+        {canExpand ? (
+          <Button variant="ghost" size="sm" type="button" aria-expanded={open} aria-controls={`audit-${entry.id}`} onClick={toggle}>
+            {open ? "הסתרת" : "הצגת"} {entry.hasBefore && entry.hasAfter ? "לפני ואחרי" : entry.hasBefore ? "לפני" : "אחרי"}
+          </Button>
+        ) : null}
+      </div>
+      {open ? <AuditDetailBody detail={detail} entryId={entry.id} /> : null}
+    </article>
+  );
+}
+
+function AuditRow({ entry }: { entry: AuditEntry }) {
+  const { open, toggle, detail } = useAuditDetail(entry);
 
   return (
     <>
@@ -632,22 +735,9 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
         </td>
       </tr>
       {open ? (
-        <tr id={`audit-${entry.id}`} className={styles.auditDetail}>
+        <tr className={styles.auditDetail}>
           <td colSpan={6}>
-            {detail.kind === "loading" ? <p className={styles.muted} aria-busy="true">קורא את הרשומה…</p> : null}
-            {detail.kind === "failed" ? <p className={styles.error}>{detail.message}</p> : null}
-            {detail.kind === "ready" ? (
-              <div className={styles.diffGrid}>
-                <div>
-                  <p className={styles.sectionLabel}>לפני</p>
-                  <pre className={styles.json}>{detail.value.beforeState === undefined ? "—" : JSON.stringify(detail.value.beforeState, null, 2)}</pre>
-                </div>
-                <div>
-                  <p className={styles.sectionLabel}>אחרי</p>
-                  <pre className={styles.json}>{detail.value.afterState === undefined ? "—" : JSON.stringify(detail.value.afterState, null, 2)}</pre>
-                </div>
-              </div>
-            ) : null}
+            <AuditDetailBody detail={detail} entryId={entry.id} />
           </td>
         </tr>
       ) : null}
@@ -674,39 +764,37 @@ function IncidentsSection({
     <ReadGate state={incidents.state} what="התקלות" reload={incidents.reload}>
       {(value) => (
         <>
-          <div className={styles.compactMetrics}>
-            <Metric label="התראות פתוחות" value={String(value.openAlerts.length)} tone={value.openAlerts.some((alert) => alert.severity === "critical") ? "danger" : value.openAlerts.length ? "warn" : "ok"} />
-            <Metric label="משימות תקועות" value={String(value.stuckJobs.length)} tone={value.stuckJobs.length ? "warn" : "ok"} />
-            <Metric label="משימות בבידוד" value={String(value.quarantinedJobs.length)} tone={value.quarantinedJobs.length ? "warn" : "ok"} />
-            <Metric label="ריצות שנכשלו" value={String(value.failedRuns.length)} tone={value.failedRuns.length ? "danger" : "ok"} />
-            <Metric label="Outbox — לא נמסרו" value={String(value.outbox.undelivered)} tone={value.outbox.undelivered ? "warn" : "ok"} />
-            <Metric label="Outbox — נזנחו" value={String(value.outbox.deadLettered)} tone={value.outbox.deadLettered ? "danger" : "ok"} />
-            <Metric label="הישן ביותר שלא נמסר" value={value.outbox.oldestAt ? formatAgo(value.outbox.oldestAt) : T.none} />
-            <Metric label="רשומות בבידוד" value={String(value.quarantine.length)} />
-          </div>
+          <StatGrid>
+            <Stat label="התראות פתוחות" value={String(value.openAlerts.length)} tone={value.openAlerts.some((alert) => alert.severity === "critical") ? "danger" : value.openAlerts.length ? "warn" : "ok"} />
+            <Stat label="משימות תקועות" value={String(value.stuckJobs.length)} tone={value.stuckJobs.length ? "warn" : "ok"} />
+            <Stat label="משימות בבידוד" value={String(value.quarantinedJobs.length)} tone={value.quarantinedJobs.length ? "warn" : "ok"} />
+            <Stat label="ריצות שנכשלו" value={String(value.failedRuns.length)} tone={value.failedRuns.length ? "danger" : "ok"} />
+            <Stat label="Outbox — לא נמסרו" value={String(value.outbox.undelivered)} tone={value.outbox.undelivered ? "warn" : "ok"} />
+            <Stat label="Outbox — נזנחו" value={String(value.outbox.deadLettered)} tone={value.outbox.deadLettered ? "danger" : "ok"} />
+            <Stat label="הישן ביותר שלא נמסר" value={value.outbox.oldestAt ? formatAgo(value.outbox.oldestAt) : T.none} />
+            <Stat label="רשומות בבידוד" value={String(value.quarantine.length)} />
+          </StatGrid>
 
           <div className={styles.panel}>
             <PanelTitle note={`${value.openAlerts.length} פתוחות`}>התראות פתוחות</PanelTitle>
             {value.openAlerts.length ? (
-              <ul className={styles.alertList}>
-                {value.openAlerts.map((alert) => (
-                  <li key={alert.id} className={styles.alertRow}>
-                    <div>
-                      <p>
-                        <Pill tone={alert.severity === "critical" ? "danger" : "warn"}>{SEVERITY_LABEL[alert.severity] ?? alert.severity}</Pill> <strong>{alert.kind}</strong>
-                      </p>
-                      <p className={styles.alertMessage}>{alert.message}</p>
-                      <p className={styles.headNote}>
-                        נפתחה {formatDate(alert.createdAt)} · {alert.notifiedAt ? "נשלחה התראה" : "התראה ממתינה"}
-                      </p>
-                      {alert.details ? (
-                        <details className={styles.traceability}>
-                          <summary>פרטים</summary>
-                          <pre className={styles.json}>{JSON.stringify(alert.details, null, 2)}</pre>
-                        </details>
-                      ) : null}
-                    </div>
-                    <div className={styles.alertActions}>
+              <AlertList
+                severityWord={(severity) => SEVERITY_LABEL[severity] ?? severity}
+                items={value.openAlerts.map((alert) => ({
+                  id: alert.id,
+                  severity: alert.severity,
+                  kind: alert.kind,
+                  message: alert.message,
+                  time: `נפתחה ${formatDate(alert.createdAt)}`,
+                  extra: alert.notifiedAt ? "נשלחה התראה" : "התראה ממתינה",
+                  details: alert.details ? (
+                    <details className={styles.traceability}>
+                      <summary>פרטים</summary>
+                      <pre className={styles.json}>{JSON.stringify(alert.details, null, 2)}</pre>
+                    </details>
+                  ) : undefined,
+                  action: (
+                    <>
                       <Field
                         className={styles.editorField}
                         label="הערת טיפול"
@@ -717,10 +805,10 @@ function IncidentsSection({
                       <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onResolve(alert.id, alert.kind, notes[alert.id] ?? "")}>
                         {T.resolve}
                       </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </>
+                  ),
+                }))}
+              />
             ) : (
               <EmptyLine>אין התראות פתוחות. הקריאה הצליחה והרשימה באמת ריקה.</EmptyLine>
             )}
@@ -729,52 +817,82 @@ function IncidentsSection({
           <div className={styles.panel}>
             <PanelTitle>משימות תקועות ובבידוד</PanelTitle>
             {value.stuckJobs.length || value.quarantinedJobs.length ? (
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th scope="col">{T.job}</th>
-                      <th scope="col">שלב</th>
-                      <th scope="col">מצב</th>
-                      <th scope="col">{T.attempts}</th>
-                      <th scope="col">פעימת לב</th>
-                      <th scope="col">{T.lastError}</th>
-                      <th scope="col">התאוששות</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...value.stuckJobs, ...value.quarantinedJobs].map((job) => (
-                      <tr key={job.id}>
-                        <th scope="row">
-                          <strong>{job.jobKey}</strong>
-                          <small className={styles.plainSmall}>{job.localDate}</small>
-                        </th>
-                        <td>{stageLabel(job.stage)}</td>
-                        <td>
-                          <Pill tone={jobTone(job.state)}>{JOB_STATE_LABEL[job.state] ?? job.state}</Pill>
-                        </td>
-                        <td>
-                          {job.attempts} / {job.maxAttempts}
-                        </td>
-                        <td>{job.heartbeatAt ? formatAgo(job.heartbeatAt) : T.none}</td>
-                        <td className={styles.errorCell}>{job.lastError ?? "—"}</td>
-                        <td>
-                          <div className={styles.cellActions}>
-                            <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
-                              {T.retry}
-                            </Button>
-                            {job.attempts >= job.maxAttempts ? (
-                              <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
-                                איפוס ניסיונות והרצה מחדש
-                              </Button>
-                            ) : null}
-                          </div>
-                        </td>
+              <>
+                <div className={`${styles.tableWrap} ${cmd.desktopOnly}`}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th scope="col">{T.job}</th>
+                        <th scope="col">שלב</th>
+                        <th scope="col">מצב</th>
+                        <th scope="col">{T.attempts}</th>
+                        <th scope="col">פעימת לב</th>
+                        <th scope="col">{T.lastError}</th>
+                        <th scope="col">התאוששות</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {[...value.stuckJobs, ...value.quarantinedJobs].map((job) => (
+                        <tr key={job.id}>
+                          <th scope="row">
+                            <strong>{job.jobKey}</strong>
+                            <small className={styles.plainSmall}>{job.localDate}</small>
+                          </th>
+                          <td>{stageLabel(job.stage)}</td>
+                          <td>
+                            <Pill tone={jobTone(job.state)}>{JOB_STATE_LABEL[job.state] ?? job.state}</Pill>
+                          </td>
+                          <td>
+                            {job.attempts} / {job.maxAttempts}
+                          </td>
+                          <td>{job.heartbeatAt ? formatAgo(job.heartbeatAt) : T.none}</td>
+                          <td className={styles.errorCell}>{job.lastError ?? "—"}</td>
+                          <td>
+                            <div className={styles.cellActions}>
+                              <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
+                                {T.retry}
+                              </Button>
+                              {job.attempts >= job.maxAttempts ? (
+                                <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
+                                  איפוס ניסיונות והרצה מחדש
+                                </Button>
+                              ) : null}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className={cmd.sourceCards} aria-label="משימות תקועות ובבידוד">
+                  {[...value.stuckJobs, ...value.quarantinedJobs].map((job) => (
+                    <article key={job.id} className={cmd.sourceCard} aria-label={job.jobKey}>
+                      <div className={cmd.sourceCardHead}>
+                        <h3 className={cmd.sourceCardName}>
+                          <bdi>{job.jobKey}</bdi>
+                        </h3>
+                        <Pill tone={jobTone(job.state)}>{JOB_STATE_LABEL[job.state] ?? job.state}</Pill>
+                      </div>
+                      <p className={cmd.sourceCardMeta}>
+                        {stageLabel(job.stage)} · <bdi>{job.localDate}</bdi> · {T.attempts}{" "}
+                        <bdi>{job.attempts} / {job.maxAttempts}</bdi>
+                      </p>
+                      <p className={cmd.sourceCardMeta}>פעימת לב {job.heartbeatAt ? formatAgo(job.heartbeatAt) : T.none}</p>
+                      {job.lastError ? <p className={cmd.sourceCardError}>{job.lastError}</p> : null}
+                      <div className={cmd.sourceCardActions}>
+                        <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
+                          {T.retry}
+                        </Button>
+                        {job.attempts >= job.maxAttempts ? (
+                          <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
+                            איפוס ניסיונות והרצה מחדש
+                          </Button>
+                        ) : null}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </>
             ) : (
               <EmptyLine>אין משימות תקועות או בבידוד.</EmptyLine>
             )}
@@ -922,11 +1040,11 @@ function SecuritySection({ signal, disabled, run }: { signal: number; disabled: 
             <div className={styles.panel}>
               <PanelTitle>זהות משאבים</PanelTitle>
               <p className={styles.muted}>טביעות אצבע חד-כיווניות בלבד, להשוואה בין סביבות. סודות ומזהים מלאים אינם מוצגים כאן לעולם.</p>
-              <div className={styles.compactMetrics}>
+              <StatGrid>
                 {Object.entries(value.resourceFingerprints).map(([name, fingerprint]) => (
-                  <Metric key={name} label={name} value={fingerprint ?? "לא מוגדר"} />
+                  <Stat key={name} label={name} value={fingerprint ?? "לא מוגדר"} />
                 ))}
-              </div>
+              </StatGrid>
             </div>
 
             <div className={styles.twoColumns}>
@@ -988,16 +1106,16 @@ function SettingsSection({ signal }: { signal: number }) {
       {(value) => (
         <>
           <p className={styles.warnNote}>לקריאה בלבד. {value.source}</p>
-          <div className={styles.compactMetrics}>
-            <Metric label="סביבה" value={value.environment} />
-            <Metric label="אזור" value={value.region} />
-            <Metric label="כתובת האתר" value={value.siteUrl} />
-            <Metric label="תקציב AI, יומי" value={formatUsd(value.budgets.ai.dailyUsd, 2)} />
-            <Metric label="תקציב AI, חודשי" value={formatUsd(value.budgets.ai.monthlyUsd, 2)} />
-            <Metric label="תקציב בריף, יומי" value={formatUsd(value.budgets.briefing.dailyUsd, 2)} />
-            <Metric label="תקציב בריף, חודשי" value={formatUsd(value.budgets.briefing.monthlyUsd, 2)} />
-            <Metric label="שאילתות חיפוש, חודשי" value={value.budgets.search.monthlyQueries === null ? "לא מוגדר" : String(value.budgets.search.monthlyQueries)} />
-          </div>
+          <StatGrid>
+            <Stat label="סביבה" value={value.environment} />
+            <Stat label="אזור" value={value.region} />
+            <Stat label="כתובת האתר" value={value.siteUrl} />
+            <Stat label="תקציב AI, יומי" value={formatUsd(value.budgets.ai.dailyUsd, 2)} />
+            <Stat label="תקציב AI, חודשי" value={formatUsd(value.budgets.ai.monthlyUsd, 2)} />
+            <Stat label="תקציב בריף, יומי" value={formatUsd(value.budgets.briefing.dailyUsd, 2)} />
+            <Stat label="תקציב בריף, חודשי" value={formatUsd(value.budgets.briefing.monthlyUsd, 2)} />
+            <Stat label="שאילתות חיפוש, חודשי" value={value.budgets.search.monthlyQueries === null ? "לא מוגדר" : String(value.budgets.search.monthlyQueries)} />
+          </StatGrid>
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
@@ -1091,17 +1209,17 @@ function EnvironmentSection({ signal }: { signal: number }) {
             : "מצב המיגרציות אינו זמין בסביבה הזו.";
         return (
           <>
-            <div className={styles.summary}>
-              <Metric label="סביבה" value={value.environment} />
-              <Metric label="אזור התור" value={value.region} />
-              <Metric label="תקרת בריף חודשית" value={formatUsd(value.aiBudgetUsd, 2)} />
-              <Metric label="משתמשים רשומים" value={userCount.value ? String(userCount.value.registeredUsers) : "—"} />
-              <Metric
+            <StatGrid>
+              <Stat label="סביבה" value={value.environment} />
+              <Stat label="אזור התור" value={value.region} />
+              <Stat label="תקרת בריף חודשית" value={formatUsd(value.aiBudgetUsd, 2)} />
+              <Stat label="משתמשים רשומים" value={userCount.value ? String(userCount.value.registeredUsers) : "—"} />
+              <Stat
                 label="פגיעות במטמון הציבורי"
                 value={value.publicReadCache.hitRatio === null ? "אין נתונים" : `${(value.publicReadCache.hitRatio * 100).toFixed(1)}% · ${value.publicReadCache.averageLoadMs ?? 0} ms`}
               />
-              <Metric label="התחברות" value="זהות Google פעילה" />
-            </div>
+              <Stat label="התחברות" value="זהות Google פעילה" />
+            </StatGrid>
 
             <div className={styles.grid}>
               {Object.entries(value.integrations).map(([name, active]) => (
@@ -1116,11 +1234,11 @@ function EnvironmentSection({ signal }: { signal: number }) {
               <div className={styles.panel}>
                 <PanelTitle>זהות משאבים</PanelTitle>
                 <p className={styles.muted}>טביעות אצבע חד-כיווניות בלבד, להשוואה בין סביבות. סודות ומזהים מלאים אינם מוצגים כאן לעולם.</p>
-                <div className={styles.compactMetrics}>
+                <StatGrid>
                   {Object.entries(value.resourceFingerprints ?? {}).map(([name, fingerprint]) => (
-                    <Metric key={name} label={name} value={fingerprint ?? "לא מוגדר"} />
+                    <Stat key={name} label={name} value={fingerprint ?? "לא מוגדר"} />
                   ))}
-                </div>
+                </StatGrid>
               </div>
               <div className={styles.panel}>
                 <PanelTitle>סכמת מסד הנתונים</PanelTitle>

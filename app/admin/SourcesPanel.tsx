@@ -21,6 +21,7 @@ import {
 } from "./console-primitives";
 import { AREA_LABEL, SOURCE_KIND_LABEL, T } from "./lexicon";
 import { callConsole, useConsoleRead } from "./useConsoleRead";
+import cmd from "./command.module.css";
 import styles from "./admin.module.css";
 
 /** Feed-backed kinds can be verified by a live fetch; the rest are enabled
@@ -28,6 +29,61 @@ import styles from "./admin.module.css";
 const VERIFIABLE_KINDS = new Set(["rss", "api", "agent_search"]);
 
 const kindWord = (kind: string) => SOURCE_KIND_LABEL[kind] ?? kind;
+
+/**
+ * One source as a card: the narrow-screen replacement for a row of the
+ * 13-column table. Same words, same facts, same actions — different IA.
+ * Exported for visual QA previews; the panel is its only production user.
+ */
+export function SourceCard({
+  source,
+  disabled,
+  onVerify,
+  onToggle,
+}: {
+  source: ConsoleSource;
+  disabled: boolean;
+  onVerify: (source: ConsoleSource) => void;
+  onToggle: (source: ConsoleSource) => void;
+}) {
+  return (
+    <article className={cmd.sourceCard} aria-label={source.name}>
+      <div className={cmd.sourceCardHead}>
+        <h3 className={cmd.sourceCardName}>{source.name}</h3>
+        <Pill tone={source.active ? (source.consecutiveFailures ? "warn" : "ok") : "neutral"}>
+          {source.active ? `${T.active} · ${source.consecutiveFailures} כשלים` : T.inactive}
+        </Pill>
+      </div>
+      <p className={cmd.sourceCardId}>
+        <bdi>{source.slug}</bdi>
+        {source.language ? <> · <bdi>{source.language}</bdi></> : ""}
+        {source.country ? <> · <bdi>{source.country}</bdi></> : ""}
+        {` · ${kindWord(source.kind)}`}
+        {source.family ? ` · ${source.family.label}` : ""}
+      </p>
+      <p className={cmd.sourceCardMeta}>
+        {T.attempts} <bdi>{String(source.week.attempts)}</bdi> · {T.successes} <bdi>{String(source.week.successes)}</bdi> ·{" "}
+        נראו <bdi>{String(source.week.itemsSeen)}</bdi> · חדשים <bdi>{String(source.week.itemsNew)}</bdi>
+      </p>
+      <p className={cmd.sourceCardMeta}>
+        שליפה אחרונה {formatDate(source.lastFetchAt)} · הצלחה אחרונה {formatDate(source.lastSuccessfulFetchAt)}
+      </p>
+      {source.disabledReason || source.lastError ? (
+        <p className={cmd.sourceCardError}>{source.disabledReason ?? source.lastError}</p>
+      ) : null}
+      <div className={cmd.sourceCardActions}>
+        {VERIFIABLE_KINDS.has(source.kind) && !source.active ? (
+          <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onVerify(source)}>
+            אימות והפעלה
+          </Button>
+        ) : null}
+        <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onToggle(source)}>
+          {source.active ? T.disable : T.enable}
+        </Button>
+      </div>
+    </article>
+  );
+}
 
 /**
  * Sources — collection health and throughput, one row per source, and the
@@ -122,7 +178,8 @@ export function SourcesPanel({ signal }: { signal: number }) {
               {rows.length === 0 ? (
                 <EmptyLine>אין מקורות במשפחה הזו. הקריאה הצליחה והסינון הוציא כל שורה.</EmptyLine>
               ) : (
-                <div className={styles.tableWrap}>
+                <>
+                <div className={`${styles.tableWrap} ${cmd.desktopOnly}`}>
                   <table className={styles.table}>
                     <caption className={styles.tableCaption}>
                       תקינות ותפוקה בשבעת הימים האחרונים. מקור מושבת נשאר מושבת עד שבדיקה חיה מחזירה פיד תקין, או עד שאדם מפעיל אותו עם סיבה.
@@ -190,6 +247,20 @@ export function SourcesPanel({ signal }: { signal: number }) {
                     </tbody>
                   </table>
                 </div>
+                {/* Narrow screens get cards, not a shrunken 13-column table:
+                    same rows, same words, same actions — different IA. */}
+                <div className={cmd.sourceCards}>
+                  {rows.map((source) => (
+                    <SourceCard
+                      key={source.id}
+                      source={source}
+                      disabled={ops.disabled}
+                      onVerify={verifySource}
+                      onToggle={(item) => requestSourceActive(item, !item.active)}
+                    />
+                  ))}
+                </div>
+                </>
               )}
             </>
           );

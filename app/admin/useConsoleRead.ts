@@ -60,9 +60,13 @@ type Options = {
   signal?: number;
   /** `false` holds the read — a sub-panel not yet opened. */
   enabled?: boolean;
+  /** Moderate background refresh, in milliseconds. The last good value stays
+   *  on screen while the refresh runs, and the timer pauses while the tab is
+   *  hidden so an idle console costs nothing. Omit for manual-only reads. */
+  pollInterval?: number;
 };
 
-export function useConsoleRead<T>(path: string, { signal = 0, enabled = true }: Options = {}): ConsoleRead<T> {
+export function useConsoleRead<T>(path: string, { signal = 0, enabled = true, pollInterval }: Options = {}): ConsoleRead<T> {
   const [state, setState] = useState<ReadState<T>>({ kind: "loading" });
   const [value, setValue] = useState<T | null>(null);
   const [tick, setTick] = useState(0);
@@ -86,6 +90,18 @@ export function useConsoleRead<T>(path: string, { signal = 0, enabled = true }: 
       live = false;
     };
   }, [path, enabled, signal, tick]);
+
+  /* Moderate polling for live areas (overview, pipeline). A background tick
+   * reuses the same read path, so failures surface through the same states
+   * and the panel never blanks: `reload()` below preserves a ready value. */
+  useEffect(() => {
+    if (!enabled || !pollInterval || pollInterval <= 0) return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      setTick((current) => current + 1);
+    }, pollInterval);
+    return () => window.clearInterval(timer);
+  }, [enabled, pollInterval, path]);
 
   const reload = useCallback(() => {
     setState((current) => (current.kind === "ready" ? current : { kind: "loading" }));

@@ -1,0 +1,637 @@
+/* Lions of Zion — Admin command-center layer.
+ *
+ * SCOPE CONTRACT: every rule below is a CSS-Module class, so selectors are
+ * hashed to this file's consumers under `app/admin/` only. Nothing here
+ * targets bare elements, `:root`, `body`, or `*` — the public site cannot
+ * see these rules. Global design tokens (`var(--surface-*)`, `--gold-*`,
+ * `--state-*`, `--sp-*`, `--radius-*`, `--shadow-*`, `--face-*`) are read,
+ * never redefined.
+ *
+ * KEYBOARD-ORDER CONTRACT (mirrors tests/admin-console.test.ts for
+ * `admin.module.css`, applied here by discipline): no `order`, no reversed
+ * flex/grid flow or wrap, no `float`, no `direction: rtl` (the `dir="rtl"`
+ * attribute owns direction), no positive `tabindex` in the paired markup,
+ * and absolute positioning only for decorative, non-interactive layers.
+ */
+
+/* ── Shell + Admin-only background ─────────────────────────────── */
+
+.shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+}
+
+/* Decorative field. Rendered once per console inside an `aria-hidden`
+ * container; it holds no content and receives no focus. GPU-cheap:
+ * static gradients + one opacity/transform loop on a single layer,
+ * disabled under `prefers-reduced-motion`. */
+.field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background:
+    radial-gradient(52rem 30rem at 85% -8rem, rgb(212 175 55 / 0.09), transparent 62%),
+    radial-gradient(44rem 28rem at 8% 4rem, rgb(94 142 199 / 0.07), transparent 60%),
+    radial-gradient(60rem 40rem at 50% 115%, rgb(212 175 55 / 0.05), transparent 65%);
+}
+
+.field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(to left, rgb(212 175 55 / 0.05) 0 1px, transparent 1px 3.5rem),
+    repeating-linear-gradient(to bottom, rgb(212 175 55 / 0.05) 0 1px, transparent 1px 3.5rem);
+  mask-image: radial-gradient(70rem 46rem at 50% 0%, black 30%, transparent 78%);
+}
+
+.field::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -20%;
+  height: 22%;
+  background: linear-gradient(to bottom, transparent, rgb(212 175 55 / 0.06), transparent);
+  animation: sweep 14s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field::after {
+    animation: none;
+  }
+}
+
+@keyframes sweep {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(560%);
+  }
+}
+
+/* ── Console navigation (wraps the shared manual-activation tab row) ── */
+
+.consoleNav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding-block: var(--sp-2);
+  margin-block-end: var(--sp-4);
+  background: color-mix(in srgb, var(--ground) 82%, transparent);
+  border-block-end: var(--line-w) solid var(--line);
+}
+
+/* The shared TabList keeps its semantics; the command layer only adjusts
+ * density, scroll behavior and the active marker inside the admin shell. */
+.consoleNav [role="tablist"] {
+  display: flex;
+  gap: var(--sp-1);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  padding-block: var(--sp-1);
+}
+
+.consoleNav [role="tab"] {
+  scroll-snap-align: start;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  margin-inline-end: var(--sp-1);
+  background: var(--state-ok);
+  vertical-align: baseline;
+}
+
+.liveDotPaused {
+  background: var(--state-warn);
+}
+
+/* ── Command cards ─────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.card {
+  position: relative;
+  padding: var(--sp-4);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-1);
+  min-width: 0;
+}
+
+.cardAccent {
+  border-inline-start: 3px solid var(--gold);
+}
+
+.cardOk {
+  border-inline-start: 3px solid var(--state-ok);
+}
+
+.cardWarn {
+  border-inline-start: 3px solid var(--state-warn);
+}
+
+.cardDanger {
+  border-inline-start: 3px solid var(--state-danger);
+}
+
+.cardLabel {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+}
+
+.cardTitle {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: 650;
+}
+
+.cardNote {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* ── Verdict banner ────────────────────────────────────────────── */
+
+.verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3) var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  border-inline-start: 4px solid var(--state-ok);
+}
+
+.verdictOff {
+  border-inline-start-color: var(--state-danger);
+}
+
+.verdictWord {
+  margin: 0;
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.verdictBody {
+  flex: 1 1 16rem;
+  min-width: 0;
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.healthDot {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: var(--radius-pill);
+  background: var(--state-ok);
+  margin-inline-end: var(--sp-2);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--state-ok) 18%, transparent);
+}
+
+.healthDotOff {
+  background: var(--state-danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--state-danger) 18%, transparent);
+}
+
+/* ── Stat blocks ───────────────────────────────────────────────── */
+
+.stats {
+  display: grid;
+  gap: var(--sp-2);
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  margin-block-start: var(--sp-3);
+}
+
+.stat {
+  min-width: 0;
+  padding: var(--sp-3);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+
+.statValue {
+  display: block;
+  font-family: var(--face-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.statLabel {
+  display: block;
+  margin-block-start: var(--sp-1);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.statOk .statValue {
+  color: var(--state-ok);
+}
+
+.statWarn .statValue {
+  color: var(--state-warn);
+}
+
+.statDanger .statValue {
+  color: var(--state-danger);
+}
+
+/* ── Alerts ────────────────────────────────────────────────────── */
+
+.alertList {
+  list-style: none;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.alert {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+  min-width: 0;
+}
+
+.alertCritical {
+  border-inline-start: 3px solid var(--state-danger);
+}
+
+.alertWarning {
+  border-inline-start: 3px solid var(--state-warn);
+}
+
+.alertHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-2);
+  min-width: 0;
+}
+
+.alertKind {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  overflow-wrap: anywhere;
+}
+
+.alertTime {
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+}
+
+.alertMessage {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.alertAction {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-1);
+}
+
+/* ── Editorial lane snap (progressive enhancement over the lane row) ── */
+
+.laneSnap {
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--sp-4);
+}
+
+.laneSnap section {
+  scroll-snap-align: start;
+}
+
+/* ── Pipeline flow ─────────────────────────────────────────────── */
+
+.flow {
+  list-style: none;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.flowNode {
+  position: relative;
+  min-width: 10rem;
+  padding: var(--sp-3);
+  padding-block-start: var(--sp-4);
+  border-block-start: 2px solid var(--line);
+  margin-inline-end: var(--sp-3);
+}
+
+.flowNode::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  inset-inline-start: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--ink-lo);
+}
+
+/* Connector to the next stage; decorative. In RTL the inline axis
+ * mirrors automatically, so the flow reads collect → publish
+ * right-to-left with no reordering code. */
+.flowNode::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  inset-inline-start: 12px;
+  inset-inline-end: calc(var(--sp-3) * -1);
+  border-block-start: 2px solid var(--line);
+}
+
+.flowNode:first-child::after {
+  inset-inline-start: 12px;
+}
+
+.flowActive {
+  border-block-start-color: var(--gold);
+}
+
+.flowActive::before {
+  background: var(--gold);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 22%, transparent);
+  /* MOTION-002: ambient loops cycle no faster than the five-second floor. */
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.flowWarn {
+  border-block-start-color: var(--state-warn);
+}
+
+.flowWarn::before {
+  background: var(--state-warn);
+}
+
+.flowDanger {
+  border-block-start-color: var(--state-danger);
+}
+
+.flowDanger::before {
+  background: var(--state-danger);
+}
+
+.flowDone {
+  border-block-start-color: var(--state-ok);
+}
+
+.flowDone::before {
+  background: var(--state-ok);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flowActive::before {
+    animation: none;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--gold) 10%, transparent);
+  }
+}
+
+.flowName {
+  margin: 0;
+  font-weight: 650;
+  font-size: var(--t-small);
+}
+
+.flowCounts {
+  margin: var(--sp-1) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.flowMeta {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.flowError {
+  margin: var(--sp-2) 0 0;
+  border-radius: var(--radius-1);
+  background: var(--surface-2);
+  font-size: var(--t-small);
+}
+
+.flowError summary {
+  padding: var(--sp-2);
+  cursor: pointer;
+  color: var(--state-danger);
+}
+
+.flowError summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.flowErrorBody {
+  margin: 0;
+  padding: 0 var(--sp-2) var(--sp-2);
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  overflow-wrap: anywhere;
+  overflow-x: auto;
+  max-block-size: 12rem;
+  overflow-y: auto;
+}
+
+/* ── Run facts / definition rows ───────────────────────────────── */
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-1) var(--sp-3);
+  margin: var(--sp-3) 0 0;
+  font-size: var(--t-small);
+}
+
+.facts dt {
+  color: var(--ink-lo);
+  white-space: nowrap;
+}
+
+.facts dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ── Source cards (mobile replacement for the 13-column table) ─── */
+
+.sourceCards {
+  display: none;
+}
+
+.sourceCard {
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+  min-width: 0;
+}
+
+.sourceCardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-2);
+  min-width: 0;
+}
+
+.sourceCardName {
+  margin: 0;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.sourceCardId {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+.sourceCardMeta {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.sourceCardError {
+  margin: var(--sp-2) 0 0;
+  padding: var(--sp-2);
+  border-radius: var(--radius-1);
+  background: var(--surface-2);
+  font-size: var(--t-small);
+  overflow-wrap: anywhere;
+}
+
+.sourceCardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-3);
+}
+
+/* ── Narrow screens: adapt IA instead of shrinking ─────────────── */
+
+@media (max-width: 64rem) {
+  .desktopOnly {
+    display: none;
+  }
+
+  .sourceCards {
+    display: grid;
+    gap: var(--sp-2);
+    margin-block-start: var(--sp-3);
+  }
+
+  .flow {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: visible;
+  }
+
+  .flowNode {
+    border-block-start: none;
+    border-inline-start: 2px solid var(--line);
+    padding-block-start: var(--sp-2);
+    padding-inline-start: var(--sp-4);
+    margin-inline-end: 0;
+    margin-block-end: var(--sp-2);
+  }
+
+  .flowNode::before {
+    top: var(--sp-2);
+    inset-inline-start: -5px;
+  }
+
+  .flowNode::after {
+    content: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statValue {
+    font-size: 1.1rem;
+  }
+
+  .verdictWord {
+    font-size: 1.25rem;
+  }
+
+  .alert {
+    grid-template-columns: 1fr;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .facts dt {
+    white-space: normal;
+  }
+}

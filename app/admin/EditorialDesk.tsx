@@ -29,6 +29,7 @@ import {
 import { ABSENCE, AREA_LABEL, LANE_LABEL, SECTION_LABEL, STATUS_LABEL, T, TREND_LABEL } from "./lexicon";
 import { NarrativesPanel } from "./NarrativesPanel";
 import { callConsole, readConsole, useConsoleRead } from "./useConsoleRead";
+import cmd from "./command.module.css";
 import styles from "./admin.module.css";
 
 type Lane = keyof ConsoleEditorial["lanes"];
@@ -188,7 +189,7 @@ export function EditorialDesk({ signal }: { signal: number }) {
           onAction={reloadAll}
         />
       ) : (
-        <div className={styles.laneWrap}>
+        <div className={`${styles.laneWrap} ${cmd.laneSnap}`}>
           <div className={styles.lanes}>
             {LANES.map((lane) => (
               <section key={lane.key} className={styles.lane} aria-labelledby={`lane-${lane.key}`}>

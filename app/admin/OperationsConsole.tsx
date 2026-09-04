@@ -37,6 +37,8 @@ import { OverviewPanel } from "./OverviewPanel";
 import { PipelinePanel } from "./PipelinePanel";
 import { SourcesPanel } from "./SourcesPanel";
 import { SystemPanel } from "./SystemPanel";
+import { CommandBackground } from "./_command/CommandBackground";
+import cmd from "./command.module.css";
 import styles from "./admin.module.css";
 
 /* The `value` is the wire word — it is what the tab state, the panel and
@@ -57,18 +59,22 @@ export function OperationsConsole() {
   const reloadActiveArea = useCallback(() => setSignal((current) => current + 1), []);
 
   return (
-    <div className={styles.consoleLayout}>
+    <div className={cmd.shell}>
+      <CommandBackground />
+      <div className={styles.consoleLayout}>
       <Tabs
         value={area}
         onValueChange={setArea}
         activation="manual"
         className={styles.consoleTabs}
       >
+        <div className={cmd.consoleNav}>
         <TabList label="אזורי הקונסולה" shape="segmented">
           {AREAS.map((entry) => (
             <Tab key={entry.value} value={entry.value}>{entry.label}</Tab>
           ))}
         </TabList>
+        </div>
 
         <TabPanel value="overview"><OverviewPanel signal={signal} /></TabPanel>
         <TabPanel value="pipeline"><PipelinePanel signal={signal} /></TabPanel>
@@ -80,6 +86,7 @@ export function OperationsConsole() {
       <aside className={styles.consoleRail} aria-label="עוזר התפעול">
         <OpsChat onStateChanged={reloadActiveArea} />
       </aside>
+      </div>
     </div>
   );
 }

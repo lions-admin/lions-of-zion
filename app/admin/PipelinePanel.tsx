@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { PIPELINE_STAGES, type ConsolePipeline, type PipelineJob, type RetryJobResult } from "@/server/contracts/admin-console";
 import type { BriefingStatus, DeepHealth } from "./briefing-shapes";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
+import { PipelineFlow } from "./_command/PipelineFlow";
+import cmd from "./command.module.css";
 import {
   AreaHead,
   ConsoleNotices,
@@ -16,7 +18,6 @@ import {
   Pill,
   ReadGate,
   formatDate,
-  formatDuration,
   formatUsd,
   jobTone,
   today,
@@ -48,58 +49,92 @@ function JobTable({
   disabled?: boolean;
   onRetry?: (job: PipelineJob, resetAttempts: boolean) => void;
 }) {
+  function retryActions(job: PipelineJob) {
+    if (!onRetry) return null;
+    return (
+      <div className={styles.cellActions}>
+        <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
+          {T.retry}
+        </Button>
+        {job.attempts >= job.maxAttempts ? (
+          <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
+            איפוס ניסיונות והרצה מחדש
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.tableWrap}>
-      <table className={compact ? `${styles.table} ${styles.tableCompact}` : styles.table}>
-        <thead>
-          <tr>
-            <th scope="col">{T.job}</th>
-            <th scope="col">שלב</th>
-            <th scope="col">מצב</th>
-            <th scope="col">{T.attempts}</th>
-            {compact ? null : <th scope="col">{T.source}</th>}
-            <th scope="col">{compact ? "הסתיימה" : "התחילה"}</th>
-            {compact ? null : <th scope="col">{T.lastError}</th>}
-            {onRetry ? <th scope="col">שחזור</th> : null}
-          </tr>
-        </thead>
-        <tbody>
-          {jobs.map((job) => (
-            <tr key={job.id}>
-              <th scope="row">
-                {/* The job key is the identifier the logs and the queue use. */}
-                <strong>{job.jobKey}</strong>
-                {compact ? null : <small className={styles.plainSmall}>{job.localDate}</small>}
-              </th>
-              <td>{stageWord(job.stage)}</td>
-              <td>
-                <Pill tone={jobTone(job.state)}>{stateWord(job.state)}</Pill>
-              </td>
-              <td>
-                {job.attempts} / {job.maxAttempts}
-              </td>
-              {compact ? null : <td>{job.sourceName ?? "—"}</td>}
-              <td>{formatDate(compact ? job.finishedAt : job.startedAt)}</td>
-              {compact ? null : <td className={styles.errorCell}>{job.lastError ?? "—"}</td>}
-              {onRetry ? (
-                <td>
-                  <div className={styles.cellActions}>
-                    <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
-                      {T.retry}
-                    </Button>
-                    {job.attempts >= job.maxAttempts ? (
-                      <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
-                        איפוס ניסיונות והרצה מחדש
-                      </Button>
-                    ) : null}
-                  </div>
-                </td>
-              ) : null}
+    <>
+      <div className={`${styles.tableWrap} ${cmd.desktopOnly}`}>
+        <table className={compact ? `${styles.table} ${styles.tableCompact}` : styles.table}>
+          <thead>
+            <tr>
+              <th scope="col">{T.job}</th>
+              <th scope="col">שלב</th>
+              <th scope="col">מצב</th>
+              <th scope="col">{T.attempts}</th>
+              {compact ? null : <th scope="col">{T.source}</th>}
+              <th scope="col">{compact ? "הסתיימה" : "התחילה"}</th>
+              {compact ? null : <th scope="col">{T.lastError}</th>}
+              {onRetry ? <th scope="col">שחזור</th> : null}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {jobs.map((job) => (
+              <tr key={job.id}>
+                <th scope="row">
+                  {/* The job key is the identifier the logs and the queue use. */}
+                  <strong>{job.jobKey}</strong>
+                  {compact ? null : <small className={styles.plainSmall}>{job.localDate}</small>}
+                </th>
+                <td>{stageWord(job.stage)}</td>
+                <td>
+                  <Pill tone={jobTone(job.state)}>{stateWord(job.state)}</Pill>
+                </td>
+                <td>
+                  {job.attempts} / {job.maxAttempts}
+                </td>
+                {compact ? null : <td>{job.sourceName ?? "—"}</td>}
+                <td>{formatDate(compact ? job.finishedAt : job.startedAt)}</td>
+                {compact ? null : <td className={styles.errorCell}>{job.lastError ?? "—"}</td>}
+                {onRetry ? <td>{retryActions(job)}</td> : null}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Narrow screens get cards: the job key names the card, the columns
+          become facts, and the same retry actions ride along. */}
+      <div className={cmd.sourceCards} aria-label={compact ? `${T.jobs} אחרונות` : "משימות שדורשות אדם"}>
+        {jobs.map((job) => (
+          <article key={job.id} className={cmd.sourceCard} aria-label={job.jobKey}>
+            <div className={cmd.sourceCardHead}>
+              <h3 className={cmd.sourceCardName}>
+                <bdi>{job.jobKey}</bdi>
+              </h3>
+              <Pill tone={jobTone(job.state)}>{stateWord(job.state)}</Pill>
+            </div>
+            <p className={cmd.sourceCardMeta}>
+              {stageWord(job.stage)} · {T.attempts} <bdi>{job.attempts} / {job.maxAttempts}</bdi>
+              {compact ? "" : <> · <bdi>{job.localDate}</bdi></>}
+            </p>
+            {compact ? null : (
+              <p className={cmd.sourceCardMeta}>
+                {T.source} {job.sourceName ?? "—"} · התחילה {formatDate(job.startedAt)}
+              </p>
+            )}
+            {compact ? (
+              <p className={cmd.sourceCardMeta}>הסתיימה {formatDate(job.finishedAt)}</p>
+            ) : job.lastError ? (
+              <p className={cmd.sourceCardError}>{job.lastError}</p>
+            ) : null}
+            {onRetry ? <div className={cmd.sourceCardActions}>{retryActions(job)}</div> : null}
+          </article>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -118,9 +153,11 @@ function JobTable({
  * console's `dir="rtl"` it reads right to left, which is the direction a
  * Hebrew reader follows a flow in.
  */
+const PIPELINE_POLL_MS = 30_000;
+
 export function PipelinePanel({ signal }: { signal: number }) {
-  const pipeline = useConsoleRead<ConsolePipeline>("admin/console/pipeline", { signal });
-  const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal });
+  const pipeline = useConsoleRead<ConsolePipeline>("admin/console/pipeline", { signal, pollInterval: PIPELINE_POLL_MS });
+  const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal, pollInterval: PIPELINE_POLL_MS });
   const [deepHealth, setDeepHealth] = useState<DeepHealth | null>(null);
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* STATE-004 — the focus fallback: the area itself, `tabIndex={-1}` and
@@ -190,43 +227,18 @@ export function PipelinePanel({ signal }: { signal: number }) {
             {value.processingPaused ? (
               <p className={styles.warnNote}>העיבוד מושהה. משימות נערמות במצב ממתין עד שהוא יחודש.</p>
             ) : null}
-            <div className={styles.stageWrap}>
-              <ol className={styles.stageStrip} aria-label="שלבי תהליך העיבוד">
-                {PIPELINE_STAGES.map((stage) => {
-                  const cell = value.stages.find((entry) => entry.stage === stage);
-                  const tone = !cell ? "" : cell.quarantined ? styles.stageDanger : cell.stuck ? styles.stageWarn : cell.running ? styles.stageLive : "";
-                  return (
-                    <li key={stage} className={`${styles.stage} ${tone}`}>
-                      <h3>{stageWord(stage)}</h3>
-                      {cell ? (
-                        <>
-                          <p className={styles.stageCount}>
-                            <strong>{cell.pending}</strong> <span>ממתינות</span>
-                          </p>
-                          <p className={styles.stageRow}>
-                            {cell.running ? <Pill tone="gold">{cell.running} רצות</Pill> : null}
-                            {cell.stuck ? <Pill tone="warn">{cell.stuck} תקועות</Pill> : null}
-                            {cell.quarantined ? <Pill tone="danger">{cell.quarantined} {T.quarantined}</Pill> : null}
-                            {!cell.running && !cell.stuck && !cell.quarantined ? <Pill tone="ok">{T.ok}</Pill> : null}
-                          </p>
-                          <dl className={styles.stageFacts}>
-                            <dt>{`הושלמו ${T.last24h}`}</dt>
-                            <dd>{cell.completed24h}</dd>
-                            <dt>משך ממוצע</dt>
-                            <dd>{formatDuration(cell.averageDurationMs)}</dd>
-                            <dt>הממתינה הוותיקה ביותר</dt>
-                            <dd>{cell.oldestPendingAt ? formatDate(cell.oldestPendingAt) : "—"}</dd>
-                          </dl>
-                          {cell.lastError ? <p className={styles.stageError}>{cell.lastError}</p> : null}
-                        </>
-                      ) : (
-                        <p className={styles.muted}>לא דווח.</p>
-                      )}
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
+            <PipelineFlow
+              stages={value.stages}
+              stageWord={stageWord}
+              pendingWord="ממתינות"
+              runningWord={(count) => `${count} רצות`}
+              stuckWord={(count) => `${count} תקועות`}
+              quarantinedWord={(count) => `${count} ${T.quarantined}`}
+              okWord={T.ok}
+              completedWord={`הושלמו ${T.last24h}`}
+              averageWord="משך ממוצע"
+              oldestPendingWord="הממתינה הוותיקה ביותר"
+            />
 
             {/* ── Needs a person ────────────────────────────────────────── */}
             <div className={styles.panel}>

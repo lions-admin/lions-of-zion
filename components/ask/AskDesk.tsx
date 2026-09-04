@@ -42,12 +42,10 @@ import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { BorderBeam } from "@/components/motion";
 import {
-  MessageScroller,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerProvider,
-  MessageScrollerViewport,
-} from "@/components/magicui/message-scroller";
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
 import { AnswerRecord } from "./AnswerRecord";
 import { toExchanges } from "./exchanges";
 import { AskComposer } from "./AskComposer";
@@ -76,7 +74,7 @@ export function AskDesk() {
     if (question) setSeed({ text: question, nonce: Date.now() });
   };
 
-  /* Scroll position belongs to `MessageScroller` now. What stood here was an
+  /* Scroll position belongs to `Conversation` now. What stood here was an
      effect that moved a `tail` ref into view on every new record and had to
      read `prefers-reduced-motion` by hand, because an explicit `"smooth"`
      overrides the CSS kill switch in `globals.css`. The scroller anchors on the
@@ -85,7 +83,7 @@ export function AskDesk() {
 
   /* `settled` is still the last exchange — the state chip below reads it. What
      went with the transcript rewrite is the announcement string it used to
-     build: `MessageScrollerContent` is a `role="log"` with
+     build: `ConversationContent` is a `role="log"` with
      `aria-relevant="additions"`, so the arriving answer is announced by the
      region that contains it. Building a second sentence about the same event
      and putting it in a second live region announced it twice. */
@@ -125,59 +123,39 @@ export function AskDesk() {
 
       {count === 0 && status === "idle" ? <AskPrimer onPick={ask} disabled={busy} /> : null}
 
-      {/* The transcript is a `MessageScroller`, which owns scroll position now.
-          `scrollAnchor` on every turn is what puts the question near the top of
-          the viewport with a peek of the previous one above it, so an answer is
-          read downward from the thing it answers rather than being hunted for.
-          `defaultScrollPosition="last-anchor"` is for the reopened thread that
-          `thread-store.ts` restores: it lands on the final turn, not the top of
-          a conversation the reader already had.
+      {/* The transcript is AI Elements' `Conversation`, which is the same job
+          the `MessageScroller` here did for an hour and is the one Vercel keeps
+          in step with its own chat SDK. It sticks to the live edge, releases
+          when the reader scrolls away, and offers the button back — all of it
+          without this component owning a ref or reading a motion preference,
+          which is what stood here before it. */}
+      <Conversation className={styles.transcriptFrame}>
+        <ConversationContent className={styles.transcript}>
+          {exchanges.map((exchange) => (
+            <AnswerRecord key={exchange.key} exchange={exchange} />
+          ))}
 
-          It replaced a `tail` ref and a `scrollIntoView` that had to decide the
-          reduced-motion behaviour by hand, because an explicit `"smooth"`
-          overrides the CSS kill switch. The scroller reads the preference
-          itself. */}
-      <MessageScrollerProvider autoScroll defaultScrollPosition="last-anchor">
-        <MessageScroller className={styles.transcriptFrame}>
-          <MessageScrollerViewport>
-            {/* `role="log"` and its own announcements come from the content
-                element. The explicit `politeLive` paragraph this component used
-                to carry has gone with it: two live regions describing the same
-                arriving answer is two announcements of it. */}
-            <MessageScrollerContent className={styles.transcript}>
-              {exchanges.map((exchange) => (
-                <MessageScrollerItem
-                  key={exchange.key}
-                  messageId={exchange.key}
-                  scrollAnchor
-                >
-                  <AnswerRecord exchange={exchange} />
-                </MessageScrollerItem>
-              ))}
+          {busy && pending ? (
+            <Waiting
+              question={pending}
+              elapsed={elapsed}
+              phase={status === "submitting" ? "submitting" : "loading"}
+              onStop={cancel}
+            />
+          ) : null}
 
-        {busy && pending ? (
-          <Waiting
-            question={pending}
-            elapsed={elapsed}
-            phase={status === "submitting" ? "submitting" : "loading"}
-            onStop={cancel}
-          />
-        ) : null}
-
-        {problem && !unavailable ? (
-          <ProblemRecord
-            code={problem.code}
-            detail={problem.detail}
-            question={pending}
-            onRetry={retry}
-            onEdit={recallIntoComposer}
-          />
-        ) : null}
-
-            </MessageScrollerContent>
-          </MessageScrollerViewport>
-        </MessageScroller>
-      </MessageScrollerProvider>
+          {problem && !unavailable ? (
+            <ProblemRecord
+              code={problem.code}
+              detail={problem.detail}
+              question={pending}
+              onRetry={retry}
+              onEdit={recallIntoComposer}
+            />
+          ) : null}
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
 
       {unavailable ? (
         /* StatusState error already uses role="alert" (assertiveLive). */

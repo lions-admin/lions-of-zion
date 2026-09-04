@@ -19,12 +19,31 @@ import {
   formatDuration,
   formatUsd,
   jobTone,
-  stageLabel,
   today,
   useOperations,
 } from "./console-primitives";
+import { AREA_LABEL, JOB_STATE_LABEL, STAGE_LABEL, T } from "./lexicon";
 import { callConsole, readConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
+
+/* The lexicon holds the words; the `?? value` fallback keeps an unrecognised
+   wire value readable rather than blank. `run.status` and `entry.stage` are
+   open `string` on the briefing summary, not the closed enums the pipeline
+   route serves, so neither lookup can be assumed to hit. */
+const stageWord = (stage: string) => STAGE_LABEL[stage] ?? stage;
+const stateWord = (state: string) => JOB_STATE_LABEL[state] ?? state;
+
+/* A briefing edition runs through its own five states, which are neither job
+   states nor publication statuses. They belong in `lexicon.ts` next to the
+   other state maps; they are here because that file is owned elsewhere while
+   this translation lands. */
+const EDITION_STATUS_LABEL: Record<string, string> = {
+  collecting: "באיסוף",
+  processing: "בעיבוד",
+  quarantined: JOB_STATE_LABEL.quarantined,
+  published: "פורסמה",
+  failed: "נכשלה",
+};
 
 function JobTable({
   jobs,
@@ -42,26 +61,27 @@ function JobTable({
       <table className={compact ? `${styles.table} ${styles.tableCompact}` : styles.table}>
         <thead>
           <tr>
-            <th scope="col">Job</th>
-            <th scope="col">Stage</th>
-            <th scope="col">State</th>
-            <th scope="col">Attempts</th>
-            {compact ? null : <th scope="col">Source</th>}
-            <th scope="col">{compact ? "Finished" : "Started"}</th>
-            {compact ? null : <th scope="col">Last error</th>}
-            {onRetry ? <th scope="col">Recovery</th> : null}
+            <th scope="col">{T.job}</th>
+            <th scope="col">שלב</th>
+            <th scope="col">מצב</th>
+            <th scope="col">{T.attempts}</th>
+            {compact ? null : <th scope="col">{T.source}</th>}
+            <th scope="col">{compact ? "הסתיימה" : "התחילה"}</th>
+            {compact ? null : <th scope="col">{T.lastError}</th>}
+            {onRetry ? <th scope="col">שחזור</th> : null}
           </tr>
         </thead>
         <tbody>
           {jobs.map((job) => (
             <tr key={job.id}>
               <th scope="row">
+                {/* The job key is the identifier the logs and the queue use. */}
                 <strong>{job.jobKey}</strong>
                 {compact ? null : <small className={styles.plainSmall}>{job.localDate}</small>}
               </th>
-              <td>{stageLabel(job.stage)}</td>
+              <td>{stageWord(job.stage)}</td>
               <td>
-                <Pill tone={jobTone(job.state)}>{job.state}</Pill>
+                <Pill tone={jobTone(job.state)}>{stateWord(job.state)}</Pill>
               </td>
               <td>
                 {job.attempts} / {job.maxAttempts}
@@ -73,11 +93,11 @@ function JobTable({
                 <td>
                   <div className={styles.cellActions}>
                     <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
-                      Retry
+                      {T.retry}
                     </Button>
                     {job.attempts >= job.maxAttempts ? (
                       <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
-                        Reset attempts and retry
+                        איפוס ניסיונות והרצה מחדש
                       </Button>
                     ) : null}
                   </div>
@@ -101,6 +121,10 @@ function JobTable({
  * that need a person, then the record — recent jobs, editions, cost, and
  * quarantine. The pause switch is here as well as on the overview because it
  * is the pipeline's stop switch. The forced rerun is last, in its own zone.
+ *
+ * The strip's DOM order is collect → publish and stays that way: under the
+ * console's `dir="rtl"` it reads right to left, which is the direction a
+ * Hebrew reader follows a flow in.
  */
 export function PipelinePanel({ signal }: { signal: number }) {
   const pipeline = useConsoleRead<ConsolePipeline>("admin/console/pipeline", { signal });
@@ -121,10 +145,10 @@ export function PipelinePanel({ signal }: { signal: number }) {
 
   return (
     <section className={styles.area} id="console-pipeline" aria-labelledby="console-pipeline-heading" ref={areaRef} tabIndex={-1}>
-      <AreaHead id="console-pipeline" label="Pipeline" title="Seven stages, and what is waiting in each">
+      <AreaHead id="console-pipeline" label={AREA_LABEL.pipeline} title="שבעה שלבים, ומה ממתין בכל אחד מהם">
         <div className={styles.actionRow}>
           <Button variant="secondary" type="button" disabled={ops.disabled} onClick={runDeepHealth}>
-            Deep health check
+            בדיקת תקינות מעמיקה
           </Button>
           <Button
             variant={paused ? "primary" : "secondary"}
@@ -132,16 +156,18 @@ export function PipelinePanel({ signal }: { signal: number }) {
             disabled={ops.disabled || paused === null}
             onClick={() => requestPublicationControl(!paused)}
           >
-            {paused ? "Resume automatic publication" : "Pause automatic publication"}
+            {paused ? "חידוש הפרסום האוטומטי" : "השהיית הפרסום האוטומטי"}
           </Button>
         </div>
       </AreaHead>
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
 
       {deepHealth ? (
-        <div className={styles.healthStrip} aria-label="Deep health check result">
+        /* The check names and their statuses are the health endpoint's own
+           identifiers, and stay as it reports them. */
+        <div className={styles.healthStrip} aria-label="תוצאת בדיקת התקינות המעמיקה">
           <span>
-            <Pill tone={deepHealth.status === "ok" ? "ok" : "danger"}>overall {deepHealth.status}</Pill>
+            <Pill tone={deepHealth.status === "ok" ? "ok" : "danger"}>מצב כולל {deepHealth.status}</Pill>
           </span>
           {Object.entries(deepHealth.checks).map(([name, check]) => (
             <span key={name}>
@@ -154,7 +180,7 @@ export function PipelinePanel({ signal }: { signal: number }) {
       {/* ── The stage strip ───────────────────────────────────────────── */}
       <ReadGate
         state={pipeline.state}
-        what="the pipeline"
+        what={AREA_LABEL.pipeline}
         reload={pipeline.reload}
         skeleton={
           <>
@@ -170,39 +196,39 @@ export function PipelinePanel({ signal }: { signal: number }) {
         {(value) => (
           <>
             {value.processingPaused ? (
-              <p className={styles.warnNote}>Processing is paused. Jobs accumulate as pending until it resumes.</p>
+              <p className={styles.warnNote}>העיבוד מושהה. משימות נערמות במצב ממתין עד שהוא יחודש.</p>
             ) : null}
             <div className={styles.stageWrap}>
-              <ol className={styles.stageStrip} aria-label="Pipeline stages">
+              <ol className={styles.stageStrip} aria-label="שלבי תהליך העיבוד">
                 {PIPELINE_STAGES.map((stage) => {
                   const cell = value.stages.find((entry) => entry.stage === stage);
                   const tone = !cell ? "" : cell.quarantined ? styles.stageDanger : cell.stuck ? styles.stageWarn : cell.running ? styles.stageLive : "";
                   return (
                     <li key={stage} className={`${styles.stage} ${tone}`}>
-                      <h3>{stageLabel(stage)}</h3>
+                      <h3>{stageWord(stage)}</h3>
                       {cell ? (
                         <>
                           <p className={styles.stageCount}>
-                            <strong>{cell.pending}</strong> <span>pending</span>
+                            <strong>{cell.pending}</strong> <span>ממתינות</span>
                           </p>
                           <p className={styles.stageRow}>
-                            {cell.running ? <Pill tone="gold">{cell.running} running</Pill> : null}
-                            {cell.stuck ? <Pill tone="warn">{cell.stuck} stuck</Pill> : null}
-                            {cell.quarantined ? <Pill tone="danger">{cell.quarantined} quarantined</Pill> : null}
-                            {!cell.running && !cell.stuck && !cell.quarantined ? <Pill tone="ok">clear</Pill> : null}
+                            {cell.running ? <Pill tone="gold">{cell.running} רצות</Pill> : null}
+                            {cell.stuck ? <Pill tone="warn">{cell.stuck} תקועות</Pill> : null}
+                            {cell.quarantined ? <Pill tone="danger">{cell.quarantined} {T.quarantined}</Pill> : null}
+                            {!cell.running && !cell.stuck && !cell.quarantined ? <Pill tone="ok">{T.ok}</Pill> : null}
                           </p>
                           <dl className={styles.stageFacts}>
-                            <dt>Done in 24 h</dt>
+                            <dt>{`הושלמו ${T.last24h}`}</dt>
                             <dd>{cell.completed24h}</dd>
-                            <dt>Average</dt>
+                            <dt>משך ממוצע</dt>
                             <dd>{formatDuration(cell.averageDurationMs)}</dd>
-                            <dt>Oldest pending</dt>
+                            <dt>הממתינה הוותיקה ביותר</dt>
                             <dd>{cell.oldestPendingAt ? formatDate(cell.oldestPendingAt) : "—"}</dd>
                           </dl>
                           {cell.lastError ? <p className={styles.stageError}>{cell.lastError}</p> : null}
                         </>
                       ) : (
-                        <p className={styles.muted}>Not reported.</p>
+                        <p className={styles.muted}>לא דווח.</p>
                       )}
                     </li>
                   );
@@ -212,40 +238,42 @@ export function PipelinePanel({ signal }: { signal: number }) {
 
             {/* ── Needs a person ────────────────────────────────────────── */}
             <div className={styles.panel}>
-              <PanelTitle note={`${value.attention.length} waiting`}>Jobs that need a person</PanelTitle>
-              <p className={styles.muted}>Stuck, quarantined, or failing on their last attempt. Retry re-queues the job; resetting attempts lets one that has exhausted them run again.</p>
+              <PanelTitle note={`${value.attention.length} ממתינות`}>משימות שדורשות אדם</PanelTitle>
+              <p className={styles.muted}>תקועות, בבידוד, או נכשלות בניסיון האחרון שלהן. הרצה מחדש מחזירה את המשימה לתור; איפוס הניסיונות מאפשר למשימה שמיצתה אותם לרוץ שוב.</p>
               {value.attention.length ? (
                 <JobTable jobs={value.attention} disabled={ops.disabled} onRetry={requestRetry} />
               ) : (
-                <EmptyLine>Nothing is waiting for a person. The read succeeded and the list is genuinely empty.</EmptyLine>
+                <EmptyLine>שום דבר לא ממתין לאדם. הקריאה הצליחה והרשימה באמת ריקה.</EmptyLine>
               )}
             </div>
 
             <div className={styles.twoColumns}>
               <div className={styles.panel}>
-                <PanelTitle>Recent jobs</PanelTitle>
-                {value.recentJobs.length ? <JobTable jobs={value.recentJobs} compact /> : <EmptyLine>No jobs recorded yet.</EmptyLine>}
+                <PanelTitle>{`${T.jobs} אחרונות`}</PanelTitle>
+                {value.recentJobs.length ? <JobTable jobs={value.recentJobs} compact /> : <EmptyLine>עדיין לא נרשמו משימות.</EmptyLine>}
               </div>
               <div className={styles.panel}>
-                <PanelTitle>Editions</PanelTitle>
+                <PanelTitle>מהדורות</PanelTitle>
                 {value.editions.length ? (
                   <ul className={styles.logList}>
                     {value.editions.map((edition) => (
                       <li key={edition.id}>
                         <span>
-                          <Pill tone={edition.status === "published" ? "ok" : edition.status === "failed" ? "danger" : "warn"}>{edition.status}</Pill>
+                          <Pill tone={edition.status === "published" ? "ok" : edition.status === "failed" ? "danger" : "warn"}>
+                            {EDITION_STATUS_LABEL[edition.status] ?? edition.status}
+                          </Pill>
                         </span>
                         <strong>{edition.localDate}</strong>
                         <small>
-                          opened {formatDate(edition.collectionOpenedAt)}
-                          {edition.collectionClosedAt ? ` · closed ${formatDate(edition.collectionClosedAt)}` : ""}
-                          {edition.publishedAt ? ` · published ${formatDate(edition.publishedAt)}` : ""}
+                          נפתחה {formatDate(edition.collectionOpenedAt)}
+                          {edition.collectionClosedAt ? ` · נסגרה ${formatDate(edition.collectionClosedAt)}` : ""}
+                          {edition.publishedAt ? ` · פורסמה ${formatDate(edition.publishedAt)}` : ""}
                         </small>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <EmptyLine>No editions recorded yet.</EmptyLine>
+                  <EmptyLine>עדיין לא נרשמו מהדורות.</EmptyLine>
                 )}
               </div>
             </div>
@@ -254,91 +282,93 @@ export function PipelinePanel({ signal }: { signal: number }) {
       </ReadGate>
 
       {/* ── The record the briefing summary carries ───────────────────── */}
-      <InlineAbsence state={briefing.state} what="the briefing summary" reload={briefing.reload} />
+      <InlineAbsence state={briefing.state} what="סיכום הבריף" reload={briefing.reload} />
       {briefing.value ? (
         <>
           <div className={styles.compactMetrics}>
-            <Metric label="Cost in 24 hours" value={formatUsd(briefing.value.spend.last24HoursUsd)} />
-            <Metric label="Cost in 30 days" value={formatUsd(briefing.value.spend.last30DaysUsd)} />
-            <Metric label="Failures this week" value={String(briefing.value.failedRuns)} tone={briefing.value.failedRuns ? "danger" : "ok"} />
-            <Metric label="Open quarantine" value={String(briefing.value.quarantine.length)} tone={briefing.value.quarantine.length ? "warn" : "ok"} />
-            <Metric label="Story clusters in 24 h" value={String(briefing.value.clustersLast24Hours)} />
-            <Metric label="Pending evidence" value={String(briefing.value.unprocessedEvidence)} />
-            <Metric label="Raw results in 24 h" value={String(briefing.value.pipelineCounts.rawResults)} />
-            <Metric label="Unique results in 24 h" value={String(briefing.value.pipelineCounts.uniqueResults)} />
-            <Metric label="Enriched evidence in 24 h" value={String(briefing.value.pipelineCounts.enrichedEvidence)} />
-            <Metric label="Extracted claims in 24 h" value={String(briefing.value.pipelineCounts.extractedClaims)} />
-            <Metric label="Raw volume (30 days)" value={`${(briefing.value.pipelineCounts.rawBytes30d / 1024 / 1024).toFixed(2)} MB`} />
-            <Metric label="Latest run" value={briefing.value.latestRunAt ? formatDate(briefing.value.latestRunAt) : "None recorded"} />
+            <Metric label={`${T.cost} ${T.last24h}`} value={formatUsd(briefing.value.spend.last24HoursUsd)} />
+            <Metric label={`${T.cost} ${T.last30d}`} value={formatUsd(briefing.value.spend.last30DaysUsd)} />
+            <Metric label={`כשלים ${T.last7d}`} value={String(briefing.value.failedRuns)} tone={briefing.value.failedRuns ? "danger" : "ok"} />
+            <Metric label="פריטים בבידוד" value={String(briefing.value.quarantine.length)} tone={briefing.value.quarantine.length ? "warn" : "ok"} />
+            <Metric label={`אשכולות סיפורים ${T.last24h}`} value={String(briefing.value.clustersLast24Hours)} />
+            <Metric label={`${T.evidence} ממתינות`} value={String(briefing.value.unprocessedEvidence)} />
+            <Metric label={`תוצאות גולמיות ${T.last24h}`} value={String(briefing.value.pipelineCounts.rawResults)} />
+            <Metric label={`תוצאות ייחודיות ${T.last24h}`} value={String(briefing.value.pipelineCounts.uniqueResults)} />
+            <Metric label={`${T.evidence} מועשרות ${T.last24h}`} value={String(briefing.value.pipelineCounts.enrichedEvidence)} />
+            <Metric label={`טענות שחולצו ${T.last24h}`} value={String(briefing.value.pipelineCounts.extractedClaims)} />
+            <Metric label={`נפח גולמי ${T.last30d}`} value={`${(briefing.value.pipelineCounts.rawBytes30d / 1024 / 1024).toFixed(2)} MB`} />
+            <Metric label="ריצה אחרונה" value={briefing.value.latestRunAt ? formatDate(briefing.value.latestRunAt) : "לא נרשמה"} />
           </div>
-          <div className={styles.queueRow} aria-label="Job queue by state">
+          <div className={styles.queueRow} aria-label="תור המשימות לפי מצב">
             {briefing.value.jobs.map((job) => (
               <span key={job.state}>
-                <strong>{job.count}</strong> {job.state}
+                <strong>{job.count}</strong> {stateWord(job.state)}
               </span>
             ))}
           </div>
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
-              <PanelTitle>Recent runs</PanelTitle>
+              <PanelTitle>{`${T.runs} אחרונות`}</PanelTitle>
               {briefing.value.runs.length ? (
                 <ul className={styles.logList}>
                   {briefing.value.runs.map((run) => (
                     <li key={run.id}>
                       <span>
-                        <Pill tone={run.status === "completed" ? "ok" : "warn"}>{run.status}</Pill>
+                        <Pill tone={run.status === "completed" ? "ok" : "warn"}>{stateWord(run.status)}</Pill>
                       </span>
                       <strong>
-                        {run.localDate} · {stageLabel(run.stage)}
+                        {run.localDate} · {stageWord(run.stage)}
                       </strong>
                       <small>
-                        {run.inputCount} in, {run.outputCount} out{run.error ? ` · ${run.error}` : ""}
+                        {run.inputCount} נכנסו, {run.outputCount} יצאו{run.error ? ` · ${run.error}` : ""}
                       </small>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <EmptyLine>No runs recorded yet.</EmptyLine>
+                <EmptyLine>עדיין לא נרשמו ריצות.</EmptyLine>
               )}
             </div>
             <div className={styles.panel}>
-              <PanelTitle>Quality quarantine</PanelTitle>
+              <PanelTitle>{`בידוד ${STAGE_LABEL.quality}`}</PanelTitle>
               {briefing.value.quarantine.length ? (
                 <ul className={styles.logList}>
                   {briefing.value.quarantine.map((entry) => (
                     <li key={entry.id}>
                       <span>
-                        <Pill tone="warn">{stageLabel(entry.stage)}</Pill>
+                        <Pill tone="warn">{stageWord(entry.stage)}</Pill>
                       </span>
+                      {/* The candidate key is the identifier the quarantine row is filed under. */}
                       <strong>{entry.candidateKey}</strong>
                       <small>{entry.reason}</small>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <EmptyLine>No items in quarantine.</EmptyLine>
+                <EmptyLine>אין פריטים בבידוד.</EmptyLine>
               )}
             </div>
           </div>
 
           <div className={styles.panel}>
-            <PanelTitle>Cost by model and stage</PanelTitle>
+            <PanelTitle>עלות לפי מודל ושלב</PanelTitle>
             <div className={styles.tableWrap}>
               <table className={`${styles.table} ${styles.tableCompact}`}>
                 <thead>
                   <tr>
-                    <th scope="col">Model</th>
-                    <th scope="col">Stage</th>
-                    <th scope="col">Calls</th>
-                    <th scope="col">Cost</th>
+                    <th scope="col">מודל</th>
+                    <th scope="col">שלב</th>
+                    <th scope="col">קריאות</th>
+                    <th scope="col">{T.cost}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {briefing.value.spend.byModel.map((entry) => (
                     <tr key={`${entry.model}:${entry.stage}`}>
+                      {/* The model slug is what the gateway bills against. */}
                       <td>{entry.model}</td>
-                      <td>{stageLabel(entry.stage)}</td>
+                      <td>{stageWord(entry.stage)}</td>
                       <td>{entry.calls}</td>
                       <td>{formatUsd(entry.costUsd)}</td>
                     </tr>
@@ -353,11 +383,11 @@ export function PipelinePanel({ signal }: { signal: number }) {
       {/* ADMIN-002: the irreversible control is its own zone, last in reading
           order and last in tab order for this area. */}
       <div className={styles.dangerZone}>
-        <p className={styles.dangerLabel}>Irreversible actions</p>
-        <p className={styles.muted}>A forced rerun regenerates today&apos;s edition from the start and spends model budget again. It names its consequence before it runs.</p>
+        <p className={styles.dangerLabel}>פעולות בלתי הפיכות</p>
+        <p className={styles.muted}>הרצה כפויה מייצרת מחדש את מהדורת היום מההתחלה ומוציאה שוב מתקציב המודל. היא מפרטת את ההשלכה שלה לפני שהיא רצה.</p>
         <div className={styles.actionRow}>
           <Button variant="danger" type="button" disabled={ops.disabled} onClick={requestForcedRerun}>
-            Force today&apos;s edition rerun
+            כפיית הרצה מחדש של מהדורת היום
           </Button>
         </div>
       </div>
@@ -373,18 +403,18 @@ export function PipelinePanel({ signal }: { signal: number }) {
   function requestPublicationControl(nextPaused: boolean) {
     setConfirmIntent(nextPaused
       ? {
-        action: "Pause automatic publication",
-        target: "Automatic publication for this deployment",
-        consequence: "Approved editions stop reaching the public site until this is resumed. Collection and processing continue, so nothing is lost — but nothing new is published either.",
-        confirmLabel: "Pause automatic publication",
+        action: "השהיית הפרסום האוטומטי",
+        target: "הפרסום האוטומטי של הפריסה הזו",
+        consequence: "מהדורות מאושרות יפסיקו להגיע לאתר הציבורי עד שהפרסום יחודש. האיסוף והעיבוד ממשיכים, ולכן שום דבר לא הולך לאיבוד — אבל גם שום דבר חדש לא מתפרסם.",
+        confirmLabel: "השהיית הפרסום האוטומטי",
         tone: "danger",
         run: () => mutateControl(true),
       }
       : {
-        action: "Resume automatic publication",
-        target: "Automatic publication for this deployment",
-        consequence: "Approved editions publish themselves to the public site again, with no further prompt before each one.",
-        confirmLabel: "Resume automatic publication",
+        action: "חידוש הפרסום האוטומטי",
+        target: "הפרסום האוטומטי של הפריסה הזו",
+        consequence: "מהדורות מאושרות יתפרסמו שוב לאתר הציבורי מעצמן, בלי אישור נוסף לפני כל אחת מהן.",
+        confirmLabel: "חידוש הפרסום האוטומטי",
         tone: "primary",
         run: () => mutateControl(false),
       });
@@ -392,11 +422,11 @@ export function PipelinePanel({ signal }: { signal: number }) {
 
   function requestForcedRerun() {
     setConfirmIntent({
-      action: "Force a full rerun of today's edition",
-      target: "Today's briefing edition",
+      action: "כפיית הרצה מלאה מחדש של מהדורת היום",
+      target: "מהדורת הבריף של היום",
       targetDetail: today(),
-      consequence: "Today's edition is regenerated from the start and model budget is spent again. New output that passes the quality gates publishes automatically and replaces what readers see now.",
-      confirmLabel: "Force the rerun",
+      consequence: "מהדורת היום נוצרת מחדש מההתחלה ותקציב המודל מוצא שוב. פלט חדש שעובר את בקרות האיכות מתפרסם אוטומטית ומחליף את מה שהקוראים רואים עכשיו.",
+      confirmLabel: "כפיית ההרצה מחדש",
       tone: "danger",
       run: forceFullBriefingRerun,
     });
@@ -411,11 +441,11 @@ export function PipelinePanel({ signal }: { signal: number }) {
       return;
     }
     setConfirmIntent({
-      action: "Retry this job with its attempts reset",
+      action: "הרצת המשימה מחדש עם איפוס הניסיונות",
       target: job.jobKey,
-      targetDetail: `${stageLabel(job.stage)} · ${job.localDate} · ${job.attempts} of ${job.maxAttempts} attempts used`,
-      consequence: "The attempt counter goes back to zero and the job runs again from its stage. A job that fails for the same reason will use its full attempt budget once more before it stops.",
-      confirmLabel: "Reset and retry",
+      targetDetail: `${stageWord(job.stage)} · ${job.localDate} · ${job.attempts} מתוך ${job.maxAttempts} ניסיונות נוצלו`,
+      consequence: "מונה הניסיונות חוזר לאפס והמשימה רצה שוב מהשלב שלה. משימה שנכשלת מאותה סיבה תנצל שוב את מלוא מכסת הניסיונות שלה לפני שתיעצר.",
+      confirmLabel: "איפוס והרצה מחדש",
       tone: "danger",
       run: () => retryJob(job, true),
     });
@@ -426,12 +456,12 @@ export function PipelinePanel({ signal }: { signal: number }) {
       const result = await callConsole<RetryJobResult>(`admin/console/jobs/${job.id}/retry`, {
         method: "POST",
         body: { resetAttempts },
-        failure: "Unable to retry the job.",
+        failure: "לא ניתן להריץ את המשימה מחדש.",
       });
       reloadAll();
       return result.dispatched
-        ? `Job ${job.jobKey} was re-queued and dispatched (${result.previousState} → ${result.state}).`
-        : `Job ${job.jobKey} was re-queued (${result.previousState} → ${result.state}); it runs on the next tick.`;
+        ? `המשימה ${job.jobKey} הוחזרה לתור ונשלחה (${result.previousState} → ${result.state}).`
+        : `המשימה ${job.jobKey} הוחזרה לתור (${result.previousState} → ${result.state}); היא תרוץ בסבב הבא.`;
     });
   }
 
@@ -440,10 +470,10 @@ export function PipelinePanel({ signal }: { signal: number }) {
       await callConsole("admin/briefing/control", {
         method: "PATCH",
         body: { automaticPublicationPaused: nextPaused },
-        failure: "Unable to update publication control.",
+        failure: "לא ניתן לעדכן את בקרת הפרסום.",
       });
       reloadAll();
-      return nextPaused ? "Automatic publication is paused." : "Automatic publication is active.";
+      return nextPaused ? "הפרסום האוטומטי מושהה." : "הפרסום האוטומטי פעיל.";
     });
   }
 
@@ -452,17 +482,17 @@ export function PipelinePanel({ signal }: { signal: number }) {
       const result = await callConsole<{ status: string }>("admin/briefing/run", {
         method: "POST",
         body: { forceFullRerun: true },
-        failure: "Unable to start a forced rerun.",
+        failure: "לא ניתן להתחיל הרצה כפויה.",
       });
       reloadAll();
-      return result.status === "queued" ? "The forced rerun was queued." : "The forced rerun was not queued.";
+      return result.status === "queued" ? "ההרצה הכפויה נכנסה לתור." : "ההרצה הכפויה לא נכנסה לתור.";
     });
   }
 
   async function runDeepHealth() {
     await ops.run("health", async () => {
       setDeepHealth(await readConsole<DeepHealth>("admin/health/deep"));
-      return "The deep health check finished. Its result is shown above the stages.";
+      return "בדיקת התקינות המעמיקה הסתיימה. התוצאה שלה מוצגת מעל השלבים.";
     });
   }
 }

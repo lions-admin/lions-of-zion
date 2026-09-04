@@ -19,12 +19,15 @@ import {
   formatUsd,
   useOperations,
 } from "./console-primitives";
+import { AREA_LABEL, SOURCE_KIND_LABEL, T } from "./lexicon";
 import { callConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
 
 /** Feed-backed kinds can be verified by a live fetch; the rest are enabled
  *  by hand with a reason. */
 const VERIFIABLE_KINDS = new Set(["rss", "api", "agent_search"]);
+
+const kindWord = (kind: string) => SOURCE_KIND_LABEL[kind] ?? kind;
 
 /**
  * Sources — collection health and throughput, one row per source, and the
@@ -51,37 +54,37 @@ export function SourcesPanel({ signal }: { signal: number }) {
 
   return (
     <section className={styles.area} id="console-sources" aria-labelledby="console-sources-heading" ref={areaRef} tabIndex={-1}>
-      <AreaHead id="console-sources" label="Sources" title="Collection health and throughput">
+      <AreaHead id="console-sources" label={AREA_LABEL.sources} title="תקינות האיסוף והתפוקה">
         <div className={styles.actionRow}>
           <Button variant="secondary" type="button" disabled={ops.disabled} onClick={syncSourceCatalog}>
-            Sync source URLs
+            סנכרון כתובות המקורות
           </Button>
         </div>
       </AreaHead>
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
 
-      <InlineAbsence state={briefing.state} what="the briefing summary" reload={briefing.reload} />
+      <InlineAbsence state={briefing.state} what="סיכום הבריף" reload={briefing.reload} />
       {briefing.value ? (
         <div className={styles.compactMetrics}>
-          <Metric label="Collection attempts this week" value={String(briefing.value.sources.reduce((sum, source) => sum + source.attempts, 0))} />
-          <Metric label="Successful collections this week" value={String(briefing.value.sources.reduce((sum, source) => sum + source.successfulAttempts, 0))} />
-          <Metric label="Search attempts this month" value={String(briefing.value.googleUsage.attemptsThisMonth)} />
-          <Metric label="Successful searches this month" value={String(briefing.value.googleUsage.successfulQueriesThisMonth)} />
+          <Metric label={`ניסיונות איסוף ${T.last7d}`} value={String(briefing.value.sources.reduce((sum, source) => sum + source.attempts, 0))} />
+          <Metric label={`איסופים שהצליחו ${T.last7d}`} value={String(briefing.value.sources.reduce((sum, source) => sum + source.successfulAttempts, 0))} />
+          <Metric label={`ניסיונות חיפוש ${T.thisMonth}`} value={String(briefing.value.googleUsage.attemptsThisMonth)} />
+          <Metric label={`חיפושים שהצליחו ${T.thisMonth}`} value={String(briefing.value.googleUsage.successfulQueriesThisMonth)} />
           <Metric
-            label="Estimated search cost"
+            label="עלות חיפוש משוערת"
             value={
               briefing.value.googleUsage.estimatedSpendUsd === null
-                ? "Not set"
+                ? "לא הוגדר"
                 : `${formatUsd(briefing.value.googleUsage.estimatedSpendUsd)}${briefing.value.googleUsage.monthlyBudgetUsd === null ? "" : ` / ${formatUsd(briefing.value.googleUsage.monthlyBudgetUsd, 2)}`}`
             }
           />
-          <Metric label="Sources configured" value={String(briefing.value.sources.length)} />
+          <Metric label="מקורות מוגדרים" value={String(briefing.value.sources.length)} />
         </div>
       ) : null}
 
       <ReadGate
         state={sources.state}
-        what="the source table"
+        what="טבלת המקורות"
         reload={sources.reload}
         skeleton={
           <>
@@ -94,9 +97,9 @@ export function SourcesPanel({ signal }: { signal: number }) {
           const rows = familyFilter ? value.sources.filter((source) => (source.family?.id ?? "none") === familyFilter) : value.sources;
           return (
             <>
-              <div className={styles.chipRow} role="group" aria-label="Filter by family">
+              <div className={styles.chipRow} role="group" aria-label="סינון לפי משפחה">
                 <Button variant="ghost" size="sm" type="button" isActive={familyFilter === ""} onClick={() => setFamilyFilter("")}>
-                  All · {value.sources.length}
+                  הכול · {value.sources.length}
                 </Button>
                 {value.families.map((family) => (
                   <Button
@@ -111,34 +114,34 @@ export function SourcesPanel({ signal }: { signal: number }) {
                   </Button>
                 ))}
                 <span className={styles.chipNote}>
-                  <Pill tone="ok">{value.totals.active} active</Pill> <Pill tone="neutral">{value.totals.disabled} disabled</Pill>{" "}
-                  <Pill tone={value.totals.failing ? "danger" : "ok"}>{value.totals.failing} failing</Pill>
+                  <Pill tone="ok">{value.totals.active} פעילים</Pill> <Pill tone="neutral">{value.totals.disabled} מושבתים</Pill>{" "}
+                  <Pill tone={value.totals.failing ? "danger" : "ok"}>{value.totals.failing} כושלים</Pill>
                 </span>
               </div>
 
               {rows.length === 0 ? (
-                <EmptyLine>No sources in this family. The read succeeded and the filter excluded every row.</EmptyLine>
+                <EmptyLine>אין מקורות במשפחה הזו. הקריאה הצליחה והסינון הוציא כל שורה.</EmptyLine>
               ) : (
                 <div className={styles.tableWrap}>
                   <table className={styles.table}>
                     <caption className={styles.tableCaption}>
-                      Health and throughput over the last seven days. A disabled source stays disabled until a live check returns a valid feed or a person enables it with a reason.
+                      תקינות ותפוקה בשבעת הימים האחרונים. מקור מושבת נשאר מושבת עד שבדיקה חיה מחזירה פיד תקין, או עד שאדם מפעיל אותו עם סיבה.
                     </caption>
                     <thead>
                       <tr>
-                        <th scope="col">Source</th>
-                        <th scope="col">Family</th>
-                        <th scope="col">Kind</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Verification</th>
-                        <th scope="col">Last fetch</th>
-                        <th scope="col">Last success</th>
-                        <th scope="col">Attempts</th>
-                        <th scope="col">Successes</th>
-                        <th scope="col">Seen</th>
-                        <th scope="col">New</th>
-                        <th scope="col">Duplicates</th>
-                        <th scope="col">Recovery</th>
+                        <th scope="col">{T.source}</th>
+                        <th scope="col">משפחה</th>
+                        <th scope="col">סוג</th>
+                        <th scope="col">מצב</th>
+                        <th scope="col">{T.verify}</th>
+                        <th scope="col">שליפה אחרונה</th>
+                        <th scope="col">הצלחה אחרונה</th>
+                        <th scope="col">{T.attempts}</th>
+                        <th scope="col">{T.successes}</th>
+                        <th scope="col">נראו</th>
+                        <th scope="col">חדשים</th>
+                        <th scope="col">{T.duplicates}</th>
+                        <th scope="col">שחזור</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -146,17 +149,20 @@ export function SourcesPanel({ signal }: { signal: number }) {
                         <tr key={source.id}>
                           <th scope="row">
                             <strong>{source.name}</strong>
+                            {/* The slug, language and country codes are the source's identity in the database. */}
                             <small className={styles.plainSmall}>{source.slug}{source.language ? ` · ${source.language}` : ""}{source.country ? ` · ${source.country}` : ""}</small>
                             {source.disabledReason || source.lastError ? <small>{source.disabledReason ?? source.lastError}</small> : null}
                           </th>
                           <td>{source.family?.label ?? "—"}</td>
-                          <td>{source.kind}</td>
+                          <td>{kindWord(source.kind)}</td>
                           <td>
                             <Pill tone={source.active ? (source.consecutiveFailures ? "warn" : "ok") : "neutral"}>
-                              {source.active ? `active · ${source.consecutiveFailures} failures` : "disabled"}
+                              {source.active ? `${T.active} · ${source.consecutiveFailures} כשלים` : T.inactive}
                             </Pill>
                           </td>
                           <td>
+                            {/* The verification state is a free-form config value written by the
+                                fetch route, so it is shown exactly as it is stored. */}
                             {source.verificationState ?? "—"}
                             {source.verificationError ? <small>{source.verificationError}</small> : null}
                           </td>
@@ -171,11 +177,11 @@ export function SourcesPanel({ signal }: { signal: number }) {
                             <div className={styles.cellActions}>
                               {VERIFIABLE_KINDS.has(source.kind) && !source.active ? (
                                 <Button variant="secondary" size="sm" type="button" disabled={ops.disabled} onClick={() => verifySource(source)}>
-                                  Verify and enable
+                                  אימות והפעלה
                                 </Button>
                               ) : null}
                               <Button variant="secondary" size="sm" type="button" disabled={ops.disabled} onClick={() => requestSourceActive(source, !source.active)}>
-                                {source.active ? "Disable" : "Enable"}
+                                {source.active ? T.disable : T.enable}
                               </Button>
                             </div>
                           </td>
@@ -200,21 +206,22 @@ export function SourcesPanel({ signal }: { signal: number }) {
   function requestSourceActive(source: ConsoleSource, active: boolean) {
     reasonRef.current = "";
     setConfirmIntent({
-      action: active ? "Enable this source" : "Disable this source",
+      action: active ? "הפעלת המקור הזה" : "השבתת המקור הזה",
       target: source.name,
+      /* The slug and kind are the row's identity, and stay in the wire form. */
       targetDetail: `${source.slug} · ${source.kind}${source.family ? ` · ${source.family.label}` : ""}`,
       consequence: active
-        ? "Collection resumes from this source on the next tick. Enabling a feed-backed source without a verification fetch is refused by the server; use Verify and enable for those. The reason is recorded in the audit log."
-        : "Collection from this source stops until a person enables it again. Items already collected are kept. The reason is recorded in the audit log.",
-      confirmLabel: active ? "Enable source" : "Disable source",
+        ? `האיסוף מהמקור הזה מתחדש בסבב הבא. השרת מסרב להפעיל מקור מבוסס־פיד בלי שליפת אימות; עבור מקורות כאלה יש להשתמש בפעולת אימות והפעלה. הסיבה נרשמת ב${T.auditLog}.`
+        : `האיסוף מהמקור הזה נפסק עד שאדם יפעיל אותו שוב. פריטים שכבר נאספו נשמרים. הסיבה נרשמת ב${T.auditLog}.`,
+      confirmLabel: active ? "הפעלת המקור" : "השבתת המקור",
       tone: active ? "primary" : "danger",
       run: () => setSourceActive(source, active),
       body: (
         <Field
           className={styles.editorField}
           name="reason"
-          label="Reason"
-          description="One line, for the audit log. Required."
+          label="סיבה"
+          description={`שורה אחת, ל${T.auditLog}. חובה.`}
           required
           maxLength={500}
           onChange={(event) => {
@@ -228,14 +235,14 @@ export function SourcesPanel({ signal }: { signal: number }) {
   async function setSourceActive(source: ConsoleSource, active: boolean) {
     const reason = reasonRef.current.trim();
     await ops.run(`active:${source.id}`, async () => {
-      if (!reason) throw new Error("A reason is required to enable or disable a source. Nothing was changed.");
+      if (!reason) throw new Error("נדרשת סיבה כדי להפעיל או להשבית מקור. שום דבר לא שונה.");
       await callConsole(`admin/console/sources/${source.id}/active`, {
         method: "PATCH",
         body: { active, reason },
-        failure: active ? "Unable to enable the source." : "Unable to disable the source.",
+        failure: active ? "לא ניתן להפעיל את המקור." : "לא ניתן להשבית את המקור.",
       });
       reloadAll();
-      return active ? `Source ${source.name} is enabled.` : `Source ${source.name} is disabled.`;
+      return active ? `המקור ${source.name} מופעל.` : `המקור ${source.name} מושבת.`;
     });
   }
 
@@ -243,13 +250,13 @@ export function SourcesPanel({ signal }: { signal: number }) {
     await ops.run(`source:${source.id}`, async () => {
       const result = await callConsole<{ fetch?: { status?: string; itemsSeen?: number; errorMessage?: string | null }; evidenceCreated?: number; message?: string }>(
         `sources/${source.id}/fetch`,
-        { method: "POST", failure: "Source verification failed." },
+        { method: "POST", failure: "אימות המקור נכשל." },
       );
       if (result.fetch?.status !== "success" || !result.fetch.itemsSeen) {
-        throw new Error(result.message || result.fetch?.errorMessage || "The source did not return a valid feed and remains disabled.");
+        throw new Error(result.message || result.fetch?.errorMessage || "המקור לא החזיר פיד תקין ונשאר מושבת.");
       }
       reloadAll();
-      return `Source ${source.name} was verified and enabled with ${result.fetch.itemsSeen} items.`;
+      return `המקור ${source.name} אומת והופעל עם ${result.fetch.itemsSeen} פריטים.`;
     });
   }
 
@@ -257,13 +264,13 @@ export function SourcesPanel({ signal }: { signal: number }) {
     await ops.run("sync-source-catalog", async () => {
       const result = await callConsole<{ created?: number; updated?: number }>("admin/briefing/sources/sync", {
         method: "POST",
-        failure: "Unable to update source URLs.",
+        failure: "לא ניתן לעדכן את כתובות המקורות.",
       });
       reloadAll();
       const changed = (result.created ?? 0) + (result.updated ?? 0);
       return changed
-        ? `Added ${result.created ?? 0} sources and updated ${result.updated ?? 0}; all remain disabled until a live check.`
-        : "Source URLs are already up to date.";
+        ? `נוספו ${result.created ?? 0} מקורות ועודכנו ${result.updated ?? 0}; כולם נשארים מושבתים עד לבדיקה חיה.`
+        : "כתובות המקורות כבר מעודכנות.";
     });
   }
 }

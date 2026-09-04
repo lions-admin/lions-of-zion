@@ -32,6 +32,33 @@ export function stageLabel(stage: string): string {
 
 /* ── Formatting ────────────────────────────────────────────────────────── */
 
+/**
+ * Wraps one formatted value in FIRST STRONG ISOLATE \u2068 … POP DIRECTIONAL
+ * ISOLATE \u2069 — the string-level equivalent of `<bdi>`.
+ *
+ * This is not decoration. The console runs `dir="rtl"`, and the bidirectional
+ * algorithm resolves neutral characters against the *paragraph* direction, not
+ * against the values on either side of them. So `${formatUsd(spend)} / ${formatUsd(budget)}`
+ * — which is exactly what the Sources area renders — puts a neutral slash
+ * between two left-to-right runs inside a right-to-left paragraph, and the two
+ * runs reorder around it: the budget paints where the spend should be. The
+ * operator reads a real number in the wrong slot, which is worse than reading
+ * nothing.
+ *
+ * An isolate ends that: each value becomes one atomic, neutral-typed unit that
+ * the surrounding text orders as a whole and never reaches inside. It has to be
+ * done here rather than in CSS, because the values are interpolated into
+ * template strings by panels this module cannot see, and `unicode-bidi` can
+ * only isolate an element — there is no element around a `${}` in a template
+ * literal. It has to be done here rather than at each call site for the same
+ * reason: five panels interpolate these four functions, and the one that
+ * forgets is the one that misreports a cost.
+ *
+ * The two characters are zero-width and invisible. They do travel with a
+ * copy-paste; that is the cost, and it is much smaller than a swapped figure.
+ */
+const isolate = (value: string) => `\u2068${value}\u2069`;
+
 /* `he-IL` orders a date the way an Israeli reader expects and keeps the
    digits Latin, which is what lets a timestamp sit legibly next to the Latin
    identifier it belongs to. */
@@ -41,7 +68,7 @@ const fullDate = new Intl.DateTimeFormat(LOCALE, { dateStyle: "full" });
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : dateTime.format(date);
+  return isolate(Number.isNaN(date.getTime()) ? value : dateTime.format(date));
 }
 
 export function today(): string {
@@ -53,7 +80,7 @@ export function today(): string {
    nobody performed. */
 export function formatUsd(value: number | null | undefined, digits = 4): string {
   if (value === null || value === undefined) return T.notSet;
-  return `$${value.toFixed(digits)}`;
+  return isolate(`$${value.toFixed(digits)}`);
 }
 
 /* `ms`, `s` and `min` are SI symbols, not English words — they are written
@@ -62,14 +89,14 @@ export function formatUsd(value: number | null | undefined, digits = 4): string 
    symbol would make the console and its own log disagree. */
 export function formatDuration(ms: number | null | undefined): string {
   if (ms === null || ms === undefined) return "—";
-  if (ms < 1000) return `${Math.round(ms)} ms`;
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)} s`;
-  return `${(ms / 60_000).toFixed(1)} min`;
+  if (ms < 1000) return isolate(`${Math.round(ms)} ms`);
+  if (ms < 60_000) return isolate(`${(ms / 1000).toFixed(1)} s`);
+  return isolate(`${(ms / 60_000).toFixed(1)} min`);
 }
 
 export function formatPercent(fraction: number | null | undefined): string {
   if (fraction === null || fraction === undefined) return "—";
-  return `${Math.round(fraction * 100)}%`;
+  return isolate(`${Math.round(fraction * 100)}%`);
 }
 
 /** How long ago, in the coarse units an operator scans a log by. Prose, so

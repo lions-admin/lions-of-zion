@@ -4,7 +4,10 @@ import { SignOutButton } from "./SignOutButton";
 import styles from "./admin.module.css";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Operations console" };
+/* The browser tab, which is chrome the owner reads, so it reads in Hebrew
+   too. The root layout wraps it as "%s — LIONS OF ZION"; the organisation's
+   name is a name and stays as it is. */
+export const metadata = { title: "קונסולת התפעול" };
 
 export default function AdminPage() {
   return (

@@ -666,7 +666,11 @@
   gap: var(--sp-2);
   min-block-size: var(--control-h);
   padding-inline: var(--sp-4);
-  border: var(--line-w) solid var(--gold-line);
+  /* `--gold-line-strong`, not `--gold-line`. This is the boundary that
+     identifies a control, so WCAG 1.4.11's 3:1 applies to it; the decorative
+     token was what it carried until `scripts/ui-audit.mjs` measured it in the
+     page at 1.34:1 and failed the build on it. */
+  border: var(--line-w) solid var(--gold-line-strong);
   border-radius: var(--radius-pill);
   background: var(--surface-2);
   color: var(--ink);

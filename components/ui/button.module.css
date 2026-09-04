@@ -31,7 +31,14 @@
   cursor: pointer;
   color: var(--btn-fg);
   background: var(--btn-bg);
-  border-radius: var(--radius-2);
+  /* Pill, and `--radius-pill` rather than raising `--radius-2` to reach it.
+     `--radius-2` is shared with the form field — `components/ui/field.module.css`
+     sets it on inputs and selects — and a fully rounded text box is a different
+     and worse thing than a fully rounded button. The reference system this
+     radius comes from rounds its buttons and pills to 9999px and leaves its
+     cards and inputs on a small radius; splitting them here is what keeps that
+     true rather than rounding everything at once. */
+  border-radius: var(--radius-pill);
   border: var(--line-w) solid var(--btn-line);
   user-select: none;
   transition:

@@ -22,14 +22,18 @@
 
 :root {
   /* --- Type faces (SYS-003) ---
-     Display = Newsreader (editorial). Text = IBM Plex Sans (body/UI).
-     Data = JetBrains Mono. The public site is English and these three tokens
-     stay Latin. A Hebrew face (IBM Plex Sans Hebrew) *is* loaded by
-     `app/layout.tsx` and exposed as `--font-plex-sans-hebrew`, but it is
-     wired into no token here: only the operations console reaches for it,
-     in `app/admin/admin.module.css`. Do not put it in `--face-text`. */
-  --face-display: var(--font-newsreader), 'Iowan Old Style', Charter, Georgia, serif;
-  --face-text: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+     Display and Text are one family: Inter Tight. Data stays JetBrains Mono.
+     Newsreader is still loaded by `app/layout.tsx` and still exposed as
+     `--font-newsreader`; it holds no role here any more. A Hebrew face (IBM
+     Plex Sans Hebrew) is loaded and exposed the same way, wired into no token:
+     only the operations console reaches for it, in `app/admin/admin.module.css`.
+     Do not put either of them in `--face-text`. */
+  /* One geometric sans across display and text, after the reference system
+     this palette and scale come from — it sets everything in a single family
+     and reserves the mono for data. `--font-newsreader` is still loaded and
+     still reachable; it is no longer a role. */
+  --face-display: var(--font-inter-tight), 'Inter Tight', 'General Sans', Switzer, -apple-system, sans-serif;
+  --face-text: var(--font-inter-tight), 'Inter Tight', 'General Sans', Switzer, -apple-system, sans-serif;
   --face-data: var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
 
   --font-serif: var(--face-display);
@@ -40,35 +44,35 @@
      display / h2 / figure / h3 / lede / body / small / caption / data.
      Body is 17px (above the 16px mobile floor). Caption 13px. Data 12px
      (metadata floor). Headlines wrap at 320 via overflow-wrap on headings. */
-  --t-display: clamp(2.5rem, 1.55rem + 3.4vw, 4.25rem);
-  --t-display-lh: 1.04;
-  --t-display-weight: 500;
-  --t-display-tracking: -0.015em;
+  --t-display: clamp(2.75rem, 1.6rem + 4.1vw, 4.125rem);
+  --t-display-lh: 1;
+  --t-display-weight: 400;
+  --t-display-tracking: -0.025em;
 
-  --t-h2: clamp(1.65rem, 1.3rem + 1.1vw, 2.15rem);
-  --t-h2-lh: 1.18;
+  --t-h2: clamp(1.6rem, 1.25rem + 1.15vw, 2.125rem);
+  --t-h2-lh: 1.13;
   --t-h2-weight: 500;
-  --t-h2-tracking: -0.01em;
+  --t-h2-tracking: -0.015em;
 
-  --t-figure: clamp(1.9rem, 1.4rem + 1.6vw, 2.4rem);
-  --t-figure-lh: 1.1;
+  --t-figure: clamp(1.6rem, 1.2rem + 1.5vw, 1.875rem);
+  --t-figure-lh: 1.2;
   --t-figure-weight: 500;
 
-  --t-h3: 1.3125rem;
-  --t-h3-lh: 1.32;
+  --t-h3: 1.375rem;
+  --t-h3-lh: 1.25;
   --t-h3-weight: 500;
-  --t-h3-tracking: -0.005em;
+  --t-h3-tracking: -0.012em;
 
-  --t-lede: clamp(1.15rem, 1.05rem + 0.45vw, 1.35rem);
-  --t-lede-lh: 1.45;
+  --t-lede: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
+  --t-lede-lh: 1.4;
   --t-lede-weight: 400;
-  --t-lede-tracking: 0;
+  --t-lede-tracking: -0.009em;
 
   --t-body: 1.0625rem;
-  --t-body-lh: 1.65;
+  --t-body-lh: 1.5;
 
   --t-small: 0.9375rem;
-  --t-small-lh: 1.6;
+  --t-small-lh: 1.5;
 
   --t-caption: 0.8125rem;
   --t-caption-lh: 1.5;
@@ -92,20 +96,33 @@
   --sp-9: 6rem;
   --flow: 1.15rem;
 
-  /* --- Colour: ground / ink / gold / ember --- */
+  /* --- Colour: ground / ink / accent / ember ---
+   *
+   * The accent is coral, not gold. The tokens are still called `--gold*`
+   * because 289 declarations across 44 stylesheets and three components read
+   * those names, and renaming them inside the same change that re-grades the
+   * palette would bury the re-grade in a 47-file mechanical diff. The names are
+   * wrong and should be swept to `--accent*` on their own; until then, read
+   * `--gold` as "the one accent".
+   *
+   * Measured against the A11Y-004 floor before it was adopted: #fc5f2b is
+   * 6.81:1 on the black ground and 6.42:1 on surface-1, where the gold it
+   * replaced was 8.65 and 8.16. `--gold-dim` carries small text — the
+   * fact-check rung numbers and the home rail flag — and #d4521f holds 5.03 and
+   * 4.74 against the 4.5 those two need. */
   --ground: #000000;
   --ink-hi: #f6f3eb;
   --ink: #cbc7bd;
   --ink-lo: #88837b;
-  --gold: #c6a15b;
-  --gold-hi: #ead39b;
+  --gold: #fc5f2b;
+  --gold-hi: #ff8b64;
   /* Lifted from #8a6f3e on 2026-09-03. It is used as small text in two
      places — the fact-check ladder's rung numbers and the homepage rail flag —
      and at the old value those measured 4.42:1 and 4.17:1 against a 4.5 floor
      (A11Y-004). #977544 clears it everywhere it lands: 4.94:1 on the black
      ground, 4.66:1 on surface-1. Its other uses are backgrounds and beam
      tails, where a step of lightness this small is not visible. */
-  --gold-dim: #977544;
+  --gold-dim: #d4521f;
 
   --surface-1: #0a0a09;
   --surface-2: #111110;
@@ -132,13 +149,17 @@
    *
    * Verified by `scripts/ui-audit.mjs`, which computes this in the page. */
   --control-line: rgba(246, 243, 235, 0.4);
-  --gold-line: rgba(198, 161, 91, 0.25);
-  /* Raised from 0.5 on 2026-09-03. This is the selected state on filter chips
-     and stage toggles — a control boundary, so 1.4.11's 3:1 applies, and at
-     0.5 it measured 2.73-2.80:1 on every ground it sits on. 0.6 clears it at
-     3.45-3.53:1. `--gold-line` below is decorative framing and is unchanged. */
-  --gold-line-strong: rgba(198, 161, 91, 0.6);
-  --gold-wash: rgba(198, 161, 91, 0.1);
+  --gold-line: rgba(252, 95, 43, 0.25);
+  /* Raised from 0.5 to 0.6 on 2026-09-03, and to 0.7 on 2026-09-04. This is
+     the selected state on filter chips and stage toggles — a control boundary,
+     so 1.4.11's 3:1 applies. 0.6 cleared it at 3.45-3.53:1 while the accent was
+     gold; coral is darker than the gold it replaced, and at the same alpha it
+     measured 2.88 on surface-2 and 2.92 on black, i.e. the re-grade silently
+     broke the guarantee this comment was written to record. 0.7 restores it at
+     3.52 and 3.67. `--gold-line` below is decorative framing, is not a control
+     boundary, and is unchanged. */
+  --gold-line-strong: rgba(252, 95, 43, 0.7);
+  --gold-wash: rgba(252, 95, 43, 0.1);
 
   /* data-blue was retired to warm grey; keep the names so existing modules
      do not invent a second blue. Ember is the only chromatic alert besides
@@ -190,14 +211,37 @@
      Default grouping is a 1px rule and spacing, not a card.
      Cards may use 2 / 4 / 8px only. No new arbitrary radius, glow, or shadow.
      --radius-pill is for true chips/avatars, not buttons. */
-  --radius-1: 2px;
-  --radius-2: 4px;
-  --radius-3: 8px;
+  --radius-1: 4px;
+  --radius-2: 6px;
+  --radius-3: 16px;
   --radius-pill: 999px;
 
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
-  --shadow-3: 0 24px 64px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  /* Elevation is built from an inset frost edge and a soft halo, not from a
+   * conventional drop shadow. A dark drop on a black ground is invisible: it
+   * has nothing to darken. What reads instead is the lit top edge of a plate
+   * and the glow it throws inward — the surface looks backlit rather than
+   * lifted, which is the only kind of depth that survives on `#000`.
+   *
+   * The frost is the ink at low alpha, not the blue-white of the system this
+   * came from: the accent here is warm, and a cool edge against it reads as a
+   * second temperature nobody chose. */
+  --shadow-1: rgba(246, 243, 235, 0.12) 0 0 0 1px inset;
+  --shadow-2:
+    rgba(246, 243, 235, 0.2) 0 1px 0 0 inset,
+    rgba(246, 243, 235, 0.05) 0 24px 48px inset,
+    rgba(0, 0, 0, 0.3) 0 16px 32px;
+  --shadow-3:
+    rgba(246, 243, 235, 0.24) 0 1px 0 0 inset,
+    rgba(246, 243, 235, 0.07) 0 32px 64px inset,
+    rgba(0, 0, 0, 0.45) 0 24px 64px;
+
+  /* The glass plate itself: a tint so faint it is not a colour, only the fact
+     that something is there. Paired with `--shadow-1`'s inset edge it is the
+     whole of a card — no border, no fill anyone could name. */
+  --frost: rgba(246, 243, 235, 0.03);
+  --frost-raised: rgba(246, 243, 235, 0.06);
+  --frost-edge: rgba(246, 243, 235, 0.12);
+  --frost-edge-strong: rgba(246, 243, 235, 0.24);
 
   /* --- Motion (MOTION-001) ---
      Hover/press: --dur-fast + --ease-out.

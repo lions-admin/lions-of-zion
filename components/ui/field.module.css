@@ -49,11 +49,20 @@
   color: var(--ink-lo);
 }
 
+/* The input is a frosted well, not a boxed one: a faint fill and a 1px inset
+ * stroke, on the 6px radius that inputs and badges share.
+ *
+ * The border stays a real `border` here rather than becoming a shadow the way
+ * the card's did, and that is deliberate — WCAG 1.4.11 applies to the boundary
+ * that identifies a control, `--control-line` is the token tuned to clear 3:1
+ * for exactly that (see the note on it in `globals.css`), and a decorative
+ * frost stroke at 0.12 would not. The frost is the fill; the border still has
+ * a job. */
 .control {
   width: 100%;
   min-height: var(--control-h-sm);
   padding: var(--sp-3) var(--sp-4);
-  background: var(--surface-2);
+  background: var(--frost-raised);
   border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-2);
   color: var(--ink-hi);
@@ -100,8 +109,8 @@ textarea.control {
 .control:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-offset);
-  border-color: var(--line-strong);
-  background: var(--surface-3);
+  border-color: var(--frost-edge-strong);
+  background: var(--frost-raised);
 }
 
 .field[data-invalid] .control,

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import {
   IBM_Plex_Sans,
+  Inter_Tight,
   IBM_Plex_Sans_Hebrew,
   JetBrains_Mono,
   Newsreader,
@@ -29,6 +30,17 @@ import { AskDock } from "@/components/ask/AskDock";
  * nothing outside `admin.module.css`'s `.shell` rule ever renders in it.
  * `tests/english-chrome.test.ts` pins both halves of that.
  */
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  /* 400 and 700 only, which is the reference system's whole range. The display
+     role uses 400 deliberately — a 66px headline at regular weight is the
+     signature of that system, not an oversight. */
+  weight: ["400", "500", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-inter-tight",
+  display: "swap",
+});
+
 const newsreader = Newsreader({
   subsets: ["latin"],
   axes: ["opsz"],
@@ -89,7 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`dark ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
+      className={`dark ${interTight.variable} ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
     >
       <body>
         {children}

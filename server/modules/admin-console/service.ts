@@ -139,6 +139,7 @@ import { writeAudit, type Actor } from "@/server/core/audit";
 import { publicReadCacheStats } from "@/server/core/public-read-cache";
 import { runMaintenance } from "@/server/core/maintenance";
 import { drainOutbox, type DrainResult } from "@/server/core/outbox";
+import { withDatabaseRole } from "@/server/db/client";
 import { setIdentity } from "@/server/core/versioning";
 import { ApiError, notFound } from "@/server/http/responses";
 import { publicationService } from "@/server/modules/publications";
@@ -565,9 +566,14 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
     : options.dispatch;
   const drain = options.drain ?? ((opts: { limit?: number }) =>
     drainOutbox(db, { limit: opts.limit, dispatch: options.outboxDispatch ?? undefined }));
-  const runPrune = options.runPrune ?? runMaintenance;
-  const recoverBriefingJobs = options.recoverBriefingJobs ?? recoverAndDispatchBriefingJobs;
-  const evaluateBriefingAlerts = options.evaluateBriefingAlerts ?? (() => evaluateAndQueueBriefingAlerts());
+  /* The default runners are the cron's, which run as `app_service` — see the
+   * note on `runMaintenanceTick`. An injected runner (tests) keeps the
+   * caller's role, so a stub needs no database at all. */
+  const asService = <T>(fn: () => Promise<T>) =>
+    withDatabaseRole("app_service", "service:admin-console-maintenance", fn);
+  const pruneRunner = options.runPrune ?? (() => asService(runMaintenance));
+  const recoverRunner = options.recoverBriefingJobs ?? (() => asService(recoverAndDispatchBriefingJobs));
+  const alertsRunner = options.evaluateBriefingAlerts ?? (() => asService(() => evaluateAndQueueBriefingAlerts()));
   const collectionSweep = options.collectionSweep ?? (() => enqueueDueCollectionJobs());
 
   return {
@@ -1433,9 +1439,16 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
      * lists its runners. Read the returned counts against the audit row.
      */
     async runMaintenanceTick(actor: Actor, requestId?: string): Promise<MaintenanceTickResult> {
-      const maintenance = await runPrune();
-      const briefingJobs = await recoverBriefingJobs();
-      const briefingAlerts = await evaluateBriefingAlerts();
+      /* The runners are the cron's, and the cron reaches them as
+       * `app_service` — migration 0022 grants the prune functions to that
+       * role alone, so under the console route's `app_staff` role the prune
+       * call was denied and this button answered 500 everywhere. Defaults
+       * escalate to the service role; an injected runner (tests) keeps the
+       * caller's role. The operator's audit row below still runs as the
+       * staff actor. */
+      const maintenance = await pruneRunner();
+      const briefingJobs = await recoverRunner();
+      const briefingAlerts = await alertsRunner();
       await run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
         await writeAudit(tx as never, {

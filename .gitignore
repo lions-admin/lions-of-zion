@@ -73,3 +73,6 @@ public/archive/
 # scripts/backup-briefing-database.sh output: full pg_dump snapshots taken
 # before a production migration. Local-only — never belongs in a public repo.
 /backups/
+
+# Loose credential drops (a pasted key file must never reach a public repo)
+*.rtf

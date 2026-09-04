@@ -1123,8 +1123,10 @@
 
 .laneSkeleton {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(15rem, 1fr);
+  /* Placeholders carry no content, so unlike `.lanes` there is no 15rem
+     floor here: the floor is what made the loading row spill past the
+     dashboard card's edge at every width the five tracks could not fit. */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--sp-3);
 }
 

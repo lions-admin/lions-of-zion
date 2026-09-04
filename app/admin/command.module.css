@@ -100,6 +100,12 @@
 .consoleNavSub {
   top: var(--console-nav-h);
   z-index: 4;
+  /* A sticky item inside the Tabs flex column does not get the normal
+     stretch treatment (measured 1120px of content inside a 694px track,
+     sliding under the chat rail), so the width is stated instead of
+     inherited from flex. */
+  width: 100%;
+  min-width: 0;
 }
 
 /* The shared TabList keeps its semantics; the command layer only adjusts

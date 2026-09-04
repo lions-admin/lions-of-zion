@@ -25,6 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
@@ -332,25 +333,28 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
       </p>
 
       <form className={styles.form} onSubmit={submit}>
-        <label className={styles.editorField}>
-          <span className={styles.sectionLabel}>לשאול את העוזר</span>
-          <textarea
-            ref={composer}
-            value={draft}
-            rows={3}
-            disabled={sending || !capabilities}
-            placeholder="למה המהדורה של היום לא פורסמה?"
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={(event) => {
-              /* Enter sends; Shift+Enter is a newline. A composer that needs
-                 a mouse to send is a composer nobody uses twice. */
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                submit(event);
-              }
-            }}
-          />
-        </label>
+        {/* The shared Field owns the label and the control look; a hand-rolled
+            label + bare textarea here is what let the composer render as an
+            inline-block at UA default width under its floating label. */}
+        <Field
+          ref={composer}
+          multiline
+          rows={3}
+          label={T.askComposer}
+          name="message"
+          value={draft}
+          disabled={sending || !capabilities}
+          placeholder="למה המהדורה של היום לא פורסמה?"
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            /* Enter sends; Shift+Enter is a newline. A composer that needs
+               a mouse to send is a composer nobody uses twice. */
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              submit(event);
+            }
+          }}
+        />
         <div className={styles.actionRow}>
           <Button variant="primary" type="submit" disabled={sending || !draft.trim() || !capabilities}>
             {T.send}

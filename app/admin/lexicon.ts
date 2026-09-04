@@ -207,6 +207,7 @@ export const REPORT_STATUS_LABEL: Record<string, string> = {
 
 export const T = {
   /* Objects */
+  askComposer: "לשאול את העוזר",
   publication: "כתבה",
   publications: "כתבות",
   source: "מקור",

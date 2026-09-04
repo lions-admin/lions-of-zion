@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/magicui/button";
+import { Button } from "@/components/shadcn/button";
 import {
   ScrollArea,
   ScrollBar,
-} from "@/components/ui/scroll-area";
+} from "@/components/shadcn/scroll-area";
 import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 import { useCallback } from "react";

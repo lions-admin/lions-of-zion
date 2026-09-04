@@ -629,7 +629,24 @@ html:has([data-handoff-blocked]) body {
  *
  * These carry type only. Colour, layout and spacing stay in the composing
  * rule, which is why a rule can compose one of these and keep everything else
- * it already said. */
+ * it already said.
+ *
+ * WHAT CANNOT COMPOSE, AND WHY THE GATE WILL NOT TELL YOU
+ *
+ * `composes` is legal only on a top-level rule whose selector is a single
+ * simple class. It is rejected on a descendant or child selector
+ * (`.confirmFacts dt`, `.guard > span`), on an attribute selector
+ * (`.telemetryMetricsRow[dir="ltr"]`), on a pseudo-element, and anywhere
+ * inside a nested rule such as a `@media` block.
+ *
+ * 28 rules across the stylesheets are one of those shapes, and they still hold
+ * the role by hand. That is deliberate, not an oversight. Do not "finish the
+ * job" by adding `composes` to them: `next build` fails outright, while
+ * `npm run typecheck` and `npm run lint` both pass on the broken tree — the
+ * failure surfaces only from lightningcss, which is what Next compiles CSS
+ * Modules with. Closing those 28 means giving the element its own class in the
+ * markup, which moves a styling decision out of CSS and into JSX, and is a
+ * change worth making on purpose rather than as a sweep. */
 .dataLabel {
   font-family: var(--face-data);
   font-size: var(--t-data);

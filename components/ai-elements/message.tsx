@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "@/components/magicui/button";
+import { Button } from "@/components/shadcn/button";
 import {
   ButtonGroup,
   ButtonGroupText,
-} from "@/components/ui/button-group";
+} from "@/components/shadcn/button-group";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/magicui/tooltip";
+} from "@/components/shadcn/tooltip";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";

@@ -6,7 +6,10 @@ import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import type { PublicationStatus } from "@/server/contracts/enums";
 import { AuthRequired } from "./auth-required";
-import { ABSENCE, LOCALE, SECTION_LABEL, STAGE_LABEL, STATUS_LABEL, T } from "./lexicon";
+/* `SECTION_LABEL` and `STATUS_LABEL` are re-exported below without being read
+   here, so they are not imported; `STAGE_LABEL` is, because `stageLabel()`
+   falls back through it. */
+import { ABSENCE, LOCALE, STAGE_LABEL, T } from "./lexicon";
 import type { ReadState } from "./useConsoleRead";
 import { RouteUnavailable } from "./useConsoleRead";
 import styles from "./admin.module.css";

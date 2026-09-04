@@ -31,6 +31,7 @@ import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { AuthRequired, refusedForAuth } from "./auth-required";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import { Pill, formatAgo } from "./console-primitives";
+import { ABSENCE, T } from "./lexicon";
 import { RouteUnavailable, api, readConsole } from "./useConsoleRead";
 import styles from "./admin.module.css";
 import type {
@@ -109,7 +110,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
         .catch((cause: unknown) => {
           if (cause instanceof RouteUnavailable) setUnavailable(true);
           else if (cause instanceof AuthRequired) setAuthRequired(true);
-          else setError(cause instanceof Error ? cause.message : "The operations chat could not be reached.");
+          else setError(cause instanceof Error ? cause.message : "לא ניתן היה להגיע לצ׳אט התפעול.");
         });
     }, 0);
     return () => window.clearTimeout(timer);
@@ -138,7 +139,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
         }),
       });
       if (refusedForAuth([response])) throw new AuthRequired();
-      if (!response.ok) throw new Error("The assistant could not complete that turn.");
+      if (!response.ok) throw new Error("העוזר לא הצליח להשלים את התור הזה.");
       const payload = await response.json() as OpsChatResponse;
 
       setMessages((current) => [...current, ...payload.messages]);
@@ -148,7 +149,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
       askNextRef.current(history.concat(payload.messages));
     } catch (cause) {
       if (cause instanceof AuthRequired) setAuthRequired(true);
-      else setError(cause instanceof Error ? cause.message : "The assistant could not complete that turn.");
+      else setError(cause instanceof Error ? cause.message : "העוזר לא הצליח להשלים את התור הזה.");
     } finally {
       setSending(false);
       composer.current?.focus();
@@ -171,14 +172,21 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
     const decide = (approved: boolean) => {
       if (decided.current) return;
       decided.current = true;
+      /* The two words that go back to the model. English, and deliberately:
+         they are model input, in the same language as the tool descriptions
+         and the system prompt the loop was built and tested against. Nobody
+         reads them on screen. */
       void send(approved ? "Confirmed." : "Declined.", [{ id: next.id, token: next.token, approved }], history);
     };
     setConfirmIntent({
+      /* The tool's Latin name, unspaced underscores removed for reading. It
+         stays Latin because this is the identifier the operator will find in
+         `audit_log` when they go looking for what they just approved. */
       action: next.tool.replaceAll("_", " "),
       target: next.target,
-      targetDetail: "Proposed by the operations assistant",
+      targetDetail: "הוצע על ידי עוזר התפעול",
       consequence: next.consequence,
-      confirmLabel: "Approve and run",
+      confirmLabel: "לאשר ולהריץ",
       tone: "danger",
       run: () => decide(true),
     });
@@ -194,12 +202,12 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
   if (authRequired) {
     return (
       <section className={styles.panel} aria-labelledby="ops-chat-heading">
-        <p className={styles.sectionLabel} id="ops-chat-heading">Operations chat</p>
+        <p className={styles.sectionLabel} id="ops-chat-heading">צ׳אט תפעול</p>
         <StatusState
           status={absenceStatus("auth-required")}
-          title="Sign in to use the assistant"
-          description="The session is not signed in, or it has expired."
-          actionText="Go to sign-in"
+          title="יש להתחבר כדי להשתמש בעוזר"
+          description="הסשן אינו מחובר, או שתוקפו פג."
+          actionText={ABSENCE.authAction}
           actionHref="/admin/login"
         />
       </section>
@@ -209,11 +217,11 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
   if (unavailable) {
     return (
       <section className={styles.panel} aria-labelledby="ops-chat-heading">
-        <p className={styles.sectionLabel} id="ops-chat-heading">Operations chat</p>
+        <p className={styles.sectionLabel} id="ops-chat-heading">צ׳אט תפעול</p>
         <StatusState
           status={absenceStatus("unavailable")}
-          title="The operations chat is not available in this deployment"
-          description="No assistant endpoint answered. Every other area of the console works without it."
+          title="צ׳אט התפעול אינו זמין בפריסה הזו"
+          description="אף נקודת קצה של העוזר לא ענתה. כל שאר אזורי הקונסולה עובדים בלעדיה."
         />
       </section>
     );
@@ -229,11 +237,13 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
     >
       <div className={styles.panelHead}>
         <div>
-          <p className={styles.sectionLabel} id="ops-chat-heading">Operations chat</p>
+          <p className={styles.sectionLabel} id="ops-chat-heading">צ׳אט תפעול</p>
           <p className={styles.muted}>
             {capabilities
-              ? <>Runs on <strong>{capabilities.model}</strong>. Irreversible actions are proposed, never taken.</>
-              : "Connecting to the assistant."}
+              /* The model slug stays Latin: it is what the AI Gateway bills
+                 against and what the cost panel shows beside the spend. */
+              ? <>רץ על <strong>{capabilities.model}</strong>. פעולות בלתי הפיכות מוצעות, אף פעם לא מבוצעות מעצמן.</>
+              : "מתחבר לעוזר."}
           </p>
         </div>
         <div className={styles.actionRow}>
@@ -244,22 +254,30 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
               aria-expanded={toolsOpen}
               onClick={() => setToolsOpen((open) => !open)}
             >
-              {toolsOpen ? "Hide" : "Show"} what it can do ({capabilities.tools.length})
+              {toolsOpen ? "הסתרת" : "הצגת"} מה הוא יכול לעשות ({capabilities.tools.length})
             </button>
           ) : null}
           {messages.length ? (
-            <Button variant="secondary" size="sm" type="button" onClick={clear}>Clear</Button>
+            <Button variant="secondary" size="sm" type="button" onClick={clear}>{T.clear}</Button>
           ) : null}
         </div>
       </div>
 
+      {/* Two names for one tool, and both earn their place. `label` is the
+          Hebrew one the operator reads. `name` is the Latin identifier that
+          appears in `audit_log` and in the tool chips further down — it is
+          what you grep for after the fact, so it stays visible rather than
+          being folded into a tooltip. `description` is not rendered: it is
+          prompt text written for the model, in English, and a paragraph of
+          English under a Hebrew label is noise the operator has to read past
+          on every tool. The audit panel is the account of what ran. */}
       {toolsOpen && capabilities ? (
         <ul className={styles.plainList}>
           {capabilities.tools.map((tool) => (
             <li key={tool.name} className={styles.chipRow}>
               <Pill tone={tool.requiresConfirmation ? "warn" : "neutral"}>{tool.name}</Pill>
               <span className={styles.chipNote}>
-                {tool.requiresConfirmation ? "asks first · " : ""}{tool.description}
+                {tool.requiresConfirmation ? "שואל קודם · " : ""}{tool.label}
               </span>
             </li>
           ))}
@@ -269,17 +287,20 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
       {error ? <p className={styles.error} {...assertiveLive}>{error}</p> : null}
 
       <div className={styles.logList} role="log" aria-labelledby="ops-chat-heading">
+        {/* The second sentence is the promise, and it is why this text is not
+            decoration: it is what tells the operator the assistant cannot act
+            on its own. Do not shorten it away. */}
         {messages.length === 0 && !sending ? (
           <p className={styles.absence}>
-            Ask about the pipeline, the sources, today&apos;s queue or the spend. The assistant reads the
-            system before it answers, and asks you before it changes anything.
+            אפשר לשאול על תהליך העיבוד, על המקורות, על התור של היום או על ההוצאה. העוזר קורא את המערכת
+            לפני שהוא עונה, ושואל אותך לפני שהוא משנה משהו.
           </p>
         ) : null}
 
         {messages.map((entry) => (
           <article key={entry.id} className={styles.panel} data-role={entry.role}>
             <p className={styles.sectionLabel}>
-              {entry.role === "assistant" ? "Assistant" : entry.role === "tool" ? "Operation" : "You"}
+              {entry.role === "assistant" ? "העוזר" : entry.role === "tool" ? "פעולה" : "את/ה"}
               <span className={styles.chipNote}> · {formatAgo(entry.createdAt)}</span>
             </p>
             <p className={styles.verdictBody}>{entry.content}</p>
@@ -301,18 +322,18 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
       </div>
 
       <p className={styles.consolePending} {...politeLive}>
-        {sending ? "The assistant is working." : ""}
+        {sending ? "העוזר עובד." : ""}
       </p>
 
       <form className={styles.form} onSubmit={submit}>
         <label className={styles.editorField}>
-          <span className={styles.sectionLabel}>Ask the assistant</span>
+          <span className={styles.sectionLabel}>לשאול את העוזר</span>
           <textarea
             ref={composer}
             value={draft}
             rows={3}
             disabled={sending || !capabilities}
-            placeholder="Why did today's edition not publish?"
+            placeholder="למה המהדורה של היום לא פורסמה?"
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
               /* Enter sends; Shift+Enter is a newline. A composer that needs
@@ -326,7 +347,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
         </label>
         <div className={styles.actionRow}>
           <Button variant="primary" type="submit" disabled={sending || !draft.trim() || !capabilities}>
-            Send
+            {T.send}
           </Button>
         </div>
       </form>

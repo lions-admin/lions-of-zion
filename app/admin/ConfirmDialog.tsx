@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject } from "rea
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { politeLive } from "@/components/ui/live-region";
+import { T } from "./lexicon";
 import styles from "./admin.module.css";
 
 /**
@@ -12,14 +13,19 @@ import styles from "./admin.module.css";
  * Every irreversible or publicly visible action routes through this, so the
  * four things an operator needs are always present and always in the same
  * places: the **action**, the exact **target**, the **consequence**, and a
- * **cancel** that is reached before the confirm in both reading and tab order.
+ * **cancel** that is reached before the confirm in both reading and tab
+ * order. Reading order is right-to-left here — the console runs under
+ * `dir="rtl"` — but DOM order is what Tab follows and what the dialog's own
+ * footer preserves, so the two still agree. The labels on the three facts are
+ * Hebrew; their values come from the calling area, already in Hebrew.
  *
  * There is no bespoke confirm anywhere under `app/admin/`. `window.confirm`
  * used to stand in for three of these; it cannot name a target, cannot state
  * a consequence, is unstyled, and blocks the main thread.
  */
 export type ConfirmIntent = {
-  /** Imperative sentence naming the action. Becomes the dialog's name. */
+  /** The action, named as the operator would say it. Becomes the dialog's
+   *  accessible name, so it is the first thing a screen reader announces. */
   action: string;
   /** Exactly what the action lands on, in the operator's own words. */
   target: string;
@@ -102,11 +108,11 @@ function ConfirmPanel({ intent, onClose, fallbackFocusRef }: ConfirmPanelProps) 
       title={intent.action}
       /* A stray backdrop click cancels, which is the safe direction. */
       dismissOnBackdrop
-      closeLabel="Cancel and close"
+      closeLabel="ביטול וסגירה"
       footer={
         <>
           <Button variant="secondary" type="button" disabled={running} onClick={onClose}>
-            Cancel
+            {T.cancel}
           </Button>
           <Button
             variant={danger ? "danger" : "primary"}
@@ -126,21 +132,24 @@ function ConfirmPanel({ intent, onClose, fallbackFocusRef }: ConfirmPanelProps) 
         </>
       }
     >
+      {/* The three facts, always all three and always in this order. The
+          caller supplies the values — in Hebrew, from its own area — and this
+          component supplies only the labels. */}
       <dl className={styles.confirmFacts}>
-        <dt>Action</dt>
+        <dt>הפעולה</dt>
         <dd>{intent.action}</dd>
-        <dt>Target</dt>
+        <dt>על מה</dt>
         <dd>
           {intent.target}
           {intent.targetDetail ? <small>{intent.targetDetail}</small> : null}
         </dd>
-        <dt>Consequence</dt>
+        <dt>המשמעות</dt>
         <dd className={danger ? styles.confirmDanger : undefined}>{intent.consequence}</dd>
       </dl>
       {intent.body ? <div className={styles.confirmBody}>{intent.body}</div> : null}
       {running ? (
         <p className={styles.confirmPending} {...politeLive}>
-          Running the action. The result is reported on the console.
+          הפעולה רצה. התוצאה תדווח בקונסולה.
         </p>
       ) : null}
     </Dialog>

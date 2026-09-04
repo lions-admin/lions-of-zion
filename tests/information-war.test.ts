@@ -112,4 +112,31 @@ describe("information war surface", () => {
     /* The track survives — the relationship outlives the animation. */
     expect(reduced).toContain(".track");
   });
+
+  it("IW-005: the map carries the real job-stage mapping and no fake live badges", async () => {
+    const html = await renderFully(createElement(InformationWarSystem));
+    for (const job of ["collect", "cluster", "quality"]) {
+      expect(html).toContain(job);
+    }
+    expect(html).toContain("No telemetry available");
+    expect(html).not.toMatch(/RUNNING|ACTIVE|COMPLETE|DEGRADED|FAILED/);
+  });
+
+  it("IW-005: new sections exist with one reading path each", async () => {
+    const html = await renderFully(createElement(InformationWarSystem));
+    for (const id of ["activity", "journey", "narratives", "claims", "cycle"]) {
+      expect(html).toContain(`id="${id}"`);
+    }
+    /* Every stage discloses inputs/outputs without leaving the page. */
+    expect((html.match(/Stage details/g) ?? []).length).toBe(7);
+  });
+
+  it("IW-005: pipeline model maps all seven stages to real job stages", async () => {
+    const model = await import("@/components/briefs/information-war/pipeline-data");
+    expect(model.PIPELINE_STAGES).toHaveLength(7);
+    const jobs = model.PIPELINE_STAGES.map((stage) => stage.job).join(" ");
+    for (const job of ["collect", "enrich", "cluster", "triage", "draft", "quality", "publish"]) {
+      expect(jobs).toContain(job);
+    }
+  });
 });

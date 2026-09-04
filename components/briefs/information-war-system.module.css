@@ -887,6 +887,255 @@
   text-decoration-color: currentColor;
 }
 
+/* ── Live status + activity + journey + cycle ───────────────────────────
+   New pipeline-experience blocks. Same discipline as above: type scale,
+   hairline rules, gold for the reader's path, ember for the adversarial
+   signal, blue for the verified stream. Logical properties throughout so
+   `dir="rtl"` mirrors without a second stylesheet. */
+
+.statusGrid {
+  display: grid;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-6);
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+.statusGrid > div {
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.statusLabel {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+}
+
+.statusValue {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.statusNote {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.statusNote a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.25em;
+}
+
+.activityList {
+  list-style: none;
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.activityList li {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+.activityList time {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+}
+
+.activityList a {
+  color: var(--ink-hi);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.activityList a:hover {
+  color: var(--gold-hi);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.activityList p {
+  margin: var(--sp-1) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+}
+
+.stageInspector {
+  margin-block-start: var(--sp-3);
+  border-block-start: 1px solid var(--line);
+  padding-block-start: var(--sp-3);
+}
+
+.stageInspector summary {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  font-weight: 600;
+}
+
+.stageInspector summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+.stageInspector dl {
+  display: grid;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0 0;
+}
+
+.stageInspector dl > div {
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.stageInspector dt {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+}
+
+.stageInspector dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.journeySteps {
+  list-style: none;
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.journeySteps li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border-inline-start: 2px solid var(--line-strong);
+}
+
+.journeySteps li:last-child {
+  border-inline-start-color: var(--gold);
+}
+
+.journeySteps h3 {
+  margin: 0 0 var(--sp-1);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  overflow-wrap: anywhere;
+}
+
+.journeySteps p {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.narrativePanel,
+.cyclePanel {
+  margin-block-start: var(--sp-5);
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.narrativeSteps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.narrativeSteps li {
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+}
+
+.narrativeSteps h3 {
+  margin: 0 0 var(--sp-1);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  overflow-wrap: anywhere;
+}
+
+.narrativeSteps p {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.cycleSteps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.cycleSteps li {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+  gap: var(--sp-4);
+  padding-block: var(--sp-3);
+  border-block-start: 1px solid var(--line);
+  font-size: var(--t-caption);
+  line-height: 1.6;
+}
+
+.cycleSteps strong {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  overflow-wrap: anywhere;
+}
+
+.cycleSteps span {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
 /* ── Motion ───────────────────────────────────────────────────────────── */
 
 @keyframes heroEnter {
@@ -951,6 +1200,14 @@
 
   .stageChain li {
     gap: var(--sp-4);
+  }
+
+  .activityList li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cycleSteps li {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

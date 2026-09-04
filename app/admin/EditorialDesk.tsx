@@ -21,13 +21,12 @@ import {
   InlineAbsence,
   PanelTitle,
   Pill,
-  SECTION_LABEL,
-  STATUS_LABEL,
   formatDate,
   formatUsd,
   publicationTone,
   useOperations,
 } from "./console-primitives";
+import { ABSENCE, AREA_LABEL, SECTION_LABEL, STATUS_LABEL, T, TREND_LABEL } from "./lexicon";
 import { NarrativesPanel } from "./NarrativesPanel";
 import { callConsole, readConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
@@ -35,11 +34,11 @@ import styles from "./admin.module.css";
 type Lane = keyof ConsoleEditorial["lanes"];
 
 const LANES: Array<{ key: Lane; title: string; statuses: PublicationStatus[] }> = [
-  { key: "drafts", title: "New drafts", statuses: ["draft"] },
-  { key: "inReview", title: "In review", statuses: ["under_review"] },
-  { key: "ready", title: "Ready to publish", statuses: ["approved"] },
-  { key: "published", title: "Published", statuses: ["published", "updated"] },
-  { key: "archived", title: "Archived", statuses: ["archived"] },
+  { key: "drafts", title: "טיוטות חדשות", statuses: ["draft"] },
+  { key: "inReview", title: STATUS_LABEL.under_review, statuses: ["under_review"] },
+  { key: "ready", title: "מוכנות לפרסום", statuses: ["approved"] },
+  { key: "published", title: "פורסמו", statuses: ["published", "updated"] },
+  { key: "archived", title: STATUS_LABEL.archived, statuses: ["archived"] },
 ];
 
 /** A lane card, from the editorial read when it is served, or built from the
@@ -123,8 +122,8 @@ export function EditorialDesk({ signal }: { signal: number }) {
         if (live) setFetched(publication);
       })
       .catch(() => {
-        /* The editor shows "select a publication" and the operator can retry
-           by selecting again; the lane card is still there. */
+        /* The editor falls back to asking for a selection, and the operator
+           can retry by selecting again; the lane card is still there. */
       });
     return () => {
       live = false;
@@ -147,9 +146,9 @@ export function EditorialDesk({ signal }: { signal: number }) {
     <section className={styles.area} id="console-editorial" aria-labelledby="console-editorial-heading" ref={deskRef} tabIndex={-1}>
       <AreaHead
         id="console-editorial"
-        label="Editorial desk"
-        title="Review, place, and edit publications"
-        note={editorial.value ? `${Object.values(editorial.value.counts).reduce((sum, count) => sum + count, 0)} on the desk · ${eligible.length} eligible for the homepage` : `${publications.length} in the list · ${eligible.length} eligible for the homepage`}
+        label={AREA_LABEL.editorial}
+        title="בדיקה, מיקום ועריכה של כתבות"
+        note={editorial.value ? `${Object.values(editorial.value.counts).reduce((sum, count) => sum + count, 0)} על השולחן · ${eligible.length} מתאימות לעמוד הבית` : `${publications.length} ברשימה · ${eligible.length} מתאימות לעמוד הבית`}
       />
       {/* A11Y-007 — the desk's one notice line is the validation summary for
           every form below it: a save that the API refuses is reported here,
@@ -157,15 +156,15 @@ export function EditorialDesk({ signal }: { signal: number }) {
           placement selects point at it with `aria-describedby`. */}
       <ConsoleNotices busy={ops.busy} notice={ops.notice} idPrefix="console-editorial" />
 
-      <InlineAbsence state={editorial.state} what="the editorial summary" reload={editorial.reload} />
+      <InlineAbsence state={editorial.state} what="סיכום העריכה" reload={editorial.reload} />
       {editorial.state.kind === "unavailable" ? (
-        <p className={styles.muted}>The lanes below are built from the publications list instead; evidence counts are not shown.</p>
+        <p className={styles.muted}>התורים שלמטה נבנים מרשימת הכתבות במקום, ומספרי הראיות אינם מוצגים.</p>
       ) : null}
 
       {/* ── Lanes ─────────────────────────────────────────────────────── */}
       {list.state.kind === "loading" && editorial.state.kind === "loading" ? (
         <div className={styles.laneSkeleton} role="status" aria-busy="true">
-          <span className={styles.consolePending}>Loading the editorial desk</span>
+          <span className={styles.consolePending}>{ABSENCE.loading(AREA_LABEL.editorial)}</span>
           {LANES.map((lane) => (
             <Skeleton key={lane.key} shape="block" height="18rem" />
           ))}
@@ -173,19 +172,19 @@ export function EditorialDesk({ signal }: { signal: number }) {
       ) : list.state.kind === "auth-required" ? (
         <StatusState
           status={absenceStatus("auth-required")}
-          eyebrow="SESSION"
-          title="Sign in to see the desk"
-          description="The desk exists and is unchanged; this session is not signed in, so the API refuses to serve it."
-          actionText="Go to sign-in"
+          eyebrow="סשן"
+          title="יש להתחבר כדי לראות את תור העריכה"
+          description="תור העריכה קיים ולא השתנה; הסשן הזה אינו מחובר, ולכן ה-API מסרב להגיש אותו."
+          actionText={ABSENCE.authAction}
           actionHref="/admin/login"
         />
       ) : list.state.kind === "failed" || list.state.kind === "unavailable" ? (
         <StatusState
           status={absenceStatus("unavailable")}
-          eyebrow="DESK STATUS"
-          title="The desk could not be read"
-          description="This is a failed read, not an empty desk. Nothing has been deleted; retry the read before concluding there is no work waiting."
-          actionText="Try again"
+          eyebrow="מצב תור העריכה"
+          title="לא ניתן לקרוא את תור העריכה"
+          description="זו קריאה שנכשלה, לא תור ריק. שום דבר לא נמחק; יש לקרוא שוב לפני שמסיקים שאין עבודה ממתינה."
+          actionText={T.tryAgain}
           onAction={reloadAll}
         />
       ) : (
@@ -198,7 +197,7 @@ export function EditorialDesk({ signal }: { signal: number }) {
                   <span className={styles.headNote}>{lanes[lane.key].length}</span>
                 </header>
                 {lanes[lane.key].length === 0 ? (
-                  <p className={styles.queueEmpty}>Nothing here. The read succeeded and the lane is genuinely empty.</p>
+                  <p className={styles.queueEmpty}>אין כאן כלום. הקריאה הצליחה והתור באמת ריק.</p>
                 ) : (
                   lanes[lane.key].map((card) => (
                     <Button
@@ -213,12 +212,12 @@ export function EditorialDesk({ signal }: { signal: number }) {
                       <strong>{card.title}</strong>
                       <span>
                         {SECTION_LABEL[card.section]}
-                        {card.status === "updated" ? " · updated" : ""}
+                        {card.status === "updated" ? ` · ${STATUS_LABEL.updated}` : ""}
                       </span>
                       <small>
-                        {card.evidenceCount === null ? "evidence —" : `${card.evidenceCount} evidence`}
-                        {card.homepageSlot ? ` · homepage ${card.homepageSlot}` : ""}
-                        {card.featuredIsraelStory ? " · featured" : ""}
+                        {card.evidenceCount === null ? `${T.evidence} —` : `${card.evidenceCount} ${T.evidence}`}
+                        {card.homepageSlot ? ` · עמוד הבית ${card.homepageSlot}` : ""}
+                        {card.featuredIsraelStory ? " · מוצגת" : ""}
                         {` · ${formatDate(card.publishedAt ?? card.updatedAt)}`}
                       </small>
                     </Button>
@@ -232,20 +231,20 @@ export function EditorialDesk({ signal }: { signal: number }) {
 
       {/* ── Homepage placement ────────────────────────────────────────── */}
       <div className={styles.panel}>
-        <PanelTitle>Homepage placement</PanelTitle>
-        <p className={styles.muted}>Three lead slots. An empty slot falls back to automatic selection. Only published briefing articles outside the Daily Brief are eligible.</p>
+        <PanelTitle>מיקום בעמוד הבית</PanelTitle>
+        <p className={styles.muted}>שלושה מקומות לכותרת מובילה. מקום ריק חוזר לבחירה אוטומטית. רק כתבות בריף שפורסמו ואינן הבריף היומי מתאימות.</p>
         <div className={styles.featureSlots}>
           {[1, 2, 3].map((slot) => (
             <SelectField
               key={slot}
               className={styles.editorField}
-              label={`Lead headline ${slot}`}
+              label={`כותרת מובילה ${slot}`}
               value={features.find((feature) => feature.slot === slot)?.publicationId ?? ""}
               onChange={(event) => setSlot(slot, event.target.value || null)}
               disabled={ops.disabled}
               aria-describedby={noticeId}
             >
-              <option value="">Automatic selection</option>
+              <option value="">בחירה אוטומטית</option>
               {eligible.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.title}
@@ -271,10 +270,10 @@ export function EditorialDesk({ signal }: { signal: number }) {
         />
       ) : selectedId ? (
         <p className={styles.muted} aria-busy="true">
-          Reading the publication…
+          קורא את ה{T.publication}…
         </p>
       ) : (
-        <p className={styles.muted}>Select a card to edit it.</p>
+        <p className={styles.muted}>יש לבחור כרטיס כדי לערוך אותו.</p>
       )}
 
       <NarrativesPanel signal={signal} />
@@ -292,11 +291,11 @@ export function EditorialDesk({ signal }: { signal: number }) {
      publication, and what the operator cannot take back. */
   function requestArchive(publication: Publication) {
     setConfirmIntent({
-      action: "Remove this publication from the site and archive it",
+      action: "הסרת הכתבה הזו מהאתר והעברתה לארכיון",
       target: publication.title,
       targetDetail: targetDetail(publication),
-      consequence: "The article stops being served on public pages and in search results as soon as the change lands. An archived publication can be restored to draft from this desk.",
-      confirmLabel: "Remove and archive",
+      consequence: "הכתבה מפסיקה להיות מוגשת בעמודים הציבוריים ובתוצאות החיפוש ברגע שהשינוי נכנס לתוקף. כתבה בארכיון אפשר להחזיר לטיוטה מתור העריכה הזה.",
+      confirmLabel: "הסרה וארכוב",
       tone: "danger",
       run: () => archive(publication.id),
     });
@@ -304,11 +303,11 @@ export function EditorialDesk({ signal }: { signal: number }) {
 
   function requestDelete(publication: Publication) {
     setConfirmIntent({
-      action: "Delete this publication permanently",
+      action: "מחיקת הכתבה הזו לצמיתות",
       target: publication.title,
       targetDetail: targetDetail(publication),
-      consequence: "The publication and its version history are deleted and cannot be restored from this console. Linked evidence and the review record are kept.",
-      confirmLabel: "Delete permanently",
+      consequence: "הכתבה וכל היסטוריית הגרסאות שלה נמחקות, ואי אפשר לשחזר אותן מהקונסולה הזו. הראיות המקושרות ורשומת הבדיקה נשמרות.",
+      confirmLabel: "מחיקה לצמיתות",
       tone: "danger",
       run: () => remove(publication.id),
     });
@@ -319,11 +318,11 @@ export function EditorialDesk({ signal }: { signal: number }) {
        the one that asks. The rest move between internal states. */
     if (to !== "published") { void transition(publication.id, to); return; }
     setConfirmIntent({
-      action: publication.status === "updated" ? "Publish this update now" : "Publish this article now",
+      action: publication.status === "updated" ? "פרסום העדכון הזה עכשיו" : "פרסום הכתבה הזו עכשיו",
       target: publication.title,
       targetDetail: targetDetail(publication),
-      consequence: "The article becomes readable on public pages and available to search engines immediately. Taking it down again means archiving it, which readers may already have seen.",
-      confirmLabel: publication.status === "updated" ? "Publish update" : "Publish now",
+      consequence: "הכתבה הופכת מיד לקריאה בעמודים הציבוריים וזמינה למנועי חיפוש. הורדה שלה בהמשך פירושה ארכוב, וייתכן שקוראים כבר ראו אותה.",
+      confirmLabel: publication.status === "updated" ? "פרסום העדכון" : "פרסום עכשיו",
       tone: "primary",
       run: () => transition(publication.id, to),
     });
@@ -331,11 +330,11 @@ export function EditorialDesk({ signal }: { signal: number }) {
 
   function requestRollback(publication: Publication, version: PublicationVersion) {
     setConfirmIntent({
-      action: `Roll this publication back to version ${version.versionNumber}`,
+      action: `החזרת הכתבה הזו לגרסה ${version.versionNumber}`,
       target: publication.title,
-      targetDetail: `${targetDetail(publication)} · version ${version.versionNumber} by ${version.actorLabel}, ${formatDate(version.createdAt)}`,
-      consequence: "The head of the publication is replaced by that version's content as a new version. If the publication is live, readers see the rolled-back text as soon as the change lands. Nothing is deleted: every version stays in the history.",
-      confirmLabel: "Roll back",
+      targetDetail: `${targetDetail(publication)} · ${T.version} ${version.versionNumber} מאת ${version.actorLabel}, ${formatDate(version.createdAt)}`,
+      consequence: "הגרסה הנוכחית של הכתבה מוחלפת בתוכן של אותה גרסה, כגרסה חדשה. אם הכתבה מפורסמת, הקוראים רואים את הטקסט המוחזר ברגע שהשינוי נכנס לתוקף. שום דבר לא נמחק: כל הגרסאות נשארות בהיסטוריה.",
+      confirmLabel: T.rollback,
       tone: "danger",
       run: () => rollback(publication, version),
     });
@@ -346,11 +345,11 @@ export function EditorialDesk({ signal }: { signal: number }) {
       await callConsole(`admin/console/publications/${publication.id}/rollback`, {
         method: "POST",
         body: { versionId: version.versionId },
-        failure: "Rolling the publication back failed.",
+        failure: "החזרת הכתבה לגרסה קודמת נכשלה.",
       });
       setVersionsFor(null);
       reloadAll();
-      return `Rolled back to version ${version.versionNumber}. The change is recorded as a new version.`;
+      return `הכתבה הוחזרה לגרסה ${version.versionNumber}. השינוי נרשם כגרסה חדשה.`;
     });
   }
 
@@ -372,27 +371,27 @@ export function EditorialDesk({ signal }: { signal: number }) {
       title: String(data.get("title")), summary: String(data.get("summary")), body: String(data.get("body")),
       section: String(data.get("section")), editorialTopic: optional(data.get("editorialTopic")),
       primaryActor: optional(data.get("primaryActor")), arena: optional(data.get("arena")),
-      featuredIsraelStory: data.get("featuredIsraelStory") === "on", changeSummary: "Administrator editorial update",
+      featuredIsraelStory: data.get("featuredIsraelStory") === "on", changeSummary: "עדכון עריכה של מנהל המערכת",
       ...(narrativeWatchDetails ? { narrativeWatchDetails } : {}),
     };
     await ops.run("save", async () => {
-      await callConsole(`publications/${id}`, { method: "PATCH", body, failure: "Saving the publication failed." });
+      await callConsole(`publications/${id}`, { method: "PATCH", body, failure: "שמירת הכתבה נכשלה." });
       reloadAll();
-      return "Publication saved.";
+      return "הכתבה נשמרה.";
     });
   }
 
   async function archive(id: string) {
     await ops.run("archive", async () => {
-      await callConsole(`publications/${id}/transition`, { method: "POST", body: { to: "archived" }, failure: "Archiving failed." });
+      await callConsole(`publications/${id}/transition`, { method: "POST", body: { to: "archived" }, failure: "הארכוב נכשל." });
       reloadAll();
-      return "The publication was removed from the site and archived.";
+      return "הכתבה הוסרה מהאתר והועברה לארכיון.";
     });
   }
 
   async function transition(id: string, to: Publication["status"]) {
     await ops.run("transition", async () => {
-      await callConsole(`publications/${id}/transition`, { method: "POST", body: { to }, failure: "Updating publication status failed." });
+      await callConsole(`publications/${id}/transition`, { method: "POST", body: { to }, failure: "עדכון מצב הכתבה נכשל." });
       reloadAll();
       return transitionMessage(to);
     });
@@ -400,21 +399,21 @@ export function EditorialDesk({ signal }: { signal: number }) {
 
   async function setSlot(slot: number, publicationId: string | null) {
     await ops.run("slot", async () => {
-      await callConsole("admin/homepage-features", { method: "PUT", body: { slot, publicationId }, failure: "Updating the lead headline failed." });
+      await callConsole("admin/homepage-features", { method: "PUT", body: { slot, publicationId }, failure: "עדכון הכותרת המובילה נכשל." });
       reloadAll();
-      return "Homepage placement updated.";
+      return "המיקום בעמוד הבית עודכן.";
     });
   }
 
   async function remove(id: string) {
     await ops.run("delete", async () => {
-      await callConsole(`publications/${id}`, { method: "DELETE", failure: "Deleting the publication failed." });
+      await callConsole(`publications/${id}`, { method: "DELETE", failure: "מחיקת הכתבה נכשלה." });
       /* Clear the selection first so the reload does not leave the id of the
-         row just deleted selected, with the editor saying "select a card"
+         row just deleted selected, with the editor asking for a selection
          beside lanes that still hold work. */
       setSelectedId("");
       reloadAll();
-      return "Publication deleted. Evidence and review history were kept.";
+      return "הכתבה נמחקה. הראיות והיסטוריית הבדיקה נשמרו.";
     });
   }
 }
@@ -426,7 +425,7 @@ function PublicationForm({ publication, busy, noticeId, onSave, onTransition, on
   /* A11Y-007: the form's result is reported in the desk notice above the
      panel, so the form is described by it. `aria-busy` states the pending
      save on the element that is actually pending. */
-  return <form className={styles.editorForm} id="console-editor" aria-label={`Editing ${publication.title}`} aria-describedby={noticeId} aria-busy={busy || undefined} onSubmit={(event) => { event.preventDefault(); onSave(publication.id, event.currentTarget); }}>
+  return <form className={styles.editorForm} id="console-editor" aria-label={`עריכת ${publication.title}`} aria-describedby={noticeId} aria-busy={busy || undefined} onSubmit={(event) => { event.preventDefault(); onSave(publication.id, event.currentTarget); }}>
     <div className={styles.editorStatus}>
       <span>
         <Pill tone={publicationTone(publication.status)}>{STATUS_LABEL[publication.status]}</Pill> · {SECTION_LABEL[publication.section]}
@@ -435,61 +434,61 @@ function PublicationForm({ publication, busy, noticeId, onSave, onTransition, on
     </div>
     <div className={styles.actionRow}>
       <Button variant="secondary" size="sm" type="button" disabled={busy} onClick={onVersions}>
-        Versions
+        {T.versions}
       </Button>
     </div>
-    <Field className={styles.editorField} name="title" label="Title" defaultValue={publication.title} required />
-    <Field className={styles.editorField} name="summary" label="Summary" defaultValue={publication.summary ?? ""} multiline rows={4} />
-    <Field className={styles.editorField} name="body" label="Article body" defaultValue={publication.body} multiline rows={18} required />
+    <Field className={styles.editorField} name="title" label="כותרת" defaultValue={publication.title} required />
+    <Field className={styles.editorField} name="summary" label="תקציר" defaultValue={publication.summary ?? ""} multiline rows={4} />
+    <Field className={styles.editorField} name="body" label="גוף הכתבה" defaultValue={publication.body} multiline rows={18} required />
     <div className={styles.formGrid}>
-      <SelectField className={styles.editorField} name="section" label="Section" defaultValue={publication.section}>
+      <SelectField className={styles.editorField} name="section" label="מדור" defaultValue={publication.section}>
         {publication.section === "narrative_watch"
-          ? <option value="narrative_watch">Narrative Watch</option>
+          ? <option value="narrative_watch">{SECTION_LABEL.narrative_watch}</option>
           : <>
-            <option value="daily_brief">Daily Brief</option>
-            <option value="israel_update">Israel Update</option>
-            <option value="war_update">War Update</option>
+            <option value="daily_brief">{SECTION_LABEL.daily_brief}</option>
+            <option value="israel_update">{SECTION_LABEL.israel_update}</option>
+            <option value="war_update">{SECTION_LABEL.war_update}</option>
           </>}
       </SelectField>
-      <Field className={styles.editorField} name="editorialTopic" label="Topic" defaultValue={publication.editorialTopic ?? ""} />
-      <Field className={styles.editorField} name="primaryActor" label="Primary actor" defaultValue={publication.primaryActor ?? ""} />
-      <Field className={styles.editorField} name="arena" label="Arena" defaultValue={publication.arena ?? ""} />
+      <Field className={styles.editorField} name="editorialTopic" label="נושא" defaultValue={publication.editorialTopic ?? ""} />
+      <Field className={styles.editorField} name="primaryActor" label="שחקן מרכזי" defaultValue={publication.primaryActor ?? ""} />
+      <Field className={styles.editorField} name="arena" label="זירה" defaultValue={publication.arena ?? ""} />
     </div>
-    {publication.narrativeWatchDetails ? <FieldGroup legend="Narrative Watch details" className={styles.narrativeFields}>
+    {publication.narrativeWatchDetails ? <FieldGroup legend={`פרטי ${SECTION_LABEL.narrative_watch}`} className={styles.narrativeFields}>
       {/* Read-only on purpose: the basis is derived from whether the article
           cites anything, never chosen. A form control here would let an editor
           relabel a sourced piece as analysis — or, worse, strip the disclosure
           off an unsourced one — with no change to the evidence underneath. */}
       <div className={styles.editorStatus}>
-        <span>Evidence basis</span>
-        <span>{publication.narrativeWatchDetails.evidenceBasis === "analysis" ? "Analysis · no source cited" : "Sourced"}</span>
+        <span>בסיס הראיות</span>
+        <span>{publication.narrativeWatchDetails.evidenceBasis === "analysis" ? "ניתוח · ללא ציטוט מקור" : "מבוסס מקורות"}</span>
       </div>
-      <p className={styles.muted}>Evidence basis is derived from whether the article cites evidence and cannot be chosen on this form. To change it, change the evidence linked to the article.</p>
-      <Field className={styles.editorField} name="exactClaim" label="Exact claim" defaultValue={publication.narrativeWatchDetails.exactClaim} multiline rows={4} required />
+      <p className={styles.muted}>בסיס הראיות נגזר מכך שהכתבה מצטטת ראיות, ואי אפשר לבחור אותו בטופס הזה. כדי לשנות אותו יש לשנות את הראיות המקושרות לכתבה.</p>
+      <Field className={styles.editorField} name="exactClaim" label="הטענה המדויקת" defaultValue={publication.narrativeWatchDetails.exactClaim} multiline rows={4} required />
       <div className={styles.formGrid}>
-        <Field className={styles.editorField} name="propagators" label="Propagators — one per line" defaultValue={publication.narrativeWatchDetails.propagators.join("\n")} multiline rows={4} />
-        <Field className={styles.editorField} name="narrativeArenas" label="Arenas — one per line" defaultValue={publication.narrativeWatchDetails.arenas.join("\n")} multiline rows={4} required />
-        <SelectField className={styles.editorField} name="trendDirection" label="Trend" defaultValue={publication.narrativeWatchDetails.trendDirection}>
-          <option value="new">New</option>
-          <option value="rising">Rising</option>
-          <option value="stable">Stable</option>
-          <option value="declining">Declining</option>
-          <option value="unclear">Unclear</option>
+        <Field className={styles.editorField} name="propagators" label="מפיצים — אחד בכל שורה" defaultValue={publication.narrativeWatchDetails.propagators.join("\n")} multiline rows={4} />
+        <Field className={styles.editorField} name="narrativeArenas" label="זירות — אחת בכל שורה" defaultValue={publication.narrativeWatchDetails.arenas.join("\n")} multiline rows={4} required />
+        <SelectField className={styles.editorField} name="trendDirection" label="מגמה" defaultValue={publication.narrativeWatchDetails.trendDirection}>
+          <option value="new">{TREND_LABEL.new}</option>
+          <option value="rising">{TREND_LABEL.rising}</option>
+          <option value="stable">{TREND_LABEL.stable}</option>
+          <option value="declining">{TREND_LABEL.declining}</option>
+          <option value="unclear">לא ברור</option>
         </SelectField>
-        <Field className={styles.editorField} name="knownUnknowns" label="Known unknowns — one per line" defaultValue={publication.narrativeWatchDetails.knownUnknowns.join("\n")} multiline rows={4} />
+        <Field className={styles.editorField} name="knownUnknowns" label="נעלמים ידועים — אחד בכל שורה" defaultValue={publication.narrativeWatchDetails.knownUnknowns.join("\n")} multiline rows={4} />
       </div>
-      <Field className={styles.editorField} name="israeliPosition" label="Israeli position" defaultValue={publication.narrativeWatchDetails.israeliPosition ?? ""} multiline rows={5} />
-      <Field className={styles.editorField} name="securityContext" label="Security context" defaultValue={publication.narrativeWatchDetails.securityContext ?? ""} multiline rows={5} />
+      <Field className={styles.editorField} name="israeliPosition" label="העמדה הישראלית" defaultValue={publication.narrativeWatchDetails.israeliPosition ?? ""} multiline rows={5} />
+      <Field className={styles.editorField} name="securityContext" label="הקשר ביטחוני" defaultValue={publication.narrativeWatchDetails.securityContext ?? ""} multiline rows={5} />
     </FieldGroup> : null}
     <CheckboxField
       className={styles.editorField}
       name="featuredIsraelStory"
-      label="Featured daily Israel story"
+      label="סיפור ישראלי יומי מוצג"
       defaultChecked={publication.featuredIsraelStory}
     />
     <PublicationTrace publicationId={publication.id} />
     <div className={styles.actionRow}>
-      <Button variant="primary" type="submit" disabled={busy}>Save changes</Button>
+      <Button variant="primary" type="submit" disabled={busy}>שמירת שינויים</Button>
       {publicationActions(publication.status).map((action) => (
         <Button
           key={action.to}
@@ -507,17 +506,17 @@ function PublicationForm({ publication, busy, noticeId, onSave, onTransition, on
          order and last in tab order, so nothing irreversible sits beside
          Save. Each one opens the shared confirmation. */
       <div className={styles.dangerZone}>
-        <p className={styles.dangerLabel}>Irreversible actions</p>
-        <p className={styles.muted}>Each one names its target and its consequence before it runs.</p>
+        <p className={styles.dangerLabel}>פעולות בלתי הפיכות</p>
+        <p className={styles.muted}>כל אחת מהן מציינת את היעד שלה ואת התוצאה שלה לפני שהיא רצה.</p>
         <div className={styles.actionRow}>
           {canArchive ? (
             <Button variant="danger" type="button" disabled={busy} onClick={() => onArchive(publication)}>
-              Remove from site and archive
+              הסרה מהאתר וארכוב
             </Button>
           ) : null}
           {canDelete ? (
             <Button variant="danger" type="button" disabled={busy} onClick={() => onDelete(publication)}>
-              Delete permanently
+              מחיקה לצמיתות
             </Button>
           ) : null}
         </div>
@@ -528,23 +527,23 @@ function PublicationForm({ publication, busy, noticeId, onSave, onTransition, on
 
 function publicationActions(status: Publication["status"]): Array<{ to: Publication["status"]; label: string; primary?: boolean }> {
   switch (status) {
-    case "draft": return [{ to: "under_review", label: "Send to review" }];
-    case "under_review": return [{ to: "approved", label: "Approve for publication", primary: true }, { to: "draft", label: "Return to draft" }];
-    case "approved": return [{ to: "published", label: "Publish now", primary: true }, { to: "draft", label: "Return to draft" }];
-    case "updated": return [{ to: "published", label: "Publish update", primary: true }];
-    case "archived": return [{ to: "draft", label: "Restore to draft" }];
+    case "draft": return [{ to: "under_review", label: "שליחה לבדיקה" }];
+    case "under_review": return [{ to: "approved", label: "אישור לפרסום", primary: true }, { to: "draft", label: "החזרה לטיוטה" }];
+    case "approved": return [{ to: "published", label: "פרסום עכשיו", primary: true }, { to: "draft", label: "החזרה לטיוטה" }];
+    case "updated": return [{ to: "published", label: "פרסום העדכון", primary: true }];
+    case "archived": return [{ to: "draft", label: "שחזור לטיוטה" }];
     default: return [];
   }
 }
 
 function transitionMessage(to: Publication["status"]): string {
   return ({
-    draft: "Publication returned to draft.",
-    under_review: "Publication sent to review.",
-    approved: "Publication approved and ready to publish.",
-    published: "Publication is live.",
-    updated: "Publication marked as updated.",
-    archived: "Publication archived.",
+    draft: "הכתבה הוחזרה לטיוטה.",
+    under_review: "הכתבה נשלחה לבדיקה.",
+    approved: "הכתבה אושרה ומוכנה לפרסום.",
+    published: "הכתבה מפורסמת.",
+    updated: "הכתבה סומנה כמעודכנת.",
+    archived: "הכתבה הועברה לארכיון.",
   } as const)[to];
 }
 
@@ -571,21 +570,21 @@ function PublicationTrace({ publicationId }: { publicationId: string }) {
       .catch(() => { if (live) setTrace({ kind: "unavailable" }); });
     return () => { live = false; };
   }, [publicationId]);
-  if (trace.kind === "loading") return <p className={styles.muted} aria-busy="true">Loading traceability…</p>;
+  if (trace.kind === "loading") return <p className={styles.muted} aria-busy="true">{ABSENCE.loading("את רשומת העקיבות")}…</p>;
   if (trace.kind === "unavailable") {
     return (
       <p className={styles.error} {...assertiveLive}>
-        The traceability record could not be read. This is a failed read, not an article without a
-        run — reload the console to try again.
+        לא ניתן לקרוא את רשומת העקיבות. זו קריאה שנכשלה, לא כתבה בלי ריצה — יש לטעון את הקונסולה מחדש
+        כדי לנסות שוב.
       </p>
     );
   }
   const record = trace.value;
-  return <details className={styles.traceability}><summary>Traceability: run, model, and sources</summary>
-    <p>{record.briefingRun ? `${record.briefingRun.localDate} · ${record.briefingRun.stage} · ${record.briefingRun.status} · ${record.briefingRun.id}` : "Manual publication with no system run."}</p>
-    {record.edition ? <p>{`Edition ${record.edition.id} · contract ${record.edition.contractVersion} · prompt ${record.edition.promptVersion} · ${record.edition.status}`}</p> : null}
+  return <details className={styles.traceability}><summary>{`עקיבות: ${T.run}, מודל ומקורות`}</summary>
+    <p>{record.briefingRun ? `${record.briefingRun.localDate} · ${record.briefingRun.stage} · ${record.briefingRun.status} · ${record.briefingRun.id}` : "כתבה ידנית ללא ריצת מערכת."}</p>
+    {record.edition ? <p>{`${T.edition} ${record.edition.id} · חוזה ${record.edition.contractVersion} · פרומפט ${record.edition.promptVersion} · ${record.edition.status}`}</p> : null}
     <ul>{record.modelRuns.map((run) => <li key={run.id}>{run.model} · {run.stage} · {formatUsd(run.costUsd)}</li>)}</ul>
-    <ul>{record.claims.map((claim) => <li key={claim.id}>{claim.title} · {claim.assessment} · {claim.evidenceCount} evidence · {claim.aiRunId ?? "no model run"}</li>)}</ul>
+    <ul>{record.claims.map((claim) => <li key={claim.id}>{claim.title} · {claim.assessment} · {claim.evidenceCount} {T.evidence} · {claim.aiRunId ?? "אין ריצת מודל"}</li>)}</ul>
     <ul>{record.sources.map((source) => <li key={source.id}>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title} · {source.publisher} · {source.retrievalStatus}</li>)}</ul>
   </details>;
 }
@@ -618,21 +617,21 @@ function VersionsDrawer({
       onClose={onClose}
       variant="drawer"
       size="wide"
-      title="Versions"
+      title={T.versions}
       description={publication ? publication.title : undefined}
-      closeLabel="Close the version history"
+      closeLabel="סגירת היסטוריית הגרסאות"
     >
       {publication ? (
         <>
-          <InlineAbsence state={versions.state} what="the version history" reload={versions.reload} />
+          <InlineAbsence state={versions.state} what="היסטוריית הגרסאות" reload={versions.reload} />
           {versions.state.kind === "ready" ? (
             rows.length ? (
               <ol className={styles.versionList}>
                 {rows.map((version) => (
                   <li key={version.versionId}>
                     <div>
-                      <strong>Version {version.versionNumber}</strong>
-                      {version.isHead ? <Pill tone="gold">head</Pill> : null}
+                      <strong>{T.version} {version.versionNumber}</strong>
+                      {version.isHead ? <Pill tone="gold">נוכחית</Pill> : null}
                       <small>
                         {version.actorLabel} · {formatDate(version.createdAt)}
                         {version.changeSummary ? ` · ${version.changeSummary}` : ""}
@@ -640,14 +639,14 @@ function VersionsDrawer({
                     </div>
                     {!version.isHead ? (
                       <Button variant="danger" size="sm" type="button" disabled={disabled} onClick={() => onRollback(publication, version)}>
-                        Roll back
+                        {T.rollback}
                       </Button>
                     ) : null}
                   </li>
                 ))}
               </ol>
             ) : (
-              <EmptyLine>No versions recorded. The read succeeded and the history is genuinely empty.</EmptyLine>
+              <EmptyLine>לא נרשמו גרסאות. הקריאה הצליחה וההיסטוריה באמת ריקה.</EmptyLine>
             )
           ) : null}
         </>

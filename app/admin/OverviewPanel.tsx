@@ -18,10 +18,10 @@ import {
   formatAgo,
   formatDate,
   formatUsd,
-  stageLabel,
   today,
   useOperations,
 } from "./console-primitives";
+import { AREA_LABEL, JOB_STATE_LABEL, SEVERITY_LABEL, STAGE_LABEL, T } from "./lexicon";
 import { callConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
 
@@ -32,7 +32,7 @@ import styles from "./admin.module.css";
  * active (and if not, why); when did it last run and when will it next; what
  * moved through it in the last day; and what is waiting for a person. The
  * two controls that decide whether anything reaches readers live here as the
- * primary controls: the publication switch and "Run processing now".
+ * primary controls: the publication switch and "run processing now".
  *
  * `console/overview` is the summary; `briefing` and `status` still carry the
  * numbers this route does not, and the area degrades to those when the
@@ -62,10 +62,10 @@ export function OverviewPanel({ signal }: { signal: number }) {
 
   return (
     <section className={styles.area} id="console-overview" aria-labelledby="console-overview-heading" ref={areaRef} tabIndex={-1}>
-      <AreaHead id="console-overview" label="Overview" title="Is the system running, and what needs a person">
+      <AreaHead id="console-overview" label={AREA_LABEL.overview} title="האם המערכת פועלת, ומה דורש אדם">
         <div className={styles.actionRow}>
           <Button variant="primary" type="button" disabled={ops.disabled || paused === null} onClick={runBriefing}>
-            Run processing now
+            הרצת עיבוד עכשיו
           </Button>
         </div>
       </AreaHead>
@@ -74,7 +74,7 @@ export function OverviewPanel({ signal }: { signal: number }) {
       {/* ── The verdict ──────────────────────────────────────────────── */}
       <ReadGate
         state={overview.state}
-        what="the overview"
+        what="תמונת המצב"
         reload={overview.reload}
         skeleton={
           <>
@@ -90,30 +90,35 @@ export function OverviewPanel({ signal }: { signal: number }) {
         {(value) => (
           <>
             <div className={value.systemActive ? styles.verdict : `${styles.verdict} ${styles.verdictOff}`}>
-              <p className={styles.verdictWord}>{value.systemActive ? "Active." : "Not active."}</p>
+              <p className={styles.verdictWord}>{value.systemActive ? "פעילה." : "אינה פעילה."}</p>
               <div className={styles.verdictBody}>
                 {value.systemActive ? (
-                  <p>Collection, processing and publication are all running on their own. Generated {formatDate(value.generatedAt)}.</p>
+                  <p>האיסוף, העיבוד והפרסום פועלים כולם מעצמם. נכון ל־{formatDate(value.generatedAt)}.</p>
                 ) : (
                   <ul className={styles.reasonList}>
-                    {value.inactiveReasons.length ? value.inactiveReasons.map((reason) => <li key={reason}>{reason}</li>) : <li>No reason was recorded.</li>}
+                    {value.inactiveReasons.length ? value.inactiveReasons.map((reason) => <li key={reason}>{reason}</li>) : <li>לא נרשמה סיבה.</li>}
                   </ul>
                 )}
                 <dl className={styles.runFacts}>
-                  <dt>Last run</dt>
+                  <dt>ריצה אחרונה</dt>
                   <dd>
                     {value.lastRun.at ? (
                       <>
-                        {formatAgo(value.lastRun.at)} · {value.lastRun.localDate ?? ""} {value.lastRun.stage ? stageLabel(value.lastRun.stage) : ""}{" "}
-                        {value.lastRun.status ? <Pill tone={value.lastRun.status === "completed" ? "ok" : "warn"}>{value.lastRun.status}</Pill> : null}
+                        {formatAgo(value.lastRun.at)} · {value.lastRun.localDate ?? ""}{" "}
+                        {value.lastRun.stage ? STAGE_LABEL[value.lastRun.stage] ?? value.lastRun.stage : ""}{" "}
+                        {value.lastRun.status ? (
+                          <Pill tone={value.lastRun.status === "completed" ? "ok" : "warn"}>
+                            {JOB_STATE_LABEL[value.lastRun.status] ?? value.lastRun.status}
+                          </Pill>
+                        ) : null}
                       </>
                     ) : (
-                      "none recorded"
+                      "לא נרשמה"
                     )}
                   </dd>
-                  <dt>Next run</dt>
+                  <dt>הריצה הבאה</dt>
                   <dd>
-                    {value.nextRun.at ? formatDate(value.nextRun.at) : "not scheduled"}
+                    {value.nextRun.at ? formatDate(value.nextRun.at) : "לא מתוזמנת"}
                     {value.nextRun.schedule ? <small>{value.nextRun.schedule}{value.nextRun.path ? ` · ${value.nextRun.path}` : ""}</small> : null}
                   </dd>
                 </dl>
@@ -121,18 +126,18 @@ export function OverviewPanel({ signal }: { signal: number }) {
             </div>
 
             <div className={styles.summary}>
-              <Metric label="Collected in 24 h" value={String(value.counts24h.collected)} />
-              <Metric label="Processed in 24 h" value={String(value.counts24h.processed)} />
-              <Metric label="Drafted in 24 h" value={String(value.counts24h.drafted)} />
-              <Metric label="Published in 24 h" value={String(value.counts24h.published)} />
+              <Metric label={`נאספו ${T.last24h}`} value={String(value.counts24h.collected)} />
+              <Metric label={`עובדו ${T.last24h}`} value={String(value.counts24h.processed)} />
+              <Metric label={`נוסחו ${T.last24h}`} value={String(value.counts24h.drafted)} />
+              <Metric label={`פורסמו ${T.last24h}`} value={String(value.counts24h.published)} />
             </div>
 
             <div className={styles.compactMetrics}>
-              <Metric label="Failed jobs in 24 h" value={String(value.counts24h.failedJobs)} tone={value.counts24h.failedJobs ? "danger" : "ok"} />
-              <Metric label="Critical alerts open" value={String(value.openAlerts.critical)} tone={value.openAlerts.critical ? "danger" : "ok"} />
-              <Metric label="Warnings open" value={String(value.openAlerts.warning)} tone={value.openAlerts.warning ? "warn" : "ok"} />
-              <Metric label="Stuck jobs" value={String(value.stuckJobs)} tone={value.stuckJobs ? "warn" : "ok"} />
-              <Metric label="Quarantined" value={String(value.quarantined)} tone={value.quarantined ? "warn" : "ok"} />
+              <Metric label={`${T.jobs} שנכשלו ${T.last24h}`} value={String(value.counts24h.failedJobs)} tone={value.counts24h.failedJobs ? "danger" : "ok"} />
+              <Metric label="התראות קריטיות פתוחות" value={String(value.openAlerts.critical)} tone={value.openAlerts.critical ? "danger" : "ok"} />
+              <Metric label="אזהרות פתוחות" value={String(value.openAlerts.warning)} tone={value.openAlerts.warning ? "warn" : "ok"} />
+              <Metric label={`${T.jobs} תקועות`} value={String(value.stuckJobs)} tone={value.stuckJobs ? "warn" : "ok"} />
+              <Metric label={T.quarantined} value={String(value.quarantined)} tone={value.quarantined ? "warn" : "ok"} />
             </div>
           </>
         )}
@@ -141,16 +146,16 @@ export function OverviewPanel({ signal }: { signal: number }) {
       {/* ── Publication control ───────────────────────────────────────── */}
       <div className={styles.controlBar}>
         <div>
-          <p className={styles.sectionLabel}>Publication control</p>
+          <p className={styles.sectionLabel}>בקרת פרסום</p>
           <h3>
-            {paused === null ? "Publication state unknown" : paused ? "Automatic publication is paused" : "Automatic publication is active"}
+            {paused === null ? "מצב הפרסום אינו ידוע" : paused ? "הפרסום האוטומטי מושהה" : "הפרסום האוטומטי פעיל"}
           </h3>
           <p className={styles.muted}>
             {paused === null
-              ? "The switch reads from the briefing summary, which has not loaded."
+              ? "המתג נקרא מסיכום הבריף, שעדיין לא נטען."
               : paused
-                ? "Approved editions wait for a person. Collection and processing continue, so nothing is lost while this is off."
-                : "Approved editions publish to the public site on their own. Collection and processing run independently of this switch."}
+                ? "מהדורות מאושרות ממתינות לאדם. האיסוף והעיבוד ממשיכים, ולכן שום דבר לא הולך לאיבוד בזמן שהמתג כבוי."
+                : "מהדורות מאושרות מתפרסמות לאתר הציבורי מעצמן. האיסוף והעיבוד פועלים ללא תלות במתג הזה."}
           </p>
         </div>
         <div className={styles.actionRow}>
@@ -160,11 +165,11 @@ export function OverviewPanel({ signal }: { signal: number }) {
             disabled={ops.disabled || paused === null}
             onClick={() => requestPublicationControl(!paused)}
           >
-            {paused ? "Resume automatic publication" : "Pause automatic publication"}
+            {paused ? "חידוש הפרסום האוטומטי" : "השהיית הפרסום האוטומטי"}
           </Button>
           {paused === false ? (
             <Button variant="primary" type="button" disabled={ops.disabled} onClick={requestEditionPublication}>
-              Publish today&apos;s approved edition
+              פרסום המהדורה המאושרת של היום
             </Button>
           ) : null}
         </div>
@@ -173,18 +178,18 @@ export function OverviewPanel({ signal }: { signal: number }) {
       {/* ── What the summary does not carry ───────────────────────────── */}
       <div className={styles.twoColumns}>
         <div className={styles.panel}>
-          <PanelTitle>This deployment</PanelTitle>
-          <InlineAbsence state={status.state} what="the deployment status" reload={status.reload} />
+          <PanelTitle>הפריסה הזו</PanelTitle>
+          <InlineAbsence state={status.state} what="מצב הפריסה" reload={status.reload} />
           {status.value ? (
             <div className={styles.compactMetrics}>
-              <Metric label="Environment" value={status.value.environment} />
-              <Metric label="Region" value={status.value.region} />
-              <Metric label="Monthly briefing cap" value={formatUsd(status.value.aiBudgetUsd, 2)} />
+              <Metric label="סביבה" value={status.value.environment} />
+              <Metric label="אזור" value={status.value.region} />
+              <Metric label="תקרת התקציב החודשית לבריף" value={formatUsd(status.value.aiBudgetUsd, 2)} />
               <Metric
-                label="Public cache hits"
+                label="פגיעות במטמון הציבורי"
                 value={
                   status.value.publicReadCache.hitRatio === null
-                    ? "No data"
+                    ? "אין נתונים"
                     : `${(status.value.publicReadCache.hitRatio * 100).toFixed(1)}% · ${status.value.publicReadCache.averageLoadMs ?? 0} ms`
                 }
               />
@@ -192,25 +197,26 @@ export function OverviewPanel({ signal }: { signal: number }) {
           ) : null}
         </div>
         <div className={styles.panel}>
-          <PanelTitle>Open alerts</PanelTitle>
-          <InlineAbsence state={briefing.state} what="the briefing summary" reload={briefing.reload} />
+          <PanelTitle>{`${T.alerts} פתוחות`}</PanelTitle>
+          <InlineAbsence state={briefing.state} what="סיכום הבריף" reload={briefing.reload} />
           {briefing.value ? (
             briefing.value.alerts.length ? (
               <ul className={styles.logList}>
                 {briefing.value.alerts.map((entry) => (
                   <li key={entry.id}>
                     <span>
-                      <Pill tone={entry.severity === "critical" ? "danger" : "warn"}>{entry.severity}</Pill>
+                      <Pill tone={entry.severity === "critical" ? "danger" : "warn"}>{SEVERITY_LABEL[entry.severity] ?? entry.severity}</Pill>
                     </span>
+                    {/* The alert kind is the wire identifier the alert is filed under, so it is shown as it is stored. */}
                     <strong>{entry.kind}</strong>
                     <small>
-                      {entry.message} · {entry.notifiedAt ? "notification sent" : "notification pending"}
+                      {entry.message} · {entry.notifiedAt ? "ההתראה נשלחה" : "ההתראה ממתינה לשליחה"}
                     </small>
                   </li>
                 ))}
               </ul>
             ) : (
-              <EmptyLine>No open alerts. The read succeeded and the list is genuinely empty.</EmptyLine>
+              <EmptyLine>אין התראות פתוחות. הקריאה הצליחה והרשימה באמת ריקה.</EmptyLine>
             )
           ) : null}
         </div>
@@ -227,18 +233,18 @@ export function OverviewPanel({ signal }: { signal: number }) {
   function requestPublicationControl(nextPaused: boolean) {
     setConfirmIntent(nextPaused
       ? {
-        action: "Pause automatic publication",
-        target: "Automatic publication for this deployment",
-        consequence: "Approved editions stop reaching the public site until this is resumed. Collection and processing continue, so nothing is lost — but nothing new is published either.",
-        confirmLabel: "Pause automatic publication",
+        action: "השהיית הפרסום האוטומטי",
+        target: "הפרסום האוטומטי של הפריסה הזו",
+        consequence: "מהדורות מאושרות יפסיקו להגיע לאתר הציבורי עד שהפרסום יחודש. האיסוף והעיבוד ממשיכים, ולכן שום דבר לא הולך לאיבוד — אבל גם שום דבר חדש לא מתפרסם.",
+        confirmLabel: "השהיית הפרסום האוטומטי",
         tone: "danger",
         run: () => mutateControl(true),
       }
       : {
-        action: "Resume automatic publication",
-        target: "Automatic publication for this deployment",
-        consequence: "Approved editions publish themselves to the public site again, with no further prompt before each one.",
-        confirmLabel: "Resume automatic publication",
+        action: "חידוש הפרסום האוטומטי",
+        target: "הפרסום האוטומטי של הפריסה הזו",
+        consequence: "מהדורות מאושרות יתפרסמו שוב לאתר הציבורי מעצמן, בלי אישור נוסף לפני כל אחת מהן.",
+        confirmLabel: "חידוש הפרסום האוטומטי",
         tone: "primary",
         run: () => mutateControl(false),
       });
@@ -246,11 +252,11 @@ export function OverviewPanel({ signal }: { signal: number }) {
 
   function requestEditionPublication() {
     setConfirmIntent({
-      action: "Publish today's approved edition now",
-      target: "Today's edition",
+      action: "פרסום המהדורה המאושרת של היום עכשיו",
+      target: "מהדורת היום",
       targetDetail: today(),
-      consequence: "Every approved article in today's edition becomes readable on public pages and available to search engines immediately. Taking one down again means archiving it, which readers may already have seen.",
-      confirmLabel: "Publish the edition",
+      consequence: "כל כתבה מאושרת במהדורת היום תהפוך לקריאה בדפים הציבוריים וזמינה למנועי חיפוש באופן מיידי. הורדה של כתבה בחזרה פירושה ארכוב שלה, וייתכן שקוראים כבר ראו אותה.",
+      confirmLabel: "פרסום המהדורה",
       tone: "primary",
       run: resumePausedEdition,
     });
@@ -261,10 +267,10 @@ export function OverviewPanel({ signal }: { signal: number }) {
       await callConsole("admin/briefing/control", {
         method: "PATCH",
         body: { automaticPublicationPaused: nextPaused },
-        failure: "Unable to update publication control.",
+        failure: "לא ניתן לעדכן את בקרת הפרסום.",
       });
       reloadAll();
-      return nextPaused ? "Automatic publication is paused." : "Automatic publication is active.";
+      return nextPaused ? "הפרסום האוטומטי מושהה." : "הפרסום האוטומטי פעיל.";
     });
   }
 
@@ -274,19 +280,19 @@ export function OverviewPanel({ signal }: { signal: number }) {
         status: string;
         activeCollectionJobs?: number;
         recovery?: { dispatched: number; configurationRecovered?: number; processingResumed?: number };
-      }>("admin/briefing/run", { method: "POST", body: {}, failure: "Unable to start processing now." });
+      }>("admin/briefing/run", { method: "POST", body: {}, failure: "לא ניתן להתחיל עיבוד עכשיו." });
       reloadAll();
       const recovered = result.recovery?.dispatched ?? 0;
       const repaired = result.recovery?.configurationRecovered ?? 0;
       const resumed = result.recovery?.processingResumed ?? 0;
       const recoveryMessage = recovered > 0
-        ? `${repaired > 0 ? `${repaired} configuration-blocked jobs were repaired, and ` : ""}${resumed > 0 ? `${resumed} processing jobs waiting for release were resumed, and ` : ""}${recovered} waiting jobs were re-dispatched. `
+        ? `${repaired > 0 ? `${repaired} משימות שנחסמו בגלל תצורה תוקנו, ` : ""}${resumed > 0 ? `${resumed} משימות עיבוד שהמתינו לשחרור חודשו, ` : ""}${recovered} משימות ממתינות נשלחו לתור מחדש. `
         : "";
       return result.status === "queued"
-        ? `${recoveryMessage}Processing was queued.`
+        ? `${recoveryMessage}העיבוד נכנס לתור.`
         : result.status === "waiting_for_collection"
-          ? `${recoveryMessage}Processing is waiting for ${result.activeCollectionJobs ?? 0} collection jobs.`
-          : "Today's run has already completed.";
+          ? `${recoveryMessage}העיבוד ממתין ל־${result.activeCollectionJobs ?? 0} משימות איסוף.`
+          : "הריצה של היום כבר הושלמה.";
     });
   }
 
@@ -295,14 +301,14 @@ export function OverviewPanel({ signal }: { signal: number }) {
       const result = await callConsole<{ status: string; publications: number; reason?: string }>("admin/briefing/run", {
         method: "POST",
         body: { resumePausedEdition: true },
-        failure: "Unable to complete edition publication.",
+        failure: "לא ניתן להשלים את פרסום המהדורה.",
       });
       reloadAll();
       return result.status === "completed"
-        ? `Today's edition was published automatically with ${result.publications} publications.`
+        ? `מהדורת היום פורסמה אוטומטית עם ${result.publications} כתבות.`
         : result.status === "already_run"
-          ? "Today's edition is already published."
-          : "There is no approved edition to complete today.";
+          ? "מהדורת היום כבר פורסמה."
+          : "אין מהדורה מאושרת להשלמה היום.";
     });
   }
 }

@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -33,27 +34,32 @@ const WE_ARE_JSON_LD = {
     "A network of volunteers — researchers, analysts, translators, designers, developers — who verify claims before publishing, so the answer to organized misinformation about Israel is organized evidence.",
 };
 
-const METHOD_STEPS = [
+const METHOD_STEPS: { title: string; icon: IconName; body: string; gate?: boolean }[] = [
   {
     title: "Ingest",
+    icon: "intake",
     body: "A source is fetched and the fetch itself is logged — every attempt, not just the successes — so the record of what was checked is as permanent as the record of what was found.",
   },
   {
     title: "Evidence",
+    icon: "evidence",
     body: "A claim is linked to evidence with its own type and strength. Evidence only counts toward an assessment once it's confirmed, not the moment it's attached.",
   },
   {
     title: "Assessment",
+    icon: "assessment",
     body: "Confidence is scored across ten separate dimensions — source independence, media provenance, contradiction level, and more — never collapsed into one number that hides how it was reached.",
   },
   {
     title: "Human review",
+    icon: "review",
     body: "A second person who did not write the assessment must approve it before anything moves to published. That approval capability cannot be held by an automated identity — the system refuses it structurally, not by policy alone.",
     /** The one stage nothing automated can pass through — marked structurally, not decoratively. */
     gate: true,
   },
   {
     title: "Publish & search",
+    icon: "publish",
     body: "Only what clears review becomes part of the public, searchable record — carrying its sources with it.",
   },
 ];
@@ -154,15 +160,20 @@ export default function Page() {
               pipeline differently is how a reader learns not to trust
               either. */}
           <ol className={styles.pipelineList}>
-            {METHOD_STEPS.map((step) => (
+            {METHOD_STEPS.map((step, index) => (
               <li
                 key={step.title}
                 className={styles.pipelineStage}
                 data-gate={step.gate ? "" : undefined}
               >
-                <span className={styles.pipelineNode} aria-hidden="true" />
+                <span className={styles.pipelineNode} aria-hidden="true">
+                  <Icon name={step.icon} size={18} />
+                </span>
                 <div className={styles.pipelineContent}>
-                  <h3>{step.title}</h3>
+                  <div className={styles.pipelineHead}>
+                    <span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span>
+                    <h3>{step.title}</h3>
+                  </div>
                   {step.gate ? (
                     <span className={styles.gateLabel}>Gate — human only</span>
                   ) : null}

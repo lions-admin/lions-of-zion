@@ -42,7 +42,7 @@ import type { ChatMessageView } from "@/server/contracts/chat";
 import { ApiProblem, isAbort, requestJson } from "@/components/search/http";
 import { readThread, readThreadOnServer, subscribeToThread, writeThread } from "./thread-store";
 
-export type AskStatus = "idle" | "restoring" | "asking" | "error";
+export type AskStatus = "idle" | "restoring" | "submitting" | "loading" | "error";
 
 export interface UseAskThread {
   messages: ChatMessageView[];
@@ -91,8 +91,13 @@ export function useAskThread(): UseAskThread {
   const [pending, setPending] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [lostThread, setLostThread] = useState(false);
+  const [requestPhase, setRequestPhase] = useState<"submitting" | "loading" | null>(null);
 
   const abort = useRef<AbortController | null>(null);
+  /* State updates do not commit until React renders again. This synchronous
+     lock closes the small window where two clicks in the same turn would both
+     see `pending === null` and start duplicate requests. */
+  const inFlight = useRef(false);
   /* A thread created for a turn that then failed. Kept so a retry reuses it
      rather than spending another of the ten thread creations a minute allows —
      and so the database does not collect an empty thread per failed attempt.
@@ -103,7 +108,13 @@ export function useAskThread(): UseAskThread {
      the question. Asking is the in-flight window only. */
   const asking = pending !== null && problem === null;
   const restoring = Boolean(storedThread) && loadedThread !== storedThread && !asking && !problem;
-  const status: AskStatus = problem ? "error" : asking ? "asking" : restoring ? "restoring" : "idle";
+  const status: AskStatus = problem
+    ? "error"
+    : asking
+      ? requestPhase ?? "submitting"
+      : restoring
+        ? "restoring"
+        : "idle";
 
   /* Restore. The effect starts work and touches no state synchronously — every
      `setState` below is inside a promise continuation. */
@@ -150,7 +161,8 @@ export function useAskThread(): UseAskThread {
   const ask = useCallback(
     async (question: string) => {
       const content = question.trim();
-      if (!content || asking) return;
+      if (!content || inFlight.current) return;
+      inFlight.current = true;
 
       abort.current?.abort();
       const controller = new AbortController();
@@ -160,8 +172,14 @@ export function useAskThread(): UseAskThread {
       setLostThread(false);
       setElapsed(0);
       setPending(content);
+      setRequestPhase("submitting");
 
       let id = storedThread ?? createdThread.current;
+      let timedOut = false;
+      const timeout = window.setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, 125_000);
       try {
         if (!id) {
           /* Deliberately untitled. `POST /threads` accepts a title, and the
@@ -177,6 +195,7 @@ export function useAskThread(): UseAskThread {
           createdThread.current = id;
         }
 
+        setRequestPhase("loading");
         const path = `/api/v1/chat/threads/${encodeURIComponent(id)}/messages`;
         await requestJson<ChatMessageView>(path, {
           method: "POST",
@@ -189,12 +208,25 @@ export function useAskThread(): UseAskThread {
         setMessages(transcript.messages);
         setLoadedThread(id);
         setPending(null);
+        setRequestPhase(null);
         /* Stored only once the turn has actually succeeded: a thread whose
            first question failed is not worth restoring on the next visit. */
         writeThread(id);
       } catch (cause) {
+        if (timedOut) {
+          setRequestPhase(null);
+          setProblem(
+            new ApiProblem(
+              "TIMEOUT",
+              0,
+              "The answer did not arrive within two minutes. Nothing was lost; try again or edit the question.",
+            ),
+          );
+          return;
+        }
         if (isAbort(cause)) {
           setPending(null);
+          setRequestPhase(null);
           return;
         }
         /* Keep `pending` so the error record can name the question. Asking
@@ -204,14 +236,17 @@ export function useAskThread(): UseAskThread {
             ? cause
             : new ApiProblem("UNKNOWN", 0, "The question could not be sent."),
         );
+        setRequestPhase(null);
+      } finally {
+        window.clearTimeout(timeout);
+        inFlight.current = false;
       }
     },
-    [asking, storedThread],
+    [storedThread],
   );
 
-  /* `ask` refuses to start while `asking`, and `asking` is false the moment
-     `problem` is set — so a retry from the error state runs, and a retry
-     hammered during a live turn cannot queue a second one. */
+  /* The synchronous in-flight lock is released before an error renders, so a
+     retry can run; while a live turn is active it cannot queue a second one. */
   const retry = useCallback(() => {
     if (!pending) return;
     void ask(pending);
@@ -227,17 +262,21 @@ export function useAskThread(): UseAskThread {
   const cancel = useCallback(() => {
     abort.current?.abort();
     abort.current = null;
+    inFlight.current = false;
     setPending(null);
+    setRequestPhase(null);
   }, []);
 
   const reset = useCallback(() => {
     abort.current?.abort();
     abort.current = null;
+    inFlight.current = false;
     createdThread.current = null;
     setMessages([]);
     setLoadedThread(null);
     setProblem(null);
     setPending(null);
+    setRequestPhase(null);
     setLostThread(false);
     writeThread(null);
   }, []);

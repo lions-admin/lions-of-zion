@@ -99,11 +99,23 @@ export function AskDesk() {
       : "";
 
   const unavailable = problem?.code === "NOT_IMPLEMENTED";
-  const busy = status === "asking";
+  const busy = status === "submitting" || status === "loading";
   const hasHistory = count > 0;
+  const visibleState =
+    busy
+      ? status
+      : problem
+        ? "error"
+        : settled?.answer
+          ? settled.answer.citations.length > 0
+            ? "success-with-sources"
+            : "insufficient-evidence"
+          : settled?.question
+            ? "no-answer"
+            : "idle";
 
   return (
-    <div className={styles.desk}>
+    <div className={styles.desk} data-ask-state={visibleState}>
       {lostThread ? (
         <p className={styles.systemNote}>
           An earlier conversation from this browser could not be reopened. A thread is tied to
@@ -126,7 +138,12 @@ export function AskDesk() {
         ))}
 
         {busy && pending ? (
-          <Waiting question={pending} elapsed={elapsed} onStop={cancel} />
+          <Waiting
+            question={pending}
+            elapsed={elapsed}
+            phase={status === "submitting" ? "submitting" : "loading"}
+            onStop={cancel}
+          />
         ) : null}
 
         {problem && !unavailable ? (
@@ -206,10 +223,12 @@ function EvidenceBoundary() {
 function Waiting({
   question,
   elapsed,
+  phase,
   onStop,
 }: {
   question: string;
   elapsed: number;
+  phase: "submitting" | "loading";
   onStop: () => void;
 }) {
   return (
@@ -223,7 +242,7 @@ function Waiting({
         {/* Live region is the lead only. The elapsed clock ticks every second and
             must not sit inside a polite region or it would re-announce the wait. */}
         <p className={styles.waitingLead} {...politeLive}>
-          Searching the index, then composing.
+          {phase === "submitting" ? "Sending the question." : "Searching the index, then composing."}
         </p>
         <p className={styles.waitingBody}>
           The answer arrives whole. Nothing is streamed here on purpose: every citation is checked

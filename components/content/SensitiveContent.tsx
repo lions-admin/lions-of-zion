@@ -24,6 +24,8 @@ export type SensitiveContentProps = {
   children: ReactNode;
 };
 
+export type SensitiveContentState = 'covered' | 'revealed';
+
 /**
  * Material behind an explicit, stated choice.
  *
@@ -62,6 +64,7 @@ export function SensitiveContent({
   children,
 }: SensitiveContentProps) {
   const [revealed, setRevealed] = useState(false);
+  const state: SensitiveContentState = revealed ? 'revealed' : 'covered';
   const baseId = useId();
   const regionId = `${baseId}-region`;
   const categoryId = `${baseId}-category`;
@@ -94,7 +97,9 @@ export function SensitiveContent({
       className={styles.sensitive}
       data-sensitive=""
       data-layout={layout}
-      data-state={revealed ? 'shown' : 'hidden'}
+      data-state={state}
+      data-boundary={revealed ? 'warning-acknowledged' : 'on-request'}
+      data-media-type-known="true"
     >
       {revealed ? null : (
         <div className={styles.sensitiveGate}>

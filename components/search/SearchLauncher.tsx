@@ -21,6 +21,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { Icon } from "@/components/ui/Icon";
 import { SearchDialog } from "./SearchDialog";
 import styles from "./search.module.css";
 
@@ -90,10 +91,7 @@ export function SearchLauncher({ variant = "bar", className }: SearchLauncherPro
         }}
       >
         <span className={styles.launcherGlyph} aria-hidden="true">
-          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4">
-            <circle cx="7" cy="7" r="4.6" />
-            <path d="M10.4 10.4 14 14" strokeLinecap="round" />
-          </svg>
+          <Icon name="search" size={16} strokeWidth={1.5} />
         </span>
         <span className={styles.launcherLabel}>Search</span>
         <span className={styles.launcherHint} aria-hidden="true">

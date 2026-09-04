@@ -78,6 +78,7 @@ export function AskComposer({
   return (
     <form
       className={styles.composer}
+      data-ask-composer-state={canSubmit ? "ready" : "idle"}
       onSubmit={(event) => {
         event.preventDefault();
         submit();

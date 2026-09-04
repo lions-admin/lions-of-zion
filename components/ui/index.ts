@@ -15,6 +15,7 @@ export * from "./Button";
 export * from "./Card";
 export * from "./Badge";
 export * from "./StatusState";
+export * from "./Icon";
 export * from "./Skeleton";
 export * from "./Dialog";
 export * from "./Tabs";

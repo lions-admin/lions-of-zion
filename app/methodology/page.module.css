@@ -131,6 +131,7 @@
 /* ---- the process, as a relationship diagram (METHOD-002) ---- */
 
 .process {
+  --process-marker: var(--sp-6);
   margin: var(--sp-5) 0 var(--flow);
   padding: 0;
   list-style: none;
@@ -139,7 +140,7 @@
 .stage {
   position: relative;
   display: grid;
-  grid-template-columns: var(--sp-4) minmax(0, 1fr);
+  grid-template-columns: var(--process-marker) minmax(0, 1fr);
   align-items: start;
   gap: var(--sp-4);
   min-width: 0;
@@ -156,10 +157,10 @@
 .stage::before {
   content: '';
   position: absolute;
-  top: var(--sp-2);
-  bottom: 0;
-  left: calc(var(--sp-2) - var(--line-w));
-  width: var(--line-w-thick);
+  top: calc(var(--process-marker) / 2);
+  bottom: calc(-1 * var(--process-marker) / 2);
+  left: calc((var(--process-marker) - var(--line-w)) / 2);
+  width: var(--line-w);
   background: var(--line);
 }
 
@@ -169,26 +170,37 @@
 
 .stageNode {
   position: relative;
-  display: block;
-  width: var(--sp-3);
-  height: var(--sp-3);
-  margin: var(--sp-2) 0 0 calc(var(--sp-1) / 2);
-  border: var(--line-w-thick) solid var(--ink-lo);
-  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--process-marker);
+  height: var(--process-marker);
+  border: var(--line-w) solid var(--control-line);
+  border-radius: var(--radius-2);
   background: var(--ground);
+  color: var(--ink);
 }
 
-/* The gate: a filled diamond, and the page's one moment of gold in the
-   body. Its shape differs from the round stage markers because the stage
-   itself differs in kind — a reader sees that before reading the label. */
+/* The human gate uses the same diamond and fixed icon geometry as We Are. */
 .stage[data-gate] .stageNode {
-  width: var(--sp-4);
-  height: var(--sp-4);
-  margin-left: 0;
-  border-radius: var(--radius-1);
-  border-color: var(--gold-hi);
-  background: var(--gold);
+  margin-top: var(--sp-4);
+  border: 0;
+  background: transparent;
+  color: var(--gold-hi);
+}
+
+.stage[data-gate] .stageNode::before {
+  content: '';
+  position: absolute;
+  inset: var(--sp-1);
+  border: var(--line-w) solid var(--gold-line-strong);
+  background: var(--ground);
   transform: rotate(45deg);
+}
+
+.stageNode svg {
+  position: relative;
+  flex: none;
 }
 
 .stageBody {
@@ -199,8 +211,8 @@
    layout and not only in the words. */
 .stage[data-gate] .stageBody {
   padding: var(--sp-4) var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
+  border: var(--line-w) solid var(--gold-line);
+  border-radius: var(--radius-2);
   background: var(--surface-1);
 }
 

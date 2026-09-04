@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation";
 /* Deep imports, not the `@/components/ui` barrel: the barrel re-exports
    Dialog, Tabs and Tooltip, and this control needs two files from it. */
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import {
   googleIdentityClientId,
@@ -52,16 +53,58 @@ export function PublicAuthControl() {
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [sessionState, setSessionState] = useState<
+    "checking" | "ready" | "unavailable" | "error"
+  >("checking");
+  const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+  const [sessionAttempt, setSessionAttempt] = useState(0);
   const googleButton = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    void fetch("/api/public-auth/session", { cache: "no-store" })
-      .then(async (response) =>
-        response.ok ? (response.json() as Promise<{ user: GoogleSignedInUser | null }>) : { user: null },
-      )
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null));
-  }, []);
+    const controller = new AbortController();
+    let timedOut = false;
+    const timeout = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 10_000);
+
+    void fetch("/api/public-auth/session", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const kind = response.status >= 500 ? "unavailable" : "error";
+          throw new SessionReadProblem(kind, `The session check failed (HTTP ${response.status}).`);
+        }
+        return response.json() as Promise<{ user: GoogleSignedInUser | null }>;
+      })
+      .then((data) => {
+        setUser(data.user);
+        setSessionMessage(null);
+        setSessionState("ready");
+      })
+      .catch((cause: unknown) => {
+        if (controller.signal.aborted && !timedOut) return;
+        setUser(null);
+        if (timedOut) {
+          setSessionState("unavailable");
+          setSessionMessage("The session service did not respond within ten seconds.");
+        } else if (cause instanceof SessionReadProblem) {
+          setSessionState(cause.kind);
+          setSessionMessage(cause.message);
+        } else {
+          setSessionState("unavailable");
+          setSessionMessage("The session service could not be reached.");
+        }
+      })
+      .finally(() => window.clearTimeout(timeout));
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [sessionAttempt]);
 
   const signIn = useCallback(
     async (credential: string) => {
@@ -71,6 +114,7 @@ export function PublicAuthControl() {
       try {
         const signedIn = await signInWithGoogleCredential(credential);
         setUser(signedIn);
+        setSessionState("ready");
         setPending(false);
         setNotice("Signed in.");
         /* The session cookie is set by the redemption call; this re-reads
@@ -89,7 +133,7 @@ export function PublicAuthControl() {
   useEffect(() => {
     const clientId = googleIdentityClientId();
     const host = googleButton.current;
-    if (!clientId || !host || user) return;
+    if (!clientId || !host || user || sessionState !== "ready") return;
     let cancelled = false;
     void loadGoogleIdentity()
       .then((identity) => {
@@ -119,7 +163,7 @@ export function PublicAuthControl() {
     return () => {
       cancelled = true;
     };
-  }, [signIn, user]);
+  }, [signIn, user, sessionState]);
 
   async function signOut() {
     setPending(true);
@@ -132,18 +176,41 @@ export function PublicAuthControl() {
       return;
     }
     setUser(null);
+    setSessionState("ready");
     setPending(false);
     setNotice("Signed out.");
     router.refresh();
   }
 
-  if (user === undefined) {
+  if (sessionState === "checking" || user === undefined) {
     return (
       <div className={styles.control}>
         <p className={styles.muted} {...politeLive}>
           Checking your sign-in…
         </p>
       </div>
+    );
+  }
+
+  if (sessionState === "unavailable" || sessionState === "error") {
+    return (
+      <StatusState
+        status="error"
+        headingLevel={2}
+        title={
+          sessionState === "unavailable"
+            ? "Sign-in status is temporarily unavailable."
+            : "Sign-in status could not be checked."
+        }
+        description={sessionMessage ?? "The session check did not complete."}
+        actionText="Try again"
+        onAction={() => {
+          setSessionState("checking");
+          setSessionMessage(null);
+          setUser(undefined);
+          setSessionAttempt((attempt) => attempt + 1);
+        }}
+      />
     );
   }
 
@@ -229,4 +296,14 @@ export function PublicAuthControl() {
       ) : null}
     </div>
   );
+}
+
+class SessionReadProblem extends Error {
+  constructor(
+    readonly kind: "unavailable" | "error",
+    message: string,
+  ) {
+    super(message);
+    this.name = "SessionReadProblem";
+  }
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { PointerHighlight } from "@/components/motion/PointerHighlight";
 import styles from "./card.module.css";
 
 /**
@@ -60,12 +61,16 @@ export function Card({
 }: CardProps) {
   const composition = variant ?? tone ?? "feature";
   const isInteractive = interactive ?? href !== undefined;
+  const tracksPointer = isInteractive && (
+    composition === "feature" || composition === "panel" || composition === "dossier"
+  );
 
   const classes = [
     styles.card,
     VARIANT_CLASS[composition],
     accent === "none" ? "" : styles[accent],
     isInteractive ? styles.interactive : "",
+    tracksPointer ? styles.pointerSurface : "",
     className,
   ]
     .filter(Boolean)
@@ -74,12 +79,18 @@ export function Card({
   if (href !== undefined) {
     return (
       <Link href={href} className={classes} {...props}>
+        {tracksPointer ? <PointerHighlight /> : null}
         {children}
       </Link>
     );
   }
 
-  return React.createElement(Component, { className: classes, ...props }, children);
+  return React.createElement(
+    Component,
+    { className: classes, ...props },
+    tracksPointer ? <PointerHighlight /> : null,
+    children,
+  );
 }
 
 /** The card's top row: an eyebrow on one edge, a count or a date on the

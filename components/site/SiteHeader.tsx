@@ -6,6 +6,7 @@ import { AskLauncher } from "@/components/ask/AskLauncher";
 import { SearchLauncher } from "@/components/search/SearchLauncher";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
+import { Icon } from "@/components/ui/Icon";
 import {
   BAR_LINKS,
   FILE_LINKS,
@@ -28,11 +29,7 @@ interface SiteHeaderProps {
 
 /** The one chevron in the chrome. 10px, currentColor, rotates when open. */
 function Chevron() {
-  return (
-    <svg className={styles.chevron} viewBox="0 0 10 6" aria-hidden="true" focusable="false">
-      <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.25" />
-    </svg>
-  );
+  return <Icon className={styles.chevron} name="chevron-down" size={12} strokeWidth={1.25} />;
 }
 
 /**
@@ -206,6 +203,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             aria-current={current(SUPPORT_LINK.href) ? "page" : undefined}
             onClick={closePanels}
           >
+            <Icon name="support" size={15} strokeWidth={1.5} />
             {SUPPORT_LINK.label}
           </Link>
 
@@ -221,7 +219,12 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             onClick={() => setMenuOpen((open) => !open)}
           >
             {menuOpen ? "Close" : "Menu"}
-            <span className={styles.menuGlyph} aria-hidden="true" />
+            <Icon
+              className={styles.menuIcon}
+              name={menuOpen ? "close" : "menu"}
+              size={17}
+              strokeWidth={1.45}
+            />
           </Button>
         </div>
       </div>

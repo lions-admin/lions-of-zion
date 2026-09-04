@@ -30,6 +30,7 @@ export type ProblemCode =
   | "RATE_LIMITED"
   | "INTERNAL_ERROR"
   | "NOT_IMPLEMENTED"
+  | "TIMEOUT"
   | "UNKNOWN";
 
 export class ApiProblem extends Error {
@@ -53,6 +54,7 @@ const KNOWN_CODES = new Set<ProblemCode>([
   "RATE_LIMITED",
   "INTERNAL_ERROR",
   "NOT_IMPLEMENTED",
+  "TIMEOUT",
 ]);
 
 /**

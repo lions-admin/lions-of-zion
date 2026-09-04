@@ -29,3 +29,6 @@ export type { SignalBeamProps } from "./SignalBeam";
 
 export { ProgressiveBlur } from "./ProgressiveBlur";
 export type { ProgressiveBlurProps } from "./ProgressiveBlur";
+
+// Mounted only by interactive feature/panel/dossier Cards; dense records stay static.
+export { PointerHighlight } from "./PointerHighlight";

@@ -1,6 +1,6 @@
 /* Card — SYS-008
  *
- * Five compositions. Radii 2 / 4 / 8 only (--radius-1/2/3). No glow.
+ * Five compositions. Radii 2 / 4 / 8 only (--radius-1/2/3). No outer glow.
  * panel → feature, quiet → row.
  */
 
@@ -10,6 +10,7 @@
   --card-eyebrow: var(--ink);
 
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -50,6 +51,53 @@
   padding: var(--sp-6) var(--sp-5) var(--sp-5);
   border-top: var(--line-w-thick) solid var(--card-rule);
   box-shadow: var(--shadow-1);
+}
+
+/* PointerHighlight supplies local coordinates only during mouse movement.
+   The two layers are confined to the surface: a quiet wash and a border. */
+.pointerSurface {
+  --pointer-radius: 16rem;
+  --pointer-wash: color-mix(in oklab, var(--gold) 7%, transparent);
+  --pointer-edge: color-mix(in oklab, var(--gold-hi) 45%, transparent);
+  --pointer-mask: linear-gradient(var(--ground) 0 0);
+}
+
+.pointerSurface::before,
+.pointerSurface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.pointerSurface::before {
+  background: radial-gradient(
+    var(--pointer-radius) circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
+    var(--pointer-wash), transparent 100%
+  );
+}
+
+.pointerSurface::after {
+  padding: var(--line-w);
+  background: radial-gradient(
+    var(--pointer-radius) circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
+    var(--pointer-edge), transparent 100%
+  );
+  -webkit-mask: var(--pointer-mask) content-box, var(--pointer-mask);
+  -webkit-mask-composite: xor;
+  mask: var(--pointer-mask) content-box, var(--pointer-mask);
+  mask-composite: exclude;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .pointerSurface[data-pointer-highlight]:not(:focus-visible)::before,
+  .pointerSurface[data-pointer-highlight]:not(:focus-visible)::after {
+    opacity: 1;
+  }
 }
 
 /* Metric — a figure and its name. Compact, tabular. */
@@ -138,10 +186,11 @@
 
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--sp-4);
-  margin-bottom: var(--sp-3);
+  gap: var(--sp-2) var(--sp-4);
+  margin-bottom: var(--sp-4);
 }
 
 .eyebrow {
@@ -155,6 +204,8 @@
 }
 
 .count {
+  flex-shrink: 0;
+  max-width: 100%;
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -250,6 +301,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .card,
+  .title,
+  .ctaArrow,
+  .pointerSurface::before,
+  .pointerSurface::after {
+    transition: none;
+  }
+
   .interactive:hover .ctaArrow,
   .interactive:focus-visible .ctaArrow {
     transform: none;

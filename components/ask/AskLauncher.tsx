@@ -14,6 +14,7 @@
  */
 
 import Link from "next/link";
+import { Icon } from "@/components/ui/Icon";
 import styles from "./ask.module.css";
 
 export interface AskLauncherProps {
@@ -29,9 +30,7 @@ export function AskLauncher({ variant = "bar", className }: AskLauncherProps) {
       data-variant={variant}
     >
       <span className={styles.launcherGlyph} aria-hidden="true">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4">
-          <path d="M2.4 3.4h11.2v7.4H7.2L4 13.4v-2.6H2.4z" strokeLinejoin="round" />
-        </svg>
+        <Icon name="ask" size={16} strokeWidth={1.5} />
       </span>
       <span className={styles.launcherLabel}>Ask</span>
     </Link>

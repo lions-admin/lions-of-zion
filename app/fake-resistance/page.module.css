@@ -58,38 +58,23 @@
   text-transform: uppercase;
 }
 
-/* ── The three branch cards ───────────────────────────────────────────────
-   Chrome lives on `Card variant="dossier"`; this file only keeps the row's
-   grid. Each card sits in a slot so the row stays the same height whatever
-   their descriptions run to. */
+/* Two research branches, then the provisional daily watch across the measure.
+   Columns follow the reading column's available space, not viewport width. */
 
 .branches {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   gap: var(--sp-5);
   margin-top: var(--sp-5);
 }
 
-/* The site's one horizontal seam (`--bp-seam`, 45rem/720px). At the 680 this
-   carried, the pair went two-up while each card was still under 300px — a
-   decision moment set too small to read as one. Three-up waits for
-   `--bp-rails` (76.25rem/1220px): the same test applied to a third card
-   would put each one under 300px well before that width, reading as a
-   cramped strip rather than three decision moments. */
-@media (min-width: 720px) {
-  .branches {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 76.25rem) {
-  .branches {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 .branchSlot {
   display: grid;
+  min-width: 0;
+}
+
+.branchSlot:last-child {
+  grid-column: 1 / -1;
 }
 
 .branchSlot > * {

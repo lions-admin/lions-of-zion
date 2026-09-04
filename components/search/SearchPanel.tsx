@@ -30,7 +30,9 @@
  * loading is visible (pulse + copy) and is not announced.
  *
  * States on `data-search-state`: idle, loading, results, no-results,
- * invalid-query, error. Retry is the error action, not a separate view.
+ * fallback, invalid-query, error. Retry is the error action, not a separate
+ * view. Fallback means the lexical index answered while semantic matching was
+ * unavailable; its results remain real and interactive.
  */
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -189,18 +191,6 @@ export function SearchPanel({
   const trimmed = query.trim();
   const tooShort = trimmed.length === 1;
   const showingStale = state === "loading" && hits.length > 0;
-  const searchState =
-    state === "error" && problem
-      ? "error"
-      : !trimmed
-        ? "idle"
-        : tooShort
-          ? "invalid-query"
-          : state === "loading"
-            ? "loading"
-            : state === "ready" && !hits.length
-              ? "no-results"
-              : "results";
   const body = useMemo(() => {
     if (state === "error" && problem) {
       return <PanelProblem problem={problem} onRetry={retry} />;
@@ -212,7 +202,7 @@ export function SearchPanel({
     if (state === "loading" && !hits.length) {
       return <p className={styles.notice}>Searching the index…</p>;
     }
-    if (state === "ready" && !hits.length) {
+    if (state === "no-results") {
       return <PanelEmpty query={answered} semantic={semantic} />;
     }
     return null;
@@ -222,12 +212,12 @@ export function SearchPanel({
      Blocking errors are the assertive notice, not this region. */
   const liveMessage = tooShort
     ? "Query too short"
-    : trimmed && state === "ready"
+    : trimmed && (state === "results" || state === "fallback" || state === "no-results")
       ? `${hits.length} ${hits.length === 1 ? "result" : "results"}${answered ? ` for ${answered}` : ""}.`
       : "";
 
   return (
-    <div className={styles.panel} data-variant={variant} data-search-state={searchState}>
+    <div className={styles.panel} data-variant={variant} data-search-state={state}>
       <div className={styles.queryRow}>
         <FieldShell fieldId={inputId} label="Search the corpus" className={styles.queryField}>
           <div className={styles.queryControl}>
@@ -290,9 +280,11 @@ export function SearchPanel({
 
       <p className={styles.foot}>
         <span className={styles.footFact}>
-          {semantic
-            ? "Matching on words, names and meaning."
-            : "Matching on words and names. Semantic matching is off in this deployment."}
+          {state === "fallback"
+            ? "Showing word-and-name matches. Semantic matching is unavailable in this deployment."
+            : semantic
+              ? "Matching on words, names and meaning."
+              : "Matching on words and names."}
         </span>
         <span className={styles.footKeys} aria-hidden="true">
           <kbd>↑</kbd>

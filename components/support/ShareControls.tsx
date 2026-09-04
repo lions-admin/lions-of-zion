@@ -30,6 +30,7 @@
  */
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Button, ButtonLink, type ButtonVariant } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
 import styles from './share-controls.module.css';
 
 /**
@@ -124,12 +125,24 @@ export function ShareControls({
       {lead ? <p className={styles.lead}>{lead}</p> : null}
 
       <div className={styles.row}>
-        <Button type="button" variant={copyVariant} size="md" onClick={() => void copy()}>
+        <Button
+          type="button"
+          variant={copyVariant}
+          size="md"
+          leftIcon={<Icon name="document" size={16} />}
+          onClick={() => void copy()}
+        >
           {copyLabel}
         </Button>
 
         {canShare ? (
-          <Button type="button" variant="secondary" size="md" onClick={() => void systemShare()}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            leftIcon={<Icon name="share" size={16} />}
+            onClick={() => void systemShare()}
+          >
             Share…
           </Button>
         ) : null}

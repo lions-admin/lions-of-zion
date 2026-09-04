@@ -7,7 +7,11 @@ export { FigureRow, type FigureRowProps, type Figure } from './FigureRow';
 export { Timeline, type TimelineProps, type TimelineEntry, type TimelineVariant } from './Timeline';
 export { ContentCard, type ContentCardProps } from './ContentCard';
 export { ClaimRecordPair, type ClaimRecordPairProps } from './ClaimRecordPair';
-export { SensitiveContent, type SensitiveContentProps } from './SensitiveContent';
+export {
+  SensitiveContent,
+  type SensitiveContentProps,
+  type SensitiveContentState,
+} from './SensitiveContent';
 export { RosterTable, type RosterTableProps } from './RosterTable';
 export { TechniqueChip, TechniqueChips, type TechniqueChipProps } from './TechniqueChip';
 export { ConfidenceChip, EvidenceClassChip } from './EvidenceGrade';

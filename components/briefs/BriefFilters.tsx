@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Field } from "@/components/ui/Field";
+import { Icon } from "@/components/ui/Icon";
 import { SelectField } from "@/components/ui/SelectField";
 import styles from "./live-brief.module.css";
 
@@ -143,7 +144,7 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
           arenas={arenas}
           fieldClassName={styles.filterField}
         />
-        <Button type="submit" variant="primary" size="md">
+        <Button type="submit" variant="primary" size="md" leftIcon={<Icon name="filter" size={16} />}>
           Filter archive
         </Button>
         {hasFilters ? (
@@ -163,6 +164,7 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
           aria-expanded={open}
           aria-controls={dialogId}
           onClick={() => setOpen((isOpen) => !isOpen)}
+          leftIcon={<Icon name="filter" size={16} />}
         >
           <span className={styles.filterTriggerCopy}>
             <span className={styles.filterTriggerLabel}>Filters</span>
@@ -202,7 +204,7 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
             arenas={arenas}
           />
           <div className={styles.filterDrawerActions}>
-            <Button type="submit" variant="primary" size="md">
+            <Button type="submit" variant="primary" size="md" leftIcon={<Icon name="filter" size={16} />}>
               Filter archive
             </Button>
             {hasFilters ? (

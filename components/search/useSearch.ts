@@ -34,7 +34,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SearchHit, SearchResult } from "@/server/contracts/search";
 import { ApiProblem, isAbort, requestJson } from "./http";
 
-export type SearchState = "idle" | "loading" | "ready" | "error";
+/**
+ * The user-visible search contract. `fallback` is a successful lexical-only
+ * answer, not an error and not an empty state. Keeping it explicit prevents a
+ * deployment without the semantic arm from presenting partial retrieval as
+ * the full search capability.
+ */
+export type SearchState =
+  | "idle"
+  | "invalid-query"
+  | "loading"
+  | "results"
+  | "no-results"
+  | "fallback"
+  | "error";
 
 export interface UseSearch {
   query: string;
@@ -51,7 +64,22 @@ export interface UseSearch {
   retry: () => void;
 }
 
+export function classifySearchState(
+  query: string,
+  answer: Pick<SearchResult, "hits" | "semantic"> | undefined,
+  problem: ApiProblem | null,
+): SearchState {
+  const trimmed = query.trim();
+  if (!trimmed) return "idle";
+  if (trimmed.length < 2) return "invalid-query";
+  if (problem) return "error";
+  if (!answer) return "loading";
+  if (answer.hits.length === 0) return "no-results";
+  return answer.semantic ? "results" : "fallback";
+}
+
 const DEBOUNCE_MS = 120;
+const REQUEST_TIMEOUT_MS = 15_000;
 const LIMIT = 25;
 const EMPTY: SearchHit[] = [];
 
@@ -75,22 +103,28 @@ export function useSearch(initialQuery = ""): UseSearch {
   const answer = answers.get(trimmed);
   const problem = failure && failure.query === trimmed ? failure.problem : null;
 
-  const state: SearchState = !trimmed
-    ? "idle"
-    : problem
-      ? "error"
-      : answer
-        ? "ready"
-        : "loading";
+  const state = classifySearchState(trimmed, answer, problem);
 
   useEffect(() => {
     controller.current?.abort();
-    if (!trimmed || answer || problem) return;
+    if (trimmed.length < 2 || answer || problem) return;
 
     const abort = new AbortController();
     controller.current = abort;
 
+    let requestTimeout: number | undefined;
     const timer = window.setTimeout(() => {
+      requestTimeout = window.setTimeout(() => {
+        setFailure({
+          query: trimmed,
+          problem: new ApiProblem(
+            "TIMEOUT",
+            0,
+            "The search did not respond within fifteen seconds. Try again.",
+          ),
+        });
+        abort.abort();
+      }, REQUEST_TIMEOUT_MS);
       void (async () => {
         try {
           const result = await requestJson<SearchResult>(
@@ -108,12 +142,15 @@ export function useSearch(initialQuery = ""): UseSearch {
                 ? cause
                 : new ApiProblem("UNKNOWN", 0, "The search could not be completed."),
           });
+        } finally {
+          if (requestTimeout !== undefined) window.clearTimeout(requestTimeout);
         }
       })();
     }, DEBOUNCE_MS);
 
     return () => {
       window.clearTimeout(timer);
+      if (requestTimeout !== undefined) window.clearTimeout(requestTimeout);
       abort.abort();
     };
   }, [trimmed, answer, problem, attempt]);

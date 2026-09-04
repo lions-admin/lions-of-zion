@@ -12,6 +12,7 @@
   --btn-line: transparent;
 
   position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -95,6 +96,42 @@
   --btn-fg: var(--ground);
   --btn-line: var(--gold);
   box-shadow: var(--shadow-1);
+}
+
+/* Magic UI-inspired perimeter sweep. It is armed only by a real hover or
+   keyboard focus, then fades out; the resting button remains still. */
+.primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: var(--line-w-thick);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    color-mix(in oklab, var(--gold-hi) 88%, var(--ink-hi)) 48%,
+    transparent 66%
+  );
+  background-size: 240% 100%;
+  background-position: 125% 0;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.primary > * {
+  position: relative;
+  z-index: 1;
+}
+
+.primary:hover:not(:disabled)::after,
+.primary:focus-visible:not(:disabled)::after {
+  animation: buttonShimmer var(--dur-slow) var(--ease-out) 1;
 }
 
 .primary:hover:not(:disabled) {
@@ -277,6 +314,12 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes buttonShimmer {
+  0% { background-position: 125% 0; opacity: 0; }
+  35% { opacity: 0.86; }
+  100% { background-position: -25% 0; opacity: 0; }
+}
+
 .icon {
   display: inline-flex;
   align-items: center;
@@ -308,5 +351,10 @@
     animation: none;
     border-right-color: currentColor;
     opacity: 0.7;
+  }
+
+  .primary::after {
+    animation: none;
+    opacity: 0;
   }
 }

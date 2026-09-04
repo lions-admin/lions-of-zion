@@ -232,6 +232,7 @@
   display: inline-flex;
   align-items: center;
   padding-inline: var(--sp-4);
+  gap: var(--sp-2);
   border: var(--line-w) solid var(--line-strong);
   border-radius: var(--radius-pill);
   color: var(--ink-hi);
@@ -454,32 +455,18 @@
   background: transparent;
 }
 
-/* Two rules, not three: a hamburger drawn with the same hairline the rest of
-   the chrome uses. The lower one goes gold when the reader is inside a file. */
-.menuGlyph {
-  position: relative;
+/* The menu mark uses the same quiet line language as the rest of the chrome;
+   it takes the current-file gold state when the bar cannot show that route. */
+.menuIcon {
   width: var(--sp-4);
-  height: var(--sp-2);
+  height: var(--sp-4);
   flex: 0 0 auto;
+  color: var(--ink);
+  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 
-.menuGlyph::before,
-.menuGlyph::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: var(--line-w);
-  background: var(--ink);
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.menuGlyph::before { top: 0; }
-.menuGlyph::after { bottom: 0; }
-
-.menuTrigger[data-here] .menuGlyph::after { background: var(--gold); }
-.menuTrigger[aria-expanded="true"] .menuGlyph::before,
-.menuTrigger[aria-expanded="true"] .menuGlyph::after { background: var(--ink-hi); }
+.menuTrigger[data-here] .menuIcon { color: var(--gold); }
+.menuTrigger[aria-expanded="true"] .menuIcon { color: var(--ink-hi); }
 
 .sheetLabel {
   display: block;
@@ -597,8 +584,7 @@
   .fileIndex,
   .referenceName,
   .referenceDescription,
-  .menuGlyph::before,
-  .menuGlyph::after,
+  .menuIcon,
   .brandRole { transition-duration: 0ms; }
 }
 

@@ -23,6 +23,8 @@
 .disabled { --status-fg: var(--async-disabled); }
 
 .inner {
+  position: relative;
+  overflow: hidden;
   max-width: var(--measure-narrow);
   width: 100%;
   display: flex;
@@ -33,6 +35,24 @@
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   padding: clamp(var(--sp-6), 3.5vw, var(--sp-7)) clamp(var(--sp-5), 3vw, var(--sp-6));
+}
+
+/* A still, state-specific rule gives the frame a finished edge without
+   turning absence/error/loading into decorative motion. */
+.inner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--sp-5);
+  right: var(--sp-5);
+  height: var(--line-w-thick);
+  background: var(--status-fg);
+  opacity: 0.72;
+}
+
+.inner > * {
+  position: relative;
+  z-index: 1;
 }
 
 .mark {

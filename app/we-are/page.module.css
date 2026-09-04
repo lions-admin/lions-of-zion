@@ -1,6 +1,6 @@
 /* ---- The method: a real pipeline, not a numbered list pretending to be
    one. A continuous track runs through every stage; the human-review stage
-   breaks its shape (circle → diamond) and takes a panel of its own because
+   breaks its shape (square → diamond) and takes a panel of its own because
    it is structurally different from the rest — the one gate nothing
    automated can pass, not just another step in a sequence.
 
@@ -12,6 +12,7 @@
    line. ---- */
 
 .pipeline {
+  --process-marker: var(--sp-6);
   margin: var(--sp-6) 0 0;
 }
 
@@ -27,7 +28,7 @@
 .pipelineStage {
   position: relative;
   display: grid;
-  grid-template-columns: var(--sp-4) minmax(0, 1fr);
+  grid-template-columns: var(--process-marker) minmax(0, 1fr);
   align-items: start;
   gap: var(--sp-4);
   min-width: 0;
@@ -41,47 +42,51 @@
 .pipelineStage::before {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: calc(-1 * var(--sp-6));
-  left: calc(var(--sp-2) - var(--line-w));
-  width: var(--line-w-thick);
+  top: calc(var(--process-marker) / 2);
+  bottom: calc(-1 * var(--sp-6) - var(--process-marker) / 2);
+  left: calc((var(--process-marker) - var(--line-w)) / 2);
+  width: var(--line-w);
   background: var(--line);
 }
 
-.pipelineStage:first-child::before {
-  top: var(--sp-2);
-}
-
 .pipelineStage:last-child::before {
-  bottom: auto;
-  height: calc(var(--sp-2) + var(--sp-2));
+  display: none;
 }
 
-/* A stage marker: a ring on the track, centred on the title's first line. */
+/* The icon has its own fixed square; it cannot shrink into the track. */
 .pipelineNode {
   position: relative;
-  display: block;
-  width: var(--sp-3);
-  height: var(--sp-3);
-  margin: var(--sp-2) 0 0 calc(var(--sp-1) / 2);
-  /* The node reads as drawn *on* the track, so it takes the track's own
-     weight. It was 1.5px — off both hairline steps, and lighter than the
-     2px line it sits on, which reads as a rendering fault rather than as a
-     marker. */
-  border: var(--line-w-thick) solid var(--ink-lo);
-  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--process-marker);
+  height: var(--process-marker);
+  border: var(--line-w) solid var(--control-line);
+  border-radius: var(--radius-2);
   background: var(--ground);
+  color: var(--ink);
 }
 
-/* The gate: a filled diamond, the one gold on the page. */
+/* The human gate keeps its diamond without rotating or clipping the icon. */
 .pipelineStage[data-gate] .pipelineNode {
-  width: var(--sp-4);
-  height: var(--sp-4);
-  margin: calc(var(--sp-2) + var(--sp-4)) 0 0 0;
-  border-radius: var(--radius-1);
-  border-color: var(--gold-hi);
-  background: var(--gold);
+  margin-top: var(--sp-4);
+  border: 0;
+  background: transparent;
+  color: var(--gold-hi);
+}
+
+.pipelineStage[data-gate] .pipelineNode::before {
+  content: '';
+  position: absolute;
+  inset: var(--sp-1);
+  border: var(--line-w) solid var(--gold-line-strong);
+  background: var(--ground);
   transform: rotate(45deg);
+}
+
+.pipelineNode svg {
+  position: relative;
+  flex: none;
 }
 
 .pipelineContent {
@@ -92,15 +97,31 @@
    shows in the layout before a reader gets to the label. */
 .pipelineStage[data-gate] .pipelineContent {
   padding: var(--sp-4) var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
+  border: var(--line-w) solid var(--gold-line);
+  border-radius: var(--radius-2);
   background: var(--surface-1);
+}
+
+.pipelineHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.pipelineNumber {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
 }
 
 /* A stage name is a heading, not a label: sentence case in the display face
    rather than tracked capitals. */
 .pipelineContent h3 {
-  margin: 0 0 var(--sp-2);
+  margin: 0;
   font-family: var(--face-display);
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);

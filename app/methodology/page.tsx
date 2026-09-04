@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { DocPage } from "@/components/sections/DocPage";
 import { SectionBlock } from "@/components/sections/SectionPage";
 import { SITE_URL } from "@/lib/site-config";
@@ -123,26 +124,31 @@ const GLANCE: { term: string; href: string; definition: string }[] = [
  * the same one gate. That is deliberate: two pages describing one pipeline
  * differently is how a reader learns not to trust either.
  */
-const PIPELINE: { name: string; note: string; gate?: string }[] = [
+const PIPELINE: { name: string; note: string; icon: IconName; gate?: string }[] = [
   {
     name: "Ingest",
+    icon: "intake",
     note: "A source is fetched and the fetch itself is logged, successes and failures alike, so the record of what was checked is as permanent as the record of what was found.",
   },
   {
     name: "Evidence",
+    icon: "evidence",
     note: "A claim is linked to evidence carrying its own type and strength. That evidence counts toward an assessment only once it is confirmed, not the moment it is attached.",
   },
   {
     name: "Assessment",
+    icon: "assessment",
     note: "Confidence is scored across separate dimensions rather than collapsed into one number that hides how it was reached.",
   },
   {
     name: "Human review",
+    icon: "review",
     gate: "Gate — human only",
     note: "A second person who did not write the assessment must approve it. That capability cannot be held by an automated identity — it is refused structurally rather than by policy.",
   },
   {
     name: "Publish and search",
+    icon: "publish",
     note: "Only what clears that review becomes part of the public, searchable record, and it carries its sources with it.",
   },
 ];
@@ -327,7 +333,9 @@ export default function Page() {
               className={styles.stage}
               data-gate={stage.gate ? "" : undefined}
             >
-              <span className={styles.stageNode} aria-hidden="true" />
+              <span className={styles.stageNode} aria-hidden="true">
+                <Icon name={stage.icon} size={18} />
+              </span>
               <div className={styles.stageBody}>
                 <div className={styles.stageHead}>
                   <span className={styles.stageNumber}>

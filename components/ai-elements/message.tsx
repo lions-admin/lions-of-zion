@@ -4,7 +4,7 @@ import { Button } from "@/components/magicui/button";
 import {
   ButtonGroup,
   ButtonGroupText,
-} from "@/components/magicui/button-group";
+} from "@/components/ui/button-group";
 import {
   Tooltip,
   TooltipContent,

@@ -13,7 +13,7 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "ui": "@/components/magicui",
+    "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/lib/hooks",
     "utils": "@/lib/utils"

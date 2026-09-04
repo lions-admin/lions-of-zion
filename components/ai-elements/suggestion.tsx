@@ -4,7 +4,7 @@ import { Button } from "@/components/magicui/button";
 import {
   ScrollArea,
   ScrollBar,
-} from "@/components/magicui/scroll-area";
+} from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 import { useCallback } from "react";

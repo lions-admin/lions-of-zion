@@ -51,6 +51,7 @@
     "verify:full": "npm run typecheck && npm run lint && npm test && npm run build"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.107",
     "@ai-sdk/xai": "^3.0.128",
     "@neondatabase/auth": "0.5.0-beta",
     "@neondatabase/serverless": "^1.1.0",

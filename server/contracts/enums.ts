@@ -217,6 +217,10 @@ export const ENTITY_TYPES = [
   "scenario",
   "translation",
   "report",
+  /** An operation on the system itself rather than on one record — a
+   *  pipeline run, a publication pause, a health probe, a catalog sync. The
+   *  operations console's tool calls audit under it when no entity applies. */
+  "system",
 ] as const;
 export const entityTypeSchema = enumOf(ENTITY_TYPES);
 export type EntityType = z.infer<typeof entityTypeSchema>;

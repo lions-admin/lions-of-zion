@@ -144,6 +144,10 @@ export const xOAuthClientSecret = (): string => required("X_OAUTH_CLIENT_SECRET"
 export const xAuthSessionSecret = (): string =>
   required("X_AUTH_SESSION_SECRET", "public X authentication session cookies");
 export const hasXaiApiKey = (): boolean => Boolean(process.env.XAI_API_KEY);
+/** The operations console calls OpenAI directly when this is set, the way
+ *  `xai/` profiles bypass the gateway; unset, it falls back to the gateway
+ *  path. The value is returned to the provider constructor and nowhere else. */
+export const openaiApiKey = (): string | undefined => process.env.OPENAI_API_KEY?.trim() || undefined;
 export type GoogleAgentSearchConfig = {
   project: string;
   location: string;
@@ -232,6 +236,22 @@ export const rateLimitHmacSecret = (): string =>
     : required("RATE_LIMIT_HMAC_SECRET", "anonymous rate-limit buckets");
 
 /**
+ * The key the operations console signs its confirmation tokens with.
+ *
+ * Reuses `INTERNAL_API_SECRET` rather than adding a variable: a confirmation
+ * token lives ten minutes and binds one proposed tool call to one operator,
+ * so a rotation of the internal secret costs at most the confirmations
+ * pending at that moment. The token module derives its own HMAC key from
+ * this value with a purpose label, so the raw secret is never the key.
+ * Production fails loudly like every other accessor; development falls
+ * back to a conspicuous non-secret so the console works without setup.
+ */
+export const opsConfirmationSecret = (): string =>
+  appEnv() === "development"
+    ? process.env.INTERNAL_API_SECRET ?? "development-only-ops-confirmation-key"
+    : required("INTERNAL_API_SECRET", "operations console confirmation tokens");
+
+/**
  * Model profiles — the only place a provider model id appears.
  *
  * Application code asks for `"fast"` or `"reasoning"`, never for a slug. That
@@ -260,6 +280,10 @@ export const MODEL_PROFILES = {
   briefingTriage: "openai/gpt-5-nano",
   /** Publication-ready English drafts. Kept separate from Grok chat. */
   briefingDraft: "openai/gpt-5-mini",
+  /** The operations console's tool-calling assistant — the admin-only chat
+   *  that reads and operates the system through a fixed tool set. Verified
+   *  against `gateway.getAvailableModels()` via `/api/internal/ai/models`. */
+  opsConsole: "openai/gpt-5.6-sol",
   /** 1536 dimensions — must match the vector column. */
   embedding: "openai/text-embedding-3-small",
 } as const;
@@ -383,5 +407,8 @@ export function configuredIntegrations(request?: Request): Record<string, boolea
       hasAiGateway() || Boolean(request?.headers.get("x-vercel-oidc-token")),
     neonAuth: Boolean(process.env.NEON_AUTH_BASE_URL && process.env.NEON_AUTH_COOKIE_SECRET),
     internalSecret: Boolean(process.env.INTERNAL_API_SECRET),
+    /* The operations console's direct provider path. Absent means the
+       console routes through the gateway, not that it is unavailable. */
+    openai: Boolean(process.env.OPENAI_API_KEY),
   };
 }

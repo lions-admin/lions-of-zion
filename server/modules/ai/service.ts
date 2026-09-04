@@ -104,6 +104,45 @@ export async function recordChatRun(
   return row.id;
 }
 
+/**
+ * Records one operations-console turn against an open transaction.
+ *
+ * A sibling of `recordChatRun` rather than a flag on it: the console's model
+ * is a separate profile with a separate slug, and the row must say so, or
+ * `by model` and `by surface` in the cost view collapse two very different
+ * spends into one. Console material is internal — the tools return
+ * operational state, never public copy — and the CHECK on `ai_run` still
+ * refuses anything restricted.
+ */
+export async function recordOpsConsoleRun(
+  tx: unknown,
+  input: {
+    model: string;
+    inputTokens: number | null;
+    outputTokens: number | null;
+    costUsd: number;
+    latencyMs: number;
+    inputHash: string;
+    actor: Actor;
+  },
+): Promise<string> {
+  const row = await aiRepo(tx).recordRun({
+    kind: "chat",
+    model: input.model,
+    modelProfile: "opsConsole",
+    inputTokens: input.inputTokens,
+    outputTokens: input.outputTokens,
+    costUsd: input.costUsd.toFixed(9),
+    latencyMs: input.latencyMs,
+    status: "ok",
+    inputHash: input.inputHash,
+    inputDataClass: "internal",
+    actorLabel: input.actor.label,
+    actorUserId: input.actor.userId ?? null,
+  });
+  return row.id;
+}
+
 export async function recordEmbeddingRun(
   database: unknown,
   input: {

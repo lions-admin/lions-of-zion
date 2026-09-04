@@ -42,6 +42,7 @@ const LABELS: Record<EntityType, string> = {
   scenario: "Scenario",
   translation: "Translation",
   report: "Report",
+  system: "System",
 };
 
 /**

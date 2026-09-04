@@ -17,6 +17,7 @@ export {
   recordBriefingRun,
   recordChatRun,
   recordEmbeddingRun,
+  recordOpsConsoleRun,
   type AiService,
   type Generator,
 } from "./service";

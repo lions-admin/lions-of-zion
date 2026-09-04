@@ -19,12 +19,14 @@ import "server-only";
  *   3. **An unconfigured gateway.** Loudly, naming the variable.
  */
 
-import { generateText, embed, APICallError, gateway, RetryError } from "ai";
+import { generateText, embed, stepCountIs, APICallError, gateway, RetryError } from "ai";
+import type { ModelMessage, ToolSet } from "ai";
 import { xai } from "@ai-sdk/xai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { toJSONSchema, ZodError, type ZodType } from "zod";
 import { ApiError } from "@/server/http/responses";
 import { integrityHash } from "@/server/core/hash";
-import { aiBudgets, modelFor, type ModelProfile } from "@/server/core/config";
+import { aiBudgets, modelFor, openaiApiKey, type ModelProfile } from "@/server/core/config";
 import type { DataClass, AiRunKind } from "@/server/contracts/enums";
 
 export type GenerateInput = {
@@ -58,6 +60,37 @@ export type GenerateOutput = {
 
 export type StructuredGenerateOutput<T> = GenerateOutput & { output: T };
 
+/** A multi-step, tool-calling generation: a message history rather than one
+ *  prompt, a tool set the model may call, and a step ceiling. */
+export type ToolGenerateInput = {
+  profile: ModelProfile;
+  kind: AiRunKind;
+  system?: string;
+  /** The conversation so far, oldest first, ending with the operator's turn. */
+  messages: ModelMessage[];
+  tools: ToolSet;
+  /** How many model round-trips the loop may take before it must answer. */
+  maxSteps?: number;
+  dataClass?: DataClass;
+  maxOutputTokens?: number;
+  /** Bounded to `AI_TOOL_LOOP_TIMEOUT_MS`, which is itself below the route's
+   *  `maxDuration`. */
+  timeoutMs?: number;
+  tags?: string[];
+};
+
+/** One tool invocation the model made, with what came back — in call order
+ *  across every step, so a caller can audit the loop without re-walking the
+ *  SDK's step structure. */
+export type ToolStep = {
+  toolCallId: string;
+  toolName: string;
+  args: unknown;
+  result: unknown;
+};
+
+export type ToolGenerateOutput = GenerateOutput & { steps: ToolStep[] };
+
 /** Classifications that may never be sent to a model, mirroring the CHECK on
  *  `ai_run`. Duplicated deliberately: the database refuses the record, this
  *  refuses the request. */
@@ -68,8 +101,37 @@ const NEVER_SENT: readonly DataClass[] = ["restricted", "secret"];
  * later stage retry so a model request is never multiplied uncontrollably. */
 const AI_GENERATION_TIMEOUT_MS = 45_000;
 const AI_GENERATION_RETRIES = 1;
+/** A tool loop makes several round-trips and runs real operations between
+ *  them. The ceiling stays under the ops route's `maxDuration = 300`. */
+const AI_TOOL_LOOP_TIMEOUT_MS = 120_000;
+const AI_TOOL_LOOP_DEFAULT_STEPS = 8;
 const AI_EMBEDDING_TIMEOUT_MS = 20_000;
 const AI_EMBEDDING_RETRIES = 1;
+
+/**
+ * Which transport a tool loop takes, and why there are two.
+ *
+ * The gateway is the default for everything in this file because it carries
+ * the spend ledger, the provider pin and the prompt-training refusal. The
+ * operations console is the one caller that also needs OpenAI's reasoning
+ * controls — `reasoning.effort` and `reasoning.mode`, which the owner set to
+ * `max` and `pro` — and those are Responses API fields the gateway's
+ * OpenAI-compatible surface does not carry through.
+ *
+ * So: with `OPENAI_API_KEY` set, an `openai/` tool loop goes straight to the
+ * provider and gets the reasoning controls; without it, the same call goes
+ * through the gateway and simply reasons at the provider's default. Nothing
+ * breaks in a gateway-only deployment, and no test needs a key.
+ *
+ * The visible cost of the direct path is the ledger: `generationCost()` has
+ * no gateway generation id to look up, so the token estimate below is the
+ * recorded figure rather than a reconciled charge.
+ */
+export type ToolTransport = "openai-direct" | "gateway";
+
+export function resolveToolTransport(model: string, hasOpenAiKey: boolean): ToolTransport {
+  return model.startsWith("openai/") && hasOpenAiKey ? "openai-direct" : "gateway";
+}
 
 export function assertSendable(dataClass: DataClass): void {
   if (NEVER_SENT.includes(dataClass)) {
@@ -168,6 +230,119 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
         result.providerMetadata,
         estimateCost(model, inputTokens ?? 0, outputTokens ?? 0),
       ),
+    };
+  } catch (cause) {
+    if (cause instanceof ApiError) throw cause;
+    throw translateGatewayError(cause, model);
+  }
+}
+
+/**
+ * A tool-calling generation over a message history.
+ *
+ * The same three refusals as `generate()` apply before anything leaves the
+ * process, and the same "does not write `ai_run`" rule applies after: the
+ * caller records the run alongside whatever the tools did. What differs is
+ * shape — the model may call the supplied tools and read their results for
+ * up to `maxSteps` round-trips before it answers, and every call it made is
+ * returned in order so the caller can audit the loop.
+ *
+ * Two transports, chosen by `resolveToolTransport`: straight to OpenAI when
+ * a key is configured, so the reasoning controls apply, and through the
+ * gateway otherwise. An xAI profile is refused on both — that provider's
+ * tool surface is the server-side X search, not a tool loop of ours.
+ */
+export async function generateWithTools(input: ToolGenerateInput): Promise<ToolGenerateOutput> {
+  assertSendable(input.dataClass ?? "public");
+
+  const model = modelFor(input.profile);
+  if (model.startsWith("xai/")) {
+    throw new ApiError("NOT_IMPLEMENTED", "Tool-calling generation is not available on the xAI provider.");
+  }
+  const startedAt = Date.now();
+  const timeoutMs = Math.min(input.timeoutMs ?? AI_TOOL_LOOP_TIMEOUT_MS, AI_TOOL_LOOP_TIMEOUT_MS);
+  const maxSteps = Math.max(1, Math.floor(input.maxSteps ?? AI_TOOL_LOOP_DEFAULT_STEPS));
+
+  const apiKey = openaiApiKey();
+  const transport = resolveToolTransport(model, Boolean(apiKey));
+  const direct = transport === "openai-direct"
+    ? createOpenAI({ apiKey }).responses(model.slice("openai/".length))
+    : null;
+
+  try {
+    const result = await generateText({
+      model: direct ?? gateway(model),
+      system: input.system,
+      messages: input.messages,
+      tools: input.tools,
+      stopWhen: stepCountIs(maxSteps),
+      maxOutputTokens: input.maxOutputTokens,
+      timeout: timeoutMs,
+      maxRetries: AI_GENERATION_RETRIES,
+      providerOptions: direct
+        ? {
+          /* The owner's setting for the console: reason as hard as the model
+             will, in the mode that keeps reasoning across the tool loop
+             rather than restarting it each step. Both are typed fields of
+             the Responses API options in the installed provider. */
+          openai: {
+            reasoningEffort: "max",
+            reasoningMode: "pro",
+            reasoningContext: "all_turns",
+            store: false,
+          },
+        }
+        : {
+          gateway: {
+            tags: input.tags ?? ["feature:ops-console"],
+            only: model.startsWith("anthropic/") ? ["anthropic"] : ["openai"],
+            disallowPromptTraining: true,
+          },
+        },
+    });
+
+    /* `totalUsage` sums every step; `usage` alone is the final step and would
+       under-count a loop that called five tools before answering. */
+    const inputTokens = result.totalUsage?.inputTokens ?? null;
+    const outputTokens = result.totalUsage?.outputTokens ?? null;
+
+    const steps: ToolStep[] = [];
+    for (const step of result.steps) {
+      const outputs = new Map<string, unknown>();
+      for (const part of step.content) {
+        if (part.type === "tool-result") outputs.set(part.toolCallId, part.output);
+        else if (part.type === "tool-error") {
+          outputs.set(part.toolCallId, {
+            error: part.error instanceof Error ? part.error.name : "ToolError",
+          });
+        }
+      }
+      for (const call of step.toolCalls) {
+        steps.push({
+          toolCallId: call.toolCallId,
+          toolName: call.toolName,
+          args: call.input,
+          result: outputs.get(call.toolCallId) ?? null,
+        });
+      }
+    }
+
+    return {
+      text: result.text,
+      model,
+      inputTokens,
+      outputTokens,
+      latencyMs: Date.now() - startedAt,
+      inputHash: integrityHash(JSON.stringify(input.messages)),
+      /* The direct path has no gateway generation id to reconcile against,
+         so the token estimate is what gets recorded there. */
+      costUsd: direct
+        ? estimateCost(model, inputTokens ?? 0, outputTokens ?? 0)
+        : await generationCost(
+          result.providerMetadata,
+          estimateCost(model, inputTokens ?? 0, outputTokens ?? 0),
+        ),
+      steps,
     };
   } catch (cause) {
     if (cause instanceof ApiError) throw cause;
@@ -346,6 +521,8 @@ export function estimateCost(model: string, inputTokens: number, outputTokens: n
         ? { input: 0.05, output: 0.4 }
         : model === "openai/gpt-5-mini"
           ? { input: 0.25, output: 2 }
+      : model === "openai/gpt-5.6-sol"
+        ? { input: 4, output: 20 }
       : model === "openai/text-embedding-3-small"
         ? { input: 0.02, output: 0 }
         : { input: 5, output: 25 };

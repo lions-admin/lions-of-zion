@@ -1,0 +1,62 @@
+/* The live feed: a record in a column, not a repeated box, same convention
+   as the case-file index at app/fake-resistance/social-media/page.module.css.
+   Values answer to the V3 tokens in app/globals.css. */
+
+.fileIndex {
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.fileRow {
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  margin: var(--sp-5) 0 0;
+  color: var(--ink-lo);
+}
+
+/* The claim record: the same labelled data-voice block LiveBriefHub renders
+   for a narrative_watch entry, restyled to this section's row card rather
+   than the brief hub's. */
+.claimRecord {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--sp-1) var(--sp-3);
+  margin: var(--sp-3) 0 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+}
+
+.claimRecord dt {
+  color: var(--data-ember-peak);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.claimRecord dd {
+  margin: 0;
+  color: var(--ink);
+}
+
+.fileEvidence {
+  margin: var(--sp-3) 0 0;
+  display: flex;
+  gap: var(--sp-2);
+  align-items: baseline;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.fileEvidence > span {
+  color: var(--data-ember-peak);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}

@@ -35,6 +35,11 @@ const eslintConfig = defineConfig([
     ".codex/**",
     ".ds-sync/**",
     "ds-bundle/**",
+    /* The same call tsconfig makes for `midjrny`: scratch checkouts that
+       appear beside the repo during graphics work, each with vendored code
+       and its own type shims that would otherwise pollute both gates. */
+    "midjrny/**",
+    "midjrny-wt-*/**",
   ]),
 
   {

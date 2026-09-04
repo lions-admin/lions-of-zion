@@ -425,3 +425,42 @@ allowed" instead of "allowed by omission".
 
 Production runs these handlers from the four schedules in `vercel.json`; each
 is authenticated by `CRON_SECRET` and safe to retry. Preview remains isolated.
+
+## The console expansion — 4–5 September 2026
+
+Dated record of the routes added by the operations-console upgrade. All are
+under `/api/v1/admin/` (wrapper role `app_staff`, `requireActor`, staff
+non-GET additionally Preview-refused, origin-asserted and rate-limited like
+every console mutation). Request/response shapes are stated by the referenced
+schemas in `server/contracts/admin-console.ts`; this list records route,
+method, guard and purpose only — `docs/api.md`'s per-route tables for the
+original console reads predate this section and are unchanged.
+
+| Route | M | Purpose | Contract |
+| --- | --- | --- | --- |
+| `admin/console/quality-checks` | GET | Per-candidate quality-check matrix (17 `REQUIRED_QUALITY_CHECKS`) for a `runId` or Israel-local `localDate` — exactly one | `listQualityChecksSchema` |
+| `admin/console/editions/[localDate]` | GET | One edition's drill-down: stage runs, per-stage `ai_run` figures, latest artifacts, claims, stage jobs | `listEditionDrilldownSchema` |
+| `admin/console/sources/[id]/fetches` | GET | Latest N `source_fetch` rows for one source + Israel-local "today" aggregate | `sourceFetchesQuerySchema` |
+| `admin/console/outbox/drain` | POST | Manual outbox drain (reversible; audit `ops.outbox.drained` in a separate tx) | `drainOutboxSchema` |
+| `admin/console/maintenance/tick` | POST | On-demand prune → job recovery → alert evaluation (audit `ops.maintenance.tick`) | — |
+| `admin/console/quarantine/[id]/resolve` | POST | Close an open `briefing_quarantine` row (refuses already-closed; audit) | `quarantineDecisionSchema` |
+| `admin/console/quarantine/[id]/discard` | POST | Discard an open quarantine row — requires a note, danger-confirmed in UI | `quarantineDecisionSchema` |
+| `admin/console/sources/collect-sweep` | POST | Enqueue due collection jobs only (honours pause + `shouldCollectSource`; audit `ops.collection.sweep`) | — |
+| `admin/console/reports` | GET | Public-report desk: keyset page + latest status-trail entry | `consoleReportsSchema` |
+| `admin/console/chat/threads` | GET | Public-chat moderation list (message count, last activity) | `consoleChatThreadsSchema` |
+| `admin/console/chat/threads/[id]/transcript` | GET | Ordered messages + tool runs + `ai_run` linkage | — |
+| `admin/console/chat/threads/[id]/archive` | POST | Set `archived_at` (refuses already-archived; audit `ops.chat.thread_archived`) | — |
+| `admin/console/system-internals` | GET | Embedding backlog depth, semantic-arm presence, embed-run figures, public-read-cache stats | `consoleSystemInternalsSchema` |
+| `admin/console/ai/prompts` | GET / POST | Prompt registry list / append-only version insert (audit `ops.prompt.inserted`) | `insertPromptVersionSchema` |
+| `admin/console/ai/prompts/activate` | POST | Activate a prompt version via the sanctioned `activate_prompt()` — changes what every future model call reads; danger-confirmed in UI (audit `ops.prompt.activated`) | `activatePromptVersionSchema` |
+| `admin/console/entities/[entityType]/[entityId]/versions` | GET | Generic `entity_version` history, newest-first | `listEntityVersionsSchema` |
+| `admin/console/evidence/[id]/provenance` | GET | Append-only provenance trail for one evidence row | — |
+
+Telemetry added in the same round (not routes): `auth.refused` audit rows for
+403 admin-email mismatches (`authenticateAdmin`, never the 401 no-session case
+nor the dev bypass), and `email.sent`/`email.failed` audit rows written by the
+`sendWorkspaceEmail` wrap in production only. `source_fetch` gained
+`actual_cost_usd` (migration `0052` — apply to Preview, then Production,
+before code that reads it is pushed); the Agent Search connector records the
+per-query billed estimate there when the unit-cost env is set, and
+`admin/console/costs` rolls it up beside the estimate.

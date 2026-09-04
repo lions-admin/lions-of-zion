@@ -143,6 +143,7 @@ export async function ingestSource(
       rawContentHash,
       rawContentType: result.rawContentType ?? null,
       rawByteSize: result.rawBody ? Buffer.byteLength(result.rawBody, "utf8") : null,
+      actualCostUsd: result.actualCostUsd ?? null,
     });
 
     await sourceRepo(tx).recordFetchHealth(src.id, usableStatus, finishedAt, usableError);

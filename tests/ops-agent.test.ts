@@ -271,6 +271,27 @@ describe("a turn", () => {
     ]);
   });
 
+  it("attaches the turn's ai_run and whole-turn cost to every tool chip the turn produced", async () => {
+    /* The console renders the figure on the tool chip, so the additive
+       fields have to arrive on the wire — turn-attributed, never a per-tool
+       split the ledger does not record. */
+    const db = await freshDatabase();
+    const ctx = stubContext();
+    const response = await agentOn(db, ctx, scripted([{ tool: "get_overview" }])).turn(
+      { history: [], message: "How are things?", confirmations: [] },
+      actor,
+      "req-1",
+    );
+    const chips = response.messages.flatMap((message) => message.toolCalls ?? []);
+    expect(chips.length).toBeGreaterThan(0);
+    const runs = await db.execute<{ id: string }>(sql`SELECT id FROM ai_run`);
+    expect(runs.rows).toHaveLength(1);
+    for (const chip of chips) {
+      expect(chip.aiRunId).toBe(runs.rows[0]!.id);
+      expect(chip.costUsd).toBeCloseTo(0.0064, 6);
+    }
+  });
+
   it("runs a reversible operation and reports the state as changed", async () => {
     const db = await freshDatabase();
     const ctx = stubContext();

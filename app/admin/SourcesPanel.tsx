@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Field } from "@/components/ui/Field";
 import { Skeleton } from "@/components/ui/Skeleton";
-import type { CollectSweepResult, ConsoleSource, ConsoleSourceFetches, ConsoleSources } from "@/server/contracts/admin-console";
+import type { CollectSweepResult, ConsoleCosts, ConsoleSource, ConsoleSourceFetches, ConsoleSources } from "@/server/contracts/admin-console";
 import type { BriefingStatus } from "./briefing-shapes";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import {
@@ -200,6 +200,9 @@ function FetchesDrawer({ source, onClose }: { source: ConsoleSource | null; onCl
 export function SourcesPanel({ signal }: { signal: number }) {
   const sources = useConsoleRead<ConsoleSources>("admin/console/sources", { signal });
   const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal });
+  /* The costs read exists for one additive figure the briefing summary does
+     not carry: Agent Search's recorded spend beside its estimate. */
+  const costs = useConsoleRead<ConsoleCosts>("admin/console/costs", { signal });
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* The fetch log is opened per source row, in a drawer that holds its own
      read the same way the quality matrix holds its date-gated one. */
@@ -243,6 +246,14 @@ export function SourcesPanel({ signal }: { signal: number }) {
                 : `${formatUsd(briefing.value.googleUsage.estimatedSpendUsd)}${briefing.value.googleUsage.monthlyBudgetUsd === null ? "" : ` / ${formatUsd(briefing.value.googleUsage.monthlyBudgetUsd, 2)}`}`
             }
           />
+          {/* The estimate beside what the fetches actually recorded. Absent
+              means nothing reported a cost — not zero. */}
+          {costs.value ? (
+            <Metric
+              label={T.actualSearchSpend}
+              value={costs.value.search.actualSpendUsd === undefined ? T.notRecorded : formatUsd(costs.value.search.actualSpendUsd)}
+            />
+          ) : null}
           <Metric label="מקורות מוגדרים" value={String(briefing.value.sources.length)} />
         </div>
       ) : null}

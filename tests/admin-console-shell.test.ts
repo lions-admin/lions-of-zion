@@ -278,3 +278,135 @@ describe("what the console tells the operator the assistant can do", () => {
     }
   });
 });
+
+describe("the final wave's sub-tabs (source)", () => {
+  /* The four SystemPanel sub-tabs the last UI wave added, pinned the way
+     every other region is: structurally over the sources. What is pinned is
+     which payload each sub-tab reads, that it mounts visit-once like the
+     other seven, that the keyset pages append through the cursor, and that
+     the one dangerous control per area is placed last in it. */
+  const system = read("app/admin/SystemPanel.tsx");
+  const reports = read("app/admin/ReportsSection.tsx");
+  const threads = read("app/admin/ChatThreadsSection.tsx");
+  const prompts = read("app/admin/PromptsSection.tsx");
+  const lineage = read("app/admin/LineageSection.tsx");
+  const chat = read("app/admin/OpsChat.tsx");
+  const lexicon = read("app/admin/lexicon.ts");
+
+  it("mounts the four new sub-tabs visit-once and names them from the lexicon", () => {
+    for (const [key, entry] of [
+      ["reports", "reportsTab"],
+      ["chat", "chatTab"],
+      ["prompts", "promptsTab"],
+      ["lineage", "lineageTab"],
+    ] as const) {
+      expect(system, `${key} is a sub-area key`).toContain(`"${key}"`);
+      expect(system, `${key} is gated on first visit`).toContain(`visited.has("${key}")`);
+      expect(system, `${key} is labelled from the lexicon`).toContain(`label: T.${entry}`);
+      const named = lexicon.slice(lexicon.indexOf(`${entry}:`));
+      expect(named.slice(0, named.indexOf("\n")), `${entry} holds Hebrew`).toMatch(/[֐-׿]/);
+    }
+  });
+
+  it("pages the reports desk by keyset and appends through nextCursor", () => {
+    expect(reports).toContain("`admin/console/reports?${params.toString()}`");
+    expect(reports).toContain('params.set("cursor", cursor)');
+    for (const piece of ["page.reports", "page.nextCursor"]) {
+      expect(reports, piece).toContain(piece);
+    }
+    expect(reports).toContain("T.loadOlder");
+    /* The triage actions go to the staff route, exactly as it is mounted. */
+    expect(reports).toContain("`reports/${report.id}/triage`");
+  });
+
+  it("confirms close and reject — the two moves that demand a note — and asks nothing for the internal moves", () => {
+    const declared = reports.indexOf("function requestDecision");
+    expect(declared, "requestDecision exists").toBeGreaterThan(-1);
+    const body = reports.slice(declared, reports.indexOf("\n  }", declared));
+    expect(body).toContain("setConfirmIntent(");
+    expect(body).toMatch(/tone:\s*"danger"/);
+    expect(body, "the note field is required like the route's schema").toMatch(/required/);
+    expect(reports).toMatch(/noteRef\.current\.trim\(\)/);
+    expect(reports).toMatch(/if \(!note\) throw/);
+    expect(reports).toContain("body: { to, resolutionNote: note },");
+
+    const transferDeclared = reports.indexOf("async function transfer");
+    const transferBody = reports.slice(transferDeclared, reports.indexOf("\n  }", transferDeclared));
+    expect(transferBody).toContain("ops.run(");
+    expect(transferBody).not.toContain("setConfirmIntent(");
+  });
+
+  it("pages the chat threads by keyset and holds each transcript until its thread is expanded", () => {
+    expect(threads).toContain("`admin/console/chat/threads/${thread.id}/transcript`");
+    expect(threads).toContain('params.set("cursor", cursor)');
+    for (const piece of ["page.threads", "page.nextCursor"]) {
+      expect(threads, piece).toContain(piece);
+    }
+    expect(threads).toContain("T.loadOlder");
+    /* The transcript is a held read: idle until the expander is pressed,
+       kept once it arrives. */
+    expect(threads).toMatch(/kind: "idle"/);
+    expect(threads).toContain("transcript.kind === \"ready\" || transcript.kind === \"loading\"");
+  });
+
+  it("routes the archive through the shared confirmation, danger, as the thread row's last control", () => {
+    const declared = threads.indexOf("function requestArchive");
+    expect(declared, "requestArchive exists").toBeGreaterThan(-1);
+    const body = threads.slice(declared, threads.indexOf("\n  }", declared));
+    expect(body).toContain("setConfirmIntent(");
+    expect(body).toMatch(/tone:\s*"danger"/);
+    expect(threads).toContain("`admin/console/chat/threads/${thread.id}/archive`");
+
+    /* At the granularity that exists: the archive control comes after the
+        transcript toggle on the row, and only on a thread not yet archived. */
+    const row = threads.slice(threads.indexOf("function ThreadRow"));
+    expect(row.indexOf("aria-expanded={open}")).toBeLessThan(row.indexOf('variant="danger"'));
+  });
+
+  it("inserts prompt versions through the append-only note and activates only through the shared confirmation", () => {
+    expect(prompts).toContain('"admin/console/ai/prompts"');
+    expect(prompts).toContain('"admin/console/ai/prompts/activate"');
+    expect(prompts).toContain("T.insertPromptNote");
+
+    const declared = prompts.indexOf("function requestActivate");
+    expect(declared, "requestActivate exists").toBeGreaterThan(-1);
+    const body = prompts.slice(declared, prompts.indexOf("\n  }", declared));
+    expect(body).toContain("setConfirmIntent(");
+    expect(body).toMatch(/tone:\s*"danger"/);
+    /* The consequence names what activation actually changes: what every
+       future model call sees. */
+    expect(prompts).toContain("T.activatePromptConsequence");
+    expect(lexicon).toContain("קריאת מודל עתידית");
+  });
+
+  it("holds both lineage lookups until submitted, and names the second cause of their 404", () => {
+    expect(lineage).toContain("`admin/console/entities/${entityType}/${id}/versions?limit=50`");
+    expect(lineage).toContain("`admin/console/evidence/${id}/provenance`");
+    expect(lineage).toMatch(/kind: "idle"/);
+    expect(lineage).toContain("<InlineAbsence");
+    expect(lineage).toContain("ABSENCE.lineageAbsent");
+    expect(lineage).toContain("ABSENCE.provenanceAbsent");
+  });
+
+  it("surfaces Agent Search's recorded spend beside the estimate, with the absent-not-zero wording", () => {
+    const sources = read("app/admin/SourcesPanel.tsx");
+    expect(sources).toContain('"admin/console/costs"');
+    expect(sources).toContain("T.actualSearchSpend");
+    expect(sources).toMatch(/actualSpendUsd === undefined \? T\.notRecorded : formatUsd/);
+    expect(system).toMatch(/actualSpendUsd === undefined \? T\.notRecorded : formatUsd/);
+  });
+
+  it("renders the turn's recorded cost on the tool chip when the turn carries it", () => {
+    expect(chat).toMatch(/call\.costUsd !== undefined/);
+    expect(chat).toContain("formatUsd(call.costUsd)");
+  });
+
+  it("adds the internals read to the environment sub-area, semantic arm included", () => {
+    expect(system).toContain('"admin/console/system-internals"');
+    for (const piece of ["internals.value.embeddingBacklog", "internals.value.semanticArm", "internals.value.embeddingRuns", "internals.value.publicReadCache"]) {
+      expect(system, piece).toContain(piece);
+    }
+    expect(system).toContain("T.lexicalOnly");
+    expect(system).toContain("T.semanticEngaged");
+  });
+});

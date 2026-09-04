@@ -182,11 +182,25 @@ export const TREND_LABEL: Record<string, string> = {
   unclear: "לא ברור",
 };
 
-/* ── Severity and health ──────────────────────────────────────────────── */
+  /* ── Severity and health ──────────────────────────────────────────────── */
 
 export const SEVERITY_LABEL: Record<string, string> = {
   critical: "קריטי",
   warning: "אזהרה",
+};
+
+/* ── User reports (דוח״צ) ─────────────────────────────────────────────── */
+
+/* The wire value stays Latin (`closed`); this translates only the label the
+   operator reads beside it, the same contract as `STATUS_LABEL`. */
+export const REPORT_STATUS_LABEL: Record<string, string> = {
+  received: "התקבל",
+  triaged: "ממוין",
+  investigating: "בבדיקה",
+  linked_to_existing_item: "מקושר לפריט קיים",
+  converted_to_item: "הומר לפריט",
+  closed: "נסגר",
+  rejected: "נדחה",
 };
 
 /* ── The recurring nouns, so twelve files spell them the same ─────────── */
@@ -427,6 +441,95 @@ export const T = {
   sweepNote: "האיסוף המיידי מריץ סבב שליפה על כל המקורות הפעילים עכשיו, מחוץ לתור המתוכנן, ומוציא מתקציב החיפוש והעיבוד.",
   sweepPanelLabel: "פעולה שמוציאה תקציב",
   sweepFailure: "לא ניתן להתחיל את האיסוף המיידי.",
+
+  /* ── The final UI wave: reports, chat moderation, prompts, lineage ──── */
+
+  /* Sub-tab labels. The tab row names the four new sub-areas of System &
+     Security; the words are decided here like every other label. */
+  reportsTab: "דוח״צ",
+  chatTab: "צ׳אט ציבורי",
+  promptsTab: "פרומפטים",
+  lineageTab: "שושנת גרסאות",
+
+  /* The reports desk (דוח״צ — the public's reports of suspected false
+     information). The abbreviation is what the owner calls the desk; the
+     rows are דיווחים, masculine, because a דיווח is the submission itself. */
+  reportsDesk: "דוח״צ",
+  reportsWhat: "שולחן הדוח״צ",
+  report: "דיווח",
+  reports: "דיווחים",
+  reporter: "מדווח",
+  channel: "ערוץ",
+  trail: "מסלול מצבים",
+  nextStatus: "המצב הבא",
+  transfer: "העברה",
+  closeReport: "סגירת הדיווח",
+  closeReportConsequence: "הדיווח נסגר — נבדק ולא נמצא בו מעשה. הסיבה נרשמת לשרשרת המצבים של הדיווח, והיא המילים שהדווח יראה אם יבדוק את מצב הדיווח שלו.",
+  rejectReport: "דחיית הדיווח",
+  rejectReportConsequence: "הדיווח נדחה כבלתי שמיש — ספאם, ריק או פוגעני. זוהי נקודת קצה: ממצב דחוי אין מעבר חוקי נוסף, ואי אפשר להחזיר את הדיווח לתור.",
+  reportsFilter: "סינון לפי מצב",
+  trailCount: "רשומות מסלול",
+
+  /* Public-chat moderation. `שיחה` is the thread; the transcript below it is
+     `תמליל`. */
+  chatThreads: "צ׳אט ציבורי",
+  threadsWhat: "שיחות הצ׳אט הציבורי",
+  thread: "שיחה",
+  threads: "שיחות",
+  noTitle: "ללא כותרת",
+  transcript: "תמליל",
+  transcriptWhat: "התמליל",
+  message: "הודעה",
+  messages: "הודעות",
+  toolRuns: "קריאות כלים",
+  modelRun: "קריאת המודל",
+  archiveThread: "ארכוב השיחה",
+  archiveThreadConsequence: "השיחה יוצאת מרשימת השיחות הפעילות של הצ׳אט הציבורי ולא תוצע בו עוד. התמליל נשמר לביקורת ואינו נמחק. הארכוב נרשם ביומן הביקורת.",
+  archived: "אצורה",
+
+  /* The prompt registry. `פרומפט` stays Latin-rooted because the slug, the
+     audit rows and the model calls all carry it in Latin. */
+  prompts: "פרומפטים",
+  promptsWhat: "מאגר הפרומפטים",
+  prompt: "פרומפט",
+  promptKind: "סוג",
+  promptProfile: "פרופיל",
+  promptTemplate: "תבנית",
+  promptNotes: "הערות",
+  activeVersion: "הגרסה הפעילה",
+  noActiveVersion: "אין גרסה פעילה",
+  insertVersion: "הוספת גרסה",
+  insertPromptNote: "הוספה בלבד: המאגר נספק-בלבד, גרסה שנוספה אינה נערכת ואינה נמחקת לעולם. הגרסה החדשה אינה פעילה עד שמפעילים אותה.",
+  activateVersion: "הפעלת הגרסה",
+  activatePromptConsequence: "מהרגע הזה כל קריאת מודל עתידית במסלול הזה קוראת את הגרסה הזו — מה שהמודל רואה משתנה בכל הרצה באה. אין עריכת גרסאות ואין החזרה אוטומטית; הדרך היחידה לחזור היא להפעיל גרסה אחרת. ההפעלה נרשמת ביומן הביקורת.",
+
+  /* Lineage: generic entity versions and evidence provenance. */
+  lineage: "שושנת גרסאות",
+  lineageWhat: "שושנת הגרסאות",
+  entityType: "סוג ישות",
+  entityId: "מזהה ישות",
+  evidenceId: "מזהה ראיה",
+  lookup: "חיפוש",
+  changeSource: "מקור השינוי",
+  snapshot: "מצב הישות",
+  provenance: "שרשרת המקור",
+  provenanceWhat: "שרשרת המקור של הראיה",
+
+  /* System internals, read in the environment sub-area. */
+  internalsPanel: "מנגנונים פנימיים",
+  embedBacklog: "תור ההטמעות",
+  embedStale: "ממתינות להטמעה",
+  embedIndexed: "בפרויקציית החיפוש",
+  semanticArm: "הזרוע הסמנטית",
+  semanticEngaged: "סמנטיקה פעילה",
+  lexicalOnly: "מילון בלבד",
+  embedRuns: "ריצות הטמעה",
+
+  /* Agent Search's recorded spend, beside the estimate. The registry at
+     fetch time writes what the fetch cost; absent means nothing reported a
+     cost, which is not zero. */
+  actualSearchSpend: "בפועל מרישום האחזורות",
+  notRecorded: "לא נרשם",
 } as const;
 
 /* ── The sentences panels report an operation back with ────────────────── */
@@ -444,6 +547,11 @@ export const SENTENCE = {
   quarantineResolved: (key: string) => `הרשומה ${key} סומנה כטופלה.`,
   quarantineDiscarded: (key: string) => `הרשומה ${key} הוסרה מתור ההתאוששות ולא תרוץ שוב.`,
   needReason: () => "נדרשת סיבה כדי להסיר רשומה מהתור. שום דבר לא שונה.",
+  reportTriaged: (publicId: string, statusWord: string) => `הדיווח ${publicId} הועבר למצב "${statusWord}".`,
+  needTriageNote: () => "נדרשת סיבה כדי לסגור או לדחות דיווח. שום דבר לא שונה.",
+  threadArchived: (title: string) => `השיחה "${title}" אוצרה והוצאה מהצ׳אט הציבורי.`,
+  promptInserted: (slug: string, version: number) => `נוספה גרסה ${version} לפרומפט ${slug}. היא אינה פעילה עד שמפעילים אותה.`,
+  promptActivated: (slug: string, version: number) => `הופעלה גרסה ${version} של ${slug}. מהקריאה הבאה כל מודל במסלול קורא אותה.`,
 } as const;
 
 /* ── Absence and failure, phrased as causes rather than blanks ────────── */
@@ -471,6 +579,11 @@ export const ABSENCE = {
      causes the read alone cannot tell apart. This line names the one the
      shared absence wording does not cover. */
   draftEditionAbsent: "ייתכן שאין מהדורה לתאריך הנבחר — המסלול מחזיר 404 גם עבור יום ללא מהדורה.",
+
+  /* The lineage lookups answer 404 the same way, for a different cause: the
+     route is served, the identifier just has no history under it. */
+  lineageAbsent: "אין היסטוריה למזהה הזה — המסלול מחזיר 404 גם עבור מזהה שלא נרשם לו גרסה מעולם.",
+  provenanceAbsent: "אין ראיה במזהה הזה — המסלול מחזיר 404 גם עבור מזהה שלא נרשם מעולם.",
 } as const;
 
 /* ── Formatting, Hebrew locale ────────────────────────────────────────── */

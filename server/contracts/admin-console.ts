@@ -14,6 +14,7 @@
 import { z } from "zod";
 import {
   aiRunKindSchema,
+  changeSourceSchema,
   entityTypeSchema,
   fetchStatusSchema,
   narrativeStatusSchema,
@@ -515,6 +516,11 @@ export const consoleCostsSchema = z.object({
     attemptsThisMonth: count,
     successfulQueriesThisMonth: count,
     estimatedSpendUsd: usd.nullable(),
+    /** What Agent Search fetches recorded themselves costing (30-day sum of
+     *  `source_fetch.actual_cost_usd`): the per-query estimate written at
+     *  fetch time when the unit rate is configured. Additive and optional —
+     *  absent rather than zero when nothing reported a cost. */
+    actualSpendUsd: usd.optional(),
   }),
 });
 export type ConsoleCosts = z.infer<typeof consoleCostsSchema>;
@@ -1033,3 +1039,138 @@ export const collectSweepResultSchema = z.object({
   })),
 });
 export type CollectSweepResult = z.infer<typeof collectSweepResultSchema>;
+
+/* ── 17. Prompt registry management ──────────────────────────────────────── */
+
+/**
+ * One prompt version as the registry holds it. The template travels in full:
+ * the console's prompt desk is where an operator reads what every future
+ * model call will see, and truncating it here would invite someone to fetch
+ * the text from the database directly instead.
+ */
+export const consolePromptVersionSchema = z.object({
+  id: z.uuid(),
+  slug: z.string().min(1),
+  version: z.number().int().positive(),
+  kind: aiRunKindSchema,
+  template: z.string().min(1),
+  modelProfile: z.string().min(1),
+  notes: z.string().nullable(),
+  activatedAt: nullableIsoDate,
+  createdAt: isoDate,
+});
+export type ConsolePromptVersion = z.infer<typeof consolePromptVersionSchema>;
+
+/** A slug with all of its versions, newest first, and which one is active. */
+export const consolePromptSchema = z.object({
+  slug: z.string().min(1),
+  kind: aiRunKindSchema,
+  activeVersion: z.number().int().positive().nullable(),
+  versions: z.array(consolePromptVersionSchema),
+});
+export type ConsolePrompt = z.infer<typeof consolePromptSchema>;
+
+export const consolePromptsSchema = z.object({
+  generatedAt: isoDate,
+  prompts: z.array(consolePromptSchema),
+});
+export type ConsolePrompts = z.infer<typeof consolePromptsSchema>;
+
+/**
+ * Appends one version to the registry. Append-only by trigger: an inserted
+ * version starts inactive, and nothing can ever rewrite it — activating it
+ * later is the one sanctioned mutation, via `activate_prompt()`.
+ */
+export const insertPromptVersionSchema = z.object({
+  slug: z.string().trim().min(1).max(200),
+  kind: aiRunKindSchema,
+  template: z.string().trim().min(1).max(20_000),
+  /** The profile this prompt expects (`fast`, `reasoning`, …), not a provider
+   *  slug — those live in `server/core/config.ts` alone. */
+  modelProfile: z.string().trim().min(1).max(100).default("fast"),
+  notes: z.string().trim().max(2_000).optional(),
+});
+export type InsertPromptVersion = z.infer<typeof insertPromptVersionSchema>;
+
+export const promptVersionInsertedSchema = z.object({
+  id: z.uuid(),
+  slug: z.string().min(1),
+  version: z.number().int().positive(),
+  activatedAt: nullableIsoDate,
+});
+export type PromptVersionInserted = z.infer<typeof promptVersionInsertedSchema>;
+
+/**
+ * Activates one version of a slug through the SQL function
+ * `activate_prompt()` — the only path the append-only trigger permits. This
+ * changes what every future model call sees from the next call on, so the
+ * UI wires an explicit confirmation before calling this route.
+ */
+export const activatePromptVersionSchema = z.object({
+  slug: z.string().trim().min(1).max(200),
+  version: z.number().int().positive(),
+});
+export type ActivatePromptVersion = z.infer<typeof activatePromptVersionSchema>;
+
+export const promptVersionActivatedSchema = z.object({
+  slug: z.string().min(1),
+  version: z.number().int().positive(),
+  activatedAt: isoDate,
+});
+export type PromptVersionActivated = z.infer<typeof promptVersionActivatedSchema>;
+
+/* ── 18. Generic entity version reads ────────────────────────────────────── */
+
+/** Any versioned entity, keyed by the same `entity_type` + `entity_id` the
+ *  `entity_version` table indexes — the publication drilldown generalised. */
+export const listEntityVersionsSchema = z.object({
+  entityType: entityTypeSchema,
+  entityId: z.uuid(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type ListEntityVersions = z.infer<typeof listEntityVersionsSchema>;
+
+export const consoleEntityVersionSchema = z.object({
+  versionId: z.uuid(),
+  versionNumber: z.number().int().positive(),
+  createdAt: isoDate,
+  actorLabel: z.string(),
+  changeSummary: z.string(),
+  changeSource: changeSourceSchema,
+  /** The entity as it was, verbatim — the same jsonb `recordVersion()` wrote. */
+  snapshot: z.unknown(),
+});
+export type ConsoleEntityVersion = z.infer<typeof consoleEntityVersionSchema>;
+
+export const consoleEntityVersionsSchema = z.object({
+  generatedAt: isoDate,
+  entityType: entityTypeSchema,
+  entityId: z.uuid(),
+  limit: count,
+  /** Newest first by version number. */
+  versions: z.array(consoleEntityVersionSchema),
+});
+export type ConsoleEntityVersions = z.infer<typeof consoleEntityVersionsSchema>;
+
+/* ── 19. Evidence provenance trail ───────────────────────────────────────── */
+
+/**
+ * One evidence row's provenance trail, newest first — the captured/retrieved
+ * entries, each naming what happened, who acted, and a detail. The detail is
+ * jsonb in the database; it travels serialised and truncated to the same 500
+ * bound the quality-check details use, so a verbose detail cannot blow up a
+ * console render.
+ */
+export const consoleEvidenceProvenanceSchema = z.object({
+  generatedAt: isoDate,
+  evidenceId: z.uuid(),
+  entries: z.array(z.object({
+    id: z.uuid(),
+    action: z.string().min(1),
+    actorLabel: z.string(),
+    actorUserId: z.uuid().nullable(),
+    detail: z.string().max(500).nullable(),
+    occurredAt: isoDate,
+  })),
+});
+export type ConsoleEvidenceProvenance = z.infer<typeof consoleEvidenceProvenanceSchema>;

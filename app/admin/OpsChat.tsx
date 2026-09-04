@@ -30,7 +30,7 @@ import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { AuthRequired, refusedForAuth } from "./auth-required";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
-import { Pill, formatAgo } from "./console-primitives";
+import { Pill, formatAgo, formatUsd } from "./console-primitives";
 import { ABSENCE, T } from "./lexicon";
 import { RouteUnavailable, api, readConsole } from "./useConsoleRead";
 import styles from "./admin.module.css";
@@ -310,6 +310,12 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
                   <span key={call.id} className={styles.chipRow}>
                     <Pill tone={call.ok ? "ok" : "danger"}>{call.tool}</Pill>
                     {call.resultSummary ? <span className={styles.chipNote}>{call.resultSummary}</span> : null}
+                    {/* The turn's spend, attached additively by the service
+                        to every chip the turn produced — turn-attributed,
+                        never a per-tool split, so it renders beside the
+                        summary without claiming otherwise. Transcripts cached
+                        in storage before the field existed predate it. */}
+                    {call.costUsd !== undefined ? <span className={styles.chipNote}>{T.cost} {formatUsd(call.costUsd)}</span> : null}
                   </span>
                 ))}
               </div>

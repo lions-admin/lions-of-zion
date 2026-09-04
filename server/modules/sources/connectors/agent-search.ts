@@ -1,6 +1,6 @@
 import "server-only";
 
-import { googleAgentSearchConfig, isProduction } from "@/server/core/config";
+import { agentSearchEstimatedUnitCostUsd, googleAgentSearchConfig, isProduction } from "@/server/core/config";
 import { googleCloudAccessToken } from "@/server/core/google-cloud-auth";
 import { integrityHash } from "@/server/core/hash";
 import { db } from "@/server/db/client";
@@ -131,6 +131,14 @@ export const agentSearchConnector: SourceConnector = {
         query,
         rawBody,
         rawContentType: "application/json",
+        /* One query executed and answered, success or partial — Google bills
+         * the call either way. Only when the per-query rate is configured; a
+         * failed transport never reaches this branch, so an unanswered query
+         * records no cost. This is a per-query billed estimate recorded at
+         * fetch time, not a Google billing feed. */
+        ...(agentSearchEstimatedUnitCostUsd() !== undefined
+          ? { actualCostUsd: agentSearchEstimatedUnitCostUsd() }
+          : {}),
         ...(items.length ? {} : { errorMessage: "Agent Search returned no direct publisher results" }),
       };
     } catch (cause) {

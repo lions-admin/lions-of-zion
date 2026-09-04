@@ -29,17 +29,23 @@ import {
   sourceFetch,
 } from "@/server/db/schema";
 import {
+  consoleChatThreadsSchema,
   consoleCostsSchema,
   consoleEditorialSchema,
   consoleIncidentsSchema,
   consoleNarrativesSchema,
   consoleOverviewSchema,
   consolePipelineSchema,
+  consolePromptsSchema,
+  consoleReportsSchema,
   consoleSecuritySchema,
   consoleSettingsSchema,
   consoleSourcesSchema,
+  consoleSystemInternalsSchema,
   consoleUsersSchema,
   listAuditSchema,
+  listChatThreadsQuerySchema,
+  listConsoleReportsSchema,
 } from "@/server/contracts/admin-console";
 
 /* `actor.ts` (imported for `ADMIN_CAPABILITIES`) reaches Neon Auth at module
@@ -113,6 +119,11 @@ describe("console reads on an empty database", () => {
     expect(consoleSecuritySchema.safeParse(await console.security()).success).toBe(true);
     expect(consoleIncidentsSchema.safeParse(await console.incidents()).success).toBe(true);
     expect(consoleSettingsSchema.safeParse(await console.settings()).success).toBe(true);
+    /* The final wave's reads, on the same empty database. */
+    expect(consoleSystemInternalsSchema.safeParse(await console.systemInternals()).success).toBe(true);
+    expect(consolePromptsSchema.safeParse(await console.prompts()).success).toBe(true);
+    expect(consoleReportsSchema.safeParse(await console.reports(listConsoleReportsSchema.parse({})))).toMatchObject({ success: true });
+    expect(consoleChatThreadsSchema.safeParse(await console.chatThreads(listChatThreadsQuerySchema.parse({})))).toMatchObject({ success: true });
     const audit = await console.audit(listAuditSchema.parse({}));
     expect(audit).toEqual({ entries: [], nextBefore: null });
 
@@ -200,9 +211,49 @@ describe("console region wiring (source)", () => {
     }
 
     /* The sources area's sweep surfaces the result counts, whatever the
-       status word around them. */
+        status word around them. */
     for (const piece of ["result.enqueued", "result.alreadyCompleted", "result.dispatchFailed"]) {
       expect(sources, piece).toContain(piece);
+    }
+  });
+
+  it("wires the final wave's regions to the contract payloads they surface", () => {
+    const sources = readFileSync(path.join(process.cwd(), "app/admin/SourcesPanel.tsx"), "utf8");
+    const system = readFileSync(path.join(process.cwd(), "app/admin/SystemPanel.tsx"), "utf8");
+    const reports = readFileSync(path.join(process.cwd(), "app/admin/ReportsSection.tsx"), "utf8");
+    const threads = readFileSync(path.join(process.cwd(), "app/admin/ChatThreadsSection.tsx"), "utf8");
+    const prompts = readFileSync(path.join(process.cwd(), "app/admin/PromptsSection.tsx"), "utf8");
+    const lineage = readFileSync(path.join(process.cwd(), "app/admin/LineageSection.tsx"), "utf8");
+
+    /* The reports desk: the keyset page with status + trail, triaged through
+        the staff route that already exists. */
+    for (const piece of ["admin/console/reports", "page.reports", "page.nextCursor", "latestTrail", "trailCount", "reports/${report.id}/triage"]) {
+      expect(reports, piece).toContain(piece);
+    }
+
+    /* Chat moderation: the keyset list, the held transcript with its tool
+        runs and model figures, and the archive POST. */
+    for (const piece of ["admin/console/chat/threads", "page.threads", "page.nextCursor", "transcript.messages", "entry.toolRuns", "entry.run", "threads/${thread.id}/archive"]) {
+      expect(threads, piece).toContain(piece);
+    }
+
+    /* The prompt registry: the list, the append-only insert, and the
+        activate route behind the shared confirmation. */
+    for (const piece of ["admin/console/ai/prompts", "prompt.activeVersion", "prompt.versions", "version.template", "slug: prompt.slug, version: version.version"]) {
+      expect(prompts, piece).toContain(piece);
+    }
+
+    /* The lineage lookups: the entity-versions pair and the evidence
+        provenance read, each held until submitted. */
+    for (const piece of ["admin/console/entities/${entityType}/${id}/versions", "admin/console/evidence/${id}/provenance", "version.snapshot", "entry.detail"]) {
+      expect(lineage, piece).toContain(piece);
+    }
+
+    /* System internals ride the environment sub-area; Agent Search's
+        recorded spend surfaces in both places the estimate lives. */
+    expect(system).toContain("admin/console/system-internals");
+    for (const file of [sources, system]) {
+      expect(file).toContain("actualSpendUsd");
     }
   });
 });

@@ -42,6 +42,10 @@ export type ConnectorFetchResult = {
    *  `source_fetch` table enforces with a CHECK. */
   errorMessage?: string;
   query?: string;
+  /** What this fetch cost, when the connector can price its own queries from
+   *  configuration. A per-query billed estimate recorded at fetch time — not
+   *  a provider billing feed. Absent for free connectors. */
+  actualCostUsd?: number;
 };
 
 export interface SourceConnector {

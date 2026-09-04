@@ -14,6 +14,7 @@ import type {
   ConsoleIncidents,
   ConsoleSecurity,
   ConsoleSettings,
+  ConsoleSystemInternals,
   ConsoleUsers,
   CostSurface,
   DrainOutboxResult,
@@ -24,6 +25,10 @@ import type {
 } from "@/server/contracts/admin-console";
 import { ENTITY_TYPES } from "@/server/contracts/enums";
 import type { BriefingStatus, DeepHealth, Status, UserCount } from "./briefing-shapes";
+import { ChatThreadsSection } from "./ChatThreadsSection";
+import { LineageSection } from "./LineageSection";
+import { PromptsSection } from "./PromptsSection";
+import { ReportsSection } from "./ReportsSection";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import {
   AreaHead,
@@ -50,7 +55,7 @@ import { RouteUnavailable, callConsole, readConsole, useConsoleRead, type ReadSt
 import cmd from "./command.module.css";
 import styles from "./admin.module.css";
 
-type SubArea = "users" | "costs" | "audit" | "incidents" | "security" | "settings" | "environment";
+type SubArea = "users" | "costs" | "audit" | "incidents" | "security" | "settings" | "environment" | "reports" | "chat" | "prompts" | "lineage";
 
 const SUB_AREAS: Array<{ key: SubArea; label: string }> = [
   { key: "users", label: "משתמשים והרשאות" },
@@ -60,6 +65,10 @@ const SUB_AREAS: Array<{ key: SubArea; label: string }> = [
   { key: "security", label: "אבטחה וחיבורים" },
   { key: "settings", label: "הגדרות" },
   { key: "environment", label: "סביבה" },
+  { key: "reports", label: T.reportsTab },
+  { key: "chat", label: T.chatTab },
+  { key: "prompts", label: T.promptsTab },
+  { key: "lineage", label: T.lineageTab },
 ];
 
 const SURFACE_LABEL: Record<CostSurface, string> = {
@@ -71,11 +80,13 @@ const SURFACE_LABEL: Record<CostSurface, string> = {
 };
 
 /**
- * System & Security — the seven sub-areas that are read rarely and matter
- * when they are: who can do what, what it costs, what happened, what is
- * broken, what is connected, how it is configured, and the environment
- * panels the old status section carried. Each sub-area reads on first
- * visit and stays mounted after, so switching back does not re-read.
+ * System & Security — the sub-areas that are read rarely and matter when
+ * they are: who can do what, what it costs, what happened, what is broken,
+ * what is connected, how it is configured, and the environment panels the
+ * old status section carried — then the final wave: the reports desk, the
+ * public chat's moderation, the prompt registry, and the lineage lookups.
+ * Each sub-area reads on first visit and stays mounted after, so switching
+ * back does not re-read.
  */
 export function SystemPanel({ signal }: { signal: number }) {
   const [sub, setSub] = useState<SubArea>("users");
@@ -133,6 +144,10 @@ export function SystemPanel({ signal }: { signal: number }) {
         <TabPanel value="security">{visited.has("security") ? <SecuritySection signal={signal} disabled={ops.disabled} run={ops.run} /> : null}</TabPanel>
         <TabPanel value="settings">{visited.has("settings") ? <SettingsSection signal={signal} /> : null}</TabPanel>
         <TabPanel value="environment">{visited.has("environment") ? <EnvironmentSection signal={signal} /> : null}</TabPanel>
+        <TabPanel value="reports">{visited.has("reports") ? <ReportsSection signal={signal} /> : null}</TabPanel>
+        <TabPanel value="chat">{visited.has("chat") ? <ChatThreadsSection signal={signal} /> : null}</TabPanel>
+        <TabPanel value="prompts">{visited.has("prompts") ? <PromptsSection signal={signal} /> : null}</TabPanel>
+        <TabPanel value="lineage">{visited.has("lineage") ? <LineageSection /> : null}</TabPanel>
       </Tabs>
 
       <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
@@ -532,6 +547,12 @@ function CostsSection({ signal }: { signal: number }) {
                 <Stat label={`${T.attempts} ${T.thisMonth}`} value={String(value.search.attemptsThisMonth)} />
                 <Stat label="שאילתות מוצלחות" value={String(value.search.successfulQueriesThisMonth)} />
                 <Stat label="הוצאה משוערת" value={formatUsd(value.search.estimatedSpendUsd)} />
+                <Stat
+                  label={T.actualSearchSpend}
+                  /* Additive and optional: absent means nothing reported a
+                     cost, which is a fact about the ledger, not a zero. */
+                  value={value.search.actualSpendUsd === undefined ? T.notRecorded : formatUsd(value.search.actualSpendUsd)}
+                />
                 <Stat label="תקרה חודשית" value={formatUsd(value.budgets.search.monthlyUsd, 2)} />
               </StatGrid>
             </div>
@@ -1347,6 +1368,9 @@ function EnvironmentSection({ signal }: { signal: number }) {
   const status = useConsoleRead<Status>("admin/status", { signal });
   const userCount = useConsoleRead<UserCount>("admin/user-count", { signal });
   const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal });
+  /* R6 — the read-only internals figures, held behind the same inline
+     absence the schema panel uses. */
+  const internals = useConsoleRead<ConsoleSystemInternals>("admin/console/system-internals", { signal });
   return (
     <ReadGate state={status.state} what="מצב הפריסה" reload={status.reload}>
       {(value) => {
@@ -1394,6 +1418,36 @@ function EnvironmentSection({ signal }: { signal: number }) {
                 <InlineAbsence state={briefing.state} what="סיכום הבריף" reload={briefing.reload} />
                 {migrationStatus ? <p className={styles.muted}>{migrationStatus}</p> : null}
               </div>
+            </div>
+
+            {/* The internals panel sits last in the sub-area: it is the
+                machine's own figures, read after everything an operator
+                checks about the deployment itself. */}
+            <div className={styles.panel}>
+              <PanelTitle>{T.internalsPanel}</PanelTitle>
+              <InlineAbsence state={internals.state} what={T.internalsPanel} reload={internals.reload} />
+              {internals.value ? (
+                <>
+                  <StatGrid>
+                    <Stat label={T.embedIndexed} value={String(internals.value.embeddingBacklog.indexed)} />
+                    <Stat label={T.embedStale} value={String(internals.value.embeddingBacklog.stale)} tone={internals.value.embeddingBacklog.stale ? "warn" : "ok"} />
+                    <Stat label={`${T.embedRuns} ${T.last24h}`} value={String(internals.value.embeddingRuns.last24h)} />
+                    <Stat label="הטמעה אחרונה" value={formatAgo(internals.value.embeddingRuns.lastRunAt)} />
+                    <Stat
+                      label="פגיעות במטמון הציבורי"
+                      value={internals.value.publicReadCache.hitRatio === null ? "אין נתונים" : `${(internals.value.publicReadCache.hitRatio * 100).toFixed(1)}% · ${internals.value.publicReadCache.averageLoadMs ?? 0} ms`}
+                    />
+                  </StatGrid>
+                  <p className={styles.chipRow}>
+                    {/* The SQL function's own answer, verbatim — never
+                        inferred from the backlog or the runs. */}
+                    {T.semanticArm}:{" "}
+                    <Pill tone={internals.value.semanticArm ? "ok" : "neutral"}>
+                      {internals.value.semanticArm ? T.semanticEngaged : T.lexicalOnly}
+                    </Pill>
+                  </p>
+                </>
+              ) : null}
             </div>
           </>
         );

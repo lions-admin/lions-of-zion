@@ -177,43 +177,48 @@ GEOPOLITICAL_BRIEF_REBUILD_TODOS.md
 
 ## P1 — יכולות operator בעלות ערך גבוה
 
-- [ ] R2 — drill-down למהדורה אחת. **Objective**: פענוח כשל מהדורה בקליק.
+- [x] R2 — drill-down למהדורה אחת. **Objective**: פענוח כשל מהדורה בקליק.
       **Scope**: read `editionDrilldown(localDate)` (6 stage runs + artifacts +
       `briefing_run_ai` + claims יחד), contract, route console, drawer ב-
       `app/admin/PipelinePanel.tsx`, tool `get_edition`. **Deps**: R1.
       **Risks**: joins — EXPLAIN. **Acceptance**: drill-down תמים בקליק.
       **Verification**: `npx vitest run tests/admin-console*`.
       התקדמות 5 בספטמבר 2026: backend מלא — contract `admin-console.ts:196-271`, repo `repo.ts:499-549` (6 queries כולל artifacts DISTINCT ON), service `service.ts:589-619` (404 על תאריך לא קיים), route `console/editions/[localDate]`, tool `get_edition`; מבחנים 9/9 + 37/37 + שער מלא ירוק. **נותר פתוח**: drawer ב-PipelinePanel (גל UI).
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). UI: drawer `EditionDrawer` ב-PipelinePanel (`:705-862`, Dialog variant=drawer) — stage runs+durations, ai_run table, artifacts, claims, jobs; מבחני shell/reads 69/69 + 50/50.
 
-- [ ] R3 — fetch log per-source + סטטוס "היום". **Scope**: read
+- [x] R3 — fetch log per-source + סטטוס "היום". **Scope**: read
       `source_fetch` per-source (status, items, durations, byte sizes, blob URL),
       route `console/sources/[id]/fetches`, drawer ב-`app/admin/SourcesPanel.tsx`,
       tool `get_source_fetches`. **Acceptance**: אבחון מקור במקום ספקולציה;
       "איזה sources לא החזירו היום" עונה ב-OpsChat. **Verification**:
       `npx vitest run tests/admin-console*`.
       התקדמות 5 בספטמבר 2026: backend מלא — contract `:322-369` (כולל today.boundaryAt), repo `repo.ts:594-626` (מידע ניו-york-first + boundary של חצות ישראל ב-SQL), service `:621-641`, route `console/sources/[id]/fetches`, tool `get_source_fetches`; מבחנים עוברים + שער מלא ירוק. **נותר פתוח**: drawer ב-SourcesPanel (גל UI). סטייה מתועדת: אין helper Israel-local ב-repo — boundary חושב ב-SQL והושבט מול `israelLocalDate` במבחן.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). UI: `FetchesDrawer` ב-SourcesPanel (`:126-229`) — today block (boundaryAt) + fetch rows; "איזה sources לא החזירו היום" עונה ב-OpsChat via `get_source_fetches`.
 
-- [ ] A1 — manual outbox drain. **Scope**: re-export `drainPendingOutbox`
+- [x] A1 — manual outbox drain. **Scope**: re-export `drainPendingOutbox`
       (cron-only כיום), console route service action, כפתור ב-Incidents.
       reversible, בלי confirmation. **Risks**: וידוא אין כפילות מול cron
       `*/15`. **Acceptance**: backlog מנוקז on demand; idempotent.
       **Verification**: `npx vitest run tests/admin-console*` + בדיקת דפדפן
       ב-Preview (read-only על Preview).
       התקדמות 5 בספטמבר 2026: backend מלא — service `service.ts:1165-1184` (drain + audit `ops.outbox.drained` בטרנזקציה נפרדת), contract `:650-662`, route `console/outbox/drain` (maxDuration 60); idempotency נבדקה פעמיים (מבחן action + מבחן route). **נותר פתוח**: כפתור ב-Incidents (גל UI).
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). UI: כפתור drain ב-Incidents (`SystemPanel:840-859`), בלי confirmation (reversible); idempotency נבדקה פעמיים.
 
-- [ ] A2 — maintenance/recovery tick on demand. **Scope**: re-export
+- [x] A2 — maintenance/recovery tick on demand. **Scope**: re-export
       `runMaintenance` + `recoverAndDispatchBriefingJobs` +
       `evaluateAndQueueBriefingAlerts`, console route, כפתור Incidents.
       **Acceptance**: "רוץ alerts עכשיו" פעיל. **Verification**:
       `npx vitest run tests/admin-console*`.
       התקדמות 5 בספטמבר 2026: backend מלא — service `:1186-1205` (prune → job recovery → alert evaluation, סדר נאזק במבחן; סדר עוקב את ה-cron route שרץ ב-Promise.all — סדר זה הוא על פי המפרט), audit `ops.maintenance.tick`, route `console/maintenance/tick`. **נותר פתוח**: כפתור ב-Incidents (גל UI).
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). UI: כפתור tick ב-Incidents (`:861-871`); סדר prune→recovery→alerts נאזק במבחן.
 
-- [ ] A4 — resolve/discard quarantine entry. **Scope**: console service action
+- [x] A4 — resolve/discard quarantine entry. **Scope**: console service action
       מול `resolveQuarantine` (`briefing/repo.ts:328`), route, כפתור Incidents;
       discard מאושר (danger) + audit `ops.quarantine.resolved|discarded`.
       **Acceptance**: שורת quarantine נפתרת/נזרקת עם audit. **Verification**:
       `npx vitest run tests/admin-console*`.
       התקדמות 5 בספטמבר 2026: backend מלא — service `:1207-1258`, repo `:844-861` (close by-id mirroring resolveAlert refusal; סטייה מתועדת: `briefingRepo.resolveQuarantine` מזוהה (runId,candidateKeys) ולא דרך briefing index), contract `:679-697` (discard דורש note), routes `console/quarantine/[id]/resolve|discard`, audit `ops.quarantine.resolved|discarded`. **נותר פתוח**: כפתור ב-Incidents (גל UI).
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). UI: resolve (בלי confirm) + discard (danger ConfirmDialog עם note נדרש) ב-`quarantine-decisions` — אזור אחרון בתת-מסך (נאזק `:685-717`).
 
 - [x] Ops tools read-only חדשים. **Scope**: `get_edition`,
       `get_quality_checks`, `get_source_fetches` — `ops-agent/tools.ts` +
@@ -228,84 +233,97 @@ GEOPOLITICAL_BRIEF_REBUILD_TODOS.md
 
 ## P2 — צפייה מעמיקה ואוטומטיקה
 
-- [ ] R7 — desk Reports ציבורי. **Scope**: list + status history (service.list
+- [x] R7 — desk Reports ציבורי. **Scope**: list + status history (service.list
       קיים ללא GET route), route `console/reports`, sub-tab ב-System או Ops;
       triage actions קיימים מ-`reports` module. **Deps**: R7 בלבד; report_file
       Blob writer נפרד ל-P3. **Acceptance**: דיווחי ציבור נצפים ונוהלים
       במסוף. **Verification**: `npx vitest run tests/admin-console*`.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: read keyset+trail (`repo.ts:855`, route `console/reports`) + `ReportsSection.tsx` (keyset load-older, filter, triage מול ה-routes הקיימים; close/reject עם resolutionNote דרך ConfirmDialog).
 
-- [ ] R8 — moderation צ'אט ציבורי. **Scope**: read threads/messages עם
+- [x] R8 — moderation צ'אט ציבורי. **Scope**: read threads/messages עם
       linkage `ai_run`, action archival (A6 — `archivedAt` ללא setter כיום),
       route, sub-tab. **Acceptance**: threads נצפים וניתנים לארכוב.
       **Verification**: `npx vitest run tests/admin-console*`.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: threads/transcript עם ai_run linkage + archive (danger confirmed, refuse already-archived) — `ChatThreadsSection.tsx`; server/modules/chat לא נגע.
 
-- [ ] R6 — read system-internals. **Scope**: embedding backlog depth
+- [x] R6 — read system-internals. **Scope**: embedding backlog depth
       (`indexed_content_hash IS DISTINCT FROM content_hash`, `search/repo.ts:133`),
       `hasSemanticArm()`, `publicReadCacheStats()`; route
       `console/system-internals`; מוצג ב-Environment. **Acceptance**: depth
       backlog נצפה. **Verification**: `npx vitest run tests/admin-console*`.
+      בוצע 5 בסטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: route `console/system-internals` (backlog two-hash, semanticArm, embed runs, cache stats) + מוצג ב-Environment (`SystemPanel:1563-1594`, semanticEngaged/lexicalOnly pill).
 
-- [ ] A3 — "collect all sources now" sweep. **Scope**: expose
+- [x] A3 — "collect all sources now" sweep. **Scope**: expose
       `enqueueDueCollectionJobs` (cron-only כיום; `briefing/jobs.ts:677`),
       console route מאושר, כפתור Sources. **Risks**: תקציב Agent Search עובר
       `assertWithinBudget` קיים. **Acceptance**: sweep on demand עם confirmation.
       **Verification**: `npx vitest run tests/admin-console*`.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: route `console/sources/collect-sweep` (due-only, pause-honouring, audit `ops.collection.sweep`) + כפתור מאושר ב-danger zone אחרון ב-SourcesPanel (`:394-408`, נאזק).
 
-- [ ] טלמטריה חדשה: סירובי כניסת מנהל. **Scope**: audit row `auth.refused`
+- [x] טלמטריה חדשה: סירובי כניסת מנהל. **Scope**: audit row `auth.refused`
       ב-catch של `authenticateAdmin` (`server/core/auth/actor.ts:29-53`;
       `blockedSignInAttempts` = null placeholder כיום); נצפה ב-Users.
       **Acceptance**: סירוב נרשם ונצפה. **Verification**: `npx vitest run`
       על בדיקות auth.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: `auth.refused` ב-`authenticateAdmin` (403 mismatch בלבד; 401 no-session ו-dev bypass לא נאזקים לאיסור); נצפה דרך מסנן action-prefix הקיים ב-Audit.
 
-- [ ] טלמטריה חדשה: תוצאות שליחת מייל. **Scope**: audit rows `email.sent|failed`
+- [x] טלמטריה חדשה: תוצאות שליחת מייל. **Scope**: audit rows `email.sent|failed`
       ב-`sendWorkspaceEmail` (`server/core/email.ts:19-39`; send אחרי commit —
       audit בטרנזקציה נפרדת). **Acceptance**: שליחה/כישלון נרשם. **Verification**:
       `npx vitest run` על בדיקות outbox consumers.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: wrap ב-`core/email.ts` — `email.sent` {to,subjectLength} / `email.failed` {to,errorClass} (כלל error-class של deep-health), production בלבד, rethrow נשמר; שני הענפים נבדקו ב-`admin-console-p2.test.ts`.
 
-- [ ] A7 — cost attribution per-tool ב-OpsChat. **Scope**: linkage tool run→
+- [x] A7 — cost attribution per-tool ב-OpsChat. **Scope**: linkage tool run→
       `ai_run` (כיום cost per turn בלבד, `ops-agent/service.ts:276-286`),
       מוצג ב-tool chips. **Acceptance**: "כמה עולה שאלה per-tool" נצפה.
       **Verification**: `npx vitest run tests/ops-agent*`.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: `ops-agent/service.ts:358-367` מצרף turn-attributed aiRunId+costUsd לכל tool chip; `OpsChat.tsx:318` מציג costUsd כשנישא; wire נאזק ב-`ops-agent.test.ts`.
 
 ---
 
 ## P3 — אינטליגנציה מתקדמת / אופציונלי
 
-- [ ] Agent Search actual-cost ledger. **Scope**: cost column על
+- [x] Agent Search actual-cost ledger. **Scope**: cost column על
       `source_fetch` או ledger נפרד מול Google billing; **נדרשת מיגרציה** —
       discipline `npm run db:generate` + migrate-before-push, ואיסור על
       deployment עם schema חי לפי CLAUDE.md. **Acceptance**: עלות אמיתית
       נצפה ב-Costs. **Verification**: `npx tsc --noEmit` + `npx vitest run`
       על מבחני spend.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: migration ידנית `0052_agent_search_actual_cost.sql` (+snapshot sync בדרך 0047), column `source_fetch.actual_cost_usd`, connector מרשים עלות לשאילתה שנענתה כש-env מוגדר (הערת כנות ב-DECISIONS: אומדן billed, לא billing feed), rollup 30d ב-costs + מוצג ב-Costs/Sources. **תפעולי**: Preview הוחל 5 בספטמבר 2026 (`npm run db:migrate` — column PRESENT, אומת ב-information_schema). שונה journal `when` של 0052 (1788509904655→1788652800000) — היה מוקדם מ-0051 ו-drizzle דילג בשקט. **פרודקשן נותר פתוח**: credentials לא קריאים מהמכונה ([SENSITIVE] placeholder); נדרש דרך מהבעלים לפני push (כלל CLAUDE.md).
 
-- [ ] R5 — ניהול prompt registry (A5). **Scope**: route ai/prompts עם
+- [x] R5 — ניהול prompt registry (A5). **Scope**: route ai/prompts עם
       `activate_prompt()` (הנתיב ה-sanctioned) או הורדת הטבלה מהמסמכים
       (prompt_id תמיד null, never seeded). **Acceptance**: החלטה מתועדת
       ומומשלת. **Verification**: `npx vitest run` על מבחני ai.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: routes `console/ai/prompts` (GET/POST) + `activate` (דרך `activate_prompt()` ה-sanctioned), audit `ops.prompt.inserted|activated`, UI `PromptsSection.tsx` — activation מאושר danger עם consequence "כל קריאת מודל עתידית תקרא את הגרסה".
 
-- [ ] R5 — reads generic entity_version (items/evidence/narratives/actors/
+- [x] R5 — reads generic entity_version (items/evidence/narratives/actors/
       sources — כיום רק publications). **Acceptance**: drill-down לישות
       מרותה. **Verification**: `npx vitest run tests/admin-console*`.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: route `console/entities/[entityType]/[entityId]/versions` על enum מלא + UI `LineageSection.tsx` (lookup versions עם snapshot expandable).
 
-- [ ] R4 — UI provenance trail של evidence. **Scope**: repo read חדש
+- [x] R4 — UI provenance trail של evidence. **Scope**: repo read חדש
       (insert-only, כיום ללא אפילו repo read). **Acceptance**: trail נצפה.
       **Verification**: `npx vitest run tests/admin-console*`.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). מבנה: route `console/evidence/[id]/provenance` (newest-first, truncation 500) + UI ב-`LineageSection.tsx`; הטעות occurred_at נתפסה במבחן ותוקנה ל-created_at.
 
-- [ ] A8 — הכרעת GDELT connector (על הדיסק, לא ב-CONNECTORS,
+- [x] A8 — הכרעת GDELT connector (על הדיסק, לא ב-CONNECTORS,
       `connectors/index.ts:29`; source מסוג gdelt ניתן ליצירה ולעולם לא
       ייאסף). **Scope**: register או לחסום creation. **Acceptance**: אין
       source שנוצר ולא ייאסף. **Verification**: `npx vitest run` על
       מבחני sources.
+      בוצע 5 בספטמבר 2026 — אימות: בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` מלא ירוק על העץ המשולב (typecheck+lint+test+build, exit 0; מבחני הגל הרלוונטיים דווחו ירוקים לעיל). הכרעה: נחסם creation של `kind:"gdelt"` ב-refine ב-`server/contracts/source.ts:31-58` (update ללא פגיעה); DECISIONS מתואך: block-not-register; מבחן: rss/agent_search עדיין מתקבלים.
 
-- [ ] Ops-chat persistence server-side. **Scope**: טבלה חדשה (עתידית בלבד),
+- [x] Ops-chat persistence server-side. **Scope**: טבלה חדשה (עתידית בלבד),
       טרנסקריפט + drill-down משאלות קודמות. **Deps**: הכל שלמעלה. **Acceptance**:
       מתוכנן ומתועד ב-DECISIONS לפני מימוש. **Verification**: לפי מסמך.
+      בוצע 5 בספטמבר 2026 — אימות: קבלה לפי המסמך — רישום DECISIONS מתואך (2026-09-04): תכנון עתידי (טבלה במשפחת chat, retention, linkage ל-ai_run), עיכוב מנומק (transcript client-held מספיק; כל ביצוע כלי כבר כותב audit). אין טבלה ואין קוד — כמתוכנן.
 
 ---
 
 ## הזהות שנשמרת — לא נוגעים
 
-- [ ] רישום זהות שנשמרת: lion / black data field / gold accent / editorial
+- [x] רישום זהות שנשמרת: lion / black data field / gold accent / editorial
       typography בעמוד הבית; RTL עברי `he-IL`, bidi isolates, ARIA tabs manual
       activation, `signal` counter (chat→panels), ReadGate five-states,
       ConfirmDialog אחד, danger zones last, tab order=DOM ב-`app/admin/**`;
@@ -314,3 +332,5 @@ GEOPOLITICAL_BRIEF_REBUILD_TODOS.md
       אין שינוי בקובצי ה-lexicon/design system שלא מתואר במשימה ולא נבדק.
       **Verification**: `npx vitest run tests/english-chrome.test.ts` +
       `tests/admin-console.test.ts`.
+
+      בוצע 5 בספטמבר 2026 — אימות: `npm run verify:full` ירוק (exit 0) כולל `english-chrome` + כל קובצי `admin-console*` + `ops-agent` (982+28 מבחנים על פני הגלים); שינויי lexicon/design עברו רק דרך lexicon.ts והמבחנים הנועלים; אין מיגרציה מחוץ ל-0052 המתועדת; Preview נשאר מנוע מ-mutations (לא נגע).

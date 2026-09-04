@@ -10,6 +10,71 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-04 — Agent Search "actual" cost is a fetch-time per-query estimate, and GDELT sources are blocked at creation, not registered
+
+Two spend/discovery decisions from the same console wave, recorded because
+each one will be mistaken for something more than it is.
+
+**The cost column is honest about what it is.** `source_fetch.actual_cost_usd`
+(migration `0052_agent_search_actual_cost.sql`, same `numeric(16,9)` as
+`ai_run.cost_usd` per 0020) is written by the Agent Search connector when
+`GOOGLE_SEARCH_ESTIMATED_COST_PER_QUERY_USD` is set: one query executed and
+answered (success or partial — Google bills the call either way) times the
+configured per-query rate, recorded **at fetch time**. It is **not a Google
+billing feed** — there is no invoice reconciliation, and a failed transport
+records nothing. RSS and official APIs stay null, never zero, so an
+unconfigured rate cannot masquerade as free confirmed spend. The console
+costs read surfaces the 30-day sum of this column beside the month-to-date
+estimate (`search.actualSpendUsd`), and the difference between the two is
+exactly the honesty boundary above.
+
+**GDELT is blocked, not registered.** `gdelt.ts` exists on disk but no
+connector is registered (`sources/connectors/index.ts`), so a `gdelt`-kind
+source could be created and then only ever collected into `NOT_IMPLEMENTED` —
+a dead row. Rather than register a collector (a bigger change with its own
+provider decisions, and GDELT produced repeated timeouts when last tried), the
+create contract now rejects `kind: "gdelt"` outright
+(`createSourceSchema` in `server/contracts/source.ts`). Legacy `gdelt` rows,
+if any exist, keep working everywhere else: the enum value stays legal, the
+collection attempt keeps throwing the same error, and `updateSourceSchema`
+still omits `kind`. The block is one zod refine; registering a real collector
+remains the separate decision it always was.
+
+## 2026-09-04 — Prompt activation is a console action through `activate_prompt()`, and ops-chat transcript persistence stays deferred
+
+**Prompt activation changes model behaviour, so it is an explicit action with
+an audit row.** Until this wave the only way to move a slug to a new version
+was direct database access — the sanctioned `activate_prompt()` SQL function
+(migration 0011) existed, but no application route reached it. That is the
+worst of both: the dangerous operation was possible, but only outside the
+audit trail the console writes for every other action. The console now reads
+the registry (`GET /api/v1/admin/console/ai/prompts` — every version, its
+active flag, the full template text, because an operator must see what the
+next model call will read before activating), appends versions
+(`POST` — insert-only, starts inactive, the append-only trigger still forbids
+rewrites), and activates through the SQL function itself
+(`POST …/prompts/activate`), refusing unknown and already-active versions and
+writing `ops.prompt.activated` in the same transaction. **Activating a prompt
+version changes what every future model call sees from the next call on** —
+the UI wave wires an explicit confirmation in front of the route; the audit
+row records whoever passed it. No ops-chat tool was added for this
+deliberately: activation is not something a conversational agent should do
+accidentally.
+
+**Ops-chat transcript persistence is designed, not built.** The console's
+ops chat is stateless server-side: the client holds the transcript and sends
+it back each turn, which is adequate and keeps the hot path simple. Persisting
+transcripts server-side would need: a table in the chat schema family
+(`ops_chat_message` or a `chat_thread` surface discriminator), a retention
+policy (ops transcripts contain tool arguments the audit log already
+records), and drill-down linkage from a turn to its `ai_run` row — which the
+wire contract already carries (`toolCalls[].aiRunId`). It is deferred because
+the client-held transcript loses nothing today, and the schema addition
+deserves its own migration round rather than riding this one. The open
+question: whether ops transcripts are audit-relevant enough to persist at all
+— every tool execution already writes an `audit_log` row, so a persisted
+transcript may only ever duplicate what the audit log proves.
+
 ## 2026-09-04 — `briefing-quality` is a declared queue topic with no route: retired in place, not dead weight
 
 `vercel.json` still carries a `queue/v2beta` trigger for topic

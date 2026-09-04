@@ -20,6 +20,7 @@ import type {
   ListAudit,
   ListChatThreadsQuery,
   ListConsoleReports,
+  ListEntityVersions,
   ListQualityChecks,
   ListSourceFetches,
 } from "@/server/contracts/admin-console";
@@ -401,6 +402,37 @@ export type SystemInternalsRow = {
   indexed: Count;
   embeddingRuns24h: Count;
   embeddingLastRunAt: Ts;
+};
+
+export type PromptVersionRow = {
+  id: string;
+  slug: string;
+  version: number;
+  kind: string;
+  template: string;
+  modelProfile: string;
+  notes: string | null;
+  activatedAt: Ts;
+  createdAt: Ts;
+};
+
+export type EntityVersionRow = {
+  versionId: string;
+  versionNumber: number;
+  createdAt: Ts;
+  actorLabel: string;
+  changeSummary: string;
+  changeSource: string;
+  snapshot: unknown;
+};
+
+export type ProvenanceRow = {
+  id: string;
+  action: string;
+  actorLabel: string;
+  actorUserId: string | null;
+  detail: unknown;
+  occurredAt: Ts;
 };
 
 const JOB_COLUMNS = sql`
@@ -817,6 +849,16 @@ export function adminConsoleRepo(db: unknown) {
       WHERE s.kind = 'agent_search' AND sf.started_at >= date_trunc('month', now())
     `),
 
+    /** What Agent Search fetches themselves reported costing: the 30-day sum
+     *  of `source_fetch.actual_cost_usd` — the per-query estimate each
+     *  successful query wrote at fetch time, not a Google billing feed. */
+    agentSearchActualSpend: () => one<{ actual30d: Count | null }>(sql`
+      SELECT coalesce(sum(f.actual_cost_usd), 0) AS "actual30d"
+      FROM source_fetch f JOIN source s ON s.id = f.source_id
+      WHERE s.kind = 'agent_search'
+        AND f.started_at >= now() - interval '30 days'
+    `),
+
     /* ── audit ────────────────────────────────────────────────────────────── */
 
     auditPage: (input: ListAudit) => {
@@ -1082,6 +1124,82 @@ export function adminConsoleRepo(db: unknown) {
 
     publicationHead: (publicationId: string) => one<{ id: string; currentVersionId: string | null }>(sql`
       SELECT id, current_version_id AS "currentVersionId" FROM publication WHERE id = ${publicationId}
+    `),
+
+    /* ── prompt registry, entity versions, evidence provenance ──────────── */
+
+    /** The whole registry, one read. Versions come back newest first per
+     *  slug; the active flag is whatever the partial unique index permits —
+     *  at most one `activated_at` per slug. */
+    promptVersions: () => many<PromptVersionRow>(sql`
+      SELECT id, slug, version, kind::text AS kind, template,
+             model_profile AS "modelProfile", notes,
+             activated_at AS "activatedAt", created_at AS "createdAt"
+      FROM prompt_registry
+      ORDER BY slug, version DESC
+    `),
+
+    nextPromptVersion: (slug: string) => one<{ next: Count }>(sql`
+      SELECT coalesce(max(version), 0) + 1 AS next FROM prompt_registry WHERE slug = ${slug}
+    `),
+
+    promptVersion: (slug: string, version: number) => one<PromptVersionRow>(sql`
+      SELECT id, slug, version, kind::text AS kind, template,
+             model_profile AS "modelProfile", notes,
+             activated_at AS "activatedAt", created_at AS "createdAt"
+      FROM prompt_registry
+      WHERE slug = ${slug} AND version = ${version}
+    `),
+
+    /** The insert the append-only table allows: a new, inactive version. The
+     *  `activate_prompt()` function below is the only thing that may set
+     *  `activated_at`. */
+    insertPromptVersion: (values: {
+      slug: string;
+      version: number;
+      kind: string;
+      template: string;
+      modelProfile: string;
+      notes: string | null;
+    }) => one<PromptVersionRow>(sql`
+      INSERT INTO prompt_registry (slug, version, kind, template, model_profile, notes, created_by)
+      VALUES (${values.slug}, ${values.version}, ${values.kind}::ai_run_kind, ${values.template},
+              ${values.modelProfile}, ${values.notes}, NULL)
+      RETURNING id, slug, version, kind::text AS kind, template,
+                model_profile AS "modelProfile", notes,
+                activated_at AS "activatedAt", created_at AS "createdAt"
+    `),
+
+    /** The one sanctioned mutation of `prompt_registry`: the SQL function
+     *  `activate_prompt()` (migration 0011) deactivates the previous version
+     *  and activates the requested one inside the caller's transaction. It
+     *  raises `no_data_found` for a version that does not exist. */
+    activatePrompt: (slug: string, version: number) => one<{ id: string }>(sql`
+      SELECT activate_prompt(${slug}, ${version}) AS id
+    `),
+
+    /** Every version of one entity, newest first — `publicationVersions`
+     *  generalised over the whole `entity_type` vocabulary. */
+    entityVersions: (input: ListEntityVersions) => many<EntityVersionRow>(sql`
+      SELECT id AS "versionId", version_number AS "versionNumber", created_at AS "createdAt",
+             changed_by_label AS "actorLabel", change_summary AS "changeSummary",
+             change_source::text AS "changeSource", snapshot
+      FROM entity_version
+      WHERE entity_type = ${input.entityType}::entity_type AND entity_id = ${input.entityId}
+      ORDER BY version_number DESC
+      LIMIT ${input.limit}
+    `),
+
+    evidenceExists: (id: string) => one<{ id: string }>(sql`SELECT id FROM evidence WHERE id = ${id}`),
+
+    /** The evidence's provenance trail, newest first — the append-only
+     *  captured/retrieved entries `evidence/service.ts` opens and extends. */
+    evidenceProvenance: (evidenceId: string) => many<ProvenanceRow>(sql`
+      SELECT id, action, actor_label AS "actorLabel", actor_user_id AS "actorUserId",
+             detail, created_at AS "occurredAt"
+      FROM evidence_provenance
+      WHERE evidence_id = ${evidenceId}
+      ORDER BY created_at DESC, id DESC
     `),
   };
 }

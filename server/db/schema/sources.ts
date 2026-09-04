@@ -19,6 +19,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   text,
   uuid,
@@ -116,6 +117,11 @@ export const sourceFetch = pgTable(
     rawContentHash: sha256Col("raw_content_hash"),
     rawContentType: text("raw_content_type"),
     rawByteSize: integer("raw_byte_size"),
+    /** What the fetch cost, when the provider's per-query rate is known from
+     *  configuration. Same precision as `ai_run.cost_usd` (money, not float).
+     *  A per-query billed estimate recorded at fetch time — not a provider
+     *  billing feed. */
+    actualCostUsd: numeric("actual_cost_usd", { precision: 16, scale: 9 }),
     createdAt: createdAt(),
   },
   (t) => [

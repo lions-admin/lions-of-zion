@@ -28,7 +28,9 @@ export const sourceFamilySchema = z.object({
 });
 export type SourceFamilyView = z.infer<typeof sourceFamilySchema>;
 
-export const createSourceSchema = z.object({
+/** The fields of a source creation request. `kind` is the one field an
+ *  update may not change, so the update schema strips it below. */
+const createSourceFields = {
   sourceFamilyId: uuidSchema,
   kind: sourceKindSchema,
   slug: slugSchema,
@@ -42,10 +44,23 @@ export const createSourceSchema = z.object({
   /** Connector settings such as a monitored Google query. Credentials stay in
    * the environment and are never stored in a source row. */
   config: z.record(z.string(), z.unknown()).optional(),
-});
+};
+
+/**
+ * `gdelt` stays a legal enum value (legacy rows keep rendering and their
+ * collection attempt keeps throwing the registered NOT_IMPLEMENTED), but no
+ * NEW source may be created with it: no connector is registered, so the row
+ * would exist only to be collected into an error. Blocking at creation
+ * prevents dead sources; registering a collector is a separate, larger
+ * decision (`.ai/DECISIONS.md`, 2026-09-04).
+ */
+export const createSourceSchema = z.object(createSourceFields).refine(
+  (input) => input.kind !== "gdelt",
+  { message: "GDELT sources cannot be created: no connector is registered for that kind." },
+);
 export type CreateSource = z.infer<typeof createSourceSchema>;
 
-export const updateSourceSchema = createSourceSchema
+export const updateSourceSchema = z.object(createSourceFields)
   .partial()
   .omit({ kind: true, slug: true })
   .extend({ changeSummary: z.string().trim().min(1).max(500) });

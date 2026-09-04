@@ -29,10 +29,15 @@ import {
   consoleSourceFetchesSchema,
   consoleCostsSchema,
   consoleEditorialSchema,
+  consoleEntityVersionSchema,
+  consoleEntityVersionsSchema,
+  consoleEvidenceProvenanceSchema,
   consoleIncidentsSchema,
   consoleNarrativesSchema,
   consoleOverviewSchema,
   consolePipelineSchema,
+  consolePromptVersionSchema,
+  consolePromptsSchema,
   consoleQualityChecksSchema,
   consoleReportSchema,
   consoleSecuritySchema,
@@ -44,7 +49,10 @@ import {
   maintenanceTickResultSchema,
   PIPELINE_STAGES,
   publicationVersionSchema,
+  promptVersionActivatedSchema,
+  promptVersionInsertedSchema,
   retryJobResultSchema,
+  type ActivatePromptVersion,
   type ArchiveChatThreadResult,
   type AuditEntry,
   type AuditPage,
@@ -60,10 +68,15 @@ import {
   type ConsoleEditionRun,
   type ConsoleEditionRunAi,
   type ConsoleEditorial,
+  type ConsoleEntityVersion,
+  type ConsoleEntityVersions,
+  type ConsoleEvidenceProvenance,
   type ConsoleIncidents,
   type ConsoleNarratives,
   type ConsoleOverview,
   type ConsolePipeline,
+  type ConsolePromptVersion,
+  type ConsolePrompts,
   type ConsoleQualityChecks,
   type ConsoleReport,
   type ConsoleReports,
@@ -82,11 +95,15 @@ import {
   type ListChatThreadsQuery,
   type ListConsoleReports,
   type ListEditionDrilldown,
+  type ListEntityVersions,
   type ListQualityChecks,
   type ListSourceFetches,
+  type InsertPromptVersion,
   type MaintenanceTickResult,
   type PipelineJob,
   type PublicationVersion,
+  type PromptVersionActivated,
+  type PromptVersionInserted,
   type QualityCheckCandidate,
   type QualityCheckResult,
   type QuarantineOutcome,
@@ -143,7 +160,9 @@ import {
   type EditionClaimRow,
   type EditionRunAiRow,
   type EditionRunRow,
+  type EntityVersionRow,
   type JobRow,
+  type PromptVersionRow,
   type QualityCheckRow,
   type QuarantineEntryRow,
   type ReportDeskRow,
@@ -423,6 +442,32 @@ function toChatThread(row: ChatThreadRow): ConsoleChatThread {
     messageCount: num(row.messageCount),
     lastMessageAt: iso(row.lastMessageAt),
   };
+}
+
+function toConsolePromptVersion(row: PromptVersionRow): ConsolePromptVersion {
+  return consolePromptVersionSchema.parse({
+    id: row.id,
+    slug: row.slug,
+    version: num(row.version),
+    kind: row.kind as ConsolePromptVersion["kind"],
+    template: row.template,
+    modelProfile: row.modelProfile,
+    notes: row.notes,
+    activatedAt: iso(row.activatedAt),
+    createdAt: isoRequired(row.createdAt),
+  });
+}
+
+/** Provenance detail is jsonb in the database; it travels serialised, then
+ *  through the same 500-bound truncation the quality details use. */
+function serialiseProvenanceDetail(detail: unknown): string | null {
+  if (detail == null) return null;
+  if (typeof detail === "string") return detail;
+  try {
+    return JSON.stringify(detail);
+  } catch {
+    return String(detail);
+  }
 }
 
 /** The keyset cursor both desk reads serve: the boundary row's instant and
@@ -1032,8 +1077,9 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
     },
 
     async costs(): Promise<ConsoleCosts> {
-      const [spend, byProfile, byDay, byMonth, search] = await Promise.all([
+      const [spend, byProfile, byDay, byMonth, search, searchActual] = await Promise.all([
         repo.spend(), repo.spendByProfile(), repo.spendByDay(), repo.spendByMonth(), repo.searchUsage(),
+        repo.agentSearchActualSpend(),
       ]);
       const budgets = costBudgets();
       const last24HoursUsd = money(spend?.last24HoursUsd);
@@ -1102,6 +1148,7 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           attemptsThisMonth: num(search?.attempts),
           successfulQueriesThisMonth: successfulQueries,
           estimatedSpendUsd: estimatedSearchSpend,
+          actualSpendUsd: money(searchActual?.actual30d),
         },
       });
     },
@@ -1528,6 +1575,167 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           requestId,
         });
         return toQuarantineOutcome(after);
+      });
+    },
+
+    /* ── prompt registry ──────────────────────────────────────────────────── */
+
+    /**
+     * The whole prompt registry, grouped by slug: every version with its
+     * active flag and the exact template text. This is the read an operator
+     * checks before activating — activation changes what every future model
+     * call sees, and the change is invisible unless the current text is
+     * visible first.
+     */
+    async prompts(): Promise<ConsolePrompts> {
+      const rows = await repo.promptVersions();
+      const bySlug = new Map<string, PromptVersionRow[]>();
+      for (const row of rows) {
+        const list = bySlug.get(row.slug) ?? [];
+        list.push(row);
+        bySlug.set(row.slug, list);
+      }
+      return consolePromptsSchema.parse({
+        generatedAt: now().toISOString(),
+        prompts: [...bySlug.values()].map((versions) => {
+          const head = versions[0]!;
+          const active = versions.find((row) => row.activatedAt != null);
+          return {
+            slug: head.slug,
+            kind: head.kind as ConsolePrompts["prompts"][number]["kind"],
+            activeVersion: active == null ? null : num(active.version),
+            versions: versions.map(toConsolePromptVersion),
+          };
+        }),
+      });
+    },
+
+    /**
+     * Appends one inactive version to the registry. The version number is
+     * computed in the transaction the same way `recordVersion()` computes
+     * its own, so a concurrent insert collides on the `(slug, version)`
+     * unique index rather than silently skipping a number. Append-only:
+     * nothing here can rewrite an existing version.
+     */
+    async insertPromptVersion(input: InsertPromptVersion, actor: Actor, requestId?: string): Promise<PromptVersionInserted> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = adminConsoleRepo(tx);
+        const next = Math.max(1, num((await r.nextPromptVersion(input.slug))?.next));
+        const row = await r.insertPromptVersion({
+          slug: input.slug,
+          version: next,
+          kind: input.kind,
+          template: input.template,
+          modelProfile: input.modelProfile?.trim() || "fast",
+          notes: input.notes?.trim() || null,
+        });
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.prompt.inserted",
+          entityType: "system",
+          entityId: row!.id,
+          after: { slug: row!.slug, version: row!.version, kind: row!.kind, modelProfile: row!.modelProfile },
+          requestId,
+        });
+        return promptVersionInsertedSchema.parse({
+          id: row!.id,
+          slug: row!.slug,
+          version: row!.version,
+          activatedAt: iso(row!.activatedAt),
+        });
+      });
+    },
+
+    /**
+     * Activates one version of a slug through the SQL function
+     * `activate_prompt()` — the only path the append-only trigger permits,
+     * and the path direct database activation used before this route
+     * existed. Refuses a version that does not exist, and refuses one that
+     * is already active. DANGEROUS BY DESIGN: every future model call for
+     * the slug reads this text from the next call on. The UI wires an
+     * explicit confirmation; the audit row is the record of who chose to.
+     */
+    async activatePromptVersion(input: ActivatePromptVersion, actor: Actor, requestId?: string): Promise<PromptVersionActivated> {
+      return run.transaction(async (tx) => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = adminConsoleRepo(tx);
+        const before = await r.promptVersion(input.slug, input.version);
+        if (!before) throw notFound("Prompt version");
+        if (before.activatedAt != null) {
+          throw new ApiError("PRECONDITION_FAILED", `Prompt "${input.slug}" is already at version ${input.version}.`);
+        }
+        await r.activatePrompt(input.slug, input.version);
+        const after = await r.promptVersion(input.slug, input.version);
+        if (!after?.activatedAt) throw new ApiError("CONFLICT", "The prompt changed while it was being activated.");
+        await writeAudit(tx as never, {
+          actor,
+          action: "ops.prompt.activated",
+          entityType: "system",
+          entityId: after.id,
+          before: { activatedAt: iso(before.activatedAt) },
+          after: { slug: after.slug, version: after.version, modelProfile: after.modelProfile },
+          requestId,
+        });
+        return promptVersionActivatedSchema.parse({
+          slug: after.slug,
+          version: after.version,
+          activatedAt: isoRequired(after.activatedAt),
+        });
+      });
+    },
+
+    /* ── generic entity version reads ────────────────────────────────────── */
+
+    /**
+     * Any versioned entity's history, newest first — `publicationVersions`
+     * generalised over the whole `entity_type` vocabulary. No head lookup:
+     * unlike a publication, a generic entity's table is not known here, so
+     * `isHead` is not offered and the newest row simply sorts first.
+     */
+    async entityVersions(input: ListEntityVersions): Promise<ConsoleEntityVersions> {
+      const limit = Math.min(100, Math.max(1, Number(input.limit) || 20));
+      const rows = await repo.entityVersions({ ...input, limit });
+      if (rows.length === 0) throw notFound("Entity versions");
+      return consoleEntityVersionsSchema.parse({
+        generatedAt: now().toISOString(),
+        entityType: input.entityType,
+        entityId: input.entityId,
+        limit,
+        versions: rows.map((row: EntityVersionRow) => consoleEntityVersionSchema.parse({
+          versionId: row.versionId,
+          versionNumber: num(row.versionNumber),
+          createdAt: isoRequired(row.createdAt),
+          actorLabel: row.actorLabel,
+          changeSummary: row.changeSummary,
+          changeSource: row.changeSource as ConsoleEntityVersion["changeSource"],
+          snapshot: row.snapshot ?? null,
+        })),
+      });
+    },
+
+    /**
+     * One evidence row's provenance trail, newest first — the captured and
+     * retrieved entries the evidence module opened, each naming its action,
+     * its actor, and a detail serialised to the same 500 bound the quality
+     * details use. The read a "where did this come from, and who touched it"
+     * question is answered from.
+     */
+    async evidenceProvenance(evidenceId: string): Promise<ConsoleEvidenceProvenance> {
+      const exists = await repo.evidenceExists(evidenceId);
+      if (!exists) throw notFound("Evidence");
+      const rows = await repo.evidenceProvenance(evidenceId);
+      return consoleEvidenceProvenanceSchema.parse({
+        generatedAt: now().toISOString(),
+        evidenceId,
+        entries: rows.map((row) => ({
+          id: row.id,
+          action: row.action,
+          actorLabel: row.actorLabel,
+          actorUserId: row.actorUserId,
+          detail: truncateCheckDetail(serialiseProvenanceDetail(row.detail)),
+          occurredAt: isoRequired(row.occurredAt),
+        })),
       });
     },
   };

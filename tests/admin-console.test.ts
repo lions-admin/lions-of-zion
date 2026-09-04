@@ -102,6 +102,10 @@ const ADMIN_SOURCES = [
   "app/admin/NarrativesPanel.tsx",
   "app/admin/SystemPanel.tsx",
   "app/admin/OpsChat.tsx",
+  "app/admin/ReportsSection.tsx",
+  "app/admin/ChatThreadsSection.tsx",
+  "app/admin/PromptsSection.tsx",
+  "app/admin/LineageSection.tsx",
   "app/admin/console-primitives.tsx",
   "app/admin/ConfirmDialog.tsx",
   "app/admin/SignOutButton.tsx",
@@ -385,6 +389,9 @@ describe("STATE-004 — one implementation, used by every destructive action (so
     const desk = read("app/admin/EditorialDesk.tsx");
     const sources = read("app/admin/SourcesPanel.tsx");
     const system = read("app/admin/SystemPanel.tsx");
+    const reports = read("app/admin/ReportsSection.tsx");
+    const threads = read("app/admin/ChatThreadsSection.tsx");
+    const prompts = read("app/admin/PromptsSection.tsx");
 
     for (const [file, source, handler] of [
       ["OverviewPanel.tsx", overview, "requestPublicationControl"],
@@ -396,16 +403,23 @@ describe("STATE-004 — one implementation, used by every destructive action (so
       ["EditorialDesk.tsx", desk, "requestArchive"],
       ["EditorialDesk.tsx", desk, "requestDelete"],
       /* Two arrived with the rebuild and belong to the same clause: a
-          rollback replaces what readers see, and switching a source off
-          stops collection. */
+           rollback replaces what readers see, and switching a source off
+           stops collection. */
       ["EditorialDesk.tsx", desk, "requestRollback"],
       ["SourcesPanel.tsx", sources, "requestSourceActive"],
       /* Two arrived with the P1 wave: the collection sweep spends the
-          search and processing budgets outside the cadence, and discarding a
-          quarantined candidate removes it from the recovery queue with no
-          re-run. */
+           search and processing budgets outside the cadence, and discarding a
+           quarantined candidate removes it from the recovery queue with no
+           re-run. */
       ["SourcesPanel.tsx", sources, "requestSweep"],
       ["SystemPanel.tsx", system, "requestDiscard"],
+      /* The final wave's three: closing or rejecting a report says the
+           words its requester reads, archiving a chat thread takes it out of
+           the public chat for good, and activating a prompt changes what
+           every future model call sees. */
+      ["ReportsSection.tsx", reports, "requestDecision"],
+      ["ChatThreadsSection.tsx", threads, "requestArchive"],
+      ["PromptsSection.tsx", prompts, "requestActivate"],
     ] as const) {
       const declared = source.indexOf(`function ${handler}`);
       expect(declared, `${handler} exists in ${file}`).toBeGreaterThan(-1);
@@ -454,12 +468,14 @@ describe("STATE-004 — one implementation, used by every destructive action (so
         checked += 1;
       }
     }
-    /* One per area, plus the operations chat — whose confirmation is the
-       only one on the console that is not opened by a control the operator
-       pressed, so the fallback is the *only* place focus can go. A panel
-       that stopped passing one would otherwise slip through this loop in
-       silence, which is how `controlBar` survived the last rebuild. */
-    expect(checked).toBe(6);
+    /* One per area that owns a confirmation, plus the operations chat —
+        whose confirmation is the only one on the console that is not opened
+        by a control the operator pressed, so the fallback is the *only*
+        place focus can go. The final wave's three sub-tab sections own
+        their own confirmations the way the areas do. A panel that stopped
+        passing one would otherwise slip through this loop in silence,
+        which is how `controlBar` survived the last rebuild. */
+    expect(checked).toBe(9);
   });
 
   it("restores focus once, on unmount, rather than on each of five close paths", () => {

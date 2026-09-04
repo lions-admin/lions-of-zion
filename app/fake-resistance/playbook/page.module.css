@@ -93,12 +93,8 @@
 /* What this site can currently show for the chapter — the fact that keeps
    nine near-identical rows from reading as one undifferentiated wall. */
 .contentsMeta {
+  composes: dataMeta from global;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
-  line-height: var(--t-data-lh);
   font-variant-numeric: tabular-nums;
 }
 
@@ -125,16 +121,11 @@
    a data label — three words at most — so it takes the data face; the
    global heading rule would otherwise set an h3 in the serif. */
 .partHeading {
+  composes: dataLabel from global;
   margin-bottom: var(--sp-3);
   padding-top: var(--sp-3);
   border-top: var(--line-w) solid var(--data-ember);
   color: var(--data-ember-peak);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
 }
 
 .examples,

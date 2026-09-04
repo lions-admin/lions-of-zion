@@ -93,6 +93,7 @@
    already carries. */
 .introMasthead,
 .introFootnote {
+  composes: dataLabel from global;
   display: flex;
   align-items: baseline;
   gap: var(--sp-3);
@@ -100,12 +101,6 @@
   padding-block: var(--sp-2);
   border-top: var(--line-w) solid var(--line);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
 }
 
 .introMasthead {

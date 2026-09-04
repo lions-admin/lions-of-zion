@@ -35,16 +35,11 @@
 }
 
 .embedLabel {
+  composes: dataLabel from global;
   margin: 0 0 var(--sp-4);
   padding-bottom: var(--sp-3);
   border-bottom: var(--line-w) solid var(--line-soft);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 /* PayPal renders its hosted button in here. The height is reserved so the

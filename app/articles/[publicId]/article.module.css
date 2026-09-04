@@ -61,14 +61,9 @@
 }
 
 .kicker {
+  composes: dataLabel from global;
   margin-top: var(--sp-5);
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .article h1,
@@ -168,15 +163,12 @@
 }
 
 .claimRef {
+  composes: dataValue from global;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-2);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 .passageSources {
@@ -245,11 +237,8 @@
 }
 
 .sourceMeta {
+  composes: dataValue from global;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   overflow-wrap: anywhere;
 }
 

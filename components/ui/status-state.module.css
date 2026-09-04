@@ -105,23 +105,13 @@
 }
 
 .kind {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--status-fg);
   margin-bottom: var(--sp-2);
 }
 
 .eyebrow {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink);
   margin-bottom: var(--sp-3);
 }

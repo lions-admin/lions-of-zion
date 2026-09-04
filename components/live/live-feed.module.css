@@ -39,14 +39,9 @@
    strip reads as a masthead, so it is set at data scale rather than as an h2
    step. */
 .statusHeading {
+  composes: dataLabel from global;
   margin: 0 0 var(--sp-4);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
 }
 
 .statusGrid {
@@ -104,6 +99,7 @@
 }
 
 .filter {
+  composes: dataLabel from global;
   display: inline-flex;
   align-items: center;
   max-width: 100%;
@@ -112,13 +108,7 @@
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-pill);
   color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
   text-decoration: none;
-  text-transform: uppercase;
   overflow-wrap: anywhere;
   transition:
     border-color var(--dur-fast) var(--ease-out),
@@ -230,6 +220,7 @@
 }
 
 .dateline {
+  composes: dataValue from global;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -237,10 +228,6 @@
   margin: 0 0 var(--sp-2);
   min-width: 0;
   overflow-wrap: anywhere;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 .clock {
@@ -327,6 +314,7 @@
 }
 
 .marks {
+  composes: dataValue from global;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -334,10 +322,6 @@
   margin: var(--sp-3) 0 0;
   min-width: 0;
   overflow-wrap: anywhere;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 /* 0.2rem is below `--sp-1` deliberately and is the one sub-step value in this
@@ -423,12 +407,9 @@
 }
 
 .pagerEnd {
+  composes: dataValue from global;
   margin: 0;
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }
 
 /* ── Narrow ─────────────────────────────────────────────────────────────── */

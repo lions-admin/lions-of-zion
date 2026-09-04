@@ -79,13 +79,8 @@
 /* The word first, the ramp second. Ember means contested everywhere on this
    site, but it is never the only thing saying so. */
 .eraFlag {
+  composes: dataLabel from global;
   flex: none;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--data-ember);
 }
 
@@ -150,12 +145,8 @@
 
 /* "Chapter II of VII" — three words, so sentence case in the data voice. */
 .chapterProgress {
+  composes: dataMeta from global;
   margin: 0 0 var(--sp-2);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }

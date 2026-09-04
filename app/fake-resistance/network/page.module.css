@@ -111,11 +111,8 @@
 }
 
 .edgePair {
+  composes: dataValue from global;
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
   overflow-wrap: anywhere;
 }
 
@@ -140,9 +137,6 @@
 }
 
 .communityNoteNames {
+  composes: dataValue from global;
   color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
 }

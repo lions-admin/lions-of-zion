@@ -76,12 +76,7 @@
 
 /* Two words, so uppercase is allowed — see the V3 data-label rule. */
 .brandRole {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink-lo);
   white-space: nowrap;
   transition: color var(--dur-fast) var(--ease-out);

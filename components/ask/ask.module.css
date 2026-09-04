@@ -51,12 +51,7 @@
 }
 
 .recordLabel {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink-lo);
 }
 
@@ -93,17 +88,12 @@
 }
 
 .sourcesHead {
+  composes: dataLabel from global;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-3);
   margin-block-end: var(--sp-4);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 
   color: var(--ink-hi);
 }
@@ -372,12 +362,7 @@
 }
 
 .composerLabel {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: dataLabel from global;
   color: var(--ink-lo);
 }
 

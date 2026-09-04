@@ -1515,3 +1515,217 @@
 .pressureSteps > li + li {
   margin-top: var(--sp-4);
 }
+
+/* ---- The traced pipeline (one spine, three routes) ----
+ *
+ * Replaces four ordered lists that rendered the same journey — see the note in
+ * `information-war/pipeline-data.ts`. The rail keeps the geometry the stage map
+ * already established here, so the page still reads as one diagram; what is new
+ * is that a stage can be on or off the route being followed, and one stage at a
+ * time is the one the packet is at.
+ *
+ * Everything here is a state on a stage, never a separate element: a reader
+ * with JavaScript off gets every stage lit with its steps printed, which is the
+ * whole content. */
+.trace {
+  margin-block-start: var(--sp-6);
+}
+
+.traceRoutes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.traceRoute {
+  min-block-size: var(--control-h-sm);
+  padding-inline: var(--sp-4);
+  background: transparent;
+  border: var(--line-w) solid var(--control-line);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.traceRoute:hover {
+  background: var(--tint-hover);
+  color: var(--ink-hi);
+}
+
+/* Selected is the accent's job here — it is the one active control on the
+   diagram, which is what `globals.css` reserves it for. */
+.traceRoute[aria-pressed="true"] {
+  background: var(--gold-wash);
+  border-color: var(--gold-line-strong);
+  color: var(--gold-hi);
+}
+
+.traceSubject {
+  margin-block: var(--sp-4) var(--sp-6);
+  max-inline-size: var(--measure-narrow);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.traceChain {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.traceStage {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--sp-5);
+}
+
+.traceRail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-block-start: var(--sp-5);
+}
+
+.traceRail::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(50% - 1px);
+  inline-size: 2px;
+  background: var(--line-strong);
+}
+
+.traceStage:first-child .traceRail::before { inset-block-start: var(--sp-5); }
+.traceStage:last-child .traceRail::before { inset-block-end: auto; block-size: var(--sp-5); }
+
+.traceNode {
+  position: relative;
+  z-index: var(--z-raised);
+  inline-size: 0.7rem;
+  block-size: 0.7rem;
+  border: var(--line-w-thick) solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--ground);
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    scale var(--dur-base) var(--ease-out);
+}
+
+.traceStage[data-on-route] .traceNode {
+  border-color: var(--gold-line-strong);
+}
+
+/* The packet. One stage carries it, and it is the only gold fill on the rail —
+   which is what makes "where the subject is now" readable at a glance. */
+.traceStage[data-active] .traceNode {
+  background: var(--gold);
+  border-color: var(--gold);
+  scale: 1.35;
+}
+
+.traceBody {
+  margin-block: var(--sp-3) var(--sp-5);
+  padding: var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-1);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out);
+}
+
+/* Off-route stages recede rather than disappear: the system still runs them,
+   and hiding them would misdescribe it. */
+.traceStage:not([data-on-route]) .traceBody {
+  opacity: 0.5;
+  background: transparent;
+}
+
+.traceStage[data-active] .traceBody {
+  border-color: var(--gold-line-strong);
+  background: var(--surface-2);
+}
+
+.traceMeta {
+  composes: dataLabel from global;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-lo);
+}
+
+.traceStage[data-on-route] .traceMeta { color: var(--ink-hi); }
+.traceStage[data-active] .traceMeta span:first-child { color: var(--gold); }
+
+.traceSteps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.traceSteps li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  max-inline-size: var(--measure-reading);
+}
+
+.traceSteps strong {
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  font-weight: var(--t-h3-weight);
+  color: var(--ink-hi);
+}
+
+.traceSteps span {
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.traceSkip {
+  margin: 0;
+  max-inline-size: var(--measure-narrow);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traceNode,
+  .traceBody,
+  .traceRoute {
+    transition: none;
+  }
+  .traceStage[data-active] .traceNode { scale: 1; }
+}
+
+@media (max-width: 45rem) {
+  .traceStage {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: var(--sp-4);
+  }
+  .traceBody { padding: var(--sp-4); }
+}

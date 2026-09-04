@@ -121,6 +121,23 @@ describe("the tool registry", () => {
     expect(confirmed.sort()).toEqual([...CONFIRMED_OPS_TOOLS].sort());
   });
 
+  it("labels every tool in Hebrew for the operator and describes it in English for the model", () => {
+    /* The two strings serve two readers and must not collapse into one.
+       `description` is prompt text — the model reads it to decide when to
+       call the tool, and the loop was built and tested against the English.
+       `label` is what a person reads in the console's capability list.
+       Translating the description would change the model's inputs, not just
+       the interface; dropping the label would put English in a Hebrew
+       console. Both directions are failures, so both are pinned. */
+    const HEBREW = /[\u0590-\u05FF]/;
+    for (const tool of OPS_TOOL_DEFINITIONS) {
+      expect(HEBREW.test(tool.label), `${tool.name} has a Hebrew label`).toBe(true);
+      expect(HEBREW.test(tool.description), `${tool.name} keeps an English description`).toBe(false);
+      expect(tool.label.length, `${tool.name}'s label is short enough to read in a list`)
+        .toBeLessThanOrEqual(40);
+    }
+  });
+
   it("gives every tool a description, a consequence and a target", () => {
     for (const tool of OPS_TOOL_DEFINITIONS) {
       expect(tool.description.length, tool.name).toBeGreaterThan(40);
@@ -353,5 +370,8 @@ describe("capabilities", () => {
     expect(capabilities.tools).toHaveLength(OPS_TOOLS.length);
     expect(capabilities.tools.find((tool) => tool.name === "delete_publication")?.requiresConfirmation).toBe(true);
     expect(capabilities.tools.find((tool) => tool.name === "get_overview")?.requiresConfirmation).toBe(false);
+    /* The capability list the console renders carries the Hebrew label. */
+    expect(capabilities.tools.find((tool) => tool.name === "delete_publication")?.label)
+      .toBe("מחיקת כתבה לצמיתות");
   });
 });

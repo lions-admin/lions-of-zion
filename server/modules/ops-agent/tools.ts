@@ -51,7 +51,10 @@ import type { OpsToolContext } from "./context";
 
 export type OpsToolDefinition = {
   name: OpsTool;
-  /** What the model reads when deciding whether to call this. */
+  /** What the operator reads, in Hebrew. Nothing but a person reads this. */
+  label: string;
+  /** What the model reads when deciding whether to call this. English: it is
+   *  prompt text, and the tool loop was built and tested against it. */
   description: string;
   input: z.ZodType<Record<string, unknown>>;
   requiresConfirmation: boolean;
@@ -92,6 +95,7 @@ function define(
 export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
   /* ── Reads ──────────────────────────────────────────────────────────── */
   define("get_overview", {
+    label: "תמונת מצב",
     description:
       "The console's front screen: whether the system is active and why not, the last and next run, "
       + "what was collected, processed, drafted and published in the last 24 hours, open alerts, and "
@@ -108,6 +112,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_pipeline", {
+    label: "מצב תהליך העיבוד",
     description:
       "Every pipeline stage (collect, enrich, cluster, triage, draft, quality, publish) with pending, "
       + "running, stuck and quarantined counts, average duration and last error; the jobs needing "
@@ -121,6 +126,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: counted("pipeline"),
   }),
   define("get_sources", {
+    label: "בריאות המקורות",
     description:
       "Every configured source with its kind, family, active state, verification state, last successful "
       + "fetch, and a week of attempts, successes, items seen, new and duplicate. Use this to find a "
@@ -137,6 +143,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_editorial", {
+    label: "תור העריכה",
     description:
       "The editorial desk: counts by status and the newest publications in each lane — drafts, in review, "
       + "ready to publish, published, archived — with section, evidence count and homepage slot.",
@@ -153,6 +160,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_narratives", {
+    label: "מגמות נרטיבים",
     description:
       "Tracked narratives with their trend over the last seven days against the seven before it — new, "
       + "rising, stable or declining — evidence state, and the publications linked to each.",
@@ -168,6 +176,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_users", {
+    label: "משתמשים והרשאות",
     description:
       "Staff accounts with their capability grants and last recorded action, the number of registered "
       + "public readers, and recent administrator actions.",
@@ -183,6 +192,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_costs", {
+    label: "עלויות מול תקציב",
     description:
       "Model spend against the configured budgets: today, 24 hours, month to date and 30 days, broken "
       + "down by model, by surface (briefing, chat, operations console, embedding) and by kind, plus "
@@ -199,6 +209,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_incidents", {
+    label: "תקלות ומשימות תקועות",
     description:
       "Open alerts, alerts resolved in the last week, stuck and quarantined jobs, failed runs, the "
       + "quality quarantine, and undelivered outbox messages. This is the recovery screen.",
@@ -214,6 +225,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_security", {
+    label: "מצב אבטחה וחיבורים",
     description:
       "Which secrets and integrations are configured — booleans and one-way fingerprints only, never a "
       + "value — plus recent security events and capability changes. This tool cannot read a secret; "
@@ -231,6 +243,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("get_settings", {
+    label: "הגדרות המערכת",
     description:
       "Cron schedules, model profiles, budgets, publication sections and search groups, with where each "
       + "value is set. Read-only: settings are changed in configuration and environment, not from here.",
@@ -243,6 +256,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: () => "settings",
   }),
   define("search_audit", {
+    label: "חיפוש ביומן הביקורת",
     description:
       "The audit log, newest first, filtered by entity type, entity id, actor or an action prefix such "
       + "as 'publication.' or 'ops.'. Use it to answer who did what and when. Page with `before`.",
@@ -255,6 +269,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `${(result as { entries?: unknown[] }).entries?.length ?? 0} audit entries`,
   }),
   define("get_publication", {
+    label: "קריאת כתבה",
     description: "One publication in full — title, summary, body, section, status and monitoring details.",
     input: byId,
     consequence: () => "Reads one publication. Changes nothing.",
@@ -268,6 +283,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("list_publications", {
+    label: "רשימת כתבות",
     description:
       "Publications filtered by kind, section or status. Pass `briefingOnly: true` to exclude the static "
       + "site pages that share the table.",
@@ -282,6 +298,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
 
   /* ── Reversible operations ──────────────────────────────────────────── */
   define("run_processing", {
+    label: "הרצת עיבוד עכשיו",
     description:
       "Queues today's editorial processing now instead of waiting for the schedule, and re-dispatches "
       + "jobs that were waiting. Safe to call twice: work already completed today is not repeated.",
@@ -294,6 +311,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `status ${(result as { status?: string }).status ?? "queued"}`,
   }),
   define("resume_publication", {
+    label: "חידוש פרסום אוטומטי",
     description:
       "Turns automatic publication back on: approved editions reach the public site on their own again, "
       + "with no further prompt before each one.",
@@ -306,6 +324,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: () => "automatic publication active",
   }),
   define("retry_job", {
+    label: "הרצת משימה מחדש",
     description:
       "Puts a stuck, quarantined or attempt-exhausted job back on the ready queue. Pass "
       + "`resetAttempts: true` for a job that has used all its attempts.",
@@ -322,6 +341,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("resolve_alert", {
+    label: "סימון התראה כטופלה",
     description:
       "Marks an operational alert resolved once its cause is dealt with. Resolving an alert whose cause "
       + "persists only hides it until it fires again.",
@@ -335,6 +355,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `resolved: ${(result as { kind?: string }).kind ?? "alert"}`,
   }),
   define("verify_source", {
+    label: "אימות מקור והפעלתו",
     description:
       "Fetches a source live. A feed that returns valid material is enabled; one that does not stays "
       + "disabled with the error recorded. This is the only way a disabled feed comes back.",
@@ -350,6 +371,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("sync_source_catalog", {
+    label: "סנכרון קטלוג המקורות",
     description:
       "Reconciles registered sources with the reviewed catalog. It never enables anything: a changed "
       + "endpoint is returned to pending verification and must pass a live fetch first.",
@@ -365,6 +387,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     },
   }),
   define("update_publication", {
+    label: "עריכת כתבה",
     description:
       "Edits a publication's title, summary, body, section or monitoring details. `changeSummary` is "
       + "required and is recorded on the version. Editing a published article changes what readers see.",
@@ -379,6 +402,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `updated: ${((result as { title?: string }).title ?? "").slice(0, 80)}`,
   }),
   define("set_homepage_feature", {
+    label: "שיבוץ בעמוד הבית",
     description:
       "Places a publication in one of the three homepage slots, or clears a slot with a null id. The "
       + "publication must already be published.",
@@ -399,6 +423,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: () => "homepage slot set",
   }),
   define("run_health_check", {
+    label: "בדיקת תקינות עמוקה",
     description: "Probes the database, blob storage, the queue and the model gateway, and reports latency.",
     input: none,
     consequence: () => "Runs a live probe of each dependency. Changes nothing.",
@@ -411,6 +436,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
 
   /* ── Irreversible operations — never executed without a confirmation ── */
   define("pause_publication", {
+    label: "השהיית פרסום אוטומטי",
     description:
       "Stops approved editions from reaching the public site. Collection and processing continue, so "
       + "nothing is lost, but nothing new is published until this is resumed.",
@@ -425,6 +451,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: () => "automatic publication paused",
   }),
   define("force_rerun", {
+    label: "הרצה מחדש של מהדורת היום",
     description:
       "Regenerates today's edition from the start, spending model budget again. Output that passes the "
       + "quality gates publishes automatically and replaces what readers see now.",
@@ -439,6 +466,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `status ${(result as { status?: string }).status ?? "queued"}`,
   }),
   define("publish_publication", {
+    label: "פרסום כתבה",
     description:
       "Moves an approved publication to published. It becomes readable on the public site and available "
       + "to search engines immediately.",
@@ -454,6 +482,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `published: ${((result as { title?: string }).title ?? "").slice(0, 80)}`,
   }),
   define("unpublish_publication", {
+    label: "הסרת כתבה מהאתר",
     description:
       "Takes a published article off the public site by archiving it — the only legal way out of "
       + "published. Readers who already saw it have already seen it.",
@@ -469,6 +498,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: () => "archived",
   }),
   define("archive_publication", {
+    label: "ארכוב כתבה",
     description: "Archives a publication in any status. An archived record can be returned to draft later.",
     input: byId,
     consequence: () => "The publication is archived and leaves the public site if it was on it.",
@@ -480,6 +510,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: () => "archived",
   }),
   define("delete_publication", {
+    label: "מחיקת כתבה לצמיתות",
     description:
       "Permanently deletes a draft or archived publication. There is no undelete. Anything published "
       + "must be archived instead.",
@@ -497,6 +528,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: () => "deleted",
   }),
   define("rollback_publication", {
+    label: "החזרת כתבה לגרסה קודמת",
     description:
       "Restores a publication to an earlier version. The restore is itself a new version, so nothing is "
       + "lost — but if the publication is live, readers see the older text immediately.",
@@ -512,6 +544,7 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `rolled back to version ${(result as { versionNumber?: number }).versionNumber ?? "?"}`,
   }),
   define("set_source_active", {
+    label: "הפעלה או השבתה של מקור",
     description:
       "Switches a source on or off with a stated reason. A feed-backed source cannot be switched on "
       + "until a live verification fetch has succeeded — use verify_source for that.",

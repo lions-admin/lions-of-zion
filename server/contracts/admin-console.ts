@@ -603,6 +603,17 @@ export const opsCapabilitiesSchema = z.object({
   model: z.string(),
   tools: z.array(z.object({
     name: opsToolSchema,
+    /**
+     * What the operator reads, in Hebrew — a short name for the operation.
+     *
+     * Separate from `description` because the two serve different readers.
+     * `description` is prompt text: the model reads it to decide when to call
+     * the tool, and it stays in English, which is what the tool loop was
+     * built and tested against. Translating it would change the model's
+     * inputs, not just the interface. This is the console's label and nothing
+     * reads it but a person.
+     */
+    label: z.string(),
     description: z.string(),
     requiresConfirmation: z.boolean(),
   })),

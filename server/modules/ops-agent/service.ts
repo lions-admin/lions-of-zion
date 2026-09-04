@@ -164,6 +164,7 @@ export function opsAgentService(
         model: modelFor("opsConsole"),
         tools: OPS_TOOL_DEFINITIONS.map((tool) => ({
           name: tool.name,
+          label: tool.label,
           description: tool.description,
           requiresConfirmation: tool.requiresConfirmation,
         })),

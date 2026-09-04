@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans, JetBrains_Mono, Newsreader } from "next/font/google";
+import {
+  IBM_Plex_Sans,
+  IBM_Plex_Sans_Hebrew,
+  JetBrains_Mono,
+  Newsreader,
+} from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 /* Tailwind first, then the hand-authored system. Both files open with the same
    `@layer theme, base, components, utilities;` statement, so order is pinned
@@ -14,7 +19,14 @@ import "./globals.css";
  * Newsreader is the editorial display and standfirst voice (variable, with
  * the optical-size axis so it cuts differently at 60px and at 20px); IBM Plex
  * Sans is running text and interface; JetBrains Mono is data only.
- * The public site is English (`lang="en"`). Do not load a Hebrew face.
+ *
+ * A fourth face is loaded but deliberately not wired into any token: IBM Plex
+ * Sans Hebrew exists for the operations console under `app/admin/**`, which
+ * reads in Hebrew because it is the owner's own operating surface. The public
+ * site stays English and stays Latin — the variable is declared on the root
+ * element so the console can reach it, and `--face-text` is left alone, so
+ * nothing outside `admin.module.css`'s `.shell` rule ever renders in it.
+ * `tests/english-chrome.test.ts` pins both halves of that.
  */
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -29,6 +41,17 @@ const plexSans = IBM_Plex_Sans({
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-plex-sans",
+  display: "swap",
+});
+
+/* Hebrew and Latin from one superfamily, so the console's Hebrew sits at the
+   same weight and colour as the Latin identifiers beside it. `normal` is the
+   only style Google serves for this family — there is no italic, which is why
+   no `style` array is passed here as it is for the Latin cut above. */
+const plexSansHebrew = IBM_Plex_Sans_Hebrew({
+  subsets: ["hebrew"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-sans-hebrew",
   display: "swap",
 });
 
@@ -65,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`dark ${newsreader.variable} ${plexSans.variable} ${jetBrainsMono.variable}`}
+      className={`dark ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
     >
       <body>{children}</body>
     </html>

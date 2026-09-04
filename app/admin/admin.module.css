@@ -6,11 +6,29 @@
    the site Button voice: text face, 600, `--radius-2`, 44px tall. State
    colours come from `--state-*`. */
 
+/* The console reads in Hebrew — it is the owner's own operating surface — so
+   it is the one place in the app that overrides the two type faces. The
+   public site is untouched: `--face-text` and `--face-data` keep their Latin
+   definitions in `globals.css`, and both overrides below are scoped to this
+   element and its descendants.
+
+   `--face-data` is redefined rather than replaced. JetBrains Mono has no
+   Hebrew glyphs at all, and CSS font fallback is per-glyph, not per-string:
+   a Latin identifier, an HTTP code or a tabular figure still lands on
+   JetBrains Mono, while a Hebrew word in the same cell falls straight past
+   every Latin-only monospace to IBM Plex Sans Hebrew — the same superfamily
+   the console's running text uses, so the two match in weight and colour.
+   The Hebrew entry goes last on purpose: put first, it would swallow the
+   digits and `font-variant-numeric: tabular-nums` would stop lining columns
+   up, which is the whole reason the data face is monospaced. */
 .shell {
   min-height: 100%;
   padding: clamp(var(--sp-5), 6vw, var(--sp-8));
   color: var(--ink-hi);
-  font-family: var(--face-text);
+  font-family: var(--font-plex-sans-hebrew), var(--face-text);
+  --face-data:
+    var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo,
+    var(--font-plex-sans-hebrew), monospace;
 }
 
 /* ── Containers ───────────────────────────────────────────────────────── */

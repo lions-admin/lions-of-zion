@@ -3,6 +3,7 @@
 import { createAuthClient } from "@neondatabase/auth/next";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { T } from "./lexicon";
 
 const auth = createAuthClient();
 
@@ -25,7 +26,7 @@ export function SignOutButton() {
         router.refresh();
       }}
     >
-      Sign out
+      {T.signOut}
     </Button>
   );
 }

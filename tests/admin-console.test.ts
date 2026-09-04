@@ -60,6 +60,7 @@ const { AdminLogin } = await import("@/app/admin/login/AdminLogin");
 const { default: AdminLoginPage } = await import("@/app/admin/login/page");
 const { default: AdminPage } = await import("@/app/admin/page");
 const { ConfirmDialog } = await import("@/app/admin/ConfirmDialog");
+const { T } = await import("@/app/admin/lexicon");
 type ConfirmIntent = Parameters<typeof ConfirmDialog>[0]["intent"];
 
 const ROOT = process.cwd();
@@ -477,7 +478,10 @@ describe("ADMIN-002 — the console header (rendered)", () => {
     const markup = prose(await render(createElement(AdminPage)));
     /* `SignOutButton` was written for this slot and imported nowhere, so the
        rebuilt console had no sign-out control at all. */
-    expect(markup).toContain("Sign out");
+    /* Matched through the lexicon rather than as a literal: the control has
+       to be in the header, which is what this test is about, and renaming it
+       is not a regression. */
+    expect(markup).toContain(T.signOut);
   });
 
   it("reads and tabs in the same sequence: heading, map, sign out", async () => {
@@ -489,7 +493,7 @@ describe("ADMIN-002 — the console header (rendered)", () => {
        label moved to Hebrew; `/pipeline` did not, and cannot without the link
        ceasing to be this link. */
     const map = at(markup, 'href="/pipeline"');
-    const signOut = at(markup, "Sign out");
+    const signOut = at(markup, T.signOut);
     expect(heading).toBeGreaterThan(-1);
     expect(heading).toBeLessThan(map);
     expect(map).toBeLessThan(signOut);

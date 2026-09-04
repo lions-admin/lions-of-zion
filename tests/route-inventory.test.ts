@@ -18,8 +18,8 @@ function walkPages(dir: string, into: string[] = []): string[] {
 }
 
 describe("route inventory (QA-001)", () => {
-  it("still has 33 App Router page.tsx patterns", () => {
+  it("still has 34 App Router page.tsx patterns", () => {
     const pages = walkPages(path.join(ROOT, "app")).sort();
-    expect(pages).toHaveLength(33);
+    expect(pages).toHaveLength(34);
   });
 });

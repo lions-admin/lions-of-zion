@@ -58,9 +58,9 @@
   text-transform: uppercase;
 }
 
-/* ── The two branch cards ─────────────────────────────────────────────────
-   Chrome lives on `Card variant="dossier"`; this file only keeps the pair's
-   grid. Each card sits in a slot so the pair stay the same height whatever
+/* ── The three branch cards ───────────────────────────────────────────────
+   Chrome lives on `Card variant="dossier"`; this file only keeps the row's
+   grid. Each card sits in a slot so the row stays the same height whatever
    their descriptions run to. */
 
 .branches {
@@ -72,10 +72,19 @@
 
 /* The site's one horizontal seam (`--bp-seam`, 45rem/720px). At the 680 this
    carried, the pair went two-up while each card was still under 300px — a
-   decision moment set too small to read as one. */
+   decision moment set too small to read as one. Three-up waits for
+   `--bp-rails` (76.25rem/1220px): the same test applied to a third card
+   would put each one under 300px well before that width, reading as a
+   cramped strip rather than three decision moments. */
 @media (min-width: 720px) {
   .branches {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 76.25rem) {
+  .branches {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

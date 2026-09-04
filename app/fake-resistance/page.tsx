@@ -13,6 +13,7 @@ import {
 import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { getPlaybook, techniqueHref } from "@/lib/content/fake-resistance-playbook";
+import { getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -22,7 +23,9 @@ import styles from "./page.module.css";
    a branch before any long-form argument begins. The argument itself (the
    consciousness war, the supply chain) still lives here, below the files it
    frames. The worked exhibits live on `/fake-resistance/official-narrative`;
-   the research index lives on `/fake-resistance/social-media`. */
+   the research index lives on `/fake-resistance/social-media`; the live daily
+   feed — the one branch this hub does not curate by hand — lives on
+   `/fake-resistance/watch`. */
 
 const TAGLINE =
   "Inside the influence machine: how manufactured outrage is built and amplified.";
@@ -53,6 +56,19 @@ export default async function Page() {
     getCaseIndex(),
   ]);
   const playbook = getPlaybook();
+
+  /* Same reasoning as app/page.tsx's own `featuredPublications()` call: an
+     unreadable projection must not 500 an otherwise fully static hub over a
+     cache hiccup. The branch card below just shows no live count. */
+  let watchCount = 0;
+  try {
+    watchCount = (await getNarrativeWatchFeed()).length;
+  } catch (cause) {
+    console.error(
+      "[fake-resistance] public projection unavailable",
+      cause instanceof Error ? cause.message : cause,
+    );
+  }
 
   // Derived, not written down: the counts on the two branch cards track the
   // content seams, so adding a case file updates the card with no edit here.
@@ -94,6 +110,13 @@ export default async function Page() {
         description:
           "What the seven case files add up to — the cross-network synthesis.",
         url: `${PAGE_URL}/network`,
+      },
+      {
+        "@type": "WebPage",
+        name: "The daily watch",
+        description:
+          "Narratives flagged and answered in the last 24 hours, straight from source monitoring.",
+        url: `${PAGE_URL}/watch`,
       },
     ],
   };
@@ -192,6 +215,31 @@ export default async function Page() {
                 The influence-network research: a {playbook.length}-technique
                 playbook, the cross-network synthesis, and seven documented case
                 files, graded exactly as the research graded them.
+              </CardDescription>
+              <CardCta>Open the file</CardCta>
+            </Card>
+          </div>
+
+          {/* Branch 03 is deliberately unlike the first two: same-day
+              findings, machine quality-gated only, no human review yet.
+              It gets its own card rather than folding into the archive it
+              feeds so a reader never mistakes a provisional record for a
+              reviewed case file. */}
+          <div className={styles.branchSlot}>
+            <Card
+              variant="dossier"
+              accent="ember"
+              href="/fake-resistance/watch"
+            >
+              <CardHeader>
+                <CardEyebrow>Branch 03 — live</CardEyebrow>
+                <CardCount>{watchCount} tracked now</CardCount>
+              </CardHeader>
+              <CardTitle>The daily watch</CardTitle>
+              <CardDescription>
+                Narratives flagged and answered in the last 24 hours, direct
+                from source monitoring — provisional until a case file is
+                written, not one yet.
               </CardDescription>
               <CardCta>Open the file</CardCta>
             </Card>

@@ -1,3 +1,24 @@
+/* ---- The panel does not shout ----
+ *
+ * `globals.css` sets `text-transform: uppercase` on `body`, which is the
+ * reference system's central typographic rule and correct for chrome, labels
+ * and headings. It is wrong here. A chat is a place where two parties write
+ * sentences to each other, and setting a reader's own question in capitals
+ * makes the panel read as a warning notice rather than a conversation.
+ *
+ * Scoped to the desk, not lifted globally: the rest of the site keeps the rule.
+ *
+ * `:where()` because the eyebrows, source heads and clock inside the desk set
+ * their own `uppercase` and must keep it. Written as `.desk *` this rule would
+ * match them at the same specificity as their own, and which one won would be
+ * decided by their order in this file — true today and one inserted rule away
+ * from being false. `:where()` scores zero, so every one of them beats it
+ * whatever the order. */
+:where(.desk),
+:where(.desk) :where(*) {
+  text-transform: none;
+}
+
 
 
 .desk {
@@ -748,12 +769,33 @@
  * header rather than floating in the middle of an empty desk. */
 .deskEmpty {
   align-items: stretch;
-  justify-content: flex-start;
-  gap: var(--sp-6);
+  justify-content: center;
+  gap: var(--sp-4);
   padding: var(--sp-5) 0;
   text-align: start;
 }
 
 .deskEmpty > * {
   max-inline-size: var(--measure-reading);
+}
+
+/* The disclosure line above the input. Caption-sized and in the muted ink,
+   because it is a footnote to the answers and not an introduction to the
+   panel — the six-line bordered card it replaced was the latter. */
+.boundary {
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  text-wrap: pretty;
+}
+
+/* Chat-sized, not heading-sized. The pills inherited `--t-body` and a control
+   height built for a form's primary action; in a rail of three they read as
+   three buttons demanding to be pressed rather than as examples. */
+.primerExamples button {
+  min-block-size: var(--control-h-sm);
+  padding-inline: var(--sp-4);
+  font-size: var(--t-small);
 }

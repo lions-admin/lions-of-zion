@@ -36,7 +36,6 @@
  */
 
 import { Button } from "@/components/ui/Button";
-import { Card, CardDescription, CardEyebrow } from "@/components/ui/Card";
 import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
 import { BorderBeam } from "@/components/motion";
@@ -167,7 +166,6 @@ function AskDeskBody() {
           {count === 0 && status === "idle" ? (
             <ConversationEmptyState className={styles.deskEmpty}>
               <AskPrimer onPick={ask} disabled={busy} />
-              <EvidenceBoundary />
             </ConversationEmptyState>
           ) : null}
 
@@ -216,6 +214,11 @@ function AskDeskBody() {
             and the parts used here are the textarea, the footer and the submit.
             `status` drives the button's own spinner and stop control, so the
             cancel path that lived in the composer's chrome is the button. */
+        <>
+        {/* The boundary sits against the box now rather than in the empty
+            state, because it is a note about the answers and it should still
+            be there once there are some. */}
+        <EvidenceBoundary />
         <PromptInput
           className={styles.deskPrompt}
           onSubmit={(message) => {
@@ -245,26 +248,26 @@ function AskDeskBody() {
             />
           </PromptInputFooter>
         </PromptInput>
+        </>
       )}
     </div>
   );
 }
 
+/* One line, where there was a bordered card carrying six.
+ *
+ * The disclosure it makes is not decoration and is not dropped: an answer with
+ * nothing under it found nothing in the corpus, and a reader has to know that
+ * before trusting one. What went is the framing around it — an eyebrow, a
+ * border, and three sentences of preamble explaining what the corpus is, all of
+ * it above the fold on a panel that had not yet been used. The full text is
+ * still on `/ask`, which is the page for reading rather than asking. */
 function EvidenceBoundary() {
   return (
-    <Card
-      variant="note"
-      as="aside"
-      className={styles.boundary}
-      aria-labelledby="ask-boundary-title"
-    >
-      <CardEyebrow id="ask-boundary-title">Evidence boundary</CardEyebrow>
-      <CardDescription className={styles.boundaryBody}>
-        This desk searches the published corpus it holds — the same record Search reads.
-        Every answer lists the documents it used. An answer with nothing under it found
-        nothing in that corpus: treat it as conversation, not as a finding.
-      </CardDescription>
-    </Card>
+    <p className={styles.boundary}>
+      Every answer lists what it used. Nothing listed means nothing was found —
+      treat it as conversation, not a finding.
+    </p>
   );
 }
 
@@ -374,10 +377,11 @@ function ProblemRecord({
 function AskPrimer({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
   return (
     <div className={styles.primer}>
-      <p className={styles.primerLead}>
-        Ask about what this desk has published, and the claims behind it.
-      </p>
-      {/* AI Elements' `Suggestions` is a horizontal rail of pills. Worth
+      {/* The lead sentence that stood here is gone. It said "ask about what
+          this desk has published, and the claims behind it" — which is what
+          the three examples below it demonstrate, at the size of a heading,
+          above a panel whose whole job is the box at the foot.
+          AI Elements' `Suggestions` is a horizontal rail of pills. Worth
           knowing about the trade it makes here: it sets `whitespace-nowrap`,
           and these three examples are whole sentences, so on a narrow drawer
           they scroll sideways instead of stacking. That is the library's

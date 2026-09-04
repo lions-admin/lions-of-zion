@@ -103,6 +103,18 @@ export function Dialog({
     [dismissOnBackdrop, onClose],
   );
 
+  /* `data-slot` on the panel, header, body and footer.
+   *
+   * `className` lands on the `<dialog>`, so a consumer that needs to re-grade
+   * the panel itself — the Ask drawer wants a narrower one on the site's own
+   * ground rather than the shared `--surface-1` — has no way to reach it: the
+   * inner classes are CSS Module hashes, private to this file. The choice was
+   * a `panelClassName`/`headerClassName`/`bodyClassName` prop each, or one
+   * stable attribute per part. These are the same `data-slot` marks the
+   * registry primitives in `components/shadcn/` already use, so it is the
+   * idiom already in the codebase rather than a second one.
+   *
+   * They are a styling surface, not an API: nothing reads them in JS. */
   return (
     <dialog
       ref={ref}
@@ -123,8 +135,8 @@ export function Dialog({
       onClose={handleNativeClose}
       onClick={handleClick}
     >
-      <div ref={panelRef} className={styles.panel} tabIndex={-1}>
-        <div className={styles.header}>
+      <div ref={panelRef} data-slot="panel" className={styles.panel} tabIndex={-1}>
+        <div data-slot="header" className={styles.header}>
           <div className={styles.heading}>
             <h2 id={titleId} className={styles.title}>
               {title}
@@ -146,9 +158,9 @@ export function Dialog({
           </Button>
         </div>
 
-        <div className={styles.body}>{children}</div>
+        <div data-slot="body" className={styles.body}>{children}</div>
 
-        {footer ? <div className={styles.footer}>{footer}</div> : null}
+        {footer ? <div data-slot="footer" className={styles.footer}>{footer}</div> : null}
       </div>
     </dialog>
   );

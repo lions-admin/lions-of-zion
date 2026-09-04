@@ -563,7 +563,10 @@
    field around it now owns all three, so they are taken off here rather than
    drawn twice. */
 .deskPrompt textarea {
-  min-block-size: calc(var(--control-h) * 1.4);
+  /* Two lines and a bit — enough that a typed question does not immediately
+     scroll, without opening a hole in the panel before anything is typed. It
+     grows from here. */
+  min-block-size: calc(var(--control-h) * 1.05);
   padding: var(--sp-2);
   background: transparent;
   border: 0;
@@ -599,7 +602,11 @@
  * `:placeholder-shown` is what carries that, which keeps it in CSS with no
  * state plumbed through the component. */
 .deskSubmit {
-  border-radius: var(--radius-pill);
+  /* Softly rectangular, not a circle. A round send button is the consumer-chat
+     signature; the controls on this site are rectangles with a small radius,
+     and the composer should look like it belongs to the same desk as the filter
+     chips and the form fields. */
+  border-radius: var(--radius-1);
   background: var(--surface-3);
   border: var(--line-w) solid var(--control-line);
   color: var(--ink);
@@ -829,8 +836,63 @@
    Inside the drawer the column is the drawer, so the desk stretches to it and
    scrolls within it rather than the panel scrolling around a fixed-width
    desk. */
+/* ---- The drawer frame ----
+ *
+ * `Dialog`'s `drawer.wide` gives every consumer `--measure-narrow` (54ch) on
+ * `--surface-1`. Both are wrong for this one. 54ch is a *reading* measure, and
+ * at 1440 it put the panel over half the viewport for a column of short
+ * questions, which is where the oversized-empty-space feeling came from. And
+ * `--surface-1` is #272a2a — a mid charcoal plate laid over a near-black site,
+ * which reads as pasted on rather than opened out of it.
+ *
+ * So: a viewport-relative width that stays substantial without taking half the
+ * screen, and the site's own ground with a hairline at the seam. The tonal
+ * separation is the border and the header rule, not a lighter slab — this
+ * system has no elevation to spend (`--shadow-1` through `--shadow-3` are all
+ * `none`) and refuses new glass, so an edge is the whole vocabulary of depth
+ * available and it turns out to be enough. */
+.dockPanel {
+  /* Read by `.drawer .panel` in `dialog.module.css`. 54ch — the shared `wide`
+     measure — is a *reading* width, and this panel holds short questions and a
+     composer, so at 1440 it took 58% of the viewport to do it. */
+  --drawer-w: clamp(23rem, 40vw, 34rem);
+}
+
+.dockPanel [data-slot="panel"] {
+  background: var(--ground);
+  border-inline-start: var(--line-w) solid var(--line-strong);
+}
+
+/* Tighter than the shared dialog's rhythm. The header, the disclosure and the
+   composer were spaced for a document; this is a workspace, and the distance
+   between "what is this" and "ask it something" was doing nothing. */
+.dockPanel [data-slot="header"] {
+  padding: var(--sp-4) var(--sp-5) var(--sp-3);
+}
+
+.dockPanel [data-slot="body"] {
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+}
+
 .dockPanel .transcript {
   max-inline-size: none;
+  gap: var(--sp-6);
+  padding: 0;
+}
+
+/* On a phone a 34rem drawer with a strip of backdrop beside it is a worse
+   version of the page it is covering. It becomes the surface. */
+@media (max-width: 45rem) {
+  .dockPanel {
+    --drawer-w: 100%;
+  }
+  .dockPanel [data-slot="panel"] {
+    border-inline-start: 0;
+  }
+  .dockPanel [data-slot="header"],
+  .dockPanel [data-slot="body"] {
+    padding: var(--sp-4);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -930,4 +992,115 @@
   background: var(--surface-2);
   border-color: var(--control-line);
   color: var(--ink-hi);
+}
+
+/* The title is the only uppercase left in the drawer.
+ *
+ * `:where(.desk)` above takes the shout off the conversation, but the header is
+ * `Dialog`'s chrome and sits outside it — so the disclosure under the title was
+ * still set in capitals. One line of that is a label; three are a wall, and
+ * this sentence is the one thing on the panel worth reading before you type.
+ * The title keeps its capitals: a name is chrome, a sentence is not. */
+.dockPanel [data-slot="header"] p {
+  text-transform: none;
+  max-inline-size: none;
+  color: var(--ink);
+}
+
+/* Ask first, or take a shortcut — in that order.
+ *
+ * The composer is the point of the panel and it sat below three examples, so
+ * the first thing the eye met was a list of other people's questions. In the
+ * empty state it moves above them; once there is a transcript it goes back to
+ * the foot, because from then on it is a chat and the box belongs under what it
+ * is answering. `order` rather than a second render tree: the DOM order is the
+ * one a screen reader and a keyboard should get either way — the composer is
+ * the first interactive thing in both. */
+.desk[data-ask-state="idle"] {
+  gap: var(--sp-5);
+}
+
+.desk[data-ask-state="idle"] .deskPrompt {
+  order: -1;
+}
+
+.primerLabel {
+  composes: dataLabel from global;
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-lo);
+}
+
+/* Shortcuts, not form fields.
+ *
+ * They were the height of a primary control with a full border and an opaque
+ * plate, which is why they read as three inputs waiting to be filled. Now they
+ * are rows: a hairline, the site's ground, and the accent arriving only on the
+ * pointer. The start-edge mark is what says "this is a thing you take" without
+ * spending an icon on it. */
+.primerExamples button {
+  position: relative;
+  min-block-size: 0;
+  padding-block: var(--sp-2);
+  padding-inline: var(--sp-4);
+  border-radius: var(--radius-1);
+  background: transparent;
+  border-color: var(--line);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+}
+
+.primerExamples button::before {
+  content: "";
+  position: absolute;
+  inset-block: var(--line-w);
+  inset-inline-start: 0;
+  inline-size: var(--line-w-thick);
+  background: transparent;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.primerExamples button:hover:not(:disabled),
+.primerExamples button:focus-visible {
+  background: var(--surface-1);
+  border-color: var(--control-line);
+  color: var(--ink-hi);
+}
+
+.primerExamples button:hover:not(:disabled)::before,
+.primerExamples button:focus-visible::before {
+  background: var(--gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primerExamples button::before { transition: none; }
+}
+
+/* The question, understated.
+ *
+ * `MessageContent` gives `from="user"` a `rounded-lg` plate on `bg-secondary`
+ * — a consumer chat bubble, and the one shape this panel should not borrow.
+ * The reader's own question does need to be identifiable as theirs, so the
+ * right alignment `Message` handles stays; what goes is the bubble reading of
+ * it. A darker plate than the ground it sits on, a hairline, and the system's
+ * smallest radius: a noted question rather than a spoken one.
+ *
+ * A note against the comment above, which removed local rules on the grounds
+ * that duplicating them meant two places to keep a bubble in step: that held
+ * while the registry's shape was the wanted one. It is not, and
+ * `components/ai-elements/**` has exactly one consumer — this desk — so the
+ * shape is only ever decided here.
+ *
+ * `:global` because `is-user` is a literal class in the registry's `cn()`
+ * string, not a CSS Module export; without it the module hashes the name and
+ * matches nothing. */
+.transcript :global(.is-user) > div {
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }

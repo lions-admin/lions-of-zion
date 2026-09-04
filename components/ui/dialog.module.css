@@ -42,8 +42,15 @@
 .drawer .panel {
   margin-inline-start: auto;
   /* Leave a start-edge strip so backdrop close works at 320px, where
-     `min(100%, 22.5rem)` would otherwise fill the viewport. */
-  width: min(calc(100% - var(--sp-5)), 22.5rem);
+     `min(100%, 22.5rem)` would otherwise fill the viewport.
+     `--drawer-w` is the parameter: a consumer sets it on the dialog and it
+     inherits down to here. That exists because the Ask drawer needed a
+     different width and could only get one by out-specifying `.drawer.wide
+     .panel` — a fight it loses at equal weight, and wins only by stacking
+     attributes onto a selector until it scores higher. Reading a property
+     instead of setting a width makes the override a value rather than a
+     contest. */
+  width: min(calc(100% - var(--sp-5)), var(--drawer-w, 22.5rem));
   height: 100%;
   background: var(--surface-1);
   border-inline-start: var(--line-w) solid var(--line-strong);
@@ -51,7 +58,7 @@
 }
 
 .drawer.wide .panel {
-  width: min(100%, var(--measure-narrow));
+  width: min(calc(100% - var(--sp-5)), var(--drawer-w, var(--measure-narrow)));
 }
 
 .dialog::backdrop {

@@ -65,11 +65,13 @@ export function AskDock() {
         open={open}
         onClose={() => setOpen(false)}
         title="Ask the desk"
-        /* The one place this disclosure is made. It is set in the chrome's
-           uppercase, so it is kept to a single line — the previous wording ran
-           to two, and two lines of uppercase at the top of a panel is a wall
-           before the reader has done anything. */
-        description="Every answer lists what it used, or says it found nothing."
+        /* The one place this disclosure is made — it used to be stated here AND
+           again below the examples, in two different registers. It says what
+           the answers are made of, which is the only claim this surface has
+           worth making. `ask.module.css` sets it in sentence case; two lines of
+           uppercase at the top of a panel is a wall before the reader has done
+           anything. */
+        description="Answers are grounded in what this desk has published and the sources under it. Where the evidence is not there, the answer says so."
         variant="drawer"
         size="wide"
         dismissOnBackdrop={false}

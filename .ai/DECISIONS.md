@@ -10,6 +10,51 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-05 — The uppercase rule is not one line to reverse, and two hero numbers will go stale silently
+
+Three findings from a frontend design pass, recorded because each one is
+either a claim in the code that is wrong, or a value that will rot without
+anything failing.
+
+**`body { text-transform: uppercase }` cannot be scoped in one line.** The
+comment above that rule in `app/globals.css` says the declaration is single and
+inherited so that "reversing it, or scoping it to chrome only, is one line
+rather than an audit". Measured across ten routes, that is not true. Roughly
+twenty chrome classes render uppercase purely by inheritance and would lose it
+the moment prose is exempted: `site-footer` file indexes, `sections` ToC
+numerals, `live-feed` clock and facet, `pagination` gap, `content` source
+number and kind, `page` stage/era/pipeline numerals, `fact-check`
+`entryStrength`, `archive` `witnessLocale` and `witnessFact`, and the
+`information-war` kicker, index and status pair. A prose exemption is one line;
+making the chrome survive it is an audit of those twenty. Both halves are the
+work, and the comment promises only the first.
+
+The rule itself stands — the owner was told uppercase slows reading of
+continuous text and chose it deliberately, and that has not been reversed. What
+is recorded here is the size of reversing it, so the next person does not start
+from the comment's estimate. Note also that the exemption cascades:
+`text-transform` inherits, so exempting `<li>` reaches every `<span>` inside it,
+which is how chrome nested in prose ends up in the blast radius.
+
+**Prose runs past its own measure on three routes.** `--measure-reading` is
+68ch, but `/fact-check`, `/methodology` and `/we-are` render their body copy at
+`max-width: none`: measured at 900px, 193, 100 and 86 characters per line
+respectively. This is independent of the uppercase question and survives either
+answer to it.
+
+**Two dock offsets are measurements with no test behind them.** The Ask
+trigger clears the home signal rail by a fixed offset — `6.25rem` from
+`min-width: 48rem` and `13.5rem` below it, both in `components/ask/ask.module.css`
+— derived from the rail measuring ~76px on desktop and ~176px on a phone once
+its metadata wraps and its headline takes two lines. If the rail grows another
+row, the trigger returns to sitting on the headline and nothing fails: not
+typecheck, not lint, not the suite. A fixed element cannot measure a flow
+element in CSS and anchor positioning is not yet safe to rely on, so the
+derivation is written beside each number instead. `app/home.module.css` is
+where that would break.
+
+---
+
 ## 2026-09-04 — Agent Search "actual" cost is a fetch-time per-query estimate, and GDELT sources are blocked at creation, not registered
 
 Two spend/discovery decisions from the same console wave, recorded because

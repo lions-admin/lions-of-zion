@@ -14,7 +14,31 @@ instruction overrides repository notes and historical decisions.
 
 Lions of Zion is a Next.js public site with an information-model backend under
 `app/api/` and `server/`. The repository is public: a push publishes source.
-Production deployment is a separate manual Vercel operation.
+
+**A push to `main` deploys to Production.** This paragraph claimed the
+opposite until 2026-09-04 — "a separate manual Vercel operation" — and it was
+wrong twice in one session: both pushes were live on `lionsofzion.io` inside
+two minutes. The mechanism is the GitHub integration on the Vercel project,
+whose `productionBranch` is `main`; `vercel.json` disables git deployment for
+exactly one branch (`briefing-packages`) and for nothing else. There are no
+deploy hooks. Verify with
+`vercel api "/v9/projects/<id>?teamId=<team>"` and read `link.productionBranch`.
+
+Two consequences worth holding before pushing:
+
+- **A schema change must be applied before the code that needs it is pushed**,
+  not after. Migration `0051` added an `entity_type` value the operations
+  console writes on every tool call; the push reached Production first and the
+  audit write would have failed on first use. `npm run db:migrate` against
+  Preview, then Production, then push.
+- **Production database credentials are not readable from this machine.** Every
+  one of them is a Vercel *sensitive* env var, which is write-only by design:
+  `vercel env pull` and `/v9/projects/:id/env?decrypt=true` both return an
+  empty value, and the var's `contentHint` says the secret lives in the Neon
+  integration rather than in Vercel. `.env.local` holds a real connection
+  string, but it is a **Preview** branch (`DATABASE_RESOURCE_ENV=preview`,
+  endpoint `ep-old-feather-…`); Production is the Neon `main` branch on a
+  different endpoint. Get it from the Neon Console, or authenticate `neonctl`.
 
 ## Reference documentation
 

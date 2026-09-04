@@ -102,9 +102,23 @@ app, waits up to 60s for it to answer, then runs the route smoke test.
 
 ## Deployment
 
-Git auto-deploy is **not connected**. Production deployment is a separate,
-manual Vercel operation, so a merge to `main` does not reach production on its
-own.
+**Git auto-deploy is connected, and a push to `main` reaches Production on its
+own.** This section said the opposite until 2026-09-04, and the correction was
+paid for twice in one session: two pushes were live on `lionsofzion.io` within
+two minutes each, with no manual step.
+
+The mechanism is the GitHub integration on the Vercel project, whose
+`link.productionBranch` is `main`. `vercel.json` disables git deployment for a
+single branch (`briefing-packages`) and nothing else, and the project has no
+deploy hooks. Confirm with
+`vercel api "/v9/projects/<projectId>?teamId=<team>"`.
+
+What follows from it: **a migration must be applied before the code that needs
+it is pushed.** Migration `0051` added an `entity_type` value the operations
+console writes on every tool call, and the code reached Production ahead of the
+schema — the first tool call would have failed its audit write. The order is
+`npm run db:migrate` against Preview, then Production, then push. `vercel
+rollback` is the fast undo if a push lands ahead of its schema.
 
 `vercel.json` declares the transactional outbox and stage-specific briefing
 Queue triggers plus five production schedules.

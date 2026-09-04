@@ -327,10 +327,28 @@
   font-optical-sizing: auto;
 }
 
+/* The examples, and a lesson in half-overriding a registry component.
+ *
+ * `Suggestions` is AI Elements' horizontal chip rail: the row it renders
+ * carries `flex w-max flex-nowrap`, the pills inside it carry the shadcn
+ * button's `whitespace-nowrap`, and its scrollbar is rendered `hidden`. This
+ * class used to set only `flex-direction: column`, and CSS Modules outrank
+ * `@layer utilities`, so it won that one property and nothing else. The result
+ * measured: a column — correct — that was still `width: max-content` at 351px
+ * because `w-max` went uncontested, holding three pills of 323, 351 and 331px
+ * that could not wrap because `whitespace-nowrap` went uncontested too. Three
+ * ragged right edges running past the drawer, with the scrollbar that would
+ * have hinted at it explicitly hidden.
+ *
+ * Overriding a registry component means naming every property that fights,
+ * not the first one. `inline-size` answers `w-max` here; the rule below
+ * answers the rest on the button itself. */
 .primerExamples {
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
+  inline-size: 100%;
+  max-inline-size: 100%;
   margin-block-start: var(--sp-3);
   padding: 0;
   list-style: none;
@@ -779,8 +797,26 @@
 /* Chat-sized, not heading-sized. The pills inherited `--t-body` and a control
    height built for a form's primary action; in a rail of three they read as
    three buttons demanding to be pressed rather than as examples. */
+/* The other half of the override above. Each declaration here answers a
+   specific Tailwind class on the shadcn button that would otherwise decide
+   this control: `block-size` answers `h-8` from `size="sm"` (a fixed height
+   cannot hold a wrapped sentence), `white-space` answers `whitespace-nowrap`,
+   `justify-content` answers `justify-center`, and `border-radius` answers
+   `rounded-full` — a full round is right on a one-line chip and wrong on a
+   two-line row, which is what these become once they are allowed to wrap.
+   These are prompts a reader chooses between, so they are set as full-width
+   rows reading from the start edge rather than centred chips. */
 .primerExamples button {
+  inline-size: 100%;
+  block-size: auto;
   min-block-size: var(--control-h-sm);
+  justify-content: flex-start;
+  padding-block: var(--sp-2);
   padding-inline: var(--sp-4);
+  border-radius: var(--radius-2);
   font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-align: start;
+  white-space: normal;
+  text-wrap: pretty;
 }

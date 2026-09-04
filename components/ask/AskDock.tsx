@@ -71,7 +71,7 @@ export function AskDock() {
            worth making. `ask.module.css` sets it in sentence case; two lines of
            uppercase at the top of a panel is a wall before the reader has done
            anything. */
-        description="Answers are grounded in what this desk has published and the sources under it. Where the evidence is not there, the answer says so."
+        description="Grounded in what this desk has published. Where there is no evidence, the answer says so."
         variant="drawer"
         size="wide"
         dismissOnBackdrop={false}

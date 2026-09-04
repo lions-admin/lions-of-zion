@@ -34,7 +34,7 @@ describe("English product chrome", () => {
     expect(layout).toMatch(/lang=["']en["']/);
   });
 
-  it("has no Hebrew product-chrome strings under app/ and components/", () => {
+  it("has no Hebrew product-chrome strings under app/ and components/, outside the admin console", () => {
     const files = [
       ...walk(path.join(ROOT, "app")),
       ...walk(path.join(ROOT, "components")),
@@ -43,6 +43,11 @@ describe("English product chrome", () => {
     for (const file of files) {
       const rel = path.relative(ROOT, file);
       if (rel.startsWith(`app${path.sep}api${path.sep}`)) continue;
+      /* The operations console is the owner's own operating surface and reads
+         in Hebrew; the public site does not. This carve-out is the boundary
+         between those two facts, and it is deliberately narrow — everything
+         a reader can reach without signing in is still held to English. */
+      if (rel.startsWith(`app${path.sep}admin${path.sep}`)) continue;
       const text = readFileSync(file, "utf8");
       const lines = text.split(/\n/);
       lines.forEach((line, i) => {

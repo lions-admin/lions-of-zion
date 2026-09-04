@@ -374,6 +374,9 @@ function AskPrimer({ onPick, disabled }: { onPick: (q: string) => void; disabled
           they scroll sideways instead of stacking. That is the library's
           shape — a row of short prompts — and these are long ones. If they
           read badly, the fix is shorter examples, not a re-styled rail. */}
+      <p className={styles.primerIntro}>
+        Ask about anything this desk has published, or the claims behind it.
+      </p>
       <p className={styles.primerLabel}>Suggested questions</p>
       <Suggestions className={styles.primerExamples}>
         {EXAMPLES.map((example) => (

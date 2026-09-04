@@ -566,7 +566,14 @@
   /* Two lines and a bit — enough that a typed question does not immediately
      scroll, without opening a hole in the panel before anything is typed. It
      grows from here. */
-  min-block-size: calc(var(--control-h) * 1.05);
+  /* Three lines to start, eight before it scrolls. `field-sizing: content`
+     is what makes it grow with what is typed — no script, no measuring; where
+     unsupported it is simply a fixed three-line box, which is the right
+     fallback. `calc(3 * lh)` rather than a rem: the floor follows the type. */
+  min-block-size: calc(3 * var(--t-small-lh) * var(--t-small) + (2 * var(--sp-2)));
+  max-block-size: calc(8 * var(--t-small-lh) * var(--t-small) + (2 * var(--sp-2)));
+  field-sizing: content;
+  overflow-y: auto;
   padding: var(--sp-2);
   background: transparent;
   border: 0;
@@ -980,6 +987,13 @@
   max-inline-size: none;
   gap: var(--sp-6);
   padding: 0;
+  /* Fill the frame. `ConversationContent` sizes to its content inside the
+     scroll viewport, so on a tall panel the empty state sat 16px under the
+     header with 412px of nothing under it — `justify-content: center` had no
+     height to centre in. `min-block-size: 100%` gives the empty state the
+     frame to sit in; once a conversation outgrows it the transcript is taller
+     than 100% anyway and scrolls as before. */
+  min-block-size: 100%;
 }
 
 /* On a phone a 34rem drawer with a strip of backdrop beside it is a worse
@@ -1109,24 +1123,27 @@
   color: var(--ink);
 }
 
-/* Ask first, or take a shortcut — in that order.
+/* Header, conversation, composer — in that order, always.
  *
- * The composer is the point of the panel and it sat below three examples, so
- * the first thing the eye met was a list of other people's questions. In the
- * empty state it moves above them; once there is a transcript it goes back to
- * the foot, because from then on it is a chat and the box belongs under what it
- * is answering. `order` rather than a second render tree: the DOM order is the
- * one a screen reader and a keyboard should get either way — the composer is
- * the first interactive thing in both. */
+ * The composer briefly sat above the examples in the empty state, on the theory
+ * that the box is the point of the panel and should meet the eye first. It made
+ * the panel a search bar over a large empty drawer: the middle went unused and
+ * the one thing that anchors a chat surface moved between two positions
+ * depending on state. It lives at the foot in every state now. The empty state
+ * fills the middle instead of the composer moving up to meet it. */
 .desk[data-ask-state="idle"] {
   gap: var(--sp-4);
 }
 
-/* The empty state was centring its block in a tall panel and padding it by
-   `--sp-5` on top of the body's own padding, which put a third of the surface
-   between the header and the first thing a reader can act on. */
 .dockPanel .deskEmpty {
-  justify-content: flex-start;
+  /* `flex: 1`, because `h-full` cannot do this job: a percentage height
+     resolves against the parent's `height`, and `.transcript` sets only a
+     `min-block-size`, so `height: 100%` computed to `auto` and the block sat
+     under the header with the rest of the frame empty beneath it. Growing as
+     a flex item fills the column the transcript now guarantees, and
+     `justify-content: center` finally has a height to centre in. */
+  flex: 1 1 auto;
+  justify-content: center;
   gap: var(--sp-3);
   padding: 0;
 }
@@ -1139,8 +1156,18 @@
   margin-block-start: var(--sp-2);
 }
 
-.desk[data-ask-state="idle"] .deskPrompt {
-  order: -1;
+/* One line of orientation above the shortcuts. The header already says what
+   the panel is; this says what to do in it, and it is the only prose in the
+   empty state. */
+.primerIntro {
+  margin: 0 0 var(--sp-4);
+  max-inline-size: var(--measure-narrow);
+  color: var(--ink);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+  text-wrap: balance;
 }
 
 .primerLabel {

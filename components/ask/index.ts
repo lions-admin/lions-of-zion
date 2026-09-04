@@ -5,6 +5,7 @@
  * site header. `AskDesk` is the surface itself, rendered by `/ask`.
  */
 
+export { AskDock } from "./AskDock";
 export { AskLauncher } from "./AskLauncher";
 export type { AskLauncherProps } from "./AskLauncher";
 export { AskDesk } from "./AskDesk";

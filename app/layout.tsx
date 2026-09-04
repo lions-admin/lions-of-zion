@@ -13,6 +13,7 @@ import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
    entirely — see the note at the top of `app/tailwind.css`. */
 import "./tailwind.css";
 import "./globals.css";
+import { AskDock } from "@/components/ask/AskDock";
 
 /*
  * Three faces, three jobs — see the token block in `globals.css` (SYS-003).
@@ -90,7 +91,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-scroll-behavior="smooth"
       className={`dark ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Mounted here rather than in `SiteHeader` because it is fixed to the
+            viewport, not to the chrome: a reader four paragraphs into an
+            article can ask about what is in front of them without losing their
+            place. The header's link to `/ask` was removed when this arrived —
+            two controls to the same desk, one of which cost the reader their
+            scroll position, was the worse of the pair to keep. */}
+        <AskDock />
+      </body>
     </html>
   );
 }

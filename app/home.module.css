@@ -2,17 +2,23 @@
  * The home hero — the single cinematic threshold (HOME-001..004).
  *
  * Design V3: every value here answers to `globals.css`. The serif wordmark
- * over the monospace field is the whole contrast of this screen — the brand
- * is set in the editorial voice, the scan beneath it in the data voice.
+ * against a photographic ground is the whole contrast of this screen — the
+ * brand in the editorial voice, the rail beneath it in the data voice.
  *
  * The composition is document flow, not absolute pins: a flex column of
- * masthead and files deck over a field layer pinned to the first viewport.
- * On mobile the masthead is still centred by flex auto-margins. On desktop
- * (≥768px) the hero distributes three defined zones instead: a spacer under
- * the header, the brand, and the files deck anchored to the floor — so the
- * deck expands upward from 100svh and the optical centre stays high. That is
- * what keeps the lion, wordmark, CTA, index, and rail one focal system at
- * 1024, 1440, 1920, and 2560, and what lets 320×568 scroll instead of clip.
+ * masthead and rail over a field layer pinned to the first viewport. On mobile
+ * the masthead is centred by flex auto-margins, over the portrait cut of the
+ * shot. On desktop (≥768px) the hero distributes three defined zones instead:
+ * a spacer under the header, the brand as a column set into the open left of
+ * the landscape cut, and the rail anchored to the floor — so it expands upward
+ * from 100svh and the optical centre stays high. That is what keeps the lion,
+ * wordmark, CTA and rail one focal system at 1024, 1440, 1920 and 2560, and
+ * what lets 320×568 scroll instead of clip.
+ *
+ * Two things this file used to carry are gone, both on 2026-09-04: the glyph
+ * field with its docked scan band, replaced by the video layer at the top of
+ * this file; and the file index, which listed the same routes `SiteHeader`
+ * already carries on every page.
  *
  * Gold is spent once per viewport: the primary Daily Brief action. The rail
  * and telemetry dots carry the dimmed gold; nothing else on the screen is
@@ -307,22 +313,6 @@
   }
 }
 
-.brandMark {
-  position: relative;
-  width: clamp(15rem, 24vw, 21rem);
-  aspect-ratio: 1226 / 1283;
-  flex: 0 0 auto;
-  opacity: 0.94;
-  filter:
-    grayscale(0.08)
-    contrast(1.12)
-    drop-shadow(0 1.5rem 2.8rem color-mix(in oklab, var(--ground) 96%, transparent));
-  mask-image: radial-gradient(ellipse 76% 82% at 50% 42%, black 0 58%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 76% 82% at 50% 42%, black 0 58%, transparent 100%);
-}
-
-.brandMark img { object-fit: contain; }
-
 /* The nameplate. Newsreader at display size wants weight 500; the wide
    tracking is what turns a serif word into a masthead, and it narrows with
    the viewport so eleven letters never outrun 320px. `letter-spacing` trails
@@ -438,6 +428,11 @@
   background: var(--surface-1);
 }
 
+/* The band's height is the sum of its wrapped rows plus this padding, and on a
+   phone that is four rows — so the padding is spent once at the top and bottom
+   of the whole stack rather than generously, and the `min-height` floor that
+   sized it for a single centred row is gone: with the headline clamped there is
+   nothing left that needs a control-height box to sit in. */
 .railInner {
   display: flex;
   flex-wrap: wrap;
@@ -445,9 +440,16 @@
   column-gap: var(--sp-5);
   row-gap: var(--sp-1);
   width: min(var(--chrome-w), 100%);
-  min-height: calc(var(--control-h) + var(--sp-2));
   margin-inline: auto;
   padding: var(--sp-2) clamp(var(--sp-4), 3.5vw, var(--sp-7));
+}
+
+/* Only where it wraps. From 48rem the rail is one row and the floor is what
+   keeps it from collapsing to the height of its own type. */
+@media (min-width: 48rem) {
+  .railInner {
+    min-height: calc(var(--control-h) + var(--sp-2));
+  }
 }
 
 .railFlag {
@@ -511,11 +513,26 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* One line, then an ellipsis.
+ *
+ * The rail wraps into four rows on a phone — flag, metadata, headline, "all
+ * updates" — and the headline was the only one of them taking two, which made
+ * it half the band's height on its own. Clamping it is what shortens the rail
+ * without dropping anything from it: the source, the verdict, the timestamp and
+ * the way through to the article all survive, and the headline that no longer
+ * fits is one tap from being read in full.
+ *
+ * `-webkit-line-clamp` with `display: -webkit-box` is the only form of this
+ * that is honoured everywhere; the modern `line-clamp` shorthand still is not.
+ * The box display replaces the `inline-flex` this rule used for vertical
+ * centring, so `min-height` goes with it — a single line needs no centring. */
 .railTitle {
-  display: inline-flex;
-  align-items: center;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
   min-width: 0;
-  min-height: var(--control-h-sm);
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-optical-sizing: auto;
@@ -524,7 +541,6 @@
   line-height: var(--t-small-lh);
   letter-spacing: 0;
   text-decoration: none;
-  overflow-wrap: anywhere;
   outline-offset: -3px;
   transition: color var(--dur-fast) var(--ease-out);
 }
@@ -595,9 +611,7 @@
 @media (min-width: 120rem) {
   .masthead { margin-top: clamp(8rem, 14svh, 12rem); }
   .filesDeck { margin-top: clamp(2rem, 5svh, 5rem); }
-  .brandMark { width: 23rem; }
-
-}
+  }
 
 /* Short desktop viewports — the 768–896px-tall laptops. Any of the spacer
  * values above would eat their 13-odd px of free height and push the rail
@@ -629,8 +643,7 @@
 }
 
 @media (max-width: 64rem) {
-  .brandMark { width: clamp(14rem, 34vw, 18rem); }
-  .wordmark {
+    .wordmark {
     padding-left: 0.14em;
     letter-spacing: 0.14em;
   }
@@ -639,8 +652,7 @@
 @media (max-width: 48rem) {
   .hero { padding-top: calc(var(--header-h) + var(--sp-3)); }
   .masthead { width: calc(100vw - 1.5rem); }
-  .brandMark { width: clamp(12rem, 52vw, 16rem); }
-  .wordmark {
+    .wordmark {
     margin-top: calc(-1 * var(--sp-4));
     padding-left: 0.12em;
     letter-spacing: 0.12em;
@@ -677,8 +689,7 @@
 }
 
 @media (max-width: 23.5rem) {
-  .brandMark { width: 11.5rem; }
-  .wordmark {
+    .wordmark {
     padding-left: 0.06em;
     letter-spacing: 0.06em;
   }

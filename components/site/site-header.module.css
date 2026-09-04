@@ -163,8 +163,11 @@
   gap: var(--sp-1);
 }
 
-.deskSearch,
-.deskAsk {
+/* `.deskAsk` was the second name on this rule until the Ask control left the
+   chrome for `AskDock`. Search is alone in `.deskActions` now; the flex wrapper
+   stays because it is what holds the tap-target sizing and the gap that a
+   second utility would slot into. */
+.deskSearch {
   min-height: var(--control-h);
   min-width: var(--control-h);
 }

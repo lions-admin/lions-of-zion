@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { CinematicIntroGate } from "@/components/particle-nav/CinematicIntroGate";
@@ -16,7 +15,6 @@ import { stamp } from "@/components/live/feed-time";
    site is judged by, and a direct path cannot regress if that declaration is
    ever dropped. */
 import { ProgressiveBlur } from "@/components/motion/ProgressiveBlur";
-import lionMark from "@/logos/79eef03d-4ddc-47a4-a17b-f4d0e13e7fa6.png";
 import styles from "./home.module.css";
 import { featuredPublications } from "@/lib/publications";
 import type { PublicPublication } from "@/server/contracts/publication";
@@ -25,22 +23,27 @@ import type { PublicPublication } from "@/server/contracts/publication";
  * The homepage — the single cinematic threshold (HOME-001).
  *
  * One signature surface, composed in document flow rather than the absolute
- * pins it replaced: masthead centred by flex auto-margins, the file index
- * beneath it, the signal rail at the foot. Every layer of it is server HTML;
- * the typographic field and the particle entrance are progressive enhancement
- * on top, and removing JavaScript removes only them.
+ * pins it replaced: the masthead as a column beside the animal from 48rem up
+ * and centred over him below it, the signal rail at the foot. Every layer of
+ * it is server HTML; the hero video and the particle entrance are progressive
+ * enhancement on top, and removing JavaScript removes only them.
+ *
+ * The ground was a WebGPU field of glyphs over a docked scan band until
+ * 2026-09-04. It is a photographic shot now — see `HeroVideo` for why it ships
+ * as two cuts of one take and two shoots rather than one cropped twice — and
+ * the scan band went with the field it was docked under, because a drift of
+ * type rows over a lion is two moving layers competing for the same screen.
  *
  * State ledger, because HOME-001's acceptance is about states:
- *  - live: the glyph field runs behind the flow content.
- *  - poster: `CinematicIntroGate` owns the entrance; this page is inert under
+ *  - live: the entrance plays once, then dissolves into a seamless loop.
+ *  - poster: `CinematicIntroGate` owns the arrival; this page is inert under
  *    it until handoff and untouched by it after.
- *  - no-WebGPU: the field itself steps WebGL2 → WebGL1 → Canvas2D; the
- *    particle entrance is bypassed by its own tier probe.
- *  - reduced motion: the field paints one settled frame and stops; the
- *    entrance never runs.
- *  - no-JS: `.fallbackField` (the site's scan ground) stands in for the
- *    canvas with the shared CSS scan band drifting over it, and the header,
- *    CTAs, file index, and rail are all plain hrefs.
+ *  - reduced motion: no source is ever handed to either video element, so the
+ *    still is not merely what is shown — it is all that is fetched.
+ *  - no-JS: `.posterField` paints the video's own first frame from the
+ *    stylesheet, and the `<noscript>` list below is the route index, because
+ *    `SiteHeader` hides every destination name under 64rem behind a drawer
+ *    that needs script to open.
  *
  * The brand block is deliberately NOT wrapped in `Reveal`. The gate hands off
  * by fading its own fixed layer out over 700ms, so the masthead already has
@@ -119,23 +122,19 @@ export default async function Page() {
           </div>
 
           <div className={styles.masthead}>
-            <div className={styles.brandMark} aria-hidden="true">
-              <Image
-                src={lionMark}
-                alt=""
-                fill
-                priority
-                sizes="(max-width: 768px) 180px, 250px"
-              />
-            </div>
+            {/* The glyph lion that sat here is gone. It was drawn for a hero
+                whose ground was a field of type, where it was the only
+                figurative thing on the screen; over a photograph of a lion it
+                was a second lion laid across the first one's face. The wordmark
+                carries the brand on its own now. */}
             <h1 id="home-wordmark" className={styles.wordmark}>LIONSOFZION</h1>
             <p className={styles.standfirst}>Powered by evidence, not narratives.</p>
 
-            {/* HOME-002 — the one primary action. The file index it used to
-                have a secondary affordance for is now named by its own
-                heading below, and the header's "All files" trigger opens the
-                drawer; a second control jumping to a mid-page anchor was a
-                duplication both of them carried. The hover sweep on the
+            {/* HOME-002 — the one primary action, and now the only control in
+                the masthead at all: the file index it once had a secondary
+                affordance for is gone from this page, and the header's "All
+                files" trigger is the way to the full list. The hover sweep on
+                the
                 primary is CSS-only and exists only for fine pointers without
                 a reduced-motion preference — touch and reduced motion get
                 the Button variant's static states. */}

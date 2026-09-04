@@ -235,7 +235,14 @@
   /* --- Radius / elevation (SYS-006) ---
      Default grouping is a 1px rule and spacing, not a card.
      Cards may use 2 / 4 / 8px only. No new arbitrary radius, glow, or shadow.
-     --radius-pill is for true chips/avatars, not buttons. */
+
+     --radius-pill carries chips, avatars, dots AND buttons. This line used to
+     read "not buttons", which `components/ui/button.module.css` had already
+     contradicted with a reason: the reference system rounds buttons and pills
+     to 9999px while leaving cards and inputs on a small radius, and --radius-2
+     is shared with the form field, so reaching a pill by raising it would
+     round every text input too. The button stylesheet is the one that argued
+     its case; this comment is corrected to match it rather than the reverse. */
   --radius-1: 4px;
   --radius-2: 6px;
   --radius-3: 10px;

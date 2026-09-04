@@ -100,8 +100,13 @@ export function EditorialShell({
         </a>
       </div>
       <SiteHeader activeSection={activeSection} />
+      {/* `data-family` drives density, measure and scan strength from
+          `app/globals.css`. It stays; the paragraph that used to print its
+          value above every heading does not. "Desk" / "Dossier" /
+          "Institution" is this system's own vocabulary for how densely a
+          route is set — it tells a reader nothing, and it read as a label
+          belonging to the content under it. */}
       <main className={className} data-reading-scroll data-public-shell data-family={family}>
-        <p className={styles.familyContext}>{family === "desk" ? "Desk" : family === "institution" ? "Institution" : "Dossier"}</p>
         {showProgress ? (
           <ReadingProgress
             trackClassName={progressTrackClassName}

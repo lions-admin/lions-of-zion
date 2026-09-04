@@ -72,19 +72,6 @@
   }
 }
 
-.familyContext {
-  position: relative;
-  z-index: var(--z-raised);
-  margin: 0;
-  padding: var(--sp-3) var(--family-pad-inline) 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
-}
 
 /*
  * The document trail — one implementation (CLEAN-002).

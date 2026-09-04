@@ -1383,3 +1383,21 @@
     padding-inline: var(--sp-4);
   }
 }
+
+/* Disabled, defined. The trigger is never disabled by the product today, but a
+   control with no disabled state is a control whose disabled state is whatever
+   the browser decides — and the brief asked to see it. Colour only, so the box
+   does not move: the same rule every other state on this button follows. */
+.dockTrigger:disabled {
+  color: var(--async-disabled);
+  border-color: var(--line);
+  background: var(--surface-1);
+  cursor: not-allowed;
+}
+
+/* The glyph carries its own gold so it reads as the mark even when the label is
+   plain ink — which means the button's disabled colour never reaches it, and a
+   dead control was showing a live gold eye. Inherit here, and only here. */
+.dockTrigger:disabled .dockGlyph {
+  color: inherit;
+}

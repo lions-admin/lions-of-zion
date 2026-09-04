@@ -65,7 +65,11 @@ export function AskDock() {
         open={open}
         onClose={() => setOpen(false)}
         title="Ask the desk"
-        description="Every answer lists what it was built from, or says that it was built from nothing."
+        /* The one place this disclosure is made. It is set in the chrome's
+           uppercase, so it is kept to a single line — the previous wording ran
+           to two, and two lines of uppercase at the top of a panel is a wall
+           before the reader has done anything. */
+        description="Every answer lists what it used, or says it found nothing."
         variant="drawer"
         size="wide"
         dismissOnBackdrop={false}

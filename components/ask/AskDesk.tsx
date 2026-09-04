@@ -215,10 +215,13 @@ function AskDeskBody() {
             `status` drives the button's own spinner and stop control, so the
             cancel path that lived in the composer's chrome is the button. */
         <>
-        {/* The boundary sits against the box now rather than in the empty
-            state, because it is a note about the answers and it should still
-            be there once there are some. */}
-        <EvidenceBoundary />
+        {/* The boundary used to be rendered here as well as in the drawer's
+            own description, which stated the same disclosure twice about
+            200px apart and in two different typographic registers — uppercase
+            chrome at the top, sentence case here. One statement, and it is
+            the header's: that one is pinned, so it survives the transcript
+            filling, and it is the panel's accessible description, which this
+            paragraph never was. */}
         <PromptInput
           className={styles.deskPrompt}
           onSubmit={(message) => {
@@ -243,6 +246,7 @@ function AskDeskBody() {
               <span />
             )}
             <PromptInputSubmit
+              className={styles.deskSubmit}
               status={busy ? "submitted" : problem ? "error" : undefined}
               onStop={cancel}
             />
@@ -251,23 +255,6 @@ function AskDeskBody() {
         </>
       )}
     </div>
-  );
-}
-
-/* One line, where there was a bordered card carrying six.
- *
- * The disclosure it makes is not decoration and is not dropped: an answer with
- * nothing under it found nothing in the corpus, and a reader has to know that
- * before trusting one. What went is the framing around it — an eyebrow, a
- * border, and three sentences of preamble explaining what the corpus is, all of
- * it above the fold on a panel that had not yet been used. The full text is
- * still on `/ask`, which is the page for reading rather than asking. */
-function EvidenceBoundary() {
-  return (
-    <p className={styles.boundary}>
-      Every answer lists what it used. Nothing listed means nothing was found —
-      treat it as conversation, not a finding.
-    </p>
   );
 }
 

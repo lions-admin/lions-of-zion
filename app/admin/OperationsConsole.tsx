@@ -31,6 +31,7 @@
 import { useCallback, useState } from "react";
 import { Tab, TabList, TabPanel, Tabs } from "@/components/ui/Tabs";
 import { EditorialDesk } from "./EditorialDesk";
+import { AREA_LABEL } from "./lexicon";
 import { OpsChat } from "./OpsChat";
 import { OverviewPanel } from "./OverviewPanel";
 import { PipelinePanel } from "./PipelinePanel";
@@ -38,12 +39,16 @@ import { SourcesPanel } from "./SourcesPanel";
 import { SystemPanel } from "./SystemPanel";
 import styles from "./admin.module.css";
 
+/* The `value` is the wire word — it is what the tab state, the panel and
+   `tests/admin-console.test.ts` all key on, and it stays Latin. The label is
+   read from `lexicon.ts` rather than typed here, so the five areas are named
+   once and the panels below can head themselves with the same words. */
 const AREAS = [
-  { value: "overview", label: "Overview" },
-  { value: "pipeline", label: "Pipeline" },
-  { value: "sources", label: "Sources" },
-  { value: "editorial", label: "Editorial Desk" },
-  { value: "system", label: "System & Security" },
+  { value: "overview", label: AREA_LABEL.overview },
+  { value: "pipeline", label: AREA_LABEL.pipeline },
+  { value: "sources", label: AREA_LABEL.sources },
+  { value: "editorial", label: AREA_LABEL.editorial },
+  { value: "system", label: AREA_LABEL.system },
 ] as const;
 
 export function OperationsConsole() {
@@ -59,7 +64,7 @@ export function OperationsConsole() {
         activation="manual"
         className={styles.consoleTabs}
       >
-        <TabList label="Console areas" shape="segmented">
+        <TabList label="אזורי הקונסולה" shape="segmented">
           {AREAS.map((entry) => (
             <Tab key={entry.value} value={entry.value}>{entry.label}</Tab>
           ))}
@@ -72,7 +77,7 @@ export function OperationsConsole() {
         <TabPanel value="system"><SystemPanel signal={signal} /></TabPanel>
       </Tabs>
 
-      <aside className={styles.consoleRail} aria-label="Operations assistant">
+      <aside className={styles.consoleRail} aria-label="עוזר התפעול">
         <OpsChat onStateChanged={reloadActiveArea} />
       </aside>
     </div>

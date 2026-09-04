@@ -40,6 +40,7 @@ import {
   useOperations,
   type PillTone,
 } from "./console-primitives";
+import { AREA_LABEL, JOB_STATE_LABEL, SECTION_LABEL, SEVERITY_LABEL, T } from "./lexicon";
 import { AuthRequired } from "./auth-required";
 import { RouteUnavailable, callConsole, readConsole, useConsoleRead, type ReadState } from "./useConsoleRead";
 import styles from "./admin.module.css";
@@ -47,21 +48,21 @@ import styles from "./admin.module.css";
 type SubArea = "users" | "costs" | "audit" | "incidents" | "security" | "settings" | "environment";
 
 const SUB_AREAS: Array<{ key: SubArea; label: string }> = [
-  { key: "users", label: "Users & permissions" },
-  { key: "costs", label: "Costs & usage" },
-  { key: "audit", label: "Audit log" },
-  { key: "incidents", label: "Incidents & recovery" },
-  { key: "security", label: "Security & connections" },
-  { key: "settings", label: "Settings" },
-  { key: "environment", label: "Environment" },
+  { key: "users", label: "משתמשים והרשאות" },
+  { key: "costs", label: "עלויות ושימוש" },
+  { key: "audit", label: T.auditLog },
+  { key: "incidents", label: "תקלות והתאוששות" },
+  { key: "security", label: "אבטחה וחיבורים" },
+  { key: "settings", label: "הגדרות" },
+  { key: "environment", label: "סביבה" },
 ];
 
 const SURFACE_LABEL: Record<CostSurface, string> = {
-  briefing: "Briefing",
-  chat: "Public chat",
-  ops_console: "Operations console",
-  embedding: "Embeddings",
-  other: "Other",
+  briefing: "בריף",
+  chat: "צ׳אט ציבורי",
+  ops_console: "קונסולת התפעול",
+  embedding: "הטמעות",
+  other: "אחר",
 };
 
 /**
@@ -90,11 +91,11 @@ export function SystemPanel({ signal }: { signal: number }) {
 
   return (
     <section className={styles.area} id="console-system" aria-labelledby="console-system-heading" ref={areaRef} tabIndex={-1}>
-      <AreaHead id="console-system" label="System & security" title="Who, what it costs, what happened, and what is connected" />
+      <AreaHead id="console-system" label={AREA_LABEL.system} title="מי, כמה זה עולה, מה קרה, ומה מחובר" />
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
 
       <Tabs value={sub} onValueChange={select} activation="manual" className={styles.subTabs}>
-        <TabList shape="segmented" label="System and security sub-areas">
+        <TabList shape="segmented" label="תת-אזורים של מערכת ואבטחה">
           {SUB_AREAS.map((entry) => (
             <Tab key={entry.key} value={entry.key}>
               {entry.label}
@@ -126,11 +127,11 @@ export function SystemPanel({ signal }: { signal: number }) {
       return;
     }
     setConfirmIntent({
-      action: "Retry this job with its attempts reset",
+      action: "הרצת המשימה הזו מחדש עם איפוס הניסיונות",
       target: job.jobKey,
-      targetDetail: `${stageLabel(job.stage)} · ${job.localDate} · ${job.attempts} of ${job.maxAttempts} attempts used`,
-      consequence: "The attempt counter goes back to zero and the job runs again from its stage. A job that fails for the same reason will use its full attempt budget once more before it stops.",
-      confirmLabel: "Reset and retry",
+      targetDetail: `${stageLabel(job.stage)} · ${job.localDate} · נוצלו ${job.attempts} מתוך ${job.maxAttempts} ניסיונות`,
+      consequence: "מונה הניסיונות חוזר לאפס והמשימה רצה שוב מהשלב שלה. משימה שנכשלת מאותה סיבה תנצל שוב את מלוא מכסת הניסיונות שלה לפני שתיעצר.",
+      confirmLabel: "איפוס והרצה מחדש",
       tone: "danger",
       run: () => retryJob(job, true),
     });
@@ -141,10 +142,10 @@ export function SystemPanel({ signal }: { signal: number }) {
       const result = await callConsole<RetryJobResult>(`admin/console/jobs/${job.id}/retry`, {
         method: "POST",
         body: { resetAttempts },
-        failure: "Unable to retry the job.",
+        failure: "לא ניתן להריץ את המשימה מחדש.",
       });
       setIncidentsTick((current) => current + 1);
-      return `Job ${job.jobKey} was re-queued (${result.previousState} → ${result.state})${result.dispatched ? " and dispatched." : "; it runs on the next tick."}`;
+      return `המשימה ${job.jobKey} הוחזרה לתור (${result.previousState} → ${result.state})${result.dispatched ? " ונשלחה לביצוע." : "; היא תרוץ בטיק הבא."}`;
     });
   }
 
@@ -153,10 +154,10 @@ export function SystemPanel({ signal }: { signal: number }) {
       await callConsole(`admin/console/alerts/${alertId}/resolve`, {
         method: "POST",
         body: note.trim() ? { note: note.trim() } : {},
-        failure: "Unable to resolve the alert.",
+        failure: "לא ניתן לסמן את ההתראה כטופלה.",
       });
       setIncidentsTick((current) => current + 1);
-      return `Alert ${kind} was resolved.`;
+      return `ההתראה ${kind} סומנה כטופלה.`;
     });
   }
 }
@@ -166,34 +167,36 @@ export function SystemPanel({ signal }: { signal: number }) {
 function UsersSection({ signal }: { signal: number }) {
   const users = useConsoleRead<ConsoleUsers>("admin/console/users", { signal });
   return (
-    <ReadGate state={users.state} what="users and permissions" reload={users.reload}>
+    <ReadGate state={users.state} what="המשתמשים וההרשאות" reload={users.reload}>
       {(value) => (
         <>
           <div className={styles.compactMetrics}>
-            <Metric label="Staff accounts" value={String(value.staff.length)} />
-            <Metric label="Registered public users" value={String(value.registeredPublicUsers)} />
+            <Metric label="חשבונות צוות" value={String(value.staff.length)} />
+            <Metric label="משתמשים ציבוריים רשומים" value={String(value.registeredPublicUsers)} />
             <Metric
-              label="Blocked sign-ins"
-              value={value.blockedSignInAttempts === null ? "Not recorded" : String(value.blockedSignInAttempts)}
+              label="התחברויות שנחסמו"
+              /* `null` means the count was never recorded, which is not the
+                 same fact as a count of zero. The two must not share a word. */
+              value={value.blockedSignInAttempts === null ? "לא נרשם" : String(value.blockedSignInAttempts)}
               tone={value.blockedSignInAttempts ? "warn" : undefined}
             />
-            <Metric label="Generated" value={formatDate(value.generatedAt)} />
+            <Metric label="נוצר" value={formatDate(value.generatedAt)} />
           </div>
           {value.blockedSignInAttempts === null ? (
-            <p className={styles.muted}>Sign-in refusals are logged, not stored in the database, so there is no count to show. This is not zero.</p>
+            <p className={styles.muted}>סירובי התחברות נרשמים ביומן ואינם נשמרים במסד הנתונים, ולכן אין מונה להציג. זה אינו אפס.</p>
           ) : null}
 
           <div className={styles.panel}>
-            <PanelTitle>Staff</PanelTitle>
+            <PanelTitle>צוות</PanelTitle>
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th scope="col">Account</th>
-                    <th scope="col">Role</th>
-                    <th scope="col">Capabilities</th>
-                    <th scope="col">Last action</th>
-                    <th scope="col">Created</th>
+                    <th scope="col">חשבון</th>
+                    <th scope="col">תפקיד</th>
+                    <th scope="col">{T.capabilities}</th>
+                    <th scope="col">פעולה אחרונה</th>
+                    <th scope="col">נוצר</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -201,12 +204,12 @@ function UsersSection({ signal }: { signal: number }) {
                     <tr key={user.id}>
                       <th scope="row">
                         <strong>{user.displayName}</strong>
-                        <small className={styles.plainSmall}>{user.email ?? "no email"}</small>
-                        {user.disabledAt ? <small>disabled {formatDate(user.disabledAt)}</small> : null}
+                        <small className={styles.plainSmall}>{user.email ?? "ללא דוא״ל"}</small>
+                        {user.disabledAt ? <small>הושבת {formatDate(user.disabledAt)}</small> : null}
                       </th>
                       <td>
-                        {user.isAdmin ? <Pill tone="gold">admin</Pill> : null} {user.isAutomated ? <Pill tone="neutral">automated</Pill> : null}
-                        {!user.isAdmin && !user.isAutomated ? <Pill tone="neutral">staff</Pill> : null}
+                        {user.isAdmin ? <Pill tone="gold">מנהל</Pill> : null} {user.isAutomated ? <Pill tone="neutral">אוטומטי</Pill> : null}
+                        {!user.isAdmin && !user.isAutomated ? <Pill tone="neutral">צוות</Pill> : null}
                       </td>
                       <td>
                         {user.capabilities.length ? (
@@ -218,10 +221,10 @@ function UsersSection({ signal }: { signal: number }) {
                             ))}
                           </ul>
                         ) : (
-                          "none"
+                          T.none
                         )}
                       </td>
-                      <td>{user.lastActionAt ? formatAgo(user.lastActionAt) : "never"}</td>
+                      <td>{user.lastActionAt ? formatAgo(user.lastActionAt) : T.never}</td>
                       <td>{formatDate(user.createdAt)}</td>
                     </tr>
                   ))}
@@ -231,7 +234,7 @@ function UsersSection({ signal }: { signal: number }) {
           </div>
 
           <div className={styles.panel}>
-            <PanelTitle>Recent admin actions</PanelTitle>
+            <PanelTitle>פעולות ניהול אחרונות</PanelTitle>
             {value.recentAdminActions.length ? (
               <ul className={styles.logList}>
                 {value.recentAdminActions.map((entry) => (
@@ -248,7 +251,7 @@ function UsersSection({ signal }: { signal: number }) {
                 ))}
               </ul>
             ) : (
-              <EmptyLine>No admin actions recorded.</EmptyLine>
+              <EmptyLine>לא נרשמו פעולות ניהול.</EmptyLine>
             )}
           </div>
         </>
@@ -266,13 +269,13 @@ function Meter({ label, fraction, spent, budget, warnAt }: { label: string; frac
     <div className={styles.meter}>
       <div className={styles.meterHead}>
         <span>{label}</span>
-        <Pill tone={tone}>{fraction === null ? "no budget" : formatPercent(fraction)}</Pill>
+        <Pill tone={tone}>{fraction === null ? "אין תקציב" : formatPercent(fraction)}</Pill>
       </div>
-      <div className={styles.meterTrack} role="img" aria-label={`${label}: ${spent} of ${budget}`}>
+      <div className={styles.meterTrack} role="img" aria-label={`${label}: ${spent} מתוך ${budget}`}>
         <span className={`${styles.meterFill} ${styles[`meter${tone === "danger" ? "Danger" : tone === "warn" ? "Warn" : "Ok"}`]}`} style={{ width: `${width}%` }} />
       </div>
       <p className={styles.headNote}>
-        {spent} of {budget}
+        {spent} מתוך {budget}
       </p>
     </div>
   );
@@ -303,7 +306,7 @@ function CostTable<T extends Record<string, unknown>>({ caption, rows, columns }
             ))
           ) : (
             <tr>
-              <td colSpan={columns.length}>Nothing recorded.</td>
+              <td colSpan={columns.length}>לא נרשם דבר.</td>
             </tr>
           )}
         </tbody>
@@ -315,7 +318,7 @@ function CostTable<T extends Record<string, unknown>>({ caption, rows, columns }
 function CostsSection({ signal }: { signal: number }) {
   const costs = useConsoleRead<ConsoleCosts>("admin/console/costs", { signal });
   return (
-    <ReadGate state={costs.state} what="costs and usage" reload={costs.reload}>
+    <ReadGate state={costs.state} what="העלויות והשימוש" reload={costs.reload}>
       {(value) => (
         <>
           {value.warnings.length ? (
@@ -328,23 +331,23 @@ function CostsSection({ signal }: { signal: number }) {
             </ul>
           ) : null}
           <div className={styles.summary}>
-            <Metric label="Today" value={formatUsd(value.spend.today)} />
-            <Metric label="Last 24 hours" value={formatUsd(value.spend.last24HoursUsd)} />
-            <Metric label="Month to date" value={formatUsd(value.spend.monthToDateUsd, 2)} />
-            <Metric label="Last 30 days" value={formatUsd(value.spend.last30DaysUsd, 2)} />
+            <Metric label="היום" value={formatUsd(value.spend.today)} />
+            <Metric label={T.last24h} value={formatUsd(value.spend.last24HoursUsd)} />
+            <Metric label="מתחילת החודש" value={formatUsd(value.spend.monthToDateUsd, 2)} />
+            <Metric label={T.last30d} value={formatUsd(value.spend.last30DaysUsd, 2)} />
           </div>
 
           <div className={styles.panel}>
-            <PanelTitle note={`warning at ${formatPercent(value.warnAt)}`}>Budgets</PanelTitle>
+            <PanelTitle note={`אזהרה ב-${formatPercent(value.warnAt)}`}>תקציבים</PanelTitle>
             <div className={styles.meterGrid}>
-              <Meter label="AI, daily" fraction={value.utilisation.aiDaily} spent={formatUsd(value.spend.today, 2)} budget={formatUsd(value.budgets.ai.dailyUsd, 2)} warnAt={value.warnAt} />
-              <Meter label="AI, monthly" fraction={value.utilisation.aiMonthly} spent={formatUsd(value.spend.monthToDateUsd, 2)} budget={formatUsd(value.budgets.ai.monthlyUsd, 2)} warnAt={value.warnAt} />
-              <Meter label="Briefing, monthly" fraction={value.utilisation.briefingMonthly} spent={formatUsd(value.spend.monthToDateUsd, 2)} budget={formatUsd(value.budgets.briefing.monthlyUsd, 2)} warnAt={value.warnAt} />
+              <Meter label="AI, יומי" fraction={value.utilisation.aiDaily} spent={formatUsd(value.spend.today, 2)} budget={formatUsd(value.budgets.ai.dailyUsd, 2)} warnAt={value.warnAt} />
+              <Meter label="AI, חודשי" fraction={value.utilisation.aiMonthly} spent={formatUsd(value.spend.monthToDateUsd, 2)} budget={formatUsd(value.budgets.ai.monthlyUsd, 2)} warnAt={value.warnAt} />
+              <Meter label="בריף, חודשי" fraction={value.utilisation.briefingMonthly} spent={formatUsd(value.spend.monthToDateUsd, 2)} budget={formatUsd(value.budgets.briefing.monthlyUsd, 2)} warnAt={value.warnAt} />
               <Meter
-                label="Search, monthly"
+                label="חיפוש, חודשי"
                 fraction={value.utilisation.searchMonthly}
-                spent={`${value.search.successfulQueriesThisMonth} queries`}
-                budget={value.budgets.search.monthlyQueries === null ? "no query budget" : `${value.budgets.search.monthlyQueries} queries`}
+                spent={`${value.search.successfulQueriesThisMonth} שאילתות`}
+                budget={value.budgets.search.monthlyQueries === null ? "אין תקציב שאילתות" : `${value.budgets.search.monthlyQueries} שאילתות`}
                 warnAt={value.warnAt}
               />
             </div>
@@ -352,28 +355,28 @@ function CostsSection({ signal }: { signal: number }) {
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
-              <PanelTitle>By surface</PanelTitle>
-              <p className={styles.muted}>Public chat, the briefing, and this console spend from the same budget and are counted apart.</p>
+              <PanelTitle>לפי אזור שימוש</PanelTitle>
+              <p className={styles.muted}>הצ׳אט הציבורי, הבריף והקונסולה הזו מוציאים מאותו תקציב ונספרים בנפרד.</p>
               <CostTable
-                caption="Spend by surface, last 30 days"
+                caption={`הוצאה לפי אזור שימוש, ${T.last30d}`}
                 rows={value.bySurface}
                 columns={[
-                  { key: "surface", label: "Surface", render: (row) => SURFACE_LABEL[row.surface] },
-                  { key: "calls", label: "Calls", render: (row) => String(row.calls) },
-                  { key: "cost", label: "Cost", render: (row) => formatUsd(row.costUsd) },
+                  { key: "surface", label: "אזור שימוש", render: (row) => SURFACE_LABEL[row.surface] },
+                  { key: "calls", label: "קריאות", render: (row) => String(row.calls) },
+                  { key: "cost", label: T.cost, render: (row) => formatUsd(row.costUsd) },
                 ]}
               />
             </div>
             <div className={styles.panel}>
-              <PanelTitle>By model</PanelTitle>
+              <PanelTitle>לפי מודל</PanelTitle>
               <CostTable
-                caption="Spend by model and profile, last 30 days"
+                caption={`הוצאה לפי מודל ופרופיל, ${T.last30d}`}
                 rows={value.byModel}
                 columns={[
-                  { key: "model", label: "Model", render: (row) => row.model },
-                  { key: "profile", label: "Profile", render: (row) => row.profile },
-                  { key: "calls", label: "Calls", render: (row) => String(row.calls) },
-                  { key: "cost", label: "Cost", render: (row) => formatUsd(row.costUsd) },
+                  { key: "model", label: "מודל", render: (row) => row.model },
+                  { key: "profile", label: "פרופיל", render: (row) => row.profile },
+                  { key: "calls", label: "קריאות", render: (row) => String(row.calls) },
+                  { key: "cost", label: T.cost, render: (row) => formatUsd(row.costUsd) },
                 ]}
               />
             </div>
@@ -381,50 +384,50 @@ function CostsSection({ signal }: { signal: number }) {
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
-              <PanelTitle>By kind</PanelTitle>
+              <PanelTitle>לפי סוג</PanelTitle>
               <CostTable
-                caption="Spend by run kind, last 30 days"
+                caption={`הוצאה לפי סוג ${T.run}, ${T.last30d}`}
                 rows={value.byKind}
                 columns={[
-                  { key: "kind", label: "Kind", render: (row) => row.kind },
-                  { key: "calls", label: "Calls", render: (row) => String(row.calls) },
-                  { key: "cost", label: "Cost", render: (row) => formatUsd(row.costUsd) },
+                  { key: "kind", label: "סוג", render: (row) => row.kind },
+                  { key: "calls", label: "קריאות", render: (row) => String(row.calls) },
+                  { key: "cost", label: T.cost, render: (row) => formatUsd(row.costUsd) },
                 ]}
               />
             </div>
             <div className={styles.panel}>
-              <PanelTitle>Search usage</PanelTitle>
+              <PanelTitle>שימוש בחיפוש</PanelTitle>
               <div className={styles.compactMetrics}>
-                <Metric label="Attempts this month" value={String(value.search.attemptsThisMonth)} />
-                <Metric label="Successful queries" value={String(value.search.successfulQueriesThisMonth)} />
-                <Metric label="Estimated spend" value={formatUsd(value.search.estimatedSpendUsd)} />
-                <Metric label="Monthly cap" value={formatUsd(value.budgets.search.monthlyUsd, 2)} />
+                <Metric label={`${T.attempts} ${T.thisMonth}`} value={String(value.search.attemptsThisMonth)} />
+                <Metric label="שאילתות מוצלחות" value={String(value.search.successfulQueriesThisMonth)} />
+                <Metric label="הוצאה משוערת" value={formatUsd(value.search.estimatedSpendUsd)} />
+                <Metric label="תקרה חודשית" value={formatUsd(value.budgets.search.monthlyUsd, 2)} />
               </div>
             </div>
           </div>
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
-              <PanelTitle>By day</PanelTitle>
+              <PanelTitle>לפי יום</PanelTitle>
               <CostTable
-                caption="Daily spend"
+                caption="הוצאה יומית"
                 rows={value.byDay}
                 columns={[
-                  { key: "day", label: "Day", render: (row) => row.day },
-                  { key: "calls", label: "Calls", render: (row) => String(row.calls) },
-                  { key: "cost", label: "Cost", render: (row) => formatUsd(row.costUsd) },
+                  { key: "day", label: "יום", render: (row) => row.day },
+                  { key: "calls", label: "קריאות", render: (row) => String(row.calls) },
+                  { key: "cost", label: T.cost, render: (row) => formatUsd(row.costUsd) },
                 ]}
               />
             </div>
             <div className={styles.panel}>
-              <PanelTitle>By month</PanelTitle>
+              <PanelTitle>לפי חודש</PanelTitle>
               <CostTable
-                caption="Monthly spend"
+                caption="הוצאה חודשית"
                 rows={value.byMonth}
                 columns={[
-                  { key: "month", label: "Month", render: (row) => row.month },
-                  { key: "calls", label: "Calls", render: (row) => String(row.calls) },
-                  { key: "cost", label: "Cost", render: (row) => formatUsd(row.costUsd, 2) },
+                  { key: "month", label: "חודש", render: (row) => row.month },
+                  { key: "calls", label: "קריאות", render: (row) => String(row.calls) },
+                  { key: "cost", label: T.cost, render: (row) => formatUsd(row.costUsd, 2) },
                 ]}
               />
             </div>
@@ -452,7 +455,7 @@ function auditQuery(filters: AuditFilters, before: string | null): string {
 
 /**
  * The audit log pages by keyset: each read carries `nextBefore`, the id of
- * the oldest entry seen, and "Load older" appends what follows. Filters
+ * the oldest entry seen, and the load-older control appends what follows. Filters
  * restart the list. A row expands to read its own entry, which is the only
  * read that carries the before and after states.
  */
@@ -480,7 +483,7 @@ function AuditSection({ signal }: { signal: number }) {
         if (cause instanceof AuthRequired) setState("auth-required");
         else if (cause instanceof RouteUnavailable) setState("unavailable");
         else {
-          setFailure(cause instanceof Error ? cause.message : "Unable to read the audit log.");
+          setFailure(cause instanceof Error ? cause.message : `לא ניתן לקרוא את ${T.auditLog}.`);
           setState("failed");
         }
       });
@@ -497,7 +500,7 @@ function AuditSection({ signal }: { signal: number }) {
       setEntries((current) => [...current, ...page.entries]);
       setNextBefore(page.nextBefore);
     } catch (cause) {
-      setFailure(cause instanceof Error ? cause.message : "Unable to read older entries.");
+      setFailure(cause instanceof Error ? cause.message : "לא ניתן לקרוא רשומות ישנות יותר.");
     } finally {
       setLoadingMore(false);
     }
@@ -519,46 +522,48 @@ function AuditSection({ signal }: { signal: number }) {
     <>
       <form
         className={styles.filterRow}
-        aria-label="Audit log filters"
+        aria-label={`סינון ${T.auditLog}`}
         onSubmit={(event) => {
           event.preventDefault();
           setState("loading");
           setApplied(filters);
         }}
       >
-        <SelectField className={styles.editorField} label="Entity type" value={filters.entityType} onChange={(event) => setFilters({ ...filters, entityType: event.target.value })}>
-          <option value="">Any</option>
+        <SelectField className={styles.editorField} label="סוג ישות" value={filters.entityType} onChange={(event) => setFilters({ ...filters, entityType: event.target.value })}>
+          <option value="">הכול</option>
           {ENTITY_TYPES.map((type) => (
             <option key={type} value={type}>
               {type}
             </option>
           ))}
         </SelectField>
-        <Field className={styles.editorField} label="Entity id" value={filters.entityId} onChange={(event) => setFilters({ ...filters, entityId: event.currentTarget.value })} placeholder="uuid" />
-        <Field className={styles.editorField} label="Actor" value={filters.actor} onChange={(event) => setFilters({ ...filters, actor: event.currentTarget.value })} />
-        <Field className={styles.editorField} label="Action prefix" value={filters.action} onChange={(event) => setFilters({ ...filters, action: event.currentTarget.value })} placeholder="publication." />
+        <Field className={styles.editorField} label="מזהה ישות" value={filters.entityId} onChange={(event) => setFilters({ ...filters, entityId: event.currentTarget.value })} placeholder="uuid" />
+        <Field className={styles.editorField} label="מבצע" value={filters.actor} onChange={(event) => setFilters({ ...filters, actor: event.currentTarget.value })} />
+        <Field className={styles.editorField} label="תחילית פעולה" value={filters.action} onChange={(event) => setFilters({ ...filters, action: event.currentTarget.value })} placeholder="publication." />
         <div className={styles.filterActions}>
           <Button variant="secondary" type="submit" disabled={state === "loading"}>
-            Apply filters
+            {T.applyFilters}
           </Button>
         </div>
       </form>
 
-      <ReadGate state={readState} what="the audit log" reload={() => { setState("loading"); setTick((current) => current + 1); }} skeleton={<Skeleton shape="block" height="20rem" />}>
+      <ReadGate state={readState} what={T.auditLog} reload={() => { setState("loading"); setTick((current) => current + 1); }} skeleton={<Skeleton shape="block" height="20rem" />}>
         {(rows) =>
           rows.length ? (
             <>
               <div className={styles.tableWrap}>
                 <table className={styles.table}>
-                  <caption className={styles.tableCaption}>Newest first. Expand a row to read what changed.</caption>
+                  <caption className={styles.tableCaption}>החדשות ביותר בראש. יש להרחיב שורה כדי לקרוא מה השתנה.</caption>
                   <thead>
                     <tr>
-                      <th scope="col">When</th>
-                      <th scope="col">Actor</th>
-                      <th scope="col">Action</th>
-                      <th scope="col">Entity</th>
-                      <th scope="col">Request</th>
-                      <th scope="col">Change</th>
+                      <th scope="col">מתי</th>
+                      <th scope="col">מבצע</th>
+                      {/* The header is Hebrew; the values under it stay Latin.
+                          An audit action is what you grep the log for. */}
+                      <th scope="col">פעולה</th>
+                      <th scope="col">ישות</th>
+                      <th scope="col">בקשה</th>
+                      <th scope="col">שינוי</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -571,15 +576,15 @@ function AuditSection({ signal }: { signal: number }) {
               <div className={styles.actionRow}>
                 {nextBefore ? (
                   <Button variant="secondary" type="button" isLoading={loadingMore} onClick={loadOlder}>
-                    Load older
+                    {T.loadOlder}
                   </Button>
                 ) : (
-                  <p className={styles.muted}>This is the oldest entry the filter reaches.</p>
+                  <p className={styles.muted}>זו הרשומה הישנה ביותר שהסינון מגיע אליה.</p>
                 )}
               </div>
             </>
           ) : (
-            <EmptyLine>No audit entries match. The read succeeded; the filter excluded every row, or the log is empty.</EmptyLine>
+            <EmptyLine>אין רשומות ביקורת תואמות. הקריאה הצליחה; הסינון הוציא כל שורה, או שהיומן ריק.</EmptyLine>
           )
         }
       </ReadGate>
@@ -599,7 +604,7 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
     try {
       setDetail({ kind: "ready", value: await readConsole<AuditEntry>(`admin/console/audit/${entry.id}`) });
     } catch (cause) {
-      setDetail({ kind: "failed", message: cause instanceof Error ? cause.message : "Unable to read the entry." });
+      setDetail({ kind: "failed", message: cause instanceof Error ? cause.message : "לא ניתן לקרוא את הרשומה." });
     }
   }
 
@@ -619,7 +624,7 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
         <td>
           {entry.hasBefore || entry.hasAfter ? (
             <Button variant="ghost" size="sm" type="button" aria-expanded={open} aria-controls={`audit-${entry.id}`} onClick={toggle}>
-              {open ? "Hide" : "Show"} {entry.hasBefore && entry.hasAfter ? "before and after" : entry.hasBefore ? "before" : "after"}
+              {open ? "הסתרת" : "הצגת"} {entry.hasBefore && entry.hasAfter ? "לפני ואחרי" : entry.hasBefore ? "לפני" : "אחרי"}
             </Button>
           ) : (
             "—"
@@ -629,16 +634,16 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
       {open ? (
         <tr id={`audit-${entry.id}`} className={styles.auditDetail}>
           <td colSpan={6}>
-            {detail.kind === "loading" ? <p className={styles.muted} aria-busy="true">Reading the entry…</p> : null}
+            {detail.kind === "loading" ? <p className={styles.muted} aria-busy="true">קורא את הרשומה…</p> : null}
             {detail.kind === "failed" ? <p className={styles.error}>{detail.message}</p> : null}
             {detail.kind === "ready" ? (
               <div className={styles.diffGrid}>
                 <div>
-                  <p className={styles.sectionLabel}>Before</p>
+                  <p className={styles.sectionLabel}>לפני</p>
                   <pre className={styles.json}>{detail.value.beforeState === undefined ? "—" : JSON.stringify(detail.value.beforeState, null, 2)}</pre>
                 </div>
                 <div>
-                  <p className={styles.sectionLabel}>After</p>
+                  <p className={styles.sectionLabel}>אחרי</p>
                   <pre className={styles.json}>{detail.value.afterState === undefined ? "—" : JSON.stringify(detail.value.afterState, null, 2)}</pre>
                 </div>
               </div>
@@ -666,37 +671,37 @@ function IncidentsSection({
   const incidents = useConsoleRead<ConsoleIncidents>("admin/console/incidents", { signal });
   const [notes, setNotes] = useState<Record<string, string>>({});
   return (
-    <ReadGate state={incidents.state} what="incidents" reload={incidents.reload}>
+    <ReadGate state={incidents.state} what="התקלות" reload={incidents.reload}>
       {(value) => (
         <>
           <div className={styles.compactMetrics}>
-            <Metric label="Open alerts" value={String(value.openAlerts.length)} tone={value.openAlerts.some((alert) => alert.severity === "critical") ? "danger" : value.openAlerts.length ? "warn" : "ok"} />
-            <Metric label="Stuck jobs" value={String(value.stuckJobs.length)} tone={value.stuckJobs.length ? "warn" : "ok"} />
-            <Metric label="Quarantined jobs" value={String(value.quarantinedJobs.length)} tone={value.quarantinedJobs.length ? "warn" : "ok"} />
-            <Metric label="Failed runs" value={String(value.failedRuns.length)} tone={value.failedRuns.length ? "danger" : "ok"} />
-            <Metric label="Outbox undelivered" value={String(value.outbox.undelivered)} tone={value.outbox.undelivered ? "warn" : "ok"} />
-            <Metric label="Outbox dead-lettered" value={String(value.outbox.deadLettered)} tone={value.outbox.deadLettered ? "danger" : "ok"} />
-            <Metric label="Oldest undelivered" value={value.outbox.oldestAt ? formatAgo(value.outbox.oldestAt) : "none"} />
-            <Metric label="Quarantine entries" value={String(value.quarantine.length)} />
+            <Metric label="התראות פתוחות" value={String(value.openAlerts.length)} tone={value.openAlerts.some((alert) => alert.severity === "critical") ? "danger" : value.openAlerts.length ? "warn" : "ok"} />
+            <Metric label="משימות תקועות" value={String(value.stuckJobs.length)} tone={value.stuckJobs.length ? "warn" : "ok"} />
+            <Metric label="משימות בבידוד" value={String(value.quarantinedJobs.length)} tone={value.quarantinedJobs.length ? "warn" : "ok"} />
+            <Metric label="ריצות שנכשלו" value={String(value.failedRuns.length)} tone={value.failedRuns.length ? "danger" : "ok"} />
+            <Metric label="Outbox — לא נמסרו" value={String(value.outbox.undelivered)} tone={value.outbox.undelivered ? "warn" : "ok"} />
+            <Metric label="Outbox — נזנחו" value={String(value.outbox.deadLettered)} tone={value.outbox.deadLettered ? "danger" : "ok"} />
+            <Metric label="הישן ביותר שלא נמסר" value={value.outbox.oldestAt ? formatAgo(value.outbox.oldestAt) : T.none} />
+            <Metric label="רשומות בבידוד" value={String(value.quarantine.length)} />
           </div>
 
           <div className={styles.panel}>
-            <PanelTitle note={`${value.openAlerts.length} open`}>Open alerts</PanelTitle>
+            <PanelTitle note={`${value.openAlerts.length} פתוחות`}>התראות פתוחות</PanelTitle>
             {value.openAlerts.length ? (
               <ul className={styles.alertList}>
                 {value.openAlerts.map((alert) => (
                   <li key={alert.id} className={styles.alertRow}>
                     <div>
                       <p>
-                        <Pill tone={alert.severity === "critical" ? "danger" : "warn"}>{alert.severity}</Pill> <strong>{alert.kind}</strong>
+                        <Pill tone={alert.severity === "critical" ? "danger" : "warn"}>{SEVERITY_LABEL[alert.severity] ?? alert.severity}</Pill> <strong>{alert.kind}</strong>
                       </p>
                       <p className={styles.alertMessage}>{alert.message}</p>
                       <p className={styles.headNote}>
-                        raised {formatDate(alert.createdAt)} · {alert.notifiedAt ? "notification sent" : "notification pending"}
+                        נפתחה {formatDate(alert.createdAt)} · {alert.notifiedAt ? "נשלחה התראה" : "התראה ממתינה"}
                       </p>
                       {alert.details ? (
                         <details className={styles.traceability}>
-                          <summary>Details</summary>
+                          <summary>פרטים</summary>
                           <pre className={styles.json}>{JSON.stringify(alert.details, null, 2)}</pre>
                         </details>
                       ) : null}
@@ -704,37 +709,37 @@ function IncidentsSection({
                     <div className={styles.alertActions}>
                       <Field
                         className={styles.editorField}
-                        label="Resolution note"
+                        label="הערת טיפול"
                         value={notes[alert.id] ?? ""}
                         maxLength={500}
                         onChange={(event) => setNotes({ ...notes, [alert.id]: event.currentTarget.value })}
                       />
                       <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onResolve(alert.id, alert.kind, notes[alert.id] ?? "")}>
-                        Resolve
+                        {T.resolve}
                       </Button>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <EmptyLine>No open alerts. The read succeeded and the list is genuinely empty.</EmptyLine>
+              <EmptyLine>אין התראות פתוחות. הקריאה הצליחה והרשימה באמת ריקה.</EmptyLine>
             )}
           </div>
 
           <div className={styles.panel}>
-            <PanelTitle>Stuck and quarantined jobs</PanelTitle>
+            <PanelTitle>משימות תקועות ובבידוד</PanelTitle>
             {value.stuckJobs.length || value.quarantinedJobs.length ? (
               <div className={styles.tableWrap}>
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th scope="col">Job</th>
-                      <th scope="col">Stage</th>
-                      <th scope="col">State</th>
-                      <th scope="col">Attempts</th>
-                      <th scope="col">Heartbeat</th>
-                      <th scope="col">Last error</th>
-                      <th scope="col">Recovery</th>
+                      <th scope="col">{T.job}</th>
+                      <th scope="col">שלב</th>
+                      <th scope="col">מצב</th>
+                      <th scope="col">{T.attempts}</th>
+                      <th scope="col">פעימת לב</th>
+                      <th scope="col">{T.lastError}</th>
+                      <th scope="col">התאוששות</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -746,21 +751,21 @@ function IncidentsSection({
                         </th>
                         <td>{stageLabel(job.stage)}</td>
                         <td>
-                          <Pill tone={jobTone(job.state)}>{job.state}</Pill>
+                          <Pill tone={jobTone(job.state)}>{JOB_STATE_LABEL[job.state] ?? job.state}</Pill>
                         </td>
                         <td>
                           {job.attempts} / {job.maxAttempts}
                         </td>
-                        <td>{job.heartbeatAt ? formatAgo(job.heartbeatAt) : "none"}</td>
+                        <td>{job.heartbeatAt ? formatAgo(job.heartbeatAt) : T.none}</td>
                         <td className={styles.errorCell}>{job.lastError ?? "—"}</td>
                         <td>
                           <div className={styles.cellActions}>
                             <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
-                              Retry
+                              {T.retry}
                             </Button>
                             {job.attempts >= job.maxAttempts ? (
                               <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
-                                Reset attempts and retry
+                                איפוס ניסיונות והרצה מחדש
                               </Button>
                             ) : null}
                           </div>
@@ -771,19 +776,19 @@ function IncidentsSection({
                 </table>
               </div>
             ) : (
-              <EmptyLine>No stuck or quarantined jobs.</EmptyLine>
+              <EmptyLine>אין משימות תקועות או בבידוד.</EmptyLine>
             )}
           </div>
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
-              <PanelTitle>Failed runs</PanelTitle>
+              <PanelTitle>ריצות שנכשלו</PanelTitle>
               {value.failedRuns.length ? (
                 <ul className={styles.logList}>
                   {value.failedRuns.map((run) => (
                     <li key={run.id}>
                       <span>
-                        <Pill tone="danger">failed</Pill>
+                        <Pill tone="danger">{T.failed}</Pill>
                       </span>
                       <strong>
                         {run.localDate} · {stageLabel(run.stage)}
@@ -796,11 +801,11 @@ function IncidentsSection({
                   ))}
                 </ul>
               ) : (
-                <EmptyLine>No failed runs.</EmptyLine>
+                <EmptyLine>אין ריצות שנכשלו.</EmptyLine>
               )}
             </div>
             <div className={styles.panel}>
-              <PanelTitle>Quality quarantine</PanelTitle>
+              <PanelTitle>בידוד בקרת איכות</PanelTitle>
               {value.quarantine.length ? (
                 <ul className={styles.logList}>
                   {value.quarantine.map((entry) => (
@@ -816,29 +821,29 @@ function IncidentsSection({
                   ))}
                 </ul>
               ) : (
-                <EmptyLine>No items in quarantine.</EmptyLine>
+                <EmptyLine>אין פריטים בבידוד.</EmptyLine>
               )}
             </div>
           </div>
 
           <div className={styles.panel}>
-            <PanelTitle>Recently resolved</PanelTitle>
+            <PanelTitle>טופלו לאחרונה</PanelTitle>
             {value.recentlyResolved.length ? (
               <ul className={styles.logList}>
                 {value.recentlyResolved.map((alert) => (
                   <li key={alert.id}>
                     <span>
-                      <Pill tone="ok">resolved</Pill>
+                      <Pill tone="ok">טופלה</Pill>
                     </span>
                     <strong>{alert.kind}</strong>
                     <small>
-                      {alert.message} · resolved {formatDate(alert.resolvedAt)}
+                      {alert.message} · טופלה {formatDate(alert.resolvedAt)}
                     </small>
                   </li>
                 ))}
               </ul>
             ) : (
-              <EmptyLine>Nothing resolved recently.</EmptyLine>
+              <EmptyLine>לא טופל דבר לאחרונה.</EmptyLine>
             )}
           </div>
         </>
@@ -856,24 +861,27 @@ function SecuritySection({ signal, disabled, run }: { signal: number; disabled: 
   async function runDeepHealth() {
     await run("health", async () => {
       setProbe(await readConsole<DeepHealth>("admin/health/deep"));
-      return "The deep health check finished. Its result is shown under Connections.";
+      return "בדיקת הבריאות המעמיקה הסתיימה. התוצאה שלה מוצגת תחת חיבורים.";
     });
   }
 
   return (
-    <ReadGate state={security.state} what="security and connections" reload={security.reload}>
+    <ReadGate state={security.state} what="האבטחה והחיבורים" reload={security.reload}>
       {(value) => {
         const shown = probe ?? (value.lastProbe ? { status: value.lastProbe.status, checks: value.lastProbe.checks } : null);
         return (
           <>
             <div className={styles.twoColumns}>
               <div className={styles.panel}>
-                <PanelTitle>Secrets</PanelTitle>
-                <p className={styles.muted}>Configured or missing. Values are never shown here, and never sent to this page.</p>
+                <PanelTitle>סודות</PanelTitle>
+                {/* The promise this panel makes: it reports presence, never a
+                    value. Any wording that could be read as showing a secret
+                    would be a lie about what the endpoint sends. */}
+                <p className={styles.muted}>מוגדר או חסר, ותו לא. ערכים אינם מוצגים כאן לעולם, ואינם נשלחים לעמוד הזה מלכתחילה.</p>
                 <ul className={styles.secretList}>
                   {value.secrets.map((secret) => (
                     <li key={secret.name}>
-                      <Pill tone={secret.configured ? "ok" : "danger"}>{secret.configured ? "configured" : "missing"}</Pill>
+                      <Pill tone={secret.configured ? "ok" : "danger"}>{secret.configured ? "מוגדר" : "חסר"}</Pill>
                       <strong>{secret.name}</strong>
                       <small>{secret.purpose}</small>
                     </li>
@@ -881,25 +889,25 @@ function SecuritySection({ signal, disabled, run }: { signal: number; disabled: 
                 </ul>
               </div>
               <div className={styles.panel}>
-                <PanelTitle>Connections</PanelTitle>
+                <PanelTitle>חיבורים</PanelTitle>
                 <div className={styles.grid}>
                   {Object.entries(value.integrations).map(([name, active]) => (
                     <article className={styles.service} key={name}>
-                      <Pill tone={active ? "ok" : "warn"}>{active ? "ready" : "waiting"}</Pill>
+                      <Pill tone={active ? "ok" : "warn"}>{active ? "מוכן" : "ממתין"}</Pill>
                       <h4>{name}</h4>
                     </article>
                   ))}
                 </div>
                 <div className={styles.actionRow}>
                   <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={runDeepHealth}>
-                    Run deep health check
+                    הרצת בדיקת בריאות מעמיקה
                   </Button>
-                  {value.lastProbe && !probe ? <p className={styles.headNote}>last probe {formatAgo(value.lastProbe.at)}</p> : null}
+                  {value.lastProbe && !probe ? <p className={styles.headNote}>בדיקה אחרונה {formatAgo(value.lastProbe.at)}</p> : null}
                 </div>
                 {shown ? (
-                  <div className={styles.healthStrip} aria-label="Health check result">
+                  <div className={styles.healthStrip} aria-label="תוצאת בדיקת הבריאות">
                     <span>
-                      <Pill tone={shown.status === "ok" ? "ok" : "danger"}>overall {shown.status}</Pill>
+                      <Pill tone={shown.status === "ok" ? "ok" : "danger"}>כללי {shown.status}</Pill>
                     </span>
                     {Object.entries(shown.checks).map(([name, check]) => (
                       <span key={name}>
@@ -912,24 +920,24 @@ function SecuritySection({ signal, disabled, run }: { signal: number; disabled: 
             </div>
 
             <div className={styles.panel}>
-              <PanelTitle>Resource identity</PanelTitle>
-              <p className={styles.muted}>One-way fingerprints only, for comparing environments. Secrets and full identifiers are never shown here.</p>
+              <PanelTitle>זהות משאבים</PanelTitle>
+              <p className={styles.muted}>טביעות אצבע חד-כיווניות בלבד, להשוואה בין סביבות. סודות ומזהים מלאים אינם מוצגים כאן לעולם.</p>
               <div className={styles.compactMetrics}>
                 {Object.entries(value.resourceFingerprints).map(([name, fingerprint]) => (
-                  <Metric key={name} label={name} value={fingerprint ?? "Not set"} />
+                  <Metric key={name} label={name} value={fingerprint ?? "לא מוגדר"} />
                 ))}
               </div>
             </div>
 
             <div className={styles.twoColumns}>
               <div className={styles.panel}>
-                <PanelTitle>Recent security events</PanelTitle>
+                <PanelTitle>אירועי אבטחה אחרונים</PanelTitle>
                 {value.recentSecurityEvents.length ? (
                   <ul className={styles.logList}>
                     {value.recentSecurityEvents.map((event) => (
                       <li key={event.id}>
                         <span>
-                          <Pill tone="neutral">event</Pill>
+                          <Pill tone="neutral">אירוע</Pill>
                         </span>
                         <strong>{event.action}</strong>
                         <small>
@@ -939,17 +947,17 @@ function SecuritySection({ signal, disabled, run }: { signal: number; disabled: 
                     ))}
                   </ul>
                 ) : (
-                  <EmptyLine>No security events recorded.</EmptyLine>
+                  <EmptyLine>לא נרשמו אירועי אבטחה.</EmptyLine>
                 )}
               </div>
               <div className={styles.panel}>
-                <PanelTitle>Capability changes</PanelTitle>
+                <PanelTitle>{`שינויי ${T.capabilities}`}</PanelTitle>
                 {value.capabilityChanges.length ? (
                   <ul className={styles.logList}>
                     {value.capabilityChanges.map((change) => (
                       <li key={change.id}>
                         <span>
-                          <Pill tone="gold">grant</Pill>
+                          <Pill tone="gold">הענקה</Pill>
                         </span>
                         <strong>{change.action}</strong>
                         <small>
@@ -960,7 +968,7 @@ function SecuritySection({ signal, disabled, run }: { signal: number; disabled: 
                     ))}
                   </ul>
                 ) : (
-                  <EmptyLine>No capability changes recorded.</EmptyLine>
+                  <EmptyLine>לא נרשמו שינויי הרשאות.</EmptyLine>
                 )}
               </div>
             </div>
@@ -976,31 +984,31 @@ function SecuritySection({ signal, disabled, run }: { signal: number; disabled: 
 function SettingsSection({ signal }: { signal: number }) {
   const settings = useConsoleRead<ConsoleSettings>("admin/console/settings", { signal });
   return (
-    <ReadGate state={settings.state} what="settings" reload={settings.reload}>
+    <ReadGate state={settings.state} what="ההגדרות" reload={settings.reload}>
       {(value) => (
         <>
-          <p className={styles.warnNote}>Read-only. {value.source}</p>
+          <p className={styles.warnNote}>לקריאה בלבד. {value.source}</p>
           <div className={styles.compactMetrics}>
-            <Metric label="Environment" value={value.environment} />
-            <Metric label="Region" value={value.region} />
-            <Metric label="Site URL" value={value.siteUrl} />
-            <Metric label="AI budget, daily" value={formatUsd(value.budgets.ai.dailyUsd, 2)} />
-            <Metric label="AI budget, monthly" value={formatUsd(value.budgets.ai.monthlyUsd, 2)} />
-            <Metric label="Briefing budget, daily" value={formatUsd(value.budgets.briefing.dailyUsd, 2)} />
-            <Metric label="Briefing budget, monthly" value={formatUsd(value.budgets.briefing.monthlyUsd, 2)} />
-            <Metric label="Search queries, monthly" value={value.budgets.search.monthlyQueries === null ? "Not set" : String(value.budgets.search.monthlyQueries)} />
+            <Metric label="סביבה" value={value.environment} />
+            <Metric label="אזור" value={value.region} />
+            <Metric label="כתובת האתר" value={value.siteUrl} />
+            <Metric label="תקציב AI, יומי" value={formatUsd(value.budgets.ai.dailyUsd, 2)} />
+            <Metric label="תקציב AI, חודשי" value={formatUsd(value.budgets.ai.monthlyUsd, 2)} />
+            <Metric label="תקציב בריף, יומי" value={formatUsd(value.budgets.briefing.dailyUsd, 2)} />
+            <Metric label="תקציב בריף, חודשי" value={formatUsd(value.budgets.briefing.monthlyUsd, 2)} />
+            <Metric label="שאילתות חיפוש, חודשי" value={value.budgets.search.monthlyQueries === null ? "לא מוגדר" : String(value.budgets.search.monthlyQueries)} />
           </div>
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
-              <PanelTitle>Schedules</PanelTitle>
+              <PanelTitle>תזמונים</PanelTitle>
               <div className={styles.tableWrap}>
                 <table className={`${styles.table} ${styles.tableCompact}`}>
                   <thead>
                     <tr>
-                      <th scope="col">Path</th>
-                      <th scope="col">Schedule</th>
-                      <th scope="col">What it does</th>
+                      <th scope="col">מסלול</th>
+                      <th scope="col">תזמון</th>
+                      <th scope="col">מה זה עושה</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1016,13 +1024,13 @@ function SettingsSection({ signal }: { signal: number }) {
               </div>
             </div>
             <div className={styles.panel}>
-              <PanelTitle>Models</PanelTitle>
+              <PanelTitle>מודלים</PanelTitle>
               <div className={styles.tableWrap}>
                 <table className={`${styles.table} ${styles.tableCompact}`}>
                   <thead>
                     <tr>
-                      <th scope="col">Profile</th>
-                      <th scope="col">Model</th>
+                      <th scope="col">פרופיל</th>
+                      <th scope="col">מודל</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1040,15 +1048,17 @@ function SettingsSection({ signal }: { signal: number }) {
 
           <div className={styles.twoColumns}>
             <div className={styles.panel}>
-              <PanelTitle>Sections in production</PanelTitle>
+              <PanelTitle>מדורים בייצור</PanelTitle>
               <div className={styles.queueRow}>
+                {/* The contract types these as plain strings, so the lookup
+                    falls back to the wire value rather than rendering blank. */}
                 {value.sections.map((section) => (
-                  <span key={section}>{section}</span>
+                  <span key={section}>{(SECTION_LABEL as Record<string, string>)[section] ?? section}</span>
                 ))}
               </div>
             </div>
             <div className={styles.panel}>
-              <PanelTitle>Search groups</PanelTitle>
+              <PanelTitle>קבוצות חיפוש</PanelTitle>
               <div className={styles.queueRow}>
                 {value.searchGroups.map((group) => (
                   <span key={group.group}>
@@ -1071,32 +1081,32 @@ function EnvironmentSection({ signal }: { signal: number }) {
   const userCount = useConsoleRead<UserCount>("admin/user-count", { signal });
   const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal });
   return (
-    <ReadGate state={status.state} what="the deployment status" reload={status.reload}>
+    <ReadGate state={status.state} what="מצב הפריסה" reload={status.reload}>
       {(value) => {
         const migration = briefing.value?.migration;
         const migrationStatus = !migration
           ? null
           : migration.available
-            ? `${migration.applied} migrations applied · latest version ${migration.latestId ?? "unknown"}${migration.latestAppliedAt ? ` · ${formatDate(migration.latestAppliedAt)}` : ""}`
-            : "Migration status is not available in this environment.";
+            ? `הוחלו ${migration.applied} מיגרציות · הגרסה האחרונה ${migration.latestId ?? "לא ידועה"}${migration.latestAppliedAt ? ` · ${formatDate(migration.latestAppliedAt)}` : ""}`
+            : "מצב המיגרציות אינו זמין בסביבה הזו.";
         return (
           <>
             <div className={styles.summary}>
-              <Metric label="Environment" value={value.environment} />
-              <Metric label="Queue region" value={value.region} />
-              <Metric label="Monthly briefing cap" value={formatUsd(value.aiBudgetUsd, 2)} />
-              <Metric label="Registered users" value={userCount.value ? String(userCount.value.registeredUsers) : "—"} />
+              <Metric label="סביבה" value={value.environment} />
+              <Metric label="אזור התור" value={value.region} />
+              <Metric label="תקרת בריף חודשית" value={formatUsd(value.aiBudgetUsd, 2)} />
+              <Metric label="משתמשים רשומים" value={userCount.value ? String(userCount.value.registeredUsers) : "—"} />
               <Metric
-                label="Public cache hits"
-                value={value.publicReadCache.hitRatio === null ? "No data" : `${(value.publicReadCache.hitRatio * 100).toFixed(1)}% · ${value.publicReadCache.averageLoadMs ?? 0} ms`}
+                label="פגיעות במטמון הציבורי"
+                value={value.publicReadCache.hitRatio === null ? "אין נתונים" : `${(value.publicReadCache.hitRatio * 100).toFixed(1)}% · ${value.publicReadCache.averageLoadMs ?? 0} ms`}
               />
-              <Metric label="Sign-in" value="Google identity active" />
+              <Metric label="התחברות" value="זהות Google פעילה" />
             </div>
 
             <div className={styles.grid}>
               {Object.entries(value.integrations).map(([name, active]) => (
                 <article className={styles.service} key={name}>
-                  <Pill tone={active ? "ok" : "warn"}>{active ? "ready" : "waiting"}</Pill>
+                  <Pill tone={active ? "ok" : "warn"}>{active ? "מוכן" : "ממתין"}</Pill>
                   <h4>{name}</h4>
                 </article>
               ))}
@@ -1104,17 +1114,17 @@ function EnvironmentSection({ signal }: { signal: number }) {
 
             <div className={styles.twoColumns}>
               <div className={styles.panel}>
-                <PanelTitle>Resource identity</PanelTitle>
-                <p className={styles.muted}>One-way fingerprints only, for comparing environments. Secrets and full identifiers are never shown here.</p>
+                <PanelTitle>זהות משאבים</PanelTitle>
+                <p className={styles.muted}>טביעות אצבע חד-כיווניות בלבד, להשוואה בין סביבות. סודות ומזהים מלאים אינם מוצגים כאן לעולם.</p>
                 <div className={styles.compactMetrics}>
                   {Object.entries(value.resourceFingerprints ?? {}).map(([name, fingerprint]) => (
-                    <Metric key={name} label={name} value={fingerprint ?? "Not set"} />
+                    <Metric key={name} label={name} value={fingerprint ?? "לא מוגדר"} />
                   ))}
                 </div>
               </div>
               <div className={styles.panel}>
-                <PanelTitle>Database schema</PanelTitle>
-                <InlineAbsence state={briefing.state} what="the briefing summary" reload={briefing.reload} />
+                <PanelTitle>סכמת מסד הנתונים</PanelTitle>
+                <InlineAbsence state={briefing.state} what="סיכום הבריף" reload={briefing.reload} />
                 {migrationStatus ? <p className={styles.muted}>{migrationStatus}</p> : null}
               </div>
             </div>

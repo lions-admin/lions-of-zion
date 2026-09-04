@@ -375,11 +375,15 @@ export function OverviewPanel({ signal }: { signal: number }) {
 
   async function runBriefing() {
     await ops.run("run", async () => {
+      /* No body: the route treats an empty POST as the plain run, and its own
+         schema refuses `{}` (an explicit action is required) — so an empty
+         object here was a guaranteed 422. The two variants below still send
+         theirs. */
       const result = await callConsole<{
         status: string;
         activeCollectionJobs?: number;
         recovery?: { dispatched: number; configurationRecovered?: number; processingResumed?: number };
-      }>("admin/briefing/run", { method: "POST", body: {}, failure: "לא ניתן להתחיל עיבוד עכשיו." });
+      }>("admin/briefing/run", { method: "POST", failure: "לא ניתן להתחיל עיבוד עכשיו." });
       reloadAll();
       const recovered = result.recovery?.dispatched ?? 0;
       const repaired = result.recovery?.configurationRecovered ?? 0;

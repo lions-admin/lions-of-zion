@@ -241,7 +241,7 @@ function TranscriptBody({ transcript }: { transcript: ConsoleChatTranscript }) {
             <p>
               <strong>{entry.role}</strong> · {formatDate(entry.createdAt)}
             </p>
-            <p className={styles.verdictBody}>{entry.content}</p>
+            <p className={styles.messageBody}>{entry.content}</p>
             {entry.toolRuns.length ? (
               <div className={styles.chipRow}>
                 {entry.toolRuns.map((toolRun, index) => (

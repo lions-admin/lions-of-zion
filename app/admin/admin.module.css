@@ -46,7 +46,22 @@
 
 .card {
   max-width: 520px;
-  margin-top: 8vh;
+}
+
+/* The sign-in surface. The card is centred by the flex parent, not by a
+   `margin-top` carved out of the viewport: on a short screen `8vh` pushed
+   the card down while the Google host's reserved height pushed the rest,
+   and the pair of them could push the primary control out of view. `safe
+   center` keeps the centring from clipping the card's start edge when the
+   card is taller than the viewport, and the plain `center` before it is the
+   fallback where the keyword is not understood. */
+.loginShell {
+  display: flex;
+  align-items: center;
+  align-items: safe center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: clamp(var(--sp-4), 4vw, var(--sp-6));
 }
 
 .dashboardHead {
@@ -358,23 +373,10 @@
   line-height: var(--t-small-lh);
 }
 
-/* A status value is data. */
-.ok,
-.wait {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-.ok {
-  color: var(--state-ok);
-}
-
-.wait {
-  color: var(--state-warn);
-}
+/* A status value is data — but the two classes that used to colour it,
+   `.ok` and `.wait`, are gone with the surfaces that read them: every state
+   on the console now renders through `.pill` and its tone ramp, and a value
+   that is data alone carries no colour of its own. */
 
 /* ── Console-level states ─────────────────────────────────────────────── */
 
@@ -385,9 +387,9 @@
   margin-top: var(--sp-6);
 }
 
-/* The loading grid mirrors `.summary` exactly — same columns, same hairline
-   gaps, same radius — so the console does not jump when the real metrics
-   replace it (SYS-014). */
+/* The loading grid mirrors `.compactMetrics` exactly — same columns, same
+   hairline gaps, same radius — so the console does not jump when the real
+   metrics replace it (SYS-014). */
 .skeletonGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -411,44 +413,32 @@
 }
 
 
-/* ── Summary cells and metrics ────────────────────────────────────────── */
+/* ── Compact metric cells ─────────────────────────────────────────────── */
 
-.summary,
+/* A row of labelled figures in a ruled grid. (This used to be two classes —
+   `.summary` for the old single-column dashboard and `.compactMetrics` for
+   the areas — with identical rules; the dashboard's cell is gone, so one
+   class carries the pattern. `.skeletonGrid` below keeps matching its
+   columns so loading never shifts the layout.) */
 .compactMetrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--line-w);
+  margin-top: var(--sp-5);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   background: var(--line);
   overflow: hidden;
 }
 
-.summary {
-  margin-top: var(--sp-6);
-}
-
-.compactMetrics {
-  margin-top: var(--sp-5);
-}
-
-.summary div,
 .compactMetrics div {
   display: grid;
   gap: var(--sp-1);
   min-width: 0;
+  padding: var(--sp-3) var(--sp-4);
   background: var(--surface-2);
 }
 
-.summary div {
-  padding: var(--sp-4) var(--sp-5);
-}
-
-.compactMetrics div {
-  padding: var(--sp-3) var(--sp-4);
-}
-
-.summary span,
 .compactMetrics span {
   color: var(--ink-lo);
   font-size: var(--t-caption);
@@ -456,7 +446,6 @@
   line-height: var(--t-caption-lh);
 }
 
-.summary strong,
 .compactMetrics strong {
   color: var(--ink-hi);
   font-family: var(--face-data);
@@ -544,8 +533,18 @@
 
 /* ── Tables ───────────────────────────────────────────────────────────── */
 
+/* One table pattern for the whole console. No global floor width: a table
+   is `width: 100%` and its columns squeeze and wrap before anything
+   scrolls, because a wrapped cell beats a scrollbar in a half-width panel.
+   `overflow-wrap: anywhere` is what lets a UUID column compress instead of
+   forcing the row wide — identifiers break before layouts do. The one
+   genuinely wide table (the sources sheet, fourteen columns) asks for its
+   floor with `.tableWide`, and even its scroll is contained here, never
+   page-level. */
 .tableWrap {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
   margin-top: var(--sp-4);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
@@ -553,16 +552,23 @@
 
 .table {
   width: 100%;
-  min-width: 900px;
   border-collapse: collapse;
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
 }
 
-/* Cost by model and stage: four narrow numeric columns that do not need the
-   900px floor the wide source table does. */
+/* Cost by model and stage: four narrow numeric columns that want a little
+   room to keep their figures aligned rather than wrapping mid-number. */
 .tableCompact {
   min-width: 32rem;
+}
+
+/* The sources table's fourteen columns genuinely need a floor; everything
+   else fits its panel. The scroll it produces at intermediate widths is
+   contained by `.tableWrap` above, and below 64rem the whole table is
+   replaced by cards anyway. */
+.tableWide {
+  min-width: 56rem;
 }
 
 .tableCaption {
@@ -581,6 +587,7 @@
   border-bottom: var(--line-w) solid var(--line);
   text-align: start;
   vertical-align: top;
+  overflow-wrap: anywhere;
 }
 
 .table thead th {
@@ -673,91 +680,10 @@
   margin-top: 0;
 }
 
-.editorLayout {
-  display: grid;
-  grid-template-columns: minmax(15rem, 0.65fr) minmax(0, 1.7fr);
-  gap: var(--sp-4);
-  margin-top: var(--sp-5);
-}
-
-.draftQueue {
-  display: flex;
-  flex-direction: column;
-  max-height: 54rem;
-  overflow-y: auto;
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
-}
-
-/* SYS-007: flatten shared Button chrome into a stack of rows. Repeated
-   class beats `.button.ghost.md.active` (four classes) on the same node. */
-.draftQueue .queueItem.queueItem.queueItem {
-  --btn-bg: transparent;
-  --btn-fg: var(--ink);
-  --btn-line: transparent;
-  display: grid;
-  width: 100%;
-  justify-content: stretch;
-  align-items: stretch;
-  padding: var(--sp-4);
-  border: 0;
-  border-bottom: var(--line-w) solid var(--line);
-  border-radius: 0;
-  box-shadow: none;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-align: start;
-  text-transform: none;
-  white-space: normal;
-}
-
-.draftQueue .queueItem.queueItem.queueItem:hover:not(:disabled) {
-  --btn-bg: var(--surface-3);
-  --btn-fg: var(--ink);
-}
-
-.draftQueue .selectedDraft.selectedDraft.selectedDraft,
-.draftQueue .selectedDraft.selectedDraft.selectedDraft:hover:not(:disabled) {
-  --btn-bg: var(--gold-wash);
-  --btn-fg: var(--ink-hi);
-  box-shadow: inset 3px 0 0 var(--gold);
-}
-
-.draftQueue .queueItem:focus-visible {
-  outline-offset: -3px;
-}
-
-/* Button wraps children in a `.content` span; stack status / title / section. */
-.draftQueue .queueItem > span {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  justify-items: start;
-  align-items: start;
-  gap: var(--sp-1);
-  white-space: normal;
-  text-align: start;
-}
-
-.draftQueue span,
-.draftQueue small,
-.editorStatus {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  direction: ltr;
-}
-
-.draftQueue strong {
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  font-weight: 600;
-  line-height: var(--t-small-lh);
-}
+/* (`.editorLayout` and `.draftQueue` — the old two-column editor with its
+   scrolling queue — are gone with the layout that mounted them: the lanes
+   row and the inline `PublicationForm` replaced them. The lane card's
+   selected state lives with `.laneCard` below.) */
 
 .editorForm {
   display: grid;
@@ -779,10 +705,19 @@
   text-align: left;
 }
 
+/* The form's own two-line fact row: status pill beside section, and the
+   editor's public id. The id is an identifier, so it takes the data face and
+   its own left-to-right run inside the RTL form. */
 .editorStatus {
   display: flex;
   justify-content: space-between;
   gap: var(--sp-3);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  direction: ltr;
 }
 
 .formGrid {
@@ -838,19 +773,9 @@
 
 /* ── Console sections — ADMIN-002 ─────────────────────────────────────── */
 
-/* One area of the console: status, pipeline, sources, queue, editor. A gold
-   rule opens each one, so the five areas are legible as five without a box
-   per area. `scroll-margin-top` is for the section rail's anchors. */
-.section {
-  margin-top: var(--sp-7);
-  padding-top: var(--sp-5);
-  border-top: var(--line-w) solid var(--gold-line);
-  scroll-margin-top: var(--sp-5);
-}
-
-.section:first-of-type {
-  margin-top: var(--sp-6);
-}
+/* (`.section` and its gold rule are gone with the single-column dashboard
+   that anchored them: the five areas are named by the tab row and headed by
+   their own `AreaHead`, not by a separator class.) */
 
 /* A count or a timestamp sitting opposite a panel heading. */
 .headNote {
@@ -965,14 +890,12 @@
 /* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .summary,
   .compactMetrics,
   .skeletonGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .twoColumns,
-  .editorLayout {
+  .twoColumns {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -981,14 +904,9 @@
     align-items: flex-start;
     flex-direction: column;
   }
-
-  .draftQueue {
-    max-height: 24rem;
-  }
 }
 
 @media (max-width: 640px) {
-  .summary,
   .compactMetrics,
   .skeletonGrid,
   .grid,
@@ -1072,6 +990,10 @@
 
 /* ── State pills and tone ─────────────────────────────────────────────── */
 
+/* A pill may carry a composed fact ("פעיל · 3 כשלים") inside a tight table
+   cell, so it wraps rather than overflows: `nowrap` was a promise the cell
+   could not always keep, and the overflow pressure landed on the row.
+   Breaking is aligned to the run, so the pill stays one readable unit. */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -1085,7 +1007,8 @@
   line-height: var(--t-caption-lh);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  white-space: nowrap;
+  text-align: start;
+  overflow-wrap: anywhere;
 }
 
 .toneOk { color: var(--state-ok); background: var(--state-ok-wash); }
@@ -1110,71 +1033,16 @@
 
 /* ── The pipeline stage strip ─────────────────────────────────────────── */
 
-.stageWrap {
-  overflow-x: auto;
-  padding-bottom: var(--sp-2);
-}
+/* (The strip itself — `.stageWrap` through `.stageError` — is superseded by
+   the `.flow` visualiser in command.module.css and its rules are gone. What
+   remains is the loading skeleton, which must keep matching the flow's grid
+   so the console does not jump when the read lands.) */
 
-.stageStrip {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(9.5rem, 1fr);
-  gap: var(--sp-2);
-  min-width: 100%;
-}
-
-.stage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  padding: var(--sp-3);
-  border: var(--line-w) solid var(--line-soft);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-}
-
-/* A stage is coloured by the worst thing happening in it, never by both. */
-.stageLive { border-color: var(--gold-line-strong); background: var(--gold-wash); }
-.stageWarn { border-color: var(--state-warn-line); background: var(--state-warn-wash); }
-.stageDanger { border-color: var(--state-danger-line); background: var(--state-danger-wash); }
-
-.stageRow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-2);
-}
-
-.stageCount {
-  font-family: var(--face-data);
-  font-size: var(--t-figure);
-  font-weight: var(--t-figure-weight);
-  line-height: var(--t-figure-lh);
-  color: var(--ink-hi);
-  font-variant-numeric: tabular-nums;
-}
-
-.stageFacts {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  margin: 0;
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-.stageError {
-  color: var(--state-danger);
-  overflow-wrap: anywhere;
-}
-
+/* Mirrors the flow grid in command.module.css, so the loading skeleton and
+   the real strip have the same columns and the console does not jump. */
 .stageSkeleton {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(9.5rem, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
   gap: var(--sp-2);
 }
 
@@ -1347,41 +1215,10 @@
 
 /* ── Alerts, incidents, audit ─────────────────────────────────────────── */
 
-.alertList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.alertRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--sp-3);
-  padding: var(--sp-3);
-  border: var(--line-w) solid var(--line-soft);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-}
-
-.alertMessage {
-  flex: 1 1 18rem;
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  overflow-wrap: anywhere;
-}
-
-.alertActions {
-  display: flex;
-  gap: var(--sp-2);
-  align-items: center;
-}
+/* (The admin-variant alert list — `.alertList`, `.alertRow`, `.alertMessage`,
+   `.alertActions` — is gone: `AlertList` renders through the command layer's
+   `cmd.alert*` classes, and this file's copy was shadowed by it on every
+   surface that has one.) */
 
 .filterRow {
   display: flex;
@@ -1489,33 +1326,21 @@
   line-height: var(--t-body-lh);
 }
 
-/* ── Narrative verdicts ───────────────────────────────────────────────── */
+/* ── Narrative messages ───────────────────────────────────────────────── */
 
-.verdict {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-}
-
-.verdictWord {
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--gold);
-}
-
-.verdictBody {
+/* A message body in the text face: what the operations chat renders per
+   turn and what a public-chat transcript's entries read in. This used to be
+   `.verdictBody`, duplicated across this module and command.module.css with
+   different rules — the banner's body there, this prose here. One name per
+   thing: the banner's body stays `cmd.verdictBody`; this is `.messageBody`. */
+.messageBody {
   margin: 0;
   color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
+  overflow-wrap: anywhere;
 }
-
-/* An unassessed narrative must not read as a cleared one. */
-.verdictOff { color: var(--ink-lo); }
 
 /* ── The confirmation dialog's optional input ─────────────────────────── */
 
@@ -1528,15 +1353,23 @@
 
 /* ── The console shell ────────────────────────────────────────────────── */
 
-/* The chat is a side rail on a wide screen and a full-width panel below the
-   areas on a narrow one. It is never behind a tab: it is the surface an
-   operator uses *while* reading another.
+/* The chat is a side rail on a wide screen and a deliberate toggle opening
+   a full-height drawer on a narrow one (the drawer itself is a top-layer
+   `<dialog>` mounted by OperationsConsole). It is never behind a tab: it is
+   the surface an operator uses *while* reading another.
 
    Which side is deliberately not stated: grid columns are laid out along the
    inline axis, so under the console's `dir="rtl"` the areas take the first
    (right) column and the rail follows on the left, exactly as they would swap
    the other way in an English build. Nothing in this block names a physical
-   side, which is why the mirroring needs no rule of its own. */
+   side, which is why the mirroring needs no rule of its own.
+
+   The rail is sticky under the area nav, never beside it: its `top` is the
+   nav's height (`--console-nav-h`, defined on the shell in
+   command.module.css), so as the page scrolls the rail stops exactly where
+   the nav stops, and the two never overlap. The rail is its own contained
+   scroller with `overscroll-behavior: contain` — a chat transcript is an
+   intentional scroller — and it stays clear of the page's scroll. */
 .consoleLayout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1552,9 +1385,12 @@
 
   .consoleRail {
     position: sticky;
-    top: var(--sp-5);
-    max-height: calc(100dvh - var(--sp-8));
+    top: var(--console-nav-h);
+    max-height: calc(100dvh - var(--console-nav-h));
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding-block-start: var(--sp-2);
   }
 }
 
@@ -1567,4 +1403,16 @@
 
 .consoleRail {
   min-width: 0;
+}
+
+/* Narrow screens: the rail holds one control — the toggle that opens the
+   chat drawer — so it stays a deliberate affordance rather than a squeezed
+   column. */
+.railToggle {
+  display: flex;
+  justify-content: stretch;
+}
+
+.railToggle > * {
+  width: 100%;
 }

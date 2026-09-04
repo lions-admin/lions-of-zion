@@ -60,6 +60,23 @@ export const SECTION_LABEL: Record<PublicationSection, string> = {
   narrative_watch: "ניטור נרטיבים",
 };
 
+/**
+ * The editorial desk's lanes.
+ *
+ * Separate from `STATUS_LABEL` and not derived from it. A status names one
+ * publication — `פורסמה`, singular and feminine — while a lane heads a column
+ * of many, and Hebrew inflects for both number and gender where English does
+ * not. Reusing the status label gave "פורסמה" above eleven articles, which
+ * reads as a caption for one of them.
+ */
+export const LANE_LABEL = {
+  drafts: "טיוטות",
+  inReview: "בבדיקה",
+  ready: "מוכנות לפרסום",
+  published: "פורסמו",
+  archived: "בארכיון",
+} as const;
+
 /* ── Pipeline stages ──────────────────────────────────────────────────── */
 
 export const STAGE_LABEL: Record<string, string> = {
@@ -70,6 +87,23 @@ export const STAGE_LABEL: Record<string, string> = {
   draft: "ניסוח",
   quality: "בקרת איכות",
   publish: "פרסום",
+};
+
+/**
+ * Briefing edition states.
+ *
+ * Feminine, because the subject is a `מהדורה`. Distinct from both job states
+ * and publication statuses even where the English word is the same: an
+ * edition that is `published` reads `פורסמה`, a job that is `completed`
+ * reads `הושלם`, and collapsing the two would make a Hebrew reader think the
+ * pipeline had published something it had not.
+ */
+export const EDITION_STATUS_LABEL: Record<string, string> = {
+  collecting: "באיסוף",
+  processing: "בעיבוד",
+  quarantined: "בבידוד",
+  published: "פורסמה",
+  failed: "נכשלה",
 };
 
 export const JOB_STATE_LABEL: Record<string, string> = {
@@ -113,6 +147,9 @@ export const TREND_LABEL: Record<string, string> = {
   rising: "במגמת עלייה",
   stable: "יציב",
   declining: "נחלש",
+  /* `narrativeWatchDetails.trendDirection` carries this; the console's own
+     `trendDirection` derivation does not produce it. Both feed this map. */
+  unclear: "לא ברור",
 };
 
 /* ── Severity and health ──────────────────────────────────────────────── */
@@ -156,6 +193,33 @@ export const T = {
   quarantined: "בבידוד",
   failed: "נכשל",
   ok: "תקין",
+
+  /* Column headings — the word that names a column, not the values in it.
+     `STATUS_LABEL` and `STAGE_LABEL` map values; nothing named the header. */
+  colStatus: "מצב",
+  colStage: "שלב",
+  colRecovery: "שחזור",
+  colCalls: "קריאות",
+
+  /* Lifecycle states, as opposed to the verbs in the action list below. */
+  resolved: "טופלה",
+  raised: "נפתחה",
+  configured: "מוגדר",
+  missing: "חסר",
+  ready: "מוכן",
+  waiting: "ממתין",
+  current: "נוכחית",
+
+  /* Hebrew inflects for number and gender and the singular forms above do
+     not carry over. These are the plurals the panels actually needed —
+     `נכשל` cannot head a count of sources, and `תקוע` cannot head a count of
+     jobs. Add the form you need rather than bending one that nearly fits. */
+  failingPlural: "כושלים",
+  failuresPlural: "כשלים",
+  stuckPluralF: "תקועות",
+  pendingPluralF: "ממתינות",
+  activePlural: "פעילים",
+  inactivePlural: "מושבתים",
 
   /* Measures */
   cost: "עלות",

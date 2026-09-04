@@ -26,7 +26,7 @@ import {
   publicationTone,
   useOperations,
 } from "./console-primitives";
-import { ABSENCE, AREA_LABEL, SECTION_LABEL, STATUS_LABEL, T, TREND_LABEL } from "./lexicon";
+import { ABSENCE, AREA_LABEL, LANE_LABEL, SECTION_LABEL, STATUS_LABEL, T, TREND_LABEL } from "./lexicon";
 import { NarrativesPanel } from "./NarrativesPanel";
 import { callConsole, readConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
@@ -34,11 +34,11 @@ import styles from "./admin.module.css";
 type Lane = keyof ConsoleEditorial["lanes"];
 
 const LANES: Array<{ key: Lane; title: string; statuses: PublicationStatus[] }> = [
-  { key: "drafts", title: "טיוטות חדשות", statuses: ["draft"] },
-  { key: "inReview", title: STATUS_LABEL.under_review, statuses: ["under_review"] },
-  { key: "ready", title: "מוכנות לפרסום", statuses: ["approved"] },
-  { key: "published", title: "פורסמו", statuses: ["published", "updated"] },
-  { key: "archived", title: STATUS_LABEL.archived, statuses: ["archived"] },
+  { key: "drafts", title: LANE_LABEL.drafts, statuses: ["draft"] },
+  { key: "inReview", title: LANE_LABEL.inReview, statuses: ["under_review"] },
+  { key: "ready", title: LANE_LABEL.ready, statuses: ["approved"] },
+  { key: "published", title: LANE_LABEL.published, statuses: ["published", "updated"] },
+  { key: "archived", title: LANE_LABEL.archived, statuses: ["archived"] },
 ];
 
 /** A lane card, from the editorial read when it is served, or built from the

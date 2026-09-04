@@ -90,11 +90,21 @@ import { adminConsoleRepo, type AuditRow, type AlertRow, type ConsoleJobState, t
    Mirrors `vercel.json` `crons`. `tests/admin-console-reads.test.ts` pins the
    two against each other, so a schedule edited in one place fails the suite
    rather than showing the operator a wrong "next run". */
+/**
+ * The cron table, mirrored from `vercel.json`.
+ *
+ * `description` is operator-facing and reads in Hebrew, because the only
+ * surface that renders it is the console's settings panel. This is the one
+ * place a Hebrew string is correct on the server side — everything else here
+ * is either an identifier or prompt text a model reads.
+ * `tests/admin-console-reads.test.ts` pins these against `vercel.json` so the
+ * paths and expressions cannot drift; the descriptions are ours.
+ */
 export const SCHEDULES = [
-  { path: "/api/internal/cron/ingest", schedule: "0,30 * * * *", description: "Collect every active source on the half hour." },
-  { path: "/api/internal/cron/embed", schedule: "10,40 * * * *", description: "Embed newly indexed documents for semantic search." },
-  { path: "/api/internal/cron/outbox-drain", schedule: "*/15 * * * *", description: "Deliver queued outbox intent (reindex, cache invalidation)." },
-  { path: "/api/internal/cron/maintenance", schedule: "20 3 * * *", description: "Nightly maintenance: recover stale jobs, prune, alert." },
+  { path: "/api/internal/cron/ingest", schedule: "0,30 * * * *", description: "איסוף מכל מקור פעיל, בכל חצי שעה." },
+  { path: "/api/internal/cron/embed", schedule: "10,40 * * * *", description: "הטמעת מסמכים חדשים לצורך חיפוש סמנטי." },
+  { path: "/api/internal/cron/outbox-drain", schedule: "*/15 * * * *", description: "מסירת פעולות ממתינות מה-outbox: אינדוקס מחדש וביטול מטמון." },
+  { path: "/api/internal/cron/maintenance", schedule: "20 3 * * *", description: "תחזוקת לילה: שחרור משימות תקועות, גיזום נתונים והתראות." },
 ] as const;
 
 /** The schedule whose tick the overview reports as "next run". */

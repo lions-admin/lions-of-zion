@@ -22,7 +22,7 @@ import {
   today,
   useOperations,
 } from "./console-primitives";
-import { AREA_LABEL, JOB_STATE_LABEL, STAGE_LABEL, T } from "./lexicon";
+import { AREA_LABEL, EDITION_STATUS_LABEL, JOB_STATE_LABEL, STAGE_LABEL, T } from "./lexicon";
 import { callConsole, readConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
 
@@ -37,14 +37,6 @@ const stateWord = (state: string) => JOB_STATE_LABEL[state] ?? state;
    states nor publication statuses. They belong in `lexicon.ts` next to the
    other state maps; they are here because that file is owned elsewhere while
    this translation lands. */
-const EDITION_STATUS_LABEL: Record<string, string> = {
-  collecting: "באיסוף",
-  processing: "בעיבוד",
-  quarantined: JOB_STATE_LABEL.quarantined,
-  published: "פורסמה",
-  failed: "נכשלה",
-};
-
 function JobTable({
   jobs,
   compact = false,

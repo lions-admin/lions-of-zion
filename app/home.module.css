@@ -480,6 +480,19 @@
   row-gap: var(--sp-1);
 }
 
+/* `SignalRotator`'s stage, when there is more than one signal to turn through.
+ *
+ * It stands where `.railSignal` stands in the row and takes the flex sizing
+ * `.railSignal` would have taken — the signals themselves become grid items
+ * inside it, where `flex` no longer applies to them. So the rail's responsive
+ * behaviour stays one rule per breakpoint, stated here with the rest of it,
+ * rather than moving into the component's own stylesheet where the next person
+ * tuning this band would not think to look. */
+.railStage {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
 .railMeta {
   display: flex;
   flex: 0 0 auto;
@@ -674,6 +687,8 @@
   .railInner { padding-inline: var(--sp-4); }
 
   .railSignal { flex-basis: 100%; }
+
+  .railStage { flex-basis: 100%; }
 
   .railTitle { flex-basis: 100%; }
 

@@ -50,114 +50,187 @@
   pointer-events: none;
 }
 
-.fallbackField,
-.matrixCanvas {
+/* The still frame under the shot: the video's own first frame, so the moment
+   the element starts painting is a start of movement and not a cut to a
+   different picture. This is also the whole of the layer when motion is
+   reduced or JavaScript never runs — `HeroVideo` withholds the source in both
+   cases, so what is left is this. */
+.posterField {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  background-color: var(--ground);
+  /* Portrait by default, because this is the layer a phone paints first and
+     `HeroVideo` cannot set a `poster` until it has run. Declaring it in CSS
+     rather than as an inline style is what lets the breakpoint below override
+     it at all — an inline `background-image` would outrank any media query. */
+  background-image: var(--hero-poster-tall);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Both video elements — the entrance and the loop — are pinned to the same box
+ * and cross-fade against each other. `object-fit: cover` still, because a
+ * viewport is never exactly 16:9 or 9:16 either, but it is now trimming a few
+ * percent off a frame shot for this shape rather than cutting a landscape
+ * composition down to a phone.
+ *
+ * Neither element is visible until it has been given a source AND told to be:
+ * `data-visible` is set by the component at the moment it starts the element,
+ * so a fade never runs against a black box that has not decoded a frame yet.
+ * The duration is `--dur-slow`, matched by `HANDOFF_LEAD_S` in the component —
+ * change one and change the other, or the dissolve clips. */
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
-}
-
-/* What renders under the canvas until the engine paints — and all that
-   renders when it never does: the site's own scan ground, so the no-JS and
-   no-GPU states are the rest of the site's surface, not a special case. */
-.fallbackField {
-  z-index: 0;
-  background-image: var(--scan-ground);
-}
-
-/* The shared scan band (`ScanBackdrop`, `surface="band"`), between the static
- * ground and the canvas. Same DOM order and z-index as the fallback, so it
- * paints over the texture and under the field.
- *
- * Layering, decided: the home never runs two moving scan layers. The field's
- * canvas is opaque (`alpha: false`, cleared to black), so once its engine
- * paints nothing beneath it is visible anyway. So the band is the moving
- * layer only when the
- * field is not — no JavaScript, or the moment between handoff and the
- * engine's first paint — and the field owns the screen the rest of the time,
- * with the band at a whisper (`HOME_SCAN_PROFILE`: low, slow) for the frames
- * both exist. Flipping this to a faint overlay above the canvas is one rule
- * here, not a component change.
- *
- * Handoff: `data-intro-pending` is the server's claim that the entrance will
- * run, `data-intro-active` is it running, `data-handoff-blocked` is the
- * post-intro input guard. The band is `display: none` through all three —
- * no compositor work under the GPU intro — and appears when the last clears.
- * The `noscript` rule in `app/page.tsx` lifts the pending state when there is
- * no JavaScript to clear it.
- *
- * `--content-w` is the mask width `.rowField` dims through: the masthead's
- * column, so the wordmark and the standfirst are not read over drifting rows. */
-.scanDock {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  --content-w: min(48rem, calc(100vw - 2rem));
-}
-
-html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .scanDock {
-  display: none;
-}
-
-/* Hidden only after the canvas has faded in over it, so the ground is never
-   bare for a frame between the band leaving and the field arriving. */
-.fieldLayer:has([data-engine-ready]) .scanDock {
-  visibility: hidden;
-  transition: visibility 0s linear var(--dur-slow);
-}
-
-/* And actually stopped, not merely unpainted.
- *
- * `visibility: hidden` hides an animation; it does not stop it. The comment
- * above used to say this rule ended the drift, and on Chromium it does — but
- * only as a side effect of `content-visibility: auto` on `.backdropBand`
- * skipping a subtree that is no longer relevant to the user. Where that
- * property is unsupported the sixteen rows kept animating for the life of the
- * page behind an opaque canvas: compositor work with nothing on the other end
- * of it, and the "one moving layer" rule true only in what you could see.
- *
- * The universal selector is how a stylesheet reaches rows another CSS module
- * hashes the class names of; the subtree is the backdrop, its row field and
- * sixteen spans. `animation-play-state` cannot be delayed the way `visibility`
- * is above, so the rows stand still from the first frame of the cross-fade —
- * under a black canvas going 0 → 1 over `--dur-slow`, above rows already at a
- * tenth of an opacity. */
-.fieldLayer:has([data-engine-ready]) .scanDock * {
-  animation-play-state: paused;
-}
-
-.matrixCanvas {
-  z-index: 1;
-  display: block;
+  object-fit: cover;
   opacity: 0;
   transition: opacity var(--dur-slow) var(--ease-out);
 }
 
-.matrixCanvas[data-engine-ready] {
+.heroVideo[data-visible] {
   opacity: 1;
+}
+
+/* The landscape shoot, from 48rem up.
+ *
+ * There is no `object-position` aiming anywhere in this file any more. It was
+ * here while the phone was being served the 16:9 shot and had to be told which
+ * third of it to keep; there is now a 9:16 shoot of the same subject, chosen by
+ * `HeroVideo` at the same breakpoint this rule uses, so each viewport gets a
+ * frame composed for its shape and `cover` has almost nothing left to discard.
+ * `center` in both, and it means what it says. */
+@media (min-width: 48rem) {
+  .posterField {
+    background-image: var(--hero-poster-wide);
+  }
+}
+
+/* Legibility over a photographic ground.
+ *
+ * `.wordmark`'s text-shadow was sized against an opaque black canvas and does
+ * not survive backlit dust on its own, so the contrast has to come from here.
+ *
+ * Phone: the column is centred over the animal because `cover` has cropped the
+ * frame down to him, so there is nowhere else to put it. A flat wash plus the
+ * foot gradient is the only honest option — a directional scrim would darken
+ * the half of a portrait crop the type is not even on.
+ *
+ * The upward linear is common to both breakpoints and does one job: carry the
+ * foot of the shot into `--ground` so the hero meets the flow content below on
+ * the site's own surface rather than on a cut-off photograph.
+ *
+ * `--ground` is pure black, so these are written through `color-mix` rather
+ * than as literal rgba: if the ground is ever re-graded, the scrim follows. */
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(
+      to top,
+      var(--ground) 0%,
+      color-mix(in oklab, var(--ground) 55%, transparent) 26%,
+      transparent 55%
+    ),
+    color-mix(in oklab, var(--ground) 44%, transparent);
+}
+
+/* Desktop: the scrim turns directional, matching the layout above it.
+ *
+ * Weighted onto the left so the column reads against near-black while the lion
+ * keeps his light — the flat wash the phone needs would grey down the one part
+ * of the frame worth showing. It clears entirely by 88%, which is the mane, and
+ * the foot gradient is eased back because the deck below is only the rail now
+ * and no longer needs the same darkness under it. */
+@media (min-width: 48rem) {
+  .heroScrim {
+    background:
+      linear-gradient(
+        to right,
+        color-mix(in oklab, var(--ground) 90%, transparent) 0%,
+        color-mix(in oklab, var(--ground) 74%, transparent) 30%,
+        color-mix(in oklab, var(--ground) 30%, transparent) 60%,
+        transparent 88%
+      ),
+      linear-gradient(
+        to top,
+        var(--ground) 0%,
+        color-mix(in oklab, var(--ground) 42%, transparent) 20%,
+        transparent 46%
+      );
+  }
 }
 
 /* Where the field stops.
  *
- * `ProgressiveBlur` grades the last spans of the scan so the field falls out
- * of focus into the ground rather than being guillotined by the rail.
- * Above the canvas (1) and the fallback (0); the chrome lives outside this
- * layer entirely, so nothing readable is ever under the blur.
+ * `ProgressiveBlur` grades the foot of the shot so the field falls out of focus
+ * into the ground rather than being guillotined by the rail. Above the scrim
+ * (2), the video (1) and the poster (0); the chrome lives outside this layer
+ * entirely, so nothing readable is ever under the blur.
  *
  * Qualified by `.fieldLayer` on purpose: `ProgressiveBlur`'s own `.blur`
  * sets `height` and `z-index` at one class of specificity, and a bare
  * `.heroFade` would be a coin toss decided by stylesheet emission order. */
 .fieldLayer .heroFade {
-  z-index: 2;
+  z-index: 3;
 }
 
 @media (min-width: 64rem) {
   .fieldLayer .heroFade { height: calc(var(--sp-9) + var(--sp-8)); }
 }
 
+/* The no-JavaScript route list — see the `<noscript>` block in `app/page.tsx`.
+ *
+ * Styled at all because a reader who has scripting off is not a reader who
+ * deserves an unstyled list on top of a photograph: it needs the same opaque
+ * surface the rail has to be readable over the shot. Above the field layer's
+ * scrim (2) and blur (3), below the masthead (10). */
+.noscriptNav {
+  position: relative;
+  z-index: 4;
+  margin: var(--sp-5) auto 0;
+  width: min(48rem, calc(100vw - 2rem));
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  background: var(--surface-1);
+}
+
+.noscriptNav ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-5);
+  justify-content: center;
+  list-style: none;
+}
+
+.noscriptNav a {
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.noscriptNav a:hover,
+.noscriptNav a:focus-visible {
+  color: var(--gold);
+}
+
 /* ---- The masthead ---- */
 
+/* Phone first, and phone stays centred.
+ *
+ * The phone is served the 9:16 shoot, which fills the screen with the animal
+ * rather than reserving an empty third beside him — so there is no "beside the
+ * lion" to lay a column into here, and the column that desktop sets to his left
+ * is centred over him instead. `.heroScrim` carries a flat wash on this
+ * breakpoint to buy the contrast that the open left of the landscape frame buys
+ * on desktop. */
 .masthead {
   position: relative;
   z-index: 10;
@@ -194,9 +267,26 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
     justify-content: space-between;
   }
 
+  /* The column beside the lion.
+   *
+   * The shot composes the animal into the right third against an open, almost
+   * empty left — so the brand is set into that emptiness rather than laid over
+   * his head. Everything that was centred becomes left-aligned as a block:
+   * `align-items` moves the logo and the button, `text-align` moves the type,
+   * and the width cap keeps the column clear of the mane at the narrow end of
+   * the range rather than letting the standfirst run under it.
+   *
+   * `margin-inline` is start-clamped and end-`auto`, which is what actually
+   * pins the column left — the base rule's `auto auto` is what was centring
+   * it, and dropping only `align-items` would have left the block itself
+   * still floating in the middle. */
   .masthead {
+    align-items: flex-start;
+    width: min(32rem, 46vw);
     margin-block: 0;
     margin-top: clamp(4rem, 10svh, 12rem);
+    margin-inline: clamp(var(--sp-5), 6vw, var(--sp-8)) auto;
+    text-align: left;
   }
 
   /* The deck's frame: a column with a defined floor-gap. Between the
@@ -215,31 +305,6 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
   .signalRail {
     padding-bottom: var(--sp-2);
   }
-}
-
-/* ---- Zone C, width-coordinated: the index gets a name ----
- *
- * A small mono label, counted from the navigation list — the same lexicon
- * voice as the rail flag and the file numbers, in ink-lo, spent on no
- * colour. It names the nav (its accessible name comes from here too) and
- * is the third place the file count is computed rather than typed. */
-.fileIndexName {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: var(--sp-3);
-  margin: 0 0 var(--sp-3);
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.fileIndexCount {
-  font-variant-numeric: tabular-nums;
 }
 
 .brandMark {
@@ -362,77 +427,6 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
   .hero .actions .ctaPrimary:hover .ctaArrow {
     translate: 0.2em 0;
   }
-}
-
-/* ---- The file index: the rebuilt hero navigation ---- */
-
-.fileIndex {
-  position: relative;
-  z-index: 12;
-  width: min(var(--chrome-w), 100%);
-  margin-inline: auto;
-  padding: var(--sp-3) clamp(var(--sp-4), 3.5vw, var(--sp-7));
-}
-
-.fileList {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  justify-content: center;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.fileItem {
-  display: flex;
-  border-left: var(--line-w) solid var(--line-soft);
-}
-
-.fileItem:first-child { border-left: 0; }
-
-.fileLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: var(--control-h);
-  padding-inline: var(--sp-4);
-  color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  text-decoration: none;
-  text-shadow: 0 1px 0 var(--ground), 0 0 0.5rem color-mix(in oklab, var(--ground) 92%, transparent);
-  white-space: nowrap;
-  outline-offset: -3px;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.fileNo {
-  color: var(--ink-lo);
-  font-variant-numeric: tabular-nums;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.fileName {
-  min-width: 0;
-}
-
-.fileLink:hover,
-.fileLink:focus-visible {
-  color: var(--ink-hi);
-}
-
-.fileLink:hover .fileNo,
-.fileLink:focus-visible .fileNo {
-  color: var(--ink);
-}
-
-.fileLink:active {
-  color: var(--ink-hi);
 }
 
 /* ---- The signal rail (HOME-003) ---- */
@@ -580,41 +574,6 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
   color: var(--gold);
 }
 
-/* ---- Engine telemetry: top right, opposite the brand, wide screens only.
- * A genuinely live readout, so its dot may breathe — on the ambient clock,
- * never faster; reduced motion freezes it through the global kill switch. */
-
-.engineStatus {
-  position: absolute;
-  top: calc(var(--header-h) + var(--sp-4));
-  right: clamp(var(--sp-4), 3.5vw, var(--sp-7));
-  z-index: 5;
-  display: none;
-  align-items: center;
-  gap: var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-}
-
-@media (min-width: 64rem) {
-  .engineStatus { display: flex; }
-}
-
-.statusDot {
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: var(--radius-pill);
-  background: var(--gold-dim);
-  animation: statusPulse var(--dur-ambient) var(--ease-in-out) infinite;
-}
-
-@keyframes statusPulse { 50% { opacity: 0.28; } }
-
 /* ---- Responsive composition (HOME-004 at the top, 320px at the bottom) ---- */
 
 /* 1024–1440: the first tuned band. The deck takes a defined floor-gap on
@@ -628,7 +587,7 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
 @media (min-width: 90rem) {
   .masthead { margin-top: clamp(6rem, 12svh, 10rem); }
   .filesDeck { margin-top: clamp(1.5rem, 4svh, 4rem); }
-  .fileIndex { padding-block: var(--sp-4); }
+
   .signalRail { padding-bottom: var(--sp-3); }
 }
 
@@ -637,7 +596,7 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
   .masthead { margin-top: clamp(8rem, 14svh, 12rem); }
   .filesDeck { margin-top: clamp(2rem, 5svh, 5rem); }
   .brandMark { width: 23rem; }
-  .fileIndex { padding-block: var(--sp-4); }
+
 }
 
 /* Short desktop viewports — the 768–896px-tall laptops. Any of the spacer
@@ -704,26 +663,6 @@ html:has([data-intro-pending], [data-intro-active], [data-handoff-blocked]) .sca
 /* 720px — the seam the rest of the site turns on. The index becomes a
    two-column ledger and the rail stacks its lines. */
 @media (max-width: 45rem) {
-  .fileIndex { padding-inline: var(--sp-4); }
-
-  .fileList {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-content: stretch;
-  }
-
-  .fileItem {
-    border-left: 0;
-    border-top: var(--line-w) solid var(--line-soft);
-  }
-
-  .fileItem:nth-child(-n + 2) { border-top: 0; }
-
-  .fileLink {
-    flex: 1 1 auto;
-    padding-inline: var(--sp-2);
-    white-space: normal;
-  }
 
   .railInner { padding-inline: var(--sp-4); }
 

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { CinematicIntroGate } from "@/components/particle-nav/CinematicIntroGate";
 import { ScanBackdrop } from "@/components/sections/ScanBackdrop";
 import { HOME_SCAN_PROFILE } from "@/components/sections/scanProfiles";
-import { TypographicField } from "@/components/typographic-field/TypographicField";
+import { HeroVideo } from "@/components/sections/HeroVideo";
 import { ButtonLink } from "@/components/ui/Button";
 import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { stamp } from "@/components/live/feed-time";
-import { FILES_COUNT_LABEL, SITE_NAVIGATION } from "@/lib/site-navigation";
 /* Imported from the module rather than through `components/motion/index.ts`.
    `package.json` now DOES declare a CSS-only `sideEffects` list, which
    makes the barrel tree-shakeable, so this is belt-and-braces rather than
@@ -91,14 +91,6 @@ export default async function Page() {
         />
       }
     >
-      {/* Without JavaScript there is no intro to hand off from, and the
-          server-rendered `data-intro-pending` that `.scanDock` waits on never
-          clears — the same reason `CinematicIntroGate` hides `[data-intro-only]`
-          this way. The band shows over the static scan ground, as on every
-          other route. */}
-      <noscript>
-        <style>{"[data-home-scan] { display: block !important; }"}</style>
-      </noscript>
       <main className={styles.page} data-home-scroll>
         <SiteHeader />
 
@@ -109,29 +101,20 @@ export default async function Page() {
               — the fallback scan, the canvas, the telemetry, and the graded
               fall-off at the foot. */}
           <div className={styles.fieldLayer} aria-hidden="true">
-            <div className={styles.fallbackField} />
-            {/* The shared public-site scan, the same server-rendered rows every
-                reading route drifts behind, docked as a band under the canvas.
-                It stays hidden until the intro has handed off and steps aside
-                once the field's engine paints — the field's canvas is opaque,
-                so the two are never on screen together; see `.scanDock`. */}
-            <div className={styles.scanDock} data-home-scan>
-              <ScanBackdrop
-                routeId="home"
-                surface="band"
-                register={HOME_SCAN_PROFILE.register}
-                intensity={HOME_SCAN_PROFILE.intensity}
-                density={HOME_SCAN_PROFILE.density}
-                speed={HOME_SCAN_PROFILE.speed}
-              />
-            </div>
-            <TypographicField
-              canvasClassName={styles.matrixCanvas}
-              statusClassName={styles.engineStatus}
-              dotClassName={styles.statusDot}
-            />
-            {/* After the field, before the chrome: it grades the glyphs and
-                nothing else. See `.heroFade`. */}
+            {/* The still frame is the ground beneath everything else here: what
+                shows before the first video byte lands, what stays when motion
+                is reduced, and all there is when no JavaScript ever hands
+                `HeroVideo` a source. It is the video's own first frame, so the
+                arrival is a start of movement rather than a change of picture. */}
+            <div className={styles.posterField} />
+            <HeroVideo className={styles.heroVideo} />
+            {/* Legibility, not decoration. The masthead is a left column and
+                the lion holds the right of the frame; the scrim weights the
+                left so the type sits on darkness while the animal stays lit.
+                See `.heroScrim`. */}
+            <div className={styles.heroScrim} />
+            {/* After the field, before the chrome: it grades the footer edge of
+                the shot into the ground. See `.heroFade`. */}
             <ProgressiveBlur position="bottom" height="var(--sp-9)" className={styles.heroFade} />
           </div>
 
@@ -169,36 +152,42 @@ export default async function Page() {
             </div>
           </div>
 
-          {/* Zone C — the files deck. One wrapper so the index and the rail
-              compose as a single floor-anchored frame on desktop; on mobile
-              the div is unstyled and the flow is unchanged. The index is
-              named by its own visible heading (counted from the list, never
-              a literal), which is also the nav's accessible name. */}
+          {/* Zone C — the signal rail, alone at the floor now.
+
+              The file index that used to sit here listed SITE_NAVIGATION in
+              full, which `SiteHeader` already renders on every route of the
+              site including this one: the same eight links, twice, in one
+              viewport. The header's copy is the one that survives, because it
+              is the one a reader can reach from anywhere. What that buys here
+              is the lower half of the frame — the index was occupying the
+              ground the lion walks on. */}
           <div className={styles.filesDeck}>
-            {/* The rebuilt hero navigation: the eight files as server-rendered
-                hrefs, usable in every state the canvas has and every state it
-                lacks. Order, labels, and routes come from SITE_NAVIGATION —
-                the same source the header and the particle scene read. */}
-            <nav id="home-files" className={styles.fileIndex} aria-labelledby="home-files-name">
-              <h2 id="home-files-name" className={styles.fileIndexName}>
-                The files
-                <span className={styles.fileIndexCount} data-numeric>
-                  {FILES_COUNT_LABEL}
-                </span>
-              </h2>
-                <ol className={styles.fileList}>
-                {SITE_NAVIGATION.map((item, index) => (
-                  <li key={item.id} className={styles.fileItem}>
-                    <Link href={item.href} className={styles.fileLink}>
-                      <span className={styles.fileNo} data-numeric aria-hidden="true">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span className={styles.fileName}>{item.displayName}</span>
-                    </Link>
-                  </li>
-                ))}
+            {/* Navigation for a reader with no JavaScript.
+             *
+             * `SiteHeader` drops every destination name from the bar below 64rem
+             * (`site-header.module.css`) and hands the whole set to a drawer that
+             * needs script to open. The file index removed from this hero was, in
+             * that state, the only server-rendered route list a small screen had —
+             * so deleting it as a duplicate left the no-JS phone with no way out
+             * of this page at all. `tests/intro-accessibility.test.ts` is what
+             * caught it.
+             *
+             * `<noscript>` is the whole answer: it renders nothing for readers the
+             * header already serves, so the duplication the index was deleted for
+             * does not come back, and the one state that lost its navigation gets
+             * it. Plain anchors rather than `next/link` — there is no client here
+             * to hydrate them. */}
+            <noscript>
+              <nav className={styles.noscriptNav} aria-label="All sections">
+                <ol>
+                  {SITE_NAVIGATION.map((item) => (
+                    <li key={item.id}>
+                      <a href={item.href}>{item.displayName}</a>
+                    </li>
+                  ))}
                 </ol>
               </nav>
+            </noscript>
 
             {/* HOME-003 — one stable current signal with source, status, and
                 time, then the door to the whole record. Not a crawl: a moving

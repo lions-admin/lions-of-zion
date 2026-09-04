@@ -238,6 +238,18 @@
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.028), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.014) 0 1px, transparent 1px 9px);
 
+  /* The stills, declared once here beside the other grounds rather than buried
+     in the rules that use them. `HeroVideo` holds the same three paths in its
+     `SOURCES` table — it needs them in JavaScript to set a `poster` after it has
+     measured the viewport — and the two lists must not drift.
+     `--site-ground-photo` is the landscape frame in both orientations on
+     purpose: it is the ambient ground of the reading routes, veiled to 92-96%,
+     where the shape of the crop is not perceptible and a second asset would be
+     a second download for nothing. */
+  --site-ground-photo: url("/video/lion-hero-poster-desktop.jpg");
+  --hero-poster-wide: url("/video/lion-hero-poster-desktop.jpg");
+  --hero-poster-tall: url("/video/lion-hero-poster-mobile.jpg");
+
   --z-under: -1;
   --z-base: 0;
   --z-raised: 10;
@@ -323,6 +335,43 @@ html, body {
 body:has([data-family="institution"]) {
   background-image: var(--scan-ground-quiet);
 }
+
+/* ---- The site ground: one still frame under every route ----
+ *
+ * The same photograph the home hero moves — its own first frame — held far
+ * enough back that it reads as a room the type is in rather than a picture
+ * behind it. The home page does not use this: `.page` there is opaque and
+ * carries the moving version instead. Everything else gets the still.
+ *
+ * A fixed pseudo-element rather than another `background-image` layer on
+ * `body`, for one reason: `background-attachment: fixed` is what the rule above
+ * uses, and iOS Safari does not honour it. On a repeating texture that is
+ * invisible; on a `cover` photograph over a long article it stretches the image
+ * down the whole scroll length. A `position: fixed` box is the viewport either
+ * way. Negative z-index puts it above `body`'s own background and below every
+ * child, which is exactly the slot wanted.
+ *
+ * The veil is doing the real work — at 6% the photograph is a texture, and
+ * reading copy over it stays reading copy. Anything lighter and the mane starts
+ * competing with paragraphs. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ground) 92%, transparent) 0%,
+      color-mix(in oklab, var(--ground) 96%, transparent) 100%
+    ),
+    var(--site-ground-photo);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center, 68% center;
+}
+
 
 html:has([data-home-scroll]) {
   overflow-x: clip;

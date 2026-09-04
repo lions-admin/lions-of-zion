@@ -172,25 +172,34 @@ describe("route coverage — one shared backdrop per public route, none on the i
     expect(shell.match(/<ScanBackdrop/g)?.length).toBe(1);
   });
 
-  it("the home mounts the same component as a band, docked under the field", () => {
+  it("the home mounts the entrance's instance only, now its field is a video", () => {
     const page = read("app/page.tsx");
     expect(page).toContain('import { ScanBackdrop } from "@/components/sections/ScanBackdrop"');
-    expect(page).toMatch(/<ScanBackdrop[^>]*routeId="home"[^>]*surface="band"/);
-    /* Two instances, one per composition, and no more: the band docked under
-       the typographic field for the settled home, and the entrance's own,
-       passed to `CinematicIntroGate` because that gate is a client boundary
-       and paints an opaque ground the page's band cannot show through. Only
-       one of them is ever mounted and moving at a time — the entrance's is
-       rendered only while the intro runs and paused once it is dismissed,
-       and the dock is `display: none` for the whole of that. */
-    expect(page.match(/<ScanBackdrop/g)?.length).toBe(2);
+    /* One instance, where there were two.
+     *
+     * The band docked under the typographic field went with the field itself
+     * when this hero became a photographic shot: a scan of drifting rows over
+     * a lion is two moving layers competing, which is the thing the docking
+     * rules existed to prevent in the first place. The entrance keeps its own
+     * instance, passed to `CinematicIntroGate` because that gate is a client
+     * boundary, and it is the only one on the route.
+     *
+     * That the count is asserted at all is the point: a second `<ScanBackdrop>`
+     * reappearing on this page means someone has put a moving scan back under
+     * the video without deciding which of the two owns the screen. */
+    expect(page.match(/<ScanBackdrop/g)?.length).toBe(1);
     expect(page).toMatch(/<CinematicIntroGate[\s\S]{0,600}?background=\{/);
-    expect(page).toMatch(/<ScanBackdrop[^>]*surface="viewport"/);
-    expect(page).toMatch(/className=\{styles\.scanDock\} data-home-scan/);
+    expect(page).toMatch(/<ScanBackdrop[^>]*routeId="home"[^>]*surface="viewport"/);
+    expect(page).not.toMatch(/surface="band"/);
+    expect(page).not.toMatch(/data-home-scan/);
 
+    /* And the layer it was docked in is a video layer now: poster under, the
+       two cross-fading elements over it, scrim, then the graded fall-off. */
     const css = read("app/home.module.css");
-    expect(css).toMatch(/html:has\(\[data-intro-pending\], \[data-intro-active\], \[data-handoff-blocked\]\) \.scanDock \{\s*display: none;/);
-    expect(css).toMatch(/\.fieldLayer:has\(\[data-engine-ready\]\) \.scanDock \{\s*visibility: hidden;/);
+    expect(css).toMatch(/\.posterField \{[^}]*z-index:\s*0/);
+    expect(css).toMatch(/\.heroVideo \{[^}]*z-index:\s*1/);
+    expect(css).toMatch(/\.heroScrim \{[^}]*z-index:\s*2/);
+    expect(css).not.toMatch(/\.scanDock/);
   });
 
   it("the reading shells all reach EditorialShell rather than mounting their own", () => {

@@ -330,11 +330,18 @@ describe("the entrance's background is the site's own scan, and it stops", () =>
     expect(css).toMatch(
       /\[data-intro-dismissed\] \.introBackground \*[\s\S]{0,80}?animation-play-state: paused/,
     );
-    /* And the home's own dock stays off for the whole of the entrance, so the
-       two instances are never both moving. */
+    /* There is no second instance to keep still any more: the home's docked
+       band went with the typographic field when the hero became a video, so
+       "never both moving" is now enforced by there being only one. The home's
+       own moving layer is the video, and it carries its own stop — no source
+       is ever handed to either element under `prefers-reduced-motion`, which
+       is a stronger guarantee than pausing an animation, because the file is
+       not fetched at all. */
     const home = read("app/home.module.css");
-    expect(home).toMatch(
-      /data-intro-pending[\s\S]{0,160}?\.scanDock \{\s*display: none/,
+    expect(home).not.toMatch(/\.scanDock/);
+    const hero = read("components/sections/HeroVideo.tsx");
+    expect(hero).toMatch(
+      /matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches\)\s*return/,
     );
   });
 });

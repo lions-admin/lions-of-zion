@@ -225,10 +225,19 @@ describe("the scan layer cannot rise above content, chrome or a dialog", () => {
   it("renders behind the home hero inside a layer that is itself pointer-inert", () => {
     expect(home).toMatch(/\.fieldLayer \{[^}]*z-index:\s*0/);
     expect(home).toMatch(/\.fieldLayer \{[^}]*pointer-events:\s*none/);
-    expect(home).toMatch(/\.scanDock \{[^}]*z-index:\s*0/);
-    /* The masthead, the file index and the signal rail all sit above it. */
+    /* The layer's contents, in paint order. A video is not pointer-inert by
+       default the way a canvas of glyphs was — it has native controls and is
+       focusable — so the `pointer-events: none` on the layer above is now
+       load-bearing rather than tidy, and the elements carry `tabIndex={-1}`
+       and `aria-hidden` of their own. */
+    expect(home).toMatch(/\.posterField \{[^}]*z-index:\s*0/);
+    expect(home).toMatch(/\.heroVideo \{[^}]*z-index:\s*1/);
+    expect(home).toMatch(/\.heroScrim \{[^}]*z-index:\s*2/);
+    const hero = read("components/sections/HeroVideo.tsx");
+    expect(hero.match(/aria-hidden="true"/g)?.length).toBe(2);
+    expect(hero.match(/tabIndex=\{-1\}/g)?.length).toBe(2);
+    /* The masthead and the signal rail sit above all of it. */
     expect(home).toMatch(/\.masthead \{[^}]*z-index:\s*10/);
-    expect(home).toMatch(/\.fileIndex \{[^}]*z-index:\s*12/);
     expect(home).toMatch(/\.signalRail \{[^}]*z-index:\s*12/);
   });
 });
@@ -263,12 +272,19 @@ describe("reduced motion composes a frame instead of freezing one", () => {
     expect(reduced).toMatch(/\.rowLoud\.rowHostile \{ color: var\(--data-ember-dim\); \}/);
   });
 
-  it("leaves the home band still as well, from both directions", () => {
-    /* The band's own dock stops the drift once the field owns the screen; the
-       media query above stops it for a reader who asked for stillness. */
-    expect(home).toMatch(
-      /\.fieldLayer:has\(\[data-engine-ready\]\) \.scanDock \*\s*\{\s*animation-play-state:\s*paused/,
+  it("leaves the home's own moving layer still as well", () => {
+    /* The home's moving layer is the hero video now, and stillness there is
+       not a paused animation but an absent source: the effect returns before
+       either element is given one, so a reader who asked for stillness does
+       not download 30MB of video to hold on frame one. `.posterField` is what
+       they see, and it is painted by the stylesheet with no script at all. */
+    const hero = read("components/sections/HeroVideo.tsx");
+    expect(hero).toMatch(
+      /matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches\)\s*return/,
     );
+    expect(hero).toMatch(/preload="none"/);
+    expect(home).toMatch(/\.posterField \{[^}]*background-image:\s*var\(--hero-poster-tall\)/);
+    /* The entrance's own scan still answers to the profile. */
     expect(HOME_SCAN_PROFILE.density).toBe("low");
     expect(["slow", "still"]).toContain(HOME_SCAN_PROFILE.speed);
   });
@@ -406,32 +422,56 @@ describe("no interaction on or behind the scan depends on hover alone", () => {
     const hoverOnly = home.slice(home.indexOf("@media (hover: hover)"));
     expect(hoverOnly).toMatch(/prefers-reduced-motion: no-preference/);
     expect(hoverOnly).toMatch(/:hover:not\(\[aria-disabled="true"\]\)::before,\s*[\s\S]*?:focus-visible::before/);
-    /* Both hero links change colour on focus as well as on hover. */
-    expect(home).toMatch(/\.fileLink:hover,\s*\.fileLink:focus-visible/);
+    /* The hero's remaining link list — the no-JavaScript one — changes colour
+       on focus as well as on hover. It is the only link set left in this
+       stylesheet since the file index was removed as a duplicate of the
+       header's, and it is precisely the set a keyboard without a pointer
+       reaches, so hover-only styling here would be the worst place for it. */
+    expect(home).toMatch(/\.noscriptNav a:hover,\s*\.noscriptNav a:focus-visible/);
   });
 });
 
 describe("the no-JavaScript home still shows a readable band over the static ground", () => {
   const page = read("app/page.tsx");
 
-  it("lifts the server's intro-pending claim so the band is not hidden forever", () => {
-    expect(page).toMatch(/<noscript>[\s\S]*?\[data-home-scan\] \{ display: block !important; \}/);
-    expect(home).toMatch(
-      /html:has\(\[data-intro-pending\], \[data-intro-active\], \[data-handoff-blocked\]\) \.scanDock \{\s*display: none;/,
-    );
+  it("still offers a way off the page when the header cannot", () => {
+    /* The regression this replaced a band-visibility check with.
+     *
+     * `SiteHeader` hides `.barNav` entirely below 64rem and hands every
+     * destination to a drawer that opens with script. So on a phone with
+     * scripting off the header names no routes at all, and the hero's file
+     * index — deleted as a duplicate of the header's list — was the only
+     * server-rendered set of links that state had. Removing it left that
+     * reader stranded on the homepage; this is the fallback that fixes it.
+     *
+     * `<noscript>` and not a hidden element, deliberately: the duplication the
+     * index was deleted for must not come back for the readers the header
+     * already serves, and `<noscript>` renders nothing for them. */
+    expect(page).toMatch(/<noscript>[\s\S]{0,400}?<nav[^>]*aria-label="All sections"/);
+    expect(page).toMatch(/<noscript>[\s\S]{0,600}?SITE_NAVIGATION\.map/);
+    /* Plain anchors — `next/link` would be a client component with nothing to
+       hydrate it in the one state this block exists for. */
+    expect(page).toMatch(/<noscript>[\s\S]{0,700}?<a href=\{item\.href\}>/);
   });
 
-  it("keeps the static --scan-ground under it, so no state is a bare screen", () => {
-    expect(home).toMatch(/\.fallbackField \{[^}]*background-image:\s*var\(--scan-ground\)/);
+  it("keeps a ground under every state, so none of them is a bare screen", () => {
+    /* The hero's ground is the video's own first frame, painted by the
+       stylesheet rather than by the component, so it is there before any
+       script runs and stays when none ever does. */
+    expect(home).toMatch(/\.posterField \{[^}]*background-image:\s*var\(--hero-poster-tall\)/);
+    expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
+    /* And the rest of the site keeps the scan texture over its own still. */
     expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
+    expect(globals).toMatch(/body::before \{[\s\S]{0,400}?var\(--site-ground-photo\)/);
   });
 
-  it("renders the hero's links, index and rail as server HTML", () => {
-    expect(page).toMatch(/<nav id="home-files"/);
-    expect(page).toMatch(/SITE_NAVIGATION\.map/);
+  it("renders the hero's wordmark, fallback links and rail as server HTML", () => {
     expect(page).toMatch(/<h1 id="home-wordmark"/);
-    /* The signal rail has its own opaque surface, so the band never
+    expect(page).toMatch(/aria-label="All sections"/);
+    /* The signal rail has its own opaque surface, so the shot never
        composites behind the one piece of live copy on the screen. */
     expect(home).toMatch(/\.signalRail \{[^}]*background:\s*var\(--surface-1\)/);
+    /* The no-JS link list needs one too — it sits over a photograph. */
+    expect(home).toMatch(/\.noscriptNav \{[^}]*background:\s*var\(--surface-1\)/);
   });
 });

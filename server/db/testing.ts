@@ -114,6 +114,144 @@ export async function as<T>(
   }
 }
 
+export type TestDatabaseRole = "app_public" | "app_staff" | "app_service";
+
+const ROLES: readonly TestDatabaseRole[] = ["app_public", "app_staff", "app_service"];
+
+/** Role scopes open on a given test database, so a nested one nests properly. */
+const openRoleScopes = new WeakMap<object, number>();
+
+/**
+ * The stand-in for `withDatabaseRole` (`server/db/client.ts`) in a test that
+ * runs against PGlite.
+ *
+ * The literal wrapper cannot run here: it connects a Neon WebSocket pool. What
+ * it *does* is reproducible, and reproducing it is the whole point — a
+ * pass-through `(role, identity, fn) => fn()` leaves the security boundary
+ * untested while every route test still goes green.
+ *
+ * So this establishes the same two things production establishes — the
+ * Postgres role and `app.identity` — runs `fn` inside them, and lets a failure
+ * out. Two differences are forced by the harness rather than chosen:
+ *
+ *   1. **`SET LOCAL ROLE` in a transaction, not session-scope `SET ROLE`.**
+ *      One PGlite connection is shared by the test and the code under test;
+ *      a session-scope role would leak into the test's own assertions. The
+ *      transaction is also what makes `SET LOCAL` anything but a silent no-op
+ *      — hence `assertRole`, before and after `fn`.
+ *   2. **`COMMIT`, not `ROLLBACK`.** Unlike `as()`, which proves a policy and
+ *      must leave nothing behind, this stands in for a request that really
+ *      wrote. Rolling back would delete the audit rows the caller then asserts
+ *      on, and production commits. A statement error aborts the transaction
+ *      and Postgres turns this `COMMIT` into a rollback by itself, which is
+ *      the safe direction.
+ *
+ * The nested-transaction patch is not optional either. `db.transaction()` on
+ * PGlite issues a bare `BEGIN`/`COMMIT` pair rather than a savepoint — proven
+ * by spike, not assumed — so one `db().transaction(…)` inside `fn` (there is
+ * one in `core/auth/actor.ts`) would COMMIT this scope early and drop the
+ * role, and everything after it would run as the owner. Silently. While the
+ * patch is installed those calls become savepoints; the `assertRole` after
+ * `fn` is the second lock on the same door.
+ */
+export async function withTestDatabaseRole<T>(
+  db: TestDatabase,
+  role: TestDatabaseRole,
+  identity: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  /* The role is interpolated into SQL: it may only ever be one of the three. */
+  if (!ROLES.includes(role)) throw new Error(`Not a database role: ${String(role)}`);
+
+  const depth = openRoleScopes.get(db) ?? 0;
+  const outermost = depth === 0;
+  const enclosing = outermost ? null : await currentRoleScope(db);
+  let restoreTransactions: (() => void) | undefined;
+
+  if (outermost) {
+    await db.execute(sql.raw("BEGIN"));
+    restoreTransactions = useSavepointsForNestedTransactions(db);
+  }
+  openRoleScopes.set(db, depth + 1);
+
+  try {
+    await enterRole(db, role, identity);
+    await assertRole(db, role);
+    const result = await fn();
+    /* Still inside the scope we opened, and still that role. */
+    await assertRole(db, role);
+    return result;
+  } finally {
+    openRoleScopes.set(db, depth);
+    if (outermost) {
+      restoreTransactions?.();
+      /* Production RESETs the role and releases the connection here. On one
+         PGlite connection, ending the transaction is what does both. */
+      await db.execute(sql.raw("COMMIT"));
+    } else {
+      /* Put the enclosing scope back, exactly as `RESET ALL` would. A failed
+         statement leaves the transaction aborted, where this cannot run and
+         the outer `COMMIT` cleans up instead. */
+      try {
+        await enterRole(db, enclosing!.role as TestDatabaseRole, enclosing!.identity);
+      } catch {
+        /* Aborted transaction: the outermost scope still ends it. */
+      }
+    }
+  }
+}
+
+/** Assumes `role` with `identity`, from whatever role is current. */
+async function enterRole(db: TestDatabase, role: string, identity: string): Promise<void> {
+  /* Only the session user is a member of all three roles, so a nested scope
+     has to step back to it before it can assume a different one. */
+  await db.execute(sql.raw("RESET ROLE"));
+  await db.execute(sql.raw(`SET LOCAL ROLE ${role}`));
+  await db.execute(sql`SELECT set_config('app.identity', ${identity}, true)`);
+}
+
+async function currentRoleScope(db: TestDatabase): Promise<{ role: string; identity: string }> {
+  const result = await db.execute<{ role: string; identity: string }>(
+    sql`SELECT current_user AS role, COALESCE(current_setting('app.identity', true), '') AS identity`,
+  );
+  return result.rows[0] as { role: string; identity: string };
+}
+
+/**
+ * Makes `db.transaction()` use savepoints while a role scope is open, and
+ * returns the undo.
+ *
+ * Drizzle's PGlite driver delegates to `PGlite.transaction()`, which opens a
+ * real `BEGIN` even when one is already open — Postgres warns and carries on,
+ * and the inner `COMMIT` then ends the *outer* transaction. The replacement
+ * hands the callback the same connection, which is what the non-transactional
+ * session already uses, so nothing else changes.
+ */
+function useSavepointsForNestedTransactions(db: TestDatabase): () => void {
+  const client = db.$client as unknown as {
+    transaction: unknown;
+    query: (query: string) => Promise<unknown>;
+  };
+  const original = client.transaction;
+  let sequence = 0;
+  client.transaction = async <T>(callback: (tx: unknown) => Promise<T>): Promise<T> => {
+    const savepoint = `role_scope_${(sequence += 1)}`;
+    await client.query(`SAVEPOINT ${savepoint}`);
+    try {
+      const result = await callback(client);
+      await client.query(`RELEASE SAVEPOINT ${savepoint}`);
+      return result;
+    } catch (cause) {
+      await client.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+      await client.query(`RELEASE SAVEPOINT ${savepoint}`);
+      throw cause;
+    }
+  };
+  return () => {
+    client.transaction = original;
+  };
+}
+
 /**
  * Refuses to continue unless the role actually took effect.
  *

@@ -13,7 +13,7 @@
  */
 import { describe, expect, it, vi } from "vitest";
 import { eq, sql } from "drizzle-orm";
-import { freshDatabase, type TestDatabase } from "@/server/db/testing";
+import { freshDatabase, violation, type TestDatabase } from "@/server/db/testing";
 import {
   aiRun,
   auditLog,
@@ -28,13 +28,58 @@ import {
   briefingJob,
 } from "@/server/db/schema";
 
-const state = vi.hoisted(() => ({ db: undefined as unknown }));
+const state = vi.hoisted(() => ({
+  db: undefined as unknown,
+  /** Every `withDatabaseRole` call the code under test made, in order. */
+  scopes: [] as Array<{ role: string; identity: string }>,
+  /** What `current_user` and `app.identity` actually were once inside each. */
+  observed: [] as Array<{ role: string; identity: string | null }>,
+  /** The scopes still open, innermost last — what `databaseIdentity()` reads. */
+  open: [] as Array<{ role: string; identity: string }>,
+}));
 vi.mock("@/server/db/client", () => ({
   db: () => {
     if (!state.db) throw new Error("No test database registered for this test.");
     return state.db;
   },
-  withDatabaseRole: (_role: string, _identity: string, fn: () => Promise<unknown>) => fn(),
+  /**
+   * Not a pass-through.
+   *
+   * `withDatabaseRole` is the security boundary every classified request runs
+   * inside, and `(role, identity, fn) => fn()` would leave it untested while
+   * every route test below still went green. The real wrapper connects a Neon
+   * pool and cannot run against PGlite, so this establishes the same role and
+   * the same `app.identity` on the test database and runs the route inside
+   * them — see `withTestDatabaseRole` in `server/db/testing.ts`, which fails
+   * loudly rather than quietly if the role does not take.
+   */
+  withDatabaseRole: async (role: string, identity: string, fn: () => Promise<unknown>) => {
+    if (!state.db) throw new Error("No test database registered for this test.");
+    const db = state.db as import("@/server/db/testing").TestDatabase;
+    const { withTestDatabaseRole } = await import("@/server/db/testing");
+    state.scopes.push({ role, identity });
+    state.open.push({ role, identity });
+    try {
+      return await withTestDatabaseRole(
+        db,
+        role as import("@/server/db/testing").TestDatabaseRole,
+        identity,
+        async () => {
+          /* Read back from inside the boundary, on the same connection the
+             route is about to use, so a test can assert what it really ran as
+             rather than what the caller asked for. */
+          const seen = await db.$client.query<{ role: string; identity: string | null }>(
+            "SELECT current_user AS role, current_setting('app.identity', true) AS identity",
+          );
+          state.observed.push(seen.rows[0]!);
+          return fn();
+        },
+      );
+    } finally {
+      state.open.pop();
+    }
+  },
+  databaseIdentity: () => state.open.at(-1)?.identity ?? "service:embedding",
   closeDb: async () => {},
 }));
 vi.mock("@/server/core/auth/neon", () => ({
@@ -55,6 +100,7 @@ vi.mock("@/server/core/config", async (importOriginal) => ({
 
 const { adminConsoleService } = await import("@/server/modules/admin-console/service");
 const { authenticateAdmin } = await import("@/server/core/auth/actor");
+const { withDatabaseRole, databaseIdentity } = await import("@/server/db/client");
 const { sendWorkspaceEmail } = await import("@/server/core/email");
 const { publicReadCache } = await import("@/server/core/public-read-cache");
 
@@ -82,6 +128,130 @@ async function sourceFixture(db: TestDatabase, slug: string, active = false) {
   }).returning();
   return src!;
 }
+
+/* ── R3-05 — the withDatabaseRole boundary itself ─────────────────────────── */
+
+/** The ambient database scope, read outside any `withDatabaseRole` call. */
+const scopeOf = async (db: TestDatabase) =>
+  (await db.execute<{ role: string; owner: string; identity: string | null }>(sql`
+    SELECT current_user AS role, session_user AS owner,
+           current_setting('app.identity', true) AS identity
+  `)).rows[0]!;
+
+describe("withDatabaseRole boundary", () => {
+  it("establishes the role and the identity, and runs the callback inside them", async () => {
+    const db = await freshDatabase();
+    state.db = db;
+
+    const inside = await withDatabaseRole("app_staff", "admin:boundary", async () => {
+      const first = await db.execute<{ role: string; identity: string; xid: string }>(sql`
+        SELECT current_user AS role, current_setting('app.identity', true) AS identity,
+               pg_current_xact_id()::text AS xid
+      `);
+      const second = await db.execute<{ xid: string }>(sql`SELECT pg_current_xact_id()::text AS xid`);
+      /* Privilege, not cosmetics: app_staff may read the audit log. */
+      await db.execute(sql`SELECT count(*) FROM audit_log`);
+      return { ...first.rows[0]!, secondXid: second.rows[0]!.xid };
+    });
+
+    expect(inside.role).toBe("app_staff");
+    expect(inside.identity).toBe("admin:boundary");
+    /* Both statements the callback issued carry the same transaction id, so
+       the callback ran inside one continuous scope rather than around it. */
+    expect(inside.secondXid).toBe(inside.xid);
+
+    /* The scope is released afterwards, exactly as RESET ALL releases it. */
+    const after = await scopeOf(db);
+    expect(after.role).toBe(after.owner);
+    expect(after.role).not.toBe("app_staff");
+    expect(after.identity ?? "").toBe("");
+  });
+
+  it("puts the role's privileges in force — app_public may not read the audit log", async () => {
+    const db = await freshDatabase();
+    state.db = db;
+
+    /* Drizzle reports the driver error as `Failed query: …` and hangs the real
+       one off `cause`, so assert on the SQLSTATE rather than the wrapper. */
+    const refused = await violation(
+      withDatabaseRole("app_public", "anonymous:boundary", async () => {
+        await db.execute(sql`SELECT count(*) FROM audit_log`);
+      }),
+    );
+    expect(refused.code).toBe("42501");
+    expect(refused.message).toMatch(/permission denied for table audit_log/i);
+
+    /* And the same read succeeds as app_staff, so the refusal above is the
+       role and not a broken query. */
+    await expect(
+      withDatabaseRole("app_staff", "admin:boundary", async () => {
+        await db.execute(sql`SELECT count(*) FROM audit_log`);
+      }),
+    ).resolves.toBeUndefined();
+  });
+
+  it("propagates a failure out of the boundary and still releases the scope", async () => {
+    const db = await freshDatabase();
+    state.db = db;
+    const boom = new Error("the handler threw");
+    state.observed.length = 0;
+
+    await expect(
+      withDatabaseRole("app_service", "service:boundary-failure", async () => {
+        throw boom;
+      }),
+    ).rejects.toBe(boom);
+
+    /* The scope really was entered before the throw — a wrapper that swallowed
+       the callback would record nothing here. */
+    expect(state.observed).toEqual([
+      { role: "app_service", identity: "service:boundary-failure" },
+    ]);
+    const after = await scopeOf(db);
+    expect(after.role).toBe(after.owner);
+    expect(after.identity ?? "").toBe("");
+  });
+
+  it("lets databaseIdentity() see the identity, and only inside the scope", async () => {
+    const db = await freshDatabase();
+    state.db = db;
+
+    expect(databaseIdentity()).toBe("service:embedding");
+    await withDatabaseRole("app_service", "service:cron", async () => {
+      expect(databaseIdentity()).toBe("service:cron");
+    });
+    expect(databaseIdentity()).toBe("service:embedding");
+  });
+
+  it("runs an admin route as app_staff, after the app_service authentication bootstrap", async () => {
+    const db = await freshDatabase();
+    state.db = db;
+    await db.insert(report).values({ publicId: "r-boundary", url: "https://example.org/x", body: "X" });
+    state.scopes.length = 0;
+    state.observed.length = 0;
+
+    const route = await import("@/app/api/v1/admin/console/reports/route");
+    const response = await route.GET(
+      new Request("http://localhost/api/v1/admin/console/reports?limit=5", {
+        headers: { "x-actor-label": "admin:test" },
+      }),
+    );
+    expect(response.status).toBe(200);
+
+    /* The wrapper is invoked, twice, with the roles `handler()` classifies —
+       and each scope was really in force once inside it. */
+    const expected = [
+      { role: "app_service", identity: "service:admin-auth-bootstrap" },
+      { role: "app_staff", identity: "admin:test" },
+    ];
+    expect(state.scopes).toEqual(expected);
+    expect(state.observed).toEqual(expected);
+    /* The read the route served came from inside the app_staff scope. */
+    expect((await response.json()).reports).toHaveLength(1);
+    const after = await scopeOf(db);
+    expect(after.role).toBe(after.owner);
+  });
+});
 
 /* ── R7 — reports desk read ───────────────────────────────────────────────── */
 

@@ -1,4 +1,4 @@
-# LionsOfZion UI/UX Rebuild — Authoritative Implementation Todos
+# LionsOfZion UI/UX Rebuild — Implementation Todos
 
 > Status: implementation blueprint; no redesign work is completed by this document.
 > Audit date: 2026-09-02
@@ -6,11 +6,28 @@
 > Required visual direction: premium, editorial, authoritative, intelligent, precise, cinematic, restrained, modern, technologically sophisticated.
 > Primary background: `#000000`.
 
+> **Corrections, 2026-09-05.** This file is kept because roughly thirty of its
+> requirements are genuinely open — SEARCH-002, RESP-004/005, A11Y-009,
+> PERF-009, QA-005/008/009/010/011, and the acceptance criteria in the final
+> sections. Three things in it are no longer true:
+>
+> 1. **It is not the design authority.** `DESIGN.md` is, and is edited every
+>    session. This file is a task list, not a direction document.
+> 2. **Every particle row is historical.** The WebGPU entrance, the typographic
+>    field and `/particle-demo` were retired on 2026-09-05, so the inventory
+>    rows and REMOVE decisions naming `particle-nav`, `typographic-field` or
+>    `/particle-demo` describe code that no longer exists — they are closed by
+>    deletion, not outstanding.
+> 3. **`/war-update` is retired**, and its route is a permanent redirect.
+>
+> The snapshot above (`bd3dfe3`) is three days and several hundred commits
+> old. Verify any claim here against HEAD before acting on it.
+
 ## 0. How to use this document
 
 - [ ] **Section complete** — Mark only after this entire section has been reviewed, every applicable child task is implemented and verified, and all of its child checkboxes are marked `- [x]`.
 
-This is the single source of truth for the future UI/UX rebuild. Execute tasks in the order defined in **Execution order**. Do not reinterpret the brand as a generic SaaS, crypto dashboard, gaming HUD, or component-library demo. Preserve factual content, route behavior, server contracts, publication workflows, sensitive-content protections, and source attribution while rebuilding the visual and interaction layer.
+This is the task list for the UI/UX rebuild; `DESIGN.md` carries the visual direction and takes precedence where the two disagree. Execute tasks in the order defined in **Execution order**. Do not reinterpret the brand as a generic SaaS, crypto dashboard, gaming HUD, or component-library demo. Preserve factual content, route behavior, server contracts, publication workflows, sensitive-content protections, and source attribution while rebuilding the visual and interaction layer.
 
 ### Mandatory complete-UI replacement rule
 
@@ -22,7 +39,7 @@ This mandate has no visual exceptions. Existing component names, route files, da
 
 “Rebuild” means the component's complete rendered contract and presentation code are reconsidered and reimplemented: composition, hierarchy, dimensions, spacing, typography, color application, borders, motion, interaction states, responsive behavior, accessibility presentation, loading/empty/error behavior, and integration with adjacent components. Renaming a class, changing only colors, wrapping the old component, or layering a new effect over unchanged UI does not satisfy this requirement.
 
-Before implementation, add a traceable coverage ledger **inside this file** that maps every user-facing file and exported rendered component under `app/` and `components/` to one task ID in this document. Do not create a competing plan document. Update the ledger as files are migrated. A section cannot be marked complete while it contains an unmapped visible component or an unexplained surviving old selector.
+Before implementation, add a traceable coverage ledger **inside this file** that maps every user-facing file and exported rendered component under `app/` and `components/` to one task ID in this document. Keep the ledger here rather than starting a parallel one; `DESIGN.md` remains the visual direction and is not a competing plan. Update the ledger as files are migrated. A section cannot be marked complete while it contains an unmapped visible component or an unexplained surviving old selector.
 
 ### Mandatory execution protocol
 

@@ -1,8 +1,11 @@
 /**
- * The shared scan backdrop as a public-site layer (fixhomeTODO Phase E).
+ * The shared scan backdrop as a public-site layer.
+ *
+ * Planned in `fixhomeTODO.md` Phase E; that document was deleted 2026-09-05
+ * with the particle entrance, and this file is now the contract.
  *
  * Three things are pinned: the profile map answers the same way for every
- * member of a route family and `silent` for the four operator routes; the
+ * member of a route family and `silent` for the operator routes; the
  * backdrop component clamps and emits its controls as attributes rather than
  * animating anything through React; and the stylesheet keeps the properties
  * that make the layer decorative — inert to the pointer, a reduced-motion

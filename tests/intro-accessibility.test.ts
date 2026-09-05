@@ -1,6 +1,10 @@
 /**
- * The scan backdrop's accessibility and interaction contract (fixhomeTODO §7,
- * and the Phase E acceptance line about blocking interaction).
+ * The scan backdrop's accessibility and interaction contract.
+ *
+ * The requirement came from `fixhomeTODO.md`, deleted 2026-09-05 once the
+ * particle entrance it planned was retired. What it asked for survives here:
+ * the backdrop must never block interaction, and must stay out of the
+ * accessibility tree. This file is now the only statement of that contract.
  *
  * Four things are pinned here, all of them source-level, because all four are
  * properties of the stylesheet and the markup rather than of a running page:

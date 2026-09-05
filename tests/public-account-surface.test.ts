@@ -68,6 +68,8 @@ function state(over: Partial<PublicSessionValue> = {}): PublicSessionValue {
   };
 }
 
+const read = (rel: string) => readFileSync(path.join(process.cwd(), rel), "utf8");
+
 async function render(props: { xError?: string } = {}): Promise<string> {
   const stream = await renderToReadableStream(createElement(PublicAuthControl, props));
   await stream.allReady;
@@ -204,16 +206,32 @@ describe("a provider that cannot be used here", () => {
 /* ── Starting the X flow is an action, not a prefetchable link ───────────── */
 
 describe("the X sign-in control", () => {
-  it("submits a form rather than linking to the route handler", async () => {
+  /* This shipped as a GET form and was a dead button in production. The site's
+     CSP carries `form-action 'self' https://www.paypal.com`, and Chrome
+     applies `form-action` to every hop of a submission's redirect chain:
+     `/auth/x` passed as 'self', its 302 to x.com did not, and the browser
+     cancelled the navigation silently. A link is not subject to `form-action`.
+     Both assertions below are load-bearing; neither is style. */
+  it("is a link, because `form-action` would cancel a form's redirect to X", async () => {
     session.mockReturnValue(state());
     const markup = await render();
 
-    /* `/auth/x` mints OAuth state and sets a cookie. A `next/link` to it would
-       be prefetched, so the state cookie would be spent because a button
-       scrolled into view. A form submit is a real document navigation. */
-    expect(markup).toContain('action="/auth/x"');
-    expect(markup).toContain('method="get"');
-    expect(markup).not.toContain('href="/auth/x"');
+    expect(markup).toContain('href="/auth/x"');
+    expect(markup).not.toContain('action="/auth/x"');
+    expect(markup).not.toMatch(/<form[^>]*\/auth\/x/);
+  });
+
+  it("does not let the router prefetch a route handler that mints state", async () => {
+    session.mockReturnValue(state());
+    const markup = await render();
+
+    /* `next/link` prefetches, and prefetching `/auth/x` *runs* it: OAuth state
+       minted and a `__Host-` cookie spent because a button scrolled into view.
+       `documentNavigation` takes the plain-anchor branch instead. */
+    const control = read("components/auth/PublicAuthControl.tsx");
+    expect(control).toContain("documentNavigation");
+    /* A plain anchor, so no router payload attributes ride along. */
+    expect(markup).toMatch(/<a [^>]*href="\/auth\/x"/);
   });
 
   it("wears X's own mark, drawn inline rather than fetched from X", async () => {

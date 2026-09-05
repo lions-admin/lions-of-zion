@@ -72,7 +72,22 @@ export type ButtonLinkProps = Omit<
   "children"
 > &
   CommonButtonProps &
-  IconOnlyContract & { href: string };
+  IconOnlyContract & {
+    href: string;
+    /**
+     * Force a real document navigation instead of a client-side route change.
+     *
+     * A relative href normally goes through `next/link`, which both prefetches
+     * the destination and navigates within the router. Neither is right when
+     * the destination is a Route Handler that redirects off-site: prefetching
+     * it *runs* it — for `/auth/x` that means minting OAuth state and spending
+     * a `__Host-` cookie because a button scrolled into view — and the router
+     * cannot follow a redirect to another origin anyway.
+     *
+     * Absolute hrefs already take this path; this says so for a relative one.
+     */
+    documentNavigation?: boolean;
+  };
 
 function getButtonClassName(
   variant: ButtonVariant = "primary",
@@ -183,6 +198,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       className,
       children,
       href,
+      documentNavigation = false,
       ...rest
     } = props;
 
@@ -224,6 +240,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     };
 
     if (
+      documentNavigation ||
       href.startsWith("http://") ||
       href.startsWith("https://") ||
       href.startsWith("mailto:")

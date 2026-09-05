@@ -145,13 +145,31 @@
    It overrides `variant="secondary"` rather than adding a variant to the
    shared Button: a provider's brand lock is not a semantic level the design
    system should grow a name for. */
-.xButton {
+.xButton.xButton {
   --x-brand-ground: #fff;
   --x-brand-mark: #000;
 
   border-color: var(--x-brand-ground);
   background: var(--x-brand-ground);
   color: var(--x-brand-mark);
+
+  /* `body` carries a site-wide `text-transform: uppercase` (a deliberate owner
+     choice, documented in `globals.css`). A `<button>` does not inherit it —
+     the UA stylesheet resets it for form controls — but an `<a>` does. So the
+     day this control became a link it silently became "SIGN IN WITH X".
+
+     Declined here for the one reason that outranks the house style: the
+     wording of this button is X's, not ours, and their guidance prescribes it
+     as written. The rest of the page keeps the house rule.
+
+     That general disagreement is now settled in `button.module.css`, upward:
+     controls join the site's uppercase rule rather than escape it. This stays
+     the one exception, and it is doubled — `.xButton.xButton` — on purpose.
+     Both rules are otherwise single-class selectors in different CSS modules,
+     so which one won would come down to the order the bundler happened to
+     concatenate them in. That is not a thing to leave to chance in a brand
+     lock. */
+  text-transform: none;
 }
 
 .xButton:hover:not(:disabled) {

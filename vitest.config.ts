@@ -32,7 +32,9 @@ export default defineConfig({
        one-off start cost that dwarfs the tests themselves. */
     testTimeout: 30_000,
     hookTimeout: 30_000,
-    include: ["tests/**/*.test.ts"],
+    /* `.tsx` too: the home introduction's test renders the component itself
+       with `renderToStaticMarkup`, so it is written as JSX. */
+    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     environment: "node",
     /* One PGlite instance per test file, each a full Postgres in WASM, is
        heavy enough that unbounded parallelism starves the pool rather than

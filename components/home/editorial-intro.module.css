@@ -1,0 +1,222 @@
+/* Hallmark · macrostructure: Four-part opening statement · tone: sober editorial · anchor hue: existing amber */
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ground);
+  color: var(--ink-hi);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.dialog:not([open]) { display: none; }
+.dialog::backdrop { background: var(--ground); }
+
+/* ---- The veil that lifts ----
+ *
+ * Every reading route on this site sits on the hero photograph held far back
+ * under a 92-96% ground gradient — `body::before` in `globals.css`, "a room
+ * the type is in rather than a picture behind it". The introduction used to
+ * be the one surface that ignored it and painted flat `--ground`, which is
+ * the ground this site left behind.
+ *
+ * So it takes the same photograph, and opens it. The veil starts heavier than
+ * the site's own and lifts a step per beat — 6% of the picture on October 7,
+ * 18% by the time the last statement names the organisation — so the arc the
+ * copy walks has a ground that walks with it, and the close hands over to the
+ * moving version of the same shot.
+ *
+ * Opacity on a layer rather than a `color-mix` on the gradient: opacity is the
+ * one property that can carry this transition on the compositor, and a
+ * full-screen gradient repaint four times cannot.
+ */
+.ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--site-ground-photo);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 68% center;
+  opacity: 0.06;
+  transition: opacity var(--dur-enter) var(--ease-out);
+}
+
+.dialog[data-beat="1"] .ground { opacity: 0.10; }
+.dialog[data-beat="2"] .ground { opacity: 0.14; }
+.dialog[data-beat="3"] .ground { opacity: 0.18; }
+
+/* The lock has to reserve the gutter it takes away. Without `scrollbar-gutter`
+   the classic scrollbar disappears with the overflow and the whole document
+   jumps its width sideways — on open and again on close. An overlay must not
+   reflow the page it covers. */
+:global(body:has(dialog[data-editorial-intro][open])) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+/* The panel takes focus on open, so it must not draw a ring for it: the
+   arrival is announced, not outlined. Every real control keeps its own
+   `:focus-visible`. */
+.layout:focus { outline: none; }
+
+.layout {
+  /* Over the ground layer, and the reason that layer needs a stacking context
+     to be under rather than a negative z-index that would escape the dialog. */
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100%;
+  /* Exactly the dialog's height, so the three rows divide a bounded box and
+     the middle one is the only thing that can ever need to scroll. Without
+     it the grid grows past the viewport and takes the footer with it. */
+  height: 100%;
+  padding: max(var(--sp-5), env(safe-area-inset-top)) var(--home-gutter)
+    max(var(--sp-5), env(safe-area-inset-bottom));
+}
+
+.header, .footer, .controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-5);
+}
+
+.brand {
+  font: var(--t-lede)/var(--t-lede-lh) var(--face-home-cover);
+  letter-spacing: var(--t-data-tracking-tight);
+  text-transform: none;
+}
+
+/* The middle row owns the overflow. `min-height: 0` is what lets a grid item
+   shrink below its content; without it the row refuses to be smaller than the
+   statement and pushes the footer off a short screen — measured at a 543px
+   viewport, where the controls landed 41px below the fold. `safe center`
+   centres the composition when it fits and falls back to start alignment when
+   it does not, so tall content is never clipped at the top out of reach. */
+.stage {
+  width: min(100%, 64rem);
+  margin-inline: auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  padding-block: var(--sp-8);
+}
+
+.label {
+  margin: 0 0 var(--sp-6);
+  color: var(--gold);
+  font: var(--t-caption)/var(--t-caption-lh) var(--face-data);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+/* A reservation, not a floor: it holds the composition still as the beats
+   change length, but yields on a short viewport rather than evicting the
+   footer. */
+.statement { min-height: min(20rem, 38vh); }
+.title {
+  max-width: 19ch;
+  margin: 0;
+  font-family: var(--face-home-emphasis);
+  font-size: clamp(2.375rem, 5.5vw, 5.5rem);
+  font-weight: var(--t-display-weight);
+  line-height: 1.06;
+  letter-spacing: var(--t-display-tracking);
+  text-transform: none;
+  white-space: pre-line;
+  overflow-wrap: normal;
+}
+
+.body {
+  max-width: 48ch;
+  margin: var(--sp-6) 0 0;
+  color: var(--ink);
+  font: var(--t-h3)/var(--t-body-lh) var(--face-home-cover);
+  text-transform: none;
+}
+
+/* Reserve every glyph's position: typing never reflows the composition. */
+.unwritten { visibility: hidden; }
+.accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.footer { border-top: 1px solid var(--line-strong); padding-top: var(--sp-4); }
+.progress { display: flex; gap: var(--sp-2); }
+.progress span { width: var(--sp-6); height: 2px; background: var(--control-line); }
+.progress span[data-reached="true"] { background: var(--gold); }
+.controls { gap: var(--sp-6); }
+
+/* One cell, both labels: the control is as wide as the wider of the two in
+   every state, so toggling Pause/Resume or settling on the last beat cannot
+   shift the control beside it. `visibility: hidden` takes the inactive label
+   out of the accessibility tree too, so neither is read twice. */
+.swap { display: inline-grid; }
+.swap > span { grid-area: 1 / 1; }
+.swap > span[data-shown="false"] { visibility: hidden; }
+
+.dialog button, .replay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  min-height: var(--control-h);
+  padding: var(--sp-2) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: var(--t-small)/var(--t-small-lh) var(--face-home-cover);
+  text-transform: none;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.dialog button:hover, .replay:hover { color: var(--ink-hi); }
+.dialog button:active, .replay:active { color: var(--gold); }
+.dialog button:focus-visible, .replay:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: var(--sp-1);
+}
+/* The header's escape hatch. `.dialog button` above carries the shared
+   control shape; this only marks it as the quieter of the two controls on
+   the screen, so the eye lands on the statement rather than on the way out. */
+.skip { color: var(--ink-lo); }
+.skip:hover { color: var(--ink-hi); }
+
+.replay { margin-top: var(--sp-2); border-bottom: 1px solid var(--control-line); }
+.replay[hidden] { display: none; }
+
+@media (max-width: 47.99rem) {
+  .stage { padding-block: var(--sp-7); }
+  .statement { min-height: min(23rem, 40vh); }
+  .body { font-size: var(--t-lede); }
+  .controls { gap: var(--sp-4); }
+  .progress { gap: var(--sp-1); }
+  .progress span { width: var(--sp-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog button, .replay { transition: none; }
+  /* The veil still differs per beat — it is composition, not motion — but it
+     changes on the cut rather than travelling there. */
+  .ground { transition: none; }
+}

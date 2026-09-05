@@ -1,4 +1,5 @@
-/* Homepage cover. Runtime tokens live in globals.css; DESIGN.md records
+/* Hallmark · macrostructure: Cinematic Cover · tone: editorial · theme: existing Lions of Zion
+   Homepage cover. Runtime tokens live in globals.css; DESIGN.md records
    the route-specific composition. Desktop keeps the brand low on the left;
    mobile reserves the upper portrait for the lion and lets the record flow
    below the statement. The open text-and-arrow action has no filled plate or gloss.
@@ -791,4 +792,56 @@
     outline: var(--line-w-thick) solid var(--gold-hi);
     outline-offset: var(--sp-1);
   }
+}
+
+/* Quiet controls belong to the cover, never to a blocking entrance layer. */
+.motionControl {
+  position: absolute;
+  z-index: 10;
+  inset-block-start: calc(var(--header-h) + var(--sp-4));
+  inset-inline-end: var(--home-gutter);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h);
+  padding: var(--sp-2) var(--sp-3);
+  border: var(--line-w) solid var(--control-line);
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--face-home-cover);
+  font-size: var(--t-caption);
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.storyLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--control-h);
+  margin-top: var(--sp-3);
+  color: var(--ink);
+  font-family: var(--face-home-cover);
+  font-size: var(--t-small);
+  text-transform: none;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-decoration-color: var(--control-line);
+  text-underline-offset: 0.3em;
+}
+
+.storyLink:hover,
+.motionControl:hover { color: var(--ink-hi); border-color: var(--ink-hi); }
+.storyLink:active,
+.motionControl:active { color: var(--gold-hi); }
+.storyLink:focus-visible,
+.motionControl:focus-visible {
+  outline: var(--line-w-thick) solid var(--gold-hi);
+  outline-offset: var(--sp-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroVideo { display: none; transition: none; }
+  .motionControl { display: none; }
 }

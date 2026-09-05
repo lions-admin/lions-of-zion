@@ -1,21 +1,13 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
-import { CinematicIntroGate } from "@/components/particle-nav/CinematicIntroGate";
-import { ScanBackdrop } from "@/components/sections/ScanBackdrop";
-import { HOME_SCAN_PROFILE } from "@/components/sections/scanProfiles";
-import { HeroVideo } from "@/components/sections/HeroVideo";
 import { ButtonLink } from "@/components/ui/Button";
 import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { stamp } from "@/components/live/feed-time";
-/* Imported from the module rather than through `components/motion/index.ts`.
-   `package.json` now DOES declare a CSS-only `sideEffects` list, which
-   makes the barrel tree-shakeable, so this is belt-and-braces rather than
-   necessary. It is kept because this route's first paint is the one the whole
-   site is judged by, and a direct path cannot regress if that declaration is
-   ever dropped. */
+import { HeroVideo } from "@/components/sections/HeroVideo";
 import { ProgressiveBlur } from "@/components/motion/ProgressiveBlur";
 import { SignalRotator } from "@/components/home/SignalRotator";
+import { EditorialIntro } from "@/components/home/EditorialIntro";
 import styles from "./home.module.css";
 import { featuredPublications } from "@/lib/publications";
 import type { PublicPublication } from "@/server/contracts/publication";
@@ -31,41 +23,7 @@ import type { PublicPublication } from "@/server/contracts/publication";
  */
 const RAIL_SIGNALS = 5;
 
-/**
- * The homepage — the single cinematic threshold (HOME-001).
- *
- * One signature surface, composed in document flow rather than the absolute
- * pins it replaced: the masthead as a lower-left column from 48rem up
- * and beneath the lion's face below it, the signal rail at the foot. Every layer of
- * it is server HTML; the hero video, the particle entrance and the rail's
- * turn through the record are progressive enhancement on top, and removing
- * JavaScript removes only them — the rail still paints a real headline.
- *
- * The ground was a WebGPU field of glyphs over a docked scan band until
- * 2026-09-04. It is a photographic shot now — see `HeroVideo` for why it ships
- * as two cuts of one take and two shoots rather than one cropped twice — and
- * the scan band went with the field it was docked under, because a drift of
- * type rows over a lion is two moving layers competing for the same screen.
- *
- * State ledger, because HOME-001's acceptance is about states:
- *  - live: the entrance plays once, then dissolves into a seamless loop.
- *  - poster: `CinematicIntroGate` owns the arrival; this page is inert under
- *    it until handoff and untouched by it after.
- *  - reduced motion: no source is ever handed to either video element, so the
- *    still is not merely what is shown — it is all that is fetched, and the
- *    signal rail holds its first headline rather than turning.
- *  - no-JS: `.posterField` paints the video's own first frame from the
- *    stylesheet, and the `<noscript>` list below is the route index, because
- *    `SiteHeader` hides every destination name under 64rem behind a drawer
- *    that needs script to open.
- *
- * The brand block is deliberately NOT wrapped in `Reveal`. The gate hands off
- * by fading its own fixed layer out over 700ms, so the masthead already has
- * an arrival; a staggered entrance inside that cross-fade is the
- * double-animation to avoid. The rail is furniture at the hero's foot and is
- * not revealed either — and `Reveal`'s observer root excludes the bottom
- * tenth of the viewport, so an element pinned there would never arm.
- */
+/** Readable server home, with a skippable text introduction after hydration. */
 export default async function Page() {
   /* An unreadable projection and an empty record are different facts, and the
      rail says which. Letting this throw would 500 the front page over a
@@ -90,33 +48,10 @@ export default async function Page() {
   const signal = signals.at(0);
 
   return (
-    <CinematicIntroGate
-      /* The entrance is composed over the same scan the settled home shows.
-         Passed from this server component because `ScanBackdrop` reads the
-         corpus from disk and the gate is a client boundary. The seed matches
-         the home's, so the two instances sample the same fragments in the
-         same places and the cross-fade at handoff is a change of phase, not
-         of content. */
-      background={
-        <ScanBackdrop
-          routeId="home"
-          surface="viewport"
-          register={HOME_SCAN_PROFILE.register}
-          intensity={HOME_SCAN_PROFILE.intensity}
-          density={HOME_SCAN_PROFILE.density}
-          speed={HOME_SCAN_PROFILE.speed}
-        />
-      }
-    >
       <main className={styles.page} data-home-scroll>
         <SiteHeader />
 
         <section className={styles.hero} aria-labelledby="home-wordmark">
-          {/* The field is pinned to the first viewport, not stretched over the
-              hero: on short screens the flow content below simply continues on
-              the ground the field fades into. Everything inside is decorative
-              — the fallback scan, the canvas, the telemetry, and the graded
-              fall-off at the foot. */}
           <div className={styles.fieldLayer} aria-hidden="true">
             {/* The still frame is the ground beneath everything else here: what
                 shows before the first video byte lands, what stays when motion
@@ -141,7 +76,7 @@ export default async function Page() {
                 figurative thing on the screen; over a photograph of a lion it
                 was a second lion laid across the first one's face. The wordmark
                 carries the brand on its own now. */}
-            <h1 id="home-wordmark" className={styles.wordmark}>
+            <h1 id="home-wordmark" className={styles.wordmark} tabIndex={-1}>
               <span className={styles.wordmarkLine}>LIONS</span>{" "}
               <span className={styles.wordmarkLine}>
                 <span className={styles.wordmarkOf}>OF</span>{" "}ZION
@@ -152,12 +87,7 @@ export default async function Page() {
               <span className={styles.narrativesLine}>not narratives.</span>
             </p>
 
-            {/* HOME-002 — the one primary action, and now the only control in
-                the masthead at all: the file index it once had a secondary
-                affordance for is gone from this page, and the header's "All
-                files" trigger is the way to the full list. The open reading
-                invitation keeps a full-size target; hover and keyboard focus
-                invert only its arrow, without an animated sweep. */}
+            {/* News is primary; the system story is an optional reading path. */}
             <div className={styles.actions}>
               <ButtonLink
                 href="/geopolitical-brief"
@@ -165,7 +95,7 @@ export default async function Page() {
                 size="lg"
                 className={styles.ctaPrimary}
               >
-                <span className={styles.ctaLabel}>Read the Daily Brief</span>
+                <span className={styles.ctaLabel}>Read the latest</span>
                 <span className={styles.ctaArrow} aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M4 12h15M13 5l7 7-7 7" />
@@ -173,6 +103,10 @@ export default async function Page() {
                 </span>
               </ButtonLink>
             </div>
+            <Link className={styles.storyLink} href="/information-war">
+              Why this work matters <span aria-hidden="true">↗</span>
+            </Link>
+            <EditorialIntro />
           </div>
 
           {/* Zone C — the signal rail, alone at the floor now.
@@ -273,7 +207,6 @@ export default async function Page() {
           </div>
         </section>
       </main>
-    </CinematicIntroGate>
   );
 }
 

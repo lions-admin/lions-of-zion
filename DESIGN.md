@@ -226,3 +226,79 @@ consent, its brand, not restyled to pass as the site's.
 Keyboard focus, `:focus-visible`, reduced motion and the existing header habit
 of hiding a label as screen-reader-only rather than removing it are preserved
 throughout.
+## Admin workspace — September 5, 2026
+
+Owner-approved direction: dark, compact, Hebrew operational workspace with
+right-side grouped navigation and an on-demand assistant. No decorative grid,
+hero masthead, fixed chat column or public Ask launcher on admin routes.
+`app/admin/workspace.module.css` owns scoped density and palette; shared
+primitives and existing Hebrew font are reused. Public pages retain their
+visual system. The capability/behavior map and pending acceptance checks live
+in `docs/admin-workspace.md`. Implementation is awaiting validation; this is
+not a claim of visual acceptance.
+
+## Typographic introduction and original home video — September 5, 2026
+
+The owner replaced the particle entrance with a short, four-part typographic
+introduction. The approved copy starts with the October 7 attack, then the
+pre-existing propaganda machinery, the information war and the site's purpose.
+No particle text, glowing logo, extra video or graphics engine. The old source
+and assets are retained but CinematicIntroGate is not mounted.
+
+EditorialIntro uses the existing Newsreader, Inter Tight, ink and amber tokens.
+Text is printed in a fixed composition, never scattered or reflowed. It opens
+once per tab session after hydration; Skip and Escape always exit, Pause holds
+reading, Continue reveals or advances, and Watch introduction replays. It pauses
+in background tabs. Reduced-motion visitors enter the site directly and may
+replay static, manually advanced text. A native dialog contains keyboard focus;
+the server-rendered/no-script homepage remains accessible.
+
+Browser-validated 2026-09-05 at 1440x900 and at a 500x543 viewport: focus
+lands on the panel rather than on Skip, the focus ring renders, Escape closes
+and returns focus to the wordmark, the scroll lock releases, and the
+reduced-motion path opens fully typed, paused and manually advanced. Two
+defects were found and fixed in that pass — a fixed `min-height` on the
+statement put the footer and every control below the fold on a short viewport,
+and the Pause/Resume label swap resized its own control. The control now
+reserves the wider label in a shared grid cell, and the statement's
+reservation is viewport-bounded with the stage as the only scroller.
+
+### The introduction's ground — September 5, 2026
+
+Owner ruling: the flat black was out of date, because the site is not black
+any more. Every reading route sits on the hero photograph held far back under
+a 92-96% ground gradient (`body::before` in `globals.css` — "a room the type
+is in rather than a picture behind it"), and the introduction was the last
+surface still painting bare `--ground` over it.
+
+It now takes the same still, and opens it. A decorative layer inside the
+dialog carries `--site-ground-photo` at `68% center`, and its opacity lifts
+one step per beat, keyed off `data-beat` on the dialog: 0.06 on October 7,
+0.10, 0.14, then 0.18 as the last statement names the organisation — so the
+close hands over to the moving version of the same shot at full strength. The
+step is a `--dur-enter` opacity transition on a composited layer, dropped
+under `prefers-reduced-motion` where the veil still differs per beat but
+changes on the cut.
+
+Contrast is not at risk: at the lightest step the photograph contributes 18%
+over `--ground`, so even a pure-white source pixel bounds the ground at
+approximately #373737 and `--ink-hi` holds about 10.8:1 against it, `--gold`
+about 6.6:1 — both clear of the A11Y-004 floor. Verified across 320x568,
+375x667, 768x1024, 1440x900 and 1920x1080: footer on screen, no overflow in
+either axis, on every beat.
+
+`EditorialIntro` deliberately does not use `components/ui/Dialog`: that
+primitive is a narrow/wide panel with a mandatory header carrying an `<h2>`
+and a close button, which is the product chrome a full-bleed editorial
+takeover exists to not have. It honours the same behaviour contract instead —
+accessible name and description, focus on the panel, Escape, `showModal()`
+inertness, focus restoration — and reuses `politeLive` for its status region.
+Revisit if a second full-bleed surface appears; one is not yet a variant.
+
+The original HeroVideo background is preserved, including its separate desktop
+and mobile sources, intro-to-loop handoff and matching posters. The supplied
+cinematic-lion alternative is not used as the site background. Newly copied
+alternative assets and the unused CinematicHomeMedia component remain local
+and disconnected; they are not part of the active homepage.
+The information-war page remains an explicit secondary reading destination.
+Global typography/token ownership is unchanged.

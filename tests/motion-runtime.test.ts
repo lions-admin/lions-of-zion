@@ -113,6 +113,10 @@ describe("MOTION-002 — the animation-loop inventory", () => {
        visibilitychange and the unmount cleanup — cancels the booked frame
        before nulling the handle. Registered 2026-09-05. */
     "components/motion/PointerHighlight.tsx",
+    /* One frame, booked on mount, that defers the introduction's own
+       open decision past hydration so the server HTML is never the open
+       dialog. The cleanup cancels it. Registered 2026-09-05. */
+    "components/home/EditorialIntro.tsx",
   ];
 
   /**

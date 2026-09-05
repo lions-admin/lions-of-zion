@@ -172,24 +172,23 @@ describe("route coverage — one shared backdrop per public route, none on the i
     expect(shell.match(/<ScanBackdrop/g)?.length).toBe(1);
   });
 
-  it("the home mounts the entrance's instance only, now its field is a video", () => {
+  it("the home mounts no moving backdrop at all: its field is a video", () => {
     const page = read("app/page.tsx");
-    expect(page).toContain('import { ScanBackdrop } from "@/components/sections/ScanBackdrop"');
-    /* One instance, where there were two.
+    /* Zero instances, where there were two and then one.
      *
      * The band docked under the typographic field went with the field itself
      * when this hero became a photographic shot: a scan of drifting rows over
      * a lion is two moving layers competing, which is the thing the docking
-     * rules existed to prevent in the first place. The entrance keeps its own
-     * instance, passed to `CinematicIntroGate` because that gate is a client
-     * boundary, and it is the only one on the route.
+     * rules existed to prevent in the first place. The entrance's own
+     * instance went with the entrance on 2026-09-05, when the particle gate
+     * was replaced by a text introduction that composes over the route's own
+     * ground rather than a second graphics engine's.
      *
-     * That the count is asserted at all is the point: a second `<ScanBackdrop>`
+     * That the count is asserted at all is the point: a `<ScanBackdrop>`
      * reappearing on this page means someone has put a moving scan back under
      * the video without deciding which of the two owns the screen. */
-    expect(page.match(/<ScanBackdrop/g)?.length).toBe(1);
-    expect(page).toMatch(/<CinematicIntroGate[\s\S]{0,600}?background=\{/);
-    expect(page).toMatch(/<ScanBackdrop[^>]*routeId="home"[^>]*surface="viewport"/);
+    expect(page).not.toContain("ScanBackdrop");
+    expect(page).not.toContain("CinematicIntroGate");
     expect(page).not.toMatch(/surface="band"/);
     expect(page).not.toMatch(/data-home-scan/);
 

@@ -57,9 +57,10 @@ rail uses a compact two-row cue: label/archive action, then one headline line.
 Source, verdict and date stay in the accessibility tree and on the full record,
 but no longer occupy a third visible row. Space is reserved for the persistent
 Ask utility, so it never covers the rail. These rules do not change desktop.
-On the mobile homepage the Ask control sits one spacing step above the rail and
-uses a restrained serif question mark plus the literal label; the detailed
-compass-eye mark remains on desktop, where it has enough space to read.
+On the mobile homepage the Ask control sits one spacing step above the rail.
+Ask uses one shared Signal Lens mark at every width: an open inspection frame,
+an eye contour and a vertical lion pupil. It stays legible at 20px without a
+second ring, compass detail, question mark or generic AI sparkle.
 Preserve no-script navigation, poster fallback, reduced-motion behavior,
 semantic links, visible focus, real verdicts, dates and publication content.
 

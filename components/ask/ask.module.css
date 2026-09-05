@@ -820,12 +820,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 2.125rem;
-  block-size: 2.125rem;
+  inline-size: 2rem;
+  block-size: 2rem;
   flex: 0 0 auto;
-  border: var(--line-w) solid color-mix(in oklab, var(--gold) 72%, var(--control-line));
-  border-radius: 50%;
   color: var(--gold);
+}
+
+.dockGlyph svg {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
 }
 
 .dockLabel {
@@ -972,23 +975,18 @@
     box-shadow: none;
   }
 
-  /* The detailed compass-eye turns to visual noise at phone size. The mobile
-     control is deliberately typographic: one serif question mark beside the
-     literal action name. Desktop keeps the branded evidence mark. */
+  /* The same Signal Lens appears at every size; only its footprint tightens.
+     Keeping one silhouette avoids the desktop/mobile identity split. */
   html:has([data-home-scroll]) .dockGlyph {
-    inline-size: 1rem;
-    block-size: 1.25rem;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
     color: var(--gold);
   }
 
-  html:has([data-home-scroll]) .dockGlyph svg { display: none; }
-
-  html:has([data-home-scroll]) .dockGlyph::before {
-    content: "?";
-    font-family: var(--face-home-emphasis);
-    font-size: 1.25rem;
-    font-style: italic;
-    line-height: 1;
+  html:has([data-home-scroll]) .dockGlyph svg {
+    display: block;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
   }
 
   html:has([data-home-scroll]) .dockLabel {

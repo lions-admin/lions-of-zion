@@ -26,6 +26,11 @@ import {
   type CreatePublication,
   type EvidenceBasis,
 } from "@/server/contracts/publication";
+import {
+  WRITABLE_PUBLICATION_SECTIONS,
+  type PublicationSection,
+  type WritablePublicationSection,
+} from "@/server/contracts/enums";
 import { enrichEvidenceWindow } from "@/server/modules/sources/enrich";
 
 /**
@@ -49,6 +54,27 @@ const ARTICLE_SECTIONS = ["israel_update", "narrative_watch"] as const;
 const STORED_ARTICLE_SECTIONS = ["israel_update", "war_update", "narrative_watch"] as const;
 const PIPELINE_STAGES = ["enrich", "cluster", "triage", "draft", "publish"] as const;
 export type EditorialStage = (typeof PIPELINE_STAGES)[number];
+
+/**
+ * Read tolerance stops at the write.
+ *
+ * A stored artifact drafted while `war_update` was still selectable parses on
+ * the way back in, but the pipeline builds publication *inputs* from that
+ * artifact without ever crossing the HTTP boundary — so the narrowed write
+ * contract in the route schemas would never see it. This guard is the write
+ * gate for that path: a retired section reaching the publish stage is a
+ * defect (docs/briefing-operations.md), and it fails the stage loudly so the
+ * edition quarantines instead of silently skipping the article or writing the
+ * row anyway.
+ */
+function assertWritableSection(candidate: string, section: PublicationSection): asserts section is WritablePublicationSection {
+  if (!(WRITABLE_PUBLICATION_SECTIONS as readonly string[]).includes(section)) {
+    throw new ApiError(
+      "VALIDATION_ERROR",
+      `Candidate ${candidate} carries section "${section}", which is retired from production and may no longer be written.`,
+    );
+  }
+}
 
 const evidenceLinkSchema = z.object({
   evidenceId: z.uuid(),
@@ -663,25 +689,28 @@ export function briefingService(database: unknown, options: { generate?: Generat
       itemIds: dailyItems.map((item) => item.id),
       evidenceIds: drafted.edition.dailyBrief.evidenceIds,
       passages: publicationPassages(dailyContent.passages, dailyItems),
-    }, ...drafted.edition.articles.map((article, index) => ({
-      kind: "news_update" as const,
-      section: article.section,
-      title: article.title,
-      summary: article.summary,
-      body: bodyFromPassages(article.passages),
-      language: "en",
-      itemIds: (articleItems.get(index) ?? []).map((item) => item.id),
-      evidenceIds: article.evidenceIds,
-      passages: publicationPassages(article.passages, articleItems.get(index) ?? []),
-      narrativeIds: article.section === "narrative_watch" && article.narrativeTitle
-        ? [narrativeIds.get(article.narrativeTitle)!]
-        : undefined,
-      editorialTopic: article.editorialTopic,
-      primaryActor: article.primaryActor ?? undefined,
-      arena: article.arena,
-      featuredIsraelStory: article.featuredIsraelStory,
-      narrativeWatchDetails: article.narrativeWatchDetails ?? undefined,
-    }))];
+    }, ...drafted.edition.articles.map((article, index) => {
+      assertWritableSection(`article-${index}`, article.section);
+      return {
+        kind: "news_update" as const,
+        section: article.section,
+        title: article.title,
+        summary: article.summary,
+        body: bodyFromPassages(article.passages),
+        language: "en",
+        itemIds: (articleItems.get(index) ?? []).map((item) => item.id),
+        evidenceIds: article.evidenceIds,
+        passages: publicationPassages(article.passages, articleItems.get(index) ?? []),
+        narrativeIds: article.section === "narrative_watch" && article.narrativeTitle
+          ? [narrativeIds.get(article.narrativeTitle)!]
+          : undefined,
+        editorialTopic: article.editorialTopic,
+        primaryActor: article.primaryActor ?? undefined,
+        arena: article.arena,
+        featuredIsraelStory: article.featuredIsraelStory,
+        narrativeWatchDetails: article.narrativeWatchDetails ?? undefined,
+      };
+    })];
 
     const candidateKeys = inputs.map((_, index) => index === 0 ? "daily-brief" : `article-${index}`);
     const created = automaticPublication
@@ -748,14 +777,17 @@ export function briefingService(database: unknown, options: { generate?: Generat
       summary: drafted.edition.dailyBrief.summary,
       body: dailyBody(drafted.edition.dailyBrief),
       language: "en",
-    }, ...drafted.edition.articles.map((article) => ({
-      kind: "news_update" as const,
-      section: article.section,
-      title: article.title,
-      summary: article.summary,
-      body: bodyFromPassages(article.passages),
-      language: "en",
-    }))];
+    }, ...drafted.edition.articles.map((article, index) => {
+      assertWritableSection(`article-${index}`, article.section);
+      return {
+        kind: "news_update" as const,
+        section: article.section,
+        title: article.title,
+        summary: article.summary,
+        body: bodyFromPassages(article.passages),
+        language: "en",
+      };
+    })];
     const writer = publicationService(database);
     const candidateKeys = inputs.map((_, index) => index === 0 ? "daily-brief" : `article-${index}`);
     const published = await writer.resumeGeneratedDrafts(inputs, {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicationSectionSchema } from "./enums";
+import { writablePublicationSectionSchema } from "./enums";
 
 const sourceKeySchema = z.string().trim().min(1).max(100);
 
@@ -27,7 +27,10 @@ const narrativeDetailsSchema = z.object({
 
 export const codexBriefingPublicationSchema = z.object({
   candidateKey: z.string().trim().min(1).max(120),
-  section: publicationSectionSchema,
+  /* The import boundary rejects retired sections outright: an external
+     package asking for `war_update` fails here with 422 rather than
+     creating a row. */
+  section: writablePublicationSectionSchema,
   title: z.string().trim().min(1).max(300),
   summary: z.string().trim().max(4_000).optional(),
   body: z.string().trim().min(1).max(200_000),

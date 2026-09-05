@@ -282,6 +282,14 @@ export const PUBLICATION_SECTIONS = [
 export const publicationSectionSchema = enumOf(PUBLICATION_SECTIONS);
 export type PublicationSection = z.infer<typeof publicationSectionSchema>;
 
+/** The sections a *write* may still set. `war_update` is retired — no code
+ *  path may create or relabel a publication into it — while it stays legal
+ *  above and in the Postgres enum so existing rows keep reading and filtering
+ *  cleanly. Any value present here is also present in `PUBLICATION_SECTIONS`. */
+export const WRITABLE_PUBLICATION_SECTIONS = ["daily_brief", "israel_update", "narrative_watch"] as const;
+export const writablePublicationSectionSchema = enumOf(WRITABLE_PUBLICATION_SECTIONS);
+export type WritablePublicationSection = z.infer<typeof writablePublicationSectionSchema>;
+
 /* ── User-submitted reports ────────────────────────────────────────────────
    Brief §44: reports *of suspected false information*, submitted by the
    public — not generated deliverables. The two terminal-ish states are

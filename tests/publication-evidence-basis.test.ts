@@ -3,7 +3,8 @@ import { eq } from "drizzle-orm";
 import { freshDatabase } from "@/server/db/testing";
 import { publication } from "@/server/db/schema";
 import { publicationService } from "@/server/modules/publications/service";
-import { updatePublicationSchema } from "@/server/contracts/publication";
+import { createPublicationSchema, updatePublicationSchema } from "@/server/contracts/publication";
+import { listPublicPublicationsSchema } from "@/server/contracts/publication";
 import type { NarrativeWatchDetails } from "@/server/contracts/publication";
 
 const actor = { label: "admin:test", userId: null };
@@ -106,5 +107,22 @@ describe("evidenceBasis cannot be set through the update contract", () => {
 
     const [stored] = await db.select().from(publication).where(eq(publication.id, row.id));
     expect((stored!.narrativeWatchDetails as NarrativeWatchDetails).evidenceBasis).toBe("sourced");
+  });
+});
+
+/** `war_update` is retired: no write path may create or relabel a publication
+ *  into it, while the value stays legal in the enum so existing rows keep
+ *  reading and filtering cleanly. */
+describe("war_update is rejected on write shapes and accepted on read shapes", () => {
+  it("rejects war_update on create and update, accepts the writable sections", () => {
+    expect(createPublicationSchema.safeParse({
+      kind: "news_update", section: "war_update", title: "T", body: "B", language: "en",
+    }).success).toBe(false);
+    expect(updatePublicationSchema.safeParse({ section: "war_update", changeSummary: "Relabel." }).success).toBe(false);
+    expect(updatePublicationSchema.safeParse({ section: "israel_update", changeSummary: "Relabel." }).success).toBe(true);
+  });
+
+  it("keeps war_update legal on read and filter shapes", () => {
+    expect(listPublicPublicationsSchema.safeParse({ section: "war_update" }).success).toBe(true);
   });
 });

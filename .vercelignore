@@ -30,4 +30,7 @@ public/archive
 # midjrny-wt-engine on 2026-09-04 and the build died in tsc on their
 # vite.config.ts (TS2307: cannot find module 'vite'), because tsconfig excluded
 # only "midjrny". This file and tsconfig.json both use a glob now.
+# 2026-09-05: the glob was still the misspelling. The directory on disk is
+# "midjourny" (with the u); both spellings are listed now.
 midjrny*
+midjourny*

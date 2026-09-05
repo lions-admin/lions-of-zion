@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "ds-bundle", "screenshots", "coverage", ".claude/worktrees", "midjrny*"]
+  "exclude": ["node_modules", "ds-bundle", "screenshots", "coverage", ".claude/worktrees", "midjrny*", "midjourny*"]
 }

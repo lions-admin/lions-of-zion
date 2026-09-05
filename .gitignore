@@ -77,5 +77,16 @@ public/archive/
 # Loose credential drops (a pasted key file must never reach a public repo)
 *.rtf
 
-# Midjourney assets/scratch
-midjrny/
+# Midjourney assets/scratch. BOTH spellings on purpose: the rule read only
+# "midjrny/" until 2026-09-05 while the directory on disk is "midjourny/", so
+# ~350 MB of scratch sat untracked AND unignored in a public repo, one
+# `git add -A` from being permanent. Do not "tidy" either line away.
+midjrny*/
+midjourny*/
+
+# Loose large media and screen captures dropped at the repo root. Root-anchored
+# so they never shadow public/video/*.mp4, which is tracked deliberately.
+/*.mp4
+/*.mov
+/*.webm
+/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]-*.png

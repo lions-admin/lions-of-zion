@@ -676,7 +676,9 @@
   .masthead {
     align-items: flex-start;
     width: auto;
-    margin: max(38svh, 18rem) var(--home-gutter) 0;
+    /* Keep the record in the first screen; the portrait has already done its
+       work above this point. A 38svh offset pushed the rail below the fold. */
+    margin: max(28svh, 14rem) var(--home-gutter) 0;
     text-align: start;
   }
 

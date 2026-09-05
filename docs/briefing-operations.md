@@ -67,12 +67,15 @@ selects no citable story, the draft stage stops with
 as the "missing edition after 10:00 Israel time" alert, and it is worth
 investigating — it usually means collection, not editorial judgement.
 
-**`war_update` is no longer produced.** The pipeline stopped selecting it on
-2026-09-01; security, war and operational material feeds the Daily Brief
-instead. `/war-update` keeps serving the archive it already has, and existing
-`war_update` rows stay editable, archivable and eligible for a homepage slot —
-the route stops growing rather than breaking. If a new `war_update` article
-appears in Production, that is a defect worth investigating, not a normal run.
+**`war_update` is being removed completely** (owner decision 2026-09-05, see
+`.ai/DECISIONS.md`): it was an unused model path, and its surviving rows are
+machine-published pipeline residual — no human ever approved or created one.
+The write-side contract is `WRITABLE_PUBLICATION_SECTIONS`: creating or
+relabeling into `war_update` is rejected at every boundary, and the pipeline
+stage that encounters a non-writable section quarantines loudly — if a new
+`war_update` article ever appears, that is a defect worth investigating, not a
+normal run. Read paths still accept the value until the residual rows are
+deleted and the enum value is retired.
 
 ### Unsourced analysis records
 

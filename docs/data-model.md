@@ -328,19 +328,24 @@ the TypeScript guard cannot drift.
 
 ---
 
-## `publication_section` keeps a value nothing writes
+## `publication_section` is losing a value nothing wrote
 
 The enum has four members — `daily_brief`, `israel_update`, `war_update`,
-`narrative_watch` — and the briefing pipeline can no longer produce the third.
-`war_update` was removed from `ARTICLE_SECTIONS` in the service on 2026-09-01;
-security and war material feeds the Daily Brief instead.
+`narrative_watch`. `war_update` was removed from `ARTICLE_SECTIONS` on
+2026-09-01 and, by owner decision of 2026-09-05, is being removed completely —
+it was an unused model path, and every row that carries it was
+machine-published by the pre-retirement pipeline: no `created_by`, no
+`approved_by`, all `archived`.
 
-**It was not removed from the enum, and it must not be.** Historic rows carry
-it, `/war-update` still serves them, and a `war_update` row is still eligible
-for a homepage feature. Dropping a Postgres enum value is not a cheap
-operation in any case — it requires rewriting the type and every column that
-uses it — but the reason here is the rows, not the cost. A section the pipeline
-stopped writing is not a section the archive stopped holding.
+Write paths are closed (see `.ai/DECISIONS.md`, 2026-09-05): the write-side
+contract is `WRITABLE_PUBLICATION_SECTIONS`, the pipeline quarantines on a
+non-writable section, and the admin editor offers the option only for a row
+that already carries it. Read shapes still accept `war_update` so the residual
+rows keep serving until the data retirement deletes them — the underlying
+evidence entities are shared and survive — after which the value leaves
+`PUBLICATION_SECTIONS` and the enum. Dropping the enum member requires
+rewriting the type and the column; that migration runs only after the rows are
+gone, and this paragraph is updated when it does.
 
 ---
 

@@ -324,6 +324,42 @@ section has to stay reachable for the archive to remain editable. Recorded here
 rather than left as an apparent oversight, because the obvious next reading of
 "the pipeline no longer produces it" is that the menu option was forgotten.
 
+## 2026-09-05 — `war_update` was never a feature; it is being removed completely
+
+This supersedes the 2026-09-01 entry above in full. Inspection of the branch
+database showed every surviving `war_update` row was machine-published by the
+pre-2026-09-01 pipeline (no `created_by`, no `approved_by`, batch timestamps,
+all `archived`) — residual output of a path no human ever used. Owner decision:
+the section is retired **completely**, not preserved as a legacy read-only
+value. No compatibility shelf is kept for it.
+
+Applied in two stages:
+
+1. **Write closure (2026-09-05).** `WRITABLE_PUBLICATION_SECTIONS` (daily_brief,
+   israel_update, narrative_watch) is now the write-side contract:
+   `createPublicationSchema` and `updatePublicationSchema` reject `war_update`,
+   the codex import boundary rejects it, the pipeline publish stage (and
+   `resumePausedEdition`, which rebuilt inputs from stored artifacts without
+   ever crossing an HTTP boundary) raises and quarantines on it, console
+   version-rollback omits a non-writable `section` from its update fields, and
+   the admin editor offers the option only for a row that already carries it —
+   sending `section` only when changed, so a legacy row cannot be silently
+   relabeled by a form submit. Read shapes (`publicPublicationSchema`, both
+   list filters, `STORED_ARTICLE_SECTIONS`, labels, breadcrumb, homepage
+   eligibility) still accept the value so existing rows keep serving until
+   stage 2.
+2. **Data + enum retirement.** Pending Production verification of the row
+   count. Residual rows (machine-published, archived, never human-approved)
+   are deleted with their dependent join records — the underlying evidence
+   entities are shared and stay — then `war_update` leaves
+   `PUBLICATION_SECTIONS`, the `publication_section` enum, the read-tolerance
+   sets, the labels and the docs. The 2026-09-01 claim that "retiring a
+   producer is not the same as retiring a value" was correct as written then
+   and is reversed by this decision, not by discovering it was wrong.
+
+`PublicationManager.tsx` named in the 2026-09-01 entry no longer exists;
+`app/admin/EditorialDesk.tsx` was the last writer.
+
 ## 2026-09-01 — `item.detected` is retired to a tombstone; `embedding.refresh` is deleted
 
 Two dead outbox topics, treated differently, and the difference is the point.

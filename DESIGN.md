@@ -53,9 +53,10 @@ Mobile gives the portrait its upper space, then presents the nameplate and
 record in natural flow. Short screens scroll instead of compressing everything
 into one viewport. Mobile Ask stays fixed above the device's safe area, with
 trailing page space to let the final record scroll clear of it. The mobile news
-rail uses tighter spacing with source, verdict and date held in one metadata line
-plus a single-line headline cue; source, verdict, date and
-article link remain intact. These compact rules do not change desktop.
+rail uses a compact two-row cue: label/archive action, then one headline line.
+Source, verdict and date stay in the accessibility tree and on the full record,
+but no longer occupy a third visible row. Space is reserved for the persistent
+Ask utility, so it never covers the rail. These rules do not change desktop.
 Preserve no-script navigation, poster fallback, reduced-motion behavior,
 semantic links, visible focus, real verdicts, dates and publication content.
 

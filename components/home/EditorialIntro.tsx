@@ -140,7 +140,7 @@ export function EditorialIntro() {
     <>
       <button ref={replayRef} type="button" className={styles.replay} hidden={!available}
         onClick={() => open(true)}>
-        Watch introduction <span aria-hidden="true">↗</span>
+        Watch introduction <span aria-hidden="true">↗︎</span>
       </button>
       <dialog ref={dialogRef} className={styles.dialog} data-editorial-intro
         data-beat={beat}

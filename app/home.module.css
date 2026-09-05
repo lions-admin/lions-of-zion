@@ -718,7 +718,10 @@
     align-items: center;
     gap: var(--sp-1) var(--sp-4);
     width: 100%;
-    padding: var(--sp-1) 0 var(--sp-2);
+    /* The persistent Ask utility occupies the lower-right corner. Reserving
+       its width keeps both rail rows readable instead of letting it cover
+       the headline or the archive link. */
+    padding: var(--sp-1) calc(5rem + var(--sp-3)) var(--sp-2) 0;
   }
 
   .railFlag {
@@ -746,22 +749,26 @@
   .railEmpty { grid-area: story; }
 
   .railSignal {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--sp-2);
+    gap: 0;
     min-width: 0;
   }
 
   .railMeta {
-    flex: none;
-    flex-wrap: nowrap;
-    gap: var(--sp-1) var(--sp-3);
+    /* The homepage rail is a cue on a phone, not the article record. Keep the
+       source, verdict and date available to assistive technology without
+       spending a third visible row on them. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
     white-space: nowrap;
-    font-size: var(--t-data);
-    line-height: var(--t-data-lh);
-    letter-spacing: 0;
-    text-transform: none;
   }
 
   .railSource { color: var(--ink); }

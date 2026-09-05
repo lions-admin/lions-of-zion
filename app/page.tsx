@@ -104,7 +104,7 @@ export default async function Page() {
               </ButtonLink>
             </div>
             <Link className={styles.storyLink} href="/information-war">
-              Why this work matters <span aria-hidden="true">↗</span>
+              Why this work matters <span aria-hidden="true">↗︎</span>
             </Link>
             <EditorialIntro />
           </div>

@@ -67,12 +67,21 @@ export async function withDatabaseRole<T>(
     await scoped.execute(sql`SELECT set_config('app.identity', ${identity}, false)`);
     return await requestDatabase.run({ database: scoped, identity }, fn);
   } finally {
+    let unresettable: unknown;
     try {
       await scoped.execute(sql.raw("RESET ROLE"));
       await scoped.execute(sql.raw("RESET ALL"));
+    } catch (cause) {
+      unresettable = cause;
     } finally {
-      client.release();
+      /* A connection whose role could not be cleared must not rejoin the pool.
+       * `release(err)` destroys it instead; a bare `release()` would hand it to
+       * whichever request draws it next, still holding `app_staff` and a stale
+       * `app.identity`, with nothing in the logs tying the two together.
+       * `tests/database-role.test.ts` pins both halves. */
+      client.release(unresettable as Error | undefined);
     }
+    if (unresettable) throw unresettable;
   }
 }
 

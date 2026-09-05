@@ -2,7 +2,6 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { tierFor } from "@/components/particle-nav/hooks/usePerfTier";
 
 /**
  * MOTION-002 / PERF-006 / PERF-007 — the motion runtime inventory, pinned.
@@ -55,31 +54,10 @@ function stripComments(source: string): string {
     .replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 }
 
-/**
- * Every `useFrame(...)` call in a file, as source text, found by matching
- * parentheses through the comment-stripped file. `balanced` is false if the
- * scan ran off the end — which would mean an unbalanced parenthesis survived
- * the strip, and the caller should fail rather than silently pass on a body
- * that is really the whole rest of the file.
- */
-function frameCallbacks(source: string): { balanced: boolean; body: string }[] {
-  const stripped = stripComments(source);
-  const out: { balanced: boolean; body: string }[] = [];
-  let from = 0;
-  for (;;) {
-    const at = stripped.indexOf("useFrame(", from);
-    if (at === -1) return out;
-    let depth = 0;
-    let i = at + "useFrame".length;
-    for (; i < stripped.length; i++) {
-      const c = stripped[i];
-      if (c === "(") depth++;
-      else if (c === ")" && --depth === 0) break;
-    }
-    out.push({ balanced: depth === 0, body: stripped.slice(at, i + 1) });
-    from = i + 1;
-  }
-}
+/* `frameCallbacks()` — a brace-matching reader for every `useFrame(...)` body
+   — stood here. Its only callers were the particle-nav frame-budget blocks,
+   and `useFrame` is a react-three-fiber hook with no remaining consumer in the
+   tree, so it went with them on 2026-09-05. */
 
 describe("MOTION-002 — the animation-loop inventory", () => {
   /**
@@ -88,7 +66,6 @@ describe("MOTION-002 — the animation-loop inventory", () => {
    * and add it to the report — which is the whole point of the list.
    */
   const KNOWN_FRAME_LOOPS = [
-    "components/typographic-field/engine.ts",
     "components/pipeline-visualizer/hooks/usePipelineSimulation.ts",
   ];
 
@@ -168,47 +145,11 @@ describe("MOTION-002 — the animation-loop inventory", () => {
     }
   });
 
-  /**
-   * The regression this file was written for. `TypographicField` published a
-   * once-per-second readout from a `requestAnimationFrame` loop, so it woke
-   * ~60 times a second to do nothing 59 of them — and it did so with none of
-   * the three gates the engine underneath it honours, which meant a
-   * scrolled-away, backgrounded, reduced-motion field still scheduled a frame
-   * callback every 16ms for the life of the mount.
-   */
-  it("the typographic telemetry sampler is an interval, gated and cleaned up", () => {
-    const source = read("components/typographic-field/TypographicField.tsx");
-
-    /* The name survives in the comment recording why the loop went. */
-    expect(source).not.toMatch(/requestAnimationFrame\s*\(/);
-    expect(source).toMatch(/setInterval\(\s*sampleMetrics\s*,\s*1000\s*\)/);
-
-    /* Offscreen and hidden both stop it, and both go through one function so
-       they cannot drift apart. */
-    expect(source).toMatch(/document\.hidden/);
-    expect(source).toMatch(
-      /addEventListener\(\s*"visibilitychange",\s*syncMetrics/,
-    );
-    expect(source).toMatch(/new IntersectionObserver/);
-
-    for (const teardown of [
-      /removeEventListener\(\s*"visibilitychange",\s*syncMetrics/,
-      /stopMetrics\(\)/,
-      /io\.disconnect\(\)/,
-      /engine\.destroy\(\)/,
-    ]) {
-      expect(source).toMatch(teardown);
-    }
-  });
-
-  /** MOTION-005's offscreen gate composes with hidden and reduced motion. */
-  it("the typographic engine refuses to start while offscreen", () => {
-    const engine = read("components/typographic-field/engine.ts");
-    expect(engine).toMatch(
-      /public start\(\)\s*\{\s*if \([^)]*this\.isOffscreen\)\s*return;/,
-    );
-    expect(engine).toMatch(/this\.isReducedMotion\)\s*\{[\s\S]{0,200}?return;/);
-  });
+  /* Two assertions stood here for `components/typographic-field/` — the
+     telemetry sampler's interval and the engine's offscreen gate. The
+     subsystem was retired on 2026-09-05 (it had been unmounted since
+     `dcf4355` and unreachable from any route since), so they were removed
+     with it rather than left asserting on a deleted file. */
 
   /** The simulation is the only ambient loop on `/pipeline`; it defers to §21. */
   it("the pipeline simulation does not auto-play under reduced motion", () => {
@@ -307,176 +248,6 @@ describe("MOTION-003 — Reveal is limited to sections and ordered processes", (
   });
 });
 
-describe("the entrance's background is the site's own scan, and it stops", () => {
-  /**
-   * The GPU scan that used to paint behind the lion was retired on
-   * 2026-09-04; the entrance is composed over an instance of the same CSS
-   * `ScanBackdrop` the settled home shows. Two properties have to hold, and
-   * neither is visible in a screenshot:
-   *
-   *  - the entrance's canvas must clear *transparent*, or it paints over the
-   *    backdrop it is supposed to sit on;
-   *  - the backdrop must actually stop once the entrance is dismissed.
-   *    `visibility: hidden` hides an animation without ending it, so the
-   *    layer would otherwise keep sixteen rows drifting for the life of the
-   *    page behind the settled home — the second moving layer the home's own
-   *    dock is paused to avoid.
-   */
-  it("the canvas asks for alpha and clears fully transparent", () => {
-    const scene = read("components/particle-nav/Scene.tsx");
-    expect(scene).toMatch(/alpha: true,/);
-    expect(scene).toMatch(/setClearColor\(theme\.background, 0\)/);
-    expect(scene).not.toMatch(/setClearColor\(theme\.background, 1\)/);
-  });
-
-  it("the entrance's backdrop is paused once the intro is dismissed", () => {
-    const css = read("components/particle-nav/styles.module.css");
-    expect(css).toMatch(
-      /\[data-intro-dismissed\] \.introBackground \*[\s\S]{0,80}?animation-play-state: paused/,
-    );
-    /* There is no second instance to keep still any more: the home's docked
-       band went with the typographic field when the hero became a video, so
-       "never both moving" is now enforced by there being only one. The home's
-       own moving layer is the video, and it carries its own stop — no source
-       is ever handed to either element under `prefers-reduced-motion`, which
-       is a stronger guarantee than pausing an animation, because the file is
-       not fetched at all. */
-    const home = read("app/home.module.css");
-    expect(home).not.toMatch(/\.scanDock/);
-    const hero = read("components/sections/HeroVideo.tsx");
-    expect(hero).toMatch(
-      /matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches\)\s*return/,
-    );
-  });
-});
-
-describe("the intro clock advances by a bounded step", () => {
-  /**
-   * The bug this pins. `Scene.tsx` advanced `timelineTimeRef` by r3f's raw
-   * frame delta, which is wall-clock time since the previous frame — and the
-   * entrance is exactly where that diverges from rendered time: WebGPU init
-   * and shader compilation stall the first frames, a backgrounded tab is
-   * throttled to ~1 fps, and a GC pause costs whole seconds. Measured in
-   * Chrome on 2026-09-04, the intro handed off ~3 s after load having played
-   * nothing: one large delta carried the clock past `getRollingFinalTime`,
-   * so `story.isComplete` was true on an early frame. A throttled pane
-   * showed the same fault the other way round, advancing a second of
-   * narrative per frame.
-   */
-  const scene = read("components/particle-nav/Scene.tsx");
-
-  it("clamps the per-frame step rather than adding the raw delta", () => {
-    expect(scene).toMatch(/export const TIMELINE_MAX_STEP = ([\d.]+);/);
-    /* The advance must go through the clamp — not `+ delta` on its own. */
-    expect(scene).toMatch(
-      /timelineTimeRef\.current \+ Math\.min\(delta, TIMELINE_MAX_STEP\)/,
-    );
-    expect(scene).not.toMatch(/timelineTimeRef\.current \+ delta[,)]/);
-  });
-
-  it("the clamp is a slow-machine floor, not a speed limit on a healthy one", () => {
-    const step = Number(scene.match(/TIMELINE_MAX_STEP = ([\d.]+);/)![1]);
-    /* Never below a 60 fps frame, or every machine would run in slow motion. */
-    expect(step).toBeGreaterThan(1 / 60);
-    /* Never so large that a stall can still skip a whole stage: the shortest
-       stage in the timeline is the 0.15 s stream pre-roll. */
-    expect(step).toBeLessThanOrEqual(0.15);
-  });
-});
-
-describe("the frame writer runs before the layers that read it", () => {
-  /**
-   * `Scene.tsx` writes one `ExperienceFrame` per tick and four layers read
-   * it. r3f sorts `useFrame` subscribers ascending by priority and, being a
-   * child, every layer subscribed *after* the writer at the same default
-   * priority — so each read the previous frame's lion transform. Over the
-   * 1.1 s rise that detached the text stream from the lion it is emitted
-   * from. The writer is now negative, which orders it first.
-   *
-   * The negative value also matters to r3f's auto-render gate:
-   * `internal.priority += priority > 0 ? 1 : 0` counts only positive
-   * priorities, so this must stay negative rather than becoming 0 or a
-   * small positive number, or the post pass's ownership of rendering would
-   * be the only thing holding the gate.
-   */
-  const scene = read("components/particle-nav/Scene.tsx");
-
-  it("the writer subscribes at a negative priority, ahead of every reader", () => {
-    expect(scene).toMatch(/const FRAME_WRITER_PRIORITY = -\d/);
-    expect(scene).toMatch(/\}, FRAME_WRITER_PRIORITY\);/);
-    /* The post pass keeps priority 1, so it still runs last. */
-    expect(scene).toMatch(/postRef\.current\?\.post\.render\(\);\s*\}, 1\);/);
-  });
-
-  it("no reader of the shared frame subscribes before the writer", () => {
-    /* Every reader is at the default priority (0), which sorts after the
-       writer's negative value and before the post pass's 1. The scan layer
-       that used to name its own 0.5 was retired with the orbit on
-       2026-09-04; if a layer ever needs an explicit priority again it must
-       land strictly between those two. */
-    for (const file of ["layers/LionCore.tsx", "layers/IntroText.tsx"]) {
-      const source = read(`components/particle-nav/${file}`);
-      for (const [, priority] of source.matchAll(/\}\s*,\s*(-?[\d.]+)\s*\);/g)) {
-        expect(Number(priority), `${file} frame priority`).toBeGreaterThan(-1);
-        expect(Number(priority), `${file} frame priority`).toBeLessThan(1);
-      }
-    }
-  });
-});
-
-describe("PERF-006 — capability caps on GPU and layered work", () => {
-  it("the particle scene caps pixel ratio and particle count per tier", () => {
-    const tier = read("components/particle-nav/hooks/usePerfTier.ts");
-    expect(tier).toMatch(/maxDpr/);
-    /* Nothing may exceed DPR 2, whatever the display reports. */
-    for (const [, dpr] of tier.matchAll(/maxDpr:\s*([\d.]+)/g)) {
-      expect(Number(dpr)).toBeLessThanOrEqual(2);
-    }
-    /* A coarse pointer or a WebGL2 fallback drops to the smallest LOD. */
-    expect(tier).toMatch(
-      /backend === 'webgl2' \|\| coarse\)[\s\S]{0,220}?particles: 45_000/,
-    );
-    expect(read("components/particle-nav/Scene.tsx")).toMatch(
-      /dpr=\{\[1, tier\.maxDpr\]\}/,
-    );
-  });
-
-  /**
-   * The GPU scene is the entrance only. `showCanvas` is false once the intro
-   * is dismissed, so the renderer unmounts rather than persisting behind the
-   * page as a second frame loop for the rest of the session.
-   */
-  it("the GPU renderer unmounts at handoff instead of idling behind the page", () => {
-    expect(read("components/particle-nav/CanvasMount.tsx")).toMatch(
-      /const showCanvas =[\s\S]{0,160}?!introDismissed/,
-    );
-  });
-
-  it("beams are capped page-wide and pause offscreen", () => {
-    const source = read("components/motion/SignalBeam.tsx");
-    const cap = source.match(/MAX_ANIMATED_BEAMS = (\d+)/);
-    expect(cap).not.toBeNull();
-    expect(Number(cap![1])).toBeLessThanOrEqual(12);
-    expect(source).toMatch(/animatedCount < MAX_ANIMATED_BEAMS/);
-
-    const css = read("components/motion/signal-beam.module.css");
-    expect(css).toMatch(/data-beam-idle[\s\S]{0,120}?animation-play-state: paused/);
-    expect(css).toMatch(/data-beam-capped[\s\S]{0,120}?display: none/);
-  });
-
-  it("ProgressiveBlur sheds backdrop layers on a coarse pointer", () => {
-    const css = read("components/motion/progressive-blur.module.css");
-    expect(css).toMatch(
-      /@media \(pointer: coarse\)[\s\S]{0,400}?nth-child\(3\)[\s\S]{0,60}?display: none/,
-    );
-    /* Two survivors, not zero — a plain gradient loses the defocus entirely. */
-    /* Two surviving layers, each restated for `top` and `bottom` and each
-       carrying its `-webkit-` prefix: 2 x 2 x 2. */
-    const tierBlock = css.slice(css.indexOf("@media (pointer: coarse)"));
-    expect(tierBlock.match(/backdrop-filter: blur/g)?.length).toBe(8);
-  });
-});
-
 describe("A11Y-010 / §21 — every continuous animation has a reduced-motion result", () => {
   it("the global kill switch is present", () => {
     const globals = read("app/globals.css");
@@ -522,133 +293,6 @@ describe("A11Y-010 / §21 — every continuous animation has a reduced-motion re
       )) {
         expect(Number(seconds), `${file}: ${seconds}s ambient loop`).toBeGreaterThanOrEqual(5);
       }
-    }
-  });
-});
-
-/**
- * §6 of `fixhomeTODO.md` — the intro's performance and lifecycle budget.
- *
- * Phase C put a lion → throat → glyph path in the text material and Phase D a
- * per-frame uniform sync in the scan, so the two things §6 actually guards
- * against are a layer that starts allocating once per frame at 60 Hz, and a
- * storage node that outlives the material that owns it. Both are source-level
- * properties; neither has a runtime under vitest, since there is no WebGPU
- * device here. The tier table is the exception and is exercised as a function.
- */
-describe("§6 — the intro's per-frame and lifecycle budget", () => {
-  const PARTICLE_NAV = "components/particle-nav";
-  const frameFiles = () =>
-    sourceFiles().filter(
-      (file) => file.startsWith(`${PARTICLE_NAV}/`) && /useFrame\(/.test(read(file)),
-    );
-
-  it("the tier table still holds the three budgets §6 names", () => {
-    /* A coarse pointer or a WebGL2 fallback drops to the smallest LOD with no
-       bloom, whatever memory the device reports. */
-    for (const memory of [undefined, 2, 4, 8, 32]) {
-      for (const [backend, coarse] of [
-        ["webgpu", true],
-        ["webgl2", false],
-        ["webgl2", true],
-      ] as const) {
-        const tier = tierFor(backend, memory, coarse);
-        const label = `${backend}/${coarse}/${memory}`;
-        expect(tier.particles, label).toBe(45_000);
-        expect(tier.bloom, label).toBe("off");
-      }
-    }
-    /* Nothing anywhere in the table exceeds DPR 2. */
-    for (const backend of ["webgpu", "webgl2", "none"] as const) {
-      for (const memory of [undefined, 2, 4, 8, 32]) {
-        for (const coarse of [false, true]) {
-          expect(
-            tierFor(backend, memory, coarse).maxDpr,
-            `${backend}/${memory}/${coarse}`,
-          ).toBeLessThanOrEqual(2);
-        }
-      }
-    }
-    /* The full tier is still the full tier — the cap is a ceiling, not a
-       flattening of the table. */
-    expect(tierFor("webgpu", 8, false).particles).toBe(180_000);
-    expect(tierFor("webgpu", 8, false).bloom).toBe("full");
-    expect(tierFor("webgpu", 4, false).particles).toBe(90_000);
-  });
-
-  /**
-   * The declared exemption, with its reasons. `Scene.tsx` owns the frame
-   * solve, and three of its steps allocate on every frame:
-   *
-   *   - `getRollingStoryFrame()` returns a fresh frame object whose
-   *     `activeLines` is built with `flatMap`, so an array plus one object per
-   *     active line;
-   *   - the `ExperienceFrame` itself is written as an object literal.
-   *
-   * The other two — `connectorBezier()`'s six `Vector3`s and the two
-   * template strings per projected DOM label — went with the orbital
-   * navigation on 2026-09-04. What is left is listed rather than hidden, so
-   * the exemption stays a decision on the record: the fix is a mutable frame
-   * written in place.
-   */
-  const KNOWN_FRAME_ALLOCATORS = [`${PARTICLE_NAV}/Scene.tsx`];
-
-  /** Helpers that build a mapping, a cloud or a layout — never per frame. */
-  const REBUILD_HELPERS =
-    /\b(getRollingStoryFrame|mapTextToLionSources|packLionSourcePositions|lionExtractionPool|buildTextCloud|computeIntroLayout|createIntroTextMaterial|createLionMaterial|decodeLionBake)\(/;
-
-  const ALLOCATION_PATTERNS: readonly [string, RegExp][] = [
-    ["a constructor call", /new [A-Z]/],
-    ["an array-returning method", /\.(map|flatMap|filter|slice|concat|split|join)\(/],
-    ["Array.from", /Array\.from\(/],
-    ["an object literal", /=\s*\{/],
-    ["a template literal", /`/],
-  ];
-
-  it("every frame loop in the particle scene is found and parsed", () => {
-    /* Non-empty, or the whole sweep below passes by matching nothing. */
-    const files = frameFiles();
-    expect(files.length).toBeGreaterThan(1);
-    for (const file of files) {
-      const callbacks = frameCallbacks(read(file));
-      expect(callbacks.length, file).toBeGreaterThan(0);
-      for (const { balanced } of callbacks) expect(balanced, file).toBe(true);
-    }
-    /* A stale exemption is as bad as a missing one. */
-    for (const file of KNOWN_FRAME_ALLOCATORS) expect(files, file).toContain(file);
-  });
-
-  it("no unexempt frame loop allocates, rebuilds or sets React state", () => {
-    for (const file of frameFiles()) {
-      if (KNOWN_FRAME_ALLOCATORS.includes(file)) continue;
-      const source = read(file);
-      /* The component's own state setters, by name — the precise form of "sets
-         React state", with none of a generic `set[A-Z]` pattern's false hits on
-         `setScalar`/`setUniform`. */
-      const setters = [
-        ...source.matchAll(/const \[\s*\w+\s*,\s*(set[A-Z]\w*)\s*\]\s*=\s*useState/g),
-      ].map((match) => match[1]);
-      for (const { body } of frameCallbacks(source)) {
-        for (const [label, pattern] of ALLOCATION_PATTERNS) {
-          expect(pattern.test(body), `${file}: frame loop contains ${label}`).toBe(false);
-        }
-        expect(
-          REBUILD_HELPERS.test(body),
-          `${file}: frame loop calls a builder that belongs in an effect`,
-        ).toBe(false);
-        for (const setter of setters) {
-          expect(
-            new RegExp(`\\b${setter}\\(`).test(body),
-            `${file}: frame loop calls ${setter}`,
-          ).toBe(false);
-        }
-      }
-    }
-  });
-
-  it("every layer that builds GPU state also tears it down", () => {
-    for (const file of ["layers/IntroText.tsx", "layers/LionCore.tsx"]) {
-      expect(read(`${PARTICLE_NAV}/${file}`), file).toMatch(/dispose/);
     }
   });
 });

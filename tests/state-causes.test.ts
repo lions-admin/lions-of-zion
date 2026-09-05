@@ -344,19 +344,36 @@ describe("form semantics (A11Y-007)", () => {
   });
 
   it("uses the fifth cause where it applies: a refused read is not a broken one", () => {
-    /* Every route under `/api/v1/admin` fails closed, so 401/403 is the
-       ordinary state after a session lapses. Reported as a load failure it
+    /* Every route under `/api/v1/admin` fails closed, so a refused answer is
+       the ordinary state after a session lapses. Reported as a load failure it
        tells an operator the console is broken when the console is working and
        they are simply signed out — "retry" and "sign in" are different first
-       moves and only one of them helps. */
+       moves and only one of them helps. The refusals are two named classes,
+       each with its own operator-facing message (Hebrew, by decision — it is
+       the console's language): the session refusal (`AuthRequired`, 401) and
+       the permission refusal (`PermissionDenied`, 403) are different states
+       with different copy, not one fused `401 || 403` literal. */
     const shared = read("app/admin/auth-required.ts");
-    expect(shared).toContain("response.status === 401 || response.status === 403");
+    expect(shared).toContain("export class AuthRequired");
+    expect(shared).toContain("export class PermissionDenied");
+    const messageOf = (name: string) =>
+      new RegExp(`class ${name}[\\s\\S]*?super\\("([^"]+)"\\)`).exec(shared)?.[1];
+    const sessionMessage = messageOf("AuthRequired");
+    const permissionMessage = messageOf("PermissionDenied");
+    expect(sessionMessage, "the session refusal must carry its own message").toBeTruthy();
+    expect(permissionMessage, "the permission refusal must carry its own message").toBeTruthy();
+    expect(sessionMessage).not.toBe(permissionMessage);
 
     /* The console became five areas plus a chat, and the distinction moved
-       with it rather than being copied six times: `useConsoleRead` turns a
-       401/403 into the typed absence, and `ReadGate` renders it. Both halves
-       are checked, because either one alone is decorative. */
-    expect(read("app/admin/useConsoleRead.ts")).toContain("refusedForAuth(");
+       with it rather than being copied: `responseBody` in `useConsoleRead`
+       turns 401 into `AuthRequired` and 403 into `PermissionDenied` on
+       separate branches — a refused permission can never be mistaken for a
+       lapsed session — and the catch maps each class to its own read state. */
+    const hook = read("app/admin/useConsoleRead.ts");
+    expect(hook).toContain("if (response.status === 401) throw new AuthRequired();");
+    expect(hook).toContain("if (response.status === 403) throw new PermissionDenied();");
+    expect(hook).toMatch(/cause instanceof AuthRequired \? \{ kind: "auth-required" \}/);
+    expect(hook).toMatch(/cause instanceof PermissionDenied \? \{ kind: "forbidden" \}/);
 
     for (const panel of ["app/admin/console-primitives.tsx", "app/admin/OpsChat.tsx"]) {
       const source = read(panel);
@@ -406,10 +423,12 @@ describe("/geopolitical-brief absences (STATE-005)", () => {
     expect(markup).not.toContain('data-status="empty"');
     expect(markup).toContain("could not be read");
 
-    /* And the section-level empties are silent during an outage: `narratives`
-       is empty because the read failed, so "no narrative record was published"
-       would be a statement about the desk made by a broken fetch. */
-    expect(markup).not.toContain("No narrative record was published in this edition");
+    /* The narrative record no longer renders as a section-level empty state
+       on this page at all — it moved to the fake-resistance desk — but if a
+       narrative absence ever comes back, an outage must not speak in its
+       voice: during a failed read nothing below the error panel is evidence
+       of anything, so no empty state may borrow the desk's voice. */
+    expect(markup).not.toContain("No narrative record");
   });
 
   it("tells a filter that matched nothing from a desk that has published nothing", async () => {
@@ -418,12 +437,21 @@ describe("/geopolitical-brief absences (STATE-005)", () => {
     const filtered = await hub({ actor: "Someone" });
     expect(filtered).toContain("No Daily Brief matches this selection");
     expect(filtered).toContain("Clear all filters");
-    expect(filtered).toContain("No narrative record matches this selection");
 
     const unfiltered = await hub();
     expect(unfiltered).toContain("No Daily Brief has been published yet");
     /* Clearing filters that were never set is a control that changes nothing. */
     expect(unfiltered).not.toContain("Clear all filters");
-    expect(unfiltered).toContain("No narrative record was published in this edition");
+
+    /* The narrative record is no longer a filtered section here: it moved to
+       the fake-resistance desk, and the hub renders a static pointer to it
+       instead — the same section whether the filters matched anything or not,
+       so it is no longer the voice of either absence. */
+    expect(filtered).toContain("Narratives, X &amp; incitement");
+    expect(filtered).toContain('href="/fake-resistance"');
+    expect(unfiltered).toContain("Narratives, X &amp; incitement");
+    /* And neither absence borrows the narrative record's old empty voice. */
+    expect(filtered).not.toContain("No narrative record");
+    expect(unfiltered).not.toContain("No narrative record");
   });
 });

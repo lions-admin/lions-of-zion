@@ -110,8 +110,11 @@ describe("/fake-resistance/watch", () => {
   it("shows a genuinely-empty state distinctly from an unavailable one", async () => {
     listBriefingPublications.mockResolvedValue([]);
     const markup = await render(await WatchPage());
-    expect(markup).toContain("Nothing is being tracked right now");
-    expect(markup).not.toContain("temporarily unavailable");
+    /* The empty read renders watch/page.tsx:98 — "No published monitoring
+       records were returned for this read." The unavailable string is the
+       other half of the same conditional (watch/page.tsx:97). */
+    expect(markup).toContain("No published monitoring records were returned for this read");
+    expect(markup).not.toContain("could not be loaded");
   });
 
   /* The tripwire `tests/live-surfaces.test.ts` already established for
@@ -121,8 +124,11 @@ describe("/fake-resistance/watch", () => {
   it("degrades to an unavailable message rather than throwing when the read fails", async () => {
     listBriefingPublications.mockRejectedValue(new Error("no database"));
     const markup = await render(await WatchPage());
-    expect(markup).toContain("temporarily unavailable");
-    expect(markup).not.toContain("Nothing is being tracked right now");
+    /* The failed read renders watch/page.tsx:97 — "The published monitoring
+       feed could not be loaded. Please try again later." — not the empty
+       string (watch/page.tsx:98). */
+    expect(markup).toContain("The published monitoring feed could not be loaded");
+    expect(markup).not.toContain("No published monitoring records were returned for this read");
   });
 });
 
@@ -131,16 +137,23 @@ describe("/fake-resistance hub — the live branch card", () => {
     listBriefingPublications.mockResolvedValue([sourcedWatch, analysisWatch]);
     const markup = await render(await HubPage());
     expect(markup).toContain("The daily watch");
-    // React inserts a comment marker between the interpolated count and the
-    // literal text that follows it ("2<!-- --> tracked now"), so match the
-    // two halves rather than the joined string.
-    expect(markup).toMatch(/>2<!-- -->\s*tracked now</);
+    /* The hub's live-count span (fake-resistance/page.tsx:146) renders
+       "{watchCount} published monitoring records". React inserts a comment
+       marker between the interpolated count and the literal text that follows
+       it ("2<!-- --> published monitoring records"), so match the two halves
+       rather than the joined string. */
+    expect(markup).toMatch(/>2<!-- -->\s*published monitoring records</);
     expect(markup).toContain("/fake-resistance/watch");
   });
 
-  it("degrades to a zero count rather than 500ing the whole hub", async () => {
+  it("degrades to an unavailable count rather than 500ing the whole hub", async () => {
     listBriefingPublications.mockRejectedValue(new Error("no database"));
     const markup = await render(await HubPage());
-    expect(markup).toMatch(/>0<!-- -->\s*tracked now</);
+    /* On a failed read the hub leaves `watchCount` null
+       (fake-resistance/page.tsx:63-71), and the branch card says so —
+       "Publication count unavailable" (page.tsx:146) — instead of rendering
+       a fabricated numeric count. */
+    expect(markup).toContain("Publication count unavailable");
+    expect(markup).not.toMatch(/>\d+<!-- -->\s*published monitoring records</);
   });
 });

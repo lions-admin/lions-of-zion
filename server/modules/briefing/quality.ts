@@ -53,7 +53,7 @@ export type QualityBasis = {
 
 export type QualityCandidate = {
   key: string;
-  section: "daily_brief" | "israel_update" | "war_update" | "narrative_watch";
+  section: "daily_brief" | "israel_update" | "narrative_watch";
   title: string;
   summary: string;
   body: string;

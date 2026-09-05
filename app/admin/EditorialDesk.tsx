@@ -224,17 +224,11 @@ export function EditorialDesk({ signal }: { signal: number }) {
       securityContext: optional(data.get("securityContext")),
       knownUnknowns: lines(data.get("knownUnknowns")),
     } : undefined;
-    /* `section` travels only when it actually changed. Historical rows can
-       carry a section that is no longer offered in the select, and sending
-       the first option unconditionally would silently relabel them on every
-       save; omitting an unchanged section is a no-op for the row. */
-    const section = String(data.get("section"));
     const body = {
       title: String(data.get("title")), summary: String(data.get("summary")), body: String(data.get("body")),
-      editorialTopic: optional(data.get("editorialTopic")),
+      section: String(data.get("section")), editorialTopic: optional(data.get("editorialTopic")),
       primaryActor: optional(data.get("primaryActor")), arena: optional(data.get("arena")),
       featuredIsraelStory: data.get("featuredIsraelStory") === "on", changeSummary: "עדכון עריכה של מנהל המערכת",
-      ...(section !== current.section ? { section } : {}),
       ...(narrativeWatchDetails ? { narrativeWatchDetails } : {}),
     };
     await ops.run("save", async () => {
@@ -329,12 +323,10 @@ function PublicationForm({ publication, busy, noticeId, onSave, onTransition, on
       <SelectField className={styles.editorField} name="section" error={fieldErrors.section} label="מדור" defaultValue={publication.section}>
         {publication.section === "narrative_watch"
           ? <option value="narrative_watch">{SECTION_LABEL.narrative_watch}</option>
-          : publication.section === "war_update"
-            ? <option value="war_update">{SECTION_LABEL.war_update}</option>
-            : <>
-              <option value="daily_brief">{SECTION_LABEL.daily_brief}</option>
-              <option value="israel_update">{SECTION_LABEL.israel_update}</option>
-            </>}
+          : <>
+            <option value="daily_brief">{SECTION_LABEL.daily_brief}</option>
+            <option value="israel_update">{SECTION_LABEL.israel_update}</option>
+          </>}
       </SelectField>
       <Field className={styles.editorField} name="editorialTopic" error={fieldErrors.editorialTopic} label="נושא" defaultValue={publication.editorialTopic ?? ""} />
       <Field className={styles.editorField} name="primaryActor" error={fieldErrors.primaryActor} label="שחקן מרכזי" defaultValue={publication.primaryActor ?? ""} />

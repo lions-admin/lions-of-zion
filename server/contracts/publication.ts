@@ -8,7 +8,6 @@ import {
   publicationKindSchema,
   publicationSectionSchema,
   publicationStatusSchema,
-  writablePublicationSectionSchema,
 } from "./enums";
 import { languageSchema, uuidSchema } from "./item";
 
@@ -78,10 +77,7 @@ export function narrativeWatchTitle(title: string, basis: EvidenceBasis): string
 export const createPublicationSchema = z
   .object({
     kind: publicationKindSchema,
-    /* Writes accept only the writable sections: `war_update` is retired and
-       no create may assign it, while read and filter shapes below still use
-       the full enum so historic rows stay queryable. */
-    section: writablePublicationSectionSchema.optional(),
+    section: publicationSectionSchema.optional(),
     title: z.string().trim().min(1).max(300),
     summary: z.string().trim().max(4_000).optional(),
     body: z.string().trim().min(1).max(200_000),
@@ -139,7 +135,7 @@ export const createPublicationSchema = z
 export type CreatePublication = z.infer<typeof createPublicationSchema>;
 
 export const updatePublicationSchema = z.object({
-  section: writablePublicationSectionSchema.optional(),
+  section: publicationSectionSchema.optional(),
   editorialTopic: z.string().trim().min(1).max(120).nullable().optional(),
   primaryActor: z.string().trim().min(1).max(160).nullable().optional(),
   arena: z.string().trim().min(1).max(120).nullable().optional(),

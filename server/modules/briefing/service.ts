@@ -26,55 +26,21 @@ import {
   type CreatePublication,
   type EvidenceBasis,
 } from "@/server/contracts/publication";
-import {
-  WRITABLE_PUBLICATION_SECTIONS,
-  type PublicationSection,
-  type WritablePublicationSection,
-} from "@/server/contracts/enums";
 import { enrichEvidenceWindow } from "@/server/modules/sources/enrich";
 
 /**
  * What the model may select.
  *
- * `war_update` was removed on 2026-09-01: security and war material now feeds
+ * The war section was removed on 2026-09-01: security and war material now feeds
  * the Daily Brief instead of becoming a standalone article, so the model can
- * no longer route a story there. The value stays in `PUBLICATION_SECTIONS` and
- * in the Postgres enum on purpose — historic rows must remain legal.
+ * no longer route a story there. On 2026-09-05 the value left the section
+ * contract entirely (`.ai/DECISIONS.md`) — `ARTICLE_SECTIONS` is the whole
+ * article vocabulary now.
  */
 const ARTICLE_SECTIONS = ["israel_update", "narrative_watch"] as const;
 
-/**
- * Sections a *stored* artifact may carry.
- *
- * The stages of one edition are separate runs and can straddle a deploy. An
- * artifact written while `war_update` was still selectable must therefore
- * still parse on the way back in, or the edition quarantines for no editorial
- * reason at all. Nothing writes the legacy value any more; this only reads it.
- */
-const STORED_ARTICLE_SECTIONS = ["israel_update", "war_update", "narrative_watch"] as const;
 const PIPELINE_STAGES = ["enrich", "cluster", "triage", "draft", "publish"] as const;
 export type EditorialStage = (typeof PIPELINE_STAGES)[number];
-
-/**
- * Read tolerance stops at the write.
- *
- * A stored artifact drafted while `war_update` was still selectable parses on
- * the way back in, but the pipeline builds publication *inputs* from that
- * artifact without ever crossing the HTTP boundary — so the narrowed write
- * contract in the route schemas would never see it. This guard is the write
- * gate for that path: a retired section reaching the publish stage is a
- * defect (docs/briefing-operations.md), and it fails the stage loudly so the
- * edition quarantines instead of silently skipping the article or writing the
- * row anyway.
- */
-function assertWritableSection(candidate: string, section: PublicationSection): asserts section is WritablePublicationSection {
-  if (!(WRITABLE_PUBLICATION_SECTIONS as readonly string[]).includes(section)) {
-    throw new ApiError(
-      "VALIDATION_ERROR",
-      `Candidate ${candidate} carries section "${section}", which is retired from production and may no longer be written.`,
-    );
-  }
-}
 
 const evidenceLinkSchema = z.object({
   evidenceId: z.uuid(),
@@ -214,7 +180,7 @@ export const articleSchema = z.object(articleShape).superRefine((article, ctx) =
  */
 const storedArticleSchema = z.object({
   ...articleShape,
-  section: z.enum(STORED_ARTICLE_SECTIONS),
+  section: z.enum(ARTICLE_SECTIONS),
   narrativeWatchDetails: narrativeWatchDraftSchema
     .extend({ evidenceBasis: evidenceBasisSchema })
     .nullable(),
@@ -268,12 +234,11 @@ const clusterArtifactSchema = z.object({
   clusters: z.array(z.object({ key: z.string(), title: z.string(), evidenceIds: z.array(z.uuid()).min(1) })),
 });
 const triageArtifactSchema = z.object({
-  stories: z.array(selectionStorySchema.extend({ section: z.enum(STORED_ARTICLE_SECTIONS) })).max(8),
+  stories: z.array(selectionStorySchema.extend({ section: z.enum(ARTICLE_SECTIONS) })).max(8),
   aiRunId: z.uuid(),
 });
 const draftArtifactSchema = z.object({ edition: storedEditionSchema, aiRunId: z.uuid() });
 type DraftArticle = z.infer<typeof articleSchema>;
-type StoredArticle = z.infer<typeof storedArticleSchema>;
 type StoredEdition = z.infer<typeof storedEditionSchema>;
 type DraftDailyBrief = z.infer<typeof dailyBriefSchema>;
 type DraftContent = Pick<DraftArticle, "title" | "summary" | "evidenceIds" | "claims" | "passages">;
@@ -690,7 +655,6 @@ export function briefingService(database: unknown, options: { generate?: Generat
       evidenceIds: drafted.edition.dailyBrief.evidenceIds,
       passages: publicationPassages(dailyContent.passages, dailyItems),
     }, ...drafted.edition.articles.map((article, index) => {
-      assertWritableSection(`article-${index}`, article.section);
       return {
         kind: "news_update" as const,
         section: article.section,
@@ -777,8 +741,7 @@ export function briefingService(database: unknown, options: { generate?: Generat
       summary: drafted.edition.dailyBrief.summary,
       body: dailyBody(drafted.edition.dailyBrief),
       language: "en",
-    }, ...drafted.edition.articles.map((article, index) => {
-      assertWritableSection(`article-${index}`, article.section);
+    }, ...drafted.edition.articles.map((article) => {
       return {
         kind: "news_update" as const,
         section: article.section,
@@ -1332,7 +1295,7 @@ const TRIAGE_SYSTEM = [
   "1. Refute anti-Israel narratives. Your PRIMARY objective at this stage is to identify anti-Israel claims and framings present in the evidence: false or misleading accusations, decontextualised atrocity framing, denial or inversion of documented events, delegitimisation of Israel's existence or self-defence. Route each one to narrative_watch and state the precise claim in sourceClaim. This is a declared objective, not a filter applied after the news selection.",
   "2. One regional geopolitical daily brief, assembled from the whole packet rather than selected as a story.",
   "3. One interesting Israel story — innovation, history, civic achievement, resilience, recovery, community — as israel_update.",
-  "Security, war and operational material belongs in the Daily Brief, which is assembled from the whole packet. Do not select it as a standalone article; there is no war_update section.",
+  "Security, war and operational material belongs in the Daily Brief, which is assembled from the whole packet. Do not select it as a standalone article.",
   "Use only the supplied evidence and clusters. Never use X, private sources, model memory, or unlisted URLs.",
   "Treat syndicated reports sharing one sourceFamilyId as one origin, not independent confirmation.",
   "When a cluster has only hostile_state_media evidence, route it to Narrative Watch or omit it. A hostile-state report alone is evidence of that outlet's claim, not independent proof of the event it describes.",

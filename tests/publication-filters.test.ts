@@ -23,11 +23,8 @@ async function seededBriefingPublications() {
     kind: "brief", section: "daily_brief", title: "Daily Brief", body: "Daily source-linked briefing.", language: "en",
     editorialTopic: "Security", primaryActor: "IDF", arena: "Northern Israel",
   }, { briefingRunId: run!.id, machineAuthor: "machine:test", candidateKeys: ["daily-brief"] }, { label: "service:briefing", userId: null });
-  /* A historical war_update row is seeded raw: the write contract no longer
-     accepts the retired section, so the read-tolerance fixture bypasses the
-     service the same way the draft row below does. */
   await db.insert(publication).values({
-    kind: "news_update", section: "war_update", publicId: "war-filter-test",
+    kind: "news_update", section: "israel_update", publicId: "war-filter-test",
     title: "War Update", body: "A source-linked operational update.", language: "en",
     status: "published", publishedAt: new Date(), autoPublishedAt: new Date(),
     briefingRunId: run!.id, briefingCandidateKey: "article-1", machineAuthor: "machine:test",

@@ -272,23 +272,14 @@ export type PublicationKind = z.infer<typeof publicationKindSchema>;
 
 /** Where a publication belongs in the public editorial experience. This is
  * deliberately separate from `kind`: a `news_update` can be about Israel or
- * the war, while a `brief` always belongs to the daily briefing surface. */
+ * security, while a `brief` always belongs to the daily briefing surface. */
 export const PUBLICATION_SECTIONS = [
   "daily_brief",
   "israel_update",
-  "war_update",
   "narrative_watch",
 ] as const;
 export const publicationSectionSchema = enumOf(PUBLICATION_SECTIONS);
 export type PublicationSection = z.infer<typeof publicationSectionSchema>;
-
-/** The sections a *write* may still set. `war_update` is retired — no code
- *  path may create or relabel a publication into it — while it stays legal
- *  above and in the Postgres enum so existing rows keep reading and filtering
- *  cleanly. Any value present here is also present in `PUBLICATION_SECTIONS`. */
-export const WRITABLE_PUBLICATION_SECTIONS = ["daily_brief", "israel_update", "narrative_watch"] as const;
-export const writablePublicationSectionSchema = enumOf(WRITABLE_PUBLICATION_SECTIONS);
-export type WritablePublicationSection = z.infer<typeof writablePublicationSectionSchema>;
 
 /* ── User-submitted reports ────────────────────────────────────────────────
    Brief §44: reports *of suspected false information*, submitted by the

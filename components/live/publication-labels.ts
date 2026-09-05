@@ -13,7 +13,6 @@ import type { NarrativeWatchDetails } from "@/server/contracts/publication";
 export const SECTION_LABELS: Record<PublicationSection, string> = {
   daily_brief: "Daily Brief",
   israel_update: "Israel update",
-  war_update: "War update",
   narrative_watch: "Narrative Watch",
 };
 

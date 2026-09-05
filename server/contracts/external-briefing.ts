@@ -229,9 +229,8 @@ export type ExternalNarrativeWatch = z.infer<typeof externalNarrativeWatchSchema
 
 /* ── Articles ───────────────────────────────────────────────────────────────
  *
- * `war_update` is retired from production composition but remains a legal
- * enum value so the archive keeps working. An external package may not
- * compose one; security material belongs in the Daily Brief. */
+ * An external package composes articles into the two section jobs; the
+ * Daily Brief is composed from the whole pack, security material included. */
 export const EXTERNAL_ARTICLE_SECTIONS = ["israel_update", "narrative_watch"] as const;
 
 export const externalArticleSchema = z.object({
@@ -529,7 +528,7 @@ export type ExternalBriefingPublishStatus = z.infer<typeof externalBriefingPubli
 export const externalBriefingPublicationSchema = z.object({
   id: z.uuid(),
   publicId: z.string(),
-  section: z.enum(["daily_brief", "israel_update", "war_update", "narrative_watch"]),
+  section: z.enum(["daily_brief", "israel_update", "narrative_watch"]),
   title: z.string(),
   /** Site-relative path, e.g. `/geopolitical-brief`. */
   path: z.string(),

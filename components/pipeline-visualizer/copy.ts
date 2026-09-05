@@ -382,7 +382,7 @@ export const NODE_COPY: Record<string, NodeInspectorCopy> = {
     why: "Every surface shares versioning, the publish gate, and links to verified items and sourced passages.",
     input: "A structured editorial product with passages and linked sources.",
     does: "Stores the text, sectioning, and explicit pointers to items and evidence.",
-    output: "A public publication page. war_update remains a legal schema value for the archive and is no longer produced — /war-update still serves what was written there and stops growing.",
+    output: "A public publication page. The section vocabulary is daily_brief, israel_update and narrative_watch — /war-update still serves what was written there historically and stops growing.",
     failureMode: "A scenario must carry a verbal likelihoodBand and is forbidden from carrying numeric percentages.",
   },
   cron_briefing: {
@@ -421,7 +421,7 @@ export const NODE_COPY: Record<string, NodeInspectorCopy> = {
     what: "A focused openai/gpt-5-nano call that picks up to eight stories, with first priority on anti-Israel claims and framings in the collected material.",
     why: "The edition has three stated jobs, in order: refute anti-Israel narratives, one regional geopolitical brief, and one interesting Israel story. Refutation is a goal of triage itself, not a filter after news selection.",
     input: "Story clusters and the public evidence pack.",
-    does: "Returns a rigid JSON structure routing each story to narrative_watch or israel_update (up to 5 and 3). daily_brief is composed from the whole pack and is not chosen as a story; war_update is no longer selectable — security and operational material feeds the daily brief.",
+    does: "Returns a rigid JSON structure routing each story to narrative_watch or israel_update (up to 5 and 3). daily_brief is composed from the whole pack and is not chosen as a story; security and operational material feeds the daily brief.",
     output: "Selected stories routed to narrative_watch or israel_update, plus an ai_run with an exact dollar cost.",
     failureMode: "A daily or monthly AI budget breach blocks the call immediately.",
   },
@@ -639,7 +639,7 @@ export const GLOSSARY_COPY: Record<string, GlossaryTermCopy> = {
   },
   Triage: {
     short: "Fast classification and routing of news onto the edition’s three stated jobs.",
-    deep: "A cheap, fast model (gpt-5-nano) walks dozens of news clusters and routes them in fixed priority: first anti-Israel claims and framings for refutation (narrative_watch, up to 5), then one interesting Israel story (israel_update, up to 3). The regional daily_brief is composed from the whole pack and is not chosen as a story. war_update is no longer selectable — security and operational material feeds the daily brief.",
+    deep: "A cheap, fast model (gpt-5-nano) walks dozens of news clusters and routes them in fixed priority: first anti-Israel claims and framings for refutation (narrative_watch, up to 5), then one interesting Israel story (israel_update, up to 3). The regional daily_brief is composed from the whole pack and is not chosen as a story. Security and operational material feeds the daily brief.",
     example: "140 daily reports filtered into two narrative refutations, one Israel story, and a daily brief that rests on the whole pack.",
   },
   "Narrative Watch (evidenceBasis: analysis)": {

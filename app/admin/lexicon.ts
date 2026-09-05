@@ -54,9 +54,6 @@ export const STATUS_LABEL: Record<PublicationStatus, string> = {
 export const SECTION_LABEL: Record<PublicationSection, string> = {
   daily_brief: "בריף יומי",
   israel_update: "סיפור ישראלי",
-  /* Retired from production but still a legal enum value, so the archive and
-     /war-update keep rendering. See CLAUDE.md. */
-  war_update: "עדכון ביטחוני",
   narrative_watch: "ניטור נרטיבים",
 };
 

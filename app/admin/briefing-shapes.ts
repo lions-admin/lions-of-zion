@@ -43,7 +43,7 @@ export type DeepHealth = { status: string; checks: Record<string, { status: stri
 
 export type Publication = {
   id: string; publicId: string; title: string; summary: string | null; body: string;
-  section: "daily_brief" | "israel_update" | "war_update" | "narrative_watch";
+  section: "daily_brief" | "israel_update" | "narrative_watch";
   status: "draft" | "under_review" | "approved" | "published" | "updated" | "archived";
   editorialTopic: string | null; primaryActor: string | null; arena: string | null; featuredIsraelStory: boolean;
   narrativeWatchDetails: {
@@ -83,7 +83,7 @@ export type DraftPreview = {
   localDate: string;
   dailyBrief: { title: string; summary: string; body: string };
   articles: Array<{
-    section: "daily_brief" | "israel_update" | "war_update" | "narrative_watch";
+    section: "daily_brief" | "israel_update" | "narrative_watch";
     title: string;
     summary: string;
     body: string;

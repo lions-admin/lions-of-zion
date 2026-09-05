@@ -92,7 +92,7 @@ async function LiveBriefEdition({ filters }: { filters: Filters }) {
   const featuredIsrael = lead
     ? publications.find((entry) => entry.featuredIsraelStory && israelDate(entry.publishedAt) === israelDate(lead.publishedAt)) ?? null
     : null;
-  const updates = publications.filter((entry) => entry.section === "israel_update" || entry.section === "war_update");
+  const updates = publications.filter((entry) => entry.section === "israel_update");
 
   return (
     <>

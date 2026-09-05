@@ -18,7 +18,7 @@ describe("purpose-led site navigation", () => {
     expect(() => WarUpdateRedirect()).toThrow("NEXT_REDIRECT");
     const route = read("app/war-update/page.tsx");
     expect(route).toContain('permanentRedirect("/geopolitical-brief")');
-    expect(read("components/briefs/LiveBriefHub.tsx")).toContain('entry.section === "war_update"');
+    expect(read("components/briefs/LiveBriefHub.tsx")).not.toContain("war_update");
   });
 
   it("gives news, narrative work and the archive clear entry points", () => {

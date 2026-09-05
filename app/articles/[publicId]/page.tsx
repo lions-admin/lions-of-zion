@@ -77,7 +77,7 @@ export default async function ArticlePage({ params }: Props) {
      absent or unrecognised must be treated as a sourced one, which is the
      reading that keeps its citations required. */
   const isAnalysis = isAnalysisBasis(article.narrativeWatchDetails);
-  const parent = parentCrumb(article.section);
+  const parent = parentCrumb();
   const details = article.narrativeWatchDetails;
   const passages = visiblePassages.length
     ? visiblePassages
@@ -349,8 +349,7 @@ export function collapsePublicPassages<T extends PublicPublicationDetail["passag
   return visible;
 }
 
-function parentCrumb(section: PublicPublicationDetail["section"]): BreadcrumbCrumb {
-  if (section === "war_update") return { href: "/updates", label: "Updates" };
+function parentCrumb(): BreadcrumbCrumb {
   return { href: "/geopolitical-brief", label: "Daily Brief" };
 }
 

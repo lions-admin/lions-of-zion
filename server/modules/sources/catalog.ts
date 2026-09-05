@@ -54,10 +54,9 @@ export const BRIEFING_OFFICIAL_API_CANDIDATES = [
  * The mix is the editorial brief in machine-readable form, so it is weighted
  * the way the site is: four queries on the narratives the site exists to
  * refute, three on the daily regional geopolitical brief, three on the daily
- * Israel article. It used to be five on `war_update` and one on
- * `narrative_watch` — the exact inverse of the stated priority — and
- * `war_update` is no longer produced as its own article type at all, so the
- * security material now feeds the brief instead of a section of its own.
+ * Israel article. Until 2026-09-01 the security weight sat on a standalone
+ * war section; that section no longer exists, so the security material now
+ * feeds the brief instead of an article of its own.
  *
  * Two things to know before editing an entry:
  *
@@ -92,7 +91,7 @@ export const BRIEFING_DISCOVERY_QUERIES = [
   { slug: "coordinated-anti-israel-campaigns", name: "Coordinated campaigns and antisemitism", query: "anti-Israel disinformation campaign fabricated image recycled footage coordinated inauthentic amplification BDS boycott campus antisemitism incident", group: "narrative_watch" },
 
   /* 2. The daily regional geopolitical brief. These three are the folded
-     `war_update` set: operations, the Iranian axis, and the diplomacy around
+     security set: operations, the Iranian axis, and the diplomacy around
      both. Security reporting keeps being collected — it now arrives as brief
      material rather than as its own article. `daily_brief` is also the one
      section the quality gate holds to `daily_brief_official_context`, so each

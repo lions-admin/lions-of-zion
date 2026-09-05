@@ -506,7 +506,7 @@ export function publicationService(db: unknown) {
       };
       const features = await d.select().from(homepageFeature).orderBy(homepageFeature.slot);
       const live = (await repo(db).listPublic({ limit: 100 }, true)).filter((row) =>
-        row.section === "israel_update" || row.section === "war_update" || row.section === "narrative_watch",
+        row.section === "israel_update" || row.section === "narrative_watch",
       );
       const ordered = features
         .map((feature) => live.find((row) => row.id === feature.publicationId))
@@ -528,7 +528,7 @@ export function publicationService(db: unknown) {
           const eligible = row
             && (row.status === "published" || row.status === "updated")
             && row.briefingRunId !== null
-            && ["israel_update", "war_update", "narrative_watch"].includes(row.section);
+            && ["israel_update", "narrative_watch"].includes(row.section);
           if (!eligible) throw new ApiError("VALIDATION_ERROR", "Only a live news publication can occupy a homepage slot.");
         }
         await r.setHomepageFeature(slot, publicationId);

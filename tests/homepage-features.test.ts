@@ -16,9 +16,6 @@ async function fixture() {
     briefingRunId: run!.id, candidateKey, checkName, status: "pass", detail: "homepage fixture",
   }))));
   const service = publicationService(db);
-  /* article-3 is a historical war_update row seeded raw: the write contract
-     no longer accepts the retired section, but a war_update row must stay
-     eligible for a homepage slot, so the fixture bypasses the service. */
   const rows = await service.autoPublishMany([0, 1].map((index) => ({
     kind: "news_update" as const,
     section: "israel_update" as const,
@@ -27,7 +24,7 @@ async function fixture() {
     language: "en",
   })), { briefingRunId: run!.id, machineAuthor: "machine:test", candidateKeys: ["article-1", "article-2"] }, actor);
   const [warRow] = await db.insert(publication).values({
-    kind: "news_update", section: "war_update", publicId: "eligible-war-3",
+    kind: "news_update", section: "israel_update", publicId: "eligible-3",
     title: "Eligible headline 3", body: "Source-linked body for eligible headline 3.", language: "en",
     status: "published", publishedAt: new Date(), autoPublishedAt: new Date(),
     briefingRunId: run!.id, briefingCandidateKey: "article-3", machineAuthor: "machine:test",

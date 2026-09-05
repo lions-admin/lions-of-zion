@@ -117,7 +117,6 @@ import {
   type SourceFetch,
 } from "@/server/contracts/admin-console";
 import { updatePublicationSchema } from "@/server/contracts/publication";
-import { WRITABLE_PUBLICATION_SECTIONS } from "@/server/contracts/enums";
 import {
   agentSearchEstimatedUnitCostUsd,
   agentSearchMonthlyBudgetUsd,
@@ -234,8 +233,7 @@ function parseField(field: string, modulus: number): Set<number> | null {
 
 /* ── Sections the briefing composes ─────────────────────────────────────────
    `ARTICLE_SECTIONS` in `briefing/service.ts` is module-private; this mirror
-   is pinned against that file's source in the reads test. `war_update` is
-   retired from composition and deliberately absent. */
+   is pinned against that file's source in the reads test. */
 export const ARTICLE_SECTIONS = ["israel_update", "narrative_watch"] as const;
 
 /** Utilisation at which a budget is called out in plain words. */
@@ -1422,18 +1420,9 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
         /* Only the fields an editor may set travel back; status, approval,
            provenance and identifiers are not editorial content and stay as
            they are. The update contract strips `evidenceBasis`, and the
-           publication service merges the stored value back in.
-           A snapshot taken before `war_update` was retired carries a section
-           the write contract no longer accepts, which would 400 and block
-           rollback of that historical version. The value is therefore omitted
-           when it is not writable — the row already carries its section, so
-           omitting it is a no-op for the row and rollback still restores the
-           editorial content. */
-        const snapshotSection = typeof snapshot.section === "string" ? snapshot.section : undefined;
-        const sectionIsWritable = snapshotSection !== undefined
-          && (WRITABLE_PUBLICATION_SECTIONS as readonly string[]).includes(snapshotSection);
+           publication service merges the stored value back in. */
         const fields = updatePublicationSchema.parse(prune({
-          ...(sectionIsWritable ? { section: snapshot.section } : {}),
+          section: snapshot.section,
           editorialTopic: snapshot.editorialTopic ?? null,
           primaryActor: snapshot.primaryActor ?? null,
           arena: snapshot.arena ?? null,

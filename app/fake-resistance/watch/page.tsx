@@ -16,7 +16,7 @@ import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
 const TAGLINE =
-  "Narratives flagged and answered in the last 24 hours, straight from source monitoring — provisional until the record catches up, not a case file.";
+  "Published narrative monitoring, claims circulating on X and research into incitement — with source context and assessment status.";
 const PAGE_URL = `${SITE_URL}/fake-resistance/watch`;
 
 export const metadata: Metadata = {
@@ -85,33 +85,17 @@ export default async function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <SectionBlock heading="What this branch holds">
-        <p>
-          This is the live half of the investigation. Every record below
-          cleared this platform&rsquo;s automated quality gate the day it was
-          flagged — sourced where a narrative could be checked against real
-          reporting, or marked plainly as this organisation&rsquo;s own
-          analysis where it could not. No human has reviewed these yet.
-        </p>
-        <p>
-          The other half —{" "}
-          <Link href="/fake-resistance/social-media">seven networks</Link>{" "}
-          and{" "}
-          <Link href="/fake-resistance/official-narrative">
-            three engineered claims
-          </Link>
-          , each verified and written up after the fact — is a different,
-          higher bar on purpose. A record graduates there by being read
-          closely, not by being recent.
-        </p>
+      <SectionBlock heading="Read the claim. Check the source.">
+        <p>This is the published monitoring record, not a live scanner. Follow source-linked claims, including material circulating on X, and research into narratives and incitement. Dates show when records were published, not when a scan last ran.</p>
+        <p>Each record carries its assessment status. Sourced reporting and the organisation’s own analysis are distinct; a claim under review is not a settled finding. For deeper research, explore <Link href="/fake-resistance/social-media">influence networks</Link> and <Link href="/fake-resistance/official-narrative">documented narrative investigations</Link>.</p>
       </SectionBlock>
 
-      <SectionBlock heading={`${items.length} record${items.length === 1 ? "" : "s"} tracked`}>
+      <SectionBlock heading={`${items.length} published record${items.length === 1 ? "" : "s"}`}>
         {items.length === 0 ? (
           <p className={styles.empty}>
             {recordUnavailable
-              ? "This feed is temporarily unavailable. It will return on its own — nothing published is lost."
-              : "Nothing is being tracked right now. Check back after the next scan."}
+              ? "The published monitoring feed could not be loaded. Please try again later."
+              : "No published monitoring records were returned for this read."}
           </p>
         ) : (
           <ul className={styles.fileIndex}>
@@ -144,7 +128,7 @@ export default async function Page() {
                       </dl>
                     ) : null}
                     <p className={styles.fileEvidence}>
-                      <span>Flagged</span>
+                      <span>Published</span>
                       <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
                     </p>
                     <CardCta>Read the record</CardCta>

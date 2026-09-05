@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SITE_DESCRIPTION } from "@/lib/site-config";
-import { FILE_LINKS, REFERENCE_LINKS, isCurrentChromeLink } from "./navigation-model";
+import { SECTION_LINKS, REFERENCE_LINKS, isCurrentChromeLink } from "./navigation-model";
 import styles from "./site-footer.module.css";
 
 interface SiteFooterProps {
@@ -69,16 +69,15 @@ export function SiteFooter({ activeSection }: SiteFooterProps) {
       </div>
 
       <nav className={styles.files} aria-label="Sections">
-        <p className={styles.filesLabel}>The eight files</p>
+        <p className={styles.filesLabel}>Explore</p>
         <ul className={styles.fileList}>
-          {FILE_LINKS.map((link) => (
+          {SECTION_LINKS.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
                 className={styles.fileLink}
                 aria-current={current(link.href) ? "page" : undefined}
               >
-                <span className={styles.fileIndex}>{link.index}</span>
                 <span className={styles.fileName}>{link.label}</span>
               </Link>
             </li>
@@ -91,7 +90,7 @@ export function SiteFooter({ activeSection }: SiteFooterProps) {
         {/* `#page-content` is the same anchor `EditorialShell`'s skip link
             targets, so this works with no JavaScript and no extra markup. */}
         <a className={styles.toTop} href="#page-content">
-          Back to the top of this file
+          Back to the top
           <span aria-hidden="true"> ↑</span>
         </a>
       </div>

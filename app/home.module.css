@@ -1,29 +1,8 @@
-/*
- * The home hero — the single cinematic threshold (HOME-001..004).
- *
- * Design V3: every value here answers to `globals.css`. The serif wordmark
- * against a photographic ground is the whole contrast of this screen — the
- * brand in the editorial voice, the rail beneath it in the data voice.
- *
- * The composition is document flow, not absolute pins: a flex column of
- * masthead and rail over a field layer pinned to the first viewport. On mobile
- * the masthead is centred by flex auto-margins, over the portrait cut of the
- * shot. On desktop (≥768px) the hero distributes three defined zones instead:
- * a spacer under the header, the brand as a column set into the open left of
- * the landscape cut, and the rail anchored to the floor — so it expands upward
- * from 100svh and the optical centre stays high. That is what keeps the lion,
- * wordmark, CTA and rail one focal system at 1024, 1440, 1920 and 2560, and
- * what lets 320×568 scroll instead of clip.
- *
- * Two things this file used to carry are gone, both on 2026-09-04: the glyph
- * field with its docked scan band, replaced by the video layer at the top of
- * this file; and the file index, which listed the same routes `SiteHeader`
- * already carries on every page.
- *
- * Gold is spent once per viewport: the primary Daily Brief action. The rail
- * and telemetry dots carry the dimmed gold; nothing else on the screen is
- * gold at rest.
- */
+/* Homepage cover. Runtime tokens live in globals.css; DESIGN.md records
+   the route-specific composition. Desktop keeps the brand low on the left;
+   mobile reserves the upper portrait for the lion and lets the record flow
+   below the statement. The open text-and-arrow action has no filled plate or gloss.
+   The existing video/poster, no-JS navigation and live record are preserved. */
 
 .page {
   position: relative;
@@ -229,14 +208,6 @@
 
 /* ---- The masthead ---- */
 
-/* Phone first, and phone stays centred.
- *
- * The phone is served the 9:16 shoot, which fills the screen with the animal
- * rather than reserving an empty third beside him — so there is no "beside the
- * lion" to lay a column into here, and the column that desktop sets to his left
- * is centred over him instead. `.heroScrim` carries a flat wash on this
- * breakpoint to buy the contrast that the open left of the landscape frame buys
- * on desktop. */
 .masthead {
   position: relative;
   z-index: 10;
@@ -251,186 +222,73 @@
   text-align: center;
 }
 
-/* ---- Desktop height structure: three defined zones (HOME-001..004) ----
- *
- * Mobile keeps the composition above untouched — the masthead's auto
- * margins stay its only height distributor below 768px. From 768px up the
- * hero stops distributing by auto margins and anchors to three zones:
- *
- *   Zone A — a spacer under the header, `clamp(4rem, 10svh, 12rem)`, which
- *   absorbs the first free height so the brand sits high rather than
- *   mid-stacked;
- *   Zone B — the brand itself;
- *   Zone C — the files deck, pushed to the floor by `justify-content:
- *   space-between`, so the flexible space between the actions and the deck
- *   is the leftover itself and the deck's layers expand from the floor
- *   upward.
- *
- * `min-width: 48rem` on every rule here and below is the guard: nothing in
- * this structure is allowed to reach a phone. */
+/* Desktop cover sits in the lower-left quiet of the shot, with a consistent
+   gap above the record. Auto space above absorbs tall displays; short ones
+   keep natural document flow rather than clipping the masthead. */
 @media (min-width: 48rem) {
-  .hero {
-    justify-content: space-between;
-  }
+  .hero { justify-content: flex-end; }
 
-  /* The column beside the lion.
-   *
-   * The shot composes the animal into the right third against an open, almost
-   * empty left — so the brand is set into that emptiness rather than laid over
-   * his head. Everything that was centred becomes left-aligned as a block:
-   * `align-items` moves the logo and the button, `text-align` moves the type,
-   * and the width cap keeps the column clear of the mane at the narrow end of
-   * the range rather than letting the standfirst run under it.
-   *
-   * `margin-inline` is start-clamped and end-`auto`, which is what actually
-   * pins the column left — the base rule's `auto auto` is what was centring
-   * it, and dropping only `align-items` would have left the block itself
-   * still floating in the middle. */
   .masthead {
     align-items: flex-start;
-    width: min(32rem, 46vw);
-    margin-block: 0;
-    margin-top: clamp(4rem, 10svh, 12rem);
+    width: min(36rem, 43vw);
+    margin-block: auto clamp(var(--sp-7), 8svh, var(--sp-9));
     margin-inline: clamp(var(--sp-5), 6vw, var(--sp-8)) auto;
+    padding-top: var(--sp-8);
     text-align: left;
   }
 
-  /* The deck's frame: a column with a defined floor-gap. Between the
-     index's own bottom padding and the rail's top rule it composes to
-     28–32px, in place of the old 12px seam. */
   .filesDeck {
     display: flex;
     flex-direction: column;
-    row-gap: clamp(1rem, 2vw, 1.25rem);
   }
 
-  .signalRail {
-    padding-bottom: var(--sp-2);
-  }
-
-  .signalRail {
-    padding-bottom: var(--sp-2);
-  }
+  .signalRail { padding-bottom: var(--sp-2); }
 }
 
-/* The nameplate. Newsreader at display size wants weight 500; the wide
-   tracking is what turns a serif word into a masthead, and it narrows with
-   the viewport so eleven letters never outrun 320px. `letter-spacing` trails
-   after the last glyph, so the padding-left restores optical centre. */
 .wordmark {
-  position: relative;
   max-width: 100%;
-  min-width: 0;
-  margin: calc(-1 * var(--sp-5)) 0 0;
-  padding-left: 0.16em;
+  margin: 0;
   color: var(--ink-hi);
-  font-family: var(--face-display);
+  font-family: var(--face-home-emphasis);
   font-optical-sizing: auto;
-  font-size: var(--t-display);
-  font-weight: var(--t-display-weight);
-  letter-spacing: 0.12em;
-  line-height: var(--t-display-lh);
-  text-transform: uppercase;
-  text-shadow: 0 0.2rem 1.2rem color-mix(in oklab, var(--ground) 96%, transparent);
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-  user-select: none;
+  font-size: var(--t-home-wordmark);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: -0.055em;
+  text-transform: none;
 }
 
-/* The standfirst, in the display italic, in ink rather than gold. */
+.wordmarkLine {
+  display: flex;
+  align-items: baseline;
+  gap: 0.12em;
+  white-space: nowrap;
+}
+
+.wordmarkLine + .wordmarkLine { margin-top: 0.1em; }
+
+.wordmarkOf {
+  font-size: 0.29em;
+  letter-spacing: 0.015em;
+}
+
 .standfirst {
-  margin: var(--sp-3) 0 0;
+  max-width: 28ch;
+  margin: var(--sp-5) 0 0;
   color: var(--ink);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-style: italic;
-  font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
+  font-family: var(--face-home-cover);
+  font-size: var(--t-body);
+  font-weight: 400;
+  line-height: var(--t-body-lh);
   letter-spacing: 0;
-  text-shadow: 0 0.15rem 0.8rem color-mix(in oklab, var(--ground) 96%, transparent);
+  text-transform: none;
+  text-wrap: pretty;
 }
 
-/* ---- The actions (HOME-002) ----
- *
- * One control, the shared ButtonLink primitive; this file only adds the
- * restrained Interactive Hover adaptation to it — a left-origin sweep to
- * the brighter gold, existing radius, no pill, no gradient — and only where
- * a fine pointer and unreduced motion both exist. Touch and reduced motion
- * get the primitive's own static hover/active colours. The secondary
- * "All files" affordance this block used to style was removed: the index
- * names itself, and the header trigger opens the drawer. */
-
+/* The action reads as an invitation into the record, not a filled ad unit. */
 .actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-3);
   margin-top: var(--sp-6);
-}
-
-.hero .ctaPrimary {
-  min-width: 16rem;
-}
-
-.ctaArrow {
-  display: inline-block;
-  margin-left: var(--sp-2);
-}
-
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .hero .actions .ctaPrimary {
-    overflow: hidden;
-  }
-
-  .hero .actions .ctaPrimary > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Suppress the primitive's instant hover swap so the sweep carries it. */
-  .hero .actions .ctaPrimary:hover:not([aria-disabled="true"]) {
-    --btn-bg: var(--gold);
-  }
-
-  .hero .actions .ctaPrimary::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background: var(--gold-hi);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform var(--dur-base) var(--ease-out);
-  }
-
-  .hero .actions .ctaPrimary:hover:not([aria-disabled="true"])::before,
-  .hero .actions .ctaPrimary:focus-visible::before {
-    transform: scaleX(1);
-  }
-
-  /* The label has to leave the gold the sweep brings with it.
-   *
-   * This block was written when the CTA was a solid gold fill with a black
-   * label, so the sweep only had to brighten the plate. The CTA is now a dark
-   * plate with a `--gold-hi` label — and the sweep paints `--gold-hi` behind
-   * it, so at rest and on hover the text and the incoming ground were the same
-   * value and the label disappeared into it. It goes to the ground colour for
-   * the duration, which is what the fill wants under it anyway. */
-  .hero .actions .ctaPrimary:hover:not([aria-disabled="true"]),
-  .hero .actions .ctaPrimary:focus-visible {
-    --btn-fg: var(--ground);
-    --btn-line: var(--gold-hi);
-  }
-
-  .hero .actions .ctaPrimary .ctaArrow {
-    transition: translate var(--dur-fast) var(--ease-out);
-  }
-
-  .hero .actions .ctaPrimary:hover .ctaArrow {
-    translate: 0.2em 0;
-  }
 }
 
 /* ---- The signal rail (HOME-003) ---- */
@@ -617,37 +475,8 @@
   color: var(--gold);
 }
 
-/* ---- Responsive composition (HOME-004 at the top, 320px at the bottom) ---- */
-
-/* 1024–1440: the first tuned band. The deck takes a defined floor-gap on
- * top of the flexible space-between leftover, where the free height can
- * afford one. */
-@media (min-width: 64rem) {
-  .filesDeck { margin-top: clamp(1rem, 4svh, 3rem); }
-}
-
-/* 1440–1920: spacer up a step, zone C padding up with it. */
 @media (min-width: 90rem) {
-  .masthead { margin-top: clamp(6rem, 12svh, 10rem); }
-  .filesDeck { margin-top: clamp(1.5rem, 4svh, 4rem); }
-
   .signalRail { padding-bottom: var(--sp-3); }
-}
-
-/* ≥1920: the column holds; the mark may grow into the room. */
-@media (min-width: 120rem) {
-  .masthead { margin-top: clamp(8rem, 14svh, 12rem); }
-  .filesDeck { margin-top: clamp(2rem, 5svh, 5rem); }
-  }
-
-/* Short desktop viewports — the 768–896px-tall laptops. Any of the spacer
- * values above would eat their 13-odd px of free height and push the rail
- * past the fold, so here the spacer steps down and the deck's floor-gap
- * goes to zero: the flexible space-between leftover carries the whole
- * composition, as the acceptance intends. */
-@media (min-width: 48rem) and (max-height: 56rem) {
-  .masthead { margin-top: clamp(1rem, 2svh, 2rem); }
-  .filesDeck { margin-top: 0; }
 }
 
 /* 768–1200: the rail wraps by rule, not by accident. This is the band
@@ -668,14 +497,6 @@
     text-overflow: ellipsis;
   }
 }
-
-@media (max-width: 64rem) {
-    .wordmark {
-    padding-left: 0.14em;
-    letter-spacing: 0.14em;
-  }
-}
-
 
 /* ---- The lower third, at every width ----
  *
@@ -746,140 +567,228 @@
   line-height: var(--t-body-lh);
 }
 
-/* The strapline, upright. Italic all-caps is a poster's device; upright in
-   the bright ink is quieter and, over a photograph, more legible. */
-/* The strapline reads as a sentence, not as a label.
- *
- * It was `--face-display` set in the body's global uppercase at 15px on the
- * phone — a condensed grotesque, all caps, small, which is the terminal-ish
- * register the rest of this pass has been taking out of the lower third. It is
- * the only line of prose in the hero, so it is set as one: sentence case, a
- * step larger, and with the tracking opened slightly because the face is
- * narrow. `text-transform` has to be stated here because `globals.css` sets
- * `uppercase` on `body`. */
-.standfirst {
-  font-style: normal;
-  text-transform: none;
-  color: var(--ink-hi);
-  letter-spacing: 0.005em;
-}
-
-/* The CTA as a plate with a gold edge: still the only control in the
-   composition, still 44px, no longer the loudest object in the frame. */
-.hero .ctaPrimary {
-  width: auto;
+.hero .actions .ctaPrimary {
+  --btn-h: calc(var(--control-h) + var(--sp-2));
+  --btn-bg: transparent;
+  --btn-fg: var(--ink-hi);
+  --btn-line: transparent;
   min-width: 0;
-  --btn-h: var(--control-h);
-  --btn-bg: color-mix(in oklab, var(--ground) 86%, transparent);
-  --btn-fg: var(--gold-hi);
-  --btn-line: var(--gold-line-strong);
-  border-radius: var(--radius-2);
-  font-size: var(--t-small);
+  padding: 0;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: 400;
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
 }
 
-/* ---- Phone: the lion is the page, the interface frames it ----
- *
- * What this block undoes, and why each piece was wrong on a phone:
- *
- * The masthead was vertically centred (`margin-block: auto`) and centre-set,
- * which put the wordmark straight across the lion's muzzle — the strongest
- * part of the photograph — and the tagline over his mane. Measured at 320 the
- * title also ran to within 2px of both edges. Type over a portrait belongs
- * where the portrait is quiet: it moves to the lower third, over the chest and
- * forelegs, and sets from the start edge so the face and mane are left alone.
- * That is a cinematic cover rather than a caption laid on a picture.
- *
- * The title comes down about 14% and loses half its tracking. `--t-display`
- * bottoms out at its 2.75rem clamp floor on every phone width, so it was the
- * same 44px at 320 as at 430 while the space around it shrank.
- *
- * The CTA was 92-94% of the screen: 52px tall, fully round, and filled with
- * `--gold` at full saturation, which made it — not the lion — the most
- * dominant object in the frame. `globals.css` reserves the accent for "one
- * focal moment per viewport", and the focal moment on this page is the
- * animal. It becomes a dark plate with a gold edge: still the only control in
- * the composition, still a 44px target, no longer a headline. */
-@media (max-width: 48rem) {
+.hero .actions .ctaPrimary > span {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+}
+
+.ctaLabel {
+  padding-block: var(--sp-2);
+  border-bottom: var(--line-w) solid var(--control-line);
+}
+
+.ctaArrow {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: calc(var(--control-h) + var(--sp-1));
+  height: calc(var(--control-h) + var(--sp-1));
+  border: var(--line-w) solid var(--control-line);
+  border-radius: var(--radius-pill);
+  color: var(--ink-hi);
+  transition: background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.ctaArrow svg {
+  width: var(--sp-5);
+  height: var(--sp-5);
+  stroke: currentColor;
+  stroke-width: 1.25;
+}
+
+.hero .actions .ctaPrimary::before,
+.hero .actions .ctaPrimary::after { content: none; }
+
+.hero .actions .ctaPrimary:hover,
+.hero .actions .ctaPrimary:focus-visible {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink-hi);
+  --btn-line: transparent;
+}
+
+.ctaPrimary:hover .ctaArrow,
+.ctaPrimary:focus-visible .ctaArrow {
+  color: var(--ground);
+  background: var(--ink-hi);
+  border-color: var(--ink-hi);
+}
+
+.ctaPrimary:hover .ctaLabel,
+.ctaPrimary:focus-visible .ctaLabel { border-color: var(--ink-hi); }
+
+.ctaPrimary:active .ctaArrow {
+  background: var(--gold-hi);
+  border-color: var(--gold-hi);
+  color: var(--ground);
+}
+
+.hero .actions .ctaPrimary:focus-visible {
+  outline: var(--line-w-thick) solid var(--gold-hi);
+  outline-offset: var(--sp-2);
+}
+
+/* Mobile cover: a quiet brand line, a typographic statement and a separate
+   reading surface. Its vertical portrait composition is independent of desktop. */
+@media (width < 48rem) {
   .hero {
-    padding-top: calc(var(--header-h) + var(--sp-3));
-    padding-bottom: var(--sp-6);
+    justify-content: flex-start;
+    min-height: 100svh;
+    padding-block: 0;
   }
 
-  /* Bottom third, start-aligned. `margin-block: auto` is what centred it. */
+  .heroScrim {
+    background:
+      linear-gradient(to bottom,
+        transparent 30%,
+        color-mix(in oklab, var(--ground) 30%, transparent) 46%,
+        color-mix(in oklab, var(--ground) 94%, transparent) 72%,
+        var(--ground) 90%),
+      color-mix(in oklab, var(--ground) 14%, transparent);
+  }
+
+  .fieldLayer .heroFade { display: none; }
+
   .masthead {
-    width: calc(100vw - 2rem);
     align-items: flex-start;
-    margin-block: auto 0;
+    width: auto;
+    margin: max(48svh, 20rem) var(--home-gutter) 0;
     text-align: start;
   }
 
-  .wordmark {
-    margin-top: 0;
-    padding-left: 0;
-    font-size: clamp(2.25rem, 0.9rem + 6vw, 2.75rem);
-    letter-spacing: 0.06em;
-  }
+  .wordmark { font-size: var(--t-home-wordmark-mobile); }
 
-  /* Not italic. An italic all-caps line reads as a strapline on a poster; the
-     upright is quieter and, at this size over a photograph, more legible. It
-     also takes the brighter ink — it sits on the lion's chest, which is the
-     lightest ground any copy on this page lands on. */
   .standfirst {
-    margin-top: var(--sp-2);
-    /* No ch cap. At 22ch this broke to three lines, which turns a tagline into
-       a paragraph; the masthead's own width plus `balance` gives it the two
-       even lines the sentence actually wants. */
-    max-width: 100%;
-    text-wrap: balance;
-    font-size: var(--t-lede);
-    line-height: var(--t-lede-lh);
-  }
-
-  .actions {
-    width: auto;
-    justify-content: flex-start;
     margin-top: var(--sp-5);
+    font-size: var(--t-small);
   }
 
+  .actions { margin-top: var(--sp-5); }
 
-  /* The blurred fade stays off — a full-width backdrop-filter recomposited
-     every frame over a live canvas is the wrong thing to pay for here, which
-     is what the rule it replaces said. But "no fade" is not the only
-     alternative to an expensive one: a linear-gradient costs a paint and
-     nothing per frame, and it is what closes the hard tonal step where the
-     photograph used to meet the rail. */
-  .fieldLayer .heroFade { display: none; }
-
-  /* Two lines. Clamped to one, the only headline on the page ended in an
-     ellipsis at every phone width — the reader got a category and a timestamp
-     in full and the actual news cut off. */
-  .railTitle {
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+  .filesDeck {
+    position: relative;
+    z-index: 12;
+    margin: var(--sp-7) var(--home-gutter) 0;
   }
-}
 
-/* 720px — the seam the rest of the site turns on. The index becomes a
-   two-column ledger and the rail stacks its lines. */
-@media (max-width: 45rem) {
+  .signalRail {
+    border-top-color: var(--line-strong);
+    background: var(--ground);
+  }
 
-  .railInner { padding-inline: var(--sp-4); }
+  /* The old rail gradient painted over the CTA immediately above it. */
+  .signalRail::before { content: none; }
 
-  .railSignal { flex-basis: 100%; }
+  .railInner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "flag all" "story story";
+    align-items: center;
+    gap: var(--sp-3) var(--sp-4);
+    width: 100%;
+    padding: var(--sp-3) 0 var(--sp-5);
+  }
 
-  .railStage { flex-basis: 100%; }
+  .railFlag {
+    grid-area: flag;
+    color: var(--ink-lo);
+    font-size: var(--t-data);
+    letter-spacing: var(--t-data-tracking);
+  }
 
-  .railTitle { flex-basis: 100%; }
+  .railDot { background: var(--gold); }
 
   .railAll {
-    margin-left: 0;
-    padding-inline: 0;
+    grid-area: all;
+    min-height: var(--control-h);
+    margin: 0;
+    padding: 0;
+    color: var(--ink);
+    font-size: var(--t-data);
+    letter-spacing: 0;
+    text-transform: none;
   }
-}
 
-@media (max-width: 23.5rem) {
-    .wordmark {
-    padding-left: 0.06em;
-    letter-spacing: 0.06em;
+  .railStage,
+  .railInner > .railSignal,
+  .railEmpty { grid-area: story; }
+
+  .railSignal {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    min-width: 0;
+  }
+
+  .railMeta {
+    flex: none;
+    gap: var(--sp-1) var(--sp-3);
+    font-size: var(--t-data);
+    line-height: var(--t-data-lh);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .railSource { color: var(--ink); }
+
+  .railStatus {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--ink-lo);
+  }
+
+  .railTime {
+    flex-basis: 100%;
+    color: var(--ink-lo);
+  }
+
+  .railTitle {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    min-height: calc(3 * var(--t-lede) * var(--t-lede-lh));
+    max-width: 100%;
+    overflow: hidden;
+    white-space: normal;
+    font-family: var(--face-home-cover);
+    font-size: var(--t-lede);
+    font-weight: 400;
+    line-height: var(--t-lede-lh);
+    letter-spacing: -0.01em;
+    text-transform: none;
+    cursor: pointer;
+  }
+
+  .railEmpty {
+    min-height: calc(3 * var(--t-lede) * var(--t-lede-lh));
+    text-transform: none;
+  }
+
+  .railAll:focus-visible,
+  .railTitle:focus-visible,
+  .hero .actions .ctaPrimary:focus-visible {
+    outline: var(--line-w-thick) solid var(--gold-hi);
+    outline-offset: var(--sp-1);
   }
 }

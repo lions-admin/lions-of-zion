@@ -418,10 +418,13 @@ describe("no interaction on or behind the scan depends on hover alone", () => {
     expect(globals).toMatch(/:focus-visible \{\s*outline:\s*var\(--focus-outline\)/);
   });
 
-  it("keeps the home's hover-only flourishes inside a hover media query, focus included", () => {
-    const hoverOnly = home.slice(home.indexOf("@media (hover: hover)"));
-    expect(hoverOnly).toMatch(/prefers-reduced-motion: no-preference/);
-    expect(hoverOnly).toMatch(/:hover:not\(\[aria-disabled="true"\]\)::before,\s*[\s\S]*?:focus-visible::before/);
+  it("keeps the home action legible without animated flourishes and pairs hover with focus", () => {
+    expect(home).toMatch(/--btn-bg:\s*transparent/);
+    expect(home).toMatch(/--btn-fg:\s*var\(--ink-hi\)/);
+    expect(home).toMatch(/\.ctaPrimary:hover,\s*\.hero \.actions \.ctaPrimary:focus-visible/);
+    expect(home).toMatch(/\.ctaPrimary::before,\s*\.hero \.actions \.ctaPrimary::after\s*\{\s*content: none/);
+    expect(home).toMatch(/\.ctaPrimary:focus-visible\s*\{\s*outline:/);
+    expect(home).toMatch(/\.ctaPrimary:hover \.ctaArrow,\s*\.ctaPrimary:focus-visible \.ctaArrow/);
     /* The hero's remaining link list — the no-JavaScript one — changes colour
        on focus as well as on hover. It is the only link set left in this
        stylesheet since the file index was removed as a duplicate of the

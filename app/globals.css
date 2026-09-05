@@ -39,6 +39,17 @@
   --face-text: var(--font-archivo-narrow), 'Archivo Narrow', 'Pragmatica Cond', Oswald, sans-serif;
   --face-data: var(--font-roboto-mono), 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
+  /* Homepage cover only; shared type roles on other routes stay intact. */
+  --face-home-cover: var(--font-inter-tight), sans-serif;
+  --face-home-emphasis: var(--font-newsreader), serif;
+  --face-system-display: var(--font-newsreader), serif;
+  --face-system-text: var(--font-plex-sans), sans-serif;
+  --face-navigation: var(--font-plex-sans), sans-serif;
+  --face-navigation-display: var(--font-newsreader), serif;
+  --t-home-wordmark: clamp(4.75rem, 9.5vw, 8.75rem);
+  --t-home-wordmark-mobile: clamp(3.5rem, 15vw, 5.75rem);
+  --home-gutter: clamp(var(--sp-5), 5vw, var(--sp-7));
+
   --font-serif: var(--face-display);
   --font-sans: var(--face-text);
   --font-mono: var(--face-data);

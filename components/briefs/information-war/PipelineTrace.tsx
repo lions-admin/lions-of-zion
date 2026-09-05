@@ -1,154 +1,113 @@
 "use client";
 
-/**
- * The pipeline, traced.
- *
- * One spine — the seven stages — and three routes across it. Choosing a route
- * lights the stages it touches and walks a packet down them; the steps it takes
- * at each stage are printed at that stage, so the explanation sits on the
- * diagram instead of beside it.
- *
- * This replaces four ordered lists that were the same journey under different
- * names. The reason it is one component and not four is in `pipeline-data.ts`.
- *
- * ## What is honest here
- *
- * The packet is an explanation of shape, not telemetry, and it must not be
- * mistaken for one. It carries no counts, no rates and no per-stage status —
- * that state is internal, and this page's standing rule is to draw nothing
- * rather than draw a number it cannot show. `aria-hidden` on the packet says
- * the same thing to a screen reader: the meaning is in the step text, which is
- * server-rendered for every route and present whether or not this runs.
- *
- * ## Motion
- *
- * It advances on its own only while it is on screen and only until the reader
- * takes over — the first route click stops the auto-advance for good, because
- * something that keeps moving after you have chosen is fighting you. Under
- * `prefers-reduced-motion` nothing advances and nothing transitions; the routes
- * still switch, which is the part that carries information.
- */
-
-import { useCallback, useEffect, useRef, useState } from "react";
-import { PIPELINE_ROUTES, PIPELINE_STAGES } from "./pipeline-data";
-import styles from "@/components/briefs/information-war-system.module.css";
-
-/** Dwell per stage. Long enough to read one step, not a slideshow. */
-const DWELL_MS = 2600;
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { PIPELINE_ROUTES, SYSTEM_EDGES, SYSTEM_NODES, type SystemNodeId } from "./pipeline-data";
+import styles from "../information-war-system.module.css";
 
 export function PipelineTrace() {
-  const [routeId, setRouteId] = useState<(typeof PIPELINE_ROUTES)[number]["id"]>("signal");
+  const [routeIndex, setRouteIndex] = useState(0);
   const [position, setPosition] = useState(0);
-  const [auto, setAuto] = useState(true);
-  const frameRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<SystemNodeId | null>(null);
+  const [playing, setPlaying] = useState(true);
+  const [reduced, setReduced] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const host = useRef<HTMLDivElement>(null);
+  const route = PIPELINE_ROUTES[routeIndex];
+  const current = route.steps[position];
+  const node = SYSTEM_NODES.find((entry) => entry.id === (selected ?? current))!;
+  // DOM order follows the selected journey, so mobile reading and keyboard
+  // order match the visual flow. Absolute desktop positions are unchanged.
+  const orderedNodes = [...SYSTEM_NODES].sort((a, b) => {
+    const rank = (id: SystemNodeId) => {
+      const index = route.steps.indexOf(id);
+      return index === -1 ? SYSTEM_NODES.length : index;
+    };
+    return rank(a.id) - rank(b.id);
+  });
 
-  const route = PIPELINE_ROUTES.find((r) => r.id === routeId) ?? PIPELINE_ROUTES[0];
-  /* The stages this route actually stops at, in spine order, de-duplicated:
-     a claim stops at `Evidence` twice and that is one lit stage, not two. */
-  const visited = PIPELINE_STAGES.filter((stage) =>
-    route.steps.some((step) => step.at === stage.number),
-  );
-  const activeStage = visited[Math.min(position, visited.length - 1)];
-
-  const choose = useCallback((id: (typeof PIPELINE_ROUTES)[number]["id"]) => {
-    setRouteId(id);
-    setPosition(0);
-    setAuto(false);
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(preference.matches);
+    update();
+    preference.addEventListener("change", update);
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.15 });
+    if (host.current) observer.observe(host.current);
+    return () => { observer.disconnect(); preference.removeEventListener("change", update); };
   }, []);
 
   useEffect(() => {
-    if (!auto) return;
-    const frame = frameRef.current;
-    if (!frame) return;
+    if (!playing || reduced || !visible) return;
+    const timer = window.setInterval(() => {
+      if (!document.hidden) setPosition((p) => (p + 1) % route.steps.length);
+    }, 4800);
+    return () => window.clearInterval(timer);
+  }, [playing, reduced, visible, route.steps.length]);
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduced.matches) return;
-
-    let timer: ReturnType<typeof setInterval> | undefined;
-    const stop = () => {
-      if (timer) clearInterval(timer);
-      timer = undefined;
-    };
-    const start = () => {
-      if (timer) return;
-      timer = setInterval(() => {
-        setPosition((p) => (p + 1) % Math.max(visited.length, 1));
-      }, DWELL_MS);
-    };
-
-    /* Only while it is on screen. A diagram advancing in a viewport nobody is
-       looking at is work done for no reader, and it arrives mid-journey when
-       they finally scroll to it. */
-    const observer = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? start() : stop()),
-      { threshold: 0.35 },
-    );
-    observer.observe(frame);
-
-    return () => {
-      observer.disconnect();
-      stop();
-    };
-  }, [auto, visited.length]);
+  function advance(delta: number) {
+    setPlaying(false);
+    setSelected(null);
+    setPosition((p) => (p + delta + route.steps.length) % route.steps.length);
+  }
 
   return (
-    <div className={styles.trace} ref={frameRef}>
-      <div className={styles.traceRoutes} role="group" aria-label="Choose what to follow">
-        {PIPELINE_ROUTES.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            className={styles.traceRoute}
-            aria-pressed={option.id === routeId}
-            onClick={() => choose(option.id)}
-          >
-            {option.name}
+    <div className={styles.trace} ref={host} data-playing={playing && !reduced && visible}>
+      <div className={styles.traceTopline}>
+        <span className={styles.eyebrow}>The system, opened up</span>
+        <span className={styles.diagramLabel}>Interactive explanation · not live telemetry</span>
+      </div>
+      <div className={styles.traceRoutes} role="group" aria-label="Choose a system journey">
+        {PIPELINE_ROUTES.map((option, index) => (
+          <button key={option.id} type="button" aria-pressed={routeIndex === index}
+            onClick={() => { setRouteIndex(index); setPosition(0); setSelected(null); setPlaying(false); }}>
+            <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>{option.name}
           </button>
         ))}
       </div>
-
-      <p className={styles.traceSubject}>{route.subject}</p>
-
-      <ol className={styles.traceChain}>
-        {PIPELINE_STAGES.map((stage) => {
-          const steps = route.steps.filter((step) => step.at === stage.number);
-          const onRoute = steps.length > 0;
-          const isActive = onRoute && stage.number === activeStage?.number;
-          return (
-            <li
-              key={stage.number}
-              className={styles.traceStage}
-              data-on-route={onRoute || undefined}
-              data-active={isActive || undefined}
-            >
-              <div className={styles.traceRail} aria-hidden="true">
-                <i className={styles.traceNode} />
-              </div>
-              <div className={styles.traceBody}>
-                <p className={styles.traceMeta}>
-                  <span>{stage.number}</span>
-                  <span>{stage.name}</span>
-                </p>
-                {onRoute ? (
-                  <ul className={styles.traceSteps}>
-                    {steps.map((step) => (
-                      <li key={step.step}>
-                        <strong>{step.step}</strong>
-                        <span>{step.text}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className={styles.traceSkip}>
-                    Not on this route — the stage still runs, this subject just
-                    does not stop here.
-                  </p>
-                )}
-              </div>
-            </li>
-          );
+      <div className={styles.playback}>
+        <p>{route.subject}</p>
+        <div role="group" aria-label="Journey playback">
+          <button type="button" onClick={() => advance(-1)} aria-label="Previous step">←</button>
+          <button type="button" disabled={reduced} onClick={() => { setSelected(null); setPlaying((p) => !p); }}
+            aria-label={playing && !reduced ? "Pause journey" : "Play journey"}>{playing && !reduced ? "Pause" : "Play"}</button>
+          <span className={styles.stepCount}>{position + 1} / {route.steps.length}</span>
+          <button type="button" onClick={() => advance(1)} aria-label="Next step">→</button>
+        </div>
+      </div>
+      <div className={styles.mapColumns} aria-hidden="true"><span>01 / Material in</span><span>02 / Work on the evidence</span><span>03 / Public access</span></div>
+      <div className={styles.systemCanvas} role="group" aria-label="System architecture. Select a node to inspect it.">
+        <svg viewBox="0 0 1000 550" preserveAspectRatio="none" className={styles.connectors} aria-hidden="true">
+          {SYSTEM_EDGES.map((edge) => {
+            const start = route.steps.indexOf(edge.from);
+            const onRoute = start !== -1 && route.steps[start + 1] === edge.to;
+            return <g key={`${edge.from}-${edge.to}`} data-on-route={onRoute} data-current={onRoute && current === edge.from}>
+              <path d={edge.path} className={styles.wire} />
+              {onRoute && <path d={edge.path} className={styles.packet} />}
+            </g>;
+          })}
+        </svg>
+        {orderedNodes.map((entry) => {
+          const step = route.steps.indexOf(entry.id);
+          return <button key={entry.id} type="button" className={styles.mapNode}
+            style={{ "--node-x": `${entry.x / 10}%`, "--node-y": `${entry.y / 5.5}%`, "--node-order": step } as CSSProperties}
+            data-on-route={step !== -1} data-active={node.id === entry.id} data-last={step === route.steps.length - 1}
+            aria-pressed={node.id === entry.id} aria-controls="node-inspector"
+            onClick={() => { setPlaying(false); setSelected(entry.id); if (step !== -1) setPosition(step); }}>
+            <span className={styles.nodeMark} aria-hidden="true">{step !== -1 ? String(step + 1).padStart(2, "0") : "·"}</span>
+            <strong>{entry.name}</strong><small>{entry.label}</small>
+          </button>;
         })}
-      </ol>
+      </div>
+      <section className={styles.inspector} id="node-inspector" aria-label="Selected system node" aria-live={playing && !reduced ? "off" : "polite"}>
+        <div><span className={styles.eyebrow}>Inside this step</span><h3>{node.name}</h3></div>
+        <p>{node.detail}</p>
+        <dl><dt>Receives</dt><dd>{node.input}</dd><dt>Produces</dt><dd>{node.output}</dd></dl>
+      </section>
+      <p className={styles.routeNote}>{route.note}</p>
+      <details className={styles.textAlternative}>
+        <summary>Read every journey without the animation</summary>
+        {PIPELINE_ROUTES.map((entry) => <div key={entry.id}><h3>{entry.name}</h3>
+          <ol>{entry.steps.map((id) => <li key={id}>{SYSTEM_NODES.find((n) => n.id === id)!.name}</li>)}</ol><p>{entry.note}</p></div>)}
+      </details>
     </div>
   );
 }

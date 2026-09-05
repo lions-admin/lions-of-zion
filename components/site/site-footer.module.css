@@ -14,7 +14,8 @@
   border-top: var(--line-w) solid var(--line);
   background: var(--ground);
   color: var(--ink);
-  font-family: var(--face-text);
+  font-family: var(--face-navigation);
+  text-transform: none;
 }
 
 .inner {

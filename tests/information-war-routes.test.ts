@@ -1,65 +1,51 @@
-/**
- * The three routes on `/information-war` are anchored to the pipeline spine by
- * a stage `number`, and nothing in TypeScript stops that string from naming a
- * stage that does not exist — `at: "08"` typechecks. A route that points at
- * nothing renders a stage with no steps and silently drops a step of the
- * explanation, which is exactly the class of bug this page cannot afford:
- * it would be the page about traceability quietly failing to trace.
- *
- * These are also what keeps the merge honest. Four ordered lists were folded
- * into one spine and three routes; the count assertions pin that every step
- * the old lists carried is still carried by a route.
- */
 import { describe, expect, it } from "vitest";
-import {
-  PIPELINE_ROUTES,
-  PIPELINE_STAGES,
-} from "@/components/briefs/information-war/pipeline-data";
+import { PIPELINE_ROUTES, PIPELINE_STAGES, SYSTEM_EDGES, SYSTEM_NODES } from "@/components/briefs/information-war/pipeline-data";
 
-const STAGE_NUMBERS = new Set(PIPELINE_STAGES.map((stage) => stage.number));
+const nodeIds = new Set<string>(SYSTEM_NODES.map((node) => node.id));
 
-describe("information-war pipeline routes", () => {
-  it("anchors every step to a stage that exists", () => {
-    const dangling = PIPELINE_ROUTES.flatMap((route) =>
-      route.steps
-        .filter((step) => !STAGE_NUMBERS.has(step.at))
-        .map((step) => `${route.id}: "${step.step}" -> ${step.at}`),
-    );
-    expect(dangling).toEqual([]);
-  });
-
-  it("keeps each route's steps in spine order", () => {
+describe("information-war architecture journeys", () => {
+  it("every step names a real, inspectable node", () => {
     for (const route of PIPELINE_ROUTES) {
-      const positions = route.steps.map((step) =>
-        PIPELINE_STAGES.findIndex((stage) => stage.number === step.at),
-      );
-      const sorted = [...positions].sort((a, b) => a - b);
-      expect(positions, `${route.id} runs backwards along the spine`).toEqual(sorted);
+      expect(route.steps.length).toBeGreaterThan(1);
+      for (const id of route.steps) expect(nodeIds.has(id), `${route.id}: ${id}`).toBe(true);
+    }
+    for (const node of SYSTEM_NODES) {
+      expect(node.detail.length).toBeGreaterThan(0);
+      expect(node.input.length).toBeGreaterThan(0);
+      expect(node.output.length).toBeGreaterThan(0);
     }
   });
 
-  it("ends every route at publication", () => {
-    const last = PIPELINE_STAGES[PIPELINE_STAGES.length - 1].number;
+  it("every consecutive step has an actual connector", () => {
     for (const route of PIPELINE_ROUTES) {
-      expect(route.steps.at(-1)?.at, `${route.id} does not reach the record`).toBe(last);
+      route.steps.slice(1).forEach((to, i) => {
+        expect(SYSTEM_EDGES.some((edge) => edge.from === route.steps[i] && edge.to === to), `${route.id}: ${route.steps[i]} → ${to}`).toBe(true);
+      });
     }
   });
 
-  it("carries the steps the four merged lists used to carry", () => {
-    const byId = Object.fromEntries(PIPELINE_ROUTES.map((r) => [r.id, r.steps.length]));
-    /* signal was eight steps and gains one — `Cited`, which is stage 05's own
-       job and was previously stated only inside a stage `mechanism`. */
-    expect(byId.signal).toBe(9);
-    expect(byId.narrative).toBe(5);
-    expect(byId.claim).toBe(7);
+  it("does not draw a quality evaluation on the direct-import or archive path", () => {
+    const routes = Object.fromEntries(PIPELINE_ROUTES.map((route) => [route.id, route]));
+    expect(routes.briefing.steps).toContain("quality");
+    expect(routes.package.steps).toContain("quality");
+    expect(routes.import.steps).not.toContain("quality");
+    expect(routes.archive.steps).toEqual(["research", "archive"]);
+    expect(routes.import.note).toContain("does not run the same quality evaluator");
   });
 
-  it("gives each route a distinct id and a subject", () => {
-    const ids = PIPELINE_ROUTES.map((r) => r.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    for (const route of PIPELINE_ROUTES) {
-      expect(route.subject.length, `${route.id} has no subject`).toBeGreaterThan(0);
-      expect(route.name.length).toBeGreaterThan(0);
-    }
+  it("shows every system node in at least one mobile journey", () => {
+    const accessible = new Set(PIPELINE_ROUTES.flatMap((route) => route.steps));
+    expect([...nodeIds].filter((id) => !accessible.has(id as typeof SYSTEM_NODES[number]["id"]))).toEqual([]);
+  });
+
+  it("has unique routes, nodes and connectors", () => {
+    expect(new Set(PIPELINE_ROUTES.map((route) => route.id)).size).toBe(PIPELINE_ROUTES.length);
+    expect(nodeIds.size).toBe(SYSTEM_NODES.length);
+    expect(new Set(SYSTEM_EDGES.map((edge) => `${edge.from}:${edge.to}`)).size).toBe(SYSTEM_EDGES.length);
+  });
+
+  it("retains the actual seven job stages without claiming they run for every route", () => {
+    expect(PIPELINE_STAGES.map((stage) => stage.job)).toEqual(["collect", "enrich", "cluster", "triage", "draft", "quality", "publish"]);
+    expect(PIPELINE_ROUTES.find((r) => r.id === "claim")?.note).toContain("does not automatically");
   });
 });

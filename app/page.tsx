@@ -35,8 +35,8 @@ const RAIL_SIGNALS = 5;
  * The homepage — the single cinematic threshold (HOME-001).
  *
  * One signature surface, composed in document flow rather than the absolute
- * pins it replaced: the masthead as a column beside the animal from 48rem up
- * and centred over him below it, the signal rail at the foot. Every layer of
+ * pins it replaced: the masthead as a lower-left column from 48rem up
+ * and beneath the lion's face below it, the signal rail at the foot. Every layer of
  * it is server HTML; the hero video, the particle entrance and the rail's
  * turn through the record are progressive enhancement on top, and removing
  * JavaScript removes only them — the rail still paints a real headline.
@@ -141,26 +141,36 @@ export default async function Page() {
                 figurative thing on the screen; over a photograph of a lion it
                 was a second lion laid across the first one's face. The wordmark
                 carries the brand on its own now. */}
-            <h1 id="home-wordmark" className={styles.wordmark}>LIONSOFZION</h1>
-            <p className={styles.standfirst}>Powered by evidence, not narratives.</p>
+            <h1 id="home-wordmark" className={styles.wordmark}>
+              <span className={styles.wordmarkLine}>LIONS</span>{" "}
+              <span className={styles.wordmarkLine}>
+                <span className={styles.wordmarkOf}>OF</span>{" "}ZION
+              </span>
+            </h1>
+            <p className={styles.standfirst}>
+              <span className={styles.evidenceLine}>Powered by evidence,</span>{" "}
+              <span className={styles.narrativesLine}>not narratives.</span>
+            </p>
 
             {/* HOME-002 — the one primary action, and now the only control in
                 the masthead at all: the file index it once had a secondary
                 affordance for is gone from this page, and the header's "All
-                files" trigger is the way to the full list. The hover sweep on
-                the
-                primary is CSS-only and exists only for fine pointers without
-                a reduced-motion preference — touch and reduced motion get
-                the Button variant's static states. */}
+                files" trigger is the way to the full list. The open reading
+                invitation keeps a full-size target; hover and keyboard focus
+                invert only its arrow, without an animated sweep. */}
             <div className={styles.actions}>
               <ButtonLink
                 href="/geopolitical-brief"
-                variant="primary"
+                variant="ghost"
                 size="lg"
                 className={styles.ctaPrimary}
               >
-                Read the Daily Brief
-                <span className={styles.ctaArrow} aria-hidden="true">→</span>
+                <span className={styles.ctaLabel}>Read the Daily Brief</span>
+                <span className={styles.ctaArrow} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 12h15M13 5l7 7-7 7" />
+                  </svg>
+                </span>
               </ButtonLink>
             </div>
           </div>

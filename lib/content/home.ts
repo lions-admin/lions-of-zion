@@ -81,9 +81,9 @@ function withSection(
  */
 export function getAllMilestones(): HomeMilestone[] {
   const merged = [
-    ...withSection(warUpdateEdition.entries, 'War Update', '/war-update'),
+    ...withSection(warUpdateEdition.entries, 'News & Analysis', '/geopolitical-brief'),
     ...withSection(october7Record.timeline, 'October 7', '/october-7'),
-    ...withSection(briefDevelopmentEntries(), 'Geopolitical Brief', '/geopolitical-brief'),
+    ...withSection(briefDevelopmentEntries(), 'News & Analysis', '/geopolitical-brief'),
   ];
 
   assertKnownDuplicates(merged);

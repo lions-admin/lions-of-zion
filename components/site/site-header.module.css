@@ -29,8 +29,9 @@
   inset: 0 0 auto;
   z-index: var(--z-header);
   color: var(--ink-hi);
-  font-family: var(--face-text);
+  font-family: var(--face-navigation);
   direction: ltr;
+  text-transform: none;
 }
 
 /* ── The bar ───────────────────────────────────────────────────────────── */
@@ -98,8 +99,8 @@
 .filesTrigger,
 .support,
 .menuTrigger {
-  font-family: var(--face-text);
-  font-size: var(--t-small);
+  font-family: var(--face-navigation);
+  font-size: 13px;
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0;
@@ -174,6 +175,7 @@
 .header .filesTrigger {
   --link-pad: var(--sp-3);
   --btn-bg: transparent;
+  text-transform: none;
   --btn-fg: var(--ink-hi);
   --btn-line: transparent;
   position: relative;
@@ -194,22 +196,13 @@
 .header .filesTrigger:hover:not(:disabled),
 .header .filesTrigger:active:not(:disabled) {
   --btn-bg: transparent;
+  text-transform: none;
   background: transparent;
 }
 
 .filesTrigger:hover::after { background: var(--line-strong); }
 /* The current file is one this width's bar cannot show. */
 .filesTrigger[data-here]::after { background: var(--gold); }
-
-.filesCount {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
 
 .chevron {
   /* Height comes from the 10×6 viewBox, so the glyph can never be squashed. */
@@ -275,165 +268,61 @@
 .filesPanel {
   position: absolute;
   top: 100%;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   max-height: calc(100dvh - var(--header-h));
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-bottom: var(--line-w) solid var(--line);
-  background: var(--surface-1);
-  box-shadow: var(--shadow-3);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--ground);
   animation: drawerIn var(--dur-base) var(--ease-out) both;
 }
-
 .filesInner {
-  max-width: var(--chrome-w);
+  max-width: 1120px;
   margin-inline: auto;
-  padding: clamp(var(--sp-5), 2.5vw, var(--sp-7)) clamp(var(--sp-4), 3vw, var(--sp-7)) clamp(var(--sp-6), 3vw, var(--sp-7));
+  padding: 30px clamp(24px, 4vw, 56px) 20px;
 }
-
-.panelHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  padding-bottom: var(--sp-3);
-  border-bottom: var(--line-w) solid var(--line);
-}
-
-.panelHead + .fileGrid,
-.panelHead + .referenceGrid { margin-top: var(--sp-5); }
-.fileGrid + .panelHead { margin-top: clamp(var(--sp-5), 2.5vw, var(--sp-7)); }
-
-/* Panel labels are interface, so Plex at the caption step in sentence case;
-   the count is data, so mono. */
-.panelEyebrow,
-.sheetLabel {
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
-}
-
-.panelCount {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
-
-.fileGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--line-w);
-  background: var(--line-soft);
-  border: var(--line-w) solid var(--line-soft);
-}
-
-.fileCell {
-  position: relative;
-  display: grid;
-  align-content: start;
-  gap: var(--sp-2);
-  padding: var(--sp-4);
-  background: var(--surface-1);
-  color: var(--ink-hi);
-  text-decoration: none;
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.fileCell:hover { background: var(--surface-2); }
-
-/* Inset, so the ring sits inside the 1px hairline gap instead of overlapping
-   the two cells next to it. */
-.fileCell:focus-visible,
-.referenceCell:focus-visible { outline-offset: -3px; }
-
-/* Here. The one gold mark a drawer may carry. */
-.fileCell[aria-current="page"] {
-  background: var(--surface-2);
-  box-shadow: inset var(--line-w-thick) 0 0 var(--gold);
-}
-
-.fileIndex {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.fileCell:hover .fileIndex { color: var(--ink); }
-.fileCell[aria-current="page"] .fileIndex { color: var(--gold); }
-
-.fileName {
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  color: var(--ink-hi);
-  text-wrap: balance;
-}
-
-.fileDescription {
-  font-size: var(--t-caption);
-  font-weight: 400;
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
-  text-wrap: pretty;
-}
-
-/* ── Reference block ───────────────────────────────────────────────────── */
-
-.referenceGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--sp-5);
-}
-
-.referenceCell {
-  display: grid;
-  align-content: start;
-  gap: var(--sp-1);
-  padding-block: var(--sp-1);
+.navigationContent {
   color: var(--ink);
-  text-decoration: none;
+  font-family: var(--face-navigation);
+  text-transform: none;
 }
-
-.referenceName {
-  font-size: var(--t-small);
-  font-weight: 500;
-  line-height: 1.3;
-  transition: color var(--dur-fast) var(--ease-out);
+.navigationContent a { text-decoration: none; }
+.navigationContent a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.menuLayout { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(32px, 6vw, 80px); }
+.menuGroupLabel { margin: 0 0 14px; color: var(--ink-lo); font: 10px/1.5 var(--face-data); letter-spacing: .09em; text-transform: uppercase; }
+.primaryMenuLink, .secondaryMenuLink {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 18px;
+  color: var(--ink-hi);
+  border-top: 1px solid var(--line);
+  padding-block: 21px;
 }
-
-.referenceCell:hover .referenceName { color: var(--ink-hi); }
-.referenceCell[aria-current="page"] .referenceName { color: var(--gold-hi); }
-
-.referenceDescription {
-  font-size: var(--t-caption);
-  font-weight: 400;
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
-  text-wrap: pretty;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.referenceCell:hover .referenceDescription { color: var(--ink); }
-
-/* ── The phone sheet ───────────────────────────────────────────────────── */
+.menuLinkTitle { font: 400 clamp(26px, 2.5vw, 34px)/1.12 var(--face-navigation-display); letter-spacing: -.025em; }
+.menuLinkArrow { align-self: start; padding-top: 3px; font-size: 17px; color: var(--ink-lo); }
+.menuLinkDescription { grid-column: 1; margin-top: 10px; font: 400 12px/1.65 var(--face-navigation); color: var(--ink-lo); max-width: 44ch; }
+.primaryMenuLink:hover .menuLinkTitle, .secondaryMenuLink:hover .menuLinkTitle,
+.primaryMenuLink:hover .menuLinkArrow, .secondaryMenuLink:hover .menuLinkArrow { color: var(--gold-hi); }
+.primaryMenuLink[aria-current="page"], .secondaryMenuLink[aria-current="page"] { border-top-color: var(--gold-dim); }
+.primaryMenuLink[aria-current="page"] .menuLinkTitle, .secondaryMenuLink[aria-current="page"] .menuLinkTitle { color: var(--gold-hi); }
+.secondaryMenuLink { padding-block: 17px; }
+.secondaryMenuLink .menuLinkTitle { font: 400 18px/1.3 var(--face-navigation); letter-spacing: -.02em; }
+.secondaryMenuLink .menuLinkDescription { font-size: 11px; margin-top: 7px; }
+.menuUtilities { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 24px; border-top: 1px solid var(--line-strong); margin-top: 18px; padding-top: 8px; }
+.menuUtilities nav { display: flex; flex-wrap: wrap; gap: 4px 22px; }
+.menuUtilities a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: var(--ink-lo); font-size: 11px; }
+.menuUtilities a:hover, .menuUtilities a[aria-current="page"] { color: var(--ink-hi); }
+.menuUtilities .menuTools a { color: var(--ink); }
+.menuSupport { display: none; }
+.mobilePanel [data-slot="panel"] { background: var(--ground); }
+.mobilePanel [data-slot="body"] { padding: 0 24px 24px; }
+.mobilePanel [data-slot="header"] { background: var(--ground); padding: 24px; }
+.mobilePanel [data-slot="header"] h2 { font: 400 32px/1.1 var(--face-navigation-display); text-transform: none; }
+.mobilePanel [data-slot="header"] p { font: 400 12px/1.6 var(--face-navigation); text-transform: none; color: var(--ink-lo); }
 
 .header .menuTrigger {
   --btn-bg: transparent;
+  text-transform: none;
   --btn-fg: var(--ink-hi);
   --btn-line: transparent;
   height: var(--control-h);
@@ -454,6 +343,7 @@
 .header .menuTrigger:hover:not(:disabled),
 .header .menuTrigger:active:not(:disabled) {
   --btn-bg: transparent;
+  text-transform: none;
   background: transparent;
 }
 
@@ -469,63 +359,6 @@
 
 .menuTrigger[data-here] .menuIcon { color: var(--gold); }
 .menuTrigger[aria-expanded="true"] .menuIcon { color: var(--ink-hi); }
-
-.sheetLabel {
-  display: block;
-  padding: var(--sp-4) 0 var(--sp-2);
-}
-
-/* A label and its rows. The rows carry their own top hairline, so the only
-   thing the group owes is closing the last one — a stack of top-bordered rows
-   otherwise ends open against the drawer floor. */
-.sheetGroup {
-  display: block;
-}
-
-.sheetGroup:last-of-type .sheetRow:last-child {
-  border-bottom: var(--line-w) solid var(--line-soft);
-}
-
-.sheetRow {
-  display: grid;
-  grid-template-columns: var(--sp-6) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--sp-3);
-  min-height: var(--control-h);
-  padding-inline: 0;
-  border-top: var(--line-w) solid var(--line-soft);
-  color: var(--ink);
-  text-decoration: none;
-  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
-}
-
-.sheetRow:hover,
-.sheetRow:active { background: var(--tint-hover); color: var(--ink-hi); }
-
-.sheetRow[aria-current="page"] {
-  color: var(--ink-hi);
-  box-shadow: inset var(--line-w-thick) 0 0 var(--gold);
-}
-
-.sheetIndex {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
-
-.sheetRow[aria-current="page"] .sheetIndex { color: var(--gold); }
-
-.sheetName {
-  font-size: var(--t-body);
-  font-weight: 500;
-  line-height: 1.3;
-}
-
-.sheetRow:focus-visible { outline-offset: -3px; }
 
 @keyframes drawerIn {
   from { opacity: 0; transform: translateY(-0.4rem); }
@@ -545,8 +378,6 @@
  */
 
 @media (max-width: 76.25rem) {
-  .fileGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .referenceGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* The band between this seam and the one below is where four destination
      names are tightest against the brand and the utility cluster. Tightening
      the padding buys ~32px; the state rule follows it, because both read
@@ -570,8 +401,17 @@
      `scripting: none` block below re-opens it as a static index, and wins
      because `[hidden]` outranks this. */
   .filesPanel { display: none; }
-  .fileGrid,
-  .referenceGrid { grid-template-columns: minmax(0, 1fr); }
+  .menuLayout { grid-template-columns: 1fr; gap: 24px; }
+  .filesInner { padding-inline: 24px; }
+  .primaryMenuLink { padding-block: 17px; }
+  .menuLinkTitle { font-size: 29px; }
+  .menuLinkDescription { font-size: 12px; margin-top: 7px; }
+  .secondaryMenuLink { min-height: 44px; padding-block: 13px; }
+  .secondaryMenuLink .menuLinkTitle { font-size: 16px; }
+  .secondaryMenuLink .menuLinkDescription { display: none; }
+  .menuGroupLabel { margin-bottom: 10px; }
+  .menuUtilities { margin-top: 20px; }
+  .menuSupport { display: flex; justify-content: space-between; align-items: center; min-height: 48px; margin-top: 12px; border-top: 1px solid var(--gold-dim); color: var(--gold-hi); font-size: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -580,12 +420,7 @@
   .barLink::after,
   .filesTrigger::after,
   .chevron,
-  .sheetRow,
   .support,
-  .fileCell,
-  .fileIndex,
-  .referenceName,
-  .referenceDescription,
   .menuIcon,
   .brandRole { transition-duration: 0ms; }
 }

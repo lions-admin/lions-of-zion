@@ -33,110 +33,57 @@ function renderFully(element: ReactElement): Promise<string> {
   });
 }
 
-/**
- * `/information-war` invariants (IW-002, IW-003, IW-004).
- *
- * The heading check renders the real page markup; the styling and observer
- * invariants live in stylesheets and module structure, so those follow
- * `shell-landmarks.test.ts` and read the source.
- */
 describe("information war surface", () => {
-  it("IW-002: the heading's rendered text is exactly the sentence, spaces included", async () => {
+  it("keeps an intact accessible heading and its browser title", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
     const h1 = html.match(/<h1[^>]*id="war-heading"[^>]*>([\s\S]*?)<\/h1>/);
     expect(h1).not.toBeNull();
-    /* The visual line breaks come from block spans; the accessible name is
-       the concatenated text. Word spaces must survive inside the spans, or
-       the sentence reads as "This is aninformationwar." to every screen
-       reader — which is the bug this pins. */
     const text = h1![1].replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]+>/g, "");
     expect(text).toBe("This is an information war.");
-  });
-
-  it("IW-002: the browser title is the same sentence", () => {
     const page = readFileSync(path.join(ROOT, "app/information-war/page.tsx"), "utf8");
     expect(page).toContain('const TITLE = "This is an information war"');
   });
 
-  it("IW-001: both diagrams keep their server-rendered anchors", async () => {
+  it("preserves the reading anchors and fixes the publication retry target", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
-    /* Seven stages on the rail, five copies over one origin — the beams'
-       anchor marks are server markup, so the diagrams exist before (and
-       without) any client JavaScript. */
-    expect((html.match(/data-beam-node/g) ?? []).length).toBe(7);
-    expect((html.match(/data-beam-copy/g) ?? []).length).toBe(5);
-    expect(html).toContain("data-beam-origin");
-    for (const id of ["battlefield", "pressure", "independence", "system", "output"]) {
+    for (const id of ["page-content", "problem", "system", "cycle", "record", "activity"]) {
       expect(html).toContain(`id="${id}"`);
     }
   });
 
-  it("IW-003: the system intro pins only behind a viewport-height gate", () => {
-    const css = readFileSync(
-      path.join(ROOT, "components/briefs/information-war-system.module.css"),
-      "utf8",
-    );
-    /* Every `position: sticky` in the file must sit inside a media query
-       that requires a minimum viewport height, so no pinned scene exists on
-       a 320×568 viewport or a short landscape phone. */
-    const stickyAt = [...css.matchAll(/position:\s*sticky/g)].map((m) => m.index);
-    expect(stickyAt.length).toBeGreaterThan(0);
-    for (const index of stickyAt) {
-      const before = css.slice(0, index);
-      const queryStart = before.lastIndexOf("@media");
-      expect(queryStart).toBeGreaterThan(-1);
-      const query = css.slice(queryStart, before.indexOf("{", queryStart));
-      expect(query).toContain("min-height");
-    }
-  });
-
-  it("IW-004: SignalBeam owns one shared observer system and a beam cap", () => {
-    const beam = readFileSync(path.join(ROOT, "components/motion/SignalBeam.tsx"), "utf8");
-    /* One ResizeObserver and one IntersectionObserver constructed for the
-       whole module — never one per beam. */
-    expect(beam.match(/new ResizeObserver/g)?.length).toBe(1);
-    expect(beam.match(/new IntersectionObserver/g)?.length).toBe(1);
-    expect(beam).toContain("MAX_ANIMATED_BEAMS");
-    /* Offscreen beams defer measurement instead of reading layout. */
-    expect(beam).toMatch(/if \(!beam\.visible\) \{\s*[\s\S]{0,200}?dirty = true;\s*return;/);
-  });
-
-  it("IW-004: reduced motion leaves a static connector", () => {
-    const css = readFileSync(
-      path.join(ROOT, "components/motion/signal-beam.module.css"),
-      "utf8",
-    );
-    const reduced = css.slice(css.indexOf("prefers-reduced-motion"));
-    expect(reduced).toContain(".packet");
-    expect(reduced).toContain("display: none");
-    /* The track survives — the relationship outlives the animation. */
-    expect(reduced).toContain(".track");
-  });
-
-  it("IW-005: the map carries the real job-stage mapping and no fake live badges", async () => {
+  it("renders inspectable architecture and a no-animation reading alternative", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
-    for (const job of ["collect", "cluster", "quality"]) {
-      expect(html).toContain(job);
-    }
-    expect(html).toContain("No telemetry available");
-    expect(html).not.toMatch(/RUNNING|ACTIVE|COMPLETE|DEGRADED|FAILED/);
+    expect((html.match(/aria-controls="node-inspector"/g) ?? []).length).toBe(9);
+    expect(html).toContain("Read every journey without the animation");
+    expect(html).toContain("Interactive explanation · not live telemetry");
+    expect(html).toContain("Illustrative source relationship");
+    expect(html).toContain("Direct import");
+    expect(html).toContain("does not run the same quality evaluator");
+    expect(html).not.toContain("Online — public record readable");
+    expect(html).not.toContain("all twelve checks");
   });
 
-  it("IW-005: new sections exist with one reading path each", async () => {
+  it("offers explicit playback controls and respects motion and visibility changes", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
-    for (const id of ["activity", "journey", "narratives", "claims", "cycle"]) {
-      expect(html).toContain(`id="${id}"`);
-    }
-    /* Every stage discloses inputs/outputs without leaving the page. */
-    expect((html.match(/Stage details/g) ?? []).length).toBe(7);
+    for (const name of ["Previous step", "Next step", "Pause journey"]) expect(html).toContain(name);
+    const client = readFileSync(path.join(ROOT, "components/briefs/information-war/PipelineTrace.tsx"), "utf8");
+    expect(client).toContain('prefers-reduced-motion: reduce');
+    expect(client).toContain('preference.addEventListener("change", update)');
+    expect(client).toContain('!document.hidden');
+    expect(client).toContain('!playing || reduced || !visible');
+    const css = readFileSync(path.join(ROOT, "components/briefs/information-war-system.module.css"), "utf8");
+    expect(css.slice(css.indexOf("prefers-reduced-motion"))).toContain(".packet { display: none; }");
+    expect(css).not.toMatch(/position:\s*(sticky|fixed)/);
+    const dock = readFileSync(path.join(ROOT, "components/ask/ask.module.css"), "utf8");
+    expect(dock).toContain('html:has([id="war-heading"]) .dockTrigger');
   });
 
-  it("IW-005: pipeline model maps all seven stages to real job stages", async () => {
-    const model = await import("@/components/briefs/information-war/pipeline-data");
-    expect(model.PIPELINE_STAGES).toHaveLength(7);
-    const jobs = model.PIPELINE_STAGES.map((stage) => stage.job).join(" ");
-    for (const job of ["collect", "enrich", "cluster", "triage", "draft", "quality", "publish"]) {
-      expect(jobs).toContain(job);
+  it("keeps real public destinations, with no pretend uptime claim", async () => {
+    const html = await renderFully(createElement(InformationWarSystem));
+    for (const href of ["/geopolitical-brief", "/fact-check", "/october-7", "/search", "/ask", "/support-us", "/methodology", "/corrections"]) {
+      expect(html).toContain(`href="${href}"`);
     }
+    expect(html).toContain("Publication dates, not job activity");
+    expect(html).toContain("does not schedule the daily briefing route");
   });
 });

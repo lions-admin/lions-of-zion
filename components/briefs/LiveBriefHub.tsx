@@ -41,20 +41,20 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
       showProgress={false}
     >
       <div className={styles.liveLayout}>
-        <header className={styles.deskHeader}>
+        <header className={styles.deskHeader} id="page-content" tabIndex={-1}>
           <p className={styles.liveEyebrow}>
             <span className={styles.deskMark}>Lions of Zion</span>
             <span>Intelligence desk</span>
           </p>
-          <h1>The Daily Brief</h1>
-          <p>Source-linked reporting on Israel, the war, and the narratives shaping international attention.</p>
+          <h1>News &amp; Analysis</h1>
+          <p>News, war updates and deeper analysis on Israel and regional developments, with the sources and context behind the reporting.</p>
         </header>
 
         {/* The filters live inside the boundary because their option lists are
             derived from the same read — there is no honest way to draw them
             before it lands. `inline` drops the standalone family geometry: the
             shell above has already paid for the header offset and the measure. */}
-        <Suspense fallback={<SkeletonDesk inline label="Loading the Daily Brief" />}>
+        <Suspense fallback={<SkeletonDesk inline label="Loading news and analysis" />}>
           <LiveBriefEdition filters={filters} />
         </Suspense>
       </div>
@@ -93,7 +93,6 @@ async function LiveBriefEdition({ filters }: { filters: Filters }) {
     ? publications.find((entry) => entry.featuredIsraelStory && israelDate(entry.publishedAt) === israelDate(lead.publishedAt)) ?? null
     : null;
   const updates = publications.filter((entry) => entry.section === "israel_update" || entry.section === "war_update");
-  const narratives = publications.filter((entry) => entry.section === "narrative_watch");
 
   return (
     <>
@@ -176,27 +175,11 @@ async function LiveBriefEdition({ filters }: { filters: Filters }) {
       ) : null}
 
       {updates.length ? <PublicationSection title="Israel and war updates" items={updates} /> : null}
-      {narratives.length ? <PublicationSection title="Narrative watch and false claims" items={narratives} narrative /> : dataUnavailable ? null : (
-        /* Not rendered during an outage: `narratives` is empty because the
-           read failed, and "no narrative record was published" would be a
-           statement about the desk's output made by a broken fetch. The
-           service-status panel above is the whole answer in that case. */
-        <section className={styles.liveSection} aria-labelledby="narrative-watch-heading">
-          <h2 id="narrative-watch-heading">Narrative watch and false claims</h2>
-          {/* This used to say nothing had "cleared the evidence threshold".
-              A record published as our own analysis deliberately clears no
-              such threshold, so the old wording would have described the
-              new content type as a failure. */}
-          <div className={styles.narrativeEmpty}>
-            <p>
-              {filtering
-                ? "No narrative record matches this selection."
-                : "No narrative record was published in this edition."}
-            </p>
-            <p>Records appear here in two forms — a reported claim with its source trail, or our own analysis answering a claim no public source yet documents. Both state their wording, trend and evidence status in full, and an unsourced record is labelled as analysis on its face.</p>
-          </div>
-        </section>
-      )}
+      <section className={styles.liveSection} aria-labelledby="narrative-watch-heading">
+        <h2 id="narrative-watch-heading">Narratives, X &amp; incitement</h2>
+        <p>The daily watch, false-narrative research and incitement coverage have their own dedicated home.</p>
+        <Link href="/fake-resistance" className={styles.readLink}>Explore Fake Resistance <span aria-hidden="true">↗</span></Link>
+      </section>
       {dailyBriefs.length > 1 ? <PublicationSection title="Daily archive" items={dailyBriefs.slice(1)} /> : null}
     </>
   );

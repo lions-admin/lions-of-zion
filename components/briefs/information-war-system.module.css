@@ -1,1731 +1,271 @@
-/*
- * "This is an information war." — the system page behind `/information-war`.
- *
- * IW-001 rebuild. One column, five numbered sections, each with a single
- * reading path and one explanatory diagram. The ground is bare black: the
- * photographic hero, its scrims, the sweeping light and the coordinates
- * readout are gone — the previous build's telemetry dressings implied
- * instrumentation the page does not have. Hierarchy comes from the type
- * scale, hairline rules and the section index column; nothing glows.
- *
- * Color discipline: gold marks the reader's own position and path — the
- * kicker, the hero CTA's hover, the stage marks, the output fork's root.
- * Ember appears exactly where the adversarial signal does: the racing
- * claim's rule (01), the widening reach bars from Amplification on (02),
- * and the syndicated copies' wires (03). The blue data ramp is reserved for
- * the verified stream: the evidence rule and the single upstream origin.
- *
- * Motion: one entrance on the hero copy, and the beams' packets — which
- * pause offscreen, cap page-wide, and vanish under reduced motion, leaving
- * static connectors whose relations are stated in visible captions.
- *
- * Mobile discipline (IW-003): nothing pins on a constrained viewport. The
- * system intro is sticky only where the viewport is both wide and tall
- * enough to afford a pinned column; every diagram reads inline, top to
- * bottom, at 320×568.
- */
-
+/* A public field guide, not an operations dashboard. Route-scoped typography,
+   a literal architecture drawing, and open editorial rows replace status cards. */
 .page {
-  --war-gutter: clamp(var(--sp-5), 5vw, var(--sp-9));
-  --war-measure: 72rem;
-  --copy-gap: var(--sp-3);
-
-  min-height: 100dvh;
-  overflow: clip;
+  --war-gutter: clamp(22px, 5vw, 88px);
+  --war-width: 1320px;
+  --war-rule: var(--line-strong);
+  min-height: 100svh;
   color: var(--ink);
-  /* No background of its own: the body already carries the black ground and
-     the site-wide scan texture, and painting over them here would make this
-     the one route with a flatter black than the rest of the site. */
-  font-family: var(--face-text);
-}
-
-/* Reading progress sits under the fixed masthead, not behind its glass. The
-   bar is `reading-progress.module.css`; this moves it, and nothing else. */
-.progressTrack {
-  --progress-top: var(--header-h);
-}
-
-/* ── The threshold ────────────────────────────────────────────────────── */
-
-.hero {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  min-height: calc(100svh - var(--header-h));
-  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
-  margin-inline: auto;
-  padding-block: clamp(var(--sp-7), 9vh, var(--sp-9)) var(--sp-5);
-}
-
-.heroCopy {
-  align-self: center;
-  max-width: 46rem;
-  animation: heroEnter var(--dur-enter) var(--ease-out) both;
-}
-
-.kicker {
-  margin: 0;
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-}
-
-/* The sentence is the hero. Block spans set the intended breaks; their word
-   spaces stay in the text, so the accessible name is the whole sentence
-   (IW-002). */
-.hero h1 {
-  margin: var(--sp-4) 0 var(--sp-5);
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-display);
-  font-weight: var(--t-display-weight);
-  letter-spacing: var(--t-display-tracking);
-  line-height: var(--t-display-lh);
-}
-
-.hero h1 span {
-  display: block;
-}
-
-.heroStatement {
-  max-width: 34rem;
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
-}
-
-.heroCta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-3);
-  min-height: var(--control-h);
-  margin-top: var(--sp-6);
-  padding: 0 var(--sp-5);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-
-.heroCta:hover {
-  background: var(--gold-wash);
-  border-color: var(--gold-line-strong);
-  color: var(--gold-hi);
-}
-
-.heroCta:active {
-  background: color-mix(in srgb, var(--gold) 18%, transparent);
-  color: var(--gold-hi);
-}
-
-.heroCta:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: 2px;
-}
-
-/* The reading order, closing the threshold: five numbered anchors into the
-   document. Each is a full 44px target. */
-.heroIndex {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: var(--sp-6);
-  border-top: 1px solid var(--line);
-  padding-top: var(--sp-2);
-}
-
-.heroIndex a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: var(--control-h);
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: 1;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.heroIndex a span {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.heroIndex a:hover,
-.heroIndex a:hover span {
-  color: var(--gold-hi);
-}
-
-.heroIndex a:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: 2px;
-}
-
-/* ── Sections ─────────────────────────────────────────────────────────── */
-
-.section,
-.system {
-  display: grid;
-  gap: var(--sp-5);
-  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
-  margin-inline: auto;
-  padding-block: clamp(var(--sp-8), 10vw, var(--sp-9));
-  border-top: 1px solid var(--line);
-  scroll-margin-top: calc(var(--header-h) + var(--sp-4));
-}
-
-/* The section index: a number in the data face, then a name in sentence
-   case — the page's one recurring voice. */
-.index {
-  margin: 0;
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: 0;
-  line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-.sectionBody {
-  min-width: 0;
-}
-
-.sectionBody h2,
-.systemIntro h2 {
-  margin: 0 0 var(--sp-5);
-  max-width: 24ch;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  letter-spacing: var(--t-h2-tracking);
-  line-height: var(--t-h2-lh);
-}
-
-.sectionBody > p,
-.systemIntro > p {
-  max-width: 60ch;
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-}
-
-.sectionBody > p + p,
-.systemIntro > p + p {
-  margin-top: var(--flow);
-}
-
-/* Inside the intro column the index is not a grid child of the section, so
-   the section gap cannot space it — it carries its own margin. */
-.systemIntro .index {
-  margin-bottom: var(--sp-4);
-}
-
-/* The one-line statement under a diagram: the relation in text, present at
-   every tier — no JavaScript, reduced motion, print. */
-.diagramNote {
-  margin: var(--sp-4) 0 0;
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: 0;
-  line-height: var(--t-data-lh);
-}
-
-/* ── 01 · Speed asymmetry ─────────────────────────────────────────────── */
-
-.speedDiagram {
-  margin: var(--sp-7) 0 0;
-  padding-top: var(--sp-5);
-  border-top: 1px solid var(--line-soft);
-  display: grid;
-  gap: var(--sp-4);
-}
-
-.speedRow {
-  display: grid;
-  gap: var(--sp-2);
-}
-
-.speedRow span {
-  color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: 0;
-  line-height: var(--t-data-lh);
-}
-
-/* The full interval is the faint track; the distance covered is the value
-   rule, with an arrowhead marking the direction of travel. Lengths are
-   qualitative by design — the page draws no figure it cannot show. */
-.speedRow i {
-  position: relative;
-  display: block;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--line-soft);
-}
-
-.speedRow i::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 2px;
-  border-radius: 2px;
-}
-
-.speedRow i::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 0;
-  height: 0;
-  margin-top: -0.45rem;
-  border-top: 0.45rem solid transparent;
-  border-bottom: 0.45rem solid transparent;
-}
-
-.speedRow[data-tone="claim"] i::before {
-  width: 97%;
-  background: var(--data-ember);
-}
-
-.speedRow[data-tone="claim"] i::after {
-  left: 97%;
-  border-left: 0.7rem solid var(--data-ember-peak);
-}
-
-.speedRow[data-tone="evidence"] i::before {
-  width: 24%;
-  background: var(--data-blue);
-}
-
-.speedRow[data-tone="evidence"] i::after {
-  left: 24%;
-  border-left: 0.7rem solid var(--data-blue-peak);
-}
-
-.speedDiagram figcaption {
-  max-width: var(--measure-narrow);
-  margin-top: var(--sp-2);
-  color: var(--ink-lo);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
-/* ── 02 · The escalation chain ────────────────────────────────────────── */
-
-.pressureSteps {
-  margin: var(--sp-6) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pressureSteps li {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr);
-  gap: var(--sp-4);
-  padding-block: var(--sp-5);
-  border-top: 1px solid var(--line-soft);
-}
-
-.pressureSteps li:first-child {
-  border-top: 0;
-  padding-top: 0;
-}
-
-.stepNumber {
-  composes: dataValue from global;
-  color: var(--ink-lo);
-  font-variant-numeric: tabular-nums;
-}
-
-.pressureSteps h3 {
-  margin: 0 0 var(--sp-2);
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  letter-spacing: var(--t-h3-tracking);
-  line-height: var(--t-h3-lh);
-}
-
-.pressureSteps p {
-  max-width: 52ch;
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-/* The diagram: one bar per stage, widening as the frame's reach grows. The
-   first two stages are the event itself — neutral ink. From Amplification
-   on the signal is imitating confirmation, and the bar turns ember. */
-.reach {
-  display: block;
-  height: var(--line-w-thick);
-  margin-top: var(--sp-4);
-}
-
-.pressureSteps li:nth-child(1) .reach {
-  width: 12%;
-  background: var(--line-strong);
-}
-
-.pressureSteps li:nth-child(2) .reach {
-  width: 30%;
-  background: var(--line-strong);
-}
-
-.pressureSteps li:nth-child(3) .reach {
-  width: 52%;
-  background: var(--data-ember-dim);
-}
-
-.pressureSteps li:nth-child(4) .reach {
-  width: 76%;
-  background: var(--data-ember);
-}
-
-.pressureSteps li:nth-child(5) .reach {
-  width: 100%;
-  background: var(--data-ember-peak);
-}
-
-/* ── 03 · The convergence ─────────────────────────────────────────────── */
-
-/* `position: relative` so the measured beams, which are absolutely
-   positioned, take this box as their containing block. Being out of flow
-   they are not grid items and create no implicit tracks. */
-.sourceDiagram {
-  position: relative;
-  display: grid;
-  margin-top: var(--sp-7);
-}
-
-.copyRow {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--copy-gap);
-}
-
-/* Five syndicated copies. Their marks and their wires are the ember ramp:
-   this is the signal that looks like five confirmations. */
-.copyRow > span {
-  position: relative;
-  display: grid;
-  place-content: center;
-  min-height: 3rem;
-  padding: var(--sp-2) var(--sp-1);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
-  color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.copyRow i {
-  position: absolute;
-  bottom: -0.28rem;
-  left: 50%;
-  width: 0.45rem;
-  height: 0.45rem;
-  margin-left: -0.225rem;
-  border-radius: 50%;
-  background: var(--data-ember);
-}
-
-/* The no-JavaScript connector: five drops into a collector, one drop to the
-   origin. An approximation, and honest as one — once the beams have
-   measured the real geometry it stands down. */
-.busField {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--copy-gap);
-  height: clamp(3.5rem, 9vw, 5.5rem);
-  transition: opacity var(--dur-base) var(--ease-out);
-}
-
-.busField > span {
-  position: relative;
-}
-
-.busField > span::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: calc(50% - 1px);
-  width: 2px;
-  height: 42%;
-  background: linear-gradient(var(--data-ember), var(--data-ember-dim));
-}
-
-.busField::before {
-  content: "";
-  position: absolute;
-  top: 42%;
-  right: 10%;
-  left: 10%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--data-ember-dim), var(--data-blue-dim), var(--data-ember-dim));
-}
-
-.busField::after {
-  content: "";
-  position: absolute;
-  top: 42%;
-  bottom: 0;
-  left: calc(50% - 1px);
-  width: 2px;
-  background: var(--data-blue-dim);
-}
-
-.sourceDiagram[data-beams="on"] .busField {
-  opacity: 0;
-}
-
-/* One origin. The blue ramp: the stream that was actually verified. */
-.origin {
-  position: relative;
-  justify-self: center;
-  display: grid;
-  justify-items: center;
-  gap: var(--sp-1);
-  min-width: min(18rem, 100%);
-  padding: var(--sp-5) var(--sp-6);
-  border: 1px solid var(--data-blue-dim);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
-  text-align: center;
-}
-
-.origin small,
-.origin > span {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-  text-transform: uppercase;
-}
-
-.origin strong {
-  color: var(--data-blue-peak);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  letter-spacing: var(--t-h2-tracking);
-  line-height: 1.1;
-}
-
-/* The convergence point: the wires land on a mark on the box's top edge
-   instead of running into its type. */
-.originMark {
-  position: absolute;
-  top: -0.3rem;
-  left: 50%;
-  width: 0.55rem;
-  height: 0.55rem;
-  margin-left: -0.275rem;
-  border-radius: 50%;
-  background: var(--data-blue);
-}
-
-/* ── 04 · The system chain ────────────────────────────────────────────── */
-
-.systemIntro {
-  min-width: 0;
-}
-
-/* The diagram's statement about itself. Full ink, not the recessive tone —
-   it is a disclosure about what the reader is looking at, and a disclosure
-   set quieter than the thing it qualifies is a disclosure in name only. */
-.systemIntro .systemDisclosure {
-  max-width: 60ch;
-  margin-top: var(--sp-5);
-  padding-top: var(--sp-4);
-  border-top: var(--line-w) solid var(--line);
-  color: var(--ink);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-wrap: pretty;
-}
-
-.systemIntro .systemDisclosure strong {
-  color: var(--ink-hi);
-  font-weight: 600;
-}
-
-.systemIntro .systemDisclosure a {
-  color: var(--ink-hi);
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 0.25em;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    text-decoration-color var(--dur-fast) var(--ease-out);
-}
-
-.systemIntro .systemDisclosure a:hover {
-  color: var(--gold-hi);
-  text-decoration-color: var(--gold-line-strong);
-}
-
-/* The beams' measured host. A plain positioned block: the list keeps its
-   own layout, and the wrapper exists only so the SVGs have a containing
-   block. */
-.stageChainHost {
-  position: relative;
-  min-width: 0;
-}
-
-.stageChain {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.stageChain li {
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
-  gap: var(--sp-5);
-}
-
-.stageRail {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: calc(var(--sp-5) + 1.4rem);
-}
-
-/* The rail is the flowchart's spine: a 2px gold-lit wire with a travelling
-   dash flow that states the processing direction even with JavaScript off.
-   The dashes ride `background-position`, never layout, and vanish under
-   reduced motion — leaving the solid wire, which carries the meaning. */
-.stageRail::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(50% - 1px);
-  width: 2px;
-  background: linear-gradient(var(--gold) 0%, var(--line-strong) 30%, var(--line-strong) 100%);
-}
-
-.stageRail::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(50% - 1px);
-  width: 2px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--gold-hi) 0,
-    var(--gold-hi) 0.5rem,
-    transparent 0.5rem,
-    transparent 1rem
-  );
-  animation: railFlow 5s linear infinite;
-}
-
-@keyframes railFlow {
-  from {
-    background-position-y: 0;
-  }
-  to {
-    background-position-y: 1rem;
-  }
-}
-
-.stageChain li:first-child .stageRail::before {
-  top: 2.6rem;
-}
-
-.stageChain li:first-child .stageRail::after {
-  top: 2.6rem;
-}
-
-.stageChain li:last-child .stageRail::before {
-  bottom: auto;
-  height: 2.6rem;
-}
-
-.stageChain li:last-child .stageRail::after {
-  bottom: auto;
-  height: 2.6rem;
-  animation: none;
-  opacity: 0.45;
-}
-
-/* The mark is a node: a gold ring with a filled core on a plate masking
-   the wire, large enough to read as a flowchart vertex at a glance. */
-.stageRail i {
-  width: 1.15rem;
-  height: 1.15rem;
-  border: 2px solid var(--gold);
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--gold) 0 0.2rem, var(--ground) 0.21rem);
-  box-shadow: 0 0 0 0.5rem var(--ground);
-  z-index: 1;
-}
-
-/* Each stage is a flowchart card: bordered, surfaced, and headed by a
-   numbered badge plus the real job-stage chip. */
-.stageBody {
-  margin-block: var(--sp-3) var(--sp-4);
-  padding: var(--sp-5);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-3);
-  background: var(--surface-2);
-}
-
-.stageChain li + li .stageBody {
-  border-top: 1px solid var(--line-soft);
-}
-
-.stageMeta {
-  composes: dataValue from global;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  margin: 0;
-}
-
-/* Numbered badge + job-stage chip: the card reads as a flowchart vertex
-   with its machine name attached. */
-.stageMeta span:first-child {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.75rem;
-  height: 1.75rem;
-  padding-inline: var(--sp-2);
-  border-radius: 999px;
-  background: var(--gold);
-  color: #1a1408;
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-}
-
-.stageMeta span + span {
-  padding: 0.2rem var(--sp-3);
-  border: 1px solid var(--gold-line);
-  border-radius: 999px;
-  color: var(--gold-hi);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.stageChain h3 {
-  margin: var(--sp-2) 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  letter-spacing: var(--t-h3-tracking);
-  line-height: var(--t-h3-lh);
-}
-
-.stageChain p {
-  max-width: var(--measure-reading);
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-}
-
-/* The checkable rule under each stage: a step down in size and ink, behind
-   a gold hairline, so a reader can see at a glance which sentences on this
-   page are description and which are claims about a constraint that either
-   exists or does not. */
-.stageChain .mechanism {
-  max-width: var(--measure-reading);
-  margin-top: var(--sp-3);
-  padding-left: var(--sp-4);
-  border-left: var(--line-w) solid var(--gold-line);
-  color: var(--ink-lo);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-wrap: pretty;
-}
-
-/* ── Measured beams ───────────────────────────────────────────────────── */
-
-/* The chain's wire is `.stageChain::before` above, so these beams carry the
-   packet only and their own track is suppressed — one wire, drawn by
-   whichever mechanism draws it better, never two stacked a few pixels
-   apart. Under reduced motion the packet removes itself and what is left
-   is exactly the diagram as the rail draws it. */
-.flowBeam {
-  --beam-track-width: 0;
-}
-
-/* The convergence is the opposite: here the beam's own track is the
-   accurate line, so it stays and the CSS bus hides. */
-.convergeBeam {
-  --beam-packet-width: 1.4;
-}
-
-/* ── 05 · The output fork ─────────────────────────────────────────────── */
-
-.outputMap {
-  position: relative;
-  margin-top: var(--sp-7);
-  padding-left: 2.25rem;
-  display: grid;
-}
-
-/* The fork's trunk: from the root mark down to the last stub. */
-.outputMap::before {
-  content: "";
-  position: absolute;
-  top: 0.9rem;
-  bottom: 2.8rem;
-  left: calc(0.5rem - 1px);
-  width: 2px;
-  background: linear-gradient(var(--gold), var(--line-strong) 10rem);
-}
-
-.outputRoot {
-  position: relative;
-  margin: 0 0 var(--sp-3);
-  color: var(--ink-hi);
-  font-size: var(--t-caption);
-  font-weight: 600;
-  line-height: var(--t-caption-lh);
-}
-
-/* The root node: one gold mark on the trunk. */
-.outputRoot i {
-  position: absolute;
-  top: 50%;
-  left: calc(-1.75rem - 0.3rem + 0.5px);
-  width: 0.6rem;
-  height: 0.6rem;
-  margin-top: -0.3rem;
-  border-radius: 50%;
-  background: var(--gold);
-}
-
-.outputMap a {
-  position: relative;
-  display: grid;
-  gap: var(--sp-1);
-  margin-block-start: var(--sp-2);
-  padding: var(--sp-4) var(--sp-5);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-  color: var(--ink-hi);
-  text-decoration: none;
-  transition: border-color var(--dur-fast) var(--ease-out);
-}
-
-.outputMap a:hover {
-  border-color: var(--gold-line);
-}
-
-/* The stub: trunk to card, one 2px branch each. */
-.outputMap a::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: calc(-2.25rem + 0.5rem);
-  width: calc(1.75rem - var(--sp-2));
-  height: 2px;
-  background: var(--line-strong);
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.outputMap a strong {
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  letter-spacing: var(--t-h3-tracking);
-  line-height: var(--t-h3-lh);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.outputMap a small {
-  max-width: var(--measure-narrow);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 400;
-  line-height: var(--t-caption-lh);
-}
-
-.outputMap a:hover strong {
-  color: var(--gold-hi);
-}
-
-.outputMap a:hover::before {
-  background: var(--gold);
-}
-
-.outputMap a:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: 2px;
-}
-
-/* ── Footer ───────────────────────────────────────────────────────────── */
-
-.footer {
-  composes: dataValue from global;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--sp-2) var(--sp-5);
-  width: min(var(--war-measure), calc(100% - (var(--war-gutter) * 2)));
-  margin-inline: auto;
-  padding: var(--sp-6) 0 var(--sp-7);
-  border-top: 1px solid var(--line);
-  color: var(--ink-lo);
-}
-
-.footer a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h);
-  margin-block: calc(-1 * var(--sp-3));
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 0.25em;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    text-decoration-color var(--dur-fast) var(--ease-out);
-}
-
-.footer a:hover {
-  color: var(--gold-hi);
-  text-decoration-color: currentColor;
-}
-
-/* ── Live status + activity + journey + cycle ───────────────────────────
-   New pipeline-experience blocks. Same discipline as above: type scale,
-   hairline rules, gold for the reader's path, ember for the adversarial
-   signal, blue for the verified stream. Logical properties throughout so
-   `dir="rtl"` mirrors without a second stylesheet. */
-
-.statusGrid {
-  display: grid;
-  gap: var(--sp-3);
-  margin-block-start: var(--sp-6);
-  padding: var(--sp-5);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-}
-
-.statusGrid > div {
-  display: grid;
-  gap: var(--sp-1);
-}
-
-.statusLabel {
-  margin: 0;
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
-}
-
-.statusValue {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  font-weight: 600;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-
-.statusNote {
-  margin: var(--sp-2) 0 0;
-  color: var(--ink);
-  font-size: var(--t-caption);
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.statusNote a {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 0.25em;
-}
-
-.activityList {
-  list-style: none;
-  margin: var(--sp-5) 0 0;
-  padding: 0;
-  display: grid;
-  gap: var(--sp-3);
-}
-
-.activityList li {
-  display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr);
-  gap: var(--sp-4);
-  padding: var(--sp-4);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-}
-
-.activityList time {
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-}
-
-.activityList a {
-  color: var(--ink-hi);
-  font-weight: 600;
-  text-decoration: none;
-  overflow-wrap: anywhere;
-}
-
-.activityList a:hover {
-  color: var(--gold-hi);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
-
-.activityList p {
-  margin: var(--sp-1) 0 0;
-  color: var(--ink-lo);
-  font-size: var(--t-caption);
-}
-
-.stageInspector {
-  margin-block-start: var(--sp-3);
-  border-block-start: 1px solid var(--line);
-  padding-block-start: var(--sp-3);
-}
-
-.stageInspector summary {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h);
-  color: var(--ink-hi);
-  font-size: var(--t-small);
-  font-weight: 600;
-}
-
-.stageInspector summary:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: 2px;
-}
-
-.stageInspector dl {
-  display: grid;
-  gap: var(--sp-2);
-  margin: var(--sp-3) 0 0;
-}
-
-.stageInspector dl > div {
-  display: grid;
-  gap: var(--sp-1);
-}
-
-.stageInspector dt {
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-}
-
-.stageInspector dd {
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--t-caption);
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.journeySteps {
-  list-style: none;
-  margin: var(--sp-5) 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0;
-}
-
-.journeySteps li {
-  position: relative;
-  display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr);
-  gap: var(--sp-4);
-  padding-block: var(--sp-4);
-}
-
-/* The journey's spine: one continuous wire with a numbered node per step
-   and a flow arrow into the next card. Pure flowchart grammar. */
-.journeySteps li::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  inset-inline-start: 1.3125rem;
-  width: 2px;
-  background: var(--line-strong);
-}
-
-.journeySteps li:first-child::before {
-  top: 1.75rem;
-  background: linear-gradient(var(--gold), var(--line-strong) 8rem);
-}
-
-.journeySteps li:last-child::before {
-  bottom: auto;
-  height: 1.75rem;
-}
-
-.journeySteps .stepNumber {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 2px solid var(--gold);
-  border-radius: 50%;
   background: var(--ground);
-  color: var(--gold-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: 700;
-}
-
-.journeySteps li > div {
-  padding: var(--sp-4);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-}
-
-.journeySteps li:last-child > div {
-  border-color: var(--gold-line);
-}
-
-.journeySteps h3 {
-  margin: 0 0 var(--sp-1);
-  color: var(--ink-hi);
-  font-size: var(--t-small);
-  overflow-wrap: anywhere;
-}
-
-.journeySteps p {
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--t-caption);
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.narrativePanel,
-.cyclePanel {
-  margin-block-start: var(--sp-5);
-  display: grid;
-  gap: var(--sp-4);
-}
-
-.narrativeSteps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--sp-5);
-  justify-items: center;
-}
-
-/* The funnel: each tier narrows, so the eye reads many signals condensing
-   into one assessment. Widths are geometric, not data — the caption below
-   states the only counted quantity (distinct source families). */
-.narrativeSteps li {
-  position: relative;
-  width: 100%;
-  padding: var(--sp-4) var(--sp-5);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-  text-align: center;
-}
-
-.narrativeSteps li:nth-child(2) {
-  width: 86%;
-}
-
-.narrativeSteps li:nth-child(3) {
-  width: 72%;
-  border-color: var(--gold-line);
-}
-
-.narrativeSteps li:nth-child(4) {
-  width: 58%;
-  min-width: min(16rem, 100%);
-  border-color: var(--gold);
-  background: var(--surface-3);
-}
-
-.narrativeSteps li + li::before {
-  content: "↓";
-  position: absolute;
-  top: -1.35rem;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--gold);
-  font-weight: 700;
-}
-
-.narrativeSteps h3 {
-  margin: 0 0 var(--sp-1);
-  color: var(--ink-hi);
-  font-size: var(--t-small);
-  overflow-wrap: anywhere;
-}
-
-.narrativeSteps p {
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--t-caption);
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.cycleSteps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0;
-}
-
-.cycleSteps li {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
-  gap: var(--sp-4);
-  padding-block: var(--sp-3);
-  padding-inline-start: var(--sp-5);
-  font-size: var(--t-caption);
-  line-height: 1.6;
-}
-
-.cycleSteps li::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  inset-inline-start: 0.4rem;
-  width: 2px;
-  background: var(--line-strong);
-}
-
-.cycleSteps li:first-child::before {
-  top: 1rem;
-}
-
-.cycleSteps li:last-child::before {
-  bottom: auto;
-  height: 1rem;
-}
-
-.cycleSteps li::after {
-  content: "";
-  position: absolute;
-  top: 1.1rem;
-  inset-inline-start: 0.15rem;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  background: var(--gold);
-}
-
-/* The loop-back strip: the diagram's closing arrow, drawn as a banner so
-   the cycle reads as a loop rather than a list that ends. Duplicate of the
-   caption below for sighted readers — hence `aria-hidden` in markup. */
-.cycleLoop {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  margin: var(--sp-4) 0 0;
-  padding: var(--sp-4) var(--sp-5);
-  border: 1px dashed var(--gold-line);
-  border-radius: var(--radius-2);
-  background: var(--surface-2);
-  color: var(--gold-hi);
-  font-size: var(--t-small);
-  font-weight: 600;
-}
-
-.cycleLoop span {
-  font-size: 1.4rem;
-  line-height: 1;
-}
-
-.cycleSteps strong {
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  overflow-wrap: anywhere;
-}
-
-.cycleSteps span {
-  color: var(--ink);
-  overflow-wrap: anywhere;
-}
-
-/* ── Motion ───────────────────────────────────────────────────────────── */
-
-@keyframes heroEnter {
-  from {
-    opacity: 0;
-    transform: translateY(var(--enter-shift));
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ── Responsive ───────────────────────────────────────────────────────── */
-
-/* The speed rows earn a label column once there is room for one. */
-@media (min-width: 561px) {
-  .speedRow {
-    grid-template-columns: 13rem minmax(0, 1fr);
-    align-items: center;
-    gap: var(--sp-4);
-  }
-}
-
-/* The index column steps beside the body once the viewport affords it. */
-@media (min-width: 841px) {
-  .section {
-    grid-template-columns: minmax(10rem, 0.26fr) minmax(0, 1fr);
-    gap: clamp(var(--sp-6), 6vw, var(--sp-9));
-  }
-
-  .system {
-    grid-template-columns: minmax(14rem, 0.62fr) minmax(0, 1fr);
-    gap: clamp(var(--sp-6), 6vw, var(--sp-9));
-    align-items: start;
-  }
-}
-
-/* The intro column pins only where the viewport is wide AND tall enough to
-   afford a pinned scene (IW-003). A 320×568 viewport — or a short landscape
-   phone — reads everything inline. */
-@media (min-width: 1000px) and (min-height: 640px) {
-  .systemIntro {
-    position: sticky;
-    top: calc(var(--header-h) + var(--sp-5));
-  }
-}
-
-@media (max-width: 840px) {
-  .page {
-    --war-gutter: clamp(var(--sp-4), 5vw, var(--sp-6));
-    --copy-gap: var(--sp-2);
-  }
-
-  .hero {
-    min-height: min(calc(100svh - var(--header-h)), 44rem);
-  }
-
-  .heroIndex {
-    column-gap: var(--sp-5);
-  }
-
-  .stageChain li {
-    gap: var(--sp-4);
-  }
-
-  .activityList li {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cycleSteps li {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroCopy {
-    animation: none;
-  }
-
-  .busField {
-    transition: none;
-  }
-
-  /* The travelling dashes park: the solid wire carries the diagram. */
-  .stageRail::after {
-    animation: none;
-    opacity: 0.35;
-  }
-}
-
-/* ---- Bento: the reading order as a grid of unequal weight ---- */
-
-/* The seven sections were a wrapped row of links of identical size, which is a
- * list pretending to be navigation. As a bento they carry their own hierarchy:
- * the first two are the argument and get the wide cells, the rest are the
- * mechanism and sit in the remaining ones.
- *
- * `grid-auto-flow: dense` is what lets the two spans be declared without
- * leaving holes when the row cannot take them — the browser backfills rather
- * than the author hand-placing every cell at every breakpoint. */
-.heroIndex {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  grid-auto-flow: dense;
-  gap: var(--sp-3);
-  border-top: 1px solid var(--line);
-  padding-top: var(--sp-5);
-}
-
-.heroIndex a {
-  position: relative;
+  font-family: var(--face-system-text);
+  text-transform: none;
   isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  min-block-size: 6.5rem;
-  padding: var(--sp-4);
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  text-decoration: none;
-  transition:
-    background-color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out);
 }
+.page *, .page *::before, .page *::after { box-sizing: border-box; }
+.page :is(h1,h2,h3,h4,p,figure,ol,ul,dl) { margin: 0; }
+.page :is(h1,h2,h3,h4) { text-transform: none; max-width: none; overflow-wrap: normal; }
+.page :is(a,button,summary):focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+.page a { text-decoration: none; }
+.page button { font: inherit; text-transform: none; cursor: pointer; }
+.page em { font-weight: inherit; }
+.progressTrack { --progress-top: var(--header-h); }
+.hero, .section, .support { width: min(var(--war-width), calc(100% - 2 * var(--war-gutter))); margin-inline: auto; }
+.page [id] { scroll-margin-top: calc(var(--header-h) + 28px); }
+.eyebrow { font-family: var(--face-data); font-size: 11px; line-height: 1.6; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); }
+.hero { padding-top: 38px; }
+.heroTopline { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--war-rule); }
+.heroTopline a { color: var(--ink); font-size: 13px; padding-block: 8px; }
+.heroTopline a span { margin-left: 18px; color: var(--gold); }
+.heroGrid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 7%; align-items: center; padding-block: 68px 76px; }
+.hero h1 { font-family: var(--face-system-display); font-size: clamp(72px, 8.2vw, 122px); line-height: .9; letter-spacing: -.045em; font-weight: 400; color: var(--ink-hi); }
+.hero h1 span, .hero h1 em { display: block; }
+.hero h1 span:first-child { font-family: var(--face-system-text); font-size: .37em; letter-spacing: -.035em; line-height: 1.25; margin-bottom: 24px; }
+.hero h1 em { font-style: italic; }
+.hero h1 span:last-child { margin-top: 4px; }
+.hero .heroStatement { font-size: clamp(17px, 1.6vw, 22px); line-height: 1.55; margin-top: 32px; }
+.heroJump { display: none; }
+.problem { border-left: 1px solid var(--war-rule); padding-left: 10%; }
+.problem > .eyebrow { color: var(--gold); font-size: 10px; }
+.problem > p:last-child { font-size: 15px; line-height: 1.7; margin-top: 28px; max-width: 39ch; }
+.originDiagram { padding-top: 36px; }
+.reportLabels { display: flex; justify-content: space-around; font-family: var(--face-data); color: var(--ink-lo); font-size: 9px; }
+.reportLabels span { text-align: center; }
+.reportLabels i { display: block; width: 6px; height: 6px; margin: 12px auto 0; background: var(--ink); }
+.originDiagram svg { width: 100%; height: 144px; overflow: visible; display: block; }
+.originDiagram path { stroke: var(--gold-dim); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+.originDiagram circle { fill: var(--gold); }
+.originCount { display: flex; justify-content: center; align-items: center; gap: 20px; padding-block: 16px; }
+.originCount strong { font: 400 76px/.85 var(--face-system-display); letter-spacing: -.05em; color: var(--ink-hi); }
+.originCount span { font-size: 13px; line-height: 1.6; }
+.originDiagram figcaption { font-size: 10px; color: var(--ink-lo); text-align: center; margin-top: 10px; }
+.chapterNav { display: grid; grid-template-columns: repeat(3,1fr); border-block: 1px solid var(--war-rule); }
+.chapterNav a { color: var(--ink); padding: 22px 20px; display: flex; align-items: center; gap: 18px; font-size: 13px; }
+.chapterNav a:first-child { padding-left: 0; }
+.chapterNav a + a { border-left: 1px solid var(--war-rule); }
+.chapterNav a span:first-child { color: var(--gold); font: 10px var(--face-data); }
+.chapterNav a span:last-child { margin-left: auto; }
+.chapterNav a:hover { color: var(--ink-hi); }
+.section { padding-top: clamp(72px, 9vw, 132px); }
+.sectionHeading { display: grid; grid-template-columns: 1.3fr 1fr; gap: 10%; align-items: end; margin-bottom: 44px; }
+.sectionHeading h2 { font: 400 clamp(42px, 4.5vw, 68px)/1.04 var(--face-system-display); color: var(--ink-hi); letter-spacing: -.035em; margin-top: 20px; text-wrap: initial; }
+.sectionHeading h2 em { color: var(--ink); }
+.sectionHeading > p { font-size: 16px; line-height: 1.75; max-width: 43ch; padding-bottom: 4px; }
+.trace { border: 1px solid var(--war-rule); background: var(--ground); }
+.traceTopline { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; gap: 12px; }
+.traceTopline > .eyebrow { color: var(--gold); }
+.diagramLabel { font-size: 11px; color: var(--ink-lo); }
+.traceRoutes { display: flex; flex-wrap: wrap; border-block: 1px solid var(--war-rule); padding-inline: 24px; }
+.traceRoutes button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 58px; padding: 12px; color: var(--ink-lo); background: transparent; border: none; border-bottom: 2px solid transparent; font-size: 12px; white-space: nowrap; }
+.traceRoutes button span { font: 9px var(--face-data); }
+.traceRoutes button[aria-pressed="true"] { color: var(--gold-hi); border-bottom-color: var(--gold); }
+.traceRoutes button:hover { color: var(--ink-hi); }
+.mapColumns { display: grid; grid-template-columns: repeat(3,1fr); padding: 28px 32px 0; gap: 20px; font: 10px var(--face-data); color: var(--ink-lo); }
+.mapColumns span:nth-child(2) { text-align: center; }
+.mapColumns span:last-child { text-align: right; }
+.systemCanvas { position: relative; aspect-ratio: 1000 / 550; min-height: 550px; width: calc(100% - 64px); max-width: 1000px; margin-inline: auto; }
+.connectors { position: absolute; width: 100%; height: 100%; inset: 0; overflow: visible; }
+.wire { stroke: var(--line-strong); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+.connectors g[data-on-route="true"] .wire { stroke: var(--gold-dim); }
+.packet { fill: none; stroke: var(--gold-hi); stroke-width: 2; stroke-dasharray: 3 32; vector-effect: non-scaling-stroke; opacity: 0; }
+.connectors g[data-current="true"] .packet { opacity: 1; }
+.trace[data-playing="true"] .packet { animation: travel 3s linear infinite; }
+@keyframes travel { to { stroke-dashoffset: -70; } }
+.mapNode { position: absolute; left: var(--node-x); top: var(--node-y); width: 24%; height: 16%; text-align: left; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding: 14px 15px; background: var(--ground); border: 1px solid var(--line-strong); color: var(--ink-lo); transition: border-color var(--dur-fast), background var(--dur-fast); }
+.mapNode strong { font-size: clamp(12px, 1.3vw, 18px); font-weight: 500; line-height: 1.3; padding-right: 12px; }
+.mapNode small { font-size: clamp(9px, .85vw, 12px); line-height: 1.4; }
+.nodeMark { position: absolute; top: 10px; right: 10px; font: 9px var(--face-data); color: var(--ink-lo); }
+.mapNode[data-on-route="true"] { color: var(--ink-hi); border-color: var(--gold-dim); }
+.mapNode[data-active="true"] { background: var(--ink-hi); color: var(--ground); border-color: var(--ink-hi); }
+.mapNode[data-active="true"] .nodeMark { color: var(--ground); }
+.mapNode:hover { border-color: var(--ink-hi); }
+.playback { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 20px 28px; border-bottom: 1px solid var(--war-rule); }
+.playback > p { font-size: 13px; line-height: 1.6; max-width: 57ch; }
+.playback > div { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.playback button { border: 1px solid var(--control-line); background: none; color: var(--ink-hi); min-width: 44px; min-height: 44px; padding-inline: 10px; font-size: 12px; }
+.playback button:hover { background: var(--ink-hi); color: var(--ground); }
+.playback button:disabled { opacity: .4; cursor: default; }
+.stepCount { font: 10px var(--face-data); color: var(--ink-lo); padding-inline: 8px; white-space: nowrap; }
+.inspector { display: grid; grid-template-columns: .9fr 1.45fr 1fr; gap: 32px; padding: 32px 28px; border-top: 1px solid var(--war-rule); background: color-mix(in srgb, var(--ink-hi) 3%, var(--ground)); min-height: 205px; }
+.inspector h3 { font: 400 28px/1.1 var(--face-system-display); color: var(--ink-hi); margin-top: 14px; }
+.inspector > p { font-size: 13px; line-height: 1.75; }
+.inspector dl { border-left: 1px solid var(--war-rule); padding-left: 24px; font-size: 12px; line-height: 1.6; }
+.inspector dt { font: 9px/1.5 var(--face-data); text-transform: uppercase; color: var(--gold); margin-bottom: 5px; }
+.inspector dd + dt { margin-top: 14px; }
+.routeNote { font-size: 11px; line-height: 1.75; padding: 20px 28px; border-top: 1px solid var(--war-rule); color: var(--ink-lo); }
+.textAlternative { padding: 16px 28px; border-top: 1px solid var(--war-rule); font-size: 12px; }
+.textAlternative summary { cursor: pointer; min-height: 32px; align-content: center; }
+.textAlternative > div { border-top: 1px solid var(--war-rule); padding-block: 20px; }
+.textAlternative h3 { font: 500 16px var(--face-system-text); margin-bottom: 12px; color: var(--ink-hi); }
+.textAlternative ol { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 0 0 16px 20px; }
+.textAlternative p { max-width: 85ch; line-height: 1.7; }
+.accountability { padding-bottom: 0; }
+.evidenceLedger { display: grid; grid-template-columns: 1fr 1.6fr; border-block: 1px solid var(--war-rule); }
+.evidenceLedger > div { padding: 42px 32px 42px 0; }
+.evidenceLedger > div h3 { font: 400 clamp(42px, 4.5vw, 65px)/1.1 var(--face-system-display); letter-spacing: -.035em; margin-block: 26px; color: var(--ink-hi); }
+.evidenceLedger > div h3 em { color: var(--gold-hi); }
+.evidenceLedger > div > p { font-size: 14px; line-height: 1.75; }
+.evidenceLedger ol { list-style: none; padding: 0; border-left: 1px solid var(--war-rule); }
+.evidenceLedger li { display: flex; gap: 28px; padding: 34px 0 34px 40px; }
+.evidenceLedger li + li { border-top: 1px solid var(--war-rule); }
+.evidenceLedger li > span { color: var(--gold); font: 10px var(--face-data); padding-top: 5px; }
+.evidenceLedger li h3 { color: var(--ink-hi); font: 500 20px/1.3 var(--face-system-text); margin-bottom: 12px; letter-spacing: -.02em; }
+.evidenceLedger li p { font-size: 14px; line-height: 1.75; max-width: 63ch; }
+.evidenceLedger li a { display: inline-block; margin-top: 18px; color: var(--gold-hi); font-size: 12px; padding-block: 7px; }
+.technicalNote { margin-top: 24px; border-bottom: 1px solid var(--war-rule); }
+.technicalNote summary { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-block: 22px; cursor: pointer; font-size: 13px; list-style: none; }
+.technicalNote summary::-webkit-details-marker { display: none; }
+.technicalNote summary > span:first-child { color: var(--gold); }
+.technicalNote summary i { font-style: normal; margin-left: 30px; font-size: 20px; }
+.technicalNote[open] summary i { display: inline-block; transform: rotate(45deg); }
+.technicalBody { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; padding-block: 24px 40px; }
+.technicalBody h3 { color: var(--ink-hi); font: 500 18px var(--face-system-text); margin-bottom: 20px; }
+.technicalBody p { font-size: 12px; line-height: 1.8; margin-top: 20px; }
+.jobChain { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 14px 22px; }
+.jobChain li { font: 12px var(--face-data); color: var(--ink-hi); }
+.jobChain span { color: var(--gold); margin-right: 6px; font-size: 9px; }
+.schedule { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; }
+.schedule dt { color: var(--ink-hi); }
+.outputMap { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--war-rule); }
+.outputMap > a { display: flex; gap: 24px; color: var(--ink); padding: 36px 32px 36px 0; border-bottom: 1px solid var(--war-rule); }
+.outputMap > a:nth-child(even) { border-left: 1px solid var(--war-rule); padding-left: 32px; }
+.outputNumber { font: 10px var(--face-data); color: var(--gold); padding-top: 4px; }
+.outputMap h3 { font: 400 30px/1.15 var(--face-system-display); letter-spacing: -.025em; color: var(--ink-hi); margin-block: 18px 12px; }
+.outputMap p { font-size: 13px; line-height: 1.7; max-width: 40ch; }
+.outputArrow { margin-left: auto; color: var(--ink-lo); }
+.outputMap a:hover .outputArrow, .outputMap a:hover h3 { color: var(--gold-hi); }
+.askReadingLink { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; padding-block: 16px; font-size: 12px; color: var(--ink-lo); }
+.askReadingLink a { color: var(--gold-hi); display: inline-flex; gap: 16px; align-items: center; min-height: 44px; }
+.recordHeading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 64px; }
+.recordHeading h3 { font: 400 30px var(--face-system-display); color: var(--ink-hi); }
+.recordHeading a { font-size: 12px; color: var(--ink); padding-block: 10px; }
+.recordCaption { font-size: 11px; color: var(--ink-lo); padding: 12px 0 24px; }
+.activityList { list-style: none; padding: 0; border-top: 1px solid var(--war-rule); }
+.activityList li { display: grid; grid-template-columns: 180px 1fr 20px; align-items: center; gap: 32px; padding-block: 24px; border-bottom: 1px solid var(--war-rule); }
+.activityList time { font: 10px/1.7 var(--face-data); color: var(--ink-lo); }
+.activityList li > div > span { display: block; font: 9px var(--face-data); text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.activityList a { font-size: 16px; line-height: 1.5; color: var(--ink-hi); }
+.activityList a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.emptyRecord { border-block: 1px solid var(--war-rule); padding-block: 28px; font-size: 14px; }
+.emptyRecord h4 { font: 500 18px var(--face-system-text); margin-bottom: 10px; color: var(--ink-hi); }
+.emptyRecord a { display: inline-block; color: var(--gold-hi); padding-block: 14px; }
+.support { display: grid; grid-template-columns: 1.3fr 1fr; column-gap: 10%; padding-block: 120px; }
+.support > .eyebrow { grid-column: 1 / -1; margin-bottom: 30px; color: var(--gold); }
+.support h2 { font: 400 clamp(46px, 4.8vw, 72px)/1.03 var(--face-system-display); letter-spacing: -.035em; color: var(--ink-hi); text-wrap: initial; }
+.support > div > p { font-size: 16px; line-height: 1.7; max-width: 42ch; }
+.supportLink { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding-block: 22px; border-bottom: 1px solid var(--gold-dim); margin-top: 24px; color: var(--gold-hi); font-size: 17px; }
+.supportLink span { font-size: 26px; }
+.methodologyLink { display: inline-block; color: var(--ink-lo); font-size: 12px; margin-top: 18px; padding-block: 8px; }
 
-.heroIndex a:hover,
-.heroIndex a:focus-visible {
-  background: var(--surface-2);
-  border-color: var(--line-strong);
+@media (max-width: 1000px) {
+  .heroGrid { gap: 6%; padding-block: 54px; }
+  .hero h1 { font-size: 9vw; }
+  .problem { padding-left: 8%; }
+  .problem > p:last-child { font-size: 13px; }
+  .heroTopline > a { font-size: 11px; }
+  .originDiagram svg { height: 112px; }
+  .chapterNav a { font-size: 11px; gap: 12px; padding-inline: 14px; }
+  .sectionHeading { gap: 7%; }
+  .sectionHeading > p { font-size: 14px; }
+  .systemCanvas { width: calc(100% - 48px); }
+  .traceRoutes { padding-inline: 12px; }
+  .traceRoutes button { padding-inline: 9px; gap: 6px; font-size: 11px; }
+  .mapNode { padding: 10px; }
+  .mapNode strong { font-size: 13px; }
+  .mapNode small { font-size: 9px; }
+  .nodeMark { top: 5px; right: 5px; font-size: 8px; }
+  .inspector { gap: 24px; grid-template-columns: .9fr 1.5fr; }
+  .inspector dl { grid-column: 2; border-left: 0; padding-left: 0; display: grid; grid-template-columns: 75px 1fr; gap: 8px; }
+  .inspector dd + dt { margin-top: 0; }
+  .inspector h3 { font-size: 25px; }
+  .outputMap h3 { font-size: 27px; }
 }
-
-.heroIndex a > span {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--gold-dim);
+@media (max-width: 700px) {
+  .hero { padding-top: 24px; }
+  .heroTopline { padding-bottom: 18px; }
+  .heroTopline > a { display: none; }
+  .heroTopline .eyebrow { font-size: 9px; }
+  .heroGrid { grid-template-columns: 1fr; padding-block: 44px 36px; gap: 44px; }
+  .hero h1 { font-size: clamp(54px, 17vw, 104px); }
+  .hero h1 span:first-child { font-size: .4em; margin-bottom: 22px; }
+  .hero .heroStatement { margin-top: 24px; font-size: 17px; }
+  .heroJump { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; color: var(--gold-hi); font-size: 13px; min-height: 44px; margin-top: 16px; border-bottom: 1px solid var(--gold-dim); }
+  .problem { padding: 28px 0 0; border-left: 0; border-top: 1px solid var(--war-rule); }
+  .problem > p:last-child { font-size: 14px; max-width: 48ch; margin-top: 24px; }
+  .originDiagram { padding-top: 26px; max-width: 430px; margin-inline: auto !important; }
+  .originDiagram svg { height: 112px; }
+  .originCount strong { font-size: 64px; }
+  .chapterNav { grid-template-columns: 1fr; }
+  .chapterNav a, .chapterNav a:first-child { padding: 16px 0; font-size: 13px; }
+  .chapterNav a + a { border-left: 0; border-top: 1px solid var(--line); }
+  .section { padding-top: 64px; }
+  .sectionHeading { grid-template-columns: 1fr; gap: 24px; margin-bottom: 30px; }
+  .sectionHeading h2 { font-size: clamp(37px, 8.5vw, 52px); }
+  .sectionHeading > p { font-size: 14px; max-width: 52ch; }
+  .traceTopline { padding: 20px; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .traceTopline .eyebrow { font-size: 10px; }
+  .diagramLabel { font-size: 10px; }
+  .traceRoutes { padding: 8px 12px; gap: 0; }
+  .traceRoutes button { flex: 1 1 45%; justify-content: flex-start; min-height: 44px; padding: 10px 8px; }
+  .mapColumns, .connectors { display: none; }
+  .systemCanvas { display: flex; flex-direction: column; gap: 26px; width: auto; min-height: 0; aspect-ratio: auto; margin: 24px 20px; }
+  .mapNode { position: relative; width: 100%; left: auto; top: auto; height: auto; min-height: 78px; padding: 16px 18px; order: var(--node-order); }
+  .mapNode[data-on-route="false"] { display: none; }
+  .mapNode::after { content: "↓"; position: absolute; top: calc(100% + 3px); left: 50%; color: var(--gold-dim); font-size: 15px; }
+  .mapNode[data-last="true"]::after { display: none; }
+  .mapNode strong { font-size: 16px; }
+  .mapNode small { font-size: 11px; }
+  .nodeMark { top: 12px; right: 12px; font-size: 10px; }
+  .playback { padding: 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .playback > p { font-size: 12px; }
+  .inspector { padding: 24px 20px; grid-template-columns: 1fr; gap: 20px; min-height: 360px; }
+  .inspector h3 { margin-top: 8px; font-size: 29px; }
+  .inspector dl { grid-column: auto; }
+  .routeNote { padding: 20px; font-size: 11px; }
+  .textAlternative { padding: 14px 20px; }
+  .textAlternative summary { line-height: 1.6; min-height: 44px; }
+  .textAlternative ol { display: block; }
+  .textAlternative li { margin-block: 5px; }
+  .evidenceLedger { grid-template-columns: 1fr; }
+  .evidenceLedger > div { padding: 28px 0; }
+  .evidenceLedger > div h3 { font-size: 42px; }
+  .evidenceLedger > div h3 br { display: none; }
+  .evidenceLedger > div h3 em::before { content: " "; }
+  .evidenceLedger ol { border-left: 0; border-top: 1px solid var(--war-rule); }
+  .evidenceLedger li { padding: 28px 0; gap: 20px; }
+  .evidenceLedger li h3 { font-size: 19px; }
+  .evidenceLedger li p { font-size: 13px; }
+  .technicalNote summary { align-items: flex-start; font-size: 12px; }
+  .technicalNote summary > span:last-child { max-width: 55%; text-align: right; }
+  .technicalNote summary i { margin-left: 6px; }
+  .technicalBody { grid-template-columns: 1fr; gap: 28px; }
+  .outputMap { grid-template-columns: 1fr; }
+  .outputMap > a, .outputMap > a:nth-child(even) { border-left: 0; padding: 28px 0; gap: 18px; }
+  .outputMap h3 { font-size: 28px; margin-block: 14px 10px; }
+  .outputMap .eyebrow { font-size: 9px; }
+  .recordHeading { margin-top: 40px; }
+  .recordHeading h3 { font-size: 25px; max-width: 65%; }
+  .recordHeading a { font-size: 11px; white-space: nowrap; }
+  .recordCaption { font-size: 10px; }
+  .activityList li { grid-template-columns: 1fr 18px; gap: 12px; padding-block: 22px; }
+  .activityList time { grid-column: 1 / -1; }
+  .activityList a { font-size: 15px; }
+  .support { grid-template-columns: 1fr; gap: 28px; padding-block: 72px; }
+  .support > .eyebrow { margin: 0; font-size: 9px; }
+  .support h2 { font-size: clamp(39px, 9vw, 60px); }
+  .support > div > p { font-size: 14px; }
+  .supportLink { font-size: 16px; }
 }
-
-@media (min-width: 48rem) {
-  .heroIndex a:nth-child(1),
-  .heroIndex a:nth-child(2) {
-    grid-column: span 2;
-    min-block-size: 8rem;
-  }
-}
-
-/* ---- Sticky scroll: the five transformations ---- */
-
-/* Each stage pins under the header while the next scrolls up over it, so the
- * reader is holding one transformation at a time instead of scanning five at
- * once — which is the whole claim of the section, that these happen in
- * sequence to the same event.
- *
- * `--header-h` is the offset because the site header is fixed; without it the
- * pinned stage sits behind the chrome. The last item does not need to pin, but
- * pinning it costs nothing and excluding it costs a selector.
- *
- * The `min-height: 640px` is not decoration and is not mine: IW-003 in
- * `tests/information-war.test.ts` requires every pinned rule in this file to
- * sit behind a viewport-height gate, and it failed when this rule arrived with
- * only a width and a motion condition. The reason is the one the test records —
- * on a short landscape phone five pinned stages each take the whole viewport
- * and the section stops being readable. It matches the gate the system scene
- * above already uses.
- *
- * That test scans the raw file, so it counts the two words in a comment as a
- * rule. Do not write them here in prose; this sentence is the warning. */
-@media (min-width: 48rem) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
-  .pressureSteps > li {
-    position: sticky;
-    top: calc(var(--header-h) + var(--sp-5));
-  }
-}
-
-/* Opaque, because a pinned stage has the next one sliding under it: a
-   translucent surface would show two stages superimposed, which is the exact
-   confusion the section is about. */
-.pressureSteps > li {
-  position: relative;
-  isolation: isolate;
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  padding: var(--sp-5);
-}
-
-.pressureSteps > li + li {
-  margin-top: var(--sp-4);
-}
-
-/* ---- The traced pipeline (one spine, three routes) ----
- *
- * Replaces four ordered lists that rendered the same journey — see the note in
- * `information-war/pipeline-data.ts`. The rail keeps the geometry the stage map
- * already established here, so the page still reads as one diagram; what is new
- * is that a stage can be on or off the route being followed, and one stage at a
- * time is the one the packet is at.
- *
- * Everything here is a state on a stage, never a separate element: a reader
- * with JavaScript off gets every stage lit with its steps printed, which is the
- * whole content. */
-.trace {
-  margin-block-start: var(--sp-6);
-}
-
-.traceRoutes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-}
-
-.traceRoute {
-  min-block-size: var(--control-h-sm);
-  padding-inline: var(--sp-4);
-  background: transparent;
-  border: var(--line-w) solid var(--control-line);
-  border-radius: var(--radius-pill);
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-
-.traceRoute:hover {
-  background: var(--tint-hover);
-  color: var(--ink-hi);
-}
-
-/* Selected is the accent's job here — it is the one active control on the
-   diagram, which is what `globals.css` reserves it for. */
-.traceRoute[aria-pressed="true"] {
-  background: var(--gold-wash);
-  border-color: var(--gold-line-strong);
-  color: var(--gold-hi);
-}
-
-.traceSubject {
-  margin-block: var(--sp-4) var(--sp-6);
-  max-inline-size: var(--measure-narrow);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-wrap: pretty;
-}
-
-.traceChain {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.traceStage {
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
-  gap: var(--sp-5);
-}
-
-.traceRail {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  padding-block-start: var(--sp-5);
-}
-
-.traceRail::before {
-  content: "";
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: calc(50% - 1px);
-  inline-size: 2px;
-  background: var(--line-strong);
-}
-
-.traceStage:first-child .traceRail::before { inset-block-start: var(--sp-5); }
-.traceStage:last-child .traceRail::before { inset-block-end: auto; block-size: var(--sp-5); }
-
-.traceNode {
-  position: relative;
-  z-index: var(--z-raised);
-  inline-size: 0.7rem;
-  block-size: 0.7rem;
-  border: var(--line-w-thick) solid var(--line-strong);
-  border-radius: var(--radius-pill);
-  background: var(--ground);
-  transition:
-    background-color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out),
-    scale var(--dur-base) var(--ease-out);
-}
-
-.traceStage[data-on-route] .traceNode {
-  border-color: var(--gold-line-strong);
-}
-
-/* The packet. One stage carries it, and it is the only gold fill on the rail —
-   which is what makes "where the subject is now" readable at a glance. */
-.traceStage[data-active] .traceNode {
-  background: var(--gold);
-  border-color: var(--gold);
-  scale: 1.35;
-}
-
-.traceBody {
-  margin-block: var(--sp-3) var(--sp-5);
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
-  transition:
-    border-color var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out),
-    opacity var(--dur-base) var(--ease-out);
-}
-
-/* Off-route stages recede rather than disappear: the system still runs them,
-   and hiding them would misdescribe it. */
-.traceStage:not([data-on-route]) .traceBody {
-  opacity: 0.5;
-  background: transparent;
-}
-
-.traceStage[data-active] .traceBody {
-  border-color: var(--gold-line-strong);
-  background: var(--surface-2);
-}
-
-.traceMeta {
-  composes: dataLabel from global;
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-3);
-  margin: 0 0 var(--sp-3);
-  color: var(--ink-lo);
-}
-
-.traceStage[data-on-route] .traceMeta { color: var(--ink-hi); }
-.traceStage[data-active] .traceMeta span:first-child { color: var(--gold); }
-
-.traceSteps {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.traceSteps li {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-  max-inline-size: var(--measure-reading);
-}
-
-.traceSteps strong {
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  font-weight: var(--t-h3-weight);
-  color: var(--ink-hi);
-}
-
-.traceSteps span {
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-  text-wrap: pretty;
-}
-
-.traceSkip {
-  margin: 0;
-  max-inline-size: var(--measure-narrow);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
-  text-wrap: pretty;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .traceNode,
-  .traceBody,
-  .traceRoute {
-    transition: none;
-  }
-  .traceStage[data-active] .traceNode { scale: 1; }
-}
-
-@media (max-width: 45rem) {
-  .traceStage {
-    grid-template-columns: 1.5rem minmax(0, 1fr);
-    gap: var(--sp-4);
-  }
-  .traceBody { padding: var(--sp-4); }
+  .page *, .page *::before, .page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .packet { display: none; }
 }

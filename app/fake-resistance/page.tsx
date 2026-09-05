@@ -28,7 +28,7 @@ import styles from "./page.module.css";
    `/fake-resistance/watch`. */
 
 const TAGLINE =
-  "Inside the influence machine: how manufactured outrage is built and amplified.";
+  "False narratives, incitement and influence operations — the daily watch, source material and documented research in one place.";
 const PAGE_URL = `${SITE_URL}/fake-resistance`;
 
 export const metadata: Metadata = {
@@ -60,7 +60,7 @@ export default async function Page() {
   /* Same reasoning as app/page.tsx's own `featuredPublications()` call: an
      unreadable projection must not 500 an otherwise fully static hub over a
      cache hiccup. The branch card below just shows no live count. */
-  let watchCount = 0;
+  let watchCount: number | null = null;
   try {
     watchCount = (await getNarrativeWatchFeed()).length;
   } catch (cause) {
@@ -115,7 +115,7 @@ export default async function Page() {
         "@type": "WebPage",
         name: "The daily watch",
         description:
-          "Narratives flagged and answered in the last 24 hours, straight from source monitoring.",
+          "Published narrative monitoring, source-linked claims and assessment status.",
         url: `${PAGE_URL}/watch`,
       },
     ],
@@ -134,17 +134,19 @@ export default async function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <p className={styles.standfirst}>
-        Manufactured outrage is built, not felt: a claim is seeded by a small
-        set of accounts, moved by networks that exist to move volume, and
-        finally carried by real people who believe they found it themselves.
+        False narratives, incitement and the networks that amplify them.
+        Follow the daily watch, then examine the source material and the research behind each finding.
       </p>
-      <p>
-        Fake Resistance is this desk&rsquo;s file on that machine. Not on the
-        people who disagree — disagreement is not a finding — but on the
-        apparatus that manufactures the appearance of one: the recycled
-        footage, the amplifier accounts, the laundered consensus. The files
-        come first; the framing they sit in follows below them.
-      </p>
+      <section className={styles.watchLead} aria-labelledby="daily-watch-entry">
+        <div><p className={styles.watchEyebrow}>Start with the daily watch</p>
+          <h2 id="daily-watch-entry">X, narratives &amp; incitement</h2>
+          <p>Explore published monitoring records with their source links and assessment status. A claim in circulation is not automatically a verified finding.</p>
+        </div>
+        <div className={styles.watchAction}>
+          {watchCount !== null ? <span>{watchCount} published monitoring records</span> : <span>Publication count unavailable</span>}
+          <Link href="/fake-resistance/watch">Open the daily watch <span aria-hidden="true">↗</span></Link>
+        </div>
+      </section>
 
       {/* ── The decision moment, before any essay (INV-001) ─────────────── */}
       <SectionBlock heading="Open a file">
@@ -220,30 +222,6 @@ export default async function Page() {
             </Card>
           </div>
 
-          {/* Branch 03 is deliberately unlike the first two: same-day
-              findings, machine quality-gated only, no human review yet.
-              It gets its own card rather than folding into the archive it
-              feeds so a reader never mistakes a provisional record for a
-              reviewed case file. */}
-          <div className={styles.branchSlot}>
-            <Card
-              variant="dossier"
-              accent="ember"
-              href="/fake-resistance/watch"
-            >
-              <CardHeader>
-                <CardEyebrow>Branch 03 — live</CardEyebrow>
-                <CardCount>{watchCount} tracked now</CardCount>
-              </CardHeader>
-              <CardTitle>The daily watch</CardTitle>
-              <CardDescription>
-                Narratives flagged and answered in the last 24 hours, direct
-                from source monitoring — provisional until a case file is
-                written, not one yet.
-              </CardDescription>
-              <CardCta>Open the file</CardCta>
-            </Card>
-          </div>
         </nav>
 
         {/* The network entry: the synthesis over the case files, reachable

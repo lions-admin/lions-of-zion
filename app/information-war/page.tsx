@@ -8,7 +8,7 @@ import { SITE_URL } from "@/lib/site-config";
    `<title>` is a name, not a sentence. */
 const TITLE = "This is an information war";
 const DESCRIPTION =
-  "How narratives become pressure, and how Lions of Zion turns public-source signals into traceable reporting.";
+  "Explore how Lions of Zion collects sources, researches claims, publishes reporting and preserves documentation — with an interactive map of the system and its limits.";
 
 export const metadata: Metadata = {
   title: TITLE,

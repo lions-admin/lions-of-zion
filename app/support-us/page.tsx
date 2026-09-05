@@ -39,8 +39,8 @@ const SUPPORT_US_JSON_LD = {
    server, which is what makes them work with scripting off. */
 const SHARE_URL = `${SITE_URL}/geopolitical-brief`;
 const SHARE_TEXT =
-  "Lions of Zion's Geopolitical Brief — verified developments, sourced, with corrections tracked in the open.";
-const SHARE_TITLE = "Lions of Zion — Geopolitical Brief";
+  "News & Analysis from Lions of Zion — reporting, war updates and the sources behind them.";
+const SHARE_TITLE = "Lions of Zion — News & Analysis";
 
 /**
  * The page asks one question and then gets out of the way.
@@ -125,8 +125,8 @@ const FLOWS: SupportFlow[] = [
           title={SHARE_TITLE}
           text={SHARE_TEXT}
           copyVariant="primary"
-          copyLabel="Copy the brief and its link"
-          lead="What travels is the Geopolitical Brief — the site's most current verified edition, sources and all."
+          copyLabel="Copy the news desk link"
+          lead="Share the news desk: reporting, updates and source context in one place."
           targets={[
             { label: "Share on X", href: xIntentUrl(SHARE_TEXT, SHARE_URL) },
             { label: "Share on Facebook", href: facebookShareUrl(SHARE_URL) },

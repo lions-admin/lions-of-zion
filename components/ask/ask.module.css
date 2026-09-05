@@ -872,20 +872,34 @@
     color: var(--gold-hi);
   }
 
-  /* 13.5rem is 216px, and it is a measurement rather than a taste: the home
-     rail is 176px tall at 390 and below once its metadata wraps and its
-     headline takes two lines, sitting 32px off the bottom — so the trigger has
-     to clear 208px to stop covering the only news on the page. The slack is
-     8px.
+}
 
-     This number goes stale the moment the rail grows another row, and nothing
-     will fail when it does; the symptom is the button sitting on the headline
-     again. `app/home.module.css` is where that would happen. A fixed element
-     cannot measure a flow element in CSS, and anchor positioning is not safe
-     to rely on yet, so this is a constant with its derivation written down
-     rather than a constant nobody can check. */
+/* The architecture map needs its full width on compact screens: the launcher
+   otherwise covers its nodes and source diagram. Keep the same Ask dialog,
+   with its launcher in document flow on this route only. */
+@media (max-width: 1100px) {
+  html:has([id="war-heading"]) .dockTrigger {
+    position: relative;
+    inset: auto;
+    display: flex;
+    width: max-content;
+    min-width: var(--control-h);
+    margin: 0 var(--sp-5) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px)) auto;
+  }
+}
+
+/* On the mobile home cover, Ask follows the record in document flow instead
+   of guessing a fixed offset above variable-height news. Other routes and
+   desktop retain their persistent dock. */
+@media (width < 48rem) {
   html:has([data-home-scroll]) .dockTrigger {
-    inset-block-end: calc(13.5rem + env(safe-area-inset-bottom, 0px));
+    position: relative;
+    inset: auto;
+    display: flex;
+    width: max-content;
+    min-width: var(--control-h);
+    margin: 0 var(--home-gutter) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px)) auto;
+    box-shadow: none;
   }
 }
 

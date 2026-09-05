@@ -1,57 +1,28 @@
 import Link from "next/link";
-import styles from "@/components/briefs/information-war-system.module.css";
+import { PIPELINE_STAGES } from "./pipeline-data";
+import styles from "../information-war-system.module.css";
 
-/** The daily intelligence cycle: continuous collection, daily edition. */
 export function DailyCycle() {
-  const rows: [string, string][] = [
-    ["Continuous", "Collection walks every active source, every 30 minutes."],
-    ["10 and 40 past", "New documents are embedded for semantic search."],
-    ["Every 15 minutes", "The outbox drains: re-indexing and cache invalidation."],
-    ["Daily", "Cluster → triage → draft → quality → publish builds the edition."],
-    ["From 10:00 Israel time", "The edition is expected; a missing edition raises a critical alert."],
-    ["Nightly 03:20", "Maintenance: stuck-job recovery, data pruning, alert hygiene."],
-  ];
   return (
-    <div className={styles.cyclePanel}>
-      <ol className={styles.cycleSteps}>
-        {rows.map(([when, what]) => (
-          <li key={when}>
-            <strong dir="ltr">{when}</strong>
-            <span>{what}</span>
-          </li>
-        ))}
-      </ol>
-      <p className={styles.cycleLoop} aria-hidden="true">
-        <span>↺</span> The edition feeds back into continuous monitoring — the loop never closes.
-      </p>
-      <p className={styles.diagramNote}>
-        Collection never sleeps; the edition is daily. That is the whole rhythm: a continuous intake, one
-        published brief per day, and a public record that stays correctable afterwards.
-      </p>
-    </div>
+    <details className={styles.technicalNote}>
+      <summary><span>Under the surface</span><span>Jobs, schedules & publication paths <i aria-hidden="true">+</i></span></summary>
+      <div className={styles.technicalBody}>
+        <div><h3>The briefing job chain</h3><ol className={styles.jobChain}>{PIPELINE_STAGES.map((stage) => <li key={stage.number}><span>{stage.number}</span>{stage.job}</li>)}</ol><p>This chain exists in the implementation. It is not evidence of a current run, and it is not the route taken by every public record.</p></div>
+        <div><h3>Configured, not claimed live</h3><dl className={styles.schedule}><dt>Source ingestion</dt><dd>Every 30 minutes</dd><dt>Search embeddings</dt><dd>At :10 and :40 each hour</dd><dt>Queued follow-up work</dt><dd>Every 15 minutes</dd><dt>Maintenance</dt><dd>03:20 UTC</dd></dl><p>The deployment configuration does not schedule the daily briefing route. Editions can also arrive through external publication and import workflows. Actual execution depends on deployment, configuration and available services.</p></div>
+      </div>
+    </details>
   );
 }
 
-/** Where the system publishes: the three public surfaces. */
+const OUTPUTS = [
+  { href: "/geopolitical-brief", title: "News & Analysis", category: "Understand the developments", text: "News, war updates and daily briefing coverage, with the sources and context behind the reporting." },
+  { href: "/fact-check", title: "Claims & findings", category: "Examine the assertion", text: "Read the assessment, the available material, and what has or has not been established." },
+  { href: "/october-7", title: "The October 7 archive", category: "Return to the record", text: "Explore documented material in a dedicated archive, separate from the daily news cycle." },
+  { href: "/search", title: "Search the evidence desk", category: "Follow your own question", text: "Find public material. Use Ask for conversation and available citations, not as a substitute for opening the sources." },
+] as const;
+
 export function OutputsFork() {
-  return (
-    <nav className={styles.outputMap} aria-label="Where the system publishes">
-      <p className={styles.outputRoot}>
-        <i aria-hidden="true" />
-        The public record
-      </p>
-      <Link href="/geopolitical-brief">
-        <strong>The Daily Brief</strong>
-        <small>Today&rsquo;s edition, with the lead and the featured story</small>
-      </Link>
-      <Link href="/updates">
-        <strong>Updates</strong>
-        <small>Every entry, newest first, with the minute and route it published by</small>
-      </Link>
-      <Link href="/fact-check">
-        <strong>Fact check</strong>
-        <small>Claims in circulation, the verdict, and the evidence chain</small>
-      </Link>
-    </nav>
-  );
+  return <nav className={styles.outputMap} aria-label="Explore the public work">{OUTPUTS.map((output, index) =>
+    <Link key={output.href} href={output.href}><span className={styles.outputNumber}>{String(index + 1).padStart(2, "0")}</span><div><span className={styles.eyebrow}>{output.category}</span><h3>{output.title}</h3><p>{output.text}</p></div><span className={styles.outputArrow} aria-hidden="true">↗</span></Link>,
+  )}</nav>;
 }

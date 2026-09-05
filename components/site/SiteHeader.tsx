@@ -6,10 +6,11 @@ import { SearchLauncher } from "@/components/search/SearchLauncher";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
-import { FILES_COUNT_LABEL } from "@/lib/site-navigation";
 import {
   BAR_LINKS,
-  FILE_LINKS,
+  REPORTING_LINKS,
+  ABOUT_LINKS,
+  SECTION_LINKS,
   REFERENCE_LINKS,
   SUPPORT_LINK,
   isCurrentChromeLink,
@@ -108,50 +109,47 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
   };
 
   const current = (href: string) => isCurrentChromeLink(activeSection, href);
-  /* The reader is inside one of the eight, but this width's bar cannot show
-     which. The trigger then carries the same gold mark a bar link would, so
-     "you are here" always has somewhere to live. */
   const hereInDrawer = isSectionOffBar(activeSection);
-  const hereInFiles = FILE_LINKS.some((link) => current(link.href));
+  const hereInMenu = [...SECTION_LINKS, ...REFERENCE_LINKS].some((link) => current(link.href));
 
-  const renderFileCell = (link: ChromeLink) => (
-    <Link
-      key={link.href}
-      href={link.href}
-      className={styles.fileCell}
-      aria-current={current(link.href) ? "page" : undefined}
-      onClick={closePanels}
-    >
-      <span className={styles.fileIndex}>{link.index}</span>
-      <span className={styles.fileName}>{link.label}</span>
-      <span className={styles.fileDescription}>{link.description}</span>
+  const renderMenuLink = (link: ChromeLink, primary = false) => (
+    <Link key={link.href} href={link.href}
+      className={primary ? styles.primaryMenuLink : styles.secondaryMenuLink}
+      aria-current={current(link.href) ? "page" : undefined} onClick={closePanels}>
+      <span className={styles.menuLinkTitle}>{link.label}</span>
+      <span className={styles.menuLinkArrow} aria-hidden="true">↗</span>
+      <span className={styles.menuLinkDescription}>{link.description}</span>
     </Link>
   );
 
-  const renderReferenceCell = (link: ChromeLink) => (
-    <Link
-      key={link.href}
-      href={link.href}
-      className={styles.referenceCell}
-      aria-current={current(link.href) ? "page" : undefined}
-      onClick={closePanels}
-    >
-      <span className={styles.referenceName}>{link.label}</span>
-      <span className={styles.referenceDescription}>{link.description}</span>
-    </Link>
-  );
-
-  const renderSheetRow = (link: ChromeLink) => (
-    <Link
-      key={link.href}
-      href={link.href}
-      className={styles.sheetRow}
-      aria-current={current(link.href) ? "page" : undefined}
-      onClick={closePanels}
-    >
-      <span className={styles.sheetIndex}>{link.index ?? "·"}</span>
-      <span className={styles.sheetName}>{link.label}</span>
-    </Link>
+  // The same hierarchy in the desktop dropdown and mobile dialog. The
+  // always-rendered dropdown remains the no-JavaScript navigation fallback.
+  const renderNavigation = () => (
+    <div className={styles.navigationContent}>
+      <div className={styles.menuLayout}>
+        <nav className={styles.reportingMenu} aria-label="Reporting and evidence">
+          <p className={styles.menuGroupLabel}>Reporting & evidence</p>
+          {REPORTING_LINKS.map((link) => renderMenuLink(link, true))}
+        </nav>
+        <nav className={styles.aboutMenu} aria-label="People and purpose">
+          <p className={styles.menuGroupLabel}>People & purpose</p>
+          {ABOUT_LINKS.map((link) => renderMenuLink(link))}
+        </nav>
+      </div>
+      <div className={styles.menuUtilities}>
+        <nav aria-label="Standards and account">
+          {REFERENCE_LINKS.map((link) => <Link key={link.href} href={link.href}
+            aria-current={current(link.href) ? "page" : undefined} onClick={closePanels}>{link.label}</Link>)}
+        </nav>
+        <nav className={styles.menuTools} aria-label="Search and conversation">
+          <Link href="/search" onClick={closePanels}>Search</Link>
+          <Link href="/ask" onClick={closePanels}>Ask the desk <span aria-hidden="true">↗</span></Link>
+        </nav>
+      </div>
+      <Link href={SUPPORT_LINK.href} className={styles.menuSupport} onClick={closePanels}>
+        Support the work <span aria-hidden="true">↗</span>
+      </Link>
+    </div>
   );
 
   return (
@@ -196,8 +194,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             data-here={hereInDrawer || undefined}
             onClick={() => setFilesOpen((open) => !open)}
           >
-            All files
-            <span className={styles.filesCount}>{FILES_COUNT_LABEL}</span>
+            Menu
             <Chevron />
           </Button>
 
@@ -219,7 +216,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
             className={styles.menuTrigger}
             aria-expanded={menuOpen}
             aria-controls={menuPanelId}
-            data-here={hereInFiles || undefined}
+            data-here={hereInMenu || undefined}
             onClick={() => setMenuOpen((open) => !open)}
           >
             {/* In a span so the phone can hide it without taking the button's
@@ -243,22 +240,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
       {/* The drawer. Always rendered; `hidden` carries the state. */}
       <div className={styles.filesPanel} id={filesPanelId} hidden={!filesOpen}>
         <div className={styles.filesInner}>
-          <div className={styles.panelHead}>
-            <span className={styles.panelEyebrow}>The eight files</span>
-            <span className={styles.panelCount}>{`01 — ${FILES_COUNT_LABEL}`}</span>
-          </div>
-
-          <nav className={styles.fileGrid} aria-label="All sections">
-            {FILE_LINKS.map(renderFileCell)}
-          </nav>
-
-          <div className={styles.panelHead}>
-            <span className={styles.panelEyebrow}>Reference</span>
-          </div>
-
-          <nav className={styles.referenceGrid} aria-label="Reference pages">
-            {REFERENCE_LINKS.map(renderReferenceCell)}
-          </nav>
+          {renderNavigation()}
         </div>
       </div>
 
@@ -270,38 +252,11 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
           menuTriggerRef.current?.focus();
         }}
         title="Menu"
-        description="Search, Ask, files, and reference."
+        description="Reporting, evidence and the people behind the work."
         variant="drawer"
+        className={styles.mobilePanel}
       >
-        <nav className={styles.sheetGroup} aria-label="Desk">
-          <span className={styles.sheetLabel}>Desk</span>
-          <Link
-            href="/search"
-            className={styles.sheetRow}
-            aria-current={current("/search") ? "page" : undefined}
-            onClick={closePanels}
-          >
-            <span className={styles.sheetIndex}>·</span>
-            <span className={styles.sheetName}>Search</span>
-          </Link>
-          <Link
-            href="/ask"
-            className={styles.sheetRow}
-            aria-current={current("/ask") ? "page" : undefined}
-            onClick={closePanels}
-          >
-            <span className={styles.sheetIndex}>·</span>
-            <span className={styles.sheetName}>Ask</span>
-          </Link>
-        </nav>
-        <nav className={styles.sheetGroup} aria-label="All sections">
-          <span className={styles.sheetLabel}>Files</span>
-          {FILE_LINKS.map(renderSheetRow)}
-        </nav>
-        <nav className={styles.sheetGroup} aria-label="Reference pages">
-          <span className={styles.sheetLabel}>Reference</span>
-          {REFERENCE_LINKS.map(renderSheetRow)}
-        </nav>
+        {renderNavigation()}
       </Dialog>
     </header>
   );

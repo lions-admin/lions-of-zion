@@ -3,15 +3,15 @@ import { LiveBriefHub } from "@/components/briefs/LiveBriefHub";
 import { SITE_URL } from "@/lib/site-config";
 
 const TAGLINE =
-  "The Daily Brief: current news, analysis, and source-linked narrative watch on Israel and the war.";
+  "News, war updates and analysis on Israel and regional developments, with source context and daily briefings.";
 const PAGE_URL = `${SITE_URL}/geopolitical-brief`;
 
 export const metadata: Metadata = {
-  title: "The Daily Brief",
+  title: "News & Analysis",
   description: TAGLINE,
   alternates: { canonical: PAGE_URL },
   openGraph: {
-    title: "The Daily Brief — LIONS OF ZION",
+    title: "News & Analysis — LIONS OF ZION",
     description: TAGLINE,
     type: "website",
   },
@@ -20,13 +20,13 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "The Daily Brief",
+  name: "News & Analysis",
   description: TAGLINE,
   publisher: { "@type": "Organization", name: "Lions of Zion" },
   url: PAGE_URL,
   about: [
     { "@type": "Thing", name: "Current news" },
-    { "@type": "Thing", name: "Narrative watch" },
+    { "@type": "Thing", name: "War updates and analysis" },
   ],
 };
 

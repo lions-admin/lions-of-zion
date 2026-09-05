@@ -166,3 +166,24 @@
   max-width: var(--measure-narrow);
   text-wrap: pretty;
 }
+
+/* The monitoring entry precedes the research archive; no simulated live badge. */
+.watchLead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--sp-5);
+  padding-block: var(--sp-6);
+  margin-block: var(--sp-5) var(--sp-7);
+  border-block: 1px solid var(--line-strong);
+  font-family: var(--face-navigation);
+  text-transform: none;
+}
+.watchEyebrow { font: 10px/1.5 var(--face-data); color: var(--gold-hi); letter-spacing: .08em; text-transform: uppercase; }
+.watchLead h2 { font: 400 clamp(28px, 3.5vw, 40px)/1.1 var(--face-navigation-display); letter-spacing: -.025em; margin-block: var(--sp-3); }
+.watchLead p:not(.watchEyebrow) { font-size: 14px; line-height: 1.7; max-width: 48ch; }
+.watchAction { display: grid; gap: var(--sp-3); }
+.watchAction > span { font-size: 11px; color: var(--ink-lo); }
+.watchAction a { display: inline-flex; gap: var(--sp-5); align-items: center; min-height: 44px; color: var(--gold-hi); border-bottom: 1px solid var(--gold-dim); font-size: 13px; text-decoration: none; }
+.watchAction a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+@media (max-width: 700px) { .watchLead { grid-template-columns: 1fr; } .watchAction { justify-items: start; } }

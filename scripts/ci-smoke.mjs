@@ -147,7 +147,7 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
      node with no bundler, so it cannot import the TypeScript module. A new
      section that is not added here is not smoke-tested. */
   const DESTINATIONS = [
-    "/geopolitical-brief", "/support-us", "/war-update", "/october-7",
+    "/geopolitical-brief", "/support-us", "/information-war", "/october-7",
     "/our-heroes", "/israels-story", "/fake-resistance", "/we-are",
     "/methodology", "/corrections",
   ];

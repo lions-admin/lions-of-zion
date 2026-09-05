@@ -43,7 +43,7 @@ describe("home front-page content", () => {
 
   it("attributes every milestone to a real section route", async () => {
     const milestones = getAllMilestones();
-    const routes = new Set(["/war-update", "/october-7", "/geopolitical-brief"]);
+    const routes = new Set(["/october-7", "/geopolitical-brief"]);
 
     for (const milestone of milestones) {
       expect(routes.has(milestone.section.href)).toBe(true);

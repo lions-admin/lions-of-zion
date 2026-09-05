@@ -21,11 +21,11 @@ export interface SiteNavigationItem {
 export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
   {
     id: "geopolitical-brief",
-    label: "GEOPOLITICAL BRIEF",
-    displayName: "Geopolitical Brief",
+    label: "NEWS & ANALYSIS",
+    displayName: "News & Analysis",
     href: "/geopolitical-brief",
     description:
-      "One strategic file worked through in order: what changed, what follows, and what remains unknown.",
+      "News, war updates and deeper analysis — the developments, their context and the sources behind them.",
     emblem: "/emblems/geopolitical-brief.svg",
     tone: "signal",
   },
@@ -40,22 +40,12 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     tone: "action",
   },
   {
-    id: "war-update",
-    label: "WAR UPDATE",
-    displayName: "War Update",
-    href: "/war-update",
-    description:
-      "Dated dispatches with their sources beside them and a corrections record that follows.",
-    emblem: "/emblems/war-update.svg",
-    tone: "signal",
-  },
-  {
     id: "october-7",
     label: "OCTOBER 7",
     displayName: "October 7",
     href: "/october-7",
     description:
-      "The record of the day and its archives: first-hand testimony and documentation held in full.",
+      "Help the record travel. Find testimony and documentation to share with their original context.",
     emblem: "/emblems/october-7.svg",
     tone: "archive",
   },
@@ -85,7 +75,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     displayName: "Fake Resistance",
     href: "/fake-resistance",
     description:
-      "Case files on manufactured outrage: how claims were built, how they travelled, and what the record shows.",
+      "False narratives, incitement and the daily X review — follow the claims, their sources and the findings.",
     emblem: "/emblems/fake-resistance.svg",
     tone: "ember",
   },
@@ -99,9 +89,6 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     tone: "action",
   },
 ] as const;
-
-/** Two-digit file count, derived from the list so it can never drift. */
-export const FILES_COUNT_LABEL = String(SITE_NAVIGATION.length).padStart(2, "0");
 
 export function getSiteNavigationItem(id: string) {
   return SITE_NAVIGATION.find((item) => item.id === id);

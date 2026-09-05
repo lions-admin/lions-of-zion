@@ -123,3 +123,106 @@ The archive invitation asks readers to choose a relevant record and retain its
 source, context and content warnings. No media is auto-opened or posted. The
 monitoring entry describes published records, not a claimed live scanner; this
 change does not start or alter an ingestion job.
+
+## Reader accounts — September 5, 2026
+
+Owner request: connect the Google and X sign-ins that already existed to the
+public interface, and show a reader the state of their own account. No new
+authentication system was built; no provider settings, OAuth scopes, admin
+permissions or database schema were touched.
+
+### Two accounts, never merged
+
+Google and X are separate sign-ins with separate cookies and separate
+sign-outs, and the interface says so at every level. The account page shows
+them as two blocks side by side, each with its own sign-out; being signed into
+one says nothing about the other. Deciding that a Google identity and an X
+identity are the same person is a claim about who someone is, and it is not
+inferred from two cookies arriving in one request.
+
+The header is the one place that shows a single mark, because it is a way *to*
+the account page rather than an identity display. It prefers Google when both
+are present, deterministically.
+
+### The rule the whole thing is shaped around
+
+**A session check that has not landed is not a signed-out reader.**
+
+The expensive failure on a sign-in surface is not an error message; it is an
+invitation to sign in shown to someone who is already signed in, because a
+request timed out. It reads as "you have been logged out".
+
+So the shared state carries `known` separately from the identities.
+`PublicSessionProvider` reads the session once for the whole tree, and both the
+header and the account page must consult `known` before they say anything about
+sign-in state. The header says "Sign in" only on `known`; in every other state
+it falls back to the neutral `Account`, which is true in all of them. Errors
+and retries live on the account page — the bar stays quiet.
+
+`usePublicSession` degrades to that same unknown state when no provider is
+above it, rather than throwing. It threw at first; five route tests that render
+pages without the root layout showed that a header able to throw is a header
+able to take a page render down with it. There is no wrong answer to fall back
+to here, so falling back is safe, and the test suite pins that the root layout
+mounts the provider.
+
+### Avatars are initials, and that is a privacy decision
+
+The header mark is initials, never a remote picture, and the session response
+drops X's `profile_image_url` rather than forwarding it. Two reasons: the
+site's `img-src` does not include `pbs.twimg.com`, so the image would be
+blocked; and allowing it would mean every page load by a signed-in reader
+issues a request that tells X where that reader is.
+
+The visible header label stays `Account` or `Sign in` and does not become the
+reader's name — a name can be four characters or thirty, and the bar may not
+reflow when the session check lands. The name goes into the accessible name
+instead: the link announces "Account, signed in as …". The mark slot and the
+label slot hold their size across every state.
+
+### X runs on the live site only
+
+Approved owner decision, implemented rather than worked around. X's callback is
+registered as `https://lionsofzion.io/auth/x/callback` and its cookies are
+`__Host-` prefixed, which a browser will not write over plain http — so a
+sign-in begun locally would return to production with no state cookie and fail
+on arrival. Locally the X block says that plainly and links to the account page
+on the live site. `/auth/x` refuses to mint state when it is not usable, so no
+doomed flow can be started even by hand.
+
+The guard asks the **request's own origin**, not `isProduction()`. It asked the
+environment first, and measurement caught that not working: both `.env.local`
+files on this machine declare `VERCEL_ENV="production"`, so the gate was true on
+localhost and `GET http://localhost:3100/auth/x` really did redirect to x.com
+and try to set a `__Host-` cookie the browser then refused — the precise dead
+end the decision exists to prevent. An environment variable is a claim about
+where the code is running. The origin the browser is on is the fact, and it is
+also the thing that actually decides whether the cookie can be written and
+whether X will call back. No origin, or a mismatched one, is treated as
+unusable: starting a flow that cannot finish is worse than declining one that
+could.
+
+A provider without credentials is rendered as a sentence, not as an error and
+not as a button that leads to a 500: the page is working, this deployment
+simply has no credentials for it.
+
+### Nothing is promised that does not exist
+
+There is no saving, no preferences and no library behind this sign-in, and the
+copy does not imply one. The menu's account description was "Saved work and
+access." — it now reads "Sign in so the desk knows you between visits", which
+is the whole of what an account currently does.
+
+### Starting the X flow is an action, not a link
+
+The X control is a `<form method="get" action="/auth/x">` with the canonical
+Button, not a `ButtonLink`. `ButtonLink` resolves a relative href through
+`next/link`, which prefetches — and `/auth/x` mints OAuth state and sets a
+cookie, so prefetching it would spend a state cookie because a button scrolled
+into view. A form submit is a real document navigation, which is also what an
+external redirect needs. Google's own button is untouched: its script, its
+consent, its brand, not restyled to pass as the site's.
+
+Keyboard focus, `:focus-visible`, reduced motion and the existing header habit
+of hiding a label as screen-reader-only rather than removing it are preserved
+throughout.

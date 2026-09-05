@@ -10,6 +10,7 @@ export {
   createPublicSession,
   pendingAuthorizationCookieOptions,
   publicSessionCookieOptions,
+  publicXAvailability,
   readPublicSession,
   type PublicXProfile,
 } from "@/server/core/auth/public-x";

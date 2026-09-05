@@ -91,3 +91,81 @@
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
 }
+
+/* Two providers, stacked and separated by a rule (AUTH-002).
+
+   They are siblings, not a primary with an alternative: Google and X are
+   separate sign-ins with separate cookies and separate sign-outs, and the
+   layout says so. Nothing here draws an "or" between them, because both can
+   be signed in at once and neither is the account the other belongs to. */
+.providers {
+  display: grid;
+  gap: var(--sp-5);
+}
+
+.provider {
+  display: grid;
+  gap: var(--sp-3);
+  /* The rule belongs between them, so the first block does not open with a
+     line immediately under the page's own gold mark. */
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.providers > .provider:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+/* The provider's name is a heading — `h2` under the page title — but it is a
+   label in weight, not a second masthead. */
+.providerName {
+  composes: dataLabel from global;
+  margin: 0;
+  color: var(--ink-lo);
+}
+
+/* A hostname inside a sentence is data. */
+.code {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking-tight);
+  color: var(--ink-hi);
+}
+
+/* The X button (AUTH-002).
+
+   X publishes brand rules and a logo, not a button component — unlike Google,
+   which renders its own control. So this button is the site's `Button` wearing
+   X's mark, and the colours are the part that is not ours to invent: their
+   guidance allows the mark in black or white, and on a black page the black
+   mark on white is both the permitted treatment and the one with enough weight
+   to sit beside Google's rendered button rather than under it.
+
+   It overrides `variant="secondary"` rather than adding a variant to the
+   shared Button: a provider's brand lock is not a semantic level the design
+   system should grow a name for. */
+.xButton {
+  --x-brand-ground: #fff;
+  --x-brand-mark: #000;
+
+  border-color: var(--x-brand-ground);
+  background: var(--x-brand-ground);
+  color: var(--x-brand-mark);
+}
+
+.xButton:hover:not(:disabled) {
+  /* Dimming the ground, not tinting it: the mark stays exactly black. */
+  --x-brand-ground: #ddd;
+}
+
+.xButton:active:not(:disabled) {
+  --x-brand-ground: #c9c9c9;
+}
+
+/* The focus ring stays the site's, not the brand's: a reader tabbing through
+   the page should not have to learn a second ring on one control. */
+.xButton:focus-visible {
+  outline: var(--focus-ring-w, 2px) solid var(--focus-ring, var(--gold));
+  outline-offset: 2px;
+}

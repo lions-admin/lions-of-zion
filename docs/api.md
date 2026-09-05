@@ -464,3 +464,96 @@ nor the dev bypass), and `email.sent`/`email.failed` audit rows written by the
 before code that reads it is pushed); the Agent Search connector records the
 per-query billed estimate there when the unit-cost env is set, and
 `admin/console/costs` rolls it up beside the estimate.
+
+## Public reader authentication — 5 September 2026
+
+Two providers, deliberately not merged, on a surface that is separate from
+admin authentication in every respect: different cookies, different secrets,
+no `app_user` row, no capability grant, no route under `/api/v1/`. A public
+reader session confers **no** access to anything the anonymous reader cannot
+already see. Nothing here changes admin permissions.
+
+`public-auth/session` was listed above as undocumented. It is documented here.
+
+| Route | M | Guard | Purpose |
+| --- | --- | --- | --- |
+| `api/public-auth/session` | GET | none | Both provider identities plus per-provider availability. `no-store`. |
+| `api/public-auth/google` | POST | none | Redeem a Google Identity Services credential into a `__Secure-lz-google-session` cookie |
+| `api/public-auth/sign-out` | POST | none | Clear the Google session cookie |
+| `auth/x` | GET | none | Begin X OAuth (PKCE + signed state). Refuses when X is not `ready`, redirecting to `/account?x_error=unavailable` without minting state |
+| `auth/x/callback` | GET | signed state cookie | Complete X OAuth; on success sets `__Host-x-public-session` and 303s to `/account` |
+| `auth/x/signout` | POST | none | Clear the X session cookie |
+
+### The session response
+
+Shape: `publicSessionResponseSchema` in `server/contracts/public-session.ts`.
+
+```json
+{
+  "user": { "id": "google:…", "email": "…", "name": "…" },
+  "x":    { "id": "…", "username": "…", "name": "…" },
+  "availability": { "google": "ready", "x": "production-only" }
+}
+```
+
+Three things about this shape are load-bearing:
+
+- **`user` is Google, under the key it has always had.** The endpoint answered
+  `{ user }` before X existed. X arrives *beside* it, never inside it, so no
+  existing caller had to change.
+- **`x` omits `profile_image_url`**, which the server does hold. The site's
+  `img-src` does not include `pbs.twimg.com`, so the image would be blocked by
+  the CSP — and allowing it would mean every page load by a signed-in reader
+  issues a request telling X where that reader is. The UI draws initials.
+- **`x` is gated on availability, not on the cookie.** A deployment that is
+  not `ready` answers `null` however good the cookie looks. This is also what
+  stops `readPublicSession` reaching for an absent `X_AUTH_SESSION_SECRET` and
+  throwing.
+
+### Availability, and why X is production-only
+
+`ProviderAvailability` is `ready | unconfigured | production-only`.
+
+`unconfigured` is not an error; it is a deployment without that provider's
+credentials, and the account page renders it as a sentence rather than a button
+that leads to a 500.
+
+X is `ready` **only on the origin X was told to return to**. Its callback is
+registered as `https://lionsofzion.io/auth/x/callback`, and its cookies are
+`__Host-` prefixed with `secure: true`, which a browser will not write over
+plain http. A sign-in begun anywhere else lands on Production carrying no state
+cookie and fails on arrival. Preview is included: real https origin, wrong
+callback.
+
+`publicXAvailability(headers)` therefore compares the request's own origin
+(`x-forwarded-host`/`x-forwarded-proto`, falling back to `host`) to that
+callback origin. It does **not** ask `isProduction()`, and the difference is
+not academic: both local `.env.local` files declare `VERCEL_ENV="production"`,
+so the earlier `isProduction()` gate was true on localhost and
+`GET http://localhost:3100/auth/x` really did answer `302` to x.com with a
+`__Host-` cookie the browser refused. An environment variable is a claim about
+where code runs; the request origin is the fact. No origin, or a mismatched
+one, means `production-only` — the guard fails to the strict side.
+
+Google has no `production-only` case — Google accepts `http://localhost` as an
+authorised origin, and its cookie is `__Secure-`, not `__Host-`.
+
+Note that `availability.google` answers "can a *new* sign-in start here", which
+is not the same question as "is the current session valid". A deployment
+holding `GOOGLE_AUTH_SESSION_SECRET` but no
+`NEXT_PUBLIC_GOOGLE_IDENTITY_CLIENT_ID` reports `unconfigured` while still
+returning a valid `user` for an existing cookie.
+
+### What a failed X sign-in is allowed to say
+
+The reader returns from x.com, so the outcome has to travel in a URL — and a
+URL reaches the history, the referrer, and any analytics on the page it lands
+on. So `?x_error=` is drawn from a **closed set of three of our own words**:
+`cancelled`, `unavailable`, `failed`. The provider's `error` value is matched
+against a known cancellation set and never reflected; no code, state,
+verifier, token, status or client identifier appears in a redirect. The
+account page maps the marker to copy and offers a retry; an unrecognised
+marker is treated as `failed`.
+
+`tests/public-session.test.ts` asserts that every redirect `Location` contains
+none of those secrets, and that any marker present is one of the three words.

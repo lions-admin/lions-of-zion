@@ -1,7 +1,15 @@
 import "server-only";
 
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { xAuthSessionSecret, xOAuthClientId, xOAuthClientSecret } from "@/server/core/config";
+import {
+  xAuthSessionSecret,
+  xAuthSessionSecretIfConfigured,
+  xOAuthClientId,
+  xOAuthClientIdIfConfigured,
+  xOAuthClientSecret,
+  xOAuthClientSecretIfConfigured,
+} from "@/server/core/config";
+import type { ProviderAvailability } from "@/server/contracts/public-session";
 
 const AUTHORIZE_URL = "https://x.com/i/oauth2/authorize";
 const TOKEN_URL = "https://api.x.com/2/oauth2/token";
@@ -33,6 +41,63 @@ const hostCookie = {
 };
 export const pendingAuthorizationCookieOptions = { ...hostCookie, maxAge: STATE_TTL };
 export const publicSessionCookieOptions = { ...hostCookie, maxAge: SESSION_TTL };
+
+/** The origin X will hand the reader back to, and the only one that can finish. */
+const CALLBACK_ORIGIN = new URL(CALLBACK_URL).origin;
+
+/**
+ * Whether an X sign-in can actually complete on the origin being asked.
+ *
+ * `production-only` is not a policy choice made in this function; it is the
+ * shape of the flow. `CALLBACK_URL` is registered with X as
+ * `https://lionsofzion.io/auth/x/callback` and both cookies are `__Host-`
+ * prefixed with `secure: true`, which no browser writes over plain http. A
+ * local attempt would send the reader to production, arrive with no state
+ * cookie, and fail at `invalid_callback`. Saying so up front is the difference
+ * between an explanation and a dead end.
+ *
+ * **This asked `isProduction()` until it was caught not working.** Both local
+ * `.env.local` files on the maintainer's machine declare
+ * `VERCEL_ENV="production"`, so `isProduction()` was true on localhost, the
+ * gate never fired, and `GET http://localhost:3100/auth/x` really did answer
+ * `302` to x.com with a `__Host-` cookie the browser then refused — the exact
+ * dead end the gate exists to prevent. An environment variable is a *claim*
+ * about where the code is running; it can be written by anyone with a text
+ * editor.
+ *
+ * So the question asked here is the one that actually decides the outcome: is
+ * the browser on the origin X was told to return to, and where a `__Host-`
+ * cookie can be written? No headers, or an origin that does not match, means
+ * `production-only` — this fails to the strict side, because starting a flow
+ * that cannot finish is worse than declining one that could.
+ */
+export function publicXAvailability(headers?: Headers): ProviderAvailability {
+  const configured =
+    xOAuthClientIdIfConfigured() && xOAuthClientSecretIfConfigured() && xAuthSessionSecretIfConfigured();
+  if (!configured) return "unconfigured";
+  return requestOrigin(headers) === CALLBACK_ORIGIN ? "ready" : "production-only";
+}
+
+/**
+ * The public origin of the request, as the browser sees it.
+ *
+ * On Vercel the function is reached through a proxy, so `host` alone is not
+ * the whole answer — `x-forwarded-host` and `x-forwarded-proto` carry what the
+ * reader actually typed. Both are proxy-controlled headers, which is safe for
+ * this use: the worst a forged one can do is *unlock* an X sign-in that then
+ * fails at the callback for the same reason it would have anyway. It cannot
+ * mint a session, because the state cookie and PKCE verifier are still checked.
+ */
+function requestOrigin(headers?: Headers): string | null {
+  const host = headers?.get("x-forwarded-host") ?? headers?.get("host");
+  if (!host) return null;
+  const proto = headers?.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
+  try {
+    return new URL(`${proto}://${host}`).origin;
+  } catch {
+    return null;
+  }
+}
 
 export function beginPublicXAuthorization(): { authorizationUrl: string; stateCookie: string } {
   const state = randomValue();

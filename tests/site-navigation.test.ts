@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { PublicSessionProvider } from "@/components/auth/PublicSessionProvider";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
@@ -37,13 +38,42 @@ describe("purpose-led site navigation", () => {
   });
 
   it("keeps every menu destination in server HTML without file numbers or jargon", () => {
-    const html = renderToStaticMarkup(createElement(SiteHeader, { activeSection: "geopolitical-brief" }));
+    /* The header reads the shared session for its account control, and
+       `usePublicSession` throws without a provider on purpose — a header that
+       silently renders "signed out" because nobody wrapped the tree is the bug
+       that guard exists to make unshippable. `app/layout.tsx` wraps the real
+       one; this render has to do the same. */
+    const html = renderToStaticMarkup(
+      createElement(
+        PublicSessionProvider,
+        null,
+        createElement(SiteHeader, { activeSection: "geopolitical-brief" }),
+      ),
+    );
     for (const link of [...SECTION_LINKS, ...REFERENCE_LINKS]) expect(html).toContain(`href="${link.href}"`);
     expect(html).toContain("Reporting &amp; evidence");
     expect(html).not.toMatch(/All files|The eight files|Reference pages|fileIndex/);
     const source = read("components/site/SiteHeader.tsx");
     expect(source).toContain('hidden={!filesOpen}');
     expect(read("components/site/site-header.module.css")).toContain("@media (scripting: none)");
+  });
+
+  it("never invites a sign-in the header cannot know is needed", () => {
+    /* The session check has not answered in a server render, so `known` is
+       false. The account control must be the neutral, always-true one: a link
+       to `/account` and no claim about who the reader is. Greeting a signed-in
+       reader with "Sign in" because a request had not landed yet is the exact
+       failure `PublicSessionProvider` separates `known` from the identities to
+       prevent. */
+    const html = renderToStaticMarkup(
+      createElement(
+        PublicSessionProvider,
+        null,
+        createElement(SiteHeader, { activeSection: "account" }),
+      ),
+    );
+    expect(html).not.toContain("Sign in");
+    expect(html).toMatch(/<a class="[^"]*account[^"]*" aria-current="page" href="\/account">/);
   });
 
   it("keeps footer labels aligned and marks nested archive pages current", () => {

@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { usePublicSession } from "@/components/auth/PublicSessionProvider";
 import { SearchLauncher } from "@/components/search/SearchLauncher";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
+import { publicDisplayName, publicInitials } from "@/server/contracts/public-session";
 import {
+  ACCOUNT_LINK,
   BAR_LINKS,
   REPORTING_LINKS,
   ABOUT_LINKS,
@@ -68,6 +71,10 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
   const headerRef = useRef<HTMLElement>(null);
   const filesTriggerRef = useRef<HTMLButtonElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
+  /* One reading of the session for the whole tree, from the provider mounted
+     in `app/layout.tsx`. See the account control below for what it is allowed
+     to say in each state. */
+  const session = usePublicSession();
 
   /* Files panel is not a Dialog, so Escape and outside-click live here.
      The menu Dialog owns its own cancel/backdrop/focus-return; handling
@@ -110,7 +117,38 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
 
   const current = (href: string) => isCurrentChromeLink(activeSection, href);
   const hereInDrawer = isSectionOffBar(activeSection);
-  const hereInMenu = [...SECTION_LINKS, ...REFERENCE_LINKS].some((link) => current(link.href));
+  /* `/account` is excluded: it has its own permanent control in the bar, which
+     takes `aria-current` itself, so the phone's Menu trigger would otherwise
+     say "here" for a file that is already marked one control to its left. */
+  const hereInMenu = [...SECTION_LINKS, ...REFERENCE_LINKS].some(
+    (link) => link.href !== ACCOUNT_LINK.href && current(link.href),
+  );
+
+  /* ── The account control ───────────────────────────────────────────────────
+   *
+   * Three renderings, and the third is the point of the whole thing.
+   *
+   * `known` is true only when the server actually answered. While the check is
+   * in flight, and after one that failed, the identities are null — and reading
+   * that as "signed out" would greet a signed-in reader with an invitation to
+   * sign in because a request timed out. So "Sign in" is spoken only on
+   * `known`, and every other state falls back to the neutral sentence that is
+   * true in all of them: `Account`, linking to the page that owns recovery.
+   * No error text and no retry button live up here; the bar stays quiet.
+   *
+   * Google wins over X when both are signed in. The two are separate accounts
+   * and are not merged — the account page shows them side by side — but this
+   * is a way *to* that page rather than an identity display, so it needs one
+   * mark and picks the older provider deterministically.
+   *
+   * The avatar is initials, never a remote picture. `img-src` does not include
+   * `pbs.twimg.com`, and forwarding X's avatar would make every page load tell
+   * X where this reader is; the contract drops the URL for exactly that reason.
+   */
+  const identity = session.known ? (session.google ?? session.x) : null;
+  const initials = publicInitials(identity);
+  const signedInAs = publicDisplayName(identity);
+  const accountLabel = session.known && !identity ? "Sign in" : ACCOUNT_LINK.label;
 
   const renderMenuLink = (link: ChromeLink, primary = false) => (
     <Link key={link.href} href={link.href}
@@ -206,6 +244,32 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
           >
             <Icon name="support" size={15} strokeWidth={1.5} />
             {SUPPORT_LINK.label}
+          </Link>
+
+          <Link
+            href={ACCOUNT_LINK.href}
+            className={styles.account}
+            aria-current={current(ACCOUNT_LINK.href) ? "page" : undefined}
+            onClick={closePanels}
+          >
+            {/* One slot, one size, whichever mark is in it — the bar may not
+                reflow when the session check lands. */}
+            {identity && initials ? (
+              <span className={`${styles.accountMark} ${styles.accountAvatar}`} aria-hidden="true">
+                {initials}
+              </span>
+            ) : (
+              <span className={`${styles.accountMark} ${styles.accountGlyph}`} aria-hidden="true">
+                <Icon name="account" size={16} strokeWidth={1.5} />
+              </span>
+            )}
+            {/* Same reasoning as the Menu trigger below: in a span the phone
+                can make screen-reader-only, because `display: none` would take
+                the link's accessible name with it and leave a bare glyph. */}
+            <span className={styles.accountLabel}>{accountLabel}</span>
+            {signedInAs ? (
+              <span className={styles.accountWho}>, signed in as {signedInAs}</span>
+            ) : null}
           </Link>
 
           <Button

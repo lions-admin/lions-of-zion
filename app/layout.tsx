@@ -17,6 +17,7 @@ import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 import "./tailwind.css";
 import "./globals.css";
 import { PublicAskDock } from "@/components/ask/PublicAskDock";
+import { PublicSessionProvider } from "@/components/auth/PublicSessionProvider";
 
 /*
  * Three faces, three jobs — see the token block in `globals.css` (SYS-003).
@@ -123,7 +124,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`dark ${archivoNarrow.variable} ${robotoMono.variable} ${interTight.variable} ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
     >
       <body>
-        {children}
+        {/* One reading of the reader's session for the whole tree. The header
+            and the account page both need it, and two independent fetches
+            could disagree about whether anyone is signed in. `children` is
+            still rendered on the server — it arrives here as a prop, so this
+            client boundary does not pull the pages into the client bundle. */}
+        <PublicSessionProvider>{children}</PublicSessionProvider>
         {/* Mounted here rather than in `SiteHeader` because it is fixed to the
             viewport, not to the chrome: a reader four paragraphs into an
             article can ask about what is in front of them without losing their

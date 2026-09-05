@@ -93,11 +93,31 @@ describe("UX-005 Ask lifecycle", () => {
 });
 
 describe("UX-006 account lifecycle", () => {
-  it("bounds checking and separates signed-out from unavailable/error", () => {
-    const source = read("components/auth/PublicAuthControl.tsx");
+  /* The reading of the session moved out of the control and into
+     `PublicSessionProvider`, so the header and the account page cannot
+     disagree about who is signed in (AUTH-002). The two halves of UX-006 moved
+     with it: the provider owns the bound and the state machine, the control
+     owns what a reader is told. Both are still pinned, in their new homes. */
+  it("bounds the check and names its states, in the provider", () => {
+    const source = read("components/auth/PublicSessionProvider.tsx");
     expect(source).toContain("10_000");
     expect(source).toContain('"checking" | "ready" | "unavailable" | "error"');
+  });
+
+  it("separates signed-out from unavailable/error, in the control", () => {
+    const source = read("components/auth/PublicAuthControl.tsx");
     expect(source).toContain("Sign-in status is temporarily unavailable.");
     expect(source).toContain('actionText="Try again"');
+  });
+
+  /* The rule the split made easy to lose: an unfinished or failed check must
+     never be rendered as a signed-out reader. `known` is what carries it, so
+     both surfaces are required to consult it. */
+  it("gates every sign-in invitation on the check having landed", () => {
+    expect(read("components/auth/PublicSessionProvider.tsx")).toContain(
+      'known: status === "ready"',
+    );
+    expect(read("components/site/SiteHeader.tsx")).toContain("session.known");
+    expect(read("components/auth/PublicAuthControl.tsx")).toContain("known &&");
   });
 });

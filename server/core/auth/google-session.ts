@@ -5,13 +5,33 @@ import {
   googleAuthSessionSecret,
   googleAuthSessionSecretIfConfigured,
   googleIdentityClientId,
+  googleIdentityClientIdIfConfigured,
 } from "@/server/core/config";
+import type { ProviderAvailability } from "@/server/contracts/public-session";
 
 export const GOOGLE_SESSION_COOKIE = "__Secure-lz-google-session";
 const GOOGLE_JWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 const encoder = new TextEncoder();
 
 export type GoogleSessionUser = { id: string; email: string; name: string };
+
+/**
+ * Whether Google sign-in can be offered here.
+ *
+ * Two values, not one: the browser needs the client id to render the Identity
+ * Services button, and the server needs the signing secret to turn the
+ * returned credential into a session. Either missing and the button is a
+ * button to nowhere, so both are required before this says `ready`.
+ *
+ * There is no `production-only` case. Google accepts `http://localhost` as an
+ * authorised origin and the session cookie is `__Secure-` rather than
+ * `__Host-`, so the local flow completes; X is the one that cannot.
+ */
+export function googlePublicAuthAvailability(): ProviderAvailability {
+  return googleIdentityClientIdIfConfigured() && googleAuthSessionSecretIfConfigured()
+    ? "ready"
+    : "unconfigured";
+}
 
 function sessionKey(secret = googleAuthSessionSecret()): Uint8Array {
   return encoder.encode(secret);

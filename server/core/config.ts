@@ -143,6 +143,21 @@ export const xOAuthClientId = (): string => required("X_OAUTH_CLIENT_ID", "X OAu
 export const xOAuthClientSecret = (): string => required("X_OAUTH_CLIENT_SECRET", "X OAuth");
 export const xAuthSessionSecret = (): string =>
   required("X_AUTH_SESSION_SECRET", "public X authentication session cookies");
+/**
+ * The same three values, asked rather than demanded.
+ *
+ * A deployment without X credentials is not a broken deployment; it is a
+ * deployment where the reader is told X sign-in is unavailable. Answering that
+ * question with `required()` would mean throwing to find out, so the session
+ * endpoint gets accessors that return `undefined` instead — the
+ * `googleAuthSessionSecretIfConfigured` precedent, applied to X.
+ */
+export const xOAuthClientIdIfConfigured = (): string | undefined =>
+  process.env.X_OAUTH_CLIENT_ID?.trim() || undefined;
+export const xOAuthClientSecretIfConfigured = (): string | undefined =>
+  process.env.X_OAUTH_CLIENT_SECRET?.trim() || undefined;
+export const xAuthSessionSecretIfConfigured = (): string | undefined =>
+  process.env.X_AUTH_SESSION_SECRET?.trim() || undefined;
 export const hasXaiApiKey = (): boolean => Boolean(process.env.XAI_API_KEY);
 /** The operations console calls OpenAI directly when this is set, the way
  *  `xai/` profiles bypass the gateway; unset, it falls back to the gateway
@@ -219,6 +234,8 @@ export const googleAuthSessionSecretIfConfigured = (): string | undefined =>
   process.env.GOOGLE_AUTH_SESSION_SECRET?.trim() || undefined;
 export const googleIdentityClientId = (): string =>
   required("NEXT_PUBLIC_GOOGLE_IDENTITY_CLIENT_ID", "Google identity verification");
+export const googleIdentityClientIdIfConfigured = (): string | undefined =>
+  process.env.NEXT_PUBLIC_GOOGLE_IDENTITY_CLIENT_ID?.trim() || undefined;
 export const adminEmail = (): string =>
   required("ADMIN_EMAIL", "the single-admin allowlist").trim().toLowerCase();
 export const siteUrl = (): string => process.env.NEXT_PUBLIC_SITE_URL ?? "https://lionsofzion.io";

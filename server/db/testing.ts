@@ -170,7 +170,7 @@ export async function withTestDatabaseRole<T>(
 
   if (outermost) {
     await db.execute(sql.raw("BEGIN"));
-    restoreTransactions = useSavepointsForNestedTransactions(db);
+    restoreTransactions = redirectNestedTransactionsToSavepoints(db);
   }
   openRoleScopes.set(db, depth + 1);
 
@@ -227,7 +227,7 @@ async function currentRoleScope(db: TestDatabase): Promise<{ role: string; ident
  * hands the callback the same connection, which is what the non-transactional
  * session already uses, so nothing else changes.
  */
-function useSavepointsForNestedTransactions(db: TestDatabase): () => void {
+function redirectNestedTransactionsToSavepoints(db: TestDatabase): () => void {
   const client = db.$client as unknown as {
     transaction: unknown;
     query: (query: string) => Promise<unknown>;

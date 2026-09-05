@@ -101,7 +101,7 @@ function assertMutationOrigin(request: Request): void {
 
 type Access = { role: DatabaseRole; identity: string };
 
-const PUBLIC_V1 = [
+export const PUBLIC_V1 = [
   ["GET", /^\/api\/v1\/search$/],
   ["GET", /^\/api\/v1\/published-items$/],
   ["GET", /^\/api\/v1\/published-publications(?:\/[^/]+)?$/],

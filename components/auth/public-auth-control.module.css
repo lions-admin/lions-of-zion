@@ -152,6 +152,20 @@
   border-color: var(--x-brand-ground);
   background: var(--x-brand-ground);
   color: var(--x-brand-mark);
+
+  /* `body` carries a site-wide `text-transform: uppercase` (a deliberate owner
+     choice, documented in `globals.css`). A `<button>` does not inherit it —
+     the UA stylesheet resets it for form controls — but an `<a>` does. So the
+     day this control became a link it silently became "SIGN IN WITH X".
+
+     Declined here for the one reason that outranks the house style: the
+     wording of this button is X's, not ours, and their guidance prescribes it
+     as written. The rest of the page keeps the house rule.
+
+     Note this cuts both ways across the design system — every `ButtonLink`
+     renders uppercase while every `Button` does not. That is worth settling in
+     `button.module.css` rather than here, and is not settled by this line. */
+  text-transform: none;
 }
 
 .xButton:hover:not(:disabled) {

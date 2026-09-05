@@ -676,7 +676,7 @@
   .masthead {
     align-items: flex-start;
     width: auto;
-    margin: max(48svh, 20rem) var(--home-gutter) 0;
+    margin: max(38svh, 18rem) var(--home-gutter) 0;
     text-align: start;
   }
 
@@ -697,7 +697,13 @@
 
   .signalRail {
     border-top-color: var(--line-strong);
-    background: var(--ground);
+    /* Keep the record over the lower photograph instead of creating a second
+       black page. The veil preserves contrast without becoming a slab. */
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ground) 18%, transparent),
+      color-mix(in oklab, var(--ground) 58%, transparent)
+    );
   }
 
   /* The old rail gradient painted over the CTA immediately above it. */
@@ -747,7 +753,9 @@
 
   .railMeta {
     flex: none;
+    flex-wrap: nowrap;
     gap: var(--sp-1) var(--sp-3);
+    white-space: nowrap;
     font-size: var(--t-data);
     line-height: var(--t-data-lh);
     letter-spacing: 0;
@@ -764,7 +772,7 @@
   }
 
   .railTime {
-    flex-basis: 100%;
+    flex-basis: auto;
     color: var(--ink-lo);
   }
 

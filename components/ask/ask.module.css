@@ -774,9 +774,10 @@
   inset-inline-end: calc(var(--sp-5) + env(safe-area-inset-right, 0px));
   display: inline-flex;
   align-items: center;
+  inline-size: 10.75rem;
+  min-block-size: 4.25rem;
+  padding: var(--sp-2) var(--sp-3);
   gap: var(--sp-2);
-  min-block-size: var(--control-h);
-  padding-inline: var(--sp-4);
   /* `--gold-line-strong`, not `--gold-line`. This is the boundary that
      identifies a control, so WCAG 1.4.11's 3:1 applies to it; the decorative
      token was what it carried until `scripts/ui-audit.mjs` measured it in the
@@ -785,16 +786,19 @@
      gold ring read as the generic AI button it was trying not to be; the
      accent now arrives on hover and focus, and the shape matches the desk's
      other controls. */
-  border: var(--line-w) solid var(--control-line);
-  border-radius: var(--radius-2);
-  background: color-mix(in oklab, var(--ground) 82%, transparent);
+  border: var(--line-w) solid color-mix(in oklab, var(--control-line) 88%, transparent);
+  border-inline-start: 0.1875rem solid var(--gold);
+  border-radius: 0;
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--gold) 8%, transparent), transparent 45%),
+    color-mix(in oklab, var(--ground) 91%, transparent);
   color: var(--ink);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
-  box-shadow: var(--shadow-2);
+  box-shadow: 0 0.75rem 2.5rem color-mix(in oklab, #000 46%, transparent);
   cursor: pointer;
   transition:
     color var(--dur-fast) var(--ease-out),
@@ -805,13 +809,52 @@
 .dockTrigger:hover,
 .dockTrigger:focus-visible {
   border-color: var(--gold-line-strong);
-  background: var(--surface-3);
+  border-inline-start-color: var(--gold-hi);
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--gold) 16%, transparent), transparent 55%),
+    var(--surface-3);
   color: var(--ink-hi);
 }
 
 .dockGlyph {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.125rem;
+  block-size: 2.125rem;
+  flex: 0 0 auto;
+  border: var(--line-w) solid color-mix(in oklab, var(--gold) 72%, var(--control-line));
+  border-radius: 50%;
   color: var(--gold);
+}
+
+.dockLabel {
+  display: grid;
+  gap: 0.18rem;
+  line-height: 1;
+}
+
+.dockLabel::before {
+  content: "EVIDENCE DESK";
+  color: var(--ink-lo);
+  font-size: 0.5625rem;
+  font-weight: var(--t-data-weight);
+  letter-spacing: 0.16em;
+}
+
+.dockTrigger::after {
+  content: "↗";
+  margin-inline-start: auto;
+  color: var(--gold);
+  font-family: var(--face-text);
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.dockTrigger:hover::after,
+.dockTrigger:focus-visible::after {
+  transform: translate(0.125rem, -0.125rem);
 }
 
 /* From 48rem the signal rail collapses to a single row, so the lift that
@@ -856,6 +899,7 @@
      this is a persistent utility and takes the control line instead, going
      gold only when it is actually being used. */
   .dockTrigger {
+    inline-size: auto;
     min-block-size: var(--control-h);
     padding-inline: var(--sp-3);
     gap: var(--sp-1);
@@ -870,6 +914,22 @@
   .dockTrigger:focus-visible {
     border-color: var(--gold-line-strong);
     color: var(--gold-hi);
+  }
+
+  .dockGlyph {
+    inline-size: auto;
+    block-size: auto;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .dockLabel {
+    display: inline;
+  }
+
+  .dockLabel::before,
+  .dockTrigger::after {
+    display: none;
   }
 
 }

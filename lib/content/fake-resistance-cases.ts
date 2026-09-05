@@ -311,8 +311,14 @@ export async function getCase(slug: string): Promise<ResearchCase | null> {
   let record: ResearchCase;
   try {
     record = await readPackageFile<ResearchCase>(path.join('cases', `${slug}.json`));
-  } catch {
-    return null;
+  } catch (error) {
+    // Only a missing file is "no such case". A SyntaxError from JSON.parse, or an
+    // EACCES, means the packet is there and unreadable — rethrow, so a corrupted
+    // case fails the build instead of rendering as a 404 nobody notices.
+    // `lib/content/archive.ts` getRecord() has always done this; this loader did
+    // not, and three of the seven published cases are named in no test.
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw error;
   }
   if (!isPublishable(record.lifecycle)) return null;
 

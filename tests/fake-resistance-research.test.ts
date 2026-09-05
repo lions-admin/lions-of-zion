@@ -33,10 +33,19 @@ import { ASSESSMENT_VALUES } from "@/server/contracts/enums";
  */
 const PACKAGE = path.join(process.cwd(), "content-packages", "fake-resistance");
 
+// Every slug the index lists must load. Filtering nulls out here would let a
+// corrupted case file disappear from the suite silently while every downstream
+// assertion still passed on the survivors — which is exactly what it did.
 async function allCases() {
   const index = await getCaseIndex();
-  const records = await Promise.all(index.map((entry) => getCase(entry.slug)));
-  return records.flatMap((record) => (record ? [record] : []));
+  const records = await Promise.all(
+    index.map(async (entry) => {
+      const record = await getCase(entry.slug);
+      expect(record, `getCase("${entry.slug}") returned null`).not.toBeNull();
+      return record as NonNullable<typeof record>;
+    }),
+  );
+  return records;
 }
 
 describe("the research package", () => {

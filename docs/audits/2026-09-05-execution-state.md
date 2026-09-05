@@ -320,3 +320,98 @@ anywhere durable. Copy them out before ending the session if they matter.
    documents are untracked and probably belong in their own commit).
 4. Then D: the execution plan for the briefing retirement, sequenced against
    decisions 1, 2 and 6.
+
+---
+
+## 10. Program state — 2026-09-05, end of session
+
+Sections 1–9 above are a record of an earlier moment and are left as written.
+This section is the current one; read it first.
+
+### Completed and in Production (`main = c35c71f`)
+
+| Batch | State |
+| --- | --- |
+| P0 hardening | integrated, deployed, verified |
+| `war_update` retirement (migration `0053`) | integrated, deployed, verified |
+| Particle / WebGPU retirement | integrated, deployed, verified |
+| Root plan/TODO cleanup | integrated, deployed, verified |
+| Batch A — security/governance closure | integrated, deployed, verified |
+
+Verification of `c35c71f` in Production: Railway `zippy-joy / production`
+deployment `6284756673` = `success`; Vercel Production `ljo26rosr` = `Ready`;
+`https://lionsofzion.io/` = 200; unauthenticated
+`POST /api/internal/briefing/external-publish` = **401**, which is the proof
+that `requireExternalBriefingSecret` now runs *inside* `withDatabaseRole`.
+
+### Stage 2 — security-surface tests: done, by two sessions at once
+
+**Both sessions worked `R3-13`, `R3-06` and `R3-05` in parallel, unaware of each
+other.** The concurrent session pushed first (`2ec7792`, eight commits). Its
+work supersedes most of this session's, and the duplicates were discarded rather
+than merged — a repository does not benefit from two suites proving the same
+three things.
+
+Landed on `main` by the concurrent session:
+
+- `tests/public-v1-guard-matrix.test.ts` (528 lines) — `R3-13`.
+- `tests/admin-auth-production-branch.test.ts` (299 lines) — `R3-06`, driven
+  through `vi.stubEnv("VERCEL_ENV", …)`, including the development control that
+  makes the production refusal mean something.
+- `withTestDatabaseRole()` in `server/db/testing.ts` (138 lines) — `R3-05`.
+  This is the **better** answer to R3-05: it establishes a real Postgres role
+  and `app.identity` on PGlite and runs the console route tests inside it,
+  including a nested-transaction patch so a `db().transaction()` in the route
+  cannot commit the role away early. The alternative attempted here — recording
+  what the pass-through stub was asked for and asserting the sequence — proves
+  only that the wrapper was called, not that the work ran under the role. It was
+  discarded.
+- `export const PUBLIC_V1` in `server/http/handler.ts`.
+
+Kept from this session, because it is not duplicated by any of the above:
+
+- **`server/db/client.ts` — a real defect, fixed.** A connection whose
+  `RESET ROLE` failed was released back into the pool still carrying its role
+  and a stale `app.identity`; the next request to draw it inherited both,
+  silently. It is now destroyed with `release(err)`. Neither session's test
+  suite would have caught this; it surfaced while writing the one below.
+- **`tests/database-role.test.ts`** — the production `withDatabaseRole` itself,
+  against a fake pool with the real drizzle driver and the real generated SQL.
+  This is the half `withTestDatabaseRole` explicitly cannot cover ("the literal
+  wrapper cannot run here: it connects a Neon WebSocket pool"). Pins statement
+  order with both statements on the wire before the handler is entered,
+  `set_config(…, false)` and not `true`, the identity as a bound parameter,
+  `db()` inside the callback being the roled connection, no bleed between calls,
+  and reset-then-release on the returning path, the throwing path, and a refused
+  `SET ROLE` — where the handler must also never run.
+
+Also attempted and discarded: hoisting `SERVICE_PREFIXES` out of `accessFor()`
+into an exported table. It is better code — the nested ternary is the shape that
+let `/api/internal/briefing/` be forgotten — but with the duplicate test gone it
+had no consumer, and it is a refactor of a security-critical file that nobody
+asked for. **Deferred to Stage 3**, where boundaries are the subject.
+
+Still only proven in Production: that `SET ROLE` on a pooled Neon connection
+behaves as assumed. No test anywhere covers that, and none can.
+
+### The lesson for the rest of the program
+
+Two sessions picked the same three findings off the same re-baseline and spent
+the same hour on them. Fetching `origin/main` *before* starting a stage is not
+enough — the overlap appeared during the work, not before it. Either the stages
+are divided between the sessions in advance, or each stage is announced on
+`main` before it begins.
+
+### To resume
+
+1. **Stage 3** — boundaries, migrations, canonical constants. Begin with
+   `R1-05`: a raw NUL byte at `server/modules/admin-console/service.ts:1168`
+   makes plain `grep` return silence for that whole 81 KB file, so every
+   grep-driven step in Stages 3–5 is unreliable until it lands. `R2-01` (the
+   ESLint blocks that replace two documented boundaries wholesale) and the
+   deferred `SERVICE_PREFIXES` hoist belong in the same batch.
+2. Stages 4–14 as written in the approved plan.
+
+⚠️ The estimate for the remainder is **6–9 hours** of wall clock, of which
+roughly two hours is mechanical: ~12 × `verify:full` at ~5 minutes and ~12
+dual-target deploy waits at ~4 minutes.

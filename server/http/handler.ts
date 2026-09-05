@@ -115,11 +115,24 @@ const PUBLIC_V1 = [
 
 async function accessFor(request: Request): Promise<Access | null> {
   const path = new URL(request.url).pathname;
-  if (path.startsWith("/api/internal/cron/") || path.startsWith("/api/internal/queue/") || path.startsWith("/api/internal/codex/")) {
-    const identity = path.startsWith("/api/internal/cron/")
-      ? "service:cron"
-      : path.startsWith("/api/internal/queue/") ? "service:queue" : "service:codex";
-    return { role: "app_service", identity };
+  /* Every internal service path runs as `app_service` with a named identity.
+   *
+   * `/api/internal/briefing/` was missing here until 2026-09-05, which meant
+   * the external-publish ingest — the live path that files a whole externally
+   * composed edition — fell through to `access === null` and ran on the
+   * ambient owner pool: outside RLS, with no `app.identity`, and unable to
+   * trigger the `app_service` branch of `enforce_publication_publish_gate`.
+   * Its sibling `/api/internal/codex/`, the same job with a different
+   * composer, was wrapped. The asymmetry was an omission, not a design. */
+  const SERVICE_PREFIXES = [
+    ["/api/internal/cron/", "service:cron"],
+    ["/api/internal/queue/", "service:queue"],
+    ["/api/internal/codex/", "service:codex"],
+    ["/api/internal/briefing/", "service:external-briefing"],
+  ] as const;
+  const service = SERVICE_PREFIXES.find(([prefix]) => path.startsWith(prefix));
+  if (service) {
+    return { role: "app_service", identity: service[1] };
   }
   if (!path.startsWith("/api/v1/")) return null;
 

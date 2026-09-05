@@ -51,7 +51,10 @@ The nameplate is the typographic signature; the lion remains unobscured.
 Desktop has a lower-left masthead, separated from the real publication rail.
 Mobile gives the portrait its upper space, then presents the nameplate and
 record in natural flow. Short screens scroll instead of compressing everything
-into one viewport. Mobile Ask follows the record rather than covering it.
+into one viewport. Mobile Ask stays fixed above the device's safe area, with
+trailing page space to let the final record scroll clear of it. The mobile news
+rail uses tighter spacing and a single-line headline cue; source, verdict, date and
+article link remain intact. These compact rules do not change desktop.
 Preserve no-script navigation, poster fallback, reduced-motion behavior,
 semantic links, visible focus, real verdicts, dates and publication content.
 

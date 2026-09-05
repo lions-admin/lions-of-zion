@@ -650,6 +650,11 @@
 /* Mobile cover: a quiet brand line, a typographic statement and a separate
    reading surface. Its vertical portrait composition is independent of desktop. */
 @media (width < 48rem) {
+  .page {
+    /* Let the final headline scroll fully above the persistent Ask control. */
+    padding-bottom: calc(var(--control-h) + var(--sp-7) + env(safe-area-inset-bottom, 0px));
+  }
+
   .hero {
     justify-content: flex-start;
     min-height: 100svh;
@@ -687,7 +692,7 @@
   .filesDeck {
     position: relative;
     z-index: 12;
-    margin: var(--sp-7) var(--home-gutter) 0;
+    margin: var(--sp-5) var(--home-gutter) 0;
   }
 
   .signalRail {
@@ -703,9 +708,9 @@
     grid-template-columns: 1fr auto;
     grid-template-areas: "flag all" "story story";
     align-items: center;
-    gap: var(--sp-3) var(--sp-4);
+    gap: var(--sp-1) var(--sp-4);
     width: 100%;
-    padding: var(--sp-3) 0 var(--sp-5);
+    padding: var(--sp-1) 0 var(--sp-2);
   }
 
   .railFlag {
@@ -736,7 +741,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--sp-3);
+    gap: var(--sp-2);
     min-width: 0;
   }
 
@@ -765,15 +770,15 @@
 
   .railTitle {
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
-    min-height: calc(3 * var(--t-lede) * var(--t-lede-lh));
+    min-height: var(--control-h);
     max-width: 100%;
     overflow: hidden;
     white-space: normal;
     font-family: var(--face-home-cover);
-    font-size: var(--t-lede);
+    font-size: var(--t-body);
     font-weight: 400;
     line-height: var(--t-lede-lh);
     letter-spacing: -0.01em;
@@ -782,7 +787,7 @@
   }
 
   .railEmpty {
-    min-height: calc(3 * var(--t-lede) * var(--t-lede-lh));
+    min-height: var(--control-h);
     text-transform: none;
   }
 

@@ -1641,3 +1641,59 @@ Turning strict mode on would double-register them in dev.
 
 `devIndicators: false` was kept from lions3d: the badge sits in the corner the
 intro plays in.
+
+## 2026-09-05 — Two deploy targets fire from one push; "succeeded" names one of them
+
+This supersedes the 2026-08-23 entry "Deploys run from the CLI, not from git".
+That entry's two premises are both false now: the repository is **public**, and
+pushing to `main` **does** deploy. It was accurate when written; it is stale,
+and an agent that trusts it will draw the wrong conclusion.
+
+Observed during the Batch A LICENSE push (commit `538fa40`), from the GitHub
+deployments API:
+
+| deployment | environment | sha | created |
+|---|---|---|---|
+| `6284513589` | `zippy-joy / production` (Railway) | `538fa40` | 18:45:43Z |
+| `6284531836` | `Production` (Vercel) | `538fa40` | 18:47:41Z |
+| `6281783102` | `Production` (Vercel) | `e9455f0` | 13:58:47Z |
+
+One push to `main` produced deployments on **two independent providers**. They
+run on their own schedules: Railway reported `success` at 18:47:10Z while the
+Vercel `Production` environment still pointed at the previous commit
+`e9455f0`. The Vercel deployment for the same commit only appeared at
+18:47:41Z. For roughly two minutes the two production targets served different
+commits, and a check performed inside that window saw exactly that.
+
+The rule this establishes:
+
+- **`deployment succeeded` is never equivalent to "the intended production
+  target is updated".** It says one provider finished one build.
+- Before claiming production success, name four things: the **provider**, the
+  **environment**, the **deployment id**, and the **commit SHA** actually
+  verified. A claim missing any of these is not a verification.
+- A single API snapshot is a point in time, not a steady state. When the
+  targets disagree, the honest reading is "these have not converged yet",
+  not "this provider is behind".
+
+## 2026-09-05 — `worktree-workbench` carries a duplicate LICENSE
+
+The branch `worktree-workbench` (head `f0a17c0`, "MIT License", authored
+18:40:38Z) independently added a `LICENSE` file about five minutes before
+`main` received its own in `538fa40`. The two files are **byte-identical** —
+1070 bytes, same `Copyright (c) 2026 Lions of Zion` line — verified by direct
+comparison of the branch blob against the file on `main`.
+
+Consequences for whoever merges that branch:
+
+- Expect a trivial **add/add conflict** on `LICENSE`. Resolve it by keeping
+  the canonical file already on `main`. The contents are the same, so nothing
+  is lost either way; keeping `main`'s copy avoids churn on a legal file.
+- `f0a17c0` **also adds `"license": "MIT"` to `package.json`**, which `main`
+  does not have. That line is the more complete half of that branch's change.
+  If the project is still MIT-licensed at merge time, **preserve or adopt it**
+  — do not let it disappear while resolving the LICENSE conflict, which is
+  exactly how that kind of one-line metadata gets dropped.
+
+The branch was NOT merged as part of Batch A. Nothing here authorises merging
+it; this records what a future merge will encounter.

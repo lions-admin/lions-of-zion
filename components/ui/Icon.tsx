@@ -41,35 +41,20 @@ export type IconProps = Omit<React.SVGProps<SVGSVGElement>, "name"> & {
 
 const ICONS: Record<IconName, React.ReactNode> = {
   search: <><circle cx="10.5" cy="10.5" r="5.8" /><path d="m15 15 4.5 4.5" /></>,
-  /* The Lion Eye — this desk's own mark for the assistant, replacing Lucide's
-     `sparkles`, which is the generic "AI" glyph on every product that has one.
-
-     Drawn from the approved gold artwork, reduced to what survives at 16px: a
-     lidded almond eye, an iris and a pupil, one broken ring, and four spikes
-     that pass through the ring's gaps at the cardinals — which is the
-     reference's structural idea, not a simplification of it. The second ring
-     and the iris rays are gone; at icon size they were texture, not shape.
-
-     Ring arcs are r=9 about (12,12), each spanning 15° to 75° of its quadrant
-     so the gaps sit exactly where the spikes cross. `currentColor` stroke like
-     every other glyph here, so the button's hover, focus, disabled and busy
-     states carry through unchanged. */
+  /* Signal Lens — a compact, proprietary mark for Ask. The open frame means
+     "inspect this"; the single vertical pupil carries the lion identity. It
+     deliberately avoids the usual sparkle, chat bubble, compass and question
+     mark vocabulary, and keeps the same silhouette from phone to desktop. */
   ask: (
     <>
-      {/* one ring, broken at the cardinals */}
-      <path d="M14.3 3.3a9 9 0 0 1 6.4 6.4" />
-      <path d="M20.7 14.3a9 9 0 0 1-6.4 6.4" />
-      <path d="M9.7 20.7a9 9 0 0 1-6.4-6.4" />
-      <path d="M3.3 9.7a9 9 0 0 1 6.4-6.4" />
-      {/* four spikes, through the gaps */}
-      <path d="M12 1v3.5" />
-      <path d="M12 19.5V23" />
-      <path d="M1 12h3.5" />
-      <path d="M19.5 12H23" />
-      {/* the eye */}
-      <path d="M5 12q7-7 14 0q-7 7-14 0z" />
-      <circle cx="12" cy="12" r="2.6" />
-      <circle cx="12" cy="12" r="0.9" />
+      <path d="M8.25 4.75H4.75v3.5M4.75 15.75v3.5h3.5" />
+      <path d="M15.75 4.75h3.5v3.5M19.25 15.75v3.5h-3.5" />
+      <path d="M6.5 12c1.58-2.13 3.42-3.2 5.5-3.2s3.92 1.07 5.5 3.2c-1.58 2.13-3.42 3.2-5.5 3.2S8.08 14.13 6.5 12Z" />
+      <path
+        d="M12 9.45c.66.72 1 1.57 1 2.55s-.34 1.83-1 2.55c-.66-.72-1-1.57-1-2.55s.34-1.83 1-2.55Z"
+        fill="currentColor"
+        stroke="none"
+      />
     </>
   ),
   menu: <><path d="M3 7h18" /><path d="M3 12h18" /><path d="M3 17h18" /></>,

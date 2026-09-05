@@ -820,12 +820,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 2.125rem;
-  block-size: 2.125rem;
+  inline-size: 2rem;
+  block-size: 2rem;
   flex: 0 0 auto;
-  border: var(--line-w) solid color-mix(in oklab, var(--gold) 72%, var(--control-line));
-  border-radius: 50%;
   color: var(--gold);
+}
+
+.dockGlyph svg {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
 }
 
 .dockLabel {
@@ -953,18 +956,42 @@
 @media (width < 48rem) {
   html:has([data-home-scroll]) .dockTrigger {
     position: fixed;
-    /* Lift it into the quiet lower image instead of pinning it to the bezel. */
-    inset-block-end: calc(var(--sp-8) + env(safe-area-inset-bottom, 0px));
+    /* One step higher than the rail: visible, but no longer sitting on its
+       headline. */
+    inset-block-end: calc(var(--sp-9) + env(safe-area-inset-bottom, 0px));
     inset-inline-end: var(--home-gutter);
     display: flex;
     width: max-content;
     inline-size: auto;
     min-width: var(--control-h);
     min-block-size: var(--control-h);
+    padding-inline: var(--sp-3);
+    gap: var(--sp-2);
     margin: 0;
-    background: var(--ground);
-    border-color: var(--control-line);
+    border: var(--line-w) solid var(--line-strong);
+    border-block-end: 0.125rem solid var(--gold);
+    background: color-mix(in oklab, var(--ground) 94%, transparent);
+    color: var(--ink-hi);
     box-shadow: none;
+  }
+
+  /* The same Signal Lens appears at every size; only its footprint tightens.
+     Keeping one silhouette avoids the desktop/mobile identity split. */
+  html:has([data-home-scroll]) .dockGlyph {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    color: var(--gold);
+  }
+
+  html:has([data-home-scroll]) .dockGlyph svg {
+    display: block;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+
+  html:has([data-home-scroll]) .dockLabel {
+    font-size: var(--t-data);
+    letter-spacing: var(--t-data-tracking);
   }
 }
 

@@ -146,9 +146,9 @@ narratives**, publish **one regional geopolitical Daily Brief**, and publish
 something new rather than re-reporting them. Refutations are `narrative_watch`,
 because an anti-Israel news item *is* a narrative — that owner ruling
 (`.ai/DECISIONS.md`, 2026-09-01) is what avoided a new section, an enum
-migration, and a frontend routing change. `war_update` is retired from
-production: it left `ARTICLE_SECTIONS` but remains a legal enum value, so the
-archive and `/war-update` keep working while security material now feeds the
+migration, and a frontend routing change. The `war_update` section was removed
+completely on 2026-09-05: the section contract has three values, the
+`/war-update` route is a permanent redirect, and security material feeds the
 Daily Brief.
 
 Three invariants an editor must not break:

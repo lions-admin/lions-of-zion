@@ -324,9 +324,9 @@ Three of the eight tell a story worth knowing before CLEAN-008 runs:
 - **`content.module.css`**'s eleven `network*` classes describe a ring diagram
   with an SVG and a scroller. `components/network/InfluenceGraph.tsx` renders
   the network page today and uses none of them.
-- **`app/war-update/page.module.css`** is 12 dead of 20. `war_update` is
-  retired from production (see `CLAUDE.md`); the route still renders, on eight
-  classes.
+- **`app/war-update/page.module.css`** is 12 dead of 20. The route is a
+  permanent redirect since the war section was removed (see `CLAUDE.md`); it
+  still renders, on eight classes.
 
 Spot-checked by hand: `networkSvg`, `cardBody`, `askCta`, `editorPanel`,
 `glossaryModalTitle`, `headline`, `wire` and `latest` each have **zero**

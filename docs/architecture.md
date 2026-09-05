@@ -324,19 +324,18 @@ deploy**, which shapes several things that otherwise look like clutter.
   needs. The quality gate still matches the drafted article against the whole
   stored excerpt, so the check corpus stays a superset of what the model saw —
   the direction that cannot launder a fabrication.
-- **`STORED_ARTICLE_SECTIONS` is wider than `ARTICLE_SECTIONS`** for the same
-  straddling reason: an artifact written while `war_update` was still selectable
-  must still parse on the way back in, or the edition quarantines for no
-  editorial reason at all.
+- **The edition's artifact schema and the section contract are one set** —
+  `ARTICLE_SECTIONS` (`israel_update`, `narrative_watch`) for triage selection
+  and for stored artifacts alike, so an edition whose stages straddle a deploy
+  cannot parse a value a stage can no longer write.
 
 The edition serves three jobs, declared in priority order in the triage prompt:
 refute anti-Israel narratives, publish one regional geopolitical Daily Brief,
 and publish one genuinely interesting Israel story. Security, war and
 operational material feeds the Daily Brief rather than becoming a standalone
-article — which is why `war_update` was removed from `ARTICLE_SECTIONS` and why
-`/war-update` now serves an archive that does not grow. The value stays legal in
-`PUBLICATION_SECTIONS` and in the Postgres enum, so historic rows and homepage
-eligibility are untouched.
+article — which is why the war section was removed from `ARTICLE_SECTIONS` and
+then, by the 2026-09-05 decision, from the section contract entirely, and why
+`/war-update` now serves a permanent redirect instead of an archive.
 
 Rows arriving through the **external composer ingest**
 (`POST /api/internal/briefing/external-publish`) must pass every deterministic

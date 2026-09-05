@@ -67,15 +67,13 @@ selects no citable story, the draft stage stops with
 as the "missing edition after 10:00 Israel time" alert, and it is worth
 investigating — it usually means collection, not editorial judgement.
 
-**`war_update` is being removed completely** (owner decision 2026-09-05, see
-`.ai/DECISIONS.md`): it was an unused model path, and its surviving rows are
+**`war_update` was removed completely** (owner decision 2026-09-05, see
+`.ai/DECISIONS.md`): it was an unused model path, and its surviving rows were
 machine-published pipeline residual — no human ever approved or created one.
-The write-side contract is `WRITABLE_PUBLICATION_SECTIONS`: creating or
-relabeling into `war_update` is rejected at every boundary, and the pipeline
-stage that encounters a non-writable section quarantines loudly — if a new
-`war_update` article ever appears, that is a defect worth investigating, not a
-normal run. Read paths still accept the value until the residual rows are
-deleted and the enum value is retired.
+The rows were deleted and the value left the section contract, the labels and
+the docs; the pipeline cannot produce it, and no write or read surface accepts
+it. The `/war-update` route survives as a permanent redirect so the public
+URLs keep resolving.
 
 ### Unsourced analysis records
 
@@ -496,11 +494,12 @@ Do not lower the required count to rescue one day's run. That constant is also
 what the automatic-publish path counts, and the SQL trigger counting its own
 frozen twelve will not forgive an actually-failed check in any case.
 
-The reading path was made deliberately tolerant for the same reason:
-`STORED_ARTICLE_SECTIONS` still parses `war_update` on the way back in, so an
-artifact drafted before that section was withdrawn does not quarantine an
-otherwise valid edition. That tolerance covers stored sections only. It does
-not cover the check count.
+The reading path kept a deliberate tolerance while the retirement was staged:
+stored artifacts were parsed against a wider section set so an in-flight
+edition did not quarantine on its own earlier stage's output. That tolerance
+covered stored sections only; it never covered the check count. With the value
+fully retired the wider set is gone and the artifact schema is the section
+contract.
 
 ## Deployment acceptance
 

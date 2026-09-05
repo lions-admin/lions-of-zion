@@ -40,19 +40,14 @@ may select, and it holds two values: `israel_update` and `narrative_watch`.
 Every edition also carries exactly one `daily_brief`, which is assembled rather
 than selected and so is not in that list.
 
-**`war_update` is no longer produced.** It was removed from `ARTICLE_SECTIONS`
-on 2026-09-01; security, war and operational material now feeds the Daily
-Brief. The value deliberately stays legal everywhere else:
-
-- It remains in `PUBLICATION_SECTIONS` and in the Postgres
-  `publication_section` enum, so historic rows stay valid, `/war-update` keeps
-  serving its archive, and a `war_update` row is still eligible for a homepage
-  feature slot. That route stops growing; it does not break.
-- `STORED_ARTICLE_SECTIONS` still accepts it when *reading* a stage artifact
-  back. One edition's stages are separate runs and can straddle a deploy, so an
-  artifact written while `war_update` was selectable must still parse — without
-  that tolerance the edition in flight would quarantine for no editorial
-  reason. Nothing writes the value any more.
+**The war section was removed completely** (owner decision 2026-09-05, see
+`.ai/DECISIONS.md`). It left `ARTICLE_SECTIONS` on 2026-09-01 — security, war
+and operational material now feeds the Daily Brief — and on 2026-09-05 the
+residual rows were deleted and the value was removed from
+`PUBLICATION_SECTIONS`, the Postgres `publication_section` enum (migration
+`0053`), the labels and the docs. The pipeline cannot produce it and no write
+or read surface accepts it. `/war-update` survives as a permanent redirect so
+the public URLs keep resolving.
 
 ## Unsourced refutations — analysis mode
 
@@ -223,9 +218,9 @@ automatic-publication workflow.
 `BRIEFING_DISCOVERY_QUERIES` in `server/modules/sources/catalog.ts` is the
 editorial brief in machine-readable form, so it is weighted the way the site
 is: four queries on the narratives the site exists to refute, three on the
-regional geopolitical brief, three on the daily Israel article. It was
-previously five on `war_update` and one on `narrative_watch` — the exact
-inverse of the stated priority.
+regional geopolitical brief, three on the daily Israel article. The mix
+originally weighted the now-removed war section instead — the exact inverse of
+the stated priority.
 
 Every query has to earn its results inside `BRIEFING_PRIORITY_DOMAINS`, which
 is the whole corpus Discovery Engine may see. That is why the rewritten queries

@@ -328,24 +328,18 @@ the TypeScript guard cannot drift.
 
 ---
 
-## `publication_section` is losing a value nothing wrote
+## `publication_section` lost a value nothing wrote
 
-The enum has four members — `daily_brief`, `israel_update`, `war_update`,
+The enum has three members — `daily_brief`, `israel_update`,
 `narrative_watch`. `war_update` was removed from `ARTICLE_SECTIONS` on
-2026-09-01 and, by owner decision of 2026-09-05, is being removed completely —
-it was an unused model path, and every row that carries it was
-machine-published by the pre-retirement pipeline: no `created_by`, no
-`approved_by`, all `archived`.
+2026-09-01 and, by owner decision of 2026-09-05, removed completely: it was an
+unused model path, and every row that carried it was machine-published by the
+pre-retirement pipeline — no `created_by`, no `approved_by`, all `archived`.
 
-Write paths are closed (see `.ai/DECISIONS.md`, 2026-09-05): the write-side
-contract is `WRITABLE_PUBLICATION_SECTIONS`, the pipeline quarantines on a
-non-writable section, and the admin editor offers the option only for a row
-that already carries it. Read shapes still accept `war_update` so the residual
-rows keep serving until the data retirement deletes them — the underlying
-evidence entities are shared and survive — after which the value leaves
-`PUBLICATION_SECTIONS` and the enum. Dropping the enum member requires
-rewriting the type and the column; that migration runs only after the rows are
-gone, and this paragraph is updated when it does.
+The residual rows were deleted (the underlying evidence entities are shared
+and survive), and migration `0053` rewrote the `publication_section` type and
+column without the value. Write and read paths, labels and filters all carry
+the three-value set; there is no compatibility shelf.
 
 ---
 

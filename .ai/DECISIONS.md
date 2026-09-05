@@ -348,14 +348,15 @@ Applied in two stages:
    list filters, `STORED_ARTICLE_SECTIONS`, labels, breadcrumb, homepage
    eligibility) still accept the value so existing rows keep serving until
    stage 2.
-2. **Data + enum retirement.** Pending Production verification of the row
-   count. Residual rows (machine-published, archived, never human-approved)
-   are deleted with their dependent join records — the underlying evidence
-   entities are shared and stay — then `war_update` leaves
-   `PUBLICATION_SECTIONS`, the `publication_section` enum, the read-tolerance
-   sets, the labels and the docs. The 2026-09-01 claim that "retiring a
-   producer is not the same as retiring a value" was correct as written then
-   and is reversed by this decision, not by discovering it was wrong.
+2. **Data + enum retirement (2026-09-05).** The residual rows were verified on
+   Production: five, machine-published, no human creator or approver. They were
+   deleted with their dependent join records — the underlying evidence
+   entities are shared and stay — and `war_update` was then removed from
+   `PUBLICATION_SECTIONS`, the `publication_section` enum (the 0053 migration
+   rewrote the type), the read-tolerance sets, the labels and the docs. The
+   2026-09-01 claim that "retiring a producer is not the same as retiring a
+   value" was correct as written then and is reversed by this decision, not by
+   discovering it was wrong.
 
 `PublicationManager.tsx` named in the 2026-09-01 entry no longer exists;
 `app/admin/EditorialDesk.tsx` was the last writer.

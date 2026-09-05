@@ -394,6 +394,51 @@ asked for. **Deferred to Stage 3**, where boundaries are the subject.
 Still only proven in Production: that `SET ROLE` on a pooled Neon connection
 behaves as assumed. No test anywhere covers that, and none can.
 
+
+### ⚠️ Found during the Stage 2 smoke: a `PUBLIC_V1` route is 500 in Production
+
+`GET /api/v1/published-items` — one of the nine anonymous routes — returns
+**HTTP 500** on `lionsofzion.io`. **Not caused by anything in this batch:** the
+previous production deployment (`6vnrjx3hc` @ `2ec7792`, which predates the
+`client.ts` change) returns the same 500 when queried directly through the
+protection bypass.
+
+The runtime log gives the cause without ambiguity:
+
+```
+http.request.failed  GET /api/v1/published-items  500  durationMs=31
+Failed query: SELECT * FROM published_item ORDER BY published_at DESC LIMIT $1
+```
+
+`published_item` is a **view**, created in migration `0007`. Across every
+migration in `server/db/migrations/`, it is **never granted to any role**:
+
+```
+$ grep -rn 'published_item' server/db/migrations/*.sql | grep -i grant
+(no output)
+```
+
+`app_public` holds SELECT on `narrative`, `homepage_feature`,
+`publication_narrative`, `publication_evidence`, `publication_passage`,
+`publication_passage_evidence` and `publication_related` — and on no view. The
+route therefore worked for as long as requests ran on the ambient owner
+connection, and started failing when `withDatabaseRole` was engaged at runtime.
+`GET /api/v1/published-publications` still answers 200, which is why the failure
+went unnoticed: the sibling route reads granted tables.
+
+**Why no test catches it.** `tests/public-v1-guard-matrix.test.ts` proves
+*classification* — which role each route acquires. It does not prove that the
+role can then read what the route reads. That is a different assertion, and
+nothing currently makes it. A regression test for this belongs with the fix.
+
+**The fix is a migration, not a service edit** — `GRANT SELECT ON published_item
+TO app_public`, with `security_invoker` on the view checked first, since a
+`security_invoker = true` view also needs grants on the tables beneath it.
+Deliberately **not done here**: a Production schema change is its own batch,
+with Preview migrated first, and it was not in Stage 2's scope.
+
+Worth checking in the same pass: whether any other view is read by a route
+running under a role that was never granted it.
 ### The lesson for the rest of the program
 
 Two sessions picked the same three findings off the same re-baseline and spent

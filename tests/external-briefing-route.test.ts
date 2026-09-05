@@ -3,14 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 /**
  * Route-level test for the guard/parsing layer only.
  *
- * `POST /api/internal/briefing/external-publish` never matches
- * `/api/internal/cron/`, `/api/internal/queue/` or `/api/v1/`, so
- * `server/http/handler.ts`'s `accessFor()` returns `null` for it and the real
- * `handler()` wrapper never touches `withDatabaseRole`/`db()` for this route.
- * That makes it safe to exercise the real `handler()`, `parseBody()`,
+ * This exercises the real `handler()`, `parseBody()`,
  * `requireExternalBriefingSecret()` and `externalBriefingPackageSchema`
- * end-to-end, with no PGlite database and no dev server — the same
- * `problem+json` shapes a live deployment would return.
+ * end-to-end with no dev server, returning the same `problem+json` shapes a
+ * live deployment would.
+ *
+ * It used to need no database either: the route matched none of
+ * `accessFor()`'s service prefixes, so `handler()` ran it with
+ * `access === null`. That was the bug, not a feature — the route filed whole
+ * editions outside RLS. Since 2026-09-05 it runs as `app_service`, and the
+ * one pooled-connection dependency that introduces is stubbed below, with the
+ * reasoning for why that stub is legitimate here.
  *
  * `server/modules/briefing/external-publish.ts` (the sibling agent's service)
  * is mocked out: these three cases never reach it, and the module doesn't
@@ -30,14 +33,38 @@ vi.mock("@/server/modules/briefing", () => ({
 
 /* `server/http/handler.ts` statically imports `authenticateAdmin`/`registerActor`
  * from here, which pulls in Neon Auth's Next integration. This route's access
- * path never calls either (its path matches none of `accessFor()`'s guarded
- * prefixes), but the import still loads at module evaluation time — the same
- * reason `deep-health-route.test.ts` mocks this module rather than the real
- * one. */
+ * path never calls either, but the import still loads at module evaluation
+ * time — the same reason `deep-health-route.test.ts` mocks this module rather
+ * than the real one. */
 vi.mock("@/server/core/auth/actor", () => ({
   authenticateAdmin: vi.fn(),
   registerActor: vi.fn(),
   requireActor: vi.fn(),
+}));
+
+/* `withDatabaseRole` as a pass-through, and the reason matters.
+ *
+ * Until 2026-09-05 this route matched none of `accessFor()`'s service
+ * prefixes, so `handler()` ran it with `access === null` and touched no
+ * database at all — which is what made an end-to-end route test possible with
+ * no PGlite and no dev server. Securing the route (it now runs as
+ * `app_service`, like its `/api/internal/codex/` sibling) means `handler()`
+ * opens a real pooled Neon connection, which no unit test can supply.
+ *
+ * This is deliberately NOT the same thing as the pass-through in
+ * `admin-console-p2.test.ts` and `admin-console-drilldown.test.ts`. Those
+ * mock the wrapper away from code whose behaviour depends on the role, so the
+ * role goes untested. Everything asserted below — the secret guard, the
+ * problem+json shapes, the schema field paths — runs inside `fn` and is
+ * indifferent to which role holds the connection. What the wrapper actually
+ * does is covered separately by `tests/rls.test.ts`.
+ *
+ * The property this file can no longer prove is that the route is wrapped at
+ * all. That belongs in an `accessFor()` unit test — see the batch that adds
+ * one for `PUBLIC_V1`. */
+vi.mock("@/server/db/client", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/server/db/client")>()),
+  withDatabaseRole: (_role: string, _identity: string, fn: () => Promise<unknown>) => fn(),
 }));
 
 import { POST } from "@/app/api/internal/briefing/external-publish/route";

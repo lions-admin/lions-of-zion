@@ -2,6 +2,7 @@
   "name": "lions-of-zion",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "//sideEffects": "Every module under components/motion imports a CSS Module, which is a side effect, so without this a bundler must assume importing the barrel needs all five stylesheets — and a route rendering one primitive shipped four it never used. Listing CSS as the only side effect lets the barrel be tree-shaken while keeping stylesheets from being dropped.",
   "sideEffects": [
     "*.css",

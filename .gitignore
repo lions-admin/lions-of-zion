@@ -70,6 +70,9 @@ public/archive/
 # one machine and one session, and it can carry whatever the page logged.
 .playwright-mcp/
 
+# Local agent-session export: one machine, one session, and a full transcript.
+/opencode-session.json
+
 # scripts/backup-briefing-database.sh output: full pg_dump snapshots taken
 # before a production migration. Local-only — never belongs in a public repo.
 /backups/

@@ -83,8 +83,8 @@ export default async function Page() {
               </span>
             </h1>
             <p className={styles.standfirst}>
-              <span className={styles.evidenceLine}>Powered by evidence,</span>{" "}
-              <span className={styles.narrativesLine}>not narratives.</span>
+              <span>Powered by evidence,</span>{" "}
+              <span>not narratives.</span>
             </p>
 
             {/* News is primary; the system story is an optional reading path. */}

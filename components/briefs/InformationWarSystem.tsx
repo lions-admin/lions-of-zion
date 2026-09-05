@@ -12,7 +12,7 @@ export function InformationWarSystem() {
       <section className={styles.hero} id="page-content" aria-labelledby="war-heading">
         <div className={styles.heroTopline}><p className={styles.eyebrow}>Lions of Zion / Inside the evidence desk</p><a href="#system">Explore the architecture <span aria-hidden="true">↘</span></a></div>
         <div className={styles.heroGrid}>
-          <div className={styles.heroCopy}>
+          <div>
             <h1 id="war-heading"><span>{"This is an "}</span><em>{"information "}</em><span>war.</span></h1>
             <p className={styles.heroStatement}>Not a contest to speak louder.<br />A responsibility to show the evidence.</p>
             <a className={styles.heroJump} href="#system">Follow the evidence <span aria-hidden="true">↓</span></a>

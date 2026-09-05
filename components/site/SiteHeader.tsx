@@ -165,11 +165,11 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
   const renderNavigation = () => (
     <div className={styles.navigationContent}>
       <div className={styles.menuLayout}>
-        <nav className={styles.reportingMenu} aria-label="Reporting and evidence">
+        <nav aria-label="Reporting and evidence">
           <p className={styles.menuGroupLabel}>Reporting & evidence</p>
           {REPORTING_LINKS.map((link) => renderMenuLink(link, true))}
         </nav>
-        <nav className={styles.aboutMenu} aria-label="People and purpose">
+        <nav aria-label="People and purpose">
           <p className={styles.menuGroupLabel}>People & purpose</p>
           {ABOUT_LINKS.map((link) => renderMenuLink(link))}
         </nav>

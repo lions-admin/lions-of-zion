@@ -115,7 +115,7 @@ mounts both.
 | `/ask` | `AskDesk`, `ReadingProgress`, `SectionToc` |
 | `/search` | `SearchPageView`, `ReadingProgress`, `SectionToc` |
 | `/geopolitical-brief` | `BriefFilters`, `ReadingProgress` |
-| `/information-war` | `InformationWarBeams`, `ReadingProgress` |
+| `/information-war` | `ReadingProgress` |
 | `/updates` | `ReadingProgress`, `SectionToc` |
 | `/articles/[publicId]` | route `error.tsx`, `ReadingProgress` |
 | `/account` | `PublicAuthControl`, `ReadingProgress` |

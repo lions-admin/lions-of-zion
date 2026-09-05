@@ -4,7 +4,20 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""} https://www.paypal.com https://www.paypalobjects.com https://accounts.google.com`,
-  "style-src 'self' 'unsafe-inline'",
+  /* `accounts.google.com` is here for one stylesheet: Google Identity Services
+     loads `/gsi/style` for the button it renders itself, and without this the
+     browser blocked it — the button worked but was not wearing Google's own
+     styling, which is the part of a sign-in control that must come from the
+     identity provider rather than be imitated here.
+
+     Note what is deliberately *not* here. Production raises one other
+     violation, `script-src` / `eval`, and it comes from our own bundle
+     (`_next/static/.../chunks`), not from Google. Nothing observably breaks,
+     so the block is doing its job: `'unsafe-eval'` stays development-only.
+     Silencing that violation would trade one of CSP's strongest guarantees for
+     tidier console output. The real fix is to find the dependency that calls
+     `eval` and remove the call. */
+  "style-src 'self' 'unsafe-inline' https://accounts.google.com",
   /* `pics.paypal.com` serves the donate button's own button artwork. It was
      missing until 2026-09-02, so every image on the PayPal button was blocked
      by CSP in production and `/support-us` logged three console errors —

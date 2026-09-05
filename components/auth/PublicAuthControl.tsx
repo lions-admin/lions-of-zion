@@ -265,31 +265,41 @@ export function PublicAuthControl({ xError }: { xError?: string }) {
               <p className={styles.prompt}>
                 Continue with the X account you want the desk to know you by.
               </p>
-              {/* A form, not a link. Starting this flow has a side effect —
-                  `/auth/x` mints OAuth state and sets a cookie — so it is an
-                  action, and a `next/link` to it would be *prefetched*: a
-                  route handler that hands out state cookies must not be
-                  fetched because a button scrolled into view. A GET form
-                  submit is a full document navigation, which is also what an
-                  external redirect needs.
-
+              {/* A plain anchor, and both halves of that matter.
+ 
+                  It was a GET form first, to keep `next/link` from
+                  *prefetching* `/auth/x` — a Route Handler that mints OAuth
+                  state and sets a `__Host-` cookie must not run because a
+                  button scrolled into view. That part was right. What it
+                  missed is that this site's CSP carries
+                  `form-action 'self' https://www.paypal.com`, and Chrome
+                  applies `form-action` to every hop of a submission's redirect
+                  chain. `/auth/x` is `'self'` and passed; its 302 to x.com was
+                  not on the list, so the browser cancelled the navigation in
+                  silence — no console error, no page change, a dead button.
+ 
+                  `form-action` does not apply to link navigation, and
+                  `documentNavigation` keeps it out of `next/link`. One
+                  element, both problems, and the CSP is left alone.
+ 
                   X ships no button widget the way Google does — only brand
                   rules — so the button is ours and the mark is theirs. White
                   ground with a black mark is the inverse of the familiar one,
                   and it is the reading their guidance asks for on a dark page:
                   it also lets this sit beside Google's rendered button at the
                   same weight instead of a rank below it. */}
-              <form action="/auth/x" method="get" className={styles.actions}>
-                <Button
-                  type="submit"
+              <div className={styles.actions}>
+                <ButtonLink
+                  href="/auth/x"
+                  documentNavigation
                   variant="secondary"
                   size="md"
                   className={styles.xButton}
                   leftIcon={<XMark />}
                 >
                   Sign in with X
-                </Button>
-              </form>
+                </ButtonLink>
+              </div>
             </>
           )}
         </ProviderBlock>

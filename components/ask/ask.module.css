@@ -953,18 +953,47 @@
 @media (width < 48rem) {
   html:has([data-home-scroll]) .dockTrigger {
     position: fixed;
-    /* Lift it into the quiet lower image instead of pinning it to the bezel. */
-    inset-block-end: calc(var(--sp-8) + env(safe-area-inset-bottom, 0px));
+    /* One step higher than the rail: visible, but no longer sitting on its
+       headline. */
+    inset-block-end: calc(var(--sp-9) + env(safe-area-inset-bottom, 0px));
     inset-inline-end: var(--home-gutter);
     display: flex;
     width: max-content;
     inline-size: auto;
     min-width: var(--control-h);
     min-block-size: var(--control-h);
+    padding-inline: var(--sp-3);
+    gap: var(--sp-2);
     margin: 0;
-    background: var(--ground);
-    border-color: var(--control-line);
+    border: var(--line-w) solid var(--line-strong);
+    border-block-end: 0.125rem solid var(--gold);
+    background: color-mix(in oklab, var(--ground) 94%, transparent);
+    color: var(--ink-hi);
     box-shadow: none;
+  }
+
+  /* The detailed compass-eye turns to visual noise at phone size. The mobile
+     control is deliberately typographic: one serif question mark beside the
+     literal action name. Desktop keeps the branded evidence mark. */
+  html:has([data-home-scroll]) .dockGlyph {
+    inline-size: 1rem;
+    block-size: 1.25rem;
+    color: var(--gold);
+  }
+
+  html:has([data-home-scroll]) .dockGlyph svg { display: none; }
+
+  html:has([data-home-scroll]) .dockGlyph::before {
+    content: "?";
+    font-family: var(--face-home-emphasis);
+    font-size: 1.25rem;
+    font-style: italic;
+    line-height: 1;
+  }
+
+  html:has([data-home-scroll]) .dockLabel {
+    font-size: var(--t-data);
+    letter-spacing: var(--t-data-tracking);
   }
 }
 

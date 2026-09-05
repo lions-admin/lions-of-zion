@@ -20,9 +20,9 @@
  * entry in the markup, which is what keeps reading order, screen readers and
  * the no-JS page correct.
  *
- * Everything derives from the nav contract in
- * `components/particle-nav/config.ts`, so the hover card, the lede here, and
- * the page metadata stay one sentence in one place.
+ * Everything derives from the nav contract in `lib/site-navigation.ts`, so the
+ * hover card, the lede here, and the page metadata stay one sentence in one
+ * place.
  */
 import { EditorialShell } from '@/components/site/EditorialShell';
 /* Deep import, not the `@/components/motion` barrel: the barrel re-exports

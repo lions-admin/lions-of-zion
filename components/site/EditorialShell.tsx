@@ -73,9 +73,10 @@ function activeChromeSection(routeId: string): string {
  * copies of it before CLEAN-002.
  *
  * **The footer is mounted here rather than in `app/layout.tsx`.** The root
- * layout wraps `/`, `/admin`, `/particle-demo` and `/pipeline` as well, and the
- * home scene owns exactly one viewport — see the 2026-09-02 entry in
- * `.ai/DECISIONS.md`.
+ * layout wraps `/`, `/admin` and `/pipeline` as well, and the home scene owns
+ * exactly one viewport — see the 2026-09-02 entry in `.ai/DECISIONS.md`.
+ * (`/particle-demo` was a fourth until the particle subsystem was retired on
+ * 2026-09-05.)
  */
 export function EditorialShell({
   routeId,

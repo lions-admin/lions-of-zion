@@ -49,35 +49,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  // The dev badge sits in the corner the intro plays in.
+  // Kept from the retired particle entrance, which the badge used to sit on
+  // top of. Harmless either way, and a dev-only surface.
   devIndicators: false,
-  async redirects() {
-    if (isDevelopment) return [];
-    return [{ source: "/particle-demo", destination: "/", permanent: false }];
-  },
   async headers() {
     return [
       {
         source: "/:path*",
         headers: securityHeaders,
-      },
-      {
-        source: "/particles/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
-        source: "/icons/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
       },
     ];
   },

@@ -6,10 +6,10 @@
  * semantics: hostile narratives (red/amber) run leftward on the ember ramp,
  * fact checks and monitored context (blue/neutral) run rightward in blue.
  *
- * Fragments render whole or not at all — the corpus rule from
- * `components/particle-nav/scanCorpus.ts` holds here too. Rows are clipped by
- * the viewport edge as they travel (exactly what the canvas does); they are
- * never ellipsised, wrapped, or sliced.
+ * Fragments render whole or not at all. Rows are clipped by the viewport edge
+ * as they travel; they are never ellipsised, wrapped, or sliced. (That rule
+ * was shared with the WebGPU canvas layer, retired 2026-09-05; this backdrop
+ * is now its only implementation.)
  */
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';

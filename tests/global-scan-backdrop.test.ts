@@ -70,8 +70,8 @@ describe("scan profiles — one map per route family", () => {
     expect(HOME_SCAN_PROFILE.intensity).toBeLessThanOrEqual(FAMILY_SCAN_PROFILES.dossier.intensity);
   });
 
-  it("keeps the four internal routes explicitly silent", () => {
-    expect([...INTERNAL_ROUTE_IDS]).toEqual(["admin", "admin/login", "particle-demo", "pipeline"]);
+  it("keeps the three internal routes explicitly silent", () => {
+    expect([...INTERNAL_ROUTE_IDS]).toEqual(["admin", "admin/login", "pipeline"]);
     for (const id of INTERNAL_ROUTE_IDS) {
       expect(isInternalRoute(id), id).toBe(true);
       expect(scanProfileForRoute(id), id).toBe(SILENT_SCAN_PROFILE);
@@ -218,11 +218,10 @@ describe("route coverage — one shared backdrop per public route, none on the i
     expect(read("app/layout.tsx")).not.toMatch(/ScanBackdrop|EditorialShell/);
   });
 
-  it("the four internal routes mount no moving backdrop", () => {
+  it("the three internal routes mount no moving backdrop", () => {
     for (const file of [
       "app/admin/page.tsx",
       "app/admin/login/page.tsx",
-      "app/particle-demo/page.tsx",
       "app/pipeline/page.tsx",
     ]) {
       expect(read(file), file).not.toMatch(/ScanBackdrop|EditorialShell|SectionPage|DocPage/);

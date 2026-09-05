@@ -307,10 +307,12 @@ function collectAssets() {
       const rel = path.relative(ROOT, file);
       const base = path.basename(file);
       const served = rel.replace(/^public/, "");
-      /* An asset named by a template literal — `/icons/${item.id}.sdf.png` in
-         `particle-nav/config.ts` is the one that matters here — has no literal
-         filename to find, so the served directory followed by an interpolation
-         counts as a reference. Matching the bare stem instead was tried first
+      /* An asset named by a template literal has no literal filename to find,
+         so the served directory followed by an interpolation counts as a
+         reference. (The case that motivated this was
+         `/icons/${item.id}.sdf.png` in the particle subsystem, retired
+         2026-09-05; the rule still holds for any future interpolated asset.)
+         Matching the bare stem instead was tried first
          and was useless: every `public/editorial/*.png` shares a stem with a
          route name, so nothing was ever reported. */
       const interpolated = new RegExp(
@@ -555,7 +557,7 @@ const client = collectClientCensus();
 const css = collectCss();
 const assets = collectAssets();
 
-const publicRoutes = routes.filter((r) => !/^\/(admin|_|particle-demo)/.test(r.route));
+const publicRoutes = routes.filter((r) => !/^\/(admin|_)/.test(r.route));
 const readingRoutes = publicRoutes.filter(
   (r) => !["/", "/pipeline", "/fake-resistance/network"].includes(r.route),
 );

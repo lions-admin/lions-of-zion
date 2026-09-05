@@ -15,7 +15,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/particle-demo", "/pipeline", "/api/", "/admin", "/auth"],
+      disallow: ["/pipeline", "/api/", "/admin", "/auth"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

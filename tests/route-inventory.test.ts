@@ -18,8 +18,16 @@ function walkPages(dir: string, into: string[] = []): string[] {
 }
 
 describe("route inventory (QA-001)", () => {
-  it("still has 34 App Router page.tsx patterns", () => {
+  /* 34 → 33 on 2026-09-05: `app/particle-demo/` went with the particle
+     subsystem. Nothing else changed.
+
+     Noted rather than fixed: this test asserts a count and names no route, so
+     its only possible failure message is "update the number" — which is what
+     just happened. Asserting the sorted list instead would make the diff name
+     the route that arrived or left. That is a change to the test's shape, not
+     to this retirement, so it is left for its own pass. */
+  it("still has 33 App Router page.tsx patterns", () => {
     const pages = walkPages(path.join(ROOT, "app")).sort();
-    expect(pages).toHaveLength(34);
+    expect(pages).toHaveLength(33);
   });
 });

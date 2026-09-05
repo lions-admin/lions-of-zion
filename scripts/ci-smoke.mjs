@@ -156,7 +156,19 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
   for (const href of DESTINATIONS) {
     if ((await noJsPage.locator(`a[href="${href}"]`).count()) === 0) missing.push(href);
   }
-  const poster = await noJsPage.locator("picture img, img[src*='particle-nav']").count();
+  /* The property is "a reader with scripting off still gets a ground image,
+     not a blank hero" — and how it is delivered changed on 2026-09-05.
+     It used to be the particle entrance's `<picture>` fallback, which this
+     line counted. The entrance is retired, and `HeroVideo` deliberately emits
+     no `poster` attribute server-side (a poster is fetched even under
+     `preload="none"`, and the server cannot know which frame shape the
+     viewport wants). The no-JS ground is now `app/page.tsx`'s
+     `<div className={styles.posterField} />`, painted by CSS
+     `background-image` — so the element, not an `<img>`, is what proves it.
+     `picture img` stays so a future `<picture>` hero satisfies this too. */
+  const poster = await noJsPage
+    .locator('picture img, div[class*="posterField"]')
+    .count();
   const shell = await noJsPage.locator('div[hidden][id^="S:"]').count();
 
   /* The same check at phone width, and it is not redundant.

@@ -88,7 +88,6 @@ const SIMPLE = [
   /* Dev-only: `next.config.ts` redirects this to `/` when NODE_ENV is not
      development (DEV-001). It is a route pattern in `app/`, so QA-001 counts
      it, and it is reachable in exactly the environment this audit runs in. */
-  "/particle-demo",
 ];
 
 async function readPackage(pkg) {

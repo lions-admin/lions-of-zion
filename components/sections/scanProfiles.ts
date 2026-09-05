@@ -105,16 +105,18 @@ export const SILENT_SCAN_PROFILE: ScanProfile = {
 /**
  * Operator and debug surfaces, kept off the public backdrop on purpose.
  *
- * `/admin` and `/admin/login` are the operations console; `/pipeline` is the
- * ingestion visualiser, which has its own purpose-specific motion; and
- * `/particle-demo` is the GPU scene's tuning bench, which is already a moving
- * layer. None of them wear `EditorialShell`, so none of them would mount the
- * backdrop by accident today — this list is what makes the exclusion a
- * decision rather than a side effect of that, and
- * `tests/global-scan-backdrop.test.ts` pins both halves: the map answers
- * `silent` for each, and the four page roots mount no backdrop.
+ * `/admin` and `/admin/login` are the operations console, and `/pipeline` is
+ * the ingestion visualiser, which has its own purpose-specific motion. None of
+ * them wear `EditorialShell`, so none would mount the backdrop by accident
+ * today — this list is what makes the exclusion a decision rather than a side
+ * effect of that, and `tests/global-scan-backdrop.test.ts` pins both halves:
+ * the map answers `silent` for each, and the three page roots mount no
+ * backdrop.
+ *
+ * A fourth entry, `/particle-demo`, was the GPU scene's tuning bench. It went
+ * with the particle subsystem on 2026-09-05.
  */
-export const INTERNAL_ROUTE_IDS = ['admin', 'admin/login', 'particle-demo', 'pipeline'] as const;
+export const INTERNAL_ROUTE_IDS = ['admin', 'admin/login', 'pipeline'] as const;
 
 export function isInternalRoute(routeId: string): boolean {
   return (INTERNAL_ROUTE_IDS as readonly string[]).includes(routeId);

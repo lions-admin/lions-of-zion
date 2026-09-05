@@ -1,5 +1,19 @@
 # Performance budgets
 
+> ⚠️ **Stale as of 2026-09-05 — every particle row below describes code that no
+> longer exists.** The WebGPU particle entrance was retired on 2026-09-05:
+> `components/particle-nav/**`, `components/intro/**`, `app/particle-demo/**`,
+> `components/typographic-field/**`, `public/particles/`, `public/posters/`,
+> `public/icons/` and the `three` / `@react-three/*` / `leva` dependencies are
+> all gone. The `/particle-demo` route, the `particle-nav` component-weight
+> rows, and the `lion-v2-*.bin` asset lines are therefore historical.
+>
+> **These numbers were deliberately not edited.** They are measurements, and
+> inventing replacements would be worse than leaving them dated. Re-run
+> `npm run build && npm run perf:report -- --update-budgets` to replace the
+> document with real figures; until then, read every particle line as a record
+> of what was, not of what ships.
+
 Measured on 2026-09-03 against a Next.js 16.3.2 Turbopack production build of
 this repository. Every number here was produced by `npm run perf:report` after
 `npm run build`; nothing in this document is an estimate, and nothing is a

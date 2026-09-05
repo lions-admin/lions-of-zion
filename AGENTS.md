@@ -109,8 +109,14 @@ Only the ones an edit is most likely to break; the full list is in CLAUDE.md.
   model** (`evidenceIds.length === 0`), and no quality check is ever skipped —
   exemptions live inside a pass condition. Read `=== "analysis"`, never
   `!== "analysis"` (absent value = sourced).
-- `briefing/quality.ts` `REQUIRED_QUALITY_CHECKS` is counted by both a SQL
-  trigger and `publications/repo.ts`; the counts must agree.
+- `briefing/quality.ts` `REQUIRED_QUALITY_CHECKS` is **no longer counted by
+  anything.** Migration `0049` (2026-09-03) removed the twelve-name count from
+  `enforce_publication_publish_gate()` — it enforces machine provenance now —
+  and `595ca9d` removed the counter from `publications/repo.ts`. The
+  deterministic suite runs on the external-publish path only; **the internal
+  briefing pipeline publishes with no quality gate.** Do not quote the array's
+  length in prose: this bullet claimed a cross-check that never existed and
+  `CLAUDE.md` claimed 18 against an array of 17. See CLAUDE.md for the detail.
 - Source catalog (`server/modules/sources/catalog.ts`): **change the query,
   change the slug.** Catalog-sync only ever creates; editing a query in place
   leaves the live source running the old text.

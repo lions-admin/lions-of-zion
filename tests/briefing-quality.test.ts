@@ -271,12 +271,17 @@ describe("briefing quality gate", () => {
     expect(result.passed).toBe(true);
   });
 
-  /* `REQUIRED_QUALITY_CHECKS` is what `publications/repo.ts` counts before it
-   * will mark a row automatically published, and the SQL publish gate counts a
-   * fixed subset of the same names. Nothing else pins the two together, so a
-   * check written but never emitted — or emitted under a different name —
-   * would silently make every automatic publication impossible. */
-  it("emits exactly the checks the automatic-publish gate counts", () => {
+  /* `REQUIRED_QUALITY_CHECKS` is the list `evaluateCandidate()` must emit in
+   * full. A check written but never emitted — or emitted under a different
+   * name — would silently weaken the external-publish gate, which is now the
+   * only path that runs these checks at all.
+   *
+   * This comment used to say the list was counted by `publications/repo.ts`
+   * and by a SQL trigger. Neither is true since 2026-09-03: `595ca9d` deleted
+   * the repo counter and migration `0049` removed the count from the trigger.
+   * The assertion below is still worth keeping — it pins emit-completeness —
+   * but it no longer protects a database constraint. */
+  it("emits exactly the checks the external-publish gate evaluates", () => {
     for (const subject of [candidate, refutation]) {
       const emitted = evaluateCandidate(subject, packet).checks.map((check) => check.name);
       expect(emitted).toEqual([...REQUIRED_QUALITY_CHECKS]);
@@ -286,21 +291,27 @@ describe("briefing quality gate", () => {
 });
 
 /**
- * The publish gate is split across two enforcement layers that count
- * differently, and the whole no-migration design rests on satisfying both:
+ * HISTORICAL. Read this before trusting the block below.
  *
- *   - `publications/repo.ts` recomputes from `REQUIRED_QUALITY_CHECKS.length`,
- *     so it follows the TypeScript constant automatically.
- *   - The SQL trigger `enforce_publication_publish_gate` hardcodes twelve
- *     literal check names and raises unless exactly twelve of them pass. It
- *     was frozen at migration 0031 and cannot see anything added since.
+ * This comment described a publish gate split across two enforcement layers
+ * that counted differently — `publications/repo.ts` recomputing from
+ * `REQUIRED_QUALITY_CHECKS.length`, and the SQL trigger
+ * `enforce_publication_publish_gate` hardcoding twelve literal names and
+ * raising unless exactly twelve passed. **Both were removed on 2026-09-03**:
+ * `595ca9d` deleted the repo counter, and migration `0049` replaced the
+ * trigger body with a machine-provenance check that counts nothing.
  *
- * That second layer is the reason every exemption lives *inside* a pass
- * condition rather than skipping a check. If an unsourced refutation ever
- * yields fewer than twelve passes among these twelve names, auto-publish
- * fails in Production with a raised exception and no test would have caught
- * it — the failure is in SQL, and PGlite never sees this trigger fire on a
- * candidate assembled here. So assert the arithmetic directly.
+ * The twelve names below are therefore no longer enforced anywhere. The
+ * assertions are kept deliberately rather than deleted, for two reasons:
+ *
+ *   1. Rows written before `0049` were gated by exactly this arithmetic, so it
+ *      documents what the historical constraint required.
+ *   2. If the internal pipeline ever gets a deterministic gate again — an open
+ *      owner decision, see docs/data-model.md#the-publish-gate — this is the
+ *      shape it would take, and the frozen subset is the part that bit before.
+ *
+ * What it does NOT do any more is protect Production. Nothing raises if these
+ * twelve stop passing.
  */
 const TRIGGER_REQUIRED_CHECKS = [
   "known_evidence",

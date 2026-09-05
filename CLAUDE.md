@@ -160,13 +160,37 @@ Three invariants an editor must not break:
   model-set flag would be found and used to switch off seven evidence checks in
   one token. It is also **all-or-nothing**: an analysis article cites nothing
   anywhere, and a half-sourced one is rejected outright.
-- **No quality check is ever skipped.** Exemptions live *inside* a pass
-  condition, following `daily_brief_official_context`. This is not style: the
-  trigger `enforce_publication_publish_gate` counts a frozen twelve-name subset
-  and raises unless exactly twelve pass, while `publications/repo.ts` counts
-  `REQUIRED_QUALITY_CHECKS.length` (now 18). Skipping a check breaks both.
-  `tests/briefing-quality.test.ts` pins the twelve, because that failure would
-  otherwise appear only as a raised exception in Production.
+- **No quality check is ever skipped, and exemptions live *inside* a pass
+  condition**, following `daily_brief_official_context`. **Read the rest of this
+  bullet before relying on it** — this paragraph described two enforcement
+  layers until 2026-09-05, and both had already been removed on 2026-09-03.
+
+  What is true now:
+
+  - `REQUIRED_QUALITY_CHECKS` lives in `server/modules/briefing/quality.ts`.
+    **Do not quote its length here or anywhere else** — this file said "now 18"
+    against an array of 17, and `docs/architecture.md`/`docs/data-model.md` said
+    "eighteen" in six more places. Count it at the source or do not state it.
+  - The **SQL trigger no longer counts anything.** Migration `0049` replaced
+    `enforce_publication_publish_gate()` with a body that has no
+    `briefing_quality_check` query, no twelve-name subset and no
+    `quality_passes <> 12` raise. It enforces machine **provenance** now
+    (`briefing_run_id`, `briefing_candidate_key`, `machine_author`).
+  - **`publications/repo.ts` does not count them either** — `595ca9d` deleted
+    `qualityCandidatePassed()` and the import. `grep -c REQUIRED_QUALITY_CHECKS
+    server/modules/publications/repo.ts` returns 0.
+  - So the deterministic suite runs on **exactly one path**:
+    `evaluateCandidate()` from `external-publish.ts:265`, i.e. the external
+    composer ingest at `POST /api/internal/briefing/external-publish`.
+  - ⚠️ **The internal pipeline has no quality gate.** `enrich → cluster →
+    triage → draft → publish` is still wired in `vercel.json` and still
+    reachable through `POST /api/v1/admin/briefing/run`, and its `publish` stage
+    never calls `evaluateCandidate`. Whether it should is an open owner
+    decision, not an oversight to fix in passing — `0049` retired the stage by
+    owner instruction.
+
+  The rule at the top of this bullet still holds for the path that has checks.
+  What is gone is the belief that SQL will catch you if you break it.
 - **`narrativeWatchTitle()` in `server/contracts/publication.ts` is the only
   headline prefixer.** It was duplicated across two modules with divergent
   recogniser regexes; left unmerged, a refutation rendered as

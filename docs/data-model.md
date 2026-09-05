@@ -68,7 +68,7 @@ drizzle-kit's snapshot (see `0021`).
 | `0028_briefing_quality_traceability` | `publication_passage` and its evidence join, the briefing edition/claim/quality-check/quarantine tables, and RLS for all of them |
 | `0029_publication_related` | `publication_related` |
 | `0030_public_correction_projection` | `public_publication_corrections()` — the version history a reader is allowed to see |
-| `0031_automatic_quality_gate` | `enforce_publication_publish_gate()` gains the automatic path: twelve literal check names, and it must count exactly twelve passes |
+| `0031_automatic_quality_gate` | `enforce_publication_publish_gate()` gains the automatic path: twelve literal check names, and it must count exactly twelve passes. **Superseded by `0049`** — the count no longer exists |
 | `0032_evidence_discovery_audit` | `evidence_discovery` |
 | `0033_story_clusters` | `briefing_story_cluster`, `briefing_story_evidence` |
 | `0034_briefing_jobs` | `briefing_job`, `briefing_job_delivery`, `briefing_stage_artifact` — the queued stage runner and the closed evidence packet |
@@ -129,8 +129,9 @@ not one transaction. Each stage is a separate run that can straddle a deploy, so
 the state between stages has to be durable rather than in memory:
 `briefing_stage_artifact` holds what each stage handed the next — including the
 closed evidence packet every later stage re-reads by id — and
-`briefing_quality_check` holds the eighteen per-candidate verdicts that the
-publish gate then counts in SQL.
+`briefing_quality_check` holds the per-candidate verdicts. It is a record, not a
+gate: nothing counts these rows in SQL since migration `0049` — see
+[the publish gate](#the-publish-gate).
 
 **Infrastructure** — `outbox`, `rate_limit`
 
@@ -281,34 +282,44 @@ WHERE briefing_run_id = NEW.briefing_run_id
 -- raises unless the count is exactly 12
 ```
 
-**Those twelve names were frozen at migration `0031` and cannot see anything
-added since.** `REQUIRED_QUALITY_CHECKS` in `server/modules/briefing/quality.ts`
-now names **eighteen** checks, and `publications/repo.ts` recomputes from
-`REQUIRED_QUALITY_CHECKS.length`, so it tracks the TypeScript constant
-automatically. The trigger does not. Two consequences follow, and both are
-load-bearing:
+> ⚠️ **The SQL above is history, not current behaviour.** Migration `0049`
+> (2026-09-03, "remove briefing quality gate") replaced
+> `enforce_publication_publish_gate()` with a body containing **no**
+> `briefing_quality_check` query, **no** twelve-name list and **no**
+> `quality_passes <> 12` raise. It enforces machine provenance instead —
+> `briefing_run_id`, `briefing_candidate_key`, `machine_author` — and the
+> `automatic_publication_has_quality_provenance` constraint was dropped in
+> favour of `automatic_publication_has_machine_provenance`. The block above is
+> kept because rows written before `0049` were gated by it; nothing enforces it
+> today. Retired by owner instruction (`0049…sql:59`).
 
-- **A new check needs no migration, but a *skipped* check breaks the gate.** An
-  exemption must live inside its own check's pass condition, emitting a `pass`
-  with a detail string saying why it does not apply — the pattern
-  `daily_brief_official_context` already used. Skipping the check instead drops
-  the count below twelve and raises in Production. `tests/automatic-publication-gate.test.ts`
-  does fire this trigger on PGlite, but with a synthetic uniform set of passes,
-  so it proves the trigger works rather than that a real candidate satisfies it.
-  The arithmetic that matters is asserted separately, in
-  `tests/briefing-quality.test.ts`, for both a sourced candidate and an
-  unsourced one — because nothing else would catch it.
-- **Six of the eighteen are enforced only in TypeScript.** That divergence
-  predates the current check set and is a real gap, not a design: the database
-  cannot refuse a publication that failed one of the six.
+**What enforces quality now.** One path, in TypeScript only:
+`evaluateCandidate()` in `server/modules/briefing/quality.ts`, called from
+`server/modules/briefing/external-publish.ts:265` — the external composer
+ingest. `publications/repo.ts` no longer counts anything either; `595ca9d`
+deleted `qualityCandidatePassed()` and its import, so `grep -c
+REQUIRED_QUALITY_CHECKS server/modules/publications/repo.ts` returns 0.
 
-There is a third consequence, on the deploy rather than on the schema.
-`qualityCandidatePassed` compares a **stored** row count against the constant as
-it exists *now*, so adding a check retroactively invalidates any candidate whose
-verdicts were written by an earlier deploy: eighteen rows are required and
-seventeen are on disk. It affects at most one edition, and only one caught
-between its draft and publish stages. Editions run daily on `Asia/Jerusalem`
-dates, so a deploy that changes the check list goes between editions.
+Count `REQUIRED_QUALITY_CHECKS` at the source when you need the number. This
+section said "eighteen" in five places against an array of seventeen, and
+`CLAUDE.md` said "now 18" — every one of them hand-maintained prose with nothing
+keeping it true.
+
+Two things follow that an editor must hold:
+
+- **An exemption still belongs inside its own check's pass condition**, emitting
+  a `pass` with a detail string saying why it does not apply — the pattern
+  `daily_brief_official_context` uses. That rule survives `0049`; what does not
+  survive is the reason once given for it. Skipping a check no longer raises in
+  Production, because nothing counts. It simply publishes.
+  `tests/automatic-publication-gate.test.ts` still fires the trigger on PGlite,
+  and `tests/briefing-quality.test.ts` still asserts the arithmetic — but read
+  both knowing they now pin a mechanism no production path depends on.
+- ⚠️ **The internal pipeline has no deterministic gate at all.** `enrich →
+  cluster → triage → draft → publish` is still wired in `vercel.json` and still
+  reachable through `POST /api/v1/admin/briefing/run`; its `publish` stage never
+  calls `evaluateCandidate`, and the trigger no longer refuses it. Whether it
+  should is an open owner decision, not a gap to close in passing.
 
 An automated identity may never hold `assessment.publish`, `approval.grant`,
 `evidence.restricted.read` or `policy.manage` — held as a const in

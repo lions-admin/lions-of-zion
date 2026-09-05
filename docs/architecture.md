@@ -338,15 +338,26 @@ article — which is why `war_update` was removed from `ARTICLE_SECTIONS` and wh
 `PUBLICATION_SECTIONS` and in the Postgres enum, so historic rows and homepage
 eligibility are untouched.
 
-Before any row can receive an automatic-publish marker it must pass all
-eighteen deterministic checks in `briefing/quality.ts`. That gate is enforced in
-two places that count differently, and the difference is load-bearing — see
-[`data-model.md`](data-model.md#the-publish-gate).
+Rows arriving through the **external composer ingest**
+(`POST /api/internal/briefing/external-publish`) must pass every deterministic
+check in `briefing/quality.ts` — `evaluateCandidate()` at
+`external-publish.ts:265` is the one call site. Count the checks at the source;
+this paragraph said "eighteen" against an array of seventeen until 2026-09-05.
+
+⚠️ **That is the only path with a deterministic gate.** This section described
+"two places that count differently" until 2026-09-05, and both had been removed
+on 2026-09-03: migration `0049` replaced the trigger's count with a machine-
+provenance check, and `595ca9d` deleted the counter from `publications/repo.ts`.
+The **internal** pipeline (`enrich → cluster → triage → draft → publish`, still
+wired in `vercel.json`, still reachable through `POST /api/v1/admin/briefing/run`)
+publishes with **no quality check at all**. Whether it should call
+`evaluateCandidate` before `publish` is an open owner decision — `0049` retired
+the stage by owner instruction. See [`data-model.md`](data-model.md#the-publish-gate).
 
 One Narrative Watch record per edition may publish **citing nothing at all**,
 marked in public as this organisation's own analysis rather than as documented
 fact. Structurally that is a flag inside a jsonb column and a second branch
-inside seven of the eighteen checks — never a skipped check. Where the flag
+inside several of the checks — never a skipped check. Where the flag
 comes from, why it is derived rather than chosen, and why an absent value must
 read as "sourced" are in
 [`data-model.md`](data-model.md#the-narrative_watch_details-jsonb).

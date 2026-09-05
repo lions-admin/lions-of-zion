@@ -79,7 +79,7 @@ describe("the no-JavaScript invariant: boundaries nothing can resolve", () => {
     }
   });
 
-  it("keeps the Daily Brief shell out of its own boundary", async () => {
+  it("keeps the News & Analysis shell out of its own boundary", async () => {
     /* `LiveBriefHub` renders `EditorialShell`. The moment it is `async` again,
        everything it returns — masthead included — moves behind the fallback,
        which is the segment-`loading.tsx` failure rebuilt by hand. */
@@ -281,7 +281,7 @@ function expectShellRenders(route: string, markup: string) {
 }
 
 describe("the no-JavaScript invariant: the shell arrives before the data", () => {
-  it("serves the Daily Brief shell while the projection read is still pending", async () => {
+  it("serves the News & Analysis shell while the projection read is still pending", async () => {
     listBriefingPublications.mockImplementation(never);
     const { default: Page } = await import("@/app/geopolitical-brief/page");
     const html = await pendingHtml(
@@ -290,11 +290,20 @@ describe("the no-JavaScript invariant: the shell arrives before the data", () =>
     );
 
     expectShellRenders("/geopolitical-brief", html);
-    expect(html).toContain("The Daily Brief");
+    /* The desk was renamed from "The Daily Brief" to "News & Analysis"
+       (commit 00240da): the visible h1 (components/briefs/LiveBriefHub.tsx:49)
+       and the JSON-LD name (app/geopolitical-brief/page.tsx:23) now agree on
+       it. The h1 is HTML-escaped in SSR ("News &amp; Analysis"); the JSON-LD
+       script is raw text, so the JSON name is not escaped. */
+    expect(html).toContain("News &amp; Analysis");
+    expect(html).toContain('"name":"News & Analysis"');
     expect(html).toContain("Intelligence desk");
     /* And the read really is behind a boundary — otherwise the fallback is
-       dead code and the route gained nothing but a slower first byte. */
-    expect(html).toContain("Loading the Daily Brief");
+       dead code and the route gained nothing but a slower first byte. The
+       pending read's fallback is the desk skeleton whose status label is
+       "Loading news and analysis" (LiveBriefHub.tsx:57, rendered as an
+       sr-only span by SkeletonRegion). */
+    expect(html).toContain("Loading news and analysis");
   });
 
   it("serves the /updates shell while the projection read is still pending", async () => {

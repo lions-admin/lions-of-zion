@@ -102,7 +102,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "LIONS OF ZION — Truth Has a Signal",
     description: SITE_DESCRIPTION,
-    images: ["/posters/particle-nav.webp"],
+    images: ["/video/lion-hero-poster-desktop.jpg"],
   },
   twitter: {
     card: "summary_large_image",

@@ -49,6 +49,23 @@
     opacity var(--dur-fast) var(--ease-out);
 }
 
+/* Case, settled.
+
+   `body` carries `text-transform: uppercase` site-wide (a deliberate owner
+   choice, argued at the declaration in `globals.css`). `text-transform`
+   inherits — but the UA stylesheet resets it for form controls, so every
+   `<button>` quietly escaped the rule while every `<a>` styled as a button
+   obeyed it. The two had disagreed on every page for as long as both have
+   existed: "READ RECORD" beside "Menu".
+
+   Declared here so the control decides its own case rather than inheriting an
+   answer that depends on which tag it happens to be. Aligned upward, to the
+   rule the site actually chose. `.filter` already said this for itself and is
+   now redundant rather than special; it is left alone. */
+.button {
+  text-transform: uppercase;
+}
+
 .xs {
   --btn-h: calc(var(--control-h) - var(--sp-4));
   padding: 0 var(--sp-2);

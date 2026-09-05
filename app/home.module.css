@@ -650,6 +650,11 @@
 /* Mobile cover: a quiet brand line, a typographic statement and a separate
    reading surface. Its vertical portrait composition is independent of desktop. */
 @media (width < 48rem) {
+  .page {
+    /* Let the final headline scroll fully above the persistent Ask control. */
+    padding-bottom: calc(var(--control-h) + var(--sp-7) + env(safe-area-inset-bottom, 0px));
+  }
+
   .hero {
     justify-content: flex-start;
     min-height: 100svh;
@@ -671,7 +676,9 @@
   .masthead {
     align-items: flex-start;
     width: auto;
-    margin: max(48svh, 20rem) var(--home-gutter) 0;
+    /* Keep the record in the first screen; the portrait has already done its
+       work above this point. A 38svh offset pushed the rail below the fold. */
+    margin: max(28svh, 14rem) var(--home-gutter) 0;
     text-align: start;
   }
 
@@ -687,12 +694,18 @@
   .filesDeck {
     position: relative;
     z-index: 12;
-    margin: var(--sp-7) var(--home-gutter) 0;
+    margin: var(--sp-5) var(--home-gutter) 0;
   }
 
   .signalRail {
     border-top-color: var(--line-strong);
-    background: var(--ground);
+    /* Keep the record over the lower photograph instead of creating a second
+       black page. The veil preserves contrast without becoming a slab. */
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ground) 18%, transparent),
+      color-mix(in oklab, var(--ground) 58%, transparent)
+    );
   }
 
   /* The old rail gradient painted over the CTA immediately above it. */
@@ -703,9 +716,9 @@
     grid-template-columns: 1fr auto;
     grid-template-areas: "flag all" "story story";
     align-items: center;
-    gap: var(--sp-3) var(--sp-4);
+    gap: var(--sp-1) var(--sp-4);
     width: 100%;
-    padding: var(--sp-3) 0 var(--sp-5);
+    padding: var(--sp-1) 0 var(--sp-2);
   }
 
   .railFlag {
@@ -736,13 +749,15 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--sp-3);
+    gap: var(--sp-2);
     min-width: 0;
   }
 
   .railMeta {
     flex: none;
+    flex-wrap: nowrap;
     gap: var(--sp-1) var(--sp-3);
+    white-space: nowrap;
     font-size: var(--t-data);
     line-height: var(--t-data-lh);
     letter-spacing: 0;
@@ -759,21 +774,21 @@
   }
 
   .railTime {
-    flex-basis: 100%;
+    flex-basis: auto;
     color: var(--ink-lo);
   }
 
   .railTitle {
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
-    min-height: calc(3 * var(--t-lede) * var(--t-lede-lh));
+    min-height: var(--control-h);
     max-width: 100%;
     overflow: hidden;
     white-space: normal;
     font-family: var(--face-home-cover);
-    font-size: var(--t-lede);
+    font-size: var(--t-body);
     font-weight: 400;
     line-height: var(--t-lede-lh);
     letter-spacing: -0.01em;
@@ -782,7 +797,7 @@
   }
 
   .railEmpty {
-    min-height: calc(3 * var(--t-lede) * var(--t-lede-lh));
+    min-height: var(--control-h);
     text-transform: none;
   }
 

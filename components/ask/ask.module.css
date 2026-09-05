@@ -948,17 +948,22 @@
   }
 }
 
-/* On the mobile home cover, Ask follows the record in document flow instead
-   of guessing a fixed offset above variable-height news. Other routes and
-   desktop retain their persistent dock. */
+/* Mobile home: keep Ask reachable above the device edge. The home reserves
+   trailing scroll space so the final record can clear this fixed control. */
 @media (width < 48rem) {
   html:has([data-home-scroll]) .dockTrigger {
-    position: relative;
-    inset: auto;
+    position: fixed;
+    /* Lift it into the quiet lower image instead of pinning it to the bezel. */
+    inset-block-end: calc(var(--sp-8) + env(safe-area-inset-bottom, 0px));
+    inset-inline-end: var(--home-gutter);
     display: flex;
     width: max-content;
+    inline-size: auto;
     min-width: var(--control-h);
-    margin: 0 var(--home-gutter) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px)) auto;
+    min-block-size: var(--control-h);
+    margin: 0;
+    background: var(--ground);
+    border-color: var(--control-line);
     box-shadow: none;
   }
 }

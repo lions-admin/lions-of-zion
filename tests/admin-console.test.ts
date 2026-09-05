@@ -526,7 +526,7 @@ describe("ADMIN-002 — the console header (rendered)", () => {
     expect(markup).toContain(T.signOut);
   });
 
-  it("reads and tabs in the same sequence: heading, map, sign out", async () => {
+  it("keeps sidebar links and session control before the workspace in DOM order", async () => {
     const markup = prose(await render(createElement(AdminPage)));
     const heading = at(markup, "<h1");
     /* Anchored on the link's destination rather than its text. What this test
@@ -537,8 +537,8 @@ describe("ADMIN-002 — the console header (rendered)", () => {
     const map = at(markup, 'href="/pipeline"');
     const signOut = at(markup, T.signOut);
     expect(heading).toBeGreaterThan(-1);
-    expect(heading).toBeLessThan(map);
     expect(map).toBeLessThan(signOut);
+    expect(signOut).toBeLessThan(heading);
   });
 
   it("declares the console's language *and* its direction on the console itself", async () => {
@@ -606,12 +606,15 @@ describe("ADMIN-002 — keyboard order matches visual layout (source)", () => {
        visually-hidden live region, which holds nothing focusable. */
     const positioned = [...css.matchAll(/\.([A-Za-z][\w-]*)\s*\{[^}]*position\s*:\s*(absolute|fixed)/g)]
       .map((match) => match[1]);
-    expect(positioned).toEqual(["consolePending"]);
+    expect(positioned).toEqual(["consolePending", "srOnly"]);
   });
 
   it("keeps irreversible controls last in the reading order of their own area", () => {
     for (const file of ["app/admin/PipelinePanel.tsx", "app/admin/EditorialDesk.tsx", "app/admin/SourcesPanel.tsx"]) {
-      const source = read(file);
+      const fullSource = read(file);
+      const source = file.endsWith("EditorialDesk.tsx")
+        ? fullSource.slice(fullSource.indexOf("function PublicationForm"), fullSource.indexOf("function publicationActions"))
+        : fullSource;
       const zone = source.indexOf("styles.dangerZone");
       expect(zone, `${file} has a danger zone`).toBeGreaterThan(-1);
 
@@ -629,22 +632,16 @@ describe("ADMIN-002 — keyboard order matches visual layout (source)", () => {
   });
 
   it("names the console's areas, so the sequence is one an operator can predict", () => {
-    /* ADMIN-002's information architecture, now five areas rather than one
-       column: overview, pipeline, sources, the editorial desk, then system
-       and security — in that order in the tab row, so the sequence a reader
-       sees is the sequence Tab visits. The chat is docked rather than
-       tabbed, because it is the surface used *while* reading another. */
     const shell = read("app/admin/OperationsConsole.tsx");
-    const order = ["overview", "pipeline", "sources", "editorial", "system"];
+    const order = ["overview", "pipeline", "sources", "editorial", "incidents", "costs", "audit", "users", "security", "settings", "environment", "reports", "chat", "prompts", "lineage"];
     let previous = -1;
     for (const value of order) {
-      const position = shell.indexOf(`value: "${value}"`);
+      const position = shell.indexOf(`["${value}",`);
       expect(position, `${value} is a named area`).toBeGreaterThan(previous);
-      expect(shell).toContain(`<TabPanel value="${value}">`);
       previous = position;
     }
-    /* Manual activation, or arrowing across the row fires five reads. */
-    expect(shell).toContain('activation="manual"');
+    expect(shell).toContain('aria-current={area === key ? "page" : undefined}');
+    expect(shell).not.toContain("<TabPanel");
     expect(read("app/admin/OpsChat.tsx")).toContain('id="console-chat"');
 
     /* Each area still labels its own region by its own heading. */

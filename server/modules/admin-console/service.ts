@@ -92,6 +92,7 @@ import {
   type DrainOutboxResult,
   type EditorialCard,
   type ListAudit,
+  type ListEditorial,
   type ListChatThreadsQuery,
   type ListConsoleReports,
   type ListEditionDrilldown,
@@ -595,6 +596,30 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
         systemActive: reasons.length === 0,
         inactiveReasons: reasons,
         automaticPublicationPaused: paused,
+        health: {
+          collection: {
+            state: row?.lastCollectedAt ? "observed" : "unknown",
+            reason: row?.lastCollectedAt ? "collection_observed" : "no_collection_observation",
+            observedAt: iso(row?.lastCollectedAt),
+          },
+          processing: {
+            state: !processing ? "paused" : stuck > 0 || num(row?.quarantined) > 0 ? "degraded" : row?.lastProcessedAt ? "observed" : "configured",
+            reason: !processing ? "processing_disabled" : stuck > 0 || num(row?.quarantined) > 0 ? "jobs_need_attention" : row?.lastProcessedAt ? "processing_observed" : "processing_configured",
+            observedAt: iso(row?.lastProcessedAt),
+          },
+          publication: {
+            state: row?.automaticPublicationPaused == null ? "unknown" : paused ? "paused" : row?.lastPublishedAt ? "observed" : "configured",
+            reason: row?.automaticPublicationPaused == null ? "publication_unknown" : paused ? "publication_paused" : "publication_configured",
+            observedAt: iso(row?.lastPublishedAt),
+          },
+        },
+        attention: [
+          ...(critical > 0 ? [{ code: "critical_alerts", severity: "critical", count: critical }] : []),
+          ...(stuck > 0 ? [{ code: "stuck_jobs", severity: "critical", count: stuck }] : []),
+          ...(num(row?.quarantined) > 0 ? [{ code: "quarantined_jobs", severity: "warning", count: num(row?.quarantined) }] : []),
+          ...(!processing ? [{ code: "processing_disabled", severity: "warning", count: 1 }] : []),
+          ...(paused ? [{ code: "publication_paused", severity: "info", count: 1 }] : []),
+        ],
         lastRun: {
           at: iso(lastRun?.at),
           localDate: lastRun?.localDate ?? null,
@@ -936,10 +961,14 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
       });
     },
 
-    async editorial(): Promise<ConsoleEditorial> {
-      const [counts, cards, features] = await Promise.all([
-        repo.editorialCounts(), repo.editorialCards(30), publicationService(db).homepageFeatures(),
+    async editorial(input?: ListEditorial): Promise<ConsoleEditorial> {
+      const [counts, features] = await Promise.all([
+        repo.editorialCounts(input), publicationService(db).homepageFeatures(),
       ]);
+      const total = counts.filter((row) => !input?.status || row.status === input.status).reduce((sum, row) => sum + num(row.count), 0);
+      const pages = input ? Math.max(1, Math.ceil(total / input.limit)) : 1;
+      const page = input ? Math.min(input.page, pages) : 1;
+      const cards = input ? await repo.editorialPage({ ...input, page }) : await repo.editorialCards(30);
       const countFor = (status: string) => num(counts.find((row) => row.status === status)?.count);
       const lane = (name: string): EditorialCard[] => cards
         .filter((row) => row.lane === name)
@@ -976,6 +1005,15 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           archived: lane("archived"),
         },
         homepageFeatures: features.map((feature) => ({ slot: num(feature.slot), publicationId: feature.publicationId })),
+        ...(input ? { page: {
+          items: cards.map((row) => ({
+            id: row.id, publicId: row.publicId, title: row.title, summary: row.summary,
+            section: row.section, status: row.status, featuredIsraelStory: row.featuredIsraelStory,
+            homepageSlot: row.homepageSlot == null ? null : num(row.homepageSlot), briefingRunId: row.briefingRunId,
+            evidenceCount: num(row.evidenceCount), createdAt: isoRequired(row.createdAt),
+            updatedAt: isoRequired(row.updatedAt), publishedAt: iso(row.publishedAt),
+          })), number: page, limit: input.limit, total, pages,
+        } } : {}),
       });
     },
 
@@ -1113,6 +1151,8 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
       warn(utilisation.aiMonthly, "The monthly AI budget");
       warn(utilisation.briefingMonthly, "The monthly briefing AI budget");
       warn(utilisation.searchMonthly, "The monthly Agent Search allowance");
+      if (!searchActual?.available) warnings.push("נתוני עלות החיפוש אינם זמינים: מסד הנתונים אינו כולל את עדכון 0052. שאר העלויות מוצגות כרגיל.");
+      else if (num(searchActual.recorded) === 0) warnings.push("לא נרשמו עלויות חיפוש ב־30 הימים האחרונים; זה אינו סכום של אפס.");
 
       const surfaces = new Map<CostSurface, { calls: number; costUsd: number }>();
       const kinds = new Map<string, { calls: number; costUsd: number }>();
@@ -1154,7 +1194,8 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           attemptsThisMonth: num(search?.attempts),
           successfulQueriesThisMonth: successfulQueries,
           estimatedSpendUsd: estimatedSearchSpend,
-          actualSpendUsd: money(searchActual?.actual30d),
+          ...(searchActual?.available && num(searchActual.recorded) > 0 ? { actualSpendUsd: money(searchActual.actual30d) } : {}),
+          actualSpendStatus: !searchActual?.available ? "schema_unavailable" : num(searchActual.recorded) > 0 ? "recorded" : "unrecorded",
         },
       });
     },

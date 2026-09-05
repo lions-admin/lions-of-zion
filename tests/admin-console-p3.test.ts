@@ -120,10 +120,11 @@ describe("agent search actual cost", () => {
     expect(costs.search.estimatedSpendUsd).toBeCloseTo(0.002, 9);
   });
 
-  it("leaves the rollup null-adjacent (zero) when no fetch reported a cost and the estimate unset", async () => {
+  it("distinguishes unrecorded spend from recorded zero", async () => {
     const db = await freshDatabase();
     const costs = await adminConsoleService(db, { dispatch: null }).costs();
-    expect(costs.search.actualSpendUsd).toBe(0);
+    expect(costs.search.actualSpendUsd).toBeUndefined();
+    expect(costs.search.actualSpendStatus).toBe("unrecorded");
     expect(costs.search.estimatedSpendUsd).toBeNull();
   });
 });

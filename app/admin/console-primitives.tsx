@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import { Skeleton, SkeletonRegion } from "@/components/ui/Skeleton";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
@@ -62,7 +62,7 @@ const isolate = (value: string) => `\u2068${value}\u2069`;
 /* `he-IL` orders a date the way an Israeli reader expects and keeps the
    digits Latin, which is what lets a timestamp sit legibly next to the Latin
    identifier it belongs to. */
-const dateTime = new Intl.DateTimeFormat(LOCALE, { dateStyle: "short", timeStyle: "short" });
+const dateTime = new Intl.DateTimeFormat(LOCALE, { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Jerusalem" });
 const fullDate = new Intl.DateTimeFormat(LOCALE, { dateStyle: "full" });
 
 export function formatDate(value: string | null | undefined): string {
@@ -165,6 +165,7 @@ export type Notice = { kind: "ok" | "error"; text: string };
  * the same order and the polite region is always told.
  */
 export function useOperations(onAuthRequired?: () => void) {
+  const running = useRef(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
 
@@ -186,6 +187,8 @@ export function useOperations(onAuthRequired?: () => void) {
 
   const run = useCallback(
     async (label: string, operation: () => Promise<string | null>) => {
+      if (running.current) return;
+      running.current = true;
       setBusy(label);
       setNotice(null);
       try {
@@ -194,6 +197,7 @@ export function useOperations(onAuthRequired?: () => void) {
       } catch (cause) {
         fail(cause);
       } finally {
+        running.current = false;
         setBusy(null);
       }
     },
@@ -295,13 +299,16 @@ export function ReadGate<T>({
       />
     );
   }
+  if (state.kind === "forbidden") {
+    return <p className={styles.error} role="alert">אין לחשבון הזה הרשאה לקרוא את {what}. יש לפנות לבעל המערכת.</p>;
+  }
   if (state.kind === "failed") {
     return (
       <StatusState
         status={absenceStatus("unavailable")}
         className={styles.consoleState}
         title={ABSENCE.failedTitle(what)}
-        description={state.message}
+        description={`${state.message}${state.staleAt ? ` הנתונים הקודמים נקראו ב־${formatDate(state.staleAt)} ואינם מעודכנים.` : ""}`}
         actionText={ABSENCE.failedAction}
         onAction={reload}
       />
@@ -325,9 +332,12 @@ export function InlineAbsence({ state, what, reload }: { state: ReadState<unknow
   if (state.kind === "unavailable") {
     return (
       <p className={styles.absence} {...politeLive}>
-        לא זמין בפריסה הזו: המסלול של {what} החזיר 404. שום דבר לא נכשל.
+        לא ניתן למצוא את {what}. ייתכן שהפריט הוסר או שהיכולת אינה זמינה בפריסה הזו.
       </p>
     );
+  }
+  if (state.kind === "forbidden") {
+    return <p className={styles.error} role="alert">אין לחשבון הזה הרשאה לקרוא את {what}.</p>;
   }
   if (state.kind === "auth-required") {
     return (
@@ -340,6 +350,7 @@ export function InlineAbsence({ state, what, reload }: { state: ReadState<unknow
     return (
       <p className={styles.error} {...assertiveLive}>
         לא ניתן לקרוא את {what}: {state.message}{" "}
+        {state.staleAt ? `הנתונים הקודמים אינם מעודכנים; נקראו ב־${formatDate(state.staleAt)}. ` : ""}
         <button type="button" className={styles.linkButton} onClick={reload}>
           {T.tryAgain}
         </button>

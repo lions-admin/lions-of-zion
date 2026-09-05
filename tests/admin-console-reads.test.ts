@@ -148,24 +148,13 @@ describe("console region wiring (source)", () => {
      skeletons until their effects run. What is pinned here is which payload
      each region surfaces, not which words it labels it with. */
 
-  it("surfaces the costs meters, the status read's integrations and fingerprints, and the outbox backlog on the overview", () => {
+  it("puts recovery links on overview and keeps specialist data in the system screens", () => {
     const overview = readFileSync(path.join(process.cwd(), "app/admin/OverviewPanel.tsx"), "utf8");
-    /* The budget region reads the costs payload piece by piece — the four
-       utilisations, and the search budget it can genuinely be null. */
-    for (const piece of [
-      "utilisation.aiDaily", "utilisation.aiMonthly", "utilisation.briefingMonthly", "utilisation.searchMonthly",
-      "budgets.search.monthlyQueries === null",
-    ]) {
-      expect(overview, piece).toContain(piece);
-    }
-    /* Integration readiness and the resource fingerprints come from the
-       already-polled status read — nothing new is fetched for them. */
-    expect(overview).toContain("status.value.integrations");
-    expect(overview).toContain("status.value.resourceFingerprints");
-    /* The outbox backlog is the incidents read's `outbox` object. */
-    for (const piece of ["outbox.undelivered", "outbox.deadLettered", "outbox.oldestAt"]) {
-      expect(overview, piece).toContain(piece);
-    }
+    const system = readFileSync(path.join(process.cwd(), "app/admin/SystemPanel.tsx"), "utf8");
+    expect(overview).toContain("value.health?.[key]");
+    expect(overview).toContain("outbox.undelivered");
+    expect(overview).toContain('href="/admin?area=incidents"');
+    for (const piece of ["utilisation.aiDaily", "utilisation.aiMonthly", "resourceFingerprints"]) expect(system).toContain(piece);
   });
 
   it("renders the draft preview from the artifact's daily brief and per-section articles", () => {

@@ -14,12 +14,19 @@
  */
 export class AuthRequired extends Error {
   constructor() {
-    super("This session is not signed in.");
+    super("הכניסה פגה או שהחשבון אינו מחובר. יש להתחבר מחדש.");
     this.name = "AuthRequired";
+  }
+}
+
+export class PermissionDenied extends Error {
+  constructor() {
+    super("אין לחשבון הזה הרשאה לפעולה המבוקשת. יש לפנות לבעל המערכת.");
+    this.name = "PermissionDenied";
   }
 }
 
 /** True when a batch of console reads was refused for want of a session. */
 export function refusedForAuth(responses: Array<{ status: number }>): boolean {
-  return responses.some((response) => response.status === 401 || response.status === 403);
+  return responses.some((response) => response.status === 401);
 }

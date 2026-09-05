@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { OPS_TOOLS, CONFIRMED_OPS_TOOLS } from "@/server/contracts/admin-console";
-import { AREA_LABEL } from "@/app/admin/lexicon";
 
 /**
  * The console shell, and the one property the operations chat exists to have.
@@ -34,27 +33,25 @@ describe("the shell", () => {
   const shell = read("app/admin/OperationsConsole.tsx");
   const page = read("app/admin/page.tsx");
 
-  it("mounts five areas and the docked chat", () => {
-    /* Each area takes its label from the lexicon rather than a literal, so
-       the five words are decided in one place and the panels can head
-       themselves with the same ones. */
-    for (const key of ["overview", "pipeline", "sources", "editorial", "system"] as const) {
-      expect(shell, `${key} is an area`).toContain(`label: AREA_LABEL.${key}`);
-      expect(AREA_LABEL[key], `${key} is named in Hebrew`).toMatch(/[֐-׿]/);
+  it("offers grouped direct navigation and an initially closed assistant", () => {
+    for (const key of ["overview", "pipeline", "sources", "editorial", "incidents", "costs", "audit", "users", "security", "settings", "environment", "reports", "chat", "prompts", "lineage"]) {
+      expect(shell).toContain(`"${key}"`);
     }
-    expect(Object.keys(AREA_LABEL), "five areas, no more").toHaveLength(5);
-    /* Docked, not tabbed: it is the surface used while reading another. */
-    expect(shell).toContain("<OpsChat");
-    expect(shell).not.toMatch(/<Tab value="chat"/);
+    expect(shell).toContain('aria-current={area === key ? "page" : undefined}');
+    expect(shell).toContain('params.get("area") === "system"');
+    expect(shell).toContain('const [chatOpen, setChatOpen] = useState(false)');
+    expect(shell).not.toContain("chatDocked");
   });
 
   it("gives each area the same reload signal, so a chat action refreshes what is on screen", () => {
     /* A counter rather than a flag: two changes in a row are two reloads. */
     expect(shell).toMatch(/setSignal\(\(current\) => current \+ 1\)/);
-    for (const panel of ["OverviewPanel", "PipelinePanel", "SourcesPanel", "EditorialDesk", "SystemPanel"]) {
+    for (const panel of ["OverviewPanel", "PipelinePanel", "SourcesPanel", "EditorialDesk"]) {
       expect(shell, `${panel} takes the signal`).toContain(`<${panel} signal={signal} />`);
     }
-    expect(shell).toContain("onStateChanged={reloadActiveArea}");
+    expect(shell).toContain("onStateChanged={refresh}");
+    expect(shell).toContain("<SystemPanel key={area} signal={signal}");
+    expect(shell).toContain("window.addEventListener(CONSOLE_CHANGED, refresh)");
   });
 
   it("declares the console's language and direction, and keeps the sign-out control mounted", () => {
@@ -66,7 +63,7 @@ describe("the shell", () => {
        it was written once before and mounted nowhere. */
     expect(page).toContain('lang="he"');
     expect(page).toContain('dir="rtl"');
-    expect(page).toContain("<SignOutButton />");
+    expect(shell).toContain("<SignOutButton />");
   });
 });
 
@@ -74,13 +71,10 @@ describe("the console's added reads", () => {
   const overview = read("app/admin/OverviewPanel.tsx");
   const pipeline = read("app/admin/PipelinePanel.tsx");
 
-  it("keeps the new overview regions off the area's poll budget", () => {
-    /* The overview declares three 30s polls — summary, briefing, status.
-       The costs meters and the outbox backlog are mount + signal only, so
-       opening the console adds no route to the timer. */
-    expect(overview).toContain('useConsoleRead<ConsoleCosts>("admin/console/costs", { signal });');
+  it("polls only the visible overview summary and moves cost detail to its own screen", () => {
     expect(overview).toContain('useConsoleRead<ConsoleIncidents>("admin/console/incidents", { signal });');
-    expect(overview.match(/pollInterval: OVERVIEW_POLL_MS/g)).toHaveLength(3);
+    expect(overview.match(/pollInterval: 30_000/g)).toHaveLength(1);
+    expect(overview).not.toContain('"admin/console/costs"');
   });
 
   it("reads the draft preview pre-contract, held until its region is opened", () => {
@@ -279,13 +273,9 @@ describe("what the console tells the operator the assistant can do", () => {
   });
 });
 
-describe("the final wave's sub-tabs (source)", () => {
-  /* The four SystemPanel sub-tabs the last UI wave added, pinned the way
-     every other region is: structurally over the sources. What is pinned is
-     which payload each sub-tab reads, that it mounts visit-once like the
-     other seven, that the keyset pages append through the cursor, and that
-     the one dangerous control per area is placed last in it. */
+describe("dedicated management destinations (source)", () => {
   const system = read("app/admin/SystemPanel.tsx");
+  const shell = read("app/admin/OperationsConsole.tsx");
   const reports = read("app/admin/ReportsSection.tsx");
   const threads = read("app/admin/ChatThreadsSection.tsx");
   const prompts = read("app/admin/PromptsSection.tsx");
@@ -293,7 +283,7 @@ describe("the final wave's sub-tabs (source)", () => {
   const chat = read("app/admin/OpsChat.tsx");
   const lexicon = read("app/admin/lexicon.ts");
 
-  it("mounts the four new sub-tabs visit-once and names them from the lexicon", () => {
+  it("mounts only the active destination and gives each a direct navigation entry", () => {
     for (const [key, entry] of [
       ["reports", "reportsTab"],
       ["chat", "chatTab"],
@@ -301,8 +291,8 @@ describe("the final wave's sub-tabs (source)", () => {
       ["lineage", "lineageTab"],
     ] as const) {
       expect(system, `${key} is a sub-area key`).toContain(`"${key}"`);
-      expect(system, `${key} is gated on first visit`).toContain(`visited.has("${key}")`);
-      expect(system, `${key} is labelled from the lexicon`).toContain(`label: T.${entry}`);
+      expect(system, `${key} mounts only when active`).toContain(`sub === "${key}"`);
+      expect(shell, `${key} is directly navigable`).toContain(`["${key}",`);
       const named = lexicon.slice(lexicon.indexOf(`${entry}:`));
       expect(named.slice(0, named.indexOf("\n")), `${entry} holds Hebrew`).toMatch(/[֐-׿]/);
     }

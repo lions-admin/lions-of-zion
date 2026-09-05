@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { SelectField } from "@/components/ui/SelectField";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { Tab, TabList, TabPanel, Tabs } from "@/components/ui/Tabs";
 import { politeLive } from "@/components/ui/live-region";
 import type {
   AuditEntry,
@@ -31,7 +30,6 @@ import { PromptsSection } from "./PromptsSection";
 import { ReportsSection } from "./ReportsSection";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import {
-  AreaHead,
   ConsoleNotices,
   EmptyLine,
   InlineAbsence,
@@ -48,28 +46,14 @@ import {
   useOperations,
   type PillTone,
 } from "./console-primitives";
-import { AREA_LABEL, JOB_STATE_LABEL, SECTION_LABEL, SEVERITY_LABEL, SENTENCE, T } from "./lexicon";
-import { AuthRequired } from "./auth-required";
+import { JOB_STATE_LABEL, SECTION_LABEL, SEVERITY_LABEL, SENTENCE, T } from "./lexicon";
+import { AuthRequired, PermissionDenied } from "./auth-required";
 import { AlertList, Stat, StatGrid } from "./_command/StatusCards";
 import { RouteUnavailable, callConsole, readConsole, useConsoleRead, type ReadState } from "./useConsoleRead";
 import cmd from "./command.module.css";
 import styles from "./admin.module.css";
 
-type SubArea = "users" | "costs" | "audit" | "incidents" | "security" | "settings" | "environment" | "reports" | "chat" | "prompts" | "lineage";
-
-const SUB_AREAS: Array<{ key: SubArea; label: string }> = [
-  { key: "users", label: "משתמשים והרשאות" },
-  { key: "costs", label: "עלויות ושימוש" },
-  { key: "audit", label: T.auditLog },
-  { key: "incidents", label: "תקלות והתאוששות" },
-  { key: "security", label: "אבטחה וחיבורים" },
-  { key: "settings", label: "הגדרות" },
-  { key: "environment", label: "סביבה" },
-  { key: "reports", label: T.reportsTab },
-  { key: "chat", label: T.chatTab },
-  { key: "prompts", label: T.promptsTab },
-  { key: "lineage", label: T.lineageTab },
-];
+export type SubArea = "users" | "costs" | "audit" | "incidents" | "security" | "settings" | "environment" | "reports" | "chat" | "prompts" | "lineage";
 
 const SURFACE_LABEL: Record<CostSurface, string> = {
   briefing: "בריף",
@@ -88,9 +72,7 @@ const SURFACE_LABEL: Record<CostSurface, string> = {
  * Each sub-area reads on first visit and stays mounted after, so switching
  * back does not re-read.
  */
-export function SystemPanel({ signal }: { signal: number }) {
-  const [sub, setSub] = useState<SubArea>("users");
-  const [visited, setVisited] = useState<Set<SubArea>>(() => new Set(["users"]));
+export function SystemPanel({ signal, sub = "users" }: { signal: number; sub?: SubArea }) {
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* STATE-004 — the focus fallback: the area itself. */
   const areaRef = useRef<HTMLElement | null>(null);
@@ -103,52 +85,23 @@ export function SystemPanel({ signal }: { signal: number }) {
      added to the shell's. */
   const [incidentsTick, setIncidentsTick] = useState(0);
 
-  function select(next: string) {
-    const key = next as SubArea;
-    setSub(key);
-    setVisited((current) => (current.has(key) ? current : new Set(current).add(key)));
-  }
-
   return (
     <section className={styles.area} id="console-system" aria-labelledby="console-system-heading" ref={areaRef} tabIndex={-1}>
-      <AreaHead id="console-system" label={AREA_LABEL.system} title="מי, כמה זה עולה, מה קרה, ומה מחובר" />
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
-
-      <Tabs value={sub} onValueChange={select} activation="manual" className={styles.subTabs}>
-        <div className={`${cmd.consoleNav} ${cmd.consoleNavSub}`}>
-        <TabList shape="segmented" label="תת-אזורים של מערכת ואבטחה">
-          {SUB_AREAS.map((entry) => (
-            <Tab key={entry.key} value={entry.key}>
-              {entry.label}
-            </Tab>
-          ))}
-        </TabList>
-        </div>
-        <TabPanel value="users">{visited.has("users") ? <UsersSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="costs">{visited.has("costs") ? <CostsSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="audit">{visited.has("audit") ? <AuditSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="incidents">
-          {visited.has("incidents") ? (
-            <IncidentsSection
-              signal={signal + incidentsTick}
-              disabled={ops.disabled}
-              onResolve={resolveAlert}
-              onRetry={requestRetry}
-              onDrain={drainOutboxNow}
-              onMaintenance={runMaintenanceTick}
-              onQuarantineResolve={resolveQuarantine}
-              onDiscard={requestDiscard}
-            />
-          ) : null}
-        </TabPanel>
-        <TabPanel value="security">{visited.has("security") ? <SecuritySection signal={signal} disabled={ops.disabled} run={ops.run} /> : null}</TabPanel>
-        <TabPanel value="settings">{visited.has("settings") ? <SettingsSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="environment">{visited.has("environment") ? <EnvironmentSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="reports">{visited.has("reports") ? <ReportsSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="chat">{visited.has("chat") ? <ChatThreadsSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="prompts">{visited.has("prompts") ? <PromptsSection signal={signal} /> : null}</TabPanel>
-        <TabPanel value="lineage">{visited.has("lineage") ? <LineageSection /> : null}</TabPanel>
-      </Tabs>
+      <h2 id="console-system-heading" className={styles.srOnly}>ניהול ובקרה</h2>
+      {sub === "users" ? <UsersSection signal={signal} /> : null}
+      {sub === "costs" ? <CostsSection signal={signal} /> : null}
+      {sub === "audit" ? <AuditSection signal={signal} /> : null}
+      {sub === "incidents" ? <IncidentsSection signal={signal + incidentsTick} disabled={ops.disabled}
+        onResolve={resolveAlert} onRetry={requestRetry} onDrain={drainOutboxNow}
+        onMaintenance={runMaintenanceTick} onQuarantineResolve={resolveQuarantine} onDiscard={requestDiscard} /> : null}
+      {sub === "security" ? <SecuritySection signal={signal} disabled={ops.disabled} run={ops.run} /> : null}
+      {sub === "settings" ? <SettingsSection signal={signal} /> : null}
+      {sub === "environment" ? <EnvironmentSection signal={signal} /> : null}
+      {sub === "reports" ? <ReportsSection signal={signal} /> : null}
+      {sub === "chat" ? <ChatThreadsSection signal={signal} /> : null}
+      {sub === "prompts" ? <PromptsSection signal={signal} /> : null}
+      {sub === "lineage" ? <LineageSection /> : null}
 
       <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
     </section>
@@ -616,7 +569,7 @@ function AuditSection({ signal }: { signal: number }) {
   const [applied, setApplied] = useState<AuditFilters>(filters);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [nextBefore, setNextBefore] = useState<string | null>(null);
-  const [state, setState] = useState<"loading" | "ready" | "unavailable" | "auth-required" | "failed">("loading");
+  const [state, setState] = useState<"loading" | "ready" | "unavailable" | "auth-required" | "forbidden" | "failed">("loading");
   const [failure, setFailure] = useState<string>("");
   const [loadingMore, setLoadingMore] = useState(false);
   const [tick, setTick] = useState(0);
@@ -633,6 +586,7 @@ function AuditSection({ signal }: { signal: number }) {
       .catch((cause: unknown) => {
         if (!live) return;
         if (cause instanceof AuthRequired) setState("auth-required");
+        else if (cause instanceof PermissionDenied) setState("forbidden");
         else if (cause instanceof RouteUnavailable) setState("unavailable");
         else {
           setFailure(cause instanceof Error ? cause.message : `לא ניתן לקרוא את ${T.auditLog}.`);

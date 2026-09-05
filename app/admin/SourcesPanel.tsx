@@ -3,6 +3,9 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
+import { SelectField } from "@/components/ui/SelectField";
+import { useRouter, useSearchParams } from "next/navigation";
+import workspace from "./workspace.module.css";
 import { Field } from "@/components/ui/Field";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { CollectSweepResult, ConsoleCosts, ConsoleSource, ConsoleSourceFetches, ConsoleSources } from "@/server/contracts/admin-console";
@@ -79,6 +82,8 @@ export function SourceCard({
       {source.disabledReason || source.lastError ? (
         <p className={cmd.sourceCardError}>{source.disabledReason ?? source.lastError}</p>
       ) : null}
+      <p className={cmd.sourceCardMeta}>מצב אימות: {source.verificationState ?? "לא נרשם"} · כפילויות: {source.week.duplicates}</p>
+      {source.verificationError ? <p className={cmd.sourceCardError}>{source.verificationError}</p> : null}
       <div className={cmd.sourceCardActions}>
         {onFetches ? (
           <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={onFetches}>
@@ -207,7 +212,17 @@ export function SourcesPanel({ signal }: { signal: number }) {
   /* The fetch log is opened per source row, in a drawer that holds its own
      read the same way the quality matrix holds its date-gated one. */
   const [fetchesFor, setFetchesFor] = useState<ConsoleSource | null>(null);
-  const [familyFilter, setFamilyFilter] = useState<string>("");
+  const params = useSearchParams();
+  const router = useRouter();
+  const familyFilter = params.get("family") ?? "";
+  const sourceQuery = params.get("q") ?? "";
+  const healthFilter = params.get("health") ?? "";
+  const sourcePage = Math.max(1, Number(params.get("page")) || 1);
+  function sourceFilter(changes: Record<string, string>) {
+    const next = new URLSearchParams(params); next.delete("page");
+    for (const [key, value] of Object.entries(changes)) { if (value) next.set(key, value); else next.delete(key); }
+    router.push(`/admin?${next}`, { scroll: false });
+  }
   /* STATE-004 — the focus fallback, on the area itself. */
   const areaRef = useRef<HTMLElement | null>(null);
   /* The reason is typed inside the confirmation; it lives in a ref so the
@@ -231,6 +246,7 @@ export function SourcesPanel({ signal }: { signal: number }) {
       </AreaHead>
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
 
+      <InlineAbsence state={costs.state} what="עלויות החיפוש" reload={costs.reload} />
       <InlineAbsence state={briefing.state} what="סיכום הבריף" reload={briefing.reload} />
       {briefing.value ? (
         <div className={styles.compactMetrics}>
@@ -270,125 +286,47 @@ export function SourcesPanel({ signal }: { signal: number }) {
         }
       >
         {(value) => {
-          const rows = familyFilter ? value.sources.filter((source) => (source.family?.id ?? "none") === familyFilter) : value.sources;
-          return (
-            <>
-              <div className={styles.chipRow} role="group" aria-label="סינון לפי משפחה">
-                <Button variant="ghost" size="sm" type="button" isActive={familyFilter === ""} onClick={() => setFamilyFilter("")}>
-                  הכול · {value.sources.length}
-                </Button>
-                {value.families.map((family) => (
-                  <Button
-                    key={family.id}
-                    variant="ghost"
-                    size="sm"
-                    type="button"
-                    isActive={familyFilter === family.id}
-                    onClick={() => setFamilyFilter(family.id)}
-                  >
-                    {family.label} · {family.sourceCount}
-                  </Button>
-                ))}
-                <span className={styles.chipNote}>
-                  <Pill tone="ok">{value.totals.active} פעילים</Pill> <Pill tone="neutral">{value.totals.disabled} מושבתים</Pill>{" "}
-                  <Pill tone={value.totals.failing ? "danger" : "ok"}>{value.totals.failing} כושלים</Pill>
-                </span>
-              </div>
-
-              {rows.length === 0 ? (
-                <EmptyLine>אין מקורות במשפחה הזו. הקריאה הצליחה והסינון הוציא כל שורה.</EmptyLine>
-              ) : (
-                <>
-                <div className={`${styles.tableWrap} ${cmd.desktopOnly}`}>
-                  <table className={`${styles.table} ${styles.tableWide}`}>
-                    <caption className={styles.tableCaption}>
-                      תקינות ותפוקה בשבעת הימים האחרונים. מקור מושבת נשאר מושבת עד שבדיקה חיה מחזירה פיד תקין, או עד שאדם מפעיל אותו עם סיבה.
-                    </caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">{T.source}</th>
-                        <th scope="col">משפחה</th>
-                        <th scope="col">סוג</th>
-                        <th scope="col">מצב</th>
-                        <th scope="col">{T.verify}</th>
-                        <th scope="col">שליפה אחרונה</th>
-                        <th scope="col">הצלחה אחרונה</th>
-                        <th scope="col">{T.attempts}</th>
-                        <th scope="col">{T.successes}</th>
-                        <th scope="col">נראו</th>
-                        <th scope="col">חדשים</th>
-                        <th scope="col">{T.duplicates}</th>
-                        <th scope="col">{T.fetchLog}</th>
-                        <th scope="col">{T.colRecovery}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((source) => (
-                        <tr key={source.id}>
-                          <th scope="row">
-                            <strong>{source.name}</strong>
-                            {/* The slug, language and country codes are the source's identity in the database. */}
-                            <small className={styles.plainSmall}><bdi>{source.slug}</bdi>{source.language ? ` · ${source.language}` : ""}{source.country ? ` · ${source.country}` : ""}</small>
-                            {source.disabledReason || source.lastError ? <small>{source.disabledReason ?? source.lastError}</small> : null}
-                          </th>
-                          <td>{source.family?.label ?? "—"}</td>
-                          <td>{kindWord(source.kind)}</td>
-                          <td>
-                            <Pill tone={source.active ? (source.consecutiveFailures ? "warn" : "ok") : "neutral"}>
-                              {source.active ? `${T.active} · ${source.consecutiveFailures} כשלים` : T.inactive}
-                            </Pill>
-                          </td>
-                          <td>
-                            {/* The verification state is a free-form config value written by the
-                                fetch route, so it is shown exactly as it is stored. */}
-                            {source.verificationState ?? "—"}
-                            {source.verificationError ? <small>{source.verificationError}</small> : null}
-                          </td>
-                          <td>{formatDate(source.lastFetchAt)}</td>
-                          <td>{formatDate(source.lastSuccessfulFetchAt)}</td>
-                          <td>{source.week.attempts}</td>
-                          <td>{source.week.successes}</td>
-                          <td>{source.week.itemsSeen}</td>
-                          <td>{source.week.itemsNew}</td>
-                          <td>{source.week.duplicates}</td>
-                          <td>
-                            <div className={styles.cellActions}>
-                              <Button variant="secondary" size="sm" type="button" disabled={ops.disabled} onClick={() => setFetchesFor(source)}>
-                                {T.fetchLog}
-                              </Button>
-                              {VERIFIABLE_KINDS.has(source.kind) && !source.active ? (
-                                <Button variant="secondary" size="sm" type="button" disabled={ops.disabled} onClick={() => verifySource(source)}>
-                                  אימות והפעלה
-                                </Button>
-                              ) : null}
-                              <Button variant="secondary" size="sm" type="button" disabled={ops.disabled} onClick={() => requestSourceActive(source, !source.active)}>
-                                {source.active ? T.disable : T.enable}
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {/* Narrow screens get cards, not a shrunken 13-column table:
-                    same rows, same words, same actions — different IA. */}
-                <div className={cmd.sourceCards}>
-                  {rows.map((source) => (
-                    <SourceCard
-                      key={source.id}
-                      source={source}
-                      disabled={ops.disabled}
-                      onVerify={verifySource}
-                      onToggle={(item) => requestSourceActive(item, !item.active)}
-                      onFetches={() => setFetchesFor(source)}
-                    />
-                  ))}
-                </div>
-                </>
-              )}
-            </>
-          );
+          const filtered = value.sources.filter((source) =>
+            (!familyFilter || (source.family?.id ?? "none") === familyFilter) &&
+            (!sourceQuery || `${source.name} ${source.slug}`.toLocaleLowerCase().includes(sourceQuery.toLocaleLowerCase())) &&
+            (!healthFilter || (healthFilter === "active" ? source.active : healthFilter === "disabled" ? !source.active : source.consecutiveFailures > 0)));
+          const pages = Math.max(1, Math.ceil(filtered.length / 25));
+          const page = Math.min(sourcePage, pages);
+          const rows = filtered.slice((page - 1) * 25, page * 25);
+          return <>
+            <form className={workspace.filters} onSubmit={(event) => { event.preventDefault(); sourceFilter({ q: String(new FormData(event.currentTarget).get("q") ?? "") }); }}>
+              <Field key={sourceQuery} type="search" name="q" label="חיפוש מקור" defaultValue={sourceQuery} />
+              <Button variant="secondary" type="submit">חיפוש</Button>
+              {sourceQuery ? <Button variant="ghost" type="button" onClick={() => sourceFilter({ q: "" })}>ניקוי חיפוש</Button> : null}
+              <SelectField label="משפחה" value={familyFilter} onChange={(event) => sourceFilter({ family: event.target.value })}>
+                <option value="">כל המשפחות</option>
+                {value.families.map((family) => <option key={family.id} value={family.id}>{family.label}</option>)}
+              </SelectField>
+              <SelectField label="מצב" value={healthFilter} onChange={(event) => sourceFilter({ health: event.target.value })}>
+                <option value="">כל המצבים</option><option value="active">פעילים</option><option value="disabled">מושבתים</option><option value="failing">עם כשלים</option>
+              </SelectField>
+            </form>
+            <p className={styles.headNote}>{filtered.length} מקורות בסינון הנוכחי · נתוני תפוקה בשבעת הימים האחרונים</p>
+            {rows.length === 0 ? <EmptyLine>אין מקורות שמתאימים למסננים. ניתן לנקות את החיפוש או לשנות מצב.</EmptyLine> :
+              <div className={workspace.sourceList}>
+                {rows.map((source) => <details key={source.id} className={workspace.sourceRow}>
+                  <summary>
+                    <span><strong dir="auto">{source.name}</strong><small>{source.family?.label ?? kindWord(source.kind)}</small></span>
+                    <Pill tone={!source.active ? "neutral" : source.consecutiveFailures ? "warn" : "ok"}>{!source.active ? "מושבת" : source.consecutiveFailures ? "כשלים באיסוף" : "פעיל"}</Pill>
+                    <span><small>איסוף אחרון</small>{formatDate(source.lastFetchAt)}</span>
+                    <span><small>פריטים חדשים</small>{source.week.itemsNew}</span>
+                    <span className={workspace.sourceExpand}>פרטים ופעולות</span>
+                  </summary>
+                  <SourceCard source={source} disabled={ops.disabled} onVerify={verifySource}
+                    onToggle={(item) => requestSourceActive(item, !item.active)} onFetches={() => setFetchesFor(source)} />
+                </details>)}
+              </div>}
+            <div className={workspace.pagination}>
+              <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => sourceFilter({ page: String(page - 1) })}>העמוד הקודם</Button>
+              <span>עמוד {page} מתוך {pages}</span>
+              <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => sourceFilter({ page: String(page + 1) })}>העמוד הבא</Button>
+            </div>
+          </>;
         }}
       </ReadGate>
 

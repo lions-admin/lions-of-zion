@@ -29,7 +29,7 @@ import { Field } from "@/components/ui/Field";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
-import { AuthRequired, refusedForAuth } from "./auth-required";
+import { AuthRequired, PermissionDenied, refusedForAuth } from "./auth-required";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import { Pill, formatAgo, formatUsd } from "./console-primitives";
 import { ABSENCE, T } from "./lexicon";
@@ -78,6 +78,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
   const [messages, setMessages] = useState<OpsMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
@@ -127,6 +128,8 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
    * operator's decisions on what it proposed last time.
    */
   const send = useCallback(async (text: string, decisions: Decision[], history: OpsMessage[]) => {
+    if (sendingRef.current) return;
+    sendingRef.current = true;
     setSending(true);
     setError(null);
     try {
@@ -140,6 +143,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
         }),
       });
       if (refusedForAuth([response])) throw new AuthRequired();
+      if (response.status === 403) throw new PermissionDenied();
       if (!response.ok) throw new Error("העוזר לא הצליח להשלים את התור הזה.");
       const payload = await response.json() as OpsChatResponse;
 
@@ -152,6 +156,7 @@ export function OpsChat({ onStateChanged }: { onStateChanged: () => void }) {
       if (cause instanceof AuthRequired) setAuthRequired(true);
       else setError(cause instanceof Error ? cause.message : "העוזר לא הצליח להשלים את התור הזה.");
     } finally {
+      sendingRef.current = false;
       setSending(false);
       composer.current?.focus();
     }

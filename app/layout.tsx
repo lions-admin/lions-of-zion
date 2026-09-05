@@ -16,7 +16,7 @@ import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
    entirely — see the note at the top of `app/tailwind.css`. */
 import "./tailwind.css";
 import "./globals.css";
-import { AskDock } from "@/components/ask/AskDock";
+import { PublicAskDock } from "@/components/ask/PublicAskDock";
 
 /*
  * Three faces, three jobs — see the token block in `globals.css` (SYS-003).
@@ -130,7 +130,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             place. The header's link to `/ask` was removed when this arrived —
             two controls to the same desk, one of which cost the reader their
             scroll position, was the worse of the pair to keep. */}
-        <AskDock />
+        <PublicAskDock />
       </body>
     </html>
   );

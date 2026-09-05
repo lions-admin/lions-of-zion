@@ -18,6 +18,7 @@ import "server-only";
 import { sql, type SQL } from "drizzle-orm";
 import type {
   ListAudit,
+  ListEditorial,
   ListChatThreadsQuery,
   ListConsoleReports,
   ListEntityVersions,
@@ -33,6 +34,9 @@ type Count = string | number;
 type Ts = Date | string | null;
 
 export type OverviewRow = {
+  lastCollectedAt: Ts;
+  lastProcessedAt: Ts;
+  lastPublishedAt: Ts;
   automaticPublicationPaused: boolean | null;
   criticalAlerts: Count;
   warningAlerts: Count;
@@ -490,6 +494,9 @@ export function adminConsoleRepo(db: unknown) {
 
     overview: () => one<OverviewRow>(sql`
       SELECT
+        (SELECT max(captured_at) FROM evidence) AS "lastCollectedAt",
+        (SELECT max(finished_at) FROM briefing_job WHERE state = 'completed' AND stage IN ('enrich', 'cluster', 'triage', 'draft')) AS "lastProcessedAt",
+        (SELECT max(published_at) FROM publication) AS "lastPublishedAt",
         (SELECT automatic_publication_paused FROM briefing_control WHERE id = 'global') AS "automaticPublicationPaused",
         (SELECT count(*) FROM briefing_alert WHERE resolved_at IS NULL AND severity = 'critical') AS "criticalAlerts",
         (SELECT count(*) FROM briefing_alert WHERE resolved_at IS NULL AND severity = 'warning') AS "warningAlerts",
@@ -729,8 +736,23 @@ export function adminConsoleRepo(db: unknown) {
 
     /* ── editorial ────────────────────────────────────────────────────────── */
 
-    editorialCounts: () => many<EditorialCountRow>(sql`
-      SELECT status::text AS status, count(*) AS count FROM publication GROUP BY status
+    editorialCounts: (input?: ListEditorial) => many<EditorialCountRow>(sql`
+      SELECT p.status::text AS status, count(*) AS count FROM publication p
+      WHERE ${editorialScope(input)} GROUP BY p.status
+    `),
+
+    editorialPage: (input: ListEditorial) => many<EditorialCardRow>(sql`
+      SELECT p.id, p.public_id AS "publicId", p.title, p.summary,
+        p.section::text AS section, p.status::text AS status,
+        p.featured_israel_story AS "featuredIsraelStory", hf.slot AS "homepageSlot",
+        p.briefing_run_id AS "briefingRunId",
+        (SELECT count(*) FROM publication_evidence pe WHERE pe.publication_id = p.id) AS "evidenceCount",
+        p.created_at AS "createdAt", p.updated_at AS "updatedAt", p.published_at AS "publishedAt",
+        CASE WHEN p.status IN ('published', 'updated') THEN 'published' ELSE p.status::text END AS lane
+      FROM publication p LEFT JOIN homepage_feature hf ON hf.publication_id = p.id
+      WHERE ${editorialScope(input)} ${input.status ? sql`AND p.status = ${input.status}` : sql``}
+      ORDER BY p.created_at DESC, p.id DESC
+      LIMIT ${input.limit} OFFSET ${(input.page - 1) * input.limit}
     `),
 
     /** Every lane in one read: newest first, `perLane` rows per lane. The
@@ -852,8 +874,11 @@ export function adminConsoleRepo(db: unknown) {
     /** What Agent Search fetches themselves reported costing: the 30-day sum
      *  of `source_fetch.actual_cost_usd` — the per-query estimate each
      *  successful query wrote at fetch time, not a Google billing feed. */
-    agentSearchActualSpend: () => one<{ actual30d: Count | null }>(sql`
-      SELECT coalesce(sum(f.actual_cost_usd), 0) AS "actual30d"
+    agentSearchActualSpend: () => one<{ actual30d: Count | null; recorded: Count; available: boolean }>(sql`
+      SELECT sum((to_jsonb(f)->>'actual_cost_usd')::numeric) AS "actual30d",
+        count(to_jsonb(f)->>'actual_cost_usd') AS recorded,
+        EXISTS (SELECT 1 FROM pg_attribute
+          WHERE attrelid = 'source_fetch'::regclass AND attname = 'actual_cost_usd' AND NOT attisdropped) AS available
       FROM source_fetch f JOIN source s ON s.id = f.source_id
       WHERE s.kind = 'agent_search'
         AND f.started_at >= now() - interval '30 days'
@@ -1205,6 +1230,13 @@ export function adminConsoleRepo(db: unknown) {
 }
 
 /** `LIKE` treats `%` and `_` as wildcards; a prefix filter must not. */
+function editorialScope(input?: ListEditorial): SQL {
+  const clauses: SQL[] = [sql`true`];
+  if (input?.briefingOnly) clauses.push(sql`p.briefing_run_id IS NOT NULL`);
+  if (input?.q) clauses.push(sql`(p.title ILIKE ${`%${escapeLike(input.q)}%`} OR p.public_id ILIKE ${`%${escapeLike(input.q)}%`})`);
+  return sql.join(clauses, sql` AND `);
+}
+
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (match) => `\\${match}`);
 }

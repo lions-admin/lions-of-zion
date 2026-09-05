@@ -1,141 +1,131 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AuthRequired, refusedForAuth } from "./auth-required";
+import { AuthRequired, PermissionDenied } from "./auth-required";
 
-/**
- * One console read, with the four states an operator has to be able to tell
- * apart and that used to be folded into two.
- *
- *  - `loading`       nothing has arrived yet. The panel shows its skeleton.
- *  - `ready`         the read succeeded; `value` is the wire shape.
- *  - `auth-required` refused for want of a session (STATE-005). Not a fault;
- *                    the first move is "sign in", never "retry".
- *  - `unavailable`   the route answered 404: this deployment does not serve
- *                    it yet. The console is built against the shared contract
- *                    ahead of every endpoint, so a missing route is an
- *                    ordinary state with its own words, never a crash.
- *  - `failed`        the read failed for any other reason. "Try again" is the
- *                    right first move.
- */
+export const CONSOLE_CHANGED = "loz:console-changed";
+export const CONSOLE_READ = "loz:console-read";
+export const api = (path: string) => `/api/v1/${path}`;
+
 export type ReadState<T> =
   | { kind: "loading" }
   | { kind: "ready"; value: T }
   | { kind: "auth-required" }
+  | { kind: "forbidden" }
   | { kind: "unavailable" }
-  | { kind: "failed"; message: string };
+  | { kind: "failed"; message: string; staleAt?: string };
 
 export type ConsoleRead<T> = {
   state: ReadState<T>;
-  /** The last good value, kept through a background refresh so a panel does
-   *  not blank while the operations chat reloads it. */
   value: T | null;
+  updatedAt: string | null;
+  refreshing: boolean;
   reload: () => void;
 };
 
-/** Every console path is relative to `/api/v1/`. */
-export const api = (path: string) => `/api/v1/${path}`;
-
 export class RouteUnavailable extends Error {
-  /* The path stays as it is: it is the route the operator would curl, and it
-     is what appears in the network panel. The sentence around it is theirs. */
   constructor(path: string) {
-    super(`${path} אינו זמין בפריסה הזו.`);
+    super(`המידע או הפעולה אינם זמינים. פרטים: ${path}`);
     this.name = "RouteUnavailable";
   }
 }
 
-/** Reads one route into its wire shape, throwing the typed absences. */
-export async function readConsole<T>(path: string): Promise<T> {
-  const response = await fetch(api(path), { cache: "no-store" });
-  if (refusedForAuth([response])) throw new AuthRequired();
+async function responseBody<T>(response: Response, path: string, failure: string): Promise<T> {
+  if (response.status === 401) throw new AuthRequired();
+  if (response.status === 403) throw new PermissionDenied();
   if (response.status === 404) throw new RouteUnavailable(path);
-  if (!response.ok) throw new Error(`לא ניתן לקרוא את ${path}.`);
-  return (await response.json()) as T;
+  const text = await response.text();
+  let payload: unknown = null;
+  try { payload = text ? JSON.parse(text) : null; } catch {
+    if (response.ok) throw new Error("השרת החזיר תשובה לא תקינה. יש לנסות שוב.");
+  }
+  if (!response.ok) {
+    const detail = payload && typeof payload === "object" && "detail" in payload ? String(payload.detail) : null;
+    throw new Error(detail || `${failure} (${response.status})`);
+  }
+  return payload as T;
 }
 
-type Options = {
-  /** Bumped by the shell when the operations chat reports a state change,
-   *  so the active area re-reads without flashing back to its skeleton. */
-  signal?: number;
-  /** `false` holds the read — a sub-panel not yet opened. */
-  enabled?: boolean;
-  /** Moderate background refresh, in milliseconds. The last good value stays
-   *  on screen while the refresh runs, and the timer pauses while the tab is
-   *  hidden so an idle console costs nothing. Omit for manual-only reads. */
-  pollInterval?: number;
+export async function readConsole<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const timeout = AbortSignal.timeout(20_000);
+  try {
+    const response = await fetch(api(path), { cache: "no-store", signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+    return await responseBody<T>(response, path, "קריאת הנתונים נכשלה");
+  } catch (cause) {
+    if (timeout.aborted && !signal?.aborted) throw new Error("השרת לא השיב בזמן. ניתן לנסות שוב.");
+    throw cause;
+  }
+}
+
+type Options = { signal?: number; enabled?: boolean; pollInterval?: number };
+
+type Snapshot<T> = {
+  path: string;
+  state: ReadState<T>;
+  value: T | null;
+  updatedAt: string | null;
 };
 
 export function useConsoleRead<T>(path: string, { signal = 0, enabled = true, pollInterval }: Options = {}): ConsoleRead<T> {
-  const [state, setState] = useState<ReadState<T>>({ kind: "loading" });
-  const [value, setValue] = useState<T | null>(null);
+  const [snapshot, setSnapshot] = useState<Snapshot<T>>({ path, state: { kind: "loading" }, value: null, updatedAt: null });
   const [tick, setTick] = useState(0);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
 
   useEffect(() => {
     if (!enabled) return;
+    const controller = new AbortController();
     let live = true;
-    readConsole<T>(path)
-      .then((next) => {
-        if (!live) return;
-        setValue(next);
-        setState({ kind: "ready", value: next });
-      })
-      .catch((cause: unknown) => {
-        if (!live) return;
-        if (cause instanceof AuthRequired) setState({ kind: "auth-required" });
-        else if (cause instanceof RouteUnavailable) setState({ kind: "unavailable" });
-        else setState({ kind: "failed", message: cause instanceof Error ? cause.message : `לא ניתן לקרוא את ${path}.` });
+    // Defer only the pending marker; the fetch starts immediately.
+    const pending = window.setTimeout(() => { if (live) setPendingPath(path); }, 0);
+    readConsole<T>(path, controller.signal).then((value) => {
+      if (!live) return;
+      const at = new Date().toISOString();
+      setSnapshot({ path, state: { kind: "ready", value }, value, updatedAt: at });
+      window.dispatchEvent(new CustomEvent(CONSOLE_READ, { detail: { path, at } }));
+    }).catch((cause: unknown) => {
+      if (!live) return;
+      setSnapshot((previous) => {
+        const same = previous.path === path;
+        const state: ReadState<T> = cause instanceof AuthRequired ? { kind: "auth-required" }
+          : cause instanceof PermissionDenied ? { kind: "forbidden" }
+            : cause instanceof RouteUnavailable ? { kind: "unavailable" }
+              : { kind: "failed", message: cause instanceof Error ? cause.message : "קריאת הנתונים נכשלה.", staleAt: same ? previous.updatedAt ?? undefined : undefined };
+        const retain = same && state.kind === "failed";
+        return { path, state, value: retain ? previous.value : null, updatedAt: retain ? previous.updatedAt : null };
       });
-    return () => {
-      live = false;
-    };
+    }).finally(() => {
+      window.clearTimeout(pending);
+      if (live) setPendingPath(null);
+    });
+    return () => { live = false; window.clearTimeout(pending); controller.abort(); };
   }, [path, enabled, signal, tick]);
 
-  /* Moderate polling for live areas (overview, pipeline). A background tick
-   * reuses the same read path, so failures surface through the same states
-   * and the panel never blanks: `reload()` below preserves a ready value. */
   useEffect(() => {
     if (!enabled || !pollInterval || pollInterval <= 0) return;
     const timer = window.setInterval(() => {
-      if (document.visibilityState !== "visible") return;
-      setTick((current) => current + 1);
+      if (document.visibilityState === "visible") setTick((current) => current + 1);
     }, pollInterval);
     return () => window.clearInterval(timer);
   }, [enabled, pollInterval, path]);
 
-  const reload = useCallback(() => {
-    setState((current) => (current.kind === "ready" ? current : { kind: "loading" }));
-    setTick((current) => current + 1);
-  }, []);
-
-  return { state, value, reload };
+  const reload = useCallback(() => setTick((current) => current + 1), []);
+  const current = enabled && snapshot.path === path;
+  return {
+    state: current ? snapshot.state : { kind: "loading" },
+    value: current ? snapshot.value : null,
+    updatedAt: current ? snapshot.updatedAt : null,
+    refreshing: pendingPath === path,
+    reload,
+  };
 }
 
-/**
- * A mutation against the console. Resolves to the parsed body; throws the
- * same typed absences as a read so a panel's `fail` handler needs one branch.
- */
-export async function callConsole<T = unknown>(
-  path: string,
-  init: { method: "POST" | "PATCH" | "PUT" | "DELETE"; body?: unknown; failure?: string },
-): Promise<T> {
+export async function callConsole<T = unknown>(path: string, init: { method: "POST" | "PATCH" | "PUT" | "DELETE"; body?: unknown; failure?: string }): Promise<T> {
   const response = await fetch(api(path), {
     method: init.method,
     headers: init.body === undefined ? undefined : { "content-type": "application/json" },
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
   });
-  if (refusedForAuth([response])) throw new AuthRequired();
-  if (response.status === 404) throw new RouteUnavailable(path);
-  const text = await response.text();
-  let payload: unknown = null;
-  try {
-    payload = text ? JSON.parse(text) : null;
-  } catch {
-    payload = null;
-  }
-  if (!response.ok) {
-    const detail = payload && typeof payload === "object" && "detail" in payload ? String((payload as { detail: unknown }).detail) : null;
-    throw new Error(detail || init.failure || `${path} נכשל.`);
-  }
-  return payload as T;
+  const payload = await responseBody<T>(response, path, init.failure ?? "הפעולה נכשלה");
+  window.dispatchEvent(new Event(CONSOLE_CHANGED));
+  return payload;
 }

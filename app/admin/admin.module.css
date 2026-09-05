@@ -1391,3 +1391,33 @@
 .railToggle > * {
   width: 100%;
 }
+
+/* Operational density: these classes are private to the admin surface. */
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.area, .subArea { min-width: 0; }
+.area { gap: 20px; }
+.area > * { min-width: 0; }
+.panel { margin-top: 0; padding: 18px; background: var(--surface-1); box-shadow: none; }
+.panel > summary { font-size: 15px; font-weight: 500; cursor: pointer; }
+.panelHead { align-items: center; gap: 16px; }
+.panelHead h2 { font-size: 20px; line-height: 1.4; margin: 0; }
+.panelHead .sectionLabel { display: none; }
+.panelHead .muted { margin-top: 5px; max-width: 68ch; }
+.panelTitle h3 { font-size: 16px; margin: 0 0 10px; font-weight: 500; }
+.twoColumns { gap: 18px; }
+.runFacts { display: grid; grid-template-columns: minmax(100px,.8fr) minmax(0,1.2fr); gap: 10px 16px; font: 14px/1.5 var(--face-text); }
+.runFacts dd { margin: 0; color: var(--ink-hi); overflow-wrap: anywhere; }
+.controlBar { padding: 18px; gap: 18px; }
+.controlBar h3 { font-size: 16px; }
+.compactMetrics { margin-top: 0; }
+.editorForm { min-width: 0; border: 0; padding: 0; margin: 0; }
+.editorForm input, .editorForm textarea { text-align: start; }
+.editorStatus { flex-wrap: wrap; }
+.panel :is(h2,h3,h4) { overflow-wrap: anywhere; }
+.pill { font-family: var(--face-text); border: 0; font-size: 12px; }
+.tableWrap { min-width: 0; max-width: 100%; scrollbar-gutter: stable; }
+.table { font-size: 13px; }
+.table :is(td,th) { padding: 10px 12px; }
+.traceability { font-size: 13px; }
+@media (max-width: 800px) { .twoColumns { grid-template-columns: minmax(0,1fr); } .formGrid, .grid { grid-template-columns: minmax(0,1fr); } .compactMetrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 480px) { .panel { padding: 14px; } .runFacts { grid-template-columns: minmax(0,1fr); gap: 4px; } .runFacts dd { margin-bottom: 10px; } .actionRow { flex-wrap: wrap; } }

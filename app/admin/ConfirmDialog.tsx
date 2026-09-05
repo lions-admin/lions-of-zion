@@ -75,6 +75,7 @@ export function ConfirmDialog({ intent, onClose, fallbackFocusRef }: ConfirmDial
 
 function ConfirmPanel({ intent, onClose, fallbackFocusRef }: ConfirmPanelProps) {
   const [running, setRunning] = useState(false);
+  const runningRef = useRef(false);
 
   /* Captured during the first render — before `Dialog`'s effect moves focus
      into the panel — so this is still the control the operator pressed. */
@@ -104,7 +105,7 @@ function ConfirmPanel({ intent, onClose, fallbackFocusRef }: ConfirmPanelProps) 
   return (
     <Dialog
       open
-      onClose={onClose}
+      onClose={() => { if (!runningRef.current) onClose(); }}
       title={intent.action}
       /* A stray backdrop click cancels, which is the safe direction. */
       dismissOnBackdrop
@@ -119,6 +120,8 @@ function ConfirmPanel({ intent, onClose, fallbackFocusRef }: ConfirmPanelProps) 
             type="button"
             isLoading={running}
             onClick={async () => {
+              if (runningRef.current) return;
+              runningRef.current = true;
               setRunning(true);
               try {
                 await intent.run();

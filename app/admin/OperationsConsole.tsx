@@ -1,181 +1,121 @@
 "use client";
 
-/**
- * LIONS OF ZION OPERATIONS CONSOLE — the shell.
- *
- * Five areas and a chat. The page used to be one column that mixed deployment
- * identity, user counts, search spend and pipeline throughput in a single
- * seventeen-cell grid, then panels in the order they happened to be written.
- * The areas are the operator's actual questions, in the order they get asked:
- *
- *   1. **Overview** — is it running, when did it last run, what came out.
- *   2. **Pipeline** — if it is not running, which stage is stuck and why.
- *   3. **Sources** — is anything still coming in.
- *   4. **Editorial Desk** — what is waiting for a person, and publishing.
- *   5. **System & Security** — users, cost, the audit log, incidents, secrets.
- *
- * `activation="manual"` on the tab row is deliberate: each area fetches its
- * own data, so arrowing across five tabs with automatic activation would fire
- * five reads nobody asked for. Arrow keys move focus; Enter or Space selects.
- *
- * The chat is docked rather than tabbed. It is the one surface an operator
- * uses *while* reading another, and putting it behind a tab would mean losing
- * the screen you are asking about. On a narrow screen a docked rail would
- * squeeze the areas it serves, so the rail collapses to one deliberate
- * toggle that opens the chat as a full-height end-edge drawer — a top-layer
- * `<dialog>`, never a floating obstruction. The two placements never coexist:
- * the same media query that decides the grid decides which one mounts, so
- * the chat cannot overlap the nav or the content in either of them.
- *
- * `signal` is how the chat and the areas stay honest with each other: when a
- * turn reports it changed state, the number goes up and the visible area
- * re-reads. It is a counter rather than a boolean so two changes in a row are
- * two reloads.
- *
- * The selected area is mirrored into the URL as `?area=` for deep-linking,
- * replacing the address with the History API — no navigation, no refetch.
- * The server always renders `overview`; the client syncs from the URL once
- * on mount, so the first paint never disagrees with the document that
- * produced it.
- */
-
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
-import { Tab, TabList, TabPanel, Tabs } from "@/components/ui/Tabs";
 import { EditorialDesk } from "./EditorialDesk";
-import { AREA_LABEL, T } from "./lexicon";
 import { OpsChat } from "./OpsChat";
 import { OverviewPanel } from "./OverviewPanel";
 import { PipelinePanel } from "./PipelinePanel";
 import { SourcesPanel } from "./SourcesPanel";
-import { SystemPanel } from "./SystemPanel";
-import { CommandBackground } from "./_command/CommandBackground";
-import cmd from "./command.module.css";
-import styles from "./admin.module.css";
+import { SystemPanel, type SubArea } from "./SystemPanel";
+import { SignOutButton } from "./SignOutButton";
+import { formatDate } from "./console-primitives";
+import { CONSOLE_CHANGED, CONSOLE_READ, useConsoleRead } from "./useConsoleRead";
+import type { Status } from "./briefing-shapes";
+import styles from "./workspace.module.css";
 
-/* The `value` is the wire word — it is what the tab state, the panel and
-   `tests/admin-console.test.ts` all key on, and it stays Latin. The label is
-   read from `lexicon.ts` rather than typed here, so the five areas are named
-   once and the panels below can head themselves with the same words. */
-const AREAS = [
-  { value: "overview", label: AREA_LABEL.overview },
-  { value: "pipeline", label: AREA_LABEL.pipeline },
-  { value: "sources", label: AREA_LABEL.sources },
-  { value: "editorial", label: AREA_LABEL.editorial },
-  { value: "system", label: AREA_LABEL.system },
+export const NAV_GROUPS = [
+  { title: "עבודה", entries: [
+    ["overview", "תמונת מצב"], ["pipeline", "עיבוד ומהדורות"],
+    ["sources", "מקורות"], ["editorial", "כתבות ופרסום"],
+  ] },
+  { title: "בקרה", entries: [["incidents", "תקלות והתאוששות"], ["costs", "עלויות ושימוש"], ["audit", "יומן פעילות"]] },
+  { title: "ניהול", entries: [
+    ["users", "משתמשים והרשאות"], ["security", "אבטחה וחיבורים"],
+    ["settings", "הגדרות"], ["environment", "סביבה"], ["reports", "דיווחים"],
+    ["chat", "שיחות ציבוריות"], ["prompts", "הנחיות למודלים"], ["lineage", "שרשרת המקורות"],
+  ] },
 ] as const;
 
-const DEFAULT_AREA = "overview";
-const AREA_QUERY = "area";
-/** The chat docks beside the areas at the same width the console layout
- *  reserves the rail column for; below it, the rail is the drawer toggle. */
-const DOCKED_CHAT_QUERY = "(min-width: 64rem)";
-
-function areaFromLocation(): string | null {
-  if (typeof window === "undefined") return null;
-  const value = new URLSearchParams(window.location.search).get(AREA_QUERY);
-  return AREAS.some((entry) => entry.value === value) ? value : null;
-}
-
 export function OperationsConsole() {
-  const [area, setArea] = useState<string>(DEFAULT_AREA);
+  const params = useSearchParams();
+  const pathname = usePathname();
+  const requested = params.get("area") === "system" ? params.get("sub") ?? "users" : params.get("area");
+  const entries: ReadonlyArray<readonly [string, string]> = NAV_GROUPS.flatMap<readonly [string, string]>((group) => [...group.entries]);
+  const entry = entries.find(([key]) => key === requested);
+  const area = entry?.[0] ?? "overview";
+  const title = entry?.[1] ?? "תמונת מצב";
   const [signal, setSignal] = useState(0);
-  /* `true` — the desktop rail. `false` — the narrow-screen toggle and drawer. */
-  const [chatDocked, setChatDocked] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
-  const reloadActiveArea = useCallback(() => setSignal((current) => current + 1), []);
+  const [chatMounted, setChatMounted] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<{ area: string; at: string } | null>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const status = useConsoleRead<Status>("admin/status", { signal });
+  const refresh = useCallback(() => setSignal((current) => current + 1), []);
 
-  /* Sync from the URL once after hydration, so the server-rendered document
-     (always `overview`) and the client agree before the first state change;
-     and read the viewport's docking decision from the same media query the
-     stylesheet uses. Both are deferred a tick — a synchronous `setState`
-     inside an effect cascades a second render before paint, and neither the
-     deep link nor the breakpoint is worth one. */
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const fromUrl = areaFromLocation();
-      if (fromUrl) setArea(fromUrl);
-      setChatDocked(window.matchMedia(DOCKED_CHAT_QUERY).matches);
-    }, 0);
-    const query = window.matchMedia(DOCKED_CHAT_QUERY);
-    const sync = () => setChatDocked(query.matches);
-    query.addEventListener("change", sync);
-    return () => {
-      window.clearTimeout(timer);
-      query.removeEventListener("change", sync);
+    const read = (event: Event) => {
+      const { path, at } = (event as CustomEvent<{ path: string; at: string }>).detail;
+      if (path === "admin/status" && area !== "environment") return;
+      setUpdatedAt({ area, at });
     };
-  }, []);
+    window.addEventListener(CONSOLE_CHANGED, refresh);
+    window.addEventListener(CONSOLE_READ, read);
+    return () => {
+      window.removeEventListener(CONSOLE_CHANGED, refresh);
+      window.removeEventListener(CONSOLE_READ, read);
+    };
+  }, [area, refresh]);
+  useEffect(() => { heading.current?.focus({ preventScroll: true }); }, [area]);
 
-  const selectArea = useCallback((next: string) => {
-    setArea(next);
-    /* A deep link, not a navigation: replace the address in place so the
-       back button still leaves the console and no refetch is fired. */
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.searchParams.set(AREA_QUERY, next);
-    window.history.replaceState(null, "", url);
-  }, []);
-
-  const chat = <OpsChat onStateChanged={reloadActiveArea} />;
+  const navigation = (mobile = false) => (
+    <nav aria-label={mobile ? "ניווט ניהול בנייד" : "ניווט ניהול"} className={styles.navigation}>
+      {NAV_GROUPS.map((group) => (
+        <div key={group.title} className={styles.navGroup}>
+          <p>{group.title}</p>
+          {group.entries.map(([key, label]) => (
+            <Link key={key} href={`${pathname}?area=${key}`} prefetch={false} scroll={false}
+              aria-current={area === key ? "page" : undefined} onClick={() => setNavOpen(false)}>
+              {label}
+            </Link>
+          ))}
+        </div>
+      ))}
+      <Link href="/pipeline" prefetch={false} className={styles.architecture}>מפת המערכת ↗</Link>
+    </nav>
+  );
+  const environments: Record<string, string> = { production: "סביבת ייצור", preview: "סביבת תצוגה מקדימה", development: "סביבה מקומית", test: "סביבת בדיקה" };
 
   return (
-    <div className={cmd.shell}>
-      <CommandBackground />
-      <div className={styles.consoleLayout}>
-        <Tabs
-          value={area}
-          onValueChange={selectArea}
-          activation="manual"
-          className={styles.consoleTabs}
-        >
-          <div className={cmd.consoleNav}>
-            <TabList label="אזורי הקונסולה" shape="segmented">
-              {AREAS.map((entry) => (
-                <Tab key={entry.value} value={entry.value}>{entry.label}</Tab>
-              ))}
-            </TabList>
-          </div>
-
-          <TabPanel value="overview"><OverviewPanel signal={signal} /></TabPanel>
-          <TabPanel value="pipeline"><PipelinePanel signal={signal} /></TabPanel>
-          <TabPanel value="sources"><SourcesPanel signal={signal} /></TabPanel>
-          <TabPanel value="editorial"><EditorialDesk signal={signal} /></TabPanel>
-          <TabPanel value="system"><SystemPanel signal={signal} /></TabPanel>
-        </Tabs>
-
-        <aside className={styles.consoleRail} aria-label="עוזר התפעול">
-          {chatDocked ? (
-            chat
-          ) : (
-            <div className={styles.railToggle}>
-              <Button
-                variant="secondary"
-                size="md"
-                type="button"
-                aria-haspopup="dialog"
-                aria-expanded={chatOpen}
-                onClick={() => setChatOpen(true)}
-              >
-                {T.openOpsChat}
-              </Button>
+    <div className={styles.workspace}>
+      <a className={styles.skipLink} href="#admin-work">דילוג לשטח העבודה</a>
+      <aside className={styles.sidebar}>
+        <div className={styles.identity}><strong>אריות ציון</strong><span>מרכז שליטה</span></div>
+        {navigation()}
+        <div className={styles.session}><SignOutButton /></div>
+      </aside>
+      <div className={styles.main}>
+        <header className={styles.topbar}>
+          <Button className={styles.mobileMenu} variant="secondary" size="sm" onClick={() => setNavOpen(true)} aria-expanded={navOpen} aria-haspopup="dialog">תפריט</Button>
+          <div className={styles.pageIdentity}>
+            <h1 ref={heading} tabIndex={-1}>{title}</h1>
+            <div className={styles.context}>
+              <span>{status.state.kind === "ready" ? environments[status.state.value.environment] ?? status.state.value.environment : "סביבה לא זמינה"}</span>
+              <span>{updatedAt?.area === area ? `קריאה אחרונה: ${formatDate(updatedAt.at)}` : "ממתין לנתונים"}</span>
             </div>
-          )}
-        </aside>
+          </div>
+          <div className={styles.toolbar}>
+            <Button variant="ghost" size="sm" onClick={refresh}>רענון</Button>
+            <Button variant="secondary" size="sm" onClick={() => { setChatMounted(true); setChatOpen(true); }} aria-expanded={chatOpen} aria-haspopup="dialog">עוזר התפעול</Button>
+          </div>
+        </header>
+        <div id="admin-work" className={styles.content} tabIndex={-1}>
+          {area === "overview" ? <OverviewPanel signal={signal} />
+            : area === "pipeline" ? <PipelinePanel signal={signal} />
+              : area === "sources" ? <SourcesPanel signal={signal} />
+                : area === "editorial" ? <EditorialDesk signal={signal} />
+                  : <SystemPanel key={area} signal={signal} sub={area as SubArea} />}
+        </div>
       </div>
-
-      {/* The narrow-screen chat. Top-layer, full-height, closed by Escape or
-          its own close control — and unmounted entirely on a desktop
-          viewport, where the rail carries the same component instead. */}
-      <Dialog
-        open={!chatDocked && chatOpen}
-        onClose={() => setChatOpen(false)}
-        variant="drawer"
-        size="wide"
-        title="עוזר התפעול"
-        closeLabel={T.closeOpsChat}
-      >
-        {!chatDocked ? chat : null}
+      <Dialog open={navOpen} onClose={() => setNavOpen(false)} variant="drawer" title="ניווט" closeLabel="סגירת התפריט" className={styles.navDrawer}>
+        {navigation(true)}<SignOutButton />
+      </Dialog>
+      <Dialog open={chatOpen} onClose={() => setChatOpen(false)} variant="drawer" size="wide" title="עוזר התפעול" closeLabel="סגירת עוזר התפעול" dismissOnBackdrop={false}>
+        {chatMounted ? <OpsChat onStateChanged={refresh} /> : null}
       </Dialog>
     </div>
   );

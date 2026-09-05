@@ -1,326 +1,106 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Skeleton } from "@/components/ui/Skeleton";
-import { politeLive } from "@/components/ui/live-region";
-import type { ConsoleCosts, ConsoleIncidents, ConsoleOverview, OpsCapabilities } from "@/server/contracts/admin-console";
-import type { BriefingStatus, Status } from "./briefing-shapes";
+import type { ConsoleOverview, ConsoleIncidents } from "@/server/contracts/admin-console";
+import type { BriefingStatus } from "./briefing-shapes";
 import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
-import { AlertList, CommandCard, Stat, StatGrid, VerdictBanner } from "./_command/StatusCards";
-import {
-  AreaHead,
-  ConsoleNotices,
-  EmptyLine,
-  InlineAbsence,
-  Metric,
-  PanelTitle,
-  Pill,
-  ReadGate,
-  formatAgo,
-  formatDate,
-  formatPercent,
-  formatUsd,
-  today,
-  useOperations,
-  type PillTone,
-} from "./console-primitives";
-import { AREA_LABEL, JOB_STATE_LABEL, SEVERITY_LABEL, STAGE_LABEL, T } from "./lexicon";
+import { AreaHead, ConsoleNotices, InlineAbsence, PanelTitle, Pill, ReadGate, formatDate, stageLabel, today, useOperations } from "./console-primitives";
+import { Stat, StatGrid } from "./_command/StatusCards";
+import { JOB_STATE_LABEL } from "./lexicon";
 import { callConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
+import workspace from "./workspace.module.css";
 
-/**
- * Overview — the one screen an operator reads first.
- *
- * It answers four questions in the order they are asked: is the system
- * active (and if not, why); when did it last run and when will it next; what
- * moved through it in the last day; and what is waiting for a person. The
- * two controls that decide whether anything reaches readers live here as the
- * primary controls: the publication switch and "run processing now".
- *
- * `console/overview` is the summary; `briefing` and `status` still carry the
- * numbers this route does not, and the area degrades to those when the
- * summary is not served.
- */
-const OVERVIEW_POLL_MS = 30_000;
+const STATE_WORD = { configured: "מוגדר לפעול", observed: "נרשמה פעילות", paused: "מושהה", degraded: "דורש טיפול", unknown: "אין מידע מספיק" };
+const ATTENTION = {
+  critical_alerts: { title: "התראות קריטיות פתוחות", note: "בדיקת האירועים והאם הבעיה עדיין קיימת", area: "incidents" },
+  stuck_jobs: { title: "משימות ללא עדכון בזמן", note: "בדיקת השלב והאפשרות להרצה חוזרת", area: "pipeline" },
+  quarantined_jobs: { title: "משימות בבידוד", note: "בדיקת סיבת הכשל ואפשרויות ההתאוששות", area: "incidents" },
+  processing_disabled: { title: "העיבוד מושבת בהגדרות", note: "בדיקת תצורת העיבוד של הסביבה", area: "settings" },
+  publication_paused: { title: "הפרסום האוטומטי מושהה", note: "האיסוף והעיבוד אינם נשלטים באמצעות מתג הפרסום", area: "pipeline" },
+} as const;
 
 export function OverviewPanel({ signal }: { signal: number }) {
-  const overview = useConsoleRead<ConsoleOverview>("admin/console/overview", { signal, pollInterval: OVERVIEW_POLL_MS });
-  const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal, pollInterval: OVERVIEW_POLL_MS });
-  const status = useConsoleRead<Status>("admin/status", { signal, pollInterval: OVERVIEW_POLL_MS });
-  /* What the console can do, from the same capability list the operations
-    * chat renders — read here rather than copied, so the two never disagree.
-    * Static enough to skip polling; the shell signal still refreshes it. */
-  const capabilities = useConsoleRead<OpsCapabilities>("admin/ops/capabilities", { signal });
-  /* The costs meters and the inner delivery queue: mount + signal only, no
-    * new poll — the 30s budget above is the area's whole poll spend, and the
-    * shell signal refreshes these with everything else. `status` already
-    * carries the integrations and the resource fingerprints; the regions
-    * below only surface them. */
-  const costs = useConsoleRead<ConsoleCosts>("admin/console/costs", { signal });
+  const overview = useConsoleRead<ConsoleOverview>("admin/console/overview", { signal, pollInterval: 30_000 });
+  const briefing = useConsoleRead<BriefingStatus>("admin/briefing", { signal });
   const incidents = useConsoleRead<ConsoleIncidents>("admin/console/incidents", { signal });
   const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
-  /**
-    * STATE-004 — where focus lands when the control that opened a confirmation
-    * is gone by the time it closes. The area itself is `tabIndex={-1}` and
-    * named by its own heading, so landing there announces where the operator
-    * is rather than an anonymous group.
-    */
   const areaRef = useRef<HTMLElement | null>(null);
-
-  const reloadAll = useCallback(() => {
-    overview.reload();
-    briefing.reload();
-    status.reload();
-  }, [overview, briefing, status]);
   const ops = useOperations();
-
   const paused = overview.value?.automaticPublicationPaused ?? briefing.value?.automaticPublicationPaused ?? null;
+  function reloadAll() { overview.reload(); briefing.reload(); incidents.reload(); }
 
   return (
-    <section className={styles.area} id="console-overview" aria-labelledby="console-overview-heading" ref={areaRef} tabIndex={-1}>
-      <AreaHead id="console-overview" label={AREA_LABEL.overview} title="האם המערכת פועלת, ומה דורש אדם">
-        <div className={styles.actionRow}>
-          <Button variant="primary" type="button" disabled={ops.disabled || paused === null} onClick={runBriefing}>
-            הרצת עיבוד עכשיו
-          </Button>
-        </div>
+    <section id="console-overview" className={styles.area} aria-labelledby="console-overview-heading" ref={areaRef} tabIndex={-1}>
+      <AreaHead id="console-overview" label="תמונת מצב" title="מה קורה עכשיו" note="הגדרה פעילה אינה הוכחה לריצה מוצלחת. הנתונים מציגים את התצפית האחרונה בכל שלב.">
+        <Button variant="primary" disabled={ops.disabled || paused === null} onClick={runBriefing}>הרצת עיבוד עכשיו</Button>
       </AreaHead>
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
-
-      {/* ── The verdict ──────────────────────────────────────────────── */}
-      <ReadGate
-        state={overview.state}
-        what="תמונת המצב"
-        reload={overview.reload}
-        skeleton={
-          <>
-            <Skeleton shape="block" height="9rem" />
-            <div className={styles.skeletonGrid}>
-              {[0, 1, 2, 3].map((cell) => (
-                <Skeleton key={cell} shape="block" height="5rem" />
-              ))}
-            </div>
-          </>
-        }
-      >
-        {(value) => (
-          <>
-            <VerdictBanner active={value.systemActive} word={value.systemActive ? "פעילה." : "אינה פעילה."}>
-              {value.systemActive ? (
-                <p>האיסוף, העיבוד והפרסום פועלים כולם מעצמם. נכון ל־{formatDate(value.generatedAt)}.</p>
-              ) : (
-                <ul className={styles.reasonList}>
-                  {value.inactiveReasons.length ? value.inactiveReasons.map((reason) => <li key={reason}>{reason}</li>) : <li>לא נרשמה סיבה.</li>}
-                </ul>
-              )}
+      <ReadGate state={overview.state} what="תמונת המצב" reload={overview.reload}>
+        {(value) => <>
+          <div className={workspace.health}>
+            {([
+              ["collection", "איסוף", "sources"], ["processing", "עיבוד", "pipeline"], ["publication", "פרסום", "editorial"],
+            ] as const).map(([key, label, area]) => {
+              const health = value.health?.[key];
+              return <Link key={key} href={`/admin?area=${area}`} prefetch={false}>
+                <h3>{label}</h3>
+                <strong>{health ? STATE_WORD[health.state] : "אין מידע מספיק"}</strong>
+                <p>{health?.observedAt ? `פעילות אחרונה: ${formatDate(health.observedAt)}` : "לא נרשמה פעילות מוצלחת"}</p>
+                {key === "publication" ? <p>{value.automaticPublicationPaused ? "פרסום אוטומטי מושהה" : "פרסום אוטומטי מופעל בהגדרות"}</p> : null}
+              </Link>;
+            })}
+          </div>
+          <div className={styles.twoColumns}>
+            <section className={styles.panel}>
+              <PanelTitle>לטיפול</PanelTitle>
+              <ul className={workspace.attention}>
+                {(value.attention ?? []).map((issue) => <li key={issue.code}>
+                  <Link href={`/admin?area=${ATTENTION[issue.code].area}`} prefetch={false}>
+                    <span>{ATTENTION[issue.code].title}<small>{ATTENTION[issue.code].note}</small></span>
+                    <Pill tone={issue.severity === "critical" ? "danger" : issue.severity === "warning" ? "warn" : "neutral"}>{issue.count}</Pill>
+                  </Link>
+                </li>)}
+                {incidents.value && incidents.value.outbox.undelivered > 0 ? <li>
+                  <Link href="/admin?area=incidents" prefetch={false}>
+                    <span>מסירות פנימיות ממתינות<small>בדיקת גיל התור ותוצאות המסירה</small></span>
+                    <Pill tone="warn">{incidents.value.outbox.undelivered}</Pill>
+                  </Link>
+                </li> : null}
+              </ul>
+              <InlineAbsence state={incidents.state} what="מצב המסירות" reload={incidents.reload} />
+              {value.attention?.length === 0 && incidents.state.kind === "ready" && incidents.value?.outbox.undelivered === 0 ? <p className={styles.muted}>לא נמצאו משימות לטיפול בסיכום הנוכחי.</p> : null}
+              {!value.attention ? <p className={styles.muted}>פירוט הטיפול אינו זמין בגרסת השרת הזו. <Link href="/admin?area=incidents">פתיחת התקלות</Link></p> : null}
+            </section>
+            <section className={styles.panel}>
+              <PanelTitle>פעילות ותזמון</PanelTitle>
               <dl className={styles.runFacts}>
-                <dt>ריצה אחרונה</dt>
-                <dd>
-                  {value.lastRun.at ? (
-                    <>
-                      {formatAgo(value.lastRun.at)} · <bdi>{value.lastRun.localDate ?? ""}</bdi>{" "}
-                      {value.lastRun.stage ? STAGE_LABEL[value.lastRun.stage] ?? value.lastRun.stage : ""}{" "}
-                      {value.lastRun.status ? (
-                        <Pill tone={value.lastRun.status === "completed" ? "ok" : "warn"}>
-                          {JOB_STATE_LABEL[value.lastRun.status] ?? value.lastRun.status}
-                        </Pill>
-                      ) : null}
-                    </>
-                  ) : (
-                    "לא נרשמה"
-                  )}
-                </dd>
-                <dt>הריצה הבאה</dt>
-                <dd>
-                  {value.nextRun.at ? formatDate(value.nextRun.at) : "לא מתוזמנת"}
-                  {value.nextRun.schedule ? <small><bdi>{value.nextRun.schedule}</bdi>{value.nextRun.path ? <> · <bdi>{value.nextRun.path}</bdi></> : ""}</small> : null}
-                </dd>
+                <dt>ריצה אחרונה שנרשמה</dt><dd>{formatDate(value.lastRun.at)}</dd>
+                <dt>שלב</dt><dd>{value.lastRun.stage?.startsWith("external_publish:") ? "קליטת מהדורה חיצונית" : value.lastRun.stage ? stageLabel(value.lastRun.stage) : "לא נרשם"}</dd>
+                <dt>מצב רשום</dt><dd>{value.lastRun.status ? JOB_STATE_LABEL[value.lastRun.status] ?? value.lastRun.status : "לא נרשם"}</dd>
+                <dt>איסוף מתוכנן הבא</dt><dd>{value.nextRun.at ? formatDate(value.nextRun.at) : "לא מתוזמן"}</dd>
               </dl>
-            </VerdictBanner>
-
-            <StatGrid>
-              <Stat label={`נאספו ${T.last24h}`} value={String(value.counts24h.collected)} />
-              <Stat label={`עובדו ${T.last24h}`} value={String(value.counts24h.processed)} />
-              <Stat label={`נוסחו ${T.last24h}`} value={String(value.counts24h.drafted)} />
-              <Stat label={`פורסמו ${T.last24h}`} value={String(value.counts24h.published)} />
-              <Stat label={`${T.jobs} שנכשלו ${T.last24h}`} value={String(value.counts24h.failedJobs)} tone={value.counts24h.failedJobs ? "danger" : "ok"} />
-              <Stat label="התראות קריטיות פתוחות" value={String(value.openAlerts.critical)} tone={value.openAlerts.critical ? "danger" : "ok"} />
-              <Stat label="אזהרות פתוחות" value={String(value.openAlerts.warning)} tone={value.openAlerts.warning ? "warn" : "ok"} />
-              <Stat label={`${T.jobs} תקועות`} value={String(value.stuckJobs)} tone={value.stuckJobs ? "warn" : "ok"} />
-              <Stat label={T.quarantined} value={String(value.quarantined)} tone={value.quarantined ? "warn" : "ok"} />
-            </StatGrid>
-          </>
-        )}
+              <p className={styles.muted}>מועד האיסוף מחושב מהתזמון. הוא אינו אישור שהריצה תתבצע. מצב ריצה ישן אינו הוכחה שהיא עדיין פועלת.</p>
+              <details className={styles.traceability}><summary>פרטים טכניים</summary><p><bdi>{value.lastRun.stage}</bdi></p><p><bdi>{value.nextRun.schedule}</bdi></p><p><bdi>{value.nextRun.path}</bdi></p></details>
+            </section>
+          </div>
+          <section><PanelTitle>תפוקה ב־24 השעות האחרונות</PanelTitle><StatGrid>
+            <Stat label="ראיות שנאספו" value={String(value.counts24h.collected)} />
+            <Stat label="משימות שעובדו" value={String(value.counts24h.processed)} />
+            <Stat label="כתבות שנוצרו" value={String(value.counts24h.drafted)} />
+            <Stat label="כתבות שפורסמו" value={String(value.counts24h.published)} />
+          </StatGrid></section>
+        </>}
       </ReadGate>
-
-      {/* ── Publication control ───────────────────────────────────────── */}
       <div className={styles.controlBar}>
-        <div>
-          <p className={styles.sectionLabel}>בקרת פרסום</p>
-          <h3>
-            {paused === null ? "מצב הפרסום אינו ידוע" : paused ? "הפרסום האוטומטי מושהה" : "הפרסום האוטומטי פעיל"}
-          </h3>
-          <p className={styles.muted}>
-            {paused === null
-              ? "המתג נקרא מסיכום הבריף, שעדיין לא נטען."
-              : paused
-                ? "מהדורות מאושרות ממתינות לאדם. האיסוף והעיבוד ממשיכים, ולכן שום דבר לא הולך לאיבוד בזמן שהמתג כבוי."
-                : "מהדורות מאושרות מתפרסמות לאתר הציבורי מעצמן. האיסוף והעיבוד פועלים ללא תלות במתג הזה."}
-          </p>
-        </div>
+        <div><h3>בקרת פרסום</h3><p className={styles.muted}>{paused === null ? "מצב הפרסום אינו זמין; הפעולות מושבתות עד שייקרא." : paused ? "פרסום אוטומטי מושהה. ניתן לחדש אותו כאן." : "פרסום אוטומטי מופעל בהגדרות. זה אינו אישור שכל מהדורה עברה את בדיקות הפרסום."}</p></div>
         <div className={styles.actionRow}>
-          <Button
-            variant={paused ? "primary" : "secondary"}
-            type="button"
-            disabled={ops.disabled || paused === null}
-            onClick={() => requestPublicationControl(!paused)}
-          >
-            {paused ? "חידוש הפרסום האוטומטי" : "השהיית הפרסום האוטומטי"}
-          </Button>
-          {paused === false ? (
-            <Button variant="primary" type="button" disabled={ops.disabled} onClick={requestEditionPublication}>
-              פרסום המהדורה המאושרת של היום
-            </Button>
-          ) : null}
+          <Button variant="secondary" disabled={ops.disabled || paused === null} onClick={() => requestPublicationControl(!paused)}>{paused ? "חידוש הפרסום האוטומטי" : "השהיית הפרסום האוטומטי"}</Button>
+          {paused === false ? <Button variant="secondary" disabled={ops.disabled} onClick={requestEditionPublication}>פרסום מהדורה מאושרת</Button> : null}
         </div>
       </div>
-
-      {/* ── Runtime model and capabilities ─────────────────────────── */}
-      <CommandCard
-        label="מודל והרשאות"
-        title={capabilities.value ? "המוח התורן של הקונסולה" : "מודל והרשאות"}
-        tone={capabilities.value ? "accent" : "warn"}
-        note="אותה רשימת יכולות שעוזר התפעול מציג — נקראת מאותו מסלול, לא מועתקת."
-      >
-        <InlineAbsence state={capabilities.state} what="יכולות העוזר" reload={capabilities.reload} />
-        {capabilities.value ? (
-          <StatGrid>
-            <Stat label="מודל פעיל" value={capabilities.value.model} tone="ok" />
-            <Stat label="כלים זמינים" value={String(capabilities.value.tools.length)} />
-            <Stat
-              label="כלים ששואלים קודם"
-              value={String(capabilities.value.tools.filter((tool) => tool.requiresConfirmation).length)}
-              tone="warn"
-            />
-          </StatGrid>
-        ) : null}
-      </CommandCard>
-
-      {/* ── What the summary does not carry ───────────────────────────── */}
-      <div className={styles.twoColumns}>
-        <div className={styles.panel}>
-          <PanelTitle>הפריסה הזו</PanelTitle>
-          <InlineAbsence state={status.state} what="מצב הפריסה" reload={status.reload} />
-          {status.value ? (
-            <div className={styles.compactMetrics}>
-              <Metric label="סביבה" value={status.value.environment} />
-              <Metric label="אזור" value={status.value.region} />
-              <Metric label="תקרת התקציב החודשית לבריף" value={formatUsd(status.value.aiBudgetUsd, 2)} />
-              <Metric
-                label="פגיעות במטמון הציבורי"
-                value={
-                  status.value.publicReadCache.hitRatio === null
-                    ? "אין נתונים"
-                    : `${(status.value.publicReadCache.hitRatio * 100).toFixed(1)}% · ${status.value.publicReadCache.averageLoadMs ?? 0} ms`
-                }
-              />
-            </div>
-          ) : null}
-        </div>
-        <div className={styles.panel}>
-          <PanelTitle>{`${T.alerts} פתוחות`}</PanelTitle>
-          <InlineAbsence state={briefing.state} what="סיכום הבריף" reload={briefing.reload} />
-          {briefing.value ? (
-            briefing.value.alerts.length ? (
-              <AlertList
-                items={briefing.value.alerts.map((entry) => ({
-                  id: entry.id,
-                  severity: entry.severity,
-                  kind: entry.kind,
-                  message: entry.message,
-                  extra: entry.notifiedAt ? "ההתראה נשלחה" : "ההתראה ממתינה לשליחה",
-                }))}
-                severityWord={(severity) => SEVERITY_LABEL[severity] ?? severity}
-              />
-            ) : (
-              <EmptyLine>אין התראות פתוחות. הקריאה הצליחה והרשימה באמת ריקה.</EmptyLine>
-            )
-          ) : null}
-        </div>
-      </div>
-
-      {/* ── Costs, readiness and the inner delivery queue ────────────────
-          The four budget meters of System & Security's costs sub-area, the
-          integration readiness and the resource fingerprints the status
-          read above already carries, and the outbox backlog. Both console
-          reads are mount + signal only, so the area's poll spend stays the
-          three 30s reads it declares above. */}
-      <div className={styles.twoColumns}>
-        <div className={styles.panel}>
-          <PanelTitle>{T.budgetsPanel}</PanelTitle>
-          <InlineAbsence state={costs.state} what={T.costsRead} reload={costs.reload} />
-          {costs.value ? (
-            <>
-              {costs.value.warnings.length ? (
-                <ul className={styles.warnList} {...politeLive}>
-                  {costs.value.warnings.map((warning) => (
-                    <li key={warning} className={styles.warnNote}>
-                      {warning}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              <PanelTitle note={`${T.warnNotePrefix} ${formatPercent(costs.value.warnAt)}`}>{T.budgets}</PanelTitle>
-              <div className={styles.meterGrid}>
-                <BudgetMeter label={T.meterAiDaily} fraction={costs.value.utilisation.aiDaily} spent={formatUsd(costs.value.spend.today, 2)} budget={formatUsd(costs.value.budgets.ai.dailyUsd, 2)} warnAt={costs.value.warnAt} />
-                <BudgetMeter label={T.meterAiMonthly} fraction={costs.value.utilisation.aiMonthly} spent={formatUsd(costs.value.spend.monthToDateUsd, 2)} budget={formatUsd(costs.value.budgets.ai.monthlyUsd, 2)} warnAt={costs.value.warnAt} />
-                <BudgetMeter label={T.meterBriefingMonthly} fraction={costs.value.utilisation.briefingMonthly} spent={formatUsd(costs.value.spend.monthToDateUsd, 2)} budget={formatUsd(costs.value.budgets.briefing.monthlyUsd, 2)} warnAt={costs.value.warnAt} />
-                <BudgetMeter
-                  label={T.meterSearchMonthly}
-                  fraction={costs.value.utilisation.searchMonthly}
-                  spent={`${costs.value.search.successfulQueriesThisMonth} ${T.queries}`}
-                  budget={costs.value.budgets.search.monthlyQueries === null ? T.noQueryBudget : `${costs.value.budgets.search.monthlyQueries} ${T.queries}`}
-                  warnAt={costs.value.warnAt}
-                />
-              </div>
-            </>
-          ) : null}
-        </div>
-        <div className={styles.panel}>
-          <PanelTitle>{T.integrations}</PanelTitle>
-          <InlineAbsence state={status.state} what="מצב הפריסה" reload={status.reload} />
-          {status.value ? (
-            <div className={styles.grid}>
-              {Object.entries(status.value.integrations).map(([name, active]) => (
-                <article className={styles.service} key={name}>
-                  <Pill tone={active ? "ok" : "warn"}>{active ? T.ready : T.waiting}</Pill>
-                  <h4>{name}</h4>
-                </article>
-              ))}
-            </div>
-          ) : null}
-          <PanelTitle>{T.resourceIdentity}</PanelTitle>
-          <p className={styles.muted}>{T.fingerprintNote}</p>
-          {status.value ? (
-            <StatGrid>
-              {Object.entries(status.value.resourceFingerprints ?? {}).map(([name, fingerprint]) => (
-                <Stat key={name} label={name} value={fingerprint ?? T.notSet} />
-              ))}
-            </StatGrid>
-          ) : null}
-          <PanelTitle>{T.outboxPanel}</PanelTitle>
-          <InlineAbsence state={incidents.state} what={T.outboxPanel} reload={incidents.reload} />
-          {incidents.value ? (
-            <StatGrid>
-              <Stat label={T.outboxUndelivered} value={String(incidents.value.outbox.undelivered)} tone={incidents.value.outbox.undelivered ? "warn" : "ok"} />
-              <Stat label={T.outboxDeadLettered} value={String(incidents.value.outbox.deadLettered)} tone={incidents.value.outbox.deadLettered ? "danger" : "ok"} />
-              <Stat label={T.outboxOldest} value={incidents.value.outbox.oldestAt ? formatAgo(incidents.value.outbox.oldestAt) : T.none} />
-            </StatGrid>
-          ) : null}
-        </div>
-      </div>
-
       <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
     </section>
   );
@@ -414,28 +194,4 @@ export function OverviewPanel({ signal }: { signal: number }) {
           : "אין מהדורה מאושרת להשלמה היום.";
     });
   }
-}
-
-/** One spend-versus-budget bar — the markup, the colour ramp and the
- *  threshold behaviour of System & Security's costs meter, mirrored rather
- *  than imported because that sub-area owns its own; the labels travel with
- *  it through the lexicon, and a `null` budget is stated, never rendered as
- *  a zero. */
-function BudgetMeter({ label, fraction, spent, budget, warnAt }: { label: string; fraction: number | null; spent: string; budget: string; warnAt: number }) {
-  const tone: PillTone = fraction === null ? "neutral" : fraction >= 1 ? "danger" : fraction >= warnAt ? "warn" : "ok";
-  const width = fraction === null ? 0 : Math.min(100, Math.round(fraction * 100));
-  return (
-    <div className={styles.meter}>
-      <div className={styles.meterHead}>
-        <span>{label}</span>
-        <Pill tone={tone}>{fraction === null ? T.noBudget : formatPercent(fraction)}</Pill>
-      </div>
-      <div className={styles.meterTrack} role="img" aria-label={`${label}: ${spent} ${T.ofTotal} ${budget}`}>
-        <span className={`${styles.meterFill} ${styles[`meter${tone === "danger" ? "Danger" : tone === "warn" ? "Warn" : "Ok"}`]}`} style={{ width: `${width}%` }} />
-      </div>
-      <p className={styles.headNote}>
-        {spent} {T.ofTotal} {budget}
-      </p>
-    </div>
-  );
 }

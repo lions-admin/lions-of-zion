@@ -31,6 +31,12 @@ const usd = z.number().nonnegative();
 
 /* ── 1. Overview ──────────────────────────────────────────────────────────── */
 
+export const consoleSubsystemSchema = z.object({
+  state: z.enum(["configured", "observed", "paused", "degraded", "unknown"]),
+  reason: z.string(),
+  observedAt: nullableIsoDate,
+});
+
 /** The one screen an operator reads first. Every number is for the last 24
  *  hours unless its name says otherwise. */
 export const consoleOverviewSchema = z.object({
@@ -40,6 +46,16 @@ export const consoleOverviewSchema = z.object({
   systemActive: z.boolean(),
   inactiveReasons: z.array(z.string()),
   automaticPublicationPaused: z.boolean(),
+  health: z.object({
+    collection: consoleSubsystemSchema,
+    processing: consoleSubsystemSchema,
+    publication: consoleSubsystemSchema,
+  }).optional(),
+  attention: z.array(z.object({
+    code: z.enum(["critical_alerts", "stuck_jobs", "quarantined_jobs", "processing_disabled", "publication_paused"]),
+    severity: z.enum(["critical", "warning", "info"]),
+    count,
+  })).optional(),
   lastRun: z.object({
     at: nullableIsoDate,
     localDate: z.string().nullable(),
@@ -389,6 +405,15 @@ export const editorialCardSchema = z.object({
 });
 export type EditorialCard = z.infer<typeof editorialCardSchema>;
 
+export const listEditorialSchema = z.object({
+  page: z.coerce.number().int().min(1).max(100000).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+  status: publicationStatusSchema.optional(),
+  briefingOnly: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+  q: z.string().trim().max(200).default(""),
+});
+export type ListEditorial = z.infer<typeof listEditorialSchema>;
+
 export const consoleEditorialSchema = z.object({
   generatedAt: isoDate,
   counts: z.object({
@@ -408,6 +433,13 @@ export const consoleEditorialSchema = z.object({
     archived: z.array(editorialCardSchema),
   }),
   homepageFeatures: z.array(z.object({ slot: z.number().int(), publicationId: z.uuid() })),
+  page: z.object({
+    items: z.array(editorialCardSchema),
+    number: count,
+    limit: count,
+    total: count,
+    pages: count,
+  }).optional(),
 });
 export type ConsoleEditorial = z.infer<typeof consoleEditorialSchema>;
 
@@ -521,6 +553,7 @@ export const consoleCostsSchema = z.object({
      *  fetch time when the unit rate is configured. Additive and optional —
      *  absent rather than zero when nothing reported a cost. */
     actualSpendUsd: usd.optional(),
+    actualSpendStatus: z.enum(["recorded", "unrecorded", "schema_unavailable"]).optional(),
   }),
 });
 export type ConsoleCosts = z.infer<typeof consoleCostsSchema>;

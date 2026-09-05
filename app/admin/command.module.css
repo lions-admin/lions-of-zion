@@ -647,3 +647,17 @@
     white-space: normal;
   }
 }
+
+/* Compact operational readouts, without the retired command backdrop. */
+.card { box-shadow: none; padding: 16px; }
+.stats { gap: 0; grid-template-columns: repeat(auto-fit,minmax(min(100%,140px),1fr)); border-block: 1px solid var(--line); }
+.stat { border: 0; border-inline-end: 1px solid var(--line); border-radius: 0; padding: 14px; background: transparent; }
+.statValue { font-size: 22px; line-height: 1.35; }
+.statLabel { font-size: 12px; line-height: 1.5; }
+.flow { grid-template-columns: repeat(auto-fit,minmax(min(100%,125px),1fr)); }
+.flowNode::after { display: none; }
+.flowActive::before { animation: none; }
+.flowMeta, .flowError { font-size: 12px; }
+.flowCounts { flex-wrap: wrap; }
+.sourceCard { border: 0; border-radius: 0; background: var(--surface-1); }
+@media (max-width: 600px) { .grid { grid-template-columns: minmax(0,1fr); } }

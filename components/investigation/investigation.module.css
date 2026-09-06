@@ -1,0 +1,1487 @@
+/* The investigation surface: role map, narrative lanes, relationship flows,
+   timeline, evidence ledger, inspector.
+
+   Three rules run through every block here.
+
+   1. Grades are text and line treatment, never colour alone. A documented tie
+      is a solid rule, an observed flow or measured reuse is dashed, an
+      inferred signal is dotted and faint — and each carries its word beside
+      it. Colour is a ramp on top of that, not a substitute for it.
+   2. Selection is a path, not a spotlight. `data-path="on"` lights a row with
+      the ember rule the section already uses for hostile-signal structure;
+      `data-path="off"` stands a row down without removing it. Nothing moves,
+      nothing reorders.
+   3. Open editorial rows over nested cards. Hairlines, labels and spacing
+      carry the structure; the only boxed thing is the inspector, which is a
+      panel by function.
+
+   Values answer to the V3 tokens in app/globals.css. */
+
+.srOnly {
+  composes: srOnly from global;
+}
+
+.dataLabel {
+  composes: dataLabel from global;
+}
+
+/* ── The evidence path ─────────────────────────────────────────────────── */
+
+.path {
+  position: sticky;
+  top: calc(var(--anchor-offset, 5.5rem) - var(--sp-3));
+  z-index: var(--z-sticky);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  margin: var(--sp-5) 0 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
+  background: var(--ground);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.path[data-active='yes'] {
+  border-top-color: var(--data-ember);
+  border-bottom-color: var(--data-ember-dim);
+}
+
+.pathLabel {
+  composes: dataLabel from global;
+  color: var(--data-ember-peak);
+}
+
+.pathSubject {
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  line-height: var(--t-figure-lh);
+  overflow-wrap: anywhere;
+}
+
+.pathCounts {
+  composes: dataMeta from global;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+.pathClear {
+  margin-left: auto;
+}
+
+.pathHint {
+  color: var(--ink-lo);
+}
+
+/* ── Section strip (below the rails breakpoint) ────────────────────────── */
+
+.sectionNav {
+  position: sticky;
+  top: var(--header-h, 4rem);
+  z-index: var(--z-sticky);
+  margin: var(--sp-4) calc(-1 * var(--sp-4)) 0;
+  padding: 0 var(--sp-4);
+  background: color-mix(in oklab, var(--ground) 94%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.sectionNavList {
+  display: flex;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: var(--sp-2) 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.sectionNavList::-webkit-scrollbar {
+  display: none;
+}
+
+.sectionNavLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-pill);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  white-space: nowrap;
+  text-decoration: none;
+  scroll-snap-align: start;
+}
+
+.sectionNavLink[aria-current='location'] {
+  color: var(--ink-hi);
+  background: var(--gold-wash);
+  box-shadow: inset 0 0 0 var(--line-w) var(--gold-line);
+}
+
+.sectionNavLink:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.sectionNavIndex {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 1220px) {
+  .sectionNav {
+    display: none;
+  }
+}
+
+/* ── Shared small labels ───────────────────────────────────────────────── */
+
+.typeLabel,
+.identityLabel,
+.stateLabel,
+.kindLabel,
+.laneLabel,
+.flowMeasure,
+.entityHandle {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  color: var(--ink-lo);
+}
+
+.entityHandle {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.identityLabel[data-identity='confirmed'] {
+  color: var(--ink);
+}
+
+.identityLabel[data-identity='probable'] {
+  color: var(--state-warn);
+}
+
+.identityLabel[data-identity='unresolved'] {
+  color: var(--data-ember-peak);
+}
+
+.stateLabel[data-state='contested'] {
+  color: var(--data-ember-peak);
+}
+
+.laneLabel {
+  text-transform: uppercase;
+  letter-spacing: var(--t-data-tracking);
+  color: var(--gold);
+}
+
+/* The kind label carries a short rule drawn in the kind's line style — the
+   same grammar the flow rows use, so the switch and the rows read together. */
+.kindLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.kindRule {
+  display: inline-block;
+  width: 1.5rem;
+  height: 0;
+  border-top: var(--line-w-thick) solid currentColor;
+}
+
+.kindLabel[data-kind='relationship'] .kindRule,
+.layerChip[data-kind='relationship'] .kindRule {
+  border-top-style: solid;
+}
+
+.kindLabel[data-kind='flow'] .kindRule,
+.kindLabel[data-kind='reuse'] .kindRule,
+.kindLabel[data-kind='other'] .kindRule,
+.layerChip[data-kind='flow'] .kindRule,
+.layerChip[data-kind='reuse'] .kindRule,
+.layerChip[data-kind='other'] .kindRule {
+  border-top-style: dashed;
+}
+
+.kindLabel[data-kind='inferred'] .kindRule,
+.layerChip[data-kind='inferred'] .kindRule {
+  border-top-style: dotted;
+  opacity: 0.7;
+}
+
+.kindLabel[data-kind='inferred'] {
+  color: var(--ink-lo);
+}
+
+.entityChip {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.filterNote,
+.emptyNote,
+.subnote {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.emptyNote {
+  padding: var(--sp-4);
+  border: var(--line-w) dashed var(--line);
+  border-radius: var(--radius-2);
+}
+
+.subheading {
+  margin: var(--sp-6) 0 var(--sp-2);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+/* ── Path state, shared by every row ───────────────────────────────────── */
+
+.roleRow,
+.lane,
+.flowRow,
+.eventRow,
+.ledgerRow {
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out);
+}
+
+.roleRow[data-path='off'],
+.lane[data-path='off'],
+.flowRow[data-path='off'],
+.eventRow[data-path='off'],
+.ledgerRow[data-path='off'] {
+  opacity: 0.45;
+}
+
+.roleRow[data-path='on'],
+.lane[data-path='on'],
+.flowRow[data-path='on'],
+.eventRow[data-path='on'],
+.ledgerRow[data-path='on'] {
+  box-shadow: inset var(--line-w-thick) 0 0 var(--data-ember);
+}
+
+.roleRow[data-selected='yes'],
+.lane[data-selected='yes'],
+.flowRow[data-selected='yes'],
+.ledgerRow[data-selected='yes'] {
+  background: var(--data-ember-wash);
+}
+
+/* ── Role map ──────────────────────────────────────────────────────────── */
+
+.roleMap {
+  margin-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+.roleGroup {
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.roleSummary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--sp-1) var(--sp-4);
+  min-height: 44px;
+  padding: var(--sp-4) 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.roleSummary::-webkit-details-marker {
+  display: none;
+}
+
+.roleSummary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.roleLabel {
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+.roleLabel::before {
+  content: '▸ ';
+  color: var(--gold);
+}
+
+.roleGroup[open] .roleLabel::before {
+  content: '▾ ';
+}
+
+.roleCount {
+  composes: dataMeta from global;
+  align-self: start;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.roleMeaning {
+  grid-column: 1 / -1;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.roleRows {
+  margin: 0 0 var(--sp-4);
+  padding: 0;
+  list-style: none;
+}
+
+.roleRow {
+  border-top: var(--line-w) solid var(--line-soft);
+  padding-left: var(--sp-3);
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
+}
+
+.profileSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-4);
+  min-height: 44px;
+  padding: var(--sp-3) 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.profileSummary::-webkit-details-marker {
+  display: none;
+}
+
+.profileSummary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.entityName {
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  overflow-wrap: anywhere;
+}
+
+.entityFacts {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+}
+
+.profileBody {
+  padding: 0 0 var(--sp-4);
+}
+
+.profileBasis {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.profileNote {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.profileFacts,
+.inspectorFacts,
+.edgeEvidence {
+  display: grid;
+  gap: var(--sp-3);
+  margin: var(--sp-3) 0 0;
+}
+
+.profileFacts > div,
+.inspectorFacts > div,
+.edgeEvidence > div {
+  display: grid;
+  gap: var(--sp-1);
+}
+
+/* Descendant selectors cannot `composes` (see the note in app/globals.css),
+   so the data-label role is spelled out here by hand. */
+.profileFacts dt,
+.inspectorFacts dt,
+.edgeEvidence dt,
+.storyFacts dt,
+.rangeField > span {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.profileFacts dd,
+.inspectorFacts dd,
+.edgeEvidence dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.profileActions,
+.laneActions,
+.flowActions,
+.ledgerActions,
+.inspectorActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  margin: var(--sp-3) 0 0;
+}
+
+.profileLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--gold);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.profileLink:hover,
+.profileLink:focus-visible {
+  color: var(--gold-hi);
+}
+
+/* ── Narrative lanes ───────────────────────────────────────────────────── */
+
+.lanes {
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+.lane {
+  padding: var(--sp-5) var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line);
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
+}
+
+.laneHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.laneTitle {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
+}
+
+.laneGrades,
+.ledgerGrades,
+.inspectorGrades,
+.flowGrades,
+.eventMeta,
+.laneClaimGrades {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.laneGrades time,
+.ledgerGrades time,
+.inspectorGrades time,
+.eventMeta time,
+.laneClaimGrades time {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.laneDates {
+  composes: dataMeta from global;
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+.laneSummary {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-wrap: pretty;
+}
+
+.laneFrame {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.laneFrame > span {
+  display: block;
+  margin-bottom: var(--sp-1);
+  color: var(--data-ember-peak);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.laneCarriers,
+.eventEntities,
+.ledgerAttribution {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-2);
+  margin: var(--sp-3) 0 0;
+}
+
+.laneClaims {
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.laneClaims > li {
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.laneClaimLink {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-3) 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.laneClaimLink:hover .laneClaimText,
+.laneClaimLink:focus-visible .laneClaimText {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.laneClaimLink:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.laneClaimText {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.laneMore {
+  padding: var(--sp-2) 0;
+  font-size: var(--t-small);
+}
+
+.laneMore a {
+  color: var(--gold);
+}
+
+.laneEmpty {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* ── Relationship flows ────────────────────────────────────────────────── */
+
+.flows {
+  margin-top: var(--sp-5);
+}
+
+.layerSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-4);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.layerChip {
+  gap: var(--sp-2);
+}
+
+.layerCount {
+  composes: dataMeta from global;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+.flowList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flowRow {
+  padding: var(--sp-4) var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line);
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
+}
+
+.flowStrip {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(4rem, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.flowArrow {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+  text-align: center;
+}
+
+.flowRelation {
+  composes: dataMeta from global;
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+/* The line under the relation word is the kind's line style: solid for a
+   documented tie, dashed for observed flow and measured reuse, dotted and
+   faint for an inferred signal. An arrowhead only where the research recorded
+   a direction. */
+.flowLine {
+  position: relative;
+  display: block;
+  height: 0;
+  border-top: var(--line-w-thick) dashed var(--data-ember);
+}
+
+.flowRow[data-kind='relationship'] .flowLine {
+  border-top-style: solid;
+  border-top-color: var(--gold);
+}
+
+.flowRow[data-kind='inferred'] .flowLine {
+  border-top-style: dotted;
+  border-top-color: var(--ink-lo);
+  opacity: 0.7;
+}
+
+.flowArrow[data-directed='yes'] .flowLine::after {
+  content: '';
+  position: absolute;
+  top: calc(-1 * var(--line-w-thick) - 3px);
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor;
+  color: var(--data-ember);
+}
+
+.flowRow[data-kind='relationship'] .flowArrow[data-directed='yes'] .flowLine::after {
+  color: var(--gold);
+}
+
+.flowRow[data-kind='inferred'] .flowArrow[data-directed='yes'] .flowLine::after {
+  color: var(--ink-lo);
+}
+
+.flowGrades {
+  margin-top: var(--sp-3);
+}
+
+.flowMeasure {
+  font-variant-numeric: tabular-nums;
+}
+
+.flowStatement {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.flowCaveat {
+  margin: var(--sp-2) 0 0;
+  padding-left: var(--sp-3);
+  border-left: var(--line-w) dotted var(--ink-lo);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.edgeEvidence {
+  padding: var(--sp-4) 0 0;
+  border-top: var(--line-w) solid var(--line-soft);
+  margin-top: var(--sp-4);
+}
+
+.flowKey {
+  margin: var(--sp-5) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  text-wrap: pretty;
+}
+
+.flowKey b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.firstQuoters {
+  margin-top: var(--sp-5);
+}
+
+.firstQuoterList {
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.firstQuoterRow {
+  padding: var(--sp-3) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.firstQuoterRow[data-state='capped'],
+.firstQuoterRow[data-state='empty_inconclusive'] {
+  opacity: 0.8;
+}
+
+.firstQuoterLabel {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.firstQuoterFacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-2);
+  margin: var(--sp-1) 0 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Timeline ──────────────────────────────────────────────────────────── */
+
+.timeline {
+  margin-top: var(--sp-5);
+}
+
+.rangeControls {
+  display: grid;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-4);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.rangePresets,
+.rangeInputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.rangeField {
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.rangeField input {
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border: var(--line-w) solid var(--control-line, var(--line-strong));
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  color-scheme: dark;
+}
+
+.rangeField input:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.activityBand {
+  margin-top: var(--sp-4);
+}
+
+.eventList {
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.eventRow {
+  padding: var(--sp-4) var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line-soft);
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
+}
+
+.eventType {
+  composes: dataLabel from global;
+  color: var(--gold);
+}
+
+.eventText {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+/* ── Evidence ledger ───────────────────────────────────────────────────── */
+
+.ledger {
+  margin-top: var(--sp-5);
+}
+
+.ledgerRows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ledgerRow {
+  padding: var(--sp-5) var(--sp-3);
+  border-bottom: var(--line-w) solid var(--gold-line);
+  scroll-margin-top: var(--anchor-offset, 5.5rem);
+}
+
+.ledgerStatement {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-wrap: pretty;
+}
+
+.ledgerColumns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.ledgerColumn {
+  display: grid;
+  gap: var(--sp-1);
+  padding-left: var(--sp-3);
+  border-left: var(--line-w-thick) solid var(--line);
+}
+
+.ledgerColumn[data-side='supporting'] {
+  border-left-color: var(--gold-line-strong);
+}
+
+.ledgerColumn[data-side='contradicting'] {
+  border-left-color: var(--data-ember);
+}
+
+.ledgerColumnLabel {
+  composes: dataLabel from global;
+  color: var(--ink-lo);
+}
+
+.ledgerColumnCount {
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.ledgerEvidence {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--sp-5);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.sourceColumn {
+  min-width: 0;
+}
+
+.sourceColumnHeading {
+  composes: dataLabel from global;
+  margin: 0 0 var(--sp-2);
+  color: var(--gold);
+}
+
+.sourceColumn[data-side='contradicting'] .sourceColumnHeading {
+  color: var(--data-ember-peak);
+}
+
+.sourceEmpty {
+  margin: 0;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.sourceRows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceRow {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-3) 0;
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.sourceType {
+  composes: dataMeta from global;
+  color: var(--ink-lo);
+}
+
+.sourceRow[data-type='community_note'] .sourceType {
+  color: var(--data-ember-peak);
+}
+
+.sourceLink,
+.sourceText {
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.sourceLink {
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.sourceLink:hover,
+.sourceLink:focus-visible {
+  color: var(--gold-hi);
+}
+
+.sourceMeta {
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.sourceMeta a {
+  color: var(--gold);
+}
+
+/* ── Inspector: right rail above 1220px, bottom sheet below ───────────── */
+
+.inspector {
+  display: none;
+}
+
+.inspectorHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-2);
+  border-bottom: var(--line-w) solid var(--gold-line);
+}
+
+.inspectorKicker {
+  composes: dataLabel from global;
+  color: var(--gold);
+}
+
+.inspectorRest {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.inspectorBody {
+  margin-top: var(--sp-3);
+}
+
+.inspectorTitle {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  line-height: var(--t-figure-lh);
+  overflow-wrap: anywhere;
+}
+
+.inspectorGrades {
+  margin: var(--sp-2) 0 0;
+}
+
+.inspectorText {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+.inspectorMeaning {
+  display: block;
+  margin-top: var(--sp-1);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.inspectorSub {
+  composes: dataLabel from global;
+  margin: var(--sp-4) 0 var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: var(--line-w) solid var(--line-soft);
+  color: var(--ink-lo);
+}
+
+.inspectorList {
+  display: grid;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.inspectorList .profileLink {
+  min-height: 0;
+  padding: var(--sp-1) 0;
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.inspectorRowButton {
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+  white-space: normal;
+}
+
+@media (min-width: 1220px) {
+  .inspector[data-variant='rail'] {
+    display: block;
+  }
+}
+
+@media (max-width: 1219.98px) {
+  .inspector[data-variant='sheet'] {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-panel);
+    display: block;
+    max-height: min(60dvh, 32rem);
+    overflow-y: auto;
+    padding: var(--sp-4) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px));
+    border-top: var(--line-w) solid var(--gold-line-strong);
+    border-radius: var(--radius-3) var(--radius-3) 0 0;
+    background: var(--surface-1);
+    box-shadow: var(--shadow-3);
+    animation: sheetRise var(--dur-base) var(--ease-out) both;
+  }
+}
+
+@keyframes sheetRise {
+  from {
+    transform: translateY(var(--sp-6));
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ── Story header ──────────────────────────────────────────────────────── */
+
+.storyHeader {
+  margin-bottom: var(--sp-6);
+}
+
+.updateMarker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0 0 var(--sp-5);
+  padding: var(--sp-3) var(--sp-4);
+  border-left: var(--line-w-thick) solid var(--gold);
+  border-radius: 0 var(--radius-2) var(--radius-2) 0;
+  background: var(--gold-wash);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.updateMarker a {
+  color: var(--gold-hi);
+}
+
+.updateLabel {
+  composes: dataLabel from global;
+  color: var(--gold);
+}
+
+.survives {
+  padding: var(--sp-4) 0;
+  border-top: var(--line-w) solid var(--line-strong);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.survives > p {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+  text-wrap: pretty;
+}
+
+.survivesLabel {
+  composes: dataLabel from global;
+  color: var(--data-ember-peak);
+}
+
+.storyConfidence {
+  margin: var(--sp-4) 0 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-left: var(--line-w-thick) solid var(--data-ember);
+  border-radius: 0 var(--radius-2) var(--radius-2) 0;
+  background: var(--data-ember-wash);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.storyFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--sp-4) var(--sp-6);
+  margin: var(--sp-5) 0 0;
+  padding: var(--sp-4) 0;
+  border-top: var(--line-w) solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.storyFacts > div {
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.storyFacts dd {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-small-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Unknowns ──────────────────────────────────────────────────────────── */
+
+.unknowns {
+  display: grid;
+  gap: var(--sp-5);
+  margin-top: var(--sp-5);
+}
+
+.unknownGroup h3 {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+.unknownGroup ul {
+  margin: var(--sp-3) 0 0;
+  padding-left: var(--sp-4);
+}
+
+.unknownGroup li {
+  margin-bottom: var(--sp-3);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.unknownGroup li::marker {
+  color: var(--ink-lo);
+}
+
+/* ── Seams ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 45rem) {
+  .ledgerColumns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .flowStrip {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+  }
+
+  .flowArrow {
+    width: 100%;
+    text-align: left;
+  }
+
+  /* Below the seam the section strip is the one sticky thing; the path
+     stays in flow and the bottom sheet carries the selection. */
+  .path {
+    position: static;
+  }
+}
+
+/* ── Print / share ─────────────────────────────────────────────────────── */
+
+@media print {
+  .path,
+  .sectionNav,
+  .inspector,
+  .layerSwitch,
+  .rangeControls,
+  .profileActions,
+  .laneActions,
+  .flowActions,
+  .ledgerActions,
+  .inspectorActions {
+    display: none !important;
+  }
+
+  .ledgerEvidence[hidden] {
+    display: grid;
+  }
+
+  .roleGroup,
+  .profile {
+    /* Every disclosure prints open. */
+    display: block;
+  }
+
+  .roleRow[data-path='off'],
+  .lane[data-path='off'],
+  .flowRow[data-path='off'],
+  .eventRow[data-path='off'],
+  .ledgerRow[data-path='off'] {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roleRow,
+  .lane,
+  .flowRow,
+  .eventRow,
+  .ledgerRow {
+    transition: none;
+  }
+
+  .inspector[data-variant='sheet'] {
+    animation: none;
+  }
+}
+
+/* ── Network explorer ──────────────────────────────────────────────────── */
+
+.network {
+  margin-top: var(--sp-5);
+}
+
+.networkControls {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.networkControls .layerSwitch {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.rangeField select {
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border: var(--line-w) solid var(--control-line, var(--line-strong));
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+}
+
+.rangeField select:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.networkBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+}
+
+@media (min-width: 60rem) {
+  .networkBody {
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    align-items: start;
+  }
+}
+
+.networkList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.networkRow {
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.networkRow[data-selected='yes'] {
+  background: var(--data-ember-wash);
+  box-shadow: inset var(--line-w-thick) 0 0 var(--data-ember);
+}
+
+.networkRowButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  text-align: left;
+  white-space: normal;
+}
+
+.networkInspector {
+  position: sticky;
+  top: var(--anchor-offset, 5.5rem);
+  padding: var(--sp-4);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+
+.networkEdge {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-2) 0;
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+/* `display: grid` would beat the `hidden` attribute; the script's collapse
+   has to win over the layout. */
+.ledgerEvidence[hidden] {
+  display: none;
+}
+
+/* The row button's content wraps as a phrase; a long display name breaks
+   between words, never inside one. */
+.networkRowButton > * {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  width: 100%;
+}
+
+.networkRow .entityName {
+  overflow-wrap: normal;
+}

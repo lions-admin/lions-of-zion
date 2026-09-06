@@ -9,6 +9,7 @@ import {
   SourceList,
 } from '@/components/content';
 import { CommunityMap, OverturnedList } from '@/components/research';
+import { NetworkExplorer } from '@/components/investigation';
 import { getCaseIndex, getResearchNetwork } from '@/lib/content/fake-resistance-cases';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
@@ -162,6 +163,81 @@ export default async function Page() {
           ))}
         </ol>
       </SectionBlock>
+
+      <SectionBlock heading="Explore the connections" id="explore">
+        <p>
+          Every recorded connection in the merged corpus, as a list a reader can
+          filter and check: by the kind of relation, by the class of evidence
+          behind it, and by computed community. Choose an account to read its
+          placement, its strongest connections, and the case file that
+          examines it in full. Nothing here is drawn; every edge is a sentence
+          with a grade.
+        </p>
+        <NetworkExplorer
+          roster={network.roster}
+          edges={network.edges}
+          communities={network.communities}
+          topNodes={network.topNodes}
+          cases={cases.map((entry) => ({
+            caseId: entry.caseId,
+            slug: entry.slug,
+            title: entry.title.split(':')[0].trim(),
+          }))}
+        />
+      </SectionBlock>
+
+      <SectionBlock heading="What the network does not prove" id="does-not-prove">
+        <ul className={styles.bridges}>
+          <li>
+            An edge is an observation, not an allegiance. A quote, a mention or
+            a follow records that one account touched another in public; it does
+            not say why, and it does not say the two agree.
+          </li>
+          <li>
+            A community is a computed partition of a convenience sample. It says
+            which accounts interact more with each other than with the rest of
+            this sample — not that they know each other, and nothing about
+            accounts the sample never harvested.
+          </li>
+          <li>
+            An inferred coordination signal is a timing pattern that a null model
+            could not explain. It is not proof of instruction, shared staffing or
+            shared ownership, and the research caps single-trace signals at low
+            confidence however small their p-value.
+          </li>
+          <li>
+            Mention edges are text-derived and include ordinary fan-to-celebrity
+            tagging; caption-copy direction rests on the earliest timestamp in
+            the sample; follow sets are single-page and recency-biased. Each of
+            these is stated in the limitations below and none is smoothed over
+            in the list above.
+          </li>
+        </ul>
+      </SectionBlock>
+
+      {network.synthesisOverturned.length > 0 || network.overturned.length > 0 ? (
+        <SectionBlock heading="How the reading changed over time" id="timeline">
+          <p>
+            The cross-case record has two dated states: the hand-drawn reading
+            published on 26 August 2026 and the computed rebuild of 6 September
+            2026. Each row is one change in interpretation between them.
+          </p>
+          <ol className={styles.findings}>
+            {[...network.overturned, ...network.synthesisOverturned].map((row) => (
+              <li key={row.now.slice(0, 60)}>
+                {row.prior ? (
+                  <>
+                    <time dateTime="2026-08-26">26 Aug 2026</time>: <ResearchText>{row.prior}</ResearchText>
+                    {' → '}
+                  </>
+                ) : null}
+                <time dateTime="2026-09-06">6 Sep 2026</time>: <ResearchText>{row.now}</ResearchText>
+                {row.status ? ` (${row.status})` : ''}
+              </li>
+            ))}
+          </ol>
+        </SectionBlock>
+      ) : null}
 
       <SectionBlock heading="The coordination layer">
         <p>

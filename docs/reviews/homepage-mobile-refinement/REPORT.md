@@ -1,8 +1,9 @@
 # Homepage editorial journey — mobile refinement report
 
-Updated: 2026-09-06 (Asia/Jerusalem). Implementation for owner review on
-branch `claude/create-worktree-9wtvyy`. Nothing was pushed to `main` and
-nothing was deployed.
+Updated: 2026-09-06 (Asia/Jerusalem). Implemented on branch
+`claude/create-worktree-9wtvyy` and pushed to `main` on the owner's explicit
+instruction the same day, which deploys to Production through the Vercel
+git integration.
 
 Brief: *Lions of Zion Homepage Editorial Journey — Mobile UX, Visual
 Hierarchy, Density and Interaction Refinement*. The journey's order —

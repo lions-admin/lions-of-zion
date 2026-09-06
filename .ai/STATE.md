@@ -9,8 +9,9 @@ and browser-verified in Chromium emulation at 320, 375, 390×844, 430×932,
 768 and 1440. Evidence, numbers and remaining limitations are in
 `docs/reviews/homepage-mobile-refinement/REPORT.md`; the design record is the
 "Homepage on a phone" section of `DESIGN.md`; the why of the launcher is in
-`.ai/DECISIONS.md` (2026-09-06). Nothing was pushed to `main` and nothing
-deployed. The branch also carries the two `frontend-design*` project skills,
+`.ai/DECISIONS.md` (2026-09-06). Pushed to `main` on the owner's explicit
+instruction the same day, which is a Production deploy through the Vercel
+git integration; `vercel rollback` is the undo. The branch also carries the two `frontend-design*` project skills,
 a regenerated `package-lock.json` (the committed one no longer satisfied
 `npm ci`), and a Prettier-only formatting commit for `components/home/`.
 

@@ -14,8 +14,8 @@ export default async function Page() {
   const edition = await getHomepageEdition();
   return <>
     <a className={styles.skipLink} href="#home-wordmark">Skip to content</a>
-    <SiteHeader />
-    <main className={styles.page} data-home-scroll>
+    <SiteHeader home />
+    <main id="page-content" className={styles.page} data-home-scroll>
         <section className={styles.hero} aria-labelledby="home-wordmark">
           <div className={styles.fieldLayer} aria-hidden="true">
             {/* The still frame is the ground beneath everything else here: what
@@ -81,6 +81,6 @@ export default async function Page() {
         </ol></nav></noscript>
         <HomepageJourney edition={edition}/>
     </main>
-    <SiteFooter />
+    <SiteFooter home />
   </>;
 }

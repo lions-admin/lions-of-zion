@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img">
+<rect width="1200" height="1200" fill="#0b0b0b"/>
+<g stroke="#f6f3eb" stroke-opacity=".06" stroke-width="1">
+<path d="M0 240h1200M0 480h1200M0 720h1200M0 960h1200"/>
+</g>
+<!-- rotor geometry, drawn unclosed: the transfer is reported, not established -->
+<g stroke="#f6f3eb" stroke-opacity=".22" stroke-width="2" fill="none" stroke-dasharray="14 16">
+<circle cx="600" cy="430" r="250"/><circle cx="600" cy="430" r="170"/>
+</g>
+<g stroke="#cbc7bd" stroke-opacity=".65" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="26 18">
+<path d="M600 430 352 348M600 430 848 348M600 430 848 512M600 430 352 512"/>
+</g>
+<circle cx="600" cy="430" r="17" fill="#0b0b0b" stroke="#f0b429" stroke-width="3.5"/>
+<circle cx="600" cy="430" r="5" fill="#f0b429"/>
+<!-- origin and destination: two parties, one unresolved movement between them -->
+<g fill="none" stroke="#a8a29a" stroke-opacity=".7" stroke-width="2.5">
+<rect x="150" y="712" width="150" height="106"/>
+<rect x="900" y="712" width="150" height="106"/>
+</g>
+<g stroke="#f0b429" stroke-opacity=".75" stroke-width="3" fill="none" stroke-dasharray="18 14">
+<path d="M312 765H872"/>
+</g>
+<path d="M872 765 838 747v36z" fill="#f0b429" fill-opacity=".75"/>
+<!-- the approval record itself: lines of a document, none of them legible -->
+<g stroke="#cbc7bd" stroke-opacity=".38" stroke-width="9" stroke-linecap="butt">
+<path d="M150 918h620M150 962h840M150 1006h520M150 1050h730"/>
+</g>
+<path d="M150 866h900" stroke="#f6f3eb" stroke-opacity=".18" stroke-width="1.5"/>
+</svg>

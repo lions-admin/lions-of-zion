@@ -281,3 +281,50 @@
   .fileIndex,
   .toTop { transition-duration: 0ms; }
 }
+
+/* The homepage closes as a colophon, not a second toolbar. Reading-route
+   footers keep their compact layout. */
+.home {
+  --footer-inset: clamp(20px, 4.5vw, 72px);
+  --footer-width: 1600px;
+  border-top: 1px solid var(--control-line);
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+}
+.home .inner, .home .files, .home .colophon {
+  max-width: var(--footer-width);
+  padding-inline: var(--footer-inset);
+}
+@media (min-width: 1100px) {
+  .home .files { padding-inline-end: max(104px, var(--footer-inset)); }
+}
+.home .inner { padding-block: 48px 36px; grid-template-columns: 1.6fr 1fr; }
+.home .brand { width: fit-content; }
+.home .brandName { font-size: clamp(38px, 5.8vw, 82px); font-weight: 400; line-height: 1.05; letter-spacing: -.045em; }
+.home .brandRole { font-size: 10px; letter-spacing: .15em; margin-top: 8px; }
+.home .statement { max-width: 45ch; font-size: 13px; line-height: 1.7; margin: 8px 0 0; }
+.home .reference { gap: 10px; padding-top: 8px; }
+.home .trustList { display: grid; gap: 0; justify-items: end; }
+.home .trustLink { font-size: 17px; font-weight: 400; border-radius: 0; }
+.home .furtherLink { min-height: 44px; font-size: 13px; }
+.home .files { padding-block: 24px 32px; }
+.home .filesLabel { font: 400 10px/1.5 var(--face-data); text-transform: uppercase; letter-spacing: .14em; margin-bottom: 18px; }
+.home .fileList { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 28px; }
+.home .fileLink { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); border-radius: 0; }
+.home .fileLink::after { content: '↗'; font-size: 17px; padding-left: 10px; color: var(--ink-lo); }
+.home .fileName { font-size: 13px; font-weight: 400; line-height: 1.5; text-wrap: pretty; }
+.home .fileLink:hover, .home .fileLink:hover::after, .home .trustLink:hover { color: var(--gold); }
+.home .colophon { padding-block: 20px; align-items: center; }
+.home .copyright, .home .toTop { font-size: 11px; }
+.home .toTop { display: inline-flex; align-items: center; gap: 18px; min-height: 44px; padding-inline-end: 80px; }
+.home a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.home a:active { color: var(--gold-hi); }
+@media (max-width: 767px) {
+  .home { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  .home .inner { grid-template-columns: 1fr; gap: 24px; padding-block: 36px 28px; }
+  .home .reference { justify-items: start; padding-top: 0; }
+  .home .trustList { display: flex; flex-wrap: wrap; gap: 24px; }
+  .home .trustLink { font-size: 15px; }
+  .home .fileList { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 24px; }
+  .home .colophon { flex-direction: row; align-items: center; gap: 8px 20px; }
+  .home .toTop { padding-inline-end: 0; }
+}

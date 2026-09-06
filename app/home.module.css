@@ -878,6 +878,12 @@
 @media (prefers-reduced-motion: reduce) {
   .heroVideo { display: none; transition: none; }
   .motionControl { display: none; }
+  /* The portrait entrance starts before the lion enters the frame. A static
+     visitor needs a complete portrait, not that deliberately empty first beat. */
+  .posterField {
+    background-image: var(--hero-poster-wide);
+    background-position: 75% center;
+  }
 }
 
 /* The hero ends before the editorial journey; its moving image never follows

@@ -29,6 +29,7 @@ interface SiteHeaderProps {
    * header directly pass nothing, and nothing is marked current.
    */
   activeSection?: string;
+  home?: boolean;
 }
 
 /** The one chevron in the chrome. 10px, currentColor, rotates when open. */
@@ -63,7 +64,7 @@ function Chevron() {
  * along with it, so a phone with scripting off had *no* navigation at all —
  * the desktop-viewport smoke test could not see it.
  */
-export function SiteHeader({ activeSection }: SiteHeaderProps) {
+export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
   const [filesOpen, setFilesOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const filesPanelId = useId();
@@ -191,7 +192,7 @@ export function SiteHeader({ activeSection }: SiteHeaderProps) {
   );
 
   return (
-    <header ref={headerRef} className={styles.header}>
+    <header ref={headerRef} className={styles.header} data-home={home || undefined}>
       <div className={styles.bar}>
         <Link href="/" className={styles.brand} onClick={closePanels}>
           <span className={styles.brandName}>Lions of Zion</span>

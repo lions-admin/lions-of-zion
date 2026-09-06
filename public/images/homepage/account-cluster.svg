@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img">
+<rect width="1200" height="1200" fill="#0b0b0b"/>
+<g stroke="#f6f3eb" stroke-opacity=".07" stroke-width="1">
+<path d="M0 300h1200M0 600h1200M0 900h1200"/>
+</g>
+<!-- the pivot: activity before and after are deliberately unequal -->
+<path d="M430 130V1070" stroke="#f0b429" stroke-opacity=".45" stroke-width="2" stroke-dasharray="10 12"/>
+<!-- sparse prior activity -->
+<g fill="#a8a29a" fill-opacity=".42">
+<circle cx="150" cy="320" r="7"/><circle cx="240" cy="480" r="5"/><circle cx="120" cy="600" r="6"/>
+<circle cx="300" cy="250" r="5"/><circle cx="210" cy="720" r="7"/><circle cx="330" cy="610" r="5"/>
+<circle cx="160" cy="450" r="4"/><circle cx="280" cy="840" r="5"/><circle cx="120" cy="860" r="4"/>
+</g>
+<g stroke="#a8a29a" stroke-opacity=".2" stroke-width="1" fill="none">
+<path d="M150 320 240 480M240 480 160 450M210 720 330 610M300 250 150 320M280 840 210 720"/>
+</g>
+<!-- edges of the amplifying cluster -->
+<g stroke="#f6f3eb" stroke-opacity=".16" stroke-width="1.4" fill="none">
+<path d="M620 340 540 470M620 340 760 430M620 340 620 520M860 270 950 380M860 270 760 430
+M980 520 820 560M980 520 1090 420M980 520 1010 700M700 640 620 520M700 640 560 700
+M700 640 820 560M700 640 700 830M880 800 1010 700M880 800 880 930M880 800 760 950
+M560 700 540 860M700 830 620 930M760 950 620 930M1010 700 1060 860M950 380 1090 420"/>
+</g>
+<!-- seed-to-seed relations carry the weight of the finding -->
+<g stroke="#f0b429" stroke-opacity=".55" stroke-width="2.2" fill="none">
+<path d="M620 340 860 270M860 270 980 520M980 520 700 640M700 640 620 340M700 640 880 800M980 520 880 800"/>
+</g>
+<!-- satellites -->
+<g fill="#cbc7bd" fill-opacity=".55">
+<circle cx="540" cy="470" r="10"/><circle cx="760" cy="430" r="12"/><circle cx="620" cy="520" r="9"/>
+<circle cx="950" cy="380" r="11"/><circle cx="820" cy="560" r="13"/><circle cx="560" cy="700" r="10"/>
+<circle cx="700" cy="830" r="12"/><circle cx="1010" cy="700" r="9"/><circle cx="880" cy="930" r="8"/>
+<circle cx="540" cy="860" r="9"/><circle cx="1060" cy="860" r="7"/><circle cx="760" cy="950" r="10"/>
+<circle cx="1090" cy="420" r="8"/><circle cx="620" cy="930" r="7"/>
+</g>
+<!-- the five accounts the research started from -->
+<g fill="#0b0b0b" stroke="#f0b429" stroke-width="3.5">
+<circle cx="620" cy="340" r="26"/><circle cx="860" cy="270" r="22"/><circle cx="980" cy="520" r="24"/>
+<circle cx="700" cy="640" r="30"/><circle cx="880" cy="800" r="20"/>
+</g>
+<g fill="#f0b429" fill-opacity=".85">
+<circle cx="620" cy="340" r="7"/><circle cx="860" cy="270" r="6"/><circle cx="980" cy="520" r="6.5"/>
+<circle cx="700" cy="640" r="8"/><circle cx="880" cy="800" r="5.5"/>
+</g>
+</svg>

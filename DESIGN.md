@@ -405,3 +405,26 @@ Generated illustrations and safe covers are labelled as such and never imply
 source evidence. The durable edition store and protected cron route are local
 implementation only; cloud scheduling and canonical publication cover fields
 remain separate follow-up work.
+
+### Full-page editorial redesign — September 6, 2026
+
+The owner explicitly released earlier visual restrictions for this review.
+This implementation is a new proposal, not a claim of visual acceptance.
+The lion film and nameplate stay; the edition below now has its own contents
+navigation, a lead/companion news composition, framed research dossiers,
+staggered portrait profiles, aligned historical plates and a vertical system
+reading path. October 7 is a deliberate paper-colored page turn, with dark
+type and all safe-cover labels and content warnings preserved.
+
+`homepage-journey.module.css` owns this route's layout/type scales and its three
+paper tokens (`--journey-paper`, `--journey-paper-ink`, `--journey-paper-muted`).
+They are scoped extensions, not replacements for the canonical global palette.
+Existing Newsreader, IBM Plex Sans and metadata faces remain loaded once.
+Home-specific header/footer variants keep navigation legible over the film,
+provide a structured closing index and fix the homepage back-to-top target.
+Other reading routes retain their existing chrome. No backend, publication,
+source selection, media rights, account behavior or deployment changes.
+Reduced-motion visitors see a face-centered crop of the existing landscape
+poster instead of the portrait entrance's empty first beat; video assets and
+normal playback remain unchanged. The desktop edition reserves a trailing
+gutter for Ask, and mobile research excerpts wrap long account-name sequences.

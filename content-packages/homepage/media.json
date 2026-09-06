@@ -341,6 +341,54 @@
           "homepage"
         ]
       }
+    },
+    {
+      "id": "account-cluster",
+      "src": "/images/homepage/account-cluster.webp",
+      "width": 1200,
+      "height": 1200,
+      "alt": "Editorial diagram: accounts drawn as nodes, sparse before a marked pivot and denser and more interconnected after it. Schematic only — not the measured network and not any identified account.",
+      "credit": "Lions of Zion · editorial diagram",
+      "caption": "Editorial diagram. Node positions are schematic and identify no account.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original editorial diagram authored in this repository",
+        "reference": "public/images/homepage/account-cluster.svg (SVG source, rendered to WebP)",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "transfer-reported",
+      "src": "/images/homepage/transfer-reported.webp",
+      "width": 1200,
+      "height": 1200,
+      "alt": "Editorial diagram: rotor geometry and a transfer arrow drawn as broken lines above an unreadable record. Not evidence that the reported sale took place.",
+      "credit": "Lions of Zion · editorial diagram",
+      "caption": "Editorial diagram. Broken lines mark a reported, unconfirmed transfer; the image is not evidence.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original editorial diagram authored in this repository",
+        "reference": "public/images/homepage/transfer-reported.svg (SVG source, rendered to WebP)",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
     }
   ],
   "mappings": {
@@ -352,7 +400,7 @@
     "chapter:peace-when-it-came": "camp-david",
     "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue": "testimony-room",
     "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart": "documentation-folder",
-    "case:case_02_manosphere_far_right": "case-desk",
-    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "watch-network"
+    "case:case_02_manosphere_far_right": "account-cluster",
+    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "transfer-reported"
   }
 }

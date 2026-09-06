@@ -6,6 +6,7 @@ import styles from "./site-footer.module.css";
 interface SiteFooterProps {
   /** Same value the header takes — see `EditorialShell`. */
   activeSection?: string;
+  home?: boolean;
 }
 
 const TRUST_HREFS = new Set(["/methodology", "/corrections"]);
@@ -21,14 +22,14 @@ const TRUST_HREFS = new Set(["/methodology", "/corrections"]);
  *
  * No newsletter capture, no social row, no "trusted by" strip.
  */
-export function SiteFooter({ activeSection }: SiteFooterProps) {
+export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
   const current = (href: string) => isCurrentChromeLink(activeSection, href);
   const year = new Date().getFullYear();
   const trustLinks = REFERENCE_LINKS.filter((link) => TRUST_HREFS.has(link.href));
   const furtherLinks = REFERENCE_LINKS.filter((link) => !TRUST_HREFS.has(link.href));
 
   return (
-    <footer className={styles.footer}>
+    <footer className={`${styles.footer}${home ? ` ${styles.home}` : ""}`}>
       <div className={styles.inner}>
         <div className={styles.identity}>
           <Link href="/" className={styles.brand}>

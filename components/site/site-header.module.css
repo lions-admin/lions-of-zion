@@ -666,3 +666,20 @@
     border-color: var(--control-line);
   }
 }
+
+/* The home film must never wash out account and navigation controls. */
+.header[data-home] .bar {
+  background: var(--ground);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom-color: var(--line-soft);
+}
+.header[data-home] .brandName { font-size: 21px; letter-spacing: -.025em; }
+.header[data-home] .brandRole { font-size: 9px; letter-spacing: .16em; }
+.header[data-home] .support { border-radius: 3px; }
+.header[data-home] .deskSearch { border-radius: 3px; }
+@media (max-width: 48rem) {
+  .header[data-home] .brandName { font-size: 17px; }
+  .header[data-home] .brandRole { font-size: 8px; }
+}

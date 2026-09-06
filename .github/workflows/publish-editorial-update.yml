@@ -3,7 +3,9 @@ name: Deliver editorial update
 on:
   push:
     branches: [editorial-updates]
-    paths: ["editorial-updates/**/*.json"]
+    # Packages are intentionally root-level. The same rule is enforced by
+    # scripts/list-editorial-update-packages.ts after checkout.
+    paths: ["editorial-updates/*.json"]
 
 concurrency:
   group: editorial-update-delivery
@@ -27,7 +29,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
           path: packages
-          fetch-depth: 2
+          # `github.event.before` can be older than one parent when a push
+          # contains multiple commits, so the diff must have the full range.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -48,12 +52,19 @@ jobs:
           SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            changed=$(git -C ../packages ls-files 'editorial-updates/**/*.json')
-          else
-            changed=$(git -C ../packages diff --name-only "$BEFORE" "$SHA" -- 'editorial-updates/**/*.json')
+          changed="$(node --import tsx scripts/list-editorial-update-packages.ts \
+            --repository ../packages --before "$BEFORE" --sha "$SHA")"
+          if [ -z "$changed" ]; then
+            echo "::error title=No matching editorial package discovered::The push triggered for editorial-updates/*.json, but no canonical root-level package was found after checkout. Expected editorial-updates/YYYY-MM-DD-<runId>.json."
+            echo "Changed paths observed by Git:"
+            if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              git -C ../packages ls-files -- editorial-updates || true
+            else
+              git -C ../packages diff --name-only "$BEFORE" "$SHA" -- editorial-updates || true
+            fi
+            exit 1
           fi
-          test -n "$changed"
+          printf 'Detected canonical editorial package(s):\n%s\n' "$changed"
           while IFS= read -r package; do
             test -n "$package" || continue
             echo "::group::Validate $package"

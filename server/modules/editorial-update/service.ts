@@ -163,32 +163,49 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
           const publicationStore = publicationService(db());
           const areas: readonly HomepageArea[] = ['news', 'fakeResistance', 'people'];
           const positions: readonly HomepagePosition[] = ['lead', 'secondary'];
+          /* One slot at a time, and one slot's refusal is that slot's alone.
+             A single try around the whole loop used to abort every placement
+             after the first refused one, so a package asking for three slots
+             could lose two of them to a fault in the first — and report only
+             the first. Each refusal is recorded against its own area and
+             position so the composer can read exactly which request did not
+             land and why, and the edition is still recomposed below with
+             whatever did. */
           for (const area of areas) for (const position of positions) {
             const decision = decisions[area]?.[position];
             if (!decision) continue;
-            if (decision.action === 'remove') {
-              await publicationStore.setHomepagePlacement(area, position, null, { label: 'service:editorial-run', userId: null });
-              homepageChanges.push({ area, position, action: 'remove', publicId: null, url: null });
-              continue;
-            }
-            const reference = decision.publication;
-            let publicationId: string;
-            let publicId: string | null = null;
-            if (reference.operationKey) {
-              const operation = completedState.operations.find(item => item.operationKey === reference.operationKey);
-              const result = operation?.result as { publicationId?: string; publicId?: string } | null;
-              if (operation?.status !== 'completed' || !result?.publicationId) {
-                throw new Error(`Homepage reference "${reference.operationKey}" did not complete.`);
+            try {
+              if (decision.action === 'remove') {
+                await publicationStore.setHomepagePlacement(area, position, null, { label: 'service:editorial-run', userId: null });
+                homepageChanges.push({ area, position, action: 'remove', publicId: null, url: null });
+                continue;
               }
-              publicationId = result.publicationId;
-              publicId = result.publicId ?? null;
-            } else {
-              const resolved = await publicationStore.resolveEditorialTarget(reference);
-              publicationId = resolved.id;
-              publicId = resolved.publicId;
+              const reference = decision.publication;
+              let publicationId: string;
+              let publicId: string | null = null;
+              if (reference.operationKey) {
+                const operation = completedState.operations.find(item => item.operationKey === reference.operationKey);
+                const result = operation?.result as { publicationId?: string; publicId?: string } | null;
+                if (operation?.status !== 'completed' || !result?.publicationId) {
+                  throw new Error(`Homepage reference "${reference.operationKey}" did not complete.`);
+                }
+                publicationId = result.publicationId;
+                publicId = result.publicId ?? null;
+              } else {
+                const resolved = await publicationStore.resolveEditorialTarget(reference);
+                publicationId = resolved.id;
+                publicId = resolved.publicId;
+              }
+              await publicationStore.setHomepagePlacement(area, position, publicationId, { label: 'service:editorial-run', userId: null });
+              homepageChanges.push({ area, position, action: 'set', publicId, url: publicId ? `/articles/${publicId}` : null });
+            } catch (cause) {
+              const message = cause instanceof Error ? cause.message : String(cause);
+              errors.push({
+                operationKey: null, stage: 'homepage',
+                message: `${area}/${position} was not placed: ${message}`,
+                recovery: `Resolve the cause for ${area}/${position} and place it again in the next package; the other slots were not affected.`,
+              });
             }
-            await publicationStore.setHomepagePlacement(area, position, publicationId, { label: 'service:editorial-run', userId: null });
-            homepageChanges.push({ area, position, action: 'set', publicId, url: publicId ? `/articles/${publicId}` : null });
           }
         }
         const edition = await homepageService(db()).ensureEdition();
@@ -358,6 +375,18 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
   lines.push('', 'MEDIA',
     `  Fetched and stored: ${report.media?.prepared ?? 0} · reused from a previous attempt: ${report.media?.reused ?? 0} · editorial illustrations: ${report.media?.generated ?? 0}`,
     '  Every stored image is served from this project\'s own Blob store; nothing is hotlinked.');
+  /* Said outright rather than left to the per-record annotation above: a
+     record without a hero is invisible to the homepage composer, so every
+     homepage placement that names one is refused. Three runs shipped with
+     no pictures at all before this line existed, and their reports read as
+     complete successes. */
+  const withoutHero = results.filter(result => result.hasMedia === false);
+  if (withoutHero.length) {
+    lines.push(
+      `  Published WITHOUT a hero image: ${withoutHero.length} — ${withoutHero.map(result => result.publicId ?? '?').join(', ')}.`,
+      '  A record with no homepage-cleared image cannot be placed on the homepage; the DNA asks for a strong hero on every new piece.',
+    );
+  }
 
   lines.push('', 'NOT PUBLISHED / VETOED');
   if (failed.length || report.errors?.length) {

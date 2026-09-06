@@ -403,8 +403,19 @@ validation before delivery.
 `HOMEPAGE_PLACEMENT_AREAS` and `HOMEPAGE_PLACEMENT_POSITIONS` in
 `server/modules/publications/service.ts` carry the same three and two, and
 `setHomepagePlacement()` refuses a publication that is not live, not
-machine-published, or whose section does not belong to the named area
-(`belongsToHomepageArea()` → `publicationHomepageSection()`).
+machine-published, whose section does not belong to the named area
+(`belongsToHomepageArea()` → `publicationHomepageSection()`), **or that has
+no hero image cleared for the homepage surface.** The last rule exists
+because the composer's candidate pool (`homepageInputs()` →
+`isHomepageSafeMedia()`) never admits such a record, and `selectHomepage()`
+falls through to its automatic pick for a placement it cannot find — so
+storing the placement did nothing, silently. On 2026-09-07 three runs asked
+for eight slots between them, none of their records carried a picture, and
+all three reported `failed=0` while the homepage did not change. A refused
+placement is now recorded against its own area and position in the run's
+errors, the run finishes `partial`, and the other slots are placed
+regardless. **A record without a hero image can be published; it cannot be
+placed.**
 
 **October 7 is not placeable.** There is no `october7` area in the contract and
 none in the service. The homepage band is chosen by `selectHomepage()` from the
@@ -809,7 +820,11 @@ breadcrumb and the card label from it. There is no `homepageCategory`, no
 `technology_ai`, `achievement`, `international_cooperation`, `people`,
 `courage_service` and `history_context` → The People of Israel.
 
-**Images.** Every new piece needs a strong hero image. Priority: (1) a relevant
+**Images.** Every new piece needs a strong hero image — and **a homepage
+placement is refused for any record without one cleared for the homepage**
+(`rights.status: "cleared"`, `clearedAt`, and `"homepage"` in
+`rights.surfaces`), so a `homepage` decision that names a picture-less
+create or update will be reported as not placed. Priority: (1) a relevant
 image from the source itself; (2) an official IDF / government / institutional
 image; (3) a relevant image from another reliable source; (4) an original
 illustration if nothing exists. Send the image as a `media` object with

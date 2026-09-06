@@ -330,10 +330,20 @@ where the reference names **exactly one** of:
 Naming two, or none, is a validation error.
 
 `setHomepagePlacement()` refuses a publication that is not live, that carries
-no machine provenance, or **whose section does not file into that area** — a
-`narrative_watch` record cannot occupy the `news` lead. A homepage reference to
-an operation that did not complete fails the homepage stage and the run reports
-`partial`.
+no machine provenance, **whose section does not file into that area** — a
+`narrative_watch` record cannot occupy the `news` lead — or **that has no hero
+image cleared for the homepage** (`rights.status: "cleared"`, `clearedAt`, and
+`"homepage"` in `rights.surfaces`). The last rule exists because the homepage
+composer never admits a picture-less record and silently falls back to its
+automatic pick for a placement it cannot find; until 2026-09-07 such a
+placement was stored, did nothing, and the run reported `failed=0`.
+
+Each slot is applied under its own error boundary: a refused slot is recorded
+in the run's `errors` as `homepage` with the message
+`<area>/<position> was not placed: <reason>`, the remaining slots are still
+applied, the edition is still recomposed, and the run reports `partial`. A
+homepage reference to an operation that did not complete is reported the same
+way.
 
 ### Internal UUIDs are never invented
 

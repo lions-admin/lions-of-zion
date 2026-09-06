@@ -2,9 +2,25 @@ import { describe, expect, it } from "vitest";
 import { briefingQualityCheck, briefingRun, publication } from "@/server/db/schema";
 import { freshDatabase } from "@/server/db/testing";
 import { REQUIRED_QUALITY_CHECKS } from "@/server/modules/briefing/quality";
+import { mediaRepo, type EditorialMediaDraft } from "@/server/modules/media/repo";
 import { publicationService } from "@/server/modules/publications/service";
 
 const actor = { label: "service:briefing", userId: null };
+
+/** A hero cleared for both surfaces — the only kind the homepage composer admits. */
+async function attachHomepageHero(db: unknown, publicationId: string, surfaces: Array<"homepage" | "article"> = ["homepage", "article"]) {
+  const draft: EditorialMediaDraft = {
+    src: `/images/homepage-fixture-${publicationId.slice(0, 8)}.webp`, width: 1536, height: 1024,
+    alt: "Homepage fixture", caption: null, credit: "Lions of Zion", sourceUrl: null, originUrl: null,
+    disclosure: "Editorial illustration — not evidence", role: "editorial-illustration",
+    focalPoint: { x: 50, y: 50 }, sensitivity: "safe",
+    rights: { status: "cleared", basis: "Original editorial illustration", reference: "test", clearedAt: "2026-09-06", surfaces },
+    contentHash: publicationId.replace(/-/g, "").padEnd(64, "a").slice(0, 64), byteSize: 12000, contentType: "image/webp",
+    generated: true, provenance: { runId: "fixture" },
+  };
+  const asset = await mediaRepo(db).insertMedia(draft);
+  await mediaRepo(db).attachToPublication(publicationId, asset.id);
+}
 
 async function fixture() {
   const db = await freshDatabase();
@@ -29,7 +45,7 @@ async function fixture() {
     status: "published", publishedAt: new Date(), autoPublishedAt: new Date(),
     briefingRunId: run!.id, briefingCandidateKey: "article-3", machineAuthor: "machine:test",
   }).returning();
-  return { service, rows: [...rows, warRow!] };
+  return { db, service, rows: [...rows, warRow!] };
 }
 
 describe("homepage placements", () => {
@@ -39,12 +55,34 @@ describe("homepage placements", () => {
   });
 
   it("uses a matching-area lead placement and rejects a mismatched area", async () => {
-    const { service, rows } = await fixture();
+    const { db, service, rows } = await fixture();
+    await attachHomepageHero(db, rows[2]!.id);
+    await attachHomepageHero(db, rows[1]!.id);
     await service.setHomepagePlacement("news", "lead", rows[2]!.id, actor);
     expect((await service.featured()).map((row) => row.publicId)[0]).toBe(rows[2]!.publicId);
     await expect(service.setHomepagePlacement("people", "lead", rows[1]!.id, actor))
       .rejects.toThrow(/matching homepage area/i);
     await service.setHomepagePlacement("news", "lead", null, actor);
     expect(await service.homepagePlacements()).toEqual([]);
+  });
+
+  /* The composer only ever admits a record whose hero is cleared for the
+     homepage, and silently falls back to its automatic pick for a placement
+     it cannot find. Storing that placement therefore did nothing — three
+     runs on 2026-09-07 reported `failed=0` with none of their slots changed.
+     The refusal has to happen where the placement is stored. */
+  it("refuses to place a publication that has no homepage-cleared hero image", async () => {
+    const { db, service, rows } = await fixture();
+    await expect(service.setHomepagePlacement("news", "lead", rows[0]!.id, actor))
+      .rejects.toThrow(/hero image cleared for the homepage/i);
+    /* Cleared for the article page only is not cleared for the homepage. */
+    await attachHomepageHero(db, rows[1]!.id, ["article"]);
+    await expect(service.setHomepagePlacement("news", "lead", rows[1]!.id, actor))
+      .rejects.toThrow(/hero image cleared for the homepage/i);
+    expect(await service.homepagePlacements()).toEqual([]);
+    /* A clearing that covers the homepage is admitted and renders. */
+    await attachHomepageHero(db, rows[2]!.id);
+    await service.setHomepagePlacement("news", "lead", rows[2]!.id, actor);
+    expect((await service.featured()).map((row) => row.publicId)[0]).toBe(rows[2]!.publicId);
   });
 });

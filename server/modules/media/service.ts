@@ -102,11 +102,21 @@ export async function materializeExternalMedia(
      overwrites its own object with identical content instead of accumulating
      `image-1.jpg`, `image-2.jpg`. This is the same key `insertMedia` dedupes
      rows on, which is what keeps blob and table in step. */
-  const stored = await storeEditorialImage(
-    `publications/media/${contentHash}.${extension}`,
-    fetched.body,
-    fetched.contentType,
-  );
+  /* Images already shipped from this application's immutable public asset
+     directory do not need to be copied back into Blob. Production currently
+     uses a private Blob store for evidence captures, which correctly rejects
+     a public upload. Reusing an owned, deployed editorial asset by its local
+     path keeps it browser-readable without weakening that store's access
+     level or duplicating the same bytes. External URLs still take the normal
+     content-addressed Blob path. */
+  const ownedStaticPath = ownedStaticEditorialPath(media.inputUrl);
+  const stored = ownedStaticPath
+    ? { url: ownedStaticPath, contentType: fetched.contentType }
+    : await storeEditorialImage(
+      `publications/media/${contentHash}.${extension}`,
+      fetched.body,
+      fetched.contentType,
+    );
 
   return {
     src: stored.url,
@@ -226,6 +236,14 @@ function requireHttpUrl(value: string): string {
     throw new Error(`Image URL ${value} is not an http(s) URL.`);
   }
   return url.toString();
+}
+
+function ownedStaticEditorialPath(value: string): string | null {
+  const url = new URL(value);
+  if (url.protocol !== "https:" || url.hostname !== "lionsofzion.io") return null;
+  return /^\/images\/homepage\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp|avif|gif)$/.test(url.pathname)
+    ? url.pathname
+    : null;
 }
 
 /* ── Header-only dimension parsing ───────────────────────────────────────────

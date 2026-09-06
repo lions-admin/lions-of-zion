@@ -27,6 +27,33 @@
       }
     },
     {
+      "id": "israeli-startup-ecosystem",
+      "src": "/images/homepage/matcal.webp",
+      "width": 1440,
+      "height": 1080,
+      "alt": "Tel Aviv skyline context for reporting on investment in Israel's technology sector.",
+      "credit": "Ori~ · resized WebP",
+      "caption": "Tel Aviv context for Israel's technology ecosystem.",
+      "disclosure": "Archival context image — not documentation of the reported funding rounds",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Matcal_Tower,_Tel_Aviv-Yafo,_2009-1.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Attribution-only permission",
+        "reference": "https://commons.wikimedia.org/wiki/File:Matcal_Tower,_Tel_Aviv-Yafo,_2009-1.jpg",
+        "clearedAt": "2026-09-07",
+        "surfaces": [
+          "homepage",
+          "article"
+        ]
+      }
+    },
+    {
       "id": "blue-line",
       "src": "/images/homepage/blue-line.webp",
       "width": 1280,
@@ -672,6 +699,8 @@
     }
   ],
   "mappings": {
+    "publication:us-iranian-forces-fire-at-vessels-in-waters-near-f2cks": "regional-defense-brief",
+    "publication:israeli-startups-raise-1-16-billion-in-first-two-1h7h8": "israeli-startup-ecosystem",
     "publication:israel-ministry-of-defense-recent-announcements--m781m": "matcal",
     "publication:israel-ministry-of-defense-activities-regional-r-lref0": "regional-defense-brief",
     "hero:rami-davidian": "rami-davidian",

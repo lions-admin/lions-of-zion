@@ -1,0 +1,94 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "homepage-news-media-refresh-2026-09-07-023230",
+  "composer": "ChatGPT homepage editor",
+  "createdAt": "2026-09-06T23:32:30Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "attach-media-iran-hormuz-homepage",
+      "target": {
+        "publicId": "us-iranian-forces-fire-at-vessels-in-waters-near-f2cks"
+      },
+      "publication": {
+        "changeSummary": "Added cleared editorial context artwork so the updated Iran-Hormuz story can appear on the homepage and retain the same image on its article page."
+      },
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/homepage/regional-defense-brief.webp",
+        "sourceUrl": "https://lionsofzion.io/images/homepage/regional-defense-brief.webp",
+        "alt": "Editorial illustration of a regional relief map and defense dispatch used as context for the Iran-Hormuz maritime escalation.",
+        "caption": "Regional security context for the developing Iran-Hormuz maritime confrontation.",
+        "credit": "Lions of Zion · generated editorial illustration",
+        "disclosure": "Editorial illustration — not documentation of the reported maritime incidents.",
+        "role": "editorial-illustration",
+        "focalPoint": {
+          "x": 50,
+          "y": 48
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Commissioned original generated artwork owned by Lions of Zion",
+          "reference": "https://lionsofzion.io/images/homepage/regional-defense-brief.webp",
+          "clearedAt": "2026-09-07",
+          "surfaces": [
+            "homepage",
+            "article"
+          ]
+        },
+        "generated": true
+      }
+    },
+    {
+      "key": "attach-media-israeli-startups-homepage",
+      "target": {
+        "publicId": "israeli-startups-raise-1-16-billion-in-first-two-1h7h8"
+      },
+      "publication": {
+        "changeSummary": "Added cleared Tel Aviv context photography so the Israeli startup-funding story can appear on the homepage and retain attribution on its article page."
+      },
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/homepage/matcal.webp",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Matcal_Tower,_Tel_Aviv-Yafo,_2009-1.jpg",
+        "alt": "Tel Aviv skyline context for reporting on Israeli technology-sector investment; not an image of the companies or funding rounds.",
+        "caption": "Tel Aviv context for Israel's technology ecosystem.",
+        "credit": "Ori~ · resized WebP",
+        "disclosure": "Archival context image — not documentation of the reported funding rounds.",
+        "role": "archival-context",
+        "focalPoint": {
+          "x": 50,
+          "y": 40
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Attribution-only permission recorded on the Wikimedia Commons file page",
+          "reference": "https://commons.wikimedia.org/wiki/File:Matcal_Tower,_Tel_Aviv-Yafo,_2009-1.jpg",
+          "clearedAt": "2026-09-07",
+          "surfaces": [
+            "homepage",
+            "article"
+          ]
+        },
+        "generated": false
+      }
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "attach-media-iran-hormuz-homepage"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "attach-media-israeli-startups-homepage"
+        }
+      }
+    }
+  },
+  "siteRecommendations": []
+}

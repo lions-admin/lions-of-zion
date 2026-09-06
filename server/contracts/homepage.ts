@@ -51,6 +51,11 @@ export type HomepageSection<T> = {state:'ready'|'partial'|'empty'|'unavailable';
 export type HomepageEdition = {
   editionDate:string; revision:number; generatedAt:string;
   state:'current'|'previous-edition'|'unavailable'; localPreview:boolean;
+  /** Sections filled from the committed catalogue because the persisted
+   *  edition could not fill them. Empty on a normal day. Stated in the page's
+   *  edition line rather than hidden: standby membership is chosen by a
+   *  rotation, not by an editor. */
+  standby:HomeSectionName[];
   news:HomepageSection<NewsPreview>; fakeResistance:HomepageSection<WatchPreview|CasePreview>;
   october7:HomepageSection<ArchivePreview>; heroes:HomepageSection<HeroPreview>; israelsStory:HomepageSection<HistoryPreview>;
 };

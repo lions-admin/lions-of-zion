@@ -341,6 +341,174 @@
           "homepage"
         ]
       }
+    },
+    {
+      "id": "cover-news",
+      "src": "/images/homepage/covers/news.svg",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Editorial cover: an abstract broadsheet page with one marked line. It is not a photograph of anything reported here.",
+      "credit": "Lions of Zion · drawn editorial cover",
+      "caption": "Editorial cover artwork. No photograph is cleared for this record yet; the image illustrates the section, not the story.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original vector artwork drawn for this repository",
+        "reference": "content-packages/homepage/cover-artwork.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "cover-watch",
+      "src": "/images/homepage/covers/watch.svg",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Editorial illustration: one claim at the left repeated outward across a network. Not evidence and not a live measurement.",
+      "credit": "Lions of Zion · drawn editorial illustration",
+      "caption": "Editorial illustration. Monitoring is not confirmation; the image is not evidence.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 30,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original vector artwork drawn for this repository",
+        "reference": "content-packages/homepage/cover-artwork.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "cover-case",
+      "src": "/images/homepage/covers/case.svg",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Editorial illustration: filed cards on a working board joined by a thread. Not a relationship map and not a finding.",
+      "credit": "Lions of Zion · drawn editorial illustration",
+      "caption": "Editorial illustration. The board is a drawing, not the case’s evidence or its conclusions.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original vector artwork drawn for this repository",
+        "reference": "content-packages/homepage/cover-artwork.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "cover-testimony",
+      "src": "/images/homepage/covers/testimony.svg",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Safe cover: an empty chair beside an open, lit doorway. Not a reconstruction of the account or its location.",
+      "credit": "Lions of Zion · drawn safe-cover artwork",
+      "caption": "Safe cover. This is not a reconstruction of the testimony or where it happened.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 60,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original vector artwork drawn for this repository",
+        "reference": "content-packages/homepage/cover-artwork.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "cover-documentation",
+      "src": "/images/homepage/covers/documentation.svg",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Safe cover: a sealed archive folder. The documentation it stands for stays concealed until the record is opened.",
+      "credit": "Lions of Zion · drawn safe-cover artwork",
+      "caption": "Safe cover. The underlying documentation remains concealed until you open the record.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original vector artwork drawn for this repository",
+        "reference": "content-packages/homepage/cover-artwork.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "cover-hero",
+      "src": "/images/homepage/covers/hero.svg",
+      "width": 1200,
+      "height": 1600,
+      "alt": "Portrait mount with the oval left empty, standing in where no photograph of this person is cleared for publication.",
+      "credit": "Lions of Zion · drawn editorial cover",
+      "caption": "Portrait mount left empty. No photograph of this person is cleared for the homepage; none is invented for it.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original vector artwork drawn for this repository",
+        "reference": "content-packages/homepage/cover-artwork.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "cover-chapter",
+      "src": "/images/homepage/covers/chapter.svg",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Editorial illustration: layered strata cut by a single reading line. A drawing of a record in periods, not a map or a timeline of events.",
+      "credit": "Lions of Zion · drawn editorial cover",
+      "caption": "Editorial cover artwork. The layers are a drawing of a record read in periods, not a source or a map.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original vector artwork drawn for this repository",
+        "reference": "content-packages/homepage/cover-artwork.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
     }
   ],
   "mappings": {
@@ -354,5 +522,14 @@
     "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart": "documentation-folder",
     "case:case_02_manosphere_far_right": "case-desk",
     "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "watch-network"
+  },
+  "defaults": {
+    "news": "cover-news",
+    "watch": "cover-watch",
+    "case": "cover-case",
+    "testimony": "cover-testimony",
+    "documentation": "cover-documentation",
+    "hero": "cover-hero",
+    "chapter": "cover-chapter"
   }
 }

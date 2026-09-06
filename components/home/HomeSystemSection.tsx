@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { EditorialIntro } from './EditorialIntro';
 import { JourneyLink } from './HomeJourneyPrimitives';
 import styles from './homepage-journey.module.css';
@@ -8,6 +9,19 @@ export function HomeSystemSection(){return <section className={`${styles.section
  <p className={styles.systemCaveat}>A conceptual reading path, not a universal approval chain. Automated briefings, external packages and human assessments follow different review paths. Archive testimony and documentation remain a separate preserved record.</p>
  <dl className={styles.systemBranches}><div><dt>Publication paths</dt><dd>Human assessment · automated briefing · external import. Review requirements differ; publication alone is not a verification verdict.</dd></div><div><dt>Preservation path</dt><dd>Testimony / documentation → archive record → reader-controlled access. Sensitive material is never a homepage preview.</dd></div></dl>
  <div className={styles.purpose}><p className={styles.kicker}>Why this work matters</p><h3>Repetition is not verification.</h3><p>Amplification can make a claim feel established before the evidence catches up. This is one possible mechanism—not a measurement of every narrative.</p></div>
+ {/* The one picture in an otherwise unbroken column of type, and it draws
+     the thing the list beneath it names rather than decorating it: a claim
+     made once at the left, repeated outward, arriving as a row of identical
+     marks. Vector, so it stays sharp and costs a few kilobytes; served
+     unoptimized because the image optimizer answers 400 for SVG. */}
+ <figure className={styles.purposeFigure}>
+  <span className={styles.figureFrame}>
+   <Image src="/images/homepage/covers/watch.svg" width={1600} height={1000} unoptimized
+    sizes="(max-width:767px) 100vw, 60vw"
+    alt="One marked point at the left branching outward into rows of repeated points, the branches fading as they go."/>
+  </span>
+  <figcaption>Editorial illustration of the pathway below. It is a drawing, not a measurement of any narrative.</figcaption>
+ </figure>
  <ol className={styles.narrativePath} aria-label="An explanatory narrative pathway"><li>A claim begins</li><li>Others amplify it</li><li>Repetition can feel like consensus</li><li>Checking may take longer</li></ol>
  <p className={styles.deskResponse}>Our response: preserve the material, examine the claim, publish what the available record supports.</p>
  <div className={styles.systemActions}><JourneyLink href="/information-war#system">Explore how the system works</JourneyLink><JourneyLink href="/information-war#problem">Why this work matters</JourneyLink><EditorialIntro compact autoOpen={false}/></div>

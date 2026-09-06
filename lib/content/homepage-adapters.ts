@@ -16,7 +16,7 @@ const sources=(rows:{label:string;url?:string}[]):HomeSource[]=>rows.filter((s):
 export async function resolveHomepageReference(ref:HomeReference):Promise<HomePreview|null>{
   const canonicalProfile=ref.kind==='hero' ? await getOurHeroesEdition().then(e=>[e.featured,...e.profiles].find(p=>p.id===ref.id)) : undefined;
   const canonicalChapter=ref.kind==='chapter' ? await getIsraelsStoryEdition().then(e=>e.chapters.find(p=>p.id===ref.id)) : undefined;
-  const media=homepageMedia(ref.key,canonicalProfile?.mediaRef??canonicalChapter?.mediaRef);if(!media)return null;
+  const media=homepageMedia(ref.key,canonicalProfile?.mediaRef??canonicalChapter?.mediaRef,ref.kind);if(!media)return null;
   const base={key:ref.key,href:ref.href,media,date:ref.date,sources:[] as HomeSource[],whyItMatters:homepageExcerpt(ref.key,'whyItMatters',ref.version)};
   if(ref.kind==='news'||ref.kind==='watch'){
     const p=await getPublicPublication(ref.id);
@@ -39,12 +39,12 @@ export async function resolveHomepageReference(ref:HomeReference):Promise<HomePr
   }
   if(ref.kind==='hero'){
     const p=canonicalProfile;if(!p)return null;
-    const canonicalMedia=homepageMedia(ref.key,p.mediaRef);if(!canonicalMedia)return null;
+    const canonicalMedia=homepageMedia(ref.key,p.mediaRef,ref.kind);if(!canonicalMedia)return null;
     return {...base,media:canonicalMedia,kind:'hero',title:p.name,summary:p.summary,role:p.role,meta:p.meta,sources:sources(p.sources)};
   }
   if(ref.kind==='chapter'){
     const p=canonicalChapter;if(!p)return null;
-    const canonicalMedia=homepageMedia(ref.key,p.mediaRef);if(!canonicalMedia)return null;
+    const canonicalMedia=homepageMedia(ref.key,p.mediaRef,ref.kind);if(!canonicalMedia)return null;
     return {...base,media:canonicalMedia,whyItMatters:homepageExcerpt(ref.key,'whyItMatters',homepageContentRevision(p)),kind:'chapter',title:p.title,summary:p.intro,era:p.timeline[0]?.dateLabel??'',contested:!!p.contested,sources:sources(p.sources)};
   }
   const record=ref.kind==='testimony'?await getTestimony(ref.id):await getDocumentationRecord(ref.id);

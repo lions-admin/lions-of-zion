@@ -3,9 +3,9 @@ import { VERIFICATION_STATES } from '@/components/live/publication-labels';
 import { HomeMedia,HomeTime,HomeSources,JourneyLink,SectionHeading,SectionState } from './HomeJourneyPrimitives';
 import styles from './homepage-journey.module.css';
 export function HomeNarrativesSection({section}:{section:HomepageEdition['fakeResistance']}){
- return <section className={`${styles.section} ${styles.investigations}`} aria-labelledby="home-narratives-title" data-home-section="fakeResistance">
- <SectionHeading id="home-narratives-title" kicker="The claim and the record" title="Narratives & fact checks" href="/fake-resistance" action="Explore the investigations"/>
- <p className={styles.sectionIntro}>What circulates is not always what the evidence establishes. Read the status before the claim.</p>
+ return <section className={styles.section} aria-labelledby="home-narratives-title" data-home-section="fakeResistance">
+ <SectionHeading id="home-narratives-title" kicker="The claim and the record" title="Narratives & fact checks" href="/fake-resistance" action="Explore the investigations"
+ intro="What circulates is not always what the evidence establishes. Read the status before the claim."/>
  <div className={styles.narrativeSpread}>{section.items.map(item=>{
  const status=item.kind==='watch'?VERIFICATION_STATES[item.verification as keyof typeof VERIFICATION_STATES]:null;
  return <article key={item.key} className={styles.investigation} data-home-record={item.key}>
@@ -18,5 +18,5 @@ export function HomeNarrativesSection({section}:{section:HomepageEdition['fakeRe
  <p className={styles.sources}>{item.kind==='case'?`${item.sourceCount} sources in the case; source count is not a verdict.`:item.basis==='analysis'?'Lions of Zion editorial analysis · No source-backed finding is implied.':item.sources.length?'Source-backed monitoring record.':'No source link is available in this preview.'}</p>
  {!(item.kind==='watch'&&item.basis==='analysis')&&<HomeSources sources={item.sources}/>}
  <JourneyLink href={item.href}>{item.kind==='case'?'Read the investigation':item.basis==='analysis'?'Read the analysis':'Read the assessment'}</JourneyLink></div>
- </article>;})}</div><SectionState section={section}/></section>;
+ </article>;})}</div><SectionState section={section} cover="/images/homepage/covers/watch.svg" href="/fake-resistance" action="Explore the investigations"/></section>;
 }

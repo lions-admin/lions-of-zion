@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-06",
+  "method": "Hand-authored SVG committed to this repository",
+  "purpose": "A cover of last resort for every homepage record kind, so a record is never dropped from the page for want of a picture and no image is ever passed off as source material.",
+  "rules": [
+    "None of these is a photograph, a reconstruction, or evidence of anything.",
+    "Each carries a caption saying what it is; the caption is not optional chrome.",
+    "The testimony and documentation covers are safe covers: they may never depict, quote or reconstruct the record they stand in front of.",
+    "The portrait cover leaves the oval empty. Where no photograph of a person is cleared, none is invented."
+  ],
+  "assets": [
+    { "file": "covers/news.svg", "use": "News & Analysis", "drawn": "Abstract broadsheet: a measured masthead rule, three receding columns, one gold datum line." },
+    { "file": "covers/watch.svg", "use": "Narrative Watch", "drawn": "One claim at the left repeated outward through a network; a single traced thread carried across." },
+    { "file": "covers/case.svg", "use": "Research case", "drawn": "Filed cards on a working board joined by an analyst's thread." },
+    { "file": "covers/testimony.svg", "use": "Testimony safe cover", "drawn": "An empty chair beside an open, lit doorway, and a voice given as measure only." },
+    { "file": "covers/documentation.svg", "use": "Documentation safe cover", "drawn": "A stacked archive folder under a seal, contents concealed." },
+    { "file": "covers/hero.svg", "use": "Our Heroes portrait mount", "drawn": "A portrait mount with the oval left open and the name rule beneath it empty." },
+    { "file": "covers/chapter.svg", "use": "Israel's Story chapter", "drawn": "Layered strata cut by one vertical reading line." }
+  ]
+}

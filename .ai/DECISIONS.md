@@ -10,6 +10,68 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-06 — The homepage falls back to the committed catalogue, and every record kind has a drawn cover
+
+Production served a homepage with **no records and not one picture on it**.
+Every section rendered the same sentence — "This selection is temporarily
+unavailable. You can still explore the full section." — from the hero to the
+footer.
+
+Two independent causes, both of them a design that fails closed in a place
+where failing closed empties the page:
+
+- **Nothing ever writes `homepage_edition`.** `vercel.json` schedules
+  `ingest`, `embed`, `outbox-drain` and `maintenance`, and nothing else;
+  `/api/internal/cron/homepage` exists and is called by no schedule. So
+  `readHomepageSnapshot()` returned null on every request, and the null path
+  returned five `unavailable` sections. Four of those five never needed a
+  database: their records are committed under `content-packages/` and resolve
+  from the filesystem.
+- **A record with no hand-mapped picture was dropped whole.** `homepageMedia()`
+  returned null for an unmapped key and `resolveHomepageReference` answered
+  null on it, so an unmapped image cost the reader the record. In the edition
+  job the same rule meant a briefing published this morning could never be
+  eligible, because nobody hand-maps an image onto each morning's briefing.
+
+**Standby membership** (`lib/content/homepage-standby.ts`) answers the first.
+A section that resolves to nothing is filled from `catalog.json` — the same
+catalogue the edition job selects from, read directly, membership rotated by
+edition date so it is stable for a day. It is not a second editorial voice and
+not a cache, and the page says so: `HomepageEdition.standby` names the
+sections it filled and the edition line prints them. A section standby cannot
+fill either keeps its own state and still tells the reader nothing was loaded.
+News is the one section with nothing committed behind it, so it is the one
+that still needs a reachable database — through `listBriefingPublications`,
+not through an edition row.
+
+**Drawn covers** (`content-packages/homepage/cover-artwork.json`) answer the
+second: one committed SVG per record kind, declared in `media.json` under
+`defaults` and held to the same `isHomepageSafeMedia` gate as every
+photograph. They are covers, never evidence, and each carries a caption
+saying what it is. Two of them are safe covers under the archive rule and may
+not depict or reconstruct the record they stand in front of; the portrait
+mount leaves the oval **empty**, because where no photograph of a person is
+cleared, none is invented for them.
+
+Consequences worth holding:
+
+- `catalogSourceRevision()` hashes `media.json`, so touching the registry
+  makes the catalogue stale and `ensureHomepageEdition` throws until
+  `npm run homepage:catalog` is run. Editing media and forgetting the
+  catalogue is a broken edition job, not a lint error.
+- `build-catalog.ts` calls `homepageMedia()` **without a kind** and must keep
+  doing so. Passing one would let every default match, and the curated
+  catalogue of seven cleared references would become all 179 testimonies and
+  335 documentation records.
+- The image optimizer answers **400** for SVG without `dangerouslyAllowSVG`.
+  The drawn covers are served `unoptimized` from `public/` instead of turning
+  that flag on for every input.
+- Registering the homepage cron is still the right thing to do and is
+  deliberately **not** done here. Standby is a floor, not a replacement for a
+  published edition.
+
+---
+
 ## 2026-09-05 — The uppercase rule is not one line to reverse, and two hero numbers will go stale silently
 
 Three findings from a frontend design pass, recorded because each one is

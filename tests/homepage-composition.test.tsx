@@ -10,7 +10,7 @@ import {HomepageJourney} from '@/components/home/HomepageJourney';
 const asset=editorialMediaSchema.parse(media.assets[0]);
 const base={key:'a',title:'A full headline',href:'/articles/a',date:'2026-09-05T09:00:00Z',summary:'Published summary.',media:asset,sources:[]};
 const empty={state:'empty' as const,items:[],gaps:[]};
-function edition():HomepageEdition{return {editionDate:'2026-09-05',revision:1,generatedAt:'2026-09-05T09:00:00Z',state:'current',localPreview:false,news:{state:'partial',items:[{...base,kind:'news',category:'Israel update'}],gaps:[]},fakeResistance:{state:'partial',items:[{...base,key:'w',kind:'watch',claim:'An unresolved claim',verification:'unresolved',basis:'analysis'}],gaps:[]},october7:empty,heroes:empty,israelsStory:empty};}
+function edition():HomepageEdition{return {editionDate:'2026-09-05',revision:1,generatedAt:'2026-09-05T09:00:00Z',state:'current',localPreview:false,standby:[],news:{state:'partial',items:[{...base,kind:'news',category:'Israel update'}],gaps:[]},fakeResistance:{state:'partial',items:[{...base,key:'w',kind:'watch',claim:'An unresolved claim',verification:'unresolved',basis:'analysis'}],gaps:[]},october7:empty,heroes:empty,israelsStory:empty};}
 describe('homepage editorial composition',()=>{
  it('renders the journey in semantic order without carousel or autoplay below hero',()=>{
  const html=renderToStaticMarkup(<HomepageJourney edition={edition()}/>);

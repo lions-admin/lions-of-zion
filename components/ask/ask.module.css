@@ -1375,13 +1375,24 @@ html:has([id="latest-news"], [id="latest-monitoring"], [id="monitoring-archive"]
   margin: 0 var(--sp-5) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px)) auto;
 }
 
-/* The homepage is now a reading journey. On narrow screens the launcher has
-   its own place after the document instead of covering evidence or credits. */
-@media (max-width: 1099px) {
-  html:has([data-home-scroll]) .dockTrigger {
-    position: relative;
-    inset: auto;
-    margin: 0 20px calc(24px + env(safe-area-inset-bottom, 0px)) auto;
-    display: flex;
-  }
-}
+/* The homepage keeps the launcher fixed on a phone, and this rule is where it
+   used to lose it.
+ *
+ * It read "on narrow screens the launcher has its own place after the
+ * document instead of covering evidence or credits", and in flow after the
+ * document meant after *this* document: the homepage journey is around
+ * 12,000px tall on a 390px screen, so the control landed below the footer at
+ * y≈12,241 — twelve screens past the last thing anyone scrolls to. A control
+ * nobody can reach is not an uncovered one, it is a missing one, and Ask is
+ * the only route to the desk from the homepage now that the header link was
+ * removed in favour of this panel.
+ *
+ * The rule it displaced already answers the covering worry: a 4rem seal in
+ * the corner, lifted `--sp-9` clear of the bottom and inset by the homepage
+ * gutter so it sits in the margin rather than over the column. Article pages,
+ * where covering the text would matter more, have carried exactly that all
+ * along.
+ *
+ * The reading desks above keep their in-flow launcher: those pages are a
+ * screen or two of index, so "after the document" is somewhere a reader
+ * actually arrives. */

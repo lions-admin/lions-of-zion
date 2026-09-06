@@ -25,10 +25,18 @@ export async function homepageInputs(db:Database, now=new Date()) {
   ]);
   const live=new Map([...news,...briefs,...watch,...pins.map(p=>p.publication)].map(p=>[p.publicId,p]));
   const candidates:HomeReference[]=catalog.candidates.filter(c=>safeIds.has(c.mediaId));
+  /* A publication with no hand-mapped picture takes the drawn cover for its
+     kind rather than being dropped from the edition. Requiring a mapping was
+     why the live sections stayed empty: nobody hand-maps an image onto each
+     morning's briefing, so no briefing was ever eligible. See
+     `content-packages/homepage/cover-artwork.json`. */
+  const defaults=(rawMedia.defaults??{}) as Record<string,string>;
   for(const p of live.values()){
-    const key=`publication:${p.publicId}`,mediaId=rawMedia.mappings[key] as string|undefined;
+    const kind=p.section==='narrative_watch'?'watch':'news';
+    const key=`publication:${p.publicId}`,mapped=rawMedia.mappings[key] as string|undefined;
+    const mediaId=mapped&&safeIds.has(mapped)?mapped:defaults[kind];
     if(!mediaId||!safeIds.has(mediaId))continue;
-    candidates.push({key,id:p.publicId,kind:p.section==='narrative_watch'?'watch':'news',
+    candidates.push({key,id:p.publicId,kind,
       section:p.section==='narrative_watch'?'fakeResistance':'news',href:`/articles/${p.publicId}`,
       version:p.updatedAt,date:p.publishedAt,mediaId});
   }

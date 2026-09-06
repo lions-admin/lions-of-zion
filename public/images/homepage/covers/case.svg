@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <title>Editorial illustration for an open research case</title>
+  <defs>
+    <linearGradient id="cGround" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#17181a"/><stop offset="0.6" stop-color="#0f1012"/><stop offset="1" stop-color="#08080a"/>
+    </linearGradient>
+    <radialGradient id="cLamp" cx="0.5" cy="0.06" r="0.85">
+      <stop offset="0" stop-color="#f6f3eb" stop-opacity="0.11"/><stop offset="1" stop-color="#f6f3eb" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cCard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6f3eb" stop-opacity="0.13"/><stop offset="1" stop-color="#f6f3eb" stop-opacity="0.045"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#cGround)"/>
+  <rect width="1600" height="1000" fill="url(#cLamp)"/>
+
+  <!-- A working board: filed cards, and the thread an analyst has run between
+       them. Nothing here is a relationship map or a finding. -->
+  <g stroke="#f0b429" stroke-opacity="0.42" stroke-width="1.5" fill="none">
+    <path d="M318 320L744 232"/><path d="M744 232L1122 372"/><path d="M318 320L610 596"/>
+    <path d="M610 596L1122 372"/><path d="M610 596L1000 738"/><path d="M1122 372L1000 738"/>
+    <path d="M744 232L610 596"/>
+  </g>
+
+  <g stroke="#f6f3eb" stroke-opacity="0.16">
+    <rect x="196" y="228" width="244" height="168" rx="3" fill="url(#cCard)"/>
+    <rect x="622" y="146" width="244" height="168" rx="3" fill="url(#cCard)"/>
+    <rect x="1000" y="286" width="244" height="168" rx="3" fill="url(#cCard)"/>
+    <rect x="488" y="504" width="244" height="168" rx="3" fill="url(#cCard)"/>
+    <rect x="878" y="646" width="244" height="168" rx="3" fill="url(#cCard)"/>
+  </g>
+
+  <g fill="#f6f3eb" fill-opacity="0.20">
+    <rect x="222" y="266" width="120" height="8" rx="2"/><rect x="222" y="292" width="182" height="6" rx="2"/>
+    <rect x="222" y="314" width="160" height="6" rx="2"/><rect x="222" y="336" width="104" height="6" rx="2"/>
+    <rect x="648" y="184" width="120" height="8" rx="2"/><rect x="648" y="210" width="182" height="6" rx="2"/>
+    <rect x="648" y="232" width="140" height="6" rx="2"/><rect x="648" y="254" width="172" height="6" rx="2"/>
+    <rect x="1026" y="324" width="120" height="8" rx="2"/><rect x="1026" y="350" width="182" height="6" rx="2"/>
+    <rect x="1026" y="372" width="126" height="6" rx="2"/>
+    <rect x="514" y="542" width="120" height="8" rx="2"/><rect x="514" y="568" width="182" height="6" rx="2"/>
+    <rect x="514" y="590" width="150" height="6" rx="2"/><rect x="514" y="612" width="116" height="6" rx="2"/>
+    <rect x="904" y="684" width="120" height="8" rx="2"/><rect x="904" y="710" width="182" height="6" rx="2"/>
+    <rect x="904" y="732" width="134" height="6" rx="2"/>
+  </g>
+
+  <g fill="#f0b429">
+    <circle cx="318" cy="320" r="8" fill-opacity="0.75"/><circle cx="744" cy="232" r="8" fill-opacity="0.55"/>
+    <circle cx="1122" cy="372" r="8" fill-opacity="0.55"/><circle cx="610" cy="596" r="8" fill-opacity="0.55"/>
+    <circle cx="1000" cy="738" r="8" fill-opacity="0.55"/>
+  </g>
+
+  <path d="M120 892H1480" stroke="#f6f3eb" stroke-opacity="0.12"/>
+</svg>

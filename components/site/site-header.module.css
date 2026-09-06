@@ -43,13 +43,26 @@
   align-items: center;
   gap: clamp(var(--sp-4), 2.5vw, var(--sp-7));
   padding-inline: clamp(var(--sp-4), 3vw, var(--sp-7));
-  /* Over the home scene this is 77px of veil on a black field; over a reading
-     page it is the same veil on the same ground. One treatment, both. */
+  /* A masthead, not a veil.
+   *
+   * This was `linear-gradient(--glass-middle, --glass-bottom)` behind a 16px
+   * blur — alpha 0.29 at its top edge — and the page read straight through
+   * it. On a phone the headline of whatever you had just scrolled past sat
+   * across the wordmark; `sections.module.css` had already measured the same
+   * ramp taking the bar's own smallest text to 3.29:1 and answered it by
+   * insetting the scan field, which the homepage journey has no equivalent
+   * of. Nothing scrolls under an opaque bar.
+   *
+   * `globals.css` says the same thing from the token side: the glass ramp is
+   * "a leftover HUD ramp… New chrome prefers rules + surfaces. Do not add new
+   * glass." The gradient that is left is 3% of tone across 77px, for depth,
+   * not for transparency — and with nothing to see through, the per-frame
+   * `backdrop-filter` over a playing hero video is no longer paid for. */
   border-bottom: var(--line-w) solid var(--line);
-  background: linear-gradient(180deg, var(--glass-middle), var(--glass-bottom));
-  box-shadow: inset 0 var(--line-w) 0 var(--glass-inner);
-  -webkit-backdrop-filter: blur(16px) saturate(0.76);
-  backdrop-filter: blur(16px) saturate(0.76);
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--ink-hi) 3%, var(--ground)),
+    var(--ground));
+  box-shadow: inset 0 var(--line-w) 0 color-mix(in oklab, var(--ink-hi) 8%, transparent);
 }
 
 /* ── Brand ─────────────────────────────────────────────────────────────── */
@@ -591,7 +604,9 @@
     height: 3.5rem;
     gap: var(--sp-3);
     padding-inline: var(--sp-4);
-    background: color-mix(in oklab, var(--ground) 88%, transparent);
+    /* Opaque, for the reason in `.bar` above: at 88% the page still read
+       through the wordmark on a phone, which is where it was worst. */
+    background: var(--ground);
     border-bottom-color: var(--line-soft);
     box-shadow: none;
     -webkit-backdrop-filter: none;

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" width="1200" height="1600">
+  <title>Portrait mount left empty where no photograph is cleared</title>
+  <defs>
+    <linearGradient id="hGround" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#17181a"/><stop offset="0.6" stop-color="#101113"/><stop offset="1" stop-color="#08090a"/>
+    </linearGradient>
+    <linearGradient id="hMat" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#f6f3eb" stop-opacity="0.10"/>
+      <stop offset="0.55" stop-color="#f6f3eb" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#f6f3eb" stop-opacity="0.02"/>
+    </linearGradient>
+    <radialGradient id="hPlate" cx="0.5" cy="0.34" r="0.72">
+      <stop offset="0" stop-color="#f0b429" stop-opacity="0.20"/>
+      <stop offset="0.55" stop-color="#f0b429" stop-opacity="0.055"/>
+      <stop offset="1" stop-color="#f0b429" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="1600" fill="url(#hGround)"/>
+
+  <!-- A portrait mount with the oval left empty. This desk publishes a
+       photograph only when the rights are cleared; where they are not, the
+       mount stays open rather than a likeness being invented for it. -->
+  <rect x="150" y="150" width="900" height="1180" fill="url(#hMat)" stroke="#f6f3eb" stroke-opacity="0.22"/>
+  <rect x="196" y="196" width="808" height="1088" fill="none" stroke="#f6f3eb" stroke-opacity="0.13"/>
+
+  <ellipse cx="600" cy="686" rx="290" ry="374" fill="url(#hPlate)"/>
+  <ellipse cx="600" cy="686" rx="290" ry="374" fill="none" stroke="#f0b429" stroke-opacity="0.42" stroke-width="2"/>
+  <ellipse cx="600" cy="686" rx="256" ry="340" fill="none" stroke="#f6f3eb" stroke-opacity="0.10"/>
+
+  <!-- The engraved line under a portrait, where a name is set. -->
+  <path d="M330 1148H870" stroke="#f6f3eb" stroke-opacity="0.20"/>
+  <path d="M330 1148H520" stroke="#f0b429" stroke-width="3"/>
+  <g fill="#f6f3eb" fill-opacity="0.12">
+    <rect x="330" y="1188" width="360" height="12" rx="2"/>
+    <rect x="330" y="1226" width="228" height="9" rx="2"/>
+  </g>
+
+  <g fill="#f6f3eb" fill-opacity="0.09">
+    <rect x="150" y="1402" width="300" height="10" rx="2"/>
+    <rect x="150" y="1440" width="190" height="8" rx="2"/>
+  </g>
+</svg>

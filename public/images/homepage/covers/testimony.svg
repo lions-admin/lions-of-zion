@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <title>Safe cover for a first-person testimony</title>
+  <defs>
+    <linearGradient id="tGround" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#151413"/><stop offset="0.7" stop-color="#0d0c0b"/><stop offset="1" stop-color="#080807"/>
+    </linearGradient>
+    <linearGradient id="tOpening" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#f7cd6b" stop-opacity="0.62"/>
+      <stop offset="0.45" stop-color="#f0b429" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#f0b429" stop-opacity="0.14"/>
+    </linearGradient>
+    <linearGradient id="tSpill" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#f0b429" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#f0b429" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="tHalo" cx="0.53" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#f7cd6b" stop-opacity="0.16"/><stop offset="1" stop-color="#f7cd6b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#tGround)"/>
+  <rect width="1600" height="1000" fill="url(#tHalo)"/>
+
+  <!-- A room after: a door left open, the light still in it, a chair nobody is
+       sitting in. It is a pause before reading, not a reconstruction of
+       anything that was described. -->
+  <path d="M742 862L700 1000H1330L1050 862Z" fill="url(#tSpill)"/>
+  <rect x="742" y="188" width="308" height="674" fill="url(#tOpening)"/>
+  <rect x="742" y="188" width="308" height="674" fill="none" stroke="#f7cd6b" stroke-opacity="0.35"/>
+  <rect x="700" y="150" width="392" height="712" fill="none" stroke="#f6f3eb" stroke-opacity="0.26" stroke-width="2"/>
+  <path d="M742 188V862" stroke="#f6f3eb" stroke-opacity="0.16"/>
+
+  <!-- Wall plane and floor line. -->
+  <path d="M0 862H1600" stroke="#f6f3eb" stroke-opacity="0.12"/>
+  <path d="M0 300H700M1092 300H1600" stroke="#f6f3eb" stroke-opacity="0.07"/>
+
+  <!-- The empty chair. -->
+  <g stroke="#f6f3eb" stroke-opacity="0.34" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M262 640H452"/>
+    <path d="M274 640V862M440 640V862M274 640L262 862M440 640L452 862"/>
+    <path d="M286 640V446H428V640"/>
+    <path d="M292 494H422M292 542H422M292 590H422"/>
+  </g>
+  <path d="M258 872H468" stroke="#f0b429" stroke-opacity="0.30" stroke-width="3"/>
+
+  <!-- A voice, given as measure only; it quotes no one. -->
+  <g stroke="#f0b429" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round">
+    <path d="M1216 494V566"/><path d="M1276 452V608"/><path d="M1336 400V660"/>
+    <path d="M1396 466V594"/><path d="M1456 506V554"/>
+  </g>
+</svg>

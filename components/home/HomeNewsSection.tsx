@@ -9,5 +9,5 @@ export function HomeNewsSection({section}:{section:HomepageEdition['news']}){
  <h3><a href={item.href}>{item.title}</a></h3><p className={styles.summary}>{item.summary}</p>
  {item.whyItMatters&&<div className={styles.context}><span>Why it matters</span><p>{item.whyItMatters}</p></div>}
  <HomeSources sources={item.sources}/><JourneyLink href={item.href}>{item.category==='Daily Brief'?'Read the daily brief':'Read the story'}</JourneyLink>
- </article>)}</div><SectionState section={section}/></section>;
+ </article>)}</div><SectionState section={section} cover="/images/homepage/covers/news.svg" href="/geopolitical-brief" action="View all News &amp; Analysis"/></section>;
 }

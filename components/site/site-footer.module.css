@@ -265,6 +265,19 @@
   .colophon { flex-direction: column; align-items: flex-start; }
 }
 
+/* Room under the last link for the Ask seal.
+ *
+ * The seal is fixed at `--dock-lift` above the bottom edge and is 4rem across,
+ * so on a phone the final ~10rem of the page sits under it. Without this the
+ * colophon's own links were the thing it landed on. Reserved here rather than
+ * by moving the seal, because every page ends in this slab and only this slab
+ * knows how much of itself is safe to give up. */
+@media (max-width: 45rem) {
+  .footer {
+    padding-block-end: calc(var(--dock-lift) + 4rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (pointer: coarse) {
   .furtherLink { min-height: var(--control-h); }
   .fileLink {

@@ -7,5 +7,5 @@ export function HomeHeroesSection({section}:{section:HomepageEdition['heroes']})
  <div className={styles.peopleSpread}>{section.items.map(item=><article key={item.key} data-home-record={item.key}>
  <HomeMedia media={item.media} portrait/><div><p className={styles.kicker}>{item.role}</p><h3>{item.title}</h3><p className={styles.meta}>{item.meta}</p>
  <p className={styles.summary}>{item.summary}</p><HomeSources sources={item.sources}/><JourneyLink href={item.href}>Read the full story</JourneyLink></div>
- </article>)}</div><SectionState section={section}/></section>;
+ </article>)}</div><SectionState section={section} cover="/images/homepage/covers/hero.svg" href="/our-heroes" action="Read Our Heroes"/></section>;
 }

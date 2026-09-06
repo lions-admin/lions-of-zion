@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-09-06",
   "method": "Built-in image generation tool",
-  "purpose": "Additional clearly labelled homepage artwork and safe archive covers; none represents source evidence.",
+  "purpose": "Clearly labelled contextual artwork for the homepage and article leads, plus safe archive covers; none represents source evidence.",
   "assets": [
     {
       "file": "watch-network.webp",
@@ -22,6 +22,31 @@
       "file": "documentation-folder.webp",
       "use": "Documentation safe cover",
       "promptSummary": "Sealed archival folder, envelope and gloves with contents concealed; no graphic media."
+    },
+    {
+      "file": "manosphere-cluster-editorial.webp",
+      "use": "Manosphere and far-right anti-Zionist cluster investigation",
+      "promptSummary": "Anonymous profile silhouettes, redacted post cards and amplification threads arranged as a tactile editorial collage; no real accounts or readable text."
+    },
+    {
+      "file": "yaffa-adar-safe-cover.webp",
+      "use": "Yaffa Adar archive safe cover",
+      "promptSummary": "Empty white mobility cart on a quiet kibbutz path with a knitted shawl; symbolic only, with no people, violence or reconstruction."
+    },
+    {
+      "file": "regional-defense-brief.webp",
+      "use": "Regional defense daily brief",
+      "promptSummary": "Top-down evidence desk with a regional relief map, unreadable defense dispatch and helicopter tracing; illustrative synthesis, not evidence."
+    },
+    {
+      "file": "iraq-helicopter-sale-review.webp",
+      "use": "Reported Iraq helicopter sale review",
+      "promptSummary": "Sealed procurement dossier with military helicopter silhouettes behind textured glass; unresolved review, not confirmation of a transfer."
+    },
+    {
+      "file": "barricaded-safe-room.webp",
+      "use": "Barricaded family testimony safe cover",
+      "promptSummary": "Reinforced room door braced from inside with a phone, flashlight and folded child's sweater; no people, weapons or event reconstruction."
     }
   ]
 }

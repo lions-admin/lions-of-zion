@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
+import { editorialMediaForSurface } from "@/lib/content/homepage-media";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
 import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublicationDetail } from "@/server/contracts/publication";
@@ -33,6 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { publicId } = await params;
   try {
     const article = await getPublicPublication(publicId);
+    const articleMedia = editorialMediaForSurface(`publication:${article.publicId}`, "article");
+    const articleImage = articleMedia ? SITE_URL + articleMedia.src : undefined;
     return {
       title: article.title,
       description: article.summary ?? article.title,
@@ -43,11 +47,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: article.summary ?? article.title,
         publishedTime: article.publishedAt,
         modifiedTime: article.updatedAt,
+        images: articleMedia ? [{ url: articleImage!, width: articleMedia.width, height: articleMedia.height, alt: articleMedia.alt }] : undefined,
       },
       twitter: {
         card: "summary_large_image",
         title: article.title,
         description: article.summary ?? article.title,
+        images: articleImage ? [articleImage] : undefined,
       },
     };
   } catch (cause) {
@@ -78,6 +84,7 @@ export default async function ArticlePage({ params }: Props) {
     publisher: { "@type": "Organization", name: "Lions of Zion" },
   };
   const visiblePassages = collapsePublicPassages(article.passages);
+  const articleMedia = editorialMediaForSurface(`publication:${article.publicId}`, "article");
   /* Read `=== "analysis"` and never the negation: a record whose basis is
      absent or unrecognised must be treated as a sourced one, which is the
      reading that keeps its citations required. */
@@ -123,6 +130,24 @@ export default async function ArticlePage({ params }: Props) {
           <h1>{article.title}</h1>
           {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
         </header>
+
+        {articleMedia ? (
+          <figure className={styles.heroMedia}>
+            <Image
+              src={articleMedia.src}
+              width={articleMedia.width}
+              height={articleMedia.height}
+              alt={articleMedia.alt}
+              priority
+              sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
+              style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
+            />
+            <figcaption>
+              {articleMedia.caption ? <span>{articleMedia.caption}</span> : null}
+              <span>{articleMedia.credit}</span>
+            </figcaption>
+          </figure>
+        ) : null}
 
         <section className={styles.facts} aria-label="Publication facts">
           <PublicationMeta

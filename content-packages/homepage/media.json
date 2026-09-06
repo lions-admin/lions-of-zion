@@ -547,11 +547,133 @@
           "homepage"
         ]
       }
+    },
+    {
+      "id": "manosphere-cluster-editorial",
+      "src": "/images/homepage/manosphere-cluster-editorial.webp",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Editorial collage of anonymous profile silhouettes, redacted posts and amplification threads for an investigation into an online far-right anti-Zionist cluster.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial illustration tailored to the investigation. Profiles and links are symbolic and identify no real account.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "yaffa-adar-safe-cover",
+      "src": "/images/homepage/yaffa-adar-safe-cover.webp",
+      "width": 1600,
+      "height": 1200,
+      "alt": "Symbolic safe-cover illustration of an empty white mobility cart on a quiet kibbutz path, with no people or violence shown.",
+      "credit": "Lions of Zion · generated safe-cover artwork",
+      "caption": "Symbolic safe cover. This is not documentary evidence or a reconstruction of Yaffa Adar's abduction.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 52,
+        "y": 52
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "regional-defense-brief",
+      "src": "/images/homepage/regional-defense-brief.webp",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Editorial still life combining a regional relief map, defense dispatch and helicopter tracing for a multi-country daily briefing.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial synthesis for this multi-topic briefing. The map, documents and markers are illustrative, not source evidence.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage",
+          "article"
+        ]
+      }
+    },
+    {
+      "id": "iraq-helicopter-sale-review",
+      "src": "/images/homepage/iraq-helicopter-sale-review.webp",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Editorial still life of a sealed procurement dossier with military helicopter silhouettes behind glass.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial illustration of a reported procurement review. It does not confirm that a sale or transfer occurred.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 52,
+        "y": 48
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage",
+          "article"
+        ]
+      }
+    },
+    {
+      "id": "barricaded-safe-room",
+      "src": "/images/homepage/barricaded-safe-room.webp",
+      "width": 1600,
+      "height": 1000,
+      "alt": "Symbolic safe-cover illustration of a reinforced room door braced from inside, with a phone, flashlight and folded sweater.",
+      "credit": "Lions of Zion · generated safe-cover artwork",
+      "caption": "Symbolic safe cover. This is not a reconstruction of the testimony or its location.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
     }
   ],
   "mappings": {
     "publication:israel-ministry-of-defense-recent-announcements--m781m": "matcal",
-    "publication:israel-ministry-of-defense-activities-regional-r-lref0": "blue-line",
+    "publication:israel-ministry-of-defense-activities-regional-r-lref0": "regional-defense-brief",
     "hero:rami-davidian": "rami-davidian",
     "hero:noam-tibon": "noam-tibon",
     "hero:aner-shapira": "aner-shapira",
@@ -562,9 +684,9 @@
     "chapter:oslo-accords": "oslo-accords",
     "chapter:jordan-treaty": "jordan-treaty",
     "chapter:abraham-accords": "abraham-accords",
-    "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue": "testimony-room",
-    "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart": "documentation-folder",
-    "case:case_02_manosphere_far_right": "account-cluster",
-    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "transfer-reported"
+    "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue": "barricaded-safe-room",
+    "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart": "yaffa-adar-safe-cover",
+    "case:case_02_manosphere_far_right": "manosphere-cluster-editorial",
+    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "iraq-helicopter-sale-review"
   }
 }

@@ -1,0 +1,25 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "homepage-news-refresh-2026-09-07-022839",
+  "composer": "ChatGPT homepage editor",
+  "createdAt": "2026-09-06T23:28:39Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "publicId": "us-iranian-forces-fire-at-vessels-in-waters-near-f2cks"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "publicId": "israeli-startups-raise-1-16-billion-in-first-two-1h7h8"
+        }
+      }
+    }
+  },
+  "siteRecommendations": []
+}

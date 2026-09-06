@@ -62,6 +62,10 @@ public/archive/
 # Root-anchored /node_modules and /.next do NOT match .claude/worktrees/<n>/node_modules.
 .claude/worktrees/
 
+# Claude hook scripts. Unwired (settings.json declares "hooks": {}) and kept
+# out of the tree so a clone or new worktree cannot resurrect them.
+.claude/hooks/
+
 # Local cost/infra scratch export. Duplicates the table in
 # docs/vercel-infrastructure.md; kept out of a public repository.
 /vercel-infrastructure-costs.html

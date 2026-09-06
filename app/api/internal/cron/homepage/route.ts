@@ -10,7 +10,16 @@ import { ensureHomepageEdition } from "@/server/modules/homepage";
  * cron tick returns the existing snapshot rather than composing a second one.
  * The external briefing ingest calls the same function after a successful
  * publish, which is what puts a 07:00 edition on the front page at 07:00
- * instead of at the next tick; this route remains the floor under that.
+ * instead of at the next tick.
+ *
+ * ⚠️ This route is **not scheduled.** `vercel.json` carries four cron entries
+ * and none of them is this path, so nothing calls it in Production — it is a
+ * route with no trigger. That makes the external-publish hook the only builder
+ * of a homepage edition, and it means a manual `GET` here (with the cron
+ * secret) is currently the only way to rebuild the front page out of band.
+ * Adding the schedule is an owner decision, not an oversight to fix in
+ * passing: a cron entry is a recurring production job, and `AGENTS.md` says
+ * those are added only when asked.
  *
  * The three route declarations below are spelled in the house style on
  * purpose. `tests/briefing-runtime.test.ts` matches `export const runtime =

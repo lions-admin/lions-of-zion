@@ -51,9 +51,17 @@ export const POST = handler(async (request, ctx) => {
      Deliberately after the publish and deliberately non-fatal: the publication
      transaction has already committed, so turning a snapshot failure into a
      4xx/5xx would tell the composer its edition did not land when it did — and
-     invite a resend that only replays the ledger. The daily cron rebuilds the
-     same snapshot regardless, so the worst case of this failing is a homepage
-     that lags by one cycle. */
+     invite a resend that only replays the ledger.
+
+     Do NOT read this as "the cron will pick it up". `/api/internal/cron/homepage`
+     exists as a route but is **not** in `vercel.json`'s `crons` array, so
+     nothing schedules it: after this change, this call is the only thing in
+     the system that builds a homepage edition. A failure here therefore
+     strands the front page on the previous edition until something calls
+     `ensureHomepageEdition()` again, rather than costing one cycle. It stays
+     non-fatal anyway — a stale homepage is a smaller harm than telling a
+     composer its edition did not land — but the warning below is the only
+     signal that it happened, so it names the run. */
   if (result.status === "published") {
     try {
       await ensureHomepageEdition();

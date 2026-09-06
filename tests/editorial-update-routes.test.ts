@@ -4,10 +4,15 @@ const mocks = vi.hoisted(() => ({
   startWholeSite: vi.fn(),
   getByRunKey: vi.fn(),
   deliveryState: vi.fn(),
+  drainPendingOutbox: vi.fn(),
 }));
 
 vi.mock('@/server/modules/editorial-update', () => ({
   editorialUpdate: () => ({ startWholeSite: mocks.startWholeSite, getByRunKey: mocks.getByRunKey, deliveryState: mocks.deliveryState }),
+}));
+vi.mock('@/server/core/outbox', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/server/core/outbox')>()),
+  drainPendingOutbox: mocks.drainPendingOutbox,
 }));
 vi.mock('@/server/core/auth/actor', () => ({ authenticateAdmin: vi.fn(), registerActor: vi.fn(), requireActor: vi.fn() }));
 vi.mock('@/server/db/client', async importOriginal => ({
@@ -36,6 +41,8 @@ beforeEach(() => {
   mocks.startWholeSite.mockReset();
   mocks.getByRunKey.mockReset();
   mocks.deliveryState.mockReset();
+  mocks.drainPendingOutbox.mockReset();
+  mocks.drainPendingOutbox.mockResolvedValue({ attempted: 1, dispatched: 1, failed: 0 });
 });
 afterEach(() => { delete process.env.EDITORIAL_UPDATE_INGEST_SECRET; });
 
@@ -52,6 +59,31 @@ describe('internal whole-site editorial routes', () => {
     expect(response.status).toBe(202);
     await expect(response.json()).resolves.toMatchObject({ runId: 'route-package', statusUrl: '/api/internal/editorial-updates/runs/route-package' });
     expect(mocks.startWholeSite).toHaveBeenCalledWith(expect.objectContaining({ runId: 'route-package' }), 'external:route-test');
+  });
+
+  /* The run used to sit until the next quarter-hour cron tick — up to fifteen
+     minutes of dead time before any work began, which a second package queued
+     behind the first inherited on top of its own. Nothing was broken; the
+     publisher simply ran out of poll budget waiting. */
+  it('hands the queued run to the queue immediately instead of waiting for the cron', async () => {
+    mocks.startWholeSite.mockResolvedValue({ id: 'e4c3f3c3-3c3c-4c3c-8c3c-3c3c3c3c3c3c', runKey: 'route-package', status: 'queued' });
+    const response = await POST(request(body));
+    expect(response.status).toBe(202);
+    expect(mocks.drainPendingOutbox).toHaveBeenCalledTimes(1);
+    /* Bounded on purpose: the drain reads oldest-first, so an unusual backlog
+       stays the cron's problem rather than holding the 202 open. */
+    expect(mocks.drainPendingOutbox).toHaveBeenCalledWith(expect.objectContaining({ limit: expect.any(Number) }));
+  });
+
+  /* The outbox row is committed inside `startWholeSite`'s transaction, so an
+     unreachable queue costs latency and nothing else. Failing the ingest here
+     would make the Action retry a package that is already durably recorded. */
+  it('still accepts the package when the immediate queue handoff fails', async () => {
+    mocks.startWholeSite.mockResolvedValue({ id: 'e4c3f3c3-3c3c-4c3c-8c3c-3c3c3c3c3c3c', runKey: 'route-package', status: 'queued' });
+    mocks.drainPendingOutbox.mockRejectedValue(new Error('queue unreachable'));
+    const response = await POST(request(body));
+    expect(response.status).toBe(202);
+    await expect(response.json()).resolves.toMatchObject({ runId: 'route-package', status: 'queued' });
   });
 
   it('returns a machine-readable status report by delivery run id', async () => {

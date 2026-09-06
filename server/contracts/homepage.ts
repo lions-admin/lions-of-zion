@@ -1,23 +1,23 @@
 import { z } from 'zod';
 import type { EditorialMedia } from './editorial-media';
 
-export const homeSections = ['news', 'fakeResistance', 'october7', 'heroes', 'israelsStory'] as const;
+export const homeSections = ['news', 'fakeResistance', 'october7', 'heroes', 'israelsStory', 'people'] as const;
 export const homeSectionSchema = z.enum(homeSections);
 export type HomeSectionName = z.infer<typeof homeSectionSchema>;
 export const homeReferenceSchema = z.object({
   key: z.string().min(1), section: homeSectionSchema,
-  kind: z.enum(['news', 'watch', 'case', 'testimony', 'documentation', 'hero', 'chapter']),
+  kind: z.enum(['news', 'watch', 'case', 'testimony', 'documentation', 'hero', 'chapter', 'feature']),
   id: z.string().min(1), href: z.string().regex(/^\/(?!\/)/),
   version: z.string().min(1), date: z.string(), mediaId: z.string().min(1),
 }).superRefine((ref, ctx) => {
-  const sectionForKind = {news:'news', watch:'fakeResistance', case:'fakeResistance', testimony:'october7', documentation:'october7', hero:'heroes', chapter:'israelsStory'};
+  const sectionForKind = {news:'news', watch:'fakeResistance', case:'fakeResistance', testimony:'october7', documentation:'october7', hero:'heroes', chapter:'israelsStory', feature:'people'};
   if (sectionForKind[ref.kind] !== ref.section) ctx.addIssue({code:'custom',message:'Content kind does not belong in this homepage section'});
 });
 export type HomeReference = z.infer<typeof homeReferenceSchema>;
 export const homePairSchema = z.array(homeReferenceSchema).max(2);
 export const homeSelectionSchema = z.object({
   news: homePairSchema, fakeResistance: homePairSchema, october7: homePairSchema,
-  heroes: homePairSchema, israelsStory: homePairSchema,
+  heroes: homePairSchema, israelsStory: homePairSchema, people: homePairSchema.default([]),
 }).superRefine((s, ctx) => {
   const keys = new Set<string>();
   for (const section of homeSections) for (const ref of s[section]) {
@@ -46,12 +46,14 @@ export type CasePreview = PreviewBase & {kind:'case'; question:string; finding?:
 export type ArchivePreview = PreviewBase & {kind:'testimony'|'documentation'; witness?:string; warning:string};
 export type HeroPreview = PreviewBase & {kind:'hero'; role:string; meta:string};
 export type HistoryPreview = PreviewBase & {kind:'chapter'; era:string; contested:boolean};
-export type HomePreview = NewsPreview|WatchPreview|CasePreview|ArchivePreview|HeroPreview|HistoryPreview;
+export type FeaturePreview = PreviewBase & {kind:'feature'; category:string};
+export type HomePreview = FeaturePreview|NewsPreview|WatchPreview|CasePreview|ArchivePreview|HeroPreview|HistoryPreview;
 export type HomepageSection<T> = {state:'ready'|'partial'|'empty'|'unavailable'; items:T[]; gaps:string[]};
 export type HomepageEdition = {
   editionDate:string; revision:number; generatedAt:string;
   state:'current'|'previous-edition'|'unavailable'; localPreview:boolean;
   news:HomepageSection<NewsPreview>; fakeResistance:HomepageSection<WatchPreview|CasePreview>;
+  people?:HomepageSection<FeaturePreview>;
   october7:HomepageSection<ArchivePreview>; heroes:HomepageSection<HeroPreview>; israelsStory:HomepageSection<HistoryPreview>;
 };
 export function israelEditionDate(now = new Date()): string {

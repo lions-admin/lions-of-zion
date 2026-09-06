@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_NAVIGATION } from "@/lib/site-navigation";
+import { LEGACY_SECTION_PAGES, SITE_NAVIGATION } from "@/lib/site-navigation";
 import { getIndex } from "@/lib/content/archive";
 import { categorySlug, DOCUMENTATION_PACKAGE } from "@/lib/content/documentation";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
@@ -30,10 +30,12 @@ const DOC_PAGES = ["/methodology", "/corrections", "/information-war", "/search"
  */
 const RECORD_INDEXES = ["/updates", "/fact-check"];
 const ARCHIVE_INDEXES = ["/october-7/testimonies", "/october-7/documentation"];
-/** The two investigation branches the Fake Resistance hub opens onto. */
+/** The investigation branches the Fake Resistance hub opens onto, and the
+ *  antisemitism record surface that sits beside them (2026-09-06). */
 const BRANCH_INDEXES = [
   "/fake-resistance/official-narrative",
   "/fake-resistance/social-media",
+  "/fake-resistance/antisemitism",
 ];
 /** Reference works under Fake Resistance, alongside the eight destinations. */
 const RESEARCH_INDEXES = ["/fake-resistance/playbook", "/fake-resistance/network"];
@@ -92,6 +94,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}${node.href}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    // Our Heroes and Israel's Story: still their own pages at their own
+    // addresses after their nav entry folded into The People of Israel. Level
+    // with the archive indexes — collections the hub opens onto, not the hub.
+    ...LEGACY_SECTION_PAGES.map((page) => ({
+      url: `${SITE_URL}${page.href}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
     ...ARCHIVE_INDEXES.map((path) => ({
       url: `${SITE_URL}${path}`,

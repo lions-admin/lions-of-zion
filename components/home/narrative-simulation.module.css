@@ -43,7 +43,7 @@
 .sharedPost > svg { color: var(--gold); flex-shrink: 0; }
 .sharedPost p { margin: 0; color: var(--ink-lo); font-size: 14px; line-height: 1.65; }
 .sharedPost strong { color: var(--ink-hi); font-weight: 500; }
-.claimFocus { padding-block: 18px; }
+.claimFocus, .evidenceSearch, .framing { padding-block: 18px; }
 .absolute { display: flex; flex-direction: column; margin: 20px 0 28px; color: var(--ink-hi); font: 400 clamp(36px, 4.8vw, 68px)/1.05 var(--face-display); letter-spacing: -.025em; }
 .absolute > span { margin: 4px 0; color: var(--gold); font: 300 32px/1.2 var(--face-text); }
 .claimFocus dl { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 18px; margin: 0; }

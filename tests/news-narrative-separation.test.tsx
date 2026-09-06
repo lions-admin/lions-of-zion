@@ -13,6 +13,7 @@ const story = (section: PublicPublication["section"], title: string): PublicPubl
   publishedAt: "2026-09-05T10:00:00Z", updatedAt: "2026-09-05T10:00:00Z", autoPublishedAt: null,
   editorialTopic: null, primaryActor: null, arena: null, featuredIsraelStory: false, narrativeWatchDetails: null,
   media: null,
+  topicTags: [],
 });
 async function html(node: ReactNode) { const stream = await renderToReadableStream(node); await stream.allReady; return new Response(stream).text(); }
 beforeEach(() => { read.mockReset(); });

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { EditorialDesk } from "./EditorialDesk";
+import { EditorialRunsPanel } from "./EditorialRunsPanel";
 import { OpsChat } from "./OpsChat";
 import { OverviewPanel } from "./OverviewPanel";
 import { PipelinePanel } from "./PipelinePanel";
@@ -20,7 +21,7 @@ import styles from "./workspace.module.css";
 export const NAV_GROUPS = [
   { title: "עבודה", entries: [
     ["overview", "תמונת מצב"], ["pipeline", "עיבוד ומהדורות"],
-    ["sources", "מקורות"], ["editorial", "כתבות ופרסום"],
+    ["sources", "מקורות"], ["editorial", "כתבות ופרסום"], ["editorial-runs", "מערכת העריכה"],
   ] },
   { title: "בקרה", entries: [["incidents", "תקלות והתאוששות"], ["costs", "עלויות ושימוש"], ["audit", "יומן פעילות"]] },
   { title: "ניהול", entries: [
@@ -108,6 +109,7 @@ export function OperationsConsole() {
             : area === "pipeline" ? <PipelinePanel signal={signal} />
               : area === "sources" ? <SourcesPanel signal={signal} />
                 : area === "editorial" ? <EditorialDesk signal={signal} />
+                  : area === "editorial-runs" ? <EditorialRunsPanel signal={signal} />
                   : <SystemPanel key={area} signal={signal} sub={area as SubArea} />}
         </div>
       </div>

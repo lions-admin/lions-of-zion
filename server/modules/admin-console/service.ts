@@ -189,6 +189,7 @@ export const SCHEDULES = [
   { path: "/api/internal/cron/ingest", schedule: "0,30 * * * *", description: "איסוף מכל מקור פעיל, בכל חצי שעה." },
   { path: "/api/internal/cron/embed", schedule: "10,40 * * * *", description: "הטמעת מסמכים חדשים לצורך חיפוש סמנטי." },
   { path: "/api/internal/cron/outbox-drain", schedule: "*/15 * * * *", description: "מסירת פעולות ממתינות מה-outbox: אינדוקס מחדש וביטול מטמון." },
+  { path: "/api/internal/cron/editorial", schedule: "*/15 * * * *", description: "בדיקת מועד ההרצה היומית של מערכת העריכה." },
   { path: "/api/internal/cron/maintenance", schedule: "20 3 * * *", description: "תחזוקת לילה: שחרור משימות תקועות, גיזום נתונים והתראות." },
 ] as const;
 
@@ -981,6 +982,7 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           featuredIsraelStory: row.featuredIsraelStory,
           homepageSlot: row.homepageSlot == null ? null : num(row.homepageSlot),
           briefingRunId: row.briefingRunId,
+          editorialRunId: row.editorialRunId,
           evidenceCount: num(row.evidenceCount),
           createdAt: isoRequired(row.createdAt),
           updatedAt: isoRequired(row.updatedAt),
@@ -1009,6 +1011,7 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
             id: row.id, publicId: row.publicId, title: row.title, summary: row.summary,
             section: row.section, status: row.status, featuredIsraelStory: row.featuredIsraelStory,
             homepageSlot: row.homepageSlot == null ? null : num(row.homepageSlot), briefingRunId: row.briefingRunId,
+            editorialRunId: row.editorialRunId,
             evidenceCount: num(row.evidenceCount), createdAt: isoRequired(row.createdAt),
             updatedAt: isoRequired(row.updatedAt), publishedAt: iso(row.publishedAt),
           })), number: page, limit: input.limit, total, pages,

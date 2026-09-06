@@ -30,12 +30,12 @@ import { EditorialShell } from '@/components/site/EditorialShell';
    as client entries for every page built on this shell to use one. */
 import { Reveal } from '@/components/motion/Reveal';
 import { Breadcrumb } from '@/components/site/Breadcrumb';
-import { getSiteNavigationItem } from '@/lib/site-navigation';
+import { getSectionPageNode } from '@/lib/site-navigation';
 import { SectionToc } from './SectionToc';
 import styles from './sections.module.css';
 
 export interface SectionPageProps {
-  /** Route id — must match a `defaultNodes` entry. */
+  /** Route id — a `SITE_NAVIGATION` entry or a `LEGACY_SECTION_PAGES` entry. */
   id: string;
   title: string;
   /** Defaults to the node's `description`, the same sentence the hover card shows. */
@@ -75,7 +75,10 @@ export function SectionPage({
   breadcrumb,
   children,
 }: SectionPageProps) {
-  const node = getSiteNavigationItem(id);
+  /* A destination, or one of the legacy pages that kept its shell after its
+     nav entry folded into a parent (`LEGACY_SECTION_PAGES`). Anything else is
+     a route with no contract, and that stays a build-time throw. */
+  const node = getSectionPageNode(id);
   if (!node) throw new Error(`SectionPage: unknown section id "${id}"`);
   const lede = tagline ?? node.description;
 

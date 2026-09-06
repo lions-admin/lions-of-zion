@@ -193,6 +193,14 @@
   border-top: var(--line-w) solid var(--line-strong);
 }
 
+.antisemitism {
+  margin-top: var(--sp-7);
+  padding: var(--sp-6);
+  border: var(--line-w) solid var(--line);
+  border-inline-start: 0.25rem solid var(--data-ember-peak);
+  background: var(--surface-1);
+}
+
 .researchGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

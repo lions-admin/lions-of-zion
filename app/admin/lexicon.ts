@@ -55,6 +55,17 @@ export const SECTION_LABEL: Record<PublicationSection, string> = {
   daily_brief: "בריף יומי",
   israel_update: "סיפור ישראלי",
   narrative_watch: "ניטור נרטיבים",
+  news: "חדשות וניתוח",
+  influence_investigation: "תחקיר השפעה",
+  antisemitism: "אנטישמיות",
+  innovation: "חדשנות",
+  science_medicine: "מדע ורפואה",
+  technology_ai: "טכנולוגיה ובינה מלאכותית",
+  achievement: "הישגים ישראליים",
+  international_cooperation: "שיתוף פעולה בינלאומי",
+  people: "אנשים",
+  courage_service: "אומץ ושירות",
+  history_context: "היסטוריה והקשר",
 };
 
 /**

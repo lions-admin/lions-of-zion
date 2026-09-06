@@ -5,7 +5,7 @@ import {homepageRepo} from '@/server/modules/homepage/repo';
 import type {Database} from '@/server/db/client';
 let db:TestDatabase;
 beforeAll(async()=>{db=await freshDatabase()},60000);afterAll(async()=>{await db.$client.close()});
-const selection={news:[],fakeResistance:[],october7:[],heroes:[],israelsStory:[]};
+const selection={news:[],fakeResistance:[],october7:[],heroes:[],israelsStory:[],people:[]};
 describe('durable homepage edition store',()=>{
  it('is append-only and chooses latest committed revision',async()=>{
  const repo=homepageRepo(db as unknown as Database);

@@ -94,12 +94,13 @@ describe("MOTION-002 — the animation-loop inventory", () => {
        open decision past hydration so the server HTML is never the open
        dialog. The cleanup cancels it. Registered 2026-09-05. */
     "components/home/EditorialIntro.tsx",
-    /* One frame, booked when the homepage launcher's effect subscribes, that
-       takes the first scroll reading a tick after commit so the effect
-       itself writes no state and a reader restored mid-page gets the right
-       launcher state before they move. The cleanup cancels it. Registered
-       2026-09-06. */
-    "components/ask/AskDock.tsx",
+    /* One frame, booked after the investigation URL is read on mount, that
+       defers applying the restored selection past hydration so the server
+       snapshot (an empty selection) is never diverged from before hydration
+       settles — idempotent under StrictMode's double effect. The cleanup
+       cancels it. Registered 2026-09-06. */
+    "components/investigation/InvestigationProvider.tsx",
+    "components/investigation/NetworkExplorer.tsx",
   ];
 
   /**
@@ -291,6 +292,13 @@ describe("A11Y-010 / §21 — every continuous animation has a reduced-motion re
       "components/search/search.module.css",
       "components/pipeline-visualizer/visualizer.module.css",
       "components/network/influence-graph.module.css",
+      /* The same category as its two siblings above: a bounded fictional
+         walkthrough, not an ambient background. `data-running` (and so these
+         loops) is only ever true while `HomeEvidencePipeline`'s autoplay is
+         genuinely mid-step — gated on visibility, `prefers-reduced-motion`
+         and reaching the last stage — so it reads as real activity rather
+         than decoration. Registered 2026-09-06. */
+      "components/home/narrative-simulation.module.css",
     ]);
     for (const file of styleFiles()) {
       if (PROCESSING_INDICATORS.has(file)) continue;

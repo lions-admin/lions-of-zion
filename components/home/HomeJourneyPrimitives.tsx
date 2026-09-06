@@ -133,6 +133,8 @@ export function HomeMedia({
         alt={media.alt}
         width={media.width}
         height={media.height}
+        priority={lead}
+        fetchPriority={lead ? "high" : "auto"}
         loading={lead ? "eager" : "lazy"}
         sizes={
           portrait

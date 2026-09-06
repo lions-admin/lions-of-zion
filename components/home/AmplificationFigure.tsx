@@ -15,7 +15,7 @@ export function AmplificationFigure() {
         <span>Fictional example · not a news report</span>
       </figcaption>
       <ol className={styles.echoSequence} id={`${id}-sequence`} aria-label="How one claim becomes three versions">
-        <li className={styles.echoOrigin}>
+        <li>
           <header><span className={styles.echoStep}>01</span><span>Original post</span></header>
           <blockquote>“<mark>I think</mark> the crossing is closed.”</blockquote>
           <p className={styles.echoAnnotation}>

@@ -21,6 +21,7 @@
 
 import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { editorialRun } from "./editorial-update";
 import { evidence } from "./evidence";
 import { likelihoodBand, publicationKind, publicationSection, publicationStatus } from "./_enums";
 import { appUser } from "./identity";
@@ -53,6 +54,8 @@ export const publication = pgTable(
      * quality-review stage was active. New automatic rows leave it null. */
     qualityApprovedAt: tsCol("quality_approved_at"),
     briefingRunId: uuid("briefing_run_id"),
+    editorialRunId: uuid("editorial_run_id").references(() => editorialRun.id),
+    editorialOperationKey: text("editorial_operation_key"),
     /** Stable candidate identity makes automatic publication retries
      * idempotent even if the worker completed its DB transaction before its
      * stage ledger could be marked complete. */
@@ -62,6 +65,7 @@ export const publication = pgTable(
     eventId: uuid("event_id").references(() => event.id),
     primaryTopicId: uuid("primary_topic_id").references(() => topic.id),
     editorialTopic: text("editorial_topic"),
+    topicTags: text("topic_tags").array().notNull().default(sql`ARRAY[]::text[]`),
     primaryActor: text("primary_actor"),
     arena: text("arena"),
     featuredIsraelStory: boolean("featured_israel_story").notNull().default(false),
@@ -93,6 +97,8 @@ export const publication = pgTable(
     uniqueIndex("publication_automatic_candidate_once")
       .on(t.briefingRunId, t.briefingCandidateKey)
       .where(sql`${t.briefingRunId} IS NOT NULL AND ${t.briefingCandidateKey} IS NOT NULL`),
+    uniqueIndex("publication_editorial_operation_once").on(t.editorialRunId, t.editorialOperationKey)
+      .where(sql`${t.editorialRunId} IS NOT NULL`),
     nonBlank(t.title, "publication_is_titled"),
     nonBlank(t.body, "publication_has_a_body"),
     isLanguage(t.language, "publication_language_is_a_tag"),
@@ -108,8 +114,8 @@ export const publication = pgTable(
     check(
       "automatic_publication_has_machine_provenance",
       sql`${t.autoPublishedAt} IS NULL OR (
-        ${t.briefingRunId} IS NOT NULL
-        AND length(btrim(coalesce(${t.briefingCandidateKey}, ''))) > 0
+        ((${t.briefingRunId} IS NOT NULL AND length(btrim(coalesce(${t.briefingCandidateKey}, ''))) > 0)
+          OR (${t.editorialRunId} IS NOT NULL AND length(btrim(coalesce(${t.editorialOperationKey}, ''))) > 0))
         AND length(btrim(coalesce(${t.machineAuthor}, ''))) > 0
       )`,
     ),

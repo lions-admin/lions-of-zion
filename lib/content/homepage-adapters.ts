@@ -11,16 +11,16 @@ import { pickVersion } from './archive';
 import { displayWitness } from './archive-display';
 import { homepageMedia, homepageExcerpt } from './homepage-media';
 import { isHomepageSafeMedia } from '@/server/contracts/editorial-media';
+import { publicationHomepageKind } from '@/lib/publication-routing';
 import { SECTION_LABELS } from '@/components/live/publication-labels';
 
 const sources=(rows:{label:string;url?:string}[]):HomeSource[]=>rows.filter((s):s is {label:string;url:string}=>!!s.url).map(({label,url})=>({label,url}));
 export async function resolveHomepageReference(ref:HomeReference):Promise<HomePreview|null>{
   const canonicalProfile=ref.kind==='hero' ? await getOurHeroesEdition().then(e=>[e.featured,...e.profiles].find(p=>p.id===ref.id)) : undefined;
   const canonicalChapter=ref.kind==='chapter' ? await getIsraelsStoryEdition().then(e=>e.chapters.find(p=>p.id===ref.id)) : undefined;
-  if(ref.kind==='news'||ref.kind==='watch'){
+  if(ref.kind==='news'||ref.kind==='watch'||ref.kind==='feature'){
     const p=await getPublicPublication(ref.id);
-    if(ref.kind==='news' && p.section!=='israel_update' && p.section!=='daily_brief')return null;
-    if((ref.kind==='watch')!==(p.section==='narrative_watch'))return null;
+    if(publicationHomepageKind(p.section)!==ref.kind)return null;
     /* A live record carries its own picture, so a publication published today
        reaches the homepage without a hand-written registry mapping. The static
        registry stays as the fallback: the publications mapped there predate
@@ -30,8 +30,9 @@ export async function resolveHomepageReference(ref:HomeReference):Promise<HomePr
     const publicationBase={key:ref.key,href:ref.href,media,title:p.title,summary:p.summary??'',date:p.publishedAt,
       sources:p.sources.flatMap(s=>s.url?[{label:s.publisher?`${s.publisher} — ${s.title}`:s.title,url:s.url}]:[]),
       whyItMatters:homepageExcerpt(ref.key,'whyItMatters',p.updatedAt)};
+    if(ref.kind==='feature')return {...publicationBase,kind:'feature',category:SECTION_LABELS[p.section]};
     if(ref.kind==='news')return {...publicationBase,kind:'news',category:SECTION_LABELS[p.section]};
-    if(!p.narrativeWatchDetails)return null;
+    if(!p.narrativeWatchDetails)return {...publicationBase,kind:'case',question:p.title,confidence:'See the evidence and limitations in the article',sourceCount:p.sources.length};
     return {...publicationBase,kind:'watch',claim:p.narrativeWatchDetails.exactClaim,
       verification:p.narrativeWatchDetails.verificationState,basis:p.narrativeWatchDetails.evidenceBasis==='analysis'?'analysis':'sourced',
       finding:homepageExcerpt(ref.key,'finding',p.updatedAt)};

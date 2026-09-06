@@ -23,7 +23,7 @@ export const REPORTING_LINKS: readonly ChromeLink[] = [
   section("geopolitical-brief"), section("fake-resistance"), section("october-7"),
 ];
 export const ABOUT_LINKS: readonly ChromeLink[] = [
-  SYSTEM_LINK, section("we-are"), section("our-heroes"), section("israels-story"),
+  SYSTEM_LINK, section("we-are"), section("people-of-israel"),
 ];
 export const SUPPORT_LINK = section("support-us");
 export const SECTION_LINKS: readonly ChromeLink[] = [...REPORTING_LINKS, ...ABOUT_LINKS, SUPPORT_LINK];

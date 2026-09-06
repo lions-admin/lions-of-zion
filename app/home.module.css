@@ -52,6 +52,7 @@
 .noscriptNav { margin: 0 var(--home-gutter); padding: 16px; border-block: 1px solid var(--line); background: var(--ground); }
 .noscriptNav ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 0; }
 .noscriptNav a { color: var(--ink); font-size: 14px; }
+.noscriptNav a:hover, .noscriptNav a:focus-visible { color: var(--gold); }
 .motionControl { position: absolute; z-index: 2; top: calc(var(--header-h) + 16px); right: var(--home-gutter); min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); background: var(--ground); color: var(--ink); cursor: pointer; }
 .skipLink { position: fixed; top: 12px; left: 20px; z-index: 1000; transform: translateY(-200%); padding: 14px 20px; background: var(--ground); color: var(--ink-hi); border: 1px solid var(--gold); }
 .skipLink:focus { transform: translateY(0); }

@@ -196,12 +196,15 @@ describe("route coverage — one shared backdrop per public route, none on the i
     expect(page).not.toMatch(/data-home-scan/);
 
     /* And the layer it was docked in is a video layer now: poster under, the
-       two cross-fading elements over it, scrim, then the graded fall-off. */
-    const css = read("app/home.module.css");
-    expect(css).toMatch(/\.posterField \{[^}]*z-index:\s*0/);
-    expect(css).toMatch(/\.heroVideo \{[^}]*z-index:\s*1/);
-    expect(css).toMatch(/\.heroScrim \{[^}]*z-index:\s*2/);
-    expect(css).not.toMatch(/\.scanDock/);
+       two cross-fading elements over it, scrim, then the graded fall-off —
+       stacked by source order alone (poster, then `<HeroVideo>`, then the
+       scrim), with no z-index ladder to keep in sync as of 2026-09-06. */
+    const home = read("app/home.module.css");
+    expect(page).toMatch(/<div className=\{styles\.posterField\} \/>[\s\S]*?<HeroVideo[\s\S]*?<div className=\{styles\.heroScrim\} \/>/);
+    for (const selector of [".posterField", ".heroVideo", ".heroScrim"]) {
+      expect(home, selector).not.toMatch(new RegExp(`\\${selector} \\{[^}]*z-index`));
+    }
+    expect(home).not.toMatch(/\.scanDock/);
   });
 
   it("the reading shells all reach EditorialShell rather than mounting their own", () => {

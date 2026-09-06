@@ -132,6 +132,7 @@ export type EditorialCardRow = {
   featuredIsraelStory: boolean;
   homepageSlot: number | null;
   briefingRunId: string | null;
+  editorialRunId: string | null;
   evidenceCount: Count;
   createdAt: Ts;
   updatedAt: Ts;
@@ -745,7 +746,7 @@ export function adminConsoleRepo(db: unknown) {
       SELECT p.id, p.public_id AS "publicId", p.title, p.summary,
         p.section::text AS section, p.status::text AS status,
         p.featured_israel_story AS "featuredIsraelStory", hf.slot AS "homepageSlot",
-        p.briefing_run_id AS "briefingRunId",
+        p.briefing_run_id AS "briefingRunId", p.editorial_run_id AS "editorialRunId",
         (SELECT count(*) FROM publication_evidence pe WHERE pe.publication_id = p.id) AS "evidenceCount",
         p.created_at AS "createdAt", p.updated_at AS "updatedAt", p.published_at AS "publishedAt",
         CASE WHEN p.status IN ('published', 'updated') THEN 'published' ELSE p.status::text END AS lane
@@ -763,7 +764,7 @@ export function adminConsoleRepo(db: unknown) {
                p.section::text AS section, p.status::text AS status,
                p.featured_israel_story AS "featuredIsraelStory",
                hf.slot AS "homepageSlot",
-               p.briefing_run_id AS "briefingRunId",
+               p.briefing_run_id AS "briefingRunId", p.editorial_run_id AS "editorialRunId",
                (SELECT count(*) FROM publication_evidence pe WHERE pe.publication_id = p.id) AS "evidenceCount",
                p.created_at AS "createdAt", p.updated_at AS "updatedAt", p.published_at AS "publishedAt",
                CASE WHEN p.status IN ('published', 'updated') THEN 'published' ELSE p.status::text END AS lane,

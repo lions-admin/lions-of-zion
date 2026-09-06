@@ -227,22 +227,33 @@ describe("the scan layer cannot rise above content, chrome or a dialog", () => {
   });
 
   it("renders behind the home hero inside a layer that is itself pointer-inert", () => {
-    expect(home).toMatch(/\.fieldLayer \{[^}]*z-index:\s*0/);
+    /* 2026-09-06: the hero's background stack no longer uses a numbered
+       z-index ladder. `.fieldLayer` is a negative-z-index positioned
+       descendant of `.hero`, which `isolation: isolate` turns into its own
+       stacking context — and CSS's own painting order puts a negative-z-index
+       positioned descendant *below* every ordinary in-flow, non-positioned
+       descendant of that context. `.masthead` is exactly that (no `position`
+       of its own), so it paints above `.fieldLayer` with no z-index of its
+       own needed. There is no `.signalRail` in the current hero. */
+    expect(home).toMatch(/\.hero \{[^}]*isolation:\s*isolate/);
+    expect(home).toMatch(/\.fieldLayer \{[^}]*z-index:\s*-1/);
     expect(home).toMatch(/\.fieldLayer \{[^}]*pointer-events:\s*none/);
+    expect(home).not.toMatch(/\.masthead \{[^}]*position:/);
     /* The layer's contents, in paint order. A video is not pointer-inert by
        default the way a canvas of glyphs was — it has native controls and is
        focusable — so the `pointer-events: none` on the layer above is now
        load-bearing rather than tidy, and the elements carry `tabIndex={-1}`
-       and `aria-hidden` of their own. */
-    expect(home).toMatch(/\.posterField \{[^}]*z-index:\s*0/);
-    expect(home).toMatch(/\.heroVideo \{[^}]*z-index:\s*1/);
-    expect(home).toMatch(/\.heroScrim \{[^}]*z-index:\s*2/);
+       and `aria-hidden` of their own. Poster, video and scrim carry no
+       z-index at all and stack purely by source order — poster first, then
+       `<HeroVideo>`, then the scrim — inside that same layer. */
+    const page = read("app/page.tsx");
+    expect(page).toMatch(/<div className=\{styles\.posterField\} \/>[\s\S]*?<HeroVideo[\s\S]*?<div className=\{styles\.heroScrim\} \/>/);
+    for (const selector of [".posterField", ".heroVideo", ".heroScrim"]) {
+      expect(home, selector).not.toMatch(new RegExp(`\\${selector} \\{[^}]*z-index`));
+    }
     const hero = read("components/sections/HeroVideo.tsx");
     expect(hero.match(/aria-hidden="true"/g)?.length).toBe(2);
     expect(hero.match(/tabIndex=\{-1\}/g)?.length).toBe(2);
-    /* The masthead and the signal rail sit above all of it. */
-    expect(home).toMatch(/\.masthead \{[^}]*z-index:\s*10/);
-    expect(home).toMatch(/\.signalRail \{[^}]*z-index:\s*12/);
   });
 });
 
@@ -283,11 +294,10 @@ describe("reduced motion composes a frame instead of freezing one", () => {
        not download 30MB of video to hold on frame one. `.posterField` is what
        they see, and it is painted by the stylesheet with no script at all. */
     const hero = read("components/sections/HeroVideo.tsx");
-    expect(hero).toMatch(
-      /matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches\)\s*return/,
-    );
+    expect(hero).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
+    expect(hero).toMatch(/if \(reduced\.matches\) \{[\s\S]*?return;/);
     expect(hero).toMatch(/preload="none"/);
-    expect(home).toMatch(/\.posterField \{[^}]*background-image:\s*var\(--hero-poster-tall\)/);
+    expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
     /* The entrance's own scan still answers to the profile. */
     expect(HOME_SCAN_PROFILE.density).toBe("low");
     expect(["slow", "still"]).toContain(HOME_SCAN_PROFILE.speed);
@@ -423,12 +433,16 @@ describe("no interaction on or behind the scan depends on hover alone", () => {
   });
 
   it("keeps the home action legible without animated flourishes and pairs hover with focus", () => {
-    expect(home).toMatch(/--btn-bg:\s*transparent/);
-    expect(home).toMatch(/--btn-fg:\s*var\(--ink-hi\)/);
-    expect(home).toMatch(/\.ctaPrimary:hover,\s*\.hero \.actions \.ctaPrimary:focus-visible/);
-    expect(home).toMatch(/\.ctaPrimary::before,\s*\.hero \.actions \.ctaPrimary::after\s*\{\s*content: none/);
-    expect(home).toMatch(/\.ctaPrimary:focus-visible\s*\{\s*outline:/);
-    expect(home).toMatch(/\.ctaPrimary:hover \.ctaArrow,\s*\.ctaPrimary:focus-visible \.ctaArrow/);
+    /* 2026-09-06: the hero's primary action is no longer a bespoke
+       `.ctaPrimary` button — it is the same `JourneyLink` every other record
+       and section action on the homepage uses (`homepage-journey.module.css`
+       `.link`), which is a plainer, single interaction vocabulary for the
+       whole page rather than a one-off CTA component. The invariant this
+       test protects — no interaction here depends on `:hover` alone — is
+       checked against that shared class instead. */
+    const journey = read("components/home/homepage-journey.module.css");
+    expect(journey).toMatch(/\.link:hover,\s*\.link:focus-visible/);
+    expect(journey).toMatch(/\.link:hover svg,\s*\.link:focus-visible svg/);
     /* The hero's remaining link list — the no-JavaScript one — changes colour
        on focus as well as on hover. It is the only link set left in this
        stylesheet since the file index was removed as a duplicate of the
@@ -465,7 +479,7 @@ describe("the no-JavaScript home still shows a readable band over the static gro
     /* The hero's ground is the video's own first frame, painted by the
        stylesheet rather than by the component, so it is there before any
        script runs and stays when none ever does. */
-    expect(home).toMatch(/\.posterField \{[^}]*background-image:\s*var\(--hero-poster-tall\)/);
+    expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
     expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
     /* And the rest of the site keeps the scan texture over its own still. */
     expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
@@ -477,7 +491,10 @@ describe("the no-JavaScript home still shows a readable band over the static gro
     expect(page).toMatch(/aria-label="All sections"/);
     expect(page).toContain("<HomepageJourney edition={edition}/>");
     expect(page).not.toContain("SignalRotator");
-    /* The no-JS link list needs one too — it sits over a photograph. */
-    expect(home).toMatch(/\.noscriptNav \{[^}]*background:\s*var\(--surface-1\)/);
+    /* 2026-09-06: the fallback nav now renders in its own flow section below
+       the hero (`.readingSurface`), not as an overlay on the photograph, so
+       it needs the page's own flat ground rather than a distinct panel
+       colour to sit legibly against. */
+    expect(home).toMatch(/\.noscriptNav \{[^}]*background:\s*var\(--ground\)/);
   });
 });

@@ -398,6 +398,7 @@ export const editorialCardSchema = z.object({
   featuredIsraelStory: z.boolean(),
   homepageSlot: z.number().int().min(1).max(3).nullable(),
   briefingRunId: z.uuid().nullable(),
+  editorialRunId: z.uuid().nullable(),
   evidenceCount: count,
   createdAt: isoDate,
   updatedAt: isoDate,

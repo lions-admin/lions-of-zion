@@ -39,10 +39,8 @@ import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
-import {
-  publicDisplayName,
-  type ProviderAvailability,
-} from "@/server/contracts/public-session";
+import { publicDisplayName } from "@/lib/public-session";
+import type { ProviderAvailability } from "@/server/contracts/public-session";
 import { usePublicSession } from "./PublicSessionProvider";
 import { XMark } from "./XMark";
 import {

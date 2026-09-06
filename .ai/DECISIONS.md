@@ -1780,3 +1780,63 @@ Consequences for whoever merges that branch:
 
 The branch was NOT merged as part of Batch A. Nothing here authorises merging
 it; this records what a future merge will encounter.
+
+## 2026-09-06 — Our Heroes and Israel's Story keep their addresses after their nav entry folded into The People of Israel
+
+The Premium Editorial pass replaced the "Our Heroes" and "Israel's Story"
+header/footer entries with one destination, "The People of Israel"
+(`/people-of-israel`), so the chrome does not carry three sibling links for
+what is now one reading path. Both legacy pages stayed in the codebase
+unchanged and are still linked from the new hub and from the homepage's
+People chapter — but `SITE_NAVIGATION` no longer had an entry for either id,
+and `SectionPage` throws for any route id absent from that list
+(`components/sections/SectionPage.tsx`). Both routes 500'd until this fix.
+
+Resolution: a second, smaller registry, `LEGACY_SECTION_PAGES` in
+`lib/site-navigation.ts`, holding just `{ id, parent, href, description }` for
+a page that kept its shell after its destination merged into a parent.
+`SectionPage` resolves its `id` through `getSectionPageNode()`, which checks
+`SITE_NAVIGATION` first and falls back to this list, so `our-heroes` and
+`israels-story` render again with their original lede text.
+`resolveSiteSectionId` maps both ids to `people-of-israel`, so the site
+header still marks "The People of Israel" current when a reader is on either
+legacy page. The sitemap lists both at priority 0.6 (level with the archive
+indexes), not as one of the eight primary destinations.
+
+Rejected: adding `our-heroes`/`israels-story` back into `SITE_NAVIGATION`
+with a `hidden` flag. Every consumer of that array (header, footer, sitemap's
+destination block, search vocabulary, the home page's own fallback list)
+treats it as literally "the destinations" with no filter — a flag each of
+them would have to remember to check is exactly the kind of thing that gets
+missed once and silently relights a retired nav entry.
+
+## 2026-09-06 — October 7 lost its "nothing on it moves" invariant on purpose
+
+`app/october-7/page.tsx` was rebuilt around `ArchiveShareShowcase`, a
+client component that auto-rotates a text-only preview of one survivor story
+and one documented record every 12 seconds. The page's previous version
+carried an explicit comment that a memorial page mounts no `Reveal` and
+nothing on it moves; that comment and the two static "doors" it described
+were removed in the same change, without a corresponding decision record.
+
+What actually ships now, so this is not lost a second time:
+
+- Rotation runs only while the section is in the viewport (`IntersectionObserver`),
+  pauses immediately on hover, focus, or a manual arrow click, and never
+  starts at all under `prefers-reduced-motion: reduce` — `useSyncExternalStore`
+  reads the media query and a reduced-motion visitor sees only the arrows.
+- The rotation is text and a link only. No image or video plays or reveals
+  itself on the homepage or on this page's showcase; a documentation sample
+  states its content warning and links out to the archive record, which is
+  where the actual graphic material stays gated, exactly as before.
+- `tests/site-navigation.test.ts` was pinned to the retired copy's exact
+  strings ("Find archive material to share", "Keep content warnings and
+  source credits") and was updated to the current page's wording rather than
+  weakened — the invariant it checks (the page still names its two
+  collections and still promises a content warning before sharing) still
+  holds.
+
+This is a deliberate design change, not a regression: a static memorial and
+a page that invites sharing pull in different directions, and the owner's
+brief for this pass was share-oriented. Recorded here so the original
+"nothing moves" reasoning is not silently treated as still in force.

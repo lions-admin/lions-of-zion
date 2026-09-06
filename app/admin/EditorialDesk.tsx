@@ -124,7 +124,7 @@ export function EditorialDesk({ signal }: { signal: number }) {
               <PublicationForm key={publication.id} publication={publication} noticeId={noticeId} busy={ops.disabled}
                 onDirty={() => { registerDirty(true); setDirty(true); }} onSave={save} onTransition={requestTransition} onArchive={requestArchive}
                 onDelete={requestDelete} onVersions={() => setVersionsFor(publication)} />
-              {(publication.status === "published" || publication.status === "updated") && publication.briefingRunId !== null && publication.section !== "daily_brief" ? <div className={styles.panel}>
+              {(publication.status === "published" || publication.status === "updated") && publication.section !== "daily_brief" ? <div className={styles.panel}>
                 <PanelTitle>הצבה בעמוד הבית</PanelTitle><p className={styles.muted}>בחירת מקום תחליף את הכותרת המובילה שמוצגת בו כרגע.</p>
                 <div className={styles.actionRow}>{[1,2,3].map((slot) => <Button key={slot} size="sm" variant="secondary" disabled={ops.disabled} onClick={() => setSlot(slot, publication.id)}>הצבה במקום {slot}</Button>)}</div>
               </div> : null}
@@ -214,7 +214,8 @@ export function EditorialDesk({ signal }: { signal: number }) {
     const data = new FormData(form);
     const current = selected && selected.id === id ? selected : null;
     if (!current) return;
-    const narrativeWatchDetails = current.narrativeWatchDetails ? {
+    const nextSection = String(data.get("section"));
+    const narrativeWatchDetails = current.narrativeWatchDetails && nextSection === "narrative_watch" ? {
       ...current.narrativeWatchDetails,
       exactClaim: String(data.get("exactClaim")),
       propagators: lines(data.get("propagators")),
@@ -228,8 +229,9 @@ export function EditorialDesk({ signal }: { signal: number }) {
       title: String(data.get("title")), summary: String(data.get("summary")), body: String(data.get("body")),
       section: String(data.get("section")), editorialTopic: optional(data.get("editorialTopic")),
       primaryActor: optional(data.get("primaryActor")), arena: optional(data.get("arena")),
+      topicTags: lines(data.get("topicTags")),
       featuredIsraelStory: data.get("featuredIsraelStory") === "on", changeSummary: "עדכון עריכה של מנהל המערכת",
-      ...(narrativeWatchDetails ? { narrativeWatchDetails } : {}),
+      ...(nextSection === "narrative_watch" ? { narrativeWatchDetails } : { narrativeWatchDetails: null }),
     };
     await ops.run("save", async () => {
       await callConsole(`publications/${id}`, { method: "PATCH", body, failure: "שמירת הכתבה נכשלה." });
@@ -321,16 +323,12 @@ function PublicationForm({ publication, busy, noticeId, onSave, onTransition, on
     <Field className={styles.editorField} name="body" error={fieldErrors.body} maxLength={200000} label="גוף הכתבה" defaultValue={publication.body} multiline rows={18} required />
     <div className={styles.formGrid}>
       <SelectField className={styles.editorField} name="section" error={fieldErrors.section} label="מדור" defaultValue={publication.section}>
-        {publication.section === "narrative_watch"
-          ? <option value="narrative_watch">{SECTION_LABEL.narrative_watch}</option>
-          : <>
-            <option value="daily_brief">{SECTION_LABEL.daily_brief}</option>
-            <option value="israel_update">{SECTION_LABEL.israel_update}</option>
-          </>}
+        {Object.entries(SECTION_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
       </SelectField>
       <Field className={styles.editorField} name="editorialTopic" error={fieldErrors.editorialTopic} label="נושא" defaultValue={publication.editorialTopic ?? ""} />
       <Field className={styles.editorField} name="primaryActor" error={fieldErrors.primaryActor} label="שחקן מרכזי" defaultValue={publication.primaryActor ?? ""} />
       <Field className={styles.editorField} name="arena" error={fieldErrors.arena} label="זירה" defaultValue={publication.arena ?? ""} />
+      <Field className={styles.editorField} name="topicTags" error={fieldErrors.topicTags} label="תגיות נושא — אחת בכל שורה" defaultValue={publication.topicTags.join("\n")} multiline rows={3} />
     </div>
     {publication.narrativeWatchDetails ? <FieldGroup legend={`פרטי ${SECTION_LABEL.narrative_watch}`} className={styles.narrativeFields}>
       {/* Read-only on purpose: the basis is derived from whether the article

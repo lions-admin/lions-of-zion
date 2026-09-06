@@ -18,3 +18,4 @@ export * from "./narratives";
 export * from "./briefing";
 export * from "./external-briefing";
 export * from "./homepage";
+export * from "./editorial-update";

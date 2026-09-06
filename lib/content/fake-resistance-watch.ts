@@ -21,10 +21,15 @@
  * `components/live/publication-labels.ts`'s own note on the same principle.
  */
 import type { PublicPublication } from "@/server/contracts/publication";
-import { listBriefingPublications } from "@/lib/publications";
+import { listBriefingPublications, listPublicPublications } from "@/lib/publications";
 
 const WATCH_LIMIT = 25;
 
 export async function getNarrativeWatchFeed(): Promise<PublicPublication[]> {
   return listBriefingPublications(`?section=narrative_watch&limit=${WATCH_LIMIT}`);
+}
+
+/** Antisemitism has its own reading surface; it never inherits a claim label. */
+export async function getAntisemitismFeed(): Promise<PublicPublication[]> {
+  return listPublicPublications(`?section=antisemitism&limit=${WATCH_LIMIT}`);
 }

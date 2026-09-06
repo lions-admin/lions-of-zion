@@ -1,0 +1,1 @@
+ALTER TABLE "publication" ADD COLUMN "topic_tags" text[] DEFAULT ARRAY[]::text[] NOT NULL;

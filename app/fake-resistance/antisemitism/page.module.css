@@ -1,0 +1,5 @@
+.intro { max-width: 68ch; color: var(--ink); font-size: var(--t-lede); line-height: var(--t-lede-lh); }
+.empty { margin-top: var(--sp-5); color: var(--ink-lo); }
+.resources { max-width: 68ch; margin-top: var(--sp-7); padding: var(--sp-5); border-inline-start: 0.25rem solid var(--data-ember-peak); background: var(--surface-1); }
+.resources h2 { margin: 0 0 var(--sp-3); color: var(--ink-hi); font-family: var(--face-display); font-size: var(--t-h3); font-weight: var(--t-h3-weight); }
+.resources p { margin: 0; color: var(--ink); line-height: var(--t-body-lh); }

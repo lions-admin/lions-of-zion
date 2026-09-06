@@ -146,6 +146,20 @@ closed evidence packet every later stage re-reads by id — and
 gate: nothing counts these rows in SQL since migration `0049` — see
 [the publish gate](#the-publish-gate).
 
+**The editorial-update pipeline** — `editorial_run`, `editorial_operation`
+(migrations `0059`–`0061`). A durable, resumable alternative to the briefing
+pipeline's publish stage: one run owns a set of create/update operations on
+`publication`, each recording its own input hash, media artifact and result so
+a retried run reuses whatever an earlier attempt already prepared or completed
+instead of redoing it. A `daily` run is deduplicated per Jerusalem local date
+(`editorial_daily_date_once`); an `operations` run is deduplicated by its
+caller-supplied `runId` and request hash. `publication.editorial_run_id` /
+`editorial_operation_key` are this pipeline's provenance columns, parallel to
+`briefing_run_id` / `briefing_candidate_key` — `automatic_publication_has_machine_provenance`
+(migration `0060`) accepts either pair, never neither. `publication.topic_tags`
+(migration `0061`) is a plain `text[]` refining discovery within a section
+without adding another destination.
+
 **Infrastructure** — `outbox`, `rate_limit`
 
 ---
@@ -341,18 +355,30 @@ the TypeScript guard cannot drift.
 
 ---
 
-## `publication_section` lost a value nothing wrote
+## `publication_section` lost a value, then gained eleven more
 
-The enum has three members — `daily_brief`, `israel_update`,
-`narrative_watch`. `war_update` was removed from `ARTICLE_SECTIONS` on
-2026-09-01 and, by owner decision of 2026-09-05, removed completely: it was an
-unused model path, and every row that carried it was machine-published by the
-pre-retirement pipeline — no `created_by`, no `approved_by`, all `archived`.
+`war_update` was removed from `ARTICLE_SECTIONS` on 2026-09-01 and, by owner
+decision of 2026-09-05, removed completely: it was an unused model path, and
+every row that carried it was machine-published by the pre-retirement
+pipeline — no `created_by`, no `approved_by`, all `archived`.
 
 The residual rows were deleted (the underlying evidence entities are shared
 and survive), and migration `0053` rewrote the `publication_section` type and
-column without the value. Write and read paths, labels and filters all carry
-the three-value set; there is no compatibility shelf.
+column without the value, leaving the three-value set (`daily_brief`,
+`israel_update`, `narrative_watch`) with no compatibility shelf.
+
+Migration `0058` (2026-09-06, the Premium Editorial pass) then added eleven
+more: `news`, `influence_investigation`, `antisemitism`, `innovation`,
+`science_medicine`, `technology_ai`, `achievement`,
+`international_cooperation`, `people`, `courage_service`, `history_context` —
+each via `ALTER TYPE ... ADD VALUE`, so it is additive and irreversible the
+same way the retirement above was not: a Postgres enum value cannot be
+`DROP`ped, only left unused, which is why the earlier retirement needed a
+full type rewrite instead. `lib/publication-routing.ts`'s `routePublication()`
+is the single source of truth for which hub, homepage band and public label
+each of the now-fourteen values gets; `SECTIONS_BY_HOMEPAGE_SECTION` is
+exhaustive over the enum by construction, so a fifteenth value fails
+`tests/editorial-taxonomy.test.ts` rather than silently defaulting to news.
 
 ---
 

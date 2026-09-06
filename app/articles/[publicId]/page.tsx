@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
+import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { editorialMediaForSurface } from "@/lib/content/homepage-media";
 import { publicationParentCrumb, publicationSectionLabel, routePublication } from "@/lib/publication-routing";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
@@ -24,6 +25,8 @@ import {
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
+import { InvestigationExplorer } from "@/components/evidence/InvestigationExplorer";
+import { ShareControls } from "@/components/support/ShareControls";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
 import styles from "./article.module.css";
 
@@ -102,6 +105,8 @@ export default async function ArticlePage({ params }: Props) {
         claim: null,
         sources: [],
       }));
+  const articleUrl = `${SITE_URL}/articles/${article.publicId}`;
+  const shareText = article.summary ?? article.title;
 
   return (
     <EditorialShell
@@ -183,6 +188,20 @@ export default async function ArticlePage({ params }: Props) {
           ) : null}
         </section>
 
+        <section className={styles.share} aria-label="Share this record">
+          <ShareControls
+            url={articleUrl}
+            title={article.title}
+            text={shareText}
+            lead="Share the sourced record, including its date and context."
+            copyLabel="Copy the sourced record"
+            targets={[
+              { label: "Share on X", href: xIntentUrl(shareText, articleUrl) },
+              { label: "Facebook", href: facebookShareUrl(articleUrl) },
+            ]}
+          />
+        </section>
+
         {details ? (
           <section className={styles.narrativeDetails}>
             <p className={styles.kicker}>Narrative Watch</p>
@@ -240,6 +259,10 @@ export default async function ArticlePage({ params }: Props) {
               ) : null}
             </dl>
           </section>
+        ) : null}
+
+        {(details || article.sources.length || article.passages.length) ? (
+          <InvestigationExplorer record={article} />
         ) : null}
 
         <div className={styles.body}>

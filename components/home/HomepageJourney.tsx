@@ -2,8 +2,7 @@ import type { HomepageEdition } from "@/server/contracts/homepage";
 import { HomeNewsSection } from "./HomeNewsSection";
 import { HomeNarrativesSection } from "./HomeNarrativesSection";
 import { HomeArchiveSection } from "./HomeArchiveSection";
-import { HomeHeroesSection } from "./HomeHeroesSection";
-import { HomeHistorySection } from "./HomeHistorySection";
+import { HomePeopleSection } from "./HomePeopleSection";
 import { HomeSystemSection } from "./HomeSystemSection";
 import styles from "./homepage-journey.module.css";
 
@@ -29,16 +28,14 @@ export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
           <a href="#home-news">News & Analysis</a>
           <a href="#home-narratives">Fake Resistance</a>
           <a href="#home-archive">October 7</a>
-          <a href="#home-heroes">Our Heroes</a>
-          <a href="#home-history">Israel’s Story</a>
+          <a href="#home-people">The People of Israel</a>
           <a href="#home-system">Behind the desk</a>
         </nav>
       </header>
       <HomeNewsSection section={edition.news} />
       <HomeNarrativesSection section={edition.fakeResistance} />
       <HomeArchiveSection section={edition.october7} />
-      <HomeHeroesSection section={edition.heroes} />
-      <HomeHistorySection section={edition.israelsStory} />
+      <HomePeopleSection people={edition.people} heroes={edition.heroes} history={edition.israelsStory} />
       <HomeSystemSection />
     </div>
   );

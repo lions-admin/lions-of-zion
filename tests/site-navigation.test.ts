@@ -88,11 +88,16 @@ describe("purpose-led site navigation", () => {
     const hub = read("components/briefs/LiveBriefHub.tsx");
     expect(hub).toContain('href="/fake-resistance"');
     expect(hub).not.toContain('items={narratives}');
+    /* 2026-09-06: the October 7 doors were replaced with a rotating
+       text-only share showcase (`ArchiveShareShowcase`); these assertions
+       were pinned to the retired copy. The invariant is unchanged — the page
+       still names its two collections and still keeps a content-warning
+       promise before any sharing link — just in the current wording. */
     const archive = read("app/october-7/page.tsx");
-    expect(archive).toContain('aria-label="Find archive material to share"');
-    expect(archive).toContain("Keep content warnings and source credits");
+    expect(archive).toContain('aria-label="Choose an archive collection"');
+    expect(archive).toContain("behind its content warning");
     const watch = read("app/fake-resistance/watch/page.tsx");
     expect(watch).not.toContain("last 24 hours");
-    expect(watch).toContain("not a live scanner");
+    expect(watch).toContain("not a live scan log");
   });
 });

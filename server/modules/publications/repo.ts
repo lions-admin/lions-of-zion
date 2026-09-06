@@ -9,7 +9,7 @@ import "server-only";
  * unchanged; only its address is.
  */
 
-import { and, desc, eq, inArray, isNotNull, lt, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, lt, or, sql, type SQL } from "drizzle-orm";
 import {
   publication,
   publicationEvidence,
@@ -44,6 +44,9 @@ export function repo(db: unknown) {
   };
 
   return {
+    async lock(id: string): Promise<void> {
+      await d.execute(sql`SELECT id FROM publication WHERE id = ${id} FOR UPDATE`);
+    },
     async byId(id: string): Promise<Publication | undefined> {
       const rows = await d
         .select()
@@ -68,7 +71,7 @@ export function repo(db: unknown) {
       if (filters.section) clauses.push(eq(publication.section, filters.section));
       if (filters.status) clauses.push(eq(publication.status, filters.status));
       if (filters.eventId) clauses.push(eq(publication.eventId, filters.eventId));
-      if (filters.briefingOnly) clauses.push(isNotNull(publication.briefingRunId));
+      if (filters.briefingOnly) clauses.push(or(isNotNull(publication.briefingRunId), isNotNull(publication.editorialRunId))!);
       if (filters.cursor) clauses.push(lt(publication.createdAt, new Date(filters.cursor)));
       return d
         .select()
@@ -82,11 +85,12 @@ export function repo(db: unknown) {
       /* Site reference pages share the publication table, but they must never
        * become news merely because the briefing section was introduced later.
        * A briefing run is the durable boundary for automated editorial output. */
-      if (briefingOnly) clauses.push(isNotNull(publication.briefingRunId));
+      if (briefingOnly) clauses.push(or(isNotNull(publication.briefingRunId), isNotNull(publication.editorialRunId))!);
       if (filters.kind) clauses.push(eq(publication.kind, filters.kind));
       if (filters.section) clauses.push(eq(publication.section, filters.section));
       if (filters.topic) clauses.push(eq(publication.primaryTopicId, filters.topic));
       if (filters.topicLabel) clauses.push(sql`lower(${publication.editorialTopic}) = lower(${filters.topicLabel})`);
+      if (filters.tag) clauses.push(sql`${filters.tag} = ANY(${publication.topicTags})`);
       if (filters.actor) clauses.push(sql`lower(${publication.primaryActor}) = lower(${filters.actor})`);
       if (filters.arena) clauses.push(sql`lower(${publication.arena}) = lower(${filters.arena})`);
       if (filters.date) {

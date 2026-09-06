@@ -10,22 +10,18 @@ import { previewSentences } from "@/lib/preview-sentences";
 import styles from "./homepage-journey.module.css";
 
 /**
- * How much of a summary a phone shows before the record has the rest, in
- * characters: about four lines of 16px text on a 390px phone for a lead,
- * three for a companion and for "Why it matters". The split is on sentence
- * boundaries (`previewSentences`), so a preview never ends on "threw…".
+ * Sentence budgets for homepage previews at every viewport.
+ * Full text remains available in the linked record.
  */
 export const PREVIEW_BUDGET = {
-  lead: 170,
-  companion: 120,
-  context: 150,
+  lead: 180,
+  companion: 125,
+  context: 125,
 } as const;
 
 /**
- * The sentences of a text a phone shows, then the rest in a span the phone
- * hides. A wide viewport shows both inline, which is the paragraph as written;
- * the CSS line clamp on the paragraph is only the backstop for one sentence
- * longer than the budget.
+ * Keep the source text intact; CSS limits the preview to whole sentences,
+ * with a line clamp as a backstop for a single unusually long sentence.
  */
 export function PreviewText({
   text,
@@ -126,21 +122,22 @@ export function HomeMedia({
   portrait?: boolean;
   lead?: boolean;
 }) {
-  const disclosure = media.disclosure ?? ROLE_DISCLOSURE[media.role];
+  const disclosure = media.role === "safe-cover"
+    ? "Safe cover"
+    : media.disclosure ?? ROLE_DISCLOSURE[media.role];
   const licence = media.rights.reference.startsWith("https://creativecommons.org");
   return (
-    <figure className={`${styles.figure} ${portrait ? styles.portrait : ""}`}>
+    <figure className={`${styles.figure} ${portrait ? styles.portrait : ""}`} data-media-role={media.role}>
       <Image
         src={media.src}
         alt={media.alt}
         width={media.width}
         height={media.height}
-        priority={lead}
-        loading={lead ? undefined : "lazy"}
+        loading={lead ? "eager" : "lazy"}
         sizes={
           portrait
-            ? "(max-width:767px) 45vw, 45vw"
-            : "(max-width:767px) 100vw, (max-width:1100px) 60vw, 55vw"
+            ? "(max-width:819px) 38vw, 24vw"
+            : "(max-width:759px) 100vw, (max-width:1099px) 50vw, 55vw"
         }
         style={{
           objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%`,
@@ -148,10 +145,11 @@ export function HomeMedia({
       />
       <figcaption>
         {disclosure && <span className={styles.disclosure}>{disclosure}</span>}
-        {media.caption && (
-          <span className={styles.captionText}>{media.caption}</span>
-        )}
-        <span className={styles.credit}>
+        {media.role === "safe-cover" && <span className={styles.captionText}>Illustrated cover. Original material stays in the archive record.</span>}
+        <details className={styles.provenance}>
+          <summary>{portrait ? "Portrait credit" : "Image context & credit"}</summary>
+          {media.caption && <span className={styles.captionText}>{media.caption}</span>}
+          <span className={styles.credit}>
           {media.credit}
           {media.sourceUrl && (
             <>
@@ -165,7 +163,8 @@ export function HomeMedia({
               · <a href={media.rights.reference}>{media.rights.basis}</a>
             </>
           )}
-        </span>
+          </span>
+        </details>
       </figcaption>
     </figure>
   );

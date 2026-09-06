@@ -28,7 +28,7 @@ Preserve the cinematic lion opening and the existing editorial identity. Continu
 - No generated news, fabricated findings, invented source counts, fake review claims, AI-generated documentary imagery or invented source relationships.
 - Do not expand this into a new CMS, portrait-submission service, archive redesign, authentication redesign or general site refactor.
 - A new homepage edition store is distinct from the publication lifecycle. It must not alter publication eligibility or quality gates.
-- `AGENTS.md`, `CLAUDE.md`, `docs/architecture.md`, `eslint.config.mjs`, `DESIGN.md` and `UX-CONTRACT.md` are implementation references. The current owner brief defines the requested change; older single-viewport homepage decisions must be explicitly superseded, not silently retained.
+- `AGENTS.md`, `CLAUDE.md`, `docs/architecture.md`, `eslint.config.mjs` and `UX-CONTRACT.md` are implementation references. The current owner brief defines the requested change and supersedes older visual decisions.
 
 ## 2. Verified repository map
 
@@ -343,7 +343,7 @@ components/home/homepage-journey.module.css journey grid and scoped section vari
 - [ ] Prefer image proportions, hierarchy, whitespace and meaningful separators to grey containers, decorative borders, glow, badges and repeated rounded cards.
 - [ ] Keep all meaningful content server-rendered and visible without animation. Small client enhancements must not start with important sections hidden at opacity zero.
 - [ ] Ensure Ask cannot cover article links, media credits, warnings or final CTAs at mobile safe areas or 200% zoom. Do not redesign the Ask conversation itself.
-- [ ] Update `DESIGN.md` with the approved journey, component ownership and removal of rotating-rail/single-viewport intent; update only relevant entries of `UX-CONTRACT.md`. Do not rewrite unrelated standards.
+- [ ] Superseded: the retired design document must not be recreated. Follow the owner's current visual brief.
 
 ## 8. Performance, accessibility and return behavior
 

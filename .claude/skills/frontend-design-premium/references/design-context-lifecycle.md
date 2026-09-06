@@ -1,8 +1,8 @@
 # Design Context Lifecycle
 
-`DESIGN.md` is durable product taste memory.
+The owner's current visual brief and rendered UI guide this repository. Its former design document has been retired and must not be recreated.
 
-Create it when:
+Optional design context in other projects can be useful when:
 
 - the application lacks maintained design context;
 - the project will have multiple screens;
@@ -28,4 +28,4 @@ When changing a durable token:
 3. update shared components;
 4. verify affected screens.
 
-For multi-screen behavior, use `UX-CONTRACT.md` rather than stuffing workflow rules into `DESIGN.md`.
+For multi-screen behavior, consult `UX-CONTRACT.md` as an implementation reference subordinate to the current owner request.

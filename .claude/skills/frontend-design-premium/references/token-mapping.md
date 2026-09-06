@@ -4,7 +4,7 @@ Every durable visual token should have one canonical path.
 
 Example:
 
-`DESIGN.md → theme/tokens.ts → CSS variables → shared component`
+`Owner's current direction → runtime CSS variables → shared component`
 
 Avoid:
 

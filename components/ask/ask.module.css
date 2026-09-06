@@ -834,88 +834,46 @@
 }
 
 @media (min-width: 48rem) {
-  .dockTrigger {
-    inset-block-end: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px));
-  }
-
-  /* Preserve the established clearance above the desktop publication rail. */
-  html:has([data-home-scroll]) .dockTrigger {
-    inset-block-end: calc(6.25rem + env(safe-area-inset-bottom, 0px));
-  }
+  .dockTrigger { inset-block-end: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px)); }
 }
-
 @media (width < 48rem) {
-  .dockTrigger {
-    --ask-diameter: 4rem;
-  }
-
-  html:has([data-home-scroll]) .dockTrigger {
-    inset-block-end: calc(var(--sp-9) + env(safe-area-inset-bottom, 0px));
-    inset-inline-end: var(--home-gutter);
-  }
+  .dockTrigger { --ask-diameter: 4rem; }
 }
 
-/* ---- The homepage below the width that reserves a gutter for the seal ----
- *
- * `AskDock` sets `data-mode` and `data-retracted` from scroll position there
- * and nowhere else. `seal` is the control exactly as above, over the cover's
- * empty corner. `compact` is a 48px icon through the edition, sitting in the
- * corner rather than lifted over a rail that no longer exists; the label goes
- * screen-reader-only so the button keeps its name. `retracted` slides it
- * below the viewport while the reader scrolls down; any scroll up, the end of
- * the page, or keyboard focus brings it back. The travel is a transform on a
- * fixed element — no layout, no reserved column — and reduced motion turns
- * the slide into a cut through the rule at the end of this file. */
-@media (max-width: 1099px) {
-  html:has([data-home-scroll]) .dockTrigger[data-mode] {
-    transition:
-      border-color var(--dur-fast) var(--ease-out),
-      background-color var(--dur-fast) var(--ease-out),
-      color var(--dur-fast) var(--ease-out),
-      transform var(--dur-base) var(--ease-out),
-      inline-size var(--dur-fast) var(--ease-out),
-      block-size var(--dur-fast) var(--ease-out);
-  }
-
-  html:has([data-home-scroll]) .dockTrigger[data-mode="compact"] {
-    --ask-diameter: 3rem;
-    inset-block-end: calc(var(--sp-4) + env(safe-area-inset-bottom, 0px));
-    inset-inline-end: calc(var(--sp-4) + env(safe-area-inset-right, 0px));
-    gap: 0;
-    padding: 0;
-  }
-
-  html:has([data-home-scroll]) .dockTrigger[data-mode="compact"] .dockGlyph {
-    inline-size: 1.5rem;
-    block-size: 1.5rem;
-  }
-
-  html:has([data-home-scroll]) .dockTrigger[data-mode="compact"] .dockLabel {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  /* The travel is well past what the arithmetic needs. With one spacing step
-     past the diameter, iOS Safari with its toolbar collapsed left the top of
-     the icon showing above the bottom edge (the owner's phone, 2026-09-06):
-     the bottom the browser positions against and the bottom it paints to are
-     not the same edge there. */
-  html:has([data-home-scroll]) .dockTrigger[data-retracted] {
-    transform: translateY(
-      calc(100% + var(--sp-9) + var(--sp-7) + env(safe-area-inset-bottom, 0px))
-    );
-  }
-
-  html:has([data-home-scroll]) .dockTrigger[data-retracted]:focus-visible {
-    transform: none;
-  }
+/* Header slot on the homepage: the lens stays available without covering content. */
+.homeDockTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-hi);
+  font: 500 12px/1 var(--face-text);
+  cursor: pointer;
 }
+.homeDockTrigger .dockGlyph {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 50%;
+  padding: 4px;
+}
+.homeDockTrigger .dockLabel { letter-spacing: 0; padding: 0; white-space: nowrap; }
+.homeDockTrigger:hover { color: var(--gold); }
+.homeDockTrigger:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (max-width: 48rem) {
+  .homeDockTrigger { padding: 0 6px; gap: 5px; }
+  .homeDockTrigger .dockGlyph { width: 23px; height: 23px; }
+}
+@media (max-width: 380px) {
+  .homeDockTrigger { flex-direction: column; gap: 3px; padding: 0 5px; font-size: 11px; }
+  .homeDockTrigger .dockGlyph { width: 20px; height: 20px; padding: 2px; border: 0; }
+}
+@media (scripting: none) { .homeDockTrigger { display: none; } }
 
 /* Without scripting the button can open nothing; a dead control fixed over
    the reading column is worse than none. The menu still links to `/ask`. */

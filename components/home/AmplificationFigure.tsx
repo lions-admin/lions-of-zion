@@ -1,36 +1,58 @@
-import styles from './homepage-journey.module.css';
+"use client";
 
-/**
- * The section's own copy calls this "one possible mechanism—not a measurement of
- * every narrative", so the drawing carries no scale, no units and no data: the
- * two curves are schematic and the axes are deliberately unlabelled.
- */
+import { useId, useState } from "react";
+import { Icon } from "@/components/ui/Icon";
+import styles from "./homepage-journey.module.css";
+
 export function AmplificationFigure() {
+  const [traced, setTraced] = useState(false);
+  const id = useId();
+
   return (
-    <figure className={styles.amplification}>
-      <svg viewBox="0 0 1000 300" role="img" aria-labelledby="amp-title amp-desc" preserveAspectRatio="xMidYMid meet">
-        <title id="amp-title">Repetition outpacing verification</title>
-        <desc id="amp-desc">
-          A schematic drawing. One line, marked repetition, rises steeply and early. A second
-          broken line, marked checking, rises later and more slowly. The shaded interval between
-          them is the period in which a claim can feel established while it is still unverified.
-          The drawing carries no scale and represents no measurement.
-        </desc>
-        <g className={styles.ampTicks}>
-          <path d="M200 60V262M430 60V262M660 60V262M890 60V262" />
-        </g>
-        <path className={styles.ampGap} d="M60 248C220 246 300 238 380 208C480 168 540 108 620 80C740 44 850 40 940 36L940 152C840 198 720 228 580 240C460 247 300 249 60 250Z" />
-        <path className={styles.ampBase} d="M60 262H940" />
-        <path className={styles.ampCheck} d="M60 250C300 249 460 247 580 240C720 228 840 198 940 152" />
-        <path className={styles.ampRepeat} d="M60 248C220 246 300 238 380 208C480 168 540 108 620 80C740 44 850 40 940 36" />
-        <circle className={styles.ampNode} cx="60" cy="249" r="5" />
-        <circle className={styles.ampHead} cx="940" cy="36" r="6" />
-        <circle className={styles.ampCheckHead} cx="940" cy="152" r="5" />
-      </svg>
-      <figcaption>
-        Schematic only: repetition can climb while checking is still under way. No scale, no
-        measurement, and not a reading of any particular narrative.
+    <figure className={styles.amplification} data-traced={traced} aria-labelledby={`${id}-caption`}>
+      <figcaption id={`${id}-caption`}>
+        <span className={styles.kicker}>Anatomy of an echo</span>
+        <span>Fictional example · not a news report</span>
       </figcaption>
+      <ol className={styles.echoSequence} id={`${id}-sequence`} aria-label="How one claim becomes three versions">
+        <li className={styles.echoOrigin}>
+          <header><span className={styles.echoStep}>01</span><span>Original post</span></header>
+          <blockquote>“<mark>I think</mark> the crossing is closed.”</blockquote>
+          <p className={styles.echoAnnotation}>
+            {traced ? "The only original source in this example." : "One person’s impression. No confirmation."}
+          </p>
+        </li>
+        <li>
+          <header><span className={styles.echoStep}>02</span><span>The repost</span></header>
+          <blockquote>“<mark>Reports say</mark> the crossing is closed.”</blockquote>
+          <p className={styles.echoAnnotation}>
+            {traced ? "Cites the original post. Adds no new evidence." : "The uncertainty disappears. Nothing new is added."}
+          </p>
+        </li>
+        <li className={styles.echoHeadline}>
+          <header><span className={styles.echoStep}>03</span><span>The headline</span></header>
+          <blockquote>Crossing closed,<br /><mark>multiple reports</mark> say.</blockquote>
+          <p className={styles.echoAnnotation}>
+            {traced ? "Cites the repost—which leads back to the original post." : "The copies now sound like independent confirmation."}
+          </p>
+        </li>
+      </ol>
+      <div className={styles.echoReading}>
+        <div className={styles.echoResult} aria-live="polite" aria-atomic="true">
+          <span className={styles.echoNumeral} aria-hidden="true">{traced ? "1" : "3"}</span>
+          <h4>{traced ? <>One source.<br />Not three witnesses.</> : <>Three versions.<br />How many sources?</>}</h4>
+          <p>{traced
+            ? "All three lead back to the same unverified post. The wording became more certain. The evidence did not."
+            : "A post, a repost and a headline can look like corroboration. Follow what each one actually cites."}</p>
+        </div>
+        <button type="button" className={styles.echoTraceButton}
+          aria-pressed={traced} aria-controls={`${id}-sequence`}
+          onClick={() => setTraced((value) => !value)}>
+          <Icon name={traced ? "correction" : "search"} size={20} />
+          {traced ? "Show the spread again" : "Trace the sources"}
+        </button>
+        <p className={styles.echoPrinciple}>Count independent sources.<br />Not repeated claims.</p>
+      </div>
     </figure>
   );
 }

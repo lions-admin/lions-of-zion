@@ -26,7 +26,6 @@ export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
           {edition.state === "previous-edition" ? " · Previous edition" : ""}
         </span>
         <nav className={styles.contents} aria-label="In this edition">
-          <span aria-hidden="true">In this edition</span>
           <a href="#home-news">News & Analysis</a>
           <a href="#home-narratives">Fake Resistance</a>
           <a href="#home-archive">October 7</a>

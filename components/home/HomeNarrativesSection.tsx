@@ -56,24 +56,21 @@ export function HomeNarrativesSection({
               className={styles.investigation}
               data-home-record={item.key}
               data-rank={rankOf(index)}
+              data-kind={item.kind}
             >
-              <div className={styles.dossierCover}>
-                <HomeMedia media={item.media} />
-                <HomeTime date={item.date} includeTime />
-              </div>
-              <div className={styles.dossier}>
-                <p
-                  className={styles.verdict}
-                  data-tone={status?.tone ?? "neutral"}
-                >
-                  <span className={styles.verdictLabel}>
-                    {status?.label ?? "Research case"}
-                  </span>
+              <header className={styles.dossierStatus}>
+                <p className={styles.verdict} data-tone={status?.tone ?? "neutral"}>
+                  <span className={styles.verdictLabel}>{status?.label ?? "Research case"}</span>
                   <span className={styles.verdictMeaning}>
-                    {status?.meaning ??
-                      "Findings carry their own confidence and limitations."}
+                    {status?.meaning ?? "Findings carry their own confidence and limitations."}
                   </span>
                 </p>
+                <HomeTime date={item.date} includeTime />
+              </header>
+              <div className={styles.dossierCover}>
+                <HomeMedia media={item.media} />
+              </div>
+              <div className={styles.dossier}>
                 <p className={styles.kicker}>
                   {item.kind === "watch"
                     ? "Claim in circulation"

@@ -342,7 +342,7 @@
      a second download for nothing. */
   --site-ground-photo: url("/video/lion-hero-poster-desktop.jpg");
   --hero-poster-wide: url("/video/lion-hero-poster-desktop.jpg");
-  --hero-poster-tall: url("/video/lion-hero-poster-mobile.jpg");
+  --hero-poster-tall: url("/video/lion-hero-poster-portrait.jpg");
 
   --z-under: -1;
   --z-base: 0;

@@ -18,7 +18,7 @@ disclosures, headline sizing, card chrome, section rhythm) is implemented
 and browser-verified in Chromium emulation at 320, 375, 390×844, 430×932,
 768 and 1440. Evidence, numbers and remaining limitations are in
 `docs/reviews/homepage-mobile-refinement/REPORT.md`; the design record is the
-"Homepage on a phone" section of `DESIGN.md`; the why of the launcher is in
+earlier mobile implementation (superseded by the owner's current homepage brief); the why of the former launcher is in
 `.ai/DECISIONS.md` (2026-09-06). Pushed to `main` on the owner's explicit
 instruction the same day, which is a Production deploy through the Vercel
 git integration; `vercel rollback` is the undo. The branch also carries the two `frontend-design*` project skills,

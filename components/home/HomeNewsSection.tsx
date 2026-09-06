@@ -44,6 +44,7 @@ export function HomeNewsSection({
             data-rank={rankOf(index)}
           >
             <HomeMedia media={item.media} lead={index === 0} />
+            <div className={styles.newsBody}>
             <div className={styles.byline}>
               <span>{item.category}</span>
               <HomeTime date={item.date} includeTime />
@@ -72,6 +73,7 @@ export function HomeNewsSection({
                 ? "Read the daily brief"
                 : "Read the story"}
             </JourneyLink>
+            </div>
           </article>
         ))}
       </div>

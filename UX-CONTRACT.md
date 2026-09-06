@@ -2,7 +2,7 @@
 
 ## Canonical owners
 
-- Tokens and font roles: `app/globals.css`; taste direction: `DESIGN.md`.
+- Tokens and font roles: `app/globals.css`; visual direction follows the owner's current request and rendered UI.
 - Actions, inputs and overlays: `components/ui/Button`, `Field`, `Dialog`.
   Extend these owners rather than adding duplicate local primitives.
 - Public search: `components/search/SearchPanel.tsx` and `useSearch.ts`.

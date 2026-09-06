@@ -57,7 +57,7 @@ Inspect:
 - loaders;
 - localization;
 - sibling workflows;
-- `DESIGN.md`;
+- the owner's current visual brief and rendered UI;
 - `UX-CONTRACT.md` if present.
 
 If a canonical owner exists, reuse or extend it.
@@ -87,9 +87,9 @@ Read `references/design-context-lifecycle.md`.
 
 For a real application:
 
-- read project-root `DESIGN.md`;
-- create it from `assets/DESIGN.template.md` if the project lacks durable design context;
-- update it only for durable system decisions;
+- follow the owner's current request and the actual rendered UI;
+- do not recreate the retired project design document;
+- treat older design notes as historical context, not visual constraints;
 - trace design tokens to runtime sources.
 
 For substantial multi-screen products, maintain `UX-CONTRACT.md` using `assets/UX-CONTRACT.template.md`.

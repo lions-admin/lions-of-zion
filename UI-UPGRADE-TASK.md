@@ -10,7 +10,7 @@ Apply accessibility, layout stability, responsive behavior, semantic interaction
 and reduced motion. Do not import CRUD or admin machinery.
 
 Canonical owners this work must respect, not duplicate:
-`app/globals.css` (tokens) · `DESIGN.md` (taste) · `UX-CONTRACT.md` (behavior) ·
+`app/globals.css` (reusable tokens) · the owner's current visual brief · `UX-CONTRACT.md` (behavior) ·
 `components/ui/Button` · `components/site/SiteHeader`.
 
 ---
@@ -62,7 +62,7 @@ This contradicts the written contract in `app/home.module.css:673-681`:
 > The lion's face gets the upper third unopposed. The statement begins below the
 > eyes, on the calmer chest of the portrait.
 
-and `DESIGN.md`: *"The photographic lion is the homepage's signature. Keep its
+and the owner's direction: *"The photographic lion is the homepage's signature. Keep its
 face unobscured."*
 
 Fix: reframe the 9:16 poster (and the matching `intro`/`loop` cuts, so the video
@@ -228,7 +228,7 @@ decorative glyphs out of `content`, where assistive tech will announce them.
 
 ### 12. `homepage-journey.module.css` is off-system
 
-`DESIGN.md` states `app/globals.css` is the canonical token source. This file —
+`app/globals.css` supplies reusable runtime tokens. This file —
 which renders six of the homepage's seven sections — uses roughly ninety
 hardcoded pixel values instead: type at 12/13/14/15/16/17/18/22/24/25px and
 spacing at 6/7/8/10/12/14/16/18/20/22/24/28/32/36/40/44/48/60/64/76/80/112px,
@@ -241,7 +241,7 @@ AA-clear); size and drift are. This is the root cause of findings 6–11: every
 one of them is a number that had nowhere canonical to come from.
 
 Fix: map the file onto the existing scales. Where no token fits, add one to
-`globals.css` and record it in `DESIGN.md` — do not start a second private
+`globals.css` when it is genuinely shared — do not start a second private
 scale.
 
 ### 13. The file is minified
@@ -295,14 +295,14 @@ commit, so the design changes land as a readable diff.
 
 Backend, briefing pipeline, quality checks, auth, the archive/search routes.
 No content changes: publication titles, source labels, verdicts, timestamps and
-credits stay exactly as the edition renders them (`DESIGN.md`: never manufacture
+credits stay exactly as the edition renders them (never manufacture
 freshness or proof to fill a layout).
 
 ## Acceptance
 
 - Header wordmark legible over scrolled content at 390 / 768 / 1024 / 1440 / 1920.
 - The lion's face is in frame at 390, 768 and every width above; the contract in
-  `home.module.css` and `DESIGN.md` matches what renders, in both the JS and
+  `home.module.css` matches what renders, in both the JS and
   no-JS paths.
 - LCP < 2.5s @390 locally; CLS stays 0.
 - One page gutter shared by hero and journey; one stagger token; one arrow

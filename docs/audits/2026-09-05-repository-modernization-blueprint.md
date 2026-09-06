@@ -1488,12 +1488,12 @@ required running one command the auditor did not.
   precedence, and no way for a reader to tell which are live.
 - **Why it matters:** An agent given "improve the homepage" finds four documents
   claiming authority over it, one asserting exclusivity, and no way to resolve
-  the conflict. `DESIGN.md` is in practice the live one — it is edited every
-  session — but nothing says so. This is also the structural cause of A1-21: with
+  the conflict. The former design document has since been retired; the owner's
+  current request takes precedence. This is also the structural cause of A1-21: with
   nowhere for finished work to go, completed plans stay at root and read as
   current.
-- **Recommended action:** **DOCUMENT precedence, then MOVE.** Declare `DESIGN.md`
-  the live design authority in `README.md`. Create `docs/plans/` (live,
+- **Recommended action:** **DOCUMENT precedence, then MOVE.** The owner's current
+  request and rendered UI are the visual authority. Create `docs/plans/` (live,
   incomplete) and `project-history/` (finished, kept for provenance) and move the
   ten documents per §I. Strike the "single source of truth" and "do not create a
   competing plan document" claims from `UI-UX-REBUILD-TODOS.md:11,25` since they
@@ -2076,7 +2076,7 @@ lions-of-zion/
 ├── AGENTS.md                     agent entry point: owner authority, commands,
 │                                 deploy rules, POINTERS to invariants
 ├── CLAUDE.md                     every invariant, in full, exactly once
-├── DESIGN.md                     the live design authority (visual only)
+├── (retired design document)      not part of the current project structure
 ├── .env.example                  names only, never values (tracked, un-ignored)
 │
 ├── app/                          unchanged — 34 pages, 104 API routes
@@ -2148,8 +2148,7 @@ lions-of-zion/
 **Root goes from 13 markdown files (604 KB) to 4 (≈28 KB).** Every remaining
 root document is one a tool resolves by literal name: GitHub renders
 `README.md`; `next dev` writes and re-creates `AGENTS.md`; Claude Code loads
-`CLAUDE.md` by exact path; `DESIGN.md` is small enough to read and is edited
-every session.
+`CLAUDE.md` by exact path. The former design document is now retired.
 
 **The authority hierarchy the structure encodes** — currently four documents
 claim authority with no ordering between them:
@@ -2162,7 +2161,7 @@ claim authority with no ordering between them:
 3. AGENTS.md                           entry point; pointers, not restatements
 4. CLAUDE.md                           every invariant in full, once; no dated narrative
 5. docs/**                             reference detail; docs/README.md indexes all of it
-6. DESIGN.md                           live design authority (visual only)
+6. Current owner brief and rendered UI visual direction; former design document retired
 7. docs/plans/**                       live, incomplete work; status header each
 8. .ai/STATE.md                        volatile snapshot; rewritten, never appended
 9. .ai/DECISIONS.md                    WHY, dated, append-only, Status-marked.
@@ -2279,7 +2278,7 @@ The owner should confirm which plans are live before anything moves.
 | Generated artifacts are gitignored; only the generator is committed | `AGENTS.md` + `.gitignore` tripwire | A3-02 |
 | Media over ~1 MB is served from Blob, never committed | `AGENTS.md` | A3-13 |
 | `assets/` subtree classification and consumers | `assets/README.md` (new) | A3-06 |
-| `docs/plans/` status line per plan; `DESIGN.md` named the live design authority | `docs/plans/README.md`, `README.md` | A1-16 |
+| `docs/plans/` status line per plan; current owner instructions govern visual work | `docs/plans/README.md`, `README.md` | A1-16 |
 | The five unlisted `docs/` files; the two unlisted in AGENTS.md | `docs/README.md`, `AGENTS.md` References | A1-18 |
 | Intra-`server` module coupling is **not** lint-enforced; the `sources ← briefing` back-edge | `docs/architecture.md` | A4-11 |
 | The flat-config shadowing of rules 7 and 8 | `eslint.config.mjs`, at the fix site | A4 §3.1 |
@@ -2388,7 +2387,7 @@ belongs with the rest of the documentation pass rather than blocking it.
 | **P2-5** | Replace the obsolete 07:00 deploy rule with the real constraint in `AGENTS.md:62-65`, `CLAUDE.md` and `docs/vercel-infrastructure.md:128-131`. Keep the note that the route's hour-gate survives, so nobody "fixes" the route. | — |
 | **P2-6** | Regenerate the ten wrong counts in `docs/architecture.md` and `docs/data-model.md`; extend the migration table past `0047`; re-date the "Verified against the code on…" line. | — |
 | **P2-7** | Split `CLAUDE.md` / `AGENTS.md` per the A1-15 ownership rule — AGENTS.md becomes pointers plus the 3-4 highest-consequence rules inline; CLAUDE.md gains the two rules currently orphaned in AGENTS.md (source-catalog slug, `maxWorkers: 2`). | P2-3, P2-4, P2-5 — do the content corrections first, then restructure |
-| **P2-8** | Create `docs/plans/` and `project-history/`; move the ten root documents per §I; add `docs/plans/README.md` with a status line each; name `DESIGN.md` the live design authority in `README.md`; strike the "single source of truth" claims from `UI-UX-REBUILD-TODOS.md:11,25`; **strip the two `/Users/danielsmac` absolute paths** from `fixhomeTODO.md`. | Owner confirms which plans are live |
+| **P2-8** | Create `docs/plans/` and `project-history/`; move the ten root documents per §I; add `docs/plans/README.md` with a status line each; preserve current owner instructions as the visual authority; strike the "single source of truth" claims from `UI-UX-REBUILD-TODOS.md:11,25`; **strip the two `/Users/danielsmac` absolute paths** from `fixhomeTODO.md`. | Owner confirms which plans are live |
 | **P2-9** | Add the five missing rows to `docs/README.md` and two to AGENTS.md's References table. | — |
 | **P2-10** | Generate the route inventory and the env inventory, diffed in CI. Rewrite `docs/performance-budgets.md` against measured values and add an `assets` budget to `scripts/perf-budgets.json`. | P1-9, P1-13 (measure after those land) |
 | **P2-11** | Write `assets/README.md` classifying every subtree and its consumer; extend `scripts/perf-report.mjs:294` to scan `assets/`. | — |
@@ -2482,7 +2481,7 @@ record, and no amount of reading will produce them.
 | **Should the internal briefing pipeline have a quality gate, or be retired?** | Migration `0049` says "Quality-review stage retired by owner instruction". Whether that intended *no gate on any path* or *no gate on the external path only* is not written anywhere. **The most consequential open question in this audit.** |
 | Are Ask-desk citations planned? | `components/ai-elements/sources.tsx` and `shadcn/collapsible.tsx` were installed and never wired; `components/ask/CitationList.tsx` does a similar job by another route |
 | Should `assets/brand/` and `assets/marketing/` (24.5 MB) be kept? | Proven code-unreferenced; two documents say "never redraw with an image model", and both are archival candidates |
-| Which of the five plan documents are live? | `DESIGN.md` is edited every session and behaves as the live one; `UI-UX-REBUILD-TODOS.md` claims exclusivity and has 69 open items |
+| Which of the five plan documents are live? | The former design document is retired. Current owner instructions govern visual work; older plans are historical references. |
 | Is offering the retired `war_update` section to a human editor intended? | `app/admin/EditorialDesk.tsx:329` still offers it in a `<select>`; plausibly deliberate for archive edits, recorded nowhere |
 | Are the 34 Codex tree refs (~348 MB local) safe to delete? | They are Codex's own checkpoint store; its retention contract is not documented in this repository |
 | Should the repository carry a LICENSE? | See Auditor 7 — it is public with no license, which means default exclusive copyright. The choice is the owner's |

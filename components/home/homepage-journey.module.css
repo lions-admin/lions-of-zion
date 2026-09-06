@@ -1,1449 +1,296 @@
-/* An editorial edition: reporting, a research dossier, a paper archive,
-   portraits, historical plates, then a transparent account of the desk.
-
-   Two ranks run through every section. The first record of a pair is the
-   lead; the second is its companion. On a wide viewport they share a spread;
-   on a phone the companion is set as one compact row beside a thumbnail, so
-   a pair reads as two choices rather than two articles laid end to end.
-   Nothing leaves the document: the phone clamps what a preview shows, and
-   the record behind each link carries the rest. */
+/* Editorial hierarchy shared across the homepage. */
 .journey {
-  --journey-gap: clamp(24px, 3.5vw, 56px);
-  --journey-inset: clamp(20px, 4.5vw, 72px);
-  --journey-end: var(--journey-inset);
-  --journey-rule: color-mix(in srgb, var(--ink-hi) 20%, transparent);
-  --journey-panel: color-mix(in srgb, var(--surface-1) 38%, var(--ground));
-  --journey-title: clamp(38px, 4.8vw, 72px);
-  --journey-story: clamp(29px, 2.7vw, 43px);
-  --journey-thumb: 96px;
-  --journey-paper: #e8e2d6;
-  --journey-paper-ink: #24221f;
-  --journey-paper-muted: #625f57;
-  max-width: 1600px;
-  padding: 0 var(--journey-inset);
-  padding-inline-end: var(--journey-end);
-  margin: auto;
-  color: var(--ink-hi);
-  font-family: var(--face-text);
+  --journey-inset: clamp(20px, 5vw, 80px);
+  --journey-gap: clamp(24px, 4vw, 64px);
+  --journey-rule: color-mix(in srgb, var(--ink-hi) 14%, transparent);
+  --journey-title: clamp(34px, 4.1vw, 62px);
+  --journey-story: clamp(27px, 2.5vw, 39px);
+  max-width: 1600px; margin-inline: auto; padding-inline: var(--journey-inset);
+  color: var(--ink-hi); font-family: var(--face-text);
 }
-.journey a {
-  color: inherit;
-  cursor: pointer;
-}
-.journey :is(a, button, summary):focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 5px;
-}
-.journey :is(h2, h3) {
-  font-family: var(--face-display);
-  font-weight: 400;
-  letter-spacing: -0.035em;
-  text-wrap: pretty;
-}
-.journey h2 {
-  text-wrap: balance;
-}
-.journey h3 a {
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-.journey h3 a:hover {
-  color: var(--gold);
-}
-.journey h3 a:active {
-  color: var(--gold-hi);
-}
+.journey a { color: inherit; cursor: pointer; }
+.journey :is(a, button, summary):focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.journey :is(h2, h3) { font-family: var(--face-display); font-weight: 400; letter-spacing: -.03em; text-wrap: pretty; overflow-wrap: break-word; }
+.journey h3 a { text-decoration: none; }
+.journey h3 a:hover { color: var(--gold); }
+.journey :is(article, figure, header, nav, dl) { min-width: 0; }
 
-/* ---- The edition masthead: the desk's line, the date, six destinations ---- */
-.edition {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "line date"
-    "contents contents";
-  align-items: baseline;
-  column-gap: 32px;
-  padding: 30px 0 0;
-}
-.editionLine {
-  grid-area: line;
-  font: 400 clamp(25px, 2.5vw, 36px) / 1.15 var(--face-display);
-  margin: 0 0 20px;
-  letter-spacing: -0.025em;
-}
-.editionDate {
-  grid-area: date;
-  font: 400 13px/1.7 var(--face-data);
-  color: var(--ink-lo);
-  text-align: end;
-}
-.contents {
-  grid-area: contents;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: clamp(16px, 2vw, 32px);
-  padding: 8px 0;
-  border-block: 1px solid var(--journey-rule);
-}
-.contents > span {
-  margin-right: auto;
-  font: 400 11px/1.5 var(--face-data);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--ink-lo);
-}
-.contents a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-size: 13px;
-  text-decoration: none;
-}
-.contents a:hover,
-.contents a:active {
-  color: var(--gold);
-}
+/* Contents connects the cover to the first record. */
+.edition { display: grid; grid-template-columns: 1fr auto; gap: 16px 32px; align-items: baseline; padding-block: 24px 0; }
+.editionLine { margin: 0; font: 400 clamp(24px, 2.4vw, 35px)/1.15 var(--face-display); letter-spacing: -.025em; }
+.editionDate { color: var(--ink-lo); font: 400 12px/1.6 var(--face-data); text-align: end; }
+.contents { grid-column: 1/-1; display: flex; flex-wrap: wrap; align-items: center; gap: 0 clamp(16px, 2vw, 30px); padding-block: 7px; border-bottom: 1px solid var(--journey-rule); }
+.contents a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; line-height: 1.3; text-decoration: none; }
+.contents a:hover { color: var(--gold); }
 
-/* ---- Sections ---- */
-.section {
-  padding: clamp(52px, 6vw, 88px) 0;
-  scroll-margin-top: calc(var(--header-h) + 24px);
-  border-bottom: 1px solid var(--journey-rule);
-}
-/* The record sections are a grid so the one destination action can sit
-   beside the title on a wide viewport and after the records on a phone,
-   without a second copy of the link. */
-.editorial {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "head action"
-    "intro intro"
-    "spread spread"
-    "state state";
-  column-gap: 24px;
-  align-items: end;
-}
-.editorial > .sectionHead {
-  grid-area: head;
-}
-.editorial > .sectionAction {
-  grid-area: action;
-  justify-self: end;
-  margin: 0 0 36px;
-}
-.editorial > .sectionIntro {
-  grid-area: intro;
-}
-.editorial > .newsSpread,
-.editorial > .narrativeSpread,
-.editorial > .archiveSpread,
-.editorial > .peopleSpread,
-.editorial > .historySpread {
-  grid-area: spread;
-}
-.editorial > .availability {
-  grid-area: state;
-}
-.sectionHead {
-  margin-bottom: 36px;
-}
-.sectionHead h2 {
-  font-size: var(--journey-title);
-  line-height: 1;
-  margin: 12px 0 0;
-}
-.kicker {
-  color: var(--gold);
-  font: 400 11px/1.6 var(--face-data);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  margin: 0 0 12px;
-}
-.link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.85em;
-  min-height: 46px;
-  max-width: 100%;
-  padding: 11px 0;
-  border-bottom: 1px solid var(--control-line);
-  font: 500 14px/1.45 var(--face-text);
-  text-decoration: none;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
-}
-.link > span {
-  min-width: 0;
-}
-/* The arrow is sized in the label's em so it tracks it at every width. */
-.link svg {
-  flex: 0 0 auto;
-  width: 1.4em;
-  height: 1.4em;
-  stroke: currentColor;
-  stroke-width: 1.3;
-  transition: transform var(--dur-fast) var(--ease-out);
-}
-.link:hover {
-  color: var(--gold);
-  border-color: var(--gold);
-}
-.link:hover svg {
-  transform: translateX(4px);
-}
-.link:active {
-  color: var(--gold-hi);
-}
-.sectionAction {
-  margin: 0;
-}
-/* One line beside the title: the grid column is sized to the label, and a
-   label that wrapped word by word in it was the whole width of a column. */
-.sectionAction .link {
-  color: var(--ink);
-  font-size: 13px;
-  white-space: nowrap;
-}
-.sectionAction .link:hover {
-  color: var(--gold);
-}
-.sectionIntro {
-  font-size: 16px;
-  max-width: 65ch;
-  color: var(--ink);
-  margin: -10px 0 32px;
-  line-height: 1.65;
-}
+/* Shared hierarchy: rules separate records rather than paragraphs. */
+.section { padding-block: clamp(48px, 6vw, 88px); scroll-margin-top: calc(var(--header-h) + 20px); }
+.editorial { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head action" "intro intro" "spread spread" "state state"; column-gap: 24px; align-items: end; }
+.sectionHead { grid-area: head; margin-bottom: 32px; }
+.sectionHead h2 { font-size: var(--journey-title); line-height: 1.03; margin: 8px 0 0; }
+.kicker { margin: 0 0 10px; color: var(--ink-lo); font: 400 13px/1.6 var(--face-text); letter-spacing: .015em; }
+.editorial > .sectionAction { grid-area: action; justify-self: end; margin: 0 0 32px; }
+.editorial > .sectionIntro { grid-area: intro; }
+.editorial > :is(.newsSpread, .narrativeSpread, .archiveSpread, .peopleSpread, .historySpread) { grid-area: spread; }
+.editorial > .availability { grid-area: state; }
+.sectionIntro { margin: -12px 0 30px; max-width: 60ch; font-size: 16px; line-height: 1.6; color: var(--ink); }
+.sectionAction { margin: 0; }
+.link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 48px; max-width: 100%; padding-block: 10px; border-bottom: 1px solid var(--journey-rule, var(--line)); font: 500 15px/1.4 var(--face-text); text-decoration: none; transition: color var(--dur-fast), border-color var(--dur-fast); }
+.link > span { min-width: 0; }
+.link svg { flex: 0 0 21px; width: 21px; height: 21px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast); }
+.link:hover { color: var(--gold); border-color: currentColor; }
+.link:hover svg { transform: translateX(4px); }
+.link:active { color: var(--gold-hi); }
+.sectionAction .link { font-size: 14px; border-bottom-color: transparent; }
+.sectionAction .link:hover { border-bottom-color: currentColor; }
+.meta { font: 400 12px/1.6 var(--face-data); color: var(--ink-lo); }
+.byline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 0 12px; }
+.byline > span { font-size: 13px; font-weight: 500; color: var(--gold); }
+.summary { max-width: 60ch; margin: 14px 0 0; color: var(--ink); font-size: 16px; line-height: 1.65; }
+.previewRest { display: none; }
+.summary, .finding p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+.context { max-width: 64ch; margin: 20px 0 0; color: var(--ink); font-size: 14px; line-height: 1.65; }
+.context { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+.contextLabel, .finding > span { display: block; margin-bottom: 6px; color: var(--ink-lo); font: 500 12px/1.6 var(--face-text); }
+.sources { margin: 18px 0 8px; max-width: 72ch; color: var(--ink-lo); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.sources a { text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
+.sources a:hover { color: var(--ink-hi); }
+.availability { margin: 20px 0 0; max-width: 60ch; color: var(--ink-lo); font-size: 14px; line-height: 1.6; }
 
-/* ---- Figures: the disclosure is the first line under every picture ---- */
-.figure {
-  margin: 0 0 24px;
-  min-width: 0;
-}
-.figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16/10;
-  object-fit: cover;
-  background: var(--ground);
-}
-/* Nothing under a picture is set below the system's caption size (13px):
-   the disclosure, the description and the credit are all meant to be read. */
-.figure figcaption {
-  display: grid;
-  gap: 3px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ink-lo);
-  margin-top: 10px;
-  max-width: 85ch;
-}
-.disclosure {
-  font: 500 11px/1.5 var(--face-data);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-.captionText {
-  color: var(--ink);
-}
-.credit {
-  color: var(--ink-lo);
-}
-.figure figcaption a {
-  text-decoration-color: var(--journey-rule);
-  text-underline-offset: 3px;
-}
-.figure figcaption a:hover,
-.sources a:hover {
-  color: var(--ink-hi);
-  text-decoration-color: currentColor;
-}
+/* The disclosure stays visible. Secondary provenance expands in place. */
+.figure { margin: 0 0 20px; }
+.figure img { display: block; width: 100%; height: auto; aspect-ratio: 16/10; object-fit: cover; background: var(--surface-1); }
+.figure figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 14px; margin-top: 8px; color: var(--ink-lo); font-size: 12px; line-height: 1.5; }
+.disclosure { color: var(--ink); font: 500 12px/1.6 var(--face-text); }
+.captionText { display: block; max-width: 75ch; }
+.provenance { min-width: 0; }
+.provenance summary { width: fit-content; padding-block: 4px; cursor: pointer; text-decoration: underline; text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
+.provenance[open] { flex-basis: 100%; }
+.provenance[open] summary { margin-bottom: 6px; }
+.credit { display: block; margin-top: 4px; }
+.credit a { text-underline-offset: 3px; text-decoration-color: var(--journey-rule); }
+.figure[data-media-role="safe-cover"] .captionText { flex-basis: 100%; }
 
-/* ---- The record's parts ---- */
-.meta {
-  font: 400 13px/1.65 var(--face-data);
-  color: var(--ink-lo);
-}
-.byline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px 16px;
-  align-items: baseline;
-  margin-bottom: 14px;
-}
-.byline > span {
-  font: 500 13px/1.65 var(--face-text);
-  color: var(--gold);
-}
-.summary {
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--ink);
-  max-width: 65ch;
-  margin: 18px 0 22px;
-}
-/* The sentences past a phone's preview budget (`PreviewText`). Inline here,
-   so a wide viewport reads the paragraph as written; the phone hides them. */
-.previewRest {
-  display: inline;
-}
-.context {
-  border-top: 1px solid var(--journey-rule);
-  padding-top: 14px;
-  margin: 24px 0 20px;
-  font-size: 15px;
-  line-height: 1.7;
-  max-width: 70ch;
-  color: var(--ink);
-  overflow-wrap: anywhere;
-}
-.contextLabel,
-.finding > span {
-  display: block;
-  font: 400 11px/1.6 var(--face-data);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--gold);
-  margin-bottom: 8px;
-}
-.finding p {
-  font-size: 15px;
-  line-height: 1.7;
-  max-width: 70ch;
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.sources {
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--ink-lo);
-  max-width: 80ch;
-  margin: 20px 0 14px;
-  overflow-wrap: anywhere;
-}
-.sources a {
-  text-decoration-color: var(--journey-rule);
-  text-underline-offset: 3px;
-}
+/* Reporting: an open lead and a quieter companion column. */
+.newsSpread { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
+.newsSpread h3 { margin: 0; max-width: 30ch; font-size: clamp(28px, 2.75vw, 43px); line-height: 1.12; }
+.newsSpread > article[data-rank="companion"] { border-left: 1px solid var(--journey-rule); padding-left: var(--journey-gap); }
+.newsSpread > article[data-rank="companion"] h3 { font-size: clamp(25px, 2vw, 32px); line-height: 1.15; }
+.newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 3/2; }
+.newsSpread > article[data-rank="companion"] .context { display: none; }
+.newsSpread[data-count="1"] { grid-template-columns: 1fr; }
+.newsSpread[data-count="1"] > article { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); }
+.newsBody { min-width: 0; }
+.newsBody h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
 
-/* ---- News: the daily lead and its smaller companion are intentionally unequal ---- */
-.newsSpread {
-  display: grid;
-  grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
-  gap: var(--journey-gap);
-  align-items: start;
-}
-.newsSpread > article {
-  min-width: 0;
-}
-.newsSpread > article[data-rank="companion"] {
-  padding: 24px;
-  background-color: var(--journey-panel);
-  background-image: var(--surface-grade);
-  border: 1px solid var(--journey-rule);
-  border-top: 2px solid var(--journey-rule);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
-}
-.newsSpread h3 {
-  font-size: clamp(32px, 3.1vw, 49px);
-  line-height: 1.08;
-  margin: 0 0 20px;
-}
-.newsSpread > article[data-rank="companion"] h3 {
-  font-size: clamp(26px, 2.15vw, 34px);
-  line-height: 1.12;
-}
-.newsSpread > article[data-rank="companion"] .summary {
-  font-size: 14px;
-  line-height: 1.75;
-}
-.newsSpread > article[data-rank="companion"] .figure img {
-  aspect-ratio: 3/2;
-}
-.newsSpread[data-count="1"] {
-  grid-template-columns: 1fr;
-}
-.newsSpread[data-count="1"] > article {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  column-gap: var(--journey-gap);
-}
-.newsSpread[data-count="1"] .figure {
-  grid-row: span 8;
-}
+/* Research: status precedes the image and question. */
+.investigations { border-top: 1px solid var(--journey-rule); }
+.narrativeSpread { display: grid; gap: 36px; }
+.investigation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); grid-template-areas: "status status" "cover body"; gap: 24px var(--journey-gap); }
+.investigation + .investigation { padding-top: 32px; border-top: 1px solid var(--journey-rule); }
+.dossierStatus { grid-area: status; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 24px; }
+.dossierStatus > .meta { flex-shrink: 0; }
+.dossierCover { grid-area: cover; min-width: 0; }
+.dossier { grid-area: body; min-width: 0; }
+.dossierCover .figure { margin-bottom: 0; }
+.dossierCover .figure img { aspect-ratio: 8/5; }
+.investigation h3 { margin: 0; max-width: 32ch; font-size: var(--journey-story); line-height: 1.13; }
+.verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; font-size: 14px; line-height: 1.5; }
+.verdict::before { content: ""; align-self: center; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-lo); }
+.verdictLabel { font-weight: 600; }
+.verdictMeaning { flex: 1 1 22ch; color: var(--ink-lo); font-size: 13px; }
+.verdict[data-tone="danger"]::before { background: var(--state-danger); }
+.verdict[data-tone="warn"]::before { background: var(--gold); }
+.verdict[data-tone="ok"]::before { background: var(--state-ok); }
+.finding { margin-top: 18px; padding: 4px 0 4px 14px; border-left: 2px solid var(--gold); }
+.finding p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink); }
 
-/* ---- Fake Resistance: a case file, not another news card. Status precedes the claim. ---- */
-.investigations {
-  border-bottom: 0;
-}
-.narrativeSpread {
-  display: grid;
-  gap: 24px;
-}
-.investigation {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.15fr);
-  gap: var(--journey-gap);
-  padding: 30px;
-  border: 1px solid var(--journey-rule);
-  border-radius: var(--radius-3);
-  background-color: var(--journey-panel);
-  background-image: var(--surface-grade);
-  box-shadow: var(--shadow-1);
-}
-.investigation > div,
-.dossier {
-  min-width: 0;
-}
-.investigation .figure img {
-  aspect-ratio: 4/5;
-}
-.investigation h3 {
-  font-size: var(--journey-story);
-  line-height: 1.12;
-  margin: 10px 0 16px;
-}
-.investigation .summary {
-  font-size: 14px;
-  line-height: 1.75;
-  margin-top: 12px;
-}
-/* One status line: the label, then what the label means, said once. */
-.verdict {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  align-items: baseline;
-  margin: 0 0 22px;
-  padding: 0 0 14px;
-  border-bottom: 1px solid var(--journey-rule);
-  font: 500 14px/1.5 var(--face-text);
-}
-.verdict::before {
-  content: "";
-  align-self: center;
-  width: 6px;
-  height: 6px;
-  background: var(--ink-lo);
-  border-radius: 50%;
-}
-.verdictLabel {
-  font-weight: 500;
-}
-.verdictMeaning {
-  flex: 1 1 16ch;
-  font-weight: 400;
-  font-size: 13px;
-  color: var(--ink-lo);
-}
-.verdict[data-tone="danger"]::before {
-  background: var(--state-danger);
-}
-.verdict[data-tone="warn"]::before {
-  background: var(--gold);
-}
-.verdict[data-tone="ok"]::before {
-  background: var(--state-ok);
-}
-.finding {
-  border-left: 2px solid var(--gold);
-  padding: 4px 0 4px 18px;
-  margin-top: 24px;
-}
-
-/* ---- October 7: the preserved archive. No text or warnings live on images. ----
-   It sits on the same ground as every other section. It was a paper-coloured
-   page-turn until the owner reviewed the live phone on 2026-09-06 and read
-   the change of colour mid-page as unrelated to the page around it; the
-   archive's identity is its head rule, its kinds and its warnings, not a
-   different material. The paper tokens stay defined for the record. */
+/* Archive records share the edition's palette; their structure distinguishes them. */
 .archive {
-  border-bottom: 0;
-  column-gap: 0;
-}
-/* The rule under the archive head runs the full width: the head carries it
-   across its column and the action, stretched to its own column, carries it
-   the rest of the way with the link kept at the end. */
-.archive > .sectionHead,
-.archive > .sectionAction {
-  padding-bottom: 30px;
-  border-bottom: 1px solid var(--journey-rule);
-}
-.archive > .sectionAction {
-  justify-self: stretch;
-  text-align: end;
-  padding-left: 24px;
-}
-.archive .sectionHead h2 {
-  font-size: clamp(42px, 5.9vw, 88px);
-}
-.archiveSpread {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: var(--journey-gap);
-}
-.archiveSpread > article {
-  min-width: 0;
-}
-.archiveSpread h3 {
-  font-size: clamp(30px, 3vw, 46px);
-  line-height: 1.1;
-  margin: 14px 0 18px;
-}
-.archiveSpread > article[data-kind="documentation"] {
-  padding-left: var(--journey-gap);
-  border-left: 1px solid var(--journey-rule);
-}
-.archiveSpread > article[data-kind="documentation"] h3 {
-  font-size: clamp(26px, 2.3vw, 35px);
-}
-.archiveSpread .figure img {
-  aspect-ratio: 16/10;
-}
-.archiveSpread > article[data-kind="documentation"] .figure img {
-  aspect-ratio: 1;
-}
-.witness {
-  font: 500 15px/1.5 var(--face-text);
-  margin: 0;
-}
-.warning {
-  font-size: 13px;
-  line-height: 1.65;
-  border-left: 2px solid var(--gold-dim);
-  padding: 8px 0 8px 16px;
-  max-width: 62ch;
-  color: var(--ink);
-}
-
-/* ---- Our Heroes: portraits have the space of a profile, not of a thumbnail ---- */
-.people .peopleSpread {
-  align-items: start;
-}
-.peopleSpread {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--journey-gap);
-}
-.peopleSpread article {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.peopleSpread article[data-rank="companion"] {
-  padding-top: 72px;
-}
-.portrait img {
-  aspect-ratio: 1;
-}
-.peopleSpread article > :not(.figure) {
-  max-width: 58ch;
-}
-.peopleSpread h3 {
-  font-size: clamp(34px, 3.4vw, 54px);
-  line-height: 1.03;
-  margin: 12px 0 16px;
-}
-.peopleSpread .summary {
-  font-size: 15px;
-}
-
-/* ---- Israel's Story: dates attach to their image and chapter, not to a fictional timeline ---- */
-.history .sectionHead {
-  margin-bottom: 28px;
-}
-.historySpread {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--journey-gap);
-}
-.historySpread article {
-  min-width: 0;
-}
-.era {
-  font: 400 clamp(23px, 2.2vw, 32px) / 1.2 var(--face-display);
-  letter-spacing: -0.02em;
-  padding: 18px 0;
-  border-top: 1px solid var(--journey-rule);
-  margin: 0;
-  color: var(--ink);
-}
-.historySpread .figure img {
-  aspect-ratio: 16/10;
-}
-.historySpread h3 {
-  font-size: var(--journey-story);
-  line-height: 1.1;
-  margin: 0 0 20px;
-}
-
-/* ---- Behind the desk: one ordered reading path; no wrapped arrows that imply another order ---- */
-.system {
-  border-bottom: 0;
-  padding-bottom: 64px;
-}
-.systemOverview {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: var(--journey-gap);
-  align-items: start;
-}
-.systemHead h2 {
-  font-size: clamp(40px, 4.2vw, 65px);
-  line-height: 1.04;
-  margin: 14px 0 24px;
-  max-width: 16ch;
-}
-.systemHead > p:last-child {
-  font-size: 15px;
-  line-height: 1.75;
-  color: var(--ink);
-  max-width: 42ch;
-}
-.pipeline {
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0 20px;
-  border-left: 1px solid var(--journey-rule);
-}
-.pipeline li {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(100px, 1fr) 1.5fr;
-  gap: 20px;
-  border-bottom: 1px solid var(--journey-rule);
-  padding: 17px 0;
-}
-.pipeline li:first-child {
-  padding-top: 0;
-}
-.pipeline li:last-child {
-  border-bottom: 0;
-}
-.pipeline li::before {
-  content: "";
-  position: absolute;
-  left: -24px;
-  top: 24px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--gold);
-}
-.pipeline li:first-child::before {
-  top: 7px;
-}
-.pipeline strong {
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.5;
-}
-.pipeline span {
-  font-size: 13px;
-  line-height: 1.65;
-  color: var(--ink-lo);
-}
-.systemCaveat {
-  margin: 28px 0;
-  font-size: 13px;
-  color: var(--ink-lo);
-  max-width: 110ch;
-  line-height: 1.7;
-}
-.systemBranches {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--journey-gap);
-  padding: 24px 0;
-  border-block: 1px solid var(--journey-rule);
-  margin: 0;
-}
-.systemBranches dt {
-  font: 500 14px/1.5 var(--face-text);
+  background: var(--ground);
   color: var(--ink-hi);
-  margin-bottom: 8px;
 }
-.systemBranches dd {
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--ink-lo);
-  max-width: 62ch;
-  margin: 0;
-}
-.purpose {
-  margin-top: 56px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px var(--journey-gap);
-  align-items: start;
-}
-.purpose > .kicker {
-  grid-column: 1/-1;
-  margin: 0;
-}
-.purpose h3 {
-  font-size: clamp(36px, 4vw, 60px);
-  margin: 0;
-  line-height: 1.05;
-  max-width: 16ch;
-}
-.purpose > p:last-child {
-  font-size: 15px;
-  line-height: 1.75;
-  margin: 0;
-  max-width: 58ch;
-  color: var(--ink);
-}
-/* Schematic figure for the amplification passage: no scale, no data, no axis labels. */
-.amplification {
-  margin: 32px 0 0;
-}
-.amplification svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-.amplification figcaption {
-  font-size: 12px;
-  line-height: 1.65;
-  color: var(--ink-lo);
-  margin-top: 12px;
-  max-width: 72ch;
-}
-.ampTicks path {
-  stroke: var(--journey-rule);
-  stroke-width: 1;
-}
-.ampBase {
-  stroke: var(--journey-rule);
-  stroke-width: 1.5;
-  fill: none;
-}
-.ampGap {
-  fill: var(--gold);
-  opacity: 0.09;
-}
-.ampRepeat {
-  stroke: var(--gold);
-  stroke-width: 3;
-  fill: none;
-  stroke-linecap: round;
-}
-.ampCheck {
-  stroke: var(--ink-lo);
-  stroke-width: 2.5;
-  fill: none;
-  stroke-linecap: round;
-  stroke-dasharray: 12 10;
-}
-.ampNode {
-  fill: var(--ink-lo);
-}
-.ampHead {
-  fill: var(--gold);
-}
-.ampCheckHead {
-  fill: var(--ink-lo);
-}
-.narrativePath {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
-  margin: 32px 0 0;
-  padding: 0;
-  color: var(--ink);
-  font-size: 14px;
-  line-height: 1.6;
-}
-.narrativePath li {
-  border-top: 1px solid var(--journey-rule);
-  padding-top: 12px;
-}
-.narrativePath li:not(:last-child)::after {
-  content: " →";
-  color: var(--gold);
-  white-space: nowrap;
-}
-.deskResponse {
-  border-left: 2px solid var(--gold);
-  padding: 4px 0 4px 20px;
-  font-size: 15px;
-  line-height: 1.7;
-  max-width: 75ch;
-  margin: 32px 0;
-}
-.systemActions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px 36px;
-}
-.systemActions > button {
-  min-height: 46px;
-  font-size: 13px;
-}
-.availability {
-  font-size: 14px;
-  color: var(--ink-lo);
-  padding: 20px 0;
-  max-width: 60ch;
-  line-height: 1.7;
-}
+.archive .sectionHead h2 { font-size: clamp(36px, 4.7vw, 70px); }
+.archiveSpread { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
+.archiveSpread h3 { margin: 10px 0 0; font-size: clamp(28px, 2.65vw, 41px); line-height: 1.15; }
+.archiveSpread > article[data-kind="testimony"] h3 { max-width: 28ch; }
+.archiveSpread > article[data-kind="documentation"] h3 { font-size: clamp(25px, 2.1vw, 32px); }
+.archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 4/3; }
+.witness { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.5; }
+.warning { margin: 18px 0 0; padding-left: 14px; border-left: 2px solid var(--gold-dim); color: var(--ink); font-size: 14px; line-height: 1.6; }
 
-@media (min-width: 1100px) {
-  .journey {
-    --journey-end: max(104px, var(--journey-inset));
-  }
-  .newsSpread > article[data-rank="companion"] {
-    padding: 32px;
-  }
-  .investigation {
-    padding: 40px;
-  }
-  .investigation .figure img {
-    aspect-ratio: 1;
-  }
+/* Portraits share a baseline, with each name beside its face. */
+.peopleSpread { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); }
+.peopleSpread article { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); align-content: start; gap: 0 24px; }
+.peopleSpread .figure { grid-column: 1; margin: 0 0 4px; }
+.portrait img { aspect-ratio: 4/5; }
+.personIntro { align-self: center; }
+.personIntro h3 { margin: 8px 0 12px; font-size: clamp(27px, 2.65vw, 42px); line-height: 1.06; }
+.personIntro .kicker { letter-spacing: .065em; }
+.personIntro .meta { margin: 0; font-family: var(--face-text); font-size: 13px; }
+.peopleSpread article > :is(.summary, .sources, .link) { grid-column: 1/-1; }
+.peopleSpread .link { justify-self: start; }
+.peopleSpread .summary { margin-top: 14px; }
+
+/* Historical plates keep their own dates. */
+.history { border-top: 1px solid var(--journey-rule); }
+.historySpread { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); }
+.era { margin: 0 0 14px; font: 400 13px/1.5 var(--face-data); color: var(--gold); }
+.historySpread .figure img { aspect-ratio: 16/9; }
+.historySpread h3 { margin: 0; font-size: var(--journey-story); line-height: 1.12; }
+.historySpread .verdict { margin-top: 14px; }
+
+/* An inspectable evidence circuit, followed by the separate archive route. */
+.system { border-top: 1px solid var(--journey-rule); padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+.systemHead { display: grid; grid-template-columns: 1.15fr 1fr; align-items: end; gap: var(--journey-gap); margin-bottom: 32px; }
+.systemHead h2 { margin: 10px 0 0; max-width: 17ch; font-size: clamp(38px, 4.8vw, 68px); line-height: 1.04; }
+.systemHead > p { max-width: 48ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
+.systemBranches { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); margin-top: 40px; }
+.branchHeading { display: flex; gap: 14px; align-items: center; }
+.branchHeading h3 { margin: 0; font-size: clamp(26px, 2.5vw, 36px); line-height: 1.14; }
+.systemBranches article > p { max-width: 58ch; margin: 16px 0 0; color: var(--ink); font-size: 15px; line-height: 1.7; }
+.systemBranches article > .branchNote { color: var(--ink-lo); font-size: 13px; }
+.systemBranches .link { margin-top: 18px; font-size: 14px; }
+.archiveChain { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.archiveChain::before { content: ""; position: absolute; top: 17px; left: 17px; right: 17px; height: 1px; background: var(--journey-rule); }
+.archiveChain > span { position: relative; display: grid; justify-items: start; align-content: start; gap: 9px; color: var(--ink); font-size: 12px; line-height: 1.5; }
+.archiveChain svg { box-sizing: content-box; padding: 7px; background: var(--ground); color: var(--gold); }
+.purpose { display: grid; grid-template-columns: 1fr 1fr; gap: 14px var(--journey-gap); margin-top: 72px; padding-top: 36px; border-top: 1px solid var(--journey-rule); }
+.purpose > .kicker { grid-column: 1/-1; margin: 0; }
+.purpose h3 { max-width: 18ch; margin: 0; font-size: clamp(36px, 4vw, 56px); line-height: 1.05; }
+.purpose > p:last-child { max-width: 52ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
+.amplification { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .85fr); column-gap: var(--journey-gap); align-items: start; margin: 36px 0 44px; }
+.amplification figcaption { grid-column: 1/-1; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; padding: 14px 0; color: var(--ink-lo); font-size: 12px; line-height: 1.5; }
+.amplification figcaption .kicker { margin: 0; }
+.echoSequence { position: relative; list-style: none; margin: 0; padding: 0; }
+.echoSequence::before { content: ""; position: absolute; top: 38px; bottom: 56px; left: 13px; width: 1px; background: var(--journey-rule); transition: background-color 300ms; }
+.echoSequence li { position: relative; padding: 28px 0 26px 48px; }
+.echoSequence header { display: flex; align-items: center; min-height: 24px; color: var(--ink-lo); font: 400 11px/1.5 var(--face-data); text-transform: uppercase; letter-spacing: .08em; }
+.echoStep { position: absolute; left: 0; top: 28px; display: grid; place-items: center; width: 27px; height: 24px; background: var(--ground); color: var(--ink-lo); letter-spacing: 0; transition: color 300ms; }
+.echoSequence blockquote { margin: 14px 0 12px; max-width: 26ch; color: var(--ink-hi); font: 400 clamp(24px, 2.4vw, 35px)/1.25 var(--face-text); letter-spacing: -.025em; }
+.echoSequence mark { background: transparent; color: inherit; text-decoration: underline; text-decoration-color: var(--gold-dim); text-decoration-thickness: 1px; text-underline-offset: 5px; transition: color 300ms; }
+.echoSequence .echoHeadline blockquote { font-family: var(--face-display); font-size: clamp(30px, 3.1vw, 45px); line-height: 1.1; }
+.echoAnnotation { min-height: 3.2em; margin: 0; max-width: 48ch; color: var(--ink-lo); font-size: 13px; line-height: 1.6; }
+.echoReading { align-self: stretch; margin-top: 28px; padding-left: var(--journey-gap); border-left: 1px solid var(--journey-rule); }
+.echoResult { min-height: 376px; }
+.echoNumeral { display: block; margin: -10px 0 12px -5px; color: var(--ink-hi); font: 400 clamp(100px, 12vw, 172px)/1 var(--face-display); letter-spacing: -.07em; transition: color 300ms; }
+.echoReading h4 { margin: 0 0 18px; font: 400 clamp(25px, 2.5vw, 36px)/1.1 var(--face-display); letter-spacing: -.025em; }
+.echoResult > p { max-width: 36ch; margin: 0; color: var(--ink); font-size: 15px; line-height: 1.7; }
+.echoTraceButton { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 48px; width: 100%; margin-top: 24px; padding: 12px 16px; border: 1px solid var(--gold-dim); background: transparent; color: var(--gold); font: 500 14px/1.4 var(--face-text); text-align: start; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
+.echoTraceButton svg { flex-shrink: 0; }
+.echoTraceButton:hover { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 7%, transparent); }
+.echoTraceButton:active { background: color-mix(in srgb, var(--gold) 14%, transparent); }
+.echoPrinciple { margin: 20px 0 0; color: var(--ink-lo); font: 400 12px/1.7 var(--face-data); }
+.amplification[data-traced="true"] .echoNumeral, .amplification[data-traced="true"] .echoStep { color: var(--gold); }
+.amplification[data-traced="true"] .echoSequence::before { background: var(--gold-dim); }
+.amplification[data-traced="true"] mark { color: var(--gold); }
+.amplification[data-traced="true"] .echoAnnotation { color: var(--ink); }
+.systemActions { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: center; }
+.systemActions > button { min-height: 48px; font-size: 14px; }
+
+/* Intermediate widths recompose around a readable text measure. */
+@media (max-width: 1099px) {
+  .newsSpread { grid-template-columns: 1fr; gap: 32px; }
+  .newsSpread > article, .newsSpread[data-count="1"] > article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; }
+  .newsSpread > article[data-rank="companion"] { border-left: 0; border-top: 1px solid var(--journey-rule); padding: 28px 0 0; }
+  .newsSpread > article[data-rank="companion"] .figure { max-width: 360px; }
+  .newsSpread h3 { font-size: clamp(27px, 3.2vw, 35px); }
+  .archiveSpread { grid-template-columns: 1.15fr 1fr; gap: 28px; }
+  .archiveSpread h3 { font-size: 29px; }
+  .peopleSpread article { grid-template-columns: 1fr; }
+  .peopleSpread .figure { max-width: 340px; }
+  .personIntro { margin-top: 16px; }
+  .personIntro h3 { font-size: 35px; }
 }
-@media (max-width: 1000px) {
-  .contents > span {
-    flex-basis: 100%;
-    margin-top: 8px;
-  }
-  .newsSpread > article[data-rank="companion"] {
-    padding: 18px;
-  }
-  .investigation {
-    padding: 24px;
-    gap: 26px;
-  }
+@media (max-width: 819px) {
+  .editorial { grid-template-columns: 1fr; grid-template-areas: "head" "intro" "spread" "state" "action"; }
+  .editorial > .sectionAction { justify-self: start; margin: 24px 0 0; }
+  .sectionAction .link { font-size: 15px; }
+  .archiveSpread, .peopleSpread { grid-template-columns: 1fr; }
+  .archiveSpread { gap: 32px; }
+  .archiveSpread > article[data-kind="documentation"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); column-gap: 24px; }
+  .archiveSpread > article[data-kind="documentation"] > .figure { grid-row: span 7; }
+  .peopleSpread { gap: 32px; }
+  .peopleSpread article { grid-template-columns: minmax(0, 38%) minmax(0, 1fr); }
+  .personIntro { margin: 0; }
+  .personIntro h3 { font-size: clamp(29px, 4.2vw, 39px); }
+  .systemHead { grid-template-columns: 1fr; gap: 20px; }
+  .systemHead > p { max-width: 60ch; }
 }
-
-/* ---- The phone ----
-   One column. The lead keeps its picture and a clamped preview; the companion
-   becomes a row beside a thumbnail. Headlines are sized so a long one takes
-   three or four lines, never most of a screen, and the section's action
-   follows its records. */
-@media (max-width: 767px) {
-  .journey {
-    --journey-inset: 20px;
-  }
-  .edition {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "line"
-      "date"
-      "contents";
-    padding: 18px 0 0;
-  }
-  .editionLine {
-    font-size: 22px;
-    margin: 0;
-  }
-  .editionDate {
-    text-align: start;
-    font-size: 13px;
-    margin: 2px 0 10px;
-  }
-  .contents {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 12px;
-    padding: 2px 0;
-  }
-  .contents > span {
-    display: none;
-  }
-  .contents a {
-    min-height: 44px;
-    font-size: 14px;
-    line-height: 1.25;
-  }
-  .section {
-    padding-block: 40px;
-  }
-  .editorial {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "head"
-      "intro"
-      "spread"
-      "state"
-      "action";
-  }
-  .editorial > .sectionAction {
-    justify-self: start;
-    max-width: 100%;
-    margin: 28px 0 0;
-  }
-  .sectionAction .link {
-    white-space: normal;
-  }
-  .archive > .sectionAction {
-    text-align: start;
-  }
-  .sectionHead {
-    margin-bottom: 22px;
-  }
-  .sectionHead h2 {
-    font-size: clamp(38px, 10vw, 48px);
-    max-width: 16ch;
-  }
-  .sectionIntro {
-    font-size: 16px;
-    color: var(--ink);
-    margin: -6px 0 22px;
-    line-height: 1.6;
-  }
-  .link {
-    margin-top: 10px;
-    min-height: 48px;
-    font-size: 15px;
-  }
-  .sectionAction .link {
-    font-size: 15px;
-  }
-  .figure {
-    margin-bottom: 14px;
-  }
-  .figure figcaption {
-    margin-top: 8px;
-  }
-  .byline {
-    margin-bottom: 10px;
-  }
-  /* Phone reading sizes: body never below 16px, metadata never below 13px.
-     A preview is whole sentences within a budget (`PreviewText`); the rest
-     of the paragraph is hidden here and the record has it. The line clamps
-     are the backstop for one sentence longer than the budget, set a line
-     past what the budget needs at 320px so they rarely show an ellipsis. */
-  .previewRest {
-    display: none;
-  }
-  .summary {
-    font-size: 16px;
-    line-height: 1.6;
-    margin: 10px 0 0;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
-    overflow: hidden;
-  }
-  .context {
-    margin: 14px 0 0;
-    padding-top: 12px;
-    font-size: 15px;
-    line-height: 1.6;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
-    overflow: hidden;
-  }
-  .contextLabel {
-    display: inline;
-    margin: 0 8px 0 0;
-  }
-  .sources {
-    margin: 12px 0 0;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    overflow: hidden;
-  }
-
-  /* News */
-  .newsSpread {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-  .newsSpread h3 {
-    font-size: clamp(29px, 7.6vw, 36px);
-    line-height: 1.12;
-    margin: 0 0 4px;
-  }
-  .newsSpread h3 a {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    overflow: hidden;
-  }
-  .newsSpread[data-count="1"] > article {
-    display: block;
-  }
-  .newsSpread > article[data-rank="companion"] {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--journey-thumb);
-    grid-template-areas:
-      "byline thumb"
-      "title thumb"
-      "caption caption"
-      "sources sources"
-      "cta cta";
-    column-gap: 16px;
-    align-items: start;
-    padding: 24px 0 0;
-    background: none;
-    border: 0;
-    border-top: 1px solid var(--journey-rule);
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .newsSpread > article[data-rank="companion"] .figure {
-    display: contents;
-  }
-  .newsSpread > article[data-rank="companion"] .figure img {
-    grid-area: thumb;
-    width: var(--journey-thumb);
-    height: var(--journey-thumb);
-    aspect-ratio: 1;
-    margin-top: 2px;
-  }
-  .newsSpread > article[data-rank="companion"] .figure figcaption {
-    grid-area: caption;
-    margin-top: 10px;
-  }
-  .newsSpread > article[data-rank="companion"] .byline {
-    grid-area: byline;
-    margin-bottom: 6px;
-  }
-  .newsSpread > article[data-rank="companion"] h3 {
-    grid-area: title;
-    font-size: 24px;
-    line-height: 1.15;
-    margin: 0;
-  }
-  .newsSpread > article[data-rank="companion"] h3 a {
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-  }
-  .newsSpread > article[data-rank="companion"] .summary,
-  .newsSpread > article[data-rank="companion"] .context {
-    display: none;
-  }
-  .newsSpread > article[data-rank="companion"] .sources {
-    grid-area: sources;
-  }
-  .newsSpread > article[data-rank="companion"] .link {
-    grid-area: cta;
-  }
-
-  /* Fake Resistance: no box on a phone. The dossier was a bordered panel with
-     its own inset, a card inside the page that cost 34px of a 350px measure
-     and read as chrome on the owner's phone (2026-09-06); the dossier is now
-     the same open column as every other record, its identity carried by the
-     status line, the claim kicker and the finding's rule. The cover runs the
-     column's width; the companion drops its illustration and keeps status,
-     claim, finding, sources. */
-  .narrativeSpread {
-    gap: 28px;
-  }
-  .investigation {
-    grid-template-columns: 1fr;
-    gap: 0;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
-  }
-  .investigation .figure {
-    margin: 0 0 12px;
-  }
-  .investigation .figure img {
-    aspect-ratio: 16/9;
-  }
-  .dossierCover {
-    margin-bottom: 14px;
-  }
-  .investigation .meta {
-    font-size: 13px;
-  }
-  .verdict {
-    margin: 0 0 12px;
-    padding: 0 0 10px;
-  }
-  .investigation h3 {
-    font-size: clamp(27px, 7.1vw, 32px);
-    line-height: 1.15;
-    margin: 6px 0 10px;
-  }
-  .investigation h3 a {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    overflow: hidden;
-  }
-  .investigation .summary {
-    margin-top: 0;
-    font-size: 16px;
-    line-height: 1.6;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
-  }
-  .finding {
-    margin-top: 14px;
-    padding: 2px 0 2px 14px;
-  }
-  .finding > span {
-    margin-bottom: 4px;
-  }
-  .finding p {
-    font-size: 15px;
-    line-height: 1.6;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    overflow: hidden;
-  }
-  .investigation[data-rank="companion"] {
-    padding-top: 24px;
-    border-top: 1px solid var(--journey-rule);
-  }
-  .investigation[data-rank="companion"] .figure {
-    display: none;
-  }
-  .investigation[data-rank="companion"] .dossierCover {
-    margin-bottom: 10px;
-  }
-  .investigation[data-rank="companion"] h3 {
-    font-size: 24px;
-  }
-  .investigation[data-rank="companion"] h3 a {
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-  }
-  .investigation[data-rank="companion"] .summary {
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-  }
-  .investigation[data-rank="companion"] .finding p {
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-  }
-
-  /* October 7: the testimony leads in full; the documentation companion is a row. */
-  .archive .sectionHead h2 {
-    font-size: clamp(40px, 10.5vw, 54px);
-  }
-  .archive > .sectionHead {
-    padding-bottom: 22px;
-  }
-  .archive > .sectionAction {
-    padding: 0;
-    border-bottom: 0;
-  }
-  .archiveSpread {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-  .archiveSpread h3 {
-    font-size: clamp(28px, 7.4vw, 34px);
-    line-height: 1.15;
-    margin: 8px 0 10px;
-  }
-  .archiveSpread > article[data-kind="documentation"] {
-    border-left: 0;
-    padding-left: 0;
-  }
-  .archiveSpread > article[data-rank="companion"] {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--journey-thumb);
-    grid-template-areas:
-      "kicker thumb"
-      "witness thumb"
-      "title thumb"
-      "caption caption"
-      "warning warning"
-      "sources sources"
-      "cta cta";
-    column-gap: 16px;
-    align-items: start;
-    padding: 24px 0 0;
-    border-top: 1px solid var(--journey-rule);
-  }
-  .archiveSpread > article[data-rank="companion"] .figure {
-    display: contents;
-  }
-  .archiveSpread > article[data-rank="companion"] .figure img {
-    grid-area: thumb;
-    width: var(--journey-thumb);
-    height: var(--journey-thumb);
-    aspect-ratio: 1;
-  }
-  .archiveSpread > article[data-rank="companion"] .figure figcaption {
-    grid-area: caption;
-    margin-top: 10px;
-  }
-  .archiveSpread > article[data-rank="companion"] .kicker {
-    grid-area: kicker;
-    margin-bottom: 6px;
-  }
-  .archiveSpread > article[data-rank="companion"] .witness {
-    grid-area: witness;
-  }
-  .archiveSpread > article[data-rank="companion"] h3 {
-    grid-area: title;
-    font-size: 24px;
-    line-height: 1.15;
-    margin: 0;
-  }
-  .archiveSpread > article[data-rank="companion"] .summary {
-    display: none;
-  }
-  .archiveSpread > article[data-rank="companion"] .warning {
-    grid-area: warning;
-    margin: 12px 0 0;
-  }
-  .archiveSpread > article[data-rank="companion"] .sources {
-    grid-area: sources;
-  }
-  .archiveSpread > article[data-rank="companion"] .link {
-    grid-area: cta;
-  }
-  .warning {
-    margin: 12px 0 0;
-  }
-
-  /* Our Heroes: the face beside the name; the story beneath. */
-  .peopleSpread {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .peopleSpread article {
-    display: grid;
-    grid-template-columns: minmax(0, 44%) minmax(0, 1fr);
-    grid-template-areas:
-      "portrait kicker"
-      "portrait title"
-      "portrait meta"
-      "caption caption"
-      "summary summary"
-      "sources sources"
-      "cta cta";
-    column-gap: 16px;
-    align-items: start;
-  }
-  .peopleSpread article[data-rank="companion"] {
-    grid-template-columns: 112px minmax(0, 1fr);
-    padding-top: 24px;
-    border-top: 1px solid var(--journey-rule);
-  }
-  .peopleSpread article > :not(.figure) {
-    max-width: none;
-  }
-  .peopleSpread .figure {
-    display: contents;
-  }
-  .peopleSpread .figure img {
-    grid-area: portrait;
-    aspect-ratio: 4/5;
-  }
-  .peopleSpread article[data-rank="companion"] .figure img {
-    width: 112px;
-    height: 112px;
-    aspect-ratio: 1;
-  }
-  .peopleSpread .figure figcaption {
-    grid-area: caption;
-    margin-top: 8px;
-  }
-  .peopleSpread .kicker {
-    grid-area: kicker;
-    margin-bottom: 6px;
-  }
-  .peopleSpread h3 {
-    grid-area: title;
-    font-size: clamp(28px, 7.4vw, 34px);
-    line-height: 1.08;
-    margin: 0 0 6px;
-  }
-  .peopleSpread article[data-rank="companion"] h3 {
-    font-size: 24px;
-  }
-  .peopleSpread .meta {
-    grid-area: meta;
-  }
-  .peopleSpread .summary {
-    grid-area: summary;
-    margin-top: 12px;
-  }
-  .peopleSpread article[data-rank="companion"] .summary {
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-  }
-  .peopleSpread .sources {
-    grid-area: sources;
-  }
-  .peopleSpread .link {
-    grid-area: cta;
-  }
-
-  /* Israel's Story: era, plate, chapter; the companion keeps its era rule and a small plate. */
-  .historySpread {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .era {
-    font-size: 22px;
-    padding: 12px 0;
-  }
-  .historySpread h3 {
-    font-size: clamp(27px, 7.1vw, 32px);
-    line-height: 1.15;
-    margin: 0 0 10px;
-  }
-  .historySpread article[data-rank="companion"] {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--journey-thumb);
-    grid-template-areas:
-      "era era"
-      "title thumb"
-      "verdict verdict"
-      "caption caption"
-      "sources sources"
-      "cta cta";
-    column-gap: 16px;
-    align-items: start;
-  }
-  .historySpread article[data-rank="companion"] .era {
-    grid-area: era;
-    margin-bottom: 8px;
-  }
-  .historySpread article[data-rank="companion"] .figure {
-    display: contents;
-  }
-  .historySpread article[data-rank="companion"] .figure img {
-    grid-area: thumb;
-    width: var(--journey-thumb);
-    height: var(--journey-thumb);
-    aspect-ratio: 1;
-  }
-  .historySpread article[data-rank="companion"] .figure figcaption {
-    grid-area: caption;
-    margin-top: 10px;
-  }
-  .historySpread article[data-rank="companion"] h3 {
-    grid-area: title;
-    font-size: 24px;
-    line-height: 1.15;
-    margin: 0;
-  }
-  .historySpread article[data-rank="companion"] .verdict {
-    grid-area: verdict;
-    margin: 12px 0 0;
-    padding: 0;
-    border: 0;
-  }
-  .historySpread article[data-rank="companion"] .summary,
-  .historySpread article[data-rank="companion"] .context {
-    display: none;
-  }
-  .historySpread article[data-rank="companion"] .sources {
-    grid-area: sources;
-  }
-  .historySpread article[data-rank="companion"] .link {
-    grid-area: cta;
-  }
-
-  /* Behind the desk */
-  .systemOverview,
-  .systemBranches,
-  .purpose {
-    grid-template-columns: 1fr;
-  }
-  .systemOverview {
-    gap: 28px;
-  }
-  .systemHead h2 {
-    font-size: clamp(36px, 9.5vw, 46px);
-    margin-bottom: 16px;
-  }
-  .systemHead > p:last-child {
-    font-size: 16px;
-  }
-  .pipeline {
-    padding-left: 18px;
-  }
-  .pipeline strong {
-    font-size: 16px;
-  }
-  .pipeline span {
-    font-size: 14px;
-  }
-  .systemCaveat {
-    font-size: 14px;
-  }
-  .systemBranches dt {
-    font-size: 15px;
-  }
-  .systemBranches dd {
-    font-size: 14px;
-  }
-  .narrativePath {
-    font-size: 15px;
-  }
-  .deskResponse {
-    font-size: 16px;
-  }
-  .pipeline li {
-    grid-template-columns: minmax(100px, 1fr) 1.5fr;
-    gap: 16px;
-    padding: 13px 0;
-  }
-  .pipeline li::before {
-    left: -22px;
-    top: 20px;
-  }
-  .systemBranches {
-    gap: 20px;
-  }
-  .purpose {
-    margin-top: 36px;
-    gap: 16px;
-  }
-  .purpose h3 {
-    font-size: clamp(32px, 8.5vw, 40px);
-  }
-  .narrativePath {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .narrativePath li {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-  }
-  .narrativePath li:not(:last-child)::after {
-    content: " ↓";
-  }
-  .systemActions {
-    display: grid;
-    gap: 8px;
-    justify-items: start;
-  }
-  .system {
-    padding-bottom: 40px;
-  }
+@media (max-width: 759px) {
+  .journey { --journey-inset: clamp(20px, 5vw, 32px); --journey-story: clamp(26px, 6.5vw, 34px); }
+  .edition { grid-template-columns: 1fr; gap: 5px; padding-top: 16px; }
+  .editionDate { text-align: start; font-size: 11px; }
+  .contents { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 14px; margin-top: 12px; padding-block: 8px; }
+  .contents a { font-size: 13px; }
+  .section { padding-block: 44px; }
+  .sectionHead { margin-bottom: 24px; }
+  .sectionHead h2 { font-size: clamp(34px, 8.5vw, 45px); }
+  .sectionIntro { font-size: 15px; margin-bottom: 24px; }
+  .summary { font-size: 16px; line-height: 1.6; }
+  .context { font-size: 14px; margin-top: 16px; }
+  .sources { margin-top: 14px; }
+  .meta { font-size: 11px; }
+  .figure { margin-bottom: 18px; }
+  .newsSpread > article, .newsSpread[data-count="1"] > article { display: block; }
+  .newsSpread h3 { font-size: clamp(27px, 6.8vw, 35px); line-height: 1.15; }
+  .newsSpread > article[data-rank="companion"] { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 18px; }
+  .newsSpread > article[data-rank="companion"] h3 { font-size: clamp(23px, 5.6vw, 28px); }
+  .newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 4/5; }
+  .newsSpread > article[data-rank="companion"] .summary { -webkit-line-clamp: 3; line-clamp: 3; font-size: 15px; }
+  .sources { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+  .investigation { grid-template-columns: 1fr; grid-template-areas: "status" "cover" "body"; gap: 18px; }
+  .dossierStatus { gap: 8px; }
+  .dossierCover .figure img { aspect-ratio: 16/9; }
+  .verdictMeaning { flex-basis: calc(100% - 18px); margin-left: 16px; }
+  .verdict { position: relative; }
+  .verdict::before { align-self: auto; margin-top: 7px; }
+  .investigation h3 { font-size: clamp(26px, 6.5vw, 34px); }
+  .investigation h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+  .archive .sectionHead h2 { font-size: clamp(36px, 9vw, 48px); }
+  .archiveSpread h3 { font-size: clamp(28px, 7vw, 36px); }
+  .archiveSpread > article[data-kind="documentation"] { display: block; }
+  .archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 16/10; }
+  .archiveSpread > article[data-kind="documentation"] h3 { font-size: 27px; }
+  .warning { font-size: 14px; }
+  .peopleSpread article { column-gap: 20px; }
+  .personIntro h3 { font-size: clamp(27px, 6.5vw, 35px); }
+  .personIntro .kicker { font-size: 12px; }
+  .personIntro .meta { font-size: 12px; }
+  .peopleSpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 28px; }
+  .historySpread { grid-template-columns: 1fr; gap: 32px; }
+  .historySpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 26px; }
+  .historySpread .figure img { aspect-ratio: 16/9; }
+  .systemHead h2 { font-size: clamp(34px, 8.5vw, 45px); }
+  .systemBranches, .purpose { grid-template-columns: 1fr; }
+  .purpose { margin-top: 40px; gap: 16px; }
+  .purpose h3 { font-size: 35px; }
+  .systemBranches { gap: 30px; margin-top: 30px; }
+  .branchHeading h3 { font-size: 29px; }
+  .amplification { grid-template-columns: 1fr; row-gap: 0; margin-top: 28px; }
+  .amplification figcaption { display: grid; gap: 4px; }
+  .echoSequence li { padding-left: 40px; }
+  .echoSequence blockquote { font-size: clamp(23px, 5.8vw, 31px); }
+  .echoSequence .echoHeadline blockquote { font-size: clamp(30px, 7.5vw, 39px); }
+  .echoAnnotation { font-size: 12px; }
+  .echoReading { margin: 0; padding: 24px 0 0; border-left: 0; border-top: 1px solid var(--journey-rule); }
+  .echoResult { display: grid; grid-template-columns: 72px minmax(0, 1fr); column-gap: 22px; min-height: 200px; }
+  .echoNumeral { grid-row: span 2; margin: -6px 0 0; font-size: 106px; }
+  .echoReading h4 { font-size: 29px; margin-bottom: 12px; }
+  .echoResult > p { font-size: 14px; max-width: 48ch; }
+  .echoTraceButton { margin-top: 18px; }
+  .echoPrinciple { font-size: 11px; }
+  .systemActions { display: grid; justify-items: start; gap: 12px; }
+  .system { padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 359px) {
+  .contents { grid-template-columns: 1fr 1fr; }
+  .newsSpread > article[data-rank="companion"] { grid-template-columns: 1fr; }
+  .newsSpread > article[data-rank="companion"] .figure { max-width: none; }
+  .newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 16/9; }
+  .peopleSpread article { column-gap: 14px; }
+  .personIntro h3 { font-size: 26px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .journey *,
-  .journey *::before,
-  .journey *::after {
-    scroll-behavior: auto;
-    transition: none;
-  }
+  .journey *, .journey *::before, .journey *::after { animation: none !important; transition: none; scroll-behavior: auto; }
 }

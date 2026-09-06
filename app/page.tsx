@@ -2,9 +2,8 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
-import { ButtonLink } from "@/components/ui/Button";
+import { JourneyLink } from "@/components/home/HomeJourneyPrimitives";
 import { HeroVideo } from "@/components/sections/HeroVideo";
-import { ProgressiveBlur } from "@/components/motion/ProgressiveBlur";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
 import { getHomepageEdition } from "@/lib/homepage";
 import styles from "./home.module.css";
@@ -12,7 +11,7 @@ import styles from "./home.module.css";
 export const dynamic = "force-dynamic";
 export default async function Page() {
   const edition = await getHomepageEdition();
-  return <>
+  return <div className={styles.homeTheme}>
     <a className={styles.skipLink} href="#home-wordmark">Skip to content</a>
     <SiteHeader home />
     <main id="page-content" className={styles.page} data-home-scroll>
@@ -30,9 +29,6 @@ export default async function Page() {
                 left so the type sits on darkness while the animal stays lit.
                 See `.heroScrim`. */}
             <div className={styles.heroScrim} />
-            {/* After the field, before the chrome: it grades the footer edge of
-                the shot into the ground. See `.heroFade`. */}
-            <ProgressiveBlur position="bottom" height="var(--sp-9)" className={styles.heroFade} />
           </div>
 
           <div className={styles.masthead}>
@@ -54,19 +50,7 @@ export default async function Page() {
 
             {/* News is primary; the system story is an optional reading path. */}
             <div className={styles.actions}>
-              <ButtonLink
-                href="/geopolitical-brief"
-                variant="ghost"
-                size="lg"
-                className={styles.ctaPrimary}
-              >
-                <span className={styles.ctaLabel}>Read the latest</span>
-                <span className={styles.ctaArrow} aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M4 12h15M13 5l7 7-7 7" />
-                  </svg>
-                </span>
-              </ButtonLink>
+              <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
             </div>
             {/* Quieter by design: smaller, lower in tone, no arrow of its own,
                 so "Read the latest" is the one invitation on the cover and
@@ -79,11 +63,13 @@ export default async function Page() {
           </div>
 
         </section>
+        <div className={styles.readingSurface}>
         <noscript><nav className={styles.noscriptNav} aria-label="All sections"><ol>
           {SITE_NAVIGATION.map(item=><li key={item.id}><a href={item.href}>{item.displayName}</a></li>)}
         </ol></nav></noscript>
         <HomepageJourney edition={edition}/>
+        </div>
     </main>
-    <SiteFooter home />
-  </>;
+    <div className={styles.readingSurface}><SiteFooter home /></div>
+  </div>;
 }

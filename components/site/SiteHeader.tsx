@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { usePublicSession } from "@/components/auth/PublicSessionProvider";
 import { SearchLauncher } from "@/components/search/SearchLauncher";
+import { AskDock } from "@/components/ask/AskDock";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
@@ -231,11 +232,7 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
 
         <div className={styles.utility}>
           <div className={styles.deskActions}>
-            {/* The Ask control moved out of the chrome and onto the viewport
-                as `AskDock`, mounted in `app/layout.tsx`. It is a panel that
-                opens over the page now rather than a link away from it, so a
-                reader mid-article keeps their place — and a second trigger
-                up here would be two controls to one desk. */}
+            {home && <AskDock home />}
             <SearchLauncher variant="icon" className={styles.deskSearch} />
           </div>
           <Button

@@ -15,7 +15,7 @@ Inspect:
 9. route shells;
 10. localization;
 11. sibling flows;
-12. maintained `DESIGN.md` and `UX-CONTRACT.md`.
+12. the owner's current visual brief and applicable behavior in `UX-CONTRACT.md`.
 
 For each capability, choose exactly one:
 

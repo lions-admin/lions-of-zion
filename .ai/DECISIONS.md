@@ -34,7 +34,7 @@ undo in the name of density or rhythm.
   scrolled to mid-page, it read as another site. Its identity is its head
   rule, its record kinds and its content warnings. The paper tokens stay
   defined for the record.
-- **Type has floors on a phone**, stated in `DESIGN.md`: 16px body, 15px
+- **Historical phone type floors** from the earlier implementation: 16px body, 15px
   "Why it matters" and findings, 13px metadata and captions, 11px kickers.
   Density comes from how much is shown, never from making what is shown
   smaller.

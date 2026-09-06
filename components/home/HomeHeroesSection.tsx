@@ -38,9 +38,11 @@ export function HomeHeroesSection({
             data-rank={rankOf(index)}
           >
             <HomeMedia media={item.media} portrait />
+            <div className={styles.personIntro}>
             <p className={styles.kicker}>{item.role}</p>
             <h3>{item.title}</h3>
             <p className={styles.meta}>{item.meta}</p>
+            </div>
             <p className={styles.summary}>
               <PreviewText
                 text={item.summary}

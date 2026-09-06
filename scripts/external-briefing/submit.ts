@@ -91,6 +91,17 @@ export async function submitPackage(
       console.log(`  [${publication.section}] ${publication.title}`);
       console.log(`    ${publication.url}`);
     }
+    /* Editorial checks that did not pass. These did not block the publish and
+       must not change the exit code — they are here so an operator reading a
+       run log can see what the desk would have flagged. */
+    if (result.warnings.length) {
+      console.warn("");
+      console.warn(`Editorial warnings (${result.warnings.length}) — published anyway:`);
+      for (const warning of result.warnings) {
+        console.warn(`  [${warning.candidateKey}] ${warning.check}`);
+        console.warn(`    ${warning.detail}`);
+      }
+    }
     return result;
   }
 

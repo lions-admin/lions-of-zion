@@ -67,12 +67,74 @@ export type QualityCheck = {
   name: string;
   status: "pass" | "fail";
   detail: string;
+  /** False for a check whose failure is an editorial warning rather than a
+   *  reason to refuse the package. See `ADVISORY_QUALITY_CHECKS`. */
+  blocking: boolean;
 };
 
 export type QualityDecision = {
+  /** True when every *blocking* check passes. Advisory failures do not
+   *  affect it — read `advisoryFailures` for those. */
   passed: boolean;
   checks: QualityCheck[];
+  /** Failed blocking checks. Non-empty means the package must be refused. */
+  blockingFailures: QualityCheck[];
+  /** Failed advisory checks. Reported and logged; never a reason to refuse. */
+  advisoryFailures: QualityCheck[];
 };
+
+/**
+ * Checks that express editorial judgement about a package rather than its
+ * technical validity.
+ *
+ * These still run, still record a `pass`/`fail` audit row, and still appear in
+ * the publish response — but a failure among them is a warning, not a refusal.
+ * The owner's instruction is that a structurally valid, authenticated package
+ * publishes even when its source mix, its title phrasing or its official-source
+ * composition are imperfect, so none of these may return 422 or roll back the
+ * publish transaction.
+ *
+ * What is deliberately NOT in this set, and why:
+ *
+ *   known_evidence, claim_evidence_matrix, paragraph_traceability
+ *     Referential integrity of citations and of the paragraph→claim spine.
+ *     A failure here means a citation key or claim index points at nothing,
+ *     which is malformed input and a broken renderer, not an opinion.
+ *   direct_publishers
+ *     URL shape and publisher identity. Malformed-URL validation.
+ *   processable_source_text
+ *     A cited evidence row must actually carry retrievable text. Without it
+ *     the citation renders as an empty source.
+ *   exact_fact_fidelity
+ *     Every exact figure and direct quotation in the body must appear in the
+ *     source packet. This is the anti-fabrication guarantee, not an editorial
+ *     preference, so it stays blocking.
+ *   analysis_disclosure
+ *     An unsourced piece may publish only as a labelled Narrative Watch
+ *     record. This is the disclosure guarantee that stops unsourced material
+ *     being presented as sourced reporting; it stays blocking.
+ */
+export const ADVISORY_QUALITY_CHECKS: ReadonlySet<string> = new Set([
+  /* Minimum source diversity / corroboration threshold. */
+  "source_independence",
+  /* Subjective title quality. */
+  "specific_title",
+  /* Subjective completeness scoring: body length and passage count. */
+  "substantive_body",
+  /* Prose-style heuristic over the body text. */
+  "non_placeholder_body",
+  /* Title/source semantic alignment threshold. */
+  "title_source_alignment",
+  /* Per-claim corroboration threshold. */
+  "claim_source_independence",
+  /* Editorial source-balance rule for a single-source report. */
+  "single_source_attribution",
+  /* Narrative/source-balance routing requirements. */
+  "hostile_only_routing",
+  "adversarial_only_routing",
+  /* Mandatory official-source composition for the Daily Brief. */
+  "daily_brief_official_context",
+]);
 
 export const REQUIRED_QUALITY_CHECKS = [
   "known_evidence",
@@ -104,13 +166,20 @@ const REFUTATION_ASSESSMENTS = new Set(["refuted", "misleading", "unsupported"])
 /** Deterministic checks run after drafting and before any publication row can
  * receive an automatic-publish marker. Model output cannot waive them.
  *
- * Every name in `REQUIRED_QUALITY_CHECKS` is written and must pass — including
+ * Every name in `REQUIRED_QUALITY_CHECKS` is written and recorded — including
  * for an unsourced Narrative Watch refutation. There is deliberately no skip
  * path: a check that does not apply carries its exemption *inside its own pass
  * condition*, with a detail string saying so. That is what keeps the recorded
- * audit row honest, and it is also what keeps the automatic-publish trigger
- * satisfied, since the trigger counts a fixed twelve of these names as passes
- * and would refuse a publication that merely omitted one.
+ * audit row honest.
+ *
+ * Not every recorded check refuses a package. Each one is tagged `blocking`
+ * from `ADVISORY_QUALITY_CHECKS`, and `passed` reflects the blocking set only:
+ * the editorial checks report their verdict into the audit trail and the
+ * publish response as warnings, while structural, citation-integrity,
+ * anti-fabrication and disclosure checks still refuse. The SQL publish gate
+ * that used to count a fixed twelve of these names as passes was retired in
+ * migration 0049; the trigger now verifies machine provenance only, so no
+ * database layer re-imposes the editorial set.
  */
 export function evaluateCandidate(
   candidate: QualityCandidate,
@@ -379,11 +448,19 @@ export function evaluateCandidate(
         ? `An unsourced refutation is published in Narrative Watch, cites nothing, and states the narrative as ${candidate.basis.verificationState}.`
         : "An unsourced analysis may publish only as a Narrative Watch record that cites nothing and states the narrative as refuted, misleading, or unsupported.");
 
-  return { passed: checks.every((check) => check.status === "pass"), checks };
+  const failures = checks.filter((check) => check.status === "fail");
+  const blockingFailures = failures.filter((check) => check.blocking);
+  const advisoryFailures = failures.filter((check) => !check.blocking);
+  return { passed: blockingFailures.length === 0, checks, blockingFailures, advisoryFailures };
 }
 
 function add(checks: QualityCheck[], name: string, passed: boolean, detail: string): void {
-  checks.push({ name, status: passed ? "pass" : "fail", detail });
+  checks.push({
+    name,
+    status: passed ? "pass" : "fail",
+    detail,
+    blocking: !ADVISORY_QUALITY_CHECKS.has(name),
+  });
 }
 
 function meaningfulWords(value: string): string[] {

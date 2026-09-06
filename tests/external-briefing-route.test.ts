@@ -21,8 +21,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * correct.
  */
 
+/* Typed as the service's own result so a case may override it with a real
+   payload; the default still throws, because the guard/parsing cases must
+   never reach the service. */
 const mocks = vi.hoisted(() => ({
-  publish: vi.fn(async () => {
+  publish: vi.fn(async (): Promise<unknown> => {
     throw new Error("the route-level guard/parsing tests should never reach the service");
   }),
 }));
@@ -76,6 +79,87 @@ function request(options: { secret?: string | null; body: string }): Request {
   const headers = new Headers({ "content-type": "application/json" });
   if (options.secret !== null) headers.set("x-external-briefing-secret", options.secret ?? "wrong-secret");
   return new Request(ENDPOINT, { method: "POST", headers, body: options.body });
+}
+
+
+/* A schema-valid package. The route parses the real
+   `externalBriefingPackageSchema`, so reaching the service at all requires a
+   structurally complete body; the content itself is irrelevant here because
+   the service is mocked. */
+function validPackageBody(): string {
+  const excerpt =
+    "The Israeli security cabinet convened on Sunday and confirmed that the armed forces maintain a heightened "
+    + "readiness posture along the northern frontier in response to ongoing regional tensions and will continue "
+    + "coordinated defensive preparations throughout the coming week.";
+  return JSON.stringify({
+    runId: "route-warning-run-0001",
+    localDate: "2026-09-06",
+    contractVersion: "external-briefing-v1",
+    composer: "route-test",
+    publishers: [{
+      key: "jpost",
+      name: "Jerusalem Post",
+      homepageUrl: "https://www.jpost.com",
+      language: "en",
+      country: "IL",
+      official: false,
+    }],
+    citations: [{
+      key: "c-jpost",
+      publisherKey: "jpost",
+      title: "Jerusalem Post Details Continued Northern Frontier Preparations",
+      url: "https://www.jpost.com/article/frontier-preparations",
+      publishedAt: "2026-09-06T09:00:00Z",
+      excerpt,
+      language: "en",
+    }],
+    dailyBrief: {
+      title: "Northern Frontier Readiness Posture Holds Steady Amid Regional Tensions",
+      summary: "A summary of the northern frontier readiness posture amid continuing regional tensions.",
+      citationKeys: ["c-jpost"],
+      claims: [{
+        title: "Reporting describes an elevated readiness posture",
+        text: "Reporting describes an elevated readiness posture along the northern frontier amid regional tensions.",
+        layer: "source_claim",
+        assessment: "verified",
+        attributedTo: "Jerusalem Post",
+        uncertainty: "This rests on a single non-official publisher family.",
+        citationLinks: [{
+          citationKey: "c-jpost",
+          relation: "supports",
+          strength: "adequate",
+          rationale: "The report directly describes this readiness posture.",
+        }],
+      }],
+      situation: {
+        label: "Situation",
+        passages: [{
+          text: "Forces along the northern frontier remain on a heightened readiness posture as regional tensions continue.",
+          claimIndex: 0,
+          citationKeys: ["c-jpost"],
+        }],
+      },
+      keyEvents: {
+        label: "Key Events",
+        passages: [{
+          text: "Military correspondents reported additional coordinated preparations along the northern frontier this week.",
+          claimIndex: 0,
+          citationKeys: ["c-jpost"],
+        }],
+      },
+      israeliPosition: null,
+      internationalResponses: null,
+      watchPoints: {
+        label: "Watch Points",
+        passages: [{
+          text: "Coordinated defensive preparations along the northern frontier are expected to continue this week.",
+          claimIndex: 0,
+          citationKeys: ["c-jpost"],
+        }],
+      },
+    },
+    articles: [],
+  });
 }
 
 describe("POST /api/internal/briefing/external-publish", () => {
@@ -163,5 +247,47 @@ describe("POST /api/internal/briefing/external-publish", () => {
     expect(paths).toContain("publishers");
     expect(paths).toContain("citations");
     expect(paths).toContain("dailyBrief");
+  });
+
+  /* Editorial warnings are not validation failures.
+   *
+   * `daily_brief_official_context` and `title_source_alignment` used to make
+   * this route answer 422 VALIDATION_ERROR. They are advisory now: the service
+   * publishes and reports them, and the route must pass that through as a 200
+   * with the warnings in the body. 4xx is reserved for malformed or unsafe
+   * input, which the cases above still cover. */
+  it("returns 200 with warnings when the package publishes with editorial warnings", async () => {
+    mocks.publish.mockImplementationOnce(async () => ({
+      runId: "route-warning-run-0001",
+      status: "draft",
+      localDate: "2026-09-06",
+      evidenceCreated: 1,
+      publications: [],
+      briefUrl: "https://lionsofzion.io/geopolitical-brief",
+      warnings: [
+        {
+          candidateKey: "daily-brief",
+          check: "daily_brief_official_context",
+          detail: "The Daily Brief requires at least one official Israeli source.",
+        },
+        {
+          candidateKey: "daily-brief",
+          check: "title_source_alignment",
+          detail: "The title is not sufficiently anchored in the cited source material.",
+        },
+      ],
+    }));
+
+    const response = await POST(request({ secret: SECRET, body: validPackageBody() }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.publish).toHaveBeenCalledTimes(1);
+
+    const body = await response.json();
+    expect(body.error).toBeUndefined();
+    expect(body.warnings.map((warning: { check: string }) => warning.check)).toEqual([
+      "daily_brief_official_context",
+      "title_source_alignment",
+    ]);
   });
 });

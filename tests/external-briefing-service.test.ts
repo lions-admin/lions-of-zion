@@ -228,6 +228,92 @@ function withUnattributedSingleSourceArticle(pkg: ExternalBriefingPackage): Exte
   return externalBriefingPackageSchema.parse(raw);
 }
 
+/**
+ * The shape that used to be refused with HTTP 422 by two editorial checks and
+ * now publishes with warnings.
+ *
+ * Two things are wrong with it editorially and nothing is wrong with it
+ * technically: the Daily Brief cites no official Israeli source
+ * (`daily_brief_official_context`), and its title is phrased in terms that do
+ * not overlap the cited excerpts (`title_source_alignment`). Every citation
+ * key still resolves, every claim index is in range and every figure in the
+ * body still appears in the sources — so the blocking set is untouched.
+ */
+function withEditorialWarningsOnly(pkg: ExternalBriefingPackage): ExternalBriefingPackage {
+  const raw = {
+    ...pkg,
+    /* Drop the official publisher: no `official_israeli` source remains. */
+    publishers: pkg.publishers.filter((publisher) => publisher.key === "jpost"),
+    citations: pkg.citations.filter((citation) => citation.key === "c-jpost"),
+    dailyBrief: {
+      ...pkg.dailyBrief,
+      /* Broader and differently phrased than the excerpt it rests on. */
+      title: "Wednesday Roundup Concerning Assorted Municipal Bureaucratic Paperwork",
+      citationKeys: ["c-jpost"],
+      claims: [{
+        ...pkg.dailyBrief.claims[0]!,
+        attributedTo: "Jerusalem Post",
+        citationLinks: [{
+          citationKey: "c-jpost",
+          relation: "supports" as const,
+          strength: "adequate" as const,
+          rationale: "The report describes the readiness posture this claim states.",
+        }],
+      }],
+      situation: {
+        ...pkg.dailyBrief.situation,
+        passages: pkg.dailyBrief.situation.passages.map((passage) => ({
+          ...passage,
+          citationKeys: ["c-jpost"],
+        })),
+      },
+      keyEvents: pkg.dailyBrief.keyEvents
+        ? {
+            ...pkg.dailyBrief.keyEvents,
+            passages: pkg.dailyBrief.keyEvents.passages.map((passage) => ({
+              ...passage,
+              citationKeys: ["c-jpost"],
+            })),
+          }
+        : null,
+      watchPoints: {
+        ...pkg.dailyBrief.watchPoints,
+        passages: pkg.dailyBrief.watchPoints.passages.map((passage) => ({
+          ...passage,
+          citationKeys: ["c-jpost"],
+        })),
+      },
+    },
+    articles: [],
+  };
+  return externalBriefingPackageSchema.parse(raw);
+}
+
+/** A package carrying a figure that appears in no cited source.
+ *
+ *  `exact_fact_fidelity` is the anti-fabrication check and is deliberately
+ *  still blocking, so this must be refused. It is also the cleanest blocking
+ *  failure to reach from a test: the contract's own `superRefine` already
+ *  catches malformed citation keys and out-of-range claim indices before the
+ *  quality gate ever runs, which is structural validation doing its job at the
+ *  right layer. */
+function withFabricatedFigure(pkg: ExternalBriefingPackage): ExternalBriefingPackage {
+  const raw = {
+    ...pkg,
+    dailyBrief: {
+      ...pkg.dailyBrief,
+      situation: {
+        ...pkg.dailyBrief.situation,
+        passages: pkg.dailyBrief.situation.passages.map((passage) => ({
+          ...passage,
+          text: `${passage.text} Some 4783 additional reservists were called up, according to the same statement.`,
+        })),
+      },
+    },
+  };
+  return externalBriefingPackageSchema.parse(raw);
+}
+
 describe("externalBriefingPublishService", () => {
   it("publishes a minimal valid package and derives evidenceBasis correctly", async () => {
     const database = await freshDatabase();
@@ -275,10 +361,12 @@ describe("externalBriefingPublishService", () => {
     expect(articleChecks.some((c) => c.checkName === "analysis_disclosure")).toBe(true);
   });
 
-  it("fails a quality check and leaves no trace", async () => {
+  it("fails a blocking quality check and leaves no trace", async () => {
     const database = await freshDatabase();
     const service = externalBriefingPublishService(database);
-    const pkg = withUnattributedSingleSourceArticle(basePackage("smoke-run-failing-0001", "2026-09-04"));
+    /* `exact_fact_fidelity` — a figure that appears in no cited source. The
+       anti-fabrication guarantee still refuses the whole submission. */
+    const pkg = withFabricatedFigure(basePackage("smoke-run-failing-0001", "2026-09-04"));
 
     await expect(service.publish(pkg, actor)).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
 
@@ -286,6 +374,49 @@ describe("externalBriefingPublishService", () => {
     expect(await database.select().from(externalBriefingSubmission)).toHaveLength(0);
     expect(await database.select().from(publication)).toHaveLength(0);
     expect(await database.select().from(briefingQualityCheck)).toHaveLength(0);
+  });
+
+  it("publishes an editorially imperfect package and reports warnings instead of failing", async () => {
+    const database = await freshDatabase();
+    const service = externalBriefingPublishService(database);
+    const pkg = withEditorialWarningsOnly(basePackage("smoke-run-warnings-0001", "2026-09-06"));
+
+    const result = await service.publish(pkg, actor);
+
+    expect(result.status).toBe("draft");
+    expect(result.publications.length).toBeGreaterThan(0);
+
+    const warned = result.warnings.map((warning) => warning.check);
+    expect(warned).toContain("daily_brief_official_context");
+    expect(warned).toContain("title_source_alignment");
+    for (const warning of result.warnings) {
+      expect(warning.candidateKey).toBe("daily-brief");
+      expect(warning.detail.length).toBeGreaterThan(0);
+    }
+
+    /* The edition is really on disk, and the failed editorial checks are
+       recorded in the audit trail rather than swallowed. */
+    expect(await database.select().from(publication)).not.toHaveLength(0);
+    const checks = await database.select().from(briefingQualityCheck);
+    const failedNames = checks.filter((c) => c.status === "fail").map((c) => c.checkName);
+    expect(failedNames).toEqual(expect.arrayContaining([
+      "daily_brief_official_context",
+      "title_source_alignment",
+    ]));
+  });
+
+  it("publishes an article whose single source carries no attribution", async () => {
+    const database = await freshDatabase();
+    const service = externalBriefingPublishService(database);
+    /* This is the package the previous rollback test used. Its
+       `single_source_attribution` and `substantive_body` failures are
+       editorial, so it now publishes and warns. */
+    const pkg = withUnattributedSingleSourceArticle(basePackage("smoke-run-single-0001", "2026-09-07"));
+
+    const result = await service.publish(pkg, actor);
+
+    expect(result.publications.length).toBeGreaterThan(0);
+    expect(result.warnings.map((warning) => warning.check)).toContain("single_source_attribution");
   });
 
   it("returns the first run's result as a duplicate on a repeat submission", async () => {

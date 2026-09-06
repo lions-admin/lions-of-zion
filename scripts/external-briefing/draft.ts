@@ -39,7 +39,10 @@ import type { CollectedItem } from "./types";
  */
 export const draftOutputSchema = z.object({
   dailyBrief: externalDailyBriefSchema,
-  articles: z.array(externalArticleSchema).max(8),
+  /* Uncapped, mirroring the package contract. The `.max(8)` that stood here
+     truncated a run's output before it ever reached the ingest endpoint, so
+     removing the ceiling on the contract alone would not have been enough. */
+  articles: z.array(externalArticleSchema),
 });
 export type DraftOutput = z.infer<typeof draftOutputSchema>;
 

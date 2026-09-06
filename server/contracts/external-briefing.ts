@@ -191,7 +191,10 @@ export const externalClaimSchema = z.object({
   /** Empty only for an all-analysis Narrative Watch article; the package-level
    * refinement below is what enforces that, because a single claim cannot see
    * whether its article cites anything. */
-  citationLinks: z.array(externalCitationLinkSchema).max(8),
+  /* Bounded by the package's own citation budget rather than by an arbitrary
+     eight: a claim may legitimately rest on more than eight sources, and no
+     claim can reference more distinct citations than the package carries. */
+  citationLinks: z.array(externalCitationLinkSchema).max(200),
 });
 export type ExternalClaim = z.infer<typeof externalClaimSchema>;
 
@@ -203,7 +206,8 @@ export const externalPassageSchema = z.object({
   /** Zero-based index into the claims array of *this same* article or brief.
    * Never a global index. */
   claimIndex: z.number().int().min(0).max(99),
-  citationKeys: z.array(packageKeySchema).max(8),
+  /* Same reasoning as `externalClaimSchema.citationLinks`. */
+  citationKeys: z.array(packageKeySchema).max(200),
 });
 export type ExternalPassage = z.infer<typeof externalPassageSchema>;
 
@@ -290,10 +294,22 @@ const externalBriefingPackageShape = {
   /** Free-text label for the composing system, recorded on the audit trail.
    * Never used for authorization — the shared secret is. */
   composer: z.string().trim().min(1).max(120),
+  /* The three caps below are request-size guards, not editorial limits: the
+     whole package is parsed into memory and materialised inside one
+     transaction that has to finish within the route's `maxDuration = 300`
+     seconds. They are sized against that budget and against Vercel's 100 MB
+     request-body ceiling, and are the only quantity limits left on this path.
+
+     `articles` deliberately carries no cap. It used to be `.max(8)`, which was
+     an arbitrary editorial ceiling that silently truncated a run: a composer
+     that produced nine distinct, valid articles could not submit them. The
+     real bound on how much a run may publish is the citation and publisher
+     budget above plus the function's time budget, and those are enforced
+     where they actually apply. */
   publishers: z.array(externalPublisherSchema).min(1).max(60),
   citations: z.array(externalCitationSchema).min(1).max(200),
   dailyBrief: externalDailyBriefSchema,
-  articles: z.array(externalArticleSchema).max(8),
+  articles: z.array(externalArticleSchema),
 } as const;
 
 export const externalBriefingPackageSchema = z
@@ -537,6 +553,18 @@ export const externalBriefingPublicationSchema = z.object({
 });
 export type ExternalBriefingPublication = z.infer<typeof externalBriefingPublicationSchema>;
 
+/** One editorial check that did not pass, reported alongside a successful
+ *  publish. Advisory by construction: every name here is in
+ *  `ADVISORY_QUALITY_CHECKS`, so it never refused the package. */
+export const externalBriefingWarningSchema = z.object({
+  /** `daily-brief`, or `article-1`, `article-2`, … */
+  candidateKey: z.string(),
+  /** The quality check name, e.g. `daily_brief_official_context`. */
+  check: z.string(),
+  detail: z.string(),
+});
+export type ExternalBriefingWarning = z.infer<typeof externalBriefingWarningSchema>;
+
 export const externalBriefingPublishResultSchema = z.object({
   runId: runIdSchema,
   status: externalBriefingPublishStatusSchema,
@@ -546,5 +574,9 @@ export const externalBriefingPublishResultSchema = z.object({
   publications: z.array(externalBriefingPublicationSchema),
   /** Where the edition is visible. Always the brief hub. */
   briefUrl: z.string(),
+  /** Editorial checks that failed without blocking publication. Defaulted so
+   *  a result persisted before this field existed still parses on replay of a
+   *  duplicate submission. */
+  warnings: z.array(externalBriefingWarningSchema).default([]),
 });
 export type ExternalBriefingPublishResult = z.infer<typeof externalBriefingPublishResultSchema>;

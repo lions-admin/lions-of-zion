@@ -64,6 +64,7 @@ import type {
   ExternalBriefingPackage,
   ExternalBriefingPublication,
   ExternalBriefingPublishResult,
+  ExternalBriefingWarning,
   ExternalClaim,
   ExternalDailyBrief,
   ExternalNarrativeWatch,
@@ -74,6 +75,9 @@ import type { CreatePublication, EvidenceBasis, NarrativeWatchDetails } from "@/
 import type { DraftClaim, DraftPassage, QualityBasis, QualityCandidate } from "./quality";
 import type { Actor } from "@/server/core/audit";
 import type { InformationItem, Publication } from "@/server/db/schema";
+
+/** Local alias for the advisory failures collected across candidates. */
+type QualityWarning = ExternalBriefingWarning;
 
 type Tx = Parameters<typeof setIdentity>[0];
 type Runner = { transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T> };
@@ -259,17 +263,42 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
          * (including these rows) rolls back if anything fails, so recording
          * them here is for a complete audit trail on the success path and a
          * fully-informative error on the failure path, not durable state on
-         * failure. */
+         * failure.
+         *
+         * Only *blocking* failures refuse the package. `evaluateCandidate`
+         * tags each check from `ADVISORY_QUALITY_CHECKS`: editorial judgement
+         * — source mix, title phrasing, official-source composition, body
+         * length — is recorded and returned as a warning, while structural
+         * integrity, citation resolution, anti-fabrication and the unsourced
+         * disclosure rule still abort the transaction. A package with no
+         * official Israeli source, or a title phrased more broadly than its
+         * excerpt, therefore publishes and reports the warning. */
         const failures: string[] = [];
+        const warnings: QualityWarning[] = [];
         for (const candidate of candidates) {
           const decision = evaluateCandidate(candidate, evidenceById);
           await store.recordQualityChecks(briefingRunId, candidate.key, decision.checks);
+          for (const advisory of decision.advisoryFailures) {
+            warnings.push({
+              candidateKey: candidate.key,
+              check: advisory.name,
+              detail: advisory.detail,
+            });
+          }
           if (!decision.passed) {
-            const failedNames = decision.checks
-              .filter((check) => check.status === "fail")
-              .map((check) => `${check.name}: ${check.detail}`);
+            const failedNames = decision.blockingFailures.map(
+              (check) => `${check.name}: ${check.detail}`,
+            );
             failures.push(`${candidate.key} — ${failedNames.join("; ")}`);
           }
+        }
+        if (warnings.length) {
+          /* Surfaced in the response too — see `warnings` on the result. This
+             line is what a scheduled composer's run log shows. */
+          console.warn(
+            `[external-briefing] run ${pkg.runId}: ${warnings.length} editorial warning(s) — `
+            + warnings.map((w) => `${w.candidateKey}/${w.check}`).join(", "),
+          );
         }
         if (failures.length) {
           throw new ApiError(
@@ -392,6 +421,7 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
           evidenceCreated,
           publications,
           briefUrl: `${SITE_URL}/geopolitical-brief`,
+          warnings,
         });
 
         await d.execute(sql`

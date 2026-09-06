@@ -164,7 +164,11 @@ describe("briefing quality gate", () => {
     };
     const result = evaluateCandidate(singleSource, new Map([[nonOfficial.id, nonOfficial]]));
     expect(result.checks.find((check) => check.name === "single_source_attribution")?.status).toBe("fail");
-    expect(result.passed).toBe(false);
+    /* Editorial source-balance judgement: recorded and reported, but it does
+       not refuse the package. */
+    expect(result.advisoryFailures.map((check) => check.name)).toContain("single_source_attribution");
+    expect(result.blockingFailures).toEqual([]);
+    expect(result.passed).toBe(true);
   });
 
   it("allows a clearly attributed single non-official source", () => {
@@ -206,14 +210,17 @@ describe("briefing quality gate", () => {
     };
     const blocked = evaluateCandidate(attributed, new Map([[hostile.id, hostile]]));
     expect(blocked.checks.find((check) => check.name === "hostile_only_routing")?.status).toBe("fail");
-    expect(blocked.passed).toBe(false);
+    /* Routing is an editorial judgement about source composition: it warns
+       rather than refusing. */
+    expect(blocked.advisoryFailures.map((check) => check.name)).toContain("hostile_only_routing");
+    expect(blocked.passed).toBe(true);
 
     const routed = evaluateCandidate({ ...attributed, section: "narrative_watch" }, new Map([[hostile.id, hostile]]));
     expect(routed.checks.find((check) => check.name === "hostile_only_routing")?.status).toBe("pass");
     expect(routed.passed).toBe(true);
   });
 
-  it("blocks a Daily Brief assembled only from hostile and adversarial outlets", () => {
+  it("warns, without blocking, on a Daily Brief assembled only from hostile and adversarial outlets", () => {
     const hostile: QualityEvidence = {
       ...evidence[0]!,
       id: "22222222-2222-4222-8222-222222222222",
@@ -246,7 +253,13 @@ describe("briefing quality gate", () => {
     expect(result.checks.filter((check) => check.status === "fail").map((check) => check.name)).toEqual(
       expect.arrayContaining(["adversarial_only_routing", "daily_brief_official_context"]),
     );
-    expect(result.passed).toBe(false);
+    /* Both are source-composition judgements. They are reported as warnings
+       and no longer refuse a Daily Brief that has no official Israeli source. */
+    expect(result.advisoryFailures.map((check) => check.name)).toEqual(
+      expect.arrayContaining(["adversarial_only_routing", "daily_brief_official_context"]),
+    );
+    expect(result.blockingFailures).toEqual([]);
+    expect(result.passed).toBe(true);
   });
 
   it("allows official Israeli evidence to appear after the first passage", () => {

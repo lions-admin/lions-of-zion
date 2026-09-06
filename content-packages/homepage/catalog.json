@@ -1,6 +1,6 @@
 {
-  "revision": "6dc9b8317da4c3fed04e8c00b2aed7448651d0d0689e2862510b11abc772963e",
-  "sourceRevision": "3307479a8919a5d5c96e49a983f3a9c43f020d3203e935e6d3f1379fd526472e",
+  "revision": "ed7fb2f788874ce7615143833ee1c924dc44bf89fef5c966aa70beb760f7c2bc",
+  "sourceRevision": "8f1839cfa1517523231cea7055982f182deed316c21fafbe19e03c2e01c94138",
   "candidates": [
     {
       "key": "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
@@ -10,7 +10,7 @@
       "href": "/october-7/documentation/abductions-to-the-gaza-strip/85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
       "version": "d0498320e63361537f5627552e08ddaac1b9e4b944386b24750ab3526a4e7e0c",
       "date": "2023-11-01T14:18:23.317Z",
-      "mediaId": "documentation-folder"
+      "mediaId": "yaffa-adar-safe-cover"
     },
     {
       "key": "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
@@ -20,7 +20,7 @@
       "href": "/october-7/testimonies/we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
       "version": "17dbe18e6c2406dcd61d38f9f79ea640c3e6975ade3c1d5ad2c8ac9273ba8a30",
       "date": "2023-10-12T15:49:30.516Z",
-      "mediaId": "testimony-room"
+      "mediaId": "barricaded-safe-room"
     },
     {
       "key": "case:case_02_manosphere_far_right",
@@ -30,7 +30,7 @@
       "href": "/fake-resistance/cases/manosphere-far-right",
       "version": "92155bdeab7a3f064e01decdd9b592a0f742d0511c77d95f455195c0487171c4",
       "date": "2026-08-26T16:30:00Z",
-      "mediaId": "account-cluster"
+      "mediaId": "manosphere-cluster-editorial"
     },
     {
       "key": "chapter:abraham-accords",

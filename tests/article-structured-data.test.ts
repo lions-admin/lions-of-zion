@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { renderToReadableStream } from "react-dom/server";
 
 const { publication } = vi.hoisted(() => ({ publication: {
-  publicId: "daily-brief-2026-08-31",
+  publicId: "israel-ministry-of-defense-activities-regional-r-lref0",
   title: "Daily Brief",
   summary: "A verified daily update.",
   section: "daily_brief",
@@ -52,17 +52,20 @@ describe("article structured data", () => {
       "@type": "NewsArticle",
       datePublished: publication.publishedAt,
       dateModified: publication.updatedAt,
-      mainEntityOfPage: "https://lionsofzion.io/articles/daily-brief-2026-08-31",
+      mainEntityOfPage: "https://lionsofzion.io/articles/israel-ministry-of-defense-activities-regional-r-lref0",
     });
-    expect(markup.match(/https:\/\/lionsofzion\.io\/articles\/daily-brief-2026-08-31/g)).toHaveLength(1);
+    expect(markup.match(/https:\/\/lionsofzion\.io\/articles\/israel-ministry-of-defense-activities-regional-r-lref0/g)).toHaveLength(1);
+    expect(markup).toContain("regional-defense-brief.webp");
+    expect(markup).toContain("illustrative, not source evidence");
   });
 
   it("uses the same single canonical URL in page metadata", async () => {
     const metadata = await generateMetadata(props);
-    expect(metadata.alternates?.canonical).toBe("https://lionsofzion.io/articles/daily-brief-2026-08-31");
+    expect(metadata.alternates?.canonical).toBe("https://lionsofzion.io/articles/israel-ministry-of-defense-activities-regional-r-lref0");
     expect(metadata.openGraph).toMatchObject({
       publishedTime: publication.publishedAt,
       modifiedTime: publication.updatedAt,
+      images: [expect.objectContaining({ url: "https://lionsofzion.io/images/homepage/regional-defense-brief.webp" })],
     });
   });
 });

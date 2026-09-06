@@ -43,6 +43,7 @@
 /* ── Head ─────────────────────────────────────────────────────────────── */
 
 .head,
+.heroMedia,
 .facts,
 .narrativeDetails,
 .unknowns,
@@ -103,6 +104,49 @@
   font-weight: var(--t-lede-weight);
   line-height: var(--t-lede-lh);
   text-wrap: pretty;
+}
+
+.heroMedia {
+  margin: var(--sp-6) 0 0;
+}
+
+.heroMedia img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+}
+
+.heroMedia figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-top: var(--sp-2);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.heroMedia figcaption span:last-child {
+  flex: 0 0 auto;
+  text-align: end;
+}
+
+@media (max-width: 44.99rem) {
+  .heroMedia figcaption {
+    display: block;
+  }
+
+  .heroMedia figcaption span {
+    display: block;
+  }
+
+  .heroMedia figcaption span:last-child {
+    margin-top: var(--sp-1);
+    text-align: start;
+  }
 }
 
 /* ── Publication facts ────────────────────────────────────────────────── */

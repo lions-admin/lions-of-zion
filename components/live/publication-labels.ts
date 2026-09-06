@@ -1,20 +1,21 @@
-import type { PublicationSection } from "@/server/contracts/enums";
 import type { NarrativeWatchDetails } from "@/server/contracts/publication";
 
 /**
- * Reading labels for the four publication sections.
+ * Reading labels for the publication sections.
  *
- * `/articles/[publicId]` renders `section.replace(/_/g, " ")`, which prints
- * "narrative watch" and "daily brief" — a machine value with its underscores
- * combed. These are the names the desk actually uses, and they are exhaustive
- * by construction: a fifth section fails the typecheck here rather than
- * rendering as raw enum text.
+ * `/articles/[publicId]` used to render `section.replace(/_/g, " ")`, which
+ * prints "narrative watch" and "daily brief" — a machine value with its
+ * underscores combed. These are the names the desk actually uses, and they are
+ * exhaustive by construction: a further section fails the typecheck rather
+ * than rendering as raw enum text.
+ *
+ * The table itself now lives in `lib/publication-routing.ts` beside the hub,
+ * the route and the homepage band it belongs with — a label and a destination
+ * are the same editorial decision, and holding them apart is how a record ends
+ * up filed as news in one place and as a claim assessment in another. This is
+ * the name that table is read by from a component.
  */
-export const SECTION_LABELS: Record<PublicationSection, string> = {
-  daily_brief: "Daily Brief",
-  israel_update: "Israel update",
-  narrative_watch: "Narrative Watch",
-};
+export { PUBLICATION_SECTION_LABELS as SECTION_LABELS } from "@/lib/publication-routing";
 
 /**
  * The six states a Narrative Watch record's `verificationState` may hold.

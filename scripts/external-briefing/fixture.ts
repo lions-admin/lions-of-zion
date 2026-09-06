@@ -187,6 +187,10 @@ export function fixtureDraftOutput(): DraftOutput {
           },
         ],
       },
+      /* The Daily Brief is a composite of the day's material rather than one
+         story, so no single photograph honestly illustrates it. `null` is the
+         normal answer for this record, not an omission. */
+      media: null,
     },
     articles: [
       {
@@ -231,6 +235,41 @@ export function fixtureDraftOutput(): DraftOutput {
         arena: "Technology",
         featuredIsraelStory: true,
         narrativeWatch: null,
+        /* The one illustrated record in the fixture, written the way a real
+           composer should write one.
+
+           Two things are worth reading off it. First, the picture is an
+           *archival context* image and says so in both `alt` and `disclosure`:
+           it is a desalination facility, not the pilot retrofit this article
+           describes, and the reader is told that rather than left to assume.
+           Second, the rights are complete — a named licence, the licence text
+           itself as the reference anyone can check, the date it was cleared,
+           and the two surfaces the clearance actually covers. A composer that
+           could not fill all four leaves `status: "unknown"`; the ingest path
+           stores the asset either way and the RLS policy keeps an uncleared
+           one off every public surface until a human decides.
+
+           Like every other fact in this file the specific file path is
+           illustrative — `--fixture` never fetches it and never submits. */
+        media: {
+          inputUrl: "https://upload.wikimedia.org/wikipedia/commons/example/Reverse_osmosis_desalination_plant.jpg",
+          sourceUrl: "https://commons.wikimedia.org/wiki/File:Reverse_osmosis_desalination_plant.jpg",
+          alt: "Archive context: reverse-osmosis membrane racks at a coastal desalination plant. Not the pilot retrofit described in this article.",
+          caption: "Reverse-osmosis membrane racks at a coastal desalination plant.",
+          credit: "Wikimedia Commons contributor · CC BY-SA 4.0",
+          disclosure: "Context image — not the pilot retrofit described here",
+          role: "archival-context",
+          focalPoint: { x: 50, y: 40 },
+          sensitivity: "safe",
+          rights: {
+            status: "cleared",
+            basis: "CC BY-SA 4.0",
+            reference: "https://creativecommons.org/licenses/by-sa/4.0/",
+            clearedAt: "2026-09-03",
+            surfaces: ["homepage", "article"],
+          },
+          generated: false,
+        },
       },
       {
         section: "narrative_watch",
@@ -281,6 +320,11 @@ export function fixtureDraftOutput(): DraftOutput {
             "Independent confirmation of the target's civilian status has not been published by any outlet in this monitoring pool.",
           ],
         },
+        /* No picture. The only imagery attached to this claim is the imagery
+           the claim's own propagators circulated, and republishing it would
+           lend the allegation exactly the visual credibility the article says
+           it has not earned. */
+        media: null,
       },
     ],
   };

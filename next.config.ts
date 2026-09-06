@@ -49,6 +49,17 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  /* Editorial images fetched once from an external publisher are stored in
+     this project's own public Blob store and served from there — never
+     hotlinked. `img-src` above already allows the host; `next/image` needs to
+     be told separately, and `server/contracts/editorial-media.ts` refuses any
+     `src` that is not one of these two origins. All three have to agree, and
+     this pattern is deliberately no broader than that CSP entry. */
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com", pathname: "/**" },
+    ],
+  },
   // Kept from the retired particle entrance, which the badge used to sit on
   // top of. Harmless either way, and a dev-only surface.
   devIndicators: false,

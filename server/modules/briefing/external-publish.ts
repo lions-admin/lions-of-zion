@@ -24,6 +24,10 @@ import "server-only";
  * machinery in `service.ts` exists for the internal pipeline's own
  * staged/checkpointed model, which does not apply to a single atomic call.
  *
+ * The one thing deliberately outside the transaction is the *fetching* of
+ * editorial images — see `materializeMedia` below. The rows still go in
+ * inside it.
+ *
  * ## Reused vs. reimplemented
  *
  * `dedupeDraftPassages` is imported and reused directly from `./service`.
@@ -48,6 +52,8 @@ import { itemEvidenceService } from "@/server/modules/assessments/service";
 import { narrativeService } from "@/server/modules/narratives/service";
 import { publicationService } from "@/server/modules/publications/service";
 import { createEvidenceInTx, findEvidenceByUrl } from "@/server/modules/evidence";
+import { mediaRepo } from "@/server/modules/media/repo";
+import { materializeExternalMedia } from "@/server/modules/media/service";
 import { sourceFamilyRepo, sourceRepo } from "@/server/modules/sources/repo";
 import { sourceCategoryForDomain } from "@/server/modules/sources/catalog";
 import { briefingRepo } from "./repo";
@@ -72,6 +78,7 @@ import type {
   ExternalPublisher,
 } from "@/server/contracts/external-briefing";
 import type { CreatePublication, EvidenceBasis, NarrativeWatchDetails } from "@/server/contracts/publication";
+import type { EditorialMediaDraft } from "@/server/modules/media/repo";
 import type { DraftClaim, DraftPassage, QualityBasis, QualityCandidate } from "./quality";
 import type { Actor } from "@/server/core/audit";
 import type { InformationItem, Publication } from "@/server/db/schema";
@@ -119,6 +126,22 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
       requestId?: string,
     ): Promise<ExternalBriefingPublishResult> {
       const packageHash = integrityHash(stableStringify(pkg));
+
+      /* Images are fetched and stored *before* the transaction opens. Two
+       * reasons, in order of how much they cost when ignored:
+       *
+       *   - A transaction held open across N image downloads is how a
+       *     `maxDuration = 300` function times out with locks held on
+       *     `publication` and the idempotency ledger. Network work does not
+       *     belong inside a database transaction.
+       *   - The requirement is that a rolled-back publish leaves no orphaned
+       *     media *rows*, and it does not: the rows below are written inside
+       *     the transaction and vanish with it. What a rollback can leave is a
+       *     blob object nobody references — which is not an orphan in any
+       *     meaningful sense, because its pathname is the sha256 of its own
+       *     bytes, so the retry re-derives the identical name and overwrites
+       *     it rather than accumulating a second copy. */
+      const mediaDrafts = await materializeMedia(pkg);
 
       return runner.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
@@ -404,7 +427,42 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
               candidateKeys: provenance.candidateKeys,
             });
 
-        /* ── 9. Build and persist the result ──────────────────────────────── */
+        /* ── 9. Attach whichever editorial images survived the fetch ──────────
+         *
+         * `created` rows carry `briefingCandidateKey` on both branches —
+         * `autoPublishMany` writes `provenance.candidateKeys[i]` on insert and
+         * `createMany` does the same for the paused-draft path — so the join
+         * back to the drafts is by key rather than by array position, and a
+         * record whose image failed simply finds nothing and publishes bare.
+         *
+         * Idempotent on every path a resend can take. A repeated `runId` never
+         * reaches here at all (step 1 replays the stored result), and if the
+         * promotion path ever does run these rows twice, `insertMedia` returns
+         * the existing row for the same `content_hash` instead of inserting a
+         * second asset, and `attachToPublication` is `ON CONFLICT DO NOTHING`
+         * on (publication, placement, position). Two submissions of the same
+         * photograph are one asset row and one attachment. */
+        if (mediaDrafts.size && !(await mediaRepo(tx).tablesReady())) {
+          /* Asked rather than caught: a failed statement aborts the enclosing
+             transaction in Postgres, so writing into a table that is not there
+             yet would cost the edition, not just its pictures. This is the
+             deploy window — code live, migration `0057` not yet applied — and
+             an edition published in it is correct, just unillustrated. */
+          console.warn(
+            `[external-briefing] run ${pkg.runId}: media tables absent, publishing `
+            + `${mediaDrafts.size} record(s) without their images; apply migration 0057.`,
+          );
+        } else if (mediaDrafts.size) {
+          const mediaStore = mediaRepo(tx);
+          for (const row of created) {
+            const draft = row.briefingCandidateKey ? mediaDrafts.get(row.briefingCandidateKey) : undefined;
+            if (!draft) continue;
+            const asset = await mediaStore.insertMedia(draft);
+            await mediaStore.attachToPublication(row.id, asset.id);
+          }
+        }
+
+        /* ── 10. Build and persist the result ─────────────────────────────── */
         const publications: ExternalBriefingPublication[] = created.map((row) => ({
           id: row.id,
           publicId: row.publicId,
@@ -466,6 +524,58 @@ function sortKeysDeep(value: unknown): unknown {
  * and unique in `external_briefing_submission`. */
 function externalPublishStage(runId: string): string {
   return `external_publish:${runId}`;
+}
+
+/* ── Editorial media ─────────────────────────────────────────────────────── */
+
+/**
+ * Fetch, validate and store every image the package declared, keyed by the
+ * candidate key of the record that asked for it.
+ *
+ * The keys are the same ones `buildCandidate` uses — `daily-brief`, then
+ * `article-1`, `article-2`, … — because those are what the publication rows
+ * end up carrying in `briefing_candidate_key`, and matching on them means this
+ * never depends on the order `autoPublishMany` happens to return.
+ *
+ * **A picture is never allowed to cost a publication.** Everything
+ * `materializeExternalMedia` can throw — a dead URL, an HTML error page served
+ * as a 200, a file over the size ceiling, a header no dimension parser
+ * recognises — is caught here, logged with the run, the candidate, the URL and
+ * the reason, and the record publishes without an image. Refusing to publish
+ * an edition because one hero photo 404'd would be the wrong trade: the
+ * writing is the product, the illustration is not. The warning is deliberately
+ * loud enough to be actionable from a composer's run log; nothing is swallowed.
+ *
+ * A replayed `runId` re-fetches these before step 1 discovers it is a
+ * duplicate and returns the first run's result. That is wasted bandwidth on a
+ * path that should be rare, and it is harmless: every write below is
+ * content-addressed, so a replay overwrites its own object with identical
+ * bytes and creates nothing new.
+ */
+async function materializeMedia(pkg: ExternalBriefingPackage): Promise<Map<string, EditorialMediaDraft>> {
+  const requested: { key: string; media: NonNullable<ExternalArticle["media"]> }[] = [];
+  if (pkg.dailyBrief.media) requested.push({ key: "daily-brief", media: pkg.dailyBrief.media });
+  for (const [index, article] of pkg.articles.entries()) {
+    if (article.media) requested.push({ key: `article-${index + 1}`, media: article.media });
+  }
+
+  const drafts = new Map<string, EditorialMediaDraft>();
+  for (const { key, media } of requested) {
+    try {
+      drafts.set(key, await materializeExternalMedia(media, {
+        runId: pkg.runId,
+        candidateKey: key,
+        composer: pkg.composer,
+      }));
+    } catch (cause) {
+      const reason = cause instanceof Error ? cause.message : String(cause);
+      console.warn(
+        `[external-briefing] run ${pkg.runId}: ${key} will publish without an image — `
+        + `${media.inputUrl} could not be stored: ${reason}`,
+      );
+    }
+  }
+  return drafts;
 }
 
 /* ── Publisher and citation resolution ───────────────────────────────────── */

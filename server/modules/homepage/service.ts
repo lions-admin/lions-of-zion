@@ -6,6 +6,7 @@ import type { Database } from '@/server/db/client';
 import { publicationService } from '@/server/modules/publications';
 import { homeSections, homeCatalogSchema, homeOverridesSchema, homeSnapshotSchema, israelEditionDate, type HomeReference } from '@/server/contracts/homepage';
 import { editorialMediaSchema, isHomepageSafeMedia } from '@/server/contracts/editorial-media';
+import { publicationHomepageKind, publicationHomepageSection, publicationHref } from '@/lib/publication-routing';
 import { homepageRepo } from './repo';
 import { catalogSourceRevision } from './catalog';
 import { selectHomepage } from './selection';
@@ -25,20 +26,34 @@ export async function homepageInputs(db:Database, now=new Date()) {
   ]);
   const live=new Map([...news,...briefs,...watch,...pins.map(p=>p.publication)].map(p=>[p.publicId,p]));
   const candidates:HomeReference[]=catalog.candidates.filter(c=>safeIds.has(c.mediaId));
+  // A live publication's own hero decides whether it may reach the homepage.
+  // It used to be `media.json`'s mapping, which meant a newly published record
+  // could not appear without a hand-written commit — the registry is still the
+  // fallback so publications that predate `editorial_media` keep their picture.
+  const liveCandidates:HomeReference[]=[];
   for(const p of live.values()){
-    const key=`publication:${p.publicId}`,mediaId=rawMedia.mappings[key] as string|undefined;
-    if(!mediaId||!safeIds.has(mediaId))continue;
-    candidates.push({key,id:p.publicId,kind:p.section==='narrative_watch'?'watch':'news',
-      section:p.section==='narrative_watch'?'fakeResistance':'news',href:`/articles/${p.publicId}`,
+    const key=`publication:${p.publicId}`,legacyId=rawMedia.mappings[key] as string|undefined;
+    const mediaId=p.media&&isHomepageSafeMedia(p.media)?p.media.id:legacyId&&safeIds.has(legacyId)?legacyId:null;
+    if(!mediaId)continue;
+    liveCandidates.push({key,id:p.publicId,kind:publicationHomepageKind(p.section),
+      section:publicationHomepageSection(p.section),href:publicationHref(p.publicId),
       version:p.updatedAt,date:p.publishedAt,mediaId});
   }
+  candidates.push(...liveCandidates);
   const date=israelEditionDate(now);
   const pinKeys=pins.map(p=>`publication:${p.publication.publicId}`);
   const overrideRevision=JSON.stringify(Object.fromEntries(homeSections.map(section=>[section,
     createHash('sha256').update(JSON.stringify({
-      pins:pins.filter(p=>(p.publication.section==='narrative_watch'?'fakeResistance':'news')===section).map(p=>p.publication.publicId),
+      pins:pins.filter(p=>publicationHomepageSection(p.publication.section)===section).map(p=>p.publication.publicId),
       evergreen:overrides.pins.filter(p=>p.section===section&&(!p.expires||p.expires>=date)),
       breaking:section==='news'&&overrides.breakingNews&&overrides.breakingNews.expires>=date?overrides.breakingNews:null,
+      // The live candidate set is folded into its own section's hash so an
+      // article published after the morning edition moves that hash, and
+      // `ensureEdition` re-selects that section instead of waiting for
+      // tomorrow. Only the live half: the static catalogue changes by commit,
+      // and folding it in would rebuild every band on every catalogue touch.
+      // Sorted so query order cannot invent a revision on its own.
+      live:liveCandidates.filter(c=>c.section===section).map(c=>`${c.key}|${c.version}|${c.date}|${c.mediaId}`).sort(),
     })).digest('hex')])));
   return {catalog,candidates,overrides,pinKeys,overrideRevision,date};
 }

@@ -12,6 +12,7 @@ export * from "./search";
 export * from "./ai";
 export * from "./chat";
 export * from "./publications";
+export * from "./media";
 export * from "./reports";
 export * from "./narratives";
 export * from "./briefing";

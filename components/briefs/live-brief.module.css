@@ -287,6 +287,98 @@
 
 .newsLead .newsSummary { font-size: var(--t-lede); line-height: var(--t-lede-lh); }
 
+/* ── Record artwork ────────────────────────────────────────────────────────
+ *
+ * Every rule here is conditional on a record actually carrying a picture. Most
+ * do not, and a list that reserves space for an image it has not got reads as
+ * a broken layout rather than a plain one — so there is no placeholder, no
+ * fixed image column, and no rule that changes a row's geometry until the
+ * markup adds the class that says the image is there. */
+
+.leadMedia {
+  display: grid;
+  gap: var(--sp-2);
+  min-width: 0;
+  margin: 0;
+}
+
+.leadMedia img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-2);
+  border: var(--line-w) solid var(--line);
+}
+
+.leadMedia figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  min-width: 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+/* The disclosure is the first line under the picture and reads as a label,
+   never as part of the description beside it. */
+.mediaDisclosure {
+  flex-basis: 100%;
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold-hi);
+}
+
+.mediaCaption { color: var(--ink); }
+.mediaCredit { color: var(--ink-lo); }
+
+/* `.newsTimeline li` sets the two-column default with an element selector, so
+   the picture variant has to out-specify it rather than merely follow it. */
+.newsTimeline li.timelineWithMedia { grid-template-columns: auto minmax(0, 1fr) auto; }
+
+.timelineThumb {
+  inline-size: 4.5rem;
+  block-size: 4.5rem;
+  align-self: start;
+  object-fit: cover;
+  border-radius: var(--radius-1);
+  border: var(--line-w) solid var(--line);
+}
+
+/* The archive row is a single column until a picture arrives, at which point
+   the text keeps column one and the thumbnail sits beside its header. Both
+   selectors carry `.liveRow` as well, because the row's own `gap` shorthand is
+   declared later in this file and would otherwise reset the column gap. */
+.liveList .liveRow.liveRowMedia {
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--sp-5);
+}
+
+.liveList .liveRow.liveRowMedia > * { grid-column: 1; }
+
+/* Row 1, not `1 / -1`: with no explicit rows declared, `-1` resolves to the
+   end of the explicit grid and spans nothing. */
+.liveList .liveRow.liveRowMedia > .rowThumb {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.rowThumb {
+  inline-size: 7rem;
+  block-size: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-1);
+  border: var(--line-w) solid var(--line);
+}
+
 .newsSidebar {
   min-width: 0;
   align-self: start;
@@ -770,6 +862,8 @@
     border-bottom: var(--line-w) solid var(--line);
   }
   .newsLead h3 { font-size: clamp(2rem, 9vw, 2.75rem); }
+  .timelineThumb { inline-size: 3.5rem; block-size: 3.5rem; }
+  .rowThumb { inline-size: 5rem; }
   .watchBridge {
     grid-template-columns: minmax(0, 1fr);
     padding: var(--sp-5);

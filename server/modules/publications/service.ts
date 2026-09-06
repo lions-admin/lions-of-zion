@@ -17,6 +17,8 @@ import { recordVersion, setIdentity } from "@/server/core/versioning";
 import { writeAudit } from "@/server/core/audit";
 import { assertHumanReviewer, findReviewer } from "@/server/modules/assessments";
 import { homepageFeature, publication } from "@/server/db/schema";
+import { mediaRepo } from "@/server/modules/media/repo";
+import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { repo } from "./repo";
 import {
   canTransitionPublication,
@@ -457,21 +459,19 @@ export function publicationService(db: unknown) {
     },
 
     async listPublic(filters: ListPublicPublications): Promise<PublicPublication[]> {
-      const rows = await repo(db).listPublic(filters);
-      return rows.map(toPublicPublication);
+      return withHeroMedia(db, await repo(db).listPublic(filters));
     },
 
     /** The Daily Brief hub and homepage rails must not inherit historic site
      * reference pages from the shared publication table. */
     async listBriefingPublic(filters: ListPublicPublications): Promise<PublicPublication[]> {
-      const rows = await repo(db).listPublic(filters, true);
-      return rows.map(toPublicPublication);
+      return withHeroMedia(db, await repo(db).listPublic(filters, true));
     },
 
     async getPublic(publicId: string): Promise<PublicPublication> {
       const row = await repo(db).byPublicId(publicId);
       if (!row || (row.status !== "published" && row.status !== "updated")) throw notFound("Publication");
-      return toPublicPublication(row);
+      return toPublicPublication(row, await mediaRepo(db).heroMedia(row.id));
     },
 
     async getBriefingPublic(publicId: string): Promise<PublicPublication> {
@@ -479,13 +479,14 @@ export function publicationService(db: unknown) {
       if (!row || !row.briefingRunId || (row.status !== "published" && row.status !== "updated")) {
         throw notFound("Briefing publication");
       }
-      return toPublicPublication(row);
+      return toPublicPublication(row, await mediaRepo(db).heroMedia(row.id));
     },
 
     async getPublicDetail(publicId: string): Promise<PublicPublicationDetail> {
       const row = await repo(db).byPublicId(publicId);
       if (!row || (row.status !== "published" && row.status !== "updated")) throw notFound("Publication");
-      return { ...toPublicPublication(row), ...(await repo(db).publicReferences(row.id)) };
+      const [media, references] = await Promise.all([mediaRepo(db).heroMedia(row.id), repo(db).publicReferences(row.id)]);
+      return { ...toPublicPublication(row, media), ...references };
     },
 
     async getBriefingPublicDetail(publicId: string): Promise<PublicPublicationDetail> {
@@ -493,7 +494,8 @@ export function publicationService(db: unknown) {
       if (!row || !row.briefingRunId || (row.status !== "published" && row.status !== "updated")) {
         throw notFound("Briefing publication");
       }
-      return { ...toPublicPublication(row), ...(await repo(db).publicReferences(row.id)) };
+      const [media, references] = await Promise.all([mediaRepo(db).heroMedia(row.id), repo(db).publicReferences(row.id)]);
+      return { ...toPublicPublication(row, media), ...references };
     },
 
     async featured(): Promise<PublicPublication[]> {
@@ -511,21 +513,22 @@ export function publicationService(db: unknown) {
       const ordered = features
         .map((feature) => live.find((row) => row.id === feature.publicationId))
         .filter((row): row is Publication => Boolean(row));
-      return (ordered.length ? ordered : live.slice(0, 3)).map(toPublicPublication);
+      return withHeroMedia(db, ordered.length ? ordered : live.slice(0, 3));
     },
 
     /** Explicit pins, resolved directly rather than inside a latest-100 window. */
     async publicHomepagePins(): Promise<Array<{ slot: number; publication: PublicPublication }>> {
       const pins = await repo(db).homepageFeatures();
-      const result: Array<{ slot: number; publication: PublicPublication }> = [];
+      const rows: Array<{ slot: number; row: Publication }> = [];
       for (const pin of pins.sort((a,b)=>a.slot-b.slot)) {
         const row = await repo(db).byId(pin.publicationId);
         if (row && row.briefingRunId && (row.status === "published" || row.status === "updated")
           && ["israel_update", "narrative_watch"].includes(row.section)) {
-          result.push({slot:pin.slot, publication:toPublicPublication(row)});
+          rows.push({slot:pin.slot, row});
         }
       }
-      return result;
+      const media = await mediaRepo(db).heroMediaByPublicationIds(rows.map((pin) => pin.row.id));
+      return rows.map((pin) => ({slot:pin.slot, publication:toPublicPublication(pin.row, media.get(pin.row.id) ?? null)}));
     },
 
     async homepageFeatures(): Promise<Array<{ slot: number; publicationId: string }>> {
@@ -690,7 +693,33 @@ export function publicationService(db: unknown) {
   };
 }
 
-function toPublicPublication(row: Publication): PublicPublication {
+/**
+ * Every list projection resolves its hero images in one query.
+ *
+ * A per-row read here would be N+1 on the news hub and on the homepage's own
+ * resolution pass, and the reason it goes through a single helper rather than
+ * being inlined per read path is that the list and the detail must agree: a
+ * card that leads with a picture the article page then drops is the failure
+ * this shape exists to prevent.
+ */
+async function withHeroMedia(db: unknown, rows: Publication[]): Promise<PublicPublication[]> {
+  const media = await mediaRepo(db).heroMediaByPublicationIds(rows.map((row) => row.id));
+  return rows.map((row) => toPublicPublication(row, media.get(row.id) ?? null));
+}
+
+/**
+ * `media` is a required argument, never defaulted: a caller that forgets it
+ * would silently serve an image-less projection, which reads as "this record
+ * has no picture" rather than as the bug it is.
+ *
+ * The surface filter is the *article* bar. `app_public`'s RLS policy has
+ * already hidden anything not cleared — that is the boundary a future read
+ * path cannot forget — and this is the second, surface-level pass. It is
+ * deliberately not the homepage bar: the homepage applies
+ * `isHomepageSafeMedia` to this same value, and filtering to the stricter
+ * standard here would strip a picture the article page is entitled to show.
+ */
+function toPublicPublication(row: Publication, media: EditorialMedia | null): PublicPublication {
   if (!row.publishedAt) throw new ApiError("NOT_FOUND", "Publication is not public.");
   const narrativeWatchDetails = publicNarrativeWatchDetails(row.narrativeWatchDetails);
   const title = row.section === "narrative_watch"
@@ -712,6 +741,7 @@ function toPublicPublication(row: Publication): PublicPublication {
     arena: row.arena,
     featuredIsraelStory: row.featuredIsraelStory,
     narrativeWatchDetails,
+    media: media && isArticleSafeMedia(media) ? media : null,
   };
 }
 

@@ -91,29 +91,37 @@ describe("/fake-resistance/watch", () => {
     listBriefingPublications.mockResolvedValue([sourcedWatch]);
     const markup = await render(await WatchPage());
     expect(markup).toContain("Israeli government plans mass forced expulsion from Gaza");
-    // SSR HTML-encodes the apostrophe in "government's"/"Gaza's" — match the
-    // surrounding text rather than the raw claim string.
-    expect(markup).toContain("approved a plan for the mass forced expulsion");
-    expect(markup).toContain("Spreading further"); // TREND_LABELS.rising
     expect(markup).toContain("Unresolved"); // VERIFICATION_STATES.unresolved.label
-    expect(markup).toContain("Reported claim");
-    expect(markup).not.toContain("Organisation analysis, no source cited");
+    expect(markup).toContain("Being tracked; no finding has been reached."); // its meaning
+    /* The record's own hierarchy, and the reason this file exists: the
+       assessment status is emitted before the claim it qualifies, so a
+       circulating allegation is never read as a finding. Positional, not just
+       present — `NarrativeRecord` puts the status block above the headline. */
+    expect(markup.indexOf("Unresolved")).toBeLessThan(
+      markup.indexOf("Israeli government plans mass forced expulsion from Gaza"),
+    );
+    expect(markup).toContain("Claim in circulation");
+    expect(markup).not.toContain("no source cited");
   });
 
   it("marks an unsourced analysis record as the organisation's own analysis", async () => {
     listBriefingPublications.mockResolvedValue([analysisWatch]);
     const markup = await render(await WatchPage());
     expect(markup).toContain("Analysis");
-    expect(markup).toContain("Organisation analysis, no source cited");
+    /* The disclosure itself is the invariant; its wording lives in
+       `NarrativeRecord`. An unsourced record must never render without it. */
+    expect(markup).toContain("Organisation analysis");
+    expect(markup).toContain("no source cited");
   });
 
   it("shows a genuinely-empty state distinctly from an unavailable one", async () => {
     listBriefingPublications.mockResolvedValue([]);
     const markup = await render(await WatchPage());
-    /* The empty read renders watch/page.tsx:98 — "No published monitoring
-       records were returned for this read." The unavailable string is the
-       other half of the same conditional (watch/page.tsx:97). */
-    expect(markup).toContain("No published monitoring records were returned for this read");
+    /* The empty read and the failed read are the two halves of one
+       conditional in `watch/page.tsx`, and the whole point is that a reader
+       can tell them apart. Asserted on the distinguishing clause rather than
+       the full sentence, so a copy edit does not turn a real guard red. */
+    expect(markup).toContain("No published monitoring records are available");
     expect(markup).not.toContain("could not be loaded");
   });
 
@@ -136,24 +144,24 @@ describe("/fake-resistance hub — the live branch card", () => {
   it("shows the live count without touching the static case-file archive", async () => {
     listBriefingPublications.mockResolvedValue([sourcedWatch, analysisWatch]);
     const markup = await render(await HubPage());
-    expect(markup).toContain("The daily watch");
-    /* The hub's live-count span (fake-resistance/page.tsx:146) renders
-       "{watchCount} published monitoring records". React inserts a comment
-       marker between the interpolated count and the literal text that follows
-       it ("2<!-- --> published monitoring records"), so match the two halves
-       rather than the joined string. */
-    expect(markup).toMatch(/>2<!-- -->\s*published monitoring records</);
+    /* The hub states the live count in its masthead facts and links onward to
+       the archive. It must read the live projection, never the hand-reviewed
+       case files — conflating the two is the upgrade this desk does not do. */
+    expect(markup).toContain("On the watch");
+    expect(markup).toMatch(/On the watch<\/dt><dd>2</);
     expect(markup).toContain("/fake-resistance/watch");
+    expect(markup).toContain("Published monitoring. Not a live scan.");
   });
 
   it("degrades to an unavailable count rather than 500ing the whole hub", async () => {
     listBriefingPublications.mockRejectedValue(new Error("no database"));
     const markup = await render(await HubPage());
-    /* On a failed read the hub leaves `watchCount` null
-       (fake-resistance/page.tsx:63-71), and the branch card says so —
-       "Publication count unavailable" (page.tsx:146) — instead of rendering
-       a fabricated numeric count. */
-    expect(markup).toContain("Publication count unavailable");
-    expect(markup).not.toMatch(/>\d+<!-- -->\s*published monitoring records</);
+    /* The hub must render rather than 500, and — the part that is easy to
+       lose in a redesign — it must not print a count it does not have. Both
+       reads settle to `[]` on failure, so an unguarded `items.length` would
+       state "0" as fact beside a body that says the feed is unavailable. */
+    expect(markup).toContain("Monitoring is temporarily unavailable");
+    expect(markup).toMatch(/On the watch<\/dt><dd>Unavailable</);
+    expect(markup).not.toMatch(/On the watch<\/dt><dd>0</);
   });
 });

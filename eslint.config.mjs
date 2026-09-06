@@ -35,11 +35,20 @@ const eslintConfig = defineConfig([
     ".codex/**",
     ".ds-sync/**",
     "ds-bundle/**",
-    /* The same call tsconfig makes for `midjrny`: scratch checkouts that
-       appear beside the repo during graphics work, each with vendored code
-       and its own type shims that would otherwise pollute both gates. */
-    "midjrny/**",
-    "midjrny-wt-*/**",
+    /* The same call tsconfig makes: scratch checkouts that appear beside the
+       repo during graphics work, each with vendored code and its own type
+       shims that would otherwise pollute both gates.
+
+       Both spellings, and this is not belt-and-braces. The directory that
+       actually exists on disk is `midjourny/` — with the u — while every
+       guard in the repo was originally written `midjrny`. `.gitignore`,
+       `.vercelignore` and `tsconfig.json` were corrected on 2026-09-05 and
+       this file was missed, so `npm run lint` was reporting ~2,000 errors in
+       a vendored checkout nobody wrote, which is exactly the symptom
+       `AGENTS.md` tells the next reader to interpret as a removed ignore.
+       A glob rather than a literal, so the next drop is covered already. */
+    "midjrny*/**",
+    "midjourny*/**",
   ]),
 
   {

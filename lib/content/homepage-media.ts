@@ -1,4 +1,8 @@
 import 'server-only';
+/* The static/legacy media path: a hand-mapped registry keyed by homepage
+ * reference. A live publication now carries its own `media` on the public
+ * projection and uses this only as the fallback for records mapped here
+ * before that field existed. */
 import { z } from 'zod';
 import media from '@/content-packages/homepage/media.json';
 import excerpts from '@/content-packages/homepage/excerpts.json';

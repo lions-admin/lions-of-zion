@@ -113,6 +113,19 @@ drizzle-kit's snapshot (see `0021`).
 `publication_evidence`, `publication_narrative`, `publication_passage`,
 `publication_passage_evidence`, `publication_related`, `homepage_feature`
 
+**Editorial media** — `editorial_media`, `publication_media` (migration
+`0057`). An asset and its rights on one table, which publication wears it on
+the other. This exists because `content-packages/homepage/media.json` — still
+the registry for every hand-curated static asset — needs a human to add a
+mapping in the same commit as the content, and a publication that arrives at
+07:00 from an external composer has no such commit. Three rules live in SQL
+rather than in TypeScript, because each is one a future write path would
+otherwise re-decide: a `cleared` asset records the date it was cleared; `src`
+must be a local path or an object in this project's own public Blob store, so
+a publisher's CDN can never become the site's image host; and a `generated`
+image may not wear a documentary role. `app_public` sees only cleared rows —
+a withdrawal stops the asset being *reachable*, not merely being rendered.
+
 **Public reports** — `report`, `report_file`, `report_status_history`
 
 **Narratives** — `narrative`, `narrative_item`, `narrative_observation`,

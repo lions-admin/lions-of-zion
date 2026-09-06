@@ -21,7 +21,34 @@ import "server-only";
 import type { OutboxRow } from "@/server/db/schema";
 import { queueClient } from "./queue-client";
 
-export const OUTBOX_QUEUE_TOPIC = "outbox.dispatch";
+/**
+ * What Vercel Queues accepts as a topic name.
+ *
+ * The queue API (`/api/v3/topic/<name>`) refuses anything outside this set
+ * with `Invalid V3 queue name. Must be 1-256 alphanumeric characters,
+ * hyphens, or underscores.` — and it refuses it at `send()`, not at deploy.
+ * The SDK does not check locally, and a `vercel.json` trigger naming an
+ * invalid topic deploys without complaint. So from 2026-09-05 to 2026-09-07
+ * this file said `"outbox.dispatch"`, every deploy was green, the drain cron
+ * returned 200 every fifteen minutes, and not one outbox row was ever handed
+ * to the queue: 3,348 rows carried that error and `attempts` in the sixties,
+ * and every whole-site editorial run sat `queued` until the GitHub poller
+ * gave up. The rule is held here as a regex and asserted at import, so the
+ * next wrong name fails the test suite and the build instead of Production.
+ */
+export const QUEUE_TOPIC_NAME = /^[A-Za-z0-9_-]{1,256}$/;
+
+export function assertQueueTopicName(name: string): string {
+  if (!QUEUE_TOPIC_NAME.test(name)) {
+    throw new Error(
+      `"${name}" is not a valid Vercel Queue topic: 1-256 alphanumeric characters, hyphens or underscores only.`,
+    );
+  }
+  return name;
+}
+
+/** Hyphen, not dot — see `QUEUE_TOPIC_NAME`. `vercel.json` must say the same. */
+export const OUTBOX_QUEUE_TOPIC = assertQueueTopicName("outbox-dispatch");
 
 export type OutboxDispatchMessage = {
   outboxId: string;

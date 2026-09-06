@@ -81,6 +81,42 @@ describe("outbox drain", () => {
     expect(result).toEqual({ attempted: 200, dispatched: 200, failed: 0 });
   });
 
+  /* Production, 2026-09-06: 3,348 rows the queue kept refusing, each inside a
+     one-hour backoff, always outnumbered the batch, and the three fresh
+     `editorial.run-process` rows behind them were never once handed to
+     `dispatch`. Ordered by `available_at` alone that is the steady state of
+     any failing backlog; never-attempted rows go first so new work is not
+     held hostage to old retries — including the tick right after the fault
+     is fixed, when everything is eligible at once. */
+  it("hands a fresh row to the queue ahead of a backlog of retried ones", async () => {
+    const db = await freshDatabase();
+    const old = new Date(Date.now() - 3_600_000);
+    await db.insert(outbox).values(
+      Array.from({ length: 30 }, (_, i) => ({
+        topic: "search.reindex", payload: { id: `stale-${i}` }, attempts: 5, lastError: "Invalid V3 queue name.",
+        createdAt: old, availableAt: new Date(old.getTime() + i * 1000),
+      })),
+    );
+    const fresh = await seedOutboxRow(db, { topic: "editorial.run-process", payload: { runId: "r" } });
+
+    const dispatched: string[] = [];
+    const result = await drainOutbox(db, { limit: 10, dispatch: async (r) => { dispatched.push(r.topic); } });
+
+    expect(result).toEqual({ attempted: 10, dispatched: 10, failed: 0 });
+    expect(dispatched[0]).toBe("editorial.run-process");
+    const [after] = await db.select().from(outbox).where(eq(outbox.id, fresh.id));
+    expect(after!.publishedAt).not.toBeNull();
+  });
+
+  it("still retries a backlog row once nothing fresh is ahead of it", async () => {
+    const db = await freshDatabase();
+    const row = await seedOutboxRow(db, { attempts: 3, lastError: "queue unreachable", availableAt: new Date(Date.now() - 1000) });
+    const result = await drainOutbox(db, { dispatch: async () => {} });
+    expect(result).toEqual({ attempted: 1, dispatched: 1, failed: 0 });
+    const [after] = await db.select().from(outbox).where(eq(outbox.id, row.id));
+    expect(after!.publishedAt).not.toBeNull();
+  });
+
   it("still honours an explicit limit", async () => {
     const db = await freshDatabase();
     await db.insert(outbox).values(

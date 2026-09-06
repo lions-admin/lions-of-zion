@@ -1,5 +1,10 @@
 import type { CaseEdge, CaseEntity, NetworkCommunity } from '@/lib/content/fake-resistance-cases';
-import { communityOf, ungroupedRole } from '@/lib/content/fake-resistance-network-communities';
+import {
+  type CommunityId,
+  communityIndex,
+  communityOf,
+  ungroupedRole,
+} from '@/lib/content/fake-resistance-network-communities';
 
 /**
  * The geometry of the influence graph, computed once on the server.
@@ -71,7 +76,7 @@ export type GraphNode = {
   /** How many edges touch this entity. */
   degree: number;
   /** `"1"`–`"7"`, or undefined for an entity the research placed in none. */
-  community?: string;
+  community?: CommunityId;
   /** For an ungrouped entity, the research's own word for what it is. */
   role?: string;
   /** 0-based connected-component index, largest component first. */
@@ -93,8 +98,8 @@ export type GraphGroup = {
   key: string;
   /** The community's name, or the research's role word for ungrouped rows. */
   label: string;
-  /** `"1"`–`"7"` where there is one. */
-  number?: string;
+  /** The computed community id, where the run has one. */
+  number?: CommunityId;
   startRow: number;
   endRow: number;
   size: number;
@@ -131,17 +136,18 @@ function orderNodes(
   degree: Map<string, number>,
   componentOf: Map<string, number>,
   componentSize: Map<number, number>,
+  index: Map<string, CommunityId>,
 ): GraphNode[] {
   const ranked = [...degree.keys()]
     .map((id) => {
       const entity = entities.get(id);
       if (!entity) return null;
-      const community = communityOf(id);
+      const community = communityOf(entity, index);
       return {
         entity,
         degree: degree.get(id) ?? 0,
         community,
-        role: community ? undefined : ungroupedRole(id),
+        role: community === undefined ? ungroupedRole(id) : undefined,
         component: componentOf.get(id) ?? 0,
       };
     })
@@ -160,9 +166,7 @@ function orderNodes(
     if ((a.community === undefined) !== (b.community === undefined)) {
       return a.community === undefined ? 1 : -1;
     }
-    if (a.community !== b.community) {
-      return (a.community ?? '').localeCompare(b.community ?? '', 'en', { numeric: true });
-    }
+    if (a.community !== b.community) return (a.community ?? 0) - (b.community ?? 0);
 
     if (a.degree !== b.degree) return b.degree - a.degree;
     return a.entity.name.localeCompare(b.entity.name, 'en');
@@ -244,7 +248,7 @@ export function buildGraphLayout(
     componentSize.set(index, size);
   }
 
-  const nodes = orderNodes(entities, degree, componentOf, componentSize);
+  const nodes = orderNodes(entities, degree, componentOf, componentSize, communityIndex(communities));
   const rowOf = new Map(nodes.map((node) => [node.entity.id, node.row]));
 
   const arcs: GraphArc[] = usable.flatMap((edge) => {
@@ -265,7 +269,7 @@ export function buildGraphLayout(
   // Contiguous runs of the same community become one bracketed group. The runs
   // are contiguous by construction — the sort put them that way — so this only
   // has to notice where one ends.
-  const communityName = new Map(communities.map((c) => [c.number, c.name]));
+  const communityName = new Map(communities.map((c) => [c.id, c.label]));
   const groups: GraphGroup[] = [];
   for (const node of nodes) {
     const key = `${node.component}:${node.community ?? node.role ?? 'none'}`;
@@ -277,9 +281,10 @@ export function buildGraphLayout(
     }
     groups.push({
       key,
-      label: node.community
-        ? (communityName.get(node.community) ?? `Community ${node.community}`)
-        : (node.role ?? 'Not placed in a community'),
+      label:
+        node.community === undefined
+          ? (node.role ?? 'Not placed in a community')
+          : (communityName.get(node.community) ?? `Community ${node.community}`),
       number: node.community,
       startRow: node.row,
       endRow: node.row,

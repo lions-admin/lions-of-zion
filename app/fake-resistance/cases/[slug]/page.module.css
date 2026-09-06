@@ -297,3 +297,85 @@
   padding: 0 var(--sp-1);
   color: var(--data-ember-peak);
 }
+
+/* The test behind an inferred edge — measurements a reader checks, set as
+   data rather than prose. */
+.edgeTest {
+  margin: var(--sp-2) 0 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+.firstSeen {
+  list-style: none;
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+}
+
+.firstSeen > li {
+  padding: var(--sp-4) 0;
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.firstSeenLabel {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-hi);
+  max-width: 68ch;
+}
+
+.firstSeenBody {
+  margin: 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  max-width: 68ch;
+}
+
+/* ── The investigation surface's hosts ─────────────────────────────────── */
+
+/* The roster table stands behind the role map as the accessible data form;
+   a native disclosure keeps it one gesture away without repeating the list. */
+.rosterFallback {
+  margin-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.rosterFallback > summary {
+  min-height: 44px;
+  padding: var(--sp-3) 0;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.rosterFallback > summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+/* A figure that belongs to a section but is not its first thing. */
+.figureBlock {
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.figureHeading {
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}

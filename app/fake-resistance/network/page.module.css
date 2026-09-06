@@ -140,3 +140,21 @@
   composes: dataValue from global;
   color: var(--ink);
 }
+
+/* The test behind an inferred edge, set as data rather than prose: it is a
+   row of measurements a reader checks, not a sentence they read. */
+.edgeTest {
+  margin: var(--sp-2) 0 0;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+.edgeNote {
+  max-width: 68ch;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+}

@@ -1,35 +1,337 @@
-/* The file index, promoted from the section's root page to a branch of its
-   own. A list of destinations, not a sequence — but each entry says what it
-   is, what it asks, what stands behind it, and where it goes (INV-005), so
-   no card in the column is a generic teaser.
+/* The investigation index: an editorial map, not a card grid.
 
-   Each entry is `Card variant="row"` — a record in a column, not a repeated
-   box. Values answer to the V3 tokens in app/globals.css. */
+   Findings first, then the case constellation as numbered editorial rows —
+   each says what part of the system the file is about, what it asks, and how
+   much stands behind it — then the measured threads that join the files, then
+   the reference works, then the method footer. Rules, labels and numbers do
+   the structuring; nothing here is a box.
 
-.fileIndex {
+   Values answer to the V3 tokens in app/globals.css. */
+
+.findings {
   margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: finding;
+}
+
+.findings > li {
+  position: relative;
+  padding-left: var(--sp-7);
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  counter-increment: finding;
+  text-wrap: pretty;
+}
+
+.findings > li + li {
+  margin-top: var(--sp-4);
+}
+
+.findings > li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--gold);
+  content: counter(finding, decimal-leading-zero);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-body-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.findingsNote,
+.threadHint {
+  margin: var(--sp-4) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.findingsNote a {
+  color: var(--gold);
+}
+
+/* ── The constellation ─────────────────────────────────────────────────── */
+
+.constellation {
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+.caseRow {
+  display: grid;
+  grid-template-columns: var(--sp-7) minmax(0, 1fr);
+  gap: var(--sp-3);
+  padding: var(--sp-5) 0;
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.caseIndex {
+  padding-top: 0.35em;
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.caseBody {
+  min-width: 0;
+}
+
+.caseTitle {
+  margin: 0;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
+}
+
+.caseTitle a {
+  color: var(--ink-hi);
+  text-decoration: none;
+}
+
+.caseTitle a:hover,
+.caseTitle a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.casePart {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-wrap: pretty;
+}
+
+.caseQuestion {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.caseFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--sp-3) var(--sp-5);
+  margin: var(--sp-4) 0 0;
+  padding-top: var(--sp-3);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.caseFacts > div {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+/* A descendant selector cannot `composes` (app/globals.css), so the label
+   role is spelled out. */
+.caseFacts dt {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.caseFacts dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-small-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.caseConfidence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.caseUpdated {
+  color: var(--gold);
+}
+
+.caseOpen {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  margin-top: var(--sp-3);
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.caseOpen:hover,
+.caseOpen:focus-visible {
+  color: var(--gold-hi);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+/* ── Threads ───────────────────────────────────────────────────────────── */
+
+.threadGroup {
+  margin-top: var(--sp-5);
+}
+
+.threadKind {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+.threadHint {
+  margin-top: var(--sp-1);
+}
+
+.threads {
+  margin: var(--sp-3) 0 0;
   padding: 0;
   list-style: none;
   border-top: var(--line-w) solid var(--line);
 }
 
-.fileRow {
+.thread {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-4) 0;
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.thread[data-kind='inferred'] {
+  border-bottom-style: dotted;
+  color: var(--ink-lo);
+}
+
+.threadPair {
+  composes: dataValue from global;
+  color: var(--ink-hi);
   overflow-wrap: anywhere;
 }
 
-/* The record's evidence line: a labelled fact about what the file rests on,
-   in the data voice, above the destination cue the Card primitive pins. */
-.fileEvidence {
+.threadPair > span {
+  padding: 0 var(--sp-1);
+  color: var(--data-ember-peak);
+}
+
+.thread[data-kind='inferred'] .threadPair > span {
+  color: var(--ink-lo);
+}
+
+.threadGrades {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.threadMeasure {
   composes: dataMeta from global;
-  margin: var(--sp-3) 0 0;
   color: var(--ink-lo);
   font-variant-numeric: tabular-nums;
 }
 
-.fileEvidence > span {
-  display: block;
-  margin-bottom: var(--sp-1);
-  color: var(--data-ember-peak);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+.threadStatement {
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+/* ── Reference works and method ────────────────────────────────────────── */
+
+.reference {
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.reference > li {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-4) 0;
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.reference a {
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  line-height: var(--t-figure-lh);
+  text-decoration: none;
+}
+
+.reference a:hover,
+.reference a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.reference span {
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.method {
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.method strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.method a {
+  color: var(--gold);
+}
+
+@media (max-width: 45rem) {
+  .caseRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .caseIndex {
+    padding-top: 0;
+  }
 }

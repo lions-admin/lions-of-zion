@@ -8,14 +8,14 @@ import {
   ResearchText,
   SourceList,
 } from '@/components/content';
-import { Card, CardDescription, CardEyebrow, CardHeader, CardTitle } from '@/components/ui/Card';
+import { CommunityMap, OverturnedList } from '@/components/research';
+import { NetworkExplorer } from '@/components/investigation';
 import { getCaseIndex, getResearchNetwork } from '@/lib/content/fake-resistance-cases';
-import { UNRESOLVED_LABELS } from '@/lib/content/fake-resistance-network-communities';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 
 const TAGLINE =
-  'What the seven case files add up to — and the conclusions that survived every attempt to break them.';
+  'What the case files add up to when the network is computed rather than drawn by hand — and which of the earlier readings that killed.';
 const PAGE_URL = `${SITE_URL}/fake-resistance/network`;
 
 export const metadata: Metadata = {
@@ -27,6 +27,16 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const [network, cases] = await Promise.all([getResearchNetwork(), getCaseIndex()]);
+
+  /* The account-level drawing shows the inferential layer only. The observed
+     layer is 589 edges over 183 accounts — real, and far past the size where a
+     drawing of it says anything a reader can check. It stays in the data and
+     in the per-case files, where it is read a case at a time. */
+  const coordinationEdges = network.edges.filter(
+    (edge) => edge.evidenceClass === 'inferred_coordination',
+  );
+  const inCoordination = new Set(coordinationEdges.flatMap((edge) => [edge.fromId, edge.toId]));
+  const coordinationRoster = network.roster.filter((entity) => inCoordination.has(entity.id));
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -62,65 +72,80 @@ export default async function Page() {
         ))}
       </SectionBlock>
 
-      <SectionBlock heading="Seven communities, not one operation">
+      <SectionBlock heading="Five communities, computed">
         <p>
-          The single most important result here is a negative one. Mapping{' '}
-          {cases.length} case files against each other produced seven distinct
-          communities joined by a handful of documented bridges — not one
-          coordinated operation, and not seven sealed islands either. Anyone
-          describing this ecosystem as a single machine with a single hand
-          behind it is describing something the evidence did not find.
+          The single most important result here is a negative one, and it is
+          not the one this section published in August. Mapping {cases.length}{' '}
+          case files against each other used to produce seven communities
+          joined by five bridges — a reading a person made from a
+          twenty-one-edge table. Running the partition over the merged corpus
+          instead gives{' '}
+          <strong>
+            {network.metrics.communities} communities across{' '}
+            {network.metrics.nodes?.toLocaleString('en')} accounts
+          </strong>
+          , one of which holds about four fifths of them. Neither picture is a
+          single machine with a single hand behind it. But the old one was also
+          not a simplification of this one; it was a different claim, and the
+          data withdrew it.
         </p>
 
-        <NetworkFigure
-          roster={network.roster}
-          edges={network.edges}
+        <CommunityMap
           communities={network.communities}
+          communityEdges={network.communityEdges}
+          metrics={network.metrics}
+          caveat={network.caveat}
         />
-
-        <ul className={styles.communityList}>
-          {network.communities.map((community) => (
-            <Card as="li" key={community.number} variant="row">
-              <CardHeader>
-                <CardEyebrow>{String(community.number).padStart(2, '0')}</CardEyebrow>
-              </CardHeader>
-              <CardTitle>{community.name}</CardTitle>
-              <CardDescription>{community.nodes.join(' · ')}</CardDescription>
-              <p className={styles.communityBinding}>
-                <span>What holds it together</span> {community.binding}
-              </p>
-            </Card>
-          ))}
-        </ul>
-
-        <p className={styles.communityNote}>
-          The lists above are the report&rsquo;s own, and{' '}
-          {UNRESOLVED_LABELS.length} of the names in them —{' '}
-          <span className={styles.communityNoteNames}>
-            {UNRESOLVED_LABELS.map((entry) => entry.label).join(', ')}
-          </span>{' '}
-          — belong to accounts the research did not enter into its entity
-          roster. They are counted in a community here and cannot be counted in
-          the drawing above, which is built from the roster. The gap is the
-          report&rsquo;s, and it is left visible rather than closed by guessing
-          at an identity.
-        </p>
       </SectionBlock>
 
-      <SectionBlock heading="The bridges between them">
+      {network.pipeline.length > 0 ? (
+        <SectionBlock heading="How material moves">
+          <p>
+            The flow the corpus shows runs in four stages. Each is a role
+            rather than an organisation: the same account can seed one item and
+            amplify the next.
+          </p>
+          <ol className={styles.findings}>
+            {network.pipeline.map((stage) => (
+              <li key={stage.slice(0, 40)}>
+                <ResearchText>{stage}</ResearchText>
+              </li>
+            ))}
+          </ol>
+        </SectionBlock>
+      ) : null}
+
+      {network.synthesisOverturned.length > 0 ? (
+        <SectionBlock heading="What the rebuild overturned">
+          <p>
+            These are readings this section published in August that its own
+            new data withdrew. They are listed before the findings, not after
+            them, because a reader who met the earlier version deserves the
+            correction first.
+          </p>
+          <OverturnedList rows={network.synthesisOverturned} />
+        </SectionBlock>
+      ) : null}
+
+      <SectionBlock heading="Where the communities touch">
         <p>
-          Where the communities touch, they touch through individuals rather
-          than through structures — an account that appears in two lanes, a
-          wire that several of them read, a guest who moves between shows.
-          These are the documented crossings:
+          {network.metrics.bridges} edges in this graph are structural bridges:
+          remove one and the two sides it joins stop being connected through
+          it. They run through individual accounts rather than through
+          structures — an account that appears in two lanes, a wire several of
+          them read, a guest who moves between shows. The count is computed;
+          the earlier version of this page listed five bridges that a person
+          had picked out.
         </p>
-        <ul className={styles.bridges}>
-          {network.bridges.map((bridge) => (
-            <li key={bridge.slice(0, 40)}>
-              <ResearchText>{bridge}</ResearchText>
-            </li>
-          ))}
-        </ul>
+        {network.bridges.length > 0 ? (
+          <ul className={styles.bridges}>
+            {network.bridges.map((bridge) => (
+              <li key={bridge.slice(0, 40)}>
+                <ResearchText>{bridge}</ResearchText>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </SectionBlock>
 
       <SectionBlock heading="Findings that survived the contradiction pass">
@@ -139,16 +164,114 @@ export default async function Page() {
         </ol>
       </SectionBlock>
 
-      <SectionBlock heading="Documented edges">
+      <SectionBlock heading="Explore the connections" id="explore">
         <p>
-          Every connection below was observed or documented, and each carries
-          the kind of evidence that stands behind it: <strong>documented</strong>{' '}
-          means stated on the record, <strong>observed</strong> means seen
-          happening in public posts, and <strong>inferred</strong> means a
-          pattern consistent with coordination that was not established.
+          Every recorded connection in the merged corpus, as a list a reader can
+          filter and check: by the kind of relation, by the class of evidence
+          behind it, and by computed community. Choose an account to read its
+          placement, its strongest connections, and the case file that
+          examines it in full. Nothing here is drawn; every edge is a sentence
+          with a grade.
         </p>
+        <NetworkExplorer
+          roster={network.roster}
+          edges={network.edges}
+          communities={network.communities}
+          topNodes={network.topNodes}
+          cases={cases.map((entry) => ({
+            caseId: entry.caseId,
+            slug: entry.slug,
+            title: entry.title.split(':')[0].trim(),
+          }))}
+        />
+      </SectionBlock>
+
+      <SectionBlock heading="What the network does not prove" id="does-not-prove">
+        <ul className={styles.bridges}>
+          <li>
+            An edge is an observation, not an allegiance. A quote, a mention or
+            a follow records that one account touched another in public; it does
+            not say why, and it does not say the two agree.
+          </li>
+          <li>
+            A community is a computed partition of a convenience sample. It says
+            which accounts interact more with each other than with the rest of
+            this sample — not that they know each other, and nothing about
+            accounts the sample never harvested.
+          </li>
+          <li>
+            An inferred coordination signal is a timing pattern that a null model
+            could not explain. It is not proof of instruction, shared staffing or
+            shared ownership, and the research caps single-trace signals at low
+            confidence however small their p-value.
+          </li>
+          <li>
+            Mention edges are text-derived and include ordinary fan-to-celebrity
+            tagging; caption-copy direction rests on the earliest timestamp in
+            the sample; follow sets are single-page and recency-biased. Each of
+            these is stated in the limitations below and none is smoothed over
+            in the list above.
+          </li>
+        </ul>
+      </SectionBlock>
+
+      {network.synthesisOverturned.length > 0 || network.overturned.length > 0 ? (
+        <SectionBlock heading="How the reading changed over time" id="timeline">
+          <p>
+            The cross-case record has two dated states: the hand-drawn reading
+            published on 26 August 2026 and the computed rebuild of 6 September
+            2026. Each row is one change in interpretation between them.
+          </p>
+          <ol className={styles.findings}>
+            {[...network.overturned, ...network.synthesisOverturned].map((row) => (
+              <li key={row.now.slice(0, 60)}>
+                {row.prior ? (
+                  <>
+                    <time dateTime="2026-08-26">26 Aug 2026</time>: <ResearchText>{row.prior}</ResearchText>
+                    {' → '}
+                  </>
+                ) : null}
+                <time dateTime="2026-09-06">6 Sep 2026</time>: <ResearchText>{row.now}</ResearchText>
+                {row.status ? ` (${row.status})` : ''}
+              </li>
+            ))}
+          </ol>
+        </SectionBlock>
+      ) : null}
+
+      <SectionBlock heading="The coordination layer">
+        <p>
+          Of the {network.metrics.edges?.toLocaleString('en')} observed edges in
+          the graph, {network.metrics.coordinationEdges} are inferential: pairs
+          of accounts whose behaviour matched more closely than a null model
+          says it should have. They are the only edges here that assert
+          anything beyond &ldquo;this happened&rdquo;, and every one of them
+          carries the test behind it — the p-value, the null it was tested
+          against, and the sample size. An edge without those does not publish.
+        </p>
+        <p>
+          The drawing is deliberately the small layer. Drawing all{' '}
+          {network.metrics.nodes} accounts would produce a hairball whose shape
+          is an artefact of the layout; the {coordinationRoster.length} accounts
+          below are the ones the coordination test actually touched.
+        </p>
+
+        <NetworkFigure
+          roster={coordinationRoster}
+          edges={coordinationEdges}
+          communities={network.communities}
+        />
+
+        <p className={styles.edgeNote}>
+          A matched behavioural signal is not proof of coordination, and the
+          research caps it accordingly: a pair that matched on a single trace
+          is held at low confidence however small its p-value, because two
+          accounts covering the same news on the same rhythm will match on one
+          trace all day. {network.caveat}
+        </p>
+
         <ul className={styles.edges}>
-          {network.edges.map((edge) => (
+          {coordinationEdges.map((edge) => (
             <li key={edge.id}>
               <div className={styles.edgeHead}>
                 <span className={styles.edgePair}>
@@ -157,6 +280,13 @@ export default async function Page() {
                 <EvidenceClassChip value={edge.evidenceClass} />
               </div>
               <p>{edge.statement}</p>
+              {edge.pValue ? (
+                <p className={styles.edgeTest}>
+                  p = {edge.pValue} · {edge.nullModel} · n ={' '}
+                  {Number(edge.sampleN).toLocaleString('en')}
+                  {edge.analysisOutput ? ` · ${edge.analysisOutput}` : ''}
+                </p>
+              ) : null}
             </li>
           ))}
         </ul>

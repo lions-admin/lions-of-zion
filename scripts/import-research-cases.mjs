@@ -39,6 +39,9 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { parseCsv } from './lib/research-csv.mjs';
+import { caseStats, computedNetwork, researchContext } from './lib/research-stats.mjs';
+
 const [, , researchRoot] = process.argv;
 const REPO = path.resolve(import.meta.dirname, '..');
 
@@ -73,58 +76,6 @@ const GRAPH_SLUG = 'cross-cluster-network';
 const SYNTHESIS_SLUG = 'synthesis';
 
 // ---------- CSV ----------
-
-/**
- * RFC 4180 reader. The delivery's text fields carry commas, embedded quotes
- * and newlines (a `publication_wording` can be a full sentence with a quoted
- * slogan inside it), so a split on commas would silently shred the data.
- */
-function parseCsv(text) {
-  const rows = [];
-  let row = [];
-  let field = '';
-  let quoted = false;
-  let i = 0;
-
-  // A BOM ahead of the header would become part of the first column name.
-  if (text.charCodeAt(0) === 0xfeff) i = 1;
-
-  for (; i < text.length; i += 1) {
-    const c = text[i];
-    if (quoted) {
-      if (c === '"') {
-        if (text[i + 1] === '"') {
-          field += '"';
-          i += 1;
-        } else {
-          quoted = false;
-        }
-      } else {
-        field += c;
-      }
-      continue;
-    }
-    if (c === '"') {
-      quoted = true;
-    } else if (c === ',') {
-      row.push(field);
-      field = '';
-    } else if (c === '\n' || c === '\r') {
-      if (c === '\r' && text[i + 1] === '\n') i += 1;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = '';
-    } else {
-      field += c;
-    }
-  }
-  if (field !== '' || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows.filter((r) => r.length > 1 || (r[0] ?? '').trim() !== '');
-}
 
 function readTable(caseDir, file) {
   const full = path.join(caseDir, 'data', file);
@@ -222,22 +173,9 @@ function sectionLines(report, titles) {
   return lines;
 }
 
-/**
- * The rows of the first markdown table under a `###` sub-heading.
- *
- * The graph packet keeps its community roster in a table rather than in a
- * CSV — communities are an analytic grouping over the entities, not entities
- * themselves — so this is the one place a report's own table is the data.
- */
-function subsectionTable(report, heading) {
-  const re = new RegExp(`^###\\s*${heading}\\b.*$`, 'im');
-  const start = report.search(re);
-  if (start === -1) return [];
-  const after = report.slice(start).replace(re, '');
-  const end = after.search(/^#{2,3}\s/m);
-  const block = end === -1 ? after : after.slice(0, end);
-
-  const rows = block
+/** The rows of a markdown table, header and separator rule dropped. */
+function tableRows(block) {
+  return block
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line.startsWith('|'))
@@ -248,9 +186,70 @@ function subsectionTable(report, heading) {
         .map((cell) => cell.trim()),
     )
     // Drop the header and its `|---|` separator.
-    .filter((cells) => !cells.every((cell) => /^:?-{3,}:?$/.test(cell)));
+    .filter((cells) => !cells.every((cell) => /^:?-{3,}:?$/.test(cell)))
+    .slice(1);
+}
 
-  return rows.slice(1);
+function subsectionTable(report, heading) {
+  const re = new RegExp(`^###\\s*${heading}\\b.*$`, 'im');
+  const start = report.search(re);
+  if (start === -1) return [];
+  const after = report.slice(start).replace(re, '');
+  const end = after.search(/^#{2,3}\s/m);
+  return tableRows(end === -1 ? after : after.slice(0, end));
+}
+
+/**
+ * The "what we got wrong" table, as three columns: the prior reading, what the
+ * new data showed, and what the desk did about it.
+ *
+ * The nine reports write this table with different column headers but the same
+ * shape, and two of them (08, 09) put it in the same section as the bottom
+ * line. Rows shorter than three cells are dropped rather than padded — a
+ * half-read row would put words in the research's mouth.
+ */
+function overturnedRows(report) {
+  for (const title of OVERTURNED_TITLES) {
+    const section = reportSection(report, title);
+    if (!section) continue;
+
+    const rows = tableRows(section)
+      // Case 07 indexes its rows with a bare ordinal column; drop it so the
+      // three that carry meaning line up with every other case's table.
+      .map((cells) => (/^\d+$/.test(cells[0] ?? '') ? cells.slice(1) : cells))
+      // Case 02 runs three columns (prior, verdict) where others run four
+      // (prior, verdict, why); a missing status is absent, not empty.
+      .filter((cells) => cells.length >= 2 && cells[0] && cells[1])
+      .map((cells) =>
+        compact({
+          prior: stripMarkdown(cells[0]),
+          now: stripMarkdown(cells[1]),
+          status: stripMarkdown(cells[2] ?? ''),
+        }),
+      );
+    if (rows.length) return rows;
+
+    /* Case 01 writes its corrections as a numbered argument rather than a
+       table — "'70% of sampled output is Gulag amplification' → 36.3%" — and
+       the sentence is the whole finding. It travels as a single `now` with no
+       prior/status, which the renderer shows as a statement instead of a
+       three-column row. Splitting it on the arrow would be guessing where the
+       claim ends and the correction begins. */
+    const points = numberedPoints(section).map((text) => ({ now: stripMarkdown(text) }));
+    if (points.length) return points;
+  }
+  return [];
+}
+
+/** Bold/italic/code markers out; the words they emphasised stay. */
+function stripMarkdown(text) {
+  return (text ?? '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/(^|\W)\*(?!\s)(.+?)(?<!\s)\*(?=\W|$)/g, '$1$2')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\$([^$]+)\$/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
 /** The dash bullets under a `###` sub-heading. */
@@ -275,7 +274,22 @@ const LIMITATION_TITLES = [
   'What could not be reproduced',
   'Methodology',
 ];
-const UNKNOWN_TITLES = ['Unknowns and next queries', 'Unknowns', 'Cross-links & unknowns'];
+const UNKNOWN_TITLES = [
+  'Unknowns and next queries',
+  'Unknowns',
+  'Cross-links & unknowns',
+  'Known Unknowns & Limitations',
+];
+/* Where a case records the readings its own new data killed. Every rebuilt
+   packet carries one, under a title of its own choosing, and it is the most
+   load-bearing section on the page: a research desk that only ever adds to its
+   findings is not checking them. */
+const OVERTURNED_TITLES = [
+  'What the new data overturned',
+  'Prior Conclusions Overturned',
+  'Overturned prior conclusions',
+  'Bottom line — and what the new data overturned',
+];
 const CONTRADICTION_TITLES = [
   'Contradictions and denials',
   'Contradiction pass',
@@ -390,8 +404,28 @@ if (caseDirs.length === 0) {
 
 console.log(`importing research from ${src}`);
 
+/* A rebuild, not a merge — except for one file it did not write.
+   `cases/pre-october-infrastructure.json` is a case the desk assembled outside
+   the nine packets and holds at `lifecycle: "held"`: committed, twenty sources
+   with Wayback captures, and deliberately not rendered, because publishing it
+   is a separate owner decision (`.ai/DECISIONS.md`, 2026-08-27). It is not a
+   research packet, so a wholesale rebuild would delete it and the record of
+   what was looked for and not found would go with it. Anything else under
+   `cases/` is this script's output and is rebuilt. */
+const HELD_OUTSIDE_THE_PACKETS = ['cases/pre-october-infrastructure.json'];
+const preserved = new Map();
+for (const rel of HELD_OUTSIDE_THE_PACKETS) {
+  const full = path.join(out, rel);
+  if (fs.existsSync(full)) preserved.set(rel, fs.readFileSync(full));
+}
+
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(path.join(out, 'cases'), { recursive: true });
+
+for (const [rel, body] of preserved) {
+  fs.writeFileSync(path.join(out, rel), body);
+  console.log(`  kept ${rel} (held outside the packets)`);
+}
 
 /* ── the vendor scrub ──────────────────────────────────────────────────────
    The research pulled its X data through a paid third-party relay whose API
@@ -500,6 +534,10 @@ const writeJson = (rel, value) => {
   fs.writeFileSync(dest, body);
   return Buffer.byteLength(body);
 };
+
+/* Roster controls and the Phase-3 first-seen table are read once and shared by
+   every case, rather than re-read nine times. */
+const research = researchContext(src);
 
 const built = [];
 let graphPacket = null;
@@ -684,6 +722,20 @@ for (const caseDir of caseDirs) {
         indicators: (evidenceByRelationship.get(rel.relationship_id) ?? [])
           .map((row) => row.indicator_type)
           .filter(Boolean),
+        /* An inferred edge without its null model is an assertion wearing a
+           statistic's clothes, and the research forbids one (plan §4.2). The
+           four columns travel together so the page can print "p = 0.003 ·
+           permutation null · n = 1,204" beside the line it drew, and so a test
+           can refuse any `inferred_coordination` edge that arrives without
+           them. `analysis_output_path` is carried as a basename: it names the
+           file that holds the computation without publishing a path into
+           someone else's filesystem. */
+        pValue: rel.p_value,
+        nullModel: rel.null_model,
+        sampleN: rel.sample_n,
+        analysisOutput: rel.analysis_output_path
+          ? rel.analysis_output_path.split('/').filter(Boolean).slice(-2).join('/')
+          : '',
       }),
     );
 
@@ -726,6 +778,14 @@ for (const caseDir of caseDirs) {
     wouldChange: sectionLines(report, ['What would change conclusions']).map(
       (text) => extractCitations(text, cite).text,
     ),
+    /* What this rebuild killed. It renders directly under the bottom line
+       because a reader who met the earlier version of a case deserves to see
+       the correction before the conclusion, not after it. */
+    overturned: overturnedRows(report),
+    /* The measurements under the statements: sample size and window, control
+       accounts, corroboration counts, Community Notes coverage, posting
+       cadence, synchrony pairs with their p-values, Phase-3 first-seen rows. */
+    stats: caseStats(caseDir, research, { entities, sources, claims }),
     roster,
     exhibits,
     edges,
@@ -761,19 +821,13 @@ for (const caseDir of caseDirs) {
   };
 
   if (slug === GRAPH_SLUG) {
-    /* The communities are the graph's actual finding — seven of them, not one
-       blob and not seven islands — and they live in the report's own table
-       because they are an analytic grouping over entities rather than
-       entities themselves. */
-    record.communities = subsectionTable(report, 'Communities').map((cells) => ({
-      number: cells[0],
-      name: cells[1],
-      nodes: cells[2]
-        .split(',')
-        .map((n) => n.trim())
-        .filter(Boolean),
-      binding: cells[3],
-    }));
+    /* The communities used to be read out of this report's own prose table —
+       seven of them, hand-asserted. The Phase-2c rebuild replaced that with a
+       computed partition (Louvain over 188 nodes and 595 edges, five
+       communities, 55 structural bridges), so they are read from the analysis
+       outputs instead and the prose table is gone. `bridges` follows it: a
+       structural bridge is now a number the metrics carry, not a list a person
+       wrote. */
     record.bridges = subsectionBullets(report, 'Bridges').map((text) =>
       extractCitations(text, cite).text,
     );
@@ -809,24 +863,49 @@ const synthesisReport = synthesisPacket
     )
   : '';
 
+/* The computed graph: communities, the aggregate flows between them, the
+   p-valued coordination subgraph, and the centrality ranking. `null` would
+   mean the analysis outputs are missing, which is a broken delivery rather
+   than a page with less on it. */
+const computed = computedNetwork(src, synthesisReport);
+if (!computed) {
+  console.error('no computed graph outputs under 08-cross-cluster-network/analysis_out');
+  process.exit(1);
+}
+
 const network = {
   updatedAt: graphPacket.updatedAt,
   question: graphPacket.question,
-  communities: graphPacket.communities ?? [],
+  ...computed,
   bridges: graphPacket.bridges ?? [],
   edges: graphPacket.edges,
   roster: graphPacket.roster,
   sources: graphPacket.sources,
-  /* The synthesis's seven findings are the spine of the network page: the
-     conclusions that survived every contradiction pass, including the ones
-     that disconfirm the program's own starting hypothesis. */
+  overturned: graphPacket.overturned ?? [],
+  /* The synthesis findings are the spine of the network page: the conclusions
+     that survived every contradiction pass, including the ones that disconfirm
+     the program's own starting hypothesis. The rebuilt synthesis states them
+     as an executive summary and a table of overturned readings rather than the
+     numbered list the first pass used, so both shapes are read. */
   findings: synthesisPacket
-    ? numberedPoints(
-        reportSection(synthesisReport, 'Seven findings that survive every contradiction pass'),
-      ).map((text) => extractCitations(text, () => null).text)
+    ? [
+        ...numberedPoints(
+          reportSection(synthesisReport, 'Seven findings that survive every contradiction pass'),
+        ),
+        ...numberedPoints(reportSection(synthesisReport, 'Executive Summary')),
+      ].map((text) => stripMarkdown(extractCitations(text, () => null).text))
     : [],
+  /* The four stages the material actually moves through. It is a finding, but
+     an ordered one, so it renders as a sequence rather than as a bullet in a
+     list of unrelated conclusions. */
+  pipeline: synthesisPacket
+    ? numberedPoints(reportSection(synthesisReport, 'Pipeline & Flow Dynamics')).map((text) =>
+        stripMarkdown(text),
+      )
+    : [],
+  synthesisOverturned: synthesisPacket ? (synthesisPacket.overturned ?? []) : [],
   executiveSummary: synthesisPacket
-    ? paragraphs(reportSection(synthesisReport, 'Executive summary'))
+    ? paragraphs(reportSection(synthesisReport, 'Executive summary')).map(stripMarkdown)
     : [],
   wouldChange: synthesisPacket ? synthesisPacket.wouldChange : [],
   limitations: synthesisPacket ? synthesisPacket.limitations : [],
@@ -848,7 +927,7 @@ const index = built.map((record) => ({
 }));
 
 bytes += writeJson('index.json', {
-  contract: 'fake-resistance-research@1',
+  contract: 'fake-resistance-research@2',
   importedFrom: path.basename(src),
   updatedAt: new Date().toISOString().slice(0, 10),
   cases: index,

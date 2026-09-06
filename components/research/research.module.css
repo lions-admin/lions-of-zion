@@ -1,0 +1,476 @@
+/*
+ * The research figures.
+ *
+ * One rule runs through all of them: the strength of a mark tracks the
+ * strength of what it stands for. A measured subject is solid, a comparison
+ * group is hollow, a result that did not clear its own significance threshold
+ * is drawn in outline and labelled. Nothing is coloured categorically —
+ * community, case and account carry no hue, because a palette of categorical
+ * colours over named real people joined by lines is a conspiracy board.
+ *
+ * Ember marks the network's own structure; gold stays on the desk's apparatus
+ * (labels, captions, denominators). That is the accent rule the rest of the
+ * section follows.
+ */
+
+.figure {
+  margin: var(--sp-7) 0;
+}
+
+.caption {
+  margin-top: var(--sp-4);
+  max-width: 68ch;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+}
+
+/* ---------- evidence strip ---------- */
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0;
+  margin: var(--sp-6) 0;
+  border-top: var(--line-w) solid var(--line-strong);
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.stripItem {
+  padding: var(--sp-4) var(--sp-4) var(--sp-4) 0;
+  border-right: var(--line-w) solid var(--line-soft);
+}
+
+.stripItem:last-child {
+  border-right: 0;
+}
+
+.stripItem dt {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--sp-2);
+}
+
+.stripItem dd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.stripItem b {
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  font-weight: var(--t-figure-weight);
+  line-height: 1;
+  color: var(--ink-hi);
+}
+
+.stripOf {
+  font-size: var(--t-body);
+  color: var(--ink-lo);
+}
+
+.stripItem dd > span {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+@media (max-width: 45rem) {
+  .strip {
+    grid-template-columns: 1fr;
+  }
+
+  .stripItem {
+    border-right: 0;
+    border-bottom: var(--line-w) solid var(--line-soft);
+    padding-right: 0;
+  }
+
+  .stripItem:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* ---------- cadence ---------- */
+
+.cadence {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.barSubject {
+  fill: var(--ember);
+}
+
+/* Hollow, because a control is the comparison and not the finding. */
+.barControl {
+  fill: none;
+  stroke: var(--ink-lo);
+  stroke-width: 1;
+}
+
+.cadenceAxis {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.cadenceScale {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  composes: dataLabel from global;
+  color: var(--ink-lo);
+}
+
+.legend {
+  list-style: none;
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
+.legend li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.swatch {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.swatchSubject {
+  background: var(--ember);
+}
+
+.swatchControl {
+  border: 1px solid var(--ink-lo);
+}
+
+/* ---------- lag ---------- */
+
+.lagRows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lagRow {
+  display: grid;
+  grid-template-columns: minmax(9rem, 15rem) 1fr minmax(8rem, 12rem);
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.lagPair {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-hi);
+  overflow-wrap: anywhere;
+}
+
+.lagTrack {
+  position: relative;
+  height: 1rem;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.lagBar {
+  position: absolute;
+  top: 0.35rem;
+  height: 0.3rem;
+  background: var(--ember);
+}
+
+.lagDot {
+  position: absolute;
+  top: 0.15rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-left: -0.35rem;
+  border-radius: 50%;
+  background: var(--ember);
+}
+
+/* A pair that did not clear its own threshold is drawn, not dropped — and
+   drawn hollow, so it cannot be read as a result. */
+.lagRowWeak .lagBar {
+  background: none;
+  border-top: 1px dotted var(--ink-lo);
+  border-bottom: 1px dotted var(--ink-lo);
+  height: 0.3rem;
+}
+
+.lagRowWeak .lagDot {
+  background: none;
+  border: 1px solid var(--ink-lo);
+}
+
+.lagRowWeak .lagPair,
+.lagRowWeak .lagStats b {
+  color: var(--ink-lo);
+}
+
+.lagStats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  text-align: right;
+}
+
+.lagStats b {
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  color: var(--ink-hi);
+}
+
+.lagStats span {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
+.lagAxis {
+  position: relative;
+  height: 1.5rem;
+  margin-top: var(--sp-2);
+}
+
+.lagAxis span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+@media (max-width: 45rem) {
+  .lagRow {
+    grid-template-columns: 1fr;
+    gap: var(--sp-2);
+  }
+
+  .lagStats {
+    text-align: left;
+  }
+}
+
+/* ---------- community map ---------- */
+
+.communityMap {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.communityCircle {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 1.5;
+}
+
+.communitySize {
+  font-family: var(--face-data);
+  font-size: 0.75rem;
+  fill: var(--ink-hi);
+}
+
+.communityLabel {
+  font-family: var(--face-text);
+  font-size: 0.6875rem;
+  fill: var(--ink-lo);
+}
+
+.communityFlow {
+  fill: none;
+  stroke: var(--ink-lo);
+  opacity: 0.65;
+}
+
+.communityList {
+  list-style: none;
+  margin: var(--sp-6) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.communityItem {
+  padding: var(--sp-4) 0;
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.communityHead {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.communityIndex {
+  composes: dataLabel from global;
+  color: var(--gold);
+}
+
+.communityHead b {
+  font-size: var(--t-body);
+  color: var(--ink-hi);
+  font-weight: 500;
+}
+
+.communityCount {
+  font-size: var(--t-caption);
+  color: var(--ink-lo);
+}
+
+.communityNote,
+.communityHubs {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
+  max-width: 68ch;
+}
+
+.communityHubs span {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-right: var(--sp-2);
+}
+
+/* ---------- overturned ---------- */
+
+.overturned {
+  list-style: none;
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  counter-reset: overturned;
+  display: flex;
+  flex-direction: column;
+}
+
+.overturnedRow {
+  padding: var(--sp-4) 0;
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.overturnedLabel {
+  composes: dataLabel from global;
+  display: block;
+  margin-bottom: var(--sp-1);
+  color: var(--gold);
+}
+
+.overturnedPrior {
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  max-width: 68ch;
+  /* Struck through would be cute and unreadable; the label says what it is. */
+  text-decoration: none;
+}
+
+.overturnedNow {
+  margin: 0;
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  max-width: 68ch;
+}
+
+.overturnedStatus {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  max-width: 68ch;
+}
+
+/* ---------- shared data fallback ---------- */
+
+.dataFallback {
+  margin-top: var(--sp-4);
+}
+
+.dataFallback summary {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--gold);
+  cursor: pointer;
+  padding: var(--sp-2) 0;
+  min-height: var(--control-h);
+  display: flex;
+  align-items: center;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-caption);
+  margin-top: var(--sp-2);
+}
+
+.dataTable caption {
+  text-align: left;
+  color: var(--ink-lo);
+  padding-bottom: var(--sp-2);
+}
+
+.dataTable th,
+.dataTable td {
+  text-align: left;
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.dataTable thead th {
+  color: var(--gold);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.dataTable td {
+  font-family: var(--face-data);
+}

@@ -37,7 +37,6 @@ import {
   listEditionDrilldownSchema,
   listQualityChecksSchema,
   listSourceFetchesSchema,
-  retryJobSchema,
   resolveAlertSchema,
   rollbackPublicationSchema,
   setSourceActiveSchema,
@@ -353,50 +352,6 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: counted("publications"),
   }),
 
-  /* ── Reversible operations ──────────────────────────────────────────── */
-  define("run_processing", {
-    label: "הרצת עיבוד עכשיו",
-    description:
-      "Queues today's editorial processing now instead of waiting for the schedule, and re-dispatches "
-      + "jobs that were waiting. Safe to call twice: work already completed today is not repeated.",
-    input: none,
-    consequence: () => "Queues today's processing. Completed work is not repeated.",
-    target: () => "Today's pipeline",
-    entityType: "system",
-    entityId: () => null,
-    run: (ctx) => ctx.briefing.runProcessing({ force: true }),
-    summarise: (result) => `status ${(result as { status?: string }).status ?? "queued"}`,
-  }),
-  define("resume_publication", {
-    label: "חידוש פרסום אוטומטי",
-    description:
-      "Turns automatic publication back on: approved editions reach the public site on their own again, "
-      + "with no further prompt before each one.",
-    input: none,
-    consequence: () => "Approved editions publish themselves to the public site again.",
-    target: () => "Automatic publication",
-    entityType: "system",
-    entityId: () => null,
-    run: (ctx, _args, actor) => ctx.briefing.setAutomaticPublicationPaused(false, actor),
-    summarise: () => "automatic publication active",
-  }),
-  define("retry_job", {
-    label: "הרצת משימה מחדש",
-    description:
-      "Puts a stuck, quarantined or attempt-exhausted job back on the ready queue. Pass "
-      + "`resetAttempts: true` for a job that has used all its attempts.",
-    input: byId.extend(retryJobSchema.shape),
-    consequence: () => "Returns the job to the queue; it will run again and may spend budget.",
-    target: (args) => `Job ${str(args, "id")}`,
-    entityType: "system",
-    entityId: (args) => str(args, "id"),
-    run: (ctx, args, actor, requestId) =>
-      ctx.console.retryJob(str(args, "id"), retryJobSchema.parse(args), actor, requestId),
-    summarise: (result) => {
-      const r = result as { previousState?: string; state?: string; dispatched?: boolean };
-      return `${r.previousState} → ${r.state}${r.dispatched ? ", dispatched" : ""}`;
-    },
-  }),
   define("resolve_alert", {
     label: "סימון התראה כטופלה",
     description:
@@ -491,37 +446,6 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     summarise: (result) => `status ${(result as { status?: string }).status ?? "?"}`,
   }),
 
-  /* ── Irreversible operations — never executed without a confirmation ── */
-  define("pause_publication", {
-    label: "השהיית פרסום אוטומטי",
-    description:
-      "Stops approved editions from reaching the public site. Collection and processing continue, so "
-      + "nothing is lost, but nothing new is published until this is resumed.",
-    input: none,
-    consequence: () =>
-      "Approved editions stop reaching the public site until publication is resumed. Collection and "
-      + "processing continue, so nothing is lost — but nothing new is published either.",
-    target: () => "Automatic publication",
-    entityType: "system",
-    entityId: () => null,
-    run: (ctx, _args, actor) => ctx.briefing.setAutomaticPublicationPaused(true, actor),
-    summarise: () => "automatic publication paused",
-  }),
-  define("force_rerun", {
-    label: "הרצה מחדש של מהדורת היום",
-    description:
-      "Regenerates today's edition from the start, spending model budget again. Output that passes the "
-      + "quality gates publishes automatically and replaces what readers see now.",
-    input: none,
-    consequence: () =>
-      "Today's edition is regenerated from the start and model budget is spent again. New output that "
-      + "passes the quality gates publishes automatically and replaces what readers see now.",
-    target: () => "Today's edition",
-    entityType: "system",
-    entityId: () => null,
-    run: (ctx) => ctx.briefing.runProcessing({ force: true, regenerateCompleted: true }),
-    summarise: (result) => `status ${(result as { status?: string }).status ?? "queued"}`,
-  }),
   define("publish_publication", {
     label: "פרסום כתבה",
     description:

@@ -37,8 +37,6 @@ import type {
   ListSourceFetches,
   PublicationVersion,
   ResolveAlert,
-  RetryJob,
-  RetryJobResult,
   RollbackPublication,
   SetSourceActive,
   ConsoleAlert,
@@ -66,7 +64,6 @@ export interface ConsoleReads {
   settings(): Promise<ConsoleSettings>;
   audit(input: ListAudit): Promise<AuditPage>;
   auditEntry(id: string): Promise<AuditEntry>;
-  retryJob(id: string, input: RetryJob, actor: Actor, requestId?: string): Promise<RetryJobResult>;
   resolveAlert(id: string, input: ResolveAlert, actor: Actor, requestId?: string): Promise<ConsoleAlert>;
   setSourceActive(id: string, input: SetSourceActive, actor: Actor, requestId?: string): Promise<{ id: string; active: boolean }>;
   publicationVersions(id: string): Promise<PublicationVersion[]>;
@@ -83,12 +80,6 @@ export interface PublicationOps {
   setHomepageFeature(slot: number, publicationId: string | null, actor: Actor): Promise<void>;
 }
 
-/** The pipeline's switches. */
-export interface BriefingOps {
-  setAutomaticPublicationPaused(paused: boolean, actor: Actor): Promise<unknown>;
-  runProcessing(options: { force: boolean; regenerateCompleted?: boolean }): Promise<unknown>;
-}
-
 /** Source collection. */
 export interface SourceOps {
   verify(sourceId: string, actor: Actor): Promise<unknown>;
@@ -98,7 +89,6 @@ export interface SourceOps {
 export interface OpsToolContext {
   console: ConsoleReads;
   publications: PublicationOps;
-  briefing: BriefingOps;
   sources: SourceOps;
   health(request?: Request): Promise<unknown>;
   /** The request being served, for the reads that vary by it. */

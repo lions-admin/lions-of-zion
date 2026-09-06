@@ -12,12 +12,10 @@ import type { OutboxDispatchMessage } from "@/server/core/queue";
  * if it were processing synchronously. Retry and redelivery on a thrown error
  * are the SDK's job, not this file's.
  *
- * `maxDuration` is 300 — the same ceiling every other AI-processing route in
- * this project gets (`admin/briefing/run`, `briefing/external-publish`, each
- * `queue/briefing/*` stage) — because `editorial.run-process` runs the same
- * AI-heavy research stages inline through this one route (2026-09-06). The
- * lighter topics (search reindex, email, cache invalidate) finish in well
- * under a second either way, so the higher ceiling costs them nothing.
+ * `maxDuration` is 300 because a package execution can materialize media and
+ * apply publication updates. The lighter topics (search reindex, email, cache
+ * invalidate) finish in well under a second either way, so the higher ceiling
+ * costs them nothing.
  */
 export const runtime = "nodejs";
 export const maxDuration = 300;

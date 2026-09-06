@@ -51,7 +51,6 @@ import {
   publicationVersionSchema,
   promptVersionActivatedSchema,
   promptVersionInsertedSchema,
-  retryJobResultSchema,
   type ActivatePromptVersion,
   type ArchiveChatThreadResult,
   type AuditEntry,
@@ -110,8 +109,6 @@ import {
   type QuarantineOutcome,
   type ResolveAlert,
   type ResolveQuarantine,
-  type RetryJob,
-  type RetryJobResult,
   type RollbackPublication,
   type SetSourceActive,
   type SourceFetch,
@@ -146,7 +143,7 @@ import { ApiError, notFound } from "@/server/http/responses";
 import { publicationService } from "@/server/modules/publications";
 import { sourceService } from "@/server/modules/sources";
 import { BRIEFING_DISCOVERY_QUERIES } from "@/server/modules/sources/catalog";
-import { dispatchBriefingJob, recoverAndDispatchBriefingJobs, enqueueDueCollectionJobs } from "@/server/modules/briefing/jobs";
+import { recoverAndDispatchSourceCollectionJobs, enqueueDueCollectionJobs } from "@/server/modules/briefing/jobs";
 import { evaluateAndQueueBriefingAlerts } from "@/server/modules/briefing/alerts";
 import { REQUIRED_QUALITY_CHECKS } from "@/server/modules/briefing/quality";
 import {
@@ -189,7 +186,6 @@ export const SCHEDULES = [
   { path: "/api/internal/cron/ingest", schedule: "0,30 * * * *", description: "איסוף מכל מקור פעיל, בכל חצי שעה." },
   { path: "/api/internal/cron/embed", schedule: "10,40 * * * *", description: "הטמעת מסמכים חדשים לצורך חיפוש סמנטי." },
   { path: "/api/internal/cron/outbox-drain", schedule: "*/15 * * * *", description: "מסירת פעולות ממתינות מה-outbox: אינדוקס מחדש וביטול מטמון." },
-  { path: "/api/internal/cron/editorial", schedule: "*/15 * * * *", description: "בדיקת מועד ההרצה היומית של מערכת העריכה." },
   { path: "/api/internal/cron/maintenance", schedule: "20 3 * * *", description: "תחזוקת לילה: שחרור משימות תקועות, גיזום נתונים והתראות." },
 ] as const;
 
@@ -255,7 +251,7 @@ function secretsReport(request?: Request): ConsoleSecurity["secrets"] {
     { name: "NEON_AUTH_BASE_URL / NEON_AUTH_COOKIE_SECRET", configured: integrations.neonAuth ?? false, purpose: "Administrator sign-in through Neon Auth." },
     { name: "GOOGLE_AUTH_SESSION_SECRET", configured: Boolean(googleAuthSessionSecretIfConfigured()), purpose: "Signing key for the public Google identity session." },
     { name: "GOOGLE_AGENT_SEARCH_ENGINE_ID", configured: fingerprints.googleSearch !== null, purpose: "Google Agent Search discovery engine." },
-    { name: "BRIEFING_QUEUE_RESOURCE_ID", configured: fingerprints.queue !== null || queueConfigured(), purpose: "Vercel Queue binding for briefing job delivery." },
+    { name: "BRIEFING_QUEUE_RESOURCE_ID", configured: fingerprints.queue !== null || queueConfigured(), purpose: "Vercel Queue binding for source collection delivery." },
     { name: "INTERNAL_API_SECRET", configured: integrations.internalSecret ?? false, purpose: "Guard on every /api/internal route." },
     { name: "CRON_SECRET", configured: Boolean(cronSecret()), purpose: "Signature Vercel attaches to cron invocations." },
   ];
@@ -529,8 +525,8 @@ type Tx = Parameters<typeof setIdentity>[0];
 type Runner = { transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T> };
 
 export type AdminConsoleOptions = {
-  /** How a requeued job reaches the worker. Defaults to the briefing queue
-   *  when one is bound; otherwise the next cron recovery tick picks it up. */
+  /** Retained temporarily for callers constructed before legacy job retries
+   *  were removed. It is intentionally ignored. */
   dispatch?: ((job: ConsoleJobState) => Promise<void>) | null;
   /** How a manual outbox drain dispatches one row. Defaults to the real queue
    *  client; tests inject a stub so they never authenticate against it. */
@@ -562,9 +558,6 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
   const repo = adminConsoleRepo(db);
   const run = db as Runner;
   const now = options.now ?? (() => new Date());
-  const dispatch = options.dispatch === undefined
-    ? (queueConfigured() ? (job: ConsoleJobState) => dispatchBriefingJob(job as never) : null)
-    : options.dispatch;
   const drain = options.drain ?? ((opts: { limit?: number }) =>
     drainOutbox(db, { limit: opts.limit, dispatch: options.outboxDispatch ?? undefined }));
   /* The default runners are the cron's, which run as `app_service` — see the
@@ -573,7 +566,7 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
   const asService = <T>(fn: () => Promise<T>) =>
     withDatabaseRole("app_service", "service:admin-console-maintenance", fn);
   const pruneRunner = options.runPrune ?? (() => asService(runMaintenance));
-  const recoverRunner = options.recoverBriefingJobs ?? (() => asService(recoverAndDispatchBriefingJobs));
+  const recoverRunner = options.recoverBriefingJobs ?? (() => asService(recoverAndDispatchSourceCollectionJobs));
   const alertsRunner = options.evaluateBriefingAlerts ?? (() => asService(() => evaluateAndQueueBriefingAlerts()));
   const collectionSweep = options.collectionSweep ?? (() => enqueueDueCollectionJobs());
 
@@ -1289,56 +1282,6 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
     },
 
     /* ── actions ──────────────────────────────────────────────────────────── */
-
-    async retryJob(id: string, input: RetryJob, actor: Actor, requestId?: string): Promise<RetryJobResult> {
-      const outcome = await run.transaction(async (tx) => {
-        await setIdentity(tx as Tx, actor.label);
-        const r = adminConsoleRepo(tx);
-        const before = await r.jobById(id);
-        if (!before) throw notFound("Briefing job");
-        if (before.state === "completed") {
-          throw new ApiError("PRECONDITION_FAILED", "A completed job is not retried from the console. Use the briefing run controls to regenerate an edition.");
-        }
-        const leaseLive = before.state === "running" && before.leaseUntil !== null && new Date(before.leaseUntil).getTime() >= Date.now();
-        if (leaseLive) {
-          throw new ApiError("PRECONDITION_FAILED", "This job is still running under a live worker lease. Retry it once the lease lapses.");
-        }
-        if (!input.resetAttempts && before.attempts >= before.maxAttempts) {
-          throw new ApiError("PRECONDITION_FAILED", `This job has used all ${before.maxAttempts} attempts. Retry with resetAttempts to run it again.`);
-        }
-        const after = await r.requeueJob(id, input.resetAttempts);
-        if (!after) throw new ApiError("CONFLICT", "The job changed state while it was being retried.");
-        await writeAudit(tx as never, {
-          actor,
-          action: "ops.job.retried",
-          entityType: "event",
-          entityId: id,
-          before: { state: before.state, attempts: before.attempts, lastError: before.lastError },
-          after: { state: after.state, attempts: after.attempts, resetAttempts: input.resetAttempts },
-          requestId,
-        });
-        return { before, after };
-      });
-
-      let dispatched = false;
-      if (dispatch) {
-        try {
-          await dispatch(outcome.after);
-          dispatched = true;
-        } catch {
-          /* The ledger is the authority: the job is pending and available,
-             so the next recovery tick dispatches it even if the queue send
-             failed here. */
-          dispatched = false;
-        }
-      }
-      return retryJobResultSchema.parse({
-        jobId: id,
-        previousState: outcome.before.state,
-        state: outcome.after.state,
-        dispatched,
-      });
-    },
 
     async resolveAlert(id: string, input: ResolveAlert, actor: Actor, requestId?: string): Promise<ConsoleAlert> {
       return run.transaction(async (tx) => {

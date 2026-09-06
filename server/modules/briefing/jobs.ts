@@ -3,24 +3,19 @@ import "server-only";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { queueClient } from "@/server/core/queue-client";
-import { assertBriefingResourceIsolation, briefingFeatures } from "@/server/core/config";
+import { assertBriefingResourceIsolation } from "@/server/core/config";
 import { briefingLog } from "@/server/core/log";
 import { db } from "@/server/db/client";
 import { ingestSource } from "@/server/modules/sources/ingest";
 import { CONNECTORS } from "@/server/modules/sources/connectors";
 import { sourceRepo } from "@/server/modules/sources/repo";
 import { shouldCollectSource } from "@/server/modules/sources";
-import { briefingRepo } from "@/server/modules/briefing/repo";
-import {
-  BRIEFING_CONTRACT_VERSION,
-  BRIEFING_PROMPT_VERSION,
-  briefingService,
-  israelLocalHour,
-  nextEditorialStage,
-} from "@/server/modules/briefing/service";
 import type { Source } from "@/server/db/schema";
 import type { Actor } from "@/server/core/audit";
 
+/** Historical stages remain readable in `briefing_job`; only `collect` is
+ * created or dispatched by the live site. Editorial package execution enters
+ * through the external receiver and its outbox, never this queue. */
 export const BRIEFING_JOB_STAGES = ["collect", "enrich", "cluster", "triage", "draft", "publish"] as const;
 export type BriefingJobStage = (typeof BRIEFING_JOB_STAGES)[number];
 export const BRIEFING_JOB_CONTRACT_VERSION = 1;
@@ -199,7 +194,7 @@ export function briefingJobStore(database: unknown) {
           max_attempts AS "maxAttempts",
           checkpoint
         FROM briefing_job
-        WHERE state = 'pending' AND available_at <= now()
+        WHERE stage = 'collect' AND state = 'pending' AND available_at <= now()
         ORDER BY available_at, created_at
         LIMIT ${limit}
       `);
@@ -237,7 +232,7 @@ export function briefingJobStore(database: unknown) {
         WHERE id IN (
           SELECT id
           FROM briefing_job
-          WHERE state = 'running' AND lease_until < now()
+          WHERE stage = 'collect' AND state = 'running' AND lease_until < now()
           ORDER BY lease_until
           LIMIT ${limit}
           FOR UPDATE SKIP LOCKED
@@ -298,42 +293,6 @@ export function briefingJobStore(database: unknown) {
               OR last_error LIKE 'Vercel Blob: Access denied%'
             )
           ORDER BY finished_at NULLS LAST, created_at
-          LIMIT ${limit}
-          FOR UPDATE SKIP LOCKED
-        )
-        RETURNING id,
-          job_key AS "jobKey",
-          contract_version AS "contractVersion",
-          stage,
-          local_date AS "localDate",
-          source_id AS "sourceId",
-          edition_id AS "editionId",
-          state,
-          attempts,
-          max_attempts AS "maxAttempts",
-          checkpoint
-      `);
-      return result.rows;
-    },
-
-    /** A manual or scheduled processing resume should not wait for the
-     * previous pause backoff. Only editorial work explicitly deferred because
-     * processing was disabled is eligible; collection cadence remains intact. */
-    async resumePausedProcessing(limit = 100): Promise<JobRow[]> {
-      const result = await d.execute<JobRow>(sql`
-        UPDATE briefing_job
-        SET available_at = now(),
-            lease_until = NULL,
-            heartbeat_at = NULL,
-            last_error = NULL,
-            updated_at = now()
-        WHERE id IN (
-          SELECT id
-          FROM briefing_job
-          WHERE state = 'pending'
-            AND stage <> 'collect'
-            AND last_error = 'Briefing processing is paused.'
-          ORDER BY available_at, created_at
           LIMIT ${limit}
           FOR UPDATE SKIP LOCKED
         )
@@ -469,8 +428,11 @@ export function briefingJobStore(database: unknown) {
   };
 }
 
-export async function dispatchBriefingJob(job: JobRow): Promise<void> {
-  await queueClient.send(`briefing-${job.stage}`, {
+export async function dispatchSourceCollectionJob(job: JobRow): Promise<void> {
+  if (job.stage !== "collect") {
+    throw new Error(`Only source collection jobs may be dispatched; received ${job.stage}.`);
+  }
+  await queueClient.send("source-ingest", {
     version: BRIEFING_JOB_CONTRACT_VERSION,
     jobId: job.id,
   } satisfies BriefingJobMessage, {
@@ -485,9 +447,12 @@ export async function dispatchBriefingJob(job: JobRow): Promise<void> {
   });
 }
 
-export async function processBriefingJob(job: JobRow, actor: Actor): Promise<unknown> {
+export async function processSourceCollectionJob(job: JobRow, actor: Actor): Promise<unknown> {
   if (job.contractVersion !== BRIEFING_JOB_CONTRACT_VERSION) {
     throw new Error(`Unsupported briefing job contract version ${job.contractVersion}.`);
+  }
+  if (job.stage !== "collect") {
+    throw new Error(`Only source collection jobs may be processed; received ${job.stage}.`);
   }
   const requestId = `briefing-job:${job.id}`;
   briefingLog("info", "briefing.job.started", {
@@ -495,31 +460,9 @@ export async function processBriefingJob(job: JobRow, actor: Actor): Promise<unk
     editionId: job.editionId ?? undefined,
   });
   try {
-    if (job.stage === "collect") {
-      if (!job.sourceId) throw new Error("Collect job has no source ID.");
-      const result = await ingestSource(db(), job.sourceId, actor, { requestId });
-      briefingLog("info", "briefing.job.completed", { requestId, runId: job.id, stage: job.stage, sourceId: job.sourceId }, { evidenceCreated: result.evidenceCreated });
-      return result;
-    }
-    if (!job.editionId) throw new Error(`Briefing stage ${job.stage} has no edition ID.`);
-    const database = db();
-    const result = await briefingService(database).runStage(
-      job.stage,
-      job.localDate,
-      actor,
-      requestId,
-    );
-    const next = nextEditorialStage(job.stage);
-    const jobs = briefingJobStore(database);
-    const shouldAdvance = result.shouldContinue
-      || (result.status === "already_run" && await stageCanAdvance(database, job.editionId, job.stage));
-    if (shouldAdvance && next) {
-      const nextJob = await jobs.createStageJob(job.editionId, job.localDate, next);
-      if (nextJob.state !== "completed") await dispatchBriefingJob(nextJob);
-    }
-    briefingLog("info", "briefing.job.completed", { requestId, runId: job.id, stage: job.stage, editionId: job.editionId }, {
-      status: result.status, inputCount: result.inputCount, outputCount: result.outputCount,
-    });
+    if (!job.sourceId) throw new Error("Collect job has no source ID.");
+    const result = await ingestSource(db(), job.sourceId, actor, { requestId });
+    briefingLog("info", "briefing.job.completed", { requestId, runId: job.id, stage: job.stage, sourceId: job.sourceId }, { evidenceCreated: result.evidenceCreated });
     return result;
   } catch (cause) {
     briefingLog("error", "briefing.job.failed", {
@@ -530,90 +473,11 @@ export async function processBriefingJob(job: JobRow, actor: Actor): Promise<unk
   }
 }
 
-export async function enqueueEditorialPipeline(
-  now = new Date(),
-  options: { force?: boolean; regenerateCompleted?: boolean } = {},
-): Promise<{
-  status: "queued" | "outside_schedule" | "waiting_for_collection" | "already_completed";
-  localDate: string;
-  jobId?: string;
-  activeCollectionJobs?: number;
-}> {
-  const localDate = israelCollectionWindow(now).localDate;
-  if (!options.force && israelLocalHour(now) !== 7) return { status: "outside_schedule", localDate };
-
-  const database = db();
-  const jobs = briefingJobStore(database);
-  const window = israelCollectionWindow(now);
-  // The editorial cutoff is 07:00 Israel time. On the first scheduler tick,
-  // create any due work before examining the ledger; later retries only wait
-  // for that fixed packet, never open a new collection window mid-edition.
-  if (window.windowKey.endsWith("T07:00") || await jobs.collectionJobCount(localDate) === 0) {
-    await enqueueDueCollectionJobs(now);
-  }
-  const activeCollectionJobs = await jobs.activeCollectionCount(localDate);
-  if (activeCollectionJobs > 0) {
-    return { status: "waiting_for_collection", localDate, activeCollectionJobs };
-  }
-
-  const editions = briefingRepo(database);
-  // `ensureEdition` reopens a failed edition for normal scheduler recovery.
-  // Preserve the pre-open state so an explicit administrator run can reset
-  // downstream artifacts instead of skipping straight to a later stage.
-  const editionBeforeForce = options.force ? await editions.editionByDate(localDate) : undefined;
-  const editionId = await editions.ensureEdition(localDate, BRIEFING_CONTRACT_VERSION, BRIEFING_PROMPT_VERSION);
-  if (options.force) {
-    const stages = BRIEFING_JOB_STAGES.filter((candidate) => candidate !== "collect") as Exclude<BriefingJobStage, "collect">[];
-    const edition = editionBeforeForce ?? await editions.editionByDate(localDate);
-    /* A failed or quarantined edition has no public output. A deliberate
-       manual run starts at triage and resets its downstream stages, retaining
-       all prior artifacts and delivery audit rows for inspection. */
-    // A first forced regeneration reopens the edition as `processing` but
-    // deliberately retains `published_at` until its replacement is ready.
-    const regenerateCompleted = options.regenerateCompleted && Boolean(edition?.publishedAt);
-    const restartFrom = regenerateCompleted || edition?.status === "quarantined" || edition?.status === "failed"
-      ? "triage"
-      : undefined;
-    if (restartFrom) {
-      if (regenerateCompleted) {
-        await editions.reopenPublishedEdition(editionId, BRIEFING_CONTRACT_VERSION, BRIEFING_PROMPT_VERSION);
-      } else {
-        await editions.reopenQuarantinedEdition(editionId);
-      }
-      const start = stages.indexOf(restartFrom);
-      for (const stage of stages.slice(start)) {
-        const existing = await jobs.stageJob(editionId, stage);
-        if (existing) await jobs.restartStageJob(existing.id);
-        await editions.reopenRunForManualRetry(localDate, stage);
-      }
-      const job = await jobs.stageJob(editionId, restartFrom)
-        ?? await jobs.createStageJob(editionId, localDate, restartFrom, { forceReady: true });
-      await dispatchBriefingJob(job);
-      return { status: "queued", localDate, jobId: job.id };
-    }
-
-    /* Continue from the first incomplete durable stage. A completed enrich job
-       must not hide a later failed triage/draft job from the administrator's
-       explicit “Run now” command. */
-    for (const stage of stages) {
-      const existing = await jobs.stageJob(editionId, stage);
-      if (existing?.state === "completed") continue;
-      const job = await jobs.createStageJob(editionId, localDate, stage, { forceReady: true });
-      await dispatchBriefingJob(job);
-      return { status: "queued", localDate, jobId: job.id };
-    }
-    return { status: "already_completed", localDate };
-  }
-
-  const job = await jobs.createStageJob(editionId, localDate, "enrich");
-  if (job.state === "completed") return { status: "already_completed", localDate, jobId: job.id };
-  await dispatchBriefingJob(job);
-  return { status: "queued", localDate, jobId: job.id };
-}
-
-export async function recoverAndDispatchBriefingJobs(limit = 100): Promise<{
+export async function recoverAndDispatchSourceCollectionJobs(limit = 100): Promise<{
   recovered: number;
   configurationRecovered: number;
+  /** Compatibility field for the maintenance response. Legacy editorial
+   * processing cannot resume and is always reported as zero. */
   processingResumed: number;
   dispatched: number;
   quarantined: number;
@@ -625,53 +489,23 @@ export async function recoverAndDispatchBriefingJobs(limit = 100): Promise<{
   assertBriefingResourceIsolation();
   const configurationRecovered = await jobs.recoverConfigurationFailures(limit);
   const recovered = await jobs.recoverStale(limit);
-  const processingResumed = briefingFeatures().processing
-    ? await jobs.resumePausedProcessing(Math.max(0, limit - configurationRecovered.length - recovered.length))
-    : [];
-  const alreadyRecovered = [...configurationRecovered, ...recovered, ...processingResumed];
+  const alreadyRecovered = [...configurationRecovered, ...recovered];
   const ready = await jobs.pending(Math.max(0, limit - alreadyRecovered.length));
   const candidates = [...alreadyRecovered, ...ready.filter((job) => !alreadyRecovered.some((entry) => entry.id === job.id))];
   let dispatched = 0;
   for (const job of candidates) {
     if (job.state !== "pending") continue;
-    if (job.stage !== "collect" && !await editorialJobReadyToDispatch(database, job)) continue;
-    await dispatchBriefingJob(job);
+    if (job.stage !== "collect") continue;
+    await dispatchSourceCollectionJob(job);
     dispatched += 1;
   }
   return {
     recovered: recovered.length,
     configurationRecovered: configurationRecovered.length,
-    processingResumed: processingResumed.length,
+    processingResumed: 0,
     dispatched,
     quarantined: recovered.filter((job) => job.state === "quarantined").length,
   };
-}
-
-async function editorialJobReadyToDispatch(database: unknown, job: JobRow): Promise<boolean> {
-  if (!job.editionId || job.stage === "enrich") return true;
-  const previous: Partial<Record<Exclude<BriefingJobStage, "collect">, Exclude<BriefingJobStage, "collect">>> = {
-    cluster: "enrich",
-    triage: "cluster",
-    draft: "triage",
-    publish: "draft",
-  };
-  const prior = previous[job.stage as Exclude<BriefingJobStage, "collect">];
-  return prior ? stageCanAdvance(database, job.editionId, prior) : false;
-}
-
-async function stageCanAdvance(database: unknown, editionId: string, stage: Exclude<BriefingJobStage, "collect">): Promise<boolean> {
-  if (stage === "publish") return false;
-  const result = await (database as Db).execute<{ payload: unknown }>(sql`
-    SELECT payload FROM briefing_stage_artifact
-    WHERE edition_id = ${editionId} AND stage = ${stage}
-    ORDER BY artifact_version DESC LIMIT 1
-  `);
-  const payload = result.rows[0]?.payload as Record<string, unknown> | undefined;
-  if (!payload) return false;
-  if (stage === "enrich") return Array.isArray(payload.evidenceIds) && payload.evidenceIds.length > 0;
-  if (stage === "cluster") return Array.isArray(payload.clusters) && payload.clusters.length > 0;
-  if (stage === "triage") return Array.isArray(payload.stories) && payload.stories.length > 0;
-  return stage === "draft" && Boolean(payload.edition);
 }
 
 export async function enqueueDueCollectionJobs(now = new Date()): Promise<Array<{
@@ -699,7 +533,7 @@ export async function enqueueDueCollectionJobs(now = new Date()): Promise<Array<
         continue;
       }
       try {
-        await dispatchBriefingJob(job);
+        await dispatchSourceCollectionJob(job);
         results.push({ sourceId: source.id, jobId: job.id, status: "queued" });
       } catch (cause) {
         results.push({

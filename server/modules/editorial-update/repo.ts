@@ -4,7 +4,6 @@ import { and, asc, desc, eq, inArray, lte, or, sql } from 'drizzle-orm';
 import type { Database } from '@/server/db/client';
 import { editorialOperation, editorialRun } from '@/server/db/schema';
 import { startEditorialRunSchema, type EditorialFailure, type EditorialStage, type StartEditorialRun } from '@/server/contracts/editorial-update';
-import { israelEditionDate } from '@/server/contracts/homepage';
 import { ApiError, notFound } from '@/server/http/responses';
 import { emit, TOPICS } from '@/server/core/outbox';
 
@@ -30,16 +29,13 @@ export function editorialRepo(db: Database) {
           if (existing.requestHash !== requestHash) throw new ApiError('CONFLICT', 'This run identifier already belongs to a different request.');
           return existing;
         }
-        const localDate = israelEditionDate(now);
-        if (input.mode === 'daily') {
-          await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${'editorial:daily:' + localDate}))`);
-          const [daily] = await tx.select().from(editorialRun).where(and(eq(editorialRun.localDate, localDate), eq(editorialRun.mode, 'daily')));
-          if (daily) return daily;
-        }
+        const localDate = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Jerusalem', year: 'numeric', month: '2-digit', day: '2-digit',
+        }).format(now);
         const [run] = await tx.insert(editorialRun).values({ runKey: input.runId, requestHash,
           requestedBy: actor, mode: input.mode, localDate, request: input,
-          stage: input.mode === 'daily' ? 'research' : 'media' }).returning();
-        if (input.operations.length) await tx.insert(editorialOperation).values(input.operations.map((operation, position) => ({
+          stage: 'media' }).returning();
+        await tx.insert(editorialOperation).values(input.operations.map((operation, position) => ({
           runId: run.id, operationKey: operation.key, position, inputHash: editorialInputHash(operation), input: operation,
         })));
         await emit(tx as never, TOPICS.editorialRunProcess, { runId: run.id }, { entityType: 'system', entityId: run.id });
@@ -52,25 +48,6 @@ export function editorialRepo(db: Database) {
       if (!run) throw notFound('Editorial run');
       const operations = await db.select().from(editorialOperation).where(eq(editorialOperation.runId, id)).orderBy(asc(editorialOperation.position));
       return { ...run, operations };
-    },
-
-    async addOperations(id: string, token: string, operations: StartEditorialRun['operations'], now = new Date()) {
-      return db.transaction(async tx => {
-        await editorialRepo(tx as unknown as Database).assertLease(id, token, now);
-        const existing = await tx.select({ position: editorialOperation.position }).from(editorialOperation)
-          .where(eq(editorialOperation.runId, id)).orderBy(desc(editorialOperation.position)).limit(1);
-        const offset = existing[0]?.position == null ? 0 : existing[0].position + 1;
-        if (operations.length) {
-          await tx.insert(editorialOperation).values(operations.map((operation, index) => ({
-            runId: id,
-            operationKey: operation.key,
-            position: offset + index,
-            inputHash: editorialInputHash(operation),
-            input: operation,
-          })));
-        }
-        await tx.update(editorialRun).set({ stage: 'media', updatedAt: now }).where(eq(editorialRun.id, id));
-      });
     },
 
     async listRecent(limit = 20) {

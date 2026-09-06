@@ -2,7 +2,7 @@ import { handler } from "@/server/http/handler";
 import { ok } from "@/server/http/responses";
 import { requireCron } from "@/server/http/internal-guard";
 import { briefingFeatures } from "@/server/core/config";
-import { enqueueDueCollectionJobs, recoverAndDispatchBriefingJobs } from "@/server/modules/briefing/jobs";
+import { enqueueDueCollectionJobs, recoverAndDispatchSourceCollectionJobs } from "@/server/modules/briefing/jobs";
 
 /**
  * Walks every active source of every registered connector kind and runs it.
@@ -26,7 +26,7 @@ export const GET = handler(async (request) => {
    * failure leaves the durable job pending with its own retry time, and the
    * next ingestion tick must pick it up even if the queue provider never
    * redelivered its original message. */
-  const recovery = await recoverAndDispatchBriefingJobs();
+  const recovery = await recoverAndDispatchSourceCollectionJobs();
   const results = await enqueueDueCollectionJobs();
 
   return ok({ ranAt: new Date().toISOString(), recovery, results });

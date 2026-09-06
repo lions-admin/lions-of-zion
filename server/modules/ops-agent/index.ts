@@ -12,8 +12,6 @@ import { db } from "@/server/db/client";
 import { generateWithTools } from "@/server/core/ai/gateway";
 import { deepHealth } from "@/server/core/deep-health";
 import { adminConsole } from "@/server/modules/admin-console";
-import { briefing } from "@/server/modules/briefing";
-import { enqueueEditorialPipeline } from "@/server/modules/briefing/jobs";
 import { publications } from "@/server/modules/publications";
 import { ingest, syncBriefingSourceCatalog } from "@/server/modules/sources";
 import { opsAgentService, type OpsAgentService } from "./service";
@@ -30,11 +28,6 @@ function liveContext(request?: Request): OpsToolContext {
       transition: (id, input, actor, requestId) => publications().transition(id, input, actor, requestId),
       setHomepageFeature: (slot, publicationId, actor) =>
         publications().setHomepageFeature(slot, publicationId, actor),
-    },
-    briefing: {
-      setAutomaticPublicationPaused: (paused, actor) =>
-        briefing().setAutomaticPublicationPaused(paused, actor),
-      runProcessing: (options) => enqueueEditorialPipeline(new Date(), options),
     },
     sources: {
       verify: (sourceId, actor) => ingest(sourceId, actor),

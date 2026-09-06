@@ -50,7 +50,6 @@ function stubContext(overrides: Partial<OpsToolContext> = {}): OpsToolContext & 
       settings: note("settings", {}),
       audit: note("audit", { entries: [] }),
       auditEntry: note("auditEntry", {}),
-      retryJob: note("retryJob", { previousState: "running", state: "pending", dispatched: true }),
       resolveAlert: note("resolveAlert", { kind: "source_failure" }),
       setSourceActive: note("setSourceActive", { id: "s", active: false }),
       publicationVersions: note("publicationVersions", []),
@@ -63,10 +62,6 @@ function stubContext(overrides: Partial<OpsToolContext> = {}): OpsToolContext & 
       remove: note("publications.remove", undefined),
       transition: note("publications.transition", { title: "A brief" }),
       setHomepageFeature: note("publications.setHomepageFeature", undefined),
-    },
-    briefing: {
-      setAutomaticPublicationPaused: note("briefing.pause", { paused: true }),
-      runProcessing: note("briefing.runProcessing", { status: "queued" }),
     },
     sources: {
       verify: note("sources.verify", { fetch: { status: "success", itemsSeen: 12 } }),
@@ -150,8 +145,8 @@ describe("the tool registry", () => {
     }
   });
 
-  it("files an operation that touches no single record under the system entity", () => {
-    expect(opsTool("run_processing")?.entityType).toBe("system");
+  it("files a system-level read without a single record target", () => {
+    expect(opsTool("get_overview")?.entityType).toBe("system");
     expect(opsTool("publish_publication")?.entityType).toBe("brief");
     expect(opsTool("verify_source")?.entityType).toBe("source");
   });
@@ -292,14 +287,14 @@ describe("a turn", () => {
     }
   });
 
-  it("runs a reversible operation and reports the state as changed", async () => {
+  it("runs a reversible source operation and reports the state as changed", async () => {
     const db = await freshDatabase();
     const ctx = stubContext();
-    const response = await agentOn(db, ctx, scripted([{ tool: "run_processing" }])).turn(
-      { history: [], message: "Run processing now", confirmations: [] },
+    const response = await agentOn(db, ctx, scripted([{ tool: "verify_source", args: { id: SRC } }])).turn(
+      { history: [], message: "Verify this source", confirmations: [] },
       actor,
     );
-    expect(ctx.calls).toEqual(["briefing.runProcessing"]);
+    expect(ctx.calls).toEqual(["sources.verify"]);
     expect(response.stateChanged).toBe(true);
   });
 

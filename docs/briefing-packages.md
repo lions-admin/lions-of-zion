@@ -1,7 +1,10 @@
-# Publishing a Daily Brief package
+# Legacy `external-briefing-v1` package delivery
 
-The daily edition is authored **outside this repository** (ChatGPT) and
-published by a GitHub Action that does no editorial work of its own.
+This is the existing compatibility path for historical Daily Brief packages.
+The package is authored **outside this repository** (ChatGPT) and published by
+a GitHub Action that does no editorial work of its own. It is not the contract
+for the future whole-site editorial model: that work will move to an
+`editorial-packages` branch and a dedicated package schema in a later phase.
 
 ## Why the packages live on their own branch
 
@@ -20,7 +23,7 @@ The branch is excluded from Vercel by
 in `vercel.json`:
 
 ```json
-"git": { "deploymentEnabled": { "briefing-packages": false } }
+"git": { "deploymentEnabled": { "briefing-packages": false, "editorial-packages": false } }
 ```
 
 That key is declared both here on `main` and in the small `vercel.json`

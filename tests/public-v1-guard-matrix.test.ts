@@ -220,9 +220,7 @@ describe("PUBLIC_V1 — coverage completeness", () => {
 
 describe("internal service prefixes", () => {
   const cases = [
-    { path: "/api/internal/cron/briefing", identity: "service:cron" },
     { path: "/api/internal/cron/embed", identity: "service:cron" },
-    { path: "/api/internal/queue/briefing/draft", identity: "service:queue" },
     { path: "/api/internal/codex/briefing-import", identity: "service:codex" },
   ];
 

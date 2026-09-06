@@ -182,12 +182,11 @@ Three invariants an editor must not break:
   - So the deterministic suite runs on **exactly one path**:
     `evaluateCandidate()` from `external-publish.ts:265`, i.e. the external
     composer ingest at `POST /api/internal/briefing/external-publish`.
-  - ⚠️ **The internal pipeline has no quality gate.** `enrich → cluster →
-    triage → draft → publish` is still wired in `vercel.json` and still
-    reachable through `POST /api/v1/admin/briefing/run`, and its `publish` stage
-    never calls `evaluateCandidate`. Whether it should is an open owner
-    decision, not an oversight to fix in passing — `0049` retired the stage by
-    owner instruction.
+  - The internal briefing initiator is retired: no Vercel cron, queue trigger,
+    admin action, or operations-agent tool may start research, drafting, or a
+    daily edition. The legacy implementation and its records remain only for
+    compatibility and historical inspection; new editorial work is delivered
+    as an externally composed package.
 
   The rule at the top of this bullet still holds for the path that has checks.
   What is gone is the belief that SQL will catch you if you break it.

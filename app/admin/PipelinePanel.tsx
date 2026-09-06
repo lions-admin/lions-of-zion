@@ -12,11 +12,9 @@ import {
   type ConsoleQualityChecks,
   type PipelineJob,
   type QualityCheckCandidate,
-  type RetryJobResult,
 } from "@/server/contracts/admin-console";
 import type { BriefingStatus, DeepHealth, DraftPreview } from "./briefing-shapes";
 import { israelLocalDate } from "./briefing-shapes";
-import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import { PipelineFlow } from "./_command/PipelineFlow";
 import cmd from "./command.module.css";
 import {
@@ -32,7 +30,6 @@ import {
   formatDuration,
   formatUsd,
   jobTone,
-  today,
   useOperations,
   type PillTone,
 } from "./console-primitives";
@@ -48,7 +45,7 @@ import {
   STAGE_LABEL,
   T,
 } from "./lexicon";
-import { callConsole, readConsole, useConsoleRead } from "./useConsoleRead";
+import { readConsole, useConsoleRead } from "./useConsoleRead";
 import styles from "./admin.module.css";
 
 /* The lexicon holds the words; the `?? value` fallback keeps an unrecognised
@@ -246,18 +243,10 @@ export function PipelinePanel({ signal }: { signal: number }) {
     { signal, enabled: draftOpen },
   );
   const [deepHealth, setDeepHealth] = useState<DeepHealth | null>(null);
-  const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   /* STATE-004 — the focus fallback: the area itself, `tabIndex={-1}` and
      named by its heading, which survives every action here. */
   const areaRef = useRef<HTMLElement | null>(null);
   const ops = useOperations();
-
-  const paused = briefing.value?.automaticPublicationPaused ?? null;
-
-  function reloadAll() {
-    pipeline.reload();
-    briefing.reload();
-  }
 
   return (
     <section className={styles.area} id="console-pipeline" aria-labelledby="console-pipeline-heading" ref={areaRef} tabIndex={-1}>
@@ -265,14 +254,6 @@ export function PipelinePanel({ signal }: { signal: number }) {
         <div className={styles.actionRow}>
           <Button variant="secondary" type="button" disabled={ops.disabled} onClick={runDeepHealth}>
             בדיקת תקינות מעמיקה
-          </Button>
-          <Button
-            variant={paused ? "primary" : "secondary"}
-            type="button"
-            disabled={ops.disabled || paused === null}
-            onClick={() => requestPublicationControl(!paused)}
-          >
-            {paused ? "חידוש הפרסום האוטומטי" : "השהיית הפרסום האוטומטי"}
           </Button>
         </div>
       </AreaHead>
@@ -332,7 +313,7 @@ export function PipelinePanel({ signal }: { signal: number }) {
               <PanelTitle note={`${value.attention.length} ממתינות`}>משימות שדורשות אדם</PanelTitle>
               <p className={styles.muted}>תקועות, בבידוד, או נכשלות בניסיון האחרון שלהן. הרצה מחדש מחזירה את המשימה לתור; איפוס הניסיונות מאפשר למשימה שמיצתה אותם לרוץ שוב.</p>
               {value.attention.length ? (
-                <JobTable jobs={value.attention} disabled={ops.disabled} onRetry={requestRetry} />
+                <JobTable jobs={value.attention} disabled={ops.disabled} />
               ) : (
                 <EmptyLine>שום דבר לא ממתין לאדם. הקריאה הצליחה והרשימה באמת ריקה.</EmptyLine>
               )}
@@ -580,115 +561,9 @@ export function PipelinePanel({ signal }: { signal: number }) {
         </>
       ) : null}
 
-      {/* ADMIN-002: the irreversible control is its own zone, last in reading
-          order and last in tab order for this area. */}
-      <div className={styles.dangerZone}>
-        <p className={styles.dangerLabel}>פעולות בלתי הפיכות</p>
-        <p className={styles.muted}>הרצה כפויה מייצרת מחדש את מהדורת היום מההתחלה ומוציאה שוב מתקציב המודל. היא מפרטת את ההשלכה שלה לפני שהיא רצה.</p>
-        <div className={styles.actionRow}>
-          <Button variant="danger" type="button" disabled={ops.disabled} onClick={requestForcedRerun}>
-            כפיית הרצה מחדש של מהדורת היום
-          </Button>
-        </div>
-      </div>
-
-      <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
       <EditionDrawer localDate={drillDate} onClose={() => setDrillDate(null)} />
     </section>
   );
-
-  /* ── Confirmed operations ───────────────────────────────────────────
-     Everything that changes what the public sees, or spends the budget
-     again, states its consequence first. */
-
-  function requestPublicationControl(nextPaused: boolean) {
-    setConfirmIntent(nextPaused
-      ? {
-        action: "השהיית הפרסום האוטומטי",
-        target: "הפרסום האוטומטי של הפריסה הזו",
-        consequence: "מהדורות מאושרות יפסיקו להגיע לאתר הציבורי עד שהפרסום יחודש. האיסוף והעיבוד ממשיכים, ולכן שום דבר לא הולך לאיבוד — אבל גם שום דבר חדש לא מתפרסם.",
-        confirmLabel: "השהיית הפרסום האוטומטי",
-        tone: "danger",
-        run: () => mutateControl(true),
-      }
-      : {
-        action: "חידוש הפרסום האוטומטי",
-        target: "הפרסום האוטומטי של הפריסה הזו",
-        consequence: "מהדורות מאושרות יתפרסמו שוב לאתר הציבורי מעצמן, בלי אישור נוסף לפני כל אחת מהן.",
-        confirmLabel: "חידוש הפרסום האוטומטי",
-        tone: "primary",
-        run: () => mutateControl(false),
-      });
-  }
-
-  function requestForcedRerun() {
-    setConfirmIntent({
-      action: "כפיית הרצה מלאה מחדש של מהדורת היום",
-      target: "מהדורת הבריף של היום",
-      targetDetail: today(),
-      consequence: "מהדורת היום נוצרת מחדש מההתחלה ותקציב המודל מוצא שוב. פלט חדש שעובר את בקרות האיכות מתפרסם אוטומטית ומחליף את מה שהקוראים רואים עכשיו.",
-      confirmLabel: "כפיית ההרצה מחדש",
-      tone: "danger",
-      run: forceFullBriefingRerun,
-    });
-  }
-
-  /* A plain retry re-queues the job and is asked for nothing. Resetting the
-     attempt counter is the one that can loop a job that keeps failing, so
-     that branch confirms. */
-  function requestRetry(job: PipelineJob, resetAttempts: boolean) {
-    if (!resetAttempts) {
-      void retryJob(job, false);
-      return;
-    }
-    setConfirmIntent({
-      action: "הרצת המשימה מחדש עם איפוס הניסיונות",
-      target: job.jobKey,
-      targetDetail: `${stageWord(job.stage)} · ${job.localDate} · ${job.attempts} מתוך ${job.maxAttempts} ניסיונות נוצלו`,
-      consequence: "מונה הניסיונות חוזר לאפס והמשימה רצה שוב מהשלב שלה. משימה שנכשלת מאותה סיבה תנצל שוב את מלוא מכסת הניסיונות שלה לפני שתיעצר.",
-      confirmLabel: "איפוס והרצה מחדש",
-      tone: "danger",
-      run: () => retryJob(job, true),
-    });
-  }
-
-  async function retryJob(job: PipelineJob, resetAttempts: boolean) {
-    await ops.run(`retry:${job.id}`, async () => {
-      const result = await callConsole<RetryJobResult>(`admin/console/jobs/${job.id}/retry`, {
-        method: "POST",
-        body: { resetAttempts },
-        failure: "לא ניתן להריץ את המשימה מחדש.",
-      });
-      reloadAll();
-      return result.dispatched
-        ? `המשימה ${job.jobKey} הוחזרה לתור ונשלחה (${result.previousState} → ${result.state}).`
-        : `המשימה ${job.jobKey} הוחזרה לתור (${result.previousState} → ${result.state}); היא תרוץ בסבב הבא.`;
-    });
-  }
-
-  async function mutateControl(nextPaused: boolean) {
-    await ops.run("control", async () => {
-      await callConsole("admin/briefing/control", {
-        method: "PATCH",
-        body: { automaticPublicationPaused: nextPaused },
-        failure: "לא ניתן לעדכן את בקרת הפרסום.",
-      });
-      reloadAll();
-      return nextPaused ? "הפרסום האוטומטי מושהה." : "הפרסום האוטומטי פעיל.";
-    });
-  }
-
-  async function forceFullBriefingRerun() {
-    await ops.run("force-rerun", async () => {
-      const result = await callConsole<{ status: string }>("admin/briefing/run", {
-        method: "POST",
-        body: { forceFullRerun: true },
-        failure: "לא ניתן להתחיל הרצה כפויה.",
-      });
-      reloadAll();
-      return result.status === "queued" ? "ההרצה הכפויה נכנסה לתור." : "ההרצה הכפויה לא נכנסה לתור.";
-    });
-  }
 
   async function runDeepHealth() {
     await ops.run("health", async () => {

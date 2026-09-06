@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { ConfirmDialog, type ConfirmIntent } from "./ConfirmDialog";
 import {
   AreaHead,
   ConsoleNotices,
@@ -46,35 +45,11 @@ type EditorialRunList = { runs: EditorialRun[] };
 const tone = (status: EditorialRun["status"] | EditorialOperation["status"]) =>
   status === "completed" ? "ok" : status === "failed" || status === "partial" ? "danger" : status === "running" ? "gold" : "neutral" as const;
 
-/** Durable, source-visible work stays alongside the established publishing controls. */
+/** Durable delivery records stay visible after package receipt. */
 export function EditorialRunsPanel({ signal }: { signal: number }) {
   const runs = useConsoleRead<EditorialRunList>("admin/editorial-update", { signal, pollInterval: 30_000 });
-  const [confirmIntent, setConfirmIntent] = useState<ConfirmIntent | null>(null);
   const areaRef = useRef<HTMLElement | null>(null);
   const ops = useOperations();
-
-  function requestDailyRun() {
-    setConfirmIntent({
-      action: "התחלת הרצת מערכת העריכה",
-      target: "מחקר, עדכון ופרסום של האתר כולו",
-      consequence: "ההרצה נשמרת מיד עם מזהה קבוע. כאשר קיימות פעולות מחקר מוכנות, היא יכולה להכין מדיה ולפרסם או לעדכן כתבות לפי המקורות שלה.",
-      confirmLabel: "התחלת ההרצה",
-      tone: "primary",
-      run: startDailyRun,
-    });
-  }
-
-  async function startDailyRun() {
-    await ops.run("start-editorial-run", async () => {
-      const result = await callConsole<{ id: string; status: string }>("admin/editorial-update", {
-        method: "POST",
-        body: { runId: `manual:${crypto.randomUUID()}`, mode: "daily", operations: [] },
-        failure: "לא ניתן להתחיל את הרצת מערכת העריכה.",
-      });
-      runs.reload();
-      return `ההרצה ${result.id} נרשמה במצב ${result.status}.`;
-    });
-  }
 
   async function resume(run: EditorialRun) {
     await ops.run(`resume:${run.id}`, async () => {
@@ -90,12 +65,8 @@ export function EditorialRunsPanel({ signal }: { signal: number }) {
 
   return (
     <section className={styles.area} id="console-editorial-runs" aria-labelledby="console-editorial-runs-heading" ref={areaRef} tabIndex={-1}>
-      <AreaHead id="console-editorial-runs" label="מערכת העריכה" title="מחקר, פרסום, מדיה ודוחות במקום אחד">
-        <div className={styles.actionRow}>
-          <Button variant="primary" type="button" disabled={ops.disabled} onClick={requestDailyRun}>התחלת הרצה עכשיו</Button>
-        </div>
-      </AreaHead>
-      <p className={styles.muted}>השהיית הפרסום האוטומטי נשלטת באזור ״עיבוד ומהדורות״ ונבדקת גם לפני ההרצה המתוזמנת. כל ריצה כאן נשמרת, ניתנת לקריאה ולחידוש בלי לשכפל פרסום או מדיה שהושלמו.</p>
+      <AreaHead id="console-editorial-runs" label="מסירות עריכה" title="חבילות שנמסרו, פרסום, מדיה ודוחות" />
+      <p className={styles.muted}>חבילות עריכה נוצרות מחוץ לאתר ונמסרות דרך GitHub. כל ריצה כאן נשמרת, ניתנת לקריאה ולחידוש בלי לשכפל פרסום או מדיה שהושלמו.</p>
       <ConsoleNotices busy={ops.busy} notice={ops.notice} />
       <InlineAbsence state={runs.state} what="ריצות מערכת העריכה" reload={runs.reload} />
       {runs.value ? (
@@ -103,7 +74,7 @@ export function EditorialRunsPanel({ signal }: { signal: number }) {
           <div className={styles.twoColumns}>
             {runs.value.runs.map(run => (
               <article className={styles.panel} key={run.id}>
-                <PanelTitle note={run.runKey}>הרצה {run.mode === "daily" ? "יומית" : "מפורשת"}</PanelTitle>
+                <PanelTitle note={run.runKey}>{run.mode === "daily" ? "ריצת Legacy היסטורית" : "חבילת עריכה שנמסרה"}</PanelTitle>
                 <div className={styles.compactMetrics}>
                   <Metric label="מצב" value={run.status} tone={tone(run.status)} />
                   <Metric label="שלב" value={run.stage} />
@@ -138,7 +109,6 @@ export function EditorialRunsPanel({ signal }: { signal: number }) {
           </div>
         ) : <EmptyLine>עדיין לא נשמרו ריצות של מערכת העריכה.</EmptyLine>
       ) : null}
-      <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
     </section>
   );
 }

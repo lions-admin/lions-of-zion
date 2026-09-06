@@ -381,9 +381,11 @@ Never call these from a browser.
 | GET | `/api/internal/cron/ingest` | `cron` | Walk every active source (`maxDuration` 300) |
 | GET | `/api/internal/cron/embed` | `cron` | Work the embedding backlog (`maxDuration` 300) |
 | GET | `/api/internal/cron/outbox-drain` | `cron` | Dispatch pending outbox rows (`maxDuration` 60) |
-| GET | `/api/internal/cron/editorial` | `cron` | Start the daily editorial-update run once past 07:00 Asia/Jerusalem (`maxDuration` 60) |
+| GET | `/api/internal/cron/maintenance` | `cron` | Prune maintenance data, recover source collection, evaluate alerts (`maxDuration` 60) |
+| POST | `/api/internal/briefing/external-publish` | `internal` | Receive the legacy GitHub package and start its durable executor (`maxDuration` 300) |
+| POST | `/api/internal/queue/ingest` | `queue` | Deliver one source-collection job; never advances editorial stages (`maxDuration` 300) |
 | POST | `/api/internal/queue/outbox-dispatch` | `queue` | Deliver one outbox message (`maxDuration` 300 — see note below) |
-| GET, POST | `/api/v1/admin/editorial-update` | `admin` | List recent editorial runs; start a new one (`operations` mode takes an explicit operation list, `daily` takes none) |
+| GET, POST | `/api/v1/admin/editorial-update` | `admin` | List recent package-delivery runs; an authenticated receiver may create a run only from explicit operations |
 | GET, POST | `/api/v1/admin/editorial-update/{id}` | `admin` | Read one run's state; `{"action":"resume"}` requeues a failed or partial run |
 
 ### Health
@@ -425,22 +427,13 @@ allowed" instead of "allowed by omission".
 - **outbox-drain** — the half that cannot lose a job. It has no dependency on
   Vercel Queues; a row that fails to dispatch stays pending with a
   30s → 2m → 10m → 30m → 1h backoff.
-- **editorial** — evaluates Jerusalem local time itself rather than trusting
-  the schedule string, so the first tick at or after 07:00 starts the day's
-  run and a missed tick (a deploy, a cold start) is recovered by the next one
-  fifteen minutes later. Deduplicated per local date: a second call the same
-  day returns the existing run rather than starting another.
-  `/api/internal/queue/outbox-dispatch`'s `maxDuration` was raised from 60 to
-  300 on 2026-09-06 because this cron's run dispatches straight into that
-  route and its research stages are the same AI-heavy work the briefing
-  pipeline budgets 300s for elsewhere — every other outbox topic finishes in
-  well under a second either way.
+- **maintenance** — prunes operational state, recovers only durable
+  **source-collection** jobs, and evaluates alerts. It never starts an
+  editorial run.
 
-Production runs these handlers from the five schedules in `vercel.json`; each
-is authenticated by `CRON_SECRET` and safe to retry. Preview remains isolated,
-and its editorial run always reports `skipped` at the research stage — the
-same `preview_dry_run` guard that stops the briefing pipeline from spending on
-a non-production environment.
+Production runs these four schedules from `vercel.json`; each is authenticated
+by `CRON_SECRET` and safe to retry. Editorial work has no Vercel schedule: an
+explicit GitHub package is the only accepted initiator.
 
 ## The console expansion — 4–5 September 2026
 

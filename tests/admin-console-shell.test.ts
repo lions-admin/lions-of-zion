@@ -264,8 +264,6 @@ describe("what the console tells the operator the assistant can do", () => {
       "archive_publication",
       "delete_publication",
       "rollback_publication",
-      "force_rerun",
-      "pause_publication",
       "set_source_active",
     ] as const) {
       expect(CONFIRMED_OPS_TOOLS, `${name} asks first`).toContain(name);

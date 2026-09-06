@@ -32,17 +32,26 @@ describe("briefing server runtime contracts", () => {
     }
   });
 
-  it("pins briefing workers to the declared production region with explicit capacity", () => {
+  it("keeps the external receiver configured without a legacy internal executor", () => {
     const functions = vercelConfig.functions as Record<string, {
       maxDuration?: number;
       regions?: string[];
     }>;
-    const briefingFunctions = Object.entries(functions)
-      .filter(([file]) => file.includes("/briefing/") || file.includes("/cron/briefing/"));
-    expect(briefingFunctions.length).toBeGreaterThan(0);
-    for (const [file, config] of briefingFunctions) {
-      expect(config.maxDuration, `${file} must declare maxDuration`).toBeGreaterThan(0);
-      expect(config.regions, `${file} must declare a region`).toEqual(["iad1"]);
-    }
+    const receiver = functions["app/api/internal/briefing/external-publish/route.ts"];
+    expect(receiver?.maxDuration).toBeGreaterThan(0);
+    expect(receiver?.regions).toEqual(["iad1"]);
+    const sourceIngest = functions["app/api/internal/queue/ingest/route.ts"];
+    expect(sourceIngest?.maxDuration).toBeGreaterThan(0);
+    expect(sourceIngest?.regions).toEqual(["iad1"]);
+
+    expect(Object.keys(functions)).not.toEqual(expect.arrayContaining([
+      expect.stringContaining("/cron/briefing/"),
+      expect.stringContaining("/queue/briefing/"),
+      expect.stringContaining("admin/briefing/run"),
+    ]));
+    expect(vercelConfig.crons.map((cron) => cron.path)).not.toEqual(expect.arrayContaining([
+      "/api/internal/cron/briefing",
+      "/api/internal/cron/editorial",
+    ]));
   });
 });

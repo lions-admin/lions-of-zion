@@ -1,8 +1,7 @@
 import 'server-only';
 
 import { db, withDatabaseRole, type Database } from '@/server/db/client';
-import { editorialRunMessageSchema, type EditorialFailure, type StartEditorialRun } from '@/server/contracts/editorial-update';
-import { israelEditionDate } from '@/server/contracts/homepage';
+import { editorialRunMessageSchema, type EditorialFailure } from '@/server/contracts/editorial-update';
 import { adminEmail } from '@/server/core/config';
 import { materializeExternalMedia } from '@/server/modules/media/service';
 import type { EditorialMediaDraft } from '@/server/modules/media/repo';
@@ -10,8 +9,6 @@ import { publicationService } from '@/server/modules/publications/service';
 import { homepageService } from '@/server/modules/homepage/service';
 import { mayActOnTheWorld } from '@/server/core/config';
 import { sendWorkspaceEmail } from '@/server/core/email';
-import { briefingRepo } from '@/server/modules/briefing/repo';
-import { briefingService } from '@/server/modules/briefing/service';
 import { editorialRepo } from './repo';
 
 type PreparedArtifact = { media: EditorialMediaDraft | null };
@@ -40,35 +37,10 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
     if (!claimed) return;
     const token = claimed.leaseToken!;
     let activeKey: string | null = null;
-    let activeStage: EditorialFailure['stage'] = claimed.stage;
+    let activeStage: EditorialFailure['stage'] =
+      claimed.stage === 'research' || claimed.stage === 'classification' ? 'media' : claimed.stage;
     try {
-      let state = await store.get(runId);
-      /* Daily runs use the existing evidence and drafting stages, but stop
-       * before the legacy publisher. The durable editorial run owns media,
-       * publication and homepage work from this point onward. */
-      if (state.mode === 'daily' && state.operations.length === 0) {
-        await store.checkpoint(runId, token, 'research');
-        const researched = await briefingService(db()).researchForEditorial(
-          { label: 'service:editorial-research', userId: null },
-        );
-        if (researched.status === 'skipped' || researched.operations.length === 0) {
-          await store.checkpoint(runId, token, 'classification');
-          await store.finish(runId, token, {
-            status: 'completed',
-            researched: 0,
-            classified: 0,
-            publications: { created: 0, updated: 0 },
-            homepage: null,
-            media: { prepared: 0, reused: 0, generated: 0 },
-            skipped: [{ stage: 'research', reason: researched.reason ?? 'no_eligible_sourced_publication' }],
-            recommendation: 'No eligible sourced publication was produced by this run.',
-          });
-          return;
-        }
-        await store.addOperations(runId, token, researched.operations);
-        state = await store.get(runId);
-      }
-
+      const state = await store.get(runId);
       let preparedMedia = 0;
       let reusedMedia = 0;
       let generatedMedia = 0;
@@ -173,15 +145,5 @@ export function editorialUpdateService(database: Database = db()) {
     get: (id: string) => store.get(id),
     listRecent: () => store.listRecent(),
     resume: (id: string) => store.resume(id),
-    async startDailyDue(now = new Date()) {
-      const localHour = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hourCycle: 'h23' }).format(now));
-      const localDate = israelEditionDate(now);
-      if (localHour < 7) return { status: 'outside_schedule' as const, localDate, run: null };
-      const control = await briefingRepo(database).control();
-      if (control.automaticPublicationPaused) return { status: 'paused' as const, localDate, run: null };
-      const input: StartEditorialRun = { runId: `daily:${localDate}`, mode: 'daily', operations: [] };
-      const run = await store.start(input, 'service:editorial-schedule', now);
-      return { status: 'due' as const, localDate, run };
-    },
   };
 }

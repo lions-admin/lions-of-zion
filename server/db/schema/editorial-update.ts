@@ -3,7 +3,10 @@ import { check, date, index, integer, jsonb, pgTable, text, uniqueIndex, uuid } 
 import { createdAt, nonBlank, primaryId, tsCol, updatedAt } from './_shared';
 import type { EditorialFailure, EditorialOperation, EditorialRunStatus, EditorialStage, StartEditorialRun } from '@/server/contracts/editorial-update';
 
-/** A run is independent of the legacy briefing edition and its package format. */
+type PersistedEditorialStage = EditorialStage | 'research' | 'classification';
+
+/** A run is independent of the legacy briefing edition and receives package operations only.
+ * The database still admits historical `daily` rows; new application writes cannot create them. */
 export const editorialRun = pgTable('editorial_run', {
   id: primaryId(),
   runKey: text('run_key').notNull().unique(),
@@ -13,7 +16,7 @@ export const editorialRun = pgTable('editorial_run', {
   requestedBy: text('requested_by').notNull(),
   request: jsonb('request').$type<StartEditorialRun>().notNull(),
   status: text('status').$type<EditorialRunStatus>().notNull().default('queued'),
-  stage: text('stage').$type<EditorialStage>().notNull().default('research'),
+  stage: text('stage').$type<PersistedEditorialStage>().notNull().default('research'),
   leaseToken: uuid('lease_token'),
   leaseUntil: tsCol('lease_until'),
   failure: jsonb('failure').$type<EditorialFailure>(),
@@ -41,7 +44,7 @@ export const editorialOperation = pgTable('editorial_operation', {
   position: integer('position').notNull(),
   inputHash: text('input_hash').notNull(),
   input: jsonb('input').$type<EditorialOperation>().notNull(),
-  stage: text('stage').$type<EditorialStage>().notNull().default('media'),
+  stage: text('stage').$type<PersistedEditorialStage>().notNull().default('media'),
   status: text('status').$type<'pending' | 'running' | 'completed' | 'failed'>().notNull().default('pending'),
   /** Successfully prepared assets and generation identifiers survive worker restarts. */
   artifact: jsonb('artifact').$type<Record<string, unknown>>(),

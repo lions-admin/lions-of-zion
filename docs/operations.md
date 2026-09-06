@@ -109,7 +109,8 @@ two minutes each, with no manual step.
 
 The mechanism is the GitHub integration on the Vercel project, whose
 `link.productionBranch` is `main`. `vercel.json` disables git deployment for a
-single branch (`briefing-packages`) and nothing else, and the project has no
+package branches (`briefing-packages` for legacy compatibility and the reserved
+`editorial-packages`) and nothing else, and the project has no
 deploy hooks. Confirm with
 `vercel api "/v9/projects/<projectId>?teamId=<team>"`.
 
@@ -120,21 +121,12 @@ schema — the first tool call would have failed its audit write. The order is
 `npm run db:migrate` against Preview, then Production, then push. `vercel
 rollback` is the fast undo if a push lands ahead of its schema.
 
-`vercel.json` declares the transactional outbox and stage-specific briefing
-Queue triggers plus four production schedules.
-
-Each briefing stage owns a route file under
-`app/api/internal/queue/briefing/`, and each carries `regions: ["iad1"]`,
-`maxDuration: 300`, and exactly one `queue/v2beta` trigger with
-`retryAfterSeconds: 30` — `briefing-collect` on the segment root, then
-`enrich`, `cluster`, `triage`, `draft`, `publish`, one topic per file. (The
-`quality` stage was folded into publish by migration `0049`; `vercel.json`
-still declares its trigger topic but the route file is gone — retired in
-place, see `.ai/DECISIONS.md` 2026-09-04.)
-`app/api/internal/cron/briefing` and `app/api/v1/admin/briefing/run`
-carry the same region and duration without a trigger. The outbox dispatcher
-takes the `outbox.dispatch` topic and the platform defaults; its own
-`maxDuration` is declared in the route file, not here.
+`vercel.json` declares one Queue trigger for the transactional outbox plus four
+technical production schedules. Editorial package execution is emitted through
+that outbox after an authenticated receiver accepts explicit operations; Vercel
+does not start editorial research, drafting, or a daily edition. The outbox
+dispatcher takes the `outbox.dispatch` topic and its `maxDuration` is declared
+in the route file.
 
 ```json
 {
@@ -155,17 +147,11 @@ For rolling back a bad production deploy, see
 Production schedules are authenticated by `CRON_SECRET`. Ingest
 runs at minutes 0 and 30, embeddings at 10 and 40, the outbox drain every 15
 minutes, and maintenance daily at 03:20 UTC. Every handler is idempotent and
-safe to retry. **The briefing edition has no scheduled work**: commit
-`c1e579b` (2026-09-03) removed the `0,15,30,45 4,5 * * *` cron that covered
-07:00 Israel time. An edition is fulfilled when a package arrives at
-`POST /api/internal/briefing/external-publish` — the externally composed path,
-idempotent on `external_briefing_submission.run_id` — or by the
-administrator's `POST /api/v1/admin/briefing/run`. The
-`/api/internal/cron/briefing` route still exists but is unscheduled; see
-[`vercel-infrastructure.md`](vercel-infrastructure.md#schedules-and-triggers)
-for its return conditions and what re-enabling requires. Preview forces
-the briefing pipeline into dry-run and requires isolated resources. See
-[`briefing-operations.md`](briefing-operations.md).
+safe to retry. **No Vercel route starts editorial work.** A legacy
+`external-briefing-v1` package is fulfilled only when it arrives at
+`POST /api/internal/briefing/external-publish`, idempotent on
+`external_briefing_submission.run_id`. The next whole-site contract will use
+the same dedicated-branch and authenticated-receiver principle.
 
 The drain hands up to 250 rows a tick to the queue, which is 1,000 an hour and
 comfortably more than one edition's load — a brief materializes roughly one

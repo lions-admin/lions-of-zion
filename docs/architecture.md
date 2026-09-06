@@ -311,13 +311,10 @@ flowchart LR
     Packet -.-> Q
 ```
 
-`PIPELINE_STAGES` in `server/modules/briefing/service.ts` is the list, and each
-stage is a separate run with its own `vercel.json` queue topic — `briefing-enrich`
-through `briefing-publish`, plus a seventh, `briefing-collect`, which fans out
-per source ahead of them. Splitting it that way is what makes an edition
-resumable and what makes a stage retryable without redoing the model calls
-before it, but it also means **the stages of one edition can straddle a
-deploy**, which shapes several things that otherwise look like clutter.
+This diagram describes the retained **legacy briefing record format**. Its
+internal stages have no Vercel cron, queue trigger, admin action, or
+operations-agent action, and cannot start new editorial work. The durable
+records remain readable for historical packages and audit evidence.
 
 - **The packet is closed at `enrich` and read by id afterwards.** The enrich
   stage writes an artifact naming its `evidenceIds`; `evidenceForArtifact()`
@@ -358,11 +355,10 @@ this paragraph said "eighteen" against an array of seventeen until 2026-09-05.
 "two places that count differently" until 2026-09-05, and both had been removed
 on 2026-09-03: migration `0049` replaced the trigger's count with a machine-
 provenance check, and `595ca9d` deleted the counter from `publications/repo.ts`.
-The **internal** pipeline (`enrich → cluster → triage → draft → publish`, still
-wired in `vercel.json`, still reachable through `POST /api/v1/admin/briefing/run`)
-publishes with **no quality check at all**. Whether it should call
-`evaluateCandidate` before `publish` is an open owner decision — `0049` retired
-the stage by owner instruction. See [`data-model.md`](data-model.md#the-publish-gate).
+The internal briefing initiator is retired. New editorial work is composed
+outside the application and delivered as a package; the retained legacy reader
+does not schedule, research, draft, or publish an edition. See
+[`data-model.md`](data-model.md#the-publish-gate).
 
 One Narrative Watch record per edition may publish **citing nothing at all**,
 marked in public as this organisation's own analysis rather than as documented
@@ -372,8 +368,8 @@ comes from, why it is derived rather than chosen, and why an absent value must
 read as "sourced" are in
 [`data-model.md`](data-model.md#the-narrative_watch_details-jsonb).
 
-Full brief: [`GEOPOLITICAL_BRIEF_AUTOMATION.md`](GEOPOLITICAL_BRIEF_AUTOMATION.md);
-operations in [`briefing-operations.md`](briefing-operations.md).
+Legacy package delivery: [`briefing-packages.md`](briefing-packages.md). New
+whole-site package schema work follows the same GitHub-to-receiver boundary.
 
 ---
 
@@ -488,8 +484,8 @@ separate data boundaries.
 | Neon Auth | `/api/auth/[...path]`, admin session | `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` | one allowlisted admin |
 | Vercel Blob | RSS bytes and archive media | `BLOB_READ_WRITE_TOKEN`, archive-prefixed variables | RSS stores + dedicated archive store |
 | Vercel AI Gateway | chat, embeddings, briefing triage and draft | Vercel OIDC in linked Functions | provisioned, $5 Gateway cap |
-| Vercel Queues | outbox dispatch, briefing stages | OIDC (`vercel link`, `vercel env pull`) | `outbox.dispatch` + `briefing-collect` and one topic per pipeline stage |
-| Vercel Cron | ingest, embed, drain, maintenance, briefing | `CRON_SECRET` | five schedules in `vercel.json` |
+| Vercel Queues | outbox dispatch and package execution | OIDC (`vercel link`, `vercel env pull`) | `outbox.dispatch` only |
+| Vercel Cron | ingest, embed, drain, maintenance | `CRON_SECRET` | four schedules in `vercel.json` |
 
 The queue's absence is not fatal for the outbox: the drain cron dispatches
 straight to it and retries on the next tick if unreachable. Production has the

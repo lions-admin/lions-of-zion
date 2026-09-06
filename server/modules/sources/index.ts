@@ -197,7 +197,7 @@ export const syncBriefingRssCatalog = syncBriefingSourceCatalog;
  * How many Agent Search queries have already succeeded this month.
  *
  * A month-wide aggregate joining `source_fetch` to `source`, and the answer is
- * the same for every source in a tick — but `enqueueDueCollectionJobs` asks
+ * the same for every source in a tick — but the source-collection scheduler asks
  * once per `agent_search` source inside its loop, so the whole scan ran ten
  * times per tick to produce ten identical numbers.
  *

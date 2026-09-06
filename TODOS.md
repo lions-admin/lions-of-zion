@@ -76,17 +76,10 @@
 
 ## 4. Cloud Operations, Scheduling & Data Hygiene
 
-- [ ] **Cloud Cron Activation (`vercel.json`)**
-  - *Context:* The internal cron route `app/api/internal/cron/editorial/` and `ensureEdition` service are implemented locally. Cloud scheduling is inactive pending deployment authorization.
-  - *Actions:*
-    - Configure 15-minute idempotent cron trigger in `vercel.json` for 07:00 Asia/Jerusalem edition rollover.
-    - Deploy between editions (never at 07:00).
-  - *Files:* `vercel.json`, `app/api/internal/cron/editorial/route.ts`.
-
 - [ ] **Retire Legacy Agent Search Queries in Production**
   - *Context:* 8 new `agent-search-*` sources were deployed in `server/modules/sources/catalog.ts`. Because catalog sync is create-only, the 8 legacy queries must be deactivated to avoid duplicate spend.
   - *Actions:* Open Admin Console / run script to set `active: false` on the 8 retired Agent Search sources.
-  - *Doc Reference:* `docs/briefing-operations.md` ("Changing an Agent Search query").
+  - *Doc Reference:* `server/modules/sources/catalog.ts` (catalog sync only creates; changed queries require a new slug).
 
 - [ ] **Execute Three Consecutive Clean Production Runs**
   - *Context:* 1 full automated daily briefing run completed successfully on Production; 2 more consecutive clean daily runs are required to declare stabilization complete.

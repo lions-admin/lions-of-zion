@@ -18,9 +18,7 @@ import type {
   CostSurface,
   DrainOutboxResult,
   MaintenanceTickResult,
-  PipelineJob,
   QuarantineOutcome,
-  RetryJobResult,
 } from "@/server/contracts/admin-console";
 import { ENTITY_TYPES } from "@/server/contracts/enums";
 import type { BriefingStatus, DeepHealth, Status, UserCount } from "./briefing-shapes";
@@ -93,7 +91,7 @@ export function SystemPanel({ signal, sub = "users" }: { signal: number; sub?: S
       {sub === "costs" ? <CostsSection signal={signal} /> : null}
       {sub === "audit" ? <AuditSection signal={signal} /> : null}
       {sub === "incidents" ? <IncidentsSection signal={signal + incidentsTick} disabled={ops.disabled}
-        onResolve={resolveAlert} onRetry={requestRetry} onDrain={drainOutboxNow}
+        onResolve={resolveAlert} onDrain={drainOutboxNow}
         onMaintenance={runMaintenanceTick} onQuarantineResolve={resolveQuarantine} onDiscard={requestDiscard} /> : null}
       {sub === "security" ? <SecuritySection signal={signal} disabled={ops.disabled} run={ops.run} /> : null}
       {sub === "settings" ? <SettingsSection signal={signal} /> : null}
@@ -106,36 +104,6 @@ export function SystemPanel({ signal, sub = "users" }: { signal: number; sub?: S
       <ConfirmDialog intent={confirmIntent} onClose={() => setConfirmIntent(null)} fallbackFocusRef={areaRef} />
     </section>
   );
-
-  /* A plain retry re-queues and is asked for nothing. Resetting the attempt
-     counter can loop a job that keeps failing, so that branch confirms. */
-  function requestRetry(job: PipelineJob, resetAttempts: boolean) {
-    if (!resetAttempts) {
-      void retryJob(job, false);
-      return;
-    }
-    setConfirmIntent({
-      action: "הרצת המשימה הזו מחדש עם איפוס הניסיונות",
-      target: job.jobKey,
-      targetDetail: `${stageLabel(job.stage)} · ${job.localDate} · נוצלו ${job.attempts} מתוך ${job.maxAttempts} ניסיונות`,
-      consequence: "מונה הניסיונות חוזר לאפס והמשימה רצה שוב מהשלב שלה. משימה שנכשלת מאותה סיבה תנצל שוב את מלוא מכסת הניסיונות שלה לפני שתיעצר.",
-      confirmLabel: "איפוס והרצה מחדש",
-      tone: "danger",
-      run: () => retryJob(job, true),
-    });
-  }
-
-  async function retryJob(job: PipelineJob, resetAttempts: boolean) {
-    await ops.run(`retry:${job.id}`, async () => {
-      const result = await callConsole<RetryJobResult>(`admin/console/jobs/${job.id}/retry`, {
-        method: "POST",
-        body: { resetAttempts },
-        failure: "לא ניתן להריץ את המשימה מחדש.",
-      });
-      setIncidentsTick((current) => current + 1);
-      return `המשימה ${job.jobKey} הוחזרה לתור (${result.previousState} → ${result.state})${result.dispatched ? " ונשלחה לביצוע." : "; היא תרוץ בטיק הבא."}`;
-    });
-  }
 
   async function resolveAlert(alertId: string, kind: string, note: string) {
     await ops.run(`resolve:${alertId}`, async () => {
@@ -829,7 +797,6 @@ function IncidentsSection({
   signal,
   disabled,
   onResolve,
-  onRetry,
   onDrain,
   onMaintenance,
   onQuarantineResolve,
@@ -838,7 +805,6 @@ function IncidentsSection({
   signal: number;
   disabled: boolean;
   onResolve: (alertId: string, kind: string, note: string) => void;
-  onRetry: (job: PipelineJob, resetAttempts: boolean) => void;
   onDrain: () => void;
   onMaintenance: () => void;
   onQuarantineResolve: (entry: ConsoleIncidents["quarantine"][number]) => void;
@@ -914,7 +880,6 @@ function IncidentsSection({
                         <th scope="col">{T.attempts}</th>
                         <th scope="col">פעימת לב</th>
                         <th scope="col">{T.lastError}</th>
-                        <th scope="col">התאוששות</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -933,18 +898,6 @@ function IncidentsSection({
                           </td>
                           <td>{job.heartbeatAt ? formatAgo(job.heartbeatAt) : T.none}</td>
                           <td className={styles.errorCell}>{job.lastError ?? "—"}</td>
-                          <td>
-                            <div className={styles.cellActions}>
-                              <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
-                                {T.retry}
-                              </Button>
-                              {job.attempts >= job.maxAttempts ? (
-                                <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
-                                  איפוס ניסיונות והרצה מחדש
-                                </Button>
-                              ) : null}
-                            </div>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -965,16 +918,6 @@ function IncidentsSection({
                       </p>
                       <p className={cmd.sourceCardMeta}>פעימת לב {job.heartbeatAt ? formatAgo(job.heartbeatAt) : T.none}</p>
                       {job.lastError ? <p className={cmd.sourceCardError}>{job.lastError}</p> : null}
-                      <div className={cmd.sourceCardActions}>
-                        <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, false)}>
-                          {T.retry}
-                        </Button>
-                        {job.attempts >= job.maxAttempts ? (
-                          <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={() => onRetry(job, true)}>
-                            איפוס ניסיונות והרצה מחדש
-                          </Button>
-                        ) : null}
-                      </div>
                     </article>
                   ))}
                 </div>

@@ -243,18 +243,6 @@ type StoredEdition = z.infer<typeof storedEditionSchema>;
 type DraftDailyBrief = z.infer<typeof dailyBriefSchema>;
 type DraftContent = Pick<DraftArticle, "title" | "summary" | "evidenceIds" | "claims" | "passages">;
 
-export type EditorialResearchResult = {
-  localDate: string;
-  status: "ready" | "skipped";
-  reason?: string;
-  operations: Array<{
-    key: string;
-    action: "create";
-    publication: CreatePublication;
-    media: null;
-  }>;
-};
-
 type Generator = <T>(input: GenerateInput & { schema: z.ZodType<T> }) => Promise<StructuredGenerateOutput<T>>;
 type Runner = { transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T> };
 
@@ -804,73 +792,11 @@ export function briefingService(database: unknown, options: { generate?: Generat
     };
   }
 
-  /** Run the evidence and drafting stages without invoking the legacy
-   * publisher. The whole-site editorial service owns the subsequent media,
-   * publication and homepage stages. */
-  async function researchForEditorial(actor: Actor, requestId?: string): Promise<EditorialResearchResult> {
-    const localDate = israelLocalDate(now());
-    for (const stage of ["enrich", "cluster", "triage", "draft"] as const) {
-      const result = await runStage(stage, localDate, actor, requestId);
-      /* `already_run` means a prior attempt already completed this stage —
-         exactly the case a resumed run hits on every stage but the one it
-         actually died on. `run()` (the legacy pipeline) already treats it as
-         "move on"; this used to treat it as "give up", so a retried daily run
-         could never get past whichever stage a previous attempt had reached. */
-      if (result.status === "already_run") continue;
-      if (!result.shouldContinue) {
-        return { localDate, status: "skipped", reason: result.reason ?? `${stage}_skipped`, operations: [] };
-      }
-    }
-    const edition = await store.editionByDate(localDate);
-    if (!edition) return { localDate, status: "skipped", reason: "edition_missing", operations: [] };
-    const drafted = draftArtifactSchema.parse(await requiredArtifact(store, edition.id, "draft"));
-    const daily = drafted.edition.dailyBrief;
-    const operations: EditorialResearchResult["operations"] = [{
-      key: "daily-brief",
-      action: "create",
-      media: null,
-      publication: {
-        kind: "brief",
-        section: "daily_brief",
-        title: daily.title,
-        summary: daily.summary,
-        body: dailyBody(daily),
-        language: "en",
-        evidenceIds: daily.evidenceIds,
-        passages: allDailyPassages(daily).map((passage) => ({ text: passage.text, evidenceIds: passage.evidenceIds })),
-      },
-    }];
-    for (const [index, article] of drafted.edition.articles.entries()) {
-      operations.push({
-        key: `article-${index + 1}`,
-        action: "create",
-        media: null,
-        publication: {
-          kind: "news_update",
-          section: article.section,
-          title: article.title,
-          summary: article.summary,
-          body: bodyFromPassages(article.passages),
-          language: "en",
-          evidenceIds: article.evidenceIds,
-          passages: article.passages.map((passage) => ({ text: passage.text, evidenceIds: passage.evidenceIds })),
-          editorialTopic: article.editorialTopic,
-          primaryActor: article.primaryActor ?? undefined,
-          arena: article.arena,
-          featuredIsraelStory: article.featuredIsraelStory,
-          narrativeWatchDetails: article.narrativeWatchDetails ?? undefined,
-        },
-      });
-    }
-    return { localDate, status: "ready", operations };
-  }
-
   return {
     run,
     runStage,
     resumePausedEdition,
     draftPreview,
-    researchForEditorial,
     setAutomaticPublicationPaused: (paused: boolean, actor: Actor) =>
       store.setAutomaticPublicationPaused(paused, actor.label),
     runScheduled: async (actor: Actor, requestId?: string) =>

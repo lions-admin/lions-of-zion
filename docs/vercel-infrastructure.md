@@ -5,34 +5,31 @@ and verification steps, never credentials or assumed provider state. Confirm
 all identifiers and live settings in the relevant provider consoles before a
 Production change.
 
-## Briefing topology
+## Editorial package topology
 
 ```mermaid
 flowchart LR
-  C[External composer / admin run] --> J[Durable briefing-job ledger]
-  J --> Q[Vercel Queues]
-  Q --> W[Briefing worker]
+  C[ChatGPT editorial task] --> G[Dedicated GitHub package branch]
+  G --> A[GitHub Action]
+  A --> R[Authenticated receiver]
+  R --> J[Durable editorial-run ledger]
+  J --> Q[Vercel outbox queue]
+  Q --> W[Package executor]
   W --> D[(Neon Postgres)]
-  W --> B[Vercel Blob private briefing/raw]
-  W --> G[Google Agent Search via WIF]
-  W --> A[Vercel AI Gateway]
+  W --> B[Vercel Blob media]
   W --> P[Published article projections]
   P --> CDN[Vercel CDN]
 ```
 
-- Direct RSS/Atom feeds and Google Agent Search supply discovery.
-  Google is discovery-only and results are stored as original-publisher links.
-- `openai/gpt-5-nano` performs triage; `openai/gpt-5-mini` drafts. The
-  Grok public-chat profile remains independent.
-- The job ledger, not queue delivery, is the idempotency authority. Every
-  delivery carries only a job ID and can be retried safely.
-- The Daily Brief publishes in Production only after data-contract and quality
-  gates pass — on receipt of an externally composed edition or an
-  administrator-triggered run; there is no scheduled publication. The database
-  pause remains the immediate stop control; Preview cannot publish. The
-  production acceptance sequence in `docs/briefing-operations.md` remains
-  required operational
-  evidence and must be rerun after material provider or pipeline changes.
+- ChatGPT performs research, selection, composition and editorial judgement
+  outside the application. The dedicated branch never merges into `main` and
+  is excluded from Vercel deployment.
+- The receiver validates a package, resolves source/evidence references and
+  records a durable execution run. The executor owns media, canonical updates,
+  homepage selection and cache invalidation; it never chooses what to publish.
+- `external-briefing-v1` and `briefing-packages` remain legacy compatibility.
+  The next whole-site schema will use `editorial-packages`; neither branch may
+  deploy the application.
 
 ## Environment isolation
 
@@ -88,20 +85,17 @@ Names only; see `.env.example` for the complete non-secret template.
   Provider, service-account email, search label, hard query limit, and budget.
 - Internal routes: `CRON_SECRET`, `INTERNAL_API_SECRET`, and rate-limit key.
 
-Briefing cron and queue workers are explicitly pinned in `vercel.json` to
-`iad1` and a 300-second maximum. `tests/briefing-runtime.test.ts` guards these
-values; memory remains controlled by the active Vercel compute plan and must be
-verified in the provider settings rather than declared through this file.
+The package receiver and outbox dispatcher are explicitly bounded in
+`vercel.json`. Memory remains controlled by the active Vercel compute plan and
+must be verified in the provider settings rather than declared through this
+file.
 
 Google authentication is Vercel OIDC to Google STS to service-account
 impersonation. Do not create, upload, or store a long-lived JSON key.
 
 ## Schedules and triggers
 
-`vercel.json` owns the authoritative schedules. **The briefing edition has no
-scheduled trigger**: commit `c1e579b` (2026-09-03) removed the
-`0,15,30,45 4,5 * * *` cron that covered 07:00 Israel time. Four active crons
-remain:
+`vercel.json` owns the authoritative schedules. Four technical crons remain:
 
 ```json
 {
@@ -114,41 +108,19 @@ remain:
 }
 ```
 
-An edition is now fulfilled on receipt of a package at
-`POST /api/internal/briefing/external-publish` — the externally composed path,
-idempotent on `external_briefing_submission.run_id` — or by the administrator's
-`POST /api/v1/admin/briefing/run`.
-
-`/api/internal/cron/briefing` still exists but is unscheduled. It calls
-`enqueueEditorialPipeline()` and, without force, returns one of `queued`,
-`outside_schedule` (any invocation outside the 07:00 Israel local hour —
-`server/modules/briefing/jobs.ts:543`), `waiting_for_collection`, or
-`already_completed`. Its `vercel.json` functions entry (`maxDuration: 300`,
-`iad1`) remains, so re-enabling the schedule is a one-line addition to the
-`crons` array. It must land between editions, per `CLAUDE.md`'s deploy rule:
-**"A deploy that adds or removes a briefing quality check must land between
-editions (07:00 Asia/Jerusalem), in either direction — a rollback strands an
-in-flight edition just as the deploy did."**
-
-Each briefing queue stage has an explicit trigger topic:
-
-```text
-briefing-collect -> enrich -> cluster -> triage -> draft -> publish
-```
-
-`vercel.json` still declares a `briefing-quality` topic trigger, but the
-quality stage was folded into publish by migration `0049` and no
-`app/api/internal/queue/briefing/quality/route.ts` exists — retired in place;
-see `.ai/DECISIONS.md` 2026-09-04.
-
-The Database pause can stop publication without discarding collected evidence.
+No cron or Vercel Queue trigger starts editorial research, drafting, selection,
+or a daily publication. The legacy receiver accepts an externally composed
+package at `POST /api/internal/briefing/external-publish`, idempotent on
+`external_briefing_submission.run_id`. The future whole-site receiver follows
+the same authenticated delivery model with explicit package operations.
 
 ## Deploy and recovery
 
 1. Snapshot the database and Blob state before a migration or broad cleanup.
 2. Apply migrations in an isolated Preview environment and run tests.
 3. Verify Preview labels, no-publication behavior, and source collection.
-4. Run the production acceptance sequence in `docs/briefing-operations.md`.
+4. Validate an externally composed package against the receiver in an isolated
+   Preview environment.
 5. Promote only after its documented evidence exists. A promotion that changes
    the briefing pipeline's contract — the quality-check list, a stage artifact
    shape — belongs between editions rather than during one; there is no fixed
@@ -173,4 +145,4 @@ migration" is not evidence that a rollback is clean, and the rolled-back code
 may have no branch for what the newer code wrote there. `.ai/ROLLBACK.md` lists
 the shapes that currently behave this way and the queries that find them. Full
 backup, restore, retention, and incident procedures are in
-`docs/briefing-operations.md` and `.ai/ROLLBACK.md`.
+`docs/briefing-packages.md` and `.ai/ROLLBACK.md`.

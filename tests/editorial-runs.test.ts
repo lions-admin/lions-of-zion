@@ -6,8 +6,6 @@ import { freshDatabase, as, type TestDatabase } from '@/server/db/testing';
 import type { Database } from '@/server/db/client';
 import { editorialOperation, editorialRun } from '@/server/db/schema';
 import { editorialRepo, editorialInputHash } from '@/server/modules/editorial-update/repo';
-import { editorialUpdateService } from '@/server/modules/editorial-update/service';
-import { briefingRepo } from '@/server/modules/briefing/repo';
 import { startEditorialRunSchema, type StartEditorialRun } from '@/server/contracts/editorial-update';
 
 let db: TestDatabase;
@@ -29,23 +27,9 @@ describe('durable whole-site editorial runs', () => {
     expect(editorialInputHash({ a: 1, b: 2 })).toBe(editorialInputHash({ b: 2, a: 1 }));
   });
 
-  it('deduplicates daily requests by Jerusalem date and accepts the next local day', async () => {
-    const first = await repo().start({ runId: 'daily-one', mode: 'daily', operations: [] }, 'service:daily', new Date('2026-09-06T04:00:00Z'));
-    const replay = await repo().start({ runId: 'daily-two', mode: 'daily', operations: [] }, 'service:daily', new Date('2026-09-06T20:59:00Z'));
-    expect(replay.id).toBe(first.id);
-    const next = await repo().start({ runId: 'daily-three', mode: 'daily', operations: [] }, 'service:daily', new Date('2026-09-06T21:00:00Z'));
-    expect(next.id).not.toBe(first.id);
-    expect(next.localDate).toBe('2026-09-07');
-  });
-
-  it('starts the first Jerusalem tick at or after 07:00 and recovers a missed tick', async () => {
-    const service = editorialUpdateService(db as unknown as Database);
-    expect((await service.startDailyDue(new Date('2026-09-08T03:59:00Z'))).status).toBe('outside_schedule');
-    await briefingRepo(db).setAutomaticPublicationPaused(false, 'test:owner');
-    const due = await service.startDailyDue(new Date('2026-09-08T04:16:00Z'));
-    expect(due.status).toBe('due');
-    expect(due.run?.localDate).toBe('2026-09-08');
-    expect((await service.startDailyDue(new Date('2026-09-08T15:00:00Z'))).run?.id).toBe(due.run?.id);
+  it('accepts only explicit package operations', () => {
+    expect(startEditorialRunSchema.safeParse({ runId: 'daily:2026-09-08', mode: 'daily', operations: [] }).success).toBe(false);
+    expect(startEditorialRunSchema.safeParse({ runId: 'empty-package', mode: 'operations', operations: [] }).success).toBe(false);
   });
 
   it('fences an expired worker after another worker reclaims the run', async () => {

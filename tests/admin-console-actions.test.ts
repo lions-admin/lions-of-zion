@@ -12,7 +12,6 @@ import { freshDatabase, type TestDatabase } from "@/server/db/testing";
 import {
   auditLog,
   briefingAlert,
-  briefingJob,
   briefingQuarantine,
   briefingRun,
   entityVersion,
@@ -48,61 +47,6 @@ async function sourceFixture(db: TestDatabase, config: Record<string, unknown> |
 }
 
 const auditActions = async (db: TestDatabase) => (await db.select().from(auditLog)).map((row) => row.action);
-
-describe("retryJob", () => {
-  it("returns a quarantined job to pending, resets attempts on request, audits, and dispatches", async () => {
-    const db = await freshDatabase();
-    const [job] = await db.insert(briefingJob).values({
-      jobKey: "draft:2026-09-03:v1", stage: "draft", localDate: "2026-09-03", state: "quarantined",
-      attempts: 5, maxAttempts: 5, lastError: "exhausted", finishedAt: new Date(),
-    }).returning();
-    const dispatched: string[] = [];
-    const console = adminConsoleService(db, { dispatch: async (next) => { dispatched.push(next.id); } });
-
-    await expect(console.retryJob(job!.id, { resetAttempts: false }, actor)).rejects.toThrow(/resetAttempts/);
-
-    const result = await console.retryJob(job!.id, { resetAttempts: true }, actor, "req-1");
-    expect(result).toEqual({ jobId: job!.id, previousState: "quarantined", state: "pending", dispatched: true });
-    expect(dispatched).toEqual([job!.id]);
-    const [stored] = await db.select().from(briefingJob).where(eq(briefingJob.id, job!.id));
-    expect(stored).toMatchObject({ state: "pending", attempts: 0, leaseUntil: null, finishedAt: null });
-    expect(stored!.availableAt.getTime()).toBeLessThanOrEqual(Date.now() + 2_000);
-    const [audit] = await db.select().from(auditLog);
-    expect(audit).toMatchObject({ action: "ops.job.retried", entityType: "event", entityId: job!.id, actorLabel: "admin:test", requestId: "req-1" });
-    expect(audit!.beforeState).toMatchObject({ state: "quarantined", attempts: 5 });
-  });
-
-  it("requeues a stuck job without a queue and refuses a live or completed one", async () => {
-    const db = await freshDatabase();
-    const [stuck] = await db.insert(briefingJob).values({
-      jobKey: "enrich:stuck", stage: "enrich", localDate: "2026-09-03", state: "running", attempts: 2, leaseUntil: new Date(Date.now() - 1_000),
-    }).returning();
-    const [live] = await db.insert(briefingJob).values({
-      jobKey: "enrich:live", stage: "enrich", localDate: "2026-09-04", state: "running", attempts: 1, leaseUntil: new Date(Date.now() + 60_000),
-    }).returning();
-    const [done] = await db.insert(briefingJob).values({
-      jobKey: "enrich:done", stage: "enrich", localDate: "2026-09-02", state: "completed", attempts: 1, finishedAt: new Date(),
-    }).returning();
-    const console = adminConsoleService(db, { dispatch: null });
-
-    expect(await console.retryJob(stuck!.id, { resetAttempts: false }, actor)).toMatchObject({ previousState: "running", state: "pending", dispatched: false });
-    const [stored] = await db.select().from(briefingJob).where(eq(briefingJob.id, stuck!.id));
-    expect(stored).toMatchObject({ state: "pending", attempts: 2, leaseUntil: null });
-    await expect(console.retryJob(live!.id, { resetAttempts: false }, actor)).rejects.toThrow(/live worker lease/);
-    await expect(console.retryJob(done!.id, { resetAttempts: false }, actor)).rejects.toThrow(/completed job/i);
-    await expect(console.retryJob("00000000-0000-0000-0000-000000000000", { resetAttempts: false }, actor)).rejects.toThrow(/not found/);
-  });
-
-  it("reports dispatched:false when the queue send fails, leaving the job ready for cron recovery", async () => {
-    const db = await freshDatabase();
-    const [job] = await db.insert(briefingJob).values({ jobKey: "collect:q", stage: "collect", localDate: "2026-09-03", state: "quarantined", attempts: 5 }).returning();
-    const console = adminConsoleService(db, { dispatch: async () => { throw new Error("queue unavailable"); } });
-    const result = await console.retryJob(job!.id, { resetAttempts: true }, actor);
-    expect(result.dispatched).toBe(false);
-    const [stored] = await db.select().from(briefingJob).where(eq(briefingJob.id, job!.id));
-    expect(stored?.state).toBe("pending");
-  });
-});
 
 describe("resolveAlert", () => {
   it("sets resolved_at once, with the note in the audit trail", async () => {

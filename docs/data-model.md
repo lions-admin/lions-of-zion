@@ -146,14 +146,15 @@ closed evidence packet every later stage re-reads by id — and
 gate: nothing counts these rows in SQL since migration `0049` — see
 [the publish gate](#the-publish-gate).
 
-**The editorial-update pipeline** — `editorial_run`, `editorial_operation`
-(migrations `0059`–`0061`). A durable, resumable alternative to the briefing
-pipeline's publish stage: one run owns a set of create/update operations on
+**The editorial-update receiver ledger** — `editorial_run`, `editorial_operation`
+(migrations `0059`–`0061`). A durable, resumable execution ledger for an
+externally composed package: one run owns a set of create/update operations on
 `publication`, each recording its own input hash, media artifact and result so
 a retried run reuses whatever an earlier attempt already prepared or completed
-instead of redoing it. A `daily` run is deduplicated per Jerusalem local date
-(`editorial_daily_date_once`); an `operations` run is deduplicated by its
-caller-supplied `runId` and request hash. `publication.editorial_run_id` /
+instead of redoing it. New runs accept only explicit `operations` and are
+deduplicated by their caller-supplied `runId` and request hash. Historical
+`daily` rows remain readable but cannot be created by the application.
+`publication.editorial_run_id` /
 `editorial_operation_key` are this pipeline's provenance columns, parallel to
 `briefing_run_id` / `briefing_candidate_key` — `automatic_publication_has_machine_provenance`
 (migration `0060`) accepts either pair, never neither. `publication.topic_tags`
@@ -342,11 +343,10 @@ Two things follow that an editor must hold:
   `tests/automatic-publication-gate.test.ts` still fires the trigger on PGlite,
   and `tests/briefing-quality.test.ts` still asserts the arithmetic — but read
   both knowing they now pin a mechanism no production path depends on.
-- ⚠️ **The internal pipeline has no deterministic gate at all.** `enrich →
-  cluster → triage → draft → publish` is still wired in `vercel.json` and still
-  reachable through `POST /api/v1/admin/briefing/run`; its `publish` stage never
-  calls `evaluateCandidate`, and the trigger no longer refuses it. Whether it
-  should is an open owner decision, not a gap to close in passing.
+- The legacy internal briefing pipeline is no longer reachable through a cron,
+  queue trigger, admin action, or operations-agent tool. Its historical tables
+  and compatibility reader remain intact; new editorial work reaches the site
+  through an externally composed package.
 
 An automated identity may never hold `assessment.publish`, `approval.grant`,
 `evidence.restricted.read` or `policy.manage` — held as a const in

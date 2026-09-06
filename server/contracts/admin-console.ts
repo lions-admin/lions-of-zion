@@ -140,22 +140,6 @@ export const consolePipelineSchema = z.object({
 });
 export type ConsolePipeline = z.infer<typeof consolePipelineSchema>;
 
-/** Operator actions on the pipeline, beyond what `/admin/briefing/run` and
- *  `/admin/briefing/control` already offer. */
-export const retryJobSchema = z.object({
-  /** Reset attempts too, so a job that exhausted them can run again. */
-  resetAttempts: z.boolean().default(false),
-});
-export type RetryJob = z.infer<typeof retryJobSchema>;
-
-export const retryJobResultSchema = z.object({
-  jobId: z.uuid(),
-  previousState: jobStateSchema,
-  state: jobStateSchema,
-  dispatched: z.boolean(),
-});
-export type RetryJobResult = z.infer<typeof retryJobResultSchema>;
-
 /* ── 2b. Briefing quality checks ──────────────────────────────────────────── */
 
 /**
@@ -707,6 +691,7 @@ export const maintenanceTickResultSchema = z.object({
   briefingJobs: z.object({
     recovered: count,
     configurationRecovered: count,
+    /** Compatibility-only: no legacy editorial processing can resume. */
     processingResumed: count,
     dispatched: count,
     quarantined: count,
@@ -780,10 +765,6 @@ export const OPS_TOOLS = [
   "get_publication",
   "list_publications",
   /* operate — reversible */
-  "run_processing",
-  "pause_publication",
-  "resume_publication",
-  "retry_job",
   "resolve_alert",
   "verify_source",
   "sync_source_catalog",
@@ -792,7 +773,6 @@ export const OPS_TOOLS = [
   "set_homepage_feature",
   "run_health_check",
   /* operate — irreversible, always confirmed */
-  "force_rerun",
   "publish_publication",
   "unpublish_publication",
   "archive_publication",
@@ -805,13 +785,11 @@ export type OpsTool = z.infer<typeof opsToolSchema>;
 /** Tools that change what the public sees, spend budget again, or cannot be
  *  undone. The server refuses to run these without a confirmation token. */
 export const CONFIRMED_OPS_TOOLS = [
-  "force_rerun",
   "publish_publication",
   "unpublish_publication",
   "archive_publication",
   "delete_publication",
   "rollback_publication",
-  "pause_publication",
   "set_source_active",
 ] as const satisfies readonly OpsTool[];
 

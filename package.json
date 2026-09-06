@@ -33,6 +33,7 @@
     "briefing:smoke:production": "node scripts/verify-briefing-production.mjs",
     "briefing:compose": "NODE_OPTIONS=--conditions=react-server tsx scripts/external-briefing-compose.ts",
     "briefing:publish": "NODE_OPTIONS=--conditions=react-server tsx scripts/publish-briefing-package.ts",
+    "editorial:packages": "tsx scripts/list-editorial-update-packages.ts",
     "editorial:publish": "tsx scripts/publish-editorial-update.ts",
     "dev": "next dev",
     "lint": "eslint",

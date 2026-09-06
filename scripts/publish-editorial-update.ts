@@ -15,6 +15,10 @@ function failures(status: { status: string; report?: { publications?: { failed?:
     || Boolean(status.report?.errors?.some(error => error.stage === 'homepage'));
 }
 
+function fail(stage: string, detail: string): never {
+  throw new Error(`[${stage}] ${detail}`);
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
@@ -40,12 +44,12 @@ async function main(): Promise<void> {
 
   const baseUrl = process.env.EDITORIAL_UPDATE_INGEST_BASE_URL?.trim() || 'https://lionsofzion.io';
   const secret = process.env.EDITORIAL_UPDATE_INGEST_SECRET;
-  if (!secret) throw new Error('EDITORIAL_UPDATE_INGEST_SECRET is required to submit a package.');
+  if (!secret) fail('configuration', 'EDITORIAL_UPDATE_INGEST_SECRET is required to submit a package.');
   const ingestUrl = new URL('/api/internal/editorial-updates/ingest', baseUrl);
   const submitted = await fetch(ingestUrl, {
     method: 'POST', headers: { 'content-type': 'application/json', 'x-editorial-update-secret': secret }, body: JSON.stringify(pkg),
   });
-  if (!submitted.ok) throw new Error(`Ingest returned ${submitted.status}: ${await submitted.text()}`);
+  if (!submitted.ok) fail('ingest rejection', `HTTP ${submitted.status}: ${await submitted.text()}`);
   const accepted = await submitted.json() as { runId: string; statusUrl: string };
   console.log(`accepted runId=${accepted.runId}`);
   const statusUrl = new URL(accepted.statusUrl, baseUrl);
@@ -53,7 +57,7 @@ async function main(): Promise<void> {
   while (Date.now() < deadline) {
     await new Promise(resolve => setTimeout(resolve, 5_000));
     const response = await fetch(statusUrl, { headers: { 'x-editorial-update-secret': secret } });
-    if (!response.ok) throw new Error(`Status returned ${response.status}: ${await response.text()}`);
+    if (!response.ok) fail('polling/status failure', `HTTP ${response.status}: ${await response.text()}`);
     const result = await response.json() as {
       runId: string; status: string; report?: {
         publications?: { created?: number; updated?: number; failed?: number };
@@ -65,10 +69,14 @@ async function main(): Promise<void> {
     console.log(`runId=${result.runId} status=${result.status} created=${counts.created ?? 0} updated=${counts.updated ?? 0} failed=${counts.failed ?? 0}`);
     for (const url of result.report?.urls ?? []) console.log(`url=${url}`);
     for (const error of result.report?.errors ?? []) console.error(`error=${error.operationKey ?? 'homepage'} stage=${error.stage} message=${error.message}`);
-    if (failures(result)) process.exitCode = 1;
+    if (failures(result)) {
+      const homepageFailed = result.report?.errors?.some(error => error.stage === 'homepage');
+      console.error(`[${homepageFailed ? 'homepage failure' : 'publication execution failure'}] Durable run ${result.runId} finished ${result.status}.`);
+      process.exitCode = 1;
+    }
     return;
   }
-  throw new Error('Timed out waiting for the editorial run to finish.');
+  fail('timeout', 'Timed out waiting for the editorial run to finish.');
 }
 
 main().catch(cause => {

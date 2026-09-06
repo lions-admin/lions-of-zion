@@ -1,0 +1,12 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "delivery-smoke-2026-09-06-235800",
+  "composer": "GitHub editorial delivery smoke test",
+  "createdAt": "2026-09-06T20:58:04Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {
+    "news": {}
+  },
+  "siteRecommendations": []
+}

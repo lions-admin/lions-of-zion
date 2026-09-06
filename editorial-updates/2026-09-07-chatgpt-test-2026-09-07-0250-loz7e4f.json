@@ -1,0 +1,31 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "chatgpt-test-2026-09-07-0250-loz7e4f",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-06T23:50:00.000Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "publicId": "idf-clears-ali-al-taher-tunnels-as-gaza-yellow-l-98jch"
+        }
+      }
+    },
+    "fakeResistance": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "publicId": "reported-claim-iran-warned-the-united-states-isr-t5n3b"
+        }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "Add a source-ingestion mechanism to whole-site-update-v1, or an authorized resolver, that can ingest external public sources into real evidence rows and return their UUIDs. The current contract can publish a record but cannot create the source/evidence links required for a sourced article, so the September 6 Ghandour Hospital narrative investigation and regional news brief were vetoed rather than published with an empty source stack.",
+    "The homepage News lead was stale relative to the current edition while a newer sourced live publication already existed. This run re-promotes the sourced Ali al-Taher/Gaza update; add a stale-lead check that flags a News lead older than the homepage edition date without automatically replacing stronger material.",
+    "Expose an authorized external-source resolver for developing-story updates so editors can attach newly researched sources to an existing canonical publication without inventing evidence UUIDs. That capability was the blocker for updating the Ali al-Taher/Lebanon story with the September 6 Hezbollah drone and Israeli strike developments."
+  ]
+}

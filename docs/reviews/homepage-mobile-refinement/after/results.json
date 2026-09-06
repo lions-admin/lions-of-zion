@@ -14,12 +14,12 @@
         "heroBottom": 607.0625,
         "firstArticleTop": 908.046875,
         "firstImageTop": 908.046875,
-        "firstHeadlineTop": 1260.421875,
-        "documentHeight": 11545
+        "firstHeadlineTop": 1279.921875,
+        "documentHeight": 11676
       },
       "sections": {
         "news": {
-          "height": 1500,
+          "height": 1520,
           "headlines": [
             {
               "text": "Israel Ministry of Defense activities; regional reports of a",
@@ -35,7 +35,7 @@
           "articles": 2
         },
         "fakeResistance": {
-          "height": 1576,
+          "height": 1612,
           "headlines": [
             {
               "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
@@ -51,7 +51,7 @@
           "articles": 2
         },
         "october7": {
-          "height": 1564,
+          "height": 1639,
           "headlines": [
             {
               "text": "We were barricaded for hours. My father, 62 years old, fough",
@@ -113,7 +113,7 @@
       "launcher": [
         {
           "fraction": 0.12,
-          "scrollY": 1317,
+          "scrollY": 1333,
           "present": true,
           "visible": true,
           "rect": {
@@ -136,7 +136,7 @@
         },
         {
           "fraction": 0.25,
-          "scrollY": 2744,
+          "scrollY": 2777,
           "present": true,
           "visible": false,
           "rect": {
@@ -161,7 +161,7 @@
         },
         {
           "fraction": 0.4,
-          "scrollY": 4391,
+          "scrollY": 4443,
           "present": true,
           "visible": false,
           "rect": {
@@ -176,17 +176,17 @@
             "image": 0,
             "control": 0,
             "elements": {
-              "p.warning": 1
+              "span.captionText": 1
             },
             "snippets": [
-              "Sensitive documentation. Media stays hid"
+              "Symbolic safe cover. This is not documen"
             ]
           },
           "covers": false
         },
         {
           "fraction": 0.55,
-          "scrollY": 6037,
+          "scrollY": 6109,
           "present": true,
           "visible": false,
           "rect": {
@@ -207,7 +207,7 @@
         },
         {
           "fraction": 0.7,
-          "scrollY": 7684,
+          "scrollY": 7776,
           "present": true,
           "visible": false,
           "rect": {
@@ -218,21 +218,17 @@
           },
           "position": "fixed",
           "under": {
-            "text": 1,
+            "text": 0,
             "image": 0,
             "control": 0,
-            "elements": {
-              "span": 1
-            },
-            "snippets": [
-              "Where the information originated."
-            ]
+            "elements": {},
+            "snippets": []
           },
           "covers": false
         },
         {
           "fraction": 0.85,
-          "scrollY": 9330,
+          "scrollY": 9442,
           "present": true,
           "visible": false,
           "rect": {
@@ -257,7 +253,7 @@
         },
         {
           "fraction": 0.97,
-          "scrollY": 10648,
+          "scrollY": 10775,
           "present": true,
           "visible": false,
           "rect": {
@@ -288,7 +284,7 @@
       },
       "keyboard": {
         "launcherFocused": true,
-        "tabs": 67
+        "tabs": 65
       },
       "layout": {
         "viewport": 320,
@@ -310,12 +306,12 @@
         "heroBottom": 667,
         "firstArticleTop": 967.984375,
         "firstImageTop": 967.984375,
-        "firstHeadlineTop": 1292.296875,
-        "documentHeight": 11157
+        "firstHeadlineTop": 1331.296875,
+        "documentHeight": 11254
       },
       "sections": {
         "news": {
-          "height": 1446,
+          "height": 1485,
           "headlines": [
             {
               "text": "Israel Ministry of Defense activities; regional reports of a",
@@ -331,7 +327,7 @@
           "articles": 2
         },
         "fakeResistance": {
-          "height": 1515,
+          "height": 1535,
           "headlines": [
             {
               "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
@@ -347,7 +343,7 @@
           "articles": 2
         },
         "october7": {
-          "height": 1399,
+          "height": 1438,
           "headlines": [
             {
               "text": "We were barricaded for hours. My father, 62 years old, fough",
@@ -409,7 +405,7 @@
       "launcher": [
         {
           "fraction": 0.12,
-          "scrollY": 1259,
+          "scrollY": 1270,
           "present": true,
           "visible": true,
           "rect": {
@@ -432,7 +428,7 @@
         },
         {
           "fraction": 0.25,
-          "scrollY": 2623,
+          "scrollY": 2647,
           "present": true,
           "visible": false,
           "rect": {
@@ -457,7 +453,7 @@
         },
         {
           "fraction": 0.4,
-          "scrollY": 4196,
+          "scrollY": 4235,
           "present": true,
           "visible": false,
           "rect": {
@@ -468,44 +464,21 @@
           },
           "position": "fixed",
           "under": {
-            "text": 0,
+            "text": 1,
             "image": 0,
-            "control": 1,
+            "control": 0,
             "elements": {
-              "a.link": 1
+              "p.warning": 1
             },
             "snippets": [
-              "Open the record with a content warning"
+              "Sensitive documentation. Media stays hid"
             ]
           },
           "covers": false
         },
         {
           "fraction": 0.55,
-          "scrollY": 5770,
-          "present": true,
-          "visible": false,
-          "rect": {
-            "left": 311,
-            "top": 795,
-            "width": 48,
-            "height": 48
-          },
-          "position": "fixed",
-          "under": {
-            "text": 0,
-            "image": 1,
-            "control": 0,
-            "elements": {
-              "img": 1
-            },
-            "snippets": []
-          },
-          "covers": false
-        },
-        {
-          "fraction": 0.7,
-          "scrollY": 7343,
+          "scrollY": 5823,
           "present": true,
           "visible": false,
           "rect": {
@@ -525,8 +498,33 @@
           "covers": false
         },
         {
+          "fraction": 0.7,
+          "scrollY": 7411,
+          "present": true,
+          "visible": false,
+          "rect": {
+            "left": 311,
+            "top": 795,
+            "width": 48,
+            "height": 48
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "span": 1
+            },
+            "snippets": [
+              "Where the information originated."
+            ]
+          },
+          "covers": false
+        },
+        {
           "fraction": 0.85,
-          "scrollY": 8917,
+          "scrollY": 8999,
           "present": true,
           "visible": false,
           "rect": {
@@ -547,7 +545,7 @@
         },
         {
           "fraction": 0.97,
-          "scrollY": 10175,
+          "scrollY": 10269,
           "present": true,
           "visible": false,
           "rect": {
@@ -578,7 +576,7 @@
       },
       "keyboard": {
         "launcherFocused": true,
-        "tabs": 67
+        "tabs": 65
       },
       "layout": {
         "viewport": 375,
@@ -600,12 +598,12 @@
         "heroBottom": 844,
         "firstArticleTop": 1145.984375,
         "firstImageTop": 1145.984375,
-        "firstHeadlineTop": 1479.671875,
-        "documentHeight": 11377
+        "firstHeadlineTop": 1518.671875,
+        "documentHeight": 11474
       },
       "sections": {
         "news": {
-          "height": 1460,
+          "height": 1499,
           "headlines": [
             {
               "text": "Israel Ministry of Defense activities; regional reports of a",
@@ -621,7 +619,7 @@
           "articles": 2
         },
         "fakeResistance": {
-          "height": 1501,
+          "height": 1521,
           "headlines": [
             {
               "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
@@ -637,7 +635,7 @@
           "articles": 2
         },
         "october7": {
-          "height": 1413,
+          "height": 1452,
           "headlines": [
             {
               "text": "We were barricaded for hours. My father, 62 years old, fough",
@@ -699,7 +697,7 @@
       "launcher": [
         {
           "fraction": 0.12,
-          "scrollY": 1264,
+          "scrollY": 1276,
           "present": true,
           "visible": true,
           "rect": {
@@ -722,7 +720,7 @@
         },
         {
           "fraction": 0.25,
-          "scrollY": 2633,
+          "scrollY": 2658,
           "present": true,
           "visible": false,
           "rect": {
@@ -747,7 +745,32 @@
         },
         {
           "fraction": 0.4,
-          "scrollY": 4213,
+          "scrollY": 4252,
+          "present": true,
+          "visible": false,
+          "rect": {
+            "left": 326,
+            "top": 972,
+            "width": 48,
+            "height": 48
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p.warning": 1
+            },
+            "snippets": [
+              "Sensitive documentation. Media stays hid"
+            ]
+          },
+          "covers": false
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 5847,
           "present": true,
           "visible": false,
           "rect": {
@@ -760,42 +783,15 @@
           "under": {
             "text": 0,
             "image": 0,
-            "control": 1,
-            "elements": {
-              "a.link": 1
-            },
-            "snippets": [
-              "Open the record with a content warning"
-            ]
-          },
-          "covers": false
-        },
-        {
-          "fraction": 0.55,
-          "scrollY": 5793,
-          "present": true,
-          "visible": false,
-          "rect": {
-            "left": 326,
-            "top": 972,
-            "width": 48,
-            "height": 48
-          },
-          "position": "fixed",
-          "under": {
-            "text": 0,
-            "image": 1,
             "control": 0,
-            "elements": {
-              "img": 1
-            },
+            "elements": {},
             "snippets": []
           },
           "covers": false
         },
         {
           "fraction": 0.7,
-          "scrollY": 7373,
+          "scrollY": 7441,
           "present": true,
           "visible": false,
           "rect": {
@@ -816,7 +812,7 @@
         },
         {
           "fraction": 0.85,
-          "scrollY": 8953,
+          "scrollY": 9036,
           "present": true,
           "visible": false,
           "rect": {
@@ -837,7 +833,7 @@
         },
         {
           "fraction": 0.97,
-          "scrollY": 10217,
+          "scrollY": 10311,
           "present": true,
           "visible": false,
           "rect": {
@@ -850,9 +846,13 @@
           "under": {
             "text": 0,
             "image": 0,
-            "control": 0,
-            "elements": {},
-            "snippets": []
+            "control": 1,
+            "elements": {
+              "a.site-footer-module__2HL8Da__fileLink": 1
+            },
+            "snippets": [
+              "Support Us"
+            ]
           },
           "covers": false
         }
@@ -868,7 +868,7 @@
       },
       "keyboard": {
         "launcherFocused": true,
-        "tabs": 67
+        "tabs": 65
       },
       "layout": {
         "viewport": 390,
@@ -890,12 +890,12 @@
         "heroBottom": 932,
         "firstArticleTop": 1237.984375,
         "firstImageTop": 1237.984375,
-        "firstHeadlineTop": 1596.671875,
-        "documentHeight": 11193
+        "firstHeadlineTop": 1616.171875,
+        "documentHeight": 11271
       },
       "sections": {
         "news": {
-          "height": 1464,
+          "height": 1484,
           "headlines": [
             {
               "text": "Israel Ministry of Defense activities; regional reports of a",
@@ -911,7 +911,7 @@
           "articles": 2
         },
         "fakeResistance": {
-          "height": 1519,
+          "height": 1538,
           "headlines": [
             {
               "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
@@ -927,7 +927,7 @@
           "articles": 2
         },
         "october7": {
-          "height": 1426,
+          "height": 1465,
           "headlines": [
             {
               "text": "We were barricaded for hours. My father, 62 years old, fough",
@@ -989,7 +989,7 @@
       "launcher": [
         {
           "fraction": 0.12,
-          "scrollY": 1231,
+          "scrollY": 1241,
           "present": true,
           "visible": true,
           "rect": {
@@ -1001,18 +1001,16 @@
           "position": "fixed",
           "under": {
             "text": 0,
-            "image": 1,
+            "image": 0,
             "control": 0,
-            "elements": {
-              "img": 1
-            },
+            "elements": {},
             "snippets": []
           },
-          "covers": true
+          "covers": false
         },
         {
           "fraction": 0.25,
-          "scrollY": 2565,
+          "scrollY": 2585,
           "present": true,
           "visible": false,
           "rect": {
@@ -1037,7 +1035,7 @@
         },
         {
           "fraction": 0.4,
-          "scrollY": 4104,
+          "scrollY": 4136,
           "present": true,
           "visible": false,
           "rect": {
@@ -1048,17 +1046,22 @@
           },
           "position": "fixed",
           "under": {
-            "text": 0,
-            "image": 0,
+            "text": 1,
+            "image": 1,
             "control": 0,
-            "elements": {},
-            "snippets": []
+            "elements": {
+              "span.captionText": 1,
+              "img": 1
+            },
+            "snippets": [
+              "Symbolic safe cover. This is not documen"
+            ]
           },
           "covers": false
         },
         {
           "fraction": 0.55,
-          "scrollY": 5644,
+          "scrollY": 5686,
           "present": true,
           "visible": false,
           "rect": {
@@ -1079,7 +1082,7 @@
         },
         {
           "fraction": 0.7,
-          "scrollY": 7183,
+          "scrollY": 7237,
           "present": true,
           "visible": false,
           "rect": {
@@ -1100,7 +1103,7 @@
         },
         {
           "fraction": 0.85,
-          "scrollY": 8722,
+          "scrollY": 8788,
           "present": true,
           "visible": false,
           "rect": {
@@ -1123,7 +1126,7 @@
         },
         {
           "fraction": 0.97,
-          "scrollY": 9953,
+          "scrollY": 10029,
           "present": true,
           "visible": false,
           "rect": {
@@ -1158,7 +1161,7 @@
       },
       "keyboard": {
         "launcherFocused": true,
-        "tabs": 67
+        "tabs": 65
       },
       "layout": {
         "viewport": 430,
@@ -1180,12 +1183,12 @@
         "heroBottom": 1024,
         "firstArticleTop": 1344.84375,
         "firstImageTop": 1344.84375,
-        "firstHeadlineTop": 1743.0625,
-        "documentHeight": 9842
+        "firstHeadlineTop": 1762.5625,
+        "documentHeight": 9940
       },
       "sections": {
         "news": {
-          "height": 1277,
+          "height": 1297,
           "headlines": [
             {
               "text": "Israel Ministry of Defense activities; regional reports of a",
@@ -1201,7 +1204,7 @@
           "articles": 2
         },
         "fakeResistance": {
-          "height": 1566,
+          "height": 1624,
           "headlines": [
             {
               "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
@@ -1217,7 +1220,7 @@
           "articles": 2
         },
         "october7": {
-          "height": 1036,
+          "height": 1056,
           "headlines": [
             {
               "text": "We were barricaded for hours. My father, 62 years old, fough",
@@ -1279,7 +1282,7 @@
       "launcher": [
         {
           "fraction": 0.12,
-          "scrollY": 1058,
+          "scrollY": 1070,
           "present": true,
           "visible": true,
           "rect": {
@@ -1300,7 +1303,7 @@
         },
         {
           "fraction": 0.25,
-          "scrollY": 2205,
+          "scrollY": 2229,
           "present": true,
           "visible": false,
           "rect": {
@@ -1321,28 +1324,7 @@
         },
         {
           "fraction": 0.4,
-          "scrollY": 3527,
-          "present": true,
-          "visible": false,
-          "rect": {
-            "left": 704,
-            "top": 1152,
-            "width": 48,
-            "height": 48
-          },
-          "position": "fixed",
-          "under": {
-            "text": 0,
-            "image": 0,
-            "control": 0,
-            "elements": {},
-            "snippets": []
-          },
-          "covers": false
-        },
-        {
-          "fraction": 0.55,
-          "scrollY": 4850,
+          "scrollY": 3566,
           "present": true,
           "visible": false,
           "rect": {
@@ -1357,17 +1339,42 @@
             "image": 0,
             "control": 0,
             "elements": {
-              "span.previewRest": 1
+              "h3": 1
             },
             "snippets": [
-              "He now speaks publicly about that day, i"
+              "85-year old Yaffa Adar being abducted in"
+            ]
+          },
+          "covers": false
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 4904,
+          "present": true,
+          "visible": false,
+          "rect": {
+            "left": 704,
+            "top": 1152,
+            "width": 48,
+            "height": 48
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p.summary": 1
+            },
+            "snippets": [
+              "A farmer whose moshav sits minutes from "
             ]
           },
           "covers": false
         },
         {
           "fraction": 0.7,
-          "scrollY": 6173,
+          "scrollY": 6241,
           "present": true,
           "visible": false,
           "rect": {
@@ -1388,7 +1395,7 @@
         },
         {
           "fraction": 0.85,
-          "scrollY": 7495,
+          "scrollY": 7579,
           "present": true,
           "visible": false,
           "rect": {
@@ -1411,7 +1418,7 @@
         },
         {
           "fraction": 0.97,
-          "scrollY": 8553,
+          "scrollY": 8649,
           "present": true,
           "visible": false,
           "rect": {
@@ -1447,7 +1454,7 @@
       },
       "keyboard": {
         "launcherFocused": true,
-        "tabs": 68
+        "tabs": 66
       },
       "layout": {
         "viewport": 768,
@@ -1469,12 +1476,12 @@
         "heroBottom": 900,
         "firstArticleTop": 1274.5,
         "firstImageTop": 1274.5,
-        "firstHeadlineTop": 1890.984375,
-        "documentHeight": 10545
+        "firstHeadlineTop": 1910.484375,
+        "documentHeight": 10584
       },
       "sections": {
         "news": {
-          "height": 1492,
+          "height": 1512,
           "headlines": [
             {
               "text": "Israel Ministry of Defense activities; regional reports of a",
@@ -1490,7 +1497,7 @@
           "articles": 2
         },
         "fakeResistance": {
-          "height": 1681,
+          "height": 1701,
           "headlines": [
             {
               "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
@@ -1568,7 +1575,7 @@
       "launcher": [
         {
           "fraction": 0.12,
-          "scrollY": 1157,
+          "scrollY": 1162,
           "present": true,
           "visible": true,
           "rect": {
@@ -1589,7 +1596,7 @@
         },
         {
           "fraction": 0.25,
-          "scrollY": 2411,
+          "scrollY": 2421,
           "present": true,
           "visible": true,
           "rect": {
@@ -1610,7 +1617,7 @@
         },
         {
           "fraction": 0.4,
-          "scrollY": 3858,
+          "scrollY": 3874,
           "present": true,
           "visible": true,
           "rect": {
@@ -1631,7 +1638,7 @@
         },
         {
           "fraction": 0.55,
-          "scrollY": 5305,
+          "scrollY": 5326,
           "present": true,
           "visible": true,
           "rect": {
@@ -1652,7 +1659,7 @@
         },
         {
           "fraction": 0.7,
-          "scrollY": 6752,
+          "scrollY": 6779,
           "present": true,
           "visible": true,
           "rect": {
@@ -1673,7 +1680,7 @@
         },
         {
           "fraction": 0.85,
-          "scrollY": 8198,
+          "scrollY": 8231,
           "present": true,
           "visible": true,
           "rect": {
@@ -1694,7 +1701,7 @@
         },
         {
           "fraction": 0.97,
-          "scrollY": 9356,
+          "scrollY": 9393,
           "present": true,
           "visible": true,
           "rect": {
@@ -1707,16 +1714,14 @@
           "under": {
             "text": 1,
             "image": 0,
-            "control": 3,
+            "control": 2,
             "elements": {
-              "a.site-footer-module__2HL8Da__trustLink": 3,
-              "a.site-footer-module__2HL8Da__furtherLink": 1
+              "a.site-footer-module__2HL8Da__trustLink": 3
             },
             "snippets": [
               "Corrections",
               "Methodology",
-              "Corrections",
-              "Account"
+              "Corrections"
             ]
           },
           "covers": true
@@ -1733,7 +1738,7 @@
       },
       "keyboard": {
         "launcherFocused": true,
-        "tabs": 72
+        "tabs": 70
       },
       "layout": {
         "viewport": 1440,

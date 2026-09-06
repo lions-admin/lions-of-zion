@@ -7,7 +7,10 @@ git integration. The owner then read it on an iPhone and the design was
 corrected the same day — larger type, previews that end on sentences, the
 October 7 archive on the page's ground, no box around a dossier, a longer
 launcher retract; see *Same-day correction* at the end. Every table and
-capture below is from the corrected build.
+capture below is from the corrected build merged with the owner's
+contextual illustrations and safe covers (`dfc9b4c`), whose three-line
+captions are where the arrival distances below grew a little against the
+pre-merge figures.
 
 Brief: *Lions of Zion Homepage Editorial Journey — Mobile UX, Visual
 Hierarchy, Density and Interaction Refinement*. The journey's order —
@@ -69,12 +72,12 @@ cent their section heights show.
 
 | Viewport | To the first image, before → after | To the first headline, before → after | Page height, before → after |
 | --- | --- | --- | --- |
-| w320 | 442px → 301px (-32%) | 787px → 653px (-17%) | 15514px → 11545px (-26%) |
-| w375 | 442px → 301px (-32%) | 779px → 625px (-20%) | 15084px → 11157px (-26%) |
-| iphone-390x844 | 443px → 302px (-32%) | 789px → 636px (-19%) | 15069px → 11377px (-25%) |
-| iphone-430x932 | 447px → 306px (-32%) | 818px → 665px (-19%) | 14647px → 11193px (-24%) |
-| w768 | 322px → 321px (0%) | 696px → 719px (3%) | 9629px → 9842px (2%) |
-| w1440 | 377px → 375px (-1%) | 970px → 991px (2%) | 10482px → 10545px (1%) |
+| w320 | 442px → 301px (-32%) | 787px → 673px (-15%) | 15514px → 11676px (-25%) |
+| w375 | 442px → 301px (-32%) | 779px → 664px (-15%) | 15084px → 11254px (-25%) |
+| iphone-390x844 | 443px → 302px (-32%) | 789px → 675px (-14%) | 15069px → 11474px (-24%) |
+| iphone-430x932 | 447px → 306px (-32%) | 818px → 684px (-16%) | 14647px → 11271px (-23%) |
+| w768 | 322px → 321px (0%) | 696px → 739px (6%) | 9629px → 9940px (3%) |
+| w1440 | 377px → 375px (-1%) | 970px → 1010px (4%) | 10482px → 10584px (1%) |
 
 ### Lead headlines: lines × size
 
@@ -91,12 +94,12 @@ cent their section heights show.
 
 | Viewport | News | Fake Resistance | October 7 | Our Heroes | Israel’s Story | System |
 | --- | --- | --- | --- | --- | --- | --- |
-| w320 | 2456px → 1500px | 2762px → 1576px | 1744px → 1564px | 2136px → 1232px | 2074px → 1401px | 2441px → 2457px |
-| w375 | 2313px → 1446px | 2553px → 1515px | 1750px → 1399px | 2174px → 1207px | 2015px → 1366px | 2364px → 2373px |
-| iphone-390x844 | 2282px → 1460px | 2516px → 1501px | 1768px → 1413px | 2132px → 1217px | 1974px → 1377px | 2303px → 2383px |
-| iphone-430x932 | 2237px → 1464px | 2569px → 1519px | 1677px → 1426px | 2143px → 1243px | 1958px → 1387px | 2129px → 2285px |
-| w768 | 1259px → 1277px | 1626px → 1566px | 985px → 1036px | 1184px → 1227px | 1055px → 1097px | 1557px → 1679px |
-| w1440 | 1475px → 1492px | 1752px → 1681px | 1309px → 1339px | 1449px → 1518px | 1226px → 1220px | 1663px → 1691px |
+| w320 | 2456px → 1520px | 2762px → 1612px | 1744px → 1639px | 2136px → 1232px | 2074px → 1401px | 2441px → 2457px |
+| w375 | 2313px → 1485px | 2553px → 1535px | 1750px → 1438px | 2174px → 1207px | 2015px → 1366px | 2364px → 2373px |
+| iphone-390x844 | 2282px → 1499px | 2516px → 1521px | 1768px → 1452px | 2132px → 1217px | 1974px → 1377px | 2303px → 2383px |
+| iphone-430x932 | 2237px → 1484px | 2569px → 1538px | 1677px → 1465px | 2143px → 1243px | 1958px → 1387px | 2129px → 2285px |
+| w768 | 1259px → 1297px | 1626px → 1624px | 985px → 1056px | 1184px → 1227px | 1055px → 1097px | 1557px → 1679px |
+| w1440 | 1475px → 1512px | 1752px → 1701px | 1309px → 1339px | 1449px → 1518px | 1226px → 1220px | 1663px → 1691px |
 
 ### The Ask launcher at seven reading positions (12%–97% of the page)
 
@@ -107,7 +110,7 @@ Each cell: shown and covering text, an image or a control (**over**), shown with
 | w320 | 12% **over**, 25% **over**, 40% **over**, 55% **over**, 70% **over**, 85% clear, 97% **over** | 12% **over**, 25% —, 40% —, 55% —, 70% —, 85% —, 97% — |
 | w375 | 12% clear, 25% clear, 40% **over**, 55% **over**, 70% **over**, 85% **over**, 97% **over** | 12% **over**, 25% —, 40% —, 55% —, 70% —, 85% —, 97% — |
 | iphone-390x844 | 12% clear, 25% **over**, 40% **over**, 55% **over**, 70% **over**, 85% **over**, 97% **over** | 12% **over**, 25% —, 40% —, 55% —, 70% —, 85% —, 97% — |
-| iphone-430x932 | 12% clear, 25% **over**, 40% **over**, 55% clear, 70% **over**, 85% **over**, 97% clear | 12% **over**, 25% —, 40% —, 55% —, 70% —, 85% —, 97% — |
+| iphone-430x932 | 12% clear, 25% **over**, 40% **over**, 55% clear, 70% **over**, 85% **over**, 97% clear | 12% clear, 25% —, 40% —, 55% —, 70% —, 85% —, 97% — |
 | w768 | 12% clear, 25% clear, 40% **over**, 55% **over**, 70% **over**, 85% **over**, 97% **over** | 12% clear, 25% —, 40% —, 55% —, 70% —, 85% —, 97% — |
 | w1440 | 12% clear, 25% clear, 40% clear, 55% clear, 70% clear, 85% clear, 97% **over** | 12% clear, 25% clear, 40% clear, 55% clear, 70% clear, 85% clear, 97% **over** |
 
@@ -119,12 +122,12 @@ it, which predates this pass.
 
 | Viewport | Horizontal overflow | Page errors | Launcher reachable by keyboard and visible when focused |
 | --- | --- | --- | --- |
-| w320 | none | 0 | yes (67 tabs) |
-| w375 | none | 0 | yes (67 tabs) |
-| iphone-390x844 | none | 0 | yes (67 tabs) |
-| iphone-430x932 | none | 0 | yes (67 tabs) |
-| w768 | none | 0 | yes (68 tabs) |
-| w1440 | none | 0 | yes (72 tabs) |
+| w320 | none | 0 | yes (65 tabs) |
+| w375 | none | 0 | yes (65 tabs) |
+| iphone-390x844 | none | 0 | yes (65 tabs) |
+| iphone-430x932 | none | 0 | yes (65 tabs) |
+| w768 | none | 0 | yes (66 tabs) |
+| w1440 | none | 0 | yes (70 tabs) |
 
 No JavaScript at 390×844: 10 records, 1 main landmark, 7 fallback navigation links; the launcher is not rendered. Reduced motion at 390×844: video not shown, poster only.
 
@@ -135,7 +138,7 @@ No JavaScript at 390×844: 10 records, 1 main landmark, 7 fallback navigation li
   sentence (`after/iphone-390x844-hero.png`).
 - **Arrival.** The edition masthead is one line, a date and a three-by-two
   index; the first picture arrives about 300px after the cover on every
-  phone instead of about 440px, and the first headline about 625–665px
+  phone instead of about 440px, and the first headline about 665–685px
   instead of about 780–820px (`after/iphone-390x844-after-hero.png`,
   `after/iphone-430x932-after-hero.png`).
 - **News.** The lead keeps its picture, a four-line headline at 30px, a
@@ -216,7 +219,7 @@ No JavaScript at 390×844: 10 records, 1 main landmark, 7 fallback navigation li
 2. A story preview is a preview: a summary and "Why it matters" show whole
    sentences within a budget (about four lines for a lead, three for a
    companion) and never end on a cut word; findings clamp at four lines;
-   the News section is 36% shorter at 390 and the Fake Resistance section
+   the News section is 34% shorter at 390 and the Fake Resistance section
    40% shorter, with the type a size up from the first cut.
 3. Both items in a section are discoverable without interaction: both
    remain in the document and on screen, the companion as a row.
@@ -224,7 +227,8 @@ No JavaScript at 390×844: 10 records, 1 main landmark, 7 fallback navigation li
    unresolved record's finding block is gone; a documentation excerpt equal
    to its title is not printed twice.
 5. Real News content arrives materially sooner: first image ~32% closer,
-   first headline ~19% closer, at 390.
+   first headline ~14% closer, at 390 (it was ~19% before the owner's
+   three-line illustration captions).
 6. Fake Resistance is recognisable from the homepage: it is the section
    title, the index entry and the action label.
 7. Image disclosures remain explicit and lead the caption, on one line at

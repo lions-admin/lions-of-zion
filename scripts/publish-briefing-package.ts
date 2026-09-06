@@ -32,9 +32,27 @@
  */
 
 import { readFile } from "node:fs/promises";
-import { externalBriefingPackageSchema } from "@/server/contracts/external-briefing";
+import { externalBriefingPackageSchema, type ExternalMedia } from "@/server/contracts/external-briefing";
 import { submitPackage } from "./external-briefing/submit";
 import { verifyPublished } from "./external-briefing/verify";
+
+/**
+ * One line per record saying which picture it will publish with, and on whose
+ * authority.
+ *
+ * `[no image]` is the line worth reading: `media` is optional, so a package
+ * that never mentions it validates cleanly and publishes unillustrated, which
+ * is exactly what every package submitted so far has done. A summary that only
+ * printed titles could not tell you that. The credit is printed rather than
+ * merely counted because a dry run is the last look anyone gets before an
+ * image goes out with an attribution on it.
+ */
+function mediaSummary(media: ExternalMedia | null): string {
+  if (!media) return "[no image]";
+  return media.generated
+    ? `[generated illustration · ${media.disclosure ?? "no disclosure"}]`
+    : `[image · ${media.credit} · rights: ${media.rights.status}]`;
+}
 
 function usage(): never {
   console.error("Usage: npm run briefing:publish -- <path-to-package.json> [--dry-run]");
@@ -82,10 +100,10 @@ async function main(): Promise<void> {
   console.log(
     `  ${pkg.publishers.length} publisher(s), ${pkg.citations.length} citation(s), ${pkg.articles.length} article(s) plus the Daily Brief`,
   );
-  console.log(`  Daily Brief: ${pkg.dailyBrief.title}`);
+  console.log(`  Daily Brief: ${pkg.dailyBrief.title} ${mediaSummary(pkg.dailyBrief.media)}`);
   for (const article of pkg.articles) {
     const basis = article.citationKeys.length === 0 ? " (unsourced analysis)" : "";
-    console.log(`  [${article.section}]${basis} ${article.title}`);
+    console.log(`  [${article.section}]${basis} ${article.title} ${mediaSummary(article.media)}`);
   }
 
   if (dryRun) {

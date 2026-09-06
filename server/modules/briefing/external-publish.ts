@@ -554,9 +554,30 @@ function externalPublishStage(runId: string): string {
  */
 async function materializeMedia(pkg: ExternalBriefingPackage): Promise<Map<string, EditorialMediaDraft>> {
   const requested: { key: string; media: NonNullable<ExternalArticle["media"]> }[] = [];
+  const undeclared: string[] = [];
   if (pkg.dailyBrief.media) requested.push({ key: "daily-brief", media: pkg.dailyBrief.media });
+  else undeclared.push("daily-brief");
   for (const [index, article] of pkg.articles.entries()) {
-    if (article.media) requested.push({ key: `article-${index + 1}`, media: article.media });
+    const key = `article-${index + 1}`;
+    if (article.media) requested.push({ key, media: article.media });
+    else undeclared.push(key);
+  }
+
+  /* An image that fails to arrive is reported below. An image that was never
+     asked for was, until this line, reported nowhere at all — and that is the
+     case that actually happens: every package submitted so far declared no
+     `media` on any record, so every edition published unillustrated and the
+     run log said nothing about it. A composer reading its own log could not
+     tell "the pipeline dropped my picture" from "I never sent one", which are
+     opposite problems with opposite fixes. Same `console.warn` channel as the
+     failure below, once per run rather than once per record. */
+  if (undeclared.length) {
+    console.warn(
+      `[external-briefing] run ${pkg.runId}: ${undeclared.length} of `
+      + `${undeclared.length + requested.length} record(s) declared no image and will `
+      + `publish unillustrated (${undeclared.join(", ")}). See docs/briefing-packages.md `
+      + `for the "media" block a package is expected to carry.`,
+    );
   }
 
   const drafts = new Map<string, EditorialMediaDraft>();

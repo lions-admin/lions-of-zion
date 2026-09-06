@@ -1,6 +1,8 @@
 import { Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
+import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { HubMasthead } from "@/components/site/HubMasthead";
@@ -149,6 +151,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
                 <span className={styles.leadFlag}>Latest story</span>
                 <time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time>
               </p>
+              <LeadMedia media={hubMedia(lead)} />
               <h3><Link href={`/articles/${lead.publicId}`}>{lead.title}</Link></h3>
               {lead.summary ? <p className={styles.newsSummary}>{lead.summary}</p> : null}
               <Metadata item={lead} />
@@ -160,17 +163,21 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
               <aside className={styles.newsSidebar} aria-label="More updates">
                 <h2>More updates</h2>
                 <ol className={styles.newsTimeline}>
-                  {sidebarUpdates.map((item, index) => (
-                    <li key={item.publicId}>
-                      <span className={styles.timelineIndex} aria-hidden="true">
-                        {String(index + 2).padStart(2, "0")}
-                      </span>
-                      <div>
-                        <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
-                        <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
-                      </div>
-                    </li>
-                  ))}
+                  {sidebarUpdates.map((item, index) => {
+                    const media = hubMedia(item);
+                    return (
+                      <li key={item.publicId} className={media ? styles.timelineWithMedia : undefined}>
+                        <span className={styles.timelineIndex} aria-hidden="true">
+                          {String(index + 2).padStart(2, "0")}
+                        </span>
+                        <div>
+                          <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
+                          <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
+                        </div>
+                        {media ? <Thumbnail media={media} className={styles.timelineThumb} sizes="72px" /> : null}
+                      </li>
+                    );
+                  })}
                 </ol>
               </aside>
             ) : briefing ? (
@@ -234,6 +241,77 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   );
 }
 
+/**
+ * What a manufactured picture is not, said before the caption is read.
+ *
+ * Deliberately a local copy of the homepage's table rather than an import:
+ * `HomeMedia` belongs to the homepage journey and carries its layout with it.
+ * The two agree on the wording because the wording is a disclosure, not a
+ * style — if one changes, the other is wrong.
+ */
+const ROLE_DISCLOSURE: Partial<Record<EditorialMedia["role"], string>> = {
+  "editorial-illustration": "Editorial illustration — not evidence",
+  "safe-cover": "Safe cover — not the original material",
+};
+
+/**
+ * The picture a record carries, or nothing.
+ *
+ * The public projection already filters on clearance; this checks again rather
+ * than assuming, because a listing that trusts its input is the surface an
+ * uncleared image reaches first. Nothing is substituted when a record has no
+ * image: a placeholder in a news list reads as a missing photograph, and most
+ * records here have none.
+ */
+function hubMedia(item: Publication): EditorialMedia | null {
+  return item.media && isArticleSafeMedia(item.media) ? item.media : null;
+}
+
+/**
+ * The lead story's picture — the one image on this page that carries its own
+ * credit line. Every other row is a listing entry, where a credit under each
+ * thumbnail would out-weigh the headlines it sits between; those carry their
+ * attribution in the alt text and in full on the record's own page.
+ */
+function LeadMedia({ media }: { media: EditorialMedia | null }) {
+  if (!media) return null;
+  const disclosure = media.role === "safe-cover" ? "Safe cover" : media.disclosure ?? ROLE_DISCLOSURE[media.role];
+  return (
+    <figure className={styles.leadMedia}>
+      <Image
+        src={media.src}
+        alt={media.alt}
+        width={media.width}
+        height={media.height}
+        loading="eager"
+        sizes="(max-width: 44.99rem) 100vw, (max-width: 68.75rem) 55vw, 60vw"
+        style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
+      />
+      <figcaption>
+        {disclosure ? <span className={styles.mediaDisclosure}>{disclosure}</span> : null}
+        {media.caption ? <span className={styles.mediaCaption}>{media.caption}</span> : null}
+        <span className={styles.mediaCredit}>{media.credit}</span>
+      </figcaption>
+    </figure>
+  );
+}
+
+/** A listing thumbnail. Alt text only — see `LeadMedia` for why. */
+function Thumbnail({ media, className, sizes }: { media: EditorialMedia; className: string; sizes: string }) {
+  return (
+    <Image
+      className={className}
+      src={media.src}
+      alt={media.alt}
+      width={media.width}
+      height={media.height}
+      loading="lazy"
+      sizes={sizes}
+      style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
+    />
+  );
+}
+
 function Briefing({ item, headingId }: { item: Publication; headingId?: string }) {
   return <div id="daily-brief" className={styles.briefingContent}>
     <p className={styles.liveEyebrow}>
@@ -259,10 +337,12 @@ function PublicationSection({ title, items, narrative = false }: { title: string
         <h2>{title}</h2>
         <p data-numeric="">{items.length} {items.length === 1 ? "record" : "records"}</p>
       </div>
-      <ol className={styles.liveList}>{items.map((item) => (
+      <ol className={styles.liveList}>{items.map((item) => {
+        const media = hubMedia(item);
+        return (
         <li key={item.publicId}>
           {/* Nested Read-record control: the row is a surface, not a link. */}
-          <Card variant="row" as="article" className={styles.liveRow}>
+          <Card variant="row" as="article" className={media ? `${styles.liveRow} ${styles.liveRowMedia}` : styles.liveRow}>
             <CardHeader className={styles.liveRowHeader}>
               <CardEyebrow>
                 {rowStatus(item, narrative)}
@@ -282,9 +362,11 @@ function PublicationSection({ title, items, narrative = false }: { title: string
                 Read record
               </ButtonLink>
             </CardFooter>
+            {media ? <Thumbnail media={media} className={styles.rowThumb} sizes="112px" /> : null}
           </Card>
         </li>
-      ))}</ol>
+        );
+      })}</ol>
     </section>
   );
 }

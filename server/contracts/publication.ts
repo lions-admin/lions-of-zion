@@ -3,6 +3,7 @@
  */
 
 import { z } from "zod";
+import { editorialMediaSchema } from "./editorial-media";
 import {
   likelihoodBandSchema,
   publicationKindSchema,
@@ -192,6 +193,19 @@ export const publicPublicationSchema = z.object({
   arena: z.string().nullable(),
   featuredIsraelStory: z.boolean(),
   narrativeWatchDetails: narrativeWatchDetailsSchema.nullable(),
+  /**
+   * The hero image this publication owns, or null.
+   *
+   * On the projection rather than in a static registry so that every surface
+   * that receives a publication draws the same picture: the homepage band,
+   * the hub listing, the narrative desk and the article page all read this
+   * one field. A dynamically published record has no manual mapping to add.
+   *
+   * Defaulted so a value serialized before the field existed still parses —
+   * `withLastGoodRead` and `unstable_cache` both hold projections across a
+   * deploy. Absent reads as "no image", never as an unchecked one.
+   */
+  media: editorialMediaSchema.nullable().default(null),
 });
 export type PublicPublication = z.infer<typeof publicPublicationSchema>;
 

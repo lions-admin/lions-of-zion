@@ -231,6 +231,91 @@ export const externalNarrativeWatchSchema = z.object({
 });
 export type ExternalNarrativeWatch = z.infer<typeof externalNarrativeWatchSchema>;
 
+/* ── Editorial media ────────────────────────────────────────────────────────
+ *
+ * The picture a record is published with, declared here rather than smuggled
+ * into a passage as a raw URL. `inputUrl` is fetched once by
+ * `server/modules/media`, validated, and stored in this site's own public
+ * Blob store; the site then serves that copy. Nothing here becomes a
+ * permanent hotlink to a news publisher's CDN.
+ *
+ * Rights travel with the image and are never invented on this side. A
+ * composer that cannot establish a basis leaves `status` at `"unknown"`,
+ * which stores the asset and its provenance while keeping it off every public
+ * surface — that is the honest outcome, not a failure.
+ *
+ * `generated` marks an image made for the article because no suitable one
+ * exists. It may never be presented as documentation of the event, so the
+ * refinement below pins it to `editorial-illustration` and demands the
+ * disclosure line that says so.
+ */
+
+export const externalMediaRightsSchema = z.object({
+  status: z.enum(["cleared", "unknown", "withdrawn"]).default("unknown"),
+  /** The licence or permission this rests on — "CC BY-SA 4.0", "Generated in-house". */
+  basis: z.string().trim().min(1).max(300),
+  /** Where that basis can be checked: a licence URL, a file page, a run id. */
+  reference: z.string().trim().min(1).max(2_000),
+  /** Required whenever `status` is `"cleared"`; the refinement below pins it. */
+  clearedAt: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "clearedAt is a calendar date, YYYY-MM-DD.").nullable().default(null),
+  /** Which public surfaces the clearance actually covers. */
+  surfaces: z.array(z.enum(["homepage", "article"])).max(2).default([]),
+});
+export type ExternalMediaRights = z.infer<typeof externalMediaRightsSchema>;
+
+export const externalMediaSchema = z
+  .object({
+    /** The image bytes to fetch. Read once, stored, then never called again. */
+    inputUrl: httpUrlSchema,
+    /** The page the image was found on, for provenance and attribution. */
+    sourceUrl: httpUrlSchema.nullable().default(null),
+    alt: z.string().trim().min(1).max(500),
+    caption: z.string().trim().min(1).max(500).nullable().default(null),
+    credit: z.string().trim().min(1).max(300),
+    /** What the image is *not*, stated on its own line. */
+    disclosure: z.string().trim().min(1).max(300).nullable().default(null),
+    role: z.enum(["documentation", "portrait", "archival-context", "editorial-illustration", "safe-cover"]),
+    focalPoint: z
+      .object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) })
+      .default({ x: 50, y: 50 }),
+    sensitivity: z.enum(["safe", "sensitive", "unknown"]).default("unknown"),
+    rights: externalMediaRightsSchema,
+    /** True for an image created for this article rather than found. */
+    generated: z.boolean().default(false),
+  })
+  .superRefine((media, ctx) => {
+    if (media.rights.status === "cleared" && !media.rights.clearedAt) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["rights", "clearedAt"],
+        message: "A cleared image must record the date its rights were cleared.",
+      });
+    }
+    if (media.rights.status === "cleared" && media.rights.surfaces.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["rights", "surfaces"],
+        message: "A cleared image must name the surfaces the clearance covers.",
+      });
+    }
+    if (media.generated && media.role !== "editorial-illustration") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["role"],
+        message: "A generated image is an editorial illustration; it may not claim a documentary role.",
+      });
+    }
+    if (media.generated && !media.disclosure) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["disclosure"],
+        message:
+          "A generated image must carry its own disclosure, e.g. \"Editorial illustration — not incident documentation\".",
+      });
+    }
+  });
+export type ExternalMedia = z.infer<typeof externalMediaSchema>;
+
 /* ── Articles ───────────────────────────────────────────────────────────────
  *
  * An external package composes articles into the two section jobs; the
@@ -251,6 +336,8 @@ export const externalArticleSchema = z.object({
   arena: z.string().trim().min(1).max(120),
   featuredIsraelStory: z.boolean().default(false),
   narrativeWatch: externalNarrativeWatchSchema.nullable().default(null),
+  /** The hero image, or null. Never a URL pasted into a passage. */
+  media: externalMediaSchema.nullable().default(null),
 });
 export type ExternalArticle = z.infer<typeof externalArticleSchema>;
 
@@ -274,6 +361,8 @@ export const externalDailyBriefSchema = z.object({
   israeliPosition: externalBriefSectionSchema.nullable().default(null),
   internationalResponses: externalBriefSectionSchema.nullable().default(null),
   watchPoints: externalBriefSectionSchema,
+  /** The hero image, or null. Same path and same rules as an article's. */
+  media: externalMediaSchema.nullable().default(null),
 });
 export type ExternalDailyBrief = z.infer<typeof externalDailyBriefSchema>;
 

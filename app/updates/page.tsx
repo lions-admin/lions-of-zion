@@ -9,6 +9,7 @@ import type { PublicationSection } from "@/server/contracts/enums";
 import { encodePublicPublicationCursor } from "@/server/contracts/publication";
 import type { PublicPublication } from "@/server/contracts/publication";
 import { SITE_URL } from "@/lib/site-config";
+import { publicationHubCrumb } from "@/lib/publication-routing";
 
 const TITLE = "Updates";
 const TAGLINE =
@@ -78,7 +79,7 @@ export default function UpdatesPage({ searchParams }: { searchParams: Search }) 
       title={TITLE}
       tagline={TAGLINE}
       rails="toc"
-      breadcrumb={[{ href: "/geopolitical-brief", label: "The Daily Brief" }]}
+      breadcrumb={[publicationHubCrumb("news")]}
     >
       <script
         type="application/ld+json"

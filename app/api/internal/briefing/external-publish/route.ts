@@ -3,6 +3,7 @@ import { ok } from "@/server/http/responses";
 import { requireExternalBriefingSecret } from "@/server/http/internal-guard";
 import { externalBriefingPackageSchema } from "@/server/contracts/external-briefing";
 import { externalBriefingPublish } from "@/server/modules/briefing";
+import { ensureHomepageEdition } from "@/server/modules/homepage";
 
 /**
  * Ingest endpoint for an externally composed Daily Brief edition.
@@ -21,7 +22,10 @@ import { externalBriefingPublish } from "@/server/modules/briefing";
  * serializes the result. Every quality gate, the idempotency check on
  * `runId`, and the publish transaction itself live in the service — see
  * `server/contracts/external-briefing.ts` for the wire contract and the
- * pinned service signature this route codes against.
+ * pinned service signature this route codes against. The one thing it does
+ * beyond that is refresh the homepage snapshot after a successful publish,
+ * which is a derived read-model concern rather than part of the edition, and
+ * is therefore best-effort; see the comment at the call.
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,5 +43,27 @@ export const POST = handler(async (request, ctx) => {
   const actor = { label: `external:${pkg.composer}`, userId: null };
 
   const result = await externalBriefingPublish().publish(pkg, actor, ctx.requestId);
+
+  /* The edition is live but the homepage still shows yesterday's, because the
+     homepage edition is a snapshot built from published rows rather than a
+     query over them. Rebuilding it here is what makes a 07:00 submission
+     visible on the front page at 07:00 instead of at the next cron tick.
+     Deliberately after the publish and deliberately non-fatal: the publication
+     transaction has already committed, so turning a snapshot failure into a
+     4xx/5xx would tell the composer its edition did not land when it did — and
+     invite a resend that only replays the ledger. The daily cron rebuilds the
+     same snapshot regardless, so the worst case of this failing is a homepage
+     that lags by one cycle. */
+  if (result.status === "published") {
+    try {
+      await ensureHomepageEdition();
+    } catch (cause) {
+      console.warn(
+        `[external-briefing] run ${pkg.runId}: published, but the homepage edition could not be refreshed — `
+        + `${cause instanceof Error ? cause.message : String(cause)}`,
+      );
+    }
+  }
+
   return ok(result);
 });

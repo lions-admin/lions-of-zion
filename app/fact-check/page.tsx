@@ -10,6 +10,7 @@ import {
 } from "@/lib/publications";
 import type { PublicPublication, PublicPublicationDetail } from "@/server/contracts/publication";
 import { SITE_URL } from "@/lib/site-config";
+import { publicationHubCrumb } from "@/lib/publication-routing";
 
 const TITLE = "Fact check";
 const TAGLINE =
@@ -85,7 +86,7 @@ export default function FactCheckPage({ searchParams }: { searchParams: Search }
          does take the rail, because its day groups are real sections with
          anchors and the rail becomes a date index over the feed. */
       rails="none"
-      breadcrumb={[{ href: "/geopolitical-brief", label: "The Daily Brief" }]}
+      breadcrumb={[publicationHubCrumb("news")]}
     >
       <script
         type="application/ld+json"

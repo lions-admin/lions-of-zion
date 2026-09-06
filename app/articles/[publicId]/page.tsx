@@ -3,9 +3,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
 import { editorialMediaForSurface } from "@/lib/content/homepage-media";
+import { publicationParentCrumb, publicationSectionLabel, routePublication } from "@/lib/publication-routing";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
+import type { PublicationSection } from "@/server/contracts/enums";
+import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
-import type { PublicPublicationDetail } from "@/server/contracts/publication";
+import type { PublicPublication, PublicPublicationDetail } from "@/server/contracts/publication";
 import {
   SECTION_LABELS,
   TREND_LABELS,
@@ -20,7 +23,7 @@ import {
 } from "@/components/content";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
-import { Breadcrumb, type BreadcrumbCrumb } from "@/components/site/Breadcrumb";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
 import styles from "./article.module.css";
 
@@ -35,8 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { publicId } = await params;
   try {
     const article = await getPublicPublication(publicId);
-    const articleMedia = editorialMediaForSurface(`publication:${article.publicId}`, "article");
-    const articleImage = articleMedia ? SITE_URL + articleMedia.src : undefined;
+    const articleMedia = articleHeroMedia(article);
+    const articleImage = articleMedia ? absoluteMediaUrl(articleMedia.src) : undefined;
     return {
       title: article.title,
       description: article.summary ?? article.title,
@@ -84,12 +87,12 @@ export default async function ArticlePage({ params }: Props) {
     publisher: { "@type": "Organization", name: "Lions of Zion" },
   };
   const visiblePassages = collapsePublicPassages(article.passages);
-  const articleMedia = editorialMediaForSurface(`publication:${article.publicId}`, "article");
+  const articleMedia = articleHeroMedia(article);
   /* Read `=== "analysis"` and never the negation: a record whose basis is
      absent or unrecognised must be treated as a sourced one, which is the
      reading that keeps its citations required. */
   const isAnalysis = isAnalysisBasis(article.narrativeWatchDetails);
-  const parent = parentCrumb();
+  const parent = publicationParentCrumb(article.section);
   const details = article.narrativeWatchDetails;
   const passages = visiblePassages.length
     ? visiblePassages
@@ -325,7 +328,7 @@ export default async function ArticlePage({ params }: Props) {
                 {article.relatedArticles.map((related) => (
                   <li key={related.publicId}>
                     <Card href={`/articles/${related.publicId}`} variant="row">
-                      <CardEyebrow>{related.section === "narrative_watch" ? "Related claim assessment" : SECTION_LABELS[related.section]}</CardEyebrow>
+                      <CardEyebrow>{relatedLabel(related.section)}</CardEyebrow>
                       <CardTitle as="h3">{related.title}</CardTitle>
                       {related.summary ? <CardDescription>{related.summary}</CardDescription> : null}
                     </Card>
@@ -379,8 +382,39 @@ export function collapsePublicPassages<T extends PublicPublicationDetail["passag
   return visible;
 }
 
-function parentCrumb(): BreadcrumbCrumb {
-  return { href: "/geopolitical-brief", label: "Daily Brief" };
+/**
+ * The record's own picture first, the static registry second.
+ *
+ * A publication published today carries its hero image on the projection, so
+ * nothing has to be mapped by hand for it to appear. `homepage-media.json` is
+ * kept as the fallback because the records mapped there predate the field and
+ * would otherwise lose the pictures they already have. Checked against
+ * `isArticleSafeMedia` rather than trusted: the projection filters, but a page
+ * that assumes it did is one refactor away from publishing an uncleared image.
+ */
+function articleHeroMedia(article: PublicPublication): EditorialMedia | null {
+  if (article.media && isArticleSafeMedia(article.media)) return article.media;
+  return editorialMediaForSurface(`publication:${article.publicId}`, "article");
+}
+
+/** `src` is a local path or an absolute Blob URL; only the first needs a host. */
+function absoluteMediaUrl(src: string): string {
+  return src.startsWith("/") ? SITE_URL + src : src;
+}
+
+/**
+ * What a related record is, in the reader's terms and the site's own words.
+ *
+ * A Narrative Watch record names its desk as well as its kind: a claim
+ * assessment sitting under a news article has to say it comes from somewhere
+ * else before it is read as more reporting. Both halves come from
+ * `routePublication`, so a section that moves desk moves this label with it.
+ */
+function relatedLabel(section: PublicationSection): string {
+  const destination = routePublication(section);
+  return section === "narrative_watch"
+    ? `${destination.hub} · Related claim assessment`
+    : publicationSectionLabel(section);
 }
 
 function asSourceList(

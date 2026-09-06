@@ -102,12 +102,20 @@ export const metadata: Metadata = {
   openGraph: {
     title: "LIONS OF ZION — Truth Has a Signal",
     description: SITE_DESCRIPTION,
-    images: ["/video/lion-hero-poster-desktop.jpg"],
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1731,
+        height: 909,
+        alt: "LIONS OF ZION — Investigations, fact checks, and information warfare",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "LIONS OF ZION — Truth Has a Signal",
     description: SITE_DESCRIPTION,
+    images: ["/opengraph-image.png"],
   },
 };
 

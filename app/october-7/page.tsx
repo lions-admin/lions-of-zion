@@ -104,8 +104,8 @@ export default async function Page() {
         <h2 id="share-the-record">Share the evidence.<br />Keep the context.</h2>
         <p>A testimony can answer a question. A documented record can correct a false claim. Choose material that speaks to the conversation, then share its link with the original source, date and context.</p>
         <nav aria-label="Find archive material to share">
-          <Link href="/october-7/testimonies">Find a testimony to share <span aria-hidden="true">↗</span></Link>
-          <Link href="/october-7/documentation">Explore the documentation <span aria-hidden="true">↗</span></Link>
+          <Link href="/october-7/testimonies">Find a testimony to share <span aria-hidden="true">↗︎</span></Link>
+          <Link href="/october-7/documentation">Explore the documentation <span aria-hidden="true">↗︎</span></Link>
         </nav>
         <p className={styles.shareAdvisory}>Some documentation contains graphic material. Keep content warnings and source credits with anything you share.</p>
       </section>

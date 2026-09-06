@@ -1,0 +1,180 @@
+/* Hub masthead · shared by the front routes.
+ *
+ * Grid: the headline block on the left, the edition facts on the right, and
+ * a row of in-page jumps along the foot, closed by a strong rule. The rule is
+ * the seam between "what this front is" and "what it holds today". */
+
+.masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-areas:
+    "headline facts"
+    "jumps jumps";
+  align-items: end;
+  gap: var(--sp-5) var(--sp-7);
+  padding-block: clamp(var(--sp-5), 4vw, var(--sp-7)) 0;
+  border-bottom: var(--line-w) solid var(--line-strong);
+  scroll-margin-top: var(--header-h);
+}
+
+.masthead:focus-visible { outline: none; }
+
+.headline {
+  grid-area: headline;
+  display: grid;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.kicker {
+  composes: dataLabel from global;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--gold);
+}
+
+.kicker::before {
+  content: "";
+  inline-size: var(--sp-5);
+  block-size: var(--line-w);
+  background: currentColor;
+}
+
+.title {
+  max-width: none;
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: clamp(2.75rem, 1.4rem + 4.8vw, 5rem);
+  font-weight: var(--t-display-weight);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.standfirst {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+  text-wrap: pretty;
+}
+
+/* ── Facts ─────────────────────────────────────────────────────────────── */
+
+.facts {
+  grid-area: facts;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--sp-4) var(--sp-6);
+  margin: 0;
+  padding-bottom: var(--sp-2);
+}
+
+.fact {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.fact dt {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+.fact dd {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Jumps ─────────────────────────────────────────────────────────────── */
+
+.jumps {
+  grid-area: jumps;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-5);
+  margin-bottom: calc(-1 * var(--line-w));
+}
+
+.jump {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  color: var(--ink-lo);
+  font-family: var(--face-navigation);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: 1;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.jump::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  block-size: var(--line-w-thick);
+  background: transparent;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.jump:hover { color: var(--ink-hi); }
+.jump:hover::after { background: var(--line-strong); }
+.jump:active::after { background: var(--gold); }
+
+.jump:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: calc(-1 * var(--line-w-thick));
+  border-radius: var(--radius-1);
+}
+
+/* ── Seams ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 64rem) {
+  .masthead {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "headline"
+      "facts"
+      "jumps";
+    align-items: start;
+    gap: var(--sp-5);
+  }
+
+  .facts {
+    justify-content: flex-start;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 45rem) {
+  .title { font-size: clamp(2.5rem, 11vw, 3.25rem); }
+  .jumps { gap: 0 var(--sp-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jump,
+  .jump::after { transition: none; }
+}

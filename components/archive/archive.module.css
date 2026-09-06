@@ -109,7 +109,7 @@ section:first-child > .heading {
  * shouts is a panel readers learn to skip, and this one has to be read.
  */
 .advisory {
-  margin: 0 0 var(--sp-6);
+  margin: var(--sp-5) 0 var(--sp-6);
   padding: var(--sp-4) var(--sp-5);
   border: var(--line-w) solid var(--line);
   border-left: var(--line-w-thick) solid

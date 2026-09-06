@@ -164,7 +164,7 @@ export function EditorialIntro({ compact = false, autoOpen = true }: { compact?:
           <header className={styles.header}>
             <span className={styles.brand}>Lions of Zion</span>
             <button type="button" className={styles.skip} onClick={close}>
-              Skip intro <span aria-hidden="true">↗</span>
+              Skip intro <span aria-hidden="true">↗︎</span>
             </button>
           </header>
           <section className={styles.stage} aria-label={current.label}>

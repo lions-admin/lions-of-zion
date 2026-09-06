@@ -37,6 +37,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import styles from './support-flows.module.css';
 
 export type SupportFlow = {
@@ -48,6 +49,8 @@ export type SupportFlow = {
   summary: string;
   /** The one gold choice. Exactly one flow may carry it. */
   emphasis?: 'primary' | 'secondary';
+  /** The mark on the choice card. */
+  icon?: IconName;
   panel: ReactNode;
 };
 
@@ -108,19 +111,26 @@ export function SupportFlowSwitch({ flows }: { flows: readonly SupportFlow[] }) 
       <ul className={styles.chooser} hidden={active !== null}>
         {flows.map((flow) => (
           <li key={flow.id} className={styles.choice}>
-            <Button
+            {/* The whole card is the control: one target, one focus ring, and
+                the summary is part of the accessible name. */}
+            <button
               ref={(node) => {
                 options.current.set(flow.id, node);
               }}
               type="button"
-              variant={flow.emphasis === 'primary' ? 'primary' : 'secondary'}
-              size="md"
               className={styles.choiceButton}
+              data-emphasis={flow.emphasis === 'primary' ? 'primary' : undefined}
               onClick={() => open(flow.id)}
             >
-              {flow.label}
-            </Button>
-            <p className={styles.choiceSummary}>{flow.summary}</p>
+              {flow.icon ? (
+                <span className={styles.choiceMark} aria-hidden="true">
+                  <Icon name={flow.icon} size={20} strokeWidth={1.5} />
+                </span>
+              ) : null}
+              <span className={styles.choiceLabel}>{flow.label}</span>
+              <span className={styles.choiceSummary}>{flow.summary}</span>
+              <span className={styles.choiceArrow} aria-hidden="true">→</span>
+            </button>
           </li>
         ))}
       </ul>

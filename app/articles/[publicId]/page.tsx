@@ -24,6 +24,11 @@ import styles from "./article.module.css";
 
 type Props = { params: Promise<{ publicId: string }> };
 
+/** A machine facet — `defense_policy_and_programs` — printed as words. */
+function words(value: string): string {
+  return value.replaceAll("_", " ");
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { publicId } = await params;
   try {
@@ -131,19 +136,19 @@ export default async function ArticlePage({ params }: Props) {
               {article.editorialTopic ? (
                 <div>
                   <dt>Topic</dt>
-                  <dd>{article.editorialTopic}</dd>
+                  <dd>{words(article.editorialTopic)}</dd>
                 </div>
               ) : null}
               {article.primaryActor ? (
                 <div>
                   <dt>Primary actor</dt>
-                  <dd>{article.primaryActor}</dd>
+                  <dd>{words(article.primaryActor)}</dd>
                 </div>
               ) : null}
               {article.arena ? (
                 <div>
                   <dt>Arena</dt>
-                  <dd>{article.arena}</dd>
+                  <dd>{words(article.arena)}</dd>
                 </div>
               ) : null}
             </dl>
@@ -191,7 +196,7 @@ export default async function ArticlePage({ params }: Props) {
               </div>
               <div>
                 <dt>Arenas</dt>
-                <dd>{details.arenas.join(", ")}</dd>
+                <dd>{details.arenas.map(words).join(", ")}</dd>
               </div>
               {details.israeliPosition ? (
                 <div>
@@ -258,7 +263,7 @@ export default async function ArticlePage({ params }: Props) {
                   <li key={source.url ?? source.title + index}>
                     {source.url ? (
                       <a href={source.url} target="_blank" rel="noreferrer">
-                        {source.title} <span aria-hidden="true">↗</span>
+                        {source.title} <span aria-hidden="true">↗︎</span>
                       </a>
                     ) : (
                       <span>{source.title}</span>

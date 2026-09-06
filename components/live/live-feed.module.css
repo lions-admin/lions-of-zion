@@ -346,6 +346,13 @@
   text-transform: uppercase;
 }
 
+.facet { text-transform: capitalize; }
+
+.revised {
+  gap: 0.35em;
+  text-transform: none;
+}
+
 .verdict[data-tone="ok"] {
   border-color: var(--state-ok-line);
   background: var(--state-ok-wash);

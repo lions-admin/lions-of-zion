@@ -428,3 +428,40 @@ Reduced-motion visitors see a face-centered crop of the existing landscape
 poster instead of the portrait entrance's empty first beat; video assets and
 normal playback remain unchanged. The desktop edition reserves a trailing
 gutter for Ask, and mobile research excerpts wrap long account-name sequences.
+
+## Full-interface polish pass — September 6, 2026
+
+Implementation for review across the whole public interface. Durable system
+decisions made in this pass:
+
+- **Elevation is restrained, not refused.** `--shadow-1/2/3` in
+  `app/globals.css` are real again: a lit top edge (`--edge-hi`) plus a short
+  dark drop. `--surface-grade` is the faint vertical grade a raised plate
+  carries; `--surface-0` is the tone between the ground and `--surface-1` for
+  quiet wells. Tonal contrast and the hairline remain the primary depth cue;
+  the shadow separates, it never glows. Interactive feature and dossier cards
+  lift two pixels onto `--shadow-2` on hover; every button presses one pixel.
+- **One footer for every route.** The colophon composition that was
+  homepage-only — display nameplate, statement, Methodology and Corrections at
+  reading size, four-column section index — is the shared close in
+  `components/site/site-footer.module.css`. `home` only reserves room for the
+  Ask seal.
+- **The masthead casts once scrolled.** `SiteHeader` sets `data-scrolled`
+  after 8px; the bar firms its rule and takes a soft drop.
+- **Hub fronts share `components/site/HubMasthead`.** Kicker, display title,
+  standfirst, edition facts, in-page jumps. News & Analysis and Narratives &
+  fact checks both use it; the 28px single-line hub title is retired.
+- **The Ask seal is fixed on every route at every width.** The rules that
+  placed it in the document flow after the news and narrative fronts, and
+  after the whole homepage under 1100px, are gone. Only the architecture
+  drawing keeps an in-flow launcher.
+- **Custom scrollbars are for fine pointers only.** iOS Safari honours
+  `scrollbar-color` and paints a permanent strip; touch devices keep the
+  platform bar.
+- **`↗` always carries U+FE0E.** iOS renders the bare code point as an emoji
+  square. Every arrow in TSX and CSS is `↗︎`.
+- **Machine facets print as words.** Topic, actor and arena values
+  (`defense_policy_and_programs`) are combed on every public surface.
+- **Support chooser is four raised choice cards**, each one control, the
+  primary carrying the gold rule. **404** speaks the editorial register with a
+  primary action, search, and a card index of real destinations.

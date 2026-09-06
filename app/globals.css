@@ -146,6 +146,7 @@
   /* One shade under the canvas, for a bar that has to read as behind it. */
   --abyss: #050505;
 
+  --surface-0: #161818;
   --surface-1: #272a2a;
   --surface-2: #2e3232;
   --surface-3: #353a3a;
@@ -251,18 +252,32 @@
   --radius-3: 10px;
   --radius-pill: 999px;
 
-  /* Elevation is refused.
+  /* Elevation, restrained.
    *
-   * The system this came from defines surfaces through tonal contrast and 1px
-   * hairline borders and carries no shadow at all — a card is a lighter plate
-   * on a darker canvas with a line around it, and that is the whole of the
-   * depth. The three tokens stay rather than being deleted because 28
-   * declarations across the stylesheets read them; `none` is how the refusal
-   * reaches all 28 at once, and the day any of this is reversed it is reversed
-   * here rather than in 28 places. */
-  --shadow-1: none;
-  --shadow-2: none;
-  --shadow-3: none;
+   * Depth is tonal first — a lighter plate on a darker canvas with a hairline
+   * around it — and shadow second: a lit top edge and a soft, short, dark drop
+   * that separates the plate from the ground without a glow. Three steps:
+   * resting plate, raised or hovered plate, floating overlay (dialogs,
+   * popovers). Every stylesheet reads these tokens, so a change here moves
+   * all 28 declarations at once. */
+  --shadow-1:
+    inset 0 1px 0 var(--edge-hi),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-2:
+    inset 0 1px 0 var(--edge-hi),
+    0 6px 18px -6px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-3:
+    inset 0 1px 0 var(--edge-hi),
+    0 24px 48px -16px rgba(0, 0, 0, 0.7),
+    0 8px 16px -8px rgba(0, 0, 0, 0.45);
+  /* The one-pixel lit edge along the top of a raised surface. It is what
+     makes a plate read as sitting *on* the ground rather than cut into it. */
+  --edge-hi: rgba(246, 243, 235, 0.07);
+  --edge-hi-strong: rgba(246, 243, 235, 0.12);
+  /* A raised plate carries a faint vertical grade so it is not a flat swatch. */
+  --surface-grade: linear-gradient(180deg, rgba(246, 243, 235, 0.025), transparent 55%);
+  --surface-grade-strong: linear-gradient(180deg, rgba(246, 243, 235, 0.05), transparent 60%);
 
 
   /* --- Motion (MOTION-001) ---
@@ -485,22 +500,24 @@ html:has([data-public-shell]) body {
    Standard engines take `scrollbar-width: thin` with a quiet thumb; the
    webkit block is its equivalent — 6px, token line colour, pill radius,
    transparent track — because `scrollbar-width` reaches nothing there. */
-html:has([data-home-scroll]) {
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
-}
+@media (pointer: fine) {
+  html:has([data-home-scroll]) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
 
-html:has([data-home-scroll])::-webkit-scrollbar {
-  width: 6px;
-}
+  html:has([data-home-scroll])::-webkit-scrollbar {
+    width: 6px;
+  }
 
-html:has([data-home-scroll])::-webkit-scrollbar-thumb {
-  background: var(--line-strong);
-  border-radius: var(--radius-pill);
-}
+  html:has([data-home-scroll])::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: var(--radius-pill);
+  }
 
-html:has([data-home-scroll])::-webkit-scrollbar-track {
-  background: transparent;
+  html:has([data-home-scroll])::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 html:has([data-intro-active]),
@@ -587,15 +604,22 @@ html:has([data-handoff-blocked]) body {
   }
 }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+/* Custom scrollbars are for pointer devices only. iOS Safari honours
+   `scrollbar-color` since 17.4, and honouring it turns its auto-hiding overlay
+   bar into a permanently painted strip down the side of every scroll region —
+   the menu drawer, the Ask panel, every table. A touch device keeps the bar
+   the platform draws. */
+@media (pointer: fine) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: var(--radius-2); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+  ::-webkit-scrollbar-thumb:active { background: var(--scrollbar-active); }
 }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--scrollbar-track); }
-::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: var(--radius-2); }
-::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
-::-webkit-scrollbar-thumb:active { background: var(--scrollbar-active); }
 @media (forced-colors: active) {
   * { scrollbar-color: auto; }
 }

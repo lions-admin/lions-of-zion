@@ -23,6 +23,6 @@ const OUTPUTS = [
 
 export function OutputsFork() {
   return <nav className={styles.outputMap} aria-label="Explore the public work">{OUTPUTS.map((output, index) =>
-    <Link key={output.href} href={output.href}><span className={styles.outputNumber}>{String(index + 1).padStart(2, "0")}</span><div><span className={styles.eyebrow}>{output.category}</span><h3>{output.title}</h3><p>{output.text}</p></div><span className={styles.outputArrow} aria-hidden="true">↗</span></Link>,
+    <Link key={output.href} href={output.href}><span className={styles.outputNumber}>{String(index + 1).padStart(2, "0")}</span><div><span className={styles.eyebrow}>{output.category}</span><h3>{output.title}</h3><p>{output.text}</p></div><span className={styles.outputArrow} aria-hidden="true">↗︎</span></Link>,
   )}</nav>;
 }

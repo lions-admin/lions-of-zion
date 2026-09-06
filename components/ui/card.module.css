@@ -26,12 +26,16 @@
    * is why it is a real border again rather than the inset stroke it briefly
    * was — with no shadow token left to carry it, an inset shadow would have
    * been an edge that disappears the moment elevation is reversed. */
-  background: var(--surface-1);
+  background-color: var(--surface-1);
+  background-image: var(--surface-grade);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
+  box-shadow: var(--shadow-1);
   transition:
     background-color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out);
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
 }
 
 /* Feature — lead / section entry. Raised, room for media + title. */
@@ -156,13 +160,19 @@
   cursor: pointer;
 }
 
-/* Hover raises the plate a tone and strengthens its line. Not a lift: there is
-   nothing to lift onto, and a shadow would be the one thing this system says
-   not to reach for. */
+/* Hover raises the plate a tone, strengthens its line, and lifts it one pixel
+   onto the second elevation step. The lift is small on purpose: it should be
+   felt as a response, not seen as a jump. */
 .interactive:hover,
 .interactive:focus-visible {
-  background: var(--surface-2);
+  background-color: var(--surface-2);
   border-color: var(--line-strong);
+  box-shadow: var(--shadow-2);
+}
+
+.feature.interactive:hover,
+.dossier.interactive:hover {
+  transform: translateY(-2px);
 }
 
 .feature.interactive:hover,
@@ -173,8 +183,10 @@
 }
 
 .interactive:active {
-  background: var(--surface-1);
+  background-color: var(--surface-1);
   box-shadow: var(--shadow-1);
+  transform: translateY(0);
+  transition-duration: var(--dur-fast);
 }
 
 .interactive:focus-visible {
@@ -184,15 +196,17 @@
 
 .row.interactive:hover,
 .row.interactive:focus-visible {
-  background: var(--tint-active);
+  background-color: var(--tint-active);
   box-shadow: none;
+  transform: none;
   border-bottom-color: var(--line-strong);
 }
 
 .note.interactive:hover,
 .note.interactive:focus-visible {
-  background: var(--surface-2);
+  background-color: var(--surface-2);
   box-shadow: none;
+  transform: none;
 }
 
 .header {
@@ -304,6 +318,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .feature.interactive:hover,
+  .dossier.interactive:hover {
+    transform: none;
+  }
+
   .card,
   .title,
   .ctaArrow,

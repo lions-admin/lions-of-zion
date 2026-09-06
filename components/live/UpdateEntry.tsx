@@ -27,6 +27,12 @@ import styles from "./live-feed.module.css";
  * The title links to `/articles/{publicId}`, which stays the canonical home of
  * the record. This feed is an index over it, not a second copy of it.
  */
+/** A machine facet — `international_arms_sales` — printed as words. The
+ *  projection's value is unchanged; only the underscores are combed. */
+function words(value: string): string {
+  return value.replaceAll("_", " ");
+}
+
 export function UpdateEntry({ entry }: { entry: PublicPublication }) {
   const automatic = entry.autoPublishedAt !== null;
   const revised = entry.updatedAt !== entry.publishedAt;
@@ -73,12 +79,13 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
           {analysis ? (
             <span className={styles.basis}>Our own analysis &mdash; cites no source</span>
           ) : null}
-          {entry.editorialTopic ? <span className={styles.facet}>{entry.editorialTopic}</span> : null}
-          {entry.primaryActor ? <span className={styles.facet}>{entry.primaryActor}</span> : null}
-          {entry.arena ? <span className={styles.facet}>{entry.arena}</span> : null}
+          {entry.editorialTopic ? <span className={styles.facet}>{words(entry.editorialTopic)}</span> : null}
+          {entry.primaryActor ? <span className={styles.facet}>{words(entry.primaryActor)}</span> : null}
+          {entry.arena ? <span className={styles.facet}>{words(entry.arena)}</span> : null}
           {revised ? (
-            <span className={styles.facet}>
-              Revised <time dateTime={entry.updatedAt}>{stamp(entry.updatedAt)}</time>
+            <span className={`${styles.facet} ${styles.revised}`}>
+              <span>Revised</span>
+              <time dateTime={entry.updatedAt}>{stamp(entry.updatedAt)}</time>
             </span>
           ) : null}
         </p>

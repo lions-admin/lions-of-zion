@@ -297,7 +297,7 @@ describe("the no-JavaScript invariant: the shell arrives before the data", () =>
        script is raw text, so the JSON name is not escaped. */
     expect(html).toContain("News &amp; Analysis");
     expect(html).toContain('"name":"News & Analysis"');
-    expect(html).toContain("Reporting, updates and the daily briefing.");
+    expect(html).toContain("Reporting on Israel and the region, the daily briefing, and the sources behind every line.");
     /* And the read really is behind a boundary — otherwise the fallback is
        dead code and the route gained nothing but a slower first byte. The
        pending read's fallback is the desk skeleton whose status label is

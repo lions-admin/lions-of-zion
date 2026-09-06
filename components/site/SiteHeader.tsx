@@ -111,6 +111,17 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
     };
   }, [menuOpen]);
 
+  /* Once the page has scrolled under the bar, the bar picks up a shadow and a
+     firmer ground so it reads as chrome over content rather than as part of
+     the masthead area. Passive listener, one boolean, no layout work. */
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const read = () => setScrolled(window.scrollY > 8);
+    read();
+    window.addEventListener("scroll", read, { passive: true });
+    return () => window.removeEventListener("scroll", read);
+  }, []);
+
   const closePanels = () => {
     setFilesOpen(false);
     setMenuOpen(false);
@@ -156,7 +167,7 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
       className={primary ? styles.primaryMenuLink : styles.secondaryMenuLink}
       aria-current={current(link.href) ? "page" : undefined} onClick={closePanels}>
       <span className={styles.menuLinkTitle}>{link.label}</span>
-      <span className={styles.menuLinkArrow} aria-hidden="true">↗</span>
+      <span className={styles.menuLinkArrow} aria-hidden="true">↗︎</span>
       <span className={styles.menuLinkDescription}>{link.description}</span>
     </Link>
   );
@@ -182,17 +193,22 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
         </nav>
         <nav className={styles.menuTools} aria-label="Search and conversation">
           <Link href="/search" onClick={closePanels}>Search</Link>
-          <Link href="/ask" onClick={closePanels}>Ask the desk <span aria-hidden="true">↗</span></Link>
+          <Link href="/ask" onClick={closePanels}>Ask the desk <span aria-hidden="true">↗︎</span></Link>
         </nav>
       </div>
       <Link href={SUPPORT_LINK.href} className={styles.menuSupport} onClick={closePanels}>
-        Support the work <span aria-hidden="true">↗</span>
+        Support the work <span aria-hidden="true">↗︎</span>
       </Link>
     </div>
   );
 
   return (
-    <header ref={headerRef} className={styles.header} data-home={home || undefined}>
+    <header
+      ref={headerRef}
+      className={styles.header}
+      data-home={home || undefined}
+      data-scrolled={scrolled || undefined}
+    >
       <div className={styles.bar}>
         <Link href="/" className={styles.brand} onClick={closePanels}>
           <span className={styles.brandName}>Lions of Zion</span>

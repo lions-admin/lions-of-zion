@@ -1,31 +1,44 @@
-/* Site colophon · design V3
+/* Site colophon · design V4
  *
- * Compact closing slab: identity, Methodology and Corrections, a dense index
- * of the eight files, and the year. Not a second dossier of the same links
- * the header already offered on a long archive page.
+ * One footer for every route. It closes the page as a colophon — a large
+ * display nameplate, the desk's statement, Methodology and Corrections at
+ * reading size, then a four-column index of the sections — rather than as a
+ * second toolbar. The homepage used to carry this composition alone while
+ * reading routes got a compact strip; the strip made every article end on a
+ * different note from the front, so the colophon is now the shared close.
  *
  * `--ground` is opaque black, so ScanBackdrop cannot paint through it;
  * `--z-raised` keeps the slab above that fixed layer.
  */
 
 .footer {
+  --footer-inset: clamp(var(--sp-5), 4.5vw, var(--sp-8));
+  --footer-width: 100rem;
   position: relative;
   z-index: var(--z-raised);
-  border-top: var(--line-w) solid var(--line);
-  background: var(--ground);
+  border-top: var(--line-w) solid var(--line-strong);
+  background-color: var(--ground);
+  background-image: linear-gradient(180deg, rgba(246, 243, 235, 0.025), transparent 28%);
   color: var(--ink);
   font-family: var(--face-navigation);
   text-transform: none;
+  padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom, 0px));
+}
+
+.inner,
+.files,
+.colophon {
+  max-width: var(--footer-width);
+  margin-inline: auto;
+  padding-inline: var(--footer-inset);
 }
 
 .inner {
-  max-width: var(--chrome-w);
-  margin-inline: auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: var(--sp-5) var(--sp-7);
   align-items: start;
-  padding: var(--sp-5) var(--family-pad-inline) var(--sp-4);
+  padding-block: var(--sp-7) var(--sp-6);
 }
 
 /* ── Identity ──────────────────────────────────────────────────────────── */
@@ -38,7 +51,8 @@
 
 .brand {
   display: grid;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
+  width: fit-content;
   text-decoration: none;
   color: var(--ink-hi);
 }
@@ -46,25 +60,26 @@
 .brandName {
   font-family: var(--face-display);
   font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
+  font-size: clamp(2.375rem, 5.8vw, 5.125rem);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
   text-wrap: balance;
 }
 
 .brandRole {
   composes: dataLabel from global;
+  letter-spacing: 0.15em;
   color: var(--ink-lo);
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.brand:hover .brandRole { color: var(--ink); }
+.brand:hover .brandRole { color: var(--gold); }
 
 .statement {
-  max-width: var(--measure-caption);
+  max-width: 45ch;
   font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
+  line-height: 1.7;
   color: var(--ink-lo);
   text-wrap: pretty;
 }
@@ -76,6 +91,7 @@
   justify-items: end;
   align-content: start;
   gap: var(--sp-3);
+  padding-top: var(--sp-2);
 }
 
 .trustList,
@@ -85,10 +101,8 @@
 }
 
 .trustList {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--sp-2) var(--sp-5);
+  display: grid;
+  justify-items: end;
 }
 
 .trustLink {
@@ -96,16 +110,17 @@
   align-items: center;
   min-height: var(--control-h);
   padding-inline: var(--sp-1);
-  border-radius: var(--radius-2);
-  font-size: var(--t-body);
-  font-weight: 500;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: 400;
   line-height: 1.2;
   color: var(--ink-hi);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.trustLink:hover { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--line-strong); }
+.trustLink:hover { color: var(--gold); }
 
 .trustLink[aria-current="page"] {
   box-shadow: inset 0 calc(-1 * var(--line-w-thick)) 0 var(--gold);
@@ -121,9 +136,8 @@
 .furtherLink {
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-h-sm);
+  min-height: var(--control-h);
   padding-inline: var(--sp-1);
-  border-radius: var(--radius-2);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
   line-height: var(--t-caption-lh);
@@ -139,94 +153,101 @@
   box-shadow: inset 0 calc(-1 * var(--line-w-thick)) 0 var(--gold);
 }
 
-/* ── Dense file index ──────────────────────────────────────────────────── */
+/* ── Section index ─────────────────────────────────────────────────────── */
 
 .files {
-  max-width: var(--chrome-w);
-  margin-inline: auto;
-  padding: var(--sp-3) var(--family-pad-inline) var(--sp-4);
+  padding-block: var(--sp-5) var(--sp-6);
   border-top: var(--line-w) solid var(--line-soft);
 }
 
 .filesLabel {
-  margin-bottom: var(--sp-2);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
+  composes: dataLabel from global;
+  margin-bottom: var(--sp-4);
+  font-weight: 400;
+  letter-spacing: 0.14em;
   color: var(--ink-lo);
 }
 
 .fileList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--sp-4);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-2) var(--sp-6);
 }
 
 .fileLink {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-1);
-  border-radius: var(--radius-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: 3rem;
+  padding: var(--sp-2) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
   color: var(--ink);
   text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
 }
 
-.fileLink:hover { color: var(--ink-hi); }
+.fileLink::after {
+  content: "↗︎";
+  flex: 0 0 auto;
+  font-size: var(--t-body);
+  color: var(--ink-lo);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.fileLink:hover {
+  color: var(--gold);
+  border-bottom-color: var(--line);
+}
+
+.fileLink:hover::after {
+  color: var(--gold);
+  transform: translate(2px, -2px);
+}
 
 .fileLink[aria-current="page"] {
   color: var(--ink-hi);
-  box-shadow: inset 0 calc(-1 * var(--line-w-thick)) 0 var(--gold);
+  border-bottom-color: var(--gold);
 }
 
-.fileIndex {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.fileLink:hover .fileIndex { color: var(--ink); }
-.fileLink[aria-current="page"] .fileIndex { color: var(--gold); }
+.fileLink[aria-current="page"]::after { color: var(--gold); }
 
 .fileName {
-  font-size: var(--t-small);
-  font-weight: 500;
-  line-height: 1.3;
-  text-wrap: balance;
+  font-size: var(--t-caption);
+  font-weight: 400;
+  line-height: 1.5;
+  text-wrap: pretty;
 }
 
 /* ── Colophon ──────────────────────────────────────────────────────────── */
 
 .colophon {
-  max-width: var(--chrome-w);
-  margin-inline: auto;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--sp-2) var(--sp-5);
-  padding: var(--sp-3) var(--family-pad-inline) var(--sp-4);
+  padding-block: var(--sp-4);
   border-top: var(--line-w) solid var(--line);
 }
 
 .copyright {
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  font-variant-numeric: tabular-nums;
+  composes: dataMeta from global;
+  font-weight: 400;
   color: var(--ink-lo);
 }
 
 .toTop {
-  padding-block: var(--sp-2);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
+  composes: dataMeta from global;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--control-h);
+  font-weight: 400;
   color: var(--ink-lo);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out);
@@ -234,43 +255,50 @@
 
 .toTop:hover { color: var(--ink-hi); }
 
-/* A standalone affordance at the foot of a long file, not an inline link. */
-@media (pointer: coarse) {
-  .toTop {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--control-h);
+.footer a:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.footer a:active { color: var(--gold-hi); }
+
+/* The homepage keeps the persistent Ask seal at the bottom-right corner, so
+   its colophon leaves room for it. */
+.home { padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom, 0px)); }
+.home .toTop { padding-inline-end: 5rem; }
+
+@media (min-width: 68.75rem) {
+  .home .files { padding-inline-end: max(6.5rem, var(--footer-inset)); }
+}
+
+/* ── Seams ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 64rem) {
+  .fileList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 48rem) {
+  .home { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-5);
+    padding-block: var(--sp-6) var(--sp-5);
   }
-}
-
-/* ── Seams ─────────────────────────────────────────────────────────────────
- * The two canonical ones from `globals.css`: 76.25rem (`--bp-rails`) and
- * 45rem (`--bp-seam`). A media prelude cannot read a custom property, so they
- * are literals here — see the honest note beside those tokens.
- */
-
-@media (max-width: 76.25rem) {
-  .inner { grid-template-columns: minmax(0, 1fr) minmax(0, auto); }
-}
-
-@media (max-width: 45rem) {
-  .inner { grid-template-columns: minmax(0, 1fr); }
-  .reference { justify-items: start; }
-  .trustList,
+  .reference { justify-items: start; padding-top: 0; }
+  .trustList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-5);
+  }
+  .trustLink { font-size: var(--t-body); }
   .furtherList { justify-content: flex-start; }
-  .fileLink {
-    min-height: var(--control-h);
-    align-items: center;
-  }
-  .colophon { flex-direction: column; align-items: flex-start; }
+  .colophon { gap: var(--sp-2) var(--sp-5); }
+  .toTop,
+  .home .toTop { padding-inline-end: 0; }
 }
 
-@media (pointer: coarse) {
-  .furtherLink { min-height: var(--control-h); }
-  .fileLink {
-    min-height: var(--control-h);
-    align-items: center;
-  }
+@media (max-width: 26rem) {
+  .fileList { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -278,53 +306,8 @@
   .trustLink,
   .furtherLink,
   .fileLink,
-  .fileIndex,
+  .fileLink::after,
   .toTop { transition-duration: 0ms; }
-}
 
-/* The homepage closes as a colophon, not a second toolbar. Reading-route
-   footers keep their compact layout. */
-.home {
-  --footer-inset: clamp(20px, 4.5vw, 72px);
-  --footer-width: 1600px;
-  border-top: 1px solid var(--control-line);
-  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
-}
-.home .inner, .home .files, .home .colophon {
-  max-width: var(--footer-width);
-  padding-inline: var(--footer-inset);
-}
-@media (min-width: 1100px) {
-  .home .files { padding-inline-end: max(104px, var(--footer-inset)); }
-}
-.home .inner { padding-block: 48px 36px; grid-template-columns: 1.6fr 1fr; }
-.home .brand { width: fit-content; }
-.home .brandName { font-size: clamp(38px, 5.8vw, 82px); font-weight: 400; line-height: 1.05; letter-spacing: -.045em; }
-.home .brandRole { font-size: 10px; letter-spacing: .15em; margin-top: 8px; }
-.home .statement { max-width: 45ch; font-size: 13px; line-height: 1.7; margin: 8px 0 0; }
-.home .reference { gap: 10px; padding-top: 8px; }
-.home .trustList { display: grid; gap: 0; justify-items: end; }
-.home .trustLink { font-size: 17px; font-weight: 400; border-radius: 0; }
-.home .furtherLink { min-height: 44px; font-size: 13px; }
-.home .files { padding-block: 24px 32px; }
-.home .filesLabel { font: 400 10px/1.5 var(--face-data); text-transform: uppercase; letter-spacing: .14em; margin-bottom: 18px; }
-.home .fileList { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 28px; }
-.home .fileLink { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); border-radius: 0; }
-.home .fileLink::after { content: '↗'; font-size: 17px; padding-left: 10px; color: var(--ink-lo); }
-.home .fileName { font-size: 13px; font-weight: 400; line-height: 1.5; text-wrap: pretty; }
-.home .fileLink:hover, .home .fileLink:hover::after, .home .trustLink:hover { color: var(--gold); }
-.home .colophon { padding-block: 20px; align-items: center; }
-.home .copyright, .home .toTop { font-size: 11px; }
-.home .toTop { display: inline-flex; align-items: center; gap: 18px; min-height: 44px; padding-inline-end: 80px; }
-.home a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-.home a:active { color: var(--gold-hi); }
-@media (max-width: 767px) {
-  .home { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
-  .home .inner { grid-template-columns: 1fr; gap: 24px; padding-block: 36px 28px; }
-  .home .reference { justify-items: start; padding-top: 0; }
-  .home .trustList { display: flex; flex-wrap: wrap; gap: 24px; }
-  .home .trustLink { font-size: 15px; }
-  .home .fileList { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 24px; }
-  .home .colophon { flex-direction: row; align-items: center; gap: 8px 20px; }
-  .home .toTop { padding-inline-end: 0; }
+  .fileLink:hover::after { transform: none; }
 }

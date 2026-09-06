@@ -51,7 +51,7 @@ export function InformationWarSystem() {
           <ol>
             <li><span>01</span><div><h3>Preserve the origin</h3><p>Keep source references and provenance. Treat several copies of one account differently from independent corroboration. Source-family grouping helps; it does not replace source research.</p></div></li>
             <li><span>02</span><div><h3>Make uncertainty explicit</h3><p>A circulating claim is not a confirmed finding. Sourced reporting and the desk’s own analysis must be distinguishable. Where the material does not settle a question, say so.</p></div></li>
-            <li><span>03</span><div><h3>Keep the record correctable</h3><p>Versioned publication records retain a change history. Corrections and withdrawals are part of maintaining a record, not evidence that the original publication was infallible.</p><Link href="/corrections">Correction policy <span aria-hidden="true">↗</span></Link></div></li>
+            <li><span>03</span><div><h3>Keep the record correctable</h3><p>Versioned publication records retain a change history. Corrections and withdrawals are part of maintaining a record, not evidence that the original publication was infallible.</p><Link href="/corrections">Correction policy <span aria-hidden="true">↗︎</span></Link></div></li>
           </ol>
         </div>
         <DailyCycle />
@@ -60,8 +60,8 @@ export function InformationWarSystem() {
       <section className={styles.section} id="record" aria-labelledby="record-heading">
         <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>03 / In public</p><h2 id="record-heading">The work,<br /><em>in the open.</em></h2></div><p>Reporting to read. Records to return to. Sources to inspect. Explore the public side of the system, then open a publication below and follow the material behind it.</p></div>
         <OutputsFork />
-        <p className={styles.askReadingLink}>Have a question about the record? <Link href="/ask">Open Ask <span aria-hidden="true">↗</span></Link></p>
-        <div className={styles.recordHeading} id="activity"><h3>From the published record</h3><Link href="/updates">All updates <span aria-hidden="true">↗</span></Link></div>
+        <p className={styles.askReadingLink}>Have a question about the record? <Link href="/ask">Open Ask <span aria-hidden="true">↗︎</span></Link></p>
+        <div className={styles.recordHeading} id="activity"><h3>From the published record</h3><Link href="/updates">All updates <span aria-hidden="true">↗︎</span></Link></div>
         <p className={styles.recordCaption}>Publication dates, not job activity. Times shown in Jerusalem time.</p>
         <Suspense fallback={<p className={styles.emptyRecord}>Loading the published record…</p>}><RecentActivity /></Suspense>
       </section>
@@ -70,7 +70,7 @@ export function InformationWarSystem() {
         <p className={styles.eyebrow}>For those who believe the record matters</p>
         <h2 id="support-heading">Help keep evidence<br /><em>in the public’s hands.</em></h2>
         <div><p>Support the work behind the page: source research, documentation, public reporting and the tools that make the record accessible.</p>
-          <Link href="/support-us" className={styles.supportLink}>Support Lions of Zion <span aria-hidden="true">↗</span></Link>
+          <Link href="/support-us" className={styles.supportLink}>Support Lions of Zion <span aria-hidden="true">↗︎</span></Link>
           <Link href="/methodology" className={styles.methodologyLink}>Read the methodology</Link></div>
       </section>
     </EditorialShell>

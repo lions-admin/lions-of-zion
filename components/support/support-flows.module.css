@@ -7,70 +7,144 @@
   margin-top: var(--sp-5);
 }
 
-/* One choice per row at every width. These are four different acts, not four
-   comparable products, and a reader picks one by reading down them. */
+/* Four raised cards, two by two. Each is one control: the mark, the name,
+   what it does, and an arrow that travels on hover. The primary choice —
+   reporting a claim — carries the gold rule. */
 .chooser {
   display: grid;
-  gap: var(--sp-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.choice {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-  align-items: center;
-  gap: var(--sp-2);
-  padding-top: var(--sp-4);
-  border-top: var(--line-w) solid var(--line);
-}
+.chooser[hidden] { display: none; }
 
-.choice:first-child {
-  padding-top: 0;
-  border-top: 0;
-}
+.choice { min-width: 0; }
 
-/* The control sizes to its label, left-aligned with the summary under it —
-   a full-bleed button reads as a banner, not as a choice in a list. */
 .choiceButton {
-  justify-self: start;
+  --choice-rule: var(--line);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'mark label arrow'
+    'mark summary arrow';
+  column-gap: var(--sp-4);
+  row-gap: var(--sp-1);
+  align-items: start;
+  width: 100%;
+  height: 100%;
+  padding: var(--sp-5);
+  text-align: start;
+  color: inherit;
+  cursor: pointer;
+  background-color: var(--surface-1);
+  background-image: var(--surface-grade);
+  border: var(--line-w) solid var(--line);
+  border-top: var(--line-w-thick) solid var(--choice-rule);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-1);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
 }
 
-.choice .choiceButton {
-  padding-inline: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
+.choiceButton[data-emphasis='primary'] { --choice-rule: var(--gold); }
+
+.choiceButton:hover,
+.choiceButton:focus-visible {
+  background-color: var(--surface-2);
+  border-color: var(--line-strong);
+  border-top-color: var(--choice-rule);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
+}
+
+.choiceButton:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-1);
+}
+
+.choiceButton:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.choiceMark {
+  grid-area: mark;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-h);
+  block-size: var(--control-h);
+  border-radius: 50%;
+  border: var(--line-w) solid var(--line-strong);
+  color: var(--ink);
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.choiceButton[data-emphasis='primary'] .choiceMark { color: var(--gold); }
+
+.choiceButton:hover .choiceMark {
+  color: var(--gold);
+  border-color: var(--gold-line-strong);
+}
+
+.choiceLabel {
+  grid-area: label;
   color: var(--ink-hi);
   font-family: var(--face-display);
+  font-optical-sizing: auto;
   font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
-  text-align: start;
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 0.3em;
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
-.choice .choiceButton:hover,
-.choice .choiceButton:focus-visible {
-  background: transparent;
-  color: var(--gold-hi);
-  text-decoration-color: currentColor;
-}
-
-.choice .choiceButton:active { color: var(--gold); }
-
-@media (width < 36rem) {
-  .choice { grid-template-columns: minmax(0, 1fr); }
-}
+.choiceButton:hover .choiceLabel { color: var(--gold-hi); }
 
 .choiceSummary {
+  grid-area: summary;
   margin: 0;
-  max-width: var(--measure-narrow);
-  color: var(--ink);
+  color: var(--ink-lo);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.choiceArrow {
+  grid-area: arrow;
+  align-self: center;
+  color: var(--ink-lo);
+  font-size: var(--t-h3);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.choiceButton:hover .choiceArrow {
+  color: var(--gold);
+  transform: translateX(0.25em);
+}
+
+@media (width < 40rem) {
+  .chooser { grid-template-columns: minmax(0, 1fr); }
+  .choiceButton { padding: var(--sp-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choiceButton,
+  .choiceMark,
+  .choiceLabel,
+  .choiceArrow { transition: none; }
+  .choiceButton:hover,
+  .choiceButton:focus-visible { transform: none; }
+  .choiceButton:hover .choiceArrow { transform: none; }
 }
 
 /* An open flow. It replaces the chooser in place, so it opens with its own

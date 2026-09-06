@@ -61,6 +61,7 @@ const FLOWS: SupportFlow[] = [
     id: "report",
     label: "Report a claim",
     emphasis: "primary",
+    icon: "warning",
     summary:
       "Send a link or a description of something that needs checking. The desk reviews it.",
     panel: (
@@ -78,6 +79,7 @@ const FLOWS: SupportFlow[] = [
   {
     id: "volunteer",
     label: "Volunteer a skill",
+    icon: "actor",
     summary:
       "Investigation, languages, design and development. Tell the desk what you can do.",
     panel: (
@@ -108,6 +110,7 @@ const FLOWS: SupportFlow[] = [
   {
     id: "share",
     label: "Share what is verified",
+    icon: "share",
     summary:
       "Carry a sourced record into the conversation where the falsehood is spreading.",
     panel: (
@@ -138,6 +141,7 @@ const FLOWS: SupportFlow[] = [
   {
     id: "donate",
     label: "Donate",
+    icon: "support",
     summary: "Payment is taken by PayPal, on PayPal's own site.",
     panel: (
       <>

@@ -15,8 +15,9 @@
   width: min(100% - var(--sp-6), var(--measure-narrow));
   max-height: calc(100dvh - var(--sp-7));
   border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
+  border-radius: var(--radius-3);
+  background-color: var(--surface-1);
+  background-image: var(--surface-grade);
   box-shadow: var(--shadow-3);
 }
 
@@ -63,6 +64,8 @@
 
 .dialog::backdrop {
   background: color-mix(in oklab, var(--ground) 78%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 
 .dialog,

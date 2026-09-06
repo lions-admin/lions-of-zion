@@ -75,10 +75,11 @@
   gap: var(--sp-2);
   height: 100%;
   padding: var(--sp-6) var(--sp-5) var(--sp-5);
-  background: var(--surface-1);
+  background-color: var(--surface-1);
+  background-image: var(--surface-grade);
   border: var(--line-w) solid var(--line);
   border-top: var(--line-w-thick) solid var(--line);
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);
 }
 

@@ -1,152 +1,126 @@
-/*
- * 404 — a route the scan does not index. Design V3.
+/* 404 · a route the record does not hold.
  *
- * Two glass panels on the scan ground: the notice, then the index of files
- * that do exist. The headline is the display face at the display step; the
- * one gold on the page is the short rule under the standfirst. The ground
- * and its texture come from `body` (`--scan-ground` in globals.css), so this
- * page paints no backdrop of its own. The focus ring is the global one.
- */
+ * The notice sits at the reading measure on the site ground; the index of
+ * real destinations follows as a two-column grid of raised entries. No glass,
+ * no numbering: the same surfaces, rules and type as every other route. */
 
 .page {
-  /* The document scrolls — converted 2026-08-27 with the four other reading
-     containers; see the lock in `app/globals.css`. */
-  min-height: 100dvh;
+  min-height: 70dvh;
   color: var(--ink);
   font-family: var(--face-text);
   padding-top: var(--header-h);
 }
 
+.page:focus-visible { outline: none; }
+
 .shell {
   position: relative;
-  max-width: 46rem;
+  max-width: 64rem;
   margin: 0 auto;
   padding: clamp(var(--sp-7), 9vh, var(--sp-9)) clamp(var(--sp-4), 4vw, var(--sp-7)) var(--sp-9);
 }
 
-.shell > header,
-.index {
-  padding: clamp(var(--sp-5), 4vw, var(--sp-6));
-  border: 1px solid var(--glass-edge);
-  border-radius: var(--radius-3);
-  background: linear-gradient(180deg, var(--glass-top), var(--glass-middle), var(--glass-bottom));
-  box-shadow: inset 0 1px 0 var(--glass-inner), var(--shadow-3);
-  -webkit-backdrop-filter: blur(15px) saturate(0.72);
-  backdrop-filter: blur(15px) saturate(0.72);
+.notice {
+  display: grid;
+  gap: var(--sp-4);
+  max-width: var(--measure-reading);
 }
 
-/* "404 · Signal lost" is a status line: mono, with the data tracking. */
 .code {
   composes: dataLabel from global;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
   color: var(--ink-lo);
 }
 
+.code > span:first-child {
+  color: var(--gold);
+}
+
 .title {
-  margin-top: var(--sp-3);
+  max-width: none;
+  margin: 0;
   font-family: var(--face-display);
   font-optical-sizing: auto;
-  font-size: var(--t-display);
+  font-size: clamp(2.75rem, 1.4rem + 4.8vw, 5rem);
   font-weight: var(--t-display-weight);
-  line-height: var(--t-display-lh);
-  letter-spacing: var(--t-display-tracking);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
   color: var(--ink-hi);
 }
 
 .lede {
-  margin-top: var(--sp-4);
-  max-width: 34rem;
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
+  max-width: 48ch;
+  margin: 0;
   font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
   line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
   color: var(--ink);
 }
 
-.rule {
-  margin-top: var(--sp-5);
-  height: 1px;
-  width: 8.5rem;
-  background: linear-gradient(90deg, var(--gold), transparent);
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
 }
 
-.back {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  margin-top: var(--sp-3);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  font-weight: 500;
-  color: var(--ink-hi);
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 0.2em;
-  transition: color var(--dur-fast) var(--ease-out), text-decoration-color var(--dur-fast) var(--ease-out);
-}
-
-.back:hover {
-  color: var(--gold-hi);
-  text-decoration-color: var(--gold-line-strong);
-}
-
-/* ---- the index of files that do exist ---- */
+/* ── The index ─────────────────────────────────────────────────────────── */
 
 .index {
-  margin-top: clamp(var(--sp-6), 6vh, var(--sp-8));
+  margin-top: clamp(var(--sp-7), 7vh, var(--sp-8));
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line-strong);
 }
 
-/* "Open files · monitoring active" is a status readout, so it keeps the
-   data face — but it is four words, so it keeps its case. */
 .indexHeading {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  color: var(--ink);
+  composes: dataLabel from global;
+  margin-bottom: var(--sp-4);
+  color: var(--ink-lo);
 }
 
 .list {
-  margin-top: var(--sp-4);
-  list-style: none;
   display: grid;
-  gap: var(--sp-2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+  list-style: none;
 }
 
 .entry {
   display: grid;
-  grid-template-columns: 5.2rem minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
-    'index label'
-    'index description';
+    'label arrow'
+    'description arrow';
   column-gap: var(--sp-4);
   row-gap: var(--sp-1);
-  padding: var(--sp-3) var(--sp-4);
-  border: 1px solid transparent;
-  border-radius: var(--radius-2);
-  background: color-mix(in oklab, var(--ink-hi) 4%, transparent);
+  align-items: start;
+  height: 100%;
+  padding: var(--sp-4) var(--sp-5);
+  background-color: var(--surface-1);
+  background-image: var(--surface-grade);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-1);
   text-decoration: none;
   color: inherit;
-  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
 }
 
 .entry:hover {
-  border-color: var(--gold-line-strong);
-  background: color-mix(in oklab, var(--ink-hi) 8%, transparent);
+  border-color: var(--line-strong);
+  background-color: var(--surface-2);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
 }
 
-.entryIndex {
-  grid-area: index;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-  padding-top: 0.35rem;
-}
+.entry:hover .entryLabel { color: var(--gold-hi); }
+.entry:hover .entryArrow { color: var(--gold); transform: translate(2px, -2px); }
 
 .entryLabel {
   grid-area: label;
@@ -157,6 +131,7 @@
   line-height: var(--t-h3-lh);
   letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .entryDescription {
@@ -167,23 +142,45 @@
   text-wrap: pretty;
 }
 
-@media (max-width: 480px) {
-  .entry {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      'index'
-      'label'
-      'description';
-  }
+.entryArrow {
+  grid-area: arrow;
+  color: var(--ink-lo);
+  font-size: var(--t-body);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
 
-  .entryIndex {
-    padding-top: 0;
-  }
+.reference {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-5);
+  margin-top: var(--sp-4);
+  list-style: none;
+}
+
+.referenceLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  color: var(--ink-lo);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.referenceLink:hover { color: var(--ink-hi); }
+
+@media (max-width: 40rem) {
+  .list { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .entry,
-  .back {
-    transition: none;
-  }
+  .entryLabel,
+  .entryArrow,
+  .referenceLink { transition: none; }
+  .entry:hover { transform: none; }
+  .entry:hover .entryArrow { transform: none; }
 }

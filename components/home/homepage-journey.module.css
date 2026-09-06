@@ -98,7 +98,7 @@
 /* The daily lead and the smaller companion story are intentionally unequal. */
 .newsSpread { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
 .newsSpread > article { min-width: 0; }
-.newsSpread > article + article { padding: 24px; background: var(--journey-panel); border-top: 2px solid var(--journey-rule); }
+.newsSpread > article + article { padding: 24px; background-color: var(--journey-panel); background-image: var(--surface-grade); border: 1px solid var(--journey-rule); border-top: 2px solid var(--journey-rule); border-radius: var(--radius-3); box-shadow: var(--shadow-1); }
 .newsSpread h3 { font-size: clamp(32px, 3.1vw, 49px); line-height: 1.08; margin: 0 0 20px; }
 .newsSpread > article + article h3 { font-size: clamp(26px, 2.15vw, 34px); line-height: 1.12; }
 .newsSpread > article + article .summary { font-size: 14px; line-height: 1.75; }
@@ -109,7 +109,7 @@
 /* Research is a case file, not another news card. Status precedes the claim. */
 .investigations { border-bottom: 0; }
 .narrativeSpread { display: grid; gap: 24px; }
-.investigation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.15fr); gap: var(--journey-gap); padding: 30px; border: 1px solid var(--journey-rule); background: var(--journey-panel); }
+.investigation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.15fr); gap: var(--journey-gap); padding: 30px; border: 1px solid var(--journey-rule); border-radius: var(--radius-3); background-color: var(--journey-panel); background-image: var(--surface-grade); box-shadow: var(--shadow-1); }
 .investigation > div { min-width: 0; }
 .investigation .figure img { aspect-ratio: 4/5; }
 .investigation h3 { font-size: var(--journey-story); line-height: 1.12; margin: 10px 0 16px; }

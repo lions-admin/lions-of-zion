@@ -385,7 +385,10 @@ function AskPrimer({ onPick, disabled }: { onPick: (q: string) => void; disabled
             suggestion={example}
             onClick={onPick}
             disabled={disabled}
-          />
+          >
+            <span className={styles.primerExampleText}>{example}</span>
+            <span className={styles.primerExampleArrow} aria-hidden="true">↵</span>
+          </Suggestion>
         ))}
       </Suggestions>
     </div>

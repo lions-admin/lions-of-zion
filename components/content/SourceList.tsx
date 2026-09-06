@@ -49,7 +49,7 @@ export function SourceList({ sources }: SourceListProps) {
             {source.kind ? <span className={styles.sourceKind}>{source.kind}</span> : null}
             {source.url ? (
               <a href={source.url} target="_blank" rel="noreferrer">
-                {source.label} <span aria-hidden="true">↗</span>
+                {source.label} <span aria-hidden="true">↗︎</span>
               </a>
             ) : (
               <span className={styles.sourceLabel}>{source.label}</span>
@@ -69,7 +69,7 @@ export function SourceList({ sources }: SourceListProps) {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Archived copy <span aria-hidden="true">↗</span>
+                    Archived copy <span aria-hidden="true">↗︎</span>
                   </a>
                 ) : null}
               </span>

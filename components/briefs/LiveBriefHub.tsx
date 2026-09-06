@@ -3,8 +3,10 @@ import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
+import { HubMasthead } from "@/components/site/HubMasthead";
 import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { ButtonLink } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { SkeletonDesk } from "@/components/ui/Skeleton";
 import {
   Card,
@@ -20,6 +22,13 @@ import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
 import styles from "./live-brief.module.css";
 
 type Filters = BriefFilterValues;
+
+const JUMPS = [
+  { href: "#latest-news", label: "Latest news" },
+  { href: "#daily-brief", label: "The daily briefing" },
+  { href: "#news-archive", label: "News archive" },
+  { href: "/updates", label: "Every publication ↗︎" },
+];
 
 /**
  * The desk shell — masthead, skip link, footer, kicker, h1, standfirst.
@@ -42,10 +51,12 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
       register="silent"
     >
       <div className={styles.liveLayout}>
-        <header className={styles.deskHeader} id="page-content" tabIndex={-1}>
-          <h1>News &amp; Analysis</h1>
-          <p>Reporting, updates and the daily briefing.</p>
-        </header>
+        <HubMasthead
+          kicker="The present"
+          title={<>News &amp; Analysis</>}
+          standfirst="Reporting on Israel and the region, the daily briefing, and the sources behind every line."
+          jumps={JUMPS}
+        />
 
         <Suspense fallback={<SkeletonDesk inline label="Loading news and analysis" />}>
           <LiveBriefEdition filters={filters} />
@@ -91,63 +102,145 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   const lead = updates[0];
   const sidebarUpdates = updates.slice(1, 5);
   const briefingInSidebar = Boolean(lead) && sidebarUpdates.length === 0 && Boolean(briefing);
+  const storyCount = updates.length;
+  const briefingCount = current.filter((item) => item.section === "daily_brief").length;
 
   return (
     <>
+      {/* The edition's facts: what the read found, in the record's own terms. */}
+      {!currentUnavailable ? (
+        <dl className={styles.editionFacts} aria-label="This edition">
+          <div>
+            <dt>Last published</dt>
+            <dd>
+              {current[0] ? (
+                <time dateTime={current[0].publishedAt}>{formatDateTime(current[0].publishedAt)}</time>
+              ) : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt>Stories on file</dt>
+            <dd data-numeric="">{storyCount}</dd>
+          </div>
+          <div>
+            <dt>Daily briefings</dt>
+            <dd data-numeric="">{briefingCount}</dd>
+          </div>
+          <div>
+            <dt>Times</dt>
+            <dd>Jerusalem</dd>
+          </div>
+        </dl>
+      ) : null}
+
       <section id="latest-news" className={styles.newsOpening} aria-labelledby="latest-news-heading">
         <div className={styles.sectionHeading}>
           <h2 id="latest-news-heading">Latest news</h2>
-          {current[0] ? <p>Last published <time dateTime={current[0].publishedAt}>{formatDateTime(current[0].publishedAt)}</time></p> : null}
+          <p>Individual stories, newest first</p>
         </div>
         {currentUnavailable ? (
           <StatusState status={absenceStatus("unavailable")} title="News could not be loaded."
             description="The publication service is unavailable. This is not an empty news feed."
             actionText="Try again" actionHref="/geopolitical-brief" />
         ) : lead ? (
-          <div className={styles.newsFront}>
+          <div className={styles.newsFront} data-sidebar={sidebarUpdates.length || briefing ? "" : undefined}>
             <article className={styles.newsLead}>
-              <p className={styles.liveEyebrow}><span>Latest story</span><time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time></p>
+              <p className={styles.liveEyebrow}>
+                <span className={styles.leadFlag}>Latest story</span>
+                <time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time>
+              </p>
               <h3><Link href={`/articles/${lead.publicId}`}>{lead.title}</Link></h3>
               {lead.summary ? <p className={styles.newsSummary}>{lead.summary}</p> : null}
-              <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>Read the story <span aria-hidden="true">→</span></Link>
+              <Metadata item={lead} />
+              <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>
+                Read the story <span aria-hidden="true">→</span>
+              </Link>
             </article>
-            {sidebarUpdates.length ? <aside className={styles.newsSidebar} aria-label="More updates"><h2>More updates</h2><ol className={styles.newsTimeline}>{sidebarUpdates.map((item) => (
-              <li key={item.publicId}><time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time><h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3></li>
-            ))}</ol></aside> : briefing ? <aside className={styles.newsSidebar}><Briefing item={briefing} /></aside> : null}
+            {sidebarUpdates.length ? (
+              <aside className={styles.newsSidebar} aria-label="More updates">
+                <h2>More updates</h2>
+                <ol className={styles.newsTimeline}>
+                  {sidebarUpdates.map((item, index) => (
+                    <li key={item.publicId}>
+                      <span className={styles.timelineIndex} aria-hidden="true">
+                        {String(index + 2).padStart(2, "0")}
+                      </span>
+                      <div>
+                        <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
+                        <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </aside>
+            ) : briefing ? (
+              <aside className={styles.newsSidebar}><Briefing item={briefing} /></aside>
+            ) : null}
           </div>
-        ) : <p className={styles.newsSummary}>No individual news updates have been published yet. Published daily briefings appear below.</p>}
+        ) : (
+          <StatusState
+            status={absenceStatus("nothing-published")}
+            title="No individual news updates have been published yet."
+            description="Published daily briefings appear below as they arrive."
+          />
+        )}
       </section>
 
-      {!briefingInSidebar && briefing ? <section className={styles.briefingStrip}><Briefing item={briefing} /></section> : null}
+      {!briefingInSidebar && briefing ? (
+        <section className={styles.briefingStrip} aria-labelledby="daily-brief-heading">
+          <Briefing item={briefing} headingId="daily-brief-heading" />
+        </section>
+      ) : null}
       {updates.length > 5 ? <PublicationSection title="Earlier updates" items={updates.slice(5, 11)} /> : null}
 
       <aside className={styles.watchBridge} aria-label="Separate narrative coverage">
-        <div><h2>What is being claimed?</h2><p>For circulating claims, assessment status and disinformation research, visit the dedicated narrative desk.</p></div>
-        <Link href="/fake-resistance" className={styles.readLink}>Narratives &amp; fact checks <span aria-hidden="true">↗</span></Link>
+        <span className={styles.watchMark} aria-hidden="true">
+          <Icon name="search" size={18} strokeWidth={1.5} />
+        </span>
+        <div>
+          <h2>Looking for what is being claimed?</h2>
+          <p>Circulating claims, their assessment status and disinformation research live on the dedicated narrative desk, kept separate from the news.</p>
+        </div>
+        <ButtonLink href="/fake-resistance" variant="secondary" size="md" rightIcon={<span aria-hidden="true">↗︎</span>}>
+          Narratives &amp; fact checks
+        </ButtonLink>
       </aside>
 
       <details className={styles.newsArchive} id="news-archive" open={filtering}>
-        <summary>News archive <span>{filtering ? "Filters active" : "Browse earlier reporting"}</span></summary>
-        <p>Browse up to 50 recent news updates and 50 daily briefings by date, actor, topic or arena. Narrative monitoring is kept separate.</p>
-        <BriefFilters key={query.toString()} filters={filters}
-          actors={uniqueValues(current, "primaryActor")} topics={uniqueValues(current, "editorialTopic")}
-          arenas={uniqueValues(current, "arena")} />
-        {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} title="The archive could not be loaded." description="Please try this selection again later." />
-          : archive.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} items={archive} />
-          : <StatusState status={absenceStatus(filtering ? "no-matches" : "nothing-published")}
-              title={filtering ? "No reports match these filters." : "No reports have been published yet."}
-              description={filtering ? "Try a broader date or topic selection." : "Published news and briefings will appear here."}
-              {...(filtering ? { actionText: "Clear filters", actionHref: "/geopolitical-brief#news-archive" } : {})} />}
+        <summary>
+          <span className={styles.archiveTitle}>
+            <span>News archive</span>
+            <span className={styles.archiveHint}>{filtering ? "Filters active" : "Browse earlier reporting by date, actor, topic or arena"}</span>
+          </span>
+          <span className={styles.archiveMeta}>
+            {archiveUnavailable ? "Unavailable" : `${archive.length} ${archive.length === 1 ? "record" : "records"}`}
+            <Icon className={styles.archiveChevron} name="chevron-down" size={14} strokeWidth={1.5} />
+          </span>
+        </summary>
+        <div className={styles.archiveBody}>
+          <p>Up to 50 recent news updates and 50 daily briefings. Narrative monitoring is kept separate.</p>
+          <BriefFilters key={query.toString()} filters={filters}
+            actors={uniqueValues(current, "primaryActor")} topics={uniqueValues(current, "editorialTopic")}
+            arenas={uniqueValues(current, "arena")} />
+          {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} title="The archive could not be loaded." description="Please try this selection again later." />
+            : archive.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} items={archive} />
+            : <StatusState status={absenceStatus(filtering ? "no-matches" : "nothing-published")}
+                title={filtering ? "No reports match these filters." : "No reports have been published yet."}
+                description={filtering ? "Try a broader date or topic selection." : "Published news and briefings will appear here."}
+                {...(filtering ? { actionText: "Clear filters", actionHref: "/geopolitical-brief#news-archive" } : {})} />}
+        </div>
       </details>
     </>
   );
 }
 
-function Briefing({ item }: { item: Publication }) {
+function Briefing({ item, headingId }: { item: Publication; headingId?: string }) {
   return <div id="daily-brief" className={styles.briefingContent}>
-    <p className={styles.liveEyebrow}>The daily briefing</p>
-    <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
-    <h2><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
+    <p className={styles.liveEyebrow}>
+      <span className={styles.briefingFlag}>The daily briefing</span>
+      <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+    </p>
+    <h2 id={headingId}><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
     {item.summary ? <p className={styles.newsSummary}>{item.summary}</p> : null}
     <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the full briefing <span aria-hidden="true">→</span></Link>
   </div>;
@@ -162,7 +255,10 @@ function uniqueValues(publications: Publication[], key: "primaryActor" | "editor
 function PublicationSection({ title, items, narrative = false }: { title: string; items: Publication[]; narrative?: boolean }) {
   return (
     <section className={styles.liveSection}>
-      <h2>{title}</h2>
+      <div className={styles.liveSectionHead}>
+        <h2>{title}</h2>
+        <p data-numeric="">{items.length} {items.length === 1 ? "record" : "records"}</p>
+      </div>
       <ol className={styles.liveList}>{items.map((item) => (
         <li key={item.publicId}>
           {/* Nested Read-record control: the row is a surface, not a link. */}
@@ -170,7 +266,7 @@ function PublicationSection({ title, items, narrative = false }: { title: string
             <CardHeader className={styles.liveRowHeader}>
               <CardEyebrow>
                 {rowStatus(item, narrative)}
-                {item.editorialTopic ? ` · ${item.editorialTopic}` : ""}
+                {item.editorialTopic ? ` · ${humanize(item.editorialTopic)}` : ""}
               </CardEyebrow>
               <CardCount>
                 <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
@@ -218,16 +314,21 @@ function rowStatus(item: Publication, narrative: boolean): string {
   return SECTION_LABELS[item.section];
 }
 
+/** A machine facet — `international_arms_sales` — as words. */
+function humanize(value: string): string {
+  return value.replaceAll("_", " ").replaceAll(",", ", ");
+}
+
 function Metadata({ item, narrative = false }: { item: Publication; narrative?: boolean }) {
   const values = [item.editorialTopic, item.primaryActor, item.arena]
     .filter((value): value is string => Boolean(value))
-    .map((value) => value.replaceAll("_", " ").replaceAll(",", ", "));
+    .map(humanize);
   const details = item.narrativeWatchDetails;
   return <>
     {values.length ? (
       <small className={styles.storyMeta}>
         {narrative ? <span className={styles.metaLabel}>Monitored signal</span> : null}
-        <span>{values.join(" · ")}</span>
+        {values.map((value) => <span key={value} className={styles.metaFacet}>{value}</span>)}
       </small>
     ) : null}
     {narrative && details ? (

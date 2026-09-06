@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
+import { HubMasthead } from "@/components/site/HubMasthead";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
@@ -23,10 +24,21 @@ export default async function Page() {
   return (
     <EditorialShell routeId="fake-resistance" register="silent" showProgress={false} className={styles.page}>
       <div className={styles.hub}>
-        <header className={styles.masthead} id="page-content" tabIndex={-1}>
-          <h1>Narratives &amp; fact checks</h1>
-          <p>Investigate the record. Distinguish a circulating claim from a finding.</p>
-        </header>
+        <HubMasthead
+          kicker="The claim and the record"
+          title={<>Narratives &amp; fact checks</>}
+          standfirst="Investigate the record. Distinguish a circulating claim from a finding, and follow the evidence to where it actually leads."
+          facts={[
+            { label: "Investigations", value: cases.length },
+            { label: "On the watch", value: items.length },
+          ]}
+          jumps={[
+            { href: "#investigation-heading", label: "Latest investigation" },
+            { href: "#latest-monitoring", label: "On the watch" },
+            { href: "/fake-resistance/network", label: "The influence network" },
+            { href: "/fake-resistance/playbook", label: "The playbook" },
+          ]}
+        />
         <div className={styles.front}>
           <section className={styles.investigation} aria-labelledby="investigation-heading">
             <div className={styles.eyebrow}><span>Latest investigation</span>{featured ? <time dateTime={featured.updatedAt}>{dateLabel(featured.updatedAt)}</time> : null}</div>
@@ -41,13 +53,13 @@ export default async function Page() {
             </> : <><h2 id="investigation-heading">Investigations</h2><p role={research.status === "rejected" ? "alert" : undefined}>{research.status === "rejected" ? "Investigations could not be loaded. Monitoring remains available alongside." : "No investigations are available yet."}</p></>}
           </section>
           <section id="latest-monitoring" className={styles.monitoring} aria-labelledby="monitoring-heading">
-            <header className={styles.sectionHead}><h2 id="monitoring-heading">On the watch</h2><Link href="/fake-resistance/watch">Archive <span aria-hidden="true">↗</span></Link></header>
+            <header className={styles.sectionHead}><h2 id="monitoring-heading">On the watch</h2><Link href="/fake-resistance/watch">Archive <span aria-hidden="true">↗︎</span></Link></header>
             <p className={styles.disclosure}>Published monitoring. Not a live scan.</p>
             {monitoring.status === "rejected" ? <p role="alert">Monitoring is temporarily unavailable.</p> : items.length ? items.slice(0, 3).map(item => <NarrativeRecord key={item.publicId} item={item} compact />) : <p>No monitoring records have been published yet.</p>}
           </section>
         </div>
         {otherCases.length ? <section className={styles.more} aria-labelledby="research-heading">
-          <header className={styles.sectionHead}><h2 id="research-heading">Further investigations</h2><Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">↗</span></Link></header>
+          <header className={styles.sectionHead}><h2 id="research-heading">Further investigations</h2><Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">↗︎</span></Link></header>
           <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}>
             <time dateTime={item.updatedAt}>{dateLabel(item.updatedAt)}</time>
             <h3><Link href={`/fake-resistance/cases/${item.slug}`}>{item.title}</Link></h3>
@@ -56,8 +68,8 @@ export default async function Page() {
           </article>)}</div>
         </section> : null}
         <nav className={styles.depth} aria-label="Explore the research">
-          <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><span aria-hidden="true">↗</span></Link>
-          <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><span aria-hidden="true">↗</span></Link>
+          <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><span aria-hidden="true">↗︎</span></Link>
+          <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><span aria-hidden="true">↗︎</span></Link>
         </nav>
         <div className={styles.bottomLinks}><Link href="/fake-resistance/official-narrative">Documented narrative investigations →</Link><Link href="/geopolitical-brief">Looking for news? Read the news desk →</Link></div>
       </div>

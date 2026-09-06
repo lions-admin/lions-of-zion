@@ -75,7 +75,7 @@ export function OperationsConsole() {
           ))}
         </div>
       ))}
-      <Link href="/pipeline" prefetch={false} className={styles.architecture}>מפת המערכת ↗</Link>
+      <Link href="/pipeline" prefetch={false} className={styles.architecture}>מפת המערכת ↗︎</Link>
     </nav>
   );
   const environments: Record<string, string> = { production: "סביבת ייצור", preview: "סביבת תצוגה מקדימה", development: "סביבה מקומית", test: "סביבת בדיקה" };

@@ -32,17 +32,19 @@ async function fixture() {
   return { service, rows: [...rows, warRow!] };
 }
 
-describe("homepage feature slots", () => {
+describe("homepage placements", () => {
   it("falls back to the three newest eligible briefing publications", async () => {
     const { service } = await fixture();
     expect(await service.featured()).toHaveLength(3);
   });
 
-  it("uses explicitly selected slots in their slot order and rejects a non-live item", async () => {
+  it("uses a matching-area lead placement and rejects a mismatched area", async () => {
     const { service, rows } = await fixture();
-    await service.setHomepageFeature(2, rows[0]!.id, actor);
-    await service.setHomepageFeature(1, rows[2]!.id, actor);
-    expect((await service.featured()).map((row) => row.publicId)).toEqual([rows[2]!.publicId, rows[0]!.publicId]);
-    await expect(service.setHomepageFeature(4, rows[1]!.id, actor)).rejects.toThrow(/slot must be 1, 2, or 3/i);
+    await service.setHomepagePlacement("news", "lead", rows[2]!.id, actor);
+    expect((await service.featured()).map((row) => row.publicId)[0]).toBe(rows[2]!.publicId);
+    await expect(service.setHomepagePlacement("people", "lead", rows[1]!.id, actor))
+      .rejects.toThrow(/matching homepage area/i);
+    await service.setHomepagePlacement("news", "lead", null, actor);
+    expect(await service.homepagePlacements()).toEqual([]);
   });
 });

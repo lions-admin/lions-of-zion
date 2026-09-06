@@ -212,6 +212,13 @@ retries on the next tick if it is unreachable, so ingestion works with only
 ### `INTERNAL_API_SECRET`
 Guards internal queue and workflow routes via the `x-internal-secret` header.
 
+### `EDITORIAL_UPDATE_INGEST_SECRET`
+Shared only with the `editorial-updates` GitHub delivery branch. It authorizes
+`POST /api/internal/editorial-updates/ingest` and the matching run-status read
+through `x-editorial-update-secret`; it is separate from both the broader
+internal secret and `EXTERNAL_BRIEFING_INGEST_SECRET`, so a delivery-channel
+rotation cannot grant unrelated internal access.
+
 ### `CRON_SECRET`
 Vercel sends `Authorization: Bearer $CRON_SECRET` on every cron invocation
 automatically once this is set — there is nothing else to wire up.

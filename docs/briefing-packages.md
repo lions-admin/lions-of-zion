@@ -3,8 +3,8 @@
 This is the existing compatibility path for historical Daily Brief packages.
 The package is authored **outside this repository** (ChatGPT) and published by
 a GitHub Action that does no editorial work of its own. It is not the contract
-for the future whole-site editorial model: that work will move to an
-`editorial-packages` branch and a dedicated package schema in a later phase.
+for the whole-site editorial model: that work is delivered through
+`editorial-updates` using `whole-site-update-v1`.
 
 ## Why the packages live on their own branch
 
@@ -23,7 +23,7 @@ The branch is excluded from Vercel by
 in `vercel.json`:
 
 ```json
-"git": { "deploymentEnabled": { "briefing-packages": false, "editorial-packages": false } }
+"git": { "deploymentEnabled": { "briefing-packages": false, "editorial-updates": false } }
 ```
 
 That key is declared both here on `main` and in the small `vercel.json`

@@ -380,7 +380,7 @@ export const editorialCardSchema = z.object({
   section: publicationSectionSchema,
   status: publicationStatusSchema,
   featuredIsraelStory: z.boolean(),
-  homepageSlot: z.number().int().min(1).max(3).nullable(),
+  homepagePlacement: z.object({ area: z.enum(["news", "fakeResistance", "people"]), position: z.enum(["lead", "secondary"]) }).nullable(),
   briefingRunId: z.uuid().nullable(),
   editorialRunId: z.uuid().nullable(),
   evidenceCount: count,
@@ -417,7 +417,7 @@ export const consoleEditorialSchema = z.object({
     published: z.array(editorialCardSchema),
     archived: z.array(editorialCardSchema),
   }),
-  homepageFeatures: z.array(z.object({ slot: z.number().int(), publicationId: z.uuid() })),
+  homepagePlacements: z.array(z.object({ area: z.enum(["news", "fakeResistance", "people"]), position: z.enum(["lead", "secondary"]), publicationId: z.uuid() })),
   page: z.object({
     items: z.array(editorialCardSchema),
     number: count,
@@ -770,7 +770,7 @@ export const OPS_TOOLS = [
   "sync_source_catalog",
   "set_source_active",
   "update_publication",
-  "set_homepage_feature",
+  "set_homepage_placement",
   "run_health_check",
   /* operate — irreversible, always confirmed */
   "publish_publication",

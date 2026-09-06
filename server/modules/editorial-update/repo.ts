@@ -35,9 +35,11 @@ export function editorialRepo(db: Database) {
         const [run] = await tx.insert(editorialRun).values({ runKey: input.runId, requestHash,
           requestedBy: actor, mode: input.mode, localDate, request: input,
           stage: 'media' }).returning();
-        await tx.insert(editorialOperation).values(input.operations.map((operation, position) => ({
-          runId: run.id, operationKey: operation.key, position, inputHash: editorialInputHash(operation), input: operation,
-        })));
+        if (input.operations.length) {
+          await tx.insert(editorialOperation).values(input.operations.map((operation, position) => ({
+            runId: run.id, operationKey: operation.key, position, inputHash: editorialInputHash(operation), input: operation,
+          })));
+        }
         await emit(tx as never, TOPICS.editorialRunProcess, { runId: run.id }, { entityType: 'system', entityId: run.id });
         return run;
       });
@@ -48,6 +50,12 @@ export function editorialRepo(db: Database) {
       if (!run) throw notFound('Editorial run');
       const operations = await db.select().from(editorialOperation).where(eq(editorialOperation.runId, id)).orderBy(asc(editorialOperation.position));
       return { ...run, operations };
+    },
+
+    async getByRunKey(runKey: string) {
+      const [run] = await db.select().from(editorialRun).where(eq(editorialRun.runKey, runKey));
+      if (!run) throw notFound('Editorial run');
+      return editorialRepo(db).get(run.id);
     },
 
     async listRecent(limit = 20) {
@@ -97,6 +105,19 @@ export function editorialRepo(db: Database) {
       });
     },
 
+    /** An operation failure is durable but deliberately non-terminal: later
+     * operations still run and the final report is `partial`. */
+    async failOperation(id: string, token: string, operationKey: string, failure: EditorialFailure, now = new Date()) {
+      return db.transaction(async tx => {
+        await editorialRepo(tx as unknown as Database).assertLease(id, token, now);
+        const [operation] = await tx.update(editorialOperation).set({ status: 'failed', failure, updatedAt: now })
+          .where(and(eq(editorialOperation.runId, id), eq(editorialOperation.operationKey, operationKey),
+            inArray(editorialOperation.status, ['pending', 'running', 'failed']))).returning();
+        if (!operation) throw new ApiError('CONFLICT', 'This operation cannot be marked failed.');
+        return operation;
+      });
+    },
+
     /** Save completed expensive work before attempting publication. */
     async saveArtifact(id: string, token: string, operationKey: string, artifact: Record<string, unknown>, now = new Date()) {
       return db.transaction(async tx => {
@@ -130,11 +151,12 @@ export function editorialRepo(db: Database) {
       return db.transaction(async tx => {
         await editorialRepo(tx as unknown as Database).assertLease(id, token, now);
         const unfinished = await tx.select({ id: editorialOperation.id }).from(editorialOperation)
-          .where(and(eq(editorialOperation.runId, id), inArray(editorialOperation.status, ['pending', 'running', 'failed']))).limit(1);
+          .where(and(eq(editorialOperation.runId, id), inArray(editorialOperation.status, ['pending', 'running']))).limit(1);
         if (unfinished.length) throw new ApiError('CONFLICT', 'The run still has unfinished operations.');
-        const [finished] = await tx.update(editorialRun).set({ status: 'completed', stage: 'report', report,
+        const failed = await tx.select({ id: editorialOperation.id }).from(editorialOperation)
+          .where(and(eq(editorialOperation.runId, id), eq(editorialOperation.status, 'failed'))).limit(1);
+        const [finished] = await tx.update(editorialRun).set({ status: failed.length || report.status === 'partial' ? 'partial' : 'completed', stage: 'report', report,
           failure: null, leaseToken: null, leaseUntil: null, finishedAt: now, updatedAt: now }).where(eq(editorialRun.id, id)).returning();
-        await emit(tx as never, TOPICS.editorialRunReport, { runId: finished!.id }, { entityType: 'system', entityId: finished!.id });
         return finished;
       });
     },

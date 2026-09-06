@@ -77,7 +77,7 @@ export interface PublicationOps {
   update(id: string, input: UpdatePublication, actor: Actor, requestId?: string): Promise<unknown>;
   remove(id: string, actor: Actor, requestId?: string): Promise<void>;
   transition(id: string, input: TransitionPublication, actor: Actor, requestId?: string): Promise<unknown>;
-  setHomepageFeature(slot: number, publicationId: string | null, actor: Actor): Promise<void>;
+  setHomepagePlacement(area: "news" | "fakeResistance" | "people", position: "lead" | "secondary", publicationId: string | null, actor: Actor): Promise<void>;
 }
 
 /** Source collection. */

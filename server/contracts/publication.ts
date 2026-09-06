@@ -33,6 +33,10 @@ export const ANALYSIS_AUTHOR = "Lions of Zion editorial analysis";
 
 /** Secondary subjects refine discovery without creating another destination. */
 export const publicationTopicTagSchema = z.string().trim().toLowerCase().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase hyphenated topic tags.").max(80);
+/** Stable editorial identity for a developing story, independent of its URL. */
+export const canonicalStoryIdSchema = z.string().trim().toLowerCase()
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use a lowercase hyphenated canonical story id.")
+  .max(160);
 
 export const narrativeWatchDetailsSchema = z.object({
   exactClaim: z.string().trim().min(1).max(4_000),
@@ -82,6 +86,7 @@ export const createPublicationSchema = z
   .object({
     kind: publicationKindSchema,
     section: publicationSectionSchema.optional(),
+    canonicalStoryId: canonicalStoryIdSchema.optional(),
     title: z.string().trim().min(1).max(300),
     summary: z.string().trim().max(4_000).optional(),
     body: z.string().trim().min(1).max(200_000),
@@ -141,6 +146,7 @@ export type CreatePublication = z.infer<typeof createPublicationSchema>;
 
 export const updatePublicationSchema = z.object({
   section: publicationSectionSchema.optional(),
+  canonicalStoryId: canonicalStoryIdSchema.nullable().optional(),
   editorialTopic: z.string().trim().min(1).max(120).nullable().optional(),
   topicTags: z.array(publicationTopicTagSchema).max(20).optional(),
   primaryActor: z.string().trim().min(1).max(160).nullable().optional(),
@@ -184,6 +190,7 @@ export type ListPublications = z.infer<typeof listPublicationsSchema>;
 /** The deliberately narrow projection returned to anonymous readers. */
 export const publicPublicationSchema = z.object({
   publicId: z.string(),
+  canonicalStoryId: canonicalStoryIdSchema.nullable().default(null),
   kind: publicationKindSchema,
   section: publicationSectionSchema,
   title: z.string(),

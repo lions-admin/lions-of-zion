@@ -206,6 +206,8 @@ export const internalApiSecret = (): string =>
   required("INTERNAL_API_SECRET", "the internal route guard");
 export const externalBriefingIngestSecret = (): string =>
   required("EXTERNAL_BRIEFING_INGEST_SECRET", "the external briefing ingest guard");
+export const editorialUpdateIngestSecret = (): string =>
+  required("EDITORIAL_UPDATE_INGEST_SECRET", "the whole-site editorial update ingest guard");
 export const codexBriefingImportSecret = (): string =>
   required("CODEX_BRIEFING_IMPORT_SECRET", "the Codex briefing import route");
 /** Vercel sets this automatically once the env var of the same name is

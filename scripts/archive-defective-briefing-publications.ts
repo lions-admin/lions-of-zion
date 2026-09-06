@@ -37,7 +37,7 @@ async function main() {
         WHERE id IN (${sql.join(matched.rows.map((row) => sql`${row.id}`), sql`, `)})
       `);
       await tx.execute(sql`
-        DELETE FROM homepage_feature
+        DELETE FROM homepage_placement
         WHERE publication_id IN (${sql.join(matched.rows.map((row) => sql`${row.id}`), sql`, `)})
       `);
       await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicIds: matched.rows.map((row) => row.publicId) });

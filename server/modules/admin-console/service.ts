@@ -955,8 +955,8 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
     },
 
     async editorial(input?: ListEditorial): Promise<ConsoleEditorial> {
-      const [counts, features] = await Promise.all([
-        repo.editorialCounts(input), publicationService(db).homepageFeatures(),
+      const [counts, placements] = await Promise.all([
+        repo.editorialCounts(input), publicationService(db).homepagePlacements(),
       ]);
       const total = counts.filter((row) => !input?.status || row.status === input.status).reduce((sum, row) => sum + num(row.count), 0);
       const pages = input ? Math.max(1, Math.ceil(total / input.limit)) : 1;
@@ -973,7 +973,9 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           section: row.section as EditorialCard["section"],
           status: row.status as EditorialCard["status"],
           featuredIsraelStory: row.featuredIsraelStory,
-          homepageSlot: row.homepageSlot == null ? null : num(row.homepageSlot),
+          homepagePlacement: row.homepageArea && row.homepagePosition
+            ? { area: row.homepageArea as "news" | "fakeResistance" | "people", position: row.homepagePosition as "lead" | "secondary" }
+            : null,
           briefingRunId: row.briefingRunId,
           editorialRunId: row.editorialRunId,
           evidenceCount: num(row.evidenceCount),
@@ -998,12 +1000,15 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           published: lane("published"),
           archived: lane("archived"),
         },
-        homepageFeatures: features.map((feature) => ({ slot: num(feature.slot), publicationId: feature.publicationId })),
+        homepagePlacements: placements,
         ...(input ? { page: {
           items: cards.map((row) => ({
             id: row.id, publicId: row.publicId, title: row.title, summary: row.summary,
             section: row.section, status: row.status, featuredIsraelStory: row.featuredIsraelStory,
-            homepageSlot: row.homepageSlot == null ? null : num(row.homepageSlot), briefingRunId: row.briefingRunId,
+            homepagePlacement: row.homepageArea && row.homepagePosition ? {
+              area: row.homepageArea as "news" | "fakeResistance" | "people",
+              position: row.homepagePosition as "lead" | "secondary",
+            } : null, briefingRunId: row.briefingRunId,
             editorialRunId: row.editorialRunId,
             evidenceCount: num(row.evidenceCount), createdAt: isoRequired(row.createdAt),
             updatedAt: isoRequired(row.updatedAt), publishedAt: iso(row.publishedAt),

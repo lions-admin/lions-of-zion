@@ -7,6 +7,8 @@ import type { Database } from '@/server/db/client';
 import { editorialOperation, editorialRun } from '@/server/db/schema';
 import { editorialRepo, editorialInputHash } from '@/server/modules/editorial-update/repo';
 import { startEditorialRunSchema, type StartEditorialRun } from '@/server/contracts/editorial-update';
+import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
+import { editorialUpdateService } from '@/server/modules/editorial-update/service';
 
 let db: TestDatabase;
 beforeAll(async () => { db = await freshDatabase(); }, 60000);
@@ -27,9 +29,9 @@ describe('durable whole-site editorial runs', () => {
     expect(editorialInputHash({ a: 1, b: 2 })).toBe(editorialInputHash({ b: 2, a: 1 }));
   });
 
-  it('accepts only explicit package operations', () => {
+  it('accepts only the operations delivery mode', () => {
     expect(startEditorialRunSchema.safeParse({ runId: 'daily:2026-09-08', mode: 'daily', operations: [] }).success).toBe(false);
-    expect(startEditorialRunSchema.safeParse({ runId: 'empty-package', mode: 'operations', operations: [] }).success).toBe(false);
+    expect(startEditorialRunSchema.safeParse({ runId: 'empty-package', mode: 'operations', operations: [] }).success).toBe(true);
   });
 
   it('fences an expired worker after another worker reclaims the run', async () => {
@@ -127,6 +129,48 @@ describe('durable whole-site editorial runs', () => {
     const input = request('invalid');
     input.operations.push(input.operations[0]);
     expect(startEditorialRunSchema.safeParse(input).success).toBe(false);
+  });
+
+  it('uses canonical story identity for an update and rejects conflicting identifiers', async () => {
+    const input = request('canonical-target');
+    input.operations[0]!.publication.canonicalStoryId = 'northern-front-developing-story';
+    const run = await repo().start(input, 'test:owner');
+    const worker = await repo().claim(run.id);
+    const created = await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async tx => {
+      const publication = await publicationService(tx).applyEditorial(input.operations[0]!, { runId: run.id, machineAuthor: 'machine:editorial' }, null, { label: 'service:editorial' });
+      return { publicationId: publication.id, publicId: publication.publicId };
+    });
+    await publicationService(db).applyEditorial({
+      key: 'canonical-update', action: 'update', target: { canonicalStoryId: 'northern-front-developing-story' },
+      publication: { body: 'A canonical update without creating a duplicate.', changeSummary: 'Canonical update' },
+    }, { runId: run.id, machineAuthor: 'machine:editorial' }, null, { label: 'service:editorial' });
+    expect((await publicationService(db).get(created.publicationId as string)).body).toContain('without creating a duplicate');
+    await expect(publicationService(db).applyEditorial({
+      key: 'conflicting-update', action: 'update', target: { publicId: created.publicId as string, canonicalStoryId: 'not-the-same-story' },
+      publication: { body: 'This must not write.', changeSummary: 'Conflicting identifiers' },
+    }, { runId: run.id, machineAuthor: 'machine:editorial' }, null, { label: 'service:editorial' })).rejects.toThrow('identifiers');
+  });
+
+  it('keeps a package run idempotent across its full delivery payload', async () => {
+    const pkg = wholeSiteUpdatePackageSchema.parse({
+      contractVersion: 'whole-site-update-v1', runId: 'package-idempotency', composer: 'test-composer', createdAt: '2026-09-06T10:00:00.000Z',
+      creates: [{ key: 'story', publication: { kind: 'news_update', section: 'news', title: 'Package story', body: 'A finished package story.', language: 'en' } }],
+      updates: [], homepage: { news: { lead: { action: 'set', publication: { operationKey: 'story' } } } }, siteRecommendations: ['Keep the card concise.'],
+    });
+    const service = editorialUpdateService(db as unknown as Database);
+    const first = await service.startWholeSite(pkg, 'external:test');
+    expect((await service.startWholeSite(pkg, 'external:test')).id).toBe(first.id);
+    await expect(service.startWholeSite({ ...pkg, siteRecommendations: ['Changed payload'] }, 'external:test')).rejects.toThrow('different request');
+  });
+
+  it('finishes partial after one failed operation while retaining successful work', async () => {
+    const run = await repo().start(request('partial-continue'), 'test:owner');
+    const worker = await repo().claim(run.id);
+    await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async () => ({ publicId: 'published-story' }));
+    await repo().failOperation(run.id, worker!.leaseToken!, 'profile', {
+      stage: 'publication', operationKey: 'profile', message: 'Broken image metadata', recovery: 'Fix the package and resume.',
+    });
+    expect((await repo().finish(run.id, worker!.leaseToken!, { status: 'partial', publications: { failed: 1 } })).status).toBe('partial');
   });
 
   it('publishes without a picture rather than blocking on a missing image, and an update with no media keeps the one already attached', async () => {

@@ -65,6 +65,15 @@ export function repo(db: unknown) {
         .limit(1);
       return rows[0];
     },
+    async byCanonicalStoryId(canonicalStoryId: string): Promise<Publication | undefined> {
+      const rows = await d
+        .select()
+        .from(publication)
+        .where(eq(publication.canonicalStoryId, canonicalStoryId))
+        .orderBy(desc(publication.createdAt))
+        .limit(1);
+      return rows[0];
+    },
     async list(filters: ListPublications): Promise<Publication[]> {
       const clauses: SQL[] = [];
       if (filters.kind) clauses.push(eq(publication.kind, filters.kind));
@@ -224,24 +233,25 @@ export function repo(db: unknown) {
         })),
       ).returning();
     },
-    async setHomepageFeature(slot: number, publicationId: string | null): Promise<void> {
+    async setHomepagePlacement(area: string, position: string, publicationId: string | null): Promise<void> {
       if (publicationId === null) {
-        await d.execute(sql`DELETE FROM homepage_feature WHERE slot = ${slot}`);
+        await d.execute(sql`DELETE FROM homepage_placement WHERE area = ${area} AND position = ${position}`);
         return;
       }
-      await d.execute(sql`DELETE FROM homepage_feature WHERE publication_id = ${publicationId}`);
+      await d.execute(sql`DELETE FROM homepage_placement WHERE publication_id = ${publicationId}`);
       await d.execute(sql`
-        INSERT INTO homepage_feature (slot, publication_id)
-        VALUES (${slot}, ${publicationId})
-        ON CONFLICT (slot) DO UPDATE
+        INSERT INTO homepage_placement (area, position, publication_id)
+        VALUES (${area}, ${position}, ${publicationId})
+        ON CONFLICT (area, position) DO UPDATE
         SET publication_id = EXCLUDED.publication_id, updated_at = now()
       `);
     },
-    async homepageFeatures(): Promise<Array<{ slot: number; publicationId: string }>> {
-      const result = await d.execute<{ slot: number; publicationId: string }>(sql`
-        SELECT slot, publication_id AS "publicationId" FROM homepage_feature ORDER BY slot
+    async homepagePlacements(): Promise<Array<{ area: string; position: string; publicationId: string }>> {
+      const result = await d.execute<{ area: string; position: string; publicationId: string }>(sql`
+        SELECT area, position, publication_id AS "publicationId"
+        FROM homepage_placement ORDER BY area, position
       `);
-      return result.rows.map((row) => ({ ...row, slot: Number(row.slot) }));
+      return result.rows;
     },
     async adminTraceability(publicationId: string): Promise<{
       briefingRun: { id: string; localDate: string; stage: string; status: string } | null;

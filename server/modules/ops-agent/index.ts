@@ -26,8 +26,8 @@ function liveContext(request?: Request): OpsToolContext {
       update: (id, input, actor, requestId) => publications().update(id, input, actor, requestId),
       remove: (id, actor, requestId) => publications().remove(id, actor, requestId),
       transition: (id, input, actor, requestId) => publications().transition(id, input, actor, requestId),
-      setHomepageFeature: (slot, publicationId, actor) =>
-        publications().setHomepageFeature(slot, publicationId, actor),
+      setHomepagePlacement: (area, position, publicationId, actor) =>
+        publications().setHomepagePlacement(area, position, publicationId, actor),
     },
     sources: {
       verify: (sourceId, actor) => ingest(sourceId, actor),

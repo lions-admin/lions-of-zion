@@ -8,12 +8,12 @@ beforeAll(async()=>{db=await freshDatabase()},60000);afterAll(async()=>{await db
 const candidate=(id:string,section:HomeReference['section']='news',kind:HomeReference['kind']='news'):HomeReference=>({id,key:`${kind}:${id}`,section,kind,href:`/articles/${id}`,version:'1',date:'2026-09-05',mediaId:'cleared'});
 const revisions=(news='1')=>JSON.stringify(Object.fromEntries(homeSections.map(s=>[s,s==='news'?news:'1'])));
 it('freezes membership across new content and scopes explicit changes to news',async()=>{
- let input:Awaited<ReturnType<typeof homepageInputs>>={date:'2026-09-05',catalog:{revision:'c',sourceRevision:'s',candidates:[]},candidates:[candidate('a'),candidate('b'),candidate('p','heroes','hero')],overrides:{revision:'1',pins:[],breakingNews:null},pinKeys:[],overrideRevision:revisions()};
+ let input:Awaited<ReturnType<typeof homepageInputs>>={date:'2026-09-05',catalog:{revision:'c',sourceRevision:'s',candidates:[]},candidates:[candidate('a'),candidate('b'),candidate('p','heroes','hero')],overrides:{revision:'1',pins:[],breakingNews:null},placements:[],overrideRevision:revisions()};
  const service=homepageService(db as unknown as Database,async()=>input);
  const first=await service.ensureEdition(new Date('2026-09-05T12:00:00Z'));
  input={...input,candidates:[candidate('0'),...input.candidates]};
  expect(await service.ensureEdition(new Date('2026-09-05T13:00:00Z'))).toMatchObject({revision:1,selection:first.selection});
- input={...input,pinKeys:['news:0'],overrideRevision:revisions('2')};
+ input={...input,placements:[{area:'news',position:'lead',key:'news:0'}],overrideRevision:revisions('2')};
  const second=await service.ensureEdition(new Date('2026-09-05T14:00:00Z'));
  expect(second.revision).toBe(2);expect(second.selection.news[0].id).toBe('0');expect(second.selection.heroes).toEqual(first.selection.heroes);
  const rows=await db.$client.query('select * from homepage_edition');expect(rows.rows.length).toBe(2);

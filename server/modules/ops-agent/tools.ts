@@ -413,26 +413,27 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
       ctx.publications.update(str(args, "id"), updatePublicationSchema.parse(args), actor, requestId),
     summarise: (result) => `updated: ${((result as { title?: string }).title ?? "").slice(0, 80)}`,
   }),
-  define("set_homepage_feature", {
+  define("set_homepage_placement", {
     label: "שיבוץ בעמוד הבית",
     description:
-      "Places a publication in one of the three homepage slots, or clears a slot with a null id. The "
+      "Places a publication in a matching homepage area and position, or clears that placement with a null id. The "
       + "publication must already be published.",
-    input: z.object({ slot: z.number().int().min(1).max(3), publicationId: z.uuid().nullable() }).strict(),
+    input: z.object({ area: z.enum(["news", "fakeResistance", "people"]), position: z.enum(["lead", "secondary"]), publicationId: z.uuid().nullable() }).strict(),
     consequence: (args) =>
       args.publicationId
-        ? `Slot ${String(args.slot)} on the public homepage shows this publication.`
-        : `Slot ${String(args.slot)} on the public homepage is cleared.`,
-    target: (args) => `Homepage slot ${String(args.slot)}`,
+        ? `${String(args.area)}/${String(args.position)} on the public homepage shows this publication.`
+        : `${String(args.area)}/${String(args.position)} on the public homepage is cleared.`,
+    target: (args) => `Homepage ${String(args.area)}/${String(args.position)}`,
     entityType: "brief",
     entityId: (args) => (args.publicationId ? String(args.publicationId) : null),
     run: (ctx, args, actor) =>
-      ctx.publications.setHomepageFeature(
-        Number(args.slot),
+      ctx.publications.setHomepagePlacement(
+        args.area as "news" | "fakeResistance" | "people",
+        args.position as "lead" | "secondary",
         args.publicationId === null ? null : String(args.publicationId),
         actor,
       ),
-    summarise: () => "homepage slot set",
+    summarise: () => "homepage placement set",
   }),
   define("run_health_check", {
     label: "בדיקת תקינות עמוקה",

@@ -9,7 +9,7 @@ vi.mock("@/components/briefs/BriefFilters", () => ({ BriefFilters: () => <form a
 import { LiveBriefEdition } from "@/components/briefs/LiveBriefHub";
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 const story = (section: PublicPublication["section"], title: string): PublicPublication => ({
-  publicId: title, title, section, kind: "brief", summary: "Published context.", body: "Body", language: "en",
+  publicId: title, canonicalStoryId: null, title, section, kind: "brief", summary: "Published context.", body: "Body", language: "en",
   publishedAt: "2026-09-05T10:00:00Z", updatedAt: "2026-09-05T10:00:00Z", autoPublishedAt: null,
   editorialTopic: null, primaryActor: null, arena: null, featuredIsraelStory: false, narrativeWatchDetails: null,
   media: null,

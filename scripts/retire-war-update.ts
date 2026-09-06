@@ -73,7 +73,7 @@ const [after] = (await database.execute(sql`
       (SELECT count(*) FROM publication_evidence  WHERE publication_id NOT IN (SELECT id FROM publication)) AS orphan_evidence_joins,
       (SELECT count(*) FROM publication_related   WHERE publication_id NOT IN (SELECT id FROM publication)) AS orphan_related,
       (SELECT count(*) FROM publication_narrative WHERE publication_id NOT IN (SELECT id FROM publication)) AS orphan_narratives,
-      (SELECT count(*) FROM homepage_feature      WHERE publication_id NOT IN (SELECT id FROM publication)) AS orphan_homepage
+      (SELECT count(*) FROM homepage_placement   WHERE publication_id NOT IN (SELECT id FROM publication)) AS orphan_homepage
   `);
   console.log("Dangling-reference check:", JSON.stringify(dangling.rows[0]));
 

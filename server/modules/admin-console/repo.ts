@@ -130,7 +130,8 @@ export type EditorialCardRow = {
   section: string;
   status: string;
   featuredIsraelStory: boolean;
-  homepageSlot: number | null;
+  homepageArea: string | null;
+  homepagePosition: string | null;
   briefingRunId: string | null;
   editorialRunId: string | null;
   evidenceCount: Count;
@@ -745,12 +746,12 @@ export function adminConsoleRepo(db: unknown) {
     editorialPage: (input: ListEditorial) => many<EditorialCardRow>(sql`
       SELECT p.id, p.public_id AS "publicId", p.title, p.summary,
         p.section::text AS section, p.status::text AS status,
-        p.featured_israel_story AS "featuredIsraelStory", hf.slot AS "homepageSlot",
+        p.featured_israel_story AS "featuredIsraelStory", hp.area AS "homepageArea", hp.position AS "homepagePosition",
         p.briefing_run_id AS "briefingRunId", p.editorial_run_id AS "editorialRunId",
         (SELECT count(*) FROM publication_evidence pe WHERE pe.publication_id = p.id) AS "evidenceCount",
         p.created_at AS "createdAt", p.updated_at AS "updatedAt", p.published_at AS "publishedAt",
         CASE WHEN p.status IN ('published', 'updated') THEN 'published' ELSE p.status::text END AS lane
-      FROM publication p LEFT JOIN homepage_feature hf ON hf.publication_id = p.id
+      FROM publication p LEFT JOIN homepage_placement hp ON hp.publication_id = p.id
       WHERE ${editorialScope(input)} ${input.status ? sql`AND p.status = ${input.status}` : sql``}
       ORDER BY p.created_at DESC, p.id DESC
       LIMIT ${input.limit} OFFSET ${(input.page - 1) * input.limit}
@@ -763,7 +764,7 @@ export function adminConsoleRepo(db: unknown) {
         SELECT p.id, p.public_id AS "publicId", p.title, p.summary,
                p.section::text AS section, p.status::text AS status,
                p.featured_israel_story AS "featuredIsraelStory",
-               hf.slot AS "homepageSlot",
+               hp.area AS "homepageArea", hp.position AS "homepagePosition",
                p.briefing_run_id AS "briefingRunId", p.editorial_run_id AS "editorialRunId",
                (SELECT count(*) FROM publication_evidence pe WHERE pe.publication_id = p.id) AS "evidenceCount",
                p.created_at AS "createdAt", p.updated_at AS "updatedAt", p.published_at AS "publishedAt",
@@ -773,7 +774,7 @@ export function adminConsoleRepo(db: unknown) {
                  ORDER BY p.created_at DESC
                ) AS rn
         FROM publication p
-        LEFT JOIN homepage_feature hf ON hf.publication_id = p.id
+        LEFT JOIN homepage_placement hp ON hp.publication_id = p.id
       ) ranked
       WHERE rn <= ${perLane}
       ORDER BY "createdAt" DESC

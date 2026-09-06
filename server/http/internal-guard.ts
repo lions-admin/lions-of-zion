@@ -24,6 +24,7 @@ import { ApiError } from "./responses";
 import {
   codexBriefingImportSecret,
   cronSecret,
+  editorialUpdateIngestSecret,
   externalBriefingIngestSecret,
   internalApiSecret,
 } from "@/server/core/config";
@@ -50,6 +51,18 @@ export function requireExternalBriefingSecret(request: Request): void {
   const expectedHash = createHash("sha256").update(expected).digest();
   if (!supplied || !timingSafeEqual(suppliedHash, expectedHash)) {
     throw new ApiError("UNAUTHENTICATED", "This route requires the external briefing ingest secret.");
+  }
+}
+
+/** GitHub's delivery branch holds this secret, not the application's broader
+ * internal guard, so it can be rotated without granting unrelated powers. */
+export function requireEditorialUpdateIngestSecret(request: Request): void {
+  const supplied = request.headers.get("x-editorial-update-secret") ?? "";
+  const expected = editorialUpdateIngestSecret();
+  const suppliedHash = createHash("sha256").update(supplied).digest();
+  const expectedHash = createHash("sha256").update(expected).digest();
+  if (!supplied || !timingSafeEqual(suppliedHash, expectedHash)) {
+    throw new ApiError("UNAUTHENTICATED", "This route requires the editorial update ingest secret.");
   }
 }
 

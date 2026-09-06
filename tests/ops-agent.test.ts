@@ -61,7 +61,7 @@ function stubContext(overrides: Partial<OpsToolContext> = {}): OpsToolContext & 
       update: note("publications.update", { title: "A brief" }),
       remove: note("publications.remove", undefined),
       transition: note("publications.transition", { title: "A brief" }),
-      setHomepageFeature: note("publications.setHomepageFeature", undefined),
+      setHomepagePlacement: note("publications.setHomepagePlacement", undefined),
     },
     sources: {
       verify: note("sources.verify", { fetch: { status: "success", itemsSeen: 12 } }),

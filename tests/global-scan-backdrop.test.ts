@@ -224,11 +224,10 @@ describe("route coverage — one shared backdrop per public route, none on the i
     expect(read("app/layout.tsx")).not.toMatch(/ScanBackdrop|EditorialShell/);
   });
 
-  it("the three internal routes mount no moving backdrop", () => {
+  it("the internal routes mount no moving backdrop", () => {
     for (const file of [
       "app/admin/page.tsx",
       "app/admin/login/page.tsx",
-      "app/pipeline/page.tsx",
     ]) {
       expect(read(file), file).not.toMatch(/ScanBackdrop|EditorialShell|SectionPage|DocPage/);
     }

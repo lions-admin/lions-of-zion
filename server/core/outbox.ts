@@ -22,7 +22,6 @@ export const TOPICS = {
   publicationCacheInvalidate: "publication.cache-invalidate",
   briefingAlert: "briefing.alert",
   editorialRunProcess: "editorial.run-process",
-  editorialRunReport: "editorial.run-report",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];
@@ -52,6 +51,9 @@ export const RETIRED_TOPICS = {
    * to do nothing. Producers removed 2026-09-01.
    */
   itemDetected: "item.detected",
+  /** Whole-site editorial delivery now exposes a machine-readable status
+   * endpoint. Keep the consumer through one deploy for historical rows. */
+  editorialRunReport: "editorial.run-report",
 } as const;
 
 type Inserter = { insert: (table: typeof outbox) => { values: (v: unknown) => Promise<unknown> } };

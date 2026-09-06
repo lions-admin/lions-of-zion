@@ -435,6 +435,13 @@
       "when": 1788703663962,
       "tag": "0061_romantic_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1788722596000,
+      "tag": "0062_whole_site_editorial_delivery",
+      "breakpoints": true
     }
   ]
 }

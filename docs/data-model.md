@@ -62,6 +62,7 @@ drizzle-kit's snapshot (see `0021`).
 | `0022_prune_functions_revoke_public` | The prune functions stop being executable by `PUBLIC` |
 | `0023_ai_run_service_returning` | The same `RETURNING` visibility for `app_service`, kept off the public ledger |
 | `0024_geopolitical_brief_automation` | `publication_section`, `briefing_run`, `homepage_feature`, the publication↔evidence and ↔narrative joins, and the first automatic-publication provenance constraint |
+| `0062_whole_site_editorial_delivery` | `publication.canonical_story_id`, and `homepage_placement` mapped from legacy feature slots by area |
 | `0025_public_narrative_projection` | RLS on `narrative`, `actor` and their joins; `app_public` may read a narrative only through a published link |
 | `0026_evidence_retrieval_contract` | Evidence-level retrieval state, canonical identity, content hash and source health — the columns `EVIDENCE_IS_USABLE` filters on |
 | `0027_discovery_connectors` | `agent_search` and `gdelt` source kinds, and `source.logical_key` with a unique index |
@@ -111,7 +112,7 @@ drizzle-kit's snapshot (see `0021`).
 
 **Publication surfaces** — `publication`, `publication_item`,
 `publication_evidence`, `publication_narrative`, `publication_passage`,
-`publication_passage_evidence`, `publication_related`, `homepage_feature`
+`publication_passage_evidence`, `publication_related`, `homepage_placement`
 
 **Editorial media** — `editorial_media`, `publication_media` (migration
 `0057`). An asset and its rights on one table, which publication wears it on

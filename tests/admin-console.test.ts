@@ -384,8 +384,6 @@ describe("STATE-004 — one implementation, used by every destructive action (so
        kind of thing an operator should not be able to do by landing on a
        button. Each is checked by name, so a rebuild that quietly drops one
        fails here rather than in Production. */
-    const overview = read("app/admin/OverviewPanel.tsx");
-    const pipeline = read("app/admin/PipelinePanel.tsx");
     const desk = read("app/admin/EditorialDesk.tsx");
     const sources = read("app/admin/SourcesPanel.tsx");
     const system = read("app/admin/SystemPanel.tsx");
@@ -394,11 +392,6 @@ describe("STATE-004 — one implementation, used by every destructive action (so
     const prompts = read("app/admin/PromptsSection.tsx");
 
     for (const [file, source, handler] of [
-      ["OverviewPanel.tsx", overview, "requestPublicationControl"],
-      ["OverviewPanel.tsx", overview, "requestEditionPublication"],
-      ["PipelinePanel.tsx", pipeline, "requestPublicationControl"],
-      ["PipelinePanel.tsx", pipeline, "requestForcedRerun"],
-      ["PipelinePanel.tsx", pipeline, "requestRetry"],
       ["EditorialDesk.tsx", desk, "requestTransition"],
       ["EditorialDesk.tsx", desk, "requestArchive"],
       ["EditorialDesk.tsx", desk, "requestDelete"],
@@ -475,7 +468,7 @@ describe("STATE-004 — one implementation, used by every destructive action (so
         their own confirmations the way the areas do. A panel that stopped
         passing one would otherwise slip through this loop in silence,
         which is how `controlBar` survived the last rebuild. */
-    expect(checked).toBe(9);
+    expect(checked).toBe(7);
   });
 
   it("restores focus once, on unmount, rather than on each of five close paths", () => {
@@ -610,7 +603,7 @@ describe("ADMIN-002 — keyboard order matches visual layout (source)", () => {
   });
 
   it("keeps irreversible controls last in the reading order of their own area", () => {
-    for (const file of ["app/admin/PipelinePanel.tsx", "app/admin/EditorialDesk.tsx", "app/admin/SourcesPanel.tsx"]) {
+    for (const file of ["app/admin/EditorialDesk.tsx", "app/admin/SourcesPanel.tsx"]) {
       const fullSource = read(file);
       const source = file.endsWith("EditorialDesk.tsx")
         ? fullSource.slice(fullSource.indexOf("function PublicationForm"), fullSource.indexOf("function publicationActions"))

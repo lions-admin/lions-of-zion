@@ -9,7 +9,7 @@ import { editorialMediaSchema, isHomepageSafeMedia } from '@/server/contracts/ed
 import { publicationHomepageKind, publicationHomepageSection, publicationHref } from '@/lib/publication-routing';
 import { homepageRepo } from './repo';
 import { catalogSourceRevision } from './catalog';
-import { selectHomepage } from './selection';
+import { selectHomepage, type HomepagePublicationPlacement } from './selection';
 
 const readJson=async(name:string)=>JSON.parse(await readFile(join(process.cwd(),'content-packages/homepage',name),'utf8'));
 export async function homepageInputs(db:Database, now=new Date()) {
@@ -42,10 +42,14 @@ export async function homepageInputs(db:Database, now=new Date()) {
   }
   candidates.push(...liveCandidates);
   const date=israelEditionDate(now);
-  const pinKeys=pins.map(p=>`publication:${p.publication.publicId}`);
+  const placements: HomepagePublicationPlacement[] = pins.map(pin => ({
+    area: pin.area,
+    position: pin.position,
+    key: `publication:${pin.publication.publicId}`,
+  }));
   const overrideRevision=JSON.stringify(Object.fromEntries(homeSections.map(section=>[section,
     createHash('sha256').update(JSON.stringify({
-      pins:pins.filter(p=>publicationHomepageSection(p.publication.section)===section).map(p=>p.publication.publicId),
+      placements:placements.filter(placement=>placement.area===section).map(placement=>`${placement.position}:${placement.key}`),
       evergreen:overrides.pins.filter(p=>p.section===section&&(!p.expires||p.expires>=date)),
       breaking:section==='news'&&overrides.breakingNews&&overrides.breakingNews.expires>=date?overrides.breakingNews:null,
       // The live candidate set is folded into its own section's hash so an
@@ -56,7 +60,7 @@ export async function homepageInputs(db:Database, now=new Date()) {
       // Sorted so query order cannot invent a revision on its own.
       live:liveCandidates.filter(c=>c.section===section).map(c=>`${c.key}|${c.version}|${c.date}|${c.mediaId}`).sort(),
     })).digest('hex')])));
-  return {catalog,candidates,overrides,pinKeys,overrideRevision,date};
+  return {catalog,candidates,overrides,placements,overrideRevision,date};
 }
 export function homepageService(db:Database, loadInputs=homepageInputs){return {
   read: (date=israelEditionDate())=>homepageRepo(db).latest(date),
@@ -68,7 +72,7 @@ export function homepageService(db:Database, loadInputs=homepageInputs){return {
       const existing=await r.latest(input.date);
       if(existing?.editionDate===input.date&&existing.overrideRevision===input.overrideRevision)return existing;
       const history=await r.history(input.date);
-      const selection=selectHomepage(input.candidates,input.date,history,input.overrides,input.pinKeys);
+      const selection=selectHomepage(input.candidates,input.date,history,input.overrides,input.placements);
       if(existing?.editionDate===input.date){
         const before=JSON.parse(existing.overrideRevision) as Record<string,string>;
         const after=JSON.parse(input.overrideRevision) as Record<string,string>;
@@ -79,7 +83,7 @@ export function homepageService(db:Database, loadInputs=homepageInputs){return {
         reason:[existing?.editionDate===input.date?'Editorial override revision':'Daily edition',
           ...input.overrides.pins.filter(p=>!p.expires||p.expires>=input.date).map(p=>`${p.section}: ${p.reason}`),
           ...(input.overrides.breakingNews && input.overrides.breakingNews.expires>=input.date ? [`Breaking news: ${input.overrides.breakingNews.reason}`] : []),
-          ...(input.pinKeys.length ? [`Publication editorial slots: ${input.pinKeys.join(', ')}`] : []),
+          ...(input.placements.length ? [`Publication editorial placements: ${input.placements.map(placement=>`${placement.area}/${placement.position}:${placement.key}`).join(', ')}`] : []),
         ].join(' · '),selection});
       await r.append(snapshot,input.overrideRevision);return snapshot;
     });

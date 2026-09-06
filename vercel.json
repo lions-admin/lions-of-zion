@@ -3,7 +3,7 @@
   "git": {
     "deploymentEnabled": {
       "briefing-packages": false,
-      "editorial-packages": false
+      "editorial-updates": false
     }
   },
   "functions": {

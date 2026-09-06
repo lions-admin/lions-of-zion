@@ -16,7 +16,7 @@ import { ApiError, notFound } from "@/server/http/responses";
 import { recordVersion, setIdentity } from "@/server/core/versioning";
 import { writeAudit } from "@/server/core/audit";
 import { assertHumanReviewer, findReviewer } from "@/server/modules/assessments";
-import { homepageFeature, publication } from "@/server/db/schema";
+import { publication } from "@/server/db/schema";
 import type { EditorialOperation } from "@/server/contracts/editorial-update";
 import type { EditorialMediaDraft } from "@/server/modules/media/repo";
 import { mediaRepo, toEditorialMedia } from "@/server/modules/media/repo";
@@ -40,7 +40,9 @@ import type {
 } from "@/server/contracts/publication";
 import type { Actor } from "@/server/core/audit";
 import type { Publication } from "@/server/db/schema";
+import type { PublicationSection } from "@/server/contracts/enums";
 import { emit, TOPICS } from "@/server/core/outbox";
+import { publicationHomepageSection } from "@/lib/publication-routing";
 
 type Tx = Parameters<typeof setIdentity>[0];
 type Runner = { transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T> };
@@ -59,14 +61,15 @@ type DraftProvenance = Pick<AutomationProvenance, "briefingRunId" | "machineAuth
 
 type GeneratedDraftProvenance = DraftProvenance & Pick<AutomationProvenance, "candidateKeys">;
 
-const HOMEPAGE_EDITORIAL_SECTIONS = new Set([
-  "israel_update", "narrative_watch", "news", "influence_investigation", "antisemitism",
-  "people", "courage_service", "innovation", "science_medicine", "technology_ai",
-  "achievement", "international_cooperation", "history_context",
-] as const);
-type HomepageEditorialSection = typeof HOMEPAGE_EDITORIAL_SECTIONS extends Set<infer T> ? T : never;
-function isHomepageEditorialSection(section: string): section is HomepageEditorialSection {
-  return HOMEPAGE_EDITORIAL_SECTIONS.has(section as HomepageEditorialSection);
+const HOMEPAGE_PLACEMENT_AREAS = ["news", "fakeResistance", "people"] as const;
+const HOMEPAGE_PLACEMENT_POSITIONS = ["lead", "secondary"] as const;
+type HomepagePlacementArea = typeof HOMEPAGE_PLACEMENT_AREAS[number];
+type HomepagePlacementPosition = typeof HOMEPAGE_PLACEMENT_POSITIONS[number];
+function isHomepagePlacementArea(area: string): area is HomepagePlacementArea {
+  return (HOMEPAGE_PLACEMENT_AREAS as readonly string[]).includes(area);
+}
+function belongsToHomepageArea(section: PublicationSection, area: HomepagePlacementArea): boolean {
+  return publicationHomepageSection(section) === area;
 }
 
 
@@ -103,6 +106,7 @@ export function publicationService(db: unknown) {
           row = await r.insert({
             kind: input.kind, section: input.section ?? 'news',
             publicId: await uniquePublicId(r, input.title), title: input.title,
+            canonicalStoryId: input.canonicalStoryId ?? null,
             summary: input.summary ?? null, body: input.body, language: input.language,
             eventId: input.eventId ?? null, primaryTopicId: input.primaryTopicId ?? null,
             editorialTopic: input.editorialTopic ?? null, topicTags: input.topicTags ?? [], primaryActor: input.primaryActor ?? null,
@@ -120,8 +124,20 @@ export function publicationService(db: unknown) {
           if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
           if (input.passages?.length) await r.linkPassages(row.id, input.passages);
         } else {
-          await r.lock(operation.publicationId);
-          before = await r.byId(operation.publicationId);
+          const byId = operation.publicationId ? await r.byId(operation.publicationId) : undefined;
+          const byPublicId = operation.target?.publicId ? await r.byPublicId(operation.target.publicId) : undefined;
+          const byCanonicalStoryId = operation.target?.canonicalStoryId
+            ? await r.byCanonicalStoryId(operation.target.canonicalStoryId)
+            : undefined;
+          const targetCount = Number(Boolean(operation.publicationId)) + Number(Boolean(operation.target?.publicId))
+            + Number(Boolean(operation.target?.canonicalStoryId));
+          const candidates = [byId, byPublicId, byCanonicalStoryId].filter((row): row is Publication => Boolean(row));
+          if (!candidates.length) throw notFound('Publication');
+          if (candidates.length !== targetCount || new Set(candidates.map(row => row.id)).size !== 1) {
+            throw new ApiError('CONFLICT', 'The supplied publication identifiers resolve to different publications.');
+          }
+          await r.lock(candidates[0]!.id);
+          before = await r.byId(candidates[0]!.id);
           if (!before) throw notFound('Publication');
           if (!['published', 'updated'].includes(before.status)) {
             throw new ApiError('CONFLICT', 'Developing-story updates require a live canonical publication.');
@@ -168,6 +184,20 @@ export function publicationService(db: unknown) {
       return row;
     },
 
+    async resolveEditorialTarget(target: { publicId?: string; canonicalStoryId?: string }): Promise<Publication> {
+      const [byPublicId, byCanonicalStoryId] = await Promise.all([
+        target.publicId ? repo(db).byPublicId(target.publicId) : undefined,
+        target.canonicalStoryId ? repo(db).byCanonicalStoryId(target.canonicalStoryId) : undefined,
+      ]);
+      const rows = [byPublicId, byCanonicalStoryId].filter((row): row is Publication => Boolean(row));
+      if (!rows.length) throw notFound("Publication");
+      const targetCount = Number(Boolean(target.publicId)) + Number(Boolean(target.canonicalStoryId));
+      if (rows.length !== targetCount || new Set(rows.map(row => row.id)).size !== 1) {
+        throw new ApiError("CONFLICT", "The supplied publication identifiers resolve to different publications.");
+      }
+      return rows[0]!;
+    },
+
     list: (filters: ListPublications) => repo(db).list(filters),
     traceability: (id: string) => repo(db).adminTraceability(id),
 
@@ -180,6 +210,7 @@ export function publicationService(db: unknown) {
           kind: input.kind,
           section: input.section ?? "israel_update",
           publicId: await uniquePublicId(r, input.title),
+          canonicalStoryId: input.canonicalStoryId ?? null,
           title: input.title,
           summary: input.summary ?? null,
           body: input.body,
@@ -237,6 +268,7 @@ export function publicationService(db: unknown) {
             kind: input.kind,
             section: input.section ?? "israel_update",
             publicId: await uniquePublicId(r, input.title),
+            canonicalStoryId: input.canonicalStoryId ?? null,
             title: input.title,
             summary: input.summary ?? null,
             body: input.body,
@@ -379,6 +411,7 @@ export function publicationService(db: unknown) {
           kind: input.kind,
           section: input.section ?? "israel_update",
           publicId: await uniquePublicId(r, input.title),
+          canonicalStoryId: input.canonicalStoryId ?? null,
           title: input.title,
           summary: input.summary ?? null,
           body: input.body,
@@ -515,6 +548,7 @@ export function publicationService(db: unknown) {
             kind: input.kind,
             section: input.section ?? "israel_update",
             publicId: await uniquePublicId(r, input.title),
+            canonicalStoryId: input.canonicalStoryId ?? null,
             title: input.title,
             summary: input.summary ?? null,
             body: input.body,
@@ -603,44 +637,46 @@ export function publicationService(db: unknown) {
     },
 
     async featured(): Promise<PublicPublication[]> {
-      const d = db as unknown as {
-        select: () => {
-          from: (t: unknown) => {
-            orderBy: (o: unknown) => Promise<Array<{ slot: number; publicationId: string }>>;
-          };
-        };
-      };
-      const features = await d.select().from(homepageFeature).orderBy(homepageFeature.slot);
+      const placements = await repo(db).homepagePlacements();
       const live = (await repo(db).listPublic({ limit: 100 }, true)).filter((row) =>
-        isHomepageEditorialSection(row.section),
+        isHomepagePlacementArea(publicationHomepageSection(row.section)),
       );
-      const ordered = features
-        .map((feature) => live.find((row) => row.id === feature.publicationId))
+      const order = (value: { area: string; position: string }) =>
+        HOMEPAGE_PLACEMENT_AREAS.indexOf(value.area as HomepagePlacementArea) * 2
+        + HOMEPAGE_PLACEMENT_POSITIONS.indexOf(value.position as HomepagePlacementPosition);
+      const ordered = placements.sort((a, b) => order(a) - order(b))
+        .map((placement) => live.find((row) => row.id === placement.publicationId))
         .filter((row): row is Publication => Boolean(row));
       return withHeroMedia(db, ordered.length ? ordered : live.slice(0, 3));
     },
 
-    /** Explicit pins, resolved directly rather than inside a latest-100 window. */
-    async publicHomepagePins(): Promise<Array<{ slot: number; publication: PublicPublication }>> {
-      const pins = await repo(db).homepageFeatures();
-      const rows: Array<{ slot: number; row: Publication }> = [];
-      for (const pin of pins.sort((a,b)=>a.slot-b.slot)) {
-        const row = await repo(db).byId(pin.publicationId);
+    /** Explicit placements are resolved outside the automatic latest-100 window. */
+    async publicHomepagePins(): Promise<Array<{ area: HomepagePlacementArea; position: HomepagePlacementPosition; publication: PublicPublication }>> {
+      const placements = await repo(db).homepagePlacements();
+      const rows: Array<{ area: HomepagePlacementArea; position: HomepagePlacementPosition; row: Publication }> = [];
+      for (const placement of placements) {
+        if (!isHomepagePlacementArea(placement.area) || !(HOMEPAGE_PLACEMENT_POSITIONS as readonly string[]).includes(placement.position)) continue;
+        const row = await repo(db).byId(placement.publicationId);
         if (row && (row.briefingRunId || row.editorialRunId) && (row.status === "published" || row.status === "updated")
-          && isHomepageEditorialSection(row.section)) {
-          rows.push({slot:pin.slot, row});
+          && belongsToHomepageArea(row.section, placement.area)) {
+          rows.push({ area: placement.area, position: placement.position as HomepagePlacementPosition, row });
         }
       }
       const media = await mediaRepo(db).heroMediaByPublicationIds(rows.map((pin) => pin.row.id));
-      return rows.map((pin) => ({slot:pin.slot, publication:toPublicPublication(pin.row, media.get(pin.row.id) ?? null)}));
+      return rows.map((pin) => ({ area: pin.area, position: pin.position, publication: toPublicPublication(pin.row, media.get(pin.row.id) ?? null) }));
     },
 
-    async homepageFeatures(): Promise<Array<{ slot: number; publicationId: string }>> {
-      return repo(db).homepageFeatures();
+    async homepagePlacements(): Promise<Array<{ area: HomepagePlacementArea; position: HomepagePlacementPosition; publicationId: string }>> {
+      const placements = await repo(db).homepagePlacements();
+      return placements.filter((placement): placement is { area: HomepagePlacementArea; position: HomepagePlacementPosition; publicationId: string } =>
+        isHomepagePlacementArea(placement.area) && (HOMEPAGE_PLACEMENT_POSITIONS as readonly string[]).includes(placement.position),
+      ).map(placement => ({ ...placement, position: placement.position as HomepagePlacementPosition }));
     },
 
-    async setHomepageFeature(slot: number, publicationId: string | null, actor: Actor): Promise<void> {
-      if (!Number.isInteger(slot) || slot < 1 || slot > 3) throw new ApiError("VALIDATION_ERROR", "Homepage slot must be 1, 2, or 3.");
+    async setHomepagePlacement(area: HomepagePlacementArea, position: HomepagePlacementPosition, publicationId: string | null, actor: Actor): Promise<void> {
+      if (!isHomepagePlacementArea(area) || !(HOMEPAGE_PLACEMENT_POSITIONS as readonly string[]).includes(position)) {
+        throw new ApiError("VALIDATION_ERROR", "Homepage placement must name a supported area and position.");
+      }
       return run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
         const r = repo(tx);
@@ -649,11 +685,11 @@ export function publicationService(db: unknown) {
           const eligible = row
             && (row.status === "published" || row.status === "updated")
             && (row.briefingRunId !== null || row.editorialRunId !== null)
-            && isHomepageEditorialSection(row.section);
-          if (!eligible) throw new ApiError("VALIDATION_ERROR", "Only a live editorial publication can occupy a homepage slot.");
+            && belongsToHomepageArea(row.section, area);
+          if (!eligible) throw new ApiError("VALIDATION_ERROR", "Only a live editorial publication from the matching homepage area can occupy this placement.");
         }
-        await r.setHomepageFeature(slot, publicationId);
-        await emit(tx as never, TOPICS.publicationCacheInvalidate, { homepageSlot: slot, publicationId });
+        await r.setHomepagePlacement(area, position, publicationId);
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { homepagePlacement: { area, position }, publicationId });
       });
     },
 
@@ -831,6 +867,7 @@ function toPublicPublication(row: Publication, media: EditorialMedia | null): Pu
     : row.title;
   return {
     publicId: row.publicId,
+    canonicalStoryId: row.canonicalStoryId,
     kind: row.kind,
     section: row.section,
     title,

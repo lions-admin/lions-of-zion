@@ -344,8 +344,8 @@ describe("editorial desk", () => {
     expect(desk.counts).toMatchObject({ draft: 1, under_review: 1, approved: 0, published: 0 });
     expect(desk.lanes.drafts.map((card) => card.id)).toEqual([draft.id]);
     expect(desk.lanes.inReview.map((card) => card.id)).toEqual([review.id]);
-    expect(desk.lanes.drafts[0]).toMatchObject({ evidenceCount: 0, homepageSlot: null, publicId: draft.publicId });
-    expect(desk.homepageFeatures).toEqual([]);
+    expect(desk.lanes.drafts[0]).toMatchObject({ evidenceCount: 0, homepagePlacement: null, publicId: draft.publicId });
+    expect(desk.homepagePlacements).toEqual([]);
   });
 });
 

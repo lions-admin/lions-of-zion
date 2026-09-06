@@ -110,7 +110,7 @@ two minutes each, with no manual step.
 The mechanism is the GitHub integration on the Vercel project, whose
 `link.productionBranch` is `main`. `vercel.json` disables git deployment for a
 package branches (`briefing-packages` for legacy compatibility and the reserved
-`editorial-packages`) and nothing else, and the project has no
+`editorial-updates`) and nothing else, and the project has no
 deploy hooks. Confirm with
 `vercel api "/v9/projects/<projectId>?teamId=<team>"`.
 

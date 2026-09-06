@@ -38,6 +38,8 @@ export const publication = pgTable(
     kind: publicationKind("kind").notNull(),
     section: publicationSection("section").notNull().default("israel_update"),
     publicId: text("public_id").notNull().unique(),
+    /** Stable editorial identity for a developing story, distinct from the URL. */
+    canonicalStoryId: text("canonical_story_id"),
 
     title: text("title").notNull(),
     /** The standfirst — one paragraph, shown in listings. */
@@ -92,6 +94,8 @@ export const publication = pgTable(
   (t) => [
     index("publication_by_kind_status").on(t.kind, t.status, t.createdAt),
     index("publication_by_section_status").on(t.section, t.status, t.publishedAt),
+    uniqueIndex("publication_canonical_story_once").on(t.canonicalStoryId)
+      .where(sql`${t.canonicalStoryId} IS NOT NULL`),
     index("publication_by_editorial_filters").on(t.editorialTopic, t.primaryActor, t.arena, t.publishedAt),
     index("publication_live").on(t.publishedAt).where(sql`${t.publishedAt} IS NOT NULL`),
     uniqueIndex("publication_automatic_candidate_once")
@@ -201,16 +205,21 @@ export const publicationRelated = pgTable(
   ],
 );
 
-/** Exactly three ordered homepage slots. Keeping placement in a separate
- * table avoids turning a publication's editorial history into page chrome. */
-export const homepageFeature = pgTable(
-  "homepage_feature",
+/** Explicit homepage placement lives outside publication history. Area and
+ * position make editorial intent deterministic without leaking between hubs. */
+export const homepagePlacement = pgTable(
+  "homepage_placement",
   {
-    slot: integer("slot").primaryKey(),
+    area: text("area").notNull(),
+    position: text("position").notNull(),
     publicationId: uuid("publication_id").notNull().unique().references(() => publication.id, { onDelete: "cascade" }),
     updatedAt: updatedAt(),
   },
-  (t) => [check("homepage_feature_slot_is_valid", sql`${t.slot} BETWEEN 1 AND 3`)],
+  (t) => [
+    primaryKey({ columns: [t.area, t.position], name: "homepage_placement_pk" }),
+    check("homepage_placement_area_is_valid", sql`${t.area} IN ('news', 'fakeResistance', 'people')`),
+    check("homepage_placement_position_is_valid", sql`${t.position} IN ('lead', 'secondary')`),
+  ],
 );
 
 /** The idempotency record for discovery, drafting and automatic publication.

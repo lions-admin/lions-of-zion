@@ -39,7 +39,7 @@ export function EditorialDesk({ signal }: { signal: number }) {
   const registerDirty = useUnsavedChanges();
   const deskRef = useRef<HTMLElement | null>(null);
   const ops = useOperations();
-  const features = editorial.value?.homepageFeatures ?? [];
+  const placements = editorial.value?.homepagePlacements ?? [];
   const noticeId = ops.notice?.kind === "error" ? "console-editorial-error" : ops.notice?.kind === "ok" ? "console-editorial-notice" : undefined;
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export function EditorialDesk({ signal }: { signal: number }) {
           {value.page.items.length ? <ul className={workspace.publicationList}>
             {value.page.items.map((card) => <li key={card.id}>
               <button className={workspace.publicationRow} type="button" onClick={() => { setDirty(false); setSelectedId(card.id); }}>
-                <span><strong dir="auto">{card.title}</strong><small>{SECTION_LABEL[card.section]} · {card.evidenceCount} ראיות{card.homepageSlot ? ` · כותרת מובילה ${card.homepageSlot}` : ""}</small></span>
+                <span><strong dir="auto">{card.title}</strong><small>{SECTION_LABEL[card.section]} · {card.evidenceCount} ראיות{card.homepagePlacement ? ` · ${card.homepagePlacement.area}/${card.homepagePlacement.position}` : ""}</small></span>
                 <Pill tone={publicationTone(card.status)}>{STATUS_LABEL[card.status]}</Pill>
                 <small>{formatDate(card.updatedAt)}</small>
               </button>
@@ -106,12 +106,14 @@ export function EditorialDesk({ signal }: { signal: number }) {
       <details className={styles.panel}>
         <summary>כותרות מובילות בעמוד הבית</summary>
         <p className={styles.muted}>להצבת כתבה חדשה, פתחו אותה ובחרו מקום בעורך. מקום פנוי חוזר לבחירה אוטומטית.</p>
-        {[1,2,3].map((slot) => <div key={slot} className={styles.actionRow}>
-          <span>מקום {slot}: {features.some((feature) => feature.slot === slot) ? "נבחרה כתבה" : "בחירה אוטומטית"}</span>
-          {features.find((feature) => feature.slot === slot) ? <>
-            <Button size="sm" variant="secondary" onClick={() => setSelectedId(features.find((feature) => feature.slot === slot)!.publicationId)}>פתיחת הכתבה</Button>
-            <Button size="sm" variant="ghost" disabled={ops.disabled} onClick={() => setSlot(slot, null)}>חזרה לבחירה אוטומטית</Button>
+        {(["news", "fakeResistance", "people"] as const).flatMap((area) => (["lead", "secondary"] as const).map((position) => ({ area, position }))).map(({ area, position }) => <div key={`${area}-${position}`} className={styles.actionRow}>
+          {(() => { const placement = placements.find((item) => item.area === area && item.position === position); return <>
+          <span>{area} / {position}: {placement ? "נבחרה כתבה" : "בחירה אוטומטית"}</span>
+          {placement ? <>
+            <Button size="sm" variant="secondary" onClick={() => setSelectedId(placement.publicationId)}>פתיחת הכתבה</Button>
+            <Button size="sm" variant="ghost" disabled={ops.disabled} onClick={() => setPlacement(area, position, null)}>חזרה לבחירה אוטומטית</Button>
           </> : null}
+          </>; })()}
         </div>)}
       </details>
       <details className={styles.panel}><summary>נרטיבים במעקב</summary><NarrativesPanel signal={signal} /></details>
@@ -125,8 +127,8 @@ export function EditorialDesk({ signal }: { signal: number }) {
                 onDirty={() => { registerDirty(true); setDirty(true); }} onSave={save} onTransition={requestTransition} onArchive={requestArchive}
                 onDelete={requestDelete} onVersions={() => setVersionsFor(publication)} />
               {(publication.status === "published" || publication.status === "updated") && publication.section !== "daily_brief" ? <div className={styles.panel}>
-                <PanelTitle>הצבה בעמוד הבית</PanelTitle><p className={styles.muted}>בחירת מקום תחליף את הכותרת המובילה שמוצגת בו כרגע.</p>
-                <div className={styles.actionRow}>{[1,2,3].map((slot) => <Button key={slot} size="sm" variant="secondary" disabled={ops.disabled} onClick={() => setSlot(slot, publication.id)}>הצבה במקום {slot}</Button>)}</div>
+                <PanelTitle>הצבה בעמוד הבית</PanelTitle><p className={styles.muted}>אפשר להציב רק באזור המתאים לקטגוריית הכתבה; מקום פנוי חוזר לבחירה אוטומטית.</p>
+                <div className={styles.actionRow}>{(["news", "fakeResistance", "people"] as const).flatMap((area) => (["lead", "secondary"] as const).map((position) => <Button key={`${area}-${position}`} size="sm" variant="secondary" disabled={ops.disabled} onClick={() => setPlacement(area, position, publication.id)}>{area} / {position}</Button>))}</div>
               </div> : null}
             </>}
           </ReadGate>
@@ -257,9 +259,9 @@ export function EditorialDesk({ signal }: { signal: number }) {
     });
   }
 
-  async function setSlot(slot: number, publicationId: string | null) {
-    await ops.run("slot", async () => {
-      await callConsole("admin/homepage-features", { method: "PUT", body: { slot, publicationId }, failure: "עדכון הכותרת המובילה נכשל." });
+  async function setPlacement(area: "news" | "fakeResistance" | "people", position: "lead" | "secondary", publicationId: string | null) {
+    await ops.run("placement", async () => {
+      await callConsole("admin/homepage-features", { method: "PUT", body: { area, position, publicationId }, failure: "עדכון הכותרת המובילה נכשל." });
       reloadAll();
       return "המיקום בעמוד הבית עודכן.";
     });

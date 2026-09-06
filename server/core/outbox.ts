@@ -14,6 +14,7 @@ import { db } from "@/server/db/client";
 import { outbox } from "@/server/db/schema";
 import type { OutboxRow } from "@/server/db/schema";
 import type { EntityType } from "@/server/contracts/enums";
+import { briefingLog } from "./log";
 import { dispatchToQueue, type Dispatcher } from "./queue";
 
 export const TOPICS = {
@@ -85,7 +86,7 @@ export async function emit(
 type AnyDb = {
   select: (f?: unknown) => {
     from: (t: unknown) => {
-      where: (w: unknown) => { orderBy: (o: unknown) => { limit: (n: number) => Promise<OutboxRow[]> } };
+      where: (w: unknown) => { orderBy: (...o: unknown[]) => { limit: (n: number) => Promise<OutboxRow[]> } };
     };
   };
   update: (t: unknown) => { set: (v: unknown) => { where: (w: unknown) => Promise<unknown> } };
@@ -136,15 +137,25 @@ export async function drainOutbox(
   const dispatch = opts.dispatch ?? dispatchToQueue;
   const limit = opts.limit ?? DEFAULT_DRAIN_LIMIT;
 
+  /* Fresh rows before retries, then oldest first. Ordered by `available_at`
+     alone, a backlog of rows that keep failing owns the whole batch: while
+     every send was rejected, 3,348 retried rows with `available_at` inside
+     their capped one-hour backoff always outnumbered the 250-row limit, so
+     the three `editorial.run-process` rows behind them — `attempts` 0, never
+     once handed to `dispatch` — could not reach the queue even after the
+     underlying fault was fixed until the backlog had drained through. A row
+     that has never been tried goes first; a row that has waited its backoff
+     is not lost, only behind new work. */
   const pending = await d
     .select()
     .from(outbox)
     .where(and(isNull(outbox.publishedAt), lte(outbox.availableAt, new Date())))
-    .orderBy(asc(outbox.availableAt))
+    .orderBy(asc(outbox.attempts), asc(outbox.availableAt))
     .limit(limit);
 
   let dispatched = 0;
   let failed = 0;
+  let firstError: { topic: string; outboxId: string; message: string } | null = null;
 
   for (const row of pending) {
     try {
@@ -154,16 +165,29 @@ export async function drainOutbox(
     } catch (cause) {
       const attempts = row.attempts + 1;
       const backoffSeconds = BACKOFF_SECONDS[Math.min(attempts - 1, BACKOFF_SECONDS.length - 1)]!;
+      const message = cause instanceof Error ? cause.message : String(cause);
+      firstError ??= { topic: row.topic, outboxId: row.id.toString(), message };
       await d
         .update(outbox)
         .set({
           attempts,
-          lastError: cause instanceof Error ? cause.message : String(cause),
+          lastError: message,
           availableAt: new Date(Date.now() + backoffSeconds * 1000),
         })
         .where(eq(outbox.id, row.id));
       failed++;
     }
+  }
+
+  /* The cron's 200 says only that the drain ran. What it did — and the first
+     reason a send was refused — is the line an operator needs, and the one
+     that was missing for two days of green ticks. Message text only: an
+     outbox row carries no secret, and the queue's refusal names the topic. */
+  if (pending.length) {
+    briefingLog(failed ? "warn" : "info", "outbox.drain", {}, {
+      attempted: pending.length, dispatched, failed,
+      firstErrorTopic: firstError?.topic, firstErrorOutboxId: firstError?.outboxId, firstError: firstError?.message?.slice(0, 300),
+    });
   }
 
   return { attempted: pending.length, dispatched, failed };

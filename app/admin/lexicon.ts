@@ -350,6 +350,11 @@ export const T = {
   outboxUndelivered: "Outbox — לא נמסרו",
   outboxDeadLettered: "Outbox — נזנחו",
   outboxOldest: "הישן ביותר שלא נמסר",
+  outboxLastPublished: "נמסר לתור לאחרונה",
+  outboxNeverPublished: "מעולם לא",
+  outboxLastError: "סירוב אחרון של התור",
+  outboxPendingUnit: "ממתינות",
+  outboxMaxAttempts: "ניסיונות עד",
 
   /* ── The draft preview (pipeline) ──────────────────────────────────── */
 

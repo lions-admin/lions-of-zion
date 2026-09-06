@@ -17,7 +17,7 @@
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "source-ingest", "retryAfterSeconds": 30 }]
     },
     "app/api/internal/queue/outbox-dispatch/route.ts": {
-      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox.dispatch" }]
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox-dispatch", "retryAfterSeconds": 30 }]
     }
   },
   "crons": [

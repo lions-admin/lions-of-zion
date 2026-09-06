@@ -3,10 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   startWholeSite: vi.fn(),
   getByRunKey: vi.fn(),
+  deliveryState: vi.fn(),
 }));
 
 vi.mock('@/server/modules/editorial-update', () => ({
-  editorialUpdate: () => ({ startWholeSite: mocks.startWholeSite, getByRunKey: mocks.getByRunKey }),
+  editorialUpdate: () => ({ startWholeSite: mocks.startWholeSite, getByRunKey: mocks.getByRunKey, deliveryState: mocks.deliveryState }),
 }));
 vi.mock('@/server/core/auth/actor', () => ({ authenticateAdmin: vi.fn(), registerActor: vi.fn(), requireActor: vi.fn() }));
 vi.mock('@/server/db/client', async importOriginal => ({
@@ -34,6 +35,7 @@ beforeEach(() => {
   process.env.EDITORIAL_UPDATE_INGEST_SECRET = secret;
   mocks.startWholeSite.mockReset();
   mocks.getByRunKey.mockReset();
+  mocks.deliveryState.mockReset();
 });
 afterEach(() => { delete process.env.EDITORIAL_UPDATE_INGEST_SECRET; });
 
@@ -62,7 +64,36 @@ describe('internal whole-site editorial routes', () => {
       params: Promise.resolve({ runId: 'route-package' }),
     });
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({ runId: 'route-package', status: 'partial', report: { publications: { failed: 1 } } });
+    await expect(response.json()).resolves.toMatchObject({ runId: 'route-package', status: 'partial', phase: 'partial', delivery: null, report: { publications: { failed: 1 } } });
+    expect(mocks.deliveryState).not.toHaveBeenCalled();
+  });
+
+  /* Three runs sat `queued` for twenty minutes each while the queue refused
+     every send, and the status body could not say so. It reads the run's
+     outbox row back now, and derives the phase from it. */
+  it('exposes where a queued run stands in the outbox, with the queue\'s refusal', async () => {
+    const id = '96eea424-179c-48a0-aeee-a7ea8f83181d';
+    mocks.getByRunKey.mockResolvedValue({
+      id, runKey: 'stuck-package', status: 'queued', stage: 'media', createdAt: new Date('2026-09-06T21:20:04Z'), startedAt: null, finishedAt: null, report: null, operations: [],
+    });
+    mocks.deliveryState.mockResolvedValue({
+      outboxId: '3568', createdAt: '2026-09-06T21:20:04.307Z', availableAt: '2026-09-06T22:20:04.307Z', publishedAt: null, attempts: 27,
+      lastError: '{"error":"Invalid V3 queue name. Must be 1-256 alphanumeric characters, hyphens, or underscores."}',
+    });
+    const response = await GET(new Request('https://lionsofzion.io/api/internal/editorial-updates/runs/stuck-package', { headers: { 'x-editorial-update-secret': secret } }), {
+      params: Promise.resolve({ runId: 'stuck-package' }),
+    });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toMatchObject({ status: 'queued', phase: 'queued:drain-failing', delivery: { attempts: 27, publishedAt: null } });
+    expect(body.delivery.lastError).toContain('Invalid V3 queue name');
+    expect(mocks.deliveryState).toHaveBeenCalledWith(id);
+
+    mocks.deliveryState.mockResolvedValue({ outboxId: '3568', createdAt: '2026-09-06T21:20:04.307Z', availableAt: '2026-09-06T21:20:04.307Z', publishedAt: '2026-09-06T21:30:16.000Z', attempts: 0, lastError: null });
+    const handed = await GET(new Request('https://lionsofzion.io/api/internal/editorial-updates/runs/stuck-package', { headers: { 'x-editorial-update-secret': secret } }), {
+      params: Promise.resolve({ runId: 'stuck-package' }),
+    });
+    await expect(handed.json()).resolves.toMatchObject({ phase: 'queued:dispatched' });
   });
 });
 

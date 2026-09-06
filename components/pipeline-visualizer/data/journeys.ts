@@ -345,8 +345,8 @@ export const PIPELINE_JOURNEYS: PipelineJourney[] = [
         nodeId: "cron_outbox_drain",
         titleHe: "2. מתזמן ניקוז outbox (כל 15 דקות)",
         titleEn: "2. outbox-drain cron wakes up",
-        descriptionHe: "מתזמן Vercel מושך שורות פתוחות ושולח אותן לתור outbox.dispatch.",
-        descriptionEn: "Drain cron retrieves pending rows and dispatches to Vercel Queue outbox.dispatch topic.",
+        descriptionHe: "מתזמן Vercel מושך שורות פתוחות ושולח אותן לתור outbox-dispatch.",
+        descriptionEn: "Drain cron retrieves pending rows and dispatches to Vercel Queue outbox-dispatch topic.",
         logEvent: { level: "info", message: "outbox-drain: 4 pending events dispatched to queue." },
       },
       {

@@ -934,7 +934,20 @@ function IncidentsSection({
               <Metric label={T.outboxUndelivered} value={String(value.outbox.undelivered)} tone={value.outbox.undelivered ? "warn" : "ok"} />
               <Metric label={T.outboxDeadLettered} value={String(value.outbox.deadLettered)} tone={value.outbox.deadLettered ? "danger" : "ok"} />
               <Metric label={T.outboxOldest} value={value.outbox.oldestAt ? formatAgo(value.outbox.oldestAt) : T.none} />
+              <Metric label={T.outboxLastPublished} value={value.outbox.lastPublishedAt ? formatAgo(value.outbox.lastPublishedAt) : T.outboxNeverPublished} tone={value.outbox.lastPublishedAt ? "ok" : "danger"} />
             </div>
+            {value.outbox.lastError ? <p className={styles.muted}><strong>{T.outboxLastError}:</strong> {value.outbox.lastError}</p> : null}
+            {value.outbox.byTopic.length ? (
+              <ul className={styles.logList}>
+                {value.outbox.byTopic.map((row) => (
+                  <li key={row.topic}>
+                    <code>{row.topic}</code> — {row.pending} {T.outboxPendingUnit}
+                    {row.maxAttempts ? ` · ${T.outboxMaxAttempts} ${row.maxAttempts}` : ""}
+                    {row.oldestAt ? ` · ${T.outboxOldest} ${formatAgo(row.oldestAt)}` : ""}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <div className={styles.actionRow}>
               <Button variant="secondary" size="sm" type="button" disabled={disabled} onClick={onDrain}>
                 {T.drainNow}

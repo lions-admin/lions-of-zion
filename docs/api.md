@@ -423,7 +423,7 @@ Never call these from a browser.
 | GET | `/api/internal/cron/maintenance` | `cron` | Prune maintenance data, recover source collection, evaluate alerts (`maxDuration` 60) |
 | POST | `/api/internal/briefing/external-publish` | `internal` | Receive the legacy GitHub package and start its durable executor (`maxDuration` 300) |
 | POST | `/api/internal/queue/ingest` | `queue` | Deliver one source-collection job; never advances editorial stages (`maxDuration` 300) |
-| POST | `/api/internal/queue/outbox-dispatch` | `queue` | Deliver one outbox message (`maxDuration` 300 — see note below) |
+| POST | `/api/internal/queue/outbox-dispatch` | `queue` | Deliver one outbox message from the `outbox-dispatch` queue topic (`maxDuration` 300 — see note below) |
 | POST | `/api/internal/editorial-updates/ingest` | `editorial` | Receive a `whole-site-update-v1` package and start its durable run |
 | GET | `/api/internal/editorial-updates/runs/{runId}` | `editorial` | Machine-readable state of one delivery run, addressed by the package's own `runId` |
 | GET, POST | `/api/v1/admin/editorial-update` | `actor` | List recent package-delivery runs; an authenticated receiver may create a run only from explicit operations |
@@ -468,6 +468,7 @@ same `runId` with a different body is a `409`.
 GET /api/internal/editorial-updates/runs/{runId}
 {
   "runId": "…", "status": "partial", "stage": "report",
+  "phase": "partial", "delivery": null,
   "createdAt": "…", "startedAt": "…", "finishedAt": "…",
   "report": { … },
   "operations": [
@@ -483,6 +484,19 @@ is `media` | `publication` | `homepage` | `report` (`research` and
 operations published and some did not — see
 [`whole-site-updates.md`](whole-site-updates.md) for the report shape and the
 resume procedure.
+
+`phase` is derived, never stored, and finer than `status`: a `queued` run is
+`queued:awaiting-drain` (the outbox drain cron has not run since the row was
+written), `queued:drain-failing` (the drain tried and Vercel Queues refused
+the send — `delivery.lastError` carries the refusal), or `queued:dispatched`
+(handed to the queue, no worker has claimed it yet). A `running` run is
+`running:<stage>`; a terminal run's phase is its status. `delivery` is the
+run's own `editorial.run-process` outbox row — `outboxId`, `createdAt`,
+`availableAt`, `publishedAt`, `attempts`, `lastError` — returned only while
+the run is `queued`, and `null` otherwise. Both exist because for two days
+every run read `status: "queued"` for twenty minutes and nothing on this
+endpoint could say that the queue was refusing every send
+(`.ai/DECISIONS.md`, 2026-09-07).
 
 ### Health
 

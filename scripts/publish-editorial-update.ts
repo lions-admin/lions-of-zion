@@ -3,16 +3,11 @@
 
 import { readFile } from 'node:fs/promises';
 import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
+import { formatRunStatusLine, formatTerminalReport, formatTimeout, isTerminal, type PolledRun } from './editorial-run-status';
 
 function usage(): never {
   console.error('Usage: npm run editorial:publish -- <path-to-package.json> [--dry-run]');
   process.exit(2);
-}
-
-function failures(status: { status: string; report?: { publications?: { failed?: number }; errors?: Array<{ stage?: string }> } | null }): boolean {
-  return status.status === 'failed'
-    || (status.report?.publications?.failed ?? 0) > 0
-    || Boolean(status.report?.errors?.some(error => error.stage === 'homepage'));
 }
 
 function fail(stage: string, detail: string): never {
@@ -53,30 +48,30 @@ async function main(): Promise<void> {
   const accepted = await submitted.json() as { runId: string; statusUrl: string };
   console.log(`accepted runId=${accepted.runId}`);
   const statusUrl = new URL(accepted.statusUrl, baseUrl);
-  const deadline = Date.now() + 20 * 60_000;
+  const timeoutMinutes = 20;
+  const deadline = Date.now() + timeoutMinutes * 60_000;
+  /* Twenty minutes is a safety boundary, not a budget: a package of a few
+     records finishes in well under one. A run that is still queued at the
+     end of it is a delivery fault, and the last line says which kind. */
+  let lastLine: string | null = null;
   while (Date.now() < deadline) {
     await new Promise(resolve => setTimeout(resolve, 5_000));
     const response = await fetch(statusUrl, { headers: { 'x-editorial-update-secret': secret } });
     if (!response.ok) fail('polling/status failure', `HTTP ${response.status}: ${await response.text()}`);
-    const result = await response.json() as {
-      runId: string; status: string; report?: {
-        publications?: { created?: number; updated?: number; failed?: number };
-        urls?: string[]; errors?: Array<{ operationKey: string | null; stage: string; message: string }>;
-      } | null;
-    };
-    if (!['completed', 'partial', 'failed'].includes(result.status)) continue;
-    const counts = result.report?.publications ?? {};
-    console.log(`runId=${result.runId} status=${result.status} created=${counts.created ?? 0} updated=${counts.updated ?? 0} failed=${counts.failed ?? 0}`);
-    for (const url of result.report?.urls ?? []) console.log(`url=${url}`);
-    for (const error of result.report?.errors ?? []) console.error(`error=${error.operationKey ?? 'homepage'} stage=${error.stage} message=${error.message}`);
-    if (failures(result)) {
-      const homepageFailed = result.report?.errors?.some(error => error.stage === 'homepage');
-      console.error(`[${homepageFailed ? 'homepage failure' : 'publication execution failure'}] Durable run ${result.runId} finished ${result.status}.`);
-      process.exitCode = 1;
+    const result = await response.json() as PolledRun;
+    const line = formatRunStatusLine(result);
+    if (line !== lastLine) {
+      console.log(line);
+      lastLine = line;
     }
+    if (!isTerminal(result)) continue;
+    const { out, err } = formatTerminalReport(result);
+    for (const entry of out) console.log(entry);
+    for (const entry of err) console.error(entry);
+    if (err.length) process.exitCode = 1;
     return;
   }
-  fail('timeout', 'Timed out waiting for the editorial run to finish.');
+  fail('timeout', formatTimeout(lastLine, timeoutMinutes));
 }
 
 main().catch(cause => {

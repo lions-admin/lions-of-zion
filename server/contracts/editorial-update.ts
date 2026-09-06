@@ -47,3 +47,61 @@ export type StartEditorialRun = z.infer<typeof startEditorialRunSchema>;
 export type EditorialFailure = z.infer<typeof editorialFailureSchema>;
 
 export const editorialRunMessageSchema = z.object({ runId: z.uuid() });
+
+/**
+ * Where a queued run's job intent stands in the outbox, read back for the
+ * status endpoint. `publishedAt` set means the drain handed the row to the
+ * queue; `attempts` with a `lastError` means the drain tried and the queue
+ * refused. Null when no row exists for the run at all, which is itself a
+ * finding — `start()` always writes one in the same transaction.
+ */
+export const editorialRunDeliverySchema = z.object({
+  outboxId: z.string(),
+  createdAt: z.iso.datetime(),
+  availableAt: z.iso.datetime(),
+  publishedAt: z.iso.datetime().nullable(),
+  attempts: z.number().int().nonnegative(),
+  lastError: z.string().nullable(),
+});
+export type EditorialRunDelivery = z.infer<typeof editorialRunDeliverySchema>;
+
+/**
+ * One word for "where is my run", finer than `status` alone.
+ *
+ * `status` says queued / running / terminal; it cannot say whether a queued
+ * run is still waiting for the outbox drain, has been handed to the queue and
+ * is waiting for a worker, or was handed over and the worker has not claimed
+ * it. For two days every run sat `queued` and the poller printed nothing for
+ * twenty minutes, because the difference between "not yet drained" and "the
+ * queue refuses every send" was visible only in the outbox row. This puts it
+ * on the status endpoint, derived and never stored.
+ */
+export const EDITORIAL_RUN_PHASES = [
+  'queued:awaiting-drain',
+  'queued:drain-failing',
+  'queued:dispatched',
+  'running:media',
+  'running:publication',
+  'running:homepage',
+  'running:report',
+  'completed',
+  'partial',
+  'failed',
+] as const;
+export type EditorialRunPhase = (typeof EDITORIAL_RUN_PHASES)[number];
+
+export function describeEditorialRunPhase(run: { status: string; stage: string }, delivery: Pick<EditorialRunDelivery, 'publishedAt' | 'attempts'> | null): EditorialRunPhase {
+  if (run.status === 'completed' || run.status === 'partial' || run.status === 'failed') return run.status;
+  if (run.status === 'running') {
+    const stage = ['media', 'publication', 'homepage', 'report'].includes(run.stage) ? run.stage : 'media';
+    return `running:${stage}` as EditorialRunPhase;
+  }
+  if (delivery?.publishedAt) return 'queued:dispatched';
+  if (delivery && delivery.attempts > 0) return 'queued:drain-failing';
+  return 'queued:awaiting-drain';
+}
+
+/** The three states a poller may stop on. Anything else keeps polling. */
+export function isTerminalEditorialRunStatus(status: string): boolean {
+  return status === 'completed' || status === 'partial' || status === 'failed';
+}

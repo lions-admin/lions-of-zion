@@ -2,8 +2,8 @@ import 'server-only';
 import { createHash, randomUUID } from 'node:crypto';
 import { and, asc, desc, eq, inArray, lte, or, sql } from 'drizzle-orm';
 import type { Database } from '@/server/db/client';
-import { editorialOperation, editorialRun } from '@/server/db/schema';
-import { startEditorialRunSchema, type EditorialFailure, type EditorialStage, type StartEditorialRun } from '@/server/contracts/editorial-update';
+import { editorialOperation, editorialRun, outbox } from '@/server/db/schema';
+import { startEditorialRunSchema, type EditorialFailure, type EditorialRunDelivery, type EditorialStage, type StartEditorialRun } from '@/server/contracts/editorial-update';
 import { ApiError, notFound } from '@/server/http/responses';
 import { emit, TOPICS } from '@/server/core/outbox';
 
@@ -50,6 +50,19 @@ export function editorialRepo(db: Database) {
       if (!run) throw notFound('Editorial run');
       const operations = await db.select().from(editorialOperation).where(eq(editorialOperation.runId, id)).orderBy(asc(editorialOperation.position));
       return { ...run, operations };
+    },
+
+    /** The newest `editorial.run-process` row for this run — a resumed run
+     *  emits a second one, and the latest is the one that describes now. */
+    async deliveryState(id: string): Promise<EditorialRunDelivery | null> {
+      const [row] = await db.select().from(outbox)
+        .where(and(eq(outbox.topic, TOPICS.editorialRunProcess), eq(outbox.entityId, id)))
+        .orderBy(desc(outbox.id)).limit(1);
+      if (!row) return null;
+      return {
+        outboxId: row.id.toString(), createdAt: row.createdAt.toISOString(), availableAt: row.availableAt.toISOString(),
+        publishedAt: row.publishedAt?.toISOString() ?? null, attempts: row.attempts, lastError: row.lastError,
+      };
     },
 
     async getByRunKey(runKey: string) {

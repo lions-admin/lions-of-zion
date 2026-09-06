@@ -1,19 +1,33 @@
 import { handler } from '@/server/http/handler';
 import { ok } from '@/server/http/responses';
 import { requireEditorialUpdateIngestSecret } from '@/server/http/internal-guard';
+import { describeEditorialRunPhase } from '@/server/contracts/editorial-update';
 import { editorialUpdate } from '@/server/modules/editorial-update';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/**
+ * The durable run, as the GitHub poller reads it.
+ *
+ * `phase` and `delivery` are the two fields that let a poller tell a run
+ * waiting for the outbox drain from one the queue keeps refusing from one a
+ * worker is inside — three states that all read `queued` on `status`. See
+ * `describeEditorialRunPhase` for the derivation; the outbox row is the
+ * evidence, read back rather than duplicated onto the run.
+ */
 export const GET = handler(async (request, _ctx, route: { params: Promise<{ runId: string }> }) => {
   requireEditorialUpdateIngestSecret(request);
   const { runId } = await route.params;
-  const run = await editorialUpdate().getByRunKey(runId);
+  const service = editorialUpdate();
+  const run = await service.getByRunKey(runId);
+  const delivery = run.status === 'queued' ? await service.deliveryState(run.id) : null;
   return ok({
     runId: run.runKey,
     status: run.status,
     stage: run.stage,
+    phase: describeEditorialRunPhase(run, delivery),
+    delivery,
     createdAt: run.createdAt.toISOString(),
     startedAt: run.startedAt?.toISOString() ?? null,
     finishedAt: run.finishedAt?.toISOString() ?? null,

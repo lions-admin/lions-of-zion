@@ -33,23 +33,115 @@
  * `dismissOnBackdrop` is off for the reason that prop exists — the composer
  * holds a typed question, and a stray click on the page behind should not throw
  * it away.
+ *
+ * ## On the homepage, below the width that reserves a gutter for it
+ *
+ * The seal is fixed over the reading column there, and a fixed control over a
+ * reading column covers whatever the reader has scrolled to: headlines,
+ * captions, source lines. So on a phone or tablet the homepage launcher has
+ * two states, both read from scroll position by `useHomeLauncher`: the full
+ * seal while the cover is on screen, where the corner is empty ground; and a
+ * compact icon through the edition that steps out of the way while the reader
+ * scrolls down and comes back on any scroll up, at the very end, or when it
+ * takes keyboard focus. The reader keeps the same gesture Safari's own
+ * toolbar taught them, and a screenshot at a reading position shows the
+ * record, not the desk's badge over it.
  */
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Dialog } from "@/components/ui/Dialog";
 import { AskDesk } from "./AskDesk";
 import styles from "./ask.module.css";
 
-export function AskDock() {
+type LauncherState = { mode?: "seal" | "compact"; retracted: boolean };
+const AT_REST: LauncherState = { retracted: false };
+
+/** Below this width the homepage keeps no gutter for the seal. */
+const UNRESERVED = "(max-width: 1099px)";
+/** Downward travel that counts as reading rather than a nudge. */
+const RETRACT_AFTER = 24;
+/** Upward travel that counts as asking for the chrome back. */
+const REVEAL_AFTER = 8;
+
+function useHomeLauncher(home: boolean): LauncherState {
+  const [state, setState] = useState<LauncherState>(AT_REST);
+
+  useEffect(() => {
+    if (!home) return;
+    const media = window.matchMedia(UNRESERVED);
+    let coverBottom = 0;
+    let lastY = window.scrollY;
+    let downward = 0;
+    let current = AT_REST;
+
+    const commit = (next: LauncherState) => {
+      if (next.mode === current.mode && next.retracted === current.retracted) return;
+      current = next;
+      setState(next);
+    };
+    const measure = () => {
+      const cover = document.querySelector("[data-home-scroll] > section");
+      coverBottom = cover ? cover.getBoundingClientRect().bottom + window.scrollY : 0;
+    };
+    const read = () => {
+      if (!media.matches) {
+        commit(AT_REST);
+        lastY = window.scrollY;
+        return;
+      }
+      const y = window.scrollY;
+      const delta = y - lastY;
+      lastY = y;
+      /* The cover still fills most of the screen: the seal, at rest. */
+      const onCover = y < coverBottom - window.innerHeight * 0.6;
+      const atEnd =
+        y + window.innerHeight >= document.documentElement.scrollHeight - 4;
+      if (delta > 0) downward += delta;
+      else if (delta < 0) downward = 0;
+      let retracted = current.retracted;
+      if (onCover || atEnd || delta <= -REVEAL_AFTER) retracted = false;
+      else if (downward >= RETRACT_AFTER) retracted = true;
+      commit({ mode: onCover ? "seal" : "compact", retracted });
+    };
+    const resize = () => {
+      measure();
+      read();
+    };
+
+    /* The first reading waits for a frame: a reader arriving mid-page (a
+       restored scroll position, a hash) gets the right state before they
+       move, and the effect itself sets no state. */
+    const frame = requestAnimationFrame(resize);
+    window.addEventListener("scroll", read, { passive: true });
+    window.addEventListener("resize", resize);
+    media.addEventListener("change", resize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", read);
+      window.removeEventListener("resize", resize);
+      media.removeEventListener("change", resize);
+    };
+  }, [home]);
+
+  /* Off the homepage the stored state is stale by definition; it is ignored
+     rather than reset, so the effect never writes state on its own. */
+  return home ? state : AT_REST;
+}
+
+export function AskDock({ home = false }: { home?: boolean }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
+  const launcher = useHomeLauncher(home);
 
   return (
     <>
       <button
         type="button"
         className={styles.dockTrigger}
+        data-ask-launcher=""
+        data-mode={launcher.mode}
+        data-retracted={launcher.retracted || undefined}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen(true)}

@@ -7,7 +7,8 @@
       "height": 1080,
       "alt": "Archive context: Matcal Tower, Tel Aviv, 2009. Not an image of the reported announcements.",
       "credit": "Ori~ · resized WebP",
-      "caption": "Archive context: Matcal Tower, Tel Aviv, 2009. Not an image of the reported announcements.",
+      "caption": "Matcal Tower, Tel Aviv, 2009.",
+      "disclosure": "Context image — not the reported announcements",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Matcal_Tower,_Tel_Aviv-Yafo,_2009-1.jpg",
       "role": "archival-context",
       "focalPoint": {
@@ -32,7 +33,8 @@
       "height": 727,
       "alt": "Archive context: Blue Line markers, 2021. Not documentation of the incidents in this briefing.",
       "credit": "UNIFIL · resized WebP",
-      "caption": "Archive context: Blue Line markers, 2021. Not documentation of the incidents in this briefing.",
+      "caption": "Blue Line markers, 2021.",
+      "disclosure": "Context image — not incident documentation",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:UNIFIL_Blue_Barrels.jpg",
       "role": "archival-context",
       "focalPoint": {
@@ -307,7 +309,7 @@
       "height": 750,
       "alt": "A typographic cover for Amir T.’s testimony. No witness photograph is used.",
       "credit": "Lions of Zion · typographic cover",
-      "caption": "A typographic cover for Amir T.’s testimony. No witness photograph is used.",
+      "disclosure": "Typographic cover — no witness photograph",
       "role": "safe-cover",
       "focalPoint": {
         "x": 50,
@@ -331,7 +333,7 @@
       "height": 900,
       "alt": "A non-graphic cover. The original documentation is not loaded on this page.",
       "credit": "Lions of Zion · safe archive cover",
-      "caption": "A non-graphic cover. The original documentation is not loaded on this page.",
+      "disclosure": "Safe cover — the original documentation is not shown",
       "role": "safe-cover",
       "focalPoint": {
         "x": 50,
@@ -355,7 +357,7 @@
       "height": 1000,
       "alt": "Editorial illustration, not a screenshot or a map of documented relationships.",
       "credit": "Lions of Zion · editorial typography",
-      "caption": "Editorial illustration, not a screenshot or a map of documented relationships.",
+      "disclosure": "Editorial illustration — not a screenshot or a map",
       "role": "editorial-illustration",
       "focalPoint": {
         "x": 50,
@@ -379,7 +381,8 @@
       "height": 1000,
       "alt": "Editorial illustration. Monitoring is not confirmation.",
       "credit": "Lions of Zion · editorial typography",
-      "caption": "Editorial illustration. Monitoring is not confirmation.",
+      "caption": "Monitoring is not confirmation.",
+      "disclosure": "Editorial illustration — not evidence",
       "role": "editorial-illustration",
       "focalPoint": {
         "x": 50,
@@ -403,7 +406,8 @@
       "height": 1200,
       "alt": "Editorial illustration of a claim moving through a network of fragments and signals. Not evidence and not a live visualization.",
       "credit": "Lions of Zion · generated editorial illustration",
-      "caption": "Editorial illustration. Monitoring is not confirmation; the image is not evidence.",
+      "caption": "Monitoring is not confirmation.",
+      "disclosure": "Editorial illustration — not evidence",
       "role": "editorial-illustration",
       "focalPoint": {
         "x": 50,
@@ -427,7 +431,7 @@
       "height": 1200,
       "alt": "Editorial illustration of an investigative desk with abstracted documents and a map. Not evidence or a map of documented relationships.",
       "credit": "Lions of Zion · generated editorial illustration",
-      "caption": "Editorial illustration. The silhouettes and papers are not source material.",
+      "disclosure": "Editorial illustration — not source material",
       "role": "editorial-illustration",
       "focalPoint": {
         "x": 50,
@@ -451,7 +455,8 @@
       "height": 960,
       "alt": "Quiet empty room and open doorway used as a safe cover for a testimony. Not a reconstruction of the account.",
       "credit": "Lions of Zion · generated safe-cover artwork",
-      "caption": "Safe cover. This is not a reconstruction of the testimony or its location.",
+      "caption": "Not the testimony or its location.",
+      "disclosure": "Safe cover — not a reconstruction",
       "role": "safe-cover",
       "focalPoint": {
         "x": 65,
@@ -475,7 +480,8 @@
       "height": 1200,
       "alt": "Sealed archive folder and envelope with contents concealed. Graphic documentation is not shown here.",
       "credit": "Lions of Zion · generated safe-cover artwork",
-      "caption": "Safe cover. The underlying documentation remains concealed until the archive record is opened.",
+      "caption": "Opened only on the archive record.",
+      "disclosure": "Safe cover — documentation stays concealed",
       "role": "safe-cover",
       "focalPoint": {
         "x": 68,
@@ -499,7 +505,8 @@
       "height": 1200,
       "alt": "Editorial diagram: accounts drawn as nodes, sparse before a marked pivot and denser and more interconnected after it. Schematic only — not the measured network and not any identified account.",
       "credit": "Lions of Zion · editorial diagram",
-      "caption": "Editorial diagram. Node positions are schematic and identify no account.",
+      "caption": "Node positions are schematic and identify no account.",
+      "disclosure": "Editorial diagram — not evidence",
       "role": "editorial-illustration",
       "focalPoint": {
         "x": 50,
@@ -523,7 +530,8 @@
       "height": 1200,
       "alt": "Editorial diagram: rotor geometry and a transfer arrow drawn as broken lines above an unreadable record. Not evidence that the reported sale took place.",
       "credit": "Lions of Zion · editorial diagram",
-      "caption": "Editorial diagram. Broken lines mark a reported, unconfirmed transfer; the image is not evidence.",
+      "caption": "Broken lines mark a reported, unconfirmed transfer.",
+      "disclosure": "Editorial diagram — not evidence",
       "role": "editorial-illustration",
       "focalPoint": {
         "x": 50,

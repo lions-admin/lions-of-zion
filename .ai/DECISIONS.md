@@ -10,6 +10,48 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-06 — The homepage Ask launcher retracts while a phone reader scrolls down; it does not get a reserved column, a header slot, or a bottom bar
+
+The owner's mobile brief made this mandatory: a persistent control may not
+obscure the reading column, and screenshots at reading positions must show
+nothing meaningful under it. Four placements were weighed before the one
+that shipped, and the reasons matter more than the CSS.
+
+- **A reserved right column** was ruled out by the brief itself, and it would
+  have narrowed every line on the phone for a control used occasionally.
+- **A slot in the fixed header** cannot exist at 320px: the brand plus three
+  44px controls already fill the bar, and a fourth would either shrink a
+  touch target below 44px or drop search or account at a breakpoint — a
+  primary path silently lost, which UI-UPGRADE-TASK #17 already warns about.
+- **A bottom bar** is chrome the reader understands, but it spends a
+  permanent band of a phone's height on an editorial page and reads as
+  application UI, which §9 of the brief rejects.
+- **A corner icon that is always visible** covers whatever the reader
+  scrolled to; the baseline probe found text or an image under it at nearly
+  every sampled position.
+
+So below 1100px on the homepage — the widths where the edition reserves no
+gutter — the launcher is the full seal over the cover's empty corner, then a
+48px icon that slides below the viewport after 24px of downward travel and
+returns after 8px of upward travel, at the end of the page, or on keyboard
+focus. The gesture is the one Safari's own toolbar taught; the transform is
+on a fixed element so no layout moves; reduced motion makes it a cut. What
+this trades away is stated plainly: a reader who scrolls up sees the icon
+over the column until their next downward scroll. The evidence probe in
+`scripts/homepage/verify-mobile.mjs` measures exactly that. Desktop, and
+every other route, keep the fixed seal.
+
+Two smaller decisions rode along. With scripting off the launcher is not
+rendered at all — the button could open nothing and was a dead control fixed
+over prose; the menu's `/ask` link remains. And publication-backed homepage
+records now have a development-only transcription in
+`content-packages/homepage/local-records.json`, consulted by `lib/homepage.ts`
+only under the local preview and only after the database resolution fails,
+so the composition can be reviewed on a checkout with no `DATABASE_URL`. It
+is never a production fallback; the page already flags the local preview.
+
+---
+
 ## 2026-09-05 — The uppercase rule is not one line to reverse, and two hero numbers will go stale silently
 
 Three findings from a frontend design pass, recorded because each one is

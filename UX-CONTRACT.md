@@ -44,3 +44,18 @@ illustration/safe-cover imagery as non-evidence. Claim status appears before
 the claim; an unresolved record is not phrased as a finding. Each section has a
 single destination action and honest empty/unavailable states. Ask must not
 cover links, warnings or media credits on mobile or enlarged text.
+
+### Phone refinement — September 6, 2026
+
+- Each section shows a lead and a companion; both are visible without any
+  interaction and their order is the edition's, never the client's.
+- A preview clamps what it shows; it does not remove fields from the
+  document. Status precedes the claim and is stated once.
+- Every image carries its disclosure as the first caption line, visibly,
+  never behind a tooltip; `alt` carries the full sentence.
+- The section's one destination action follows the records on a phone.
+- Below 1100px on the homepage the Ask launcher retracts while the reader
+  scrolls down and returns on scroll up, at the end of the page, or on
+  keyboard focus; it keeps a 44px-or-larger target, its accessible name,
+  `aria-expanded`, safe-area offsets and focus restoration. It is never
+  hidden from the tab order, and the page reserves no column for it.

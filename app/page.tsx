@@ -68,9 +68,12 @@ export default async function Page() {
                 </span>
               </ButtonLink>
             </div>
+            {/* Quieter by design: smaller, lower in tone, no arrow of its own,
+                so "Read the latest" is the one invitation on the cover and
+                this is the optional reading path beneath it. */}
             <div className={styles.secondaryActions}>
               <Link className={styles.storyLink} href="/information-war">
-                Why this work matters <span aria-hidden="true">↗︎</span>
+                Why this work matters
               </Link>
             </div>
           </div>

@@ -21,7 +21,25 @@ describe('homepage editorial composition',()=>{
  it('shows status before claim and does not call an unsourced analysis a source-backed finding',()=>{
  const html=renderToStaticMarkup(<HomepageJourney edition={edition()}/>);
  expect(html.indexOf('Unresolved')).toBeLessThan(html.indexOf('An unresolved claim'));
- expect(html).toContain('No finding has been reached');expect(html).toContain('Lions of Zion editorial analysis');expect(html).toContain('Read the analysis');expect(html).not.toContain('Read the sources');
+ /* The status line says it once; an unresolved record with no finding excerpt carries no finding block repeating it. */
+ expect(html.match(/no finding has been reached/gi)).toHaveLength(1);expect(html).not.toContain('Monitoring is not confirmation');
+ expect(html).toContain('Lions of Zion editorial analysis');expect(html).toContain('Read the analysis');expect(html).not.toContain('Read the sources');
+ });
+ it('names the destinations as the site names them and keeps one action per section after its records',()=>{
+ const html=renderToStaticMarkup(<HomepageJourney edition={edition()}/>);
+ expect(html).toContain('Fake Resistance');expect(html).toContain('Explore Fake Resistance');expect(html).not.toContain('Explore the investigations');
+ const news=html.slice(html.indexOf('data-home-section="news"'),html.indexOf('data-home-section="fakeResistance"'));
+ expect(news.indexOf('A full headline')).toBeLessThan(news.indexOf('View all News &amp; Analysis'));
+ expect(news.match(/View all News &amp; Analysis/g)).toHaveLength(1);
+ expect(html).toContain('data-rank="lead"');
+ });
+ it('puts the image disclosure first in the caption and keeps the full alt text',()=>{
+ const illustration={...asset,role:'editorial-illustration' as const,caption:'A description.',alt:'Editorial illustration. Not evidence.'};
+ const e=edition();e.news.items[0]={...e.news.items[0],media:illustration};
+ const html=renderToStaticMarkup(<HomepageJourney edition={e}/>);
+ const caption=html.slice(html.indexOf('<figcaption'),html.indexOf('</figcaption>'));
+ expect(caption.indexOf('Editorial illustration — not evidence')).toBeLessThan(caption.indexOf('A description.'));
+ expect(html).toContain('alt="Editorial illustration. Not evidence."');
  });
  it('retains contested context and does not imply universal human review',()=>{
  const e=edition();e.israelsStory={state:'partial',gaps:[],items:[{...base,kind:'chapter',era:'1993',contested:true}]};

@@ -94,6 +94,12 @@ describe("MOTION-002 — the animation-loop inventory", () => {
        open decision past hydration so the server HTML is never the open
        dialog. The cleanup cancels it. Registered 2026-09-05. */
     "components/home/EditorialIntro.tsx",
+    /* One frame, booked when the homepage launcher's effect subscribes, that
+       takes the first scroll reading a tick after commit so the effect
+       itself writes no state and a reader restored mid-page gets the right
+       launcher state before they move. The cleanup cancels it. Registered
+       2026-09-06. */
+    "components/ask/AskDock.tsx",
   ];
 
   /**

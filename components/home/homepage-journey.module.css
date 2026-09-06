@@ -1,5 +1,12 @@
 /* An editorial edition: reporting, a research dossier, a paper archive,
-   portraits, historical plates, then a transparent account of the desk. */
+   portraits, historical plates, then a transparent account of the desk.
+
+   Two ranks run through every section. The first record of a pair is the
+   lead; the second is its companion. On a wide viewport they share a spread;
+   on a phone the companion is set as one compact row beside a thumbnail, so
+   a pair reads as two choices rather than two articles laid end to end.
+   Nothing leaves the document: the phone clamps what a preview shows, and
+   the record behind each link carries the rest. */
 .journey {
   --journey-gap: clamp(24px, 3.5vw, 56px);
   --journey-inset: clamp(20px, 4.5vw, 72px);
@@ -8,6 +15,7 @@
   --journey-panel: color-mix(in srgb, var(--surface-1) 38%, var(--ground));
   --journey-title: clamp(38px, 4.8vw, 72px);
   --journey-story: clamp(29px, 2.7vw, 43px);
+  --journey-thumb: 88px;
   --journey-paper: #e8e2d6;
   --journey-paper-ink: #24221f;
   --journey-paper-muted: #625f57;
@@ -32,6 +40,9 @@
   letter-spacing: -0.035em;
   text-wrap: pretty;
 }
+.journey h2 {
+  text-wrap: balance;
+}
 .journey h3 a {
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out);
@@ -42,24 +53,32 @@
 .journey h3 a:active {
   color: var(--gold-hi);
 }
+
+/* ---- The edition masthead: the desk's line, the date, six destinations ---- */
 .edition {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "line date"
+    "contents contents";
   align-items: baseline;
-  padding: 30px 0 24px;
+  column-gap: 32px;
+  padding: 30px 0 0;
 }
-.edition p {
-  font: 400 clamp(25px, 2.5vw, 36px)/1.15 var(--face-display);
-  margin: 0;
+.editionLine {
+  grid-area: line;
+  font: 400 clamp(25px, 2.5vw, 36px) / 1.15 var(--face-display);
+  margin: 0 0 20px;
   letter-spacing: -0.025em;
 }
-.edition > span {
+.editionDate {
+  grid-area: date;
   font: 400 12px/1.7 var(--face-data);
   color: var(--ink-lo);
   text-align: end;
 }
 .contents {
+  grid-area: contents;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -85,16 +104,49 @@
 .contents a:active {
   color: var(--gold);
 }
+
+/* ---- Sections ---- */
 .section {
   padding: clamp(52px, 6vw, 88px) 0;
   scroll-margin-top: calc(var(--header-h) + 24px);
   border-bottom: 1px solid var(--journey-rule);
 }
-.sectionHead {
-  display: flex;
+/* The record sections are a grid so the one destination action can sit
+   beside the title on a wide viewport and after the records on a phone,
+   without a second copy of the link. */
+.editorial {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "head action"
+    "intro intro"
+    "spread spread"
+    "state state";
+  column-gap: 24px;
   align-items: end;
-  justify-content: space-between;
-  gap: 24px;
+}
+.editorial > .sectionHead {
+  grid-area: head;
+}
+.editorial > .sectionAction {
+  grid-area: action;
+  justify-self: end;
+  margin: 0 0 36px;
+}
+.editorial > .sectionIntro {
+  grid-area: intro;
+}
+.editorial > .newsSpread,
+.editorial > .narrativeSpread,
+.editorial > .archiveSpread,
+.editorial > .peopleSpread,
+.editorial > .historySpread {
+  grid-area: spread;
+}
+.editorial > .availability {
+  grid-area: state;
+}
+.sectionHead {
   margin-bottom: 36px;
 }
 .sectionHead h2 {
@@ -113,7 +165,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 0.85em;
   min-height: 46px;
   max-width: 100%;
   padding: 11px 0;
@@ -127,10 +179,11 @@
 .link > span {
   min-width: 0;
 }
+/* The arrow is sized in the label's em so it tracks it at every width. */
 .link svg {
-  flex: 0 0 22px;
-  width: 22px;
-  height: 22px;
+  flex: 0 0 auto;
+  width: 1.4em;
+  height: 1.4em;
   stroke: currentColor;
   stroke-width: 1.3;
   transition: transform var(--dur-fast) var(--ease-out);
@@ -145,13 +198,17 @@
 .link:active {
   color: var(--gold-hi);
 }
-.sectionHead > .link {
-  flex: 0 1 auto;
-  max-width: 30%;
+.sectionAction {
+  margin: 0;
+}
+/* One line beside the title: the grid column is sized to the label, and a
+   label that wrapped word by word in it was the whole width of a column. */
+.sectionAction .link {
   color: var(--ink);
   font-size: 12px;
+  white-space: nowrap;
 }
-.sectionHead > .link:hover {
+.sectionAction .link:hover {
   color: var(--gold);
 }
 .sectionIntro {
@@ -161,6 +218,8 @@
   margin: -10px 0 32px;
   line-height: 1.65;
 }
+
+/* ---- Figures: the disclosure is the first line under every picture ---- */
 .figure {
   margin: 0 0 24px;
   min-width: 0;
@@ -174,11 +233,25 @@
   background: var(--ground);
 }
 .figure figcaption {
+  display: grid;
+  gap: 3px;
   font-size: 12px;
-  line-height: 1.65;
+  line-height: 1.5;
   color: var(--ink-lo);
   margin-top: 10px;
   max-width: 85ch;
+}
+.disclosure {
+  font: 500 10px/1.5 var(--face-data);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.captionText {
+  color: var(--ink);
+}
+.credit {
+  color: var(--ink-lo);
 }
 .figure figcaption a {
   text-decoration-color: var(--journey-rule);
@@ -189,6 +262,8 @@
   color: var(--ink-hi);
   text-decoration-color: currentColor;
 }
+
+/* ---- The record's parts ---- */
 .meta {
   font: 400 12px/1.65 var(--face-data);
   color: var(--ink-lo);
@@ -213,22 +288,28 @@
 }
 .context {
   border-top: 1px solid var(--journey-rule);
-  padding-top: 17px;
+  padding-top: 14px;
   margin: 24px 0 20px;
+  font-size: 14px;
+  line-height: 1.75;
+  max-width: 70ch;
+  color: var(--ink);
+  overflow-wrap: anywhere;
 }
-.context > span,
+.contextLabel,
 .finding > span {
+  display: block;
   font: 400 10px/1.6 var(--face-data);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--gold);
+  margin-bottom: 8px;
 }
-.context p,
 .finding p {
   font-size: 14px;
   line-height: 1.75;
   max-width: 70ch;
-  margin: 10px 0 0;
+  margin: 0;
   overflow-wrap: anywhere;
 }
 .sources {
@@ -243,7 +324,8 @@
   text-decoration-color: var(--journey-rule);
   text-underline-offset: 3px;
 }
-/* The daily lead and the smaller companion story are intentionally unequal. */
+
+/* ---- News: the daily lead and its smaller companion are intentionally unequal ---- */
 .newsSpread {
   display: grid;
   grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
@@ -253,7 +335,7 @@
 .newsSpread > article {
   min-width: 0;
 }
-.newsSpread > article + article {
+.newsSpread > article[data-rank="companion"] {
   padding: 24px;
   background-color: var(--journey-panel);
   background-image: var(--surface-grade);
@@ -267,15 +349,15 @@
   line-height: 1.08;
   margin: 0 0 20px;
 }
-.newsSpread > article + article h3 {
+.newsSpread > article[data-rank="companion"] h3 {
   font-size: clamp(26px, 2.15vw, 34px);
   line-height: 1.12;
 }
-.newsSpread > article + article .summary {
+.newsSpread > article[data-rank="companion"] .summary {
   font-size: 14px;
   line-height: 1.75;
 }
-.newsSpread > article + article .figure img {
+.newsSpread > article[data-rank="companion"] .figure img {
   aspect-ratio: 3/2;
 }
 .newsSpread[data-count="1"] {
@@ -289,7 +371,8 @@
 .newsSpread[data-count="1"] .figure {
   grid-row: span 8;
 }
-/* Research is a case file, not another news card. Status precedes the claim. */
+
+/* ---- Fake Resistance: a case file, not another news card. Status precedes the claim. ---- */
 .investigations {
   border-bottom: 0;
 }
@@ -308,7 +391,8 @@
   background-image: var(--surface-grade);
   box-shadow: var(--shadow-1);
 }
-.investigation > div {
+.investigation > div,
+.dossier {
   min-width: 0;
 }
 .investigation .figure img {
@@ -324,13 +408,14 @@
   line-height: 1.75;
   margin-top: 12px;
 }
+/* One status line: the label, then what the label means, said once. */
 .verdict {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 16px;
+  gap: 4px 12px;
   align-items: baseline;
-  margin: 0 0 26px;
-  padding: 0 0 16px;
+  margin: 0 0 22px;
+  padding: 0 0 14px;
   border-bottom: 1px solid var(--journey-rule);
   font: 500 13px/1.5 var(--face-text);
 }
@@ -342,8 +427,11 @@
   background: var(--ink-lo);
   border-radius: 50%;
 }
-.verdict span {
-  flex-basis: 100%;
+.verdictLabel {
+  font-weight: 500;
+}
+.verdictMeaning {
+  flex: 1 1 16ch;
   font-weight: 400;
   font-size: 12px;
   color: var(--ink-lo);
@@ -362,7 +450,8 @@
   padding: 4px 0 4px 18px;
   margin-top: 24px;
 }
-/* A page-turn into the preserved archive. No text or warnings live on images. */
+
+/* ---- October 7: a page-turn into the preserved archive. No text or warnings live on images. ---- */
 .archive {
   --ink-hi: var(--journey-paper-ink);
   --ink: var(--journey-paper-ink);
@@ -378,10 +467,20 @@
   color: var(--journey-paper-ink);
   background: var(--journey-paper);
   border-bottom: 0;
+  column-gap: 0;
 }
-.archive .sectionHead {
+/* The rule under the archive head runs the full width: the head carries it
+   across its column and the action, stretched to its own column, carries it
+   the rest of the way with the link kept at the end. */
+.archive > .sectionHead,
+.archive > .sectionAction {
   padding-bottom: 30px;
   border-bottom: 1px solid var(--journey-rule);
+}
+.archive > .sectionAction {
+  justify-self: stretch;
+  text-align: end;
+  padding-left: 24px;
 }
 .archive .sectionHead h2 {
   font-size: clamp(42px, 5.9vw, 88px);
@@ -424,7 +523,11 @@
   max-width: 62ch;
   color: var(--ink);
 }
-/* Portraits have the space of a profile, rather than becoming huge thumbnails. */
+
+/* ---- Our Heroes: portraits have the space of a profile, not of a thumbnail ---- */
+.people .peopleSpread {
+  align-items: start;
+}
 .peopleSpread {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -435,13 +538,13 @@
   display: flex;
   flex-direction: column;
 }
-.peopleSpread article + article {
+.peopleSpread article[data-rank="companion"] {
   padding-top: 72px;
 }
 .portrait img {
   aspect-ratio: 1;
 }
-.peopleSpread article > div {
+.peopleSpread article > :not(.figure) {
   max-width: 58ch;
 }
 .peopleSpread h3 {
@@ -452,7 +555,8 @@
 .peopleSpread .summary {
   font-size: 15px;
 }
-/* Dates attach directly to their image and chapter, not to a fictional timeline. */
+
+/* ---- Israel's Story: dates attach to their image and chapter, not to a fictional timeline ---- */
 .history .sectionHead {
   margin-bottom: 28px;
 }
@@ -465,7 +569,7 @@
   min-width: 0;
 }
 .era {
-  font: 400 clamp(23px, 2.2vw, 32px)/1.2 var(--face-display);
+  font: 400 clamp(23px, 2.2vw, 32px) / 1.2 var(--face-display);
   letter-spacing: -0.02em;
   padding: 18px 0;
   border-top: 1px solid var(--journey-rule);
@@ -480,7 +584,8 @@
   line-height: 1.1;
   margin: 0 0 20px;
 }
-/* One ordered reading path; no wrapped arrows that imply a different order. */
+
+/* ---- Behind the desk: one ordered reading path; no wrapped arrows that imply another order ---- */
 .system {
   border-bottom: 0;
   padding-bottom: 64px;
@@ -649,7 +754,6 @@
 .ampCheckHead {
   fill: var(--ink-lo);
 }
-
 .narrativePath {
   list-style: none;
   display: grid;
@@ -695,11 +799,12 @@
   max-width: 60ch;
   line-height: 1.7;
 }
+
 @media (min-width: 1100px) {
   .journey {
     --journey-end: max(104px, var(--journey-inset));
   }
-  .newsSpread > article + article {
+  .newsSpread > article[data-rank="companion"] {
     padding: 32px;
   }
   .investigation {
@@ -714,10 +819,7 @@
     flex-basis: 100%;
     margin-top: 8px;
   }
-  .sectionHead > .link {
-    max-width: 32%;
-  }
-  .newsSpread > article + article {
+  .newsSpread > article[data-rank="companion"] {
     padding: 18px;
   }
   .investigation {
@@ -725,127 +827,532 @@
     gap: 26px;
   }
 }
+
+/* ---- The phone ----
+   One column. The lead keeps its picture and a clamped preview; the companion
+   becomes a row beside a thumbnail. Headlines are sized so a long one takes
+   three or four lines, never most of a screen, and the section's action
+   follows its records. */
 @media (max-width: 767px) {
   .journey {
     --journey-inset: 20px;
   }
   .edition {
-    flex-direction: column;
-    gap: 8px;
-    padding: 28px 0 22px;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "line"
+      "date"
+      "contents";
+    padding: 18px 0 0;
   }
-  .edition > span {
+  .editionLine {
+    font-size: 20px;
+    margin: 0;
+  }
+  .editionDate {
     text-align: start;
+    font-size: 11px;
+    margin: 2px 0 10px;
   }
   .contents {
-    column-gap: 22px;
-    padding-bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 12px;
+    padding: 2px 0;
+  }
+  .contents > span {
+    display: none;
   }
   .contents a {
+    min-height: 40px;
     font-size: 12px;
+    line-height: 1.25;
   }
   .section {
-    padding-block: 48px;
+    padding-block: 40px;
+  }
+  .editorial {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "head"
+      "intro"
+      "spread"
+      "state"
+      "action";
+  }
+  .editorial > .sectionAction {
+    justify-self: start;
+    max-width: 100%;
+    margin: 28px 0 0;
+  }
+  .sectionAction .link {
+    white-space: normal;
+  }
+  .archive > .sectionAction {
+    text-align: start;
   }
   .sectionHead {
-    display: block;
-    margin-bottom: 28px;
+    margin-bottom: 22px;
   }
   .sectionHead h2 {
-    font-size: clamp(38px, 10vw, 56px);
+    font-size: clamp(32px, 8.5vw, 44px);
     max-width: 16ch;
   }
-  .sectionHead > .link {
-    max-width: 100%;
-    margin-top: 16px;
-  }
   .sectionIntro {
-    font-size: 15px;
-    margin-top: -6px;
+    font-size: 14px;
+    color: var(--ink-lo);
+    margin: -6px 0 22px;
+    line-height: 1.55;
   }
-  .newsSpread,
-  .archiveSpread,
-  .peopleSpread,
-  .historySpread {
+  .link {
+    margin-top: 10px;
+  }
+  .figure {
+    margin-bottom: 14px;
+  }
+  .figure figcaption {
+    margin-top: 8px;
+    font-size: 11px;
+  }
+  .byline {
+    margin-bottom: 10px;
+  }
+  .summary {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 10px 0 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  .context {
+    margin: 14px 0 0;
+    padding-top: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  .contextLabel {
+    display: inline;
+    margin: 0 8px 0 0;
+  }
+  .sources {
+    margin: 12px 0 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  /* News */
+  .newsSpread {
     grid-template-columns: 1fr;
-    gap: 36px;
+    gap: 28px;
   }
   .newsSpread h3 {
-    font-size: clamp(31px, 8.4vw, 44px);
+    font-size: clamp(26px, 6.9vw, 32px);
+    line-height: 1.12;
+    margin: 0 0 4px;
   }
-  .newsSpread > article + article {
-    padding: 24px;
-  }
-  .newsSpread > article + article h3 {
-    font-size: 29px;
+  .newsSpread h3 a {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
   }
   .newsSpread[data-count="1"] > article {
     display: block;
   }
-  .summary {
-    font-size: 15px;
-    line-height: 1.75;
+  .newsSpread > article[data-rank="companion"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--journey-thumb);
+    grid-template-areas:
+      "byline thumb"
+      "title thumb"
+      "caption caption"
+      "sources sources"
+      "cta cta";
+    column-gap: 16px;
+    align-items: start;
+    padding: 24px 0 0;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--journey-rule);
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .newsSpread > article[data-rank="companion"] .figure {
+    display: contents;
+  }
+  .newsSpread > article[data-rank="companion"] .figure img {
+    grid-area: thumb;
+    width: var(--journey-thumb);
+    height: var(--journey-thumb);
+    aspect-ratio: 1;
+    margin-top: 2px;
+  }
+  .newsSpread > article[data-rank="companion"] .figure figcaption {
+    grid-area: caption;
+    margin-top: 10px;
+  }
+  .newsSpread > article[data-rank="companion"] .byline {
+    grid-area: byline;
+    margin-bottom: 6px;
+  }
+  .newsSpread > article[data-rank="companion"] h3 {
+    grid-area: title;
+    font-size: 20px;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .newsSpread > article[data-rank="companion"] h3 a {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .newsSpread > article[data-rank="companion"] .summary,
+  .newsSpread > article[data-rank="companion"] .context {
+    display: none;
+  }
+  .newsSpread > article[data-rank="companion"] .sources {
+    grid-area: sources;
+  }
+  .newsSpread > article[data-rank="companion"] .link {
+    grid-area: cta;
+  }
+
+  /* Fake Resistance: the cover sits flush on the dossier; the companion drops its
+     illustration and keeps status, claim, finding, sources. */
+  .narrativeSpread {
+    gap: 20px;
   }
   .investigation {
     grid-template-columns: 1fr;
-    padding: 20px;
-    gap: 24px;
+    gap: 0;
+    padding: 0 16px 18px;
+    border-radius: 0;
+    box-shadow: none;
   }
   .investigation .figure {
-    margin-bottom: 12px;
+    margin: 0 -16px 12px;
   }
   .investigation .figure img {
-    aspect-ratio: 16/10;
+    aspect-ratio: 16/9;
   }
-  .investigation h3 {
-    font-size: clamp(29px, 7.4vw, 38px);
+  .investigation .figure figcaption {
+    padding: 0 16px;
+  }
+  .dossierCover {
+    margin-bottom: 14px;
   }
   .investigation .meta {
     font-size: 11px;
   }
   .verdict {
-    margin-bottom: 20px;
+    margin: 0 0 12px;
+    padding: 0 0 10px;
   }
+  .investigation h3 {
+    font-size: clamp(23px, 6.2vw, 28px);
+    line-height: 1.15;
+    margin: 6px 0 10px;
+  }
+  .investigation h3 a {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+  }
+  .investigation .summary {
+    margin-top: 0;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .finding {
+    margin-top: 14px;
+    padding: 2px 0 2px 14px;
+  }
+  .finding > span {
+    margin-bottom: 4px;
+  }
+  .finding p {
+    font-size: 14px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+  }
+  .investigation[data-rank="companion"] {
+    padding-top: 16px;
+  }
+  .investigation[data-rank="companion"] .figure {
+    display: none;
+  }
+  .investigation[data-rank="companion"] .dossierCover {
+    margin-bottom: 10px;
+  }
+  .investigation[data-rank="companion"] h3 {
+    font-size: 21px;
+  }
+  .investigation[data-rank="companion"] h3 a {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .investigation[data-rank="companion"] .summary {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .investigation[data-rank="companion"] .finding p {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  /* October 7: the paper stays; the documentation companion is a row. */
   .archive .sectionHead h2 {
-    font-size: clamp(44px, 11vw, 62px);
+    font-size: clamp(36px, 9.5vw, 52px);
+  }
+  .archive > .sectionHead {
+    padding-bottom: 22px;
+  }
+  .archive > .sectionAction {
+    padding: 0;
+    border-bottom: 0;
+  }
+  .archiveSpread {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .archiveSpread h3 {
+    font-size: clamp(25px, 6.6vw, 30px);
+    line-height: 1.15;
+    margin: 8px 0 10px;
   }
   .archiveSpread > article[data-kind="documentation"] {
     border-left: 0;
-    padding: 28px 0 0;
+    padding-left: 0;
+  }
+  .archiveSpread > article[data-rank="companion"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--journey-thumb);
+    grid-template-areas:
+      "kicker thumb"
+      "witness thumb"
+      "title thumb"
+      "caption caption"
+      "warning warning"
+      "sources sources"
+      "cta cta";
+    column-gap: 16px;
+    align-items: start;
+    padding: 24px 0 0;
     border-top: 1px solid var(--journey-rule);
   }
-  .archiveSpread > article[data-kind="documentation"] .figure img {
-    aspect-ratio: 16/10;
+  .archiveSpread > article[data-rank="companion"] .figure {
+    display: contents;
   }
-  .archiveSpread h3 {
-    font-size: 32px;
+  .archiveSpread > article[data-rank="companion"] .figure img {
+    grid-area: thumb;
+    width: var(--journey-thumb);
+    height: var(--journey-thumb);
+    aspect-ratio: 1;
   }
-  .peopleSpread article + article {
+  .archiveSpread > article[data-rank="companion"] .figure figcaption {
+    grid-area: caption;
+    margin-top: 10px;
+  }
+  .archiveSpread > article[data-rank="companion"] .kicker {
+    grid-area: kicker;
+    margin-bottom: 6px;
+  }
+  .archiveSpread > article[data-rank="companion"] .witness {
+    grid-area: witness;
+  }
+  .archiveSpread > article[data-rank="companion"] h3 {
+    grid-area: title;
+    font-size: 20px;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .archiveSpread > article[data-rank="companion"] .summary {
+    display: none;
+  }
+  .archiveSpread > article[data-rank="companion"] .warning {
+    grid-area: warning;
+    margin: 12px 0 0;
+  }
+  .archiveSpread > article[data-rank="companion"] .sources {
+    grid-area: sources;
+  }
+  .archiveSpread > article[data-rank="companion"] .link {
+    grid-area: cta;
+  }
+  .warning {
+    margin: 12px 0 0;
+  }
+
+  /* Our Heroes: the face beside the name; the story beneath. */
+  .peopleSpread {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .peopleSpread article {
+    display: grid;
+    grid-template-columns: minmax(0, 44%) minmax(0, 1fr);
+    grid-template-areas:
+      "portrait kicker"
+      "portrait title"
+      "portrait meta"
+      "caption caption"
+      "summary summary"
+      "sources sources"
+      "cta cta";
+    column-gap: 16px;
+    align-items: start;
+  }
+  .peopleSpread article[data-rank="companion"] {
+    grid-template-columns: 104px minmax(0, 1fr);
     padding-top: 24px;
     border-top: 1px solid var(--journey-rule);
   }
-  .peopleSpread h3 {
-    font-size: 39px;
+  .peopleSpread article > :not(.figure) {
+    max-width: none;
   }
-  .portrait img {
+  .peopleSpread .figure {
+    display: contents;
+  }
+  .peopleSpread .figure img {
+    grid-area: portrait;
+    aspect-ratio: 4/5;
+  }
+  .peopleSpread article[data-rank="companion"] .figure img {
+    width: 104px;
+    height: 104px;
     aspect-ratio: 1;
   }
-  .historySpread article + article {
-    padding-top: 8px;
+  .peopleSpread .figure figcaption {
+    grid-area: caption;
+    margin-top: 8px;
+  }
+  .peopleSpread .kicker {
+    grid-area: kicker;
+    margin-bottom: 6px;
+  }
+  .peopleSpread h3 {
+    grid-area: title;
+    font-size: clamp(24px, 6.6vw, 28px);
+    line-height: 1.08;
+    margin: 0 0 6px;
+  }
+  .peopleSpread article[data-rank="companion"] h3 {
+    font-size: 21px;
+  }
+  .peopleSpread .meta {
+    grid-area: meta;
+  }
+  .peopleSpread .summary {
+    grid-area: summary;
+    margin-top: 12px;
+  }
+  .peopleSpread article[data-rank="companion"] .summary {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .peopleSpread .sources {
+    grid-area: sources;
+  }
+  .peopleSpread .link {
+    grid-area: cta;
+  }
+
+  /* Israel's Story: era, plate, chapter; the companion keeps its era rule and a small plate. */
+  .historySpread {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .era {
+    font-size: 20px;
+    padding: 12px 0;
   }
   .historySpread h3 {
-    font-size: 33px;
+    font-size: clamp(23px, 6.2vw, 28px);
+    line-height: 1.15;
+    margin: 0 0 10px;
   }
+  .historySpread article[data-rank="companion"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--journey-thumb);
+    grid-template-areas:
+      "era era"
+      "title thumb"
+      "verdict verdict"
+      "caption caption"
+      "sources sources"
+      "cta cta";
+    column-gap: 16px;
+    align-items: start;
+  }
+  .historySpread article[data-rank="companion"] .era {
+    grid-area: era;
+    margin-bottom: 8px;
+  }
+  .historySpread article[data-rank="companion"] .figure {
+    display: contents;
+  }
+  .historySpread article[data-rank="companion"] .figure img {
+    grid-area: thumb;
+    width: var(--journey-thumb);
+    height: var(--journey-thumb);
+    aspect-ratio: 1;
+  }
+  .historySpread article[data-rank="companion"] .figure figcaption {
+    grid-area: caption;
+    margin-top: 10px;
+  }
+  .historySpread article[data-rank="companion"] h3 {
+    grid-area: title;
+    font-size: 20px;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .historySpread article[data-rank="companion"] .verdict {
+    grid-area: verdict;
+    margin: 12px 0 0;
+    padding: 0;
+    border: 0;
+  }
+  .historySpread article[data-rank="companion"] .summary,
+  .historySpread article[data-rank="companion"] .context {
+    display: none;
+  }
+  .historySpread article[data-rank="companion"] .sources {
+    grid-area: sources;
+  }
+  .historySpread article[data-rank="companion"] .link {
+    grid-area: cta;
+  }
+
+  /* Behind the desk */
   .systemOverview,
   .systemBranches,
   .purpose {
     grid-template-columns: 1fr;
   }
   .systemOverview {
-    gap: 32px;
+    gap: 28px;
   }
   .systemHead h2 {
-    font-size: 43px;
+    font-size: clamp(32px, 8.5vw, 40px);
+    margin-bottom: 16px;
   }
   .pipeline {
     padding-left: 18px;
@@ -853,19 +1360,21 @@
   .pipeline li {
     grid-template-columns: minmax(100px, 1fr) 1.5fr;
     gap: 16px;
+    padding: 13px 0;
   }
   .pipeline li::before {
     left: -22px;
+    top: 20px;
   }
   .systemBranches {
-    gap: 24px;
-  }
-  .purpose {
-    margin-top: 40px;
     gap: 20px;
   }
+  .purpose {
+    margin-top: 36px;
+    gap: 16px;
+  }
   .purpose h3 {
-    font-size: 40px;
+    font-size: clamp(30px, 8vw, 36px);
   }
   .narrativePath {
     grid-template-columns: 1fr;
@@ -881,11 +1390,11 @@
   }
   .systemActions {
     display: grid;
-    gap: 12px;
+    gap: 8px;
     justify-items: start;
   }
   .system {
-    padding-bottom: 48px;
+    padding-bottom: 40px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

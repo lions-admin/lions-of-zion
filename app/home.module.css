@@ -568,6 +568,9 @@
   line-height: var(--t-body-lh);
 }
 
+/* The one invitation on the cover. A step up from the data size and a
+   heavier weight than the metadata face is usually allowed, because it has
+   to outrank the reading path beneath it at a glance, not on inspection. */
 .hero .actions .ctaPrimary {
   --btn-h: calc(var(--control-h) + var(--sp-2));
   --btn-bg: transparent;
@@ -579,9 +582,9 @@
   border: 0;
   box-shadow: none;
   font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: 400;
-  letter-spacing: var(--t-data-tracking);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -839,20 +842,27 @@
   cursor: pointer;
 }
 
+/* The optional reading path: a sentence in the low ink, no rule and no arrow
+   of its own. It keeps its full touch height; it gives up everything that
+   made it read as a second button beside the first. */
 .storyLink {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
   min-height: var(--control-h);
-  margin-top: var(--sp-3);
-  color: var(--ink);
+  margin-top: var(--sp-2);
+  color: var(--ink-lo);
   font-family: var(--face-home-cover);
-  font-size: var(--t-small);
+  font-size: var(--t-caption);
   text-transform: none;
   white-space: nowrap;
   text-decoration: underline;
-  text-decoration-color: var(--control-line);
+  text-decoration-color: transparent;
   text-underline-offset: 0.3em;
+  transition: color var(--dur-fast) var(--ease-out), text-decoration-color var(--dur-fast) var(--ease-out);
+}
+.storyLink:hover {
+  text-decoration-color: var(--control-line);
 }
 
 .secondaryActions {
@@ -867,6 +877,7 @@
 
 .storyLink:hover,
 .motionControl:hover { color: var(--ink-hi); border-color: var(--ink-hi); }
+.storyLink:hover { color: var(--ink); }
 .storyLink:active,
 .motionControl:active { color: var(--gold-hi); }
 .storyLink:focus-visible,
@@ -891,4 +902,10 @@
 .hero { padding-bottom: var(--sp-7); }
 .skipLink { position:fixed;top:12px;left:20px;z-index:1000;transform:translateY(-200%);padding:14px 20px;background:var(--ground);color:var(--ink-hi);border:1px solid var(--gold); }
 .skipLink:focus { transform:translateY(0); }
-@media(max-width:767px){.hero{padding-bottom:40px}.page{padding-bottom:0}}
+/* The cover ends, the edition begins: one short beat between them on a
+   phone, so the first story is reached within a screen of the lion. */
+@media (max-width: 767px) {
+  .hero { padding-bottom: 28px; }
+  .page { padding-bottom: 0; }
+  .secondaryActions { margin-top: var(--sp-1); }
+}

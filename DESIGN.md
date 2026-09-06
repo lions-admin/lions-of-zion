@@ -465,3 +465,54 @@ decisions made in this pass:
 - **Support chooser is four raised choice cards**, each one control, the
   primary carrying the gold rule. **404** speaks the editorial register with a
   primary action, search, and a card index of real destinations.
+
+## Homepage on a phone — September 6, 2026 refinement
+
+Implementation for owner review against the mobile brief; not a claim of
+visual acceptance. The journey's order and its section identities are
+unchanged. What changed is the phone's reading of them:
+
+- **Two ranks in every pair.** The first record of a section is the lead and
+  keeps its picture and a clamped preview; the second is the companion, set
+  on a phone as one compact row beside a thumbnail (a portrait beside the
+  name for Our Heroes; no illustration at all for the second Fake Resistance
+  dossier). Both stay visible for the whole edition; nothing rotates or hides
+  behind a gesture. Every field remains in the document — the phone clamps
+  the summary to three lines, "Why it matters" to three, the source line to
+  two — and the record carries the rest.
+- **One destination action per section, after its records on a phone.** The
+  section is a grid: the action sits beside the title on a wide viewport and
+  follows the spread on a phone, so the way out of a section never sits
+  between the reader and its first story. `SectionAction` is the one copy.
+- **The edition index is a masthead line, not a rail.** The desk's line, the
+  date and six destinations in a three-by-two grid, named as the site names
+  them — News & Analysis, Fake Resistance, October 7, Our Heroes, Israel's
+  Story, Behind the desk. The section that was titled "Narratives & fact
+  checks" is titled **Fake Resistance**, with the old title as its kicker.
+- **Status, then claim, said once.** A dossier reads status → claim → finding
+  → sources. An unresolved record's status line already says no finding has
+  been reached, so it carries no finding block repeating it; a record with no
+  finding excerpt shows none rather than a pointer sentence.
+- **The disclosure is the first line under every picture.** Captions are
+  three ordered parts — disclosure (uppercase data face), description, then
+  credit and licence — from a `disclosure` field on the media registry, with
+  a role default for illustrations and safe covers. `alt` keeps the whole
+  sentence. The image is flush on the Fake Resistance dossier so the panel is
+  a cover, not a frame inside a card.
+- **Headlines take three or four lines, never most of a screen.** The lead
+  headline is 26–32px on a phone and clamps at four lines; companions at
+  three; section titles 32–44px. Text is never made tiny to fit.
+- **The cover's one invitation.** "Read the latest" is the only arrowed,
+  ruled action on the cover; "Why this work matters" is a low-ink sentence
+  with no rule and no arrow of its own.
+- **The Ask launcher steps aside while reading.** Below 1100px on the
+  homepage — the widths where the edition reserves no gutter for it — the
+  seal keeps its place over the cover's empty corner, then becomes a 48px
+  icon through the edition that slides below the viewport while the reader
+  scrolls down and returns on any scroll up, at the end of the page, or on
+  keyboard focus. No reserved column, no attention animation; reduced motion
+  makes the slide a cut. Desktop, and every other route, are unchanged.
+  With scripting off the button that could open nothing is not shown; the
+  menu's link to `/ask` remains.
+
+Evidence and remaining limitations: `docs/reviews/homepage-mobile-refinement/`.

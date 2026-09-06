@@ -1,5 +1,23 @@
 # State
 
+## 2026-09-06 — Homepage mobile refinement implemented on `claude/create-worktree-9wtvyy`, not on `main`
+
+The owner's mobile brief (density, primary/secondary records, Ask occlusion,
+cover action hierarchy, edition index, destination naming, image
+disclosures, headline sizing, card chrome, section rhythm) is implemented
+and browser-verified in Chromium emulation at 320, 375, 390×844, 430×932,
+768 and 1440. Evidence, numbers and remaining limitations are in
+`docs/reviews/homepage-mobile-refinement/REPORT.md`; the design record is the
+"Homepage on a phone" section of `DESIGN.md`; the why of the launcher is in
+`.ai/DECISIONS.md` (2026-09-06). Nothing was pushed to `main` and nothing
+deployed. The branch also carries the two `frontend-design*` project skills,
+a regenerated `package-lock.json` (the committed one no longer satisfied
+`npm ci`), and a Prettier-only formatting commit for `components/home/`.
+
+Not verified here: a physical iPhone or Safari, and the live Neon data — the
+three publication-backed records were rendered from the development-only
+transcription in `content-packages/homepage/local-records.json`.
+
 ## Latest — 2026-08-27, owner authority
 
 There is one developer and project owner: the current user. Direct owner

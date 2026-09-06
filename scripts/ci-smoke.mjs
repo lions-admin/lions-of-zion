@@ -10,6 +10,7 @@ const ROUTES = [
   "/support-us",
   "/war-update",
   "/october-7",
+  "/people-of-israel",
   "/our-heroes",
   "/israels-story",
   "/fake-resistance",
@@ -143,13 +144,20 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
   console.error(`FAIL /: HTTP ${noJsResponse?.status() ?? 0} with JavaScript disabled`);
   failed = true;
 } else {
-  /* Kept in step with `lib/site-navigation.ts` by hand: this script is plain
-     node with no bundler, so it cannot import the TypeScript module. A new
-     section that is not added here is not smoke-tested. */
+  /* Kept in step with `lib/site-navigation.ts` and
+     `components/site/navigation-model.ts` by hand: this script is plain node
+     with no bundler, so it cannot import the TypeScript modules. A new
+     section that is not added here is not smoke-tested.
+     `/our-heroes` and `/israels-story` are deliberately absent: since
+     2026-09-06 they are `LEGACY_SECTION_PAGES` reachable only from within
+     `/people-of-israel`, which absorbed their nav entry — the homepage no
+     longer links either directly, so testing for a direct link here was
+     testing for behaviour the site stopped having. `/fact-check` joined
+     the chrome on 2026-09-07 alongside `/methodology` and `/corrections`. */
   const DESTINATIONS = [
     "/geopolitical-brief", "/support-us", "/information-war", "/october-7",
-    "/our-heroes", "/israels-story", "/fake-resistance", "/we-are",
-    "/methodology", "/corrections",
+    "/people-of-israel", "/fake-resistance", "/we-are",
+    "/fact-check", "/methodology", "/corrections",
   ];
 
   const missing = [];

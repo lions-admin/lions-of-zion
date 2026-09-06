@@ -1,0 +1,1757 @@
+{
+  "origin": "http://localhost:3000",
+  "phase": "before",
+  "device": "Chromium viewport/device emulation, not a physical phone",
+  "runs": [
+    {
+      "name": "w320",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "deviceScaleFactor": 2,
+      "arrival": {
+        "heroBottom": 627.0625,
+        "firstArticleTop": 1069.203125,
+        "firstImageTop": 1069.203125,
+        "firstHeadlineTop": 1414.328125,
+        "documentHeight": 15514
+      },
+      "sections": {
+        "news": {
+          "height": 2456,
+          "headlines": [
+            {
+              "text": "Israel Ministry of Defense activities; regional reports of a",
+              "fontSize": "31px",
+              "lines": 6
+            },
+            {
+              "text": "Israel Ministry of Defense: recent announcements and program",
+              "fontSize": "29px",
+              "lines": 4
+            }
+          ],
+          "articles": 2
+        },
+        "fakeResistance": {
+          "height": 2762,
+          "headlines": [
+            {
+              "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
+              "fontSize": "29px",
+              "lines": 5
+            },
+            {
+              "text": "Manosphere / Far-Right Anti-Zionist Cluster on X",
+              "fontSize": "29px",
+              "lines": 3
+            }
+          ],
+          "articles": 2
+        },
+        "october7": {
+          "height": 1744,
+          "headlines": [
+            {
+              "text": "We were barricaded for hours. My father, 62 years old, fough",
+              "fontSize": "32px",
+              "lines": 4
+            },
+            {
+              "text": "85-year old Yaffa Adar being abducted into Gaza in a golf ca",
+              "fontSize": "26px",
+              "lines": 3
+            }
+          ],
+          "articles": 2
+        },
+        "heroes": {
+          "height": 2136,
+          "headlines": [
+            {
+              "text": "Maj.-Gen. (ret.) Noam Tibon",
+              "fontSize": "39px",
+              "lines": 2
+            },
+            {
+              "text": "Rami Davidian",
+              "fontSize": "39px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "israelsStory": {
+          "height": 2074,
+          "headlines": [
+            {
+              "text": "Peace with Egypt, 1979",
+              "fontSize": "33px",
+              "lines": 2
+            },
+            {
+              "text": "The founding, 1947–1948",
+              "fontSize": "33px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "system": {
+          "height": 2441,
+          "headlines": [
+            {
+              "text": "Repetition is not verification.",
+              "fontSize": "40px",
+              "lines": 2
+            }
+          ],
+          "articles": 0
+        }
+      },
+      "launcher": [
+        {
+          "fraction": 0.12,
+          "scrollY": 1794,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 232,
+            "top": 408,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 1,
+            "elements": {
+              "a": 2
+            },
+            "snippets": [
+              "Middle East Eye — Lebanese child succumb",
+              "Middle East Eye — Lebanese child succumb"
+            ]
+          }
+        },
+        {
+          "fraction": 0.25,
+          "scrollY": 3737,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 232,
+            "top": 408,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 1,
+            "elements": {
+              "a": 2
+            },
+            "snippets": [
+              "US approves a large helicopter sale to I",
+              "US approves a large helicopter sale to I"
+            ]
+          }
+        },
+        {
+          "fraction": 0.4,
+          "scrollY": 5978,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 232,
+            "top": 408,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 1,
+            "control": 0,
+            "elements": {
+              "img": 1
+            },
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 8220,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 232,
+            "top": 408,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p.summary": 1
+            },
+            "snippets": [
+              "On the morning of October 7, Tibon and h"
+            ]
+          }
+        },
+        {
+          "fraction": 0.7,
+          "scrollY": 10462,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 232,
+            "top": 408,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p": 1
+            },
+            "snippets": [
+              "Signed in Washington, D.C. by Egyptian P"
+            ]
+          }
+        },
+        {
+          "fraction": 0.85,
+          "scrollY": 12704,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 232,
+            "top": 408,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.97,
+          "scrollY": 14498,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 232,
+            "top": 408,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 1,
+            "elements": {
+              "a.site-footer-module__2HL8Da__fileLink": 1
+            },
+            "snippets": [
+              "Narratives & Fact Checks"
+            ]
+          }
+        }
+      ],
+      "afterScrollUp": {
+        "visible": true,
+        "rect": {
+          "left": 232,
+          "top": 408,
+          "width": 64,
+          "height": 64
+        }
+      },
+      "keyboard": {
+        "launcherFocused": true,
+        "tabs": 68
+      },
+      "layout": {
+        "viewport": 320,
+        "documentWidth": 320,
+        "overflowing": [],
+        "main": 1,
+        "h1": 1
+      },
+      "errors": []
+    },
+    {
+      "name": "w375",
+      "viewport": {
+        "width": 375,
+        "height": 667
+      },
+      "deviceScaleFactor": 2,
+      "arrival": {
+        "heroBottom": 667,
+        "firstArticleTop": 1109.140625,
+        "firstImageTop": 1109.140625,
+        "firstHeadlineTop": 1445.703125,
+        "documentHeight": 15084
+      },
+      "sections": {
+        "news": {
+          "height": 2313,
+          "headlines": [
+            {
+              "text": "Israel Ministry of Defense activities; regional reports of a",
+              "fontSize": "31.5px",
+              "lines": 5
+            },
+            {
+              "text": "Israel Ministry of Defense: recent announcements and program",
+              "fontSize": "29px",
+              "lines": 4
+            }
+          ],
+          "articles": 2
+        },
+        "fakeResistance": {
+          "height": 2553,
+          "headlines": [
+            {
+              "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
+              "fontSize": "29px",
+              "lines": 5
+            },
+            {
+              "text": "Manosphere / Far-Right Anti-Zionist Cluster on X",
+              "fontSize": "29px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "october7": {
+          "height": 1750,
+          "headlines": [
+            {
+              "text": "We were barricaded for hours. My father, 62 years old, fough",
+              "fontSize": "32px",
+              "lines": 4
+            },
+            {
+              "text": "85-year old Yaffa Adar being abducted into Gaza in a golf ca",
+              "fontSize": "26px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "heroes": {
+          "height": 2174,
+          "headlines": [
+            {
+              "text": "Maj.-Gen. (ret.) Noam Tibon",
+              "fontSize": "39px",
+              "lines": 2
+            },
+            {
+              "text": "Rami Davidian",
+              "fontSize": "39px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "israelsStory": {
+          "height": 2015,
+          "headlines": [
+            {
+              "text": "Peace with Egypt, 1979",
+              "fontSize": "33px",
+              "lines": 1
+            },
+            {
+              "text": "The founding, 1947–1948",
+              "fontSize": "33px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "system": {
+          "height": 2364,
+          "headlines": [
+            {
+              "text": "Repetition is not verification.",
+              "fontSize": "40px",
+              "lines": 2
+            }
+          ],
+          "articles": 0
+        }
+      },
+      "launcher": [
+        {
+          "fraction": 0.12,
+          "scrollY": 1730,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 287,
+            "top": 507,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.25,
+          "scrollY": 3604,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 287,
+            "top": 507,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.4,
+          "scrollY": 5767,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 287,
+            "top": 507,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 2,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "span": 2
+            },
+            "snippets": [
+              "Safe cover. This is not a reconstruction",
+              "Lions of Zion · generated safe-cover art"
+            ]
+          }
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 7929,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 287,
+            "top": 507,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p.summary": 1
+            },
+            "snippets": [
+              "On the morning of October 7, Tibon and h"
+            ]
+          }
+        },
+        {
+          "fraction": 0.7,
+          "scrollY": 10092,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 287,
+            "top": 507,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p": 1
+            },
+            "snippets": [
+              "Signed in Washington, D.C. by Egyptian P"
+            ]
+          }
+        },
+        {
+          "fraction": 0.85,
+          "scrollY": 12254,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 287,
+            "top": 507,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "dd": 1
+            },
+            "snippets": [
+              "Human assessment · automated briefing · "
+            ]
+          }
+        },
+        {
+          "fraction": 0.97,
+          "scrollY": 13984,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 287,
+            "top": 507,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 2,
+            "elements": {
+              "a.site-footer-module__2HL8Da__fileLink": 2
+            },
+            "snippets": [
+              "News & Analysis",
+              "Narratives & Fact Checks"
+            ]
+          }
+        }
+      ],
+      "afterScrollUp": {
+        "visible": true,
+        "rect": {
+          "left": 287,
+          "top": 507,
+          "width": 64,
+          "height": 64
+        }
+      },
+      "keyboard": {
+        "launcherFocused": true,
+        "tabs": 68
+      },
+      "layout": {
+        "viewport": 375,
+        "documentWidth": 375,
+        "overflowing": [],
+        "main": 1,
+        "h1": 1
+      },
+      "errors": []
+    },
+    {
+      "name": "iphone-390x844",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 3,
+      "arrival": {
+        "heroBottom": 844,
+        "firstArticleTop": 1287.140625,
+        "firstImageTop": 1287.140625,
+        "firstHeadlineTop": 1633.078125,
+        "documentHeight": 15069
+      },
+      "sections": {
+        "news": {
+          "height": 2282,
+          "headlines": [
+            {
+              "text": "Israel Ministry of Defense activities; regional reports of a",
+              "fontSize": "32.76px",
+              "lines": 5
+            },
+            {
+              "text": "Israel Ministry of Defense: recent announcements and program",
+              "fontSize": "29px",
+              "lines": 3
+            }
+          ],
+          "articles": 2
+        },
+        "fakeResistance": {
+          "height": 2516,
+          "headlines": [
+            {
+              "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
+              "fontSize": "29px",
+              "lines": 4
+            },
+            {
+              "text": "Manosphere / Far-Right Anti-Zionist Cluster on X",
+              "fontSize": "29px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "october7": {
+          "height": 1768,
+          "headlines": [
+            {
+              "text": "We were barricaded for hours. My father, 62 years old, fough",
+              "fontSize": "32px",
+              "lines": 4
+            },
+            {
+              "text": "85-year old Yaffa Adar being abducted into Gaza in a golf ca",
+              "fontSize": "26px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "heroes": {
+          "height": 2132,
+          "headlines": [
+            {
+              "text": "Maj.-Gen. (ret.) Noam Tibon",
+              "fontSize": "39px",
+              "lines": 2
+            },
+            {
+              "text": "Rami Davidian",
+              "fontSize": "39px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "israelsStory": {
+          "height": 1974,
+          "headlines": [
+            {
+              "text": "Peace with Egypt, 1979",
+              "fontSize": "33px",
+              "lines": 1
+            },
+            {
+              "text": "The founding, 1947–1948",
+              "fontSize": "33px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "system": {
+          "height": 2303,
+          "headlines": [
+            {
+              "text": "Repetition is not verification.",
+              "fontSize": "40px",
+              "lines": 2
+            }
+          ],
+          "articles": 0
+        }
+      },
+      "launcher": [
+        {
+          "fraction": 0.12,
+          "scrollY": 1707,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 302,
+            "top": 684,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.25,
+          "scrollY": 3556,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 302,
+            "top": 684,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 1,
+            "elements": {
+              "a": 2
+            },
+            "snippets": [
+              "US approves a large helicopter sale to I",
+              "US approves a large helicopter sale to I"
+            ]
+          }
+        },
+        {
+          "fraction": 0.4,
+          "scrollY": 5690,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 302,
+            "top": 684,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 2,
+            "image": 1,
+            "control": 0,
+            "elements": {
+              "span": 2,
+              "img": 1
+            },
+            "snippets": [
+              "Safe cover. This is not a reconstruction",
+              "Lions of Zion · generated safe-cover art"
+            ]
+          }
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 7824,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 302,
+            "top": 684,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p.summary": 1
+            },
+            "snippets": [
+              "On the morning of October 7, Tibon and h"
+            ]
+          }
+        },
+        {
+          "fraction": 0.7,
+          "scrollY": 9958,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 302,
+            "top": 684,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p": 1
+            },
+            "snippets": [
+              "Signed in Washington, D.C. by Egyptian P"
+            ]
+          }
+        },
+        {
+          "fraction": 0.85,
+          "scrollY": 12091,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 302,
+            "top": 684,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "dd": 1
+            },
+            "snippets": [
+              "Human assessment · automated briefing · "
+            ]
+          }
+        },
+        {
+          "fraction": 0.97,
+          "scrollY": 13798,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 302,
+            "top": 684,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 2,
+            "elements": {
+              "a.site-footer-module__2HL8Da__fileLink": 2
+            },
+            "snippets": [
+              "News & Analysis",
+              "Narratives & Fact Checks"
+            ]
+          }
+        }
+      ],
+      "afterScrollUp": {
+        "visible": true,
+        "rect": {
+          "left": 302,
+          "top": 684,
+          "width": 64,
+          "height": 64
+        }
+      },
+      "keyboard": {
+        "launcherFocused": true,
+        "tabs": 68
+      },
+      "layout": {
+        "viewport": 390,
+        "documentWidth": 390,
+        "overflowing": [],
+        "main": 1,
+        "h1": 1
+      },
+      "errors": []
+    },
+    {
+      "name": "iphone-430x932",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "deviceScaleFactor": 3,
+      "arrival": {
+        "heroBottom": 932,
+        "firstArticleTop": 1379.140625,
+        "firstImageTop": 1379.140625,
+        "firstHeadlineTop": 1750.078125,
+        "documentHeight": 14647
+      },
+      "sections": {
+        "news": {
+          "height": 2237,
+          "headlines": [
+            {
+              "text": "Israel Ministry of Defense activities; regional reports of a",
+              "fontSize": "36.12px",
+              "lines": 5
+            },
+            {
+              "text": "Israel Ministry of Defense: recent announcements and program",
+              "fontSize": "29px",
+              "lines": 3
+            }
+          ],
+          "articles": 2
+        },
+        "fakeResistance": {
+          "height": 2569,
+          "headlines": [
+            {
+              "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
+              "fontSize": "31.82px",
+              "lines": 4
+            },
+            {
+              "text": "Manosphere / Far-Right Anti-Zionist Cluster on X",
+              "fontSize": "31.82px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "october7": {
+          "height": 1677,
+          "headlines": [
+            {
+              "text": "We were barricaded for hours. My father, 62 years old, fough",
+              "fontSize": "32px",
+              "lines": 3
+            },
+            {
+              "text": "85-year old Yaffa Adar being abducted into Gaza in a golf ca",
+              "fontSize": "26px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "heroes": {
+          "height": 2143,
+          "headlines": [
+            {
+              "text": "Maj.-Gen. (ret.) Noam Tibon",
+              "fontSize": "39px",
+              "lines": 2
+            },
+            {
+              "text": "Rami Davidian",
+              "fontSize": "39px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "israelsStory": {
+          "height": 1958,
+          "headlines": [
+            {
+              "text": "Peace with Egypt, 1979",
+              "fontSize": "33px",
+              "lines": 1
+            },
+            {
+              "text": "The founding, 1947–1948",
+              "fontSize": "33px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "system": {
+          "height": 2129,
+          "headlines": [
+            {
+              "text": "Repetition is not verification.",
+              "fontSize": "40px",
+              "lines": 2
+            }
+          ],
+          "articles": 0
+        }
+      },
+      "launcher": [
+        {
+          "fraction": 0.12,
+          "scrollY": 1646,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 342,
+            "top": 772,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.25,
+          "scrollY": 3429,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 342,
+            "top": 772,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 1,
+            "elements": {
+              "a": 1
+            },
+            "snippets": [
+              "US approves a large helicopter sale to I"
+            ]
+          }
+        },
+        {
+          "fraction": 0.4,
+          "scrollY": 5486,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 342,
+            "top": 772,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 1,
+            "control": 0,
+            "elements": {
+              "img": 1
+            },
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 7543,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 342,
+            "top": 772,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.7,
+          "scrollY": 9601,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 342,
+            "top": 772,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 1,
+            "elements": {
+              "a": 1
+            },
+            "snippets": [
+              "Image source"
+            ]
+          }
+        },
+        {
+          "fraction": 0.85,
+          "scrollY": 11658,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 342,
+            "top": 772,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "span": 1
+            },
+            "snippets": [
+              "Indexed reporting can be searched; archi"
+            ]
+          }
+        },
+        {
+          "fraction": 0.97,
+          "scrollY": 13304,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 342,
+            "top": 772,
+            "width": 64,
+            "height": 64
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        }
+      ],
+      "afterScrollUp": {
+        "visible": true,
+        "rect": {
+          "left": 342,
+          "top": 772,
+          "width": 64,
+          "height": 64
+        }
+      },
+      "keyboard": {
+        "launcherFocused": true,
+        "tabs": 68
+      },
+      "layout": {
+        "viewport": 430,
+        "documentWidth": 430,
+        "overflowing": [],
+        "main": 1,
+        "h1": 1
+      },
+      "errors": []
+    },
+    {
+      "name": "w768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "deviceScaleFactor": 1,
+      "arrival": {
+        "heroBottom": 1024,
+        "firstArticleTop": 1345.75,
+        "firstImageTop": 1345.75,
+        "firstHeadlineTop": 1720.421875,
+        "documentHeight": 9629
+      },
+      "sections": {
+        "news": {
+          "height": 1259,
+          "headlines": [
+            {
+              "text": "Israel Ministry of Defense activities; regional reports of a",
+              "fontSize": "32px",
+              "lines": 4
+            },
+            {
+              "text": "Israel Ministry of Defense: recent announcements and program",
+              "fontSize": "26px",
+              "lines": 4
+            }
+          ],
+          "articles": 2
+        },
+        "fakeResistance": {
+          "height": 1626,
+          "headlines": [
+            {
+              "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
+              "fontSize": "29px",
+              "lines": 3
+            },
+            {
+              "text": "Manosphere / Far-Right Anti-Zionist Cluster on X",
+              "fontSize": "29px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "october7": {
+          "height": 985,
+          "headlines": [
+            {
+              "text": "We were barricaded for hours. My father, 62 years old, fough",
+              "fontSize": "30px",
+              "lines": 3
+            },
+            {
+              "text": "85-year old Yaffa Adar being abducted into Gaza in a golf ca",
+              "fontSize": "26px",
+              "lines": 3
+            }
+          ],
+          "articles": 2
+        },
+        "heroes": {
+          "height": 1184,
+          "headlines": [
+            {
+              "text": "Maj.-Gen. (ret.) Noam Tibon",
+              "fontSize": "34px",
+              "lines": 2
+            },
+            {
+              "text": "Rami Davidian",
+              "fontSize": "34px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "israelsStory": {
+          "height": 1055,
+          "headlines": [
+            {
+              "text": "Peace with Egypt, 1979",
+              "fontSize": "29px",
+              "lines": 1
+            },
+            {
+              "text": "The founding, 1947–1948",
+              "fontSize": "29px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "system": {
+          "height": 1557,
+          "headlines": [
+            {
+              "text": "Repetition is not verification.",
+              "fontSize": "36px",
+              "lines": 2
+            }
+          ],
+          "articles": 0
+        }
+      },
+      "launcher": [
+        {
+          "fraction": 0.12,
+          "scrollY": 1033,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 676,
+            "top": 856,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.25,
+          "scrollY": 2151,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 676,
+            "top": 856,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.4,
+          "scrollY": 3442,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 676,
+            "top": 856,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 1,
+            "control": 0,
+            "elements": {
+              "img": 1
+            },
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 4733,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 676,
+            "top": 856,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 1,
+            "control": 0,
+            "elements": {
+              "span": 1,
+              "img": 1
+            },
+            "snippets": [
+              "Haim Zach / Government Press Office of I"
+            ]
+          }
+        },
+        {
+          "fraction": 0.7,
+          "scrollY": 6024,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 676,
+            "top": 856,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p.summary": 1
+            },
+            "snippets": [
+              "A state proclaimed under fire, hours aft"
+            ]
+          }
+        },
+        {
+          "fraction": 0.85,
+          "scrollY": 7314,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 676,
+            "top": 856,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 0,
+            "elements": {
+              "p": 1
+            },
+            "snippets": [
+              "Amplification can make a claim feel esta"
+            ]
+          }
+        },
+        {
+          "fraction": 0.97,
+          "scrollY": 8347,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 676,
+            "top": 856,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 1,
+            "elements": {
+              "a.site-footer-module__2HL8Da__fileLink": 1
+            },
+            "snippets": [
+              "Narratives & Fact Checks"
+            ]
+          }
+        }
+      ],
+      "afterScrollUp": {
+        "visible": true,
+        "rect": {
+          "left": 676,
+          "top": 856,
+          "width": 68,
+          "height": 68
+        }
+      },
+      "keyboard": {
+        "launcherFocused": true,
+        "tabs": 69
+      },
+      "layout": {
+        "viewport": 768,
+        "documentWidth": 768,
+        "overflowing": [],
+        "main": 1,
+        "h1": 1
+      },
+      "errors": []
+    },
+    {
+      "name": "w1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "arrival": {
+        "heroBottom": 900,
+        "firstArticleTop": 1276.90625,
+        "firstImageTop": 1276.90625,
+        "firstHeadlineTop": 1869.84375,
+        "documentHeight": 10482
+      },
+      "sections": {
+        "news": {
+          "height": 1475,
+          "headlines": [
+            {
+              "text": "Israel Ministry of Defense activities; regional reports of a",
+              "fontSize": "44.64px",
+              "lines": 3
+            },
+            {
+              "text": "Israel Ministry of Defense: recent announcements and program",
+              "fontSize": "30.96px",
+              "lines": 3
+            }
+          ],
+          "articles": 2
+        },
+        "fakeResistance": {
+          "height": 1752,
+          "headlines": [
+            {
+              "text": "US approves a large helicopter sale to Iraq, signaling ongoi",
+              "fontSize": "38.88px",
+              "lines": 3
+            },
+            {
+              "text": "Manosphere / Far-Right Anti-Zionist Cluster on X",
+              "fontSize": "38.88px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "october7": {
+          "height": 1309,
+          "headlines": [
+            {
+              "text": "We were barricaded for hours. My father, 62 years old, fough",
+              "fontSize": "43.2px",
+              "lines": 3
+            },
+            {
+              "text": "85-year old Yaffa Adar being abducted into Gaza in a golf ca",
+              "fontSize": "33.12px",
+              "lines": 2
+            }
+          ],
+          "articles": 2
+        },
+        "heroes": {
+          "height": 1449,
+          "headlines": [
+            {
+              "text": "Maj.-Gen. (ret.) Noam Tibon",
+              "fontSize": "48.96px",
+              "lines": 1
+            },
+            {
+              "text": "Rami Davidian",
+              "fontSize": "48.96px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "israelsStory": {
+          "height": 1226,
+          "headlines": [
+            {
+              "text": "Peace with Egypt, 1979",
+              "fontSize": "38.88px",
+              "lines": 1
+            },
+            {
+              "text": "The founding, 1947–1948",
+              "fontSize": "38.88px",
+              "lines": 1
+            }
+          ],
+          "articles": 2
+        },
+        "system": {
+          "height": 1663,
+          "headlines": [
+            {
+              "text": "Repetition is not verification.",
+              "fontSize": "57.6px",
+              "lines": 2
+            }
+          ],
+          "articles": 0
+        }
+      },
+      "launcher": [
+        {
+          "fraction": 0.12,
+          "scrollY": 1150,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 1348,
+            "top": 732,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.25,
+          "scrollY": 2396,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 1348,
+            "top": 732,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.4,
+          "scrollY": 3833,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 1348,
+            "top": 732,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.55,
+          "scrollY": 5270,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 1348,
+            "top": 732,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.7,
+          "scrollY": 6707,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 1348,
+            "top": 732,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.85,
+          "scrollY": 8145,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 1348,
+            "top": 732,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 0,
+            "image": 0,
+            "control": 0,
+            "elements": {},
+            "snippets": []
+          }
+        },
+        {
+          "fraction": 0.97,
+          "scrollY": 9295,
+          "present": true,
+          "visible": true,
+          "rect": {
+            "left": 1348,
+            "top": 732,
+            "width": 68,
+            "height": 68
+          },
+          "position": "fixed",
+          "under": {
+            "text": 1,
+            "image": 0,
+            "control": 3,
+            "elements": {
+              "a.site-footer-module__2HL8Da__trustLink": 3,
+              "a.site-footer-module__2HL8Da__furtherLink": 1
+            },
+            "snippets": [
+              "Corrections",
+              "Methodology",
+              "Corrections",
+              "Account"
+            ]
+          }
+        }
+      ],
+      "afterScrollUp": {
+        "visible": true,
+        "rect": {
+          "left": 1348,
+          "top": 732,
+          "width": 68,
+          "height": 68
+        }
+      },
+      "keyboard": {
+        "launcherFocused": true,
+        "tabs": 73
+      },
+      "layout": {
+        "viewport": 1440,
+        "documentWidth": 1440,
+        "overflowing": [],
+        "main": 1,
+        "h1": 1
+      },
+      "errors": []
+    }
+  ],
+  "reducedMotion": {
+    "videoVisible": false
+  },
+  "noJS": {
+    "records": 10,
+    "main": 1,
+    "noscriptLinks": 7,
+    "launcherPresent": 1
+  }
+}

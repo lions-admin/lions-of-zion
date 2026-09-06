@@ -151,6 +151,156 @@
       }
     },
     {
+      "id": "aner-shapira",
+      "src": "/images/homepage/aner-shapira.webp",
+      "width": 844,
+      "height": 1463,
+      "alt": "Detail of a memorial mural depicting Aner Shapira, Tel Aviv, December 2023.",
+      "credit": "Grafitiyul / Nizzan Cohen · resized WebP",
+      "caption": "Detail of a memorial mural depicting Aner Shapira, Tel Aviv, December 2023.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Aner_Shapira_-_Detail_from_%22Heroes%22.jpg",
+      "role": "portrait",
+      "focalPoint": {
+        "x": 50,
+        "y": 38
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "CC BY 4.0",
+        "reference": "https://creativecommons.org/licenses/by/4.0/",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "six-day-war",
+      "src": "/images/homepage/six-day-war.webp",
+      "width": 1600,
+      "height": 1067,
+      "alt": "Israeli soldiers listen to the order of the day after their advance in southern Sinai, June 11, 1967.",
+      "credit": "Shmuel Bank / Government Press Office of Israel · resized WebP",
+      "caption": "Israeli soldiers listen to the order of the day after their advance in southern Sinai, June 11, 1967.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Six_Day_War._Israeli_soldiers_listening_to_the_order_of_the_day_at_the_end_of_their_advance_on_the_southern_section_in_Sinai._June_1967._D326-124.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "CC BY-SA 4.0",
+        "reference": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "yom-kippur-war",
+      "src": "/images/homepage/yom-kippur-war.webp",
+      "width": 1600,
+      "height": 1085,
+      "alt": "Israeli armored forces move through Sinai during the Yom Kippur War, 1973.",
+      "credit": "Avraham Vered / IDF Spokesperson's Unit · resized WebP",
+      "caption": "Israeli armored forces in Sinai during the Yom Kippur War, 1973.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yom_Kippur_War._VII.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 64,
+        "y": 52
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "CC BY-SA 3.0",
+        "reference": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "oslo-accords",
+      "src": "/images/homepage/oslo-accords.webp",
+      "width": 1320,
+      "height": 880,
+      "alt": "Yitzhak Rabin and Yasser Arafat shake hands with Bill Clinton at the White House, September 13, 1993.",
+      "credit": "Vince Musi / The White House · resized WebP",
+      "caption": "The Oslo Accords signing ceremony at the White House, September 13, 1993.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oslo_Accords.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 44
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Public domain",
+        "reference": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "jordan-treaty",
+      "src": "/images/homepage/jordan-treaty.webp",
+      "width": 1600,
+      "height": 1204,
+      "alt": "Yitzhak Rabin, Bill Clinton and King Hussein at the Israel-Jordan peace treaty signing, October 26, 1994.",
+      "credit": "Gideon Markowiz / IPPA / National Library of Israel · resized WebP",
+      "caption": "The Israel-Jordan peace treaty signing ceremony, October 26, 1994.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bill_Clinton,_Yitzhak_Rabin_and_Hussein_of_Jordan_during_the_signing_of_the_1994_Israel-Jordan_peace_treaty.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "CC BY 4.0",
+        "reference": "https://creativecommons.org/licenses/by/4.0/",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "abraham-accords",
+      "src": "/images/homepage/abraham-accords.webp",
+      "width": 1600,
+      "height": 1067,
+      "alt": "Bahraini, Israeli, United States and Emirati representatives display the signed Abraham Accords at the White House, September 15, 2020.",
+      "credit": "Joyce N. Boghosian / The White House · resized WebP",
+      "caption": "The Abraham Accords signing ceremony at the White House, September 15, 2020.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:President_Trump_and_The_First_Lady_Participate_in_an_Abraham_Accords_Signing_Ceremony_(50346483977).jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 45
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Public domain",
+        "reference": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
       "id": "testimony-cover",
       "src": "/images/homepage/testimony-cover.svg",
       "width": 1200,
@@ -396,8 +546,14 @@
     "publication:israel-ministry-of-defense-activities-regional-r-lref0": "blue-line",
     "hero:rami-davidian": "rami-davidian",
     "hero:noam-tibon": "noam-tibon",
+    "hero:aner-shapira": "aner-shapira",
     "chapter:the-founding": "declaration",
     "chapter:peace-when-it-came": "camp-david",
+    "chapter:six-day-war": "six-day-war",
+    "chapter:yom-kippur-war": "yom-kippur-war",
+    "chapter:oslo-accords": "oslo-accords",
+    "chapter:jordan-treaty": "jordan-treaty",
+    "chapter:abraham-accords": "abraham-accords",
     "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue": "testimony-room",
     "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart": "documentation-folder",
     "case:case_02_manosphere_far_right": "account-cluster",

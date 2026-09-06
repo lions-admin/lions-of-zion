@@ -1,0 +1,106 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "chatgpt-test-2026-09-07-013407",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-06T22:34:07Z",
+  "creates": [
+    {
+      "key": "iran-unmanned-vessel-claim-20260907",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "influence_investigation",
+        "canonicalStoryId": "iran-unmanned-us-vessel-claim-2026-09-06",
+        "title": "Iran says it struck an unmanned U.S. vessel; CENTCOM calls the claim false",
+        "summary": "Iranian state media said an unmanned U.S. military vessel was struck near the Strait of Hormuz, while U.S. Central Command rejected the report as false. The evidence available publicly does not independently settle the claim.",
+        "body": "A new information-war dispute emerged around the Strait of Hormuz on September 6. Iranian state media said Iran had struck an unmanned U.S. military vessel that was attempting to enter an area Tehran considers restricted. U.S. Central Command rejected the account, with spokesman Capt. Tim Hawkins telling the Associated Press that the report was false.\n\nThe important distinction is between a claim being repeated widely and a claim being independently verified. At the time of publication, the public record cited here contains an Iranian state-media assertion and an explicit U.S. military denial, but no independently authenticated imagery, wreckage evidence, vessel-identification data or third-party confirmation that conclusively establishes a successful strike.\n\nThis makes the correct editorial status disputed, not verified and not refuted with certainty. The fact that an official U.S. spokesman rejected the report is significant evidence, but it is still a party to the conflict. Likewise, state-media repetition on the Iranian side does not convert an assertion into independent corroboration.\n\nThe claim arrived during a broader escalation in which the United States said it struck Iranian oil tankers after Iranian ballistic-missile attacks on U.S. warships. Iran's security leadership also announced plans for a new exclusion or restricted zone near the Strait of Hormuz. That wider confrontation gives both sides strong incentives to shape perceptions of deterrence and battlefield effectiveness.\n\nInformation-war technique to watch: battlefield-success claims can spread faster than verification because they are simple, dramatic and strategically useful. Reposts, headlines and state-media repetition can make a single-source assertion look like multiple confirmations when they all trace back to the same original claim.\n\nReader lesson: identify the original claimant, separate official denial from independent verification, look for primary visual or technical evidence, and count genuinely independent sources rather than the number of reposts.\n\nWhat is established: Iran publicly claimed a strike; CENTCOM publicly denied it; tensions around Hormuz have escalated. What is not established here: that a U.S. vessel was actually hit, that the claim was fabricated, or that the spread was centrally coordinated beyond the documented state-media publication.\n\nSources:\n- Associated Press, September 6, 2026: https://apnews.com/article/b4f64c7492d8c5b9ff71794cc152186d\n- Associated Press, September 6, 2026: https://apnews.com/article/a52beec77dc90af3d040d0553837ad20\n- Reuters, September 6, 2026: https://www.reuters.com/world/middle-east/iran-tackle-economic-issues-says-further-attacks-will-be-more-painful-2026-09-06/",
+        "language": "en",
+        "editorialTopic": "Iran conflict information war",
+        "topicTags": [
+          "iran",
+          "hormuz",
+          "information-war",
+          "disputed-claim"
+        ],
+        "primaryActor": "Iranian state media and U.S. Central Command",
+        "arena": "Strait of Hormuz"
+      }
+    },
+    {
+      "key": "tkuma-tech-human-capital-20260907",
+      "publication": {
+        "kind": "news_update",
+        "section": "innovation",
+        "canonicalStoryId": "tkuma-tech-human-capital-initiative-2026",
+        "title": "Israel launches NIS 22 million tech-human-capital initiative for the Tkuma region",
+        "summary": "The Israel Innovation Authority and Tkuma Directorate launched four programs to connect students with local companies, recruit and upskill workers, and attract technology professionals to the region.",
+        "body": "The Israel Innovation Authority and the Tkuma Directorate announced a NIS 22 million initiative on September 6 to strengthen the technology workforce in the Tkuma region as part of the area's longer-term economic recovery and growth strategy.\n\nThe initiative is built around four programs rather than a single grant. One program will place students, academics and practical engineers in companies operating in the region for six to nine months, with a target of at least 500 participants and at least 10 participating employers. A second program is designed to attract new immigrants, returning residents and other eligible technology professionals from abroad, with a target of at least 300 candidates entering matching and interview processes.\n\nAdditional programs focus on recruiting workers for companies already operating in the region and on upskilling existing employees and residents in areas such as AI, data and automation. The Innovation Authority says at least 500 people are expected to participate in the skills-upgrading track.\n\nThe policy goal is broader than short-term employment. The Tkuma Directorate and Innovation Authority describe the effort as an attempt to create a durable pool of technology talent that can support local companies, attract new operations and give young professionals a reason to build careers and families in the western Negev.\n\nThis is an official program announcement, so its targets should be treated as planned outcomes rather than achievements already delivered. The useful measures to watch next are enrollment, employer participation, job placement, retention in the region and whether new technology activity follows the workforce investment.\n\nSources:\n- Israel Innovation Authority, September 6, 2026: https://innovationisrael.org.il/en/press_release/tkuma-programs/",
+        "language": "en",
+        "editorialTopic": "Tkuma regional technology recovery",
+        "topicTags": [
+          "israeli-innovation",
+          "tkuma",
+          "western-negev",
+          "technology-jobs"
+        ],
+        "primaryActor": "Israel Innovation Authority and Tkuma Directorate",
+        "arena": "Israel",
+        "featuredIsraelStory": true
+      }
+    }
+  ],
+  "updates": [
+    {
+      "key": "update-iran-hormuz-escalation-20260907",
+      "target": {
+        "publicId": "us-iranian-forces-fire-at-vessels-in-waters-near-f2cks"
+      },
+      "publication": {
+        "title": "Iran announces planned Hormuz exclusion zone as U.S.-Iran maritime confrontation deepens",
+        "summary": "Iran's security leadership says Tehran plans a new exclusion zone near the Strait of Hormuz, while the U.S. continues a naval blockade and both sides trade military claims. A separate Iranian claim of striking an unmanned U.S. vessel is denied by CENTCOM.",
+        "body": "The maritime confrontation around Iran has moved beyond isolated exchanges of fire into a wider contest over access to the Strait of Hormuz.\n\nOn September 6, Mohsen Rezaei, the new head of Iran's Supreme National Security Council, said Tehran plans to announce an exclusion or restricted zone extending toward the Strait of Hormuz and the Persian Gulf. The exact boundaries and enforcement mechanism were not immediately clear. The announcement followed renewed U.S.-Iran military exchanges and a U.S. blockade aimed at restricting Iranian oil exports.\n\nThe Associated Press reported that Iran also claimed to have struck an unmanned U.S. military vessel near the strait. U.S. Central Command rejected that account as false. No independently verified evidence cited in the public reporting reviewed here conclusively established that the vessel was hit, so that specific event remains a disputed battlefield claim rather than a confirmed strike.\n\nReuters separately reported that Iran is under significant economic pressure from sanctions and the blockade while its leadership is signaling that future military responses will be more severe. The United States, meanwhile, says shipping flows through the strait are being maintained under naval protection.\n\nFor Israel, the development matters because the present confrontation grew out of the broader U.S.-Israeli conflict with Iran and because escalation around Hormuz can affect regional military calculations, energy markets and the ability of Iran and its partners to sustain operations.\n\nThe next verification points are whether Tehran formally publishes coordinates for the proposed zone, whether it attempts to enforce restrictions against commercial or military vessels, whether the United States changes escort or blockade procedures, and whether further attacks are independently documented.\n\nSources:\n- Associated Press, September 6, 2026: https://apnews.com/article/a52beec77dc90af3d040d0553837ad20\n- Associated Press, September 6, 2026: https://apnews.com/article/b4f64c7492d8c5b9ff71794cc152186d\n- Reuters, September 6, 2026: https://www.reuters.com/world/middle-east/iran-tackle-economic-issues-says-further-attacks-will-be-more-painful-2026-09-06/\n- Reuters, September 6, 2026: https://www.reuters.com/business/energy/irans-hormuz-leverage-wanes-us-economic-squeeze-bites-2026-09-06/",
+        "editorialTopic": "Iran escalation",
+        "topicTags": [
+          "iran",
+          "hormuz",
+          "us-iran",
+          "regional-security"
+        ],
+        "primaryActor": "United States and Iran",
+        "arena": "Iran and Strait of Hormuz",
+        "changeSummary": "Updated the developing Iran maritime-escalation story with Tehran's announced exclusion-zone plan, CENTCOM's denial of an Iranian vessel-strike claim, and the current blockade/economic-pressure context."
+      }
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "update-iran-hormuz-escalation-20260907"
+        }
+      }
+    },
+    "fakeResistance": {
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "iran-unmanned-vessel-claim-20260907"
+        }
+      }
+    },
+    "people": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "tkuma-tech-human-capital-20260907"
+        }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "The People of Israel hub still rendered zero dynamic published records during pre-delivery verification. Verify that the new innovation record appears in the hub count/list after this run and investigate projection/cache logic if it does not.",
+    "Production queue delivery is now active, but recent Vercel logs still show repeated search.reindex failures for some legacy information_item rows. Investigate those separately from the editorial pipeline so stale search documents do not accumulate.",
+    "whole-site-update-v1 still lacks package-local public citation ingestion. Add a source-ingestion mechanism that preserves durable public-source/evidence records without requiring external composers to invent internal UUIDs.",
+    "No media was attached because the reviewed sources did not provide a directly observable rights basis for Lions of Zion article/homepage reuse. Keep media absent rather than infer clearance from availability."
+  ]
+}

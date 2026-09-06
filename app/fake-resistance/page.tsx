@@ -3,32 +3,37 @@ import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { HubMasthead } from "@/components/site/HubMasthead";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
-import { getAntisemitismFeed, getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
+import { getAntisemitismFeed, getInfluenceInvestigationFeed, getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 import { AntisemitismRecord } from "@/components/briefs/AntisemitismRecord";
+import { publicationHref } from "@/lib/publication-routing";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
 const description = "Investigations into false narratives, with circulating claims kept distinct from established findings.";
 export const metadata: Metadata = {
-  title: "Narratives & fact checks", description,
+  title: "Fake Resistance", description,
   alternates: { canonical: `${SITE_URL}/fake-resistance` },
 };
 function dateLabel(value: string) {
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }
 export default async function Page() {
-  const [research, monitoring, antisemitism] = await Promise.allSettled([getCaseIndex(), getNarrativeWatchFeed(), getAntisemitismFeed()]);
+  const [research, monitoring, antisemitism, influence] = await Promise.allSettled([getCaseIndex(), getNarrativeWatchFeed(), getAntisemitismFeed(), getInfluenceInvestigationFeed()]);
   const cases = research.status === "fulfilled" ? [...research.value].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) : [];
   const items = monitoring.status === "fulfilled" ? [...monitoring.value].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)) : [];
   const antisemitismItems = antisemitism.status === "fulfilled" ? [...antisemitism.value].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)) : [];
+  /* `influence_investigation` routes here through `lib/publication-routing.ts`
+     and had no reading surface on the desk that owns it. Published records
+     only — the hand-curated case files above keep their own higher bar. */
+  const influenceItems = influence.status === "fulfilled" ? [...influence.value].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)) : [];
   const [featured, ...otherCases] = cases;
   return (
     <EditorialShell routeId="fake-resistance" register="silent" showProgress={false} className={styles.page}>
       <div className={styles.hub}>
         <HubMasthead
           kicker="The claim and the record"
-          title={<>Narratives &amp; fact checks</>}
+          title={<>Fake Resistance</>}
           standfirst="Investigate the record. Distinguish a circulating claim from a finding, and follow the evidence to where it actually leads."
           /* A failed read and an empty desk are different facts, and a count
              is the one place the difference disappears silently: both settle
@@ -40,11 +45,13 @@ export default async function Page() {
             { label: "Investigations", value: research.status === "fulfilled" ? cases.length : "Unavailable" },
             { label: "On the watch", value: monitoring.status === "fulfilled" ? items.length : "Unavailable" },
             { label: "Antisemitism records", value: antisemitism.status === "fulfilled" ? antisemitismItems.length : "Unavailable" },
+            { label: "Influence investigations", value: influence.status === "fulfilled" ? influenceItems.length : "Unavailable" },
           ]}
           jumps={[
             { href: "#investigation-heading", label: "Latest investigation" },
             { href: "#latest-monitoring", label: "On the watch" },
             { href: "#antisemitism", label: "Antisemitism" },
+            { href: "#influence", label: "Influence operations" },
             { href: "/fake-resistance/network", label: "The influence network" },
             { href: "/fake-resistance/playbook", label: "The playbook" },
           ]}
@@ -72,6 +79,18 @@ export default async function Page() {
           <header className={styles.sectionHead}><h2 id="antisemitism-heading">Antisemitism</h2><Link href="/fake-resistance/antisemitism">View the record <span aria-hidden="true">↗︎</span></Link></header>
           <p className={styles.disclosure}>Documented incidents and trends. A report names what is known, its context, and what remains unconfirmed.</p>
           {antisemitism.status === "rejected" ? <p role="alert">Antisemitism records are temporarily unavailable.</p> : antisemitismItems.length ? antisemitismItems.slice(0, 2).map(item => <AntisemitismRecord key={item.publicId} item={item} compact />) : <p>No antisemitism records have been published yet.</p>}
+        </section>
+        <section id="influence" className={styles.more} aria-labelledby="influence-heading">
+          <header className={styles.sectionHead}><h2 id="influence-heading">Influence operations</h2><Link href="/fake-resistance/network">The influence network <span aria-hidden="true">↗︎</span></Link></header>
+          <p className={styles.disclosure}>Published investigations into coordinated influence — state-aligned, networked and anti-Western operations — kept apart from the claims they circulate.</p>
+          {influence.status === "rejected" ? <p role="alert">Influence investigations are temporarily unavailable.</p>
+            : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId}>
+                <time dateTime={item.publishedAt}>{dateLabel(item.publishedAt)}</time>
+                <h3><Link href={publicationHref(item.publicId)}>{item.title}</Link></h3>
+                {item.summary ? <p>{item.summary}</p> : null}
+                <Link className={styles.action} href={publicationHref(item.publicId)}>Read the investigation <span aria-hidden="true">→</span></Link>
+              </article>)}</div>
+            : <p>No influence investigations have been published yet.</p>}
         </section>
         {otherCases.length ? <section className={styles.more} aria-labelledby="research-heading">
           <header className={styles.sectionHead}><h2 id="research-heading">Further investigations</h2><Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">↗︎</span></Link></header>

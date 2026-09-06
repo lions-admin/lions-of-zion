@@ -32,7 +32,14 @@ describe("purpose-led site navigation", () => {
   it("promotes the system explainer and keeps trust and account links secondary", () => {
     expect(BAR_LINKS.some((item) => item.href === "/information-war")).toBe(true);
     expect(ABOUT_LINKS[0].href).toBe("/information-war");
-    expect(REFERENCE_LINKS.map((item) => item.href)).toEqual(["/methodology", "/corrections", "/account"]);
+    expect(REFERENCE_LINKS.map((item) => item.href)).toEqual(["/fact-check", "/methodology", "/corrections", "/account"]);
+    /* Two pages, two names. The hub is the investigation and answers to
+       "Fake Resistance" everywhere — menu, masthead and breadcrumb alike —
+       while the desk over circulating claims is "Narratives & Fact Checks"
+       and has its own way in. One name across both, and a desk reachable
+       only from the sitemap, is what this pins against. */
+    expect(REFERENCE_LINKS[0].label).toBe("Narratives & Fact Checks");
+    expect(REPORTING_LINKS[1].label).toBe("Fake Resistance");
     const destinations = [...SECTION_LINKS, ...REFERENCE_LINKS].map((item) => item.href);
     expect(new Set(destinations).size).toBe(destinations.length);
   });

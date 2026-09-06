@@ -4,11 +4,11 @@ import type { EditorialMediaDraft } from '@/server/modules/media/repo';
 import { eq, sql } from 'drizzle-orm';
 import { freshDatabase, as, type TestDatabase } from '@/server/db/testing';
 import type { Database } from '@/server/db/client';
-import { editorialOperation, editorialRun } from '@/server/db/schema';
+import { editorialOperation, editorialRun, outbox } from '@/server/db/schema';
 import { editorialRepo, editorialInputHash } from '@/server/modules/editorial-update/repo';
 import { startEditorialRunSchema, type StartEditorialRun } from '@/server/contracts/editorial-update';
 import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
-import { editorialUpdateService } from '@/server/modules/editorial-update/service';
+import { composeEditorialRunReport, editorialUpdateService } from '@/server/modules/editorial-update/service';
 
 let db: TestDatabase;
 beforeAll(async () => { db = await freshDatabase(); }, 60000);
@@ -123,6 +123,81 @@ describe('durable whole-site editorial runs', () => {
     expect(updated.media).toEqual(original.media);
     await expect(publicationService(db).applyEditorial(input.operations[1], { runId: run.id, machineAuthor: 'machine:editorial' },
       { ...media, contentHash: 'c'.repeat(64), rights: { ...media.rights, status: 'unknown' } }, { label: 'service:editorial' })).rejects.toThrow('cleared');
+  });
+
+
+  /* The report is the whole point of a run the owner does not watch. It was
+     unreachable in both directions: `editorial.run-report` sat in
+     `RETIRED_TOPICS` with nothing left to emit it, so `deliverEditorialRunReport`
+     stayed registered as a consumer for a topic no transaction ever produced. */
+  it('emits a report job when a run reaches a terminal state, in both directions', async () => {
+    const finished = await repo().start(request('report-emitted'), 'test:owner');
+    const worker = await repo().claim(finished.id);
+    await repo().completeOperation(finished.id, worker!.leaseToken!, 'story', async () => ({ publicId: 'a' }));
+    await repo().completeOperation(finished.id, worker!.leaseToken!, 'profile', async () => ({ publicId: 'b' }));
+    await repo().finish(finished.id, worker!.leaseToken!, { status: 'completed' });
+
+    const crashed = await repo().start(request('report-crashed'), 'test:owner');
+    const crashedWorker = await repo().claim(crashed.id);
+    await repo().fail(crashed.id, crashedWorker!.leaseToken!, {
+      stage: 'homepage', operationKey: null, message: 'Homepage composition threw.', recovery: 'Resume the run.',
+    });
+
+    const queued = await db.select().from(outbox).where(eq(outbox.topic, 'editorial.run-report'));
+    const runIds = queued.map(row => (row.payload as { runId?: string }).runId);
+    expect(runIds).toContain(finished.id);
+    expect(runIds).toContain(crashed.id);
+    expect(queued.every(row => row.publishedAt === null)).toBe(true);
+  });
+
+  it('reports destinations, homepage moves, refusals, recommendations and the next action', async () => {
+    const run = await repo().start(request('report-content'), 'test:owner');
+    const worker = await repo().claim(run.id);
+    await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async () => ({
+      publicationId: '11111111-1111-4111-8111-111111111111', publicId: 'source-linked-report',
+      url: '/articles/source-linked-report', action: 'create', section: 'news',
+      title: 'Source-linked report', hasMedia: true,
+    }));
+    await repo().failOperation(run.id, worker!.leaseToken!, 'profile', {
+      stage: 'media', operationKey: 'profile', message: 'Image URL returned HTTP 404.',
+      recovery: 'Replace the image and resume the run.',
+    });
+    await repo().finish(run.id, worker!.leaseToken!, {
+      status: 'partial',
+      publications: { created: 1, updated: 0, failed: 1, requested: 2 },
+      byCategory: { news: { created: 1, updated: 0 } },
+      urls: ['/articles/source-linked-report'],
+      homepage: { editionDate: '2026-09-06', revision: 2, changes: [
+        { area: 'news', position: 'lead', action: 'set', publicId: 'source-linked-report', url: '/articles/source-linked-report' },
+        { area: 'people', position: 'secondary', action: 'remove', publicId: null, url: null },
+      ] },
+      media: { prepared: 1, reused: 0, generated: 1 },
+      errors: [{ operationKey: 'profile', stage: 'media', message: 'Image URL returned HTTP 404.' }],
+      siteRecommendations: ['Give the People desk a second lead.'],
+    });
+
+    const { subject, text } = composeEditorialRunReport(await repo().get(run.id));
+    expect(subject).toContain('PARTIAL');
+    /* Per category, by the section's own reading name and its hub. */
+    expect(text).toContain('News & Analysis');
+    /* A full URL, not a path: the owner opens this from a mail client. */
+    expect(text).toContain('/articles/source-linked-report');
+    expect(text).toMatch(/https?:\/\/[^\s]+\/articles\/source-linked-report/);
+    /* Homepage: what moved, and the slot that was cleared. */
+    expect(text).toContain('News & Analysis / lead');
+    expect(text).toContain('The People of Israel / secondary: cleared');
+    /* The veto, its stage, its reason and its remedy. */
+    expect(text).toContain('NOT PUBLISHED / VETOED');
+    expect(text).toContain('Image URL returned HTTP 404.');
+    expect(text).toContain('Replace the image and resume the run.');
+    expect(text).toContain('Give the People desk a second lead.');
+    /* Failure detail: stage, what already succeeded, retry safety, next step. */
+    expect(text).toContain('Stage reached: media');
+    expect(text).toContain('Failing operations: profile');
+    expect(text).toContain('Succeeded before the failure: 1 of 2');
+    expect(text).toContain('Retry safe: yes');
+    expect(text).toContain(`/api/v1/admin/editorial-update/${run.id}`);
+    expect(text).toContain('editorial illustrations: 1');
   });
 
   it('rejects duplicate operation identities before storage', () => {

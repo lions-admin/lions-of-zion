@@ -63,12 +63,14 @@ const analysisWatch = {
 } as unknown as PublicPublication;
 
 const listBriefingPublications = vi.fn();
+const listPublicPublications = vi.fn();
 
 vi.mock("@/lib/publications", () => ({
   listBriefingPublications: (...args: unknown[]) => listBriefingPublications(...args),
+  listPublicPublications: (...args: unknown[]) => listPublicPublications(...args),
 }));
 
-const { getNarrativeWatchFeed } = await import("@/lib/content/fake-resistance-watch");
+const { getInfluenceInvestigationFeed, getNarrativeWatchFeed } = await import("@/lib/content/fake-resistance-watch");
 const { default: WatchPage } = await import("@/app/fake-resistance/watch/page");
 const { default: HubPage } = await import("@/app/fake-resistance/page");
 
@@ -140,8 +142,43 @@ describe("/fake-resistance/watch", () => {
   });
 });
 
+describe("influence investigations", () => {
+  /* `influence_investigation` routes to `/fake-resistance` and had no reading
+     surface there: filed to the desk, labelled on its own page, invisible on
+     the hub. It reads the public projection rather than the briefing one, so
+     a documented investigation never inherits the watch's claim framing. */
+  it("queries exactly its own section with a bounded limit", async () => {
+    listPublicPublications.mockResolvedValue([]);
+    await getInfluenceInvestigationFeed();
+    expect(listPublicPublications).toHaveBeenCalledWith("?section=influence_investigation&limit=25");
+  });
+
+  it("renders published influence investigations on the hub", async () => {
+    listBriefingPublications.mockResolvedValue([]);
+    listPublicPublications.mockImplementation(async (query: string) =>
+      query.includes("influence_investigation")
+        ? [{ ...sourcedWatch, publicId: "influence-network-case", section: "influence_investigation",
+             title: "A state-aligned amplification network", narrativeWatchDetails: null }]
+        : []);
+    const markup = await render(await HubPage());
+    expect(markup).toContain("Influence operations");
+    expect(markup).toContain("A state-aligned amplification network");
+    expect(markup).toContain("/articles/influence-network-case");
+    expect(markup).not.toContain("No influence investigations have been published yet.");
+  });
+
+  it("states an unavailable read rather than an empty desk", async () => {
+    listBriefingPublications.mockResolvedValue([]);
+    listPublicPublications.mockRejectedValue(new Error("no database"));
+    const markup = await render(await HubPage());
+    expect(markup).toContain("Influence investigations are temporarily unavailable");
+    expect(markup).toMatch(/Influence investigations<\/dt><dd>Unavailable</);
+  });
+});
+
 describe("/fake-resistance hub — the live branch card", () => {
   it("shows the live count without touching the static case-file archive", async () => {
+    listPublicPublications.mockResolvedValue([]);
     listBriefingPublications.mockResolvedValue([sourcedWatch, analysisWatch]);
     const markup = await render(await HubPage());
     /* The hub states the live count in its masthead facts and links onward to
@@ -154,6 +191,7 @@ describe("/fake-resistance hub — the live branch card", () => {
   });
 
   it("degrades to an unavailable count rather than 500ing the whole hub", async () => {
+    listPublicPublications.mockResolvedValue([]);
     listBriefingPublications.mockRejectedValue(new Error("no database"));
     const markup = await render(await HubPage());
     /* The hub must render rather than 500, and — the part that is easy to

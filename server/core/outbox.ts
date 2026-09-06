@@ -22,6 +22,18 @@ export const TOPICS = {
   publicationCacheInvalidate: "publication.cache-invalidate",
   briefingAlert: "briefing.alert",
   editorialRunProcess: "editorial.run-process",
+  /**
+   * The run report, delivered after the run reaches a terminal state.
+   *
+   * This sat in `RETIRED_TOPICS` from the day the machine-readable status
+   * endpoint landed, on the reasoning that polling `/runs/{runKey}` replaced
+   * the email. It did not: `deliverEditorialRunReport` stayed wired into the
+   * consumer registry with nothing left to produce for it, so the owner's
+   * report was written, stored, and never sent. Emitted again from
+   * `editorialRepo.finish` and `.fail` — the two transactions that make a run
+   * terminal — so the report is the last thing a run does, in both directions.
+   */
+  editorialRunReport: "editorial.run-report",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];
@@ -51,9 +63,6 @@ export const RETIRED_TOPICS = {
    * to do nothing. Producers removed 2026-09-01.
    */
   itemDetected: "item.detected",
-  /** Whole-site editorial delivery now exposes a machine-readable status
-   * endpoint. Keep the consumer through one deploy for historical rows. */
-  editorialRunReport: "editorial.run-report",
 } as const;
 
 type Inserter = { insert: (table: typeof outbox) => { values: (v: unknown) => Promise<unknown> } };

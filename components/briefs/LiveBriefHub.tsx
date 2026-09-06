@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
+import { SECTIONS_BY_HOMEPAGE_SECTION } from "@/lib/publication-routing";
 import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
@@ -24,6 +25,22 @@ import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
 import styles from "./live-brief.module.css";
 
 type Filters = BriefFilterValues;
+
+/**
+ * Every section this hub owns, taken from the routing table rather than
+ * listed by hand.
+ *
+ * It was `["daily_brief", "israel_update"]`, which left `news` — the section
+ * `applyEditorial` assigns when a package names none — routed here by
+ * `lib/publication-routing.ts` and rendered by nothing: a record filed as
+ * News & Analysis reached its own article page and `/updates` and never
+ * appeared on the desk that claims it. Deriving the list means a section
+ * added to the `news` band gets a reading surface by construction.
+ */
+const NEWS_SECTIONS = SECTIONS_BY_HOMEPAGE_SECTION.news;
+
+/** The one section on this desk that is an edition rather than a story. */
+const BRIEFING_SECTION = "daily_brief";
 
 const JUMPS = [
   { href: "#latest-news", label: "Latest news" },
@@ -78,7 +95,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   let currentUnavailable = false;
   let archiveUnavailable = false;
   const readNews = async (selection: URLSearchParams) => {
-    const batches = await Promise.all(["daily_brief", "israel_update"].map((section) => {
+    const batches = await Promise.all(NEWS_SECTIONS.map((section) => {
       const params = new URLSearchParams(selection);
       params.set("section", section);
       params.set("limit", "50");
@@ -91,7 +108,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
     filtering ? readNews(query) : Promise.resolve(null),
   ]);
   const newsOnly = (items: Publication[]) => items
-    .filter((item) => item.section === "daily_brief" || item.section === "israel_update")
+    .filter((item) => (NEWS_SECTIONS as readonly string[]).includes(item.section))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   if (reads[0].status === "fulfilled") current = newsOnly(reads[0].value);
   else currentUnavailable = true;
@@ -99,13 +116,15 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   else archiveUnavailable = true;
   if (!filtering && currentUnavailable) archiveUnavailable = true;
 
-  const briefing = current.find((item) => item.section === "daily_brief");
-  const updates = current.filter((item) => item.section === "israel_update");
+  const briefing = current.find((item) => item.section === BRIEFING_SECTION);
+  /* Every story section on this desk, the daily edition excepted — it has its
+     own strip below and must not compete as one story among many. */
+  const updates = current.filter((item) => item.section !== BRIEFING_SECTION);
   const lead = updates[0];
   const sidebarUpdates = updates.slice(1, 5);
   const briefingInSidebar = Boolean(lead) && sidebarUpdates.length === 0 && Boolean(briefing);
   const storyCount = updates.length;
-  const briefingCount = current.filter((item) => item.section === "daily_brief").length;
+  const briefingCount = current.filter((item) => item.section === BRIEFING_SECTION).length;
 
   return (
     <>
@@ -225,7 +244,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
           </span>
         </summary>
         <div className={styles.archiveBody}>
-          <p>Up to 50 recent news updates and 50 daily briefings. Narrative monitoring is kept separate.</p>
+          <p>Up to 50 recent records from each news section, daily briefings included. Narrative monitoring is kept separate.</p>
           <BriefFilters key={query.toString()} filters={filters}
             actors={uniqueValues(current, "primaryActor")} topics={uniqueValues(current, "editorialTopic")}
             arenas={uniqueValues(current, "arena")} />

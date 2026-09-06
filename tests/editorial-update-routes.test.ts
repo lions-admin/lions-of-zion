@@ -14,6 +14,7 @@ vi.mock('@/server/db/client', async importOriginal => ({
   withDatabaseRole: (_role: string, _identity: string, fn: () => Promise<unknown>) => fn(),
 }));
 
+import { editorialReportEmail } from '@/server/core/config';
 import { POST } from '@/app/api/internal/editorial-updates/ingest/route';
 import { GET } from '@/app/api/internal/editorial-updates/runs/[runId]/route';
 
@@ -62,5 +63,25 @@ describe('internal whole-site editorial routes', () => {
     });
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({ runId: 'route-package', status: 'partial', report: { publications: { failed: 1 } } });
+  });
+});
+
+/* The owner reads run reports on a mailbox that must never become a sign-in
+   identity, so the recipient is its own variable rather than `ADMIN_EMAIL` —
+   which is an authorization allowlist. It falls back so an unconfigured
+   deployment still delivers instead of throwing inside a post-commit
+   consumer, where a throw would only redeliver the same message. */
+describe('editorial run report recipient', () => {
+  afterEach(() => { delete process.env.EDITORIAL_REPORT_EMAIL; delete process.env.ADMIN_EMAIL; });
+
+  it('prefers the configured report address, normalised', () => {
+    process.env.ADMIN_EMAIL = 'admin@lionsofzion.io';
+    process.env.EDITORIAL_REPORT_EMAIL = '  Owner@Example.com ';
+    expect(editorialReportEmail()).toBe('owner@example.com');
+  });
+
+  it('falls back to the admin address when unset', () => {
+    process.env.ADMIN_EMAIL = 'admin@lionsofzion.io';
+    expect(editorialReportEmail()).toBe('admin@lionsofzion.io');
   });
 });

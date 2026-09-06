@@ -240,6 +240,20 @@ export const googleIdentityClientIdIfConfigured = (): string | undefined =>
   process.env.NEXT_PUBLIC_GOOGLE_IDENTITY_CLIENT_ID?.trim() || undefined;
 export const adminEmail = (): string =>
   required("ADMIN_EMAIL", "the single-admin allowlist").trim().toLowerCase();
+/**
+ * Where a whole-site editorial run reports to.
+ *
+ * Deliberately its own variable rather than `ADMIN_EMAIL`: the admin allowlist
+ * is an authorization boundary — the one address permitted to sign in — and a
+ * run report is correspondence. The owner reads the report on a personal
+ * mailbox that must never become a sign-in identity, and pointing the report
+ * at `adminEmail()` made the two inseparable.
+ *
+ * Falls back to the admin address when unset, so an unconfigured deployment
+ * still delivers rather than throwing inside a post-commit consumer.
+ */
+export const editorialReportEmail = (): string =>
+  process.env.EDITORIAL_REPORT_EMAIL?.trim().toLowerCase() || adminEmail();
 export const siteUrl = (): string => process.env.NEXT_PUBLIC_SITE_URL ?? "https://lionsofzion.io";
 export const googleWorkspaceSmtpUser = (): string =>
   required("GOOGLE_WORKSPACE_SMTP_USER", "Google Workspace email delivery").trim().toLowerCase();

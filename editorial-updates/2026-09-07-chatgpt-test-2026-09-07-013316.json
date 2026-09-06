@@ -1,0 +1,60 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "chatgpt-test-2026-09-07-013316",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-06T22:33:16Z",
+  "creates": [
+    {
+      "key": "iran-usv-claim-hormuz",
+      "publication": {
+        "kind": "news_update",
+        "section": "influence_investigation",
+        "canonicalStoryId": "iran-usv-strike-claim-hormuz-september-2026",
+        "title": "Iran says it struck a U.S. unmanned vessel; Washington calls the claim false",
+        "summary": "A fresh Strait of Hormuz claim illustrates a recurring information-war problem: a battlefield assertion can travel globally before independent evidence catches up. Iran says it hit an unmanned U.S. military vessel; the U.S. military denies that account.",
+        "body": "Iranian authorities said on September 6 that they had struck an unmanned U.S. military vessel in the Strait of Hormuz. The U.S. military publicly rejected the assertion, calling it false. At the time of this update, the competing claims should not be collapsed into a verified event: the existence of an Iranian claim and an American denial is established, but the strike itself remains disputed in the public record.\n\nAssociated Press reported both the Iranian assertion and the U.S. denial while also describing Tehran's plan to announce an exclusion zone near the Strait. Source: https://apnews.com/article/mideast-iran-us-hormuz-lebanon-israel-b4f64c7492d8c5b9ff71794cc152186d\n\nWhy this matters for information warfare: fast-moving military claims often acquire certainty through repetition. Screenshots, clipped statements and partisan reposts can strip away attribution, turning ‘Iran says’ into ‘Iran struck’ or turning a denial into proof that no incident occurred. Neither move is justified without additional evidence.\n\nWhat readers should check: preserve the original attribution; distinguish an official claim from independently verified fact; look for imagery, telemetry, named vessel information or corroborating military reporting; and watch for later corrections. The correct current label is disputed, not confirmed.\n\nThe broader context is a renewed period of U.S.-Iran confrontation around the Strait of Hormuz, a strategic waterway for global energy shipping. That context raises the consequence of false certainty: an unverified tactical claim can be used to signal deterrence, demonstrate supposed battlefield success or shape perceptions of escalation.\n\nThis article will require updating if either side releases verifiable evidence or credible independent reporting resolves the dispute.",
+        "language": "en",
+        "editorialTopic": "Iran-US information war",
+        "topicTags": ["iran", "united-states", "strait-of-hormuz", "information-war", "verification"],
+        "primaryActor": "Iran",
+        "arena": "Strait of Hormuz"
+      }
+    },
+    {
+      "key": "hezbollah-drones-lebanon-strikes",
+      "publication": {
+        "kind": "news_update",
+        "section": "news",
+        "canonicalStoryId": "hezbollah-drones-israel-lebanon-strikes-september-2026",
+        "title": "Hezbollah drones and Israeli strikes drive a new escalation in southern Lebanon",
+        "summary": "The IDF said Hezbollah launched two explosive drones toward Israeli forces in southern Lebanon on September 6. Israel responded with strikes; Lebanese authorities reported fatalities and damage, while Israel said it targeted Hezbollah military infrastructure.",
+        "body": "A new exchange in southern Lebanon on September 6 sharpened an already fragile security picture. The Israel Defense Forces said Hezbollah launched two explosive drones toward Israeli forces operating in the security zone in southern Lebanon. According to the IDF, troops fired at one drone and intercepted it, with no Israeli casualties reported, and the military then began retaliatory strikes.\n\nThe IDF's rolling operational update recorded the drone incident and response. Source: https://www.idf.il/128118\n\nReuters subsequently reported that Israeli strikes killed seven people in southern Lebanon, citing Lebanese authorities. Reuters said Israel described the targets as Hezbollah weapons facilities and said it had taken measures intended to reduce civilian harm. Lebanese President Joseph Aoun condemned the strikes and alleged that civilian infrastructure was hit. Source: https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/\n\nThe accounts should be read with attribution intact. The IDF's description of the drone launches and military targets is an Israeli military account; casualty and damage reporting attributed to Lebanese authorities is a Lebanese official account. Those claims can coexist in the same report without treating every contested detail as independently verified.\n\nThe exchange follows continued fighting around Hezbollah infrastructure in southern Lebanon and stalled efforts to stabilize the border. Reuters reported on September 4 that Israel said it had cleared Hezbollah fighters from tunnels under the strategic Ali al-Taher ridge, another focal point in the conflict. Source: https://www.reuters.com/world/middle-east/israel-says-it-has-cleared-hezbollah-fighters-tunnels-under-key-lebanon-ridge-2026-09-04/\n\nFor readers following rapid updates, the key distinction is between what is directly acknowledged by a belligerent, what local authorities report about casualties and damage, and what has been independently corroborated. This is a developing story and should be updated as additional evidence becomes available.",
+        "language": "en",
+        "editorialTopic": "Israel-Hezbollah conflict",
+        "topicTags": ["hezbollah", "lebanon", "israel", "drones", "southern-lebanon"],
+        "primaryActor": "Hezbollah",
+        "arena": "Southern Lebanon"
+      }
+    }
+  ],
+  "updates": [],
+  "homepage": {
+    "news": {
+      "secondary": {
+        "action": "set",
+        "publication": { "operationKey": "hezbollah-drones-lebanon-strikes" }
+      }
+    },
+    "fakeResistance": {
+      "secondary": {
+        "action": "set",
+        "publication": { "operationKey": "iran-usv-claim-hormuz" }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "Add a supported external-source ingestion/reference space to whole-site-update-v1 so independently researched whole-site articles can carry machine-verifiable citations without inventing internal evidence UUIDs.",
+    "Expose durable editorial run stages and outbox/queue dispatch state in the polling response so delivery failures can distinguish queued, dispatched, claimed, processing and terminal states instead of appearing as a silent timeout.",
+    "No People of Israel item was published in this run: the current scan found lower-confidence or single-source innovation material that did not justify displacing stronger existing homepage content."
+  ]
+}

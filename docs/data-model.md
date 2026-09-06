@@ -1,7 +1,22 @@
 # Data model
 
-Postgres, via Drizzle. **59 tables, 1 view, 26 SQL functions, 24 triggers,
-48 numbered migrations.**
+Postgres, via Drizzle. **65 tables, 1 view (`published_item`), 63 numbered
+migrations** — as of 2026-09-06; this header said "59 tables … 48 numbered
+migrations" until then.
+
+Two of those three are mechanically checkable and worth re-deriving rather
+than trusting:
+
+```bash
+ls server/db/migrations/*.sql | wc -l                     # migrations
+grep -rho 'pgTable(' server/db/schema/*.ts | wc -l        # tables
+```
+
+**Function and trigger counts are deliberately not stated here.** Migrations
+`CREATE OR REPLACE` the same function repeatedly and drop triggers as often as
+they add them, so no grep over the migration directory yields the live number
+and every figure written down here has drifted. Count them in a live database
+(`\df` and `pg_trigger`) or do not state one.
 
 Schema definitions live in `server/db/schema/` and are the source drizzle-kit
 generates from. Rules that Drizzle cannot express live in hand-written SQL in
@@ -62,7 +77,6 @@ drizzle-kit's snapshot (see `0021`).
 | `0022_prune_functions_revoke_public` | The prune functions stop being executable by `PUBLIC` |
 | `0023_ai_run_service_returning` | The same `RETURNING` visibility for `app_service`, kept off the public ledger |
 | `0024_geopolitical_brief_automation` | `publication_section`, `briefing_run`, `homepage_feature`, the publication↔evidence and ↔narrative joins, and the first automatic-publication provenance constraint |
-| `0062_whole_site_editorial_delivery` | `publication.canonical_story_id`, and `homepage_placement` mapped from legacy feature slots by area |
 | `0025_public_narrative_projection` | RLS on `narrative`, `actor` and their joins; `app_public` may read a narrative only through a published link |
 | `0026_evidence_retrieval_contract` | Evidence-level retrieval state, canonical identity, content hash and source health — the columns `EVIDENCE_IS_USABLE` filters on |
 | `0027_discovery_connectors` | `agent_search` and `gdelt` source kinds, and `source.logical_key` with a unique index |
@@ -86,6 +100,21 @@ drizzle-kit's snapshot (see `0021`).
 | `0045_retire_duplicate_agent_search_queries` | Retires duplicate Agent Search collectors rather than deleting them, so their audit rows survive |
 | `0046_track_briefing_raw_capture_size` | `source_fetch.raw_byte_size` |
 | `0047_schema_snapshot_sync` | Journaled no-op |
+| `0048_search_destination` | `search_document.public_id` and the destination a hit resolves to — a search result that cannot be opened is not a result |
+| `0049_remove_briefing_quality_gate` | `enforce_publication_publish_gate()` stops counting quality checks and enforces machine **provenance** instead |
+| `0050_external_briefing_submission` | `external_briefing_submission` — the legacy ingest's idempotency ledger, unique on `run_id` |
+| `0051_entity_type_system` | `system` joins the `entity_type` enum, so the operations console can audit a tool call that touches no single record |
+| `0052_agent_search_actual_cost` | Per-query Agent Search spend, recorded where the query happened |
+| `0053_cloudy_steve_rogers` | `publication_section` rewritten without `war_update` — a full type rewrite, because a Postgres enum value cannot be dropped |
+| `0054_homepage_editions` | `homepage_edition`, append-only; the highest committed revision for a date is the active one |
+| `0055_public_published_item_view` | `GRANT SELECT ON published_item TO app_public` — the view is security-definer, so the anon role needs the view itself |
+| `0056_external_briefing_service_grants` | `app_service` privileges on `external_briefing_submission`, missing since `0050` |
+| `0057_publication_editorial_media` | `editorial_media`, `publication_media`, and the three media rules that live in SQL |
+| `0058_editorial_sections` | Eleven `ALTER TYPE … ADD VALUE` on `publication_section`: the Fake Resistance and People of Israel destinations |
+| `0059_editorial_runs` | `editorial_run`, `editorial_operation` — the whole-site delivery ledger, with RLS and the `app_staff`/`app_service` grants |
+| `0060_editorial_publication_provenance` | `publication.editorial_run_id` / `editorial_operation_key`; the provenance constraint and the publish gate accept **either** provenance pair; `public_publication_corrections()` learns to show an editorial-run correction |
+| `0061_romantic_moon_knight` | `publication.topic_tags text[]` |
+| `0062_whole_site_editorial_delivery` | `publication.canonical_story_id` with a partial unique index; `homepage_placement` replacing `homepage_feature`, migrating only slots whose publication still belongs to the area |
 
 ---
 
@@ -112,7 +141,8 @@ drizzle-kit's snapshot (see `0021`).
 
 **Publication surfaces** — `publication`, `publication_item`,
 `publication_evidence`, `publication_narrative`, `publication_passage`,
-`publication_passage_evidence`, `publication_related`, `homepage_placement`
+`publication_passage_evidence`, `publication_related`, `homepage_placement`,
+`homepage_edition`
 
 **Editorial media** — `editorial_media`, `publication_media` (migration
 `0057`). An asset and its rights on one table, which publication wears it on
@@ -147,20 +177,88 @@ closed evidence packet every later stage re-reads by id — and
 gate: nothing counts these rows in SQL since migration `0049` — see
 [the publish gate](#the-publish-gate).
 
-**The editorial-update receiver ledger** — `editorial_run`, `editorial_operation`
-(migrations `0059`–`0061`). A durable, resumable execution ledger for an
-externally composed package: one run owns a set of create/update operations on
-`publication`, each recording its own input hash, media artifact and result so
+**The whole-site editorial ledger** — `editorial_run`, `editorial_operation`
+(migration `0059`). A durable, resumable execution ledger for an externally
+composed package: one run owns an ordered set of create/update operations on
+`publication`, each recording its own input hash, media artifact and result, so
 a retried run reuses whatever an earlier attempt already prepared or completed
-instead of redoing it. New runs accept only explicit `operations` and are
-deduplicated by their caller-supplied `runId` and request hash. Historical
-`daily` rows remain readable but cannot be created by the application.
-`publication.editorial_run_id` /
-`editorial_operation_key` are this pipeline's provenance columns, parallel to
-`briefing_run_id` / `briefing_candidate_key` — `automatic_publication_has_machine_provenance`
-(migration `0060`) accepts either pair, never neither. `publication.topic_tags`
-(migration `0061`) is a plain `text[]` refining discovery within a section
-without adding another destination.
+instead of redoing it. The operational reference is
+[`whole-site-updates.md`](whole-site-updates.md).
+
+What the SQL, rather than the TypeScript, guarantees:
+
+- `editorial_run_run_key_unique` on `run_key` — the caller's own `runId` — is
+  the idempotency key. `repo.start()` takes
+  `pg_advisory_xact_lock(hashtext('editorial:' || runId))` before checking it,
+  so two simultaneous deliveries of one package cannot both insert.
+- `request_hash` (`^[a-f0-9]{64}$`) is a SHA-256 over the request with object
+  keys canonically sorted. A replay of the same `runId` with the same body
+  returns the existing run; the same `runId` with a *different* body is
+  refused. One run identifier never means two things.
+- `editorial_operation_once` — unique on `(run_id, operation_key)` — and
+  `editorial_operation_order` on `(run_id, position)` make an operation
+  addressable and ordered, which is what lets a resume touch exactly the failed
+  ones.
+- `lease_token` / `lease_until`, paired by
+  `editorial_run_lease_paired`, are the fencing token: an expired worker cannot
+  complete a run another worker has reclaimed.
+- `editorial_run_status_known` is `queued|running|completed|partial|failed`;
+  both stage checks are
+  `research|classification|media|publication|homepage|report`. The first two
+  stage values are legal only for historical rows — the whole-site run starts
+  at `media`.
+- `editorial_daily_date_once` is a partial unique index on `local_date` where
+  `mode = 'daily'`. `mode` is `daily|operations`; the application only ever
+  writes `operations`, so historical `daily` rows remain readable and cannot be
+  created.
+- RLS is on. `app_public` is revoked outright; `app_staff` and `app_service`
+  get SELECT/INSERT/UPDATE with permissive policies. There is no DELETE grant —
+  the ledger is a record.
+
+**Provenance.** `publication.editorial_run_id` (FK to `editorial_run`) and
+`editorial_operation_key` are this path's provenance columns, parallel to
+`briefing_run_id` / `briefing_candidate_key`. Migration `0060` rewrote
+`automatic_publication_has_machine_provenance` and
+`enforce_publication_publish_gate()` to accept **either** pair plus a
+non-empty `machine_author`, never neither.
+`publication_editorial_operation_once` — partial unique on
+`(editorial_run_id, editorial_operation_key)` — is why one operation publishes
+once per run even if the run is executed twice. `0060` also taught
+`public_publication_corrections()` to surface a `workflow` version whose
+snapshot carries `editorialUpdateRunId`, so an editorial update shows up in the
+public corrections record rather than being invisible.
+
+**`publication.canonical_story_id`** (migration `0062`) is a lowercase
+hyphenated slug under `publication_canonical_story_once`, a unique index
+partial on `IS NOT NULL`. It is the stable editorial identity of a developing
+story, independent of the URL: a package sets it on the create and addresses
+every later update by it, which is what makes an update possible without the
+composer knowing an internal UUID.
+
+**`homepage_placement`** (migration `0062`, replacing `homepage_feature`) is
+`(area, position)` as a composite primary key with a `UNIQUE` publication id,
+so one publication occupies at most one slot. `homepage_placement_area_is_valid`
+restricts `area` to `news`, `fakeResistance`, `people` and
+`homepage_placement_position_is_valid` restricts `position` to `lead`,
+`secondary` — six slots, enforced in SQL and mirrored by
+`HOMEPAGE_PLACEMENT_AREAS` / `HOMEPAGE_PLACEMENT_POSITIONS` in
+`publications/service.ts`. `app_public` may SELECT a row only through
+`homepage_placement_public_reads_published`, which requires the referenced
+publication to be `published` or `updated`; an unpublished pin is invisible
+rather than merely unrendered. The migration carried the three old
+`homepage_feature` slots forward **only where the publication still belongs to
+that area** — a mismatched historic pin deliberately became automatic again.
+
+`homepage_edition` (migration `0054`) is a separate, append-only table: the
+selected homepage for a date at a revision. `homepage_placement` is editorial
+intent; `homepage_edition` is the committed result of applying it.
+
+**`publication.topic_tags`** (migration `0061`) is a plain `text[]` refining
+discovery within a section without adding another destination.
+
+**Legacy external delivery** — `external_briefing_submission` (migration
+`0050`), the `external-briefing-v1` ingest's idempotency ledger, unique on
+`run_id`. Independent of `editorial_run`: the two receivers share nothing.
 
 **Infrastructure** — `outbox`, `rate_limit`
 
@@ -293,14 +391,21 @@ The human route is the same shape as above: a `CHECK`
 and either an `approved_by` or an `auto_published_at`, and the trigger then
 checks that an `approved_by` names a human other than the author.
 
-The **automatic** route is what the briefing pipeline uses. A row with
-`auto_published_at` set may not also carry `approved_by` — a publication is one
+The **automatic** route is what every machine-published row uses — the
+whole-site editorial run today, the briefing pipeline historically. A row with
+`auto_published_at` set may not also carry `approved_by`: a publication is one
 or the other, and a row claiming both is a provenance lie rather than extra
-assurance. It must carry a `briefing_run_id`, a `quality_approved_at`, a
-`machine_author` and a `briefing_candidate_key`
-(`automatic_publication_has_quality_provenance`, migration `0042`, whose partial
-unique index also makes one candidate publish at most once per run). And the
-trigger counts:
+assurance.
+
+Since migration `0060` it must carry a `machine_author` **and one complete
+provenance pair** — either `briefing_run_id` + `briefing_candidate_key`, or
+`editorial_run_id` + `editorial_operation_key`. Never neither, and each pair
+has its own partial unique index (`0042` and `0060`) making one candidate or
+operation publish at most once per run.
+
+Historically the constraint was `automatic_publication_has_quality_provenance`
+(migration `0042`), which additionally demanded a `quality_approved_at`, and
+the trigger counted:
 
 ```sql
 SELECT count(*) FROM briefing_quality_check
@@ -324,10 +429,20 @@ WHERE briefing_run_id = NEW.briefing_run_id
 
 **What enforces quality now.** One path, in TypeScript only:
 `evaluateCandidate()` in `server/modules/briefing/quality.ts`, called from
-`server/modules/briefing/external-publish.ts:265` — the external composer
-ingest. `publications/repo.ts` no longer counts anything either; `595ca9d`
-deleted `qualityCandidatePassed()` and its import, so `grep -c
+`server/modules/briefing/external-publish.ts` — the **legacy** external
+composer ingest. `publications/repo.ts` no longer counts anything either;
+`595ca9d` deleted `qualityCandidatePassed()` and its import, so `grep -c
 REQUIRED_QUALITY_CHECKS server/modules/publications/repo.ts` returns 0.
+
+**The whole-site editorial path has no quality gate at all.**
+`publicationService.applyEditorial()` does not call `evaluateCandidate()`, and
+nothing in `server/modules/editorial-update/` reads
+`REQUIRED_QUALITY_CHECKS`. That is a deliberate launch-period posture, not an
+oversight: what the path does enforce is authentication, the provenance
+constraint and trigger above, media rights (`isArticleSafeMedia()` rejects the
+whole operation for an uncleared image), `recordVersion()` as the only write
+path, idempotency on `run_key` + `request_hash`, and one transaction per
+operation. Ordered contracts return after launch.
 
 Count `REQUIRED_QUALITY_CHECKS` at the source when you need the number. This
 section said "eighteen" in five places against an array of seventeen, and

@@ -6,11 +6,14 @@ described as though it works.
 
 | Document | For |
 | --- | --- |
+| [`editorial-dna.md`](editorial-dna.md) | **The binding definition of what this site and this system are** — purpose, the reader's journey, the five destinations, routing, images, the veto, and the operator run prompt. An owner ruling; it outranks every other document here |
 | [`architecture.md`](architecture.md) | The system map — both halves, the enforced boundaries, the flows, and the known gaps |
 | [`api.md`](api.md) | Every HTTP route, its guard, its shape, its error codes |
 | [`data-model.md`](data-model.md) | Tables, triggers, versioning, RLS, the two axes, the test database |
 | [`environment.md`](environment.md) | Every environment variable, by name. No values |
 | [`operations.md`](operations.md) | Install, run, verify, CI, deploy, troubleshoot |
+| [`whole-site-updates.md`](whole-site-updates.md) | `whole-site-update-v1` — how an externally composed editorial package is delivered and run |
+| [`briefing-packages.md`](briefing-packages.md) | The legacy `external-briefing-v1` path, kept for historical Daily Brief packages |
 | [`vercel-infrastructure.md`](vercel-infrastructure.md) | Verified Vercel, Neon, Blob, Queue, Cron and AI deployment record |
 
 

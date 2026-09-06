@@ -45,7 +45,7 @@ flowchart TB
         Routes["Route handlers<br/>parse → one service → serialize"]
         Modules["Modules<br/>service / repo / rules"]
         Core["Core<br/>versioning, outbox, config, auth"]
-        DB[("Postgres<br/>59 tables, 48 migrations")]
+        DB[("Postgres<br/>65 tables, 63 migrations")]
     end
 
     Home --> Vocab
@@ -139,11 +139,11 @@ imports**: the search service takes an `Embedder`, the chat service takes an
 briefing service takes a `Generator`. That is what lets the whole machinery
 ship and be tested before the AI Gateway or the queue exists.
 
-Fourteen modules. Eleven carry the full shape — `ai`, `assessments`,
-`briefing`, `chat`, `evidence`, `items`, `narratives`, `publications`,
-`reports`, `search`, `sources`. Three are deliberately smaller, and it is worth
-knowing which, so nobody goes looking for a `repo.ts` that was never meant to
-exist:
+`ls server/modules/` is the source of truth for how many there are; this
+paragraph claimed fourteen against a directory of nineteen until 2026-09-06,
+so **do not quote a count here** — read it at the source. What is worth
+writing down is which modules depart from the shape above, so nobody goes
+looking for a `repo.ts` that was never meant to exist:
 
 - `outbox` is one function, `dispatchOutboxMessage`. It owns the service
   identity a queued message executes under, so the queue route authenticates
@@ -152,21 +152,22 @@ exist:
 - `public-x-auth` is a pure re-export facade over `core/auth/public-x.ts` —
   no service, no repo, no database. It exists so `app/auth/**/route.ts` can
   reach that code under a carve-out in `eslint.config.mjs`.
+- `assessments` is the reference for `rules.ts`: pure, DB-free policy, unit
+  tested with no database at all.
+- `briefing` carries eight files. `quality.ts` is `rules.ts` under another
+  name; `jobs.ts` and `alerts.ts` are the retained stage runner and operator
+  alert path; `external-publish.ts` and `codex-import.ts` are the two legacy
+  ingests.
+- `editorial-update`, `admin-console`, `homepage`, `media`, `publications`,
+  `reports` and several others carry `index.ts` / `service.ts` / `repo.ts` with
+  no `rules.ts` — the standard shape minus the policy file.
+- `ops-agent` has `service.ts` with `tools.ts`, `context.ts` and
+  `confirmations.ts` and no repo; `homepage` adds `catalog.ts` and
+  `selection.ts`; `sources` adds the connector layer.
 
-`briefing` has six files rather than four. `quality.ts` is `rules.ts` under
-another name — pure, DB-free, unit-tested directly. `jobs.ts` and `alerts.ts`
-are the extras: the queued stage runner and the operator alert path.
-
-⚠️ **This count is stale and was already stale before 2026-09-06.**
-`server/modules/` holds nineteen directories today
-(`ls server/modules/` is the source of truth), not fourteen: this list omits
-`admin-console`, `homepage`, `media` and `ops-agent`, none of which this pass
-added. This pass added a twentieth-in-spirit module, `editorial-update`
-(`index.ts`, `service.ts`, `repo.ts` — the standard four-file shape minus
-`rules.ts`), a durable, resumable alternative to the briefing pipeline's
-publish stage; see the data model doc's "The editorial-update pipeline"
-section. Recounting and correcting this paragraph for every module added
-since is a separate pass, not folded in here.
+`editorial-update` is the module that executes a whole-site editorial package
+— see [the whole-site editorial model](#the-whole-site-editorial-model) and
+[`whole-site-updates.md`](whole-site-updates.md).
 
 ### Cross-cutting rules worth knowing before editing
 
@@ -211,6 +212,8 @@ flowchart TB
     Cons --> Email["email.notification → sendWorkspaceEmail()"]
     Cons --> Invalidate["publication.cache-invalidate → expirePublicPublicationCache()"]
     Cons --> Alert["briefing.alert → deliverBriefingAlert()"]
+    Cons --> Run["editorial.run-process → processEditorialRun()"]
+    Cons --> Report["editorial.run-report → deliverEditorialRunReport()"]
     Cons -.->|"tombstone, no producer"| Detect["item.detected"]
 
     Drain -.->|"queue unreachable"| Backoff["stay pending<br/>30s → 1h backoff"]
@@ -219,9 +222,13 @@ flowchart TB
 
 One queue topic for the outbox, fanned out by the row's own `topic` column —
 opening a new kind of background work is "add a case to a registry", not "add a
-route, a `vercel.json` trigger, and a redeploy". The briefing pipeline is the
-deliberate exception: its stages *are* separate routes with separate triggers,
-because each one needs its own `maxDuration` and its own retry interval.
+route, a `vercel.json` trigger, and a redeploy". A whole-site editorial run
+follows exactly that pattern: the ingest route writes `editorial.run-process`
+inside the transaction that records the run, and the drain executes it.
+
+The retained legacy briefing pipeline is the deliberate exception: its stages
+*are* separate routes with separate triggers, because each one needed its own
+`maxDuration` and its own retry interval. Nothing triggers them now.
 
 The drain is the path that cannot lose a job: it runs with no dependency on
 Vercel Queues at all, and a row that fails to dispatch simply stays pending
@@ -248,7 +255,8 @@ reads 0 in Production and the queue has no message left in flight.
 history shows no commit ever emitted it: it was a Phase-6 placeholder, so there
 can be no undrained row to acknowledge.
 
-**The drain limit is a throughput, and it is sized by the briefing edition.**
+**The drain limit is a throughput, and it was sized by an edition's reindex
+burst.**
 `DEFAULT_DRAIN_LIMIT` is 250; the cron runs every 15 minutes, so that is 1,000
 rows an hour. One edition materializes roughly a claim per paragraph and emits
 a `search.reindex` for each — about 190 rows arriving at once. At the previous
@@ -291,12 +299,96 @@ deliberately never collapsed into one axis. An item can be `published` with any
 assessment and `under_review` with any; a schema that fuses them makes "we are
 still checking" unrepresentable.
 
-### The briefing pipeline
+### The whole-site editorial model
 
 The path above is the human one: a reviewer approves an assessment and the
 publish gate checks that the approver is a person other than the author. There
 is a second path to the same `publication` table, and it publishes without a
 human at all.
+
+That path is now a **whole-site daily editorial update**, not a briefing. A
+composer working outside this repository produces one package describing new
+articles, updates to live stories, and homepage placement; the application
+validates, executes and reports on it. Nothing inside the deployment composes:
+there is no cron, queue trigger, admin action or agent tool that starts
+research, drafting or an edition.
+
+```mermaid
+flowchart LR
+    Pkg["editorial-updates branch<br/>whole-site-update-v1 JSON"] --> GA["GitHub Action<br/>tooling checked out from main"]
+    GA -->|"x-editorial-update-secret"| In["POST /api/internal/<br/>editorial-updates/ingest"]
+    In --> Run[("editorial_run + editorial_operation<br/>emit editorial.run-process")]
+    Run --> M["media stage<br/>fetch once → Blob"]
+    M --> P["publication stage<br/>applyEditorial, one txn per operation"]
+    P --> H["homepage stage<br/>placements → ensureEdition"]
+    H --> R["report<br/>+ editorial.run-report email"]
+    GA -.->|"poll /runs/{runId}"| R
+```
+
+Full operational reference: [`whole-site-updates.md`](whole-site-updates.md).
+
+**Five destinations, one routing decision.** `publication.section` is the only
+editorial choice the package makes about placement; `routePublication()` in
+`lib/publication-routing.ts` derives the hub, the homepage band, the
+breadcrumb and the card label from it, in one map, exhaustive over the section
+enum by construction. This file exists to prevent the alternative — a second
+model-chosen field plus scattered `section === "narrative_watch" ? … : …`
+ternaries — which is how a record ends up filed as news on the homepage and as
+a claim assessment on its own page.
+
+- **News & Analysis** (`/geopolitical-brief`) — `daily_brief`,
+  `israel_update`, `news`.
+- **Fake Resistance** (`/fake-resistance`) — `narrative_watch`,
+  `influence_investigation`, `antisemitism`.
+- **The People of Israel** (`/people-of-israel`) — `innovation`,
+  `science_medicine`, `technology_ai`, `achievement`,
+  `international_cooperation`, `people`, `courage_service`, `history_context`.
+  `/our-heroes` and `/israels-story` remain live pages at their own addresses.
+- **October 7** (`/october-7`) — a curated archive. There is no section that
+  routes there and no homepage area for it, so a run structurally cannot
+  create, update or place October 7 material.
+- **Behind the desk** (`/information-war`, labelled "How it works" in
+  `components/site/navigation-model.ts`) — a static explainer of the method.
+
+`history_context` is the one section that can be read into two hubs:
+`routePublication(section, { historyContext })` lets a caller place an
+explainer under News or Fake Resistance. Every other section has one home.
+
+**The `editorial-update` module owns the durable run.** `index.ts`,
+`service.ts`, `repo.ts` — the standard shape minus `rules.ts` — over the
+`editorial_run` / `editorial_operation` ledger (migration `0059`). The run is
+claimed with a five-minute lease and a fencing token, so an expired worker
+cannot complete a run another worker reclaimed, and it proceeds in stages:
+
+- **media** — `materializeExternalMedia` fetches each image once, reads its
+  dimensions from the file header, and stores a content-addressed copy in this
+  project's own Blob store. The draft is written to the operation row *before*
+  the publication transaction, so a resume reuses it rather than refetching.
+  Holding a transaction open across N downloads is how a 300-second function
+  times out with locks held.
+- **publication** — one short transaction per operation:
+  `publicationService.applyEditorial()` inserts or updates the row, attaches
+  the media, records the version through `recordVersion()`, and marks the
+  operation completed. A failure marks **that operation** failed and the loop
+  continues; the package does not stop.
+- **homepage** — each named placement through `setHomepagePlacement()`, then
+  `homepageService.ensureEdition()` cuts a new edition revision. A slot the
+  package did not name keeps whatever it had.
+- **report** — `completed` when nothing errored, `partial` otherwise. Both
+  `finish` and `fail` emit `editorial.run-report`, so a crashed run reports the
+  stage it died at.
+
+`publication.editorial_run_id` / `editorial_operation_key` are this path's
+machine provenance, parallel to `briefing_run_id` /
+`briefing_candidate_key`. Since migration `0060`,
+`enforce_publication_publish_gate()` accepts either pair and never neither —
+see [`data-model.md`](data-model.md#the-publish-gate).
+
+**The legacy briefing record format is retained and unreachable.** The
+`briefing` module, its thirteen tables and its stage artifacts remain readable
+for historical packages and audit evidence. Its internal stages have no cron,
+queue trigger, admin action or operations-agent action, and cannot start new
+editorial work.
 
 ```mermaid
 flowchart LR
@@ -311,65 +403,55 @@ flowchart LR
     Packet -.-> Q
 ```
 
-This diagram describes the retained **legacy briefing record format**. Its
-internal stages have no Vercel cron, queue trigger, admin action, or
-operations-agent action, and cannot start new editorial work. The durable
-records remain readable for historical packages and audit evidence.
+Two properties of that record format are still worth knowing, because they
+explain the shape of the stored rows:
 
 - **The packet is closed at `enrich` and read by id afterwards.** The enrich
-  stage writes an artifact naming its `evidenceIds`; `evidenceForArtifact()`
-  re-reads exactly that set through `recentEvidenceByIds()`. Cluster, triage,
-  draft and quality all call it. The obvious alternative — re-open the time
-  window and filter in memory — is not merely more expensive, it is wrong: it
-  drops rows whenever the edition is processed outside the window (a retry the
-  next day) or the day produced more rows than the limit, and the loss is
-  silent right up until `validateDraftEvidence` throws on an id the model was
-  legitimately given.
-- **What the model sees is a truncation of what the checks read.**
-  `sourcePacket()` cuts each excerpt to 1,200 characters; a stored excerpt runs
-  to 6,000 and up to 120 rows are sent at triage, which is the single largest
-  item in the daily token bill and far more text than a selection decision
-  needs. The quality gate still matches the drafted article against the whole
-  stored excerpt, so the check corpus stays a superset of what the model saw —
-  the direction that cannot launder a fabrication.
-- **The edition's artifact schema and the section contract are one set** —
-  `ARTICLE_SECTIONS` (`israel_update`, `narrative_watch`) for triage selection
-  and for stored artifacts alike, so an edition whose stages straddle a deploy
-  cannot parse a value a stage can no longer write.
+  stage wrote an artifact naming its `evidenceIds`; `evidenceForArtifact()`
+  re-reads exactly that set through `recentEvidenceByIds()`. Re-opening the
+  time window instead is not merely more expensive, it is wrong: it drops rows
+  whenever an edition was processed outside the window, silently, right up
+  until `validateDraftEvidence` threw on an id the model was legitimately
+  given.
+- **What the model saw was a truncation of what the checks read.**
+  `sourcePacket()` cut each excerpt to 1,200 characters against a stored 6,000,
+  so the check corpus stayed a superset of the model's view — the direction
+  that cannot launder a fabrication.
 
-The edition serves three jobs, declared in priority order in the triage prompt:
-refute anti-Israel narratives, publish one regional geopolitical Daily Brief,
-and publish one genuinely interesting Israel story. Security, war and
-operational material feeds the Daily Brief rather than becoming a standalone
-article — which is why the war section was removed from `ARTICLE_SECTIONS` and
-then, by the 2026-09-05 decision, from the section contract entirely, and why
-`/war-update` now serves a permanent redirect instead of an archive.
+`war_update` is gone in both directions: removed from `ARTICLE_SECTIONS` on
+2026-09-01 and from the section contract entirely by the 2026-09-05 decision
+(migration `0053`). `/war-update` is a permanent redirect to News & Analysis.
+Security, war and operational material feeds the Daily Brief rather than
+becoming a standalone destination.
 
-Rows arriving through the **external composer ingest**
-(`POST /api/internal/briefing/external-publish`) must pass every deterministic
-check in `briefing/quality.ts` — `evaluateCandidate()` at
-`external-publish.ts:265` is the one call site. Count the checks at the source;
-this paragraph said "eighteen" against an array of seventeen until 2026-09-05.
+**The deterministic quality suite runs on exactly one path.** Rows arriving
+through the legacy external composer ingest
+(`POST /api/internal/briefing/external-publish`) must pass every check in
+`briefing/quality.ts`; `evaluateCandidate()` in `external-publish.ts` is the
+one call site. Count the checks at the source — this paragraph said "eighteen"
+against an array of seventeen until 2026-09-05, and no number belongs in prose.
 
-⚠️ **That is the only path with a deterministic gate.** This section described
-"two places that count differently" until 2026-09-05, and both had been removed
-on 2026-09-03: migration `0049` replaced the trigger's count with a machine-
-provenance check, and `595ca9d` deleted the counter from `publications/repo.ts`.
-The internal briefing initiator is retired. New editorial work is composed
-outside the application and delivered as a package; the retained legacy reader
-does not schedule, research, draft, or publish an edition. See
-[`data-model.md`](data-model.md#the-publish-gate).
+⚠️ **Nothing else counts them.** This section described "two places that count
+differently" until 2026-09-05, and both had been removed on 2026-09-03:
+migration `0049` replaced the trigger's count with the machine-provenance check
+above, and `595ca9d` deleted the counter from `publications/repo.ts`. The
+whole-site path has **no quality gate** — a deliberate launch-period posture.
+What is enforced on it is authentication, database integrity, media rights,
+idempotency and transactional persistence. Ordered contracts return after
+launch. See [`data-model.md`](data-model.md#the-publish-gate).
 
-One Narrative Watch record per edition may publish **citing nothing at all**,
-marked in public as this organisation's own analysis rather than as documented
-fact. Structurally that is a flag inside a jsonb column and a second branch
-inside several of the checks — never a skipped check. Where the flag
-comes from, why it is derived rather than chosen, and why an absent value must
-read as "sourced" are in
+A Narrative Watch record may publish **citing nothing at all**, marked in
+public as this organisation's own analysis rather than as documented fact.
+Structurally that is a flag inside a jsonb column and a second branch inside
+several checks — never a skipped check. `evidenceBasis` is derived
+(`evidenceIds.length === 0`), never chosen by the model, and an absent value
+must read as "sourced"; the reasoning is in
 [`data-model.md`](data-model.md#the-narrative_watch_details-jsonb).
 
-Legacy package delivery: [`briefing-packages.md`](briefing-packages.md). New
-whole-site package schema work follows the same GitHub-to-receiver boundary.
+Current delivery path: [`whole-site-updates.md`](whole-site-updates.md).
+Legacy compatibility path: [`briefing-packages.md`](briefing-packages.md).
+The editorial standard a package is written to is
+[`editorial-dna.md`](editorial-dna.md).
 
 ---
 
@@ -534,9 +616,11 @@ rediscovered; none of them is fixed by this document.
    test: `tests/rls.test.ts` proves the policies through `SET LOCAL ROLE` inside
    a transaction on PGlite, which is not the pooled session-scope mechanism
    production uses.
-2. **`.env.example` is not in git** — `.gitignore`'s `.env*` pattern captures
-   it. A fresh clone has no environment reference; [`environment.md`](environment.md)
-   is the tracked substitute.
+2. ~~**`.env.example` is not in git.**~~ **Closed** — `.gitignore` carries
+   `!.env.example` after the `.env*` rule and the file is tracked
+   (`git ls-files .env.example`). It is the template;
+   [`environment.md`](environment.md) remains the reasoning, and describes the
+   code where the two disagree.
 3. ~~**`/api/internal/health` has no deep variant.**~~ **Closed** —
    `deepHealth()` in `server/core/deep-health.ts` is served by
    `GET /api/v1/admin/health/deep` behind `requireActor`, which is where a
@@ -545,3 +629,27 @@ rediscovered; none of them is fixed by this document.
    platform's rollout gate. What survives is a stale comment — the
    configuration summary in `server/core/config.ts` still points readers at
    `/api/internal/health/deep`, a path that does not exist.
+4. **The whole-site editorial path has no deterministic quality gate.** This is
+   a deliberate launch-period posture rather than an oversight, and it is
+   recorded here so it is not mistaken for one.
+   `publicationService.applyEditorial()` does not call `evaluateCandidate()`,
+   and nothing under `server/modules/editorial-update/` reads
+   `REQUIRED_QUALITY_CHECKS`. A package that validates against
+   `whole-site-update-v1` publishes. What still holds on that path:
+   authentication, the provenance constraint and publish-gate trigger, media
+   rights (`isArticleSafeMedia()` fails the operation rather than dropping the
+   image), `recordVersion()` as the only write path for a versioned entity,
+   idempotency on `run_key` plus the canonical request hash, and one
+   transaction per operation. Ordered contracts return after launch.
+5. **`withDatabaseRole` is not exercised for the editorial service identity.**
+   The gap in entry 1 applies here too: the whole-site routes run as
+   `app_service` / `service:editorial-updates`, and
+   `tests/editorial-update-routes.test.ts` mocks `withDatabaseRole` out
+   entirely rather than proving the session-scoped `SET ROLE` the production
+   path uses.
+6. **A deploy can strand a delivery run's contract.** A GitHub Action validates
+   a package against the tooling on `main` at checkout time and posts it to
+   whatever is deployed. A contract change landing between those two moments
+   rejects a package that validated seconds earlier. Nothing detects this — the
+   mitigation is procedural, in
+   [`operations.md`](operations.md#deploying-across-a-delivery-run).

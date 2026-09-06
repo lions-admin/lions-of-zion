@@ -11,10 +11,12 @@ Nothing throws at import time. A missing `DATABASE_URL` must not stop the test
 suite, which runs entirely against in-process PGlite, so the accessors throw at
 the point of use, naming the variable and what wanted it.
 
-> **The repository also contains `.env.example`, but it is not in git.**
-> `.gitignore`'s `.env*` pattern captures it (`git check-ignore -v .env.example`
-> confirms), so a fresh clone does not get it. This file is the tracked
-> reference. See [the recommendation](#recommendation) below.
+> **`.env.example` is tracked.** This note said the opposite until 2026-09-06:
+> `.gitignore` negates the `.env*` pattern with `!.env.example`, and
+> `git ls-files .env.example` returns the file, so a fresh clone gets it.
+> It is the copy-and-fill template; this document is the reasoning behind each
+> variable and describes the code where the two disagree. See
+> [`.env.example` is tracked](#envexample-is-tracked) below.
 
 **Nothing here is required to run the test suite.** `npm test` needs no
 configuration at all.
@@ -219,6 +221,36 @@ through `x-editorial-update-secret`; it is separate from both the broader
 internal secret and `EXTERNAL_BRIEFING_INGEST_SECRET`, so a delivery-channel
 rotation cannot grant unrelated internal access.
 
+Read through `editorialUpdateIngestSecret()` in `server/core/config.ts`, which
+is `required()` — an unset value throws at the point of use, so the route
+refuses rather than accepting anything. `requireEditorialUpdateIngestSecret()`
+compares SHA-256 digests in constant time and refuses an empty header outright.
+
+The same value must be set as a GitHub Actions secret on the
+`editorial-updates` branch, or its workflow authenticates as nothing.
+
+### `EDITORIAL_REPORT_EMAIL`
+Where a finished whole-site editorial run mails its report.
+
+`editorialReportEmail()` reads it and **falls back to `ADMIN_EMAIL`** when
+unset, so an unconfigured deployment still delivers rather than throwing inside
+a post-commit consumer. It is deliberately its own variable: `ADMIN_EMAIL` is an
+authorization boundary — the one address permitted to sign in — while a run
+report is correspondence, and the owner reads it on a personal mailbox that
+must never become a sign-in identity.
+
+Setting this to the owner's reporting address is a **platform action, not a
+code one**: `vercel env add EDITORIAL_REPORT_EMAIL`. Until it is set in
+Production, reports go to `ADMIN_EMAIL`. Verify with
+`grep -n editorialReportEmail server/modules/editorial-update/service.ts` —
+`deliverEditorialRunReport` should pass it as `to:`.
+
+The report is emitted on `editorial.run-report` from both `editorialRepo.finish`
+and `.fail`, so a crashed run reports the stage it died at. That topic sat in
+`RETIRED_TOPICS` with a registered consumer and no producer for one deploy
+cycle, during which every report was written and stored but never sent; if
+reports stop arriving again, check `TOPICS` in `server/core/outbox.ts` first.
+
 ### `CRON_SECRET`
 Vercel sends `Authorization: Bearer $CRON_SECRET` on every cron invocation
 automatically once this is set — there is nothing else to wire up.
@@ -248,8 +280,18 @@ anticipated lands on "not allowed" instead of "allowed by omission".
 | --- | --- | --- |
 | `DATABASE_URL` | `drizzle.config.ts` | Falls back to `postgres://unset`; only needed to push |
 | `TEST_DATABASE_URL` | `server/db/testing.ts` | Test harness, not runtime |
+| `EDITORIAL_UPDATE_INGEST_BASE_URL` | `scripts/publish-editorial-update.ts` | Which deployment `npm run editorial:publish` posts to. Defaults to `https://lionsofzion.io`; set it to a Preview origin to rehearse a package. Also a GitHub Actions secret on the `editorial-updates` branch |
 | `NODE_ENV` | `components/graphics/viewport.ts` | Substituted at build time to strip a dev-only check |
 | `VERCEL_ENV` | `server/core/config.ts` | Set by Vercel |
+
+`EDITORIAL_UPDATE_INGEST_BASE_URL` is read with a bare `process.env` in the
+script, and that does **not** violate the single-reader rule: `config.ts` is the
+only *server-runtime* reader, and a CLI publish tool is not server runtime. It
+has no accessor in `config.ts` and should not acquire one.
+
+⚠️ `NODE_ENV` above is stale in a second way: `components/graphics/viewport.ts`
+no longer contains that check (`CLAUDE.md` records its removal). The row is kept
+because the variable is still read by the toolchain.
 
 ---
 
@@ -264,15 +306,21 @@ the shape of a connection string is a health endpoint that leaks.
 
 ---
 
-## Recommendation
+## `.env.example` is tracked
 
-`.env.example` should be tracked. A one-line negation in `.gitignore` after
-the `.env*` rule would do it:
+This section recommended tracking it and said the change had "**not** been
+applied". It has been: `.gitignore` carries the negation, and
+`git ls-files .env.example` returns the file.
 
 ```
 .env*
 !.env.example
 ```
 
-This has **not** been applied — it is a repository change rather than a
-documentation one. Until it is, this file is the reference a fresh clone gets.
+So a fresh clone gets `.env.example` as well as this document. They serve
+different purposes and both are needed: `.env.example` is the copy-and-fill
+template, this file is the reasoning — why a variable exists, what refuses when
+it is unset, and which are read by tooling rather than by the application.
+Where the two disagree, **this file describes the code** (the `.env.example`
+line saying budget overruns "degrade" to a cheaper profile is the standing
+example; the code refuses).

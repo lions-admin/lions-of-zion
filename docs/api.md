@@ -9,12 +9,36 @@ until 2026-08-27. `DATABASE_URL` is provisioned, and `server/http/handler.ts`
 engages RLS per request via `withDatabaseRole`.
 
 **The guard column below understates the lockdown.** `PUBLIC_V1` in
-`handler.ts` is exactly seven entries — `GET /search`, `GET /published-items`,
-`POST /reports` and the four chat paths. Every other `/api/v1/` route runs
-through `authenticateAdmin()` and fails closed, so roughly a dozen routes
-marked `anon` below are in fact staff-only; `GET /api/v1/evidence` among them.
-Four routes are undocumented here entirely: `internal/cron/maintenance`,
-`v1/admin/status`, `public-auth/session`, and `auth/[...path]`.
+`handler.ts` is the authority and it is **exactly nine entries**:
+
+```
+GET  /api/v1/search
+GET  /api/v1/published-items
+GET  /api/v1/published-publications        (one pattern, with or without /{publicId})
+POST /api/v1/reports
+POST /api/v1/volunteer-interest
+GET  /api/v1/chat/threads
+POST /api/v1/chat/threads
+GET  /api/v1/chat/threads/{id}/messages
+POST /api/v1/chat/threads/{id}/messages
+```
+
+This paragraph said "seven" until 2026-09-06, omitting
+`published-publications` and `volunteer-interest`.
+
+Every other `/api/v1/` route runs through `authenticateAdmin()` and fails
+closed. **Twelve rows marked `anon` in the tables below are in fact
+staff-only** — count them: `GET /items`, `GET /items/{id}`,
+`GET /items/{id}/eligibility`, `GET /items/{id}/evidence`,
+`GET /items/{id}/assessments`, `GET /evidence`, `GET /sources`,
+`GET /sources/{id}`, `GET /publications`, `GET /publications/{id}`,
+`GET /ai/suggestions`, `GET /ai/suggestions/{id}`. Read `anon` on any of those
+as "was intended to be anonymous; is not". The two chat `POST`s are the
+opposite error — marked `actor`, actually public.
+
+Routes undocumented here entirely: `internal/cron/maintenance`,
+`v1/admin/status`, `public-auth/session`, `auth/[...path]`,
+`v1/published-publications` and `v1/volunteer-interest`.
 
 The superseded text: the actor guard also refuses in
 production (see [Authentication](#authentication)). This document describes
@@ -94,6 +118,7 @@ the authenticated actor and fails closed.
 | `anon` | no guard at all |
 | `cron` | `Authorization: Bearer $CRON_SECRET`, which Vercel signs automatically |
 | `internal` | `x-internal-secret: $INTERNAL_API_SECRET` |
+| `editorial` | `x-editorial-update-secret: $EDITORIAL_UPDATE_INGEST_SECRET`, compared in constant time |
 | `queue` | invoked by a Vercel Queue trigger; no public URL, so no guard to write |
 
 ---
@@ -134,10 +159,15 @@ an item currently satisfies the publish gate and what is missing.
 `POST` is for evidence a human enters directly rather than a connector
 finding; the `manual` source kind exists for exactly that.
 
-> **Gap.** `GET /api/v1/evidence` is anonymous and applies no `dataClass`
-> filter — `listEvidenceSchema` accepts only `sourceId`, `kind`, `cursor` and
-> `limit`. The intended protection is RLS, which the runtime does not
-> currently engage. See [architecture.md](architecture.md#known-architectural-gaps).
+> **Corrected 2026-09-06.** This said `GET /api/v1/evidence` is anonymous and
+> that "the runtime does not currently engage" RLS. Both halves are wrong.
+> The route is **not** in `PUBLIC_V1`, so it runs through
+> `authenticateAdmin()` and is staff-only; and `server/http/handler.ts` wraps
+> every classified request in `withDatabaseRole()`, which issues `SET ROLE`
+> and `set_config('app.identity', …)` on a dedicated pooled connection.
+> What remains true: `listEvidenceSchema` accepts only `sourceId`, `kind`,
+> `cursor` and `limit`, so the route applies no `dataClass` filter of its own
+> and depends entirely on the RLS policy.
 
 ### Sources and ingestion
 
@@ -176,7 +206,9 @@ unit-tested code, and the database enforces it again in SQL.
 | GET | `/api/v1/publications/{id}` | `anon` |
 | PATCH | `/api/v1/publications/{id}` | `actor` |
 | POST | `/api/v1/publications/{id}/transition` | `actor` |
-| GET | `/api/v1/published-items` | `anon` |
+| GET | `/api/v1/published-items` | `anon` (in `PUBLIC_V1`) |
+| GET | `/api/v1/published-publications` | `anon` (in `PUBLIC_V1`) |
+| GET | `/api/v1/published-publications/{publicId}` | `anon` (in `PUBLIC_V1`) |
 
 The four publication surfaces — `news_update`, `brief`,
 `geopolitical_analysis`, `scenario` — are one table with a `kind`
@@ -219,7 +251,7 @@ asymmetry is deliberate and recorded in `.ai/DECISIONS.md`.
 
 | Method | Path | Guard |
 | --- | --- | --- |
-| GET | `/api/v1/search` | `anon` |
+| GET | `/api/v1/search` | `anon` (in `PUBLIC_V1`) |
 
 ```
 GET /api/v1/search?q=…&entityType=information_item&limit=25
@@ -259,8 +291,10 @@ a result carried `entityType` + `entityId` and nothing public could resolve
 either: `published-publications` filters on `public_id`, not on a uuid, and no
 route mapped one to the other. **`href` is nullable and the null is
 load-bearing** — an `information_item` has a public id and no page anywhere,
-and a publication is addressable only when it carries a `briefing_run_id`,
-because `/articles/[publicId]` is briefing-only. A client that builds a URL out
+and a publication is addressable only when it carries machine provenance —
+`briefing_run_id` **or**, since the whole-site editorial path,
+`editorial_run_id` (`briefingOnly` in `publications/repo.ts` is an `OR` over
+both). A client that builds a URL out
 of `publicId` will manufacture 404s; render an unreachable hit as unreachable.
 
 `score` is a Reciprocal Rank Fusion score, comparable *within* one result set
@@ -276,9 +310,10 @@ different problems.
 
 | Method | Path | Guard |
 | --- | --- | --- |
-| POST | `/api/v1/reports` | `anon` + rate limit |
+| POST | `/api/v1/reports` | `anon` + rate limit (in `PUBLIC_V1`) |
 | GET | `/api/v1/reports` | `actor` |
 | POST | `/api/v1/reports/{id}/triage` | `actor` |
+| POST | `/api/v1/volunteer-interest` | `anon` (in `PUBLIC_V1`) |
 
 **The only write path in the system open to an unauthenticated stranger**, and
 the one the site's own Support Us form uses.
@@ -311,10 +346,14 @@ window. Over the ceiling returns `RATE_LIMITED` (429).
 
 | Method | Path | Guard |
 | --- | --- | --- |
-| GET | `/api/v1/chat/threads` | `anon` |
-| POST | `/api/v1/chat/threads` | `actor` |
-| GET | `/api/v1/chat/threads/{id}/messages` | `anon` |
-| POST | `/api/v1/chat/threads/{id}/messages` | `actor` (`maxDuration = 120`) |
+| GET | `/api/v1/chat/threads` | `anon` (in `PUBLIC_V1`) |
+| POST | `/api/v1/chat/threads` | `anon` (in `PUBLIC_V1`) |
+| GET | `/api/v1/chat/threads/{id}/messages` | `anon` (in `PUBLIC_V1`) |
+| POST | `/api/v1/chat/threads/{id}/messages` | `anon` (in `PUBLIC_V1`, `maxDuration = 120`) |
+
+All four are genuinely public. The two `POST`s were marked `actor` here until
+2026-09-06; `handler.ts` registers an HMAC'd anonymous actor for them under
+`app_public`, and `requireActor` is not what gates them.
 
 Chat **does not stream tokens**, and that is the point: a citation must have
 been retrieved before the sentence containing it is shown, and the database
@@ -385,8 +424,65 @@ Never call these from a browser.
 | POST | `/api/internal/briefing/external-publish` | `internal` | Receive the legacy GitHub package and start its durable executor (`maxDuration` 300) |
 | POST | `/api/internal/queue/ingest` | `queue` | Deliver one source-collection job; never advances editorial stages (`maxDuration` 300) |
 | POST | `/api/internal/queue/outbox-dispatch` | `queue` | Deliver one outbox message (`maxDuration` 300 — see note below) |
-| GET, POST | `/api/v1/admin/editorial-update` | `admin` | List recent package-delivery runs; an authenticated receiver may create a run only from explicit operations |
-| GET, POST | `/api/v1/admin/editorial-update/{id}` | `admin` | Read one run's state; `{"action":"resume"}` requeues a failed or partial run |
+| POST | `/api/internal/editorial-updates/ingest` | `editorial` | Receive a `whole-site-update-v1` package and start its durable run |
+| GET | `/api/internal/editorial-updates/runs/{runId}` | `editorial` | Machine-readable state of one delivery run, addressed by the package's own `runId` |
+| GET, POST | `/api/v1/admin/editorial-update` | `actor` | List recent package-delivery runs; an authenticated receiver may create a run only from explicit operations |
+| GET, POST | `/api/v1/admin/editorial-update/{id}` | `actor` | Read one run's state; `{"action":"resume"}` requeues a failed or partial run |
+
+The last two are `/api/v1/`, not `/api/internal/`, and are listed here because
+they belong to the same delivery story. Both call `requireActor()`, so they sit
+behind `authenticateAdmin()` like every other `/api/v1/` route outside
+`PUBLIC_V1`.
+
+### The whole-site editorial receiver
+
+Guard: `requireEditorialUpdateIngestSecret()` in
+`server/http/internal-guard.ts` — a constant-time SHA-256 comparison of the
+`x-editorial-update-secret` header against `EDITORIAL_UPDATE_INGEST_SECRET`.
+An empty or absent header is refused. The secret is deliberately not
+`INTERNAL_API_SECRET`, `CRON_SECRET` or `EXTERNAL_BRIEFING_INGEST_SECRET`:
+rotating the delivery channel must not break or widen anything else.
+
+Both routes match the `/api/internal/editorial-updates/` prefix in
+`SERVICE_PREFIXES` (`server/http/handler.ts`), so they run under the database
+role `app_service` with identity `service:editorial-updates`.
+
+```json
+POST /api/internal/editorial-updates/ingest
+→ 202 Accepted   (200 if this runId already produced a run)
+{
+  "id": "b2f0…",                       // internal uuid — what resume takes
+  "runId": "2026-09-06-0001",          // the package's own key
+  "status": "queued",
+  "statusUrl": "/api/internal/editorial-updates/runs/2026-09-06-0001"
+}
+```
+
+The route parses the package, records the run and emits
+`editorial.run-process` **inside one transaction**, then returns. Nothing has
+published when the response arrives — the outbox drain executes the run. A
+replay of the same `runId` with an identical body returns the original run; the
+same `runId` with a different body is a `409`.
+
+```json
+GET /api/internal/editorial-updates/runs/{runId}
+{
+  "runId": "…", "status": "partial", "stage": "report",
+  "createdAt": "…", "startedAt": "…", "finishedAt": "…",
+  "report": { … },
+  "operations": [
+    { "key": "…", "status": "completed", "stage": "publication",
+      "result": { "publicId": "…", "url": "/articles/…" }, "failure": null }
+  ]
+}
+```
+
+`status` is `queued` | `running` | `completed` | `partial` | `failed`; `stage`
+is `media` | `publication` | `homepage` | `report` (`research` and
+`classification` remain legal in SQL for historical rows). `partial` means some
+operations published and some did not — see
+[`whole-site-updates.md`](whole-site-updates.md) for the report shape and the
+resume procedure.
 
 ### Health
 
@@ -433,7 +529,9 @@ allowed" instead of "allowed by omission".
 
 Production runs these four schedules from `vercel.json`; each is authenticated
 by `CRON_SECRET` and safe to retry. Editorial work has no Vercel schedule: an
-explicit GitHub package is the only accepted initiator.
+explicit package delivered to
+`POST /api/internal/editorial-updates/ingest` (or, for the legacy contract,
+`POST /api/internal/briefing/external-publish`) is the only accepted initiator.
 
 ## The console expansion — 4–5 September 2026
 

@@ -1,5 +1,56 @@
 # State
 
+## 2026-09-06 — The editorial DNA is written down; the two top-level briefs now agree with it
+
+The owner issued a binding definition of what this site and this system are.
+It is now `docs/editorial-dna.md`: purpose and the anti-revenge framing, the
+reader's journey, the five destinations and what each owns, the editorial jobs
+of a run in priority order, routing (with the destination table read from
+`lib/publication-routing.ts`), the image rules against `externalMediaSchema`
+and `editorial-media.ts`, homepage composition against the three areas × two
+positions in `whole-site-update.ts`, the veto and the auto-fix boundary, reader
+activation, reporting and delivery, the launch-period posture, an explicit gap
+list, and the canonical operator run prompt as an appendix so the repository
+owns it rather than a chat window.
+
+`CLAUDE.md` and `AGENTS.md` were rewritten to agree with it and point at it.
+The section titled "The daily briefing, and the one article that may cite
+nothing" is now "The whole-site editorial update, …" and carries the five
+destinations; the still-true invariants were kept verbatim in substance
+(`evidenceBasis` derived not chosen, `narrativeWatchTitle()` the only prefixer,
+read `=== "analysis"`, no quality check skipped on the path that has checks).
+`.ai/DECISIONS.md` carries the ruling itself at the top.
+
+Two stale claims were corrected while writing: `CLAUDE.md` said the section
+contract "has three values" (`PUBLICATION_SECTIONS` has fourteen) and that
+`server/modules/` "holds fourteen" modules (nineteen — it was missing
+`admin-console`, `editorial-update`, `homepage`, `media` and `ops-agent`,
+which is most of the whole-site path). Neither now states a number that has to
+be maintained.
+
+**Open, from the DNA's own gap list** (`docs/editorial-dna.md` §12, all
+verified against the code): the report recipient is `EDITORIAL_REPORT_EMAIL`
+and has to actually be set on the Vercel project or reports go to `ADMIN_EMAIL`;
+"what was researched" and a *deliberate* veto are not representable in
+`whole-site-update-v1`, so an editorial refusal reads like a technical failure;
+October 7 rotates per edition rather than every few minutes; the homepage
+edition still has no cron of its own (owner decision, not an oversight);
+nothing requires a hero image; image enhancement and illustration generation
+both live entirely outside the pipeline; there is no worked
+`whole-site-update-v1` example package; and
+`lib/content/fake-resistance-watch.ts` still claims a "17-check automated
+quality gate" that the whole-site path does not run — left for the agent that
+owns that file.
+
+Five items that were on that list this morning closed during the same session,
+in files owned by other agents: the run report is emitted and emailed again,
+the report gained its per-category, homepage-change, veto and failure-detail
+sections, `news` records reach the News & Analysis hub, and
+`influence_investigation` gained a reading feed. `docs/whole-site-updates.md`
+was written alongside as the mechanism document.
+
+Documentation only — no code, no schema, no deploy.
+
 ## 2026-09-06 — Homepage mobile refinement on `main`, corrected the same day after the owner's live-phone review
 
 The owner read the first deploy on an iPhone: headlines and type too small

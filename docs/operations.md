@@ -108,10 +108,13 @@ paid for twice in one session: two pushes were live on `lionsofzion.io` within
 two minutes each, with no manual step.
 
 The mechanism is the GitHub integration on the Vercel project, whose
-`link.productionBranch` is `main`. `vercel.json` disables git deployment for a
-package branches (`briefing-packages` for legacy compatibility and the reserved
-`editorial-updates`) and nothing else, and the project has no
-deploy hooks. Confirm with
+`link.productionBranch` is `main`. `vercel.json` disables git deployment for
+the two package branches — `editorial-updates`, the live delivery branch, and
+`briefing-packages`, the legacy one — and for nothing else, and the project has
+no deploy hooks. Each branch also carries its own `vercel.json` with
+`"deploymentEnabled": false`, which is the copy that actually suppresses the
+build, because Vercel reads the config from the commit being pushed. Confirm
+with
 `vercel api "/v9/projects/<projectId>?teamId=<team>"`.
 
 What follows from it: **a migration must be applied before the code that needs
@@ -147,11 +150,14 @@ For rolling back a bad production deploy, see
 Production schedules are authenticated by `CRON_SECRET`. Ingest
 runs at minutes 0 and 30, embeddings at 10 and 40, the outbox drain every 15
 minutes, and maintenance daily at 03:20 UTC. Every handler is idempotent and
-safe to retry. **No Vercel route starts editorial work.** A legacy
+safe to retry. **No Vercel route starts editorial work.** A
+`whole-site-update-v1` package is fulfilled only when it arrives at
+`POST /api/internal/editorial-updates/ingest`, idempotent on
+`editorial_run.run_key` plus its canonical request hash. The legacy
 `external-briefing-v1` package is fulfilled only when it arrives at
 `POST /api/internal/briefing/external-publish`, idempotent on
-`external_briefing_submission.run_id`. The next whole-site contract will use
-the same dedicated-branch and authenticated-receiver principle.
+`external_briefing_submission.run_id`. Both use the same dedicated-branch and
+authenticated-receiver principle, with separate secrets.
 
 The drain hands up to 250 rows a tick to the queue, which is 1,000 an hour and
 comfortably more than one edition's load — a brief materializes roughly one
@@ -160,19 +166,126 @@ arriving together. A backlog that survives several ticks is therefore a
 dispatch failure, not a throughput limit; check the queue binding before
 raising the number.
 
-### Deploying across a briefing run
+### Deploying across a delivery run
 
-`qualityCandidatePassed` requires a candidate's recorded quality checks to
-number exactly `REQUIRED_QUALITY_CHECKS.length`, so an edition whose checks
-were written under one version of that list cannot be automatically published
-by another. **A deploy that adds or removes a check must land between
-editions**, in either direction — a rollback strands an in-flight edition
-exactly as the deploy did. There is no fixed run window anymore: an edition
-publishes when a package is received or the admin run is triggered, so
-"between editions" means between a published edition and the next package
-receipt or run. Nothing is lost when one is caught mid-flight; its articles
-can be published by hand from the
-administrator's publication manager.
+> **Corrected 2026-09-06.** This section said `qualityCandidatePassed`
+> "requires a candidate's recorded quality checks to number exactly
+> `REQUIRED_QUALITY_CHECKS.length`". That function no longer exists — commit
+> `595ca9d` deleted it along with its import, and
+> `grep -c qualityCandidatePassed server/modules/publications/repo.ts`
+> returns `0`. Migration `0049` had already removed the equivalent count from
+> `enforce_publication_publish_gate()`. Nothing counts quality checks on any
+> publish path.
+
+What is actually at risk when a deploy lands mid-run:
+
+- **A whole-site editorial run is durable and survives a deploy.** Its state
+  lives in `editorial_run` / `editorial_operation`, its work is one transaction
+  per operation, and a worker holds a five-minute lease with a fencing token.
+  A deploy that kills the worker mid-run leaves the lease to expire; the next
+  `editorial.run-process` delivery reclaims it and skips every operation
+  already `completed`. If the run ended `failed` or `partial`, resume it (see
+  below).
+- **A contract change must not straddle a run.** The package a GitHub Action
+  is currently posting was validated by the tooling on `main` *at checkout
+  time*, and the receiver parses it with the tooling that is *deployed*. A
+  deploy that tightens `whole-site-update-v1` between those two moments
+  rejects a package that validated seconds earlier. Land contract changes when
+  no delivery is in flight — the Actions tab on the `editorial-updates` branch
+  is the check — and remember a rollback strands a run exactly as the deploy
+  did.
+- **A schema change still goes first.** `npm run db:migrate` against Preview,
+  then Production, then push. `vercel rollback` is the fast undo.
+
+Nothing is lost when a run is caught mid-flight: completed operations are
+published, the rest are resumable, and any article can still be published by
+hand from the administrator's publication manager.
+
+### Whole-site editorial updates
+
+The full mechanism is [`whole-site-updates.md`](whole-site-updates.md); this is
+the runbook.
+
+**1. Dry-run the package.** From a `main` checkout, with no secret and no
+network call:
+
+```bash
+npm run editorial:publish -- path/to/2026-09-06-0001.json --dry-run
+```
+
+It prints `runId`, `composer`, and the create/update/homepage/recommendation
+counts, or one line per Zod issue and exit code `1`. A package that does not
+pass this must not be committed.
+
+**2. Commit it to the delivery branch.** The file goes to
+`editorial-updates/<Israel-local-date>-<runId>.json` on the orphan
+`editorial-updates` branch. Never onto `main`: `main` deploys.
+
+**3. Watch the Action.** The push triggers *Deliver editorial update* on that
+branch. Its concurrency group is `editorial-update-delivery` with
+`cancel-in-progress: false`, so a second push queues behind the first. The job
+checks out `main` for tooling, validates each changed package with
+`--dry-run`, then delivers it. Read the two log groups per package —
+`Validate <file>` and `Deliver <file>`. The deliver step prints
+`accepted runId=…`, then polls for up to 20 minutes and finally prints:
+
+```
+runId=… status=completed created=3 updated=1 failed=0
+url=/articles/…
+```
+
+It exits non-zero when the run failed, any operation failed, or the homepage
+stage errored — so a red Action means something did not publish, not that the
+network was slow.
+
+```bash
+# The same status the Action polls, by hand:
+curl -s -H "x-editorial-update-secret: $EDITORIAL_UPDATE_INGEST_SECRET" \
+  "https://lionsofzion.io/api/internal/editorial-updates/runs/<runId>" | jq
+```
+
+**4. Verify the three hubs.** Every published record is reachable at
+`/articles/<publicId>` — the URLs the run printed — and files into exactly one
+hub by its `section`:
+
+| Hub | Check |
+| --- | --- |
+| News & Analysis | <https://lionsofzion.io/geopolitical-brief> |
+| Fake Resistance | <https://lionsofzion.io/fake-resistance> |
+| The People of Israel | <https://lionsofzion.io/people-of-israel> |
+
+Then the homepage itself, for the placements the run reported under
+`report.homepage.changes`. `/october-7` is a curated archive and is never
+touched by a run. A record that appears on the wrong hub is a `section`
+mistake in the package, not a routing bug: `routePublication()` in
+`lib/publication-routing.ts` is the only mapping.
+
+The signed-in admin views are `GET /api/v1/admin/editorial-update` (recent
+runs) and `GET /api/v1/admin/editorial-update/{id}` (one run in full).
+
+**5. On a partial run.** `partial` means some operations published and some did
+not; `report.errors` names each one with its stage and message, and
+`report.publications.failed` counts them. Fix the cause first — a `media` stage
+error is usually an unreachable image or one whose rights are not cleared for
+the `article` surface, and a `publication` stage error is usually an update
+whose target is not live. Then, signed in as the admin, resume with the run's
+**internal id** (the `id` the ingest returned, not the package `runId`):
+
+```http
+POST /api/v1/admin/editorial-update/{id}
+{"action":"resume"}
+```
+
+Resume requeues only `failed` and `running` operations, reuses media artifacts
+already prepared, and never republishes a completed one. Only a `failed` or
+`partial` run may be resumed; anything else answers `409`.
+
+If the fix requires changing the package itself, correct the file and commit it
+under a **new `runId`**. Re-posting a changed body under the old `runId` is
+refused with `409` — one run identifier never means two things.
+
+A terminal run (either direction) emails its report to
+`EDITORIAL_REPORT_EMAIL`, falling back to `ADMIN_EMAIL`.
 
 ### Source catalog changes
 

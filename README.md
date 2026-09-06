@@ -31,11 +31,14 @@
 Lions of Zion is two deliberately separated systems that share one repository,
 build, and deployment:
 
-1. **A public editorial platform** for briefings, fact checks, testimony,
-   documentation, historical context, and source-led reporting.
-2. **An evidence and publishing backend** that ingests sources, connects evidence
-   to claims, requires human review, preserves version history, and publishes only
-   material that passes the editorial gate.
+1. **A public editorial platform** for news and analysis, narrative
+   investigation, testimony, documentation, historical context, and source-led
+   reporting.
+2. **An evidence and publishing backend** that ingests sources, connects
+   evidence to claims, preserves version history, and publishes through two
+   audited routes: a human one, where a second reviewer approves, and a machine
+   one, where an externally composed editorial package is validated,
+   authenticated and executed as a durable run.
 
 The boundary is enforced by ESLint import rules rather than convention. Public
 code may use the shared vocabulary in `server/contracts/**`; database and policy
@@ -47,26 +50,48 @@ flowchart LR
     Ingest --> Evidence[Claims and evidence]
     Evidence --> Review[Human review]
     Review --> Publish[Versioned publication]
+    Package[Editorial package<br/>editorial-updates branch] --> Receiver[Authenticated receiver<br/>durable run]
+    Receiver --> Publish
     Publish --> Site[Public site]
 
     Site -. shared contracts .-> Contracts[server/contracts]
     Contracts -. shared contracts .-> Evidence
 ```
 
+Every publication carries provenance either way: a human approver who is not
+its author, or the editorial run and operation that produced it. A database
+trigger refuses a row that claims both, or neither.
+
 ## Editorial surfaces
 
-| Area | Route | Purpose |
+Five destinations. Which one a published record lands on is derived from a
+single field, `publication.section`, by `routePublication()` in
+`lib/publication-routing.ts` — there is no second placement field anywhere.
+
+| Destination | Route | Purpose |
 | --- | --- | --- |
-| News & Analysis | [`/geopolitical-brief`](https://lionsofzion.io/geopolitical-brief) | Daily developments, context, and source-backed analysis |
-| October 7 | [`/october-7`](https://lionsofzion.io/october-7) | Multilingual testimony and documentation archives |
+| News & Analysis | [`/geopolitical-brief`](https://lionsofzion.io/geopolitical-brief) | News, the Daily Brief, analysis, and developing stories |
+| Fake Resistance | [`/fake-resistance`](https://lionsofzion.io/fake-resistance) | Narratives, claims, disinformation, propaganda, influence networks, antisemitism, and Iranian, Russian and anti-Western investigations |
+| The People of Israel | [`/people-of-israel`](https://lionsofzion.io/people-of-israel) | Innovation, science and medicine, AI and technology, agriculture, academia, achievements, international cooperation, the people themselves, and History & Context explainers |
+| October 7 | [`/october-7`](https://lionsofzion.io/october-7) | Multilingual testimony and documentation archives, rotating on their own schedule |
+| Behind the desk | [`/information-war`](https://lionsofzion.io/information-war) | How AI, research and OSINT become an operating system |
+
+Two collections are preserved inside The People of Israel and keep their
+original addresses:
+
+| Collection | Route | Purpose |
+| --- | --- | --- |
 | Our Heroes | [`/our-heroes`](https://lionsofzion.io/our-heroes) | Sourced records of the fallen, fighters, and rescuers |
 | Israel's Story | [`/israels-story`](https://lionsofzion.io/israels-story) | Historical chapters from the founding through wars and treaties |
-| Narratives & Fact Checks | [`/fake-resistance`](https://lionsofzion.io/fake-resistance) | Claims, actors, evidence, and findings |
-| We Are | [`/we-are`](https://lionsofzion.io/we-are) | The network, method, and editorial rules |
-| Support | [`/support-us`](https://lionsofzion.io/support-us) | Submit a claim or offer relevant expertise |
+
+The October 7 archive is curated. The daily editorial update has no section
+that routes there and no homepage area for it, so a run never invents October 7
+material.
 
 Readers can also use [search](https://lionsofzion.io/search),
-[Ask the desk](https://lionsofzion.io/ask), the
+[Ask the desk](https://lionsofzion.io/ask),
+[We Are](https://lionsofzion.io/we-are),
+[Support Us](https://lionsofzion.io/support-us), the
 [methodology](https://lionsofzion.io/methodology), and the public
 [corrections record](https://lionsofzion.io/corrections). The retired
 `/war-update` route permanently redirects to News & Analysis.
@@ -115,10 +140,13 @@ pooled Neon `DATABASE_URL`.
 cp .env.example .env.local
 ```
 
-Fill only the variables needed for the feature you are running. The complete,
-value-free reference is in [`docs/environment.md`](./docs/environment.md).
-Secrets must remain in local or platform environment storage and must never be
-committed.
+`.env.example` is tracked (`.gitignore` negates it after the `.env*` rule), so
+a fresh clone has it. Fill only the variables needed for the feature you are
+running. The complete, value-free reference — including what refuses when a
+variable is unset — is in [`docs/environment.md`](./docs/environment.md), which
+describes the code where the two disagree. Secrets must remain in local or
+platform environment storage and must never be committed; the repository is
+public.
 
 ## Commands
 
@@ -135,9 +163,10 @@ committed.
 | `npm run db:migrate` | Apply database migrations |
 | `npm run sync:start` | Refresh local Git state and report open branches |
 | `npm run main:update` | Merge a completed branch into `main` and publish it |
+| `npm run editorial:publish -- <file> --dry-run` | Validate an editorial package against `whole-site-update-v1` without sending it |
 
 See [`docs/operations.md`](./docs/operations.md) for focused test commands,
-database procedures, briefing operations, and troubleshooting.
+database procedures, the editorial delivery runbook, and troubleshooting.
 
 ## Repository map
 
@@ -174,9 +203,18 @@ Pull requests and pushes to `main` run the full CI gate:
 npm ci → typecheck → lint → test → build → browser route smoke test
 ```
 
-GitHub CI validates the repository but does not deploy it. Vercel's Git
-integration deploys pushes to `main` independently. Database migrations required
-by an application change must be applied before that change reaches `main`.
+GitHub CI validates the repository but does not deploy it.
+
+**Git auto-deploy is connected: a push to `main` reaches Production on its
+own**, through the Vercel GitHub integration whose `productionBranch` is
+`main`, typically within about two minutes and with no manual step. Two rules
+follow. Database migrations required by an application change must be applied
+before that change reaches `main` (`npm run db:migrate` against Preview, then
+Production, then push); and `vercel rollback` is the fast undo.
+
+The `editorial-updates` and `briefing-packages` branches are excluded from
+deployment by `git.deploymentEnabled` in `vercel.json` and by their own
+`vercel.json`, so publishing editorial content never rebuilds the site.
 
 ## Documentation
 
@@ -184,6 +222,8 @@ by an application change must be applied before that change reaches `main`.
 | --- | --- |
 | [`docs/architecture.md`](./docs/architecture.md) | System map, dependency boundaries, and runtime flows |
 | [`docs/api.md`](./docs/api.md) | HTTP routes, authentication, payloads, and errors |
+| [`docs/whole-site-updates.md`](./docs/whole-site-updates.md) | The current editorial delivery path: `whole-site-update-v1` packages |
+| [`docs/briefing-packages.md`](./docs/briefing-packages.md) | The legacy `external-briefing-v1` compatibility path |
 | [`docs/data-model.md`](./docs/data-model.md) | Tables, migrations, triggers, RLS, search, and versioning |
 | [`docs/environment.md`](./docs/environment.md) | Environment variable reference without values |
 | [`docs/operations.md`](./docs/operations.md) | Local work, CI, deployment, migrations, and troubleshooting |

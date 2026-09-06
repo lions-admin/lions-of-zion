@@ -1,0 +1,69 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "chatgpt-test-2026-09-06-233227",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-06T20:32:27Z",
+  "creates": [
+    {
+      "key": "west-bank-outposts-removal",
+      "publication": {
+        "kind": "news_update",
+        "section": "news",
+        "canonicalStoryId": "west-bank-unauthorized-outposts-removal-2026-09-06",
+        "title": "Netanyahu orders removal of unauthorized West Bank outposts, sources say",
+        "summary": "Reuters reports that Prime Minister Benjamin Netanyahu ordered unauthorized settler outposts in the West Bank dismantled amid U.S. pressure over settler violence; timing and implementation remain unclear.",
+        "body": "Reuters reported on September 6 that Prime Minister Benjamin Netanyahu ordered the dismantling of unauthorized settler outposts in the West Bank, citing two people familiar with the matter. The report said the move followed U.S. pressure for stronger action against settler violence and that it was not immediately clear when removals would begin.\n\nU.S. Ambassador Mike Huckabee had visited Turmus Ayya a day earlier and publicly called violent settlers terrorists who should face severe consequences. Reuters also reported that the scope discussed by Israeli media was around 100 unauthorized outposts, while Finance Minister Bezalel Smotrich described the instruction more narrowly in relation to construction in Areas A and B.\n\nThis is a developing policy story, not evidence that implementation has already occurred. The key verification questions are which outposts are covered, when enforcement begins, and whether removals are carried out consistently.\n\nSources:\n- Reuters, Sep. 6, 2026: https://www.reuters.com/world/middle-east/israels-netanyahu-orders-west-bank-settler-outposts-be-removed-sources-say-2026-09-06/\n- Reuters, Sep. 5, 2026: https://www.reuters.com/world/middle-east/us-ambassador-visits-palestinian-town-amid-rise-west-bank-settler-violence-2026-09-05/",
+        "language": "en",
+        "editorialTopic": "West Bank settler outposts",
+        "topicTags": [
+          "west-bank",
+          "settler-violence",
+          "israeli-policy"
+        ],
+        "primaryActor": "Benjamin Netanyahu",
+        "arena": "West Bank"
+      }
+    },
+    {
+      "key": "iran-war-misinformation-cycle",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "influence_investigation",
+        "canonicalStoryId": "iran-war-misinformation-cycle-september-2026",
+        "title": "Iran-war misinformation cycle: recycled strike footage, inflated claims and a verification gap",
+        "summary": "A current cluster of social posts around the renewed Iran conflict shows how dramatic military claims can outrun verification: unrelated or misleading strike footage circulated alongside an Iranian claim of hitting a U.S. unmanned vessel that the U.S. military denied.",
+        "body": "Renewed U.S.-Iran military exchanges have produced a familiar information-war pattern: dramatic claims arrive first, while provenance and independent verification arrive later.\n\nOn September 4, Misbar examined a viral video presented as a recent Iranian missile strike on a U.S. base in the UAE and found that the footage did not establish the claimed event. On September 5, Misbar separately assessed another widely shared clip said to show Iranian cluster missiles hitting U.S. bases in Jordan and classified the claim as misleading. These examples do not by themselves prove state direction or coordinated amplification; they do show how old, ambiguous or miscaptioned imagery can be attached to a live conflict and redistributed as battlefield evidence.\n\nOn September 6, the Associated Press reported a separate high-level factual dispute: Iran said it had struck an unmanned American military vessel in the Strait of Hormuz, while the U.S. military rejected the claim as false. Until independently verifiable evidence is available, the event should be described as a disputed claim rather than a confirmed strike.\n\nThe manipulation technique is less about one specific ideology than about speed, visual drama and certainty. A clip that looks plausible is paired with a decisive caption; reposts then make repetition appear to be corroboration. Readers should distinguish the original uploader from later amplifiers, look for date and location evidence, compare official claims with independent reporting, and avoid treating multiple reposts of the same asset as multiple sources.\n\nWhat is established: misleading or unverified military imagery is circulating in the current escalation, and at least one prominent Iranian military-success claim is explicitly disputed by the United States. What is not established here: who originated every clip, whether the examples were coordinated, whether any state actor directed their spread, or whether all Iranian battlefield claims are false.\n\nSources:\n- Misbar, Sep. 4, 2026: https://www.misbar.com/en/factcheck/2026/09/04/does-video-show-recent-iranian-missile-strike-us-base-uae\n- Misbar, Sep. 5, 2026: https://www.misbar.com/en/factcheck/2026/09/05/video-does-not-show-iranian-cluster-missiles-targeting-us-bases-jordan\n- Associated Press, Sep. 6, 2026: https://apnews.com/article/mideast-iran-us-hormuz-lebanon-israel-b4f64c7492d8c5b9ff71794cc152186d",
+        "language": "en",
+        "editorialTopic": "Iran conflict misinformation",
+        "topicTags": [
+          "iran",
+          "misinformation",
+          "osint",
+          "influence-operations"
+        ],
+        "primaryActor": "Iran conflict information ecosystem",
+        "arena": "Iran and Gulf"
+      }
+    }
+  ],
+  "updates": [
+    {
+      "key": "update-lebanon-strikes-2026-09-06",
+      "target": {
+        "publicId": "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd"
+      },
+      "publication": {
+        "title": "Seven reported killed in southern Lebanon as Israel and Hezbollah exchange fire",
+        "summary": "Reuters reports seven people were killed in Israeli strikes in southern Lebanon after Hezbollah drone activity; Lebanese officials alleged civilian-infrastructure damage, while the IDF said it targeted Hezbollah weapons facilities.",
+        "body": "The September 6 picture is more severe than the initial overnight report. Reuters, citing Lebanon's health ministry, reported seven people killed in Israeli strikes across southern Lebanon, including two women. The IDF said its strikes followed Hezbollah drone activity and targeted weapons facilities and other military infrastructure.\n\nLebanese President Joseph Aoun accused Israel of hitting civilian infrastructure, including a hospital and a finance ministry building. The Israeli military said it used precision methods intended to reduce civilian harm. Those competing descriptions should remain attributed unless independently verified site by site.\n\nThe exchange comes amid continuing friction despite a U.S.-brokered ceasefire framework. Hezbollah argues Israeli operations are intended to pressure Lebanon during U.S.-mediated negotiations; Israel says its actions are directed at Hezbollah military threats. The casualty toll and damage claims remain subject to further verification as the situation develops.\n\nSources:\n- Reuters, Sep. 6, 2026: https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/\n- Earlier Lions of Zion record source context: https://lionsofzion.io/articles/3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd",
+        "changeSummary": "Updated the developing Lebanon story with Reuters' Sept. 6 casualty count, competing infrastructure-target claims and current ceasefire context."
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [
+    "Source-ingestion gap: whole-site-update-v1 can carry publication text but cannot create public-source/evidence records from web URLs. Add a package-local citation ingestion path analogous to external-briefing-v1 so whole-site editorial updates can preserve durable source stacks without requiring internal UUIDs.",
+    "Media rights: no new media was attached in this run because no reviewed asset had a directly observable rights basis covering the required Lions of Zion surfaces. Keep media optional rather than inferring clearance from availability.",
+    "Editorial duplication: the current News & Analysis hub contains multiple near-duplicate September 3 records and repeated daily briefs. Add a canonical-story deduplication review or editorial merge workflow for legacy duplicates."
+  ]
+}

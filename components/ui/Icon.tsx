@@ -32,7 +32,8 @@ export type IconName =
   | "assessment"
   | "review"
   | "publish"
-  | "correction";
+  | "correction"
+  | "coffee";
 
 export type IconProps = Omit<React.SVGProps<SVGSVGElement>, "name"> & {
   name: IconName;
@@ -82,6 +83,9 @@ const ICONS: Record<IconName, React.ReactNode> = {
   review: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 4.5 4.5M8 10.5l1.8 1.8 3.7-3.7" /></>,
   publish: <><path d="M4 20 20 4" /><path d="M12 4h8v8" /><path d="M4 12v8h8" /></>,
   correction: <><path d="M4 7h16M4 12h11M4 17h16" /><path d="m17 11 3 3-3 3" /></>,
+  /* A cup on its saucer: the Buy Me a Coffee channel, in the house line
+     rather than the provider's artwork. */
+  coffee: <><path d="M5 8.5h11v5.5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" /><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16" /><path d="M4 21h14" /><path d="M9 3.5v2M12.5 3.5v2" /></>,
 };
 
 export function Icon({ name, size = 20, strokeWidth = 1.6, ...props }: IconProps) {

@@ -28,14 +28,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
+/* The hosted-button id and the direct URL live in `lib/donation-channels.ts`
+   so the homepage, a server component, can offer the same link without
+   importing this client module. */
+import { PAYPAL_DIRECT_URL, PAYPAL_HOSTED_BUTTON_ID } from "@/lib/donation-channels";
 import styles from "./paypal-step.module.css";
 
 const PAYPAL_CLIENT_ID =
   "BAAgpvkmgagTCH_kxjOA8JfyQbZBrFmp4cRt3w2d0oqQA0DnMezirBosa311pZQvP24hSYQjqEolAcYF14";
-const HOSTED_BUTTON_ID = "PZPE4USUV3W7E";
-
-/** The same hosted button, opened directly. Works with no scripting at all. */
-export const PAYPAL_DIRECT_URL = `https://www.paypal.com/ncp/payment/${HOSTED_BUTTON_ID}`;
 
 const CONTAINER_ID = "paypal-donate-button";
 const SCRIPT_ID = "paypal-hosted-buttons-sdk";
@@ -69,7 +69,7 @@ export function PayPalDonateStep() {
         return;
       }
       try {
-        paypal.HostedButtons({ hostedButtonId: HOSTED_BUTTON_ID }).render(`#${CONTAINER_ID}`);
+        paypal.HostedButtons({ hostedButtonId: PAYPAL_HOSTED_BUTTON_ID }).render(`#${CONTAINER_ID}`);
         setStep("ready");
       } catch {
         setStep("failed");

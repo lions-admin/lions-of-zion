@@ -10,6 +10,47 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — A donation is a link to the provider's own page, never an embedded widget; the homepage closes on the ask
+
+The owner asked for Buy Me a Coffee beside PayPal, and for an elegant
+donation control on the homepage. Buy Me a Coffee hands out three things: an
+image button, a `<script>` that draws a branded button, and a `<script>` that
+pins a floating widget to a corner of every page. **None of the three is
+used.** The plain profile URL, `https://www.buymeacoffee.com/danielhanukayeb`,
+opens exactly the page all three open, so `lib/donation-channels.ts` holds
+that URL and PayPal's hosted-button direct URL, and every surface renders
+them as house-styled links.
+
+Why a link and not the scripts, recorded so it is not re-litigated:
+
+- **CSP.** `script-src` in `next.config.ts` does not allow
+  `cdnjs.buymeacoffee.com`, and widening it would let a third party run code
+  on every page of an evidence desk to draw one button. PayPal's SDK is
+  allowed only because `PayPalDonateStep` loads it after an explicit press
+  (SUPPORT-003); the same posture applies here, and a link needs no script at
+  all.
+- **The cover.** A floating widget would sit over the hero video and every
+  reading page, competing with the one invitation on the cover. The site has
+  no floating third-party controls, by design.
+- **Failure states.** A script can fail, a popup can be blocked, and the page
+  is not told. A link cannot. It also works with scripting off, which every
+  support flow must.
+- **`ci-smoke.mjs` tolerates zero console errors**, and the perf gate reads
+  the client bundle; a link costs neither.
+
+**Where it appears.** `/support-us`'s donate flow keeps the PayPal step as
+the one gold control and adds `BuyMeACoffeeStep` under it as a secondary
+link. The homepage gains `HomeSupportSection`, the sixth and last band of the
+journey, named "Support the work" in the edition's contents line: the ask
+comes after the reader has seen what it pays for, not before the first story.
+The two channels there are drawn in the journey's own outlined-gold control,
+not in either provider's colours. The header's *Support Us* stays the
+permanent way in from anywhere.
+
+`tests/support-surface.test.ts` pins that no file under `app/`,
+`components/` or `lib/` references the Buy Me a Coffee scripts and that the
+CSP has not been widened for them.
+
 ## 2026-09-07 — The outbox queue topic is `outbox-dispatch`, and a name the queue refuses fails the build
 
 Every whole-site editorial run submitted since the delivery path shipped

@@ -63,6 +63,11 @@ That is the shipped order; the DNA's step 5 and step 6 are swapped in the
 markup. Treat that as a resolved layout decision rather than a bug, but do not
 describe the page as matching the list above literally.
 
+Since 2026-09-07 the journey closes on a sixth band, `HomeSupportSection`:
+the ask, after the reader has seen what it pays for. It is not one of the seven
+ideas above and not a destination; its two controls are plain links to the
+providers in `lib/donation-channels.ts` (see `.ai/DECISIONS.md`, 2026-09-07).
+
 The chrome carries the same journey outside the homepage:
 `components/site/navigation-model.ts` groups `REPORTING_LINKS` (News & Analysis,
 Fake Resistance, October 7) and `ABOUT_LINKS` (How it works, We Are, The People

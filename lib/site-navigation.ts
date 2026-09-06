@@ -73,7 +73,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     label: "SUPPORT US",
     displayName: "Support Us",
     href: "/support-us",
-    description: "Report a claim for checking or offer the desk a skill it needs.",
+    description: "Report a claim for checking, offer the desk a skill it needs, or help sustain the work.",
     emblem: "/emblems/support-us.svg",
     tone: "action",
   },

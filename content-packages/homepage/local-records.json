@@ -1,0 +1,41 @@
+{
+  "_note": "Development-only companions to local-edition.json. These are transcriptions of the published records the frozen edition points at, kept so the homepage composition can be reviewed on a machine with no DATABASE_URL. lib/homepage.ts consults this file only under the local preview, and only for a reference the database could not resolve. Never a production fallback; source URLs point at the record's own page because the outbound links live in the database row.",
+  "records": {
+    "publication:israel-ministry-of-defense-activities-regional-r-lref0": {
+      "kind": "news",
+      "category": "Daily Brief",
+      "title": "Israel Ministry of Defense activities; regional reports of attacks and incidents in Lebanon; US helicopter sale to Iraq",
+      "summary": "Official Ministry of Defense material outlines recent IMOD announcements and activities. Regional outlets report Israeli strikes in southern Lebanon including alleged use of white phosphorus and a reported Lebanese child killed by an unexploded cluster munition; US-approved helicopter sale to Iraq is also reported. Claims sourced and uncertainties noted.",
+      "publishedAt": "2026-09-01T10:30:39.453Z",
+      "updatedAt": "2026-09-01T10:30:38.782Z",
+      "sources": [
+        { "label": "Middle East Eye — Lebanese child succumbs to his wounds after Israeli cluster bomb blast", "url": "/articles/israel-ministry-of-defense-activities-regional-r-lref0" },
+        { "label": "Israel Ministry of Defense", "url": "/articles/israel-ministry-of-defense-activities-regional-r-lref0" }
+      ]
+    },
+    "publication:israel-ministry-of-defense-recent-announcements--m781m": {
+      "kind": "news",
+      "category": "Israel update",
+      "title": "Israel Ministry of Defense: recent announcements and programs",
+      "summary": "The IMOD website lists recent announcements including international agreements, cooperation memoranda, meetings and a weapons-system test.",
+      "publishedAt": "2026-09-01T10:30:39.453Z",
+      "updatedAt": "2026-09-01T10:30:38.782Z",
+      "sources": [
+        { "label": "mod.gov.il — Israel Ministry of Defense", "url": "/articles/israel-ministry-of-defense-recent-announcements--m781m" }
+      ]
+    },
+    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": {
+      "kind": "watch",
+      "claim": "US approves a large helicopter sale to Iraq, signaling ongoing U.S. military support in region.",
+      "verification": "unresolved",
+      "basis": "sourced",
+      "title": "US accepts military sale of helicopters to Iraq",
+      "summary": "",
+      "publishedAt": "2026-09-01T10:30:39.453Z",
+      "updatedAt": "2026-09-01T10:30:38.782Z",
+      "sources": [
+        { "label": "Middle East Eye — US accepts military sale of helicopters to Iraq for $800 million", "url": "/articles/us-accepts-military-sale-of-helicopters-to-iraq--p5zzh" }
+      ]
+    }
+  }
+}

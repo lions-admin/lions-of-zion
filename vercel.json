@@ -61,6 +61,7 @@
     { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
     { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
     { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
+    { "path": "/api/internal/cron/editorial", "schedule": "*/15 * * * *" },
     { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
   ]
 }

@@ -155,6 +155,13 @@
   margin-top: var(--sp-6);
 }
 
+.share {
+  max-width: var(--reading-w);
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+}
+
 .factsExtra {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

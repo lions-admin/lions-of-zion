@@ -21,10 +21,10 @@
 import type { PublicationSection } from "@/server/contracts/enums";
 
 /** The homepage bands a live publication may compete in. */
-export type PublicationHomepageSection = "news" | "fakeResistance";
+export type PublicationHomepageSection = "news" | "fakeResistance" | "people";
 
 /** The `HomeReference` kind a live publication resolves as. */
-export type PublicationHomepageKind = "news" | "watch";
+export type PublicationHomepageKind = "news" | "watch" | "feature";
 
 export type PublicationDestination = {
   /** The hub that owns this section's records, in the site's own words. */
@@ -43,32 +43,37 @@ export type PublicationDestination = {
  * The whole mapping. Exhaustive by construction: a fourth section fails the
  * typecheck here rather than silently defaulting to news.
  */
+const news = (label: string): PublicationDestination => ({
+  hub: "News & Analysis", href: "/geopolitical-brief", homepageSection: "news", homepageKind: "news", label,
+});
+const investigation = (label: string): PublicationDestination => ({
+  hub: "Fake Resistance", href: "/fake-resistance", homepageSection: "fakeResistance", homepageKind: "watch", label,
+});
+const people = (label: string): PublicationDestination => ({
+  hub: "The People of Israel", href: "/people-of-israel", homepageSection: "people", homepageKind: "feature", label,
+});
 const DESTINATIONS: Record<PublicationSection, PublicationDestination> = {
-  daily_brief: {
-    hub: "News & Analysis",
-    href: "/geopolitical-brief",
-    homepageSection: "news",
-    homepageKind: "news",
-    label: "Daily Brief",
-  },
-  israel_update: {
-    hub: "News & Analysis",
-    href: "/geopolitical-brief",
-    homepageSection: "news",
-    homepageKind: "news",
-    label: "Israel update",
-  },
-  narrative_watch: {
-    hub: "Fake Resistance",
-    href: "/fake-resistance",
-    homepageSection: "fakeResistance",
-    homepageKind: "watch",
-    label: "Narrative Watch",
-  },
+  daily_brief: news("Daily Brief"),
+  israel_update: news("Israel update"),
+  news: news("News & Analysis"),
+  narrative_watch: investigation("Narrative Watch"),
+  influence_investigation: investigation("Influence investigation"),
+  antisemitism: investigation("Antisemitism"),
+  innovation: people("Innovation"),
+  science_medicine: people("Science & Medicine"),
+  technology_ai: people("Technology & AI"),
+  achievement: people("Israeli achievement"),
+  international_cooperation: people("International cooperation"),
+  people: people("People"),
+  courage_service: people("Courage & Service"),
+  history_context: people("History & Context"),
 };
 
 /** The one call every surface makes. */
-export function routePublication(section: PublicationSection): PublicationDestination {
+export function routePublication(section: PublicationSection, options?: { historyContext?: "news" | "fakeResistance" }): PublicationDestination {
+  if (section === "history_context" && options?.historyContext) {
+    return options.historyContext === "news" ? news("History & Context") : investigation("History & Context");
+  }
   return DESTINATIONS[section];
 }
 
@@ -103,7 +108,7 @@ export function publicationHomepageKind(section: PublicationSection): Publicatio
  * drift this module exists to end.
  */
 export function publicationHubCrumb(section: PublicationHomepageSection): { href: string; label: string } {
-  const destination = section === "news" ? DESTINATIONS.daily_brief : DESTINATIONS.narrative_watch;
+  const destination = section === "news" ? DESTINATIONS.daily_brief : section === "people" ? DESTINATIONS.people : DESTINATIONS.narrative_watch;
   return { href: destination.href, label: destination.hub };
 }
 
@@ -116,6 +121,9 @@ export function publicationHref(publicId: string): string {
 export const SECTIONS_BY_HOMEPAGE_SECTION: Record<PublicationHomepageSection, PublicationSection[]> = {
   news: (Object.keys(DESTINATIONS) as PublicationSection[]).filter(
     (section) => DESTINATIONS[section].homepageSection === "news",
+  ),
+  people: (Object.keys(DESTINATIONS) as PublicationSection[]).filter(
+    (section) => DESTINATIONS[section].homepageSection === "people",
   ),
   fakeResistance: (Object.keys(DESTINATIONS) as PublicationSection[]).filter(
     (section) => DESTINATIONS[section].homepageSection === "fakeResistance",

@@ -1,355 +1,94 @@
-/* October 7 — the one page built for restraint, not rhythm.
-   Every other dossier page reads like a feed; this one reads like
-   something carved. No motion, no rounded card grid, no stat-tile row — a
-   plaque and a slow, evenly-spaced record. Overrides reach the shared
-   FigureRow/Timeline components through their real DOM structure (dl/dt/dd,
-   ol/li) rather than their CSS-module class names, which are hashed and
-   not safe to target directly from a sibling module.
+/* The two archive collections share controls, not an artificially equal height. */
+.archiveIntro { margin-bottom: 32px; }
+.collectionJump { display: none; }
+.archiveIntro > p:not(.eyebrow) { max-width: 62ch; font-size: 17px; line-height: 1.65; margin: 8px 0 0; }
+.eyebrow { margin: 0; color: var(--gold); font: 400 11px/1.6 var(--face-data); letter-spacing: .08em; text-transform: uppercase; }
+.archiveShowcase { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; align-items: start; }
+.archiveFeature { min-width: 0; border-top: 2px solid var(--gold-dim); padding-top: 22px; }
+.featureHeading h2 { margin: 8px 0 12px; color: var(--ink-hi); font: 400 clamp(29px, 3vw, 38px)/1.08 var(--face-display); letter-spacing: -.025em; text-wrap: balance; }
+.featureHeading > p:not(.eyebrow) { margin: 0; max-width: 36ch; color: var(--ink); font-size: 16px; line-height: 1.5; }
+.browseLink, .readLink { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; color: var(--ink-hi); font: 500 14px/1.4 var(--face-text); text-decoration: none; }
+.browseLink { margin-top: 12px; }
+.browseLink svg, .readLink svg { flex-shrink: 0; color: var(--gold); }
+.browseLink:hover, .readLink:hover { color: var(--gold); }
+.archiveDetail { display: block; color: var(--ink-lo); font: 400 12px/1.6 var(--face-data); margin-bottom: 24px; }
+.rotationControls { display: flex; justify-content: space-between; align-items: center; gap: 6px; border-block: 1px solid var(--line); min-height: 52px; }
+.rotationControls > span { display: grid; gap: 2px; color: var(--ink-lo); font: 400 11px/1.4 var(--face-data); }
+.sampleCount { color: var(--ink); font-variant-numeric: tabular-nums; }
+.rotationControls > div { display: flex; align-items: center; }
+.rotationControls button { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; border: 0; padding: 0; color: var(--ink); background: transparent; cursor: pointer; }
+.rotationControls .pauseButton { width: 62px; font: 500 12px/1.4 var(--face-text); }
+.rotationControls button:hover:not(:disabled) { color: var(--gold); background: var(--surface-1); }
+.rotationControls button:active:not(:disabled) { background: var(--surface-2); }
+.rotationControls button:disabled { color: var(--ink-lo); cursor: default; }
+.previousIcon { transform: rotate(180deg); }
+.sample { padding-top: 22px; }
+.sampleReading { display: grid; align-content: start; gap: 16px; }
+.sampleType { display: flex; align-items: center; gap: 10px; min-height: 30px; color: var(--ink-hi); font: 500 15px/1.4 var(--face-text); }
+.sampleType svg { flex-shrink: 0; color: var(--gold); }
+.sampleReading h3 { margin: 0; font: 400 clamp(25px, 2.65vw, 32px)/1.15 var(--face-display); letter-spacing: -.02em; }
+.sampleReading h3 a { color: var(--ink-hi); text-decoration: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; min-height: 3.45em; overflow: hidden; overflow-wrap: anywhere; }
+.sampleReading h3 a:hover { color: var(--gold); }
+.sampleExcerpt { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; height: 4.8em; overflow: hidden; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.6; }
+.sampleProvenance { display: grid; align-content: end; gap: 5px; margin: 0; color: var(--ink-lo); font: 400 12px/1.6 var(--face-text); }
+.sampleProvenance > span:first-child:not(:last-child) { color: var(--ink); }
+.mediaWarning { display: flex; gap: 12px; align-items: flex-start; padding: 18px 16px; min-height: 102px; background: var(--surface-1); border-left: 2px solid var(--data-ember); }
+.mediaWarning svg { flex-shrink: 0; margin-top: 2px; color: var(--data-ember); }
+.mediaWarning p { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.6; }
+.readLink { margin: 12px 0 20px; border-bottom: 1px solid var(--line-strong); padding-block: 10px; }
+.shareSample { padding-top: 2px; }
+.shareLabel { margin: 0 0 12px; color: var(--ink-hi); font: 500 15px/1.5 var(--face-text); }
+.rotationNote { margin: 4px 0 0; max-width: 42ch; color: var(--ink-lo); font-size: 12px; line-height: 1.5; }
+.emptySample { padding-block: 24px; font-size: 15px; }
+.archiveFeature :is(a, button):focus-visible, .categoryBrowser :is(a, summary):focus-visible, .collectionJump a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
-   Design V3 (`app/globals.css`). The memorial register spends gold exactly
-   once on this page: the three figures. Every rule, frame and link below
-   is set in the ink hairlines, so the number is the only thing that
-   glows. Ember appears once, on the documentation door's advisory, where it
-   is danger rather than emphasis.
+.categoryBrowser { margin-top: 32px; border-block: 1px solid var(--line-strong); }
+.categoryBrowser summary { padding: 18px 0; min-height: 56px; color: var(--ink-hi); font: 500 15px/1.5 var(--face-text); cursor: pointer; }
+.categoryBrowser summary > span { margin-left: 12px; color: var(--ink-lo); font: 400 11px/1.6 var(--face-data); white-space: nowrap; }
+.categoryBrowser summary:hover { color: var(--gold); }
+.categoryBrowser ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; list-style: none; margin: 0 0 20px; padding: 0; }
+.categoryBrowser li { margin: 0; }
+.categoryBrowser a { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 48px; padding-block: 10px; border-top: 1px solid var(--line); color: var(--ink); font: 400 14px/1.45 var(--face-text); text-decoration: none; }
+.categoryBrowser a span:last-child { font: 400 12px/1.6 var(--face-data); color: var(--ink-lo); }
+.categoryBrowser a:hover { color: var(--gold); }
+.sharingNote { margin: 16px 0 0; max-width: 82ch; color: var(--ink-lo); font: 400 12px/1.65 var(--face-text); }
 
-   This page renders no `SectionBlock`, so it stages no entrance animation
-   and mounts no client boundary (OCT-001): the sections below are plain
-   markup with anchored headings, and nothing on the page moves. */
+/* Historical context follows the two sharing destinations, without duplicate introductions. */
+.section { margin-top: clamp(44px, 6vw, 72px); padding-top: 28px; border-top: 1px solid var(--line); }
+.sectionHeading { margin: 0 0 20px; font: 400 var(--t-h2)/var(--t-h2-lh) var(--face-display); letter-spacing: var(--t-h2-tracking); color: var(--ink-hi); }
+.section > p { font-size: 17px; line-height: 1.7; max-width: 68ch; }
+.inscription { margin: 28px 0 0; padding-block: 26px; border-block: 1px solid var(--line); }
+.inscription > dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0; padding: 0; border: 0; }
+.inscription > dl > div { padding: 0 20px; text-align: center; }
+.inscription > dl > div + div { border-left: 1px solid var(--line-soft); }
+.inscription > dl > div > dt { font: 400 var(--t-h2)/1 var(--face-display); letter-spacing: var(--t-h2-tracking); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--gold-hi); }
+.inscription > dl > div > dd { max-width: none; margin: 12px auto 0; color: var(--ink-lo); font: 400 var(--t-caption)/var(--t-caption-lh) var(--face-text); letter-spacing: 0; text-transform: none; }
+.record ol > li { padding-bottom: 32px; }
+.record ol > li:last-child { padding-bottom: 4px; }
 
-/* ---------- sections ---------- */
-
-.section {
-  margin-top: var(--sp-8);
+@media (max-width: 760px) {
+  .archiveShowcase { grid-template-columns: 1fr; gap: 40px; }
+  .archiveIntro { margin-bottom: 24px; }
+  .collectionJump { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 16px; }
+  .collectionJump a { display: inline-flex; align-items: center; min-height: 44px; border-bottom: 1px solid var(--gold-dim); color: var(--ink-hi); font: 500 14px/1.4 var(--face-text); text-decoration: none; }
+  .collectionJump a:hover { color: var(--gold); }
+  .featureHeading h2 { font-size: 36px; }
+  .featureHeading > p:not(.eyebrow) { max-width: 44ch; }
+  .sampleReading h3 { font-size: clamp(28px, 7vw, 35px); }
+  .sampleReading h3 a { -webkit-line-clamp: 3; line-clamp: 3; min-height: 3.45em; }
+  .rotationControls > span { display: flex; gap: 12px; }
+  .rotationControls button { width: 44px; }
+  .categoryBrowser ul { grid-template-columns: 1fr; }
 }
-
-.section:first-of-type {
-  margin-top: 0;
+@media (max-width: 480px) {
+  .featureHeading h2 { font-size: 33px; }
+  .categoryBrowser summary > span { display: block; margin: 4px 0 0 20px; }
+  .inscription > dl { grid-template-columns: 1fr; gap: 22px; }
+  .inscription > dl > div + div { border-left: 0; padding-top: 22px; border-top: 1px solid var(--line-soft); }
 }
-
-/* The same step and face `.blockHeading h2` sets in `sections.module.css`,
-   restated here because this page no longer renders that wrapper. The
-   `scroll-margin` comes from `.body h2` in the shell, so an anchor still
-   clears the fixed header. */
-.sectionHeading {
-  margin: 0 0 var(--sp-4);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
-  color: var(--ink-hi);
+@media (prefers-reduced-motion: reduce) {
+  .archiveFeature *, .categoryBrowser * { transition: none; animation: none; }
 }
-
-.lede {
-  max-width: var(--measure-reading);
-  text-wrap: pretty;
+@media (scripting: none) {
+  .rotationControls, .rotationNote, .shareSample :global(button) { display: none; }
 }
-
-/* ---------- the inscription ---------- */
-
-.inscription {
-  margin: var(--sp-7) 0;
-  padding: var(--sp-6) 0;
-  border-top: var(--line-w) solid var(--line);
-  border-bottom: var(--line-w) solid var(--line);
-}
-
-.inscription > dl {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-}
-
-.inscription > dl > div {
-  padding: 0 var(--sp-5);
-  text-align: center;
-}
-
-.inscription > dl > div + div {
-  border-left: var(--line-w) solid var(--line-soft);
-}
-
-/* The one gold on the page. Set at the `--t-h2` step rather than a bespoke
-   clamp: a third of the 68ch measure is ~160px, and `--t-h2` tops out at
-   2.15rem, where "1,200+" — the widest figure — is ~115px in Newsreader and
-   never wraps. `--t-display` would break it at the desktop measure, and a
-   memorial reads quieter, not louder. */
-.inscription > dl > div > dt {
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: 1;
-  letter-spacing: var(--t-h2-tracking);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  color: var(--gold-hi);
-}
-
-/* These read as sentences ("Killed in Israel that day, mostly civilians"),
-   not as two-word labels, so they are sentence case at caption size rather
-   than tracked micro-capitals. On this page above all others, the reader
-   should not have to work to take the number's meaning. */
-.inscription > dl > div > dd {
-  max-width: none;
-  margin: var(--sp-3) auto 0;
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 400;
-  line-height: var(--t-caption-lh);
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--ink-lo);
-}
-
-@media (max-width: 640px) {
-  .inscription > dl {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--sp-6);
-  }
-
-  .inscription > dl > div + div {
-    border-left: none;
-    padding-top: var(--sp-6);
-    border-top: var(--line-w) solid var(--line-soft);
-  }
-}
-
-/* Slower rhythm down the record — more air between entries than the
-   default feed treatment, so the page is paced for reading, not scanning.
-   Whitespace between records is recovery time. */
-.record ol > li {
-  padding-bottom: var(--sp-7);
-}
-
-.record ol > li:last-child {
-  padding-bottom: var(--sp-1);
-}
-
-/*
- * ---------- the two doors ----------
- *
- * Not a matched pair of cards, and that is the point (OCT-001). The old hub
- * gave testimony and documentation the same framed panel with the same
- * count and the same "Open the archive →", so the only thing separating a
- * witness's account from 335 pieces of graphic footage was the word in the
- * heading. Each door is now built from its own facts, and each states what it
- * will show before it is opened.
- *
- * The register stays muted throughout: a hairline frame, no fill change on
- * hover, no transform, no shadow. This page is a monument, not a landing
- * page. What separates the two is structure and content, never colour.
- */
-
-.doors {
-  display: grid;
-  gap: var(--sp-5);
-  margin: var(--sp-6) 0 var(--sp-7);
-}
-
-/* The site's one horizontal seam (`--bp-seam`, 45rem/720px). The doors have
-   no reason to open at a threshold of their own. */
-@media (min-width: 720px) {
-  .doors {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-  }
-}
-
-.door {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  height: 100%;
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
-}
-
-/* The one structural asymmetry that is pure treatment: the testimony door
-   carries a left rule in ink, the way a quotation does, and the documentation
-   door carries none — it is a filing cabinet, not a voice. */
-.door[data-kind='testimony'] {
-  border-left: var(--line-w-thick) solid var(--line-strong);
-}
-
-.doorKind {
-  composes: dataLabel from global;
-  margin: 0;
-  color: var(--ink-lo);
-}
-
-.doorTitle {
-  margin: 0;
-  max-width: none;
-  font-family: var(--face-display);
-  font-size: var(--t-figure);
-  line-height: var(--t-figure-lh);
-  font-weight: var(--t-figure-weight);
-  color: var(--ink-hi);
-}
-
-/* The whole heading is the link, and the underline is permanent: an
-   affordance a reader has to hover to discover is not an affordance. */
-.doorLink {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 0.14em;
-  transition: text-decoration-color var(--dur-fast) var(--ease-out);
-}
-
-.doorLink:hover,
-.doorLink:focus-visible {
-  text-decoration-color: var(--gold);
-}
-
-/* 201x30 and 153x30 measured at every coarse width — the two entrances to the
-   whole archive, both under the target floor. `inline-flex` keeps the
-   underline hugging the words rather than stretching to the panel. */
-@media (pointer: coarse) {
-  .doorLink {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--control-h);
-  }
-}
-
-/* The heading is the link, and the panel around it is not.
-   A whole-panel overlay (`::after { inset: 0 }`) was tried and dropped: these
-   panels hold a category list and two counts a reader may well want to select
-   or copy, and an invisible link laid over them swallows the selection. The
-   heading is set at the figure step, so the target is large without needing
-   the trick. The panel still answers, through `:focus-within`. */
-.door:focus-within {
-  border-color: var(--line-strong);
-}
-
-.doorText {
-  margin: 0;
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-  text-wrap: pretty;
-}
-
-/* Two facts per door, and they are different facts on each: accounts and
-   languages on one, films and photographs on the other. The scale of the
-   archive is the thing this page failed to convey, so it is set at the
-   figure step — one below the inscription's, which keeps the page's single
-   gold moment unchallenged. */
-.doorFacts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-5);
-  margin: var(--sp-2) 0 0;
-}
-
-.doorFacts dt {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
-}
-
-.doorFacts dd {
-  margin: var(--sp-1) 0 0;
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  line-height: 1;
-  font-weight: var(--t-h2-weight);
-  letter-spacing: var(--t-h2-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-hi);
-}
-
-/* The six categories the source filed the archive under, with their real
-   counts — the fastest honest answer to "what is in there". A ruled list,
-   not chips: these are not controls on this page. */
-.doorCategories {
-  list-style: none;
-  margin: var(--sp-3) 0 0;
-  padding: 0;
-  border-top: var(--line-w) solid var(--line-soft);
-}
-
-.doorCategories li {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  padding: var(--sp-2) 0;
-  border-bottom: var(--line-w) solid var(--line-soft);
-}
-
-.doorCategoryName {
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  color: var(--ink);
-}
-
-.doorCategoryCount {
-  composes: dataMeta from global;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
-
-/* Sensitivity, stated on the door. The testimony door's is ink — it is a
-   description of how the archive behaves. The documentation door's is ember,
-   because there it is a warning, and ember is what the system reserves for
-   that. Both sit at the foot of the panel, last thing before the reader
-   decides. */
-.doorAdvisory {
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-2);
-  margin: auto 0 0;
-  padding-top: var(--sp-4);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
-  text-wrap: pretty;
-}
-
-.doorAdvisoryMark {
-  flex: none;
-  width: 0.42rem;
-  height: 0.42rem;
-  margin-top: 0.3em;
-  background: var(--ink-lo);
-  transform: rotate(45deg);
-}
-
-.doorAdvisory[data-severity='high'] {
-  color: var(--ink);
-}
-
-.doorAdvisory[data-severity='high'] .doorAdvisoryMark {
-  background: var(--data-ember);
-}
-
-/* Invite sharing the source record, not detached imagery or a blanket repost. */
-.shareInvitation {
-  border-block: 1px solid var(--line-strong);
-  padding-block: var(--sp-6);
-  margin-bottom: var(--sp-7);
-  font-family: var(--face-navigation);
-  text-transform: none;
-}
-.shareEyebrow { font: 10px/1.6 var(--face-data); letter-spacing: .08em; text-transform: uppercase; color: var(--gold-hi); }
-.shareInvitation h2 { font: 400 clamp(34px, 4vw, 52px)/1.05 var(--face-navigation-display); letter-spacing: -.025em; margin-block: var(--sp-4); }
-.shareInvitation > p:not(.shareEyebrow):not(.shareAdvisory) { font-size: 15px; line-height: 1.7; max-width: 60ch; }
-.shareInvitation nav { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-6); margin-top: var(--sp-4); }
-.shareInvitation nav a { display: inline-flex; align-items: center; justify-content: space-between; gap: var(--sp-4); min-height: 44px; border-bottom: 1px solid var(--control-line); font-size: 13px; color: var(--ink-hi); text-decoration: none; }
-.shareInvitation nav a:hover { color: var(--gold-hi); }
-.shareInvitation nav a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-.shareInvitation > .shareAdvisory { margin-top: var(--sp-4); font-size: 12px; line-height: 1.7; max-width: 64ch; color: var(--ink-lo); }

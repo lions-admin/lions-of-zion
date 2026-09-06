@@ -8,7 +8,7 @@ import { AskDock } from "@/components/ask/AskDock";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
-import { publicDisplayName, publicInitials } from "@/server/contracts/public-session";
+import { publicDisplayName, publicInitials } from "@/lib/public-session";
 import {
   ACCOUNT_LINK,
   BAR_LINKS,

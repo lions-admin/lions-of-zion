@@ -8,10 +8,25 @@ import { HomepageJourney } from "@/components/home/HomepageJourney";
 import { getHomepageEdition } from "@/lib/homepage";
 import styles from "./home.module.css";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 export default async function Page() {
   const edition = await getHomepageEdition();
   return <div className={styles.homeTheme}>
+    {/* Preload hero poster for immediate LCP paint before stylesheet resolution */}
+    <link
+      rel="preload"
+      as="image"
+      href="/video/lion-hero-poster-portrait.jpg"
+      media="(max-width: 759px), (aspect-ratio < 6/5)"
+      fetchPriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="/video/lion-hero-poster-desktop.jpg"
+      media="(min-width: 760px) and (min-aspect-ratio: 6/5)"
+      fetchPriority="high"
+    />
     <a className={styles.skipLink} href="#home-wordmark">Skip to content</a>
     <SiteHeader home />
     <main id="page-content" className={styles.page} data-home-scroll>

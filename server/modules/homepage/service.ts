@@ -19,12 +19,13 @@ export async function homepageInputs(db:Database, now=new Date()) {
   const safeIds=new Set((rawMedia.assets as unknown[]).map(a=>editorialMediaSchema.parse(a)).filter(isHomepageSafeMedia).map(a=>a.id));
   const service=publicationService(db);
   // A failed section is not a zero-record section: fail the job, preserve the prior snapshot.
-  const [news,briefs,watch,pins]=await Promise.all([
-    service.listBriefingPublic({section:'israel_update',limit:50}),
-    service.listBriefingPublic({section:'daily_brief',limit:50}),
-    service.listBriefingPublic({section:'narrative_watch',limit:25}),service.publicHomepagePins(),
+  /* One automatic-publication query covers every routed destination. New
+   * People and antisemitism records therefore enter their own homepage band
+   * without a second, stale list that knows only the original three sections. */
+  const [automatic,pins]=await Promise.all([
+    service.listBriefingPublic({limit:100}), service.publicHomepagePins(),
   ]);
-  const live=new Map([...news,...briefs,...watch,...pins.map(p=>p.publication)].map(p=>[p.publicId,p]));
+  const live=new Map([...automatic,...pins.map(p=>p.publication)].map(p=>[p.publicId,p]));
   const candidates:HomeReference[]=catalog.candidates.filter(c=>safeIds.has(c.mediaId));
   // A live publication's own hero decides whether it may reach the homepage.
   // It used to be `media.json`'s mapping, which meant a newly published record

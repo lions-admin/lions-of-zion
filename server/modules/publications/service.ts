@@ -17,7 +17,9 @@ import { recordVersion, setIdentity } from "@/server/core/versioning";
 import { writeAudit } from "@/server/core/audit";
 import { assertHumanReviewer, findReviewer } from "@/server/modules/assessments";
 import { homepageFeature, publication } from "@/server/db/schema";
-import { mediaRepo } from "@/server/modules/media/repo";
+import type { EditorialOperation } from "@/server/contracts/editorial-update";
+import type { EditorialMediaDraft } from "@/server/modules/media/repo";
+import { mediaRepo, toEditorialMedia } from "@/server/modules/media/repo";
 import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { repo } from "./repo";
 import {
@@ -57,11 +59,109 @@ type DraftProvenance = Pick<AutomationProvenance, "briefingRunId" | "machineAuth
 
 type GeneratedDraftProvenance = DraftProvenance & Pick<AutomationProvenance, "candidateKeys">;
 
+const HOMEPAGE_EDITORIAL_SECTIONS = new Set([
+  "israel_update", "narrative_watch", "news", "influence_investigation", "antisemitism",
+  "people", "courage_service", "innovation", "science_medicine", "technology_ai",
+  "achievement", "international_cooperation", "history_context",
+] as const);
+type HomepageEditorialSection = typeof HOMEPAGE_EDITORIAL_SECTIONS extends Set<infer T> ? T : never;
+function isHomepageEditorialSection(section: string): section is HomepageEditorialSection {
+  return HOMEPAGE_EDITORIAL_SECTIONS.has(section as HomepageEditorialSection);
+}
+
 
 export function publicationService(db: unknown) {
   const run = db as unknown as Runner;
 
   return {
+    /** Invoked inside the editorial operation transaction; no network calls.
+     * `media` is optional — matching the rule the external-briefing path
+     * already lives by (`docs`/commit "Let a publication lose its picture
+     * without losing the page"): an illustration is enrichment, never the
+     * record, so a publication with no rights-cleared image still publishes
+     * with no picture rather than blocking the whole run. */
+    async applyEditorial(operation: EditorialOperation, provenance: { runId: string; machineAuthor: string },
+      media: EditorialMediaDraft | null, actor: Actor, requestId?: string): Promise<Publication> {
+      return run.transaction(async tx => {
+        await setIdentity(tx as Tx, actor.label);
+        const r = repo(tx);
+        const store = mediaRepo(tx);
+        let assetId: string | null = null;
+        if (media) {
+          const asset = await store.insertMedia(media);
+          const projected = toEditorialMedia(asset);
+          if (!projected || !isArticleSafeMedia(projected)) {
+            throw new ApiError('VALIDATION_ERROR', 'The publication requires a cleared article image.');
+          }
+          assetId = asset.id;
+        }
+        let row: Publication;
+        let before: Publication | undefined;
+        const now = new Date();
+        if (operation.action === 'create') {
+          const input = operation.publication;
+          row = await r.insert({
+            kind: input.kind, section: input.section ?? 'news',
+            publicId: await uniquePublicId(r, input.title), title: input.title,
+            summary: input.summary ?? null, body: input.body, language: input.language,
+            eventId: input.eventId ?? null, primaryTopicId: input.primaryTopicId ?? null,
+            editorialTopic: input.editorialTopic ?? null, topicTags: input.topicTags ?? [], primaryActor: input.primaryActor ?? null,
+            arena: input.arena ?? null, featuredIsraelStory: input.featuredIsraelStory ?? false,
+            narrativeWatchDetails: input.narrativeWatchDetails ? {
+              ...input.narrativeWatchDetails, evidenceBasis: input.evidenceIds?.length ? 'sourced' : 'analysis',
+            } : null,
+            scenarioLikelihood: input.scenarioLikelihood ?? null, scenarioIndicators: input.scenarioIndicators ?? null,
+            status: 'published', publishedAt: now, autoPublishedAt: now,
+            editorialRunId: provenance.runId, editorialOperationKey: operation.key,
+            machineAuthor: provenance.machineAuthor, createdBy: null, approvedBy: null,
+          });
+          if (input.itemIds?.length) await r.linkItems(row.id, input.itemIds);
+          if (input.narrativeIds?.length) await r.linkNarratives(row.id, input.narrativeIds);
+          if (input.evidenceIds?.length) await r.linkEvidence(row.id, input.evidenceIds);
+          if (input.passages?.length) await r.linkPassages(row.id, input.passages);
+        } else {
+          await r.lock(operation.publicationId);
+          before = await r.byId(operation.publicationId);
+          if (!before) throw notFound('Publication');
+          if (!['published', 'updated'].includes(before.status)) {
+            throw new ApiError('CONFLICT', 'Developing-story updates require a live canonical publication.');
+          }
+          const fields = Object.fromEntries(Object.entries(operation.publication).filter(([key]) => key !== 'changeSummary')) as Omit<UpdatePublication, 'changeSummary'>;
+          const section = fields.section ?? before.section;
+          const details = fields.narrativeWatchDetails === undefined ? before.narrativeWatchDetails
+            : fields.narrativeWatchDetails === null ? null : { ...fields.narrativeWatchDetails,
+              evidenceBasis: isAnalysisBasis(before.narrativeWatchDetails as { evidenceBasis?: string } | null) ? 'analysis' : 'sourced' };
+          if ((section === 'narrative_watch') !== Boolean(details)) {
+            throw new ApiError('VALIDATION_ERROR', 'Narrative Watch details must match the publication section.');
+          }
+          row = await r.update(before.id, {
+            ...fields,
+            narrativeWatchDetails: details,
+            status: 'updated',
+            updatedAt: now,
+            editorialRunId: provenance.runId,
+            editorialOperationKey: operation.key,
+            machineAuthor: provenance.machineAuthor,
+          });
+          /* Only replace the existing picture when this update actually
+             brought a new one — an update with no media keeps whatever the
+             publication already had rather than stripping it. */
+          if (assetId) await store.detach(row.id);
+        }
+        if (assetId) await store.attachToPublication(row.id, assetId);
+        const versionSnapshot = operation.action === 'update'
+          ? { ...row, editorialUpdateRunId: provenance.runId, editorialOperationKey: operation.key }
+          : row;
+        await recordVersion(tx as Tx, publication, versionSnapshot as never, {
+          entityType: kindToEntityType(row.kind), entityId: row.id, actor, before,
+          changeSummary: operation.action === 'update' ? operation.publication.changeSummary : 'Published by the whole-site editorial run',
+          changeSource: 'workflow', requestId,
+        });
+        await emit(tx as never, TOPICS.publicationCacheInvalidate, { publicId: row.publicId });
+        return row;
+      });
+    },
+
     async get(id: string): Promise<Publication> {
       const row = await repo(db).byId(id);
       if (!row) throw notFound("Publication");
@@ -87,6 +187,7 @@ export function publicationService(db: unknown) {
           eventId: input.eventId ?? null,
           primaryTopicId: input.primaryTopicId ?? null,
           editorialTopic: input.editorialTopic ?? null,
+          topicTags: input.topicTags ?? [],
           primaryActor: input.primaryActor ?? null,
           arena: input.arena ?? null,
           featuredIsraelStory: input.featuredIsraelStory ?? false,
@@ -143,6 +244,7 @@ export function publicationService(db: unknown) {
             eventId: input.eventId ?? null,
             primaryTopicId: input.primaryTopicId ?? null,
             editorialTopic: input.editorialTopic ?? null,
+            topicTags: input.topicTags ?? [],
             primaryActor: input.primaryActor ?? null,
             arena: input.arena ?? null,
             featuredIsraelStory: input.featuredIsraelStory ?? false,
@@ -284,6 +386,7 @@ export function publicationService(db: unknown) {
           eventId: input.eventId ?? null,
           primaryTopicId: input.primaryTopicId ?? null,
           editorialTopic: input.editorialTopic ?? null,
+          topicTags: input.topicTags ?? [],
           primaryActor: input.primaryActor ?? null,
           arena: input.arena ?? null,
           featuredIsraelStory: input.featuredIsraelStory ?? false,
@@ -378,7 +481,7 @@ export function publicationService(db: unknown) {
           }
           const publishedAt = new Date();
           const rows: Publication[] = [];
-          for (const [index, draft] of ordered.entries()) {
+          for (const draft of ordered) {
             const row = await r.update(draft.id, {
               status: "published",
               publishedAt,
@@ -419,6 +522,7 @@ export function publicationService(db: unknown) {
             eventId: input.eventId ?? null,
             primaryTopicId: input.primaryTopicId ?? null,
             editorialTopic: input.editorialTopic ?? null,
+            topicTags: input.topicTags ?? [],
             primaryActor: input.primaryActor ?? null,
             arena: input.arena ?? null,
             featuredIsraelStory: input.featuredIsraelStory ?? false,
@@ -476,7 +580,7 @@ export function publicationService(db: unknown) {
 
     async getBriefingPublic(publicId: string): Promise<PublicPublication> {
       const row = await repo(db).byPublicId(publicId);
-      if (!row || !row.briefingRunId || (row.status !== "published" && row.status !== "updated")) {
+      if (!row || (!row.briefingRunId && !row.editorialRunId) || (row.status !== "published" && row.status !== "updated")) {
         throw notFound("Briefing publication");
       }
       return toPublicPublication(row, await mediaRepo(db).heroMedia(row.id));
@@ -491,7 +595,7 @@ export function publicationService(db: unknown) {
 
     async getBriefingPublicDetail(publicId: string): Promise<PublicPublicationDetail> {
       const row = await repo(db).byPublicId(publicId);
-      if (!row || !row.briefingRunId || (row.status !== "published" && row.status !== "updated")) {
+      if (!row || (!row.briefingRunId && !row.editorialRunId) || (row.status !== "published" && row.status !== "updated")) {
         throw notFound("Briefing publication");
       }
       const [media, references] = await Promise.all([mediaRepo(db).heroMedia(row.id), repo(db).publicReferences(row.id)]);
@@ -508,7 +612,7 @@ export function publicationService(db: unknown) {
       };
       const features = await d.select().from(homepageFeature).orderBy(homepageFeature.slot);
       const live = (await repo(db).listPublic({ limit: 100 }, true)).filter((row) =>
-        row.section === "israel_update" || row.section === "narrative_watch",
+        isHomepageEditorialSection(row.section),
       );
       const ordered = features
         .map((feature) => live.find((row) => row.id === feature.publicationId))
@@ -522,8 +626,8 @@ export function publicationService(db: unknown) {
       const rows: Array<{ slot: number; row: Publication }> = [];
       for (const pin of pins.sort((a,b)=>a.slot-b.slot)) {
         const row = await repo(db).byId(pin.publicationId);
-        if (row && row.briefingRunId && (row.status === "published" || row.status === "updated")
-          && ["israel_update", "narrative_watch"].includes(row.section)) {
+        if (row && (row.briefingRunId || row.editorialRunId) && (row.status === "published" || row.status === "updated")
+          && isHomepageEditorialSection(row.section)) {
           rows.push({slot:pin.slot, row});
         }
       }
@@ -544,9 +648,9 @@ export function publicationService(db: unknown) {
           const row = await r.byId(publicationId);
           const eligible = row
             && (row.status === "published" || row.status === "updated")
-            && row.briefingRunId !== null
-            && ["israel_update", "narrative_watch"].includes(row.section);
-          if (!eligible) throw new ApiError("VALIDATION_ERROR", "Only a live news publication can occupy a homepage slot.");
+            && (row.briefingRunId !== null || row.editorialRunId !== null)
+            && isHomepageEditorialSection(row.section);
+          if (!eligible) throw new ApiError("VALIDATION_ERROR", "Only a live editorial publication can occupy a homepage slot.");
         }
         await r.setHomepageFeature(slot, publicationId);
         await emit(tx as never, TOPICS.publicationCacheInvalidate, { homepageSlot: slot, publicationId });
@@ -737,6 +841,7 @@ function toPublicPublication(row: Publication, media: EditorialMedia | null): Pu
     updatedAt: row.updatedAt.toISOString(),
     autoPublishedAt: row.autoPublishedAt?.toISOString() ?? null,
     editorialTopic: row.editorialTopic,
+    topicTags: row.topicTags,
     primaryActor: row.primaryActor,
     arena: row.arena,
     featuredIsraelStory: row.featuredIsraelStory,

@@ -7,7 +7,7 @@ export function selectHomepage(candidates: HomeReference[], date: string, histor
   const pins = overrides.pins.filter(p => !p.expires || p.expires >= date).sort((a,b)=>a.order-b.order).map(p=>p.key);
   const breaking = overrides.breakingNews && overrides.breakingNews.expires >= date ? overrides.breakingNews.keys : [];
   const unique = [...new Map(candidates.map(c=>[c.key,c])).values()];
-  const selection: HomeSelection = {news:[],fakeResistance:[],october7:[],heroes:[],israelsStory:[]};
+  const selection: HomeSelection = {news:[],fakeResistance:[],october7:[],heroes:[],israelsStory:[],people:[]};
   const cutoff = new Date(`${date}T12:00:00Z`); cutoff.setUTCDate(cutoff.getUTCDate()-7);
   const cutoffDate = cutoff.toISOString().slice(0,10);
   const selected = new Set<string>();

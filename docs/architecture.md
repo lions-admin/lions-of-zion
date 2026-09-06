@@ -157,6 +157,17 @@ exist:
 another name — pure, DB-free, unit-tested directly. `jobs.ts` and `alerts.ts`
 are the extras: the queued stage runner and the operator alert path.
 
+⚠️ **This count is stale and was already stale before 2026-09-06.**
+`server/modules/` holds nineteen directories today
+(`ls server/modules/` is the source of truth), not fourteen: this list omits
+`admin-console`, `homepage`, `media` and `ops-agent`, none of which this pass
+added. This pass added a twentieth-in-spirit module, `editorial-update`
+(`index.ts`, `service.ts`, `repo.ts` — the standard four-file shape minus
+`rules.ts`), a durable, resumable alternative to the briefing pipeline's
+publish stage; see the data model doc's "The editorial-update pipeline"
+section. Recounting and correcting this paragraph for every module added
+since is a separate pass, not folded in here.
+
 ### Cross-cutting rules worth knowing before editing
 
 - **`server/core/config.ts` is the only server-runtime file that reads

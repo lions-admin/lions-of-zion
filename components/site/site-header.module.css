@@ -586,6 +586,75 @@
     overflow: visible;
     box-shadow: none;
     animation: none;
+    border-bottom: 1px solid var(--line-strong);
+    background: color-mix(in srgb, var(--surface-0) 95%, var(--ground));
+  }
+
+  .filesPanel[hidden]::before {
+    content: "Navigation index";
+    display: block;
+    padding: var(--sp-2) clamp(24px, 4vw, 56px) 0;
+    max-width: 1120px;
+    margin-inline: auto;
+    font: 10px/1.5 var(--face-data);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+
+  .filesPanel[hidden] .filesInner {
+    padding-top: var(--sp-3);
+  }
+}
+
+@media (scripting: none) and (max-width: 48rem) {
+  .filesPanel[hidden] {
+    padding: var(--sp-3) var(--sp-3) var(--sp-4);
+    background: color-mix(in srgb, var(--surface-0) 92%, var(--ground));
+  }
+
+  .filesPanel[hidden]::before {
+    padding: 0 0 var(--sp-2);
+  }
+
+  .filesPanel[hidden] .filesInner {
+    padding: 0;
+  }
+
+  .filesPanel[hidden] .menuLayout {
+    gap: var(--sp-3);
+  }
+
+  .filesPanel[hidden] .primaryMenuLink {
+    padding-block: var(--sp-2);
+  }
+
+  .filesPanel[hidden] .menuLinkTitle {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
+  .filesPanel[hidden] .menuLinkDescription {
+    display: none;
+  }
+
+  .filesPanel[hidden] .secondaryMenuLink {
+    padding-block: var(--sp-2);
+  }
+
+  .filesPanel[hidden] .secondaryMenuLink .menuLinkTitle {
+    font-size: 15px;
+  }
+
+  .filesPanel[hidden] .menuUtilities {
+    margin-top: var(--sp-3);
+    padding-top: var(--sp-2);
+    gap: var(--sp-2) var(--sp-3);
+  }
+
+  .filesPanel[hidden] .menuUtilities a {
+    min-height: 36px;
+    font-size: 12px;
   }
 }
 

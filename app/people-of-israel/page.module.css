@@ -1,0 +1,39 @@
+.page { color: var(--ink); }
+.hub { width: min(100%, 100rem); margin: 0 auto; padding: var(--sp-4) clamp(var(--sp-4), 4vw, var(--sp-8)) var(--sp-9); }
+.records, .legacy, .history { margin-top: var(--sp-8); padding-top: var(--sp-6); border-top: var(--line-w) solid var(--line-strong); }
+.sectionHead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--sp-5); align-items: end; }
+.sectionHead > p, .legacyIntro > p:first-child, .history > div > p:first-child { color: var(--gold-hi); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking); text-transform: uppercase; }
+.sectionHead h2, .group h2, .legacy h2, .history h2 { color: var(--ink-hi); font: 400 var(--t-h2)/var(--t-h2-lh) var(--face-display); letter-spacing: var(--t-h2-tracking); text-wrap: balance; }
+.group { margin-top: var(--sp-8); }
+.group > h2 { margin-bottom: var(--sp-5); font-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.6rem); }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-5); }
+.publication { display: grid; min-width: 0; border-top: var(--line-w) solid var(--line); }
+.image { aspect-ratio: 4 / 3; overflow: hidden; background: var(--surface-1); }
+.image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
+.publication:hover .image img { transform: scale(1.025); }
+.publicationBody { display: grid; align-content: start; gap: var(--sp-3); padding-top: var(--sp-4); }
+.meta { color: var(--ink-lo); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking-tight); text-transform: uppercase; }
+.publication h3 { color: var(--ink-hi); font: 400 var(--t-figure)/var(--t-figure-lh) var(--face-display); letter-spacing: -0.015em; text-wrap: balance; }
+.publication h3 a { color: inherit; text-decoration: none; }
+.publicationBody > p:not(.meta) { color: var(--ink); font-size: var(--t-small); line-height: var(--t-small-lh); }
+.read, .collectionLink { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--control-h); width: fit-content; color: var(--ink-hi); font-size: var(--t-small); text-decoration: none; box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong); }
+.read span, .collectionLink span { transition: transform var(--dur-base) var(--ease-out); }
+.read:hover span, .collectionLink:hover span { transform: translateX(.25em); }
+.legacy { display: grid; grid-template-columns: minmax(16rem, 1fr) minmax(0, 1.7fr); gap: var(--sp-8); align-items: start; }
+.legacyIntro, .history > div { display: grid; gap: var(--sp-4); }
+.legacyIntro > p:last-of-type, .history > div > p:nth-of-type(2) { max-width: 42ch; color: var(--ink); font-size: var(--t-lede); line-height: var(--t-lede-lh); }
+.peopleList { border-top: var(--line-w) solid var(--line); list-style: none; }
+.peopleList li { border-bottom: var(--line-w) solid var(--line); }
+.peopleList a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, .8fr); gap: var(--sp-4); padding: var(--sp-4) 0; color: var(--ink-hi); text-decoration: none; }
+.peopleList span { font: 400 var(--t-figure)/var(--t-figure-lh) var(--face-display); }
+.peopleList small { align-self: center; color: var(--ink-lo); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking-tight); }
+.legacy .collectionLink { grid-column: 1; }
+.history { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-8); }
+.history ol { list-style: none; border-top: var(--line-w) solid var(--line); }
+.history li { border-bottom: var(--line-w) solid var(--line); }
+.history li a { display: grid; grid-template-columns: 3rem 1fr; gap: var(--sp-3); padding: var(--sp-4) 0; color: var(--ink-hi); font: 400 var(--t-figure)/var(--t-figure-lh) var(--face-display); text-decoration: none; }
+.history li span { color: var(--gold-hi); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking); }
+.hub a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
+.hub a:hover { color: var(--gold-hi); }
+@media (max-width: 70rem) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 46rem) { .sectionHead, .legacy, .history { grid-template-columns: 1fr; gap: var(--sp-5); } .grid { grid-template-columns: 1fr; } .peopleList a { grid-template-columns: 1fr; gap: var(--sp-2); } .legacy .collectionLink { grid-column: auto; } }

@@ -26,6 +26,7 @@ import { reports } from "@/server/modules/reports";
 import { sendWorkspaceEmail } from "@/server/core/email";
 import { expirePublicPublicationCache } from "@/server/core/publication-cache";
 import { deliverBriefingAlert } from "@/server/modules/briefing/alerts";
+import { deliverEditorialRunReport, processEditorialRun } from "@/server/modules/editorial-update";
 
 export type ConsumerContext = { entityType: string | null; entityId: string | null };
 export type Consumer = (payload: unknown, ctx: ConsumerContext) => Promise<void>;
@@ -82,6 +83,14 @@ const CONSUMERS: Record<string, Consumer> = {
     const alertId = (payload as { alertId?: unknown } | null)?.alertId;
     if (typeof alertId !== "string") return;
     await deliverBriefingAlert(alertId);
+  },
+
+  [TOPICS.editorialRunProcess]: async (payload) => {
+    await processEditorialRun(payload);
+  },
+
+  [TOPICS.editorialRunReport]: async (payload) => {
+    await deliverEditorialRunReport(payload);
   },
 };
 

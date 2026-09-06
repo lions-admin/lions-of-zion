@@ -54,14 +54,15 @@ export async function getHomepageEdition():Promise<HomepageEdition>{
   }
   if(!snapshot)try{snapshot=await readHomepageSnapshot();}catch{console.error('[homepage] persisted edition unavailable');}
   const empty={state:'unavailable' as const,items:[],gaps:[]};
-  if(!snapshot)return {editionDate:'',revision:0,generatedAt:'',state:'unavailable',localPreview:false,news:empty,fakeResistance:empty,october7:empty,heroes:empty,israelsStory:empty};
+  if(!snapshot)return {editionDate:'',revision:0,generatedAt:'',state:'unavailable',localPreview:false,news:empty,fakeResistance:empty,october7:empty,people:empty,heroes:empty,israelsStory:empty};
   const resolve=localPreview?await localPreviewResolver():resolveHomepageReference;
-  const [news,fakeResistance,october7,heroes,israelsStory]=await Promise.all([
+  const [news,fakeResistance,october7,heroes,israelsStory,people]=await Promise.all([
     resolveHomepageSection<Extract<HomePreview,{kind:'news'}>>(snapshot.selection.news,resolve),
     resolveHomepageSection<Extract<HomePreview,{kind:'watch'|'case'}>>(snapshot.selection.fakeResistance,resolve),
     resolveHomepageSection<Extract<HomePreview,{kind:'testimony'|'documentation'}>>(snapshot.selection.october7,resolve),
     resolveHomepageSection<Extract<HomePreview,{kind:'hero'}>>(snapshot.selection.heroes,resolve),
     resolveHomepageSection<Extract<HomePreview,{kind:'chapter'}>>(snapshot.selection.israelsStory,resolve),
+    resolveHomepageSection<Extract<HomePreview,{kind:'feature'}>>(snapshot.selection.people,resolve),
   ]);
-  return {...snapshot,localPreview,state:snapshot.editionDate===israelEditionDate()?'current':'previous-edition',news,fakeResistance,october7,heroes,israelsStory};
+  return {...snapshot,localPreview,state:snapshot.editionDate===israelEditionDate()?'current':'previous-edition',news,fakeResistance,october7,heroes,israelsStory,people};
 }

@@ -42,6 +42,8 @@ import "server-only";
  * `resolveDailyBrief`/`resolveArticle`/`buildCandidate`/`publicationPassages`.
  */
 
+import { externalBriefingPublicationSchema } from "@/server/contracts/external-briefing";
+
 import { sql } from "drizzle-orm";
 import { ApiError } from "@/server/http/responses";
 import { briefingFeatures } from "@/server/core/config";
@@ -466,7 +468,7 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
         const publications: ExternalBriefingPublication[] = created.map((row) => ({
           id: row.id,
           publicId: row.publicId,
-          section: row.section,
+          section: externalBriefingPublicationSchema.shape.section.parse(row.section),
           title: row.title,
           path: `/articles/${row.publicId}`,
           url: `${SITE_URL}/articles/${row.publicId}`,

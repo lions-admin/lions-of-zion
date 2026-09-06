@@ -3,8 +3,9 @@ import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { HubMasthead } from "@/components/site/HubMasthead";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
-import { getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
+import { getAntisemitismFeed, getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
+import { AntisemitismRecord } from "@/components/briefs/AntisemitismRecord";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
@@ -17,9 +18,10 @@ function dateLabel(value: string) {
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }
 export default async function Page() {
-  const [research, monitoring] = await Promise.allSettled([getCaseIndex(), getNarrativeWatchFeed()]);
+  const [research, monitoring, antisemitism] = await Promise.allSettled([getCaseIndex(), getNarrativeWatchFeed(), getAntisemitismFeed()]);
   const cases = research.status === "fulfilled" ? [...research.value].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) : [];
   const items = monitoring.status === "fulfilled" ? [...monitoring.value].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)) : [];
+  const antisemitismItems = antisemitism.status === "fulfilled" ? [...antisemitism.value].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)) : [];
   const [featured, ...otherCases] = cases;
   return (
     <EditorialShell routeId="fake-resistance" register="silent" showProgress={false} className={styles.page}>
@@ -37,10 +39,12 @@ export default async function Page() {
           facts={[
             { label: "Investigations", value: research.status === "fulfilled" ? cases.length : "Unavailable" },
             { label: "On the watch", value: monitoring.status === "fulfilled" ? items.length : "Unavailable" },
+            { label: "Antisemitism records", value: antisemitism.status === "fulfilled" ? antisemitismItems.length : "Unavailable" },
           ]}
           jumps={[
             { href: "#investigation-heading", label: "Latest investigation" },
             { href: "#latest-monitoring", label: "On the watch" },
+            { href: "#antisemitism", label: "Antisemitism" },
             { href: "/fake-resistance/network", label: "The influence network" },
             { href: "/fake-resistance/playbook", label: "The playbook" },
           ]}
@@ -64,6 +68,11 @@ export default async function Page() {
             {monitoring.status === "rejected" ? <p role="alert">Monitoring is temporarily unavailable.</p> : items.length ? items.slice(0, 3).map(item => <NarrativeRecord key={item.publicId} item={item} compact />) : <p>No monitoring records have been published yet.</p>}
           </section>
         </div>
+        <section id="antisemitism" className={styles.antisemitism} aria-labelledby="antisemitism-heading">
+          <header className={styles.sectionHead}><h2 id="antisemitism-heading">Antisemitism</h2><Link href="/fake-resistance/antisemitism">View the record <span aria-hidden="true">↗︎</span></Link></header>
+          <p className={styles.disclosure}>Documented incidents and trends. A report names what is known, its context, and what remains unconfirmed.</p>
+          {antisemitism.status === "rejected" ? <p role="alert">Antisemitism records are temporarily unavailable.</p> : antisemitismItems.length ? antisemitismItems.slice(0, 2).map(item => <AntisemitismRecord key={item.publicId} item={item} compact />) : <p>No antisemitism records have been published yet.</p>}
+        </section>
         {otherCases.length ? <section className={styles.more} aria-labelledby="research-heading">
           <header className={styles.sectionHead}><h2 id="research-heading">Further investigations</h2><Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">↗︎</span></Link></header>
           <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}>
@@ -77,7 +86,7 @@ export default async function Page() {
           <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><span aria-hidden="true">↗︎</span></Link>
           <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><span aria-hidden="true">↗︎</span></Link>
         </nav>
-        <div className={styles.bottomLinks}><Link href="/fake-resistance/official-narrative">Documented narrative investigations →</Link><Link href="/geopolitical-brief">Looking for news? Read the news desk →</Link></div>
+        <div className={styles.bottomLinks}><Link href="/fake-resistance/official-narrative">Documented narrative investigations →</Link><Link href="/fake-resistance/antisemitism">Antisemitism records →</Link><Link href="/geopolitical-brief">Looking for news? Read the news desk →</Link></div>
       </div>
     </EditorialShell>
   );

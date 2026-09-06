@@ -31,6 +31,9 @@ export type EvidenceBasis = z.infer<typeof evidenceBasisSchema>;
 /** The byline an unsourced refutation's claims are attributed to. */
 export const ANALYSIS_AUTHOR = "Lions of Zion editorial analysis";
 
+/** Secondary subjects refine discovery without creating another destination. */
+export const publicationTopicTagSchema = z.string().trim().toLowerCase().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase hyphenated topic tags.").max(80);
+
 export const narrativeWatchDetailsSchema = z.object({
   exactClaim: z.string().trim().min(1).max(4_000),
   propagators: z.array(z.string().trim().min(1).max(300)).max(20),
@@ -86,6 +89,7 @@ export const createPublicationSchema = z
     eventId: uuidSchema.optional(),
     primaryTopicId: uuidSchema.optional(),
     editorialTopic: z.string().trim().min(1).max(120).optional(),
+    topicTags: z.array(publicationTopicTagSchema).max(20).optional(),
     primaryActor: z.string().trim().min(1).max(160).optional(),
     arena: z.string().trim().min(1).max(120).optional(),
     featuredIsraelStory: z.boolean().optional(),
@@ -138,6 +142,7 @@ export type CreatePublication = z.infer<typeof createPublicationSchema>;
 export const updatePublicationSchema = z.object({
   section: publicationSectionSchema.optional(),
   editorialTopic: z.string().trim().min(1).max(120).nullable().optional(),
+  topicTags: z.array(publicationTopicTagSchema).max(20).optional(),
   primaryActor: z.string().trim().min(1).max(160).nullable().optional(),
   arena: z.string().trim().min(1).max(120).nullable().optional(),
   featuredIsraelStory: z.boolean().optional(),
@@ -189,6 +194,7 @@ export const publicPublicationSchema = z.object({
   updatedAt: z.iso.datetime(),
   autoPublishedAt: z.iso.datetime().nullable(),
   editorialTopic: z.string().nullable(),
+  topicTags: z.array(publicationTopicTagSchema).default([]),
   primaryActor: z.string().nullable(),
   arena: z.string().nullable(),
   featuredIsraelStory: z.boolean(),
@@ -272,6 +278,7 @@ export const listPublicPublicationsSchema = z.object({
   date: z.iso.date().optional(),
   topic: uuidSchema.optional(),
   topicLabel: z.string().trim().min(1).max(120).optional(),
+  tag: publicationTopicTagSchema.optional(),
   actor: z.string().trim().min(1).max(160).optional(),
   arena: z.string().trim().min(1).max(120).optional(),
   narrative: uuidSchema.optional(),

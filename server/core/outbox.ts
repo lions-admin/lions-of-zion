@@ -21,6 +21,8 @@ export const TOPICS = {
   emailNotification: "email.notification",
   publicationCacheInvalidate: "publication.cache-invalidate",
   briefingAlert: "briefing.alert",
+  editorialRunProcess: "editorial.run-process",
+  editorialRunReport: "editorial.run-report",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];

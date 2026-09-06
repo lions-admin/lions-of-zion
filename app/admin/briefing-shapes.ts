@@ -7,6 +7,8 @@
  * from the contract; these are only the shapes it does not yet cover.
  */
 
+import type { PublicationSection } from "@/server/contracts/enums";
+
 export type Status = {
   status: string;
   environment: string;
@@ -43,7 +45,7 @@ export type DeepHealth = { status: string; checks: Record<string, { status: stri
 
 export type Publication = {
   id: string; publicId: string; title: string; summary: string | null; body: string;
-  section: "daily_brief" | "israel_update" | "narrative_watch";
+  section: PublicationSection;
   status: "draft" | "under_review" | "approved" | "published" | "updated" | "archived";
   editorialTopic: string | null; primaryActor: string | null; arena: string | null; featuredIsraelStory: boolean;
   narrativeWatchDetails: {
@@ -59,6 +61,8 @@ export type Publication = {
     evidenceBasis?: "sourced" | "analysis";
   } | null;
   briefingRunId: string | null;
+  editorialRunId?: string | null;
+  topicTags: string[];
   createdAt: string;
 };
 

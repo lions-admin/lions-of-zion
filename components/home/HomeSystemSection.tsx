@@ -1,9 +1,18 @@
-import { EditorialIntro } from "./EditorialIntro";
+import dynamic from "next/dynamic";
 import { AmplificationFigure } from "./AmplificationFigure";
-import { HomeEvidencePipeline } from "./HomeEvidencePipeline";
 import { JourneyLink } from "./HomeJourneyPrimitives";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./homepage-journey.module.css";
+
+const EditorialIntro = dynamic(
+  () => import("./EditorialIntro").then((mod) => mod.EditorialIntro),
+  { ssr: true }
+);
+
+const HomeEvidencePipeline = dynamic(
+  () => import("./HomeEvidencePipeline").then((mod) => mod.HomeEvidencePipeline),
+  { ssr: true }
+);
 
 export function HomeSystemSection() {
   return (

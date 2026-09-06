@@ -277,6 +277,17 @@ export const PUBLICATION_SECTIONS = [
   "daily_brief",
   "israel_update",
   "narrative_watch",
+  "news",
+  "influence_investigation",
+  "antisemitism",
+  "innovation",
+  "science_medicine",
+  "technology_ai",
+  "achievement",
+  "international_cooperation",
+  "people",
+  "courage_service",
+  "history_context",
 ] as const;
 export const publicationSectionSchema = enumOf(PUBLICATION_SECTIONS);
 export type PublicationSection = z.infer<typeof publicationSectionSchema>;

@@ -115,9 +115,32 @@ the workflow always checks `main` out to get it.
    with `{ id, runId, status, statusUrl }`. Nothing has published yet.
 7. The outbox drain delivers that message; `processEditorialRun()` executes the
    run (below).
-8. The script polls `statusUrl` every 5 seconds for up to 20 minutes, prints the
-   created/updated/failed counts and every published URL, and exits `1` if the
-   run failed, any operation failed, or the homepage stage errored.
+8. The script polls `statusUrl` every 5 seconds for up to 20 minutes and prints
+   one line per **state transition** — never a line per poll, never silence.
+   Each line carries `status`, the derived `phase`, and while the run is still
+   queued, the outbox row's `attempts` and the queue's last refusal:
+
+   ```
+   accepted runId=chatgpt-test-2026-09-07-001507
+   runId=… status=queued phase=queued:awaiting-drain outboxAttempts=0
+   runId=… status=queued phase=queued:dispatched
+   runId=… status=running phase=running:publication
+   runId=… status=running phase=running:homepage
+   runId=… status=completed phase=completed
+   runId=… status=completed created=3 updated=1 failed=0
+   url=/articles/…
+   ```
+
+   `phase` is derived on the server (`describeEditorialRunPhase` in
+   `server/contracts/editorial-update.ts`) from the run and its
+   `editorial.run-process` outbox row, which the status body also returns as
+   `delivery`. The three values a `queued` run can show are the ones that
+   matter operationally: `queued:awaiting-drain` (the 15-minute drain cron
+   has not run yet), `queued:drain-failing` (the drain tried and Vercel
+   Queues refused — `delivery.lastError` says why), and `queued:dispatched`
+   (handed to the queue, no worker has claimed it yet). The timeout is a
+   safety boundary, not a budget: a run still queued at 20 minutes is a
+   delivery fault, and the error names the last phase seen.
 
 Every request under `/api/internal/editorial-updates/` runs as the database
 role `app_service` with identity `service:editorial-updates` — the prefix is in

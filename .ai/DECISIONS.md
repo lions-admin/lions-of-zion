@@ -10,6 +10,56 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — The outbox queue topic is `outbox-dispatch`, and a name the queue refuses fails the build
+
+Every whole-site editorial run submitted since the delivery path shipped
+sat `queued` until the GitHub poller gave up at twenty minutes. The durable
+run was created, its `editorial.run-process` outbox row was written in the
+same transaction, the drain cron returned 200 every fifteen minutes — and
+no `/api/internal/queue/outbox-dispatch` invocation ever appeared in the
+Production logs. The Production `outbox` table said why: 3,348 undelivered
+rows, every one carrying
+`{"error":"Invalid V3 queue name. Must be 1-256 alphanumeric characters, hyphens, or underscores."}`,
+`attempts` in the sixties, and `max(published_at)` **null** — no row had
+ever been handed to the queue since the outbox was introduced.
+`OUTBOX_QUEUE_TOPIC` was `"outbox.dispatch"`. The SDK does not validate
+names locally and a `vercel.json` trigger naming an invalid topic deploys
+green, so the fault was invisible to typecheck, tests, build and deploy,
+and visible only at `send()`.
+
+Three decisions follow.
+
+**The topic is `outbox-dispatch`** in `server/core/queue.ts` and in the
+`vercel.json` trigger, and `assertQueueTopicName()` applies the queue
+API's rule at import: an invalid name now throws in the test suite and the
+build. `tests/queue-topic.test.ts` pins the constant to the regex, pins the
+`vercel.json` trigger to the constant, and pins the old name as a rejection.
+Outbox *row* topics (`editorial.run-process`, `search.reindex`) keep their
+dots — they are ours, never sent to Vercel as a queue name; only the single
+queue topic is constrained.
+
+**The drain takes never-attempted rows first** (`ORDER BY attempts,
+available_at`). Ordered by `available_at` alone, the 3,348 failing rows —
+each inside a one-hour backoff — always outnumbered the 250-row batch, so
+the three editorial rows with `attempts = 0` were never once handed to
+`dispatch`, and would have stayed behind the backlog for hours even after
+the name was fixed. A retried row is not lost, only behind new work.
+
+**A queued run says where it is.** The status endpoint reads the run's
+outbox row back (`delivery`) and derives `phase` —
+`queued:awaiting-drain`, `queued:drain-failing`, `queued:dispatched`,
+`running:<stage>`, or the terminal status — and the GitHub publisher prints
+one line per transition instead of `accepted` followed by twenty minutes of
+nothing. The console's outbox block now shows per-topic pending counts, the
+newest refusal, and when a row was last handed to the queue. The
+diagnostics that would have found this in a minute did not exist.
+
+Not changed: the ingest route still only queues; nothing processes a run
+synchronously. The drain still marks `published_at` only after `send()`
+resolves. Retry semantics, leases and idempotency are as they were —
+`tests/editorial-runs.test.ts` now also pins that a duplicate queue
+delivery finds nothing to claim.
+
 ## 2026-09-06 — The site is a whole-site daily editorial system, not a Daily Brief: five destinations, section as the single routing choice, minimum enforcement until launch
 
 The owner issued a binding definition of what this site and this system **are**,

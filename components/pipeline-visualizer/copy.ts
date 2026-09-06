@@ -557,7 +557,7 @@ export const NODE_COPY: Record<string, NodeInspectorCopy> = {
     what: "A Vercel cron every 15 minutes that pulls up to 250 open outbox messages and pushes them onto a Vercel Queue.",
     why: "Drains the outbox and runs background consumers asynchronously. A full edition emits hundreds of rows, so the tick cap is 250 not 25 — at the old cap a story published at 07:00 would not be searchable until nearly 09:00.",
     input: "Waiting outbox rows.",
-    does: "Sends up to 250 messages per tick to outbox.dispatch and marks them published.",
+    does: "Sends up to 250 messages per tick to the outbox-dispatch queue topic and marks them published.",
     output: "Messages flowing onto the queue.",
     failureMode: "A drain error leaves the messages in the table for the next tick.",
   },

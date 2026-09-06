@@ -1244,9 +1244,9 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
     },
 
     async incidents(): Promise<ConsoleIncidents> {
-      const [open, resolved, stuck, quarantined, failedRuns, quarantine, outbox] = await Promise.all([
+      const [open, resolved, stuck, quarantined, failedRuns, quarantine, outbox, outboxByTopic] = await Promise.all([
         repo.openAlerts(50), repo.recentlyResolvedAlerts(50), repo.stuckJobs(50), repo.quarantinedJobs(50),
-        repo.failedRuns(50), repo.openQuarantine(50), repo.outbox(),
+        repo.failedRuns(50), repo.openQuarantine(50), repo.outbox(), repo.outboxByTopic(),
       ]);
       return consoleIncidentsSchema.parse({
         generatedAt: now().toISOString(),
@@ -1264,6 +1264,12 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
           undelivered: num(outbox?.undelivered),
           oldestAt: iso(outbox?.oldestAt),
           deadLettered: num(outbox?.deadLettered),
+          lastPublishedAt: iso(outbox?.lastPublishedAt),
+          lastError: outbox?.lastError ?? null,
+          byTopic: outboxByTopic.map((row) => ({
+            topic: row.topic, pending: num(row.pending), oldestAt: iso(row.oldestAt),
+            maxAttempts: num(row.maxAttempts), nextAvailableAt: iso(row.nextAvailableAt),
+          })),
         },
       });
     },

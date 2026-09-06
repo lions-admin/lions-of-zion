@@ -649,8 +649,27 @@ export const consoleIncidentsSchema = z.object({
     reason: z.string(),
     createdAt: isoDate,
   })),
-  /** Versions an operator can roll a publication back to. */
-  outbox: z.object({ undelivered: count, oldestAt: nullableIsoDate, deadLettered: count }),
+  /**
+   * The outbox as the drain sees it. `byTopic` and `lastError` are what a
+   * `count(*)` could not say for two days: 3,348 rows were undelivered and
+   * the panel showed the number, while the reason — the queue refusing the
+   * topic name on every send — sat in `last_error` on each of them.
+   * `lastPublishedAt` null means no row has ever been handed to the queue.
+   */
+  outbox: z.object({
+    undelivered: count,
+    oldestAt: nullableIsoDate,
+    deadLettered: count,
+    lastPublishedAt: nullableIsoDate,
+    lastError: z.string().nullable(),
+    byTopic: z.array(z.object({
+      topic: z.string(),
+      pending: count,
+      oldestAt: nullableIsoDate,
+      maxAttempts: count,
+      nextAvailableAt: nullableIsoDate,
+    })),
+  }),
 });
 export type ConsoleIncidents = z.infer<typeof consoleIncidentsSchema>;
 

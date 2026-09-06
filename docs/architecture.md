@@ -205,7 +205,7 @@ flowchart TB
     W["A versioned write<br/>recordVersion()"] -->|"same transaction"| OB[("outbox table")]
 
     OB --> Drain["GET /api/internal/cron/outbox-drain<br/>requireCron, every 15 min, 250 rows"]
-    Drain -->|"dispatchToQueue"| Q{{"Vercel Queue<br/>topic: outbox.dispatch"}}
+    Drain -->|"dispatchToQueue"| Q{{"Vercel Queue<br/>topic: outbox-dispatch"}}
     Q --> Disp["POST /api/internal/queue/outbox-dispatch<br/>queue trigger, no public URL"]
     Disp --> Cons["server/jobs/consumers<br/>consumerFor(topic)"]
     Cons --> Reindex["search.reindex → search().reindex()"]
@@ -566,7 +566,7 @@ separate data boundaries.
 | Neon Auth | `/api/auth/[...path]`, admin session | `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` | one allowlisted admin |
 | Vercel Blob | RSS bytes and archive media | `BLOB_READ_WRITE_TOKEN`, archive-prefixed variables | RSS stores + dedicated archive store |
 | Vercel AI Gateway | chat, embeddings, briefing triage and draft | Vercel OIDC in linked Functions | provisioned, $5 Gateway cap |
-| Vercel Queues | outbox dispatch and package execution | OIDC (`vercel link`, `vercel env pull`) | `outbox.dispatch` only |
+| Vercel Queues | outbox dispatch and package execution | OIDC (`vercel link`, `vercel env pull`) | `outbox-dispatch` only — hyphen, never a dot: the queue API refuses any other character at `send()` |
 | Vercel Cron | ingest, embed, drain, maintenance | `CRON_SECRET` | four schedules in `vercel.json` |
 
 The queue's absence is not fatal for the outbox: the drain cron dispatches

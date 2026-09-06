@@ -215,7 +215,8 @@ export type AlertRow = {
 
 export type FailedRunRow = { id: string; localDate: string; stage: string; error: string | null; startedAt: Ts };
 export type QuarantineRow = { id: string; candidateKey: string; stage: string; reason: string; createdAt: Ts };
-export type OutboxRow = { undelivered: Count; oldestAt: Ts; deadLettered: Count };
+export type OutboxRow = { undelivered: Count; oldestAt: Ts; deadLettered: Count; lastPublishedAt: Ts; lastError: string | null };
+export type OutboxTopicRow = { topic: string; pending: Count; oldestAt: Ts; maxAttempts: Count; nextAvailableAt: Ts };
 
 export type QuarantineEntryRow = {
   id: string;
@@ -1071,10 +1072,24 @@ export function adminConsoleRepo(db: unknown) {
     `),
 
     /** The outbox has no dead-letter state — `drainOutbox` retries with a
-     *  capped backoff forever — so `deadLettered` is always zero here. */
+     *  capped backoff forever — so `deadLettered` is always zero here.
+     *  `lastError` is the newest refusal, which is the drain's diagnosis. */
     outbox: () => one<OutboxRow>(sql`
-      SELECT count(*) AS undelivered, min(created_at) AS "oldestAt", 0 AS "deadLettered"
+      SELECT count(*) FILTER (WHERE published_at IS NULL) AS undelivered,
+             min(created_at) FILTER (WHERE published_at IS NULL) AS "oldestAt",
+             0 AS "deadLettered",
+             max(published_at) AS "lastPublishedAt",
+             (SELECT last_error FROM outbox WHERE published_at IS NULL AND last_error IS NOT NULL
+              ORDER BY available_at DESC LIMIT 1) AS "lastError"
+      FROM outbox
+    `),
+
+    /** Per topic, so a backlog of one kind cannot hide a stuck row of another. */
+    outboxByTopic: () => many<OutboxTopicRow>(sql`
+      SELECT topic, count(*) AS pending, min(created_at) AS "oldestAt",
+             max(attempts) AS "maxAttempts", min(available_at) AS "nextAvailableAt"
       FROM outbox WHERE published_at IS NULL
+      GROUP BY topic ORDER BY pending DESC, topic
     `),
 
     /* ── recovery writes ──────────────────────────────────────────────────── */

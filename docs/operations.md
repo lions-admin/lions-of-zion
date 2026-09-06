@@ -128,7 +128,7 @@ rollback` is the fast undo if a push lands ahead of its schema.
 technical production schedules. Editorial package execution is emitted through
 that outbox after an authenticated receiver accepts explicit operations; Vercel
 does not start editorial research, drafting, or a daily edition. The outbox
-dispatcher takes the `outbox.dispatch` topic and its `maxDuration` is declared
+dispatcher takes the `outbox-dispatch` topic and its `maxDuration` is declared
 in the route file.
 
 ```json

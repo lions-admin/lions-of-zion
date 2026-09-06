@@ -431,6 +431,7 @@ export function editorialUpdateService(database: Database = db()) {
     },
     get: (id: string) => store.get(id),
     getByRunKey: (runKey: string) => store.getByRunKey(runKey),
+    deliveryState: (id: string) => store.deliveryState(id),
     listRecent: () => store.listRecent(),
     resume: (id: string) => store.resume(id),
   };

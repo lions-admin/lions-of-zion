@@ -307,6 +307,10 @@ describe("pipeline health", () => {
     expect(incidents.failedRuns).toHaveLength(1);
     expect(incidents.quarantinedJobs.map((job) => job.jobKey)).toEqual(["draft:q"]);
     expect(incidents.outbox.deadLettered).toBe(0);
+    /* The block that would have found the 2026-09-07 fault in a minute: a
+       per-topic backlog, the queue's newest refusal, and whether any row has
+       ever been handed over at all. */
+    expect(incidents.outbox).toMatchObject({ lastPublishedAt: null, lastError: null, byTopic: [] });
   });
 });
 

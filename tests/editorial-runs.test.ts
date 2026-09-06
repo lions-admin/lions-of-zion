@@ -200,6 +200,40 @@ describe('durable whole-site editorial runs', () => {
     expect(text).toContain('editorial illustrations: 1');
   });
 
+  /* Vercel Queues is at-least-once. The same `editorial.run-process` message
+     delivered twice must find a run that is already claimed or already done —
+     one worker, one set of publications — and the resumed run's second outbox
+     row must be the one the status endpoint reads back. */
+  it('gives a duplicate queue delivery nothing to claim, before and after completion', async () => {
+    const run = await repo().start(request('delivered-twice'), 'test:owner');
+    const emitted = await db.select().from(outbox).where(eq(outbox.topic, 'editorial.run-process'));
+    expect(emitted.map(row => (row.payload as { runId?: string }).runId)).toContain(run.id);
+
+    const worker = await repo().claim(run.id);
+    expect(worker?.leaseToken).toBeTruthy();
+    expect(await repo().claim(run.id)).toBeNull();
+
+    await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async () => ({ publicId: 'once' }));
+    await repo().completeOperation(run.id, worker!.leaseToken!, 'profile', async () => ({ publicId: 'once-b' }));
+    await repo().finish(run.id, worker!.leaseToken!, { status: 'completed' });
+    expect(await repo().claim(run.id)).toBeNull();
+
+    const delivery = await repo().deliveryState(run.id);
+    expect(delivery).toMatchObject({ attempts: 0, publishedAt: null, lastError: null });
+    expect(delivery?.outboxId).toBeTruthy();
+  });
+
+  it('reads back the newest outbox row after a resume, not the first', async () => {
+    const run = await repo().start(request('resumed-delivery'), 'test:owner');
+    const first = await repo().deliveryState(run.id);
+    const worker = await repo().claim(run.id);
+    await repo().fail(run.id, worker!.leaseToken!, { stage: 'media', operationKey: 'story', message: 'fetch failed', recovery: 'resume' });
+    await repo().resume(run.id);
+    const second = await repo().deliveryState(run.id);
+    expect(second?.outboxId).not.toBe(first?.outboxId);
+    expect(BigInt(second!.outboxId)).toBeGreaterThan(BigInt(first!.outboxId));
+  });
+
   it('rejects duplicate operation identities before storage', () => {
     const input = request('invalid');
     input.operations.push(input.operations[0]);

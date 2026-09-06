@@ -1,0 +1,67 @@
+name: Deliver editorial update
+
+on:
+  push:
+    branches: [editorial-updates]
+    paths: ["editorial-updates/**/*.json"]
+
+concurrency:
+  group: editorial-update-delivery
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out application tools from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: app
+
+      - name: Check out this delivery package
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: packages
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install package validator
+        working-directory: app
+        run: npm ci
+
+      - name: Validate, submit and poll each changed package serially
+        working-directory: app
+        env:
+          EDITORIAL_UPDATE_INGEST_SECRET: ${{ secrets.EDITORIAL_UPDATE_INGEST_SECRET }}
+          EDITORIAL_UPDATE_INGEST_BASE_URL: ${{ secrets.EDITORIAL_UPDATE_INGEST_BASE_URL }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            changed=$(git -C ../packages ls-files 'editorial-updates/**/*.json')
+          else
+            changed=$(git -C ../packages diff --name-only "$BEFORE" "$SHA" -- 'editorial-updates/**/*.json')
+          fi
+          test -n "$changed"
+          while IFS= read -r package; do
+            test -n "$package" || continue
+            echo "::group::Validate $package"
+            npm run editorial:publish -- "../packages/$package" --dry-run
+            echo "::endgroup::"
+            echo "::group::Deliver $package"
+            npm run editorial:publish -- "../packages/$package"
+            echo "::endgroup::"
+          done <<EOF
+          $changed
+          EOF

@@ -442,7 +442,17 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
          * second asset, and `attachToPublication` is `ON CONFLICT DO NOTHING`
          * on (publication, placement, position). Two submissions of the same
          * photograph are one asset row and one attachment. */
-        if (mediaDrafts.size) {
+        if (mediaDrafts.size && !(await mediaRepo(tx).tablesReady())) {
+          /* Asked rather than caught: a failed statement aborts the enclosing
+             transaction in Postgres, so writing into a table that is not there
+             yet would cost the edition, not just its pictures. This is the
+             deploy window — code live, migration `0057` not yet applied — and
+             an edition published in it is correct, just unillustrated. */
+          console.warn(
+            `[external-briefing] run ${pkg.runId}: media tables absent, publishing `
+            + `${mediaDrafts.size} record(s) without their images; apply migration 0057.`,
+          );
+        } else if (mediaDrafts.size) {
           const mediaStore = mediaRepo(tx);
           for (const row of created) {
             const draft = row.briefingCandidateKey ? mediaDrafts.get(row.briefingCandidateKey) : undefined;

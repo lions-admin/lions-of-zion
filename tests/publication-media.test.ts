@@ -120,6 +120,29 @@ describe("publication hero media", () => {
     expect(listed!.media).toBeNull();
   });
 
+  /**
+   * The deploy window, pinned.
+   *
+   * Code and migration `0057` cannot land in the same instant, and the media
+   * read sits on every public read path — the homepage, the news hub, the
+   * narrative desk, `/articles/*`, `/updates`, `/fact-check`, the sitemap and
+   * the public API. Before this was guarded, deploying ahead of the migration
+   * did not merely hide pictures: `42P01` propagated and took all of them
+   * down. A hero image is enrichment, so its absence must cost the picture and
+   * nothing else, in either deploy order.
+   */
+  it("serves publications from a database that has no media tables at all", async () => {
+    const { db } = await publishedWithHero();
+    await db.execute(sql`DROP TABLE publication_media`);
+    await db.execute(sql`DROP TABLE editorial_media`);
+    const service = publicationService(db);
+
+    const listed = await service.listPublic({ limit: 10 });
+    expect(listed).toHaveLength(1);
+    expect(listed[0]!.media).toBeNull();
+    await expect(service.getPublicDetail("media-round-trip")).resolves.toMatchObject({ media: null });
+  });
+
   it("routes every section to one destination, and the homepage bar is stricter", () => {
     expect(routePublication("daily_brief").homepageSection).toBe("news");
     expect(routePublication("israel_update").homepageSection).toBe("news");

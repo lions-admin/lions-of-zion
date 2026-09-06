@@ -129,6 +129,47 @@ function toRow(draft: EditorialMediaDraft) {
   };
 }
 
+
+/**
+ * Postgres 42P01 — the relation does not exist.
+ *
+ * A hero image is enrichment, never the record. If the media tables are
+ * unreachable, the honest outcome is a publication rendered without its
+ * picture, not a 500 on every public page — and the read path is on all of
+ * them: the homepage, the news hub, the narrative desk, `/articles/*`,
+ * `/updates`, `/fact-check`, the sitemap and the public API.
+ *
+ * This is also what decouples the deploy from the migration. The code and
+ * migration `0057` cannot land in the same instant, and whichever order they
+ * arrive in, the site stays up: before the migration every publication simply
+ * has no picture, and images appear the moment the tables exist. Narrow on
+ * purpose — only a missing relation is absorbed. A permission error, a syntax
+ * error or a dead connection still propagates, because those are faults
+ * someone has to see.
+ */
+function isMissingMediaTable(cause: unknown): boolean {
+  for (let current: unknown = cause, depth = 0; current && depth < 5; depth++) {
+    const node = current as { code?: string; message?: string; cause?: unknown };
+    if (node.code === "42P01") return true;
+    if (typeof node.message === "string"
+      && /relation "(?:public\.)?(?:publication_media|editorial_media)" does not exist/.test(node.message)) return true;
+    current = node.cause;
+  }
+  return false;
+}
+
+/** One line per process, not one per read: this is a deploy-window state. */
+let announcedMissingTables = false;
+function absorbMissingTables(cause: unknown): void {
+  if (!isMissingMediaTable(cause)) throw cause;
+  if (announcedMissingTables) return;
+  announcedMissingTables = true;
+  console.warn(
+    "[media] editorial_media/publication_media are absent from this database; "
+    + "publications will render without their pictures until migration 0057 is applied.",
+  );
+}
+
 export function mediaRepo(db: unknown) {
   const d = db as AnyDb;
 
@@ -182,13 +223,19 @@ export function mediaRepo(db: unknown) {
     async heroMediaByPublicationIds(publicationIds: readonly string[]): Promise<Map<string, EditorialMedia>> {
       const result = new Map<string, EditorialMedia>();
       if (!publicationIds.length) return result;
-      const rows = await d.execute<EditorialMediaRow & { publicationId: string }>(sql`
-        SELECT em.*, pm.publication_id AS "publicationId"
-        FROM publication_media pm
-        JOIN editorial_media em ON em.id = pm.media_id
-        WHERE pm.placement = 'hero'
-          AND pm.publication_id IN (${sql.join(publicationIds.map((id) => sql`${id}`), sql`, `)})
-      `);
+      let rows: { rows: Array<EditorialMediaRow & { publicationId: string }> };
+      try {
+        rows = await d.execute<EditorialMediaRow & { publicationId: string }>(sql`
+          SELECT em.*, pm.publication_id AS "publicationId"
+          FROM publication_media pm
+          JOIN editorial_media em ON em.id = pm.media_id
+          WHERE pm.placement = 'hero'
+            AND pm.publication_id IN (${sql.join(publicationIds.map((id) => sql`${id}`), sql`, `)})
+        `);
+      } catch (cause) {
+        absorbMissingTables(cause);
+        return result;
+      }
       for (const row of rows.rows) {
         const media = toEditorialMedia(normalizeRow(row));
         if (media) result.set(row.publicationId, media);
@@ -198,13 +245,35 @@ export function mediaRepo(db: unknown) {
 
     /** One publication's hero, or null. */
     async heroMedia(publicationId: string): Promise<EditorialMedia | null> {
-      const rows = await d.execute<EditorialMediaRow>(sql`
-        SELECT em.* FROM publication_media pm
-        JOIN editorial_media em ON em.id = pm.media_id
-        WHERE pm.publication_id = ${publicationId} AND pm.placement = 'hero'
-        LIMIT 1
+      try {
+        const rows = await d.execute<EditorialMediaRow>(sql`
+          SELECT em.* FROM publication_media pm
+          JOIN editorial_media em ON em.id = pm.media_id
+          WHERE pm.publication_id = ${publicationId} AND pm.placement = 'hero'
+          LIMIT 1
+        `);
+        return rows.rows[0] ? toEditorialMedia(normalizeRow(rows.rows[0])) : null;
+      } catch (cause) {
+        absorbMissingTables(cause);
+        return null;
+      }
+    },
+
+    /**
+     * Whether both media tables exist.
+     *
+     * The read path absorbs their absence; the write path must not, because a
+     * failed statement aborts the enclosing transaction in Postgres and would
+     * take the whole edition down with the picture. So the publish path asks
+     * first — one cheap catalogue lookup, and only when there is media to
+     * attach — rather than writing and catching.
+     */
+    async tablesReady(): Promise<boolean> {
+      const rows = await d.execute<{ present: boolean }>(sql`
+        SELECT (to_regclass('public.editorial_media') IS NOT NULL
+            AND to_regclass('public.publication_media') IS NOT NULL) AS present
       `);
-      return rows.rows[0] ? toEditorialMedia(normalizeRow(rows.rows[0])) : null;
+      return Boolean(rows.rows[0]?.present);
     },
 
     /** Detach an asset from a publication without deleting the asset. */

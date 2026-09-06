@@ -1,6 +1,6 @@
 {
-  "revision": "ed7fb2f788874ce7615143833ee1c924dc44bf89fef5c966aa70beb760f7c2bc",
-  "sourceRevision": "8f1839cfa1517523231cea7055982f182deed316c21fafbe19e03c2e01c94138",
+  "revision": "cc05d10694192c508fa36e3f186567e8d06a3c366b16b97932af381fb80a078e",
+  "sourceRevision": "3e6c64fb19c27de335f104fcf4e43374f4dcd27074825ba66e160f49b7bd5b70",
   "candidates": [
     {
       "key": "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
@@ -28,8 +28,8 @@
       "kind": "case",
       "id": "manosphere-far-right",
       "href": "/fake-resistance/cases/manosphere-far-right",
-      "version": "92155bdeab7a3f064e01decdd9b592a0f742d0511c77d95f455195c0487171c4",
-      "date": "2026-08-26T16:30:00Z",
+      "version": "da26763c28b8d1fd3e8b66ae464073957a385f86b5c9f391249ff5c28eb65969",
+      "date": "2026-09-06T18:00:00Z",
       "mediaId": "manosphere-cluster-editorial"
     },
     {

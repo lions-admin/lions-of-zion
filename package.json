@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
-  "//sideEffects": "Every module under components/motion imports a CSS Module, which is a side effect, so without this a bundler must assume importing the barrel needs all five stylesheets — and a route rendering one primitive shipped four it never used. Listing CSS as the only side effect lets the barrel be tree-shaken while keeping stylesheets from being dropped.",
+  "//sideEffects": "Every module under components/motion imports a CSS Module, which is a side effect, so without this a bundler must assume importing the barrel needs all five stylesheets \u2014 and a route rendering one primitive shipped four it never used. Listing CSS as the only side effect lets the barrel be tree-shaken while keeping stylesheets from being dropped.",
   "sideEffects": [
     "*.css",
     "**/*.css"
@@ -35,7 +35,7 @@
     "briefing:publish": "NODE_OPTIONS=--conditions=react-server tsx scripts/publish-briefing-package.ts",
     "dev": "next dev",
     "lint": "eslint",
-    "//perf": "perf:report is the CI gate — it exits non-zero when a budget in scripts/perf-budgets.json is exceeded. Run npm run build first; it reads .next. perf:runtime needs the origin of a server you started yourself: npm run perf:runtime -- http://localhost:3000",
+    "//perf": "perf:report is the CI gate \u2014 it exits non-zero when a budget in scripts/perf-budgets.json is exceeded. Run npm run build first; it reads .next. perf:runtime needs the origin of a server you started yourself: npm run perf:runtime -- http://localhost:3000",
     "perf:report": "node scripts/perf-report.mjs",
     "perf:report:md": "node scripts/perf-report.mjs --markdown",
     "perf:runtime": "node scripts/perf-report.mjs",
@@ -46,7 +46,9 @@
     "main:update": "node scripts/startup-sync.mjs --publish",
     "sync:start": "node scripts/startup-sync.mjs",
     "verify:changed": "tsx scripts/verify-changed.ts",
-    "verify:full": "npm run typecheck && npm run lint && npm test && npm run build"
+    "verify:full": "npm run typecheck && npm run lint && npm test && npm run build",
+    "homepage:catalog": "node --conditions=react-server --import tsx scripts/homepage/build-catalog.ts",
+    "homepage:preview": "node --env-file=.env.local --conditions=react-server --import tsx scripts/homepage/preview-edition.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.107",

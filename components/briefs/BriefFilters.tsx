@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { SelectField } from "@/components/ui/SelectField";
 import styles from "./live-brief.module.css";
 
-const FILTER_ACTION = "/geopolitical-brief";
+const FILTER_ACTION = "/geopolitical-brief#news-archive";
 
 export type BriefFilterValues = {
   date?: string;

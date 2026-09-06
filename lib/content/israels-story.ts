@@ -1,3 +1,4 @@
+import type { EditorialMediaReference } from '@/server/contracts/editorial-media';
 /**
  * Israel's Story — seam for real, cited historical chapters.
  *
@@ -12,6 +13,7 @@
 import type { Source, TimelineEntry } from '@/components/content';
 
 export type StoryChapter = {
+  mediaRef?: EditorialMediaReference;
   id: string;
   title: string;
   intro: string;
@@ -118,6 +120,7 @@ const WIKI_ABRAHAM_ACCORDS: Source = {
 const CHAPTERS: StoryChapter[] = [
   {
     id: 'the-founding',
+    mediaRef: 'declaration',
     title: 'The founding, 1947–1948',
     intro:
       'A state proclaimed under fire, hours after the authority governing the land ended, and invaded within a day of existing. The dates below are the spine of it.',
@@ -238,6 +241,7 @@ const CHAPTERS: StoryChapter[] = [
        Abraham Accords have since become chapters of their own, which is what
        made the thematic name and its forward reference stale. */
     id: 'peace-when-it-came',
+    mediaRef: 'camp-david',
     title: 'Peace with Egypt, 1979',
     intro:
       'The first Arab state to make peace with Israel did so six years after the war that shook both sides into negotiating.',

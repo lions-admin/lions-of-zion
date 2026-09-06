@@ -205,6 +205,25 @@
 .replay { margin-top: var(--sp-2); border-bottom: 1px solid var(--control-line); }
 .replay[hidden] { display: none; }
 
+/* On the cover it belongs beside the explanatory link, rather than reading as
+   another stacked CTA. The play mark makes its medium explicit without adding
+   another outlined control. */
+.compactReplay {
+  gap: var(--sp-2);
+  margin-top: 0;
+  border-bottom: 1px solid var(--control-line);
+}
+
+.playMark {
+  display: grid;
+  place-items: center;
+  width: 1em;
+  height: 1em;
+  color: var(--gold);
+}
+
+.playMark svg { width: 100%; height: 100%; }
+
 @media (max-width: 47.99rem) {
   .stage { padding-block: var(--sp-7); }
   .statement { min-height: min(23rem, 40vh); }

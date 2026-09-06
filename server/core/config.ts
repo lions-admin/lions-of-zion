@@ -429,3 +429,6 @@ export function configuredIntegrations(request?: Request): Record<string, boolea
     openai: Boolean(process.env.OPENAI_API_KEY),
   };
 }
+
+/** A checked-in local edition is never a production fallback, even with local Vercel env copies. */
+export const homepageLocalPreview = (): boolean => process.env.NODE_ENV === 'development';

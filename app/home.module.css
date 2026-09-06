@@ -588,25 +588,25 @@
 .hero .actions .ctaPrimary > span {
   display: flex;
   align-items: center;
-  gap: var(--sp-5);
+  gap: var(--sp-3);
+  padding-block: var(--sp-2);
+  border-bottom: var(--line-w) solid var(--control-line);
 }
 
 .ctaLabel {
-  padding-block: var(--sp-2);
-  border-bottom: var(--line-w) solid var(--control-line);
+  padding: 0;
 }
 
 .ctaArrow {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: calc(var(--control-h) + var(--sp-1));
-  height: calc(var(--control-h) + var(--sp-1));
-  border: var(--line-w) solid var(--control-line);
-  border-radius: var(--radius-pill);
+  width: var(--sp-6);
+  height: var(--sp-6);
+  border: 0;
+  border-radius: 0;
   color: var(--ink-hi);
-  transition: background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 
 .ctaArrow svg {
@@ -628,18 +628,15 @@
 
 .ctaPrimary:hover .ctaArrow,
 .ctaPrimary:focus-visible .ctaArrow {
-  color: var(--ground);
-  background: var(--ink-hi);
-  border-color: var(--ink-hi);
+  color: var(--gold-hi);
+  transform: translateX(var(--sp-1));
 }
 
 .ctaPrimary:hover .ctaLabel,
-.ctaPrimary:focus-visible .ctaLabel { border-color: var(--ink-hi); }
+.ctaPrimary:focus-visible .ctaLabel { color: var(--ink-hi); }
 
 .ctaPrimary:active .ctaArrow {
-  background: var(--gold-hi);
-  border-color: var(--gold-hi);
-  color: var(--ground);
+  color: var(--gold);
 }
 
 .hero .actions .ctaPrimary:focus-visible {
@@ -676,13 +673,16 @@
   .masthead {
     align-items: flex-start;
     width: auto;
-    /* Keep the record in the first screen; the portrait has already done its
-       work above this point. A 38svh offset pushed the rail below the fold. */
-    margin: max(28svh, 14rem) var(--home-gutter) 0;
+    /* The lion's face gets the upper third unopposed. The statement begins
+       below the eyes, on the calmer chest of the portrait. */
+    margin: max(40svh, 18rem) var(--home-gutter) 0;
     text-align: start;
   }
 
-  .wordmark { font-size: var(--t-home-wordmark-mobile); }
+  .wordmark {
+    font-size: clamp(3.25rem, 13.5vw, 5rem);
+    line-height: 0.85;
+  }
 
   .standfirst {
     margin-top: var(--sp-5);
@@ -690,6 +690,8 @@
   }
 
   .actions { margin-top: var(--sp-5); }
+
+  .secondaryActions { gap: 0 var(--sp-4); }
 
   .filesDeck {
     position: relative;
@@ -853,6 +855,16 @@
   text-underline-offset: 0.3em;
 }
 
+.secondaryActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--sp-5);
+  margin-top: var(--sp-3);
+}
+
+.secondaryActions .storyLink { margin-top: 0; }
+
 .storyLink:hover,
 .motionControl:hover { color: var(--ink-hi); border-color: var(--ink-hi); }
 .storyLink:active,
@@ -867,3 +879,10 @@
   .heroVideo { display: none; transition: none; }
   .motionControl { display: none; }
 }
+
+/* The hero ends before the editorial journey; its moving image never follows
+   the reader into evidence, testimony or historical material. */
+.hero { padding-bottom: var(--sp-7); }
+.skipLink { position:fixed;top:12px;left:20px;z-index:1000;transform:translateY(-200%);padding:14px 20px;background:var(--ground);color:var(--ink-hi);border:1px solid var(--gold); }
+.skipLink:focus { transform:translateY(0); }
+@media(max-width:767px){.hero{padding-bottom:40px}.page{padding-bottom:0}}

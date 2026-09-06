@@ -514,6 +514,20 @@ export function publicationService(db: unknown) {
       return (ordered.length ? ordered : live.slice(0, 3)).map(toPublicPublication);
     },
 
+    /** Explicit pins, resolved directly rather than inside a latest-100 window. */
+    async publicHomepagePins(): Promise<Array<{ slot: number; publication: PublicPublication }>> {
+      const pins = await repo(db).homepageFeatures();
+      const result: Array<{ slot: number; publication: PublicPublication }> = [];
+      for (const pin of pins.sort((a,b)=>a.slot-b.slot)) {
+        const row = await repo(db).byId(pin.publicationId);
+        if (row && row.briefingRunId && (row.status === "published" || row.status === "updated")
+          && ["israel_update", "narrative_watch"].includes(row.section)) {
+          result.push({slot:pin.slot, publication:toPublicPublication(row)});
+        }
+      }
+      return result;
+    },
+
     async homepageFeatures(): Promise<Array<{ slot: number; publicationId: string }>> {
       return repo(db).homepageFeatures();
     },

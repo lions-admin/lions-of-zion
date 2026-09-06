@@ -1,16 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import {
-  Card,
-  CardCta,
-  CardDescription,
-  CardEyebrow,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { SECTION_LABELS, TREND_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
-import { isAnalysisBasis, type NarrativeWatchDetails } from "@/server/contracts/publication";
+import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 import { getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -20,7 +11,7 @@ const TAGLINE =
 const PAGE_URL = `${SITE_URL}/fake-resistance/watch`;
 
 export const metadata: Metadata = {
-  title: "The daily watch",
+  title: "Narrative monitoring archive",
   description: TAGLINE,
   alternates: { canonical: PAGE_URL },
   openGraph: { title: "The daily watch — LIONS OF ZION", description: TAGLINE },
@@ -29,19 +20,8 @@ export const metadata: Metadata = {
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en", {
     dateStyle: "medium",
-    timeStyle: "short",
     timeZone: "Asia/Jerusalem",
   }).format(new Date(value));
-}
-
-/** Splits the "Reported claim: " / "Analysis: " prefix `narrativeWatchTitle()`
- * wrote off the title, so it renders as a kicker rather than the headline's
- * first two words. Display-side only — mirrors the same split in
- * `components/briefs/LiveBriefHub.tsx`; neither writes a prefix. */
-function splitTitle(title: string): { kicker: string | null; rest: string } {
-  const match = /^(Reported claim|Analysis):\s*/.exec(title);
-  if (!match) return { kicker: null, rest: title };
-  return { kicker: match[1]!, rest: title.slice(match[0].length) };
 }
 
 export default async function Page() {
@@ -64,7 +44,7 @@ export default async function Page() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "The daily watch",
+    name: "Narrative monitoring archive",
     description: TAGLINE,
     url: PAGE_URL,
     author: { "@type": "Organization", name: "Lions of Zion", url: SITE_URL },
@@ -74,10 +54,11 @@ export default async function Page() {
   return (
     <SectionPage
       id="fake-resistance"
-      breadcrumb={[{ href: "/fake-resistance", label: "Fake Resistance" }]}
+      breadcrumb={[{ href: "/fake-resistance", label: "Narratives & fact checks" }]}
       accent="ember"
       surface="quiet"
-      title="The daily watch"
+      register="silent"
+      title="Narrative monitoring archive"
       tagline={TAGLINE}
     >
       <script
@@ -85,60 +66,20 @@ export default async function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <SectionBlock heading="Read the claim. Check the source.">
-        <p>This is the published monitoring record, not a live scanner. Follow source-linked claims, including material circulating on X, and research into narratives and incitement. Dates show when records were published, not when a scan last ran.</p>
-        <p>Each record carries its assessment status. Sourced reporting and the organisation’s own analysis are distinct; a claim under review is not a settled finding. For deeper research, explore <Link href="/fake-resistance/social-media">influence networks</Link> and <Link href="/fake-resistance/official-narrative">documented narrative investigations</Link>.</p>
-      </SectionBlock>
-
-      <SectionBlock heading={`${items.length} published record${items.length === 1 ? "" : "s"}`}>
-        {items.length === 0 ? (
-          <p className={styles.empty}>
-            {recordUnavailable
-              ? "The published monitoring feed could not be loaded. Please try again later."
-              : "No published monitoring records were returned for this read."}
-          </p>
-        ) : (
-          <ul className={styles.fileIndex}>
-            {items.map((item) => {
-              const details = item.narrativeWatchDetails as NarrativeWatchDetails | null;
-              const { kicker, rest } = splitTitle(item.title);
-              const analysis = details ? isAnalysisBasis(details) : false;
-              return (
-                <li key={item.publicId}>
-                  <Card variant="row" href={`/articles/${item.publicId}`} className={styles.fileRow}>
-                    <CardHeader>
-                      <CardEyebrow>{kicker ?? SECTION_LABELS[item.section]}</CardEyebrow>
-                    </CardHeader>
-                    <CardTitle>{rest}</CardTitle>
-                    {item.summary ? <CardDescription>{item.summary}</CardDescription> : null}
-                    {details ? (
-                      <dl className={styles.claimRecord}>
-                        <dt>Claim</dt>
-                        <dd>{details.exactClaim}</dd>
-                        <dt>Trend</dt>
-                        <dd>{TREND_LABELS[details.trendDirection]}</dd>
-                        <dt>Status</dt>
-                        <dd>{VERIFICATION_STATES[details.verificationState].label}</dd>
-                        {analysis ? (
-                          <>
-                            <dt>Basis</dt>
-                            <dd>Organisation analysis, no source cited</dd>
-                          </>
-                        ) : null}
-                      </dl>
-                    ) : null}
-                    <p className={styles.fileEvidence}>
-                      <span>Published</span>
-                      <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
-                    </p>
-                    <CardCta>Read the record</CardCta>
-                  </Card>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </SectionBlock>
+      <p id="monitoring-archive">Published monitoring, grouped by publication date — not a live scan log. Assessment status is shown before every claim.</p>
+      <p><Link href="/fake-resistance">Return to the narrative desk</Link> · <Link href="/geopolitical-brief">Read the news</Link></p>
+      {recordUnavailable ? <p className={styles.empty} role="alert">The published monitoring feed could not be loaded. Please try again later.</p>
+        : !items.length ? <p className={styles.empty}>No published monitoring records are available.</p>
+        : [...new Set(items.map((item) => dayKey(item.publishedAt)))].sort().reverse().map((day) => (
+          <SectionBlock key={day} heading={formatDate(items.find((item) => dayKey(item.publishedAt) === day)!.publishedAt)}>
+            {items.filter((item) => dayKey(item.publishedAt) === day).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).map((item) => <NarrativeRecord key={item.publicId} item={item} />)}
+          </SectionBlock>
+        ))}
+      <p className={styles.empty}>Showing up to 25 recent published monitoring records. <Link href="/fake-resistance/social-media">Explore the research archive</Link> for longer investigations.</p>
     </SectionPage>
   );
+}
+
+function dayKey(value: string) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value));
 }

@@ -160,9 +160,9 @@
   white-space: nowrap;
   will-change: transform;
 
-  /* 0.34 is the ceiling. `--register` is the page's own dimmer (muted, quiet,
+  /* 0.1 is the ceiling. `--register` is the page's own dimmer (muted, quiet,
      focus-within); `--scan-intensity` is the family's, from the profile. */
-  opacity: calc(0.34 * var(--register, 1) * var(--scan-intensity, 1));
+  opacity: calc(0.1 * var(--register, 1) * var(--scan-intensity, 1));
 
   /* `--dur` is the sampled 45–90s; `--scan-speed` is the profile's tempo and
      `--scan-tempo` the page's. The floor is therefore 45s — nine times the
@@ -308,7 +308,7 @@
 .lede {
   margin-top: var(--sp-4);
   max-width: var(--measure-narrow);
-  font-family: var(--face-display);
+  font-family: var(--face-text);
   font-optical-sizing: auto;
   font-size: var(--t-lede);
   font-weight: var(--t-lede-weight);
@@ -809,7 +809,11 @@
   .shell {
     padding-inline: var(--sp-4);
     padding-bottom: var(--sp-6);
+    row-gap: var(--sp-5);
   }
+
+  .documentTrail,
+  .tocMobile { margin-bottom: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

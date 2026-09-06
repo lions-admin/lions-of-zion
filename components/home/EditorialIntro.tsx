@@ -43,7 +43,7 @@ const HOLD_MS = 3200;
  * focus placed on the panel rather than on the way out, Escape, background
  * inertness via `showModal()`, and focus restored to the opener.
  */
-export function EditorialIntro() {
+export function EditorialIntro({ compact = false, autoOpen = true }: { compact?: boolean; autoOpen?: boolean }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const replayRef = useRef<HTMLButtonElement>(null);
@@ -96,7 +96,7 @@ export function EditorialIntro() {
       setAvailable(true);
       let seen = false;
       try { seen = sessionStorage.getItem(SEEN_KEY) === "seen"; } catch { /* Still skippable. */ }
-      if (!seen && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) open(false);
+      if (autoOpen && !seen && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) open(false);
     });
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onPreferenceChange = () => {
@@ -111,7 +111,7 @@ export function EditorialIntro() {
       cancelAnimationFrame(frame);
       preference.removeEventListener("change", onPreferenceChange);
     };
-  }, [open, setTyped]);
+  }, [open, setTyped, autoOpen]);
 
   const advance = useCallback(() => {
     if (beat === INTRO_BEATS.length - 1) { close(); return; }
@@ -138,9 +138,14 @@ export function EditorialIntro() {
 
   return (
     <>
-      <button ref={replayRef} type="button" className={styles.replay} hidden={!available}
+      <button ref={replayRef} type="button" className={`${styles.replay}${compact ? ` ${styles.compactReplay}` : ""}`} hidden={!available}
         onClick={() => open(true)}>
-        Watch introduction <span aria-hidden="true">↗︎</span>
+        <span>Watch introduction</span>
+        <span className={styles.playMark} aria-hidden="true">
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M5 3.5v9l7-4.5-7-4.5Z" fill="currentColor" />
+          </svg>
+        </span>
       </button>
       <dialog ref={dialogRef} className={styles.dialog} data-editorial-intro
         data-beat={beat}

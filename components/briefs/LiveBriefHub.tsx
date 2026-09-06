@@ -39,21 +39,14 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
       routeId="geopolitical-brief"
       className={styles.page}
       showProgress={false}
+      register="silent"
     >
       <div className={styles.liveLayout}>
         <header className={styles.deskHeader} id="page-content" tabIndex={-1}>
-          <p className={styles.liveEyebrow}>
-            <span className={styles.deskMark}>Lions of Zion</span>
-            <span>Intelligence desk</span>
-          </p>
           <h1>News &amp; Analysis</h1>
-          <p>News, war updates and deeper analysis on Israel and regional developments, with the sources and context behind the reporting.</p>
+          <p>Reporting, updates and the daily briefing.</p>
         </header>
 
-        {/* The filters live inside the boundary because their option lists are
-            derived from the same read — there is no honest way to draw them
-            before it lands. `inline` drops the standalone family geometry: the
-            shell above has already paid for the header offset and the measure. */}
         <Suspense fallback={<SkeletonDesk inline label="Loading news and analysis" />}>
           <LiveBriefEdition filters={filters} />
         </Suspense>
@@ -62,127 +55,102 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
   );
 }
 
-/** The async region: the projection read and everything derived from it. */
-async function LiveBriefEdition({ filters }: { filters: Filters }) {
+/** Archive filters never replace the current news edition. */
+export async function LiveBriefEdition({ filters }: { filters: Filters }) {
+  const filtering = Object.values(filters).some(Boolean);
   const query = new URLSearchParams({ limit: "100" });
   for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
-  let publications: Publication[] = [];
-  let allPublications: Publication[] | null = null;
-  let dataUnavailable = false;
-  try {
-    [publications, allPublications] = await Promise.all([
-      listBriefingPublications(query.toString()),
-      Object.values(filters).some(Boolean) ? listBriefingPublications("limit=100") : Promise.resolve(null),
-    ]);
-  } catch (cause) {
-    dataUnavailable = true;
-    console.error("[briefing] public projection unavailable", cause instanceof Error ? cause.message : cause);
-  }
-  /* STATE-005: the three absences on this page are different facts and are
-     said as different facts. `filtering` is what separates "this selection
-     matched nothing" from "nothing has been published" — without it, a reader
-     who filtered to a quiet Tuesday is told the desk has published no brief,
-     and a reader who did not filter is told to clear filters that do not
-     exist. `dataUnavailable` outranks both: during an outage nothing below is
-     evidence of anything, so no section-level empty state is rendered. */
-  const filtering = Object.values(filters).some(Boolean);
-  const filterSource = allPublications ?? publications;
-  const dailyBriefs = publications.filter((entry) => entry.section === "daily_brief");
-  const lead = dailyBriefs[0] ?? null;
-  const featuredIsrael = lead
-    ? publications.find((entry) => entry.featuredIsraelStory && israelDate(entry.publishedAt) === israelDate(lead.publishedAt)) ?? null
-    : null;
-  const updates = publications.filter((entry) => entry.section === "israel_update");
+  let current: Publication[] = [];
+  let archive: Publication[] = [];
+  let currentUnavailable = false;
+  let archiveUnavailable = false;
+  const readNews = async (selection: URLSearchParams) => {
+    const batches = await Promise.all(["daily_brief", "israel_update"].map((section) => {
+      const params = new URLSearchParams(selection);
+      params.set("section", section);
+      params.set("limit", "50");
+      return listBriefingPublications(params.toString());
+    }));
+    return batches.flat();
+  };
+  const reads = await Promise.allSettled([
+    readNews(new URLSearchParams()),
+    filtering ? readNews(query) : Promise.resolve(null),
+  ]);
+  const newsOnly = (items: Publication[]) => items
+    .filter((item) => item.section === "daily_brief" || item.section === "israel_update")
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  if (reads[0].status === "fulfilled") current = newsOnly(reads[0].value);
+  else currentUnavailable = true;
+  if (reads[1].status === "fulfilled") archive = reads[1].value === null ? current : newsOnly(reads[1].value);
+  else archiveUnavailable = true;
+  if (!filtering && currentUnavailable) archiveUnavailable = true;
+
+  const briefing = current.find((item) => item.section === "daily_brief");
+  const updates = current.filter((item) => item.section === "israel_update");
+  const lead = updates[0];
+  const sidebarUpdates = updates.slice(1, 5);
+  const briefingInSidebar = Boolean(lead) && sidebarUpdates.length === 0 && Boolean(briefing);
 
   return (
     <>
-      <BriefFilters
-        key={`${filters.date ?? ""}|${filters.actor ?? ""}|${filters.topicLabel ?? ""}|${filters.arena ?? ""}`}
-        filters={filters}
-        actors={uniqueValues(filterSource, "primaryActor")}
-        topics={uniqueValues(filterSource, "editorialTopic")}
-        arenas={uniqueValues(filterSource, "arena")}
-      />
-
-      {dataUnavailable ? (
-        /* A failed read, on the error ramp and `role="alert"`. This used to
-           carry no `status` at all, which defaulted it to `empty` — an
-           outage rendered in the same voice as "no brief was published",
-           which is the exact substitution STATE-005 exists to stop. */
-        <StatusState
-          status={absenceStatus("unavailable")}
-          eyebrow="SERVICE STATUS"
-          title="The Daily Brief could not be read."
-          description="This is a fault on our side, not an empty desk. Published editions are intact and return as soon as the read succeeds."
-          actionText="Try again"
-          actionHref="/geopolitical-brief"
-        />
-      ) : !lead ? (
-        filtering ? (
-          <StatusState
-            status={absenceStatus("no-matches")}
-            eyebrow="CURRENT EDITION"
-            title="No Daily Brief matches this selection."
-            description="The archive holds editions; none of them carries every filter set above. Clear the filters to see the current edition."
-            actionText="Clear all filters"
-            actionHref="/geopolitical-brief"
-          />
-        ) : (
-          <StatusState
-            status={absenceStatus("nothing-published")}
-            eyebrow="CURRENT EDITION"
-            title="No Daily Brief has been published yet."
-            description="An edition appears here only after it clears source, evidence, and quality checks in full. This page never carries a partial or placeholder edition."
-            actionText="How the checks work"
-            actionHref="/information-war#system"
-          />
-        )
-      ) : (
-        <header className={styles.liveLead}>
-          {/* No animated treatment on this kicker, deliberately: neither
-              eyebrow on this page names a live state — "Current edition"
-              classifies the lead and "Intelligence desk" is a masthead — and
-              this kicker is already the single gold accent on the first
-              screen, so a pass through it is a second emphasis on the one
-              thing that had emphasis. (This used to name `ShinyText` and a
-              bug in it. The bug was fixed in the stylesheet; the primitive
-              itself is gone under CLEAN-008 for want of a caller. The
-              editorial reason stood on its own and is why this is still a
-              plain label.) */}
-          <p className={styles.liveEyebrow}>
-            <span>Current edition</span>
-            <time dateTime={lead.publishedAt}>{formatDate(lead.publishedAt)}</time>
-          </p>
-          <h2>{lead.title}</h2>
-          {lead.summary ? <p>{lead.summary}</p> : null}
-          <ButtonLink href={`/articles/${lead.publicId}`} variant="primary" size="md">
-            Read the full brief <span aria-hidden="true">↗</span>
-          </ButtonLink>
-        </header>
-      )}
-
-      {featuredIsrael ? (
-        <section className={styles.featureStory}>
-          <p className={styles.liveEyebrow}>
-            <span>Israel</span>
-            <span>Daily feature</span>
-          </p>
-          <h2>{featuredIsrael.title}</h2>
-          {featuredIsrael.summary ? <p>{featuredIsrael.summary}</p> : null}
-          <Metadata item={featuredIsrael} />
-          <Link href={`/articles/${featuredIsrael.publicId}`} className={styles.readLink}>Read the feature <span aria-hidden="true">↗</span></Link>
-        </section>
-      ) : null}
-
-      {updates.length ? <PublicationSection title="Israel and war updates" items={updates} /> : null}
-      <section className={styles.liveSection} aria-labelledby="narrative-watch-heading">
-        <h2 id="narrative-watch-heading">Narratives, X &amp; incitement</h2>
-        <p>The daily watch, false-narrative research and incitement coverage have their own dedicated home.</p>
-        <Link href="/fake-resistance" className={styles.readLink}>Explore Fake Resistance <span aria-hidden="true">↗</span></Link>
+      <section id="latest-news" className={styles.newsOpening} aria-labelledby="latest-news-heading">
+        <div className={styles.sectionHeading}>
+          <h2 id="latest-news-heading">Latest news</h2>
+          {current[0] ? <p>Last published <time dateTime={current[0].publishedAt}>{formatDateTime(current[0].publishedAt)}</time></p> : null}
+        </div>
+        {currentUnavailable ? (
+          <StatusState status={absenceStatus("unavailable")} title="News could not be loaded."
+            description="The publication service is unavailable. This is not an empty news feed."
+            actionText="Try again" actionHref="/geopolitical-brief" />
+        ) : lead ? (
+          <div className={styles.newsFront}>
+            <article className={styles.newsLead}>
+              <p className={styles.liveEyebrow}><span>Latest story</span><time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time></p>
+              <h3><Link href={`/articles/${lead.publicId}`}>{lead.title}</Link></h3>
+              {lead.summary ? <p className={styles.newsSummary}>{lead.summary}</p> : null}
+              <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>Read the story <span aria-hidden="true">→</span></Link>
+            </article>
+            {sidebarUpdates.length ? <aside className={styles.newsSidebar} aria-label="More updates"><h2>More updates</h2><ol className={styles.newsTimeline}>{sidebarUpdates.map((item) => (
+              <li key={item.publicId}><time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time><h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3></li>
+            ))}</ol></aside> : briefing ? <aside className={styles.newsSidebar}><Briefing item={briefing} /></aside> : null}
+          </div>
+        ) : <p className={styles.newsSummary}>No individual news updates have been published yet. Published daily briefings appear below.</p>}
       </section>
-      {dailyBriefs.length > 1 ? <PublicationSection title="Daily archive" items={dailyBriefs.slice(1)} /> : null}
+
+      {!briefingInSidebar && briefing ? <section className={styles.briefingStrip}><Briefing item={briefing} /></section> : null}
+      {updates.length > 5 ? <PublicationSection title="Earlier updates" items={updates.slice(5, 11)} /> : null}
+
+      <aside className={styles.watchBridge} aria-label="Separate narrative coverage">
+        <div><h2>What is being claimed?</h2><p>For circulating claims, assessment status and disinformation research, visit the dedicated narrative desk.</p></div>
+        <Link href="/fake-resistance" className={styles.readLink}>Narratives &amp; fact checks <span aria-hidden="true">↗</span></Link>
+      </aside>
+
+      <details className={styles.newsArchive} id="news-archive" open={filtering}>
+        <summary>News archive <span>{filtering ? "Filters active" : "Browse earlier reporting"}</span></summary>
+        <p>Browse up to 50 recent news updates and 50 daily briefings by date, actor, topic or arena. Narrative monitoring is kept separate.</p>
+        <BriefFilters key={query.toString()} filters={filters}
+          actors={uniqueValues(current, "primaryActor")} topics={uniqueValues(current, "editorialTopic")}
+          arenas={uniqueValues(current, "arena")} />
+        {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} title="The archive could not be loaded." description="Please try this selection again later." />
+          : archive.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} items={archive} />
+          : <StatusState status={absenceStatus(filtering ? "no-matches" : "nothing-published")}
+              title={filtering ? "No reports match these filters." : "No reports have been published yet."}
+              description={filtering ? "Try a broader date or topic selection." : "Published news and briefings will appear here."}
+              {...(filtering ? { actionText: "Clear filters", actionHref: "/geopolitical-brief#news-archive" } : {})} />}
+      </details>
     </>
   );
+}
+
+function Briefing({ item }: { item: Publication }) {
+  return <div id="daily-brief" className={styles.briefingContent}>
+    <p className={styles.liveEyebrow}>The daily briefing</p>
+    <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+    <h2><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
+    {item.summary ? <p className={styles.newsSummary}>{item.summary}</p> : null}
+    <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the full briefing <span aria-hidden="true">→</span></Link>
+  </div>;
 }
 
 type Publication = Awaited<ReturnType<typeof listBriefingPublications>>[number];
@@ -251,7 +219,9 @@ function rowStatus(item: Publication, narrative: boolean): string {
 }
 
 function Metadata({ item, narrative = false }: { item: Publication; narrative?: boolean }) {
-  const values = [item.editorialTopic, item.primaryActor, item.arena].filter(Boolean);
+  const values = [item.editorialTopic, item.primaryActor, item.arena]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.replaceAll("_", " ").replaceAll(",", ", "));
   const details = item.narrativeWatchDetails;
   return <>
     {values.length ? (
@@ -283,6 +253,6 @@ function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }
 
-function israelDate(value: string): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value));
+function formatDateTime(value: string): string {
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }

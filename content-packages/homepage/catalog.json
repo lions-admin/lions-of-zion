@@ -1,0 +1,76 @@
+{
+  "revision": "6a66d8bdb6f00bfd4a953870577db59dd313d0f1a1f38cd422676787ab1318e6",
+  "sourceRevision": "a6c68cd946c6ede28342311ad709aad32af95e4e0924358c89fc2d3a34dea138",
+  "candidates": [
+    {
+      "key": "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+      "section": "october7",
+      "kind": "documentation",
+      "id": "85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+      "href": "/october-7/documentation/abductions-to-the-gaza-strip/85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+      "version": "d0498320e63361537f5627552e08ddaac1b9e4b944386b24750ab3526a4e7e0c",
+      "date": "2023-11-01T14:18:23.317Z",
+      "mediaId": "documentation-folder"
+    },
+    {
+      "key": "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+      "section": "october7",
+      "kind": "testimony",
+      "id": "we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+      "href": "/october-7/testimonies/we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+      "version": "17dbe18e6c2406dcd61d38f9f79ea640c3e6975ade3c1d5ad2c8ac9273ba8a30",
+      "date": "2023-10-12T15:49:30.516Z",
+      "mediaId": "testimony-room"
+    },
+    {
+      "key": "case:case_02_manosphere_far_right",
+      "section": "fakeResistance",
+      "kind": "case",
+      "id": "manosphere-far-right",
+      "href": "/fake-resistance/cases/manosphere-far-right",
+      "version": "92155bdeab7a3f064e01decdd9b592a0f742d0511c77d95f455195c0487171c4",
+      "date": "2026-08-26T16:30:00Z",
+      "mediaId": "case-desk"
+    },
+    {
+      "key": "chapter:peace-when-it-came",
+      "section": "israelsStory",
+      "kind": "chapter",
+      "id": "peace-when-it-came",
+      "href": "/israels-story#peace-when-it-came",
+      "version": "695f5abb62abc95329a47c3a8fb466e17bd05d50441680e67025088307434da2",
+      "date": "Aug 25, 2026",
+      "mediaId": "camp-david"
+    },
+    {
+      "key": "chapter:the-founding",
+      "section": "israelsStory",
+      "kind": "chapter",
+      "id": "the-founding",
+      "href": "/israels-story#the-founding",
+      "version": "81a4a0d6f5108f9b4773ba977d3738fb06112d6feefeefc4e70c6a04a9e0e4e2",
+      "date": "Aug 25, 2026",
+      "mediaId": "declaration"
+    },
+    {
+      "key": "hero:noam-tibon",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "noam-tibon",
+      "href": "/our-heroes#noam-tibon",
+      "version": "e755654b9581b906cae41c86ba156f68527d322773b8fd17a3e047ac4da1592b",
+      "date": "Aug 25, 2026",
+      "mediaId": "noam-tibon"
+    },
+    {
+      "key": "hero:rami-davidian",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "rami-davidian",
+      "href": "/our-heroes#rami-davidian",
+      "version": "15755da1532d9da42d35af03db4a2596eeddb269d50f569f625a9108f1d78e72",
+      "date": "Aug 25, 2026",
+      "mediaId": "rami-davidian"
+    }
+  ]
+}

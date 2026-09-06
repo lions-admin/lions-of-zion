@@ -296,7 +296,7 @@ describe("reduced motion composes a frame instead of freezing one", () => {
 
 describe("composited contrast — the scan against real content, not the hero title", () => {
   it("reads its constants out of the stylesheet rather than restating them", () => {
-    expect(ROW_OPACITY_CEILING).toBeCloseTo(0.34, 5);
+    expect(ROW_OPACITY_CEILING).toBeCloseTo(0.1, 5);
     expect(MASK_DIM).toBeCloseTo(0.25, 5);
     expect(registerMultiplier("surfaceQuiet")).toBeCloseTo(0.7, 5);
     expect(registerMultiplier("registerMuted")).toBeCloseTo(0.45, 5);
@@ -374,8 +374,8 @@ describe("composited contrast — the scan against real content, not the hero ti
 
   /**
    * The floor of the range, recorded rather than enforced. A muted
-   * institution page composites at 0.046 unmasked and 0.011 through the mask —
-   * deliberately close to nothing, and the Phase E report flagged it as such.
+   * institution page composites at 0.0135 unmasked and 0.0034 through the mask —
+   * deliberately subdued to keep reading surfaces quiet.
    * This pins that it is the faintest combination the map can produce, so a
    * future edit that makes something quieter still has to say so here.
    */
@@ -386,7 +386,7 @@ describe("composited contrast — the scan against real content, not the hero ti
       masked: false,
       ground: GROUND_EDGE,
     });
-    expect(faintest.alpha).toBeCloseTo(0.046, 3);
+    expect(faintest.alpha).toBeCloseTo(0.0135, 4);
     for (const profile of [...Object.values(FAMILY_SCAN_PROFILES), HOME_SCAN_PROFILE]) {
       expect(profile.intensity).toBeGreaterThanOrEqual(
         FAMILY_SCAN_PROFILES.institution.intensity,
@@ -472,12 +472,11 @@ describe("the no-JavaScript home still shows a readable band over the static gro
     expect(globals).toMatch(/body::before \{[\s\S]{0,400}?var\(--site-ground-photo\)/);
   });
 
-  it("renders the hero's wordmark, fallback links and rail as server HTML", () => {
+  it("renders the hero wordmark, fallback links and editorial journey as server HTML", () => {
     expect(page).toMatch(/<h1 id="home-wordmark"/);
     expect(page).toMatch(/aria-label="All sections"/);
-    /* The signal rail has its own opaque surface, so the shot never
-       composites behind the one piece of live copy on the screen. */
-    expect(home).toMatch(/\.signalRail \{[^}]*background:\s*var\(--surface-1\)/);
+    expect(page).toContain("<HomepageJourney edition={edition}/>");
+    expect(page).not.toContain("SignalRotator");
     /* The no-JS link list needs one too — it sits over a photograph. */
     expect(home).toMatch(/\.noscriptNav \{[^}]*background:\s*var\(--surface-1\)/);
   });

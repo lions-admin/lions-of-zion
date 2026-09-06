@@ -58,7 +58,7 @@
   width: 100%;
   min-height: var(--control-h-sm);
   padding: var(--sp-3) var(--sp-4);
-  background: var(--surface-2);
+  background: var(--ground);
   border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-2);
   color: var(--ink-hi);
@@ -95,17 +95,20 @@ select.control {
 
 textarea.control {
   min-height: calc(var(--control-h) * 2);
-  resize: vertical;
+  resize: none;
+  field-sizing: content;
+  max-height: 24rem;
+  overflow-y: auto;
 }
 
 .control:hover:not(:disabled) {
-  border-color: var(--line-strong);
+  border-color: var(--ink-lo);
 }
 
 .control:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-offset);
-  border-color: var(--line-strong);
+  border-color: var(--ink-lo);
   background: var(--surface-3);
 }
 

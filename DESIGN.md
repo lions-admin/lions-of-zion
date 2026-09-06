@@ -20,8 +20,8 @@ it does not generate or duplicate theme values. Fonts are loaded by
 - Shared typography: `--face-display`, `--face-text`, `--face-data`.
 - Spacing, controls and motion: `--sp-*`, `--control-h`, `--dur-*`.
 - The photographic lion is the homepage's signature. Keep its face unobscured.
-- Keep homepage changes scoped to that route. Do not change the shared
-  uppercase policy or typography globally.
+- Earlier homepage-only scope is superseded by the owner’s September 5 full
+  public-interface review. Shared typography now follows the direction below.
 
 ## Homepage direction — September 5, 2026
 
@@ -61,6 +61,13 @@ On the mobile homepage the Ask control sits one spacing step above the rail.
 Ask uses one shared Signal Lens mark at every width: an open inspection frame,
 an eye contour and a vertical lion pupil. It stays legible at 20px without a
 second ring, compass detail, question mark or generic AI sparkle.
+The owner rejected the rectangular Ask plate, its extra desk caption and arrow.
+Replacement for review: a compact circular seal with the shared mark above the
+visible Ask label, at all widths (68px desktop, 64px mobile). No sidebar stripe,
+caption, arrow or rectangular background. The shared Ask stylesheet owns this
+geometry and consumes the existing ground, control-line, gold and data-type
+tokens. Keep the established safe-area offsets and architecture-page placement;
+keyboard focus outlines the seal and pressing it inverts the ink and gold.
 Preserve no-script navigation, poster fallback, reduced-motion behavior,
 semantic links, visible focus, real verdicts, dates and publication content.
 
@@ -311,3 +318,90 @@ alternative assets and the unused CinematicHomeMedia component remain local
 and disconnected; they are not part of the active homepage.
 The information-war page remains an explicit secondary reading destination.
 Global typography/token ownership is unchanged.
+
+
+## Public-interface review — September 5, 2026
+
+Implemented for owner review, not yet visually approved. The public site now
+uses Newsreader for editorial headings, IBM Plex Sans for reading and controls,
+and Roboto Mono for metadata, through the existing shared font tokens. Body
+copy and controls retain authored sentence case; metadata may remain uppercase.
+Long article titles use a smaller responsive scale than brand statements.
+
+Reading surfaces are quiet: no global ruled scanline wallpaper, and section
+scan opacity is capped at 0.1. Preserve the subdued photographic ground and
+the unchanged original homepage video. Gold signals action or status, not
+large decorative panels. Prefer open ruled sections over gray boxed cards.
+Shared buttons use restrained corners, wrapping labels, and no shimmer.
+Forms remain legible, with visible borders, focus states and intrinsic sizing.
+
+The news lead separates headline and summary on desktop and stacks on mobile.
+Account access has a wider unboxed panel and provider labels cannot overflow.
+Support choices are editorial links, not repeated pill buttons. The floating
+Ask launcher is circular, retaining the existing icon and safe-area offsets.
+Architecture journey controls scroll horizontally rather than collapsing text.
+The homepage nameplate and original background video are not redesigned here.
+
+Behavioral ownership is recorded in UX-CONTRACT.md. Coverage and remaining
+limitations are in docs/visual-review-2026-09-05.md. Do not infer that a successful
+build proves device rendering or that an unauthenticated review covers admin.
+
+## News and narrative desks — approved structure, September 5
+
+The owner approved separate reading journeys: news answers what happened;
+narrative monitoring answers what is claimed and what the record establishes.
+News leads with individual published updates, then the daily briefing. Never
+manufacture story splits from a combined briefing headline. The latest story
+is selected chronologically, not labelled an editorial importance ranking.
+
+Retrieval follows reading: the archive is a native collapsed disclosure, opened
+when filters are active. Its GET query does not change the current news at the
+top. Reads are section-scoped so narrative records cannot crowd news out of the
+retrieval limit. The archive explicitly states its 50-per-section window.
+
+The narrative hub leads with the latest three published monitoring records,
+then established investigations. The monitoring archive groups its latest 25
+records by Jerusalem publication date; it is not described as a live scan.
+NarrativeRecord owns status-before-claim presentation, status meaning, named
+propagators and attribution of unsourced analysis. Do not infer source links
+or article relationships. Existing article relationships remain authoritative.
+
+These reading desks suppress the decorative scan and put the Ask launcher in
+normal flow to avoid covering prose. Ask remains reachable through the menu.
+Original homepage media and its launcher placement remain unchanged.
+
+## Wide entrances — September 5 owner-approved replacement
+
+Supersedes the previous document-like hub implementation. Both entrances use
+up to 1600px of content width, 40px desktop gutters and 20px mobile gutters.
+The narrative hub uses EditorialShell directly, not SectionPage: no contents
+rail or duplicate section navigation. Its latest available investigation leads
+beside three compact monitoring records, followed by three other investigations
+and two research entrances. The two former background essays now live on the
+network page; the existing playbook already holds the full methods collection.
+
+News uses the same width but a distinct lead-story/sidebar composition. The
+sidebar contains up to four additional updates or, when none exist, the daily
+briefing. A briefing already shown there is not repeated below. No image is
+added without verified relevance and usage rights; the lead is deliberately
+typographic. The smaller page masthead yields prominence to actual content.
+NarrativeRecord's compact variant keeps status, claim, meaning and date, with
+the headline as its navigation target. Analysis without sources uses an honest
+analysis action label in its expanded variant.
+
+## Homepage editorial journey — September 6 local implementation
+
+The homepage is now a continuous editorial entrance rather than a signal rail:
+the preserved lion hero leads into News, Narratives & fact checks, October 7,
+Our Heroes, Israel's Story and a static explanation of the publication system.
+Each domain has its own semantic composition; the page does not repeat a generic
+card grid or rotate headlines while a reader is present. `lib/homepage.ts` owns
+the serializable composition and `components/home/` owns the six section
+presentations. The first viewport remains identity and purpose, while real
+canonical content begins immediately after the hero.
+
+`content-packages/homepage/media.json` is the transitional curated media seam.
+Generated illustrations and safe covers are labelled as such and never imply
+source evidence. The durable edition store and protected cron route are local
+implementation only; cloud scheduling and canonical publication cover fields
+remain separate follow-up work.

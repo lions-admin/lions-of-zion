@@ -24,7 +24,7 @@
 .liveLayout {
   width: min(100%, calc(var(--brief-measure) + (var(--brief-gutter) * 2)));
   margin-inline: auto;
-  padding: clamp(var(--sp-6), 6vw, var(--sp-9)) var(--brief-gutter) var(--sp-9);
+  padding: var(--sp-6) var(--brief-gutter) var(--sp-8);
 }
 
 
@@ -32,7 +32,7 @@
 .deskHeader {
   display: grid;
   gap: var(--sp-4);
-  max-width: 66rem;
+  max-width: none;
   padding-block: clamp(var(--sp-5), 4vw, var(--sp-7)) clamp(var(--sp-5), 3vw, var(--sp-6));
   border-block-end: 1px solid var(--line);
 }
@@ -52,7 +52,7 @@
   max-width: 48rem;
   margin: 0;
   color: var(--ink);
-  font-family: var(--face-display);
+  font-family: var(--face-text);
   font-size: var(--t-lede);
   font-weight: var(--t-lede-weight);
   line-height: var(--t-lede-lh);
@@ -199,66 +199,60 @@
 
 .liveLead {
   display: grid;
-  align-content: center;
-  min-height: min(28rem, calc(100dvh - 14rem));
-  max-width: 58rem;
-  gap: var(--sp-5);
-  padding-block: var(--sp-6);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--sp-7);
+  row-gap: var(--sp-5);
+  padding-block: var(--sp-7);
 }
+.liveLead .liveEyebrow { grid-column: 1 / -1; }
 .liveLead h2 {
-  max-width: 24ch;
+  grid-row: span 2;
+  max-width: 30ch;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: var(--t-h2);
+  font-size: clamp(1.9rem, 2.8vw, 2.75rem);
   font-weight: var(--t-h2-weight);
   letter-spacing: var(--t-h2-tracking);
   line-height: var(--t-h2-lh);
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 .liveLead > p:not(.liveEyebrow) {
-  max-width: 46rem;
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
-}
-
-
-
-.featureStory {
-  display: grid;
-  gap: var(--sp-4);
-  margin-block: clamp(var(--sp-6), 5vw, var(--sp-8));
-  padding: clamp(var(--sp-5), 4vw, var(--sp-7));
-  border: 1px solid var(--line);
-  border-block-start-color: var(--gold-line);
-  border-radius: var(--radius-3);
-  background: var(--surface-2);
-  box-shadow: var(--shadow-2);
-}
-
-.featureStory h2 {
-  max-width: 24ch;
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  letter-spacing: var(--t-h2-tracking);
-  line-height: var(--t-h2-lh);
-}
-
-.featureStory > p:not(.liveEyebrow) {
   max-width: var(--brief-reading);
   margin: 0;
-  color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
+.liveLead > a { justify-self: start; }
 
+.featureStory {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--sp-4) var(--sp-7);
+  margin-block: var(--sp-5) var(--sp-7);
+  padding-block: var(--sp-6);
+  border-block-start: var(--line-w) solid var(--line-strong);
+}
+.featureStory .liveEyebrow { grid-column: 1 / -1; }
+.featureStory h2 {
+  grid-row: span 3;
+  max-width: 30ch;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+}
+.featureStory > p:not(.liveEyebrow) {
+  margin: 0;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+@media (width < 48rem) {
+  .liveLead, .featureStory { grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
+  .liveLead h2, .featureStory h2 { grid-row: auto; }
+}
 
 .storyMeta {
   composes: dataValue from global;
@@ -317,7 +311,7 @@
   display: grid;
   grid-template-columns: var(--brief-label-w) minmax(0, 1fr);
   gap: var(--sp-5) clamp(var(--sp-6), 5vw, var(--sp-9));
-  padding-block: clamp(var(--sp-7), 7vw, var(--sp-9));
+  padding-block: clamp(var(--sp-6), 4vw, var(--sp-7));
   border-block-start: 1px solid var(--line);
 }
 
@@ -537,3 +531,84 @@
     grid-row: auto;
   }
 }
+
+/* News-first hierarchy: current stories, the wider briefing, then retrieval. */
+.deskHeader { gap: var(--sp-3); padding-block: var(--sp-4) var(--sp-5); }
+.deskHeader h1 { font-size: clamp(2.4rem, 5vw, 4rem); }
+.deskHeader > p:last-child { font-size: 16px; max-width: 60ch; }
+.deskNav { display: flex; flex-wrap: wrap; gap: 0 var(--sp-5); border-bottom: 1px solid var(--line); }
+.deskNav a { display: inline-flex; align-items: center; min-height: 48px; font-size: 12px; text-decoration: none; color: var(--ink-lo); }
+.deskNav a:last-child { margin-inline-start: auto; }
+.deskNav a:hover { color: var(--ink-hi); }
+.newsOpening, .briefingStrip, .newsArchive { scroll-margin-top: 6rem; }
+.sectionHeading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--sp-2); margin-block: var(--sp-5); }
+.sectionHeading h2 { font: 12px/1.6 var(--face-data); text-transform: uppercase; letter-spacing: .08em; margin: 0; }
+.sectionHeading p { font: 11px/1.6 var(--face-data); color: var(--ink-lo); margin: 0; }
+.newsLead { display: grid; grid-template-columns: 1.2fr 1fr; column-gap: var(--sp-7); padding-bottom: var(--sp-6); }
+.newsLead .liveEyebrow { grid-column: 1 / -1; font-size: 11px; margin-bottom: var(--sp-3); }
+.newsLead h3 { grid-row: span 2; font: 400 clamp(2rem, 3.6vw, 3.3rem)/1.09 var(--face-display); letter-spacing: -.025em; margin: 0; }
+.newsLead h3 a, .newsTimeline h3 a, .briefingStrip h3 a { text-decoration: none; color: var(--ink-hi); }
+.newsLead h3 a:hover, .newsTimeline h3 a:hover, .briefingStrip h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .12em; }
+.newsSummary { font: 16px/1.75 var(--face-text); margin: 0; max-width: 62ch; }
+.newsLead .readLink { justify-self: start; }
+.newsTimeline { list-style: none; padding: 0; margin: 0 0 var(--sp-6); }
+.newsTimeline li { display: grid; grid-template-columns: 10rem 1fr; gap: var(--sp-5); padding-block: var(--sp-4); border-top: 1px solid var(--line); }
+.newsTimeline time { font: 11px/1.6 var(--face-data); color: var(--ink-lo); }
+.newsTimeline h3 { font: 400 clamp(1.4rem, 2.2vw, 1.9rem)/1.2 var(--face-display); margin: 0; }
+.newsTimeline p { margin: var(--sp-2) 0 0; font: 14px/1.65 var(--face-text); max-width: 70ch; }
+.briefingStrip { display: grid; grid-template-columns: .6fr 1.4fr; gap: var(--sp-6); border-block: 1px solid var(--line-strong); padding-block: var(--sp-6); }
+.briefingStrip h2 { font-size: 2rem; margin-block: var(--sp-2); }
+.briefingStrip h3 { font-size: clamp(1.4rem, 2.3vw, 2rem); margin: 0; }
+.briefingStrip time { font: 11px/1.6 var(--face-data); color: var(--ink-lo); }
+.briefingStrip p { font-size: 15px; }
+.watchBridge { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-5); padding-block: var(--sp-5); }
+.watchBridge h2 { font-size: 1.4rem; margin: 0; }
+.watchBridge p { font-size: 13px; max-width: 55ch; margin-bottom: 0; color: var(--ink-lo); }
+.watchBridge a { flex-shrink: 0; }
+.newsArchive { margin-top: var(--sp-4); border-top: 1px solid var(--line-strong); }
+.newsArchive summary { cursor: pointer; padding-block: var(--sp-5); font: 400 1.7rem/1.3 var(--face-display); }
+.newsArchive summary span { margin-inline-start: var(--sp-4); font: 11px/1.6 var(--face-data); color: var(--ink-lo); }
+.newsArchive > p { font-size: 13px; color: var(--ink-lo); }
+.newsArchive[open] > summary { border-bottom: 1px solid var(--line); }
+.deskNav a:focus-visible, .newsOpening a:focus-visible, .newsArchive summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+@media (max-width: 44.99rem) {
+  .liveLayout { padding-top: var(--sp-4); }
+  .deskNav { gap: 0 var(--sp-4); }
+  .deskNav a:last-child { margin-inline-start: 0; }
+  .newsLead, .briefingStrip { grid-template-columns: minmax(0,1fr); gap: var(--sp-3); }
+  .newsLead h3 { grid-row: auto; font-size: 2rem; }
+  .newsTimeline li { grid-template-columns: 1fr; gap: var(--sp-2); }
+  .watchBridge { align-items: flex-start; flex-direction: column; gap: var(--sp-2); }
+  .newsArchive summary span { display: block; margin: var(--sp-2) 0 0; }
+}
+
+/* Wide newsroom entrance; document measures apply to prose, not its grid. */
+.liveLayout { width: min(1600px, calc(100% - 80px)); padding: 32px 0 64px; }
+.deskHeader { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 0 0 24px; }
+.deskHeader h1 { font-size: 28px; }
+.deskHeader > p:last-child { font-size: 14px; margin: 0; }
+.sectionHeading { margin-block: 24px; }
+.sectionHeading p { font-size: 12px; }
+.newsFront { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 40px; }
+.newsLead { display: block; border-right: 1px solid var(--line); padding: 0 40px 32px 0; }
+.newsLead .liveEyebrow { font-size: 12px; }
+.newsLead h3 { font-size: clamp(36px, 4vw, 66px); line-height: 1.08; margin: 24px 0; }
+.newsLead .newsSummary { font-size: 18px; max-width: 65ch; }
+.newsLead .readLink { margin-top: 20px; }
+.newsSidebar { min-width: 0; }
+.newsSidebar > h2 { font-size: 25px; margin-top: 0; }
+.newsSidebar .newsTimeline li { display: block; padding-block: 16px; }
+.newsTimeline time { font-size: 12px; }
+.newsSidebar .newsTimeline h3 { margin-top: 10px; font-size: 24px; }
+.briefingContent > .liveEyebrow { font-size: 12px; color: var(--gold-hi); }
+.briefingContent > time { display: block; font: 12px/1.6 var(--face-data); color: var(--ink-lo); margin-block: 12px 20px; }
+.briefingContent h2 { font: 400 28px/1.18 var(--face-display); margin: 0 0 16px; }
+.briefingContent h2 a { text-decoration: none; color: var(--ink-hi); }
+.briefingContent .newsSummary { font-size: 16px; }
+.briefingContent .readLink { margin-top: 16px; }
+.briefingStrip { display: block; }
+.newsArchive summary span { font-size: 12px; }
+@media (max-width: 1099px) { .newsFront { grid-template-columns: 1fr 1fr; gap: 24px; } .newsLead { padding-right: 24px; } .newsLead h3 { font-size: 38px; } }
+@media (max-width: 767px) { .liveLayout { width: calc(100% - 40px); padding-top: 24px; } .deskHeader { display: block; } .deskHeader h1 { font-size: 25px; } .deskHeader > p:last-child { margin-top: 8px; } .newsFront { grid-template-columns: 1fr; } .newsLead { border-right: 0; padding-right: 0; } .newsLead h3 { font-size: 36px; } .newsLead .newsSummary { font-size: 16px; } .newsSidebar { border-top: 1px solid var(--line); padding-top: 24px; } }
+.newsFront:not(:has(.newsSidebar)) { grid-template-columns: 1fr; }
+.newsFront:not(:has(.newsSidebar)) .newsLead { border-right: 0; }

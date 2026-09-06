@@ -76,7 +76,7 @@
 
 .article h1 {
   margin: var(--sp-2) 0 var(--sp-4);
-  font-size: var(--t-display);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
   font-weight: var(--t-display-weight);
   line-height: var(--t-display-lh);
   letter-spacing: var(--t-display-tracking);
@@ -98,7 +98,7 @@
 
 .summary {
   color: var(--ink-hi);
-  font-family: var(--face-display);
+  font-family: var(--face-text);
   font-size: var(--t-lede);
   font-weight: var(--t-lede-weight);
   line-height: var(--t-lede-lh);

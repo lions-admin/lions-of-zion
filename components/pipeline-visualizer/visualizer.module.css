@@ -146,6 +146,23 @@
   scrollbar-width: thin;
 }
 
+/* Journey names are scrollable choices, not compressible paragraph columns. */
+.journeySelector > button,
+.speedSelector > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.viewModeGroup {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.viewModeGroup > button {
+  flex: 1 0 auto;
+}
+
 @media (min-width: 64rem) {
   .journeySelector {
     flex-wrap: wrap;

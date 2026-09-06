@@ -190,6 +190,66 @@ export default async function Page() {
           <SourceList sources={network.sources} />
         </SectionBlock>
       ) : null}
+      <SectionBlock heading="The consciousness war">
+        <p>
+          The fight over what happened has its own name in Hebrew:{" "}
+          <span lang="he" dir="rtl">
+            מלחמת התודעה
+          </span>{" "}
+          — the consciousness war. Its premise is that what people believe
+          about a war is territory, contested with the same seriousness as
+          ground — and that the decisive weapons are not arguments but
+          logistics: banked material, standing networks, and rails that move a
+          claim faster than any check can follow it.
+        </p>
+        <p>
+          October 7 demonstrated how much of that war was in place before it
+          had a subject. In the days immediately after the attack — while
+          verification desks were still finding their footing — footage from
+          Arma 3, a military simulation game released in 2013, was already
+          circulating as combat video, one flagged post alone drawing more
+          than three million views. The game&rsquo;s own studio had publicly asked
+          people to stop doing this in November 2022, citing the same misuse
+          across earlier conflicts. Nothing had to be invented; the technique
+          was already routine.
+        </p>
+        <p>
+          The networks were standing too, and this part is documented rather
+          than inferred. The operation researchers call Doppelgänger was
+          running from at least May 2022. Spamouflage had been active since
+          2019, and the largest single takedown of it on record was announced
+          five weeks before the attack. Platform enforcement, government
+          designations, research-institute analysis and forensic reporting
+          each register the same infrastructure independently, and all of it
+          predates October 7. The event supplied the occasion; the machinery
+          did not need building.
+        </p>
+      </SectionBlock>
+
+      <SectionBlock heading="The machine">
+        <p>
+          The supply chain has four links. A claim is seeded by a small set of
+          originating accounts; amplifier networks that exist to move volume
+          pick it up; accounts that look organic launder it into traffic that
+          looks like consensus; and real people carry it the rest of the way,
+          believing they found it themselves. Recycled imagery — footage from
+          other conflicts, other years, other continents — is the raw material
+          at the top of the chain, and it is where all three exhibits in{" "}
+          <Link href="/fake-resistance/official-narrative">
+            the official-narrative file
+          </Link>{" "}
+          came apart.
+        </p>
+        {/* Stated rather than glossed over: the second link is the one those
+            three exhibits do not document. Claiming otherwise would be the
+            same move the exhibits exist to expose. */}
+        <p>
+          The second link is the one those case files cannot show you.
+          Documenting an amplifier network takes account-level evidence
+          gathered over time, which is what{" "}
+          <Link href="/fake-resistance/network">the network file</Link> is for.
+        </p>
+      </SectionBlock>
     </SectionPage>
   );
 }

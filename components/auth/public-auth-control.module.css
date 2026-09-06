@@ -8,6 +8,7 @@
    system is worse than dead CSS. */
 
 .control {
+  min-width: 0;
   display: grid;
   gap: var(--sp-4);
   margin-top: var(--sp-6);
@@ -99,11 +100,14 @@
    layout says so. Nothing here draws an "or" between them, because both can
    be signed in at once and neither is the account the other belongs to. */
 .providers {
+  min-width: 0;
   display: grid;
   gap: var(--sp-5);
 }
 
 .provider {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: grid;
   gap: var(--sp-3);
   /* The rule belongs between them, so the first block does not open with a

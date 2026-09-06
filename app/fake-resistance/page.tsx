@@ -1,334 +1,66 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import {
-  Card,
-  CardCount,
-  CardCta,
-  CardDescription,
-  CardEyebrow,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
+import { EditorialShell } from "@/components/site/EditorialShell";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
-import { getPlaybook, techniqueHref } from "@/lib/content/fake-resistance-playbook";
 import { getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
+import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 
-/* The section's root is a Dossier hub, not an essay (INV-001): a thesis, the
-   most recent case file, the two investigation branches, the network entry,
-   and an index of the methods — in that order, so a reader reaches a case or
-   a branch before any long-form argument begins. The argument itself (the
-   consciousness war, the supply chain) still lives here, below the files it
-   frames. The worked exhibits live on `/fake-resistance/official-narrative`;
-   the research index lives on `/fake-resistance/social-media`; the live daily
-   feed — the one branch this hub does not curate by hand — lives on
-   `/fake-resistance/watch`. */
-
-const TAGLINE =
-  "False narratives, incitement and influence operations — the daily watch, source material and documented research in one place.";
-const PAGE_URL = `${SITE_URL}/fake-resistance`;
-
+const description = "Investigations into false narratives, with circulating claims kept distinct from established findings.";
 export const metadata: Metadata = {
-  title: "Fake Resistance",
-  description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: "Fake Resistance — LIONS OF ZION", description: TAGLINE },
+  title: "Narratives & fact checks", description,
+  alternates: { canonical: `${SITE_URL}/fake-resistance` },
 };
-
-/** A date the reader can read, from the ISO stamp the research recorded. */
 function dateLabel(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }
-
 export default async function Page() {
-  const [edition, cases] = await Promise.all([
-    getFakeResistanceEdition(),
-    getCaseIndex(),
-  ]);
-  const playbook = getPlaybook();
-
-  /* Same reasoning as app/page.tsx's own `featuredPublications()` call: an
-     unreadable projection must not 500 an otherwise fully static hub over a
-     cache hiccup. The branch card below just shows no live count. */
-  let watchCount: number | null = null;
-  try {
-    watchCount = (await getNarrativeWatchFeed()).length;
-  } catch (cause) {
-    console.error(
-      "[fake-resistance] public projection unavailable",
-      cause instanceof Error ? cause.message : cause,
-    );
-  }
-
-  // Derived, not written down: the counts on the two branch cards track the
-  // content seams, so adding a case file updates the card with no edit here.
-  const officialCount = edition.cases.length;
-  const socialCount = cases.length + 2; // playbook + network + the case files
-
-  // The hub's featured file is simply the newest — the research's own
-  // `updatedAt`, not an editorial pick that would need maintaining here.
-  const featured = [...cases].sort((a, b) =>
-    b.updatedAt.localeCompare(a.updatedAt),
-  )[0];
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: "Fake Resistance",
-    description: TAGLINE,
-    url: PAGE_URL,
-    author: { "@type": "Organization", name: "Lions of Zion", url: SITE_URL },
-    isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL },
-    hasPart: [
-      {
-        "@type": "WebPage",
-        name: "Official narrative engineering",
-        description:
-          "Three worked cases of claims engineered to pass as war reporting — and the corrections that unmade them.",
-        url: `${PAGE_URL}/official-narrative`,
-      },
-      {
-        "@type": "WebPage",
-        name: "The social-media front",
-        description:
-          "The influence-network research: the techniques, the cross-network synthesis, and seven documented case files.",
-        url: `${PAGE_URL}/social-media`,
-      },
-      {
-        "@type": "WebPage",
-        name: "The network",
-        description:
-          "What the seven case files add up to — the cross-network synthesis.",
-        url: `${PAGE_URL}/network`,
-      },
-      {
-        "@type": "WebPage",
-        name: "The daily watch",
-        description:
-          "Published narrative monitoring, source-linked claims and assessment status.",
-        url: `${PAGE_URL}/watch`,
-      },
-    ],
-  };
-
+  const [research, monitoring] = await Promise.allSettled([getCaseIndex(), getNarrativeWatchFeed()]);
+  const cases = research.status === "fulfilled" ? [...research.value].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) : [];
+  const items = monitoring.status === "fulfilled" ? [...monitoring.value].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)) : [];
+  const [featured, ...otherCases] = cases;
   return (
-    <SectionPage
-      id="fake-resistance"
-      accent="ember"
-      title="Fake Resistance"
-      tagline={TAGLINE}
-      surface="quiet"
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <p className={styles.standfirst}>
-        False narratives, incitement and the networks that amplify them.
-        Follow the daily watch, then examine the source material and the research behind each finding.
-      </p>
-      <section className={styles.watchLead} aria-labelledby="daily-watch-entry">
-        <div><p className={styles.watchEyebrow}>Start with the daily watch</p>
-          <h2 id="daily-watch-entry">X, narratives &amp; incitement</h2>
-          <p>Explore published monitoring records with their source links and assessment status. A claim in circulation is not automatically a verified finding.</p>
+    <EditorialShell routeId="fake-resistance" register="silent" showProgress={false} className={styles.page}>
+      <div className={styles.hub}>
+        <header className={styles.masthead} id="page-content" tabIndex={-1}>
+          <h1>Narratives &amp; fact checks</h1>
+          <p>Investigate the record. Distinguish a circulating claim from a finding.</p>
+        </header>
+        <div className={styles.front}>
+          <section className={styles.investigation} aria-labelledby="investigation-heading">
+            <div className={styles.eyebrow}><span>Latest investigation</span>{featured ? <time dateTime={featured.updatedAt}>{dateLabel(featured.updatedAt)}</time> : null}</div>
+            {featured ? <>
+              <h2 id="investigation-heading"><Link href={`/fake-resistance/cases/${featured.slug}`}>{featured.title}</Link></h2>
+              <p className={styles.question}>{featured.question}</p>
+              <dl className={styles.evidence}>
+                <div><dt>Graded findings</dt><dd>{featured.counts.exhibits}</dd></div>
+                <div><dt>Sources on record</dt><dd>{featured.counts.sources}</dd></div>
+              </dl>
+              <Link className={styles.action} href={`/fake-resistance/cases/${featured.slug}`}>Read the investigation <span aria-hidden="true">→</span></Link>
+            </> : <><h2 id="investigation-heading">Investigations</h2><p role={research.status === "rejected" ? "alert" : undefined}>{research.status === "rejected" ? "Investigations could not be loaded. Monitoring remains available alongside." : "No investigations are available yet."}</p></>}
+          </section>
+          <section id="latest-monitoring" className={styles.monitoring} aria-labelledby="monitoring-heading">
+            <header className={styles.sectionHead}><h2 id="monitoring-heading">On the watch</h2><Link href="/fake-resistance/watch">Archive <span aria-hidden="true">↗</span></Link></header>
+            <p className={styles.disclosure}>Published monitoring. Not a live scan.</p>
+            {monitoring.status === "rejected" ? <p role="alert">Monitoring is temporarily unavailable.</p> : items.length ? items.slice(0, 3).map(item => <NarrativeRecord key={item.publicId} item={item} compact />) : <p>No monitoring records have been published yet.</p>}
+          </section>
         </div>
-        <div className={styles.watchAction}>
-          {watchCount !== null ? <span>{watchCount} published monitoring records</span> : <span>Publication count unavailable</span>}
-          <Link href="/fake-resistance/watch">Open the daily watch <span aria-hidden="true">↗</span></Link>
-        </div>
-      </section>
-
-      {/* ── The decision moment, before any essay (INV-001) ─────────────── */}
-      <SectionBlock heading="Open a file">
-        {featured ? (
-          <Card
-            variant="dossier"
-            accent="ember"
-            href={`/fake-resistance/cases/${featured.slug}`}
-            className={styles.featured}
-          >
-            <CardHeader>
-              <CardEyebrow>Latest case file</CardEyebrow>
-              <CardCount>
-                <time dateTime={featured.updatedAt}>
-                  {dateLabel(featured.updatedAt)}
-                </time>
-              </CardCount>
-            </CardHeader>
-            <CardTitle>{featured.title.split(":")[0].trim()}</CardTitle>
-            <CardDescription>{featured.question}</CardDescription>
-            <p className={styles.featuredEvidence}>
-              <span>Evidence basis</span>
-              {featured.counts.exhibits} graded findings ·{" "}
-              {featured.counts.sources} sources on record
-            </p>
-            <CardCta>Open the case file</CardCta>
-          </Card>
-        ) : null}
-
-        {/* The hub's fork. The cards used to carry their own staggered Reveal
-            wrappers; the motion contract reserves entrance motion for section
-            arrivals, and this section already arrives as one (`SectionBlock`
-            is the Reveal). The cards are simply here — hover, focus and
-            semantics are the Card primitive's own. */}
-        <nav aria-label="Investigation branches" className={styles.branches}>
-          <div className={styles.branchSlot}>
-            <Card
-              variant="dossier"
-              accent="ember"
-              href="/fake-resistance/official-narrative"
-            >
-              <CardHeader>
-                <CardEyebrow>Branch 01</CardEyebrow>
-                <CardCount>{officialCount} case files</CardCount>
-              </CardHeader>
-              <CardTitle>Official narrative engineering</CardTitle>
-              <CardDescription>
-                Three worked exhibits — the claim as it spread, its origin, its
-                amplification, and the evidence that unmade it — with the order
-                in which the record caught up.
-              </CardDescription>
-              <CardCta>Open the file</CardCta>
-            </Card>
-          </div>
-
-          <div className={styles.branchSlot}>
-            <Card
-              variant="dossier"
-              accent="ember"
-              href="/fake-resistance/social-media"
-            >
-              <CardHeader>
-                <CardEyebrow>Branch 02</CardEyebrow>
-                <CardCount>{socialCount} files</CardCount>
-              </CardHeader>
-              <CardTitle>The social-media front</CardTitle>
-              <CardDescription>
-                The influence-network research: a {playbook.length}-technique
-                playbook, the cross-network synthesis, and seven documented case
-                files, graded exactly as the research graded them.
-              </CardDescription>
-              <CardCta>Open the file</CardCta>
-            </Card>
-          </div>
-
+        {otherCases.length ? <section className={styles.more} aria-labelledby="research-heading">
+          <header className={styles.sectionHead}><h2 id="research-heading">Further investigations</h2><Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">↗</span></Link></header>
+          <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}>
+            <time dateTime={item.updatedAt}>{dateLabel(item.updatedAt)}</time>
+            <h3><Link href={`/fake-resistance/cases/${item.slug}`}>{item.title}</Link></h3>
+            <p>{item.question}</p>
+            <Link className={styles.action} href={`/fake-resistance/cases/${item.slug}`}>Read investigation <span aria-hidden="true">→</span></Link>
+          </article>)}</div>
+        </section> : null}
+        <nav className={styles.depth} aria-label="Explore the research">
+          <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><span aria-hidden="true">↗</span></Link>
+          <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><span aria-hidden="true">↗</span></Link>
         </nav>
-
-        {/* The network entry: the synthesis over the case files, reachable
-            from the hub without walking through a branch first. */}
-        <ul className={styles.networkEntry}>
-          <li>
-            <Card variant="row" href="/fake-resistance/network">
-              <CardHeader>
-                <CardEyebrow>Synthesis</CardEyebrow>
-                <CardCount>{cases.length} case files, mapped</CardCount>
-              </CardHeader>
-              <CardTitle>The influence network</CardTitle>
-              <CardDescription>
-                What the case files add up to: seven communities, the
-                documented bridges between them, and the findings that survived
-                every attempt to break them.
-              </CardDescription>
-              <CardCta>Open the network file</CardCta>
-            </Card>
-          </li>
-        </ul>
-      </SectionBlock>
-
-      {/* ── The methods index (INV-001) ─────────────────────────────────── */}
-      <SectionBlock heading="The methods">
-        <p>
-          Every file above documents some combination of the same{" "}
-          {playbook.length} moves. None of them alone is proof — together, and
-          documented, they are a pattern. Each entry below opens that
-          technique&rsquo;s chapter in{" "}
-          <Link href="/fake-resistance/playbook">the playbook</Link>: what the
-          move is, the mental shortcut it exploits, and what you can check for
-          yourself.
-        </p>
-        <ol className={styles.methodsIndex}>
-          {playbook.map((chapter) => (
-            <li key={chapter.id}>
-              <Link href={techniqueHref(chapter.id)} className={styles.methodRow}>
-                <span className={styles.methodTitle}>{chapter.title}</span>
-                <span className={styles.methodSummary}>{chapter.summary}</span>
-              </Link>
-            </li>
-          ))}
-        </ol>
-      </SectionBlock>
-
-      {/* ── The framing, below the files it frames ──────────────────────── */}
-      <SectionBlock heading="The consciousness war">
-        <p>
-          The fight over what happened has its own name in Hebrew:{" "}
-          <span lang="he" dir="rtl">
-            מלחמת התודעה
-          </span>{" "}
-          — the consciousness war. Its premise is that what people believe
-          about a war is territory, contested with the same seriousness as
-          ground — and that the decisive weapons are not arguments but
-          logistics: banked material, standing networks, and rails that move a
-          claim faster than any check can follow it.
-        </p>
-        <p>
-          October 7 demonstrated how much of that war was in place before it
-          had a subject. In the days immediately after the attack — while
-          verification desks were still finding their footing — footage from
-          Arma 3, a military simulation game released in 2013, was already
-          circulating as combat video, one flagged post alone drawing more
-          than three million views. The game&rsquo;s own studio had publicly asked
-          people to stop doing this in November 2022, citing the same misuse
-          across earlier conflicts. Nothing had to be invented; the technique
-          was already routine.
-        </p>
-        <p>
-          The networks were standing too, and this part is documented rather
-          than inferred. The operation researchers call Doppelgänger was
-          running from at least May 2022. Spamouflage had been active since
-          2019, and the largest single takedown of it on record was announced
-          five weeks before the attack. Platform enforcement, government
-          designations, research-institute analysis and forensic reporting
-          each register the same infrastructure independently, and all of it
-          predates October 7. The event supplied the occasion; the machinery
-          did not need building.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock heading="The machine">
-        <p>
-          The supply chain has four links. A claim is seeded by a small set of
-          originating accounts; amplifier networks that exist to move volume
-          pick it up; accounts that look organic launder it into traffic that
-          looks like consensus; and real people carry it the rest of the way,
-          believing they found it themselves. Recycled imagery — footage from
-          other conflicts, other years, other continents — is the raw material
-          at the top of the chain, and it is where all three exhibits in{" "}
-          <Link href="/fake-resistance/official-narrative">
-            the official-narrative file
-          </Link>{" "}
-          came apart.
-        </p>
-        {/* Stated rather than glossed over: the second link is the one those
-            three exhibits do not document. Claiming otherwise would be the
-            same move the exhibits exist to expose. */}
-        <p>
-          The second link is the one those case files cannot show you.
-          Documenting an amplifier network takes account-level evidence
-          gathered over time, which is what{" "}
-          <Link href="/fake-resistance/network">the network file</Link> is for.
-        </p>
-      </SectionBlock>
-    </SectionPage>
+        <div className={styles.bottomLinks}><Link href="/fake-resistance/official-narrative">Documented narrative investigations →</Link><Link href="/geopolitical-brief">Looking for news? Read the news desk →</Link></div>
+      </div>
+    </EditorialShell>
   );
 }

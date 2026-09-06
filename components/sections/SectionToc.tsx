@@ -195,7 +195,7 @@ export function SectionToc() {
           onClick={() => setOpen((isOpen) => !isOpen)}
         >
           <span className={styles.tocMobileCopy}>
-            <span className={styles.tocMobileKicker}>In this file</span>
+            <span className={styles.tocMobileKicker}>On this page</span>
             <span className={styles.tocMobileCurrent}>{activeLabel}</span>
           </span>
           <Chevron />
@@ -206,7 +206,7 @@ export function SectionToc() {
         id={dialogId}
         open={open}
         onClose={closeSheet}
-        title="In this file"
+        title="On this page"
         variant="drawer"
       >
         <ol className={styles.tocSheetList}>
@@ -230,8 +230,8 @@ export function SectionToc() {
         </ol>
       </Dialog>
 
-      <nav className={styles.tocRailInner} aria-label="In this file">
-        <p className={styles.tocTitle}>In this file</p>
+      <nav className={styles.tocRailInner} aria-label="On this page">
+        <p className={styles.tocTitle}>On this page</p>
         <ol className={styles.tocList}>
           {headings.map((heading, i) => (
             <li key={heading.id}>

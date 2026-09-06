@@ -74,3 +74,13 @@ export function isMissingPublication(cause: unknown): boolean {
 export function featuredPublications(): Promise<PublicPublication[]> {
   return publicReadCache("featured", () => withLastGoodRead("featured", cachedFeaturedPublications, lastGoodLists));
 }
+
+/** No cache here: membership is durable; withdrawals are checked on resolution. */
+export async function readHomepageSnapshot() {
+  const { homepage } = await import('@/server/modules/homepage');
+  return withDatabaseRole('app_public','server:homepage',()=>homepage().read());
+}
+export async function isLocalHomepagePreview() {
+  const { homepageLocalPreview } = await import('@/server/core/config');
+  return homepageLocalPreview();
+}

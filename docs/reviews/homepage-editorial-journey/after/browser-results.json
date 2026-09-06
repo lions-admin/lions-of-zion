@@ -1,0 +1,436 @@
+{
+  "origin": "http://localhost:3000",
+  "viewportHeight": 1000,
+  "device": "Desktop browser viewport emulation, not a phone",
+  "runs": [
+    {
+      "browser": "chromium",
+      "width": 390,
+      "keys": [
+        "publication:israel-ministry-of-defense-activities-regional-r-lref0",
+        "publication:israel-ministry-of-defense-recent-announcements--m781m",
+        "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh",
+        "case:case_02_manosphere_far_right",
+        "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+        "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+        "hero:noam-tibon",
+        "hero:rami-davidian",
+        "chapter:peace-when-it-came",
+        "chapter:the-founding"
+      ],
+      "layout": {
+        "viewport": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "images": [
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fblue-line.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fmatcal.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fwatch-network.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcase-desk.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Ftestimony-room.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdocumentation-folder.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fnoam-tibon.webp&w=256&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Frami-davidian.webp&w=256&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcamp-david.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdeclaration.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          }
+        ],
+        "metrics": {
+          "cls": 0,
+          "lcp": 7476
+        },
+        "askPosition": "static"
+      },
+      "errors": [],
+      "firstFocus": "Skip to content",
+      "skipTarget": "#home-wordmark",
+      "backMembershipStable": true,
+      "archiveRawRequests": []
+    },
+    {
+      "browser": "chromium",
+      "width": 768,
+      "keys": [
+        "publication:israel-ministry-of-defense-activities-regional-r-lref0",
+        "publication:israel-ministry-of-defense-recent-announcements--m781m",
+        "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh",
+        "case:case_02_manosphere_far_right",
+        "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+        "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+        "hero:noam-tibon",
+        "hero:rami-davidian",
+        "chapter:peace-when-it-came",
+        "chapter:the-founding"
+      ],
+      "layout": {
+        "viewport": 768,
+        "documentWidth": 768,
+        "main": 1,
+        "h1": 1,
+        "images": [
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fblue-line.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fmatcal.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fwatch-network.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcase-desk.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Ftestimony-room.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdocumentation-folder.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fnoam-tibon.webp&w=256&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Frami-davidian.webp&w=256&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcamp-david.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdeclaration.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          }
+        ],
+        "metrics": {
+          "cls": 0,
+          "lcp": 5816
+        },
+        "askPosition": "static"
+      },
+      "errors": [],
+      "firstFocus": "Skip to content",
+      "skipTarget": "#home-wordmark",
+      "backMembershipStable": true,
+      "archiveRawRequests": []
+    },
+    {
+      "browser": "chromium",
+      "width": 1024,
+      "keys": [
+        "publication:israel-ministry-of-defense-activities-regional-r-lref0",
+        "publication:israel-ministry-of-defense-recent-announcements--m781m",
+        "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh",
+        "case:case_02_manosphere_far_right",
+        "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+        "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+        "hero:noam-tibon",
+        "hero:rami-davidian",
+        "chapter:peace-when-it-came",
+        "chapter:the-founding"
+      ],
+      "layout": {
+        "viewport": 1024,
+        "documentWidth": 1024,
+        "main": 1,
+        "h1": 1,
+        "images": [
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fblue-line.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fmatcal.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fwatch-network.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcase-desk.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Ftestimony-room.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdocumentation-folder.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fnoam-tibon.webp&w=256&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Frami-davidian.webp&w=256&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcamp-david.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdeclaration.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          }
+        ],
+        "metrics": {
+          "cls": 0,
+          "lcp": 5344
+        },
+        "askPosition": "static"
+      },
+      "errors": [],
+      "firstFocus": "Skip to content",
+      "skipTarget": "#home-wordmark",
+      "backMembershipStable": true,
+      "archiveRawRequests": []
+    },
+    {
+      "browser": "chromium",
+      "width": 1440,
+      "keys": [
+        "publication:israel-ministry-of-defense-activities-regional-r-lref0",
+        "publication:israel-ministry-of-defense-recent-announcements--m781m",
+        "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh",
+        "case:case_02_manosphere_far_right",
+        "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+        "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+        "hero:noam-tibon",
+        "hero:rami-davidian",
+        "chapter:peace-when-it-came",
+        "chapter:the-founding"
+      ],
+      "layout": {
+        "viewport": 1440,
+        "documentWidth": 1440,
+        "main": 1,
+        "h1": 1,
+        "images": [
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fblue-line.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fmatcal.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fwatch-network.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcase-desk.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Ftestimony-room.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdocumentation-folder.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fnoam-tibon.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Frami-davidian.webp&w=384&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcamp-david.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdeclaration.webp&w=1080&q=75",
+            "loaded": true,
+            "lazy": true
+          }
+        ],
+        "metrics": {
+          "cls": 0,
+          "lcp": 5348
+        },
+        "askPosition": "static"
+      },
+      "errors": [],
+      "firstFocus": "Skip to content",
+      "skipTarget": "#home-wordmark",
+      "backMembershipStable": true,
+      "archiveRawRequests": []
+    },
+    {
+      "browser": "chromium",
+      "width": 1920,
+      "keys": [
+        "publication:israel-ministry-of-defense-activities-regional-r-lref0",
+        "publication:israel-ministry-of-defense-recent-announcements--m781m",
+        "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh",
+        "case:case_02_manosphere_far_right",
+        "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+        "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
+        "hero:noam-tibon",
+        "hero:rami-davidian",
+        "chapter:peace-when-it-came",
+        "chapter:the-founding"
+      ],
+      "layout": {
+        "viewport": 1920,
+        "documentWidth": 1920,
+        "main": 1,
+        "h1": 1,
+        "images": [
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fblue-line.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fmatcal.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fwatch-network.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcase-desk.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Ftestimony-room.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdocumentation-folder.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fnoam-tibon.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Frami-davidian.webp&w=640&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fcamp-david.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          },
+          {
+            "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhomepage%2Fdeclaration.webp&w=1200&q=75",
+            "loaded": true,
+            "lazy": true
+          }
+        ],
+        "metrics": {
+          "cls": 0,
+          "lcp": 5244
+        },
+        "askPosition": "static"
+      },
+      "errors": [],
+      "firstFocus": "Skip to content",
+      "skipTarget": "#home-wordmark",
+      "backMembershipStable": true,
+      "archiveRawRequests": []
+    },
+    {
+      "browser": "webkit",
+      "unavailable": "Error: browserType.launch: Executable doesn't exist at /Users/danielsmac/Library/Caches/ms-playwright/webkit-2336/pw_run.sh"
+    }
+  ],
+  "noJS": {
+    "records": 10,
+    "main": 1,
+    "nav": 7
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-06",
+  "method": "Built-in image generation tool",
+  "purpose": "Additional clearly labelled homepage artwork and safe archive covers; none represents source evidence.",
+  "assets": [
+    {
+      "file": "watch-network.webp",
+      "use": "Narrative Watch",
+      "promptSummary": "Layered paper fragments and a muted amber thread moving through an abstract information network; no readable text or platform UI."
+    },
+    {
+      "file": "case-desk.webp",
+      "use": "Research case",
+      "promptSummary": "Investigative desk collage with abstracted figures, map and red thread; editorial illustration, not a relationship map or evidence."
+    },
+    {
+      "file": "testimony-room.webp",
+      "use": "Testimony safe cover",
+      "promptSummary": "Empty dawn hallway and open doorway; respectful visual pause, no people or event reconstruction."
+    },
+    {
+      "file": "documentation-folder.webp",
+      "use": "Documentation safe cover",
+      "promptSummary": "Sealed archival folder, envelope and gloves with contents concealed; no graphic media."
+    }
+  ]
+}

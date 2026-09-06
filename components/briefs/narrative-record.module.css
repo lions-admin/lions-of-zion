@@ -1,0 +1,26 @@
+.record { padding-block: var(--sp-5); border-top: 1px solid var(--line); min-width: 0; overflow-wrap: anywhere; }
+.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2); color: var(--ink-lo); font: 12px/1.6 var(--face-data); }
+.status { border-inline-start: 2px solid currentColor; padding-inline-start: var(--sp-2); color: var(--ink); }
+.status[data-tone="danger"] { color: var(--data-ember-peak); }
+.status[data-tone="warn"] { color: var(--gold-hi); }
+.status[data-tone="ok"] { color: var(--ink-hi); }
+.label { display: block; font: 12px/1.6 var(--face-data); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
+.record h3 { font: 400 clamp(1.4rem, 2.5vw, 2rem)/1.18 var(--face-display); margin: 0; color: var(--ink-hi); max-width: 35ch; }
+.record h3 a { text-decoration: none; }
+.record h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .15em; }
+.meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: 15px; }
+.propagators, .basis { color: var(--ink-lo); font-size: 12px; }
+.propagators span { display: block; }
+.context { max-width: 65ch; border-inline-start: 1px solid var(--line-strong); padding-inline-start: var(--sp-4); }
+.context p { margin: 0; font: 15px/1.7 var(--face-text); }
+.read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: 44px; margin-top: var(--sp-3); font-size: 13px; color: var(--ink-hi); text-underline-offset: 5px; }
+.record a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
+.compact { padding-block: 16px; }
+.compact h3 { font-size: 21px; line-height: 1.2; }
+.compact .label { margin-top: 10px; }
+.compact .meaning { font-size: 14px; margin-block: 10px 0; }
+.compact .read { margin-top: 4px; }
+.status { font-weight: 600; color: var(--ink-hi); }
+.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.compact .label { margin-block: 8px 4px; }

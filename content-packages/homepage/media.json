@@ -1,0 +1,358 @@
+{
+  "assets": [
+    {
+      "id": "matcal",
+      "src": "/images/homepage/matcal.webp",
+      "width": 1440,
+      "height": 1080,
+      "alt": "Archive context: Matcal Tower, Tel Aviv, 2009. Not an image of the reported announcements.",
+      "credit": "Ori~ · resized WebP",
+      "caption": "Archive context: Matcal Tower, Tel Aviv, 2009. Not an image of the reported announcements.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Matcal_Tower,_Tel_Aviv-Yafo,_2009-1.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Attribution-only permission",
+        "reference": "https://commons.wikimedia.org/wiki/File:Matcal_Tower,_Tel_Aviv-Yafo,_2009-1.jpg",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "blue-line",
+      "src": "/images/homepage/blue-line.webp",
+      "width": 1280,
+      "height": 727,
+      "alt": "Archive context: Blue Line markers, 2021. Not documentation of the incidents in this briefing.",
+      "credit": "UNIFIL · resized WebP",
+      "caption": "Archive context: Blue Line markers, 2021. Not documentation of the incidents in this briefing.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:UNIFIL_Blue_Barrels.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "CC BY-SA 4.0",
+        "reference": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "rami-davidian",
+      "src": "/images/homepage/rami-davidian.webp",
+      "width": 828,
+      "height": 1131,
+      "alt": "Rami Davidian, December 2023.",
+      "credit": "Haim Zach / Government Press Office of Israel · resized WebP",
+      "caption": "Rami Davidian, December 2023.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rami_Davidian.jpg",
+      "role": "portrait",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "CC BY-SA 3.0",
+        "reference": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "noam-tibon",
+      "src": "/images/homepage/noam-tibon.webp",
+      "width": 552,
+      "height": 831,
+      "alt": "Noam Tibon, 2009.",
+      "credit": "דבצפוני / Hebrew Wikipedia · resized WebP",
+      "caption": "Noam Tibon, 2009.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Noam_Tibon.jpg",
+      "role": "portrait",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "CC BY-SA 3.0",
+        "reference": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "declaration",
+      "src": "/images/homepage/declaration.webp",
+      "width": 1440,
+      "height": 960,
+      "alt": "David Ben-Gurion pronounces the declaration, Tel Aviv, May 14, 1948.",
+      "credit": "Zoltan Kluger / Government Press Office · resized WebP",
+      "caption": "David Ben-Gurion pronounces the declaration, Tel Aviv, May 14, 1948.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Declaration_of_State_of_Israel_1948.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Public domain",
+        "reference": "https://commons.wikimedia.org/wiki/File:Declaration_of_State_of_Israel_1948.jpg",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "camp-david",
+      "src": "/images/homepage/camp-david.webp",
+      "width": 1440,
+      "height": 795,
+      "alt": "Sadat, Carter and Begin at Camp David, September 1978; context for the peace process.",
+      "credit": "US government archives · resized WebP",
+      "caption": "Sadat, Carter and Begin at Camp David, September 1978; context for the peace process.",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Camp_David,_Menachem_Begin,_Anwar_Sadat,_1978.jpg",
+      "role": "archival-context",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Public domain",
+        "reference": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "testimony-cover",
+      "src": "/images/homepage/testimony-cover.svg",
+      "width": 1200,
+      "height": 750,
+      "alt": "A typographic cover for Amir T.’s testimony. No witness photograph is used.",
+      "credit": "Lions of Zion · typographic cover",
+      "caption": "A typographic cover for Amir T.’s testimony. No witness photograph is used.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original site artwork",
+        "reference": "scripts/homepage/curate-initial-media.mjs",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "documentation-cover",
+      "src": "/images/homepage/documentation-cover.svg",
+      "width": 1200,
+      "height": 900,
+      "alt": "A non-graphic cover. The original documentation is not loaded on this page.",
+      "credit": "Lions of Zion · safe archive cover",
+      "caption": "A non-graphic cover. The original documentation is not loaded on this page.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original site artwork",
+        "reference": "scripts/homepage/curate-initial-media.mjs",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "case-cover",
+      "src": "/images/homepage/case-cover.svg",
+      "width": 1000,
+      "height": 1000,
+      "alt": "Editorial illustration, not a screenshot or a map of documented relationships.",
+      "credit": "Lions of Zion · editorial typography",
+      "caption": "Editorial illustration, not a screenshot or a map of documented relationships.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original site artwork",
+        "reference": "scripts/homepage/curate-initial-media.mjs",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "watch-cover",
+      "src": "/images/homepage/watch-cover.svg",
+      "width": 1000,
+      "height": 1000,
+      "alt": "Editorial illustration. Monitoring is not confirmation.",
+      "credit": "Lions of Zion · editorial typography",
+      "caption": "Editorial illustration. Monitoring is not confirmation.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Original site artwork",
+        "reference": "scripts/homepage/curate-initial-media.mjs",
+        "clearedAt": "2026-09-05",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "watch-network",
+      "src": "/images/homepage/watch-network.webp",
+      "width": 1200,
+      "height": 1200,
+      "alt": "Editorial illustration of a claim moving through a network of fragments and signals. Not evidence and not a live visualization.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial illustration. Monitoring is not confirmation; the image is not evidence.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "case-desk",
+      "src": "/images/homepage/case-desk.webp",
+      "width": 1200,
+      "height": 1200,
+      "alt": "Editorial illustration of an investigative desk with abstracted documents and a map. Not evidence or a map of documented relationships.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial illustration. The silhouettes and papers are not source material.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "testimony-room",
+      "src": "/images/homepage/testimony-room.webp",
+      "width": 1600,
+      "height": 960,
+      "alt": "Quiet empty room and open doorway used as a safe cover for a testimony. Not a reconstruction of the account.",
+      "credit": "Lions of Zion · generated safe-cover artwork",
+      "caption": "Safe cover. This is not a reconstruction of the testimony or its location.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 65,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    },
+    {
+      "id": "documentation-folder",
+      "src": "/images/homepage/documentation-folder.webp",
+      "width": 1600,
+      "height": 1200,
+      "alt": "Sealed archive folder and envelope with contents concealed. Graphic documentation is not shown here.",
+      "credit": "Lions of Zion · generated safe-cover artwork",
+      "caption": "Safe cover. The underlying documentation remains concealed until the archive record is opened.",
+      "role": "safe-cover",
+      "focalPoint": {
+        "x": 68,
+        "y": 52
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-06",
+        "surfaces": [
+          "homepage"
+        ]
+      }
+    }
+  ],
+  "mappings": {
+    "publication:israel-ministry-of-defense-recent-announcements--m781m": "matcal",
+    "publication:israel-ministry-of-defense-activities-regional-r-lref0": "blue-line",
+    "hero:rami-davidian": "rami-davidian",
+    "hero:noam-tibon": "noam-tibon",
+    "chapter:the-founding": "declaration",
+    "chapter:peace-when-it-came": "camp-david",
+    "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue": "testimony-room",
+    "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart": "documentation-folder",
+    "case:case_02_manosphere_far_right": "case-desk",
+    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "watch-network"
+  }
+}

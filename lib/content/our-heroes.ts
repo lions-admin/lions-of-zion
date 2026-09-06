@@ -1,3 +1,4 @@
+import type { EditorialMediaReference } from '@/server/contracts/editorial-media';
 /**
  * Our Heroes — seam for real, sourced profiles.
  *
@@ -14,6 +15,7 @@ import type { Source } from '@/components/content';
 export type HeroRole = 'Fallen' | 'Rescuer' | 'Fighter';
 
 export type HeroProfile = {
+  mediaRef?: EditorialMediaReference;
   id: string;
   name: string;
   role: HeroRole;
@@ -54,6 +56,7 @@ const PROFILES: HeroProfile[] = [
   },
   {
     id: 'rami-davidian',
+    mediaRef: 'rami-davidian',
     name: 'Rami Davidian',
     role: 'Rescuer',
     meta: 'Farmer, Moshav Patish',
@@ -76,6 +79,7 @@ const PROFILES: HeroProfile[] = [
   },
   {
     id: 'noam-tibon',
+    mediaRef: 'noam-tibon',
     name: 'Maj.-Gen. (ret.) Noam Tibon',
     role: 'Fighter',
     meta: 'Retired, Israel Defense Forces',

@@ -11,7 +11,10 @@ describe("direct-entry cinematic home", () => {
     expect(page).not.toContain("ScanBackdrop");
     expect(page).toContain("<HeroVideo className={styles.heroVideo} />");
     expect(page).not.toContain("CinematicHomeMedia");
-    expect(page).toContain("<EditorialIntro />");
+    expect(page).toContain("<HomepageJourney edition={edition}/>");
+    const system = readFileSync("components/home/HomeSystemSection.tsx", "utf8");
+    expect(system).toContain("autoOpen={false}");
+    expect(page).not.toContain("SignalRotator");
     expect(page).toContain('href="/information-war"');
     expect(page).toContain('href="/geopolitical-brief"');
   });

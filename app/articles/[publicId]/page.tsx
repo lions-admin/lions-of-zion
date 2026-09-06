@@ -295,7 +295,7 @@ export default async function ArticlePage({ params }: Props) {
                 {article.relatedArticles.map((related) => (
                   <li key={related.publicId}>
                     <Card href={`/articles/${related.publicId}`} variant="row">
-                      <CardEyebrow>{SECTION_LABELS[related.section]}</CardEyebrow>
+                      <CardEyebrow>{related.section === "narrative_watch" ? "Related claim assessment" : SECTION_LABELS[related.section]}</CardEyebrow>
                       <CardTitle as="h3">{related.title}</CardTitle>
                       {related.summary ? <CardDescription>{related.summary}</CardDescription> : null}
                     </Card>

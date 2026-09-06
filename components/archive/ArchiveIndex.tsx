@@ -333,6 +333,21 @@ export function ArchiveIndex({
                who tabs back into it is re-told where they are. */
             aria-describedby={`${inputId}-summary`}
           />
+          {draft ? (
+            <Button
+              type="button"
+              variant="text"
+              size="sm"
+              onClick={() => {
+                if (writeTimer.current) clearTimeout(writeTimer.current);
+                setDraft('');
+                writeUrl(buildUrl({ q: '', facet, page: 1 }), 'replace');
+                document.getElementById(inputId)?.focus();
+              }}
+            >
+              Clear search
+            </Button>
+          ) : null}
         </div>
 
         {facets.length > 1 ? (

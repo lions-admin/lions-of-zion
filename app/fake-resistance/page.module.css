@@ -1,189 +1,39 @@
-/* The section root is a Dossier hub (INV-001): a thesis, then the decision
-   moment — the latest case file, the two branch cards, the network entry —
-   then the methods index, and only after all of that the framing essays.
-   The worked case-file layout lives in `official-narrative/page.module.css`
-   and the file index in `social-media/page.module.css`.
-
-   Every value here answers to the V3 tokens in app/globals.css. The section
-   runs `accent="ember"`: ember is its accent and gold stays brand, and no
-   third colour is introduced. */
-
-/* The page's opening two sentences: the standfirst, in the display face at
-   the lede step — the sentence that tells the reader what the page will
-   prove. No uppercase, no rule: the file cards below carry all the
-   emphasis this page needs. */
-.standfirst {
-  margin: 0 0 var(--sp-5);
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  /* Body size, not `--t-lede`. The shell above already sets the tagline at
-     the lede step, and this paragraph sat directly under it at the same
-     step in a brighter ink — two elements at one level, which is the
-     hierarchy defect the squint test is for. The display face at body size
-     is the lead-in voice: distinctly the shell's strapline, then this, then
-     the sans body. */
-  font-size: var(--t-body);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-body-lh);
-  text-wrap: pretty;
-}
-
-/* ── The latest case file ─────────────────────────────────────────────────
-   One dossier card, full measure, above the branch pair: the single freshest
-   thing this section can hand a reader. Chrome is `Card variant="dossier"`. */
-
-.featured.featured {
-  margin-top: var(--sp-5);
-  height: auto;
-}
-
-/* The card's evidence line: what stands behind the file, as a labelled fact
-   rather than a teaser. */
-.featuredEvidence {
-  composes: dataMeta from global;
-  margin: var(--sp-3) 0 0;
-  color: var(--ink-lo);
-  font-variant-numeric: tabular-nums;
-}
-
-.featuredEvidence > span {
-  display: block;
-  margin-bottom: var(--sp-1);
-  color: var(--data-ember-peak);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-/* Two research branches, then the provisional daily watch across the measure.
-   Columns follow the reading column's available space, not viewport width. */
-
-.branches {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-  gap: var(--sp-5);
-  margin-top: var(--sp-5);
-}
-
-.branchSlot {
-  display: grid;
-  min-width: 0;
-}
-
-.branchSlot:last-child {
-  grid-column: 1 / -1;
-}
-
-.branchSlot > * {
-  min-height: 100%;
-}
-
-/* ── The network entry ────────────────────────────────────────────────────
-   One row card under the pair: the synthesis is reachable from the hub
-   without first choosing a branch. */
-.networkEntry {
-  margin: var(--sp-5) 0 0;
-  padding: 0;
-  list-style: none;
-  border-top: var(--line-w) solid var(--line);
-}
-
-/* ── The methods index (INV-001) ──────────────────────────────────────────
-   Nine techniques as one numbered index: each row is a destination with its
-   one-line summary, not a card and not an essay. The counter is the desk's
-   apparatus, so it takes gold; the rows are links with the full state set. */
-
-.methodsIndex {
-  margin: var(--sp-5) 0 0;
-  padding: 0;
-  list-style: none;
-  border-top: var(--line-w) solid var(--line);
-  counter-reset: method;
-}
-
-.methodsIndex > li {
-  margin: 0;
-  border-bottom: var(--line-w) solid var(--line-soft);
-  counter-increment: method;
-}
-
-.methodRow {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--sp-1);
-  min-height: var(--control-h);
-  padding: var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-7);
-  color: inherit;
-  text-decoration: none;
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.methodRow::before {
-  position: absolute;
-  top: calc(var(--sp-3) + 0.2em);
-  left: var(--sp-2);
-  color: var(--gold);
-  content: counter(method, decimal-leading-zero);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.methodRow:hover {
-  background: var(--tint-hover);
-}
-
-.methodRow:active {
-  background: var(--tint-active);
-}
-
-.methodRow:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: 0;
-}
-
-.methodTitle {
-  color: var(--ink-hi);
-  font-size: var(--t-small);
-  font-weight: 600;
-  line-height: var(--t-small-lh);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.methodRow:hover .methodTitle,
-.methodRow:focus-visible .methodTitle {
-  color: var(--gold-hi);
-}
-
-.methodSummary {
-  color: var(--ink-lo);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  max-width: var(--measure-narrow);
-  text-wrap: pretty;
-}
-
-/* The monitoring entry precedes the research archive; no simulated live badge. */
-.watchLead {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: var(--sp-5);
-  padding-block: var(--sp-6);
-  margin-block: var(--sp-5) var(--sp-7);
-  border-block: 1px solid var(--line-strong);
-  font-family: var(--face-navigation);
-  text-transform: none;
-}
-.watchEyebrow { font: 10px/1.5 var(--face-data); color: var(--gold-hi); letter-spacing: .08em; text-transform: uppercase; }
-.watchLead h2 { font: 400 clamp(28px, 3.5vw, 40px)/1.1 var(--face-navigation-display); letter-spacing: -.025em; margin-block: var(--sp-3); }
-.watchLead p:not(.watchEyebrow) { font-size: 14px; line-height: 1.7; max-width: 48ch; }
-.watchAction { display: grid; gap: var(--sp-3); }
-.watchAction > span { font-size: 11px; color: var(--ink-lo); }
-.watchAction a { display: inline-flex; gap: var(--sp-5); align-items: center; min-height: 44px; color: var(--gold-hi); border-bottom: 1px solid var(--gold-dim); font-size: 13px; text-decoration: none; }
-.watchAction a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-@media (max-width: 700px) { .watchLead { grid-template-columns: 1fr; } .watchAction { justify-items: start; } }
+.page { color: var(--ink); }
+.hub { width: min(1600px, calc(100% - 80px)); margin: 0 auto; padding: 32px 0 64px; }
+.masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line-strong); padding-bottom: 24px; }
+.masthead h1 { font: 400 28px/1.2 var(--face-display); color: var(--ink-hi); margin: 0; }
+.masthead p { font: 14px/1.6 var(--face-text); color: var(--ink-lo); margin: 0; max-width: 55ch; }
+.front { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 40px; padding-block: 32px 40px; }
+.investigation { padding-right: 40px; border-right: 1px solid var(--line); min-width: 0; }
+.eyebrow { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font: 12px/1.6 var(--face-data); color: var(--ink-lo); }
+.eyebrow > span { color: var(--gold-hi); }
+.investigation h2 { font: 400 clamp(34px, 3.8vw, 64px)/1.08 var(--face-display); letter-spacing: -.025em; color: var(--ink-hi); margin: 28px 0 24px; text-wrap: pretty; }
+.hub h2 a, .hub h3 a { color: inherit; text-decoration: none; }
+.question { font: 18px/1.65 var(--face-text); max-width: 65ch; margin: 0; }
+.evidence { display: flex; gap: 40px; margin: 28px 0 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+.evidence div { display: flex; flex-direction: column-reverse; gap: 6px; }
+.evidence dt { font: 12px/1.5 var(--face-data); color: var(--ink-lo); }
+.evidence dd { margin: 0; font: 400 32px/1 var(--face-display); color: var(--ink-hi); }
+.action { display: inline-flex; align-items: center; gap: 20px; min-height: 44px; color: var(--ink-hi); font: 14px/1.6 var(--face-text); text-underline-offset: 6px; }
+.monitoring { min-width: 0; }
+.sectionHead { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.sectionHead h2 { font: 400 25px/1.2 var(--face-display); color: var(--ink-hi); margin: 0; }
+.sectionHead a { font: 12px/1.6 var(--face-text); min-height: 44px; display: inline-flex; align-items: center; color: var(--ink-lo); }
+.disclosure { color: var(--ink-lo); font: 12px/1.6 var(--face-text); margin: 0 0 12px; }
+.more { border-top: 1px solid var(--line-strong); padding-top: 24px; }
+.researchGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 32px; margin-top: 20px; }
+.researchGrid article { min-width: 0; border-top: 1px solid var(--line); padding-top: 20px; }
+.researchGrid time { font: 12px/1.6 var(--face-data); color: var(--ink-lo); }
+.researchGrid h3 { font: 400 26px/1.18 var(--face-display); color: var(--ink-hi); margin-block: 16px; }
+.researchGrid p { font: 16px/1.65 var(--face-text); margin: 0; max-width: 65ch; }
+.depth { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 32px; border-block: 1px solid var(--line-strong); padding-block: 28px; margin-top: 40px; }
+.depth a { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; color: var(--ink-hi); text-decoration: none; }
+.depth a > span:first-child { grid-column: 1 / -1; font: 12px/1.6 var(--face-data); color: var(--ink-lo); }
+.depth strong { font: 400 27px/1.2 var(--face-display); }
+.bottomLinks { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 20px; }
+.bottomLinks a { color: var(--ink-lo); font-size: 13px; min-height: 44px; display: inline-flex; align-items: center; }
+.hub a:hover { color: var(--gold-hi); }
+.hub a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+.hub a:active { opacity: .8; }
+@media (max-width: 1099px) { .front { grid-template-columns: 1fr; } .investigation { border-right: 0; padding-right: 0; } .researchGrid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 767px) { .hub { width: calc(100% - 40px); padding-top: 24px; } .masthead { display: block; } .masthead h1 { font-size: 25px; } .masthead p { margin-top: 8px; } .front { gap: 28px; padding-top: 24px; } .investigation h2 { font-size: 36px; margin-top: 20px; } .question { font-size: 16px; } .researchGrid, .depth { grid-template-columns: 1fr; } .evidence { gap: 24px; } }

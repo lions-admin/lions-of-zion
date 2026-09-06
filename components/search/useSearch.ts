@@ -83,7 +83,7 @@ const REQUEST_TIMEOUT_MS = 15_000;
 const LIMIT = 25;
 const EMPTY: SearchHit[] = [];
 
-export function useSearch(initialQuery = ""): UseSearch {
+export function useSearch(initialQuery = "", composing = false): UseSearch {
   const [query, setQuery] = useState(initialQuery);
   /** Answered queries. Replaced rather than mutated, so a landed result
    *  re-renders the panel. */
@@ -107,7 +107,7 @@ export function useSearch(initialQuery = ""): UseSearch {
 
   useEffect(() => {
     controller.current?.abort();
-    if (trimmed.length < 2 || answer || problem) return;
+    if (composing || trimmed.length < 2 || answer || problem) return;
 
     const abort = new AbortController();
     controller.current = abort;
@@ -153,7 +153,7 @@ export function useSearch(initialQuery = ""): UseSearch {
       if (requestTimeout !== undefined) window.clearTimeout(requestTimeout);
       abort.abort();
     };
-  }, [trimmed, answer, problem, attempt]);
+  }, [trimmed, answer, problem, attempt, composing]);
 
   const retry = useCallback(() => {
     setFailure(null);

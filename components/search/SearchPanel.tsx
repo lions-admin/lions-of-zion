@@ -38,6 +38,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { FieldShell } from "@/components/ui/Field";
 import { StatusState } from "@/components/ui/StatusState";
 import fieldStyles from "@/components/ui/field.module.css";
@@ -85,7 +86,8 @@ export function SearchPanel({
   onQueryChange,
 }: SearchPanelProps) {
   const router = useRouter();
-  const { query, setQuery, answered, hits, state, semantic, problem, retry } = useSearch(initialQuery);
+  const [composing, setComposing] = useState(false);
+  const { query, setQuery, answered, hits, state, semantic, problem, retry } = useSearch(initialQuery, composing);
   const recents = useSyncExternalStore(subscribeRecents, readRecents, () => EMPTY_RECENTS);
 
   /* The selection resets when a new result set lands. Adjusted during render
@@ -129,6 +131,7 @@ export function SearchPanel({
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.nativeEvent.isComposing || composing) return;
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
@@ -238,8 +241,25 @@ export function SearchPanel({
               aria-autocomplete="list"
               aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
               onChange={(event) => handleChange(event.target.value)}
+              onCompositionStart={() => setComposing(true)}
+              onCompositionEnd={() => setComposing(false)}
               onKeyDown={onKeyDown}
             />
+            {query ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                iconOnly
+                aria-label="Clear search"
+                onClick={() => {
+                  handleChange("");
+                  inputRef.current?.focus();
+                }}
+              >
+                <Icon name="close" size={18} />
+              </Button>
+            ) : null}
             {variant === "overlay" ? (
               <Button type="button" variant="ghost" size="sm" onClick={() => onDismiss?.()} aria-label="Close search">
                 Esc

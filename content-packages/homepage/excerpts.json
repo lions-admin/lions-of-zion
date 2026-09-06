@@ -1,0 +1,42 @@
+[
+  {
+    "key": "publication:israel-ministry-of-defense-recent-announcements--m781m",
+    "role": "whyItMatters",
+    "text": "The packet contains the IMOD official content above but includes no statement on Lebanon incidents or the US helicopter sale.",
+    "sourceField": "body",
+    "sourceReference": "/articles/israel-ministry-of-defense-recent-announcements--m781m",
+    "version": "2026-09-01T10:30:38.782Z"
+  },
+  {
+    "key": "publication:israel-ministry-of-defense-activities-regional-r-lref0",
+    "role": "whyItMatters",
+    "text": "Verify allegations of white phosphorus use and locations cited (Zawtar al-Sharqiyah, Kafr Rumman) against independent monitoring sources and seek official Israeli or third-party confirmation; current packet contains only Middle East Eye citing Lebanon’s National News Agency.",
+    "sourceField": "body",
+    "sourceReference": "/articles/israel-ministry-of-defense-activities-regional-r-lref0",
+    "version": "2026-09-01T10:30:38.782Z"
+  },
+  {
+    "key": "chapter:the-founding",
+    "role": "whyItMatters",
+    "text": "At the Tel Aviv Museum, Ben-Gurion reads the Declaration of Independence on behalf of the 37-member Provisional State Council, establishing the State of Israel.",
+    "sourceField": "timeline.independence.body",
+    "sourceReference": "https://en.wikipedia.org/wiki/Israeli_Declaration_of_Independence",
+    "version": "81a4a0d6f5108f9b4773ba977d3738fb06112d6feefeefc4e70c6a04a9e0e4e2"
+  },
+  {
+    "key": "chapter:peace-when-it-came",
+    "role": "whyItMatters",
+    "text": "Signed in Washington, D.C. by Egyptian President Anwar Sadat and Israeli Prime Minister Menachem Begin, witnessed by U.S. President Jimmy Carter. It ends the state of war dating to 1948: Israel withdraws from the Sinai Peninsula; Egypt demilitarizes it and opens the Suez Canal and the Strait of Tiran to Israeli shipping.",
+    "sourceField": "timeline.egypt-treaty.body",
+    "sourceReference": "https://en.wikipedia.org/wiki/Israel%E2%80%93Egypt_peace_treaty",
+    "version": "695f5abb62abc95329a47c3a8fb466e17bd05d50441680e67025088307434da2"
+  },
+  {
+    "key": "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue",
+    "role": "summary",
+    "text": "Initially, there was just a warning siren. It was just past six in the morning, and my wife Miri woke up to a familiar noise: the whistle of an incoming missile.",
+    "sourceField": "versions.en.content_blocks[1].text (opening sentences)",
+    "sourceReference": "https://www.october7.org/post/we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue-us",
+    "version": "17dbe18e6c2406dcd61d38f9f79ea640c3e6975ade3c1d5ad2c8ac9273ba8a30"
+  }
+]

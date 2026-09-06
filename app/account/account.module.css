@@ -36,13 +36,11 @@
   position: relative;
   z-index: var(--z-raised);
   /* Centred, and never edge-to-edge on a phone. */
-  width: min(34rem, calc(100% - 2 * var(--family-pad-inline)));
+  width: min(42rem, calc(100% - 2 * var(--family-pad-inline)));
   margin: var(--family-pad-block) auto var(--sp-9);
   padding: clamp(var(--sp-5), 5vw, var(--sp-7));
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
-  box-shadow: var(--shadow-1);
+  border-block-start: var(--line-w) solid var(--line-strong);
+  background: transparent;
 }
 
 /* The one gold mark on the panel. */
@@ -66,7 +64,7 @@
   margin: var(--sp-3) 0 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: var(--t-h2);
+  font-size: var(--t-display);
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);

@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: clamp(var(--sp-7), 5vw, var(--sp-8)) var(--sp-5);
+  padding: var(--sp-6) 0;
 }
 
 .idle { --status-fg: var(--async-idle); }
@@ -29,12 +29,11 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  padding: clamp(var(--sp-6), 3.5vw, var(--sp-7)) clamp(var(--sp-5), 3vw, var(--sp-6));
+  align-items: flex-start;
+  text-align: start;
+  background: transparent;
+  border-block: var(--line-w) solid var(--line);
+  padding: var(--sp-6) var(--sp-4);
 }
 
 /* A still, state-specific rule gives the frame a finished edge without

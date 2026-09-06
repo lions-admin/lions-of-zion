@@ -175,8 +175,8 @@ No JavaScript at 390×844: 10 records, 1 main landmark, 7 fallback navigation li
 
 - `npm run typecheck`: passed.
 - `npm run lint`: 0 errors, 4 pre-existing warnings.
-- `npm test` (111 files, two workers): 1074 passed, 1 skipped. Two
-  failures were this branch's and are fixed — the launcher's one-shot frame
+- `npm test` (112 files, two workers, re-run after the correction): 1083
+  passed, 1 skipped. Two failures were this branch's and are fixed — the launcher's one-shot frame
   had to be registered in `tests/motion-runtime.test.ts`, and four new
   class names needed rules for `tests/css-module-contract.test.ts` — and
   both files pass now. Nine failures in four files reproduce on the untouched
@@ -188,13 +188,19 @@ No JavaScript at 390×844: 10 records, 1 main landmark, 7 fallback navigation li
   `tests/site-navigation.test.ts` (1); `tests/briefing-runtime.test.ts` (1),
   the stale `briefing-quality` queue trigger already recorded in
   `.ai/STATE.md` on 2026-09-04.
-- `npm run build`: passed (Node 22, Next 16.3.2).
+- `npm run build`: passed (Node 22, Next 16.3.2), re-run after the
+  correction.
 - `npm run perf:report` against that build: the homepage JS budget was
   already exceeded before this pass — the previous report recorded 321.3 kB
   gzip against 310 kB as a follow-up — and reads 321.9 kB now, the launcher
-  hook's few hundred bytes on top of the same bundle. The "worst public
-  reading route" budget (283.4 kB) is the same route. Every other budget
-  passes. Trimming the homepage bundle remains the open follow-up it was.
+  hook's few hundred bytes on top of the same bundle; the correction added
+  no client JavaScript (the sentence split runs in the server components,
+  the launcher change is CSS), so the figure is the same after it. The
+  "worst public reading route" budget (283.4 kB) is the same route. The
+  worst route's CSS sits exactly at its 64.3 kB budget after the correction,
+  which is worth watching before the next stylesheet grows. Every other
+  budget passes. Trimming the homepage bundle remains the open follow-up it
+  was.
 - `node scripts/homepage/verify-mobile.mjs after`: no horizontal overflow at
   any width, no page errors, the launcher reachable by Tab and visible when
   focused at every width, ten records and the fallback navigation with

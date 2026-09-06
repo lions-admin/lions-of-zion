@@ -20,7 +20,7 @@ import { publication } from "@/server/db/schema";
 import type { EditorialOperation } from "@/server/contracts/editorial-update";
 import type { EditorialMediaDraft } from "@/server/modules/media/repo";
 import { mediaRepo, toEditorialMedia } from "@/server/modules/media/repo";
-import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
+import { isArticleSafeMedia, isHomepageSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { repo } from "./repo";
 import {
   canTransitionPublication,
@@ -687,6 +687,23 @@ export function publicationService(db: unknown) {
             && (row.briefingRunId !== null || row.editorialRunId !== null)
             && belongsToHomepageArea(row.section, area);
           if (!eligible) throw new ApiError("VALIDATION_ERROR", "Only a live editorial publication from the matching homepage area can occupy this placement.");
+          /* The homepage composer admits only records whose hero is cleared
+           * for the homepage surface (`homepageInputs` → `isHomepageSafeMedia`),
+           * and `selectHomepage` falls through to its automatic pick when a
+           * placement names a record it never admitted. Storing such a
+           * placement therefore did nothing, silently: three runs on
+           * 2026-09-07 reported `failed=0` while every slot they had asked
+           * for kept its automatic occupant, because none of the records
+           * carried a picture. Refusing here turns that into a reported
+           * reason the composer can act on — attach a homepage-cleared
+           * image — rather than a success that did not happen. */
+          const hero = (await mediaRepo(tx).heroMediaByPublicationIds([publicationId])).get(publicationId);
+          if (!hero || !isHomepageSafeMedia(hero)) {
+            throw new ApiError(
+              "VALIDATION_ERROR",
+              "A homepage placement needs a hero image cleared for the homepage surface; this publication has none, so the slot would keep its automatic pick and the placement would do nothing. Attach a cleared image (rights.surfaces including \"homepage\") and place it again.",
+            );
+          }
         }
         await r.setHomepagePlacement(area, position, publicationId);
         await emit(tx as never, TOPICS.publicationCacheInvalidate, { homepagePlacement: { area, position }, publicationId });

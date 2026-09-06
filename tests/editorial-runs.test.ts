@@ -151,12 +151,20 @@ describe('durable whole-site editorial runs', () => {
   });
 
   it('reports destinations, homepage moves, refusals, recommendations and the next action', async () => {
-    const run = await repo().start(request('report-content'), 'test:owner');
+    const base = request('report-content');
+    const run = await repo().start({ ...base, operations: [...base.operations,
+      { key: 'pictureless', action: 'create', publication: { kind: 'news_update', section: 'innovation', title: 'Record without a picture', body: 'A record shipped with no hero.', language: 'en' } },
+    ] }, 'test:owner');
     const worker = await repo().claim(run.id);
     await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async () => ({
       publicationId: '11111111-1111-4111-8111-111111111111', publicId: 'source-linked-report',
       url: '/articles/source-linked-report', action: 'create', section: 'news',
       title: 'Source-linked report', hasMedia: true,
+    }));
+    await repo().completeOperation(run.id, worker!.leaseToken!, 'pictureless', async () => ({
+      publicationId: '22222222-2222-4222-8222-222222222222', publicId: 'no-hero-record',
+      url: '/articles/no-hero-record', action: 'create', section: 'innovation',
+      title: 'Record without a picture', hasMedia: false,
     }));
     await repo().failOperation(run.id, worker!.leaseToken!, 'profile', {
       stage: 'media', operationKey: 'profile', message: 'Image URL returned HTTP 404.',
@@ -164,7 +172,13 @@ describe('durable whole-site editorial runs', () => {
     });
     await repo().finish(run.id, worker!.leaseToken!, {
       status: 'partial',
-      publications: { created: 1, updated: 0, failed: 1, requested: 2 },
+      publications: { created: 2, updated: 0, failed: 1, requested: 3 },
+      errors: [
+        { operationKey: 'profile', stage: 'media', message: 'Image URL returned HTTP 404.' },
+        /* A refused homepage slot is named by area and position and does not
+           take the other slots down with it. */
+        { operationKey: null, stage: 'homepage', message: 'fakeResistance/lead was not placed: A homepage placement needs a hero image cleared for the homepage surface; this publication has none.' },
+      ],
       byCategory: { news: { created: 1, updated: 0 } },
       urls: ['/articles/source-linked-report'],
       homepage: { editionDate: '2026-09-06', revision: 2, changes: [
@@ -172,7 +186,6 @@ describe('durable whole-site editorial runs', () => {
         { area: 'people', position: 'secondary', action: 'remove', publicId: null, url: null },
       ] },
       media: { prepared: 1, reused: 0, generated: 1 },
-      errors: [{ operationKey: 'profile', stage: 'media', message: 'Image URL returned HTTP 404.' }],
       siteRecommendations: ['Give the People desk a second lead.'],
     });
 
@@ -191,10 +204,16 @@ describe('durable whole-site editorial runs', () => {
     expect(text).toContain('Image URL returned HTTP 404.');
     expect(text).toContain('Replace the image and resume the run.');
     expect(text).toContain('Give the People desk a second lead.');
+    /* The refused slot, by area and position, in the veto section. */
+    expect(text).toContain('run-level homepage: fakeResistance/lead was not placed');
+    /* Said outright, not only as a per-record annotation: which records have
+       no hero, and that the homepage cannot take them. */
+    expect(text).toContain('Published WITHOUT a hero image: 1 — no-hero-record');
+    expect(text).toContain('cannot be placed on the homepage');
     /* Failure detail: stage, what already succeeded, retry safety, next step. */
     expect(text).toContain('Stage reached: media');
     expect(text).toContain('Failing operations: profile');
-    expect(text).toContain('Succeeded before the failure: 1 of 2');
+    expect(text).toContain('Succeeded before the failure: 2 of 3');
     expect(text).toContain('Retry safe: yes');
     expect(text).toContain(`/api/v1/admin/editorial-update/${run.id}`);
     expect(text).toContain('editorial illustrations: 1');

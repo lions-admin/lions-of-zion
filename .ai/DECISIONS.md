@@ -10,6 +10,36 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — A homepage placement is refused, not stored, when the record has no homepage-cleared hero
+
+Three whole-site runs on 2026-09-07 asked for eight homepage slots between
+them and reported `failed=0`. None of the slots changed. Every record they
+placed had been published without a picture, and the homepage composer only
+admits a record whose hero `isHomepageSafeMedia()` — so `selectHomepage()`
+never found the placed key in its candidate pool and fell through to its
+automatic pick, silently. The placement row existed; it pointed at nothing
+the page could draw.
+
+The refusal now lives in `setHomepagePlacement()` next to the existing
+area-mismatch refusal, because that is where the placement is stored and a
+placement that cannot render is a broken pointer, not an editorial choice.
+It is **not** a quality gate on publication: a record without a hero still
+publishes and still reaches its hub. It only cannot occupy a homepage slot,
+which was already true — the difference is that the run now says so.
+
+Two consequences were changed with it. The executor applies homepage
+decisions one slot at a time under their own `try`, so one refused slot no
+longer aborts the ones after it and the report names the refused slot by
+area and position. And the report says outright which records shipped
+without a hero, because the per-record annotation alone let three reports
+read as complete successes.
+
+The alternative — making the composer admit picture-less records — was
+rejected: the homepage bands are image-led by design (`docs/editorial-dna.md`
+§6–7) and a text-only lead is a layout the page does not have.
+
+---
+
 ## 2026-09-07 — The outbox queue topic is `outbox-dispatch`, and a name the queue refuses fails the build
 
 Every whole-site editorial run submitted since the delivery path shipped

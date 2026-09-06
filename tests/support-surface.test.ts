@@ -1,6 +1,11 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  BUY_ME_A_COFFEE_URL,
+  DONATION_CHANNELS,
+  PAYPAL_DIRECT_URL,
+} from "@/lib/donation-channels";
 
 /**
  * The /support-us composition (SUPPORT-001, SUPPORT-003).
@@ -83,5 +88,70 @@ describe("share and payment (SUPPORT-003)", () => {
        page is never told about, so the direct link is unconditional. */
     expect(source).toContain("PAYPAL_DIRECT_URL");
     expect(source).toContain("<noscript>");
+  });
+});
+
+describe("donation channels are links to the provider, never embedded widgets", () => {
+  /* Both providers ship a script — PayPal's hosted-button SDK, Buy Me a
+     Coffee's button and floating widget. The rule (`.ai/DECISIONS.md`,
+     2026-09-07) is that money never depends on one: PayPal's loads only after
+     an explicit press, and Buy Me a Coffee's never loads at all, because the
+     profile URL opens the same page. These pin that no page quietly grows a
+     third-party script back. */
+  const SOURCE_ROOTS = ["app", "components", "lib"];
+  const listSources = (dir: string): string[] =>
+    readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap((entry) => {
+      const rel = path.join(dir, entry.name);
+      if (entry.isDirectory()) return listSources(rel);
+      return /\.(ts|tsx|css)$/.test(entry.name) ? [rel] : [];
+    });
+
+  it("names both providers by their own URL, PayPal first", () => {
+    expect(new URL(PAYPAL_DIRECT_URL).hostname).toBe("www.paypal.com");
+    expect(new URL(BUY_ME_A_COFFEE_URL).hostname).toBe("www.buymeacoffee.com");
+    expect(DONATION_CHANNELS.map((channel) => channel.href)).toEqual([
+      PAYPAL_DIRECT_URL,
+      BUY_ME_A_COFFEE_URL,
+    ]);
+    for (const channel of DONATION_CHANNELS) {
+      expect(channel.label.length, `${channel.id} needs a label`).toBeGreaterThan(0);
+      expect(channel.note, `${channel.id} must say whose page takes the payment`).toContain(
+        channel.provider,
+      );
+    }
+  });
+
+  it("never loads Buy Me a Coffee's button or widget script anywhere", () => {
+    const offenders = SOURCE_ROOTS.flatMap(listSources).filter((rel) =>
+      /cdnjs\.buymeacoffee\.com|BMC-Widget|bmc-button|widget\.prod\.min\.js/.test(read(rel)),
+    );
+    expect(offenders).toEqual([]);
+    /* And the CSP has not been widened to let one in. */
+    expect(read("next.config.ts")).not.toContain("buymeacoffee");
+  });
+
+  it("offers both channels on /support-us, with PayPal keeping the one gold control", () => {
+    const page = read("app/support-us/page.tsx");
+    expect(page).toContain("<PayPalDonateStep />");
+    expect(page).toContain("<BuyMeACoffeeStep />");
+    expect(page.indexOf("<PayPalDonateStep />")).toBeLessThan(page.indexOf("<BuyMeACoffeeStep />"));
+    const step = read("components/support/BuyMeACoffeeStep.tsx");
+    expect(step).toContain("BUY_ME_A_COFFEE_URL");
+    expect(step).toContain('variant="secondary"');
+    expect(step).toContain('rel="noreferrer"');
+    expect(step).not.toContain("<script");
+  });
+
+  it("closes the homepage on the same two links and names the band in the contents line", () => {
+    const journey = read("components/home/HomepageJourney.tsx");
+    expect(journey).toContain("<HomeSupportSection />");
+    expect(journey).toContain('href="#home-support"');
+    const section = read("components/home/HomeSupportSection.tsx");
+    expect(section).toContain("DONATION_CHANNELS");
+    expect(section).toContain('id="home-support"');
+    expect(section).toContain('rel="noreferrer"');
+    expect(section).toContain('href="/support-us"');
+    expect(section).not.toContain("<script");
+    expect(section).not.toContain("use client");
   });
 });

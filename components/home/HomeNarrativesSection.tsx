@@ -6,6 +6,8 @@ import {
   HomeTime,
   HomeSources,
   JourneyLink,
+  PREVIEW_BUDGET,
+  PreviewText,
   SectionAction,
   SectionHeading,
   SectionState,
@@ -83,7 +85,12 @@ export function HomeNarrativesSection({
                   </a>
                 </h3>
                 {item.kind === "case" && (
-                  <p className={styles.summary}>{item.question}</p>
+                  <p className={styles.summary}>
+                    <PreviewText
+                      text={item.question}
+                      budget={PREVIEW_BUDGET[rankOf(index)]}
+                    />
+                  </p>
                 )}
                 {item.finding && (
                   <div className={styles.finding}>

@@ -15,7 +15,7 @@
   --journey-panel: color-mix(in srgb, var(--surface-1) 38%, var(--ground));
   --journey-title: clamp(38px, 4.8vw, 72px);
   --journey-story: clamp(29px, 2.7vw, 43px);
-  --journey-thumb: 88px;
+  --journey-thumb: 96px;
   --journey-paper: #e8e2d6;
   --journey-paper-ink: #24221f;
   --journey-paper-muted: #625f57;
@@ -73,7 +73,7 @@
 }
 .editionDate {
   grid-area: date;
-  font: 400 12px/1.7 var(--face-data);
+  font: 400 13px/1.7 var(--face-data);
   color: var(--ink-lo);
   text-align: end;
 }
@@ -88,7 +88,7 @@
 }
 .contents > span {
   margin-right: auto;
-  font: 400 10px/1.5 var(--face-data);
+  font: 400 11px/1.5 var(--face-data);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--ink-lo);
@@ -97,7 +97,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  font-size: 12px;
+  font-size: 13px;
   text-decoration: none;
 }
 .contents a:hover,
@@ -156,9 +156,9 @@
 }
 .kicker {
   color: var(--gold);
-  font: 400 10px/1.6 var(--face-data);
+  font: 400 11px/1.6 var(--face-data);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
   margin: 0 0 12px;
 }
 .link {
@@ -170,7 +170,7 @@
   max-width: 100%;
   padding: 11px 0;
   border-bottom: 1px solid var(--control-line);
-  font: 500 13px/1.45 var(--face-text);
+  font: 500 14px/1.45 var(--face-text);
   text-decoration: none;
   transition:
     color var(--dur-fast) var(--ease-out),
@@ -205,7 +205,7 @@
    label that wrapped word by word in it was the whole width of a column. */
 .sectionAction .link {
   color: var(--ink);
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .sectionAction .link:hover {
@@ -232,17 +232,19 @@
   object-fit: cover;
   background: var(--ground);
 }
+/* Nothing under a picture is set below the system's caption size (13px):
+   the disclosure, the description and the credit are all meant to be read. */
 .figure figcaption {
   display: grid;
   gap: 3px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--ink-lo);
   margin-top: 10px;
   max-width: 85ch;
 }
 .disclosure {
-  font: 500 10px/1.5 var(--face-data);
+  font: 500 11px/1.5 var(--face-data);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink);
@@ -265,7 +267,7 @@
 
 /* ---- The record's parts ---- */
 .meta {
-  font: 400 12px/1.65 var(--face-data);
+  font: 400 13px/1.65 var(--face-data);
   color: var(--ink-lo);
 }
 .byline {
@@ -276,7 +278,7 @@
   margin-bottom: 14px;
 }
 .byline > span {
-  font: 500 11px/1.65 var(--face-text);
+  font: 500 13px/1.65 var(--face-text);
   color: var(--gold);
 }
 .summary {
@@ -286,12 +288,17 @@
   max-width: 65ch;
   margin: 18px 0 22px;
 }
+/* The sentences past a phone's preview budget (`PreviewText`). Inline here,
+   so a wide viewport reads the paragraph as written; the phone hides them. */
+.previewRest {
+  display: inline;
+}
 .context {
   border-top: 1px solid var(--journey-rule);
   padding-top: 14px;
   margin: 24px 0 20px;
-  font-size: 14px;
-  line-height: 1.75;
+  font-size: 15px;
+  line-height: 1.7;
   max-width: 70ch;
   color: var(--ink);
   overflow-wrap: anywhere;
@@ -299,21 +306,21 @@
 .contextLabel,
 .finding > span {
   display: block;
-  font: 400 10px/1.6 var(--face-data);
+  font: 400 11px/1.6 var(--face-data);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--gold);
   margin-bottom: 8px;
 }
 .finding p {
-  font-size: 14px;
-  line-height: 1.75;
+  font-size: 15px;
+  line-height: 1.7;
   max-width: 70ch;
   margin: 0;
   overflow-wrap: anywhere;
 }
 .sources {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
   color: var(--ink-lo);
   max-width: 80ch;
@@ -417,7 +424,7 @@
   margin: 0 0 22px;
   padding: 0 0 14px;
   border-bottom: 1px solid var(--journey-rule);
-  font: 500 13px/1.5 var(--face-text);
+  font: 500 14px/1.5 var(--face-text);
 }
 .verdict::before {
   content: "";
@@ -433,7 +440,7 @@
 .verdictMeaning {
   flex: 1 1 16ch;
   font-weight: 400;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-lo);
 }
 .verdict[data-tone="danger"]::before {
@@ -451,21 +458,13 @@
   margin-top: 24px;
 }
 
-/* ---- October 7: a page-turn into the preserved archive. No text or warnings live on images. ---- */
+/* ---- October 7: the preserved archive. No text or warnings live on images. ----
+   It sits on the same ground as every other section. It was a paper-coloured
+   page-turn until the owner reviewed the live phone on 2026-09-06 and read
+   the change of colour mid-page as unrelated to the page around it; the
+   archive's identity is its head rule, its kinds and its warnings, not a
+   different material. The paper tokens stay defined for the record. */
 .archive {
-  --ink-hi: var(--journey-paper-ink);
-  --ink: var(--journey-paper-ink);
-  --ink-lo: var(--journey-paper-muted);
-  --gold: var(--journey-paper-muted);
-  --gold-hi: var(--journey-paper-ink);
-  --control-line: color-mix(in srgb, var(--journey-paper-ink) 48%, transparent);
-  --journey-rule: color-mix(in srgb, var(--journey-paper-ink) 24%, transparent);
-  margin-inline: calc(-1 * var(--journey-inset));
-  margin-inline-end: calc(-1 * var(--journey-end));
-  padding-inline: var(--journey-inset);
-  padding-inline-end: var(--journey-end);
-  color: var(--journey-paper-ink);
-  background: var(--journey-paper);
   border-bottom: 0;
   column-gap: 0;
 }
@@ -512,13 +511,13 @@
   aspect-ratio: 1;
 }
 .witness {
-  font: 500 14px/1.5 var(--face-text);
+  font: 500 15px/1.5 var(--face-text);
   margin: 0;
 }
 .warning {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.65;
-  border-left: 2px solid var(--journey-paper-muted);
+  border-left: 2px solid var(--gold-dim);
   padding: 8px 0 8px 16px;
   max-width: 62ch;
   color: var(--ink);
@@ -642,18 +641,18 @@
   top: 7px;
 }
 .pipeline strong {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.5;
 }
 .pipeline span {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.65;
   color: var(--ink-lo);
 }
 .systemCaveat {
   margin: 28px 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-lo);
   max-width: 110ch;
   line-height: 1.7;
@@ -667,12 +666,12 @@
   margin: 0;
 }
 .systemBranches dt {
-  font: 500 13px/1.5 var(--face-text);
+  font: 500 14px/1.5 var(--face-text);
   color: var(--ink-hi);
   margin-bottom: 8px;
 }
 .systemBranches dd {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
   color: var(--ink-lo);
   max-width: 62ch;
@@ -713,7 +712,7 @@
   overflow: visible;
 }
 .amplification figcaption {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.65;
   color: var(--ink-lo);
   margin-top: 12px;
@@ -762,7 +761,7 @@
   margin: 32px 0 0;
   padding: 0;
   color: var(--ink);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
 }
 .narrativePath li {
@@ -846,12 +845,12 @@
     padding: 18px 0 0;
   }
   .editionLine {
-    font-size: 20px;
+    font-size: 22px;
     margin: 0;
   }
   .editionDate {
     text-align: start;
-    font-size: 11px;
+    font-size: 13px;
     margin: 2px 0 10px;
   }
   .contents {
@@ -864,8 +863,8 @@
     display: none;
   }
   .contents a {
-    min-height: 40px;
-    font-size: 12px;
+    min-height: 44px;
+    font-size: 14px;
     line-height: 1.25;
   }
   .section {
@@ -895,47 +894,59 @@
     margin-bottom: 22px;
   }
   .sectionHead h2 {
-    font-size: clamp(32px, 8.5vw, 44px);
+    font-size: clamp(38px, 10vw, 48px);
     max-width: 16ch;
   }
   .sectionIntro {
-    font-size: 14px;
-    color: var(--ink-lo);
+    font-size: 16px;
+    color: var(--ink);
     margin: -6px 0 22px;
-    line-height: 1.55;
+    line-height: 1.6;
   }
   .link {
     margin-top: 10px;
+    min-height: 48px;
+    font-size: 15px;
+  }
+  .sectionAction .link {
+    font-size: 15px;
   }
   .figure {
     margin-bottom: 14px;
   }
   .figure figcaption {
     margin-top: 8px;
-    font-size: 11px;
   }
   .byline {
     margin-bottom: 10px;
   }
+  /* Phone reading sizes: body never below 16px, metadata never below 13px.
+     A preview is whole sentences within a budget (`PreviewText`); the rest
+     of the paragraph is hidden here and the record has it. The line clamps
+     are the backstop for one sentence longer than the budget, set a line
+     past what the budget needs at 320px so they rarely show an ellipsis. */
+  .previewRest {
+    display: none;
+  }
   .summary {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
     margin: 10px 0 0;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
     overflow: hidden;
   }
   .context {
     margin: 14px 0 0;
     padding-top: 12px;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.6;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
     overflow: hidden;
   }
   .contextLabel {
@@ -946,8 +957,8 @@
     margin: 12px 0 0;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     overflow: hidden;
   }
 
@@ -957,7 +968,7 @@
     gap: 28px;
   }
   .newsSpread h3 {
-    font-size: clamp(26px, 6.9vw, 32px);
+    font-size: clamp(29px, 7.6vw, 36px);
     line-height: 1.12;
     margin: 0 0 4px;
   }
@@ -1009,8 +1020,8 @@
   }
   .newsSpread > article[data-rank="companion"] h3 {
     grid-area: title;
-    font-size: 20px;
-    line-height: 1.2;
+    font-size: 24px;
+    line-height: 1.15;
     margin: 0;
   }
   .newsSpread > article[data-rank="companion"] h3 a {
@@ -1028,39 +1039,43 @@
     grid-area: cta;
   }
 
-  /* Fake Resistance: the cover sits flush on the dossier; the companion drops its
-     illustration and keeps status, claim, finding, sources. */
+  /* Fake Resistance: no box on a phone. The dossier was a bordered panel with
+     its own inset, a card inside the page that cost 34px of a 350px measure
+     and read as chrome on the owner's phone (2026-09-06); the dossier is now
+     the same open column as every other record, its identity carried by the
+     status line, the claim kicker and the finding's rule. The cover runs the
+     column's width; the companion drops its illustration and keeps status,
+     claim, finding, sources. */
   .narrativeSpread {
-    gap: 20px;
+    gap: 28px;
   }
   .investigation {
     grid-template-columns: 1fr;
     gap: 0;
-    padding: 0 16px 18px;
+    padding: 0;
+    border: 0;
     border-radius: 0;
+    background: none;
     box-shadow: none;
   }
   .investigation .figure {
-    margin: 0 -16px 12px;
+    margin: 0 0 12px;
   }
   .investigation .figure img {
     aspect-ratio: 16/9;
-  }
-  .investigation .figure figcaption {
-    padding: 0 16px;
   }
   .dossierCover {
     margin-bottom: 14px;
   }
   .investigation .meta {
-    font-size: 11px;
+    font-size: 13px;
   }
   .verdict {
     margin: 0 0 12px;
     padding: 0 0 10px;
   }
   .investigation h3 {
-    font-size: clamp(23px, 6.2vw, 28px);
+    font-size: clamp(27px, 7.1vw, 32px);
     line-height: 1.15;
     margin: 6px 0 10px;
   }
@@ -1073,8 +1088,10 @@
   }
   .investigation .summary {
     margin-top: 0;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
   }
   .finding {
     margin-top: 14px;
@@ -1084,7 +1101,7 @@
     margin-bottom: 4px;
   }
   .finding p {
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.6;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -1093,7 +1110,8 @@
     overflow: hidden;
   }
   .investigation[data-rank="companion"] {
-    padding-top: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--journey-rule);
   }
   .investigation[data-rank="companion"] .figure {
     display: none;
@@ -1102,24 +1120,24 @@
     margin-bottom: 10px;
   }
   .investigation[data-rank="companion"] h3 {
-    font-size: 21px;
+    font-size: 24px;
   }
   .investigation[data-rank="companion"] h3 a {
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
   .investigation[data-rank="companion"] .summary {
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
   .investigation[data-rank="companion"] .finding p {
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
 
-  /* October 7: the paper stays; the documentation companion is a row. */
+  /* October 7: the testimony leads in full; the documentation companion is a row. */
   .archive .sectionHead h2 {
-    font-size: clamp(36px, 9.5vw, 52px);
+    font-size: clamp(40px, 10.5vw, 54px);
   }
   .archive > .sectionHead {
     padding-bottom: 22px;
@@ -1133,7 +1151,7 @@
     gap: 28px;
   }
   .archiveSpread h3 {
-    font-size: clamp(25px, 6.6vw, 30px);
+    font-size: clamp(28px, 7.4vw, 34px);
     line-height: 1.15;
     margin: 8px 0 10px;
   }
@@ -1179,8 +1197,8 @@
   }
   .archiveSpread > article[data-rank="companion"] h3 {
     grid-area: title;
-    font-size: 20px;
-    line-height: 1.2;
+    font-size: 24px;
+    line-height: 1.15;
     margin: 0;
   }
   .archiveSpread > article[data-rank="companion"] .summary {
@@ -1220,7 +1238,7 @@
     align-items: start;
   }
   .peopleSpread article[data-rank="companion"] {
-    grid-template-columns: 104px minmax(0, 1fr);
+    grid-template-columns: 112px minmax(0, 1fr);
     padding-top: 24px;
     border-top: 1px solid var(--journey-rule);
   }
@@ -1235,8 +1253,8 @@
     aspect-ratio: 4/5;
   }
   .peopleSpread article[data-rank="companion"] .figure img {
-    width: 104px;
-    height: 104px;
+    width: 112px;
+    height: 112px;
     aspect-ratio: 1;
   }
   .peopleSpread .figure figcaption {
@@ -1249,12 +1267,12 @@
   }
   .peopleSpread h3 {
     grid-area: title;
-    font-size: clamp(24px, 6.6vw, 28px);
+    font-size: clamp(28px, 7.4vw, 34px);
     line-height: 1.08;
     margin: 0 0 6px;
   }
   .peopleSpread article[data-rank="companion"] h3 {
-    font-size: 21px;
+    font-size: 24px;
   }
   .peopleSpread .meta {
     grid-area: meta;
@@ -1264,8 +1282,8 @@
     margin-top: 12px;
   }
   .peopleSpread article[data-rank="companion"] .summary {
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
   .peopleSpread .sources {
     grid-area: sources;
@@ -1280,11 +1298,11 @@
     gap: 24px;
   }
   .era {
-    font-size: 20px;
+    font-size: 22px;
     padding: 12px 0;
   }
   .historySpread h3 {
-    font-size: clamp(23px, 6.2vw, 28px);
+    font-size: clamp(27px, 7.1vw, 32px);
     line-height: 1.15;
     margin: 0 0 10px;
   }
@@ -1320,8 +1338,8 @@
   }
   .historySpread article[data-rank="companion"] h3 {
     grid-area: title;
-    font-size: 20px;
-    line-height: 1.2;
+    font-size: 24px;
+    line-height: 1.15;
     margin: 0;
   }
   .historySpread article[data-rank="companion"] .verdict {
@@ -1351,11 +1369,35 @@
     gap: 28px;
   }
   .systemHead h2 {
-    font-size: clamp(32px, 8.5vw, 40px);
+    font-size: clamp(36px, 9.5vw, 46px);
     margin-bottom: 16px;
+  }
+  .systemHead > p:last-child {
+    font-size: 16px;
   }
   .pipeline {
     padding-left: 18px;
+  }
+  .pipeline strong {
+    font-size: 16px;
+  }
+  .pipeline span {
+    font-size: 14px;
+  }
+  .systemCaveat {
+    font-size: 14px;
+  }
+  .systemBranches dt {
+    font-size: 15px;
+  }
+  .systemBranches dd {
+    font-size: 14px;
+  }
+  .narrativePath {
+    font-size: 15px;
+  }
+  .deskResponse {
+    font-size: 16px;
   }
   .pipeline li {
     grid-template-columns: minmax(100px, 1fr) 1.5fr;
@@ -1374,7 +1416,7 @@
     gap: 16px;
   }
   .purpose h3 {
-    font-size: clamp(30px, 8vw, 36px);
+    font-size: clamp(32px, 8.5vw, 40px);
   }
   .narrativePath {
     grid-template-columns: 1fr;

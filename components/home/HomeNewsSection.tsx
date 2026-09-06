@@ -4,6 +4,8 @@ import {
   HomeSources,
   HomeTime,
   JourneyLink,
+  PREVIEW_BUDGET,
+  PreviewText,
   SectionAction,
   SectionHeading,
   SectionState,
@@ -49,11 +51,19 @@ export function HomeNewsSection({
             <h3>
               <a href={item.href}>{item.title}</a>
             </h3>
-            <p className={styles.summary}>{item.summary}</p>
+            <p className={styles.summary}>
+              <PreviewText
+                text={item.summary}
+                budget={PREVIEW_BUDGET[rankOf(index)]}
+              />
+            </p>
             {item.whyItMatters && (
               <p className={styles.context}>
                 <span className={styles.contextLabel}>Why it matters</span>{" "}
-                {item.whyItMatters}
+                <PreviewText
+                  text={item.whyItMatters}
+                  budget={PREVIEW_BUDGET.context}
+                />
               </p>
             )}
             <HomeSources sources={item.sources} />

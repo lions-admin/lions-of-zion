@@ -3,6 +3,8 @@ import {
   HomeMedia,
   HomeSources,
   JourneyLink,
+  PREVIEW_BUDGET,
+  PreviewText,
   SectionAction,
   SectionHeading,
   SectionState,
@@ -39,7 +41,12 @@ export function HomeHeroesSection({
             <p className={styles.kicker}>{item.role}</p>
             <h3>{item.title}</h3>
             <p className={styles.meta}>{item.meta}</p>
-            <p className={styles.summary}>{item.summary}</p>
+            <p className={styles.summary}>
+              <PreviewText
+                text={item.summary}
+                budget={PREVIEW_BUDGET[rankOf(index)]}
+              />
+            </p>
             <HomeSources sources={item.sources} />
             <JourneyLink href={item.href}>Read the full story</JourneyLink>
           </article>

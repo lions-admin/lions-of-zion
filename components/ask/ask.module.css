@@ -901,8 +901,15 @@
     white-space: nowrap;
   }
 
+  /* The travel is well past what the arithmetic needs. With one spacing step
+     past the diameter, iOS Safari with its toolbar collapsed left the top of
+     the icon showing above the bottom edge (the owner's phone, 2026-09-06):
+     the bottom the browser positions against and the bottom it paints to are
+     not the same edge there. */
   html:has([data-home-scroll]) .dockTrigger[data-retracted] {
-    transform: translateY(calc(100% + var(--sp-7) + env(safe-area-inset-bottom, 0px)));
+    transform: translateY(
+      calc(100% + var(--sp-9) + var(--sp-7) + env(safe-area-inset-bottom, 0px))
+    );
   }
 
   html:has([data-home-scroll]) .dockTrigger[data-retracted]:focus-visible {

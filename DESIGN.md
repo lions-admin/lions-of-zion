@@ -477,9 +477,12 @@ unchanged. What changed is the phone's reading of them:
   on a phone as one compact row beside a thumbnail (a portrait beside the
   name for Our Heroes; no illustration at all for the second Fake Resistance
   dossier). Both stay visible for the whole edition; nothing rotates or hides
-  behind a gesture. Every field remains in the document — the phone clamps
-  the summary to three lines, "Why it matters" to three, the source line to
-  two — and the record carries the rest.
+  behind a gesture. Every field remains in the document. A phone shows a
+  summary as whole sentences within a budget — about four lines for a lead,
+  three for a companion and for "Why it matters" — and hides the sentences
+  past it (`PreviewText`, `lib/preview-sentences.ts`); a line clamp is only
+  the backstop for one sentence longer than the budget, so a preview ends on
+  a full stop and never on "threw…". The record carries the rest.
 - **One destination action per section, after its records on a phone.** The
   section is a grid: the action sits beside the title on a wide viewport and
   follows the spread on a phone, so the way out of a section never sits
@@ -497,11 +500,29 @@ unchanged. What changed is the phone's reading of them:
   three ordered parts — disclosure (uppercase data face), description, then
   credit and licence — from a `disclosure` field on the media registry, with
   a role default for illustrations and safe covers. `alt` keeps the whole
-  sentence. The image is flush on the Fake Resistance dossier so the panel is
-  a cover, not a frame inside a card.
+  sentence. On a phone the Fake Resistance dossier is an open column like
+  every other record — no panel, no border, the cover the column's width —
+  with its identity carried by the status line, the claim kicker and the
+  finding's rule; the panel remains on wide viewports.
 - **Headlines take three or four lines, never most of a screen.** The lead
-  headline is 26–32px on a phone and clamps at four lines; companions at
-  three; section titles 32–44px. Text is never made tiny to fit.
+  headline is 29–36px on a phone and clamps at four lines; companions are
+  24px at three; section titles 38–48px. Text is never made tiny to fit.
+- **Phone reading floors, from the owner's review of the live phone
+  (2026-09-06).** The first cut of this pass set captions at 11px, labels at
+  10px and companion headlines at 20px, and on a real iPhone it read as
+  small type everywhere. The floors are now: body and summaries 16px,
+  "Why it matters" and findings 15px, metadata, captions, credits, sources
+  and status meanings 13px, kickers and disclosure labels 11px, the section
+  action and record links 15px. The same review withdrew the October 7 paper
+  page-turn — a change of colour mid-page read as unrelated to the page
+  around it, so the archive sits on the shared ground and keeps its identity
+  through its head rule, its record kinds and its content warnings — and
+  circled a preview cut at "threw…" with its source line beneath, which is
+  why previews now end on sentences and the source line has three lines
+  before it clamps. The dossier's box went in the same pass, and the
+  retracted Ask launcher now travels well past its diameter plus the corner
+  inset: on iOS Safari with the toolbar collapsed, the top of the icon had
+  stayed visible above the bottom edge.
 - **The cover's one invitation.** "Read the latest" is the only arrowed,
   ruled action on the cover; "Why this work matters" is a low-ink sentence
   with no rule and no arrow of its own.

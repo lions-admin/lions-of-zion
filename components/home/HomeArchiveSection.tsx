@@ -3,6 +3,8 @@ import {
   HomeMedia,
   HomeSources,
   JourneyLink,
+  PREVIEW_BUDGET,
+  PreviewText,
   SectionAction,
   SectionHeading,
   SectionState,
@@ -49,7 +51,12 @@ export function HomeArchiveSection({
             {item.witness && <p className={styles.witness}>{item.witness}</p>}
             <h3>{item.title}</h3>
             {!sameText(item.summary, item.title) && (
-              <p className={styles.summary}>{item.summary}</p>
+              <p className={styles.summary}>
+                <PreviewText
+                  text={item.summary}
+                  budget={PREVIEW_BUDGET[rankOf(index)]}
+                />
+              </p>
             )}
             <p className={styles.warning}>{item.warning}</p>
             <HomeSources sources={item.sources} />

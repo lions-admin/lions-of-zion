@@ -49,8 +49,15 @@ cover links, warnings or media credits on mobile or enlarged text.
 
 - Each section shows a lead and a companion; both are visible without any
   interaction and their order is the edition's, never the client's.
-- A preview clamps what it shows; it does not remove fields from the
-  document. Status precedes the claim and is stated once.
+- A preview shows whole sentences within a budget and clamps only as a
+  backstop; it never ends on a cut word, and it does not remove fields from
+  the document. Status precedes the claim and is stated once.
+- The edition is one ground from cover to footer; no section changes the
+  page's colour mid-page (owner ruling, 2026-09-06).
+- On a phone a record is an open column, not a box inside the page; a
+  dossier's identity is its status line, its kicker and its finding rule.
+- On a phone, body and summaries are never below 16px, metadata and
+  captions never below 13px, kickers never below 11px.
 - Every image carries its disclosure as the first caption line, visibly,
   never behind a tooltip; `alt` carries the full sentence.
 - The section's one destination action follows the records on a phone.

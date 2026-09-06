@@ -1,6 +1,16 @@
 # State
 
-## 2026-09-06 — Homepage mobile refinement implemented on `claude/create-worktree-9wtvyy`, not on `main`
+## 2026-09-06 — Homepage mobile refinement on `main`, corrected the same day after the owner's live-phone review
+
+The owner read the first deploy on an iPhone: headlines and type too small
+in several places, a preview cut at "threw…" with its source line beneath,
+and the October 7 paper page-turn reading as unrelated to the page. The
+same-day correction: phone type floors (16/15/13/11px), previews that end on
+sentences (`lib/preview-sentences.ts`, `PreviewText`), the archive on the
+page's ground, the Fake Resistance dossier without its box on a phone, a
+longer launcher retract for iOS Safari, and a three-line source clamp. The
+why is the newer 2026-09-06 entry in `.ai/DECISIONS.md`; the evidence was
+re-captured after the correction.
 
 The owner's mobile brief (density, primary/secondary records, Ask occlusion,
 cover action hierarchy, edition index, destination naming, image

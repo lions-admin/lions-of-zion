@@ -853,7 +853,7 @@
   margin-top: var(--sp-2);
   color: var(--ink-lo);
   font-family: var(--face-home-cover);
-  font-size: var(--t-caption);
+  font-size: 0.875rem;
   text-transform: none;
   white-space: nowrap;
   text-decoration: underline;

@@ -10,6 +10,47 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-06 — After the owner's live-phone review: previews end on sentences, the October 7 archive keeps the page's ground, type has floors, and a dossier has no box on a phone
+
+The refinement below went to Production the same morning, and the owner read
+it on an iPhone: headlines too small, type too small in several places, a
+preview cut at "threw…" with its source line beneath, and "the colour change
+in the middle" — the October 7 paper page-turn — "unrelated" to the page
+around it. Four rulings follow, each of which a later reader might otherwise
+undo in the name of density or rhythm.
+
+- **A preview ends on a full stop.** `-webkit-line-clamp` truncates by
+  character, so a three-line clamp produced "threw…" and "anti-Israe…" on a
+  real phone. `previewSentences()` in `lib/preview-sentences.ts` divides a
+  summary at sentence boundaries — the first sentence always, then whole
+  sentences within a character budget — and the phone hides the rest in a
+  span; the clamp remains only as the backstop for one sentence longer than
+  the budget. Nothing is rewritten: the words are the record's, and a wide
+  viewport shows the paragraph as written. The abbreviation guard fails
+  towards a longer preview, never towards "Maj.-Gen." — the safe direction,
+  because the clamp bounds the long case and nothing bounds the broken one.
+- **The archive shares the page's ground.** The paper page-turn was a
+  deliberate change of material for the preserved record; on a phone,
+  scrolled to mid-page, it read as another site. Its identity is its head
+  rule, its record kinds and its content warnings. The paper tokens stay
+  defined for the record.
+- **Type has floors on a phone**, stated in `DESIGN.md`: 16px body, 15px
+  "Why it matters" and findings, 13px metadata and captions, 11px kickers.
+  Density comes from how much is shown, never from making what is shown
+  smaller.
+- **A record is an open column on a phone, not a box.** The Fake Resistance
+  dossier's panel cost 34px of a 350px measure and read as a card inside the
+  page; the brief had already asked for less nested chrome. The panel remains
+  on wide viewports.
+
+One mechanical finding rode along: the retracted launcher travelled its
+diameter plus one spacing step, and on iOS Safari with its toolbar collapsed
+the top of the icon stayed visible above the bottom edge — the edge the
+browser positions against and the edge it paints to are not the same there.
+The travel is now generous rather than exact.
+
+---
+
 ## 2026-09-06 — The homepage Ask launcher retracts while a phone reader scrolls down; it does not get a reserved column, a header slot, or a bottom bar
 
 The owner's mobile brief made this mandatory: a persistent control may not

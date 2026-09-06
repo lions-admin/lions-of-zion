@@ -6,7 +6,42 @@ import type {
   HomepageSection,
   HomePreview,
 } from "@/server/contracts/homepage";
+import { previewSentences } from "@/lib/preview-sentences";
 import styles from "./homepage-journey.module.css";
+
+/**
+ * How much of a summary a phone shows before the record has the rest, in
+ * characters: about four lines of 16px text on a 390px phone for a lead,
+ * three for a companion and for "Why it matters". The split is on sentence
+ * boundaries (`previewSentences`), so a preview never ends on "threw…".
+ */
+export const PREVIEW_BUDGET = {
+  lead: 170,
+  companion: 120,
+  context: 150,
+} as const;
+
+/**
+ * The sentences of a text a phone shows, then the rest in a span the phone
+ * hides. A wide viewport shows both inline, which is the paragraph as written;
+ * the CSS line clamp on the paragraph is only the backstop for one sentence
+ * longer than the budget.
+ */
+export function PreviewText({
+  text,
+  budget = PREVIEW_BUDGET.lead,
+}: {
+  text: string;
+  budget?: number;
+}) {
+  const { shown, hidden } = previewSentences(text, budget);
+  return (
+    <>
+      {shown}
+      {hidden && <span className={styles.previewRest}> {hidden}</span>}
+    </>
+  );
+}
 
 /** The one arrow vocabulary of the edition: a way into a record or a section. */
 export function JourneyLink({

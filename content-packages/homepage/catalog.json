@@ -1,6 +1,6 @@
 {
-  "revision": "6a66d8bdb6f00bfd4a953870577db59dd313d0f1a1f38cd422676787ab1318e6",
-  "sourceRevision": "a6c68cd946c6ede28342311ad709aad32af95e4e0924358c89fc2d3a34dea138",
+  "revision": "6dc9b8317da4c3fed04e8c00b2aed7448651d0d0689e2862510b11abc772963e",
+  "sourceRevision": "3307479a8919a5d5c96e49a983f3a9c43f020d3203e935e6d3f1379fd526472e",
   "candidates": [
     {
       "key": "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
@@ -30,7 +30,37 @@
       "href": "/fake-resistance/cases/manosphere-far-right",
       "version": "92155bdeab7a3f064e01decdd9b592a0f742d0511c77d95f455195c0487171c4",
       "date": "2026-08-26T16:30:00Z",
-      "mediaId": "case-desk"
+      "mediaId": "account-cluster"
+    },
+    {
+      "key": "chapter:abraham-accords",
+      "section": "israelsStory",
+      "kind": "chapter",
+      "id": "abraham-accords",
+      "href": "/israels-story#abraham-accords",
+      "version": "d97487f26adde903f21c612389b33733a9a5c52c86c29bc0d53d3ec9e4af8952",
+      "date": "Aug 25, 2026",
+      "mediaId": "abraham-accords"
+    },
+    {
+      "key": "chapter:jordan-treaty",
+      "section": "israelsStory",
+      "kind": "chapter",
+      "id": "jordan-treaty",
+      "href": "/israels-story#jordan-treaty",
+      "version": "9e0e57df1f774a53d8022334bd85547737961b26aba61af7d72390c423906e3b",
+      "date": "Aug 25, 2026",
+      "mediaId": "jordan-treaty"
+    },
+    {
+      "key": "chapter:oslo-accords",
+      "section": "israelsStory",
+      "kind": "chapter",
+      "id": "oslo-accords",
+      "href": "/israels-story#oslo-accords",
+      "version": "a2b288138dff063757e4aba7dd66567d1f2a5363788471711bb2e3d8fa7dc25c",
+      "date": "Aug 25, 2026",
+      "mediaId": "oslo-accords"
     },
     {
       "key": "chapter:peace-when-it-came",
@@ -43,6 +73,16 @@
       "mediaId": "camp-david"
     },
     {
+      "key": "chapter:six-day-war",
+      "section": "israelsStory",
+      "kind": "chapter",
+      "id": "six-day-war",
+      "href": "/israels-story#six-day-war",
+      "version": "b30fc2d7687e39e9642043573093dac4182aef37642264940bf1fbb28d5afb8f",
+      "date": "Aug 25, 2026",
+      "mediaId": "six-day-war"
+    },
+    {
       "key": "chapter:the-founding",
       "section": "israelsStory",
       "kind": "chapter",
@@ -51,6 +91,26 @@
       "version": "81a4a0d6f5108f9b4773ba977d3738fb06112d6feefeefc4e70c6a04a9e0e4e2",
       "date": "Aug 25, 2026",
       "mediaId": "declaration"
+    },
+    {
+      "key": "chapter:yom-kippur-war",
+      "section": "israelsStory",
+      "kind": "chapter",
+      "id": "yom-kippur-war",
+      "href": "/israels-story#yom-kippur-war",
+      "version": "334b215cf0e6505e0b6f3dc944ee2e5e19153ecf82a690c86dc6c05b893398c8",
+      "date": "Aug 25, 2026",
+      "mediaId": "yom-kippur-war"
+    },
+    {
+      "key": "hero:aner-shapira",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "aner-shapira",
+      "href": "/our-heroes#aner-shapira",
+      "version": "102e464c8b2ee7f6dcd62fc4a11fad94e426dd29289dacfb2ddfa3145ba37e9a",
+      "date": "Aug 25, 2026",
+      "mediaId": "aner-shapira"
     },
     {
       "key": "hero:noam-tibon",

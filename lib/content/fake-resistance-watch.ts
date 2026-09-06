@@ -14,9 +14,14 @@
  * document their own bar in their own header comments — multiply
  * corroborated, non-controversial in its mechanics, reviewed in the
  * authoring session before being written down. A record here has cleared
- * this platform's 17-check automated quality gate and nothing more: no
- * human has read it yet. Presenting the two with the same weight would lend
- * a same-day machine finding the confidence of a reviewed case file, which
+ * nothing: it arrives through the whole-site editorial delivery path, which
+ * runs no automated quality suite at all — the deterministic checks in
+ * `server/modules/briefing/quality.ts` are reachable only from the legacy
+ * external-briefing ingest, and no human has read this record either. (This
+ * comment claimed a "17-check automated quality gate" until 2026-09-07,
+ * which was true of a path these records do not travel.) Presenting the two
+ * with the same weight would lend a same-day machine finding the confidence
+ * of a reviewed case file, which
  * is exactly the kind of upgrade this desk does not do — see
  * `components/live/publication-labels.ts`'s own note on the same principle.
  */
@@ -32,4 +37,20 @@ export async function getNarrativeWatchFeed(): Promise<PublicPublication[]> {
 /** Antisemitism has its own reading surface; it never inherits a claim label. */
 export async function getAntisemitismFeed(): Promise<PublicPublication[]> {
   return listPublicPublications(`?section=antisemitism&limit=${WATCH_LIMIT}`);
+}
+
+/**
+ * Influence investigations — the third section this hub owns.
+ *
+ * `lib/publication-routing.ts` has routed `influence_investigation` to
+ * `/fake-resistance` since the section existed, and nothing here read it: a
+ * record on Iranian, Russian or anti-Western influence operations was filed
+ * to this desk, labelled "Influence investigation" on its own page, and
+ * absent from the desk itself. It reads through `listPublicPublications`
+ * rather than the briefing projection for the same reason antisemitism does —
+ * a documented investigation is not a circulating claim and must not inherit
+ * the watch's claim framing.
+ */
+export async function getInfluenceInvestigationFeed(): Promise<PublicPublication[]> {
+  return listPublicPublications(`?section=influence_investigation&limit=${WATCH_LIMIT}`);
 }

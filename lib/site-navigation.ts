@@ -61,7 +61,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
   {
     id: "fake-resistance",
     label: "FAKE RESISTANCE",
-    displayName: "Narratives & Fact Checks",
+    displayName: "Fake Resistance",
     href: "/fake-resistance",
     description:
       "False narratives, incitement and the daily X review — follow the claims, their sources and the findings.",

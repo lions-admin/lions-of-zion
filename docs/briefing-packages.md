@@ -1,10 +1,18 @@
 # Legacy `external-briefing-v1` package delivery
 
-This is the existing compatibility path for historical Daily Brief packages.
+> **This is not the live editorial route.** Current editorial work — articles,
+> updates to developing stories, and homepage placement across all three
+> dynamic hubs — is delivered as a `whole-site-update-v1` package on the
+> `editorial-updates` branch. See
+> [`whole-site-updates.md`](whole-site-updates.md).
+>
+> What follows describes the retained `external-briefing-v1` compatibility
+> path: the receiver route, the contract and the `briefing-packages` branch all
+> still exist and still work, and historical packages are still readable
+> through them. Nothing new should be composed against it.
+
 The package is authored **outside this repository** (ChatGPT) and published by
-a GitHub Action that does no editorial work of its own. It is not the contract
-for the whole-site editorial model: that work is delivered through
-`editorial-updates` using `whole-site-update-v1`.
+a GitHub Action that does no editorial work of its own.
 
 ## Why the packages live on their own branch
 
@@ -16,7 +24,9 @@ connected to Vercel's Git integration, so a push to `main` builds and
 deploys the site. If a daily package landed on `main`, publishing a news
 edition would redeploy the entire application: minutes of build time, a new
 production deployment in the history, and a rollback surface, all for a row
-in the database that the running deployment reads anyway.
+in the database that the running deployment reads anyway. The
+`editorial-updates` branch exists for the same reason and is excluded the same
+way.
 
 The branch is excluded from Vercel by
 [`git.deploymentEnabled`](https://vercel.com/docs/project-configuration/git-configuration)
@@ -33,6 +43,9 @@ actually suppresses the deployment, and the copy here documents the rule
 where anyone configuring the project will look for it.
 
 ## The flow
+
+This is the legacy flow, kept here as the record of how an
+`external-briefing-v1` package reaches the site.
 
 1. ChatGPT collects sources, analyses claims, and produces the package JSON.
 2. The file is committed to `briefing-packages/` **on the `briefing-packages`
@@ -169,6 +182,24 @@ each failed check, and nothing partial is ever written.
 ## Republishing
 
 Resubmitting a package that already published is safe: the ingest API is
-idempotent on `runId` and returns the original publication ids. A *different*
-`runId` for a date that already has an edition is refused — same-day editions
-do not silently supersede each other.
+idempotent on `runId` (`external_briefing_submission.run_id`, migration `0050`)
+and returns the original publication ids. A *different* `runId` for a date that
+already has an edition is refused — same-day editions do not silently supersede
+each other.
+
+## What replaced this
+
+| | `external-briefing-v1` | `whole-site-update-v1` |
+| --- | --- | --- |
+| Contract | `server/contracts/external-briefing.ts` | `server/contracts/whole-site-update.ts` |
+| Branch | `briefing-packages` | `editorial-updates` |
+| Receiver | `POST /api/internal/briefing/external-publish` | `POST /api/internal/editorial-updates/ingest` |
+| Guard header | `x-external-briefing-secret` | `x-editorial-update-secret` |
+| Command | `npm run briefing:publish` | `npm run editorial:publish` |
+| Scope | one Daily Brief edition, two article sections | any section, updates to live stories, homepage placement |
+| Quality gate | full deterministic suite (`evaluateCandidate()`) | none during the launch period |
+| Outcome | all-or-nothing per edition | per-operation, partial runs resumable |
+
+The two receivers are independent and both are live. Nothing about publishing a
+`whole-site-update-v1` package touches the legacy tables, and nothing here
+starts a whole-site run.

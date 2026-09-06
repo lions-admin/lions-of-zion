@@ -102,6 +102,9 @@ export function editorialRepo(db: Database) {
         if (failure.operationKey) await tx.update(editorialOperation).set({ status: 'failed', failure, updatedAt: now })
           .where(and(eq(editorialOperation.runId, id), eq(editorialOperation.operationKey, failure.operationKey),
             inArray(editorialOperation.status, ['pending', 'running', 'failed'])));
+        /* A crashed run reports too — the stage it died at is exactly what the
+           owner needs, and it is the only place that fact is written down. */
+        await emit(tx as never, TOPICS.editorialRunReport, { runId: id }, { entityType: 'system', entityId: id });
       });
     },
 
@@ -157,6 +160,10 @@ export function editorialRepo(db: Database) {
           .where(and(eq(editorialOperation.runId, id), eq(editorialOperation.status, 'failed'))).limit(1);
         const [finished] = await tx.update(editorialRun).set({ status: failed.length || report.status === 'partial' ? 'partial' : 'completed', stage: 'report', report,
           failure: null, leaseToken: null, leaseUntil: null, finishedAt: now, updatedAt: now }).where(eq(editorialRun.id, id)).returning();
+        /* Delivery of the report is job intent written inside the transaction
+           that made the run terminal, so a crash between commit and queue
+           cannot lose it. `deliverEditorialRunReport` reads the stored run. */
+        await emit(tx as never, TOPICS.editorialRunReport, { runId: id }, { entityType: 'system', entityId: id });
         return finished;
       });
     },

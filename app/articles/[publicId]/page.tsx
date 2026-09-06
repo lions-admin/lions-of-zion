@@ -3,13 +3,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
-import { editorialMediaForSurface } from "@/lib/content/homepage-media";
+import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
 import { publicationParentCrumb, publicationSectionLabel, routePublication } from "@/lib/publication-routing";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
 import type { PublicationSection } from "@/server/contracts/enums";
-import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
-import type { PublicPublication, PublicPublicationDetail } from "@/server/contracts/publication";
+import type { PublicPublicationDetail } from "@/server/contracts/publication";
 import {
   SECTION_LABELS,
   TREND_LABELS,
@@ -403,26 +402,6 @@ export function collapsePublicPassages<T extends PublicPublicationDetail["passag
     if (!duplicate) visible.push(passage);
   }
   return visible;
-}
-
-/**
- * The record's own picture first, the static registry second.
- *
- * A publication published today carries its hero image on the projection, so
- * nothing has to be mapped by hand for it to appear. `homepage-media.json` is
- * kept as the fallback because the records mapped there predate the field and
- * would otherwise lose the pictures they already have. Checked against
- * `isArticleSafeMedia` rather than trusted: the projection filters, but a page
- * that assumes it did is one refactor away from publishing an uncleared image.
- */
-function articleHeroMedia(article: PublicPublication): EditorialMedia | null {
-  if (article.media && isArticleSafeMedia(article.media)) return article.media;
-  return editorialMediaForSurface(`publication:${article.publicId}`, "article");
-}
-
-/** `src` is a local path or an absolute Blob URL; only the first needs a host. */
-function absoluteMediaUrl(src: string): string {
-  return src.startsWith("/") ? SITE_URL + src : src;
 }
 
 /**

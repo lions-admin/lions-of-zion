@@ -89,7 +89,7 @@ const CONSUMERS: Record<string, Consumer> = {
     await processEditorialRun(payload);
   },
 
-  [RETIRED_TOPICS.editorialRunReport]: async (payload) => {
+  [TOPICS.editorialRunReport]: async (payload) => {
     await deliverEditorialRunReport(payload);
   },
 };

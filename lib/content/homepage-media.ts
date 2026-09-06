@@ -6,7 +6,9 @@ import 'server-only';
 import { z } from 'zod';
 import media from '@/content-packages/homepage/media.json';
 import excerpts from '@/content-packages/homepage/excerpts.json';
-import { editorialMediaSchema, isHomepageSafeMedia, type EditorialMedia } from '@/server/contracts/editorial-media';
+import { editorialMediaSchema, isArticleSafeMedia, isHomepageSafeMedia, type EditorialMedia } from '@/server/contracts/editorial-media';
+import type { PublicPublication } from '@/server/contracts/publication';
+import { SITE_URL } from '@/lib/site-config';
 const registrySchema = z.object({assets:z.array(editorialMediaSchema), mappings:z.record(z.string(),z.string())});
 const excerptSchema=z.array(z.object({key:z.string(),role:z.enum(['summary','finding','whyItMatters']),text:z.string().min(1),sourceField:z.string().min(1),sourceReference:z.string().min(1),version:z.string().min(1)}));
 const registry=registrySchema.parse(media);
@@ -29,4 +31,26 @@ export function homepageMediaConflict(key:string, canonicalId?:string){
   const mappedId=registry.mappings[key];
   return canonicalId && mappedId && canonicalId!==mappedId
     ? {key,canonicalId,mappedId,resolution:'canonical-reference-wins'} : null;
+}
+
+/**
+ * The record's own picture first, the static registry second.
+ *
+ * Lived as a private function in `app/articles/[publicId]/page.tsx` until the
+ * share card needed the same answer. Two copies of "which image may this
+ * article wear" is exactly how a page and its Open Graph card end up
+ * disagreeing about a rights state, so there is one.
+ *
+ * Checked against `isArticleSafeMedia` rather than trusted: the projection
+ * filters, but a surface that assumes it did is one refactor away from
+ * publishing an uncleared image.
+ */
+export function articleHeroMedia(article: PublicPublication): EditorialMedia | null {
+  if (article.media && isArticleSafeMedia(article.media)) return article.media;
+  return editorialMediaForSurface(`publication:${article.publicId}`, 'article');
+}
+
+/** `src` is a local path or an absolute Blob URL; only the first needs a host. */
+export function absoluteMediaUrl(src: string): string {
+  return src.startsWith('/') ? SITE_URL + src : src;
 }

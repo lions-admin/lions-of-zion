@@ -12,7 +12,7 @@ import type { PublicPublication, PublicPublicationDetail } from "@/server/contra
 import { SITE_URL } from "@/lib/site-config";
 import { publicationHubCrumb } from "@/lib/publication-routing";
 
-const TITLE = "Fact check";
+const TITLE = "Narratives & Fact Checks";
 const TAGLINE =
   "Claims in circulation, what the evidence says, and where each statement's sources come from.";
 const PAGE_URL = `${SITE_URL}/fact-check`;
@@ -86,7 +86,10 @@ export default function FactCheckPage({ searchParams }: { searchParams: Search }
          does take the rail, because its day groups are real sections with
          anchors and the rail becomes a date index over the feed. */
       rails="none"
-      breadcrumb={[publicationHubCrumb("news")]}
+      /* The desk reads `narrative_watch` alone, so its parent is the hub that
+         owns those records — Fake Resistance — not News & Analysis. The two
+         were indistinguishable while one name covered both pages. */
+      breadcrumb={[publicationHubCrumb("fakeResistance")]}
     >
       <script
         type="application/ld+json"

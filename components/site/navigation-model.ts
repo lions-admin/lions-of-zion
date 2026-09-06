@@ -45,8 +45,26 @@ export const ACCOUNT_LINK: ChromeLink = {
   description: "Sign in so the desk knows you between visits.",
 };
 
+/**
+ * The fact-check desk's own entry in the chrome.
+ *
+ * `/fact-check` is a second reading surface over the same published record
+ * that `/fake-resistance` curates — the desk lists circulating claims and what
+ * the evidence says about each, while the hub is the investigation. Until
+ * 2026-09-07 the hub carried the name "Narratives & Fact Checks" in the menu
+ * and "Fake Resistance" in its own breadcrumb, and the desk had no entry in
+ * the chrome at all, so one name covered two pages and one page had no way in.
+ * Each page now carries one name, and both are reachable.
+ */
+export const FACT_CHECK_LINK: ChromeLink = {
+  label: "Narratives & Fact Checks",
+  href: "/fact-check",
+  description: "Claims in circulation, what the evidence says, and where each statement's sources come from.",
+};
+
 /** Useful but secondary. No separate wall of repeated page descriptions. */
 export const REFERENCE_LINKS: readonly ChromeLink[] = [
+  FACT_CHECK_LINK,
   { label: "Methodology", href: "/methodology", description: "How sources and findings are assessed." },
   { label: "Corrections", href: "/corrections", description: "How the public record is corrected." },
   ACCOUNT_LINK,

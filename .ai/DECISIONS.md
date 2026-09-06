@@ -10,6 +10,87 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-06 — The site is a whole-site daily editorial system, not a Daily Brief: five destinations, section as the single routing choice, minimum enforcement until launch
+
+The owner issued a binding definition of what this site and this system **are**,
+and it is now `docs/editorial-dna.md`. It is recorded here because its
+rulings are the kind a later reader would otherwise re-litigate from the code,
+and because the previous framing survived in `CLAUDE.md` for months after the
+implementation had moved past it.
+
+- **The product is a live content system, not a publication.** It exists to
+  demonstrate how AI, OSINT, research and Israeli creativity are used as
+  technological activism in the information war against terror, propaganda,
+  disinformation and manipulation aimed at Israel and the West — and
+  explicitly **not** as revenge. Action, exposure, education, documentation,
+  and tools a reader can use. October 7 is part of the definition rather than a
+  section of it: part of the terror was filmed and distributed in real time, so
+  the networks were an arena of the war and not a commentary on it.
+- **A run is a whole-site editorial update, not a Daily Brief.** `CLAUDE.md`
+  said "the briefing serves exactly three jobs" until today; the code had
+  already grown fourteen sections, three homepage bands, a durable run and a
+  package contract that describes the whole site. The run acts as
+  editor-in-chief, OSINT researcher, investigative researcher, information-war
+  analyst, news editor, developing-story editor, visual producer, homepage
+  editor, content manager and site-quality observer. Its mandatory job is the
+  information-war one: find a consequential current anti-Israel narrative and
+  investigate it, and when none is strong enough, produce original sourced
+  research on influence networks rather than leave the area empty.
+- **Five destinations.** News & Analysis, Fake Resistance, The People of
+  Israel, October 7, and Behind the Desk / How It Works. The People of Israel
+  unifies and extends Our Heroes and Israel's Story — **extends, not
+  replaces**: both keep their URLs and their reading shells as
+  `LEGACY_SECTION_PAGES`, because the alternative is breaking every inbound
+  link to a citation page in order to tidy a navigation bar. October 7 is an
+  archive a run reads and never writes: new documented material a run finds is
+  a *recommendation*, which is what stops a machine composing memorial
+  material.
+- **`publication.section` is the only editorial choice, and one file derives
+  the rest.** This was already the design of `lib/publication-routing.ts`; the
+  ruling makes it non-negotiable. No `homepageCategory`, no `destination`, no
+  `frontendSection` — a second model-picked field plus scattered ternaries is
+  how a record ends up filed as news on the homepage and as a claim assessment
+  on its own page. The corollary bit today: `LiveBriefHub` had hand-written
+  `["daily_brief", "israel_update"]` and rendered `news` records nowhere, which
+  is exactly the drift a derived list prevents.
+- **Launch-period posture: minimum enforcement.** Deliberately *not* enforced
+  during the run-in period — `external-briefing-v1` as the central constraint,
+  heavy quality contracts, editorial gates, quotas, candidate caps, balance
+  quotas, redundant validation loops. Deliberately kept — auth, database
+  integrity, persistence, media safety, security, idempotency and transactions
+  where they are needed, and enough parsing that nothing crashes. This is a
+  ruling about **timing**, not a repeal: ordered contracts and quality gates
+  return after launch, and the rule that governed them still holds — no check
+  is ever skipped, and an exemption lives inside its own pass condition. The
+  reason to write it down is that the reverse mistake is the tempting one: an
+  agent that finds the whole-site path ungated will want to helpfully add a
+  gate, and doing so mid-launch is a change to the owner's operating decision.
+- **The veto and the auto-fix boundary.** The editor may refuse to publish
+  anything weak, poorly sourced, boring, redundant, misleading or damaging to
+  the desk's credibility, and must report what it vetoed, why, what it did
+  instead, and whether the owner needs to decide. Inside a run it **may** fix
+  content, images, metadata, homepage composition, routing and classification,
+  and developing-story updates; it **may not** change CSS, components, database
+  schema, navigation architecture, core application code or security — those it
+  reports through `siteRecommendations` and they become a separate development
+  task. That boundary is deliberately structural rather than instructed:
+  `server/contracts/whole-site-update.ts` is `.strict()` and has no
+  representable field for SQL, a command, a migration, an environment value or
+  application code, and the delivery branch is excluded from Vercel. Keep it
+  that way — an instruction not to touch the schema is a request; an unwritable
+  field is a guarantee.
+
+One rule that follows and is easy to get backwards: **never fabricate an
+internal UUID.** `evidenceIds`, `itemIds`, `narrativeIds`, `eventId` and
+`primaryTopicId` point at real rows. If an item's source traceability cannot be
+represented without inventing one, veto the item and record a
+`siteRecommendation` naming the missing source-ingestion capability. A
+plausible-looking UUID that resolves to nothing is worse than a missing
+article, because it is indistinguishable from a real citation until someone
+follows it.
+
+---
+
 ## 2026-09-06 — After the owner's live-phone review: previews end on sentences, the October 7 archive keeps the page's ground, type has floors, and a dossier has no box on a phone
 
 The refinement below went to Production the same morning, and the owner read

@@ -33,6 +33,19 @@ working brief is [`CLAUDE.md`](CLAUDE.md) — this file only carries what an
 agent would otherwise get wrong; read CLAUDE.md and `docs/architecture.md`
 before touching backend code.
 
+**What it *is*, as opposed to what it is built from, is
+[`docs/editorial-dna.md`](docs/editorial-dna.md)** — an owner ruling recorded
+2026-09-06 that outranks every other document in this repository. Read it
+before any editorial, routing, homepage or media work. In one paragraph: a live
+content system demonstrating how AI, OSINT, research and Israeli creativity are
+used as technological activism in the information war — not revenge, but
+action, exposure, education, documentation and tools a reader can use. It runs
+as a **whole-site daily editorial update**, not a Daily Brief, across five
+destinations: News & Analysis (`/geopolitical-brief`), Fake Resistance
+(`/fake-resistance`), The People of Israel (`/people-of-israel`), October 7
+(`/october-7`, a static archive a run never writes into), and Behind the Desk /
+How It Works (`/information-war`).
+
 # Commands
 
 ```bash
@@ -105,18 +118,40 @@ Only the ones an edit is most likely to break; the full list is in CLAUDE.md.
 - Business rules live in SQL triggers as often as in TypeScript (status
   transitions, append-only tables, the publish gate). Changing one usually
   means a **new numbered migration**, not a service edit.
-- The briefing module's `evidenceBasis` is **derived, never chosen by the
-  model** (`evidenceIds.length === 0`), and no quality check is ever skipped —
-  exemptions live inside a pass condition. Read `=== "analysis"`, never
-  `!== "analysis"` (absent value = sourced).
+- **`publication.section` is the only editorial choice a composer makes**, and
+  `lib/publication-routing.ts` derives every surface from it — hub, route,
+  homepage band, homepage kind, breadcrumb, card label. There is deliberately
+  no `homepageCategory`, `destination` or `frontendSection`. Derive section
+  lists from `SECTIONS_BY_HOMEPAGE_SECTION`; a hand-written pair in
+  `LiveBriefHub` left `news` records rendered by nothing until 2026-09-06.
+- `evidenceBasis` is **derived, never chosen by the model**
+  (`evidenceIds.length === 0`, set in `applyEditorial` and merged back from the
+  stored row on update), and no quality check is ever skipped — exemptions live
+  inside a pass condition. Read `=== "analysis"`, never `!== "analysis"`
+  (absent value = sourced). `narrativeWatchTitle()` in
+  `server/contracts/publication.ts` is the **only** headline prefixer.
 - `briefing/quality.ts` `REQUIRED_QUALITY_CHECKS` is **no longer counted by
   anything.** Migration `0049` (2026-09-03) removed the twelve-name count from
-  `enforce_publication_publish_gate()` — it enforces machine provenance now —
-  and `595ca9d` removed the counter from `publications/repo.ts`. The
-  deterministic suite runs on the external-publish path only; **the internal
-  briefing pipeline publishes with no quality gate.** Do not quote the array's
-  length in prose: this bullet claimed a cross-check that never existed and
-  `CLAUDE.md` claimed 18 against an array of 17. See CLAUDE.md for the detail.
+  `enforce_publication_publish_gate()`; `0060` is the current body and enforces
+  machine provenance — a briefing *or* editorial run id, its operation key, and
+  a `machine_author`. `595ca9d` removed the counter from
+  `publications/repo.ts`. The deterministic suite runs on the legacy
+  `external-briefing-v1` path only; **the whole-site editorial path publishes
+  with no quality gate, by owner ruling.** Do not quote the array's length in
+  prose: this bullet claimed a cross-check that never existed and `CLAUDE.md`
+  claimed 18 against an array of 17. See CLAUDE.md for the detail.
+- **Launch-period posture (owner ruling, 2026-09-06):** minimum enforcement
+  only — no heavy contracts, editorial gates, quotas, candidate caps, balance
+  quotas or redundant validation loops. Auth, DB integrity, persistence, media
+  safety, security, idempotency/transactions and basic parsing stay. Do not add
+  a gate back uninvited; `docs/editorial-dna.md` §11 has both halves.
+- **The daily run's auto-fix boundary is structural, not trusted.** It may fix
+  content, images, metadata, homepage composition, routing/classification and
+  developing-story updates; it may **not** change CSS, components, DB schema,
+  navigation architecture, core application code or security — those go into
+  `siteRecommendations` and become a separate development task. Keep
+  `server/contracts/whole-site-update.ts` `.strict()` and content/placement
+  only: it is what makes the boundary unrepresentable rather than optional.
 - Source catalog (`server/modules/sources/catalog.ts`): **change the query,
   change the slug.** Catalog-sync only ever creates; editing a query in place
   leaves the live source running the old text.
@@ -150,12 +185,14 @@ they will in Neon. Gotchas:
 
 | | |
 | --- | --- |
+| [`docs/editorial-dna.md`](docs/editorial-dna.md) | **What this site and system are** — the owner's binding definition. Outranks everything below |
 | [`CLAUDE.md`](CLAUDE.md) | The working brief and the invariants (imports this file) |
 | [`docs/architecture.md`](docs/architecture.md) | System map, enforced boundaries, known gaps |
 | [`docs/api.md`](docs/api.md) | Every HTTP route, its guard, its shape |
 | [`docs/data-model.md`](docs/data-model.md) | Tables, triggers, versioning, RLS |
 | [`docs/environment.md`](docs/environment.md) | Environment variables, by name |
 | [`docs/operations.md`](docs/operations.md) | Install, verify, CI, deploy, troubleshoot |
+| [`docs/whole-site-updates.md`](docs/whole-site-updates.md) | `whole-site-update-v1` — how an editorial package is delivered and run |
 | [`.ai/DECISIONS.md`](.ai/DECISIONS.md) | The ADR log — why things are the way they are |
 | [`.ai/ROLLBACK.md`](.ai/ROLLBACK.md) | Undoing a bad production deploy |
 

@@ -7,6 +7,7 @@ vi.mock("@/lib/publications", () => ({ listBriefingPublications: read }));
 vi.mock("@/components/site/EditorialShell", () => ({ EditorialShell: ({ children }: { children: ReactNode }) => <main>{children}</main> }));
 vi.mock("@/components/briefs/BriefFilters", () => ({ BriefFilters: () => <form aria-label="Filter archive" /> }));
 import { LiveBriefEdition } from "@/components/briefs/LiveBriefHub";
+import { SECTIONS_BY_HOMEPAGE_SECTION } from "@/lib/publication-routing";
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 const story = (section: PublicPublication["section"], title: string): PublicPublication => ({
   publicId: title, canonicalStoryId: null, title, section, kind: "brief", summary: "Published context.", body: "Body", language: "en",
@@ -57,7 +58,15 @@ describe("news-first reading hierarchy", () => {
 
 describe("wide newsroom composition", () => {
   it("uses the briefing beside a single story without duplicating it outside the archive", async () => {
-    read.mockImplementation(async (q: string) => new URLSearchParams(q).get("section") === "daily_brief" ? [story("daily_brief", "Daily picture")] : [story("israel_update", "One story")]);
+    /* Section-explicit: the desk now reads every section routed to the news
+       band, and a mock that answers "anything but daily_brief" with the same
+       story hands the same publication back twice. A real query cannot —
+       a publication carries exactly one section. */
+    read.mockImplementation(async (q: string) => {
+      const section = new URLSearchParams(q).get("section");
+      return section === "daily_brief" ? [story("daily_brief", "Daily picture")]
+        : section === "israel_update" ? [story("israel_update", "One story")] : [];
+    });
     const output = await html(await LiveBriefEdition({ filters: {} }));
     const entrance = output.split('<details')[0];
     expect((entrance.match(/>Daily picture<\/a>/g) ?? []).length).toBe(1);
@@ -65,7 +74,8 @@ describe("wide newsroom composition", () => {
     expect(entrance).not.toContain("More updates");
   });
   it("does not duplicate lead stories in the updates sidebar", async () => {
-    read.mockImplementation(async (q: string) => new URLSearchParams(q).get("section") === "daily_brief" ? [] : [story("israel_update", "Lead"), story("israel_update", "Second")]);
+    read.mockImplementation(async (q: string) => new URLSearchParams(q).get("section") === "israel_update"
+      ? [story("israel_update", "Lead"), story("israel_update", "Second")] : []);
     const output = await html(await LiveBriefEdition({ filters: {} }));
     expect(output).toContain("More updates");
     expect(output).toContain("Second");
@@ -76,4 +86,23 @@ it("shows the briefing when there are no individual news stories", async () => {
   read.mockImplementation(async (q: string) => new URLSearchParams(q).get("section") === "daily_brief" ? [story("daily_brief", "Only briefing")] : []);
   const output = await html(await LiveBriefEdition({ filters: {} }));
   expect(output.split("<details")[0]).toContain("Only briefing");
+});
+
+describe("every section the news band routes here has a reading surface", () => {
+  it("reads each news section and shows a plain `news` record on the desk", async () => {
+    /* `applyEditorial` files a package that names no section as `news`, and
+       `lib/publication-routing.ts` routes `news` to this hub. The desk read
+       only `daily_brief` and `israel_update`, so such a record existed at its
+       own URL and on `/updates` and nowhere on the desk that claims it. */
+    const asked: string[] = [];
+    read.mockImplementation(async (q: string) => {
+      const section = new URLSearchParams(q).get("section")!;
+      asked.push(section);
+      return section === "news" ? [story("news", "Filed as News & Analysis")] : [];
+    });
+    const output = await html(await LiveBriefEdition({ filters: {} }));
+    for (const section of SECTIONS_BY_HOMEPAGE_SECTION.news) expect(asked).toContain(section);
+    expect(output).toContain("Filed as News &amp; Analysis");
+    expect(output).not.toContain("No individual news updates");
+  });
 });

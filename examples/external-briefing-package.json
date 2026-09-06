@@ -103,7 +103,188 @@
           ]
         }
       ]
+    },
+    "media": {
+      "inputUrl": "https://www.jpost.com/media/civil-defence-data-review.jpg",
+      "sourceUrl": "https://www.jpost.com/israel-news/civil-defence-data-transparency-review-2026",
+      "alt": "A marked public shelter entrance on a residential street.",
+      "caption": "A municipal civil-defence shelter entrance, photographed for the Jerusalem Post's review.",
+      "credit": "Photo: The Jerusalem Post",
+      "disclosure": null,
+      "role": "documentation",
+      "focalPoint": {
+        "x": 50,
+        "y": 40
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Publisher permission for editorial reuse with credit",
+        "reference": "https://www.jpost.com/terms-of-service",
+        "clearedAt": "2026-01-01",
+        "surfaces": [
+          "article"
+        ]
+      },
+      "generated": false
     }
   },
-  "articles": []
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "Municipalities Add Shelter Datasets to Israel's National Open-Data Portal",
+      "summary": "Local authorities are contributing updated shelter and preparedness records to the national open-data portal, which the Jerusalem Post reports is continuing to expand.",
+      "citationKeys": [
+        "c-gov",
+        "c-jpost"
+      ],
+      "claims": [
+        {
+          "title": "Municipalities contribute shelter datasets to the national portal",
+          "text": "Municipalities across Israel contribute updated shelter and preparedness datasets to the national open-data portal as part of home-front readiness reporting.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Government of Israel — Official Portal",
+          "uncertainty": null,
+          "citationLinks": [
+            {
+              "citationKey": "c-gov",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "The official portal publishes the datasets and names the contributing local authorities."
+            },
+            {
+              "citationKey": "c-jpost",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "Independent reporting describes the same municipal contributions to the portal."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Israel's official open-data portal catalogues civil-defence and public-shelter datasets that local authorities update as part of ongoing home-front readiness reporting operated by the national government.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "c-gov"
+          ]
+        },
+        {
+          "text": "Jerusalem Post reporting describes the same initiative continuing to expand, with municipalities across the country contributing updated shelter and preparedness datasets to the national portal for public transparency.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "c-jpost"
+          ]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Civil defence",
+      "primaryActor": "Government of Israel",
+      "arena": "Home front",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null,
+      "media": {
+        "inputUrl": "https://www.jpost.com/media/civil-defence-data-review.jpg",
+        "sourceUrl": "https://www.jpost.com/israel-news/civil-defence-data-transparency-review-2026",
+        "alt": "A computer screen displaying a map of public shelter locations.",
+        "caption": "A screen showing the national open-data portal's shelter dataset map.",
+        "credit": "Photo: The Jerusalem Post",
+        "disclosure": null,
+        "role": "documentation",
+        "focalPoint": {
+          "x": 50,
+          "y": 40
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Publisher permission for editorial reuse with credit",
+          "reference": "https://www.jpost.com/terms-of-service",
+          "clearedAt": "2026-01-01",
+          "surfaces": [
+            "article"
+          ]
+        },
+        "generated": false
+      }
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Claim That Israel Conceals Shelter Locations From the Public",
+      "summary": "This organisation's own analysis of a circulating claim that shelter locations are withheld from the public.",
+      "citationKeys": [],
+      "claims": [
+        {
+          "title": "The concealment claim is unsupported by the public record",
+          "text": "The circulating claim that shelter locations are deliberately withheld from the public is not supported by any material reviewed for this record.",
+          "layer": "editorial_conclusion",
+          "assessment": "unsupported",
+          "attributedTo": "Lions of Zion editorial analysis",
+          "uncertainty": "No independent verification of the claim's origin was available.",
+          "citationLinks": []
+        }
+      ],
+      "passages": [
+        {
+          "text": "The circulating claim asserts that shelter locations are deliberately withheld from residents, and offers no dataset, document or named authority in support of that assertion.",
+          "claimIndex": 0,
+          "citationKeys": []
+        },
+        {
+          "text": "This record is our own assessment rather than a report of documented fact, and it cites no source: readers should weigh it as analysis, and the claim it answers is stated in full above.",
+          "claimIndex": 0,
+          "citationKeys": []
+        }
+      ],
+      "narrativeTitle": "Shelter location concealment allegation",
+      "editorialTopic": "Information warfare",
+      "primaryActor": null,
+      "arena": "Social media",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Israel deliberately conceals the locations of public shelters from residents.",
+        "propagators": [
+          "Anonymous social media accounts"
+        ],
+        "arenas": [
+          "Social media"
+        ],
+        "trendDirection": "new",
+        "israeliPosition": null,
+        "securityContext": null,
+        "supportingCitationKeys": [],
+        "contradictingCitationKeys": [],
+        "verificationState": "unsupported",
+        "knownUnknowns": [
+          "The original source of the allegation has not been identified."
+        ]
+      },
+      "media": {
+        "inputUrl": "https://www.lionsofzion.io/media/briefing/open-data-illustration.png",
+        "sourceUrl": null,
+        "alt": "An abstract drawing of rows and columns of data on a dark ground.",
+        "caption": "An abstract illustration of an open data table, made for this record.",
+        "credit": "Illustration for Lions of Zion",
+        "disclosure": "Editorial illustration — not incident documentation",
+        "role": "editorial-illustration",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house for this article",
+          "reference": "lions-of-zion illustration workflow",
+          "clearedAt": "2026-01-01",
+          "surfaces": [
+            "homepage",
+            "article"
+          ]
+        },
+        "generated": true
+      }
+    }
+  ]
 }

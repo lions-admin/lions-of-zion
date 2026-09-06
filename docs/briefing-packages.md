@@ -68,6 +68,81 @@ npm run briefing:publish -- path/to/package.json --dry-run
 You can also run the branch's workflow manually from the Actions tab with
 `dry_run` checked to validate a file already committed there.
 
+## The picture each record publishes with
+
+Every record — the Daily Brief and each article — may carry a `media` object,
+and **none of the packages submitted so far has carried one**. The field is
+optional, so a package without it validates cleanly, publishes, and renders
+with an empty frame. Nothing failed; the picture was simply never sent.
+
+That is a composer-side gap, not a pipeline one: the ingest fetches, validates,
+stores and renders images already. What it cannot do is invent one.
+
+```json
+"media": {
+  "inputUrl": "https://www.example.com/media/photo.jpg",
+  "sourceUrl": "https://www.example.com/the-article-it-appeared-on",
+  "alt": "What a reader who cannot see it needs to know.",
+  "caption": "What the picture shows.",
+  "credit": "Photo: The Example Post",
+  "disclosure": null,
+  "role": "documentation",
+  "focalPoint": { "x": 50, "y": 40 },
+  "sensitivity": "safe",
+  "rights": {
+    "status": "cleared",
+    "basis": "Publisher permission for editorial reuse with credit",
+    "reference": "https://www.example.com/terms",
+    "clearedAt": "2026-01-01",
+    "surfaces": ["article"]
+  },
+  "generated": false
+}
+```
+
+`inputUrl` is fetched **once**, validated, and stored in this project's own
+public Blob store; the site then serves that copy. It never becomes a permanent
+hotlink, and it is the only field that reaches the network.
+
+**Rights are never invented on this side.** A composer that cannot establish a
+basis leaves `"status": "unknown"` — that stores the asset with its provenance
+while keeping it off every public surface. That is the honest outcome, not a
+failure. `"cleared"` additionally requires `clearedAt` and a non-empty
+`surfaces`.
+
+### A generated image says so
+
+For a picture made for the article rather than found, set `"generated": true`.
+The contract then requires `"role": "editorial-illustration"` and a
+`disclosure` line, and rejects the package without them:
+
+```json
+"disclosure": "Editorial illustration — not incident documentation",
+"role": "editorial-illustration",
+"generated": true
+```
+
+A generated image may never claim a documentary role, and the caption should
+describe a **drawing**, not an event.
+
+### Seeing what a package will publish with
+
+`npm run briefing:publish -- <file> --dry-run` prints one line per record with
+its image and credit, or `[no image]`:
+
+```
+Daily Brief: Israel and the region … [no image]
+[israel_update] Israel says Hezbollah tunnel complex … [no image]
+```
+
+That is the fastest way to check whether a composer has started sending
+pictures. The publish run also logs a warning naming every record that
+declared none.
+
+`examples/external-briefing-package.json` is a worked package carrying all
+three cases: a sourced photograph on the Daily Brief, one on an article, and a
+generated illustration on a Narrative Watch analysis.
+
 ## Contract rules that most often reject a generated package
 
 `server/contracts/external-briefing.ts` is the authority; these are the ones

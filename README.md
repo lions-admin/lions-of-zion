@@ -1,94 +1,197 @@
-# Lions of Zion
+<div align="center">
+  <a href="https://lionsofzion.io">
+    <img src="./public/icon-512.png" width="132" alt="Lions of Zion mark" />
+  </a>
+  <h1>LIONS OF ZION</h1>
+  <p><strong>Truth Has a Signal.</strong></p>
+  <p>
+    An independent evidence network for verified developments, documented sources,<br />
+    and the record behind them.
+  </p>
+  <p>
+    <a href="https://lionsofzion.io">Live site</a> ·
+    <a href="./docs/README.md">Documentation</a> ·
+    <a href="./docs/architecture.md">Architecture</a> ·
+    <a href="./docs/operations.md">Operations</a>
+  </p>
+  <p>
+    <a href="https://github.com/lions-admin/lions-of-zion/actions/workflows/ci.yml">
+      <img src="https://github.com/lions-admin/lions-of-zion/actions/workflows/ci.yml/badge.svg" alt="CI status" />
+    </a>
+    <img src="https://img.shields.io/badge/Node.js-24-339933?logo=nodedotjs&amp;logoColor=white" alt="Node.js 24" />
+    <img src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&amp;logoColor=white" alt="Next.js 16" />
+    <img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&amp;logoColor=white" alt="TypeScript strict mode" />
+  </p>
+</div>
 
-A Next.js public site and an information-model backend that share a repository.
+---
 
-The backend under `app/api/` and `server/` ingests sources, attaches evidence
-to claims, has a second human review an assessment, and publishes what
-survives. Neon, Blob and the AI Gateway are provisioned and live in Production
-— see [`docs/vercel-infrastructure.md`](docs/vercel-infrastructure.md). Nothing
-in the frontend requires them, which is why the app runs with no configuration
-at all.
+## What this repository contains
 
-## Run locally
+Lions of Zion is two deliberately separated systems that share one repository,
+build, and deployment:
+
+1. **A public editorial platform** for briefings, fact checks, testimony,
+   documentation, historical context, and source-led reporting.
+2. **An evidence and publishing backend** that ingests sources, connects evidence
+   to claims, requires human review, preserves version history, and publishes only
+   material that passes the editorial gate.
+
+The boundary is enforced by ESLint import rules rather than convention. Public
+code may use the shared vocabulary in `server/contracts/**`; database and policy
+code remains inside the server layer.
+
+```mermaid
+flowchart LR
+    Sources[Sources and submissions] --> Ingest[Ingestion]
+    Ingest --> Evidence[Claims and evidence]
+    Evidence --> Review[Human review]
+    Review --> Publish[Versioned publication]
+    Publish --> Site[Public site]
+
+    Site -. shared contracts .-> Contracts[server/contracts]
+    Contracts -. shared contracts .-> Evidence
+```
+
+## Editorial surfaces
+
+| Area | Route | Purpose |
+| --- | --- | --- |
+| News & Analysis | [`/geopolitical-brief`](https://lionsofzion.io/geopolitical-brief) | Daily developments, context, and source-backed analysis |
+| October 7 | [`/october-7`](https://lionsofzion.io/october-7) | Multilingual testimony and documentation archives |
+| Our Heroes | [`/our-heroes`](https://lionsofzion.io/our-heroes) | Sourced records of the fallen, fighters, and rescuers |
+| Israel's Story | [`/israels-story`](https://lionsofzion.io/israels-story) | Historical chapters from the founding through wars and treaties |
+| Narratives & Fact Checks | [`/fake-resistance`](https://lionsofzion.io/fake-resistance) | Claims, actors, evidence, and findings |
+| We Are | [`/we-are`](https://lionsofzion.io/we-are) | The network, method, and editorial rules |
+| Support | [`/support-us`](https://lionsofzion.io/support-us) | Submit a claim or offer relevant expertise |
+
+Readers can also use [search](https://lionsofzion.io/search),
+[Ask the desk](https://lionsofzion.io/ask), the
+[methodology](https://lionsofzion.io/methodology), and the public
+[corrections record](https://lionsofzion.io/corrections). The retired
+`/war-update` route permanently redirects to News & Analysis.
+
+The authenticated `/admin` area is a separate Hebrew, right-to-left operations
+workspace for pipeline health, sources, editorial work, incidents, costs,
+auditing, access, and system configuration.
+
+## Stack
+
+| Layer | Technology |
+| --- | --- |
+| Application | Next.js App Router, React, TypeScript |
+| UI | Tailwind CSS, CSS Modules, Radix primitives |
+| Validation | Zod |
+| Data | Neon Postgres, Drizzle ORM |
+| Storage | Vercel Blob |
+| AI | Vercel AI Gateway with profile-based model routing |
+| Background work | Transactional outbox, Vercel Queues, Vercel Cron |
+| Testing | Vitest, PGlite, Playwright |
+| Deployment | Vercel through the GitHub integration |
+
+## Quick start
+
+### Requirements
+
+- Node.js 24
+- npm (the repository is pinned with `package-lock.json`)
+
+### Run the public site
 
 ```bash
 npm ci
-npm run sync:start
 npm run dev
 ```
 
-Open <http://localhost:3000>. No configuration is needed: the frontend reads
-no environment variables and the test suite runs against an in-process
-database. Node 24.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Routes
+The public frontend and static content run without environment variables. Routes
+that read or mutate backend data require the relevant services, beginning with a
+pooled Neon `DATABASE_URL`.
 
-The eight primary destinations:
+### Configure backend features
 
-`/geopolitical-brief` · `/support-us` · `/war-update` · `/october-7` ·
-`/our-heroes` · `/israels-story` · `/fake-resistance` · `/we-are`
+```bash
+cp .env.example .env.local
+```
 
-Plus `/methodology` and `/corrections`.
-
-`lib/site-navigation.ts` `SITE_NAVIGATION` is the source of truth for all eight.
-
-### The October 7 archive
-
-`/october-7` is also a hub. Roughly 1,177 further pages sit beneath it, holding
-two crawled archives in full:
-
-`/october-7/testimonies` — 179 records, up to seven languages
-`/october-7/documentation` — 335 records, English and Spanish, six categories
-
-The records' JSON is committed under `content-packages/`, while their ~1.8 GB
-of media is not. It is served from `NEXT_PUBLIC_ARCHIVE_CDN`, or from a
-gitignored local symlink in development.
-
+Fill only the variables needed for the feature you are running. The complete,
+value-free reference is in [`docs/environment.md`](./docs/environment.md).
+Secrets must remain in local or platform environment storage and must never be
+committed.
 
 ## Commands
 
-```bash
-npm run typecheck
-npm run lint
-npm test
-npm run build
-npm run verify:changed  # adaptive checks for the current diff
-npm run verify:full     # complete handoff and CI gate
-npm run main:update     # merge a completed serious round into main and push it
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local Next.js development server |
+| `npm run typecheck` | Generate route types and run TypeScript with no emit |
+| `npm run lint` | Run ESLint and enforce architectural boundaries |
+| `npm test` | Run the Vitest suite |
+| `npm run build` | Create a production build |
+| `npm run verify:changed` | Select checks based on the current diff |
+| `npm run verify:full` | Run typecheck, lint, tests, and production build |
+| `npm run db:generate` | Generate a new Drizzle migration |
+| `npm run db:migrate` | Apply database migrations |
+| `npm run sync:start` | Refresh local Git state and report open branches |
+| `npm run main:update` | Merge a completed branch into `main` and publish it |
+
+See [`docs/operations.md`](./docs/operations.md) for focused test commands,
+database procedures, briefing operations, and troubleshooting.
+
+## Repository map
+
+```text
+app/                  Next.js pages and route handlers
+components/           Public UI, admin UI, and shared interface primitives
+content-packages/     Versioned editorial records and media manifests
+lib/                  Public application services and content readers
+server/contracts/     Shared, dependency-light domain vocabulary
+server/core/          Auth, configuration, outbox, versioning, and AI profiles
+server/db/            Drizzle schema, migrations, database client, test harness
+server/modules/       Domain services, repositories, and rules
+server/jobs/          Background job consumers
+scripts/              Operational, migration, verification, and import tools
+tests/                Unit, integration, architecture, and content tests
+docs/                 System reference and operating procedures
 ```
 
-`npm run lint` is where the architecture boundaries are enforced —
-`eslint.config.mjs` states them as errors, so a violation fails the build
-rather than waiting for review.
+## Content and media
 
+Editorial records are committed under `content-packages/`. The October 7 media
+archive is intentionally stored outside Git and served through
+`NEXT_PUBLIC_ARCHIVE_CDN`; local development can use the documented fallback.
 
+Homepage and editorial media manifests keep source, credit, rights status,
+license basis, and focal-point metadata beside each asset. Do not add media
+without preserving that provenance.
 
-## Deployment
+## Verification and delivery
 
-Git auto-deploy is connected: a push to `main` reaches Production on its own,
-live on `lionsofzion.io` within about two minutes. CI runs the full gate plus a
-route smoke test and does not deploy. (This paragraph said the opposite until
-2026-09-04 — see `docs/operations.md` for the mechanism.)
+Pull requests and pushes to `main` run the full CI gate:
 
-## The Daily Brief
+```text
+npm ci → typecheck → lint → test → build → browser route smoke test
+```
 
-`/geopolitical-brief` publishes one edition per Israel-local day, fulfilled
-from an externally composed package delivered to
-`POST /api/internal/briefing/external-publish` (idempotent by run ID) or from
-the administrator's run button (`POST /api/v1/admin/briefing/run`). There is no
-scheduled cron — the old 07:00 briefing schedule was removed on 2026-09-03.
-See [`docs/operations.md`](docs/operations.md).
+GitHub CI validates the repository but does not deploy it. Vercel's Git
+integration deploys pushes to `main` independently. Database migrations required
+by an application change must be applied before that change reaches `main`.
 
 ## Documentation
 
-Start at [`docs/`](docs/README.md).
-
-| | |
+| Document | Scope |
 | --- | --- |
-| [`docs/architecture.md`](docs/architecture.md) | The system map, the enforced boundaries, the flows, the known gaps |
-| [`docs/api.md`](docs/api.md) | Every HTTP route, its guard, its shape |
-| [`docs/data-model.md`](docs/data-model.md) | Tables, triggers, versioning, RLS |
-| [`docs/environment.md`](docs/environment.md) | Environment variables, by name |
-| [`docs/operations.md`](docs/operations.md) | Install, verify, CI, deploy, troubleshoot |
-| [`CLAUDE.md`](CLAUDE.md) | The working brief and the invariants |
-| [`.ai/DECISIONS.md`](.ai/DECISIONS.md) | The ADR log — why things are the way they are |
+| [`docs/architecture.md`](./docs/architecture.md) | System map, dependency boundaries, and runtime flows |
+| [`docs/api.md`](./docs/api.md) | HTTP routes, authentication, payloads, and errors |
+| [`docs/data-model.md`](./docs/data-model.md) | Tables, migrations, triggers, RLS, search, and versioning |
+| [`docs/environment.md`](./docs/environment.md) | Environment variable reference without values |
+| [`docs/operations.md`](./docs/operations.md) | Local work, CI, deployment, migrations, and troubleshooting |
+| [`docs/vercel-infrastructure.md`](./docs/vercel-infrastructure.md) | Verified provider and production infrastructure record |
+| [`.ai/DECISIONS.md`](./.ai/DECISIONS.md) | Architecture decision log |
+
+## License
+
+The software is available under the [MIT License](./LICENSE). Editorial content
+and third-party media may carry separate rights and attribution requirements;
+refer to the relevant content package and media manifest before reuse.

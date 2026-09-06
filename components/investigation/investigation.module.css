@@ -927,6 +927,12 @@
   scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
+/* The claim block: the finding, its grades and who it names. A grid child,
+   so it needs its own minimum or a long statement widens the row. */
+.ledgerClaim {
+  min-width: 0;
+}
+
 .ledgerStatement {
   margin: var(--sp-3) 0 0;
   color: var(--ink-hi);

@@ -421,7 +421,13 @@ describe("/geopolitical-brief absences (STATE-005)", () => {
        published today". */
     expect(markup).toContain('data-status="error"');
     expect(markup).not.toContain('data-status="empty"');
-    expect(markup).toContain("could not be read");
+    /* Anchored on the clause that makes it a failure rather than on the full
+       sentence: the hub's copy has been rewritten twice and each rewrite
+       turned this guard red without the behaviour ever regressing. What must
+       hold is that the panel says the read failed, and says so in terms a
+       reader cannot mistake for a quiet day. */
+    expect(markup).toContain("could not be loaded");
+    expect(markup).toContain("This is not an empty news feed");
 
     /* The narrative record no longer renders as a section-level empty state
        on this page at all — it moved to the fake-resistance desk — but if a
@@ -435,21 +441,25 @@ describe("/geopolitical-brief absences (STATE-005)", () => {
     listBriefingPublications.mockResolvedValue([]);
 
     const filtered = await hub({ actor: "Someone" });
-    expect(filtered).toContain("No Daily Brief matches this selection");
-    expect(filtered).toContain("Clear all filters");
+    expect(filtered).toContain("match these filters");
+    expect(filtered).toContain("Clear filters");
 
     const unfiltered = await hub();
-    expect(unfiltered).toContain("No Daily Brief has been published yet");
+    expect(unfiltered).toContain("have been published yet");
+    expect(unfiltered).not.toContain("match these filters");
     /* Clearing filters that were never set is a control that changes nothing. */
-    expect(unfiltered).not.toContain("Clear all filters");
+    expect(unfiltered).not.toContain("Clear filters");
 
     /* The narrative record is no longer a filtered section here: it moved to
        the fake-resistance desk, and the hub renders a static pointer to it
        instead — the same section whether the filters matched anything or not,
        so it is no longer the voice of either absence. */
-    expect(filtered).toContain("Narratives, X &amp; incitement");
+    /* Anchored on the link rather than its label: the route is the contract,
+       the wording is editorial and has already been rewritten once. */
     expect(filtered).toContain('href="/fake-resistance"');
-    expect(unfiltered).toContain("Narratives, X &amp; incitement");
+    expect(filtered).toContain("Looking for what is being claimed?");
+    expect(unfiltered).toContain('href="/fake-resistance"');
+    expect(unfiltered).toContain("Looking for what is being claimed?");
     /* And neither absence borrows the narrative record's old empty voice. */
     expect(filtered).not.toContain("No narrative record");
     expect(unfiltered).not.toContain("No narrative record");

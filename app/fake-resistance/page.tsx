@@ -28,9 +28,15 @@ export default async function Page() {
           kicker="The claim and the record"
           title={<>Narratives &amp; fact checks</>}
           standfirst="Investigate the record. Distinguish a circulating claim from a finding, and follow the evidence to where it actually leads."
+          /* A failed read and an empty desk are different facts, and a count
+             is the one place the difference disappears silently: both settle
+             to `[]`, and `0` then states as fact something nobody knows. The
+             body below already distinguishes them ("temporarily unavailable"
+             vs "none published yet"), so a numeric 0 beside it made the page
+             contradict itself. Same rule `/updates` states at its own catch. */
           facts={[
-            { label: "Investigations", value: cases.length },
-            { label: "On the watch", value: items.length },
+            { label: "Investigations", value: research.status === "fulfilled" ? cases.length : "Unavailable" },
+            { label: "On the watch", value: monitoring.status === "fulfilled" ? items.length : "Unavailable" },
           ]}
           jumps={[
             { href: "#investigation-heading", label: "Latest investigation" },

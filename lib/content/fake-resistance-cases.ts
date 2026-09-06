@@ -146,6 +146,13 @@ export type CaseEdge = {
   weight?: string;
   statement: string;
   indicators?: string[];
+  /* An inferred edge carries the test behind it or it does not publish. The
+     four travel together: the p-value, the null it was tested against, the
+     sample size, and the file holding the computation. */
+  pValue?: string;
+  nullModel?: string;
+  sampleN?: string;
+  analysisOutput?: string;
 };
 
 export type CaseNarrative = {
@@ -166,6 +173,103 @@ export type CaseEvent = {
   confidence?: ResearchConfidence;
 };
 
+/**
+ * A reading the case's own new data killed.
+ *
+ * Every rebuilt packet carries a table of these, and it is the section a
+ * reader who met an earlier version of the investigation needs first. `prior`
+ * and `status` are absent on the one case that writes its corrections as
+ * numbered prose rather than a table — the sentence is then the whole finding
+ * and splitting it would put words in the research's mouth.
+ */
+export type CaseOverturned = {
+  prior?: string;
+  now: string;
+  status?: string;
+};
+
+/** One day of posting volume, subjects and control accounts kept apart. */
+export type CadenceDay = { date: string; subjects: number; controls: number };
+
+/**
+ * A measured lag between two accounts' posting series.
+ *
+ * Never rendered without `pValue`, `nullModel` and `n`: the whole point of
+ * this table is that it replaced a "70% same-hour" statistic computed with no
+ * null model at all.
+ */
+export type SynchronyPair = {
+  a: string;
+  b: string;
+  medianSeconds?: number;
+  iqrSeconds?: number;
+  frac60?: number;
+  frac300?: number;
+  lead?: string;
+  effectSize?: number;
+  pValue?: number;
+  nullModel?: string;
+  nulls?: number;
+  n: number;
+  /** Computed pair-by-pair rather than read off the all-pairs sweep. */
+  precise?: boolean;
+};
+
+/**
+ * A Phase-3 quote tree: who amplified an exhibit first, and whether the sample
+ * can support the word "first".
+ *
+ * `treeState` is load-bearing. `exhausted` means the tree was read to its end;
+ * `capped` means the page cap stopped it, so the earliest quoter fetched is
+ * not necessarily the earliest quoter; `empty_inconclusive` means the platform
+ * returned nothing after two retries, which is not the same as nothing having
+ * happened.
+ */
+export type FirstSeenExhibit = {
+  exhibit: string;
+  label?: string;
+  quotes?: number;
+  retweeters?: number;
+  treeState?: 'exhausted' | 'capped' | 'empty_inconclusive' | string;
+  firstQuoter?: string;
+  firstQuoterAt?: string;
+  windowCaveat?: string;
+  rosterLed?: boolean;
+  quoteViews?: number;
+  retweeterFollowers?: number;
+};
+
+/**
+ * What the case measured, as opposed to what it concluded.
+ *
+ * Computed at import from the packet's own tables and analysis outputs
+ * (`scripts/lib/research-stats.mjs`), so the page can show the size and shape
+ * of the sample beside the findings drawn from it.
+ */
+export type CaseStats = {
+  sampled: number;
+  undated: number;
+  window?: { start: string; end: string };
+  accounts: number;
+  subjectAccounts: number;
+  controlAccounts: number;
+  sources: number;
+  independenceGroups: number;
+  /** Track-B status per claim: corroborated / contradicted / not-addressed. */
+  corroboration: Record<string, number>;
+  communityNotes: { items: number; withNote: number; helpful: number };
+  cadence: { days: CadenceDay[]; dated: number; undated: number };
+  synchrony: {
+    pairs: SynchronyPair[];
+    /** The denominator. At α=0.05, this many tests expect false positives. */
+    pairsTested: number;
+    significantPairs: number;
+    expectedByChance: number;
+    caveat?: string;
+  };
+  firstSeen: FirstSeenExhibit[];
+};
+
 export type ResearchCase = {
   slug: string;
   caseId: string;
@@ -179,6 +283,8 @@ export type ResearchCase = {
   /** The researchers' self-graded certainty, as one sentence. */
   confidence: string;
   bottomLine: CasePoint[];
+  overturned: CaseOverturned[];
+  stats: CaseStats;
   limitations: string[];
   unknowns: string[];
   contradictions: string[];
@@ -211,25 +317,102 @@ export type ResearchIndex = {
 };
 
 /**
- * An analytic grouping over the entities, not an entity itself — which is why
- * the packet keeps it in the report rather than in a CSV.
+ * An analytic grouping over the entities, not an entity itself.
+ *
+ * These used to be hand-asserted in the graph packet's prose — seven of them.
+ * The Phase-2c rebuild replaced that with a Louvain partition over the merged
+ * graph, so `id`, `size`, `subjects`, `controls` and `hubs` are computed, and
+ * only `label` and `note` are a person's reading, taken from the synthesis
+ * report that names them.
  */
 export type NetworkCommunity = {
-  number: string;
-  name: string;
-  nodes: string[];
-  binding: string;
+  id: number;
+  label: string;
+  note: string;
+  size: number;
+  subjects: number;
+  controls: number;
+  /** Highest-PageRank members, as handles. */
+  hubs: string[];
+  /** Every member, as handles — the join key for placing an entity. */
+  members: string[];
+  cases: string[];
+};
+
+/** Aggregate observed interaction between two communities, or within one. */
+export type CommunityEdge = {
+  from: number;
+  to: number;
+  weight: number;
+  edges: number;
+  internal: boolean;
+};
+
+/**
+ * A coordination edge that survived a null model.
+ *
+ * The only inferential layer in the graph, and the only one drawn account by
+ * account: every row carries the p-value, the null it was tested against, and
+ * the sample size. `confidenceCap` is the research's own brake — a
+ * single-trace edge is capped at low no matter how small its p-value.
+ */
+export type CoordinationEdge = {
+  a: string;
+  b: string;
+  pValue?: number;
+  traces: string[];
+  multiTrace: boolean;
+  confidenceCap?: string;
+  sampleN?: number;
+  nullModel?: string;
+  analysisOutput?: string;
+  communityA?: number;
+  communityB?: number;
+  crossCommunity: boolean;
+  controlSide: boolean;
+};
+
+/** An account named in the drawing, ranked by degree. */
+export type NetworkNode = {
+  handle: string;
+  community?: number;
+  pagerank?: number;
+  degree?: number;
+  control: boolean;
+  cases: string[];
+};
+
+export type NetworkMetrics = {
+  nodes?: number;
+  edges?: number;
+  communities?: number;
+  bridges?: number;
+  maxKCore?: number;
+  coordinationEdges?: number;
+  interactionEdges?: number;
+  unplacedInteractionEdges?: number;
 };
 
 export type ResearchNetwork = {
   updatedAt: string;
   question: string;
+  /** Counts from the computed graph, not from the roster table. */
+  metrics: NetworkMetrics;
+  /** The convenience-sample caveat the analysis suite stamps on its outputs. */
+  caveat: string;
   communities: NetworkCommunity[];
+  communityEdges: CommunityEdge[];
+  coordinationEdges: CoordinationEdge[];
+  topNodes: NetworkNode[];
   bridges: string[];
   edges: CaseEdge[];
   roster: CaseEntity[];
   sources: ResearchSource[];
+  overturned: CaseOverturned[];
+  synthesisOverturned: CaseOverturned[];
   findings: string[];
+  /** The four stages material moves through, in order. */
+  pipeline: string[];
   executiveSummary: string[];
   wouldChange: string[];
   limitations: string[];
@@ -285,8 +468,9 @@ export async function getResearchNetwork(): Promise<ResearchNetwork> {
     edges: network.edges.map((edge) => ({ ...edge, statement: readable(edge.statement) })),
     communities: network.communities.map((community) => ({
       ...community,
-      binding: readable(community.binding),
+      note: readable(community.note),
     })),
+    pipeline: network.pipeline.map(readable),
   };
 }
 

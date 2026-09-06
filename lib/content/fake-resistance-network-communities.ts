@@ -1,173 +1,75 @@
 /**
- * Which entity sits in which community — the join the research package does
- * not carry.
+ * Which entity sits in which community.
  *
- * `network.json` describes its seven communities with `communities[].nodes`,
- * and those strings are informal display labels written for a human reading a
- * report: `"Hinkle"`, `"Loupis__"`, `"Gage (schismatic)"`, `"IRGC personas"`.
- * Exactly **one** of the 32 of them is string-equal to a `roster[].name`, so
- * the two halves of the package cannot be joined mechanically, and any figure
- * that groups entities by community needs this table to exist.
+ * ## What changed, and why this file shrank
  *
- * ## Where the assignments come from
+ * This used to be a hand-written table of 28 entity ids mapped to seven
+ * communities, derived by a person from `G1`–`G7` tags in the roster's prose
+ * notes. It existed for one reason, stated in its own docstring: *the research
+ * package does not carry the join.*
  *
- * Not from guesswork against the labels. Every `roster[]` entry except four
- * carries a `note` whose first token is the research's own group tag — `G1`
- * through `G7`, matching `communities[].number` 1–7 in order. That tag is the
- * package's own machine-readable membership; this table is that derivation,
- * written out once, by hand, so it is reviewable in a diff rather than parsed
- * out of a free-text field at render time. A `note` is prose and the editorial
- * layer's whole job is to stop prose deciding what renders.
+ * It carries it now. The Phase-2c rebuild replaced the seven hand-asserted
+ * communities with a Louvain partition computed over the merged cross-case
+ * graph — 188 nodes, 595 edges, five communities — and the packet ships every
+ * community's full membership as handles. So the mapping is read from the
+ * data instead of maintained beside it, and the drawing changes when the
+ * research does rather than when someone remembers to edit this file.
  *
- * ## Why it lives here and not beside `network.json`
+ * The join key is the **handle**, lowercased. That is the packet's own key for
+ * a computed node, and the roster carries handles for 212 of its 213 entries.
+ * It is not `platform_user_id`, which the research uses for identity across
+ * cases, because the analysis outputs are keyed on handle; and it is not the
+ * display name, which is prose.
  *
- * `scripts/import-research-cases.mjs` owns `content-packages/fake-resistance/`
- * and rewrites it wholesale. A judgment call parked in that directory is a
- * judgment call waiting to be reverted by the next import — which is the
- * reason `fake-resistance-editorial.ts` exists at all, and the same reason
- * applies here. This module is a sibling of it rather than part of it only
- * because it is a lookup table with no policy in it.
+ * ## What survives from the old table
  *
- * ## What this table deliberately does *not* do
- *
- * It does not resolve the seven community labels that name an entity the
- * roster has no row for; those are recorded in `UNRESOLVED_LABELS` and stay
- * unresolved. Inventing an id for `"Grayzone"` or `"IRGC personas"` would put
- * an entity on a drawing that the research never entered into its own roster.
+ * `UNGROUPED`. Some entities are deliberately not in any community, and the
+ * research says why — the desk that did the observing is not a participant in
+ * what it observed. Those are role words a person wrote, not a computation, so
+ * they stay here where a reviewer can see them in a diff.
  */
-
-/** A community number as `network.json` writes it — `"1"` … `"7"`. */
-export type CommunityNumber = string;
+import type { CaseEntity, NetworkCommunity } from './fake-resistance-cases';
 
 /**
- * Entity id → community number, derived from each roster entry's own `G*`
- * note tag. Order follows the roster so a reviewer can read the two side by
- * side.
- */
-const MEMBERSHIP: Record<string, CommunityNumber> = {
-  // 1 · Hinkle production cell
-  ent_hinkle: '1', // note: "G1 ORIGINATOR"
-  ent_gulag: '1', // note: "G1 CLIPPER"
-  ent_acp: '1', // note: "G1 party brand"
-
-  // 2 · Fuentes-adjacent far right
-  ent_fuentes: '2', // note: "G2 Detroit node"
-  ent_shields: '2', // note: "G2"
-  ent_parker: '2', // note: "G2 Detroit"
-  ent_loupis: '2', // note: "G2 pivot persona"
-  ent_gage: '2', // note: "G2 schismatic"
-  ent_woodsyoutube: '2', // note: "G2" — see DISCREPANCIES below
-
-  // 3 · Muslim personal-brand lane
-  ent_sulaiman: '3', // note: "G3 ORIGINATOR-amplifier"
-  ent_jvnior: '3', // note: "G3 personality"
-
-  // 4 · Feeder aggregators
-  ent_quds: '4', // note: "G4 aggregator"
-  ent_tog: '4', // note: "G4 aggregator"
-  ent_xie: '4', // note: "G4 archive project"
-  ent_abujomaa: '4', // note: "G4 on-scene journalist" — see DISCREPANCIES
-  ent_clashreport: '4', // note: "G4-expansion Iran-war wire"
-
-  // 5 · Anti-empire journalists
-  ent_blumenthal: '5', // note: "G5"
-  ent_mate: '5', // note: "G5 corridor->platform bridge"
-  ent_finkelstein: '5', // note: "G5 CLIPPED by Gulag"
-
-  // 6 · Mega talk shows
-  ent_candace: '6', // note: "G6 mega ideological"
-  ent_nawfal: '6', // note: "G6 PLATFORM factory"
-  ent_davesmith: '6', // note: "G6 libertarian"
-  ent_judgenap: '6', // note: "G6 guest platform"
-
-  // 7 · State / covert press
-  ent_prestv: '7', // note: "G7 overt state"
-  ent_mayadeen: '7', // note: "G7 aligned family"
-  ent_marandi: '7', // note: "G7 frequent guest"
-  ent_gbc: '7', // note: "G7 COORD_PERSONA 2026"
-};
-
-/**
- * The four roster entries that carry no group tag, each with the research's
- * own reason. These are not oversights in the package — three of them are
- * explicitly *not* members of a community, and a figure that quietly filed
- * them into one would be asserting something the research did not.
+ * Entities that carry no handle and therefore cannot be placed by the
+ * computed partition, each with the reason it is not a member of anything.
+ *
+ * A figure that quietly filed these into a community would be asserting
+ * something the research did not.
  */
 export const UNGROUPED: Record<string, { role: string; why: string }> = {
   ent_desk: {
     role: 'Observer',
     why: 'The research desk itself. It observes the network; it is not in it.',
   },
-  ent_sneako: {
-    role: 'Bridge',
-    why: 'Tagged "BRIDGE 01-02-03" — the research places this account across communities 1, 2 and 3 rather than inside any one of them.',
-  },
-  ent_kasparian: {
-    role: 'Clipped subject',
-    why: 'Tagged "clipped subject" — carried because material of hers was reused, not because the research placed her in the network.',
-  },
-  ent_yakoby_ref: {
-    role: 'Stub endpoint',
-    why: 'Tagged "Stub endpoint" — added so one recorded edge has a target. It is a reference point, not a mapped participant.',
-  },
 };
 
-/**
- * Community labels that name an entity the roster has no row for. They are
- * counted in the report's community sizes and cannot be counted in any
- * drawing built from the entity data, which is a gap worth stating rather
- * than smoothing over: the prose describes a larger ecosystem than the
- * machine-readable roster covers.
- */
-export const UNRESOLVED_LABELS: ReadonlyArray<{
-  community: CommunityNumber;
-  label: string;
-}> = [
-  { community: '3', label: 'Truthteller' },
-  { community: '4', label: 'EoP' },
-  { community: '5', label: 'Grayzone' },
-  { community: '5', label: 'Medhurst' },
-  { community: '5', label: 'Norton' },
-  { community: '5', label: 'DropSite' },
-  { community: '7', label: 'IRGC personas' },
-];
+/** A community id as the computed partition writes it — `0` … `4`. */
+export type CommunityId = number;
 
 /**
- * Where the entity notes and the community label lists disagree. Both are the
- * research's own, both are kept, and neither is edited to match the other.
+ * Handle → community, built once from the payload the importer wrote.
  *
- * In each case the entity's `note` places it in a community whose label list
- * omits it. The note is treated as authoritative for grouping because it is a
- * field on the entity, while the label list is a summary written for a reader
- * — but the disagreement is recorded because it means the report's own
- * community sizes and this table's do not match.
+ * Callers pass the communities they are already rendering, so there is no
+ * second copy of the membership anywhere in the app.
  */
-export const DISCREPANCIES: ReadonlyArray<{ id: string; community: CommunityNumber; note: string }> =
-  [
-    {
-      id: 'ent_woodsyoutube',
-      community: '2',
-      note: 'Keith Woods is tagged G2 but is absent from community 2’s label list.',
-    },
-    {
-      id: 'ent_abujomaa',
-      community: '4',
-      note: 'Motasem Dalloul is tagged G4 but is absent from community 4’s label list, which carries "EoP" instead.',
-    },
-  ];
+export function communityIndex(communities: NetworkCommunity[]): Map<string, CommunityId> {
+  const index = new Map<string, CommunityId>();
+  for (const community of communities) {
+    for (const handle of community.members) index.set(handle.toLowerCase(), community.id);
+  }
+  return index;
+}
 
-/** The community an entity belongs to, or `undefined` if it is ungrouped. */
-export function communityOf(entityId: string): CommunityNumber | undefined {
-  return MEMBERSHIP[entityId];
+/** The community an entity belongs to, or `undefined` if it is not placed. */
+export function communityOf(
+  entity: Pick<CaseEntity, 'handle'>,
+  index: Map<string, CommunityId>,
+): CommunityId | undefined {
+  return entity.handle ? index.get(entity.handle.toLowerCase()) : undefined;
 }
 
 /** The research's stated role for an entity that sits in no community. */
 export function ungroupedRole(entityId: string): string | undefined {
   return UNGROUPED[entityId]?.role;
 }
-
-/** Every entity id this table places, for the coverage assertion in tests. */
-export const MAPPED_IDS: readonly string[] = Object.keys(MEMBERSHIP);
-
-/** Every entity id this table deliberately leaves out of a community. */
-export const UNGROUPED_IDS: readonly string[] = Object.keys(UNGROUPED);

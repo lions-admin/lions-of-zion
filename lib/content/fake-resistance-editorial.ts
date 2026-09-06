@@ -237,7 +237,7 @@ function joinNames(numbers: string[]): string {
  */
 const FILE_REFERENCE = /\b(?:case|group)s?[-\s](0?\d(?:\s*[-–—/,and\s]+0?\d)*)\b/gi;
 
-const GLOSSARY: [RegExp, string][] = [
+const GLOSSARY: [RegExp, string | ((...args: string[]) => string)][] = [
   // Table names from the research data model, which surface in source labels
   // ("Assembled relationship_evidence rows from …").
   [/\brelationship_evidence(?:\.csv)?\b/gi, 'the connection records'],
@@ -245,6 +245,23 @@ const GLOSSARY: [RegExp, string][] = [
   [/\bcontent_items(?:\.csv)?\b/gi, 'the archived post records'],
   [/\bentities\.csv\b/gi, 'the roster records'],
   [/\bsources\.csv\b/gi, 'the source records'],
+  [/\bcommunity_notes_join(?:\.csv)?\b/gi, 'the Community Notes join'],
+  [/\bamplification_matrix(?:\.csv)?\b/gi, 'the amplification matrix'],
+  [/\bquote_pairs(?:\.csv)?\b/gi, 'the quote-pair records'],
+  /* A bare `data/…` or `analysis/…` path left in a sentence is a machine
+     locator, not a citation a reader can follow. The parenthetical it sits in
+     usually carries a count worth keeping, so only the path goes. */
+  [/\(\s*(?:data|analysis|evidence)\/[^)\s,;]+\s*(?:,\s*)?/gi, '('],
+  [/\b(?:data|analysis|evidence)\/[\w./*-]+\.csv\b/gi, 'the research tables'],
+  [/\barchive_recovery(?:\.csv)?\b/gi, 'the archive-recovery register'],
+  [/\bhandle_history(?:\.csv)?\b/gi, 'the handle-history register'],
+  /* Anything still ending in `.csv` is a table this glossary has not been
+     taught to name. It is still a filename on a reading surface, so the
+     extension goes and the name stays readable rather than shipping a
+     locator: `foo_bar.csv` reads as "the foo bar records". */
+  [/\b([a-z][a-z0-9]*(?:_[a-z0-9]+)*)\.csv\b/gi, (_m: string, name: string) =>
+    `the ${name.replace(/_/g, ' ')} records`],
+  [/\(\s*\)/g, ''],
   // The rewrites above can leave "the the" where the prose already had an
   // article ahead of the table name.
   [/\bthe the\b/gi, 'the'],
@@ -276,7 +293,12 @@ export function readable(text: string): string {
     const named = joinNames(expanded);
     return named || whole;
   });
-  for (const [pattern, replacement] of GLOSSARY) out = out.replace(pattern, replacement);
+  for (const [pattern, replacement] of GLOSSARY) {
+    out =
+      typeof replacement === 'string'
+        ? out.replace(pattern, replacement)
+        : out.replace(pattern, replacement as (substring: string, ...args: unknown[]) => string);
+  }
   return out;
 }
 

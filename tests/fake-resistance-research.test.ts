@@ -51,7 +51,7 @@ async function allCases() {
 describe("the research package", () => {
   it("declares the contract this seam was written against", async () => {
     const index = await getResearchIndex();
-    expect(index.contract).toBe("fake-resistance-research@1");
+    expect(index.contract).toBe("fake-resistance-research@2");
     expect(index.cases.length).toBeGreaterThan(0);
   });
 
@@ -200,7 +200,7 @@ describe("evidence integrity", () => {
         ...record.narratives.flatMap((n) => [n.summary ?? "", n.frame ?? "", n.audience ?? ""]),
       ]),
       ...network.edges.map((e) => e.statement),
-      ...network.communities.map((c) => c.binding),
+      ...network.communities.map((c) => c.note),
     ];
 
     for (const value of plain) {
@@ -237,14 +237,25 @@ describe("evidence integrity", () => {
 });
 
 describe("the network payload", () => {
-  it("carries the communities and bridges the graph found", async () => {
+  it("carries the communities the graph computed, with their membership", async () => {
     const network = await getResearchNetwork();
     expect(network.communities.length).toBeGreaterThan(1);
-    expect(network.bridges.length).toBeGreaterThan(0);
     for (const community of network.communities) {
-      expect(community.name.length).toBeGreaterThan(0);
-      expect(community.nodes.length).toBeGreaterThan(0);
+      expect(community.label.length).toBeGreaterThan(0);
+      expect(community.members.length).toBe(community.size);
+      expect(community.hubs.length).toBeGreaterThan(0);
     }
+  });
+
+  /* The counts on the page come from the computed graph, not from the roster
+     table a person wrote. If the analysis outputs go missing the importer
+     exits rather than shipping a page with a plausible-looking number on it. */
+  it("reports the size of the graph it drew", async () => {
+    const network = await getResearchNetwork();
+    expect(network.metrics.nodes).toBeGreaterThan(0);
+    expect(network.metrics.edges).toBeGreaterThan(0);
+    expect(network.metrics.communities).toBe(network.communities.length);
+    expect(network.caveat).toMatch(/convenience sample/i);
   });
 
   it("keeps the synthesis findings that survived the contradiction pass", async () => {
@@ -412,7 +423,8 @@ describe("the editorial pass", () => {
       ...network.findings,
       ...network.executiveSummary,
       ...network.bridges,
-      ...network.communities.map((c) => c.binding),
+      ...network.communities.map((c) => c.note),
+      ...network.pipeline,
       ...network.edges.map((e) => e.statement),
     ];
 

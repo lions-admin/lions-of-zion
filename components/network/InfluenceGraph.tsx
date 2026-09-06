@@ -227,7 +227,7 @@ export function InfluenceGraph({ roster, edges, communities, status }: Influence
   );
 
   const communityName = useMemo(
-    () => new Map(communities.map((community) => [community.number, community.name])),
+    () => new Map(communities.map((community) => [community.id, community.label])),
     [communities],
   );
 

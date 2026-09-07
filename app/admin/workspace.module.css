@@ -1,35 +1,10 @@
-/* Admin owns density and Hebrew type; public-site tokens remain unchanged. */
+/* Admin owns density and Hebrew type; public-site tokens remain unchanged.
+   The overlay that says so is `[data-surface="admin"]` in app/globals.css —
+   SYS-001 keeps every colour, type role, space step and radius born there.
+   This file consumes those names and defines none of them. `app/admin/page.tsx`
+   carries the attribute; the radius scale and the 44px coarse-pointer floor are
+   deliberately *not* part of the overlay. */
 .root {
-  --ground: #141718;
-  --surface-1: #1a1e20;
-  --surface-2: #22272a;
-  --surface-3: #2b3134;
-  --ink-hi: #f1f2ee;
-  --ink: #c5cac7;
-  --ink-lo: #9fa8a5;
-  --line: #353d3e;
-  --gold: #e6bc57;
-  --face-text: var(--font-plex-sans-hebrew), var(--font-plex-sans), sans-serif;
-  --face-display: var(--face-text);
-  --face-data: var(--font-jetbrains-mono), var(--font-plex-sans-hebrew), monospace;
-  --t-display: 2rem;
-  --t-h2: 1.375rem;
-  --t-h3: 1.125rem;
-  --t-h3-lh: 1.4;
-  --t-body: 1rem;
-  --t-small: .9375rem;
-  --t-caption: .8125rem;
-  --t-data: .8125rem;
-  --control-h: 2.5rem;
-  --control-h-sm: 2.125rem;
-  --radius-pill: 5px;
-  --radius-2: 5px;
-  --radius-3: 6px;
-  --shadow-1: none;
-  --shadow-3: none;
-  --sp-6: 1.5rem;
-  --sp-7: 2rem;
-  --sp-8: 2.5rem;
   min-height: 100dvh;
   background: var(--ground);
   color: var(--ink-hi);
@@ -56,7 +31,7 @@
 .navigation { padding: 14px 12px; overflow-y: auto; flex: 1; }
 .navGroup { margin-bottom: 18px; }
 .navGroup p { color: var(--ink-lo); font-size: 12px; margin: 0 10px 5px; }
-.navigation a { display: block; padding: 8px 10px; border-radius: 4px; font-size: 14px; color: var(--ink); text-decoration: none; border-inline-start: 2px solid transparent; }
+.navigation a { display: block; padding: 8px 10px; border-radius: var(--radius-1); font-size: 14px; color: var(--ink); text-decoration: none; border-inline-start: 2px solid transparent; }
 .navigation a:hover { color: var(--ink-hi); background: var(--surface-2); }
 .navigation a[aria-current="page"] { background: #2b2b23; color: var(--gold); border-inline-start-color: var(--gold); font-weight: 600; }
 .navigation .architecture { border-top: 1px solid var(--line); border-radius: 0; padding-top: 14px; font-size: 13px; }
@@ -123,7 +98,15 @@
   .health a { border-inline-end: 0; border-bottom: 1px solid var(--line); padding: 14px 0; }
   .publicationRow { grid-template-columns: minmax(0,1fr); gap: 7px; }
   .pagination { flex-wrap: wrap; }
-  .root button { min-height: 44px; white-space: normal; }
+  .root button { white-space: normal; }
+}
+/* The console's own touch floor, for the raw <button>s that do not come from
+   components/ui/Button and so read no --btn-h. It was a literal 44px inside the
+   600px width block above, which is the wrong condition twice: it duplicated
+   --control-h-coarse instead of reading it, and a tablet is a coarse pointer at
+   768px and wider, where that block does not apply. */
+@media (pointer: coarse) {
+  .root button { min-height: var(--control-h); }
 }
 @media (forced-colors: active) { .root * { scrollbar-color: auto; } }
 .sourceList { border-top: 1px solid var(--line); }

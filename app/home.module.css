@@ -58,12 +58,12 @@
 .skipLink:focus { transform: translateY(0); }
 
 /* The ask, on the cover — owner ruling 2026-09-07 (`.ai/DECISIONS.md`). Two chips in the home
-   chrome's own geometry (the header's Support Us control: 3px radius, hairline, 13px navigation
+   chrome's own geometry (the header's Support Us control: --radius-home-chrome, hairline, 13px navigation
    face), gold-lined so they read as the one warm thing under the cover copy. `HeroSupportStrip`
    says why they are here and why they are not a toast. */
 .supportStrip { margin-top: 26px; }
 .supportList { display: flex; flex-wrap: wrap; gap: 8px 10px; margin: 0; padding: 0; list-style: none; }
-.supportChip { display: inline-flex; align-items: center; gap: 8px; min-height: var(--control-h-sm); padding-inline: 13px 11px; border: 1px solid var(--gold-line-strong); border-radius: 3px; background: color-mix(in srgb, var(--ground) 55%, transparent); color: var(--ink-hi); font: 500 13px/1 var(--face-navigation); text-decoration: none; white-space: nowrap; transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.supportChip { display: inline-flex; align-items: center; gap: 8px; min-height: var(--control-h-sm); padding-inline: 13px 11px; border: 1px solid var(--gold-line-strong); border-radius: var(--radius-home-chrome); background: color-mix(in srgb, var(--ground) 55%, transparent); color: var(--ink-hi); font: 500 13px/1 var(--face-navigation); text-decoration: none; white-space: nowrap; transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
 .supportChip svg { flex: none; color: var(--gold); }
 .supportChipArrow { color: var(--gold); font-size: 12px; transition: transform var(--dur-fast) var(--ease-out); }
 .supportChip:hover { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-hi); }

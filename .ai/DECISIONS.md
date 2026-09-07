@@ -10,6 +10,61 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — The admin console gets a density overlay, not a private token scale
+
+`app/admin/workspace.module.css` opened by redeclaring twenty-eight tokens on
+`.root` — palette, faces, the whole type ramp, three space steps, both control
+heights, three radii and two shadows. SYS-001 says `app/globals.css` is the one
+place any of those may be born, and the cost of ignoring it was not
+theoretical.
+
+**The radius scale had silently forked.** The route file set
+`--radius-pill: 5px`, so the token whose entire job is to say *this is a pill,
+not a plate* drew a near-rectangle: every badge in the console rendered in the
+shape vocabulary of the thing it is supposed to contrast with. It also pinned
+`--radius-3` at 6px, which made the console a private copy of the scale rather
+than a consumer of it — a change to `--radius-3` in the token block reached
+every surface on the site except this one, which is exactly the failure mode
+the single-definition rule exists to prevent.
+
+**The 44px touch floor had been breached, product-wide from one line.** The
+route file set `--control-h: 2.5rem`. That looks local, but the coarse-pointer
+blocks in `components/ui` — `button`, `field`, `tabs`, `pagination` — all
+re-floor by reading `var(--control-h)`. The global `@media (pointer: coarse)`
+rule only re-floored `--control-h-sm`, because at `:root` the two were already
+equal and nobody had to think about it. So on a phone every admin control that
+believed it was floored at 44px was 40px, and the floor moved for four
+component families at once from a token line in a route stylesheet.
+
+The ruling: **a surface may buy density; it may not buy geometry or safety.**
+The overlay now lives in `app/globals.css` as `[data-surface="admin"]`, beside
+the `[data-family]` blocks that already do this for the reading routes, and
+carries the palette, the Hebrew faces, the compressed type ramp, the tighter
+space steps and the flat chrome — all of it legitimate for a staff console read
+at a desk. It carries **no radius at all**, and its `--control-h` compression is
+followed immediately by a `@media (pointer: coarse)` rule that returns both
+heights to `--control-h-coarse`. The `:root` coarse block now states
+`--control-h` alongside `--control-h-sm` as well: still a no-op there, but it
+puts the floor in writing next to the token instead of leaving it true by
+coincidence.
+
+`app/admin/page.tsx` carries the attribute; `workspace.module.css` now defines
+nothing and only consumes.
+
+**Same sweep — the home chrome's 3px corner is art direction, and now says so.**
+`.header[data-home] .support`, `.header[data-home] .deskSearch` and
+`HeroSupportStrip`'s `.supportChip` each carried a bare `3px` literal, which
+left the same *Support Us* control a pill everywhere on the site and a
+rectangle on the homepage with nothing anywhere claiming that was intentional.
+It is: the addendum of the same day already describes those chips as drawn in
+"the header's *Support Us* control, a 3px-radius hairline", and over a moving
+photograph a pill reads as a sticker where a near-square hairline reads as
+chrome. The three literals are now `--radius-home-chrome`. It is named as an
+exception to the 4 / 6 / 10 / pill scale rather than a fourth step in it, and
+it belongs to the controls over the cover film and to nothing else.
+
+---
+
 ## 2026-09-07 — The ChatGPT widgets are inlined plain DOM, not a bundled framework
 
 Three constraints, each ruling out the obvious choice.

@@ -68,15 +68,44 @@ describe("English product chrome", () => {
     /* The face reaches exactly one consumer. `--face-text` and `--face-data`
        are what every public surface renders in, and neither may name the
        Hebrew variable: that single substitution is all it would take for the
-       whole site to change face without one string changing. */
-    const faceTokens = globals
+       whole site to change face without one string changing.
+
+       This counted every `--face-*` line in the file and required exactly
+       three, which held only while the console declared its own faces in
+       `app/admin/workspace.module.css`. That route file was a SYS-001
+       violation on nine other tokens as well and its overlay now lives here as
+       `[data-surface="admin"]`, so a flat count would forbid the correct
+       shape. The property the test was always after is narrower and is now
+       checked directly: `:root` declares the three site faces and none of them
+       names the Hebrew variable, and the admin overlay is the only block in
+       the file allowed to. That is stronger than the count it replaces — the
+       count never said *which* block a Hebrew face could appear in. */
+    const rootBlock = globals.slice(
+      globals.indexOf(":root {"),
+      globals.indexOf("\n}", globals.indexOf(":root {")),
+    );
+    const rootFaces = rootBlock
       .split(/\n/)
       .filter((line) => /^\s*--face-(text|display|data)\s*:/.test(line));
-    expect(faceTokens.length, "the three face tokens are declared in globals.css").toBe(3);
-    for (const token of faceTokens) {
+    expect(rootFaces.length, "the three site face tokens are declared on :root").toBe(3);
+    for (const token of rootFaces) {
       expect(token, "no site face token reaches for the Hebrew webfont")
         .not.toMatch(/plex-sans-hebrew/);
     }
+
+    /* Every other mention of the Hebrew face in the file belongs to the
+       console surface, and nothing else may claim it. */
+    const adminBlock = globals.slice(
+      globals.indexOf('[data-surface="admin"] {'),
+      globals.indexOf("\n}", globals.indexOf('[data-surface="admin"] {')),
+    );
+    expect(adminBlock, "the admin overlay is where the console's Hebrew face lives")
+      .toMatch(/plex-sans-hebrew/);
+    const strayHebrewFace = globals
+      .split(/\n/)
+      .filter((line) => /plex-sans-hebrew/.test(line))
+      .filter((line) => !adminBlock.includes(line));
+    expect(strayHebrewFace, "only [data-surface=\"admin\"] names the Hebrew webfont").toEqual([]);
   });
 
   it("keeps Hebrew strings inside the console and out of the public site", () => {

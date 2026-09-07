@@ -13,7 +13,8 @@ export function GET(request: NextRequest): NextResponse {
   if (publicXAvailability(request.headers) !== "ready") return unavailable(request);
 
   const returnTo = request.nextUrl.searchParams.get("return_to") ?? "/account";
-  const { authorizationUrl, stateCookie } = beginPublicXAuthorization(returnTo);
+  const mode = request.nextUrl.searchParams.get("intent") === "post" ? "posting" : "identity";
+  const { authorizationUrl, stateCookie } = beginPublicXAuthorization(returnTo, mode);
   const response = NextResponse.redirect(authorizationUrl, 302);
   response.cookies.set({
     name: X_OAUTH_STATE_COOKIE,

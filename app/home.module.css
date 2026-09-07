@@ -139,19 +139,37 @@
   .editionRail { max-width: 44ch; }
 }
 @media (max-width: 759px) {
+  /* The phone cover carried 429px of type over a 521px photograph: four
+     fifths of the lion sat under the masthead, and the picture the site
+     opens on read as a texture behind text (owner, 2026-09-08). The cover
+     is bottom-anchored, so the band's own height is the lever — the whole
+     block moves down together, keeps its order and its spacing, and the
+     lion gets a lit field of its own above the wordmark. The band still
+     stops short of the viewport: the edition rail is read without a scroll
+     and the reading surface below still shows at the fold. */
+  .hero { min-height: clamp(560px, 88svh, 860px); padding-bottom: 30px; }
+  /* The band's own height places the type; this margin is only the floor
+     under the field on a short screen. At `22svh` it bound before the band
+     did and grew the cover past the fold on a 667px phone. */
+  .masthead { margin-top: clamp(64px, 12svh, 200px); }
+  /* Read a little higher up the plate than the short cover needed: in the
+     taller band 85% pushed the head back into the type. */
+  .posterField { background-position: 50% 78%; }
+  .heroVideo { object-position: 50% 78%; }
+  /* The ramp starts where the type does, not a fifth of the way down, so
+     the sky, the crown of the mane and the muzzle stay photographic and the
+     wash only does the work of holding the wordmark. */
+  .heroScrim { background: linear-gradient(to bottom, transparent 24%, color-mix(in srgb, var(--ground) 30%, transparent) 38%, color-mix(in srgb, var(--ground) 72%, transparent) 52%, color-mix(in srgb, var(--ground) 93%, transparent) 66%, var(--ground) 88%); }
   /* The fixed 200px measure is what stops the two paths sharing a phone row;
      the link keeps its own width instead and the arrow stays at its end. */
-  .hero {
-    min-height: clamp(540px, 82svh, 780px);
-    padding-bottom: 30px;
-  }
-  .standfirst { margin-top: 20px; }
   .actions a { min-width: 0; }
+  /* The cover's own rhythm on a phone: each block gets room to be read as a
+     block rather than as one continuous column of type (#50). */
+  .standfirst { margin-top: 20px; }
   .coverPaths { gap: 4px 18px; margin-top: 18px; }
   .editionRail { margin-top: 24px; padding-top: 16px; }
   .supportStrip { margin-top: 22px; }
   .hero + .readingSurface { padding-top: 22px; }
-
 }
 @media (max-width: 380px) {
   .supportStrip { column-gap: 10px; }

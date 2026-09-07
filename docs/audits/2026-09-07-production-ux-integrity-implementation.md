@@ -564,26 +564,31 @@ documented real-world incident look like a "fake claim".
 Articles currently end at sources and corrections and stop. Build an
 **evidence-aware** continuation. **Not a "You may also like" carousel.**
 
-- [ ] **50.1** Define the relationship ladder, in priority: same canonical
+- [x] **50.1** Define the relationship ladder, in priority: same canonical
       developing story → related investigation → evidence collection →
       actor/entity → topic/narrative → archive record → relevant section hub.
       **The first rung returns nothing by construction** — the canonical id is
       unique per row, so a story is one record updated in place. Either drop that
       rung or redefine it as "records sharing an `eventId`".
-- [ ] **50.2** **A module already exists — upgrade it, do not add a second.**
+      <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
+- [x] **50.2** **A module already exists — upgrade it, do not add a second.**
       "Related coverage" renders at `app/articles/[publicId]/page.tsx:415-444`,
       above corrections, and is the terminal content. Its data comes from
       `publication_related`, written only by `linkRelated` as auto-linked batch
       siblings, not editorial relationships; narratives render as unlinked text
       with no route to reach. Normally **2–4** destinations.
-- [ ] **50.3** Exclude self-links, duplicate stories, weak keyword matches and
+      <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
+- [x] **50.3** Exclude self-links, duplicate stories, weak keyword matches and
       filler. If nothing genuinely relevant exists, return the reader to the most
       relevant section/topic.
-- [ ] **50.4** Depends on VA-46's canonical version and VA-48's dedup — do not
+      <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
+- [x] **50.4** Depends on VA-46's canonical version and VA-48's dedup — do not
       ship before those land, or it will recommend duplicates.
-- [ ] **50.5** Test: related-content selection — ladder order, self-link
+      <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
+- [x] **50.5** Test: related-content selection — ladder order, self-link
       exclusion, duplicate exclusion, and the empty-case fallback to a hub.
 
+      <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
 ### VA-54 — Investigation reading experience `A4`
 
 Preserve the **full** evidentiary depth of investigations such as Hinkle
@@ -597,7 +602,8 @@ a 343px box). **Do not remove evidence to shorten the page.**
       findings, connections, methodology, revision history, evidence.
 - [ ] **54.3** Add a local table of contents, stable deep links, collapsible /
       `<details>` structures, mobile-aware hierarchy.
-- [ ] **54.4** Fix the clipped horizontal scrollers on mobile.
+- [x] **54.4** Fix the clipped horizontal scrollers on mobile.
+      <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
 - [ ] **54.5** Serve both the reader who wants the conclusion and the researcher
       who wants the dossier. Verify both journeys.
 
@@ -922,9 +928,9 @@ Update this table in the **same commit** that changes any box above.
 | VA-48 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — guard on both auto-publish paths, override documented, 4 tests, live sweep tabulated (3 exact + 7 near pairs). Open: 48.5 merges and 48.6 redirects — both need Production mutation credentials |
 | VA-47 | A2 | ☑ done | 1 | `6295324` — PUBLICATION_PROVENANCE derived from `autoPublishedAt`; Authorship line; Methodology "Two ways a record publishes"; 13 tests |
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
-| VA-49 | A3 | ◐ in progress | 2 | `ae18ad2` — migration 0064, disposition derived from the executor stage, 7 tests. **Blocked on Production SQL: `.ai/PRODUCTION-MIGRATION-0064.sql` must run before merge.** 49.3/49.4/49.5 are editorial, need MCP |
-| VA-50 | A4 | ☐ not started | 2 | — |
-| VA-54 | A4 | ☐ not started | 2 | — |
+| VA-49 | A3 | ☑ code done | 2 | `ae18ad2` — migration 0064 applied to Production and its drizzle receipt inserted, both verified 2026-09-08. 49.3/49.4/49.5 remain editorial, need the MCP path |
+| VA-50 | A4 | ☑ done | 2 | `007aaf9` — shared-field ladder, bounded pool, cross-desk eyebrow, 21 tests |
+| VA-54 | A4 | ◐ in progress | 2 | `fa6290f` — 54.4 only (strip scroll legible + follows the reader). Open: 54.1–54.3, 54.5 progressive disclosure and local contents |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
 | VA-52 | A5 | ☐ not started | 3 | — |
 | VA-55 | A5 | ☐ not started | 3 | — |

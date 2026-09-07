@@ -5,6 +5,7 @@ import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { JourneyLink } from "@/components/home/HomeJourneyPrimitives";
 import { HeroVideo } from "@/components/sections/HeroVideo";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
+import { HeroSupportStrip } from "@/components/home/HeroSupportStrip";
 import { getHomepageEdition } from "@/lib/homepage";
 import styles from "./home.module.css";
 
@@ -68,13 +69,19 @@ export default async function Page() {
               <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
             </div>
             {/* Quieter by design: smaller, lower in tone, no arrow of its own,
-                so "Read the latest" is the one invitation on the cover and
-                this is the optional reading path beneath it. */}
+                so "Read the latest" is the one arrow on the cover and this is
+                the optional reading path beneath it. */}
             <div className={styles.secondaryActions}>
               <Link className={styles.storyLink} href="/information-war">
                 Why this work matters
               </Link>
             </div>
+            {/* The ask, on the cover, by owner ruling (2026-09-07): the two
+                donation channels as compact chips under the reading paths.
+                They arrive after the cover has been read and then hold still
+                — `HeroSupportStrip` carries the reasoning. They take no arrow;
+                the external glyph is the chrome's own mark for leaving. */}
+            <HeroSupportStrip />
           </div>
 
         </section>

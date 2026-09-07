@@ -141,9 +141,16 @@
 @media (max-width: 759px) {
   /* The fixed 200px measure is what stops the two paths sharing a phone row;
      the link keeps its own width instead and the arrow stays at its end. */
+  .hero {
+    min-height: clamp(540px, 82svh, 780px);
+    padding-bottom: 30px;
+  }
+  .standfirst { margin-top: 20px; }
   .actions a { min-width: 0; }
-  .coverPaths { gap: 0 16px; }
-  .supportStrip { margin-top: 14px; }
+  .coverPaths { gap: 4px 18px; margin-top: 18px; }
+  .editionRail { margin-top: 24px; padding-top: 16px; }
+  .supportStrip { margin-top: 22px; }
+  .hero + .readingSurface { padding-top: 22px; }
 
 }
 @media (max-width: 380px) {

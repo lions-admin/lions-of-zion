@@ -1,0 +1,75 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "homepage-smart-editorial-images-2026-09-08",
+  "composer": "Lions of Zion editorial visual refresh",
+  "createdAt": "2026-09-08T00:13:00.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "media-lebanon-smart-visual",
+      "target": { "publicId": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3" },
+      "publication": {
+        "editorialTopic": "Israel–Hezbollah escalation in southern Lebanon",
+        "changeSummary": "Replaced the generic abstract cover with a disclosed, story-specific editorial illustration centered on the drone and border-landscape context. Article text unchanged."
+      },
+      "media": {"inputUrl":"https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/dd1f0b894cc7a834458044ea7903d4fbafeea39049d18fb0f9da759b7df358e6.png","sourceUrl":null,"alt":"Editorial illustration of a drone over the southern Lebanon border landscape.","caption":"Editorial illustration for the developing Lebanon escalation; it does not depict a specific incident.","credit":"Lions of Zion","disclosure":"Editorial illustration — not documentary evidence","role":"editorial-illustration","focalPoint":{"x":50,"y":42},"sensitivity":"safe","rights":{"status":"cleared","basis":"Generated in-house","reference":"ChatGPT generated file file_000000005790820aa236c4f846da6aea; run homepage-smart-editorial-images-2026-09-08; operation media-lebanon-smart-visual; stored 2026-09-07T22:11:42.312Z; sha256 dd1f0b894cc7a834458044ea7903d4fbafeea39049d18fb0f9da759b7df358e6","clearedAt":"2026-09-08","surfaces":["article","homepage"]},"generated":true}
+    },
+    {
+      "key": "media-outposts-smart-visual",
+      "target": { "publicId": "netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx" },
+      "publication": {
+        "editorialTopic": "West Bank outpost removal order",
+        "changeSummary": "Replaced the generic abstract cover with a disclosed, story-specific editorial illustration of outposts and an unmarked policy-choice cue. Article text unchanged."
+      },
+      "media": {"inputUrl":"https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/46c5a2a77718f194fa9f879e41377b59e8ede91d6ba9e2d544269b6aba10d662.png","sourceUrl":null,"alt":"Editorial illustration of modular outposts, a winding hill road and an unmarked decision sign.","caption":"Editorial illustration for the policy explainer; it does not depict a real site or operation.","credit":"Lions of Zion","disclosure":"Editorial illustration — not documentary evidence","role":"editorial-illustration","focalPoint":{"x":53,"y":47},"sensitivity":"safe","rights":{"status":"cleared","basis":"Generated in-house","reference":"ChatGPT generated file file_000000005c5c81f487ef159fc6fc08de; run homepage-smart-editorial-images-2026-09-08; operation media-outposts-smart-visual; stored 2026-09-07T22:11:45.605Z; sha256 46c5a2a77718f194fa9f879e41377b59e8ede91d6ba9e2d544269b6aba10d662","clearedAt":"2026-09-08","surfaces":["article","homepage"]},"generated":true}
+    },
+    {
+      "key": "media-kharg-smart-visual",
+      "target": { "publicId": "when-synthetic-battlefield-footage-comes-from-th-3c4f9" },
+      "publication": {
+        "editorialTopic": "Synthetic-media verification and Kharg Island",
+        "changeSummary": "Replaced the generic abstract cover with a disclosed visual metaphor for pixel-level synthetic-media verification. Article text unchanged."
+      },
+      "media": {"inputUrl":"https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/f4c7ac4d3faa9aba9fed7f1dfa641cf0f04ece2ca5c7d2f6ec32a2decbafd02f.png","sourceUrl":null,"alt":"Editorial illustration of a fictional oil-terminal graphic dissolving into pixels under a magnifying glass.","caption":"Editorial illustration for synthetic-media analysis; it is not footage or evidence of an incident.","credit":"Lions of Zion","disclosure":"Editorial illustration — not documentary evidence","role":"editorial-illustration","focalPoint":{"x":52,"y":48},"sensitivity":"safe","rights":{"status":"cleared","basis":"Generated in-house","reference":"ChatGPT generated file file_00000000dd208243b12f3068a94e396f; run homepage-smart-editorial-images-2026-09-08; operation media-kharg-smart-visual; stored 2026-09-07T22:11:48.183Z; sha256 f4c7ac4d3faa9aba9fed7f1dfa641cf0f04ece2ca5c7d2f6ec32a2decbafd02f","clearedAt":"2026-09-08","surfaces":["article","homepage"]},"generated":true}
+    },
+    {
+      "key": "media-rabbis-smart-visual",
+      "target": { "publicId": "european-rabbis-urge-governments-to-confront-the-2igk8" },
+      "publication": {
+        "editorialTopic": "European antisemitism policy response",
+        "changeSummary": "Replaced the generic abstract cover with a disclosed editorial illustration that conveys community protection without depicting an incident or individual. Article text unchanged."
+      },
+      "media": {"inputUrl":"https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/469021197f39f1f140d9be761ab9fde614d08b5123cc3e42bed3717c9378ea49.png","sourceUrl":null,"alt":"Editorial illustration of a European synagogue entrance sheltered by a protective canopy.","caption":"Editorial illustration for the antisemitism analysis; it does not depict an event or individual.","credit":"Lions of Zion","disclosure":"Editorial illustration — not documentary evidence","role":"editorial-illustration","focalPoint":{"x":50,"y":48},"sensitivity":"safe","rights":{"status":"cleared","basis":"Generated in-house","reference":"ChatGPT generated file file_00000000f10c81f4ba6191d531405108; run homepage-smart-editorial-images-2026-09-08; operation media-rabbis-smart-visual; stored 2026-09-07T22:11:50.128Z; sha256 469021197f39f1f140d9be761ab9fde614d08b5123cc3e42bed3717c9378ea49","clearedAt":"2026-09-08","surfaces":["article","homepage"]},"generated":true}
+    },
+    {
+      "key": "media-tkuma-smart-visual",
+      "target": { "publicId": "israel-launches-nis-22-million-tech-human-capita-794jg" },
+      "publication": {
+        "editorialTopic": "Tkuma regional technology workforce development",
+        "changeSummary": "Replaced the generic abstract cover with a disclosed illustration of a practical technology workspace in its regional setting. Article text unchanged."
+      },
+      "media": {"inputUrl":"https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/c438b1eb94a90f04b30b63d7e400bba032de7af03e9a1a5152480332f9b95fd4.png","sourceUrl":null,"alt":"Editorial illustration of a community technology workspace overlooking western Negev fields.","caption":"Editorial illustration for the Tkuma workforce initiative; it does not depict a program event.","credit":"Lions of Zion","disclosure":"Editorial illustration — not documentary evidence","role":"editorial-illustration","focalPoint":{"x":51,"y":54},"sensitivity":"safe","rights":{"status":"cleared","basis":"Generated in-house","reference":"ChatGPT generated file file_000000009f8082109d7d3ccf755de022; run homepage-smart-editorial-images-2026-09-08; operation media-tkuma-smart-visual; stored 2026-09-07T22:11:56.842Z; sha256 c438b1eb94a90f04b30b63d7e400bba032de7af03e9a1a5152480332f9b95fd4","clearedAt":"2026-09-08","surfaces":["article","homepage"]},"generated":true}
+    },
+    {
+      "key": "media-aerogel-smart-visual",
+      "target": { "publicId": "ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1" },
+      "publication": {
+        "editorialTopic": "Oil biodegradation and cellulose aerogel research",
+        "changeSummary": "Replaced the generic abstract cover with a disclosed visual explanation of the aerogel, oil and bacteria mechanism. Article text unchanged."
+      },
+      "media": {"inputUrl":"https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/fa606a8e736c278bc9edb149551a1ed18b59e51b5af4eb25649036e32948eeeb.png","sourceUrl":null,"alt":"Editorial science illustration of porous aerogel absorbing oil, with a bacteria detail inset.","caption":"Editorial illustration for the aerogel research; it is not laboratory evidence.","credit":"Lions of Zion","disclosure":"Editorial illustration — not documentary evidence","role":"editorial-illustration","focalPoint":{"x":48,"y":46},"sensitivity":"safe","rights":{"status":"cleared","basis":"Generated in-house","reference":"ChatGPT generated file file_0000000035608210b59c36ef28f1cef1; run homepage-smart-editorial-images-2026-09-08; operation media-aerogel-smart-visual; stored 2026-09-07T22:12:00.430Z; sha256 fa606a8e736c278bc9edb149551a1ed18b59e51b5af4eb25649036e32948eeeb","clearedAt":"2026-09-08","surfaces":["article","homepage"]},"generated":true}
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [],
+  "research": [
+    {
+      "topic": "Homepage visual refresh",
+      "focus": "Six active homepage stories with hard-to-interpret abstract illustration covers.",
+      "sourcesReviewed": ["https://lionsofzion.io/"],
+      "conclusion": "Each image was replaced with a source-safe, disclosed editorial illustration built around one recognizable story cue, with centered composition for mobile cards and wide article covers.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": []
+}

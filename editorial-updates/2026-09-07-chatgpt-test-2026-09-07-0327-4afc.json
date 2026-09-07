@@ -1,0 +1,215 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "chatgpt-test-2026-09-07-0327-4afc",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T00:27:20Z",
+  "creates": [
+    {
+      "key": "gaza-city-strike-20260906",
+      "publication": {
+        "kind": "news_update",
+        "section": "news",
+        "canonicalStoryId": "gaza-city-strike-akila-2026-09-06",
+        "title": "Gaza City strike kills father and daughter; IDF says it targeted a Hamas militant",
+        "summary": "Palestinian health officials said an Israeli strike on a vehicle in western Gaza City killed Youssef Akila and his 8-year-old daughter Wafaa and wounded six others. The IDF said the strike targeted a Hamas militant and was assessing the result.",
+        "body": "An Israeli airstrike hit a vehicle in western Gaza City on September 6, killing Youssef Akila and his daughter Wafaa and wounding six other people, according to Palestinian health officials cited by Reuters and EFE. Wafaa was identified as eight years old.\n\nThe Israeli military later said the strike targeted a Hamas militant. The public reporting reviewed for this update did not establish whether the intended target was Akila, whether the target was killed, or whether the military had completed its assessment of the strike. Those points should remain separate from the confirmed fact that the vehicle was struck and that civilian casualties were reported.\n\nThe incident occurred under the October 2025 U.S.-backed ceasefire framework, which reduced large-scale fighting but did not end Israeli strikes against what the IDF says are militant threats. Hamas accuses Israel of ceasefire violations; that accusation is a party claim, not an independent finding.\n\nThis case illustrates why casualty reporting and target attribution should be presented as separate evidentiary layers. Hospital officials can identify victims and injuries; the military can state its intended target; neither source alone establishes the complete operational picture.\n\nWhat is established from the reviewed sources: a vehicle was struck in western Gaza City; Youssef and Wafaa Akila were reported killed; six others were reported wounded; and the IDF said it had targeted a Hamas militant. What remains unresolved publicly: the identity and fate of the intended militant target and the military's final assessment of the strike.",
+        "language": "en",
+        "editorialTopic": "Gaza ceasefire and strike attribution",
+        "topicTags": ["gaza", "hamas", "idf", "civilian-casualties", "ceasefire"],
+        "primaryActor": "Israel Defense Forces and Gaza health officials",
+        "arena": "Gaza City"
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israeli-strike-kills-two-people-gaza-medics-say-2026-09-06/",
+          "title": "Israeli strike kills a man and his daughter in Gaza, medics say",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.swissinfo.ch/spa/israel-mata-a-una-ni%C3%B1a-de-8-a%C3%B1os-y-a-su-padre-en-ataque-a%C3%A9reo-al-oeste-de-ciudad-de-gaza/92013391",
+          "title": "Israel mata a una niña de 8 años y a su padre en ataque aéreo al oeste de ciudad de Gaza",
+          "publisher": "SWI swissinfo.ch / EFE",
+          "publisherUrl": "https://www.swissinfo.ch/",
+          "official": false,
+          "language": "es"
+        }
+      ]
+    },
+    {
+      "key": "idf-snap-multifront-drill-20260906",
+      "publication": {
+        "kind": "news_update",
+        "section": "israel_update",
+        "canonicalStoryId": "idf-snap-multifront-readiness-drill-2026-09-06",
+        "title": "IDF snap drill tests simultaneous attacks across multiple fronts",
+        "summary": "The IDF conducted an unannounced exercise testing senior-command decisions during simultaneous simulated infiltrations, rocket fire and fighting in the north, Gaza, the West Bank and central Israel.",
+        "body": "The Israel Defense Forces conducted a surprise multi-front readiness exercise on September 6, testing how the General Staff and field forces would respond to several simultaneous crises.\n\nAccording to IDF information reported by The Times of Israel, the scenarios included a simulated infiltration from Lebanon, attacks and infiltrations in the West Bank, rocket fire toward Tel Aviv and escalating fighting along the Gaza ceasefire line. The exercise also tested rapid force movement and command decisions under degraded conditions.\n\nChief of Staff Lt. Gen. Eyal Zamir said the military's baseline posture is readiness for a surprise attack and described the exercise as part of preparations for the upcoming Jewish holiday period. The drill was deliberately kept from most senior officers until it began, increasing its value as a test of real-time response rather than a rehearsed demonstration.\n\nThe exercise does not itself prove that an attack is imminent. Its editorial significance is preparedness: after the failures exposed on October 7, 2023, the military is explicitly testing simultaneous pressure on several fronts and the ability of commanders to prioritize forces when not every threat can be addressed at once.\n\nThe results released publicly were preliminary. A fuller military review was expected after the exercise, so claims about lessons learned or readiness improvements should be treated as provisional until more detail is published.",
+        "language": "en",
+        "editorialTopic": "Israeli multi-front military readiness",
+        "topicTags": ["idf", "readiness", "multi-front", "gaza", "lebanon", "west-bank"],
+        "primaryActor": "Israel Defense Forces",
+        "arena": "Israel and regional fronts"
+      },
+      "sources": [
+        {
+          "url": "https://www.timesofisrael.com/idf-conducts-snap-drill-testing-readiness-for-sudden-complex-multifront-scenario/amp/",
+          "title": "IDF conducts snap drill testing readiness for ‘sudden, complex, multifront’ scenario",
+          "publisher": "The Times of Israel",
+          "publisherUrl": "https://www.timesofisrael.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.aa.com.tr/en/middle-east/israeli-army-chief-warns-of-tense-volatile-period-across-all-fronts/4048903",
+          "title": "Israeli army chief warns of ‘tense, volatile period’ across all fronts",
+          "publisher": "Anadolu Agency",
+          "publisherUrl": "https://www.aa.com.tr/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "kharg-ai-battlefield-claim-investigation",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "influence_investigation",
+        "canonicalStoryId": "kharg-island-ai-battlefield-video-2026-08-31",
+        "title": "When synthetic battlefield footage comes from the top: the Kharg Island AI video",
+        "summary": "Donald Trump posted an AI-generated clip with language suggesting Iran's Kharg Island was being destroyed. Reuters found no evidence at the time that Kharg had been attacked, turning the episode into a clear case study in how synthetic imagery can blur threat, claim and documentation during war.",
+        "body": "On August 30-31, U.S. President Donald Trump posted an AI-generated video depicting explosions at Iran's Kharg Island with a caption saying the oil hub was being 'blown to smithereens.' Reuters reported that it could find no evidence at the time that Kharg had actually been attacked and said the accompanying clip was most likely synthetically generated.\n\nThe core information-war problem is not simply that an AI video existed. It is that a synthetic visual was paired with declarative battlefield language from a head of state during an active military confrontation. That combination can cause audiences to interpret a threat, signal or hypothetical depiction as documentary evidence of an event that has already happened.\n\nLead Stories separately verified that the post was real and assessed the video as AI-generated using several detection tools and visual indicators. Iranian officials denied that Kharg had been struck and said operations continued. Those denials come from a party to the conflict and should not be treated as independent proof by themselves; the stronger finding is that independent reporting had not found evidence of the claimed destruction.\n\nThere is no evidence in the reviewed material that the clip was part of a coordinated influence network, that it originated with a state information operation, or that Trump intended viewers to treat it as literal documentation rather than signaling. Those stronger claims would require evidence that is not present here.\n\nThe narrower finding is still important: synthetic imagery can acquire documentary authority from the account that posts it. Readers should verify whether an image is authentic, whether the described event is independently reported, whether military or commercial satellite evidence exists, and whether the language is a confirmed operational announcement or strategic signaling.\n\nThis episode is a useful manipulation-recognition lesson precisely because the misleading evidentiary effect does not depend on proving a hidden campaign. A high-authority source, a dramatic synthetic visual and an unresolved real-world event can be enough to create false certainty.",
+        "language": "en",
+        "editorialTopic": "Synthetic media in wartime information environments",
+        "topicTags": ["information-war", "ai-generated-media", "iran", "kharg-island", "synthetic-media"],
+        "primaryActor": "Donald Trump",
+        "arena": "United States-Iran conflict"
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/us-iran-exchange-fire-flare-up-bessent-signals-more-sanctions-2026-08-31/",
+          "title": "Trump says Iran's Kharg is being 'blown to smithereens', but gives no details",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://leadstories.com/hoax-alert/2026/08/fact-check-trump-did-make-post-on-truth-social-about-kharg-island-using-an-ai-video.html",
+          "title": "Fact Check: Trump DID Make Post On Truth Social About Kharg Island Using An AI-Generated Video",
+          "publisher": "Lead Stories",
+          "publisherUrl": "https://leadstories.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "cer-europe-antisemitism-manifesto-202609",
+      "publication": {
+        "kind": "news_update",
+        "section": "antisemitism",
+        "canonicalStoryId": "cer-europe-antisemitism-manifesto-2026",
+        "title": "European rabbis urge governments to confront the infrastructure behind antisemitic violence",
+        "summary": "The Conference of European Rabbis unveiled a seven-point manifesto calling for stronger action against extremist funding, incitement, radicalization and institutional failures behind antisemitic violence in Europe.",
+        "body": "The Conference of European Rabbis unveiled a seven-point manifesto in Brussels in early September calling on European governments and institutions to move beyond physical protection of Jewish sites and address the systems that can enable antisemitic violence.\n\nThe proposals include stronger oversight of extremist funding, standards for religious leaders, action against incitement and glorification of terrorism, community safeguarding measures, faster responses to online hate and clearer accountability for institutions. The manifesto frames the problem as an 'infrastructure of hatred' rather than a collection of isolated incidents.\n\nThat phrase is the conference's assessment, not an independently proven description of a single coordinated network. The reviewed reporting documents the manifesto and the concerns it cites, but it does not establish that all antisemitic incidents across Europe share common direction, funding or organizational control.\n\nThe distinction matters. Antisemitism can be tracked as a pattern of incidents and radicalization without asserting a unified conspiracy. Where foreign funding, extremist organizations or state-linked activity are alleged, each connection should be documented separately.\n\nFor readers and policymakers, the practical value of the manifesto is its shift from reactive security toward prevention: financing, institutional oversight, incitement, online amplification and local safeguarding are treated as separate intervention points. Whether governments adopt the proposals, and whether measurable incident trends change, are the next evidence points to watch.",
+        "language": "en",
+        "editorialTopic": "Antisemitism prevention in Europe",
+        "topicTags": ["antisemitism", "europe", "jewish-communities", "radicalization", "incitement"],
+        "primaryActor": "Conference of European Rabbis",
+        "arena": "Europe"
+      },
+      "sources": [
+        {
+          "url": "https://www.thejc.com/news/world/european-rabbis-launch-manifesto-to-combat-great-wave-of-violent-hatred-sweeping-the-continent-qu4ixddx",
+          "title": "European rabbis launch manifesto to combat ‘great wave of violent hatred’ sweeping the Continent",
+          "publisher": "The Jewish Chronicle",
+          "publisherUrl": "https://www.thejc.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.algemeiner.com/2026/09/04/european-rabbis-unveil-seven-point-plan-confront-infrastructure-hatred-amid-rising-antisemitic-violence/",
+          "title": "European Rabbis Unveil Seven-Point Plan to Confront ‘Infrastructure of Hatred’ Amid Rising Antisemitic Violence",
+          "publisher": "The Algemeiner",
+          "publisherUrl": "https://www.algemeiner.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "servicenow-sweep-israel-ai-acquisition",
+      "publication": {
+        "kind": "news_update",
+        "section": "technology_ai",
+        "canonicalStoryId": "servicenow-sweep-acquisition-2026",
+        "title": "ServiceNow acquires Israeli AI startup Sweep as agentic enterprise push accelerates",
+        "summary": "Israeli technology outlets report that ServiceNow acquired Tel Aviv-founded Sweep, whose software maps enterprise metadata and supports AI-agent workflows across platforms including Salesforce, HubSpot and ServiceNow.",
+        "body": "ServiceNow has acquired Israeli AI startup Sweep, according to reporting by CTech and Geektime. The companies did not publicly disclose the purchase price; Israeli reporting estimated the transaction in the hundreds of millions of dollars, with Geektime reporting an estimate of about $400 million.\n\nSweep was founded in 2021 by Ido Gaver and Eran Kirshenboim. Its platform maps metadata and business logic across complex enterprise systems and is designed to help human teams and AI agents understand dependencies, identify configuration problems and safely implement changes.\n\nThe acquisition fits ServiceNow's broader push into agentic enterprise software. A ServiceNow spokesperson told the Israeli outlets that Sweep's technology would strengthen AI-native development capabilities and advance agentic deployment for customer-relationship-management systems.\n\nThe exact valuation should remain described as an estimate because the companies did not disclose financial terms. The acquisition itself is supported by ServiceNow's confirmation to the reporting outlets.\n\nFor Israel's technology ecosystem, the deal is another example of global enterprise-software companies buying Israeli AI infrastructure rather than only consumer-facing applications. The next useful indicators are how Sweep's team and technology are integrated, whether the product remains cross-platform, and what role it plays in ServiceNow's broader AI-agent stack.",
+        "language": "en",
+        "editorialTopic": "Israeli enterprise AI acquisition",
+        "topicTags": ["israeli-technology", "ai-agents", "servicenow", "sweep", "enterprise-ai"],
+        "primaryActor": "ServiceNow and Sweep",
+        "arena": "Israel and global enterprise software",
+        "featuredIsraelStory": true
+      },
+      "sources": [
+        {
+          "url": "https://www.calcalistech.com/ctechnews/article/r19lbzwdfx",
+          "title": "ServiceNow acquires Israeli AI startup Sweep in deal estimated at hundreds of million",
+          "publisher": "CTech",
+          "publisherUrl": "https://www.calcalistech.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.geektime.co.il/servicenow-acquires-israeli-enterprise-startup-sweep-for-400-million/",
+          "title": "ServiceNow Acquires Israeli Enterprise Startup Sweep for $400 Million",
+          "publisher": "Geektime",
+          "publisherUrl": "https://www.geektime.co.il/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {
+    "news": {
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "idf-snap-multifront-drill-20260906"
+        }
+      }
+    },
+    "fakeResistance": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "kharg-ai-battlefield-claim-investigation"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "cer-europe-antisemitism-manifesto-202609"
+        }
+      }
+    },
+    "people": {
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "servicenow-sweep-israel-ai-acquisition"
+        }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "Recent historical editorial packages on the delivery branch still contain source URLs embedded manually in article bodies and recommendations claiming whole-site-update-v1 lacked external source ingestion. The live main contract now supports sources[] directly; future automated runs should treat those older package assumptions as obsolete and rely on the current contract before vetoing sourced work."
+  ]
+}

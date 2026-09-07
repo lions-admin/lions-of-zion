@@ -202,7 +202,6 @@ export default async function Page() {
 
       <section className={styles.section} aria-labelledby="what-followed">
         <h2 className={styles.sectionHeading} id="what-followed">What followed October 7</h2>
-        <p>What followed is documented in the wider record.</p>
         <div className={styles.record}><Timeline variant="feed" entries={record.timeline} /></div>
       </section>
 

@@ -330,13 +330,10 @@ where the reference names **exactly one** of:
 Naming two, or none, is a validation error.
 
 `setHomepagePlacement()` refuses a publication that is not live, that carries
-no machine provenance, **whose section does not file into that area** — a
-`narrative_watch` record cannot occupy the `news` lead — or **that has no hero
-image cleared for the homepage** (`rights.status: "cleared"`, `clearedAt`, and
-`"homepage"` in `rights.surfaces`). The last rule exists because the homepage
-composer never admits a picture-less record and silently falls back to its
-automatic pick for a placement it cannot find; until 2026-09-07 such a
-placement was stored, did nothing, and the run reported `failed=0`.
+no machine provenance, or **whose section does not file into that area** — a
+`narrative_watch` record cannot occupy the `news` lead. A picture is not a
+condition (owner ruling, 2026-09-07): a record without a hero takes the slot
+and renders text-led, and the run report names it.
 
 Each slot is applied under its own error boundary: a refused slot is recorded
 in the run's `errors` as `homepage` with the message
@@ -353,6 +350,23 @@ outside the repository does not know them, and a fabricated one is a foreign
 key violation that fails the operation. **Omit them.** Address publications by
 `publicId` or `canonicalStoryId` — the update target deliberately has no
 `publicationId` field for exactly this reason.
+
+### Cite web pages with `sources`, and the UUIDs are made for you
+
+Every create and update accepts `sources` (`editorialSourceSchema`,
+`server/contracts/editorial-update.ts`): an array of up to 40 cited pages,
+each `{ url, title }` plus optional `publisher`, `publisherUrl`, `official`,
+`canonicalUrl`, `publishedAt`, `excerpt` and `language` (default `en`). The
+receiver turns each into a `source` row for the outlet — deduplicated on its
+front page (`publisherUrl`, or the origin of `url`), registered `manual` and
+inactive — and an `evidence` row for the page, deduplicated on `canonicalUrl`
+(or `url`), and links it to the record inside the operation's transaction
+(`server/modules/editorial-update/sources.ts`). The article page renders them
+as "Public sources", and a `narrative_watch` create with at least one source
+is `sourced` rather than `analysis`. Nothing is fetched: an `excerpt` marks
+the page `fetched`, its absence `discovered`. The run report counts sources
+attached per record. This is the field that replaces the missing
+"source ingestion" capability the composer vetoed against on 2026-09-07.
 
 ---
 
@@ -390,7 +404,11 @@ carries a constraint worth showing; nothing here is optional decoration.
         "title": "The lab turning brackish water into a crop yield",
         "body": "A finished feature about Israeli agricultural research.",
         "language": "en"
-      }
+      },
+      "sources": [
+        { "url": "https://www.gov.il/en/departments/news/brackish-water-2026", "title": "Ministry announcement", "publisher": "Government of Israel", "official": true },
+        { "url": "https://example-news.test/science/brackish-water-yield", "title": "Report on the trial results", "publisher": "Example News", "publishedAt": "2026-09-05T08:00:00+03:00" }
+      ]
     }
   ],
   "updates": [],

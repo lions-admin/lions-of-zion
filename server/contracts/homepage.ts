@@ -8,7 +8,7 @@ export const homeReferenceSchema = z.object({
   key: z.string().min(1), section: homeSectionSchema,
   kind: z.enum(['news', 'watch', 'case', 'testimony', 'documentation', 'hero', 'chapter', 'feature']),
   id: z.string().min(1), href: z.string().regex(/^\/(?!\/)/),
-  version: z.string().min(1), date: z.string(), mediaId: z.string().min(1),
+  version: z.string().min(1), date: z.string(), mediaId: z.string().min(1).nullable().default(null),
 }).superRefine((ref, ctx) => {
   const sectionForKind = {news:'news', watch:'fakeResistance', case:'fakeResistance', testimony:'october7', documentation:'october7', hero:'heroes', chapter:'israelsStory', feature:'people'};
   if (sectionForKind[ref.kind] !== ref.section) ctx.addIssue({code:'custom',message:'Content kind does not belong in this homepage section'});
@@ -39,7 +39,7 @@ export const homeOverridesSchema = z.object({revision:z.string(), pins:z.array(z
 })), breakingNews:z.object({keys:z.array(z.string()).max(2), reason:z.string().min(1), revision:z.string(), expires:z.string().date()}).nullable()});
 export type HomeOverrides = z.infer<typeof homeOverridesSchema>;
 export type HomeSource = { label:string; url:string };
-type PreviewBase = {key:string; href:string; title:string; summary:string; date:string; media:EditorialMedia; sources:HomeSource[]; whyItMatters?:string};
+type PreviewBase = {key:string; href:string; title:string; summary:string; date:string; media:EditorialMedia|null; sources:HomeSource[]; whyItMatters?:string};
 export type NewsPreview = PreviewBase & {kind:'news'; category:string};
 export type WatchPreview = PreviewBase & {kind:'watch'; claim:string; finding?:string; verification:string; basis:'sourced'|'analysis'};
 export type CasePreview = PreviewBase & {kind:'case'; question:string; finding?:string; confidence:string; sourceCount:number};

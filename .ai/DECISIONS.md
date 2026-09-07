@@ -81,6 +81,49 @@ The alternative — making the composer admit picture-less records — was
 rejected: the homepage bands are image-led by design (`docs/editorial-dna.md`
 §6–7) and a text-only lead is a layout the page does not have.
 
+**Reversed the same day, by owner instruction** ("remove the homepage-safe
+restrictions"). The picture is not the gate: `setHomepagePlacement()` no
+longer looks at media, `homepageInputs()` admits every live routed record
+and uses its article-cleared hero when it has one, `resolveHomepageReference`
+no longer drops a picture-less record, and `HomeMedia` draws nothing for a
+null `media` so the card is text-led rather than empty-framed. What survives
+from the morning's change is the part that was about honesty rather than
+pictures: one error boundary per slot, refusals named by area and position,
+and the report saying outright which records shipped without a hero. The
+static catalogue (`content-packages/homepage/media.json`) keeps its
+homepage-safe filter — those assets are hand-cleared and the filter is what
+the rights record means.
+
+---
+
+## 2026-09-07 — A record cites web pages, not internal UUIDs: `sources` on every create and update
+
+`whole-site-update-v1` carried content and placement, and the only way to
+give a record a source stack was `evidenceIds` — internal UUIDs a composer
+working from the open web cannot know and must never invent. Every record
+published through this path therefore rendered an empty "Public sources"
+section, and on 2026-09-07 the composer vetoed three pieces rather than
+write more of them, correctly.
+
+Each create and update now accepts `sources`: a cited page is `{ url, title,
+publisher?, publisherUrl?, official?, canonicalUrl?, publishedAt?, excerpt?,
+language? }`. On ingest it becomes a `source` row for the outlet
+(deduplicated on its front page, `kind: manual`, inactive — nothing
+schedules a fetch) and an `evidence` row for the page (deduplicated on its
+canonical URL), inside the operation's own transaction, so the record and
+its sources commit together. A create cites them through `evidenceIds`, which
+also settles `evidenceBasis`; an update attaches them beside what the record
+already cites (`attachEvidence`, `ON CONFLICT DO NOTHING` on the pair).
+
+The mechanism is the legacy `external-briefing-v1` citation path, moved to
+`server/modules/sources/publishers.ts` so both contracts resolve a publisher
+through one function and cannot drift on the dedup key. What is deliberately
+*not* carried over is the legacy contract's 200-character excerpt floor and
+its citation-key indirection: launch posture (§11) asks for the smallest
+thing that gives the reader a link to check, and that is a URL and a title.
+No fetch is made on ingest; `retrievalStatus` records `fetched` when an
+excerpt came with the page and `discovered` when only the address did.
+
 ---
 
 ## 2026-09-07 — The outbox queue topic is `outbox-dispatch`, and a name the queue refuses fails the build

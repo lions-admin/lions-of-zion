@@ -190,6 +190,17 @@ export function repo(db: unknown) {
         .values(narrativeIds.map((narrativeId) => ({ publicationId, narrativeId })))
         .returning();
     },
+    /** `linkEvidence` for a record that may already cite some of these: the
+     *  pair is the primary key, so a repeat is skipped rather than refused. */
+    async attachEvidence(publicationId: string, evidenceIds: readonly string[]): Promise<void> {
+      if (!evidenceIds.length) return;
+      await d.execute(sql`
+        INSERT INTO publication_evidence (publication_id, evidence_id)
+        VALUES ${sql.join(evidenceIds.map((evidenceId) => sql`(${publicationId}, ${evidenceId})`), sql`, `)}
+        ON CONFLICT DO NOTHING
+      `);
+    },
+
     async linkEvidence(publicationId: string, evidenceIds: readonly string[]): Promise<void> {
       if (!evidenceIds.length) return;
       await (d as unknown as {

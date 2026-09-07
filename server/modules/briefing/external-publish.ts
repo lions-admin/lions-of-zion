@@ -57,7 +57,7 @@ import { createEvidenceInTx, findEvidenceByUrl } from "@/server/modules/evidence
 import { mediaRepo } from "@/server/modules/media/repo";
 import { materializeExternalMedia } from "@/server/modules/media/service";
 import { sourceFamilyRepo, sourceRepo } from "@/server/modules/sources/repo";
-import { sourceCategoryForDomain } from "@/server/modules/sources/catalog";
+import { hostnameOf, resolvePublisherSource } from "@/server/modules/sources/publishers";
 import { briefingRepo } from "./repo";
 import { dedupeDraftPassages } from "./service";
 import { evaluateCandidate } from "./quality";
@@ -77,7 +77,6 @@ import type {
   ExternalDailyBrief,
   ExternalNarrativeWatch,
   ExternalPassage,
-  ExternalPublisher,
 } from "@/server/contracts/external-briefing";
 import type { CreatePublication, EvidenceBasis, NarrativeWatchDetails } from "@/server/contracts/publication";
 import type { EditorialMediaDraft } from "@/server/modules/media/repo";
@@ -217,7 +216,7 @@ export function externalBriefingPublishService(database: unknown): ExternalBrief
         for (const publisher of pkg.publishers) {
           sourceByPublisherKey.set(
             publisher.key,
-            await resolvePublisherSource(sources, families, publisher, pkg.composer),
+            await resolvePublisherSource(sources, families, publisher, { channel: "external_briefing", composer: pkg.composer }),
           );
         }
 
@@ -599,64 +598,6 @@ async function materializeMedia(pkg: ExternalBriefingPackage): Promise<Map<strin
     }
   }
   return drafts;
-}
-
-/* ── Publisher and citation resolution ───────────────────────────────────── */
-
-function hostnameOf(url: string): string {
-  return new URL(url).hostname.toLowerCase().replace(/^www\./, "");
-}
-
-/** Registers a package publisher as a `source` row, mirroring the
- * `findOrCreateFallbackSource`-style block in `sources/ingest.ts`
- * (`resolveEvidenceSource`, ~line 247) that registers a publisher first seen
- * through attribution rather than through its own feed.
- *
- * The contract's header comment calls this a `source.kind` of
- * `external_package`, but that is not a legal value — `SOURCE_KINDS` in
- * `server/contracts/enums.ts` has no such entry. `manual` is the value the
- * existing ingest fallback already uses for exactly this situation (a
- * publisher registered by attribution, not by its own feed), so this reuses
- * it rather than inventing a new one the schema does not accept. */
-async function resolvePublisherSource(
-  sources: ReturnType<typeof sourceRepo>,
-  families: ReturnType<typeof sourceFamilyRepo>,
-  publisher: ExternalPublisher,
-  composer: string,
-): Promise<{ sourceId: string; sourceFamilyId: string }> {
-  const homepageUrl = publisher.homepageUrl.replace(/\/$/, "");
-  const existing = await sources.byHomepageUrl(homepageUrl);
-  if (existing) return { sourceId: existing.id, sourceFamilyId: existing.sourceFamilyId };
-
-  const host = hostnameOf(homepageUrl);
-  const suffix = integrityHash(homepageUrl).slice(0, 12);
-  const familySlug = `publisher-${suffix}`;
-  const family = (await families.bySlug(familySlug)) ?? await families.insert({
-    slug: familySlug,
-    label: publisher.name || host,
-    description: `Publisher first registered from an external briefing submission (${composer}).`,
-  });
-  const category = sourceCategoryForDomain(host)
-    ?? (publisher.official && publisher.country === "IL" ? "official_israeli" : null);
-  const created = await sources.insert({
-    sourceFamilyId: family.id,
-    kind: "manual",
-    slug: `publisher-${suffix}`,
-    name: publisher.name || host,
-    homepageUrl,
-    feedUrl: null,
-    language: publisher.language,
-    country: publisher.country,
-    active: false,
-    config: {
-      discoveredBy: "external_briefing",
-      hostname: host,
-      category,
-      composer,
-      official: publisher.official,
-    },
-  });
-  return { sourceId: created.id, sourceFamilyId: created.sourceFamilyId };
 }
 
 /* ── Claim / passage resolution ──────────────────────────────────────────── */

@@ -66,23 +66,16 @@ describe("homepage placements", () => {
     expect(await service.homepagePlacements()).toEqual([]);
   });
 
-  /* The composer only ever admits a record whose hero is cleared for the
-     homepage, and silently falls back to its automatic pick for a placement
-     it cannot find. Storing that placement therefore did nothing — three
-     runs on 2026-09-07 reported `failed=0` with none of their slots changed.
-     The refusal has to happen where the placement is stored. */
-  it("refuses to place a publication that has no homepage-cleared hero image", async () => {
+  /* Owner ruling, 2026-09-07: the picture is not the gate. A record without
+     any image, or with one cleared for the article page only, takes its
+     homepage slot and renders text-led — the earlier refusal of exactly this
+     placement is reversed here. */
+  it("places a publication with no image, or with an article-only image, and renders it", async () => {
     const { db, service, rows } = await fixture();
-    await expect(service.setHomepagePlacement("news", "lead", rows[0]!.id, actor))
-      .rejects.toThrow(/hero image cleared for the homepage/i);
-    /* Cleared for the article page only is not cleared for the homepage. */
+    await service.setHomepagePlacement("news", "lead", rows[0]!.id, actor);
+    expect((await service.featured()).map((row) => row.publicId)[0]).toBe(rows[0]!.publicId);
     await attachHomepageHero(db, rows[1]!.id, ["article"]);
-    await expect(service.setHomepagePlacement("news", "lead", rows[1]!.id, actor))
-      .rejects.toThrow(/hero image cleared for the homepage/i);
-    expect(await service.homepagePlacements()).toEqual([]);
-    /* A clearing that covers the homepage is admitted and renders. */
-    await attachHomepageHero(db, rows[2]!.id);
-    await service.setHomepagePlacement("news", "lead", rows[2]!.id, actor);
-    expect((await service.featured()).map((row) => row.publicId)[0]).toBe(rows[2]!.publicId);
+    await service.setHomepagePlacement("news", "lead", rows[1]!.id, actor);
+    expect((await service.featured()).map((row) => row.publicId)[0]).toBe(rows[1]!.publicId);
   });
 });

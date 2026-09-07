@@ -13,6 +13,7 @@ import { homepageService } from '@/server/modules/homepage/service';
 import { mayActOnTheWorld } from '@/server/core/config';
 import { sendWorkspaceEmail } from '@/server/core/email';
 import { editorialRepo } from './repo';
+import { materializeSources } from './sources';
 
 type PreparedArtifact = { media: EditorialMediaDraft | null };
 
@@ -38,6 +39,8 @@ type EditorialOperationResult = {
   section?: PublicationSection;
   title?: string;
   hasMedia?: boolean;
+  /** Cited pages materialized as evidence and linked to the record. */
+  sources?: number;
 };
 
 /** Compile the external package to durable internal operations without losing
@@ -47,8 +50,8 @@ export function compileWholeSiteUpdate(pkg: WholeSiteUpdatePackage): StartEditor
     runId: pkg.runId,
     mode: 'operations',
     operations: [
-      ...pkg.creates.map(item => ({ key: item.key, action: 'create' as const, publication: item.publication, media: item.media })),
-      ...pkg.updates.map(item => ({ key: item.key, action: 'update' as const, target: item.target, publication: item.publication, media: item.media })),
+      ...pkg.creates.map(item => ({ key: item.key, action: 'create' as const, publication: item.publication, media: item.media, sources: item.sources })),
+      ...pkg.updates.map(item => ({ key: item.key, action: 'update' as const, target: item.target, publication: item.publication, media: item.media, sources: item.sources })),
     ],
     delivery: {
       contractVersion: pkg.contractVersion,
@@ -118,13 +121,29 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
 
           stage = 'publication';
           await store.completeOperation(runId, token, operation.key, async tx => {
+            const actor = { label: 'service:editorial-run', userId: null };
+            /* Cited pages become evidence in this same transaction, so the
+               record and its source stack commit together or not at all. A
+               create cites them through `evidenceIds`, which also settles
+               `evidenceBasis`; an update attaches them to the live record
+               beside whatever it already cites. */
+            const cited = await materializeSources(tx, operation.sources ?? [], {
+              composer: state.request.delivery?.composer ?? 'whole-site-editorial', runId, actor,
+            });
+            const input = operation.action === 'create' && cited.evidenceIds.length
+              ? { ...operation, publication: { ...operation.publication, evidenceIds: [...new Set([...(operation.publication.evidenceIds ?? []), ...cited.evidenceIds])] } }
+              : operation;
             const publication = await publicationService(tx).applyEditorial(
-              operation,
+              input,
               { runId, machineAuthor: 'whole-site-editorial' },
               artifact!.media,
-              { label: 'service:editorial-run', userId: null },
+              actor,
             );
+            if (operation.action === 'update' && cited.evidenceIds.length) {
+              await publicationService(tx).attachEvidence(publication.id, cited.evidenceIds);
+            }
             return {
+              sources: cited.evidenceIds.length,
               publicationId: publication.id,
               publicId: publication.publicId,
               canonicalStoryId: publication.canonicalStoryId,
@@ -334,7 +353,7 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
     for (const result of results) {
       lines.push(
         `  · ${result.title ?? result.publicId ?? 'untitled'}`,
-        `      ${result.action === 'update' ? 'Updated' : 'Published'} · ${categoryLabel(result.section ?? '')} · ${hubOf(result.section ?? '')}${result.hasMedia === false ? ' · no hero image' : ''}`,
+        `      ${result.action === 'update' ? 'Updated' : 'Published'} · ${categoryLabel(result.section ?? '')} · ${hubOf(result.section ?? '')}${result.hasMedia === false ? ' · no hero image' : ''}${result.sources ? ` · ${result.sources} source${result.sources === 1 ? '' : 's'} attached` : ''}`,
         `      ${result.url ? absolute(result.url) : 'no URL recorded'}`,
       );
     }
@@ -384,7 +403,7 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
   if (withoutHero.length) {
     lines.push(
       `  Published WITHOUT a hero image: ${withoutHero.length} — ${withoutHero.map(result => result.publicId ?? '?').join(', ')}.`,
-      '  A record with no homepage-cleared image cannot be placed on the homepage; the DNA asks for a strong hero on every new piece.',
+      '  A record without a picture still takes its homepage slot, text-led; the DNA asks for a strong hero on every new piece.',
     );
   }
 

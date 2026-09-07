@@ -6,6 +6,7 @@
 
 import { z } from 'zod';
 import { externalMediaSchema } from './external-briefing';
+import { editorialSourcesSchema } from './editorial-update';
 import { createPublicationSchema, updatePublicationSchema } from './publication';
 
 const keySchema = z.string().trim().min(1).max(200);
@@ -44,6 +45,8 @@ export const wholeSiteCreateSchema = z.object({
   key: keySchema,
   publication: createPublicationSchema.strict(),
   media: externalMediaSchema.nullable().optional(),
+  /** Cited web pages; each becomes evidence the record links to. See `editorialSourceSchema`. */
+  sources: editorialSourcesSchema,
 }).strict();
 
 export const wholeSiteUpdateTargetSchema = z.object({
@@ -58,6 +61,8 @@ export const wholeSiteUpdateOperationSchema = z.object({
   target: wholeSiteUpdateTargetSchema,
   publication: updatePublicationSchema.strict(),
   media: externalMediaSchema.nullable().optional(),
+  /** Sources for the development being added; attached alongside those the record already cites. */
+  sources: editorialSourcesSchema,
 }).strict();
 
 export const wholeSiteUpdatePackageSchema = z.object({

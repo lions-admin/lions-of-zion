@@ -22,9 +22,19 @@ afterEach(() => {
 });
 
 describe("X native-post authorization", () => {
-  it("asks explicitly for post, media and refresh scopes", () => {
+  it("keeps ordinary X sign-in read-only", () => {
     configureX();
-    const { authorizationUrl } = beginPublicXAuthorization("/october-7/documentation/category/record");
+    const { authorizationUrl } = beginPublicXAuthorization();
+    expect(new Set(new URL(authorizationUrl).searchParams.get("scope")?.split(" ") ?? []))
+      .toEqual(new Set(["tweet.read", "users.read"]));
+  });
+
+  it("asks for post, media and refresh scopes only for the explicit posting flow", () => {
+    configureX();
+    const { authorizationUrl } = beginPublicXAuthorization(
+      "/october-7/documentation/category/record",
+      "posting",
+    );
     const scopes = new Set(new URL(authorizationUrl).searchParams.get("scope")?.split(" ") ?? []);
     expect(scopes).toEqual(new Set([
       "tweet.read",
@@ -35,9 +45,10 @@ describe("X native-post authorization", () => {
     ]));
   });
 
-  it("keeps user-context X credentials encrypted inside the HttpOnly-session value", async () => {
+  it("keeps user-context X credentials encrypted inside the posting-session value", async () => {
     configureX();
     const authorization: PublicXAuthorization = {
+      mode: "posting",
       profile,
       accessToken: "access-token-that-must-not-be-readable-in-the-cookie",
       refreshToken: "refresh-token-that-must-not-be-readable-in-the-cookie",

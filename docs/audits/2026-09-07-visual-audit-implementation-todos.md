@@ -106,6 +106,39 @@ gate the audit itself says must come first.
 - **Problem.** A published article reports "Source stack 0 sources" and "No
   public sources" while its body prints an Israel Innovation Authority URL. The
   reader sees a citation and a denial of citations on the same page.
+- **Swept against live Production, 2026-09-07.** Read-only over the two
+  `PUBLIC_V1` routes; artefacts in the session scratchpad
+  (`va-01/FINDINGS.json`, `va-01/package.json`). **48 published records; 9 cite
+  an absolute URL in their body; 7 of those 9 are defective:**
+
+  | Verdict | Count | Meaning |
+  | --- | --- | --- |
+  | `CONTRADICTION` | **3** | Body cites, source stack is **empty** |
+  | `PARTIAL` | **4** | Stack carries some cited addresses and omits others |
+  | clean | 2 | Body citations all present in the stack |
+
+  **All three outright contradictions are `influence_investigation` records** —
+  the worst possible section for it, since an influence investigation that
+  displays no sources is precisely the thing the desk exists to refute.
+
+- **Correction — the audit's named exemplar is not reproducible.** The audit
+  cites `/articles/israel-launches-nis-22-million-tech-human-capita-794jg` as
+  "Source stack 0 sources" and "No public sources", calls it "a direct
+  credibility failure", and makes it item 3 of its five most urgent changes.
+  Fetched live on 2026-09-07, that record carries **one** stored source — the
+  Israel Innovation Authority URL — exactly matching its single body citation,
+  and the rendered page says "1 source" with the address listed under "Public
+  sources". The strings "No public sources" and "0 sources" appear nowhere in
+  the page. Either it was repaired inside the 59-commit window the audit itself
+  flags, or it was misread. **The finding is nonetheless valid** — the sweep
+  found seven other records in exactly the described state, three of them worse
+  (empty stack, not partial). Cite one of those as the exemplar instead.
+- **Overlap with VA-19 worth noting:** two of the seven —
+  `iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq` and
+  `iran-says-it-struck-a-u-s-unmanned-vessel-washin-anmgp` — are near-duplicate
+  records of one story, *and both are broken*. Repairing sources on two records
+  that should be one is wasted work; sequence them with the canonical-story
+  consolidation.
 - **Source finding.** Top-10 #02 (FIX, severity A); Quick Win 4; page audit
   "Standard News, Innovation and Daily-Brief Articles" — *"Empty source states
   can contradict body URLs"*; page audit "The People of Israel" — *"Some current
@@ -534,7 +567,15 @@ gate the audit itself says must come first.
 - **Desktop / mobile.** Both — note the phone header hides its Support control.
 - **Production verification.** Required.
 - **Execution path.** **Development.**
-- **Status.** `NEEDS PRODUCT DECISION`
+- **Status.** `RESOLVED — owner ruling, 2026-09-07 (second): the chips stay.`
+  Put to the owner after VA-10 landed, with the cover recomposed so the edition
+  rail — date, lead status, lead headline, "Read the story" — sits **above**
+  `HeroSupportStrip`. The owner ruled to keep the chips as they are. The audit's
+  substantive objection was *order*, not presence: "the hero placement competes
+  with 'Read the latest' before reporting has earned the ask." VA-10 answers
+  that by making the reporting arrive first, so no further code change is
+  required and the 2026-09-07 ruling stands unaltered. Do not reopen this
+  without a new owner instruction.
 
 ### VA-12 — Suppress exact duplicates in the news archive projection
 
@@ -1815,6 +1856,94 @@ correction to the audit's stated evidence, not a dismissal of its finding.
 | Appendix A lists `MediaBlock.tsx` / `media-block.module.css` with no directory. | They are at `components/content/`, not `components/media/`. |
 | "Remove donation-provider chips from the hero." | `.ai/DECISIONS.md`, 2026-09-07 records an owner ruling placing them there deliberately, noting the phone header hides its Support control so the strip is the cover's only support affordance. **VA-11 — product decision.** |
 | Top-10 #05 lists nine editorial states. | `PUBLICATION_SECTIONS` in `server/contracts/enums.ts` has fourteen section values, which are not the same axis as the nine display states. VA-18 and VA-20 must map both — count both at the source, never from prose. |
+
+---
+
+## 13. VA-04 results — the first real Production evidence set, 7 September 2026
+
+`ui-audit.mjs` (183 route/viewport pairs, then 96 more closing a coverage gap),
+`ui-interaction-audit.mjs`, `design-capture.mjs` over 16 slugs, and 226 PNGs
+from a Playwright pass. Full report and captures in the session scratchpad
+(`va-04/FINDINGS.md`).
+
+**Read the exit codes correctly.** `ui-audit.mjs` exited 1, but **9 of its 24
+CRITICALs are `HTTP 404` on `/pipeline`** — a dev-only route sitting in the
+script's own `COMPLEX` list, i.e. a harness/environment mismatch, not a site
+defect. The other 15 are contrast. Fix the route list before quoting that exit
+code as a quality signal.
+
+### Confirmed, and now fixed on `feat/visual-audit-phase-0-1`
+
+| Finding | Production measurement | Fixed by |
+| --- | --- | --- |
+| Cover delays the first story | Lead headline top at 1176/1239/1317/1004/1174/1338px across the six widths; mobile page 12,769px = **15.7 viewports** | VA-10 |
+| Explorer on routine articles | **45 of 48 published records**, including a Weizmann mouse study and a jobs-programme announcement, with stages rendering "This record does not name observed propagators" | VA-03 |
+| Zero sources beside a body URL | 3 live offenders — `adidas-boycott-…-5wxlh` (5 URLs), `iran-…-centc-8m6cq` (3), `iran-…-washin-anmgp` (1) | VA-02 guards the render; VA-01 repairs the data |
+
+The three offender IDs are **the same three** the independent VA-01 sweep found
+as `CONTRADICTION`. Two methods, same answer.
+
+### Retired or re-scoped — the audit overstated these
+
+- **VA-16 — RETIRED as written.** The audit says routine news receives
+  generated illustration as one-image-per-story fulfilment. In fact **46 of 48
+  published records carry no media at all**; only one named offender
+  (`…-f2cks`). The site is already text-led. The remaining task is the editorial
+  *rule*, not a replacement campaign.
+- **VA-38 — largely moot.** Crop inspection across five widths presumes heroes
+  to inspect. There are **2**.
+- **VA-26 — half retired.** `/october-7` **already opens human-led**. Only the
+  showcase arrow labels and position indicator remain unverified.
+- **Case-file touch targets — retired.** **0 controls under 44px** at 375 and
+  430. The real problem there is scale: a **60,814px** document with the finding
+  2.4 viewports down, and two horizontal scrollers clipped (section nav 1319px
+  inside a 343px box). VA-25 stands; its touch-target clause does not.
+- **VA-17 — confirmed, but the defect is not the stated one.** Results *are* in
+  viewport one at 375 (as the implementing agent independently found). The real
+  bug: a **no-match query renders ten fallback-index rows with no no-match
+  state** — "We Are — Indexed · no public page" presented where results belong.
+  Re-verify after the branch merges; the VA-17 work added a no-match state, and
+  whether the fallback rows still render beneath it is untested.
+
+### Worse than described
+
+- **Duplicates.** Three exact-title pairs live, five near-duplicate pairs, and
+  `/geopolitical-brief` renders **the same record up to three times on one
+  page**. VA-12's collapse covers the archive projection only — a record
+  appearing as lead *and* in the timeline *and* in the archive is a different
+  bug and is **not** fixed. The two "Iran says it struck…" records render **side
+  by side** on `/fake-resistance`.
+- **Fake Resistance / Fact Checks.** `/fact-check`'s breadcrumb reads
+  `Home / Fake Resistance / …` and its records are the same three the hub lists
+  under "On the watch". `/geopolitical-brief` is a third door under a fourth
+  name. VA-14 and VA-23 should treat the breadcrumb as part of the fix.
+
+### New defects, not in the audit at all
+
+1. **`viewport-fit=cover` is absent** from the `viewport` export in
+   `app/layout.tsx:123`, so **every `env(safe-area-inset-*)` rule in the build
+   is inert on iOS** — 16 rules across 8 CSS modules, all dead. One-line fix
+   (`viewportFit: "cover"`), but it makes the page extend under the notch and
+   home indicator, so it needs the physical-device pass (**VA-39**) rather than
+   a blind merge. This absorbs VA-06's safe-area clause.
+2. **`/geopolitical-brief` serves 858 characters with 40 streaming holes when
+   JavaScript is off** — it passes the harness floor while showing a reader no
+   records at all. Exactly the failure the no-JS pass exists to catch, slipping
+   through on a technicality.
+3. **`/articles/…-86i2j` throws React #418 (hydration mismatch)** at both
+   widths.
+4. **Stale breadcrumbs:** the 404 page still says "Daily Brief" — a section
+   retired on 2026-09-05.
+5. **Landscape phone renders the wide-layout mega-panel** instead of the
+   drawer, and is unverified.
+
+### Clean, and worth recording as such
+
+Zero horizontal overflow. Zero offscreen controls. Zero sticky-band collisions.
+Zero reduced-motion failures. **No dialog failure across 37 dialogs** — focus
+entry, `:modal`, body lock, Escape and focus return all hold. The mobile
+navigation is a native `<dialog>` at 100% height and behaves correctly; its only
+defect is the dead safe-area inset above.
 
 ---
 

@@ -247,6 +247,21 @@ there the strip is the cover's only support affordance. `app/page.tsx` no
 longer calls "Read the latest" the one invitation on the cover — it is still
 the one arrow.
 
+**Second addendum, same day — reaffirmed against the visual audit, and why the
+audit's objection is answered rather than overruled.** The *Lions of Zion Visual
+Audit Report* of 2026-09-07 recommended removing these chips (findings 01 and
+07, Quick Win 1), on the stated ground that "the hero placement competes with
+'Read the latest' before reporting has earned the ask." That objection is about
+**order**, not presence. VA-10 recomposed the cover: it falls from 88svh to
+71–74svh and gains an edition rail — the edition date, the lead story's status,
+its headline, and "Read the story" — read from the same `getHomepageEdition()`
+snapshot the bands below use, and the rail sits **above** `HeroSupportStrip`.
+The reporting now arrives before the ask, which is what the audit wanted. Put
+back to the owner on exactly that basis, the ruling was to keep the chips as
+they are. No code change followed and none should: the finding is satisfied by
+the rail, not by removal. Recorded so the audit and this log are not read as
+contradicting each other.
+
 ---
 
 ## 2026-09-07 — A homepage placement is refused, not stored, when the record has no homepage-cleared hero

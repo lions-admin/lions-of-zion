@@ -1,0 +1,37 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r03-20260907T224115Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-07T22:41:15.471014Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 03 — Live investigation and narrative integrity sweep",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/fake-resistance/cases/state-media-irgc-press",
+        "https://lionsofzion.io/fake-resistance/cases/hinkle-machine",
+        "https://lionsofzion.io/fake-resistance/cases/giant-amplifiers",
+        "https://lionsofzion.io/fake-resistance/cases/muslim-palestinian-influencers",
+        "https://lionsofzion.io/fake-resistance/cases/manosphere-far-right",
+        "https://lionsofzion.io/fake-resistance/cases/grayzone-anti-empire",
+        "https://lionsofzion.io/fake-resistance/cases/aggregators-feeders"
+      ],
+      "conclusion": "Inspected seven publicly accessible static cases and twelve dynamic investigation/narrative records. The pre-october-infrastructure case returned 404 and is not classified as public. Publication-state contradictions remain on Hinkle and Manosphere/Far Right; internal budgets, paths and task instructions appear in several other cases. Sample boundaries, identity uncertainty, withdrawn findings and negative results are legitimate transparency and must remain. Three dynamic legacy narrative records expose packet-language in stored passages; changing body through the package leaves those rendered passages unchanged. No content was silently suppressed, no review clearance inferred and no allegation strengthened.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "r03-ineffective-body-edits",
+      "candidate": "Remove internal packet wording from legacy narrative records by editing body only",
+      "reason": "Renderer prioritizes stored passages and update contract cannot replace them. A body-only edit would create a misleading correction entry without repairing the visible text."
+    }
+  ],
+  "siteRecommendations": [
+    "P0: /fake-resistance/cases/manosphere-far-right publicly states that right-of-reply was not sought and publication clearance remains outstanding. Reconcile the current review state through separate static-content work; preserve revisions and counterevidence. Hinkle has the same unresolved class of contradiction.",
+    "Static case cleanup: remove internal budgets, script paths, registry tasks and phase shorthand from Hinkle, influencer, Manosphere, Grayzone, aggregators, giant-amplifiers and state-media case reader copy. Keep methodological limits, provenance and negative findings. Classify technical citations as supporting appendix detail where useful, not blanket deletion.",
+    "Stored-passage repair required for us-accepts-military-sale-of-helicopters-to-iraq--p5zzh, lebanese-child-succumbs-to-wounds-after-reported-dd5w4, and israel-launches-fresh-attacks-across-southern-le-86i2j. Replace packet-centric evidence notes with reader-facing source limitations through a versioned passage update capability; verify the rendered paragraphs and retained citations. Existing package body updates do not replace passages."
+  ]
+}

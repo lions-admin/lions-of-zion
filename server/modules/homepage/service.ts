@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import type { Database } from '@/server/db/client';
 import { publicationService } from '@/server/modules/publications';
 import { homeSections, homeCatalogSchema, homeOverridesSchema, homeSnapshotSchema, israelEditionDate, type HomeReference } from '@/server/contracts/homepage';
-import { editorialMediaSchema, isHomepageSafeMedia } from '@/server/contracts/editorial-media';
+import { editorialMediaSchema, isArticleSafeMedia, isHomepageSafeMedia } from '@/server/contracts/editorial-media';
 import { publicationHomepageKind, publicationHomepageSection, publicationHref } from '@/lib/publication-routing';
 import { homepageRepo } from './repo';
 import { catalogSourceRevision } from './catalog';
@@ -26,16 +26,17 @@ export async function homepageInputs(db:Database, now=new Date()) {
     service.listBriefingPublic({limit:100}), service.publicHomepagePins(),
   ]);
   const live=new Map([...automatic,...pins.map(p=>p.publication)].map(p=>[p.publicId,p]));
-  const candidates:HomeReference[]=catalog.candidates.filter(c=>safeIds.has(c.mediaId));
-  // A live publication's own hero decides whether it may reach the homepage.
-  // It used to be `media.json`'s mapping, which meant a newly published record
-  // could not appear without a hand-written commit — the registry is still the
-  // fallback so publications that predate `editorial_media` keep their picture.
+  const candidates:HomeReference[]=catalog.candidates.filter(c=>c.mediaId!==null&&safeIds.has(c.mediaId));
+  // A live publication reaches the homepage with or without a picture. Until
+  // 2026-09-07 a record was admitted only with a hero cleared for the homepage
+  // surface, and a placement naming any other record silently fell through to
+  // the automatic pick — the owner's ruling is that the picture is not the
+  // gate. Its own article-cleared hero is used when it has one, the registry
+  // mapping when it predates `editorial_media`, and nothing otherwise.
   const liveCandidates:HomeReference[]=[];
   for(const p of live.values()){
     const key=`publication:${p.publicId}`,legacyId=rawMedia.mappings[key] as string|undefined;
-    const mediaId=p.media&&isHomepageSafeMedia(p.media)?p.media.id:legacyId&&safeIds.has(legacyId)?legacyId:null;
-    if(!mediaId)continue;
+    const mediaId=p.media&&isArticleSafeMedia(p.media)?p.media.id:legacyId&&safeIds.has(legacyId)?legacyId:null;
     liveCandidates.push({key,id:p.publicId,kind:publicationHomepageKind(p.section),
       section:publicationHomepageSection(p.section),href:publicationHref(p.publicId),
       version:p.updatedAt,date:p.publishedAt,mediaId});

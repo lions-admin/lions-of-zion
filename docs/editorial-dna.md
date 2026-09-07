@@ -403,19 +403,19 @@ validation before delivery.
 `HOMEPAGE_PLACEMENT_AREAS` and `HOMEPAGE_PLACEMENT_POSITIONS` in
 `server/modules/publications/service.ts` carry the same three and two, and
 `setHomepagePlacement()` refuses a publication that is not live, not
-machine-published, whose section does not belong to the named area
-(`belongsToHomepageArea()` → `publicationHomepageSection()`), **or that has
-no hero image cleared for the homepage surface.** The last rule exists
-because the composer's candidate pool (`homepageInputs()` →
-`isHomepageSafeMedia()`) never admits such a record, and `selectHomepage()`
-falls through to its automatic pick for a placement it cannot find — so
-storing the placement did nothing, silently. On 2026-09-07 three runs asked
-for eight slots between them, none of their records carried a picture, and
-all three reported `failed=0` while the homepage did not change. A refused
-placement is now recorded against its own area and position in the run's
-errors, the run finishes `partial`, and the other slots are placed
-regardless. **A record without a hero image can be published; it cannot be
-placed.**
+machine-published, or whose section does not belong to the named area
+(`belongsToHomepageArea()` → `publicationHomepageSection()`). **A picture is
+not a gate** — owner ruling, 2026-09-07. A record with no hero, or with one
+cleared for the article page only, takes its homepage slot and renders
+text-led (`HomeMedia` draws nothing for a null `media`). Until that ruling the
+composer admitted only records whose hero was cleared for the homepage
+surface, and a placement naming any other record silently fell through to
+the automatic pick; for a few hours on the same day such a placement was
+refused instead. Both are gone: the placement lands, the edition is
+recomposed, and the report says which records shipped without a hero so the
+composer can attach one. Each slot is applied under its own error boundary,
+so a slot that is refused for the reasons that remain is recorded by area and
+position and the other slots are placed regardless.
 
 **October 7 is not placeable.** There is no `october7` area in the contract and
 none in the service. The homepage band is chosen by `selectHomepage()` from the
@@ -719,6 +719,21 @@ written; they are noted at the end so a reader does not go looking for them.
     in a transaction on PGlite, which is not the pooled session-scope mechanism
     production uses — and every editorial ingest runs through it.
 
+### Closed on 2026-09-07
+
+- **Gap 1 (recipient).** `EDITORIAL_REPORT_EMAIL` is set on the Vercel project
+  in Production; reports go to the owner's address from the deploy of that day.
+- **Source ingestion**, which was not a numbered gap here but was the reason
+  the composer vetoed three pieces on 2026-09-07: every create and update now
+  accepts `sources` (cited web pages), materialized as `source` + `evidence`
+  rows and linked to the record on ingest. `docs/whole-site-updates.md`
+  "Cite web pages with `sources`". Gap 2 ("what was researched") and gap 3
+  (a deliberate veto) remain open.
+- **Homepage without a picture.** A record with no hero, or an article-only
+  hero, now takes its homepage slot text-led (owner ruling). The report names
+  it. The earlier "nothing requires a hero image" observation stands, and is
+  by design.
+
 ### Closed on 2026-09-06, while this document was being written
 
 - The run report is now emailed. `TOPICS.editorialRunReport` was in
@@ -820,11 +835,19 @@ breadcrumb and the card label from it. There is no `homepageCategory`, no
 `technology_ai`, `achievement`, `international_cooperation`, `people`,
 `courage_service` and `history_context` → The People of Israel.
 
-**Images.** Every new piece needs a strong hero image — and **a homepage
-placement is refused for any record without one cleared for the homepage**
-(`rights.status: "cleared"`, `clearedAt`, and `"homepage"` in
-`rights.surfaces`), so a `homepage` decision that names a picture-less
-create or update will be reported as not placed. Priority: (1) a relevant
+**Sources.** Every create and update may carry `sources`: an array of cited
+web pages, each `{ url, title, publisher?, publisherUrl?, official?,
+canonicalUrl?, publishedAt?, excerpt?, language? }`. On ingest each becomes a
+`source` row (the outlet, deduplicated on its front page) and an `evidence`
+row (the page, deduplicated on its canonical URL), linked to the record in the
+same transaction, and rendered as the article's "Public sources". This is how
+a record gets a source stack without anyone inventing an internal UUID —
+**never invent `evidenceIds`; send `sources`.** A `narrative_watch` create
+with at least one source is `sourced`; with none it is `analysis`.
+
+**Images.** Every new piece needs a strong hero image. A record without one
+still publishes, still reaches its hub, and still takes a homepage slot
+text-led; the report names it so the picture can follow. Priority: (1) a relevant
 image from the source itself; (2) an official IDF / government / institutional
 image; (3) a relevant image from another reliable source; (4) an original
 illustration if nothing exists. Send the image as a `media` object with

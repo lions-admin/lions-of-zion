@@ -6,6 +6,39 @@ import { externalMediaSchema } from './external-briefing';
 export const editorialStageSchema = z.enum(['media', 'publication', 'homepage', 'report']);
 export const editorialRunStatusSchema = z.enum(['queued', 'running', 'completed', 'partial', 'failed']);
 const keySchema = z.string().trim().min(1).max(200);
+
+const httpUrlSchema = z.string().trim().max(2_000).refine(value => {
+  try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; }
+}, 'Must be an absolute http(s) URL.');
+
+/**
+ * One cited web page, as a composer working from the open web can describe
+ * it: the address, what it is called, and the outlet. It becomes a `source`
+ * row and an `evidence` row on ingest (`editorial-update/sources.ts`), which
+ * is how a record published through this path gets a public source stack
+ * without anyone inventing an internal UUID. Everything beyond `url` and
+ * `title` is optional on purpose — launch posture, `docs/editorial-dna.md`
+ * §11 — and no fetch is made; an excerpt is recorded as read, its absence as
+ * discovered.
+ */
+export const editorialSourceSchema = z.object({
+  url: httpUrlSchema,
+  title: z.string().trim().min(1).max(500),
+  /** The outlet's name; the hostname when omitted. */
+  publisher: z.string().trim().min(1).max(200).optional(),
+  /** The outlet's front page; the origin of `url` when omitted. Dedup key for the outlet. */
+  publisherUrl: httpUrlSchema.optional(),
+  /** A government, military or institutional outlet. */
+  official: z.boolean().optional(),
+  canonicalUrl: httpUrlSchema.optional(),
+  publishedAt: z.iso.datetime({ offset: true }).optional(),
+  excerpt: z.string().trim().min(1).max(10_000).optional(),
+  language: z.string().trim().regex(/^[a-z]{2}(-[A-Za-z0-9-]+)*$/).default('en'),
+}).strict();
+export type EditorialSource = z.infer<typeof editorialSourceSchema>;
+/** Optional rather than defaulted: runs recorded before the field existed carry no `sources`, and the executor reads their absence as none. */
+export const editorialSourcesSchema = z.array(editorialSourceSchema).max(40).optional();
+
 export const editorialUpdateTargetSchema = z.object({
   publicId: z.string().trim().min(1).max(200).optional(),
   canonicalStoryId: z.string().trim().toLowerCase().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160).optional(),
@@ -13,8 +46,8 @@ export const editorialUpdateTargetSchema = z.object({
   message: 'An editorial update target requires publicId or canonicalStoryId.',
 });
 export const editorialOperationSchema = z.discriminatedUnion('action', [
-  z.object({ key: keySchema, action: z.literal('create'), publication: createPublicationSchema, media: externalMediaSchema.nullable().optional() }),
-  z.object({ key: keySchema, action: z.literal('update'), publicationId: z.uuid().optional(), target: editorialUpdateTargetSchema.optional(), publication: updatePublicationSchema, media: externalMediaSchema.nullable().optional() })
+  z.object({ key: keySchema, action: z.literal('create'), publication: createPublicationSchema, media: externalMediaSchema.nullable().optional(), sources: editorialSourcesSchema }),
+  z.object({ key: keySchema, action: z.literal('update'), publicationId: z.uuid().optional(), target: editorialUpdateTargetSchema.optional(), publication: updatePublicationSchema, media: externalMediaSchema.nullable().optional(), sources: editorialSourcesSchema })
     .refine(operation => Boolean(operation.publicationId || operation.target), {
       message: 'An editorial update requires publicationId or a public identifier target.',
     }),

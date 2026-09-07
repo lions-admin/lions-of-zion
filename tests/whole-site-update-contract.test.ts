@@ -20,4 +20,18 @@ describe('whole-site-update-v1 contract', () => {
   it('rejects an operation reference that does not exist in this package', () => {
     expect(wholeSiteUpdatePackageSchema.safeParse({ ...valid, homepage: { people: { lead: { action: 'set', publication: { operationKey: 'missing' } } } } }).success).toBe(false);
   });
+
+  it('accepts cited web pages as sources and refuses anything that is not an http(s) page', () => {
+    const cited = { ...valid, creates: [{ ...valid.creates[0], sources: [
+      { url: 'https://www.gov.il/en/pages/statement', title: 'Government statement', publisher: 'Government of Israel', official: true },
+      { url: 'https://example-news.test/report', title: 'A report' },
+    ] }] };
+    const parsed = wholeSiteUpdatePackageSchema.parse(cited);
+    expect(parsed.creates[0]!.sources).toHaveLength(2);
+    expect(parsed.creates[0]!.sources![1]).toMatchObject({ language: 'en' });
+    expect(wholeSiteUpdatePackageSchema.safeParse({ ...valid, creates: [{ ...valid.creates[0], sources: [{ url: 'ftp://example.test/x', title: 'No' }] }] }).success).toBe(false);
+    expect(wholeSiteUpdatePackageSchema.safeParse({ ...valid, creates: [{ ...valid.creates[0], sources: [{ url: 'https://example.test/x', title: 'No', evidenceId: 'invented' }] }] }).success).toBe(false);
+    /* A package written before the field existed still validates. */
+    expect(wholeSiteUpdatePackageSchema.safeParse(valid).success).toBe(true);
+  });
 });

@@ -10,7 +10,7 @@ import { getDocumentationRecord } from './documentation';
 import { pickVersion } from './archive';
 import { displayWitness } from './archive-display';
 import { homepageMedia, homepageExcerpt } from './homepage-media';
-import { isHomepageSafeMedia } from '@/server/contracts/editorial-media';
+import { isArticleSafeMedia } from '@/server/contracts/editorial-media';
 import { publicationHomepageKind } from '@/lib/publication-routing';
 import { SECTION_LABELS } from '@/components/live/publication-labels';
 
@@ -25,8 +25,9 @@ export async function resolveHomepageReference(ref:HomeReference):Promise<HomePr
        reaches the homepage without a hand-written registry mapping. The static
        registry stays as the fallback: the publications mapped there predate
        the field and would otherwise lose the artwork they already have. */
-    const media=p.media&&isHomepageSafeMedia(p.media)?p.media:homepageMedia(ref.key);
-    if(!media)return null;
+    /* No picture is not a reason to drop the record (owner ruling,
+       2026-09-07): the card renders without a figure. */
+    const media=p.media&&isArticleSafeMedia(p.media)?p.media:homepageMedia(ref.key);
     const publicationBase={key:ref.key,href:ref.href,media,title:p.title,summary:p.summary??'',date:p.publishedAt,
       sources:p.sources.flatMap(s=>s.url?[{label:s.publisher?`${s.publisher} — ${s.title}`:s.title,url:s.url}]:[]),
       whyItMatters:homepageExcerpt(ref.key,'whyItMatters',p.updatedAt)};

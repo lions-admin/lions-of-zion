@@ -9,6 +9,7 @@ import { editorialRepo, editorialInputHash } from '@/server/modules/editorial-up
 import { startEditorialRunSchema, type StartEditorialRun } from '@/server/contracts/editorial-update';
 import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
 import { composeEditorialRunReport, editorialUpdateService } from '@/server/modules/editorial-update/service';
+import { materializeSources } from '@/server/modules/editorial-update/sources';
 
 let db: TestDatabase;
 beforeAll(async () => { db = await freshDatabase(); }, 60000);
@@ -209,7 +210,7 @@ describe('durable whole-site editorial runs', () => {
     /* Said outright, not only as a per-record annotation: which records have
        no hero, and that the homepage cannot take them. */
     expect(text).toContain('Published WITHOUT a hero image: 1 — no-hero-record');
-    expect(text).toContain('cannot be placed on the homepage');
+    expect(text).toContain('still takes its homepage slot, text-led');
     /* Failure detail: stage, what already succeeded, retry safety, next step. */
     expect(text).toContain('Stage reached: media');
     expect(text).toContain('Failing operations: profile');
@@ -299,6 +300,58 @@ describe('durable whole-site editorial runs', () => {
       stage: 'publication', operationKey: 'profile', message: 'Broken image metadata', recovery: 'Fix the package and resume.',
     });
     expect((await repo().finish(run.id, worker!.leaseToken!, { status: 'partial', publications: { failed: 1 } })).status).toBe('partial');
+  });
+
+  /* Until 2026-09-07 the only way to give a record a source stack was a list
+     of internal evidence UUIDs, which a composer working from the open web
+     cannot know and must never invent — so every record on this path shipped
+     with an empty "Public sources" section, and the composer vetoed content
+     rather than write more of them. A cited page is now enough. */
+  it('turns cited web pages into evidence the record cites, once per page, for creates and updates alike', async () => {
+    const input = request('cited-sources');
+    const run = await repo().start(input, 'test:owner');
+    const worker = await repo().claim(run.id);
+    const actor = { label: 'service:editorial' };
+    const sources = [
+      { url: 'https://www.idf.il/en/articles/2026/statement-one', title: 'IDF statement on the incident', publisher: 'Israel Defense Forces', official: true, language: 'en' },
+      { url: 'https://example-news.test/world/2026/09/report?utm=x', canonicalUrl: 'https://example-news.test/world/2026/09/report', title: 'Regional report', publisher: 'Example News', publishedAt: '2026-09-07T06:00:00+03:00', excerpt: 'The outlet reported the strike and the denial in the same dispatch.', language: 'en' },
+    ];
+    let publicationId = '';
+    const first = await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async tx => {
+      const cited = await materializeSources(tx, sources, { composer: 'test-composer', runId: run.id, actor });
+      expect(cited).toMatchObject({ created: 2, reused: 0 });
+      expect(cited.evidenceIds).toHaveLength(2);
+      const create = input.operations[0]!;
+      if (create.action !== 'create') throw new Error('fixture');
+      const row = await publicationService(tx).applyEditorial(
+        { ...create, publication: { ...create.publication, evidenceIds: cited.evidenceIds } },
+        { runId: run.id, machineAuthor: 'machine:editorial' }, null, actor,
+      );
+      publicationId = row.id;
+      return { publicId: row.publicId };
+    });
+    const detail = await publicationService(db).getBriefingPublicDetail(first.publicId as string);
+    expect(detail.sources.map(source => source.url).sort()).toEqual([
+      'https://example-news.test/world/2026/09/report?utm=x', 'https://www.idf.il/en/articles/2026/statement-one',
+    ]);
+    expect(detail.sources.find(source => source.publisher === 'Israel Defense Forces')).toBeTruthy();
+    /* The outlet was registered once and inactive: nothing schedules a fetch of it. */
+    const outlets = await db.execute<{ name: string; active: boolean; kind: string }>(sql`SELECT name, active, kind FROM source WHERE name IN ('Israel Defense Forces','Example News') ORDER BY name`);
+    expect(outlets.rows).toEqual([{ name: 'Example News', active: false, kind: 'manual' }, { name: 'Israel Defense Forces', active: false, kind: 'manual' }]);
+
+    /* The same page cited again — by a developing-story update — is one
+       evidence row, attached once, beside what the record already cites. */
+    await repo().completeOperation(run.id, worker!.leaseToken!, 'profile', async tx => {
+      const cited = await materializeSources(tx, [sources[1]!, { url: 'https://example-news.test/world/2026/09/follow-up', title: 'Follow-up', publisher: 'Example News', language: 'en' }], { composer: 'test-composer', runId: run.id, actor });
+      expect(cited).toMatchObject({ created: 1, reused: 1 });
+      await publicationService(tx).attachEvidence(publicationId, cited.evidenceIds);
+      await publicationService(tx).attachEvidence(publicationId, cited.evidenceIds);
+      return { publicId: first.publicId };
+    });
+    const updated = await publicationService(db).getBriefingPublicDetail(first.publicId as string);
+    expect(updated.sources).toHaveLength(3);
+    const evidenceRows = await db.execute<{ count: string }>(sql`SELECT count(*)::text AS count FROM evidence WHERE canonical_url = 'https://example-news.test/world/2026/09/report'`);
+    expect(evidenceRows.rows[0]!.count).toBe('1');
   });
 
   it('publishes without a picture rather than blocking on a missing image, and an update with no media keeps the one already attached', async () => {

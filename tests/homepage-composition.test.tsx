@@ -37,6 +37,12 @@ describe('homepage editorial composition',()=>{
  expect(news.match(/View all News &amp; Analysis/g)).toHaveLength(1);
  expect(html).toContain('data-rank="lead"');
  });
+ it('keeps a record without a picture on the page, text-led, with no empty frame',()=>{
+ const e=edition();e.news.items[0]={...e.news.items[0],media:null};
+ const html=renderToStaticMarkup(<HomepageJourney edition={e}/>);
+ const news=html.slice(html.indexOf('data-home-section="news"'),html.indexOf('data-home-section="fakeResistance"'));
+ expect(news).toContain('A full headline');expect(news).not.toContain('<figure');expect(news).not.toContain('<img');
+ });
  it('puts the image disclosure first in the caption and keeps the full alt text',()=>{
  const illustration={...asset,role:'editorial-illustration' as const,caption:'A description.',alt:'Editorial illustration. Not evidence.'};
  const e=edition();e.news.items[0]={...e.news.items[0],media:illustration};

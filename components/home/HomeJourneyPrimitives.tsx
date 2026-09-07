@@ -118,10 +118,13 @@ export function HomeMedia({
   portrait = false,
   lead = false,
 }: {
-  media: EditorialMedia;
+  media: EditorialMedia | null;
   portrait?: boolean;
   lead?: boolean;
 }) {
+  /* A record without a picture keeps its place on the page; the card is
+     text-led rather than empty-framed. */
+  if (!media) return null;
   const disclosure = media.role === "safe-cover"
     ? "Safe cover"
     : media.disclosure ?? ROLE_DISCLOSURE[media.role];

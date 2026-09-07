@@ -18,8 +18,8 @@ export const dynamic = 'force-dynamic';
  */
 const KICK_LIMIT = 100;
 
-/** Accepts only content/placement data, queues the durable run, and returns
- * a stable status URL for GitHub Actions to poll. */
+/** Accepts validated v1/v2 editorial package data, queues the durable run, and
+ * returns a stable status URL for GitHub Actions to poll. */
 export const POST = handler(async request => {
   requireEditorialUpdateIngestSecret(request);
   const pkg = await parseBody(request, anyWholeSiteUpdatePackageSchema);

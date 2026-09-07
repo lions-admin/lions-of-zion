@@ -1,8 +1,8 @@
 import "server-only";
 
-import { and, count as countRows, eq, isNull } from "drizzle-orm";
+import { and, count as countRows, eq, isNull, ne, or } from "drizzle-orm";
 import { db, withDatabaseRole } from "@/server/db/client";
-import { appUser, capabilityGrant } from "@/server/db/schema";
+import { appUser } from "@/server/db/schema";
 import { adminEmail } from "@/server/core/config";
 import { sendWorkspaceEmail } from "@/server/core/email";
 import { briefingLog } from "@/server/core/log";
@@ -77,12 +77,15 @@ export async function syncVerifiedGoogleUser(user: AuthenticatedUser): Promise<v
   await notifyNewRegistration(synced, "Google");
 }
 
-/** Public readers are human app_user rows that do not hold a staff capability. */
+/** Public readers are human app_user rows other than the configured single admin. */
 export async function registeredUserCount(): Promise<number> {
+  const ownerEmail = adminEmail();
   const [row] = await db()
     .select({ count: countRows() })
     .from(appUser)
-    .leftJoin(capabilityGrant, eq(capabilityGrant.userId, appUser.id))
-    .where(and(eq(appUser.isAutomated, false), isNull(capabilityGrant.userId)));
+    .where(and(
+      eq(appUser.isAutomated, false),
+      or(isNull(appUser.email), ne(appUser.email, ownerEmail)),
+    ));
   return row?.count ?? 0;
 }

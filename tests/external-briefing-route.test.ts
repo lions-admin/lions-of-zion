@@ -1,29 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-/**
- * Route-level test for the guard/parsing layer only.
- *
- * This exercises the real `handler()`, `parseBody()`,
- * `requireExternalBriefingSecret()` and `externalBriefingPackageSchema`
- * end-to-end with no dev server, returning the same `problem+json` shapes a
- * live deployment would.
- *
- * It used to need no database either: the route matched none of
- * `accessFor()`'s service prefixes, so `handler()` ran it with
- * `access === null`. That was the bug, not a feature — the route filed whole
- * editions outside RLS. Since 2026-09-05 it runs as `app_service`, and the
- * one pooled-connection dependency that introduces is stubbed below, with the
- * reasoning for why that stub is legitimate here.
- *
- * `server/modules/briefing/external-publish.ts` (the sibling agent's service)
- * is mocked out: these three cases never reach it, and the module doesn't
- * need to exist yet for this test to prove the guard/parse/schema layer is
- * correct.
- */
-
-/* Typed as the service's own result so a case may override it with a real
-   payload; the default still throws, because the guard/parsing cases must
-   never reach the service. */
+/** The real request guard still protects the retired route; authenticated
+ * clients receive a stable refusal, even for a formerly valid package. */
 const mocks = vi.hoisted(() => ({
   publish: vi.fn(async (): Promise<unknown> => {
     throw new Error("the route-level guard/parsing tests should never reach the service");
@@ -71,6 +49,7 @@ vi.mock("@/server/db/client", async (importOriginal) => ({
 }));
 
 import { POST } from "@/app/api/internal/briefing/external-publish/route";
+import { POST as codexPOST } from "@/app/api/internal/codex/briefing-import/route";
 
 const SECRET = "unit-test-external-briefing-secret";
 const ENDPOINT = "https://lionsofzion.io/api/internal/briefing/external-publish";
@@ -206,88 +185,33 @@ describe("POST /api/internal/briefing/external-publish", () => {
     expect(body.error.code).toBe("UNAUTHENTICATED");
   });
 
-  it("turns a malformed JSON body into a 4xx validation-style error, not a 500", async () => {
-    const response = await POST(request({ secret: SECRET, body: "{ not valid json" }));
-    expect(response.status).toBe(422);
+  it.each(["{ not valid json", "{}", validPackageBody()])("refuses authenticated legacy delivery without publishing", async (body) => {
+    const response = await POST(request({ secret: SECRET, body }));
+    expect(response.status).toBe(412);
     expect(response.headers.get("content-type")).toContain("application/problem+json");
-
-    const body = await response.json();
-    expect(body.error.code).toBe("VALIDATION_ERROR");
-    expect(body.error.message).toBe("Request body is not valid JSON");
+    const result = await response.json();
+    expect(result.error.code).toBe("PRECONDITION_FAILED");
+    expect(result.error.message).toContain("Legacy editorial publishing is retired");
     expect(mocks.publish).not.toHaveBeenCalled();
   });
+});
 
-  it("turns a well-formed but schema-invalid package into a 4xx with field-path detail", async () => {
-    // Valid JSON, but missing runId (and everything else) — a real composer
-    // mistake, not a malformed request.
-    const response = await POST(request({ secret: SECRET, body: JSON.stringify({}) }));
-    expect(response.status).toBe(422);
 
-    const body = await response.json();
-    expect(body.error.code).toBe("VALIDATION_ERROR");
-    expect(Array.isArray(body.error.errors)).toBe(true);
+describe("retired Codex briefing import", () => {
+  afterEach(() => vi.unstubAllEnvs());
 
-    const paths = body.error.errors.map((issue: { path: unknown[] }) => issue.path.join("."));
-    expect(paths).toContain("runId");
-    expect(mocks.publish).not.toHaveBeenCalled();
+  it("rejects unauthenticated delivery", async () => {
+    vi.stubEnv("CODEX_BRIEFING_IMPORT_SECRET", SECRET);
+    const response = await codexPOST(new Request("https://lionsofzion.io/api/internal/codex/briefing-import", { method: "POST", body: "{}" }));
+    expect(response.status).toBe(401);
   });
 
-  it("surfaces every failing field path, not just the first", async () => {
-    const response = await POST(request({
-      secret: SECRET,
-      body: JSON.stringify({ runId: "short" }), // fails min(8) AND everything else is still missing
-    }));
-    expect(response.status).toBe(422);
-
-    const body = await response.json();
-    const paths: string[] = body.error.errors.map((issue: { path: unknown[] }) => issue.path.join("."));
-    expect(paths).toContain("runId");
-    expect(paths).toContain("localDate");
-    expect(paths).toContain("composer");
-    expect(paths).toContain("publishers");
-    expect(paths).toContain("citations");
-    expect(paths).toContain("dailyBrief");
-  });
-
-  /* Editorial warnings are not validation failures.
-   *
-   * `daily_brief_official_context` and `title_source_alignment` used to make
-   * this route answer 422 VALIDATION_ERROR. They are advisory now: the service
-   * publishes and reports them, and the route must pass that through as a 200
-   * with the warnings in the body. 4xx is reserved for malformed or unsafe
-   * input, which the cases above still cover. */
-  it("returns 200 with warnings when the package publishes with editorial warnings", async () => {
-    mocks.publish.mockImplementationOnce(async () => ({
-      runId: "route-warning-run-0001",
-      status: "draft",
-      localDate: "2026-09-06",
-      evidenceCreated: 1,
-      publications: [],
-      briefUrl: "https://lionsofzion.io/geopolitical-brief",
-      warnings: [
-        {
-          candidateKey: "daily-brief",
-          check: "daily_brief_official_context",
-          detail: "The Daily Brief requires at least one official Israeli source.",
-        },
-        {
-          candidateKey: "daily-brief",
-          check: "title_source_alignment",
-          detail: "The title is not sufficiently anchored in the cited source material.",
-        },
-      ],
-    }));
-
-    const response = await POST(request({ secret: SECRET, body: validPackageBody() }));
-
-    expect(response.status).toBe(200);
-    expect(mocks.publish).toHaveBeenCalledTimes(1);
-
-    const body = await response.json();
-    expect(body.error).toBeUndefined();
-    expect(body.warnings.map((warning: { check: string }) => warning.check)).toEqual([
-      "daily_brief_official_context",
-      "title_source_alignment",
-    ]);
+  it("refuses authenticated delivery before reading its body", async () => {
+    vi.stubEnv("CODEX_BRIEFING_IMPORT_SECRET", SECRET);
+    const req = new Request("https://lionsofzion.io/api/internal/codex/briefing-import", { method: "POST", headers: { authorization: `Bearer ${SECRET}` }, body: "not-json" });
+    const response = await codexPOST(req);
+    expect(response.status).toBe(412);
+    expect((await response.json()).error.message).toContain("Legacy editorial publishing is retired");
+    expect(req.bodyUsed).toBe(false);
   });
 });

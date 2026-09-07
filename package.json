@@ -12,7 +12,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "build": "next build",
+    "build": "tsx scripts/check-deployment-schema.ts --build && next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "briefing:smoke": "bash scripts/verify-briefing-public.sh",
@@ -51,7 +51,8 @@
     "verify:changed": "tsx scripts/verify-changed.ts",
     "verify:full": "npm run typecheck && npm run lint && npm test && npm run build",
     "homepage:catalog": "node --conditions=react-server --import tsx scripts/homepage/build-catalog.ts",
-    "homepage:preview": "node --env-file=.env.local --conditions=react-server --import tsx scripts/homepage/preview-edition.ts"
+    "homepage:preview": "node --env-file=.env.local --conditions=react-server --import tsx scripts/homepage/preview-edition.ts",
+    "schema:check": "tsx scripts/check-deployment-schema.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.107",

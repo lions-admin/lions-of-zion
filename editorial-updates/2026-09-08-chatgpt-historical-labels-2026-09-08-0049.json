@@ -1,0 +1,93 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-historical-labels-2026-09-08-0049",
+  "composer": "ChatGPT whole-site editorial update",
+  "createdAt": "2026-09-07T21:35:54.654Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "hist-leb-soldiers",
+      "target": {
+        "publicId": "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd"
+      },
+      "publication": {
+        "title": "Historical report: two IDF soldiers wounded during the September 7 Lebanon escalation",
+        "summary": "Historical snapshot from September 7, 2026. For the current verified account and later developments, read: https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+        "changeSummary": "Made the historical/superseded status visible in the headline and deck because this page template does not reliably render body-level canonical notices."
+      }
+    },
+    {
+      "key": "hist-leb-drones",
+      "target": {
+        "publicId": "hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5"
+      },
+      "publication": {
+        "title": "Historical report: Hezbollah drones and Israeli strikes on September 6",
+        "summary": "Historical snapshot from September 6, 2026. For the current verified account and later developments, read: https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+        "changeSummary": "Made the historical/superseded status visible in the headline and deck because this page template does not reliably render body-level canonical notices."
+      }
+    },
+    {
+      "key": "hist-ali-hkoun",
+      "target": {
+        "publicId": "ali-al-taher-remains-an-active-israel-hezbollah--hkoun"
+      },
+      "publication": {
+        "title": "Historical report: Ali al-Taher as an Israel–Hezbollah friction point",
+        "summary": "Historical snapshot from September 3, 2026. For the current verified account and later developments, read: https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+        "changeSummary": "Made the historical/superseded status visible in the headline and deck because this page template does not reliably render body-level canonical notices."
+      }
+    },
+    {
+      "key": "hist-ali-mwq1v",
+      "target": {
+        "publicId": "ali-al-taher-ridge-remains-a-verified-israel-hez-mwq1v"
+      },
+      "publication": {
+        "title": "Historical report: the early Ali al-Taher escalation picture",
+        "summary": "Historical snapshot from September 3, 2026. For the current verified account and later developments, read: https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+        "changeSummary": "Made the historical/superseded status visible in the headline and deck because this page template does not reliably render body-level canonical notices."
+      }
+    },
+    {
+      "key": "hist-detainee",
+      "target": {
+        "publicId": "lebanese-detainee-returned-through-icrc-channel-bblkt"
+      },
+      "publication": {
+        "title": "Historical report: Malek Ghazi’s initial return through the ICRC",
+        "summary": "Historical snapshot from September 3, 2026. The release later expanded to five civilians. Read the completed account: https://lionsofzion.io/articles/lebanese-detainee-returned-through-icrc-channel-68if2",
+        "changeSummary": "Made the historical/superseded status visible in the headline and deck because this page template does not reliably render body-level canonical notices."
+      }
+    },
+    {
+      "key": "hist-outposts",
+      "target": {
+        "publicId": "netanyahu-orders-unauthorized-west-bank-outposts-kb1l1"
+      },
+      "publication": {
+        "title": "Historical report: Netanyahu’s reported West Bank outpost-removal order",
+        "summary": "Historical snapshot from September 7, 2026. For the definitive plain-English explainer and current status, read: https://lionsofzion.io/articles/netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx",
+        "changeSummary": "Made the historical/superseded status visible in the headline and deck because this page template does not reliably render body-level canonical notices."
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [
+    "Add a first-class canonical/superseded-by relationship to editorial publications so historical records can render a clickable current-story banner across body and passage-based templates."
+  ],
+  "research": [
+    {
+      "topic": "Canonical crosslink rendering QA",
+      "focus": "Six historical duplicate records",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/articles/3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd",
+        "https://lionsofzion.io/articles/lebanese-detainee-returned-through-icrc-channel-bblkt",
+        "https://lionsofzion.io/articles/netanyahu-orders-unauthorized-west-bank-outposts-kb1l1"
+      ],
+      "conclusion": "Body-level Markdown was not reliably visible or clickable across templates; historical state must be surfaced in the headline and deck pending a first-class relation field.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": []
+}

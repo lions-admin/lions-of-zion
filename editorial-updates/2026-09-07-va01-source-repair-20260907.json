@@ -1,0 +1,190 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "va01-source-repair-20260907",
+  "composer": "claude-code-va01-source-repair",
+  "createdAt": "2026-09-07T14:05:20.872Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "va01-iran-says-it-struck-an-unmanned-u-s-vess",
+      "target": {
+        "publicId": "iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq"
+      },
+      "publication": {
+        "changeSummary": "Attached 3 sources that this record already listed under its own \"Sources\" heading in the body but which were missing from the structured public source stack, so the page showed no sources beside cited material. Article text unchanged (VA-01)."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/b4f64c7492d8c5b9ff71794cc152186d",
+          "title": "US denies that Iran struck an uncrewed US military ship in the Strait of Hormuz",
+          "publisher": "Associated Press",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://apnews.com/article/a52beec77dc90af3d040d0553837ad20",
+          "title": "Iran says it plans to announce a new 'exclusion zone' near the Strait of Hormuz",
+          "publisher": "Associated Press",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/iran-tackle-economic-issues-says-further-attacks-will-be-more-painful-2026-09-06/",
+          "title": "Iran tackle economic issues says further attacks will be more painful",
+          "publisher": "Reuters",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "va01-hezbollah-drones-and-israeli-strikes-dri",
+      "target": {
+        "publicId": "hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5"
+      },
+      "publication": {
+        "changeSummary": "Attached 1 source that this record already listed under its own \"Sources\" heading in the body but which were missing from the structured public source stack, so the page showed an incomplete stack. Article text unchanged (VA-01)."
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israel-says-it-has-cleared-hezbollah-fighters-tunnels-under-key-lebanon-ridge-2026-09-04/",
+          "title": "Israel says it has cleared hezbollah fighters tunnels under key lebanon ridge"
+        }
+      ]
+    },
+    {
+      "key": "va01-iran-says-it-struck-a-u-s-unmanned-vesse",
+      "target": {
+        "publicId": "iran-says-it-struck-a-u-s-unmanned-vessel-washin-anmgp"
+      },
+      "publication": {
+        "changeSummary": "Attached 1 source that this record already listed under its own \"Sources\" heading in the body but which were missing from the structured public source stack, so the page showed no sources beside cited material. Article text unchanged (VA-01)."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/mideast-iran-us-hormuz-lebanon-israel-b4f64c7492d8c5b9ff71794cc152186d",
+          "title": "US denies that Iran struck an uncrewed US military ship in the Strait of Hormuz"
+        }
+      ]
+    },
+    {
+      "key": "va01-ben-gurion-university-team-develops-aero",
+      "target": {
+        "publicId": "ben-gurion-university-team-develops-aerogel-that-0y2we"
+      },
+      "publication": {
+        "changeSummary": "Attached 2 sources that this record already listed under its own \"Sources\" heading in the body but which were missing from the structured public source stack, so the page showed an incomplete stack. Article text unchanged (VA-01)."
+      },
+      "sources": [
+        {
+          "url": "https://cris.bgu.ac.il/en/publications/nutrient-supplemented-carbonized-aerogels-for-integrated-oil-adso/",
+          "title": "Nutrient-supplemented carbonized aerogels for integrated oil adsorption and biodegradation in water"
+        },
+        {
+          "url": "https://www.sciencedirect.com/science/article/pii/S2666821126003583",
+          "title": "Chemical Engineering Journal Advances / ScienceDirect"
+        }
+      ]
+    },
+    {
+      "key": "va01-adidas-boycott-narrative-what-the-viral-",
+      "target": {
+        "publicId": "adidas-boycott-narrative-what-the-viral-single-s-5wxlh"
+      },
+      "publication": {
+        "changeSummary": "Attached 5 sources that this record already listed under its own \"Sources\" heading in the body but which were missing from the structured public source stack, so the page showed no sources beside cited material. Article text unchanged (VA-01)."
+      },
+      "sources": [
+        {
+          "url": "https://news.adidas.com/GLOBAL/adidas-launches-single-shoe-service-for-those-living-with-leg-limb-difference/S/566e1eb1-0e4f-4747-b153-0607890bacef",
+          "title": "Adidas official announcement, March 11, 2026",
+          "publisher": "Adidas official announcement",
+          "publishedAt": "2026-03-11T00:00:00Z"
+        },
+        {
+          "url": "https://x.noodl3.net/Partisan_12/status/2095433873425584490",
+          "title": "Indexed copy of the September 3 viral X post"
+        },
+        {
+          "url": "https://www.timesofisrael.com/adidas-faces-boycott-over-promotion-featuring-ex-idf-soldier-who-lost-leg-in-2021/",
+          "title": "Adidas faces boycott over promotion featuring ex idf soldier who lost leg in",
+          "publisher": "The Times of Israel",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://www.aljazeera.com/sports/2026/9/6/adidas-faces-boycott-calls-over-campaign-featuring-former-israeli-soldier",
+          "title": "Adidas faces boycott calls over campaign featuring former israeli soldier",
+          "publisher": "Al Jazeera",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://www.jpost.com/bds-threat/article-907747",
+          "title": "'Single shoe' Adidas ad campaign with disabled IDF vet stirs controversy | The Jerusalem Post",
+          "publisher": "The Jerusalem Post",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "va01-us-iranian-forces-fire-at-vessels-in-wat",
+      "target": {
+        "publicId": "us-iranian-forces-fire-at-vessels-in-waters-near-f2cks"
+      },
+      "publication": {
+        "changeSummary": "Attached 4 sources that this record already listed under its own \"Sources\" heading in the body but which were missing from the structured public source stack, so the page showed an incomplete stack. Article text unchanged (VA-01)."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/a52beec77dc90af3d040d0553837ad20",
+          "title": "Iran says it plans to announce a new 'exclusion zone' near the Strait of Hormuz",
+          "publisher": "Associated Press",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://apnews.com/article/b4f64c7492d8c5b9ff71794cc152186d",
+          "title": "US denies that Iran struck an uncrewed US military ship in the Strait of Hormuz",
+          "publisher": "Associated Press",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/iran-tackle-economic-issues-says-further-attacks-will-be-more-painful-2026-09-06/",
+          "title": "Iran tackle economic issues says further attacks will be more painful",
+          "publisher": "Reuters",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://www.reuters.com/business/energy/irans-hormuz-leverage-wanes-us-economic-squeeze-bites-2026-09-06/",
+          "title": "Irans hormuz leverage wanes us economic squeeze bites",
+          "publisher": "Reuters",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "va01-3-said-killed-in-idf-strikes-in-lebanon-",
+      "target": {
+        "publicId": "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd"
+      },
+      "publication": {
+        "changeSummary": "Attached 2 sources that this record already listed under its own \"Sources\" heading in the body but which were missing from the structured public source stack, so the page showed an incomplete stack. Article text unchanged (VA-01)."
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/",
+          "title": "Israeli military says it strikes southern lebanon after hezbollah launched",
+          "publisher": "Reuters",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        },
+        {
+          "url": "https://www.timesofisrael.com/liveblog_entry/idf-striking-targets-in-southern-lebanon-after-hezbollah-launches-explosive-drones-at-troops/",
+          "title": "Idf striking targets in southern lebanon after hezbollah launches explosive drones at troops",
+          "publisher": "The Times of Israel",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [],
+  "vetoes": [],
+  "siteRecommendations": [
+    "VA-19 dependency: iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq and iran-says-it-struck-a-u-s-unmanned-vessel-washin-anmgp are near-duplicate records of one story. Both are repaired here so neither shows an empty stack on Production, but they should be consolidated under one canonicalStoryId before either is edited further."
+  ]
+}

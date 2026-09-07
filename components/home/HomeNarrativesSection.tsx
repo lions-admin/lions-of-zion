@@ -120,7 +120,7 @@ export function HomeNarrativesSection({
                     />
                   </p>
                 )}
-                {item.finding && (
+                {item.kind !== "article" && item.finding && (
                   <div className={styles.finding}>
                     <span>
                       {item.kind === "watch" ? "Finding" : "From the research"}

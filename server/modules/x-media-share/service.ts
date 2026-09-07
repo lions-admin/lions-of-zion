@@ -140,7 +140,7 @@ async function uploadVideo(
 
   let segment = 0;
   let uploaded = 0;
-  const ok = await readChunks(source.body, VIDEO_CHUNK_BYTES, async (chunk) => {
+  const ok = await readChunks(source.body!, VIDEO_CHUNK_BYTES, async (chunk) => {
     if (segment > 999) return false;
     const form = new FormData();
     form.set(
@@ -228,9 +228,9 @@ async function createPost(
 }
 
 async function readChunks(
-  stream: ReadableStream<Uint8Array>,
+  stream: ReadableStream<Uint8Array<ArrayBuffer>>,
   chunkSize: number,
-  consume: (chunk: Uint8Array) => Promise<boolean>,
+  consume: (chunk: Uint8Array<ArrayBuffer>) => Promise<boolean>,
 ): Promise<boolean> {
   const reader = stream.getReader();
   let carry = new Uint8Array(0);

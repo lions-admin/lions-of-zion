@@ -139,27 +139,33 @@
   .editionRail { max-width: 44ch; }
 }
 @media (max-width: 759px) {
-  /* The phone cover carried 429px of type over a 521px photograph: four
-     fifths of the lion sat under the masthead, and the picture the site
-     opens on read as a texture behind text (owner, 2026-09-08). The cover
-     is bottom-anchored, so the band's own height is the lever — the whole
-     block moves down together, keeps its order and its spacing, and the
-     lion gets a lit field of its own above the wordmark. The band still
-     stops short of the viewport: the edition rail is read without a scroll
-     and the reading surface below still shows at the fold. */
-  .hero { min-height: clamp(560px, 88svh, 860px); padding-bottom: 30px; }
-  /* The band's own height places the type; this margin is only the floor
-     under the field on a short screen. At `22svh` it bound before the band
-     did and grew the cover past the fold on a 667px phone. */
-  .masthead { margin-top: clamp(64px, 12svh, 200px); }
-  /* Read a little higher up the plate than the short cover needed: in the
-     taller band 85% pushed the head back into the type. */
-  .posterField { background-position: 50% 78%; }
-  .heroVideo { object-position: 50% 78%; }
-  /* The ramp starts where the type does, not a fifth of the way down, so
-     the sky, the crown of the mane and the muzzle stay photographic and the
-     wash only does the work of holding the wordmark. */
-  .heroScrim { background: linear-gradient(to bottom, transparent 24%, color-mix(in srgb, var(--ground) 30%, transparent) 38%, color-mix(in srgb, var(--ground) 72%, transparent) 52%, color-mix(in srgb, var(--ground) 93%, transparent) 66%, var(--ground) 88%); }
+  /* Owner ruling, 2026-09-08: on a phone the first screen is the photograph.
+     The top four fifths carry nothing but the lion, and the cover's type
+     starts in the bottom fifth and runs on past the fold — the wordmark is
+     the threshold into the edition rather than a caption laid across the
+     animal's face. It replaces the bounded ~73svh cover of VA-10, and it
+     costs what that one bought: the edition rail is now read after a short
+     scroll, not before one.
+
+     Three rules do it. The picture is pinned to the first screen rather
+     than to the band, so the type that continues below the fold sits on
+     ground and the frame keeps the poster's own 9:16 proportions instead
+     of zooming to fill a 1150px box. The masthead's top margin is the four
+     fifths, measured from the top of the viewport so the header is inside
+     it. And the band is at least a screen tall, so the photograph is never
+     cut short on a device the margin does not fill. */
+  .hero { min-height: 100svh; padding-bottom: 30px; }
+  .fieldLayer { inset: var(--header-h) 0 auto; height: calc(100svh - var(--header-h)); }
+  .masthead { margin-top: calc(80svh - var(--header-h)); }
+  /* The band is close enough to the poster's own ratio that the crop shows
+     the full frame; the value only decides which sliver of width is lost. */
+  .posterField { background-position: 50% 50%; }
+  .heroVideo { object-position: 50% 50%; }
+  /* Nothing to hold until the last fifth, and then everything: the ramp is
+     clear over the head and the mane, weights the ground under the wordmark,
+     and closes on the page colour exactly where the picture ends, so the
+     photograph's bottom edge is a fade rather than a seam. */
+  .heroScrim { background: linear-gradient(to bottom, transparent 52%, color-mix(in srgb, var(--ground) 30%, transparent) 68%, color-mix(in srgb, var(--ground) 72%, transparent) 80%, color-mix(in srgb, var(--ground) 94%, transparent) 90%, var(--ground) 99%); }
   /* The fixed 200px measure is what stops the two paths sharing a phone row;
      the link keeps its own width instead and the arrow stays at its end. */
   .actions a { min-width: 0; }

@@ -190,6 +190,34 @@ export function repo(db: unknown) {
         .values(narrativeIds.map((narrativeId) => ({ publicationId, narrativeId })))
         .returning();
     },
+    /**
+     * Workflow status and cited-source count for a page of live records.
+     *
+     * One `GROUP BY` for the whole page rather than a detail read per record:
+     * the public list projection carries neither field, and the automation's
+     * context bundle needs both for every row it returns. `status` matters
+     * because `published` and `updated` are different editorial facts — the
+     * second is a developing story that has already been revised.
+     */
+    async editorialSummaryByPublicIds(
+      publicIds: readonly string[],
+    ): Promise<Map<string, { status: string; sourceCount: number }>> {
+      const summary = new Map<string, { status: string; sourceCount: number }>();
+      if (!publicIds.length) return summary;
+      const rows = await d.execute<{ publicId: string; status: string; sourceCount: string }>(sql`
+        SELECT p.public_id AS "publicId", p.status,
+               count(pe.evidence_id)::text AS "sourceCount"
+        FROM publication p
+        LEFT JOIN publication_evidence pe ON pe.publication_id = p.id
+        WHERE p.public_id IN (${sql.join(publicIds.map((id) => sql`${id}`), sql`, `)})
+        GROUP BY p.public_id, p.status
+      `);
+      for (const row of rows.rows) {
+        summary.set(row.publicId, { status: row.status, sourceCount: Number(row.sourceCount) });
+      }
+      return summary;
+    },
+
     /** `linkEvidence` for a record that may already cite some of these: the
      *  pair is the primary key, so a repeat is skipped rather than refused. */
     async attachEvidence(publicationId: string, evidenceIds: readonly string[]): Promise<void> {

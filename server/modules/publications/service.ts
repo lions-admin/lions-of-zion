@@ -676,6 +676,11 @@ export function publicationService(db: unknown) {
     /** Links evidence a later operation materialized for a live record —
      *  a developing-story update's sources — without disturbing what the
      *  record already cites. */
+    /** Status and cited-source count for a page of live records, in one query. */
+    async editorialSummaryByPublicIds(publicIds: readonly string[]) {
+      return repo(db).editorialSummaryByPublicIds(publicIds);
+    },
+
     async attachEvidence(publicationId: string, evidenceIds: readonly string[]): Promise<void> {
       if (!evidenceIds.length) return;
       await repo(db).attachEvidence(publicationId, evidenceIds);

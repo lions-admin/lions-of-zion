@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { externalMediaSchema } from './external-briefing';
 import { editorialSourcesSchema } from './editorial-update';
 import { createPublicationSchema, updatePublicationSchema } from './publication';
+import { publicationSectionSchema } from './enums';
 
 const keySchema = z.string().trim().min(1).max(200);
 const canonicalStoryIdSchema = z.string().trim().toLowerCase()
@@ -15,6 +16,11 @@ const canonicalStoryIdSchema = z.string().trim().toLowerCase()
   .max(160);
 
 export const WHOLE_SITE_UPDATE_CONTRACT_VERSION = 'whole-site-update-v1' as const;
+export const WHOLE_SITE_UPDATE_V2_CONTRACT_VERSION = 'whole-site-update-v2' as const;
+export const WHOLE_SITE_UPDATE_CONTRACT_VERSIONS = [
+  WHOLE_SITE_UPDATE_CONTRACT_VERSION,
+  WHOLE_SITE_UPDATE_V2_CONTRACT_VERSION,
+] as const;
 
 export const wholeSitePublicationReferenceSchema = z.object({
   publicId: z.string().trim().min(1).max(200).optional(),
@@ -93,3 +99,109 @@ export const wholeSiteUpdatePackageSchema = z.object({
 });
 
 export type WholeSiteUpdatePackage = z.infer<typeof wholeSiteUpdatePackageSchema>;
+
+/* ── whole-site-update-v2 ───────────────────────────────────────────────────
+ *
+ * Two things the external editor does that v1 could not represent, and whose
+ * absence `docs/editorial-dna.md` §12 recorded as gaps: the ground it covered,
+ * and a deliberate decision not to publish.
+ *
+ * The second is the one that mattered. A run that declined three stories on
+ * editorial judgement and a run whose media fetch 404'd both arrived as
+ * "nothing published", so the report could not tell an editor's decision from a
+ * broken pipe — and on 2026-09-07 an editor vetoed three pieces and had only a
+ * free-text recommendation to say so with.
+ *
+ * Additive and version-dispatched. v1 keeps its own schema, parses on its own,
+ * and is still what the delivery workflow validates a v1 package against. Every
+ * object stays `.strict()`, so a v1 receiver rejects a v2 package outright
+ * rather than silently reading half of it.
+ */
+
+const researchUrlSchema = z.string().trim().max(2_000).refine(value => {
+  try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; }
+}, 'Must be an absolute http(s) URL.');
+
+/** What one line of the research ledger records. Not browser history: a
+ *  bounded account of an area looked at and what came of looking. */
+export const wholeSiteResearchEntrySchema = z.object({
+  topic: z.string().trim().min(1).max(200),
+  focus: z.string().trim().min(1).max(500).optional(),
+  /** External addresses, never internal ids — the same rule as `sources`. */
+  sourcesReviewed: z.array(researchUrlSchema).max(20).optional(),
+  conclusion: z.string().trim().min(1).max(2_000),
+  outcome: z.enum(['published', 'updated', 'vetoed', 'no_action']),
+}).strict();
+export type WholeSiteResearchEntry = z.infer<typeof wholeSiteResearchEntrySchema>;
+
+/**
+ * One deliberate refusal to publish.
+ *
+ * `key` is the editor's own handle for the candidate, in the same namespace as
+ * an operation key, so a veto and the create it replaced can be talked about
+ * together. `ownerDecisionRequested` is the one field that asks something of a
+ * human, and the report surfaces it separately for that reason.
+ */
+export const wholeSiteVetoSchema = z.object({
+  key: keySchema,
+  candidate: z.string().trim().min(1).max(500),
+  reason: z.string().trim().min(1).max(2_000),
+  section: publicationSectionSchema.optional(),
+  sources: z.array(researchUrlSchema).max(20).optional(),
+  replacement: z.string().trim().min(1).max(500).optional(),
+  ownerDecisionRequested: z.boolean().optional(),
+}).strict();
+export type WholeSiteVeto = z.infer<typeof wholeSiteVetoSchema>;
+
+export const wholeSiteResearchSchema = z.array(wholeSiteResearchEntrySchema).max(25).optional();
+export const wholeSiteVetoesSchema = z.array(wholeSiteVetoSchema).max(25).optional();
+
+export const wholeSiteUpdateV2PackageSchema = z.object({
+  contractVersion: z.literal(WHOLE_SITE_UPDATE_V2_CONTRACT_VERSION),
+  runId: keySchema,
+  composer: z.string().trim().min(1).max(200),
+  createdAt: z.iso.datetime(),
+  creates: z.array(wholeSiteCreateSchema).max(100).default([]),
+  updates: z.array(wholeSiteUpdateOperationSchema).max(100).default([]),
+  homepage: wholeSiteHomepageSchema,
+  siteRecommendations: z.array(z.string().trim().min(1).max(4_000)).max(50).default([]),
+  research: wholeSiteResearchSchema,
+  vetoes: wholeSiteVetoesSchema,
+}).strict().superRefine((pkg, ctx) => {
+  const operations = [...pkg.creates, ...pkg.updates];
+  const keys = operations.map(operation => operation.key);
+  if (new Set(keys).size !== keys.length) {
+    ctx.addIssue({ code: 'custom', path: ['creates'], message: 'Create and update operation keys must be unique within the package.' });
+  }
+  /* A v2 package may publish nothing and still be a complete report: a run that
+     researched the day and vetoed everything it found has said something, and
+     v1's "a package needs a create, update or homepage decision" would have
+     rejected exactly that run. Research or a veto counts as content. */
+  if (!operations.length && !Object.keys(pkg.homepage).length && !pkg.research?.length && !pkg.vetoes?.length) {
+    ctx.addIssue({ code: 'custom', message: 'A package needs a create, update, homepage decision, research entry, or veto.' });
+  }
+  const vetoKeys = (pkg.vetoes ?? []).map(veto => veto.key);
+  if (new Set(vetoKeys).size !== vetoKeys.length) {
+    ctx.addIssue({ code: 'custom', path: ['vetoes'], message: 'Veto keys must be unique within the package.' });
+  }
+  for (const [area, placements] of Object.entries(pkg.homepage)) {
+    for (const [position, decision] of Object.entries(placements ?? {})) {
+      if (decision?.action === 'set' && decision.publication.operationKey && !keys.includes(decision.publication.operationKey)) {
+        ctx.addIssue({ code: 'custom', path: ['homepage', area, position], message: `Unknown package operation "${decision.publication.operationKey}".` });
+      }
+    }
+  }
+});
+export type WholeSiteUpdateV2Package = z.infer<typeof wholeSiteUpdateV2PackageSchema>;
+
+/**
+ * What the receiver and the validator actually parse.
+ *
+ * Discriminated on `contractVersion`, so a package is read as the version it
+ * declares and a malformed v2 never falls back to being read as a v1.
+ */
+export const anyWholeSiteUpdatePackageSchema = z.discriminatedUnion('contractVersion', [
+  wholeSiteUpdatePackageSchema,
+  wholeSiteUpdateV2PackageSchema,
+]);
+export type AnyWholeSiteUpdatePackage = z.infer<typeof anyWholeSiteUpdatePackageSchema>;

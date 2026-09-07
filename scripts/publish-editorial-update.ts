@@ -2,7 +2,7 @@
  * has no database, model or content-generation capability. */
 
 import { readFile } from 'node:fs/promises';
-import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
+import { anyWholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
 import { formatRunStatusLine, formatTerminalReport, formatTimeout, isTerminal, type PolledRun } from './editorial-run-status';
 
 function usage(): never {
@@ -26,15 +26,19 @@ async function main(): Promise<void> {
     console.error(`Cannot parse ${path}: ${cause instanceof Error ? cause.message : String(cause)}`);
     process.exit(1);
   }
-  const parsed = wholeSiteUpdatePackageSchema.safeParse(raw);
+  const parsed = anyWholeSiteUpdatePackageSchema.safeParse(raw);
   if (!parsed.success) {
-    console.error(`${path} does not satisfy whole-site-update-v1:`);
+    /* Names the version the package declared, not a hard-coded one: a v2
+       package failing validation used to be told it did not satisfy v1. */
+    const declared = (raw as { contractVersion?: unknown } | null)?.contractVersion;
+    console.error(`${path} does not satisfy ${typeof declared === 'string' ? declared : 'any known whole-site update contract'}:`);
     for (const issue of parsed.error.issues) console.error(`  ${issue.path.join('.') || '(root)'}: ${issue.message}`);
     process.exit(1);
   }
   const pkg = parsed.data;
-  console.log(`runId=${pkg.runId} composer=${pkg.composer} creates=${pkg.creates.length} updates=${pkg.updates.length}`);
-  console.log(`homepage=${Object.keys(pkg.homepage).length} recommendations=${pkg.siteRecommendations.length}`);
+  console.log(`runId=${pkg.runId} contract=${pkg.contractVersion} composer=${pkg.composer} creates=${pkg.creates.length} updates=${pkg.updates.length}`);
+  console.log(`homepage=${Object.keys(pkg.homepage).length} recommendations=${pkg.siteRecommendations.length}`
+    + (pkg.contractVersion === 'whole-site-update-v2' ? ` research=${pkg.research?.length ?? 0} vetoes=${pkg.vetoes?.length ?? 0}` : ''));
   if (dryRun) return;
 
   const baseUrl = process.env.EDITORIAL_UPDATE_INGEST_BASE_URL?.trim() || 'https://lionsofzion.io';

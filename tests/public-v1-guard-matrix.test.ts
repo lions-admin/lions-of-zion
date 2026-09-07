@@ -222,6 +222,12 @@ describe("internal service prefixes", () => {
   const cases = [
     { path: "/api/internal/cron/embed", identity: "service:cron" },
     { path: "/api/internal/codex/briefing-import", identity: "service:codex" },
+    /* The scheduled ChatGPT editor. The file's own comment records that
+       `/api/internal/briefing/` was missing from this list until 2026-09-05 and
+       silently ran on the ambient owner pool with no RLS and no `app.identity`
+       — the failure this case exists to prevent recurring. */
+    { path: "/api/internal/chatgpt/editorial-context", identity: "service:chatgpt-editorial" },
+    { path: "/api/internal/chatgpt/actions", identity: "service:chatgpt-editorial" },
   ];
 
   it.each(cases)("runs $path as app_service with $identity", async ({ path, identity }) => {
@@ -248,9 +254,11 @@ describe("internal service prefixes", () => {
        `/api/v1/` path, so it does acquire `app_service` — but only as the
        `service:admin-auth-bootstrap` wrapper around authentication, and it
        must never arrive as a cron/queue/codex caller. */
-    const serviceIdentities = ["service:cron", "service:queue", "service:codex"];
+    const serviceIdentities = ["service:cron", "service:queue", "service:codex", "service:chatgpt-editorial"];
     for (const path of [
       "/api/internal/cronies/run",
+      "/api/internal/chatgpts/run",
+      "/api/internal/chatgpt",
       "/api/internal/cron",
       "/api/v1/internal/cron/run",
     ]) {

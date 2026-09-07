@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { sql } from 'drizzle-orm';
 import { freshDatabase, type TestDatabase } from '@/server/db/testing';
 import type { Database } from '@/server/db/client';
-import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
-import { compileWholeSiteUpdate } from '@/server/modules/editorial-update/service';
+import { anyWholeSiteUpdatePackageSchema, wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
+import { compileWholeSiteUpdate, composeEditorialRunReport } from '@/server/modules/editorial-update/service';
 import { editorialRepo } from '@/server/modules/editorial-update/repo';
 import { materializeSources } from '@/server/modules/editorial-update/sources';
 import { publicationService } from '@/server/modules/publications/service';
@@ -141,4 +141,69 @@ describe('a whole-site package from ChatGPT', () => {
     const rows = await db.execute<{ count: string }>(sql`SELECT count(*)::text AS count FROM publication WHERE editorial_run_id = ${run.id}`);
     expect(Number(rows.rows[0]!.count)).toBe(pkg.creates.length);
   }, 120000);
+
+  /* `whole-site-update-v2`: the same delivery, carrying the editor's own
+     account of the run. The field that mattered is `vetoes` — until it existed,
+     a run that declined three stories on judgement and a run whose image fetch
+     404'd both arrived as "nothing published". */
+  it('carries a v2 research ledger and vetoes into the run report, apart from failures', async () => {
+    const raw = JSON.parse(readFileSync(join(process.cwd(), 'tests/fixtures/whole-site-package.json'), 'utf8')) as Record<string, unknown>;
+    const pkg = anyWholeSiteUpdatePackageSchema.parse({
+      ...raw,
+      contractVersion: 'whole-site-update-v2',
+      runId: 'fixture-v2',
+      creates: (raw.creates as Array<{ publication: { canonicalStoryId?: string } }>).map(create => ({
+        ...create, publication: { ...create.publication, canonicalStoryId: `${create.publication.canonicalStoryId}-v2` },
+      })),
+      research: [{
+        topic: 'Southern Lebanon', focus: 'Overnight strikes',
+        conclusion: 'Published as the lead.', outcome: 'published',
+        sourcesReviewed: ['https://www.reuters.com/world/middle-east/example'],
+      }],
+      vetoes: [{
+        key: 'thin-casualty-claim', candidate: 'A viral casualty figure',
+        reason: 'Every repetition traces to one anonymous post.',
+        section: 'narrative_watch', replacement: 'Published the Lebanon report instead.',
+        ownerDecisionRequested: true,
+      }],
+    });
+
+    const store = editorialRepo(db as unknown as Database);
+    const compiled = compileWholeSiteUpdate(pkg);
+    /* The narrow waist: `startEditorialRunSchema.parse` strips what `delivery`
+       does not name, and `editorialInputHash` runs over the parsed input — so a
+       dropped field would also make two different v2 packages hash alike. */
+    expect(compiled.delivery?.contractVersion).toBe('whole-site-update-v2');
+    expect(compiled.delivery?.research).toHaveLength(1);
+    expect(compiled.delivery?.vetoes).toHaveLength(1);
+
+    const run = await store.start(compiled, 'external:ChatGPT');
+    const worker = await store.claim(run.id);
+    await runOperations(run.id, worker!.leaseToken!);
+    await store.finish(run.id, worker!.leaseToken!, {
+      status: 'completed',
+      publications: { created: pkg.creates.length, updated: 0, failed: 0, requested: pkg.creates.length },
+      research: compiled.delivery?.research ?? [],
+      vetoes: compiled.delivery?.vetoes ?? [],
+      errors: [],
+    });
+
+    const { text } = composeEditorialRunReport(await store.get(run.id));
+    expect(text).toContain('RESEARCHED');
+    expect(text).toContain('Southern Lebanon');
+    expect(text).toContain('VETOED — editorial decisions, not faults');
+    expect(text).toContain('A viral casualty figure');
+    expect(text).toContain('Published the Lebanon report instead.');
+    expect(text).toContain('asking for your decision');
+    /* And the two headings are distinct, which is the whole point. */
+    expect(text).toContain('NOT PUBLISHED — technical failures');
+    expect(text.indexOf('VETOED — editorial decisions')).toBeLessThan(text.indexOf('NOT PUBLISHED — technical failures'));
+  }, 120000);
+
+  it('still validates a v1 package unchanged', () => {
+    const raw = JSON.parse(readFileSync(join(process.cwd(), 'tests/fixtures/whole-site-package.json'), 'utf8'));
+    expect(wholeSiteUpdatePackageSchema.safeParse(raw).success).toBe(true);
+    expect(compileWholeSiteUpdate(wholeSiteUpdatePackageSchema.parse(raw)).delivery?.contractVersion)
+      .toBe('whole-site-update-v1');
+  });
 });

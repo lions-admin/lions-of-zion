@@ -50,7 +50,7 @@ flowchart LR
     Ingest --> Evidence[Claims and evidence]
     Evidence --> Review[Human review]
     Review --> Publish[Versioned publication]
-    Package[Editorial package<br/>editorial-updates branch] --> Receiver[Authenticated receiver<br/>durable run]
+    Package[Editorial package<br/>chatgpt-editorial-updates branch] --> Receiver[Authenticated receiver<br/>durable run]
     Receiver --> Publish
     Publish --> Site[Public site]
 
@@ -212,7 +212,7 @@ follow. Database migrations required by an application change must be applied
 before that change reaches `main` (`npm run db:migrate` against Preview, then
 Production, then push); and `vercel rollback` is the fast undo.
 
-The `editorial-updates` and `briefing-packages` branches are excluded from
+The `chatgpt-editorial-updates` and `briefing-packages` branches are excluded from
 deployment by `git.deploymentEnabled` in `vercel.json` and by their own
 `vercel.json`, so publishing editorial content never rebuilds the site.
 

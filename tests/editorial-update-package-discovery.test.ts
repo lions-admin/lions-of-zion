@@ -14,7 +14,7 @@ function git(repository: string, ...args: string[]): string {
 async function repository(): Promise<string> {
   const path = await mkdtemp(join(tmpdir(), 'lions-editorial-packages-'));
   repositories.push(path);
-  git(path, 'init', '--initial-branch=editorial-updates');
+  git(path, 'init', '--initial-branch=chatgpt-editorial-updates');
   git(path, 'config', 'user.email', 'tests@example.com');
   git(path, 'config', 'user.name', 'Editorial package tests');
   await writeFile(join(path, 'README.md'), 'package branch\n');

@@ -21,7 +21,10 @@ import "server-only";
 
 import { createHash, timingSafeEqual } from "node:crypto";
 import { ApiError } from "./responses";
+import { CHATGPT_ACTOR_LABEL } from "@/server/contracts/chatgpt-automation";
+import { registerActor } from "@/server/core/auth/actor";
 import {
+  chatgptAutomationSecret,
   codexBriefingImportSecret,
   cronSecret,
   editorialUpdateIngestSecret,
@@ -64,6 +67,30 @@ export function requireEditorialUpdateIngestSecret(request: Request): void {
   if (!supplied || !timingSafeEqual(suppliedHash, expectedHash)) {
     throw new ApiError("UNAUTHENTICATED", "This route requires the editorial update ingest secret.");
   }
+}
+
+/**
+ * The scheduled ChatGPT editor.
+ *
+ * Its own header and its own secret, for the reason this file exists: the
+ * automation reads site state and operates on it, which is a different power
+ * from delivering a package, and one must be rotatable without the other.
+ *
+ * It registers the actor as well as authenticating, so a route can use the
+ * ordinary `requireActor(request)` re-check and every audit row the automation
+ * writes carries `service:chatgpt-editorial` rather than a human's label. The
+ * label is fixed here and never read from the request: a caller that could
+ * name its own actor could file its actions under someone else.
+ */
+export function requireChatgptAutomationSecret(request: Request): void {
+  const supplied = request.headers.get("x-chatgpt-automation-secret") ?? "";
+  const expected = chatgptAutomationSecret();
+  const suppliedHash = createHash("sha256").update(supplied).digest();
+  const expectedHash = createHash("sha256").update(expected).digest();
+  if (!supplied || !timingSafeEqual(suppliedHash, expectedHash)) {
+    throw new ApiError("UNAUTHENTICATED", "This route requires the ChatGPT automation secret.");
+  }
+  registerActor(request, { label: CHATGPT_ACTOR_LABEL, userId: null });
 }
 
 export function requireCodexBriefingImportSecret(request: Request): void {

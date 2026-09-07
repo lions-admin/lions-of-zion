@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, count as countRows, eq, isNull, ne, or } from "drizzle-orm";
+import { and, count as countRows, desc, eq, isNull, ne, or } from "drizzle-orm";
 import { db, withDatabaseRole } from "@/server/db/client";
 import { appUser } from "@/server/db/schema";
 import { adminEmail } from "@/server/core/config";
@@ -14,6 +14,15 @@ type AuthenticatedUser = {
   id: string;
   email?: string | null;
   name?: string | null;
+};
+
+export type RegisteredPublicUser = {
+  id: string;
+  email: string | null;
+  displayName: string;
+  externalId: string;
+  disabledAt: string | null;
+  createdAt: string;
 };
 
 async function notifyNewRegistration(result: HumanUserUpsertResult, provider: string): Promise<void> {
@@ -77,15 +86,44 @@ export async function syncVerifiedGoogleUser(user: AuthenticatedUser): Promise<v
   await notifyNewRegistration(synced, "Google");
 }
 
+const publicReaderWhere = () => {
+  const ownerEmail = adminEmail();
+  return and(
+    eq(appUser.isAutomated, false),
+    or(isNull(appUser.email), ne(appUser.email, ownerEmail)),
+  );
+};
+
 /** Public readers are human app_user rows other than the configured single admin. */
 export async function registeredUserCount(): Promise<number> {
-  const ownerEmail = adminEmail();
   const [row] = await db()
     .select({ count: countRows() })
     .from(appUser)
-    .where(and(
-      eq(appUser.isAutomated, false),
-      or(isNull(appUser.email), ne(appUser.email, ownerEmail)),
-    ));
+    .where(publicReaderWhere());
   return row?.count ?? 0;
+}
+
+/** Full admin-only reader inventory, newest registration first. */
+export async function registeredPublicUsers(): Promise<RegisteredPublicUser[]> {
+  const rows = await db()
+    .select({
+      id: appUser.id,
+      email: appUser.email,
+      displayName: appUser.displayName,
+      externalId: appUser.externalId,
+      disabledAt: appUser.disabledAt,
+      createdAt: appUser.createdAt,
+    })
+    .from(appUser)
+    .where(publicReaderWhere())
+    .orderBy(desc(appUser.createdAt));
+
+  return rows.map((user) => ({
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+    externalId: user.externalId,
+    disabledAt: user.disabledAt ? user.disabledAt.toISOString() : null,
+    createdAt: user.createdAt.toISOString(),
+  }));
 }

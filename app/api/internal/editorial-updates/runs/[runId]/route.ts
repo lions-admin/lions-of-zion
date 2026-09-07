@@ -32,6 +32,13 @@ export const GET = handler(async (request, _ctx, route: { params: Promise<{ runI
     startedAt: run.startedAt?.toISOString() ?? null,
     finishedAt: run.finishedAt?.toISOString() ?? null,
     report: run.report ?? null,
+    /* The run-level failure record — the one thing a run that fails outside
+     * per-operation processing has to say for itself. It was absent until
+     * 2026-09-07, which is why run
+     * `chatgpt-test-2026-09-07-0332-k4m9` could only be reported as
+     * "finished failed": `created=0 updated=0 failed=0` with the actual
+     * exception sitting in a column nothing returned. */
+    failure: run.failure ?? null,
     operations: run.operations.map(operation => ({
       key: operation.operationKey,
       status: operation.status,

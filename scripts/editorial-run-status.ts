@@ -17,7 +17,17 @@ export type PolledRun = {
   status: string;
   stage?: string;
   phase?: string;
+  createdAt?: string;
+  startedAt?: string | null;
+  finishedAt?: string | null;
   delivery?: EditorialRunDelivery | null;
+  /** The run-level failure: the whole diagnosis when no operation failed. */
+  failure?: { stage?: string; operationKey?: string | null; message?: string; recovery?: string } | null;
+  operations?: Array<{
+    key?: string; status?: string; stage?: string;
+    failure?: { stage?: string; message?: string; recovery?: string } | null;
+    result?: { publicId?: string; url?: string; sources?: number } | null;
+  }>;
   report?: {
     publications?: { created?: number; updated?: number; failed?: number };
     urls?: string[];
@@ -76,6 +86,10 @@ export function formatTerminalReport(run: PolledRun): { out: string[]; err: stri
     .map(error => `error=${error.operationKey ?? 'run'} stage=${error.stage} message=${error.message}`);
 
   if (runFailed(run)) {
+    /* Everything the run knows, before the summary line — a terminal failure
+     * used to print only "Durable run … finished failed", which for a
+     * run-level failure meant the exception never left the database. */
+    err.push(...formatFailureDiagnostics(run));
     err.push(`[publication execution failure] Durable run ${run.runId} finished ${run.status}.`);
   }
   return { out, err };
@@ -85,4 +99,47 @@ export function formatTerminalReport(run: PolledRun): { out: string[]; err: stri
  *  is the diagnosis, and it goes into the error rather than being lost. */
 export function formatTimeout(lastLine: string | null, minutes: number): string {
   return `Timed out after ${minutes} minutes waiting for the editorial run to finish. Last observed: ${lastLine ?? 'no status read succeeded'}`;
+}
+
+/**
+ * The diagnosis, printed when a run ends badly.
+ *
+ * Deliberately verbose and deliberately field-by-field: the failure that
+ * prompted it (`chatgpt-test-2026-09-07-0332-k4m9`) ended
+ * `created=0 updated=0 failed=0` with no operation marked failed, so every
+ * line here — the run-level failure record, each operation's own state, the
+ * outbox row — is a place the cause could be hiding. Nothing here reads an
+ * environment value or a header, so there is no secret to leak.
+ */
+export function formatFailureDiagnostics(run: PolledRun): string[] {
+  const lines: string[] = [`--- diagnostics for ${run.runId} ---`];
+  const counts = run.report?.publications ?? {};
+  lines.push(`status=${run.status} stage=${run.stage ?? 'unknown'} phase=${phaseOf(run)}`);
+  lines.push(`created=${counts.created ?? 0} updated=${counts.updated ?? 0} failed=${counts.failed ?? 0} requested=${run.operations?.length ?? 'unknown'}`);
+  lines.push(`createdAt=${run.createdAt ?? 'unrecorded'} startedAt=${run.startedAt ?? 'unrecorded'} finishedAt=${run.finishedAt ?? 'unrecorded'}`);
+
+  if (run.failure) {
+    lines.push(`failure.stage=${run.failure.stage ?? 'unrecorded'}`);
+    lines.push(`failure.operationKey=${run.failure.operationKey ?? 'none (run-level)'}`);
+    lines.push(`failure.message=${run.failure.message ?? 'unrecorded'}`);
+    lines.push(`failure.recovery=${run.failure.recovery ?? 'unrecorded'}`);
+  } else {
+    lines.push('failure=none recorded on the run');
+  }
+
+  for (const operation of run.operations ?? []) {
+    const detail = operation.failure
+      ? `stage=${operation.failure.stage ?? '?'} message=${operation.failure.message ?? '?'} recovery=${operation.failure.recovery ?? '?'}`
+      : operation.result
+        ? `publicId=${operation.result.publicId ?? '?'} sources=${operation.result.sources ?? 0}`
+        : 'no result and no failure recorded';
+    lines.push(`operation ${operation.key ?? '?'} status=${operation.status ?? '?'} stage=${operation.stage ?? '?'} ${detail}`);
+  }
+
+  const delivery = run.delivery;
+  if (delivery) {
+    lines.push(`outbox id=${delivery.outboxId} publishedAt=${delivery.publishedAt ?? 'not dispatched'} attempts=${delivery.attempts}${delivery.lastError ? ` lastError=${delivery.lastError.slice(0, 300)}` : ''}`);
+  }
+  lines.push('--- end diagnostics ---');
+  return lines;
 }

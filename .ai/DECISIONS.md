@@ -10,6 +10,62 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — Editorial media gets its own public Blob store; the capture store stays private
+
+Production run `chatgpt-daily-2026-09-07-1758-k7m4` succeeded at everything
+except the one thing a reader can see. `whole-site-update-v2` validated, the
+durable run recorded, two canonical publications updated, the homepage revision
+advanced, the Lebanon story took News Lead — and then the hero image failed
+with:
+
+    Vercel Blob: Cannot use public access on a private store.
+
+**A Blob store's access mode is a property of the store, fixed when it is
+created.** It is not a per-object flag and it cannot be switched afterwards;
+`vercel blob create-store` takes `--access public|private` and the store API
+reports `access` as a store field. `server/core/blob.ts` already knew the two
+jobs were different — `storeRawBytes` asks for `access: "private"`,
+`storeEditorialImage` for `access: "public"` — but both read
+`briefingBlobOptions()`, which resolves to `BRIEFING_BLOB_RESOURCE_ID`, and
+that store (`lions-of-zion-briefing-production`) is private. Every editorial
+image in Production had been asking a private store for public access.
+
+**The wrong fix is making the briefing store public.** `briefing/raw/` holds
+source captures: a record of what a publisher served us, kept as operational
+evidence and deliberately never redistributed — public article projections
+carry the publisher's own URL and a permitted excerpt, never that object URL.
+Opening that store to publish one picture would republish the archive.
+
+So: a third binding. `EDITORIAL_MEDIA_BLOB_RESOURCE_ID` →
+`lions-of-zion-editorial-media-production` (`store_SbXQiWT47C7tICLT`, created
+public), read by a new `editorialMediaBlobOptions()` with the same shape as its
+sibling — the linked resource id in a deployed Vercel environment, where
+Functions authenticate with a short-lived OIDC token and no long-lived secret
+is needed, and an explicit token only as the local fallback. That fallback is
+`BLOB_READ_WRITE_TOKEN`, whose store is public, and explicitly **not**
+`BRIEFING_BLOB_READ_WRITE_TOKEN`, which would reproduce the failure locally.
+
+`assertBriefingResourceIsolation()` now refuses a deployment where editorial
+media equals the briefing store or the October 7 archive, so the pairing that
+caused this is caught before a mutation begins rather than after the homepage
+has already moved. The status view gained a fourth fingerprint; as with the
+others it is a truncated sha256, never the id.
+
+**One thing did not go as intended and is recorded rather than hidden.** The
+store-connection API attaches a Blob store to Production *and* Preview
+regardless of the `environments` field sent; re-posting scoped to production
+alone returns "already connected", and deleting and recreating the connection
+reproduces the same pair. Preview therefore shares the Production
+editorial-media store. That is tolerable for three reasons — Preview cannot
+publish at all (`mayActOnTheWorld()` is production-only), object pathnames are
+the sha256 of their bytes so a cross-environment write is either the identical
+object or a different path, and the October 7 archive store is already shared
+across all three environments by an earlier deliberate decision. It is not
+tolerable as a silent assumption, which is why it is here. Split the stores if
+Preview ever gains a path that writes media.
+
+---
+
 ## 2026-09-07 — The admin console gets a density overlay, not a private token scale
 
 `app/admin/workspace.module.css` opened by redeclaring twenty-eight tokens on

@@ -42,14 +42,44 @@ QUEUE_RESOURCE_ENV
 SEARCH_RESOURCE_ENV
 ```
 
-Each must equal the runtime environment. `BRIEFING_BLOB_RESOURCE_ID` must not
-match `OCTOBER7_BLOB_RESOURCE_ID`. Preview is forced to dry-run for briefing
-collection and processing and cannot publish; the October 7 archive is outside
-this pipeline and retention process.
+Each must equal the runtime environment.
+
+**Three Blob bindings, and no two of them may be the same store.**
+`assertBriefingResourceIsolation()` enforces all three pairings before any
+briefing mutation starts:
+
+| Binding | Store access | Holds |
+| --- | --- | --- |
+| `BRIEFING_BLOB_RESOURCE_ID` | **private** | `briefing/raw/` source captures — operational evidence, never redistributed |
+| `EDITORIAL_MEDIA_BLOB_RESOURCE_ID` | **public** | `publications/media/` reader-facing editorial images |
+| `OCTOBER7_BLOB_RESOURCE_ID` | public | the October 7 archive, outside this pipeline |
+
+A Blob store's access mode is a property of the **store**, fixed when it is
+created — it is not a per-object flag, and it cannot be switched afterwards.
+That is why editorial media needs its own store rather than a different call
+option. `storeEditorialImage()` requires `access: "public"` because
+`next/image` fetches a hero from the reader's browser; pointing it at the
+private capture store fails with `Vercel Blob: Cannot use public access on a
+private store`. It did, in Production, on 2026-09-07 — see
+[`.ai/DECISIONS.md`](../.ai/DECISIONS.md). Do not repair a recurrence by making
+the briefing store public: private is what makes a capture an evidence record
+rather than a republication.
+
+Preview shares the Production editorial-media store, which is a platform
+constraint rather than a choice: the store-connection API attaches a Blob store
+to Production *and* Preview whatever `environments` is sent. It is safe here
+because Preview cannot publish and object pathnames are the sha256 of their
+bytes. Split the stores if Preview ever gains a path that writes media.
+
+Preview is otherwise forced to dry-run for briefing collection and processing
+and cannot publish; the October 7 archive is outside this pipeline and
+retention process.
 
 The administrator status view also shows one-way fingerprints for the database,
-briefing Blob store, October 7 archive store, Google search engine binding, and
-the queue resource when `BRIEFING_QUEUE_RESOURCE_ID` is supplied.
+briefing Blob store, editorial-media Blob store, October 7 archive store,
+Google search engine binding, and the queue resource when
+`BRIEFING_QUEUE_RESOURCE_ID` is supplied. A fingerprint is a truncated sha256
+of the binding; the resource id and the token are never exposed.
 These fingerprints are comparison aids only; they do not replace provider-side
 verification of queue and search resource ownership.
 

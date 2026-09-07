@@ -99,12 +99,47 @@ Leave unset to skip those tests — `hasVectorDatabase()` gates them.
 
 ### `BLOB_READ_WRITE_TOKEN`
 Vercel Blob. Production and Preview use separate stores for raw fetched RSS
-bytes.
+bytes. Off-Vercel it is also the fallback token for editorial media, because
+the store it points at is public — see `EDITORIAL_MEDIA_BLOB_RESOURCE_ID`.
 
 Blob URLs are unguessable but public — evidence classified `restricted` or
 `secret` is refused a `blob_url` by a database `CHECK`, not by convention.
 
 Wanted by: `server/core/blob.ts`, reached through ingestion.
+
+### `BRIEFING_BLOB_RESOURCE_ID`
+**Private** store, bound as a Vercel resource. Holds `briefing/raw/` source
+captures: operational evidence of what a publisher served us, never
+redistributed. A reader is sent to the publisher's own URL instead.
+
+In a deployed Vercel environment this id is all that is needed — Functions
+authenticate with a short-lived OIDC token, so there is no long-lived secret.
+`BRIEFING_BLOB_READ_WRITE_TOKEN` is the local/maintenance fallback.
+
+Wanted by: `briefingBlobOptions()` in `server/core/config.ts`, reached from
+`storeRawBytes()`.
+
+### `EDITORIAL_MEDIA_BLOB_RESOURCE_ID`
+**Public** store, bound as a Vercel resource. Holds `publications/media/` —
+reader-facing editorial images. Separate from the briefing store on purpose,
+and the separation is structural rather than stylistic: **a Blob store's access
+mode is fixed at the store when it is created**, so a public upload cannot be
+made against a private store by passing a different option.
+
+`storeEditorialImage()` needs `access: "public"` because `next/image` fetches
+the hero from the reader's own browser and a private object does not render.
+Until 2026-09-07 it read the *briefing* binding, and every Production editorial
+image failed with `Vercel Blob: Cannot use public access on a private store` —
+after the run had already updated its publications and advanced the homepage.
+
+`assertBriefingResourceIsolation()` refuses a deployment where this equals
+`BRIEFING_BLOB_RESOURCE_ID` or `OCTOBER7_BLOB_RESOURCE_ID`.
+`EDITORIAL_MEDIA_BLOB_READ_WRITE_TOKEN` is an optional dedicated
+local/maintenance token; without it the fallback is `BLOB_READ_WRITE_TOKEN`,
+never the private briefing token.
+
+Wanted by: `editorialMediaBlobOptions()` in `server/core/config.ts`, reached
+from `storeEditorialImage()`.
 
 ### `NEXT_PUBLIC_ARCHIVE_CDN`
 Base URL for the October 7 archive's media. **Provisioned** — Vercel Blob

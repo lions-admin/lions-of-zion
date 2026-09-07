@@ -4,6 +4,7 @@ import {
   X_OAUTH_STATE_COOKIE,
   X_PUBLIC_SESSION_COOKIE,
   completePublicXAuthorization,
+  createPublicSession,
   createPublicWriteSession,
   pendingAuthorizationCookieOptions,
   publicSessionCookieOptions,
@@ -32,7 +33,9 @@ export async function GET(request: NextRequest): Promise<Response> {
     const response = redirectTo(authorization.returnTo);
     response.cookies.set({
       name: X_PUBLIC_SESSION_COOKIE,
-      value: createPublicWriteSession(authorization),
+      value: authorization.mode === "posting"
+        ? createPublicWriteSession(authorization)
+        : createPublicSession(authorization.profile),
       ...publicSessionCookieOptions,
     });
     clearPendingCookie(response);
@@ -59,8 +62,7 @@ function redirectToAccount(marker?: Marker): NextResponse {
 }
 
 function redirectTo(returnTo: string): NextResponse {
-  const destination = new URL(returnTo, callbackUrl);
-  return redirect(destination);
+  return redirect(new URL(returnTo, callbackUrl));
 }
 
 function redirect(destination: URL): NextResponse {

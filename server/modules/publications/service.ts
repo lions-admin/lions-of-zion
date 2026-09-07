@@ -103,6 +103,13 @@ export function publicationService(db: unknown) {
         const now = new Date();
         if (operation.action === 'create') {
           const input = operation.publication;
+          if (input.canonicalStoryId) {
+            await r.lockCanonicalStory(input.canonicalStoryId);
+            const existing = await r.byCanonicalStoryId(input.canonicalStoryId);
+            if (existing) {
+              throw new ApiError('CONFLICT', `Canonical story already exists as ${existing.publicId}. Send an explicit update to that publication; no new publication was created.`);
+            }
+          }
           row = await r.insert({
             kind: input.kind, section: input.section ?? 'news',
             publicId: await uniquePublicId(r, input.title), title: input.title,

@@ -270,6 +270,13 @@ describe('durable whole-site editorial runs', () => {
       const publication = await publicationService(tx).applyEditorial(input.operations[0]!, { runId: run.id, machineAuthor: 'machine:editorial' }, null, { label: 'service:editorial' });
       return { publicationId: publication.id, publicId: publication.publicId };
     });
+    await expect(publicationService(db).applyEditorial({
+      key: 'duplicate-canonical-create', action: 'create', publication: {
+        kind: 'news_update', section: 'news', canonicalStoryId: 'northern-front-developing-story',
+        title: 'A duplicate must not become a second live story', body: 'This must not be stored.', language: 'en',
+      },
+    }, { runId: run.id, machineAuthor: 'machine:editorial' }, null, { label: 'service:editorial' }))
+      .rejects.toThrow(`Canonical story already exists as ${created.publicId}`);
     await publicationService(db).applyEditorial({
       key: 'canonical-update', action: 'update', target: { canonicalStoryId: 'northern-front-developing-story' },
       publication: { body: 'A canonical update without creating a duplicate.', changeSummary: 'Canonical update' },

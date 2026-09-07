@@ -25,7 +25,8 @@ if [[ "$target" == "production" ]]; then
 fi
 
 echo "Running migration integrity checks for $target..."
-pnpm exec vitest run tests/migrations.test.ts
+npx --no-install vitest run tests/migrations.test.ts
 echo "Applying journaled migrations to the explicitly labelled $target database..."
-pnpm db:migrate
+npm run db:migrate
+npm run schema:check -- "$target"
 echo "Migration preflight completed for $target."

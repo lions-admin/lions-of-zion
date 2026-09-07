@@ -1,15 +1,13 @@
 # Legacy `external-briefing-v1` package delivery
 
-> **This is not the live editorial route.** Current editorial work — articles,
-> updates to developing stories, and homepage placement across all three
-> dynamic hubs — is delivered as a `whole-site-update-v1` package on the
-> `chatgpt-editorial-updates` branch. See
-> [`whole-site-updates.md`](whole-site-updates.md).
+> **Superseded: historical delivery documentation.** New editorial work uses
+> the ChatGPT whole-site update path on `chatgpt-editorial-updates`; see
+> [whole-site-updates.md](whole-site-updates.md). The old external-publish route
+> now refuses authenticated delivery with 412 PRECONDITION_FAILED. The composer
+> CLI supports only `--fixture`. Existing publications and package contracts
+> are preserved for historical reading and compatibility tests.
 >
-> What follows describes the retained `external-briefing-v1` compatibility
-> path: the receiver route, the contract and the `briefing-packages` branch all
-> still exist and still work, and historical packages are still readable
-> through them. Nothing new should be composed against it.
+> The flow below describes the former system, not active operating instructions.
 
 The package is authored **outside this repository** (ChatGPT) and published by
 a GitHub Action that does no editorial work of its own.

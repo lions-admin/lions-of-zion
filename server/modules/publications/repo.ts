@@ -44,6 +44,11 @@ export function repo(db: unknown) {
   };
 
   return {
+    async lockCanonicalStory(canonicalStoryId: string): Promise<void> {
+      // Lock even when no row exists. Two concurrent creates must not both
+      // observe an empty lookup; the lock lasts through the publication commit.
+      await d.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${canonicalStoryId}, 0))`);
+    },
     async lock(id: string): Promise<void> {
       await d.execute(sql`SELECT id FROM publication WHERE id = ${id} FOR UPDATE`);
     },

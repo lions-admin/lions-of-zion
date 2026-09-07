@@ -64,12 +64,24 @@ when it is useful to the owner; it is not a publication gate.
 
 ---
 
+## Retired composer
+
+`npm run briefing:compose` refuses live collection, model drafting and submission.
+`npm run briefing:compose -- --fixture` only validates and prints a historical
+package. This does not disable evidence collection under the ingest cron.
+New editorial work uses the ChatGPT whole-site delivery path. The legacy
+external-publish API and `/api/internal/codex/briefing-import` are authenticated tombstones: valid credentials receive
+412 PRECONDITION_FAILED and no package is parsed or published. Historical
+publication URLs remain unchanged.
+
 ## Database commands
 
 ```bash
 npm run db:generate   # schema → a new numbered migration. Needs no database.
 npm run db:migrate    # apply migrations. Needs a real DATABASE_URL.
 npm run db:studio     # drizzle-kit studio. Needs a real DATABASE_URL.
+npm run schema:check -- preview    # read-only compatibility check of the labelled database
+npm run schema:check -- production # required before production promotion or rollback
 ```
 
 `db:generate` deliberately needs nothing provisioned — which is what kept the
@@ -121,8 +133,28 @@ What follows from it: **a migration must be applied before the code that needs
 it is pushed.** Migration `0051` added an `entity_type` value the operations
 console writes on every tool call, and the code reached Production ahead of the
 schema — the first tool call would have failed its audit write. The order is
-`npm run db:migrate` against Preview, then Production, then push. `vercel
-rollback` is the fast undo if a push lands ahead of its schema.
+apply against Preview, verify, then back up and migrate Production, verify,
+then push the application branch for review. Use
+`npm run briefing:migrate:preflight -- preview` and then
+`npm run briefing:migrate:preflight -- production`, with the corresponding
+`DATABASE_URL` and `DATABASE_RESOURCE_ENV`. Production also requires
+`BRIEFING_MIGRATION_SNAPSHOT` pointing to the pre-migration backup manifest.
+Never use the local Preview connection as a substitute for Production.
+
+`npm run build` runs the read-only schema preflight before Next.js when
+`VERCEL_ENV=production`. It requires an explicitly matching database label,
+every checked-in migration's hash and timestamp in the Drizzle ledger, and
+every application table column in the target database. Missing credentials,
+unreachable DB, missing migration or missing column stop the build. This does
+not apply migrations or change production content. Ordinary local and CI
+builds remain database-free.
+
+Promotion of an already-built Preview and rollback do not run a fresh build:
+run `schema:check -- production` from the exact candidate commit before either.
+The build check alone cannot protect a dashboard promotion that bypasses it.
+Use additive migrations while old and new deployments can coexist; rollback
+restores application code, not data or schema. A migration ledger and column
+check do not prove that manually altered triggers or policies are intact.
 
 `vercel.json` declares one Queue trigger for the transactional outbox plus four
 technical production schedules. Editorial package execution is emitted through

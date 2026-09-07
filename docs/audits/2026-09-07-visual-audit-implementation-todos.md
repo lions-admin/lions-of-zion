@@ -1905,9 +1905,40 @@ here; two of the five did not survive that check unchanged.
 - **Reported by VA-04** at `/articles/israel-launches-fresh-attacks-across-southern-le-86i2j`,
   at both widths.
 - **Classification.** FIX · **Severity.** B · **Work type.** Frontend
-- **Instruction.** Reproduce on current Production, find the server/client
-  divergence, and fix the cause. Do not silence the console.
-- **Status.** `READY — reproduce first`
+- **Root cause, found 2026-09-07.** `components/evidence/InvestigationExplorer.tsx`
+  formatted a source's date with
+  `new Intl.DateTimeFormat('en', { dateStyle: 'medium' })` and **no
+  `timeZone`**, so it resolved to the host's zone. The component is
+  `'use client'`, so it renders twice: UTC on Vercel, Asia/Jerusalem in the
+  reader's browser. A source stamped `2026-08-31 21:05:32+00` is "Aug 31" on
+  the server and "Sep 1" in the browser.
+- **It was not only a console error.** The same source was dated **two
+  different ways on one page**: the explorer said "Sep 1, 2026" while the
+  *Public sources* section a few centimetres below said "Aug 31, 2026". That
+  section uses `formatSourceDate` (`page.tsx:559`), which correctly pins
+  `timeZone: "UTC"`. This one formatter was the only one on the route that did
+  not. On an evidence desk, one source dated two ways is worse than a warning.
+- **Fix.** A module-level formatter pinned to `timeZone: 'UTC'`, chosen so it
+  agrees with `formatSourceDate` on the same field. No
+  `suppressHydrationWarning`, no client/server conversion. 19 insertions, one
+  deletion, one file.
+- **Diagnosis validated by prediction, not just by the fix passing.** The
+  mechanism predicts a failure only when a source's timestamp falls in the
+  21:00–24:00 UTC window. Three of the twelve explorer-bearing records on
+  Production were predicted affected; all three reproduced, two with an
+  identical diff signature, and a predicted-clean control record showed zero
+  console errors. The control is what rules out "the explorer is just broken".
+- **Tests.** `tests/article-hydration.test.ts`, 7 cases: byte-identical markup
+  under UTC, Asia/Jerusalem and Pacific/Honolulu; the explorer agrees with the
+  source stack; deterministic for undated and sourceless records; plus two
+  nesting assertions covering the other classic #418 cause. **Verified red
+  without the fix** under `TZ=Asia/Jerusalem`, failing on exactly the reported
+  signature.
+- **Status.** `DONE — code merged pending; browser confirmation outstanding.`
+  The local Preview database is fully down (`/api/v1/published-publications`
+  returns `INTERNAL_ERROR`), so no article renders locally and the post-fix
+  console could not be read in a browser. Confirm on Preview or Production
+  after deploy.
 
 ### VA-44 — 404 copy still says "Daily Brief"
 

@@ -66,7 +66,7 @@ describe("the publisher's polling output", () => {
     for (const status of ["completed", "partial", "failed"]) expect(isTerminal({ runId: "r", status })).toBe(true);
   });
 
-  it("reports counts and URLs on success and exits non-zero on any failed operation or homepage error", () => {
+  it("reports counts and URLs, fails on publication execution errors, and keeps homepage refusals as warnings", () => {
     const success = { runId: "r", status: "completed", report: { publications: { created: 3, updated: 1, failed: 0 }, urls: ["/articles/a"], errors: [] } };
     expect(runFailed(success)).toBe(false);
     expect(formatTerminalReport(success)).toEqual({ out: ["runId=r status=completed created=3 updated=1 failed=0", "url=/articles/a"], err: [] });
@@ -77,8 +77,11 @@ describe("the publisher's polling output", () => {
     expect(report.err).toEqual(["error=b stage=media message=bad image", "[publication execution failure] Durable run r finished partial."]);
 
     const homepage = { runId: "r", status: "partial", report: { publications: { created: 1, updated: 0, failed: 0 }, errors: [{ operationKey: null, stage: "homepage", message: "slot refused" }] } };
-    expect(runFailed(homepage)).toBe(true);
-    expect(formatTerminalReport(homepage).err.at(-1)).toContain("homepage failure");
+    expect(runFailed(homepage)).toBe(false);
+    expect(formatTerminalReport(homepage)).toEqual({
+      out: ["runId=r status=partial created=1 updated=0 failed=0", "warning=homepage stage=homepage message=slot refused"],
+      err: [],
+    });
 
     expect(runFailed({ runId: "r", status: "failed", report: null })).toBe(true);
   });

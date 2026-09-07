@@ -12,6 +12,8 @@
  *
  *  - `targets` carries pre-composed intent links (X, Facebook), server-side,
  *    so they work with scripting off. The archive already composes those.
+ *  - `actions` carries authenticated native controls that cannot be expressed
+ *    as an external intent link, such as posting original archive media to X.
  *  - The system sheet appears only where `navigator.share` exists, probed
  *    through `useSyncExternalStore` so the prerendered HTML never promises it.
  *  - Copying is always offered, because it is the one path that works
@@ -54,6 +56,8 @@ export type ShareControlsProps = {
   /** What the sheet sends and the clipboard receives — the whole post. */
   text: string;
   targets?: readonly ShareTarget[];
+  /** Real interactive share actions, such as authenticated native media posting. */
+  actions?: ReactNode;
   /** Emphasis of the copy control. Secondary unless this is the one act of a
    *  surface's state, in which case the caller spends its single gold here. */
   copyVariant?: ButtonVariant;
@@ -70,6 +74,7 @@ export function ShareControls({
   title,
   text,
   targets = [],
+  actions,
   copyVariant = 'secondary',
   copyLabel = 'Copy the link',
   lead,
@@ -146,6 +151,8 @@ export function ShareControls({
             Share…
           </Button>
         ) : null}
+
+        {actions}
 
         {targets.map((target) => (
           <ButtonLink

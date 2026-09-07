@@ -1,6 +1,13 @@
 import "server-only";
 
-import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 import {
   xAuthSessionSecret,
   xAuthSessionSecretIfConfigured,
@@ -17,14 +24,57 @@ const ME_URL = "https://api.x.com/2/users/me?user.fields=profile_image_url";
 const CALLBACK_URL = "https://lionsofzion.io/auth/x/callback";
 const STATE_TTL = 5 * 60;
 const SESSION_TTL = 12 * 60 * 60;
+const ACCESS_TOKEN_FALLBACK_TTL = 2 * 60 * 60;
+const REFRESH_SKEW = 60;
+const SESSION_AAD = Buffer.from("lions-of-zion:x-public-session:v2", "utf8");
+const IDENTITY_SCOPES = ["tweet.read", "users.read"] as const;
+const POSTING_SCOPES = ["tweet.read", "users.read", "tweet.write", "media.write", "offline.access"] as const;
 
 export const X_OAUTH_STATE_COOKIE = "__Host-x-oauth-state";
 export const X_PUBLIC_SESSION_COOKIE = "__Host-x-public-session";
 
-type Pending = { version: 1; state: string; verifier: string; expiresAt: number };
+export type PublicXAuthorizationMode = "identity" | "posting";
+type Pending = {
+  version: 2;
+  state: string;
+  verifier: string;
+  returnTo: string;
+  mode: PublicXAuthorizationMode;
+  expiresAt: number;
+};
+type LegacyPending = { version: 1; state: string; verifier: string; expiresAt: number };
 export type PublicXProfile = { id: string; username: string; name?: string; image?: string };
-type Session = { version: 1; profile: PublicXProfile; expiresAt: number };
-type Failure = "invalid_callback" | "token_exchange" | "token_payload" | "profile_request" | "profile_payload";
+type LegacySession = { version: 1; profile: PublicXProfile; expiresAt: number };
+type CredentialSession = {
+  version: 2;
+  profile: PublicXProfile;
+  accessToken: string;
+  refreshToken?: string;
+  accessExpiresAt: number;
+  scopes: string[];
+  expiresAt: number;
+};
+export type PublicXAuthorization = {
+  mode: PublicXAuthorizationMode;
+  profile: PublicXProfile;
+  accessToken: string;
+  refreshToken?: string;
+  accessExpiresAt: number;
+  scopes: string[];
+  returnTo: string;
+};
+export type PublicXWriteAccess = {
+  profile: PublicXProfile;
+  accessToken: string;
+  sessionCookie?: string;
+};
+type Failure =
+  | "invalid_callback"
+  | "token_exchange"
+  | "token_payload"
+  | "profile_request"
+  | "profile_payload"
+  | "refresh_failed";
 
 export class PublicXAuthError extends Error {
   constructor(readonly reason: Failure, readonly status?: number) {
@@ -41,36 +91,8 @@ const hostCookie = {
 };
 export const pendingAuthorizationCookieOptions = { ...hostCookie, maxAge: STATE_TTL };
 export const publicSessionCookieOptions = { ...hostCookie, maxAge: SESSION_TTL };
-
-/** The origin X will hand the reader back to, and the only one that can finish. */
 const CALLBACK_ORIGIN = new URL(CALLBACK_URL).origin;
 
-/**
- * Whether an X sign-in can actually complete on the origin being asked.
- *
- * `production-only` is not a policy choice made in this function; it is the
- * shape of the flow. `CALLBACK_URL` is registered with X as
- * `https://lionsofzion.io/auth/x/callback` and both cookies are `__Host-`
- * prefixed with `secure: true`, which no browser writes over plain http. A
- * local attempt would send the reader to production, arrive with no state
- * cookie, and fail at `invalid_callback`. Saying so up front is the difference
- * between an explanation and a dead end.
- *
- * **This asked `isProduction()` until it was caught not working.** Both local
- * `.env.local` files on the maintainer's machine declare
- * `VERCEL_ENV="production"`, so `isProduction()` was true on localhost, the
- * gate never fired, and `GET http://localhost:3100/auth/x` really did answer
- * `302` to x.com with a `__Host-` cookie the browser then refused — the exact
- * dead end the gate exists to prevent. An environment variable is a *claim*
- * about where the code is running; it can be written by anyone with a text
- * editor.
- *
- * So the question asked here is the one that actually decides the outcome: is
- * the browser on the origin X was told to return to, and where a `__Host-`
- * cookie can be written? No headers, or an origin that does not match, means
- * `production-only` — this fails to the strict side, because starting a flow
- * that cannot finish is worse than declining one that could.
- */
 export function publicXAvailability(headers?: Headers): ProviderAvailability {
   const configured =
     xOAuthClientIdIfConfigured() && xOAuthClientSecretIfConfigured() && xAuthSessionSecretIfConfigured();
@@ -78,16 +100,6 @@ export function publicXAvailability(headers?: Headers): ProviderAvailability {
   return requestOrigin(headers) === CALLBACK_ORIGIN ? "ready" : "production-only";
 }
 
-/**
- * The public origin of the request, as the browser sees it.
- *
- * On Vercel the function is reached through a proxy, so `host` alone is not
- * the whole answer — `x-forwarded-host` and `x-forwarded-proto` carry what the
- * reader actually typed. Both are proxy-controlled headers, which is safe for
- * this use: the worst a forged one can do is *unlock* an X sign-in that then
- * fails at the callback for the same reason it would have anyway. It cannot
- * mint a session, because the state cookie and PKCE verifier are still checked.
- */
 function requestOrigin(headers?: Headers): string | null {
   const host = headers?.get("x-forwarded-host") ?? headers?.get("host");
   if (!host) return null;
@@ -99,30 +111,44 @@ function requestOrigin(headers?: Headers): string | null {
   }
 }
 
-export function beginPublicXAuthorization(): { authorizationUrl: string; stateCookie: string } {
+/**
+ * Ordinary account sign-in remains read-only. Posting permissions are requested
+ * only when a reader explicitly starts the native-media posting flow.
+ */
+export function beginPublicXAuthorization(
+  returnTo = "/account",
+  mode: PublicXAuthorizationMode = "identity",
+): { authorizationUrl: string; stateCookie: string } {
   const state = randomValue();
   const verifier = randomValue();
+  const scopes = mode === "posting" ? POSTING_SCOPES : IDENTITY_SCOPES;
   const authorization = new URL(AUTHORIZE_URL);
   authorization.search = new URLSearchParams({
     response_type: "code",
     client_id: xOAuthClientId(),
     redirect_uri: CALLBACK_URL,
-    scope: "tweet.read users.read",
+    scope: scopes.join(" "),
     state,
     code_challenge: createHash("sha256").update(verifier).digest("base64url"),
     code_challenge_method: "S256",
   }).toString();
   return {
     authorizationUrl: authorization.toString(),
-    stateCookie: sign({ version: 1, state, verifier, expiresAt: now() + STATE_TTL }),
+    stateCookie: sign({
+      version: 2,
+      state,
+      verifier,
+      returnTo: normaliseReturnTo(returnTo),
+      mode,
+      expiresAt: now() + STATE_TTL,
+    }),
   };
 }
 
-/** The X access token is used only for `/2/users/me`; it is never persisted. */
 export async function completePublicXAuthorization(
   params: URLSearchParams,
   value: string | undefined,
-): Promise<PublicXProfile> {
+): Promise<PublicXAuthorization> {
   const code = params.get("code");
   const state = params.get("state");
   const pending = value ? readPending(value) : null;
@@ -130,14 +156,11 @@ export async function completePublicXAuthorization(
     throw new PublicXAuthError("invalid_callback");
   }
 
+  const requestedScopes = pending.mode === "posting" ? [...POSTING_SCOPES] : [...IDENTITY_SCOPES];
   const tokenResponse = await fetch(TOKEN_URL, {
     method: "POST",
     cache: "no-store",
-    headers: {
-      Authorization: `Basic ${basicCredentials()}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
+    headers: tokenHeaders(),
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
@@ -145,38 +168,102 @@ export async function completePublicXAuthorization(
       code_verifier: pending.verifier,
     }),
   });
-  if (!tokenResponse.ok) throw new PublicXAuthError("token_exchange");
-  const token = tokenFrom(await tokenResponse.json().catch(() => null));
+  if (!tokenResponse.ok) throw new PublicXAuthError("token_exchange", tokenResponse.status);
+  const token = tokenPayload(await tokenResponse.json().catch(() => null), requestedScopes);
   if (!token) throw new PublicXAuthError("token_payload");
 
   const profileResponse = await fetch(ME_URL, {
     cache: "no-store",
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    headers: { Authorization: `Bearer ${token.accessToken}`, Accept: "application/json" },
   });
   if (!profileResponse.ok) throw new PublicXAuthError("profile_request", profileResponse.status);
   const profile = profileFrom(await profileResponse.json().catch(() => null));
   if (!profile) throw new PublicXAuthError("profile_payload");
-  return profile;
+
+  return {
+    mode: pending.mode,
+    profile,
+    accessToken: token.accessToken,
+    refreshToken: token.refreshToken,
+    accessExpiresAt: now() + token.expiresIn,
+    scopes: token.scopes,
+    returnTo: pending.returnTo,
+  };
 }
 
+/** Identity-only cookies never contain provider credentials. */
 export const createPublicSession = (profile: PublicXProfile): string =>
   sign({ version: 1, profile, expiresAt: now() + SESSION_TTL });
 
+/** Posting sessions seal user-context credentials in an encrypted HttpOnly cookie. */
+export function createPublicWriteSession(authorization: PublicXAuthorization): string {
+  if (authorization.mode !== "posting") {
+    throw new Error("An identity-only X authorization cannot create a write session");
+  }
+  return seal({
+    version: 2,
+    profile: authorization.profile,
+    accessToken: authorization.accessToken,
+    refreshToken: authorization.refreshToken,
+    accessExpiresAt: authorization.accessExpiresAt,
+    scopes: authorization.scopes,
+    expiresAt: now() + SESSION_TTL,
+  });
+}
+
 export function readPublicSession(value: string | undefined): PublicXProfile | null {
-  const session = value ? readSigned<Session>(value) : null;
+  if (!value) return null;
+  const credential = readCredentialSession(value);
+  if (credential) return credential.profile;
+  const session = readSigned<LegacySession>(value);
   return session?.version === 1 && future(session.expiresAt) && isProfile(session.profile)
     ? session.profile
     : null;
 }
 
-function readPending(value: string): Pending | null {
-  const pending = readSigned<Pending>(value);
-  return pending?.version === 1 && future(pending.expiresAt) && isUrlValue(pending.state) && isUrlValue(pending.verifier)
-    ? pending
-    : null;
+export async function getPublicXWriteAccess(value: string | undefined): Promise<PublicXWriteAccess | null> {
+  if (!value) return null;
+  const session = readCredentialSession(value);
+  if (!session || !hasWriteScopes(session.scopes)) return null;
+  if (session.accessExpiresAt > now() + REFRESH_SKEW) {
+    return { profile: session.profile, accessToken: session.accessToken };
+  }
+  if (!session.refreshToken) return null;
+
+  const refreshed = await refreshTokens(session.refreshToken, session.scopes);
+  const replacement: CredentialSession = {
+    ...session,
+    accessToken: refreshed.accessToken,
+    refreshToken: refreshed.refreshToken ?? session.refreshToken,
+    accessExpiresAt: now() + refreshed.expiresIn,
+    scopes: refreshed.scopes,
+    expiresAt: now() + SESSION_TTL,
+  };
+  if (!hasWriteScopes(replacement.scopes)) return null;
+  return {
+    profile: replacement.profile,
+    accessToken: replacement.accessToken,
+    sessionCookie: seal(replacement),
+  };
 }
 
-function sign(payload: Pending | Session): string {
+function readPending(value: string): Pending | null {
+  const pending = readSigned<Pending | LegacyPending>(value);
+  if (!pending || !future(pending.expiresAt) || !isUrlValue(pending.state) || !isUrlValue(pending.verifier)) {
+    return null;
+  }
+  if (
+    pending.version === 2 &&
+    typeof pending.returnTo === "string" &&
+    (pending.mode === "identity" || pending.mode === "posting")
+  ) return pending;
+  if (pending.version === 1) {
+    return { ...pending, version: 2, returnTo: "/account", mode: "identity" };
+  }
+  return null;
+}
+
+function sign(payload: Pending | LegacyPending | LegacySession): string {
   const encoded = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
   return `${encoded}.${mac(encoded)}`;
 }
@@ -194,8 +281,52 @@ function readSigned<T>(value: string): T | null {
   }
 }
 
+function seal(payload: CredentialSession): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", sessionKey(), iv);
+  cipher.setAAD(SESSION_AAD);
+  const plaintext = Buffer.from(JSON.stringify(payload), "utf8");
+  const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return ["v2", iv.toString("base64url"), ciphertext.toString("base64url"), tag.toString("base64url")].join(".");
+}
+
+function readCredentialSession(value: string): CredentialSession | null {
+  const parts = value.split(".");
+  if (parts.length !== 4 || parts[0] !== "v2") return null;
+  try {
+    const iv = Buffer.from(parts[1], "base64url");
+    const ciphertext = Buffer.from(parts[2], "base64url");
+    const tag = Buffer.from(parts[3], "base64url");
+    if (iv.length !== 12 || tag.length !== 16) return null;
+    const decipher = createDecipheriv("aes-256-gcm", sessionKey(), iv);
+    decipher.setAAD(SESSION_AAD);
+    decipher.setAuthTag(tag);
+    const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString("utf8");
+    const session = JSON.parse(plaintext) as Partial<CredentialSession>;
+    if (
+      session.version !== 2 ||
+      !future(session.expiresAt) ||
+      !isProfile(session.profile) ||
+      !text(session.accessToken, 4096) ||
+      typeof session.accessExpiresAt !== "number" ||
+      !Number.isFinite(session.accessExpiresAt) ||
+      !Array.isArray(session.scopes) ||
+      !session.scopes.every((scope) => text(scope, 128)) ||
+      (session.refreshToken !== undefined && !text(session.refreshToken, 4096))
+    ) return null;
+    return session as CredentialSession;
+  } catch {
+    return null;
+  }
+}
+
 function mac(value: string): string {
   return createHmac("sha256", xAuthSessionSecret()).update(value).digest("base64url");
+}
+
+function sessionKey(): Buffer {
+  return createHash("sha256").update(xAuthSessionSecret()).digest();
 }
 
 function basicCredentials(): string {
@@ -203,9 +334,47 @@ function basicCredentials(): string {
   return Buffer.from(`${encode(xOAuthClientId())}:${encode(xOAuthClientSecret())}`).toString("base64");
 }
 
-function tokenFrom(value: unknown): string | null {
-  const token = value && typeof value === "object" ? (value as { access_token?: unknown }).access_token : null;
-  return typeof token === "string" && token.length > 0 && token.length <= 4096 ? token : null;
+function tokenHeaders(): Record<string, string> {
+  return {
+    Authorization: `Basic ${basicCredentials()}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+  };
+}
+
+type ParsedToken = { accessToken: string; refreshToken?: string; expiresIn: number; scopes: string[] };
+
+function tokenPayload(value: unknown, fallbackScopes: readonly string[]): ParsedToken | null {
+  if (!value || typeof value !== "object") return null;
+  const payload = value as Record<string, unknown>;
+  if (!text(payload.access_token, 4096)) return null;
+  const expires = Number(payload.expires_in);
+  const expiresIn = Number.isFinite(expires) && expires > 0 ? Math.floor(expires) : ACCESS_TOKEN_FALLBACK_TTL;
+  const refreshToken = text(payload.refresh_token, 4096) ? payload.refresh_token : undefined;
+  const scopeText = typeof payload.scope === "string" ? payload.scope.trim() : "";
+  const scopes = scopeText ? scopeText.split(/\s+/).filter(Boolean) : [...fallbackScopes];
+  return { accessToken: payload.access_token, refreshToken, expiresIn, scopes };
+}
+
+async function refreshTokens(refreshToken: string, fallbackScopes: readonly string[]): Promise<ParsedToken> {
+  const response = await fetch(TOKEN_URL, {
+    method: "POST",
+    cache: "no-store",
+    headers: tokenHeaders(),
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    }),
+  });
+  if (!response.ok) throw new PublicXAuthError("refresh_failed", response.status);
+  const payload = tokenPayload(await response.json().catch(() => null), fallbackScopes);
+  if (!payload) throw new PublicXAuthError("refresh_failed");
+  return payload;
+}
+
+function hasWriteScopes(scopes: readonly string[]): boolean {
+  const set = new Set(scopes);
+  return set.has("tweet.write") && set.has("media.write");
 }
 
 function profileFrom(value: unknown): PublicXProfile | null {
@@ -244,6 +413,16 @@ function isUrlValue(value: unknown): value is string {
   return typeof value === "string" && /^[A-Za-z0-9_-]{43,128}$/.test(value);
 }
 
+function normaliseReturnTo(value: string): string {
+  try {
+    const url = new URL(value, CALLBACK_ORIGIN);
+    if (url.origin !== CALLBACK_ORIGIN || !url.pathname.startsWith("/")) return "/account";
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return "/account";
+  }
+}
+
 function safeEqual(left: string, right: string): boolean {
   const a = Buffer.from(left);
   const b = Buffer.from(right);
@@ -254,7 +433,7 @@ function randomValue(): string {
   return randomBytes(32).toString("base64url");
 }
 
-function future(value: unknown): boolean {
+function future(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > now();
 }
 

@@ -8,6 +8,7 @@ import {
   displayTitle,
   displayWitness,
 } from '@/lib/content/archive';
+import { firstArchiveSourceMedia } from '@/lib/content/archive-share';
 import { buildXShareText, facebookShareUrl, xIntentUrl } from '@/lib/content/share-text';
 import { ArchiveBlocks, type ArchiveSensitivity } from './ArchiveBlocks';
 import { ShareRecord } from './ShareRecord';
@@ -204,6 +205,7 @@ export function ArchiveRecord({
     // incidents. The closing line names each for what it is.
     kind: pkg === 'october7' ? 'testimony' : 'record',
   });
+  const sourceMedia = firstArchiveSourceMedia(pkg, version, media);
 
   const held = countMedia(version);
   const gated =
@@ -249,6 +251,8 @@ export function ArchiveRecord({
       <div className={styles.material} lang={version.locale} dir={version.direction}>
         <ArchiveBlocks
           pkg={pkg}
+          recordId={record.canonical_story_id}
+          locale={version.locale}
           blocks={version.content_blocks}
           media={media}
           sensitivity={sensitivity}
@@ -310,6 +314,11 @@ export function ArchiveRecord({
           xHref={xIntentUrl(xText, shareUrl)}
           facebookHref={facebookShareUrl(shareUrl)}
           caption={`${xText}\n${shareUrl}`}
+          xMedia={sourceMedia ? {
+            ...sourceMedia,
+            recordId: record.canonical_story_id,
+            locale: version.locale,
+          } : undefined}
         />
 
         {/* The way on. Both archives are ordered — testimonies newest first,

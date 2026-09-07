@@ -1,6 +1,6 @@
 import "server-only";
 
-/** The routes receive only this narrow, token-free X authentication facade. */
+/** The routes receive only this narrow X authentication facade. */
 export {
   PublicXAuthError,
   X_OAUTH_STATE_COOKIE,
@@ -8,9 +8,13 @@ export {
   beginPublicXAuthorization,
   completePublicXAuthorization,
   createPublicSession,
+  createPublicWriteSession,
+  getPublicXWriteAccess,
   pendingAuthorizationCookieOptions,
   publicSessionCookieOptions,
   publicXAvailability,
   readPublicSession,
+  type PublicXAuthorization,
   type PublicXProfile,
+  type PublicXWriteAccess,
 } from "@/server/core/auth/public-x";

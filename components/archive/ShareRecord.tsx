@@ -7,8 +7,8 @@
  *
  * Three targets, each built on what the platform actually allows:
  *
- *  - **X** — a post intent with the record's words prefilled. The one target
- *    that genuinely accepts text.
+ *  - **X** — records with locally-held source media use the authenticated
+ *    native-media posting flow; text-only records retain the post intent.
  *  - **Facebook** — `sharer.php` takes only the URL; the text comes from the
  *    page's own OpenGraph tags, which `archiveRecordMetadata` already emits.
  *  - **Instagram has no web intent at all.** Where `navigator.share` exists
@@ -18,14 +18,14 @@
  *    dressed up as one-click posting. "No false live state" is a site
  *    principle, and a fake Instagram button is exactly that defect.
  *
- * The client boundary is this file alone: the X/Facebook anchors work with
- * JavaScript disabled, and the intent text is composed on the server. Only
- * the system-sheet/clipboard button needs a client — it is also the only
- * control that renders differently after hydration, and it starts from the
- * honest baseline (copy) rather than a capability the page cannot know.
+ * The X media action needs a client boundary because it first checks the
+ * server-side X write session and may start OAuth. Facebook and text-only X
+ * remain plain anchors; the system-sheet/clipboard path retains the same
+ * capability probe and honest fallback it had before native X posting.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, ButtonLink } from '@/components/ui';
+import { XMediaPostButton } from './XMediaPostButton';
 import styles from './archive.module.css';
 
 /**
@@ -43,23 +43,37 @@ const probeShare = () =>
 const serverShare = () => false;
 
 export type ShareRecordProps = {
-  /** The record page's canonical URL — the one every target receives. */
+  /** The record page's canonical URL — the one link-based targets receive. */
   url: string;
   title: string;
-  /** Prefilled X intent href, composed server-side within the 280 budget. */
+  /** Prefilled X intent href, used only when no usable source media is held. */
   xHref: string;
   facebookHref: string;
   /** What "Copy caption" copies and the system sheet sends: quote,
       attribution, URL — a post someone can paste anywhere. */
   caption: string;
+  /**
+   * The documentary source asset chosen from this record's own content blocks.
+   * Never a cover, thumbnail, OpenGraph image or generated derivative.
+   */
+  xMedia?: {
+    pkg: 'october7' | 'hamas-massacre';
+    recordId: string;
+    mediaId: string;
+    locale?: string;
+    assetUrl: string;
+    medium: 'video' | 'image';
+  };
 };
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
-export function ShareRecord({ url, title, xHref, facebookHref, caption }: ShareRecordProps) {
+export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }: ShareRecordProps) {
   const canShare = useSyncExternalStore(NO_SUBSCRIBE, probeShare, serverShare);
   const [copyState, setCopyState] = useState<CopyState>('idle');
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const parsedUrl = new URL(url);
+  const returnTo = `${parsedUrl.pathname}${parsedUrl.search}`;
 
   // Only a cleanup: a reader who navigates away mid-flash leaves no timer
   // behind to fire against an unmounted component.
@@ -106,15 +120,19 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption }: ShareR
           state come from the shared Button so the archive speaks in the
           site's one control voice. */}
       <div className={styles.shareRow}>
-        <ButtonLink
-          href={xHref}
-          variant="secondary"
-          size="md"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Share on X
-        </ButtonLink>
+        {xMedia ? (
+          <XMediaPostButton {...xMedia} returnTo={returnTo} />
+        ) : (
+          <ButtonLink
+            href={xHref}
+            variant="secondary"
+            size="md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Share on X
+          </ButtonLink>
+        )}
         <ButtonLink
           href={facebookHref}
           variant="secondary"

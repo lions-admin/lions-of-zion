@@ -6,10 +6,10 @@ import {
   assetSrcSet,
   assetUrl,
 } from '@/lib/content/archive';
-import { buildXShareText, xIntentUrl } from '@/lib/content/share-text';
 import { MediaBlock } from '@/components/content/MediaBlock';
 import { SensitiveContent } from '@/components/content/SensitiveContent';
 import { ArchiveImage } from './ArchiveImage';
+import { XMediaPostButton } from './XMediaPostButton';
 import styles from './archive.module.css';
 
 /**
@@ -37,6 +37,10 @@ export type ArchiveSensitivity = {
 
 export type ArchiveBlocksProps = {
   pkg: ArchivePackageName;
+  /** Canonical record id, used only to re-validate a native media post server-side. */
+  recordId?: string;
+  /** Rendered record locale, so the server can validate the same source block. */
+  locale?: string;
   blocks: ArchiveBlock[];
   media: Map<string, ArchiveMedia>;
   /** Which of this record's media stand behind a stated choice. */
@@ -59,12 +63,12 @@ export type ArchiveBlocksProps = {
    */
   renderedTitle?: string;
   /**
-   * The record page's canonical URL, for each media item's share link.
+   * The record page's canonical URL, for each media item's share action.
    * Omitted (with `shareTitle`) the media action rows do not render — a
-   * caller outside a record page has no URL for them to carry.
+   * caller outside a record page has no stable association for them to carry.
    */
   shareUrl?: string;
-  /** The record's display title — the share text when a caption is absent. */
+  /** The record's display title — used to name a downloaded original file. */
   shareTitle?: string;
 };
 
@@ -202,6 +206,8 @@ function groupByHeading(blocks: ArchiveBlock[]): BlockGroup[] {
 
 export function ArchiveBlocks({
   pkg,
+  recordId,
+  locale,
   blocks,
   media,
   sensitivity,
@@ -228,6 +234,8 @@ export function ArchiveBlocks({
     <Block
       key={key}
       pkg={pkg}
+      recordId={recordId}
+      locale={locale}
       block={block}
       media={media}
       sensitivity={sensitivity}
@@ -280,6 +288,8 @@ export function ArchiveBlocks({
 
 type ArchiveMediaBlockProps = {
   pkg: ArchivePackageName;
+  recordId?: string;
+  locale?: string;
   block: ArchiveBlock;
   media: Map<string, ArchiveMedia>;
   sensitivity?: ArchiveSensitivity;
@@ -312,6 +322,8 @@ function gateFor(
 
 function Block({
   pkg,
+  recordId,
+  locale,
   block,
   media,
   sensitivity,
@@ -350,6 +362,8 @@ function Block({
       return (
         <ImageBlock
           pkg={pkg}
+          recordId={recordId}
+          locale={locale}
           block={block}
           media={media}
           sensitivity={sensitivity}
@@ -362,6 +376,8 @@ function Block({
       return (
         <VideoBlock
           pkg={pkg}
+          recordId={recordId}
+          locale={locale}
           block={block}
           media={media}
           sensitivity={sensitivity}
@@ -377,6 +393,8 @@ function Block({
 
 function ImageBlock({
   pkg,
+  recordId,
+  locale,
   block,
   media,
   sensitivity,
@@ -426,7 +444,7 @@ function ImageBlock({
       className={styles.figure}
       caption={caption ?? undefined}
       credit={credit ?? undefined}
-      provenance={mediaActionRow({ pkg, item, caption, shareUrl, shareTitle })}
+      provenance={mediaActionRow({ pkg, recordId, locale, item, shareUrl, shareTitle })}
       aspectRatio={packageAspectRatio(item.width, item.height)}
     >
       {/* The gate goes *inside* the frame, so caption, credit and the download
@@ -445,6 +463,8 @@ function ImageBlock({
 
 function VideoBlock({
   pkg,
+  recordId,
+  locale,
   block,
   media,
   sensitivity,
@@ -525,7 +545,7 @@ function VideoBlock({
       className={`${styles.figure} ${styles.heldVideo}`}
       caption={caption ?? undefined}
       credit={credit ?? undefined}
-      provenance={mediaActionRow({ pkg, item, caption, shareUrl, shareTitle })}
+      provenance={mediaActionRow({ pkg, recordId, locale, item, shareUrl, shareTitle })}
       aspectRatio={packageAspectRatio(width, height)}
     >
       {gate ? (
@@ -548,23 +568,32 @@ function packageAspectRatio(
 
 function mediaActionRow({
   pkg,
+  recordId,
+  locale,
   item,
-  caption,
   shareUrl,
   shareTitle,
 }: {
   pkg: ArchivePackageName;
+  recordId?: string;
+  locale?: string;
   item: ArchiveMedia;
-  caption: string | null;
   shareUrl?: string;
   shareTitle?: string;
 }) {
-  if (!shareUrl || !shareTitle || !item.package_path) return undefined;
+  if (
+    !recordId ||
+    !shareUrl ||
+    !shareTitle ||
+    !item.package_path ||
+    (item.type !== 'video' && item.type !== 'image')
+  ) return undefined;
   return (
     <MediaActions
       pkg={pkg}
+      recordId={recordId}
+      locale={locale}
       item={item}
-      caption={caption}
       shareUrl={shareUrl}
       shareTitle={shareTitle}
     />
@@ -572,9 +601,7 @@ function mediaActionRow({
 }
 
 /**
- * Download and share for one held media file — plain anchors, no client
- * JavaScript, which is what keeps ~1,027 of these free on a page that can
- * hold twenty-five.
+ * Download and native-X posting for one held media file.
  *
  * Rendered in MediaBlock's `provenance` slot so the row stays inside the
  * `figcaption` after caption and credit. The archive has no provenance
@@ -586,28 +613,33 @@ function mediaActionRow({
  * attribute's record-derived name is a best effort — cross-origin, the
  * header's own filename (the content hash) is what the browser uses — kept
  * because it costs nothing and names the file wherever same-origin serving
- * (the dev symlink) applies. The share is an X intent carrying the caption,
- * or failing that the record's title, and the record page's URL — the file
- * itself has no page of its own to point at.
+ * (the dev symlink) applies.
+ *
+ * The X action is intentionally not a Web Intent. It carries only the archive
+ * record/media identifiers and the public original-asset URL to this site's
+ * authenticated posting route. That route re-resolves the same media_id from
+ * the record before uploading the bytes to X; a thumbnail or detached URL
+ * cannot be substituted here.
  */
 function MediaActions({
   pkg,
+  recordId,
+  locale,
   item,
-  caption,
   shareUrl,
   shareTitle,
 }: {
   pkg: ArchivePackageName;
+  recordId: string;
+  locale?: string;
   item: ArchiveMedia;
-  caption: string | null;
-  shareUrl?: string;
-  shareTitle?: string;
+  shareUrl: string;
+  shareTitle: string;
 }) {
-  if (!shareUrl || !shareTitle || !item.package_path) return null;
+  if (!item.package_path || (item.type !== 'video' && item.type !== 'image')) return null;
 
   const href = assetUrl(pkg, item.package_path);
   const extension = item.package_path.split('.').pop() ?? 'bin';
-  const xText = buildXShareText({ title: shareTitle, text: caption });
 
   // The record's name on the file, so a download does not arrive as an
   // anonymous hash on someone's disk (`.ai/DECISIONS.md`, 2026-08-27).
@@ -619,21 +651,24 @@ function MediaActions({
     .replace(/^-+|-+$/g, '')
     .slice(0, 60);
   const filename = `${titleSlug || 'record'}-${item.media_id}.${extension}`;
+  const parsedShareUrl = new URL(shareUrl);
+  const returnTo = `${parsedShareUrl.pathname}${parsedShareUrl.search}`;
 
   return (
     <span className={styles.mediaActions}>
       <a className={styles.mediaAction} href={`${href}?download=1`} download={filename}>
         Download
       </a>
-      <a
-        className={styles.mediaAction}
-        href={xIntentUrl(xText, shareUrl)}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Share on X
-      </a>
+      <XMediaPostButton
+        pkg={pkg}
+        recordId={recordId}
+        mediaId={item.media_id}
+        locale={locale}
+        assetUrl={href}
+        medium={item.type}
+        returnTo={returnTo}
+        compact
+      />
     </span>
   );
 }
-

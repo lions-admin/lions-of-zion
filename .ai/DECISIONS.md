@@ -51,6 +51,21 @@ permanent way in from anywhere.
 `components/` or `lib/` references the Buy Me a Coffee scripts and that the
 CSP has not been widened for them.
 
+**Addendum, same day — the ask is on the cover too.** The owner ruled that
+both channels also belong at the top of the homepage, "elegantly, popping for
+a moment". That is `HeroSupportStrip` under the cover's reading paths: the
+same two links as compact chips in the home chrome's own geometry — the
+header's *Support Us* control, a 3px-radius hairline at 13px in the
+navigation face — which arrive after the cover has been read, flash their
+hairline to gold once, and then hold still. Not a toast and not a floating
+widget: an ask that disappears cannot be acted on, and the cover has no
+floating controls. The chips animate only opacity, transform and colour, so
+they own their space from first paint and shift nothing; `prefers-reduced-motion`
+gets them static. On a phone the header hides its *Support Us* control, so
+there the strip is the cover's only support affordance. `app/page.tsx` no
+longer calls "Read the latest" the one invitation on the cover — it is still
+the one arrow.
+
 ---
 
 ## 2026-09-07 — A homepage placement is refused, not stored, when the record has no homepage-cleared hero

@@ -99,10 +99,27 @@ describe("purpose-led site navigation", () => {
        text-only share showcase (`ArchiveShareShowcase`); these assertions
        were pinned to the retired copy. The invariant is unchanged — the page
        still names its two collections and still keeps a content-warning
-       promise before any sharing link — just in the current wording. */
+       promise before any sharing link — just in the current wording.
+
+       2026-09-07: and it moved again. #37 rewrote the share text to post
+       archived media natively to X, which retired the phrase
+       "behind its content warning" while keeping the promise it described;
+       this assertion was left pinned to the old string and `main` went red.
+       Pinning prose was the mistake both times, so this now asserts the
+       mechanism instead: a warning is composed for every record, and it is
+       carried into the share payloads rather than sitting unused beside them.
+       That is the thing worth defending — the exact sentence is the editor's
+       to change. */
     const archive = read("app/october-7/page.tsx");
     expect(archive).toContain('aria-label="Choose an archive collection"');
-    expect(archive).toContain("behind its content warning");
+    expect(archive).toMatch(/Content warning: graphic material/);
+    expect(archive).toMatch(/const warning\s*=/);
+    for (const payload of ["shareText", "xText"]) {
+      const line = archive.split(/\n/).find((row) => row.includes(`const ${payload} =`));
+      expect(line, `${payload} is built on this page`).toBeDefined();
+    }
+    /* The composed warning reaches the share text, not just the page. */
+    expect(archive).toMatch(/shareText\s*=\s*\[[^\]]*warning[^\]]*\]/);
     const watch = read("app/fake-resistance/watch/page.tsx");
     expect(watch).not.toContain("last 24 hours");
     expect(watch).toContain("not a live scan log");

@@ -527,7 +527,23 @@ gate the audit itself says must come first.
 - **Desktop / mobile.** Both, portrait and landscape phone.
 - **Production verification.** **Required** — plus an LCP measurement (see VA-40).
 - **Execution path.** **Development.**
-- **Status.** `NEEDS VISUAL VERIFICATION` (confirm current cover geometry via
+- **Reproduced and fixed, 2026-09-07.** At 812x375 the wide two-column contact
+  sheet opened into 298px of remaining height (29–34px titles), and the
+  `<dialog>` drawer built for that reader was suppressed entirely. Same at
+  932x430.
+
+  `components/site/site-header.module.css:529` — `@media (max-width: 45rem)`
+  became `@media (max-width: 45rem), (max-height: 30rem) and (pointer: coarse)`.
+  **480px is chosen against a measured gap**, not by feel: every phone's short
+  side is at most ~440px (iPhone 15 Pro Max landscape is 430) and every
+  tablet's short side starts at 744px, so 480 clears both with headroom. The
+  `pointer: coarse` half is load-bearing rather than decorative — without it a
+  desktop window dragged to 1400x400 would lose its drawer for no reason;
+  verified that it does not. No `orientation:` query, no UA test, no
+  device-specific dimensions, and the test asserts the absence of all three.
+- **Status.** `DONE — verified at 812x375 and 932x430; drawer behaviour
+  (modal, focus entry, body lock, Escape, focus return, 44px targets)
+  re-measured and unchanged.` (confirm current cover geometry via
   VA-04 before editing) → then `READY`
 
 ### VA-11 — Hero donation chips: keep, move, or remove
@@ -1879,8 +1895,37 @@ here; two of the five did not survive that check unchanged.
   cover; enabling it is what makes them do their job. But if any layout was
   tuned by eye with the insets reading 0, enabling cover *adds* padding there.
   That cannot be settled from a desktop browser.
-- **Status.** `BLOCKED — needs physical iOS verification (VA-39)`. Prepare the
-  change and the evidence; do not claim completion without a device.
+- **Shipped 2026-09-07, and it needed a second change nobody had noticed.**
+  `viewportFit: "cover"` is now declared. Auditing all 16 rules turned up a
+  17th problem that is not one of them and would have been **worse than the
+  bug being fixed**: `.header` is `position: fixed; inset: 0 0 auto` with no
+  top inset, and `--header-h` is 3.5rem (56px) on a phone. Under cover the
+  masthead would have rendered *inside* the sensor housing — 47px on an iPhone
+  12–14, 59px on a 14 Pro and later, i.e. nine visible pixels at best and
+  nothing at all on a current handset. Turning cover on without this would have
+  hidden the wordmark, search, account and menu on every modern iPhone.
+
+  The fix is two lines that must land together: `--header-h` now carries
+  `env(safe-area-inset-top, 0px)` in both its definitions (`app/globals.css`),
+  and `.bar` pads its own top by the same amount
+  (`components/site/site-header.module.css`). With the global
+  `box-sizing: border-box` the total stays `--header-h` — which twelve files
+  offset content by — while the visible strip keeps its designed height and
+  moves below the housing. Shipping only the padding would shrink the strip to
+  nine pixels; shipping only the token leaves the content under the notch.
+  `tests/site-chrome-viewport.test.ts` pins the pair and was verified to go red
+  when either half is removed.
+
+  Three of the 16 rules were also found to be **dead weight** — bottom insets
+  on elements that are not last on the page, because `SiteFooter` renders after
+  them (`homepage-journey:218,335`, `sections:806`, `ask:892`). And
+  `site-header:779` was the reverse: a correct `max()` scoped where it could
+  never fire, since horizontal insets exist only in landscape, where a phone is
+  812–932px wide and outside that rule's `max-width: 48rem` query. Fixed.
+- **Status.** `PARTIAL — code shipped, physical iOS verification outstanding
+  (VA-39).` Everything above is desktop Chromium simulating `env()` values by
+  injection. It cannot exercise real UA-supplied insets, iOS URL-bar behaviour,
+  or `100dvh` under cover. Do not mark complete without a device.
 
 ### VA-42 — `/geopolitical-brief` shows a reader zero records without JavaScript
 

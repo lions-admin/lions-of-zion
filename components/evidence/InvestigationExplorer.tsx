@@ -11,6 +11,24 @@ function uniqueSources(sources: PublicPublicationDetail['sources']) {
   return sources.filter((source, index) => sources.findIndex(candidate => candidate.url === source.url && candidate.title === source.title) === index);
 }
 
+/**
+ * A source's publication date, in UTC, on both sides of hydration.
+ *
+ * This is a client component, so it renders twice: once in the server's
+ * process and once in the reader's browser. An `Intl.DateTimeFormat` with no
+ * `timeZone` resolves to the *host's* zone, which is UTC on Vercel and
+ * Asia/Jerusalem on an Israeli reader's machine — so a source stamped
+ * `2026-08-31T21:05:32Z` was rendered "Aug 31, 2026" into the HTML and
+ * "Sep 1, 2026" during hydration. React recovered by rewriting the text and
+ * threw #418 (VA-43).
+ *
+ * UTC rather than the article's Asia/Jerusalem display zone on purpose: this
+ * formats `source.publishedAt`, the same field `formatSourceDate` in
+ * `app/articles/[publicId]/page.tsx` prints under "Public sources" — also in
+ * UTC. Anything else would leave one source dated two ways on one page.
+ */
+const SOURCE_DATE = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeZone: 'UTC' });
+
 /** A readable evidence path for any published investigation. It never draws an
  * inference from a relationship the public projection does not actually carry. */
 export function InvestigationExplorer({ record }: { record: PublicPublicationDetail }) {
@@ -50,5 +68,5 @@ function StagePanel({ stage, id, labelledBy }: { stage: Stage; id: string; label
 }
 
 function StageContents({ stage }: { stage: Stage }) {
-  return <><h3>{stage.title}</h3><p>{stage.body}</p>{stage.items?.length ? <ul>{stage.items.map(item => <li key={item}>{item}</li>)}</ul> : null}{stage.sources?.length ? <ol className={styles.sources}>{stage.sources.map((source, index) => <li key={source.url ?? `${source.title}-${index}`}><a href={source.url ?? undefined} target={source.url ? '_blank' : undefined} rel={source.url ? 'noreferrer' : undefined}>{source.title}</a><span>{source.publisher}{source.publishedAt ? ` · ${new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(new Date(source.publishedAt))}` : ''}</span></li>)}</ol> : null}</>;
+  return <><h3>{stage.title}</h3><p>{stage.body}</p>{stage.items?.length ? <ul>{stage.items.map(item => <li key={item}>{item}</li>)}</ul> : null}{stage.sources?.length ? <ol className={styles.sources}>{stage.sources.map((source, index) => <li key={source.url ?? `${source.title}-${index}`}><a href={source.url ?? undefined} target={source.url ? '_blank' : undefined} rel={source.url ? 'noreferrer' : undefined}>{source.title}</a><span>{source.publisher}{source.publishedAt ? ` · ${SOURCE_DATE.format(new Date(source.publishedAt))}` : ''}</span></li>)}</ol> : null}</>;
 }

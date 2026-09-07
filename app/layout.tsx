@@ -120,9 +120,35 @@ export const metadata: Metadata = {
   },
 };
 
+/*
+ * `viewportFit: "cover"` is what makes `env(safe-area-inset-*)` resolve to a
+ * real number on iOS. Without it Next emits `width=device-width,
+ * initial-scale=1`, the insets read `0`, and the sixteen safe-area rules this
+ * build ships across eight CSS modules — homepage-journey, editorial-intro,
+ * sections, ask, investigation, search, site-header, site-footer — are inert.
+ * They were written because their authors expected cover; this is the line
+ * that lets them do their job. VA-41.
+ *
+ * It also means the page extends under the notch and the home indicator, so
+ * this is not a free flag. Two things must be true alongside it and are
+ * tracked with VA-39, the physical-device pass:
+ *
+ *   1. `--header-h` in `app/globals.css` must absorb `env(safe-area-inset-top)`,
+ *      and `.bar` in `site-header.module.css` must take the same value as
+ *      `padding-top`. The masthead is `position: fixed; inset: 0 0 auto`, so
+ *      under cover its content strip starts at y=0 — under the notch. The two
+ *      halves compose exactly (border-box: total stays `--header-h`, the
+ *      content strip stays 3.5rem) and neither works alone.
+ *   2. Nothing that reads a *left/right* inset may be scoped to a phone-width
+ *      query, because left/right insets are non-zero only in landscape, where
+ *      a phone is 812-932px wide. `site-header` and `site-footer` were both
+ *      corrected here; the sheet in `investigation.module.css` and the intro
+ *      overlay in `editorial-intro.module.css` still are not.
+ */
 export const viewport: Viewport = {
   themeColor: "#000000",
   colorScheme: "dark",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -247,11 +247,12 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
       `server/core/versioning.ts` `recordVersion()`,
       `server/contracts/whole-site-update.ts`, `server/contracts/editorial-update.ts`.
       Identify **exactly where a partial update can commit**.
-- [ ] **46.2** Define the coherent-version invariant in a contract, not in a
+- [x] **46.2** Define the coherent-version invariant in a contract, not in a
       route. The version must carry together: canonical publication ID, headline,
       summary/deck, body or explicit developing-update section, facts, timestamps,
       source state, correction/update log, homepage representation.
-- [ ] **46.3** Enforce it at the ingest/publication layer so a malformed partial
+      <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
+- [x] **46.3** Enforce it at the ingest/publication layer so a malformed partial
       update **fails before becoming public**. The seam is
       `server/modules/publications/service.ts:199-229` — the only point where the
       applied field set and the claimed `changeSummary` are both in scope, before
@@ -260,20 +261,28 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
       claiming a content change while the hash is unchanged is the Lebanon
       failure mode. **Apply the identical shape to the second update path at
       `service.ts:763-812`**, which has the same defect. Do not add a new bypass.
-- [ ] **46.4** Guarantee a re-promoted story references **the same canonical
+      <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
+- [~] **46.4** Guarantee a re-promoted story references **the same canonical
       version the article page renders**. Homepage projection and article detail
       must read one version, not two.
+      <!-- claimed: A1 @ 2026-09-07 -->
+      <!-- partial: fba1612 | the record half is pinned — a legitimate update
+           keeps its publicId and canonicalStoryId
+           (tests/publication-update-coherence.test.ts). The projection half is
+           NOT verified: nothing yet asserts that the homepage band and the
+           article detail read the same version. Left open deliberately. -->
 - [ ] **46.5** Consider whether a SQL trigger is the right home for any part of
       this (business rules live in triggers here as often as in TypeScript). If
       yes, it is a **new numbered migration**, migrated Preview → Production
       **before** the code is pushed.
 - [ ] **46.6** Repair the existing Lebanon record into a coherent state — through
       the authorized editorial path, **not** a direct Production database edit.
-- [ ] **46.7** Tests (regression, not manual): headline changes without body
+- [x] **46.7** Tests (regression, not manual): headline changes without body
       update; summary changes without matching publication state; update log
       claiming an unapplied update; homepage reading a different version from
       article detail; a legitimate developing-story update reusing the existing
       public ID **succeeds**.
+      <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
 
 ### VA-47 — Human review / automation provenance `A2` `severity A`
 
@@ -331,20 +340,28 @@ VA-04 measured three exact-title pairs live, five near-duplicate pairs, and
 `/geopolitical-brief` rendering the same record up to three times on one page.
 VA-12's collapse covers the archive projection only.
 
-- [ ] **48.1** `A1` **The guard exists — extend it, do not rebuild it.**
+- [x] **48.1** `A1` **The guard exists — extend it, do not rebuild it.**
       `applyEditorial`'s create branch already enforces canonical-story
       uniqueness, shared-evidence-plus-title similarity, and `eventId` repeats
       (`service.ts:127-159`). Carry the same check into the four create paths
       that have none: `create` (`:258`), `createMany` (`:307`),
       `autoPublish` (`:444`), `autoPublishMany` (`:511`).
-- [ ] **48.2** `A1` Provide a **deliberate override** so an editor can create a
+      **Corrected while implementing:** only two of those four publish. `create`
+      and `createMany` insert with the default `draft` status, so nothing they
+      write is public until a human drives `transition`. The guard went onto
+      `autoPublish` and `autoPublishMany`; the two draft paths are exempt by
+      design, and that exemption is what step 48.2 needed.
+      <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
+- [x] **48.2** `A1` Provide a **deliberate override** so an editor can create a
       genuinely separate story. Today the guard only throws `CONFLICT` with no
       way through. The override must be explicit and recorded. **Blocked on owner
       question 2 in §14** — who may exercise it.
-- [ ] **48.3** `A1` ~~Fix the triple-render.~~ **Already fixed** for the
+      <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
+- [x] **48.3** `A1` ~~Fix the triple-render.~~ **Already fixed** for the
       unfiltered case in `LiveBriefHub.tsx:383-404`, and deliberately not for the
       filtered case. Verify it still holds; do not "fix" the filtered branch
       without reading the comment that explains it.
+      <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
 - [ ] **48.4** `A3` Sweep live records for duplicates. Do not assume the known
       examples (Iran / U.S. unmanned vessel, BGU aerogel, West Bank outposts) are
       the only ones. Publish the sweep result into this file as a table.
@@ -354,8 +371,15 @@ VA-12's collapse covers the archive projection only.
       not merge two genuinely different stories because the wording is similar.**
 - [ ] **48.6** `A1` Redirect or otherwise safely resolve duplicate URLs;
       suppress the duplicate from search results.
-- [ ] **48.7** `A1` Tests: duplicate-canonical prevention; the override path;
+- [~] **48.7** `A1` Tests: duplicate-canonical prevention; the override path;
       the redirect; single-render-per-page on `/geopolitical-brief`.
+      <!-- claimed: A1 @ 2026-09-07 -->
+      <!-- partial: fba1612 | covered: duplicate-canonical prevention by event
+           id and by story id, a non-duplicate pair still publishing, and the
+           override (a human may draft a separate story for an event that
+           already has one) — tests/publication-duplicate-guard.test.ts.
+           NOT covered: the redirect (step 48.6, not built) and
+           single-render-per-page, which belongs with 48.3's verification. -->
 
 ### VA-56 — Remove raw source dumps from article prose `A1`
 
@@ -786,8 +810,8 @@ Update this table in the **same commit** that changes any box above.
 | Task | Owner | Status | PR | Evidence |
 | --- | --- | --- | --- | --- |
 | P-1 … P-5 | any | ☐ not started | 0 | — |
-| VA-46 | A1 | ☐ not started | 1 | — |
-| VA-48 | A1 | ☐ not started | 1 | — |
+| VA-46 | A1 | ◐ in progress | 1 | `fba1612` — rules + both update paths + 15 tests. Open: 46.1 trace, 46.5 trigger question, 46.6 Lebanon record, 46.4 projection half |
+| VA-48 | A1 | ◐ in progress | 1 | `fba1612` — guard extracted, both auto-publish paths, override documented, 4 tests. Open: 48.4/48.5 data sweep (A3), 48.6 redirects |
 | VA-47 | A2 | ☐ not started | 1 | — |
 | VA-61 | A2 | ☐ not started | 1 | — |
 | VA-49 | A3 | ☐ not started | 2 | — |

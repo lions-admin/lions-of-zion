@@ -52,14 +52,12 @@ async function notifyNewRegistration(result: HumanUserUpsertResult, provider: st
 async function syncAuthenticatedUser(
   user: AuthenticatedUser,
   actorLabel: string,
-  provider: string,
-): Promise<void> {
+): Promise<HumanUserUpsertResult> {
   const email = user.email?.trim().toLowerCase() || null;
   const displayName = user.name?.trim() || email || "Lions of Zion user";
-  const result = await withDatabaseRole("app_service", actorLabel, async () =>
+  return withDatabaseRole("app_service", actorLabel, async () =>
     upsertHumanUserWithStatus(db(), { externalId: user.id, email, displayName }),
   );
-  await notifyNewRegistration(result, provider);
 }
 
 export async function syncPublicUser(request?: Request): Promise<{ synced: boolean }> {
@@ -68,17 +66,15 @@ export async function syncPublicUser(request?: Request): Promise<{ synced: boole
   const user = (googleUser ?? result?.data?.user ?? null) as AuthenticatedUser | null;
   if (!user) return { synced: false };
 
-  await syncAuthenticatedUser(
-    user,
-    googleUser ? "service:public-auth" : "service:public-auth",
-    googleUser ? "Google" : "Neon Auth",
-  );
+  const synced = await syncAuthenticatedUser(user, "service:public-auth");
+  if (googleUser) await notifyNewRegistration(synced, "Google");
 
   return { synced: true };
 }
 
 export async function syncVerifiedGoogleUser(user: AuthenticatedUser): Promise<void> {
-  await syncAuthenticatedUser(user, "service:google-auth", "Google");
+  const synced = await syncAuthenticatedUser(user, "service:google-auth");
+  await notifyNewRegistration(synced, "Google");
 }
 
 /** Public readers are human app_user rows that do not hold a staff capability. */

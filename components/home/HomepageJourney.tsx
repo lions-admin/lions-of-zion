@@ -4,13 +4,16 @@ import { HomeNarrativesSection } from "./HomeNarrativesSection";
 import { HomeArchiveSection } from "./HomeArchiveSection";
 import { HomePeopleSection } from "./HomePeopleSection";
 import { HomeSystemSection } from "./HomeSystemSection";
+import { HomeSupportSection } from "./HomeSupportSection";
 import styles from "./homepage-journey.module.css";
 
 /**
  * The edition below the cover. Its index is one tight editorial masthead —
  * the desk's line, the edition date and six destinations named exactly as
  * they are named on the site — so a phone reaches the first story within a
- * screen of the lion rather than after several of orientation.
+ * screen of the lion rather than after several of orientation. The sixth
+ * entry is the close of the edition, the ask (`HomeSupportSection`), so a
+ * reader who arrived to give is one tap from it.
  */
 export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
   return (
@@ -30,6 +33,7 @@ export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
           <a href="#home-archive">October 7</a>
           <a href="#home-people">The People of Israel</a>
           <a href="#home-system">Behind the desk</a>
+          <a href="#home-support">Support the work</a>
         </nav>
       </header>
       <HomeNewsSection section={edition.news} />
@@ -37,6 +41,7 @@ export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
       <HomeArchiveSection section={edition.october7} />
       <HomePeopleSection people={edition.people} heroes={edition.heroes} history={edition.israelsStory} />
       <HomeSystemSection />
+      <HomeSupportSection />
     </div>
   );
 }

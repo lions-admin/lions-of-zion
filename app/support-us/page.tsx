@@ -5,6 +5,7 @@ import { ReportClaimForm } from "@/components/support/ReportClaimForm";
 import { VolunteerInterestForm } from "@/components/support/VolunteerInterestForm";
 import { ShareControls } from "@/components/support/ShareControls";
 import { PayPalDonateStep } from "@/components/support/PayPalDonateStep";
+import { BuyMeACoffeeStep } from "@/components/support/BuyMeACoffeeStep";
 import { SupportFlowSwitch, type SupportFlow } from "@/components/support/SupportFlowSwitch";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { SITE_URL } from "@/lib/site-config";
@@ -142,7 +143,7 @@ const FLOWS: SupportFlow[] = [
     id: "donate",
     label: "Donate",
     icon: "support",
-    summary: "Payment is taken by PayPal, on PayPal's own site.",
+    summary: "PayPal or Buy Me a Coffee. Payment is taken on the provider's own site.",
     panel: (
       <>
         <p className={flowStyles.flowLede}>
@@ -159,6 +160,7 @@ const FLOWS: SupportFlow[] = [
           carry real costs.
         </p>
         <PayPalDonateStep />
+        <BuyMeACoffeeStep />
       </>
     ),
   },

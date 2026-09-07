@@ -104,7 +104,7 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
     q: "Who funds this?",
     a: (
       <>
-        Funding sources aren&apos;t public yet. See <Link href="/support-us">Support Us</Link> for how sustaining channels will be published as they open.
+        Funding sources aren&apos;t published in full yet. What exists today is reader donations, through PayPal and Buy Me a Coffee — both on <Link href="/support-us">Support Us</Link>.
       </>
     ),
   },
@@ -231,8 +231,8 @@ export default function Page() {
           <div>
             <dt>Funding</dt>
             <dd>
-              Not yet public — see <Link href="/support-us">Support Us</Link>{" "}
-              for what exists today.
+              Not yet published in full — reader donations, through PayPal and
+              Buy Me a Coffee, are on <Link href="/support-us">Support Us</Link>.
             </dd>
           </div>
           <div>

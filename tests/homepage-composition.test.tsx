@@ -18,7 +18,7 @@ describe('homepage editorial composition',()=>{
   * 2026-09-06 both render as collections inside the "people" chapter
   * (`HomePeopleSection`), so the semantic-order check names only the bands
   * that still carry their own `data-home-section`. */
- const names=['news','fakeResistance','october7','people','system'];
+ const names=['news','fakeResistance','october7','people','system','support'];
  const indices=names.map(n=>html.indexOf(`data-home-section="${n}"`));expect([...indices].sort((a,b)=>a-b)).toEqual(indices);expect(indices.every(i=>i>=0)).toBe(true);
  expect(html).not.toContain('<video');expect(html).not.toContain('aria-roledescription="carousel"');expect(html).toContain('A full headline');expect(html).not.toContain('<h1');
  });

@@ -27,16 +27,19 @@ const SESSION_TTL = 12 * 60 * 60;
 const ACCESS_TOKEN_FALLBACK_TTL = 2 * 60 * 60;
 const REFRESH_SKEW = 60;
 const SESSION_AAD = Buffer.from("lions-of-zion:x-public-session:v2", "utf8");
-const X_SCOPES = ["tweet.read", "users.read", "tweet.write", "media.write", "offline.access"] as const;
+const IDENTITY_SCOPES = ["tweet.read", "users.read"] as const;
+const POSTING_SCOPES = ["tweet.read", "users.read", "tweet.write", "media.write", "offline.access"] as const;
 
 export const X_OAUTH_STATE_COOKIE = "__Host-x-oauth-state";
 export const X_PUBLIC_SESSION_COOKIE = "__Host-x-public-session";
 
+export type PublicXAuthorizationMode = "identity" | "posting";
 type Pending = {
   version: 2;
   state: string;
   verifier: string;
   returnTo: string;
+  mode: PublicXAuthorizationMode;
   expiresAt: number;
 };
 type LegacyPending = { version: 1; state: string; verifier: string; expiresAt: number };
@@ -52,6 +55,7 @@ type CredentialSession = {
   expiresAt: number;
 };
 export type PublicXAuthorization = {
+  mode: PublicXAuthorizationMode;
   profile: PublicXProfile;
   accessToken: string;
   refreshToken?: string;
@@ -87,8 +91,6 @@ const hostCookie = {
 };
 export const pendingAuthorizationCookieOptions = { ...hostCookie, maxAge: STATE_TTL };
 export const publicSessionCookieOptions = { ...hostCookie, maxAge: SESSION_TTL };
-
-/** The origin X will hand the reader back to, and the only one that can finish. */
 const CALLBACK_ORIGIN = new URL(CALLBACK_URL).origin;
 
 export function publicXAvailability(headers?: Headers): ProviderAvailability {
@@ -110,22 +112,22 @@ function requestOrigin(headers?: Headers): string | null {
 }
 
 /**
- * Starts the one X authorization used for both identity and native archive
- * posting. The write scopes are explicit, so a reader sees exactly what the
- * application is asking X to allow.
+ * Ordinary account sign-in remains read-only. Posting permissions are requested
+ * only when a reader explicitly starts the native-media posting flow.
  */
-export function beginPublicXAuthorization(returnTo = "/account"): {
-  authorizationUrl: string;
-  stateCookie: string;
-} {
+export function beginPublicXAuthorization(
+  returnTo = "/account",
+  mode: PublicXAuthorizationMode = "identity",
+): { authorizationUrl: string; stateCookie: string } {
   const state = randomValue();
   const verifier = randomValue();
+  const scopes = mode === "posting" ? POSTING_SCOPES : IDENTITY_SCOPES;
   const authorization = new URL(AUTHORIZE_URL);
   authorization.search = new URLSearchParams({
     response_type: "code",
     client_id: xOAuthClientId(),
     redirect_uri: CALLBACK_URL,
-    scope: X_SCOPES.join(" "),
+    scope: scopes.join(" "),
     state,
     code_challenge: createHash("sha256").update(verifier).digest("base64url"),
     code_challenge_method: "S256",
@@ -137,15 +139,12 @@ export function beginPublicXAuthorization(returnTo = "/account"): {
       state,
       verifier,
       returnTo: normaliseReturnTo(returnTo),
+      mode,
       expiresAt: now() + STATE_TTL,
     }),
   };
 }
 
-/**
- * Completes PKCE, reads the reader's X profile, and returns the user-context
- * token material required for native media posting. Tokens stay server-side.
- */
 export async function completePublicXAuthorization(
   params: URLSearchParams,
   value: string | undefined,
@@ -157,6 +156,7 @@ export async function completePublicXAuthorization(
     throw new PublicXAuthError("invalid_callback");
   }
 
+  const requestedScopes = pending.mode === "posting" ? [...POSTING_SCOPES] : [...IDENTITY_SCOPES];
   const tokenResponse = await fetch(TOKEN_URL, {
     method: "POST",
     cache: "no-store",
@@ -169,7 +169,7 @@ export async function completePublicXAuthorization(
     }),
   });
   if (!tokenResponse.ok) throw new PublicXAuthError("token_exchange", tokenResponse.status);
-  const token = tokenPayload(await tokenResponse.json().catch(() => null));
+  const token = tokenPayload(await tokenResponse.json().catch(() => null), requestedScopes);
   if (!token) throw new PublicXAuthError("token_payload");
 
   const profileResponse = await fetch(ME_URL, {
@@ -181,6 +181,7 @@ export async function completePublicXAuthorization(
   if (!profile) throw new PublicXAuthError("profile_payload");
 
   return {
+    mode: pending.mode,
     profile,
     accessToken: token.accessToken,
     refreshToken: token.refreshToken,
@@ -190,12 +191,15 @@ export async function completePublicXAuthorization(
   };
 }
 
-/** Legacy identity-only session constructor retained for previously issued cookies and tests. */
+/** Identity-only cookies never contain provider credentials. */
 export const createPublicSession = (profile: PublicXProfile): string =>
   sign({ version: 1, profile, expiresAt: now() + SESSION_TTL });
 
-/** New callbacks use an encrypted HttpOnly cookie because it contains X token material. */
+/** Posting sessions seal user-context credentials in an encrypted HttpOnly cookie. */
 export function createPublicWriteSession(authorization: PublicXAuthorization): string {
+  if (authorization.mode !== "posting") {
+    throw new Error("An identity-only X authorization cannot create a write session");
+  }
   return seal({
     version: 2,
     profile: authorization.profile,
@@ -217,7 +221,6 @@ export function readPublicSession(value: string | undefined): PublicXProfile | n
     : null;
 }
 
-/** Returns write access, refreshing it when needed without exposing tokens to the browser. */
 export async function getPublicXWriteAccess(value: string | undefined): Promise<PublicXWriteAccess | null> {
   if (!value) return null;
   const session = readCredentialSession(value);
@@ -227,13 +230,13 @@ export async function getPublicXWriteAccess(value: string | undefined): Promise<
   }
   if (!session.refreshToken) return null;
 
-  const refreshed = await refreshTokens(session.refreshToken);
+  const refreshed = await refreshTokens(session.refreshToken, session.scopes);
   const replacement: CredentialSession = {
     ...session,
     accessToken: refreshed.accessToken,
     refreshToken: refreshed.refreshToken ?? session.refreshToken,
     accessExpiresAt: now() + refreshed.expiresIn,
-    scopes: refreshed.scopes.length ? refreshed.scopes : session.scopes,
+    scopes: refreshed.scopes,
     expiresAt: now() + SESSION_TTL,
   };
   if (!hasWriteScopes(replacement.scopes)) return null;
@@ -249,8 +252,14 @@ function readPending(value: string): Pending | null {
   if (!pending || !future(pending.expiresAt) || !isUrlValue(pending.state) || !isUrlValue(pending.verifier)) {
     return null;
   }
-  if (pending.version === 2 && typeof pending.returnTo === "string") return pending;
-  if (pending.version === 1) return { ...pending, version: 2, returnTo: "/account" };
+  if (
+    pending.version === 2 &&
+    typeof pending.returnTo === "string" &&
+    (pending.mode === "identity" || pending.mode === "posting")
+  ) return pending;
+  if (pending.version === 1) {
+    return { ...pending, version: 2, returnTo: "/account", mode: "identity" };
+  }
   return null;
 }
 
@@ -335,7 +344,7 @@ function tokenHeaders(): Record<string, string> {
 
 type ParsedToken = { accessToken: string; refreshToken?: string; expiresIn: number; scopes: string[] };
 
-function tokenPayload(value: unknown): ParsedToken | null {
+function tokenPayload(value: unknown, fallbackScopes: readonly string[]): ParsedToken | null {
   if (!value || typeof value !== "object") return null;
   const payload = value as Record<string, unknown>;
   if (!text(payload.access_token, 4096)) return null;
@@ -343,11 +352,11 @@ function tokenPayload(value: unknown): ParsedToken | null {
   const expiresIn = Number.isFinite(expires) && expires > 0 ? Math.floor(expires) : ACCESS_TOKEN_FALLBACK_TTL;
   const refreshToken = text(payload.refresh_token, 4096) ? payload.refresh_token : undefined;
   const scopeText = typeof payload.scope === "string" ? payload.scope.trim() : "";
-  const scopes = scopeText ? scopeText.split(/\s+/).filter(Boolean) : [...X_SCOPES];
+  const scopes = scopeText ? scopeText.split(/\s+/).filter(Boolean) : [...fallbackScopes];
   return { accessToken: payload.access_token, refreshToken, expiresIn, scopes };
 }
 
-async function refreshTokens(refreshToken: string): Promise<ParsedToken> {
+async function refreshTokens(refreshToken: string, fallbackScopes: readonly string[]): Promise<ParsedToken> {
   const response = await fetch(TOKEN_URL, {
     method: "POST",
     cache: "no-store",
@@ -355,11 +364,10 @@ async function refreshTokens(refreshToken: string): Promise<ParsedToken> {
     body: new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken,
-      client_id: xOAuthClientId(),
     }),
   });
   if (!response.ok) throw new PublicXAuthError("refresh_failed", response.status);
-  const payload = tokenPayload(await response.json().catch(() => null));
+  const payload = tokenPayload(await response.json().catch(() => null), fallbackScopes);
   if (!payload) throw new PublicXAuthError("refresh_failed");
   return payload;
 }

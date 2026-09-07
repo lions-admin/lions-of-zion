@@ -12,6 +12,7 @@ described as though it works.
 | [`data-model.md`](data-model.md) | Tables, triggers, versioning, RLS, the two axes, the test database |
 | [`environment.md`](environment.md) | Every environment variable, by name. No values |
 | [`operations.md`](operations.md) | Install, run, verify, CI, deploy, troubleshoot |
+| [`chatgpt-app.md`](chatgpt-app.md) | The ChatGPT app — remote MCP, its tools, its OAuth flow, and why it does not replace the package pipeline |
 | [`whole-site-updates.md`](whole-site-updates.md) | `whole-site-update-v1` — how an externally composed editorial package is delivered and run |
 | [`briefing-packages.md`](briefing-packages.md) | The legacy `external-briefing-v1` path, kept for historical Daily Brief packages |
 | [`vercel-infrastructure.md`](vercel-infrastructure.md) | Verified Vercel, Neon, Blob, Queue, Cron and AI deployment record |

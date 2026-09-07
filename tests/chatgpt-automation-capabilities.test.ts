@@ -142,4 +142,21 @@ describe("the automation's capabilities", () => {
     const { CHATGPT_AUTOMATION_TOOLS } = await import("@/server/contracts/chatgpt-automation");
     expect([...CHATGPT_AUTOMATION_TOOLS]).toEqual([...OPS_TOOLS]);
   });
+
+  /* The duplicate check is the one read whose failure mode is publishing.
+     A swallowed infrastructure error answers "this story does not exist", and
+     the caller's next move on that answer is to create it again. Caught live
+     on 2026-09-07 against a Preview database that was behind on migrations and
+     therefore reported every lookup as a miss. */
+  it("reports a genuine miss as null, and refuses to call a database failure a miss", async () => {
+    const service_ = chatgptAutomationService(db as unknown as Database, stubContext([]));
+    await expect(service_.findPublication("no-such-record")).resolves.toBeNull();
+
+    /* A broken database, which must propagate rather than flatten into null. */
+    const broken = chatgptAutomationService(
+      { transaction: () => Promise.reject(new Error("unused")) } as unknown as Database,
+      stubContext([]),
+    );
+    await expect(broken.findPublication("anything")).rejects.toThrow();
+  });
 });

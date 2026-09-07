@@ -1,0 +1,107 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-daily-2026-09-07-2005-q6t9",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T17:05:00.000Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "siteRecommendations": [
+    "Media materialization is currently healthy in live production: the previous scheduled run completed five hero recoveries without failure, all six homepage placements now carry hero media, and the site-wide missing-hero count fell to 40 of 48 live records.",
+    "Continue targeted hero recovery for high-value non-homepage records, prioritizing current/developing stories and investigations rather than bulk-filling low-value archive items.",
+    "The Gaza City Yusuf Aqila story is a strong candidate for a canonical update once a compliant story-specific visual is available; do not create a duplicate standalone article solely from the later IDF identification.",
+    "Legacy briefing-pipeline debt remains separate from the whole-site-update-v2 path: two draft jobs remain quarantined and one September 1 publish job remains pending after exhausting retries."
+  ],
+  "research": [
+    {
+      "topic": "Southern Lebanon escalation",
+      "focus": "Developments after the latest successful Lions run, including Hezbollah fire, Israeli response and Kfar Rumman casualty reporting.",
+      "sourcesReviewed": [
+        "https://www.jpost.com/israel-news/defense-news/article-907843",
+        "https://www.timesofisrael.com/liveblog_entry/two-idf-soldiers-lightly-hurt-in-clash-with-hezbollah-gunman-in-southern-lebanon/",
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4"
+      ],
+      "conclusion": "No material new fact was identified after the existing Lebanon lead was updated and its hero media repaired. The current lead remains the best canonical container for further developments.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Gaza City strike and Yusuf Aqila identification",
+      "focus": "Later IDF identification of Yusuf Aqila as a Hamas Nukhba company commander after the existing Gaza City strike publication was created.",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/",
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766"
+      ],
+      "conclusion": "The later identification is a legitimate material clarification to the existing Gaza City article, but not a reason to create a duplicate. The existing record still has no hero image, and this run will not make a material update that knowingly fails the visual standard when no compliant story-specific asset was prepared.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Iran and Strait of Hormuz",
+      "focus": "Iranian exclusion-zone plans, retaliation threats and shipping disruption.",
+      "sourcesReviewed": [
+        "https://www.cbsnews.com/live-updates/iran-war-us-strait-of-hormuz-oil-gas-price-strikes/",
+        "https://www.timesofisrael.com/liveblog-september-07-2026/"
+      ],
+      "conclusion": "No later development materially superseded the existing Lions Hormuz update during this run. The exclusion-zone plan remains a stated Iranian intention rather than a newly verified implemented control regime.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israel innovation and autonomous AI healthcare",
+      "focus": "Israel Innovation Authority and Ministry of Health regulatory sandbox for autonomous AI medical technologies.",
+      "sourcesReviewed": [
+        "https://innovationisrael.org.il/en/press_release/sandbox-health/",
+        "https://innovationisrael.org.il/en/calls_for_proposal/ai-in-health-sandbox/"
+      ],
+      "conclusion": "The initiative is credible and mission-relevant, but the press release date is July 9, 2026, not September 7. It is therefore not a fresh development since the latest successful Lions run and must not be presented as today's news.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Antisemitism and Jewish-community threats",
+      "focus": "Fresh material after the latest successful Lions run.",
+      "sourcesReviewed": [
+        "https://www.australianjewishnews.com/latest/"
+      ],
+      "conclusion": "A reported bomb threat against an Elsternwick restaurant after a Jewish-Greek Shabbat dinner is potentially relevant but was supported in this sweep by a single local report and did not yet justify a Lions publication without stronger corroboration and clearer incident detail.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-no-material-post-run-change",
+      "candidate": "New breaking-news publication or homepage replacement after the 19:38 Israel-local successful run",
+      "reason": "The latest sweep did not identify a sufficiently consequential new fact that materially changed the strongest current developing stories. Publishing again would create churn rather than reader value.",
+      "section": "news",
+      "sources": [
+        "https://www.timesofisrael.com/the-daily-edition/",
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766"
+      ]
+    },
+    {
+      "key": "veto-gaza-update-without-compliant-visual",
+      "candidate": "Update the existing Gaza City strike article with the IDF identification of Yusuf Aqila as a Hamas Nukhba company commander",
+      "reason": "The clarification is editorially useful, but the current record has no hero media and no story-specific compliant visual was prepared in this run. The update should land on the canonical article once it can meet the visual standard.",
+      "section": "news",
+      "sources": [
+        "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/",
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766"
+      ]
+    },
+    {
+      "key": "veto-ai-health-date-error",
+      "candidate": "New People of Israel story treating the autonomous-AI healthcare sandbox as a September 7 launch",
+      "reason": "Primary-source dating shows the announcement is from July 9, 2026. Treating it as today's development would be a chronology error.",
+      "section": "technology_ai",
+      "sources": [
+        "https://innovationisrael.org.il/en/press_release/sandbox-health/"
+      ]
+    },
+    {
+      "key": "veto-single-source-australia-threat",
+      "candidate": "Standalone antisemitism article on a reported bomb threat against an Elsternwick restaurant",
+      "reason": "Potentially consequential but supported in this run by a single local report; stronger corroboration and incident details are required before publication.",
+      "section": "antisemitism",
+      "sources": [
+        "https://www.australianjewishnews.com/latest/"
+      ]
+    }
+  ]
+}

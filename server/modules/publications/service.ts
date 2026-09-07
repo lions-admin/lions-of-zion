@@ -173,13 +173,21 @@ export function publicationService(db: unknown) {
      * without losing the page"): an illustration is enrichment, never the
      * record, so a publication with no rights-cleared image still publishes
      * with no picture rather than blocking the whole run. */
+    /* `mediaOutcome` is what the executor's media stage actually did — VA-49.
+       The service cannot derive it: by the time it is called, "no media was
+       offered" and "media was offered and refused" both arrive as `null`, and
+       those are the two cases a later run needs to tell apart. */
     async applyEditorial(operation: EditorialOperation, provenance: { runId: string; machineAuthor: string },
-      media: EditorialMediaDraft | null, actor: Actor, requestId?: string): Promise<Publication> {
+      media: EditorialMediaDraft | null, actor: Actor, requestId?: string,
+      mediaOutcome: "offered" | "unavailable" | "none" = "none"): Promise<Publication> {
       return run.transaction(async tx => {
         await setIdentity(tx as Tx, actor.label);
         const r = repo(tx);
         const store = mediaRepo(tx);
         let assetId: string | null = null;
+        const mediaDisposition = media
+          ? "illustrated" as const
+          : mediaOutcome === "unavailable" ? "media_unavailable" as const : "text_led" as const;
         if (media) {
           const asset = await store.insertMedia(media);
           const projected = toEditorialMedia(asset);
@@ -206,6 +214,7 @@ export function publicationService(db: unknown) {
               ...input.narrativeWatchDetails, evidenceBasis: input.evidenceIds?.length ? 'sourced' : 'analysis',
             } : null,
             scenarioLikelihood: input.scenarioLikelihood ?? null, scenarioIndicators: input.scenarioIndicators ?? null,
+            mediaDisposition,
             status: 'published', publishedAt: now, autoPublishedAt: now,
             editorialRunId: provenance.runId, editorialOperationKey: operation.key,
             machineAuthor: provenance.machineAuthor, createdBy: null, approvedBy: null,
@@ -256,6 +265,11 @@ export function publicationService(db: unknown) {
           row = await r.update(before.id, {
             ...fields,
             narrativeWatchDetails: details,
+            /* An update that brought no media keeps whatever the record already
+               had — including its disposition. Overwriting it with `text_led`
+               here would relabel a picture-less record as deliberate every time
+               someone fixed a typo. */
+            ...(media || mediaOutcome !== "none" ? { mediaDisposition } : {}),
             status: 'updated',
             updatedAt: now,
             editorialRunId: provenance.runId,
@@ -1012,6 +1026,7 @@ function toPublicPublication(row: Publication, media: EditorialMedia | null): Pu
     publishedAt: row.publishedAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     autoPublishedAt: row.autoPublishedAt?.toISOString() ?? null,
+    mediaDisposition: row.mediaDisposition ?? null,
     editorialTopic: row.editorialTopic,
     topicTags: row.topicTags,
     primaryActor: row.primaryActor,

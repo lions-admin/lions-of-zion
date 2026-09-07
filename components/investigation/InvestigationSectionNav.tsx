@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './investigation.module.css';
 
 export type InvestigationSection = { id: string; label: string };
@@ -21,6 +21,31 @@ export type InvestigationSection = { id: string; label: string };
  */
 export function InvestigationSectionNav({ sections }: { sections: InvestigationSection[] }) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+  /* VA-54. Nine no-wrap pills are about 1319px of strip inside a 343px phone,
+     and the scrollbar is hidden by design — so a reader is given no sign that
+     six of the nine sections exist. `data-overflow` says which way there is
+     more to see and the stylesheet fades that edge. */
+  const [edges, setEdges] = useState<"none" | "end" | "start" | "both">("none");
+
+  const measure = useCallback(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const slack = list.scrollWidth - list.clientWidth;
+    if (slack <= 1) return setEdges("none");
+    const atStart = list.scrollLeft <= 1;
+    const atEnd = list.scrollLeft >= slack - 1;
+    setEdges(atStart ? "end" : atEnd ? "start" : "both");
+  }, []);
+
+  useEffect(() => {
+    measure();
+    const list = listRef.current;
+    if (!list || typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [measure, sections]);
 
   useEffect(() => {
     if (typeof IntersectionObserver === 'undefined') return undefined;
@@ -47,9 +72,27 @@ export function InvestigationSectionNav({ sections }: { sections: InvestigationS
     return () => observer.disconnect();
   }, [sections]);
 
+  /* Follow the reader down the page. Without this the strip still shows
+     section 01 while they are reading 07, which is worse than no strip: it
+     reports a position that is not theirs. `nearest` never scrolls the page
+     itself, only the strip. */
+  useEffect(() => {
+    if (!activeId) return;
+    const current = listRef.current?.querySelector<HTMLElement>(`[href="#${CSS.escape(activeId)}"]`);
+    if (!current) return;
+    const still = typeof matchMedia === "function"
+      && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    current.scrollIntoView({ inline: "nearest", block: "nearest", behavior: still ? "auto" : "smooth" });
+  }, [activeId]);
+
   return (
     <nav className={styles.sectionNav} aria-label="Sections of this case">
-      <ol className={styles.sectionNavList}>
+      <ol
+        ref={listRef}
+        className={styles.sectionNavList}
+        data-overflow={edges}
+        onScroll={measure}
+      >
         {sections.map((section, index) => (
           <li key={section.id}>
             <a

@@ -4,14 +4,23 @@ import { eq } from "drizzle-orm";
 import type { Database } from "@/server/db/client";
 import { appUser, type AppUser } from "@/server/db/schema";
 
+export type HumanUserUpsertResult = {
+  user: AppUser;
+  created: boolean;
+};
+
 /** The authentication provider may issue a new subject when an existing
  * person connects an additional sign-in method. Email is the owner-approved
  * account link in this single-user system, so retain the existing database
- * identity (and its audit/capability links) rather than inserting a twin. */
-export async function upsertHumanUser(
+ * identity (and its audit/capability links) rather than inserting a twin.
+ *
+ * The status-bearing variant lets public authentication distinguish a real
+ * first registration from a repeat sign-in without sending duplicate
+ * notifications. */
+export async function upsertHumanUserWithStatus(
   database: Database,
   input: { externalId: string; email: string | null; displayName: string },
-): Promise<AppUser> {
+): Promise<HumanUserUpsertResult> {
   const bySubject = await database
     .select()
     .from(appUser)
@@ -24,7 +33,7 @@ export async function upsertHumanUser(
       .set({ email: input.email, displayName: input.displayName, disabledAt: null })
       .where(eq(appUser.id, bySubject[0].id))
       .returning();
-    if (updated) return updated;
+    if (updated) return { user: updated, created: false };
   }
 
   if (input.email) {
@@ -39,7 +48,7 @@ export async function upsertHumanUser(
         .set({ externalId: input.externalId, email: input.email, displayName: input.displayName, disabledAt: null })
         .where(eq(appUser.id, byEmail[0].id))
         .returning();
-      if (linked) return linked;
+      if (linked) return { user: linked, created: false };
     }
   }
 
@@ -48,5 +57,13 @@ export async function upsertHumanUser(
     .values({ ...input, isAutomated: false })
     .returning();
   if (!created) throw new Error("Could not initialize the authenticated user.");
-  return created;
+  return { user: created, created: true };
+}
+
+/** Existing callers only need the durable user record. */
+export async function upsertHumanUser(
+  database: Database,
+  input: { externalId: string; email: string | null; displayName: string },
+): Promise<AppUser> {
+  return (await upsertHumanUserWithStatus(database, input)).user;
 }

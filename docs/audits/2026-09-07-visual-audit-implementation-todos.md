@@ -1859,6 +1859,76 @@ correction to the audit's stated evidence, not a dismissal of its finding.
 
 ---
 
+## 12b. VA-41 … VA-45 — defects discovered by VA-04, promoted to tasks
+
+Recorded 2026-09-07 so they survive as work rather than as a paragraph in a
+findings report. Each was re-verified against Production before being written
+here; two of the five did not survive that check unchanged.
+
+### VA-41 — `viewport-fit=cover` is missing, so every safe-area rule is dead on iOS
+
+- **Verified.** `app/layout.tsx` exports `viewport` with `themeColor` and
+  `colorScheme` and **no `viewportFit`**. Next.js therefore emits
+  `width=device-width, initial-scale=1`, under which `env(safe-area-inset-*)`
+  resolves to `0` on iOS. **16 such rules across 8 CSS modules** —
+  `homepage-journey`, `editorial-intro`, `sections`, `ask`, `investigation`,
+  `search`, `site-header`, `site-footer` — are written, shipped and inert.
+- **Classification.** FIX · **Severity.** B · **Work type.** Frontend
+- **Why it is not a one-line merge.** Turning it on makes the page extend under
+  the notch and the home indicator. The 16 rules exist because someone expected
+  cover; enabling it is what makes them do their job. But if any layout was
+  tuned by eye with the insets reading 0, enabling cover *adds* padding there.
+  That cannot be settled from a desktop browser.
+- **Status.** `BLOCKED — needs physical iOS verification (VA-39)`. Prepare the
+  change and the evidence; do not claim completion without a device.
+
+### VA-42 — `/geopolitical-brief` shows a reader zero records without JavaScript
+
+- **Verified on Production.** The response carries **27 `<div hidden id="S:…">`
+  streaming containers holding 400 article-link occurrences**, and only
+  **2,871 visible characters** ahead of the first one — all of it navigation
+  chrome, no editorial content. React streams the records into hidden divs that
+  only client script reveals.
+- **Root cause.** `components/briefs/LiveBriefHub.tsx:141` wraps
+  `<LiveBriefEdition>` in `<Suspense fallback={<SkeletonDesk …/>}>`. The file's
+  own comment at `:119` records that an earlier version put *the entire chrome*
+  behind that boundary and that this was fixed — the chrome came out, the
+  records did not.
+- **Classification.** FIX · **Severity.** B · **Work type.** Frontend
+- **Note on the harness.** `ui-audit.mjs`'s no-JS pass covers this route and
+  **passes it**, because its floor asks whether anything rendered, not whether
+  any *record* did. Raise that floor as part of the fix or it will pass again.
+- **Status.** `READY`
+
+### VA-43 — React #418 hydration mismatch on an article route
+
+- **Reported by VA-04** at `/articles/israel-launches-fresh-attacks-across-southern-le-86i2j`,
+  at both widths.
+- **Classification.** FIX · **Severity.** B · **Work type.** Frontend
+- **Instruction.** Reproduce on current Production, find the server/client
+  divergence, and fix the cause. Do not silence the console.
+- **Status.** `READY — reproduce first`
+
+### VA-44 — 404 copy still says "Daily Brief"
+
+- **RETIRED — not reproducible, 2026-09-07.** The live 404 was fetched and its
+  rendered text contains no "Daily Brief" anywhere. Either it was corrected in
+  the window between VA-04's capture and this check, or the string was read
+  from an adjacent surface. Nothing to do; recorded so it is not re-raised.
+- **Status.** `RETIRED`
+
+### VA-45 — landscape phone renders the wide-layout panel instead of the drawer
+
+- **Reported by VA-04**, and explicitly left unverified there.
+- **Classification.** FIX · **Severity.** C · **Work type.** Frontend
+- **Instruction.** Reproduce at a real landscape-phone box (e.g. 812x375 and
+  932x430). The navigation breakpoint is width-only, so a phone on its side
+  reads as a small tablet. Fix at the breakpoint — a height or
+  `pointer: coarse` condition — **not** with a device-specific hack.
+- **Status.** `NEEDS VISUAL VERIFICATION`
+
+---
+
 ## 13. VA-04 results — the first real Production evidence set, 7 September 2026
 
 `ui-audit.mjs` (183 route/viewport pairs, then 96 more closing a coverage gap),

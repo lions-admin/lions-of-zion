@@ -10,6 +10,51 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — The ChatGPT widgets are inlined plain DOM, not a bundled framework
+
+Three constraints, each ruling out the obvious choice.
+
+The site sends `frame-ancestors 'none'` and `X-Frame-Options: DENY` on every
+path, so a template that loaded anything from `lionsofzion.io` would be blocked
+by our own headers. Everything therefore travels inside the MCP resource body:
+markup, CSS and script. No bundler, no build step, no asset host, and no
+per-path CSP exception to maintain.
+
+A React runtime inlined into five resources would have been most of the payload,
+to render what is a list and a card. Plain DOM is smaller and cannot drift from
+a React version the host page does not have.
+
+Colours read `var(--openai-color-*, <lions fallback>)` rather than a hardcoded
+palette, so the widget takes ChatGPT's own theme where it exists. The type roles
+stay ours — display serif, sans, mono, body at 16px and metadata at 13px, the
+same floors `UX-CONTRACT.md` sets for a phone.
+
+Five templates rather than the eight surfaces the brief named: sources, evidence
+and media all arrive in one publication projection, and research and vetoes
+belong to the run that produced them. Splitting them would have meant three
+reads to draw one card.
+
+`@modelcontextprotocol/ext-apps` was not used. It peers on SDK v1 while this
+server is v2, and the only thing needed from it is one mimetype string from a
+ratified specification.
+
+---
+
+## 2026-09-07 — A backtick in a CSS comment silently truncated a widget
+
+The shared stylesheet lives in a template literal. A comment written with
+`` `color-scheme` `` in backticks closed the string early, and the route stopped
+compiling — loudly, this time.
+
+Worth recording because the failure mode is not always loud: a stray backtick
+later in the file would have produced a *shorter* stylesheet that still parsed,
+and the widget would have rendered unstyled with nothing to explain why. The
+widget tests assert on specific CSS and markup inside each generated template,
+which is what turns that silent truncation into a failing assertion. Keep them
+that way, and keep backticks out of the templates.
+
+---
+
 ## 2026-09-07 — The ChatGPT app authenticates with OAuth, because there is no other option
 
 The automation layer authenticates with `x-chatgpt-automation-secret`, and the

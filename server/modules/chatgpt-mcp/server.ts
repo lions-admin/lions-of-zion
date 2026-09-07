@@ -24,6 +24,7 @@ import { CHATGPT_ACTOR_LABEL } from "@/server/contracts/chatgpt-automation";
 import { ApiError } from "@/server/http/responses";
 import { briefingLog } from "@/server/core/log";
 import { mcpToolSpecs } from "./tools";
+import { APP_RESOURCE_MIME_TYPE, WIDGETS, WIDGET_BY_TOOL } from "./widgets";
 import { verifyAccessToken } from "./tokens";
 
 export const MCP_SERVER_NAME = "lions-of-zion";
@@ -84,7 +85,33 @@ function buildHandler(requestId: string) {
 
   return createMcpHandler(
     server => {
+      /* The UI templates. Registered as MCP Apps resources: the host reads one
+         by its `ui://` URI, caches it against that URI, and renders it in its
+         own sandbox. Everything is inlined in the body, so nothing is fetched
+         from this origin — which is also what sidesteps the site's
+         `frame-ancestors 'none'`. */
+      for (const widget of WIDGETS) {
+        server.registerResource(
+          widget.name,
+          widget.uri,
+          { title: widget.title, mimeType: APP_RESOURCE_MIME_TYPE },
+          async uri => ({
+            contents: [{
+              uri: uri.href,
+              mimeType: APP_RESOURCE_MIME_TYPE,
+              text: widget.html,
+              _meta: {
+                ui: { prefersBorder: true },
+                "openai/widgetDescription": widget.description,
+                "openai/widgetPrefersBorder": true,
+              },
+            }],
+          }),
+        );
+      }
+
       for (const spec of specs) {
+        const widget = WIDGET_BY_TOOL.get(spec.name);
         server.registerTool(
           spec.name,
           {
@@ -92,6 +119,18 @@ function buildHandler(requestId: string) {
             description: spec.description,
             inputSchema: spec.inputSchema,
             annotations: spec.annotations,
+            /* `_meta.ui.resourceUri` is the standard field; the `openai/`
+               key is the compatibility alias for hosts that predate it. A
+               tool with no widget simply has neither, and still works — the
+               UI is an enhancement, never a dependency. */
+            ...(widget
+              ? {
+                _meta: {
+                  ui: { resourceUri: widget.uri },
+                  "openai/outputTemplate": widget.uri,
+                },
+              }
+              : {}),
           },
           async (args: unknown) => {
             const started = Date.now();

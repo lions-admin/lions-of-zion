@@ -42,7 +42,7 @@ export function XMediaPostButton({
       });
 
       if (response.status === 401 || response.status === 403) {
-        const destination = `/auth/x?return_to=${encodeURIComponent(returnTo)}`;
+        const destination = `/auth/x?intent=post&return_to=${encodeURIComponent(returnTo)}`;
         window.location.assign(destination);
         return;
       }
@@ -77,7 +77,7 @@ export function XMediaPostButton({
       <Button
         type="button"
         variant={compact ? 'text' : 'secondary'}
-        size={compact ? 'sm' : 'md'}
+        size="md"
         className={compact ? styles.mediaAction : undefined}
         isLoading={state.kind === 'posting'}
         onClick={() => void post()}

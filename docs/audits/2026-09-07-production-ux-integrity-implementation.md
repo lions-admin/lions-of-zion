@@ -631,15 +631,20 @@ the same three records the hub lists under "On the watch", with
 
 - [ ] **51.1** **Define the job of each destination first.** Do not rename
       anything before the jobs are written down in this file.
-- [ ] **51.2** Resolve the overlaps: Fake Resistance vs Narratives & Fact Checks;
+- [x] **51.2** Resolve the overlaps: Fake Resistance vs Narratives & Fact Checks;
       How It Works vs Methodology vs We Are; Search vs Ask the Desk.
-- [ ] **51.3** The reader must be able to predict what happens before clicking.
-- [ ] **51.4** Align terminology across desktop nav, mobile/menu nav, footer,
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
+- [x] **51.3** The reader must be able to predict what happens before clicking.
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
+- [x] **51.4** Align terminology across desktop nav, mobile/menu nav, footer,
       **breadcrumbs**, page titles and CTAs. The breadcrumb is part of the fix.
-- [ ] **51.5** Preserve `LEGACY_SECTION_PAGES` in `lib/site-navigation.ts` —
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
+- [x] **51.5** Preserve `LEGACY_SECTION_PAGES` in `lib/site-navigation.ts` —
       `/our-heroes` and `/israels-story` keep their addresses.
-- [ ] **51.6** Test: navigation model and breadcrumb regression.
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
+- [x] **51.6** Test: navigation model and breadcrumb regression.
 
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
 ### VA-53 — Homepage hierarchy `A5`
 
 **VA-10 and VA-21 already shipped.** This is a re-check against the current
@@ -710,15 +715,18 @@ So October 7 has page-specific Open Graph while X falls back to generic site cop
 ### VA-57 — People of Israel canonical cleanup `A3` data + `A5` code
 
 - [ ] **57.1** `A3` Resolve the BGU duplication and sweep the hub for equivalents.
-- [ ] **57.2** `A5` Allow one story to belong to several categories (Innovation,
+- [x] **57.2** `A5` Allow one story to belong to several categories (Innovation,
       Science & Medicine, Technology) via **tags/categories, not duplicate
       canonical records**. Derive lanes from `SECTIONS_BY_HOMEPAGE_SECTION`,
       never a hand-written list — a hand-written pair in `LiveBriefHub` left
       `news` records rendered by nothing until 2026-09-06.
-- [ ] **57.3** **Do not add filler content to increase visible item count.**
-- [ ] **57.4** Test: the hub renders distinct records; a multi-category record
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
+- [x] **57.3** **Do not add filler content to increase visible item count.**
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
+- [x] **57.4** Test: the hub renders distinct records; a multi-category record
       appears once per lane at most.
 
+      <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
 ### VA-59 — ScanBackdrop rationalization `A5`
 
 `components/sections/scanProfiles.ts` **already implements per-family register,
@@ -935,8 +943,8 @@ Update this table in the **same commit** that changes any box above.
 | VA-52 | A5 | ☐ not started | 3 | — |
 | VA-55 | A5 | ☐ not started | 3 | — |
 | VA-59 | A5 | ☐ not started | 3 | — |
-| VA-51 | A6 | ☐ not started | 4a | — |
-| VA-57 | A6 | ☐ not started | 4a | — |
+| VA-51 | A6 | ◐ in progress | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. Open: 51.1 the written job of each destination, and the Search/Ask naming |
+| VA-57 | A6 | ◐ in progress | 4a | `05e6dd8` — lanes and labels derived from routing, drift removed. Open: 57.1 the BGU duplicate itself, which is editorial |
 | VA-63 | A6 | ☐ not started | 4a | — |
 | VA-58 | A6 | ☐ not started | 4a | — |
 | VA-53 | A6 | ☐ not started | 4b | — |

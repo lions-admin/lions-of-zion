@@ -13,21 +13,26 @@ export function AskDock({ home = false }: { home?: boolean }) {
 
   return (
     <>
-      <button
-        type="button"
+      <a
+        href="/ask"
         className={home ? styles.homeDockTrigger : styles.dockTrigger}
         data-ask-launcher=""
-        aria-label={home ? "AI Chat — ask the desk" : "Ask the desk"}
+        aria-label="AI Chat — ask the desk"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen(true)}
+        onClick={(event) => {
+          // Keep native navigation available before hydration and for new-tab gestures.
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+          event.preventDefault();
+          setOpen(true);
+        }}
       >
         <span className={styles.dockGlyph} aria-hidden="true">
           <Icon name="ask" size={20} strokeWidth={1.5} />
         </span>
-        <span className={styles.dockLabel}>{home ? "AI Chat" : "Ask"}</span>
-      </button>
+        <span className={styles.dockLabel}>AI Chat</span>
+      </a>
       <Dialog
         id={panelId}
         open={open}

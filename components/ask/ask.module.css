@@ -756,31 +756,27 @@
   }
 }
 
-/* ---- Ask seal: one compact silhouette at every viewport ---- */
+/* Compact article launcher; the homepage uses its header entry instead. */
 .dockTrigger {
-  --ask-diameter: 4.25rem;
   position: fixed;
   z-index: var(--z-sticky);
   inset-block-end: calc(var(--dock-lift) + env(safe-area-inset-bottom, 0px));
   inset-inline-end: calc(var(--sp-5) + env(safe-area-inset-right, 0px));
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  inline-size: var(--ask-diameter);
-  block-size: var(--ask-diameter);
-  padding: var(--sp-2);
-  gap: var(--sp-1);
+  inline-size: max-content;
+  min-block-size: 44px;
+  padding: 0 14px;
+  gap: 8px;
   border: var(--line-w) solid var(--control-line);
-  border-radius: 50%;
+  border-radius: var(--radius-home-chrome);
   background: var(--ground);
   box-shadow: var(--shadow-2);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font: 500 13px/1 var(--face-navigation);
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     border-color var(--dur-fast) var(--ease-out),
@@ -793,8 +789,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
+  inline-size: 20px;
+  block-size: 20px;
   color: var(--gold);
 }
 
@@ -807,8 +803,6 @@
 .dockLabel {
   display: block;
   line-height: 1;
-  /* Optical centering compensates for tracking after the last letter. */
-  padding-inline-start: var(--t-data-tracking);
 }
 
 .dockTrigger:hover:not(:disabled),
@@ -836,9 +830,8 @@
 @media (min-width: 48rem) {
   .dockTrigger { inset-block-end: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px)); }
 }
-@media (width < 48rem) {
-  .dockTrigger { --ask-diameter: 4rem; }
-}
+/* Static HTML can precede pathname hydration: never show a second homepage launcher. */
+html:has([id="home-wordmark"]) .dockTrigger { display: none; }
 
 /* Header slot on the homepage: the lens stays available without covering content. */
 .homeDockTrigger {
@@ -853,6 +846,7 @@
   background: transparent;
   color: var(--ink-hi);
   font: 500 12px/1 var(--face-text);
+  text-decoration: none;
   cursor: pointer;
 }
 .homeDockTrigger .dockGlyph {
@@ -873,16 +867,6 @@
   .homeDockTrigger { flex-direction: column; gap: 3px; padding: 0 5px; font-size: 11px; }
   .homeDockTrigger .dockGlyph { width: 20px; height: 20px; padding: 2px; border: 0; }
 }
-@media (scripting: none) { .homeDockTrigger { display: none; } }
-
-/* Without scripting the button can open nothing; a dead control fixed over
-   the reading column is worse than none. The menu still links to `/ask`. */
-@media (scripting: none) {
-  .dockTrigger {
-    display: none;
-  }
-}
-
 /* The architecture diagram retains its unobscured, in-flow launcher. */
 @media (max-width: 1100px) {
   html:has([id="war-heading"]) .dockTrigger {
@@ -1410,29 +1394,3 @@
     padding-inline: var(--sp-4);
   }
 }
-
-/* Disabled, defined. The trigger is never disabled by the product today, but a
-   control with no disabled state is a control whose disabled state is whatever
-   the browser decides — and the brief asked to see it. Colour only, so the box
-   does not move: the same rule every other state on this button follows. */
-.dockTrigger:disabled {
-  color: var(--async-disabled);
-  border-color: var(--line);
-  background: var(--surface-1);
-  cursor: not-allowed;
-}
-
-/* The glyph carries its own gold so it reads as the mark even when the label is
-   plain ink — which means the button's disabled colour never reaches it, and a
-   dead control was showing a live gold eye. Inherit here, and only here. */
-.dockTrigger:disabled .dockGlyph {
-  color: inherit;
-}
-
-/* The seal is fixed on every route, at every width. Two earlier rules put it
-   in the document flow — after the news and narrative fronts, and after the
-   whole homepage on anything narrower than 1100px — which made the desk's one
-   conversational entry point invisible until the reader reached the footer.
-   The routes that need clearance get it through `--dock-lift` and the
-   colophon's trailing space, not by unpinning the control. The architecture
-   drawing keeps its in-flow exception above. */

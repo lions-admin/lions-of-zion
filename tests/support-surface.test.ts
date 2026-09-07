@@ -155,7 +155,7 @@ describe("donation channels are links to the provider, never embedded widgets", 
     expect(section).not.toContain("use client");
   });
 
-  it("puts the same two links on the cover as a strip whose motion cannot shift layout", () => {
+  it("keeps cover support links direct, touch-sized, and free of entrance motion", () => {
     expect(read("app/page.tsx")).toContain("<HeroSupportStrip />");
     const strip = read("components/home/HeroSupportStrip.tsx");
     expect(strip).toContain("DONATION_CHANNELS");
@@ -164,16 +164,10 @@ describe("donation channels are links to the provider, never embedded widgets", 
     expect(strip).not.toContain("<script");
 
     const css = read("app/home.module.css");
-    const start = css.indexOf("@keyframes supportRise");
-    expect(start).toBeGreaterThan(-1);
-    /* The moment moves only opacity, transform and colour. A box property in
-       either keyframe would make the chips push the reading surface while
-       they arrive, which is a layout shift on the one page the perf gate
-       watches most closely. */
-    const keyframes = css.slice(start, css.indexOf("@media", start));
-    expect(keyframes).not.toMatch(/\b(width|height|margin|padding|top|left|inset|gap)\s*:/);
-    /* And a reader who asked for less motion gets the chips present and still. */
+    expect(css).not.toContain("@keyframes supportRise");
+    expect(css).not.toContain("@keyframes supportSettle");
+    expect(css).toMatch(/\.supportChip\s*\{[^}]*min-height: 44px/);
     const reduced = css.slice(css.indexOf("prefers-reduced-motion: reduce"));
-    expect(reduced).toMatch(/supportList > li[^{]*\{[^}]*animation: none/);
+    expect(reduced).toMatch(/supportChip[^{}]*\{[^}]*transition: none/);
   });
 });

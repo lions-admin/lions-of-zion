@@ -105,30 +105,19 @@
 .skipLink { position: fixed; top: 12px; left: 20px; z-index: 1000; transform: translateY(-200%); padding: 14px 20px; background: var(--ground); color: var(--ink-hi); border: 1px solid var(--gold); }
 .skipLink:focus { transform: translateY(0); }
 
-/* The ask, on the cover — owner ruling 2026-09-07 (`.ai/DECISIONS.md`). Two chips in the home
-   chrome's own geometry (the header's Support Us control: --radius-home-chrome, hairline, 13px navigation
-   face), gold-lined so they read as the one warm thing under the cover copy. `HeroSupportStrip`
-   says why they are here and why they are not a toast. */
-.supportStrip { margin-top: 26px; }
-.supportList { display: flex; flex-wrap: wrap; gap: 8px 10px; margin: 0; padding: 0; list-style: none; }
-.supportChip { display: inline-flex; align-items: center; gap: 8px; min-height: var(--control-h-sm); padding-inline: 13px 11px; border: 1px solid var(--gold-line-strong); border-radius: var(--radius-home-chrome); background: color-mix(in srgb, var(--ground) 55%, transparent); color: var(--ink-hi); font: 500 13px/1 var(--face-navigation); text-decoration: none; white-space: nowrap; transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
-.supportChip svg { flex: none; color: var(--gold); }
-.supportChipArrow { color: var(--gold); font-size: 12px; transition: transform var(--dur-fast) var(--ease-out); }
-.supportChip:hover { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-hi); }
-.supportChip:hover .supportChipArrow { transform: translate(1px, -1px); }
+/* One support invitation; the links stay direct and keep full touch targets. */
+.supportStrip { display: flex; align-items: center; flex-wrap: wrap; column-gap: 16px; width: fit-content; max-width: 100%; margin-top: 18px; }
+.supportLabel { color: var(--ink-lo); font: italic 15px/1.3 var(--face-navigation-display); }
+.supportList { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
+.supportList > li + li { position: relative; margin-left: 5px; padding-left: 6px; }
+.supportList > li + li::before { content: ""; position: absolute; left: 0; top: 16px; height: 12px; width: 1px; background: var(--line-strong); }
+.supportChip { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding-inline: 6px; border-radius: var(--radius-home-chrome); color: var(--gold); font: 500 13px/1 var(--face-navigation); text-decoration: none; white-space: nowrap; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.supportChip > span:first-child { text-decoration: underline; text-decoration-color: var(--gold-line); text-underline-offset: 4px; }
+.supportChipArrow { font-size: 11px; }
+.supportChip:hover { background: var(--gold-wash); color: var(--gold-hi); }
+.supportChip:hover > span:first-child { text-decoration-color: currentColor; }
 .supportChip:active { background: color-mix(in srgb, var(--gold) 16%, transparent); }
-.supportChip:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-
-/* The moment. Each chip rises into place after the cover has been read, its hairline flashes to
-   gold once, and it holds still — over by two seconds. Only opacity, transform and colour move,
-   so the strip owns its space from first paint and shifts nothing below it. `both` carries the
-   `from` state through the delay; a browser that runs no animation simply shows the chips. */
-.supportList > li { animation: supportRise 560ms var(--ease-out) 900ms both; }
-.supportList > li:nth-child(2) { animation-delay: 1040ms; }
-.supportList > li > .supportChip { animation: supportSettle 1300ms var(--ease-out) 1320ms both; }
-.supportList > li:nth-child(2) > .supportChip { animation-delay: 1460ms; }
-@keyframes supportRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@keyframes supportSettle { 0% { border-color: var(--gold-line-strong); background-color: color-mix(in srgb, var(--ground) 55%, transparent); } 20% { border-color: var(--gold-hi); background-color: var(--gold-wash); } 100% { border-color: var(--gold-line-strong); background-color: color-mix(in srgb, var(--ground) 55%, transparent); } }
+.supportChip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* The same shape query selects both the poster and the moving shot. */
 @media (min-width: 760px) and (min-aspect-ratio: 6/5) {
@@ -155,14 +144,17 @@
   .actions a { min-width: 0; }
   .coverPaths { gap: 0 16px; }
   .supportStrip { margin-top: 14px; }
-  .supportChip { padding-inline: 12px 10px; }
+
+}
+@media (max-width: 380px) {
+  .supportStrip { column-gap: 10px; }
+  .supportLabel { flex-basis: 100%; }
+  .supportList { margin-left: -6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .heroVideo { display: none; transition: none; }
   .motionControl { display: none; }
-  .supportList > li, .supportList > li > .supportChip { animation: none; }
   .supportChip, .supportChipArrow { transition: none; }
-  .supportChip:hover .supportChipArrow { transform: none; }
   .editionRailCta svg { transition: none; }
   .editionRailLead:hover .editionRailCta svg { transform: none; }
 }

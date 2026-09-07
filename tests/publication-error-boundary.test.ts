@@ -7,6 +7,10 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/publications", () => ({
+  /* The article page reads its desk to build "Continue the record" (VA-50).
+     An empty pool is the honest fixture here: these suites are about the
+     record itself, and an empty result renders the hub link alone. */
+  listBriefingPublications: async () => [],
   getPublicPublication: mocks.getPublicPublication,
   isMissingPublication: (cause: unknown) => cause instanceof ApiError && cause.code === "NOT_FOUND",
 }));

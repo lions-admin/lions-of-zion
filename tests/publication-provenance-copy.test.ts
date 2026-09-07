@@ -63,6 +63,8 @@ describe("the article page states authorship from the shared constant", () => {
 describe("the trust pages describe both pathways, not one", () => {
   const weAre = read("app/we-are/page.tsx");
   const methodology = read("app/methodology/page.tsx");
+  const informationWar = read("components/briefs/InformationWarSystem.tsx");
+  const corrections = read("app/corrections/page.tsx");
 
   it("drops the absolute claim that every publication needs a second reviewer", () => {
     // The retired sentence, verbatim. Its absence is the assertion.
@@ -82,6 +84,28 @@ describe("the trust pages describe both pathways, not one", () => {
     expect(methodology).toMatch(/PUBLICATION_PROVENANCE\[kind\]\.label/);
     expect(methodology).toMatch(/PUBLICATION_PROVENANCE\[kind\]\.detail/);
     expect(methodology).toMatch(/heading="Two ways a record publishes"/);
+  });
+
+  it("does not describe archive records as a third editorial byline", () => {
+    expect(methodology).toMatch(/Imported and archive records are a separate class/i);
+    expect(methodology).not.toMatch(/Every published record on this site took one of exactly two routes/i);
+  });
+
+  it("states that AI interpretation is not evidence", () => {
+    expect(weAre).toMatch(/AI output is never evidence/i);
+    expect(informationWar).toMatch(/neither is an AI interpretation/i);
+  });
+
+  it("does not turn hosted archive material into independent verification", () => {
+    expect(weAre).toMatch(/hosting or machine processing does not by itself establish/i);
+    expect(methodology).toMatch(/does\s+not mean Lions independently re-verified/i);
+  });
+
+  it("distinguishes corrections from other changes", () => {
+    for (const term of ["Correction", "Update", "Developing-story revision", "Added context", "Source update", "Technical migration"]) {
+      expect(corrections).toContain(`<strong>${term}.</strong>`);
+      expect(methodology).toContain(`<strong>${term}.</strong>`);
+    }
   });
 });
 

@@ -52,11 +52,11 @@ export function InformationWarSystem() {
       </section>
 
       <section className={`${styles.section} ${styles.accountability}`} id="cycle" aria-labelledby="cycle-heading">
-        <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>02 / The standard</p><h2 id="cycle-heading">The source is not<br /><em>the conclusion.</em></h2></div><p>A convincing interface is not evidence. The system is useful only if readers can distinguish what was said, what supports it, and what remains unresolved.</p></div>
+        <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>02 / The standard</p><h2 id="cycle-heading">The source is not<br /><em>the conclusion.</em></h2></div><p>A convincing interface is not evidence, and neither is an AI interpretation. The system is useful only if readers can distinguish what was said, what supports it, who or what authored the record, and what remains unresolved.</p></div>
         <div className={styles.evidenceLedger}>
           <div><span className={styles.eyebrow}>Keep the distinctions</span><h3>Claim.<br />Evidence.<br /><em>Assessment.</em></h3><p>Three different things.<br />Never interchangeable.</p></div>
           <ol>
-            <li><span>01</span><div><h3>Preserve the origin</h3><p>Keep source references and provenance. Treat several copies of one account differently from independent corroboration. Source-family grouping helps; it does not replace source research.</p></div></li>
+            <li><span>01</span><div><h3>Preserve the origin</h3><p>Keep source references and provenance. Treat several copies of one account differently from independent corroboration. Imported and archive material does not become newly verified because Lions stores, organizes or processes it.</p></div></li>
             <li><span>02</span><div><h3>Make uncertainty explicit</h3><p>A circulating claim is not a confirmed finding. Sourced reporting and the desk’s own analysis must be distinguishable. Where the material does not settle a question, say so.</p></div></li>
             <li><span>03</span><div><h3>Keep the record correctable</h3><p>Versioned publication records retain a change history. Corrections and withdrawals are part of maintaining a record, not evidence that the original publication was infallible.</p><Link href="/corrections">Correction policy <span aria-hidden="true">↗︎</span></Link></div></li>
           </ol>

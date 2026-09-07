@@ -1,8 +1,13 @@
-name: Deliver editorial update
+name: Deliver editorial update (retired on this branch)
+
+# Retired here on 2026-09-07. Delivery moved to `chatgpt-editorial-updates`;
+# this branch keeps the packages it already delivered and delivers nothing new,
+# because the trigger below now names the other branch. Left in place rather
+# than deleted so the history of what this branch did stays readable.
 
 on:
   push:
-    branches: [editorial-updates]
+    branches: [chatgpt-editorial-updates]
     # Packages are intentionally root-level. The same rule is enforced by
     # scripts/list-editorial-update-packages.ts after checkout.
     paths: ["editorial-updates/*.json"]

@@ -1,0 +1,1388 @@
+[
+  {
+    "route": "/",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "a.site-header-module__xLOsra__brand \"Lions of ZionEvidence desk\" is 145x43 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Portrait credit\" is 87x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Portrait credit\" is 87x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "focus-ring-clipped",
+        "detail": "a \"Middle East Eye — Lebanese child succumb\""
+      },
+      {
+        "level": "WARNING",
+        "kind": "focus-ring-clipped",
+        "detail": "a \"mod.gov.il — Israel Ministry of Defense\""
+      }
+    ],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.home-module__txgM7a__homeTheme \"Skip to contentLions of ZionEvidence deskNews & \"",
+        "right": 390
+      },
+      "interactiveCount": 84,
+      "offscreen": [],
+      "undersized": [
+        {
+          "el": "a.site-header-module__xLOsra__brand \"Lions of ZionEvidence desk\"",
+          "w": 145,
+          "h": 43,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Portrait credit\"",
+          "w": 87,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Portrait credit\"",
+          "w": 87,
+          "h": 26,
+          "inline": false
+        }
+      ],
+      "headings": {
+        "h1": 1,
+        "total": 21,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 13,
+        "contentinfo": 2,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "a.site-header-module__xLOsra__brand \"Lions of ZionEvidence desk\" is 367x43 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Image context & credit\" is 136x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Portrait credit\" is 87x26 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Portrait credit\" is 87x26 (floor 44)"
+      }
+    ],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.home-module__txgM7a__homeTheme \"Skip to contentLions of ZionEvidence deskNews & \"",
+        "right": 768
+      },
+      "interactiveCount": 85,
+      "offscreen": [],
+      "undersized": [
+        {
+          "el": "a.site-header-module__xLOsra__brand \"Lions of ZionEvidence desk\"",
+          "w": 367,
+          "h": 43,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Image context & credit\"",
+          "w": 136,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Portrait credit\"",
+          "w": 87,
+          "h": 26,
+          "inline": false
+        },
+        {
+          "el": "summary \"Portrait credit\"",
+          "w": 87,
+          "h": 26,
+          "inline": false
+        }
+      ],
+      "headings": {
+        "h1": 1,
+        "total": 21,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 13,
+        "contentinfo": 2,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.home-module__txgM7a__homeTheme \"Skip to contentLions of ZionEvidence deskNews & \"",
+        "right": 1440
+      },
+      "interactiveCount": 89,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 21,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 13,
+        "contentinfo": 2,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/geopolitical-brief",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 390
+      },
+      "interactiveCount": 27,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 5,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/geopolitical-brief",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 768
+      },
+      "interactiveCount": 32,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 5,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/geopolitical-brief",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 1440
+      },
+      "interactiveCount": 36,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 5,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/fake-resistance",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 390
+      },
+      "interactiveCount": 42,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 9,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 6,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/fake-resistance",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "a \"Manosphere / Far-Right Anti-Zionist Cluster on X\" is 482x24 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "a \"Palestinian Aggregators and Feeder News Accounts\" is 544x24 (floor 44)"
+      }
+    ],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 768
+      },
+      "interactiveCount": 43,
+      "offscreen": [],
+      "undersized": [
+        {
+          "el": "a \"Manosphere / Far-Right Anti-Zionist Cluster on X\"",
+          "w": 482,
+          "h": 24,
+          "inline": false
+        },
+        {
+          "el": "a \"Palestinian Aggregators and Feeder News Accounts\"",
+          "w": 544,
+          "h": 24,
+          "inline": false
+        }
+      ],
+      "headings": {
+        "h1": 1,
+        "total": 9,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 6,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/fake-resistance",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 1440
+      },
+      "interactiveCount": 47,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 9,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 6,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/people-of-israel",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 390
+      },
+      "interactiveCount": 30,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 3,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/people-of-israel",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 768
+      },
+      "interactiveCount": 31,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 3,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/people-of-israel",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 1440
+      },
+      "interactiveCount": 35,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 3,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/october-7",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 390
+      },
+      "interactiveCount": 58,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 15,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 4,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/october-7",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 768
+      },
+      "interactiveCount": 57,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 15,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 4,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/october-7",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 1440
+      },
+      "interactiveCount": 65,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 15,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 4,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/information-war",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 390
+      },
+      "interactiveCount": 47,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 22,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 1,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/information-war",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "a \"Explore the architecture ↘\" is 150x34 (floor 44)"
+      },
+      {
+        "level": "WARNING",
+        "kind": "undersized-target",
+        "detail": "summary \"Read every journey without the animation\" is 633x32 (floor 44)"
+      }
+    ],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 768
+      },
+      "interactiveCount": 52,
+      "offscreen": [],
+      "undersized": [
+        {
+          "el": "a \"Explore the architecture ↘\"",
+          "w": 150,
+          "h": 34,
+          "inline": false
+        },
+        {
+          "el": "summary \"Read every journey without the animation\"",
+          "w": 633,
+          "h": 32,
+          "inline": false
+        }
+      ],
+      "headings": {
+        "h1": 1,
+        "total": 22,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 1,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/information-war",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 1440
+      },
+      "interactiveCount": 56,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 22,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 1,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/we-are",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 390
+      },
+      "interactiveCount": 25,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 15,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/we-are",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 768
+      },
+      "interactiveCount": 26,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 15,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/we-are",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 1440
+      },
+      "interactiveCount": 34,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 15,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 12
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/methodology",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 390
+      },
+      "interactiveCount": 35,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 17,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/methodology",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 768
+      },
+      "interactiveCount": 36,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 17,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/methodology",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "div.site-header-module__xLOsra__bar \"Lions of ZionEvidence deskNews & AnalysisFake Re\"",
+        "right": 1440
+      },
+      "interactiveCount": 50,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 17,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 2,
+        "contentinfo": 1,
+        "nav": 13
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": []
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/admin/login",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "innerWidth": 390,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "main.admin-module__aXBbkG__shell.admin-module__aXBbkG__loginShell \"Lions of Zion / OperationsOperator sign-inThe op\"",
+        "right": 390
+      },
+      "interactiveCount": 4,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 1,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 0,
+        "contentinfo": 0,
+        "nav": 0
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": [
+          "main[lang=en]"
+        ]
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/admin/login",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "innerWidth": 768,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "main.admin-module__aXBbkG__shell.admin-module__aXBbkG__loginShell \"Lions of Zion / OperationsOperator sign-inThe op\"",
+        "right": 768
+      },
+      "interactiveCount": 4,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 1,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 0,
+        "contentinfo": 0,
+        "nav": 0
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": [
+          "main[lang=en]"
+        ]
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/admin/login",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 200,
+    "findings": [],
+    "measured": {
+      "documentScrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "innerWidth": 1440,
+      "rootOverflowX": "clip",
+      "widestElement": {
+        "el": "main.admin-module__aXBbkG__shell.admin-module__aXBbkG__loginShell \"Lions of Zion / OperationsOperator sign-inThe op\"",
+        "right": 1440
+      },
+      "interactiveCount": 4,
+      "offscreen": [],
+      "undersized": [],
+      "headings": {
+        "h1": 1,
+        "total": 1,
+        "skips": []
+      },
+      "landmarks": {
+        "main": 1,
+        "banner": 0,
+        "contentinfo": 0,
+        "nav": 0
+      },
+      "lang": {
+        "root": "en",
+        "dir": "ltr",
+        "scoped": [
+          "main[lang=en]"
+        ]
+      },
+      "stickyBands": []
+    }
+  },
+  {
+    "route": "/does-not-exist",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pointer": "coarse",
+    "status": 404,
+    "findings": [
+      {
+        "level": "CRITICAL",
+        "kind": "http",
+        "detail": "HTTP 404"
+      }
+    ],
+    "measured": null
+  },
+  {
+    "route": "/does-not-exist",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pointer": "coarse",
+    "status": 404,
+    "findings": [
+      {
+        "level": "CRITICAL",
+        "kind": "http",
+        "detail": "HTTP 404"
+      }
+    ],
+    "measured": null
+  },
+  {
+    "route": "/does-not-exist",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": "fine",
+    "status": 404,
+    "findings": [
+      {
+        "level": "CRITICAL",
+        "kind": "http",
+        "detail": "HTTP 404"
+      }
+    ],
+    "measured": null
+  }
+]

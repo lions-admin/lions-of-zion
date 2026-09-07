@@ -23,6 +23,7 @@ import {
   evidence,
   narrative,
   narrativeObservation,
+  outbox,
   publicationNarrative,
   source,
   sourceFamily,
@@ -311,6 +312,25 @@ describe("pipeline health", () => {
        per-topic backlog, the queue's newest refusal, and whether any row has
        ever been handed over at all. */
     expect(incidents.outbox).toMatchObject({ lastPublishedAt: null, lastError: null, byTopic: [] });
+  });
+
+  it("surfaces a dead-lettered queue consumer failure", async () => {
+    const db = await freshDatabase();
+    await db.insert(outbox).values({
+      topic: "search.reindex",
+      payload: { entityType: "source", entityId: "source-1" },
+      publishedAt: new Date(),
+      consumerAttempts: 8,
+      consumerLastError: "permission denied for table search_document",
+      deadLetteredAt: new Date(),
+    });
+
+    const incidents = await adminConsoleService(db, { dispatch: null }).incidents();
+    expect(incidents.outbox).toMatchObject({
+      undelivered: 0,
+      deadLettered: 1,
+      lastError: "permission denied for table search_document",
+    });
   });
 });
 

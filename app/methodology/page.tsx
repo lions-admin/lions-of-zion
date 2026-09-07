@@ -92,10 +92,10 @@ const GLANCE: { term: string; href: string; definition: string }[] = [
       "Nine labels, one per assessed claim, shown beside the claim and carried wherever it is shared. Confidence — high, medium or limited — is stated, never implied.",
   },
   {
-    term: "Publication process",
+    term: "Assessment process",
     href: `#${SECTION.process}`,
     definition:
-      "Five stages from fetched source to searchable record. One is a gate: a second person who did not write the assessment must approve it, and no automated identity can hold that capability.",
+      "Five stages for an assessed claim. One is a gate: a second person who did not write the assessment must approve it, and no automated identity can hold that capability.",
   },
   {
     term: "Limitations",
@@ -149,7 +149,7 @@ const PIPELINE: { name: string; note: string; icon: IconName; gate?: string }[] 
   {
     name: "Publish and search",
     icon: "publish",
-    note: "Only what clears that review becomes part of the public, searchable record, and it carries its sources with it.",
+    note: "An approved assessment becomes part of the public, searchable record, and it carries its sources with it.",
   },
 ];
 
@@ -190,8 +190,8 @@ export default function Page() {
       <SectionBlock heading="Scope" id={SECTION.scope}>
         <p>
           This page is the standard the site holds itself to: what counts as a
-          source, how a claim is labeled, what has to happen before anything is
-          published, what the method cannot support, and what happens when
+          source, how an assessed claim is labeled, what has to happen before
+          that assessment is published, what the method cannot support, and what happens when
           something turns out to be wrong. It applies to every assessed claim,
           on every desk. Where a desk adds a rule of its own — operational
           reporting, the home front, influence-network research — that rule is
@@ -206,12 +206,13 @@ export default function Page() {
             described. */}
         <p>
           One boundary is worth stating plainly: that standard governs the
-          assessment record the desk is building. It is not how the pages you
-          are reading were published. These are edited and shipped from the
-          project&rsquo;s own repository, and the archives beneath{" "}
-          <Link href="/october-7">October 7</Link> are reproduced from their
-          source packages as published. Where a page carries a review date and
-          a reviewer, that is the editorial pass on the page itself.
+          assessment record the desk is building. It does not describe every
+          public record. Machine-authored editorial runs may create or update
+          reporting under server-enforced rules and carry machine provenance.
+          AI can assist that work, but it is never evidence. Historical and
+          imported material can carry another provenance path; the{" "}
+          <Link href="/october-7">October 7 archive</Link> remains a distinct
+          documentation surface.
         </p>
       </SectionBlock>
 
@@ -320,11 +321,11 @@ export default function Page() {
         </p>
       </SectionBlock>
 
-      <SectionBlock heading="Publication process" id={SECTION.process}>
+      <SectionBlock heading="Assessment process" id={SECTION.process}>
         <p>
-          Nothing reaches the public record by one person&rsquo;s judgement.
-          Five stages run between a fetched source and a searchable record,
-          and one of them is a gate rather than a step:
+          An assessed claim does not reach the public record by one
+          person&rsquo;s judgement. Five stages run between a fetched source and
+          a searchable assessment, and one of them is a gate rather than a step:
         </p>
         <ol className={styles.process}>
           {PIPELINE.map((stage, index) => (

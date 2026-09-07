@@ -72,6 +72,27 @@ function belongsToHomepageArea(section: PublicationSection, area: HomepagePlacem
   return publicationHomepageSection(section) === area;
 }
 
+const TITLE_FINGERPRINT_STOP_WORDS = new Set([
+  "a", "an", "and", "at", "by", "for", "from", "in", "is", "of", "on", "the", "to", "with",
+]);
+
+function titleFingerprint(title: string): Set<string> {
+  return new Set(
+    title.normalize("NFKD").toLocaleLowerCase("en")
+      .replace(/[^\p{L}\p{N}]+/gu, " ")
+      .split(" ")
+      .filter((token) => token.length >= 3 && !TITLE_FINGERPRINT_STOP_WORDS.has(token)),
+  );
+}
+
+function stronglyMatchingTitles(left: string, right: string): boolean {
+  const leftTokens = titleFingerprint(left);
+  const rightTokens = titleFingerprint(right);
+  if (leftTokens.size < 3 || rightTokens.size < 3) return false;
+  const shared = [...leftTokens].filter((token) => rightTokens.has(token)).length;
+  return shared >= 3 && shared / leftTokens.size >= 0.9 && shared / rightTokens.size >= 0.8;
+}
+
 
 export function publicationService(db: unknown) {
   const run = db as unknown as Runner;
@@ -109,6 +130,32 @@ export function publicationService(db: unknown) {
             if (existing) {
               throw new ApiError('CONFLICT', `Canonical story already exists as ${existing.publicId}. Send an explicit update to that publication; no new publication was created.`);
             }
+          }
+          /* Canonical URLs are resolved to evidence before this service is
+             called. Locking those IDs closes the concurrent-create window;
+             comparison then treats a repeated source, an explicit event, or a
+             strong title fingerprint as a reason to require an update. */
+          const evidenceIds = input.evidenceIds ?? [];
+          await r.lockEvidence(evidenceIds);
+          const candidates = [
+            ...await r.liveDuplicateCandidates(evidenceIds),
+            ...(input.eventId ? await r.liveByEventId(input.eventId) : []),
+          ];
+          const seenCandidates = new Set<string>();
+          for (const candidate of candidates) {
+            if (seenCandidates.has(candidate.id)) continue;
+            seenCandidates.add(candidate.id);
+            const sameEvent = Boolean(input.eventId && candidate.eventId === input.eventId);
+            const matchingTitle = stronglyMatchingTitles(input.title, candidate.title);
+            const repeatedSources = candidate.sharedEvidenceCount >= 1 && matchingTitle;
+            if (!sameEvent && !repeatedSources) continue;
+            const reason = sameEvent
+              ? "the same event identifier"
+              : `shared source evidence (${candidate.sharedEvidenceCount}) and a strongly matching title fingerprint`;
+            throw new ApiError(
+              'CONFLICT',
+              `Likely duplicate of ${candidate.publicId} based on ${reason}. Send an explicit update to that publication or resolve the recommendation before creating a new record.`,
+            );
           }
           row = await r.insert({
             kind: input.kind, section: input.section ?? 'news',

@@ -1,4 +1,4 @@
-import { dispatchOutboxMessage } from "@/server/modules/outbox";
+import { dispatchOutboxMessage, outboxRetry } from "@/server/modules/outbox";
 import { queueClient } from "@/server/core/queue-client";
 import type { OutboxDispatchMessage } from "@/server/core/queue";
 
@@ -24,11 +24,9 @@ import type { OutboxDispatchMessage } from "@/server/core/queue";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-export const POST = queueClient.handleCallback(async (message: OutboxDispatchMessage) => {
-  await dispatchOutboxMessage(message);
+export const POST = queueClient.handleCallback(async (message: OutboxDispatchMessage, metadata) => {
+  await dispatchOutboxMessage(message, metadata);
 }, {
   visibilityTimeoutSeconds: 300,
-  retry: (_error, metadata) => ({
-    afterSeconds: Math.min(3_600, 30 * 2 ** Math.max(0, metadata.deliveryCount - 1)),
-  }),
+  retry: (_error, metadata) => outboxRetry(metadata),
 });

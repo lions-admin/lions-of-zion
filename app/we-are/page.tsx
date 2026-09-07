@@ -31,7 +31,7 @@ const WE_ARE_JSON_LD = {
   name: "Lions of Zion",
   url: PAGE_URL,
   description:
-    "A network of volunteers — researchers, analysts, translators, designers, developers — who verify claims before publishing, so the answer to organized misinformation about Israel is organized evidence.",
+    "A network of volunteers — researchers, analysts, translators, designers and developers — using evidence, open-source research and technology to examine organized misinformation about Israel.",
 };
 
 const METHOD_STEPS: { title: string; icon: IconName; body: string; gate?: boolean }[] = [
@@ -53,14 +53,13 @@ const METHOD_STEPS: { title: string; icon: IconName; body: string; gate?: boolea
   {
     title: "Human review",
     icon: "review",
-    body: "A second person who did not write the assessment must approve it before anything moves to published. That approval capability cannot be held by an automated identity — the system refuses it structurally, not by policy alone.",
-    /** The one stage nothing automated can pass through — marked structurally, not decoratively. */
+    body: "For an assessment, a second person who did not write it must approve it before it becomes public. That approval capability cannot be held by an automated identity — the system refuses it structurally, not by policy alone.",
     gate: true,
   },
   {
     title: "Publish & search",
     icon: "publish",
-    body: "Only what clears review becomes part of the public, searchable record — carrying its sources with it.",
+    body: "Approved assessments become part of the public, searchable record with their sources. Machine-authored editorial runs carry machine provenance and follow their own server-enforced publishing rules.",
   },
 ];
 
@@ -89,8 +88,8 @@ const ROLES = [
 
 const FAQ: { q: string; a: React.ReactNode }[] = [
   {
-    q: "Does AI publish anything on its own here?",
-    a: "No. Every published item passes a required, non-author human review — approving a publication is one of a small set of capabilities the system will not let an automated identity hold, at any point.",
+    q: "Can AI take part in publishing here?",
+    a: "Yes. AI and automation can assist discovery, comparison, classification, drafting and editorial operations. A machine-authored editorial run is identified through machine provenance and governed by server-enforced rules. AI output is never evidence; readers should inspect the cited sources.",
   },
   {
     q: "What happens when something published turns out to be wrong?",
@@ -129,7 +128,7 @@ export default function Page() {
         <p>
           Lions of Zion is a network of volunteers — researchers, analysts,
           translators, designers, developers — who share one discipline:
-          verify before you publish. The network exists because the
+          examine claims against evidence. The network exists because the
           information war against Israel is organized, funded, and fast,
           and because the answer to organized falsehood is not louder
           anger. It is organized evidence.
@@ -138,10 +137,11 @@ export default function Page() {
 
       <SectionBlock heading="The method">
         <p>
-          Everything published here moves through the same real pipeline —
-          not a description of an intention, but the actual path a claim
-          takes before it reaches this site. One stage is a gate, not a
-          step: nothing automated can pass it.
+          This is the assessment path for human investigations and claims. It
+          is separate from machine-authored editorial runs, which are marked
+          with machine provenance and governed by server-enforced publishing
+          rules. In the assessment path, one stage is a gate: nothing
+          automated can pass it.
         </p>
         <div className={styles.pipeline}>
           {/* The per-stage `Reveal` that used to be here is gone, and the
@@ -155,10 +155,8 @@ export default function Page() {
               on Israel's Story). Removing it also takes the last client
               boundary off this route: the page is server-rendered whole.
 
-              The same five stages, in the same order and with the same one
-              gate, are drawn on `/methodology` — two pages describing one
-              pipeline differently is how a reader learns not to trust
-              either. */}
+              The same assessment stages and gate are drawn on `/methodology`.
+              */}
           <ol className={styles.pipelineList}>
             {METHOD_STEPS.map((step, index) => (
               <li

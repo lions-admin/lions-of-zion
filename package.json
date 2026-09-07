@@ -50,6 +50,8 @@
     "sync:start": "node scripts/startup-sync.mjs",
     "verify:changed": "tsx scripts/verify-changed.ts",
     "verify:full": "npm run typecheck && npm run lint && npm test && npm run build",
+    "audit:ui": "node scripts/ui-audit.mjs",
+    "audit:interaction": "node scripts/ci-smoke.mjs",
     "homepage:catalog": "node --conditions=react-server --import tsx scripts/homepage/build-catalog.ts",
     "homepage:preview": "node --env-file=.env.local --conditions=react-server --import tsx scripts/homepage/preview-edition.ts",
     "schema:check": "tsx scripts/check-deployment-schema.ts"

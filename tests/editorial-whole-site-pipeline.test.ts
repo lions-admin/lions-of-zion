@@ -36,12 +36,13 @@ const actor = { label: 'service:editorial-run', userId: null };
  */
 const fixture = (suffix = '') => {
   const raw = JSON.parse(readFileSync(join(process.cwd(), 'tests/fixtures/whole-site-package.json'), 'utf8')) as {
-    runId: string; creates: Array<{ publication: { canonicalStoryId?: string } }>;
+    runId: string; creates: Array<{ publication: { canonicalStoryId?: string; title: string } }>;
   };
   if (suffix) {
     raw.runId = `${raw.runId}-${suffix}`;
     for (const create of raw.creates) {
       if (create.publication.canonicalStoryId) create.publication.canonicalStoryId += `-${suffix}`;
+      create.publication.title += ` — isolated ${suffix} fixture`;
     }
   }
   return wholeSiteUpdatePackageSchema.parse(raw);
@@ -152,8 +153,8 @@ describe('a whole-site package from ChatGPT', () => {
       ...raw,
       contractVersion: 'whole-site-update-v2',
       runId: 'fixture-v2',
-      creates: (raw.creates as Array<{ publication: { canonicalStoryId?: string } }>).map(create => ({
-        ...create, publication: { ...create.publication, canonicalStoryId: `${create.publication.canonicalStoryId}-v2` },
+      creates: (raw.creates as Array<{ publication: { canonicalStoryId?: string; title: string } }>).map(create => ({
+        ...create, publication: { ...create.publication, canonicalStoryId: `${create.publication.canonicalStoryId}-v2`, title: `${create.publication.title} — separate independent fixture package edition` },
       })),
       research: [{
         topic: 'Southern Lebanon', focus: 'Overnight strikes',

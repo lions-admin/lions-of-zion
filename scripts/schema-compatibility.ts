@@ -9,12 +9,15 @@ type Query = (sql: string) => Promise<{ rows: Record<string, unknown>[] }>;
 /** Read-only proof against the target database, independent of application data. */
 export async function assertSchemaCompatible(query: Query, root = process.cwd()) {
   const expected = readMigrationFiles({ migrationsFolder: join(root, "server/db/migrations") });
+  const required = expected.at(-1);
+  if (!required) throw new Error("Schema preflight refused: no required migration marker is checked in.");
+
   const ledger = await query("SELECT hash, created_at FROM drizzle.__drizzle_migrations");
-  const missing = expected.filter((migration) => !ledger.rows.some((row) =>
-    row.hash === migration.hash && Number(row.created_at) === migration.folderMillis,
-  ));
-  if (missing.length) {
-    throw new Error(`Schema preflight refused: ${missing.length} required migration(s) are missing or changed. Apply and verify migrations before promotion.`);
+  const requiredApplied = ledger.rows.some((row) =>
+    row.hash === required.hash && Number(row.created_at) === required.folderMillis,
+  );
+  if (!requiredApplied) {
+    throw new Error("Schema preflight refused: the required migration marker is missing or changed. Apply and verify migrations before promotion.");
   }
 
   // A ledger is necessary but insufficient: detect a dropped column even when

@@ -36,6 +36,8 @@ npm test             # vitest run
 npm run build        # next build
 npm run verify:changed  # adaptive gate for the current working-tree diff
 npm run verify:full     # complete local and CI handoff gate
+npm run audit:ui        # browser geometry, landmarks, focus and no-JS audit
+npm run audit:interaction # browser route and console-error smoke audit
 npm run main:update     # merge a completed serious round into main and push it
 npm start            # next start, after a build
 ```
@@ -53,6 +55,12 @@ every push and pull request to `main`.
 
 `verify:changed` reads tracked and untracked working-tree changes and runs the
 automated checks selected by the diff.
+
+Both browser audits expect a server at `http://localhost:3000`; pass another
+origin after `--` when auditing a reviewed deployment, for example
+`npm run audit:ui -- https://example.vercel.app`. `audit:ui` uses its built-in
+responsive matrix. `audit:interaction` checks representative routes and
+reports non-200 responses or browser console errors.
 
 `sync:start` is an optional convenience command. It fetches `origin`, updates
 `main` when the tree permits it, deletes branches already merged into main, and
@@ -121,8 +129,7 @@ two minutes each, with no manual step.
 
 The mechanism is the GitHub integration on the Vercel project, whose
 `link.productionBranch` is `main`. `vercel.json` disables git deployment for
-the two package branches — `chatgpt-editorial-updates`, the live delivery branch, and
-`briefing-packages`, the legacy one — and for nothing else, and the project has
+the `chatgpt-editorial-updates` delivery branch and for nothing else, and the project has
 no deploy hooks. Each branch also carries its own `vercel.json` with
 `"deploymentEnabled": false`, which is the copy that actually suppresses the
 build, because Vercel reads the config from the commit being pushed. Confirm
@@ -143,11 +150,15 @@ Never use the local Preview connection as a substitute for Production.
 
 `npm run build` runs the read-only schema preflight before Next.js when
 `VERCEL_ENV=production`. It requires an explicitly matching database label,
-every checked-in migration's hash and timestamp in the Drizzle ledger, and
-every application table column in the target database. Missing credentials,
-unreachable DB, missing migration or missing column stop the build. This does
-not apply migrations or change production content. Ordinary local and CI
-builds remain database-free.
+an exact hash-and-timestamp receipt for the newest checked-in migration, and
+every application table column in the target database. The newest receipt is
+the deployment compatibility marker: adding migration N advances it, so code
+that needs N cannot pass against a database that ends at N-1. Historical
+receipt hashes are not revalidated because several old migrations were amended
+after application; live schema columns remain verified independently. Missing
+credentials, an unreachable DB, a missing or changed current marker, or a
+missing column stop the build. This does not apply migrations or change
+production content. Ordinary local and CI builds remain database-free.
 
 Promotion of an already-built Preview and rollback do not run a fresh build:
 run `schema:check -- production` from the exact candidate commit before either.
@@ -186,10 +197,8 @@ safe to retry. **No Vercel route starts editorial work.** A
 `whole-site-update-v1` package is fulfilled only when it arrives at
 `POST /api/internal/editorial-updates/ingest`, idempotent on
 `editorial_run.run_key` plus its canonical request hash. The legacy
-`external-briefing-v1` package is fulfilled only when it arrives at
-`POST /api/internal/briefing/external-publish`, idempotent on
-`external_briefing_submission.run_id`. Both use the same dedicated-branch and
-authenticated-receiver principle, with separate secrets.
+`/api/internal/briefing/external-publish` endpoint is an authenticated 412
+tombstone: it does not parse or publish a package.
 
 The drain hands up to 250 rows a tick to the queue, which is 1,000 an hour and
 comfortably more than one edition's load — a brief materializes roughly one

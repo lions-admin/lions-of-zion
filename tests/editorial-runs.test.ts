@@ -325,10 +325,12 @@ describe('durable whole-site editorial runs', () => {
       { url: 'https://example-news.test/world/2026/09/report?utm=x', canonicalUrl: 'https://example-news.test/world/2026/09/report', title: 'Regional report', publisher: 'Example News', publishedAt: '2026-09-07T06:00:00+03:00', excerpt: 'The outlet reported the strike and the denial in the same dispatch.', language: 'en' },
     ];
     let publicationId = '';
+    let initialEvidenceIds: string[] = [];
     const first = await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async tx => {
       const cited = await materializeSources(tx, sources, { composer: 'test-composer', runId: run.id, actor });
       expect(cited).toMatchObject({ created: 2, reused: 0 });
       expect(cited.evidenceIds).toHaveLength(2);
+      initialEvidenceIds = cited.evidenceIds;
       const create = input.operations[0]!;
       if (create.action !== 'create') throw new Error('fixture');
       const row = await publicationService(tx).applyEditorial(
@@ -343,6 +345,12 @@ describe('durable whole-site editorial runs', () => {
       'https://example-news.test/world/2026/09/report?utm=x', 'https://www.idf.il/en/articles/2026/statement-one',
     ]);
     expect(detail.sources.find(source => source.publisher === 'Israel Defense Forces')).toBeTruthy();
+    await expect(publicationService(db).applyEditorial({
+      key: 'similar-source-create', action: 'create', publication: {
+        kind: 'news_update', section: 'news', title: 'Source-linked report',
+        body: 'This must be sent as an explicit update instead.', language: 'en', evidenceIds: initialEvidenceIds,
+      },
+    }, { runId: run.id, machineAuthor: 'machine:editorial' }, null, actor)).rejects.toThrow(/Likely duplicate.*shared source evidence/);
     /* The outlet was registered once and inactive: nothing schedules a fetch of it. */
     const outlets = await db.execute<{ name: string; active: boolean; kind: string }>(sql`SELECT name, active, kind FROM source WHERE name IN ('Israel Defense Forces','Example News') ORDER BY name`);
     expect(outlets.rows).toEqual([{ name: 'Example News', active: false, kind: 'manual' }, { name: 'Israel Defense Forces', active: false, kind: 'manual' }]);

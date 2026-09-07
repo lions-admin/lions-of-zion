@@ -57,8 +57,8 @@ describe("information war surface", () => {
     expect(html).toContain("Read every journey without the animation");
     expect(html).toContain("Interactive explanation · not live telemetry");
     expect(html).toContain("Illustrative source relationship");
-    expect(html).toContain("Direct import");
-    expect(html).toContain("does not run the same quality evaluator");
+    expect(html).toContain("Machine-authored editorial run");
+    expect(html).toContain("AI assists the work but is never evidence");
     expect(html).not.toContain("Online — public record readable");
     expect(html).not.toContain("all twelve checks");
   });
@@ -84,6 +84,6 @@ describe("information war surface", () => {
       expect(html).toContain(`href="${href}"`);
     }
     expect(html).toContain("Publication dates, not job activity");
-    expect(html).toContain("does not schedule the daily briefing route");
+    expect(html).toContain("Machine-authored editorial runs are identified through machine provenance");
   });
 });

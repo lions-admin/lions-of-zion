@@ -40,7 +40,7 @@ export function InformationWarSystem() {
 
       <section className={styles.section} id="system" aria-labelledby="system-heading">
         <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>01 / The architecture</p><h2 id="system-heading">Many ways in.<br /><em>A traceable way out.</em></h2></div>
-          <p>Collection, research and submitted editions do not all take the same path. Follow a journey. Open a step. See what it receives, what it produces, and where its limits are.</p></div>
+          <p>Collection, research and machine-authored editorial runs do not all take the same path. Follow a journey. Open a step. See what it receives, what it produces, and where its limits are.</p></div>
         <PipelineTrace />
       </section>
 

@@ -49,14 +49,16 @@ export function isTerminal(run: PolledRun): boolean {
   return isTerminalEditorialRunStatus(run.status);
 }
 
-/** A finished run the Action must still report as a failure: the run itself
- *  failed, any operation failed, or the homepage stage did. Partial success
- *  is a valid outcome for the site and still a red Action, on purpose — the
- *  composer has to look. */
+/**
+ * The Action is red only when publication execution failed or the durable run
+ * itself failed. Homepage placement refusals are editorial warnings: a bad or
+ * ineligible slot must not erase a successful article publication, and the
+ * automatic homepage selection remains the safe fallback.
+ */
 export function runFailed(run: PolledRun): boolean {
   return run.status === 'failed'
     || (run.report?.publications?.failed ?? 0) > 0
-    || Boolean(run.report?.errors?.some(error => error.stage === 'homepage'));
+    || Boolean(run.report?.errors?.some(error => error.stage !== 'homepage'));
 }
 
 /** The lines printed once, on the terminal state. */
@@ -64,10 +66,17 @@ export function formatTerminalReport(run: PolledRun): { out: string[]; err: stri
   const counts = run.report?.publications ?? {};
   const out = [`runId=${run.runId} status=${run.status} created=${counts.created ?? 0} updated=${counts.updated ?? 0} failed=${counts.failed ?? 0}`];
   for (const url of run.report?.urls ?? []) out.push(`url=${url}`);
-  const err = (run.report?.errors ?? []).map(error => `error=${error.operationKey ?? 'homepage'} stage=${error.stage} message=${error.message}`);
+
+  const errors = run.report?.errors ?? [];
+  for (const error of errors.filter(error => error.stage === 'homepage')) {
+    out.push(`warning=${error.operationKey ?? 'homepage'} stage=${error.stage} message=${error.message}`);
+  }
+  const err = errors
+    .filter(error => error.stage !== 'homepage')
+    .map(error => `error=${error.operationKey ?? 'run'} stage=${error.stage} message=${error.message}`);
+
   if (runFailed(run)) {
-    const homepageFailed = run.report?.errors?.some(error => error.stage === 'homepage');
-    err.push(`[${homepageFailed ? 'homepage failure' : 'publication execution failure'}] Durable run ${run.runId} finished ${run.status}.`);
+    err.push(`[publication execution failure] Durable run ${run.runId} finished ${run.status}.`);
   }
   return { out, err };
 }

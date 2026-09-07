@@ -240,13 +240,29 @@ version, a summary describing another, a body describing a third, and an update
 log claiming a change that was not applied. The Lebanon record demonstrated it.
 **The fix is architectural — patching that one article is not the task.**
 
-- [ ] **46.1** Trace the full update path end to end and write the trace into
-      this file as a short list of the writes involved:
-      `server/modules/editorial-update/service.ts`,
-      `server/modules/publications/service.ts`, `server/modules/publications/repo.ts`,
-      `server/core/versioning.ts` `recordVersion()`,
-      `server/contracts/whole-site-update.ts`, `server/contracts/editorial-update.ts`.
-      Identify **exactly where a partial update can commit**.
+- [x] **46.1** Trace the full update path end to end and write the trace into
+      this file as a short list of the writes involved.
+
+      | Step | Where |
+      | --- | --- |
+      | Package parses | `whole-site-update.ts:68` → `updatePublicationSchema.strict()` |
+      | Ingest route | `app/api/internal/editorial-updates/ingest/route.ts` |
+      | Compile to durable ops | `editorial-update/service.ts:113` `compileWholeSiteUpdate` |
+      | Executor transaction | `editorial-update/service.ts` `store.completeOperation` |
+      | **The write** | `publications/service.ts` `applyEditorial`, update branch |
+      | Row UPDATE | `publications/repo.ts:187` — a blind `.set(values)` |
+      | Version + correction row | `core/versioning.ts` `recordVersion` |
+      | Correction reaches the reader | migration `0060` `public_publication_corrections()` → `app/articles/[publicId]/page.tsx` |
+
+      **Where a partial update could commit, and it is one line.** The update
+      branch spreads whatever subset the operation carried onto the stored row.
+      Nothing compared the claim to the application, so
+      `{ target, publication: { changeSummary: "…" } }` was a valid operation
+      that wrote only status and provenance while appending a version row whose
+      summary is published as a correction. Media and sources are separate
+      writes inside the same transaction, so an update could also revise the
+      body and keep a stale hero. Fixed in `fba1612`; see 46.2 and 46.3.
+      <!-- done: a7baa9a | the trace above, verified by reading each file -->
 - [x] **46.2** Define the coherent-version invariant in a contract, not in a
       route. The version must carry together: canonical publication ID, headline,
       summary/deck, body or explicit developing-update section, facts, timestamps,
@@ -271,12 +287,48 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
            (tests/publication-update-coherence.test.ts). The projection half is
            NOT verified: nothing yet asserts that the homepage band and the
            article detail read the same version. Left open deliberately. -->
-- [ ] **46.5** Consider whether a SQL trigger is the right home for any part of
-      this (business rules live in triggers here as often as in TypeScript). If
-      yes, it is a **new numbered migration**, migrated Preview → Production
-      **before** the code is pushed.
-- [ ] **46.6** Repair the existing Lebanon record into a coherent state — through
-      the authorized editorial path, **not** a direct Production database edit.
+- [x] **46.5** Consider whether a SQL trigger is the right home for any part of
+      this. **Decided: no trigger, and the reason is recorded rather than
+      assumed.**
+
+      The rule compares a *claim* (`changeSummary`, free text) against the
+      *fields an operation carried*. SQL sees neither: the trigger receives
+      `OLD` and `NEW` rows, and by then the distinction between "field omitted"
+      and "field resent unchanged" is gone — both look identical in `NEW`. A
+      trigger could only re-derive a weaker version of the rule, and would fire
+      on the human admin path too, where the trio rule deliberately does not
+      apply.
+
+      Worth recording separately, because it surprised the sweep: the existing
+      publish gate `enforce_publication_publish_gate()` **returns early unless
+      the row is entering `published`**, so `status = 'updated'` — exactly what
+      this path writes — passes through it untouched. That is not a defect to
+      fix here (the gate is about machine provenance, not content), but anyone
+      assuming SQL is a backstop for an update should know it is not.
+      <!-- done: a7baa9a | migration 0060 read directly; no migration added -->
+- [x] **46.6** Repair the existing Lebanon record into a coherent state.
+      **Swept against live Production, 2026-09-07: no repair is needed, and no
+      package was prepared.** The owner asked for one; the record did not
+      warrant it, and inventing an edit would have written a correction saying
+      something had been fixed when nothing had.
+
+      The record is `3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd`
+      (`israel_update`). Its headline, summary and body all describe the
+      September 7 version consistently; six sources sit in the structured
+      stack; the body contains **zero** absolute URLs and no "Sources" heading.
+      Corrections 3 and 4 already did the repair — version 3 moved two body
+      citations into the stack (VA-01), version 4 carried the September 7
+      revision with headline, summary and body together, which is exactly the
+      shape 46.3 now enforces.
+
+      **What still looks wrong is the URL slug, and it must stay.** The public
+      id reads `3-said-killed-in-idf-strikes-in-lebanon-after-he…` because it
+      was minted from the original headline, itself taken from a Times of
+      Israel piece still cited in the stack. §9 of this document and the
+      repository's own rule preserve historical URLs; re-minting the slug to
+      match the current headline would break a live address to make a cosmetic
+      point. Recorded here so the next reader does not "fix" it.
+      <!-- done: read-only over PUBLIC_V1 on lionsofzion.io, 2026-09-07 -->
 - [x] **46.7** Tests (regression, not manual): headline changes without body
       update; summary changes without matching publication state; update log
       claiming an unapplied update; homepage reading a different version from
@@ -362,9 +414,41 @@ VA-12's collapse covers the archive projection only.
       filtered case. Verify it still holds; do not "fix" the filtered branch
       without reading the comment that explains it.
       <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
-- [ ] **48.4** `A3` Sweep live records for duplicates. Do not assume the known
-      examples (Iran / U.S. unmanned vessel, BGU aerogel, West Bank outposts) are
-      the only ones. Publish the sweep result into this file as a table.
+- [x] **48.4** `A3` Sweep live records for duplicates.
+      **Swept read-only against live Production, 2026-09-07: 48 published
+      records, 3 exact-title pairs, 7 further near-duplicate pairs.** Method:
+      token-fingerprint overlap on the title, same section, threshold 0.6,
+      stop-words removed — the same shape as `stronglyMatchingTitles`.
+
+      **Certain — identical titles, same section. Merge candidates:**
+
+      | Section | Records |
+      | --- | --- |
+      | `israel_update` | `us-house-passes-bill-targeting-university-boycot-lhl1q` · `…-skxk2` |
+      | `israel_update` | `lebanese-detainee-returned-through-icrc-channel-68if2` · `…-bblkt` |
+      | `daily_brief` | `israel-s-open-civil-defence-data-initiative-cont-fgpr4` · `…-mv6ck` |
+
+      **Strong — near-identical, same event, different wording:**
+
+      | Overlap | Section | Records |
+      | --- | --- | --- |
+      | 0.88 | `influence_investigation` | `iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq` · `iran-says-it-struck-a-u-s-unmanned-vessel-washin-anmgp` |
+      | 0.88 | `israel_update` | `ali-al-taher-remains-an-active-israel-hezbollah--hkoun` · `ali-al-taher-ridge-remains-a-verified-israel-hez-mwq1v` |
+      | 1.00 | `daily_brief` | `israel-security-diplomacy-and-anti-boycott-brief-4xspk` · `israel-security-and-diplomacy-brief-september-3--xgjvx` — **both are the September 3 edition** |
+      | 0.67 | `news` | `netanyahu-orders-unauthorized-west-bank-outposts-kb1l1` · `netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx` |
+      | 0.62 | `news` | `israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3` · `hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5` |
+
+      **Flagged by the heuristic and NOT duplicates — do not merge:** the two
+      pairs matching `israel-and-regional-security-briefing-6-septembe-kc8en`
+      against the September 3 briefs. They are different daily editions; the
+      overlap is the section's fixed vocabulary, not a repeated story. Recorded
+      because a later reader running the same sweep will see them again.
+
+      **`canonicalStoryId` coverage: 16 of 48, all distinct.** Up from 6 when
+      VA-04 measured it. None of the pairs above shares one, which is why the
+      guard did not catch them — it was also unreachable from the auto-publish
+      paths until `fba1612`.
+      <!-- done: read-only over PUBLIC_V1 on lionsofzion.io, 2026-09-07 -->
 - [ ] **48.5** `A3` For each confirmed duplicate: pick the canonical record;
       preserve strongest/current content, sources, correction history, useful
       metadata, SEO/link integrity. **Do not destroy historical provenance. Do

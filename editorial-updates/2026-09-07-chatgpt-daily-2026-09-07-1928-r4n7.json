@@ -1,0 +1,69 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-daily-2026-09-07-1928-r4n7",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T16:28:40.000Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "siteRecommendations": [
+    "Critical: do not resume publication or homepage promotion requiring new media until the Vercel Blob public/private access mismatch is repaired and verified through a successful live media attachment.",
+    "High: after repair, run targeted hero-media recovery; current live context still reports 46 of 48 records without hero images.",
+    "High: separately clean the legacy briefing pipeline alerts: two quarantined draft jobs and one very old pending publish job remain open, although they did not block this authorized whole-site-update-v2 delivery path.",
+    "Continue monitoring southern Lebanon, Gaza, the West Bank and Hormuz for genuinely new developments after the 19:14 Israel-local successful editorial run; prefer canonical updates over duplicate articles."
+  ],
+  "research": [
+    {
+      "topic": "Post-19:14 Israel-local breaking-news sweep",
+      "focus": "Material developments after the immediately preceding successful Lions editorial run across Israel, Lebanon, Gaza, Iran/Hormuz, antisemitism and regional security.",
+      "sourcesReviewed": [
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd",
+        "https://www.timesofisrael.com/latest/",
+        "https://www.timesofisrael.com/latest/alerts/"
+      ],
+      "conclusion": "No sufficiently material new development was identified after the 19:14 Israel-local successful run. The strongest regional items in the reviewed feeds remained the already-known Kfar Rumman/Lebanon escalation, West Bank stabbing and policy response, Gaza developments, and Hormuz tensions. Re-publishing them would be repetitive rather than a true update.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israeli technology and innovation",
+      "focus": "Potential positive-Israel items visible in the current news cycle, including HydroSight funding, Israeli AI investment data, and XTEND's market debut.",
+      "sourcesReviewed": [
+        "https://www.calcalistech.com/ctechnews/article/syzscx2oge",
+        "https://www.calcalistech.com/ctechnews/article/uziure8w9",
+        "https://www.calcalistech.com/ctechnews/article/o44bq1b7n"
+      ],
+      "conclusion": "These are legitimate mission-relevant candidates, but they were published earlier in the day and predate the immediately preceding successful run. None became materially newer in the short interval since that run. They should be considered in a later feature or homepage refresh only after media materialization is working, rather than forced into this scheduled slot.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-no-material-change-since-prior-run",
+      "candidate": "New or updated breaking-news publication after the 19:14 Israel-local run",
+      "reason": "The fresh sweep did not identify a consequential new fact that materially changed the site's current strongest developing stories. Publishing again within minutes would duplicate or churn existing coverage.",
+      "section": "news",
+      "sources": [
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd",
+        "https://www.timesofisrael.com/latest/"
+      ]
+    },
+    {
+      "key": "veto-media-gate-remains-active",
+      "candidate": "Any new homepage promotion or material publication update requiring a hero asset",
+      "reason": "Live production still reports 46 of 48 records without hero images, and the most recent verified media-recovery attempts documented the Vercel Blob public/private access mismatch. This run will not knowingly lower the visual/media standard or bypass the supported path.",
+      "section": "news",
+      "sources": []
+    },
+    {
+      "key": "veto-positive-israel-no-slot-filling",
+      "candidate": "Immediate People of Israel / technology article on HydroSight, Israeli AI investment, or XTEND",
+      "reason": "The candidates are credible and useful but are not new since the immediately preceding successful editorial run. Publishing them now would be schedule-driven slot filling, and compliant media attachment remains unverified.",
+      "section": "technology_ai",
+      "sources": [
+        "https://www.calcalistech.com/ctechnews/article/syzscx2oge",
+        "https://www.calcalistech.com/ctechnews/article/uziure8w9",
+        "https://www.calcalistech.com/ctechnews/article/o44bq1b7n"
+      ]
+    }
+  ]
+}

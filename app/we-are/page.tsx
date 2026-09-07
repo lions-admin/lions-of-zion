@@ -92,10 +92,17 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
     a: "Yes. AI and automation can assist discovery, comparison, classification, drafting and editorial operations. A machine-authored editorial run is identified through machine provenance and governed by server-enforced rules. AI output is never evidence; readers should inspect the cited sources.",
   },
   {
+    q: "Does hosting an archive record mean Lions verified it anew?",
+    a: "No. Imported and archive records retain their own provenance. Lions may preserve, organize and contextualize them, but hosting or machine processing does not by itself establish that every statement in the original record was independently verified.",
+  },
+  {
     q: "What happens when something published turns out to be wrong?",
     a: (
       <>
-        It&apos;s corrected in place and marked as corrected, not deleted. The full policy and the public log are on the <Link href="/corrections">Corrections page</Link>.
+        A factual error is corrected in place and marked as corrected, not
+        deleted. New developments, added context, source changes and technical
+        migrations are labeled separately. The full policy and the public log
+        are on the <Link href="/corrections">Corrections page</Link>.
       </>
     ),
   },

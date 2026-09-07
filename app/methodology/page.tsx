@@ -51,6 +51,7 @@ const SECTION = {
   influence: "influence-network-research",
   limitations: "limitations",
   corrections: "corrections",
+  changes: "changes-to-the-record",
 } as const;
 
 /**
@@ -109,7 +110,7 @@ const GLANCE: { term: string; href: string; definition: string }[] = [
     term: "Corrections",
     href: `#${SECTION.corrections}`,
     definition:
-      "An error is amended in place, marked as corrected, and announced through the channels that carried it. Nothing is quietly deleted.",
+      "Corrections are reserved for errors. Updates, developing-story revisions, added context, source updates and technical migrations are identified separately so a changed page does not imply a false admission of error.",
   },
 ];
 
@@ -169,11 +170,12 @@ export default function Page() {
       <SectionBlock heading="The standard" id={SECTION.standard}>
         <div className={styles.summary}>
           <p className={styles.summaryText}>
-            Every assessed claim on this site is traced to a source a reader
-            can go and check, graded for how much weight that source can take,
-            labeled with what the evidence shows, and approved by a second
-            person who did not write it — before it is published, and never
-            after. Where that standard is not met, the page says so.
+            An assessed claim is traced to material a reader can check, graded
+            for the weight that material can carry, and approved by an
+            appropriate non-author human before it becomes public. Editorial
+            reporting and archive records follow different, disclosed
+            provenance paths. None of those paths turns AI interpretation into
+            evidence.
           </p>
         </div>
         <span className={styles.glanceKicker}>The standard in full</span>
@@ -229,8 +231,8 @@ export default function Page() {
           section describes, so the two cannot drift apart. */}
       <SectionBlock heading="Two ways a record publishes" id={SECTION.pathways}>
         <p>
-          Every published record on this site took one of exactly two routes,
-          and each record says on its face which one. Look for the
+          Editorial publications take one of two routes, and each publication
+          says on its face which one. Look for the
           <strong> Authorship</strong> line beside its dates.
         </p>
         <dl className={styles.glance}>
@@ -255,6 +257,13 @@ export default function Page() {
           history, and{" "}
           <Link href={`#${SECTION.corrections}`}>a correction is public</Link>{" "}
           whichever route produced the record.
+        </p>
+        <p>
+          Imported and archive records are a separate class, not a third
+          editorial byline. They retain the provenance of the material and the
+          circumstances in which it entered the archive. Hosting an item does
+          not mean Lions independently re-verified every statement in it, and
+          later machine processing does not upgrade its evidentiary status.
         </p>
       </SectionBlock>
 
@@ -519,6 +528,17 @@ export default function Page() {
           to each other in a closed loop — this page pointed there for the
           policy while that page pointed back here for the sourcing standard.
           The standard is now above; the policy stays where it lives. */}
+      <SectionBlock heading="Changes to the record" id={SECTION.changes}>
+        <ul>
+          <li><strong>Correction.</strong> A material factual or contextual error is fixed, labeled and entered in the public correction record.</li>
+          <li><strong>Update.</strong> New verified information is added without implying that the earlier record was wrong.</li>
+          <li><strong>Developing-story revision.</strong> A living canonical story is rewritten as events change, with the change and timing preserved in its history.</li>
+          <li><strong>Added context.</strong> Explanation or background is added to improve understanding without changing the underlying finding.</li>
+          <li><strong>Source update.</strong> A citation, archive link or source note is added, replaced or clarified; if that changes a factual conclusion, it is also a correction.</li>
+          <li><strong>Technical migration.</strong> Content is moved, reformatted or re-rendered without an editorial change. A migration must not be presented as new verification.</li>
+        </ul>
+      </SectionBlock>
+
       <SectionBlock heading="Corrections" id={SECTION.corrections}>
         <p>
           A network that verifies will still sometimes be wrong. The policy

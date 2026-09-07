@@ -99,6 +99,22 @@ export default async function Page() {
         </p>
       </SectionBlock>
 
+      <SectionBlock heading="What kind of change was made?">
+        <p>
+          Not every revision is a correction. We label changes by what they do,
+          so a reader can tell whether the earlier record was wrong or whether
+          the story simply moved forward.
+        </p>
+        <ul>
+          <li><strong>Correction.</strong> Fixes a material factual or contextual error and belongs in the public ledger below.</li>
+          <li><strong>Update.</strong> Adds verified information that emerged after publication.</li>
+          <li><strong>Developing-story revision.</strong> Rewrites the current canonical account as an event changes while preserving the earlier version in its history.</li>
+          <li><strong>Added context.</strong> Adds explanation without changing the underlying finding.</li>
+          <li><strong>Source update.</strong> Adds, replaces or clarifies a citation or archive link. If the new source changes a conclusion, the change is also recorded as a correction.</li>
+          <li><strong>Technical migration.</strong> Moves or reformats material without making a new editorial finding or claiming new verification.</li>
+        </ul>
+      </SectionBlock>
+
       <SectionBlock heading="Correction log">
         <p>
           Every correction issued across the site appears here, dated, with

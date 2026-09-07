@@ -651,9 +651,9 @@ export const consoleIncidentsSchema = z.object({
   })),
   /**
    * The outbox as the drain sees it. `byTopic` and `lastError` are what a
-   * `count(*)` could not say for two days: 3,348 rows were undelivered and
-   * the panel showed the number, while the reason — the queue refusing the
-   * topic name on every send — sat in `last_error` on each of them.
+   * `count(*)` cannot distinguish a row queued successfully from one whose
+   * consumer later failed. `deadLettered` and `lastError` cover both the
+   * pre-queue drain and bounded consumer-delivery failures.
    * `lastPublishedAt` null means no row has ever been handed to the queue.
    */
   outbox: z.object({

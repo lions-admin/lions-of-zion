@@ -27,6 +27,15 @@ import { decodePublicPublicationCursor, type ListPublicPublications, type ListPu
    in this signature. */
 type AnyDb = Record<string, (...args: never[]) => never>;
 
+export type LiveDuplicateCandidate = {
+  id: string;
+  publicId: string;
+  title: string;
+  canonicalStoryId: string | null;
+  eventId: string | null;
+  sharedEvidenceCount: number;
+};
+
 export function repo(db: unknown) {
   const d = db as AnyDb & {
     select: (f?: unknown) => {
@@ -48,6 +57,11 @@ export function repo(db: unknown) {
       // Lock even when no row exists. Two concurrent creates must not both
       // observe an empty lookup; the lock lasts through the publication commit.
       await d.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${canonicalStoryId}, 0))`);
+    },
+    async lockEvidence(evidenceIds: readonly string[]): Promise<void> {
+      for (const evidenceId of [...new Set(evidenceIds)].sort()) {
+        await d.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`evidence:${evidenceId}`}, 0))`);
+      }
     },
     async lock(id: string): Promise<void> {
       await d.execute(sql`SELECT id FROM publication WHERE id = ${id} FOR UPDATE`);
@@ -78,6 +92,41 @@ export function repo(db: unknown) {
         .orderBy(desc(publication.createdAt))
         .limit(1);
       return rows[0];
+    },
+    async liveByEventId(eventId: string): Promise<LiveDuplicateCandidate[]> {
+      const rows = await d.execute<Omit<LiveDuplicateCandidate, "sharedEvidenceCount">>(sql`
+        SELECT p.id, p.public_id AS "publicId", p.title,
+               p.canonical_story_id AS "canonicalStoryId", p.event_id AS "eventId"
+        FROM publication p
+        WHERE p.event_id = ${eventId}
+          AND p.status IN ('published', 'updated')
+        ORDER BY p.published_at DESC NULLS LAST, p.created_at DESC
+        LIMIT 100
+      `);
+      return rows.rows.map((row) => ({ ...row, sharedEvidenceCount: 0 }));
+    },
+    /**
+     * The create boundary needs a compact comparison set. Source overlap is
+     * counted from the evidence links, whose canonical URL/source identity was
+     * already resolved during package ingest; title matching remains policy in
+     * the service, where it can explain why it refused a create.
+     */
+    async liveDuplicateCandidates(evidenceIds: readonly string[]): Promise<LiveDuplicateCandidate[]> {
+      const evidenceMatch = evidenceIds.length
+        ? sql`pe.evidence_id IN (${sql.join(evidenceIds.map((id) => sql`${id}`), sql`, `)})`
+        : sql`FALSE`;
+      const rows = await d.execute<LiveDuplicateCandidate & { sharedEvidenceCount: string }>(sql`
+        SELECT p.id, p.public_id AS "publicId", p.title,
+               p.canonical_story_id AS "canonicalStoryId", p.event_id AS "eventId",
+               count(pe.evidence_id) FILTER (WHERE ${evidenceMatch})::text AS "sharedEvidenceCount"
+        FROM publication p
+        LEFT JOIN publication_evidence pe ON pe.publication_id = p.id
+        WHERE p.status IN ('published', 'updated')
+        GROUP BY p.id
+        ORDER BY p.published_at DESC NULLS LAST, p.created_at DESC
+        LIMIT 250
+      `);
+      return rows.rows.map(({ sharedEvidenceCount, ...row }) => ({ ...row, sharedEvidenceCount: Number(sharedEvidenceCount) }));
     },
     async list(filters: ListPublications): Promise<Publication[]> {
       const clauses: SQL[] = [];

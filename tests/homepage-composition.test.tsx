@@ -51,9 +51,9 @@ describe('homepage editorial composition',()=>{
  expect(caption.indexOf('Editorial illustration — not evidence')).toBeLessThan(caption.indexOf('A description.'));
  expect(html).toContain('alt="Editorial illustration. Not evidence."');
  });
- it('retains contested context and does not imply universal human review',()=>{
- const e=edition();e.israelsStory={state:'partial',gaps:[],items:[{...base,kind:'chapter',era:'1993',contested:true}]};
- const html=renderToStaticMarkup(<HomepageJourney edition={e}/>);expect(html).toContain('Contested');expect(html).toContain('different review paths');
+ it('retains contested context and distinguishes publication provenance paths',()=>{
+  const e=edition();e.israelsStory={state:'partial',gaps:[],items:[{...base,kind:'chapter',era:'1993',contested:true}]};
+ const html=renderToStaticMarkup(<HomepageJourney edition={e}/>);expect(html).toContain('Contested');expect(html).toContain('different provenance and review paths');
  });
  it('contains failures to selected records, keeping the other preview readable',async()=>{
  const refs=[{id:'ok',key:'ok'},{id:'failure',key:'failure'}] as HomeReference[];

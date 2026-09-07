@@ -87,8 +87,8 @@ const FLOWS: SupportFlow[] = [
       <>
         <p className={flowStyles.flowLede}>
           This network runs on volunteered expertise. Every volunteer works
-          inside the same method: evidence first, human review before anything
-          is published.
+          inside the same method: evidence first. Human investigations and
+          assessments retain their own review path.
         </p>
         <div className={flowStyles.skillGrid}>
           <ContentCard eyebrow="Investigate" title="Open-source investigation">

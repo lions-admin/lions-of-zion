@@ -11,7 +11,7 @@
  * migration plus four rewrites plus an unknowable backlog.
  */
 
-import { bigint, index, integer, jsonb, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { bigint, check, index, integer, jsonb, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { entityType } from "./_enums";
 import { createdAt, nonBlank, tsCol } from "./_shared";
@@ -30,12 +30,22 @@ export const outbox = pgTable(
     publishedAt: tsCol("published_at"),
     attempts: integer("attempts").notNull().default(0),
     lastError: text("last_error"),
+    /** Queue-consumer delivery state. `publishedAt` proves only that the
+     * outbox row reached Vercel Queues; these fields prove whether a consumer
+     * actually completed it, failed it, or stopped after bounded retries. */
+    consumerAttempts: integer("consumer_attempts").notNull().default(0),
+    consumerLastError: text("consumer_last_error"),
+    consumedAt: tsCol("consumed_at"),
+    deadLetteredAt: tsCol("dead_lettered_at"),
   },
   (t) => [
     /* The drain's only query. Partial, so it stays the size of the backlog
        rather than the size of history. */
     index("outbox_pending").on(t.availableAt).where(sql`${t.publishedAt} IS NULL`),
+    index("outbox_consumer_unresolved").on(t.createdAt)
+      .where(sql`${t.consumerLastError} IS NOT NULL AND ${t.consumedAt} IS NULL`),
     nonBlank(t.topic, "outbox_names_a_topic"),
+    check("outbox_consumer_attempts_nonnegative", sql`${t.consumerAttempts} >= 0`),
   ],
 );
 

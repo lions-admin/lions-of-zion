@@ -1,57 +1,49 @@
-/** Public architecture, not runtime telemetry. Keep route differences visible.
- * Sources: briefing/service.ts, external-publish.ts, codex-import.ts,
- * publications/service.ts, chat/service.ts, and the public archive routes.
- */
+/** Public architecture, not runtime telemetry. Keep provenance paths visible. */
 export const PIPELINE_STAGES = [
   { number: "01", name: "Collect", job: "collect" },
-  { number: "02", name: "Enrich", job: "enrich" },
-  { number: "03", name: "Cluster", job: "cluster" },
-  { number: "04", name: "Triage", job: "triage" },
-  { number: "05", name: "Draft", job: "draft" },
-  { number: "06", name: "Quality", job: "quality" },
-  { number: "07", name: "Publish", job: "publish" },
+  { number: "02", name: "Preserve provenance", job: "evidence" },
+  { number: "03", name: "Prepare editorial work", job: "editorial" },
+  { number: "04", name: "Apply publishing rules", job: "publish" },
+  { number: "05", name: "Index the public record", job: "search" },
 ] as const;
 
 export const SYSTEM_NODES = [
   { id: "sources", name: "Open sources", label: "Feeds · queries · public reporting", x: 0, y: 50,
-    detail: "Configured sources bring public material into the system. Collection records what was retrieved; it does not establish that a source’s claim is true.", input: "Configured feeds and discovery queries", output: "Retrieved material for enrichment" },
-  { id: "packages", name: "Submitted editions", label: "Research prepared outside the pipeline", x: 0, y: 230,
-    detail: "An edition can arrive as a structured package with its source references. The checked-package route evaluates quality; the direct Codex import is a separate publishing path.", input: "Edition content and source references", output: "Evidence records and publication inputs" },
-  { id: "research", name: "Research & documentation", label: "Claims · records · editorial work", x: 0, y: 410,
-    detail: "Research can create information items and assessments. Archive documentation is a separate public surface: it should not be mistaken for a product of the automated briefing jobs.", input: "Research material and documented records", output: "Items, assessments, or archive material" },
+    detail: "Configured sources bring public material into the system. Collection records what was retrieved; it does not establish that a source’s claim is true and it does not publish an article.", input: "Configured feeds and discovery queries", output: "Retrieved material for evidence work" },
+  { id: "packages", name: "Editorial runs", label: "Structured reporting with machine provenance", x: 0, y: 230,
+    detail: "A machine-authored editorial run can prepare structured reporting with source references and placement decisions. It is identified through machine provenance; AI assists the work but is never evidence.", input: "Editorial material and source references", output: "Publication inputs with provenance" },
+  { id: "research", name: "Research & documentation", label: "Claims · records · human investigation", x: 0, y: 410,
+    detail: "Research can create information items and human assessments. Archive documentation is a separate public surface, with its own provenance path.", input: "Research material and documented records", output: "Items, assessments, or archive material" },
   { id: "evidence", name: "Evidence & provenance", label: "Where the material came from", x: 380, y: 50,
-    detail: "Evidence retains source references and provenance. Named source families help distinguish origins; family assignments and copied reporting still require care. A stored source is not a verified claim.", input: "Collected or submitted source material", output: "Evidence IDs, URLs and provenance records" },
+    detail: "Evidence retains source references and provenance. Named source families help distinguish origins; family assignments and copied reporting still require care. A stored source is not a verified claim.", input: "Collected, submitted or researched material", output: "Evidence IDs, URLs and provenance records" },
   { id: "analysis", name: "Context & assessment", label: "What can actually be established?", x: 380, y: 230,
-    detail: "Briefing jobs cluster, triage and draft from the available material. The information-item model separately supports assessments with explicit confidence dimensions and known gaps. These are related, not identical workflows.", input: "Evidence and the question being examined", output: "Draft reporting or a recorded assessment" },
-  { id: "quality", name: "Publication checks", label: "Checks depend on the publishing path", x: 380, y: 410,
-    detail: "The automated briefing and checked-package paths evaluate source, content and citation requirements. Direct imports follow a different path. Passing automated checks is not proof that every statement is true.", input: "Draft content and its evidence references", output: "Recorded check results; a decision to proceed or stop" },
-  { id: "publication", name: "The public record", label: "Briefs · updates · narrative reporting", x: 760, y: 50,
-    detail: "Published articles have public URLs and publication metadata. Sourced reporting and explicitly labelled analysis have different evidence bases. A record can be corrected or withdrawn; publication is not a guarantee of certainty.", input: "Publication content and path-specific provenance", output: "Public articles, references and timestamps" },
+    detail: "Human investigations can turn evidence into an assessment with explicit confidence dimensions and known gaps. An assessment is distinct from a machine-authored editorial run and does not automatically become an article.", input: "Evidence and the question being examined", output: "A recorded assessment or reporting context" },
+  { id: "quality", name: "Publishing safeguards", label: "Rules depend on the provenance path", x: 380, y: 410,
+    detail: "Machine-authored editorial runs are governed by server-enforced rules and recorded machine provenance. Human assessments retain their separate review gate. These safeguards support accountability; they do not prove every statement true.", input: "Content and its provenance", output: "A recorded decision to proceed or stop" },
+  { id: "publication", name: "The public record", label: "Reporting · updates · documented material", x: 760, y: 50,
+    detail: "Published records have public URLs, dates and provenance appropriate to their path. Sourced reporting and explicitly labeled analysis have different evidence bases. A record can be corrected or withdrawn; publication is not a guarantee of certainty.", input: "Publication content and path-specific provenance", output: "Public articles, references and timestamps" },
   { id: "access", name: "Find. Read. Ask.", label: "Search & conversation", x: 760, y: 230,
-    detail: "Search makes indexed public content discoverable. Ask can retrieve site documents and cite them; it can also use X search when available. An assistant response is not itself a published finding.", input: "Indexed content and the reader’s question", output: "Search results or an answer with available citations" },
+    detail: "Search makes indexed public content discoverable. Ask can retrieve site documents and cite them; an assistant response is not itself a published finding.", input: "Indexed content and the reader’s question", output: "Search results or an answer with available citations" },
   { id: "archive", name: "The October 7 archive", label: "A distinct documentation surface", x: 760, y: 410,
-    detail: "The archive gives documented material its own structured, navigable home. It sits alongside current reporting, rather than being generated by the daily briefing chain.", input: "Archive records and documentation", output: "Browsable records with their own context" },
+    detail: "The archive gives documented material its own structured, navigable home. It sits alongside current reporting rather than being generated by the editorial delivery path.", input: "Archive records and documentation", output: "Browsable records with their own context" },
 ] as const;
 export type SystemNodeId = (typeof SYSTEM_NODES)[number]["id"];
 
 export const PIPELINE_ROUTES: readonly {
   id: string; name: string; subject: string; steps: readonly SystemNodeId[]; note: string;
 }[] = [
-  { id: "briefing", name: "Automated briefing", subject: "From collected material to a sourced edition.",
-    steps: ["sources", "evidence", "analysis", "quality", "publication", "access"],
-    note: "The implemented job chain is collect → enrich → cluster → triage → draft → quality → publish. This illustration does not assert that a run is active or an edition is on schedule." },
-  { id: "package", name: "Checked package", subject: "Research can enter as a prepared edition, not just as a collected signal.",
+  { id: "editorial", name: "Machine-authored editorial run", subject: "Structured reporting with sources, provenance and a durable publication path.",
     steps: ["packages", "evidence", "quality", "publication", "access"],
-    note: "The external-package publisher resolves source references, evaluates quality requirements, then creates public output or drafts according to publication controls." },
-  { id: "import", name: "Direct import", subject: "A separate import path, with a different set of controls.",
-    steps: ["packages", "evidence", "publication", "access"],
-    note: "The Codex import records sources and publication provenance, but does not run the same quality evaluator as the checked-package path. The diagram deliberately does not draw a check it does not perform." },
-  { id: "claim", name: "Claim research", subject: "Keep a claim, the material behind it, and the assessment distinct.",
-    steps: ["research", "evidence", "analysis", "publication", "access"],
-    note: "A conceptual editorial route: information items and assessments are separate entities from briefing drafts. An assessment does not automatically become a public article." },
+    note: "The system records machine provenance and applies server-enforced publishing rules. New material can update an existing canonical story rather than create a second article." },
+  { id: "collection", name: "Collection & evidence", subject: "Collect public material without turning collection into authorship.",
+    steps: ["sources", "evidence", "analysis"],
+    note: "Collection supplies material for discovery, research and evidence work. It never composes or publishes an editorial record on its own." },
+  { id: "assessment", name: "Human assessment", subject: "Keep a claim, the material behind it, and the assessment distinct.",
+    steps: ["research", "evidence", "analysis", "quality", "publication", "access"],
+    note: "A human assessment follows its own review path. It is not an automatic result of collection or a machine-authored editorial run." },
   { id: "archive", name: "Documentation", subject: "Preserve documented material in a public archive.",
     steps: ["research", "archive"],
-    note: "The October 7 archive is a separate publishing surface. This route does not imply that an archive entry is generated by the briefing pipeline or indexed by every retrieval tool." },
+    note: "The October 7 archive is a separate publishing surface. This route does not imply that an archive entry is generated by editorial automation or indexed by every retrieval tool." },
 ];
 
 /** Explicit connectors make bypasses legible instead of forcing every route through a gate. */

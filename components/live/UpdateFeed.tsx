@@ -119,7 +119,7 @@ export function UpdateFeed({
           description={
             paged
               ? "There is nothing older than the last page you were on. The entries above it are still there."
-              : "Entries appear here only after they have cleared the evidence and quality checks. This page never shows sample or placeholder material to fill the space."
+              : "Entries appear here after publication. Sources and provenance are shown where available; this page never shows sample or placeholder material to fill the space."
           }
           actionText={paged ? "Back to the newest entries" : section ? "Show every section" : "How the checks work"}
           actionHref={paged ? href(section) : section ? href(undefined) : "/information-war#system"}

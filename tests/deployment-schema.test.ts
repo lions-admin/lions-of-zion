@@ -26,7 +26,7 @@ describe("deployment schema preflight", () => {
   it("refuses promotion when the last required migration is not applied", async () => {
     await db.$client.exec("BEGIN; DELETE FROM drizzle.__drizzle_migrations WHERE created_at = (SELECT max(created_at) FROM drizzle.__drizzle_migrations)");
     try {
-      await expect(assertSchemaCompatible(query)).rejects.toThrow("required migration(s) are missing");
+      await expect(assertSchemaCompatible(query)).rejects.toThrow("required migration marker is missing");
     } finally { await db.$client.exec("ROLLBACK"); }
   });
 
@@ -40,7 +40,14 @@ describe("deployment schema preflight", () => {
   it("refuses migration contents changed after application", async () => {
     await db.$client.exec("BEGIN; UPDATE drizzle.__drizzle_migrations SET hash = 'changed' WHERE created_at = (SELECT max(created_at) FROM drizzle.__drizzle_migrations)");
     try {
-      await expect(assertSchemaCompatible(query)).rejects.toThrow("missing or changed");
+      await expect(assertSchemaCompatible(query)).rejects.toThrow("migration marker is missing or changed");
+    } finally { await db.$client.exec("ROLLBACK"); }
+  });
+
+  it("tolerates historical receipt drift once the required marker and schema match", async () => {
+    await db.$client.exec("BEGIN; UPDATE drizzle.__drizzle_migrations SET hash = 'historic-drift' WHERE created_at = (SELECT min(created_at) FROM drizzle.__drizzle_migrations)");
+    try {
+      await expect(assertSchemaCompatible(query)).resolves.toMatchObject({ migrations: expect.any(Number) });
     } finally { await db.$client.exec("ROLLBACK"); }
   });
 

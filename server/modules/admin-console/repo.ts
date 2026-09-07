@@ -1071,16 +1071,18 @@ export function adminConsoleRepo(db: unknown) {
       WHERE status = 'open' ORDER BY created_at DESC LIMIT ${limit}
     `),
 
-    /** The outbox has no dead-letter state — `drainOutbox` retries with a
-     *  capped backoff forever — so `deadLettered` is always zero here.
-     *  `lastError` is the newest refusal, which is the drain's diagnosis. */
+    /** `published_at` proves queue acceptance, not consumer completion. The
+     * consumer records its own bounded retries so a poison message is visible
+     * here instead of being re-delivered indefinitely in Vercel Queues. */
     outbox: () => one<OutboxRow>(sql`
       SELECT count(*) FILTER (WHERE published_at IS NULL) AS undelivered,
              min(created_at) FILTER (WHERE published_at IS NULL) AS "oldestAt",
-             0 AS "deadLettered",
+             count(*) FILTER (WHERE dead_lettered_at IS NOT NULL) AS "deadLettered",
              max(published_at) AS "lastPublishedAt",
-             (SELECT last_error FROM outbox WHERE published_at IS NULL AND last_error IS NOT NULL
-              ORDER BY available_at DESC LIMIT 1) AS "lastError"
+             (SELECT coalesce(consumer_last_error, last_error)
+              FROM outbox
+              WHERE consumer_last_error IS NOT NULL OR (published_at IS NULL AND last_error IS NOT NULL)
+              ORDER BY coalesce(dead_lettered_at, published_at, available_at) DESC LIMIT 1) AS "lastError"
       FROM outbox
     `),
 

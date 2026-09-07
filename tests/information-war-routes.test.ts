@@ -24,13 +24,13 @@ describe("information-war architecture journeys", () => {
     }
   });
 
-  it("does not draw a quality evaluation on the direct-import or archive path", () => {
+  it("keeps collection separate from editorial publication and the archive", () => {
     const routes = Object.fromEntries(PIPELINE_ROUTES.map((route) => [route.id, route]));
-    expect(routes.briefing.steps).toContain("quality");
-    expect(routes.package.steps).toContain("quality");
-    expect(routes.import.steps).not.toContain("quality");
+    expect(routes.editorial.steps).toContain("quality");
+    expect(routes.collection.steps).not.toContain("publication");
+    expect(routes.collection.note).toContain("never composes or publishes");
+    expect(routes.assessment.steps).toContain("quality");
     expect(routes.archive.steps).toEqual(["research", "archive"]);
-    expect(routes.import.note).toContain("does not run the same quality evaluator");
   });
 
   it("shows every system node in at least one mobile journey", () => {
@@ -44,8 +44,8 @@ describe("information-war architecture journeys", () => {
     expect(new Set(SYSTEM_EDGES.map((edge) => `${edge.from}:${edge.to}`)).size).toBe(SYSTEM_EDGES.length);
   });
 
-  it("retains the actual seven job stages without claiming they run for every route", () => {
-    expect(PIPELINE_STAGES.map((stage) => stage.job)).toEqual(["collect", "enrich", "cluster", "triage", "draft", "quality", "publish"]);
-    expect(PIPELINE_ROUTES.find((r) => r.id === "claim")?.note).toContain("does not automatically");
+  it("names the public provenance stages without claiming a live run", () => {
+    expect(PIPELINE_STAGES.map((stage) => stage.job)).toEqual(["collect", "evidence", "editorial", "publish", "search"]);
+    expect(PIPELINE_ROUTES.find((r) => r.id === "assessment")?.note).toContain("not an automatic result");
   });
 });

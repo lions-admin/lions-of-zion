@@ -34,7 +34,7 @@ export function HomeSystemSection() {
           </div>
           <p>Briefings and investigations connect reporting to its sources.
             Read the evidence, the assessment and the limits—not just the headline.</p>
-          <p className={styles.branchNote}>Human assessments, automated briefings and imported editions follow different review paths.</p>
+          <p className={styles.branchNote}>Human assessments, machine-authored editorial runs and historical records follow different provenance and review paths.</p>
           <JourneyLink href="/geopolitical-brief">Read the reporting</JourneyLink>
         </article>
         <article>

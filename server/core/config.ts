@@ -510,5 +510,6 @@ export function configuredIntegrations(request?: Request): Record<string, boolea
   };
 }
 
-/** A checked-in local edition is never a production fallback, even with local Vercel env copies. */
-export const homepageLocalPreview = (): boolean => process.env.NODE_ENV === 'development';
+/** Use the persisted edition when local development explicitly reads live content. */
+export const homepageLocalPreview = (): boolean =>
+  process.env.NODE_ENV === 'development' && process.env.DATABASE_RESOURCE_ENV !== 'production';

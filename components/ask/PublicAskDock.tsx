@@ -5,6 +5,6 @@ import { AskDock } from "./AskDock";
 
 export function PublicAskDock() {
   const pathname = usePathname();
-  if (pathname === "/" || pathname === "/admin" || pathname?.startsWith("/admin/")) return null;
+  if (!pathname || pathname === "/ask" || pathname === "/" || pathname === "/admin" || pathname?.startsWith("/admin/")) return null;
   return <AskDock />;
 }

@@ -35,6 +35,7 @@
     "briefing:publish": "NODE_OPTIONS=--conditions=react-server tsx scripts/publish-briefing-package.ts",
     "editorial:packages": "tsx scripts/list-editorial-update-packages.ts",
     "editorial:publish": "tsx scripts/publish-editorial-update.ts",
+    "editorial:diagnose": "tsx scripts/diagnose-editorial-run.ts",
     "dev": "next dev",
     "lint": "eslint",
     "//perf": "perf:report is the CI gate — it exits non-zero when a budget in scripts/perf-budgets.json is exceeded. Run npm run build first; it reads .next. perf:runtime needs the origin of a server you started yourself: npm run perf:runtime -- http://localhost:3000",

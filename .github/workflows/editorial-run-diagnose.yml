@@ -1,0 +1,44 @@
+name: Diagnose editorial run
+
+# Read-only. Reads one durable run's status and prints its diagnostics, using
+# the same authenticated status endpoint the publisher polls. It never submits
+# a package, never writes to the delivery branch, and never publishes: the only
+# call it makes is a GET.
+#
+# It exists because a run that fails outside per-operation processing reports
+# `created=0 updated=0 failed=0`, and until 2026-09-07 the run-level failure
+# record was in the database and on no response — so the only way to read it
+# was from a machine holding the ingest secret, which is this runner.
+
+on:
+  workflow_dispatch:
+    inputs:
+      runId:
+        description: "The run key, e.g. chatgpt-test-2026-09-07-0332-k4m9"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Read the durable run
+        env:
+          EDITORIAL_UPDATE_INGEST_SECRET: ${{ secrets.EDITORIAL_UPDATE_INGEST_SECRET }}
+          EDITORIAL_UPDATE_INGEST_BASE_URL: ${{ secrets.EDITORIAL_UPDATE_INGEST_BASE_URL }}
+          RUN_ID: ${{ inputs.runId }}
+        run: npm run editorial:diagnose -- "$RUN_ID"

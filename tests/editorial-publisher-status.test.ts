@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { describeEditorialRunPhase, isTerminalEditorialRunStatus } from "@/server/contracts/editorial-update";
-import { formatRunStatusLine, formatTerminalReport, formatTimeout, isTerminal, runFailed } from "../scripts/editorial-run-status";
+import { formatFailureDiagnostics, formatRunStatusLine, formatTerminalReport, formatTimeout, isTerminal, runFailed } from "../scripts/editorial-run-status";
 
 const delivery = (over: Partial<{ publishedAt: string | null; attempts: number; lastError: string | null }> = {}) => ({
   outboxId: "3568", createdAt: "2026-09-06T21:20:04.307Z", availableAt: "2026-09-06T21:20:04.307Z",
@@ -74,7 +74,11 @@ describe("the publisher's polling output", () => {
     const partial = { runId: "r", status: "partial", report: { publications: { created: 2, updated: 1, failed: 1 }, urls: ["/articles/a"], errors: [{ operationKey: "b", stage: "media", message: "bad image" }] } };
     expect(runFailed(partial)).toBe(true);
     const report = formatTerminalReport(partial);
-    expect(report.err).toEqual(["error=b stage=media message=bad image", "[publication execution failure] Durable run r finished partial."]);
+    expect(report.err[0]).toBe("error=b stage=media message=bad image");
+    expect(report.err.at(-1)).toBe("[publication execution failure] Durable run r finished partial.");
+    /* The diagnostics sit between the two, so the operator sees the run's own
+       account before the summary line. */
+    expect(report.err.join("\n")).toContain("--- diagnostics for r ---");
 
     const homepage = { runId: "r", status: "partial", report: { publications: { created: 1, updated: 0, failed: 0 }, errors: [{ operationKey: null, stage: "homepage", message: "slot refused" }] } };
     expect(runFailed(homepage)).toBe(false);
@@ -84,6 +88,54 @@ describe("the publisher's polling output", () => {
     });
 
     expect(runFailed({ runId: "r", status: "failed", report: null })).toBe(true);
+  });
+
+  /* The regression this file exists for. Run
+     `chatgpt-test-2026-09-07-0332-k4m9` ended `failed` with
+     `created=0 updated=0 failed=0` and no operation marked failed, and the
+     Action printed one sentence: "Durable run … finished failed." The stored
+     exception was never on the wire. A terminal failure must now carry the
+     run's own account of itself. */
+  it("never reports a run-level failure without the stored exception", () => {
+    const runLevel = {
+      runId: "chatgpt-test-2026-09-07-0332-k4m9",
+      status: "failed",
+      stage: "report",
+      phase: "failed",
+      createdAt: "2026-09-07T00:30:13.000Z",
+      startedAt: "2026-09-07T00:30:14.000Z",
+      finishedAt: "2026-09-07T00:30:19.000Z",
+      failure: {
+        stage: "report",
+        operationKey: null,
+        message: "relation \"editorial_source\" does not exist",
+        recovery: "Resume the run after resolving the report issue.",
+      },
+      report: { publications: { created: 0, updated: 0, failed: 0 } },
+      operations: [
+        { key: "lebanon", status: "pending", stage: "media", result: null, failure: null },
+        { key: "west-bank", status: "pending", stage: "media", result: null, failure: null },
+      ],
+      delivery: { outboxId: "3646", createdAt: "2026-09-07T00:30:13.000Z", availableAt: "2026-09-07T00:30:13.000Z", publishedAt: "2026-09-07T00:30:13.500Z", attempts: 0, lastError: null },
+    };
+    expect(runFailed(runLevel)).toBe(true);
+    const text = formatTerminalReport(runLevel).err.join("\n");
+    /* The exception itself, its stage, and how to recover — the three things
+       that were invisible. */
+    expect(text).toContain('relation "editorial_source" does not exist');
+    expect(text).toContain("failure.stage=report");
+    expect(text).toContain("failure.operationKey=none (run-level)");
+    expect(text).toContain("Resume the run after resolving the report issue.");
+    /* And that no operation even started, which is what distinguishes a
+       run-level failure from three failed publications. */
+    expect(text).toContain("operation lebanon status=pending");
+    expect(text).toContain("created=0 updated=0 failed=0 requested=2");
+    expect(text).toContain("outbox id=3646");
+  });
+
+  it("says so plainly when a failed run recorded no failure at all", () => {
+    const text = formatFailureDiagnostics({ runId: "r", status: "failed", report: null }).join("\n");
+    expect(text).toContain("failure=none recorded on the run");
   });
 
   it("makes a timeout a failure that names the last thing it saw", () => {

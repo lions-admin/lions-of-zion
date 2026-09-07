@@ -5,7 +5,7 @@ import type {Database} from '@/server/db/client';
 import {homeSections,type HomeReference} from '@/server/contracts/homepage';
 let db:TestDatabase;
 beforeAll(async()=>{db=await freshDatabase()},60000);afterAll(async()=>{await db.$client.close()});
-const candidate=(id:string,section:HomeReference['section']='news',kind:HomeReference['kind']='news'):HomeReference=>({id,key:`${kind}:${id}`,section,kind,href:`/articles/${id}`,version:'1',date:'2026-09-05',mediaId:'cleared'});
+const candidate=(id:string,section:HomeReference['section']='news',kind:HomeReference['kind']='news',mediaId:string|null='cleared'):HomeReference=>({id,key:`${kind}:${id}`,section,kind,href:`/articles/${id}`,version:'1',date:'2026-09-05',mediaId});
 const revisions=(news='1')=>JSON.stringify(Object.fromEntries(homeSections.map(s=>[s,s==='news'?news:'1'])));
 it('freezes membership across new content and scopes explicit changes to news',async()=>{
  let input:Awaited<ReturnType<typeof homepageInputs>>={date:'2026-09-05',catalog:{revision:'c',sourceRevision:'s',candidates:[]},candidates:[candidate('a'),candidate('b'),candidate('p','heroes','hero')],overrides:{revision:'1',pins:[],breakingNews:null},placements:[],overrideRevision:revisions()};
@@ -17,4 +17,16 @@ it('freezes membership across new content and scopes explicit changes to news',a
  const second=await service.ensureEdition(new Date('2026-09-05T14:00:00Z'));
  expect(second.revision).toBe(2);expect(second.selection.news[0].id).toBe('0');expect(second.selection.heroes).toEqual(first.selection.heroes);
  const rows=await db.$client.query('select * from homepage_edition');expect(rows.rows.length).toBe(2);
+});
+
+it('keeps an explicit text-only publication in its requested homepage slot',async()=>{
+ const input:Awaited<ReturnType<typeof homepageInputs>>={
+  date:'2026-09-06',catalog:{revision:'c2',sourceRevision:'s2',candidates:[]},
+  candidates:[candidate('image'),candidate('text','news','news',null)],
+  overrides:{revision:'1',pins:[],breakingNews:null},
+  placements:[{area:'news',position:'lead',key:'news:text'}],overrideRevision:revisions('text-only')
+ };
+ const edition=await homepageService(db as unknown as Database,async()=>input).ensureEdition(new Date('2026-09-06T12:00:00Z'));
+ expect(edition.selection.news[0]).toMatchObject({id:'text',mediaId:null});
+ expect(edition.selection.news[1]).toMatchObject({id:'image',mediaId:'cleared'});
 });

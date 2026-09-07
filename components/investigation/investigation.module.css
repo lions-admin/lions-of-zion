@@ -105,6 +105,30 @@
   display: none;
 }
 
+/* VA-54. The strip is about 1319px of no-wrap pills inside a 343px phone and
+   its scrollbar is hidden, so nothing told a reader that six of the nine
+   sections were off to the right. The component measures which side has more
+   and this fades that edge — the one honest signal a hidden scrollbar leaves
+   room for. Masking only, so it costs no height in a sticky bar and cannot
+   cover a control. */
+.sectionNavList[data-overflow='end'] {
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--sp-6)), transparent 100%);
+}
+
+.sectionNavList[data-overflow='start'] {
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--sp-6));
+}
+
+.sectionNavList[data-overflow='both'] {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--sp-6),
+    #000 calc(100% - var(--sp-6)),
+    transparent 100%
+  );
+}
+
 .sectionNavLink {
   display: inline-flex;
   align-items: center;

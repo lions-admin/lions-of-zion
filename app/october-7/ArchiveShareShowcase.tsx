@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { XMediaPostButton } from "@/components/archive/XMediaPostButton";
 import { ShareControls } from "@/components/support/ShareControls";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./page.module.css";
@@ -20,6 +21,14 @@ export type ArchiveShareSample = {
   shareText: string;
   xHref: string;
   facebookHref: string;
+  xMedia: {
+    pkg: "october7" | "hamas-massacre";
+    recordId: string;
+    mediaId: string;
+    locale: string;
+    assetUrl: string;
+    medium: "video" | "image";
+  } | null;
 };
 
 function subscribeMotion(update: () => void) {
@@ -76,7 +85,7 @@ export function ArchiveShareShowcase({
       <header className={styles.featureHeading}>
         <p className={styles.eyebrow}>{isStory ? "First-person accounts" : "Films & photographs"}</p>
         <h2 id={headingId}>{isStory ? "Survivor stories" : "Documented records"}</h2>
-        <p>{isStory ? "Read their words. Help their stories reach others." : "See what was recorded. Share the source, not a detached clip."}</p>
+        <p>{isStory ? "Read their words. Help their stories reach others." : "See what was recorded. Post the original source media with its archive context preserved here."}</p>
         <Link className={styles.browseLink} href={archiveHref}>
           Browse all {count} {isStory ? "stories" : "records"} <Icon name="arrow-right" size={18} />
         </Link>
@@ -127,9 +136,19 @@ export function ArchiveShareShowcase({
             </Link>
             <div className={styles.shareSample}>
               <p className={styles.shareLabel}>{isStory ? "Share this survivor’s story" : "Share this documented record"}</p>
-              <ShareControls key={sample.id} url={sample.url} title={sample.title} text={sample.shareText}
-                copyVariant="primary" copyLabel={isStory ? "Copy story to share" : "Copy record to share"}
-                targets={[{ label: "Share on X", href: sample.xHref }, { label: "Facebook", href: sample.facebookHref }]} />
+              <ShareControls
+                key={sample.id}
+                url={sample.url}
+                title={sample.title}
+                text={sample.shareText}
+                copyVariant="primary"
+                copyLabel={isStory ? "Copy story to share" : "Copy record to share"}
+                actions={sample.xMedia ? <XMediaPostButton {...sample.xMedia} returnTo={sample.href} /> : undefined}
+                targets={[
+                  ...(sample.xMedia ? [] : [{ label: "Share on X", href: sample.xHref }]),
+                  { label: "Facebook", href: sample.facebookHref },
+                ]}
+              />
             </div>
           </div>
           <p className={styles.rotationNote}>

@@ -1,0 +1,77 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "media-recovery-2026-09-07-1545",
+  "composer": "Lions of Zion media recovery review",
+  "createdAt": "2026-09-07T12:45:00Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "siteRecommendations": [
+    "MEDIA_RECOVERY: Retain all six current homepage placements as intentionally text-led until an exact documentary asset, official related imagery with written reuse permission, or another reliably licensed relevant image is available. Do not use Reuters, IDF, BGU, Israel Innovation Authority, Conference of European Rabbis, social-media, stock, flag, or unrelated military imagery without a rights basis that explicitly covers Lions of Zion public reuse.",
+    "GENERATED_IMAGE_CANDIDATES (do not generate or upload in this run): (1) Kharg Island synthetic-video analysis — abstract media-forensics layers, explicitly non-documentary; (2) European antisemitism manifesto — verified-document network and civic protection motifs, non-documentary; (3) southern Lebanon escalation — no generated treatment recommended while the story is developing; (4) West Bank outpost order — no generated treatment recommended due to sensitive current-affairs context; (5) Tkuma workforce program — regional technology-learning ecosystem, non-documentary; (6) BGU aerogel research — laboratory material-science process, non-documentary."
+  ],
+  "research": [
+    {
+      "topic": "Homepage media recovery — Kharg Island synthetic-video analysis",
+      "focus": "Exact source imagery and verified rights for the Fake Resistance lead.",
+      "sourcesReviewed": [
+        "https://www.reuters.com/",
+        "https://leadstories.com/"
+      ],
+      "conclusion": "The available visual material is the synthetic battlefield clip under analysis or reporting-page imagery. Neither establishes a cleared reuse basis for public display. A synthetic-video still would also be editorially misleading as documentary context. Retain the existing publication text-led.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Homepage media recovery — European rabbis manifesto",
+      "focus": "Official Conference of European Rabbis imagery and reuse rights for the Fake Resistance secondary placement.",
+      "sourcesReviewed": [
+        "https://www.cer-online.org/",
+        "https://worldisraelnews.com/jewish-schools-behind-steel-and-concrete-rabbis-warn-europe-must-confront-the-forces-driving-antisemitism/"
+      ],
+      "conclusion": "No exact official event image with an explicit public-reuse licence or written permission was established. Retain the existing publication text-led.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Homepage media recovery — southern Lebanon escalation",
+      "focus": "Exact official documentation and reuse rights for the News & Analysis lead.",
+      "sourcesReviewed": [
+        "https://www.idf.il/128118",
+        "https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/"
+      ],
+      "conclusion": "The IDF operational update documents the reported response, but no explicit licence or written public-reuse permission for a corresponding image was established. Reuters reporting does not establish a reusable image licence. Retain the developing story text-led.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Homepage media recovery — West Bank outpost-removal order",
+      "focus": "Exact documentary or official related imagery and rights for the News & Analysis secondary placement.",
+      "sourcesReviewed": [
+        "https://www.reuters.com/world/middle-east/israels-netanyahu-orders-west-bank-settler-outposts-be-removed-sources-say-2026-09-06/",
+        "https://www.reuters.com/world/middle-east/us-ambassador-visits-palestinian-town-amid-rise-west-bank-settler-violence-2026-09-05/"
+      ],
+      "conclusion": "No image with a cleared reuse basis was established. A generic official portrait or unrelated location image would not document the reported order and would risk misleading context. Retain the story text-led.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Homepage media recovery — Tkuma technology workforce program",
+      "focus": "Official Israel Innovation Authority source imagery and rights for the People of Israel lead.",
+      "sourcesReviewed": [
+        "https://innovationisrael.org.il/en/press_release/tkuma-programs/",
+        "https://innovationisrael.org.il/termsofuse-2/"
+      ],
+      "conclusion": "The primary announcement is authoritative for the program, but its terms reserve rights in site images and prohibit copying, redistribution or republication without prior written consent. No cleared asset can be attached. Retain the story text-led.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Homepage media recovery — BGU oil-biodegrading aerogel",
+      "focus": "Exact BGU research imagery and rights for the People of Israel secondary placement.",
+      "sourcesReviewed": [
+        "https://www.bgu.ac.il/en/news-and-articles/bgu-aerogel-adsorbs-oil-and-supports-biodegradation/",
+        "https://www.sciencedirect.com/science/article/pii/S2666821126003583"
+      ],
+      "conclusion": "BGU's article contains images illustrating the process and oil adsorption, but no explicit public-reuse licence or written permission was established. The research paper page does not provide a reusable image asset. Retain the story text-led.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": []
+}
+

@@ -4,6 +4,7 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { DocPage } from "@/components/sections/DocPage";
 import { SectionBlock } from "@/components/sections/SectionPage";
 import { SITE_URL } from "@/lib/site-config";
+import { PUBLICATION_PROVENANCE } from "@/server/contracts/publication";
 import styles from "./page.module.css";
 
 const TAGLINE =
@@ -40,6 +41,7 @@ const METHODOLOGY_JSON_LD = {
 const SECTION = {
   standard: "the-standard",
   scope: "scope",
+  pathways: "how-a-record-publishes",
   sources: "sources",
   archiving: "archiving",
   labels: "labels",
@@ -95,7 +97,7 @@ const GLANCE: { term: string; href: string; definition: string }[] = [
     term: "Assessment process",
     href: `#${SECTION.process}`,
     definition:
-      "Five stages for an assessed claim. One is a gate: a second person who did not write the assessment must approve it, and no automated identity can hold that capability.",
+      "Five stages for a human-written assessed claim. One is a gate: a second person who did not write the assessment must approve it, and no automated identity can hold that capability. Records published by the editorial system do not pass through it — see Two ways a record publishes.",
   },
   {
     term: "Limitations",
@@ -143,8 +145,8 @@ const PIPELINE: { name: string; note: string; icon: IconName; gate?: string }[] 
   {
     name: "Human review",
     icon: "review",
-    gate: "Gate — human only",
-    note: "A second person who did not write the assessment must approve it. That capability cannot be held by an automated identity — it is refused structurally rather than by policy.",
+    gate: "Gate — human path only",
+    note: "On the human path a second person who did not write the assessment must approve it, and that capability cannot be held by an automated identity — it is refused structurally rather than by policy. The editorial system does not use this gate and does not pretend to: it publishes under its own name, which is what the authorship line on every record states.",
   },
   {
     name: "Publish and search",
@@ -213,6 +215,46 @@ export default function Page() {
           imported material can carry another provenance path; the{" "}
           <Link href="/october-7">October 7 archive</Link> remains a distinct
           documentation surface.
+        </p>
+      </SectionBlock>
+
+      {/* VA-47. Two statements on this site used to describe the human review
+          gate as though it governed everything published, while the article
+          page marked machine-published records with a bare "Automatically
+          published daily edition". Both pathways are real; neither was
+          described as one of two. The owner's ruling (2026-09-07) is to state
+          the automated pathway exactly and without apology — an autonomous
+          editorial system is what this site demonstrates, not a footnote. The
+          authorship line on every record is derived from the same field this
+          section describes, so the two cannot drift apart. */}
+      <SectionBlock heading="Two ways a record publishes" id={SECTION.pathways}>
+        <p>
+          Every published record on this site took one of exactly two routes,
+          and each record says on its face which one. Look for the
+          <strong> Authorship</strong> line beside its dates.
+        </p>
+        <dl className={styles.glance}>
+          {(["machine", "human"] as const).map((kind) => (
+            <div key={kind} className={styles.glanceRow}>
+              <dt className={styles.glanceTerm}>{PUBLICATION_PROVENANCE[kind].label}</dt>
+              <dd className={styles.glanceDef}>{PUBLICATION_PROVENANCE[kind].detail}</dd>
+            </div>
+          ))}
+        </dl>
+        <p>
+          The two are mutually exclusive, and that is enforced by the database
+          rather than by intention: a live record must carry either a human
+          approver or the machine-publication marker, and the publish gate
+          refuses a record claiming both. A record published by the system also
+          cannot name a person as its approver, which is what stops the
+          comfortable version of this page from ever becoming true by accident.
+        </p>
+        <p>
+          What does not change between the two: sources are cited the same way,
+          the same labels apply, corrections are recorded against the same
+          history, and{" "}
+          <Link href={`#${SECTION.corrections}`}>a correction is public</Link>{" "}
+          whichever route produced the record.
         </p>
       </SectionBlock>
 

@@ -165,7 +165,20 @@ export const updatePublicationSchema = z.object({
   body: z.string().trim().min(1).max(200_000).optional(),
   scenarioIndicators: z.string().trim().max(10_000).optional(),
   changeSummary: z.string().trim().min(1).max(500),
-});
+})
+  /* VA-46. `changeSummary` is the only required key, so `{ changeSummary }`
+     alone parses — and then writes nothing while appending a version row that
+     `public_publication_corrections()` publishes as a revision. Refusing the
+     empty patch here stops it at the contract, before a route, a service or a
+     transaction is entered. Whether the fields sent are *coherent with each
+     other* needs the stored row and lives in `publications/rules.ts`. */
+  .refine(
+    (input) => Object.entries(input).some(([key, value]) => key !== "changeSummary" && value !== undefined),
+    {
+      message: "An update must carry at least one field to change. A change summary on its own would record a revision that did not happen.",
+      path: ["changeSummary"],
+    },
+  );
 export type UpdatePublication = z.infer<typeof updatePublicationSchema>;
 
 export const transitionPublicationSchema = z.object({
@@ -316,3 +329,53 @@ export const canTransitionPublication = (
   from: keyof typeof LEGAL_PUBLICATION_TRANSITIONS,
   to: string,
 ): boolean => (LEGAL_PUBLICATION_TRANSITIONS[from] as readonly string[]).includes(to);
+
+/**
+ * How a published record actually reached the reader — VA-47.
+ *
+ * The site used to promise, on `/we-are` and `/methodology`, that a second
+ * non-author human reviewer approved everything before it published, while the
+ * article page rendered "Automatically published daily edition" on records that
+ * no human had touched. Both statements were true of *one* pathway each, and
+ * each was written as though it were true of all of them.
+ *
+ * There are exactly two public classes, and the database already guarantees
+ * they are exclusive: `published_publication_has_timestamp_and_approver`
+ * requires a live record to carry `approvedBy` **or** `autoPublishedAt`, and
+ * `enforce_publication_publish_gate()` refuses a row claiming both. So the
+ * projection needs no new field — the distinction is `autoPublishedAt`.
+ *
+ * The wording is deliberate, and it is the owner's ruling of 2026-09-07:
+ * describe the automated pathway **exactly and without apology**. An
+ * autonomous editorial system that researches, writes and publishes is what
+ * this site is demonstrating, not something to bury in a footnote. What must
+ * never happen is the reverse — claiming a human read something no human read.
+ */
+export const PUBLICATION_PROVENANCE = {
+  machine: {
+    label: "Researched, written and published by the Lions of Zion editorial system",
+    /** Long form, for the trust pages. */
+    detail:
+      "An autonomous editorial system researches the day, writes the record and publishes it. No person approves an individual record before it goes live. People are accountable for the system, its sources, its rules and its corrections.",
+  },
+  human: {
+    label: "Written by a person and approved by a second reviewer",
+    detail:
+      "Written by a person and approved by a different person, who may not be its author. That rule is enforced by the database rather than by policy: the publish gate refuses a record approved by the account that wrote it, and refuses an automated identity as the approver.",
+  },
+} as const;
+
+export type PublicationProvenanceKind = keyof typeof PUBLICATION_PROVENANCE;
+
+/**
+ * Derived, never chosen — the same rule `evidenceBasis` follows.
+ *
+ * Read it as `autoPublishedAt ? machine : human` and never the reverse. The
+ * failure that matters here is overstating human review, so if this ever has to
+ * guess, it must guess "machine".
+ */
+export function publicationProvenance(
+  record: { autoPublishedAt?: string | Date | null },
+): PublicationProvenanceKind {
+  return record.autoPublishedAt ? "machine" : "human";
+}

@@ -1,0 +1,160 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-daily-2026-09-07-1527-k5p9",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T12:27:00Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "siteRecommendations": [
+    "Production context still reports 46 of 48 live records without hero media. Do not add or newly promote more records without a cleared external asset or an original disclosed illustration attachable through the supported media field.",
+    "The live corpus already contains near-duplicate developing records for the September Lebanon escalation, the West Bank outpost-removal order, the Iran unmanned-vessel claim and the BGU aerogel story. Future runs should resolve and update one canonical record rather than create parallel versions.",
+    "When the media path is available, prioritize updating the existing Lebanon and Gaza developing stories instead of creating new records; both have fresh consequential developments on September 7.",
+    "Positive-Israel candidates found today include HydroSight's $5 million seed announcement and reporting that Andreessen Horowitz is expanding early-stage Israel coverage, but both need stronger primary confirmation and publishable media before publication."
+  ],
+  "research": [
+    {
+      "topic": "Southern Lebanon escalation",
+      "focus": "September 7 Kfar Rumman casualties and whether to update the live Hezbollah-drone/Israeli-strike canonical story.",
+      "sourcesReviewed": [
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+        "https://www.timesofisrael.com/liveblog-september-07-2026/",
+        "https://www.idf.il/128118"
+      ],
+      "conclusion": "AP and Lebanese reporting describe a material new casualty development in Kfar Rumman after the September 6 Hezbollah drone attack and Israeli response. This is a development of an existing live canonical story, not a new story. No documentary or official image with a defensible cleared reuse basis was established in this run, so the update was vetoed under the explicit media rule.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Gaza Yellow Line ceasefire incident",
+      "focus": "Explosive device struck by an IDF engineering vehicle and subsequent Israeli strikes on Hamas infrastructure.",
+      "sourcesReviewed": [
+        "https://www.ansa.it/sito/notizie/mondo/mediooriente/2026/09/07/idf-esplode-ordigno-su-linea-gialla-hamas-viola-cessate-il-fuoco_991b4ff2-a9d4-4ee8-8821-ebeb96c7d8ed.html",
+        "https://www.israelnationalnews.com/news/432823",
+        "https://www.timesofisrael.com/liveblog-september-07-2026/"
+      ],
+      "conclusion": "Multiple outlets quote the IDF saying a Hamas explosive device detonated under an engineering vehicle near the Yellow Line with no Israeli injuries and that Israel struck Hamas infrastructure in response. The core assertion remains an attributed IDF account. It belongs as a development of the existing Yellow Line/Gaza monitoring story, but media could not be safely attached through the supported mechanism in this run.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Yemen and Houthi escalation",
+      "focus": "Sharp rise in casualties in fighting near the Bab al-Mandab gateway and Houthi claims about Saudi reconnaissance drones.",
+      "sourcesReviewed": [
+        "https://www.afp.com/en/toll-yemen-clashes-passes-300-civilians-flee-homes",
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd",
+        "https://www.washingtonpost.com/national/2026/09/07/mideast-iran-us-hormuz-lebanon-israel/ff06d2ac-aa9b-11f1-b498-8697f35a6743_story.html"
+      ],
+      "conclusion": "The fighting is consequential to Red Sea security and materially develops the live Yemen story. AFP reports the toll from days of clashes passing 300, while AP notes unverified Houthi claims of downing Saudi reconnaissance drones. The casualty escalation warrants an update, but no cleared image could be established; the Houthi drone claims also remain unverified.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "West Bank security",
+      "focus": "Israel Katz reported contingency plan for an all-out West Bank campaign and a stabbing near Usarin.",
+      "sourcesReviewed": [
+        "https://www.arabnews.com/middle-east/israels-katz-warns-of-potential-all-out-war-in-west-bank-3000774"
+      ],
+      "conclusion": "The report is potentially significant but is sourced through secondary reporting of i24 and an IDF social-media statement. Without a primary full statement or independent corroboration of the contingency-plan details, the candidate did not meet the evidentiary bar for a new publication. The stabbing itself is a developing incident rather than sufficient basis for the broader strategic framing.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israeli AI and maritime technology",
+      "focus": "HydroSight emerging from stealth with reported $5 million seed funding for AI seabed mapping.",
+      "sourcesReviewed": [
+        "https://www.calcalistech.com/ctechnews/article/syzscx2oge",
+        "https://www.calcalist.co.il/calcalistech/article/hkrt4g3dfg"
+      ],
+      "conclusion": "The Haifa startup is a strong mission-fit positive-Israel candidate, but the two retained reports are the same editorial family and no primary company or investor announcement was located. No reusable image provenance was established. Retain for follow-up rather than publish from one source family.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Global venture investment attention on Israel",
+      "focus": "Reporting that Andreessen Horowitz is increasing early-stage scouting and investment activity in Israel.",
+      "sourcesReviewed": [
+        "https://en.globes.co.il/en/article-andreessen-horowitz-steps-up-israel-activity-1001554629",
+        "https://a16z.com/infra/"
+      ],
+      "conclusion": "Globes reports a meaningful increase in a16z's Israel activity and a16z's own infrastructure team page confirms Asaf Ezra as an investing-team member, but the strategic expansion itself remains substantially a single-outlet report. It is worth monitoring, not publishing yet.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Iran and Strait of Hormuz",
+      "focus": "Regional reaction to Iran's exclusion-zone plan and the latest maritime escalation.",
+      "sourcesReviewed": [
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd"
+      ],
+      "conclusion": "AP reports UAE criticism of Iran's planned exclusion-zone approach. The development materially overlaps an already-live Lions of Zion Hormuz record and did not justify a parallel article in this run.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "European antisemitism",
+      "focus": "Conference of European Rabbis manifesto and current calls for governments to confront extremist infrastructure.",
+      "sourcesReviewed": [
+        "https://worldisraelnews.com/jewish-schools-behind-steel-and-concrete-rabbis-warn-europe-must-confront-the-forces-driving-antisemitism/"
+      ],
+      "conclusion": "The issue is already represented by a live September 7 Lions of Zion publication and homepage placement. No sufficiently new development was found to justify another record or re-promotion.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-lebanon-kfar-rumman-20260907-1527",
+      "candidate": "Update the existing southern-Lebanon escalation canonical story with September 7 Kfar Rumman casualty reporting.",
+      "reason": "The development is consequential and belongs in the existing canonical story, but the promoted record has no hero media and this run could not establish a documentary or official asset with a truthful cleared reuse basis. Publishing or newly promoting without media would violate the run requirement.",
+      "section": "news",
+      "sources": [
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+        "https://www.timesofisrael.com/liveblog-september-07-2026/",
+        "https://www.idf.il/128118"
+      ],
+      "replacement": "Update the existing canonical Lebanon story once a cleared documentary image or a generated disclosed illustration is attachable through the supported media mechanism.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-gaza-yellow-line-ied-20260907-1527",
+      "candidate": "Update the existing Gaza Yellow Line story with the Hamas-attributed explosive-device incident and Israeli response strikes.",
+      "reason": "The incident is sufficiently consequential for a developing-story update and can be clearly framed as an attributed IDF account, but no safe media asset could be attached through the supported publication/media path in this run.",
+      "section": "israel_update",
+      "sources": [
+        "https://www.ansa.it/sito/notizie/mondo/mediooriente/2026/09/07/idf-esplode-ordigno-su-linea-gialla-hamas-viola-cessate-il-fuoco_991b4ff2-a9d4-4ee8-8821-ebeb96c7d8ed.html",
+        "https://www.israelnationalnews.com/news/432823",
+        "https://www.timesofisrael.com/liveblog-september-07-2026/"
+      ],
+      "replacement": "Attach an official or otherwise cleared relevant image and update the existing Yellow Line publication rather than creating a duplicate record.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-yemen-bab-al-mandab-20260907-1527",
+      "candidate": "Update the existing Yemen/Houthi story with the sharply higher casualty toll and new Houthi reconnaissance-drone claims.",
+      "reason": "AFP's casualty reporting materially raises the significance of the existing story, but no image with a usable reuse basis was established. The Houthi drone-downing claims are also unverified and must remain explicitly attributed if later included.",
+      "section": "news",
+      "sources": [
+        "https://www.afp.com/en/toll-yemen-clashes-passes-300-civilians-flee-homes",
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd"
+      ],
+      "replacement": "Update the live Yemen record after obtaining publishable media and preserve the distinction between independently reported casualties and unverified Houthi claims.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-west-bank-all-out-war-20260907-1527",
+      "candidate": "Publish a new West Bank security article centered on the reported Katz all-out-war contingency plan.",
+      "reason": "The strategic details were found only through secondary reporting and were not independently corroborated with a primary full statement. The candidate therefore did not meet the source bar for such a consequential claim.",
+      "section": "news",
+      "sources": [
+        "https://www.arabnews.com/middle-east/israels-katz-warns-of-potential-all-out-war-in-west-bank-3000774"
+      ],
+      "replacement": "Reassess if a full primary statement or additional independent reporting becomes available.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-hydrosight-20260907-1527",
+      "candidate": "Publish HydroSight's reported $5 million seed round and AI seabed-mapping launch as a People/technology item.",
+      "reason": "Mission-relevant positive-Israel coverage, but the two retained articles are one source family; no primary company/investor confirmation or defensible reusable-image provenance was established.",
+      "section": "technology_ai",
+      "sources": [
+        "https://www.calcalistech.com/ctechnews/article/syzscx2oge",
+        "https://www.calcalist.co.il/calcalistech/article/hkrt4g3dfg"
+      ],
+      "replacement": "Follow up for a primary announcement and cleared company/founder image, or an original disclosed editorial illustration, before publication.",
+      "ownerDecisionRequested": false
+    }
+  ]
+}

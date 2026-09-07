@@ -1,0 +1,144 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-daily-2026-09-07-1937-v5p8",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T16:37:00.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "recover-kharg-hero-2026-09-07",
+      "target": {"publicId": "when-synthetic-battlefield-footage-comes-from-th-3c4f9"},
+      "publication": {"changeSummary": "Attach the in-house editorial cover illustration after production media materialization was re-verified. Article substance unchanged."},
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/editorial/generated/kharg-synthetic-media-forensics.png",
+        "sourceUrl": null,
+        "alt": "Editorial illustration representing digital forensics analysis of synthetic battlefield imagery for the Kharg Island AI-video investigation.",
+        "caption": null,
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration - not incident documentation and not an image of an actual strike on Kharg Island.",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house for Lions of Zion; no third-party material.", "reference": "public/images/editorial/generated/kharg-synthetic-media-forensics.png on main", "clearedAt": "2026-09-07", "surfaces": ["homepage", "article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "recover-european-rabbis-hero-2026-09-07",
+      "target": {"publicId": "european-rabbis-urge-governments-to-confront-the-2igk8"},
+      "publication": {"changeSummary": "Attach the in-house editorial cover illustration after production media materialization was re-verified. Article substance unchanged."},
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/editorial/generated/european-rabbis-antisemitism-record.png",
+        "sourceUrl": null,
+        "alt": "Editorial illustration for coverage of European rabbis calling for stronger action against the infrastructure behind antisemitic violence.",
+        "caption": null,
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration - not documentary photography of the rabbis or a specific antisemitic incident.",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house for Lions of Zion; no third-party material.", "reference": "public/images/editorial/generated/european-rabbis-antisemitism-record.png on main", "clearedAt": "2026-09-07", "surfaces": ["homepage", "article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "recover-tkuma-hero-2026-09-07",
+      "target": {"publicId": "israel-launches-nis-22-million-tech-human-capita-794jg"},
+      "publication": {"changeSummary": "Attach the in-house editorial cover illustration after production media materialization was re-verified. Article substance unchanged."},
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/editorial/generated/tkuma-workforce-initiative.png",
+        "sourceUrl": null,
+        "alt": "Editorial illustration representing technology workforce development and regional recovery in Israel's Tkuma region.",
+        "caption": null,
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration - not documentary photography of a specific Tkuma program event or participant.",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house for Lions of Zion; no third-party material.", "reference": "public/images/editorial/generated/tkuma-workforce-initiative.png on main", "clearedAt": "2026-09-07", "surfaces": ["homepage", "article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "recover-bgu-aerogel-hero-2026-09-07",
+      "target": {"publicId": "ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1"},
+      "publication": {"changeSummary": "Attach the in-house editorial cover illustration after production media materialization was re-verified. Article substance unchanged."},
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/editorial/generated/bgu-aerogel-biodegradation.png",
+        "sourceUrl": null,
+        "alt": "Editorial illustration representing a porous aerogel absorbing oil while supporting biodegradation, accompanying Ben-Gurion University research coverage.",
+        "caption": null,
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration - not a laboratory photograph or experimental evidence from the Ben-Gurion University study.",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house for Lions of Zion; no third-party material.", "reference": "public/images/editorial/generated/bgu-aerogel-biodegradation.png on main", "clearedAt": "2026-09-07", "surfaces": ["homepage", "article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "recover-west-bank-outpost-hero-2026-09-07",
+      "target": {"publicId": "netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx"},
+      "publication": {"changeSummary": "Attach the in-house editorial cover illustration after production media materialization was re-verified. Article substance unchanged."},
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/editorial/generated/west-bank-outpost-order.png",
+        "sourceUrl": null,
+        "alt": "Editorial illustration accompanying reporting on the order to remove unauthorized West Bank outposts.",
+        "caption": null,
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration - not a photograph of a specific outpost, removal operation or confrontation.",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house for Lions of Zion; no third-party material.", "reference": "public/images/editorial/generated/west-bank-outpost-order.png on main", "clearedAt": "2026-09-07", "surfaces": ["homepage", "article"]},
+        "generated": true
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [
+    "Continue targeted hero-media recovery for the remaining records now that production materialization has been successfully re-verified end to end.",
+    "Do not conflate the remaining legacy briefing-pipeline quarantines with the whole-site-update-v2 editorial path; they should be repaired separately.",
+    "Consider a future People of Israel story on the September 7 Israel Innovation Authority and Health Ministry regulatory sandbox for autonomous AI in healthcare, with dedicated compliant visual media rather than reusing an unrelated illustration."
+  ],
+  "research": [
+    {
+      "topic": "Production media recovery",
+      "focus": "Re-verification of the previously failing hero-media path and recovery of the five remaining homepage placements that already had purpose-built in-house illustrations available on main.",
+      "sourcesReviewed": ["https://lionsofzion.io/", "https://github.com/lions-admin/lions-of-zion/tree/main/public/images/editorial/generated"],
+      "conclusion": "The dedicated Lebanon verification run completed with prepared=1, generated=1, no media warnings and hasMedia=true. The same supported path can therefore be used for the five remaining homepage placements with matching in-house illustrations.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Israel AI and healthcare",
+      "focus": "Israel Innovation Authority and Ministry of Health launch of a regulatory sandbox for highly autonomous AI-powered medical technologies.",
+      "sourcesReviewed": ["https://innovationisrael.org.il/en/press_release/sandbox-health/"],
+      "conclusion": "The September 7 announcement is mission-relevant and potentially publication-worthy. It was not forced into this package because this run's immediate production priority is verified homepage media recovery and no dedicated, verified story-specific visual was prepared for the new item.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Southern Lebanon, Gaza, West Bank and Hormuz",
+      "focus": "Fresh sweep for consequential developments after the immediately preceding Lions runs.",
+      "sourcesReviewed": ["https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4", "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/"],
+      "conclusion": "The strongest items remained developments already covered or already evaluated in the preceding runs. No duplicate breaking-news article was created merely because the media dependency is now healthy.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-ai-healthcare-without-dedicated-visual",
+      "candidate": "New People of Israel / technology article on Israel's autonomous-AI healthcare regulatory sandbox",
+      "reason": "Strong primary-source announcement, but this package prioritizes the verified recovery of existing homepage visuals and does not reuse an unrelated image for a new article. Revisit with dedicated compliant media.",
+      "section": "technology_ai",
+      "sources": ["https://innovationisrael.org.il/en/press_release/sandbox-health/"]
+    },
+    {
+      "key": "veto-duplicate-breaking-news",
+      "candidate": "Additional standalone Lebanon, Gaza, West Bank or Hormuz article",
+      "reason": "No sufficiently distinct new fact justified duplicating the current developing-story coverage in the short interval since the previous successful runs.",
+      "section": "news",
+      "sources": ["https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4", "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/"]
+    }
+  ]
+}

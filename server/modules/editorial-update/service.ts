@@ -239,6 +239,12 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
               { runId, machineAuthor: 'whole-site-editorial' },
               artifact!.media,
               actor,
+              undefined,
+              /* VA-49. Only this call site knows the difference between an
+                 operation that offered no media at all and one whose media was
+                 refused or failed — `prepareEditorialMedia` collapses both to a
+                 null draft and records the second as a transient warning. */
+              artifact!.media ? "offered" : artifact!.mediaWarning ? "unavailable" : "none",
             );
             if (operation.action === 'update' && cited.evidenceIds.length) {
               await publicationService(tx).attachEvidence(publication.id, cited.evidenceIds);

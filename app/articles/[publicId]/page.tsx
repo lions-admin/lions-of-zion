@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
+import { stripSourceDump } from "@/lib/source-dump";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
 import {
@@ -106,9 +107,22 @@ export default async function ArticlePage({ params }: Props) {
   const isAnalysis = isAnalysisBasis(article.narrativeWatchDetails);
   const parent = publicationParentCrumb(article.section);
   const details = article.narrativeWatchDetails;
-  const passages = visiblePassages.length
-    ? visiblePassages
-    : article.body.split(/\r?\n\r?\n+/).map((text, index) => ({
+  /* VA-56. Some bodies still end with the composer's own "Sources:" block,
+     which the structured stack below the prose already presents properly.
+     `stripSourceDump` removes it only when every address in it is in that
+     stack, so `publicSourceState` can never flip from `pending` to
+     `unsourced` as a result — see `lib/source-dump.ts`. */
+  const stackUrls = article.sources.map((source) => source.url).filter((url): url is string => Boolean(url));
+  const readableBody = stripSourceDump(article.body, stackUrls);
+  /* A record with structured passages never reaches the body fallback, and the
+     dump usually sits in the last passage — so it has to be stripped there too,
+     and a passage that was nothing but the dump is dropped entirely. */
+  const readablePassages = visiblePassages
+    .map((passage) => ({ ...passage, text: stripSourceDump(passage.text, stackUrls, { allowEmpty: true }) }))
+    .filter((passage) => passage.text.trim().length > 0);
+  const passages = readablePassages.length
+    ? readablePassages
+    : readableBody.split(/\r?\n\r?\n+/).map((text, index) => ({
         position: index + 1,
         text,
         claim: null,

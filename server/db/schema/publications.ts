@@ -84,6 +84,15 @@ export const publication = pgTable(
 
     currentVersionId: uuid("current_version_id").references(() => entityVersion.id),
 
+    /**
+     * Why this record does or does not carry a hero — VA-49, migration `0064`.
+     *
+     * A *state*, never a gate: the owner ruled on 2026-09-07 that a picture is
+     * not a condition of publishing or of a homepage slot. Read `NULL` as "not
+     * recorded", never as "deliberate".
+     */
+    mediaDisposition: text("media_disposition").$type<"illustrated" | "text_led" | "media_unavailable">(),
+
     contentHash: text("content_hash").generatedAlwaysAs(
       sql`md5(title || E'\n' || body || E'\n' || coalesce(summary, ''))`,
     ),

@@ -232,6 +232,15 @@ export const publicPublicationSchema = z.object({
    * deploy. Absent reads as "no image", never as an unchecked one.
    */
   media: editorialMediaSchema.nullable().default(null),
+  /**
+   * Why this record does or does not carry a hero — VA-49.
+   *
+   * Defaults to `null`, which reads as "not recorded" and must never be read
+   * as "deliberately text-led": every row published before migration `0064`
+   * carries it, and an absent value falls to the strict side exactly as
+   * `evidenceBasis` does.
+   */
+  mediaDisposition: z.enum(["illustrated", "text_led", "media_unavailable"]).nullable().default(null),
 });
 export type PublicPublication = z.infer<typeof publicPublicationSchema>;
 

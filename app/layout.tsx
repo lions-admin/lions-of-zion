@@ -18,6 +18,7 @@ import "./tailwind.css";
 import "./globals.css";
 import { PublicAskDock } from "@/components/ask/PublicAskDock";
 import { PublicSessionProvider } from "@/components/auth/PublicSessionProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 /*
  * Three faces, three jobs — see the token block in `globals.css` (SYS-003).
@@ -145,6 +146,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             two controls to the same desk, one of which cost the reader their
             scroll position, was the worse of the pair to keep. */}
         <PublicAskDock />
+        <Analytics />
       </body>
     </html>
   );

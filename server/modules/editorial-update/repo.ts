@@ -105,6 +105,32 @@ export function editorialRepo(db: Database) {
       });
     },
 
+    /**
+     * A run-level fault that has committed nothing: record it and put the run
+     * back on the queue rather than ending it.
+     *
+     * `fail()` is terminal by construction — it clears the lease and sets
+     * `failed`, and `claim()` refuses a failed run, so the queue's own
+     * redelivery can never touch it again. That is right for a fault in the
+     * package and wrong for a fault in the infrastructure: on 2026-09-07 a
+     * single failed `SELECT` on `editorial_operation`, before any operation
+     * ran, permanently killed a valid three-article package that had already
+     * passed validation, and the only recovery was a human calling resume.
+     *
+     * The run stays `queued` with its failure recorded and visible, so the
+     * worker that redelivery hands it to claims it normally and the completed
+     * operations it skips are unchanged. `finishedAt` stays null and no report
+     * is emitted: this is not an outcome yet.
+     */
+    async releaseForRetry(id: string, token: string, failure: EditorialFailure, now = new Date()) {
+      return db.transaction(async tx => {
+        await editorialRepo(tx as unknown as Database).assertLease(id, token, now);
+        await tx.update(editorialRun).set({
+          status: 'queued', failure, leaseToken: null, leaseUntil: null, updatedAt: now,
+        }).where(eq(editorialRun.id, id));
+      });
+    },
+
     async fail(id: string, token: string, failure: EditorialFailure, now = new Date()) {
       return db.transaction(async tx => {
         await editorialRepo(tx as unknown as Database).assertLease(id, token, now);

@@ -6,6 +6,7 @@ import { freshDatabase, as, type TestDatabase } from '@/server/db/testing';
 import type { Database } from '@/server/db/client';
 import { editorialOperation, editorialRun, outbox } from '@/server/db/schema';
 import { editorialRepo, editorialInputHash } from '@/server/modules/editorial-update/repo';
+import type { EditorialFailure } from '@/server/contracts/editorial-update';
 import { startEditorialRunSchema, type StartEditorialRun } from '@/server/contracts/editorial-update';
 import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
 import { composeEditorialRunReport, editorialUpdateService } from '@/server/modules/editorial-update/service';
@@ -352,6 +353,69 @@ describe('durable whole-site editorial runs', () => {
     expect(updated.sources).toHaveLength(3);
     const evidenceRows = await db.execute<{ count: string }>(sql`SELECT count(*)::text AS count FROM evidence WHERE canonical_url = 'https://example-news.test/world/2026/09/report'`);
     expect(evidenceRows.rows[0]!.count).toBe('1');
+  });
+
+  /* Run chatgpt-test-2026-09-07-0332-k4m9: a `SELECT` on `editorial_operation`
+     threw before any operation ran, `fail()` marked the run terminal, and
+     `claim()` refuses a failed run — so the queue's redelivery, which exists
+     for exactly this class of fault, could never touch a valid three-article
+     package again. A run-level fault that has committed nothing goes back on
+     the queue instead. */
+  it('puts a run-level fault that committed nothing back on the queue, and keeps its failure readable', async () => {
+    const run = await repo().start(request('transient'), 'test:owner');
+    const worker = await repo().claim(run.id);
+    const record: EditorialFailure = {
+      stage: 'report', operationKey: null, attempts: 1,
+      message: 'Failed query: select "id" from "editorial_operation" where "run_id" = $1',
+      cause: 'NeonDbError: connection terminated unexpectedly · code=57P01',
+      recovery: 'Attempt 1 of 3 failed before any operation completed; the queue will redeliver this run.',
+    };
+    await repo().releaseForRetry(run.id, worker!.leaseToken!, record);
+
+    const released = await repo().get(run.id);
+    expect(released.status).toBe('queued');
+    expect(released.finishedAt).toBeNull();
+    /* The reason survives the release: a queued run still says why it is on
+       its second attempt, and the driver's own words are on the record. */
+    expect(released.failure).toMatchObject({ attempts: 1, cause: 'NeonDbError: connection terminated unexpectedly · code=57P01' });
+    /* And a worker can actually pick it up again — the whole point. */
+    const second = await repo().claim(run.id);
+    expect(second).not.toBeNull();
+    expect(second!.leaseToken).not.toBe(worker!.leaseToken);
+  });
+
+  it('refuses to claim a run that was failed terminally, so a redelivery cannot re-report it', async () => {
+    const run = await repo().start(request('terminal'), 'test:owner');
+    const worker = await repo().claim(run.id);
+    await repo().fail(run.id, worker!.leaseToken!, {
+      stage: 'report', operationKey: null, attempts: 3, message: 'still broken',
+      recovery: 'Resume the run after resolving the report issue.',
+    });
+    const failed = await repo().get(run.id);
+    expect(failed.status).toBe('failed');
+    expect(failed.finishedAt).not.toBeNull();
+    expect(await repo().claim(run.id)).toBeNull();
+    /* Resume is the human path back, and it re-queues the same run rather
+       than creating a second one. */
+    await repo().resume(run.id);
+    expect((await repo().get(run.id)).status).toBe('queued');
+    expect(await repo().claim(run.id)).not.toBeNull();
+  });
+
+  /* A run-level failure records nothing per operation, which is what made the
+     production failure read as `created=0 updated=0 failed=0` with three
+     operations sitting untouched. Pinned so the shape stays diagnosable. */
+  it('leaves every operation pending when the run fails before operation processing', async () => {
+    const run = await repo().start(request('before-operations'), 'test:owner');
+    const worker = await repo().claim(run.id);
+    await repo().fail(run.id, worker!.leaseToken!, {
+      stage: 'report', operationKey: null, message: 'select failed', recovery: 'Investigate.',
+    });
+    const state = await repo().get(run.id);
+    expect(state.status).toBe('failed');
+    expect(state.operations.every(operation => operation.status === 'pending')).toBe(true);
+    expect(state.operations.every(operation => operation.failure === null)).toBe(true);
+    expect((state.failure as EditorialFailure).operationKey).toBeNull();
   });
 
   it('publishes without a picture rather than blocking on a missing image, and an update with no media keeps the one already attached', async () => {

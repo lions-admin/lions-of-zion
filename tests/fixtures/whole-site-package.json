@@ -1,0 +1,175 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "fixture-whole-site-run",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T00:32:00Z",
+  "creates": [
+    {
+      "key": "lebanon-strikes-hezbollah-drones-20260907",
+      "publication": {
+        "kind": "news_update",
+        "section": "news",
+        "canonicalStoryId": "southern-lebanon-strikes-after-hezbollah-drones-2026-09-06",
+        "title": "Israeli strikes in southern Lebanon kill seven after Hezbollah drone attack",
+        "summary": "Lebanese authorities reported seven deaths in Israeli strikes across southern Lebanon after Hezbollah launched drones toward Israeli troops. Israel said it targeted Hezbollah military infrastructure; Lebanon's president accused Israel of striking civilian facilities.",
+        "body": "Israeli strikes across southern Lebanon on September 6 killed seven people, including two women, according to Lebanese authorities, after Hezbollah launched two drones toward Israeli soldiers in the security zone Israel maintains in southern Lebanon. Reuters and other reporting described multiple strikes in and around Nabatieh and Arab Salim, with additional injuries reported.\n\nIsrael said the ope",
+        "language": "en",
+        "editorialTopic": "Israel-Hezbollah ceasefire escalation",
+        "topicTags": [
+          "lebanon",
+          "hezbollah",
+          "israel",
+          "ceasefire",
+          "regional-security"
+        ],
+        "primaryActor": "Israel and Hezbollah",
+        "arena": "Southern Lebanon"
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/",
+          "title": "Israeli strikes kill seven in southern Lebanon",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://apnews.com/article/b4f64c7492d8c5b9ff71794cc152186d",
+          "title": "US denies Iran's claim to have struck an unmanned ship, and other Mideast news",
+          "publisher": "Associated Press",
+          "publisherUrl": "https://apnews.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.ft.com/content/1b46baac-10e7-444f-99c5-c661c164b2f1",
+          "title": "Lebanon warns of 'dangerous escalation' after Israeli strikes",
+          "publisher": "Financial Times",
+          "publisherUrl": "https://www.ft.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "west-bank-outposts-removal-20260907",
+      "publication": {
+        "kind": "news_update",
+        "section": "news",
+        "canonicalStoryId": "netanyahu-orders-unauthorized-west-bank-outposts-removed-2026-09-06",
+        "title": "Netanyahu orders unauthorized West Bank outposts dismantled amid U.S. pressure",
+        "summary": "Prime Minister Benjamin Netanyahu ordered unauthorized settler outposts dismantled, according to Reuters and Israeli reporting, as U.S. Ambassador Mike Huckabee publicly pressed Israel to confront violent settler attacks.",
+        "body": "Prime Minister Benjamin Netanyahu has ordered unauthorized settler outposts in the West Bank to be dismantled, according to Reuters, citing two people familiar with the matter, and parallel Israeli reporting. The order comes amid heightened U.S. pressure on Israel to address attacks by violent settlers against Palestinians.\n\nThe reporting indicates that roughly 100 unauthorized outposts are under ",
+        "language": "en",
+        "editorialTopic": "West Bank outposts and settler violence",
+        "topicTags": [
+          "west-bank",
+          "israel",
+          "settler-violence",
+          "us-israel",
+          "diplomacy"
+        ],
+        "primaryActor": "Benjamin Netanyahu",
+        "arena": "West Bank"
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israels-netanyahu-orders-west-bank-settler-outposts-be-removed-sources-say-2026-09-06/",
+          "title": "Israel's Netanyahu orders West Bank settler outposts to be removed, sources say",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/us-ambassador-visits-palestinian-town-amid-rise-west-bank-settler-violence-2026-09-05/",
+          "title": "US ambassador visits Palestinian town amid rise in West Bank settler violence",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://apnews.com/article/e33f8c97f368e7babd37c6d8c0a5759d",
+          "title": "US ambassador calls violent Israeli settlers 'terrorists' after weeks of West Bank unrest",
+          "publisher": "Associated Press",
+          "publisherUrl": "https://apnews.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "bgu-oil-aerogel-20260907",
+      "publication": {
+        "kind": "news_update",
+        "section": "science_medicine",
+        "canonicalStoryId": "bgu-oil-biodegrading-aerogel-2026",
+        "title": "Ben-Gurion University aerogel can absorb 100 times its weight in oil and support biodegradation",
+        "summary": "A Ben-Gurion University team developed a cellulose-based aerogel that rapidly captures oil while providing nutrients and a surface for oil-degrading bacteria, combining physical cleanup with biological breakdown.",
+        "body": "Researchers at Ben-Gurion University of the Negev have developed a cellulose-based aerogel designed to both capture oil pollution and help microorganisms break it down. In laboratory experiments reported by the university, the material adsorbed roughly 100 times its own weight in crude oil, fuel and other hydrocarbons.\n\nThe system combines two functions that are often separated in spill remediatio",
+        "language": "en",
+        "editorialTopic": "Israeli environmental biotechnology",
+        "topicTags": [
+          "israeli-science",
+          "ben-gurion-university",
+          "environment",
+          "biotechnology",
+          "oil-spills"
+        ],
+        "primaryActor": "Ben-Gurion University of the Negev",
+        "arena": "Israel",
+        "featuredIsraelStory": true
+      },
+      "sources": [
+        {
+          "url": "https://www.bgu.ac.il/en/news-and-articles/bgu-aerogel-adsorbs-oil-and-supports-biodegradation/",
+          "title": "BGU Aerogel Adsorbs Oil and Supports Biodegradation",
+          "publisher": "Ben-Gurion University of the Negev",
+          "publisherUrl": "https://www.bgu.ac.il/",
+          "official": true,
+          "language": "en"
+        },
+        {
+          "url": "https://www.timesofisrael.com/israeli-scientists-develop-huge-sponge-to-mop-up-and-eat-oil-spills/",
+          "title": "Israeli scientists develop huge sponge to mop up and 'eat' oil spills",
+          "publisher": "The Times of Israel",
+          "publisherUrl": "https://www.timesofisrael.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "lebanon-strikes-hezbollah-drones-20260907"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "west-bank-outposts-removal-20260907"
+        }
+      }
+    },
+    "people": {
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "bgu-oil-aerogel-20260907"
+        }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "The homepage observed before this run still surfaced a September 1 Daily Brief prominently despite newer September 4 material existing on the site. Verify homepage edition freshness and selection/cache behavior after this package lands.",
+    "The current strict Narrative Watch create schema still requires structured evidence UUID arrays inside narrativeWatchDetails even though whole-site-update-v1 now resolves external sources[] into real evidence rows. Consider a package-local source-to-Narrative-Watch mapping so sourced Narrative Watch records can be composed without internal identifiers.",
+    "No media was attached in this run because no reviewed image had a rights basis that could be truthfully declared as cleared for Lions of Zion article and homepage reuse."
+  ]
+}

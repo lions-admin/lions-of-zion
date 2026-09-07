@@ -1,0 +1,217 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-daily-2026-09-07-1758-k7m4",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T14:58:00.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "update-lebanon-escalation",
+      "target": {
+        "publicId": "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd"
+      },
+      "publication": {
+        "section": "israel_update",
+        "editorialTopic": "Lebanon security",
+        "topicTags": ["lebanon", "hezbollah", "idf", "ali-taher", "ceasefire"],
+        "primaryActor": "IDF and Hezbollah",
+        "arena": "Southern Lebanon",
+        "title": "Two IDF soldiers lightly wounded in southern Lebanon as Israel-Hezbollah escalation continues",
+        "summary": "The IDF said two soldiers were lightly wounded in a close-range Hezbollah attack near the Beaufort/Ali Taher ridge area and that the attacker was killed. The incident follows Hezbollah drone attacks and Israeli strikes in southern Lebanon that Lebanese authorities say caused civilian casualties.",
+        "body": "The Israel-Hezbollah confrontation in southern Lebanon intensified again on September 7. The IDF said two Israeli soldiers were lightly wounded in a close-range attack by a Hezbollah operative in the Beaufort Ridge area. According to the military, the soldiers killed the attacker despite being wounded and were evacuated to hospital; their families were notified.\n\nThe IDF said it struck Hezbollah weapons-storage facilities, command centers and other infrastructure in response. This account is an attributed military statement; the details of the close-range engagement had not been independently verified in the reporting reviewed for this update.\n\nThe incident came after Hezbollah launched explosive drones toward Israeli troops around the Ali Taher Ridge area for the third time in a week, according to the IDF. The military said the overnight drone attack caused no injuries and that it responded with strikes on Hezbollah infrastructure, including a weapons depot, and on operatives it said were moving weapons in Kfar Rumman.\n\nLebanese authorities and media reported a heavy civilian toll from the overnight strikes in Kfar Rumman. The Associated Press reported at least 12 people killed, including two children and four women, while Reuters, citing Lebanon's state news agency, reported at least 11 deaths. The IDF said it was examining reports that civilians were harmed. The status of everyone killed and the military nature of every struck site remain unresolved in the public evidence reviewed here.\n\nThe exchange is taking place despite a U.S.-mediated ceasefire framework agreed in June. The strategic Ali Taher/Beaufort ridge remains a central friction point, with Israeli forces operating in the area and Hezbollah continuing attacks. The immediate indicators to watch are further Hezbollah drone or close-range attacks, additional Israeli strikes, independently confirmed casualty information, and any change in the ceasefire or disarmament negotiations.",
+        "changeSummary": "Updated with the IDF's September 7 report that two soldiers were lightly wounded in a close-range Hezbollah attack, the subsequent Israeli strikes, and the latest attributed casualty reporting from Kfar Rumman."
+      },
+      "media": {
+        "inputUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8f/IDF_in_Beaufort_Castle_Lebanon_31.05.2026_2.png",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:IDF_in_Beaufort_Castle_Lebanon_31.05.2026_2.png",
+        "alt": "IDF personnel at Beaufort Castle in southern Lebanon in May 2026.",
+        "caption": "IDF personnel at Beaufort Castle, southern Lebanon, May 31, 2026. Archival context; not an image of the September 7 incident.",
+        "credit": "אלפי בן יעקב / IDF Spokesperson's Unit via Wikimedia Commons",
+        "disclosure": null,
+        "role": "archival-context",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "CC BY-SA 3.0 Unported; Wikimedia VRT permission confirmed",
+          "reference": "https://commons.wikimedia.org/wiki/File:IDF_in_Beaufort_Castle_Lebanon_31.05.2026_2.png",
+          "clearedAt": "2026-09-07",
+          "surfaces": ["homepage", "article"]
+        },
+        "generated": false
+      },
+      "sources": [
+        {
+          "url": "https://www.jpost.com/israel-news/defense-news/article-907843",
+          "title": "Two IDF soldiers injured by Hezbollah terrorist in southern Lebanon, military strikes in response",
+          "publisher": "The Jerusalem Post",
+          "publisherUrl": "https://www.jpost.com/",
+          "official": false,
+          "publishedAt": "2026-09-07T16:08:00+03:00",
+          "language": "en"
+        },
+        {
+          "url": "https://www.timesofisrael.com/liveblog_entry/for-3rd-time-in-a-week-hezbollah-launched-explosive-drones-at-troops-in-ali-taher-ridge-area-idf-says/",
+          "title": "For 3rd time in a week, Hezbollah launched explosive drones at troops in Ali Taher Ridge area, IDF says",
+          "publisher": "The Times of Israel",
+          "publisherUrl": "https://www.timesofisrael.com/",
+          "official": false,
+          "publishedAt": "2026-09-07T14:44:00+03:00",
+          "language": "en"
+        },
+        {
+          "url": "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+          "title": "Israeli airstrikes on a village in southern Lebanon kill 12 people, including 2 children",
+          "publisher": "Associated Press",
+          "publisherUrl": "https://apnews.com/",
+          "official": false,
+          "publishedAt": "2026-09-07T00:00:00Z",
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "update-hormuz-escalation",
+      "target": {
+        "publicId": "us-iranian-forces-fire-at-vessels-in-waters-near-f2cks"
+      },
+      "publication": {
+        "section": "israel_update",
+        "editorialTopic": "Iran escalation",
+        "topicTags": ["iran", "hormuz", "us-iran", "shipping", "energy-security"],
+        "primaryActor": "United States and Iran",
+        "arena": "Iran and Strait of Hormuz",
+        "title": "Iran threatens retaliation as Hormuz traffic falls to lowest level since May",
+        "summary": "Iran warned that regional energy infrastructure is exposed if the United States carries out new attacks and said it plans a new restricted maritime zone near the Strait of Hormuz. Kpler data cited by Reuters showed commodity-ship traffic at its lowest 10-day average since May.",
+        "body": "The U.S.-Iran maritime confrontation around the Strait of Hormuz deepened on September 7 as Tehran paired new retaliation threats with plans for tighter control of shipping.\n\nIranian Parliament Speaker Mohammad Baqer Qalibaf warned that attacks on Iranian assets would bring retaliation and said energy infrastructure linked to U.S. interests in the region was exposed. This is an attributed Iranian threat, not evidence that a specific target has been selected or that an attack is imminent.\n\nSenior Iranian security official Mohsen Rezaei said Iran would announce a new restricted maritime zone in the Gulf and approve maps for a shipping corridor through the Strait of Hormuz. The exact boundaries, legal basis and enforcement mechanism had not yet been published in the sources reviewed for this update.\n\nThe shipping impact is already measurable. Reuters, citing Kpler, reported that an average of about 10 commodity ships per day transited the strait over the previous 10 days, the lowest level since May. Only two vessels passed on Saturday and six on Sunday, with most using the Iranian route.\n\nThe decline followed reciprocal U.S. and Iranian strikes on shipping and comes as energy prices remain elevated. The key verification points are whether Tehran publishes coordinates for the proposed zone, how it attempts to enforce the restriction, whether commercial traffic falls further, and whether either side carries out additional independently verified strikes.\n\nFor Israel, the issue remains strategically relevant because the confrontation is part of the wider regional conflict with Iran and affects military calculations, energy markets and the operating environment for Iran and its aligned groups.",
+        "changeSummary": "Updated with Iran's September 7 retaliation warning, the planned restricted maritime zone, and Reuters/Kpler data showing Hormuz commodity traffic at its lowest 10-day average since May."
+      },
+      "sources": [
+        {
+          "url": "https://www.investing.com/news/world-news/iran-says-to-announce-new-restricted-zone-in-the-gulf-in-the-coming-days-4890470",
+          "title": "Iran vows to respond to US strikes, says US energy companies' facilities are exposed",
+          "publisher": "Reuters via Investing.com",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "publishedAt": "2026-09-07T08:18:00+03:00",
+          "language": "en"
+        },
+        {
+          "url": "https://www.timesofisrael.com/liveblog_entry/hormuz-traffic-dips-to-lowest-since-may-after-us-iranian-strikes-on-ships/",
+          "title": "Hormuz traffic dips to lowest since May after US, Iranian strikes on ships",
+          "publisher": "The Times of Israel / Reuters",
+          "publisherUrl": "https://www.timesofisrael.com/",
+          "official": false,
+          "publishedAt": "2026-09-07T03:06:00+03:00",
+          "language": "en"
+        },
+        {
+          "url": "https://www.cbsnews.com/live-updates/iran-war-us-strait-of-hormuz-oil-gas-price-strikes/",
+          "title": "Iran looks to expand control of Strait of Hormuz as oil, gas prices continue to climb",
+          "publisher": "CBS News",
+          "publisherUrl": "https://www.cbsnews.com/",
+          "official": false,
+          "publishedAt": "2026-09-07T03:38:00-04:00",
+          "language": "en"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {"operationKey": "update-lebanon-escalation"}
+      }
+    }
+  },
+  "siteRecommendations": [
+    "Keep the Lebanon lead under active watch for independently confirmed casualty revisions and any ceasefire/disarmament response after the September 7 close-range attack on IDF troops.",
+    "Monitor for publication of Iran's proposed Hormuz restricted-zone coordinates and any verified enforcement action before strengthening claims about control of the strait."
+  ],
+  "research": [
+    {
+      "topic": "Israel-Hezbollah escalation in southern Lebanon",
+      "focus": "Close-range attack on IDF soldiers, Hezbollah drone attacks, Israeli retaliation and civilian casualty reporting around Kfar Rumman and the Ali Taher/Beaufort ridge.",
+      "sourcesReviewed": [
+        "https://www.jpost.com/israel-news/defense-news/article-907843",
+        "https://www.timesofisrael.com/liveblog_entry/for-3rd-time-in-a-week-hezbollah-launched-explosive-drones-at-troops-in-ali-taher-ridge-area-idf-says/",
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+        "https://www.investing.com/news/commodities-news/israeli-strikes-on-southern-lebanese-town-kill-11-state-news-agency-says-4890499"
+      ],
+      "conclusion": "A material new development occurred after the prior canonical update: the IDF reported two soldiers lightly wounded in a close-range Hezbollah attack, while casualty reporting from earlier Israeli strikes remained contested in detail. Update and re-promote the existing Lebanon story rather than create another duplicate.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Iran and Strait of Hormuz",
+      "focus": "Iranian retaliation threats, planned restricted maritime zone and measurable shipping disruption.",
+      "sourcesReviewed": [
+        "https://www.investing.com/news/world-news/iran-says-to-announce-new-restricted-zone-in-the-gulf-in-the-coming-days-4890470",
+        "https://www.timesofisrael.com/liveblog_entry/hormuz-traffic-dips-to-lowest-since-may-after-us-iranian-strikes-on-ships/",
+        "https://www.cbsnews.com/live-updates/iran-war-us-strait-of-hormuz-oil-gas-price-strikes/",
+        "https://www.thenationalnews.com/news/mena/2026/09/07/live-iran-war-us-hormuz-restricted-zone/"
+      ],
+      "conclusion": "The existing canonical Iran/Hormuz story warranted another update because Tehran added an explicit retaliation warning and Reuters/Kpler data quantified a sharp decline in shipping traffic. The proposed zone remains unimplemented in the reviewed evidence.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Gaza ceasefire and Hamas activity",
+      "focus": "Overnight IDF strikes following an explosive device attack and a later report about a Hamas Nukhba commander.",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/liveblog_entry/idf-says-it-struck-hamas-sites-in-gaza-overnight-in-response-to-attack-on-military-vehicle/",
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766",
+        "https://1-e8259.azureedge.net/news/2026/9/7/israeli-attacks-on-gaza-kill-five-palestinians-including-two-children"
+      ],
+      "conclusion": "The overnight retaliation was already broadly consistent with existing Gaza ceasefire coverage, while the late Nukhba-commander report was still a single live-report item during this run. No separate article was justified without stronger independent confirmation and clearer canonical fit.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israeli science and medicine",
+      "focus": "Tel Aviv University low-cost blood test for lung-cancer detection resurfaced in today's news cycle.",
+      "sourcesReviewed": [
+        "https://english.tau.ac.il/research/lung-cancer-chip-diagnose",
+        "https://www.timesofisrael.com/60-israeli-blood-test-can-detect-stage-2-4-lung-cancer-with-93-accuracy-study-shows/",
+        "https://www.eurekalert.org/news-releases/1139494"
+      ],
+      "conclusion": "The research is credible and mission-relevant, but the underlying peer-reviewed result was published in June and publicized by TAU in August; today's coverage is primarily a resurfacing rather than a new scientific result. Retained for a future People/Science feature rather than treated as breaking news in this run.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "UK policy, settlements and UN advocacy",
+      "focus": "Francesca Albanese's response to the UK policy reset and settlement-trade restrictions.",
+      "sourcesReviewed": [
+        "https://www.theguardian.com/world/2026/sep/07/un-francesca-albanese-miliband-israel-palestine-settlements-trade"
+      ],
+      "conclusion": "This is consequential policy advocacy and criticism, but the reviewed material did not establish a false or misleading claim suitable for Narrative Watch. Negative criticism alone is not an information-war item.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-gaza-nukhba-live-report",
+      "candidate": "Separate article on a reported Hamas Nukhba commander killed in Gaza City",
+      "reason": "At research time the late development was supported mainly by a single live report. The operational claim is consequential but not sufficiently independently corroborated for a separate new publication, and nearby Gaza ceasefire coverage already exists.",
+      "section": "israel_update",
+      "sources": ["https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766"],
+      "replacement": "Continue monitoring for an IDF/ISA statement or independent secondary confirmation before creating or updating a canonical Gaza story."
+    },
+    {
+      "key": "veto-lung-test-breaking",
+      "candidate": "Breaking-news item on the $60 Israeli lung-cancer blood test",
+      "reason": "The research is credible and positive-Israel material, but the underlying study predates this news cycle and was publicized by Tel Aviv University in August. Publishing it as a fresh breaking development would overstate novelty.",
+      "section": "science_medicine",
+      "sources": [
+        "https://english.tau.ac.il/research/lung-cancer-chip-diagnose",
+        "https://www.timesofisrael.com/60-israeli-blood-test-can-detect-stage-2-4-lung-cancer-with-93-accuracy-study-shows/"
+      ],
+      "replacement": "Consider a non-breaking People of Israel science feature that clearly dates the study and explains the validation limits."
+    },
+    {
+      "key": "veto-albanese-narrative-watch",
+      "candidate": "Narrative Watch item based on Francesca Albanese's criticism of Israel and UK policy",
+      "reason": "The reviewed article is policy advocacy and legal/political criticism. No specific consequential falsehood was established strongly enough to justify a disinformation or manipulation label, and criticism should not be classified as anti-Israel information warfare merely because it is negative.",
+      "section": "narrative_watch",
+      "sources": ["https://www.theguardian.com/world/2026/sep/07/un-francesca-albanese-miliband-israel-palestine-settlements-trade"]
+    }
+  ]
+}

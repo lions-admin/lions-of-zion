@@ -343,46 +343,62 @@ publish autonomously, while `app/articles/[publicId]/page.tsx:218` renders
 **"Automatically published daily edition"** from `article.autoPublishedAt`.
 These must stop contradicting each other.
 
-- [ ] **47.1** Inspect the **real** architecture before touching copy. Enumerate
+- [x] **47.1** Inspect the **real** architecture before touching copy. Enumerate
       the publication pathways that actually exist, reading
       `server/modules/publications/service.ts` (four `automatically published`
       change summaries), `server/modules/editorial-update/service.ts`, migration
       `0060`'s machine-provenance gate (`briefing_run_id` + `briefing_candidate_key`
       **or** `editorial_run_id` + `editorial_operation_key`, plus `machine_author`).
-- [ ] **47.2** Write the pathway list into this file. Candidate classes, to be
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **47.2** Write the pathway list into this file. Candidate classes, to be
       confirmed against code, **not invented**: manually authored / editor
       reviewed; AI-assisted with human approval; authorized automated editorial
       run; imported archival record; continuously updated investigation.
-- [ ] **47.3** Give each class one canonical label and one definition. Use them
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **47.3** Give each class one canonical label and one definition. Use them
       consistently across article provenance, publication metadata, We Are,
       Methodology and explanatory copy.
-- [ ] **47.4** Replace the bare "Automatically published daily edition" string
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **47.4** Replace the bare "Automatically published daily edition" string
       with a label carrying enough context to be understood correctly. **Do not
       hide automation. Do not overstate human review.**
-- [ ] **47.5** Align `/we-are` and `/methodology` so they describe the *same*
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **47.5** Align `/we-are` and `/methodology` so they describe the *same*
       real operating model. Note: `docs/editorial-dna.md` §11 records the
       launch-period posture — **the whole-site editorial path has no quality
       gate, by owner ruling**. Public copy must not claim one.
-- [ ] **47.6** Re-read every public trust page and confirm no sentence
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **47.6** Re-read every public trust page and confirm no sentence
       contradicts live publication metadata.
-- [ ] **47.7** Test: a record with `autoPublishedAt` set renders the automated
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **47.7** Test: a record with `autoPublishedAt` set renders the automated
       class; a record without it does not; trust-page copy strings are pinned so
       a future edit cannot silently reintroduce the contradiction.
 
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
 ### VA-61 — Transparency: funding and editorial independence `A2` `needs owner input`
 
-- [ ] **61.1** Read the existing funding / editorial-independence copy and list
+- [x] **61.1** Read the existing funding / editorial-independence copy and list
       precisely what is claimed today.
-- [ ] **61.2** Identify what the trust layer should state: funding model,
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **61.2** Identify what the trust layer should state: funding model,
       disclosable sponsorship/donor relationships, editorial independence,
       conflict-of-interest handling, responsibility for automated editorial systems.
-- [ ] **61.3** For anything not establishable from authorized sources,
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **61.3** For anything not establishable from authorized sources,
       **document the gap in this file rather than inventing public copy.**
       Hand the open questions to the owner as a numbered list.
-- [ ] **61.4** Publish only what is accurate and supportable.
+      **Asked and answered, 2026-09-07:** the owner supplied the funding model
+      (a privately funded private initiative). Nothing was left to document as
+      a gap, so 61.4 published it instead. The founder is described by role
+      rather than named — publishing a person's name on a public page was not
+      part of the instruction, and is a one-line change if wanted.
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
+- [x] **61.4** Publish only what is accurate and supportable.
 
 ---
 
+      <!-- done: 6295324 | tests/publication-provenance-copy.test.ts (13); /methodology, /we-are and a live article verified rendered; verify:full green 151 files / 1455 passed -->
 ## 5. WAVE 2 — CANONICAL COHERENCE & MEDIA (A1, A3, A4)
 
 ### VA-48 — Deduplicate canonical stories `A1` guard + `A3` data
@@ -894,10 +910,10 @@ Update this table in the **same commit** that changes any box above.
 | Task | Owner | Status | PR | Evidence |
 | --- | --- | --- | --- | --- |
 | P-1 … P-5 | any | ☐ not started | 0 | — |
-| VA-46 | A1 | ◐ in progress | 1 | `fba1612` — rules + both update paths + 15 tests. Open: 46.1 trace, 46.5 trigger question, 46.6 Lebanon record, 46.4 projection half |
-| VA-48 | A1 | ◐ in progress | 1 | `fba1612` — guard extracted, both auto-publish paths, override documented, 4 tests. Open: 48.4/48.5 data sweep (A3), 48.6 redirects |
-| VA-47 | A2 | ☐ not started | 1 | — |
-| VA-61 | A2 | ☐ not started | 1 | — |
+| VA-46 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — rules, both update paths, 15 tests, trace and trigger decision recorded, Lebanon record swept and found already coherent. Open: 46.4 projection half only |
+| VA-48 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — guard on both auto-publish paths, override documented, 4 tests, live sweep tabulated (3 exact + 7 near pairs). Open: 48.5 merges and 48.6 redirects — both need Production mutation credentials |
+| VA-47 | A2 | ☑ done | 1 | `6295324` — PUBLICATION_PROVENANCE derived from `autoPublishedAt`; Authorship line; Methodology "Two ways a record publishes"; 13 tests |
+| VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
 | VA-49 | A3 | ☐ not started | 2 | — |
 | VA-50 | A4 | ☐ not started | 2 | — |
 | VA-54 | A4 | ☐ not started | 2 | — |

@@ -21,7 +21,6 @@ export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
       <header className={styles.edition}>
         <p className={styles.editionLine}>One desk. A wider record.</p>
         <span className={styles.editionDate}>
-          {edition.localPreview ? "Local preview · " : ""}
           {edition.editionDate
             ? `Edition ${edition.editionDate}`
             : "Edition unavailable"}

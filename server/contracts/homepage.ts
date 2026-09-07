@@ -52,7 +52,7 @@ export type HomePreview = FeaturePreview|NewsPreview|WatchPreview|CasePreview|Fa
 export type HomepageSection<T> = {state:'ready'|'partial'|'empty'|'unavailable'; items:T[]; gaps:string[]};
 export type HomepageEdition = {
   editionDate:string; revision:number; generatedAt:string;
-  state:'current'|'previous-edition'|'unavailable'; localPreview:boolean;
+  state:'current'|'previous-edition'|'unavailable';
   news:HomepageSection<NewsPreview>; fakeResistance:HomepageSection<WatchPreview|CasePreview|FakeResistanceArticlePreview>;
   people?:HomepageSection<FeaturePreview>;
   october7:HomepageSection<ArchivePreview>; heroes:HomepageSection<HeroPreview>; israelsStory:HomepageSection<HistoryPreview>;

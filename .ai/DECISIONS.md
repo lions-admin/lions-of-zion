@@ -680,6 +680,32 @@ only under the local preview and only after the database resolution fails,
 so the composition can be reviewed on a checkout with no `DATABASE_URL`. It
 is never a production fallback; the page already flags the local preview.
 
+
+---
+
+## 2026-09-07 — The local homepage preview is removed, not gated
+
+The frozen local edition is gone: `content-packages/homepage/local-edition.json`,
+`local-records.json`, `scripts/homepage/preview-edition.ts`, the `homepage:preview`
+npm script, `homepageLocalPreview()`, `isLocalHomepagePreview()`,
+`localPreviewResolver()`, and the `localPreview` field with the flag it drove in
+`app/page.tsx` and `HomepageJourney`. This supersedes the entry above.
+
+It was keyed on `NODE_ENV === 'development'` alone, so it was not opt-in: every
+`npm run dev` served the 2026-09-06 fixture in place of the database. The owner
+hit exactly the failure that shape invites — a local site that looks like the
+real one, is a day stale, and gives no signal that the database was never
+consulted. The `Local preview` label was on screen and did not save it; a label
+is not a mechanism.
+
+An explicit `HOMEPAGE_LOCAL_PREVIEW=1` flag was written first and then removed
+too, by owner instruction. The reasoning holds on its own: the fixture existed
+so a checkout with no `DATABASE_URL` could review the composition, and the cost
+of that convenience is a second definition of what the homepage shows, drifting
+against the first. A worktree that wants real content copies `.env.local` and
+gets it. `getHomepageEdition()` now has one path — the database — and when there
+is none the page says `Edition unavailable`, which is true.
+
 ---
 
 ## 2026-09-05 — The uppercase rule is not one line to reverse, and two hero numbers will go stale silently

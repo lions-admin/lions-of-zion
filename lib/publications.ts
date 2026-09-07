@@ -80,7 +80,3 @@ export async function readHomepageSnapshot() {
   const { homepage } = await import('@/server/modules/homepage');
   return withDatabaseRole('app_public','server:homepage',()=>homepage().read());
 }
-export async function isLocalHomepagePreview() {
-  const { homepageLocalPreview } = await import('@/server/core/config');
-  return homepageLocalPreview();
-}

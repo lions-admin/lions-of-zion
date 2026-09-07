@@ -117,9 +117,6 @@ export default async function Page() {
                 band owns its height at first paint and shifts nothing. */}
             <div className={styles.editionRail}>
               <p className={styles.editionRailMeta}>
-                {edition.localPreview && (
-                  <span className={styles.editionRailFlag}>Local preview</span>
-                )}
                 <span>{editionDateLabel(edition.editionDate)}</span>
                 {lead && (
                   <span className={styles.editionRailStatus}>{lead.category}</span>

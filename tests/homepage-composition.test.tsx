@@ -3,14 +3,14 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import type {HomePreview,HomeReference,HomepageEdition} from '@/server/contracts/homepage';
 import media from '@/content-packages/homepage/media.json';
 import {editorialMediaSchema} from '@/server/contracts/editorial-media';
-vi.mock('@/lib/publications',()=>({readHomepageSnapshot:vi.fn(),isLocalHomepagePreview:vi.fn(()=>false),getPublicPublication:vi.fn()}));
+vi.mock('@/lib/publications',()=>({readHomepageSnapshot:vi.fn(),getPublicPublication:vi.fn()}));
 vi.mock('@/lib/content/homepage-adapters',()=>({resolveHomepageReference:vi.fn()}));
 import {resolveHomepageSection} from '@/lib/homepage';
 import {HomepageJourney} from '@/components/home/HomepageJourney';
 const asset=editorialMediaSchema.parse(media.assets[0]);
 const base={key:'a',title:'A full headline',href:'/articles/a',date:'2026-09-05T09:00:00Z',summary:'Published summary.',media:asset,sources:[]};
 const empty={state:'empty' as const,items:[],gaps:[]};
-function edition():HomepageEdition{return {editionDate:'2026-09-05',revision:1,generatedAt:'2026-09-05T09:00:00Z',state:'current',localPreview:false,news:{state:'partial',items:[{...base,kind:'news',category:'Israel update'}],gaps:[]},fakeResistance:{state:'partial',items:[{...base,key:'w',kind:'watch',claim:'An unresolved claim',verification:'unresolved',basis:'analysis'}],gaps:[]},october7:empty,heroes:empty,israelsStory:empty};}
+function edition():HomepageEdition{return {editionDate:'2026-09-05',revision:1,generatedAt:'2026-09-05T09:00:00Z',state:'current',news:{state:'partial',items:[{...base,kind:'news',category:'Israel update'}],gaps:[]},fakeResistance:{state:'partial',items:[{...base,key:'w',kind:'watch',claim:'An unresolved claim',verification:'unresolved',basis:'analysis'}],gaps:[]},october7:empty,heroes:empty,israelsStory:empty};}
 describe('homepage editorial composition',()=>{
  it('renders the journey in semantic order without carousel or autoplay below hero',()=>{
  const html=renderToStaticMarkup(<HomepageJourney edition={edition()}/>);

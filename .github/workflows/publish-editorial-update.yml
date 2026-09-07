@@ -2,7 +2,7 @@ name: Deliver editorial update
 
 on:
   push:
-    branches: [editorial-updates]
+    branches: [chatgpt-editorial-updates]
     # Packages are intentionally root-level. The same rule is enforced by
     # scripts/list-editorial-update-packages.ts after checkout.
     paths: ["editorial-updates/*.json"]

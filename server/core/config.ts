@@ -69,6 +69,20 @@ export function assertBriefingResourceIsolation(): void {
   const briefingBlob = required("BRIEFING_BLOB_RESOURCE_ID", "briefing storage isolation");
   const archiveBlob = required("OCTOBER7_BLOB_RESOURCE_ID", "October 7 archive storage isolation");
   if (briefingBlob === archiveBlob) throw new Error("Briefing storage must be separate from the October 7 archive store.");
+  /* The third store, and the one whose absence was only ever discovered at
+     upload time. `storeEditorialImage` needs `access: "public"`, which Vercel
+     resolves against the *store*, not the object: pointing it at the private
+     briefing store fails with "Cannot use public access on a private store"
+     after the run has already updated publications and advanced the homepage.
+     That is exactly the shape of failure this function exists to catch before
+     a mutation starts, so the binding is asserted here rather than trusted. */
+  const editorialMediaBlob = required("EDITORIAL_MEDIA_BLOB_RESOURCE_ID", "editorial media storage isolation");
+  if (editorialMediaBlob === briefingBlob) {
+    throw new Error("Editorial media storage must be separate from the private briefing capture store.");
+  }
+  if (editorialMediaBlob === archiveBlob) {
+    throw new Error("Editorial media storage must be separate from the October 7 archive store.");
+  }
 }
 
 /**
@@ -88,6 +102,7 @@ export function briefingResourceFingerprints(): Record<string, string | null> {
   return {
     database: fingerprint(process.env.DATABASE_URL),
     briefingBlob: fingerprint(process.env.BRIEFING_BLOB_RESOURCE_ID),
+    editorialMediaBlob: fingerprint(process.env.EDITORIAL_MEDIA_BLOB_RESOURCE_ID),
     october7Blob: fingerprint(process.env.OCTOBER7_BLOB_RESOURCE_ID),
     googleSearch: fingerprint(process.env.GOOGLE_AGENT_SEARCH_ENGINE_ID),
     queue: fingerprint(process.env.BRIEFING_QUEUE_RESOURCE_ID),
@@ -139,6 +154,44 @@ export function briefingBlobOptions(): { storeId?: string; token?: string } {
   if (storeId && process.env.VERCEL) return { storeId };
   return { token: blobToken() };
 }
+
+/**
+ * The reader-facing half, and the reason it cannot share the accessor above.
+ *
+ * A Vercel Blob store's access mode is a property of the **store**, fixed when
+ * it is created — not a per-object flag. `lions-of-zion-briefing-production`
+ * is `access: "private"` on purpose: it holds source captures, which are
+ * operational evidence and are never redistributed. `storeEditorialImage` asks
+ * for `access: "public"` because `next/image` fetches a hero from the reader's
+ * own browser, and a private object simply does not render.
+ *
+ * Both functions read `briefingBlobOptions()` until 2026-09-07, so every
+ * editorial image upload in Production asked a private store for public
+ * access and was refused — after the run had already updated its publications
+ * and advanced the homepage, leaving a lead story with no picture. The fix is
+ * a second binding, not a more permissive briefing store: making the capture
+ * store public would publish the evidence.
+ *
+ * Same shape as its sibling — the linked resource id in a deployed Vercel
+ * environment, where Functions authenticate with a short-lived OIDC token and
+ * no long-lived secret is needed, and the explicit token only as the
+ * local/maintenance fallback. Neither the id nor the token ever leaves the
+ * server; `briefingResourceFingerprints()` exposes a one-way hash of the id
+ * and nothing else.
+ */
+export function editorialMediaBlobOptions(): { storeId?: string; token?: string } {
+  const storeId = process.env.EDITORIAL_MEDIA_BLOB_RESOURCE_ID?.trim();
+  if (storeId && process.env.VERCEL) return { storeId };
+  return { token: editorialMediaBlobToken() };
+}
+
+/** Local/maintenance fallback for the public editorial-media store. Falls back
+ * to the generic token, which points at a public store in every environment
+ * that has one — never to `BRIEFING_BLOB_READ_WRITE_TOKEN`, whose store is
+ * private and would reproduce the exact failure this binding exists to end. */
+export const editorialMediaBlobToken = (): string =>
+  process.env.EDITORIAL_MEDIA_BLOB_READ_WRITE_TOKEN?.trim()
+  || required("BLOB_READ_WRITE_TOKEN", "editorial media storage");
 export const xOAuthClientId = (): string => required("X_OAUTH_CLIENT_ID", "X OAuth");
 export const xOAuthClientSecret = (): string => required("X_OAUTH_CLIENT_SECRET", "X OAuth");
 export const xAuthSessionSecret = (): string =>
@@ -434,6 +487,11 @@ export const briefingStageEnabled = (stage: BriefingStageName): boolean =>
 export function configuredIntegrations(request?: Request): Record<string, boolean> {
   return {
     database: Boolean(process.env.DATABASE_URL),
+    editorialMediaBlob: Boolean(
+      process.env.EDITORIAL_MEDIA_BLOB_RESOURCE_ID ||
+      process.env.EDITORIAL_MEDIA_BLOB_READ_WRITE_TOKEN ||
+      process.env.BLOB_READ_WRITE_TOKEN,
+    ),
     blob: Boolean(
       process.env.BRIEFING_BLOB_RESOURCE_ID ||
       process.env.BRIEFING_BLOB_READ_WRITE_TOKEN ||

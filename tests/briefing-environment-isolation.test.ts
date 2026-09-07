@@ -17,6 +17,11 @@ function declareResources(environment: "preview" | "production") {
   vi.stubEnv("QUEUE_RESOURCE_ENV", environment);
   vi.stubEnv("SEARCH_RESOURCE_ENV", environment);
   vi.stubEnv("BRIEFING_BLOB_RESOURCE_ID", `${environment}-briefing-blob`);
+  /* The third store. A valid deployment binds reader-facing editorial media to
+     a *public* store of its own; the private briefing store cannot serve it,
+     because a Blob store's access mode is fixed at the store. Absent, the
+     assertion below refuses the deployment — which is the point of adding it. */
+  vi.stubEnv("EDITORIAL_MEDIA_BLOB_RESOURCE_ID", `${environment}-editorial-media-blob`);
   vi.stubEnv("OCTOBER7_BLOB_RESOURCE_ID", `${environment}-october7-blob`);
 }
 
@@ -46,6 +51,23 @@ describe("briefing environment isolation", () => {
     vi.stubEnv("OCTOBER7_BLOB_RESOURCE_ID", "production-briefing-blob");
 
     expect(() => assertBriefingResourceIsolation()).toThrow(/must be separate from the October 7 archive/);
+  });
+
+  it("refuses editorial media pointed at the private briefing store", () => {
+    vi.stubEnv("VERCEL_ENV", "production");
+    declareResources("production");
+    vi.stubEnv("EDITORIAL_MEDIA_BLOB_RESOURCE_ID", "production-briefing-blob");
+
+    expect(() => assertBriefingResourceIsolation())
+      .toThrow(/separate from the private briefing capture store/);
+  });
+
+  it("refuses a deployment with no editorial media binding at all", () => {
+    vi.stubEnv("VERCEL_ENV", "production");
+    declareResources("production");
+    vi.stubEnv("EDITORIAL_MEDIA_BLOB_RESOURCE_ID", "");
+
+    expect(() => assertBriefingResourceIsolation()).toThrow(/EDITORIAL_MEDIA_BLOB_RESOURCE_ID/);
   });
 
   it("rejects a redacted database value before a maintenance script can connect", () => {

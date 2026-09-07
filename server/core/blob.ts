@@ -12,7 +12,7 @@ import "server-only";
  */
 
 import { put } from "@vercel/blob";
-import { briefingBlobOptions } from "./config";
+import { briefingBlobOptions, editorialMediaBlobOptions } from "./config";
 
 export type StoredBlob = { url: string; contentType: string };
 
@@ -54,6 +54,17 @@ export async function storeRawBytes(
  * an object with byte-identical content. That turns a retried briefing run
  * into a no-op instead of a `BlobAlreadyExistsError` that would cost the
  * publication its picture.
+ *
+ * **The binding is `editorialMediaBlobOptions()`, never the briefing one.** A
+ * Blob store's access mode is fixed at the store, not chosen per object, so
+ * `access: "public"` against the private capture store is refused outright —
+ * `Vercel Blob: Cannot use public access on a private store`. Both functions
+ * here read `briefingBlobOptions()` until 2026-09-07, and in Production that
+ * threw on every editorial image after the run had already updated its
+ * publications and advanced the homepage: run
+ * `chatgpt-daily-2026-09-07-1758-k7m4` left the Lebanon News Lead with no
+ * hero. Do not "fix" a recurrence by relaxing the briefing store — private is
+ * what makes the capture an evidence record rather than a republication.
  */
 export async function storeEditorialImage(
   pathname: string,
@@ -68,7 +79,7 @@ export async function storeEditorialImage(
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType,
-    ...briefingBlobOptions(),
+    ...editorialMediaBlobOptions(),
   });
   return { url: blob.url, contentType: blob.contentType };
 }

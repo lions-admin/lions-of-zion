@@ -17,9 +17,8 @@ import styles from "./homepage-journey.module.css";
 
 /**
  * Fake Resistance, as it is named everywhere else on the site. Each record is
- * a dossier that reads status → claim → finding → sources, and says each
- * thing once: an unresolved record's status already says no finding has been
- * reached, so it carries no finding block repeating that.
+ * a dossier that reads status → claim → finding → sources. Media is optional;
+ * its absence changes layout, not editorial eligibility.
  */
 export function HomeNarrativesSection({
   section,
@@ -57,6 +56,8 @@ export function HomeNarrativesSection({
               data-home-record={item.key}
               data-rank={rankOf(index)}
               data-kind={item.kind}
+              data-has-media={item.media ? "true" : "false"}
+              style={!item.media ? { gridTemplateColumns: "1fr", gridTemplateAreas: '"status" "body"' } : undefined}
             >
               <header className={styles.dossierStatus}>
                 <p className={styles.verdict} data-tone={status?.tone ?? "neutral"}>
@@ -67,9 +68,9 @@ export function HomeNarrativesSection({
                 </p>
                 <HomeTime date={item.date} includeTime />
               </header>
-              <div className={styles.dossierCover}>
+              {item.media ? <div className={styles.dossierCover}>
                 <HomeMedia media={item.media} />
-              </div>
+              </div> : null}
               <div className={styles.dossier}>
                 <p className={styles.kicker}>
                   {item.kind === "watch"

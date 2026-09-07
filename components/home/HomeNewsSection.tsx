@@ -14,10 +14,9 @@ import {
 import styles from "./homepage-journey.module.css";
 
 /**
- * An editorial spread: the lead story with its picture, and a companion that
- * a phone sets as one compact row beside a thumbnail. Every field stays in the
- * document; the phone clamps what the preview shows and the record has the
- * rest.
+ * An editorial spread: a lead story and a quieter companion. A record without
+ * cleared homepage media remains a first-class text card rather than being
+ * removed from the edition.
  */
 export function HomeNewsSection({
   section,
@@ -42,6 +41,8 @@ export function HomeNewsSection({
             key={item.key}
             data-home-record={item.key}
             data-rank={rankOf(index)}
+            data-has-media={item.media ? "true" : "false"}
+            style={!item.media ? { gridTemplateColumns: "1fr" } : undefined}
           >
             <HomeMedia media={item.media} lead={index === 0} />
             <div className={styles.newsBody}>

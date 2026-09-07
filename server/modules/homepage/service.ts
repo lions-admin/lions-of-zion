@@ -26,16 +26,14 @@ export async function homepageInputs(db:Database, now=new Date()) {
     service.listBriefingPublic({limit:100}), service.publicHomepagePins(),
   ]);
   const live=new Map([...automatic,...pins.map(p=>p.publication)].map(p=>[p.publicId,p]));
-  const candidates:HomeReference[]=catalog.candidates.filter(c=>safeIds.has(c.mediaId));
-  // A live publication's own hero decides whether it may reach the homepage.
-  // It used to be `media.json`'s mapping, which meant a newly published record
-  // could not appear without a hand-written commit — the registry is still the
-  // fallback so publications that predate `editorial_media` keep their picture.
+  const candidates:HomeReference[]=catalog.candidates.filter(c=>c.mediaId!==null&&safeIds.has(c.mediaId));
+  // A live publication is a homepage candidate even when it has no image.
+  // Rights-cleared media is still preferred and is the only media rendered;
+  // a missing or non-homepage-cleared hero becomes a supported text-only card.
   const liveCandidates:HomeReference[]=[];
   for(const p of live.values()){
     const key=`publication:${p.publicId}`,legacyId=rawMedia.mappings[key] as string|undefined;
     const mediaId=p.media&&isHomepageSafeMedia(p.media)?p.media.id:legacyId&&safeIds.has(legacyId)?legacyId:null;
-    if(!mediaId)continue;
     liveCandidates.push({key,id:p.publicId,kind:publicationHomepageKind(p.section),
       section:publicationHomepageSection(p.section),href:publicationHref(p.publicId),
       version:p.updatedAt,date:p.publishedAt,mediaId});
@@ -58,7 +56,7 @@ export async function homepageInputs(db:Database, now=new Date()) {
       // tomorrow. Only the live half: the static catalogue changes by commit,
       // and folding it in would rebuild every band on every catalogue touch.
       // Sorted so query order cannot invent a revision on its own.
-      live:liveCandidates.filter(c=>c.section===section).map(c=>`${c.key}|${c.version}|${c.date}|${c.mediaId}`).sort(),
+      live:liveCandidates.filter(c=>c.section===section).map(c=>`${c.key}|${c.version}|${c.date}|${c.mediaId??'text-only'}`).sort(),
     })).digest('hex')])));
   return {catalog,candidates,overrides,placements,overrideRevision,date};
 }

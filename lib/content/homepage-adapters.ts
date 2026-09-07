@@ -21,12 +21,11 @@ export async function resolveHomepageReference(ref:HomeReference):Promise<HomePr
   if(ref.kind==='news'||ref.kind==='watch'||ref.kind==='feature'){
     const p=await getPublicPublication(ref.id);
     if(publicationHomepageKind(p.section)!==ref.kind)return null;
-    /* A live record carries its own picture, so a publication published today
-       reaches the homepage without a hand-written registry mapping. The static
-       registry stays as the fallback: the publications mapped there predate
-       the field and would otherwise lose the artwork they already have. */
+    /* A live record may reach the homepage without a picture. Its own hero is
+       used only when it passes the homepage rights bar; the static registry is
+       the legacy fallback. If neither is available, the record resolves as a
+       text-only card rather than disappearing from the selected edition. */
     const media=p.media&&isHomepageSafeMedia(p.media)?p.media:homepageMedia(ref.key);
-    if(!media)return null;
     const publicationBase={key:ref.key,href:ref.href,media,title:p.title,summary:p.summary??'',date:p.publishedAt,
       sources:p.sources.flatMap(s=>s.url?[{label:s.publisher?`${s.publisher} — ${s.title}`:s.title,url:s.url}]:[]),
       whyItMatters:homepageExcerpt(ref.key,'whyItMatters',p.updatedAt)};

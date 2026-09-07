@@ -25,6 +25,9 @@ export function selectHomepage(candidates: HomeReference[], date: string, histor
     const pool = unique.filter(c=>c.section===section && !selected.has(c.key));
     pool.sort((a,b)=>{
       const pinDiff=rank(a)-rank(b); if(!Number.isNaN(pinDiff) && pinDiff) return pinDiff;
+      // Media is a preference for automatic composition, never an eligibility
+      // requirement. Explicit placements still win even when they are text-only.
+      const mediaDiff=Number(Boolean(b.mediaId))-Number(Boolean(a.mediaId)); if(mediaDiff)return mediaDiff;
       if(section !== 'news' && section !== 'fakeResistance') {
         const recentA=(history[a.key]??'')>cutoffDate, recentB=(history[b.key]??'')>cutoffDate;
         if(recentA!==recentB) return recentA?1:-1;

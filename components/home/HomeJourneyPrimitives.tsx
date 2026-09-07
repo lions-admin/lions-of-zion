@@ -106,22 +106,20 @@ const ROLE_DISCLOSURE: Partial<Record<EditorialMedia["role"], string>> = {
 };
 
 /**
- * Figure and caption. The caption is three things in a fixed order — the
- * disclosure, the description, the credit and licence — so the warning is the
- * first line under every image and the metadata never competes with the
- * headline beneath it. `lead` marks the edition's first picture, which is
- * decoded eagerly because it is the largest thing on the first screen after
- * the cover.
+ * Figure and caption. Missing media is a supported editorial state: callers
+ * render the record as text-only. When media exists, the same rights-cleared
+ * asset and disclosure rules apply unchanged.
  */
 export function HomeMedia({
   media,
   portrait = false,
   lead = false,
 }: {
-  media: EditorialMedia;
+  media: EditorialMedia | null | undefined;
   portrait?: boolean;
   lead?: boolean;
 }) {
+  if (!media) return null;
   const disclosure = media.role === "safe-cover"
     ? "Safe cover"
     : media.disclosure ?? ROLE_DISCLOSURE[media.role];

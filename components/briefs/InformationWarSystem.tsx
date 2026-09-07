@@ -4,6 +4,13 @@ import { EditorialShell } from "@/components/site/EditorialShell";
 import { PipelineTrace } from "./information-war/PipelineTrace";
 import { RecentActivity } from "./information-war/LivePanels";
 import { DailyCycle, OutputsFork } from "./information-war/StorySections";
+/* VA-21: the five-stage investigation walkthrough moved off the homepage,
+   where it made the front page a second product, and landed here — under
+   "the standard", because it is that standard applied to one case. It still
+   lives in `components/home/` only because VA-21's file ownership did not
+   extend to creating a file under `components/briefs/`; the component is
+   route-agnostic and should be renamed when someone can move it. */
+import { HomeEvidencePipeline } from "@/components/home/HomeEvidencePipeline";
 import styles from "./information-war-system.module.css";
 
 export function InformationWarSystem() {
@@ -55,6 +62,11 @@ export function InformationWarSystem() {
           </ol>
         </div>
         <DailyCycle />
+        <section className={styles.section} id="walkthrough" aria-labelledby="walkthrough-heading">
+          <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>A worked example</p><h2 id="walkthrough-heading">Put the narrative<br /><em>to the test.</em></h2></div>
+            <p>Follow a circulating claim from influencer networks to a published finding. Search both sides of the evidence. Examine the framing. See what holds up.</p></div>
+          <HomeEvidencePipeline />
+        </section>
       </section>
 
       <section className={styles.section} id="record" aria-labelledby="record-heading">

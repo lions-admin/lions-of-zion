@@ -1004,7 +1004,44 @@ gate the audit itself says must come first.
 - **Desktop / mobile.** Both.
 - **Production verification.** Required.
 - **Execution path.** **Development.**
-- **Status.** `BLOCKED` on VA-10
+- **Done 2026-09-07, measured.** Baseline re-taken against the current tree
+  (VA-10 had already landed, so the page was 12,047px at 375, not the audit's
+  12,809px). Result: **12,047 → 9,958px, −17.3%**, and the band itself fell
+  from 3,517px to 1,428px — **29.2% → 14.3% of the page**. −13.7% to −17.4%
+  across all six widths. No type was shrunk and no record hidden; two sizes
+  went *up*, both prior floor violations in the module that is now the whole
+  band.
+
+  What stayed: kicker, headline, a three-line lede stating the source-counting
+  test, `AmplificationFigure` as the single interaction, the provenance
+  sentence, and exactly two links — How it works and Methodology.
+
+  **The "arriving twice" check came back positive in three places**, which is
+  the useful part. `/information-war` already carried the two branch
+  explanations near-verbatim (`StorySections.tsx:18,20`) and already carried
+  the amplification lesson as its `#problem` origin diagram
+  (`InformationWarSystem.tsx:20-32`, *"01 original source. Not five
+  confirmations."*). So `AmplificationFigure` **stayed on the homepage** rather
+  than moving — relocating it would have replaced one duplication with
+  another. The homepage keeps the one proof point; the destination keeps the
+  full treatment, which is also what VA-22 prescribes. Only the five-stage
+  walkthrough (`HomeEvidencePipeline`) actually moved, into chapter 02 of
+  `/information-war`.
+
+  One graphic was **dropped rather than moved** and is flagged here because
+  that is a deletion: the `archiveChain` diagram and its content-warning
+  sentence, whose fact is already stated on the homepage's own October 7 band
+  (`HomeArchiveSection.tsx:66`) and on the archive itself
+  (`ArchiveShareShowcase.tsx:117`). A third restatement, not a lost idea.
+
+  Verified: zero running animations under `prefers-reduced-motion`; four tab
+  stops with a visible ring; **no CLS on the interaction** — the figure
+  measures 884px in both states because the annotation line's space is
+  reserved; 48px touch targets; no horizontal overflow at 320–430; console
+  clean at all six widths; all ten `ci-smoke` destinations still present on the
+  no-JS homepage.
+- **Status.** `DONE — pending Production verification and an LCP re-measure
+  (VA-40).`
 
 ### VA-22 — One job each: How it works, Methodology, We Are
 

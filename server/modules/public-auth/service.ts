@@ -1,11 +1,14 @@
 import "server-only";
 
+import { and, count as countRows, eq, isNull } from "drizzle-orm";
 import { db, withDatabaseRole } from "@/server/db/client";
-import { appUser } from "@/server/db/schema";
+import { appUser, capabilityGrant } from "@/server/db/schema";
+import { adminEmail } from "@/server/core/config";
+import { sendWorkspaceEmail } from "@/server/core/email";
+import { briefingLog } from "@/server/core/log";
 import { neonAuth } from "@/server/core/auth/neon";
 import { readGoogleSession } from "@/server/core/auth/google-session";
-import { upsertHumanUser } from "@/server/core/auth/users";
-import { count as countRows } from "drizzle-orm";
+import { upsertHumanUserWithStatus, type HumanUserUpsertResult } from "@/server/core/auth/users";
 
 type AuthenticatedUser = {
   id: string;
@@ -13,31 +16,77 @@ type AuthenticatedUser = {
   name?: string | null;
 };
 
+async function notifyNewRegistration(result: HumanUserUpsertResult, provider: string): Promise<void> {
+  if (!result.created) return;
+
+  const { user } = result;
+  const registeredAt = user.createdAt instanceof Date ? user.createdAt.toISOString() : String(user.createdAt);
+  const text = [
+    "A new public reader registered on Lions of Zion.",
+    "",
+    `Name: ${user.displayName}`,
+    `Email: ${user.email ?? "not provided"}`,
+    `Provider: ${provider}`,
+    `Internal user ID: ${user.id}`,
+    `External provider ID: ${user.externalId}`,
+    `Registered at: ${registeredAt}`,
+  ].join("\n");
+
+  try {
+    await sendWorkspaceEmail({
+      to: adminEmail(),
+      subject: `Lions of Zion: new registration — ${user.displayName}`,
+      text,
+    });
+  } catch (cause) {
+    // Registration is durable before notification. A mail outage must never
+    // turn a successful sign-in into a failed or repeated registration.
+    briefingLog("error", "public.registration.email_failed", {}, {
+      userId: user.id,
+      provider,
+      errorClass: cause instanceof Error ? cause.name : "UnknownError",
+    });
+  }
+}
+
+async function syncAuthenticatedUser(
+  user: AuthenticatedUser,
+  actorLabel: string,
+  provider: string,
+): Promise<void> {
+  const email = user.email?.trim().toLowerCase() || null;
+  const displayName = user.name?.trim() || email || "Lions of Zion user";
+  const result = await withDatabaseRole("app_service", actorLabel, async () =>
+    upsertHumanUserWithStatus(db(), { externalId: user.id, email, displayName }),
+  );
+  await notifyNewRegistration(result, provider);
+}
+
 export async function syncPublicUser(request?: Request): Promise<{ synced: boolean }> {
   const googleUser = request ? await readGoogleSession(request) : null;
   const result = googleUser ? null : await neonAuth().getSession();
   const user = (googleUser ?? result?.data?.user ?? null) as AuthenticatedUser | null;
   if (!user) return { synced: false };
 
-  const email = user.email?.trim().toLowerCase() || null;
-  const displayName = user.name?.trim() || email || "Lions of Zion user";
-
-  await withDatabaseRole("app_service", "service:public-auth", async () => {
-    await upsertHumanUser(db(), { externalId: user.id, email, displayName });
-  });
+  await syncAuthenticatedUser(
+    user,
+    googleUser ? "service:public-auth" : "service:public-auth",
+    googleUser ? "Google" : "Neon Auth",
+  );
 
   return { synced: true };
 }
 
 export async function syncVerifiedGoogleUser(user: AuthenticatedUser): Promise<void> {
-  const email = user.email?.trim().toLowerCase() || null;
-  const displayName = user.name?.trim() || email || "Lions of Zion user";
-  await withDatabaseRole("app_service", "service:google-auth", async () => {
-    await upsertHumanUser(db(), { externalId: user.id, email, displayName });
-  });
+  await syncAuthenticatedUser(user, "service:google-auth", "Google");
 }
 
+/** Public readers are human app_user rows that do not hold a staff capability. */
 export async function registeredUserCount(): Promise<number> {
-  const [row] = await db().select({ count: countRows() }).from(appUser);
+  const [row] = await db()
+    .select({ count: countRows() })
+    .from(appUser)
+    .leftJoin(capabilityGrant, eq(capabilityGrant.userId, appUser.id))
+    .where(and(eq(appUser.isAutomated, false), isNull(capabilityGrant.userId)));
   return row?.count ?? 0;
 }

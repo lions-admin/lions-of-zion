@@ -23,9 +23,9 @@ import { writeAudit } from "@/server/core/audit";
 import { setIdentity } from "@/server/core/versioning";
 import { ApiError } from "@/server/http/responses";
 import { adminConsole } from "@/server/modules/admin-console";
-import { editorialUpdate } from "@/server/modules/editorial-update";
+import { editorialUpdateService } from "@/server/modules/editorial-update/service";
 import { homepageService } from "@/server/modules/homepage/service";
-import { publications } from "@/server/modules/publications";
+import { publicationService } from "@/server/modules/publications/service";
 /* The registry and its context type directly, not the module index: the
    index also binds the AI gateway and the deep-health probe, which this
    adapter never uses and a test should not have to stand up. */
@@ -122,6 +122,133 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
       }
     },
 
+    /**
+     * One record, by whichever identifier the caller holds.
+     *
+     * The ops registry's `get_publication` takes an internal uuid, which a
+     * model working from the open web never has — it knows a `publicId` from a
+     * URL, or a `canonicalStoryId` from a previous run. Both resolve here, and
+     * a miss is an explicit null rather than an empty result that would read
+     * as "safe to create".
+     */
+    async findPublication(identifier: string) {
+      const store = publicationService(database);
+      /* Only a genuine miss becomes null. A swallowed infrastructure error
+         would answer "this story does not exist" when the truth is "the
+         database could not be asked" — and the caller's next move on that
+         answer is to publish a duplicate. Caught live against a Preview
+         database that was behind on migrations, which reported every lookup
+         as a miss. */
+      const resolve = async (target: { publicId?: string; canonicalStoryId?: string }) => {
+        try {
+          return await store.resolveEditorialTarget(target);
+        } catch (cause) {
+          if (cause instanceof ApiError && cause.code === "NOT_FOUND") return null;
+          throw cause;
+        }
+      };
+      const found = await resolve({ publicId: identifier })
+        ?? await resolve({ canonicalStoryId: identifier });
+      if (!found) return null;
+      const [summary] = await Promise.all([store.editorialSummaryByPublicIds([found.publicId])]);
+      /* Absent for a record that is not live — that is a fact about the
+         record, not a failure, so it is the one catch that stays broad-ish.
+         An infrastructure error still propagates. */
+      const detail = await store.getBriefingPublicDetail(found.publicId).catch((cause: unknown) => {
+        if (cause instanceof ApiError && cause.code === "NOT_FOUND") return null;
+        throw cause;
+      });
+      return {
+        publicId: found.publicId,
+        canonicalStoryId: found.canonicalStoryId,
+        section: found.section,
+        hub: routePublication(found.section).hub,
+        kind: found.kind,
+        title: found.title,
+        status: summary.get(found.publicId)?.status ?? found.status,
+        url: publicationHref(found.publicId),
+        publishedAt: found.publishedAt?.toISOString() ?? null,
+        updatedAt: found.updatedAt?.toISOString() ?? null,
+        /* The public detail carries the source stack, the hero and the
+           correction history; it is absent for a record that is not live. */
+        detail,
+      };
+    },
+
+    /** The homepage as it currently stands: the edition and its placements. */
+    async homepage() {
+      const [edition, pins] = await Promise.all([
+        homepageService(database).read().catch(() => null),
+        publicationService(database).publicHomepagePins(),
+      ]);
+      return {
+        edition: edition
+          ? { editionDate: edition.editionDate, revision: edition.revision, generatedAt: edition.generatedAt }
+          : null,
+        placements: pins.map(pin => ({
+          area: pin.area,
+          position: pin.position,
+          publicId: pin.publication.publicId,
+          title: pin.publication.title,
+          section: pin.publication.section,
+          hasMedia: Boolean(pin.publication.media),
+          publishedAt: pin.publication.publishedAt,
+          url: publicationHref(pin.publication.publicId),
+        })),
+      };
+    },
+
+    /** Recent durable runs, newest first. */
+    async editorialRuns() {
+      const runs = await editorialUpdateService(database).listRecent();
+      return runs.map(run => ({
+        runKey: run.runKey, status: run.status, stage: run.stage,
+        createdAt: run.createdAt.toISOString(),
+        finishedAt: run.finishedAt?.toISOString() ?? null,
+      }));
+    },
+
+    /**
+     * One run in full, with the v2 split the report was built to carry.
+     *
+     * `research` and `vetoes` exist only for a `whole-site-update-v2` package.
+     * They are reported as null rather than as empty arrays for a v1 run,
+     * because "this contract could not represent an editorial refusal" and
+     * "the editor refused nothing" are different facts, and conflating them is
+     * exactly the ambiguity v2 was added to remove.
+     */
+    async editorialRun(runKey: string) {
+      const run = await editorialUpdateService(database).getByRunKey(runKey).catch(() => null);
+      if (!run) return null;
+      const report = (run.report ?? {}) as Record<string, unknown>;
+      const isV2 = (run.request?.delivery?.contractVersion ?? null) === "whole-site-update-v2";
+      return {
+        runKey: run.runKey,
+        status: run.status,
+        stage: run.stage,
+        contractVersion: run.request?.delivery?.contractVersion ?? null,
+        createdAt: run.createdAt.toISOString(),
+        startedAt: run.startedAt?.toISOString() ?? null,
+        finishedAt: run.finishedAt?.toISOString() ?? null,
+        publications: report.publications ?? null,
+        byCategory: report.byCategory ?? null,
+        urls: report.urls ?? [],
+        homepage: report.homepage ?? null,
+        media: report.media ?? null,
+        siteRecommendations: report.siteRecommendations ?? [],
+        /* Editorial decisions. */
+        research: isV2 ? (report.research ?? []) : null,
+        vetoes: isV2 ? (report.vetoes ?? []) : null,
+        /* Faults. Kept apart from the two above on purpose. */
+        errors: report.errors ?? [],
+        failure: run.failure ?? null,
+        operations: run.operations.map(operation => ({
+          key: operation.operationKey, status: operation.status, stage: operation.stage,
+          result: operation.result ?? null, failure: operation.failure ?? null,
+        })),
+      };
+    },
+
     /** One console read, by allowlisted name. Reads only — see the view list. */
     async opsView(view: ChatgptOpsView, request?: Request): Promise<unknown> {
       const console_ = adminConsole();
@@ -150,12 +277,12 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
       request?: Request,
     ): Promise<ChatgptEditorialContext> {
       const console_ = adminConsole();
-      const store = publications();
+      const store = publicationService(database);
       const [live, placements, edition, runs] = await Promise.all([
         store.listBriefingPublic({ limit: options.limit }),
         store.publicHomepagePins(),
         homepageService(database).read().catch(() => null),
-        editorialUpdate().listRecent().catch(() => []),
+        editorialUpdateService(database).listRecent().catch(() => []),
       ]);
 
       const summaryByPublicId = await store.editorialSummaryByPublicIds(live.map(row => row.publicId));

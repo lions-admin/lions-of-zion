@@ -268,6 +268,13 @@ states for every caller class.
 Lives in **Vercel only**. The delivery Action never calls these routes, so it is
 not a GitHub Actions secret; the ChatGPT Scheduled Task holds the value.
 
+It also signs the ChatGPT app's OAuth tokens (`server/modules/chatgpt-mcp/tokens.ts`),
+each under its own derived key. Two consequences: the value must differ between
+Preview and Production, which is what keeps a Preview token from addressing
+Production; and **rotating it revokes every issued connector token at once**,
+which is the documented revocation path — the tokens are signed rather than
+stored, so there is nothing else to delete. See [`chatgpt-app.md`](chatgpt-app.md).
+
 Unset is a configuration error, not an open door: `required()` throws and the
 route answers 500. A wrong secret answers 401.
 

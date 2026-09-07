@@ -10,6 +10,70 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — The ChatGPT app authenticates with OAuth, because there is no other option
+
+The automation layer authenticates with `x-chatgpt-automation-secret`, and the
+obvious next step was to let the MCP endpoint accept the same header. It cannot:
+ChatGPT offers a custom connector exactly three auth modes — OAuth, No
+Authentication, and a mix — and no way to send a static credential of our
+choosing. "No authentication" on an endpoint that can archive a published
+article was never a candidate.
+
+So the connector carries the smallest OAuth 2.1 flow that satisfies the MCP
+authorization spec: PRM and authorization-server metadata, `/authorize` gated on
+`authenticateAdmin()`, `/token` with required PKCE S256, one public client, one
+scope. There is no user directory behind it and no consent to record — the only
+question the authorization step asks is whether the person completing it is the
+owner.
+
+Tokens are HMAC-signed rather than stored, for the reason already written down
+for ops confirmations: a table would be a second source of truth outliving
+restarts, and here it would also be a migration that has to reach Production
+before the code does. The price is that one token cannot be revoked; rotating
+`CHATGPT_AUTOMATION_SECRET` revokes all of them, and that is documented as the
+path.
+
+The HTTP automation API keeps its header and is unchanged. Two transports, two
+credentials, one identity and one capability policy.
+
+---
+
+## 2026-09-07 — The MCP endpoint lives under `/api/internal/chatgpt/`, not `/api/mcp`
+
+`/api/mcp` is the conventional path and was the one asked for. It would have
+run outside RLS.
+
+`accessFor()` grants a database role by path prefix and returns `null` for
+anything that is neither `/api/v1/` nor a named service prefix; `withDatabaseRole`
+is then never called and `db()` falls back to the ambient owner pool, with no
+`app.identity`. The handler's own comment records that exact failure for
+`/api/internal/briefing/` before 2026-09-05, where it went unnoticed because
+everything appeared to work.
+
+Under the existing `/api/internal/chatgpt/` prefix the endpoint inherits
+`app_service` / `service:chatgpt-editorial` for free. `chatgpt-mcp/server.ts`
+also establishes the role itself, so a future refactor of the route wrapper
+cannot silently drop it. Adding `/api/mcp/` to `SERVICE_PREFIXES` would have
+worked too and was rejected as the weaker option: it puts the security property
+in a list a reader has to remember to check, rather than in the path itself.
+
+---
+
+## 2026-09-07 — A failed lookup is not a missing story
+
+`findPublication` resolved a publication and returned `null` on any error. Under
+a Preview database that was behind on migrations, every lookup threw
+`column "canonical_story_id" does not exist` and every answer came back as
+"this story does not exist yet".
+
+That is the worst possible shape for this particular read, because its whole
+purpose is the duplicate check a composer runs *before* creating a record: the
+next move on that answer is to publish the duplicate. Only `NOT_FOUND` is a miss
+now; anything else propagates and the tool reports an error. Found by running
+the real transport against a real database rather than by reading the code.
+
+---
+
 ## 2026-09-07 — The scheduled ChatGPT editor gets its own identity, all the capabilities, and one substitution
 
 Everything the automation was allowed and forbidden to do lived in its prompt.

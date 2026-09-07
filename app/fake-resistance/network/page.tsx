@@ -13,6 +13,7 @@ import { NetworkExplorer } from '@/components/investigation';
 import { getCaseIndex, getResearchNetwork } from '@/lib/content/fake-resistance-cases';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
+import { publicationHubCrumb } from '@/lib/publication-routing';
 
 const TAGLINE =
   'What the case files add up to when the network is computed rather than drawn by hand — and which of the earlier readings that killed.';
@@ -54,7 +55,7 @@ export default async function Page() {
       id="fake-resistance"
       accent="ember"
       surface="quiet"
-      breadcrumb={[{ href: '/fake-resistance', label: 'Fake Resistance' }]}
+      breadcrumb={[publicationHubCrumb('fakeResistance')]}
       title="The network"
       tagline={TAGLINE}
     >

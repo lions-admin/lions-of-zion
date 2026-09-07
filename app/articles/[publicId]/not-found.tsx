@@ -1,5 +1,6 @@
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
+import { publicationHubCrumb } from "@/lib/publication-routing";
 import { ButtonLink } from "@/components/ui/Button";
 import styles from "./article.module.css";
 
@@ -7,8 +8,14 @@ import styles from "./article.module.css";
  * Missing publication — a publicId that is not in the published file.
  *
  * Distinct from the site-wide 404 (no such route) and from `error.tsx`
- * (the desk could not read the record). Recovery is back to the Daily Brief
- * or Search, not the full destination index.
+ * (the desk could not read the record). Recovery is back to the news desk or
+ * Search, not the full destination index.
+ *
+ * VA-51/VA-44. Both routes out of here named the destination "Daily Brief" — a
+ * section retired on 2026-09-05, on a page a reader only ever meets when
+ * something has already gone wrong. Both now derive their label from
+ * `publicationHubCrumb`, so the desk cannot be renamed out from under them
+ * again.
  */
 export default function ArticleNotFound() {
   return (
@@ -21,7 +28,7 @@ export default function ArticleNotFound() {
       <article className={styles.article} id="page-content">
         <Breadcrumb
           className={styles.breadcrumb}
-          trail={[{ href: "/geopolitical-brief", label: "Daily Brief" }]}
+          trail={[publicationHubCrumb("news")]}
           current="Record not found"
         />
         <header className={styles.head}>
@@ -34,8 +41,8 @@ export default function ArticleNotFound() {
           </p>
         </header>
         <nav className={styles.recoveryNav} aria-label="Find a published record">
-          <ButtonLink href="/geopolitical-brief" variant="secondary" size="md">
-            Daily Brief
+          <ButtonLink href={publicationHubCrumb("news").href} variant="secondary" size="md">
+            {publicationHubCrumb("news").label}
           </ButtonLink>
           <ButtonLink href="/search" variant="ghost" size="md">
             Search

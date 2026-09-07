@@ -27,6 +27,7 @@ import {
 import { buildInvestigationModel, type ElsewhereLink } from '@/lib/content/investigation-model';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
+import { publicationHubCrumb } from '@/lib/publication-routing';
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -188,7 +189,7 @@ export default async function Page({ params }: Params) {
         id="fake-resistance"
         accent="ember"
         surface="quiet"
-        breadcrumb={[{ href: '/fake-resistance', label: 'Fake Resistance' }]}
+        breadcrumb={[publicationHubCrumb('fakeResistance')]}
         title={shortTitle(record.title)}
         tagline={lead}
         aside={<EntityInspector variant="rail" />}

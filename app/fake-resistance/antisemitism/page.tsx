@@ -5,6 +5,7 @@ import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { getAntisemitismFeed } from "@/lib/content/fake-resistance-watch";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
+import { publicationHubCrumb } from '@/lib/publication-routing';
 
 const PAGE_URL = `${SITE_URL}/fake-resistance/antisemitism`;
 const description = "Documented antisemitism incidents and trends, with sourced records, context, and limits.";
@@ -22,7 +23,7 @@ export default async function Page() {
   return (
     <SectionPage
       id="fake-resistance"
-      breadcrumb={[{ href: "/fake-resistance", label: "Narratives & fact checks" }]}
+      breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
       surface="quiet"
       register="silent"

@@ -14,6 +14,7 @@ import { ROLE_LABEL, type EntityRole } from '@/lib/content/fake-resistance-roles
 import { buildInvestigationModel } from '@/lib/content/investigation-model';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
+import { publicationHubCrumb } from '@/lib/publication-routing';
 
 const TAGLINE =
   'Investigations into accounts, narratives and propagation patterns on X: who is involved, what moves between them, what was actually observed, and how strong each conclusion is.';
@@ -129,7 +130,7 @@ export default async function Page() {
   return (
     <SectionPage
       id="fake-resistance"
-      breadcrumb={[{ href: '/fake-resistance', label: 'Fake Resistance' }]}
+      breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
       surface="quiet"
       title="The social-media front"

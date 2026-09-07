@@ -34,14 +34,26 @@ function renderFully(element: ReactElement): Promise<string> {
 }
 
 describe("information war surface", () => {
-  it("keeps an intact accessible heading and its browser title", async () => {
+  /* IW-002 asked that the browser tab and the visual heading read the same
+     sentence, so a reader is never shown a name they did not click. VA-51
+     narrowed it: the owner ruled on 2026-09-08 that the *menu label* is the
+     destination's name, so the tab now agrees with the link that brought the
+     reader here rather than with the headline. IW-002's purpose survives — the
+     click and the tab match — and the headline stays a headline. Both halves
+     are asserted here so neither can drift back alone. */
+  it("keeps the editorial heading intact", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
     const h1 = html.match(/<h1[^>]*id="war-heading"[^>]*>([\s\S]*?)<\/h1>/);
     expect(h1).not.toBeNull();
     const text = h1![1].replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]+>/g, "");
     expect(text).toBe("This is an information war.");
     const page = readFileSync(path.join(ROOT, "app/information-war/page.tsx"), "utf8");
-    expect(page).toContain('const TITLE = "This is an information war"');
+    expect(page).toContain('const HEADLINE = "This is an information war"');
+  });
+
+  it("names the destination in the tab the way the menu names it", () => {
+    const page = readFileSync(path.join(ROOT, "app/information-war/page.tsx"), "utf8");
+    expect(page).toContain('const TITLE = "How it works"');
   });
 
   it("preserves the reading anchors and fixes the publication retry target", async () => {

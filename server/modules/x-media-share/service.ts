@@ -45,27 +45,35 @@ export function createXMediaShareService(dependencies: XMediaShareDependencies) 
     const source = await fetchImpl(media.assetUrl, { cache: "no-store", redirect: "error" }).catch(() => null);
     if (!source?.ok || !source.body) return withSession({ status: "media_unavailable" }, access);
 
+    let mediaId: string | null;
     try {
-      const mediaId =
+      mediaId =
         media.medium === "video"
           ? await uploadVideo(fetchImpl, sleep, access.accessToken, media, source)
           : await uploadImage(fetchImpl, access.accessToken, media, source);
-      if (!mediaId) return withSession({ status: "upload_failed" }, access);
+    } catch {
+      return withSession({ status: "upload_failed" }, access);
+    }
+    if (!mediaId) return withSession({ status: "upload_failed" }, access);
 
-      if (media.sensitive) {
+    if (media.sensitive) {
+      try {
         const marked = await markGraphicMedia(fetchImpl, access.accessToken, mediaId);
         if (!marked) return withSession({ status: "upload_failed" }, access);
+      } catch {
+        return withSession({ status: "upload_failed" }, access);
       }
+    }
 
+    try {
       const postId = await createPost(fetchImpl, access.accessToken, mediaId, postText(media));
       if (!postId) return withSession({ status: "post_failed" }, access);
-
       return withSession(
         { status: "posted", postUrl: `https://x.com/${access.profile.username}/status/${postId}` },
         access,
       );
     } catch {
-      return withSession({ status: "upload_failed" }, access);
+      return withSession({ status: "post_failed" }, access);
     }
   };
 }
@@ -85,9 +93,10 @@ async function uploadImage(
 ): Promise<string | null> {
   const bytes = new Uint8Array(await source.arrayBuffer());
   if (bytes.byteLength === 0 || bytes.byteLength > MAX_IMAGE_BYTES) return null;
+  if (media.fileSize && bytes.byteLength !== media.fileSize) return null;
 
   const form = new FormData();
-  form.set("media", new Blob([bytes], { type: media.mimeType }), mediaFilename(media));
+  form.set("media", new Blob([Uint8Array.from(bytes)], { type: media.mimeType }), mediaFilename(media));
   form.set("media_category", "tweet_image");
   form.set("media_type", media.mimeType);
   form.set("shared", "false");
@@ -109,8 +118,10 @@ async function uploadVideo(
   media: ResolvedArchiveMedia,
   source: Response,
 ): Promise<string | null> {
-  const contentLength = Number(source.headers.get("content-length"));
-  if (!Number.isSafeInteger(contentLength) || contentLength <= 0 || contentLength > MAX_VIDEO_BYTES) return null;
+  const headerLength = Number(source.headers.get("content-length"));
+  const knownLength = media.fileSize ?? (Number.isSafeInteger(headerLength) && headerLength > 0 ? headerLength : null);
+  if (!knownLength || knownLength > MAX_VIDEO_BYTES) return null;
+  if (Number.isSafeInteger(headerLength) && headerLength > 0 && headerLength !== knownLength) return null;
 
   const initResponse = await fetchImpl(X_MEDIA_INITIALIZE, {
     method: "POST",
@@ -119,7 +130,7 @@ async function uploadVideo(
     body: JSON.stringify({
       media_category: "tweet_video",
       media_type: media.mimeType,
-      total_bytes: contentLength,
+      total_bytes: knownLength,
       shared: false,
     }),
   });
@@ -129,10 +140,14 @@ async function uploadVideo(
 
   let segment = 0;
   let uploaded = 0;
-  const ok = await readChunks(source.body!, VIDEO_CHUNK_BYTES, async (chunk) => {
+  const ok = await readChunks(source.body, VIDEO_CHUNK_BYTES, async (chunk) => {
     if (segment > 999) return false;
     const form = new FormData();
-    form.set("media", new Blob([chunk], { type: media.mimeType }), `segment-${segment}.mp4`);
+    form.set(
+      "media",
+      new Blob([Uint8Array.from(chunk)], { type: media.mimeType }),
+      `segment-${segment}.mp4`,
+    );
     form.set("segment_index", String(segment));
     const response = await fetchImpl(`${X_MEDIA_UPLOAD}/${mediaId}/append`, {
       method: "POST",
@@ -145,7 +160,7 @@ async function uploadVideo(
     segment += 1;
     return true;
   });
-  if (!ok || uploaded !== contentLength) return null;
+  if (!ok || uploaded !== knownLength) return null;
 
   const finalize = await fetchImpl(`${X_MEDIA_UPLOAD}/${mediaId}/finalize`, {
     method: "POST",
@@ -153,13 +168,13 @@ async function uploadVideo(
     headers: { ...bearer(token), Accept: "application/json" },
   });
   if (!finalize.ok) return null;
-  const finalized = await finalize.json().catch(() => null);
-  const initialState = processingState(finalized);
+  let processingPayload: unknown = await finalize.json().catch(() => null);
+  const initialState = processingState(processingPayload);
   if (initialState === "failed") return null;
   if (!initialState || initialState === "succeeded") return mediaId;
 
   for (let attempt = 0; attempt < MAX_PROCESSING_CHECKS; attempt += 1) {
-    const delay = Math.min(Math.max(processingDelay(finalized), 1), 5) * 1000;
+    const delay = Math.min(Math.max(processingDelay(processingPayload), 1), 5) * 1000;
     await sleep(delay);
     const status = await fetchImpl(`${X_MEDIA_UPLOAD}?media_id=${encodeURIComponent(mediaId)}`, {
       method: "GET",
@@ -167,11 +182,10 @@ async function uploadVideo(
       headers: { ...bearer(token), Accept: "application/json" },
     });
     if (!status.ok) return null;
-    const payload = await status.json().catch(() => null);
-    const state = processingState(payload);
+    processingPayload = await status.json().catch(() => null);
+    const state = processingState(processingPayload);
     if (state === "succeeded" || !state) return mediaId;
     if (state === "failed") return null;
-    Object.assign(finalized as object, payload as object);
   }
   return null;
 }

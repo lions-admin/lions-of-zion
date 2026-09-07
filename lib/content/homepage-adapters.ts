@@ -11,7 +11,7 @@ import { pickVersion } from './archive';
 import { displayWitness } from './archive-display';
 import { homepageMedia, homepageExcerpt } from './homepage-media';
 import { isArticleSafeMedia } from '@/server/contracts/editorial-media';
-import { publicationHomepageKind } from '@/lib/publication-routing';
+import { publicationHomepageKind, publicationSectionLabel } from '@/lib/publication-routing';
 import { SECTION_LABELS } from '@/components/live/publication-labels';
 
 const sources=(rows:{label:string;url?:string}[]):HomeSource[]=>rows.filter((s):s is {label:string;url:string}=>!!s.url).map(({label,url})=>({label,url}));
@@ -33,10 +33,11 @@ export async function resolveHomepageReference(ref:HomeReference):Promise<HomePr
       whyItMatters:homepageExcerpt(ref.key,'whyItMatters',p.updatedAt)};
     if(ref.kind==='feature')return {...publicationBase,kind:'feature',category:SECTION_LABELS[p.section]};
     if(ref.kind==='news')return {...publicationBase,kind:'news',category:SECTION_LABELS[p.section]};
-    if(!p.narrativeWatchDetails)return {...publicationBase,kind:'case',question:p.title,confidence:'See the evidence and limitations in the article',sourceCount:p.sources.length};
-    return {...publicationBase,kind:'watch',claim:p.narrativeWatchDetails.exactClaim,
+    if(p.section==='narrative_watch' && p.narrativeWatchDetails)return {...publicationBase,kind:'watch',claim:p.narrativeWatchDetails.exactClaim,
       verification:p.narrativeWatchDetails.verificationState,basis:p.narrativeWatchDetails.evidenceBasis==='analysis'?'analysis':'sourced',
       finding:homepageExcerpt(ref.key,'finding',p.updatedAt)};
+    if(p.section==='influence_investigation')return {...publicationBase,kind:'case',confidence:'See the evidence and limitations in the article',sourceCount:p.sources.length};
+    return {...publicationBase,kind:'article',label:publicationSectionLabel(p.section)};
   }
   /* Every other kind is static content, resolved through the registry exactly
      as before: there is no record behind it to carry an image of its own. */

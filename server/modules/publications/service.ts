@@ -22,6 +22,7 @@ import type { EditorialMediaDraft } from "@/server/modules/media/repo";
 import { mediaRepo, toEditorialMedia } from "@/server/modules/media/repo";
 import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { repo } from "./repo";
+import { emptyHumanUpdate, incoherentEditorialUpdate } from "./rules";
 import {
   canTransitionPublication,
   isAnalysisBasis,
@@ -93,6 +94,74 @@ function stronglyMatchingTitles(left: string, right: string): boolean {
   return shared >= 3 && shared / leftTokens.size >= 0.9 && shared / rightTokens.size >= 0.8;
 }
 
+/**
+ * One event, one canonical record — VA-48.
+ *
+ * This was written inline in `applyEditorial`'s create branch and reachable
+ * from nowhere else, so the whole-site editorial run was guarded and the
+ * briefing auto-publish paths were not. It is a function now because the guard
+ * belongs to *publishing*, not to one caller.
+ *
+ * **Why the human `create` and `createMany` paths do not call it.** They insert
+ * with the default `draft` status; nothing they write is public until a human
+ * drives `transition`. Refusing a draft would block the very thing an editor
+ * does when the machine is wrong, and **that route is the deliberate override**
+ * this guard is required to have: an editor may draft a genuinely separate
+ * story for an event that already has a canonical record and publish it, which
+ * is recorded as a human edit with a named `createdBy` rather than as machine
+ * provenance. The machine has no such door, which is the point.
+ *
+ * Three signals, in the order they cost: an explicit canonical story id, an
+ * explicit shared event id, and — only in combination — repeated source
+ * evidence with a strongly matching title. A shared source alone is not a
+ * duplicate; two desks citing one wire report is ordinary.
+ */
+type DuplicateGuardInput = {
+  title: string;
+  canonicalStoryId?: string | undefined;
+  eventId?: string | undefined;
+  evidenceIds?: readonly string[] | undefined;
+};
+
+async function assertNoLiveDuplicate(
+  r: ReturnType<typeof repo>,
+  input: DuplicateGuardInput,
+): Promise<void> {
+  if (input.canonicalStoryId) {
+    await r.lockCanonicalStory(input.canonicalStoryId);
+    const existing = await r.byCanonicalStoryId(input.canonicalStoryId);
+    if (existing) {
+      throw new ApiError('CONFLICT', `Canonical story already exists as ${existing.publicId}. Send an explicit update to that publication; no new publication was created.`);
+    }
+  }
+  /* Canonical URLs are resolved to evidence before this service is called.
+     Locking those IDs closes the concurrent-create window; comparison then
+     treats a repeated source, an explicit event, or a strong title fingerprint
+     as a reason to require an update. */
+  const evidenceIds = input.evidenceIds ?? [];
+  await r.lockEvidence(evidenceIds);
+  const candidates = [
+    ...await r.liveDuplicateCandidates(evidenceIds),
+    ...(input.eventId ? await r.liveByEventId(input.eventId) : []),
+  ];
+  const seenCandidates = new Set<string>();
+  for (const candidate of candidates) {
+    if (seenCandidates.has(candidate.id)) continue;
+    seenCandidates.add(candidate.id);
+    const sameEvent = Boolean(input.eventId && candidate.eventId === input.eventId);
+    const matchingTitle = stronglyMatchingTitles(input.title, candidate.title);
+    const repeatedSources = candidate.sharedEvidenceCount >= 1 && matchingTitle;
+    if (!sameEvent && !repeatedSources) continue;
+    const reason = sameEvent
+      ? "the same event identifier"
+      : `shared source evidence (${candidate.sharedEvidenceCount}) and a strongly matching title fingerprint`;
+    throw new ApiError(
+      'CONFLICT',
+      `Likely duplicate of ${candidate.publicId} based on ${reason}. Send an explicit update to that publication or resolve the recommendation before creating a new record.`,
+    );
+  }
+}
+
 
 export function publicationService(db: unknown) {
   const run = db as unknown as Runner;
@@ -124,39 +193,7 @@ export function publicationService(db: unknown) {
         const now = new Date();
         if (operation.action === 'create') {
           const input = operation.publication;
-          if (input.canonicalStoryId) {
-            await r.lockCanonicalStory(input.canonicalStoryId);
-            const existing = await r.byCanonicalStoryId(input.canonicalStoryId);
-            if (existing) {
-              throw new ApiError('CONFLICT', `Canonical story already exists as ${existing.publicId}. Send an explicit update to that publication; no new publication was created.`);
-            }
-          }
-          /* Canonical URLs are resolved to evidence before this service is
-             called. Locking those IDs closes the concurrent-create window;
-             comparison then treats a repeated source, an explicit event, or a
-             strong title fingerprint as a reason to require an update. */
-          const evidenceIds = input.evidenceIds ?? [];
-          await r.lockEvidence(evidenceIds);
-          const candidates = [
-            ...await r.liveDuplicateCandidates(evidenceIds),
-            ...(input.eventId ? await r.liveByEventId(input.eventId) : []),
-          ];
-          const seenCandidates = new Set<string>();
-          for (const candidate of candidates) {
-            if (seenCandidates.has(candidate.id)) continue;
-            seenCandidates.add(candidate.id);
-            const sameEvent = Boolean(input.eventId && candidate.eventId === input.eventId);
-            const matchingTitle = stronglyMatchingTitles(input.title, candidate.title);
-            const repeatedSources = candidate.sharedEvidenceCount >= 1 && matchingTitle;
-            if (!sameEvent && !repeatedSources) continue;
-            const reason = sameEvent
-              ? "the same event identifier"
-              : `shared source evidence (${candidate.sharedEvidenceCount}) and a strongly matching title fingerprint`;
-            throw new ApiError(
-              'CONFLICT',
-              `Likely duplicate of ${candidate.publicId} based on ${reason}. Send an explicit update to that publication or resolve the recommendation before creating a new record.`,
-            );
-          }
+          await assertNoLiveDuplicate(r, input);
           row = await r.insert({
             kind: input.kind, section: input.section ?? 'news',
             publicId: await uniquePublicId(r, input.title), title: input.title,
@@ -197,6 +234,18 @@ export function publicationService(db: unknown) {
             throw new ApiError('CONFLICT', 'Developing-story updates require a live canonical publication.');
           }
           const fields = Object.fromEntries(Object.entries(operation.publication).filter(([key]) => key !== 'changeSummary')) as Omit<UpdatePublication, 'changeSummary'>;
+          /* VA-46. The transaction was never the problem — this is. Every
+             content field is optional and only `changeSummary` is required, so
+             an operation may carry a claim and no content, or revise the
+             headline while leaving the body describing the previous version.
+             Both become public with a correction log that says otherwise.
+             `rules.ts` states the two coherence conditions; refusing here rolls
+             the whole operation back before anything is written. */
+          const incoherent = incoherentEditorialUpdate(
+            { title: before.title, summary: before.summary, body: before.body },
+            fields,
+          );
+          if (incoherent) throw new ApiError('VALIDATION_ERROR', incoherent);
           const section = fields.section ?? before.section;
           const details = fields.narrativeWatchDetails === undefined ? before.narrativeWatchDetails
             : fields.narrativeWatchDetails === null ? null : { ...fields.narrativeWatchDetails,
@@ -460,6 +509,11 @@ export function publicationService(db: unknown) {
           if (row.status === "published" && row.autoPublishedAt !== null) return row;
           throw new ApiError("CONFLICT", "A generated draft already exists for this candidate and requires paused-edition recovery.");
         }
+        /* VA-48. The candidate-key check above only prevents this *run* from
+           publishing the same candidate twice. It says nothing about a record
+           another run already published for the same event, which is how the
+           live desk ended up with three exact-title pairs. */
+        await assertNoLiveDuplicate(r, input);
         const publishedAt = new Date();
         const row = await r.insert({
           kind: input.kind,
@@ -598,6 +652,11 @@ export function publicationService(db: unknown) {
         const publishedAt = new Date();
         const rows: Publication[] = [];
         for (const [inputIndex, input] of inputs.entries()) {
+          /* VA-48, per record rather than per edition: a fresh edition may
+             still restate a story an earlier edition already published. The
+             promote branch above is exempt — those rows are the drafts this
+             very run created, and they were checked when they were drafted. */
+          await assertNoLiveDuplicate(r, input);
           const row = await r.insert({
             kind: input.kind,
             section: input.section ?? "israel_update",
@@ -773,6 +832,15 @@ export function publicationService(db: unknown) {
         if (!before) throw notFound("Publication");
 
         const { changeSummary, ...fields } = input;
+        /* VA-46, the human half. An edit that applies nothing still appends a
+           version row, and `public_publication_corrections()` turns that row
+           into a public correction — a revision the reader is told about and
+           that never happened. The trio rule from the editorial path is
+           deliberately *not* applied here: a human fixing a headline typo
+           should not have to resubmit the body. */
+        if (emptyHumanUpdate({ title: before.title, summary: before.summary, body: before.body }, fields)) {
+          throw new ApiError("VALIDATION_ERROR", "This edit applies no change. It would record a correction that did not happen.");
+        }
         const nextSection = fields.section ?? before.section;
         /* `evidenceBasis` is derived from whether the record cites anything, so
          * it survives every edit rather than being resubmitted. The update

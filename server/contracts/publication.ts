@@ -165,7 +165,20 @@ export const updatePublicationSchema = z.object({
   body: z.string().trim().min(1).max(200_000).optional(),
   scenarioIndicators: z.string().trim().max(10_000).optional(),
   changeSummary: z.string().trim().min(1).max(500),
-});
+})
+  /* VA-46. `changeSummary` is the only required key, so `{ changeSummary }`
+     alone parses — and then writes nothing while appending a version row that
+     `public_publication_corrections()` publishes as a revision. Refusing the
+     empty patch here stops it at the contract, before a route, a service or a
+     transaction is entered. Whether the fields sent are *coherent with each
+     other* needs the stored row and lives in `publications/rules.ts`. */
+  .refine(
+    (input) => Object.entries(input).some(([key, value]) => key !== "changeSummary" && value !== undefined),
+    {
+      message: "An update must carry at least one field to change. A change summary on its own would record a revision that did not happen.",
+      path: ["changeSummary"],
+    },
+  );
 export type UpdatePublication = z.infer<typeof updatePublicationSchema>;
 
 export const transitionPublicationSchema = z.object({

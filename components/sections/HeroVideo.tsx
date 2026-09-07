@@ -9,6 +9,7 @@ const SOURCES = {
     poster: "/video/lion-hero-poster-desktop.jpg",
   },
   tall: {
+    intro: "/video/lion-hero-intro-mobile-short.mp4",
     loop: "/video/lion-hero-loop-mobile.mp4",
     poster: "/video/lion-hero-poster-portrait.jpg",
   },
@@ -18,8 +19,8 @@ export const HERO_POSTER_SRC = SOURCES.wide.poster;
 export const HERO_POSTER_MOBILE_SRC = SOURCES.tall.poster;
 const HANDOFF_LEAD_S = 0.9;
 
-/** Portrait starts on the settled lion, matching its static poster.
- * Landscape keeps the entrance and dissolves into the continuous loop. */
+/** Each viewport gets its own entrance, then dissolves into the continuous loop.
+ * Portrait uses a short, lightweight cut; the poster keeps content ready immediately. */
 export function HeroVideo({ className }: { className?: string }) {
   const introRef = useRef<HTMLVideoElement>(null);
   const loopRef = useRef<HTMLVideoElement>(null);
@@ -52,7 +53,7 @@ export function HeroVideo({ className }: { className?: string }) {
       loop.pause();
       intro.removeAttribute("data-visible");
       loop.removeAttribute("data-visible");
-      handed = !wide.matches;
+      handed = false;
       if (reduced.matches) {
         for (const video of [intro, loop]) {
           video.removeAttribute("src");
@@ -64,13 +65,8 @@ export function HeroVideo({ className }: { className?: string }) {
       intro.poster = shape.poster;
       loop.poster = shape.poster;
       loop.src = shape.loop;
-      if (wide.matches) {
-        intro.src = SOURCES.wide.intro;
-        active = intro;
-      } else {
-        intro.removeAttribute("src");
-        active = loop;
-      }
+      intro.src = shape.intro;
+      active = intro;
       active.load();
       play(active);
     };
@@ -99,6 +95,7 @@ export function HeroVideo({ className }: { className?: string }) {
     loop.addEventListener("playing", onLoopPlaying);
     intro.addEventListener("timeupdate", onTimeUpdate);
     intro.addEventListener("ended", handOff);
+    intro.addEventListener("error", handOff);
     wide.addEventListener("change", configure);
     reduced.addEventListener("change", configure);
     document.addEventListener("visibilitychange", syncVisibility);
@@ -110,6 +107,7 @@ export function HeroVideo({ className }: { className?: string }) {
       loop.removeEventListener("playing", onLoopPlaying);
       intro.removeEventListener("timeupdate", onTimeUpdate);
       intro.removeEventListener("ended", handOff);
+      intro.removeEventListener("error", handOff);
       wide.removeEventListener("change", configure);
       reduced.removeEventListener("change", configure);
       document.removeEventListener("visibilitychange", syncVisibility);

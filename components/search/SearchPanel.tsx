@@ -33,6 +33,14 @@
  * fallback, invalid-query, error. Retry is the error action, not a separate
  * view. Fallback means the lexical index answered while semantic matching was
  * unavailable; its results remain real and interactive.
+ *
+ * ## Order (VA-17)
+ *
+ * Query field, result status, notices, results, keyboard grammar — and, on
+ * `/search`, the no-JavaScript index last, in the page rather than here. That
+ * is the DOM order, and `search.module.css` pins it again with `order` inside
+ * the narrow branch so a later edit that moves a node cannot put the
+ * documentation back above the answer.
  */
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -44,6 +52,7 @@ import { StatusState } from "@/components/ui/StatusState";
 import fieldStyles from "@/components/ui/field.module.css";
 import { politeLive } from "@/components/ui/live-region";
 import { SearchResults } from "./SearchResults";
+import { resultStatus } from "./vocabulary";
 import { useSearch } from "./useSearch";
 import { ApiProblem } from "./http";
 import styles from "./search.module.css";
@@ -219,6 +228,10 @@ export function SearchPanel({
       ? `${hits.length} ${hits.length === 1 ? "result" : "results"}${answered ? ` for ${answered}` : ""}.`
       : "";
 
+  /* The count and the matcher, rendered above the list — see `resultStatus`
+     in `vocabulary.ts` for why they are not in the footer any more. */
+  const status = resultStatus(state, hits.length, answered, semantic);
+
   return (
     <div className={styles.panel} data-variant={variant} data-search-state={state}>
       <div className={styles.queryRow}>
@@ -272,6 +285,22 @@ export function SearchPanel({
         <span className={styles.pulse} data-running={state === "loading" ? "" : undefined} aria-hidden="true" />
       </div>
 
+      {status.count || status.matching ? (
+        <p className={styles.resultStatus}>
+          {status.count ? (
+            /* The polite region below already announces this count on every
+               change; a visible second copy in the accessibility tree would
+               make a screen reader say it twice. The matcher sentence beside
+               it is not hidden — it was reachable from the footer before and
+               it is the honest half of the line. */
+            <span className={styles.resultCount} aria-hidden="true">
+              {status.count}
+            </span>
+          ) : null}
+          {status.matching ? <span className={styles.resultFact}>{status.matching}</span> : null}
+        </p>
+      ) : null}
+
       {body}
 
       <p className={styles.srOnly} {...politeLive}>
@@ -298,14 +327,11 @@ export function SearchPanel({
         <div id={listboxId} role="listbox" aria-label="Results" className={styles.emptyListbox} />
       )}
 
+      {/* The footer is the keyboard grammar and nothing else: the matcher
+          sentence that used to share it now rides with the count, above the
+          list. It stays last in the DOM, and a phone — which has neither
+          arrow keys nor Escape — hides it outright in the narrow branch. */}
       <p className={styles.foot}>
-        <span className={styles.footFact}>
-          {state === "fallback"
-            ? "Showing word-and-name matches. Semantic matching is unavailable in this deployment."
-            : semantic
-              ? "Matching on words, names and meaning."
-              : "Matching on words and names."}
-        </span>
         <span className={styles.footKeys} aria-hidden="true">
           <kbd>↑</kbd>
           <kbd>↓</kbd>

@@ -42,6 +42,67 @@ const NEWS_SECTIONS = SECTIONS_BY_HOMEPAGE_SECTION.news;
 /** The one section on this desk that is an edition rather than a story. */
 const BRIEFING_SECTION = "daily_brief";
 
+/**
+ * Trim, collapse runs of whitespace, case-fold. Deliberately nothing cleverer
+ * — no stemming, no punctuation stripping, no similarity score. Two strings
+ * that differ by a comma are two strings, and this rule is only allowed to act
+ * where it is certain.
+ */
+function normaliseForCollapse(value: string | null | undefined): string {
+  return (value ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * VA-12 — the archive's exact-duplicate collapse.
+ *
+ * The live archive carries records that are the same story filed twice: the
+ * West Bank outpost story, repeated Lebanon developments, two identical
+ * civil-defence briefings. At equal weight in one list they make the desk read
+ * as machine-filled and make "what matters most?" unanswerable.
+ *
+ * Three properties this must keep, in the order they matter:
+ *
+ * **It matches on title *and* summary, never on title alone.** Two genuinely
+ * distinct stories can share a headline — "Strike in southern Lebanon" is a
+ * headline, not an identity — and collapsing on the headline would delete real
+ * reporting from the reader's view. The pair has to be identical in both.
+ *
+ * **It is a projection, not a deletion.** This runs on the archive list only.
+ * Nothing is archived, unpublished or hidden: every collapsed record keeps its
+ * own URL, its own page, its place in `/updates`, and its row in Search. The
+ * current edition above the archive does not go through here at all.
+ *
+ * **It is the cheap, reversible version.** The real fix is a canonical-story
+ * and developing-story model (VA-19); when that lands this function and its
+ * call site are what gets deleted. Do not grow it into a similarity engine in
+ * the meantime.
+ *
+ * The newest of a duplicate group is the one kept, in that group's earliest
+ * position. The archive arrives sorted newest-first, so in practice that is the
+ * first occurrence, but the comparison is explicit rather than assumed.
+ */
+export function collapseExactDuplicates<
+  T extends { title: string; summary?: string | null; publishedAt: string },
+>(items: readonly T[]): T[] {
+  const positions = new Map<string, number>();
+  const kept: T[] = [];
+  for (const item of items) {
+    /* The two halves are joined by a NUL rather than a space because
+       whitespace has already been collapsed out of both: with a space,
+       title "a b" + summary "c" and title "a" + summary "b c" would key
+       the same and collapse two unrelated records into one. */
+    const key = `${normaliseForCollapse(item.title)}\u0000${normaliseForCollapse(item.summary)}`;
+    const at = positions.get(key);
+    if (at === undefined) {
+      positions.set(key, kept.length);
+      kept.push(item);
+      continue;
+    }
+    if (item.publishedAt.localeCompare(kept[at].publishedAt) > 0) kept[at] = item;
+  }
+  return kept;
+}
+
 const JUMPS = [
   { href: "#latest-news", label: "Latest news" },
   { href: "#daily-brief", label: "The daily briefing" },
@@ -115,6 +176,10 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   if (reads[1].status === "fulfilled") archive = reads[1].value === null ? current : newsOnly(reads[1].value);
   else archiveUnavailable = true;
   if (!filtering && currentUnavailable) archiveUnavailable = true;
+  /* The archive's own projection, and nothing else's — see
+     `collapseExactDuplicates`. `archive` is the same array as `current` when
+     no filter is set, so this may not be done in place. */
+  const archiveRecords = collapseExactDuplicates(archive);
 
   const briefing = current.find((item) => item.section === BRIEFING_SECTION);
   /* Every story section on this desk, the daily edition excepted — it has its
@@ -239,17 +304,20 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
             <span className={styles.archiveHint}>{filtering ? "Filters active" : "Browse earlier reporting by date, actor, topic or arena"}</span>
           </span>
           <span className={styles.archiveMeta}>
-            {archiveUnavailable ? "Unavailable" : `${archive.length} ${archive.length === 1 ? "record" : "records"}`}
+            {archiveUnavailable ? "Unavailable" : `${archiveRecords.length} ${archiveRecords.length === 1 ? "record" : "records"}`}
             <Icon className={styles.archiveChevron} name="chevron-down" size={14} strokeWidth={1.5} />
           </span>
         </summary>
         <div className={styles.archiveBody}>
-          <p>Up to 50 recent records from each news section, daily briefings included. Narrative monitoring is kept separate.</p>
+          {/* The last sentence is a disclosure, not a flourish: the count above
+              is the count after the collapse, and a reader comparing it against
+              `/updates` is entitled to know why the two differ. */}
+          <p>Up to 50 recent records from each news section, daily briefings included. Narrative monitoring is kept separate. Records that repeat an earlier headline and summary word for word are listed once; each remains at its own address and in search.</p>
           <BriefFilters key={query.toString()} filters={filters}
             actors={uniqueValues(current, "primaryActor")} topics={uniqueValues(current, "editorialTopic")}
             arenas={uniqueValues(current, "arena")} />
           {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} title="The archive could not be loaded." description="Please try this selection again later." />
-            : archive.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} items={archive} />
+            : archiveRecords.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} items={archiveRecords} />
             : <StatusState status={absenceStatus(filtering ? "no-matches" : "nothing-published")}
                 title={filtering ? "No reports match these filters." : "No reports have been published yet."}
                 description={filtering ? "Try a broader date or topic selection." : "Published news and briefings will appear here."}

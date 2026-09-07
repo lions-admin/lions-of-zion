@@ -9,8 +9,11 @@
  * failed.
  *
  * It is not a reason to be off-system. Every value reads a V3 token from
- * `app/globals.css` — the three faces, the type steps, the glass ramp, the
- * radii and the motion tokens — with no literal fallbacks beside them. The
+ * `app/globals.css` — the three faces, the type steps, the surfaces and
+ * hairlines, the radii and the motion tokens — with no literal fallbacks
+ * beside them. It read the glass ramp too until VA-30 (2026-09-07); being
+ * self-contained is a loading argument, not a licence to keep a visual
+ * language the rest of the site has retired. The
  * fallbacks were dropped on 2026-09-01: globals.css is the root layout's own
  * stylesheet, so it cannot be missing on a route that rendered at all, and a
  * second copy of every value only ever drifted (the last set still named a
@@ -66,18 +69,24 @@ export default function ErrorBoundary({
           font-family: var(--face-text);
           text-align: center;
         }
+        /* A plate, drawn the way every other plate on the site is drawn:
+           one token ground, one token hairline, the shared radius. It was a
+           glass card — a three-stop gradient over --glass-top/middle/bottom,
+           an inset --glass-inner highlight, --shadow-3 and a 16px backdrop
+           blur — until VA-30 (2026-09-07). globals.css says of those tokens
+           "do not add new glass", and this was the one screen where a reader
+           still met the retired HUD language, on the worst possible occasion
+           for the site to look like a different site. Nothing replaces the
+           gradient: the flat --surface-1 against --ground is the elevation. */
         .loz-error-inner {
           display: grid;
           justify-items: center;
           gap: var(--sp-4);
           max-width: 34rem;
           padding: clamp(var(--sp-5), 5vw, var(--sp-7));
-          border: 1px solid var(--glass-edge);
+          border: var(--line-w) solid var(--line);
           border-radius: var(--radius-3);
-          background: linear-gradient(180deg, var(--glass-top), var(--glass-middle), var(--glass-bottom));
-          box-shadow: inset 0 1px 0 var(--glass-inner), var(--shadow-3);
-          -webkit-backdrop-filter: blur(16px) saturate(.72);
-          backdrop-filter: blur(16px) saturate(.72);
+          background-color: var(--surface-1);
         }
         /* Two words, so uppercase is allowed: the one gold on the page. */
         .loz-error-code {
@@ -112,8 +121,14 @@ export default function ErrorBoundary({
           gap: var(--sp-3);
           margin-top: var(--sp-2);
         }
-        /* The retry is a control, so it is the secondary button: Plex 600
-           on glass, 44px tall. */
+        /* The retry is a control, so it is the secondary button: Plex 600 on
+           a raised token surface, 44px tall. It read "on glass" and drew one
+           until VA-30; the values below are components/ui/button.module.css
+           .secondary transcribed, minus its --surface-grade-strong and
+           --shadow-1, because this card carries no gradient or inset either.
+           Transcribed rather than imported on purpose — see the file header:
+           a CSS Module is another chunk that can fail to load, on the one
+           route reached because something already failed. */
         .loz-error-retry {
           display: inline-flex;
           align-items: center;
@@ -126,8 +141,8 @@ export default function ErrorBoundary({
           font-weight: 600;
           line-height: 1;
           color: var(--ink-hi);
-          background: linear-gradient(180deg, var(--glass-raised-top), var(--glass-raised-bottom));
-          border: 1px solid var(--glass-edge);
+          background-color: var(--surface-2);
+          border: var(--line-w) solid var(--control-line);
           border-radius: var(--radius-2);
           cursor: pointer;
           transition:
@@ -136,11 +151,13 @@ export default function ErrorBoundary({
             transform var(--dur-fast) var(--ease-out);
         }
         .loz-error-retry:hover {
-          background: linear-gradient(180deg, var(--glass-top), var(--glass-middle));
-          border-color: color-mix(in oklab, var(--ink-hi) 45%, transparent);
+          background-color: var(--surface-3);
+          border-color: var(--gold-line-strong);
           transform: translateY(-1px);
         }
         .loz-error-retry:active {
+          background-color: var(--surface-1);
+          color: var(--ink);
           transform: translateY(0);
         }
         .loz-error-home {

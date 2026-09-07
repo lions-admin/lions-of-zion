@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ReadingProgress } from "@/components/sections/ReadingProgress";
 import { ScanBackdrop } from "@/components/sections/ScanBackdrop";
 import { scanProfileForRoute } from "@/components/sections/scanProfiles";
-import { resolveSiteSectionId } from "@/lib/site-navigation";
+import { resolveActiveChromeSection } from "@/lib/site-navigation";
 import { routeFamily } from "./route-family";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
@@ -38,19 +38,14 @@ interface EditorialShellProps {
 /**
  * What the reader is told, in the order the machine says it.
  *
- * `/information-war` keeps its own id: `resolveSiteSectionId` folds it onto
- * `geopolitical-brief`, which is right for the scan backdrop and wrong for the
- * chrome — it would light up a bar link for a page the reader is not on.
- *
- * The `?? routeId` fallback is what lets `/methodology` and `/corrections`
- * mark themselves current. They are not in `SITE_NAVIGATION`, so
- * `resolveSiteSectionId` returns `undefined` for them and every reference link
- * in the header and footer used to render unmarked.
+ * This used to carry its own `if (routeId === "information-war") return routeId;`
+ * because `resolveSiteSectionId` folded that route onto `geopolitical-brief`
+ * and would otherwise have lit a bar link for a page the reader is not on.
+ * VA-15 removed the fold at the source, so the special case here became a
+ * second copy of one rule — and a second copy is how the two drift apart. The
+ * rule now lives once, in `lib/site-navigation.ts`.
  */
-function activeChromeSection(routeId: string): string {
-  if (routeId === "information-war") return routeId;
-  return resolveSiteSectionId(routeId) ?? routeId;
-}
+const activeChromeSection = resolveActiveChromeSection;
 
 /**
  * The shell every reading route wears: skip link, masthead, the document, the

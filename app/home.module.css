@@ -31,24 +31,72 @@
   background: var(--ground);
   display: flow-root;
 }
-.hero { position: relative; display: flex; flex-direction: column; padding-top: var(--header-h); padding-bottom: 32px; isolation: isolate; }
+/* The cover is a threshold, not a destination. It is bounded so the edition
+   below always starts inside the first screen: the masthead is bottom-anchored,
+   `margin-top` is the lion's guaranteed clear field above the type, and
+   `min-height` keeps the band deterministic before a single font has swapped.
+   Was `clamp(310px, 44svh, 520px)` of margin with no bound at all on a phone,
+   which put the cover at 101svh and the first record out of sight (VA-10). */
+.hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: clamp(500px, 71svh, 740px); padding-top: var(--header-h); padding-bottom: 22px; isolation: isolate; }
 .fieldLayer { position: absolute; inset: var(--header-h) 0 0; z-index: -1; overflow: clip; pointer-events: none; }
-.posterField { position: absolute; inset: 0; background: var(--hero-poster-tall) 50% 38% / cover no-repeat var(--ground); }
-.heroVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 38%; opacity: 0; transition: opacity var(--dur-slow) var(--ease-out); }
+/* The portrait crop was framed for a 101svh cover, where the lion's head had a
+   third of a screen to itself above the masthead. In the bounded cover it has
+   about a fifth, so the frame is read further down the plate (`85%` rather than
+   `38%`) and the head lands in the lit band above the wordmark instead of
+   behind it. The poster and the moving shot take the same value because the
+   poster *is* the video's first frame: the arrival must be a start of movement,
+   not a change of picture. */
+.posterField { position: absolute; inset: 0; background: var(--hero-poster-tall) 50% 85% / cover no-repeat var(--ground); }
+.heroVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 85%; opacity: 0; transition: opacity var(--dur-slow) var(--ease-out); }
 .heroVideo[data-visible] { opacity: 1; }
-.heroScrim { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 25%, color-mix(in srgb, var(--ground) 12%, transparent) 43%, color-mix(in srgb, var(--ground) 88%, transparent) 65%, var(--ground) 94%); }
-.masthead { display: flex; flex-direction: column; align-items: flex-start; margin: clamp(310px, 44svh, 520px) var(--home-gutter) 0; text-align: start; }
+/* Legibility, not decoration — and it had to be re-weighted when the cover
+   came down from 101svh to ~73svh (VA-10). The masthead used to start below
+   the lion's face at 43% of a very tall frame, where a 12% wash was enough;
+   in the shorter frame the same type sits across the lit muzzle, so the ramp
+   now begins at a fifth of the way down and is most of the way to ground by
+   the standfirst. The top of the frame — sky and the crown of the mane —
+   stays untouched, which is the part that has to read as a photograph. */
+.heroScrim { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 7%, color-mix(in srgb, var(--ground) 34%, transparent) 21%, color-mix(in srgb, var(--ground) 72%, transparent) 37%, color-mix(in srgb, var(--ground) 93%, transparent) 57%, var(--ground) 84%); }
+.masthead { display: flex; flex-direction: column; align-items: flex-start; margin: clamp(44px, 7svh, 190px) var(--home-gutter) 0; text-align: start; }
 .wordmark { margin: 0; max-width: 100%; color: var(--ink-hi); font: 400 clamp(54px, 13.5vw, 100px)/.86 var(--face-home-emphasis); letter-spacing: -.05em; }
 .wordmarkLine { display: flex; align-items: baseline; gap: .12em; white-space: nowrap; }
 .wordmarkLine + .wordmarkLine { margin-top: .1em; }
 .wordmarkOf { font-size: .29em; letter-spacing: .015em; }
-.standfirst { max-width: 28ch; margin: 22px 0 0; color: var(--ink); font: 400 16px/1.55 var(--face-home-cover); text-wrap: pretty; }
-.actions { margin-top: 18px; }
+.standfirst { max-width: 38ch; margin: 15px 0 0; color: var(--ink); font: 400 16px/1.55 var(--face-home-cover); text-wrap: pretty; }
+/* One row where the measure allows, two where it does not — the wrap is the
+   fallback, not a breakpoint, so a long translation or a 320px screen simply
+   stacks them again. */
+.coverPaths { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; margin-top: 12px; }
 .actions a { color: var(--ink-hi); min-width: 200px; }
-.secondaryActions { display: flex; margin-top: 4px; }
+.secondaryActions { display: flex; }
 .storyLink { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; color: var(--ink-lo); text-decoration: none; }
 .storyLink:hover { color: var(--ink-hi); text-decoration: underline; text-underline-offset: 4px; }
 .storyLink:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+/* The edition rail — the bottom band of the cover (VA-10). A gold hairline
+   opens it, the metadata line dates the edition and names the lead's status,
+   and one block link carries the headline and the way in, so the whole record
+   is a single 44px-plus target rather than a headline with a small link beside
+   it. Metadata is 13px and the headline is display type: nothing here is
+   shrunk below the phone floors to buy vertical space.
+
+   The headline reserves exactly two lines whatever the record's title length
+   (`min-height` in `em` against its own clamp, with the clamp cutting a longer
+   one), so the rail's height is settled at first paint and the chips beneath
+   it — and every band below the cover — never move. */
+.editionRail { max-width: 34ch; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--gold-line-strong); }
+.editionRailMeta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 7px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); letter-spacing: .05em; text-transform: uppercase; }
+/* Decorative separator with an empty alternative text, so a screen reader
+   reads "Sun 6 Sept, Daily Brief" rather than announcing a middle dot. */
+.editionRailMeta > * + *::before { content: "·" / ""; margin-inline-end: 10px; color: var(--ink-lo); }
+.editionRailStatus { color: var(--gold); }
+.editionRailFlag { color: var(--ink-lo); }
+.editionRailLead { display: block; min-height: 44px; color: var(--ink-hi); text-decoration: none; }
+.editionRailHeadline { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 2.44em; color: var(--ink-hi); font: 400 clamp(20px, 5.3vw, 25px)/1.22 var(--face-home-emphasis); letter-spacing: -.02em; text-wrap: pretty; }
+.editionRailCta { display: inline-flex; align-items: center; gap: 9px; margin-top: 6px; color: var(--gold); font: 500 13px/1.45 var(--face-navigation); letter-spacing: 0; text-transform: none; }
+.editionRailCta svg { flex: none; width: 19px; height: 19px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast) var(--ease-out); }
+.editionRailLead:hover .editionRailHeadline { color: var(--gold-hi); }
+.editionRailLead:hover .editionRailCta svg { transform: translateX(4px); }
+.editionRailLead:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 .noscriptNav { margin: 0 var(--home-gutter); padding: 16px; border-block: 1px solid var(--line); background: var(--ground); }
 .noscriptNav ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 0; }
 .noscriptNav a { color: var(--ink); font-size: 14px; }
@@ -84,22 +132,29 @@
 
 /* The same shape query selects both the poster and the moving shot. */
 @media (min-width: 760px) and (min-aspect-ratio: 6/5) {
-  .hero { min-height: clamp(560px, 88svh, 980px); justify-content: flex-end; padding-bottom: 48px; }
+  .hero { min-height: clamp(520px, 74svh, 860px); padding-bottom: 28px; }
   .posterField { background-image: var(--hero-poster-wide); background-position: 64% 50%; }
   .heroVideo { object-position: 64% 50%; }
   .heroScrim { background: linear-gradient(90deg, color-mix(in srgb, var(--ground) 78%, transparent), color-mix(in srgb, var(--ground) 38%, transparent) 37%, transparent 68%), linear-gradient(0deg, var(--ground), transparent 33%); }
-  .masthead { width: min(43vw, 620px); margin: 120px clamp(24px, 5vw, 80px) 0; }
+  .masthead { width: min(46vw, 660px); margin: 44px clamp(24px, 5vw, 80px) 0; }
   .wordmark { font-size: clamp(76px, 8.5vw, 144px); }
-  .standfirst { font-size: 18px; margin-top: 28px; }
-  .actions { margin-top: 24px; }
-  .supportStrip { margin-top: 30px; }
+  .standfirst { font-size: 18px; margin-top: 20px; }
+  .coverPaths { gap: 0 28px; margin-top: 16px; }
+  .editionRail { max-width: 40ch; margin-top: 16px; padding-top: 13px; }
+  .editionRailHeadline { font-size: clamp(23px, 2.1vw, 31px); }
+  .supportStrip { margin-top: 20px; }
 }
 @media (min-width: 760px) and (aspect-ratio < 6/5) {
-  .masthead { margin-top: clamp(440px, 49svh, 660px); }
+  .masthead { margin-top: clamp(120px, 18svh, 260px); }
   .wordmark { font-size: clamp(80px, 12vw, 112px); }
+  .editionRail { max-width: 44ch; }
 }
 @media (max-width: 759px) {
-  .supportStrip { margin-top: 20px; }
+  /* The fixed 200px measure is what stops the two paths sharing a phone row;
+     the link keeps its own width instead and the arrow stays at its end. */
+  .actions a { min-width: 0; }
+  .coverPaths { gap: 0 16px; }
+  .supportStrip { margin-top: 14px; }
   .supportChip { padding-inline: 12px 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -108,4 +163,6 @@
   .supportList > li, .supportList > li > .supportChip { animation: none; }
   .supportChip, .supportChipArrow { transition: none; }
   .supportChip:hover .supportChipArrow { transform: none; }
+  .editionRailCta svg { transition: none; }
+  .editionRailLead:hover .editionRailCta svg { transform: none; }
 }

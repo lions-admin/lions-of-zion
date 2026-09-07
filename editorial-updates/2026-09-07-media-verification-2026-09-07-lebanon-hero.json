@@ -1,0 +1,47 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "media-verification-2026-09-07-lebanon-hero",
+  "composer": "infrastructure-repair:editorial-media-blob",
+  "createdAt": "2026-09-07T16:30:00.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "lebanon-hero-reattach-2026-09-07",
+      "target": {
+        "publicId": "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd"
+      },
+      "publication": {
+        "changeSummary": "Attach the story's editorial cover illustration. Content unchanged; media only."
+      },
+      "media": {
+        "inputUrl": "https://lionsofzion.io/images/editorial/generated/southern-lebanon-escalation.png",
+        "sourceUrl": null,
+        "alt": "Editorial illustration: a map-like abstraction of the southern Lebanon border region, used as a cover image for reporting on Israel-Hezbollah escalation.",
+        "caption": null,
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration - not incident documentation and not a photograph of any event described.",
+        "role": "editorial-illustration",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house for Lions of Zion; no third-party material.",
+          "reference": "commit 6bec53d9a4545e325e919877c5e6b63432e4b9b7 - public/images/editorial/generated/southern-lebanon-escalation.png",
+          "clearedAt": "2026-09-07",
+          "surfaces": [
+            "homepage",
+            "article"
+          ]
+        },
+        "generated": true
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [],
+  "research": [],
+  "vetoes": []
+}

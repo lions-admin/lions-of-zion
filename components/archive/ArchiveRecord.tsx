@@ -58,7 +58,26 @@ export type ArchiveDatelineProps = {
   categoryName?: string | null;
 };
 
-/** The identity band under the headline. */
+/**
+ * The identity band under the headline: who or what this is, and which
+ * language you are reading it in.
+ *
+ * The two archives answer the first question with different facts, and the
+ * band no longer pretends otherwise (OCT-004). A testimony is a person and a
+ * date; an exhibit is a filing and a date. Neither prints a label whose value
+ * is absent — the documentation archive carries no witness on any of its 335
+ * records, and a `Witness —` pair on every one of them would be the band's own
+ * boilerplate standing where the record's identity belongs.
+ *
+ * **The language switch stays here rather than in the closing provenance
+ * block.** OCT-004 asks for a predictable record template, and it is one:
+ * every record puts identity and language in the band, the material in the
+ * middle, and provenance, source, share and the neighbours in the footer, in
+ * that order, on all ~1,177 pages. Putting the switch at the foot would obey
+ * the task's list literally and cost a reader who landed on the Japanese
+ * version of a 7,525-word account the whole account before they could leave
+ * it.
+ */
 export function ArchiveDateline({
   variant,
   record,
@@ -71,8 +90,12 @@ export function ArchiveDateline({
   const witness = record.witness_name ? displayWitness(record.witness_name) : null;
 
   const pairs: { label: string; value: ReactNode }[] = [];
-  if (variant === 'testimony' && witness) pairs.push({ label: 'Witness', value: witness });
-  if (variant === 'documentation' && categoryName) pairs.push({ label: 'Filed under', value: categoryName });
+  if (variant === 'testimony' && witness) {
+    pairs.push({ label: 'Witness', value: witness });
+  }
+  if (variant === 'documentation' && categoryName) {
+    pairs.push({ label: 'Filed under', value: categoryName });
+  }
   if (published) {
     pairs.push({
       label: 'Published',
@@ -93,9 +116,18 @@ export function ArchiveDateline({
         </dl>
       ) : null}
 
+      {/* The language a reader is in has to be *stated*, not implied by which
+          chip is inverted (OCT-006). The current one is a non-link marked
+          `aria-current`, and the group is named, so a screen reader announces
+          "Language of this record — English, current" rather than reading
+          seven bare words in a row. */}
       {others.length ? (
         <nav className={styles.languages} aria-label="Language of this record">
           <span className={styles.languagesLabel}>Reading in</span>
+          {/* Each label is itself written in the language it names
+              ("Português", "日本語"), so it needs `lang` and not only
+              `hrefLang` — that one describes the destination, not the text
+              a screen reader is about to pronounce. */}
           <span
             className={styles.languageCurrent}
             lang={version.locale}
@@ -108,7 +140,9 @@ export function ArchiveDateline({
             <Link
               key={locale}
               className={styles.languageLink}
-              href={locale === record.default_language ? basePath : `${basePath}/${locale}`}
+              href={
+                locale === record.default_language ? basePath : `${basePath}/${locale}`
+              }
               hrefLang={locale}
               lang={locale}
             >
@@ -119,7 +153,9 @@ export function ArchiveDateline({
       ) : (
         <p className={styles.languageOnly}>
           Held in{' '}
-          <span lang={version.locale}>{LANGUAGE_NAMES[version.locale] ?? version.locale}</span>{' '}
+          <span lang={version.locale}>
+            {LANGUAGE_NAMES[version.locale] ?? version.locale}
+          </span>{' '}
           only.
         </p>
       )}
@@ -127,6 +163,27 @@ export function ArchiveDateline({
   );
 }
 
+/**
+ * One archive record, in one language — the shared shell both variants wear.
+ *
+ * The `<h1>`, the identity band and the language switch belong to the page
+ * shell (`DocPage`); this renders what sits under the gold rule, in one order
+ * that does not change between the two archives (OCT-004):
+ *
+ *   content warning → material → provenance → source → share → neighbours
+ *
+ * What changes between them is the *material*, and only that. A testimony is
+ * an account, so it renders in the source's publication order with its figures
+ * where the witness put them. An exhibit is a film or a photograph, so the
+ * media is lifted above the description that names it — see `layout` in
+ * `ArchiveBlocks`.
+ *
+ * The footer's source line is per package, and the asymmetry is an owner
+ * decision (`.ai/DECISIONS.md`, 2026-08-27 — "Archive attribution splits by
+ * package"): october7 keeps a single reduced credit, linked to the source
+ * record; hamas-massacre carries none. Provenance still reaches machines
+ * through the JSON-LD (`isBasedOn`/`holdingArchive`), untouched by the split.
+ */
 export function ArchiveRecord({
   pkg,
   variant,
@@ -144,6 +201,8 @@ export function ArchiveRecord({
   const xText = buildXShareText({
     title,
     text: version.full_text ?? version.excerpt ?? null,
+    // october7 holds first-person accounts; hamas-massacre holds documented
+    // incidents. The closing line names each for what it is.
     kind: pkg === 'october7' ? 'testimony' : 'record',
   });
   const sourceMedia = firstArchiveSourceMedia(pkg, version, media);
@@ -158,6 +217,10 @@ export function ArchiveRecord({
 
   return (
     <>
+      {/* The content warning, before the record rather than inside it. It says
+          what is held and that nothing opens by itself — a reader who has
+          decided not to look should learn that at the top of the page and not
+          by scrolling into it. */}
       {gated > 0 ? (
         <aside className={styles.advisory} aria-labelledby="record-advisory">
           <p className={styles.advisoryLabel} id="record-advisory">
@@ -172,6 +235,19 @@ export function ArchiveRecord({
         </aside>
       ) : null}
 
+      {/* The record's own words, declared in the record's own language.
+          661 of the 1,175 versions are not English, and the root layout's
+          `<html lang="en">` is the site's only `lang` — so a screen reader
+          was reading a Portuguese or Japanese first-person account with
+          English phoneme rules.
+
+          Scoped to the blocks rather than to the whole page on purpose: the
+          band above and the footer below stay English, so this is the exact
+          seam where the language changes. `dir` is bound for the same reason,
+          though every shipped version is `ltr` today.
+
+          The same string `ArchiveRecordPage` sets as the `h1`, so a leading
+          heading block that repeats it can be dropped. */}
       <div className={styles.material} lang={version.locale} dir={version.direction}>
         <ArchiveBlocks
           pkg={pkg}
@@ -209,9 +285,14 @@ export function ArchiveRecord({
             </div>
             <div className={styles.provenancePair}>
               <dt>Languages</dt>
-              <dd>{record.available_languages.map((l) => LANGUAGE_NAMES[l] ?? l).join(', ')}</dd>
+              <dd>
+                {record.available_languages.map((l) => LANGUAGE_NAMES[l] ?? l).join(', ')}
+              </dd>
             </div>
           </dl>
+          {/* The one surviving credit, october7 only — small, and linked to the
+              source record rather than the site's front door, so the claim can
+              still be checked without the reader being pulled out mid-record. */}
           {pkg === 'october7' ? (
             <p className={styles.sourceCredit}>
               Archived from {sourceLabel}
@@ -240,25 +321,40 @@ export function ArchiveRecord({
           } : undefined}
         />
 
+        {/* The way on. Both archives are ordered — testimonies newest first,
+            exhibits in their category's filing — and a reader who had just
+            finished one record could reach the next only by a full round trip
+            back through the index. Each link names the record it goes to, so
+            it is a destination and not a direction. */}
         {previous || next ? (
           <nav className={styles.neighbours} aria-label="More in this archive">
             {previous ? (
               <Link className={styles.neighbour} href={previous.href} rel="prev">
                 <span className={styles.neighbourWay}>Previous</span>
                 <span className={styles.neighbourTitle}>{previous.title}</span>
-                {previous.witness ? <span className={styles.neighbourWitness}>{previous.witness}</span> : null}
+                {previous.witness ? (
+                  <span className={styles.neighbourWitness}>{previous.witness}</span>
+                ) : null}
               </Link>
             ) : (
               <span className={styles.neighbourEnd}>This is the first record.</span>
             )}
             {next ? (
-              <Link className={`${styles.neighbour} ${styles.neighbourNext}`} href={next.href} rel="next">
+              <Link
+                className={`${styles.neighbour} ${styles.neighbourNext}`}
+                href={next.href}
+                rel="next"
+              >
                 <span className={styles.neighbourWay}>Next</span>
                 <span className={styles.neighbourTitle}>{next.title}</span>
-                {next.witness ? <span className={styles.neighbourWitness}>{next.witness}</span> : null}
+                {next.witness ? (
+                  <span className={styles.neighbourWitness}>{next.witness}</span>
+                ) : null}
               </Link>
             ) : (
-              <span className={`${styles.neighbourEnd} ${styles.neighbourNext}`}>This is the last record.</span>
+              <span className={`${styles.neighbourEnd} ${styles.neighbourNext}`}>
+                This is the last record.
+              </span>
             )}
           </nav>
         ) : null}
@@ -272,44 +368,60 @@ function countMedia(version: ArchiveVersion) {
   let images = 0;
   for (const block of version.content_blocks ?? []) {
     if (block.type === 'video') videos += 1;
-    if (block.type === 'image') images += 1;
+    else if (block.type === 'image') images += 1;
   }
   return { videos, images };
 }
 
-function describeHeld(held: ReturnType<typeof countMedia>, gate: ArchiveSensitivity['gate']) {
-  const videos = gate === 'video' || gate === 'all' ? held.videos : 0;
-  const images = gate === 'all' ? held.images : 0;
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/** What is behind the gates, counted — never described. */
+function describeHeld(
+  held: { videos: number; images: number },
+  gate: ArchiveSensitivity['gate'],
+): string {
   const parts: string[] = [];
-  if (videos) parts.push(`${videos} ${videos === 1 ? 'video' : 'videos'}`);
-  if (images) parts.push(`${images} ${images === 1 ? 'image' : 'images'}`);
+  if (held.videos > 0) parts.push(plural(held.videos, 'film', 'films'));
+  if (gate === 'all' && held.images > 0) {
+    parts.push(plural(held.images, 'photograph', 'photographs'));
+  }
   return parts.join(' and ');
 }
 
-function describeHolding(held: ReturnType<typeof countMedia>, version: ArchiveVersion) {
+/** What the archive holds of this record, stated rather than assumed. */
+function describeHolding(
+  held: { videos: number; images: number },
+  version: ArchiveVersion,
+): string {
+  const words = (version.full_text ?? '').split(/\s+/).filter(Boolean).length;
   const parts: string[] = [];
-  if (held.videos) parts.push(`${held.videos} ${held.videos === 1 ? 'video' : 'videos'}`);
-  if (held.images) parts.push(`${held.images} ${held.images === 1 ? 'image' : 'images'}`);
-  if (version.full_text || version.excerpt) parts.push('text');
-  return parts.length ? parts.join(', ') : 'text';
+  if (words > 0) parts.push(`${groupDigits(words)} words`);
+  if (held.videos > 0) parts.push(plural(held.videos, 'film', 'films'));
+  if (held.images > 0) parts.push(plural(held.images, 'photograph', 'photographs'));
+  return parts.length ? parts.join(', ') : 'The record’s own text';
 }
 
-function formatDate(value: string | null) {
+function groupDigits(value: number): string {
+  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function formatDate(value: string | null): string | null {
   if (!value) return null;
   const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return null;
-  return new Intl.DateTimeFormat('en-GB', {
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString('en-GB', {
     day: 'numeric',
-    month: 'short',
+    month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
-  }).format(date);
+  });
 }
 
-function hostOf(value: string) {
+/** The site address alone — "october7.org", not the record's whole slug. */
+function hostOf(url: string): string {
   try {
-    return new URL(value).hostname.replace(/^www\./, '');
+    return new URL(url).hostname.replace(/^www\./, '');
   } catch {
-    return value;
+    return url.replace(/^https?:\/\//, '').split('/')[0];
   }
 }

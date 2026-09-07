@@ -106,6 +106,16 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ reducedMotion: "reduce" });
 const page = await context.newPage();
 
+/* Vercel serves this endpoint only inside a deployment. The production build
+   still renders the analytics loader under `next start`, so intercept only
+   that known platform script during the localhost smoke walk. All other 404s
+   and console errors remain visible to the test. */
+if (["localhost", "127.0.0.1"].includes(new URL(BASE).hostname)) {
+  await page.route("**/_vercel/insights/script.js", (route) =>
+    route.fulfill({ status: 200, contentType: "application/javascript", body: "" }),
+  );
+}
+
 let failed = false;
 
 for (const route of ROUTES) {

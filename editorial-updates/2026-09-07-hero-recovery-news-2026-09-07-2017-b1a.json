@@ -1,0 +1,132 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "hero-recovery-news-2026-09-07-2017-b1a",
+  "composer": "ChatGPT authorized hero recovery batch 1",
+  "createdAt": "2026-09-07T17:27:50.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "hero-southern-lebanon-strikes-0jqg3",
+      "target": {"publicId": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3"},
+      "publication": {"changeSummary": "Attach a story-specific in-house editorial illustration after reviewing the article and source context. No article text changed."},
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/f99f684126a56c529b7a125281f9ac2d3a317959ed8868a8eb49bded362b7162.png",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of a southern Lebanon border zone with topographic contours and symbolic impact markers, accompanying reporting on Israeli strikes after Hezbollah drone launches.",
+        "caption": "Editorial illustration accompanying reporting on the September 6 Israel-Hezbollah escalation in southern Lebanon.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 58, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house", "reference": "ChatGPT generated file sediment://file_0000000004248243a9cd94055842ed5d; run hero-recovery-news-2026-09-07-2017-b1a; operation hero-southern-lebanon-strikes-0jqg3; stored 2026-09-07T17:27:04.730Z; sha256 f99f684126a56c529b7a125281f9ac2d3a317959ed8868a8eb49bded362b7162", "clearedAt": "2026-09-07", "surfaces": ["article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "hero-idf-snap-drill-0944h",
+      "target": {"publicId": "idf-snap-drill-tests-simultaneous-attacks-across-0944h"},
+      "publication": {"changeSummary": "Attach a story-specific in-house editorial illustration for the multi-front readiness exercise. No article text changed."},
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/af376d0709e04ea05e822afa9a40cd98175ed038057a2fa737b035bbdb494af9.png",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of multiple coordinated operational sectors and command nodes, accompanying reporting on an IDF surprise multi-front readiness drill.",
+        "caption": "Editorial illustration accompanying reporting on an IDF multi-front readiness exercise.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house", "reference": "ChatGPT generated file sediment://file_0000000052e082109a42172c0c8a3ef4; run hero-recovery-news-2026-09-07-2017-b1a; operation hero-idf-snap-drill-0944h; stored 2026-09-07T17:27:13.317Z; sha256 af376d0709e04ea05e822afa9a40cd98175ed038057a2fa737b035bbdb494af9", "clearedAt": "2026-09-07", "surfaces": ["article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "hero-gaza-city-strike-b5wsk",
+      "target": {"publicId": "gaza-city-strike-kills-father-and-daughter-idf-s-b5wsk"},
+      "publication": {"changeSummary": "Attach a non-documentary, story-specific editorial illustration that preserves the distinction between reported civilian casualties and military target attribution. No article text changed."},
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/a8a1a966bf3d24c6520c9a62aaae5d85c8fbd6c645f83967224c5e3d161bc8bf.png",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of an urban Gaza setting with a vehicle-route motif and separated civilian and military attribution markers, accompanying reporting on a strike in western Gaza City.",
+        "caption": "Editorial illustration accompanying reporting on the September 6 strike in western Gaza City.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 52, "y": 50},
+        "sensitivity": "sensitive",
+        "rights": {"status": "cleared", "basis": "Generated in-house", "reference": "ChatGPT generated file sediment://file_00000000967081f4b37b448cd4626d4d; run hero-recovery-news-2026-09-07-2017-b1a; operation hero-gaza-city-strike-b5wsk; stored 2026-09-07T17:27:18.608Z; sha256 a8a1a966bf3d24c6520c9a62aaae5d85c8fbd6c645f83967224c5e3d161bc8bf", "clearedAt": "2026-09-07", "surfaces": ["article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "hero-hezbollah-drones-ztjo5",
+      "target": {"publicId": "hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5"},
+      "publication": {"changeSummary": "Attach a story-specific abstract illustration for the developing Hezbollah drone and Israeli strike story. No article text changed."},
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/02e8dc1d990d9d2dc355a7124b6a8c25356c32e88951c9bcf3163a1fdf7e7f11.png",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of a southern Lebanon border corridor with symbolic drone paths and strike zones, accompanying reporting on Hezbollah drone launches and Israeli retaliatory strikes.",
+        "caption": "Editorial illustration accompanying the developing Israel-Hezbollah escalation story.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 56, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house", "reference": "ChatGPT generated file sediment://file_000000001110820aa559b1291484e45a; run hero-recovery-news-2026-09-07-2017-b1a; operation hero-hezbollah-drones-ztjo5; stored 2026-09-07T17:27:23.071Z; sha256 02e8dc1d990d9d2dc355a7124b6a8c25356c32e88951c9bcf3163a1fdf7e7f11", "clearedAt": "2026-09-07", "surfaces": ["article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "hero-iran-proxy-network-of4fn",
+      "target": {"publicId": "iran-coordinates-with-hezbollah-hamas-houthis-fo-of4fn"},
+      "publication": {"changeSummary": "Attach an abstract editorial illustration that depicts the reported regional coordination claim without presenting it as verified operational evidence. No article text changed."},
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/41d2fc955cda2645220b9066052a7144e9d41d3c9816628c4b543f6ca8727122.png",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of a regional network linking Iran-aligned armed groups across the Middle East, accompanying reporting on alleged coordination among Hezbollah, Hamas, the Houthis and Iraqi militias.",
+        "caption": "Editorial illustration accompanying reporting on alleged regional coordination among Iran-aligned armed groups.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 50, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house", "reference": "ChatGPT generated file sediment://file_0000000081b881f4b2bf3da5f2eecf55; run hero-recovery-news-2026-09-07-2017-b1a; operation hero-iran-proxy-network-of4fn; stored 2026-09-07T17:27:33.082Z; sha256 41d2fc955cda2645220b9066052a7144e9d41d3c9816628c4b543f6ca8727122", "clearedAt": "2026-09-07", "surfaces": ["article"]},
+        "generated": true
+      }
+    },
+    {
+      "key": "hero-yemen-bab-al-mandeb-wzukq",
+      "target": {"publicId": "civilians-among-at-least-60-killed-in-yemen-as-g-wzukq"},
+      "publication": {"changeSummary": "Attach an abstract maritime-geography illustration relevant to the Yemen and Bab al-Mandeb shipping-risk story. No article text changed."},
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/655ae4840492dc034d55a50e66b30cac2faf1e201564925db1ea302abbd8427f.png",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of the Bab al-Mandeb maritime chokepoint with symbolic shipping lanes and conflict pressure zones, accompanying reporting on escalating ground fighting in western Yemen.",
+        "caption": "Editorial illustration accompanying reporting on western Yemen fighting and risks to Red Sea shipping.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {"x": 52, "y": 50},
+        "sensitivity": "safe",
+        "rights": {"status": "cleared", "basis": "Generated in-house", "reference": "ChatGPT generated file sediment://file_000000000f4c81f4851d2355fba02ffb; run hero-recovery-news-2026-09-07-2017-b1a; operation hero-yemen-bab-al-mandeb-wzukq; stored 2026-09-07T17:27:40.549Z; sha256 655ae4840492dc034d55a50e66b30cac2faf1e201564925db1ea302abbd8427f", "clearedAt": "2026-09-07", "surfaces": ["article"]},
+        "generated": true
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [
+    "Continue hero recovery in batches of no more than six, moving next through the remaining News & Analysis records before Fake Resistance, People/Science and the live archive.",
+    "Prefer official/documentary imagery only when rights and context are clear; otherwise use clearly disclosed editorial illustrations rather than generic or incident-like synthetic imagery."
+  ],
+  "research": [
+    {
+      "topic": "Hero recovery batch 1 — News & Analysis",
+      "focus": "Six high-priority live News & Analysis records without hero media were reviewed against their article text and source context before media selection.",
+      "sourcesReviewed": ["Lions live publication records and their recorded source stacks"],
+      "conclusion": "No clearly reusable documentary photograph with established rights was available in the authorized workflow for these six records. Six story-specific in-house abstract editorial illustrations were therefore generated and uploaded through upload_generated_editorial_image with full non-documentary disclosure.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": []
+}

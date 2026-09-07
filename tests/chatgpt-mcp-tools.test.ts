@@ -7,7 +7,7 @@ vi.mock("@/server/core/auth/actor", () => ({
   authenticateAdmin: vi.fn(), registerActor: vi.fn(), requireActor: vi.fn(),
 }));
 
-import { isReadOnlyOpsTool, mcpToolSpecs } from "@/server/modules/chatgpt-mcp/tools";
+import { generatedEditorialImageUploadSchema, isReadOnlyOpsTool, mcpToolSpecs } from "@/server/modules/chatgpt-mcp/tools";
 import { OPS_TOOLS, CONFIRMED_OPS_TOOLS } from "@/server/contracts/admin-console";
 import type { ChatgptAutomationService } from "@/server/modules/chatgpt-automation";
 
@@ -32,9 +32,20 @@ const stub = {
   homepage: () => Promise.resolve({ edition: { editionDate: "2026-09-07", revision: 3 }, placements: [] }),
   editorialRuns: () => Promise.resolve([]),
   editorialRun: () => Promise.resolve(null),
+  recordGeneratedMediaUpload: vi.fn(async () => undefined),
 } as unknown as ChatgptAutomationService;
 
-const specs = mcpToolSpecs(stub);
+const upload = vi.fn(async (input) => ({
+  media: { inputUrl: "https://store.public.blob.vercel-storage.com/publications/media/hash.png" },
+  upload: {
+    url: "https://store.public.blob.vercel-storage.com/publications/media/hash.png",
+    contentHash: "a".repeat(64), contentType: "image/png", byteSize: 24,
+    width: 1200, height: 800, storedAt: "2026-09-07T10:00:00.000Z",
+    fileId: input.file.file_id, origin: "chatgpt-generated-file" as const,
+    runId: input.runId, operationKey: input.operationKey,
+  },
+})) as never;
+const specs = mcpToolSpecs(stub, upload);
 const byName = new Map(specs.map(spec => [spec.name, spec]));
 
 describe("the MCP tool surface", () => {
@@ -43,7 +54,7 @@ describe("the MCP tool surface", () => {
     /* The point of discoverability: a model should learn what exists from
        `tools/list`, not from documentation about a `run_action(tool, args)`. */
     expect(byName.has("run_action")).toBe(false);
-    expect(specs.length).toBe(OPS_TOOLS.length + 6);
+    expect(specs.length).toBe(OPS_TOOLS.length + 7);
   });
 
   it("gives every tool a JSON schema a client can actually read", () => {
@@ -126,5 +137,41 @@ describe("the MCP tool surface", () => {
     expect(typeof result.summary).toBe("string");
     expect(result.summary).toContain("2026-09-07");
     expect(result.data).toBeTruthy();
+  });
+
+  it("advertises ChatGPT's supported file parameter and returns package media", async () => {
+    const spec = byName.get("upload_generated_editorial_image")!;
+    const audit = vi.mocked(stub.recordGeneratedMediaUpload);
+    audit.mockClear();
+    expect(spec._meta).toEqual({ "openai/fileParams": ["file"] });
+    expect(spec.annotations).toMatchObject({
+      readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true,
+    });
+
+    const json = z.toJSONSchema(generatedEditorialImageUploadSchema, { io: "input" }) as unknown as {
+      properties: { file: { properties: Record<string, unknown>; required: string[]; additionalProperties: boolean } };
+    };
+    expect(Object.keys(json.properties.file.properties)).toEqual([
+      "download_url", "file_id", "mime_type", "file_name",
+    ]);
+    expect(json.properties.file.required).toEqual(["download_url", "file_id"]);
+    expect(json.properties.file.additionalProperties).toBe(false);
+
+    const result = await spec.run({
+      file: { download_url: "https://files.example.test/generated.png", file_id: "file-1", mime_type: "image/png" },
+      runId: "run-1", operationKey: "story-1", alt: "Original editorial illustration for the story",
+      confirmsNoFabricatedEvidence: true,
+    }, "request-upload");
+    expect(result.data).toMatchObject({ media: { inputUrl: expect.stringContaining("publications/media/") } });
+    expect(upload).toHaveBeenCalledWith(expect.objectContaining({
+      runId: "run-1", operationKey: "story-1", sensitivity: "safe", includeHomepage: true,
+    }));
+    expect(audit).toHaveBeenCalledWith(
+      expect.objectContaining({ runId: "run-1", operationKey: "story-1", fileId: "file-1" }),
+      expect.objectContaining({ contentHash: "a".repeat(64) }),
+      "request-upload",
+      true,
+    );
+    expect(JSON.stringify(audit.mock.calls[0]?.[0])).not.toContain("download_url");
   });
 });

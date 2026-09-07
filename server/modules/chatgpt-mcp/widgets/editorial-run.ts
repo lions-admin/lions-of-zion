@@ -124,6 +124,28 @@ const vetoBlock = vetoes => {
   return section;
 };
 
+const mediaWarningBlock = warnings => {
+  const section = el("section", { class: "loz-section" }, [
+    el("h2", { text: "Media warnings — publication continued" }),
+  ]);
+  if (!warnings.length) {
+    section.appendChild(el("p", { class: "loz-state", text: "No media enrichment failed." }));
+    return section;
+  }
+  const list = el("ul", { class: "loz-list" });
+  for (const warning of warnings) {
+    list.appendChild(el("li", { class: "loz-item" }, [
+      el("p", { class: "loz-meta" }, [pill(warning.operationKey || "media", "warn")]),
+      el("p", { class: "loz-body", style: "margin-top:6px", text: warning.message }),
+      el("p", { class: "loz-meta", style: "margin-top:4px", text: warning.publicationProceededWithoutNewMedia
+        ? "Publication proceeded without new media."
+        : "The publication did not complete for another reason." }),
+    ]));
+  }
+  section.appendChild(list);
+  return section;
+};
+
 const failureBlock = data => {
   const errors = Array.isArray(data.errors) ? data.errors : [];
   const failed = (data.operations || []).filter(op => op.status === "failed");
@@ -191,6 +213,7 @@ mount((root, data) => {
   root.appendChild(publishedBlock(data));
   root.appendChild(researchBlock(data.research === undefined ? null : data.research));
   root.appendChild(vetoBlock(data.vetoes === undefined ? null : data.vetoes));
+  root.appendChild(mediaWarningBlock(Array.isArray(data.mediaWarnings) ? data.mediaWarnings : []));
   root.appendChild(failureBlock(data));
 
   const recommendations = Array.isArray(data.siteRecommendations) ? data.siteRecommendations : [];

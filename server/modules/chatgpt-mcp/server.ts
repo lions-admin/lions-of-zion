@@ -123,11 +123,14 @@ function buildHandler(requestId: string) {
                key is the compatibility alias for hosts that predate it. A
                tool with no widget simply has neither, and still works — the
                UI is an enhancement, never a dependency. */
-            ...(widget
+            ...((widget || spec._meta)
               ? {
                 _meta: {
-                  ui: { resourceUri: widget.uri },
-                  "openai/outputTemplate": widget.uri,
+                  ...spec._meta,
+                  ...(widget ? {
+                    ui: { resourceUri: widget.uri },
+                    "openai/outputTemplate": widget.uri,
+                  } : {}),
                 },
               }
               : {}),

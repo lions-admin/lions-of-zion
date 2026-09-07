@@ -173,7 +173,9 @@ Then, per operation, in package order:
   fetches `inputUrl` **once**, reads the dimensions out of the file header,
   and stores a content-addressed copy in this project's own public Blob store.
   The draft is saved to the operation row *before* the publication transaction,
-  so a retry reuses it instead of refetching.
+  so a retry reuses it instead of refetching. If fetching, decoding, measuring,
+  storing, or article-rights preflight fails, the operation instead saves a
+  media warning and continues with no new image.
 - **Publication stage.** One transaction: `publicationService.applyEditorial()`
   inserts or updates the publication, attaches the media, records the version
   through `recordVersion()`, and marks the operation completed. A create
@@ -183,9 +185,9 @@ Then, per operation, in package order:
   `0060`. An update requires a live (`published` or `updated`) target and moves
   it to `updated`.
 
-A failure in either stage marks **that operation** failed, records the stage
-and a recovery line, and the loop continues to the next one. It does not stop
-the package.
+A genuine publication-stage failure marks **that operation** failed, records
+the stage and a recovery line, and the loop continues to the next one. A
+media-only failure does not fail the operation or make the run partial.
 
 - **Homepage stage.** Each decision in `homepage` is applied through
   `publicationService.setHomepagePlacement()`, then
@@ -197,15 +199,26 @@ the package.
   through `finish` **or** `fail` — emits `editorial.run-report`, whose consumer
   emails the report to `editorialReportEmail()`.
 
-### Media rights are enforced at publication, not degraded
+### Media rights are enforced without making media a publication gate
 
-`applyEditorial()` rejects the whole operation with a `VALIDATION_ERROR` when
-an attached image is not article-safe — `isArticleSafeMedia()` requires
-`rights.status === "cleared"` **and** `"article"` in `rights.surfaces`
-(`server/contracts/editorial-media.ts`). A package that sends
-`"status": "unknown"` media does not publish the article without a picture; the
-operation fails and the run reports `partial`. Send no `media` key at all
-rather than uncleared media.
+The orchestrator displays an image only when it is article-safe:
+`rights.status === "cleared"`, a valid `clearedAt`, and `"article"` in
+`rights.surfaces`. An unsafe image is ignored, a `mediaWarning` is recorded,
+and the article publishes without a new picture. An update keeps its existing
+hero. The strict validation inside `applyEditorial()` and the database remain
+in place as defence in depth. Rights are never inferred or upgraded.
+
+**Lack of external media alone is not a veto reason.** Prefer exact source
+imagery, then official institutional imagery, then another safely attributable
+relevant image. If none is usable, generate an original editorial illustration
+for the story, label it as non-documentary, and upload it through the
+authenticated `upload_generated_editorial_image` MCP tool. ChatGPT supplies
+the attachment as the top-level `file` parameter; the tool stores its bytes at
+`publications/media/<content-hash>.<ext>` and returns `data.media`, ready to copy
+into the matching v2 operation. The call must confirm that the illustration
+contains no fabricated quotation, document, logo, identifiable person,
+battlefield evidence or represented real event. If generation or upload also
+fails, publish text-led and report the warning.
 
 ### Partial success, and how a run is resumed
 
@@ -228,7 +241,9 @@ the current field list rather than trusting this shape:
                 "changes": [ { "area": "news", "position": "lead", "action": "set",
                                "publicId": "…", "url": "/articles/…" } ] },
   "media": { "prepared": 2, "reused": 0, "generated": 1 },
-  "errors": [ { "operationKey": "…", "stage": "media", "message": "…", "recovery": "…" } ],
+  "mediaWarnings": [ { "operationKey": "…", "message": "…",
+                        "publicationProceededWithoutNewMedia": true } ],
+  "errors": [ { "operationKey": "…", "stage": "publication", "message": "…", "recovery": "…" } ],
   "siteRecommendations": ["…"]
 }
 ```

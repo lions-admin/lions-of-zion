@@ -92,4 +92,29 @@ describe('whole-site-update-v1 contract', () => {
        publishing with its research and vetoes quietly discarded. */
     expect(wholeSiteUpdatePackageSchema.safeParse({ ...valid, research: [] }).success).toBe(false);
   });
+
+  it('keeps generated media illustrative and disclosed in both package versions', () => {
+    const generated = {
+      inputUrl: 'https://loz.public.blob.vercel-storage.com/publications/media/generated.png',
+      sourceUrl: null,
+      alt: 'Original editorial illustration', caption: null, credit: 'Lions of Zion',
+      disclosure: 'Editorial illustration — not documentary evidence',
+      role: 'editorial-illustration', focalPoint: { x: 50, y: 50 }, sensitivity: 'safe',
+      rights: {
+        status: 'cleared', basis: 'Generated in-house', reference: 'run test; operation new-story',
+        clearedAt: '2026-09-07', surfaces: ['article', 'homepage'],
+      },
+      generated: true,
+    };
+    for (const contractVersion of ['whole-site-update-v1', 'whole-site-update-v2'] as const) {
+      const pkg = { ...valid, contractVersion, creates: [{ ...valid.creates[0], media: generated }] };
+      expect(anyWholeSiteUpdatePackageSchema.safeParse(pkg).success).toBe(true);
+      expect(anyWholeSiteUpdatePackageSchema.safeParse({
+        ...pkg, creates: [{ ...pkg.creates[0], media: { ...generated, role: 'documentation' } }],
+      }).success).toBe(false);
+      expect(anyWholeSiteUpdatePackageSchema.safeParse({
+        ...pkg, creates: [{ ...pkg.creates[0], media: { ...generated, disclosure: null } }],
+      }).success).toBe(false);
+    }
+  });
 });

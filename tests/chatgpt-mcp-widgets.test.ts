@@ -106,8 +106,10 @@ describe("the Apps SDK templates", () => {
   it("separates an editorial veto from a technical failure, in words", () => {
     const html = widget("editorial-run").html;
     expect(html).toContain("Vetoed — editorial decisions, not faults");
+    expect(html).toContain("Media warnings — publication continued");
     expect(html).toContain("Failed — technical faults");
     expect(html.indexOf("Vetoed — editorial")).toBeLessThan(html.indexOf("Failed — technical"));
+    expect(html.indexOf("Media warnings — publication continued")).toBeLessThan(html.indexOf("Failed — technical"));
     /* And a veto never takes the alert tone that marks a fault. */
     expect(html).toContain('pill("editorial veto")');
   });

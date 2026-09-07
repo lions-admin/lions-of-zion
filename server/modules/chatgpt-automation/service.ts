@@ -84,6 +84,31 @@ async function record(
 export function chatgptAutomationService(database: Database, context: OpsToolContext) {
   return {
     /**
+     * Audit the one MCP-native write that is not an ops-registry action.
+     * The temporary download URL is intentionally absent from the input: it
+     * may carry a signed bearer and has no durable value after the upload.
+     */
+    async recordGeneratedMediaUpload(
+      input: { runId: string; operationKey: string; fileId: string; fileName?: string; mimeType?: string },
+      detail: unknown,
+      requestId: string,
+      ok: boolean,
+    ): Promise<void> {
+      await database.transaction(async tx => {
+        await setIdentity(tx as never, ACTOR.label);
+        await writeAudit(tx as never, {
+          actor: ACTOR,
+          action: `chatgpt.tool.upload_generated_editorial_image${ok ? "" : ".failed"}`,
+          entityType: "system",
+          entityId: null,
+          before: input,
+          after: detail,
+          requestId,
+        });
+      });
+    },
+
+    /**
      * Run one tool as the automation.
      *
      * `delete_publication` is the single substitution: it runs the archive tool
@@ -235,6 +260,7 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
         urls: report.urls ?? [],
         homepage: report.homepage ?? null,
         media: report.media ?? null,
+        mediaWarnings: report.mediaWarnings ?? [],
         siteRecommendations: report.siteRecommendations ?? [],
         /* Editorial decisions. */
         research: isV2 ? (report.research ?? []) : null,

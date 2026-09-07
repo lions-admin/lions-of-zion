@@ -53,24 +53,19 @@ every property the package path was built for.
 
 | | |
 | --- | --- |
-| **Production** | `https://lionsofzion.io/api/internal/chatgpt/mcp` |
-| **Preview** | `https://<deployment>.vercel.app/api/internal/chatgpt/mcp` |
+| **Production** | `https://lionsofzion.io/api/mcp` |
+| **Preview** | `https://<deployment>.vercel.app/api/mcp` |
 | Transport | Streamable HTTP (POST only; `GET`/`DELETE` answer `405`) |
 | Auth | OAuth 2.1 with PKCE |
 | Identity | `service:chatgpt-editorial` |
 
-### Why not `/api/mcp`
+### Canonical endpoint and compatibility alias
 
-`accessFor()` in `server/http/handler.ts` grants a database role by path
-prefix, and grants **nothing** to a path that is neither `/api/v1/` nor a named
-service prefix. A route at `/api/mcp` would therefore run on the ambient owner
-pool: outside RLS, with no `app.identity`. That is precisely the bug the
-handler's own comment records for `/api/internal/briefing/` before 2026-09-05.
-
-Under `/api/internal/chatgpt/` the endpoint inherits `app_service` /
-`service:chatgpt-editorial`, and `server/modules/chatgpt-mcp/server.ts`
-additionally establishes the role itself so the transport stays inside RLS even
-if the route wrapper changes.
+`/api/mcp` is the canonical MCP resource. The transport applies its own
+`app_service` / `service:chatgpt-editorial` database scope before resolving any
+domain service, so the public route remains inside RLS. The earlier
+`/api/internal/chatgpt/mcp` endpoint remains available only for connectors
+already configured with it; new connections must use `/api/mcp`.
 
 ### Preview and Production are separate
 
@@ -89,7 +84,7 @@ that can archive a published article is not something to put on the public
 internet. Hence OAuth.
 
 ```
-ChatGPT → POST /api/internal/chatgpt/mcp        (no token)
+ChatGPT → POST /api/mcp                         (no token)
         ← 401 + WWW-Authenticate: resource_metadata=…
         → GET /.well-known/oauth-protected-resource
         → GET /.well-known/oauth-authorization-server
@@ -244,8 +239,7 @@ Then, per user:
 1. **Settings → Security and login → Developer mode**, on.
 2. **ChatGPT Plugins → +**.
 3. Name it *Lions of Zion — Editorial & Operations*.
-4. URL: `https://lionsofzion.io/api/internal/chatgpt/mcp` — **including the
-   path**.
+4. URL: `https://lionsofzion.io/api/mcp`.
 5. Authentication: OAuth. Sign in as the owner when prompted.
 6. Create the connection, then confirm the tools appear.
 

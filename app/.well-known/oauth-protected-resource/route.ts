@@ -19,7 +19,10 @@ export function GET(request: Request): Response {
   return Response.json(
     generateProtectedResourceMetadata({
       authServerUrls: [origin],
-      resourceUrl: `${origin}/api/internal/chatgpt/mcp`,
+      /* OAuth tokens are minted for the canonical resource. The legacy
+       * internal URL delegates to the same handler but must not become a
+       * second audience clients can accidentally configure. */
+      resourceUrl: `${origin}/api/mcp`,
       additionalMetadata: {
         resource_name: "Lions of Zion — Editorial & Operations",
         scopes_supported: ["editorial"],

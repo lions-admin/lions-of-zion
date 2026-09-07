@@ -767,8 +767,10 @@
 }
 .header[data-home] .brandName { font-size: 21px; letter-spacing: -.025em; }
 .header[data-home] .brandRole { font-size: 9px; letter-spacing: .16em; }
-.header[data-home] .support { border-radius: 3px; }
-.header[data-home] .deskSearch { border-radius: 3px; }
+/* Over the cover film these two drop out of the pill vocabulary and into the
+   home chrome's own corner — deliberate, and recorded with the token. */
+.header[data-home] .support { border-radius: var(--radius-home-chrome); }
+.header[data-home] .deskSearch { border-radius: var(--radius-home-chrome); }
 @media (max-width: 80rem) {
   .header[data-home] .barNav { display: none; }
   .header[data-home] .bar { grid-template-columns: minmax(0, 1fr) auto; }

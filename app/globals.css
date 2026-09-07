@@ -252,6 +252,19 @@
   --radius-3: 10px;
   --radius-pill: 999px;
 
+  /* The home chrome's own corner, and the one exception to the scale above.
+     Not a fourth step: it belongs to exactly the controls that sit over the
+     cover film — the header's *Support Us* and desk search under
+     `[data-home]`, and `HeroSupportStrip`'s chips, which are drawn in that
+     control's geometry by the owner ruling of 2026-09-07 (`.ai/DECISIONS.md`).
+     Over a moving photograph a pill reads as a sticker; a near-square hairline
+     reads as chrome. Every one of those three carried a bare `3px` literal in
+     its own stylesheet until this token existed, which is how the same control
+     ended up a pill site-wide and a rectangle on the homepage with nothing
+     saying that was deliberate. It is: this name is the record. Do not reach
+     for it anywhere else. */
+  --radius-home-chrome: 3px;
+
   /* Elevation, restrained.
    *
    * Depth is tonal first — a lighter plate on a darker canvas with a hairline
@@ -379,6 +392,14 @@
 
 @media (pointer: coarse) {
   :root {
+    /* Both heights are re-floored, not just the small one. --control-h is
+       already 2.75rem at :root, so this line changes nothing here — it is
+       stated so that any surface which compresses --control-h (see
+       [data-surface="admin"] below) has the floor written next to it rather
+       than inherited by luck. app/admin/workspace.module.css compressed
+       --control-h to 2.5rem and every coarse floor in components/ui reads
+       var(--control-h), so the whole console sat at 40px on a phone. */
+    --control-h: var(--control-h-coarse);
     --control-h-sm: var(--control-h-coarse);
   }
 }
@@ -416,6 +437,73 @@
   --family-gap: var(--sp-6);
   --family-measure: var(--measure-reading);
   --family-scan: var(--scan-ground-quiet);
+}
+
+/* --- The admin workspace surface (SYS-002, staff density) ---
+ *
+ * `/admin` is a staff console read in Hebrew at a desk, not a reading route:
+ * it earns a denser type ramp, tighter space steps, a flatter chrome and its
+ * own near-neutral palette. It does not earn its own *shape vocabulary* or its
+ * own *touch floor*, and it does not get to define any of this in a route
+ * stylesheet — SYS-001 says every colour, type role, space step and radius is
+ * born here. This block is the whole overlay; `app/admin/workspace.module.css`
+ * consumes it and defines nothing.
+ *
+ * Two things are deliberately absent, because they were the bugs that moved
+ * this block out of the route file:
+ *
+ * - **No radius.** The route file set --radius-pill: 5px, so a token whose one
+ *   job is "this is a pill, not a plate" drew a near-rectangle and every badge
+ *   in the console read as a chip-shaped plate. It also pinned --radius-3 at
+ *   6px, which is a private copy of the scale: a change to --radius-3 up in the
+ *   token block reached every surface on the site except this one. Admin now
+ *   inherits --radius-1/2/3/pill unchanged.
+ * - **No touch floor below 44px.** --control-h is compressed for a mouse and
+ *   re-floored for a coarse pointer immediately below. The coarse blocks in
+ *   components/ui (button, field, tabs, pagination) all read var(--control-h),
+ *   so a surface that lowers it lowers the floor everywhere at once. */
+[data-surface="admin"] {
+  --ground: #141718;
+  --surface-1: #1a1e20;
+  --surface-2: #22272a;
+  --surface-3: #2b3134;
+  --ink-hi: #f1f2ee;
+  --ink: #c5cac7;
+  --ink-lo: #9fa8a5;
+  --line: #353d3e;
+  --gold: #e6bc57;
+
+  --face-text: var(--font-plex-sans-hebrew), var(--font-plex-sans), sans-serif;
+  --face-display: var(--face-text);
+  --face-data: var(--font-jetbrains-mono), var(--font-plex-sans-hebrew), monospace;
+
+  --t-display: 2rem;
+  --t-h2: 1.375rem;
+  --t-h3: 1.125rem;
+  --t-h3-lh: 1.4;
+  --t-body: 1rem;
+  --t-small: 0.9375rem;
+  --t-caption: 0.8125rem;
+  --t-data: 0.8125rem;
+
+  --sp-6: 1.5rem;
+  --sp-7: 2rem;
+  --sp-8: 2.5rem;
+
+  /* Flat chrome: depth here is the hairline and the plate tone, never a drop. */
+  --shadow-1: none;
+  --shadow-3: none;
+
+  /* Fine-pointer density only. The coarse floor is the next rule. */
+  --control-h: 2.5rem;
+  --control-h-sm: 2.125rem;
+}
+
+@media (pointer: coarse) {
+  [data-surface="admin"] {
+    --control-h: var(--control-h-coarse);
+    --control-h-sm: var(--control-h-coarse);
+  }
 }
 
 html {

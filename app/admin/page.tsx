@@ -8,7 +8,7 @@ export const metadata = { title: "מרכז השליטה" };
 
 export default function AdminPage() {
   return (
-    <main className={styles.root} lang="he" dir="rtl" data-reading-scroll>
+    <main className={styles.root} data-surface="admin" lang="he" dir="rtl" data-reading-scroll>
       <Suspense fallback={<p role="status">טוען את מרכז השליטה…</p>}>
         <UnsavedChangesProvider><OperationsConsole /></UnsavedChangesProvider>
       </Suspense>

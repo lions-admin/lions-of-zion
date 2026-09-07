@@ -2,16 +2,20 @@ import { handler } from "@/server/http/handler";
 import { ok } from "@/server/http/responses";
 import { requireActor } from "@/server/core/auth/actor";
 import { adminConsole } from "@/server/modules/admin-console";
-import { registeredUserCount } from "@/server/modules/public-auth";
+import { registeredPublicUsers } from "@/server/modules/public-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export const GET = handler(async (request) => {
   requireActor(request);
-  const [users, registeredPublicUsers] = await Promise.all([
+  const [users, publicReaders] = await Promise.all([
     adminConsole().users(),
-    registeredUserCount(),
+    registeredPublicUsers(),
   ]);
-  return ok({ ...users, registeredPublicUsers });
+  return ok({
+    ...users,
+    registeredPublicUsers: publicReaders.length,
+    publicReaders,
+  });
 });

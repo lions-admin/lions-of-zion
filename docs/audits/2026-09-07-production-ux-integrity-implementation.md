@@ -486,27 +486,33 @@ VA-12's collapse covers the archive projection only.
 Where the structured Public Sources module exists, the body must not also print
 a pipeline-like `Sources:\n- https://…` block.
 
-- [ ] **56.1** Find every published body carrying a raw URL block. VA-01's sweep
+- [x] **56.1** Find every published body carrying a raw URL block. VA-01's sweep
       found 9 of 48 records citing an absolute URL in the body; reuse that method.
-- [ ] **56.2** Normalize or remove the dumps **without losing source
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
+- [x] **56.2** Normalize or remove the dumps **without losing source
       information** — a removed URL must already exist in the structured stack,
       or be added to it first.
-- [ ] **56.3** Keep a safe fallback if structured-source parsing fails: the
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
+- [x] **56.3** Keep a safe fallback if structured-source parsing fails: the
       reader must never end up with zero visible sources.
-- [ ] **56.4** Do not remove legitimate inline citations or contextual source
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
+- [x] **56.4** Do not remove legitimate inline citations or contextual source
       references inside prose.
-- [ ] **56.5** Test: source-normalization regression covering a body dump, an
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
+- [x] **56.5** Test: source-normalization regression covering a body dump, an
       inline citation that must survive, and the parse-failure fallback.
 
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
 ### VA-49 — Media completeness `A3` data + `A1` state model
 
 Media is editorial content, not decoration. **Current reality: 46 of 48
 published records carry no media at all** (VA-04). The task is the *rule and the
 state model*, not a replacement campaign.
 
-- [ ] **49.1** Re-inspect the live inventory. List which publications still lack
+- [x] **49.1** Re-inspect the live inventory. List which publications still lack
       appropriate hero media, and which are legitimately text-only.
-- [ ] **49.2** `A3` Create a real distinction in the system between **missing
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
+- [x] **49.2** `A3` Create a real distinction in the system between **missing
       media** and **intentional text-only**, and **persist it on the
       publication**. Today `media = null` is produced by at least four different
       causes with no discriminator, and the only signal — the run report's
@@ -514,6 +520,7 @@ state model*, not a replacement campaign.
       never stored. **Do not reintroduce a media gate**: the owner ruled on
       2026-09-07 that a picture is not a gate and a picture-less card renders
       text-led. This step models the *state*, it does not restore the *gate*.
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
 - [ ] **49.3** `A3` For each eligible story choose media in this priority:
       direct documentary evidence → editorial/documentary photography → relevant
       portrait/location/object photography → documents, charts or data → clearly
@@ -524,10 +531,11 @@ state model*, not a replacement campaign.
 - [ ] **49.5** Verify per record: image loading, aspect ratios, responsive crops,
       alt text, captions, source/credit, generated-image disclosure, reserved
       dimensions (no layout shift — `cls: 0` is already achieved and must hold).
-- [ ] **49.6** Test: a promoted record with missing media renders the designed
+- [x] **49.6** Test: a promoted record with missing media renders the designed
       state, not an undefined one; a disclosed illustration always carries its
       disclosure.
 
+      <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
 ### VA-52 — Separate claim assessment from incident monitoring `A4`
 
 A disputed claim, a verified antisemitic incident and an influence-network
@@ -914,10 +922,10 @@ Update this table in the **same commit** that changes any box above.
 | VA-48 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — guard on both auto-publish paths, override documented, 4 tests, live sweep tabulated (3 exact + 7 near pairs). Open: 48.5 merges and 48.6 redirects — both need Production mutation credentials |
 | VA-47 | A2 | ☑ done | 1 | `6295324` — PUBLICATION_PROVENANCE derived from `autoPublishedAt`; Authorship line; Methodology "Two ways a record publishes"; 13 tests |
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
-| VA-49 | A3 | ☐ not started | 2 | — |
+| VA-49 | A3 | ◐ in progress | 2 | `ae18ad2` — migration 0064, disposition derived from the executor stage, 7 tests. **Blocked on Production SQL: `.ai/PRODUCTION-MIGRATION-0064.sql` must run before merge.** 49.3/49.4/49.5 are editorial, need MCP |
 | VA-50 | A4 | ☐ not started | 2 | — |
 | VA-54 | A4 | ☐ not started | 2 | — |
-| VA-56 | A4 | ☐ not started | 2 | — |
+| VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
 | VA-52 | A5 | ☐ not started | 3 | — |
 | VA-55 | A5 | ☐ not started | 3 | — |
 | VA-59 | A5 | ☐ not started | 3 | — |

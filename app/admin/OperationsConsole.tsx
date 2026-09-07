@@ -12,6 +12,7 @@ import { OverviewPanel } from "./OverviewPanel";
 import { PipelinePanel } from "./PipelinePanel";
 import { SourcesPanel } from "./SourcesPanel";
 import { SystemPanel, type SubArea } from "./SystemPanel";
+import { UsersPanel } from "./UsersPanel";
 import { SignOutButton } from "./SignOutButton";
 import { formatDate } from "./console-primitives";
 import { CONSOLE_CHANGED, CONSOLE_READ, useConsoleRead } from "./useConsoleRead";
@@ -110,6 +111,7 @@ export function OperationsConsole() {
               : area === "sources" ? <SourcesPanel signal={signal} />
                 : area === "editorial" ? <EditorialDesk signal={signal} />
                   : area === "editorial-runs" ? <EditorialRunsPanel signal={signal} />
+                    : area === "users" ? <UsersPanel signal={signal} />
                   : <SystemPanel key={area} signal={signal} sub={area as SubArea} />}
         </div>
       </div>

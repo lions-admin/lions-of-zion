@@ -144,6 +144,68 @@ warnings that are real.
 **Every tool works with no UI.** Each returns `structuredContent` the model can
 reason over plus a text summary, so a plain MCP client is fully served.
 
+## The interactive views
+
+Five MCP Apps templates, registered as resources and bound to a tool through
+`_meta.ui.resourceUri` (with `openai/outputTemplate` as the compatibility
+alias).
+
+| Template | Drawn from | Shows |
+| --- | --- | --- |
+| `editorial-overview` | `get_editorial_context` | Edition, homepage revision, counts, warnings, records grouped by hub, recent runs |
+| `publication` | `find_publication` | Identity, status, cited sources, media state, update log, reversible actions |
+| `homepage` | `get_homepage` | All six slots, including the empty ones on automatic selection |
+| `editorial-run` | `get_editorial_run` | Published, researched, **vetoed**, and separately **failed** |
+| `ops-dashboard` | `get_ops_view` | Counts first, then the rows that need a person |
+
+Five rather than the eight surfaces named in the brief, because several are
+views of one record: a publication's sources, its evidence and its media all
+arrive in one projection, so splitting them would mean three round trips to
+draw one card. The research ledger and the vetoes belong to the run that
+produced them, which is the whole reason those fields exist on a v2 report.
+
+### What the templates are, technically
+
+**Everything is inlined** — markup, CSS and script travel in the resource body.
+Nothing is fetched from `lionsofzion.io`, which is what makes this work: the
+site sends `frame-ancestors 'none'` and `X-Frame-Options: DENY` on every path,
+so a template that loaded anything from this origin would be blocked. There is
+no bundler and no build step.
+
+**No framework.** A React runtime inlined five times would be most of the
+payload, to render a list and a card.
+
+**The host's theme comes first.** Colours read `var(--openai-color-*, <lions
+fallback>)`, so the widget takes ChatGPT's own palette where it exists and
+falls back to the site's. The type roles are the site's own: a display serif
+for headlines, a sans for text, a mono for data, body never below 16px and
+metadata never below 13px — the same floors `UX-CONTRACT.md` sets for a phone.
+
+### Three things the markup is careful about
+
+**A veto is not an error.** `Vetoed — editorial decisions, not faults` sits
+above `Failed — technical faults`, and a veto never takes the alert tone.
+Colour alone is never the signal: every status pill carries a word. For a
+`whole-site-update-v1` run both sections say the contract could not represent
+them, rather than showing an empty list that would read as "the editor refused
+nothing".
+
+**A generated image is never documentation.** The media block leads with the
+role and the rights state; an editorial illustration says
+*"not evidence"* before anything else about it.
+
+**There is no delete button.** Through this connector the tool archives, so the
+actions are Archive, Take off the site and Publish — each stating its
+consequence before it runs — and the panel says plainly that deletion is not
+offered. After any action the widget re-reads the server rather than repainting
+what it assumed happened.
+
+### Fallback
+
+The UI is an enhancement. Every tool returns `structuredContent` and a text
+summary, so a client with no template support — or a template that fails to
+render — still gets a usable answer. That is tested, not assumed.
+
 ## Observability
 
 An MCP call writes two records. The audit row (`chatgpt.tool.<name>`, actor

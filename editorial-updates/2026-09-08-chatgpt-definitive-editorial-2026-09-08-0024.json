@@ -1,0 +1,320 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-definitive-editorial-2026-09-08-0024",
+  "composer": "ChatGPT whole-site editorial update",
+  "createdAt": "2026-09-07T21:24:00Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "lebanon-definitive",
+      "target": {
+        "canonicalStoryId": "southern-lebanon-strikes-after-hezbollah-drones-2026-09-06"
+      },
+      "publication": {
+        "section": "news",
+        "canonicalStoryId": "southern-lebanon-strikes-after-hezbollah-drones-2026-09-06",
+        "editorialTopic": "Israel-Hezbollah escalation and ceasefire",
+        "topicTags": [
+          "lebanon",
+          "hezbollah",
+          "israel",
+          "ceasefire",
+          "ali-al-taher"
+        ],
+        "primaryActor": "Israel, Hezbollah and Lebanese authorities",
+        "arena": "Southern Lebanon",
+        "title": "Israel–Hezbollah escalation: drones, Ali al-Taher and the widening toll in southern Lebanon",
+        "summary": "A single developing record of the September escalation: Hezbollah drone attacks, Israeli strikes, the revised Lebanese casualty toll, Ali al-Taher, competing target claims and the fragile ceasefire framework.",
+        "body": "## Current state\n\nThe Israel–Hezbollah confrontation has moved beyond the September 6 exchange that first drove this record. Lebanese authorities said Israeli strikes on September 7 in and around Kfar Rumman killed at least 12 people, including children and women, and wounded others. Israel said it was responding to Hezbollah drone attacks on its forces and was targeting a Hezbollah operative and military infrastructure. The casualty figure is a Lebanese official count reported by Associated Press; the intended military purpose of each strike is not independently established.\n\n## How the confrontation developed\n\nThe immediate sequence began around the Ali al-Taher/Beaufort area, where the IDF said Hezbollah launched explosive drones toward Israeli troops. Israel said it intercepted or engaged the drones and struck Hezbollah facilities. Lebanese authorities then reported deaths, injuries and damage in the Nabatieh area. On September 7, the IDF separately said two soldiers were lightly wounded in a close-range Hezbollah attack; that operational account remains an Israeli military statement.\n\n## Timeline\n\n- **September 3–4:** Ali al-Taher became a focal point. Israel said it had cleared Hezbollah tunnel infrastructure there; earlier reporting also carried Iranian warnings against a wider Israeli operation. Claims of Iranian personnel at the ridge were not independently established.\n- **September 6:** The IDF reported Hezbollah explosive drones directed at its troops. Israel carried out strikes. Lebanese authorities reported seven deaths; Israel said it hit Hezbollah weapons and command infrastructure.\n- **September 7:** Lebanese authorities reported a higher, separate toll in strikes including Kfar Rumman. Israel said one target was a Hezbollah operative moving weapons. The IDF reported two soldiers lightly wounded in a separate close-range attack.\n\n## What each side says\n\nIsrael says its strikes are responses to Hezbollah attacks and are directed at military targets, including weapons infrastructure and operatives. Lebanese President Joseph Aoun and other Lebanese authorities have described the strikes as a dangerous escalation and have reported civilian harm and damage to civilian facilities. Hezbollah’s drone launches are acknowledged in Israeli military reporting; public reporting reviewed here does not independently establish the full operational chain, target list or intention behind every incident.\n\n## Ceasefire context\n\nThe exchanges are occurring under a U.S.-mediated framework intended to reduce fighting, advance Hezbollah disarmament and enable an Israeli withdrawal arrangement. The framework does not turn every reported breach into an independently adjudicated legal finding. It does show a political process under visible strain: tactical attacks, retaliation and disputed target claims are continuing faster than a durable de-escalation mechanism has emerged.\n\n## What changed\n\nThe old seven-death account is no longer a sufficient description of the story. The September 7 reporting adds a new Kfar Rumman episode and a higher reported toll, while the injury of two IDF soldiers adds a direct Israeli casualty dimension. These developments do not resolve the core factual dispute over the military status of individual sites or people hit.\n\n## What is established — and what is not\n\nEstablished: there were Hezbollah drone incidents reported by the IDF; Israel carried out strikes; Lebanese authorities reported fatalities and injuries; the border framework remains fragile. Not independently established: the function of every target, the status of every person killed, the claimed use of civilian sites, or a single agreed account of responsibility for each alleged violation.\n\n## What to watch\n\nWatch for evidence on the Kfar Rumman targets, further verified Israeli or Lebanese casualty revisions, Hezbollah’s next operational response, and whether U.S.-mediated contacts yield a mechanism that constrains rather than merely records escalation.",
+        "changeSummary": "Rebuilt fragmented Lebanon coverage as the definitive developing story; added September 7 Kfar Rumman reporting, revised casualty context, an attributed timeline and clear evidence limits."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+          "title": "Israeli airstrikes on a village in southern Lebanon kill 12 people, including 2 children",
+          "publisher": "Associated Press",
+          "publishedAt": "2026-09-07T00:00:00Z"
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/",
+          "title": "Israeli military says it strikes southern Lebanon after Hezbollah launched drones",
+          "publisher": "Reuters",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "detainee-exchange-definitive",
+      "target": {
+        "publicId": "lebanese-detainee-returned-through-icrc-channel-68if2"
+      },
+      "publication": {
+        "section": "israel_update",
+        "canonicalStoryId": "lebanese-detainee-exchange-2026",
+        "editorialTopic": "Israel-Lebanon detainee exchange",
+        "topicTags": [
+          "lebanon",
+          "israel",
+          "detainees",
+          "icrc",
+          "diplomacy"
+        ],
+        "primaryActor": "Israel, Lebanon and the ICRC",
+        "arena": "Israel-Lebanon diplomacy",
+        "title": "The Lebanon detainee exchange: five civilians returned through the ICRC channel",
+        "summary": "Malek Ghazi’s return was the first step, not the final state: four additional detainees were released the next day through the ICRC in a limited U.S.-mediated confidence-building arrangement.",
+        "body": "## What happened\n\nThe uncertainty in the first report has been overtaken by events. Malek Ghazi was returned from Israeli custody to the Lebanese army through the International Committee of the Red Cross (ICRC) on September 3. On September 4, Israel released four additional detainees — two Lebanese and two Syrians — bringing the known total to five civilians returned through the same channel.\n\n## How the exchange unfolded\n\nThe Ghazi handover was publicly described as the first release after talks began. At that point, further releases were expected but not confirmed. The next day, Associated Press reported the release of four more people and their transfer through the ICRC. The correct current account is therefore a completed five-person release, not an open question about whether additional detainees would be freed.\n\n## Who was released\n\nThe publicly reported total is five civilians: Ghazi plus four later detainees, including two Lebanese and two Syrians. Reporting reviewed for this update identifies Hussein Ayash among those who returned, but it does not provide a complete authoritative public list and legal file for all five. That limit matters: a total can be established without inventing biographical detail for every detainee.\n\n## Why the deal occurred\n\nThe releases were reported amid U.S.-mediated indirect Israel–Lebanon contacts and continuing border escalation. AP reported that the arrangement was tied to Lebanon’s commitment to search for the remains of Lebanese Jewish citizens who disappeared during the civil war. This is a reported diplomatic linkage, not proof that the issue has been resolved or that the releases settled all outstanding humanitarian cases.\n\n## The ICRC’s role\n\nThe ICRC facilitated the transfers; it did not negotiate the political bargain. Its involvement is significant because it provided a neutral humanitarian channel in a conflict setting, while the organisation also said it had not been able to visit detainees held in Israel since October 2023.\n\n## What was initially uncertain\n\nThe first Lions record correctly treated further releases as unconfirmed. That uncertainty belonged to the September 3 moment and is preserved here as part of the sequence. It must not remain as the current state once the September 4 releases were reported.\n\n## What happened next\n\nThe five releases created a limited confidence-building step, but not a broader settlement. Reports still describe other Lebanese villagers as unaccounted for after recent Israeli operations, and indirect talks are expected to continue. The civilian returns therefore reduced one immediate issue while leaving wider detention, missing-person and security questions unresolved.\n\n## What remains unresolved today\n\nPublic reporting does not establish a full accounting of all people sought by each side, the eventual outcome of the search for missing Lebanese Jews, or a durable agreement on future humanitarian exchanges. Those are negotiations and humanitarian files, not facts that can be inferred from the five releases.",
+        "changeSummary": "Updated the stale one-person handover record with the completed five-person exchange, ICRC role, reported missing-Jews linkage and the distinction between historical uncertainty and current known facts."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/6702b387d0f9ed129cae9be8b8536b58",
+          "title": "Israel frees 4 more Lebanon prisoners in a deal tied to missing Jews from Lebanese civil war",
+          "publisher": "Associated Press",
+          "publishedAt": "2026-09-04T00:00:00Z"
+        },
+        {
+          "url": "https://www.timesofisrael.com/red-cross-says-it-facilitated-return-to-lebanon-of-man-detained-by-israel/",
+          "title": "Red Cross says it facilitated return to Lebanon of man detained by Israel",
+          "publisher": "The Times of Israel",
+          "publishedAt": "2026-09-03T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "adidas-narrative-lifecycle",
+      "target": {
+        "canonicalStoryId": "adidas-single-shoe-boycott-narrative-2026-09-06"
+      },
+      "publication": {
+        "section": "influence_investigation",
+        "editorialTopic": "Adidas boycott narrative and disability-access service",
+        "topicTags": [
+          "adidas",
+          "boycott",
+          "disability",
+          "narrative",
+          "social-media"
+        ],
+        "primaryActor": "Adidas and Shalev Biton",
+        "arena": "Global social media",
+        "title": "Adidas, a former IDF soldier and a viral boycott: the full lifecycle of the Single Shoe narrative",
+        "summary": "The campaign began with a real political objection, then spread misleading claims about Adidas’s Single Shoe service; Adidas later clarified its purpose and apologized for offense caused by the promotion.",
+        "body": "## Claim\n\nThe viral claim was that Adidas had launched a special “single shoe” program for Israeli soldiers injured in Gaza. A related assertion cast Shalev Biton, featured in a promotion, as having lost his leg in the current war.\n\n## Origin and initial context\n\nThe evidence points to a high-reach September 3 social post as an early visible amplifier, not as proof of a single campaign origin or coordinated activity. Adidas’s own March announcement predates the controversy: the Single Shoe service began in January in 23 European countries for people with a leg-limb difference, offering one shoe at half the pair price. It was not introduced for Israeli soldiers.\n\n## Amplification and boycott framing\n\nPosts and boycott calls paired a real accessibility service with a real former Israeli soldier, but changed the chronology and purpose. That factual shift helped turn a specific advertising choice into a claim that Adidas had designed a program for soldiers in the Gaza war. The political criticism itself is distinct: many critics objected to featuring a former IDF soldier amid the scale of Palestinian limb injuries and amputations. That is a moral and political judgement, not a factual error by definition.\n\n## What the evidence shows\n\nReporting says Biton lost his leg in 2021, before the current Gaza war. The available evidence supports two narrow findings: the Single Shoe service was a broader accessibility program, and there is no basis in the reviewed record for describing it as created for Israeli soldiers or for saying Biton lost his leg in the current war. Repetition of those claims did not make them independently corroborated.\n\n## Adidas response\n\nAfter the backlash, Adidas clarified the service’s wider disability-access purpose and apologized for the offense caused by the promotion. An apology acknowledges impact; it does not retroactively validate the inaccurate claims about the origin of the service or Biton’s injury timeline.\n\n## What changed after publication\n\nThis was not a static “viral boycott” story. The company response altered the factual record: the story now includes both the original accessibility documentation and Adidas’s later apology. Social discussion also broadened from the misleading service claim to a more explicit argument over representation, disability and the war.\n\n## Current assessment\n\nThe best-supported assessment is mixed. The boycott was rooted in a genuine and intelligible political objection to the campaign’s choice of featured person. But the central viral framing — that Adidas launched the program for Israeli soldiers injured in Gaza — was misleading. Treating those two propositions as one either minimizes legitimate criticism or grants factual accuracy to a claim the evidence does not support.\n\n## What remains uncertain\n\nThe public record does not establish who originated every version of the claim, whether amplification was coordinated, or the private editorial decisions behind Adidas’s creative selection. Those questions should not be filled in with inference.",
+        "changeSummary": "Expanded the record into a full narrative lifecycle, adding Adidas’s clarification and apology while separating legitimate political criticism from the inaccurate origin and injury-timeline claims."
+      },
+      "sources": [
+        {
+          "url": "https://news.adidas.com/GLOBAL/adidas-launches-single-shoe-service-for-those-living-with-leg-limb-difference/S/566e1eb1-0e4f-4747-b153-0607890bacef",
+          "title": "adidas launches Single Shoe service for those living with leg-limb difference",
+          "publisher": "adidas",
+          "official": true,
+          "publishedAt": "2026-03-11T00:00:00Z"
+        },
+        {
+          "url": "https://www.timesofisrael.com/adidas-apologizes-for-offense-over-promotion-featuring-ex-idf-soldier-who-lost-leg-in-2021/",
+          "title": "Adidas apologizes for offense over promotion featuring ex-IDF soldier who lost leg in 2021",
+          "publisher": "The Times of Israel",
+          "publishedAt": "2026-09-07T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "west-bank-outposts-explainer",
+      "target": {
+        "canonicalStoryId": "west-bank-unauthorized-outposts-removal-2026-09-06"
+      },
+      "publication": {
+        "section": "news",
+        "editorialTopic": "West Bank outposts, authorization and enforcement",
+        "topicTags": [
+          "west-bank",
+          "outposts",
+          "settlements",
+          "civil-administration",
+          "israel"
+        ],
+        "primaryActor": "Israeli government and Civil Administration",
+        "arena": "West Bank",
+        "title": "West Bank outposts: what Netanyahu’s reported removal order does — and does not — mean",
+        "summary": "A plain-English guide to the reported order: what an outpost is, how it differs from an authorized settlement, why Areas A/B/C matter and what remains unproven about implementation.",
+        "body": "## What happened\n\nReuters reported on September 6 that Prime Minister Benjamin Netanyahu ordered the removal of unauthorized West Bank outposts, citing two people familiar with the matter. The report said roughly 100 outposts had been discussed in Israeli media, but it did not establish a final list, an enforcement timetable or removals already carried out.\n\n## What an outpost actually is\n\nIn common Israeli administrative usage, an outpost is a settlement-related community or site established without the formal approvals required by Israeli authorities. An authorized settlement has passed a different administrative path under Israeli planning, land and security systems. That internal distinction does not settle the separate question of international legal status: much of the international community treats settlements in occupied territory as illegal, while Israel disputes that characterization. A political label should not be substituted for either legal framework.\n\n## Authorized versus unauthorized\n\n“Unauthorized” in this story means unauthorized under the relevant Israeli administrative process, not automatically a judgment about every wider legal or political dispute. Outposts may include homes, agricultural sites, roads or infrastructure and can later be retroactively authorized, relocated or removed. The Civil Administration is a central Israeli authority for planning and administrative matters in Area C.\n\n## Why Areas A, B and C matter\n\nThe Oslo framework divided the West Bank into Areas A, B and C for different levels of Palestinian and Israeli civil/security responsibility. Most settlements and outposts are in Area C, where Israel retains primary control over planning and security. Finance Minister Bezalel Smotrich was reported to describe the instruction more narrowly, referring to construction in Areas A and B. That reported narrowing is one reason the exact scope cannot yet be treated as settled.\n\n## What the government proposes\n\nThe reported proposal is removal of unauthorized sites amid U.S. pressure over settler violence. It is not, on the evidence reviewed, a declared reversal of Israel’s broader settlement policy. The prime minister’s office and military did not provide Reuters with an immediate public account of the order’s operational terms.\n\n## What has actually happened\n\nThe report is about an instruction, not completed enforcement. No verified implementation list, demolition schedule, court decision or Civil Administration order was publicly established in the material reviewed here. The key test is observable action: named sites, notices, removals, enforcement agencies and any later judicial or administrative records.\n\n## Political dispute\n\nSupporters of stronger enforcement say unauthorized outposts and violence require action. Critics of the government question whether any order will be implemented consistently; coalition opponents object to removals or argue for a narrower scope. International critics frame the story within wider objections to settlement expansion. These are different arguments, and none should be compressed into a claim that an announced order has already changed facts on the ground.\n\n## What remains uncertain\n\nThe “approximately 100” figure is a reported estimate, not a confirmed government inventory. The eventual scope, legal instruments, timetable, implementation and durability of enforcement remain unknown.\n\n## Timeline\n\n- **Before September 6:** Public debate and reports about unauthorized outposts and settler violence intensify.\n- **September 5:** U.S. Ambassador Mike Huckabee visits Turmus Ayya and calls for consequences for violent settlers.\n- **September 6:** Reuters reports a Netanyahu removal order, with scope and timing unresolved.\n- **Next verification point:** Published administrative notices, court records or confirmed on-the-ground removals.",
+        "changeSummary": "Rewrote the short developing item as a plain-English explainer, separating Israeli administrative authorization, international legal positions, Areas A/B/C and the reported order from verified implementation."
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israels-netanyahu-orders-west-bank-settler-outposts-be-removed-sources-say-2026-09-06/",
+          "title": "Israel's Netanyahu orders West Bank settler outposts to be removed, sources say",
+          "publisher": "Reuters",
+          "publishedAt": "2026-09-06T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "iran-coordination-analysis",
+      "target": {
+        "publicId": "iran-coordinates-with-hezbollah-hamas-houthis-fo-of4fn"
+      },
+      "publication": {
+        "section": "israel_update",
+        "canonicalStoryId": "iran-aligned-network-evidence-assessment-2026",
+        "editorialTopic": "Iran-aligned armed-group coordination",
+        "topicTags": [
+          "iran",
+          "hezbollah",
+          "hamas",
+          "houthis",
+          "irgc",
+          "iraq"
+        ],
+        "primaryActor": "IRGC-Quds Force and Iran-aligned armed groups",
+        "arena": "Middle East",
+        "title": "Iran and its armed partners: what coordination is established — and what an attack-plan report does not prove",
+        "summary": "Iran’s support network is well documented, but the current report of a synchronized multi-front attack remains an attributed assessment, not independently established operational fact.",
+        "body": "## The central distinction\n\nIran’s relationships with Hezbollah, Hamas, the Houthis and Iraqi armed groups are not a speculation: public sanctions records, intelligence assessments and years of operational reporting document financial, material, training and strategic ties. But that established infrastructure is not proof that all actors currently share a finalized plan, date or command chain for a simultaneous attack on Israel.\n\n## Established infrastructure\n\nThe IRGC-Quds Force has long functioned as a key Iranian instrument for relationships with partner armed groups. U.S. Treasury has documented Iranian military and Quds Force financial networks that it says support Hamas and Hezbollah. Hezbollah’s links to Iran are the most deeply institutionalized; the Houthi relationship includes Iranian political, technical and material support allegations documented across multiple government and UN reporting streams; Iraqi armed groups have varied degrees of connection to Iran; Hamas has received Iranian support, though it retains its own leadership and decision-making.\n\n## Strongly supported current coordination\n\nCurrent fighting shows that these actors can respond to overlapping regional pressures and share strategic interests. Public reporting also supports ongoing contacts, capability rebuilding and Iranian efforts to strengthen the network after losses. That is meaningful coordination in the broad strategic sense. It does not automatically establish a single integrated operational headquarters or a jointly approved attack order.\n\n## Reported but not independently established\n\nThe September report cited Israeli assessments that Tehran is working to coordinate Hezbollah, Hamas, the Houthis and Iraqi militias for a future simultaneous campaign. That is an important attributed security assessment. The public evidence reviewed does not independently establish the claimed conference calls, joint training, operational readiness, target allocation or exact role of each group.\n\n## The current attack-plan allegation\n\nThe responsible headline is not “Iran has a coordinated attack plan.” The defensible formulation is: Israeli assessments reportedly describe an Iranian effort to prepare more coordinated multi-front pressure; no specific present attack plan, date, order of battle or final readiness has been independently verified.\n\n## Actor and network map in words\n\n**Iran/IRGC-Quds Force** provides relationships, resources and strategic direction. **Hezbollah** is the most capable Iran-aligned force on Israel’s northern front. **Hamas** is a Palestinian armed movement with its own command structure and an Iranian support relationship. **The Houthis** can threaten Red Sea shipping and launch long-range systems from Yemen. **Iraqi armed groups** are a diverse field, not one unit. Shared alignment is not identical control.\n\n## Evidence gaps\n\nPublic evidence does not reveal private command arrangements, the degree of veto power Iran has over each partner, or whether simultaneous action would be pre-planned rather than reactive. It also cannot show an attack’s imminence merely from historical links or public rhetoric.\n\n## Bottom line\n\nThe network is real. Current efforts to rebuild and coordinate it are credible subjects for reporting. A specific synchronized attack plan remains an allegation that requires more than the existence of longstanding relationships.",
+        "changeSummary": "Replaced a thin, overbroad claim with a calibrated security analysis that distinguishes established infrastructure, current coordination, the attributed attack-plan allegation and the remaining evidence gaps."
+      },
+      "sources": [
+        {
+          "url": "https://www.jpost.com/middle-east/article-907636",
+          "title": "Iran rebuilding its axis of resistance for attack, Israeli intelligence suggests",
+          "publisher": "The Jerusalem Post",
+          "publishedAt": "2026-09-05T00:00:00Z"
+        },
+        {
+          "url": "https://home.treasury.gov/news/press-releases/jy1932",
+          "title": "Treasury Targets Large Iranian Military Financial Facilitation Networks",
+          "publisher": "U.S. Department of the Treasury",
+          "official": true,
+          "publishedAt": "2023-11-29T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "yemen-bab-el-mandeb-explainer",
+      "target": {
+        "publicId": "civilians-among-at-least-60-killed-in-yemen-as-g-wzukq"
+      },
+      "publication": {
+        "section": "israel_update",
+        "canonicalStoryId": "yemen-bab-al-mandeb-fighting-2026",
+        "editorialTopic": "Yemen fighting and Bab al-Mandeb",
+        "topicTags": [
+          "yemen",
+          "houthis",
+          "bab-al-mandeb",
+          "red-sea",
+          "shipping"
+        ],
+        "primaryActor": "Houthi forces and Yemeni government-aligned forces",
+        "arena": "Western Yemen and Red Sea",
+        "title": "Yemen’s western front and Bab al-Mandeb: why a local battle can disrupt global shipping",
+        "summary": "The casualty story has grown into a strategic contest over western Yemen: who controls ground near the Red Sea approach, what the toll can prove and why Bab al-Mandeb matters far beyond Yemen.",
+        "body": "## What happened\n\nFighting in western Yemen has intensified between Houthi forces and government-aligned opponents backed by Saudi Arabia, with competing casualty accounts and reports of civilian deaths. The Guardian reported more than 60 deaths in early clashes; later reporting described a toll above 140. Those numbers should be treated as reported snapshots from a fast-moving conflict, not a final audited total.\n\n## Where it happened\n\nThe key terrain runs through western Yemen, including the Taiz and Hodeidah approaches. This is not an abstract map dispute: hills, roads, ports and coastal routes shape who can move forces and who can threaten access to the southern Red Sea.\n\n## Who is fighting\n\nThe Houthis are an Iran-aligned Yemeni armed movement that controls substantial territory, including Sana’a. Their local opponents include forces aligned with Yemen’s internationally recognized government and backed to different degrees by Saudi-led partners. The conflict has its own Yemeni political and territorial drivers; it is also increasingly connected to regional confrontation, weapons flows and maritime pressure.\n\n## Why this front matters\n\nBab al-Mandeb is the narrow passage between Yemen and the Horn of Africa linking the Red Sea to the Gulf of Aden and Indian Ocean. Shipping moving between Europe and Asia via the Suez Canal depends on it. A threat there can force vessels to divert around the Cape of Good Hope, increasing time, cost, insurance risk and pressure on supply chains.\n\n## The Houthi role and maritime risk\n\nThe Houthis have previously demonstrated an ability and willingness to threaten vessels in the Red Sea. Control of more western terrain would not by itself prove control of the waterway or an imminent maritime blockade, but it can improve access, observation, launch options and political leverage. That is why ground fighting near the coast has international consequences even when the immediate battle is local.\n\n## Relevance for Israel and global trade\n\nFor Israel, Red Sea insecurity affects the southern maritime approach and joins a wider regional picture involving Iran-aligned groups. For global trade, Bab al-Mandeb is a chokepoint: disruption affects carriers, energy flows, consumer goods and the reliability of the Suez route.\n\n## What casualty figures can and cannot establish\n\nCasualty reports show the human cost and intensity of fighting. They do not by themselves identify responsibility for each death, prove territorial control, or establish the military significance of each strike. Claims about a prison strike in Jawf, for example, are attributed to the Houthis pending independent confirmation.\n\n## What happens next\n\nWatch for verified ground changes around Taiz and Hodeidah, evidence of new maritime attacks or interdictions, changes in commercial routing, and whether regional actors turn the current battle into a broader Red Sea campaign.",
+        "changeSummary": "Replaced the two-paragraph casualty update with a strategic explainer on western Yemen, competing casualty figures, local actors, Bab al-Mandeb and implications for Israel and global shipping."
+      },
+      "sources": [
+        {
+          "url": "https://www.theguardian.com/world/2026/sep/05/yemen-ground-fighting-escalates-houthi-rebels-government-forces",
+          "title": "Civilians among at least 60 killed in Yemen as ground fighting escalates",
+          "publisher": "The Guardian",
+          "publishedAt": "2026-09-05T00:00:00Z"
+        },
+        {
+          "url": "https://apnews.com/article/e6d1e1d84c943d2fb1ce186a1e5bd3f8",
+          "title": "Houthis accuse Saudi Arabia of a strike on a prison in northern Yemen, killing 7",
+          "publisher": "Associated Press",
+          "publishedAt": "2026-09-07T00:00:00Z"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "lebanon-definitive"
+        }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "Task 01 requires a code/content-model change: static trust pages are outside the whole-site editorial contract and cannot be truthfully rewritten through this authorized publishing path."
+  ],
+  "research": [
+    {
+      "topic": "Trust, AI transparency and methodology",
+      "focus": "Reviewed live trust pages and delivery contract.",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/information-war",
+        "https://lionsofzion.io/methodology",
+        "https://lionsofzion.io/corrections"
+      ],
+      "conclusion": "The live pages contain public process claims, but the current editorial package contract cannot alter static trust surfaces.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israel-Lebanon escalation",
+      "sourcesReviewed": [
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+        "https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/"
+      ],
+      "conclusion": "The September 7 Kfar Rumman reporting changed the current casualty and escalation picture; canonical story updated.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Lebanese detainee exchange",
+      "sourcesReviewed": [
+        "https://apnews.com/article/6702b387d0f9ed129cae9be8b8536b58",
+        "https://www.timesofisrael.com/red-cross-says-it-facilitated-return-to-lebanon-of-man-detained-by-israel/"
+      ],
+      "conclusion": "Four later releases resolved the prior uncertainty; canonical record updated.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Adidas boycott narrative",
+      "sourcesReviewed": [
+        "https://news.adidas.com/GLOBAL/adidas-launches-single-shoe-service-for-those-living-with-leg-limb-difference/S/566e1eb1-0e4f-4747-b153-0607890bacef",
+        "https://www.timesofisrael.com/adidas-apologizes-for-offense-over-promotion-featuring-ex-idf-soldier-who-lost-leg-in-2021/"
+      ],
+      "conclusion": "Primary service documentation and later apology support a lifecycle rewrite.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "West Bank outposts",
+      "sourcesReviewed": [
+        "https://www.reuters.com/world/middle-east/israels-netanyahu-orders-west-bank-settler-outposts-be-removed-sources-say-2026-09-06/"
+      ],
+      "conclusion": "The reported order remains an implementation-unverified developing policy story; explainer updated.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Iran-aligned coordination",
+      "sourcesReviewed": [
+        "https://www.jpost.com/middle-east/article-907636",
+        "https://home.treasury.gov/news/press-releases/jy1932"
+      ],
+      "conclusion": "Longstanding support infrastructure is established; a current synchronized attack plan is not independently established.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Yemen and Bab al-Mandeb",
+      "sourcesReviewed": [
+        "https://www.theguardian.com/world/2026/sep/05/yemen-ground-fighting-escalates-houthi-rebels-government-forces",
+        "https://apnews.com/article/e6d1e1d84c943d2fb1ce186a1e5bd3f8"
+      ],
+      "conclusion": "Casualty update required strategic geography, actor and shipping context.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "trust-static-pages",
+      "candidate": "Task 01 — rewrite We Are, Methodology, Information War and Corrections",
+      "reason": "These static pages are explicitly outside whole-site-update-v2 destinations. Publishing via direct admin/API or changing application code would breach the authorized path.",
+      "replacement": "Implement a static trust-page content model or an approved code change, then publish the reconciled copy through that surface.",
+      "ownerDecisionRequested": true
+    }
+  ]
+}

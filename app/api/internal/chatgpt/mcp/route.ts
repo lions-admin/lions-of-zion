@@ -3,10 +3,10 @@ import { handleMcpRequest } from "@/server/modules/chatgpt-mcp";
 /**
  * The remote MCP endpoint ChatGPT connects to.
  *
- * Deliberately under `/api/internal/chatgpt/` rather than at `/api/mcp`: that
- * prefix is what `accessFor()` in `server/http/handler.ts` maps to
- * `app_service` / `service:chatgpt-editorial`, and a path outside it would run
- * on the ambient owner pool with no RLS and no `app.identity`.
+ * Compatibility endpoint for connectors configured before `/api/mcp` became
+ * canonical. `handleMcpRequest()` establishes `app_service` and the fixed
+ * `service:chatgpt-editorial` identity itself, so both URLs share exactly the
+ * same RLS boundary and transport implementation.
  *
  * The route itself does nothing but delegate. Authentication, the database
  * role and the transport all live in the module, because a route handler may

@@ -10,14 +10,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export function GET(request: NextRequest): NextResponse {
-  /* Starting a flow that provably cannot finish is worse than not starting
-     one. Outside production the `__Host-` state cookie is never written, and
-     the callback is registered on lionsofzion.io regardless — the reader would
-     be handed to X and returned to a page that could only fail. Send them back
-     to the account page, which knows how to say why. */
   if (publicXAvailability(request.headers) !== "ready") return unavailable(request);
 
-  const { authorizationUrl, stateCookie } = beginPublicXAuthorization();
+  const returnTo = request.nextUrl.searchParams.get("return_to") ?? "/account";
+  const { authorizationUrl, stateCookie } = beginPublicXAuthorization(returnTo);
   const response = NextResponse.redirect(authorizationUrl, 302);
   response.cookies.set({
     name: X_OAUTH_STATE_COOKIE,

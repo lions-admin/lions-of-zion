@@ -3,7 +3,18 @@ import Link from "next/link";
 import { SectionPage } from "@/components/sections/SectionPage";
 import { FigureRow, PublicationMeta, SourceList, Timeline } from "@/components/content";
 import { getOctober7Record } from "@/lib/content/october-7";
-import { displayTitle, displayWitness, getRecordDigests, manifestLanguages, pickVersion, type ArchiveIndexEntry } from "@/lib/content/archive";
+import {
+  displayTitle,
+  displayWitness,
+  getMediaRegistry,
+  getRecordDigests,
+  manifestLanguages,
+  pickVersion,
+  type ArchiveIndexEntry,
+  type ArchiveMedia,
+  type ArchivePackageName,
+} from "@/lib/content/archive";
+import { firstArchiveSourceMedia } from "@/lib/content/archive-share";
 import { DOCUMENTATION_PACKAGE, categorySlug, getDocumentationGroups, getDocumentationManifest, getDocumentationRecord } from "@/lib/content/documentation";
 import { getTestimoniesManifest, getTestimony, getTestimonyIndex } from "@/lib/content/testimonies";
 import { buildShareQuote, facebookShareUrl, stripSourceBreadcrumb, xIntentUrl } from "@/lib/content/share-text";
@@ -41,7 +52,6 @@ function october7JsonLd(record: Awaited<ReturnType<typeof getOctober7Record>>) {
   };
 }
 
-/** A small, deterministic cross-section, not a popularity or relevance ranking. */
 function previewSelection(entries: ArchiveIndexEntry[]) {
   const eligible = entries.filter((entry) => entry.defaultLanguage === "en" && entry.title?.trim());
   const categories = new Set<string | null>();
@@ -68,6 +78,8 @@ async function shareSamples(
   kind: "testimony" | "documentation",
   categories: Map<string, string>,
   digests: Awaited<ReturnType<typeof getRecordDigests>>,
+  pkg: ArchivePackageName,
+  media: Map<string, ArchiveMedia>,
 ): Promise<ArchiveShareSample[]> {
   const results = await Promise.all(previewSelection(entries).map(async (entry) => {
     const record = await (kind === "testimony" ? getTestimony(entry.id) : getDocumentationRecord(entry.id));
@@ -91,21 +103,50 @@ async function shareSamples(
     const shareText = [title, kind === "testimony" && witness ? `Account: ${witness}` : "", attribution, warning].filter(Boolean).join("\n");
     const xText = [buildShareQuote(title, 110), attribution,
       kind === "documentation" ? "Content warning: graphic material." : "Survivor testimony · sensitive account."].join("\n");
+    const sourceMedia = firstArchiveSourceMedia(pkg, version, media);
     return {
-      id: entry.id, title, href, url, source, date, witness,
+      id: entry.id,
+      title,
+      href,
+      url,
+      source,
+      date,
+      witness,
       excerpt: kind === "testimony" && body !== title ? buildShareQuote(body, 230) : "",
       category: entry.category ? categories.get(entry.category) ?? null : null,
-      medium: digests.get(entry.id)?.medium ?? "text",
-      shareText, xHref: xIntentUrl(xText, url), facebookHref: facebookShareUrl(url),
+      medium: sourceMedia?.medium ?? digests.get(entry.id)?.medium ?? "text",
+      shareText,
+      xHref: xIntentUrl(xText, url),
+      facebookHref: facebookShareUrl(url),
+      xMedia: sourceMedia ? {
+        ...sourceMedia,
+        recordId: entry.id,
+        locale: version.locale,
+      } : null,
     };
   }));
   return results.filter((entry): entry is ArchiveShareSample => entry !== null);
 }
 
 export default async function Page() {
-  const [record, testimonies, documentation, groups, digests, testimonyIndex] = await Promise.all([
-    getOctober7Record(), getTestimoniesManifest(), getDocumentationManifest(),
-    getDocumentationGroups(), getRecordDigests(DOCUMENTATION_PACKAGE), getTestimonyIndex(),
+  const [
+    record,
+    testimonies,
+    documentation,
+    groups,
+    digests,
+    testimonyIndex,
+    testimonyMedia,
+    documentationMedia,
+  ] = await Promise.all([
+    getOctober7Record(),
+    getTestimoniesManifest(),
+    getDocumentationManifest(),
+    getDocumentationGroups(),
+    getRecordDigests(DOCUMENTATION_PACKAGE),
+    getTestimonyIndex(),
+    getMediaRegistry("october7"),
+    getMediaRegistry(DOCUMENTATION_PACKAGE),
   ]);
   const counts = { films: 0, photographs: 0 };
   for (const digest of digests.values()) {
@@ -114,8 +155,8 @@ export default async function Page() {
   }
   const categories = new Map(groups.map((group) => [group.slug, group.title]));
   const [stories, records] = await Promise.all([
-    shareSamples(testimonyIndex, "testimony", new Map(), new Map()),
-    shareSamples(groups.flatMap((group) => group.records), "documentation", categories, digests),
+    shareSamples(testimonyIndex, "testimony", new Map(), new Map(), "october7", testimonyMedia),
+    shareSamples(groups.flatMap((group) => group.records), "documentation", categories, digests, DOCUMENTATION_PACKAGE, documentationMedia),
   ]);
 
   return (
@@ -123,8 +164,7 @@ export default async function Page() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }} />
       <div className={styles.archiveIntro}>
         <p className={styles.eyebrow}>Help the record reach others</p>
-        <p>Choose a survivor’s story or a documented record below. Read it, then share
-          its link with the source and context intact.</p>
+        <p>Choose a survivor’s story or a documented record below. When original media is held here, X can post that source file natively; text-only records keep a link-sharing fallback.</p>
         <nav className={styles.collectionJump} aria-label="Choose an archive collection">
           <a href="#survivor-stories">Survivor stories</a>
           <a href="#documented-records">Documented records</a>
@@ -150,8 +190,7 @@ export default async function Page() {
           ))}
         </ul>
       </details>
-      <p className={styles.sharingNote}>Preview selections contain text only. Original media stays in the archive record,
-        behind its content warning where applicable. Sharing a link does not reveal media here.</p>
+      <p className={styles.sharingNote}>Preview cards remain text-only and keep graphic media covered. Native X posting resolves the original archived file on the server only after you choose the media action.</p>
 
       <section className={styles.section} aria-labelledby="the-record">
         <h2 className={styles.sectionHeading} id="the-record">October 7, in the record</h2>
@@ -163,6 +202,7 @@ export default async function Page() {
 
       <section className={styles.section} aria-labelledby="what-followed">
         <h2 className={styles.sectionHeading} id="what-followed">What followed October 7</h2>
+        <p>What followed is documented in the wider record.</p>
         <div className={styles.record}><Timeline variant="feed" entries={record.timeline} /></div>
       </section>
 

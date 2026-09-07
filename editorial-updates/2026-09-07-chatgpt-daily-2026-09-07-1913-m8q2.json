@@ -1,0 +1,102 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-daily-2026-09-07-1913-m8q2",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T16:13:28.000Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "siteRecommendations": [
+    "Critical: repair the Vercel Blob access-mode mismatch before the next editorial run that creates, updates, or promotes content requiring new media. The live system still reports: Cannot use public access on a private store.",
+    "High: after the storage fix, run a targeted hero-media recovery and verify the resulting public assets. The live editorial context currently reports 46 of 48 records without hero images.",
+    "Continue monitoring the southern Lebanon escalation, including casualty revisions, Hezbollah attacks on Israeli forces, and Israeli retaliatory strikes; update the existing lead story rather than creating a duplicate once media attachment is safe.",
+    "Continue monitoring the Gaza City strike in which the IDF says Hamas Nukhba commander Yusuf Aqila was killed; use an existing canonical Gaza story if a material update is warranted after corroboration and media availability."
+  ],
+  "research": [
+    {
+      "topic": "Southern Lebanon escalation",
+      "focus": "September 7 casualty reporting from Kfar Rumman, Hezbollah attacks on Israeli forces, and Israeli retaliation.",
+      "sourcesReviewed": [
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+        "https://www.investing.com/news/commodities-news/israeli-strikes-on-southern-lebanese-town-kill-11-state-news-agency-says-4890499",
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766"
+      ],
+      "conclusion": "This remains the strongest homepage-level developing story. AP reported at least 12 killed in Kfar Rumman while Reuters, citing Lebanon's NNA, reported at least 11; the discrepancy should remain explicit. The existing Lebanon lead should be updated rather than duplicated, but this run vetoed the mutation because the live media materialization path is still broken and the current lead has no hero image.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Gaza City Hamas commander strike",
+      "focus": "IDF announcement that Hamas Nukhba commander Yusuf Aqila was killed in a September 6 Gaza City strike.",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/",
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766"
+      ],
+      "conclusion": "The IDF announcement materially clarifies the target of an existing Gaza City strike story and may warrant an update to the existing canonical publication. It was not mutated in this run because any material update should meet the current media standard, and the live media path remains blocked.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "West Bank security and Palestinian Authority policy",
+      "focus": "Netanyahu and Katz directive for the IDF to prepare for a broader campaign against PA officials and terror infrastructure after a stabbing attack, alongside continued settler-related violence.",
+      "sourcesReviewed": [
+        "https://www.jpost.com/israel-news/defense-news/article-907809",
+        "https://www.internazionale.it/ultime-notizie-reuters/2026/09/07/two-palestinians-killed-israeli-stabbed-as-west-bank-settler-violence-flares",
+        "https://www.thenationalnews.com/news/mena/2026/09/07/israeli-military-ordered-to-prepare-for-all-out-war-on-palestinian-authority/"
+      ],
+      "conclusion": "The directive is consequential but requires careful attribution and separation from broader political rhetoric. A standalone publication was not necessary during this run because the site already carries current West Bank coverage and the media blocker prevents a standards-compliant new promotion.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israeli science, technology and innovation",
+      "focus": "Material developments since the latest successful editorial run.",
+      "sourcesReviewed": [
+        "https://innovationisrael.org.il/en/press_release/?tid_1=99&ttype_1=opportunities",
+        "https://www.timesofisrael.com/start-up-daily/"
+      ],
+      "conclusion": "No sufficiently fresh, consequential positive-Israel development was identified that justified a new publication after the existing September 6 Tkuma initiative and current technology coverage. No quota-filling publication was created.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-media-blocker-lebanon-update",
+      "candidate": "Update and re-promote the existing southern Lebanon lead with the latest Kfar Rumman casualty reporting and escalation context",
+      "reason": "Critical production dependency remains broken: the live editorial run reports Vercel Blob cannot use public access on a private store, and the existing lead still has no hero image. Publishing or re-promoting it again without compliant media would violate this run's visual/media quality gate.",
+      "section": "news",
+      "sources": [
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+        "https://www.investing.com/news/commodities-news/israeli-strikes-on-southern-lebanese-town-kill-11-state-news-agency-says-4890499"
+      ],
+      "replacement": "Repair media storage/materialization, verify an attached hero asset on production, then update the existing lead rather than creating a duplicate."
+    },
+    {
+      "key": "veto-media-blocker-gaza-update",
+      "candidate": "Update the existing Gaza City strike story with the IDF identification of Yusuf Aqila as a Hamas Nukhba commander",
+      "reason": "The update is potentially warranted, but the target publication currently has no media and the live media materialization dependency is broken. The run cannot safely make a material update under the stated media standard.",
+      "section": "news",
+      "sources": [
+        "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/",
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766"
+      ],
+      "replacement": "Revisit after media storage is repaired; attribute the identification explicitly to the IDF and update the existing canonical Gaza story if still material."
+    },
+    {
+      "key": "veto-west-bank-standalone",
+      "candidate": "New standalone article on the Netanyahu-Katz directive concerning the Palestinian Authority",
+      "reason": "Consequential but overlapping with existing current West Bank coverage, and the media blocker prevents a standards-compliant new homepage-capable publication. Avoid duplicate or slot-filling coverage.",
+      "section": "news",
+      "sources": [
+        "https://www.jpost.com/israel-news/defense-news/article-907809",
+        "https://www.internazionale.it/ultime-notizie-reuters/2026/09/07/two-palestinians-killed-israeli-stabbed-as-west-bank-settler-violence-flares"
+      ]
+    },
+    {
+      "key": "veto-no-quota-positive-israel",
+      "candidate": "Additional People of Israel / innovation item",
+      "reason": "No sufficiently fresh consequential development was identified after the latest successful run. Publishing merely to balance the homepage would violate the no-quota rule.",
+      "section": "innovation",
+      "sources": [
+        "https://innovationisrael.org.il/en/press_release/?tid_1=99&ttype_1=opportunities"
+      ]
+    }
+  ]
+}

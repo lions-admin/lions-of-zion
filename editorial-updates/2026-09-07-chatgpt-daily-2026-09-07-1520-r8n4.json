@@ -1,0 +1,103 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-daily-2026-09-07-1520-r8n4",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T12:20:00Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "siteRecommendations": [
+    "The dominant production-quality blocker remains media: live context reports 46 of 48 records without hero images. Do not promote or newly publish additional records until a cleared external asset or a generated editorial illustration can be attached through the supported media field.",
+    "The southern-Lebanon escalation is a developing canonical story, not a new-story opportunity. Once a safe media asset is available, update the existing canonical Lebanon record rather than creating another near-duplicate.",
+    "For positive-Israel coverage, the HydroSight funding item is promising but should be retained for follow-up until a primary company/investor source and a publishable media asset with defensible provenance are available."
+  ],
+  "research": [
+    {
+      "topic": "Southern Lebanon escalation",
+      "focus": "New September 7 casualty reporting in Kfar Reman and the relationship to the existing Hezbollah-drone/Israeli-strike canonical story.",
+      "sourcesReviewed": [
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd",
+        "https://www.aljazeera.com/news/2026/9/7/israeli-air-attack-kills-at-least-10-people-in-southern-lebanon",
+        "https://www.idf.il/128118/"
+      ],
+      "conclusion": "The escalation is consequential and clearly develops an already-live canonical story. Lebanese casualty reporting increased on September 7, while the IDF's latest accessible official log supports the preceding Hezbollah-drone trigger and Israeli response. Because the currently promoted canonical record has no hero media and no cleared documentary asset could be established in this run, the development was not published or re-promoted.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israel multi-front readiness ahead of Rosh Hashanah",
+      "focus": "Reporting that Israel's defense establishment is maintaining maximum readiness across several fronts ahead of the holiday period.",
+      "sourcesReviewed": [
+        "https://www.jpost.com/israel-news/defense-news/article-907780",
+        "https://www.idf.il/128118/"
+      ],
+      "conclusion": "The readiness theme is relevant, but the strongest fresh framing located was an attributed Jerusalem Post assessment layered on top of an already-published IDF snap-drill story. It did not clear the bar for a separate canonical publication, and no safe cleared media was established for a new item.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israeli innovation and AI",
+      "focus": "HydroSight emerging from stealth with reported $5 million seed funding for AI seabed mapping.",
+      "sourcesReviewed": [
+        "https://www.calcalistech.com/ctechnews/article/syzscx2oge"
+      ],
+      "conclusion": "The item is mission-relevant positive-Israel coverage and appears newsworthy, but this run located only one strong secondary report and could not independently establish a primary company/investor announcement or reusable image rights. It was retained for follow-up rather than published from a single-source base.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Gaza-related international legal narrative",
+      "focus": "Germany's defense at the ICJ against Nicaragua's allegations concerning German support for Israel.",
+      "sourcesReviewed": [
+        "https://apnews.com/article/1cac60bd1e9f7be1b32523dbb060f6dd"
+      ],
+      "conclusion": "The hearing is consequential legal context but is primarily a case about Germany's conduct rather than a fresh Israel operational development. It did not displace higher-priority live security coverage and no distinct Lions of Zion publication was warranted in this run.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Iran and Strait of Hormuz",
+      "focus": "Iranian restricted-zone messaging and regional reaction, including warnings toward South Korea and UAE objections.",
+      "sourcesReviewed": [
+        "https://www.jpost.com/middle-east/iran-news/2026-09-07/live-updates-907766",
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd"
+      ],
+      "conclusion": "The restricted-zone story is still developing and materially overlaps live Lions coverage of the Hormuz confrontation. No sufficiently discrete, independently corroborated development was identified that justified another publication in this run.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-lebanon-kfar-reman-20260907",
+      "candidate": "Update the existing southern-Lebanon escalation story with September 7 Kfar Reman casualty reporting.",
+      "reason": "Editorially warranted as a developing update, but the existing promoted canonical story has no hero image and this run could not establish a documentary or official asset with a truthful cleared reuse basis. Publishing or newly promoting without media would violate the run's explicit media requirement.",
+      "section": "news",
+      "sources": [
+        "https://apnews.com/article/691deb2ccb571ec83c552efb794568cd",
+        "https://www.aljazeera.com/news/2026/9/7/israeli-air-attack-kills-at-least-10-people-in-southern-lebanon",
+        "https://www.idf.il/128118/"
+      ],
+      "replacement": "Update the existing canonical Lebanon story once a cleared documentary image or generated editorial illustration is attachable through the supported media mechanism.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-holiday-readiness-20260907",
+      "candidate": "Create a separate article on Israel's maximum multi-front alert ahead of Rosh Hashanah.",
+      "reason": "The fresh reporting is largely an attributed threat/readiness assessment and substantially overlaps the already-live IDF snap-drill readiness story. Creating another record would risk duplication, and no safe cleared media asset was established.",
+      "section": "israel_update",
+      "sources": [
+        "https://www.jpost.com/israel-news/defense-news/article-907780",
+        "https://www.idf.il/128118/"
+      ],
+      "replacement": "Reassess as an update to the existing readiness canonical story if a specific operational development occurs and appropriate media is available.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-hydrosight-seed-20260907",
+      "candidate": "Publish HydroSight's reported $5 million seed round and AI seabed-mapping launch as a People/innovation item.",
+      "reason": "Mission-relevant and potentially publishable, but only one strong secondary report was retained in this run; no primary company or investor confirmation and no image with defensible public reuse provenance were established. The source and media bar was therefore not met.",
+      "section": "technology_ai",
+      "sources": [
+        "https://www.calcalistech.com/ctechnews/article/syzscx2oge"
+      ],
+      "replacement": "Follow up for a primary announcement and a cleared company/founder image or generate an original disclosed editorial illustration before publication.",
+      "ownerDecisionRequested": false
+    }
+  ]
+}

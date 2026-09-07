@@ -1,0 +1,25 @@
+.textLed {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "status"
+    "body";
+}
+
+.textLed .dossierBody {
+  max-width: 58rem;
+}
+
+.researchQuestion {
+  margin-top: 14px;
+}
+
+.researchQuestion > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-lo);
+  font: 500 12px/1.6 var(--face-text);
+}
+
+.researchQuestion > p {
+  margin-top: 0;
+}

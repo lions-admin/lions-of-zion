@@ -14,12 +14,13 @@ import {
   rankOf,
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
+import narrativeStyles from "./HomeNarrativesSection.module.css";
 
 /**
- * Fake Resistance, as it is named everywhere else on the site. Each record is
- * a dossier that reads status → claim → finding → sources, and says each
- * thing once: an unresolved record's status already says no finding has been
- * reached, so it carries no finding block repeating that.
+ * Fake Resistance contains three distinct editorial shapes: Narrative Watch,
+ * influence investigations, and ordinary reporting filed to the desk (for
+ * example antisemitism coverage). The section metadata decides which one a
+ * record is; absence of Narrative Watch details never manufactures a case.
  */
 export function HomeNarrativesSection({
   section,
@@ -50,46 +51,76 @@ export function HomeNarrativesSection({
                   item.verification as keyof typeof VERIFICATION_STATES
                 ]
               : null;
+          const hasMedia = Boolean(item.media);
+          const distinctQuestion =
+            item.kind === "case" && item.question && item.question.trim() !== item.title.trim()
+              ? item.question
+              : undefined;
+          const statusLabel =
+            item.kind === "watch"
+              ? status?.label
+              : item.kind === "case"
+                ? "Research case"
+                : item.label;
+          const statusMeaning =
+            item.kind === "watch"
+              ? status?.meaning
+              : item.kind === "case"
+                ? "Findings carry their own confidence and limitations."
+                : "Editorial reporting filed to the Fake Resistance desk.";
+          const kicker =
+            item.kind === "watch"
+              ? "Claim in circulation"
+              : item.kind === "case"
+                ? "Influence investigation"
+                : item.label;
+          const heading = item.kind === "watch" ? item.claim : item.title;
           return (
             <article
               key={item.key}
-              className={styles.investigation}
+              className={`${styles.investigation} ${hasMedia ? "" : narrativeStyles.textLed}`}
               data-home-record={item.key}
               data-rank={rankOf(index)}
               data-kind={item.kind}
+              data-has-media={hasMedia ? "true" : "false"}
             >
               <header className={styles.dossierStatus}>
                 <p className={styles.verdict} data-tone={status?.tone ?? "neutral"}>
-                  <span className={styles.verdictLabel}>{status?.label ?? "Research case"}</span>
-                  <span className={styles.verdictMeaning}>
-                    {status?.meaning ?? "Findings carry their own confidence and limitations."}
-                  </span>
+                  <span className={styles.verdictLabel}>{statusLabel}</span>
+                  <span className={styles.verdictMeaning}>{statusMeaning}</span>
                 </p>
                 <HomeTime date={item.date} includeTime />
               </header>
-              <div className={styles.dossierCover}>
-                <HomeMedia media={item.media} />
-              </div>
-              <div className={styles.dossier}>
-                <p className={styles.kicker}>
-                  {item.kind === "watch"
-                    ? "Claim in circulation"
-                    : "Research question"}
-                </p>
+              {item.media && (
+                <div className={styles.dossierCover}>
+                  <HomeMedia media={item.media} />
+                </div>
+              )}
+              <div className={`${styles.dossier} ${narrativeStyles.dossierBody}`}>
+                <p className={styles.kicker}>{kicker}</p>
                 <h3>
-                  <a href={item.href}>
-                    {item.kind === "watch" ? item.claim : item.title}
-                  </a>
+                  <a href={item.href}>{heading}</a>
                 </h3>
-                {item.kind === "case" && (
+                {item.kind === "case" && distinctQuestion && (
+                  <div className={narrativeStyles.researchQuestion}>
+                    <span>Research question</span>
+                    <p className={styles.summary}>
+                      <PreviewText
+                        text={distinctQuestion}
+                        budget={PREVIEW_BUDGET[rankOf(index)]}
+                      />
+                    </p>
+                  </div>
+                )}
+                {item.kind === "article" && item.summary && (
                   <p className={styles.summary}>
                     <PreviewText
-                      text={item.question}
+                      text={item.summary}
                       budget={PREVIEW_BUDGET[rankOf(index)]}
                     />
                   </p>
                 )}
-                {item.finding && (
+                {item.kind !== "article" && item.finding && (
                   <div className={styles.finding}>
                     <span>
                       {item.kind === "watch" ? "Finding" : "From the research"}
@@ -104,7 +135,7 @@ export function HomeNarrativesSection({
                     {item.sourceCount} sources in the case · source count is
                     not a verdict
                   </p>
-                ) : item.basis === "analysis" ? (
+                ) : item.kind === "watch" && item.basis === "analysis" ? (
                   <p className={styles.sources}>
                     Lions of Zion editorial analysis · No source-backed finding
                     is implied.
@@ -119,9 +150,11 @@ export function HomeNarrativesSection({
                 <JourneyLink href={item.href}>
                   {item.kind === "case"
                     ? "Read the investigation"
-                    : item.basis === "analysis"
-                      ? "Read the analysis"
-                      : "Read the assessment"}
+                    : item.kind === "watch"
+                      ? item.basis === "analysis"
+                        ? "Read the analysis"
+                        : "Read the assessment"
+                      : "Read the article"}
                 </JourneyLink>
               </div>
             </article>

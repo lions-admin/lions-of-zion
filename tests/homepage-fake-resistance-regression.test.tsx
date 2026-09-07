@@ -1,0 +1,114 @@
+import { describe, expect, it } from 'vitest';
+import { renderToStaticMarkup } from 'react-dom/server';
+import type { HomepageEdition } from '@/server/contracts/homepage';
+import media from '@/content-packages/homepage/media.json';
+import { editorialMediaSchema } from '@/server/contracts/editorial-media';
+import { HomeNarrativesSection } from '@/components/home/HomeNarrativesSection';
+
+const asset = editorialMediaSchema.parse(media.assets[0]);
+const base = {
+  key: 'fake:a',
+  title: 'A full headline',
+  href: '/articles/a',
+  date: '2026-09-07T09:00:00Z',
+  summary: 'Published summary.',
+  sources: [{ label: 'Source', url: 'https://example.com/source' }],
+  whyItMatters: undefined,
+};
+
+function render(items: HomepageEdition['fakeResistance']['items']) {
+  return renderToStaticMarkup(
+    <HomeNarrativesSection section={{ state: 'ready', gaps: [], items }} />,
+  );
+}
+
+describe('Fake Resistance homepage regression coverage', () => {
+  it('preserves the investigation media layout when media exists', () => {
+    const html = render([{ ...base, media: asset, kind: 'case', sourceCount: 2, confidence: 'High' }]);
+    expect(html).toContain('data-kind="case"');
+    expect(html).toContain('data-has-media="true"');
+    expect(html).toContain('<figure');
+    expect(html).toContain('Research case');
+    expect(html).toContain('Read the investigation');
+  });
+
+  it('renders an investigation without media as intentional text-led content', () => {
+    const html = render([{ ...base, media: null, kind: 'case', sourceCount: 2, confidence: 'High' }]);
+    expect(html).toContain('data-has-media="false"');
+    expect(html).not.toContain('<figure');
+    expect(html).not.toContain('<img');
+    expect(html).not.toContain('dossierCover');
+    expect(html).toContain('Read the investigation');
+  });
+
+  it('renders Narrative Watch correctly with and without media', () => {
+    const html = render([
+      {
+        ...base,
+        key: 'watch:media',
+        media: asset,
+        kind: 'watch',
+        claim: 'Claim with documentary media',
+        verification: 'misleading',
+        basis: 'sourced',
+      },
+      {
+        ...base,
+        key: 'watch:text',
+        media: null,
+        kind: 'watch',
+        claim: 'Claim without media',
+        verification: 'unresolved',
+        basis: 'analysis',
+      },
+    ]);
+    expect(html).toContain('Claim with documentary media');
+    expect(html).toContain('Claim without media');
+    expect(html).toContain('Read the assessment');
+    expect(html).toContain('Read the analysis');
+    expect(html.match(/data-kind="watch"/g)).toHaveLength(2);
+  });
+
+  it('renders ordinary antisemitism reporting as an article, never a research case', () => {
+    const html = render([
+      { ...base, media: null, kind: 'article', label: 'Antisemitism' },
+    ]);
+    expect(html).toContain('Antisemitism');
+    expect(html).toContain('Published summary.');
+    expect(html).toContain('Read the article');
+    expect(html).not.toContain('Research case');
+    expect(html).not.toContain('Research question');
+    expect(html).not.toContain('Read the investigation');
+  });
+
+  it('does not duplicate a headline as a research question', () => {
+    const html = render([
+      {
+        ...base,
+        media: null,
+        kind: 'case',
+        question: base.title,
+        sourceCount: 2,
+        confidence: 'High',
+      },
+    ]);
+    expect(html.match(/A full headline/g)).toHaveLength(1);
+    expect(html).not.toContain('Research question');
+  });
+
+  it('shows a distinct research question when a real one exists', () => {
+    const html = render([
+      {
+        ...base,
+        media: null,
+        kind: 'case',
+        question: 'How did the synthetic clip spread as documentation?',
+        sourceCount: 2,
+        confidence: 'High',
+      },
+    ]);
+    expect(html).toContain('Research question');
+    expect(html).toContain('How did the synthetic clip spread as documentation?');
+    expect(html.match(/A full headline/g)).toHaveLength(1);
+  });
+});

@@ -1,0 +1,180 @@
+{
+  "contractVersion": "whole-site-update-v1",
+  "runId": "chatgpt-daily-2026-09-07-0419-a7m2",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-07T01:19:00Z",
+  "creates": [
+    {
+      "key": "weizmann-otp-stress-metabolism-20260907",
+      "publication": {
+        "kind": "news_update",
+        "section": "science_medicine",
+        "canonicalStoryId": "weizmann-otp-stress-metabolism-mice-2026",
+        "title": "Weizmann study links adult Otp activity to stress response and metabolism in mice",
+        "summary": "Weizmann Institute researchers found that disabling the Orthopedia (Otp) transcription factor in adult male mice disrupted stress responses, thyroid signaling and metabolic regulation, showing that a gene known for brain development also remains active in adult physiology.",
+        "body": "A Weizmann Institute of Science study published in Endocrinology found that the Orthopedia, or Otp, transcription factor continues to play an important physiological role in adulthood, beyond its established function in development of the neuroendocrine hypothalamus.\n\nThe researchers used a conditional genetic model to disable Otp in the forebrain of adult male mice. The intervention was followed by impaired stress responses, including increased depressive-like behavior and elevated stress-induced cortisol, together with changes in thyroid hormone levels, body temperature, fat mass and responsiveness to the hunger-related hormone ghrelin.\n\nThe study also reported reduced expression of hypothalamic neuropeptides involved in energy balance. Taken together, the results led the authors to describe Otp as an adult neuroendocrine integrator connecting adaptive stress response with metabolic regulation.\n\nThe finding is basic research, not a human treatment result. The experiments were performed in male mice, and the researchers have said further work is needed, including studies in females, before conclusions can be extended across sexes or toward clinical applications.\n\nRecent reporting by The Times of Israel highlighted the work as a challenge to the assumption that Otp's important role ends after development. The more defensible conclusion is narrower: the mouse data show that Otp remains functionally important in adult stress and metabolic systems. Whether that biology can eventually inform therapies for anxiety, metabolic disorders or other human conditions remains an open research question.\n\nFor Israel's science ecosystem, the study is another example of fundamental neuroendocrine research linking molecular mechanisms to whole-body physiology. Its value is not a promised cure, but a clearer map of how stress and metabolism may be biologically connected.",
+        "language": "en",
+        "editorialTopic": "Israeli neuroendocrine research",
+        "topicTags": [
+          "weizmann-institute",
+          "neuroscience",
+          "metabolism",
+          "stress-response",
+          "mouse-research"
+        ],
+        "primaryActor": "Weizmann Institute of Science",
+        "arena": "Israel",
+        "featuredIsraelStory": true
+      },
+      "sources": [
+        {
+          "url": "https://www.weizmann.ac.il/mcb/levkowitz/publications",
+          "title": "Publications | The Levkowitz Lab",
+          "publisher": "Weizmann Institute of Science",
+          "publisherUrl": "https://www.weizmann.ac.il/",
+          "official": true,
+          "language": "en"
+        },
+        {
+          "url": "https://academic.oup.com/endo/article-abstract/167/4/bqag029/8525632",
+          "title": "Disruption of the developmental factor Otp in the adult male forebrain reveals its diverse physiological functions",
+          "publisher": "Endocrinology / Oxford Academic",
+          "publisherUrl": "https://academic.oup.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.timesofisrael.com/israeli-scientists-find-multitasking-gene-controls-mood-and-metabolism-in-mice/",
+          "title": "Israeli scientists find 'multitasking' gene controls mood and metabolism in mice",
+          "publisher": "The Times of Israel",
+          "publisherUrl": "https://www.timesofisrael.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "attach-lebanon-source-stack-20260907",
+      "target": {
+        "publicId": "hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5"
+      },
+      "publication": {
+        "changeSummary": "Attached the structured public source stack for the September 6 Hezbollah drone launches and subsequent Israeli strikes; article substance unchanged."
+      },
+      "sources": [
+        {
+          "url": "https://www.idf.il/128118",
+          "title": "IDF strikes southern Lebanon in response to launch of two explosive drones",
+          "publisher": "Israel Defense Forces",
+          "publisherUrl": "https://www.idf.il/",
+          "official": true,
+          "language": "he"
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/",
+          "title": "Israeli strikes kill seven in southern Lebanon",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "attach-west-bank-source-stack-20260907",
+      "target": {
+        "publicId": "netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx"
+      },
+      "publication": {
+        "changeSummary": "Attached the structured Reuters source stack for the reported outpost-removal order and its immediate U.S.-pressure context; article substance unchanged."
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israels-netanyahu-orders-west-bank-settler-outposts-be-removed-sources-say-2026-09-06/",
+          "title": "Israel's Netanyahu orders West Bank settler outposts to be removed, sources say",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/us-ambassador-visits-palestinian-town-amid-rise-west-bank-settler-violence-2026-09-05/",
+          "title": "US ambassador visits Palestinian town amid rise in West Bank settler violence",
+          "publisher": "Reuters",
+          "publisherUrl": "https://www.reuters.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "attach-bgu-aerogel-source-stack-20260907",
+      "target": {
+        "publicId": "ben-gurion-university-team-develops-aerogel-that-0y2we"
+      },
+      "publication": {
+        "changeSummary": "Attached the structured public sources supporting the aerogel's laboratory performance, biodegradation design and current development status; article substance unchanged."
+      },
+      "sources": [
+        {
+          "url": "https://www.bgu.ac.il/en/news-and-articles/bgu-aerogel-adsorbs-oil-and-supports-biodegradation/",
+          "title": "BGU Aerogel Adsorbs Oil and Supports Biodegradation",
+          "publisher": "Ben-Gurion University of the Negev",
+          "publisherUrl": "https://www.bgu.ac.il/",
+          "official": true,
+          "language": "en"
+        },
+        {
+          "url": "https://www.timesofisrael.com/israeli-scientists-develop-huge-sponge-to-mop-up-and-eat-oil-spills/",
+          "title": "Israeli scientists develop huge sponge to mop up and 'eat' oil spills",
+          "publisher": "The Times of Israel",
+          "publisherUrl": "https://www.timesofisrael.com/",
+          "official": false,
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "attach-tkuma-source-stack-20260907",
+      "target": {
+        "publicId": "israel-launches-nis-22-million-tech-human-capita-794jg"
+      },
+      "publication": {
+        "changeSummary": "Attached the Israel Innovation Authority's structured primary source for the NIS 22 million Tkuma technology-workforce initiative; article substance unchanged."
+      },
+      "sources": [
+        {
+          "url": "https://innovationisrael.org.il/en/press_release/tkuma-programs/",
+          "title": "Collaboration With Tkuma Directorate to Launch NIS 22 Million Initiative to Grow Tech Human Capital in Tkuma Region",
+          "publisher": "Israel Innovation Authority",
+          "publisherUrl": "https://innovationisrael.org.il/en/",
+          "official": true,
+          "language": "en"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "attach-lebanon-source-stack-20260907"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "attach-west-bank-source-stack-20260907"
+        }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "Several recently published records carried source URLs only inside article body text while their structured Public sources stack was empty. This package repairs four current examples. Future composers should always populate whole-site-update-v1 sources[] rather than relying on body-level 'Sources:' text.",
+    "The homepage News & Analysis slots were older than newer records already live in the news hub. This package promotes the September 6 Lebanon escalation and West Bank outpost-order records to restore homepage freshness.",
+    "No media was attached to the new Weizmann science record because no reviewed asset had a rights basis that could be truthfully declared cleared for Lions of Zion reuse. Consider adding a licensed institutional photo or generated editorial illustration later."
+  ]
+}

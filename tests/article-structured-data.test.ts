@@ -20,6 +20,10 @@ const { publication } = vi.hoisted(() => ({ publication: {
 } as const }));
 
 vi.mock("@/lib/publications", () => ({
+  /* The article page reads its desk to build "Continue the record" (VA-50).
+     An empty pool is the honest fixture here: these suites are about the
+     record itself, and an empty result renders the hub link alone. */
+  listBriefingPublications: async () => [],
   getPublicPublication: vi.fn().mockResolvedValue(publication),
   isMissingPublication: () => false,
 }));

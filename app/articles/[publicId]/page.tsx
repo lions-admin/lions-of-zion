@@ -6,12 +6,22 @@ import { stripSourceDump } from "@/lib/source-dump";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
 import {
+  publicationHomepageSection,
+  publicationHubCrumb,
   publicationParentCrumb,
   publicationSectionLabel,
   publicationSupportsInvestigationExplorer,
   routePublication,
+  SECTIONS_BY_HOMEPAGE_SECTION,
 } from "@/lib/publication-routing";
-import { getPublicPublication, isMissingPublication } from "@/lib/publications";
+import Link from "next/link";
+import { getPublicPublication, isMissingPublication, listBriefingPublications } from "@/lib/publications";
+import {
+  CONTINUATION_LABELS,
+  continuationPool,
+  continueTheRecord,
+  type ContinuationReason,
+} from "@/lib/continue-the-record";
 import type { PublicationSection } from "@/server/contracts/enums";
 import { ANALYSIS_AUTHOR, isAnalysisBasis, PUBLICATION_PROVENANCE, publicationProvenance } from "@/server/contracts/publication";
 import type { PublicPublicationDetail } from "@/server/contracts/publication";
@@ -87,6 +97,19 @@ export default async function ArticlePage({ params }: Props) {
     if (isMissingPublication(cause)) notFound();
     throw cause;
   }
+
+  /* VA-50. The pool is this record's own desk, which is where a continuation
+     for it can plausibly live; `continueTheRecord` then requires a shared
+     field, so a wide pool cannot turn into filler. A failure here must never
+     take the article down with it — the page falls back to the hub link, which
+     is the same thing an empty result produces. */
+  const deskSections = SECTIONS_BY_HOMEPAGE_SECTION[publicationHomepageSection(article.section)];
+  const continuations = continueTheRecord(
+    article,
+    await continuationPool(deskSections, (section) =>
+      listBriefingPublications(`section=${section}&limit=25`)),
+  );
+  const desk = publicationHubCrumb(publicationHomepageSection(article.section));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -426,36 +449,31 @@ export default async function ArticlePage({ params }: Props) {
           </section>
         ) : null}
 
-        {article.relatedArticles.length || article.narratives.length ? (
-          <section className={styles.related}>
-            <h2>Related coverage</h2>
-            {article.relatedArticles.length ? (
-              <ul className={styles.relatedList}>
-                {article.relatedArticles.map((related) => (
-                  <li key={related.publicId}>
-                    <Card href={`/articles/${related.publicId}`} variant="row">
-                      <CardEyebrow>{relatedLabel(related.section)}</CardEyebrow>
-                      <CardTitle as="h3">{related.title}</CardTitle>
-                      {related.summary ? <CardDescription>{related.summary}</CardDescription> : null}
-                    </Card>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            {article.narratives.length ? (
-              <>
-                <h3 className={styles.relatedSubhead}>Related Narrative Watch records</h3>
-                <ul className={styles.narrativeList}>
-                  {article.narratives.map((narrative) => (
-                    <li key={narrative.publicId}>
-                      {narrative.title} · {narrative.status.replaceAll("_", " ")}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : null}
-          </section>
-        ) : null}
+        {/* VA-50. "Related coverage" was fed by `publication_related`, which
+            `linkRelated` writes for the siblings of a batch — the other records
+            of the same daily edition. That is a fact about how a record was
+            produced, not about what it is about. Every row here instead shares
+            an actual field with this record, and says which one; when nothing
+            does, the reader is sent to the desk rather than shown filler. */}
+        <section className={styles.related}>
+          <h2>Continue the record</h2>
+          {continuations.length ? (
+            <ul className={styles.relatedList}>
+              {continuations.map((next) => (
+                <li key={next.publicId}>
+                  <Card href={`/articles/${next.publicId}`} variant="row">
+                    <CardEyebrow>{continuationEyebrow(next.section, next.reason, desk.label)}</CardEyebrow>
+                    <CardTitle as="h3">{next.title}</CardTitle>
+                    {next.summary ? <CardDescription>{next.summary}</CardDescription> : null}
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <p className={styles.relatedSubhead}>
+            <Link href={desk.href}>Everything on {desk.label}</Link>
+          </p>
+        </section>
 
         {article.corrections.length ? (
           <section className={styles.corrections}>
@@ -531,18 +549,25 @@ export function collapsePublicPassages<T extends PublicPublicationDetail["passag
 }
 
 /**
- * What a related record is, in the reader's terms and the site's own words.
+ * The eyebrow on a "Continue the record" row.
  *
- * A Narrative Watch record names its desk as well as its kind: a claim
- * assessment sitting under a news article has to say it comes from somewhere
- * else before it is read as more reporting. Both halves come from
- * `routePublication`, so a section that moves desk moves this label with it.
+ * The reason comes from `continueTheRecord` — what this destination actually
+ * shares with the record being read. The desk is prepended only when the
+ * destination sits on a *different* one, which is the rule the previous
+ * `relatedLabel` existed for and which VA-50 would otherwise have dropped: a
+ * claim assessment sitting under a news article has to say it comes from
+ * somewhere else before it is read as more reporting. Both halves derive from
+ * `routePublication`, so a section that moves desk moves this label with it,
+ * and a same-desk row is not made to carry a redundant prefix.
  */
-function relatedLabel(section: PublicationSection): string {
-  const destination = routePublication(section);
-  return section === "narrative_watch"
-    ? `${destination.hub} · Related claim assessment`
-    : publicationSectionLabel(section);
+export function continuationEyebrow(
+  section: PublicationSection,
+  reason: ContinuationReason,
+  currentHub: string,
+): string {
+  const hub = routePublication(section).hub;
+  const reason_ = CONTINUATION_LABELS[reason];
+  return hub === currentHub ? reason_ : `${hub} · ${reason_}`;
 }
 
 function asSourceList(

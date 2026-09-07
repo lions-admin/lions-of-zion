@@ -1,7 +1,7 @@
 import { handler, parseBody } from '@/server/http/handler';
 import { ok } from '@/server/http/responses';
 import { requireEditorialUpdateIngestSecret } from '@/server/http/internal-guard';
-import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
+import { anyWholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
 import { editorialUpdate } from '@/server/modules/editorial-update';
 import { drainPendingOutbox } from '@/server/core/outbox';
 
@@ -22,7 +22,7 @@ const KICK_LIMIT = 100;
  * a stable status URL for GitHub Actions to poll. */
 export const POST = handler(async request => {
   requireEditorialUpdateIngestSecret(request);
-  const pkg = await parseBody(request, wholeSiteUpdatePackageSchema);
+  const pkg = await parseBody(request, anyWholeSiteUpdatePackageSchema);
   const run = await editorialUpdate().startWholeSite(pkg, `external:${pkg.composer}`);
 
   /* Hand the just-committed row to the queue now instead of waiting for the

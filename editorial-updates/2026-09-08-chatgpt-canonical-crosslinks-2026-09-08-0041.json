@@ -1,0 +1,85 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-canonical-crosslinks-2026-09-08-0041",
+  "composer": "ChatGPT whole-site editorial update",
+  "createdAt": "2026-09-07T21:32:43.388Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "relate-lebanon-soldiers",
+      "target": {
+        "publicId": "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd"
+      },
+      "publication": {
+        "body": "> **Historical report — September 7, 2026.** This page preserves what was known at that stage. It is not the current account. [Read the definitive developing story: Israel–Hezbollah escalation](https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3).\n\nThe Israel-Hezbollah confrontation in southern Lebanon intensified again on September 7. The IDF said two Israeli soldiers were lightly wounded in a close-range attack by a Hezbollah operative in the Beaufort Ridge area. According to the military, the soldiers killed the attacker despite being wounded and were evacuated to hospital; their families were notified.\n\nThe IDF said it struck Hezbollah weapons-storage facilities, command centers and other infrastructure in response. This account is an attributed military statement; the details of the close-range engagement had not been independently verified in the reporting reviewed for this update.\n\nThe incident came after Hezbollah launched explosive drones toward Israeli troops around the Ali Taher Ridge area for the third time in a week, according to the IDF. The military said the overnight drone attack caused no injuries and that it responded with strikes on Hezbollah infrastructure, including a weapons depot, and on operatives it said were moving weapons in Kfar Rumman.\n\nLebanese authorities and media reported a heavy civilian toll from the overnight strikes in Kfar Rumman. The Associated Press reported at least 12 people killed, including two children and four women, while Reuters, citing Lebanon's state news agency, reported at least 11 deaths. The IDF said it was examining reports that civilians were harmed. The status of everyone killed and the military nature of every struck site remain unresolved in the public evidence reviewed here.\n\nThe exchange is taking place despite a U.S.-mediated ceasefire framework agreed in June. The strategic Ali Taher/Beaufort ridge remains a central friction point, with Israeli forces operating in the area and Hezbollah continuing attacks. The immediate indicators to watch are further Hezbollah drone or close-range attacks, additional Israeli strikes, independently confirmed casualty information, and any change in the ceasefire or disarmament negotiations.",
+        "changeSummary": "Marked this page as a historical-stage report and linked readers to the current definitive canonical story; original reporting remains preserved below."
+      }
+    },
+    {
+      "key": "relate-lebanon-drones",
+      "target": {
+        "publicId": "hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5"
+      },
+      "publication": {
+        "body": "> **Historical report — September 6, 2026.** This page preserves what was known at that stage. It is not the current account. [Read the definitive developing story: the current Israel–Hezbollah record](https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3).\n\nA new exchange in southern Lebanon on September 6 sharpened an already fragile security picture. The Israel Defense Forces said Hezbollah launched two explosive drones toward Israeli forces operating in the security zone in southern Lebanon. According to the IDF, troops fired at one drone and intercepted it, with no Israeli casualties reported, and the military then began retaliatory strikes.\n\nThe IDF's rolling operational update recorded the drone incident and response. Source: https://www.idf.il/128118\n\nReuters subsequently reported that Israeli strikes killed seven people in southern Lebanon, citing Lebanese authorities. Reuters said Israel described the targets as Hezbollah weapons facilities and said it had taken measures intended to reduce civilian harm. Lebanese President Joseph Aoun condemned the strikes and alleged that civilian infrastructure was hit. Source: https://www.reuters.com/world/middle-east/israeli-military-says-it-strikes-southern-lebanon-after-hezbollah-launched-2026-09-06/\n\nThe accounts should be read with attribution intact. The IDF's description of the drone launches and military targets is an Israeli military account; casualty and damage reporting attributed to Lebanese authorities is a Lebanese official account. Those claims can coexist in the same report without treating every contested detail as independently verified.\n\nThe exchange follows continued fighting around Hezbollah infrastructure in southern Lebanon and stalled efforts to stabilize the border. Reuters reported on September 4 that Israel said it had cleared Hezbollah fighters from tunnels under the strategic Ali al-Taher ridge, another focal point in the conflict. Source: https://www.reuters.com/world/middle-east/israel-says-it-has-cleared-hezbollah-fighters-tunnels-under-key-lebanon-ridge-2026-09-04/\n\nFor readers following rapid updates, the key distinction is between what is directly acknowledged by a belligerent, what local authorities report about casualties and damage, and what has been independently corroborated. This is a developing story and should be updated as additional evidence becomes available.",
+        "changeSummary": "Marked this page as a historical-stage report and linked readers to the current definitive canonical story; original reporting remains preserved below."
+      }
+    },
+    {
+      "key": "relate-ali-taher-hkoun",
+      "target": {
+        "publicId": "ali-al-taher-remains-an-active-israel-hezbollah--hkoun"
+      },
+      "publication": {
+        "body": "> **Historical report — September 3, 2026.** This page preserves what was known at that stage. It is not the current account. [Read the definitive developing story: the current Israel–Hezbollah record](https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3).\n\nThe IDF says Hezbollah recently launched explosive drones toward Israeli troops around Ali al-Taher and that Israeli strikes near Nabatieh targeted infrastructure used to plan attacks.\n\nReuters reports that Iran warned Washington against a full Israeli assault on the ridge, but says it could not independently verify claims about Iranian military personnel inside the position.",
+        "changeSummary": "Marked this page as a historical-stage report and linked readers to the current definitive canonical story; original reporting remains preserved below."
+      }
+    },
+    {
+      "key": "relate-ali-taher-mwq1v",
+      "target": {
+        "publicId": "ali-al-taher-ridge-remains-a-verified-israel-hez-mwq1v"
+      },
+      "publication": {
+        "body": "> **Historical report — September 3, 2026.** This page preserves what was known at that stage. It is not the current account. [Read the definitive developing story: the current Israel–Hezbollah record](https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3).\n\nThe core confirmed development is continuing Hezbollah-IDF friction around Ali al-Taher. The IDF reports explosive-drone attacks on its forces and retaliatory strikes on Hezbollah infrastructure near Nabatieh.\n\nReuters adds a wider escalation risk: officials say Iran warned against a full Israeli assault, but the report does not independently confirm claims that IRGC personnel are inside the ridge and notes a conflicting Israeli assessment.",
+        "changeSummary": "Marked this page as a historical-stage report and linked readers to the current definitive canonical story; original reporting remains preserved below."
+      }
+    },
+    {
+      "key": "relate-detainee-bblkt",
+      "target": {
+        "publicId": "lebanese-detainee-returned-through-icrc-channel-bblkt"
+      },
+      "publication": {
+        "body": "> **Historical report — September 3, 2026.** This page preserves what was known at that stage. It is not the current account. [Read the definitive developing story: the completed five-person detainee exchange](https://lionsofzion.io/articles/lebanese-detainee-returned-through-icrc-channel-68if2).\n\nMalek Ghazi was released from Israeli custody and transferred to the Lebanese army through the ICRC, according to the cited live reporting.\n\nThe report framed the handover as the first such transfer since the latest Israel-Hezbollah war began and said additional Lebanese detainee releases were expected, but had not all been completed at publication time.",
+        "changeSummary": "Marked this page as a historical-stage report and linked readers to the current definitive canonical story; original reporting remains preserved below."
+      }
+    },
+    {
+      "key": "relate-outposts-kb1l1",
+      "target": {
+        "publicId": "netanyahu-orders-unauthorized-west-bank-outposts-kb1l1"
+      },
+      "publication": {
+        "body": "> **Historical report — September 7, 2026.** This page preserves what was known at that stage. It is not the current account. [Read the definitive developing story: the definitive West Bank outposts explainer](https://lionsofzion.io/articles/netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx).\n\nPrime Minister Benjamin Netanyahu has ordered unauthorized settler outposts in the West Bank to be dismantled, according to Reuters, citing two people familiar with the matter. The order comes amid heightened U.S. pressure on Israel to address attacks by violent settlers against Palestinians.\n\nReuters reported that roughly 100 unauthorized outposts are under scrutiny, though the timing and operational scope of removals were not yet clear when the report was published. The directive concerns outposts lacking formal Israeli government authorization.\n\nThe diplomatic pressure intensified after U.S. Ambassador Mike Huckabee visited Turmus Ayya and publicly described violent settlers as terrorists, saying Israel should impose severe consequences. AP separately reported Huckabee's visit and remarks after weeks of unrest and attacks on Palestinian property.\n\nThe distinction between settlement policy and settler violence is important. The order concerns unauthorized outposts and law enforcement, while the broader legal and political status of Israeli settlements remains contested between Israel and much of the international community. The reviewed sources do not establish that the new order represents a broader reversal of Israeli settlement policy.\n\nThe next test is implementation: which outposts are actually removed, whether arrests or prosecutions follow violent incidents, how coalition partners respond, and whether U.S. pressure changes Israeli enforcement beyond the immediate cases.",
+        "changeSummary": "Marked this page as a historical-stage report and linked readers to the current definitive canonical story; original reporting remains preserved below."
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [],
+  "research": [
+    {
+      "topic": "Historical duplicate consolidation",
+      "focus": "Lebanon escalation, Lebanese detainee exchange and West Bank outpost coverage",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+        "https://lionsofzion.io/articles/lebanese-detainee-returned-through-icrc-channel-68if2",
+        "https://lionsofzion.io/articles/netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx"
+      ],
+      "conclusion": "Six earlier live records remain useful as historical snapshots but require an explicit path to the definitive current stories.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": []
+}

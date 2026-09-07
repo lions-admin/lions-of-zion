@@ -512,11 +512,11 @@ follows is the shape an editor has to hold.
 | | |
 | --- | --- |
 | Application baseline | `main` |
-| Delivery branch | `editorial-updates` (orphan; never merged into `main`) |
+| Delivery branch | `chatgpt-editorial-updates` (orphan; never merged into `main`) |
 | Package path | `editorial-updates/<Israel-local-date>-<runId>.json` |
 | Wire contract | `whole-site-update-v1` — `server/contracts/whole-site-update.ts` |
 | Validator / submitter | `npm run editorial:publish` → `scripts/publish-editorial-update.ts` |
-| Workflow | `.github/workflows/publish-editorial-update.yml`, **on the `editorial-updates` branch** |
+| Workflow | `.github/workflows/publish-editorial-update.yml`, **on the `chatgpt-editorial-updates` branch** |
 | Ingest | `POST /api/internal/editorial-updates/ingest` |
 | Status | `GET /api/internal/editorial-updates/runs/{runId}` |
 | Guard | `x-editorial-update-secret`, `EDITORIAL_UPDATE_INGEST_SECRET` |
@@ -904,7 +904,7 @@ narrative spreads, and take part in legitimate technological and civic
 activism. Never harassment, spam or brigading.
 
 **Delivery.** Compose a `whole-site-update-v1` package. Application baseline is
-`main`; the delivery branch is `editorial-updates`; the package path is
+`main`; the delivery branch is `chatgpt-editorial-updates`; the package path is
 `editorial-updates/<Israel-local-date>-<runId>.json`. The GitHub Action on that
 branch validates it against `server/contracts/whole-site-update.ts`, posts it to
 `POST /api/internal/editorial-updates/ingest`, and polls

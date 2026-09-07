@@ -315,7 +315,7 @@ research, drafting or an edition.
 
 ```mermaid
 flowchart LR
-    Pkg["editorial-updates branch<br/>whole-site-update-v1 JSON"] --> GA["GitHub Action<br/>tooling checked out from main"]
+    Pkg["chatgpt-editorial-updates branch<br/>whole-site-update-v1 JSON"] --> GA["GitHub Action<br/>tooling checked out from main"]
     GA -->|"x-editorial-update-secret"| In["POST /api/internal/<br/>editorial-updates/ingest"]
     In --> Run[("editorial_run + editorial_operation<br/>emit editorial.run-process")]
     Run --> M["media stage<br/>fetch once → Blob"]

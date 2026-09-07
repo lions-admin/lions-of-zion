@@ -210,6 +210,12 @@ export const editorialUpdateIngestSecret = (): string =>
   required("EDITORIAL_UPDATE_INGEST_SECRET", "the whole-site editorial update ingest guard");
 export const codexBriefingImportSecret = (): string =>
   required("CODEX_BRIEFING_IMPORT_SECRET", "the Codex briefing import route");
+/** The scheduled ChatGPT editor's own secret. Deliberately separate from the
+ *  editorial ingest secret: that one authorises delivering a package GitHub
+ *  already validated, this one authorises reading site state and operating on
+ *  it, and a rotation of either must not grant the other. */
+export const chatgptAutomationSecret = (): string =>
+  required("CHATGPT_AUTOMATION_SECRET", "the ChatGPT editorial automation guard");
 /** Vercel sets this automatically once the env var of the same name is
  *  configured, and signs every cron invocation with it. Unset locally, which
  *  is why the guard treats "unset" as "refuse", never as "allow". */

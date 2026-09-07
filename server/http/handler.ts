@@ -130,6 +130,7 @@ async function accessFor(request: Request): Promise<Access | null> {
     ["/api/internal/codex/", "service:codex"],
     ["/api/internal/briefing/", "service:external-briefing"],
     ["/api/internal/editorial-updates/", "service:editorial-updates"],
+    ["/api/internal/chatgpt/", "service:chatgpt-editorial"],
   ] as const;
   const service = SERVICE_PREFIXES.find(([prefix]) => path.startsWith(prefix));
   if (service) {

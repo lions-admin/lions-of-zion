@@ -1,9 +1,9 @@
-# Whole-site editorial updates (`whole-site-update-v1`)
+# Whole-site editorial updates (`whole-site-update-v1` and `v2`)
 
 The current delivery path for editorial work. A composer working **outside this
 repository** produces one JSON package describing new articles, updates to
 existing ones, and homepage placement; the package is committed to the
-`editorial-updates` branch; a GitHub Action validates it, posts it to an
+`chatgpt-editorial-updates` branch; a GitHub Action validates it, posts it to an
 authenticated receiver, and polls the durable run it starts.
 
 The legacy `external-briefing-v1` path is documented separately in
@@ -50,7 +50,7 @@ defaulting to news.
 
 ## Why the packages live on their own branch
 
-Packages are committed to the orphan **`editorial-updates`** branch and are
+Packages are committed to the orphan **`chatgpt-editorial-updates`** branch and are
 **never merged into `main`**.
 
 A push to `main` deploys to Production. If a daily package landed on `main`,
@@ -63,7 +63,7 @@ The branch is excluded from Vercel by
 in `vercel.json` on `main`:
 
 ```json
-"git": { "deploymentEnabled": { "briefing-packages": false, "editorial-updates": false } }
+"git": { "deploymentEnabled": { "briefing-packages": false, "editorial-updates": false, "chatgpt-editorial-updates": false } }
 ```
 
 and again by the branch's own `vercel.json`, which is the copy that actually
@@ -82,7 +82,7 @@ the workflow always checks `main` out to get it.
 
 ### What lives where
 
-| | `main` | `editorial-updates` branch |
+| | `main` | `chatgpt-editorial-updates` branch |
 | --- | --- | --- |
 | Contract (`server/contracts/whole-site-update.ts`) | ✅ | — |
 | Receiver routes, the durable run, the module | ✅ | — |
@@ -95,7 +95,7 @@ the workflow always checks `main` out to get it.
 ## The flow, end to end
 
 1. The composer writes `editorial-updates/<Israel-local-date>-<runId>.json` and
-   commits it to the `editorial-updates` branch.
+   commits it to the `chatgpt-editorial-updates` branch.
 2. The push triggers `.github/workflows/publish-editorial-update.yml` on that
    branch (`paths: editorial-updates/**/*.json`). Its concurrency group is
    `editorial-update-delivery` with `cancel-in-progress: false`, so two pushes
@@ -342,6 +342,30 @@ applied, the edition is still recomposed, and the run reports `partial`. A
 homepage reference to an operation that did not complete is reported the same
 way.
 
+### `whole-site-update-v2`: research and vetoes
+
+A package may declare `"contractVersion": "whole-site-update-v2"` and carry two
+extra top-level arrays. Everything else is identical to v1, and v1 packages keep
+validating unchanged.
+
+- **`research`** — up to 25 entries of `{ topic, focus?, sourcesReviewed?,
+  conclusion, outcome }`, where `outcome` is `published`, `updated`, `vetoed` or
+  `no_action`. An editorial ledger of ground covered, not browser history:
+  `sourcesReviewed` holds up to 20 external URLs and never an internal id.
+- **`vetoes`** — up to 25 entries of `{ key, candidate, reason, section?,
+  sources?, replacement?, ownerDecisionRequested? }`. A deliberate decision not
+  to publish, which until this contract existed was indistinguishable from a
+  media fetch that failed.
+
+Both reach the run report: `RESEARCHED` lists the ledger, and `VETOED —
+editorial decisions, not faults` sits above `NOT PUBLISHED — technical
+failures`, so the two can never again be read as the same silence. A veto that
+sets `ownerDecisionRequested` is called out for the owner by name.
+
+A v2 package may carry only research or only vetoes and still be complete — a
+run that studied the day and published nothing has reported something. That is
+the one rule v1 does not share.
+
 ### Internal UUIDs are never invented
 
 `eventId`, `primaryTopicId`, `itemIds`, `narrativeIds`, `evidenceIds` and
@@ -440,6 +464,44 @@ lives in `tests/whole-site-update-contract.test.ts`, and the route-level shape
 in `tests/editorial-update-routes.test.ts`.
 
 ---
+
+## The automation's read/control interface
+
+A scheduled run needs to know what is already published before it decides what
+to publish. That is what `/api/internal/chatgpt/*` is for, and it is
+deliberately *not* a second way to publish: the package path above stays the
+only route by which editorial content reaches the site.
+
+Guarded by `x-chatgpt-automation-secret` (`CHATGPT_AUTOMATION_SECRET`), a
+different secret from the ingest guard, and running as
+`service:chatgpt-editorial` under `app_service`.
+
+| Route | What it answers |
+| --- | --- |
+| `GET /api/internal/chatgpt/editorial-context` | Everything one run needs, in one bounded call |
+| `GET /api/internal/chatgpt/publications` | The publication list, on the console's own filter contract |
+| `GET /api/internal/chatgpt/publications/{id}` | One record by `publicId` or `canonicalStoryId` — the duplicate check |
+| `GET /api/internal/chatgpt/ops/{view}` | One read-only console view, from a fixed allowlist |
+| `POST /api/internal/chatgpt/actions` | One operational action, by the ops registry's own tool name |
+
+`editorial-context` returns today's Israel-local edition date, the homepage as
+it stands with its placements, the recent live records (section, hub, identity,
+status, media presence, source count, current placement), the developing
+stories keyed by `canonicalStoryId`, the recent runs with their counts, and
+computed warnings — a stale homepage edition, a band on automatic selection,
+records without a hero. The expensive console reads are opt-in via
+`?include=incidents,pipeline,sources,costs`, because `incidents()` fans out to
+eight queries and `costs()` to six.
+
+`POST /actions` accepts any tool the ops console defines. One is substituted:
+`delete_publication` archives instead, and the response says so in `ranAs` and
+`substitutionNote`. Archival is reversible and deletion is not, and an
+unattended run has nobody to ask. Every call — reads included — writes an audit
+row under `chatgpt.tool.<name>` with the actor `service:chatgpt-editorial`.
+
+**Publishing still goes through a package.** Creating and updating records is
+what `chatgpt-editorial-updates` is for; this interface exists so the decision
+behind the package is an informed one.
 
 ## Secrets
 

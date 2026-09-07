@@ -10,6 +10,78 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-07 — The scheduled ChatGPT editor gets its own identity, all the capabilities, and one substitution
+
+Everything the automation was allowed and forbidden to do lived in its prompt.
+A prompt is not a security boundary, and there was no authenticated way for it
+to read the site's state before deciding anything — it could only write a
+package and hope.
+
+`service:chatgpt-editorial` is now a first-class machine identity: its own
+secret (`CHATGPT_AUTOMATION_SECRET`, timing-safe, its own header), its own
+entry in `SERVICE_PREFIXES` so the routes run under `app_service` with RLS
+rather than the ambient owner pool, and its own audit prefix
+(`chatgpt.tool.*`). That last one is the point of having a label at all: a
+human, this automation, and an editorial package are now three greps rather
+than one ambiguous `admin`.
+
+**Capabilities: all of them, by owner instruction.** The brief that accompanied
+the request said the opposite — withhold delete, unpublish, archive and
+rollback from unattended automation — so the contradiction was put back to the
+owner with what those six tools actually do. Five are reversible: publish,
+unpublish and archive are status transitions, a rollback writes a new version
+and keeps the history, and a source can be switched back on. `delete_publication`
+is not; `publications.remove` drops the row and there is no undelete.
+
+The owner's ruling was "all of them, and delete becomes archive". So the tool
+stays callable, runs the archive transition, and says so in its result —
+`publications.remove` is unreachable from this identity. A capability that is
+present but survivable, rather than absent or catastrophic.
+
+**The confirmation-token mechanism was deliberately not reused.** It binds an
+approval to an actor and an argument set for ten minutes, which is exactly
+right for a human at the console and meaningless for an unattended run: there
+is nobody to approve, and a token the caller mints for itself is theatre.
+
+The adapter calls no model. The ops console asks a model to choose tools; here
+ChatGPT is the model and has already chosen, so the adapter consumes
+`OPS_TOOL_DEFINITIONS` directly — no gateway, no cost, no transcript, and one
+implementation of what each tool means.
+
+---
+
+## 2026-09-07 — `whole-site-update-v2` records what was researched and what was vetoed
+
+`docs/editorial-dna.md` §12 recorded two gaps: the ground an editor covered was
+not representable, and a deliberate veto was indistinguishable from a technical
+failure. The second is the one that bit. A run that declined three stories on
+editorial judgement and a run whose image fetch returned 404 both arrived as
+"nothing published", and on 2026-09-07 an editor vetoed three pieces with only
+a free-text `siteRecommendations` string to say so with.
+
+v2 adds `research` and `vetoes`, both bounded and both optional. A veto carries
+its own reason, the section it would have filed under, what was published
+instead, and whether the editor is asking the owner to decide — and the run
+report prints them under their own heading, apart from the failures.
+
+Additive and version-dispatched: v1 keeps its own schema and still parses on
+its own, and `.strict()` at every level means a v1 receiver rejects a v2
+package outright rather than reading half of it. One v2-only relaxation: a
+package may carry only research or only vetoes, because a run that studied the
+day and published nothing has still reported something, and v1's non-empty rule
+would have rejected exactly that run.
+
+The narrow place was `compileWholeSiteUpdate`. Its `delivery` object is what
+survives into the durable run and `startEditorialRunSchema.parse` strips what
+it does not name — so a field missing there would not merely be absent from the
+report: `editorialInputHash` runs over the parsed input, so two different v2
+packages would hash identically and the second would be refused as a replay.
+
+No migration. `editorial_run.request` and `.report` are jsonb, the same
+precedent the `attempts` field on the failure record set.
+
+---
+
 ## 2026-09-07 — A donation is a link to the provider's own page, never an embedded widget; the homepage closes on the ask
 
 The owner asked for Buy Me a Coffee beside PayPal, and for an elegant

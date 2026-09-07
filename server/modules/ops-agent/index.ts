@@ -17,7 +17,15 @@ import { ingest, syncBriefingSourceCatalog } from "@/server/modules/sources";
 import { opsAgentService, type OpsAgentService } from "./service";
 import type { OpsToolContext } from "./context";
 
-function liveContext(request?: Request): OpsToolContext {
+/**
+ * The tool registry bound to the real system.
+ *
+ * Exported rather than private because the ChatGPT automation adapter needs
+ * exactly this wiring and must not grow a second copy of it: two definitions of
+ * "which service does `verify_source` actually call" is how the console and the
+ * automation come to mean different things by the same tool name.
+ */
+export function opsToolContext(request?: Request): OpsToolContext {
   return {
     console: adminConsole(),
     publications: {
@@ -40,7 +48,7 @@ function liveContext(request?: Request): OpsToolContext {
 
 /** Lazily bound, so importing this module does not demand a DATABASE_URL. */
 export const opsAgent = (request?: Request): OpsAgentService =>
-  opsAgentService(db(), liveContext(request), { run: generateWithTools });
+  opsAgentService(db(), opsToolContext(request), { run: generateWithTools });
 
 export { opsAgentService, OPS_SYSTEM_PROMPT, type OpsAgentService, type ToolLoopRunner } from "./service";
 export { OPS_TOOL_DEFINITIONS, opsTool, type OpsToolDefinition } from "./tools";

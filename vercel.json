@@ -3,7 +3,8 @@
   "git": {
     "deploymentEnabled": {
       "briefing-packages": false,
-      "editorial-updates": false
+      "editorial-updates": false,
+      "chatgpt-editorial-updates": false
     }
   },
   "functions": {

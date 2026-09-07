@@ -3,7 +3,7 @@
 > **This is not the live editorial route.** Current editorial work — articles,
 > updates to developing stories, and homepage placement across all three
 > dynamic hubs — is delivered as a `whole-site-update-v1` package on the
-> `editorial-updates` branch. See
+> `chatgpt-editorial-updates` branch. See
 > [`whole-site-updates.md`](whole-site-updates.md).
 >
 > What follows describes the retained `external-briefing-v1` compatibility
@@ -25,7 +25,7 @@ deploys the site. If a daily package landed on `main`, publishing a news
 edition would redeploy the entire application: minutes of build time, a new
 production deployment in the history, and a rollback surface, all for a row
 in the database that the running deployment reads anyway. The
-`editorial-updates` branch exists for the same reason and is excluded the same
+`chatgpt-editorial-updates` branch exists for the same reason and is excluded the same
 way.
 
 The branch is excluded from Vercel by
@@ -33,7 +33,7 @@ The branch is excluded from Vercel by
 in `vercel.json`:
 
 ```json
-"git": { "deploymentEnabled": { "briefing-packages": false, "editorial-updates": false } }
+"git": { "deploymentEnabled": { "briefing-packages": false, "editorial-updates": false, "chatgpt-editorial-updates": false } }
 ```
 
 That key is declared both here on `main` and in the small `vercel.json`
@@ -192,7 +192,7 @@ each other.
 | | `external-briefing-v1` | `whole-site-update-v1` |
 | --- | --- | --- |
 | Contract | `server/contracts/external-briefing.ts` | `server/contracts/whole-site-update.ts` |
-| Branch | `briefing-packages` | `editorial-updates` |
+| Branch | `briefing-packages` | `chatgpt-editorial-updates` |
 | Receiver | `POST /api/internal/briefing/external-publish` | `POST /api/internal/editorial-updates/ingest` |
 | Guard header | `x-external-briefing-secret` | `x-editorial-update-secret` |
 | Command | `npm run briefing:publish` | `npm run editorial:publish` |

@@ -28,7 +28,7 @@ flowchart LR
   records a durable execution run. The executor owns media, canonical updates,
   homepage selection and cache invalidation; it never chooses what to publish.
 - `external-briefing-v1` and `briefing-packages` remain legacy compatibility.
-  `whole-site-update-v1` uses the orphan `editorial-updates` delivery branch;
+  `whole-site-update-v1` uses the orphan `chatgpt-editorial-updates` delivery branch;
   neither branch may deploy the application.
 
 ## Environment isolation

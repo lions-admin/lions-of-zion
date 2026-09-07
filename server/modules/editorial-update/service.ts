@@ -2,7 +2,7 @@ import 'server-only';
 
 import { db, withDatabaseRole, type Database } from '@/server/db/client';
 import { editorialRunMessageSchema, startEditorialRunSchema, type EditorialFailure, type StartEditorialRun } from '@/server/contracts/editorial-update';
-import { wholeSiteHomepageSchema, wholeSiteUpdatePackageSchema, type WholeSiteUpdatePackage } from '@/server/contracts/whole-site-update';
+import { anyWholeSiteUpdatePackageSchema, wholeSiteHomepageSchema, type AnyWholeSiteUpdatePackage } from '@/server/contracts/whole-site-update';
 import { editorialReportEmail, siteUrl } from '@/server/core/config';
 import type { PublicationSection } from '@/server/contracts/enums';
 import { publicationSectionLabel, routePublication } from '@/lib/publication-routing';
@@ -45,7 +45,7 @@ type EditorialOperationResult = {
 
 /** Compile the external package to durable internal operations without losing
  * its delivery metadata, which is part of idempotency and the final report. */
-export function compileWholeSiteUpdate(pkg: WholeSiteUpdatePackage): StartEditorialRun {
+export function compileWholeSiteUpdate(pkg: AnyWholeSiteUpdatePackage): StartEditorialRun {
   return startEditorialRunSchema.parse({
     runId: pkg.runId,
     mode: 'operations',
@@ -59,6 +59,9 @@ export function compileWholeSiteUpdate(pkg: WholeSiteUpdatePackage): StartEditor
       createdAt: pkg.createdAt,
       homepage: pkg.homepage,
       siteRecommendations: pkg.siteRecommendations,
+      ...(pkg.contractVersion === 'whole-site-update-v2'
+        ? { research: pkg.research ?? [], vetoes: pkg.vetoes ?? [] }
+        : {}),
     },
   });
 }
@@ -298,6 +301,11 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
         media: { prepared: preparedMedia, reused: reusedMedia, generated: generatedMedia },
         errors,
         siteRecommendations: completedState.request.delivery?.siteRecommendations ?? [],
+        /* The editor's own account of the run, kept beside the machine's.
+           A veto is an editorial decision and an error is a fault, and the
+           report has to be able to tell them apart. */
+        research: completedState.request.delivery?.research ?? [],
+        vetoes: completedState.request.delivery?.vetoes ?? [],
       });
     } catch (cause) {
       /* A run-level fault, outside any operation. Whether it ends the run
@@ -354,6 +362,8 @@ type StoredReport = {
   media?: { prepared?: number; reused?: number; generated?: number };
   errors?: Array<{ operationKey: string | null; stage: string; message: string; recovery?: string }>;
   siteRecommendations?: string[];
+  research?: Array<{ topic?: string; focus?: string; conclusion?: string; outcome?: string; sourcesReviewed?: string[] }>;
+  vetoes?: Array<{ key?: string; candidate?: string; reason?: string; section?: string; replacement?: string; ownerDecisionRequested?: boolean; sources?: string[] }>;
 };
 
 type StoredRun = Awaited<ReturnType<ReturnType<typeof editorialRepo>['get']>>;
@@ -472,7 +482,35 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
     );
   }
 
-  lines.push('', 'NOT PUBLISHED / VETOED');
+  /* The research ledger, when the package carried one. Present only for
+     `whole-site-update-v2`; a v1 run prints nothing here rather than an empty
+     heading that would read as "researched nothing". */
+  const research = report.research ?? [];
+  if (research.length) {
+    lines.push('', 'RESEARCHED');
+    for (const entry of research) {
+      lines.push(`  · ${entry.topic ?? 'untitled area'}${entry.focus ? ` — ${entry.focus}` : ''} → ${entry.outcome ?? 'no outcome recorded'}`);
+      if (entry.conclusion) lines.push(`      ${entry.conclusion}`);
+      for (const url of entry.sourcesReviewed ?? []) lines.push(`      ${url}`);
+    }
+  }
+
+  /* Two different things under one heading until 2026-09-07, and the
+     difference is the whole point: a veto is a decision this desk made, a
+     failure is something that broke. They are listed apart and labelled. */
+  const vetoes = report.vetoes ?? [];
+  if (vetoes.length) {
+    lines.push('', 'VETOED — editorial decisions, not faults');
+    for (const veto of vetoes) {
+      lines.push(`  · ${veto.candidate ?? veto.key ?? 'unnamed candidate'}${veto.section ? ` (${categoryLabel(veto.section)})` : ''}`);
+      lines.push(`      Reason: ${veto.reason ?? 'no reason recorded'}`);
+      if (veto.replacement) lines.push(`      Instead: ${veto.replacement}`);
+      for (const url of veto.sources ?? []) lines.push(`      ${url}`);
+      if (veto.ownerDecisionRequested) lines.push('      ** The editor is asking for your decision on this one. **');
+    }
+  }
+
+  lines.push('', 'NOT PUBLISHED — technical failures');
   if (failed.length || report.errors?.length) {
     for (const operation of failed) {
       const operationFailure = operation.failure as { stage?: string; message?: string; recovery?: string } | null;
@@ -487,7 +525,7 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
       lines.push(`  · run-level ${error.stage}: ${error.message}`);
     }
   } else {
-    lines.push('  Nothing was refused.');
+    lines.push(vetoes.length ? '  Nothing failed; everything above was a deliberate veto.' : '  Nothing was refused.');
   }
 
   lines.push('', 'RECOMMENDATIONS');
@@ -539,7 +577,7 @@ export function editorialUpdateService(database: Database = db()) {
   return {
     start: (input: Parameters<typeof store.start>[0], actor: string) => store.start(input, actor),
     async startWholeSite(raw: unknown, actor: string) {
-      const pkg = wholeSiteUpdatePackageSchema.parse(raw);
+      const pkg = anyWholeSiteUpdatePackageSchema.parse(raw);
       return store.start(compileWholeSiteUpdate(pkg), actor);
     },
     get: (id: string) => store.get(id),

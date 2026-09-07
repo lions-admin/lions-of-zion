@@ -109,7 +109,7 @@ two minutes each, with no manual step.
 
 The mechanism is the GitHub integration on the Vercel project, whose
 `link.productionBranch` is `main`. `vercel.json` disables git deployment for
-the two package branches — `editorial-updates`, the live delivery branch, and
+the two package branches — `chatgpt-editorial-updates`, the live delivery branch, and
 `briefing-packages`, the legacy one — and for nothing else, and the project has
 no deploy hooks. Each branch also carries its own `vercel.json` with
 `"deploymentEnabled": false`, which is the copy that actually suppresses the
@@ -191,7 +191,7 @@ What is actually at risk when a deploy lands mid-run:
   time*, and the receiver parses it with the tooling that is *deployed*. A
   deploy that tightens `whole-site-update-v1` between those two moments
   rejects a package that validated seconds earlier. Land contract changes when
-  no delivery is in flight — the Actions tab on the `editorial-updates` branch
+  no delivery is in flight — the Actions tab on the `chatgpt-editorial-updates` branch
   is the check — and remember a rollback strands a run exactly as the deploy
   did.
 - **A schema change still goes first.** `npm run db:migrate` against Preview,
@@ -219,7 +219,7 @@ pass this must not be committed.
 
 **2. Commit it to the delivery branch.** The file goes to
 `editorial-updates/<Israel-local-date>-<runId>.json` on the orphan
-`editorial-updates` branch. Never onto `main`: `main` deploys.
+`chatgpt-editorial-updates` branch. Never onto `main`: `main` deploys.
 
 **3. Watch the Action.** The push triggers *Deliver editorial update* on that
 branch. Its concurrency group is `editorial-update-delivery` with
@@ -335,6 +335,73 @@ Before changing a deployed dependency, read
 [known gaps](architecture.md#known-architectural-gaps).
 
 ---
+
+## Branch protection on `main`, and what a repository file cannot do
+
+Read from the API on 2026-09-07: one ruleset, `protect-main-history`
+(id `22347272`), active on `~DEFAULT_BRANCH`, with rules `deletion` and
+`non_fast_forward` and no bypass actors. **Force-pushing `main` and deleting it
+are already blocked.** There is no required-pull-request rule and no required
+status check, so an ordinary direct push to `main` succeeds.
+
+### The finding that decides how much this can be hardened
+
+The scheduled ChatGPT editor commits to the delivery branch **as
+`lions-admin` — the owner's own GitHub account.** No branch rule can
+distinguish the automation's push from the owner's, because to GitHub they are
+the same identity. Renaming the delivery branch to
+`chatgpt-editorial-updates` raises the bar, since the automation no longer
+holds a path to a branch it used to write to under an older name, but it does
+not create a boundary.
+
+**A file in this repository cannot enforce an account-level rule.** What
+follows is the change that would, written out so it can be applied deliberately
+rather than assumed to be in force.
+
+### The ruleset to add, once the automation has its own identity
+
+First give the automation an identity of its own — a GitHub App installation or
+a machine user with write access — and issue its credential to the Scheduled
+Task. Then add a second ruleset on `main`:
+
+```jsonc
+{
+  "name": "require-review-on-main",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": { "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] } },
+  "rules": [
+    { "type": "pull_request",
+      "parameters": { "required_approving_review_count": 0,
+                      "dismiss_stale_reviews_on_push": false,
+                      "require_code_owner_review": false,
+                      "require_last_push_approval": false,
+                      "required_review_thread_resolution": false } },
+    { "type": "required_status_checks",
+      "parameters": { "strict_required_status_checks_policy": true,
+                      "required_status_checks": [
+                        { "context": "typecheck, lint, test, build" },
+                        { "context": "archive assets reachable (CDN)" },
+                        { "context": "route smoke test (headless Chromium)" }
+                      ] } }
+  ],
+  "bypass_actors": [
+    { "actor_type": "RepositoryRole", "actor_id": 5, "bypass_mode": "always" }
+  ]
+}
+```
+
+Apply with `gh api --method POST repos/lions-admin/lions-of-zion/rulesets --input <file>`.
+
+The three check names are the job `name:` values in `.github/workflows/ci.yml`
+and must match exactly. The `admin` bypass keeps ordinary maintenance working;
+it is also why adding this ruleset **before** the automation has a separate
+identity would restrict only the owner and nothing else, which is why it has
+not been applied.
+
+`chatgpt-editorial-updates` is deliberately left out of both rulesets: a
+package must land there with no review, and `vercel.json` already excludes the
+branch from deployment so a package push never builds the site.
 
 ## Troubleshooting
 

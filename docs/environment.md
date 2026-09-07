@@ -57,7 +57,10 @@ Use this recovery sequence:
    `DATABASE_URL`. Do not use the Production branch for ordinary development.
 2. Set `DATABASE_URL_UNPOOLED` from the same Preview branch when migration or
    administrative tooling needs it, and label the binding with
-   `DATABASE_RESOURCE_ENV=preview`.
+   `DATABASE_RESOURCE_ENV=preview`. Nothing in this repository reads
+   `DATABASE_URL_UNPOOLED` (checked 2026-09-07) — Neon's integration sets it and
+   external tooling may want it, so its presence is not evidence of a
+   dependency here.
 3. If the workspace has an authenticated Neon CLI profile, discover the
    project and Preview branch rather than copying IDs from documentation:
 
@@ -215,7 +218,7 @@ retries on the next tick if it is unreachable, so ingestion works with only
 Guards internal queue and workflow routes via the `x-internal-secret` header.
 
 ### `EDITORIAL_UPDATE_INGEST_SECRET`
-Shared only with the `editorial-updates` GitHub delivery branch. It authorizes
+Shared only with the `chatgpt-editorial-updates` GitHub delivery branch. It authorizes
 `POST /api/internal/editorial-updates/ingest` and the matching run-status read
 through `x-editorial-update-secret`; it is separate from both the broader
 internal secret and `EXTERNAL_BRIEFING_INGEST_SECRET`, so a delivery-channel
@@ -227,7 +230,7 @@ refuses rather than accepting anything. `requireEditorialUpdateIngestSecret()`
 compares SHA-256 digests in constant time and refuses an empty header outright.
 
 The same value must be set as a GitHub Actions secret on the
-`editorial-updates` branch, or its workflow authenticates as nothing.
+`chatgpt-editorial-updates` branch, or its workflow authenticates as nothing.
 
 ### `EDITORIAL_REPORT_EMAIL`
 Where a finished whole-site editorial run mails its report.
@@ -250,6 +253,23 @@ and `.fail`, so a crashed run reports the stage it died at. That topic sat in
 `RETIRED_TOPICS` with a registered consumer and no producer for one deploy
 cycle, during which every report was written and stored but never sent; if
 reports stop arriving again, check `TOPICS` in `server/core/outbox.ts` first.
+
+### `CHATGPT_AUTOMATION_SECRET`
+Guards `/api/internal/chatgpt/*` — the scheduled ChatGPT editor's read and
+control interface — through `x-chatgpt-automation-secret`, compared with
+`timingSafeEqual` over sha256 digests.
+
+Deliberately **not** `EDITORIAL_UPDATE_INGEST_SECRET`. That one authorises
+delivering a package GitHub has already validated; this one authorises reading
+the site's editorial and operational state and acting on it. They must be
+rotatable independently, which is the rule `server/http/internal-guard.ts`
+states for every caller class.
+
+Lives in **Vercel only**. The delivery Action never calls these routes, so it is
+not a GitHub Actions secret; the ChatGPT Scheduled Task holds the value.
+
+Unset is a configuration error, not an open door: `required()` throws and the
+route answers 500. A wrong secret answers 401.
 
 ### `CRON_SECRET`
 Vercel sends `Authorization: Bearer $CRON_SECRET` on every cron invocation
@@ -280,7 +300,7 @@ anticipated lands on "not allowed" instead of "allowed by omission".
 | --- | --- | --- |
 | `DATABASE_URL` | `drizzle.config.ts` | Falls back to `postgres://unset`; only needed to push |
 | `TEST_DATABASE_URL` | `server/db/testing.ts` | Test harness, not runtime |
-| `EDITORIAL_UPDATE_INGEST_BASE_URL` | `scripts/publish-editorial-update.ts` | Which deployment `npm run editorial:publish` posts to. Defaults to `https://lionsofzion.io`; set it to a Preview origin to rehearse a package. Also a GitHub Actions secret on the `editorial-updates` branch |
+| `EDITORIAL_UPDATE_INGEST_BASE_URL` | `scripts/publish-editorial-update.ts` | Which deployment `npm run editorial:publish` posts to. Defaults to `https://lionsofzion.io`; set it to a Preview origin to rehearse a package. Also a GitHub Actions secret on the `chatgpt-editorial-updates` branch |
 | `NODE_ENV` | `components/graphics/viewport.ts` | Substituted at build time to strip a dev-only check |
 | `VERCEL_ENV` | `server/core/config.ts` | Set by Vercel |
 

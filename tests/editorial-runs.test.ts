@@ -202,7 +202,7 @@ describe('durable whole-site editorial runs', () => {
     expect(text).toContain('News & Analysis / lead');
     expect(text).toContain('The People of Israel / secondary: cleared');
     /* The veto, its stage, its reason and its remedy. */
-    expect(text).toContain('NOT PUBLISHED / VETOED');
+    expect(text).toContain('NOT PUBLISHED — technical failures');
     expect(text).toContain('Image URL returned HTTP 404.');
     expect(text).toContain('Replace the image and resume the run.');
     expect(text).toContain('Give the People desk a second lead.');

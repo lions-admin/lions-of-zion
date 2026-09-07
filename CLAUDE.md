@@ -249,7 +249,7 @@ are needed, and enough parsing that nothing crashes. Do not add an editorial
 gate back without an owner instruction; ordered contracts return after launch.
 `docs/editorial-dna.md` §11 lists both halves precisely.
 
-**Delivery, in one line.** Baseline `main`; delivery branch `editorial-updates`
+**Delivery, in one line.** Baseline `main`; delivery branch `chatgpt-editorial-updates`
 (excluded from Vercel in `vercel.json`); package
 `editorial-updates/<Israel-local-date>-<runId>.json`; contract
 `whole-site-update-v1` (`server/contracts/whole-site-update.ts`); ingest

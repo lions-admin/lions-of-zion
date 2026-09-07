@@ -57,11 +57,21 @@ export const startEditorialRunSchema = z.object({
   mode: z.literal('operations'),
   operations: z.array(editorialOperationSchema),
   delivery: z.object({
-    contractVersion: z.literal('whole-site-update-v1'),
+    /* Both contract versions, because this object is where a package's
+       metadata survives into the durable run — and `startEditorialRunSchema`
+       strips anything it does not name. A v2 field missing here would not just
+       be absent from the report: `editorialInputHash` runs over the *parsed*
+       input, so two different v2 packages would hash identically and the
+       second would be rejected as a replay of the first. */
+    contractVersion: z.enum(['whole-site-update-v1', 'whole-site-update-v2']),
     composer: z.string().trim().min(1).max(200),
     createdAt: z.iso.datetime(),
     homepage: z.unknown(),
     siteRecommendations: z.array(z.string()),
+    /** v2 only: the research ledger and the editorial vetoes. Shapes are
+     *  validated by the package schema before they reach here. */
+    research: z.array(z.unknown()).optional(),
+    vetoes: z.array(z.unknown()).optional(),
   }).optional(),
 }).superRefine((run, ctx) => {
   const keys = run.operations.map(operation => operation.key);

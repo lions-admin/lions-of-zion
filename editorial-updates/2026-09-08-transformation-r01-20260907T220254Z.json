@@ -1,0 +1,34 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r01-20260907T220254Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-07T22:02:54.325Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 01 — Hinkle Machine publication integrity",
+      "focus": "Current public publication-state contradiction and supported repair boundary",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/fake-resistance/cases/hinkle-machine"
+      ],
+      "conclusion": "The live page returns HTTP 200 and includes a statement that publication is not cleared and that right-of-reply and legal review are required. It also exposes internal script paths and an API spending ledger. The reader-facing case preserves earlier findings that were weakened or withdrawn; those must remain. This case is built from a static repository packet, not a dynamic publication editable through this delivery contract. This run cannot establish current clearance or resolve the original public page through the authorized editorial path.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "r01-reader-republication",
+      "candidate": "Republish the Hinkle case as a newly cleared reader investigation",
+      "reason": "Current clearance and right-of-reply completion have not been established. Republishing allegations in a companion would not repair the contradictory original, and would create another public version. No new allegation is published.",
+      "sources": [
+        "https://lionsofzion.io/fake-resistance/cases/hinkle-machine"
+      ],
+      "replacement": "Separate development/content correction of the static case, preserving counterevidence, revisions and original source records."
+    }
+  ],
+  "siteRecommendations": [
+    "RUN 01 BLOCKED: On /fake-resistance/cases/hinkle-machine, reconcile the displayed publication state with the current review record; replace internal sampling-budget/script-path prose with reader-facing methodology. Preserve withdrawn findings and limitations. If withdrawal is required, apply the existing per-case held lifecycle through a separately authorized development change and verify the original URL and hub. A dynamic companion or successful research-ledger ingest does not complete this correction."
+  ]
+}

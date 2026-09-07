@@ -106,37 +106,111 @@ case-file touch-target claim (0 controls under 44px).
 | VA-59 | VA-32; `components/sections/scanProfiles.ts` **already exists** — this is tuning, not a build |
 | VA-60 | VA-04 harness (`ui-audit.mjs`, `design-capture.mjs`) |
 
+### 1b. Verified against the tree on 2026-09-07 — seven corrections
+
+A file-surface sweep of the current tree found seven places where the audit
+describes work that is already done, already ruled on, or aimed at the wrong
+thing. **Read this before starting any task below.**
+
+1. **VA-48's duplicate guard already exists and is enforced server-side.**
+   `applyEditorial`'s create branch locks the canonical story, refuses a second
+   record for the same canonical id, and refuses a create that shares source
+   evidence with a strongly matching title or repeats an `eventId`
+   (`server/modules/publications/service.ts:127-159`, helpers at `:75-94`). A
+   partial unique index backs it. What is actually open: four other create paths
+   have no check (`create`, `createMany`, `autoPublish`, `autoPublishMany`), and
+   there is **no override** — only a hard `CONFLICT`.
+2. **The `/geopolitical-brief` triple-render is already fixed** for the
+   unfiltered case, deliberately, with the reasoning recorded in
+   `components/briefs/LiveBriefHub.tsx:383-404`. A filtered archive must not hide
+   a match merely because that record also leads the page. VA-04 observed the bug
+   before the fix landed.
+3. **A developing story is one row updated in place, by design.**
+   `publication_canonical_story_once` is a partial unique index, so at most one
+   live row carries a given canonical id; chronology lives in `entity_version`
+   and reaches the reader as corrections. Production on 2026-09-07: 31 live news
+   records, 6 with a canonical id, all distinct, largest group 1. **VA-50's first
+   relationship rung therefore returns nothing by construction.**
+4. **VA-46's seam is exact.** `updatePublicationSchema`
+   (`server/contracts/publication.ts:147-168`) makes every content field optional
+   and only `changeSummary` required; `applyEditorial` spreads whatever subset
+   arrived (`service.ts:199-210`). A package carrying only a `changeSummary`
+   writes no content and still appends a correction-log row claiming it did. The
+   comparison signal already exists: `contentHash` is a generated column over
+   title, body and summary (`server/db/schema/publications.ts:86-88`). Note the
+   publish-gate trigger returns early unless the row is *entering* `published`,
+   so the `updated` status this path writes **is not gated at all**.
+5. **VA-49 partly collides with an owner ruling.** On 2026-09-07 the owner
+   ordered "remove the homepage-safe restrictions" (`.ai/DECISIONS.md`): a
+   picture is not a gate and a picture-less card renders text-led.
+   **Reintroducing a media gate repeats VA-11's mistake.** What survives is the
+   half the owner kept — there is still no discriminator between *missing* and
+   *intentionally text-only*, and the only signal is a run-report warning never
+   persisted on the publication.
+6. **VA-58's suspected defect does not exist.** The result list is gated on a
+   non-empty hit set (`components/search/SearchPanel.tsx:310`); the else branch
+   renders an empty listbox kept solely so `aria-controls` resolves (`:324-328`).
+   The rows VA-04 saw are the page-level `noscript` index, invisible whenever
+   JavaScript is on. **VA-58 reduces to naming and copy. Do not rewrite Search.**
+7. **The naming problem is larger than the audit said.** `/information-war` has
+   three public names (chrome "How it works", its own title "This is an
+   information war", homepage "Why this work matters"). `/ask` has five,
+   including a trigger labelled "AI Chat". `SITE_NAVIGATION` carries two names
+   per destination and the SCREAMING one is read by nothing in the chrome. The
+   same hub is spelled three ways across breadcrumbs.
+
 ---
 
 ## 2. AGENT ROLES
 
-Six roles. **They run in waves, not all at once** — one working tree.
+**Seven roles, four waves, five PRs.** Sequential in one working tree, owner
+decision 2026-09-07. Territories are drawn from a file-surface sweep so that no
+two agents edit the same file. Two files are hot enough to be owned outright:
+`app/articles/[publicId]/page.tsx` (five concerns touch it) and
+`lib/publication-routing.ts` (four).
 
-| Role | Owns | Path | Wave |
+| Role | Owns | Path | PR |
 | --- | --- | --- | --- |
-| **A1 — Publication Integrity** | VA-46, VA-48 (guard half), VA-56 | Development | 1 |
-| **A2 — Provenance & Trust** | VA-47, VA-61 | Development + owner input | 1 |
-| **A3 — Editorial Data** | VA-48 (data half), VA-49, VA-57 (data half) | MCP / editorial — **no deploy** | 2 |
-| **A4 — Content Grammar & Reading** | VA-50, VA-52, VA-54, VA-55 | Development | 2 |
-| **A5 — IA, Homepage & Metadata** | VA-51, VA-53, VA-58, VA-62, VA-63, VA-57 (code half) | Development | 3 |
-| **A6 — QA & Certification** | VA-60, §12 accessibility sweep | Observation → targeted fixes | 4 |
+| **A1 — Publication invariants** | VA-46, VA-48 | Development + migrations | 1 |
+| **A2 — Provenance & transparency** | VA-47, VA-61 | Development + owner input | 1 |
+| **A3 — Media state** | VA-49 | Development | 2 |
+| **A4 — The article page** | VA-50, VA-54, VA-56 | Development | 2 |
+| **A5 — Isolated surfaces** | VA-52, VA-55, VA-59 | Development | 3 |
+| **A6 — IA, homepage & metadata** | VA-51, VA-57, VA-63, VA-58 · then VA-53, VA-62 | Development | 4a, 4b |
+| **A7 — Certification** | VA-60, §10 accessibility sweep | Observation → targeted fixes | 5 |
 
-### Wave rules
+### Territory boundaries — binding
 
-- **Wave 1 must be green before Wave 2 starts.** A3 cleans data that A1's
-  guard will then protect; A1's guard must exist first so the cleanup does not
-  re-introduce what it removed. Where the previous round chose *data first, then
-  guard* (VA-01 → VA-02), VA-48 inverts it deliberately: the dedup guard needs
-  an override mechanism before an editor can safely merge records.
-- **A3 never opens a PR.** Its whole surface is `update_publication`,
-  `set_homepage_placement`, `archive_publication`, `rollback_publication`, or a
-  `whole-site-update-v2` package on `chatgpt-editorial-updates`.
-- **A4 and A5 must not edit the same file.** A4 owns `components/evidence/**`,
-  `components/article/**`, October 7. A5 owns `components/site/**`,
-  `components/home/**`, `app/**/page.tsx` metadata exports. Where they collide
-  (`app/articles/[publicId]/page.tsx`), **A4 goes first and A5 rebases**.
-- **A6 does not start until Waves 1–3 are merged**, or it certifies a moving
-  target.
+- **A1 holds sole authorship of new migrations for the whole task.** The
+  numbered sequence and `meta/_journal.json` cannot take two concurrent authors.
+- **A1 owns** `server/modules/publications/{service,repo}.ts`,
+  `server/contracts/publication.ts`, `server/core/versioning.ts`,
+  `components/briefs/LiveBriefHub.tsx`.
+- **A2 owns** `app/we-are/page.tsx`, `app/methodology/page.tsx`, and **one line**
+  of the article page (the `edition=` provenance label at
+  `app/articles/[publicId]/page.tsx:218`). A4 must not touch that line in wave 1.
+- **A3 owns** `server/db/schema/media.ts`, `server/contracts/editorial-media.ts`,
+  `server/modules/media/**`, `lib/content/homepage-media.ts`,
+  `lib/content/homepage-adapters.ts`.
+- **A4 owns `app/articles/[publicId]/page.tsx` outright**, plus
+  `components/investigation/**`, `components/evidence/**`,
+  `server/modules/editorial-update/sources.ts`.
+- **A5 owns** `components/home/HomeNarrativesSection.*`,
+  `server/contracts/homepage.ts`, `app/october-7/ArchiveShareShowcase.tsx`,
+  `components/sections/scanProfiles.ts`, `components/site/route-family.ts`.
+- **A6 owns** `components/site/**`, `lib/site-navigation.ts`,
+  `lib/publication-routing.ts`, `app/page.tsx`, `app/people-of-israel/page.tsx`,
+  `components/search/**`, `components/ask/**`, and every `metadata` export.
+- **A7 owns** `scripts/ui-audit.mjs` and the evidence directory. It does not
+  start until waves 1–3 are merged, or it certifies a moving target.
+
+### Why A6 is one agent and not six
+
+VA-51, VA-53, VA-57, VA-58, VA-62 and VA-63 all converge on the same four files
+— the routing module, the homepage, the site header and the home sections.
+Splitting them across agents would force a rebase per task. They ship as two PRs
+by the same agent instead: **4a naming** (VA-51, VA-57, VA-63, VA-58), then
+**4b homepage and metadata** (VA-53, VA-62).
 
 ---
 
@@ -178,9 +252,14 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
       summary/deck, body or explicit developing-update section, facts, timestamps,
       source state, correction/update log, homepage representation.
 - [ ] **46.3** Enforce it at the ingest/publication layer so a malformed partial
-      update **fails before becoming public**. Prefer a `.strict()` refine on the
-      contract plus a service-level assertion inside the existing transaction.
-      Do not add a new bypass path.
+      update **fails before becoming public**. The seam is
+      `server/modules/publications/service.ts:199-229` — the only point where the
+      applied field set and the claimed `changeSummary` are both in scope, before
+      `r.update` and `recordVersion`. Compare `contentHash` before and after
+      (generated column, `server/db/schema/publications.ts:86-88`): a version
+      claiming a content change while the hash is unchanged is the Lebanon
+      failure mode. **Apply the identical shape to the second update path at
+      `service.ts:763-812`**, which has the same defect. Do not add a new bypass.
 - [ ] **46.4** Guarantee a re-promoted story references **the same canonical
       version the article page renders**. Homepage projection and article detail
       must read one version, not two.
@@ -252,13 +331,20 @@ VA-04 measured three exact-title pairs live, five near-duplicate pairs, and
 `/geopolitical-brief` rendering the same record up to three times on one page.
 VA-12's collapse covers the archive projection only.
 
-- [ ] **48.1** `A1` Build the duplicate-canonical guard in the editorial /
-      publication flow: before creating a new publication, check for an existing
-      canonical story.
+- [ ] **48.1** `A1` **The guard exists — extend it, do not rebuild it.**
+      `applyEditorial`'s create branch already enforces canonical-story
+      uniqueness, shared-evidence-plus-title similarity, and `eventId` repeats
+      (`service.ts:127-159`). Carry the same check into the four create paths
+      that have none: `create` (`:258`), `createMany` (`:307`),
+      `autoPublish` (`:444`), `autoPublishMany` (`:511`).
 - [ ] **48.2** `A1` Provide a **deliberate override** so an editor can create a
-      genuinely separate story. The override must be explicit and recorded.
-- [ ] **48.3** `A1` Fix the *other* duplication bug VA-12 did not: one record
-      appearing as lead **and** in the timeline **and** in the archive on one page.
+      genuinely separate story. Today the guard only throws `CONFLICT` with no
+      way through. The override must be explicit and recorded. **Blocked on owner
+      question 2 in §14** — who may exercise it.
+- [ ] **48.3** `A1` ~~Fix the triple-render.~~ **Already fixed** for the
+      unfiltered case in `LiveBriefHub.tsx:383-404`, and deliberately not for the
+      filtered case. Verify it still holds; do not "fix" the filtered branch
+      without reading the comment that explains it.
 - [ ] **48.4** `A3` Sweep live records for duplicates. Do not assume the known
       examples (Iran / U.S. unmanned vessel, BGU aerogel, West Bank outposts) are
       the only ones. Publish the sweep result into this file as a table.
@@ -296,9 +382,14 @@ state model*, not a replacement campaign.
 
 - [ ] **49.1** Re-inspect the live inventory. List which publications still lack
       appropriate hero media, and which are legitimately text-only.
-- [ ] **49.2** `A1` Create a real distinction in the system between **missing
-      media** and **intentional text-only**. Homepage/promoted stories must not
-      silently fall into an undefined empty-media state.
+- [ ] **49.2** `A3` Create a real distinction in the system between **missing
+      media** and **intentional text-only**, and **persist it on the
+      publication**. Today `media = null` is produced by at least four different
+      causes with no discriminator, and the only signal — the run report's
+      `publicationProceededWithoutNewMedia` warning — lives in report JSON and is
+      never stored. **Do not reintroduce a media gate**: the owner ruled on
+      2026-09-07 that a picture is not a gate and a picture-less card renders
+      text-led. This step models the *state*, it does not restore the *gate*.
 - [ ] **49.3** `A3` For each eligible story choose media in this priority:
       direct documentary evidence → editorial/documentary photography → relevant
       portrait/location/object photography → documents, charts or data → clearly
@@ -344,8 +435,15 @@ Articles currently end at sources and corrections and stop. Build an
 - [ ] **50.1** Define the relationship ladder, in priority: same canonical
       developing story → related investigation → evidence collection →
       actor/entity → topic/narrative → archive record → relevant section hub.
-- [ ] **50.2** Build the module (restrained, e.g. "Continue the record"),
-      normally **2–4** destinations.
+      **The first rung returns nothing by construction** — the canonical id is
+      unique per row, so a story is one record updated in place. Either drop that
+      rung or redefine it as "records sharing an `eventId`".
+- [ ] **50.2** **A module already exists — upgrade it, do not add a second.**
+      "Related coverage" renders at `app/articles/[publicId]/page.tsx:415-444`,
+      above corrections, and is the terminal content. Its data comes from
+      `publication_related`, written only by `linkRelated` as auto-linked batch
+      siblings, not editorial relationships; narratives render as unlinked text
+      with no route to reach. Normally **2–4** destinations.
 - [ ] **50.3** Exclude self-links, duplicate stories, weak keyword matches and
       filler. If nothing genuinely relevant exists, return the reader to the most
       relevant section/topic.
@@ -429,8 +527,12 @@ build, not a rebuild. **Do not redesign the homepage from scratch.**
 rewrite Search unless a real defect is found.** VA-17 shipped a no-match state;
 VA-04 noted the fallback-index rows beneath it are untested.
 
-- [ ] **58.1** Verify whether ten fallback-index rows still render beneath the
-      no-match state. If they do, that is the real defect — fix that, not Search.
+- [ ] **58.1** ~~Verify the fallback-index rows beneath the no-match state.~~
+      **Verified 2026-09-07: they do not render.** The list is gated on a
+      non-empty hit set (`SearchPanel.tsx:310`) and the else branch is an empty
+      listbox kept so `aria-controls` resolves (`:324-328`). What VA-04 saw is
+      the page-level `noscript` index, invisible with JavaScript on. **There is
+      no Search defect. This task is naming and copy only.**
 - [ ] **58.2** State the distinction in product terms: **Search** finds a
       published record; **Ask the Desk** asks a question across what Lions has
       published and researched.
@@ -681,29 +783,33 @@ the rendered, functioning Lions of Zion experience.
 
 Update this table in the **same commit** that changes any box above.
 
-| Task | Owner | Status | Wave | Evidence |
+| Task | Owner | Status | PR | Evidence |
 | --- | --- | --- | --- | --- |
 | P-1 … P-5 | any | ☐ not started | 0 | — |
 | VA-46 | A1 | ☐ not started | 1 | — |
+| VA-48 | A1 | ☐ not started | 1 | — |
 | VA-47 | A2 | ☐ not started | 1 | — |
 | VA-61 | A2 | ☐ not started | 1 | — |
-| VA-48 | A1 + A3 | ☐ not started | 2 | — |
-| VA-56 | A1 | ☐ not started | 2 | — |
-| VA-49 | A3 + A1 | ☐ not started | 2 | — |
-| VA-52 | A4 | ☐ not started | 2 | — |
+| VA-49 | A3 | ☐ not started | 2 | — |
 | VA-50 | A4 | ☐ not started | 2 | — |
 | VA-54 | A4 | ☐ not started | 2 | — |
-| VA-55 | A4 | ☐ not started | 2 | — |
-| VA-51 | A5 | ☐ not started | 3 | — |
-| VA-53 | A5 | ☐ not started | 3 | — |
-| VA-58 | A5 | ☐ not started | 3 | — |
-| VA-63 | A5 | ☐ not started | 3 | — |
-| VA-62 | A5 | ☐ not started | 3 | — |
-| VA-57 | A3 + A5 | ☐ not started | 3 | — |
+| VA-56 | A4 | ☐ not started | 2 | — |
+| VA-52 | A5 | ☐ not started | 3 | — |
+| VA-55 | A5 | ☐ not started | 3 | — |
 | VA-59 | A5 | ☐ not started | 3 | — |
-| VA-60 | A6 | ☐ not started | 4 | — |
-| A11Y-1, A11Y-2 | A6 | ☐ not started | 4 | — |
+| VA-51 | A6 | ☐ not started | 4a | — |
+| VA-57 | A6 | ☐ not started | 4a | — |
+| VA-63 | A6 | ☐ not started | 4a | — |
+| VA-58 | A6 | ☐ not started | 4a | — |
+| VA-53 | A6 | ☐ not started | 4b | — |
+| VA-62 | A6 | ☐ not started | 4b | — |
+| VA-60 | A7 | ☐ not started | 5 | — |
+| A11Y-1, A11Y-2 | A7 | ☐ not started | 5 | — |
 | T-1 … T-13 | all | ☐ not started | all | — |
+
+Note: VA-56 moved from A1 to A4, because A4 owns the article page where the
+structured source stack renders. VA-52 moved from A4 to A5, because the Fake
+Resistance previews touch nothing the article page touches.
 
 Status vocabulary: `☐ not started` · `◐ in progress` · `☑ done` · `⛔ blocked`.
 
@@ -713,8 +819,19 @@ Append here rather than guessing. Each entry: question, why it blocks, what you
 would do by default if unanswered.
 
 1. *(VA-61)* Funding model, disclosable donor relationships and
-   conflict-of-interest handling cannot be established from the repository.
-   Default if unanswered: document the gap publicly rather than publish copy.
+   conflict-of-interest handling cannot be established from the repository. The
+   site already says "Funding — not yet published in full"
+   (`app/we-are/page.tsx:229-232`), which is an honest gap disclosure rather
+   than a false claim. **Default if unanswered: leave it exactly as it stands.**
+2. *(VA-48)* Who may create a deliberately separate story for an event that
+   already has a canonical record — the editorial run itself, or only a human
+   through the admin console? **Blocks step 48.2.** Default if unanswered:
+   human-only through the admin console, since that is the narrower grant.
+3. *(VA-51)* `/information-war` answers to three names — "How it works" in the
+   chrome, "This is an information war" as its own title, "Why this work
+   matters" on the homepage. `/ask` answers to five, including "AI Chat". Which
+   name wins in each case? **Blocks step 51.2.** Default if unanswered: keep the
+   chrome label as the canonical name and align the others to it.
 
 ---
 

@@ -163,27 +163,20 @@
 .contextShelf .link { font-size: clamp(18px, 2vw, 25px); }
 .contextShelf li > span { color: var(--ink-lo); font: 400 10px/1.4 var(--face-data); letter-spacing: .06em; }
 
-/* An inspectable evidence circuit, followed by the separate archive route. */
+/* One proof of method: the source-counting test, its one interaction, and the
+   two doors out. The five-stage walkthrough, the two branch explanations and
+   the archive chain that used to sit here are gone from the homepage — the
+   walkthrough to `/information-war`, the branches because that page already
+   said the same two sentences (VA-21). */
 .system { border-top: 1px solid var(--journey-rule); }
 .systemHead { display: grid; grid-template-columns: 1.15fr 1fr; align-items: end; gap: var(--journey-gap); margin-bottom: 24px; }
 .systemHead h2 { margin: 10px 0 0; max-width: 17ch; font-size: clamp(38px, 4.8vw, 68px); line-height: 1.04; }
 .systemHead > p { max-width: 48ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
-.systemBranches { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); margin-top: 28px; }
-.branchHeading { display: flex; gap: 14px; align-items: center; }
-.branchHeading h3 { margin: 0; font-size: clamp(26px, 2.5vw, 36px); line-height: 1.14; }
-.systemBranches article > p { max-width: 58ch; margin: 16px 0 0; color: var(--ink); font-size: 15px; line-height: 1.7; }
-.systemBranches article > .branchNote { color: var(--ink-lo); font-size: 13px; }
-.systemBranches .link { margin-top: 18px; font-size: 14px; }
-.archiveChain { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
-.archiveChain::before { content: ""; position: absolute; top: 17px; left: 17px; right: 17px; height: 1px; background: var(--journey-rule); }
-.archiveChain > span { position: relative; display: grid; justify-items: start; align-content: start; gap: 9px; color: var(--ink); font-size: 12px; line-height: 1.5; }
-.archiveChain svg { box-sizing: content-box; padding: 7px; background: var(--ground); color: var(--gold); }
-.purpose { display: grid; grid-template-columns: 1fr 1fr; gap: 14px var(--journey-gap); margin-top: 44px; padding-top: 26px; border-top: 1px solid var(--journey-rule); }
-.purpose > .kicker { grid-column: 1/-1; margin: 0; }
-.purpose h3 { max-width: 18ch; margin: 0; font-size: clamp(36px, 4vw, 56px); line-height: 1.05; }
-.purpose > p:last-child { max-width: 52ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
-.amplification { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .85fr); column-gap: var(--journey-gap); align-items: start; margin: 24px 0 30px; }
-.amplification figcaption { grid-column: 1/-1; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; padding: 14px 0; color: var(--ink-lo); font-size: 12px; line-height: 1.5; }
+.systemNote { max-width: 72ch; margin: 0 0 20px; color: var(--ink-lo); font-size: 13px; line-height: 1.6; }
+.amplification { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .85fr); column-gap: var(--journey-gap); align-items: start; margin: 24px 0 22px; }
+/* 13px, not 12px: this figure is the band's only module now, and its
+   disclosure line is a caption — the contract's floor for one is 13px. */
+.amplification figcaption { grid-column: 1/-1; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; padding: 14px 0; color: var(--ink-lo); font-size: 13px; line-height: 1.5; }
 .amplification figcaption .kicker { margin: 0; }
 .echoSequence { position: relative; list-style: none; margin: 0; padding: 0; }
 .echoSequence::before { content: ""; position: absolute; top: 38px; bottom: 56px; left: 13px; width: 1px; background: var(--journey-rule); transition: background-color 300ms; }
@@ -203,7 +196,9 @@
 .echoTraceButton svg { flex-shrink: 0; }
 .echoTraceButton:hover { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 7%, transparent); }
 .echoTraceButton:active { background: color-mix(in srgb, var(--gold) 14%, transparent); }
-.echoPrinciple { margin: 20px 0 0; color: var(--ink-lo); font: 400 12px/1.7 var(--face-data); }
+/* 13px, not the 12px it was, and no phone override under it: this is the
+   band's caption line now, and the contract's floor for a caption is 13px. */
+.echoPrinciple { margin: 20px 0 0; color: var(--ink-lo); font: 400 13px/1.7 var(--face-data); }
 .amplification[data-traced="true"] .echoNumeral, .amplification[data-traced="true"] .echoStep { color: var(--gold); }
 .amplification[data-traced="true"] .echoSequence::before { background: var(--gold-dim); }
 .amplification[data-traced="true"] mark { color: var(--gold); }
@@ -313,25 +308,31 @@
   .historySpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 20px; }
   .historySpread .figure img { aspect-ratio: 16/9; }
   .systemHead h2 { font-size: clamp(34px, 8.5vw, 45px); }
-  .systemBranches, .purpose { grid-template-columns: 1fr; }
-  .purpose { margin-top: 28px; gap: 14px; }
-  .purpose h3 { font-size: 35px; }
-  .systemBranches { gap: 24px; margin-top: 22px; }
-  .branchHeading h3 { font-size: 29px; }
-  .amplification { grid-template-columns: 1fr; row-gap: 0; margin-top: 20px; }
-  .amplification figcaption { display: grid; gap: 4px; }
-  .echoSequence li { padding-left: 40px; }
-  .echoSequence blockquote { font-size: clamp(23px, 5.8vw, 31px); }
+  .systemNote { margin-bottom: 16px; }
+  /* The one proof module is the whole band on a phone now, so its own
+     rhythm is where the remaining vertical economy is (VA-21). Nothing here
+     changes a type size: the floors are 13px annotations, 13px note and 16px
+     reading copy, all unchanged. */
+  .amplification { grid-template-columns: 1fr; row-gap: 0; margin: 16px 0; }
+  .amplification figcaption { display: grid; gap: 4px; padding: 10px 0; }
+  .echoSequence li { padding: 13px 0 12px 40px; }
+  .echoSequence::before { top: 30px; bottom: 46px; }
+  .echoStep { top: 20px; }
+  .echoSequence blockquote { margin: 9px 0 8px; font-size: clamp(23px, 5.8vw, 31px); }
   .echoSequence .echoHeadline blockquote { font-size: clamp(30px, 7.5vw, 39px); }
-  .echoAnnotation { font-size: 12px; }
-  .echoReading { margin: 0; padding: 18px 0 0; border-left: 0; border-top: 1px solid var(--journey-rule); }
-  .echoResult { display: grid; grid-template-columns: 72px minmax(0, 1fr); column-gap: 22px; min-height: 200px; }
-  .echoNumeral { grid-row: span 2; margin: -6px 0 0; font-size: 106px; }
-  .echoReading h4 { font-size: 29px; margin-bottom: 12px; }
-  .echoResult > p { font-size: 14px; max-width: 48ch; }
-  .echoTraceButton { margin-top: 14px; }
-  .echoPrinciple { font-size: 11px; }
-  .systemActions { display: grid; justify-items: start; gap: 12px; }
+  /* The reservation stays — it is what stops the trace toggle shifting the
+     page under the reader — it is just measured against the phone's own
+     line length rather than the desktop's. */
+  .echoAnnotation { min-height: 3.4em; }
+  .echoReading { margin: 0; padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--journey-rule); }
+  .echoResult { display: grid; grid-template-columns: 72px minmax(0, 1fr); column-gap: 22px; min-height: 176px; }
+  .echoNumeral { grid-row: span 2; margin: -6px 0 0; font-size: 92px; }
+  .echoReading h4 { font-size: 29px; margin-bottom: 10px; }
+  .echoResult > p { max-width: 48ch; }
+  .echoTraceButton { margin-top: 12px; }
+  .echoPrinciple { margin-top: 14px; }
+  .systemActions { display: grid; grid-template-columns: 1fr 1fr; justify-items: stretch; gap: 10px 18px; }
+  .systemActions > button { grid-column: 1/-1; justify-self: start; }
   .support { padding-bottom: calc(34px + env(safe-area-inset-bottom, 0px)); }
   .supportHead { gap: 16px; margin-bottom: 18px; }
   .supportHead h2 { font-size: clamp(34px, 8.5vw, 45px); }

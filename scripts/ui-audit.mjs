@@ -718,9 +718,37 @@ const noJsContext = await browser.newContext({
   viewport: { width: 390, height: 844 },
 });
 const noJsPage = await noJsContext.newPage();
-const NO_JS_ROUTES = ["/", "/methodology", "/october-7/documentation", "/search", "/updates", "/geopolitical-brief"];
+
+/**
+ * The no-JS routes, each with the records it must actually serve.
+ *
+ * `records` is the floor VA-42 exists because this pass did not have. The old
+ * check asked whether *anything* rendered — links, headings, 300 characters —
+ * and `/geopolitical-brief` passed it while serving a reader with scripting
+ * off 34 links of navigation, 858 characters of chrome and **zero** article
+ * links, with all 44 of them sitting in `div[hidden]` waiting for a script
+ * that would never run. Chrome is not content. A reading route has to prove it
+ * served the thing a reader came for.
+ *
+ * `min` is set well below what each route actually carries so the check
+ * measures the mechanism rather than the day's editorial volume. Measured
+ * against Production on 2026-09-07 with scripting off: `/` served 11 visible
+ * article links, `/october-7/documentation` 359. `null` means the route has no
+ * records to require — `/methodology` is prose, and `/search` without a query
+ * correctly has no results, so demanding one would teach the next person to
+ * silence this check rather than to trust it.
+ */
+const NO_JS_ROUTES = [
+  { route: "/", records: { selector: 'a[href^="/articles/"]', min: 3, what: "published record" } },
+  { route: "/methodology", records: null },
+  { route: "/october-7/documentation", records: { selector: 'a[href^="/october-7/documentation/"]', min: 3, what: "documentation record" } },
+  { route: "/search", records: null },
+  { route: "/updates", records: { selector: 'a[href^="/articles/"]', min: 3, what: "published record" } },
+  { route: "/geopolitical-brief", records: { selector: 'a[href^="/articles/"]', min: 3, what: "published record" } },
+  { route: "/fact-check", records: { selector: 'a[href^="/articles/"]', min: 1, what: "checked claim" } },
+];
 console.log("\n--- no-JavaScript pass (390x844) ---");
-for (const route of NO_JS_ROUTES) {
+for (const { route, records } of NO_JS_ROUTES) {
   try {
     const response = await noJsPage.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
     const status = response?.status() ?? 0;
@@ -728,12 +756,13 @@ for (const route of NO_JS_ROUTES) {
        inside `div[hidden]`, so counting nodes reports a page as full when the
        reader is looking at nothing — which is exactly how seven routes shipped
        serving 11 to 23 characters with scripting off and every check passing. */
-    const counts = await noJsPage.evaluate(() => {
+    const counts = await noJsPage.evaluate((selector) => {
       const visible = (el) => {
         const s = getComputedStyle(el);
         const r = el.getBoundingClientRect();
         return s.display !== "none" && s.visibility !== "hidden" && r.width > 0 && r.height > 0;
       };
+      const found = selector ? [...document.querySelectorAll(selector)] : [];
       return {
         links: [...document.querySelectorAll("a[href]")].filter(visible).length,
         headings: [...document.querySelectorAll("h1,h2,h3")].filter(visible).length,
@@ -743,20 +772,41 @@ for (const route of NO_JS_ROUTES) {
            render synchronously and only the async data region streams. What is
            a defect is a shell with nothing readable around it. */
         suspenseHoles: document.querySelectorAll("div[hidden][id^='S:']").length,
+        records: selector ? found.filter(visible).length : null,
+        /* Records present in the markup but invisible are the signature of the
+           VA-42 failure specifically, and they separate it from an empty desk:
+           the content was rendered, streamed into `div[hidden]`, and left for a
+           script. Reported so the finding names its own cause. */
+        recordsInDom: selector ? found.length : null,
       };
-    });
+    }, records?.selector ?? null);
+    const recordsMissing = Boolean(records) && counts.records < records.min;
     const bad =
       status !== 200 ||
       counts.main !== 1 ||
       counts.links < 10 ||
       counts.headings < 1 ||
-      counts.text < 300;
+      counts.text < 300 ||
+      recordsMissing;
     if (bad) critical += 1;
     console.log(
       `${bad ? "CRITICAL" : "ok      "} ${route}: HTTP ${status}, ${counts.links} visible links, ` +
         `${counts.headings} headings, ${counts.main} main, ${counts.text} chars, ` +
-        `${counts.suspenseHoles} streaming hole(s)`,
+        `${counts.suspenseHoles} streaming hole(s)` +
+        (records ? `, ${counts.records}/${records.min} ${records.what}s visible` : ""),
     );
+    if (recordsMissing) {
+      console.log(
+        counts.recordsInDom > counts.records
+          ? `  ! [NO-JS-RECORDS] ${route} renders chrome but no ${records.what}: ` +
+              `${counts.recordsInDom} are in the markup and ${counts.records} are visible. ` +
+              "They are inside a Suspense boundary, which streams into div[hidden] for a " +
+              "client script to reveal. Render the records outside the boundary (VA-42)."
+          : `  ! [NO-JS-RECORDS] ${route} served ${counts.records} ${records.what}s, below the ` +
+              `floor of ${records.min}, and none are in the markup either — either the read ` +
+              "failed or the desk is genuinely empty. Check the projection before the boundary.",
+      );
+    }
   } catch (error) {
     critical += 1;
     console.log(`CRITICAL ${route}: ${error}`);

@@ -332,7 +332,24 @@
   --control-h-sm: 2.25rem;
   --control-h-coarse: 2.75rem;
 
-  --header-h: 4.8rem;
+  /* The bar's *total occupied height*, notch included — not the height of the
+     strip a reader looks at.
+
+     `viewport-fit=cover` (VA-41, `app/layout.tsx`) lets the page paint under
+     the status bar and the Dynamic Island, and `.header` is
+     `position: fixed; inset: 0 0 auto`, so its box starts at physical y=0.
+     Without the inset in this token the masthead would render *inside* the
+     sensor housing: 47px on an iPhone 12–14, 59px on a 14 Pro and later,
+     against a 3.5rem (56px) phone bar. Nine visible pixels at best, nothing
+     at all on a current handset.
+
+     This token is what twelve files offset their content by, so it has to be
+     the whole thing. `site-header.module.css` `.bar` pads the same amount off
+     its own top; with the global `box-sizing: border-box` its content strip
+     stays exactly 4.8rem / 3.5rem and simply sits below the housing. The two
+     halves are one change — neither works alone, and shipping only the
+     padding would shrink the visible strip instead of moving it. */
+  --header-h: calc(4.8rem + env(safe-area-inset-top, 0px));
 
   /* How far `AskDock`'s trigger is lifted off the bottom edge.
    *
@@ -417,10 +434,11 @@
    is a seventh of the screen spent on a wordmark and two controls, and every
    pixel of it is taken from the photograph. `site-header.module.css` sets the
    bar to match; this token is what the hero's own top padding reads, so the
-   two have to move together. */
+   two have to move together. The safe-area term is carried here too — see the
+   note on the base value; the phone is the case it exists for. */
 @media (max-width: 48rem) {
   :root {
-    --header-h: 3.5rem;
+    --header-h: calc(3.5rem + env(safe-area-inset-top, 0px));
   }
 }
 

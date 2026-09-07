@@ -192,6 +192,89 @@
   text-transform: capitalize;
 }
 
+/* ── Developing stories (VA-19) ────────────────────────────────────────── */
+
+/* A revision marker, not a badge: it reads as a dated sentence in the record's
+   own register, because "this changed after we published it" is a fact about
+   the reporting and belongs in the metadata line rather than in a coloured
+   pill competing with the headline. */
+.storyUpdated {
+  composes: dataValue from global;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+  min-width: 0;
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-lo);
+}
+
+.storyUpdatedFlag {
+  color: var(--gold-hi);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+/* The chronology beneath a story's current headline. Indented against a rule
+   so the earlier entries read as belonging to the card above them rather than
+   as further cards in the list. */
+.updateLog {
+  max-width: var(--brief-reading);
+  margin: var(--sp-3) 0 0;
+  padding-inline-start: var(--sp-4);
+  border-inline-start: var(--line-w) solid var(--line-soft);
+}
+
+.updateLog h4 {
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.updateLog ol {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.updateLog li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.updateLog time {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.updateLog a {
+  min-width: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 30rem) {
+  .updateLog li {
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--sp-1) var(--sp-4);
+  }
+}
+
 /* ── Links ─────────────────────────────────────────────────────────────── */
 
 .readLink {

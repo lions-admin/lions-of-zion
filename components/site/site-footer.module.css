@@ -25,12 +25,21 @@
   padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom, 0px));
 }
 
+/* VA-41. The colophon already kept itself above the home indicator; it had
+   nothing for the sensor housing, which is the inset that exists only in
+   landscape — where `--footer-inset` resolves to 4.5vw ≈ 37px on an 812px
+   phone against a 47-59px housing, so the nameplate and the file index would
+   have run under it the moment `viewport-fit=cover` was switched on.
+   `max()`, not `calc(… + …)`: the inset raises a floor rather than adding to
+   the gutter, so at a zero inset this is byte-for-byte the old rule. */
 .inner,
 .files,
 .colophon {
   max-width: var(--footer-width);
   margin-inline: auto;
-  padding-inline: var(--footer-inset);
+  padding-inline:
+    max(var(--footer-inset), env(safe-area-inset-left, 0px))
+    max(var(--footer-inset), env(safe-area-inset-right, 0px));
 }
 
 .inner {

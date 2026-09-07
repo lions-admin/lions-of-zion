@@ -37,12 +37,36 @@
 /* ── The bar ───────────────────────────────────────────────────────────── */
 
 .bar {
+  /* One name for the bar's side gutter, so the safe-area floor below is
+     written once and every seam that wants a different gutter sets the value
+     rather than restating the `max()`. See the note on `--bar-gutter` under
+     the phone block. */
+  --bar-gutter: clamp(var(--sp-4), 3vw, var(--sp-7));
+  /* The other half of the safe-area pair described on `--header-h` in
+     `app/globals.css`. That token now includes the top inset, so this padding
+     is what keeps the *content* strip its designed height and moves it clear
+     of the sensor housing rather than shrinking it. `box-sizing: border-box`
+     is global, so total height stays `--header-h` exactly. At a zero inset —
+     every non-notched device, and every browser before cover — both lines are
+     byte-for-byte what they were. */
+  padding-top: env(safe-area-inset-top, 0px);
   height: var(--header-h);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: clamp(var(--sp-4), 2.5vw, var(--sp-7));
-  padding-inline: clamp(var(--sp-4), 3vw, var(--sp-7));
+  /* VA-41. `max()`, never `calc(… + …)`: the gutter is a floor the sensor
+     housing raises, not padding to add to. At a zero inset — every desktop,
+     every Android, iOS in portrait — this is exactly `--bar-gutter` and
+     nothing moves.
+     This rule used to live at `@media (max-width: 48rem)` on
+     `.header[data-home] .bar` alone, which is the one scope where it could
+     never fire: left and right insets are non-zero only in landscape, and a
+     landscape phone is 812-932px wide — outside a 768px query — and reads
+     every route, not only the home cover. */
+  padding-inline:
+    max(var(--bar-gutter), env(safe-area-inset-left, 0px))
+    max(var(--bar-gutter), env(safe-area-inset-right, 0px));
   /* Over the home scene this is 77px of veil on a black field; over a reading
      page it is the same veil on the same ground. One treatment, both. */
   border-bottom: var(--line-w) solid var(--line);
@@ -495,7 +519,38 @@
   .barNav { display: none; }
 }
 
-@media (max-width: 45rem) {
+/* ── The phone seam is not a width ─────────────────────────────────────────
+ *
+ * VA-45: a phone on its side is 812 or 932 CSS pixels wide, so a width-only
+ * seam read it as a small tablet and served the desktop mega-panel — a
+ * two-column contact sheet with 29px titles — into 298px of remaining height.
+ * Reproduced 2026-09-07 at 812x375 and 932x430: `filesTrigger` visible,
+ * `filesPanel` open at 812x298, `menuTrigger` `display: none`, no `<dialog>`.
+ *
+ * The real distinction is not "narrow", it is "a handheld with little
+ * vertical room", so the second condition states exactly that and nothing
+ * device-specific: a **coarse primary pointer** with a **short viewport**.
+ *
+ * Why 30rem (480px). Every phone's short side is at or under ~440px
+ * (iPhone 15 Pro Max landscape is 430); every tablet's short side starts at
+ * 744px (iPad mini) or 768px. 480px sits in that gap with headroom at both
+ * ends, so no tablet in either orientation can fall through it.
+ *
+ * Why `pointer: coarse` is required alongside it. Without it a desktop window
+ * dragged short — 1400x400 — would lose its navigation drawer for no reason;
+ * the drawer scrolls perfectly well there. `pointer` reports the *primary*
+ * input, so a touchscreen laptop with a trackpad still reports `fine` and is
+ * correctly excluded. Verified: 1400x400 keeps the drawer, 812x375 does not.
+ *
+ * Not extended to the `48rem` phone-chrome block below on purpose. That block
+ * compresses the bar to 3.5rem, and the matching `--header-h` token is set in
+ * `app/globals.css` under its own `48rem` query. Compressing the bar here
+ * without moving the token would desync every surface that offsets by
+ * `--header-h` — the hero, the section pages, the drawer's own max-height.
+ * If the bar should also shorten in landscape, the token has to move with it,
+ * and that is a `globals.css` edit.
+ */
+@media (max-width: 45rem), (max-height: 30rem) and (pointer: coarse) {
   .bar { grid-template-columns: minmax(0, 1fr) auto; }
   .header .filesTrigger,
   .support { display: none; }
@@ -516,6 +571,42 @@
   .menuGroupLabel { margin-bottom: 10px; }
   .menuUtilities { margin-top: 20px; }
   .menuSupport { display: flex; justify-content: space-between; align-items: center; min-height: 48px; margin-top: 12px; border-top: 1px solid var(--gold-dim); color: var(--gold-hi); font-size: 14px; }
+}
+
+/* The sheet, in a 375px-tall box.
+ *
+ * The drawer's own body scrolls, so nothing is unreachable — but a 32px
+ * nameplate plus a description over 24px of padding spends a third of the
+ * viewport before the first link. Nothing here changes what the sheet
+ * contains or how it behaves; it only stops the header and the prose from
+ * eating the list. Touch targets are untouched: `.secondaryMenuLink` keeps
+ * its 44px floor and `.menuSupport` its 48px.
+ *
+ * The two descriptions are clipped, not `display: none`d. The sheet's own
+ * description is the `aria-describedby` target `Dialog` wires to the
+ * `<dialog>`, and each link's description is part of that link's accessible
+ * name; `display: none` would take both out of the accessibility tree and
+ * leave the landscape sheet saying less than the portrait one. This is the
+ * same screen-reader-only box `.menuLabel` uses on the phone trigger. */
+@media (max-height: 30rem) and (pointer: coarse) {
+  .mobilePanel [data-slot="header"] { padding: 14px 20px 12px; }
+  .mobilePanel [data-slot="header"] h2 { font-size: 24px; }
+  .mobilePanel [data-slot="header"] p,
+  .menuLinkDescription {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+  .mobilePanel [data-slot="body"] { padding: 0 20px 20px; }
+  .primaryMenuLink { padding-block: 13px; }
+  .menuLinkTitle { font-size: 22px; }
+  .menuUtilities { margin-top: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -677,7 +768,9 @@
   .bar {
     height: 3.5rem;
     gap: var(--sp-3);
-    padding-inline: var(--sp-4);
+    /* Set the gutter, not the padding — the `max()` against the sensor
+       housing lives on `.bar` once and reads this. */
+    --bar-gutter: var(--sp-4);
     background: color-mix(in srgb, var(--ground) 96%, transparent);
     border-bottom-color: var(--line-soft);
     box-shadow: none;
@@ -776,7 +869,7 @@
   .header[data-home] .bar { grid-template-columns: minmax(0, 1fr) auto; }
 }
 @media (max-width: 48rem) {
-  .header[data-home] .bar { gap: 8px; padding-inline: max(12px, env(safe-area-inset-left, 0px)) max(12px, env(safe-area-inset-right, 0px)); }
+  .header[data-home] .bar { gap: 8px; --bar-gutter: 12px; }
   .header[data-home] .brandName { font-size: 18px; letter-spacing: -.035em; }
   .header[data-home] .brandRole { font-size: 8px; letter-spacing: .12em; }
   .header[data-home] .utility, .header[data-home] .deskActions { gap: 0; }

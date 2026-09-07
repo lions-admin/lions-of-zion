@@ -281,30 +281,43 @@ function expectShellRenders(route: string, markup: string) {
 }
 
 describe("the no-JavaScript invariant: the shell arrives before the data", () => {
-  it("serves the News & Analysis shell while the projection read is still pending", async () => {
-    listBriefingPublications.mockImplementation(never);
-    const { default: Page } = await import("@/app/geopolitical-brief/page");
-    const html = await pendingHtml(
-      "/geopolitical-brief",
-      await Page({ searchParams: Promise.resolve({}) } as never),
-    );
-
-    expectShellRenders("/geopolitical-brief", html);
-    /* The desk was renamed from "The Daily Brief" to "News & Analysis"
-       (commit 00240da): the visible h1 (components/briefs/LiveBriefHub.tsx:49)
-       and the JSON-LD name (app/geopolitical-brief/page.tsx:23) now agree on
-       it. The h1 is HTML-escaped in SSR ("News &amp; Analysis"); the JSON-LD
-       script is raw text, so the JSON name is not escaped. */
-    expect(html).toContain("News &amp; Analysis");
-    expect(html).toContain('"name":"News & Analysis"');
-    expect(html).toContain("Reporting on Israel and the region, the daily briefing, and the sources behind every line.");
-    /* And the read really is behind a boundary — otherwise the fallback is
-       dead code and the route gained nothing but a slower first byte. The
-       pending read's fallback is the desk skeleton whose status label is
-       "Loading news and analysis" (LiveBriefHub.tsx:57, rendered as an
-       sr-only span by SkeletonRegion). */
-    expect(html).toContain("Loading news and analysis");
-  });
+  /*
+   * `/geopolitical-brief` is deliberately absent from this describe block, and
+   * that is a traded invariant rather than an oversight.
+   *
+   * It used to assert the opposite of what the route now does: that the read
+   * sat behind a Suspense boundary, so the masthead and the h1 arrived while
+   * the records were still pending. VA-42 measured what that cost a reader
+   * with scripting off — React streams a boundary's contents into
+   * `<div hidden id="S:…">` that only client script reveals, so the route
+   * served 39 streaming holes, 44 article links in the markup and **zero
+   * visible records**, behind 2,871 characters of navigation chrome. The
+   * boundary that made this test pass was the defect.
+   *
+   * The two invariants cannot both hold on one route, so the trade is stated
+   * rather than hidden:
+   *
+   *   kept   — a reader without JavaScript sees the actual reporting, always.
+   *   given  — if the projection read hangs, the whole page waits, chrome
+   *            included, instead of painting a skeleton.
+   *
+   * The first failure was certain and constant. The second is rare and
+   * already cushioned: `publicReadCache` (5 min), `unstable_cache` (300 s) and
+   * `withLastGoodRead` (24 h) sit in front of the read, and `Promise.allSettled`
+   * turns a rejection into the `unavailable` state rather than a hang. If that
+   * cushion is ever judged insufficient, the fix is a read deadline that falls
+   * back to last-good data — NOT restoring the boundary, which would restore
+   * the defect.
+   *
+   * `tests/news-desk-story-projection.test.tsx` holds the replacement
+   * assertions: records present in the initial HTML, outside any streaming
+   * hole, and the `unavailable` state reachable without a boundary.
+   *
+   * `/updates` and `/fact-check` keep their cases below because they still
+   * have the boundary — and therefore still have the defect. VA-42's raised
+   * floor in `scripts/ui-audit.mjs` reports both as CRITICAL against live
+   * Production. When they are fixed, their cases here move up to this comment.
+   */
 
   it("serves the /updates shell while the projection read is still pending", async () => {
     listBriefingPublications.mockImplementation(never);

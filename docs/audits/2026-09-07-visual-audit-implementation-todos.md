@@ -527,7 +527,23 @@ gate the audit itself says must come first.
 - **Desktop / mobile.** Both, portrait and landscape phone.
 - **Production verification.** **Required** — plus an LCP measurement (see VA-40).
 - **Execution path.** **Development.**
-- **Status.** `NEEDS VISUAL VERIFICATION` (confirm current cover geometry via
+- **Reproduced and fixed, 2026-09-07.** At 812x375 the wide two-column contact
+  sheet opened into 298px of remaining height (29–34px titles), and the
+  `<dialog>` drawer built for that reader was suppressed entirely. Same at
+  932x430.
+
+  `components/site/site-header.module.css:529` — `@media (max-width: 45rem)`
+  became `@media (max-width: 45rem), (max-height: 30rem) and (pointer: coarse)`.
+  **480px is chosen against a measured gap**, not by feel: every phone's short
+  side is at most ~440px (iPhone 15 Pro Max landscape is 430) and every
+  tablet's short side starts at 744px, so 480 clears both with headroom. The
+  `pointer: coarse` half is load-bearing rather than decorative — without it a
+  desktop window dragged to 1400x400 would lose its drawer for no reason;
+  verified that it does not. No `orientation:` query, no UA test, no
+  device-specific dimensions, and the test asserts the absence of all three.
+- **Status.** `DONE — verified at 812x375 and 932x430; drawer behaviour
+  (modal, focus entry, body lock, Escape, focus return, 44px targets)
+  re-measured and unchanged.` (confirm current cover geometry via
   VA-04 before editing) → then `READY`
 
 ### VA-11 — Hero donation chips: keep, move, or remove
@@ -988,7 +1004,44 @@ gate the audit itself says must come first.
 - **Desktop / mobile.** Both.
 - **Production verification.** Required.
 - **Execution path.** **Development.**
-- **Status.** `BLOCKED` on VA-10
+- **Done 2026-09-07, measured.** Baseline re-taken against the current tree
+  (VA-10 had already landed, so the page was 12,047px at 375, not the audit's
+  12,809px). Result: **12,047 → 9,958px, −17.3%**, and the band itself fell
+  from 3,517px to 1,428px — **29.2% → 14.3% of the page**. −13.7% to −17.4%
+  across all six widths. No type was shrunk and no record hidden; two sizes
+  went *up*, both prior floor violations in the module that is now the whole
+  band.
+
+  What stayed: kicker, headline, a three-line lede stating the source-counting
+  test, `AmplificationFigure` as the single interaction, the provenance
+  sentence, and exactly two links — How it works and Methodology.
+
+  **The "arriving twice" check came back positive in three places**, which is
+  the useful part. `/information-war` already carried the two branch
+  explanations near-verbatim (`StorySections.tsx:18,20`) and already carried
+  the amplification lesson as its `#problem` origin diagram
+  (`InformationWarSystem.tsx:20-32`, *"01 original source. Not five
+  confirmations."*). So `AmplificationFigure` **stayed on the homepage** rather
+  than moving — relocating it would have replaced one duplication with
+  another. The homepage keeps the one proof point; the destination keeps the
+  full treatment, which is also what VA-22 prescribes. Only the five-stage
+  walkthrough (`HomeEvidencePipeline`) actually moved, into chapter 02 of
+  `/information-war`.
+
+  One graphic was **dropped rather than moved** and is flagged here because
+  that is a deletion: the `archiveChain` diagram and its content-warning
+  sentence, whose fact is already stated on the homepage's own October 7 band
+  (`HomeArchiveSection.tsx:66`) and on the archive itself
+  (`ArchiveShareShowcase.tsx:117`). A third restatement, not a lost idea.
+
+  Verified: zero running animations under `prefers-reduced-motion`; four tab
+  stops with a visible ring; **no CLS on the interaction** — the figure
+  measures 884px in both states because the annotation line's space is
+  reserved; 48px touch targets; no horizontal overflow at 320–430; console
+  clean at all six widths; all ten `ci-smoke` destinations still present on the
+  no-JS homepage.
+- **Status.** `DONE — pending Production verification and an LCP re-measure
+  (VA-40).`
 
 ### VA-22 — One job each: How it works, Methodology, We Are
 
@@ -1856,6 +1909,136 @@ correction to the audit's stated evidence, not a dismissal of its finding.
 | Appendix A lists `MediaBlock.tsx` / `media-block.module.css` with no directory. | They are at `components/content/`, not `components/media/`. |
 | "Remove donation-provider chips from the hero." | `.ai/DECISIONS.md`, 2026-09-07 records an owner ruling placing them there deliberately, noting the phone header hides its Support control so the strip is the cover's only support affordance. **VA-11 — product decision.** |
 | Top-10 #05 lists nine editorial states. | `PUBLICATION_SECTIONS` in `server/contracts/enums.ts` has fourteen section values, which are not the same axis as the nine display states. VA-18 and VA-20 must map both — count both at the source, never from prose. |
+
+---
+
+## 12b. VA-41 … VA-45 — defects discovered by VA-04, promoted to tasks
+
+Recorded 2026-09-07 so they survive as work rather than as a paragraph in a
+findings report. Each was re-verified against Production before being written
+here; two of the five did not survive that check unchanged.
+
+### VA-41 — `viewport-fit=cover` is missing, so every safe-area rule is dead on iOS
+
+- **Verified.** `app/layout.tsx` exports `viewport` with `themeColor` and
+  `colorScheme` and **no `viewportFit`**. Next.js therefore emits
+  `width=device-width, initial-scale=1`, under which `env(safe-area-inset-*)`
+  resolves to `0` on iOS. **16 such rules across 8 CSS modules** —
+  `homepage-journey`, `editorial-intro`, `sections`, `ask`, `investigation`,
+  `search`, `site-header`, `site-footer` — are written, shipped and inert.
+- **Classification.** FIX · **Severity.** B · **Work type.** Frontend
+- **Why it is not a one-line merge.** Turning it on makes the page extend under
+  the notch and the home indicator. The 16 rules exist because someone expected
+  cover; enabling it is what makes them do their job. But if any layout was
+  tuned by eye with the insets reading 0, enabling cover *adds* padding there.
+  That cannot be settled from a desktop browser.
+- **Shipped 2026-09-07, and it needed a second change nobody had noticed.**
+  `viewportFit: "cover"` is now declared. Auditing all 16 rules turned up a
+  17th problem that is not one of them and would have been **worse than the
+  bug being fixed**: `.header` is `position: fixed; inset: 0 0 auto` with no
+  top inset, and `--header-h` is 3.5rem (56px) on a phone. Under cover the
+  masthead would have rendered *inside* the sensor housing — 47px on an iPhone
+  12–14, 59px on a 14 Pro and later, i.e. nine visible pixels at best and
+  nothing at all on a current handset. Turning cover on without this would have
+  hidden the wordmark, search, account and menu on every modern iPhone.
+
+  The fix is two lines that must land together: `--header-h` now carries
+  `env(safe-area-inset-top, 0px)` in both its definitions (`app/globals.css`),
+  and `.bar` pads its own top by the same amount
+  (`components/site/site-header.module.css`). With the global
+  `box-sizing: border-box` the total stays `--header-h` — which twelve files
+  offset content by — while the visible strip keeps its designed height and
+  moves below the housing. Shipping only the padding would shrink the strip to
+  nine pixels; shipping only the token leaves the content under the notch.
+  `tests/site-chrome-viewport.test.ts` pins the pair and was verified to go red
+  when either half is removed.
+
+  Three of the 16 rules were also found to be **dead weight** — bottom insets
+  on elements that are not last on the page, because `SiteFooter` renders after
+  them (`homepage-journey:218,335`, `sections:806`, `ask:892`). And
+  `site-header:779` was the reverse: a correct `max()` scoped where it could
+  never fire, since horizontal insets exist only in landscape, where a phone is
+  812–932px wide and outside that rule's `max-width: 48rem` query. Fixed.
+- **Status.** `PARTIAL — code shipped, physical iOS verification outstanding
+  (VA-39).` Everything above is desktop Chromium simulating `env()` values by
+  injection. It cannot exercise real UA-supplied insets, iOS URL-bar behaviour,
+  or `100dvh` under cover. Do not mark complete without a device.
+
+### VA-42 — `/geopolitical-brief` shows a reader zero records without JavaScript
+
+- **Verified on Production.** The response carries **27 `<div hidden id="S:…">`
+  streaming containers holding 400 article-link occurrences**, and only
+  **2,871 visible characters** ahead of the first one — all of it navigation
+  chrome, no editorial content. React streams the records into hidden divs that
+  only client script reveals.
+- **Root cause.** `components/briefs/LiveBriefHub.tsx:141` wraps
+  `<LiveBriefEdition>` in `<Suspense fallback={<SkeletonDesk …/>}>`. The file's
+  own comment at `:119` records that an earlier version put *the entire chrome*
+  behind that boundary and that this was fixed — the chrome came out, the
+  records did not.
+- **Classification.** FIX · **Severity.** B · **Work type.** Frontend
+- **Note on the harness.** `ui-audit.mjs`'s no-JS pass covers this route and
+  **passes it**, because its floor asks whether anything rendered, not whether
+  any *record* did. Raise that floor as part of the fix or it will pass again.
+- **Status.** `READY`
+
+### VA-43 — React #418 hydration mismatch on an article route
+
+- **Reported by VA-04** at `/articles/israel-launches-fresh-attacks-across-southern-le-86i2j`,
+  at both widths.
+- **Classification.** FIX · **Severity.** B · **Work type.** Frontend
+- **Root cause, found 2026-09-07.** `components/evidence/InvestigationExplorer.tsx`
+  formatted a source's date with
+  `new Intl.DateTimeFormat('en', { dateStyle: 'medium' })` and **no
+  `timeZone`**, so it resolved to the host's zone. The component is
+  `'use client'`, so it renders twice: UTC on Vercel, Asia/Jerusalem in the
+  reader's browser. A source stamped `2026-08-31 21:05:32+00` is "Aug 31" on
+  the server and "Sep 1" in the browser.
+- **It was not only a console error.** The same source was dated **two
+  different ways on one page**: the explorer said "Sep 1, 2026" while the
+  *Public sources* section a few centimetres below said "Aug 31, 2026". That
+  section uses `formatSourceDate` (`page.tsx:559`), which correctly pins
+  `timeZone: "UTC"`. This one formatter was the only one on the route that did
+  not. On an evidence desk, one source dated two ways is worse than a warning.
+- **Fix.** A module-level formatter pinned to `timeZone: 'UTC'`, chosen so it
+  agrees with `formatSourceDate` on the same field. No
+  `suppressHydrationWarning`, no client/server conversion. 19 insertions, one
+  deletion, one file.
+- **Diagnosis validated by prediction, not just by the fix passing.** The
+  mechanism predicts a failure only when a source's timestamp falls in the
+  21:00–24:00 UTC window. Three of the twelve explorer-bearing records on
+  Production were predicted affected; all three reproduced, two with an
+  identical diff signature, and a predicted-clean control record showed zero
+  console errors. The control is what rules out "the explorer is just broken".
+- **Tests.** `tests/article-hydration.test.ts`, 7 cases: byte-identical markup
+  under UTC, Asia/Jerusalem and Pacific/Honolulu; the explorer agrees with the
+  source stack; deterministic for undated and sourceless records; plus two
+  nesting assertions covering the other classic #418 cause. **Verified red
+  without the fix** under `TZ=Asia/Jerusalem`, failing on exactly the reported
+  signature.
+- **Status.** `DONE — code merged pending; browser confirmation outstanding.`
+  The local Preview database is fully down (`/api/v1/published-publications`
+  returns `INTERNAL_ERROR`), so no article renders locally and the post-fix
+  console could not be read in a browser. Confirm on Preview or Production
+  after deploy.
+
+### VA-44 — 404 copy still says "Daily Brief"
+
+- **RETIRED — not reproducible, 2026-09-07.** The live 404 was fetched and its
+  rendered text contains no "Daily Brief" anywhere. Either it was corrected in
+  the window between VA-04's capture and this check, or the string was read
+  from an adjacent surface. Nothing to do; recorded so it is not re-raised.
+- **Status.** `RETIRED`
+
+### VA-45 — landscape phone renders the wide-layout panel instead of the drawer
+
+- **Reported by VA-04**, and explicitly left unverified there.
+- **Classification.** FIX · **Severity.** C · **Work type.** Frontend
+- **Instruction.** Reproduce at a real landscape-phone box (e.g. 812x375 and
+  932x430). The navigation breakpoint is width-only, so a phone on its side
+  reads as a small tablet. Fix at the breakpoint — a height or
+  `pointer: coarse` condition — **not** with a device-specific hack.
+- **Status.** `NEEDS VISUAL VERIFICATION`
 
 ---
 

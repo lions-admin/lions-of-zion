@@ -72,6 +72,17 @@ export const editorialFailureSchema = z.object({
   operationKey: keySchema.nullable(),
   message: z.string(),
   recovery: z.string(),
+  /** The driver's own words, when the thrown error wrapped another. Drizzle
+   * reports a query fault as "Failed query: select …" and puts the reason
+   * (permission denied, column does not exist, connection terminated) in
+   * `cause`; run `chatgpt-test-2026-09-07-0332-k4m9` failed on exactly such
+   * an error and the reason was never recorded anywhere. */
+  cause: z.string().optional(),
+  /** How many times a worker has attempted this run. Present only on a
+   * run-level failure that is being retried, and the bound that eventually
+   * makes one terminal. Carried in the failure record rather than a new
+   * column so this needs no migration against Production. */
+  attempts: z.number().int().positive().optional(),
 });
 export type EditorialStage = z.infer<typeof editorialStageSchema>;
 export type EditorialRunStatus = z.infer<typeof editorialRunStatusSchema>;

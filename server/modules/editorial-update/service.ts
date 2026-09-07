@@ -63,17 +63,56 @@ export function compileWholeSiteUpdate(pkg: WholeSiteUpdatePackage): StartEditor
   });
 }
 
+/**
+ * The driver's own words, dug out of the error it was wrapped in.
+ *
+ * Drizzle reports a query fault as `Failed query: select …` and puts the
+ * reason — permission denied, column does not exist, connection terminated —
+ * in `cause`, sometimes with a Postgres `code` beside it. Run
+ * `chatgpt-test-2026-09-07-0332-k4m9` failed on such an error and recorded
+ * only the SQL, so the reason existed nowhere: not in the run, not on the
+ * status endpoint, not in the Action. One level of unwrapping is enough for
+ * every error shape this pipeline throws.
+ */
+function describeCause(cause: unknown): string | undefined {
+  if (!(cause instanceof Error)) return undefined;
+  const inner = (cause as { cause?: unknown }).cause;
+  const parts: string[] = [];
+  if (inner instanceof Error) {
+    const code = (inner as { code?: unknown }).code;
+    parts.push(`${inner.name}: ${inner.message}`);
+    if (typeof code === 'string' && code) parts.push(`code=${code}`);
+  } else if (typeof inner === 'string' && inner) {
+    parts.push(inner);
+  }
+  const code = (cause as { code?: unknown }).code;
+  if (typeof code === 'string' && code) parts.push(`code=${code}`);
+  if (cause.name && cause.name !== 'Error') parts.unshift(cause.name);
+  return parts.length ? parts.join(' · ') : undefined;
+}
+
 function failure(stage: EditorialFailure['stage'], operationKey: string | null, cause: unknown): EditorialFailure {
   const message = cause instanceof Error ? cause.message : String(cause);
+  const described = describeCause(cause);
   return {
     stage,
     operationKey,
     message,
+    ...(described ? { cause: described } : {}),
     recovery: operationKey
       ? `Resume the run after resolving the ${stage} issue for operation "${operationKey}".`
       : `Resume the run after resolving the ${stage} issue.`,
   };
 }
+
+/**
+ * How many workers may try a run before its run-level fault is called
+ * terminal. Three: enough to ride out a database that was scaled to zero, a
+ * dropped pooled connection or a deploy swapping underneath the worker, and
+ * few enough that a genuinely broken run reaches a person quickly. The queue
+ * redelivers on the rethrow, so these are redeliveries, not a loop here.
+ */
+const MAX_RUN_ATTEMPTS = 3;
 
 /**
  * Executes one durable run. Fetching and Blob writes happen before the short
@@ -261,7 +300,33 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
         siteRecommendations: completedState.request.delivery?.siteRecommendations ?? [],
       });
     } catch (cause) {
-      await store.fail(runId, token, failure('report', null, cause));
+      /* A run-level fault, outside any operation. Whether it ends the run
+         depends on whether anything has actually been committed and on how
+         many workers have already tried: an infrastructure error that has
+         published nothing is exactly what the queue's redelivery is for,
+         while `fail()` would end the run for good and leave redelivery
+         unable to touch it — see `releaseForRetry`. Either way the failure is
+         recorded first, so the run can always say what happened to it. */
+      const current = await store.get(runId).catch(() => null);
+      const previous = current?.failure as EditorialFailure | null | undefined;
+      const committed = current?.operations.some(operation => operation.status === 'completed') ?? false;
+      const attempts = (previous?.attempts ?? 0) + 1;
+      const record: EditorialFailure = { ...failure('report', null, cause), attempts };
+      const retryable = !committed && attempts < MAX_RUN_ATTEMPTS;
+      try {
+        if (retryable) {
+          await store.releaseForRetry(runId, token, {
+            ...record,
+            recovery: `Attempt ${attempts} of ${MAX_RUN_ATTEMPTS} failed before any operation completed; the queue will redeliver this run.`,
+          });
+        } else {
+          await store.fail(runId, token, record);
+        }
+      } catch {
+        /* The lease is gone or the database is unreachable — the same class of
+           fault we are recording. Rethrowing below still lets the queue
+           redeliver, and the lease expiry lets a later worker reclaim. */
+      }
       throw cause;
     }
   });

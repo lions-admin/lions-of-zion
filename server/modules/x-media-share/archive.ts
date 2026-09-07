@@ -28,6 +28,7 @@ type ArchiveMedia = {
   media_id: string;
   type: string;
   mime_type?: string | null;
+  file_size?: number | null;
   package_path: string | null;
   caption?: string | null;
   validation_status?: string;
@@ -39,6 +40,7 @@ export type ResolvedArchiveMedia = {
   mediaId: string;
   medium: "video" | "image";
   mimeType: string;
+  fileSize: number | null;
   assetUrl: string;
   title: string;
   caption: string | null;
@@ -80,6 +82,9 @@ export async function resolveArchiveMedia(
   const mimeType = item.mime_type ?? (medium === "video" ? "video/mp4" : "image/jpeg");
   if (medium === "video" && !mimeType.startsWith("video/")) return null;
   if (medium === "image" && !mimeType.startsWith("image/")) return null;
+  const fileSize = Number.isSafeInteger(item.file_size) && Number(item.file_size) > 0
+    ? Number(item.file_size)
+    : null;
 
   return {
     pkg: input.pkg,
@@ -87,6 +92,7 @@ export async function resolveArchiveMedia(
     mediaId: input.mediaId,
     medium,
     mimeType,
+    fileSize,
     assetUrl: input.assetUrl,
     title: version.title.trim() || input.recordId,
     caption: block.caption?.trim() || item.caption?.trim() || null,

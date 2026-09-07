@@ -14,6 +14,7 @@ import {
   rankOf,
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
+import narrativeStyles from "./HomeNarrativesSection.module.css";
 
 /**
  * Fake Resistance contains three distinct editorial shapes: Narrative Watch,
@@ -77,7 +78,7 @@ export function HomeNarrativesSection({
           return (
             <article
               key={item.key}
-              className={styles.investigation}
+              className={`${styles.investigation} ${hasMedia ? "" : narrativeStyles.textLed}`}
               data-home-record={item.key}
               data-rank={rankOf(index)}
               data-kind={item.kind}
@@ -95,13 +96,13 @@ export function HomeNarrativesSection({
                   <HomeMedia media={item.media} />
                 </div>
               )}
-              <div className={styles.dossier}>
+              <div className={`${styles.dossier} ${narrativeStyles.dossierBody}`}>
                 <p className={styles.kicker}>{kicker}</p>
                 <h3>
                   <a href={item.href}>{heading}</a>
                 </h3>
                 {item.kind === "case" && distinctQuestion && (
-                  <div className={styles.researchQuestion}>
+                  <div className={narrativeStyles.researchQuestion}>
                     <span>Research question</span>
                     <p className={styles.summary}>
                       <PreviewText

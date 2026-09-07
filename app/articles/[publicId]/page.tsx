@@ -12,7 +12,7 @@ import {
 } from "@/lib/publication-routing";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
 import type { PublicationSection } from "@/server/contracts/enums";
-import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
+import { ANALYSIS_AUTHOR, isAnalysisBasis, PUBLICATION_PROVENANCE, publicationProvenance } from "@/server/contracts/publication";
 import type { PublicPublicationDetail } from "@/server/contracts/publication";
 import {
   SECTION_LABELS,
@@ -215,7 +215,7 @@ export default async function ArticlePage({ params }: Props) {
           <PublicationMeta
             publishedAt={formatDate(article.publishedAt)}
             updatedAt={article.updatedAt !== article.publishedAt ? formatDate(article.updatedAt) : undefined}
-            edition={article.autoPublishedAt ? "Automatically published daily edition" : undefined}
+            authorship={PUBLICATION_PROVENANCE[publicationProvenance(article)].label}
             sourceCount={sourceState === "listed" || sourceState === "unsourced" ? article.sources.length : undefined}
           />
           {article.editorialTopic || article.primaryActor || article.arena ? (

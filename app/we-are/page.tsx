@@ -72,7 +72,7 @@ const ROLES = [
   {
     eyebrow: "Check",
     title: "Verification reviewers",
-    body: "The second, non-author reviewer every assessment requires before it can publish.",
+    body: "The second, non-author reviewer a human-written assessment requires before it can publish. Most records on this site take the other route and are published by the editorial system itself.",
   },
   {
     eyebrow: "Read",
@@ -229,8 +229,12 @@ export default function Page() {
           <div>
             <dt>Funding</dt>
             <dd>
-              Not yet published in full — reader donations, through PayPal and
-              Buy Me a Coffee, are on <Link href="/support-us">Support Us</Link>.
+              A privately funded independent initiative. Its founder pays for
+              it; there is no institutional, governmental, party or corporate
+              backer, and no sponsor to disclose. Reader donations, through
+              PayPal and Buy Me a Coffee, are on{" "}
+              <Link href="/support-us">Support Us</Link> and go to the same
+              costs.
             </dd>
           </div>
           <div>

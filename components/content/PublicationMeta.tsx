@@ -7,6 +7,8 @@ export type PublicationMetaProps = {
   reviewedBy?: string;
   sourceCount?: number;
   edition?: string;
+  /** How the record reached the reader — see `publicationProvenance`. */
+  authorship?: string;
 };
 
 export function PublicationMeta({
@@ -16,9 +18,13 @@ export function PublicationMeta({
   reviewedBy,
   sourceCount,
   edition,
+  authorship,
 }: PublicationMetaProps) {
   const entries: { term: string; detail: string }[] = [];
   if (edition) entries.push({ term: 'Edition', detail: edition });
+  /* Ahead of the dates, because who wrote a record governs how a reader should
+     read its dates — VA-47. */
+  if (authorship) entries.push({ term: 'Authorship', detail: authorship });
   if (publishedAt) entries.push({ term: 'Published', detail: publishedAt });
   if (updatedAt) entries.push({ term: 'Updated', detail: updatedAt });
   if (coverageWindow) entries.push({ term: 'Coverage window', detail: coverageWindow });

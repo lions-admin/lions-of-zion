@@ -65,6 +65,26 @@ it belongs to the controls over the cover film and to nothing else.
 
 ---
 
+## 2026-09-07 — Media enrichment never decides whether a publishable story lives
+
+Lack of external media alone is not a veto reason. The composer first seeks
+exact source imagery, then official institutional imagery, then another safely
+attributable relevant image, and then creates an original editorial
+illustration. ChatGPT passes that generated file through the authenticated MCP
+file-parameter transport; the server pins its illustrative role, disclosure,
+house credit and cleared in-house rights, validates and hashes the bytes, and
+returns a package-ready Blob descriptor.
+
+If every media path fails, the record publishes text-led and the run records a
+media warning. The warning is separate from editorial vetoes and technical
+publication failures, and it cannot make a run partial. An update without a
+usable replacement keeps its existing hero. This changes the consequence of a
+media failure, not the display bar: an image that is shown still needs valid
+rights, provenance, dimensions, type, size and surface clearance, and a
+generated image remains an illustration rather than evidence or documentation.
+
+---
+
 ## 2026-09-07 — The ChatGPT widgets are inlined plain DOM, not a bundled framework
 
 Three constraints, each ruling out the obvious choice.

@@ -118,8 +118,8 @@ that is the revocation path.
 
 ## The tools
 
-34 tools: the 28 operational tools adapted from `OPS_TOOL_DEFINITIONS`, plus
-six the ops registry has no equivalent for.
+35 tools: the 28 operational tools adapted from `OPS_TOOL_DEFINITIONS`, plus
+seven the ops registry has no equivalent for.
 
 | Tool | For |
 | --- | --- |
@@ -128,6 +128,7 @@ six the ops registry has no equivalent for.
 | `get_homepage` | The current edition and its six placements |
 | `get_editorial_runs` / `get_editorial_run` | Recent runs; one run with its research, vetoes and failures kept apart |
 | `get_ops_view` | One read-only console view from a fixed allowlist |
+| `upload_generated_editorial_image` | A generated attachment to validated Blob storage and package-ready v2 media |
 
 Nothing is restated: every operational tool's name, description, zod input and
 behaviour come from the existing registry, and every call goes through
@@ -136,13 +137,31 @@ behaviour come from the existing registry, and every call goes through
 
 **Annotations are load-bearing.** A tool without `readOnlyHint` is treated by
 ChatGPT as a write and asks the user to approve every call; 22 reads carry it
-and 12 writes do not. `delete_publication` is annotated `destructiveHint:
+and 13 writes do not. `delete_publication` is annotated `destructiveHint:
 false` and its description says plainly that it archives — claiming a
 destructiveness it does not have would train the operator to dismiss the
 warnings that are real.
 
 **Every tool works with no UI.** Each returns `structuredContent` the model can
 reason over plus a text summary, so a plain MCP client is fully served.
+
+### Generated editorial image attachments
+
+`upload_generated_editorial_image` uses ChatGPT's supported MCP file transport:
+the tool advertises `_meta["openai/fileParams"] = ["file"]`, and ChatGPT injects
+the selected or generated attachment as a top-level `file` object with required
+`download_url` and `file_id`, plus optional `mime_type` and `file_name`. The
+composer also supplies `runId`, `operationKey`, `alt`, the safety attestation,
+and optional caption, focal point, sensitivity and homepage choice.
+
+The server downloads the temporary URL under the outbound URL guard, validates
+type and the 10 MB ceiling, reads dimensions from the bytes, hashes them, and
+stores a public content-addressed object. The response's `data.media` is an
+`ExternalMedia` descriptor ready to copy into the matching
+`whole-site-update-v2` operation. The server fixes `generated`, illustrative
+role, non-documentary disclosure, house credit and in-house clearance; the
+caller cannot relabel the image as evidence or documentation. The temporary
+download URL is never written to the audit log.
 
 ## The interactive views
 

@@ -27,6 +27,11 @@ import { z } from "zod";
 import { OPS_TOOL_DEFINITIONS, type OpsToolDefinition } from "@/server/modules/ops-agent/tools";
 import { CHATGPT_CONTEXT_EXTRAS, CHATGPT_OPS_VIEWS } from "@/server/contracts/chatgpt-automation";
 import type { ChatgptAutomationService } from "@/server/modules/chatgpt-automation";
+import {
+  uploadGeneratedEditorialImage,
+  type GeneratedEditorialImageInput,
+  type GeneratedEditorialImageResult,
+} from "@/server/modules/media";
 
 /** What a registered tool needs, independent of the MCP server object. */
 export type McpToolSpec = {
@@ -40,8 +45,53 @@ export type McpToolSpec = {
     idempotentHint: boolean;
     openWorldHint: boolean;
   };
+  /** Host-specific transport metadata advertised by `tools/list`. */
+  _meta?: Record<string, unknown>;
   run: (args: Record<string, unknown>, requestId: string) => Promise<{ summary: string; data: unknown }>;
 };
+
+export type GeneratedEditorialImageUploader = (
+  input: GeneratedEditorialImageInput,
+) => Promise<GeneratedEditorialImageResult>;
+
+/** The exact snake-case file object ChatGPT injects for `openai/fileParams`. */
+export const generatedEditorialImageUploadSchema = z.object({
+  file: z.object({
+    download_url: z.string().url(),
+    file_id: z.string().trim().min(1).max(500),
+    mime_type: z.string().trim().min(1).max(200).optional(),
+    file_name: z.string().trim().min(1).max(500).optional(),
+  }).strict(),
+  runId: z.string().trim().min(1).max(200),
+  operationKey: z.string().trim().min(1).max(200),
+  alt: z.string().trim().min(1).max(500),
+  caption: z.string().trim().min(1).max(500).nullable().optional(),
+  focalPoint: z.object({
+    x: z.number().min(0).max(100),
+    y: z.number().min(0).max(100),
+  }).strict().default({ x: 50, y: 50 }),
+  sensitivity: z.enum(["safe", "sensitive"]).default("safe"),
+  sensitivityReason: z.string().trim().min(1).max(500).optional(),
+  includeHomepage: z.boolean().default(true),
+  confirmsNoFabricatedEvidence: z.literal(true).describe(
+    "Confirms the illustration contains no fabricated quotation, document, logo, identifiable person, battlefield evidence, or represented real event.",
+  ),
+}).strict().superRefine((input, ctx) => {
+  if (input.sensitivity === "sensitive" && !input.sensitivityReason) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["sensitivityReason"],
+      message: "A sensitive illustration requires an editorial sensitivity reason.",
+    });
+  }
+  if (input.sensitivity === "sensitive" && input.includeHomepage) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["includeHomepage"],
+      message: "Only a safe illustration may be cleared for the homepage.",
+    });
+  }
+});
 
 /**
  * The reads, by name.
@@ -114,7 +164,10 @@ function opsTools(automation: ChatgptAutomationService): McpToolSpec[] {
 }
 
 /** What the ops registry has no equivalent for. */
-function automationTools(automation: ChatgptAutomationService): McpToolSpec[] {
+function automationTools(
+  automation: ChatgptAutomationService,
+  uploadGeneratedImage: GeneratedEditorialImageUploader,
+): McpToolSpec[] {
   const read = (title: string) => ({
     title, readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false,
   });
@@ -234,9 +287,66 @@ function automationTools(automation: ChatgptAutomationService): McpToolSpec[] {
         return { summary: `Operational view: ${view}.`, data: await automation.opsView(view) };
       },
     },
+    {
+      name: "upload_generated_editorial_image",
+      description:
+        "Store a ChatGPT-generated image attachment as a validated, content-addressed" +
+        " Lions of Zion editorial illustration. The tool fixes the role, disclosure," +
+        " credit and cleared in-house rights on the server, then returns a media object" +
+        " that can be copied directly into a whole-site-update-v2 operation. It never" +
+        " treats the illustration as evidence or documentary photography, and requires" +
+        " confirmation that it fabricates no quotation, document, logo, identifiable" +
+        " person, battlefield evidence or represented real event.",
+      inputSchema: generatedEditorialImageUploadSchema,
+      annotations: {
+        title: "Upload generated editorial image",
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+      _meta: { "openai/fileParams": ["file"] },
+      run: async (args, requestId) => {
+        const parsed = generatedEditorialImageUploadSchema.parse(args);
+        const auditInput = {
+          runId: parsed.runId,
+          operationKey: parsed.operationKey,
+          fileId: parsed.file.file_id,
+          ...(parsed.file.file_name ? { fileName: parsed.file.file_name } : {}),
+          ...(parsed.file.mime_type ? { mimeType: parsed.file.mime_type } : {}),
+        };
+        try {
+          const data = await uploadGeneratedImage(parsed);
+          await automation.recordGeneratedMediaUpload(auditInput, {
+            contentHash: data.upload.contentHash,
+            url: data.upload.url,
+            contentType: data.upload.contentType,
+            byteSize: data.upload.byteSize,
+            width: data.upload.width,
+            height: data.upload.height,
+            storedAt: data.upload.storedAt,
+          }, requestId, true);
+          return {
+            summary:
+              `Stored ${data.upload.width}×${data.upload.height} ${data.upload.contentType}` +
+              ` illustration for ${data.upload.operationKey}. Copy data.media into the` +
+              " matching whole-site-update-v2 operation.",
+            data,
+          };
+        } catch (cause) {
+          await automation.recordGeneratedMediaUpload(auditInput, {
+            errorClass: cause instanceof Error ? cause.name : "UnknownError",
+          }, requestId, false).catch(() => undefined);
+          throw cause;
+        }
+      },
+    },
   ];
 }
 
-export function mcpToolSpecs(automation: ChatgptAutomationService): McpToolSpec[] {
-  return [...automationTools(automation), ...opsTools(automation)];
+export function mcpToolSpecs(
+  automation: ChatgptAutomationService,
+  uploadGeneratedImage: GeneratedEditorialImageUploader = uploadGeneratedEditorialImage,
+): McpToolSpec[] {
+  return [...automationTools(automation, uploadGeneratedImage), ...opsTools(automation)];
 }

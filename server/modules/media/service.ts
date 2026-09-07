@@ -34,15 +34,16 @@ import "server-only";
  *
  * Nothing below upgrades a rights status, invents a clearance date, or adds a
  * surface. A composer that could not establish a licence sends
- * `status: "unknown"`, and `"unknown"` is what gets stored — the asset and its
- * provenance are kept, and the RLS policy on `editorial_media` plus
- * `isHomepageSafeMedia`/`isArticleSafeMedia` keep it off every public surface
- * until a human clears it. Storing the picture is not the same as showing it.
+ * `status: "unknown"`. Legacy ingest may store that asset with its provenance;
+ * the whole-site orchestrator rejects it before fetch and records a media
+ * warning instead. In either path the picture stays off every public surface.
+ * Storing a picture is not the same as showing it.
  */
 
 import { storeEditorialImage } from "@/server/core/blob";
 import { integrityHash } from "@/server/core/hash";
-import type { ExternalMedia } from "@/server/contracts/external-briefing";
+import { assertSafePublicUrl, enforceOutboundSourceRateLimit } from "@/server/core/safe-fetch";
+import { externalMediaSchema, type ExternalMedia } from "@/server/contracts/external-briefing";
 import type { EditorialMediaDraft } from "./repo";
 
 /** The five types the site is prepared to serve, and the extension each gets
@@ -79,6 +80,49 @@ export type MaterializeContext = {
   composer: string;
 };
 
+export type ChatgptImageFile = {
+  download_url: string;
+  file_id: string;
+  mime_type?: string;
+  file_name?: string;
+};
+
+export type GeneratedEditorialImageInput = {
+  file: ChatgptImageFile;
+  runId: string;
+  operationKey: string;
+  alt: string;
+  caption?: string | null;
+  focalPoint?: { x: number; y: number };
+  sensitivity: "safe" | "sensitive";
+  sensitivityReason?: string;
+  includeHomepage: boolean;
+};
+
+export type GeneratedEditorialImageResult = {
+  media: ExternalMedia;
+  upload: {
+    url: string;
+    contentHash: string;
+    contentType: string;
+    byteSize: number;
+    width: number;
+    height: number;
+    storedAt: string;
+    fileId: string;
+    origin: "chatgpt-generated-file";
+    runId: string;
+    operationKey: string;
+  };
+};
+
+/** Package-level preflight. Unsafe rights cost the picture, never the story. */
+export function isExternalMediaArticleSafe(media: ExternalMedia): boolean {
+  return media.rights.status === "cleared"
+    && Boolean(media.rights.clearedAt)
+    && media.rights.surfaces.includes("article");
+}
+
 /**
  * Fetch, validate, measure, store — and hand back a row-shaped draft.
  *
@@ -91,12 +135,7 @@ export async function materializeExternalMedia(
   media: ExternalMedia,
   context: MaterializeContext,
 ): Promise<EditorialMediaDraft> {
-  const fetched = await fetchImageBytes(media.inputUrl);
-  const bytes = new Uint8Array(fetched.body);
-  const { width, height } = imageDimensions(bytes, fetched.contentType);
-
-  const contentHash = integrityHash(bytes);
-  const extension = ACCEPTED_IMAGE_TYPES[fetched.contentType]!;
+  const image = await fetchMeasureAndStore(media.inputUrl, { allowOwnedStatic: true });
   /* Content-addressed, so the pathname is a pure function of the bytes. Two
      articles illustrated from one photograph are one object; a retried run
      overwrites its own object with identical content instead of accumulating
@@ -109,19 +148,10 @@ export async function materializeExternalMedia(
      path keeps it browser-readable without weakening that store's access
      level or duplicating the same bytes. External URLs still take the normal
      content-addressed Blob path. */
-  const ownedStaticPath = ownedStaticEditorialPath(media.inputUrl);
-  const stored = ownedStaticPath
-    ? { url: ownedStaticPath, contentType: fetched.contentType }
-    : await storeEditorialImage(
-      `publications/media/${contentHash}.${extension}`,
-      fetched.body,
-      fetched.contentType,
-    );
-
   return {
-    src: stored.url,
-    width,
-    height,
+    src: image.url,
+    width: image.width,
+    height: image.height,
     alt: media.alt,
     caption: media.caption,
     credit: media.credit,
@@ -147,9 +177,9 @@ export async function materializeExternalMedia(
       clearedAt: media.rights.clearedAt,
       surfaces: media.rights.surfaces,
     },
-    contentHash,
-    byteSize: bytes.byteLength,
-    contentType: fetched.contentType,
+    contentHash: image.contentHash,
+    byteSize: image.byteSize,
+    contentType: image.contentType,
     generated: media.generated,
     provenance: {
       composer: context.composer,
@@ -162,9 +192,128 @@ export async function materializeExternalMedia(
   };
 }
 
+/**
+ * Turn the file object ChatGPT supplies through `_meta["openai/fileParams"]`
+ * into one content-addressed Blob object and a descriptor that can be copied
+ * directly into a `whole-site-update-v2` create or update operation.
+ *
+ * The caller cannot choose the generated flag, role, credit, disclosure or
+ * rights. Those are server-owned facts of this upload path.
+ */
+export async function uploadGeneratedEditorialImage(
+  input: GeneratedEditorialImageInput,
+): Promise<GeneratedEditorialImageResult> {
+  if (input.file.mime_type) {
+    const declared = input.file.mime_type.split(";")[0]!.trim().toLowerCase();
+    if (!ACCEPTED_IMAGE_TYPES[declared]) {
+      throw new Error(`The attached file declares unsupported MIME type "${declared}".`);
+    }
+  }
+  if (input.sensitivity === "sensitive" && !input.sensitivityReason?.trim()) {
+    throw new Error("A sensitive generated illustration requires an editorial sensitivity reason.");
+  }
+  if (input.sensitivity !== "safe" && input.includeHomepage) {
+    throw new Error("Only a safe generated illustration may be cleared for the homepage.");
+  }
+
+  const storedAt = new Date().toISOString();
+  const image = await fetchMeasureAndStore(input.file.download_url, {
+    expectedContentType: input.file.mime_type,
+    allowOwnedStatic: false,
+  });
+  const clearedAt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date(storedAt));
+  const disclosure = "Editorial illustration — not documentary evidence";
+  const reference = [
+    `ChatGPT generated file ${input.file.file_id}`,
+    `run ${input.runId}`,
+    `operation ${input.operationKey}`,
+    `stored ${storedAt}`,
+    `sha256 ${image.contentHash}`,
+  ].join("; ");
+
+  const media = externalMediaSchema.parse({
+    inputUrl: image.url,
+    sourceUrl: null,
+    alt: input.alt,
+    caption: input.caption ?? null,
+    credit: "Lions of Zion",
+    disclosure,
+    role: "editorial-illustration",
+    focalPoint: input.focalPoint ?? { x: 50, y: 50 },
+    sensitivity: input.sensitivity,
+    rights: {
+      status: "cleared",
+      basis: "Generated in-house",
+      reference,
+      clearedAt,
+      surfaces: input.includeHomepage ? ["article", "homepage"] : ["article"],
+    },
+    generated: true,
+  });
+
+  return {
+    media,
+    upload: {
+      url: image.url,
+      contentHash: image.contentHash,
+      contentType: image.contentType,
+      byteSize: image.byteSize,
+      width: image.width,
+      height: image.height,
+      storedAt,
+      fileId: input.file.file_id,
+      origin: "chatgpt-generated-file",
+      runId: input.runId,
+      operationKey: input.operationKey,
+    },
+  };
+}
+
 /* ── Fetch ────────────────────────────────────────────────────────────────── */
 
 type FetchedImage = { body: ArrayBuffer; contentType: string };
+
+type StoredImage = {
+  url: string;
+  width: number;
+  height: number;
+  contentHash: string;
+  byteSize: number;
+  contentType: string;
+};
+
+async function fetchMeasureAndStore(
+  inputUrl: string,
+  options: { expectedContentType?: string; allowOwnedStatic: boolean },
+): Promise<StoredImage> {
+  const fetched = await fetchImageBytes(inputUrl);
+  const expected = options.expectedContentType?.split(";")[0]?.trim().toLowerCase();
+  if (expected && expected !== fetched.contentType) {
+    throw new Error(`The attached file declared "${expected}" but downloaded as "${fetched.contentType}".`);
+  }
+  const bytes = new Uint8Array(fetched.body);
+  const { width, height } = imageDimensions(bytes, fetched.contentType);
+  const contentHash = integrityHash(bytes);
+  const extension = ACCEPTED_IMAGE_TYPES[fetched.contentType]!;
+  const ownedStaticPath = options.allowOwnedStatic ? ownedStaticEditorialPath(inputUrl) : null;
+  const stored = ownedStaticPath
+    ? { url: ownedStaticPath }
+    : await storeEditorialImage(
+      `publications/media/${contentHash}.${extension}`,
+      fetched.body,
+      fetched.contentType,
+    );
+  return {
+    url: stored.url,
+    width,
+    height,
+    contentHash,
+    byteSize: bytes.byteLength,
+    contentType: fetched.contentType,
+  };
+}
 
 /**
  * One image, with the redirect chain followed by hand.
@@ -180,7 +329,9 @@ async function fetchImageBytes(inputUrl: string): Promise<FetchedImage> {
   let current = requireHttpUrl(inputUrl);
 
   for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
-    const response = await fetch(current, {
+    const safeUrl = await assertSafePublicUrl(current);
+    await enforceOutboundSourceRateLimit(safeUrl);
+    const response = await fetch(safeUrl, {
       redirect: "manual",
       signal,
       headers: { accept: "image/avif,image/webp,image/png,image/jpeg,image/gif" },
@@ -191,7 +342,7 @@ async function fetchImageBytes(inputUrl: string): Promise<FetchedImage> {
       if (!location) {
         throw new Error(`Image URL ${inputUrl} returned ${response.status} with no Location header.`);
       }
-      current = requireHttpUrl(new URL(location, current).toString());
+      current = requireHttpUrl(new URL(location, safeUrl).toString());
       continue;
     }
 

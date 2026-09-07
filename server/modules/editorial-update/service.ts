@@ -1,13 +1,13 @@
 import 'server-only';
 
 import { db, withDatabaseRole, type Database } from '@/server/db/client';
-import { editorialRunMessageSchema, startEditorialRunSchema, type EditorialFailure, type StartEditorialRun } from '@/server/contracts/editorial-update';
+import { editorialRunMessageSchema, startEditorialRunSchema, type EditorialFailure, type EditorialOperation, type StartEditorialRun } from '@/server/contracts/editorial-update';
 import { anyWholeSiteUpdatePackageSchema, wholeSiteHomepageSchema, type AnyWholeSiteUpdatePackage } from '@/server/contracts/whole-site-update';
 import { editorialReportEmail, siteUrl } from '@/server/core/config';
 import type { PublicationSection } from '@/server/contracts/enums';
 import { publicationSectionLabel, routePublication } from '@/lib/publication-routing';
-import { materializeExternalMedia } from '@/server/modules/media/service';
-import type { EditorialMediaDraft } from '@/server/modules/media/repo';
+import { isExternalMediaArticleSafe, materializeExternalMedia } from '@/server/modules/media/service';
+import { mediaRepo, type EditorialMediaDraft } from '@/server/modules/media/repo';
 import { publicationService } from '@/server/modules/publications/service';
 import { homepageService } from '@/server/modules/homepage/service';
 import { mayActOnTheWorld } from '@/server/core/config';
@@ -15,7 +15,72 @@ import { sendWorkspaceEmail } from '@/server/core/email';
 import { editorialRepo } from './repo';
 import { materializeSources } from './sources';
 
-type PreparedArtifact = { media: EditorialMediaDraft | null };
+type StoredMediaWarning = { message: string };
+type PreparedArtifact = { media: EditorialMediaDraft | null; mediaWarning?: StoredMediaWarning };
+
+type MediaWarning = {
+  operationKey: string;
+  message: string;
+  publicationProceededWithoutNewMedia: boolean;
+};
+
+export function summarizeEditorialMedia(operations: Array<{
+  operationKey: string;
+  status: string;
+  artifact: unknown;
+}>): { prepared: number; generated: number; mediaWarnings: MediaWarning[] } {
+  let prepared = 0;
+  let generated = 0;
+  const mediaWarnings: MediaWarning[] = [];
+  for (const item of operations) {
+    const artifact = item.artifact as PreparedArtifact | null;
+    if (artifact?.media) {
+      prepared += 1;
+      if (artifact.media.generated) generated += 1;
+    }
+    if (artifact?.mediaWarning) {
+      mediaWarnings.push({
+        operationKey: item.operationKey,
+        message: artifact.mediaWarning.message,
+        publicationProceededWithoutNewMedia: item.status === 'completed',
+      });
+    }
+  }
+  return { prepared, generated, mediaWarnings };
+}
+
+type MediaMaterializer = typeof materializeExternalMedia;
+
+/**
+ * Prepare one optional hero without letting enrichment decide publication.
+ * Kept as a small exported seam so the media decision can be tested without
+ * pretending to run the queue or writing a Blob object.
+ */
+export async function prepareEditorialMedia(
+  media: EditorialOperation['media'],
+  context: Parameters<MediaMaterializer>[1],
+  materialize: MediaMaterializer = materializeExternalMedia,
+): Promise<PreparedArtifact> {
+  if (!media) return { media: null };
+  if (!isExternalMediaArticleSafe(media)) {
+    return {
+      media: null,
+      mediaWarning: {
+        message: `Supplied media was not cleared for article display (status ${media.rights.status}; surfaces ${media.rights.surfaces.join(', ') || 'none'}).`,
+      },
+    };
+  }
+  try {
+    return { media: await materialize(media, context) };
+  } catch (cause) {
+    return {
+      media: null,
+      mediaWarning: {
+        message: cause instanceof Error ? cause.message : String(cause),
+      },
+    };
+  }
+}
 
 type HomepageArea = 'news' | 'fakeResistance' | 'people';
 type HomepagePosition = 'lead' | 'secondary';
@@ -130,9 +195,7 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
     const token = claimed.leaseToken!;
     try {
       const state = await store.get(runId);
-      let preparedMedia = 0;
       let reusedMedia = 0;
-      let generatedMedia = 0;
       const errors: Array<{ operationKey: string | null; stage: EditorialFailure['stage']; message: string; recovery?: string }> = [];
 
       for (const persisted of state.operations) {
@@ -142,24 +205,20 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
         try {
           let artifact = persisted.artifact as PreparedArtifact | null;
           if (!artifact) {
-            /* Media stays enrichment rather than a package-wide stop. A media
-             * failure marks only this operation failed and the next item runs. */
-            if (operation.media) {
-              const media = await materializeExternalMedia(operation.media, {
+            artifact = await prepareEditorialMedia(operation.media, {
                 runId,
                 candidateKey: operation.key,
                 composer: 'whole-site-editorial',
               });
-              await store.saveArtifact(runId, token, operation.key, { media });
-              artifact = { media };
-              preparedMedia += 1;
-            } else {
-              artifact = { media: null };
+            /* A supplied image always leaves a durable artifact, including a
+               warning. That makes a crash/resume reuse the decision instead
+               of losing the warning or retrying a dead URL forever. */
+            if (operation.media) {
+              await store.saveArtifact(runId, token, operation.key, artifact);
             }
           } else {
-            reusedMedia += 1;
+            if (artifact.media) reusedMedia += 1;
           }
-          if (artifact.media?.generated) generatedMedia += 1;
 
           stage = 'publication';
           await store.completeOperation(runId, token, operation.key, async tx => {
@@ -184,6 +243,7 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
             if (operation.action === 'update' && cited.evidenceIds.length) {
               await publicationService(tx).attachEvidence(publication.id, cited.evidenceIds);
             }
+            const hasMedia = Boolean(await mediaRepo(tx).heroMedia(publication.id));
             return {
               sources: cited.evidenceIds.length,
               publicationId: publication.id,
@@ -198,19 +258,21 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
                  the owner's report true for updates as well as creates. */
               section: publication.section,
               title: publication.title,
-              hasMedia: Boolean(artifact!.media),
+              hasMedia,
             };
           });
         } catch (cause) {
           const itemFailure = failure(stage, operation.key, cause);
           await store.failOperation(runId, token, operation.key, itemFailure);
-          errors.push({ operationKey: operation.key, stage, message: itemFailure.message });
+          errors.push({ operationKey: operation.key, stage, message: itemFailure.message, recovery: itemFailure.recovery });
         }
       }
 
       await store.checkpoint(runId, token, 'homepage');
       const completedState = await store.get(runId);
       const completed = completedState.operations.filter(item => item.status === 'completed');
+      const mediaSummary = summarizeEditorialMedia(completedState.operations);
+      const mediaWarnings = mediaSummary.mediaWarnings;
       let homepage: { editionDate: string; revision: number; changes: HomepageChange[] } | null = null;
       /* Recorded as they are applied. A placement the package did not name is
          deliberately absent rather than listed as unchanged — the loop below
@@ -298,7 +360,8 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
         operations: results,
         urls: results.map(result => result?.url).filter((url): url is string => Boolean(url)),
         homepage,
-        media: { prepared: preparedMedia, reused: reusedMedia, generated: generatedMedia },
+        media: { prepared: mediaSummary.prepared, reused: reusedMedia, generated: mediaSummary.generated },
+        mediaWarnings,
         errors,
         siteRecommendations: completedState.request.delivery?.siteRecommendations ?? [],
         /* The editor's own account of the run, kept beside the machine's.
@@ -360,6 +423,7 @@ type StoredReport = {
   urls?: string[];
   homepage?: { editionDate?: string; revision?: number; changes?: HomepageChange[] } | null;
   media?: { prepared?: number; reused?: number; generated?: number };
+  mediaWarnings?: MediaWarning[];
   errors?: Array<{ operationKey: string | null; stage: string; message: string; recovery?: string }>;
   siteRecommendations?: string[];
   research?: Array<{ topic?: string; focus?: string; conclusion?: string; outcome?: string; sourcesReviewed?: string[] }>;
@@ -469,11 +533,15 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
   lines.push('', 'MEDIA',
     `  Fetched and stored: ${report.media?.prepared ?? 0} · reused from a previous attempt: ${report.media?.reused ?? 0} · editorial illustrations: ${report.media?.generated ?? 0}`,
     '  Every stored image is served from this project\'s own Blob store; nothing is hotlinked.');
-  /* Said outright rather than left to the per-record annotation above: a
-     record without a hero is invisible to the homepage composer, so every
-     homepage placement that names one is refused. Three runs shipped with
-     no pictures at all before this line existed, and their reports read as
-     complete successes. */
+  for (const warning of report.mediaWarnings ?? []) {
+    lines.push(
+      `  · ${warning.operationKey}: ${warning.message}`,
+      `      ${warning.publicationProceededWithoutNewMedia ? 'Publication proceeded without new media.' : 'Publication did not complete.'}`,
+    );
+  }
+  /* Said outright rather than left to the per-record annotation above: the
+     story still publishes and remains eligible for a text-led homepage slot,
+     while the missing enrichment stays visible to the editor. */
   const withoutHero = results.filter(result => result.hasMedia === false);
   if (withoutHero.length) {
     lines.push(

@@ -9,7 +9,7 @@ import { editorialRepo, editorialInputHash } from '@/server/modules/editorial-up
 import type { EditorialFailure } from '@/server/contracts/editorial-update';
 import { startEditorialRunSchema, type StartEditorialRun } from '@/server/contracts/editorial-update';
 import { wholeSiteUpdatePackageSchema } from '@/server/contracts/whole-site-update';
-import { composeEditorialRunReport, editorialUpdateService } from '@/server/modules/editorial-update/service';
+import { composeEditorialRunReport, editorialUpdateService, prepareEditorialMedia, summarizeEditorialMedia } from '@/server/modules/editorial-update/service';
 import { materializeSources } from '@/server/modules/editorial-update/sources';
 
 let db: TestDatabase;
@@ -34,6 +34,69 @@ describe('durable whole-site editorial runs', () => {
   it('accepts only the operations delivery mode', () => {
     expect(startEditorialRunSchema.safeParse({ runId: 'daily:2026-09-08', mode: 'daily', operations: [] }).success).toBe(false);
     expect(startEditorialRunSchema.safeParse({ runId: 'empty-package', mode: 'operations', operations: [] }).success).toBe(true);
+  });
+
+  it('turns dead or article-unsafe media into durable warnings while the publication completes', async () => {
+    const externalMedia = {
+      inputUrl: 'https://images.example.test/dead.png', sourceUrl: null,
+      alt: 'Relevant editorial image', caption: null, credit: 'Example', disclosure: null,
+      role: 'documentation' as const, focalPoint: { x: 50, y: 50 }, sensitivity: 'safe' as const,
+      rights: {
+        status: 'cleared' as const, basis: 'Publisher permission', reference: 'https://images.example.test/rights',
+        clearedAt: '2026-09-07', surfaces: ['article' as const],
+      },
+      generated: false,
+    };
+    const operation = {
+      key: 'dead-media-story', action: 'create' as const,
+      publication: {
+        kind: 'news_update' as const, section: 'news' as const,
+        title: 'A strong story survives its missing image', body: 'Sufficiently sourced publication body.', language: 'en',
+      },
+      media: externalMedia,
+    };
+    const materialize = vi.fn(async () => { throw new Error('Image URL returned HTTP 404.'); });
+    const artifact = await prepareEditorialMedia(externalMedia, {
+      runId: 'media-warning-run', candidateKey: operation.key, composer: 'test',
+    }, materialize);
+    expect(artifact).toEqual({ media: null, mediaWarning: { message: 'Image URL returned HTTP 404.' } });
+
+    const run = await repo().start({ runId: 'media-warning-run', mode: 'operations', operations: [operation] }, 'test:owner');
+    const worker = await repo().claim(run.id);
+    await repo().saveArtifact(run.id, worker!.leaseToken!, operation.key, artifact);
+    const result = await repo().completeOperation(run.id, worker!.leaseToken!, operation.key, async tx => {
+      const row = await publicationService(tx).applyEditorial(
+        operation, { runId: run.id, machineAuthor: 'machine:editorial' }, artifact.media, { label: 'service:editorial' },
+      );
+      return { publicationId: row.id, publicId: row.publicId, url: `/articles/${row.publicId}`, action: 'create', section: row.section, title: row.title, hasMedia: false };
+    });
+    const beforeFinish = await repo().get(run.id);
+    const summary = summarizeEditorialMedia(beforeFinish.operations);
+    expect(summary).toMatchObject({
+      prepared: 0, generated: 0,
+      mediaWarnings: [{ operationKey: operation.key, publicationProceededWithoutNewMedia: true }],
+    });
+    await repo().finish(run.id, worker!.leaseToken!, {
+      status: 'completed', publications: { created: 1, updated: 0, failed: 0, requested: 1 },
+      operations: [result], media: { prepared: 0, reused: 0, generated: 0 },
+      mediaWarnings: summary.mediaWarnings, errors: [],
+    });
+    const finished = await repo().get(run.id);
+    expect(finished.status).toBe('completed');
+    expect(finished.operations[0]!.status).toBe('completed');
+    const report = composeEditorialRunReport(finished).text;
+    expect(report).toContain('MEDIA');
+    expect(report).toContain('Image URL returned HTTP 404.');
+    expect(report).toContain('Publication proceeded without new media.');
+    expect(report).toContain('Nothing was refused.');
+
+    const unsafe = await prepareEditorialMedia({
+      ...externalMedia,
+      rights: { ...externalMedia.rights, surfaces: ['homepage'] },
+    }, { runId: 'unsafe', candidateKey: 'unsafe', composer: 'test' }, materialize);
+    expect(unsafe.media).toBeNull();
+    expect(unsafe.mediaWarning?.message).toMatch(/not cleared for article display/);
+    expect(materialize).toHaveBeenCalledTimes(1);
   });
 
   it('fences an expired worker after another worker reclaims the run', async () => {
@@ -102,6 +165,9 @@ describe('durable whole-site editorial runs', () => {
       rights: { status: 'cleared', basis: 'Original editorial illustration', reference: 'test generation', clearedAt: '2026-09-06', surfaces: ['homepage', 'article'] },
       contentHash: 'b'.repeat(64), byteSize: 12000, contentType: 'image/webp', generated: true, provenance: { runId: run.id },
     };
+    expect(summarizeEditorialMedia([{
+      operationKey: 'story', status: 'completed', artifact: { media },
+    }])).toMatchObject({ prepared: 1, generated: 1, mediaWarnings: [] });
     let publicationId = '';
     const first = await repo().completeOperation(run.id, worker!.leaseToken!, 'story', async tx => {
       const row = await publicationService(tx).applyEditorial(input.operations[0], { runId: run.id, machineAuthor: 'machine:editorial' }, media, { label: 'service:editorial' });
@@ -169,14 +235,14 @@ describe('durable whole-site editorial runs', () => {
       title: 'Record without a picture', hasMedia: false,
     }));
     await repo().failOperation(run.id, worker!.leaseToken!, 'profile', {
-      stage: 'media', operationKey: 'profile', message: 'Image URL returned HTTP 404.',
-      recovery: 'Replace the image and resume the run.',
+      stage: 'publication', operationKey: 'profile', message: 'Publication target was not found.',
+      recovery: 'Correct the target and resume the run.',
     });
     await repo().finish(run.id, worker!.leaseToken!, {
       status: 'partial',
       publications: { created: 2, updated: 0, failed: 1, requested: 3 },
       errors: [
-        { operationKey: 'profile', stage: 'media', message: 'Image URL returned HTTP 404.' },
+        { operationKey: 'profile', stage: 'publication', message: 'Publication target was not found.', recovery: 'Correct the target and resume the run.' },
         /* A refused homepage slot is named by area and position and does not
            take the other slots down with it. */
         { operationKey: null, stage: 'homepage', message: 'fakeResistance/lead was not placed: A homepage placement needs a hero image cleared for the homepage surface; this publication has none.' },
@@ -188,6 +254,7 @@ describe('durable whole-site editorial runs', () => {
         { area: 'people', position: 'secondary', action: 'remove', publicId: null, url: null },
       ] },
       media: { prepared: 1, reused: 0, generated: 1 },
+      mediaWarnings: [{ operationKey: 'pictureless', message: 'Image generation failed.', publicationProceededWithoutNewMedia: true }],
       siteRecommendations: ['Give the People desk a second lead.'],
     });
 
@@ -203,8 +270,10 @@ describe('durable whole-site editorial runs', () => {
     expect(text).toContain('The People of Israel / secondary: cleared');
     /* The veto, its stage, its reason and its remedy. */
     expect(text).toContain('NOT PUBLISHED — technical failures');
-    expect(text).toContain('Image URL returned HTTP 404.');
-    expect(text).toContain('Replace the image and resume the run.');
+    expect(text).toContain('Publication target was not found.');
+    expect(text).toContain('Correct the target and resume the run.');
+    expect(text).toContain('Image generation failed.');
+    expect(text).toContain('Publication proceeded without new media.');
     expect(text).toContain('Give the People desk a second lead.');
     /* The refused slot, by area and position, in the veto section. */
     expect(text).toContain('run-level homepage: fakeResistance/lead was not placed');
@@ -213,7 +282,7 @@ describe('durable whole-site editorial runs', () => {
     expect(text).toContain('Published WITHOUT a hero image: 1 — no-hero-record');
     expect(text).toContain('still takes its homepage slot, text-led');
     /* Failure detail: stage, what already succeeded, retry safety, next step. */
-    expect(text).toContain('Stage reached: media');
+    expect(text).toContain('Stage reached: publication');
     expect(text).toContain('Failing operations: profile');
     expect(text).toContain('Succeeded before the failure: 2 of 3');
     expect(text).toContain('Retry safe: yes');
@@ -461,9 +530,19 @@ describe('durable whole-site editorial runs', () => {
     const withPicture = await publicationService(db).getBriefingPublicDetail(first.publicId as string);
     expect(withPicture.media?.src).toBe(media.src);
 
+    const unusableReplacement = await prepareEditorialMedia({
+      inputUrl: 'https://images.example.test/homepage-only.webp', sourceUrl: null,
+      alt: 'A replacement that is not cleared for the article', caption: null, credit: 'Example', disclosure: null,
+      role: 'documentation', focalPoint: { x: 50, y: 50 }, sensitivity: 'safe', generated: false,
+      rights: {
+        status: 'cleared', basis: 'Homepage-only permission', reference: 'https://images.example.test/permission',
+        clearedAt: '2026-09-07', surfaces: ['homepage'],
+      },
+    }, { runId: run.id, candidateKey: 'development-2', composer: 'test' });
+    expect(unusableReplacement.mediaWarning).toBeTruthy();
     await publicationService(db).applyEditorial(
       { key: 'development-2', action: 'update', publicationId, publication: { body: 'A second update, still no new picture.', changeSummary: 'Second update' } },
-      { runId: run.id, machineAuthor: 'machine:editorial' }, null, { label: 'service:editorial' },
+      { runId: run.id, machineAuthor: 'machine:editorial' }, unusableReplacement.media, { label: 'service:editorial' },
     );
     const stillWithPicture = await publicationService(db).getBriefingPublicDetail(first.publicId as string);
     expect(stillWithPicture.media?.src).toBe(media.src);

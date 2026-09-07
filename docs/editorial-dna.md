@@ -352,16 +352,17 @@ Two rules that ride on the section value and must not be broken:
   `surfaces` list; the schema refuses the package otherwise. `unknown` stores
   the asset with its provenance and keeps it off every public surface. That is
   the honest outcome, not a failure.
-- **Two bars, not one.** `isArticleSafeMedia()` requires `cleared` plus
-  `article` in `surfaces`. `isHomepageSafeMedia()` additionally requires
-  `sensitivity === "safe"` and a `clearedAt` date. A publication whose hero
-  does not clear the homepage bar simply never becomes a homepage candidate
-  (`homepageInputs` in `server/modules/homepage/service.ts` filters on it).
-- **`applyEditorial` refuses a supplied image that is not article-safe** —
-  "The publication requires a cleared article image." An operation that
-  supplies no media at all publishes without a picture rather than failing;
-  `tests/editorial-runs.test.ts` pins both halves of that, including that an
-  update carrying no media keeps the picture already attached.
+- **Two display bars, neither a publication bar.** `isArticleSafeMedia()`
+  requires `cleared` plus `article` in `surfaces`.
+  `isHomepageSafeMedia()` additionally requires `sensitivity === "safe"` and
+  a `clearedAt` date. A picture that does not clear the relevant bar is not
+  shown there; the publication itself remains eligible and renders text-led.
+- **Media enrichment cannot cost the record.** No media publishes text-led. A
+  supplied image that cannot be fetched, measured, stored, or cleared for the
+  article becomes a `mediaWarning`, and publication continues with no new
+  image. An update with no usable replacement keeps its existing hero. The
+  strict check inside `applyEditorial` remains as a defence for callers that
+  bypass the whole-site orchestrator.
 
 ### What may and may not be done to an image
 
@@ -696,9 +697,8 @@ written; they are noted at the end so a reader does not go looking for them.
    `tests/editorial-runs.test.ts` pins that a publication without one publishes
    rather than failing. The DNA's "every new piece needs a strong hero image"
    is composer discipline, not an enforced rule. The report now marks such a
-   record `no hero image`, which is visibility, not enforcement. Note the
-   practical consequence: a publication with no homepage-safe hero can never
-   become a homepage candidate at all.
+   record `no hero image`, which is visibility, not enforcement. Homepage
+   placement also remains valid and renders text-led when no safe hero exists.
 7. **Image enhancement has no place in the pipeline.**
    `materializeExternalMedia()` in `server/modules/media/service.ts` fetches,
    measures, hashes and stores the bytes unchanged — no upscale, denoise,
@@ -856,12 +856,15 @@ a record gets a source stack without anyone inventing an internal UUID —
 **never invent `evidenceIds`; send `sources`.** A `narrative_watch` create
 with at least one source is `sourced`; with none it is `analysis`.
 
-**Images.** Every new piece needs a strong hero image. A record without one
-still publishes, still reaches its hub, and still takes a homepage slot
-text-led; the report names it so the picture can follow. Priority: (1) a relevant
-image from the source itself; (2) an official IDF / government / institutional
-image; (3) a relevant image from another reliable source; (4) an original
-illustration if nothing exists. Send the image as a `media` object with
+**Images.** Seek a strong hero image for every new piece, but **lack of external
+media alone is not a veto reason**. A record without one still publishes,
+still reaches its hub, and still takes a homepage slot text-led; the report
+names the media gap so a picture can follow. The required decision tree is:
+(1) exact documentary or source imagery; (2) official IDF, government or
+institutional imagery; (3) another safely attributable relevant image; (4) an
+original editorial illustration created specifically for the story; (5) if
+generation, upload, fetch or storage fails, publish text-led and record a media
+warning. Send a usable image as a `media` object with
 `inputUrl` — it is fetched once and stored in our own Blob store, never
 hotlinked — plus `sourceUrl`, `alt`, `caption`, `credit`, `role`, `focalPoint`,
 `sensitivity` and `rights`. Rights are never invented: if you cannot establish
@@ -872,7 +875,9 @@ sharpen, crop or reframe, compression cleanup — is allowed. Changing what the
 image factually shows, adding or removing people, or manufacturing evidence is
 forbidden. An AI-generated image is an editorial illustration and never a
 documentary photo: send `"generated": true` with
-`"role": "editorial-illustration"` and a disclosure line.
+`"role": "editorial-illustration"` and a disclosure line. Media that is
+actually displayed still requires full rights and provenance; the fallback
+does not lower that bar.
 
 **Homepage.** Compose it: news lead, news companion, Fake Resistance lead and
 items, People of Israel feature. The supported placements are `news`,
@@ -881,10 +886,12 @@ rotates on its own — do not try to place it. **Do not displace live content
 merely because yours is newer.** If what is live is stronger, leave the
 position alone by omitting a decision for it.
 
-**Veto.** You may refuse to publish anything weak, poorly sourced, boring,
-redundant, misleading, or damaging to the desk's credibility. Not publishing is
-a legitimate outcome. But say so: what you vetoed, why, what you did instead,
-and whether the owner needs to decide.
+**Veto.** You may refuse to publish anything weak or insufficiently evidenced,
+misleading, trivial, stale, duplicate, canonically ambiguous, or otherwise
+damaging to the desk's credibility. A missing external picture alone is not a
+veto. Not publishing for a substantive editorial defect is a legitimate
+outcome, but say what you vetoed, why, what you did instead, and whether the
+owner needs to decide.
 
 **Never fabricate an internal identifier.** `evidenceIds`, `itemIds`,
 `narrativeIds`, `eventId` and `primaryTopicId` are real database UUIDs. Include

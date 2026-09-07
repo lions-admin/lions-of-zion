@@ -17,4 +17,12 @@ import { mediaRepo } from "./repo";
 export const media = () => mediaRepo(db());
 
 export { mediaRepo, toEditorialMedia, heroMediaFor, type EditorialMediaDraft } from "./repo";
-export { materializeExternalMedia, type MaterializeContext } from "./service";
+export {
+  isExternalMediaArticleSafe,
+  materializeExternalMedia,
+  uploadGeneratedEditorialImage,
+  type ChatgptImageFile,
+  type GeneratedEditorialImageInput,
+  type GeneratedEditorialImageResult,
+  type MaterializeContext,
+} from "./service";

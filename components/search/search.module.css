@@ -151,6 +151,47 @@
   to { transform: translateX(560%); }
 }
 
+/* ── The answer's status ──────────────────────────────────────────────── */
+
+/* The count and the matcher, above the list rather than under it.
+ *
+ * Both sentences lived in `.foot` until VA-17. On a phone that footer is not
+ * a footer: at 375 an eight-result answer put it 2,166px down, so the reader
+ * who needed to know that semantic matching was unavailable met that sentence
+ * only after scrolling past every result it qualifies — which is to say
+ * never. Status belongs with the thing it describes.
+ *
+ * `--t-caption` (13px) rather than the data face's `--t-data` (12px): this is
+ * metadata a phone reader is meant to read, and UX-CONTRACT floors phone
+ * metadata at 13px. */
+.resultStatus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-3) var(--sp-5) 0;
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+.panel[data-variant="page"] .resultStatus {
+  padding-inline: 0;
+}
+
+.resultCount {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.resultFact {
+  max-inline-size: var(--measure-caption);
+}
+
 /* ── Results ──────────────────────────────────────────────────────────── */
 
 .results {
@@ -409,10 +450,11 @@
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
 
+/* The keyboard grammar, and since VA-17 nothing else. */
 .foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: var(--sp-3);
   padding: var(--sp-3) var(--sp-5);
@@ -426,10 +468,6 @@
 .panel[data-variant="page"] .foot {
   padding-inline: 0;
   border-top-color: var(--line);
-}
-
-.footFact {
-  max-inline-size: var(--measure-caption);
 }
 
 .footKeys {
@@ -535,12 +573,15 @@
 }
 
 /* The labelled FieldShell stays in the page so a no-JS reader can see the
-   control and the noscript index together. Chips, the pulse, and key hints
-   do nothing without a script, so they go. */
+   control and the noscript index together. Chips, the pulse, and the key
+   hints do nothing without a script, so they go — the whole footer now, since
+   the hints are all it holds. `.resultStatus` stays: with no script it states
+   which matcher the deployment has, which is exactly the sentence the footer
+   used to carry here. */
 @media (scripting: none) {
   .suggestions,
   .pulse,
-  .footKeys {
+  .foot {
     display: none;
   }
 }
@@ -570,6 +611,7 @@
   .notice,
   .primer,
   .status,
+  .resultStatus,
   .foot,
   .queryRow {
     padding-inline: var(--sp-4);
@@ -580,7 +622,36 @@
     min-block-size: var(--control-h);
   }
 
-  .footKeys {
+  /* VA-17. The narrow order is query field, result status, whatever notice
+     the state is in, the results — and nothing after them. It is already the
+     DOM order, and this pins it: an edit that moves a node cannot put the
+     documentation back above the answer without moving a number here too.
+     Everything unnamed (the primer, the notices, the empty and error states,
+     the live region) falls between the status and the list. */
+  .panel > * {
+    order: 3;
+  }
+
+  .panel > .queryRow {
+    order: 1;
+  }
+
+  .panel > .resultStatus {
+    order: 2;
+  }
+
+  .panel > .results,
+  .panel > .emptyListbox {
+    order: 4;
+  }
+
+  .panel > .foot {
+    order: 5;
+    /* Not reordered — removed. The footer holds arrow keys, Return and
+       Escape, and a phone has none of the three, so below the results it
+       would still be documentation for a keyboard that is not there. The
+       one thing in it a phone reader needed — which matcher answered — is
+       in `.resultStatus`, above the list. */
     display: none;
   }
 }

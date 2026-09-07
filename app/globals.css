@@ -238,7 +238,16 @@
 
   /* --- Radius / elevation (SYS-006) ---
      Default grouping is a 1px rule and spacing, not a card.
-     Cards may use 2 / 4 / 8px only. No new arbitrary radius, glow, or shadow.
+     The scale is 4 / 6 / 8 / pill and nothing else. No new arbitrary radius,
+     glow, or shadow.
+
+     --radius-3 was 10px until VA-29 (2026-09-07), against a rule written three
+     lines above it that capped cards at 8px. The token was the thing that was
+     wrong, not the twenty modules reading it, so it moved rather than they
+     did: every card and plate in the product tightened by 2px at once, which
+     is the whole reason a radius may only be defined here. The rule line above
+     read "2 / 4 / 8px" and named a 2px step no token has ever carried, so it
+     is restated as the scale that actually exists.
 
      --radius-pill carries chips, avatars, dots AND buttons. This line used to
      read "not buttons", which `components/ui/button.module.css` had already
@@ -249,7 +258,7 @@
      its case; this comment is corrected to match it rather than the reverse. */
   --radius-1: 4px;
   --radius-2: 6px;
-  --radius-3: 10px;
+  --radius-3: 8px;
   --radius-pill: 999px;
 
   /* The home chrome's own corner, and the one exception to the scale above.

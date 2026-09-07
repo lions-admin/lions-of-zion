@@ -4,7 +4,12 @@ import { notFound } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
-import { publicationParentCrumb, publicationSectionLabel, routePublication } from "@/lib/publication-routing";
+import {
+  publicationParentCrumb,
+  publicationSectionLabel,
+  publicationSupportsInvestigationExplorer,
+  routePublication,
+} from "@/lib/publication-routing";
 import { getPublicPublication, isMissingPublication } from "@/lib/publications";
 import type { PublicationSection } from "@/server/contracts/enums";
 import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
@@ -21,6 +26,11 @@ import {
   SourceList,
   type Source,
 } from "@/components/content";
+import {
+  MediaBlock,
+  isManufacturedMedia,
+  mediaDisclosure,
+} from "@/components/content/MediaBlock";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
@@ -106,6 +116,67 @@ export default async function ArticlePage({ params }: Props) {
       }));
   const articleUrl = `${SITE_URL}/articles/${article.publicId}`;
   const shareText = article.summary ?? article.title;
+  /* Whether this record may be staged as an investigation is derived from its
+     section in `lib/publication-routing.ts` — the same place hub, route,
+     homepage band and label come from. There is deliberately no section list
+     in this file. Having content to show is still required, but it is no
+     longer sufficient. */
+  const showsInvestigationExplorer =
+    publicationSupportsInvestigationExplorer(article.section) &&
+    Boolean(details || article.sources.length || article.passages.length);
+  const sourceState = publicSourceState({
+    sourceCount: article.sources.length,
+    isAnalysis,
+    body: article.body,
+    passages: visiblePassages,
+  });
+  /* VA-13. A picture we *made* must not be the first thing a reader of a
+     contested claim interprets, so on a claim page it waits until the status
+     and the claim have been stated. Both halves are derived, neither is
+     hand-written here: the desk comes from `publicationSupportsInvestigation-
+     Explorer` in `lib/publication-routing.ts` — the same map the hub, route,
+     homepage band and label come from — and "made rather than taken" comes
+     from the media contract's own `role`. A photograph keeps its place; an
+     illustration moves. */
+  const deferHeroMedia =
+    articleMedia !== null &&
+    publicationSupportsInvestigationExplorer(article.section) &&
+    isManufacturedMedia(articleMedia.role);
+  const heroMedia = articleMedia ? (
+    <MediaBlock
+      layout="reading"
+      aspectRatio="8 / 5"
+      /* The line that says what this image is not stays outside the control
+         below it, at every width and with any credit string. */
+      disclosure={mediaDisclosure(articleMedia)}
+      caption={articleMedia.caption}
+      credit={
+        <>
+          {articleMedia.credit}
+          {articleMedia.sourceUrl ? (
+            <>
+              {" · "}
+              <a href={articleMedia.sourceUrl} target="_blank" rel="noreferrer">
+                Image source <span aria-hidden="true">↗︎</span>
+              </a>
+            </>
+          ) : null}
+        </>
+      }
+      provenance={`Rights ${articleMedia.rights.status} · ${articleMedia.rights.basis}`}
+      provenanceLabel="Image credit and provenance"
+    >
+      <Image
+        src={articleMedia.src}
+        width={articleMedia.width}
+        height={articleMedia.height}
+        alt={articleMedia.alt}
+        priority={!deferHeroMedia}
+        sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
+        style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
+      />
+    </MediaBlock>
+  ) : null;
 
   return (
     <EditorialShell
@@ -138,30 +209,14 @@ export default async function ArticlePage({ params }: Props) {
           {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
         </header>
 
-        {articleMedia ? (
-          <figure className={styles.heroMedia}>
-            <Image
-              src={articleMedia.src}
-              width={articleMedia.width}
-              height={articleMedia.height}
-              alt={articleMedia.alt}
-              priority
-              sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
-              style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
-            />
-            <figcaption>
-              {articleMedia.caption ? <span>{articleMedia.caption}</span> : null}
-              <span>{articleMedia.credit}</span>
-            </figcaption>
-          </figure>
-        ) : null}
+        {deferHeroMedia ? null : heroMedia}
 
         <section className={styles.facts} aria-label="Publication facts">
           <PublicationMeta
             publishedAt={formatDate(article.publishedAt)}
             updatedAt={article.updatedAt !== article.publishedAt ? formatDate(article.updatedAt) : undefined}
             edition={article.autoPublishedAt ? "Automatically published daily edition" : undefined}
-            sourceCount={isAnalysis && !article.sources.length ? undefined : article.sources.length}
+            sourceCount={sourceState === "listed" || sourceState === "unsourced" ? article.sources.length : undefined}
           />
           {article.editorialTopic || article.primaryActor || article.arena ? (
             <dl className={styles.factsExtra}>
@@ -260,9 +315,11 @@ export default async function ArticlePage({ params }: Props) {
           </section>
         ) : null}
 
-        {(details || article.sources.length || article.passages.length) ? (
-          <InvestigationExplorer record={article} />
-        ) : null}
+        {/* The made picture's place on a claim page: after the verdict and the
+            exact claim, not above them. */}
+        {deferHeroMedia ? heroMedia : null}
+
+        {showsInvestigationExplorer ? <InvestigationExplorer record={article} /> : null}
 
         <div className={styles.body}>
           {passages.map((passage) => (
@@ -295,7 +352,7 @@ export default async function ArticlePage({ params }: Props) {
             line reads as a malfunction. State the position instead: the absence
             is the disclosure, not a gap in the page. If such a record ever does
             carry sources, they are shown normally rather than denied. */}
-        {isAnalysis && !article.sources.length ? (
+        {sourceState === "analysis" ? (
           <section className={styles.sources}>
             <h2>Why this record cites no source</h2>
             <p>
@@ -307,7 +364,7 @@ export default async function ArticlePage({ params }: Props) {
         ) : (
           <section className={styles.sources}>
             <h2>Public sources</h2>
-            {article.sources.length ? (
+            {sourceState === "listed" ? (
               <ol className={styles.sourceStack}>
                 {article.sources.map((source, index) => (
                   <li key={source.url ?? source.title + index}>
@@ -325,6 +382,19 @@ export default async function ArticlePage({ params }: Props) {
                   </li>
                 ))}
               </ol>
+            ) : sourceState === "pending" ? (
+              /* The text of this record cites material the source stack does
+                 not yet carry. Say that, rather than printing "0 sources"
+                 above a paragraph with a link in it — the reader can see the
+                 citation, and a denial next to it reads as a malfunction or a
+                 lie. Nothing is refused or hidden: the record stands, its
+                 citations stay in the body, and the stack is stated as
+                 incomplete until it is repaired. */
+              <p>
+                Sources for this record are pending verification. Its text cites published material
+                that has not yet been attached to this list; the citations remain visible in the
+                article above while that is completed.
+              </p>
             ) : (
               <p>No public sources are listed for this article.</p>
             )}
@@ -388,6 +458,48 @@ export default async function ArticlePage({ params }: Props) {
       </article>
     </EditorialShell>
   );
+}
+
+/**
+ * An absolute `http(s)://` address in prose, and nothing looser.
+ *
+ * A bare domain — "reported by haaretz.com" — is a mention, not a citation,
+ * and matching it would make every article with a publisher's name in it
+ * "pending". A false positive here suppresses a truthful source count, so the
+ * matcher stays strict: scheme, `//`, and at least one non-space character.
+ */
+export function citesAbsoluteUrl(text: string): boolean {
+  return /https?:\/\/\S/i.test(text);
+}
+
+/**
+ * What the "Public sources" section is honestly able to say.
+ *
+ * - `analysis` — the record cites nothing *by design*. `evidenceBasis` is
+ *   derived and all-or-nothing, so the absence is itself the disclosure. This
+ *   branch is read as `=== "analysis"`, never as its negation, and takes
+ *   precedence over everything below it.
+ * - `listed` — sources are stored; show them.
+ * - `pending` — no stored sources, but the record's own text carries an
+ *   absolute URL. The count and the denial are both suppressed: a page cannot
+ *   print a citation and deny having one.
+ * - `unsourced` — nothing stored and nothing cited. The plain statement is
+ *   accurate, so it stands.
+ */
+export type PublicSourceState = "analysis" | "listed" | "pending" | "unsourced";
+
+export function publicSourceState(input: {
+  sourceCount: number;
+  isAnalysis: boolean;
+  body: string;
+  passages?: readonly { text: string }[];
+}): PublicSourceState {
+  if (input.isAnalysis && input.sourceCount === 0) return "analysis";
+  if (input.sourceCount > 0) return "listed";
+  const cited =
+    citesAbsoluteUrl(input.body) ||
+    (input.passages ?? []).some((passage) => citesAbsoluteUrl(passage.text));
+  return cited ? "pending" : "unsourced";
 }
 
 export function collapsePublicPassages<T extends PublicPublicationDetail["passages"][number]>(passages: T[]): T[] {

@@ -37,6 +37,19 @@ export type PublicationDestination = {
   homepageKind: PublicationHomepageKind;
   /** The reading label for one record of this section. */
   label: string;
+  /**
+   * Whether a record of this section is the product of an investigation, and
+   * may therefore be staged as one.
+   *
+   * The seven-stage evidence explorer asserts that a claim was traced to an
+   * origin, that its spread was observed and that its limits were recorded.
+   * That is true of the Fake Resistance desk and of nothing else: a Ministry
+   * of Defense announcement given the same apparatus reads as an
+   * investigation whose every stage came back empty — "does not name observed
+   * propagators" — which claims work that was never done. Derived here, with
+   * the rest of the surfaces, so no page hand-writes a section list.
+   */
+  investigation: boolean;
 };
 
 /**
@@ -44,13 +57,13 @@ export type PublicationDestination = {
  * typecheck here rather than silently defaulting to news.
  */
 const news = (label: string): PublicationDestination => ({
-  hub: "News & Analysis", href: "/geopolitical-brief", homepageSection: "news", homepageKind: "news", label,
+  hub: "News & Analysis", href: "/geopolitical-brief", homepageSection: "news", homepageKind: "news", label, investigation: false,
 });
 const investigation = (label: string): PublicationDestination => ({
-  hub: "Fake Resistance", href: "/fake-resistance", homepageSection: "fakeResistance", homepageKind: "watch", label,
+  hub: "Fake Resistance", href: "/fake-resistance", homepageSection: "fakeResistance", homepageKind: "watch", label, investigation: true,
 });
 const people = (label: string): PublicationDestination => ({
-  hub: "The People of Israel", href: "/people-of-israel", homepageSection: "people", homepageKind: "feature", label,
+  hub: "The People of Israel", href: "/people-of-israel", homepageSection: "people", homepageKind: "feature", label, investigation: false,
 });
 const DESTINATIONS: Record<PublicationSection, PublicationDestination> = {
   daily_brief: news("Daily Brief"),
@@ -72,7 +85,12 @@ const DESTINATIONS: Record<PublicationSection, PublicationDestination> = {
 /** The one call every surface makes. */
 export function routePublication(section: PublicationSection, options?: { historyContext?: "news" | "fakeResistance" }): PublicationDestination {
   if (section === "history_context" && options?.historyContext) {
-    return options.historyContext === "news" ? news("History & Context") : investigation("History & Context");
+    /* A history-and-context record can be *shelved* on the Fake Resistance
+       desk, but shelving it there does not make it an investigation, so the
+       investigative staging stays off in both directions. */
+    return options.historyContext === "news"
+      ? news("History & Context")
+      : { ...investigation("History & Context"), investigation: false };
   }
   return DESTINATIONS[section];
 }
@@ -129,6 +147,26 @@ export const SECTIONS_BY_HOMEPAGE_SECTION: Record<PublicationHomepageSection, Pu
     (section) => DESTINATIONS[section].homepageSection === "fakeResistance",
   ),
 };
+
+/**
+ * Whether a record of this section may be staged as an investigation — the
+ * seven-stage evidence explorer, and anything else that asserts investigative
+ * work rather than reporting.
+ *
+ * Takes a `string` on purpose: it is called with whatever the projection
+ * carries, and a section this map has never heard of falls to `false`. Being
+ * shown as an ordinary record costs a genuine investigation one module; being
+ * staged as an investigation costs an announcement its credibility.
+ */
+export function publicationSupportsInvestigationExplorer(section: string | null | undefined): boolean {
+  if (!section) return false;
+  return (DESTINATIONS as Record<string, PublicationDestination | undefined>)[section]?.investigation === true;
+}
+
+/** Every section the explorer is permitted for — derived, never hand-written. */
+export const INVESTIGATION_EXPLORER_SECTIONS: PublicationSection[] = (
+  Object.keys(DESTINATIONS) as PublicationSection[]
+).filter((section) => DESTINATIONS[section].investigation);
 
 /** The reading label for every section, keyed — the shape components want. */
 export const PUBLICATION_SECTION_LABELS: Record<PublicationSection, string> = Object.freeze(

@@ -46,12 +46,111 @@
   color: var(--ink);
 }
 
+/* VA-13 — what the picture is *not*, on its own line, first, and never
+   inside the `.provenanceDetails` control below it. Full ink rather than
+   `--ink-lo`: this is a statement about the image, not chrome about it, and a
+   muted disclosure is a disclosure a reader skips. Sized at `--t-caption`
+   (13px) so it holds the caption floor at every width, and it is prose, so it
+   wraps rather than truncating — a long credit string pushes the credit out
+   of view, never this. */
+.disclosure {
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  overflow-wrap: anywhere;
+}
+
 /* The one part of a caption that is prose. Credit and provenance below it
    are in the data voice; this is not, and it is the part that can carry a
    long sentence, so it must be free to wrap. */
 .captionText {
   color: var(--ink);
   overflow-wrap: anywhere;
+}
+
+/* Credit, source and rights, one press away. A native `<details>`, so the
+   whole thing works with JavaScript off and the summary is focusable and
+   operable from the keyboard without any of it being written here. */
+.provenanceDetails {
+  min-width: 0;
+  margin-top: var(--sp-1);
+}
+
+.provenanceDetails > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  /* A control: the UX contract's 44px target, which a 13px line of text and
+     its padding does not reach on its own. */
+  min-height: 44px;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: var(--radius-1);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  cursor: pointer;
+  /* The default marker is replaced below so the row can be a flex line and
+     still centre its text against a 44px box. */
+  list-style: none;
+}
+
+.provenanceDetails > summary::-webkit-details-marker {
+  display: none;
+}
+
+.provenanceDetails > summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.42em;
+  height: 0.42em;
+  border-right: var(--line-w) solid currentColor;
+  border-bottom: var(--line-w) solid currentColor;
+  transform: translateY(-0.12em) rotate(45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.provenanceDetails[open] > summary::after {
+  transform: translateY(0.1em) rotate(-135deg);
+}
+
+.provenanceDetails > summary:hover {
+  color: var(--ink-hi);
+}
+
+.provenanceBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding-bottom: var(--sp-2);
+  min-width: 0;
+  /* A credit can be a single unbreakable token — a licence URL with no
+     separators. It breaks rather than widening the column: an image credit
+     must never be the reason a phone scrolls sideways. */
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .provenanceDetails > summary::after {
+    transition: none;
+  }
+}
+
+/* The article hero: the reading measure, and no plate border — the record's
+   own page frames its picture with the column, not with a hairline. */
+.reading,
+.block[data-layout='reading'] {
+  max-width: var(--reading-w, var(--measure-reading));
+  margin-top: var(--sp-6);
+}
+
+.reading .frame,
+.block[data-layout='reading'] .frame {
+  border: 0;
+  border-radius: 0;
 }
 
 .credit,

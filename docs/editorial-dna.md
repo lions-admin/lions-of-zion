@@ -188,8 +188,14 @@ calendar date (`israelEditionDate()` in `server/contracts/homepage.ts`). See
 Explains and demonstrates how AI, research and OSINT become an operating system
 in the cognitive arena. It is not a `SITE_NAVIGATION` destination: it is
 `SYSTEM_LINK` in `components/site/navigation-model.ts`, present in every
-chrome bar, and `resolveSiteSectionId("information-war")` folds it onto
-`geopolitical-brief` for the shell backdrop. `/we-are`, `/methodology` and
+chrome bar, and it owns its own active-state identity —
+`resolveSiteSectionId("information-war")` returns `undefined`, and
+`resolveActiveChromeSection` falls back to the route's own id so the system
+link marks itself. (This paragraph said the id was folded onto
+`geopolitical-brief` "for the shell backdrop" until 2026-09-07. It was wrong
+twice: the backdrop and the route family read the raw `routeId` and never the
+resolved one, and the fold lit the News & Analysis bar link for a reader who
+was not on News. VA-15 removed it.) `/we-are`, `/methodology` and
 `/corrections` are the adjacent reference surfaces.
 
 ## 4. The editorial jobs of a run, in priority order

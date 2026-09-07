@@ -10,8 +10,33 @@ import { getHomepageEdition } from "@/lib/homepage";
 import styles from "./home.module.css";
 
 export const revalidate = 60;
+
+/**
+ * The cover's own date line, from the edition the bands below already read.
+ * A fixed IANA zone and an explicit locale so the string is the same on every
+ * render of the same edition — this is a server component, so it is written
+ * once into the HTML and never re-formatted in a browser.
+ */
+function editionDateLabel(editionDate: string): string {
+  if (!editionDate) return "Edition unavailable";
+  const day = new Date(`${editionDate}T12:00:00Z`);
+  if (Number.isNaN(day.valueOf())) return "Edition unavailable";
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "UTC",
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  }).format(day);
+}
+
 export default async function Page() {
   const edition = await getHomepageEdition();
+  // The edition rail's one job is to say what happened today, and it reads it
+  // from the same snapshot the bands below read — `getHomepageEdition()`, whose
+  // news pair is the edition's own lead. There is deliberately no second
+  // selection here: a cover that picks its own lead is a cover that can
+  // disagree with the edition underneath it.
+  const lead = edition.news.items[0] ?? null;
   return <div className={styles.homeTheme}>
     {/* Preload hero poster for immediate LCP paint before stylesheet resolution */}
     <link
@@ -64,17 +89,68 @@ export default async function Page() {
               <span>not narratives.</span>
             </p>
 
-            {/* News is primary; the system story is an optional reading path. */}
-            <div className={styles.actions}>
-              <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
+            {/* The two reading paths, on one row wherever the measure allows
+                it and stacked where it does not. They were two stacked blocks
+                costing 110px of a phone cover; the edition rail below needs
+                that space more than the gap between them did (VA-10). News is
+                primary; the system story is the optional path — quieter by
+                design: smaller, lower in tone, no arrow of its own, so "Read
+                the latest" keeps the one arrow. */}
+            <div className={styles.coverPaths}>
+              <div className={styles.actions}>
+                <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
+              </div>
+              <div className={styles.secondaryActions}>
+                <Link className={styles.storyLink} href="/information-war">
+                  Why this work matters
+                </Link>
+              </div>
             </div>
-            {/* Quieter by design: smaller, lower in tone, no arrow of its own,
-                so "Read the latest" is the one arrow on the cover and this is
-                the optional reading path beneath it. */}
-            <div className={styles.secondaryActions}>
-              <Link className={styles.storyLink} href="/information-war">
-                Why this work matters
-              </Link>
+            {/* The edition rail: the bottom band of the cover, and the reason
+                a reader no longer has to scroll to learn what happened today.
+                Date, the lead's status, its headline and the way in — the
+                lion is now a threshold into an edition rather than the whole
+                first screen. It sits above the support chips on purpose: the
+                reporting is read before the ask (VA-10; the chips themselves
+                stay where the owner put them). Every field is prerendered and
+                the headline reserves two lines whatever its length, so the
+                band owns its height at first paint and shifts nothing. */}
+            <div className={styles.editionRail}>
+              <p className={styles.editionRailMeta}>
+                {edition.localPreview && (
+                  <span className={styles.editionRailFlag}>Local preview</span>
+                )}
+                <span>{editionDateLabel(edition.editionDate)}</span>
+                {lead && (
+                  <span className={styles.editionRailStatus}>{lead.category}</span>
+                )}
+                {edition.state === "previous-edition" && (
+                  <span className={styles.editionRailFlag}>Previous edition</span>
+                )}
+              </p>
+              {lead ? (
+                <Link className={styles.editionRailLead} href={lead.href}>
+                  <span className={styles.editionRailHeadline}>{lead.title}</span>
+                  <span className={styles.editionRailCta}>
+                    Read the story
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 12h15M13 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </Link>
+              ) : (
+                <Link className={styles.editionRailLead} href="/geopolitical-brief">
+                  <span className={styles.editionRailHeadline}>
+                    Today&rsquo;s lead is not available right now.
+                  </span>
+                  <span className={styles.editionRailCta}>
+                    Read the latest reporting
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 12h15M13 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </Link>
+              )}
             </div>
             {/* The ask, on the cover, by owner ruling (2026-09-07): the two
                 donation channels as compact chips under the reading paths.

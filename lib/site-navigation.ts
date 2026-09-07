@@ -126,11 +126,44 @@ export function getSectionPageNode(id: string): { description: string } | undefi
   return getSiteNavigationItem(id) ?? LEGACY_SECTION_PAGES.find((page) => page.id === id);
 }
 
+/**
+ * The destination a route belongs to, or `undefined` when it belongs to none.
+ *
+ * **`/information-war` is deliberately absent** (VA-15). It used to return
+ * `geopolitical-brief`, which lit the News & Analysis link in the bar while the
+ * reader was on Behind the Desk — a page that is not News, is not inside News,
+ * and has a control of its own in every chrome bar (`SYSTEM_LINK` in
+ * `components/site/navigation-model.ts`). It owns its own active-state
+ * identity, which is its own route id; `resolveActiveChromeSection` is what
+ * turns that into the value the chrome compares against.
+ *
+ * It was the only route that resolved to a destination it is not part of. The
+ * remaining rules are containment (`october-7/*`, `fake-resistance/*`) or an
+ * address that outlived its own menu entry (`LEGACY_SECTION_PAGES`), and both
+ * of those genuinely are inside the destination they name.
+ */
 export function resolveSiteSectionId(routeId: string): SiteSectionId | undefined {
-  if (routeId === "information-war") return "geopolitical-brief";
   if (routeId.startsWith("october-7")) return "october-7";
   if (routeId.startsWith("fake-resistance")) return "fake-resistance";
   const legacy = LEGACY_SECTION_PAGES.find((page) => page.id === routeId);
   if (legacy) return legacy.parent;
   return getSiteNavigationItem(routeId)?.id;
+}
+
+/**
+ * The "you are here" value the header and footer compare every chrome link
+ * against — a destination id where the route has one, and the route's own id
+ * where it does not.
+ *
+ * The fallback is what lets `/information-war`, `/methodology` and
+ * `/corrections` mark themselves: none of them is a `SITE_NAVIGATION`
+ * destination, all three have a link in the chrome, and resolving them to
+ * `undefined` left those links unmarked (or, in the case of `/information-war`
+ * before VA-15, marked the wrong one).
+ *
+ * A route with neither — an article, say — yields its own id, matches no chrome
+ * link, and correctly marks nothing current.
+ */
+export function resolveActiveChromeSection(routeId: string): string {
+  return resolveSiteSectionId(routeId) ?? routeId;
 }

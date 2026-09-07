@@ -27,6 +27,7 @@
  * A type import is erased and costs nothing.
  */
 import type { EntityType } from "@/server/contracts/enums";
+import type { SearchState } from "./useSearch";
 
 const LABELS: Record<EntityType, string> = {
   information_item: "Claim",
@@ -113,4 +114,63 @@ export function groupByEntity<T extends { entityType: EntityType }>(hits: T[]): 
   return [...groups.entries()]
     .map(([type, items]) => ({ type, items }))
     .sort((a, b) => entityRank(a.type) - entityRank(b.type));
+}
+
+/* ── What the panel says about the answer, above the answer ───────────────
+ *
+ * Both sentences below used to be rendered in the panel's footer, under the
+ * whole result list. On a phone that is not a footer, it is a deletion: at
+ * 375 an eight-result answer put it 2,166px down the document, so the only
+ * reader who ever met "semantic matching is unavailable in this deployment"
+ * was one who had already scrolled past every result it qualifies. Which
+ * matcher answered is a property of the answer, so it is stated with the
+ * answer's count and above the list (VA-17).
+ *
+ * Written here rather than inline in the panel because it is the one part of
+ * this that is pure — a function of the state, the count and the query — and
+ * so the one part that can be tested without a DOM.
+ */
+
+/** Blank where the panel has nothing honest to say; never a placeholder. */
+export interface ResultStatus {
+  /**
+   * `null` when no answer is on screen, and also on an empty result set —
+   * the empty state names the query in a full sentence, and "0 results"
+   * above it would be the same fact twice in two registers.
+   */
+  count: string | null;
+  /**
+   * `null` only on a failed request. A search that did not complete has no
+   * matcher to report, and claiming one above "The search failed" would
+   * describe a capability the reader did not get.
+   */
+  matching: string | null;
+}
+
+const MATCHING_SEMANTIC = "Matching on words, names and meaning.";
+const MATCHING_LEXICAL = "Matching on words and names.";
+const MATCHING_FALLBACK =
+  "Showing word-and-name matches. Semantic matching is unavailable in this deployment.";
+
+export function resultStatus(
+  state: SearchState,
+  hitCount: number,
+  answered: string,
+  semantic: boolean,
+): ResultStatus {
+  const answering = state === "results" || state === "fallback" || state === "no-results";
+  return {
+    count:
+      answering && hitCount > 0
+        ? `${hitCount} ${hitCount === 1 ? "result" : "results"}${answered ? ` for “${answered}”` : ""}`
+        : null,
+    matching:
+      state === "error"
+        ? null
+        : state === "fallback"
+          ? MATCHING_FALLBACK
+          : semantic
+            ? MATCHING_SEMANTIC
+            : MATCHING_LEXICAL,
+  };
 }

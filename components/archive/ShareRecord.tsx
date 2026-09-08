@@ -3,13 +3,12 @@
 /**
  * The share affordance that closes every archive record.
  *
- * Locally held source media is handed to the operating system share sheet as
- * the actual file. The reader chooses X, Facebook, or another installed app;
- * Lions of Zion never asks for permission to publish to or retain access to
- * the reader's social account.
- *
- * Text-only records keep ordinary URL share intents for X/Facebook. The generic
- * system sheet remains available for sharing the record text/link separately.
+ * Two different jobs stay deliberately separate:
+ *  - "Post on X" is the ordinary X Web Intent. It opens the X composer with
+ *    the record text/link and never asks Lions of Zion for account write access.
+ *  - Locally held source media gets an additional "Share original …" action
+ *    that hands the actual file to the operating-system share sheet so the
+ *    reader can choose X, Facebook, or another installed app.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, ButtonLink } from '@/components/ui';
@@ -84,30 +83,27 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }
         further.
       </p>
       <div className={styles.shareRow}>
-        {xMedia ? (
-          <XMediaPostButton {...xMedia} returnTo={returnTo} />
-        ) : (
-          <>
-            <ButtonLink
-              href={xHref}
-              variant="secondary"
-              size="md"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Share on X
-            </ButtonLink>
-            <ButtonLink
-              href={facebookHref}
-              variant="secondary"
-              size="md"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Share on Facebook
-            </ButtonLink>
-          </>
-        )}
+        <ButtonLink
+          href={xHref}
+          variant="secondary"
+          size="md"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Post on X
+        </ButtonLink>
+
+        {xMedia ? <XMediaPostButton {...xMedia} returnTo={returnTo} /> : null}
+
+        <ButtonLink
+          href={facebookHref}
+          variant="secondary"
+          size="md"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Share on Facebook
+        </ButtonLink>
 
         {canShare ? (
           <Button type="button" variant="secondary" size="md" onClick={systemShare}>

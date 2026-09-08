@@ -10,6 +10,12 @@
     "neon": {
       "type": "http",
       "url": "https://mcp.neon.tech/mcp"
+    },
+    "chrome-devtools": {
+      "command": "node",
+      "args": [
+        "scripts/chrome-mcp.mjs"
+      ]
     }
   }
 }

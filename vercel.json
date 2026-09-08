@@ -21,6 +21,5 @@
     "app/api/internal/queue/outbox-dispatch/route.ts": {
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox-dispatch", "retryAfterSeconds": 30 }]
     }
-  },
-  "//crons": "Removed 2026-09-08 by owner ruling. The four routes under app/api/internal/cron/ still exist and still work; only the schedule is gone. Run them on demand through the admin console (POST /api/v1/admin/console/{sources/collect-sweep, outbox/drain, maintenance/tick}) or the manual Operations tick workflow in GitHub Actions. Nothing collects, drains or reconciles on its own any more."
+  }
 }

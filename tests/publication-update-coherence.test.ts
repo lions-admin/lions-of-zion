@@ -157,6 +157,88 @@ describe("the pure coherence rules", () => {
   });
 });
 
+describe("46.4 — homepage projection and article detail read the same version", () => {
+  /**
+   * The record half of VA-46 was pinned first: a legitimate update keeps its
+   * `publicId` and `canonicalStoryId` (the block above). This is the
+   * projection half — nothing previously asserted that the read path behind
+   * the homepage band (`listBriefingPublic`, which `LiveBriefHub` and every
+   * resolved `HomeReference` in `lib/content/homepage-adapters.ts` sit on top
+   * of) and the read path behind the article page (`getBriefingPublicDetail`,
+   * which `app/articles/[publicId]/page.tsx` calls through
+   * `getPublicPublication`) can ever disagree about what a story currently
+   * says.
+   *
+   * They cannot, by construction: both query the same `publications` row —
+   * there is no second materialized copy of title/summary/body anywhere in
+   * the read path (the persisted homepage snapshot stores only a reference
+   * key, an id and a version stamp, resolved live). `recordVersion` writes
+   * that row exactly once per update, inside one transaction. This test
+   * proves the construction rather than assuming it: after a coherent
+   * developing-story update, the list projection and the detail projection
+   * must carry byte-identical content for the same `publicId`.
+   */
+  it("carries identical title, summary, body and updatedAt after an update", async () => {
+    const created = await publishStory("op-projection", "beirut-strike-projection");
+
+    const updated = await applyUpdate(created.id, "op-projection-2", {
+      title: "Strike confirmed near Beirut, second wave reported",
+      summary: "Confirmed by two sources; a second strike followed.",
+      body: "A confirmed account of both strikes.",
+      changeSummary: "Confirmed the strike and added the second wave.",
+    });
+
+    const service = publicationService(db as unknown as Database);
+    const [listed, detail] = await Promise.all([
+      service.listBriefingPublic({ section: "news", limit: 100 }),
+      service.getBriefingPublicDetail(updated.publicId),
+    ]);
+
+    const listedEntry = listed.find((row) => row.publicId === updated.publicId);
+    expect(listedEntry).toBeDefined();
+
+    expect(listedEntry!.title).toBe(detail.title);
+    expect(listedEntry!.summary).toBe(detail.summary);
+    expect(listedEntry!.body).toBe(detail.body);
+    expect(listedEntry!.updatedAt).toBe(detail.updatedAt);
+    expect(listedEntry!.canonicalStoryId).toBe(detail.canonicalStoryId);
+
+    // And both read the update, not the version the story replaced.
+    expect(listedEntry!.title).toBe(updated.title);
+    expect(detail.title).toBe(updated.title);
+    expect(detail.body).toBe("A confirmed account of both strikes.");
+  });
+
+  it("a second update is visible in both projections and the first version is not", async () => {
+    const created = await publishStory("op-projection-b", "beirut-strike-projection-b");
+
+    await applyUpdate(created.id, "op-projection-b-2", {
+      title: "Strike confirmed near Beirut",
+      summary: "Confirmed by two sources.",
+      body: "A confirmed account.",
+      changeSummary: "Confirmed the strike.",
+    });
+    const secondUpdate = await applyUpdate(created.id, "op-projection-b-3", {
+      title: "Strike confirmed near Beirut, toll revised",
+      summary: "Confirmed by two sources; the toll was revised upward.",
+      body: "A confirmed account, with the toll revised upward.",
+      changeSummary: "Revised the toll.",
+    });
+
+    const service = publicationService(db as unknown as Database);
+    const [listed, detail] = await Promise.all([
+      service.listBriefingPublic({ section: "news", limit: 100 }),
+      service.getBriefingPublicDetail(secondUpdate.publicId),
+    ]);
+    const listedEntry = listed.find((row) => row.publicId === secondUpdate.publicId);
+
+    expect(listedEntry!.title).toBe("Strike confirmed near Beirut, toll revised");
+    expect(detail.title).toBe("Strike confirmed near Beirut, toll revised");
+    expect(listedEntry!.title).not.toBe("Strike confirmed near Beirut");
+    expect(detail.title).not.toBe("Strike confirmed near Beirut");
+  });
+});
+
 describe("the editorial path refuses an incoherent update against a real database", () => {
   it("refuses a headline change that does not restate the body, and publishes nothing", async () => {
     const created = await publishStory("op-headline", "beirut-strike-headline");
